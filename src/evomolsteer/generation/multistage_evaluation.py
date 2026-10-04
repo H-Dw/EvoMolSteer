@@ -13,7 +13,7 @@ from ..io import read_json, write_json, write_table, digest
 from ..trajectory_source import trajectory_paths, open_trajectory
 from .comparison import summarize_records, paired_effect
 from .multistage_reward import MultistageReward
-from .prototypes import measure_patch
+from .prototypes import measure_patch, retained_copies
 
 
 def control_rows(campaign):
@@ -193,6 +193,7 @@ def evaluate(campaign, output):
     controls=control_rows(campaign);write_table(output/'control_summary.csv',summarize_control(controls))
     write_table(output/'control_particle_steps.parquet',controls)
     distributions={};structures={};feature_rows=[];schedule=[];raw_final_rows=[]
+    selection_references={};retained_features=[]
     for path in trajectory_paths(campaign):
         arm=path.parent.parent.name;batch=int(path.parent.name.split('_')[1])
         frame=np.array(read_json(campaign/f'frame_batch_{batch:03d}.json')['target_com'])
@@ -203,6 +204,13 @@ def evaluate(campaign, output):
             selected=np.flatnonzero(z['resampled']).tolist()
             if (arm=='single' and selected!=list(range(51))) or (arm!='single' and selected):
                 raise ValueError('Unexpected resampling schedule')
+            if arm=='single':
+                copies=retained_copies(z['offspring_count'][:51],z['parent_slot'][:51])
+                for step in range(51):
+                    for variant,counts in [('immediate_selected',z['offspring_count'][step]),
+                                           ('window_retained_ancestors',copies[step])]:
+                        ids=np.repeat(np.arange(len(counts)),counts.astype(int))
+                        selection_references[batch,step,variant]=ids
             schedule.append({'arm':arm,'batch':batch,'resampling_events':len(selected)})
             for step,time in enumerate(times):
                 value=measure_patch(x[step],atoms[step],mask[step],catalog)
@@ -216,6 +224,12 @@ def evaluate(campaign, output):
                 row.update({f:float(np.nanmean(value[:,k])) for k,f in enumerate(reward.features)})
                 row.update({k:float(np.nanmean(v)) for k,v in independent_observables(x[step],atoms[step],mask[step],catalog).items()})
                 feature_rows.append(row)
+                if arm=='single' and step<=50:
+                    for variant in ['immediate_selected','window_retained_ancestors']:
+                        ids=selection_references[batch,step,variant]
+                        retained_features.append({'batch':batch,'step':step,'time':time,'reference_population':variant,
+                            'unique_ancestor_slots':int(len(np.unique(ids))), 'copy_mass':len(ids),
+                            **{f:float(np.nanmean(value[ids,k])) for k,f in enumerate(reward.features)}})
         with gzip.open(path.parent/'final_prediction.pt.gz','rb') as f:
             final=torch.load(f,map_location='cpu',weights_only=False)
         fx=final['coords'].numpy();fa=final['atomics'].argmax(-1).numpy();fm=final['mask'].numpy()
@@ -239,7 +253,8 @@ def evaluate(campaign, output):
         feature_rows.append(row)
     write_table(output/'feature_curve_batches.parquet',feature_rows);write_table(output/'resampling_schedule.csv',schedule)
     write_table(output/'raw_final_geometry.csv',raw_final_rows)
-    distance_rows=[]
+    if retained_features:write_table(output/'smc_retained_feature_curves.csv',retained_features)
+    distance_rows=[];selected_distance_rows=[]
     for (arm,batch,step),values in sorted(distributions.items()):
         if arm=='single' or ('single',batch,step) not in distributions:continue
         reference=distributions['single',batch,step]
@@ -252,6 +267,41 @@ def evaluate(campaign, output):
             'nearest_smc_pose_chamfer_A':float(np.nanmean(shape)) if np.isfinite(shape).any() else np.nan,
             'shape_query_coverage_n':int(np.isfinite(shape).sum()),
             'n':len(finite),'smc_n':len(reference)})
+        if step<=50:
+            for variant in ['immediate_selected','window_retained_ancestors']:
+                ids=selection_references[batch,step,variant]
+                retained=distributions['single',batch,step][ids]
+                retained=retained[np.isfinite(retained).all(1)]
+                reference_shape,reference_mask=structures['single',batch,step]
+                shape=nearest_pose_chamfer(*structures[arm,batch,step],reference_shape[ids],reference_mask[ids])
+                selected_distance_rows.append({'arm':arm,'batch':batch,'step':step,'time':step/100,
+                    'reference_population':variant,'n':len(finite),'smc_copy_mass_available':len(retained),
+                    'smc_unique_ancestor_slots':int(len(np.unique(ids))),
+                    'energy_squared_to_smc':energy_distance_squared(finite@whiten,retained@whiten),
+                    'nearest_smc_pose_chamfer_A':float(np.nanmean(shape)) if np.isfinite(shape).any() else np.nan,
+                    'shape_query_coverage_n':int(np.isfinite(shape).sum())})
+    if selected_distance_rows:
+        selected_distance=pd.DataFrame(selected_distance_rows)
+        write_table(output/'selection_reference_distance_batches.parquet',selected_distance)
+        integrated=[]
+        for (arm,batch,variant),g in selected_distance.groupby(['arm','batch','reference_population'],sort=True):
+            g=g.sort_values('time')
+            integrated.append({'arm':arm,'batch':batch,'reference_population':variant,
+                **{'mean_'+metric:float(trapezoid(g[metric],g.time)/.5)
+                   for metric in ['energy_squared_to_smc','nearest_smc_pose_chamfer_A']}})
+        integrated=pd.DataFrame(integrated)
+        write_table(output/'selection_reference_imitation_batches.csv',integrated)
+        contrasts=[]
+        for variant,g in integrated.groupby('reference_population',sort=True):
+            for metric in ['mean_energy_squared_to_smc','mean_nearest_smc_pose_chamfer_A']:
+                base=g[g.arm.eq('unguided')].set_index('batch')[metric]
+                for arm,part in g.groupby('arm',sort=True):
+                    if arm=='unguided':continue
+                    effects=part.set_index('batch')[metric]-base;finite=effects[np.isfinite(effects)]
+                    result=paired_effect(finite.to_numpy()) if len(finite) else {'n_batches':0,'mean_difference':None}
+                    contrasts.append({'arm':arm,'reference_population':variant,'domain':'observed_window',
+                        'metric':metric,'missing_batch_pairs':len(effects)-len(finite),**result})
+        write_table(output/'paired_selection_reference_imitation.csv',contrasts)
     distance=pd.DataFrame(distance_rows)
     if len(distance):
         write_table(output/'distribution_distance_batches.parquet',distance)
@@ -300,6 +350,8 @@ def evaluate(campaign, output):
         'generation_code_commit':cfg.get('extension',{}).get('code_commit'),
         'evaluation_code_commit':commit,'evaluation_code_sha256':digest(__file__),
         'statistical_unit':'Matched independent batch; candidates and time points are not independent replicates',
+        'smc_reference_populations':{'distribution_distance_batches':'All recorded SMC candidates before the current selection',
+            'selection_reference_distance_batches':'Immediate offspring copies and retrospective t=.5 retained ancestor copies; [0,.5] only'},
         'uncertainty':'Exploratory two-sided paired-batch t 95% intervals and exact sign-flip p; no multiplicity-adjusted discovery claims',
         'limits':['No physical affinity validation; pic50 is an existing model rescore.',
                   'Similarity in two reward distances does not certify a 3D pose or graph match.',
