@@ -19,6 +19,24 @@ FIT_METRICS={
 KEYS=['representation','arm','feature']
 
 
+def point_curve(metadata,metric,times,y):
+    """Observed rates pair the SAME independent batch across adjacent times."""
+    finite=np.isfinite(y);n=finite.sum(0)
+    mean=np.divide(np.where(finite,y,0).sum(0),n,out=np.full(len(times),np.nan),where=n>0)
+    variance=np.divide(np.where(finite,(y-mean)**2,0).sum(0),n-1,
+        out=np.full(len(times),np.nan),where=n>1)
+    rates=np.column_stack([np.full(len(y),np.nan),np.diff(y,axis=1)/np.diff(times)])
+    valid=np.isfinite(rates);nr=valid.sum(0)
+    rate=np.divide(np.where(valid,rates,0).sum(0),nr,out=np.full(len(times),np.nan),where=nr>0)
+    ratevar=np.divide(np.where(valid,(rates-rate)**2,0).sum(0),nr-1,
+        out=np.full(len(times),np.nan),where=nr>1)
+    return pd.DataFrame({**metadata,'contrast':metric,'time':times,'mean':mean,
+        'n_batches':n,'batch_se':np.sqrt(variance/np.maximum(n,1)),
+        'observed_derivative':rate,'derivative_n_paired_batches':nr,
+        'derivative_batch_se':np.sqrt(ratevar/np.maximum(nr,1)),
+        'derivative_interval_start':np.r_[np.nan,times[:-1]]})
+
+
 def summarize_method(analysis,method,split='discovery'):
     root=Path(analysis);cfg=read_json(root/'config.json')
     dest=root/split/'continuous'/method
@@ -34,16 +52,8 @@ def summarize_method(analysis,method,split='discovery'):
             metadata=dict(zip(KEYS,key));times=np.sort(g.time.unique())
             for metric in metrics:
                 matrix=g.pivot(index='batch',columns='time',values=metric).reindex(columns=times)
-                y=matrix.to_numpy();finite=np.isfinite(y);n=finite.sum(0)
-                mean=np.divide(np.where(finite,y,0).sum(0),n,out=np.full(len(times),np.nan),where=n>0)
-                variance=np.divide(np.where(finite,(y-mean)**2,0).sum(0),n-1,
-                    out=np.full(len(times),np.nan),where=n>1)
-                point=pd.DataFrame({**metadata,'contrast':metric,'time':times,'mean':mean,
-                    'n_batches':n,'batch_se':np.sqrt(variance/np.maximum(n,1))})
-                # Difference quotient across true neighboring event times, no bins.
-                point['observed_derivative']=np.r_[np.nan,np.diff(mean)/np.diff(times)]
-                point['derivative_interval_start']=np.r_[np.nan,times[:-1]]
-                points.append(point)
+                y=matrix.to_numpy()
+                points.append(point_curve(metadata,metric,times,y))
                 complete=np.isfinite(y).all(1); yy=y[complete]; batches=matrix.index.to_numpy()[complete]
                 for batch,curve in zip(batches,yy):
                     integrals.extend([{**metadata,'contrast':metric,'batch':int(batch),'summary':name,'value':float(value)}

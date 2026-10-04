@@ -42,6 +42,15 @@ def test_neutral_curves_stay_neutral_and_nonuniform_grid_uses_time_weights():
     with pytest.raises(ValueError):global_fit(t,np.full_like(y,np.nan),cfg)
 
 
+def test_observed_rates_pair_batches_and_do_not_turn_missingness_into_motion():
+    from evomolsteer.continuous.summary import point_curve
+    y=np.array([[0.,0.],[100.,np.nan],[10.,10.]])
+    result=point_curve({},'x',np.array([0.,.5]),y)
+    assert result['mean'].iloc[0]!=result['mean'].iloc[1]
+    assert result.observed_derivative.iloc[1]==0
+    assert result.derivative_n_paired_batches.iloc[1]==2
+
+
 def test_chemistry_observables_preserve_mask_units_translation_and_slot_permutation():
     vocab={'<PAD>':0,'C':1,'N':2,'O':3,'S':4,'F':5,'Cl':6,'Br':7,'I':8}
     base={'features':{},'atom_vocabulary':vocab,'regions':{'r':{'points_A':[[0.,0.,0.]]}},

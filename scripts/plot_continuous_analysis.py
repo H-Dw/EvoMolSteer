@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--analysis',required=True)
     p.add_argument('--output',required=True)
-    p.add_argument('--features',nargs='+',default=['ck2:A:VAL116::distance_softmin','ligand::radius_gyration',
-        'ligand::atom_fraction_N','ligand::bond_label_4_fraction'])
+    p.add_argument('--features',nargs='+',default=['ck2:A:VAL116::distance_softmin','ck2:A:VAL116::hetero_distance_softmin',
+        'ligand::radius_gyration','ligand::bond_order_mean'])
     a=p.parse_args();root=Path(a.analysis);out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
     dest=root/'discovery/continuous'
     observed=pd.read_parquet(dest/'trends/point_curves.parquet')
