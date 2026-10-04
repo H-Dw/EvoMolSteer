@@ -140,3 +140,17 @@ def test_full_horizon_summary_does_not_hide_missing_atoms_or_late_activity():
     assert result.nonzero_injection_steps_per_batch_min==100
     assert result.median_applied_over_requested==pytest.approx(.5)
     assert result.late_nonzero_particle_fraction==pytest.approx(.5)
+
+
+def test_fingerprints_use_only_available_structures_and_matched_batches():
+    pytest.importorskip('rdkit')
+    from evomolsteer.generation.multistage_evaluation import final_fingerprint_similarity,heavy_mask
+    records=[{'arm':'single','batch':0,'build_success':True,'smiles':'CCO'},
+             {'arm':'multistage_full','batch':0,'build_success':True,'smiles':'CCO'},
+             {'arm':'multistage_full','batch':0,'build_success':False,'smiles':''},
+             {'arm':'multistage_full','batch':1,'build_success':True,'smiles':'CCC'}]
+    results=final_fingerprint_similarity(records)
+    assert len(results)==1 and results[0]['mean_nearest_smc_morgan_tanimoto']==1.
+    assert results[0]['valid_queried_n']==1 and results[0]['valid_smc_reference_n']==1
+    catalog={'atom_vocabulary':{'H':1,'<PAD>':0}}
+    assert heavy_mask(np.array([[0,1,3,4]]),np.ones((1,4)),catalog).tolist()==[[False,False,True,True]]

@@ -157,7 +157,7 @@ def heavy_mask(atomics, mask, catalog):
 def final_fingerprint_similarity(records):
     from rdkit import Chem,DataStructs
     from rdkit.Chem import rdFingerprintGenerator
-    generator=rdFingerprintGenerator.GetMorganGenerator(radius=2,fpSize=2048)
+    generator=rdFingerprintGenerator.GetMorganGenerator(radius=2,fpSize=2048,includeChirality=False)
     groups={}
     for row in records:
         if row['build_success'] and row.get('smiles'):
