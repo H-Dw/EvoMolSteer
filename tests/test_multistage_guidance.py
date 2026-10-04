@@ -109,11 +109,15 @@ def test_invalid_reference_rejected():
 
 
 def test_empirical_distribution_distance_preserves_multisets():
-    from evomolsteer.generation.multistage_evaluation import energy_distance_squared
+    from evomolsteer.generation.multistage_evaluation import energy_distance_squared, nearest_pose_chamfer
     x=np.array([[1.,2.],[2.,3.],[1.,2.]])
     assert energy_distance_squared(x,x[::-1])==pytest.approx(0,abs=1e-12)
     assert energy_distance_squared(x,x+3)>0
     assert np.isnan(energy_distance_squared(x[:0],x))
+    shape=np.array([[[0.,0.,0.],[2.,0.,0.],[0.,0.,0.]]])
+    mask=np.array([[True,True,False]])
+    np.testing.assert_allclose(nearest_pose_chamfer(shape,mask,shape[:,::-1],mask[:,::-1]),0)
+    np.testing.assert_allclose(nearest_pose_chamfer(shape,mask,shape+np.array([0.,1.,0.]),mask),1.)
 
 
 def test_full_horizon_summary_does_not_hide_missing_atoms_or_late_activity():
