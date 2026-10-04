@@ -65,7 +65,20 @@
 
 `agents/Analyst.request.json` 包含选择窗口专用 skill、prompt 和严格 JSON 契约。API 使用 `EVOMOLSTEER_BASE_URL`、`EVOMOLSTEER_MODEL`、`EVOMOLSTEER_API_KEY`，或把 request 中的 messages 交给 sub-agent。分析流水线只导出请求，不自动调用 LLM。
 
-Designer v2 只能编译有来源的预测终点规则；奖励必须限定于观测到的评分窗口。每个阶段门有明确的区间截断，窗口外坐标梯度严格为零。新增生成接口已完成小规模 SMC 生成验证；尚未执行 Designer 奖励的梯度引导优化实验。
+Designer v2 只能编译有来源的预测终点规则；奖励必须限定于观测到的评分窗口。每个阶段门有明确的区间截断，窗口外坐标梯度严格为零。原 v2 程序只验证 saved-endpoint 梯度；新增的 live-regional 程序有独立执行契约，见下文。
+
+## CK2 单目标 live gradient 实验
+
+已完成新的单目标分析、Analyst/Designer subagent 模拟、24 个 pilot 候选和 800 个正式比较候选。所有生成代码先在本地提交并经本机 VPN 推送 GitHub，再由远端拉取运行。主实验使用历史数据同版本的 v2 checkpoint，生成 commit 为 `9eae1cc`。
+
+早期 VAL116 区域距离与随后回转半径的选择关联可复现；单侧 Huber 奖励通过真实 FLOWR forward 反传到当前坐标，梯度组没有重采样。零权重与原生输出逐位一致，live 有限差分通过。正式比较中，区域梯度/组合梯度相对基线的 CK2 模型均分差为 −0.0014/+0.0041，四个独立批次的区间均跨零；目前不能宣称规则已经带来明确亲和力提升或替代 SMC。
+
+- [完整分析、奖励公式与比较报告](docs/ck2_single_guidance_report_20261004.md)
+- [生成接口与复用命令](docs/gradient_generation.md)
+- [冻结设计、来源及验证计划](docs/ck2_single_guidance_design.md)
+- 入口：`scripts/generate_gradient_flowr.py`；比较：`scripts/compare_gradient_runs.py`；谱系审计与打包：`scripts/audit_generation.py`、`scripts/archive_generation.py`。
+
+本地数据包为 `data/single_guidance_comparison_v1.tar.gz`（约 212 MB），449 个文件校验通过。原始数据、checkpoint、模型中间状态和大表不进入 Git；源码、配置、文档和小型汇总结果保留在仓库。
 
 ## 数据与历史
 

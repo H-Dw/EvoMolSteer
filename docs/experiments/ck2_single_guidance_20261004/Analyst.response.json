@@ -1,0 +1,185 @@
+{
+  "agent": "Analyst",
+  "dataset_id": "190a89f25a75124161b1b2b23db813ff7fd7c93b2ca9f52b19afacaa05904a21",
+  "limitations": [
+    "仅阅读 supplied discovery request；未读取 validation、heldout、末态或 post-window 数据，未联网、调用模型 API 或运行生成。",
+    "supported 仅表示选择关联获统计支持；所有后续 gradient guidance 都是需要独立干预检验的假说。",
+    "p-weighted IQR 与均匀 IQR 高度重叠，作用幅度有限；不应把区间上下界当成因果最优阈值，或把统计显著性当成可观的实际收益。",
+    "同胞 endpoint 克隆及逐步根谱系收缩使候选帧相关；统计独立单位为 14 个批次，不能以 7000 候选帧放大置信度。",
+    "本次请求的证据摘要不包含 GLU114 与 ASN117 的同阶段期望效应，且 114–118 区域只有局部摘要覆盖；不得从其他上下文补写为已给出的证据。",
+    "PCA 载荷、同评分时刻的差异、变化率与坐标梯度是不同对象；没有物理接触、氢键、芳香堆积或真实亲和力机制的验证。",
+    "单目标 CK2 权重下出现的 CLK3 几何变化和 off 参照不是另一个目标被优化的证据。",
+    "本轮不编译后期规则不代表后期不存在选择；缺少可编译原型、缺少摘要中的某行和统计无效应必须区分。"
+  ],
+  "observations": [
+    {
+      "evidence_ids": [
+        "trends:effects:row530",
+        "enrichment:effects:row530",
+        "trends:effects:row4355"
+      ],
+      "finding": "单目标 CK2 的 [0,0.1) 评分事件中，predicted_endpoint 的 VAL116 归一化 soft-min 距离存在一致的负向期望选择偏移：-0.0084497 Å，95% 批次 bootstrap CI [-0.0097390,-0.0071430]，q=0.005019，14/14 独立批次方向为负。高距离尾部的期望质量下降 0.0289205，q=0.006102；实际复制偏移 -0.0075606 Å，q=0.020296，与期望方向一致。",
+      "observation_id": "O1_VAL116_early_endpoint_preference",
+      "uncertainty": "这是模型在同一事件中偏好哪类预测终态的关联，既不是坐标干预的因果效应，也不是最终结合亲和力验证。归一化 soft-min 不等于最近原子距离，不能据此断言 VAL116 氢键或指定配体原子。"
+    },
+    {
+      "evidence_ids": [
+        "trends:effects:row1271",
+        "enrichment:effects:row1271",
+        "trends:effects:row5096",
+        "differential:effects:row1271"
+      ],
+      "finding": "[0.1,0.2) 的 predicted_endpoint 配体回转半径呈负向期望选择偏移 -0.0060411 Å，95% CI [-0.0079304,-0.0041201]，q=0.005019，14/14 批次方向为负；高回转半径尾部质量偏移 -0.0283760，q=0.006102。实际复制偏移 -0.0050450 Å，q=0.020296；选中候选与零后代候选的差为 -0.0093900 Å，q=0.014475。",
+      "observation_id": "O2_compactness_stage1_endpoint_preference",
+      "uncertainty": "较紧凑的模型预测在这一阶段获得更高权重，但无限压缩并无依据。原型的 7000 个候选帧仅覆盖 86 个不同根，相比早期 VAL116 原型的 700 个根明显减少，不能把帧数作为独立样本量。"
+    },
+    {
+      "evidence_ids": [
+        "trends:effects:row530",
+        "trends:effects:row1271",
+        "enrichment:effects:row530",
+        "enrichment:effects:row1271"
+      ],
+      "finding": "两个可编译 target 的加权与均匀分位区间高度重叠。VAL116 加权 IQR=[4.3263082,4.4453505] Å，均匀 IQR=[4.3296359,4.4571030] Å，中位数仅下降约 0.0052324 Å。回转半径加权 IQR=[3.5331247,3.6293511] Å，均匀 IQR=[3.5376287,3.6372524] Å，中位数下降约 0.0067122 Å。显著选择关联的幅度较小，不能把 IQR 的上下界解释为最优可行区间。",
+      "observation_id": "O3_prototype_overlap_limits_leverage",
+      "uncertainty": "上述分位数来自 supplied targets selection:0:ck2:A:VAL116::distance_softmin 与 selection:1:ligand::radius_gyration，不是另外的显著性检验。以整个候选分布为基础的 IQR 会把大量原本不需改变的候选也推向中心，可能损失多样性。"
+    },
+    {
+      "evidence_ids": [
+        "differential:effects:row1805",
+        "differential:effects:row2546",
+        "trends:effects:row6905",
+        "trends:effects:row7646",
+        "differential:effects:row4355",
+        "differential:effects:row5096"
+      ],
+      "finding": "同阶段同胞 endpoint 对照的 VAL116 效应为 0、回转半径效应约 -2.3e-18，二者 q=1，符合同胞预测克隆的一致性。proposal_state 的 VAL116 期望偏移为 +0.0000437 Å，q=0.896757；回转半径为 -0.0005685 Å，q=0.311203。proposal 同胞差异也均不显著。",
+      "observation_id": "O4_same_parent_and_proposal_counterevidence",
+      "uncertainty": "零同胞差异不否定跨候选期望权重的关联，但否定了将其当成同一父节点局部扰动的已验证优势方向；endpoint 规则不可直接转为 proposal 坐标吸引。"
+    },
+    {
+      "evidence_ids": [
+        "trends:effects:row530",
+        "trends:effect_rates:row176",
+        "enrichment:effect_rates:row168",
+        "pca:loading:row1031"
+      ],
+      "finding": "114–118 序号邻域目前只能提出区域级待检验假说：VAL116 在早期具有明确期望选择证据，HIS115 的 hetero_distance_softmin 从阶段 0 到 1 的期望偏移变化率为 +0.4682854 Å/单位评分时间，95% CI [0.3762581,0.5593195]，q=0.005790；HIS115 contact_fraction 的高值尾部期望偏移变化率为 -0.4368613/单位时间，q=0.012448。ASN118 hetero_distance_softmin 是 endpoint PC5 的载荷项（+0.1565278）。这些信息说明阶段与共变结构值得分开处理。",
+      "observation_id": "O5_114_118_patch_requires_stage_specificity",
+      "uncertainty": "HIS115 的正变化率不等于阶段 1 应增加距离；它也可能表示原有负向偏好减弱。PCA 载荷不是优势方向。请求中未提供 GLU114、ASN117 的同阶段期望效应证据，不能补写其数值或把整段残基都设为吸引项；序号邻近也不自动证明同一个三维接触机制。"
+    },
+    {
+      "evidence_ids": [
+        "trends:effects:row3080",
+        "trends:effects:row1805",
+        "trends:effects:row3821",
+        "trends:effects:row2546"
+      ],
+      "finding": "VAL116 早期期望选择偏移与 on_score_preference_shift 完全相同（-0.0084497 Å），而独立构造的 off_score_preference_shift 为 +0.0038466 Å，q=0.003346。回转半径阶段 1 的 on 与 off 权重参照都偏向减小，off 参照为 -0.0067947 Å。",
+      "observation_id": "O6_on_off_preferences_are_not_two_optimized_objectives",
+      "uncertainty": "本实验实际使用 single 权重；off 参照仅用于识别可能的方向冲突，不能据此声称 CLK3 也被优化，不能把 CK2 区域向靠近的规则直接宣称为提高选择性。"
+    },
+    {
+      "evidence_ids": [
+        "pca:effects:row10",
+        "pca:effects:row5",
+        "pca:effect_rates:row8",
+        "pca:effect_rates:row4",
+        "pca:loading:row316",
+        "pca:loading:row505"
+      ],
+      "finding": "endpoint PC3 与 PC2 在阶段 0 的期望选择偏移分别为 +0.2088436 与 +0.1734764（均 q=0.003051），它们从阶段 0 到 1 的变化率分别为 -3.0759243 与 -2.1478947（均 q=0.004882）。这些复合轴可描述选择偏好的转移与共变，不能解释为可独立加总的残基驱动力。",
+      "observation_id": "O7_pca_tracks_correlated_preference_not_reward",
+      "uncertainty": "轴由 discovery unguided 同时刻背景拟合，符号依赖基底约定；高载荷和显著投影变化均不足以赋予化学机制或因果奖励意义。"
+    }
+  ],
+  "rules": [
+    {
+      "counterevidence_ids": [
+        "differential:effects:row1805",
+        "trends:effects:row6905",
+        "trends:effects:row1805"
+      ],
+      "direction": "decrease",
+      "evidence_ids": [
+        "trends:effects:row530",
+        "enrichment:effects:row530",
+        "trends:effects:row4355",
+        "differential:effects:row530"
+      ],
+      "feature": "ck2:A:VAL116::distance_softmin",
+      "rationale": "将 VAL116 作为早期区域代表：小幅降低预测终态的归一化 soft-min 距离符合 14 批次共同的期望偏好。supported 仅指选择关联有校正统计支持；先以 supplied 加权原型作范围参照，不设无限靠近目标，不把相邻残基重复加权。均匀与加权 IQR 高度重叠，提议仅作小强度干预测试。若当前 Designer 使用双侧区间罚项，必须额外说明：它会向上推低于下界的候选，这不是 decrease 证据直接支持的动作。同胞零效应、proposal 无显著关联及 off 参照反向构成必要反证。",
+      "region": "ck2:A:VAL116",
+      "representation": "predicted_endpoint",
+      "rule_id": "R1_VAL116_endpoint_early",
+      "stage_end": 0.1,
+      "stage_start": 0.0,
+      "status": "supported",
+      "target_id": "selection:0:ck2:A:VAL116::distance_softmin"
+    },
+    {
+      "counterevidence_ids": [
+        "differential:effects:row2546",
+        "trends:effects:row7646",
+        "differential:effects:row5096"
+      ],
+      "direction": "decrease",
+      "evidence_ids": [
+        "trends:effects:row1271",
+        "enrichment:effects:row1271",
+        "trends:effects:row5096",
+        "differential:effects:row1271"
+      ],
+      "feature": "ligand::radius_gyration",
+      "rationale": "较小的预测终态回转半径在 [.1,.2) 与 CK2 权重关联，但它是整体形态代理而非特定残基相互作用。优先作为 R1 之外的独立消融，检验是否带来增益或仅造成收缩/多样性下降。7000 候选帧仅 86 根，必须保留独立批次而不是帧层面的不确定性。目标 IQR 不是最优区间，双侧奖惩的向上作用没有直接选择证据。不得将 endpoint 的减小直接施加到仍收缩在噪声分布附近的 proposal。",
+      "region": "ligand",
+      "representation": "predicted_endpoint",
+      "rule_id": "R2_compactness_endpoint_stage1",
+      "stage_end": 0.2,
+      "stage_start": 0.1,
+      "status": "supported",
+      "target_id": "selection:1:ligand::radius_gyration"
+    },
+    {
+      "counterevidence_ids": [],
+      "direction": "defer",
+      "evidence_ids": [
+        "trends:effect_rates:row176",
+        "differential:effect_rates:row176",
+        "trends:effect_rates:row3236"
+      ],
+      "feature": "ck2:A:HIS115::hetero_distance_softmin",
+      "rationale": "HIS115 的期望、实际复制及选中/未选中效应变化率均提示阶段转折；但变化率的正号不是该阶段距离应增大的依据，输入未提供该 feature 的同阶段效应绝对值、目标原型及匹配同胞对照。与 VAL116 在局部区域上可能冗余，暂不增加奖励项。缺乏上述匹配证据应显式保留。",
+      "region": "ck2:A:HIS115",
+      "representation": "predicted_endpoint",
+      "rule_id": "D1_HIS115_stage_change",
+      "stage_end": 0.2,
+      "stage_start": 0.1,
+      "status": "deferred",
+      "target_id": null
+    },
+    {
+      "counterevidence_ids": [
+        "differential:effects:row4355",
+        "trends:effects:row10730"
+      ],
+      "direction": "defer",
+      "evidence_ids": [
+        "trends:effects:row6905",
+        "enrichment:effects:row4355"
+      ],
+      "feature": "ck2:A:VAL116::distance_softmin",
+      "rationale": "proposal 的期望偏移接近零且 q=0.896757，高尾部质量 q=1；其实际复制与同胞对照也没有支持。当前证据不能生成直接作用于 proposal 距离的方向规则。若将 endpoint 奖励用于生成，需另外验证从当前生成坐标到 live endpoint 的真实 Jacobian、步长和最终质量。",
+      "region": "ck2:A:VAL116",
+      "representation": "proposal_state",
+      "rule_id": "D2_VAL116_proposal_control",
+      "stage_end": 0.1,
+      "stage_start": 0.0,
+      "status": "deferred",
+      "target_id": null
+    }
+  ],
+  "schema_version": "2.0",
+  "selection_comparison": "主比较采用同一评分事件中的概率加权期望偏移，随后在批次内等权汇总事件、批次间等权汇总。VAL116 与回转半径的实际复制偏移、selected_minus_rejected 及高值尾部富集均与 endpoint 的期望方向一致；复制噪声分别为 +0.0008891 和 +0.0009961 Å，q 均约 0.99923（trends:effects:row5630、row6371），不作为新机制。零 offspring 表示一次多项抽样未选中，不是分子失败；相同分数、相同根的候选也可分获 4 与 0 个 offspring。endpoint 同胞对照为零、proposal 对照弱，说明本规则描述候选间的模型预测偏好，不能用来宣称同胞内定向变异已验证。",
+  "stage_dynamics": "仅使用 discovery 批次 0–13 的实际选择窗口 [0,0.5]，分组为 [0,.1)、[.1,.2)、[.2,.3)、[.3,.4)、[.4,.5]，最终一组含 t=.5。VAL116 在 supplied event_dynamics 中的期望偏移由 t=0 的 -0.0117694 Å 变为 t=.09 的 -0.0024923 Å；两端描述性变化率约 +0.103079 Å/单位时间，表示早期偏好趋弱，不是坐标速度。回转半径从 t=.10 的 -0.0020066 Å 到 t=.19 的 -0.0100290 Å，描述性变化率约 -0.089137 Å/单位时间，表示该阶段偏好逐渐增强；两端率没有新增显著性检验。HIS115 和 PCA 的阶段变化率有相应校正检验，应与这种两端描述值区分。当前只有前两段有 supplied target_id，后续阶段仍在选择窗口内，但不凭此延长奖励作用时间，也不将缺少 target 当作证明后期完全没有信号。"
+}
