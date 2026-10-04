@@ -32,7 +32,7 @@ def import_response(request_path,response_path,analysis):
         if not item['evidence_ids'] or set(item['evidence_ids'])-set(evidence):
             raise ValueError('Missing or unknown evidence ID')
     for rule in data['temporal_rules']:
-        candidates=[evidence[e]['model'] for e in rule['evidence_ids']]
+        candidates=[evidence[e]['model'] for e in rule['evidence_ids'] if 'model' in evidence[e]]
         if not any(m['model_id']==rule['model_id'] and m['feature']==rule['feature']
                    and m['representation']==rule['representation'] for m in candidates):
             raise ValueError('Rule must identify a supplied frozen feature curve')

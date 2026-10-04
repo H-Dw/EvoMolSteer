@@ -4,7 +4,7 @@ import pytest
 from evomolsteer.continuous.lineage import window_copy_counts
 from evomolsteer.continuous.functional import global_fit,evaluate_frozen,quadrature
 from evomolsteer.chemical_features import extend_catalog,measure_chemistry
-from evomolsteer.io import write_json,write_table,read_json
+from evomolsteer.io import write_json,write_table,read_json,digest
 
 
 def test_window_ancestry_counts_copies_not_binary_survival_or_t1():
@@ -49,6 +49,25 @@ def test_observed_rates_pair_batches_and_do_not_turn_missingness_into_motion():
     assert result['mean'].iloc[0]!=result['mean'].iloc[1]
     assert result.observed_derivative.iloc[1]==0
     assert result.derivative_n_paired_batches.iloc[1]==2
+
+
+def test_continuous_agent_binds_rules_to_models_and_accepts_explicit_controls(tmp_path):
+    from evomolsteer.continuous.agent_contract import import_response
+    agents=tmp_path/'agents'
+    bundle=agents/'continuous_evidence.json'
+    write_json(bundle,{'evidence':[{'evidence_id':'m','model':{'model_id':'f','feature':'x','representation':'predicted_endpoint'}},
+                                  {'evidence_id':'control','data':{'roots':1}}]})
+    request=agents/'request.json';write_json(request,{'bundle_sha256':digest(bundle)})
+    data={'schema_version':'continuous-3.0','agent':'Analyst','observations':[
+        {'finding':'Root collapse','evidence_ids':['control'],'uncertainty':'One experiment'}],
+        'retained_seed_characteristics':[],'counterevidence':[],'limitations':['Not causal'],
+        'temporal_rules':[{'feature':'x','representation':'predicted_endpoint','model_id':'f',
+            'evidence_ids':['m','control'],'interpretation':'Time-dependent hypothesis','status':'association_hypothesis','limitation':'Not a reward'}]}
+    raw=agents/'raw.json';write_json(raw,data)
+    import_response(request,raw,tmp_path)
+    assert read_json(agents/'Analyst.continuous.validation.json')['semantic_grounding_valid']
+    data['temporal_rules'][0]['model_id']='invented';write_json(raw,data)
+    with pytest.raises(ValueError):import_response(request,raw,tmp_path)
 
 
 def test_chemistry_observables_preserve_mask_units_translation_and_slot_permutation():
