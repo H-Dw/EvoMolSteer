@@ -2,6 +2,7 @@
 import gzip
 import json
 from pathlib import Path
+import subprocess
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
@@ -183,6 +184,12 @@ def evaluate(campaign, output):
     batches,summary,paired=summarize_records(records,'unguided')
     for name,table in [('outcome_batches',batches),('outcome_summary',summary),('paired_outcomes',paired)]:
         write_table(output/(name+'.csv'),table)
+    ablations=[]
+    for baseline in ['single','static_full','multistage_window']:
+        if baseline not in set(batches.arm):continue
+        _,_,contrasts=summarize_records(records,baseline)
+        ablations.extend(contrasts[contrasts.arm.eq('multistage_full')].to_dict('records'))
+    if ablations:write_table(output/'paired_outcome_ablations.csv',ablations)
     controls=control_rows(campaign);write_table(output/'control_summary.csv',summarize_control(controls))
     write_table(output/'control_particle_steps.parquet',controls)
     distributions={};structures={};feature_rows=[];schedule=[];raw_final_rows=[]
@@ -261,7 +268,7 @@ def evaluate(campaign, output):
                                'mean_energy_squared_to_smc':float(g[g.step.eq(100)].energy_squared_to_smc.iloc[0]),
                                'mean_nearest_smc_pose_chamfer_A':float(g[g.step.eq(100)].nearest_smc_pose_chamfer_A.iloc[0])})
         integrated=pd.DataFrame(integrated);write_table(output/'imitation_batches.csv',integrated)
-        contrasts=[]
+        contrasts=[];ablations=[]
         for domain,grp in integrated.groupby('domain',sort=True):
             for metric in ['mean_energy_squared_to_smc','mean_nearest_smc_pose_chamfer_A']:
                 base=grp[grp.arm.eq('unguided')].set_index('batch')[metric]
@@ -272,10 +279,28 @@ def evaluate(campaign, output):
                     result=paired_effect(finite.to_numpy()) if len(finite) else {'n_batches':0,'mean_difference':None}
                     contrasts.append({'arm':arm,'domain':domain,'metric':metric,'negative_means_closer':True,
                                       'missing_batch_pairs':len(effect)-len(finite),**result})
+                for baseline in ['static_full','multistage_window']:
+                    target=grp[grp.arm.eq('multistage_full')].set_index('batch')[metric]
+                    base=grp[grp.arm.eq(baseline)].set_index('batch')[metric]
+                    if target.empty or base.empty:continue
+                    effect=target-base;finite=effect[np.isfinite(effect)]
+                    result=paired_effect(finite.to_numpy()) if len(finite) else {'n_batches':0,'mean_difference':None}
+                    ablations.append({'arm':'multistage_full','baseline':baseline,'domain':domain,
+                        'metric':metric,'negative_means_closer':True,'missing_batch_pairs':len(effect)-len(finite),**result})
         write_table(output/'paired_imitation.csv',contrasts)
+        if ablations:write_table(output/'paired_imitation_ablations.csv',ablations)
     write_table(output/'final_fingerprint_similarity.csv',final_fingerprint_similarity(records))
+    repo=Path(__file__).resolve().parents[3]
+    try:commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    except (OSError,subprocess.CalledProcessError):commit=None
     write_json(output/'evaluation_manifest.json',{'status':'complete','source':str(campaign),
         'source_program_sha256':digest(campaign/'reward_program.json'), 'n_feature_curve_rows':len(feature_rows),
+        'source_config_sha256':digest(campaign/'config.json'),
+        'source_final_records_sha256':digest(campaign/'final_records.json'),
+        'generation_code_commit':cfg.get('extension',{}).get('code_commit'),
+        'evaluation_code_commit':commit,'evaluation_code_sha256':digest(__file__),
+        'statistical_unit':'Matched independent batch; candidates and time points are not independent replicates',
+        'uncertainty':'Exploratory two-sided paired-batch t 95% intervals and exact sign-flip p; no multiplicity-adjusted discovery claims',
         'limits':['No physical affinity validation; pic50 is an existing model rescore.',
                   'Similarity in two reward distances does not certify a 3D pose or graph match.',
                   'SMC particle count matches every new arm; different from historical 50-particle study.',
