@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 from scipy.special import expit, logsumexp
+from scipy.integrate import trapezoid
 import torch
 from ..io import read_json, write_json, write_table, digest
 from ..trajectory_source import trajectory_paths, open_trajectory
@@ -254,8 +255,8 @@ def evaluate(campaign, output):
             for domain,left,right in [('observed_window',0,.5),('continuation',.5,.99)]:
                 part=g[g.time.between(left,right)].sort_values('time')
                 integrated.append({'arm':arm,'batch':batch,'domain':domain,
-                    'mean_energy_squared_to_smc':float(np.trapezoid(part.energy_squared_to_smc,part.time)/(right-left)),
-                    'mean_nearest_smc_pose_chamfer_A':float(np.trapezoid(part.nearest_smc_pose_chamfer_A,part.time)/(right-left))})
+                    'mean_energy_squared_to_smc':float(trapezoid(part.energy_squared_to_smc,part.time)/(right-left)),
+                    'mean_nearest_smc_pose_chamfer_A':float(trapezoid(part.nearest_smc_pose_chamfer_A,part.time)/(right-left))})
             integrated.append({'arm':arm,'batch':batch,'domain':'final',
                                'mean_energy_squared_to_smc':float(g[g.step.eq(100)].energy_squared_to_smc.iloc[0]),
                                'mean_nearest_smc_pose_chamfer_A':float(g[g.step.eq(100)].nearest_smc_pose_chamfer_A.iloc[0])})
