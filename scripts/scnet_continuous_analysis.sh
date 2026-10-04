@@ -20,4 +20,6 @@ export OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1
 cd "$repo"
 git rev-parse HEAD
 "$python" -u scripts/run_pipeline.py --root "$input" --output "$output" --config "$config"
+"$python" scripts/audit_continuous_analysis.py --analysis "$output"
+"$python" scripts/audit_function_adequacy.py --analysis "$output"
 "$python" scripts/plot_continuous_analysis.py --analysis "$output" --output "$output/figures"

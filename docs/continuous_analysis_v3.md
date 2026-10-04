@@ -37,6 +37,8 @@ FLOWR 键标签由源代码 `flowr/util/rdkit.py` 和 `flowr/util/molecule.py` �
 
 完整批次曲线 bootstrap 给出系数区间、逐点区间和单条曲线的同时带；这些区间以已经选定的次数为条件，不包含模型选择全部不确定性。独立验证/留出批次评价冻结函数与常数基线，不调整次数和系数。只有完整覆盖窗口且达到最低批次数的特征才拟合；其余曲线和缺失率仍保留。
 
+`scripts/audit_function_adequacy.py` 另存拟合与未平滑均值之间的符号不一致、最大残差及未平滑均值落在条件带外的节点数。条件 bootstrap 带不包含函数形状偏差；较高 R² 和全局检验通过都不能保证每个时刻的方向正确。小幅多项式振荡、未被验证的驻点、低于残差尺度的变化不得直接编译为局部梯度控制。
+
 全局检验直接使用**未平滑的整条曲线**的均值平方积分，在符号对称零假设下对整个批次曲线统一 sign-flip。这样正负效应在窗口平均中抵消时仍有机会识别时间变化。BH 校正在 representation/arm/contrast 内跨特征进行。原始水平非零本身不表示优势；应读选择/祖先/背景差值。全窗口均值、首尾差值与逐事件导数另存，不用它们替代全曲线检验。
 
 ## 接口与文件
@@ -52,5 +54,7 @@ FLOWR 键标签由源代码 `flowr/util/rdkit.py` 和 `flowr/util/molecule.py` �
 每个 split 的 `continuous/{trends,enrichment,differential,dynamics,pca}/` 单独保存批次事件曲线、点曲线、窗口统计和变化率。发现集另存 `functions.json`、`function_summary.csv`、`fitted_curves.parquet`、批次系数；验证集另存冻结函数误差。`lineage/window_ancestry.parquet` 保存所有候选及其窗口末端拷贝数，保留灭绝分支。
 
 新 Analyst 输入为 `agents/Analyst.continuous.request.json`，包含独立连续分析 skill、严格 JSON schema 和可追溯证据。旧 2.0 的分段奖励编译器拒绝这一输入；本轮没有依据新拟合自动修改生成奖励或启动新的生成实验。
+
+Analyst 输入同时提供根数量/ESS、同胞和淘汰对照、实际复制及随机偏差，避免只给正向结果。LLM 传输视图使用 8 位有效数字、共享时间轴和列式控制表；科学数据及权威 evidence 文件仍保留完整双精度，不以传输视图反算奖励参数。
 
 `df/dt` 描述时间演变，不能直接替代 `∇x R`。可进一步把经验证的 f(t) 作为连续时间的特征目标，但需要特征本身的空间导数、幅度控制和独立干预实验，才能判断是否接近有益生成路径。
