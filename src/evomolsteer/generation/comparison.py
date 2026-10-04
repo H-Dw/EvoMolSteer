@@ -109,7 +109,8 @@ def geometry_and_control(campaign):
 def evaluate(campaign,output,baseline='unguided'):
     campaign,output=Path(campaign),Path(output)
     if read_json(campaign/'COMPLETE.json')['status']!='complete':raise ValueError('Incomplete campaign')
-    batch,summary,paired=summarize_records(read_json(campaign/'final_records.json'),baseline)
+    records=read_json(campaign/'final_records.json')
+    batch,summary,paired=summarize_records(records,baseline)
     geometry,telemetry,schedules=geometry_and_control(campaign)
     for s in schedules:
         if s['arm'].startswith('gradient') and s['resampled_steps']:raise ValueError('Gradient arm resampled')
@@ -119,6 +120,9 @@ def evaluate(campaign,output,baseline='unguided'):
         if any(step>=20 for step in row['active_steps']):raise ValueError('Reward active outside frozen support')
     for name,data in [('batch_outcomes.csv',batch),('arm_outcomes.csv',summary),('paired_outcomes.csv',paired),('frozen_geometry.csv',geometry)]:
         write_table(output/name,data)
+    if baseline=='unguided' and 'single' in set(batch.arm):
+        _,_,against_smc=summarize_records(records,'single')
+        write_table(output/'paired_outcomes_vs_single.csv',against_smc)
     geometry_pairs=[]
     for (term,step),g in geometry.groupby(['term_id','step']):
         b=g[g.arm==baseline].set_index('batch')['mean']
