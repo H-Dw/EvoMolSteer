@@ -56,3 +56,19 @@ for ax in axes:ax.axvline(.5,color='gray',ls=':');ax.set_xlabel('Generation time
 axes[0].set_ylabel('Mean maximum atom correction per step (Å)');axes[0].legend(fontsize=7)
 axes[1].set_ylabel('Mean sum of RMS corrections (Å)')
 fig.tight_layout();save(fig,'multistage_actual_control')
+distance_path=ev/'distribution_distance_batches.parquet'
+if distance_path.exists():
+    distance=pd.read_parquet(distance_path)
+    fig,axes=plt.subplots(1,2,figsize=(11,3.8),sharex=True)
+    for ax,metric,label in zip(axes,
+        ['energy_squared_to_smc','nearest_smc_pose_chamfer_A'],
+        ['Whitened two-feature energy statistic','Nearest SMC heavy-atom Chamfer (Å)']):
+        for arm in arms:
+            g=distance[distance.arm.eq(arm)].groupby('time')[metric].agg(['mean','sem'])
+            if g.empty:continue
+            ax.plot(g.index,g['mean'],label=arm,color=colors[arm],lw=1.5)
+            ax.fill_between(g.index,g['mean']-g['sem'],g['mean']+g['sem'],color=colors[arm],alpha=.10)
+        ax.axvline(.5,color='gray',ls=':');ax.set(xlabel='Generation time',ylabel=label)
+    axes[0].legend(fontsize=7)
+    fig.suptitle('Distance to same-batch SMC samples (lower is closer; mean ± batch SEM)')
+    fig.tight_layout();save(fig,'multistage_smc_imitation')
