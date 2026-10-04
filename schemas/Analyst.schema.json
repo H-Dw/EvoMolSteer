@@ -1,0 +1,147 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "agent": {
+      "const": "Analyst"
+    },
+    "dataset_id": {
+      "type": "string"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "observations": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "finding": {
+            "type": "string"
+          },
+          "observation_id": {
+            "type": "string"
+          },
+          "uncertainty": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_id",
+          "finding",
+          "evidence_ids",
+          "uncertainty"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "rules": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "counterevidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "direction": {
+            "enum": [
+              "increase",
+              "decrease",
+              "toward_window",
+              "defer"
+            ]
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "feature": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "representation": {
+            "enum": [
+              "predicted_endpoint",
+              "proposal_state"
+            ]
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "stage_end": {
+            "type": "number"
+          },
+          "stage_start": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "exploratory",
+              "supported",
+              "deferred"
+            ]
+          },
+          "target_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "rule_id",
+          "region",
+          "feature",
+          "representation",
+          "stage_start",
+          "stage_end",
+          "direction",
+          "target_id",
+          "status",
+          "evidence_ids",
+          "counterevidence_ids",
+          "rationale"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "2.0"
+    },
+    "selection_comparison": {
+      "type": "string"
+    },
+    "stage_dynamics": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "agent",
+    "dataset_id",
+    "observations",
+    "selection_comparison",
+    "stage_dynamics",
+    "rules",
+    "limitations"
+  ],
+  "type": "object"
+}

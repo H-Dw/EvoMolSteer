@@ -1,0 +1,158 @@
+--- historical/run_lineage.py
++++ generation/controller.py
+@@ -1,8 +1,9 @@
+-"""FLOWR.ROOT CK2/CLK3 controlled reproduction with passive lineage capture.
++"""FLOWR.ROOT CK2/CLK3 controller, promoted from the validated run_lineage.py.
+ 
+ The upstream integration loop is copied at runtime and instrumented, not rewritten.
+ Main changes are explicit: common-frame off-pocket translation; controlled SMC arm;
+-historical categorical sampler and raw argmax decode. The source and diff are saved.
++historical categorical sampler and raw argmax decode. Both source versions are saved.
++EvoMolSteer adds synchronous step commits; no trajectory NPZ is accumulated.
+ """
+ import argparse, copy, csv, gzip, hashlib, inspect, json, os, random, sys, textwrap, time, types
+ from collections import defaultdict
+@@ -15,6 +16,9 @@
+ from flowr.gen import utils as util
+ from flowr.scriptutil import load_model
+ import flowr.models.fm_pocket as fm
++from evomolsteer.storage.streaming import StepTrajectoryWriter
++from evomolsteer.storage.transactions import atomic_json
++from .instrumentation import instrument_source
+ 
+ RDLogger.DisableLog('rdApp.warning')
+ 
+@@ -35,11 +39,14 @@
+     np.random.set_state(x['numpy']); random.setstate(x['python'])
+ 
+ class Trace:
+-    def __init__(self,path,arm,seed,batch,scale,save=True):
++    def __init__(self,path,arm,seed,batch,scale,save=True,steps=100):
+         self.path=Path(path); self.path.mkdir(parents=True,exist_ok=True)
+         self.arm=arm; self.seed=seed; self.batch=batch; self.scale=scale; self.save=save
+         self.arr=defaultdict(list); self.events=[]; self.roots=None; self.parents=None
+-        self.anchor_steps={0,10,20,30,40,50,75,99}
++        self.steps=steps
++        self.anchor_steps={min(steps-1,round(t*steps)) for t in [0,.1,.2,.3,.4,.5,.75,.99]}
++        self.writer=StepTrajectoryWriter(self.path,expected_steps=steps,
++            metadata={'arm':arm,'seed':int(seed),'batch':int(batch),'coord_scale':float(scale)}) if save else None
+         self.final_state=None; self.final_cond=None
+ 
+     def begin(self,prior,pt,po):
+@@ -127,30 +134,30 @@
+                             'eliminated':int((counts==0).sum()),'unique_roots_before':int(len(set(self.roots)))})
+         self.roots=self.roots[ids]; self.parents=ids.copy()
+         self.final_state=curr; self.final_cond=cond
++        # This callback is after the resampling decision, so rejected candidates
++        # and the complete pre-selection population are included in every commit.
++        if self.save:
++            if any(len(v)!=1 for v in self.arr.values()):
++                raise ValueError('Trace callbacks did not produce exactly one complete step')
++            self.writer.append(int(self.i),{k:v[0] for k,v in self.arr.items()})
++        self.arr.clear()
++        self.proposal=None
++        if self.i%10==0 or self.i==self.steps-1:
++            print(json.dumps({'event':'trajectory_step_committed','arm':self.arm,'batch':self.batch,
++                              'step':int(self.i),'score_time':self.t,'resampled':self.did_resample}),flush=True)
+ 
+     def finish(self,output):
+         self.output=output
+         if self.save:
+-            np.savez_compressed(self.path/'trajectory.npz',**{k:np.stack(v) for k,v in self.arr.items()})
+-            (self.path/'events.json').write_text(json.dumps(self.events,indent=2))
++            self.writer.finalize()
++            atomic_json(self.path/'events.json',self.events)
+             with gzip.open(self.path/'final_prediction.pt.gz','wb',compresslevel=3) as f: torch.save(cpu_tree(output),f)
+ 
+ def instrument(model,path):
++    path=Path(path);path.mkdir(parents=True,exist_ok=True)
+     original_method=model._generate_selective
+     source=textwrap.dedent(inspect.getsource(original_method))
+-    changed=source
+-    substitutions=[
+-        ('    with torch.no_grad():\n', '    self._lineage.begin(prior, pocket_data_target, pocket_data_untarget)\n    with torch.no_grad():\n',1),
+-        ('            cond = cond_batch if self.self_condition else None\n',
+-         '            cond = cond_batch if self.self_condition else None\n            self._lineage.before(i, curr, cond, times, step_size, prior)\n',1),
+-        ('            # Integrate the ODE using Euler\n',
+-         '            self._lineage.score(predicted_target, predicted_untarget)\n            # Integrate the ODE using Euler\n',1),
+-        ('            # put into tuples\n','            self._lineage.propose(curr)\n            # put into tuples\n',1),
+-        ('            # Inpainting for the ligand if required\n',
+-         '            self._lineage.end(curr, cond_batch, times)\n            # Inpainting for the ligand if required\n',1),
+-    ]
+-    for old,new,n in substitutions:
+-        assert old in changed,repr(old); changed=changed.replace(old,new,n)
++    changed=instrument_source(source)
+     # No graph/fragment inpainting is used, so capture occurs immediately after time update.
+     ns=dict(original_method.__func__.__globals__)
+     original_guidance=ns['apply_selective_smc_guidance']
+@@ -201,7 +208,7 @@
+     for slot,m in enumerate(mols):
+         node=f'{trace.arm}_b{trace.batch:03d}_final_{slot:03d}'
+         r={'arm':trace.arm,'batch':trace.batch,'seed':trace.seed,'slot':slot,'node_id':node,
+-           'root_slot':int(trace.roots[slot]),'parent_step':99,'parent_slot':int(trace.parents[slot]),
++           'root_slot':int(trace.roots[slot]),'parent_step':len(trace.events)-1,'parent_slot':int(trace.parents[slot]),
+            'pic50_on_upstream':float(output['affinity']['pic50'][slot]),
+            'pic50_off_upstream':float(output['affinity']['pic50_untarget'][slot]),
+            'pic50_on_rescore':float(scores[0][slot]),'pic50_off_rescore':float(scores[1][slot]),
+@@ -239,13 +246,14 @@
+     p=argparse.ArgumentParser(); p.add_argument('--root',required=True); p.add_argument('--checkpoint',required=True)
+     p.add_argument('--campaign',default='pilot'); p.add_argument('--n',type=int,default=8); p.add_argument('--batch',type=int,default=8)
+     p.add_argument('--arms',default='unguided,single,joint'); p.add_argument('--window',type=float,default=.5)
++    p.add_argument('--window-start',type=float,default=0.);p.add_argument('--steps',type=int,default=100)
+     p.add_argument('--seed',type=int,default=42); p.add_argument('--verify-passive',action='store_true')
+     opt=p.parse_args(); root=Path(opt.root); out=root/'results'/opt.campaign; out.mkdir(parents=True,exist_ok=True)
+     assert not (out/'COMPLETE.json').exists(),'Do not overwrite completed campaign'
+     inp=root/'inputs'; argv=sys.argv
+     sys.argv=['lineage','--arch','pocket','--pocket_type','holo','--gpus','1','--num_workers','0',
+               '--batch_cost',str(opt.batch),'--sample_n_molecules_per_target',str(opt.n),
+-              '--ckpt_path',opt.checkpoint,'--save_dir',str(out),'--integration_steps','100',
++              '--ckpt_path',opt.checkpoint,'--save_dir',str(out),'--integration_steps',str(opt.steps),
+               '--cut_pocket','--pocket_cutoff','7','--max_sample_iter','0',
+               '--no_cat_noise_euler_guard','--no_ligand_valence_repair',
+               '--pdb_file_target',str(inp/'3PE1_protein_aligned.pdb'),
+@@ -259,16 +267,18 @@
+     st,so=util.load_data_from_pdb_selective(args,remove_hs=hparams['remove_hs'],remove_aromaticity=hparams['remove_aromaticity'])
+     dst=get_dataset(st,transform,vocab,interpolant,args,hparams); dso=get_dataset(so,transform,vocab,interpolant,args,hparams)
+     dlt=util.get_dataloader(args,dst,interpolant); dlo=util.get_dataloader(args,dso,interpolant)
+-    original=instrument(model,root/'provenance')
++    original=instrument(model,out/'provenance')
+     model.integrator.use_sde_simulation=True; model.integrator.coord_noise_level=.2
+     config={'experiment':vars(opt),'flowr_args':vars(args),'torch':torch.__version__,'hip':torch.version.hip,
+             'device':torch.cuda.get_device_name(0),'coord_scale':model.coord_scale,
+             'atom_vocabulary':getattr(vocab,'token_idx_map',str(vocab)),
+             'charge_vocabulary':getattr(vc,'token_idx_map',str(vc)),
+             'hybridization_vocabulary':getattr(vh,'token_idx_map',str(vh)),
+-            'full_probability_steps':[0,10,20,30,40,50,75,99],
++            'full_probability_steps':sorted({min(opt.steps-1,round(t*opt.steps)) for t in [0,.1,.2,.3,.4,.5,.75,.99]}),
+             'coordinate_convention':'model coordinates; x_world = x_model * coord_scale + target pocket COM',
+-            'recording':'all 100 pre-integration and proposed states, endpoints, scores; all candidates including no-offspring',
++            'recording':f'all {opt.steps} pre-integration and proposed states, endpoints, scores; all candidates including no-offspring',
++            'trajectory_storage':'per-step verified HDF5; consolidated trajectory.h5; verified stage files retired; no raw trajectory NPZ',
++            'selection_mode':'selective SMC resampling on each upstream integration step inside the configured window; no coordinate reward gradient',
+             'deviations':'common-frame correction; matched SDE all arms; fixed reference ligand atom count; exact CK2 paper window and batch size unreported; no diversity filter during collection'}
+     (out/'config.json').write_text(json.dumps(config,indent=2,default=str))
+     allrows=[]; started=time.time()
+@@ -281,18 +291,18 @@
+             if (path/'COMPLETE.json').exists():
+                 allrows.extend(json.loads((path/'final_records.json').read_text())); continue
+             torch.manual_seed(seed); np.random.seed(seed); random.seed(seed)
+-            trace=Trace(path,arm,seed,batch,model.coord_scale); model._lineage=trace
++            trace=Trace(path,arm,seed,batch,model.coord_scale,steps=opt.steps); model._lineage=trace
+             b=lig['coords'].shape[0]
+             kwargs=dict(prior=copy.deepcopy(lig),pocket_data_target=copy.deepcopy(pt),pocket_data_untarget=copy.deepcopy(po),
+-                        steps=100,times=[torch.zeros(b,device='cuda') for _ in range(3)],
+-                        apply_guidance=True,guidance_window_start=0.,guidance_window_end=opt.window,coord_noise_level=.2)
++                        steps=opt.steps,times=[torch.zeros(b,device='cuda') for _ in range(3)],
++                        apply_guidance=True,guidance_window_start=opt.window_start,guidance_window_end=opt.window,coord_noise_level=.2)
+             before=rng_state(); t0=time.time()
+             output=model._generate_selective(**kwargs); trace.finish(output)
+             if opt.verify_passive and batch==0 and arm=='joint':
+                 set_rng(before)
+                 baseline=original(prior=copy.deepcopy(lig),pocket_data_target=copy.deepcopy(pt),pocket_data_untarget=copy.deepcopy(po),
+-                                  steps=100,times=[torch.zeros(b,device='cuda') for _ in range(3)],apply_guidance=True,
+-                                  guidance_window_start=0.,guidance_window_end=opt.window,coord_noise_level=.2)
++                                  steps=opt.steps,times=[torch.zeros(b,device='cuda') for _ in range(3)],apply_guidance=True,
++                                  guidance_window_start=opt.window_start,guidance_window_end=opt.window,coord_noise_level=.2)
+                 checks={k:bool(torch.equal(output[k],baseline[k])) for k in ['coords','atomics','bonds','charges','mask']}
+                 (path/'passive_capture_equivalence.json').write_text(json.dumps(checks,indent=2)); assert all(checks.values()),checks
+             rows=final_metrics(model,output,trace,path); allrows.extend(rows)

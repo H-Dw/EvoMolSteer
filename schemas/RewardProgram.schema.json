@@ -1,0 +1,160 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "constraints": {
+      "additionalProperties": false,
+      "properties": {
+        "clash_threshold_A": {
+          "const": 1.2
+        },
+        "max_atom_displacement_A": {
+          "exclusiveMinimum": 0,
+          "maximum": 0.1,
+          "type": "number"
+        },
+        "max_new_clash_pairs": {
+          "const": 0
+        },
+        "max_pair_distance_change_A": {
+          "exclusiveMinimum": 0,
+          "maximum": 0.2,
+          "type": "number"
+        },
+        "max_rms_displacement_A": {
+          "exclusiveMinimum": 0,
+          "maximum": 0.1,
+          "type": "number"
+        },
+        "preserve_fixed_atoms": {
+          "const": true
+        }
+      },
+      "required": [
+        "max_atom_displacement_A",
+        "max_rms_displacement_A",
+        "max_pair_distance_change_A",
+        "clash_threshold_A",
+        "max_new_clash_pairs",
+        "preserve_fixed_atoms"
+      ],
+      "type": "object"
+    },
+    "direction": {
+      "const": "reward_ascent"
+    },
+    "operator": {
+      "const": "negative_smooth_window_sum"
+    },
+    "representation": {
+      "const": "predicted_endpoint_world_A"
+    },
+    "selection_window": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "type": "number"
+        },
+        "start": {
+          "type": "number"
+        },
+        "time_axis": {
+          "const": "score_time"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "time_axis"
+      ],
+      "type": "object"
+    },
+    "terms": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "feature": {
+            "type": "string"
+          },
+          "gate_width": {
+            "maximum": 0.1,
+            "minimum": 0.005,
+            "type": "number"
+          },
+          "lower": {
+            "type": "number"
+          },
+          "parameter_status": {
+            "const": "exploratory_pilot"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "scale": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "stage_end": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "stage_start": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "term_id": {
+            "type": "string"
+          },
+          "upper": {
+            "type": "number"
+          },
+          "weight": {
+            "exclusiveMinimum": 0,
+            "maximum": 10,
+            "type": "number"
+          }
+        },
+        "required": [
+          "term_id",
+          "rule_id",
+          "target_id",
+          "feature",
+          "lower",
+          "upper",
+          "scale",
+          "weight",
+          "stage_start",
+          "stage_end",
+          "gate_width",
+          "evidence_ids",
+          "parameter_status"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "version": {
+      "const": "2.0"
+    }
+  },
+  "required": [
+    "version",
+    "representation",
+    "selection_window",
+    "direction",
+    "operator",
+    "terms",
+    "constraints"
+  ],
+  "type": "object"
+}
