@@ -39,6 +39,7 @@ def gradient_source(source):
 
 class Extension:
     def add_arguments(self,p):
+        p.set_defaults(arms='unguided,single,gradient_region,gradient_region_compact')
         p.add_argument('--input-dataset',required=True)
         p.add_argument('--program',required=True)
         p.add_argument('--catalog',required=True)
@@ -49,6 +50,7 @@ class Extension:
 
     def prepare(self,opt,out):
         import math
+        if opt.verify_passive:raise ValueError('Use --verify-zero for the gradient adapter')
         if not math.isfinite(opt.strength) or opt.strength<0 or not math.isfinite(opt.max_atom_step_A) or opt.max_atom_step_A<=0:
             raise ValueError('Invalid strength/displacement bound')
         if opt.n<1 or opt.batch<1 or opt.n%opt.batch or opt.steps!=100: raise ValueError('Use complete batches and the audited 100-step grid')
