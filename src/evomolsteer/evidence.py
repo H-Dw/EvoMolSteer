@@ -8,16 +8,24 @@ from .io import read_json,write_json,digest
 PRIMARY = {'expected_selection_shift','expected_high_mass_shift'}
 
 
+def focus_arm(cfg):
+    arm = cfg.get('evidence_arm', 'joint')
+    if arm not in cfg['selection_arms']:
+        raise ValueError('evidence_arm must name an analyzed selection arm')
+    return arm
+
+
 def attach_matched_context(analysis,bundle,window_frame=None):
     """Always attach same-region/stage controls, even when their effects are zero."""
     analysis = Path(analysis)
+    arm = bundle.get('evidence_arm', 'joint')
     pairs = {(t['stage'],t['feature']) for t in bundle['targets']}
     existing = {e['evidence_id'] for e in bundle['evidence']}
     for method in ['enrichment','differential','trends']:
         path = analysis/'discovery'/method/'effects.csv'
         table = pd.read_csv(path)
         table['_row'] = np.arange(len(table))
-        table = table[(table.arm=='joint')&pd.Series([(int(s),f) in pairs for s,f in zip(table.stage,table.feature)],index=table.index)]
+        table = table[(table.arm==arm)&pd.Series([(int(s),f) in pairs for s,f in zip(table.stage,table.feature)],index=table.index)]
         source = {'path':str(path.resolve()),'sha256':digest(path)}
         for _,row in table.iterrows():
             idx = int(row['_row']);eid = f'{method}:effects:row{idx}'
@@ -37,7 +45,7 @@ def attach_matched_context(analysis,bundle,window_frame=None):
     event_path = analysis/'discovery/trends/events.parquet'
     if event_path.exists():
         data = pd.read_parquet(event_path,
-            filters=[('arm','==','joint'),('feature','in',sorted({f for _,f in pairs}))])
+            filters=[('arm','==',arm),('feature','in',sorted({f for _,f in pairs}))])
     else:
         # Compact retention may omit full event diagnostics. Reconstruct only the
         # small candidate-feature profiles from the already audited window frame.
@@ -48,7 +56,7 @@ def attach_matched_context(analysis,bundle,window_frame=None):
             cfg = read_json(analysis/'config.json')
         records = []
         for stage,feature in sorted(pairs):
-            subset = window_frame[(window_frame.arm=='joint')&(window_frame.stage==stage)]
+            subset = window_frame[(window_frame.arm==arm)&(window_frame.stage==stage)]
             for (rep,batch,step),g in subset.groupby(['representation','batch','step'],sort=True):
                 m = selection_moments(g[[feature]].to_numpy(),g.probability,g.offspring_count,cfg['minimum_feature_fraction'])
                 records.append({'representation':rep,'batch':batch,'step':step,'stage':stage,'feature':feature,
@@ -120,6 +128,7 @@ def build_bundle(analysis,split='discovery'):
         raise ValueError('Rule discovery cannot consume validation/held-out data')
     analysis = Path(analysis)
     df,cfg,cat,scope = load(analysis,split)
+    arm = focus_arm(cfg)
     evidence,sources,coverage = [],{},[]
     background = df[df.arm==scope['background_arm']]
     scales = background.groupby(['representation','stage'])[list(cat['features'])].std()
@@ -128,7 +137,7 @@ def build_bundle(analysis,split='discovery'):
             path = analysis/split/method/(kind+'.csv')
             t = pd.read_csv(path)
             t['_row'] = np.arange(len(t))
-            t = t[t.arm=='joint']
+            t = t[t.arm==arm]
             source = {'path':str(path.resolve()),'sha256':digest(path)}
             sources[method+':'+kind] = source
             for (rep,contrast),g in t.groupby(['representation','contrast'],sort=True):
@@ -160,7 +169,7 @@ def build_bundle(analysis,split='discovery'):
         e.get('representation')=='predicted_endpoint' and e.get('statistic')=='effects' and
         e.get('contrast') in PRIMARY and abs(e.get('effect',0))>1e-10 and
         cat['features'].get(e.get('feature'),{}).get('differentiable_supported')})
-    joint = df[(df.arm=='joint')&(df.representation=='predicted_endpoint')]
+    joint = df[(df.arm==arm)&(df.representation=='predicted_endpoint')]
     targets = []
     for stage,feature in pairs:
         distribution = target_distribution(joint[joint.stage==stage],feature,cfg)
@@ -181,6 +190,7 @@ def build_bundle(analysis,split='discovery'):
                 examples.append({k:row[k] for k in ['node_id','step','score_time','selected','offspring_count',
                                                   'probability','pic50_on','pic50_off','root_id']})
     bundle = {'schema_version':'2.0','dataset_id':digest(analysis/'ingest_manifest.json'),'split':split,
+        'evidence_arm':arm,
         'scope':{**scope,'batches':sorted(df.batch.unique().tolist()),'n_feature_rows':len(df),
                  'candidate_frames_per_representation':df.groupby('representation').size().to_dict(),
                  'stage_event_counts':events[events.resampled].groupby(['arm','stage']).size().reset_index(name='n_batch_events').to_dict('records')},

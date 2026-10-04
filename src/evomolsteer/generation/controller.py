@@ -242,13 +242,16 @@ def final_metrics(model,output,trace,path):
     (path/'final_records.json').write_text(json.dumps(rows,indent=2))
     return rows
 
-def main():
+def main(extension=None):
     p=argparse.ArgumentParser(); p.add_argument('--root',required=True); p.add_argument('--checkpoint',required=True)
     p.add_argument('--campaign',default='pilot'); p.add_argument('--n',type=int,default=8); p.add_argument('--batch',type=int,default=8)
     p.add_argument('--arms',default='unguided,single,joint'); p.add_argument('--window',type=float,default=.5)
     p.add_argument('--window-start',type=float,default=0.);p.add_argument('--steps',type=int,default=100)
     p.add_argument('--seed',type=int,default=42); p.add_argument('--verify-passive',action='store_true')
-    opt=p.parse_args(); root=Path(opt.root); out=root/'results'/opt.campaign; out.mkdir(parents=True,exist_ok=True)
+    if extension is not None: extension.add_arguments(p)
+    opt=p.parse_args(); root=Path(opt.root); out=root/'results'/opt.campaign
+    if extension is not None: extension.prepare(opt, out)
+    out.mkdir(parents=True,exist_ok=True)
     assert not (out/'COMPLETE.json').exists(),'Do not overwrite completed campaign'
     inp=root/'inputs'; argv=sys.argv
     sys.argv=['lineage','--arch','pocket','--pocket_type','holo','--gpus','1','--num_workers','0',
@@ -267,7 +270,8 @@ def main():
     st,so=util.load_data_from_pdb_selective(args,remove_hs=hparams['remove_hs'],remove_aromaticity=hparams['remove_aromaticity'])
     dst=get_dataset(st,transform,vocab,interpolant,args,hparams); dso=get_dataset(so,transform,vocab,interpolant,args,hparams)
     dlt=util.get_dataloader(args,dst,interpolant); dlo=util.get_dataloader(args,dso,interpolant)
-    original=instrument(model,out/'provenance')
+    if extension is not None: extension.configure(model,opt,out)
+    original=(extension.instrument if extension is not None else instrument)(model,out/'provenance')
     model.integrator.use_sde_simulation=True; model.integrator.coord_noise_level=.2
     config={'experiment':vars(opt),'flowr_args':vars(args),'torch':torch.__version__,'hip':torch.version.hip,
             'device':torch.cuda.get_device_name(0),'coord_scale':model.coord_scale,
@@ -280,6 +284,7 @@ def main():
             'trajectory_storage':'per-step verified HDF5; consolidated trajectory.h5; verified stage files retired; no raw trajectory NPZ',
             'selection_mode':'selective SMC resampling on each upstream integration step inside the configured window; no coordinate reward gradient',
             'deviations':'common-frame correction; matched SDE all arms; fixed reference ligand atom count; exact CK2 paper window and batch size unreported; no diversity filter during collection'}
+    if extension is not None: config['extension']=extension.describe()
     (out/'config.json').write_text(json.dumps(config,indent=2,default=str))
     allrows=[]; started=time.time()
     for batch,(bt,bo) in enumerate(zip(dlt,dlo)):
@@ -291,7 +296,8 @@ def main():
             if (path/'COMPLETE.json').exists():
                 allrows.extend(json.loads((path/'final_records.json').read_text())); continue
             torch.manual_seed(seed); np.random.seed(seed); random.seed(seed)
-            trace=Trace(path,arm,seed,batch,model.coord_scale,steps=opt.steps); model._lineage=trace
+            factory=extension.make_trace if extension is not None else Trace
+            trace=factory(path,arm,seed,batch,model.coord_scale,steps=opt.steps); model._lineage=trace
             b=lig['coords'].shape[0]
             kwargs=dict(prior=copy.deepcopy(lig),pocket_data_target=copy.deepcopy(pt),pocket_data_untarget=copy.deepcopy(po),
                         steps=opt.steps,times=[torch.zeros(b,device='cuda') for _ in range(3)],
