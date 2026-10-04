@@ -8,6 +8,12 @@
 
 [v3 方法、公式和输出接口](docs/continuous_analysis_v3.md) · [完整运行、优势 seed 特征和函数拟合结果](docs/continuous_single_v3_report_20261005.md)。本地与远端已完成复算，104 张主要结果表数值一致；58 项测试通过。默认配置已切换 v3；下面的 v2 方法与既有梯度实验作为历史记录保留，不能与新统计混用。
 
+## 多阶段奖励与全程梯度推理
+
+`scripts/build_multistage_reward.py` 从 discovery 的逐时刻留存祖先提取相关区域目标；Designer 选择的稳健混合奖励使用局部PCHIP拟合，在全部100个积分步上通过 live endpoint Jacobian引导当前坐标。0.5后的末端参考维持是显式实验假设。内部协方差尺度和外部native-step位移比例分开；强度先在独立pilot校准。
+
+生成入口为 `scripts/generate_multistage_flowr.py --flowr-root <FLOWR目录> ...` 或 `evomolsteer-multistage`；分析入口为 `scripts/evaluate_multistage_runs.py`。见[Designer决策与公式](docs/ck2_multistage_design.md)、[执行接口和冻结比较方案](docs/ck2_multistage_execution.md)。旧版早期奖励作为独立对照保留。
+
 ## 历史 v2 分析与已完成实验
 
 从 FLOWR.ROOT **实际执行重采样的事件**中提取几何选择特征，为后续局部规则提出提供依据。主分析不使用终态、后代成功标签、窗口后的轨迹或反事实续跑结果。

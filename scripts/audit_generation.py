@@ -29,7 +29,7 @@ def audit(campaign,output):
                 current,proposal=z.read('current_coords'),z.read('proposal_coords')
                 for i in range(len(ids)-1):
                     if not byte_equal(current[i+1],proposal[i][ids[i]]):raise ValueError('Broken coordinate ancestry')
-                if arm.startswith('gradient') and resampled.any():raise ValueError('Gradient arm used selection')
+                if arm not in ('single','joint') and resampled.any():raise ValueError('Non-SMC arm used selection')
                 if arm=='single' and not np.array_equal(np.flatnonzero(resampled),np.arange(51)):raise ValueError('Unexpected selection schedule')
                 records=read_json(directory/'final_records.json')
                 if len(records)!=opt['batch']:raise ValueError('Missing successful/failed final candidates')

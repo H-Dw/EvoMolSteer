@@ -146,7 +146,7 @@
 
 ## 已绑定的确定性原型与只读实现核验
 
-原型文件：`results/multistage_v1/references/reference_packet.json`。SHA256：`33ef28e79fde101b967541ebc1e3c22ad8f6166eb595ed27c2803d15da7e781a`。仅包含14个discovery批次、51个评分时刻；26个自适应节点形成25个局部插值段。独立重算最大白化残差为 0.0996357381328（阈值0.1），RMS残差为 0.0220990090451。这些数字只验证发现集插值近似，不是heldout预测成绩。全部原始时刻的目标和协方差仍保留于原型包。
+原型文件：`results/multistage_v1/references/reference_packet.json`。SHA256：`5c3bf2fa2d2b5cd4397a4529a70c68f133f699aba0aa037b2ecce56a55b8025e`。仅包含14个discovery批次、51个评分时刻；26个自适应节点形成25个局部插值段。独立重算最大白化残差为 0.0996357381328（阈值0.1），RMS残差为 0.0220990090451。这些数字只验证发现集插值近似，不是heldout预测成绩。全部原始时刻的目标和协方差仍保留于原型包。
 
 只读审阅 `multistage_reward.py` 与 `multistage_controller.py`，核心公式、PCHIP/SPD处理、后半冻结、live pullback、native归一化和逐粒子几何回溯与设计一致。没有运行GPU实验或修改这些源码。已建议完善缺NOS的null遥测、raw/masked梯度以及mode责任度的熵/ESS；语义上的跳过不得被内部数值fallback覆盖。
 

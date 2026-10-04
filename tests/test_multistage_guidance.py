@@ -106,3 +106,32 @@ def test_geometry_backtracking_preserves_native_and_fixed_mask():
 def test_invalid_reference_rejected():
     reward,*_=fixture();bad=copy.deepcopy(reward.program);bad['covariance_A2'][0]=[[1.,2.],[2.,1.]]
     with pytest.raises(ValueError,match='positive definite'):MultistageReward(bad,reward.catalog)
+
+
+def test_empirical_distribution_distance_preserves_multisets():
+    from evomolsteer.generation.multistage_evaluation import energy_distance_squared
+    x=np.array([[1.,2.],[2.,3.],[1.,2.]])
+    assert energy_distance_squared(x,x[::-1])==pytest.approx(0,abs=1e-12)
+    assert energy_distance_squared(x,x+3)>0
+    assert np.isnan(energy_distance_squared(x[:0],x))
+
+
+def test_full_horizon_summary_does_not_hide_missing_atoms_or_late_activity():
+    import pandas as pd
+    from evomolsteer.generation.multistage_evaluation import summarize_control
+    records=[]
+    for step in range(100):
+        for slot in range(2):
+            valid=slot==0
+            records.append(dict(arm='multistage_full',batch=0,slot=slot,step=step,time=step*.01,
+                observable_available=valid,active=True,evaluated=True,requested_rms_A=.01,
+                injection_rms_A=.005 if valid else 0.,gradient_norm=1. if valid else 0.,
+                geometry_accepted=True,backtrack_factor=1.,cap_factor=.5,
+                injection_max_atom_A=.008 if valid else 0.,cumulative_injection_rms_A=(step+1)*.005 if valid else 0.,
+                applied_native_rms_ratio=.05 if valid else 0.,gradient_native_cosine=.2))
+    result=summarize_control(pd.DataFrame(records)).iloc[0]
+    assert result.available_active_particle_steps==100
+    assert result.evaluated_steps_per_batch_min==100
+    assert result.nonzero_injection_steps_per_batch_min==100
+    assert result.median_applied_over_requested==pytest.approx(.5)
+    assert result.late_nonzero_particle_fraction==pytest.approx(.5)

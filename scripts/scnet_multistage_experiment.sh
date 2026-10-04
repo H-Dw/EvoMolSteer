@@ -27,7 +27,7 @@ case "$mode" in
   comparison)
     ratio=$("$python" -c 'import json,sys; d=json.load(open(sys.argv[1])); assert d["status"]=="selected"; print(d["selected_ratio"])' "$experiment/pilot_evaluation/calibration.json")
     args+=(--campaign comparison_v1 --n 64 --batch 16 --seed 20261105 --native-rms-ratio "$ratio"
-           --arms unguided,single,gradient_legacy,static_full,multistage_window,multistage_full);;
+           --arms unguided,single,multistage_full,multistage_window,static_full,gradient_legacy);;
   *) echo 'Unknown mode' >&2; exit 2;;
 esac
 "$python" -u scripts/generate_multistage_flowr.py "${args[@]}"
