@@ -21,7 +21,7 @@ The single-target evidence exporter now selects the configured `evidence_arm`. T
 
 - **Outcome:** imitate the two declared endpoint selection preferences; test CK2 affinity rescore separately.
 - **Coordinate state:** native current coordinates x; prediction hθ(x,t; detached previous self-conditioning); world endpoint y = scale·hθ + target pocket COM. Receptor points and all active ligand slots use this same Å frame.
-- **Core target:** decrease VAL116 distance until its discovery p-weighted median 4.374834436 Å during [0,.1). Scale 0.127568599 Å. Optional compactness target 3.587680966 Å, scale 0.074939683 Å, during [.1,.2).
+- **Core target:** decrease VAL116 distance until its discovery p-weighted median 4.374834436 Å during [0,.1). Scale 0.127568599 Å. Optional compactness target 3.587680966 Å, scale 0.074939683 Å, during [.1,.2). Scales are equal-batch/equal-event uniform-candidate standard deviations, not IQR widths.
 - **Distance definition:** z = −τ log(mean over eligible atom–region pairs of exp(−distance/τ)), τ=.25 Å. It is not a minimum contact distance. Rg is the unweighted all-active-atom radius of gyration.
 - **Shape:** u=max((z−target)/scale,0); φ(u)=u²/2 for u≤1, else u−1/2. R=−Σ gate(t)·φ(u). This C1, one-sided Huber penalty stops attracting below the empirical median and bounds feature-space slope. The median is a conservative stopping convention, not a learned optimum.
 - **Time support:** exact stage support with .02-time-unit smoothstep taper; the stage starting at zero has full onset at zero. There is no reward after .2, although the historical selection scope extends to .5.
@@ -50,3 +50,7 @@ Remote MolSteer files inspected on 2026-10-04:
 - `src/molsteer/molthinker/knowledge.py`: SHA256 `32996130511bb625e1027d216fa18fd9e7c82af75c5763d356916f1f48ddc63e`.
 
 Relevant local skill: `C:/Users/Wei/.codex/skills/molthinker-reward-creativity/SKILL.md`. The program is a constrained data document; LLM-produced Python is not executed.
+
+## Literature cross-check after freezing the reward
+
+[RCSB 3PE1](https://www.rcsb.org/3d-view/3PE1) identifies the source structure as human CK2α bound to CX-4945. Primary structural work places Glu114 and Val116 in the hinge and describes water-mediated backbone interactions ([high-resolution CK2α structure](https://pmc.ncbi.nlm.nih.gov/articles/PMC3795567/)). Mutagenesis/biophysical work reports that His115 can affect ligand binding through hinge conformation while its side chain is not directly engaged by the studied ATP-site ligands ([histidine study](https://pmc.ncbi.nlm.nih.gov/articles/PMC10794401/)). This supports interpreting the neighboring geometric features as a hinge-proximal placement hypothesis. It does not identify a hydrogen bond, protonation state or causal affinity mechanism in any generated sample. No reward parameter was changed after this literature check.
