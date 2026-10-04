@@ -16,6 +16,7 @@ args=(--campaign "$campaign" --output "$output")
 if [ "$mode" = pilot ]; then args+=(--calibrate); fi
 "$python" scripts/evaluate_multistage_runs.py "${args[@]}"
 "$python" scripts/audit_generation.py --campaign "$campaign" --output "$output/generation_audit.json"
+"$python" scripts/audit_multistage_execution.py --campaign "$campaign" --output "$output/execution_audit.json"
 if [ "$mode" = comparison ]; then
   "$python" scripts/plot_multistage_results.py --reference configs/experiments/ck2_multistage_v1/reference_packet.json --evaluation "$output" --output "$output/figures"
 fi

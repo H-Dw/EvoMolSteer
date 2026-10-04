@@ -118,6 +118,7 @@ def test_empirical_distribution_distance_preserves_multisets():
     mask=np.array([[True,True,False]])
     np.testing.assert_allclose(nearest_pose_chamfer(shape,mask,shape[:,::-1],mask[:,::-1]),0)
     np.testing.assert_allclose(nearest_pose_chamfer(shape,mask,shape+np.array([0.,1.,0.]),mask),1.)
+    assert np.isnan(nearest_pose_chamfer(shape,mask*False,shape,mask)).all()
 
 
 def test_full_horizon_summary_does_not_hide_missing_atoms_or_late_activity():
@@ -129,7 +130,7 @@ def test_full_horizon_summary_does_not_hide_missing_atoms_or_late_activity():
             valid=slot==0
             records.append(dict(arm='multistage_full',batch=0,slot=slot,step=step,time=step*.01,
                 observable_available=valid,active=True,evaluated=True,requested_rms_A=.01,
-                injection_rms_A=.005 if valid else 0.,gradient_norm=1. if valid else 0.,
+                injection_rms_A=.005 if valid else 0.,gradient_norm=1. if valid else 0.,gradient_rms_native=.5 if valid else 0.,
                 geometry_accepted=True,backtrack_factor=1.,cap_factor=.5,
                 injection_max_atom_A=.008 if valid else 0.,cumulative_injection_rms_A=(step+1)*.005 if valid else 0.,
                 applied_native_rms_ratio=.05 if valid else 0.,gradient_native_cosine=.2))

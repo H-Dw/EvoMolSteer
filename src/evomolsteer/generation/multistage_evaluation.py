@@ -21,17 +21,29 @@ def control_rows(campaign):
         records=[json.loads(s) for s in path.read_text().splitlines()]
         if [r['step'] for r in records] != list(range(100)):
             raise ValueError('Incomplete control trace')
+        with open_trajectory(path.parent/'trajectory.h5') as trajectory:
+            atom_counts=trajectory['mask'].astype(bool).sum(-1)
+        cumulative=np.zeros(atom_counts.shape[1])
         for record in records:
             n=len(record['injection_max_atom_A'])
+            if n!=atom_counts.shape[1]:raise ValueError('Telemetry particle count mismatch')
+            rms=np.array(record['injection_l2_A'])/np.sqrt(atom_counts[record['step']])
+            cumulative+=rms
             for slot in range(n):
                 r={'arm':arm,'batch':batch,'slot':slot,'step':record['step'],'time':round(record['score_time'],6),
                    'evaluated':record['reward_evaluated'],'active':record['active']}
                 for k in ['injection_max_atom_A','native_rms_A','injection_rms_A','requested_rms_A',
-                          'gradient_norm','raw_gradient_norm','cap_factor','backtrack_factor','geometry_accepted',
+                          'gradient_norm','gradient_rms_native','raw_gradient_norm','cap_factor','backtrack_factor','geometry_accepted',
                           'applied_native_rms_ratio','cumulative_injection_rms_A','gradient_native_cosine',
                           'observable_available','responsibility_ess','responsibility_entropy','reward']:
                     v=record.get(k)
                     r[k]=v[slot] if isinstance(v,list) else None
+                if r['native_rms_A'] is None:
+                    r['native_rms_A']=record['native_l2_A'][slot]/np.sqrt(atom_counts[record['step'],slot])
+                if r['injection_rms_A'] is None:r['injection_rms_A']=rms[slot]
+                if r['cumulative_injection_rms_A'] is None:r['cumulative_injection_rms_A']=cumulative[slot]
+                if r['applied_native_rms_ratio'] is None:
+                    r['applied_native_rms_ratio']=r['injection_rms_A']/max(r['native_rms_A'],1e-30)
                 rows.append(r)
     return pd.DataFrame(rows)
 
@@ -39,9 +51,9 @@ def control_rows(campaign):
 def summarize_control(rows):
     summaries=[]
     for arm,g in rows.groupby('arm',sort=True):
-        available=g[g.observable_available.eq(True)&g.active.eq(True)&g.requested_rms_A.gt(1e-12)&g.gradient_norm.gt(1e-8)]
+        available=g[g.observable_available.eq(True)&g.active.eq(True)&g.requested_rms_A.gt(1e-12)&g.gradient_rms_native.gt(1e-8)]
         efficiency=(available.injection_rms_A/available.requested_rms_A)
-        last=g[g.time.ge(.5)]
+        last=g[g.time.gt(.5)]
         summaries.append({'arm':arm,'particle_steps':len(g),'reward_evaluated_fraction':float(g.evaluated.mean()),
             'available_active_particle_steps':len(available),
             'evaluated_steps_per_batch_min':int(g.groupby('batch').apply(lambda b:b.loc[b.evaluated,'step'].nunique(),include_groups=False).min()),
@@ -63,6 +75,9 @@ def calibrate(campaign, output):
     campaign,output=Path(campaign),Path(output)
     if not (campaign/'COMPLETE.json').exists(): raise ValueError('Pilot incomplete')
     records=read_json(campaign/'final_records.json');d=pd.DataFrame(records)
+    expected={'unguided','gradient_zero','multistage_r005','multistage_r015','multistage_r030'}
+    if set(d.arm)!=expected or d.duplicated(['arm','batch','slot']).any() or not d.groupby('arm').size().eq(12).all():
+        raise ValueError('Pilot final candidates do not match the frozen five-arm, 12-per-arm design')
     control=summarize_control(control_rows(campaign))
     baseline=d[d.arm.eq('unguided')]
     if len(baseline)!=12: raise ValueError('Predeclared calibration uses 12 pilot candidates')
@@ -83,6 +98,7 @@ def calibrate(campaign, output):
         'rule':'Largest ratio meeting median applied/requested>=.5, geometry rejection<=5%, valid connected>=baseline-1, final severe clash count<=baseline',
         'uses_affinity_for_selection':False,'pilot_n':12,'baseline_valid_connected':base_valid,
         'baseline_clash_candidates':base_clashes,'choices':choices,
+        'clash_count_scope':'Measured built molecules only; missing final geometry is not certified clash-free. All raw final structures are evaluated separately.',
         'source_program_sha256':digest(campaign/'reward_program.json'),
         'limitation':'Engineering feasibility in a small pilot, not optimization or statistical validation'}
     write_json(output/'calibration.json',result);write_table(output/'control_summary.csv',control)
@@ -119,14 +135,22 @@ def nearest_pose_chamfer(x, mask, reference, reference_mask):
     atom correspondence. This shape metric does not measure chemical identity.
     """
     mask=mask.astype(bool);reference_mask=reference_mask.astype(bool)
-    if not mask.any(1).all() or not reference_mask.any(1).all():
-        raise ValueError('Empty shape support')
-    d=np.linalg.norm(x[:,None,:,None,:]-reference[None,:,None,:,:],axis=-1)
-    forward=np.where(reference_mask[None,:,None,:],d,np.inf).min(-1)
-    reverse=np.where(mask[:,None,:,None],d,np.inf).min(-2)
-    distances=.5*((forward*mask[:,None,:]).sum(-1)/mask.sum(1)[:,None]+
-                   (reverse*reference_mask[None,:,:]).sum(-1)/reference_mask.sum(1)[None,:])
-    return distances.min(1)
+    valid=mask.any(1);valid_ref=reference_mask.any(1)
+    result=np.full(len(x),np.nan)
+    if not valid.any() or not valid_ref.any():return result
+    xx=x[valid];rr=reference[valid_ref];mm=mask[valid];rm=reference_mask[valid_ref]
+    d=np.linalg.norm(xx[:,None,:,None,:]-rr[None,:,None,:,:],axis=-1)
+    forward=np.where(rm[None,:,None,:],d,np.inf).min(-1)
+    reverse=np.where(mm[:,None,:,None],d,np.inf).min(-2)
+    distances=.5*((forward*mm[:,None,:]).sum(-1)/mm.sum(1)[:,None]+
+                   (reverse*rm[None,:,:]).sum(-1)/rm.sum(1)[None,:])
+    result[valid]=distances.min(1)
+    return result
+
+
+def heavy_mask(atomics, mask, catalog):
+    excluded=[catalog['atom_vocabulary'].get(e,-1) for e in ('H','<PAD>')]
+    return mask.astype(bool) & ~np.isin(atomics,excluded)
 
 
 def final_fingerprint_similarity(records):
@@ -160,7 +184,7 @@ def evaluate(campaign, output):
         write_table(output/(name+'.csv'),table)
     controls=control_rows(campaign);write_table(output/'control_summary.csv',summarize_control(controls))
     write_table(output/'control_particle_steps.parquet',controls)
-    distributions={};structures={};feature_rows=[];schedule=[]
+    distributions={};structures={};feature_rows=[];schedule=[];raw_final_rows=[]
     for path in trajectory_paths(campaign):
         arm=path.parent.parent.name;batch=int(path.parent.name.split('_')[1])
         frame=np.array(read_json(campaign/f'frame_batch_{batch:03d}.json')['target_com'])
@@ -175,7 +199,7 @@ def evaluate(campaign, output):
             for step,time in enumerate(times):
                 value=measure_patch(x[step],atoms[step],mask[step],catalog)
                 distributions[arm,batch,step]=value
-                structures[arm,batch,step]=(x[step],mask[step])
+                structures[arm,batch,step]=(x[step],heavy_mask(atoms[step],mask[step],catalog))
                 valid=np.isfinite(value).all(1)
                 with torch.no_grad():
                     r,_=reward.from_features(torch.tensor(np.nan_to_num(value)),torch.tensor(valid),time)
@@ -188,12 +212,25 @@ def evaluate(campaign, output):
             final=torch.load(f,map_location='cpu',weights_only=False)
         fx=final['coords'].numpy();fa=final['atomics'].argmax(-1).numpy();fm=final['mask'].numpy()
         value=measure_patch(fx,fa,fm,catalog);distributions[arm,batch,100]=value
-        structures[arm,batch,100]=(fx,fm)
+        hm=heavy_mask(fa,fm,catalog)
+        structures[arm,batch,100]=(fx,hm)
+        with gzip.open(path.parent/'initial_state.pt.gz','rb') as f:
+            initial=torch.load(f,map_location='cpu',weights_only=False)
+        pocket=initial['pocket_target'];pc=pocket['coords'].numpy()*scale+frame[:,None,:]
+        distances=np.linalg.norm(fx[:,:,None,:]-pc[:,None,:,:],axis=-1)
+        pm=hm[:,:,None]&pocket['mask'].numpy()[:,None,:].astype(bool)
+        for slot in range(len(fx)):
+            selected=distances[slot][pm[slot]]
+            raw_final_rows.append({'arm':arm,'batch':batch,'slot':slot,'raw_heavy_atom_count':int(hm[slot].sum()),
+                'geometry_measured':bool(len(selected)),
+                'min_pocket_distance_A':float(selected.min()) if len(selected) else None,
+                'raw_heavy_pairs_below_1_2A':int((selected<1.2).sum()) if len(selected) else None})
         row={'arm':arm,'batch':batch,'step':100,'time':1.,'feature_available_n':int(np.isfinite(value).all(1).sum())}
         row.update({f:float(np.nanmean(value[:,k])) for k,f in enumerate(reward.features)})
         row.update({k:float(np.nanmean(v)) for k,v in independent_observables(fx,fa,fm,catalog).items()})
         feature_rows.append(row)
     write_table(output/'feature_curve_batches.parquet',feature_rows);write_table(output/'resampling_schedule.csv',schedule)
+    write_table(output/'raw_final_geometry.csv',raw_final_rows)
     distance_rows=[]
     for (arm,batch,step),values in sorted(distributions.items()):
         if arm=='single' or ('single',batch,step) not in distributions:continue
@@ -201,10 +238,11 @@ def evaluate(campaign, output):
         finite=values[np.isfinite(values).all(1)];reference=reference[np.isfinite(reference).all(1)]
         _,cov=reward.references(step/100)
         whiten=np.linalg.inv(np.linalg.cholesky(cov)).T
+        shape=nearest_pose_chamfer(*structures[arm,batch,step],*structures['single',batch,step])
         distance_rows.append({'arm':arm,'batch':batch,'step':step,'time':step/100,
             'energy_squared_to_smc':energy_distance_squared(finite@whiten,reference@whiten),
-            'nearest_smc_pose_chamfer_A':float(nearest_pose_chamfer(*structures[arm,batch,step],
-                                                *structures['single',batch,step]).mean()),
+            'nearest_smc_pose_chamfer_A':float(np.nanmean(shape)) if np.isfinite(shape).any() else np.nan,
+            'shape_query_coverage_n':int(np.isfinite(shape).sum()),
             'n':len(finite),'smc_n':len(reference)})
     distance=pd.DataFrame(distance_rows)
     if len(distance):
@@ -229,7 +267,10 @@ def evaluate(campaign, output):
                 for arm,g in grp.groupby('arm',sort=True):
                     if arm=='unguided':continue
                     effect=g.set_index('batch')[metric]-base
-                    contrasts.append({'arm':arm,'domain':domain,'metric':metric,'negative_means_closer':True,**paired_effect(effect.to_numpy())})
+                    finite=effect[np.isfinite(effect)]
+                    result=paired_effect(finite.to_numpy()) if len(finite) else {'n_batches':0,'mean_difference':None}
+                    contrasts.append({'arm':arm,'domain':domain,'metric':metric,'negative_means_closer':True,
+                                      'missing_batch_pairs':len(effect)-len(finite),**result})
         write_table(output/'paired_imitation.csv',contrasts)
     write_table(output/'final_fingerprint_similarity.csv',final_fingerprint_similarity(records))
     write_json(output/'evaluation_manifest.json',{'status':'complete','source':str(campaign),
