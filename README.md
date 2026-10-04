@@ -14,6 +14,8 @@
 
 生成入口为 `scripts/generate_multistage_flowr.py --flowr-root <FLOWR目录> ...` 或 `evomolsteer-multistage`；分析入口为 `scripts/evaluate_multistage_runs.py`。见[Designer决策与公式](docs/ck2_multistage_design.md)、[执行接口和冻结比较方案](docs/ck2_multistage_execution.md)。旧版早期奖励作为独立对照保留。
 
+已完成 **60个pilot + 384个独立对照候选**。25段奖励在全程100步实际生效；选择窗内到SMC留存祖先的二维距离降低11.13%，但终态结构模仿未改善，多阶段全程未整体优于恒定目标。完整结果和限制见[实验报告](docs/ck2_multistage_report_20261005.md)、[Designer结果复核](docs/experiments/ck2_multistage_20261005/Designer.outcome_review.md)。74项本地测试通过，18张远端/本地评价表在1e−10容限内一致；两个生成归档的854个文件已下载并逐一校验。
+
 ## 历史 v2 分析与已完成实验
 
 从 FLOWR.ROOT **实际执行重采样的事件**中提取几何选择特征，为后续局部规则提出提供依据。主分析不使用终态、后代成功标签、窗口后的轨迹或反事实续跑结果。

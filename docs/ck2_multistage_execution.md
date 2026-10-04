@@ -34,3 +34,21 @@ g=∇x R(hθ(x,t))，通过真实终点网络Jacobian回到当前坐标。冻结
 ```
 
 生成：`scripts/generate_multistage_flowr.py --flowr-root <FLOWR目录> ...`；远端环境封装：`scripts/scnet_multistage_experiment.sh pilot|comparison`；评价：`scripts/evaluate_multistage_runs.py --campaign <生成目录> --output <结果目录> [--calibrate]`。代码在本地commit/push后远端pull，不在远端改代码。默认实验工作目录放在`/opt/evomolsteer-multistage-20261005`，避免占满仅剩少量空间的private_data；归档和可定位记录再放回MolSteer实验目录。
+
+完成的结果见[实验报告](ck2_multistage_report_20261005.md)。以下为复用所选η=.30的完整推理接口示例；在已安装FLOWR依赖并配置GPU环境后，从EvoMolSteer根目录执行，`--root`和`--campaign`使用新的输出位置：
+
+```bash
+python scripts/generate_multistage_flowr.py \
+  --flowr-root /path/to/flowr_root \
+  --input-dataset /path/to/ck2_clk3_lineage_20261003 \
+  --checkpoint /path/to/flowr_root/checkpoints/flowr_root_v2.ckpt \
+  --root /path/to/new_multistage_run --campaign full_v1 \
+  --n 64 --batch 16 --seed 20261205 --steps 100 --window .5 \
+  --arms unguided,single,multistage_full \
+  --program configs/experiments/ck2_multistage_v1/reward_program.json \
+  --catalog configs/experiments/ck2_multistage_v1/reward_catalog.json \
+  --native-rms-ratio .30 --max-atom-step-A .025 \
+  --live-preflight --component-audit
+```
+
+`--window .5`限定SMC对照的选择时间；`multistage_full`仍在全部100步引导。该η只在本次工程校准中可行，不是对其他靶标或输入普遍最优的默认结论。输入受体与奖励冻结的坐标文件须通过哈希校验。评价后可用 `scripts/compare_multistage_evaluations.py --reference <远端评价副本> --candidate <本地复算目录> --output <核验报告.json>`复核所有结果表。
