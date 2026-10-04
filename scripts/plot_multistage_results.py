@@ -15,7 +15,11 @@ packet=read_json(a.reference);t=np.array(packet['times']);centers=np.array(packe
 grid=np.linspace(0,1,401);fitted=PchipInterpolator(t[knots],centers[knots],axis=0)(np.minimum(grid,.5))
 plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False,'svg.fonttype':'none'})
 def save(fig,name):
-    for extension in ['png','pdf','svg']:fig.savefig(out/(name+'.'+extension),dpi=180,bbox_inches='tight')
+    for extension in ['png','pdf','svg']:
+        path=out/(name+'.'+extension)
+        fig.savefig(path,dpi=180,bbox_inches='tight')
+        if extension=='svg':
+            path.write_text('\n'.join(line.rstrip() for line in path.read_text(encoding='utf-8').splitlines())+'\n',encoding='utf-8',newline='\n')
     plt.close(fig)
 fig,axes=plt.subplots(1,2,figsize=(11,3.8),sharex=True)
 for k,ax in enumerate(axes):
