@@ -34,7 +34,7 @@ def main():
     # by the generation archive manifest. They contain NumPy RNG objects.
     with gzip.open(directory/'initial_state.pt.gz','rb') as f:
         initial=torch.load(f,map_location='cpu',weights_only=False)
-    pocket=device(initial['pocket_target']);com=torch.as_tensor(initial['target_com'],device='cuda',dtype=torch.float32)
+    pocket=device(initial['pocket_target']);com=torch.as_tensor(initial['target_com'],device='cuda',dtype=torch.float32).reshape(-1,3)
     runtime=RegionalReward(read_json(root/'reward_program.json'),read_json(root/'reward_catalog.json'))
     with torch.no_grad():
         equis,invs=model.gen.get_pocket_encoding(pocket['coords'],pocket['atom_names'],
@@ -69,7 +69,7 @@ def main():
                         'decreasing_feature_grad_norm':float(norm[slot]),'cosine':float(cos[slot]),
                         'affinity_derivative_per_unit_native_L2':float(dot[slot]/norm[slot].clamp_min(1e-20))})
             verification.append({'step':step,'checkpoint_sha256':digest(source),'max_endpoint_error':coord_error,'max_affinity_error':score_error})
-            del pred,ga,x
+            del pred,ga,x,affinity,values,gg
     out=Path(a.output);write_table(out/'feature_affinity_alignment.csv',records)
     write_json(out/'alignment_provenance.json',{'status':'completed','campaign':str(root),'arm':a.arm,'batch':a.batch,
         'verification':verification,'model_checkpoint_sha256':digest(a.checkpoint),
