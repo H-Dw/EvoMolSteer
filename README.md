@@ -6,7 +6,7 @@
 .venv/Scripts/python.exe scripts/run_pipeline.py --root data/optimized/main1000_w050/analysis_inputs_v2 --output results/continuous_single_v3 --config configs/continuous_single_target.json
 ```
 
-[v3 方法、公式和输出接口](docs/continuous_analysis_v3.md)。默认配置已切换 v3；下面的 v2 方法与既有梯度实验作为历史记录保留，不能与新统计混用。
+[v3 方法、公式和输出接口](docs/continuous_analysis_v3.md) · [完整运行、优势 seed 特征和函数拟合结果](docs/continuous_single_v3_report_20261005.md)。本地与远端已完成复算，104 张主要结果表数值一致；58 项测试通过。默认配置已切换 v3；下面的 v2 方法与既有梯度实验作为历史记录保留，不能与新统计混用。
 
 ## 历史 v2 分析与已完成实验
 

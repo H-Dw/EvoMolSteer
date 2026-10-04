@@ -53,6 +53,8 @@ FLOWR 键标签由源代码 `flowr/util/rdkit.py` 和 `flowr/util/molecule.py` �
 
 每个 split 的 `continuous/{trends,enrichment,differential,dynamics,pca}/` 单独保存批次事件曲线、点曲线、窗口统计和变化率。发现集另存 `functions.json`、`function_summary.csv`、`fitted_curves.parquet`、批次系数；验证集另存冻结函数误差。`lineage/window_ancestry.parquet` 保存所有候选及其窗口末端拷贝数，保留灭绝分支。
 
+`scripts/evaluate_continuous_function.py --functions FUNCTIONS.json --model-id MODEL_ID --times 0 .05 .25 .5 --output curve.csv` 是冻结函数的输入输出接口；保存函数值、一阶和二阶时间导数及来源，拒绝超出观测窗口的求值。函数 ID、表示和 contrast 必须同时核实，不能把“选择偏移”函数当作绝对距离目标。
+
 新 Analyst 输入为 `agents/Analyst.continuous.request.json`，包含独立连续分析 skill、严格 JSON schema 和可追溯证据。旧 2.0 的分段奖励编译器拒绝这一输入；本轮没有依据新拟合自动修改生成奖励或启动新的生成实验。
 
 Analyst 输入同时提供根数量/ESS、同胞和淘汰对照、实际复制及随机偏差，避免只给正向结果。LLM 传输视图使用 8 位有效数字、共享时间轴和列式控制表；科学数据及权威 evidence 文件仍保留完整双精度，不以传输视图反算奖励参数。

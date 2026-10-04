@@ -84,8 +84,9 @@ def global_fit(times, values, cfg, degree=None):
         'batch_coefficients':coefficients}
 
 
-def evaluate_frozen(model, times):
+def evaluate_frozen(model, times, derivative=0):
     t=np.asarray(times,float)
     if t.min()<model['time_start']-1e-7 or t.max()>model['time_end']+1e-7:
         raise ValueError('No extrapolation outside observed selection window')
-    return Legendre(model['legendre_coefficients'],domain=[model['time_start'],model['time_end']])(t)
+    if derivative not in (0,1,2):raise ValueError('Derivative order must be 0, 1 or 2')
+    return Legendre(model['legendre_coefficients'],domain=[model['time_start'],model['time_end']]).deriv(derivative)(t)

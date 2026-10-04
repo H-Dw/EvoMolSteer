@@ -25,6 +25,7 @@ def test_continuous_fit_recovers_function_derivatives_and_reversal():
     np.testing.assert_allclose(fit['curves']['fitted'],curve,atol=1e-14)
     np.testing.assert_allclose(fit['curves']['derivative'],1+4*(t-.25),atol=1e-13)
     np.testing.assert_allclose(evaluate_frozen(fit,t),curve,atol=1e-14)
+    np.testing.assert_allclose(evaluate_frozen(fit,t,1),1+4*(t-.25),atol=1e-13)
     # A zero-integral sign-changing preference must remain globally detectable.
     reversal=global_fit(t,np.repeat((t-.25)[None,:],8,axis=0),cfg)
     assert abs(reversal['window_mean_effect'])<1e-14

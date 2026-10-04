@@ -18,6 +18,8 @@ if __name__=='__main__':
     p.add_argument('--config',default=str(project/'configs/default.json'))
     p.add_argument('--skip-ingest',action='store_true')
     a=p.parse_args();out=Path(a.output);cfg=read_json(a.config)
+    if cfg.get('time_analysis')=='continuous_window' and not a.skip_ingest and (out/'config.json').exists():
+        raise FileExistsError('Continuous analysis already extracted here; use a fresh output or --skip-ingest with the same extraction config')
     source={str(f.relative_to(project)):digest(f) for folder in ['src','scripts','skills','prompts','schemas','configs']
             for f in sorted((project/folder).rglob('*')) if f.is_file() and '__pycache__' not in str(f)}
     runtime={'python':platform.python_version(),'platform':platform.platform(),
