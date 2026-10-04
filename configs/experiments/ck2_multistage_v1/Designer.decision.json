@@ -1,0 +1,483 @@
+{
+  "RewardDesignIR": {
+    "core_outcome": "Imitate discovery window-retained regional feature patterns while preserving native construction; independently test molecular quality and model affinity.",
+    "core_target": "correlated ASN117/VAL116 N/O/S regional patch",
+    "core_target_count": 1,
+    "evidence_ids": [
+      "continuous:trends:0005",
+      "continuous:enrichment:0028",
+      "continuous:differential:0032",
+      "continuous:trends:controls",
+      "continuous:differential:controls",
+      "continuous:lineage:control"
+    ],
+    "features": [
+      "ck2:A:ASN117::hetero_distance_softmin",
+      "ck2:A:VAL116::hetero_distance_softmin"
+    ],
+    "function_lineage": {
+      "basis": "MolThinker/MolExecutor live endpoint pullback and G01 geometric penalty family; correlation-aware kernel representatives are an explicit adaptation.",
+      "not_used": [
+        "S02 population resampling as a coordinate force",
+        "affinity-head objective",
+        "physical force-field energy",
+        "new neural fitting model",
+        "hard category gradients"
+      ],
+      "operator_components": [
+        "normalized regional softmin with detached NOS mask",
+        "background Mahalanobis geometry",
+        "pseudo-Huber robust radial error",
+        "uniform-batch log-mixture",
+        "local interpolation of empirical representatives",
+        "native-relative capped gradient ascent"
+      ]
+    },
+    "mode_interpretation": "Each mixture component is a batch-level retained-feature representative, not a learned biological mode or guaranteed distinct 3D pose. Means may erase within-batch multimodality; two distances cannot uniquely identify a structure.",
+    "observables": {
+      "atom_subset": "active predicted N/O/S ligand slots; current predicted categorical mask detached during differentiation",
+      "formula": "z_r(y)=-tau*log(mean_{i in active NOS,j in fixed region r} exp(-||y_i-q_j||/tau))",
+      "frame": "the fixed aligned CK2 receptor frame used by discovery features",
+      "missing_policy": "If no eligible N/O/S ligand slot, mark the particle unavailable and skip reward/injection. Do not substitute a numerical zero or interpret unavailable as a satisfied objective.",
+      "normalization": "The mean is over all eligible atom-region pairs; this is not nearest distance.",
+      "representation": "live predicted_endpoint_world_A",
+      "temperature_A": 0.25,
+      "units": "angstrom"
+    },
+    "retained_target_origin": {
+      "actual_eligible_batch_count": 14,
+      "audit_required": [
+        "retain all 51 raw event means and availability counts",
+        "retain copy weights and source batch identifiers",
+        "retain within-batch spread/retained candidate coverage",
+        "retain background covariance before and after regularization",
+        "record exact source trajectory/catalog hashes"
+      ],
+      "between_batch_weights": "Uniform over eligible discovery batches; never weight a batch by offspring counts, candidate count or root popularity.",
+      "intended_batch_representatives": 14,
+      "label": "ancestors of candidates present immediately after the last observed selection at t=.5; never t=1 success",
+      "minimum_retained_copy_coverage": 1.0,
+      "prototype_path": "results/multistage_v1/references/reference_packet.json",
+      "prototype_sha256": "33ef28e79fde101b967541ebc1e3c22ad8f6166eb595ed27c2803d15da7e781a",
+      "prototype_status": "frozen discovery packet independently hashed and interpolation residual reproduced",
+      "target_formula": "mu_b(t_k)=sum_i a_bi(t_k)*z_bi(t_k)/sum_i a_bi(t_k), restricted to jointly available features.",
+      "within_batch_weights": "Normalize recorded window-end descendant-copy counts among jointly finite retained candidates at the same event. Copy weights describe the conditional retained population; they do not increase independent sample size."
+    },
+    "scale_origin": {
+      "covariance_at_unobserved_t": "Convex interpolation of adjacent regularized covariance matrices; SPD is preserved. Never elementwise PCHIP a covariance matrix.",
+      "do_not_pool": "Do not pool raw coordinates/features across all times; mean drift is not instantaneous noise. Do not estimate scale from descendant clone counts.",
+      "eigenvalue_floor_A2": 0.01,
+      "equivalent_standard_deviation_floor_A": 0.1,
+      "formula": "At each observed t_k, compute joint within-batch covariance from valid matched unguided candidates, then average those covariances equally across eligible discovery batches.",
+      "parameter_status": "predeclared pilot stabilization, not an inferred optimal bandwidth",
+      "regularized_covariance": "Symmetrize S_k, eigendecompose, replace eigenvalues below 0.01 A^2, and reconstruct.",
+      "shrinkage_formula": "S_k=0.9*mean_b(Cov_unguided,b(t_k))+0.1*diag(mean_b(Cov_unguided,b(t_k)))",
+      "shrinkage_parameter": 0.1
+    },
+    "selected_reward": {
+      "boundedness": "Pseudo-Huber bounds whitened feature slope. R itself is unbounded below, and live-coordinate gradients can be amplified by the generator Jacobian. External displacement constraints remain necessary.",
+      "definitions": [
+        "e_b=z-mu_b(t)",
+        "r_b^2=e_b^T Sigma(t)^(-1) e_b",
+        "rho_delta(r_b)=delta^2*(sqrt(1+r_b^2/delta^2)-1)",
+        "pi_b=1/B_valid",
+        "R(z,t)=w*T*log(sum_b pi_b*exp(-rho_delta(r_b)/T))"
+      ],
+      "feature_gradient": "grad_z R=-w*sum_b alpha_b*Sigma^(-1)(z-mu_b)/sqrt(1+r_b^2/delta^2), where alpha_b=softmax(log(pi_b)-rho_delta(r_b)/T).",
+      "joint_patch_weight": 1.0,
+      "live_pullback": "y=s*h_theta(x,t; detached previous self-conditioning)+COM; g_x=J_y(x,t)^T*grad_y R. Model parameters and previous steps are frozen/detached; current coordinates remain live.",
+      "mixture_caveat": "At overlapping modes, responsibilities can average opposing directions; symmetry can yield a true zero gradient. Do not force motion after satisfaction or cancellation.",
+      "mixture_temperature": 1.0,
+      "name": "uniform-batch correlated radial pseudo-Huber mixture",
+      "observable_gradient": "With the categorical mask fixed, grad_{y_i} z_r=sum_j p_ij*(y_i-q_j)/||y_i-q_j||, with p_ij normalized across all eligible pairs; guard exact coincidence numerically and record nonfinite outcomes.",
+      "radial_delta": 1.0,
+      "shape_parameter_origin": "Dimensionless pilot conventions in background-whitened coordinates; not fitted from heldout or affinity.",
+      "stable_evaluation": "Use log-sum-exp; do not directly exponentiate very negative scores.",
+      "weight_separation": "w is an internal objective coefficient; external native-relative injection eta is separate. Sum per-particle rewards, never batch-mean gradients."
+    }
+  },
+  "agent": "Designer",
+  "architecture_comparison": [
+    {
+      "candidate": "independent rectangular intervals",
+      "decision": "reject as primary",
+      "reason": "Discard cross-residue correlation, double-count the overlapping patch, and may accept unsupported combinations of the two distances."
+    },
+    {
+      "candidate": "one correlated centroid",
+      "decision": "retain as possible diagnostic, not primary",
+      "reason": "Mahalanobis scaling is appropriate, but a single pooled mean can erase between-batch retained-feature alternatives."
+    },
+    {
+      "candidate": "uniform-batch correlated pseudo-Huber mixture",
+      "decision": "selected",
+      "reason": "Keeps one joint objective and multiple batch representatives without counting clone abundance as independent evidence; log-mixture is numerically stable in the far field."
+    },
+    {
+      "candidate": "bounded exp(-distance) mixture score",
+      "decision": "reject as primary",
+      "reason": "Bounded values can introduce far-field vanishing gradients; normalization may then amplify numerical noise. It is not needed because external displacement is explicitly bounded."
+    },
+    {
+      "candidate": "individual-retained-seed or branch-medoid mixture",
+      "decision": "defer to a diagnostic extension",
+      "reason": "Better preserves genuine within-batch alternatives if present, but substantially increases target count and dependence; first quantify retained spread and whether batch means are adequate. Do not call means full distribution preservation."
+    },
+    {
+      "candidate": "mixture of polynomial phase switches",
+      "decision": "reject",
+      "reason": "Polynomial turning points can be fitting artifacts and do not define mechanistic stages."
+    }
+  ],
+  "control_constraints": {
+    "backtracking": "Per particle, halve correction until finite values and all caps/pair/clash guards pass; if the declared finite backtracking limit is reached, use the native proposal and log rejection. Do not reject a whole batch because one particle fails.",
+    "budget_accounting": "Accumulate RMS of accepted additive corrections per molecule. Use remaining budget and atom cap through one per-molecule scalar; count actual accepted corrections after backtracking.",
+    "budget_caveat": "With 100 steps and a .025 A maximum atom correction, 2.5 A is a worst-case additive path-length bound and usually adds little beyond the step cap. It does not bound final native trajectory deviation, which the flow can amplify.",
+    "clash_predicate": "No new severe receptor atom pair: C(corrected) minus C(native) must be empty. A count-only check that trades one removed clash for a different new clash is insufficient.",
+    "constraint_scope": "These are geometric engineering guards, not physical energy minimization or guarantees of final chemistry.",
+    "cumulative_accepted_RMS_path_budget_A": 2.5,
+    "dt_note": "The reference native step already reflects the actual dt and stochastic increment; do not multiply by dt again after RMS normalization unless the runtime defines and documents an equivalent convention.",
+    "formula": "Let u be the native step displacement in world A on editable active atoms and g the masked current-coordinate gradient converted to the same world-coordinate basis. If available, finite and above the declared numerical gradient floor, delta_raw=eta*RMS(u)*g/RMS(g). Otherwise skip and record the reason. RMS(u)=0 also gives no correction.",
+    "gradient_floor": "The reviewed runtime skips normalization when RMS of the masked native-coordinate gradient is <=1e-8. This is a numerical pilot constant, not a learned target; gradient-zero/missing cases must remain explicit.",
+    "gradient_rms_floor_native": 1e-08,
+    "guard_reference": "Compare each candidate corrected current state to the same uncorrected native proposal, in the same world frame, with a declared fixed receptor heavy-atom set. Do not compare to the pre-native state.",
+    "max_atom_step_A": 0.025,
+    "maximum_pair_distance_change_A": 0.05,
+    "native_relative_strengths": [
+      0.05,
+      0.15,
+      0.3
+    ],
+    "native_step": "Run the unchanged native stochastic/categorical integrator; then add the guided coordinate correction. No particle resampling in gradient arms.",
+    "new_receptor_clash_threshold_A": 1.2,
+    "pair_guard_caveat": "The .05 A pair-distance limit is already implied by the .025 A per-atom correction cap through the triangle inequality. It is an explicit consistency check, not an independent stronger restriction.",
+    "pair_predicate": "Maximum absolute change of editable active ligand pair distances relative to native proposal must be <=.05 A. Inactive/fixed atoms remain unchanged.",
+    "required_telemetry": [
+      "reward availability and null/skip reason",
+      "joint z and nearest/responsible batch representatives",
+      "mixture responsibility entropy/ESS",
+      "raw and masked component/total gradient norms",
+      "gradient-native-step cosine and negative-alignment fraction",
+      "desired and applied native-RMS ratios",
+      "atom cap, path cap and backtracking factors",
+      "native versus accepted severe pair identities/counts",
+      "pair-distance change",
+      "late-horizon evaluations and actual nonzero corrections separately"
+    ],
+    "strength_origin": "predeclared exploratory native-RMS ratios, not calibrated biological parameters"
+  },
+  "evidence_and_counterevidence": [
+    {
+      "consequence": "Use typed regional geometry rather than uniformly attracting every atom.",
+      "evidence_ids": [
+        "continuous:trends:0005",
+        "continuous:trends:0004"
+      ],
+      "finding": "ASN117 endpoint NOS distance has negative integrated expected shift about -0.00852115 A; all-atom distance has positive mean about +0.00100001 A."
+    },
+    {
+      "consequence": "A supported-distribution neighborhood is more defensible than monotone unlimited attraction. Tail thresholds are time-matched background definitions, not physical cutoffs.",
+      "csv_row_zero_based": [
+        112,
+        114,
+        1432,
+        1434
+      ],
+      "finding": "Both lower and upper background-defined tails lose expected mass for each primary feature.",
+      "source": "discovery/continuous/enrichment/function_summary.csv",
+      "values": [
+        {
+          "contrast": "expected_low_mass_shift",
+          "effect": -0.00473417188638,
+          "feature": "ASN117 NOS",
+          "q": 0.0137987145065
+        },
+        {
+          "contrast": "expected_high_mass_shift",
+          "effect": -0.00587107495985,
+          "feature": "ASN117 NOS",
+          "q": 0.00517451793996
+        },
+        {
+          "contrast": "expected_low_mass_shift",
+          "effect": -0.00495362053285,
+          "feature": "VAL116 NOS",
+          "q": 0.00235205360907
+        },
+        {
+          "contrast": "expected_high_mass_shift",
+          "effect": -0.00496421578716,
+          "feature": "VAL116 NOS",
+          "q": 0.00220192252764
+        }
+      ]
+    },
+    {
+      "consequence": "Retained mixture targets are an explicit pilot imitation hypothesis; do not call them a statistically proven optimal distribution.",
+      "csv_row_zero_based": [
+        113,
+        115,
+        1433,
+        1435
+      ],
+      "finding": "The retrospective ancestor low/high tail effects have q values approximately .39-.65, so they are not corrected evidence of a sharply preferred retained band.",
+      "source": "discovery/continuous/enrichment/function_summary.csv"
+    },
+    {
+      "consequence": "No causal local coordinate advantage is established.",
+      "evidence_ids": [
+        "continuous:differential:controls",
+        "continuous:trends:controls"
+      ],
+      "finding": "Both NOS features show virtually zero same-parent endpoint differences; single-event copy noise is retained."
+    },
+    {
+      "consequence": "Uniform batch weights and independent batch-level evaluation are essential; 14 representatives are not 14 broadly sampled evolution mechanisms.",
+      "evidence_ids": [
+        "continuous:lineage:control"
+      ],
+      "finding": "Mean roots per batch fall from 50 to about 1.214 by .5 while selection ESS remains about 48.43."
+    },
+    {
+      "consequence": "Interpolate raw empirical event representatives locally; do not extrapolate the fitted global polynomial.",
+      "evidence_ids": [
+        "continuous:trends:0005",
+        "continuous:differential:0034"
+      ],
+      "finding": "Global high-degree curves can reverse observed later signs despite good overall R2."
+    }
+  ],
+  "independent_evaluation": {
+    "constant_definition": "Use mu_b(.5), Sigma(.5) and the same mixture for all t in [0,1).",
+    "distribution_warning": "Matching two feature coordinates is not full pose or molecular-distribution recovery. Report 2D similarity separately from 3D diversity and chemistry.",
+    "dose_warning": "window_only and full have different possible cumulative guidance dose; report accepted additive path length and active steps before attributing differences to late-stage timing.",
+    "full_definition": "Use the same continuous schedule through .5 and frozen terminal reference afterward, with the core objective present throughout.",
+    "interpretation": "Local fit, retained-feature similarity, validity/diversity and affinity can disagree. No single proxy defines overall success.",
+    "outcome_layers": [
+      "prototype/local interpolation residual and coverage",
+      "joint retained-feature distribution distance and per-batch/mode coverage",
+      "actual guidance activity and imposed dose over the entire horizon",
+      "final validity/connectivity, unique structures and severe clashes",
+      "independent model CK2 affinity rescore; CLK3 only as a diagnostic unless separately targeted"
+    ],
+    "pairing": "Same checkpoint, 100-step integration scheme, native settings, initial samples and per-batch seeds. Record every RNG difference; no resampling in gradient arms. A historical SMC arm may be reported separately but is not required to define these ablations.",
+    "required_matched_arms": [
+      "unguided",
+      "constant_terminal_reference_full",
+      "multistage_window_only",
+      "multistage_full"
+    ],
+    "statistics": "Independent batches are replicates. Report paired effect sizes and uncertainty; do not use atom/node counts as sample size.",
+    "window_only_definition": "Use the full continuous empirical schedule through t=.5, then zero external injection; retain this as an explicit ablation only."
+  },
+  "invocation": "subagent simulation",
+  "persistent_stage_policy": {
+    "adaptive_knots": "Fit each representative component with PCHIP on a shared time-knot set. At all 51 original times evaluate the maximum over valid batches of ||Sigma(t_k)^(-1/2)*(mu_b,raw(t_k)-mu_b,PCHIP(t_k))||. Add the earliest maximally violating observed time and repeat.",
+    "continuation": "For .5<t<1, freeze mu_b(t)=mu_b(.5) and Sigma(t)=Sigma(.5); evaluate the same core term at every native integration step.",
+    "continuation_status": "explicit terminal-reference maintenance hypothesis, unsupported by selection evidence after .5",
+    "continuity": "Coordinate target and reward are continuous at .5; the external time derivative may have a kink and is not used as a spatial gradient.",
+    "frozen_interpolation_audit": {
+      "knot_event_indices": [
+        0,
+        4,
+        6,
+        8,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        20,
+        22,
+        23,
+        25,
+        27,
+        29,
+        31,
+        34,
+        38,
+        42,
+        45,
+        47,
+        50
+      ],
+      "maximum_whitened_error": 0.09963573813280088,
+      "meaning": "Discovery interpolation only, not validation performance or causal path recovery",
+      "n_knots": 26,
+      "n_local_segments": 25,
+      "n_observed_times": 51,
+      "rms_whitened_error": 0.022099009045097286,
+      "tolerance": 0.1
+    },
+    "initial_knots": [
+      0.0,
+      0.5
+    ],
+    "knots_origin": "predeclared interpolation-error criterion, not arbitrary .1 bins or inferred biological phase boundaries",
+    "missing_modes": "Do not interpolate over unrecorded/undefined NOS targets or silently create a zero target. Prototype extraction must declare complete-window eligible modes and all excluded batch/times. Insufficient coverage prevents freezing that configuration.",
+    "normalized_max_residual_tolerance": 0.1,
+    "objective_persistence": "Each interpolation segment uses the same correlated regional objective. No early term is silently removed when a later segment becomes active.",
+    "target_domain": "[0,.5] observed score-time axis",
+    "termination": "Stop when all jointly supported original events meet tolerance; at worst retain all 51 events. Store residuals, knots and raw values; inspect between-node behavior because a node-wise tolerance is not a continuous supremum bound."
+  },
+  "pilot_calibration_rule": {
+    "calibration_metrics": [
+      "achieved versus requested RMS ratio conditional on valid nonzero-gradient steps",
+      "cap and backtracking frequencies",
+      "complete rejection fraction",
+      "availability and late zero-gradient rates"
+    ],
+    "decision": "Run and report all three ratios. Freeze one external ratio before comparison based only on numerical feasibility and realized control, never final affinity or discovery-fit improvement. Preserve all calibration outputs; no silent retuning of prototypes.",
+    "mandatory_prechecks": [
+      "finite-difference through the actual live endpoint with fixed categorical masks",
+      "full 100-step zero-strength identity and RNG audit",
+      "native/world scaling and cap tests",
+      "per-particle/batch-duplication independence",
+      "exact missing-NOS behavior",
+      "early and late time activity including .5 continuation"
+    ],
+    "pilot_samples_per_arm": 12,
+    "ratios": [
+      0.05,
+      0.15,
+      0.3
+    ],
+    "recommended_engineering_selection_rule": {
+      "maximum_complete_rejection_fraction": 0.05,
+      "maximum_final_severe_clash_count_increase_vs_matched_unguided": 0,
+      "maximum_valid_count_deficit_vs_matched_unguided": 1,
+      "minimum_applied_fraction": 0.5,
+      "pilot_interpretation": "n=12 per arm is a feasibility screen, not a significance test or efficacy study; final quality gates are distinct from per-step native-proposal guards.",
+      "rationale": "Avoid choosing a nominally strong setting whose actual control is dominated by clipping or rejection. These thresholds are engineering conventions and must be predeclared if used.",
+      "rule": "Among ratios passing mandatory checks with zero accepted guard violations, retain the largest with median(applied/desired RMS)>=.5 over eligible nonzero desired steps, complete rejection fraction<=.05, valid-molecule count no more than one below matched unguided, and final severe-clash count no greater than matched unguided. If none qualifies, report calibration failure. Do not rank by affinity.",
+      "status": "adopted predeclared engineering feasibility rule, pending pilot execution"
+    },
+    "stage": "fresh calibration seeds only, before independent matched comparison"
+  },
+  "provenance": {
+    "analyst": {
+      "path": "results/continuous_single_v3/agents/Analyst.continuous.response.json",
+      "sha256": "a2b54abe5d2dc2fb28d99f33e94702cd68fb2f73d14ec58be7343613437515d8"
+    },
+    "deterministic_prototype": {
+      "path": "results/multistage_v1/references/reference_packet.json",
+      "sha256": "5c3bf2fa2d2b5cd4397a4529a70c68f133f699aba0aa037b2ecce56a55b8025e",
+      "split": "discovery"
+    },
+    "evidence": {
+      "path": "results/continuous_single_v3/agents/continuous_evidence.json",
+      "sha256": "c397f69dbfe3c233d7f8a88700acaac1c475af0dd382986bd65cfba5cffd2554"
+    },
+    "prompt": {
+      "path": "prompts/Designer.multistage.txt",
+      "sha256": "750222a96706624da8ba38de1ed1866d0ee89655a4e35067a10a3ca76d25ab53"
+    },
+    "skill": {
+      "path": "skills/multistage-designer/SKILL.md",
+      "sha256": "072e209cdc59978124ebe7b928a8050faae12a754ea0b39f7fdd972a9e5ef642"
+    },
+    "tail_table": {
+      "path": "results/continuous_single_v3/discovery/continuous/enrichment/function_summary.csv",
+      "sha256": "aad3d03e9859012e4ccb8863815a1597e3497f74302df43110903e4197a3cbd0"
+    }
+  },
+  "read_only_implementation_review": {
+    "files": [
+      {
+        "path": "src/evomolsteer/generation/multistage_reward.py",
+        "sha256": "1d416a4206f9061d1a50c56f546caf6e0a4ad6ad35dcfaf9776bbb7ad5c4d9e6"
+      },
+      {
+        "path": "src/evomolsteer/generation/multistage_controller.py",
+        "sha256": "0f3fa94349da07832e15e8629d62d8a6439cee3e12461c8f1f35ada50bc5e5f0"
+      }
+    ],
+    "matched": [
+      "joint pseudo-Huber log mixture and uniform reference weights",
+      "PCHIP centers and SPD convex covariance interpolation",
+      "fixed .5 continuation reference",
+      "live current-coordinate gradient pullback with detached categories",
+      "native RMS normalization and scalar atom/path caps",
+      "per-particle backtracking against exact native proposal including new atom-pair clashes"
+    ],
+    "requested_clarifications": [
+      "Missing NOS correctly masks the computational reward gradient, but telemetry should emit null for unavailable reward/nearest-mode quantities rather than presenting fallback values as valid.",
+      "Add raw versus masked gradient/component norms and responsibility entropy/ESS to match the declared diagnostics.",
+      "Pair-distance and cumulative caps have partly redundant bounds; do not overstate their independent protection."
+    ],
+    "status": "core mathematical design matched in inspected source snapshot; telemetry improvements requested; no GPU execution performed"
+  },
+  "revision_flags": [
+    {
+      "decision": "accepted as explicit pilot assumption",
+      "item": "covariance floor",
+      "note": ".1 A is a standard-deviation/eigenvalue-square-root floor; variance floor is .01 A^2."
+    },
+    {
+      "decision": "retain as upper pilot setting only",
+      "item": "eta .3",
+      "note": "Constraint-enforced feasibility and actual applied dose must be reported; no claim of prior calibration."
+    },
+    {
+      "decision": "retain with limited interpretation",
+      "item": "2.5 A path cap",
+      "note": "At 100*.025 A it mostly records the worst-case additive path, not an independent strong constraint or terminal displacement bound."
+    },
+    {
+      "decision": "retain as minimal prototype mixture with distribution caveat",
+      "item": "14 batch means",
+      "note": "Not genuine pose modes; if within-batch retained spread is multimodal, a branch/medoid extension is needed before claiming distribution preservation."
+    }
+  ],
+  "schema_version": "multistage-designer-decision-1.0",
+  "scope": {
+    "control_domain": "0 <= t < 1",
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "evidence_domain": [
+      0.0,
+      0.5
+    ],
+    "generated_python": false,
+    "learned_neural_reward_model": false,
+    "observed_events": 51,
+    "target": "single CK2",
+    "time_binning": false,
+    "validation_heldout_or_new_outcomes_used": false
+  },
+  "status": "prototype_frozen_runtime_verification_pending",
+  "unresolved_before_execution": [
+    "runtime finite backtracking limit and explicit missing-value telemetry",
+    "runtime frame/mask/guard numerical tests including actual GPU live pullback",
+    "calibration choice under the predeclared feasibility gates",
+    "new-seed independent matched evaluation configuration"
+  ],
+  "why_early_controller_could_be_weak": {
+    "factors": [
+      "Earlier core guidance was disabled after its short early support instead of evaluating the objective over the full horizon.",
+      "A one-sided median stop intentionally supplies zero force below the stopping value and did not model both depleted tails.",
+      "Independent scalar targets omitted joint patch correlation and between-batch alternatives.",
+      "A raw scalar gradient strength did not report its size relative to native-step motion.",
+      "These structural limitations do not prove why any specific experimental run succeeded or failed."
+    ],
+    "status": "design-based explanation only; no new experiment outcomes inspected"
+  }
+}
