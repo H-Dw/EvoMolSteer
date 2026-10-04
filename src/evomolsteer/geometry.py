@@ -25,6 +25,8 @@ def build_catalog(root,config,vocab):
     root=Path(root); regions={}; features={}
     for pocket,pdb,sdf in [('ck2','3PE1_protein_aligned.pdb','3PE1_ligand_aligned.sdf'),
                            ('clk3','6KHF_protein_aligned.pdb','6KHF_ligand_aligned.sdf')]:
+        if pocket not in config.get('feature_pockets', ['ck2', 'clk3']):
+            continue
         atoms=pdb_atoms(root/'inputs'/pdb); ref=sdf_reference_xyz(root/'inputs'/sdf)
         grouped={}
         for a in atoms:

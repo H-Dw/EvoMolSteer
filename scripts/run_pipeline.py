@@ -34,6 +34,7 @@ if __name__=='__main__':
         if policy(old_cfg).profile!=policy(cfg).profile:
             raise ValueError('Changing the cache encoding profile requires a fresh output directory')
         geometry_keys=['analysis_scope','campaign','analysis_representations','selection_arms','background_arm','stage_width',
+                       'time_analysis','feature_schema','feature_pockets','bond_order_by_label',
                        'pocket_radius_A','softmin_temperature_A','contact_midpoint_A','contact_width_A',
                        'discovery_batches','validation_batches','heldout_batches','include_batches']
         if Path(manifest['source_root']).resolve()!=Path(a.root).resolve() or any(old_cfg.get(k)!=cfg.get(k) for k in geometry_keys):
@@ -46,17 +47,22 @@ if __name__=='__main__':
             write_json(out/'ingest_manifest.json',manifest)
     else:
         print('Extracting actual selection events and matched controls',flush=True);ingest(a.root,out,cfg)
-    for name in ['enrichment','differential','trends','pca']:
-        print('Analyzing '+name,flush=True);importlib.import_module('evomolsteer.'+name).run(out,'discovery')
-    print('Building discovery evidence and Analyst request',flush=True)
-    build_bundle(out);export_request(out,'Analyst')
-    from evomolsteer.reporting import summarize
-    summarize(out)
+    if cfg.get('time_analysis')=='continuous_window':
+        from evomolsteer.continuous.pipeline import run
+        run(out)
+    else:
+        for name in ['enrichment','differential','trends','pca']:
+            print('Analyzing '+name,flush=True);importlib.import_module('evomolsteer.'+name).run(out,'discovery')
+        print('Building discovery evidence and Analyst request',flush=True)
+        build_bundle(out);export_request(out,'Analyst')
+        from evomolsteer.reporting import summarize
+        summarize(out)
     retired=retire_feature_cache(out,cfg)
     write_json(out/'output_policy_report.json',{'policy':vars(policy(cfg)),'feature_cache':retired,
         'complete_statistics_retained':True,'significance_filter_applied':False,
         'node_detail_regeneration':'Use audit output_policy in a separate output directory with the same scientific config',
         'feature_cache_regeneration':'scripts/materialize_feature_cache.py --analysis THIS_RUN'})
     write_json(out/'run_provenance.json',{'code_sha256':source,'runtime':runtime,'config':cfg,'status':'complete',
-        'output_sha256':{str(f.relative_to(out)):digest(f) for f in sorted((out/'discovery').rglob('*')) if f.is_file()}})
+        'output_sha256':{str(f.relative_to(out)):digest(f) for split in ['discovery','validation','heldout','agents']
+                         for f in sorted((out/split).rglob('*')) if f.is_file()}})
     print('Complete; no external LLM API called',flush=True)

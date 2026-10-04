@@ -63,10 +63,12 @@ def open_trajectory(path):
         raise ValueError('Unsupported trajectory source')
 
 
-def analysis_arrays(source):
+def analysis_arrays(source, chemistry=False):
     """Load only consumed fields, retaining all ancestry checks and hard states."""
     keys = ['pic50_on','pic50_off','weight_on','weight_off','selection_probability',
             'selected_indices','offspring_count','root_slot','parent_slot','score_time',
             'step_size','state_time','resampled','mask','predicted_coords','predicted_atomics']
     keys += [rep+'_'+field for rep in ('current','proposal') for field in ('coords','atomics','bonds','charges')]
+    if chemistry:
+        keys += ['predicted_bonds', 'predicted_charges']
     return {key:source[key] for key in keys}

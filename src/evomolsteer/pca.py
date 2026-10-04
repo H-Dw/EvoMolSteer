@@ -55,8 +55,15 @@ def run(analysis,split='discovery'):
         m = selection_moments(g[pcs].to_numpy(),g.probability,g.offspring_count)
         rows.append(event_frame(g,pcs,population_centroid=m['population_mean'],
             expected_selection_shift=m['expected_selection_shift'],realized_selection_shift=m['realized_selection_shift']))
-    dest = analysis/split/'pca'
-    save_metrics(dest,pd.concat(rows,ignore_index=True),['expected_selection_shift','realized_selection_shift'],cfg)
+    if cfg.get('time_analysis')=='continuous_window':
+        from .continuous.summary import summarize_method
+        dest = analysis/split/'continuous/pca'
+        frame=pd.concat(rows,ignore_index=True).drop(columns=['stage'])
+        write_table(dest/'batch_event_curves.parquet',frame)
+        summarize_method(analysis,'pca',split)
+    else:
+        dest = analysis/split/'pca'
+        save_metrics(dest,pd.concat(rows,ignore_index=True),['expected_selection_shift','realized_selection_shift'],cfg)
     retain = policy(cfg).write_node_details
     if retain:
         write_table(dest/'scores.parquet',scores)

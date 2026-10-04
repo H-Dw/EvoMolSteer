@@ -12,11 +12,28 @@ def main(argv=None):
         from .ingest import ingest
         result=ingest(a.root,out,read_json(a.config));print('Audited batches:',len(result))
     elif a.command in ['enrichment','differential','pca','trends','analyze']:
+        if read_json(out/'config.json').get('time_analysis')=='continuous_window':
+            from .continuous.pipeline import run
+            from .continuous.events import build_events
+            from .continuous.summary import summarize_method
+            if a.command=='analyze':run(out)
+            elif a.command=='pca':
+                from .pca import run as run_pca
+                run_pca(out,a.split)
+            else:
+                if not (out/a.split/'continuous'/a.command/'batch_event_curves.parquet').exists():
+                    build_events(out,a.split)
+                summarize_method(out,a.command,a.split)
+            return
         import importlib
         names=['enrichment','differential','trends','pca'] if a.command=='analyze' else [a.command]
         for name in names:
             print('Running',name,flush=True);importlib.import_module('evomolsteer.'+name).run(out,a.split)
     elif a.command=='bundle':
+        if read_json(out/'config.json').get('time_analysis')=='continuous_window':
+            from .continuous.pipeline import build_evidence
+            build_evidence(out)
+            return
         from .evidence import build_bundle
         build_bundle(out,a.split)
     elif a.command.startswith('agent-'):

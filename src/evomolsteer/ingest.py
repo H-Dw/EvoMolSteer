@@ -32,6 +32,10 @@ def ingest(root,output,cfg):
     steps = np.asarray(scope['steps'],int)
     config = read_json(camp/'config.json')
     catalog = build_catalog(root,cfg,config['atom_vocabulary'])
+    chemistry = cfg.get('feature_schema') == 'regional_chemistry_v3'
+    if chemistry:
+        from .chemical_features import extend_catalog, measure_chemistry
+        catalog = extend_catalog(catalog, config['charge_vocabulary'], cfg)
     output.mkdir(parents=True,exist_ok=True)
     writer = None
     edges,events,audits,priors,files = [],[],[],{},{}
@@ -47,7 +51,7 @@ def ingest(root,output,cfg):
         if cfg.get('include_batches') is not None and batch not in cfg['include_batches']:
             continue
         with open_trajectory(path) as archive:
-            z = analysis_arrays(archive)
+            z = analysis_arrays(archive, chemistry=chemistry)
         T,B = z['pic50_on'].shape
         N = z['predicted_coords'].shape[2]
         times = z['score_time'][:,0].astype(float)
@@ -112,6 +116,11 @@ def ingest(root,output,cfg):
             prefix = REPRESENTATIONS[representation]
             xyz = z[prefix+'_coords'][steps].astype(float)*config['coord_scale']+com[None,:,None,:]
             values = measure(xyz.reshape(-1,N,3),z[prefix+'_atomics'][steps].reshape(-1,N),z['mask'][steps].reshape(-1,N),catalog)
+            if chemistry:
+                values.update(measure_chemistry(xyz.reshape(-1,N,3),
+                    z[prefix+'_atomics'][steps].reshape(-1,N), z['mask'][steps].reshape(-1,N),
+                    z[prefix+'_bonds'][steps].reshape(-1,N,N),
+                    z[prefix+'_charges'][steps].reshape(-1,N), catalog))
             df = pd.DataFrame(common)
             df['representation'] = representation
             df['geometry_time'] = df.state_time if prefix=='proposal' else df.score_time

@@ -49,7 +49,11 @@ def discover_scope(campaign, cfg):
     steps, times = schedules[0]
     if any(steps!=s or not np.allclose(times,t,rtol=0,atol=1e-7) for s,t in schedules):
         raise ValueError('Analyze different selection schedules as separate campaigns')
-    edges = stage_edges(times, cfg['stage_width'])
+    # v3 retains one whole window for compatibility metadata only. All v3
+    # inference/fits use the original event times, never this `stage` column.
+    edges = (np.round([min(times), max(times)], 6).tolist()
+             if cfg.get('time_analysis') == 'continuous_window'
+             else stage_edges(times, cfg['stage_width']))
     assignments = stage_for(times, edges)
     stages = []
     for i, (start,end) in enumerate(zip(edges,edges[1:])):

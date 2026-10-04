@@ -1,4 +1,14 @@
-# EvoMolSteer · 选择窗口分析 v2
+# EvoMolSteer · 完整选择窗口连续分析 v3
+
+主分析现已改为对 **0–0.5 的全部实际选择节点**统一分析，不再汇总为 0.1 宽子区间。连续趋势、双侧富集、窗口末端谱系留存、选择/生成变化分解、全局函数拟合及解析导数分别保存；新增区域坐标、原子、形式电荷和化学键观测。物理能量缺失时不以几何代理冒充。
+
+```powershell
+.venv/Scripts/python.exe scripts/run_pipeline.py --root data/optimized/main1000_w050/analysis_inputs_v2 --output results/continuous_single_v3 --config configs/continuous_single_target.json
+```
+
+[v3 方法、公式和输出接口](docs/continuous_analysis_v3.md)。默认配置已切换 v3；下面的 v2 方法与既有梯度实验作为历史记录保留，不能与新统计混用。
+
+## 历史 v2 分析与已完成实验
 
 从 FLOWR.ROOT **实际执行重采样的事件**中提取几何选择特征，为后续局部规则提出提供依据。主分析不使用终态、后代成功标签、窗口后的轨迹或反事实续跑结果。
 

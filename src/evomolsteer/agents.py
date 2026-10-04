@@ -9,6 +9,11 @@ PROJECT=Path(__file__).resolve().parents[2]
 
 def export_request(analysis,role):
     if role not in ['Analyst','Designer']:raise ValueError('Role required')
+    if read_json(Path(analysis)/'config.json').get('time_analysis')=='continuous_window':
+        if role!='Analyst':raise ValueError('Continuous curve evidence cannot use the legacy stage-based Designer compiler')
+        from .continuous.pipeline import build_evidence
+        build_evidence(analysis)
+        return read_json(Path(analysis)/'agents/Analyst.continuous.request.json')
     analysis=Path(analysis);dest=analysis/'agents';bundle=read_json(dest/'evidence_bundle.json')
     payload={'evidence_bundle':bundle};schema=ANALYST
     if role=='Designer':
@@ -37,6 +42,9 @@ def render_report(data):
     return '\n'.join(lines)+'\n'
 
 def import_response(request_path,response_path,analysis):
+    if read_json(request_path).get('schema_version')=='continuous-3.0':
+        from .continuous.agent_contract import import_response as continuous_import
+        return continuous_import(request_path,response_path,analysis)
     request=read_json(request_path);analysis=Path(analysis);dest=analysis/'agents';bundle_path=dest/'evidence_bundle.json'
     if digest(bundle_path)!=request['bundle_sha256']:raise ValueError('Evidence changed since request export')
     data=read_json(response_path);bundle=read_json(bundle_path);role=request['role']
