@@ -60,9 +60,12 @@ class Extension:
         inp=Path(opt.input_dataset); inp=inp/'inputs' if (inp/'inputs').is_dir() else inp
         target=Path(opt.root)/'inputs';target.mkdir(parents=True,exist_ok=True)
         from .launcher import INPUT_FILES
+        program=json.loads(Path(opt.program).read_text())
         for name in INPUT_FILES:
             src,dst=inp/name,target/name
             if not src.is_file(): raise FileNotFoundError(src)
+            expected=program.get('required_input_sha256',{}).get(name)
+            if expected is not None and self._sha(src)!=expected:raise ValueError('Reward receptor/frame input mismatch: '+name)
             if dst.exists() and src.read_bytes()!=dst.read_bytes(): raise ValueError('Pocket input mismatch')
             if not dst.exists(): shutil.copy2(src,dst)
         # Seed before model/dataloader construction, making prior generation reproducible.
@@ -166,7 +169,10 @@ class Extension:
             self.row.update(active=strength>0,reward_evaluated=True,reward=value.cpu().tolist(),terms=detail,
                             gradient_norm=g.norm(dim=(1,2)).cpu().tolist(),cap_factor=factor.cpu().tolist())
             if self.opt.live_preflight and not self.preflight_done:
-                self.preflight(forward,curr,com,terms,g,value)
+                from .controller import rng_state,set_rng
+                saved_rng=rng_state()
+                try:self.preflight(forward,curr,com,terms,g,value)
+                finally:set_rng(saved_rng)
                 self.preflight_done=True
             return pred,new_cond
         with torch.no_grad():return forward(curr['coords'])

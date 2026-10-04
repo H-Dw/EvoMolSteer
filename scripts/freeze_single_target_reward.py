@@ -7,10 +7,8 @@ from evomolsteer.io import read_json,write_json,digest
 def main():
     p=argparse.ArgumentParser();p.add_argument('--analysis',required=True);p.add_argument('--output',required=True)
     a=p.parse_args();root=Path(a.analysis);out=Path(a.output)
-    request=read_json(root/'agents/Analyst.request.json')
-    # Exported payload remains authoritative; never open validation/heldout caches here.
-    import json
-    bundle=json.loads(request['messages'][1]['content'].split('\n\n\n',1)[1])['evidence_bundle']
+    # Never open validation/heldout caches here.
+    bundle=read_json(root/'agents/evidence_bundle.json')
     assert bundle['split']=='discovery' and bundle['evidence_arm']=='single'
     specifications=[('region','ck2:A:VAL116::distance_softmin',0),('compact','ligand::radius_gyration',1)]
     terms=[]
@@ -25,10 +23,14 @@ def main():
     regions={catalog['features'][t['feature']]['region'] for t in terms}
     catalog['features']={t['feature']:catalog['features'][t['feature']] for t in terms}
     catalog['regions']={k:v for k,v in catalog['regions'].items() if k in regions}
+    inputs=Path(read_json(root/'ingest_manifest.json')['source_root'])/'inputs'
+    from evomolsteer.generation.launcher import INPUT_FILES
     program={'schema_version':'live-regional-1.0','program_id':'ck2_discovery_regional_v1',
         'representation':'predicted_endpoint_world_A','terms':terms,
         'source_dataset_id':bundle['dataset_id'],'source_request_sha256':digest(root/'agents/Analyst.request.json'),
         'source_catalog_sha256':digest(root/'feature_catalog.json'),
+        'source_catalog_hash_meaning':'Complete original analysis catalog, before runtime region/feature trimming',
+        'required_input_sha256':{name:digest(inputs/name) for name in INPUT_FILES},
         'parameter_policy':'Discovery-only fixed medians/IQR-derived scales; no validation or final outcomes',
         'hypothesis_status':'selection-associated geometry; affinity benefit unvalidated',
         'gradient_semantics':'sum of independent per-particle rewards; no mean scaling with batch size',
