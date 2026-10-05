@@ -1,0 +1,4772 @@
+{
+  "schema_version": "continuous-3.0",
+  "review_type": "coordinate-affinity-evidence-review-1.0",
+  "agent": {
+    "name": "Analyst",
+    "invocation": "subagent simulation",
+    "date": "2026-10-06",
+    "external_api_call": false
+  },
+  "decision": "暂缓 ASN117/VAL116 独立坐标优势及因果机制声明；允许明确标注探索性的 current-state 几何约束。",
+  "scope": {
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "excluded_from_scientific_review_and_design": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "window": [
+      0.0,
+      0.5
+    ],
+    "actual_times": [
+      0.0,
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2,
+      0.21,
+      0.22,
+      0.23,
+      0.24,
+      0.25,
+      0.26,
+      0.27,
+      0.28,
+      0.29,
+      0.3,
+      0.31,
+      0.32,
+      0.33,
+      0.34,
+      0.35,
+      0.36,
+      0.37,
+      0.38,
+      0.39,
+      0.4,
+      0.41,
+      0.42,
+      0.43,
+      0.44,
+      0.45,
+      0.46,
+      0.47,
+      0.48,
+      0.49,
+      0.5
+    ],
+    "terminal_states_used": false,
+    "raw_trajectories_read": false,
+    "heldout_statistics_used": false,
+    "read_boundary": "仅 manifest 的分区/文件元数据；CSV 先筛 discovery 或 batch<14；continuous_functions 根据源码仅包含 discovery 的 selected_mean 拟合。",
+    "n_independent_units": 14,
+    "independent_unit": "generation batch; not slots, clones, atoms, regions or time nodes"
+  },
+  "provenance": {
+    "results/coordinate_affinity_v1/manifest.json": {
+      "sha256": "4ff3f6f1cbbbf3c8e1cb30c90f86ba0fa94dce49778117cbe8d3305438e9f032",
+      "bytes": 9460
+    },
+    "results/coordinate_affinity_v1/whole_window_evidence.csv": {
+      "sha256": "29dd57fdf3bc886d30c74f21068ffdcddae2fa5341eddf7f8e3b9af71784264d",
+      "bytes": 6092486
+    },
+    "results/coordinate_affinity_v1/continuous_functions.json": {
+      "sha256": "16a3cc0340b46889c92ff76f06c2e5d323326868af9aa6be4aced5d9a7e60ba9",
+      "bytes": 524604
+    },
+    "results/coordinate_affinity_v1/feature_catalog.json": {
+      "sha256": "f79c98cd491b17cf9dd14e355c37998bc366eec838e920469c2d7e69bf210300",
+      "bytes": 418505
+    },
+    "results/coordinate_affinity_v1/lineage_diagnostics.csv": {
+      "sha256": "11c81387b155ca5f6ee447ce17c659d88be1970007c2584f3ac0da535405b1f6",
+      "bytes": 58403
+    },
+    "skills/continuous-analyst/SKILL.md": {
+      "sha256": "31b4cd90ec6ce48cf0fa8b6be74dc8b5d294bb63032e49ec645da55837417af4",
+      "bytes": 2579
+    },
+    "src/evomolsteer/continuous/coordinate_features.py": {
+      "sha256": "0e3130d92629bd13d313ec28635239d8faf816eb9e76785c5ce1c871b5e1d106",
+      "bytes": 3778
+    },
+    "src/evomolsteer/continuous/coordinate_mining.py": {
+      "sha256": "ca4a0e7b43e4bd19e65868ef7bed556147972fa1897cee2a4a724498d3b0af94",
+      "bytes": 12441
+    },
+    "src/evomolsteer/continuous/functional.py": {
+      "sha256": "70dba80f8475557e74986599fc3adb8d93918ba799cbe82a530e7a33fb5e7abb",
+      "bytes": 5025
+    }
+  },
+  "statistical_contract": {
+    "quadrature": "各批次按实际时间的归一化梯形权重计算窗口平均；非 lag 域 [0,.5]、51点，lag 域 [0,.49]、50个相邻转移并使用下一评分至 .5。",
+    "inference": "跨14批次对批次窗口均值做单样本 t 检验及 t 分布95%CI；先相关后时间积分；没有 Fisher-z 转换或本次 bootstrap。",
+    "multiplicity": "每个 split×metric 内880个特征分别BH；不是11个指标家族联合FDR，CI不是多重校正置信区间。",
+    "selection": "selection_shift=E_p[f]-E_uniform[f]，high/low_enrichment=加权上/下四分位指示质量减未加权质量；p 来自相同 affinity head，存在定义性联系。",
+    "concurrent_adjusted": "每批每时刻 OLS 同时残差化特征和 affinity；nuisance=当前全局质心xyz、全局RMS半径、预测NOS计数，随后 Pearson r；不是因果效应。",
+    "lag_adjusted": "先按 selected_indices 对下一步孩子评分均值归并到实际存活父槽位；gain=孩子均值评分-父评分；每父一次，仅调整父起始评分，没有同时调整全局姿态/成分。",
+    "retained_shift": "实现为末窗后代数加权祖先均值减当前全体均值；不是等权 retained-vs-extinct 对比，也不是t1成功。",
+    "precision": "数值证据取CSV保存精度，约12位有效数字；未读取全精度 batch Parquet，不声称恢复其未保存位数。"
+  },
+  "observable_contract": {
+    "frame": "固定 aligned PDB world frame，坐标Å；轴正负只对该配准成立。",
+    "current_patch": "w_i ∝ 1_eligible exp[-min_a||x_i-q_ra||²/(2 h²)], h=4Å；c_r=Σw_i x_i-o_r，s_r=sqrt(Σw_i||x_i-Σw_jx_j||²)。",
+    "all_channel": "使用 mask 中全部活动槽位，不自动排除预测H/PAD，因此不能擅称重原子。",
+    "NOS_channel": "使用 predicted endpoint 的硬N/O/S标签筛当前槽位；标签条件化并固定，不表示早期噪声已有稳定化学身份。",
+    "endpoint_transport": "Σw_i(y_i-x_i)/(1-t)，是预测终点剩余位移代理，非真实漂移场或能量梯度。",
+    "native_velocity": "Σw_i(x_native_proposal_i-x_i)/dt；native_speed为相同权重下步位移速度平方均值开根，含SDE/校正项。",
+    "locality_limits": "Gaussian权重归一化且无硬半径截断；远离某残基仍会返回该区域的质心，当前文件不含绝对权重质量/局部占据率或跨区域权重重叠。"
+  },
+  "observations": [
+    {
+      "observation_id": "O1",
+      "claim": "选择均值及上尾证据主要支持广泛的 all-spread 微小收紧，不能定位特定残基。",
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:selection_shift",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:high_enrichment",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:high_enrichment"
+      ],
+      "detail": "39/40个区域 all-spread 选择均值显著负移，范围约 -0.000334至-0.000256Å；40/40个上尾质量减少，幅度约0.00914至0.01205，低尾无全局显著富集；不能据此无界压缩至零。"
+    },
+    {
+      "observation_id": "O2",
+      "claim": "NOS centroid_z 存在较弱、跨区域共同的调整后同期评分关联，但没有对应的选择/留存/调整后下一步增益支持。",
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:lag_partial_gain_correlation"
+      ],
+      "detail": "ASN117 r=.06764 q=.01961，VAL116 r=.07175 q=.01786，32/40区域同类显著；全局all质心调整排除了一部分线性平移解释，但未控制全局NOS质心、跨区域共同方向和非线性pose，不能据此提出恒定 +z 力。"
+    },
+    {
+      "observation_id": "O3",
+      "claim": "两区域 all endpoint_transport_y/z 的同期调整相关为负；相同类别在40/40区域出现，属于全局/共享运动候选解释。",
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:partial_affinity_correlation"
+      ],
+      "detail": "未额外调整全分子的 endpoint transport，不能把残余位移相关解释为该区域独有力场。"
+    },
+    {
+      "observation_id": "O4",
+      "claim": "NOS native_velocity_y 的选择富集不等于主动施加负y方向可提高未来评分。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+        "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:lag_partial_gain_correlation"
+      ],
+      "detail": "该代理包含随机步及校正；两区域起点效应约-4.37/-3.79 Å/time，终点近零，整窗平均不能作为恒定方向规则。"
+    },
+    {
+      "observation_id": "O5",
+      "claim": "没有经过当前多重校正的下一步增益机制证据。",
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:lag_gain_correlation",
+        "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:lag_partial_gain_correlation"
+      ],
+      "detail": "未调整lag仅ARG47 all native_velocity_y q=.04588；调整父评分后q=.09842；全部880项调整lag最小q=.09077。"
+    },
+    {
+      "observation_id": "O6",
+      "claim": "完整数值lag覆盖与根谱系独立性是两回事。",
+      "evidence_ids": [
+        "D_LINEAGE",
+        "D_COUNTS"
+      ],
+      "detail": "所有lag汇总有14批、coverage=1，覆盖0–.49；t=.5无窗内下一步，不是零效果；后期仍有约30个存活父槽位，但根均值1.214，11/14批只剩1根，不能视为约30个独立祖先。"
+    },
+    {
+      "observation_id": "O7",
+      "claim": "现有连续函数只描述绝对 selected_mean 的平滑，早期误差和不物理外形使其不宜直接编译为目标或速度。",
+      "evidence_ids": [
+        "D_FIT_AUDIT"
+      ],
+      "detail": "ASN117 all spread t0实际1.61060、拟合.60591Å；NOS centroid_z实际5.55618、拟合6.59283Å；all native_speed t=.5实际5.01107、拟合-3.81081Å/time；无导数/驻点CI。"
+    }
+  ],
+  "retained_seed_characteristics": [],
+  "retained_seed_characteristics_reason": {
+    "evidence_ids": [
+      "D_COUNTS",
+      "D_LINEAGE"
+    ],
+    "text": "880项 retained_shift 最小q=.93292，native_difference最小q=.08827；不能给出经过这些检验支持的末窗保留坐标原型。"
+  },
+  "temporal_rules": [],
+  "temporal_rules_reason": {
+    "evidence_ids": [
+      "D_FIT_AUDIT",
+      "D_COUNTS"
+    ],
+    "text": "没有效应函数或不确定性支持的阶段边界；保留完整0–.5及实际事件。绝对拟合的驻点仅为代数描述，不是优化方向切换时刻。"
+  },
+  "counterevidence": [
+    {
+      "evidence_ids": [
+        "D_COUNTS"
+      ],
+      "text": "all/NOS centroid xyz 无显著 selection_shift；all-spread的调整后同期评分关联全部不显著。"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:partial_affinity_correlation"
+      ],
+      "text": "NOS z 整窗调整相关为正，但两端均为负；全窗均值不能代表所有时刻的导向。"
+    },
+    {
+      "evidence_ids": [
+        "D_FIT_AUDIT"
+      ],
+      "text": "selected_mean/population_mean相对零的显著性主要来自非零坐标/速度，不是富集证据；最高次数经常被选中也不证明机制复杂度。"
+    }
+  ],
+  "limitations": [
+    {
+      "evidence_ids": [
+        "D_LINEAGE"
+      ],
+      "text": "仅14个独立批次；事件父去重不消除共同根和共享self-conditioning造成的依赖；窗口留存/lag均受选择存活条件化。"
+    },
+    {
+      "evidence_ids": [
+        "D_COUNTS"
+      ],
+      "text": "BH按指标家族分别控制，不能把多个指标中任一个显著合并成全局发现；非显著不证明无效。"
+    },
+    {
+      "evidence_ids": [
+        "D_CODE_AUDIT"
+      ],
+      "text": "全局nuisance center/radius直接对全部坐标槽位求均值，NOS计数也未显式乘mask；须核实此数据mask是否恒全真，否则partial控制量可能含padding，本次未读原轨迹核实。"
+    },
+    {
+      "evidence_ids": [
+        "D_CODE_AUDIT"
+      ],
+      "text": "partial_correlation对整个880列共同要求finite，会联动NOS缺失与all分析；汇总不报告每项实际拟合样本数/秩/条件数，不能由coverage=1断言每粒子均可用。"
+    },
+    {
+      "evidence_ids": [
+        "D_CODE_AUDIT"
+      ],
+      "text": "只有区域统计均值及相关性，没有逐候选联合分布、协方差、占据率、特征残差或参考mode；均值文件不能恢复多模态目标。"
+    },
+    {
+      "evidence_ids": [
+        "D_FIT_AUDIT"
+      ],
+      "text": "所读fit只有LOBO次数/系数/均方误差，无同时置信带或驻点置信区间；df/dt不是坐标梯度。"
+    },
+    {
+      "evidence_ids": [
+        "D_CODE_AUDIT"
+      ],
+      "text": "不含可靠中间态物理能量、连续化学类型/键梯度，也未验证因果或真实亲和力。"
+    }
+  ],
+  "evidence_registry": {
+    "coordinate:discovery:ck2:A:ASN117::all::spread:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.000282299730249,
+      "ci_low": -0.000445941937615,
+      "ci_high": -0.000118657522883,
+      "p": 0.00253681983731,
+      "q": 0.0364643373323,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00181300511406,
+      "end": 7.76353795065e-05,
+      "end_minus_start": 0.00189064049357,
+      "mean_change_rate": 0.00378128098714
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::spread:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "low_enrichment"
+      },
+      "window_mean": 0.0037535273496,
+      "ci_low": -0.000519222856574,
+      "ci_high": 0.00802627755577,
+      "p": 0.0801458231612,
+      "q": 0.46687750773,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00861910746643,
+      "end": -0.000302801755969,
+      "end_minus_start": -0.0089219092224,
+      "mean_change_rate": -0.0178438184448
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::spread:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.00973990624188,
+      "ci_low": -0.0144177468693,
+      "ci_high": -0.00506206561443,
+      "p": 0.000599278849392,
+      "q": 0.0121203714253,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00276202183917,
+      "end": 0.000477440626894,
+      "end_minus_start": 0.00323946246607,
+      "mean_change_rate": 0.00647892493214
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::spread:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.00815863682388,
+      "ci_low": -0.0455194272103,
+      "ci_high": 0.0292021535625,
+      "p": 0.644911768276,
+      "q": 0.82608785456,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0323096131206,
+      "end": 0.11222028016,
+      "end_minus_start": 0.14452989328,
+      "mean_change_rate": 0.289059786561
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::spread:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": 0.0226845613665,
+      "ci_low": -0.00131993729913,
+      "ci_high": 0.0466890600322,
+      "p": 0.0620312445307,
+      "q": 0.139623066491,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.107269787309,
+      "end": 0.0650743144853,
+      "end_minus_start": 0.172344101794,
+      "mean_change_rate": 0.351722656723
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::spread:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": 0.0126505822745,
+      "ci_low": -0.013111689261,
+      "ci_high": 0.03841285381,
+      "p": 0.308069843948,
+      "q": 0.454451767312,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.139249099654,
+      "end": 0.0890416547584,
+      "end_minus_start": 0.228290754413,
+      "mean_change_rate": 0.465899498801
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::spread:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.00110976322501,
+      "ci_low": -0.00324628360469,
+      "ci_high": 0.00102675715468,
+      "p": 0.282097419932,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0276696342,
+      "end": 0.000164806699074,
+      "end_minus_start": -0.0275048275009,
+      "mean_change_rate": -0.0550096550019
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::spread:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::spread:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::spread",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.00994176337736,
+      "ci_low": -0.0155631578824,
+      "ci_high": -0.00432036887237,
+      "p": 0.00212210882139,
+      "q": 0.088274027221,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.0205477986275,
+      "end_minus_start": -0.0205477986275,
+      "mean_change_rate": -0.041095597255
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.000406774691924,
+      "ci_low": -0.00225945715103,
+      "ci_high": 0.00144590776718,
+      "p": 0.643132844741,
+      "q": 0.963144920381,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.023222057282,
+      "end": -0.00220919796233,
+      "end_minus_start": 0.0210128593196,
+      "mean_change_rate": 0.0420257186393
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "low_enrichment"
+      },
+      "window_mean": -0.00344118313423,
+      "ci_low": -0.00807420275479,
+      "ci_high": 0.00119183648633,
+      "p": 0.132585770681,
+      "q": 0.488101864574,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.000892135436524,
+      "end": 0.00422780071214,
+      "end_minus_start": 0.00333566527562,
+      "mean_change_rate": 0.00667133055123
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.00298118205026,
+      "ci_low": -0.00822126615843,
+      "ci_high": 0.00225890205791,
+      "p": 0.240827571267,
+      "q": 0.375661723172,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0108977555129,
+      "end": -0.0161450719596,
+      "end_minus_start": -0.0052473164468,
+      "mean_change_rate": -0.0104946328936
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": 0.0676397758125,
+      "ci_low": 0.0313165446553,
+      "ci_high": 0.10396300697,
+      "p": 0.00144814004239,
+      "q": 0.0196055882662,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.134051694026,
+      "end": -0.0936276122787,
+      "end_minus_start": 0.0404240817476,
+      "mean_change_rate": 0.0808481634951
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.038178837059,
+      "ci_low": -0.0677464693023,
+      "ci_high": -0.00861120481575,
+      "p": 0.0153333507648,
+      "q": 0.0875999747758,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0707622152125,
+      "end": 0.048209925091,
+      "end_minus_start": -0.0225522901215,
+      "mean_change_rate": -0.0460250818806
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0281500294076,
+      "ci_low": -0.0546918620109,
+      "ci_high": -0.00160819680442,
+      "p": 0.0392900535737,
+      "q": 0.127114879209,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0147886668106,
+      "end": 0.0192291026892,
+      "end_minus_start": 0.0340177694998,
+      "mean_change_rate": 0.0694240193874
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.0106415023648,
+      "ci_low": -0.0348892917912,
+      "ci_high": 0.0136062870615,
+      "p": 0.360366027224,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.212755437741,
+      "end": 0.00642162409175,
+      "end_minus_start": 0.219177061833,
+      "mean_change_rate": 0.438354123666
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::centroid_z",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.0183507354425,
+      "ci_low": -0.0514102309258,
+      "ci_high": 0.0147087600408,
+      "p": 0.251858817435,
+      "q": 0.461741165297,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.108423114989,
+      "end_minus_start": -0.108423114989,
+      "mean_change_rate": -0.216846229978
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.00191071299338,
+      "ci_low": -0.00338379509848,
+      "ci_high": -0.000437630888279,
+      "p": 0.0149670723598,
+      "q": 0.106217932876,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00218706357444,
+      "end": 0.000145159877184,
+      "end_minus_start": -0.00204190369725,
+      "mean_change_rate": -0.0040838073945
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "low_enrichment"
+      },
+      "window_mean": 0.0036826277145,
+      "ci_low": -0.0025217200228,
+      "ci_high": 0.00988697545179,
+      "p": 0.222132336834,
+      "q": 0.523983322851,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00570453865102,
+      "end": 0.00329787667485,
+      "end_minus_start": 0.00900241532587,
+      "mean_change_rate": 0.0180048306517
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.0118155499229,
+      "ci_low": -0.0168943541384,
+      "ci_high": -0.00673674570739,
+      "p": 0.00023206647622,
+      "q": 0.00887906517712,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.006160577548,
+      "end": -0.00352252206321,
+      "end_minus_start": -0.00968309961122,
+      "mean_change_rate": -0.0193661992224
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.104838712948,
+      "ci_low": -0.165644449731,
+      "ci_high": -0.0440329761645,
+      "p": 0.00254670573219,
+      "q": 0.0252711266452,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0674690504546,
+      "end": -0.119876906146,
+      "end_minus_start": -0.187345956601,
+      "mean_change_rate": -0.374691913201
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.000836841025816,
+      "ci_low": -0.0485145636645,
+      "ci_high": 0.0468408816129,
+      "p": 0.970328487372,
+      "q": 0.976989781335,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.193161802177,
+      "end": -0.00423574596165,
+      "end_minus_start": 0.188926056215,
+      "mean_change_rate": 0.385563380031
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0211876828711,
+      "ci_low": -0.064559302035,
+      "ci_high": 0.0221839362929,
+      "p": 0.31047469875,
+      "q": 0.454451767312,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.188343739028,
+      "end": -0.00838993218153,
+      "end_minus_start": 0.179953806846,
+      "mean_change_rate": 0.367252667033
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.0104873303814,
+      "ci_low": -0.0296132194782,
+      "ci_high": 0.00863855871549,
+      "p": 0.25738189421,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0160435063502,
+      "end": 0.00336535899921,
+      "end_minus_start": 0.0194088653494,
+      "mean_change_rate": 0.0388177306987
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_y:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_y",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.0252603961006,
+      "ci_low": -0.0655800445498,
+      "ci_high": 0.0150592523487,
+      "p": 0.198969209447,
+      "q": 0.40624803785,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.00157458186071,
+      "end_minus_start": -0.00157458186071,
+      "mean_change_rate": -0.00314916372143
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "selection_shift"
+      },
+      "window_mean": 2.62621423209e-05,
+      "ci_low": -0.00147453553943,
+      "ci_high": 0.00152705982407,
+      "p": 0.9704184514,
+      "q": 0.998544981593,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00568058466992,
+      "end": -0.00269070518839,
+      "end_minus_start": 0.00298987948153,
+      "mean_change_rate": 0.00597975896305
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "low_enrichment"
+      },
+      "window_mean": -0.00484971585052,
+      "ci_low": -0.00966738133823,
+      "ci_high": -3.20503628118e-05,
+      "p": 0.0487021817269,
+      "q": 0.44643666583,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0126041865669,
+      "end": 0.010497822086,
+      "end_minus_start": -0.0021063644809,
+      "mean_change_rate": -0.0042127289618
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.00614298063354,
+      "ci_low": -0.0122296282865,
+      "ci_high": -5.63329805901e-05,
+      "p": 0.0482031278164,
+      "q": 0.137978272818,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0147356080689,
+      "end": -0.014000670335,
+      "end_minus_start": 0.000734937733965,
+      "mean_change_rate": 0.00146987546793
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.0762583386312,
+      "ci_low": -0.114524518574,
+      "ci_high": -0.0379921586884,
+      "p": 0.000854889508363,
+      "q": 0.0162434322279,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.204663702406,
+      "end": -0.0625728782417,
+      "end_minus_start": 0.142090824164,
+      "mean_change_rate": 0.284181648328
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.0386851931044,
+      "ci_low": -0.0773874819718,
+      "ci_high": 1.709576296e-05,
+      "p": 0.050087309508,
+      "q": 0.124510825896,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.14482392176,
+      "end": -0.0292873140178,
+      "end_minus_start": 0.115536607742,
+      "mean_change_rate": 0.235788995392
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0382215773791,
+      "ci_low": -0.0746671988455,
+      "ci_high": -0.00177595591272,
+      "p": 0.041199320835,
+      "q": 0.129622821977,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.269421358378,
+      "end": -0.0525702503327,
+      "end_minus_start": 0.216851108046,
+      "mean_change_rate": 0.442553281726
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "retained_shift"
+      },
+      "window_mean": 0.00024958755796,
+      "ci_low": -0.0201576335652,
+      "ci_high": 0.0206568086811,
+      "p": 0.979321980657,
+      "q": 0.995470659612,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0429256406143,
+      "end": -0.00139840736685,
+      "end_minus_start": 0.0415272332475,
+      "mean_change_rate": 0.0830544664949
+    },
+    "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::all::endpoint_transport_z:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::all::endpoint_transport_z",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.0303916790066,
+      "ci_low": -0.0509100189389,
+      "ci_high": -0.0098733390742,
+      "p": 0.0069685424437,
+      "q": 0.0883152138709,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.0554964133776,
+      "end_minus_start": -0.0554964133776,
+      "mean_change_rate": -0.110992826755
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.0474504001429,
+      "ci_low": -0.0671653942068,
+      "ci_high": -0.027735406079,
+      "p": 0.000171205659201,
+      "q": 0.0253018030973,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -4.36761148278,
+      "end": -0.0061773558285,
+      "end_minus_start": 4.36143412695,
+      "mean_change_rate": 8.7228682539
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "low_enrichment"
+      },
+      "window_mean": 0.000979956873988,
+      "ci_low": -0.00341091304361,
+      "ci_high": 0.00537082679159,
+      "p": 0.637714104488,
+      "q": 0.797313601484,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0121542014637,
+      "end": 0.0020022889387,
+      "end_minus_start": -0.010151912525,
+      "mean_change_rate": -0.02030382505
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.00314142737733,
+      "ci_low": -0.00797489653798,
+      "ci_high": 0.00169204178332,
+      "p": 0.183728476143,
+      "q": 0.319492475851,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0255181988646,
+      "end": -0.00535373760983,
+      "end_minus_start": 0.0201644612548,
+      "mean_change_rate": 0.0403289225096
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.0135358658229,
+      "ci_low": -0.0437641981644,
+      "ci_high": 0.0166924665187,
+      "p": 0.351004736598,
+      "q": 0.643508683763,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.225826348262,
+      "end": -0.135669192691,
+      "end_minus_start": 0.0901571555703,
+      "mean_change_rate": 0.180314311141
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.0283277417168,
+      "ci_low": -0.0530837381621,
+      "ci_high": -0.00357174527144,
+      "p": 0.0280257196255,
+      "q": 0.0941321880553,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.104736680476,
+      "end": 0.0866581795409,
+      "end_minus_start": 0.191394860016,
+      "mean_change_rate": 0.390601755136
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0263475430082,
+      "ci_low": -0.0498895103634,
+      "ci_high": -0.00280557565297,
+      "p": 0.0310312844469,
+      "q": 0.113639579715,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.268100915517,
+      "end": 0.0512633582802,
+      "end_minus_start": 0.319364273797,
+      "mean_change_rate": 0.651763824075
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.209069133558,
+      "ci_low": -0.497201143079,
+      "ci_high": 0.0790628759627,
+      "p": 0.140992452809,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -16.1069418968,
+      "end": 0.00657966022719,
+      "end_minus_start": 16.113521557,
+      "mean_change_rate": 32.227043114
+    },
+    "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:ASN117::NOS::native_velocity_y:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ASN117::NOS::native_velocity_y",
+        "metric": "native_difference"
+      },
+      "window_mean": 0.0687130148104,
+      "ci_low": -0.0601735171191,
+      "ci_high": 0.19759954674,
+      "p": 0.270164648846,
+      "q": 0.481827436438,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": 0.116821194078,
+      "end_minus_start": 0.116821194078,
+      "mean_change_rate": 0.233642388155
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.000301977372525,
+      "ci_low": -0.000456423727323,
+      "ci_high": -0.000147531017726,
+      "p": 0.000994108127062,
+      "q": 0.0282877617653,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00163551761465,
+      "end": 1.95830905308e-05,
+      "end_minus_start": 0.00165510070518,
+      "mean_change_rate": 0.00331020141037
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "low_enrichment"
+      },
+      "window_mean": 0.00392622819889,
+      "ci_low": -0.000524715949183,
+      "ci_high": 0.00837717234695,
+      "p": 0.0790444592663,
+      "q": 0.46687750773,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00402695887769,
+      "end": -0.00893726767932,
+      "end_minus_start": -0.012964226557,
+      "mean_change_rate": -0.025928453114
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.0108897966683,
+      "ci_low": -0.0158735180945,
+      "ci_high": -0.00590607524207,
+      "p": 0.000400093092318,
+      "q": 0.00978005336777,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00147921102808,
+      "end": 0.000401600960893,
+      "end_minus_start": 0.00188081198897,
+      "mean_change_rate": 0.00376162397794
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.0203804094587,
+      "ci_low": -0.0568858097176,
+      "ci_high": 0.0161249908002,
+      "p": 0.249271016827,
+      "q": 0.527304074057,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0319612218769,
+      "end": 0.112293997166,
+      "end_minus_start": 0.144255219043,
+      "mean_change_rate": 0.288510438086
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": 0.0288435013831,
+      "ci_low": 0.00300199576353,
+      "ci_high": 0.0546850070028,
+      "p": 0.0314109666544,
+      "q": 0.0977266165857,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.083906668489,
+      "end": 0.0568903496393,
+      "end_minus_start": 0.140797018128,
+      "mean_change_rate": 0.287340853323
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": 0.0170074051509,
+      "ci_low": -0.00947141820088,
+      "ci_high": 0.0434862285027,
+      "p": 0.188582462749,
+      "q": 0.341466796548,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.109866090194,
+      "end": 0.0907682892113,
+      "end_minus_start": 0.200634379405,
+      "mean_change_rate": 0.409457917153
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.00122906890822,
+      "ci_low": -0.00326937097356,
+      "ci_high": 0.000811233157132,
+      "p": 0.215714516076,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0252992726713,
+      "end": 0.000334983848645,
+      "end_minus_start": -0.0249642888227,
+      "mean_change_rate": -0.0499285776453
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::spread:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::spread:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::spread",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.0106131005459,
+      "ci_low": -0.016660909035,
+      "ci_high": -0.00456529205685,
+      "p": 0.00224471902359,
+      "q": 0.088274027221,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.022342423755,
+      "end_minus_start": -0.022342423755,
+      "mean_change_rate": -0.0446848475101
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.000349029053513,
+      "ci_low": -0.00176457260335,
+      "ci_high": 0.00106651449632,
+      "p": 0.603241910263,
+      "q": 0.947769299871,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0187526736836,
+      "end": -0.00192810042329,
+      "end_minus_start": 0.0168245732603,
+      "mean_change_rate": 0.0336491465206
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "low_enrichment"
+      },
+      "window_mean": -0.00328063824217,
+      "ci_low": -0.00813662357947,
+      "ci_high": 0.00157534709513,
+      "p": 0.168162358871,
+      "q": 0.505061009578,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00185378785937,
+      "end": 0.00458032963152,
+      "end_minus_start": 0.00643411749089,
+      "mean_change_rate": 0.0128682349818
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.00274390573874,
+      "ci_low": -0.00799993721158,
+      "ci_high": 0.0025121257341,
+      "p": 0.279782324183,
+      "q": 0.413101418257,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00802728118208,
+      "end": -0.0167454552202,
+      "end_minus_start": -0.00871817403808,
+      "mean_change_rate": -0.0174363480762
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": 0.0717474253201,
+      "ci_low": 0.0343960163773,
+      "ci_high": 0.109098834263,
+      "p": 0.00114164886747,
+      "q": 0.0178649961602,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.117905712912,
+      "end": -0.0811794105371,
+      "end_minus_start": 0.0367263023752,
+      "mean_change_rate": 0.0734526047504
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.0349080874897,
+      "ci_low": -0.0648473518115,
+      "ci_high": -0.00496882316794,
+      "p": 0.0256567210626,
+      "q": 0.0931393560219,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.08081610618,
+      "end": 0.0447589267102,
+      "end_minus_start": -0.0360571794698,
+      "mean_change_rate": -0.0735860805507
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0254350875056,
+      "ci_low": -0.0527062413263,
+      "ci_high": 0.00183606631496,
+      "p": 0.0650764936073,
+      "q": 0.175129401757,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00461989943594,
+      "end": 0.0124898270329,
+      "end_minus_start": 0.00786992759696,
+      "mean_change_rate": 0.0160610767285
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.00946395266248,
+      "ci_low": -0.0297402095922,
+      "ci_high": 0.0108123042673,
+      "p": 0.331685714513,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.191726724893,
+      "end": 0.00552808374778,
+      "end_minus_start": 0.197254808641,
+      "mean_change_rate": 0.394509617281
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::centroid_z",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.00712141192491,
+      "ci_low": -0.0360450667708,
+      "ci_high": 0.021802242921,
+      "p": 0.603757828771,
+      "q": 0.753626793359,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.0649068327827,
+      "end_minus_start": -0.0649068327827,
+      "mean_change_rate": -0.129813665565
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.00147784837568,
+      "ci_low": -0.00272653926566,
+      "ci_high": -0.000229157485705,
+      "p": 0.0238816980573,
+      "q": 0.155673291041,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00188869871307,
+      "end": 0.000355908462726,
+      "end_minus_start": -0.00153279025034,
+      "mean_change_rate": -0.00306558050068
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "low_enrichment"
+      },
+      "window_mean": 0.00259523164098,
+      "ci_low": -0.00358316858002,
+      "ci_high": 0.00877363186197,
+      "p": 0.380677122005,
+      "q": 0.626160499747,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.008335368919,
+      "end": 0.00625267266013,
+      "end_minus_start": 0.0145880415791,
+      "mean_change_rate": 0.0291760831583
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.0103269754092,
+      "ci_low": -0.014998880368,
+      "ci_high": -0.00565507045034,
+      "p": 0.000362515530046,
+      "q": 0.00945273359129,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0033847554427,
+      "end": -0.00377240784078,
+      "end_minus_start": -0.00715716328348,
+      "mean_change_rate": -0.014314326567
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.100637200862,
+      "ci_low": -0.156565705029,
+      "ci_high": -0.0447086966937,
+      "p": 0.00187042267369,
+      "q": 0.0228607215673,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0662970158437,
+      "end": -0.14855039787,
+      "end_minus_start": -0.214847413714,
+      "mean_change_rate": -0.429694827428
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.00416511453281,
+      "ci_low": -0.0518615229415,
+      "ci_high": 0.0435312938759,
+      "p": 0.853276193688,
+      "q": 0.886535759914,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.176427636504,
+      "end": 0.00859907560908,
+      "end_minus_start": 0.185026712113,
+      "mean_change_rate": 0.377605534925
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0229815716264,
+      "ci_low": -0.0656264096414,
+      "ci_high": 0.0196632663886,
+      "p": 0.265250079705,
+      "q": 0.422702998005,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.179672138932,
+      "end": -0.0018692282952,
+      "end_minus_start": 0.177802910637,
+      "mean_change_rate": 0.362863082932
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.00827016722303,
+      "ci_low": -0.0262479070699,
+      "ci_high": 0.00970757262382,
+      "p": 0.338450225538,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.018058927254,
+      "end": 0.00289771258983,
+      "end_minus_start": 0.0209566398438,
+      "mean_change_rate": 0.0419132796877
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_y:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_y",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.022530321068,
+      "ci_low": -0.0564789353103,
+      "ci_high": 0.0114182931742,
+      "p": 0.175256417271,
+      "q": 0.3789327941,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.00109907518876,
+      "end_minus_start": -0.00109907518876,
+      "mean_change_rate": -0.00219815037753
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "selection_shift"
+      },
+      "window_mean": 4.65701638603e-06,
+      "ci_low": -0.00131551900839,
+      "ci_high": 0.00132483304116,
+      "p": 0.994035202714,
+      "q": 0.998544981593,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00472177477132,
+      "end": -0.00260018373264,
+      "end_minus_start": 0.00212159103868,
+      "mean_change_rate": 0.00424318207736
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "low_enrichment"
+      },
+      "window_mean": -0.00430571140484,
+      "ci_low": -0.00888893674898,
+      "ci_high": 0.000277513939304,
+      "p": 0.0633874579023,
+      "q": 0.46687750773,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00932961314463,
+      "end": 0.0112478696254,
+      "end_minus_start": 0.00191825648075,
+      "mean_change_rate": 0.0038365129615
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.00593673918011,
+      "ci_low": -0.0118837319274,
+      "ci_high": 1.0253567206e-05,
+      "p": 0.0503415997457,
+      "q": 0.140571638849,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.017871825889,
+      "end": -0.0127889421001,
+      "end_minus_start": 0.00508288378885,
+      "mean_change_rate": 0.0101657675777
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.0753557795061,
+      "ci_low": -0.111262034589,
+      "ci_high": -0.0394495244233,
+      "p": 0.000561373330503,
+      "q": 0.0138117900354,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.228705214747,
+      "end": -0.0591157472163,
+      "end_minus_start": 0.169589467531,
+      "mean_change_rate": 0.339178935062
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.0398417740591,
+      "ci_low": -0.079170294612,
+      "ci_high": -0.000513253506171,
+      "p": 0.0474839486801,
+      "q": 0.120074352984,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.108749417715,
+      "end": -0.0373729722397,
+      "end_minus_start": 0.0713764454754,
+      "mean_change_rate": 0.145666215256
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0386164362086,
+      "ci_low": -0.0759351672387,
+      "ci_high": -0.00129770517848,
+      "p": 0.043557837979,
+      "q": 0.133093393825,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.246946687043,
+      "end": -0.056186728083,
+      "end_minus_start": 0.19075995896,
+      "mean_change_rate": 0.389306038694
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "retained_shift"
+      },
+      "window_mean": 0.00127049161183,
+      "ci_low": -0.0181606643653,
+      "ci_high": 0.020701647589,
+      "p": 0.889834635838,
+      "q": 0.989903432601,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0184070702146,
+      "end": -0.00122442676872,
+      "end_minus_start": 0.0171826434459,
+      "mean_change_rate": 0.0343652868918
+    },
+    "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::all::endpoint_transport_z:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::all::endpoint_transport_z",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.026562123999,
+      "ci_low": -0.0466569848576,
+      "ci_high": -0.00646726314037,
+      "p": 0.0135097110637,
+      "q": 0.099071214467,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.0457748526181,
+      "end_minus_start": -0.0457748526181,
+      "mean_change_rate": -0.0915497052361
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.0404816017032,
+      "ci_low": -0.0583076052245,
+      "ci_high": -0.0226555981819,
+      "p": 0.000286992657652,
+      "q": 0.0253018030973,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -3.79301765208,
+      "end": -0.000916693754986,
+      "end_minus_start": 3.79210095833,
+      "mean_change_rate": 7.58420191666
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "low_enrichment"
+      },
+      "window_mean": 0.000494923145385,
+      "ci_low": -0.00392683796146,
+      "ci_high": 0.00491668425223,
+      "p": 0.812701583587,
+      "q": 0.900733123931,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0119531674524,
+      "end": -5.89457766233e-05,
+      "end_minus_start": -0.012012113229,
+      "mean_change_rate": -0.024024226458
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.00299184955945,
+      "ci_low": -0.00784835642668,
+      "ci_high": 0.00186465730778,
+      "p": 0.20609565342,
+      "q": 0.345065160225,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0286843623554,
+      "end": -0.00383800482115,
+      "end_minus_start": 0.0248463575342,
+      "mean_change_rate": 0.0496927150685
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.0123183256754,
+      "ci_low": -0.0423064305833,
+      "ci_high": 0.0176697792324,
+      "p": 0.390974262174,
+      "q": 0.671987013112,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.231180370987,
+      "end": -0.118143460262,
+      "end_minus_start": 0.113036910725,
+      "mean_change_rate": 0.22607382145
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": -0.0308925743757,
+      "ci_low": -0.0551033027305,
+      "ci_high": -0.00668184602086,
+      "p": 0.0163305075145,
+      "q": 0.0875999747758,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0914182684195,
+      "end": 0.0818336226552,
+      "end_minus_start": 0.173251891075,
+      "mean_change_rate": 0.353575287908
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": -0.0274545556669,
+      "ci_low": -0.0502615553165,
+      "ci_high": -0.00464755601728,
+      "p": 0.0219808037856,
+      "q": 0.0991954222121,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.246878259282,
+      "end": 0.0477530165523,
+      "end_minus_start": 0.294631275835,
+      "mean_change_rate": 0.60128831803
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "retained_shift"
+      },
+      "window_mean": -0.185806583875,
+      "ci_low": -0.447813026424,
+      "ci_high": 0.0761998586741,
+      "p": 0.149473970552,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -13.9555459892,
+      "end": 0.0036692746106,
+      "end_minus_start": 13.9592152638,
+      "mean_change_rate": 27.9184305275
+    },
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+        "metric": "native_difference"
+      },
+      "window_mean": 0.0660985602468,
+      "ci_low": -0.0719006339657,
+      "ci_high": 0.204097754459,
+      "p": 0.319643187454,
+      "q": 0.532738645757,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": 0.0952094390792,
+      "end_minus_start": 0.0952094390792,
+      "mean_change_rate": 0.190418878158
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:selection_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:selection_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "selection_shift"
+      },
+      "window_mean": -0.00467628844917,
+      "ci_low": -0.0090186592068,
+      "ci_high": -0.000333917691537,
+      "p": 0.0368019999353,
+      "q": 0.207601025276,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.206275587867,
+      "end": 0.00443580595834,
+      "end_minus_start": 0.210711393825,
+      "mean_change_rate": 0.42142278765
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:low_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:low_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "low_enrichment"
+      },
+      "window_mean": 0.00113072937223,
+      "ci_low": -0.00138506360726,
+      "ci_high": 0.00364652235171,
+      "p": 0.34927701257,
+      "q": 0.602674060905,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00441616545829,
+      "end": -0.0016528788497,
+      "end_minus_start": -0.00606904430799,
+      "mean_change_rate": -0.012138088616
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:high_enrichment": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:high_enrichment",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "high_enrichment"
+      },
+      "window_mean": -0.0024738277633,
+      "ci_low": -0.00467887865953,
+      "ci_high": -0.000268776867064,
+      "p": 0.0306915140302,
+      "q": 0.114929924879,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00598230519694,
+      "end": 0.00434169634367,
+      "end_minus_start": 0.0103240015406,
+      "mean_change_rate": 0.0206480030812
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:partial_affinity_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:partial_affinity_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "partial_affinity_correlation"
+      },
+      "window_mean": -0.0369773757472,
+      "ci_low": -0.0580611388259,
+      "ci_high": -0.0158936126686,
+      "p": 0.00225427966616,
+      "q": 0.024490939583,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0470000573233,
+      "end": -0.00124566644035,
+      "end_minus_start": 0.045754390883,
+      "mean_change_rate": 0.091508781766
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:lag_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:lag_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "lag_gain_correlation"
+      },
+      "window_mean": 0.0260236794091,
+      "ci_low": 0.0164989705947,
+      "ci_high": 0.0355483882235,
+      "p": 5.21362169041e-05,
+      "q": 0.0458798708756,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.174134814881,
+      "end": 0.0412119254298,
+      "end_minus_start": -0.132922889452,
+      "mean_change_rate": -0.271271202962
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:lag_partial_gain_correlation": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:lag_partial_gain_correlation",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "lag_partial_gain_correlation"
+      },
+      "window_mean": 0.0165877157643,
+      "ci_low": 0.00383856491653,
+      "ci_high": 0.029336866612,
+      "p": 0.0147215664397,
+      "q": 0.0984209390626,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.142636967854,
+      "end": 0.0584503559652,
+      "end_minus_start": -0.0841866118886,
+      "mean_change_rate": -0.171809412018
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:retained_shift": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:retained_shift",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "retained_shift"
+      },
+      "window_mean": 0.0230775709639,
+      "ci_low": -0.0277076003242,
+      "ci_high": 0.073862742252,
+      "p": 0.34416312739,
+      "q": 0.932916756084,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 3.61876126197,
+      "end": -0.000666158443931,
+      "end_minus_start": -3.61942742041,
+      "mean_change_rate": -7.23885484083
+    },
+    "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:native_difference": {
+      "evidence_id": "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:native_difference",
+      "locator": {
+        "file": "results/coordinate_affinity_v1/whole_window_evidence.csv",
+        "split": "discovery",
+        "feature": "ck2:A:ARG47::all::native_velocity_y",
+        "metric": "native_difference"
+      },
+      "window_mean": -0.084904121507,
+      "ci_low": -0.154265268508,
+      "ci_high": -0.0155429745063,
+      "p": 0.0202229524881,
+      "q": 0.118641321263,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.0928124935005,
+      "end_minus_start": -0.0928124935005,
+      "mean_change_rate": -0.185624987001
+    }
+  },
+  "derived_evidence": {
+    "D_COUNTS": {
+      "source": "discovery rows of whole_window_evidence.csv",
+      "metrics": {
+        "affinity_correlation": {
+          "tested_features": 880,
+          "q_below_0_05": 103,
+          "minimum_q": 0.0359397844897,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {
+            "all::endpoint_transport_y": 36,
+            "all::native_speed": 32,
+            "all::spread": 35
+          }
+        },
+        "high_enrichment": {
+          "tested_features": 880,
+          "q_below_0_05": 116,
+          "minimum_q": 0.0050584902578,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {
+            "all::endpoint_transport_y": 36,
+            "all::spread": 40,
+            "NOS::native_speed": 11,
+            "all::native_speed": 24,
+            "NOS::endpoint_transport_x": 2,
+            "all::native_velocity_y": 1,
+            "all::endpoint_transport_z": 2
+          }
+        },
+        "lag_gain_correlation": {
+          "tested_features": 880,
+          "q_below_0_05": 1,
+          "minimum_q": 0.0458798708756,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {
+            "all::native_velocity_y": 1
+          }
+        },
+        "lag_partial_gain_correlation": {
+          "tested_features": 880,
+          "q_below_0_05": 0,
+          "minimum_q": 0.0907705243576,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {}
+        },
+        "low_enrichment": {
+          "tested_features": 880,
+          "q_below_0_05": 0,
+          "minimum_q": 0.367315831821,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {}
+        },
+        "native_difference": {
+          "tested_features": 880,
+          "q_below_0_05": 0,
+          "minimum_q": 0.088274027221,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {}
+        },
+        "partial_affinity_correlation": {
+          "tested_features": 880,
+          "q_below_0_05": 181,
+          "minimum_q": 0.00614020121209,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {
+            "NOS::centroid_z": 32,
+            "all::endpoint_transport_y": 40,
+            "all::endpoint_transport_z": 40,
+            "all::native_speed": 40,
+            "all::native_velocity_y": 29
+          }
+        },
+        "population_mean": {
+          "tested_features": 880,
+          "q_below_0_05": 865,
+          "minimum_q": 3.52556930571e-43,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {
+            "NOS::centroid_x": 40,
+            "NOS::centroid_y": 40,
+            "NOS::centroid_z": 40,
+            "NOS::endpoint_transport_x": 40,
+            "NOS::endpoint_transport_y": 32,
+            "NOS::endpoint_transport_z": 33,
+            "NOS::native_speed": 40,
+            "NOS::native_velocity_x": 40,
+            "NOS::native_velocity_y": 40,
+            "NOS::native_velocity_z": 40,
+            "NOS::spread": 40,
+            "all::centroid_x": 40,
+            "all::centroid_y": 40,
+            "all::centroid_z": 40,
+            "all::endpoint_transport_x": 40,
+            "all::endpoint_transport_y": 40,
+            "all::endpoint_transport_z": 40,
+            "all::native_speed": 40,
+            "all::native_velocity_x": 40,
+            "all::native_velocity_y": 40,
+            "all::native_velocity_z": 40,
+            "all::spread": 40
+          }
+        },
+        "retained_shift": {
+          "tested_features": 880,
+          "q_below_0_05": 0,
+          "minimum_q": 0.932916756084,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {}
+        },
+        "selected_mean": {
+          "tested_features": 880,
+          "q_below_0_05": 865,
+          "minimum_q": 3.78169552227e-43,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {
+            "NOS::centroid_x": 40,
+            "NOS::centroid_y": 40,
+            "NOS::centroid_z": 40,
+            "NOS::endpoint_transport_x": 40,
+            "NOS::endpoint_transport_y": 32,
+            "NOS::endpoint_transport_z": 33,
+            "NOS::native_speed": 40,
+            "NOS::native_velocity_x": 40,
+            "NOS::native_velocity_y": 40,
+            "NOS::native_velocity_z": 40,
+            "NOS::spread": 40,
+            "all::centroid_x": 40,
+            "all::centroid_y": 40,
+            "all::centroid_z": 40,
+            "all::endpoint_transport_x": 40,
+            "all::endpoint_transport_y": 40,
+            "all::endpoint_transport_z": 40,
+            "all::native_speed": 40,
+            "all::native_velocity_x": 40,
+            "all::native_velocity_y": 40,
+            "all::native_velocity_z": 40,
+            "all::spread": 40
+          }
+        },
+        "selection_shift": {
+          "tested_features": 880,
+          "q_below_0_05": 93,
+          "minimum_q": 0.0253018030973,
+          "n_batches": [
+            14
+          ],
+          "mean_time_coverage_range": [
+            1.0,
+            1.0
+          ],
+          "significant_by_channel_kind": {
+            "NOS::native_velocity_y": 19,
+            "all::native_speed": 26,
+            "all::spread": 39,
+            "all::endpoint_transport_y": 6,
+            "all::native_velocity_x": 1,
+            "all::native_velocity_y": 2
+          }
+        }
+      },
+      "focus_coordinate_table": {
+        "columns": [
+          "feature",
+          "metric",
+          "window_mean",
+          "ci_low",
+          "ci_high",
+          "q"
+        ],
+        "rows": [
+          [
+            "ck2:A:ASN117::all::centroid_x",
+            "selection_shift",
+            1.86363430989e-06,
+            -7.50671530501e-05,
+            7.87944216699e-05,
+            0.998544981593
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_x",
+            "high_enrichment",
+            -0.00450771067138,
+            -0.00891178486303,
+            -0.000103636479737,
+            0.133168718701
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_x",
+            "partial_affinity_correlation",
+            0.0132275802115,
+            -0.0341797189488,
+            0.0606348793718,
+            0.78053888359
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_x",
+            "lag_partial_gain_correlation",
+            0.0310763134552,
+            0.00183359263878,
+            0.0603190342716,
+            0.126509283119
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_x",
+            "retained_shift",
+            0.000759325670013,
+            -0.000756358387449,
+            0.00227500972748,
+            0.932916756084
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_x",
+            "native_difference",
+            0.00310417467997,
+            -0.000860366960334,
+            0.00706871632028,
+            0.319004145419
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_y",
+            "selection_shift",
+            -0.000215543799806,
+            -0.000518071126688,
+            8.69835270757e-05,
+            0.513850125581
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_y",
+            "high_enrichment",
+            -0.00705291175232,
+            -0.0138616553417,
+            -0.000244168162922,
+            0.130256748294
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_y",
+            "partial_affinity_correlation",
+            -0.0352642898256,
+            -0.10101135154,
+            0.0304827718888,
+            0.548367237917
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_y",
+            "lag_partial_gain_correlation",
+            0.00779845719164,
+            -0.0208980408865,
+            0.0364949552697,
+            0.680946538984
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_y",
+            "retained_shift",
+            -0.00232219210081,
+            -0.00603808755232,
+            0.0013937033507,
+            0.932916756084
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_y",
+            "native_difference",
+            -0.0105903403017,
+            -0.0209173676184,
+            -0.000263312985115,
+            0.187603572683
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_z",
+            "selection_shift",
+            7.96827416339e-05,
+            -0.000216400814028,
+            0.000375766297296,
+            0.932942481318
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_z",
+            "high_enrichment",
+            -0.00140377993449,
+            -0.00801870307326,
+            0.00521114320428,
+            0.727798597914
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_z",
+            "partial_affinity_correlation",
+            0.00444635733244,
+            -0.0290249702945,
+            0.0379176849593,
+            0.894081834496
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_z",
+            "lag_partial_gain_correlation",
+            -0.0275477105494,
+            -0.0596836368783,
+            0.00458821577945,
+            0.207404064862
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_z",
+            "retained_shift",
+            -0.000626726482631,
+            -0.00468187388989,
+            0.00342842092463,
+            0.947837207923
+          ],
+          [
+            "ck2:A:ASN117::all::centroid_z",
+            "native_difference",
+            -0.0086785410697,
+            -0.0176963418755,
+            0.000339259736105,
+            0.217072510271
+          ],
+          [
+            "ck2:A:ASN117::all::spread",
+            "selection_shift",
+            -0.000282299730249,
+            -0.000445941937615,
+            -0.000118657522883,
+            0.0364643373323
+          ],
+          [
+            "ck2:A:ASN117::all::spread",
+            "high_enrichment",
+            -0.00973990624188,
+            -0.0144177468693,
+            -0.00506206561443,
+            0.0121203714253
+          ],
+          [
+            "ck2:A:ASN117::all::spread",
+            "partial_affinity_correlation",
+            -0.00815863682388,
+            -0.0455194272103,
+            0.0292021535625,
+            0.82608785456
+          ],
+          [
+            "ck2:A:ASN117::all::spread",
+            "lag_partial_gain_correlation",
+            0.0126505822745,
+            -0.013111689261,
+            0.03841285381,
+            0.454451767312
+          ],
+          [
+            "ck2:A:ASN117::all::spread",
+            "retained_shift",
+            -0.00110976322501,
+            -0.00324628360469,
+            0.00102675715468,
+            0.932916756084
+          ],
+          [
+            "ck2:A:ASN117::all::spread",
+            "native_difference",
+            -0.00994176337736,
+            -0.0155631578824,
+            -0.00432036887237,
+            0.088274027221
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_x",
+            "selection_shift",
+            8.6942469437e-05,
+            -0.000176462702789,
+            0.000350347641663,
+            0.888172937537
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_x",
+            "high_enrichment",
+            -0.00106029077925,
+            -0.0047595849381,
+            0.0026390033796,
+            0.632766954934
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_x",
+            "partial_affinity_correlation",
+            -0.0125006519185,
+            -0.0337810287064,
+            0.00877972486932,
+            0.498678108012
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_x",
+            "lag_partial_gain_correlation",
+            0.0282903296366,
+            0.00741540846598,
+            0.0491652508072,
+            0.0967426651129
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_x",
+            "retained_shift",
+            0.000816402084315,
+            -0.00394235382701,
+            0.00557515799564,
+            0.947837207923
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_x",
+            "native_difference",
+            0.00346366220634,
+            -0.00109890071438,
+            0.00802622512706,
+            0.331212658187
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_y",
+            "selection_shift",
+            0.000223658742617,
+            -0.00276073721016,
+            0.00320805469539,
+            0.998544981593
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_y",
+            "high_enrichment",
+            -0.00251429581286,
+            -0.00988988267403,
+            0.00486129104831,
+            0.573981600744
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_y",
+            "partial_affinity_correlation",
+            -0.0268555974043,
+            -0.0807045961419,
+            0.0269934013332,
+            0.592336852741
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_y",
+            "lag_partial_gain_correlation",
+            -0.0147063151309,
+            -0.0378322326454,
+            0.00841960238356,
+            0.343908884259
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_y",
+            "retained_shift",
+            -0.00584972914881,
+            -0.0271517567179,
+            0.0154522984203,
+            0.932916756084
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_y",
+            "native_difference",
+            0.00173152209327,
+            -0.0356358457431,
+            0.0390988899296,
+            0.948739752669
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_z",
+            "selection_shift",
+            -0.000406774691924,
+            -0.00225945715103,
+            0.00144590776718,
+            0.963144920381
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_z",
+            "high_enrichment",
+            -0.00298118205026,
+            -0.00822126615843,
+            0.00225890205791,
+            0.375661723172
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_z",
+            "partial_affinity_correlation",
+            0.0676397758125,
+            0.0313165446553,
+            0.10396300697,
+            0.0196055882662
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_z",
+            "lag_partial_gain_correlation",
+            -0.0281500294076,
+            -0.0546918620109,
+            -0.00160819680442,
+            0.127114879209
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_z",
+            "retained_shift",
+            -0.0106415023648,
+            -0.0348892917912,
+            0.0136062870615,
+            0.932916756084
+          ],
+          [
+            "ck2:A:ASN117::NOS::centroid_z",
+            "native_difference",
+            -0.0183507354425,
+            -0.0514102309258,
+            0.0147087600408,
+            0.461741165297
+          ],
+          [
+            "ck2:A:ASN117::NOS::spread",
+            "selection_shift",
+            -0.000255957946294,
+            -0.000724121269858,
+            0.000212205377271,
+            0.685731457592
+          ],
+          [
+            "ck2:A:ASN117::NOS::spread",
+            "high_enrichment",
+            -0.00344317707113,
+            -0.00605403551651,
+            -0.000832318625748,
+            0.0743176196619
+          ],
+          [
+            "ck2:A:ASN117::NOS::spread",
+            "partial_affinity_correlation",
+            0.00727848459375,
+            -0.0416316469722,
+            0.0561886161597,
+            0.880555428094
+          ],
+          [
+            "ck2:A:ASN117::NOS::spread",
+            "lag_partial_gain_correlation",
+            0.0118521549442,
+            -0.0239729100502,
+            0.0476772199385,
+            0.607545051172
+          ],
+          [
+            "ck2:A:ASN117::NOS::spread",
+            "retained_shift",
+            -0.000130676617085,
+            -0.00818654040963,
+            0.00792518717546,
+            0.995470659612
+          ],
+          [
+            "ck2:A:ASN117::NOS::spread",
+            "native_difference",
+            0.00344884332319,
+            -0.00991618233138,
+            0.0168138689778,
+            0.746415194896
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_x",
+            "selection_shift",
+            -4.09972843728e-06,
+            -7.2666091337e-05,
+            6.44666344625e-05,
+            0.998544981593
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_x",
+            "high_enrichment",
+            -0.00376209621732,
+            -0.00802562362537,
+            0.000501431190738,
+            0.180480769383
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_x",
+            "partial_affinity_correlation",
+            0.00933286108262,
+            -0.0411455223029,
+            0.0598112444682,
+            0.846921397255
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_x",
+            "lag_partial_gain_correlation",
+            0.0296246769499,
+            -0.000679313596359,
+            0.0599286674961,
+            0.154985423206
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_x",
+            "retained_shift",
+            0.000520261115972,
+            -0.00100368046748,
+            0.00204420269943,
+            0.932916756084
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_x",
+            "native_difference",
+            0.00292635722725,
+            -0.00057010778882,
+            0.00642282224331,
+            0.286518107048
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_y",
+            "selection_shift",
+            -0.000155437745865,
+            -0.000431166966522,
+            0.000120291474791,
+            0.659102037954
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_y",
+            "high_enrichment",
+            -0.00502120365015,
+            -0.0115308410137,
+            0.00148843371338,
+            0.236378119375
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_y",
+            "partial_affinity_correlation",
+            -0.0293885848487,
+            -0.0912794480902,
+            0.0325022783929,
+            0.609205156668
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_y",
+            "lag_partial_gain_correlation",
+            0.00274355194394,
+            -0.0277107852291,
+            0.033197889117,
+            0.900909207011
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_y",
+            "retained_shift",
+            -0.00200162176686,
+            -0.00543724080716,
+            0.00143399727345,
+            0.932916756084
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_y",
+            "native_difference",
+            -0.00907531104024,
+            -0.0178656311616,
+            -0.000284990918852,
+            0.186916143892
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_z",
+            "selection_shift",
+            7.82865330223e-05,
+            -0.000213003451471,
+            0.000369576517516,
+            0.932942481318
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_z",
+            "high_enrichment",
+            -0.00165807418682,
+            -0.0088912636848,
+            0.00557511531116,
+            0.70659253977
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_z",
+            "partial_affinity_correlation",
+            0.00245165156267,
+            -0.0350604250798,
+            0.0399637282051,
+            0.944471632961
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_z",
+            "lag_partial_gain_correlation",
+            -0.0268319759869,
+            -0.0594020774365,
+            0.0057381254628,
+            0.224533168005
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_z",
+            "retained_shift",
+            -0.000347492264828,
+            -0.00417628054287,
+            0.00348129601322,
+            0.985991139357
+          ],
+          [
+            "ck2:A:VAL116::all::centroid_z",
+            "native_difference",
+            -0.00654367964695,
+            -0.0146569991201,
+            0.00156963982621,
+            0.304023575966
+          ],
+          [
+            "ck2:A:VAL116::all::spread",
+            "selection_shift",
+            -0.000301977372525,
+            -0.000456423727323,
+            -0.000147531017726,
+            0.0282877617653
+          ],
+          [
+            "ck2:A:VAL116::all::spread",
+            "high_enrichment",
+            -0.0108897966683,
+            -0.0158735180945,
+            -0.00590607524207,
+            0.00978005336777
+          ],
+          [
+            "ck2:A:VAL116::all::spread",
+            "partial_affinity_correlation",
+            -0.0203804094587,
+            -0.0568858097176,
+            0.0161249908002,
+            0.527304074057
+          ],
+          [
+            "ck2:A:VAL116::all::spread",
+            "lag_partial_gain_correlation",
+            0.0170074051509,
+            -0.00947141820088,
+            0.0434862285027,
+            0.341466796548
+          ],
+          [
+            "ck2:A:VAL116::all::spread",
+            "retained_shift",
+            -0.00122906890822,
+            -0.00326937097356,
+            0.000811233157132,
+            0.932916756084
+          ],
+          [
+            "ck2:A:VAL116::all::spread",
+            "native_difference",
+            -0.0106131005459,
+            -0.016660909035,
+            -0.00456529205685,
+            0.088274027221
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_x",
+            "selection_shift",
+            8.62369735846e-05,
+            -0.00011637015055,
+            0.000288844097719,
+            0.812392412873
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_x",
+            "high_enrichment",
+            -0.000586395086755,
+            -0.00435657562489,
+            0.00318378545138,
+            0.80240277944
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_x",
+            "partial_affinity_correlation",
+            -0.00611579025149,
+            -0.0237891873984,
+            0.0115576068955,
+            0.719084540015
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_x",
+            "lag_partial_gain_correlation",
+            0.0241291952229,
+            0.000590748094375,
+            0.0476676423515,
+            0.135874242042
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_x",
+            "retained_shift",
+            0.000403401847765,
+            -0.00405891684053,
+            0.00486572053606,
+            0.985991139357
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_x",
+            "native_difference",
+            0.00326851716554,
+            -0.00176964312027,
+            0.00830667745134,
+            0.393093278744
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_y",
+            "selection_shift",
+            0.000322737119862,
+            -0.00280950224134,
+            0.00345497648106,
+            0.998544981593
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_y",
+            "high_enrichment",
+            -0.00219833384659,
+            -0.0095155952311,
+            0.00511892753791,
+            0.615780187462
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_y",
+            "partial_affinity_correlation",
+            -0.0262832839377,
+            -0.0781664342417,
+            0.0255998663664,
+            0.580676428007
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_y",
+            "lag_partial_gain_correlation",
+            -0.0191481611775,
+            -0.0428784431556,
+            0.00458212080069,
+            0.234547476518
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_y",
+            "retained_shift",
+            -0.00611843518039,
+            -0.0289429995304,
+            0.0167061291697,
+            0.932916756084
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_y",
+            "native_difference",
+            0.00438361071304,
+            -0.0383849426619,
+            0.047152164088,
+            0.899771001589
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_z",
+            "selection_shift",
+            -0.000349029053513,
+            -0.00176457260335,
+            0.00106651449632,
+            0.947769299871
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_z",
+            "high_enrichment",
+            -0.00274390573874,
+            -0.00799993721158,
+            0.0025121257341,
+            0.413101418257
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_z",
+            "partial_affinity_correlation",
+            0.0717474253201,
+            0.0343960163773,
+            0.109098834263,
+            0.0178649961602
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_z",
+            "lag_partial_gain_correlation",
+            -0.0254350875056,
+            -0.0527062413263,
+            0.00183606631496,
+            0.175129401757
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_z",
+            "retained_shift",
+            -0.00946395266248,
+            -0.0297402095922,
+            0.0108123042673,
+            0.932916756084
+          ],
+          [
+            "ck2:A:VAL116::NOS::centroid_z",
+            "native_difference",
+            -0.00712141192491,
+            -0.0360450667708,
+            0.021802242921,
+            0.753626793359
+          ],
+          [
+            "ck2:A:VAL116::NOS::spread",
+            "selection_shift",
+            -0.000195464424996,
+            -0.000837270632398,
+            0.000446341782406,
+            0.904948228228
+          ],
+          [
+            "ck2:A:VAL116::NOS::spread",
+            "high_enrichment",
+            -0.0028588098808,
+            -0.0055948982886,
+            -0.000122721473005,
+            0.129534318842
+          ],
+          [
+            "ck2:A:VAL116::NOS::spread",
+            "partial_affinity_correlation",
+            0.00192545173228,
+            -0.0505542262655,
+            0.05440512973,
+            0.967722214511
+          ],
+          [
+            "ck2:A:VAL116::NOS::spread",
+            "lag_partial_gain_correlation",
+            0.0179247167549,
+            -0.0187411416766,
+            0.0545905751863,
+            0.454451767312
+          ],
+          [
+            "ck2:A:VAL116::NOS::spread",
+            "retained_shift",
+            -0.000176581812653,
+            -0.00890574369919,
+            0.00855258007389,
+            0.994172269234
+          ],
+          [
+            "ck2:A:VAL116::NOS::spread",
+            "native_difference",
+            0.00265181159998,
+            -0.0133372991185,
+            0.0186409223184,
+            0.82956607157
+          ]
+        ]
+      }
+    },
+    "D_LINEAGE": {
+      "source": "lineage_diagnostics.csv, batch in 0..13",
+      "n_batches": 14,
+      "final_single_root_batches": 11,
+      "lag_time_end": 0.49,
+      "next_score_last_time": 0.5,
+      "curve": [
+        {
+          "time": 0.0,
+          "unique_roots": {
+            "mean": 50.0,
+            "min": 50.0,
+            "max": 50.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.214285714285715,
+            "min": 28.0,
+            "max": 37.0
+          },
+          "probability_ESS": {
+            "mean": 47.18651302120714,
+            "min": 46.1536616518,
+            "max": 48.3504465471
+          }
+        },
+        {
+          "time": 0.01,
+          "unique_roots": {
+            "mean": 31.214285714285715,
+            "min": 28.0,
+            "max": 37.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.0,
+            "min": 30.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.58142547086428,
+            "min": 46.6631892547,
+            "max": 48.1679575189
+          }
+        },
+        {
+          "time": 0.02,
+          "unique_roots": {
+            "mean": 23.571428571428573,
+            "min": 20.0,
+            "max": 28.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.0,
+            "min": 28.0,
+            "max": 34.0
+          },
+          "probability_ESS": {
+            "mean": 47.52643003429286,
+            "min": 46.4770458008,
+            "max": 48.979369651
+          }
+        },
+        {
+          "time": 0.03,
+          "unique_roots": {
+            "mean": 18.142857142857142,
+            "min": 17.0,
+            "max": 20.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.785714285714285,
+            "min": 29.0,
+            "max": 37.0
+          },
+          "probability_ESS": {
+            "mean": 47.76191200433572,
+            "min": 46.3440106215,
+            "max": 49.2250607873
+          }
+        },
+        {
+          "time": 0.04,
+          "unique_roots": {
+            "mean": 14.714285714285714,
+            "min": 11.0,
+            "max": 17.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.5,
+            "min": 27.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.775459814842854,
+            "min": 45.2725990632,
+            "max": 49.2863019497
+          }
+        },
+        {
+          "time": 0.05,
+          "unique_roots": {
+            "mean": 11.857142857142858,
+            "min": 8.0,
+            "max": 15.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.857142857142858,
+            "min": 28.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 47.87626100924286,
+            "min": 45.5996054731,
+            "max": 49.3921957949
+          }
+        },
+        {
+          "time": 0.06,
+          "unique_roots": {
+            "mean": 9.571428571428571,
+            "min": 8.0,
+            "max": 13.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.785714285714285,
+            "min": 27.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 48.09929347545,
+            "min": 46.7425620129,
+            "max": 49.0439850716
+          }
+        },
+        {
+          "time": 0.07,
+          "unique_roots": {
+            "mean": 8.5,
+            "min": 6.0,
+            "max": 11.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.857142857142854,
+            "min": 30.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 48.325276090221436,
+            "min": 47.3107177215,
+            "max": 49.2405595098
+          }
+        },
+        {
+          "time": 0.08,
+          "unique_roots": {
+            "mean": 7.642857142857143,
+            "min": 6.0,
+            "max": 11.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.857142857142858,
+            "min": 30.0,
+            "max": 34.0
+          },
+          "probability_ESS": {
+            "mean": 48.447921236242856,
+            "min": 47.263178429,
+            "max": 49.2974458546
+          }
+        },
+        {
+          "time": 0.09,
+          "unique_roots": {
+            "mean": 6.714285714285714,
+            "min": 4.0,
+            "max": 9.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.5,
+            "min": 27.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 48.72226185442143,
+            "min": 47.9586522276,
+            "max": 49.3556017449
+          }
+        },
+        {
+          "time": 0.1,
+          "unique_roots": {
+            "mean": 6.142857142857143,
+            "min": 4.0,
+            "max": 9.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.642857142857142,
+            "min": 29.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 48.80092174365715,
+            "min": 48.2216544743,
+            "max": 49.3499438799
+          }
+        },
+        {
+          "time": 0.11,
+          "unique_roots": {
+            "mean": 5.5,
+            "min": 3.0,
+            "max": 8.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.571428571428573,
+            "min": 28.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 48.78869972809999,
+            "min": 47.5873624899,
+            "max": 49.3899718944
+          }
+        },
+        {
+          "time": 0.12,
+          "unique_roots": {
+            "mean": 5.142857142857143,
+            "min": 3.0,
+            "max": 7.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.857142857142858,
+            "min": 29.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 48.655129358771426,
+            "min": 47.4314163384,
+            "max": 49.6187804411
+          }
+        },
+        {
+          "time": 0.13,
+          "unique_roots": {
+            "mean": 4.928571428571429,
+            "min": 3.0,
+            "max": 7.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.928571428571427,
+            "min": 26.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 48.325406791378576,
+            "min": 46.1803560958,
+            "max": 49.4809065783
+          }
+        },
+        {
+          "time": 0.14,
+          "unique_roots": {
+            "mean": 4.642857142857143,
+            "min": 2.0,
+            "max": 7.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.0,
+            "min": 26.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 48.13030956657858,
+            "min": 45.2192344762,
+            "max": 49.224543377
+          }
+        },
+        {
+          "time": 0.15,
+          "unique_roots": {
+            "mean": 4.285714285714286,
+            "min": 1.0,
+            "max": 7.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.571428571428573,
+            "min": 29.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.96547750542142,
+            "min": 46.4583811396,
+            "max": 49.3612426798
+          }
+        },
+        {
+          "time": 0.16,
+          "unique_roots": {
+            "mean": 4.142857142857143,
+            "min": 1.0,
+            "max": 6.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.571428571428573,
+            "min": 24.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.880860159364296,
+            "min": 45.8289656893,
+            "max": 49.0835985728
+          }
+        },
+        {
+          "time": 0.17,
+          "unique_roots": {
+            "mean": 3.5,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.357142857142858,
+            "min": 28.0,
+            "max": 34.0
+          },
+          "probability_ESS": {
+            "mean": 47.81912060896428,
+            "min": 46.529963899,
+            "max": 49.1064808885
+          }
+        },
+        {
+          "time": 0.18,
+          "unique_roots": {
+            "mean": 3.142857142857143,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.571428571428573,
+            "min": 28.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.360735921099995,
+            "min": 45.4213033706,
+            "max": 48.9813152794
+          }
+        },
+        {
+          "time": 0.19,
+          "unique_roots": {
+            "mean": 2.7857142857142856,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.428571428571427,
+            "min": 28.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.24296924060714,
+            "min": 44.6219834506,
+            "max": 49.0528744487
+          }
+        },
+        {
+          "time": 0.2,
+          "unique_roots": {
+            "mean": 2.5714285714285716,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.428571428571427,
+            "min": 28.0,
+            "max": 32.0
+          },
+          "probability_ESS": {
+            "mean": 47.23195607507143,
+            "min": 42.4870517175,
+            "max": 49.1026721426
+          }
+        },
+        {
+          "time": 0.21,
+          "unique_roots": {
+            "mean": 2.4285714285714284,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.0,
+            "min": 29.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.551331419935714,
+            "min": 44.9856344595,
+            "max": 49.0874169954
+          }
+        },
+        {
+          "time": 0.22,
+          "unique_roots": {
+            "mean": 2.2857142857142856,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.642857142857142,
+            "min": 29.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.75797326179286,
+            "min": 46.1560993582,
+            "max": 48.693465503
+          }
+        },
+        {
+          "time": 0.23,
+          "unique_roots": {
+            "mean": 2.2857142857142856,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.714285714285715,
+            "min": 27.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.644362448950005,
+            "min": 44.9267233707,
+            "max": 49.0271337603
+          }
+        },
+        {
+          "time": 0.24,
+          "unique_roots": {
+            "mean": 2.2142857142857144,
+            "min": 1.0,
+            "max": 5.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.857142857142858,
+            "min": 27.0,
+            "max": 33.0
+          },
+          "probability_ESS": {
+            "mean": 47.945433686449995,
+            "min": 46.6731390054,
+            "max": 49.1229536401
+          }
+        },
+        {
+          "time": 0.25,
+          "unique_roots": {
+            "mean": 2.0,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.285714285714285,
+            "min": 28.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.736937219757145,
+            "min": 45.7428795486,
+            "max": 49.0690165209
+          }
+        },
+        {
+          "time": 0.26,
+          "unique_roots": {
+            "mean": 2.0,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.0,
+            "min": 26.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.58183420393571,
+            "min": 45.9339369863,
+            "max": 49.1187575736
+          }
+        },
+        {
+          "time": 0.27,
+          "unique_roots": {
+            "mean": 1.9285714285714286,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.642857142857142,
+            "min": 29.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 46.894720312242846,
+            "min": 40.312289447,
+            "max": 49.2578241371
+          }
+        },
+        {
+          "time": 0.28,
+          "unique_roots": {
+            "mean": 1.8571428571428572,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.0,
+            "min": 27.0,
+            "max": 34.0
+          },
+          "probability_ESS": {
+            "mean": 47.077225004400006,
+            "min": 42.7412286537,
+            "max": 49.2883055754
+          }
+        },
+        {
+          "time": 0.29,
+          "unique_roots": {
+            "mean": 1.6428571428571428,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.214285714285715,
+            "min": 28.0,
+            "max": 33.0
+          },
+          "probability_ESS": {
+            "mean": 47.37737866355,
+            "min": 44.2773387432,
+            "max": 49.4846581323
+          }
+        },
+        {
+          "time": 0.3,
+          "unique_roots": {
+            "mean": 1.6428571428571428,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.57142857142857,
+            "min": 29.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 47.78882501455001,
+            "min": 45.7458106743,
+            "max": 49.5224312435
+          }
+        },
+        {
+          "time": 0.31,
+          "unique_roots": {
+            "mean": 1.6428571428571428,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.714285714285715,
+            "min": 30.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.85683218909286,
+            "min": 45.6288481812,
+            "max": 49.5008310023
+          }
+        },
+        {
+          "time": 0.32,
+          "unique_roots": {
+            "mean": 1.5714285714285714,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.857142857142858,
+            "min": 27.0,
+            "max": 37.0
+          },
+          "probability_ESS": {
+            "mean": 47.76927603869286,
+            "min": 43.2119019363,
+            "max": 49.5359642355
+          }
+        },
+        {
+          "time": 0.33,
+          "unique_roots": {
+            "mean": 1.5714285714285714,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.214285714285715,
+            "min": 26.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.85201602933571,
+            "min": 44.2462476551,
+            "max": 49.6411924621
+          }
+        },
+        {
+          "time": 0.34,
+          "unique_roots": {
+            "mean": 1.5714285714285714,
+            "min": 1.0,
+            "max": 4.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.571428571428573,
+            "min": 25.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 47.99958155842143,
+            "min": 45.3732690558,
+            "max": 49.4553427671
+          }
+        },
+        {
+          "time": 0.35,
+          "unique_roots": {
+            "mean": 1.4285714285714286,
+            "min": 1.0,
+            "max": 3.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.785714285714285,
+            "min": 28.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 48.25268663277857,
+            "min": 45.0853869691,
+            "max": 49.7399325816
+          }
+        },
+        {
+          "time": 0.36,
+          "unique_roots": {
+            "mean": 1.3571428571428572,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.428571428571427,
+            "min": 29.0,
+            "max": 34.0
+          },
+          "probability_ESS": {
+            "mean": 48.45949927651428,
+            "min": 46.6800323493,
+            "max": 49.5339849919
+          }
+        },
+        {
+          "time": 0.37,
+          "unique_roots": {
+            "mean": 1.2857142857142858,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.142857142857142,
+            "min": 27.0,
+            "max": 37.0
+          },
+          "probability_ESS": {
+            "mean": 48.46575250460715,
+            "min": 44.913394387,
+            "max": 49.6015436473
+          }
+        },
+        {
+          "time": 0.38,
+          "unique_roots": {
+            "mean": 1.2857142857142858,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.142857142857146,
+            "min": 26.0,
+            "max": 37.0
+          },
+          "probability_ESS": {
+            "mean": 48.444583462428575,
+            "min": 43.7321213633,
+            "max": 49.8510057499
+          }
+        },
+        {
+          "time": 0.39,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 33.5,
+            "min": 29.0,
+            "max": 39.0
+          },
+          "probability_ESS": {
+            "mean": 48.37843432327857,
+            "min": 44.3720426891,
+            "max": 49.6466243606
+          }
+        },
+        {
+          "time": 0.4,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.428571428571427,
+            "min": 28.0,
+            "max": 37.0
+          },
+          "probability_ESS": {
+            "mean": 48.11198576338571,
+            "min": 43.7188328879,
+            "max": 49.6420443338
+          }
+        },
+        {
+          "time": 0.41,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.214285714285715,
+            "min": 26.0,
+            "max": 34.0
+          },
+          "probability_ESS": {
+            "mean": 47.983175309385715,
+            "min": 43.6396254846,
+            "max": 49.6267982718
+          }
+        },
+        {
+          "time": 0.42,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.785714285714285,
+            "min": 27.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 48.02530970188572,
+            "min": 44.2802658739,
+            "max": 49.6609520516
+          }
+        },
+        {
+          "time": 0.43,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 32.07142857142857,
+            "min": 29.0,
+            "max": 38.0
+          },
+          "probability_ESS": {
+            "mean": 48.24776246060001,
+            "min": 45.6210449348,
+            "max": 49.6772040339
+          }
+        },
+        {
+          "time": 0.44,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.428571428571427,
+            "min": 29.0,
+            "max": 33.0
+          },
+          "probability_ESS": {
+            "mean": 48.28340628232858,
+            "min": 45.6229970721,
+            "max": 49.684455036
+          }
+        },
+        {
+          "time": 0.45,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.928571428571427,
+            "min": 28.0,
+            "max": 38.0
+          },
+          "probability_ESS": {
+            "mean": 48.19863780010714,
+            "min": 44.7334025132,
+            "max": 49.4827679631
+          }
+        },
+        {
+          "time": 0.46,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.785714285714285,
+            "min": 26.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 48.30556745194286,
+            "min": 45.1191229545,
+            "max": 49.5800634616
+          }
+        },
+        {
+          "time": 0.47,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 31.642857142857142,
+            "min": 28.0,
+            "max": 36.0
+          },
+          "probability_ESS": {
+            "mean": 48.48364592777143,
+            "min": 46.1985934198,
+            "max": 49.6239539722
+          }
+        },
+        {
+          "time": 0.48,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 29.785714285714285,
+            "min": 26.0,
+            "max": 35.0
+          },
+          "probability_ESS": {
+            "mean": 48.49534137305715,
+            "min": 47.0348477755,
+            "max": 49.7802463667
+          }
+        },
+        {
+          "time": 0.49,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 30.5,
+            "min": 28.0,
+            "max": 34.0
+          },
+          "probability_ESS": {
+            "mean": 48.49571681255714,
+            "min": 46.6811432564,
+            "max": 49.6926722502
+          }
+        },
+        {
+          "time": 0.5,
+          "unique_roots": {
+            "mean": 1.2142857142857142,
+            "min": 1.0,
+            "max": 2.0
+          },
+          "unique_retained_parents_lag": {
+            "mean": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "probability_ESS": {
+            "mean": 48.42736504087856,
+            "min": 45.807776002,
+            "max": 49.738105498
+          }
+        }
+      ]
+    },
+    "D_FIT_AUDIT": {
+      "source": "continuous_functions.json plus discovery selected_mean endpoints",
+      "basis": "u=4t-1; f(t)=sum_k c_k P_k(u); df/dt=4 sum_k c_k P_k_prime(u)",
+      "degree_selection": "whole-batch LOBO; one-SE selects lowest degree among0..5",
+      "degree_counts": {
+        "5": 368,
+        "1": 195,
+        "2": 120,
+        "3": 50,
+        "4": 74,
+        "0": 73
+      },
+      "confidence_bands_provided": false,
+      "curves": [
+        {
+          "feature": "ck2:A:ASN117::all::centroid_x",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.014264338070967109,
+            0.00028487265293113156,
+            0.00026057529919249243,
+            0.0002569982385809727,
+            0.0002385214478851845,
+            0.00022354606420494833
+          ],
+          "degree": 4,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            2.0630717840180752,
+            -0.20478418957331299,
+            0.011594502577086949,
+            0.00520781256038942,
+            -0.012861220195025778
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            2.17278899124,
+            1.86860282247
+          ],
+          "fitted_start_end": [
+            2.2613814434130597,
+            1.8622286893872129
+          ],
+          "derivative_start_end": [
+            -0.31883447996791814,
+            -1.0694640337198935
+          ],
+          "stationary_times_algebraic_only": [],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.08859245217305967,
+          "selected_degree_cv_mse": 0.0002385214478851845
+        },
+        {
+          "feature": "ck2:A:ASN117::all::centroid_y",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.19731574195216162,
+            0.003869393139138556,
+            0.002321076432734799,
+            0.0022053523102096443,
+            0.0020369020595060717,
+            0.0018269730440462174
+          ],
+          "degree": 5,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            -9.5635671769838,
+            0.7619466736588489,
+            0.08758980169081125,
+            -0.02763016088028239,
+            0.038561270095961005,
+            -0.047143481775469495
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            -9.8434560082,
+            -8.72637428051
+          ],
+          "fitted_start_end": [
+            -10.124589136200125,
+            -8.750243074193932
+          ],
+          "derivative_start_end": [
+            -3.037474497147727,
+            2.1495823511086227
+          ],
+          "stationary_times_algebraic_only": [
+            0.03195918055819408
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.2811331280001248,
+          "selected_degree_cv_mse": 0.0018269730440462174
+        },
+        {
+          "feature": "ck2:A:ASN117::all::centroid_z",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.008151286399661662,
+            0.006436804248805233,
+            0.0019075397260319932,
+            0.0017576745610575833,
+            0.0016693823513232453,
+            0.0015492349106002296
+          ],
+          "degree": 4,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            6.783287282326685,
+            -0.0724734979122287,
+            -0.1500375125471341,
+            0.03239140123398781,
+            -0.028142575801839015
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            6.36276677705,
+            6.57895435957
+          ],
+          "fitted_start_end": [
+            6.645189290655953,
+            6.565025097299471
+          ],
+          "derivative_start_end": [
+            3.4136528206059626,
+            -2.4386535446723774
+          ],
+          "stationary_times_algebraic_only": [
+            0.16838674767898237
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.28242251360595283,
+          "selected_degree_cv_mse": 0.0016693823513232453
+        },
+        {
+          "feature": "ck2:A:ASN117::all::spread",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.19649215576976092,
+            0.023630748734553685,
+            0.023185548387895,
+            0.021018734146371204,
+            0.018493212646523656,
+            0.015707381721583678
+          ],
+          "degree": 5,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.8416423709666313,
+            0.721302431744041,
+            0.045920888832013694,
+            -0.11921833398176239,
+            0.14900823223234952,
+            -0.17142502856774358
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            1.61059625231,
+            1.5529923697
+          ],
+          "fitted_start_end": [
+            0.6059124228364594,
+            1.4672305612255294
+          ],
+          "derivative_start_end": [
+            -16.77291195792889,
+            -3.7501520473726053
+          ],
+          "stationary_times_algebraic_only": [
+            0.05976208686938653,
+            0.4777815389377826
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 1.0046838294735405,
+          "selected_degree_cv_mse": 0.015707381721583678
+        },
+        {
+          "feature": "ck2:A:ASN117::NOS::centroid_x",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.012693976624245285,
+            0.00047558223792556385,
+            0.00031809499165672803,
+            0.00031950155142443284,
+            0.0003169745044867709,
+            0.00031690038250200696
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            2.067297122519372,
+            -0.19145129695432256,
+            0.028220876351511857
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            2.25849769662,
+            1.89700251779
+          ],
+          "fitted_start_end": [
+            2.2869692958252066,
+            1.9040667019165614
+          ],
+          "derivative_start_end": [
+            -1.1044557040354326,
+            -0.42715467159914794
+          ],
+          "stationary_times_algebraic_only": [],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.028471599205206477,
+          "selected_degree_cv_mse": 0.00031809499165672803
+        },
+        {
+          "feature": "ck2:A:ASN117::NOS::centroid_y",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.23846202249615425,
+            0.019180803988862124,
+            0.012289383662836707,
+            0.011731904888664749,
+            0.011776747533249001,
+            0.011804585148200259
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            -9.700907968253944,
+            0.811785881383126,
+            0.18590798061773003
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            -10.2375992294,
+            -8.76698850396
+          ],
+          "fitted_start_end": [
+            -10.326785869019341,
+            -8.703214106253089
+          ],
+          "derivative_start_end": [
+            1.0162477581197438,
+            5.478039292945264
+          ],
+          "stationary_times_algebraic_only": [],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.08918663961934037,
+          "selected_degree_cv_mse": 0.012289383662836707
+        },
+        {
+          "feature": "ck2:A:ASN117::NOS::centroid_z",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.052782475194160856,
+            0.028273591845367006,
+            0.020538192421557418,
+            0.02007628107209489,
+            0.01923733846812667,
+            0.01810188143616544
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            6.51707123597199,
+            -0.2733226984111215,
+            -0.19756468793546403
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            5.55617501071,
+            6.0537929419
+          ],
+          "fitted_start_end": [
+            6.592829246447648,
+            6.046183849625405
+          ],
+          "derivative_start_end": [
+            1.2774854615810824,
+            -3.4640670488700547
+          ],
+          "stationary_times_algebraic_only": [
+            0.13471172772686807
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 1.0366542357376485,
+          "selected_degree_cv_mse": 0.020538192421557418
+        },
+        {
+          "feature": "ck2:A:ASN117::NOS::spread",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.2168677230715197,
+            0.01732964780968205,
+            0.017191834304415163,
+            0.01536790212001309,
+            0.013362018590515253,
+            0.011715397739055161
+          ],
+          "degree": 5,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.8981265328525597,
+            0.7747574562163402,
+            -0.02902807717426838,
+            -0.11017792198954289,
+            0.1329318468703737,
+            -0.13186393995071669
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            1.27145537598,
+            1.60017876524
+          ],
+          "fitted_start_end": [
+            0.4693147082725845,
+            1.5347458968247456
+          ],
+          "derivative_start_end": [
+            -12.4260136486504,
+            -2.4881397512029393
+          ],
+          "stationary_times_algebraic_only": [
+            0.05184999940557122,
+            0.4806731163647404
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.8021406677074155,
+          "selected_degree_cv_mse": 0.011715397739055161
+        },
+        {
+          "feature": "ck2:A:VAL116::all::centroid_x",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.015201463244427551,
+            0.00019405815365376665,
+            0.00017756080159921065,
+            0.00017634572144836438,
+            0.0001649077873655696,
+            0.00015558723501965654
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            2.030310980645059,
+            -0.21214512323549975,
+            0.00952829981402718
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            2.16985327638,
+            1.82579961652
+          ],
+          "fitted_start_end": [
+            2.251984403694586,
+            1.8276941572235863
+          ],
+          "derivative_start_end": [
+            -0.9629200907103251,
+            -0.7342408951736729
+          ],
+          "stationary_times_algebraic_only": [],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.08213112731458594,
+          "selected_degree_cv_mse": 0.00017756080159921065
+        },
+        {
+          "feature": "ck2:A:VAL116::all::centroid_y",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.14182225820179942,
+            0.0014358686154745113,
+            0.000936912703050342,
+            0.0009349038027049285,
+            0.0008785150927538663,
+            0.000808709658897619
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            -4.635316640408798,
+            0.648773312329622,
+            0.05002392161070331
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            -5.03065067938,
+            -3.93298958504
+          ],
+          "fitted_start_end": [
+            -5.234066031127718,
+            -3.936519406468473
+          ],
+          "derivative_start_end": [
+            1.9948061899900482,
+            3.1953803086469277
+          ],
+          "stationary_times_algebraic_only": [],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.20341535174771774,
+          "selected_degree_cv_mse": 0.000936912703050342
+        },
+        {
+          "feature": "ck2:A:VAL116::all::centroid_z",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.0051668434629850695,
+            0.004688527028243197,
+            0.0016766426115180676,
+            0.0014516237859143624,
+            0.001377300113688808,
+            0.0012790745945573626
+          ],
+          "degree": 4,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            6.178617788959705,
+            -0.038903612968766994,
+            -0.12231799527197465,
+            0.03959968858368514,
+            -0.02584709358583867
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            5.76706813699,
+            6.04293035045
+          ],
+          "fitted_start_end": [
+            6.029756624486973,
+            6.03114877571681
+          ],
+          "derivative_start_end": [
+            3.296477760830619,
+            -1.7069216125638673
+          ],
+          "stationary_times_algebraic_only": [
+            0.17116465452501017
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.26268848749697327,
+          "selected_degree_cv_mse": 0.001377300113688808
+        },
+        {
+          "feature": "ck2:A:VAL116::all::spread",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.2162366819008017,
+            0.024940194192677966,
+            0.023968430236473694,
+            0.021891005309135892,
+            0.019271987517921967,
+            0.01634815764500789
+          ],
+          "degree": 5,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.8636799085164519,
+            0.7587370079273507,
+            0.06832795756771869,
+            -0.11657740222115269,
+            0.1517415845715097,
+            -0.17561871505850515
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            1.6417502156,
+            1.63781144774
+          ],
+          "fitted_start_end": [
+            0.6172085600079878,
+            1.550290341303373
+          ],
+          "derivative_start_end": [
+            -17.189631398781582,
+            -3.410433651435559
+          ],
+          "stationary_times_algebraic_only": [
+            0.0600371764491168,
+            0.4806083321790453
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 1.024541655592012,
+          "selected_degree_cv_mse": 0.01634815764500789
+        },
+        {
+          "feature": "ck2:A:VAL116::NOS::centroid_x",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.014980460076145554,
+            0.0004506017746656152,
+            0.0003612502297503175,
+            0.00036361666145107066,
+            0.0003472851769927085,
+            0.0003374641783712214
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            2.0234408238354846,
+            -0.20874552467897106,
+            0.02130625864194274
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            2.16544437784,
+            1.83124900917
+          ],
+          "fitted_start_end": [
+            2.2534926071563985,
+            1.8360015577984563
+          ],
+          "derivative_start_end": [
+            -1.0906572024191972,
+            -0.5793069950125713
+          ],
+          "stationary_times_algebraic_only": [],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.08804822931639844,
+          "selected_degree_cv_mse": 0.0003612502297503175
+        },
+        {
+          "feature": "ck2:A:VAL116::NOS::centroid_y",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.14053326201971605,
+            0.018481675251741554,
+            0.015058940103259465,
+            0.015028807189079304,
+            0.015012445827630023,
+            0.014978931098269968
+          ],
+          "degree": 1,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            -4.843949838150539,
+            0.6066285957215551
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            -5.49756765921,
+            -4.14625306207
+          ],
+          "fitted_start_end": [
+            -5.450578433872094,
+            -4.237321242428983
+          ],
+          "derivative_start_end": [
+            2.4265143828862206,
+            2.4265143828862206
+          ],
+          "stationary_times_algebraic_only": [],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.09106818035898279,
+          "selected_degree_cv_mse": 0.018481675251741554
+        },
+        {
+          "feature": "ck2:A:VAL116::NOS::centroid_z",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.03034866711049301,
+            0.020397041573224552,
+            0.015277952726020342,
+            0.014983322931725425,
+            0.014404440197025092,
+            0.013492304039794569
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            5.968290038019722,
+            -0.17526429838105959,
+            -0.16078550209482176
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            5.08171206882,
+            5.64129280654
+          ],
+          "fitted_start_end": [
+            5.9827688343059595,
+            5.632240237543841
+          ],
+          "derivative_start_end": [
+            1.2283688316136225,
+            -2.6304832186620994
+          ],
+          "stationary_times_algebraic_only": [
+            0.15916246795803607
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.9010567654859596,
+          "selected_degree_cv_mse": 0.015277952726020342
+        },
+        {
+          "feature": "ck2:A:VAL116::NOS::spread",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            0.2800472530117694,
+            0.023453415512370884,
+            0.02315660056285146,
+            0.020896053413268202,
+            0.018482674423261077,
+            0.016264767513914393
+          ],
+          "degree": 5,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.9596282563034585,
+            0.8786361515033508,
+            0.039255427490714236,
+            -0.1224347345293734,
+            0.1457805399422563,
+            -0.15301014161397616
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            1.48137619131,
+            1.82812091116
+          ],
+          "fitted_start_end": [
+            0.5414729483764278,
+            1.7478554990964303
+          ],
+          "derivative_start_end": [
+            -14.90678424710895,
+            -2.302210791951305
+          ],
+          "stationary_times_algebraic_only": [
+            0.05547378219181917,
+            0.4853283632541773
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 0.9399032429335723,
+          "selected_degree_cv_mse": 0.016264767513914393
+        },
+        {
+          "feature": "ck2:A:ASN117::all::native_speed",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            274.6682430296714,
+            262.0374357210566,
+            244.32752041726624,
+            222.74339605872362,
+            197.4693187423747,
+            169.54037142080003
+          ],
+          "degree": 5,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            7.087850532278315,
+            -6.010631519198024,
+            9.263149714515249,
+            -11.893390943754671,
+            14.906430955085451,
+            -17.164217150436354
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            171.662192949,
+            5.01107109568
+          ],
+          "fitted_start_end": [
+            66.32567081526807,
+            -3.8108084115100347
+          ],
+          "derivative_start_end": [
+            -2046.7519725306863,
+            -631.9219029754845
+          ],
+          "stationary_times_algebraic_only": [
+            0.09017944771548209,
+            0.21123216533484887,
+            0.3447979198096195,
+            0.4502859898664384
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 105.33652213373193,
+          "selected_degree_cv_mse": 169.54037142080003
+        },
+        {
+          "feature": "ck2:A:VAL116::all::native_speed",
+          "fitted_estimand": "discovery expected-selected absolute mean; not an effect curve",
+          "cv_mse_by_degree": [
+            268.71898804516593,
+            255.94091070243005,
+            238.51929081857838,
+            217.42797834834303,
+            192.7343998560038,
+            165.4374892303127
+          ],
+          "degree": 5,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            6.9712932810582675,
+            -6.047993655111226,
+            9.187820597462387,
+            -11.756748102654115,
+            14.73421554631564,
+            -16.968848006832207
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.5,
+          "time_start": 0.0,
+          "observed_start_end": [
+            169.725198099,
+            4.83632585961
+          ],
+          "fitted_start_end": [
+            65.66691918943388,
+            -3.88026033976125
+          ],
+          "derivative_start_end": [
+            -2024.1072785162503,
+            -624.8623404719019
+          ],
+          "stationary_times_algebraic_only": [
+            0.09026493303049382,
+            0.211044226797141,
+            0.34490742666854285,
+            0.45026227052715
+          ],
+          "stationary_time_or_derivative_confidence": null,
+          "maximum_endpoint_absolute_error": 104.05827890956613,
+          "selected_degree_cv_mse": 165.4374892303127
+        }
+      ]
+    },
+    "D_CODE_AUDIT": {
+      "sources": [
+        "src/evomolsteer/continuous/coordinate_features.py",
+        "src/evomolsteer/continuous/coordinate_mining.py",
+        "src/evomolsteer/continuous/functional.py"
+      ],
+      "interpretation": "只读实现审计；没有修改代码、重跑挖掘或读取非discovery结果。"
+    }
+  }
+}
