@@ -12,6 +12,11 @@ Keep current coordinates, predicted-endpoint residual drift and measured native
 step velocity separate. The latter includes SDE/corrector. Match atom slots only
 inside one transition; use permutation-invariant descriptors across molecules.
 Endpoint NOS labels on current noise are conditional masks, not settled chemistry.
+Read spatial_anchor and control_representation explicitly. An endpoint anchor
+identifies predicted future-region atom slots; their CURRENT or PROPOSAL positions
+can be far from that region. Do not call these physical current contacts. Proposal
+features at score t describe state t+dt before replication. The last scored proposal
+can lie after the control window and must not be confused with actual x at its end.
 Coordinates use the aligned receptor frame, so axis directions are frame-specific.
 
 Distinguish selection_shift, retrospective retained_shift, low/high enrichment,

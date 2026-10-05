@@ -46,6 +46,7 @@ def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116')):
          'batches_with_one_root':int(last.unique_roots.eq(1).sum()),'lag_last_time':m['times'][-2]}])
     fits=read_json(mining/'continuous_functions.json')
     payload={'schema_version':'coordinate-evidence-1.0','window':m['window'],'times':m['times'],
+        'spatial_anchor':m.get('spatial_anchor','current'),'control_representation':m.get('control_representation','current'),
         'discovery_batches':m['splits']['discovery'],'evidence':evidence,
         'features':{f:catalog['features'][f] for f in selected.feature.unique()},
         'functions':{f:fits[f] for f in selected.feature.unique() if f in fits},
@@ -80,7 +81,8 @@ def validate(data,schema,bundle):
         # An exploratory design is allowed, but its regional observables must be supplied.
         for r in data['regions']:
             kinds=('spread',) if data['architecture']=='spread_upper' else ('centroid_x','centroid_y','centroid_z','spread')
-            needed=[f'{r}::{data["channel"]}::{k}' for k in kinds]
+            prefix='proposal_' if bundle.get('control_representation')=='proposal' else ''
+            needed=[f'{r}::{data["channel"]}::{prefix+k}' for k in kinds]
             if any(f not in bundle['features'] for f in needed):raise ValueError('Missing controlled observable')
     return True
 

@@ -11,3 +11,7 @@ def test_design_contract_prohibits_unprovided_view_window_and_evidence():
     assert validate(d,DESIGNER,bundle)
     for field,value in [('window',[0.,.5]),('regions',['unmeasured']),('evidence_ids',['unknown'])]:
         with pytest.raises(ValueError):validate({**d,field:value},DESIGNER,bundle)
+    bundle.update(control_representation='proposal',features={'r::all::proposal_spread':{'region':'r'}})
+    assert validate(d,DESIGNER,bundle)
+    bundle['features']={'r::all::spread':{'region':'r'}}
+    with pytest.raises(ValueError):validate(d,DESIGNER,bundle)

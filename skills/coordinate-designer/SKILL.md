@@ -12,6 +12,10 @@ Direct current-state centroid/spread control differs from pulling an endpoint
 loss through FLOWR's Jacobian. Pick the derivative path matching the evidence
 representation. A direct x reward needs its own coordinate gradient; native
 generation still uses FLOWR. Current and endpoint targets cannot be interchanged.
+For endpoint-anchored proposal observations, freeze the forecast spatial weights
+and labels within one derivative evaluation, and differentiate the actual proposal
+coordinates. This is a conditional gradient, not a full model-Jacobian gradient.
+Reference score t aligns to proposal state t+dt; never inject after the learned end.
 Use a dynamic learned window and exact native time alignment, then complete all
 remaining native inference without reward injection or particle resampling.
 

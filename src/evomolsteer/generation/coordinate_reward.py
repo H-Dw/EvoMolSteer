@@ -25,15 +25,19 @@ class CoordinateMixtureReward:
 
     def active(self,t,s):return t>=self.window[0]-1e-6 and s<=self.window[1]+1e-6 and s>t
 
-    def observables(self,x,atoms,mask):
+    def observables(self,x,atoms,mask,anchor=None):
         columns=[];mask=mask.bool();valid=mask.any(1);core=torch.zeros_like(mask)
+        if self.reference.get('spatial_anchor','current')=='endpoint':
+            if anchor is None or anchor.shape!=x.shape:raise ValueError('Matched endpoint anchor required')
+            anchor=anchor.detach()
+        else:anchor=x
         if atoms.ndim==3:atoms=atoms.detach().argmax(-1)
         eligible=mask.clone()
         if self.reference['channel']=='NOS':
             eligible&=torch.isin(atoms,atoms.new_tensor([self.reference['atom_vocabulary'][a] for a in ('N','O','S')]))
         valid&=eligible.any(1);safe=torch.where(valid[:,None],eligible,mask)
         for r in self.reference['regions'].values():
-            points=x.new_tensor(r['points_A']);d=(x[:,:,None]-points[None,None]).square().sum(-1).clamp_min(1e-20).sqrt().amin(-1)
+            points=x.new_tensor(r['points_A']);d=(anchor[:,:,None]-points[None,None]).square().sum(-1).clamp_min(1e-20).sqrt().amin(-1)
             uniform=self.reference.get('spatial_weighting')=='uniform_global_control'
             logits=(torch.zeros_like(d) if uniform else -.5*(d/self.reference['spatial_width_A']).square()).masked_fill(~safe,-torch.inf)
             w=logits.softmax(1);center=(w[...,None]*x).sum(1)
@@ -42,10 +46,10 @@ class CoordinateMixtureReward:
             core|=eligible if uniform else eligible&(d.detach()<=self.program['core_radius_A'])
         return torch.cat(columns,1),valid,core
 
-    def __call__(self,x,atoms,mask,time):
+    def __call__(self,x,atoms,mask,time,anchor=None):
         j=int(np.abs(self.times-time).argmin())
         if abs(self.times[j]-time)>2e-6:raise ValueError('No exact learned coordinate time')
-        z,valid,core=self.observables(x,atoms,mask);modes=self.reference['frames'][j]['modes']
+        z,valid,core=self.observables(x,atoms,mask,anchor);modes=self.reference['frames'][j]['modes']
         if self.program.get('reward_view')=='spread_upper':
             frame=self.reference['frames'][j]
             upper=z.new_tensor(frame['upper_spread_A']);scale=z.new_tensor(frame['spread_scale_A'])

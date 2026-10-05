@@ -26,13 +26,16 @@ class CoordinateExtension(WindowExtension):
     def describe(self):
         return {**super().describe(),'schema_version':'current-coordinate-control-1.0',
             'model_jacobian':'not required: reward directly differentiates the actual native proposal',
-            'gradient_target':'actual native proposal coordinates; hard endpoint atom masks fixed',
+            'gradient_target':'actual native proposal coordinates; hard endpoint labels and optional endpoint spatial anchor held fixed',
+            'reference_time_alignment':self.reference.get('time_alignment','state time s -> current reference s'),
+            'conditional_gradient':'No derivative through endpoint anchor or atom identity; forecast refreshed at each native step',
             'dose_rule':'native RMS ratio times bounded residual gate, atom/path caps, native-geometry rejection',
             'coordinate_representation':self.reference['representation']}
 
     def predict(self,curr,pocket,times,cond,equis,invs):
         pred,new_cond=super().predict(curr,pocket,times,cond,equis,invs)
         self.endpoint_atoms=pred['atomics'].detach().argmax(-1)
+        self.endpoint_coords=pred['coords'].detach()
         return pred,new_cond
 
     def after_native(self,curr):
@@ -45,9 +48,12 @@ class CoordinateExtension(WindowExtension):
         trace.arr['native_proposal_coords'].append(nparr(curr['coords']))
         if enabled:
             com=torch.stack([torch.as_tensor(v.com) for v in self.pocket['complex']]).reshape(-1,3).to(native)
+            reference_time=trace.t if self.reference.get('control_representation','current')=='proposal' else s
+            anchor=self.endpoint_coords*scale+com[:,None] if self.reference.get('spatial_anchor')=='endpoint' else None
+            row['reference_time']=reference_time
             with torch.enable_grad():
                 x=curr['coords'].detach().clone().requires_grad_(True)
-                value,detail=self.reward(x*scale+com[:,None],self.endpoint_atoms,mask,s)
+                value,detail=self.reward(x*scale+com[:,None],self.endpoint_atoms,mask,reference_time,anchor)
                 g,=torch.autograd.grad(value.sum(),x)
             if not bool(torch.isfinite(g).all()):raise ValueError('Nonfinite coordinate gradient')
             if self.program.get('preserve_native_rigid_pose'):
@@ -57,11 +63,11 @@ class CoordinateExtension(WindowExtension):
                 direction=g/g.norm();analytic=float((g*direction).sum());checks=[]
                 with torch.no_grad():
                     for eps in (.001,.003,.01):
-                        a,_=self.reward((x+eps*direction)*scale+com[:,None],self.endpoint_atoms,mask,s)
-                        b,_=self.reward((x-eps*direction)*scale+com[:,None],self.endpoint_atoms,mask,s)
+                        a,_=self.reward((x+eps*direction)*scale+com[:,None],self.endpoint_atoms,mask,reference_time,anchor)
+                        b,_=self.reward((x-eps*direction)*scale+com[:,None],self.endpoint_atoms,mask,reference_time,anchor)
                         num=float((a.sum()-b.sum())/(2*eps));checks.append({'epsilon':eps,'analytic':analytic,'numerical':num,'relative_error':abs(num-analytic)/analytic})
                 passed=min(r['relative_error'] for r in checks)<.15 and all(r['numerical']>0 for r in checks)
-                write_json(self.out/'coordinate_gradient_preflight.json',{'passed':passed,'time':s,'checks':checks})
+                write_json(self.out/'coordinate_gradient_preflight.json',{'passed':passed,'state_time':s,'reference_time':reference_time,'anchor_held_fixed':anchor is not None,'checks':checks})
                 if not passed:raise ValueError('Coordinate gradient finite difference failed')
                 self.preflight_done=True
             c=self.program['constraints'];eta=0. if trace.arm=='gradient_zero' else self.program['native_rms_ratio']

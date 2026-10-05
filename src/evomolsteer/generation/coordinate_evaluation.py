@@ -22,7 +22,10 @@ def evaluate(dataset,campaign,output):
                 if z['resampled'].any():raise ValueError('Particle resampling prohibited')
                 times=np.round(z['score_time'][:,0].astype(float),6)
                 ids=np.flatnonzero((times>=reference['window'][0]-1e-7)&(times<=reference['window'][1]+1e-7))
-                coords=z['current_coords'][ids].astype(float)*cfg['coord_scale']+com[None]
+                view=reference.get('control_representation','current')
+                coords=z[f'{view}_coords'][ids].astype(float)*cfg['coord_scale']+com[None]
+                anchors=z['predicted_coords'][ids].astype(float)*cfg['coord_scale']+com[None] if reference.get('spatial_anchor')=='endpoint' else None
+                state_times=z['state_time'][ids].astype(float) if view=='proposal' else times[ids]
                 atoms=z['predicted_atomics'][ids];mask=z['mask'][ids]
                 native=z['native_proposal_coords'].astype(float);proposal=z['proposal_coords'].astype(float)
                 displacement=(proposal-native)*cfg['coord_scale']
@@ -35,9 +38,10 @@ def evaluate(dataset,campaign,output):
             for k,i in enumerate(ids):
                 t=float(times[i])
                 with torch.no_grad():
-                    value,detail=reward(torch.tensor(coords[k]),torch.tensor(atoms[k]),torch.tensor(mask[k]),t)
+                    value,detail=reward(torch.tensor(coords[k]),torch.tensor(atoms[k]),torch.tensor(mask[k]),t,
+                        torch.tensor(anchors[k]) if anchors is not None else None)
                 available=detail['available'].numpy();features=detail['observables_A'].numpy()
-                row={'arm':arm,'batch':batch,'time':t,'n_available':int(available.sum()),
+                row={'arm':arm,'batch':batch,'time':t,'state_time':float(state_times[k]),'within_control_state_window':bool(state_times[k]<=reference['window'][1]+1e-6),'n_available':int(available.sum()),
                      'mean_reward':float(value[available].mean()) if available.any() else None,
                      'mean_standardized_residual':float(detail['nearest_standardized_rms'][available].mean()) if available.any() else None,
                      **{f:float(np.mean(features[available,j])) if available.any() else None for j,f in enumerate(reference['features'])}}
@@ -62,6 +66,7 @@ def evaluate(dataset,campaign,output):
     report={'schema_version':'current-coordinate-evaluation-1.0','window':reference['window'],'batch_results':audit,
         'coordinate_preflight':preflight,'inference_commit':cfg['extension']['code_commit'],
         'program_sha256':digest(root/'reward_program.json'),'reference_sha256':digest(root/'reference.json.gz'),
-        'endpoint_at_window_end':table[np.isclose(table.time,reference['window'][1])].to_dict('records'),
-        'interpretation':'Current reward response is a proxy; use independent whole-shape and terminal measures for conclusions'}
+        'endpoint_at_window_end':table[np.isclose(table.state_time,reference['window'][1])].to_dict('records'),
+        'time_alignment':reference.get('time_alignment','current state'),
+        'interpretation':'Controlled response is a proxy; proposal at last score time may be outside the control window. Use independent actual-state whole-shape and terminal measures for conclusions'}
     write_json(out/'coordinate_audit.json',report);return report

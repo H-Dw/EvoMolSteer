@@ -65,3 +65,22 @@ def test_pose_projection_retains_ascent_without_rigid_motion():
     torch.testing.assert_close(torch.cross(x-x.mean(1)[:,None],p,dim=-1).sum(1),torch.zeros(4,3,dtype=x.dtype),atol=1e-12,rtol=0.)
     assert ((g*p).sum((1,2))>=0).all()
     torch.testing.assert_close((g*p).sum((1,2)),p.square().sum((1,2)),atol=1e-12,rtol=1e-12)
+
+
+def test_endpoint_anchor_conditional_gradient_and_slot_permutation():
+    ref=reference();ref['spatial_anchor']='endpoint';ref['control_representation']='proposal'
+    r=CoordinateMixtureReward({'window':[.1,.4],'mixture_temperature':.25,'robust_delta':1.,'core_radius_A':5.},ref)
+    generator=torch.Generator().manual_seed(42)
+    x=torch.randn(3,7,3,generator=generator,dtype=torch.float64,requires_grad=True)
+    anchor=torch.randn(3,7,3,generator=generator,dtype=torch.float64,requires_grad=True)*8
+    m=torch.ones((3,7),dtype=torch.bool);a=torch.full((3,7),3)
+    value,detail=r(x,a,m,.2,anchor)
+    expected=regional_moments(x.detach().numpy(),a.numpy(),m.numpy(),ref['regions']['patch']['points_A'],None,4.,anchor.detach().numpy())
+    np.testing.assert_allclose(expected,detail['observables_A'].detach().numpy(),atol=1e-12)
+    g,ga=torch.autograd.grad(value.sum(),(x,anchor),allow_unused=True);assert ga is None
+    d=g/g.norm();eps=1e-5
+    numerical=(r(x+eps*d,a,m,.2,anchor)[0].sum()-r(x-eps*d,a,m,.2,anchor)[0].sum())/(2*eps)
+    torch.testing.assert_close(numerical,(g*d).sum(),rtol=1e-7,atol=1e-10)
+    order=[6,0,4,1,5,3,2]
+    torch.testing.assert_close(value,r(x[:,order],a[:,order],m[:,order],.2,anchor[:,order])[0])
+    with pytest.raises(ValueError):r(x,a,m,.2)

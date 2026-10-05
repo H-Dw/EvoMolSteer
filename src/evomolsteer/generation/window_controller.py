@@ -51,7 +51,8 @@ class WindowExtension(Extension):
             raise ValueError('Reference and integration grid mismatch')
         for t in np.arange(opt.steps)/opt.steps:
             s=t+1/opt.steps
-            if t>=a-1e-6 and s<=b+1e-6 and min(abs(np.asarray(self.reference['times'])-s))>2e-6:
+            target_t=t if self.reference.get('control_representation')=='proposal' else s
+            if t>=a-1e-6 and s<=b+1e-6 and min(abs(np.asarray(self.reference['times'])-target_t))>2e-6:
                 raise ValueError('Learning reference does not cover every controlled state')
         inp=Path(opt.input_dataset);inp=inp/'inputs' if (inp/'inputs').is_dir() else inp
         target=Path(opt.root)/'inputs';target.mkdir(parents=True,exist_ok=True)

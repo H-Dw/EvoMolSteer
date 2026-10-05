@@ -14,6 +14,12 @@ def audit(dataset,campaign,reference_path,output):
     root=Path(dataset)/'results'/campaign;out=Path(output);out.mkdir(parents=True,exist_ok=True)
     cfg=read_json(root/'config.json');ref=load_reference(reference_path)
     a,b=ref['window'];scale=cfg['coord_scale'];steps=cfg['experiment']['steps']
+    if cfg['extension'].get('control_domain',ref['window'])!=ref['window']:raise ValueError('Control/diagnostic window mismatch')
+    noncore_definition='outside bare 5 A endpoint geometric region; unweighted and injection-weighted summaries are distinct'
+    if cfg['extension'].get('schema_version')=='current-coordinate-control-1.0':
+        control_ref=load_reference(root/'reference.json.gz')
+        noncore_definition='global uniform control: all eligible atom slots are core' if control_ref.get('spatial_weighting')=='uniform_global_control' else (
+            'outside bare 5 A region in '+control_ref.get('spatial_anchor','current')+' geometry; fractions weight squared actual injection')
     if cfg['experiment']['seed']!=42 or steps!=100 or not (root/'COMPLETE.json').exists():raise ValueError('Seed/full-inference contract')
     rows=[];batchrows=[];signatures={};sources=[]
     for arm in cfg['experiment']['arms'].split(','):
@@ -59,7 +65,7 @@ def audit(dataset,campaign,reference_path,output):
                 'mean_noncore_injection_fraction':float(np.mean([v['injection_noncore_fraction'] for v in available])) if available and 'injection_noncore_fraction' in available[0] else None,
                 'noncore_fraction_of_total_squared_injection':weighted_noncore,
                 'noncore_fraction_mean_nonzero_events':conditional_noncore,
-                'noncore_definition':'outside bare 5 A endpoint geometric region; unweighted and injection-weighted summaries are distinct',
+                'noncore_definition':noncore_definition,
                 'mean_inside_fraction':float(np.mean([v['inside'] for v in available])) if available and 'inside' in available[0] else None})
             sources.append({'path':str(folder/'trajectory.h5'),'sha256':digest(folder/'trajectory.h5')})
     d=pd.DataFrame(rows);d.to_csv(out/'regional_time_metrics.csv',index=False)

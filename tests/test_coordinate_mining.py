@@ -27,6 +27,15 @@ def test_no_fictitious_missing_nos():
     assert np.isfinite(regional_moments(x,a,m,[[0,0,0]],None)).all()
 
 
+def test_endpoint_anchored_proposal_parity():
+    rng=np.random.default_rng(42);x=rng.normal(size=(12,5,3));end=rng.normal(size=x.shape)*5;p=x+.1
+    atoms=np.tile([4,3,5,3,3],(12,1));mask=np.ones((12,5),bool)
+    z,n,meta=regional_observables(x,end,p,atoms,mask,catalog(),.2,.01,spatial_anchor='endpoint',include_proposal=True)
+    expected=regional_moments(p,atoms,mask,catalog()['regions']['r']['points_A'],None,4.,end)
+    np.testing.assert_allclose(z[:,[n.index('r::all::proposal_'+k) for k in ('centroid_x','centroid_y','centroid_z','spread')]],expected,atol=1e-12)
+    assert meta['r::all::proposal_spread']['spatial_anchor']=='endpoint'
+
+
 def test_partial_and_parent_deduplication():
     rng=np.random.default_rng(42);u=rng.normal(size=40);v=rng.normal(size=40)
     x=(u+.2*v)[:,None];score=2*u+.3*rng.normal(size=40)

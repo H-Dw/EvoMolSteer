@@ -17,6 +17,8 @@ def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15,g
     if channel not in ('all','NOS') or std_floor_A<=0:raise ValueError('Invalid coordinate reference')
     if global_control and len(regions)!=1:raise ValueError('One frame origin is sufficient for global control')
     width=None if global_control else cat['spatial_width_A']
+    anchor_view=m.get('spatial_anchor','current');control_view=m.get('control_representation','current')
+    if global_control and anchor_view!='current':raise ValueError('Global control ignores regional anchor; use current-anchor input')
     scale=read_json(source/'config.json')['coord_scale'];batches=m['splits']['discovery'];frames={};pooled={};sources=[]
     labels=None if channel=='all' else [cat['atom_vocabulary'][e] for e in ('N','O','S')]
     for batch in batches:
@@ -25,9 +27,10 @@ def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15,g
         with TrajectoryPackage(p) as z:
             times=np.round(z.read('score_time')[:,0].astype(float),6)
             for i in np.flatnonzero(z.read('resampled')):
-                t=float(times[i]);x=z.read('current_coords',int(i)).astype(float)*scale+com
+                t=float(times[i]);x=z.read(f'{control_view}_coords',int(i)).astype(float)*scale+com
+                anchor=z.read('predicted_coords',int(i)).astype(float)*scale+com if anchor_view=='endpoint' else None
                 atoms=z.read('predicted_atomics',int(i));mask=z.read('mask',int(i))
-                v=np.concatenate([regional_moments(x,atoms,mask,cat['regions'][r]['points_A'],labels,width) for r in regions],axis=1)
+                v=np.concatenate([regional_moments(x,atoms,mask,cat['regions'][r]['points_A'],labels,width,anchor) for r in regions],axis=1)
                 valid=np.isfinite(v).all(1);v=v[valid];w=z.read('selection_probability',int(i)).astype(float)[valid]
                 if len(v)<3 or w.sum()<=0:raise ValueError('Missing reference measurements')
                 w/=w.sum();mu=w@v;d=v-mu;cov=np.einsum('bi,b,bj->ij',d,w,d)
@@ -49,10 +52,12 @@ def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15,g
     ref={'schema_version':'current-coordinate-mixture-1.0','window':m['window'],'times':times,
          'regions':{'ligand':cat['regions'][regions[0]]} if global_control else {r:cat['regions'][r] for r in regions},'channel':channel,'atom_vocabulary':cat['atom_vocabulary'],
          'spatial_weighting':'uniform_global_control' if global_control else 'gaussian_regional',
+         'spatial_anchor':anchor_view,'control_representation':control_view,
+         'time_alignment':'score time t -> proposal state time t+dt, anchor from endpoint at t' if control_view=='proposal' else 'state time s -> current reference s',
          'spatial_width_A':cat['spatial_width_A'],'frames':[{'time':t,'modes':frames[t],**extra[t]} for t in times],
-         'features':[f'{r}::{channel}::{k}' for r in (['ligand'] if global_control else regions) for k in ('centroid_x','centroid_y','centroid_z','spread')],
+         'features':[f'{r}::{channel}::{("proposal_" if control_view=="proposal" else "")+k}' for r in (['ligand'] if global_control else regions) for k in ('centroid_x','centroid_y','centroid_z','spread')],
          'batches':batches,'sources':sources,'std_floor_A':std_floor_A,
-         'representation':'actual current state in aligned world angstrom; endpoint labels as conditional masks',
+         'representation':f'actual {control_view} state in aligned world angstrom; {anchor_view} Gaussian anchor and endpoint labels as conditional masks',
          'target_definition':'one same-time affinity-selected mean/covariance per independent discovery batch; equal mode weights',
          'upper_spread_definition':'equal-batch conditional selected 75th quantile; scale from same-event unweighted within-batch candidate variance with declared SD floor',
          'limitations':['Observational selection imitation, not causal regional affinity improvement',
