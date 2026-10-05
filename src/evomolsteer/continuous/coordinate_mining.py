@@ -90,7 +90,7 @@ METRICS=('population_mean','selected_mean','selection_shift','retained_shift',
          'lag_gain_correlation','lag_partial_gain_correlation','native_difference')
 
 
-def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='current',regions=None,control_representation='current'):
+def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='current',regions=None,control_representation='current',feature_family='geometry'):
     root=Path(dataset);source=root/'results'/campaign;out=Path(output)
     if out.exists():raise FileExistsError(out)
     cfg=read_json(Path(analysis)/'config.json');catalog=read_json(Path(analysis)/'feature_catalog.json')
@@ -124,10 +124,10 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
                 if t>=1 or dt<=0:raise ValueError('Invalid transport time')
                 arrays=[z.read(f'{s}_coords',int(i)).astype(float)*scale+com for s in ('current','predicted','proposal')]
                 atoms=z.read('predicted_atomics',int(i));mask=z.read('mask',int(i))
-                x,names,metadata=regional_observables(*arrays,atoms,mask,catalog,t,dt,width,spatial_anchor,include_proposal)
+                x,names,metadata=regional_observables(*arrays,atoms,mask,catalog,t,dt,width,spatial_anchor,include_proposal,feature_family)
                 n=len(x);p=prob[i].astype(float);p/=p.sum();mu=mean(x,np.ones(n));sel=mean(x,p)
                 base=[native.read(f'{s}_coords',int(i)).astype(float)*scale+com for s in ('current','predicted','proposal')]
-                nx,nn,_=regional_observables(*base,native.read('predicted_atomics',int(i)),native.read('mask',int(i)),catalog,t,dt,width,spatial_anchor,include_proposal)
+                nx,nn,_=regional_observables(*base,native.read('predicted_atomics',int(i)),native.read('mask',int(i)),catalog,t,dt,width,spatial_anchor,include_proposal,feature_family)
                 if nn!=names:raise ValueError('Feature schema mismatch')
                 qlow=np.nanquantile(x,.25,axis=0);qhigh=np.nanquantile(x,.75,axis=0)
                 lo=np.where(np.isfinite(x),x<qlow,np.nan);hi=np.where(np.isfinite(x),x>qhigh,np.nan)
@@ -163,6 +163,7 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
         'times':grid.tolist(),'splits':splits,'sources':sources,'dataset':str(root.resolve()),'campaign':campaign,
         'spatial_anchor':spatial_anchor,'control_representation':control_representation,
         'region_subset':list(catalog['regions']),'include_proposal_observables':include_proposal,
+        'feature_family':feature_family,'core_diagnostic_radius_A':5.,
         'analysis_code_sha256':{p.name:digest(p) for p in (Path(__file__),Path(__file__).with_name('coordinate_features.py'))},
         'n_features':len(metadata),'n_statistic_rows':len(table),'storage':'lossless float64 zstd Parquet; no node feature cache',
         'interpretation':['Selection association is partly tautological: selection uses this affinity head.',

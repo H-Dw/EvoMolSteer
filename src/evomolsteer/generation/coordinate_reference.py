@@ -9,6 +9,22 @@ from ..io import read_json,digest,write_json
 from .prototypes import regularize_covariance
 
 
+def mode_record(v,w,batch,availability,std_floor_A):
+    """Small joint moments plus auditable selection/background contrast diagnostics."""
+    mu=w@v;d=v-mu;cov=np.einsum('bi,b,bj->ij',d,w,d)
+    bg=v.mean(0);residual=v-bg;background=residual.T@residual/len(v)
+    regularized_background=regularize_covariance(background,.1,std_floor_A)
+    shift=mu-bg;positive=w>0
+    return {'center_A':mu.tolist(),'covariance_A2':regularize_covariance(cov,.1,std_floor_A).tolist(),
+        'raw_selected_eigenvalues_A2':np.linalg.eigvalsh(cov).tolist(),
+        'background_center_A':bg.tolist(),'background_covariance_A2':regularized_background.tolist(),
+        'selected_probability_ESS':float(1/(w@w)),
+        'selected_KL_to_uniform':float(np.sum(w[positive]*np.log(w[positive]*len(v)))),
+        'dimension_normalized_mean_contrast':float(np.sqrt(max(0,shift@np.linalg.solve(regularized_background,shift)/len(mu)))),
+        'unweighted_spread_variance_A2':np.var(v[:,3::4],axis=0,ddof=1).tolist(),
+        'source_batch':batch,'availability':float(availability),'n_available':len(v)}
+
+
 def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15,global_control=False):
     root=Path(dataset);source=root/'results'/campaign;mining=Path(mining);output=Path(output)
     if output.exists():raise FileExistsError(output)
@@ -33,11 +49,9 @@ def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15,g
                 v=np.concatenate([regional_moments(x,atoms,mask,cat['regions'][r]['points_A'],labels,width,anchor) for r in regions],axis=1)
                 valid=np.isfinite(v).all(1);v=v[valid];w=z.read('selection_probability',int(i)).astype(float)[valid]
                 if len(v)<3 or w.sum()<=0:raise ValueError('Missing reference measurements')
-                w/=w.sum();mu=w@v;d=v-mu;cov=np.einsum('bi,b,bj->ij',d,w,d)
+                w/=w.sum()
                 pooled.setdefault(t,[]).append((v,w/len(batches)))
-                frames.setdefault(t,[]).append({'center_A':mu.tolist(),'covariance_A2':regularize_covariance(cov,.1,std_floor_A).tolist(),
-                    'unweighted_spread_variance_A2':np.var(v[:,3::4],axis=0,ddof=1).tolist(),
-                    'source_batch':batch,'availability':float(valid.mean())})
+                frames.setdefault(t,[]).append(mode_record(v,w,batch,valid.mean(),std_floor_A))
         sources.append({'path':p.relative_to(root).as_posix(),'sha256':digest(p)})
     times=sorted(frames)
     if times!=m['times']:raise ValueError('Reference/learning time mismatch')

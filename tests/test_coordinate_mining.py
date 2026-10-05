@@ -36,6 +36,23 @@ def test_endpoint_anchored_proposal_parity():
     assert meta['r::all::proposal_spread']['spatial_anchor']=='endpoint'
 
 
+def test_transport_coherence_support_and_rotation_invariance():
+    rng=np.random.default_rng(42);x=rng.normal(size=(12,5,3));end=x+.2;proposal=x+.03
+    atoms=np.tile([4,3,5,3,3],(12,1));mask=np.ones((12,5),bool)
+    z,n,_=regional_observables(x,end,proposal,atoms,mask,catalog(),.2,.01,feature_family='transport')
+    assert len(n)==10
+    np.testing.assert_allclose(z[:,n.index('r::all::transport_coherence')],1,atol=1e-12)
+    neg,_,_=regional_observables(x,end,x-.03,atoms,mask,catalog(),.2,.01,feature_family='transport')
+    np.testing.assert_allclose(neg[:,n.index('r::all::transport_coherence')],-1,atol=1e-12)
+    zero,_,_=regional_observables(x,end,x,atoms,mask,catalog(),.2,.01,feature_family='transport')
+    assert np.isnan(zero[:,n.index('r::all::transport_coherence')]).all()
+    assert np.all((z[:,n.index('r::all::effective_slots')]>=1)&(z[:,n.index('r::all::effective_slots')]<=5))
+    rot=np.array([[0.,-1,0],[1,0,0],[0,0,1]])
+    cat=catalog();cat['regions']['r']['points_A']=(np.asarray(cat['regions']['r']['points_A'])@rot).tolist()
+    rotated,_,_=regional_observables(x@rot,end@rot,proposal@rot,atoms,mask,cat,.2,.01,feature_family='transport')
+    np.testing.assert_allclose(z,rotated,atol=1e-12)
+
+
 def test_partial_and_parent_deduplication():
     rng=np.random.default_rng(42);u=rng.normal(size=40);v=rng.normal(size=40)
     x=(u+.2*v)[:,None];score=2*u+.3*rng.normal(size=40)

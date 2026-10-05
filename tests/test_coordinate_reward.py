@@ -84,3 +84,32 @@ def test_endpoint_anchor_conditional_gradient_and_slot_permutation():
     order=[6,0,4,1,5,3,2]
     torch.testing.assert_close(value,r(x[:,order],a[:,order],m[:,order],.2,anchor[:,order])[0])
     with pytest.raises(ValueError):r(x,a,m,.2)
+
+
+def test_selected_background_moment_audit():
+    from evomolsteer.generation.coordinate_reference import mode_record
+    rng=np.random.default_rng(42);v=rng.normal(size=(50,8));w=np.full(50,.02)
+    record=mode_record(v,w,0,1.,.15)
+    assert abs(record['selected_probability_ESS']-50)<1e-10
+    assert abs(record['selected_KL_to_uniform'])<1e-12
+    assert record['dimension_normalized_mean_contrast']<1e-12
+    np.testing.assert_allclose(record['center_A'],record['background_center_A'],atol=1e-12)
+    assert np.linalg.eigvalsh(record['background_covariance_A2']).min()>0
+    w=np.arange(1,51,dtype=float);w/=w.sum();record=mode_record(v,w,0,1.,.15)
+    assert record['dimension_normalized_mean_contrast']>0
+    assert record['selected_probability_ESS']<50 and record['selected_KL_to_uniform']>0
+
+
+def test_flow_dose_avoids_startup_contraction_and_is_frame_equivariant():
+    from evomolsteer.generation.coordinate_reward import predictive_flow_increment
+    from evomolsteer.generation.local_reward import bounded_local_step
+    x=torch.tensor([[[2.,0,0],[-2.,0,0]]]);end=x*.5;g=torch.ones_like(x)
+    flow=predictive_flow_increment(x,end,0.,.01)
+    # At g_t=100 and dt=.01, the native SDE score drift nearly cancels x.
+    native=flow-x;mask=torch.ones((1,2),dtype=torch.bool);gate=torch.ones(1)
+    _,a=bounded_local_step(g,native,mask,gate,.05,1.,100.,torch.ones(1)*100)
+    _,b=bounded_local_step(g,flow,mask,gate,.05,1.,100.,torch.ones(1)*100)
+    assert a['requested_rms_A'].item()>100*b['requested_rms_A'].item()
+    rot=torch.tensor([[0.,-1,0],[1,0,0],[0,0,1]])
+    torch.testing.assert_close(predictive_flow_increment(x@rot+5,end@rot+5,0.,.01),flow@rot)
+    with pytest.raises(ValueError):predictive_flow_increment(x,end,.2,.01,True)

@@ -4,6 +4,12 @@ import numpy as np
 import torch
 
 
+def predictive_flow_increment(current,endpoint,t,dt,cosine_schedule=False):
+    """Euler displacement of the verified linear endpoint-parameterized flow."""
+    if cosine_schedule or not (0<=t<1 and dt>0):raise ValueError('Linear flow schedule and valid step required')
+    return (endpoint-current)*dt/(1-t)
+
+
 def remove_rigid_pose_gradient(g,x,mask):
     """Orthogonal projection off whole-ligand translation and infinitesimal rotation."""
     weight=mask.to(x.dtype);n=weight.sum(1).clamp_min(1)

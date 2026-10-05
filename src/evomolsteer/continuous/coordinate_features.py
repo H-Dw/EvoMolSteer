@@ -8,8 +8,9 @@ from scipy.special import logsumexp
 
 
 def regional_observables(current, endpoint, proposal, atoms, mask, catalog, t, dt,
-                         spatial_width_A=4.0,spatial_anchor='current',include_proposal=False):
+                         spatial_width_A=4.0,spatial_anchor='current',include_proposal=False,feature_family='geometry'):
     if not (0<=t<1 and dt>0 and spatial_width_A>0):raise ValueError('Invalid transport domain or spatial width')
+    if feature_family not in ('geometry','transport','joint'):raise ValueError('Unknown feature family')
     names, columns, metadata = [], [], {}
     mask = np.asarray(mask, bool)
     delta = endpoint-current
@@ -44,16 +45,33 @@ def regional_observables(current, endpoint, proposal, atoms, mask, catalog, t, d
                 pc=(weights[...,None]*proposal).sum(1)
                 ps=np.sqrt((weights*((proposal-pc[:,None])**2).sum(-1)).sum(1))
                 values.update({**{f'proposal_centroid_{a}':pc[:,k]-origin[k] for k,a in enumerate('xyz')},'proposal_spread':ps})
+            if feature_family!='geometry':
+                remaining=np.sqrt((weights*(delta**2).sum(-1)).sum(1))
+                den=remaining*speed
+                alignment=np.divide((weights*(delta*native).sum(-1)).sum(1),den,
+                    out=np.full(len(current),np.nan),where=den>1e-12).clip(-1,1)
+                core_anchor=distance.min(-1)<=5.
+                core_current=np.linalg.norm(current[:,:,None]-points[None,None],axis=-1).min(-1)<=5.
+                transport={'remaining_rms':remaining,'transport_coherence':alignment,
+                    'effective_slots':1/(weights**2).sum(1),
+                    'anchor_core_weight':(weights*core_anchor).sum(1),
+                    'current_core_weight':(weights*core_current).sum(1)}
+                values=transport if feature_family=='transport' else {**values,**transport}
             for kind, value in values.items():
                 name = f'{region}::{channel}::{kind}'
                 names.append(name);columns.append(np.where(valid, value, np.nan))
                 metadata[name] = {'region':region,'channel':channel,'kind':kind,
-                    'unit':'A' if 'centroid' in kind or 'spread' in kind else 'A/time',
+                    'unit':'A' if 'centroid' in kind or 'spread' in kind or kind=='remaining_rms' else
+                        'dimensionless' if kind in ('transport_coherence','effective_slots','anchor_core_weight','current_core_weight') else 'A/time',
                     'coordinate_control':'centroid' in kind or 'spread' in kind,
                     'spatial_anchor':spatial_anchor,
                     'representation':'proposal' if kind.startswith('proposal') else 'current' if 'centroid' in kind or 'spread' in kind else 'matched-slot transport',
                     'mask':'predicted endpoint hard labels held fixed',
-                    'interpretation':'endpoint residual proxy' if kind.startswith('endpoint') else
+                    'interpretation':'weighted matched-slot cosine of remaining displacement and measured native velocity; SDE/corrector included' if kind=='transport_coherence' else
+                        'Gaussian weight concentration; not count of physical contacts' if kind=='effective_slots' else
+                        'Gaussian mass within fixed 5 A diagnostic radius; not a reward threshold' if kind.endswith('core_weight') else
+                        'weighted remaining matched-slot displacement; not energy' if kind=='remaining_rms' else
+                        'endpoint residual proxy' if kind.startswith('endpoint') else
                         'measured native step including stochastic/corrector terms' if kind.startswith('native') else
                         f'{spatial_anchor}-anchored atom slots, {"proposal" if kind.startswith("proposal") else "current"} coordinates; permutation invariant'}
     return np.column_stack(columns), names, metadata
