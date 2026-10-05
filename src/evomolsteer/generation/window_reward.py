@@ -23,7 +23,8 @@ class WindowReward:
             raise ValueError('Invalid learned window')
         for k in ['native_rms_ratio', 'typed_weight', 'bond_weight']:
             if not math.isfinite(program[k]) or program[k] < 0: raise ValueError(k)
-        if program['temperature'] <= 0 or min(program['sigmas_A']) <= 0: raise ValueError('Invalid kernel')
+        positive=[program['temperature'],*program['sigmas_A']]
+        if not program['sigmas_A'] or not all(math.isfinite(v) and v>0 for v in positive):raise ValueError('Invalid kernel')
 
     def active(self, score_time, state_time):
         a,b=self.window

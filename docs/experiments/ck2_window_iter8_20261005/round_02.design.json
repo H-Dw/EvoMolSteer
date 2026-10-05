@@ -1,0 +1,23 @@
+{
+  "round": 2,
+  "parent_round": 1,
+  "status": "prepared",
+  "change": "Single spatial kernel -> three spatial kernel scales, all other objective and control parameters unchanged.",
+  "evidence_report_sha256": "1e74fd75350f8ddd09286c4a35153753fb6907ce9e221bc3d18ba3121860b801",
+  "evidence": {
+    "round1_shape_improvement_percent": 4.224170721380083,
+    "cap_fraction": 0.02,
+    "zero_equivalence": "passed bitwise, both batches",
+    "reference_spacing": "NN median at t=.1=.125 A, t=.5=.659 A; fixed sigma=.316 A may omit coarse placement"
+  },
+  "hypothesis": "Broader kernels add receptor-frame spatial attraction at larger distances while the original scale retains local detail.",
+  "formula": "Mean of MMD distances at sigma,2sigma,4sigma, then same mass-weighted soft mixture.",
+  "parameter_origin": "Integer scale multiples are an engineering hypothesis; baseline sigma comes from discovery reference spacing. eta=.1 and T=.03 held fixed.",
+  "alternatives": [
+    "increase eta first",
+    "time-adaptive bandwidth"
+  ],
+  "reason": "Test representation scale independently before increasing external dose.",
+  "acceptance": "Same locked primary and two matched adaptation batches; >=2% improvement and both batches improve over incumbent round1.",
+  "limitations": "Hard atom/bond mismatch is high in stochastic intermediate states; shape success is not complete molecular/chemical reproduction."
+}
