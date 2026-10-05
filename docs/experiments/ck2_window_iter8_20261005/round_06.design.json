@@ -1,0 +1,53 @@
+{
+  "acceptance": "Frozen: primary mean improves >=2% and both paired adaptation batches improve over accepted incumbent; otherwise retain incumbent.",
+  "alternatives": [
+    "Combine typed and bond immediately",
+    "Increase the displacement cap of the promising typed candidate"
+  ],
+  "base_program": "configs/experiments/ck2_window_iter8_v1/round_03.json",
+  "base_program_sha256": "a4856505076ba96b1f70ac49c2982eaa0ed595cea17187f40f06c356464d920e",
+  "decision_rationale": "Round5 gives 11.39 percent mean gain vs native but its second batch is .000719 A worse than incumbent, so no promotion under the frozen rule. Test bond geometry independently on round3, without the typed term. Lambda=1.05143 comes from the same .25 gradient-scale calibration at all 50 state times. Bond first/second distance moments use contemporaneous actual references, not terminal ideal bond lengths or physical force-field energies.",
+  "evidence": [
+    {
+      "path": "results/window_iter8/round_05/report.json",
+      "results": {
+        "gradient": {
+          "active_steps": 50.0,
+          "atom_fraction_L1": 0.1600714285714286,
+          "atom_mismatch_geometry_assignment": 0.7112499999999999,
+          "backtrack_rejected_fraction": 0.0,
+          "batches": 2,
+          "bond_fraction_L1": 0.024216666666666664,
+          "bond_mismatch_geometry_assignment": 0.6133333333333333,
+          "bonded_union_mismatch": 0.909025126105935,
+          "cap_fraction": 0.864375,
+          "generated_to_reference_A": 0.20288434990358006,
+          "gradient_below_threshold_fraction": 0.0,
+          "mean_injection_rms_A": 0.01425636487605516,
+          "n": 32,
+          "nonzero_control_fraction": 1.0,
+          "path_rms_A": 0.7128182388842106,
+          "reference_to_generated_A": 0.2069821320568807,
+          "symmetric_shape_A": 0.20493324098023039
+        }
+      },
+      "sha256": "f11d0ee3cc20e8e1e0abaa5c127d6b3868d0698b62e1f7ab8039fb32e48e3870"
+    },
+    {
+      "path": "results/window_iter8/round03_component_calibration/calibration.json",
+      "results": {},
+      "sha256": "02e0e29dc04270255db1f5fa75509e9d9866cbb59813e565301206f377f75811"
+    }
+  ],
+  "exact_revision": {
+    "bond_weight": 1.0514282906380228,
+    "round": 6
+  },
+  "hypothesis": "Type-specific bonded-distance moments can recover structural constraints missed by untyped spatial kernels.",
+  "interpretation": "Evidence, formula choices and parameter decisions; no private reasoning trace.",
+  "parent_round": 3,
+  "program_sha256": "233c30a02320265d643964372810f281c8747a3b5b3364a0675cb65ab1d17b84",
+  "round": 6,
+  "scope": "Actual states within unchanged learned window; no new SMC, no physical-energy claim; all analysis local.",
+  "status": "prepared"
+}
