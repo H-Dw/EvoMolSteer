@@ -35,6 +35,9 @@ def test_partial_and_parent_deduplication():
     chosen=np.repeat(np.arange(20),2);next_score=np.repeat(score[:20]+v[:20],2)
     raw,adj,n=lag_evidence(v[:,None],score,next_score,chosen)
     assert n==20;assert raw[0]>.999999;assert adj[0]>.99
+    missing=np.full(40,np.nan);missing[:20]=v[:20]
+    mixed=partial_correlation(np.column_stack([x[:,0],missing]),score,u[:,None])
+    np.testing.assert_allclose(mixed[0],partial_correlation(x,score,u[:,None])[0],atol=1e-12)
 
 
 def test_lineage_and_whole_window_fit():

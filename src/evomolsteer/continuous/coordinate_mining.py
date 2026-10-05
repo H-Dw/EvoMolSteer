@@ -26,11 +26,17 @@ def correlation(x, y):
 
 def partial_correlation(x,y,nuisance):
     design=np.column_stack([np.ones(len(y)),nuisance])
-    finite=np.isfinite(x).all(1)&np.isfinite(y)&np.isfinite(design).all(1)
-    if finite.sum()<design.shape[1]+8:return np.full(x.shape[1],np.nan)
-    design=design[finite];xx=x[finite];yy=y[finite]
-    return correlation(xx-design@np.linalg.lstsq(design,xx,rcond=None)[0],
-                       yy-design@np.linalg.lstsq(design,yy,rcond=None)[0])
+    eligibility=np.isfinite(x)&(np.isfinite(y)&np.isfinite(design).all(1))[:,None]
+    patterns,groups=np.unique(eligibility.T,axis=0,return_inverse=True)
+    result=np.full(x.shape[1],np.nan)
+    # Missing NOS must not drop valid all-atom candidates from unrelated tests.
+    for group,finite in enumerate(patterns):
+        columns=np.flatnonzero(groups==group)
+        if finite.sum()<design.shape[1]+8:continue
+        d=design[finite];xx=x[np.ix_(finite,columns)];yy=y[finite]
+        result[columns]=correlation(xx-d@np.linalg.lstsq(d,xx,rcond=None)[0],
+                                   yy-d@np.linalg.lstsq(d,yy,rcond=None)[0])
+    return result
 
 
 def mean(x,w):
@@ -150,6 +156,7 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.):
         'atom_vocabulary':catalog['atom_vocabulary'],'spatial_width_A':width,'frame':'aligned PDB world angstrom'})
     write_json(out/'manifest.json',{'schema_version':'coordinate-affinity-mining-1.0','window':[float(grid[0]),float(grid[-1])],
         'times':grid.tolist(),'splits':splits,'sources':sources,'dataset':str(root.resolve()),'campaign':campaign,
+        'analysis_code_sha256':{p.name:digest(p) for p in (Path(__file__),Path(__file__).with_name('coordinate_features.py'))},
         'n_features':len(metadata),'n_statistic_rows':len(table),'storage':'lossless float64 zstd Parquet; no node feature cache',
         'interpretation':['Selection association is partly tautological: selection uses this affinity head.',
             'Lag associations condition on survival and starting score; observational, not causal.',

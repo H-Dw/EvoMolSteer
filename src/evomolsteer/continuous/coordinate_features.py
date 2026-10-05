@@ -57,7 +57,7 @@ def regional_moments(current, atoms, mask, points, eligible_labels, width=4.):
     if eligible_labels is not None: eligible &= np.isin(atoms, eligible_labels)
     valid = eligible.any(1)
     d = np.linalg.norm(current[:, :, None]-np.asarray(points)[None, None], axis=-1).min(-1)
-    logits = np.where(eligible, -.5*(d/width)**2, -np.inf)
+    logits = np.where(eligible, -.5*(d/width)**2 if width is not None else 0., -np.inf)
     logits = np.where(valid[:, None], logits, np.where(mask, 0., -np.inf))
     w = np.exp(logits-logsumexp(logits, axis=1)[:, None])
     mu = (w[..., None]*current).sum(1)

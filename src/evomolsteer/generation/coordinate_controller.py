@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import torch
 from .window_controller import WindowExtension
-from .coordinate_reward import CoordinateMixtureReward
+from .coordinate_reward import CoordinateMixtureReward,remove_rigid_pose_gradient
 from .local_reward import bounded_local_step
 from .multistage_reward import preserve_native_geometry
 from ..io import clean,digest,write_json
@@ -50,6 +50,8 @@ class CoordinateExtension(WindowExtension):
                 value,detail=self.reward(x*scale+com[:,None],self.endpoint_atoms,mask,s)
                 g,=torch.autograd.grad(value.sum(),x)
             if not bool(torch.isfinite(g).all()):raise ValueError('Nonfinite coordinate gradient')
+            if self.program.get('preserve_native_rigid_pose'):
+                g=remove_rigid_pose_gradient(g.detach(),x.detach(),mask)
             # Native categorical channels and RNG states are never touched.
             if not self.preflight_done and float(g.norm())>1e-7:
                 direction=g/g.norm();analytic=float((g*direction).sum());checks=[]

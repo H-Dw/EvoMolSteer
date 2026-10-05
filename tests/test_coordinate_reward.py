@@ -46,3 +46,22 @@ def test_upper_spread_has_no_pressure_below_bound():
     assert v.eq(0).all() and g.eq(0).all()
     far=(x.detach()*30).requires_grad_(True);v,_=reward(far,atoms,mask,.2);g,=torch.autograd.grad(v.sum(),far)
     assert v.lt(0).all() and (g*far).sum()<0
+
+
+def test_uniform_global_control_is_radius_gyration():
+    ref=reference();ref['spatial_weighting']='uniform_global_control'
+    r=CoordinateMixtureReward({'window':[.1,.4],'mixture_temperature':.25,'robust_delta':1.,'core_radius_A':5.},ref)
+    x=torch.randn(3,5,3,dtype=torch.float64);m=torch.ones((3,5),dtype=torch.bool);a=torch.full((3,5),3)
+    z,_,_=r.observables(x,a,m)
+    expected=(x-x.mean(1)[:,None]).square().sum(-1).mean(1).sqrt()
+    torch.testing.assert_close(z[:,3],expected)
+
+
+def test_pose_projection_retains_ascent_without_rigid_motion():
+    from evomolsteer.generation.coordinate_reward import remove_rigid_pose_gradient
+    x=torch.randn(4,8,3,dtype=torch.float64);g=torch.randn_like(x);m=torch.ones((4,8),dtype=torch.bool)
+    p=remove_rigid_pose_gradient(g,x,m)
+    torch.testing.assert_close(p.sum(1),torch.zeros(4,3,dtype=x.dtype),atol=1e-12,rtol=0.)
+    torch.testing.assert_close(torch.cross(x-x.mean(1)[:,None],p,dim=-1).sum(1),torch.zeros(4,3,dtype=x.dtype),atol=1e-12,rtol=0.)
+    assert ((g*p).sum((1,2))>=0).all()
+    torch.testing.assert_close((g*p).sum((1,2)),p.square().sum((1,2)),atol=1e-12,rtol=1e-12)

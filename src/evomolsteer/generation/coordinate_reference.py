@@ -9,12 +9,14 @@ from ..io import read_json,digest,write_json
 from .prototypes import regularize_covariance
 
 
-def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15):
+def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15,global_control=False):
     root=Path(dataset);source=root/'results'/campaign;mining=Path(mining);output=Path(output)
     if output.exists():raise FileExistsError(output)
     m=read_json(mining/'manifest.json');cat=read_json(mining/'feature_catalog.json')
     if not regions or len(regions)!=len(set(regions)) or any(r not in cat['regions'] for r in regions):raise ValueError('Explicit distinct measured regions required')
     if channel not in ('all','NOS') or std_floor_A<=0:raise ValueError('Invalid coordinate reference')
+    if global_control and len(regions)!=1:raise ValueError('One frame origin is sufficient for global control')
+    width=None if global_control else cat['spatial_width_A']
     scale=read_json(source/'config.json')['coord_scale'];batches=m['splits']['discovery'];frames={};pooled={};sources=[]
     labels=None if channel=='all' else [cat['atom_vocabulary'][e] for e in ('N','O','S')]
     for batch in batches:
@@ -25,7 +27,7 @@ def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15):
             for i in np.flatnonzero(z.read('resampled')):
                 t=float(times[i]);x=z.read('current_coords',int(i)).astype(float)*scale+com
                 atoms=z.read('predicted_atomics',int(i));mask=z.read('mask',int(i))
-                v=np.concatenate([regional_moments(x,atoms,mask,cat['regions'][r]['points_A'],labels,cat['spatial_width_A']) for r in regions],axis=1)
+                v=np.concatenate([regional_moments(x,atoms,mask,cat['regions'][r]['points_A'],labels,width) for r in regions],axis=1)
                 valid=np.isfinite(v).all(1);v=v[valid];w=z.read('selection_probability',int(i)).astype(float)[valid]
                 if len(v)<3 or w.sum()<=0:raise ValueError('Missing reference measurements')
                 w/=w.sum();mu=w@v;d=v-mu;cov=np.einsum('bi,b,bj->ij',d,w,d)
@@ -45,9 +47,10 @@ def build(dataset,campaign,mining,output,regions,channel='all',std_floor_A=.15):
         extra[t]={'upper_spread_A':upper,'spread_scale_A':sigma.tolist(),'quantile':.75}
     from .launcher import INPUT_FILES
     ref={'schema_version':'current-coordinate-mixture-1.0','window':m['window'],'times':times,
-         'regions':{r:cat['regions'][r] for r in regions},'channel':channel,'atom_vocabulary':cat['atom_vocabulary'],
+         'regions':{'ligand':cat['regions'][regions[0]]} if global_control else {r:cat['regions'][r] for r in regions},'channel':channel,'atom_vocabulary':cat['atom_vocabulary'],
+         'spatial_weighting':'uniform_global_control' if global_control else 'gaussian_regional',
          'spatial_width_A':cat['spatial_width_A'],'frames':[{'time':t,'modes':frames[t],**extra[t]} for t in times],
-         'features':[f'{r}::{channel}::{k}' for r in regions for k in ('centroid_x','centroid_y','centroid_z','spread')],
+         'features':[f'{r}::{channel}::{k}' for r in (['ligand'] if global_control else regions) for k in ('centroid_x','centroid_y','centroid_z','spread')],
          'batches':batches,'sources':sources,'std_floor_A':std_floor_A,
          'representation':'actual current state in aligned world angstrom; endpoint labels as conditional masks',
          'target_definition':'one same-time affinity-selected mean/covariance per independent discovery batch; equal mode weights',

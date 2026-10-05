@@ -4,6 +4,17 @@ import numpy as np
 import torch
 
 
+def remove_rigid_pose_gradient(g,x,mask):
+    """Orthogonal projection off whole-ligand translation and infinitesimal rotation."""
+    weight=mask.to(x.dtype);n=weight.sum(1).clamp_min(1)
+    center=(x*weight[...,None]).sum(1)/n[:,None];r=(x-center[:,None])*weight[...,None]
+    g=(g-(g*weight[...,None]).sum(1)[:,None]/n[:,None,None])*weight[...,None]
+    inertia=torch.eye(3,device=x.device,dtype=x.dtype)[None]*(r.square().sum((1,2)))[:,None,None]-torch.einsum('bni,bnj->bij',r,r)
+    torque=torch.cross(r,g,dim=-1).sum(1)
+    omega=torch.einsum('bij,bj->bi',torch.linalg.pinv(inertia,hermitian=True,rtol=1e-6),torque)
+    return (g-torch.cross(omega[:,None].expand_as(r),r,dim=-1))*weight[...,None]
+
+
 class CoordinateMixtureReward:
     def __init__(self,program,reference):
         self.program=program;self.reference=reference;self.window=reference['window'];self.times=np.asarray(reference['times'])
@@ -23,11 +34,12 @@ class CoordinateMixtureReward:
         valid&=eligible.any(1);safe=torch.where(valid[:,None],eligible,mask)
         for r in self.reference['regions'].values():
             points=x.new_tensor(r['points_A']);d=(x[:,:,None]-points[None,None]).square().sum(-1).clamp_min(1e-20).sqrt().amin(-1)
-            logits=(-.5*(d/self.reference['spatial_width_A']).square()).masked_fill(~safe,-torch.inf)
+            uniform=self.reference.get('spatial_weighting')=='uniform_global_control'
+            logits=(torch.zeros_like(d) if uniform else -.5*(d/self.reference['spatial_width_A']).square()).masked_fill(~safe,-torch.inf)
             w=logits.softmax(1);center=(w[...,None]*x).sum(1)
             spread=(w*(x-center[:,None]).square().sum(-1)).sum(1).clamp_min(1e-20).sqrt()
             columns.extend([center-points.mean(0),spread[:,None]])
-            core|=eligible&(d.detach()<=self.program['core_radius_A'])
+            core|=eligible if uniform else eligible&(d.detach()<=self.program['core_radius_A'])
         return torch.cat(columns,1),valid,core
 
     def __call__(self,x,atoms,mask,time):

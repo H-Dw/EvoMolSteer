@@ -14,7 +14,7 @@ def evaluate(dataset,campaign,output):
     if not (root/'COMPLETE.json').is_file():raise ValueError('Incomplete inference')
     cfg=read_json(root/'config.json');program=read_json(root/'reward_program.json')
     reference=load_reference(root/'reference.json.gz');reward=CoordinateMixtureReward(program,reference)
-    rows=[];audit=[];torch.set_num_threads(1)
+    rows=[];audit=[];motion=[];torch.set_num_threads(1)
     for arm in cfg['experiment']['arms'].split(','):
         for path in sorted((root/arm).glob('batch_*')):
             batch=int(path.name.split('_')[-1]);com=np.asarray(read_json(root/f'frame_batch_{batch:03d}.json')['target_com'])[:,None,:]
@@ -24,6 +24,14 @@ def evaluate(dataset,campaign,output):
                 ids=np.flatnonzero((times>=reference['window'][0]-1e-7)&(times<=reference['window'][1]+1e-7))
                 coords=z['current_coords'][ids].astype(float)*cfg['coord_scale']+com[None]
                 atoms=z['predicted_atomics'][ids];mask=z['mask'][ids]
+                native=z['native_proposal_coords'].astype(float);proposal=z['proposal_coords'].astype(float)
+                displacement=(proposal-native)*cfg['coord_scale']
+                translation=displacement.mean(2);centered=displacement-translation[:,:,None]
+                for i,t in enumerate(times):
+                    motion.append({'arm':arm,'batch':batch,'time':float(t),
+                        'mean_translation_injection_A':float(np.linalg.norm(translation[i],axis=1).mean()),
+                        'mean_nontranslation_injection_rms_A':float(np.sqrt((centered[i]**2).sum(-1).mean(1)).mean()),
+                        'mean_total_injection_rms_A':float(np.sqrt((displacement[i]**2).sum(-1).mean(1)).mean())})
             for k,i in enumerate(ids):
                 t=float(times[i])
                 with torch.no_grad():
@@ -48,6 +56,7 @@ def evaluate(dataset,campaign,output):
         for f in ['mean_reward','mean_standardized_residual',*reference['features']]:
             table.loc[g.index,'d_dt_'+f]=np.gradient(g[f],g.time)
     write_table(out/'coordinate_time_rates.csv',table)
+    write_table(out/'coordinate_injection_motion.csv',motion)
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed']:raise ValueError('Coordinate derivative failed')
     report={'schema_version':'current-coordinate-evaluation-1.0','window':reference['window'],'batch_results':audit,

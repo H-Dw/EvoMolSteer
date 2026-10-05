@@ -28,7 +28,7 @@ def preserve(results, dataset, campaign, output):
     if len(rows) != cfg['experiment']['n']*len(cfg['experiment']['arms'].split(',')):
         raise ValueError('Failed candidates must also be preserved')
     copied = []
-    extras=[p for p in ['coordinate_audit.json','coordinate_time_metrics.csv','coordinate_time_rates.csv'] if (results/p).is_file()]
+    extras=[p for p in ['coordinate_audit.json','coordinate_time_metrics.csv','coordinate_time_rates.csv','coordinate_injection_motion.csv'] if (results/p).is_file()]
     for source, relative in [(results/p, p) for p in FILES+extras] + [
             (root/p, 'inference_config/'+p) for p in ['config.json', 'reward_program.json', 'COMPLETE.json']]:
         dest = output/relative; dest.parent.mkdir(parents=True, exist_ok=True)
