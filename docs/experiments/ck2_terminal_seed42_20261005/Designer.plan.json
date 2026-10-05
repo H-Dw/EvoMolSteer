@@ -1,0 +1,420 @@
+{
+  "schema_version": "designer-terminal-seed42-plan-1.0",
+  "agent": "Designer",
+  "execution_identity": "subagent simulation",
+  "date": "2026-10-05",
+  "status": "按用户最新授权修订：本次 seed42 实验从第1轮重新计数，上限5轮；当前0轮正式推理。可根据反馈提前停止，未执行新实验。",
+  "task_scope": {
+    "target": "CK2；CLK3 仅保留为伴随预测指标，不增加双目标奖励。",
+    "master_seed": 42,
+    "maximum_rounds": 5,
+    "sampling": "所有新组禁用 SMC/粒子选择/复制/淘汰；FLOWR 的原生类别和 SDE 抽样保留。",
+    "control_window_source": "从学习数据 selection_scope 和冻结参考的共同端点读取；本例为 [0,0.5]，通用控制器不能硬编码。",
+    "continuation": "窗口外零梯度注入；保持原 100 个积分步，native 继续至真实 t=1。",
+    "historical_comparator": "受保护的 main1000_w050：主 seed 42，20 批×50；历史 single 与 unguided 作为终态对照，不新运行 SMC。",
+    "allowed_output": "仅本设计文件；没有修改代码、冻结旧配置或远端数据。",
+    "starting_round": 1,
+    "executed_inference_rounds": 0,
+    "round_counter_scope": "仅本次 CK2 terminal seed42 实验；历史窗口八轮与旧多阶段测试不计入本次。正式采样轮启动后须记账，失败轮也保留记录；不以预检名义进行未记账的生成筛选。",
+    "early_stop": "上限不是必须完成的轮数；无可解释正向信号、质量退化、执行契约不满足或已有充分开发结论时均可提前停止。"
+  },
+  "evidence_ledger": [
+    {
+      "id": "E1",
+      "source": "docs/continuous_single_v3_report_20261005.md",
+      "sha256": "2474e515f3e9bf9599f1fef3f2563d3ba91f4ea399279dd579e3f704de1b41ab",
+      "observation": "predicted_endpoint 的 ASN117/VAL116 NOS 即时期望偏移全窗分别为 -0.008521/-0.007302 Å，q≈0.00225；留存−灭绝分别 -0.042659/-0.038362 Å，q≈0.01478。proposal 的对应均值和留存差异未通过 q<.05。",
+      "interpretation": "优先研究 endpoint 的一个相关局部区域；这是相对于 actual/proposal 证据更强的选择关联，尚非因果机制。"
+    },
+    {
+      "id": "E2",
+      "source": "docs/continuous_single_v3_report_20261005.md",
+      "observation": "VAL116 NOS 低端/高端质量偏移均为负：约 -0.004954/-0.004964；ASN117 全原子平均距离偏移反为正。两端阈值来自同刻背景四分位数。",
+      "interpretation": "反对全分子或无界的越近越好；支持检验有容忍范围的相关区域目标，但没有识别精确最优区间。"
+    },
+    {
+      "id": "E3",
+      "source": "results/continuous_single_v3/agents/Analyst.continuous.response.json",
+      "sha256": "a2b54abe5d2dc2fb28d99f33e94702cd68fb2f73d14ec58be7343613437515d8",
+      "observation": "同父 endpoint 差异近于机器零；t=.5 每批平均仅约 1.214 根；高阶曲线在部分时刻与观测反号。",
+      "interpretation": "不将克隆、节点、原子或时间当独立样本，不将多项式驻点及时间导数编成空间控制方向。"
+    },
+    {
+      "id": "E4",
+      "source": "docs/ck2_window_iter8_report_20261005.md",
+      "sha256": "8370494bbec28cc84ccc638ee46b4879cd6cdeb75a47ba419bb3cc20d1c4dd2a",
+      "observation": "全点云 actual-state MMD 的第三轮适配收益为 9.33%，冻结新 seed 确认仅 0.89%，4 对批次 CI 跨零，反向参考覆盖变差。",
+      "interpretation": "完整坐标复制没有获得稳定确认；不能把本轮改用 endpoint 区域目标事后宣称为已经成功。"
+    },
+    {
+      "id": "E5",
+      "source": "docs/experiments/ck2_multistage_20261005/Designer.outcome_review.md",
+      "sha256": "8db61f17985ed0735db36db4d7e00468e37f1d20dab511eba1a200f66c282764",
+      "observation": "此前 live endpoint 两维奖励改善窗口内特征模仿，但全程相对仅窗口多用约一半总剂量，终态 SMC 特征距离反而更远；小样本模型评分差的 CI 跨零。",
+      "interpretation": "支持停止窗口后的注入并检验区间内停止施力，不支持继承旧 eta=.3 为新奖励的最优强度。"
+    }
+  ],
+  "skill_and_function_lineage": {
+    "skill": "C:/Users/Wei/.codex/skills/molthinker-reward-creativity/SKILL.md",
+    "references_read": [
+      "references/core-target-and-shape.md",
+      "references/reward-design-ir.md",
+      "references/regional-function-architecture.md",
+      "references/knowledge-guided-composition.md"
+    ],
+    "sources": [
+      {
+        "id": "K1",
+        "source": "references/core-target-and-shape.md",
+        "original_form": "F=phi(dist(z,T)/s)，零集合应与有依据的可接受集合一致。",
+        "specialization": "二维相关经验椭圆外的 flat-bottom 残差。",
+        "role": "局部目标形状"
+      },
+      {
+        "id": "K2",
+        "source": "src/evomolsteer/generation/multistage_reward.py",
+        "sha256": "1d416a4206f9061d1a50c56f546caf6e0a4ad6ad35dcfaf9776bbb7ad5c4d9e6",
+        "original_form": "rho_delta(r)=delta²(sqrt(1+r²/delta²)-1)，相关 Mahalanobis 距离。",
+        "specialization": "把输入半径 r 替换为离开容忍带的非负残差 v；删除向经验均值持续吸引的核心。",
+        "role": "稳健外侧响应"
+      },
+      {
+        "id": "K3",
+        "source": "references/regional-function-architecture.md",
+        "original_form": "严重新碰撞是可行性失败；物理能量要求有效图、原子类型和微状态。",
+        "specialization": "额外注入对 native proposal 的几何回溯；终态才进行有效图条件下的 MMFF 评价。",
+        "role": "不可补偿约束及独立终态检查"
+      },
+      {
+        "id": "K4",
+        "source": "src/evomolsteer/generation/multistage_controller.py",
+        "sha256": "fb941d4237cef9a1337b52571045ae5cc536ba367558a5700937cae0ead25009",
+        "original_form": "g=(d live_endpoint/d X_t)^T grad_endpoint R；native 一步后加入有界修正。",
+        "specialization": "动态窗口门控及残差幅度 gate；其旧 t<=.5 的 51 次注入条件不能复用。",
+        "role": "可执行梯度路径"
+      }
+    ],
+    "attribution": "相关椭圆、flat-bottom 与残差剂量 gate 的组合是本次提出的经验控制假说，不冒充 FLOWR 论文方法或已有文献已验证结论。"
+  },
+  "RewardDesignIR": {
+    "independent_outcome": "在 native 续生成的 t=1，提高兼容且独特的可用候选产出；局部目标满足、化学有效性、周边几何、构象应变和模型亲和力分别报告。",
+    "regions": [
+      {
+        "id": "ck2_ASN117_VAL116_NOS_joint_patch",
+        "receptor_ids": [
+          "ck2:A:ASN117",
+          "ck2:A:VAL116"
+        ],
+        "features": [
+          "ck2:A:ASN117::hetero_distance_softmin",
+          "ck2:A:VAL116::hetero_distance_softmin"
+        ],
+        "evidence": [
+          "E1",
+          "E2",
+          "E3"
+        ],
+        "representation": "predicted_endpoint_world_A",
+        "role": "一个相关区域目标；两残基不是两个可独立重复加权的机制。",
+        "persistence_under_native": "尚需本轮 t=.5 到 t=1 检验。",
+        "preservation": "受体固定；原生离散抽样保留；新增坐标控制不能引入严重碰撞或无界内部几何变形。",
+        "shortcut": "改变 NOS 数量、交换最近原子、整体移位或局部挤压可能降低距离残差而没有改善化学兼容性。"
+      }
+    ],
+    "omitted_signals": [
+      {
+        "signal": "全分子坐标/回转半径",
+        "role": "对照和监测；不作为新局部奖励"
+      },
+      {
+        "signal": "其他相关残基或高阶驻点",
+        "role": "反证或暂缓；不增加重复区域项"
+      },
+      {
+        "signal": "硬原子类别、硬键标签、形式电荷",
+        "role": "条件选择集合及终态检查；没有伪造离散梯度"
+      },
+      {
+        "signal": "pIC50、MMFF、QED、SA",
+        "role": "终态评价；不作为本轮梯度核心"
+      },
+      {
+        "signal": "retained 祖先均值",
+        "role": "独立于即时选择定义的窗口内描述性对照；不冒充当前可得因果标签"
+      }
+    ],
+    "discrete_operators": [],
+    "external_context": "模型参数冻结；不训练额外拟合网络；当前求导固定 endpoint 类别集合、先前 self-conditioning 和随机状态。"
+  },
+  "architecture_comparison": [
+    {
+      "id": "A1_unbounded_attraction",
+      "decision": "reject",
+      "reason": "与两端减重及全原子反向对照不符，容易持续压近。"
+    },
+    {
+      "id": "A2_full_pointcloud_MMD",
+      "decision": "baseline_only",
+      "reason": "受体帧下完整点云限制更多自由度，八轮没有稳定确认；仍是重要性能基线。"
+    },
+    {
+      "id": "A3_independent_intervals",
+      "decision": "not_primary",
+      "reason": "忽略两距离相关性，并可能容许未观察到的组合。"
+    },
+    {
+      "id": "A4_correlated_flat_bottom",
+      "decision": "selected_conditionally",
+      "reason": "一个区域、一个可接受集合、无内部权重；合格后零力，适合检验局部约束和 native 续生成。"
+    },
+    {
+      "id": "A5_local_projected_A4",
+      "decision": "conditional_single_constraint_ablation",
+      "reason": "完整 Jacobian 可能泄漏到非区域输入坐标；仅在实际泄漏明确时检验局部支持投影，不能无证据宣称非区域零位移。"
+    },
+    {
+      "id": "A6_energy_or_affinity_gradient",
+      "decision": "defer",
+      "reason": "中间态没有可信图依赖物理能量；本轮不增加新的类别/评分梯度通道。"
+    }
+  ],
+  "reference_contract": {
+    "feature_catalog": "results/continuous_single_v3/feature_catalog.json",
+    "feature_catalog_sha256": "4d0fc6f786773b22190e8d021d11d5e9457555441d869119ef358f89fc39c8ea",
+    "discovery_batches": "只用 config.json 中 discovery_batches=0..13；终态结果不用于学习本参考。",
+    "times": "保留 selection_scope 的所有 51 个实际评分时刻，浮点时间按受审计网格规范化；不设 0.1 分箱。",
+    "point_definition": "z_bi(t) 是 single 候选在本事件尚未复制时的 endpoint NOS 两维特征。",
+    "selection_measure": "Q_t = B^-1 sum_b sum_i p_bi(t)/sum_{joint-valid i} p_bi(t) * delta[z_bi(t)]；p 为 selection_probability，不用实际 offspring 数替代。每批等权，批内权重只复原选择分布，不增加独立样本数。",
+    "center": "mu_t = E_Qt[z]，不是效应差值多项式，不是三维平均分子。",
+    "covariance": "C_t 是配对 unguided 各批同刻候选内部的二维 sample covariance 等权平均；Sigma_t=eigfloor(0.9*C_t+0.1*diag(C_t), 0.01 Å²)。不能将整窗时间漂移合入噪声。",
+    "radius": "q_i=(z_i-mu_t)^T Sigma_t^-1(z_i-mu_t)；r_t² 为 Q_t 加权 q 的 0.5 分位数，取累计权重首次达到 0.5 的观测值。",
+    "coverage": "每批每时刻 joint-valid 选择质量须>=0.8，背景至少3个有效候选；r_t 必须有限且>0，协方差须SPD；不足时不补零、不静默切换旧 retained 原型。",
+    "interpretation": "50% 中心质量、对角收缩0.1、标准差下限0.1 Å 均为公开的初始经验/数值假设；两端富集只支持检验区间，不证明该椭圆最优。",
+    "interpolation": "本轮100步与51参考节点精确对应，直接查表；其他网格须声明插值及误差审计。均值可局部插值，SPD矩阵只能用保持正定的凸插值；窗口外不外推。",
+    "shape_audit": "保存两个距离散点、权重、两侧尾部和椭圆内覆盖；若单一椭圆跨越明显无样本的多峰空区，标记不适用，不能把其几何内部当作已证实优势集合。",
+    "new_reference_sha256": null,
+    "compile_requirement": "由本地确定性提取器生成后绑定 exact bytes/canonical JSON hash；本计划不编造未生成的系数或哈希。"
+  },
+  "reward_program_spec": {
+    "program_status": "conditional_specification_not_yet_compiled",
+    "observables": "d_r(y)=-tau*log[(|I||J_r|)^-1 sum_{i in I,j in J_r} exp(-||y_i-q_j||/tau)]；z=(d_ASN117,d_VAL116)。",
+    "tau_A": 0.25,
+    "tau_source": "连续分析 feature_catalog，与原分析严格同义。",
+    "coordinates": "y=coord_scale*h_theta(X_t,t)+target_COM；CK2固定受体坐标系、Å；不单独对配体做Kabsch。",
+    "categorical_semantics": "I为当次 endpoint argmax 后预测 N/O/S 的有效槽，当前求导 detach；每步重新确定，H/PAD不进入NOS。没有NOS记missing并跳过，不算目标满足。",
+    "acceptable_set": "T_t={z: (z-mu_t)^T Sigma_t^-1(z-mu_t)<=r_t²}。",
+    "formula": "q=(z-mu)^T Sigma^-1(z-mu); u=sqrt(q)/r; v=max(u-1,0); L=sqrt(1+v²)-1; R=-L。",
+    "internal_weights": "无；一个 joint patch。",
+    "derivative": "u>1 时 grad_z R= -[v/sqrt(1+v²)] * Sigma^-1(z-mu)/(r²*u)；u<=1 时为0；中心通过该零分支避免0/0。",
+    "shape_audit": "R<=0，精确最大值集合为 T_t；边界一阶导数连续且为0，内外两端均受约束。外侧残差斜率有界，但模型Jacobian和白化尺度仍可放大坐标梯度，奖励本身非全局有界。",
+    "live_gradient": "g_t=(partial y/partial X_t)^T grad_y R，真实运行时 autograd；不是 saved-endpoint 梯度，也不是 df/dt。",
+    "locality": "只约束两维局部观测保留大量条件自由度，但完整模型Jacobian可影响所有输入原子。自由区域兼容性必须实际评价，不能从公式维数直接宣布实现。",
+    "mathematical_note_en": "A correlated flat-bottom potential defines a provisional empirical acceptance set, not a physical optimum. The exact zero-force interior and a residual-dependent step budget avoid persistent attraction toward an average pose.",
+    "mathematical_note_zh": "相关椭圆是待验证的经验容忍集；零梯度内部与随残差减弱的位移预算用于避免持续复制经验均值，不能保证最终亲和力或化学有效性。"
+  },
+  "execution_contract": {
+    "baseline": "同一 checkpoint、受体、原子槽数、batch_size=50、100步、SDE、解码及计分协议；冻结所有输入与代码哈希。",
+    "time_gate": "对源评分时刻 t 与 native proposal 时刻 s，仅当 t>=a、s>t 且 s<=b 时注入；本例 .49→.50 为最后一步，.50→.51 零注入，共50个可控制积分步。",
+    "target_time": "live endpoint 于源时刻 t 计算，因此使用 mu(t),Sigma(t),r(t)。不得将 proposal s 或终态 t1 与参考评分时刻混用。",
+    "injection": "先得到同一次 native proposal q_s，再加入由源状态 live 梯度决定的有界增量。这是一步控制近似，不保证新时刻所有目标单调改善。",
+    "initial_eta": 0.1,
+    "eta_origin": "新奖励的保守、未校准起点，不继承旧MMD或旧endpoint实验的最优结论。",
+    "residual_gate": "a(v)=v/sqrt(1+v²)；requested_RMS_A=eta*RMS(native_step_A)*a(v)。随后按梯度方向定幅。不能把任意微小非零梯度都放大到固定eta位移。",
+    "zero_policy": "v=0、无NOS、nonfinite不可用、梯度低于执行阈值或native步长为0时零注入；所有原因分开统计。目标已满足的零控制不是失败。",
+    "trust_region": {
+      "max_atom_step_A": 0.025,
+      "max_cumulative_RMS_path_A": 1.25,
+      "new_severe_receptor_pair_threshold_A": 1.2,
+      "max_pair_distance_change_A": 0.05,
+      "max_backtracking_attempts": 7,
+      "origin": "前期已有工程护栏的保守复用；不是物理安全标准。成对距离0.05 Å与两端各0.025 Å一致，不能宣称独立保证低应变。",
+      "semantics": "逐粒子对同一次 native proposal 回溯新增修正；新增<1.2 Å重原子对不允许，已有更深重叠不许被修正进一步加深超过数值容差；拒绝时精确返回该 native proposal。仅覆盖已加载pocket。"
+    },
+    "local_projection_variant": "只在预先冻结的单因素约束消融轮触发：以当次endpoint对两残基的归一化softmin原子责任度确定累计95%贡献的NOS槽，再加一跳预测键邻居作为工程缓冲；冻结该掩码，g'=P_E*g。预测键只定义可编辑支持，不代表有效化学。P_E为正交槽位投影，g·P_Eg=||P_Eg||²>=0，但可能降低可行下降能力；非区域额外注入严格为0，native仍可移动所有原子。",
+    "logging": "逐候选/时刻记录可用性、z/u/v、区间满足、raw/pullback/投影后梯度、局部外梯度与注入份额、请求/实际/native RMS、clip、冲突、路径、回溯与分类跳变。非区域注入份额定义为既定局部支持外的sum||delta_i||²除以全部sum||delta_i||²；总注入为零时该比例缺失，不补零。",
+    "validation_before_scientific_run": [
+      "新公式的中心/边界/外侧导数、置换不变性、缺NOS和零强度检查。",
+      "live有限差分至少覆盖早/中/晚三个可用且带外状态，冻结类别、还原RNG/self-conditioning，参数不得积累梯度；零内场单独验证。",
+      "零强度与native全程逐位相同；两臂初态及原生随机流一致；日志核对50步资格、窗口外零注入和完整100步。",
+      "旧 multistage_window 曾含 t=.5→.51 的第51次控制；本轮必须按 t,s 门控修正，不能复用其旧域判断。"
+    ],
+    "old_MMD_baseline": "首轮使用冻结 round03/08 的旧MMD公式及eta=.3作为既有策略基线，所有时间边界、解码和终态评价统一。其实际剂量与新flat-bottom不同，所以不能把两组差异全部归因于局部公式；同时报告实际剂量，若要做纯架构因果判断需额外等剂量对照。",
+    "validation_status": "not_run"
+  },
+  "terminal_evaluation": {
+    "populations": "每臂保留全部尝试槽位；decode失败、断图、invalid valence、缺NOS、MMFF不支持、未收敛、head失败均有独立计数和分母。不得只对成功分子给出看似完整的均值。",
+    "representations": "t=.5 同时评价真实X_.5与live endpoint，各自标签清楚；t=1评价真实生成坐标/图及解码结构，禁止用预测endpoint替代真实终态。",
+    "local_and_surrounding": [
+      "记录二维目标满足率及与历史SMC的区域分布距离；t1对T_.5的满足只作为窗口记忆诊断，另与历史SMC真实t1区域分布比较，不能假设t1最优集仍为T_.5。",
+      "全候选原始重原子pocket距离/重叠覆盖，以及有效图的键长、角度、环/价态、连通性；局部及邻近受体残基分别报告。",
+      "终态严重几何碰撞同时保留绝对<1.2 Å事件与基于统一元素vdW半径的重叠分布；二者都是几何检查，不是受体结合能。",
+      "用奖励原子责任度定义局部支持，报告支持外实际注入与原生续生成位移；自由区域分布、接触占据和多样性只能作为观察到的结果。"
+    ],
+    "physical_energy": {
+      "prerequisites": "只对可构建、已消毒、连通、具有确定图/形式电荷/氢及MMFF参数的终态进行计算；各臂与历史SMC使用完全相同的制备、MMFF变体、版本和收敛标准。",
+      "measures": "保存 E_as_generated、同一图/微状态独立副本优化后的 E_min、DeltaE_strain=E_as_generated-E_min、是否收敛及优化重原子RMSD；原生成结构不被优化结构覆盖。必要时并列每重原子应变。",
+      "interpretation": "不同化学图的绝对MMFF总能量不能直接解释为更优分子；同图应变及其分布更合适。MMFF配体内部能量不是蛋白结合能，也不是自由能；不在中间无效图上补造能量。",
+      "missing": "MMFF缺参数或优化失败记missing/失败率，不以0或未标注UFF替代。"
+    },
+    "affinity": {
+      "primary": "对各组完全相同的真实终态输入使用FLOWR同一checkpoint的CK2和CLK3 head重评分，报告模型pIC50、gap和覆盖；不使用各条生成路径末次forward的原始head值相互比较。",
+      "exact_contract": "当前 terminal_export.py 将实际t1结构转换至model坐标、硬类别one-hot，并用两侧同一结构输入、head times=.9999；必须记录 state_time=1 与 model_score_time=.9999 的区别，并与历史重评分协议逐字段/哈希核对。",
+      "chemical_strata": "原始全部候选head结果和有效图子集分别报告；无效图上的有限分数不算可用候选。若历史协议不一致，应统一重评分或降为非同构历史比较。",
+      "meaning": "预测模型输出，不是实验亲和力；本轮奖励不直接最大化该head，仍不能排除共同模型偏差。"
+    },
+    "diversity_and_clones": "报告attempted、built、connected、全局/批内canonical isomeric graph unique数、重复率、scaffold数和等样本量指纹多样性；SMC再按root/谱系和unique结构去重报告。unique率下降不能由条件均值改善掩盖；多样性升高同时伴随无效性升高不是成功。",
+    "primary_development_endpoint": "每100次尝试产生的独特兼容候选数：有效连通、无<1.2 Å严重pocket重叠、MMFF可用且收敛、每重原子应变不超过历史single合格终态的批次等权75%分位数，且同构CK2 head不低于历史single有效终态的批次等权中位数。",
+    "threshold_policy": "上述历史分位数须在任何新终态生成前本地计算并冻结数值/hash；它们是经验基准而非物理阈值。全部构成项及交集产率分别报告；若基准无法定义，该复合终点不可用，不能事后换口径宣布成功。",
+    "secondary": "终态局部目标/历史SMC区域分布、有效率、周围碰撞、应变、预测head和多样性；优先解释各项的取舍，不用单一分数吞并。",
+    "statistics": "新native与梯度按相同批次比较；2批仅开发，4批仍精度有限。历史SMC存在克隆和多次选择，不能按slot与新非SMC终态配对。只在初态哈希/输入一致时作批次级匹配，20批全体另给描述性分布。",
+    "historical_data_use": "历史SMC终态只作冻结评价基准和阈值，不进入新奖励参考学习；其发现批次曾参与区域选择，因此比较不是独立的选择知识验证。"
+  },
+  "experiment_rounds": [
+    {
+      "round": 1,
+      "purpose": "实现与终态效应筛查",
+      "arms": [
+        "native",
+        "frozen_old_MMD",
+        "local_correlated_flat_bottom"
+      ],
+      "batches": [
+        0,
+        1
+      ],
+      "n_per_arm": 100,
+      "frozen_before_run": "参考/公式/eta/护栏、seed42派生规则、相同初态与随机流、评价阈值、所有源码/输入hash。",
+      "decision": "工程通过后，局部策略须在两个开发批次均改善主要独特兼容产率，合计至少多2个/100，且有效连通数相对native减少不超过2个/100、每批不超过1个、严重终态碰撞不增加，才称开发正向信号。2个和2%均是预声明工程筛查门槛，不是显著性。",
+      "counterevidence": "目标损失下降而终态可用性/应变/周边几何变差，否定本次代理修复；已在区间内导致零控制时不强迫运动；不能仅凭pIC50提高晋级。"
+    },
+    {
+      "round": 2,
+      "purpose": "最多一个改变，诊断单一失效来源或检验选择知识的特异性",
+      "batches": [
+        0,
+        1
+      ],
+      "n_per_arm": 100,
+      "controls": "native + 本轮唯一变体；上一轮incumbent的结构已删除，但逐候选标量报告、配置与初态hash须保留。必要的incumbent复跑必须在本轮清单中预先写明。",
+      "predeclared_branch_order": [
+        "若第一轮工程失败：只修复该实现/评价问题并按同配置复跑；不把bug修复当奖励优化收益。",
+        "若有效live梯度但cap_fraction>0.5，或终态有效性/兼容性受损且非区域注入份额<=25%：只将eta .1降至.05，其他参数不动；不得先提高eta。",
+        "若目标响应且非区域注入份额>25%，并出现周边几何/应变代价：只启用 execution_contract 的局部支持投影；25%是工程诊断阈值，不是生物边界。",
+        "若第一轮已有正向信号：优先仅把 reference_weight_mode 从 selection_probability 改为同刻同一single候选上的uniform，重新计算mu/r而保留Sigma及其他参数；这是去掉本事件选择信息的目标来源参数对照，不是更换残基或额外调参。",
+        "若既无目标响应也无明确执行阻碍，或窗口目标响应被native续生成完全抹去：停止该候选，不凭有限终态分数搜索更多阈值。"
+      ],
+      "interpretation": "uniform对照只检验当前选择概率权重的增量，single候选本身仍继承历史选择；若两者相同好，不支持特异的即时选择规律，但不否定所有历史选择信息。",
+      "selection": "最多保留一个满足首轮工程/质量门槛的候选；不得同时扫描eta、半径、support和受体区域。第二轮揭示的失败完整保留。"
+    },
+    {
+      "round": 3,
+      "purpose": "单一控制强度消融，区分局部奖励有效性与过强或饱和注入",
+      "condition": "仅在前两轮留下可执行候选且强度问题仍未识别时执行；同一对比已完成则不重复，可提前冻结或停止。",
+      "arms": [
+        "native",
+        "frozen_incumbent",
+        "one_eta_variant"
+      ],
+      "batches": [
+        0,
+        1
+      ],
+      "n_per_arm": 100,
+      "single_change": "只改外部eta；默认预登记 eta_variant=0.5*eta_incumbent。奖励、目标参考、残差gate、可编辑支持、原子/path上限、几何回溯、窗口及native续生成完全保持。",
+      "frozen_before_run": "候选eta、唯一changed_field、incumbent配置hash、各臂共同初态/随机流和配对评价规则；不得看本轮终态后挑选多个eta。",
+      "identifiability": "用同批次配对报告实际/native、实际/请求位移、clip、路径和目标响应；若cap导致实际剂量几乎相同，明确该对比没有实现可识别的剂量差异，不把名义eta差当作已验证强度效应。",
+      "decision": "沿用首轮有效性、碰撞和独特兼容产率门槛。若较低剂量保留收益并减轻兼容性代价，可保留较低强度；若只有head分数改变，不认定科学成功。",
+      "restriction": "本轮不同时改变局部mask、半径、协方差、受体区域或时间调度。失败和无效消融同样保留报告。"
+    },
+    {
+      "round": 4,
+      "purpose": "单一可编辑支持约束消融，检验非区域影响和周围兼容性的关系",
+      "condition": "仅在区域外梯度/注入或周边代价仍值得检验时执行；没有依据则不增加约束，可提前冻结或停止。",
+      "arms": [
+        "native",
+        "frozen_incumbent",
+        "one_support_constraint_variant"
+      ],
+      "batches": [
+        0,
+        1
+      ],
+      "n_per_arm": 100,
+      "single_change": "只切换已声明的局部支持投影开关；支持定义来自execution_contract，奖励/目标、eta、残差gate、所有数值护栏、窗口和续生成保持不变。不得同时修改接触阈值或选择另一套局部原子。",
+      "frozen_before_run": "精确mask构造、on/off两臂、同一eta、incumbent配置hash、唯一changed_field及比较方向。",
+      "identifiability": "记录投影损失、支持外额外注入、总实际剂量及目标下降；投影改变实际可行方向和剂量，因此先解释这些机制，不能把所有终态差异自动归因于更自由的化学区域。",
+      "decision": "只有局部目标响应保留、支持外干预减少、终态周边/应变未恶化且独特兼容产率通过既定门槛时，才报告投影约束得到开发支持。若目标改善消失或图有效率下降，拒绝该约束。",
+      "restriction": "不为增加轮数而添加无依据约束；原始离散采样保持native，不增加SMC或伪离散梯度。"
+    },
+    {
+      "round": 5,
+      "purpose": "冻结方案在同主seed下扩展批次，并复核前两批可复现性",
+      "condition": "仅在先前有正向信号且评价/工程契约完整时执行；无合格候选可提前结束，不凑满五轮。若提前冻结并进行批次扩展，使用下一个实际连续轮号并随后结束，不能把未执行的计划阶段算作已执行实验。",
+      "arms": [
+        "native",
+        "frozen_old_MMD",
+        "one_frozen_local_candidate"
+      ],
+      "batches": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "n_per_arm": 200,
+      "freeze": "在运行前写入唯一候选program/ref/参数和评价hash；不根据本轮修改任何参数。",
+      "reporting": "分别报告复跑开发批次0/1、新增批次2/3及全部4批；新增两批只是同seed批次扩展，不称未见seed或跨靶点验证。",
+      "acceptance": "开发信号须在新增两个批次分别同向，独特兼容产率与所有失败/碰撞门槛继续满足，才报告同seed范围内支持；完整4批差值/CI同时呈现，跨零则不宣称统计证明。未复现也如实结束。",
+      "prohibition": "最多五轮，无第六轮；最终批次扩展结果不再参与调参或事后更换主指标。"
+    }
+  ],
+  "claim_and_falsification_contract": {
+    "hypothesis": "与完整点云吸引相比，带容忍范围的相关区域约束可能在保持窗口内局部偏好的同时，让native完成更多未被直接规定的几何/化学选择，改善终态兼容候选产出。",
+    "can_support": "同一seed和靶点、冻结预算下观察到局部满足、结构兼容和独特产率的联合改善；报告作用范围与代价。",
+    "cannot_prove": [
+      "真实亲和力提升",
+      "局部选择关联的因果机制已被LLM完整学得",
+      "最优路径或全部SMC分布已恢复",
+      "不受限区域必然更自由或更稳定",
+      "同seed扩展代表未见seed泛化"
+    ],
+    "falsifiers": [
+      "只改善奖励或两维距离，终态有效性、周边几何或应变恶化。",
+      "自由区域表观多样性来自更多无效图、断图或碰撞。",
+      "只靠克隆重复抬高分数，unique兼容产率没有改善。",
+      "native续生成完全消除局部效应，或t1区域过约束偏离历史SMC。",
+      "uniform目标对照达到同样或更好效果，削弱即时选择权重具有必要信息的假说。",
+      "同seed新增批次不复现开发批次收益。"
+    ]
+  },
+  "retention_and_cleanup": {
+    "policy": "每轮启动前，包括本次第1轮，清理精确白名单中已完成的旧生成实验结构、轨迹、临时缓存和压缩包；本轮结束后的生成数据在下一轮开始前按同一流程删除。仅保留报告及复现配置、代码版本与校验哈希。",
+    "generated_data_to_remove": [
+      "生成SDF/PDB/NPZ等结构文件",
+      "本次或旧生成测试的HDF5/NPZ等结构轨迹",
+      "可从受保护输入重建的临时特征缓存和工作分片",
+      "已完成旧生成结果的tar.gz/zip等压缩包及其解包结构副本"
+    ],
+    "before_delete": "先完成本地评价、下载/输入校验、全部失败分母核对和不可变报告，再形成逐绝对路径清理清单。报告保留候选ID、标量指标、缺失原因、root/slot、结构/初态/轨迹hash、聚合多样性和删除清单；不得只留下成功均值。",
+    "retained_artifacts": "报告与审阅/运行账本、冻结奖励和参考配置、参数与评价协议、源码Git提交/文件哈希、checkpoint/输入身份哈希及清理审计；不以改名为报告的方式保留整套生成坐标或轨迹。",
+    "protected": "原始ck2_clk3_lineage_20261003/main1000_w050的SMC和原始unguided、原始输入、模型checkpoints及源码仓库均保护；冻结发现参考属于复现配置，不能按.gz后缀误删。用于学习的原始科学数据不属于本次生成缓存。",
+    "first_round_gate": "当前本次正式推理为0轮；第1轮启动前也要完成用户要求的旧生成测试大文件清理，而不是等第2轮才开始。",
+    "safety": "仅按解析后的绝对路径白名单操作，逐项确认不在原始SMC、checkpoints、输入或源码保护目录内；同时检查本地与远端对应实验输出，不使用父目录递归或宽泛通配。缺少必要报告时先补齐，不带着未归档结果启动下一轮。本Agent只更新计划，不执行清理。",
+    "implication": "删除生成结构/轨迹/缓存/压缩包后，报告不能还原坐标；逐分子复核需按保存配置和代码重新生成。原始SMC对照始终保留。"
+  },
+  "required_pre_run_artifacts": [
+    "新reference packet及coverage/相关散点审计与sha256",
+    "编译reward program、参数来源、输入/checkpoint/代码sha256",
+    "同构历史终态评价阈值及其分母/覆盖与hash",
+    "run manifest：seed42、batch seed派生、n/arm、共同RNG、SMC关闭、窗口和续生成协议",
+    "零强度和live梯度检查结果",
+    "本轮冻结选择规则、实际轮次账本与旧生成结构/轨迹/缓存/压缩包清理审计"
+  ],
+  "final_note": "本设计将未测量内容保留为unknown/not_run；不提供或保存私有思维链。",
+  "plan_revision": {
+    "reason": "用户将本次预算更新为从1重新计数、最多5轮，并明确每轮前清理旧生成大文件。",
+    "executed_inference_rounds_at_revision": 0,
+    "actual_round_numbering": "按实际启动顺序连续记为1..5；可早停。若计划中的可选消融未执行，下一实际轮可直接承担冻结批次扩展角色并结束。",
+    "final_expansion_interpretation": "主seed仍为42；新增批次2/3是同seed批次扩展，不称新seed独立验证。"
+  }
+}

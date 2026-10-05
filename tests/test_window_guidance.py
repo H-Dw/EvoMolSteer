@@ -51,7 +51,7 @@ def test_joint_frame_transform_and_shape_identity():
 
 
 def test_source_adapter_disables_upstream_selection_assertion():
-    path=Path('data/multistage_comparison_generated/results/comparison_v1/provenance/upstream_generate_selective.py')
+    path=Path('tests/fixtures/upstream_generate_selective.py.txt')
     if not path.exists():pytest.skip('Local preserved upstream source not installed')
     src=no_selection_source(path.read_text())
     assert 'assert not apply_guidance' in src

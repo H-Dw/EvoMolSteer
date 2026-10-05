@@ -1,0 +1,330 @@
+def _generate_selective(
+    self,
+    prior: dict,
+    pocket_data_target: dict,
+    pocket_data_untarget: dict,
+    steps: int,
+    times: list,
+    strategy: str = "linear",
+    save_traj: bool = False,
+    solver: str = "euler",
+    corr_iters=None,
+    corr_step_size=None,
+    iter: int = 0,
+    apply_guidance: bool = False,
+    guidance_window_start: float = 0.0,
+    guidance_window_end: float = 1.0,
+    value_key: str = "affinity",
+    subvalue_key: str = "pic50",
+    mu: float = 8.0,
+    sigma: float = 2.0,
+    maximize: bool = True,
+    coord_noise_level: float = 0.2,
+):
+
+    assert apply_guidance
+
+    self.integrator.use_sde_simulation = (
+        self.integrator.use_sde_simulation or apply_guidance
+    )
+    if self.integrator.use_sde_simulation:
+        self.integrator.coord_noise_level = coord_noise_level
+
+    corr_iters = 0 if corr_iters is None else corr_iters
+
+    if strategy == "linear":
+        # time_points = np.linspace(0, 0.999, steps + 1).tolist()
+        time_points = torch.linspace(0, 1, steps + 1)
+    elif strategy == "log":
+        # time_points = (1 - np.geomspace(0.01, 0.999, steps + 1)).tolist()
+        # time_points.reverse()
+        time_points = 1.0 - torch.logspace(-2, 0, steps + 1).flip(0)
+        time_points = time_points - torch.amin(time_points)
+        time_points = time_points / torch.amax(time_points)
+    else:
+        raise ValueError(f"Unknown ODE integration strategy '{strategy}'")
+
+    curr = {
+        k: (
+            v.clone()
+            if torch.is_tensor(v)
+            else v.copy() if isinstance(v, list) else v
+        )
+        for k, v in prior.items()
+    }
+
+    cond_batch = {
+        "coords": prior["coords"],
+        "atomics": torch.zeros_like(prior["atomics"]),
+        "bonds": torch.zeros_like(prior["bonds"]),
+    }
+
+    if self.graph_inpainting and self._inpaint_self_condition:
+        cond_batch["coords"] = torch.zeros_like(prior["coords"])
+
+    step_sizes = [t1 - t0 for t0, t1 in zip(time_points[:-1], time_points[1:])]
+    with torch.no_grad():
+
+        pocket_equis_target, pocket_invs_target = self.gen.get_pocket_encoding(
+            pocket_data_target["coords"],
+            pocket_data_target["atom_names"],
+            pocket_atom_charges=torch.argmax(pocket_data_target["charges"], dim=-1),
+            pocket_bond_types=torch.argmax(pocket_data_target["bonds"], dim=-1),
+            pocket_res_types=pocket_data_target["res_names"],
+            pocket_atom_mask=pocket_data_target["mask"],
+        )
+
+        pocket_equis_untarget, pocket_invs_untarget = self.gen.get_pocket_encoding(
+            pocket_data_untarget["coords"],
+            pocket_data_untarget["atom_names"],
+            pocket_atom_charges=torch.argmax(
+                pocket_data_untarget["charges"], dim=-1
+            ),
+            pocket_bond_types=torch.argmax(pocket_data_untarget["bonds"], dim=-1),
+            pocket_res_types=pocket_data_untarget["res_names"],
+            pocket_atom_mask=pocket_data_untarget["mask"],
+        )
+
+        for i, step_size in enumerate(step_sizes):
+            cond = cond_batch if self.self_condition else None
+
+            # Run the model on the selected target pocket
+            out_target = self(
+                curr,
+                pocket_data_target,
+                times,
+                cond_batch=cond,
+                pocket_equis=pocket_equis_target,
+                pocket_invs=pocket_invs_target,
+                training=False,
+            )
+            predicted_target, cond_batch = self._get_predictions(out_target)
+
+            # Run the model on the selected untarget pocket
+            out_untarget = self(
+                curr,
+                pocket_data_untarget,
+                times,
+                cond_batch=cond_batch,
+                pocket_equis=pocket_equis_untarget,
+                pocket_invs=pocket_invs_untarget,
+                training=False,
+            )
+            predicted_untarget, _ = self._get_predictions(out_untarget)
+
+            # Integrate the ODE using Euler
+            curr = self.integrator.step(
+                curr, predicted_target, prior, times, step_size
+            )
+
+            # put into tuples
+            predicted = (predicted_target, predicted_untarget)
+            pocket_data = (pocket_data_target, pocket_data_untarget)
+            pocket_equis = (pocket_equis_target, pocket_equis_untarget)
+            pocket_invs = (pocket_invs_target, pocket_invs_untarget)
+
+            # import pdb; pdb.set_trace()
+            # guidance
+            if (
+                apply_guidance
+                and guidance_window_start <= times[0][0]
+                and times[0][0] <= guidance_window_end
+            ):
+                (
+                    predicted,
+                    prior,
+                    curr,
+                    pocket_data,
+                    pocket_equis,
+                    pocket_invs,
+                    cond_batch,
+                ) = apply_selective_smc_guidance(
+                    predicted=predicted,
+                    prior=prior,
+                    current=curr,
+                    pocket_data=pocket_data,
+                    pocket_equis=pocket_equis,
+                    pocket_invs=pocket_invs,
+                    cond_batch=cond_batch,
+                    value_key=value_key,
+                    subvalue_key=subvalue_key,
+                    mu=mu,
+                    sigma=sigma,
+                    maximize=maximize,
+                )
+
+                # unroll
+                predicted_target, predicted_untarget = predicted
+                pocket_data_target, pocket_data_untarget = pocket_data
+                pocket_equis_target, pocket_equis_untarget = pocket_equis
+                pocket_invs_target, pocket_invs_untarget = pocket_invs
+
+            # Update times for the next step
+            times = self._update_times(
+                times,
+                step_size,
+            )
+
+            # Inpainting for the ligand if required
+            if self.inpainting_mode and self.inpainting_mode_inf == "fragment":
+                curr = self.builder.inpaint_molecule(
+                    data=prior,
+                    prediction=curr,
+                    pocket_mask=pocket_data_target["mask"].bool(),
+                    keep_interactions=self.flow_interactions,
+                )
+            elif self.graph_inpainting:
+                curr = self.builder.inpaint_graph(
+                    prior,
+                    curr,
+                    feature_keys=self.feature_keys,
+                )
+                if self._inpaint_self_condition:
+                    cond_batch = self.builder.inpaint_graph(
+                        prior,
+                        cond_batch,
+                        feature_keys=["coords", "atomics", "bonds"],
+                        overwrite_with_zeros=True,
+                    )
+
+            # Save trajectory
+            if save_traj:
+                self._build_trajectory(
+                    curr,
+                    predicted[0],
+                    pocket_data[0],
+                    iter=iter,
+                    step=i,
+                )
+
+        # Corrector iterations at the end of sampling
+        for _ in range(corr_iters):
+            cond = cond_batch if self.self_condition else None
+            out_target = self(
+                curr,
+                pocket_data_target,
+                times,
+                training=False,
+                cond_batch=cond,
+                pocket_equis=pocket_equis_target,
+                pocket_invs=pocket_invs_target,
+            )
+
+            predicted_target, cond_batch = self._get_predictions(out_target)
+            if self.graph_inpainting:
+                # Inpaint the predicted structure if graph inpainting is used
+                predicted_target = self.builder.inpaint_graph(
+                    prior,
+                    predicted_target,
+                    feature_keys=self.feature_keys,
+                )
+                if self._inpaint_self_condition:
+                    cond_batch = self.builder.inpaint_graph(
+                        prior,
+                        cond_batch,
+                        feature_keys=["coords", "atomics", "bonds"],
+                        overwrite_with_zeros=True,
+                    )
+            step_size = 1 / steps if corr_step_size is None else corr_step_size
+            curr = self.integrator.corrector_iter(
+                curr, predicted_target, prior, times, step_size
+            )
+            if self.inpainting_mode and self.inpainting_mode_inf == "fragment":
+                curr = self.builder.inpaint_molecule(
+                    data=prior,
+                    prediction=curr,
+                    pocket_mask=pocket_data_target["mask"].bool(),
+                    keep_interactions=self.flow_interactions,
+                )
+            elif self.graph_inpainting:
+                curr = self.builder.inpaint_graph(
+                    prior,
+                    curr,
+                    feature_keys=self.feature_keys,
+                )
+                if self._inpaint_self_condition:
+                    cond_batch = self.builder.inpaint_graph(
+                        prior,
+                        cond_batch,
+                        feature_keys=["coords", "atomics", "bonds"],
+                        overwrite_with_zeros=True,
+                    )
+
+    # Final corrector prediction
+    eps = -1e-4
+    times = self._update_times(
+        times,
+        eps,
+    )
+    with torch.no_grad():
+        cond = cond_batch if self.self_condition else None
+        out_target = self(
+            curr,
+            pocket_data_target,
+            times,
+            training=False,
+            cond_batch=cond,
+            pocket_equis=pocket_equis_target,
+            pocket_invs=pocket_invs_target,
+        )
+
+        # Get affinity predictions
+        out_non_target = self(
+            out_target,
+            pocket_data_untarget,
+            times,
+            training=False,
+            cond_batch=cond,
+            pocket_equis=pocket_equis_untarget,
+            pocket_invs=pocket_invs_untarget,
+        )
+
+    predicted_target, _ = self._get_predictions(out_target)
+    predicted_untarget, _ = self._get_predictions(out_non_target)
+
+    if self.graph_inpainting:
+        predicted_target = self.builder.inpaint_graph(
+            prior,
+            predicted_target,
+            feature_keys=self.feature_keys,
+        )
+
+    # Move everything to CPU
+    predicted_target = {
+        k: v.cpu().detach() if torch.is_tensor(v) else v
+        for k, v in predicted_target.items()
+    }
+    # Scale back coordinates if necessary
+    predicted_target["coords"] = predicted_target["coords"] * self.coord_scale
+
+    # Move everything to CPU
+    predicted_untarget = {
+        k: v.cpu().detach() if torch.is_tensor(v) else v
+        for k, v in predicted_untarget.items()
+    }
+
+    # Undo zero COM alignment if necessary
+    if "complex" in pocket_data_target:
+        predicted_target["coords"] = self.builder.undo_zero_com_batch(
+            predicted_target["coords"],
+            predicted_target["mask"],
+            com_list=[system.com for system in pocket_data_target["complex"]],
+        )
+
+    # append tensor affinity dict
+    affinity_untarget = predicted_untarget.get("affinity", None)
+    if affinity_untarget is not None:
+        affinity_untarget = {
+            key + "_untarget": val for key, val in affinity_untarget.items()
+        }
+
+    if "affinity" in predicted_target.keys() and affinity_untarget is not None:
+        predicted_target["affinity"].update(affinity_untarget)
+
+    if save_traj:
+        self._save_trajectory(
+            predicted_target,
+            iter=iter,
+        )
+
+    return predicted_target
