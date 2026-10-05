@@ -1,5 +1,7 @@
 # EvoMolSteer · 完整选择窗口连续分析 v3
 
+**实际中间态控制入口**：`scripts/generate_window_flowr.py` 将梯度范围绑定到学习参考的动态窗口，关闭 FLOWR 内置粒子重采样，主目标是严格窗口末端的 actual current 状态。接口、数学定义、数据格式和复用命令见 [window_gradient_generation.md](docs/window_gradient_generation.md)。旧 full-horizon multistage 配置保留为历史实验，不是此入口的默认行为。
+
 主分析现已改为对 **0–0.5 的全部实际选择节点**统一分析，不再汇总为 0.1 宽子区间。连续趋势、双侧富集、窗口末端谱系留存、选择/生成变化分解、全局函数拟合及解析导数分别保存；新增区域坐标、原子、形式电荷和化学键观测。物理能量缺失时不以几何代理冒充。
 
 ```powershell

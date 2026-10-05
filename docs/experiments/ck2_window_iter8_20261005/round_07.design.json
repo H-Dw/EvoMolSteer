@@ -1,0 +1,75 @@
+{
+  "acceptance": "Frozen: primary mean improves >=2% and both paired adaptation batches improve over accepted incumbent; otherwise retain incumbent.",
+  "alternatives": [
+    "Keep the simpler accepted round3",
+    "Change time schedule instead of cap"
+  ],
+  "base_program": "configs/experiments/ck2_window_iter8_v1/round_05.json",
+  "base_program_sha256": "c2ea2d22c43a374b66cd317776146e5800737ba8a086447f4606e496560761c9",
+  "decision_rationale": "Round6 bond moments worsen both batches, so discard that term. Round5 has the best mean so far and improved atom mismatch, with only .000719 A loss in its second batch vs incumbent and 86.4 percent clipping. Use round5 as an exploratory parent (not accepted incumbent); raise only atom cap .025 -> .040 A. Eta=.3, cumulative budget1.25 A and pair-change/clash backtracking stay fixed. This 1.6-fold bound increase is an engineering probe; actual dose is measured. Compare against accepted round3. This is the last adaptive round.",
+  "evidence": [
+    {
+      "path": "results/window_iter8/round_05/report.json",
+      "results": {
+        "gradient": {
+          "active_steps": 50.0,
+          "atom_fraction_L1": 0.1600714285714286,
+          "atom_mismatch_geometry_assignment": 0.7112499999999999,
+          "backtrack_rejected_fraction": 0.0,
+          "batches": 2,
+          "bond_fraction_L1": 0.024216666666666664,
+          "bond_mismatch_geometry_assignment": 0.6133333333333333,
+          "bonded_union_mismatch": 0.909025126105935,
+          "cap_fraction": 0.864375,
+          "generated_to_reference_A": 0.20288434990358006,
+          "gradient_below_threshold_fraction": 0.0,
+          "mean_injection_rms_A": 0.01425636487605516,
+          "n": 32,
+          "nonzero_control_fraction": 1.0,
+          "path_rms_A": 0.7128182388842106,
+          "reference_to_generated_A": 0.2069821320568807,
+          "symmetric_shape_A": 0.20493324098023039
+        }
+      },
+      "sha256": "f11d0ee3cc20e8e1e0abaa5c127d6b3868d0698b62e1f7ab8039fb32e48e3870"
+    },
+    {
+      "path": "results/window_iter8/round_06/report.json",
+      "results": {
+        "gradient": {
+          "active_steps": 50.0,
+          "atom_fraction_L1": 0.16401428571428567,
+          "atom_mismatch_geometry_assignment": 0.73375,
+          "backtrack_rejected_fraction": 0.0,
+          "batches": 2,
+          "bond_fraction_L1": 0.02234166666666667,
+          "bond_mismatch_geometry_assignment": 0.6186458333333333,
+          "bonded_union_mismatch": 0.914413773224994,
+          "cap_fraction": 0.81625,
+          "generated_to_reference_A": 0.20615065453746026,
+          "gradient_below_threshold_fraction": 0.0,
+          "mean_injection_rms_A": 0.014555368914734572,
+          "n": 32,
+          "nonzero_control_fraction": 1.0,
+          "path_rms_A": 0.7277684677392244,
+          "reference_to_generated_A": 0.24025700435139574,
+          "symmetric_shape_A": 0.22320382944442801
+        }
+      },
+      "sha256": "7f1014112ba4b71e3c53b448dac245d8c8a68a4b3441a2020c407422709a0bd8"
+    }
+  ],
+  "exact_revision": {
+    "constraints": {
+      "max_atom_step_A": 0.04
+    },
+    "round": 7
+  },
+  "hypothesis": "The promising typed spatial objective may gain consistency when its per-atom clipping limit is moderately relaxed.",
+  "interpretation": "Evidence, formula choices and parameter decisions; no private reasoning trace.",
+  "parent_round": 5,
+  "program_sha256": "e4e75162ca1a3b3990652e5190042a7ae62b86c81479f72804eb5b0a33258027",
+  "round": 7,
+  "scope": "Actual states within unchanged learned window; no new SMC, no physical-energy claim; all analysis local.",
+  "status": "prepared"
+}
