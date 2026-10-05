@@ -28,7 +28,11 @@ bond and charge changes as native categorical channels; no fake discrete gradien
 
 Separate reward shape from external dose calibration. Record native-RMS ratio,
 actual dose, per-atom/path caps, pair geometry change and receptor clash rejection.
-Require numerical derivative checks, exact zero-dose native equivalence and
-matched seed42 controls. Evaluate actual x at window end independently of reward,
+Require numerical derivative checks and exact zero-dose native equivalence.
+Check physical support and node influence before converting a motion cue to force.
+Distinguish observed native RMS, which includes SDE score drift and startup
+contraction, from a verified predictive-flow RMS calibration. Any dose change is
+a declared experimental assumption and must be compared at the same reference.
+Use matched seed42 controls. Evaluate actual x at window end independently of reward,
 then final chemical validity, energy proxy, predicted affinity and diversity.
 No regional affinity mechanism is confirmed until independent controls support it.

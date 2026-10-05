@@ -15,3 +15,22 @@ def test_design_contract_prohibits_unprovided_view_window_and_evidence():
     assert validate(d,DESIGNER,bundle)
     bundle['features']={'r::all::spread':{'region':'r'}}
     with pytest.raises(ValueError):validate(d,DESIGNER,bundle)
+
+
+def test_supplementary_evidence_rejects_other_source_and_influence(tmp_path):
+    import pandas as pd
+    from evomolsteer.io import write_json
+    from evomolsteer.continuous.coordinate_agents import export
+    main=tmp_path/'main';other=tmp_path/'other';main.mkdir();other.mkdir()
+    manifest={'window':[0.,.1],'times':[0.,.1],'splits':{'discovery':[0,1]},'sources':[{'sha256':'same'}],
+        'spatial_anchor':'endpoint','control_representation':'proposal','interpretation':[]}
+    write_json(main/'manifest.json',manifest)
+    catalog={'features':{'r::all::proposal_spread':{'region':'r'}}}
+    for p in (main,other):write_json(p/'feature_catalog.json',catalog)
+    pd.DataFrame([{'split':'discovery','feature':'r::all::proposal_spread','metric':'selection_shift','q':1.}]).to_csv(main/'whole_window_evidence.csv',index=False)
+    pd.DataFrame([{'batch':b,'time':.1,'unique_roots':1} for b in (0,1)]).to_csv(main/'lineage_diagnostics.csv',index=False)
+    write_json(main/'continuous_functions.json',{})
+    write_json(other/'manifest.json',{**manifest,'sources':[{'sha256':'different'}]})
+    with pytest.raises(ValueError,match='support mismatch'):export(main,'Analyst',landmarks=('r',),transport=other)
+    write_json(other/'manifest.json',{'window':[0.,.1],'source_manifest_sha256':'different'})
+    with pytest.raises(ValueError,match='source/window mismatch'):export(main,'Analyst',landmarks=('r',),influence=other)

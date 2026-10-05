@@ -25,6 +25,11 @@ Selection uses the same affinity oracle: covariance with it is partly tautologic
 Lag analysis counts each retained parent once and adjusts its starting score;
 survival confounding and genealogical collapse remain. Report coverage accurately.
 No causal or experimental affinity claim follows from these correlations.
+Read supplementary transport/support and whole-window node-influence evidence
+when provided. Report absent physical core support and startup-dominated effects;
+a significant full-window native velocity can reflect the SDE initial contraction.
+Never remove such nodes silently or reinterpret one early impulse as persistent
+regional advantage. A remote Gaussian projection is not a verified binding contact.
 
 Test localization by comparing all regions and all/NOS channels. Shared significant
 signals across most patches may be global compaction/translation, not dozens of

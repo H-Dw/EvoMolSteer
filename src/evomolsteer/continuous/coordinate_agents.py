@@ -28,7 +28,7 @@ DESIGNER={'type':'object','additionalProperties':False,'properties':{'schema_ver
     'required':['schema_version','agent','design_status','architecture','regions','channel','window','native_rms_ratio','mixture_temperature','robust_delta','rationale','evidence_ids','limitations']}
 
 
-def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116')):
+def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116'),transport=None,influence=None):
     mining=Path(mining);dest=mining/'agents';dest.mkdir(exist_ok=True)
     m=read_json(mining/'manifest.json');catalog=read_json(mining/'feature_catalog.json')
     if role not in ('Analyst','Designer'):raise ValueError('Unknown role')
@@ -51,6 +51,23 @@ def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116')):
         'features':{f:catalog['features'][f] for f in selected.feature.unique()},
         'functions':{f:fits[f] for f in selected.feature.unique() if f in fits},
         'interpretation':m['interpretation'],'source_manifest_sha256':digest(mining/'manifest.json')}
+    if transport:
+        extra=Path(transport);mm=read_json(extra/'manifest.json');cc=read_json(extra/'feature_catalog.json')
+        if mm['window']!=m['window'] or mm['splits']['discovery']!=m['splits']['discovery'] or mm['sources']!=m['sources'] or mm.get('spatial_anchor')!=m.get('spatial_anchor'):raise ValueError('Supplementary evidence support mismatch')
+        dd=pd.read_csv(extra/'whole_window_evidence.csv');dd=dd[dd.split=='discovery']
+        ss=pd.concat([dd[dd.feature.map(lambda f:cc['features'][f]['region'] in landmarks)],
+            dd.sort_values(['q','feature']).groupby('metric',sort=True).head(8)]).drop_duplicates(['feature','metric']).sort_values(['metric','feature'])
+        if set(ss.feature)&set(payload['features']):raise ValueError('Overlapping supplementary feature definitions')
+        payload['evidence'] += [{'evidence_id':f'coordinate:discovery:{r.feature}:{r.metric}',**r._asdict()} for r in ss.itertuples(index=False)]
+        payload['features'].update({f:cc['features'][f] for f in ss.feature.unique()})
+        ff=read_json(extra/'continuous_functions.json');payload['functions'].update({f:ff[f] for f in ss.feature.unique() if f in ff})
+        payload['supplementary_transport_manifest_sha256']=digest(extra/'manifest.json')
+    if influence:
+        extra=Path(influence);mm=read_json(extra/'manifest.json')
+        if mm['window']!=m['window'] or mm['source_manifest_sha256']!=digest(mining/'manifest.json'):raise ValueError('Influence source/window mismatch')
+        dd=pd.read_csv(extra/'whole_window_node_influence.csv');dd=dd[(dd.split=='discovery')&dd.feature.isin(payload['features'])]
+        payload['evidence'] += [{'evidence_id':f'influence:discovery:{r.feature}:{r.metric}',**r._asdict()} for r in dd.itertuples(index=False)]
+        payload['node_influence_manifest_sha256']=digest(extra/'manifest.json')
     payload=clean(payload)
     bundle=dest/'coordinate_evidence.json';write_json(bundle,payload)
     if role=='Designer':
