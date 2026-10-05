@@ -6,6 +6,9 @@ program=${3:?program}
 reference=${4:?reference}
 arms=${5:-gradient}
 n=${6:-100}
+batch_indices=${7:-}
+extra=()
+if [ -n "$batch_indices" ]; then extra+=(--batch-indices "$batch_indices"); fi
 repo=$(cd "$(dirname "$0")/.." && pwd)
 flowr=${FLOWR_ROOT:-/root/private_data/MolSteer/flowr_root}
 work=${EXPERIMENT_ROOT:-/opt/evomolsteer-terminal-seed42-20261005}
@@ -22,5 +25,5 @@ case "$mode" in window|local) ;; *) exit 2;; esac
  --input-dataset "$flowr/experiments/ck2_clk3_lineage_20261003" \
  --root "$work/generated" --checkpoint "$flowr/checkpoints/flowr_root_v2.ckpt" \
  --steps 100 --program "$program" --reference "$reference" --campaign "$round" \
- --n "$n" --batch 50 --seed 42 --arms "$arms" --export-terminal
+ --n "$n" --batch 50 --seed 42 --arms "$arms" --export-terminal "${extra[@]}"
 "$python" scripts/archive_generation.py --dataset "$work/generated" --campaign "$round" --output "$work/$round.tar.gz"

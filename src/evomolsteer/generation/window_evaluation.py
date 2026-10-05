@@ -86,10 +86,11 @@ def distances(x,a,b,y,ya,yb):
 def validate_campaign(root):
     cfg=read_json(root/'config.json');opt=cfg['experiment'];completion=read_json(root/'COMPLETE.json')
     arms=opt['arms'].split(',');expected=opt['n']//opt['batch']
+    expected_indices=opt.get('batch_indices') or list(range(expected))
     if completion.get('status')!='complete' or completion['records']!=opt['n']*len(arms):raise ValueError('Incomplete campaign')
     for arm in arms:
         paths=sorted((root/arm).glob('batch_*'))
-        if [p.name for p in paths]!=[f'batch_{i:03d}' for i in range(expected)]:raise ValueError('Missing/unexpected candidate batch')
+        if [p.name for p in paths]!=[f'batch_{i:03d}' for i in expected_indices]:raise ValueError('Missing/unexpected candidate batch')
         for p in paths:
             if read_json(p/'COMPLETE.json')['n']!=opt['batch']:raise ValueError('Incomplete candidate batch')
             if not (p/'window_state.npz').is_file():raise ValueError('Missing window snapshot')
@@ -150,14 +151,25 @@ def evaluate(dataset,campaign,original,original_campaign,output,reference_batche
         results[arm]['batches']=len(summary)
     zero={}
     if {'unguided','gradient_zero'}.issubset(results):
+        from ..storage.arrays import byte_equal
+        from .zero_equivalence import compare_final
         for path in sorted((root/'unguided').glob('batch_*')):
             with open_trajectory(path/'trajectory.h5') as native, open_trajectory(root/'gradient_zero'/path.name/'trajectory.h5') as z:
-                checks={k:np.array_equal(native[k],z[k]) for k in ['current_coords','current_atomics','current_bonds','proposal_coords']}
-                assert all(checks.values());zero[path.name]=checks
+                fields=['current_coords','current_atomics','current_bonds','current_charges','mask',
+                        'proposal_coords','proposal_atomics','proposal_bonds','proposal_charges','score_time','state_time']
+                fields += [k for k in ['current_hybridization','proposal_hybridization'] if k in native.files]
+                checks={k:byte_equal(native[k],z[k]) for k in fields}
+                zero[path.name]={'byte_equal':checks,'passed':all(checks.values()),
+                    'current_coordinate_rms_model_units':float(np.sqrt(np.mean(np.square(native['current_coords'].astype(float)-z['current_coords'].astype(float))))),
+                    'atom_label_disagreement':float((native['current_atomics']!=z['current_atomics']).mean())}
+            final=compare_final(path/'final_prediction.pt.gz',root/'gradient_zero'/path.name/'final_prediction.pt.gz')
+            zero[path.name]['final_prediction']=final
+            zero[path.name]['passed']=zero[path.name]['passed'] and final['passed']
     report={'schema_version':'window-evaluation-1.0','campaign':campaign,'exact_time':end,'representation':'actual_current_world_A',
             'primary':'symmetric_shape_A, batch mean of bidirectional geometry-optimal assignment RMSD',
             'reference_batches':list(reference_batches),'reference_candidates':len(y),'results':results,
             'batch_results':batchrows,'zero_equivalence':zero,'program_sha256':digest(root/'reward_program.json'),
+            'zero_equivalence_passed':all(v['passed'] for v in zero.values()) if zero else None,
             'initial_state_signatures':initial_signatures,'trajectory_sha256':trajectory_hashes,
             'code_commit':cfg['extension']['code_commit'],'seed':cfg['experiment']['seed'],
             'analysis_implementation_sha256':digest(__file__),'numpy':np.__version__,'scipy':scipy.__version__,

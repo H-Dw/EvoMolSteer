@@ -17,7 +17,7 @@ def audit(dataset,campaign,reference_path,output):
     if cfg['experiment']['seed']!=42 or steps!=100 or not (root/'COMPLETE.json').exists():raise ValueError('Seed/full-inference contract')
     rows=[];batchrows=[];signatures={};sources=[]
     for arm in cfg['experiment']['arms'].split(','):
-        for batch in range(cfg['experiment']['n']//cfg['experiment']['batch']):
+        for batch in cfg['experiment'].get('batch_indices') or range(cfg['experiment']['n']//cfg['experiment']['batch']):
             folder=root/arm/f'batch_{batch:03d}'
             trace=[json.loads(v) for v in (folder/'guidance_trace.jsonl').read_text().splitlines()]
             if [v['step'] for v in trace]!=list(range(steps)):raise ValueError('Incomplete inference telemetry')

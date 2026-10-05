@@ -1,0 +1,39 @@
+{
+  "round": 4,
+  "seed": 42,
+  "maximum_rounds": 5,
+  "kind": "frozen scientific-control verification",
+  "decision_evidence": {
+    "round3_window_deficit_reduction_vs_native": 0.3654,
+    "round3_valid": 97,
+    "round3_pb_fast": 96,
+    "round3_energy_per_heavy": 0.549569726,
+    "round2_energy_per_heavy": 0.53012559,
+    "native_energy_per_heavy": 0.548773397
+  },
+  "decision": "Do not increase dose. Keep eta .2, support, reward and window fixed. Add native and zero-strength arms.",
+  "arms": [
+    "unguided",
+    "gradient_zero",
+    "gradient"
+  ],
+  "n_per_arm": 100,
+  "batches": [
+    0,
+    1
+  ],
+  "reward_program": "configs/experiments/ck2_terminal_seed42_v1/round_04_local.json",
+  "control_contract": [
+    "no SMC; identity particle selection",
+    "all 100 native integration steps; gradient only learned reference window",
+    "zero arm evaluates real model Jacobian but injects no coordinates",
+    "bytewise compare current/proposal coordinates, labels, mask, times and final prediction tensors/heads"
+  ],
+  "next_round_gate": "Round 5 reserved-batch verification only if full zero equivalence passes. If it fails, diagnose and use last round to verify an implementation fix.",
+  "interpretation_limits": [
+    "Two batches are tuning evidence, not independent inference",
+    "Higher chemical diversity than SMC is partly removal of particle copying",
+    "FLOWR affinity is a shared oracle, not an independent binding experiment",
+    "Local-coordinate observables do not prove a causal chemical region"
+  ]
+}

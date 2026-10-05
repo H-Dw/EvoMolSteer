@@ -19,6 +19,7 @@ import flowr.models.fm_pocket as fm
 from evomolsteer.storage.streaming import StepTrajectoryWriter
 from evomolsteer.storage.transactions import atomic_json
 from .instrumentation import instrument_source
+from .batches import resolve_batches
 
 RDLogger.DisableLog('rdApp.warning')
 
@@ -250,12 +251,14 @@ def main(extension=None):
     p.add_argument('--seed',type=int,default=42); p.add_argument('--verify-passive',action='store_true')
     if extension is not None: extension.add_arguments(p)
     opt=p.parse_args(); root=Path(opt.root); out=root/'results'/opt.campaign
+    opt.batch_indices=resolve_batches(opt.n,opt.batch,getattr(opt,'batch_indices',None))
+    loading_n=(max(opt.batch_indices)+1)*opt.batch
     if extension is not None: extension.prepare(opt, out)
     out.mkdir(parents=True,exist_ok=True)
     assert not (out/'COMPLETE.json').exists(),'Do not overwrite completed campaign'
     inp=root/'inputs'; argv=sys.argv
     sys.argv=['lineage','--arch','pocket','--pocket_type','holo','--gpus','1','--num_workers','0',
-              '--batch_cost',str(opt.batch),'--sample_n_molecules_per_target',str(opt.n),
+              '--batch_cost',str(opt.batch),'--sample_n_molecules_per_target',str(loading_n),
               '--ckpt_path',opt.checkpoint,'--save_dir',str(out),'--integration_steps',str(opt.steps),
               '--cut_pocket','--pocket_cutoff','7','--max_sample_iter','0',
               '--no_cat_noise_euler_guard','--no_ligand_valence_repair',
@@ -291,6 +294,9 @@ def main(extension=None):
     allrows=[]; started=time.time()
     for batch,(bt,bo) in enumerate(zip(dlt,dlo)):
         lig,pt,po,frame=make_inputs(model,bt,bo,'cuda')
+        # Consume preceding priors in native order. Sampler RNG is normally
+        # restored after every batch, so skipping its inference preserves that order.
+        if batch not in opt.batch_indices:continue
         shared=rng_state(); seed=opt.seed+batch*100003
         (out/f'frame_batch_{batch:03d}.json').write_text(json.dumps(frame,indent=2))
         for arm in opt.arms.split(','):

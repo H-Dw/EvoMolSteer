@@ -33,6 +33,7 @@ class WindowExtension(Extension):
         p.add_argument('--program',required=True)
         p.add_argument('--reference',required=True)
         p.add_argument('--export-terminal',action='store_true',help='Decode t=1 outputs and export same-state affinity-head predictions for local evaluation')
+        p.add_argument('--batch-indices',help='Fixed global batch indices, e.g. 14,15; seed remains master_seed + index*100003')
 
     def prepare(self,opt,out):
         if out.exists():raise FileExistsError(out)
