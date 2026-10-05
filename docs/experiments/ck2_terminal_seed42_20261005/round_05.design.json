@@ -1,0 +1,33 @@
+{
+  "round": 5,
+  "maximum_rounds": 5,
+  "seed": 42,
+  "kind": "conditional frozen reserved-batch verification",
+  "dependency": "Only launch after round 4 complete zero-equivalence pass and old data retirement",
+  "reward_program": "configs/experiments/ck2_terminal_seed42_v1/round_05_local.json",
+  "arms": [
+    "unguided",
+    "gradient"
+  ],
+  "n_per_arm": 100,
+  "batches": [
+    14,
+    15
+  ],
+  "derived_seeds": [
+    1400084,
+    1500087
+  ],
+  "frozen_factors": [
+    "eta .2",
+    "core and one-bond-neighbor support",
+    "same two regional features, centers/covariances/radii",
+    "same dynamic learning window",
+    "100 integration steps; native after window; no SMC"
+  ],
+  "decision": "Separate effect verification from round 4 adapter control; no outcome-driven reward change.",
+  "data_separation": "Reference fitted on batches 0-13. Current tuning uses 0/1. Reserved batches14/15 excluded from both; historical aggregate14-19 statistics were previously viewed, so not blind validation.",
+  "evaluation": "Same per-slot chemistry/PB-fast, energy coverage, unique-first head, surrounding geometry and actual t=.5 assignment metrics; paired new native baseline. No composite score or population CI.",
+  "historical_comparison": "Original Steer from same global batch indices; verify initial hashes separately; original aggregate is not a fresh randomized control.",
+  "stop": "End campaign at round 5 even if result is negative or implementation fails; report all failures."
+}

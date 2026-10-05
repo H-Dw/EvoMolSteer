@@ -156,10 +156,15 @@ def evaluate(dataset,campaign,original,original_campaign,output,reference_batche
         for path in sorted((root/'unguided').glob('batch_*')):
             with open_trajectory(path/'trajectory.h5') as native, open_trajectory(root/'gradient_zero'/path.name/'trajectory.h5') as z:
                 fields=['current_coords','current_atomics','current_bonds','current_charges','mask',
-                        'proposal_coords','proposal_atomics','proposal_bonds','proposal_charges','score_time','state_time']
+                        'proposal_coords','proposal_atomics','proposal_bonds','proposal_charges',
+                        'predicted_coords','predicted_atomics','predicted_bonds','predicted_charges',
+                        'pic50_on','pic50_off','score_time','state_time']
                 fields += [k for k in ['current_hybridization','proposal_hybridization'] if k in native.files]
                 checks={k:byte_equal(native[k],z[k]) for k in fields}
+                mismatch_steps={k:np.flatnonzero(np.any(native[k]!=z[k],axis=tuple(range(1,native[k].ndim)))).tolist()
+                                for k in fields if not checks[k]}
                 zero[path.name]={'byte_equal':checks,'passed':all(checks.values()),
+                    'mismatched_steps':mismatch_steps,
                     'current_coordinate_rms_model_units':float(np.sqrt(np.mean(np.square(native['current_coords'].astype(float)-z['current_coords'].astype(float))))),
                     'atom_label_disagreement':float((native['current_atomics']!=z['current_atomics']).mean())}
             final=compare_final(path/'final_prediction.pt.gz',root/'gradient_zero'/path.name/'final_prediction.pt.gz')

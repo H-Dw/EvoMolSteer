@@ -17,6 +17,7 @@ def report(experiment, output):
         ('Global MMD',root/'round_01/global','gradient')]
     for row in ledger['rounds']:
         p=root/f"round_{row['round']:02d}"/'local'
+        if row.get('batches',[0,1])!=[0,1]:continue  # reserved cohort gets its own paired comparison
         if row['status']=='complete' and (p/'terminal_report.json').is_file():items.append((f"Local R{row['round']}",p,'gradient'))
     rows=[];sources=[]
     for label,p,arm in items:
@@ -45,12 +46,12 @@ def report(experiment, output):
     d=pd.read_csv(root/'reference/original_regional_window.csv')
     d=d[(d.arm=='single')&(d.mass=='selection_probability')].groupby('time').mean(numeric_only=True)
     axs[0,0].plot(d.index,d.mean_deficit,'k--',label='Original SMC probability mass')
-    axs[0,0].set(xlabel='Inference score time',ylabel='Mean regional deficit',title='Continuous learning window')
+    axs[0,0].set(xlabel='Inference score time',ylabel='Predicted-endpoint regional deficit',title='Continuous learning window')
     axs[0,0].legend(fontsize=8,frameon=False)
     x=np.arange(len(data));labels=data.arm
     axs[0,1].plot(x,data.valid_n/data.n,'o-',label='Connected valid');axs[0,1].plot(x,data.pb_fast_n/data.n,'s--',label='PB dock_fast')
     axs[0,1].set(ylabel='Passing / all candidates',ylim=(.8,1.01),title='All-slot quality yield');axs[0,1].legend(frameon=False,fontsize=8)
-    axs[0,2].bar(x,data.unique_yield,color='#4477aa');axs[0,2].set(ylabel='Unique graph / all candidates',ylim=(0,1),title='Graph freedom proxy')
+    axs[0,2].bar(x,data.unique_yield,color='#4477aa');axs[0,2].set(ylabel='Unique graph / all candidates',ylim=(0,1),title='Unique graph yield')
     axs[1,0].plot(x,data.valid_head_mean,'o-',label='All valid poses');axs[1,0].plot(x,data.unique_first_pose_head_mean,'s--',label='Unique first pose')
     axs[1,0].set(ylabel='FLOWR target head pIC50',title='Prediction, not measured binding');axs[1,0].legend(frameon=False,fontsize=8)
     axs[1,1].plot(x,data.mmff_relief_per_heavy_median,'o-')
