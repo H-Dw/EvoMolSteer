@@ -1,0 +1,146 @@
+{
+  "schema_version": "coordinate-1.0",
+  "agent": "Analyst",
+  "observations": [
+    {
+      "finding": "请求明确spatial_anchor=endpoint、control_representation=proposal：由预测终点空间权重及硬标签确定区域相关槽位，再测量其当前或原生proposal坐标；评分t对应proposal状态t+dt，属于真实提案观测而不是endpoint坐标优化。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:selected_mean"
+      ],
+      "uncertainty": "这些槽位当前可以远离该残基，不能叫当前物理接触；score=.5的proposal位于控制窗口之后，不能代替真实X_.5。"
+    },
+    {
+      "finding": "新的8个事先指定区域共240项adjusted lag检验有16项q<.05，最小q=.005264；ASN117和VAL116 NOS proposal_centroid_x分别r=.033039、95%CI[.019255,.046823]、q=.010661及r=.031847、CI[.016977,.046718]、q=.018962。",
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation"
+      ],
+      "uncertainty": "这是存活父节点去重并调整起始评分后的观察性下一步gain关联，不是独立干预收益或真实affinity证据；新240项家族与旧40区域/880项家族不能直接比较q。"
+    },
+    {
+      "finding": "ASN117 NOS proposal_spread与调整后下一步gain负相关，r=-.045159、95%CI[-.070787,-.019530]、q=.043593；VAL116同类q=.49945，不能把ASN117结果复制为两区域共有压缩律。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:lag_partial_gain_correlation"
+      ],
+      "uncertainty": "ASN117该关联在score=.49的末端值为+.015984，整窗负均值不支持每步持续压缩。"
+    },
+    {
+      "finding": "ASN117/VAL116 NOS current centroid_x的adjusted lag r=.037579/.036585、q=.005264/.008072；HIS115 NOS proposal_centroid_x也为正，r=.031582、q=.020986，提示共享的槽位/坐标方向而非ASN117特异机制。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:HIS115::NOS::proposal_centroid_x:lag_partial_gain_correlation"
+      ],
+      "uncertainty": "共同模型、相邻区域、共同根及条件标签造成依赖；未提供充分的全局NOS姿态/区域增量控制。"
+    },
+    {
+      "finding": "ASN117/VAL116 NOS endpoint_transport_z的adjusted lag均值为-.053901/-.050841，q=.023304/.025418，但从起点约-.303/-.304变为终点+.1165/+.1111。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::endpoint_transport_z:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::endpoint_transport_z:lag_partial_gain_correlation"
+      ],
+      "uncertainty": "它们是endpoint residual代理，不是原生确定性速度或可施加的负z力；时间变化和末端反号必须保留。"
+    },
+    {
+      "finding": "引用的adjusted lag均覆盖14个discovery批次且mean_time_coverage=1，最后出发score=.49；末窗平均根数1.2143，14批中11批只有1根。",
+      "evidence_ids": [
+        "D_LINEAGE",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:lag_partial_gain_correlation"
+      ],
+      "uncertainty": "覆盖完整不等于后期祖先独立，父槽位去重不能消除共同根或选择存活条件化；score=.5没有窗内后继gain。"
+    },
+    {
+      "finding": "两区域完整all/NOS proposal xyz/spread已经供给，但其selection_shift均未达到q<.05；例如ASN117 NOS proposal_x q=.99810、proposal_spread q=.85118，VAL116分别q=.99810/.73964。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:selection_shift",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:selection_shift"
+      ],
+      "uncertainty": "lag关联与即时选择是不同估计对象；不能说这些proposal方向已被筛选证明为优势路径。"
+    },
+    {
+      "finding": "选中绝对均值的NOS proposal_x拟合均为1次Legendre，score域[0,.5]、u=4t-1：ASN117系数[2.1058643475757046,-.1667181208562815]，时间导数-.66687248；VAL116系数[2.057462425141203,-.1848345939431267]，导数-.73933838。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selected_mean"
+      ],
+      "uncertainty": "这是LOBO one-SE选择后的均值描述，没有导数置信带；均值随时间下降不等于同刻应施加负x力，更不能用它反驳或等同于条件lag关联。"
+    }
+  ],
+  "rules": [
+    {
+      "feature": "ck2:A:ASN117::NOS::proposal_centroid_x",
+      "status": "deferred",
+      "rationale": "方向性和因果规则延后；可进入时刻匹配的联合proposal分布探索，但不施加固定+x力，因proposal即时选择和同期调整关联缺少对应支持。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:selection_shift",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:partial_affinity_correlation"
+      ]
+    },
+    {
+      "feature": "ck2:A:VAL116::NOS::proposal_centroid_x",
+      "status": "deferred",
+      "rationale": "作为ASN117相邻相关观测进入同一个联合向量，不能独立加倍奖励；检验与全局控制相比的增量，而非先认定VAL116是因果热点。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selection_shift"
+      ]
+    },
+    {
+      "feature": "ck2:A:ASN117::NOS::proposal_spread",
+      "status": "deferred",
+      "rationale": "全窗lag负相关只支持描述性探索，不支持无界收紧；其末端关联反号、选择均值不显著，保留真实分布范围与联合协方差。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:selection_shift"
+      ]
+    }
+  ],
+  "counterevidence": [
+    {
+      "finding": "ASN117/VAL116 NOS proposal_x同期调整评分关联q=.75791/.75779；两者proposal_spread分别q=.91949/.98974；窗口后代留存证据也未显著。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:partial_affinity_correlation",
+        "D_COUNTS"
+      ],
+      "uncertainty": "尚无选择、同期、lag与留存一致支持的机制链；这不否定新的lag相关，但限制其可解释强度。"
+    },
+    {
+      "finding": "ASN117/VAL116 all proposal_spread的上尾质量减少q=.03517/.02880，但NOS同类上尾q=.26327/.18316；更换all/NOS通道同时改变证据语义。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::proposal_spread:high_enrichment",
+        "coordinate:discovery:ck2:A:VAL116::all::proposal_spread:high_enrichment",
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:high_enrichment",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:high_enrichment"
+      ],
+      "uncertainty": "不能从all-spread上尾富集直接推导NOS的同一上界压缩奖励。"
+    },
+    {
+      "finding": "ASN117 NOS proposal_spread的1次拟合系数[.518329712585172,.5483979347992817]在score0给出-.030068Å，而实际selected_mean为+.027038Å。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:selected_mean"
+      ],
+      "uncertainty": "拟合出现负spread，不能直接编译；应使用真实同刻均值/协方差及可审计正则化，非以全局多项式代替参考。"
+    }
+  ],
+  "limitations": [
+    "本响应为subagent simulation；合同引用仅使用本request中实际提供的evidence_ids，未用validation/heldout选区域或强度。",
+    "该request展开16个显著lag中的11个；完整discovery CSV补充核查另5项只记入独立ledger，不能伪造其为request内可引用证据。",
+    "8个区域是本次事先指定集合；特征定义、锚定方式及多重检验数量均与旧40区域版本不同，q改善不能归因于单一算法改进。",
+    "proposal是原生步后变量，未来gain与它共享原生随机步和同一模型；父评分调整不能消除survival、姿态、组成或全局NOS位移混杂。",
+    "区域预测权重和硬标签只可在一次条件坐标求导中冻结，槽位身份不跨分子固定；不能冒充离散类别/键梯度或模型完整Jacobian。",
+    "窗口元数据为[0,.5]，控制必须以实际score_time和step_size判定，最后.49到.50，之后native至1；score=.5的proposal=.51只留作越界审计。",
+    "依用户要求另读Round1作反馈背景：区域spread valid/PB均98/100，但valid target head7.40776低于native7.43704，周围松弛RMS.34386高于.32721；当前几何5Å核外注入暴露区域解释失配，这不证明endpoint-anchor改法已成功。",
+    "没有候选级联合原型/协方差packet供本响应直接冻结；均值曲线不能恢复唯一结构或真实mode；没有中间态物理能量和因果方向证据。"
+  ]
+}

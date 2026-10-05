@@ -1,0 +1,48 @@
+{
+  "agent": "Designer",
+  "architecture": "coordinate_mixture",
+  "channel": "NOS",
+  "design_status": "exploratory",
+  "evidence_ids": [
+    "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+    "coordinate:discovery:ck2:A:ASN117::NOS::proposal_spread:lag_partial_gain_correlation",
+    "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_y:selected_mean",
+    "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_z:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_y:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_z:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:selected_mean",
+    "coordinate:discovery:ck2:A:ASN117::NOS::proposal_centroid_x:selection_shift",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selection_shift",
+    "D_COUNTS",
+    "D_LINEAGE"
+  ],
+  "limitations": [
+    "subagent simulation，仅设计草稿和合同校验；未编译、未运行推理、未修改配置，也未声称参考packet或GPU梯度已验证。",
+    "当前没有独立因果方向或实验亲和力证据；新增16/240显著lag不能与旧880项q直接比较，且候选槽位/区域统计高度相关。",
+    "选择NOS是条件表征探索，all通道必须保留为监测或消融；无NOS的粒子跳过并计missing，不能补零、重采样或改为all后不记录。",
+    "必须实际从discovery0–13提取均值/协方差，不能以selected_mean拟合系数伪造；14–19不参与原型、协方差、带宽、区域或eta选择。",
+    "每批一个均值组件是经验参考，不是证实的3D构象mode；相邻区域应保留跨区域协方差，不能把两个损失当独立生物机制相加。",
+    "早期proposal散布接近零、NOS数量少或同根坍缩使协方差接近奇异；须记录样本/有效权重、NOS覆盖、原始特征值及正则化，floor和收缩是工程假设而非数据识别的物理容忍度。",
+    "只在一次导数评估中冻结endpoint权重、标签和原生conditioning；额外观测/求导不得改变原native预测、RNG、类别更新或后续self-conditioning，需完整zero/native逐步张量一致及实际proposal方向FD。",
+    "eta较Round1降低且表示、anchor、奖励族同时变化，与global spread比较只能评估整套方案；没有额外匹配消融时不得把结果单独归因于endpoint-anchor或时序。",
+    "保持原100积分步；记录每步score时间、proposal状态时间和注入时间，按实际步长硬判边界；参考score=.5保留用于越界审计而不作为X_.5控制目标。",
+    "requested/native和actual/native剂量、每原子/path caps、pair几何变化和clash回退需与global控制匹配；微弱梯度需阈值/覆盖门槛，不能归一化为全剂量掩盖信号弱。",
+    "只降低联合矩奖励不等于真实结构拟合；要单列真实X_.5局部/整体双向覆盖、全局平移分量、未控制区域几何以及终态valid/PB、unique、能量覆盖和同构head评分，保留失败分母。",
+    "Round1区域错划、head未改善和周围松弛变差是反证背景，不是预测本方案成功的理由；若无超越global spread的结构增量或终态合理性回退，应暂停区域机制声明。",
+    "真实图成立前不定义区域MMFF能量；时间导数不作为空间力，硬类型/键/电荷仍为native离散通道。"
+  ],
+  "mixture_temperature": 0.25,
+  "native_rms_ratio": 0.05,
+  "rationale": "探索ASN117和VAL116两个事先指定、具有完整proposal xyz/spread观测的相关区域，使用一个8维联合向量z=(c117_xyz,s117,c116_xyz,s116)。这两区域NOS proposal_x的adjusted lag分别r=.03304/q=.01066和r=.03185/q=.01896，ASN117 NOS proposal_spread q=.04359，可支持表征探索；proposal selection_shift未显著，因此固定方向、区域因果及affinity提升宣称均deferred。由原生forward在score t给出的预测终点确定空间权重与硬NOS标签，先按原生integrator得到proposal x_(t+dt)，冻结该次forecast权重/标签后直接对proposal坐标求导；既不优化终点坐标，也不反传FLOWR完整Jacobian。每个发现批次b使用同score、同proposal表示和同endpoint锚定的实际候选，按原selection概率计算联合均值mu_b(t)及实测协方差C_b(t)，保留原始矩阵并显式正则为SPD；批次等权pi_b=1/14。以d_b^2=(z-mu_b)^T Sigma_b^-1(z-mu_b)，L_b=delta^2*(sqrt(1+d_b^2/delta^2)-1)，R=tau*log(sum_b pi_b exp(-L_b/tau))构造相关混合伪Huber奖励，eta=.05是谨慎的工程起点而非由相关系数推得，tau=.25、delta=1也是假设参数。参考通过实际score索引t与状态t+dt对齐，控制窗从证据动态读为[0,.5]，最后.49到.50；score=.5对应proposal=.51不能用于控制，之后native完成到1且无重采样。只检验该表征/时间对齐方案相对同强度global spread控制的实际结构收益，不预设成功。",
+  "regions": [
+    "ck2:A:ASN117",
+    "ck2:A:VAL116"
+  ],
+  "robust_delta": 1.0,
+  "schema_version": "coordinate-1.0",
+  "window": [
+    0.0,
+    0.5
+  ]
+}

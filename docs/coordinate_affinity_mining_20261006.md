@@ -117,3 +117,33 @@ FLOWR endpoint Jacobian。NOS、键型和电荷均不使用伪造的连续导数
 源代码必须本地修改、commit、VPN push，远端 pull 同一 commit 后运行。
 推理源只导出/无损记录；科学分析在本地完成。每轮结论以报告保存，随后删除生成坐标、
 结构、临时分析和传输归档，保留冻结配置、奖励依据、失败行和 SHA256。
+
+## 预测终点归属与实际运动的分离
+
+第一轮按当前坐标划区域时，全部平方注入落在所定义的5 Å核心之外。
+早期噪声的空间位置不足以代表未来结合区域。因此新增显式
+`--spatial-anchor endpoint --control-representation proposal --regions <残基列表>`。
+区域权重由同一步预测终点确定，标签也是预测终点的条件NOS标签；观测仍是实际坐标，
+不能把它称作早期物理接触。预测终点只确定槽位权重，求导时固定；每步重新预测。
+
+```powershell
+.venv/Scripts/python.exe scripts/mine_coordinate_advantages.py --dataset data/optimized/main1000_w050/analysis_inputs_v2 --campaign main1000_w050 --analysis results/selection_window_v2 --output results/coordinate_endpoint_anchor_v2 --spatial-anchor endpoint --control-representation proposal --regions ck2:A:ASN117,ck2:A:VAL116,ck2:A:HIS115,ck2:A:ASN118,ck2:A:ILE95,ck2:A:LYS68,ck2:A:GLY46,ck2:A:ASP175
+```
+
+这一组预先指定8区域×2通道×15观测=240特征，包含 current/proposal 的xyz与spread、
+endpoint residual drift、实测native步速度/RMS。统一分析全部51次选择事件，绝不切0.1区间。
+保留float64批次统计、q/CI、覆盖度、谱系诊断、整体Legendre拟合及解析时间导数。
+约26 MB（含LLM证据缓存），无逐节点/逐边明细缓存。当前40区域分析为约79 MB。
+
+较小的多重检验集合与原40区域分析不是同一假设族，q不能直接比较。
+新discovery adjusted lag有16/240项q<.05，但全部64项proposal选择偏移无q<.05。
+ASN117/VAL116 NOS proposal_x的偏相关约.0330/.0318；ASN117 NOS proposal_spread约-.0452。
+这些提示可测试条件区域轨迹模仿；它们不支持直接写成固定+x或无限压缩奖励。
+仍有11/14批在窗口末端单根，不能把后代当独立样本。
+
+第三轮将两个NOS区域的proposal xyz/spread拼为8维，联合协方差与混合参考处理重复观测；
+η=.05为保守实验剂量。参考在score t上建立，其对应实际proposal状态为t+dt。
+所以最后控制score .49产生x_.5；score .5的proposal x_.51仅属记录，不能再控制。
+官方形状评价独立读取actual x_.5，不使用reward值替代形状改善。
+Analyst/Designer均由已授权subagent模拟，严格schema、引用和范围验证后编译配置；
+保存证据/决策/公式摘要与校验值，不记录内部思维链。
