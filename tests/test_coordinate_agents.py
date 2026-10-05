@@ -9,6 +9,7 @@ def test_design_contract_prohibits_unprovided_view_window_and_evidence():
        'regions':['r'],'channel':'all','window':[.1,.4],'native_rms_ratio':.2,'mixture_temperature':.25,'robust_delta':1.,
        'rationale':'Association hypothesis','evidence_ids':['e'],'limitations':['Not causal']}
     assert validate(d,DESIGNER,bundle)
+    assert validate({**d,'dose_reference':'predictive_flow','preserve_native_rigid_pose':False},DESIGNER,bundle)
     for field,value in [('window',[0.,.5]),('regions',['unmeasured']),('evidence_ids',['unknown'])]:
         with pytest.raises(ValueError):validate({**d,field:value},DESIGNER,bundle)
     bundle.update(control_representation='proposal',features={'r::all::proposal_spread':{'region':'r'}})

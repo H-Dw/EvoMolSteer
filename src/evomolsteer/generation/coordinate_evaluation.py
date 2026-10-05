@@ -14,7 +14,7 @@ def evaluate(dataset,campaign,output):
     if not (root/'COMPLETE.json').is_file():raise ValueError('Incomplete inference')
     cfg=read_json(root/'config.json');program=read_json(root/'reward_program.json')
     reference=load_reference(root/'reference.json.gz');reward=CoordinateMixtureReward(program,reference)
-    rows=[];audit=[];motion=[];torch.set_num_threads(1)
+    rows=[];audit=[];motion=[];dose_rows=[];torch.set_num_threads(1)
     for arm in cfg['experiment']['arms'].split(','):
         for path in sorted((root/arm).glob('batch_*')):
             batch=int(path.name.split('_')[-1]);com=np.asarray(read_json(root/f'frame_batch_{batch:03d}.json')['target_com'])[:,None,:]
@@ -48,12 +48,26 @@ def evaluate(dataset,campaign,output):
                 rows.append(row)
             trace=[json.loads(v) for v in (path/'guidance_trace.jsonl').read_text().splitlines()]
             active=[v for v in trace if v['active']]
+            for v in trace:
+                def average(key,fallback=None):
+                    values=v.get(key,v.get(fallback) if fallback else None)
+                    return float(np.mean(values)) if values is not None else None
+                dose_rows.append({'arm':arm,'batch':batch,'score_time':v['score_time'],'state_time':v['state_time'],
+                    'reference_time':v.get('reference_time'),'active':v['active'],
+                    'dose_reference':v.get('dose_reference',program.get('dose_reference','observed_native')),
+                    'observed_native_rms_A':average('observed_native_rms_A','native_rms_A'),
+                    'predictive_flow_rms_A':average('predictive_flow_rms_A'),
+                    'calibration_rms_A':average('calibration_rms_A','native_rms_A'),
+                    'injection_rms_A':average('injection_rms_A') if v['active'] else 0.,
+                    'requested_rms_A':average('requested_rms_A')})
+            squared=np.asarray([v['injection_l2_A'] for v in active])**2 if active else np.zeros((0,1))
             audit.append({'arm':arm,'batch':batch,'active_steps':len(active),
                 'reward_evaluated_steps':sum(v['reward_evaluated'] for v in trace),
                 'nonzero_injection_steps':sum(max(v['injection_l2_A'])>0 for v in trace),
                 'mean_path_rms_A':float(np.mean(active[-1]['cumulative_rms_A'])) if active else 0.,
                 'guard_rejection_fraction':float(np.mean([np.logical_not(v['geometry_accepted']) for v in active])) if active else 0.,
                 'cap_fraction':float(np.mean([np.asarray(v['cap_factor'])<.99999 for v in active])) if active else 0.,
+                'first_controlled_update_fraction_squared_injection':float(squared[0].sum()/squared.sum()) if squared.sum()>0 else None,
                 'no_injection_after_window':all(max(v['injection_l2_A'])==0 for v in trace if v['state_time']>reference['window'][1]+1e-6)})
     table=write_table(out/'coordinate_time_metrics.csv',rows)
     for _,g in table.groupby(['arm','batch']):
@@ -61,6 +75,7 @@ def evaluate(dataset,campaign,output):
             table.loc[g.index,'d_dt_'+f]=np.gradient(g[f],g.time)
     write_table(out/'coordinate_time_rates.csv',table)
     write_table(out/'coordinate_injection_motion.csv',motion)
+    write_table(out/'coordinate_dose_time.csv',dose_rows)
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed']:raise ValueError('Coordinate derivative failed')
     report={'schema_version':'current-coordinate-evaluation-1.0','window':reference['window'],'batch_results':audit,

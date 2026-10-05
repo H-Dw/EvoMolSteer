@@ -24,6 +24,7 @@ DESIGNER={'type':'object','additionalProperties':False,'properties':{'schema_ver
     'channel':{'enum':['all','NOS']},'window':{'type':'array','items':{'type':'number'},'minItems':2,'maxItems':2},
     'native_rms_ratio':{'type':'number','minimum':0,'maximum':1},'mixture_temperature':{'type':'number','exclusiveMinimum':0},
     'robust_delta':{'type':'number','exclusiveMinimum':0},'rationale':{'type':'string'},
+    'dose_reference':{'enum':['observed_native','predictive_flow']},'preserve_native_rigid_pose':{'type':'boolean'},
     'evidence_ids':{'type':'array','items':{'type':'string'},'minItems':1},'limitations':{'type':'array','items':{'type':'string'}}},
     'required':['schema_version','agent','design_status','architecture','regions','channel','window','native_rms_ratio','mixture_temperature','robust_delta','rationale','evidence_ids','limitations']}
 
@@ -124,6 +125,7 @@ def compile_design(mining,dataset,campaign,output,round_number):
     if out.exists():raise FileExistsError(out)
     reference=out/'reference.json.gz';build(dataset,campaign,mining,reference,design['regions'],design['channel'])
     program={k:design[k] for k in ('window','native_rms_ratio','mixture_temperature','robust_delta')}
+    program.update({k:design[k] for k in ('dose_reference','preserve_native_rigid_pose') if k in design})
     program.update(schema_version='current-coordinate-program-1.0',family='LLM_evidence_bound_coordinate_design',
         reward_view=design['architecture'],reference_sha256=digest(reference),core_radius_A=5.,round=round_number,seed=42,
         evidence_sha256=digest(dest/'coordinate_evidence.json'),designer_sha256=digest(dest/'Designer.coordinate.response.json'),
