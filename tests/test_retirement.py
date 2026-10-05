@@ -50,5 +50,8 @@ def test_inference_gate_checks_report_bytes_and_scientific_control(tmp_path):
     with pytest.raises(ValueError,match='scientific control'):ready.check(manifest,'r5')
     control.write_text(json.dumps({'zero_equivalence_passed':True}))
     assert ready.check(manifest,'r5')['ready']
+    manifest.write_text(json.dumps(dict(m,status='closed')))
+    with pytest.raises(ValueError,match='Campaign is closed'):ready.check(manifest,'r5')
+    manifest.write_text(json.dumps(m))
     previous.write_text('{"changed":true}')
     with pytest.raises(ValueError,match='checksum'):ready.check(manifest,'r5')

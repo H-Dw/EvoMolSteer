@@ -66,6 +66,38 @@ def report(experiment, output):
     return data
 
 
+def report_reserved(experiment, output):
+    root=Path(experiment);out=Path(output);out.mkdir(parents=True,exist_ok=True)
+    data=pd.read_csv(root/'round_05/comparison/arm_metrics.csv')
+    labels={'original_Steer':'Original SMC','native':'Native','local_interval_r05':'Local gradient'}
+    data['display']=data.group.map(labels)
+    d=pd.read_csv(root/'round_05/local/regional_window_trends.csv')
+    fig,axs=plt.subplots(2,3,figsize=(14,8),layout='constrained')
+    for arm,label in [('unguided','Native'),('gradient','Local gradient')]:
+        g=d[d.arm==arm].groupby('time').mean(numeric_only=True)
+        axs[0,0].plot(g.index,g.mean_deficit,label=label)
+    original=pd.read_csv(root/'reference_reserved/original_regional_window.csv')
+    g=original[(original.arm=='single')&(original.mass=='selection_probability')].groupby('time').mean(numeric_only=True)
+    axs[0,0].plot(g.index,g.mean_deficit,'k--',label='Original SMC probability mass')
+    axs[0,0].set(xlabel='Inference score time',ylabel='Predicted-endpoint regional deficit',title='Reserved batches 14/15 (seed 42)')
+    axs[0,0].legend(fontsize=8,frameon=False)
+    x=np.arange(len(data))
+    axs[0,1].plot(x,data.valid_connected/data.n,'o-',label='Connected valid');axs[0,1].plot(x,data.pb_fast_pass/data.n,'s--',label='PB dock_fast')
+    axs[0,1].set(ylabel='Passing / all candidates',ylim=(.8,1.01),title='All-slot quality yield');axs[0,1].legend(frameon=False,fontsize=8)
+    axs[0,2].bar(x,data.unique_yield,color='#4477aa');axs[0,2].set(ylabel='Unique graph / all candidates',ylim=(0,1),title='Unique graph yield')
+    axs[1,0].plot(x,data.valid_pic50_on_rescore_mean,'o-',label='All valid poses');axs[1,0].plot(x,data.unique_valid_pic50_on_rescore_mean,'s--',label='Unique first pose')
+    axs[1,0].set(ylabel='FLOWR target head pIC50',title='Prediction, not measured binding');axs[1,0].legend(frameon=False,fontsize=8)
+    axs[1,1].plot(x,data.valid_mmff_relief_per_heavy_median,'o-');axs[1,1].set(ylabel='Median relief / heavy atom (kcal/mol)',title='Same-graph local strain relief')
+    axs[1,2].plot(x,data.valid_relax_rms_surround_A_mean,'s-');axs[1,2].set(ylabel='Surround relaxation RMS (A)',title='Surrounding geometry diagnostic')
+    for ax in [axs[0,1],axs[0,2],axs[1,0],axs[1,1],axs[1,2]]:ax.set_xticks(x,data.display,rotation=20,ha='right')
+    fig.savefig(out/'reserved_comparison.png',dpi=200);fig.savefig(out/'reserved_comparison.pdf');plt.close(fig)
+    write_json(out/'reserved_figure_manifest.json',{'batches':[14,15],'master_seed':42,
+       'sources':[{ 'path':str(root/p),'sha256':digest(root/p)} for p in ['round_05/comparison/arm_metrics.csv','round_05/local/regional_window_trends.csv','reference_reserved/original_regional_window.csv']],
+       'disclosure':'Reward and eta frozen; batches excluded from fit/current tuning, historical aggregate statistics viewed; not blind or new master seed validation.'})
+    return data
+
+
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--experiment',required=True);p.add_argument('--output',required=True)
-    a=p.parse_args();print(report(a.experiment,a.output).to_string(index=False))
+    p.add_argument('--reserved-cohort',action='store_true')
+    a=p.parse_args();print((report_reserved if a.reserved_cohort else report)(a.experiment,a.output).to_string(index=False))

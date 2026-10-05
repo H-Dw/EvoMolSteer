@@ -1,8 +1,10 @@
 # EvoMolSteer · 完整选择窗口连续分析 v3
 
+**当前 seed42 终态实验**：`scripts/generate_local_flowr.py` 使用真实 FLOWR endpoint Jacobian，对学习窗口内的相关局部可接受集合施加有界梯度，窗口后原生继续至 t=1。无新增 SMC；每轮先保留报告并清理上一轮远端结构、轨迹和传输包，最多5轮。见 [固定 seed42 协议](docs/terminal_seed42_protocol_20261005.md) 和 [五轮结果与清理报告](docs/ck2_terminal_seed42_report_20261005.md)。
+
 **实际中间态控制入口**：`scripts/generate_window_flowr.py` 将梯度范围绑定到学习参考的动态窗口，关闭 FLOWR 内置粒子重采样，主目标是严格窗口末端的 actual current 状态。接口、数学定义、数据格式和复用命令见 [window_gradient_generation.md](docs/window_gradient_generation.md)。旧 full-horizon multistage 配置保留为历史实验，不是此入口的默认行为。
 
-**八轮实验已完成**：共 416 个候选，78 项测试通过。冻结奖励在新种子上的形状距离平均只改善 0.89%，四个配对批次的区间跨零，尚未确认稳定拟合 Steer 中间态。完整结果、各轮决策、奖励公式、范围和局限见 [八轮窗口拟合报告](docs/ck2_window_iter8_report_20261005.md)。
+**历史八轮实验**：共 416 个候选，当时78项测试通过。冻结奖励在新种子上的形状距离平均只改善 0.89%，四个配对批次的区间跨零，尚未确认稳定拟合 Steer 中间态。完整结果、各轮决策、奖励公式、范围和局限见 [八轮窗口拟合报告](docs/ck2_window_iter8_report_20261005.md)。生成原始输出已按用户要求清理，报告与冻结配置保留。
 
 主分析现已改为对 **0–0.5 的全部实际选择节点**统一分析，不再汇总为 0.1 宽子区间。连续趋势、双侧富集、窗口末端谱系留存、选择/生成变化分解、全局函数拟合及解析导数分别保存；新增区域坐标、原子、形式电荷和化学键观测。物理能量缺失时不以几何代理冒充。
 
@@ -100,7 +102,7 @@ Designer v2 只能编译有来源的预测终点规则；奖励必须限定于�
 - [冻结设计、来源及验证计划](docs/ck2_single_guidance_design.md)
 - 入口：`scripts/generate_gradient_flowr.py`；比较：`scripts/compare_gradient_runs.py`；谱系审计与打包：`scripts/audit_generation.py`、`scripts/archive_generation.py`。
 
-本地数据包为 `data/single_guidance_comparison_v1.tar.gz`（约 212 MB），449 个文件校验通过。原始数据、checkpoint、模型中间状态和大表不进入 Git；源码、配置、文档和小型汇总结果保留在仓库。
+此前本地数据包 `data/single_guidance_comparison_v1.tar.gz`（约212 MB）的449个文件曾通过校验；该生成结构包已清理，仅保留比较报告和配置。原始 Steer 输入与 checkpoints 保留；模型中间状态和大表不进入 Git。
 
 ## 数据与历史
 
