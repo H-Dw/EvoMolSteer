@@ -1,0 +1,32 @@
+{
+  "round": 3,
+  "maximum_rounds": 5,
+  "status": "frozen_before_inference",
+  "designer": "Analyst/Designer subagent simulation recommendation, saved by primary agent",
+  "seed": 42,
+  "campaign": "terminal_r03_local",
+  "n": 100,
+  "batch": 50,
+  "only_main_change": "eta .1->.2",
+  "unchanged": [
+    "reward",
+    "selected probability reference",
+    "core_and_neighbors support",
+    "constraints",
+    "dynamic window [0,.5]",
+    "100steps native continuation to1",
+    "noSMC"
+  ],
+  "evidence": "r2 two-batch deficit improved to1.14003/1.40517 from1.37824/1.95351; clipping1.56percent; terminal95valid/PB vs98native; incomplete energy/surround benefit vsSMC",
+  "prediction": "A larger bounded dose may reduce window residual and retain more terminal regional advantage; not assumed to improve chemistry or energy.",
+  "dose_caution": "Eta doubles requested scaling, not necessarily actual injection. Gate, caps and projection remain active.",
+  "decisions": {
+    "reject": "Valid/PB below93 of100 or material unexplained energy coverage loss",
+    "do_not_promote": "Window-only gain with worse strain/surround, or head increase hiding those costs",
+    "stop_increasing_eta": "Unstable regional effect between batches despite larger dose, or substantial saturation",
+    "next": "Consider timing only if evidence warrants; last round is frozen seed42 batch expansion, not new-seed validation"
+  },
+  "cleanup_required_before_start": true,
+  "previous_report": "round_02/comparison/comparison.json",
+  "rationale_status": "Public evidence and decision rationale, not private chain-of-thought"
+}
