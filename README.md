@@ -111,3 +111,15 @@ Designer v2 只能编译有来源的预测终点规则；奖励必须限定于�
 `data/raw/` 保留完整原始实验。新 `data/optimized/main1000_w050/analysis_inputs_v2/` 是可直接运行分析的无损轨迹输入包，保留所有 100 步和 28 个字段；范围仍由 `resampled` 限制为 51 个事件。它不包含恢复生成所需的 RNG/检查点，不能替代完整实验归档。旧 `features_v1/` 是历史全程特征缓存，不能直接当作 v2 证据输入。存储接口说明见 [`docs/storage_format.md`](docs/storage_format.md)。
 
 旧结果 `results/main1000_w050`、旧 Analyst/Designer 文档和原型奖励均为历史记录，已由 v2 主分析取代。修改前源码存于 `delivery/EvoMolSteer_pre_selection_window_v2_20261004.zip`；旧全程分析不与当前选择证据混用。
+
+## 2026-10-06 坐标优势与条件轨迹奖励
+
+新增全选择窗口的坐标/transport挖掘、亲和力lag去父节点重复、区域共同效应/PCA、节点贡献与导数诊断。
+保留批次float64充分统计，避免逐粒子特征缓存。Analyst/Designer有独立严格接口和skills；
+条件坐标混合奖励作用于真实FLOWR native proposal，控制范围由学习参考动态给出，随后native继续到1。
+seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生成数据，保护原始Steer与checkpoint。
+
+- [输入输出、计算定义及复用命令](docs/coordinate_affinity_mining_20261006.md)
+- [坐标挖掘和逐轮实验结论](docs/ck2_coordinate_seed42_report_20261006.md)
+- [保存报告的跨轮比较](docs/experiments/ck2_coordinate_seed42_20261006/campaign_summary/summary.md)
+- 生成入口：`scripts/generate_coordinate_flowr.py`；报告入口：`scripts/summarize_coordinate_campaign.py`。

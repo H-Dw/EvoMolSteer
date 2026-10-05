@@ -34,7 +34,7 @@ lag 数值缺失时明确给出可用时间覆盖，不填零或外推。
 
 ```powershell
 $env:PYTHONPATH='src'
-python scripts/mine_coordinate_advantages.py --dataset data/optimized/main1000_w050/analysis_inputs_v2 --campaign main1000_w050 --analysis results/continuous_single_v3 --output results/coordinate_affinity_v2
+python scripts/mine_coordinate_advantages.py --dataset data/optimized/main1000_w050/analysis_inputs_v2 --campaign main1000_w050 --analysis results/selection_window_v2 --output <新的当前锚分析目录>
 ```
 
 输出：`batch_coordinate_statistics.parquet` 为无损 float64/zstd 的批次统计；
@@ -168,3 +168,19 @@ g_t=1/(t+.01)。在t=0、dt=.01时，g_t score几乎抵消初态；native RMS可
 
 参考构建还补充紧凑的background联合均值/协方差、selected原始特征值、概率ESS/KL及
 标准化均值差。这些是未来选择/背景对照所需的可观测性，不自动变成新奖励，也不回写已冻结第三轮参考。
+
+补充诊断和LLM接口可复用以下调用；所有output应为新目录，避免覆盖已冻结证据：
+
+```powershell
+python scripts/mine_coordinate_advantages.py --dataset data/optimized/main1000_w050/analysis_inputs_v2 --campaign main1000_w050 --analysis results/selection_window_v2 --output <transport新目录> --spatial-anchor endpoint --control-representation proposal --regions ck2:A:ASN117,ck2:A:VAL116,ck2:A:HIS115,ck2:A:ASN118,ck2:A:ILE95,ck2:A:LYS68,ck2:A:GLY46,ck2:A:ASP175 --feature-family transport
+python scripts/analyze_coordinate_influence.py --mining results/coordinate_endpoint_anchor_v2 --output <节点贡献新目录>
+python scripts/coordinate_agents.py --mining results/coordinate_endpoint_anchor_v2 --action export --role Analyst --transport-mining results/coordinate_transport_support_v1 --influence results/coordinate_endpoint_influence_v1
+```
+
+`dose_reference`和`preserve_native_rigid_pose`已接入Designer严格契约；默认值保留历史执行方式，
+新设计需显式选择。`coordinate_dose_time.csv`与首受控步平方注入比例会随逐轮报告保留，
+用于区别全窗口弱引导与少数步骤占据绝大剂量。
+
+`scripts/summarize_coordinate_campaign.py`可直接读取保留报告生成跨轮CSV/JSON/Markdown；
+会检查完整候选分母、相同seed/初态/窗口、真实FD通过、完整100步以及无新增SMC/越界注入。
+生成后的结构包删除后仍可重建比较表。详见[实验结论与实现说明](ck2_coordinate_seed42_report_20261006.md)。
