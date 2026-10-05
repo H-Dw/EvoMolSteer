@@ -147,3 +147,24 @@ ASN117/VAL116 NOS proposal_x的偏相关约.0330/.0318；ASN117 NOS proposal_spr
 官方形状评价独立读取actual x_.5，不使用reward值替代形状改善。
 Analyst/Designer均由已授权subagent模拟，严格schema、引用和范围验证后编译配置；
 保存证据/决策/公式摘要与校验值，不记录内部思维链。
+
+新增 `--feature-family transport` 可单独提取5项诊断，避免复制240项几何统计：
+剩余位移RMS、native位移与剩余位移的加权余弦、有效槽位数、endpoint核心权重、
+当前坐标核心权重。8区域共80项，输出约7.4 MB。核心半径5 Å用于诊断，未从q值优化。
+ASN117的endpoint核心权重始终为0；VAL116 NOS的等批次窗口均值为0.7242，
+effective slots约1.90。它表征预计参与该区域的少量槽位，不代表早期已经成键或接触。
+
+`scripts/analyze_coordinate_influence.py --mining <目录> --output <目录>`
+将原完整窗口统计分解为节点的求积贡献，只保存每个特征的首节点/主导节点贡献与有效节点数，
+不切子区间、不增加逐粒子缓存。ASN117/VAL116 NOS native_y首节点贡献分别
+-.05133/-.04693 A/time，完整窗口效应-.05052/-.04677；其余节点有正负抵消。
+首节点占绝对贡献总和约75.3%/74.2%。由此不能把全窗显著性解释成全程持续方向优势。
+
+原生线性endpoint参数化漂移v=(y-x)/(1-t)，实测SDE步还包含g_t score与噪声，
+g_t=1/(t+.01)。在t=0、dt=.01时，g_t score几乎抵消初态；native RMS可能比纯flow位移大两个数量级。
+新增可选 `dose_reference=predictive_flow` 使用dt*v的RMS标定外部剂量，保持原生SDE不变。
+默认仍为observed_native以保留历史实验；线性日程不匹配时该新选项拒绝执行。
+记录实际native、预测flow和校准RMS，并保存原生积分器参数，避免把标签中的native一词误读为pure flow。
+
+参考构建还补充紧凑的background联合均值/协方差、selected原始特征值、概率ESS/KL及
+标准化均值差。这些是未来选择/背景对照所需的可观测性，不自动变成新奖励，也不回写已冻结第三轮参考。
