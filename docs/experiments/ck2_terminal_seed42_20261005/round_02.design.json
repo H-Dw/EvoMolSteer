@@ -1,0 +1,42 @@
+{
+  "round": 2,
+  "maximum_rounds": 5,
+  "status": "frozen_before_inference",
+  "designer": "LLM subagent analyst_simulation; structured recommendation saved by primary agent",
+  "master_seed": 42,
+  "n": 100,
+  "batch": 50,
+  "integration_steps": 100,
+  "campaign": "terminal_r02_local",
+  "only_main_change": "gradient_support full_pullback -> core_and_neighbors",
+  "unchanged": [
+    "eta=.1",
+    "local flat-bottom correlated reward",
+    "selected probability reference",
+    "reference-defined [0,.5] window",
+    "all displacement and geometry guards",
+    "no SMC",
+    "native continuation to t=1"
+  ],
+  "support_definition": "Active endpoint slots within5A of ASN117/VAL116 receptor atoms, plus one hard predicted bond neighbor. Mask on current-coordinate pullback; projected direction, not gradient of an unrelated surrogate.",
+  "evidence": {
+    "quality": "r1 valid93/PBfast92 vs native98/98; PBfast drop6points violates promotion gate",
+    "window_deficit": "1.85288 vs native1.66587; no regional improvement",
+    "noncore": "Total injection square fraction outside bare region=.600641/.629587; original simple mean fractions=.328002/.360354 are different quantities",
+    "dose": "Mean cumulative RMS .08628A vs global .72623A; no support for simply increasing dose yet"
+  },
+  "risk": "Post-projection RMS renormalization can concentrate dose onto fewer atoms. Same eta does not imply smaller atom-wise intervention; monitor clip and dose.",
+  "verification": [
+    "Finite differences of actual projected direction through live FLOWR",
+    "same bare5A noncore definition as r1; expanded-support zero leakage is only a construction property",
+    "exact native prior hashes vs preserved round1 native",
+    "all100 steps complete; zero injection after learned window"
+  ],
+  "decision": {
+    "stop": "Reject promotion if valid/PBfast yield falls >5percentage points versus matched native, unexplained energy coverage loss, or regional deficit fails to improve",
+    "next": "Only consider strength/reference changes after examining support effect; no predeclared claim of success"
+  },
+  "cleanup_required_before_start": true,
+  "report": "round_01/comparison/comparison.json",
+  "private_chain_of_thought": "Not collected. Evidence, alternatives and public decision rationale retained."
+}
