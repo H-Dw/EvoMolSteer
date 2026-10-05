@@ -8,7 +8,7 @@ from pathlib import Path
 def check(manifest,campaign,program=None):
     m=json.loads(Path(manifest).read_text())
     if m.get('status')=='closed':raise ValueError('Campaign is closed; no further inference authorized')
-    if m['master_seed']!=42 or not 1<=m['round']<=m['maximum_rounds']<=5:raise ValueError('Round/seed contract')
+    if m['master_seed']!=42 or not 1<=m['round']<=m['maximum_rounds']<=30:raise ValueError('Round/seed contract')
     if campaign not in m['campaigns']:raise ValueError('Campaign not authorized by current round manifest')
     if program is not None:
         p=json.loads(Path(program).read_text())

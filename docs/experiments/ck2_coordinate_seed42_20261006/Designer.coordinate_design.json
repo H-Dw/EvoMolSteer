@@ -1,0 +1,272 @@
+{
+  "schema_version": "coordinate-reward-design-1.0",
+  "agent": {
+    "name": "Designer",
+    "invocation": "subagent simulation",
+    "date": "2026-10-06",
+    "external_api_call": false
+  },
+  "status": "exploratory_design_only; reference extraction and engineering checks required before freezing",
+  "analyst_review": "docs/experiments/ck2_coordinate_seed42_20261006/Analyst.coordinate_review.json",
+  "evidence_batches": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "forbidden_for_region_strength_or_reference_choice": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ],
+  "approved_mechanistic_regions": [],
+  "candidate_landmarks": [
+    "ck2:A:ASN117",
+    "ck2:A:VAL116"
+  ],
+  "landmark_status": "预先给定的解释/比较位置；当前证据未确认二者优于其余38区域，也未确认必须同时用二者。",
+  "decision_summary": "先检验直接作用current-state的spread上尾约束是否能改变实际结构且不损伤合理性；时间变化多模态区域坐标分布作为下一架构候选，不能从现有均值伪造mode、协方差或恒定方向。",
+  "evidence_basis": [
+    {
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:high_enrichment"
+      ],
+      "implication": "有小而广泛的current all-spread上尾选择证据；适合有容忍区的单侧约束，不支持无界压缩。"
+    },
+    {
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:partial_affinity_correlation"
+      ],
+      "implication": "NOS z同期关联可作为监测或条件特征，不能作为单调+z奖励。"
+    },
+    {
+      "evidence_ids": [
+        "D_LINEAGE",
+        "D_FIT_AUDIT"
+      ],
+      "implication": "用批次平衡的原始节点分布、保留早期节点和失败对照；不用高阶全局多项式拟合值替代真实轨迹。"
+    }
+  ],
+  "distinction_from_previous_endpoint_distance_reward": {
+    "old_expression": "R_old=R(d_ASN117(y_theta(x_t)), d_VAL116(y_theta(x_t)), t); gradient=(D_x y_theta)^T grad_y R_old, conditioned on endpoint hard labels.",
+    "new_expression": "R_new=R(z_current(x_t),t); gradient=(D_x z_current)^T grad_z R_new.",
+    "key_difference": "目标是当前坐标统计而非预测endpoint的两项距离；all通道无需模型Jacobian，NOS标签仍为模型预测的离散条件且不求其导数。",
+    "remaining_limit": "质心/散布拟合仍不能唯一确定分子形状、键图或功能；不能把实际结构奖励自动等同于整体SMC复现。"
+  },
+  "candidate_architectures": [
+    {
+      "id": "current_spread_upper_envelope",
+      "priority": "minimal_first_test",
+      "objective": "约束过大的当前散布，保留合理区间和未约束方向。",
+      "features": "先固定ASN117 all-spread为代表观测，不按结果挑残基；同时保留VAL116及所有区域作为诊断。",
+      "formula": "v=max((s_r(x_t)-U_r(t))/sigma_r(t),0); R=-delta^2*(sqrt(1+(v/delta)^2)-1), delta=1; g=grad_x R.",
+      "target_source": "U_r(t)为discovery各批次等权、批内selection_probability加权的同刻spread上四分位；sigma来自同刻未加权分布的尺度，具体数值需提取，不能由当前均值构造。",
+      "exact_behavior": "s<=U时R=0且梯度=0；超过U才惩罚；不奖励继续减小已达标spread。",
+      "status": "可作为最小探索假说，不构成ASN117特异优势声明。"
+    },
+    {
+      "id": "joint_current_coordinate_mixture",
+      "priority": "requested_distribution_candidate",
+      "features": "z_r=(current centroid_x,centroid_y,centroid_z,spread); 若联合ASN117/VAL116则一个相关向量处理，不能将两个重叠区域当独立奖励相加。",
+      "formula": "p_sel,k(z)=(1/B)*sum_b sum_i p_bik K_Hk(z-z_bik); p_pool,k(z)=(1/B)*sum_b sum_i (1/n_bk) K_Hk(z-z_bik); R=log p_sel,t(z_current(x_t)) - log p_pool,t(z_current(x_t)), evaluated only on supported background density.",
+      "bounded_variant": "R_bounded=C*tanh(R/C), C=1 as a declared pilot assumption; use stable logsumexp and a background-support gate, with no reward for unsupported density-ratio extrapolation.",
+      "alternative_absolute_imitation": "log p_sel alone fits native-like background and can focus on density modes; retain only as an explicit imitation comparator, not evidence of selection advantage.",
+      "time_interpolation": "Exact51node distributions; between nodes convexly interpolate density mixtures, not unlabeled mode centers; no fixed0.1bins and no invented stationary phases.",
+      "modes": "Empirical component centers from actual discovery candidate moments, not batch means interpreted as physical poses; modes neither proven unique nor independent.",
+      "advantage": "Avoids averaging incompatible prototypes and can represent correlated coordinate preferences directly atx_t.",
+      "limitations": "现有文件只有均值/相关性，无法估计联合mode和H；选择差异极小，密度比可能噪声主导；须有整批LOBO/背景一致性检查。",
+      "status": "requires discovery-only raw/reference extraction; do not compile from continuous_functions.json",
+      "population_coverage_limit": "多模态参考并不保证生成总体覆盖各mode；逐粒子最大化密度或密度比仍可能聚集单个mode，须保留双向覆盖/多样性和root-balanced敏感性报告，不能为改善拟合引入重采样。"
+    },
+    {
+      "id": "constant_direction_or_velocity_copy",
+      "priority": "reject",
+      "formula_examples": [
+        "R=+NOS_centroid_z",
+        "delta_x proportional to fitted endpoint_transport or native_velocity",
+        "delta_x proportional to df_selected_mean/dt"
+      ],
+      "reason": "选择/调整lag不支持固定方向，native量含随机项，函数拟合可为负speed，且时间导数不是坐标梯度。"
+    },
+    {
+      "id": "whole_molecule_mean_coordinate_copy",
+      "priority": "reject_for_this_hypothesis",
+      "reason": "均值不能定义可实现姿态，会混合互不兼容结构并掩盖区域相对于全局pose的增量价值。"
+    }
+  ],
+  "required_reference_packet": {
+    "status": "not_built_by_this_review",
+    "sha256": null,
+    "source_manifest_sha256": "4ff3f6f1cbbbf3c8e1cb30c90f86ba0fa94dce49778117cbe8d3305438e9f032",
+    "allowed_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "times": [
+      0.0,
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2,
+      0.21,
+      0.22,
+      0.23,
+      0.24,
+      0.25,
+      0.26,
+      0.27,
+      0.28,
+      0.29,
+      0.3,
+      0.31,
+      0.32,
+      0.33,
+      0.34,
+      0.35,
+      0.36,
+      0.37,
+      0.38,
+      0.39,
+      0.4,
+      0.41,
+      0.42,
+      0.43,
+      0.44,
+      0.45,
+      0.46,
+      0.47,
+      0.48,
+      0.49,
+      0.5
+    ],
+    "minimum_contents": [
+      "同刻current特征、predicted labels/mask、selection_probability、batch/parent/root标识",
+      "每批目标/背景有效数量、原始分位数及联合协方差、根集中度和区域权重质量",
+      "同刻全局all及NOS质心/半径、跨区域权重重叠、局部有效原子数",
+      "明确拆分expected selection mass、root-balanced sensitivity和native background",
+      "数据/特征实现/框架/原子词表/坐标尺度/配置hash"
+    ],
+    "batch_weighting": "每批总质量1/14；批内selection概率归一化。并行保存同一pre-selection总体等权背景；不按后代克隆数提高跨批权重。",
+    "root_sensitivity": "root-balanced目标改变估计对象，作为敏感性对照单独保存，不悄然替换原始选中分布。",
+    "covariance_if_mixture": "使用同刻discovery background联合协方差，收缩/floor明确为工程选择；带宽仅整批LOBO选择，不能用14–19评分；保留原始协方差与条件数。",
+    "missing": "NOS不存在则该粒子缺失并跳过，不能补零；all通道也须有活动槽位；mask一致性未通过则停止。",
+    "time_fit": "直接保存真实节点；若压缩插值需对每节点设最大白化重构误差检查，特别t0；不将已知失真的全局多项式作为权威参考。"
+  },
+  "spatial_and_gradient_contract": {
+    "coordinate_frame": "固定受体PDB Å框架；配准、scale和atom vocabulary需与参考严格一致；不可对每个候选随意旋转/平移对齐以优化reward。",
+    "derivative": "求current特征的真实坐标导数，包括Gaussian空间权重随x变化；最近受体原子的min是分段可微，切换处单独检查。",
+    "labels": "all=活动槽位；NOS=条件化硬endpoint类别且detach；不声称类型/键梯度或稳定原子身份。",
+    "global_pose_control": "主要鉴别对照是同剂量、同时间的全局spread/pose奖励；额外报告注入的全局平移分量，及局部权重重叠。",
+    "translation_diagnostic": "如做零COM方向消融，P g_i=g_i-mean_active(g)，其全活动槽位和为0；它会给区域外槽位补偿力，因此不能同时声称严格局部support；投影与重新归一化会改变剂量分布。",
+    "finite_difference": "固定标签、mask、参考和RNG，在实际x_t评价点验证方向导数；零梯度/缺失点与非零点分别测试。",
+    "molecular_geometry": "先诊断碰撞、有效键几何及终态能量，不能凭高斯patch观测编造氢键或中间态MMFF能量。",
+    "step_timing_limit": "本建议保持pre-native x_t求导、native proposal后注入的既有时序；步内状态/硬类别可能变化，因此仅是条件局部导数，不保证注入后的有限步reward单调。若另测post-native重新求导，必须作为独立时序消融并保持native self-conditioning/RNG。"
+  },
+  "minimal_exploratory_experiment": {
+    "status": "design_only; no generation initiated",
+    "question": "current spread上尾约束能否改善真实窗口结构，并且是否存在超过全局压缩的局部增益？",
+    "stage_A_engineering": "先完成discovery reference、NumPy/Torch特征一致、实际方向FD及完整zero/native逐步相等；未过则不解释效应。",
+    "arms": [
+      "native",
+      "gradient_zero with identical reward evaluation",
+      "global all-slot spread upper-envelope control",
+      "prespecified ASN117 Gaussian all-spread upper-envelope"
+    ],
+    "arm_logic": "最后两臂采用同一阈值定义、同一强度/caps/时序；ASN117只是预登记代表，VAL116作相关区域读出，不扫描40区域选赢家。若只预算两臂，可native vs该代表区域作可行性，但放弃相对全局特异性结论。",
+    "development_batches": [
+      0,
+      1
+    ],
+    "candidates_per_batch": 50,
+    "sample_size_interpretation": "开发性2配对批次，不是100独立谱系，也不是未见seed验证；14–19不用于本次设计或强度校准。",
+    "controller_pilot_assumptions": {
+      "eta_native_step_rms_ratio": 0.05,
+      "max_atom_step_A": 0.01,
+      "max_cumulative_rms_A": 0.5,
+      "feature_scale_floor_A": 0.1,
+      "huber_delta": 1.0,
+      "status": "保守工程起点，非统计推导、非已冻结/已验证参数；主流程须在执行前确认配置兼容并固定hash。"
+    },
+    "dose_formula": "desired_RMS=eta*RMS(native_proposal-x_t)*v/sqrt(1+v^2); apply only if finite/nonzero gradient, then caps/backtracking; log requested/applied dose and clipping.",
+    "dose_warning": "观察选择效应约10^-4Å，单位归一化可放大微弱或噪声梯度；需最低梯度阈值和支持度门槛，不能用现有相关系数当控制强度。",
+    "window": "从学习metadata读[a,b]=[0,.5]；保持原100积分步；使用pre-native x_t及对应t参考，只允许t>=a且s=t+dt<=b；最后注入.49→.50，之后native到1；明确t0目标和严格t=.5实际张量。",
+    "sampler": "原forward/integrator、类别更新及RNG保持；无新SMC或重采样，原历史SMC只作参照。",
+    "primary_readouts": [
+      "真实X_.5的current spread高尾超额及完整窗口积分",
+      "真实坐标局部/整体双向匹配覆盖，单独报告全局质心漂移",
+      "与global-control相比的增量效应；同剂量外区变化和局部占据率"
+    ],
+    "secondary_readouts": [
+      "predicted-endpoint特征单列，不替代真实X_t",
+      "t1 valid/PB-fast、全尝试失败分母、unique图与克隆/多样性",
+      "同构head重评分及同图MMFF覆盖/收敛、周围松弛；模型评分不是真实亲和力"
+    ],
+    "falsification": [
+      "若只降低reward指标，真实坐标覆盖/结构合理性无改善，则仅支持特征控制。",
+      "若区域臂无超过global-control的增量，维持区域特异机制为空。",
+      "若通过整体平移/普遍压缩/空间权重重分配取得改善，不能称选择优势区域被复现。",
+      "若两批方向相反、化学失败增加或外区结构受损，不按head评分单独晋升。",
+      "完整zero不一致、mask/参考不匹配、窗口外注入、缺失补零或dose饱和均先停止效应解释。"
+    ],
+    "no_automatic_iteration": "本文件不启动实验、额外轮次或自动调参；需要主流程在已有授权范围内决定是否实施。"
+  },
+  "uncertainties_and_deferred_claims": [
+    "没有证据证明ASN117/VAL116坐标控制能导致下一步评分或真实affinity提升。",
+    "没有从聚合表识别出最优3D路径或多模态密度。",
+    "需要全局NOS pose/全局transport控制后才能进一步讨论区域增量。",
+    "连续target有早期非平稳性，不能以固定bins或伪驻点规避。",
+    "无因果能量函数、无离散类别导数，后续终态物理评价与reward拟合是不同层次。"
+  ],
+  "boundaries": {
+    "remote_access": false,
+    "molecules_generated": 0,
+    "code_modified": false,
+    "frozen_prior_rewards_modified": false,
+    "new_models_trained": false,
+    "private_chain_of_thought_included": false
+  }
+}

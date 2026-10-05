@@ -1,6 +1,8 @@
 # EvoMolSteer · 完整选择窗口连续分析 v3
 
-**当前 seed42 终态实验**：`scripts/generate_local_flowr.py` 使用真实 FLOWR endpoint Jacobian，对学习窗口内的相关局部可接受集合施加有界梯度，窗口后原生继续至 t=1。无新增 SMC；每轮先保留报告并清理上一轮远端结构、轨迹和传输包，最多5轮。见 [固定 seed42 协议](docs/terminal_seed42_protocol_20261005.md) 和 [五轮结果与清理报告](docs/ck2_terminal_seed42_report_20261005.md)。
+**当前坐标优势挖掘与实验**：重新从第1轮计数，上限30轮。新增880项当前区域坐标/漂移观测，分开筛选富集、同期 affinity 关联和去重父节点的后续 gain。使用实测连续窗口的坐标奖励，固定 seed42，窗口后原生完成 t=1；每轮先保留报告再清理旧生成数据。见 [方法、接口与证据限制](docs/coordinate_affinity_mining_20261006.md)。
+
+**历史五轮 seed42 终态实验**：`scripts/generate_local_flowr.py` 使用真实 FLOWR endpoint Jacobian，对学习窗口内的相关局部可接受集合施加有界梯度，窗口后原生继续至 t=1。无新增 SMC。见 [历史协议](docs/terminal_seed42_protocol_20261005.md) 和 [五轮结果与清理报告](docs/ck2_terminal_seed42_report_20261005.md)。
 
 **实际中间态控制入口**：`scripts/generate_window_flowr.py` 将梯度范围绑定到学习参考的动态窗口，关闭 FLOWR 内置粒子重采样，主目标是严格窗口末端的 actual current 状态。接口、数学定义、数据格式和复用命令见 [window_gradient_generation.md](docs/window_gradient_generation.md)。旧 full-horizon multistage 配置保留为历史实验，不是此入口的默认行为。
 

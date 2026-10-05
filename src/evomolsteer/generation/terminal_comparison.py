@@ -83,7 +83,7 @@ def compare(manifest_path, output):
     pd.DataFrame(pairs).to_csv(out/'paired_batch_differences.csv', index=False)
     regional.to_csv(out/'window_regional_metrics.csv', index=False)
     report = {'schema_version': 'terminal-comparison-1.0', 'master_seed': 42,
-              'maximum_rounds': 5, 'round': manifest['round'], 'groups': manifest['groups'],
+              'maximum_rounds': manifest.get('maximum_rounds',5), 'round': manifest['round'], 'groups': manifest['groups'],
               'new_arms_exact_initial_state_pairing': True, 'decisions': decisions, 'sources': sources,
               'uncertainty': 'Fixed seed and reused development batches; particles are not independent experimental replicates. No inferential CI is issued.'}
     write_json(out/'comparison.json', report)
