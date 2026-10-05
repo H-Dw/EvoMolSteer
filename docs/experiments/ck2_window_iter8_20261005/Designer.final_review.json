@@ -1,0 +1,147 @@
+{
+  "schema_version": "designer-final-result-review-1.0",
+  "agent": "Designer",
+  "execution_identity": "subagent simulation",
+  "review_date": "2026-10-05",
+  "scope": "八轮实验完成后的本地只读结果复核；仅新增本文件。",
+  "review_status": "记录与冻结选择一致；新 seed 确认结果不足以建立稳定的改善。",
+  "evidence": [
+    {
+      "path": "results/window_iter8/report/frozen_confirmation.json",
+      "sha256": "013c38408776870582b1785e0296438756c175c513fbc78692e5f1574759fb3a"
+    },
+    {
+      "path": "results/window_iter8/ledger.json",
+      "sha256": "95f3f245e7ac12a4410a82b740eac3b26d0f5e723498f6b8f360447c1e27f063"
+    },
+    {
+      "path": "results/window_iter8/round_08/report.json",
+      "sha256": "5438410728642816364d8085a9776b16bb510209848a50633db2e83e93ee6b21"
+    },
+    {
+      "path": "results/window_iter8/program_deployment_audit.json",
+      "sha256": "c0f687ff9d8e72775e020c0ab4339a741bf878dc62059a0ee22f956eb9a03776"
+    }
+  ],
+  "selection_review": {
+    "adaptation_rounds": 7,
+    "frozen_confirmation_rounds": 1,
+    "total_executed_rounds": 8,
+    "accepted_incumbent": "round_03",
+    "rule": "相对当前 incumbent 的主指标均值至少改善 2%，且两个配对适配批次均改善。",
+    "all_seven_decisions_reproduced": true,
+    "all_eight_report_hashes_match_ledger": true,
+    "round_03_adaptation_improvement_percent": 9.328542385102079,
+    "round_05_rejection_reason": "相对第三轮均值改善 2.2681%，但一个适配批次变差，未满足全部批次改善的既定规则。",
+    "round_08_config_diff_from_round_03": {
+      "round": [
+        3,
+        8
+      ]
+    },
+    "confirmation_not_used_for_selection_or_retuning": true,
+    "interpretation": "第三轮的 9.33% 属于重复使用适配批次后选出的收益，不能替代第八轮新 seed 的 0.89% 确认结果，也不能与确认数据合并作为独立重复。"
+  },
+  "confirmation": {
+    "seed": 20261225,
+    "independent_unit": "配对批次",
+    "n_paired_batches": 4,
+    "candidates_per_batch_per_arm": 16,
+    "candidates_per_arm": 64,
+    "initial_state_signatures_match_in_all_pairs": true,
+    "exact_time": 0.5,
+    "representation": "actual_current_world_A",
+    "primary_definition": "固定受体坐标系下，以几何最优原子指派 RMSD 为分子距离的双向最近邻距离均值；按配对批次统计。",
+    "delta_convention": "gradient - native；负值表示距离或误差改善。",
+    "symmetric_shape_A": {
+      "native_mean": 0.23294713555658247,
+      "gradient_mean": 0.23086939500653778,
+      "mean_delta": -0.002077740550044664,
+      "paired_t_95CI_delta": [
+        -0.042898132384383655,
+        0.03874265128429433
+      ],
+      "relative_improvement_percent": 0.8919365095777398,
+      "improved_batches": 2,
+      "worsened_batches": 2
+    },
+    "generated_to_reference_A": {
+      "native_mean": 0.234615388867728,
+      "gradient_mean": 0.22516506980571058,
+      "mean_delta": -0.009450319062017438,
+      "paired_t_95CI_delta": [
+        -0.05982236758868985,
+        0.04092172946465497
+      ],
+      "relative_improvement_percent": 4.028004773099236,
+      "improved_batches": 2,
+      "worsened_batches": 2
+    },
+    "reference_to_generated_A": {
+      "native_mean": 0.23127888224543688,
+      "gradient_mean": 0.236573720207365,
+      "mean_delta": 0.005294837961928131,
+      "paired_t_95CI_delta": [
+        -0.04625213543840498,
+        0.05684181136226124
+      ],
+      "relative_improvement_percent": -2.2893737251415525,
+      "improved_batches": 1,
+      "worsened_batches": 3
+    },
+    "chemistry_diagnostics": {
+      "atom_fraction_L1_relative_improvement_percent": -11.87638975996348,
+      "bond_fraction_L1_relative_improvement_percent": -1.74352871169281,
+      "atom_mismatch_geometry_assignment_relative_improvement_percent": 0.26269702276706663,
+      "bonded_union_mismatch_relative_improvement_percent": 0.2427339264535422,
+      "interpretation": "类型组成与键组成误差的点估计变差，几何对应下的类型和键不匹配仅有小幅下降；未建立化学匹配改善。几何对应下的不匹配率不是化学无效分子比例。"
+    },
+    "all_seven_paired_metric_CIs_recomputed_and_match": true,
+    "all_seven_metric_CIs_cross_zero": true
+  },
+  "execution_and_deployment": {
+    "active_gradient_steps_per_batch": 50,
+    "new_particle_resampling": false,
+    "outside_window_injection": false,
+    "nonzero_control_fraction": 1,
+    "gradient_below_threshold_fraction": 0,
+    "backtrack_rejected_fraction": 0,
+    "cap_fraction": 0.8028124999999999,
+    "mean_injection_rms_A": 0.014537337928777561,
+    "path_rms_A": 0.7268668990582228,
+    "interpretation": "控制确实执行；弱确认收益不能归因于引导未开启。约 80.28% 的控制事件触及裁剪，实际剂量受约束影响，eta=0.3 不能解释为每步实际注入恒为 native 步长的 30%。",
+    "all_eight_deployments_json_identical": true,
+    "all_eight_deployments_LF_normalized_identical": true,
+    "round_01_to_07_byte_difference": "Windows CRLF 与 Linux LF；JSON 内容一致，审计保存两套字节 SHA。",
+    "round_08_byte_identical": true,
+    "round_08_program_sha256": "1377ac08407a38f12902903f00e530ab8c2181e5ad3eb3bd87e78575c7a15a52",
+    "code_commit": "b08502be6e59305054a637bd358d06ab87ea3886",
+    "analysis_implementation_sha256": "e13bff9d6af4c4d6eb220a6cf3d3bf2c0bbcff447f1ad723651626fb380a637f"
+  },
+  "conclusions": [
+    "第八轮主指标点估计改善 0.89%，4 对批次中仅 2 对改善，95% CI 跨零；没有复现第三轮 9.33% 的适配收益，也未建立对无引导的稳定优势。这不等于证明真实效应为零或两种方法等效。",
+    "生成样本到参考的距离点估计改善 4.03%，参考到生成样本的覆盖距离变差 2.29%。两方向的 CI 均跨零；其不对称性可提示局部靠近与覆盖之间的权衡，不能据此认定已经发生模式塌缩。",
+    "本轮检验对象是严格 t=0.5 的真实中间状态。它没有证明最终 t=1 分子的质量、真实亲和力或物理能量改善。"
+  ],
+  "limitations": [
+    "统计样本量为 4 个配对批次。每臂 64 个候选和 700 个参考候选不能充当独立重复；小样本 paired-t 区间依赖批次差值分布假设，精度有限。",
+    "参考来自同一靶点的 14 个发现批次，存在谱系和克隆相关性。新 seed 确认只检验固定靶点、固定参考下的迁移，不能推断跨靶点泛化。",
+    "双向最近邻几何距离并不约束群体概率质量或恢复完整原子类型、键图；较低无类型形状距离不等于化学机制或优势区域因果规律已被学得。",
+    "冻结的第三轮程序只使用无类型坐标 MMD。此前实现审阅确认其梯度作用于实际 native proposal 的坐标，不通过 FLOWR 模型 Jacobian；硬类型和键诊断不构成可微离散化学控制。没有记录物理能量，不能把几何距离或奖励称为能量。",
+    "本次复核重算了摘要中的配对均值与 CI、重放选择规则并校验报告字节 hash；未重新运行远端推理或从原始结构重建全部评价。部署结论依赖已保存的部署审计记录。"
+  ],
+  "next_unexecuted_hypothesis": {
+    "status": "仅建议，尚未执行，不构成第九轮",
+    "hypothesis": "逐粒子的参考 soft-min 可能更容易靠近部分参考形状，未保证生成群体覆盖参考分布。",
+    "candidate": "在保持梯度控制且不重采样的独立后续方案中，比较带参考质量约束的可微群体匹配或覆盖损失与现有逐粒子混合奖励；先按原始批次及谱系处理参考权重，避免按克隆数量夸大模式权重。",
+    "falsifiable_test": "预先冻结目标与选择规则，匹配实际注入剂量，使用新的配对 seeds；同时考察双向形状距离、参考覆盖、化学诊断及控制代价。若反向覆盖未改善或正向改善明显丢失，则不支持该假说。",
+    "rationale_limit": "方向不对称只是产生假说的依据，其置信区间跨零，不能证明原因。"
+  },
+  "action": {
+    "stop_after_round_08": true,
+    "round_09_started": false,
+    "parameters_changed": false,
+    "source_or_results_modified": false,
+    "only_created_artifact": "docs/experiments/ck2_window_iter8_20261005/Designer.final_review.json"
+  }
+}

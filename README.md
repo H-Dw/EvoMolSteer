@@ -2,6 +2,8 @@
 
 **实际中间态控制入口**：`scripts/generate_window_flowr.py` 将梯度范围绑定到学习参考的动态窗口，关闭 FLOWR 内置粒子重采样，主目标是严格窗口末端的 actual current 状态。接口、数学定义、数据格式和复用命令见 [window_gradient_generation.md](docs/window_gradient_generation.md)。旧 full-horizon multistage 配置保留为历史实验，不是此入口的默认行为。
 
+**八轮实验已完成**：共 416 个候选，78 项测试通过。冻结奖励在新种子上的形状距离平均只改善 0.89%，四个配对批次的区间跨零，尚未确认稳定拟合 Steer 中间态。完整结果、各轮决策、奖励公式、范围和局限见 [八轮窗口拟合报告](docs/ck2_window_iter8_report_20261005.md)。
+
 主分析现已改为对 **0–0.5 的全部实际选择节点**统一分析，不再汇总为 0.1 宽子区间。连续趋势、双侧富集、窗口末端谱系留存、选择/生成变化分解、全局函数拟合及解析导数分别保存；新增区域坐标、原子、形式电荷和化学键观测。物理能量缺失时不以几何代理冒充。
 
 ```powershell
@@ -10,7 +12,7 @@
 
 [v3 方法、公式和输出接口](docs/continuous_analysis_v3.md) · [完整运行、优势 seed 特征和函数拟合结果](docs/continuous_single_v3_report_20261005.md)。本地与远端已完成复算，104 张主要结果表数值一致；58 项测试通过。默认配置已切换 v3；下面的 v2 方法与既有梯度实验作为历史记录保留，不能与新统计混用。
 
-## 多阶段奖励与全程梯度推理
+## 历史实验：多阶段奖励与全程梯度推理
 
 `scripts/build_multistage_reward.py` 从 discovery 的逐时刻留存祖先提取相关区域目标；Designer 选择的稳健混合奖励使用局部PCHIP拟合，在全部100个积分步上通过 live endpoint Jacobian引导当前坐标。0.5后的末端参考维持是显式实验假设。内部协方差尺度和外部native-step位移比例分开；强度先在独立pilot校准。
 
