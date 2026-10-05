@@ -96,7 +96,7 @@ def validate_campaign(root):
     return cfg
 
 
-def evaluate(dataset,campaign,original,original_campaign,output,reference_batches=range(14)):
+def evaluate(dataset,campaign,original,original_campaign,output,reference_batches=range(14),save_assignment_details=False):
     root=Path(dataset)/'results'/campaign;original=Path(original)/'results'/original_campaign
     out=Path(output);out.mkdir(parents=True,exist_ok=True)
     cfg=validate_campaign(root);p=read_json(root/'reward_program.json');a,end=p['window']
@@ -126,7 +126,8 @@ def evaluate(dataset,campaign,original,original_campaign,output,reference_batche
                  'bonded_union_mismatch':float(bond_union[ids,nearest].mean()),
                  'atom_fraction_L1':float(np.abs(np.bincount(atoms.ravel(),minlength=15)/atoms.size-np.bincount(ya.ravel(),minlength=15)/ya.size).sum()),
                  'bond_fraction_L1':float(np.abs(np.bincount(bonds[:,~np.eye(bonds.shape[1],dtype=bool)].ravel(),minlength=5)/ (len(bonds)*bonds.shape[1]*(bonds.shape[1]-1))-np.bincount(yb[:,~np.eye(yb.shape[1],dtype=bool)].ravel(),minlength=5)/(len(yb)*yb.shape[1]*(yb.shape[1]-1))).sum())}
-            np.savez_compressed(out/f'{arm}_{batch:03d}_assignment_metrics.npz',shape_A=shape,typed_mismatch=typed,bond_mismatch=bond,bonded_union_mismatch=bond_union)
+            if save_assignment_details:
+                np.savez_compressed(out/f'{arm}_{batch:03d}_assignment_metrics.npz',shape_A=shape,typed_mismatch=typed,bond_mismatch=bond,bonded_union_mismatch=bond_union)
             trace=[json.loads(line) for line in (path/'guidance_trace.jsonl').read_text().splitlines()]
             if [r['step'] for r in trace]!=list(range(cfg['experiment']['steps'])):raise ValueError('Incomplete guidance trace')
             eligible=[r for r in trace if r['reward_evaluated']]
@@ -160,6 +161,7 @@ def evaluate(dataset,campaign,original,original_campaign,output,reference_batche
             'initial_state_signatures':initial_signatures,'trajectory_sha256':trajectory_hashes,
             'code_commit':cfg['extension']['code_commit'],'seed':cfg['experiment']['seed'],
             'analysis_implementation_sha256':digest(__file__),'numpy':np.__version__,'scipy':scipy.__version__,
-            'new_particle_resampling':False,'outside_window_injection':False,'analysis_location':'local'}
+            'new_particle_resampling':False,'outside_window_injection':False,'analysis_location':'local',
+            'assignment_detail_saved':save_assignment_details}
     pd.DataFrame(trends).to_parquet(out/'all_window_node_descriptors_and_rates.parquet',index=False,compression='zstd')
     write_json(out/'report.json',report);return report

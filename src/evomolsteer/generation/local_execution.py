@@ -54,6 +54,11 @@ def audit(dataset,campaign,reference_path,output):
                 'mean_inside_fraction':float(np.mean([v['inside'] for v in available])) if available and 'inside' in available[0] else None})
             sources.append({'path':str(folder/'trajectory.h5'),'sha256':digest(folder/'trajectory.h5')})
     d=pd.DataFrame(rows);d.to_csv(out/'regional_time_metrics.csv',index=False)
+    window=d[(d.time>=a-1e-6)&(d.time<=b+1e-6)].copy()
+    for _,group in window.groupby(['arm','batch']):
+        for name in ['mean_deficit','inside_fraction_available',*ref['features']]:
+            window.loc[group.index,'d_dt_'+name]=np.gradient(group[name],group.time)
+    window.to_csv(out/'regional_window_trends.csv',index=False)
     report={'campaign':campaign,'seed':42,'code_commit':cfg['extension']['code_commit'],'reference_sha256':digest(reference_path),
         'program_sha256':digest(root/'reward_program.json'),'window':ref['window'],'integration_steps':100,
         'no_particle_resampling':True,'outside_window_injection':False,
@@ -62,3 +67,33 @@ def audit(dataset,campaign,reference_path,output):
         'late_reference_interpretation':'Frozen window-end acceptable set is used only to observe native continuation; no late intervention'}
     if (root/'live_jacobian_preflight.json').exists():report['live_jacobian']=read_json(root/'live_jacobian_preflight.json')
     write_json(out/'execution_report.json',report);return report
+
+
+def original_regional(dataset,campaign,reference_path,batches,output):
+    """Original selection-window observations, exposing candidate and copy mass."""
+    root=Path(dataset)/'results'/campaign;out=Path(output);out.mkdir(parents=True,exist_ok=True)
+    cfg=read_json(root/'config.json');ref=load_reference(reference_path);a,b=ref['window']
+    rows=[];sources=[]
+    for arm in ['single','unguided']:
+        for batch in batches:
+            folder=root/arm/f'batch_{batch:03d}';com=np.asarray(read_json(root/f'frame_batch_{batch:03d}.json')['target_com'])
+            with open_trajectory(folder/'trajectory.h5') as z:
+                times=np.round(z['score_time'][:,0].astype(float),6);ids=np.flatnonzero((times>=a-1e-6)&(times<=b+1e-6))
+                x=z['predicted_coords'][ids].astype(float)*cfg['coord_scale']+com[None,:,None,:]
+                atoms=z['predicted_atomics'][ids];mask=z['mask'][ids]
+                values=measure_patch(x.reshape(-1,x.shape[2],3),atoms.reshape(-1,atoms.shape[2]),mask.reshape(-1,mask.shape[2]),ref['catalog']).reshape(len(ids),len(com),-1)
+                weights=z['selection_probability'][ids];copies=z['offspring_count'][ids]
+            for i,step in enumerate(ids):
+                j=int(np.abs(np.array(ref['times'])-times[step]).argmin());f=ref['frames'][j]
+                valid=np.isfinite(values[i]).all(1);delta=values[i,valid]-f['center_A']
+                q=np.einsum('bi,ij,bj->b',delta,np.linalg.inv(f['covariance_A2']),delta)/f['radius_squared']
+                deficit=np.maximum(np.sqrt(q)-1,0)
+                for kind,w in [('candidate',np.ones(valid.sum())),('selection_probability',weights[i,valid]),('realized_copy_mass',copies[i,valid])]:
+                    rows.append({'arm':arm,'batch':batch,'time':float(times[step]),'mass':kind,'n_available':int(valid.sum()),
+                                 'mean_deficit':float(np.average(deficit,weights=w)) if w.sum()>0 else None,
+                                 'inside_fraction_available':float(np.average(q<=1,weights=w)) if w.sum()>0 else None})
+            sources.append({'path':str(folder/'trajectory.h5'),'sha256':digest(folder/'trajectory.h5')})
+    d=pd.DataFrame(rows);d.to_csv(out/'original_regional_window.csv',index=False)
+    write_json(out/'original_regional_report.json',{'window':ref['window'],'sources':sources,'reference_sha256':digest(reference_path),
+        'endpoint_diagnostics_at_window_end':d[np.isclose(d.time,b)].to_dict('records'),
+        'interpretation':'Selected probability and realized copies condition on available regional observables; original SMC mass is not independent unique molecules.'})
