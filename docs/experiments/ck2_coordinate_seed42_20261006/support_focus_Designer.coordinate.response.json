@@ -1,0 +1,49 @@
+{
+  "agent": "Designer",
+  "architecture": "coordinate_mixture",
+  "channel": "NOS",
+  "design_status": "exploratory",
+  "dose_reference": "predictive_flow",
+  "evidence_ids": [
+    "coordinate:discovery:ck2:A:ASN117::NOS::anchor_core_weight:population_mean",
+    "coordinate:discovery:ck2:A:ASN117::NOS::current_core_weight:population_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::anchor_core_weight:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::current_core_weight:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::effective_slots:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_y:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_z:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:selected_mean",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+    "influence:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selection_shift",
+    "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+    "influence:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+    "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:lag_partial_gain_correlation",
+    "D_LINEAGE"
+  ],
+  "limitations": [
+    "调用身份：subagent simulation；这是待 Round4 评价后冻结的探索候选，不是执行命令或已验证奖励。没有读取 Round4 结果、heldout 或运行推理。",
+    "只改变区域集合；保持 Round4 的 eta、剂量标尺、归一化约定、时间映射、积分器、caps、mask、参考提取及评估口径。D 从联合八维变为单区域四维属于此区域删减的必然变化，不能称为相同数值奖励或相同实际剂量。",
+    "predictive_flow 指 dt*(predicted_endpoint-current)/(1-t) 的一致坐标单位 RMS；eta 只控制注入相对此标尺的量级。它不会替换原生 SDE、删除首节点或承诺有限步上升；当前字段名 native_rms_ratio 不应被误读为 observed_native 位移比率。",
+    "proposal 的评价时间为 t+dt；动态窗口来自 bundle，最后 0.49→0.50 注入，之后纯 native 到 t=1，无新 SMC。完整节点贡献仍全部保留，不采用固定 0.1 时间分箱。",
+    "预测终点及硬 NOS 掩码在本次求导中固定，梯度作用在 proposal 坐标；不宣称对硬类型或键反传，也不宣称这是经过 endpoint 模型 Jacobian 的梯度。缺少可用 NOS 槽位时跳过并记录，不补零；极小梯度不得归一化成固定大剂量。",
+    "VAL116 当前态核心支持极低、有效槽位约两个；经验组件受根谱系塌缩影响，四维特征不唯一还原分子。混合温度、Huber delta、eta 及协方差正则化是沿用的工程参数，不是已证明的生物最优值。",
+    "preserve_native_rigid_pose=false 是本候选冻结选项。true 仅保留为未执行的独立投影消融：其平移/转动补偿会作用于周围原子，周围区域不能叫完全未受控；正交投影的一阶 ascent 也不等于 MMFF 或周围适配改善。",
+    "本轮不把选择关联、同期 affinity 和下一步 gain 合并成因果证据，不把模型 head 当实验亲和力。原始 SMC 的物理与评分优势仍须保留作参照；主 seed42 的开发比较不支持未见 seed 泛化。",
+    "不能从现有汇总数生成参考数组；执行前应由既有编译器绑定真实参考和程序哈希。候选必须经真实 FD、zero/native 一致性和时间门控检查，并按全部失败分母报告实际结构、唯一性、head 和有效图上的物理指标。"
+  ],
+  "mixture_temperature": 0.25,
+  "native_rms_ratio": 0.05,
+  "preserve_native_rigid_pose": false,
+  "rationale": "第五轮候选只把 Round4 的 joint ASN117+VAL116/NOS 缩减为 VAL116/NOS，保留 coordinate_mixture、eta=0.05、tau=0.25、delta=1、predictive_flow 剂量标尺和不做刚体投影。依据是 ASN117 的 anchor/current 5 Å 核心支持为零，而 VAL116 有预测锚定支持；VAL proposal_x 的小幅调整后 lag 分布于多个节点，不能随 native_y 首步效应一并否定。固定 endpoint 的槽位权重和硬 NOS 掩码，在真实原生 proposal 上测量 z=(centroid_x,centroid_y,centroid_z,spread)，直接计算该坐标的条件梯度。沿用既有 discovery 0–13 批次参考提取和正则化，D=4，q_b=((z-mu_b)^T Sigma_b^(-1) (z-mu_b))/D，rho(q)=delta^2*(sqrt(1+q/delta^2)-1)，R=tau*log(sum_b pi_b*exp(-rho(q_b)/tau))，pi_b=1/14。每个组件只是批次经验均值及其协方差，不是已发现的真实姿态模式；不硬指定 +x 或 -y。该设计检验去除缺乏区域支持的约束是否改善真实 proposal 结构及周围适配，结果未知；需先完成 Round4 评价、归档和授权清理，才由主流程冻结执行。",
+  "regions": [
+    "ck2:A:VAL116"
+  ],
+  "robust_delta": 1.0,
+  "schema_version": "coordinate-1.0",
+  "window": [
+    0.0,
+    0.5
+  ]
+}

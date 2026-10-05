@@ -1,0 +1,141 @@
+{
+  "agent": "Analyst",
+  "counterevidence": [
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::anchor_core_weight:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::effective_slots:selection_shift"
+      ],
+      "finding": "VAL116/NOS anchor_core_weight 的选择偏移为 +0.00117953689817，q=0.245497868803；effective_slots 的选择偏移 q=0.992702367911。较高预测核心支持并不等于显著选择富集。",
+      "uncertainty": "支持度可用于拒绝不受支持的局部解释，但不能直接排序真实亲和力收益。"
+    },
+    {
+      "evidence_ids": [
+        "D_COUNTS",
+        "D_LINEAGE"
+      ],
+      "finding": "主 240 特征检验族中，调整后 lag 仅 16 项 q<0.05，同期调整后关联 3 项，retained_shift 没有 q<0.05 的项。窗口末平均独立根仅 1.2142857，14 批中 11 批仅剩一个根。",
+      "uncertainty": "独立统计单位应保留为批次；粒子、复制后代、时间节点及所谓混合组件不能扩充独立 n。新增 80 项 transport/support 与主检验族不得冒充统一校正集合；不得与旧 40 区域 q 值直接比较。"
+    },
+    {
+      "evidence_ids": [
+        "influence:discovery:ck2:A:ASN117::NOS::native_velocity_y:selection_shift",
+        "influence:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+        "influence:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation"
+      ],
+      "finding": "ASN117 及 VAL116 的 native_y 都具有强首节点贡献，说明单一区域名下的统计可能承载共同原生积分行为。VAL116 的 proposal_x lag 不由首节点主导，但目前也未证明其区域特异性优于全局平移或其他共享几何变化。",
+      "uncertainty": "移除 ASN117 的匹配探索可检验表征必要性；它本身不能解决所有区域特异性、空间干预和谱系混杂。"
+    }
+  ],
+  "limitations": [
+    "调用身份：subagent simulation，模拟 Analyst API 响应；只使用复合请求中的 discovery 0–13 统计引用。未读取 heldout 14–19 或 Round4 结果。",
+    "请求 bundle_sha256=338525148de6bad39a8818cf1dd4045c8fb1aa9768a22f206ca5c247d1ab37c4；transport/support 与完整节点贡献均来自本次复合请求，不从旧报告补入未供应的 evidence_id。",
+    "源码语义另由 native_integrator_source_audit.json 提供：g_0=100、dt=0.01 的 SDE score drift 几乎消除初态先验；measured proposal-current 包含原生 drift 与噪声，不是纯预测 flow。此审计不是额外统计证据 ID。",
+    "区域由预测 endpoint 及其硬 NOS 类别确定，测量对象是 matched slots 的 current/proposal 坐标。预测硬类别不等于当前已实现化学，不能虚构离散类型或键的可微梯度。",
+    "control_representation=proposal：评分 t 对应原生 proposal x_(t+dt)。分析保留完整 51 个评分节点；可执行奖励仅使用 proposal 时间不超过动态窗口末端的记录，0.49→0.50 是最后控制步，不能把 score=0.50 的 proposal 0.51 注入窗口。",
+    "时间趋势及其导数不等于空间奖励梯度；没有独立物理能量序列，不能把 native displacement、transport residual、评分或协方差称为物理力或能量。",
+    "所有机制性方向规则保持 deferred。Designer 可提供受限的经验分布匹配探索，但本次响应不宣称亲和力因果改善或区域机制已被识别。"
+  ],
+  "observations": [
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::anchor_core_weight:population_mean",
+        "coordinate:discovery:ck2:A:ASN117::NOS::current_core_weight:population_mean",
+        "coordinate:discovery:ck2:A:ASN117::all::anchor_core_weight:population_mean",
+        "coordinate:discovery:ck2:A:ASN117::all::current_core_weight:population_mean"
+      ],
+      "finding": "在 discovery 0–13 的整个记录窗口中，ASN117 的 endpoint 5 Å 核心权重与 current 5 Å 核心权重均为零，all/NOS 两通道一致。非零的归一化 Gaussian 特征不能据此称为 ASN117 的局部物理接触；这支持从本轮可执行区域约束中移除 ASN117。",
+      "uncertainty": "结论限定于已记录坐标、固定 5 Å 诊断半径和预测终点槽位定义；零支持不表示该残基在生物学上不重要，也不意味着所有 Gaussian 梯度为零。"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::anchor_core_weight:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::current_core_weight:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::effective_slots:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::effective_slots:population_mean"
+      ],
+      "finding": "VAL116/NOS 的 selected anchor_core_weight 窗口均值为 0.724177476116，但 selected current_core_weight 仅 0.00016943977033；selected effective_slots 为 1.89531176462（population 为 1.89622892083）。可讨论未来区域所对应槽位的坐标控制，不能称为当前态已形成稳定局部接触。",
+      "uncertainty": "核心权重是空间核质量，非接触样本比例或亲和力概率；effective_slots 是权重集中度而非独立原子数。约两个有效槽位使局部协方差和几何可辨识性受限。"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+        "influence:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift"
+      ],
+      "finding": "VAL116/NOS native_velocity_y 的 selection_shift 全窗口为 −0.046773033934（q=0.00246204730654）；首节点贡献 −0.0469313428864，其余节点合计 +0.000158308952435。首节点占绝对贡献和的 74.1857%，有效时间节点数约 1.80246；该选择偏移不支持整个窗口持续施加负 y 方向力。",
+      "uncertainty": "signed 总量中存在后续抵消，不能把首节点的绝对贡献份额写为 100%。原生 SDE 的启动收缩解释须结合源码审计；保留首节点和完整窗口，不通过删点制造阶段机制。"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "influence:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation"
+      ],
+      "finding": "VAL116/NOS proposal_centroid_x 的调整后下一步 gain 关联为 r=0.0318474115707，CI=[0.0169770235855,0.0467177995559]，q=0.0189623642788。首节点贡献 −0.00021921933185，仅占绝对贡献和 0.366277%，其余节点合计 +0.0320666309025，有效时间节点约 32.6590。因此 native_y 的首步主导不能用来否定这一跨节点的小效应。",
+      "uncertainty": "这是去重父节点、调整起点评分后的观察性关联，平均时间覆盖为 1，末 lag 时刻为 0.49；仍有存活父节点选择、共享评分器和谱系依赖。它不识别固定 +x 干预的因果收益。"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation"
+      ],
+      "finding": "同一 VAL116/NOS proposal_x 的选择偏移仅 +0.00000524301377509 Å（q=0.99809940935），调整后同期 affinity 关联 r=−0.0087037313958（q=0.757789504611）。选择富集、同期评分和下一步 gain 三种统计提供不同问题的证据，应分别报告。",
+      "uncertainty": "没有形成一致的选择—同期—滞后因果链；不能将显著的 lag q 值代替选择富集或实际干预验证。"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_y:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_z:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:lag_partial_gain_correlation"
+      ],
+      "finding": "请求提供 VAL116/NOS proposal 的 x、y、z 和 spread 参考，适合构造四维联合经验分布的探索性奖励。spread 的 selection_shift=−0.000255257821651 Å（q=0.73963616438），调整后 lag r=−0.0195283969563（q=0.499449798087），不支持单独规定持续压缩方向。",
+      "uncertainty": "参考均值及其非零 p 值只描述位置或尺度，不证明被选择的优势；四维统计不唯一决定分子结构、化学类型或局部能量。"
+    }
+  ],
+  "rules": [
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::anchor_core_weight:population_mean",
+        "coordinate:discovery:ck2:A:ASN117::NOS::current_core_weight:population_mean"
+      ],
+      "feature": "ck2:A:ASN117::NOS::anchor_core_weight",
+      "rationale": "暂停 ASN117 局部优势及方向规则：记录窗口内核心支持为零。本轮移除这一项是支持度诊断，不是该残基无功能的断言。",
+      "status": "deferred"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+        "influence:discovery:ck2:A:VAL116::NOS::native_velocity_y:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::native_velocity_y:lag_partial_gain_correlation"
+      ],
+      "feature": "ck2:A:VAL116::NOS::native_velocity_y",
+      "rationale": "暂停固定负 y 力：全窗口 selection_shift 的 signed 大小由首节点贡献及后续抵消解释；调整后 lag 的 CI 跨零、q=0.209597987713。可校正剂量标尺，不能将原生随机位移当优势方向。",
+      "status": "deferred"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "influence:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_centroid_x:partial_affinity_correlation"
+      ],
+      "feature": "ck2:A:VAL116::NOS::proposal_centroid_x",
+      "rationale": "暂停固定正 x 的机制性规则；保留跨节点的小幅正 lag 关联作为经验坐标混合奖励的探索依据，并使用联合分布及真实干预反证，而非单轴无限外推。",
+      "status": "deferred"
+    },
+    {
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:selected_mean",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::NOS::proposal_spread:lag_partial_gain_correlation"
+      ],
+      "feature": "ck2:A:VAL116::NOS::proposal_spread",
+      "rationale": "暂停单方向收缩规则；仅将 spread 作为四维混合参考的形状约束，并检验末态结构与周围适配，不能用当前非显著统计承诺改善。",
+      "status": "deferred"
+    }
+  ],
+  "schema_version": "coordinate-1.0"
+}
