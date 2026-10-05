@@ -4,6 +4,7 @@ No fitted neural network, atom correspondence, endpoint-to-current relabeling,
 or physical-energy interpretation. Coordinate gradients act on native proposals.
 """
 import math
+from pathlib import Path
 import numpy as np
 import torch
 from .window_reference import load_reference
@@ -12,7 +13,7 @@ from .window_reference import load_reference
 class WindowReward:
     def __init__(self, program, reference):
         self.program = program
-        self.reference = load_reference(reference) if isinstance(reference, (str, bytes)) else reference
+        self.reference = load_reference(reference) if isinstance(reference, (str, bytes, Path)) else reference
         self.window = tuple(self.reference['window'])
         if list(self.window) != program['window']:
             raise ValueError('Reward support must equal learning support')
@@ -57,7 +58,7 @@ class WindowReward:
                 columns.append(torch.where(valid,v,0.))
         return torch.stack(columns,1)
 
-    def __call__(self,x,atoms,bonds,time):
+    def component_costs(self,x,atoms,bonds,time,compute_all=False):
         y,ya,yb,mass=self.bank(time,x)
         if x.shape[1]!=y.shape[1]:raise ValueError('Reference atom count mismatch')
         xx=(x[:,:,None,:]-x[:,None,:,:]).square().sum(-1)
@@ -67,20 +68,27 @@ class WindowReward:
         for sigma in self.program['sigmas_A']:
             kxx=torch.exp(-xx/(2*sigma*sigma));kyy=torch.exp(-yy/(2*sigma*sigma));kxy=torch.exp(-xy/(2*sigma*sigma))
             shape=shape+kxx.mean((1,2))[:,None]+kyy.mean((1,2))[None]-2*kxy.mean((2,3))
-            if self.program['typed_weight']:
+            if self.program['typed_weight'] or compute_all:
                 axx=(atoms[:,:,None]==atoms[:,None,:]);ayy=(ya[:,:,None]==ya[:,None,:]);axy=(atoms[:,None,:,None]==ya[None,:,None,:])
                 typed=typed+(kxx*axx).mean((1,2))[:,None]+(kyy*ayy).mean((1,2))[None]-2*(kxy*axy).mean((2,3))
         shape=shape/len(self.program['sigmas_A']);typed=typed/len(self.program['sigmas_A'])
+        if not torch.is_tensor(typed):typed=torch.zeros_like(shape)
         bond=x.new_zeros(shape.shape)
-        if self.program['bond_weight']:
+        if self.program['bond_weight'] or compute_all:
             bx=self.bond_moments(x,bonds);by=self.bond_moments(y,yb)
             bond=(bx[:,None,:]-by[None,:,:]).square().mean(-1)
+        return {'shape':shape,'typed':typed,'bond':bond},mass
+
+    def __call__(self,x,atoms,bonds,time):
+        costs,mass=self.component_costs(x,atoms,bonds,time)
+        shape,typed,bond=(costs[key] for key in ['shape','typed','bond'])
         cost=shape+self.program['typed_weight']*typed+self.program['bond_weight']*bond
         temperature=self.program['temperature']
         logits=mass.log()[None]-cost/temperature
         reward=temperature*torch.logsumexp(logits,1)
         responsibility=logits.softmax(1)
         return reward, {'shape_loss':(responsibility*shape).sum(1),
+                        'typed_loss':(responsibility*typed).sum(1),
                         'bond_loss':(responsibility*bond).sum(1),
                         'responsibility_ess':1/responsibility.square().sum(1),
                         'nearest_shape_loss':shape.min(1).values}
