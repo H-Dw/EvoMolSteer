@@ -42,6 +42,9 @@ def render_report(data):
     return '\n'.join(lines)+'\n'
 
 def import_response(request_path,response_path,analysis):
+    if read_json(request_path).get('schema_version')=='coordinate-1.0':
+        from .continuous.coordinate_agents import import_response as coordinate_import
+        return coordinate_import(request_path,response_path,analysis)
     if read_json(request_path).get('schema_version')=='continuous-3.0':
         from .continuous.agent_contract import import_response as continuous_import
         return continuous_import(request_path,response_path,analysis)

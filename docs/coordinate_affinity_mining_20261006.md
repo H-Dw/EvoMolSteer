@@ -34,7 +34,7 @@ lag 数值缺失时明确给出可用时间覆盖，不填零或外推。
 
 ```powershell
 $env:PYTHONPATH='src'
-python scripts/mine_coordinate_advantages.py --dataset data/optimized/main1000_w050/analysis_inputs_v2 --campaign main1000_w050 --analysis results/continuous_single_v3 --output results/coordinate_affinity_v1
+python scripts/mine_coordinate_advantages.py --dataset data/optimized/main1000_w050/analysis_inputs_v2 --campaign main1000_w050 --analysis results/continuous_single_v3 --output results/coordinate_affinity_v2
 ```
 
 输出：`batch_coordinate_statistics.parquet` 为无损 float64/zstd 的批次统计；
@@ -44,6 +44,27 @@ python scripts/mine_coordinate_advantages.py --dataset data/optimized/main1000_w
 当前 20 批共 897,600 条批次/节点/特征统计，主体约 70 MB；相比此前约 730 MB
 特征缓存更小，但不能把两种不同统计范围的大小当作严格等价压缩率。
 保留原始无损轨迹、输入配置和 commit，才能重建这些统计。
+v2 修正 feature 特定缺失掩码：缺少 NOS 不会排除无关 all-atom 回归的候选。
+897,600 行重算确认，选择、富集和未调整相关等 13 个字段逐值一致。
+
+## Analyst / Designer 接口
+
+`scripts/coordinate_agents.py` 提供 export/import/api/compile 四种操作。
+与旧的 stage/endpoint 契约分离，使用严格 `coordinate-1.0` schema。
+导出只包含 discovery 的窗口效应、反证、区域观测、函数和谱系诊断；
+典型请求约 389 KB，不向 LLM 输入庞大的逐原子/逐种子坐标缓存。
+导入核查 bundle SHA、证据 ID、feature、region、窗口及有限的控制参数。
+Designer 只能选择白名单的 spread_upper 或 coordinate_mixture，不能执行任意生成代码。
+compile 从原始 discovery 坐标提取参考，输出可执行 program/reference，固定 seed42 与约束。
+API 复用现有 OpenAI-compatible HTTP 传输；需要显式设置 `EVOMOLSTEER_BASE_URL`、
+`EVOMOLSTEER_MODEL`、`EVOMOLSTEER_API_KEY`。本轮使用现有 subagent 模拟，不声称调用外部 API。
+
+```powershell
+python scripts/coordinate_agents.py --mining results/coordinate_affinity_v2 --action export --role Analyst
+python scripts/coordinate_agents.py --mining results/coordinate_affinity_v2 --action import --request results/coordinate_affinity_v2/agents/Analyst.coordinate.request.json --response <Analyst响应.json>
+python scripts/coordinate_agents.py --mining results/coordinate_affinity_v2 --action export --role Designer
+python scripts/coordinate_agents.py --mining results/coordinate_affinity_v2 --action compile --dataset data/optimized/main1000_w050/analysis_inputs_v2 --campaign main1000_w050 --output <新的冻结配置目录> --round 1
+```
 
 ## 审阅结果与可证伪设计
 
