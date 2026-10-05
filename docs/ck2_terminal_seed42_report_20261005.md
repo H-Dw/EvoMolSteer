@@ -87,3 +87,5 @@ PB dock_fast是结构检查子集。MMFF指标来自同图两阶段局部松弛�
 每轮保留成功和失败的候选指标、连续趋势、配置、代码/数据哈希与比较报告。生成结构和坐标轨迹已退休，报告不能逆推出这些明细；需按冻结源码、输入、模型、seed和运行环境重新生成，不承诺跨GPU版本逐字节复现。
 
 清理审计位于 [实验目录](experiments/ck2_terminal_seed42_20261005)：`cleanup_old_remote.json`、`cleanup_before_round02/03/04/05_remote.json` 和 `cleanup_final_remote.json`，另有对应local审计。原始 Steer目录和v2 checkpoint均受保护；checkpoint SHA256为 `f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0`。最终删除字节及任务关闭状态另存 `final_retention.json`。
+
+最终审计确认：本次列出的清理共删除远端529,843,283字节（529.84 MB）、本地1,313,999,663字节（约1.314 GB）。这些数字包含本次审计范围内的历史窗口输出，不计此前另行清理的空间。远端 `generated/results` 为空，保留报告哈希一致，关闭门已实际拒绝继续推理；原始数据和模型未删除。
