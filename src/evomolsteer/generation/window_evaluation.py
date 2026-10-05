@@ -1,8 +1,10 @@
 """Local exact-time validation with an independent optimal atom assignment metric."""
 import json
+import hashlib
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import scipy
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 from ..io import read_json, write_json, digest
@@ -100,11 +102,17 @@ def evaluate(dataset,campaign,original,original_campaign,output,reference_batche
     cfg=validate_campaign(root);p=read_json(root/'reward_program.json');a,end=p['window']
     references=[state(original,'single',i,end) for i in reference_batches]
     y,ya,yb=[np.concatenate([r[k] for r in references]) for k in range(3)]
-    results={};batchrows=[];trends=[]
+    results={};batchrows=[];trends=[];initial_signatures={};trajectory_hashes={}
     for arm in cfg['experiment']['arms'].split(','):
         allstates=[];summary=[];dose=[]
         for path in sorted((root/arm).glob('batch_*')):
             batch=int(path.name.split('_')[-1]);x,atoms,bonds=state(root,arm,batch,end)
+            with open_trajectory(path/'trajectory.h5') as z:
+                h=hashlib.sha256()
+                for key in ['current_coords','current_atomics','current_bonds','current_charges','mask']:
+                    value=np.ascontiguousarray(z[key][0]);h.update(str((key,value.shape,value.dtype)).encode());h.update(value.tobytes())
+                initial_signatures[f'{arm}/{batch}']=h.hexdigest()
+            trajectory_hashes[f'{arm}/{batch}']=digest(path/'trajectory.h5')
             trends.extend(continuous_diagnostics(root,arm,batch,a,end))
             if len(x)!=cfg['experiment']['batch']:raise ValueError('Candidate count mismatch')
             shape,typed,bond,bond_union=distances(x,atoms,bonds,y,ya,yb)
@@ -149,6 +157,9 @@ def evaluate(dataset,campaign,original,original_campaign,output,reference_batche
             'primary':'symmetric_shape_A, batch mean of bidirectional geometry-optimal assignment RMSD',
             'reference_batches':list(reference_batches),'reference_candidates':len(y),'results':results,
             'batch_results':batchrows,'zero_equivalence':zero,'program_sha256':digest(root/'reward_program.json'),
+            'initial_state_signatures':initial_signatures,'trajectory_sha256':trajectory_hashes,
+            'code_commit':cfg['extension']['code_commit'],'seed':cfg['experiment']['seed'],
+            'analysis_implementation_sha256':digest(__file__),'numpy':np.__version__,'scipy':scipy.__version__,
             'new_particle_resampling':False,'outside_window_injection':False,'analysis_location':'local'}
     pd.DataFrame(trends).to_parquet(out/'all_window_node_descriptors_and_rates.parquet',index=False,compression='zstd')
     write_json(out/'report.json',report);return report

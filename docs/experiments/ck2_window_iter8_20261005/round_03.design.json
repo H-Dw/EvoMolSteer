@@ -1,0 +1,111 @@
+{
+  "acceptance": "Frozen: primary mean improves >=2% and both paired adaptation batches improve over accepted incumbent; otherwise retain incumbent.",
+  "alternatives": [
+    "Decrease mixture temperature",
+    "Increase per-atom cap"
+  ],
+  "base_program": "configs/experiments/ck2_window_iter8_v1/round_01.json",
+  "base_program_sha256": "9c52a3deb02e2b1855a37293c2281162b8dfbaf9b96a02231f6489e22404e793",
+  "decision_rationale": "Round2 multiscale did not improve on round1 and neither passed both-batch promotion. Return to the simpler single kernel; increase only eta from .1 to .3 because cap saturation was 2 percent and mean step only .0058 A. This is an exploratory strength choice, not a fitted optimum.",
+  "evidence": [
+    {
+      "path": "results/window_iter8/round_01/report.json",
+      "results": {
+        "gradient": {
+          "active_steps": 50.0,
+          "atom_fraction_L1": 0.1515142857142857,
+          "atom_mismatch_geometry_assignment": 0.745,
+          "backtrack_rejected_fraction": 0.0,
+          "batches": 2,
+          "bond_fraction_L1": 0.0246797619047619,
+          "bond_mismatch_geometry_assignment": 0.6173958333333334,
+          "bonded_union_mismatch": 0.9129837913771264,
+          "cap_fraction": 0.02,
+          "generated_to_reference_A": 0.20434527021241544,
+          "gradient_below_threshold_fraction": 0.0,
+          "mean_injection_rms_A": 0.005827798980171792,
+          "n": 32,
+          "nonzero_control_fraction": 1.0,
+          "path_rms_A": 0.2913899412378669,
+          "reference_to_generated_A": 0.23864220110291245,
+          "symmetric_shape_A": 0.22149373565766395
+        },
+        "gradient_zero": {
+          "active_steps": 0.0,
+          "atom_fraction_L1": 0.1608,
+          "atom_mismatch_geometry_assignment": 0.7225,
+          "backtrack_rejected_fraction": 0.0,
+          "batches": 2,
+          "bond_fraction_L1": 0.022804761904761897,
+          "bond_mismatch_geometry_assignment": 0.6082291666666667,
+          "bonded_union_mismatch": 0.9041565216844931,
+          "cap_fraction": 0.0,
+          "generated_to_reference_A": 0.21251181027559904,
+          "gradient_below_threshold_fraction": 0.0,
+          "mean_injection_rms_A": 0.0,
+          "n": 32,
+          "nonzero_control_fraction": 0.0,
+          "path_rms_A": 0.0,
+          "reference_to_generated_A": 0.25001352064755095,
+          "symmetric_shape_A": 0.23126266546157498
+        },
+        "unguided": {
+          "active_steps": 0.0,
+          "atom_fraction_L1": 0.1608,
+          "atom_mismatch_geometry_assignment": 0.7225,
+          "backtrack_rejected_fraction": 0.0,
+          "batches": 2,
+          "bond_fraction_L1": 0.022804761904761897,
+          "bond_mismatch_geometry_assignment": 0.6082291666666667,
+          "bonded_union_mismatch": 0.9041565216844931,
+          "cap_fraction": 0.0,
+          "generated_to_reference_A": 0.21251181027559904,
+          "gradient_below_threshold_fraction": 0.0,
+          "mean_injection_rms_A": 0.0,
+          "n": 32,
+          "nonzero_control_fraction": 0.0,
+          "path_rms_A": 0.0,
+          "reference_to_generated_A": 0.25001352064755095,
+          "symmetric_shape_A": 0.23126266546157498
+        }
+      },
+      "sha256": "677245b12953332de7070381ca8fccf1f36dd411cce584a676e2dfb5aba8504b"
+    },
+    {
+      "path": "results/window_iter8/round_02/report.json",
+      "results": {
+        "gradient": {
+          "active_steps": 50.0,
+          "atom_fraction_L1": 0.16884285714285713,
+          "atom_mismatch_geometry_assignment": 0.745,
+          "backtrack_rejected_fraction": 0.0,
+          "batches": 2,
+          "bond_fraction_L1": 0.022596428571428573,
+          "bond_mismatch_geometry_assignment": 0.6147916666666666,
+          "bonded_union_mismatch": 0.9136959228415462,
+          "cap_fraction": 0.02,
+          "generated_to_reference_A": 0.20684361413496777,
+          "gradient_below_threshold_fraction": 0.0,
+          "mean_injection_rms_A": 0.005851432623312575,
+          "n": 32,
+          "nonzero_control_fraction": 1.0,
+          "path_rms_A": 0.29257162753492594,
+          "reference_to_generated_A": 0.23886594171285697,
+          "symmetric_shape_A": 0.22285477792391234
+        }
+      },
+      "sha256": "cfb6078d6d1099decd46f5ae74c8a87837dc756665f110e4a5c3b84c6956605d"
+    }
+  ],
+  "exact_revision": {
+    "native_rms_ratio": 0.3,
+    "round": 3
+  },
+  "hypothesis": "Threefold stronger native-relative control may overcome weak attraction to actual-state references.",
+  "interpretation": "Evidence, formula choices and parameter decisions; no private reasoning trace.",
+  "parent_round": 1,
+  "program_sha256": "a4856505076ba96b1f70ac49c2982eaa0ed595cea17187f40f06c356464d920e",
+  "round": 3,
+  "scope": "Actual states within unchanged learned window; no new SMC, no physical-energy claim; all analysis local.",
+  "status": "prepared"
+}
