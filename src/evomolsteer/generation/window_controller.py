@@ -32,6 +32,7 @@ class WindowExtension(Extension):
         p.add_argument('--input-dataset',required=True)
         p.add_argument('--program',required=True)
         p.add_argument('--reference',required=True)
+        p.add_argument('--export-terminal',action='store_true',help='Decode t=1 outputs and export same-state affinity-head predictions for local evaluation')
 
     def prepare(self,opt,out):
         if out.exists():raise FileExistsError(out)
@@ -156,19 +157,26 @@ class WindowExtension(Extension):
         with (trace.path/'guidance_trace.jsonl').open('a') as f:f.write(json.dumps(clean(row),allow_nan=False)+'\n')
         return curr
 
-    @staticmethod
-    def final_metrics(model,output,trace,path):
+    def final_metrics(self,model,output,trace,path):
+        if self.opt.export_terminal:
+            from .terminal_export import export_terminal
+            return export_terminal(model,output,trace,path)
         rows=[{'arm':trace.arm,'batch':trace.batch,'slot':i,'seed':trace.seed,'build_success':False,
                'build_status':'not_evaluated_remote_inference_only'} for i in range(len(output['coords']))]
         write_json(path/'final_records.json',rows)
         return rows
 
-    @staticmethod
-    def summarize(rows):return {'n':len(rows),'chemical_build':'not_evaluated','role':'inference_only'}
+    def summarize(self,rows):
+        result={'n':len(rows),'chemical_build':'not_evaluated','role':'inference_only'}
+        if self.opt.export_terminal:
+            result.update(chemical_build='decoded',decoded=sum(r['build_success'] for r in rows),scientific_evaluation='deferred_local')
+        return result
 
-    @staticmethod
-    def amend_batch_summary(summary):
-        summary['built']=None;summary['chemical_build']='not_evaluated_remote_inference_only'
+    def amend_batch_summary(self,summary):
+        if self.opt.export_terminal:
+            summary['chemical_build']='decoded; scientific evaluation deferred_local'
+        else:
+            summary['built']=None;summary['chemical_build']='not_evaluated_remote_inference_only'
 
 
 def main():
