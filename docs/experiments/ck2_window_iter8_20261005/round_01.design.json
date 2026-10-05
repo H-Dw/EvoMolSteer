@@ -1,0 +1,37 @@
+{
+  "round": 1,
+  "status": "prepared_pending_execution_scope_answer",
+  "reference": "14 discovery batches; two mass-weighted actual-state medoids per batch/time; 51 times",
+  "evidence": "Prior endpoint-distance reward did not fit actual states. New request requires exact current state and matched learning/control support.",
+  "formula": "R(q,s)=T log sum_r pi_r exp(-MMD_sigma(q,Y_r(s))/T); delta=bounded eta*RMS(native)*gradient/RMS(gradient).",
+  "parameters": {
+    "sigma_A": 0.3161694453533225,
+    "sigma_source": "median within-molecule nearest-neighbor spacing pooled over discovery reference frames",
+    "temperature": ".03 engineering starting value, dimensionless kernel distance",
+    "eta": ".1 exploratory starting ratio",
+    "caps": "inherited conservative .025 A per atom, 1.25 A cumulative RMS, newly severe receptor pair guard"
+  },
+  "alternatives": [
+    "multiscale kernels",
+    "typed spatial kernel",
+    "hard-bond distance moments",
+    "continuous time strength schedule"
+  ],
+  "selection_reason": "Establish true-state gradient/zero equivalence before increasing complexity.",
+  "primary_metric": "batch mean symmetric bidirectional Hungarian atom-assignment RMSD, fixed receptor frame",
+  "promotion_policy": "Require at least 2% lower primary mean vs incumbent and both adaptation batches improve; atom/bond changes separately reported. Only 2 adaptation batches, no significance claim.",
+  "seed_plan": {
+    "adaptation_seed": 20261205,
+    "confirmation_seed": 20261225,
+    "n_adaptation": 32,
+    "batch": 16,
+    "n_confirmation": 64
+  },
+  "limits": {
+    "max_rounds": 8,
+    "no_particle_resampling": true,
+    "no_post_window_control": true,
+    "remote_inference_only": true
+  },
+  "reproducibility": "This is an evidence/formula/parameter decision record, not private chain-of-thought."
+}

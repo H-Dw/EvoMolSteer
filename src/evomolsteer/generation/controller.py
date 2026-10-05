@@ -285,6 +285,8 @@ def main(extension=None):
             'selection_mode':'selective SMC resampling on each upstream integration step inside the configured window; no coordinate reward gradient',
             'deviations':'common-frame correction; matched SDE all arms; fixed reference ligand atom count; exact CK2 paper window and batch size unreported; no diversity filter during collection'}
     if extension is not None: config['extension']=extension.describe()
+    if extension is not None and hasattr(extension, 'amend_config'):
+        extension.amend_config(config)
     (out/'config.json').write_text(json.dumps(config,indent=2,default=str))
     allrows=[]; started=time.time()
     for batch,(bt,bo) in enumerate(zip(dlt,dlo)):
@@ -303,6 +305,8 @@ def main(extension=None):
                         steps=opt.steps,times=[torch.zeros(b,device='cuda') for _ in range(3)],
                         apply_guidance=True,guidance_window_start=opt.window_start,guidance_window_end=opt.window,coord_noise_level=.2)
             before=rng_state(); t0=time.time()
+            if extension is not None and hasattr(extension, 'generation_kwargs'):
+                kwargs.update(extension.generation_kwargs())
             output=model._generate_selective(**kwargs); trace.finish(output)
             if opt.verify_passive and batch==0 and arm=='joint':
                 set_rng(before)
@@ -311,10 +315,13 @@ def main(extension=None):
                                   guidance_window_start=opt.window_start,guidance_window_end=opt.window,coord_noise_level=.2)
                 checks={k:bool(torch.equal(output[k],baseline[k])) for k in ['coords','atomics','bonds','charges','mask']}
                 (path/'passive_capture_equivalence.json').write_text(json.dumps(checks,indent=2)); assert all(checks.values()),checks
-            rows=final_metrics(model,output,trace,path); allrows.extend(rows)
+            metrics_fn = getattr(extension, 'final_metrics', final_metrics)
+            rows=metrics_fn(model,output,trace,path); allrows.extend(rows)
             summary={'arm':arm,'batch':batch,'n':b,'built':sum(r['build_success'] for r in rows),
                      'seconds':time.time()-t0,'resampling_steps':[e['step'] for e in trace.events if e['resampled']],
                      'bytes':sum(f.stat().st_size for f in path.rglob('*') if f.is_file())}
+            if extension is not None and hasattr(extension, 'amend_batch_summary'):
+                extension.amend_batch_summary(summary)
             (path/'COMPLETE.json').write_text(json.dumps(summary,indent=2))
             print(json.dumps(summary),flush=True)
             del output,trace; torch.cuda.empty_cache()
@@ -325,6 +332,9 @@ def main(extension=None):
     result={'status':'complete','records':len(allrows),'seconds':time.time()-started}
     for arm in opt.arms.split(','):
         rows=[r for r in allrows if r['arm']==arm]
+        if extension is not None and hasattr(extension, 'summarize'):
+            result[arm]=extension.summarize(rows)
+            continue
         result[arm]={'n':len(rows),'built':sum(r['build_success'] for r in rows),
                      'unique_smiles':len(set(r['smiles'] for r in rows if r['smiles'])),
                      **{k:float(np.mean([r[k] for r in rows])) for k in ['pic50_on_upstream','pic50_off_upstream','gap_upstream','pic50_on_rescore','pic50_off_rescore','gap_rescore']}}
