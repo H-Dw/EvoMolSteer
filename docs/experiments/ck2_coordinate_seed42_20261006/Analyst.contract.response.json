@@ -1,0 +1,134 @@
+{
+  "schema_version": "coordinate-1.0",
+  "agent": "Analyst",
+  "observations": [
+    {
+      "finding": "Discovery 0–13 的整个实际选择窗口为[0,.5]、51节点；ASN117 all spread 的选择加权均值相对同刻总体下降0.00028230Å，95%CI[-0.00044594,-0.00011866]，q=.03646；VAL116下降0.00030198Å，q=.02829。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::spread:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:selection_shift"
+      ],
+      "uncertainty": "这是微小的选择关联；相同affinity oracle参与选择，不能把它解释为因果收益或每个时刻都应缩小。"
+    },
+    {
+      "finding": "ASN117/VAL116 all spread 上四分位选择质量分别减少约0.00974/0.01089，q=.01212/.00978；GLU52同类上尾抑制为0.01141，q=.00609，支持共享的几何选择信号而非ASN117独有热点。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::spread:high_enrichment",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:high_enrichment",
+        "coordinate:discovery:ck2:A:GLU52::all::spread:high_enrichment"
+      ],
+      "uncertainty": "请求只提供部分区域明细，不能由这些行重算全40区域的比例；三个区域的相似方向也不是三份独立机制证据。"
+    },
+    {
+      "finding": "同期调整后NOS centroid_z关联为ASN117 r=.06764、q=.01961，VAL116 r=.07175、q=.01791；这是当前坐标上使用endpoint硬NOS标签定义的条件观测。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::NOS::centroid_z:partial_affinity_correlation"
+      ],
+      "uncertainty": "调整关联没有证明区域独立性或真实亲和力；两端相关均为负，整窗正相关不能编译成恒定+z引导。"
+    },
+    {
+      "finding": "D_COUNTS中调整起始评分的去重父节点lag关联880项均未达到q<.05，最小q=.090868；ASN117 all spread的调整lag r=.01268、q=.45153，VAL116 r=.01707、q=.34019。",
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:lag_partial_gain_correlation",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:lag_partial_gain_correlation"
+      ],
+      "uncertainty": "当前没有经过多重校正支持的独立下一步affinity增益证据；不显著也不证明不存在效应，存活条件化仍可能混杂。"
+    },
+    {
+      "finding": "所引用lag证据的时间覆盖为1，最后出发时刻为.49；t=.5没有窗口内下一步；末窗平均只剩1.2143个根谱系，14批中11批只剩1根。",
+      "evidence_ids": [
+        "D_LINEAGE",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:lag_partial_gain_correlation"
+      ],
+      "uncertainty": "完整数值覆盖不等于谱系独立；父节点去重不消除共同祖先，推断单位仍是14个生成批次。"
+    },
+    {
+      "finding": "ASN117 all spread的selected_mean拟合域为[0,.5]，整批LOBO one-SE选择Legendre次数5，u=4t-1，系数为[.8416423709666313,.721302431744041,.045920888832013694,-.11921833398176239,.14900823223234952,-.17142502856774358]；t0实际均值1.61060Å，拟合约.60591Å。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::spread:selected_mean"
+      ],
+      "uncertainty": "拟合对象是绝对均值而非选择效应；请求未给导数/驻点置信带，df/dt=4Σc_k P_k_prime(u)不是空间梯度；早期误差使该函数不宜直接作为奖励阈值。"
+    }
+  ],
+  "rules": [
+    {
+      "feature": "ck2:A:ASN117::all::spread",
+      "status": "selection_association_hypothesis",
+      "rationale": "仅作为预先指定的最小探索观测：对同刻参考分布上尾之外的current spread使用有容忍区的单侧惩罚，避免无界压缩；不能声称ASN117优于其它区域或必然提高affinity。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::spread:selection_shift",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:high_enrichment",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:low_enrichment",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:lag_partial_gain_correlation"
+      ]
+    },
+    {
+      "feature": "ck2:A:VAL116::all::spread",
+      "status": "deferred",
+      "rationale": "与ASN117方向相近，先作为相关区域诊断及反证保留；不将两个重叠的选择信号机械叠加为独立奖励。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:VAL116::all::spread:selection_shift",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:high_enrichment",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:lag_partial_gain_correlation"
+      ]
+    },
+    {
+      "feature": "ck2:A:ASN117::NOS::centroid_z",
+      "status": "deferred",
+      "rationale": "同期调整相关不足以支持固定轴方向，选择均值和调整lag均未显著；先记录而不设计+z坐标奖励。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:selection_shift",
+        "coordinate:discovery:ck2:A:ASN117::NOS::centroid_z:lag_partial_gain_correlation"
+      ]
+    }
+  ],
+  "counterevidence": [
+    {
+      "finding": "ASN117/VAL116 all spread的低尾富集均q=.46688，而上尾被抑制；这不支持把spread越小越好作为无界目标。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::spread:low_enrichment",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:low_enrichment",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:high_enrichment"
+      ],
+      "uncertainty": "尾部阈值来自同刻分布，不能由整窗均值推算具体运行阈值。"
+    },
+    {
+      "finding": "ASN117 all spread调整后同期affinity相关q=.82505，VAL116 q=.52899；两者retained_shift q=.93292，native_difference q=.08827。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::spread:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:partial_affinity_correlation",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:retained_shift",
+        "coordinate:discovery:ck2:A:VAL116::all::spread:retained_shift",
+        "coordinate:discovery:ck2:A:ASN117::all::spread:native_difference"
+      ],
+      "uncertainty": "选择关联没有形成同期调整、末窗祖先留存和native对照均支持的证据链。"
+    },
+    {
+      "finding": "未经起始评分调整的lag只有1项达到q<.05，而调整后全体为0项；不能以未调整的单一结果声称已经找到未来增益方向。",
+      "evidence_ids": [
+        "D_COUNTS",
+        "coordinate:discovery:ck2:A:ARG47::all::native_velocity_y:lag_gain_correlation"
+      ],
+      "uncertainty": "原生步速度含SDE/校正项，不能视为可直接复制的确定性流场。"
+    },
+    {
+      "finding": "ASN117 all native_speed的degree5拟合在t=.5约为-3.81081Å/time，而该时刻selected_mean为5.01107；拟合函数存在不物理形状。",
+      "evidence_ids": [
+        "coordinate:discovery:ck2:A:ASN117::all::native_speed:selected_mean"
+      ],
+      "uncertainty": "这是函数近似失真的反证，不是实测速度为负，也不否定未经过该拟合的原始选择统计。"
+    }
+  ],
+  "limitations": [
+    "本响应为subagent simulation，严格采用本request的discovery evidence；未使用validation/heldout或旧报告补充数值。",
+    "选择富集、调整后同期关联、去重父节点后的调整lag是不同统计对象，均不提供因果或实验亲和力证明。",
+    "坐标轴固定于受体配准框架；NOS为endpoint预测硬标签条件，不能冒充稳定化学身份、原子类别梯度或键梯度。",
+    "当前质心/散布、endpoint residual transport和native位移速度必须分开；原生速度含随机项，时间曲线导数不是坐标奖励梯度。",
+    "根谱系高度坍缩、重复时刻及相关区域降低独立信息量；各指标家族的q值不能挑选后合并成独立机制证明。",
+    "现有请求不提供可直接执行的逐候选联合分布、协方差和阈值packet；需要由discovery同刻数据构建并冻结，不能从均值推造多模态路径。",
+    "没有可靠的中间态区域物理能量；实际结构拟合和终态化学合理性需要独立评价，不能由奖励达标替代。"
+  ]
+}

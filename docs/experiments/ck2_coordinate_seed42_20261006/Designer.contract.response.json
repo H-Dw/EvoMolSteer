@@ -1,0 +1,43 @@
+{
+  "schema_version": "coordinate-1.0",
+  "agent": "Designer",
+  "design_status": "exploratory",
+  "architecture": "spread_upper",
+  "regions": [
+    "ck2:A:ASN117"
+  ],
+  "channel": "all",
+  "window": [
+    0.0,
+    0.5
+  ],
+  "native_rms_ratio": 0.2,
+  "mixture_temperature": 0.25,
+  "robust_delta": 1.0,
+  "rationale": "采用预先指定的最小探索，不因同期评分选择新区域：ASN117 all current spread的选择均值负移q=.03646，上尾质量抑制q=.01212，但低尾未显著富集，因此只惩罚同刻参考上界之外的spread并保留平底容忍区。VAL116和GLU52也出现上尾抑制，说明该信号广泛共享，ASN117在此仅作预登记代表，不能宣称特异性热点。奖励直接由s_current(x_t)求坐标梯度，不通过FLOWR预测endpoint的Jacobian拟合旧距离目标。候选数学合同为：v_b=max((s_current-U_b(t))/sigma_b(t),0)，D_b=delta^2*(sqrt(1+(v_b/delta)^2)-1)，R=tau*log(sum_b pi_b*exp(-D_b/tau))，g=grad_x R；U_b、sigma_b与批次权重必须由仅discovery的原始同刻参考明确并记录，不能从失真的全局selected_mean多项式或其时间导数生成。固定eta=.2为外部native-step RMS剂量参数，tau=.25与delta=1为奖励形状参数，三者均是预声明探索配置而非affinity最优估计。窗口从本请求证据动态读取[0,.5]，不拆固定时间bins；保留native积分/类别通道，窗后无注入并native完成至1，不新增SMC。",
+  "evidence_ids": [
+    "coordinate:discovery:ck2:A:ASN117::all::spread:selection_shift",
+    "coordinate:discovery:ck2:A:ASN117::all::spread:high_enrichment",
+    "coordinate:discovery:ck2:A:ASN117::all::spread:low_enrichment",
+    "coordinate:discovery:ck2:A:ASN117::all::spread:partial_affinity_correlation",
+    "coordinate:discovery:ck2:A:ASN117::all::spread:lag_partial_gain_correlation",
+    "coordinate:discovery:ck2:A:VAL116::all::spread:high_enrichment",
+    "coordinate:discovery:ck2:A:GLU52::all::spread:high_enrichment",
+    "D_COUNTS",
+    "D_LINEAGE"
+  ],
+  "limitations": [
+    "此响应为subagent simulation的严格合同导入测试；本轮未编译奖励、未生成分子、未访问远端，也未声称GPU或终态验证已通过。",
+    "全部目标选择依据仅来自request中discovery0–13；14–19不能用于选区域、阈值、参考尺度或强度。",
+    "D_COUNTS显示调整后lag的880项检验均不显著，最小q=.090868；ASN117 spread本身q=.45153，当前没有独立的下一步affinity增益证据，选择关联不是因果或真实亲和力。",
+    "请求仅含部分区域明细，ASN117、VAL116、GLU52的共享方向足以反对独有热点声明，但不能在此重新计算完整40区域的特异性比例。",
+    "末窗14批中11批仅1根、平均1.2143根；lag数值覆盖至.49完整不代表独立谱系充分，批次均值及混合组件也不是独立物理姿态mode。",
+    "参考U_b与sigma_b不是本请求已识别出的最优参数；本响应不伪造其数值、协方差或hash，执行前须冻结discovery reference并核对编译实现与公式一致。",
+    "单侧混合惩罚仍可能偏向更紧的组件，不能以spread达标代替真实X_t的局部/全局双向覆盖；若仅整体平移或普遍压缩即可取得同样结果，应否定区域独立优势。",
+    "eta与内部形状参数分开；需记录请求/实际剂量、梯度阈值、per-atom/path caps、pair几何变化和受体碰撞backtracking，不能将极小统计效应经归一化无条件放大。",
+    "执行前要求实际坐标方向有限差分及完整zero/native逐步张量一致；严格以原积分网格控制注入，最后允许.49到.50，之后零注入；当前状态与注入状态必须明确记录。",
+    "all使用活动槽位而不擅称重原子；原子、键和电荷仍由native离散采样处理，不声称离散梯度或中间态物理能量。",
+    "最小反证标准是：真实窗口结构未改善、与全局压缩对照无增量、有效率/周围几何受损或剂量明显饱和时不以head评分单独晋升；终态评估保留失败分母、unique/克隆、同构head重评分和有效图能量覆盖。",
+    "更完整的coordinate_mixture是保留的替代架构，本轮不采用；现有均值曲线不能恢复多模态联合分布，时间导数不能作为空间引导力。"
+  ]
+}
