@@ -16,6 +16,7 @@ export LD_LIBRARY_PATH="/opt/miniforge3/envs/molsteer-flowr-dtk/lib:${LD_LIBRARY
 export PYTHONPATH="$repo/src:$flowr:$flowr/experiments/evomolsteer_online_20261004/runtime_deps:${PYTHONPATH:-}"
 export OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1
 cd "$repo"
+"$python" scripts/check_terminal_round_ready.py --manifest "$work/round_ready.json" --campaign "$round"
 case "$mode" in window|local) ;; *) exit 2;; esac
 "$python" -u "scripts/generate_${mode}_flowr.py" --flowr-root "$flowr" \
  --input-dataset "$flowr/experiments/ck2_clk3_lineage_20261003" \

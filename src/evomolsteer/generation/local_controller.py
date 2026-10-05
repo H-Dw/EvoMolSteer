@@ -69,7 +69,7 @@ class LocalExtension(WindowExtension):
         saved=rng_state();d=g/g.norm();analytic=float((g*d).sum());checks=[]
         try:
             with torch.no_grad():
-                for eps in [.001,.003]:
+                for eps in [.001,.003,.01]:
                     vals=[]
                     for sign in [1,-1]:
                         set_rng(saved);pred,_=forward(curr['coords']+sign*eps*d)
