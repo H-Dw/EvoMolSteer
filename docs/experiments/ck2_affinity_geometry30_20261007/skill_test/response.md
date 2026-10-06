@@ -11,6 +11,5 @@
 
 数据缺失实际 injection/flow/native RMS、gate、cap/backtracking、奖励及 continuation 响应，也缺 all/valid/unique绝对均值、best valid/PB-fast、unique Top-5、yield和Steer基准；不能把拟议干预写成已证实的因果诊断。第2轮周围 RMS 编码变化 -4.570%、MMFF 编码变化 -1.239%、有效率下降1个百分点均保留为反证。代码默认阈值为meaningful=0.05、flat=0.02，输入未含正式活动阈值；shell4按代码属于flat。行为审计只核对选项和约束，不证明响应文本充分或机制有效。完整点云项尚未注册，线性 predictive-flow 剂量也不支持 cosine schedule。未执行新推理；30轮是预算上限，历史轮号不等于新活动用量。
 
-输入 SHA256：`e469d510d367256d1a5f922ddb5575c915ba55a7431039a2ab95d6977589246f`  
+输入 SHA256：`e469d510d367256d1a5f922ddb5575c915ba55a7431039a2ab95d6977589246f`
 Skill SHA256：`1a4be652ac26a4f4c5662e0f502f9da0c88c50836bfbc027d013910001ce4de3`
-
