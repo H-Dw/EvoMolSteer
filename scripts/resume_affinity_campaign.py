@@ -9,6 +9,8 @@ from evomolsteer.generation.endpoint_campaign import propose_endpoint
 from evomolsteer.continuous.endpoint_design import audit_endpoint_behavior
 from evomolsteer.continuous.sparse_design import audit_sparse_behavior
 from evomolsteer.generation.sparse_campaign import propose_sparse,apply_sparse_fields
+from evomolsteer.continuous.persistent_design import audit_persistent_behavior
+from evomolsteer.generation.persistent_campaign import propose_persistent,apply_persistent_fields
 
 CONFIG='configs/experiments/ck2_affinity_geometry30_v1'
 EVIDENCE='docs/experiments/ck2_affinity_geometry30_20261007'
@@ -16,6 +18,8 @@ SKILL='skills/affinity-coordinate-search/SKILL.md'
 ENDPOINT_SKILL='skills/affinity-endpoint-pullback/SKILL.md'
 SPARSE_SKILL='skills/affinity-sparse-coordinate/SKILL.md'
 SPARSE_REVIEW='sparse_trace_review.json'
+PERSISTENT_SKILL='skills/affinity-persistent-coordinate/SKILL.md'
+PERSISTENT_REVIEW='persistent_design_review.json'
 OLD_REPORT='docs/experiments/ck2_motif_seed42_20261006/round_15/comparison/comparison.json'
 
 class AffinityDriver(MotifDriver):
@@ -25,6 +29,15 @@ class AffinityDriver(MotifDriver):
         super().__init__(args)
         self.check_skill();self.bootstrap_remote()
     def check_skill(self):
+        if self.args.persistent_profile:
+            folder=self.evidence/'persistent_skill_test'
+            audit_persistent_behavior(self.root/PERSISTENT_SKILL,folder/'input.json',folder/'prompt.txt',folder/'response.json',
+                self.evidence/'endpoint_mining/sparse_coordinate_prior_v2.json',self.evidence/'kinematics_mining_v3/kinematics_prior.json')
+            review=read_json(self.evidence/'agent_review'/PERSISTENT_REVIEW)
+            if review.get('execution_ready') is not True:raise ValueError('Persistent integration review not ready for real runtime validation')
+            for path,expected in review['source_hashes'].items():
+                if digest(self.root/path)!=expected:raise ValueError('Persistent review stale for '+path)
+            return
         if self.args.sparse_profile:
             folder=self.evidence/'sparse_skill_test_v2'
             audit_sparse_behavior(self.root/SPARSE_SKILL,folder/'input.json',folder/'prompt.txt',folder/'response.json',
@@ -67,9 +80,12 @@ class AffinityDriver(MotifDriver):
             raise ValueError('New sequential30 budget')
         rows=[read_json(p) for p in sorted(self.evidence.glob('round_*.outcome.json'))]
         programs={r['round']:read_json(self.cfg/f"backtrack_round{r['round']:02d}.json") for r in rows}
-        plan=(propose_sparse(number,rows,programs) if self.args.sparse_profile else
+        plan=(propose_persistent(number,rows,programs) if self.args.persistent_profile else
+              propose_sparse(number,rows,programs) if self.args.sparse_profile else
               propose_endpoint(number,rows,programs) if self.args.endpoint_profile else propose(number,rows,programs));parent=plan['parent_round']
-        if self.args.sparse_profile and number==6:
+        if self.args.persistent_profile and number==9:
+            base=read_json(self.evidence/'persistent_skill_test/compiled_design.json')
+        elif self.args.sparse_profile and number==6:
             base=read_json(self.evidence/'sparse_skill_test_v2/compiled_design.json')
         elif self.args.endpoint_profile and number==5:
             base=read_json(self.evidence/'endpoint_skill_test/compiled_design.json')
@@ -82,22 +98,23 @@ class AffinityDriver(MotifDriver):
         from evomolsteer.generation.window_reference import load_reference
         ref=load_reference(reference);p=update_program(base,plan,ref['window'],digest(reference))
         if self.args.sparse_profile:p=apply_sparse_fields(p,plan,read_json(self.evidence/'endpoint_mining/sparse_coordinate_prior_v2.json'))
+        if self.args.persistent_profile:p=apply_persistent_fields(p,plan)
         for k in ('compiled_design_sha256','designer_sha256','agent_review_sha256','boundary_agent_review_sha256','derivation'):p.pop(k,None)
-        skill=SPARSE_SKILL if self.args.sparse_profile else ENDPOINT_SKILL if self.args.endpoint_profile else SKILL
-        audit_folder='sparse_skill_test_v2' if self.args.sparse_profile else 'endpoint_skill_test' if self.args.endpoint_profile else 'skill_test'
-        review_name=SPARSE_REVIEW if self.args.sparse_profile else 'endpoint_design_review.json' if self.args.endpoint_profile else 'geometry_design_review.json'
+        skill=PERSISTENT_SKILL if self.args.persistent_profile else SPARSE_SKILL if self.args.sparse_profile else ENDPOINT_SKILL if self.args.endpoint_profile else SKILL
+        audit_folder='persistent_skill_test' if self.args.persistent_profile else 'sparse_skill_test_v2' if self.args.sparse_profile else 'endpoint_skill_test' if self.args.endpoint_profile else 'skill_test'
+        review_name=PERSISTENT_REVIEW if self.args.persistent_profile else SPARSE_REVIEW if self.args.sparse_profile else 'endpoint_design_review.json' if self.args.endpoint_profile else 'geometry_design_review.json'
         p.update(round=number,program_id=f'ck2_affinity_geometry30_round{number:02d}',seed=42,
             skill_sha256=digest(self.root/skill),skill_behavior_audit_sha256=digest(self.evidence/audit_folder/'behavior_audit.json'),
             geometry_review_sha256=digest(self.evidence/'agent_review'/review_name),
             derivation={'plan':plan,'source':'Existing Steer coordinate library, recorded scores, Agent-vetted registered adaptive policy',
                         'no_private_reasoning_transcript':True})
-        if self.args.endpoint_profile or self.args.sparse_profile:
+        if self.args.endpoint_profile or self.args.sparse_profile or self.args.persistent_profile:
             p['endpoint_designer_response_sha256']=digest(self.evidence/audit_folder/'response.json')
             p['endpoint_compiled_baseline_sha256']=digest(self.evidence/audit_folder/'compiled_design.json')
         if 7<=number<=26:p['head_native_labels_relative_path']=EVIDENCE+'/round_06/local/head_scores_window.parquet'
         else:p.pop('head_native_labels_relative_path',None)
         arms=['gradient'];batches=[0,1];split='discovery'
-        if number==1 or (self.args.endpoint_profile and number==5) or (self.args.sparse_profile and number==6):arms=['unguided','gradient_zero','gradient']
+        if number==1 or (self.args.endpoint_profile and number==5) or (self.args.sparse_profile and number==6) or (self.args.persistent_profile and number in (9,11)):arms=['unguided','gradient_zero','gradient']
         if number>=27:
             arms=['unguided','gradient'];batches=[20+2*(number-27),21+2*(number-27)];split='validation' if number==27 else 'heldout'
             if number==27:arms.insert(1,'gradient_zero')
@@ -155,6 +172,9 @@ class AffinityDriver(MotifDriver):
     def close(self):
         from evomolsteer.generation.affinity_reporting import report
         report(self.evidence,self.evidence/'final_report')
+        from plot_affinity_campaign import plot
+        winner=read_json(self.evidence/'round_26.outcome.json')['frozen_winner']
+        plot(self.evidence,self.evidence/'figures',winner);plot(self.evidence,self.evidence/'figures',30)
         self.command(30,'git_add_compact_statistics',['git','add','-f','--',str(self.evidence/'final_report/round_metrics.parquet'),
                      str(self.evidence/'final_report/paired_batch_metrics.parquet')])
         c=read_json(self.campaign);c['status']='budget_complete';write_json(self.campaign,c);self.summarize();self.push(30)
@@ -192,8 +212,10 @@ class AffinityDriver(MotifDriver):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--repo',default=str(Path(__file__).resolve().parents[1]));p.add_argument('--until-round',type=int,default=30)
-    p.add_argument('--endpoint-profile',action='store_true',help='Use independently verified endpoint Skill and real FLOWR coordinate VJP from round5')
-    p.add_argument('--sparse-profile',action='store_true',help='Use independently retested, node-faithful coordinate Skill from round6')
+    profile=p.add_mutually_exclusive_group()
+    profile.add_argument('--endpoint-profile',action='store_true',help='Use independently verified endpoint Skill and real FLOWR coordinate VJP from round5')
+    profile.add_argument('--sparse-profile',action='store_true',help='Use independently retested, node-faithful coordinate Skill from round6')
+    profile.add_argument('--persistent-profile',action='store_true',help='Use actual Agent-tested bounded coordinate prototypes and supported lineage increments from round9')
     p.add_argument('--host',default='ksai.scnet.cn');p.add_argument('--port',type=int,default=10544);p.add_argument('--user',default='root')
     p.add_argument('--remote-repo',default='/root/private_data/MolSteer/EvoMolSteer')
     p.add_argument('--remote-work',default='/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_affinity_geometry30_20261007')

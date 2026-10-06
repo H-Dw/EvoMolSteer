@@ -20,6 +20,7 @@ from evomolsteer.storage.streaming import StepTrajectoryWriter
 from evomolsteer.storage.transactions import atomic_json
 from .instrumentation import instrument_source
 from .batches import resolve_batches
+from .rng import rng_state,set_rng
 
 RDLogger.DisableLog('rdApp.warning')
 
@@ -30,14 +31,6 @@ def cpu_tree(x):
     return x
 
 def nparr(x): return x.detach().cpu().numpy()
-
-def rng_state():
-    return {'torch_cpu':torch.get_rng_state(),'torch_cuda':torch.cuda.get_rng_state_all(),
-            'numpy':np.random.get_state(),'python':random.getstate()}
-
-def set_rng(x):
-    torch.set_rng_state(x['torch_cpu']); torch.cuda.set_rng_state_all(x['torch_cuda'])
-    np.random.set_state(x['numpy']); random.setstate(x['python'])
 
 class Trace:
     def __init__(self,path,arm,seed,batch,scale,save=True,steps=100):

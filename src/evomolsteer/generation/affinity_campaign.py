@@ -45,6 +45,9 @@ def propose(number,rows,programs):
 
 def update_program(parent,plan,window,reference_sha):
     p=copy.deepcopy(parent)
+    if plan.get('action')=='frozen_validation':
+        if p['window']!=list(window) or p['reference_sha256']!=reference_sha:raise ValueError('Frozen discovery support cannot change')
+        return p
     allowed={'reward_view','native_rms_ratio','teacher_neighbors','teacher_score_beta','teacher_endpoint_temperature_A2','time_ramp_power','geometry_block_weights'}
     p.update({k:v for k,v in plan.items() if k in allowed})
     p.update(window=list(window),reference_sha256=reference_sha,record_reward_response=True,

@@ -4,6 +4,8 @@ from ..generation.endpoint_reward import FAMILIES
 from ..io import read_json,digest,write_json
 from .affinity_skill import audit_behavior
 
+REGISTERED_ENDPOINT_FAMILIES=set(FAMILIES)|{'endpoint_supported_attractor'}
+
 
 def audit_endpoint_behavior(skill,task,prompt,response,reference_sha,output=None):
     result=audit_behavior(skill,task,response)
@@ -35,7 +37,7 @@ def compile_endpoint(response,base,reference,reference_sha):
         raise ValueError('Current affinity-first, no-head-gradient objective required')
     if response.get('production_extra_forward_calls_per_step')!=0 or not response.get('full_zero_validation_required'):
         raise ValueError('One-forward production and fresh full-zero validation required')
-    if d['reward_view'] not in FAMILIES or d['derivative_path']!='flowr_endpoint_vjp':raise ValueError('Registered real-VJP family required')
+    if d['reward_view'] not in REGISTERED_ENDPOINT_FAMILIES or d['derivative_path']!='flowr_endpoint_vjp':raise ValueError('Registered real-VJP family required')
     if d['window']!=reference['window'] or reference['schema_version']!='affinity-endpoint-library-1.0':raise ValueError('Dynamic evidence support mismatch')
     if d['coordinate_representation'] not in ('predicted_endpoint_world_A','native_model_endpoint_world_coordinates_A'):
         raise ValueError('No actual-state or identity-gradient substitution')

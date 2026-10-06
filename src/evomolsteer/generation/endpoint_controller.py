@@ -36,6 +36,7 @@ class EndpointCoordinateExtension(CoordinateExtension):
         if model.inpainting_mode or model.graph_inpainting or model._inpaint_self_condition:raise ValueError('Inpainting unsupported')
         self.model,self.opt,self.out=model,opt,out;model.requires_grad_(False);model._gradient=self
         self.reward=make_coordinate_reward(self.program,self.reference);self.preflight_done=False;self.preflight_forward_calls=0
+        self.history_preflight_done=False;self.preflight_records=[];self.previous_endpoint=None;self.previous_endpoint_time=None
         self.code_commit=subprocess.check_output(['git','-C',str(Path(__file__).resolve().parents[3]),'rev-parse','HEAD'],text=True).strip()
         self.checkpoint_hash=digest(opt.checkpoint)
         shutil.copy2(opt.program,out/'reward_program.json');shutil.copy2(opt.reference,out/'reference.json.gz')
@@ -55,6 +56,7 @@ class EndpointCoordinateExtension(CoordinateExtension):
         self.before=curr['coords'].detach().clone();self.pocket=pocket;self.cached=None
         if trace.i==0:
             self.path_rms=torch.zeros(len(self.before),device=self.before.device);self.controlled_updates=0
+            self.previous_endpoint=None;self.previous_endpoint_time=None
         active=trace.arm!='unguided' and self.reward.active(trace.t,trace.t+trace.dt)
         condition=detached(cond)
         calls=[];audit_calls_before=self.preflight_forward_calls
@@ -72,9 +74,14 @@ class EndpointCoordinateExtension(CoordinateExtension):
             return pred,new_cond
         if active:
             com=torch.stack([torch.as_tensor(v.com) for v in pocket['complex']]).reshape(-1,3).to(self.before)
+            if hasattr(self.reward,'set_history'):self.reward.set_history(self.previous_endpoint,self.previous_endpoint_time)
             pred,new_cond,g,value,detail,atoms,anchor=endpoint_pullback(forward,self.reward,self.before,curr['mask'].bool(),self.model.coord_scale,com,trace.t)
             if not self.preflight_done and float(g.norm())>1e-7:
                 self.preflight(forward,curr,com,g,atoms,anchor)
+            midpoint=sum(self.reward.window)/2
+            if (getattr(self.reward,'history_strength',0)>0 and self.previous_endpoint is not None
+                    and trace.t>=midpoint and not self.history_preflight_done and float(g.norm())>1e-7):
+                self.preflight(forward,curr,com,g,atoms,anchor,history_active=True)
             self.cached=(g,value,detail)
         else:
             with torch.no_grad():pred,new_cond=forward(self.before)
@@ -82,10 +89,14 @@ class EndpointCoordinateExtension(CoordinateExtension):
         self.production_calls_this_step=len(calls)-self.audit_calls_this_step
         if self.production_calls_this_step!=1:raise RuntimeError('Endpoint wrapper made additional production target forwards')
         self.endpoint_atoms=pred['atomics'].detach().argmax(-1);self.endpoint_coords=pred['coords'].detach()
+        if hasattr(self.reward,'set_history'):
+            com=torch.stack([torch.as_tensor(v.com) for v in pocket['complex']]).reshape(-1,3).to(self.before)
+            self.previous_endpoint=(self.endpoint_coords*self.model.coord_scale+com[:,None]).detach()
+            self.previous_endpoint_time=trace.t
         return pred,new_cond
 
-    def preflight(self,forward,curr,com,g,atoms,anchor):
-        from .controller import rng_state,set_rng
+    def preflight(self,forward,curr,com,g,atoms,anchor,history_active=False):
+        from .rng import rng_state,set_rng
         saved=rng_state();checks=[];direction=g/g.norm();analytic=float((g*direction).sum())
         try:
             with torch.no_grad():
@@ -99,11 +110,15 @@ class EndpointCoordinateExtension(CoordinateExtension):
                     self.preflight_forward_calls+=2
         finally:set_rng(saved)
         passed=min(r['relative_error'] for r in checks)<.15 and all(r['numerical']>0 for r in checks)
-        write_json(self.out/'coordinate_gradient_preflight.json',{'passed':passed,'derivative_path':'flowr_endpoint_vjp',
+        self.preflight_records.append({'score_time':self.model._lineage.t,'history_active':history_active,'passed':passed,'checks':checks})
+        write_json(self.out/'coordinate_gradient_preflight.json',{'passed':all(r['passed'] for r in self.preflight_records),'derivative_path':'flowr_endpoint_vjp',
             'score_time':self.model._lineage.t,'affinity_head_gradient':False,'one_time_extra_forward_calls':self.preflight_forward_calls,
-            'production_extra_forward_calls_per_step':0,'frozen_self_condition_and_assignment':True,'checks':checks})
+            'production_extra_forward_calls_per_step':0,'frozen_self_condition_and_assignment':True,'checks':checks,
+            'validations':self.preflight_records,'history_audit_required':getattr(self.reward,'history_strength',0)>0,
+            'history_audit_completed':history_active or self.history_preflight_done})
         if not passed:raise ValueError('Real FLOWR coordinate VJP finite difference failed')
-        self.preflight_done=True
+        if history_active:self.history_preflight_done=True
+        else:self.preflight_done=True
 
     def after_native(self,curr):
         from .controller import nparr

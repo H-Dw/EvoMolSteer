@@ -40,6 +40,8 @@ def evaluate(dataset,campaign,output):
                         'mean_total_injection_rms_A':float(np.sqrt((displacement[i]**2).sum(-1).mean(1)).mean())})
             for k,i in enumerate(ids):
                 t=float(times[i])
+                if hasattr(reward,'set_history'):
+                    reward.set_history(torch.tensor(coords[k-1]) if k else None,float(times[ids[k-1]]) if k else None)
                 with torch.no_grad():
                     value,detail=reward(torch.tensor(coords[k]),torch.tensor(atoms[k]),torch.tensor(mask[k]),t,
                         torch.tensor(anchors[k]) if anchors is not None else None)
@@ -107,6 +109,8 @@ def evaluate(dataset,campaign,output):
     write_table(out/'coordinate_dose_time.csv',dose_rows)
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed']:raise ValueError('Coordinate derivative failed')
+    if program.get('history_strength',0)>0 and (not preflight.get('history_audit_completed')
+            or preflight.get('one_time_extra_forward_calls')!=8):raise ValueError('Active lineage derivative lacks startup and interior real-model checks')
     report={'schema_version':'current-coordinate-evaluation-1.0','window':reference['window'],'batch_results':audit,
         'monitored_coordinate_representation':reference['representation'],
         'observable_unit':reference.get('feature_unit','A'),
