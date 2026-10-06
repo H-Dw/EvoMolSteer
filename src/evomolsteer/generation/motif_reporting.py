@@ -22,6 +22,8 @@ def heldout(evidence,rounds=(14,15)):
         arms[arm]={'attempted':len(d),'batches':sorted(map(int,d.batch.unique())),
             'all_head':float(d.pic50_on_rescore.mean()),'valid_head':float(valid.pic50_on_rescore.mean()),
             'unique_valid_head':float(unique.pic50_on_rescore.mean()),'valid':int(d.valid_connected.sum()),
+            'all_head_n':int(d.pic50_on_rescore.notna().sum()),'valid_head_n':int(valid.pic50_on_rescore.notna().sum()),
+            'unique_valid_head_n':int(unique.pic50_on_rescore.notna().sum()),
             'PB_fast_pass':int(d.pb_fast_pass.sum()),'unique_graphs':len(unique),'energy_converged':len(energy),
             'MMFF_relief_per_heavy_median':float(energy.median()),'MMFF_relief_per_heavy_p90':float(energy.quantile(.9)),
             'surround_relax_RMS_A':float(d.relax_rms_surround_A.mean()),

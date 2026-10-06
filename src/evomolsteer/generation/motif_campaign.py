@@ -66,9 +66,14 @@ def proposal(number,evidence):
         parent=read_json(Path(evidence)/'round_13.plan.json')['parent_round']
         return {'parent_round':parent,'reason':'Replay frozen discovery winner on new matched batches; no further tuning.'}
     modes={11:'balanced',12:'affinity',13:'balanced'}
-    parent=choose(discovery,modes[number])
+    # R1-8 historical score-grid scales are not eligible for the final strict
+    # window winner. R9/10 already meet the scope; R11/12 retest restored
+    # parents with prospective strict-scale references before validation.
+    eligible=discovery if number<13 else [r for r in discovery if r['round']>=9]
+    parent=choose(eligible,modes[number])
     changes={11:{'dose_factor':.5},12:{'time_ramp_power':1.},13:{}}[number]
-    return {'parent_round':parent['round'],**changes,'reason':f"Restore a measured {modes[number]} Pareto parent; bounded program-level variation, not particle resampling."}
+    return {'parent_round':parent['round'],**changes,'strict_scale':number in (11,12),
+        'reason':f"Restore a measured {modes[number]} Pareto parent; prospective actual-window scale in R11/12 plus the declared dose variation. Final winner restricted to strict-scope R9-12. Not particle resampling."}
 
 
 def record(campaign,evidence,number):

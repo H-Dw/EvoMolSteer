@@ -128,6 +128,13 @@ R9/10 were revised BEFORE their dispatch to compare actual-boundary surviving
 ancestry targets (joint all-atom versus polar-carbon pair geometry). R11 restores
 a balanced Pareto parent at half dose; R12 restores an affinity Pareto parent
 with a positive continuous ramp. Original R1–8 definitions stay frozen.
+Before R11/12 dispatch, normalization of immediate-selection targets was also
+prospectively restricted to actual in-window proposal states. These two rounds
+test restored parents with strict scales plus the originally declared dose
+variation; the effects cannot be attributed to either change alone. R13's final
+winner is chosen only among strict-scope R9–12. This prevents returning a
+historical outside-state scale as the final learned-window program. R1–8 remain
+honest historical screens, with their 51-score-grid normalization limitation.
 R13 freezes a discovery winner and validates batches14/15. R14–15 replay that
 same winner on heldout17–19 without further tuning. Master seed42; batch seed
 42+100003*index; native100 integration steps. Whole-window support is read from

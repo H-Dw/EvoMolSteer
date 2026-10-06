@@ -33,3 +33,15 @@ def test_initial_seed_alone_cannot_replace_actual_state_pairing():
     actual={'initial_state_signatures':{'gradient/17':'abc'}}
     assert validate_initial_pairing(actual,{'initial_state_signatures':{'unguided/17':'abc'}})['passed']
     with pytest.raises(ValueError,match='initial states'):validate_initial_pairing(actual,{'initial_state_signatures':{'unguided/17':'different'}})
+
+
+def test_final_winner_cannot_restore_historical_outside_scope(tmp_path):
+    from evomolsteer.generation.prototypes import write_json
+    for r in (row(2,1.,1.),row(9,.01,.1),row(10,.2,-.2)):
+        write_json(tmp_path/f"round_{r['round']:02d}.outcome.json",r)
+    final=proposal(13,tmp_path)
+    assert final['parent_round']==9
+    write_json(tmp_path/'round_13.plan.json',final)
+    # New validation evidence may not redefine the already frozen parent.
+    write_json(tmp_path/'round_13.outcome.json',row(13,10.,10.))
+    assert proposal(14,tmp_path)['parent_round']==9

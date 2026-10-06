@@ -62,6 +62,13 @@ class MotifDriver(Driver):
             if 'dose_factor' in plan:p['native_rms_ratio']*=plan['dose_factor']
             if 'time_ramp_power' in plan:p['time_ramp_power']=plan['time_ramp_power']
             reference=next(v for v in self.cfg.glob('*reference.json.gz') if digest(v)==p['reference_sha256'])
+            if plan.get('strict_scale'):
+                from evomolsteer.generation.window_reference import load_reference
+                old=load_reference(reference)
+                if old.get('target_definition','instantaneous')=='instantaneous':
+                    stem='all' if old['channels']==['all'] else 'cross'
+                    reference=self.cfg/('strict_'+stem+'_reference.json.gz')
+                    p['reference_sha256']=digest(reference)
         else:
             stem='all' if plan['channel']=='all' else 'cross'
             prefix='survival_' if plan.get('target_definition')=='boundary_survival' else ''
@@ -89,7 +96,9 @@ class MotifDriver(Driver):
                         'source_manifest_sha256':digest(self.evidence/'mining/manifest.json')},
             topology_policy='Free native graph transitions; no pair-distance acceptance or graph equality veto')
         from evomolsteer.generation.window_reference import load_reference
-        p['target_definition']=load_reference(reference).get('target_definition','instantaneous')
+        loaded=load_reference(reference)
+        p['target_definition']=loaded.get('target_definition','instantaneous')
+        if number>=9 and (not loaded.get('scale_score_times') or loaded['scale_score_times'][-1]>=p['window'][1]-1e-6):raise ValueError('Final-scope program uses outside-state normalization')
         p['agent_review_sha256']=digest(self.evidence/'agent_review/Analyst_Designer.final_review.v3.json')
         boundary_review=self.evidence/'agent_review/Analyst_Designer.boundary_review.json'
         if p['target_definition']=='boundary_survival' and boundary_review.exists():p['boundary_agent_review_sha256']=digest(boundary_review)

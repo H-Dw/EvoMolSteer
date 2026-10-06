@@ -48,6 +48,9 @@ def test_reference_scale_cannot_use_outside_state_variance(tmp_path,monkeypatch)
     monkeypatch.setattr(module,'numpy_motifs',lambda x,*args:(x[:,0,:2],['r::motif_centroid_x','r::motif_centroid_y'],{}))
     retained=module.build(dataset,'c',mining,tmp_path/'survival.gz',target='boundary_survival')
     immediate=module.build(dataset,'c',mining,tmp_path/'immediate.gz')
+    strict=module.build(dataset,'c',mining,tmp_path/'strict.gz',strict_scale=True)
     assert retained['scale_score_times']==[0.,.25] and immediate['scale_score_times']==[0.,.25,.5]
     np.testing.assert_allclose(retained['feature_scale'],np.sqrt(5/3))
+    np.testing.assert_allclose(strict['feature_scale'],retained['feature_scale'])
+    assert strict['scale_scope']=='actual_proposal_window'
     assert np.min(immediate['feature_scale'])>40

@@ -11,7 +11,7 @@ from .coordinate_shape import time_weights,dimensionless_moments
 from .coordinate_reward import CoordinateMixtureReward
 
 
-def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous'):
+def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous',strict_scale=False):
     root,mining,output=map(Path,(dataset,mining,output))
     if output.exists():raise FileExistsError(output)
     m,cat=read_json(mining/'manifest.json'),read_json(mining/'feature_catalog.json')
@@ -25,12 +25,12 @@ def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous
         with TrajectoryPackage(path) as z:
             times=np.round(z.read('score_time')[:,0].astype(float),6)
             survival={}
-            if target=='boundary_survival':
+            if target=='boundary_survival' or strict_scale:
                 from ..continuous.coordinate_mining import boundary_descendants
                 # Survival is at the actual control boundary, not the .51
                 # proposal of the last scored .5 event or a terminal t=1 label.
                 inside,copies=boundary_descendants(z.read('resampled'),z.read('state_time'),z.read('selected_indices'),m['window'])
-                survival={int(i):copies[k] for k,i in enumerate(inside)}
+                if target=='boundary_survival':survival={int(i):copies[k] for k,i in enumerate(inside)}
                 eligible=times[inside].tolist()
                 if scale_grid is None:scale_grid=eligible
                 if scale_grid!=eligible:raise ValueError('Unequal actual-boundary scale grids')
@@ -69,6 +69,7 @@ def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous
         'feature_scale':scale.tolist(),'feature_unit':'mixed: centroid A; kernel densities dimensionless',
         'scale_definition':'fixed whole-window trapezoid mean of equal-batch unweighted within-candidate variance',
         'scale_score_times':scale_times,
+        'scale_scope':'actual_proposal_window' if scale_grid is not None else 'historical_score_grid_including_outside_final_proposal',
         'batches':m['splits']['discovery'],'sources':sources,'source_manifest_sha256':digest(mining/'manifest.json'),
         'target_definition':target,'target_weight_semantics':'Equal discovery batch; normalized same-event selection probability' if target=='instantaneous' else
             'Equal discovery batch; exact descendant counts projected back through actual selection edges whose proposal state is <= learned end. Outside-state context frame is excluded from scale estimation, unweighted and never injected.',
