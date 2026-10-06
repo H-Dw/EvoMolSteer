@@ -14,7 +14,10 @@ def reference():
 def test_numpy_torch_parity_and_directional_derivative():
     ref=reference();program={'window':[.1,.4],'mixture_temperature':.25,'robust_delta':1.,'core_radius_A':5.}
     reward=CoordinateMixtureReward(program,ref)
-    x=torch.randn(12,8,3,dtype=torch.float64,requires_grad=True);a=torch.full((12,8),3);m=torch.ones((12,8),dtype=torch.bool)
+    # Fixed fixture keeps the finite-difference path away from the piecewise
+    # nearest-region boundary and makes a derivative failure reproducible.
+    generator=torch.Generator().manual_seed(42)
+    x=torch.randn(12,8,3,generator=generator,dtype=torch.float64,requires_grad=True);a=torch.full((12,8),3);m=torch.ones((12,8),dtype=torch.bool)
     z,valid,_=reward.observables(x,a,m)
     native=regional_moments(x.detach().numpy(),a.numpy(),m.numpy(),ref['regions']['patch']['points_A'],None,4.)
     np.testing.assert_allclose(native,z.detach().numpy(),atol=1e-12)

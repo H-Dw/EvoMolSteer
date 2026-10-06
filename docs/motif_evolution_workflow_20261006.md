@@ -164,3 +164,22 @@ matched per-batch directions. Graph equality is never required. Three independen
 batches support a descriptive check, not candidate-level significance. The R9
 intervention directly consumes the grounded Analyst/Designer compiled program,
 checks its predeclared numeric contract and stores its SHA with the frozen plan.
+
+## Final retained-evidence verification
+
+Run the read-only verifier after the campaign, using retained reports rather than
+regenerating structures:
+
+```powershell
+$env:PYTHONPATH='src'
+.venv/Scripts/python.exe scripts/audit_motif_campaign.py --evidence docs/experiments/ck2_motif_seed42_20261006 --config configs/experiments/ck2_motif_seed42_v1 --output docs/experiments/ck2_motif_seed42_20261006/campaign_verification.json
+```
+
+It checks all fifteen retention manifests, actual/source reward bytes, inference
+commits, initial-state pairing, numerical coordinate derivatives, 100 native
+steps, no resampling, control/evidence support, and complete active-step dose.
+Rounds 13–15 must reuse every parameter of a strict-scope discovery parent from
+rounds 9–12; only round identity and derivation metadata may differ. Unknown
+future control fields remain part of this freeze check. `--allow-incomplete`
+supports an interim audit without claiming campaign completion. Execution
+verification does not establish improved affinity or energy.
