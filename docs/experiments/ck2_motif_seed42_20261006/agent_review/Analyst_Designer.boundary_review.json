@@ -1,0 +1,288 @@
+{
+  "schema_version": "boundary-target-review-1.0",
+  "date": "2026-10-06",
+  "reviewer": {
+    "roles": [
+      "Analyst",
+      "Designer"
+    ],
+    "execution": "subagent simulation",
+    "scope": "Local source/data audit and evidence review; no remote access, inference, heldout-driven selection, source/config changes or Git operations"
+  },
+  "conclusion": "真实边界祖先权重实现正确。修正版已排除 proposal .51 对尺度的影响，可作为明确的探索性目标表示消融；现有统计不能证明区域亲和力机制或预测联合物理收益。",
+  "boundary_contract": {
+    "learned_window": [
+      0,
+      0.5
+    ],
+    "scored_edges_used": {
+      "first": 0,
+      "last": 0.49,
+      "count": 50
+    },
+    "proposal_states_used": {
+      "first": 0.01,
+      "last": 0.5
+    },
+    "context_score": 0.5,
+    "context_proposal_state": 0.51,
+    "actual_terminal": 1,
+    "target": "Pre-selection proposal candidate descendant mass at the last actual resampled state <= learned end",
+    "weighting": "c_(K+1,j)=1; c_(k,i)=sum_j 1[s_k(j)=i] c_(k+1,j); w_(k,i)=c_(k,i)/sum_i c_(k,i). Renormalize over defined descriptors only.",
+    "rationale": "对应 proposal 候选之后的复制映射；不能再乘同刻 selection_probability，否则重复加权。允许后续窗口内存活信息定义回顾性模仿目标，但这不是因果优势标签。",
+    "no_terminal_leak": "没有读取实际 t=1 坐标、终态有效性、MMFF 或终态 head 作为参考学习标签。条件 predicted endpoint 是当时模型预测，并非实际终态结果。",
+    "derivative": "R(phi(X_native_(t+dt); detached forecast anchors and atom labels), t) 对真实 proposal 坐标求条件梯度；不包含 endpoint 模型 Jacobian 或离散图导数。t=.49 -> .50 为最后注入，之后 native。"
+  },
+  "verified_audit": {
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "ancestry": {
+      "all_candidate_counts_independently_enumerated": true,
+      "events_per_batch": 50,
+      "candidates_per_event": 50,
+      "mass_per_event": 50,
+      "last_edge_matches_direct_bincount": true,
+      "outside_selection_excluded": true
+    },
+    "raw_feature_moment_spotcheck": {
+      "scores": [
+        0,
+        0.49,
+        0.5
+      ],
+      "frames_per_channel": 42,
+      "all_max_center_scaled_error": 4.263256414560601e-14,
+      "cross_max_center_scaled_error": 1.1368683772161603e-13,
+      "max_covariance_error": 5.329070518200751e-15,
+      "limit": "逐原始结构重算覆盖3节点×14批次/通道；并非声称重算全部51节点特征。全部节点后代计数已独立核对。"
+    },
+    "corrected_scale": {
+      "status": "verified after prospective fix f8e2aa7",
+      "scale_score_times_first": 0,
+      "scale_score_times_last": 0.49,
+      "n_scale_times": 50,
+      "reconstructed_relative_error": 2.220446049250313e-16
+    },
+    "new_old_moment_parity": {
+      "comparison": "Git dd90890 original references versus corrected references, 51 frames x 14 batches x selected/background moments",
+      "moment_pairs_per_channel": 1428,
+      "ESS_exactly_equal": true,
+      "all_raw_center_error_in_old_scaled_units": 2.408078988642248e-13,
+      "all_raw_covariance_error_in_old_scaled_units": 1.1262679137654164e-13,
+      "cross_raw_center_error_in_old_scaled_units": 2.2844019747556836e-13,
+      "cross_raw_covariance_error_in_old_scaled_units": 1.1937858239543874e-13
+    },
+    "unit_tests": "Parent reported complete 179 tests passed before the scale revision. This reviewer did not rerun that suite; source/data checks above were executed locally."
+  },
+  "corrected_issue": {
+    "id": "OUTSIDE_PROPOSAL_SCALE",
+    "status": "fixed prospectively; R1-R8 preserved",
+    "old_behavior": "weights 和 active window 正确，但 scale 对所有51个 score 节点积分，含 score=.5 的实际 proposal=.51。它的时间权重虽仅.01，仍影响全部受控节点的正则化距离。",
+    "consequence": "dimensionless covariance = .9*C + .1*diag(C) + .01*I，因此尺度变化并不完全代数抵消。此为窗口外几何预处理依赖，不是 t=1 outcome 泄漏。",
+    "quantified_before_fix": {
+      "all_max_outside_fraction_of_scale_variance": 0.28825693553,
+      "cross_max_outside_fraction_of_scale_variance": 0.28712713561,
+      "all_max_old_scale_inflation_vs_corrected": 0.32710131459585523,
+      "cross_max_old_scale_inflation_vs_corrected": 0.32571709198214216,
+      "most_affected_features": [
+        "ck2:A:ASN117::all::proposal_motif_shell_2",
+        "ck2:A:ASN117::NOS_C::proposal_motif_shell_2"
+      ]
+    },
+    "correction": "boundary_survival builder 的 scale_score_times 只取实际 state_time<=.5 的 score0… .49；.51 帧仍以 uniform moments 保存为上下文，但不参与权重、尺度或控制器实际注入。",
+    "comparison_disclosure": "R9/R10 相对历史 instantaneous 参考同时改变存活目标与严格窗口尺度；不能把所有差异归因于祖先权重。旧参考与实验不回写。若需纯目标消融，应使用同一严格尺度的匹配参考；本审阅不启动该实验。"
+  },
+  "lineage_limits": {
+    "early_single_ancestor_batches": 11,
+    "total_discovery_batches": 14,
+    "early_positive_ancestors_range": [
+      1,
+      2
+    ],
+    "early_target_ESS_range": [
+      1,
+      1.4705882352941178
+    ],
+    "final_controlled_positive_candidates_range": [
+      28,
+      34
+    ],
+    "final_controlled_target_ESS_range": [
+      18.939393939393938,
+      27.173913043478265
+    ],
+    "final_extant_roots_range": [
+      1,
+      2
+    ],
+    "interpretation": "后代数合法地表示要模仿的克隆质量，不是新增独立观测。n_available=50 仅表示描述符可计算。早期单祖先的原始加权协方差为零，数值可逆主要来自 .01I；这不等于发现了高置信度窄构象模式。",
+    "root_balancing": "等存活根加权是改变估计目标的敏感性分析，仍条件于存活；不能制造独立重复或消除未测混杂。",
+    "statistics_unit": "以14个发现批次作统计单元，不能用700个节点、35000候选或复制叶片数扩充样本量。实验比较当前只有固定master seed42的两个开发批次，且已多轮适配。"
+  },
+  "boundary_evidence": {
+    "source": "results/boundary_motif_discovery_v1",
+    "features": 36,
+    "metrics": 4,
+    "batches": 14,
+    "score_grid": [
+      0,
+      0.49
+    ],
+    "proposal_end": 0.5,
+    "summary": [
+      {
+        "metric": "retained_shift",
+        "integral_q_min": 0.9358927538242944,
+        "integral_significant": 0,
+        "whole_curve_q_min": 0.6906516963631925,
+        "whole_curve_significant": 0
+      },
+      {
+        "metric": "root_balanced_retained_shift",
+        "integral_q_min": 0.981804563580512,
+        "integral_significant": 0,
+        "whole_curve_q_min": 0.7117402977788626,
+        "whole_curve_significant": 0
+      },
+      {
+        "metric": "low_enrichment",
+        "integral_q_min": 0.0256365036630049,
+        "integral_significant": 2,
+        "whole_curve_q_min": 0.2811813522089333,
+        "whole_curve_significant": 0
+      },
+      {
+        "metric": "high_enrichment",
+        "integral_q_min": 0.1114527232844813,
+        "integral_significant": 0,
+        "whole_curve_q_min": 0.2174762020990969,
+        "whole_curve_significant": 0
+      }
+    ],
+    "surviving_integrated_tail_findings": [
+      {
+        "feature": "ck2:A:ASN117::all::proposal_motif_centroid_x",
+        "metric": "low_enrichment",
+        "effect": -0.0963265306122449,
+        "ci95": [
+          -0.1478648371829324,
+          -0.0447882240415574
+        ],
+        "q": 0.0256365036630049,
+        "whole_curve_q": 0.2811813522089333
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::proposal_motif_centroid_x",
+        "metric": "low_enrichment",
+        "effect": -0.0953391633931657,
+        "ci95": [
+          -0.1464249088052618,
+          -0.0442534179810696
+        ],
+        "q": 0.0256365036630049,
+        "whole_curve_q": 0.2811813522089333
+      }
+    ],
+    "interpretation": "两项积分发现是相对于同事件背景的低x尾部耗竭，来自共享区域/相关通道；不支持恒定+x力，也不是两项独立亲和力机制。所有全曲线FDR检验不显著，不能用单一p值替代。",
+    "fitting": "所有实际50节点整窗LOBO one-SE Legendre，次数0–5；批次bootstrap条件于已选次数。积分t检验与未拟合全曲线批次符号置换检验分别按metric跨36特征做FDR。",
+    "temporal_derivatives": "是有符号统计效应的时间变化率，不是坐标梯度；不可直接作为力。",
+    "prior_nulls": "旧 instantaneous/retained proposal 的调整后 affinity 与 lag 机制证据仍弱；旧 retained 的边界口径不同，新结果单独报告，不能混用q。tiny shell 的可检测相对变化不等于真实接触或亲和力原因。"
+  },
+  "reward_contract": {
+    "observable": "在固定受体框架内的 centroid xyz(A)、shell/pair Gaussian kernels(无量纲)，forecast anchor/labels 在一次导数中固定。",
+    "moment": "z=phi/s; mu_b=sum_i w_i z_i; C_b=sum_i w_i(z_i-mu_b)(z_i-mu_b)^T; Sigma_b=.9*C_b+.1*diag(C_b)+.01I.",
+    "robust_mixture": "q_b=(z-mu_b)^T Sigma_b^-1(z-mu_b)/D; h_b=delta^2*(sqrt(1+q_b/delta^2)-1); R=tau*log[sum_b exp(-h_b/tau)/B].",
+    "mode_prior": "Equal batch mass; modes are empirical batch moments, not proven molecular conformational modes.",
+    "control": "梯度方向与外部eta、predictive-flow RMS、atom/path cap及实际剂量日志分开。单位归一化可能放大微小kernel方向，必须报告实际位移、裁剪和低支持。",
+    "no_physics_claim": "该reward不计算MMFF、键角势或受体结合能；原生类别/键仍可自由更新，无图锁、候选SMC或硬组成否决。"
+  },
+  "campaign_tradeoffs": {
+    "round_02": {
+      "head_delta": 0.08046085835,
+      "shape_improvement_percent": 7.401362,
+      "MMFF_median_worsening_percent": 1.239007,
+      "MMFF_p90_improvement_percent": 17.69292,
+      "surround_RMS_worsening_percent": 4.56959,
+      "valid": 97,
+      "PB": 97,
+      "denominator": 100
+    },
+    "round_03": {
+      "head_delta": 0.015093188285827175,
+      "shape_improvement_percent": 1.0669553158041634,
+      "MMFF_median_improvement_percent": 0.5041576631245825,
+      "MMFF_p90_improvement_percent": 18.00307091012564,
+      "surround_RMS_improvement_percent": 1.1586639064040671,
+      "valid": 96,
+      "PB": 96,
+      "denominator": 100
+    },
+    "interpretation": "R2 head/shape 改善未伴随中位应变与周边松弛改善；R3 pair-only 小幅改善native的物理读数但有效率降低2百分点，两者均未达到原Steer物理水平。它们支持保留多指标方案比较，不证明任一motif具有因果亲和力优势。"
+  },
+  "falsifiable_R09_R10": {
+    "status": "Exploratory interventions, not inferred optimal rewards; no outcomes predicted or examined.",
+    "hypothesis": "实际边界幸存祖先的时间变化分布，可能比即时选择分布更贴近累计Steer的真实x_.5路径；祖先塌缩也可能使目标过窄，压低多样性或增加内应变。",
+    "necessary_readouts": [
+      "真实x_.5双向结构距离及两方向分量",
+      "独立于reward的最终all/valid/unique head",
+      "valid/PB与全部失败分母",
+      "同图MMFF每重原子relief的中位数/p90及计算覆盖",
+      "周边松弛RMS",
+      "唯一结构/重复、实际注入RMS/裁剪、窗口后零注入",
+      "ancestor-ESS/模式责任和低支持描述符"
+    ],
+    "counterexamples": [
+      "reward distance下降而真实x_.5或终态head未改善",
+      "向reference最近距离改善但反向覆盖/唯一性下降",
+      "head改善但MMFF尾部、覆盖或周边松弛恶化",
+      "优势仅来自极低祖先ESS或tiny shell被单位梯度放大",
+      "同参数zero/native不等价、窗口后仍注入或出现重采样"
+    ],
+    "decision": "部分退化应记录为Pareto权衡并按已授权预算分析下一假说，不自动宣告全目标成功，也不因单指标退化擅自停止。R9/R10结果出现前不调整冻结参数。"
+  },
+  "physical_stability_interpretation": {
+    "cause_not_identified": "一阶/二阶局部motif不能唯一决定图、键角、扭转及全局拥挤；native后半程可改变这些变量。克隆窄分布及normalized小梯度可能使局部几何fit与MMFF尾部分离。以上为可检验解释，不是既定原因。",
+    "restrained_options": [
+      "保留joint与pair等预声明表征消融，读取全程剂量和局部/非局部位移后再区分目标过窄与剂量问题",
+      "对低祖先ESS的矩与ridge主导程度作明确不确定性诊断；如改变covariance或剂量门控须单列为新架构假设",
+      "终态合法图才进行MMFF/结构检查，不在早期噪声上虚构物理能量或把图改变当失败原因"
+    ],
+    "energy_scope": "MMFF松弛前后差为同一生成分子图上的局部应变代理，不是跨分子绝对能量或受体结合自由能；surround RMS也是几何诊断。"
+  },
+  "provenance": {
+    "old_git_commit": "dd90890",
+    "prospective_fix_commit": "f8e2aa7",
+    "boundary_manifest_sha256": "666ff05aa122a5c4034b59614d9b1b6b2488d05b335840c411f3b13e21e5c9c2",
+    "source_motif_manifest_sha256": "97f1903cde2d76aba2d27ecc5754e994d02ae33279c72303b9510fcec8a2302e",
+    "boundary_evidence_sha256": "cdf20d491ce8ff8ff5de2663a6086b407e079961e9f9262f2a45b8781e7a6c47",
+    "builder_before_sha256": "f51d88d7d3db27d2704ed77f65b39eaafaf732de41990a5aa23e4f60c2197dcc",
+    "builder_after_sha256": "dbb8ebcf13aa911e0768f6ee44894998125b7ca4bdcdf0bfb85dafd4b41a85cf",
+    "references": [
+      {
+        "path": "configs/experiments/ck2_motif_seed42_v1/survival_all_reference.json.gz",
+        "old_sha256": "0e9d25467a19c7d9bf1a0c64de05f8d4f9fae3e25b8cd3f6a77a1a7a3261f69e",
+        "corrected_sha256": "02bd7a4e31791454c91de606cd23e4f8718a782b3af2999e139df82f60153a3f"
+      },
+      {
+        "path": "configs/experiments/ck2_motif_seed42_v1/survival_cross_reference.json.gz",
+        "old_sha256": "30f2db3a66bbef76a011fa642ae31c2c9fb2926d720eb925fc8f3642c12d89ce",
+        "corrected_sha256": "fc6a771b6f409c76f16d38fd9ac2402cbeb951540cfe5f97f34a6d2410d673f9"
+      }
+    ]
+  }
+}
+

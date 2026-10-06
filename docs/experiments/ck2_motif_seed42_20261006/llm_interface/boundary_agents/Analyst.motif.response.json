@@ -1,0 +1,90 @@
+{
+  "agent": "Analyst",
+  "counterevidence": [
+    {
+      "evidence_ids": [
+        "M_LINEAGE"
+      ],
+      "finding": "末端平均根数仅1.2143，14批中11批只有一个根。克隆后代权重不是独立重复，等根统计仍条件于存活。",
+      "uncertainty": "请求未给出实际边界每节点的完整target ESS；不能从末端根数臆造每节点有效样本量。"
+    },
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:ASN117::all::proposal_motif_shell_2:lag_controlled_gain_correlation"
+      ],
+      "finding": "ASN117/all shell_2 的充分控制lag相关约-.02890，q=.31856，仅44.75%时间权重覆盖，t0未定义。其未覆盖节点不能填零，亦不能把p=.02755直接解释为亲和力机制。",
+      "uncertainty": "原始核支持、图化学和物理能量未在此条证据中给出；小幅相关和tiny kernel应防止被梯度单位归一化放大。"
+    },
+    {
+      "evidence_ids": [
+        "M_METRIC_COUNTS"
+      ],
+      "finding": "对坐标population/selected mean相对零检验得到很小p，并不检验选择优势；即时mean selection shift和equal-root selection shift均0/54显著。",
+      "uncertainty": "受体坐标原点任意，不能将非零centroid坐标或随时间移动转成有因果支持的空间方向。"
+    }
+  ],
+  "limitations": [
+    "本响应是已授权的Analyst subagent simulation，仅使用该request的discovery evidence；未读取heldout或实际终态结果来选择规则。",
+    "complete learning window来自证据[0,.5]；真实边界reward应对proposal x_(t+dt)使用score t参考，最后.49→.5，之后native。不能把描述性拟合的时间导数当力。",
+    "后代数定义经验质量而非独立样本；批次为统计单元，50个时间节点不能增加独立n。采样谱系不是Brownian物种树。",
+    "root-balanced、partial和lag均为观察性统计，未测混杂、存活条件和历史SMC背景仍存在。",
+    "shell/pair是平滑几何核，不能称已验证氢键、物理接触或MMFF能量；早期预测标签不等于稳定化学图。",
+    "经验批次高斯模式不能唯一确定分子构象、图、能量或亲和力。机制规则deferred不禁止明确预声明的表示消融。",
+    "任何joint奖励探索须保留零剂量/native、实际x_.5独立结构指标、终态有效性/能量覆盖和尾部/多样性，模型head不是实验亲和力。"
+  ],
+  "observations": [
+    {
+      "evidence_ids": [
+        "M_BOUNDARY_COUNTS"
+      ],
+      "finding": "新增 boundary_evidence 的目标是实际 proposal state<=.5 的边界存活祖先质量；其 score 节点为0… .49，与常规packet的51个score节点0… .5不同。不能将 score=.5 的 proposal=.51 当成真实x_.5，也不能用实际t1作为学习标签。",
+      "uncertainty": "这是回顾性分布模仿目标；描述符和界面元数据并未证明因果优势，预测endpoint只是区域/标签条件。"
+    },
+    {
+      "evidence_ids": [
+        "M_BOUNDARY_COUNTS",
+        "boundary:discovery:ck2:A:VAL116::all::proposal_motif_centroid_z:retained_shift",
+        "boundary:discovery:ck2:A:VAL116::all::proposal_motif_centroid_z:root_balanced_retained_shift"
+      ],
+      "finding": "实际边界36特征×4统计量中，retained和root-balanced retained的积分FDR均无显著项，所有4类的全曲线FDR检验也均无显著项。VAL116/all centroid_z retained shift=-.0004174，q=.93589，全曲线q=.69065；等根版本q=.98180。",
+      "uncertainty": "没有检出一致的非零均值效应不等于证明所有分布相同；仅支持将后续奖励解释为探索性分布拟合。"
+    },
+    {
+      "evidence_ids": [
+        "boundary:discovery:ck2:A:ASN117::all::proposal_motif_centroid_x:low_enrichment",
+        "boundary:discovery:ck2:A:ASN117::NOS_C::proposal_motif_centroid_x:low_enrichment"
+      ],
+      "finding": "ASN117/all与NOS_C centroid_x 的低尾富集积分分别为-.09633/-.09534，均q=.02564；两者全曲线q=.28118。可报告为相关通道的低x尾部耗竭，不能指定持续+x力。",
+      "uncertainty": "14批次、固定受体框架、存活条件及多轮区域预选限制解释；两个通道不是独立机制，时间导数也不是空间导数。"
+    },
+    {
+      "evidence_ids": [
+        "M_METRIC_COUNTS"
+      ],
+      "finding": "广义proposal packet中，调整后同期affinity为0/51显著，控制起始head及全局协变量后的lag为0/54显著，within-root为0/54显著；只有少数仅部分调整的lag和尾部富集通过FDR。",
+      "uncertainty": "这些是旧instantaneous/retained口径的补充反证，不与实际边界的q混为一组。欠调整的lag不能替代更充分控制后的效应。"
+    }
+  ],
+  "rules": [
+    {
+      "evidence_ids": [
+        "boundary:discovery:ck2:A:ASN117::all::proposal_motif_centroid_x:low_enrichment",
+        "M_BOUNDARY_COUNTS",
+        "M_LINEAGE"
+      ],
+      "feature": "ck2:A:ASN117::all::proposal_motif_centroid_x",
+      "rationale": "保留积分低尾耗竭作为观察性线索，但全曲线FDR不显著、区域通道相关，不输出固定+x优化规则。",
+      "status": "deferred"
+    },
+    {
+      "evidence_ids": [
+        "boundary:discovery:ck2:A:VAL116::all::proposal_motif_shell_6:retained_shift",
+        "M_BOUNDARY_COUNTS"
+      ],
+      "feature": "ck2:A:VAL116::all::proposal_motif_shell_6",
+      "rationale": "实际边界retained shift=-.0005360，CI跨0、q=.93589。可作为预声明joint表征中的一个观测量，但不能标为已验证优势相互作用。",
+      "status": "deferred"
+    }
+  ],
+  "schema_version": "motif-agent-1.0"
+}
