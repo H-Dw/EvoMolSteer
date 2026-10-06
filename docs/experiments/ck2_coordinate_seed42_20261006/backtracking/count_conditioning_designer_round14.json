@@ -1,0 +1,38 @@
+{
+  "agent": "Designer",
+  "agent_review_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "composition_audit_sha256": "42dafad072738881bdec74d45ea9f1f4dda71f8d988afbeab95367b730947a1f",
+  "conditional_audit_sha256": "d082bda6afb2d1a31d62c4e5ff4acdb51f6588d35e4322da5fe5e71ab6cac6a5",
+  "decision": "One exploratory count-conditional geometry representation experiment; exact parent geometry/dose controls remain bound.",
+  "declared_changes": [
+    "exact count stratum geometry",
+    "empirical selected count-mass mixture prior",
+    "zero dose for unsupported counts"
+  ],
+  "derivative": "dR/d actual proposal coordinates; detached endpoint anchor/labels/counts; no discrete gradient",
+  "formula": "R_t= tau*log(sum_b pi_b(n,t)*exp(-delta^2*(sqrt(1+q_b/delta^2)-1)/tau)); q_b=(z-mu_b)^T Sigma_b^-1 (z-mu_b)/6",
+  "inherit_without_simultaneous_retuning": {
+    "constraints": {
+      "backtrack_attempts": 7,
+      "max_atom_step_A": 0.025,
+      "max_cumulative_rms_A": 1.25,
+      "max_pair_distance_change_A": 0.06,
+      "severe_receptor_clash_A": 0.8
+    },
+    "dose_reference": "predictive_flow",
+    "initial_update_dose": "native",
+    "mixture_temperature": 0.25,
+    "native_rms_ratio": 0.05,
+    "preserve_native_rigid_pose": false,
+    "robust_delta": 1.0
+  },
+  "limitations": [
+    "Coverage82.25% including51score nodes; sparse fallback creates late dose gating",
+    "232/256 retained combinations contain at least one single-root component; not independent clone evidence",
+    "Count identity does not determine bond graph or charge; no established affinity mechanism",
+    "LOO center check does not establish covariance or gradient stability"
+  ],
+  "parent_reference_sha256": "e8855860070ab43b3c0aea3a07b818b1d103d044cc297e2c7ab83711a22363f0",
+  "reference_sha256": "10606e73d260b5c994a8905539d8e4ab289a0bf56aee059a0a46942966e8fad9",
+  "schema_version": "count-conditioning-designer-contract-1.0"
+}
