@@ -1,0 +1,868 @@
+{
+  "skill_sha256": "051991b8dd888fff680d669af6c841f02c09911dd9b947315cb5614d21ec1950",
+  "prompt_sha256": "0a23b64f1e6fa87912bc307654e46b6777a3de94a0d76d2c9e2088555aad7443",
+  "input_sha256": "5be17dfb20242794b69c5bf69c64e26360c03cc07b337b0997f2e1362536fa00",
+  "prior_sha256": "1efe5938daa2570b3dadc6ae0a5562cba039aae756ec68a162deef7d137887a7",
+  "primary_objective": "predicted_affinity",
+  "selected_round": 3,
+  "response_actions": [
+    {
+      "id": "new_R1_flat",
+      "interventions": [
+        "dose_escalation",
+        "delivered_dose_and_cancellation_assessment"
+      ],
+      "evidence": "真实R1 all=+.016488227844238423、unique=+.011518640202271335，低于本地flat=.02。输入已指出actual perturbation及positive/negative cancellation；先检查actual RMS、eta/caps/gates、累计位移与正负head-change分布，再测试更大送达dose。unit-gradient normalization下整体放大reward通常不增加dose。MMFF median/p90编码改善+.0249131/+.4051225不足以取代head更高的R3。"
+    },
+    {
+      "id": "new_R2_gain",
+      "interventions": [
+        "secondary_energy_assessment",
+        "parent_refinement"
+      ],
+      "evidence": "真实R2 all=+.053347773551940314、unique=+.08850637075744494，coverage=1、valid-rate change=0；点估计超过本地meaningful=.05，可在相近affinity下评估能量。R2 unique比R3高+.006384512957405164，但all比R3低.008458566665649592，因此父程序仍选R3。median MMFF编码-.0366927、p90+.2185372分开报告，不静默改变主目标。"
+    },
+    {
+      "id": "new_R4_promising",
+      "interventions": [
+        "parent_refinement"
+      ],
+      "evidence": "真实R4 all=+.030307297706603897、unique=+.030178765224714077，介于flat=.02和meaningful=.05；保留promising分支，分别测试supported fields、direction mode与delivered dose。MMFF median/p90编码+.0151439/+.1651092较好，但all比R3低.03149904251098601。输入无Steer均值，不能断言已达到或低于Steer。"
+    },
+    {
+      "id": "counterfactual_negative",
+      "interventions": [
+        "geometry_target_revision"
+      ],
+      "evidence": "-.1是hypothetical_diagnostic_only，低于-.02，不是R5或真实完成轮次。若实际出现此负效应，应改target geometry、支持fields、representation或遗漏features；保留失败和全部分母，不只继续加大dose。"
+    }
+  ],
+  "per_step_affinity_calls": 0,
+  "affinity_head_gradient": false,
+  "feature_priority": "3D_coordinates",
+  "coordinate_features": [
+    "shape_xx/shape_yy：C=(1/N)sum_i(Y_i-meanY)(Y_i-meanY)^T，保留Cxx/Cyy，单位Å²。effect=-.4953249731/-.5128231821，q=.0008127463/1.4936572e-5，方向一致13/14、14/14。其余shape分量权重0、保留证据；二阶矩不唯一决定完整点云或化学图。",
+    "pair_kernel_1.5/2.5/3.5/5.0/7.0：mean_(i≠j) exp[-.5*((sqrt(||Y_i-Y_j||²+1e-20)-a)/.75Å)²]。整窗effect=+.5619441/+.6306622/+.5397138/+.3187584/-.4854002；5Å为12/14同向，其余14/14。点对核是几何场，不是键或接受阈值。",
+    "17项landmark字段：d_il=sqrt(||Y_i-L_l||²+1e-20)，softmin=-.5Å*(logsumexp_i[-d_il/.5Å]-logN)，occupancy3/5=mean_i exp[-.5*((d_il-3/5Å)/1Å)²]。实际名称和二元权重逐项提交，landmark00 occupancy3 effect=+.5449039482、q=.0002352183、14/14同向；相关位置场不是独立化学接触机制。",
+    "74维顺序严格沿用reference：3 centroid、6 shape、5 pair、60 landmark。24项binary=1、50项=0，全部14个scale-floor项排除。q<.05、|integrated_z|>=.1、batch方向>=12/14、scale未触底共同支持入选；排除只减少runtime reward terms，不删除完整证据/失败/对照，不用atom-type/count/graph门禁。",
+    "系数使用24项原样Legendre效应函数，19个constant、4个degree2、1个degree1，domain[0,.49]。空间力由coordinate observable梯度与真实FLOWR VJP产生；时间曲线导数不是力，未训练新affinity网络。"
+  ],
+  "reward_design": {
+    "reward_view": "endpoint_direction",
+    "derivative_path": "flowr_endpoint_vjp",
+    "coordinate_representation": "predicted_endpoint_world_A",
+    "window": [
+      0,
+      0.5
+    ],
+    "native_rms_ratio": 0.867,
+    "geometry_block_weights": [
+      0,
+      1,
+      2,
+      1
+    ],
+    "geometry_block_order": [
+      "centroid_3",
+      "shape_6",
+      "pair_5",
+      "landmark_60"
+    ],
+    "time_ramp_power": 0,
+    "geometry_feature_weights": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    "geometry_feature_names": [
+      "global_centroid_x",
+      "global_centroid_y",
+      "global_centroid_z",
+      "shape_xx",
+      "shape_yy",
+      "shape_zz",
+      "shape_xy",
+      "shape_xz",
+      "shape_yz",
+      "pair_kernel_1.5",
+      "pair_kernel_2.5",
+      "pair_kernel_3.5",
+      "pair_kernel_5.0",
+      "pair_kernel_7.0",
+      "landmark_00_softmin",
+      "landmark_00_occupancy3",
+      "landmark_00_occupancy5",
+      "landmark_01_softmin",
+      "landmark_01_occupancy3",
+      "landmark_01_occupancy5",
+      "landmark_02_softmin",
+      "landmark_02_occupancy3",
+      "landmark_02_occupancy5",
+      "landmark_03_softmin",
+      "landmark_03_occupancy3",
+      "landmark_03_occupancy5",
+      "landmark_04_softmin",
+      "landmark_04_occupancy3",
+      "landmark_04_occupancy5",
+      "landmark_05_softmin",
+      "landmark_05_occupancy3",
+      "landmark_05_occupancy5",
+      "landmark_06_softmin",
+      "landmark_06_occupancy3",
+      "landmark_06_occupancy5",
+      "landmark_07_softmin",
+      "landmark_07_occupancy3",
+      "landmark_07_occupancy5",
+      "landmark_08_softmin",
+      "landmark_08_occupancy3",
+      "landmark_08_occupancy5",
+      "landmark_09_softmin",
+      "landmark_09_occupancy3",
+      "landmark_09_occupancy5",
+      "landmark_10_softmin",
+      "landmark_10_occupancy3",
+      "landmark_10_occupancy5",
+      "landmark_11_softmin",
+      "landmark_11_occupancy3",
+      "landmark_11_occupancy5",
+      "landmark_12_softmin",
+      "landmark_12_occupancy3",
+      "landmark_12_occupancy5",
+      "landmark_13_softmin",
+      "landmark_13_occupancy3",
+      "landmark_13_occupancy5",
+      "landmark_14_softmin",
+      "landmark_14_occupancy3",
+      "landmark_14_occupancy5",
+      "landmark_15_softmin",
+      "landmark_15_occupancy3",
+      "landmark_15_occupancy5",
+      "landmark_16_softmin",
+      "landmark_16_occupancy3",
+      "landmark_16_occupancy5",
+      "landmark_17_softmin",
+      "landmark_17_occupancy3",
+      "landmark_17_occupancy5",
+      "landmark_18_softmin",
+      "landmark_18_occupancy3",
+      "landmark_18_occupancy5",
+      "landmark_19_softmin",
+      "landmark_19_occupancy3",
+      "landmark_19_occupancy5"
+    ],
+    "selected_field_names": [
+      "shape_xx",
+      "shape_yy",
+      "pair_kernel_1.5",
+      "pair_kernel_2.5",
+      "pair_kernel_3.5",
+      "pair_kernel_5.0",
+      "pair_kernel_7.0",
+      "landmark_00_softmin",
+      "landmark_00_occupancy3",
+      "landmark_02_softmin",
+      "landmark_02_occupancy5",
+      "landmark_03_softmin",
+      "landmark_03_occupancy5",
+      "landmark_04_softmin",
+      "landmark_04_occupancy5",
+      "landmark_05_softmin",
+      "landmark_05_occupancy5",
+      "landmark_06_softmin",
+      "landmark_06_occupancy5",
+      "landmark_15_softmin",
+      "landmark_15_occupancy5",
+      "landmark_16_occupancy5",
+      "landmark_18_softmin",
+      "landmark_18_occupancy5"
+    ],
+    "selected_field_count": 24,
+    "selected_block_counts": [
+      0,
+      2,
+      5,
+      17
+    ],
+    "direction_mode": "legendre_effect",
+    "geometry_direction_functions": {
+      "landmark_00_occupancy3": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.5449039482063128
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_00_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.4805639092051165
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_02_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.3225795962823913
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_02_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.25342393302991706
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_03_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.39539524585440605
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_03_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.3604259832046694
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_04_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.2996009051916673
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_04_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.3513098388647142
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_05_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.34404936064156594
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_05_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.3961552727786554
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_06_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.36455056245475587
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_06_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.2938283013907184
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_15_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.3568562491201748
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_15_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.368653335303689
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_16_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.17462454745318454
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_18_occupancy5": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.31067991529068284
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "landmark_18_softmin": {
+        "degree": 0,
+        "legendre_coefficients": [
+          0.2635009475455858
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "pair_kernel_1.5": {
+        "degree": 2,
+        "legendre_coefficients": [
+          0.5622952239355059,
+          -0.06814416931034596,
+          -0.842951121291854
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "pair_kernel_2.5": {
+        "degree": 2,
+        "legendre_coefficients": [
+          0.6309668603817257,
+          -0.3682961550540676,
+          -0.731480354814834
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "pair_kernel_3.5": {
+        "degree": 2,
+        "legendre_coefficients": [
+          0.5400080198171118,
+          -0.323715245075145,
+          -0.7063231983901284
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "pair_kernel_5.0": {
+        "degree": 2,
+        "legendre_coefficients": [
+          0.31900386024592337,
+          -0.2618703003563801,
+          -0.5893946533175523
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "pair_kernel_7.0": {
+        "degree": 1,
+        "legendre_coefficients": [
+          -0.4854001897724695,
+          0.3517672319876863
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "shape_xx": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.4953249731470489
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      },
+      "shape_yy": {
+        "degree": 0,
+        "legendre_coefficients": [
+          -0.5128231820840609
+        ],
+        "time_end": 0.49,
+        "time_start": 0
+      }
+    },
+    "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "sparse_prior_sha256": "1efe5938daa2570b3dadc6ae0a5562cba039aae756ec68a162deef7d137887a7",
+    "dose_reference": "predictive_flow",
+    "preserve_native_rigid_pose": false,
+    "constraints": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6,
+      "severe_receptor_clash_A": 0.8,
+      "backtrack_attempts": 7
+    },
+    "parent_program_sha256": "facdfdccac5a7dd88fbf684d588d42df89e1dfc96d85db6a31d851ae148a30a1",
+    "eta_rationale": "沿用实际新R3 backtrack_round03.json 的eta=.867、predictive_flow校准和caps：.15Å/atom、6Å/path、clash .8Å、7次backtracking。eta在[.1,3]。新field/函数/endpoint Jacobian会改变受限情况，同requested eta不保证同actual dose，须记录RMS；不宣称该eta最优或超过未知R5的送达dose。",
+    "weights_rationale": "复制prior binary feature weights，不按q再拟合强度。四块[0,1,2,1]是声明的实验选择：unsupported centroid为0，shape预算1，多个稳定pair预算2，landmark预算1避免相关60维场主导。块内按nonzero feature weights之和归一化，入选shape各1/2、pair各2/5、landmark各1/17。系数块预算保持，但实际力仍受observable梯度和J耦合影响。",
+    "scale_definition": "z_j=phi_j(Y)/s_j，采用endpoint reference固定whole-window scale；s_j=sqrt(独立批平均candidate variance在完整0–.49节点梯形积分/域长)，floor原值1e-5。shape尺度单位Å²、softmin Å、kernels/occupancy无量纲。V_b,t,j=Var_candidates(phi_j)/s_j²+.05（无量纲ridge）；floor项m_j=0，保留其证据。",
+    "reward_formula": "u(t)=2*(t-time_start)/(time_end-time_start)-1；c_j(t)=sum_k legendre_coefficients[j,k]*P_k(u)，逐项exact domain/coefficients由geometry_direction_functions给出。Vbar_tj=mean_b V_b,t,j，即该真实stage的独立批平均scaled variance，不是全时间平均。D_tj=clip(c_j(t)/Vbar_tj,-3,3)。w_j=B_block*m_j/sum_(k in block)m_k，empty block给0；R_t(Y)=sum_j w_j*z_j*D_tj。函数是effect系数，不取时导数，不含当步head。",
+    "derivative_formula": "Y=FLOWR_endpoint(x_t;detached self-conditioning)*coord_scale+receptor_COM；g_t=J_Y(x_t)^T grad_Y R_t(Y)。坐标scale纳入真实FLOWR VJP。离线reference/functions/variance和条件assignment固定；不使用identity、saved-endpoint-only梯度、head backprop或拟合surrogate。",
+    "support": "input/prior动态window[0,.5]，50个score节点0.00–0.49，对应native proposal至.50。schedule=(.1+.9*phase)^0=1>0，覆盖全部支持update；个别field coefficient变号或过零不关闭step，数学总梯度消失可无驱动。cap/clash/path-budget零注入需日志原因。t=.5的.51 proposal不注入，function不外推至.5；之后原生到1，无selection/cloning。",
+    "design_status": "literal_proposal_pending_independent_audit_registration_tests_review_and_activation"
+  },
+  "time_coefficient_evidence": {
+    "domain": [
+      0,
+      0.49
+    ],
+    "constant_function_count": 19,
+    "constant_shape_coefficients": {
+      "shape_xx": -0.4953249731470489,
+      "shape_yy": -0.5128231820840609
+    },
+    "sign_changes": [
+      {
+        "feature": "pair_kernel_1.5",
+        "root_times": [
+          0.02219154853414675,
+          0.4546045846703119
+        ],
+        "effect_start_mid_end": [
+          -0.21251172804600205,
+          0.983770784581433,
+          -0.34880006666669394
+        ],
+        "pattern": "negative_positive_negative",
+        "node_signs": "0/.01/.02负，.03–.45正，.46–.49负"
+      },
+      {
+        "feature": "pair_kernel_2.5",
+        "root_times": [
+          0.4409825774129849
+        ],
+        "effect_start_mid_end": [
+          0.26778266062095923,
+          0.9967070377891427,
+          -0.46880964948717585
+        ],
+        "pattern": "positive_negative",
+        "node_signs": ".00–.44正，.45–.49负"
+      },
+      {
+        "feature": "pair_kernel_3.5",
+        "root_times": [
+          0.43561372192786035
+        ],
+        "effect_start_mid_end": [
+          0.15740006650212857,
+          0.893169619012176,
+          -0.4900304236481615
+        ],
+        "pattern": "positive_negative",
+        "node_signs": ".00–.43正，.44–.49负"
+      },
+      {
+        "feature": "pair_kernel_5.0",
+        "root_times": [
+          0.0013904790453088582,
+          0.4160398958020786
+        ],
+        "effect_start_mid_end": [
+          -0.008520492715248684,
+          0.6137011869046995,
+          -0.532261093428009
+        ],
+        "pattern": "negative_positive_negative",
+        "node_signs": "0负，.01–.41正，.42–.49负"
+      }
+    ],
+    "pair7": {
+      "degree": 1,
+      "effect_start": -0.8371674217601558,
+      "effect_end": -0.1336329577847832,
+      "domain_sign_change": false
+    },
+    "interpretation": "根由prior原样Legendre coefficients计算，是拟合field effect变号，不是causal阶段边界或坐标速度。positive stage variance及weights保留系数符号，多个场gradient/J耦合后不保证每个field单独沿其系数方向变化。"
+  },
+  "label_semantics": {
+    "recorded_label": "Original pre-selection target scores是与endpoint同次joint FLOWR forward的pooled latent head，非独立endpoint-coordinate-only rescore。",
+    "loss_exclusion": "head/condition detached，geometry scalar没有affinity loss；离线24字段/functions来自Steer已有记录，未新增affinity predictor。",
+    "uncertainty": "14独立batch是统计单位，50节点/粒子/克隆不是独立重复。q、CI、方向一致与去floor只支持discovery假设，不能建立因果binding区域。"
+  },
+  "production_extra_forward_calls_per_step": 0,
+  "full_zero_validation_required": true,
+  "post_native_reward_response": {
+    "kind": "first_order_only_at_old_x_t",
+    "measured_post_native_endpoint_reward": false,
+    "old_endpoint_reward_measured": true,
+    "estimate": "DeltaR_control^(1)=g_t dot actual_DeltaX_control，g在旧pre-native x_t求得，actual displacement经过caps/backtracking。return detached predictions/condition之后先完成native stochastic step，再滞后注入缓存VJP。",
+    "limitation": "没有新forward就没有Y(x_(t+dt)+DeltaX)，不把一阶预测标成fresh endpoint reward测量。R3的measured nonlinear step reward多下降属于其actual-proposal motif reward诊断，不能写成尚未生成的sparse endpoint结果。"
+  },
+  "validation_status": {
+    "sparse_design_activated": false,
+    "inference_executed_by_this_agent": false,
+    "new_R5_status": "running; no affinity results or real VJP/zero certificate claimed yet",
+    "new_R5_final_affinity": null,
+    "real_GPU_full_zero_certificate_claimed": false,
+    "real_GPU_VJP_certificate_claimed": false,
+    "required_zero": "新fields/functions/endpoint路径要求重新完整zero/native从0到1比较coords、atom/bond、scores、condition、RNG和final structures；eta0实际注入精确0，原生图transition自由，无selection/cloning。",
+    "required_model_audit": "实际FLOWR/GPU旧x_t方向差分，冻结condition/reference/assignment，保存恢复RNG；CPU公式检查不能替代。",
+    "one_time_extra_joint_forward_calls": 4,
+    "one_time_audit_detail": "当前endpoint preflight epsilon=.003/.01，各±两次，共4次额外joint forwards单列。生产每步必需target forward1次，额外0次；active step允许1次geometry backward，head gradient禁止。",
+    "activation_gate": "主代理独立行为检查后注册/编译、local tests、review及实际核验，再决定启用；本literal不宣称这些门槛已通过。"
+  },
+  "selection_evidence": {
+    "objective": "实际新1–4轮all matched-native predicted mean首要；unique/valid/coverage单列，历史胜者不替代当前父选择。",
+    "selected": {
+      "round": 3,
+      "all_head_change_vs_native": 0.061806340217589906,
+      "unique_head_change_vs_native": 0.08212185780003978,
+      "score_coverage": 1,
+      "valid_rate_change": -0.010000000000000009,
+      "negative_MMFF_relative_change": -0.01014762180559492,
+      "negative_MMFF_p90_relative_change": 0.010937396408378763
+    },
+    "ranking_all": [
+      {
+        "round": 3,
+        "delta": 0.061806340217589906
+      },
+      {
+        "round": 2,
+        "delta": 0.053347773551940314
+      },
+      {
+        "round": 4,
+        "delta": 0.030307297706603897
+      },
+      {
+        "round": 1,
+        "delta": 0.016488227844238423
+      }
+    ],
+    "winner_margin_vs_R2": 0.008458566665649592,
+    "R2_unique_advantage": 0.006384512957405164,
+    "meaningful_margin_R3": 0.011806340217589903,
+    "thresholds": {
+      "meaningful": 0.05,
+      "flat": 0.02,
+      "source": "existing local affinity_skill defaults; input no explicit threshold field"
+    },
+    "secondary_tradeoff": "R3/R2点估计均超+.05，all差.00846可作相近affinity的energy审查。R3 median编码退化更小、R2 p90编码更好；分别呈现，不以unique或单个physical指标静默替换all objective。",
+    "support": {
+      "total": 74,
+      "selected": 24,
+      "excluded": 50,
+      "by_block": [
+        0,
+        2,
+        5,
+        17
+      ],
+      "floor_excluded": 14,
+      "selection_rule": {
+        "absolute_integrated_z_ge": 0.1,
+        "batch_direction_fraction_ge": 0.8571428571428571,
+        "exclude_scale_floor": true,
+        "q_lt": 0.05
+      }
+    },
+    "selected_field_evidence": [
+      {
+        "feature": "shape_xx",
+        "weight": 1,
+        "effect_z": -0.49532497314704876,
+        "q": 0.0008127462625120037,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.00841628096974001
+      },
+      {
+        "feature": "shape_yy",
+        "weight": 1,
+        "effect_z": -0.5128231820840607,
+        "q": 0.000014936572000139932,
+        "batch_agreement": 1,
+        "scale": 0.31063731463006305
+      },
+      {
+        "feature": "pair_kernel_1.5",
+        "weight": 1,
+        "effect_z": 0.5619441405863631,
+        "q": 0.00014586474131851693,
+        "batch_agreement": 1,
+        "scale": 0.0031466486465661714
+      },
+      {
+        "feature": "pair_kernel_2.5",
+        "weight": 1,
+        "effect_z": 0.6306622038407781,
+        "q": 0.0000218887660348392,
+        "batch_agreement": 1,
+        "scale": 0.0049794316457908395
+      },
+      {
+        "feature": "pair_kernel_3.5",
+        "weight": 1,
+        "effect_z": 0.5397138410589318,
+        "q": 0.0000975131183254271,
+        "batch_agreement": 1,
+        "scale": 0.008468985075436211
+      },
+      {
+        "feature": "pair_kernel_5.0",
+        "weight": 1,
+        "effect_z": 0.3187583814232173,
+        "q": 0.003707677474506074,
+        "batch_agreement": 0.8571428571428571,
+        "scale": 0.006083899602955455
+      },
+      {
+        "feature": "pair_kernel_7.0",
+        "weight": 1,
+        "effect_z": -0.48540018977246946,
+        "q": 0.00014586474131851693,
+        "batch_agreement": 1,
+        "scale": 0.0056755856349484214
+      },
+      {
+        "feature": "landmark_00_softmin",
+        "weight": 1,
+        "effect_z": -0.4805639092051163,
+        "q": 0.0008127462625120037,
+        "batch_agreement": 1,
+        "scale": 0.03893775238430747
+      },
+      {
+        "feature": "landmark_00_occupancy3",
+        "weight": 1,
+        "effect_z": 0.5449039482063128,
+        "q": 0.00023521832748094008,
+        "batch_agreement": 1,
+        "scale": 0.008527554417624445
+      },
+      {
+        "feature": "landmark_02_softmin",
+        "weight": 1,
+        "effect_z": 0.2534239330299171,
+        "q": 0.004587449054876355,
+        "batch_agreement": 0.8571428571428571,
+        "scale": 0.14589175584799322
+      },
+      {
+        "feature": "landmark_02_occupancy5",
+        "weight": 1,
+        "effect_z": -0.3225795962823912,
+        "q": 0.002592212388428179,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.0006287919067671477
+      },
+      {
+        "feature": "landmark_03_softmin",
+        "weight": 1,
+        "effect_z": 0.36042598320466934,
+        "q": 0.01273003263178792,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.13290502056478304
+      },
+      {
+        "feature": "landmark_03_occupancy5",
+        "weight": 1,
+        "effect_z": -0.395395245854406,
+        "q": 0.0009209558493187519,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.000295659198096695
+      },
+      {
+        "feature": "landmark_04_softmin",
+        "weight": 1,
+        "effect_z": -0.3513098388647141,
+        "q": 0.013894302690278963,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.08117791416587754
+      },
+      {
+        "feature": "landmark_04_occupancy5",
+        "weight": 1,
+        "effect_z": 0.2996009051916673,
+        "q": 0.03345172897156702,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.0023089594354644646
+      },
+      {
+        "feature": "landmark_05_softmin",
+        "weight": 1,
+        "effect_z": 0.3961552727786554,
+        "q": 0.0029349435795734727,
+        "batch_agreement": 0.8571428571428571,
+        "scale": 0.20256404978008408
+      },
+      {
+        "feature": "landmark_05_occupancy5",
+        "weight": 1,
+        "effect_z": -0.3440493606415659,
+        "q": 0.0008127462625120037,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.00021132018529987858
+      },
+      {
+        "feature": "landmark_06_softmin",
+        "weight": 1,
+        "effect_z": 0.2938283013907183,
+        "q": 0.0006836742452274443,
+        "batch_agreement": 1,
+        "scale": 0.09358517911459664
+      },
+      {
+        "feature": "landmark_06_occupancy5",
+        "weight": 1,
+        "effect_z": -0.3645505624547559,
+        "q": 0.0006792514068222139,
+        "batch_agreement": 1,
+        "scale": 0.00027656777059632684
+      },
+      {
+        "feature": "landmark_15_softmin",
+        "weight": 1,
+        "effect_z": 0.36865333530368893,
+        "q": 0.003707677474506074,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.12656561223827997
+      },
+      {
+        "feature": "landmark_15_occupancy5",
+        "weight": 1,
+        "effect_z": -0.3568562491201748,
+        "q": 0.002592212388428179,
+        "batch_agreement": 0.9285714285714286,
+        "scale": 0.0004042188571696291
+      },
+      {
+        "feature": "landmark_16_occupancy5",
+        "weight": 1,
+        "effect_z": -0.1746245474531846,
+        "q": 0.03607108232603587,
+        "batch_agreement": 0.8571428571428572,
+        "scale": 0.013581922220739815
+      },
+      {
+        "feature": "landmark_18_softmin",
+        "weight": 1,
+        "effect_z": 0.2635009475455858,
+        "q": 0.006003942783046041,
+        "batch_agreement": 0.8571428571428571,
+        "scale": 0.08910872284281882
+      },
+      {
+        "feature": "landmark_18_occupancy5",
+        "weight": 1,
+        "effect_z": -0.31067991529068273,
+        "q": 0.003772086154992868,
+        "batch_agreement": 0.8571428571428572,
+        "scale": 0.0009395891749992866
+      }
+    ],
+    "exclusion_examples": [
+      {
+        "feature": "landmark_03_occupancy3",
+        "q": 0.0008127462625120037,
+        "effect_z": -0.006842074861722715,
+        "scale": 0.00001,
+        "reasons": [
+          "small_integrated_effect",
+          "scale_floor"
+        ],
+        "weight": 0
+      },
+      {
+        "feature": "global_centroid_y",
+        "q": 0.013590906693174781,
+        "effect_z": -0.24309367687364408,
+        "batch_agreement": 0.7857142857142857,
+        "reasons": [
+          "batch_direction_inconsistent"
+        ],
+        "weight": 0
+      }
+    ],
+    "dose_counterevidence": "R1 actual perturbation与positive/negative cancellation、R3更高delivered dose提高mean head但nonlinear measured motif step reward多下降，说明geometry单步reward和final affinity不可互换。field稀疏/曲线平滑是方向与null/floor影响的实验，尚未解释或解决此现象。"
+  },
+  "limitations": [
+    "R5仍依input记为running，终点head与真实GPU zero/VJP结果未知；本Agent只提交literal，未运行推理/激活。R1–4只有点估计，没有独立batch head-change CI，R3是当前观察父程序而非已证实泛化胜者。",
+    "输入未含absolute all/valid/unique means、valid mean delta、best valid/PB-fast、unique Top5、yield、absolute validity分母或Steer mean/best。coverage1不等于100%有效；hypothetical negative不计入真实失败计数。",
+    "24支持字段共享原Steer joint oracle，含相关descriptor；筛选不证明因果。所有74字段与排除原因仍由prior hash保留，排除不是删除不利证据。",
+    "去floor仍留下小尺度如landmark05 occupancy5=.00021132018529987858；1/s梯度可强，须检查per-field/block contribution、actual RMS与cap作用。块内renormalization保持系数预算，不能保证等实际force/dose。",
+    "原样Legendre系数/domain[0,.49]不可变constant为趋势、把时导数当空间力或域外外推。根是拟合变化，非精确动力学断点，单场方向可能相冲突。",
+    "legendre_effect使用当前stage独立批平均variance；与node_contrast的mean_b((hi-lo)/var)不同，需明确注册并对照。当前literal不声称未审阅实现已生效或真实GPU通过。",
+    "R3原程序为actual-proposal motif_mixture eta=.867，新程序改为endpoint_direction与真实FLOWR VJP；匹配requested参数仍需fullzero、实际模型差分及位移核验。",
+    "动态窗口全支持有正schedule；总数学梯度消失、clash/path限制可能给零注入，原因必须保留。finish native to1；atom/bond自由，禁graph/type/count veto及pair acceptance gate。",
+    "后原生注入只给旧x_t的一阶reward估计；非零控制、旧reward变化或R3 head gain不证明本sparse设计会改善affinity。frozen validation/heldout仅评估冻结设计，不回调同一winner。"
+  ]
+}
+

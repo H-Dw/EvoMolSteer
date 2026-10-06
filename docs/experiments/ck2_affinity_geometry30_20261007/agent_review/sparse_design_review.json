@@ -1,0 +1,717 @@
+{
+  "schema_version": "sparse-endpoint-design-review-1.0",
+  "date": "2026-10-07",
+  "identity": "Authorized Analyst/Designer subagent simulation",
+  "execution_ready": false,
+  "standalone_mathematical_checks_passed": true,
+  "actual_sparse_FLOWR_FD_run": false,
+  "actual_sparse_full_zero_run": false,
+  "readiness_scope": "独立新模块数学与CPU合同通过；factory/controller/driver尚未接入，真实新loss未校验，不能启用。本审阅不更改旧45源审阅、旧配置或literal Agent响应。",
+  "contract": {
+    "feature_vector": "固定74维：centroid3、shape6、pair5、landmark60；z_j=phi_j(Y)/s_j。全窗尺度s保留原物理单位后得到无量纲z。",
+    "selected": 24,
+    "selected_by_block": [
+      0,
+      2,
+      5,
+      17
+    ],
+    "all_evidence_retained": 74,
+    "floor_excluded": 14,
+    "independent_discovery_batches": 14,
+    "functions": {
+      "copied_exactly": true,
+      "selected_degree_counts": {
+        "0": 19,
+        "1": 1,
+        "2": 4
+      },
+      "recorded_domain": [
+        0,
+        0.49
+      ],
+      "dynamic_control_window": [
+        0,
+        0.5
+      ],
+      "last_update": [
+        0.49,
+        0.5
+      ]
+    },
+    "block_weight_formula": "w_j=B_block*m_j / sum_(k in same block)m_k; empty blocks zero. Current B=[0,1,2,1] and binary m give selected shape1/2, pair2/5, landmark1/17.",
+    "node_contrast": "a_tj=mean_b[(hi_scaled_b,t,j-lo_scaled_b,t,j)/V_b,t,j]; R_t(Y)=sum_j w_j*z_j*clip(a_tj,-3,3).",
+    "legendre_effect": "c_j(t)=sum_k beta_jk P_k(2*(t-a)/(b-a)-1); a_tj=c_j(t)/mean_b V_b,t,j. V is same-node batch candidate variance divided by s_j^2 plus .05 ridge. Denominator is not averaged over time.",
+    "mode_difference": "Legendre c拟合批次平均的high-low标准化差异。除以mean variance不同于mean(contrast/variance)；模式切换同时改变时间拟合和方差聚合，不能描述成仅做平滑。",
+    "gradient": "计划接入 g_t=J_Y(x_t)^T grad_Y R_t(Y)，cond及非坐标输入固定。无时导数或head loss，pre-native VJP在native update后滞后注入。",
+    "units": "z、V、a、w及reward无量纲；shape尺度A^2，softmin尺度A，核尺度无量纲。空间梯度含1/A，真实VJP还含模型coord_scale。",
+    "normalization_limit": "保持块内系数预算不等于保持实际梯度大小；不同observable梯度和FLOWR Jacobian会改变取消、cap与实际dose。",
+    "sparsity_limit": "当前torch_geometry仍计算74项诊断，只把未选项reward系数置零；不能宣称该版本减少了特征提取计算。",
+    "selection_rule": {
+      "absolute_integrated_z_ge": 0.1,
+      "batch_direction_fraction_ge": 0.8571428571428571,
+      "exclude_scale_floor": true,
+      "q_lt": 0.05
+    }
+  },
+  "literal_response_review": {
+    "behavior_audit_passed": true,
+    "recompiled_effective_program_equals_saved": true,
+    "selected_field_numbers_exact": true,
+    "feature_name_order_exact": true,
+    "parent_program_hash_exact": true,
+    "selected_parent_round": 3,
+    "parent_all_head_delta": 0.061806340217589906,
+    "parent_margin_vs_round2": 0.008458566665649592,
+    "proposed_eta": 0.867,
+    "eta_source": "来自SHA匹配的实际R3程序，是探索性requested ratio，不是最优值或新loss同实际dose证明。",
+    "accurate_explanations": [
+      "joint latent-head label不等于endpoint-only rescore。",
+      "head不进loss，post-native仅记录一阶估计，真实新loss/zero状态未虚构。",
+      "24字段及系数与prior精确相同，14个floor字段排除。",
+      "原响应已说明根不是精确动力学断点，且R1–4选父不是留出证明。"
+    ],
+    "clarifications_required": [
+      "根位置数学正确，但未提供逐节点或根的置信区间；whole-window q不验证阶段方向。下列拟合/节点符号冲突须跟随方向机制描述。",
+      "Literal required_zero提及condition/RNG，但当前记录未直接导出内部状态；正式证书只能覆盖记录轨迹/final及源码detach/RNG恢复。",
+      "该候选同时改变稀疏字段、块内归一化、时间系数/方差聚合及相对R5的eta，未来效果不能单独归因于稀疏化。"
+    ]
+  },
+  "temporal_counterevidence": {
+    "source": "Reference实际节点批次平均high-low与原样Legendre函数直接重算。",
+    "fit_functions_and_node_checks": {
+      "shape_xx": {
+        "keys": [
+          "cv_mse_by_degree",
+          "degree",
+          "derivative_semantics",
+          "legendre_coefficients",
+          "n_independent_batches",
+          "time_end",
+          "time_start"
+        ],
+        "fit": {
+          "cv_mse_by_degree": [
+            1.1183938423280018,
+            1.1233517300932616,
+            1.0626591499708158,
+            1.052572784785911
+          ],
+          "degree": 0,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            -0.4953249731470489
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.49,
+          "time_start": 0
+        },
+        "roots_t": [],
+        "observed_node_first_last": [
+          -0.06381796822015527,
+          -0.06152419533237282
+        ],
+        "fit_node_first_last": [
+          -0.4953249731470489,
+          -0.4953249731470489
+        ],
+        "observed_fit_sign_disagreement_nodes": [
+          7,
+          36
+        ]
+      },
+      "shape_yy": {
+        "keys": [
+          "cv_mse_by_degree",
+          "degree",
+          "derivative_semantics",
+          "legendre_coefficients",
+          "n_independent_batches",
+          "time_end",
+          "time_start"
+        ],
+        "fit": {
+          "cv_mse_by_degree": [
+            0.910625313604333,
+            0.91438855800844,
+            0.8590457923060066,
+            0.8658938736641917
+          ],
+          "degree": 0,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            -0.5128231820840609
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.49,
+          "time_start": 0
+        },
+        "roots_t": [],
+        "observed_node_first_last": [
+          0.014869623972042436,
+          0.16329622239089556
+        ],
+        "fit_node_first_last": [
+          -0.5128231820840609,
+          -0.5128231820840609
+        ],
+        "observed_fit_sign_disagreement_nodes": [
+          0,
+          11,
+          12,
+          47,
+          48,
+          49
+        ]
+      },
+      "pair_kernel_1.5": {
+        "keys": [
+          "cv_mse_by_degree",
+          "degree",
+          "derivative_semantics",
+          "legendre_coefficients",
+          "n_independent_batches",
+          "time_end",
+          "time_start"
+        ],
+        "fit": {
+          "cv_mse_by_degree": [
+            1.0743273978937002,
+            1.0796099098284377,
+            0.9484059164129146,
+            0.935486929824803
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.5622952239355059,
+            -0.06814416931034596,
+            -0.842951121291854
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.49,
+          "time_start": 0
+        },
+        "roots_t": [
+          0.02219154853414675,
+          0.4546045846703119
+        ],
+        "observed_node_first_last": [
+          0.2001353079604564,
+          0.10105108557628181
+        ],
+        "fit_node_first_last": [
+          -0.21251172804600205,
+          -0.34880006666669394
+        ],
+        "observed_fit_sign_disagreement_nodes": [
+          0,
+          7,
+          8,
+          9,
+          10,
+          46,
+          47,
+          48,
+          49
+        ]
+      },
+      "pair_kernel_2.5": {
+        "keys": [
+          "cv_mse_by_degree",
+          "degree",
+          "derivative_semantics",
+          "legendre_coefficients",
+          "n_independent_batches",
+          "time_end",
+          "time_start"
+        ],
+        "fit": {
+          "cv_mse_by_degree": [
+            1.0371094588947185,
+            0.9975703049419012,
+            0.9049604538290426,
+            0.8748182844377609
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.6309668603817257,
+            -0.3682961550540676,
+            -0.731480354814834
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.49,
+          "time_start": 0
+        },
+        "roots_t": [
+          0.4409825774129849
+        ],
+        "observed_node_first_last": [
+          -0.03983393564520605,
+          0.04257646650407005
+        ],
+        "fit_node_first_last": [
+          0.26778266062095923,
+          -0.46880964948717585
+        ],
+        "observed_fit_sign_disagreement_nodes": [
+          0,
+          41,
+          42,
+          45,
+          46,
+          47,
+          48,
+          49
+        ]
+      },
+      "pair_kernel_3.5": {
+        "keys": [
+          "cv_mse_by_degree",
+          "degree",
+          "derivative_semantics",
+          "legendre_coefficients",
+          "n_independent_batches",
+          "time_end",
+          "time_start"
+        ],
+        "fit": {
+          "cv_mse_by_degree": [
+            1.1331601940801634,
+            1.1064073720928536,
+            1.0132303198479728,
+            0.9326358018943106
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.5400080198171118,
+            -0.323715245075145,
+            -0.7063231983901284
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.49,
+          "time_start": 0
+        },
+        "roots_t": [
+          0.43561372192786035
+        ],
+        "observed_node_first_last": [
+          -0.22707234853581376,
+          0.055103893987435724
+        ],
+        "fit_node_first_last": [
+          0.15740006650212857,
+          -0.4900304236481615
+        ],
+        "observed_fit_sign_disagreement_nodes": [
+          0,
+          1,
+          36,
+          37,
+          39,
+          40,
+          41,
+          42,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49
+        ]
+      },
+      "pair_kernel_5.0": {
+        "keys": [
+          "cv_mse_by_degree",
+          "degree",
+          "derivative_semantics",
+          "legendre_coefficients",
+          "n_independent_batches",
+          "time_end",
+          "time_start"
+        ],
+        "fit": {
+          "cv_mse_by_degree": [
+            1.1500861197928605,
+            1.1340451136054692,
+            1.0803885009858794,
+            0.9934058524908467
+          ],
+          "degree": 2,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            0.31900386024592337,
+            -0.2618703003563801,
+            -0.5893946533175523
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.49,
+          "time_start": 0
+        },
+        "roots_t": [
+          0.0013904790453088582,
+          0.4160398958020786
+        ],
+        "observed_node_first_last": [
+          -0.3024688111512006,
+          -0.047398170283222844
+        ],
+        "fit_node_first_last": [
+          -0.008520492715248684,
+          -0.532261093428009
+        ],
+        "observed_fit_sign_disagreement_nodes": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          28,
+          31,
+          32,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          43,
+          44,
+          45,
+          46,
+          47
+        ]
+      },
+      "pair_kernel_7.0": {
+        "keys": [
+          "cv_mse_by_degree",
+          "degree",
+          "derivative_semantics",
+          "legendre_coefficients",
+          "n_independent_batches",
+          "time_end",
+          "time_start"
+        ],
+        "fit": {
+          "cv_mse_by_degree": [
+            1.0555583194548428,
+            1.0196838039360687,
+            0.9658463381406961,
+            0.919790452979789
+          ],
+          "degree": 1,
+          "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+          "legendre_coefficients": [
+            -0.4854001897724695,
+            0.3517672319876863
+          ],
+          "n_independent_batches": 14,
+          "time_end": 0.49,
+          "time_start": 0
+        },
+        "roots_t": [],
+        "observed_node_first_last": [
+          -0.008497850964054468,
+          -0.02396766684010692
+        ],
+        "fit_node_first_last": [
+          -0.8371674217601558,
+          -0.13363295778478324
+        ],
+        "observed_fit_sign_disagreement_nodes": [
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42
+        ]
+      }
+    },
+    "critical_examples": [
+      {
+        "feature": "pair_kernel_2.5",
+        "t": 0.49,
+        "observed_mean_high_low_z": 0.04257646650407005,
+        "fitted_effect": -0.46880964948717585
+      },
+      {
+        "feature": "pair_kernel_3.5",
+        "t": 0.49,
+        "observed_mean_high_low_z": 0.055103893987435724,
+        "fitted_effect": -0.4900304236481615
+      },
+      {
+        "feature": "shape_yy",
+        "t": 0.49,
+        "observed_mean_high_low_z": 0.16329622239089556,
+        "fitted_effect": -0.5128231820840609
+      }
+    ],
+    "interpretation": "LOBO one-SE是全窗低次数摘要，并非逐点插值。实测节点同样可能有噪声；冲突不构成代码错误，但晚期负系数仍是可证伪假说，不能称已发现的阶段优势。"
+  },
+  "tests": {
+    "pytest": {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_endpoint_prior.py tests/test_sparse_reward.py -q -p no:cacheprovider",
+      "passed": 4,
+      "elapsed_seconds": 8.24,
+      "scope": "CPU standalone formula and prior tests"
+    },
+    "actual_teacher_synthetic_map": {
+      "scope": "CPU actual teacher clouds and synthetic nonlinear endpoint map; not FLOWR",
+      "cases": [
+        {
+          "mode": "node_contrast",
+          "score_time": 0,
+          "value_reconstruction_abs_error": 0,
+          "synthetic_map_vjp_fd_relative_error": 2.522465688167037e-11,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            0.29483473822566336,
+            0.2924601560966012,
+            0.4685939003348062
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        },
+        {
+          "mode": "node_contrast",
+          "score_time": 0.1,
+          "value_reconstruction_abs_error": 3.552713678800501e-15,
+          "synthetic_map_vjp_fd_relative_error": 1.0144555592018656e-10,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            1.1021485855284208,
+            4.24131476377353,
+            1.1572049027064921
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        },
+        {
+          "mode": "node_contrast",
+          "score_time": 0.25,
+          "value_reconstruction_abs_error": 5.329070518200751e-15,
+          "synthetic_map_vjp_fd_relative_error": 5.187271211767867e-11,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            2.4372708098559115,
+            3.071204849390629,
+            0.8477012572443142
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        },
+        {
+          "mode": "node_contrast",
+          "score_time": 0.49,
+          "value_reconstruction_abs_error": 0,
+          "synthetic_map_vjp_fd_relative_error": 1.931787212629431e-10,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            0.406168109289275,
+            2.146529069324427,
+            0.6396880703832798
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        },
+        {
+          "mode": "legendre_effect",
+          "score_time": 0,
+          "value_reconstruction_abs_error": 1.7763568394002505e-15,
+          "synthetic_map_vjp_fd_relative_error": 8.091145419126949e-12,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            2.4123560628960354,
+            0.888827866785208,
+            0.5891930077200593
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        },
+        {
+          "mode": "legendre_effect",
+          "score_time": 0.1,
+          "value_reconstruction_abs_error": 0,
+          "synthetic_map_vjp_fd_relative_error": 3.832440913380541e-11,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            6.03908975330962,
+            5.846743812955629,
+            1.2112812106542343
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        },
+        {
+          "mode": "legendre_effect",
+          "score_time": 0.25,
+          "value_reconstruction_abs_error": 0,
+          "synthetic_map_vjp_fd_relative_error": 4.9210042400008475e-12,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            1.322436474123926,
+            4.675363559484615,
+            0.5528059919107158
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        },
+        {
+          "mode": "legendre_effect",
+          "score_time": 0.49,
+          "value_reconstruction_abs_error": 1.4210854715202004e-14,
+          "synthetic_map_vjp_fd_relative_error": 1.8074960798075522e-12,
+          "main_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "block_gradient_l2_at_recorded_teacher": [
+            0,
+            2.8268268801793806,
+            4.915800593272478,
+            1.3174300750935193
+          ],
+          "block_coefficient_sums": [
+            0,
+            1,
+            2,
+            0.9999999999999999
+          ],
+          "coefficient_clip_count_selected": 0
+        }
+      ],
+      "max_relative_FD_error": 1.931787212629431e-10
+    },
+    "value_reconstruction_max_absolute_error": 1.4210854715202004e-14,
+    "no_real_FLOWR_in_this_review": true,
+    "no_remote_access": true,
+    "no_molecule_generation": true
+  },
+  "findings": [
+    {
+      "id": "sparse_dispatch_not_integrated",
+      "priority": "activation_blocker",
+      "status": "expected_pending_integration",
+      "evidence": "公共factory与EndpointCoordinateExtension.configure当前构造EndpointGeometryReward；同名endpoint_direction不会消费稀疏字段/函数，会静默稠密回退。",
+      "required": "实际控制和离线评价两入口显式选择SparseEndpointReward或拒绝未支持字段，并做相同程序的端到端公式路由验证。"
+    },
+    {
+      "id": "sparse_driver_profile_not_integrated",
+      "priority": "activation_blocker",
+      "status": "expected_pending_integration",
+      "required": "绑定Skill/input/prompt/prior/literal/compiled哈希；细化和冻结重放须保留稀疏mode/functions。换非稀疏家族时显式清理或拒绝不兼容字段。"
+    },
+    {
+      "id": "reference_identity_audit_gap",
+      "priority": "contract_hardening_before_activation",
+      "status": "reproduced_at_audit",
+      "evidence": "仅把reward_design.reference_sha256改成wrong仍通过audit_sparse_behavior。真实literal正确，compiler也固定实际输入reference，所以不是当前数据污染。",
+      "required": "核验response/task/prior/compile reference身份，检查可选feature_names顺序；编译边界验证prior哈希或要求已通过且匹配的audit。"
+    },
+    {
+      "id": "dense_residual_monitor",
+      "priority": "interpretation",
+      "status": "known",
+      "evidence": "nearest_standardized_rms仍是全部74字段的未加权距离，不是24字段奖励目标距离。",
+      "required": "明确标为dense74诊断，不据它单独声称稀疏奖励拟合改善。"
+    }
+  ],
+  "scientific_limits": [
+    "14发现批次内部存在Steer克隆；teacher/particle/time不是独立n。",
+    "筛选、拟合共用发现数据，效应具有选择偏倚；相关描述符q不提供因果机制。",
+    "排除floor仍留下小scale，如landmark05 occupancy5约.00021132，梯度可能显著集中。",
+    "无需新NN、无任意时间bin/图类型gate；噪声状态下没有MMFF物理保证。",
+    "已运行R5其他loss的GPU FD不能替代稀疏loss的真实验证。"
+  ],
+  "integration_and_validation_pending": [
+    "两个入口明确稀疏分派；每个受控节点的公式/时间模式与literal精确一致。",
+    "真实稀疏loss FLOWR FD、full native/zero/gradient，独立审计4 forward、每步生产1 forward以及head hook。",
+    "保留实际RMS/caps、失败分母、终态head和物理指标coverage，不把一阶响应当实测post-native变化。"
+  ],
+  "final_judgment": "模块数学可保留为探索性分支；execution_ready=false。需先消除静默稠密回退并加固引用合同，再做集成审阅及真实新loss验证。拟合反号必须作为反证保留。",
+  "source_hashes": {
+    "src/evomolsteer/continuous/endpoint_prior.py": "06d3ec4bfd2013057336e83f421974a9a1edb992fc32b98a5448010da59dbadf",
+    "src/evomolsteer/continuous/sparse_design.py": "f0648a792e2529622b56ee01d82cb92a315ca364db0cca3f8c83feb3adb836ab",
+    "src/evomolsteer/generation/sparse_reward.py": "3bffb543fb1caade0cbc05bd0ea73d060af5387e1ca7e5ebf633c4b466d60ed2",
+    "scripts/build_endpoint_prior.py": "d317077a7aee7906c35df7ee794579a5212b4f61c670e0f4a7f29c4619182887",
+    "tests/test_endpoint_prior.py": "64a799cfbce12da4f6349fc64a0b91df8a1d0840f14277bc64fdbb2b7a82feea",
+    "tests/test_sparse_reward.py": "f18d7db139fa96dfd6e28bc4573bb494c9751f418ca614ec276272c2bb5355fa",
+    "skills/affinity-sparse-coordinate/SKILL.md": "051991b8dd888fff680d669af6c841f02c09911dd9b947315cb5614d21ec1950",
+    "src/evomolsteer/continuous/affinity_endpoint.py": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550",
+    "src/evomolsteer/continuous/coordinate_mining.py": "4161e9969af345791db51eb5bb69f49343f8f03e54afd8c23e6d4872ca15c9b5",
+    "src/evomolsteer/continuous/endpoint_design.py": "0a56145f4b97f76f17a667ff3fb8846ff8b49f00cb19fa99b6700aca864fe367",
+    "src/evomolsteer/continuous/affinity_skill.py": "fae2a96ae9d81ab12e8bc2c1cb6bd43194e83e06bf38a538f7d22f1c1480ca67",
+    "src/evomolsteer/continuous/affinity_geometry.py": "e64fd897ea14ff88a44fd9fae16fe2f36fab138405a99921fdde109307b19de9",
+    "src/evomolsteer/generation/endpoint_reward.py": "43b41d751f1787c10f8fd311727093ce34984f2d3f63802ab3aec52f3ba57321",
+    "src/evomolsteer/generation/endpoint_controller.py": "641d597eb103453038910ea39f3a6e747a21e357891d70f9662d3ef1c16dbbb2",
+    "src/evomolsteer/generation/affinity_geometry_reward.py": "2dfbff4d9aabde27e47fdc3cb84a054799aa6eb493d5c759d0b1cf382466669f",
+    "src/evomolsteer/generation/coordinate_contrast.py": "d01266f626cb4aebc79431efac8e1a5f6a62bc5c0736d3ecd83b767c9e9b0799"
+  },
+  "artifact_hashes": {
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/sparse_coordinate_prior.json": "1efe5938daa2570b3dadc6ae0a5562cba039aae756ec68a162deef7d137887a7",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/whole_window_effects.parquet": "b3c14e72c5037a1574cea5df86d58190b6113692b3ffcc91c50ecdbd3258274b",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/effect_functions.json": "87a270387d99fb78fb2ddd30fa29455874e521612ac5680fe47675c6c7a67498",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test/input.json": "5be17dfb20242794b69c5bf69c64e26360c03cc07b337b0997f2e1362536fa00",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test/prompt.txt": "0a23b64f1e6fa87912bc307654e46b6777a3de94a0d76d2c9e2088555aad7443",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test/response.json": "bdeb4d67fad30f0d537775b3524d4e87057c0c169fff5215d6e9dc219697c59a",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test/response.md": "5074b30fcd426d789dc9e839dae9e8fd26d06b693417e8073181d9f4faf10bb5",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test/behavior_audit.json": "b514844a1941ad08e750087f48d9d9f64e15d6a843f92813af0fab86c579d650",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test/compiled_design.json": "21bde575786876a6b22e44881fd8108c3cbd684fca9cd55e0793133894522ee3",
+    "configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "configs/experiments/ck2_affinity_geometry30_v1/backtrack_round03.json": "facdfdccac5a7dd88fbf684d588d42df89e1dfc96d85db6a31d851ae148a30a1"
+  },
+  "reviewed_commit": "8a33358714c3093f13fe8f1be79736c28a8e2a72"
+}
