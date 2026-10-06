@@ -1,15 +1,19 @@
 """Affinity-primary program search, separate from historical physical-first rules."""
-import copy
+import copy,math
 from ..continuous.affinity_skill import classify
 
 FAMILIES=('motif_mixture','affinity_landmark','affinity_direction','affinity_pointcloud')
 def select_parent(rows,secondary=False):
-    supported=[r for r in rows if r['valid_rate_change']>=-.10 and r.get('head_coverage',1.)>=.99]
+    supported=[r for r in rows if r['valid_rate_change']>=-.10 and r.get('head_coverage',1.)>=.99
+               and r.get('all_head_change_vs_native') is not None and math.isfinite(r['all_head_change_vs_native'])]
     if not supported:raise ValueError('No viable covered program')
     best=max(supported,key=lambda r:r['all_head_change_vs_native'])
     if secondary and best['all_head_change_vs_native']>=.05:
         near=[r for r in supported if r['all_head_change_vs_native']>=best['all_head_change_vs_native']-.01]
-        return max(near,key=lambda r:(min(r['negative_MMFF_relative_change'],r['negative_MMFF_p90_relative_change']),r['all_head_change_vs_native']))
+        def physical(r):
+            values=[r.get(k) for k in ('negative_MMFF_relative_change','negative_MMFF_p90_relative_change')]
+            return min(values) if all(v is not None and math.isfinite(v) for v in values) else -math.inf
+        return max(near,key=lambda r:(physical(r),r['all_head_change_vs_native']))
     return best
 
 def propose(number,rows,programs):
@@ -46,7 +50,10 @@ def update_program(parent,plan,window,reference_sha):
     p.update(window=list(window),reference_sha256=reference_sha,record_reward_response=True,
         objective_profile='affinity_primary_coordinate30',affinity_head_gradient=False,additional_per_step_affinity_calls=0)
     p['constraints']={'max_atom_step_A':.15,'max_cumulative_rms_A':6.,'severe_receptor_clash_A':.8,'backtrack_attempts':7}
-    if p['reward_view']!='motif_mixture':
+    if p['reward_view'].startswith('endpoint_'):
+        p.update(family='coordinate_only_affinity_endpoint',target_definition='recorded_joint_head_endpoint_strata',
+            derivative_path='flowr_endpoint_vjp',dose_reference='predictive_flow',coordinate_representation='predicted_endpoint_world_A')
+    elif p['reward_view']!='motif_mixture':
         p.update(teacher_neighbors=p.get('teacher_neighbors',4),teacher_score_beta=p.get('teacher_score_beta',2.),
             teacher_endpoint_temperature_A2=p.get('teacher_endpoint_temperature_A2',4.),geometry_block_weights=[.25,1.,1.,2.],
             target_definition='recorded_affinity_strata',family='coordinate_only_affinity_teacher')

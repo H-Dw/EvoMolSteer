@@ -18,6 +18,9 @@ def analyze(dataset,campaign,output):
                 'mean_path_A':float(np.mean(active[-1]['cumulative_rms_A'])),
                 'reward_gain_per_step':float(np.mean([r['reward_change'] for r in active])) if 'reward_change' in active[0] else None,
                 'reward_improved_fraction':float(np.mean(np.array([r['reward_change'] for r in active])>0)) if 'reward_change' in active[0] else None,
+                'first_order_reward_gain_per_step':float(np.mean([r['first_order_reward_change'] for r in active])) if 'first_order_reward_change' in active[0] else None,
+                'reward_response_is_measured': 'reward_change' in active[0],
+                'derivative_path':active[0].get('derivative_path','direct_proposal_geometry'),
                 'no_post_window_injection':all(max(r['injection_l2_A'])==0 for r in trace if r['state_time']>cfg['experiment']['window']+1e-6)})
         if path.parent.name!='gradient':continue
         native=root/'unguided'/path.name

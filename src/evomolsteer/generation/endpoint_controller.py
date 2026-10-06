@@ -57,12 +57,18 @@ class EndpointCoordinateExtension(CoordinateExtension):
             self.path_rms=torch.zeros(len(self.before),device=self.before.device);self.controlled_updates=0
         active=trace.arm!='unguided' and self.reward.active(trace.t,trace.t+trace.dt)
         condition=detached(cond)
+        calls=[];audit_calls_before=self.preflight_forward_calls
         def forward(x):
+            calls.append(1)
             state=dict(curr);state['coords']=x
             pred,new_cond=self.model._get_predictions(self.model(state,pocket,times,cond_batch=condition,
                 pocket_equis=equis,pocket_invs=invs,training=False))
             # The affinity branch is never part of the scalar or its derivative.
-            if 'affinity' in pred:pred['affinity']={k:detached(v) for k,v in pred['affinity'].items()}
+            if 'affinity' in pred:
+                def forbidden_head_gradient(gradient):raise RuntimeError('Affinity head entered endpoint reward gradient')
+                for value in pred['affinity'].values():
+                    if torch.is_tensor(value) and value.requires_grad:value.register_hook(forbidden_head_gradient)
+                pred['affinity']={k:detached(v) for k,v in pred['affinity'].items()}
             return pred,new_cond
         if active:
             com=torch.stack([torch.as_tensor(v.com) for v in pocket['complex']]).reshape(-1,3).to(self.before)
@@ -72,6 +78,9 @@ class EndpointCoordinateExtension(CoordinateExtension):
             self.cached=(g,value,detail)
         else:
             with torch.no_grad():pred,new_cond=forward(self.before)
+        self.audit_calls_this_step=self.preflight_forward_calls-audit_calls_before
+        self.production_calls_this_step=len(calls)-self.audit_calls_this_step
+        if self.production_calls_this_step!=1:raise RuntimeError('Endpoint wrapper made additional production target forwards')
         self.endpoint_atoms=pred['atomics'].detach().argmax(-1);self.endpoint_coords=pred['coords'].detach()
         return pred,new_cond
 
@@ -103,6 +112,8 @@ class EndpointCoordinateExtension(CoordinateExtension):
         row={'step':trace.i,'score_time':trace.t,'state_time':s,'reference_time':trace.t,'arm':trace.arm,
             'reward_evaluated':enabled,'active':enabled and trace.arm!='gradient_zero','particle_resampled':False,
             'derivative_path':'flowr_endpoint_vjp','gradient_evaluation_time':trace.t,
+            'production_target_forward_calls':self.production_calls_this_step,'one_time_audit_target_forward_calls':self.audit_calls_this_step,
+            'affinity_outputs_detached':True,'affinity_gradient_hook_rejection_enabled':True,
             'reward_response_kind':'First-order endpoint reward at old x_t; no post-native endpoint re-forward'}
         trace.arr['native_proposal_coords'].append(nparr(curr['coords']))
         if enabled:

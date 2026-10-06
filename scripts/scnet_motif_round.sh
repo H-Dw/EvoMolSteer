@@ -49,4 +49,10 @@ m.update(status='active',round=number,campaigns=[sys.argv[3]],completed_rounds=n
 (work/'round_ready.json').write_text(json.dumps(m,indent=2))
 PY
 export EXPERIMENT_ROOT="$work"
-bash "$repo/scripts/scnet_terminal_experiment.sh" "$campaign" coordinate "$program" "$reference" "$arms" "$n" "$batch_indices"
+mode=$("$python" - "$program" <<'PY'
+import json,sys
+p=json.load(open(sys.argv[1]))
+print('affinity_endpoint' if p.get('derivative_path')=='flowr_endpoint_vjp' else 'coordinate')
+PY
+)
+bash "$repo/scripts/scnet_terminal_experiment.sh" "$campaign" "$mode" "$program" "$reference" "$arms" "$n" "$batch_indices"

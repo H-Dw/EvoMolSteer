@@ -69,6 +69,9 @@ class CoordinateSelectionContrastReward(CoordinateMixtureReward):
 
 
 def make_coordinate_reward(program,reference):
+    if program['reward_view'] in ('endpoint_landmark','endpoint_direction','endpoint_pointcloud'):
+        from .endpoint_reward import EndpointGeometryReward
+        return EndpointGeometryReward(program,reference)
     if program['reward_view'] in ('affinity_landmark','affinity_direction','affinity_pointcloud'):
         from .affinity_geometry_reward import AffinityGeometryReward
         return AffinityGeometryReward(program,reference)

@@ -22,8 +22,8 @@ def validate_initial_pairing(actual,native):
 def pareto_front(outcomes):
     if not outcomes:return []
     vectors=np.asarray([[r.get(k,np.nan) for k in AXES] for r in outcomes],float)
-    if not np.isfinite(vectors).all():raise ValueError('Complete finite quality axes required')
-    return [r for i,r in enumerate(outcomes) if not any(np.all(vectors[j]>=vectors[i]) and np.any(vectors[j]>vectors[i]) for j in range(len(vectors)) if j!=i)]
+    complete=np.isfinite(vectors).all(axis=1)
+    return [r for i,r in enumerate(outcomes) if complete[i] and not any(complete[j] and np.all(vectors[j]>=vectors[i]) and np.any(vectors[j]>vectors[i]) for j in range(len(vectors)) if j!=i)]
 
 
 def choose(outcomes,mode='balanced'):
@@ -98,13 +98,18 @@ def record(campaign,evidence,number):
         d=pd.read_csv(p/'candidate_metrics.csv');v=converged_energy(d[d.arm==arm])
         return float(v.quantile(.9)),int(len(v))
     aq,an=tail(local,'gradient');nq,nn=tail(baseline,'unguided')
+    def improvement(actual_value,native_value):
+        if actual_value is None or native_value is None or not np.isfinite([actual_value,native_value]).all() or native_value==0:return None
+        return 1-actual_value/native_value
+    def difference(actual_value,native_value):
+        return actual_value-native_value if actual_value is not None and native_value is not None else None
     outcome={'round':number,'parent_round':r['parent_round'],'reason':r['reason'],'split':r['split'],
         'all_head_change_vs_native':actual['all_pic50_on_rescore_mean']-native['all_pic50_on_rescore_mean'],
-        'unique_head_change_vs_native':actual['unique_valid_pic50_on_rescore_mean']-native['unique_valid_pic50_on_rescore_mean'],
+        'unique_head_change_vs_native':difference(actual['unique_valid_pic50_on_rescore_mean'],native['unique_valid_pic50_on_rescore_mean']),
         'shape_improvement_fraction':1-shape['symmetric_shape_A']/ns['symmetric_shape_A'],
-        'negative_MMFF_relative_change':1-actual['all_mmff_relief_per_heavy_median']/native['all_mmff_relief_per_heavy_median'],
-        'surround_RMS_improvement_fraction':1-actual['all_relax_rms_surround_A_mean']/native['all_relax_rms_surround_A_mean'],
-        'negative_MMFF_p90_relative_change':1-aq/nq,'MMFF_p90':aq,'native_MMFF_p90':nq,
+        'negative_MMFF_relative_change':improvement(actual['all_mmff_relief_per_heavy_median'],native['all_mmff_relief_per_heavy_median']),
+        'surround_RMS_improvement_fraction':improvement(actual['all_relax_rms_surround_A_mean'],native['all_relax_rms_surround_A_mean']),
+        'negative_MMFF_p90_relative_change':improvement(aq,nq),'MMFF_p90':aq,'native_MMFF_p90':nq,
         'valid_rate_change':actual['valid_rate']-native['valid_rate'],'PB_rate_change':actual['pb_fast_pass_rate']-native['pb_fast_pass_rate'],
         'energy_coverage_change':an/actual['n']-nn/native['n'],'terminal':actual,'actual_window_shape':shape,
         'original_steer_decision':read_json(local.parent/'comparison/comparison.json')['decisions'][r['campaign']],

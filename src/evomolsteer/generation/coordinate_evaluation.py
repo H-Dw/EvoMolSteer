@@ -22,12 +22,13 @@ def evaluate(dataset,campaign,output):
                 if z['resampled'].any():raise ValueError('Particle resampling prohibited')
                 times=np.round(z['score_time'][:,0].astype(float),6)
                 ids=np.flatnonzero((times>=reference['window'][0]-1e-7)&(times<=reference['window'][1]+1e-7))
-                if reference['schema_version']=='affinity-coordinate-library-1.0':
+                endpoint_view=reference['schema_version']=='affinity-endpoint-library-1.0'
+                if reference['schema_version'] in ('affinity-coordinate-library-1.0','affinity-endpoint-library-1.0'):
                     ids=ids[z['state_time'][ids]<=reference['window'][1]+1e-6]
-                view=reference.get('control_representation','current')
+                view='predicted' if endpoint_view else reference.get('control_representation','current')
                 coords=z[f'{view}_coords'][ids].astype(float)*cfg['coord_scale']+com[None]
                 anchors=z['predicted_coords'][ids].astype(float)*cfg['coord_scale']+com[None] if reference.get('spatial_anchor')=='endpoint' else None
-                state_times=z['state_time'][ids].astype(float) if view=='proposal' else times[ids]
+                state_times=z['state_time'][ids].astype(float) if view=='proposal' or endpoint_view else times[ids]
                 atoms=z['predicted_atomics'][ids];mask=z['mask'][ids]
                 native=z['native_proposal_coords'].astype(float);proposal=z['proposal_coords'].astype(float)
                 displacement=(proposal-native)*cfg['coord_scale']
@@ -44,7 +45,9 @@ def evaluate(dataset,campaign,output):
                         torch.tensor(anchors[k]) if anchors is not None else None)
                 available=detail['available'].numpy()
                 features=detail['observables' if 'observables' in detail else 'observables_A'].numpy()
-                row={'arm':arm,'batch':batch,'time':t,'state_time':float(state_times[k]),'within_control_state_window':bool(state_times[k]<=reference['window'][1]+1e-6),'n_available':int(available.sum()),
+                row={'arm':arm,'batch':batch,'time':t,'state_time':float(state_times[k]),
+                     'monitored_coordinate_view':view,'state_time_semantics':'Actual proposal support boundary; monitored coordinates are pre-native endpoint forecast' if endpoint_view else 'Actual recorded state',
+                     'within_control_state_window':bool(state_times[k]<=reference['window'][1]+1e-6),'n_available':int(available.sum()),
                      'mean_reward':float(value[available].mean()) if available.any() else None,
                      'mean_standardized_residual':float(detail['nearest_standardized_rms'][available].mean()) if available.any() else None,
                      **{f:float(np.mean(features[available,j])) if available.any() else None for j,f in enumerate(reference['features'])}}
@@ -89,6 +92,12 @@ def evaluate(dataset,campaign,output):
                 'cap_fraction':float(np.mean([np.asarray(v['cap_factor'])<.99999 for v in active])) if active else 0.,
                 'first_controlled_update_fraction_squared_injection':float(squared[0].sum()/squared.sum()) if squared.sum()>0 else None,
                 'no_injection_after_window':all(max(v['injection_l2_A'])==0 for v in trace if v['state_time']>reference['window'][1]+1e-6)})
+            if program.get('derivative_path')=='flowr_endpoint_vjp':
+                if any(v.get('production_target_forward_calls')!=1 or v.get('affinity_outputs_detached') is not True for v in trace):
+                    raise ValueError('Endpoint runtime forward/head contract failed')
+                audit[-1].update(production_target_forward_calls=sum(v['production_target_forward_calls'] for v in trace),
+                    one_time_audit_target_forward_calls=sum(v['one_time_audit_target_forward_calls'] for v in trace),
+                    affinity_head_gradient=False,affinity_outputs_detached=True)
     table=write_table(out/'coordinate_time_metrics.csv',rows)
     for _,g in table.groupby(['arm','batch']):
         for f in ['mean_reward','mean_standardized_residual',*reference['features']]:
@@ -99,6 +108,7 @@ def evaluate(dataset,campaign,output):
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed']:raise ValueError('Coordinate derivative failed')
     report={'schema_version':'current-coordinate-evaluation-1.0','window':reference['window'],'batch_results':audit,
+        'monitored_coordinate_representation':reference['representation'],
         'observable_unit':reference.get('feature_unit','A'),
         'coordinate_preflight':preflight,'inference_commit':cfg['extension']['code_commit'],
         'program_sha256':digest(root/'reward_program.json'),'reference_sha256':digest(root/'reference.json.gz'),
