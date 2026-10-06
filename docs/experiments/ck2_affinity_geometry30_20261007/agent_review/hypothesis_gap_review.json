@@ -1,0 +1,629 @@
+{
+  "schema_version": "affinity-coordinate-hypothesis-gap-1.0",
+  "date": "2026-10-07",
+  "identity": "Authorized Analyst/Designer subagent simulation",
+  "scope": {
+    "local_only": true,
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "heldout_used": false,
+    "first_four_round_outcomes_used": false,
+    "no_source_changes": true,
+    "no_inference_started": true
+  },
+  "conclusion": "表示缺口有实测支持：原74维统计是被SDE强烈压缩的proposal几何，新端点统计在同一批次/节点/标签下呈现更强且部分反向的关联。优先审查纯端点几何经真实FLOWR坐标VJP的独立分支；这不证明表示差异就是旧引导弱效的唯一原因，也不证明干预将提高最终head。",
+  "score_semantics": {
+    "formula": "(Y_t, A_t, H_t)=FLOWR_theta(X_t, categorical_t, pocket, t, stopgrad(self_condition_t)); recorded pic50_on=H_t; then P_(t+dt)=native_integrator(X_t,Y_t,...).",
+    "meaning": "分数与predicted endpoint来自同一次target forward。head使用pool后的ligand/pocket/interaction潜在特征；没有把保存的predicted_coords单独再送入独立评分器。",
+    "recording": "Trace.score在integrator前同时记录predicted_coords与pred['affinity']['pic50']；proposal_coords在积分后、SMC选择前记录。原始SMC复制候选的依据为该共同输出head。",
+    "limits": "H_t不能被视为只依赖Y_t坐标的已知函数；它仍含当前类别、self-conditioning、口袋及联合latent信息。纯坐标优先是本轮干预约束，不代表其他因素不影响head。",
+    "source_verification": {
+      "local_source_LF_matches_preserved_remote": true,
+      "preserved_remote_manifest": "docs/experiments/ck2_multistage_20261005/flowr_environment.json",
+      "manifest_sha256": "bbd09d31fcce384d88c1651447fb8020ffaeb5191901f9d76bc258e814cf3e45",
+      "flowr/models/fm_pocket.py_LF_SHA256": "beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426",
+      "flowr/models/pocket.py_LF_SHA256": "ccc5199b91c46dba0c24b0a98f68085a7b7a9998970485a770d9823ae197a966",
+      "locations": [
+        "fm_pocket.py:874 forward inputs",
+        "fm_pocket.py:1502 affinity output propagation",
+        "fm_pocket.py:2059 target forward before integrator",
+        "pocket.py:929-1002 pooled latent affinity head",
+        "src/evomolsteer/generation/controller.py:86 Trace.score",
+        "src/evomolsteer/generation/instrumentation.py:27 callback placement"
+      ]
+    }
+  },
+  "representation_evidence": {
+    "primary_full_population": {
+      "source": "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/representation_audit.parquet",
+      "batch_node_rows": 700,
+      "snapshots": [
+        {
+          "score_time": 0,
+          "proposal_state_time": 0.009999999776482582,
+          "proposal_Rg_A_mean": 0.10956654905609538,
+          "endpoint_Rg_A_mean": 3.4943396906525344,
+          "slot_endpoint_proposal_RMS_A_mean": 4.357124619505288
+        },
+        {
+          "score_time": 0.1,
+          "proposal_state_time": 0.10999999940395355,
+          "proposal_Rg_A_mean": 0.39516449060210823,
+          "endpoint_Rg_A_mean": 3.5902228427142906,
+          "slot_endpoint_proposal_RMS_A_mean": 4.010218465413752
+        },
+        {
+          "score_time": 0.25,
+          "proposal_state_time": 0.25999999046325684,
+          "proposal_Rg_A_mean": 0.9230933838392579,
+          "endpoint_Rg_A_mean": 3.5725085060992234,
+          "slot_endpoint_proposal_RMS_A_mean": 3.2491615837595114
+        },
+        {
+          "score_time": 0.49,
+          "proposal_state_time": 0.5,
+          "proposal_Rg_A_mean": 1.7788588308420519,
+          "endpoint_Rg_A_mean": 3.5674420219943874,
+          "slot_endpoint_proposal_RMS_A_mean": 2.2101104236595748
+        }
+      ],
+      "snapshot_semantics": "仅展示4个节点；计算覆盖全部50个真实节点，未切时间bin。每行是14批等权均值，各批包含其完整候选群体。"
+    },
+    "elite_teacher_crosscheck": {
+      "reference_path": "configs/experiments/ck2_affinity_geometry30_v1/geometry_reference.json.gz",
+      "reference_sha256": "7544b0b0ea4cef2abb3f599d988c6b9131c7ae2181f4b866535473de46efab08",
+      "snapshots": [
+        {
+          "score_time": 0,
+          "proposal_state_time": 0.01,
+          "n_elite_teachers": 28,
+          "mean_same_slot_endpoint_proposal_rms_A": 4.351053532684881,
+          "mean_centroid_gap_A": 2.6356448824435574,
+          "mean_internal_gap_A": 3.4615596415208043,
+          "mean_proposal_Rg_A": 0.11120923259315406,
+          "mean_endpoint_Rg_A": 3.4828643378327855,
+          "mean_teacher_head": 8.43868865285601,
+          "min_root_count_across_batches": 50
+        },
+        {
+          "score_time": 0.1,
+          "proposal_state_time": 0.11,
+          "n_elite_teachers": 28,
+          "mean_same_slot_endpoint_proposal_rms_A": 3.973432011544424,
+          "mean_centroid_gap_A": 2.3854114298841784,
+          "mean_internal_gap_A": 3.177061337798316,
+          "mean_proposal_Rg_A": 0.39254262980301297,
+          "mean_endpoint_Rg_A": 3.561990762881269,
+          "mean_teacher_head": 8.687709024974279,
+          "min_root_count_across_batches": 4
+        },
+        {
+          "score_time": 0.25,
+          "proposal_state_time": 0.26,
+          "n_elite_teachers": 28,
+          "mean_same_slot_endpoint_proposal_rms_A": 3.217934336537918,
+          "mean_centroid_gap_A": 1.8642736003378957,
+          "mean_internal_gap_A": 2.621748578745406,
+          "mean_proposal_Rg_A": 0.9170537900321929,
+          "mean_endpoint_Rg_A": 3.5334170441972903,
+          "mean_teacher_head": 8.726877348763603,
+          "min_root_count_across_batches": 1
+        },
+        {
+          "score_time": 0.49,
+          "proposal_state_time": 0.5,
+          "n_elite_teachers": 28,
+          "mean_same_slot_endpoint_proposal_rms_A": 2.210002498242968,
+          "mean_centroid_gap_A": 1.290966886290119,
+          "mean_internal_gap_A": 1.7929512610227343,
+          "mean_proposal_Rg_A": 1.7793886319907417,
+          "mean_endpoint_Rg_A": 3.5701553684486607,
+          "mean_teacher_head": 8.571798392704554,
+          "min_root_count_across_batches": 1
+        }
+      ],
+      "whole_window_means": {
+        "mean_same_slot_endpoint_proposal_rms_A": 3.2768144667456287,
+        "mean_centroid_gap_A": 1.9353556599044186,
+        "mean_internal_gap_A": 2.64281329581079,
+        "mean_proposal_Rg_A": 0.9056508323965993,
+        "mean_endpoint_Rg_A": 3.5398612729831638,
+        "mean_teacher_head": 8.676418885197654
+      },
+      "limitation": "Descriptive 28 selected teachers per node, 14 batches, all 50 actual nodes. This truncated high-score set cannot establish full-population high/low endpoint affinity associations or independent n=28. No rescore or neural call."
+    },
+    "original_library_gap": "affinity_geometry.py原先临时计算endpoint_high/low却未写入正式frame；现有proposal的74个q/拟合不可称为端点结果。endpoint_minus_start_delta_z只是proposal统计曲线末时刻减初时刻。",
+    "endpoint_gap_now_filled": {
+      "source_sha256": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550",
+      "file_hashes": {
+        "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/effect_functions.json": "87a270387d99fb78fb2ddd30fa29455874e521612ac5680fe47675c6c7a67498",
+        "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/endpoint_reference.json.gz": "687e2d00b289ee4ad47b9a41c97196059a6e72e8267f67b7a7100a7271397fbd",
+        "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/manifest.json": "b3e1aa39f47f5fcda10ae437af586a9eddf6e0f0e9f4298219f8f705c5f848b7",
+        "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/representation_audit.parquet": "074789ecd667df9b294a35a92db4d4cd066d16e14cbe497c07309122d8c667b7",
+        "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/whole_window_effects.parquet": "b3c14e72c5037a1574cea5df86d58190b6113692b3ffcc91c50ecdbd3258274b"
+      },
+      "n_batches": 14,
+      "n_nodes": 50,
+      "features": 74,
+      "same_discovery_source_hashes": true,
+      "same_features_landmarks_origin": true,
+      "same_time_grid": true,
+      "array_shape_T_B_F": [
+        50,
+        14,
+        74
+      ],
+      "all_arrays_finite": true,
+      "minimum_variance_scaled": 0.050000000025306246,
+      "scale_floor_count": 14,
+      "q_below_05": 47,
+      "min_q": 0.000014936572000139932,
+      "degree_counts": {
+        "0": 65,
+        "1": 1,
+        "2": 8
+      },
+      "recomputation_max_error": {
+        "integrated_effect": 6.661338147750939e-16,
+        "p": 1.1102230246251565e-15,
+        "q": 1.1102230246251565e-15,
+        "CI": 1.6930901125533637e-15
+      },
+      "endpoint_vs_proposal_descriptive_features": [
+        {
+          "high_low_integrated_z": -0.5128231820840607,
+          "CI_low": -0.6196424079175183,
+          "CI_high": -0.4237734525746552,
+          "score_correlation_integrated": -0.19521742264851843,
+          "positive_batch_fraction": 0,
+          "time_last_minus_first_delta_z": 0.14842659841885375,
+          "p": 2.0184556756945854e-7,
+          "q": 0.000014936572000139932,
+          "feature": "shape_yy",
+          "proposal_integrated_z": -0.23827030006331307,
+          "proposal_q": 0.3210812138717797
+        },
+        {
+          "high_low_integrated_z": -0.49532497314704876,
+          "CI_low": -0.6479761982695128,
+          "CI_high": -0.32019029863155934,
+          "score_correlation_integrated": -0.11816721833003432,
+          "positive_batch_fraction": 0.07142857142857142,
+          "time_last_minus_first_delta_z": 0.0022937728877824937,
+          "p": 0.00011106038598884863,
+          "q": 0.0008127462625120037,
+          "feature": "shape_xx",
+          "proposal_integrated_z": -0.1271339071519825,
+          "proposal_q": 0.43892182407944186
+        },
+        {
+          "high_low_integrated_z": 0.6306622038407781,
+          "CI_low": 0.49515512052267713,
+          "CI_high": 0.7578595517293154,
+          "score_correlation_integrated": 0.21291994009736678,
+          "positive_batch_fraction": 1,
+          "time_last_minus_first_delta_z": 0.08241040214927668,
+          "p": 5.915882712118703e-7,
+          "q": 0.0000218887660348392,
+          "feature": "pair_kernel_2.5",
+          "proposal_integrated_z": -0.41381425504104963,
+          "proposal_q": 0.09652032745059179
+        },
+        {
+          "high_low_integrated_z": 0.5397138410589318,
+          "CI_low": 0.4016931162856603,
+          "CI_high": 0.6733133626404157,
+          "score_correlation_integrated": 0.17311595173020308,
+          "positive_batch_fraction": 1,
+          "time_last_minus_first_delta_z": 0.2821762425232497,
+          "p": 0.000003953234526706504,
+          "q": 0.0000975131183254271,
+          "feature": "pair_kernel_3.5",
+          "proposal_integrated_z": -0.24081800936439107,
+          "proposal_q": 0.3210812138717797
+        },
+        {
+          "high_low_integrated_z": -0.24309367687364408,
+          "CI_low": -0.39006791734186075,
+          "CI_high": -0.11102223276707415,
+          "score_correlation_integrated": -0.09977806791885943,
+          "positive_batch_fraction": 0.21428571428571427,
+          "time_last_minus_first_delta_z": -0.2255337918202578,
+          "p": 0.006060809741550916,
+          "q": 0.013590906693174781,
+          "feature": "global_centroid_y",
+          "proposal_integrated_z": -0.13743343312947517,
+          "proposal_q": 0.5247065385713788
+        },
+        {
+          "high_low_integrated_z": 0.2236959368683676,
+          "CI_low": 0.051238973267367635,
+          "CI_high": 0.39408611343229893,
+          "score_correlation_integrated": 0.10220672976773822,
+          "positive_batch_fraction": 0.7142857142857143,
+          "time_last_minus_first_delta_z": 0.001039472322733088,
+          "p": 0.03129738441744203,
+          "q": 0.049276732912568295,
+          "feature": "landmark_16_softmin",
+          "proposal_integrated_z": 0.2674143537669218,
+          "proposal_q": 0.3210812138717797
+        }
+      ],
+      "combined_148_BH_sensitivity": {
+        "endpoint_q_below_05": 40,
+        "proposal_q_below_05": 2,
+        "min_endpoint_joint_q": 0.000029873144000279864,
+        "semantics": "Post-hoc multiplicity sensitivity across two representations, not independent replication or adjustment for all historical searches."
+      },
+      "full_population_audit_snapshots": [
+        {
+          "score_time": 0,
+          "proposal_state_time": 0.009999999776482582,
+          "proposal_Rg_A_mean": 0.10956654905609538,
+          "endpoint_Rg_A_mean": 3.4943396906525344,
+          "slot_endpoint_proposal_RMS_A_mean": 4.357124619505288
+        },
+        {
+          "score_time": 0.1,
+          "proposal_state_time": 0.10999999940395355,
+          "proposal_Rg_A_mean": 0.39516449060210823,
+          "endpoint_Rg_A_mean": 3.5902228427142906,
+          "slot_endpoint_proposal_RMS_A_mean": 4.010218465413752
+        },
+        {
+          "score_time": 0.25,
+          "proposal_state_time": 0.25999999046325684,
+          "proposal_Rg_A_mean": 0.9230933838392579,
+          "endpoint_Rg_A_mean": 3.5725085060992234,
+          "slot_endpoint_proposal_RMS_A_mean": 3.2491615837595114
+        },
+        {
+          "score_time": 0.49,
+          "proposal_state_time": 0.5,
+          "proposal_Rg_A_mean": 1.7788588308420519,
+          "endpoint_Rg_A_mean": 3.5674420219943874,
+          "slot_endpoint_proposal_RMS_A_mean": 2.2101104236595748
+        }
+      ],
+      "full_population_audit_rows": 700,
+      "frame_keys": [
+        "time",
+        "high_scaled",
+        "low_scaled",
+        "variance_scaled",
+        "score_gap_mean"
+      ],
+      "correlation_recomputation": "Unavailable from compact reference because particle-level score/rank and per-batch correlations are not saved; table value was inspected but not independently rebuilt."
+    },
+    "endpoint_feature_diagnostics": {
+      "significant_scale_floor_features": [
+        {
+          "feature": "landmark_01_occupancy3",
+          "high_low_integrated_z": -0.0019559882316943066,
+          "q": 0.003707677474506074
+        },
+        {
+          "feature": "landmark_02_occupancy3",
+          "high_low_integrated_z": -0.038436518154864215,
+          "q": 0.002592212388428179
+        },
+        {
+          "feature": "landmark_03_occupancy3",
+          "high_low_integrated_z": -0.006842074861722715,
+          "q": 0.0008127462625120037
+        },
+        {
+          "feature": "landmark_05_occupancy3",
+          "high_low_integrated_z": -0.00472447510574985,
+          "q": 0.0017837217708665124
+        },
+        {
+          "feature": "landmark_06_occupancy3",
+          "high_low_integrated_z": -0.00865400239434928,
+          "q": 0.0008127462625120037
+        },
+        {
+          "feature": "landmark_07_occupancy3",
+          "high_low_integrated_z": 0.015897520441984662,
+          "q": 0.020762950316730998
+        },
+        {
+          "feature": "landmark_08_occupancy3",
+          "high_low_integrated_z": -0.0016174427500949796,
+          "q": 0.04272062321218249
+        },
+        {
+          "feature": "landmark_12_occupancy3",
+          "high_low_integrated_z": -0.10701957148969206,
+          "q": 0.009398366290185107
+        },
+        {
+          "feature": "landmark_15_occupancy3",
+          "high_low_integrated_z": -0.017006207169978672,
+          "q": 0.003707677474506074
+        },
+        {
+          "feature": "landmark_18_occupancy3",
+          "high_low_integrated_z": -0.05811380152315994,
+          "q": 0.003707677474506074
+        }
+      ],
+      "nonconstant_fits": [
+        {
+          "feature": "landmark_08_occupancy5",
+          "cv_mse_by_degree": [
+            1.2810853780526583,
+            1.2815725286920727,
+            1.1326049273862793,
+            1.0931615047791197
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            -0.21870358517446525,
+            -0.17628870935540844,
+            0.9069401676937326
+          ]
+        },
+        {
+          "feature": "landmark_08_softmin",
+          "cv_mse_by_degree": [
+            1.2889021424188996,
+            1.2644515980430635,
+            1.0409364760488546,
+            0.9759836462102449
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            0.1156751838190272,
+            0.30081396166351837,
+            -1.0926709028998165
+          ]
+        },
+        {
+          "feature": "landmark_19_occupancy3",
+          "cv_mse_by_degree": [
+            1.198245191398204,
+            1.1224336218083537,
+            0.8574549343910725,
+            0.8046734196252737
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            -0.003701269910130257,
+            -0.48408309459456117,
+            1.1824308394914949
+          ]
+        },
+        {
+          "feature": "landmark_19_softmin",
+          "cv_mse_by_degree": [
+            1.2832820952020292,
+            1.1536678481636857,
+            0.8090588601689911,
+            0.729317469912657
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            -0.07438303718507831,
+            0.6292538310246611,
+            -1.3366974201645794
+          ]
+        },
+        {
+          "feature": "pair_kernel_1.5",
+          "cv_mse_by_degree": [
+            1.0743273978937002,
+            1.0796099098284377,
+            0.9484059164129146,
+            0.935486929824803
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            0.5622952239355059,
+            -0.06814416931034596,
+            -0.842951121291854
+          ]
+        },
+        {
+          "feature": "pair_kernel_2.5",
+          "cv_mse_by_degree": [
+            1.0371094588947185,
+            0.9975703049419012,
+            0.9049604538290426,
+            0.8748182844377609
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            0.6309668603817257,
+            -0.3682961550540676,
+            -0.731480354814834
+          ]
+        },
+        {
+          "feature": "pair_kernel_3.5",
+          "cv_mse_by_degree": [
+            1.1331601940801634,
+            1.1064073720928536,
+            1.0132303198479728,
+            0.9326358018943106
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            0.5400080198171118,
+            -0.323715245075145,
+            -0.7063231983901284
+          ]
+        },
+        {
+          "feature": "pair_kernel_5.0",
+          "cv_mse_by_degree": [
+            1.1500861197928605,
+            1.1340451136054692,
+            1.0803885009858794,
+            0.9934058524908467
+          ],
+          "degree": 2,
+          "legendre_coefficients": [
+            0.31900386024592337,
+            -0.2618703003563801,
+            -0.5893946533175523
+          ]
+        },
+        {
+          "feature": "pair_kernel_7.0",
+          "cv_mse_by_degree": [
+            1.0555583194548428,
+            1.0196838039360687,
+            0.9658463381406961,
+            0.919790452979789
+          ],
+          "degree": 1,
+          "legendre_coefficients": [
+            -0.4854001897724695,
+            0.3517672319876863
+          ]
+        }
+      ],
+      "current_endpoint_source_sha256": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550"
+    },
+    "significance_limits": [
+      "端点47项显著是本表示内BH74；不同表示的z使用各自背景尺度，不能直接用z大小比较实际Å力。",
+      "148项合并的探索性BH敏感性得到端点40项、proposal2项显著；这是重排检验家族的后验检查，不替代历史多轮搜索的确认性验证。",
+      "10项显著壳核同时触及1e-5尺度下限；例如landmark_01_occupancy3 z=-.001956，其q=.00371不代表大效应或氢键。",
+      "新端点数据仍用14批独立单位；同胞/克隆、50时间点均非额外n，未提供root-balanced或adjusted lag端点关联。",
+      "65条degree0、8条degree2、1条degree1；次数>0不等于阶段机制已确立，时间导数不是空间力。"
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1_endpoint_geometry_with_real_coordinate_VJP",
+      "priority": 1,
+      "status": "Offline association gap verified; new implementation reviewed separately before activation",
+      "evidence": [
+        "Same source hashes/features/landmarks/time grid; endpoint47/74 vs proposal0/74 within-family q<.05.",
+        "Endpoint shape_yy z=-.512823,q=1.4936572e-5; endpoint pair2.5 z=+.630662,q=2.1888766e-5, whereas proposal=-.413814,q=.09652.",
+        "Full-population proposal Rg .1096Å at first controlled state vs endpoint3.4943Å; at final controlled state1.7789Å vs3.5674Å."
+      ],
+      "hypothesis": "对关联发生的端点几何定义奖励，经坐标VJP转换为当前状态方向，可能优于直接把高分端点的关联方向误用于收缩proposal。",
+      "formula": "g_t = (dY_theta^world(x_t;fixed cond,categories,pocket)/dx_t)^T grad_Y R_t(Y_t). Use endpoint-specific scales and observed-node high/low mixture or recorded teacher endpoint mixture. delta_t=bounded_dose(g_t); x_(t+dt)=native_step(x_t,Y_t)+delta_t.",
+      "gradient_definition": "真实当前x_t→端点坐标VJP；head不入loss，所有对应关系/类别/self-conditioning在导数内固定。不是head梯度，也不是轨迹反传。",
+      "cost": "每个active步保留原有target forward的计算图，加一次纯几何backward；增加显存及backward耗时，实际值待测；不建立新NN。",
+      "extra_FLOWR_forward_per_production_step": 0,
+      "extra_head_calls_per_production_step": 0,
+      "verification_overhead": "单独首次真实FD可增加明确记录的±epsilon forward；不可归入0额外生产调用声明。",
+      "falsification": "相同发现数据和预声明剂量控制下，端点reward响应/方向预检成立，但匹配native最终head无稳定正向、或相同实际注入预算下不优于proposal父程序，则不能把强关联当控制优势。不能仅以reward拟合成功晋升。",
+      "risks": [
+        "精确VJP在积分前x_t取值，在积分后注入是滞后近似；首步强收缩可使这种迁移失效。",
+        "head的latent/类别共享因素可使几何关联在干预下失效。",
+        "VJP非局部，端点局部力可能影响所有输入原子；按真实注入支持报告。"
+      ]
+    },
+    {
+      "id": "H2_local_receptor_fields_with_measured_support",
+      "priority": 2,
+      "status": "Deferred until first four outcomes and H1 verification; not automatically selected from significant landmarks",
+      "evidence": [
+        "20个farthest-point landmark当前只有径向soft-distance与3/5Å壳核；没有方向占据或局部receptor-frame二阶矩。",
+        "Proposal有3个近恒定teacher场，端点14个尺度触底且10个触底壳核仍显著。"
+      ],
+      "hypothesis": "在实际有样本支持的口袋位置补充方向/局部形状，可区分全局紧缩与受体相容的位置变化。",
+      "formula": "For predeclared receptor patch p, w_i=soft region weight in fixed receptor coordinates; m_p=sum_i w_i(Y_i-p)/sum_i w_i; S_p=sum_i w_i(Y_i-p)(Y_i-p)^T/sum_i w_i. Standardize full-window discovery moments; R_p is bounded distance-mixture contrast in (m_p,svec S_p).",
+      "gradient_definition": "纯坐标可微区域权重直接对Y求导，再走已验证VJP；若使用anchor定位则固定anchor并明确条件导数。不得把时间曲线斜率作+x/-y力。",
+      "cost": "离线复用已保存Y，O(B*T*N*L)几何计算；仅保存批次统计、support、全窗拟合。生产增加小型场计算，不增加神经调用。",
+      "extra_FLOWR_forward_per_production_step": 0,
+      "extra_head_calls_per_production_step": 0,
+      "falsification": "用固定几何patch划分及发现集支持阈值，比较加入方向场前后，在匹配剂量下最终head改善是否超出全局shape/pose可解释变化；若信号在全局centroid/Rg调整或root-balanced分析后消失，只保留全局几何解释。",
+      "risks": [
+        "不能将局部shell称为氢键或真实能量。",
+        "按q在更多空间小区扫赢家会扩大选择偏倚，必须预声明集合和多重检验家族。"
+      ]
+    },
+    {
+      "id": "H3_transport_and_dose_alignment",
+      "priority": 3,
+      "status": "Analysis first; no fixed Cartesian force proposed",
+      "evidence": [
+        "原始SDE首步收缩使observed-native位移不等于预测flow；teacher endpoint-proposal RMS全窗平均3.2768Å。",
+        "当前absolute-proposal目标混合了几何趋势与一次噪声实现；真实VJP仍可能在post-native状态滞后。"
+      ],
+      "hypothesis": "分解刚体平移、内部位移、预测flow与随机native分量，能够识别目标力是否在错误时刻或错误分量消耗剂量。",
+      "formula": "v_flow=(Y_t-X_t)/(1-t) for verified linear schedule; Delta_native=P-X_t; inspect projection cos(g,dt*v_flow), translation/internal components, endpoint-minus-proposal residual, and one-step recorded head gain along deduplicated lineage edges.",
+      "gradient_definition": "这些量先用于诊断；若构造线性局部位移reward，R(P)=<P-P0,u_t(fixed anchor)>-lambda||P-P0||²/2，其梯度是规定的局部向量场，不是head或真实端点Jacobian。",
+      "cost": "本地读取现存current/proposal/predicted与谱系，流式批次汇总；生产可以仅记录已有向量，无新model/head调用。",
+      "extra_FLOWR_forward_per_production_step": 0,
+      "extra_head_calls_per_production_step": 0,
+      "falsification": "若强度增加后actual path与注册reward充分改变但后续head仍无收益，应转向方向/对应/表示而不是继续把结果归因剂量不足；若支持的方向在独立批次或去重/root-balanced后消失，不能发布阶段优势规则。",
+      "risks": [
+        "起始head调整的lag相关仍受存活/选择偏倚影响。",
+        "同刻score与输出几何共享latent，不能从lag系数推因果。"
+      ]
+    },
+    {
+      "id": "H4_coordinate_only_endpoint_correction_surrogate",
+      "priority": 4,
+      "status": "Lower-cost fallback alternative only; do not label true VJP",
+      "evidence": [
+        "现有teacher库同时保存每个teacher的端点与proposal，可固定对应而不训练网络。",
+        "当前真实VJP扩展需要内存/零剂量等价验证；此替代仅在显式比较中有意义。"
+      ],
+      "hypothesis": "以teacher端点改进方向构造局部坐标目标，避免直接复制压缩proposal噪声，可能保留更多当前状态自由度。",
+      "formula": "Freeze P0 and anchor A; T_k=P0+gamma_t*(Y_teacher,k^matched-A); R(P|P0,A)=tau logsumexp(log pi_k-C(mean_i||P_i-T_ki||²)). A candidate gamma_t=dt/(1-t) is a predictive-flow-scale assumption, not an estimated model Jacobian.",
+      "gradient_definition": "直接对P求导；P0/A/correspondence冻结。该条件目标不是dY_theta/dX，且gamma与归一化剂量的作用须分开。",
+      "cost": "复用当前28个teacher端点和Hungarian匹配；不新增NN或FLOWR/head调用。",
+      "extra_FLOWR_forward_per_production_step": 0,
+      "extra_head_calls_per_production_step": 0,
+      "falsification": "相同teacher/prior/caps与匹配剂量下，对比absolute proposal目标；若目标迁移误差下降却实际下一步端点及最终head不改善，则不支持identity/flow-scale代理方向。",
+      "risks": [
+        "看似更便宜的代理可能把错误端点方向带入真实状态；不得以toy FD冒充真实FLOWR链式法则。"
+      ]
+    }
+  ],
+  "real_VJP_workflow_requirements": {
+    "existing_interface": "scalar_guidance.live_pullback已有一次predict+scalar autograd.grad模式；当前CoordinateExtension仍是no_grad原生预测及proposal直接梯度。新endpoint适配器应独立注册，不能从已detach的forecast事后恢复Jacobian。",
+    "computational_contract": [
+      "x_t leaf requires_grad; theta frozen; cond/categorical/pocket caches detached.",
+      "当前native target forward只运行一次，缓存只维持到VJP完成；返回detached pred/cond给原生integrator，跨步不保留图。",
+      "head输出detach且从reward依赖图排除；共享backbone的坐标梯度不等于head梯度。",
+      "fixed Hungarian assignments/priors/labels在FD的±epsilon两侧保持相同。",
+      "所有native分类采样、self-conditioning值与RNG序列保持；.49→.50最后注入，之后native到1。"
+    ],
+    "numerical_checks": [
+      "分开计数生产forward/backward与一次FD审计开销；±epsilon每次恢复同一RNG，末尾恢复审计前状态。",
+      "真实模型FD同时检查坐标单位转换和VJP；CPU toy接口检查不可替代。",
+      "新的unguided/计算真实梯度但eta0/gradient对照；所有100步coords、categories、cond/final与RNG逐字节匹配，不能复用旧family证书。",
+      "autograd可能改变kernel/数值，失败不得默默引入第二forward；应先定位或明确未满足单次forward+strict-zero约束。"
+    ],
+    "logging": "只记录旧x_t处R(Y_t)和g_t·delta的一阶估计。无额外模型前向时不存在实测同状态post-injection endpoint reward；下一步已有forecast可作滞后诊断，但time/ref/cond/native噪声改变是混杂。",
+    "representation_contract": "端点reference目前control_representation='proposal'用于score/proposal支持对齐；必须另以reward_representation/derivative_path显式指出Y_t。评价读predicted_coords，以proposal state_time<=end筛选，不能将proposal坐标直接塞入端点reward。",
+    "current_status": "新增endpoint源已出现但尚未启用；具体执行就绪、源码hash与集成问题另存endpoint_design_review。首4轮保持冻结。"
+  },
+  "decision_limits": [
+    "本审阅没有读取首4轮结果或新留出数据。",
+    "当前q统计支持表示层面的观察差异，不能证明LLM改善亲和力、因果优势、真实结合能或未见seed泛化。",
+    "后续亲和力优先比较继续保留all/valid/unique、失败分母与原Steer基准；能量是独立终态诊断，不反向改写初4轮目标。"
+  ],
+  "source_hashes": {
+    "src/evomolsteer/continuous/affinity_geometry.py": "e64fd897ea14ff88a44fd9fae16fe2f36fab138405a99921fdde109307b19de9",
+    "src/evomolsteer/generation/affinity_geometry_reward.py": "2dfbff4d9aabde27e47fdc3cb84a054799aa6eb493d5c759d0b1cf382466669f",
+    "src/evomolsteer/generation/controller.py": "75367467d08410ba71e0c1aa8f9bab811fed4ba6dbb1387773ce79e8a0d14579",
+    "src/evomolsteer/generation/instrumentation.py": "fd02a3bcadfd5374e20fe4238109087fef0205dd70124e0476ea1a7a076620d9",
+    "src/evomolsteer/generation/coordinate_controller.py": "166b7375981f9f8aec0deb99237953d4bdb6ee2d9837ef3f0d916e462e27fe85",
+    "D:/llm_controlled_generation/tmp/flowr_root_scnet_source/flowr/models/fm_pocket.py": "e2d10a5789820bc7127e3dc3e3e144785b29db1098c4f739ad22647f5756a2b4",
+    "D:/llm_controlled_generation/tmp/flowr_root_scnet_source/flowr/models/pocket.py": "1b5d4ec5f2de2fd4ae36c1e126245112773826de3362264efae18df3d04a0c24"
+  },
+  "endpoint_current_source_sha256": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550"
+}
