@@ -17,6 +17,11 @@ Analyst workflow:
 2. Run mine_spatial_motifs.py on discovery only. Read unweighted, selected,
    end-window retained, native-background and root-balanced contrasts separately.
    Match foreground/background at the same event; earlier SMC history remains.
+   For actual-boundary survival targets, also run mine_boundary_motifs.py and
+   use state_time to exclude the end score's outside-state proposal. Project
+   descendant counts onto PRE-selection candidates; verify conserved mass.
+   No final t=1 labels enter reward learning. Distinguish integrated tail tests
+   from whole-curve tests and report both FDR families, including nulls.
 3. Compare partial affinity and lag gain with nuisance controls, q and time
    coverage. Undefined within-root contrasts at singleton roots are missing,
    never zero or a negative result. Do not pick spatial directions from a signal

@@ -11,23 +11,33 @@ from .coordinate_shape import time_weights,dimensionless_moments
 from .coordinate_reward import CoordinateMixtureReward
 
 
-def build(dataset,campaign,mining,output,channels=('all',)):
+def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous'):
     root,mining,output=map(Path,(dataset,mining,output))
     if output.exists():raise FileExistsError(output)
     m,cat=read_json(mining/'manifest.json'),read_json(mining/'feature_catalog.json')
     if m['feature_family']!='motif' or m['control_representation']!='proposal' or m['spatial_anchor']!='endpoint':raise ValueError('Matched motif evidence required')
     if not channels or set(channels)-{'all','NOS','NOS_C'}:raise ValueError('Unknown motif channels')
+    if target not in ('instantaneous','boundary_survival'):raise ValueError('Unknown lineage target')
     source=root/'results'/campaign;cfg=read_json(source/'config.json');frames={};sources=[]
     for b in m['splits']['discovery']:
         path=source/'single'/f'batch_{b:03d}'/'trajectory.h5'
         com=np.asarray(read_json(source/f'frame_batch_{b:03d}.json')['target_com'])[:,None]
         with TrajectoryPackage(path) as z:
             times=np.round(z.read('score_time')[:,0].astype(float),6)
+            survival={}
+            if target=='boundary_survival':
+                from ..continuous.coordinate_mining import boundary_descendants
+                # Survival is at the actual control boundary, not the .51
+                # proposal of the last scored .5 event or a terminal t=1 label.
+                inside,copies=boundary_descendants(z.read('resampled'),z.read('state_time'),z.read('selected_indices'),m['window'])
+                survival={int(i):copies[k] for k,i in enumerate(inside)}
             for i in np.flatnonzero(z.read('resampled')):
                 t=float(times[i]);x=z.read('proposal_coords',int(i)).astype(float)*cfg['coord_scale']+com
                 anchor=z.read('predicted_coords',int(i)).astype(float)*cfg['coord_scale']+com
                 v,names,_=numpy_motifs(x,z.read('predicted_atomics',int(i)),z.read('mask',int(i)),cat,anchor,cat['spatial_width_A'],channels)
-                valid=np.isfinite(v).all(1);p=z.read('selection_probability',int(i)).astype(float)[valid]
+                valid=np.isfinite(v).all(1)
+                weights=(survival.get(int(i),np.ones(len(v))) if target=='boundary_survival' else z.read('selection_probability',int(i)))
+                p=np.asarray(weights,float)[valid]
                 if valid.sum()<3 or p.sum()<=0:raise ValueError('Insufficient discovery support')
                 frames.setdefault(t,[]).append((b,v[valid],p/p.sum(),float(valid.mean())))
         sources.append({'path':path.relative_to(root).as_posix(),'sha256':digest(path)})
@@ -43,7 +53,7 @@ def build(dataset,campaign,mining,output,channels=('all',)):
             sel=dimensionless_moments(v,p,scale);bg=dimensionless_moments(v,np.ones(len(v)),scale)
             modes.append({'center_scaled':sel['center_scaled'],'covariance_dimensionless':sel['covariance_dimensionless'],
                 'background_center_scaled':bg['center_scaled'],'background_covariance_dimensionless':bg['covariance_dimensionless'],
-                'source_batch':b,'availability':a,'n_available':len(v),'selected_probability_ESS':float(1/(p@p))})
+                'source_batch':b,'availability':a,'n_available':len(v),'target_weight_ESS':float(1/(p@p))})
         measured.append({'time':t,'modes':modes})
     from .launcher import INPUT_FILES
     ref={'schema_version':'spatial-motif-mixture-1.0','window':m['window'],'times':times,'frames':measured,
@@ -55,13 +65,15 @@ def build(dataset,campaign,mining,output,channels=('all',)):
         'feature_scale':scale.tolist(),'feature_unit':'mixed: centroid A; kernel densities dimensionless',
         'scale_definition':'fixed whole-window trapezoid mean of equal-batch unweighted within-candidate variance',
         'batches':m['splits']['discovery'],'sources':sources,'source_manifest_sha256':digest(mining/'manifest.json'),
+        'target_definition':target,'target_weight_semantics':'Equal discovery batch; normalized same-event selection probability' if target=='instantaneous' else
+            'Equal discovery batch; exact descendant counts projected back through actual selection edges whose proposal state is <= learned end. Last outside-state context frame is unweighted and never injected.',
         'required_input_sha256':{name:digest(root/'inputs'/name) for name in INPUT_FILES},
         'limitations':['Associational selection imitation, not verified causal affinity features',
                        'Shell/pair kernels are geometry proxies, not PLIP chemically validated contacts or MMFF energies',
                        'Moments retain alternative batch modes but do not identify complete molecular paths']}
     output.parent.mkdir(parents=True,exist_ok=True)
     output.write_bytes(gzip.compress(json.dumps(ref,separators=(',',':'),allow_nan=False).encode(),mtime=0))
-    write_json(output.with_suffix('.manifest.json'),{'sha256':digest(output),'bytes':output.stat().st_size,'source_manifest_sha256':ref['source_manifest_sha256']})
+    write_json(output.with_suffix('.manifest.json'),{'sha256':digest(output),'bytes':output.stat().st_size,'source_manifest_sha256':ref['source_manifest_sha256'],'target_definition':target})
     return ref
 
 

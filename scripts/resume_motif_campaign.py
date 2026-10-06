@@ -63,7 +63,9 @@ class MotifDriver(Driver):
             if 'time_ramp_power' in plan:p['time_ramp_power']=plan['time_ramp_power']
             reference=next(v for v in self.cfg.glob('*reference.json.gz') if digest(v)==p['reference_sha256'])
         else:
-            reference=self.cfg/('all_reference.json.gz' if plan['channel']=='all' else 'cross_reference.json.gz')
+            stem='all' if plan['channel']=='all' else 'cross'
+            prefix='survival_' if plan.get('target_definition')=='boundary_survival' else ''
+            reference=self.cfg/(prefix+stem+'_reference.json.gz')
             from evomolsteer.generation.window_reference import load_reference
             p={'schema_version':'current-coordinate-program-1.0','seed':42,'family':'LLM_evidence_bound_spatial_motif_design',
                 'window':load_reference(reference)['window'],'reference_sha256':digest(reference),

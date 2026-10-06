@@ -20,7 +20,7 @@ def choose(outcomes,mode='balanced'):
     # Selection is over frozen reward programs, not molecular samples. Neither
     # novelty nor reference/native graph identity is an eligibility condition.
     rows=pareto_front(outcomes)
-    eligible=[r for r in rows if r['valid_rate_change']>=-.02 and r['PB_rate_change']>=-.02 and r['energy_coverage_change']>=-.02]
+    eligible=[r for r in rows if r['valid_rate_change']>=-.02-1e-12 and r['PB_rate_change']>=-.02-1e-12 and r['energy_coverage_change']>=-.02-1e-12]
     rows=eligible or rows
     if not rows:raise ValueError('No completed program evidence')
     if mode=='affinity':return max(rows,key=lambda r:(r['all_head_change_vs_native'],r['negative_MMFF_p90_relative_change']))
@@ -45,15 +45,20 @@ def proposal(number,evidence):
     if number in explicit:
         channel,view,components,dose,ramp,reason=explicit[number]
         return {'channel':channel,'reward_view':view,'motif_components':components,'native_rms_ratio':dose,'time_ramp_power':ramp,'reason':reason,'parent_round':0}
+    if number in (9,10):
+        return {'channel':'all' if number==9 else 'NOS_C','reward_view':'motif_mixture',
+            'motif_components':'joint' if number==9 else 'pair','native_rms_ratio':.05,'time_ramp_power':0.,
+            'target_definition':'boundary_survival','parent_round':0,
+            'reason':'Test actual-boundary surviving ancestry distributions instead of immediate selection. Original R1/R2 physical regression motivates this lineage-target ablation; no final t=1 labels or graph locks.'}
     outcomes=[read_json(p) for p in Path(evidence).glob('round_*.outcome.json')]
     discovery=[r for r in outcomes if r['round']<=12]
     if number>13:
         # Validation/heldout results cannot redefine a frozen reward.
         parent=read_json(Path(evidence)/'round_13.plan.json')['parent_round']
         return {'parent_round':parent,'reason':'Replay frozen discovery winner on new matched batches; no further tuning.'}
-    modes={9:'balanced',10:'affinity',11:'balanced',12:'tail',13:'balanced'}
+    modes={11:'balanced',12:'affinity',13:'balanced'}
     parent=choose(discovery,modes[number])
-    changes={9:{'dose_factor':.5},10:{'dose_factor':.5},11:{'time_ramp_power':1.},12:{'time_ramp_power':2.},13:{}}[number]
+    changes={11:{'dose_factor':.5},12:{'time_ramp_power':1.},13:{}}[number]
     return {'parent_round':parent['round'],**changes,'reason':f"Restore a measured {modes[number]} Pareto parent; bounded program-level variation, not particle resampling."}
 
 

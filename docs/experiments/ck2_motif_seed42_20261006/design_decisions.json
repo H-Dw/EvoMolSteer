@@ -1,28 +1,38 @@
 {
-  "schema_version": "reward-design-ledger-1.0",
   "design_status": "exploratory",
-  "observations": [
-    "Discovery whole-window adjusted motif and within-root associations do not pass q<0.05; no causal affinity direction has been established.",
-    "Previous low-order NOS geometry gains coexist with terminal energy/displacement tails; a local polar-carbon spacing hypothesis is testable.",
-    "Historical Steer all-head mean and unique-graph mean differ substantially; failure-inclusive, valid and unique summaries must remain separate."
-  ],
-  "hypotheses": [
-    {"id":"H_joint", "formula":"Robust equal-batch mixture in standardized centroid/shell/pair coordinates", "purpose":"Imitate observed selected geometry without identifying one atomic path"},
-    {"id":"H_pair", "formula":"Same mixture restricted to pair-distance kernel components", "purpose":"Test local relative arrangement independently of gross translation"},
-    {"id":"H_cross", "formula":"NOS-carbon pair kernels with gradients on both endpoints", "purpose":"Test coupled polar and surrounding-carbon rearrangement while native graphs remain free"},
-    {"id":"H_contrast", "formula":"b*tanh((log p_selected-log p_background)/b)", "purpose":"Test incremental selection geometry versus existing-history background"}
-  ],
   "dose_contract": {
-    "calibration":"Verified linear predicted-endpoint flow RMS, external ratio distinct from reward coefficients",
-    "schedule":"Positive continuous (.1+.9*u)^p across the dynamic learned window; no force after it",
-    "contrast_amplitude":"sqrt(2*k/(1+2*k)) times tanh saturation, where k is mean paired-Gaussian KL/dimension; implemented after final subagent review identified the weak-normalized-gradient risk",
-    "not_a_gate_on_chemistry":"No graph-equality, novel-composition or ligand pair-distance acceptance veto"
+    "calibration": "Verified linear predicted-endpoint flow RMS, external ratio distinct from reward coefficients",
+    "contrast_amplitude": "sqrt(2*k/(1+2*k)) times tanh saturation, where k is mean paired-Gaussian KL/dimension; implemented after final subagent review identified the weak-normalized-gradient risk",
+    "not_a_gate_on_chemistry": "No graph-equality, novel-composition or ligand pair-distance acceptance veto",
+    "schedule": "Positive continuous (.1+.9*u)^p across the dynamic learned window; no force after it"
   },
   "falsifiers": [
     "Reward value improves without actual boundary geometry or terminal head improvement",
     "Head gain coexists with worse MMFF median/p90, missing-energy coverage, validity or surrounding relaxation RMS",
     "Frozen discovery winner fails matched validation/heldout checks",
     "Zero-dose equivalence, numerical derivative, no-SMC or no-post-window-injection audit fails"
+  ],
+  "hypotheses": [
+    {
+      "formula": "Robust equal-batch mixture in standardized centroid/shell/pair coordinates",
+      "id": "H_joint",
+      "purpose": "Imitate observed selected geometry without identifying one atomic path"
+    },
+    {
+      "formula": "Same mixture restricted to pair-distance kernel components",
+      "id": "H_pair",
+      "purpose": "Test local relative arrangement independently of gross translation"
+    },
+    {
+      "formula": "NOS-carbon pair kernels with gradients on both endpoints",
+      "id": "H_cross",
+      "purpose": "Test coupled polar and surrounding-carbon rearrangement while native graphs remain free"
+    },
+    {
+      "formula": "b*tanh((log p_selected-log p_background)/b)",
+      "id": "H_contrast",
+      "purpose": "Test incremental selection geometry versus existing-history background"
+    }
   ],
   "limitations": [
     "Kernel radii/widths, covariance ridge, temperature and robust curvature are declared experimental choices.",
@@ -31,5 +41,30 @@
     "Scored node t and proposal state t+dt differ. The last proposal associated with the end score can lie outside the control-state window; it is context only, never a post-window injection target.",
     "This ledger records auditable evidence, formulas and revisions; it is not a private reasoning transcript.",
     "Fifteen rounds are bounded architecture/dose exploration after Agent review, not fifteen independently simulated LLM design calls."
-  ]
+  ],
+  "observations": [
+    "Discovery whole-window adjusted motif and within-root associations do not pass q<0.05; no causal affinity direction has been established.",
+    "Previous low-order NOS geometry gains coexist with terminal energy/displacement tails; a local polar-carbon spacing hypothesis is testable.",
+    "Historical Steer all-head mean and unique-graph mean differ substantially; failure-inclusive, valid and unique summaries must remain separate."
+  ],
+  "revisions": [
+    {
+      "counterevidence": "All 36 retained mean and equal-root effects fail FDR; all whole-curve tests fail FDR. A few integrated low-tail effects pass FDR but do not establish causality. R3 geometric ablation improves native physical axes yet remains worse than historical Steer.",
+      "evidence_manifest_sha256": "666ff05aa122a5c4034b59614d9b1b6b2488d05b335840c411f3b13e21e5c9c2",
+      "falsifier": "Boundary-shape or head gains with worse terminal energy/coverage/displacement do not satisfy the joint objective.",
+      "formula": "Same registered robust spatial-motif mixture; replace event selection probabilities with actual-boundary descendant weights. No t=1 labels.",
+      "frozen_future_rounds": [
+        9,
+        10
+      ],
+      "hypothesis": "Surviving ancestor geometry may constrain early coordinate paths more consistently than immediate selection, while retaining free native graph changes.",
+      "revision": "Actual-boundary retained ancestry",
+      "trigger_outcomes": {
+        "round_01": "c4162160dc22789a90cc76bb3c383e17235832cbfa42320f51f92481d734d0d3",
+        "round_02": "e0fbbd31f11fcc03a0da1d802d39fa795a908445063c029670be6bae97d1e987",
+        "round_03": "ec38769bfb0ca66a561230a9925e037c067632edfd5b58968179e45dab734ee9"
+      }
+    }
+  ],
+  "schema_version": "reward-design-ledger-1.0"
 }

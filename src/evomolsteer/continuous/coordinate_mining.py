@@ -52,6 +52,24 @@ def window_descendants(indices):
     return np.asarray(rows[::-1])
 
 
+def boundary_descendants(resampled,state_times,indices,window):
+    """Candidate mass ancestral to the last actual selection state in window.
+
+    A scored event at the end can propose an outside-window state. Such an edge
+    is excluded. Returns event indices and PRE-selection candidate masses;
+    descendants are weights, not independent observations.
+    """
+    flags=np.asarray(resampled,bool);states=np.asarray(state_times,float)
+    if states.ndim!=1 or flags.shape!=states.shape:raise ValueError('One state time per event required')
+    ids=np.flatnonzero(flags&(states>=window[0]-1e-6)&(states<=window[1]+1e-6))
+    if len(ids)<2 or np.any(np.diff(ids)!=1):raise ValueError('Contiguous actual boundary ancestry required')
+    selected=np.asarray(indices)[ids]
+    if selected.ndim!=2 or not np.issubdtype(selected.dtype,np.integer) or np.any((selected<0)|(selected>=selected.shape[1])):raise ValueError('Invalid ancestry indices')
+    mass=window_descendants(selected)
+    if not np.all(mass.sum(1)==selected.shape[1]):raise ValueError('Ancestral mass not conserved')
+    return ids,mass
+
+
 def lag_evidence(x,score,next_score,selected,nuisance=None):
     count=np.bincount(selected,minlength=len(score));alive=count>0
     delta=np.bincount(selected,weights=next_score,minlength=len(score))/np.maximum(count,1)-score

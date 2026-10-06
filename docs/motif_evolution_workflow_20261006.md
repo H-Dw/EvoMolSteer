@@ -57,6 +57,27 @@ LLM prompts. The Analyst gets this compact evidence and the Designer gets its
 review, feature definitions, formula contract and counterevidence. Original
 trajectories remain the reproducible source.
 
+`scripts/mine_boundary_motifs.py` separately accepts dataset/campaign/mining/output
+and channels. It projects descendant counts backwards from the last ACTUAL
+proposal state at the learned boundary, not the outside-state proposal of the
+last scored event. With native dt=.01 and window [0,.5], score nodes 0 through
+.49 correspond to proposal states .01 through .5; score .5 proposes .51 and is
+excluded from this ancestry target. This alignment is derived from stored
+state_time, never a hardcoded cutoff. No terminal t=1 outcome is read. The new
+survival references keep the final .5 score frame as unweighted context only;
+the inference controller never injects it beyond the learned state boundary.
+
+Boundary mining preserves retained-vs-background and equal-surviving-root shifts,
+weighted quartile-tail enrichment, batch intervals, whole-window change rates,
+LOBO one-SE effect curves and derivative intervals. A separate whole-curve
+batch sign-flip test catches cancellation of opposing time effects. Tail tests
+use declared strict quartiles and are not interaction thresholds. Descendant
+counts are retrospective weights, not additional replicates. Survival-conditional
+feature density approximates retained ancestral geometry; it is not an exact
+Doob transform or a demonstrated causal affinity gradient. The compact working
+output is 2.7 MB with no per-candidate/edge expansion. Source and code hashes
+permit rebuilding it from protected trajectories.
+
 `scripts/motif_agents.py` exposes export/import/api/compile actions for Analyst
 and Designer. The bounded packet includes per-metric counts/null evidence, top
 rows, definitions and relevant functions; it does not include structures. Designer
@@ -96,8 +117,11 @@ the learned end, all remaining native inference completes without gradient or SM
 
 New campaign: `configs/experiments/ck2_motif_seed42_v1/campaign.json`; previous30
 rounds are immutable. R1 checks native/zero/new reward equivalence; R1–8 compare
-declared representations/contrast/dose. R9–12 restore Pareto parents and test
-smaller dose or continuous schedules using completed development outcomes.
+declared representations/contrast/dose. After R1/R2 showed physical tradeoffs,
+R9/10 were revised BEFORE their dispatch to compare actual-boundary surviving
+ancestry targets (joint all-atom versus polar-carbon pair geometry). R11 restores
+a balanced Pareto parent at half dose; R12 restores an affinity Pareto parent
+with a positive continuous ramp. Original R1–8 definitions stay frozen.
 R13 freezes a discovery winner and validates batches14/15. R14–15 replay that
 same winner on heldout17–19 without further tuning. Master seed42; batch seed
 42+100003*index; native100 integration steps. Whole-window support is read from
