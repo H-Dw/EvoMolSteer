@@ -73,6 +73,17 @@ class MotifDriver(Driver):
                 'mixture_temperature':.5,'robust_delta':2.,'native_rms_ratio':plan['native_rms_ratio'],
                 'dose_reference':'predictive_flow','core_radius_A':5.,'time_ramp_power':plan['time_ramp_power'],
                 'contrast_bound_nats':2.,'constraints':{'max_atom_step_A':.025,'max_cumulative_rms_A':1.25,'severe_receptor_clash_A':.8,'backtrack_attempts':7}}
+        if number==9:
+            # This intervention goes through the same grounded Analyst ->
+            # Designer -> registered-formula compiler used by the API adapter.
+            compiled=self.evidence/'llm_interface/boundary_agents/compiled_round09.json'
+            designed=read_json(compiled)
+            expected={'reference_sha256':digest(reference),'reward_view':plan['reward_view'],
+                'motif_components':plan['motif_components'],'native_rms_ratio':plan['native_rms_ratio'],
+                'time_ramp_power':plan['time_ramp_power'],'mixture_temperature':.5,'robust_delta':2.,
+                'target_definition':'boundary_survival','window':p['window'],'seed':42}
+            if any(designed.get(k)!=v for k,v in expected.items()):raise ValueError('Compiled Designer intervention differs from predeclared R9 contract')
+            p=copy.deepcopy(designed);p['compiled_design_sha256']=digest(compiled)
         p.update(round=number,program_id=f'ck2_motif_round{number:02d}',
             derivation={'plan':plan,'evidence':'docs/experiments/ck2_motif_seed42_20261006/mining',
                         'source_manifest_sha256':digest(self.evidence/'mining/manifest.json')},
@@ -174,8 +185,8 @@ class MotifDriver(Driver):
 
     def close(self):
         c=read_json(self.campaign);c['status']='budget_complete';write_json(self.campaign,c)
-        from evomolsteer.generation.motif_campaign import summarize
-        summarize(self.evidence,self.evidence/'summary.md')
+        from evomolsteer.generation.motif_reporting import report
+        report(self.evidence,self.evidence,require_complete=True)
         self.push(15);q=shlex.quote;repo=self.args.remote_repo;work=self.args.remote_work
         self.remote(f'git -C {q(repo)} -c http.proxy={q(self.args.remote_proxy)} pull --ff-only --quiet')
         last=c['rounds'][-1];report=repo+'/docs/experiments/ck2_motif_seed42_20261006/round_15/comparison/comparison.json'

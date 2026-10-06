@@ -148,3 +148,12 @@ per-batch changes. MMFF is isolated-ligand relaxation, not receptor binding free
 energy; surrounding displacement is not measured pocket compatibility. Source
 selection and terminal head share an oracle. Independent affinity calibration
 or experiments would still be required for a biological efficacy claim.
+
+`scripts/summarize_motif_campaign.py --evidence <retained-report-folder> --output
+<report-folder>` accepts retained reports only, and `--require-complete` checks
+all fifteen outcomes. Heldout aggregation combines all attempted candidates on
+batches17/18/19, keeps energy coverage and unique-head separate, and reports
+matched per-batch directions. Graph equality is never required. Three independent
+batches support a descriptive check, not candidate-level significance. The R9
+intervention directly consumes the grounded Analyst/Designer compiled program,
+checks its predeclared numeric contract and stores its SHA with the frozen plan.

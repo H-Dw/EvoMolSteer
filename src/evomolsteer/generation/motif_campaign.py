@@ -102,7 +102,7 @@ def record(campaign,evidence,number):
 def summarize(evidence,output):
     evidence=Path(evidence);rows=[read_json(p) for p in sorted(evidence.glob('round_*.outcome.json'))]
     lines=['# Spatial-motif seed42 campaign','',
-           'New 15-round budget; all native 100 steps completed; gradient acts only inside the learned dynamic window. No SMC. Chemical graphs remain free.','',
+           f'{len(rows)}/15 rounds retained. Every reported round completed all native 100 steps; gradient acts only inside the learned dynamic window. No SMC. Chemical graphs remain free.','',
            '| Round | Split | Head Δ | Shape improvement | MMFF median improvement | MMFF p90 improvement | Surround RMS improvement |','|---:|---|---:|---:|---:|---:|---:|']
     for r in rows:lines.append(f"|{r['round']}|{r['split']}|{r['all_head_change_vs_native']:.6f}|{r['shape_improvement_fraction']:.3%}|{r['negative_MMFF_relative_change']:.3%}|{r['negative_MMFF_p90_relative_change']:.3%}|{r['surround_RMS_improvement_fraction']:.3%}|")
     lines+=['','All directions remain separate. Head is a shared model prediction; MMFF is isolated-ligand relaxation relief. Historical Steer is not a matched randomized arm.',

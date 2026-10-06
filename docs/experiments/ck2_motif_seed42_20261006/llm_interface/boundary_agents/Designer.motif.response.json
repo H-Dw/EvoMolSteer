@@ -1,0 +1,47 @@
+{
+  "agent": "Designer",
+  "architecture": "motif_mixture",
+  "channel": "all",
+  "design_status": "exploratory",
+  "dose_reference": "predictive_flow",
+  "evidence_ids": [
+    "M_BOUNDARY_COUNTS",
+    "M_LINEAGE",
+    "M_METRIC_COUNTS",
+    "boundary:discovery:ck2:A:ASN117::all::proposal_motif_centroid_x:low_enrichment",
+    "boundary:discovery:ck2:A:VAL116::all::proposal_motif_centroid_z:retained_shift",
+    "boundary:discovery:ck2:A:VAL116::all::proposal_motif_centroid_z:root_balanced_retained_shift",
+    "boundary:discovery:ck2:A:VAL116::all::proposal_motif_shell_6:retained_shift",
+    "motif:discovery:ck2:A:ASN117::all::proposal_motif_shell_2:lag_controlled_gain_correlation"
+  ],
+  "limitations": [
+    "本响应为已授权Designer subagent simulation；数值由预声明R9合同约束，不声称自由LLM搜索的最优点，也不声称尚未执行的干预有效。",
+    "实际边界所有全曲线FDR检验均不显著。ASN117低x尾部积分q=.02564而全曲线q=.28118，不支持固定+x力；受体框架中的坐标趋势不是亲和力原因。",
+    "仅使用发现集0–13的参考与请求证据。后代计数是克隆质量，批次为统计单元；末端11/14批只有一个根，经验batch modes不是真实独立构象模式。",
+    "编译必须绑定target_definition=boundary_survival的修正版reference，并核查scale_score_times只到.49。与历史instantaneous参考的比较须披露目标和严格窗口scale两项变化；不回写R1–8。",
+    "phi由proposal坐标和detached预测anchor/硬标签定义；没有FLOWR endpoint Jacobian或硬类别/键的可微编辑。全程时间拟合仅用于描述，reward取实测节点分布。",
+    "tiny shell核和窄祖先分布可被单位梯度归一化放大；保留实际位移、裁剪、模式责任、描述符可用性和谱系支持记录。未定义观测时零剂量native，不以图差异/新组成否决候选。",
+    "编译器的有限atom/path位移约束、受体严重碰撞backtrack与零剂量/native一致性是执行要求；有限步不保证reward、模型head或物理质量单调。",
+    "检验真实x_.5双向结构距离，终态all/valid/unique head、全部失败分母、MMFF中位数/p90和计算覆盖、周边松弛及唯一性。reward fit下降或单一head增益不能替代联合改善。",
+    "MMFF仅对终态可计算有效图解释为同图局部应变代理；早期噪声上不虚构能量，模型head不是实验亲和力，shell/pair不是化学验证接触。",
+    "partial affinity与充分控制lag均无FDR显著项，部分lag覆盖不足；因此机制结论deferred。固定seed42开发适配不能证明未见seed泛化。",
+    "joint、pair、shell及contrast是预声明探索性替代表示，不由当前p/q唯一推出。部分退化记录为多指标权衡，按授权预算分析，不自动宣布成功或擅自停止。"
+  ],
+  "mixture_temperature": 0.5,
+  "motif_components": "joint",
+  "native_rms_ratio": 0.05,
+  "preserve_native_rigid_pose": false,
+  "rationale": "这是对已预声明R9干预的受约束Designer subagent simulation，不是LLM从显著性自动挑选或优化参数。按声明保留ASN117+VAL116、all/joint与eta=.05、tau=.5、delta=2、ramp=0；window直接取请求的[0,.5]。目标改为真实proposal state<=学习end的边界幸存祖先质量，使用score0… .49的实测分布；score=.5对应proposal=.51仅上下文，不能进入权重、尺度或实际注入力。每批归一化后代数形成同节点经验矩，批次等权。定义z=phi(x_proposal;固定forecast anchor/labels)/s，q_b=(z-mu_b)^T Sigma_b^-1(z-mu_b)/D，h_b=delta^2*(sqrt(1+q_b/delta^2)-1)，R=tau*log(mean_b exp(-h_b/tau))；all/joint两区域共18维，用编译器绑定的严格窗口经验scale及无量纲收缩covariance。它是robust批次矩势函数，不应冒充已校准亲和力或规范化概率密度。对实际proposal坐标求条件梯度，原生原子/键分类自由变化；外部剂量按预测线性flow RMS标定，名称native_rms_ratio不意味着采用含SDE收缩的观测native RMS。ramp=0在所有可用控制节点取1，.49→.5后零注入并native续推。全曲线FDR均不显著且有谱系塌缩，因此仅检验累计存活分布是否比即时分布更有利于真实x_.5及终态多指标；Analyst的机制规则维持deferred。",
+  "regions": [
+    "ck2:A:ASN117",
+    "ck2:A:VAL116"
+  ],
+  "robust_delta": 2,
+  "schema_version": "motif-agent-1.0",
+  "target_definition": "boundary_survival",
+  "time_ramp_power": 0,
+  "window": [
+    0,
+    0.5
+  ]
+}
