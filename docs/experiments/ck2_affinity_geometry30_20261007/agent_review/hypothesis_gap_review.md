@@ -1,6 +1,6 @@
 # 坐标表示缺口与后续可检验假说
 
-2026-10-07；已授权 Analyst/Designer subagent simulation。只读本地发现集与代码，没有读取首4轮结果、修改源码或启动推理。
+2026-10-07；已授权 Analyst/Designer subagent simulation。只读本地发现集与代码；初稿后补读已完成R1开发报告。未读取R2–4未出结果，未修改源码或启动推理。
 
 最有依据的下一分支是：**在预测端点上定义纯几何奖励，通过现有单次 native forward 的真实坐标 VJP 引导**。端点与 noisy proposal 的差异已经实测，但它是不是旧实验弱效的原因，仍须干预验证。
 
@@ -57,4 +57,12 @@
 
 无额外post-native forward时，日志只能记录旧端点reward和一阶估计；不能把R(proposal)冒充实测端点reward变化。评价必须读取predicted_coords，并以对应proposal state<=.5筛选；.49→.50是最后控制步。新适配器的执行就绪结论另见独立endpoint审阅。
 
-前4轮维持冻结；本报告未预测其结果，也未证明真实亲和力、因果优势或未见seed泛化。
+前4轮维持冻结；本报告未预测尚未完成轮次的结果，也未证明真实亲和力、因果优势或未见seed泛化。
+
+## R1已完成后的补充
+
+R1仍为历史motif_mixture父奖励，η=.30，并非新端点family。两批每步实际注入.01123/.01126Å、累计.5614/.5630Å，约77.3%/76.1%的局部reward步增加；cap和拒绝比例均0。终态槽位配对RMS .4194/.4232Å，个体head绝对变化均值.1575/.2107；平均head收益却仅+.016488，正负变化明显抵消。
+
+这支持“已发生可测控制，平均效应弱”，不支持“引导没生效或被完全洗去”。只有2个配对开发批次、每臂100候选，且图可改变；final/window RMS比约2.1–2.2不是同图物理放大的因果证据。R2既定剂量升级仍有诊断价值；若更大实际剂量只改变reward而无平均head收益，再检验端点表示/VJP更有针对性。
+
+端点统计和teacher已合并至唯一运行库 `configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz`，SHA `d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c`；原stats-only packet已被替代，统计表字节未变。

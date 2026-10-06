@@ -1,0 +1,525 @@
+{
+  "schema_version": "affinity-endpoint-design-review-1.0",
+  "date": "2026-10-07",
+  "identity": "Authorized Analyst/Designer subagent simulation",
+  "execution_ready": false,
+  "mathematical_unit_checks_passed": true,
+  "readiness_scope": "新端点family的离线统计、纯几何公式及CPU VJP接口数值通过；完整pipeline尚未集成，不能进入自动dispatch。此状态不改变旧geometry_design_review的通过范围或首4轮冻结计划。",
+  "source_hashes": {
+    "src/evomolsteer/continuous/affinity_endpoint.py": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550",
+    "src/evomolsteer/generation/endpoint_reward.py": "43b41d751f1787c10f8fd311727093ce34984f2d3f63802ab3aec52f3ba57321",
+    "src/evomolsteer/generation/endpoint_controller.py": "7e58da3857d20363166c1eb03887ce4e89ef4da12eeb5dd6c2e979b1c3a7acd1",
+    "scripts/generate_affinity_endpoint_flowr.py": "938876abad3aed3aa137597a7a4a095ca44f20f33f1c6ac4454a1d847346b7e2",
+    "tests/test_affinity_endpoint.py": "8a3d3e76e6c6bc8d39b655811750462581c7a15fefd71f36e2bb649e320b675e",
+    "src/evomolsteer/generation/scalar_guidance.py": "ece33698002824d183707e6ab415dc31c89adae9f65c2ea408a3e9198b29ef0b",
+    "src/evomolsteer/generation/affinity_geometry_reward.py": "2dfbff4d9aabde27e47fdc3cb84a054799aa6eb493d5c759d0b1cf382466669f",
+    "src/evomolsteer/generation/coordinate_controller.py": "166b7375981f9f8aec0deb99237953d4bdb6ee2d9837ef3f0d916e462e27fe85",
+    "src/evomolsteer/generation/coordinate_evaluation.py": "0cbff8f98983ce64e474a48ce0f429ca4049dd39bb2b93713f474af2ce8c6ddf",
+    "src/evomolsteer/generation/coordinate_contrast.py": "03b9a3ce04bb064202f7fe0b145a2e4d27e3a223dab9c62f65aa0b8dcb70c880",
+    "src/evomolsteer/continuous/endpoint_design.py": "0a56145f4b97f76f17a667ff3fb8846ff8b49f00cb19fa99b6700aca864fe367"
+  },
+  "runtime_reference": {
+    "path": "configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz",
+    "sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "bytes": 2294648,
+    "manifest_path": "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/manifest.json",
+    "manifest_sha256": "1fef60edcd0431a53cb7b9964f2ad896c863c3a25019c916d3c56b004f3ec24b",
+    "teacher_provenance": {
+      "sha256": "7544b0b0ea4cef2abb3f599d988c6b9131c7ae2181f4b866535473de46efab08",
+      "role": "Recorded elite endpoint point clouds, no fitted model"
+    },
+    "teacher_parity_with_original_coordinate_library": true,
+    "data_hashes": {
+      "effect_functions.json": "87a270387d99fb78fb2ddd30fa29455874e521612ac5680fe47675c6c7a67498",
+      "manifest.json": "1fef60edcd0431a53cb7b9964f2ad896c863c3a25019c916d3c56b004f3ec24b",
+      "representation_audit.parquet": "074789ecd667df9b294a35a92db4d4cd066d16e14cbe497c07309122d8c667b7",
+      "whole_window_effects.parquet": "b3c14e72c5037a1574cea5df86d58190b6113692b3ffcc91c50ecdbd3258274b"
+    },
+    "relocation_note": "统计保留于docs/endpoint_mining；teacher合并后的唯一端点运行库位于configs。原1,410,301字节stats-only packet为审计过程中的历史版本，已由此2,294,648字节运行包替代，不再引用已删除副本作为当前输入。"
+  },
+  "statistical_review": {
+    "same_discovery_sources_and_grid": true,
+    "independent_batches": 14,
+    "actual_score_nodes": 50,
+    "score_range": [
+      0,
+      0.49
+    ],
+    "corresponding_proposal_state_range": [
+      0.01,
+      0.5
+    ],
+    "features": 74,
+    "n_q_below_05": 47,
+    "min_q": 1.4936572000139932e-05,
+    "degree_counts": {
+      "0": 65,
+      "1": 1,
+      "2": 8
+    },
+    "scale_floor_count": 14,
+    "recomputation_max_error": {
+      "integrated_effect": 6.661338147750939e-16,
+      "p": 1.1102230246251565e-15,
+      "q": 1.1102230246251565e-15,
+      "CI": 1.6930901125533637e-15
+    },
+    "examples": [
+      {
+        "high_low_integrated_z": -0.5128231820840607,
+        "CI_low": -0.6196424079175183,
+        "CI_high": -0.4237734525746552,
+        "score_correlation_integrated": -0.19521742264851843,
+        "positive_batch_fraction": 0,
+        "time_last_minus_first_delta_z": 0.14842659841885375,
+        "p": 2.0184556756945854e-07,
+        "q": 1.4936572000139932e-05,
+        "feature": "shape_yy",
+        "proposal_integrated_z": -0.23827030006331307,
+        "proposal_q": 0.3210812138717797
+      },
+      {
+        "high_low_integrated_z": -0.49532497314704876,
+        "CI_low": -0.6479761982695128,
+        "CI_high": -0.32019029863155934,
+        "score_correlation_integrated": -0.11816721833003432,
+        "positive_batch_fraction": 0.07142857142857142,
+        "time_last_minus_first_delta_z": 0.0022937728877824937,
+        "p": 0.00011106038598884863,
+        "q": 0.0008127462625120037,
+        "feature": "shape_xx",
+        "proposal_integrated_z": -0.1271339071519825,
+        "proposal_q": 0.43892182407944186
+      },
+      {
+        "high_low_integrated_z": 0.6306622038407781,
+        "CI_low": 0.49515512052267713,
+        "CI_high": 0.7578595517293154,
+        "score_correlation_integrated": 0.21291994009736678,
+        "positive_batch_fraction": 1,
+        "time_last_minus_first_delta_z": 0.08241040214927668,
+        "p": 5.915882712118703e-07,
+        "q": 2.18887660348392e-05,
+        "feature": "pair_kernel_2.5",
+        "proposal_integrated_z": -0.41381425504104963,
+        "proposal_q": 0.09652032745059179
+      },
+      {
+        "high_low_integrated_z": 0.5397138410589318,
+        "CI_low": 0.4016931162856603,
+        "CI_high": 0.6733133626404157,
+        "score_correlation_integrated": 0.17311595173020308,
+        "positive_batch_fraction": 1,
+        "time_last_minus_first_delta_z": 0.2821762425232497,
+        "p": 3.953234526706504e-06,
+        "q": 9.75131183254271e-05,
+        "feature": "pair_kernel_3.5",
+        "proposal_integrated_z": -0.24081800936439107,
+        "proposal_q": 0.3210812138717797
+      }
+    ],
+    "caveat": "联合forward head与端点几何的同期观察关联；head来自共享latent，并非端点坐标的独立重评分。批次而非克隆/teacher/时间点为推断单位。新增47项q显著不等于干预有效或真实亲和力机制。",
+    "unchanged_tables_vs_initial_endpoint_audit": [
+      "whole_window_effects.parquet",
+      "effect_functions.json",
+      "representation_audit.parquet"
+    ]
+  },
+  "derivative_contract": {
+    "mathematical_definition": "Y_t^world = coord_scale*Y_theta(x_t,categorical_t,pocket,t,stopgrad(cond_t))+COM; g_t = J_(Yworld)(x_t)^T grad_Y R_t(Y_t;fixed correspondence).",
+    "actual_implementation": "endpoint_pullback创建x_t叶节点，只调用一次predict；loss只接收坐标/冻结标签/冻结anchor，不接收affinity；autograd.grad只对x_t取梯度。返回pred/cond/head均detach，g缓存到after_native。",
+    "affinity_branch": "helper和predict wrapper都把affinity.items()逐tensor detach，覆盖TensorDict非普通dict的情形；共享生成backbone的坐标导数允许，head支路不参与loss。",
+    "self_condition_and_categories": "predict开始对cond递归detach；原生当前硬类别通过argmax进入forward，不对类别求导，也不冻结后续原生类型/键采样。当前model theta.requires_grad=False。",
+    "lagged_application": "g精确对应积分前x_t，随后在原生proposal x_(t+dt)上加有界delta。这是滞后注入；既非在proposal处重算的端点VJP，也没有穿过native SDE积分器/分类采样的梯度。",
+    "temporal_support": "动态window来自reference，active条件要求score>=start且state_time<=end；此数据最后.49→.50控制，.50之后native续推。没有SMC入口。",
+    "fixed_assignment": "pointcloud的teacher邻居/Hungarian对应/score先验由当次detached端点选定；coordinate derivative及FD两側固定该anchor。piecewise条件梯度不包含选择跳变。",
+    "scale": "world坐标在reward前乘coord_scale加COM，输入叶节点为native坐标；VJP自然包含scale链式因子，注入用native dtype和Å caps。",
+    "reward_semantics": "endpoint_reward映射三个既有公式到端点几何；pointcloud只使用teacher_endpoint_A作为目标，内部alias不意味着控制proposal统计。",
+    "response_logging": "当前代码仅记录R(Y_t)、first_order_reward_change=g_used·actual。没有post-native endpoint重新forward，不能把该估计描述为实测reward_after或head改变。",
+    "graphical_history": "VJP完成后图释放、返回脱图cond，下一步不反传历史；全局输入坐标支持不等于局部受体区域控制。"
+  },
+  "production_and_audit_cost": {
+    "native_target_forward_per_integration_step": 1,
+    "additional_production_target_forward_per_step": 0,
+    "additional_production_head_calls_per_step": 0,
+    "endpoint_geometry_backward_per_active_step": 1,
+    "one_time_preflight_extra_target_forwards": 4,
+    "preflight_note": "两个epsilon(.003,.01)各±一侧，共4次；属于独立审计开销，额外head作为该forward输出也会被计算但不反传。原生off-target诊断与final corrector仍按原协议另计。",
+    "RNG_control": "当前FD已在每次±epsilon前恢复同一saved RNG，最终恢复审计前RNG。假定model.eval前向确定性；若未来目标forward本身消耗RNG，则需同时保存原forward前的RNG以匹配其解析导数的同一随机实现。",
+    "resource_limit": "反向需要保留activation，显存/耗时未在真实GPU测量；不能把0额外forward解读为0额外计算。"
+  },
+  "tests": {
+    "pytest": {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_affinity_endpoint.py tests/test_affinity_geometry.py -q -p no:cacheprovider",
+      "passed": 12,
+      "output": "............ [100%]\n12 passed in 7.85s\n"
+    },
+    "actual_teacher_synthetic_map_vjp": {
+      "scope": "CPU contract tests with actual endpoint teacher geometry and an explicitly synthetic nonlinear endpoint map; this is not a real FLOWR VJP/GPU test. No network calls or molecule generation.",
+      "cases": [
+        {
+          "time": 0,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 0.0002033041838439993,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0,
+          "family": "endpoint_direction",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 3.781199290157653e-05,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 3.6451387708335706e-05,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 1.6031202627054948e-09,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0,
+          "family": "endpoint_direction",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 2.148123045211631e-11,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 1.3474745003073457e-13,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.1,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 0.00037056621484835044,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.1,
+          "family": "endpoint_direction",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 3.850906829832488e-06,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.1,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 2.4890561956079842e-05,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.1,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 4.029093530303967e-09,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.1,
+          "family": "endpoint_direction",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 1.6891233783263715e-10,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.1,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 3.2757637273679845e-11,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.25,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 0.0003966987135505201,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.25,
+          "family": "endpoint_direction",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 0.00013746223704442796,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.25,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 0.00010566284570440701,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.25,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 4.166014577683416e-09,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.25,
+          "family": "endpoint_direction",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 6.045086006658483e-11,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.25,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 1.2803569416190027e-11,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.49,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 3.2850492553538153e-06,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.49,
+          "family": "endpoint_direction",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 2.0712422730690182e-05,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.49,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float32",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 3.0766507144463684e-06,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.49,
+          "family": "endpoint_landmark",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 1.2690838727242145e-10,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.49,
+          "family": "endpoint_direction",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 1.9687081804082763e-10,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        },
+        {
+          "time": 0.49,
+          "family": "endpoint_pointcloud",
+          "dtype": "torch.float64",
+          "production_forward_calls": 1,
+          "head_gradient_hook_calls": 0,
+          "finite": true,
+          "fd_relative_error": 4.1339797198033807e-11,
+          "zero_eta_step_exact_zero": true,
+          "dtype_preserved": true,
+          "outputs_detached": true
+        }
+      ],
+      "maximum_fd_relative_error_float64": 4.166014577683416e-09,
+      "maximum_fd_relative_error_float32": 0.0003966987135505201,
+      "all_single_forward": true,
+      "all_no_affinity_hook": true,
+      "all_outputs_detached": true,
+      "all_zero_eta_and_dtype": true,
+      "setup": "4实际节点0/.1/.25/.49、3family、float32/64，共24例。真实teacher endpoints加0.015Å扰动；显式非线性toy映射Y=base+(x-x0)M+.02sin(x-x0)（M非单位矩阵，scale=5）。FD epsilon1e-5(double)/.003(float32)，同一anchor保持不变。",
+      "limitation": "证明接口和真实几何loss的链式组合正确，不是真实FLOWR/GPU导数验证。CPU bounded_step eta0也不能替代完整100步零剂量轨迹比较。",
+      "source_update_note": "After the 24-case test, only endpoint.describe dose metadata changed; new 12-test run passed against the final reviewed source. Numerical helper/reward logic did not change."
+    },
+    "actual_FLOWR_VJP_preflight_run": false,
+    "actual_FLOWR_full_zero_equivalence_run": false,
+    "molecule_generation_run": false
+  },
+  "verified_fixes": [
+    "FD各±epsilon恢复共同RNG并在finally恢复审计前状态。",
+    "affinity字段显式.items()逐tensor detach，避免TensorDict不属于dict时遗漏。",
+    "纯几何scalar要求shape=(batch,)且finite，VJP要求finite。",
+    "端点运行库teacher与原始geometry库逐值一致；没有复制proposal云作为端点目标。",
+    "current reference/原统计表与第一轮运行家族均未被本审阅修改。",
+    "New endpoint.describe dose_rule default now matches predictive_flow execution."
+  ],
+  "integration_blockers": [
+    {
+      "id": "factory_registration_pending",
+      "status": "intentional_pending_round4_boundary",
+      "evidence": "coordinate_contrast.make_coordinate_reward当前不接受endpoint_*；新入口可直接创建EndpointGeometryReward，但公共评价工厂尚未注册。",
+      "required": "R4冻结边界之后注册新family并更新依赖源码hash/接口审阅，不把旧family过检哈希替换为未经复核的新状态。"
+    },
+    {
+      "id": "evaluation_representation_and_window_pending",
+      "status": "intentional_pending_round4_boundary",
+      "evidence": "coordinate_evaluation目前只对affinity-coordinate schema按state_time<=end裁剪，并按control_representation读取proposal。新endpoint库该字段仍为proposal（时间对齐约定），不能直接沿用。",
+      "required": "新schema评价读取predicted_coords，以对应proposal state_time筛选50节点；显式标出reward表示/derivative_path/gradient_evaluation_time。独立actual-shape指标仍使用真实proposal，二者分开。"
+    },
+    {
+      "id": "dispatch_and_profile_pending",
+      "status": "not_enabled",
+      "required": "独立入口编入本地计划/远端命令选择、部署哈希与新Skill v2行为验证后再启用。首4轮继续原冻结程序。"
+    }
+  ],
+  "reporting_issue": {
+    "id": "default_dose_description_mismatch",
+    "severity": "metadata_contract",
+    "observed": "Endpoint.after_native在dose_reference缺省时用predictive_flow；继承describe来自CoordinateExtension，其缺省说明为observed_native。",
+    "impact": "显式program包含dose_reference时无差异；当前允许省略字段的公共接口可能报告错误剂量标尺。",
+    "required": "在新endpoint.describe覆盖缺省语义或让endpoint程序显式要求dose_reference；无需改动旧冻结源以修复此项。",
+    "resolved_at_this_snapshot": true,
+    "resolution": "Endpoint.describe now explicitly uses predictive_flow when the field is absent, matching after_native. Verified the current new source; old frozen sources remain unchanged."
+  },
+  "activation_validation_required": [
+    "新入口的三臂unguided / 真实VJP但eta0 / gradient；相同初态、seed和native RNG。",
+    "100积分步与final的坐标、atom/bond/charge、self-conditioning和RNG严格等价；记录可能的autograd/no_grad内核差异。不能直接沿用旧family零证书。",
+    "真实FLOWR FD需固定cond/类别/teacher对应，报告额外4 forward、单位、不同epsilon、正方向和误差。输出断言不能替代实际通过结果。",
+    "单次生产target forward计数与head支路梯度排除做运行时审计；model参数不得累积.grad。",
+    "若启用非默认刚体投影，追加对实际投影方向的条件FD或方向检查；当前初始家族未声称该可选变体已单独验证。",
+    "评价采用端点统计、实际proposal结构、终态head三个独立轴；不能用一阶预测响应替代实测终态收益。"
+  ],
+  "final_judgment": "数学分支合理，统计与CPU链式导数测试支持继续完成预定集成和真实校验；当前execution_ready=false源于可明确定位的集成待办。未发现需要改动首4轮冻结程序的理由，未声称任何尚未运行的亲和力收益。",
+  "compiler_review": {
+    "source": "src/evomolsteer/continuous/endpoint_design.py",
+    "status": "Data-only compiler unit test passed; dispatch integration pending",
+    "verified": [
+      "Registered endpoint family and real-VJP derivative path only",
+      "Dynamic window equality with endpoint evidence",
+      "Pure predicted-endpoint representation and affinity-first/no-head-gradient contract",
+      "Finite eta in [.1,3], nonnegative finite schedule, four nonnegative nonzero-total block weights",
+      "Reference hash bound into program",
+      "Predictive-flow calibration, no rigid-pose projection, .15 A atom cap /6 A path cap /.8 A severe receptor clash threshold match current campaign constraints"
+    ],
+    "limitations": [
+      "The compiler binding alone does not add public factory/endpoint evaluation support.",
+      "For endpoint_pointcloud, geometric block weights remain monitoring-only.",
+      "Source/unit checks do not validate real GPU Jacobian, strict zero equivalence, model-call counters or affinity benefit."
+    ]
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "skill_sha256": "d61ea015a77a20c78196aa895df969233e7d5d98dfa3a6e1129d5c1792f47c3e",
+  "prompt_sha256": "da59c4fae06c5b108aa8d00ba688b03ea516573a6516f16cece7eaead2f861b0",
+  "input_sha256": "a2f0e10d179e7b8ccd2bdb669a6dbb85c5edbb7718a8abbca3d276d8f3180a26",
+  "primary_objective": "predicted_affinity",
+  "selected_round": 2,
+  "response_actions": [
+    {
+      "id": "validation13",
+      "interventions": [
+        "dose_escalation",
+        "representation_intervention"
+      ],
+      "evidence": "head=+0.011900920867920384，在本地flat=.02带内。先检查已送达位移；此次proposal无显著项而endpoint有47项，新的discovery设计先切endpoint表示与真实VJP，再对已测量有效剂量作匹配对照，不能仅凭requested eta称剂量已提高。若此case确为validation，原winner保持冻结；它不定义目标或权重，新设计必须另取独立validation。"
+    },
+    {
+      "id": "shell4",
+      "interventions": [
+        "geometry_target_revision",
+        "representation_intervention",
+        "dose_escalation"
+      ],
+      "evidence": "head=-0.006818304061889879，轻微负向但在±.02近零带内；保留本地剂量分支，同时修改proposal→endpoint目标表示，因pair2.5的whole-window对比由proposal -0.413814变为endpoint +0.630662。不能声称这解释了历史负值或保证提升；先验证真实VJP、位移、native continuation，若已明显移动而head仍负，再修目标/遗漏特征。"
+    },
+    {
+      "id": "boundary9",
+      "interventions": [
+        "parent_refinement"
+      ],
+      "evidence": "head=+0.033956341743468954，超过flat=.02但未达meaningful=.05；保留父程序作endpoint表示、锐度/定位和剂量的分别对照。第9轮能量/松弛较好仍不足以取代all head更高的第2轮；输入没有Steer均值，不能断言已达到或低于Steer。"
+    },
+    {
+      "id": "dose2",
+      "interventions": [
+        "secondary_energy_assessment",
+        "parent_refinement"
+      ],
+      "evidence": "head=+0.08046067237854038，超过meaningful=.05；候选round2 all/unique=+0.08046085834503103/+0.11168611956014729，仍选它。保留其增益后在相近affinity下评估能量/strain及有效/唯一产率；valid-rate下降.01、MMFF编码变化-.0123901与周围RMS改善-.0456959均需保留。该历史程序是亲和力父基准，新endpoint设计没有生成结果。"
+    }
+  ],
+  "per_step_affinity_calls": 0,
+  "affinity_head_gradient": false,
+  "feature_priority": "3D_coordinates",
+  "coordinate_features": [
+    "Endpoint Y=FLOWR.coords(x_t; detached self-conditioning)*coord_scale+receptor_COM，单位Å；使用同一必需joint forward的native forecast。Centroid相对固定ligand/receptor origin的3个坐标保留作诊断，首设计centroid block权重0，没有输入支持的全局平移方向不直接入reward。",
+    "形状6分量 C=(1/N)sum_i(Y_i-mu)(Y_i-mu)^T；使用Cxx,Cyy,Czz,sqrt(2)Cxy,sqrt(2)Cxz,sqrt(2)Cyz，单位Å²，不重复trace。shape_yy whole-window高低分效应=-0.5128231821，批次CI[-0.6196424079,-0.4237734526]，q=1.4936572e-5；是几何关联，不能称因果binding区域。",
+    "点对核 P_a=mean_(i≠j) exp[-0.5*((sqrt(||Y_i-Y_j||²+1e-20)-a)/0.75Å)²]，a=1.5、2.5、3.5、5、7Å。pair2.5 endpoint效应+0.6306622038，CI[.4951551205,.7578595517]、q=2.1888766e-5；proposal效应-.413814。pair1.5/3.5增多、pair7减少提名分布假设，不对应固定键或接受阈值。",
+    "20个受体landmark，各3个纯坐标场共60维：d_il=sqrt(||Y_i-L_l||²+1e-20)；softmin_l=-0.5Å*(logsumexp_i[-d_il/(0.5Å)]-logN)，occupancy3/5=mean_i exp[-0.5*((d_il-3/5Å)/1Å)²]。landmark00 occupancy3效应+.5449039482、CI[.3928722808,.6986832823]、q=.0002352183；landmark03 occupancy3虽q=.0008127463，效应仅-.0068421且尺度触底，不能只按q提升权重。",
+    "optional endpoint_pointcloud是另一个已注册family：使用原native endpoint与elite endpoint之间的几何Hungarian匹配及detached teacher prior，再对Y到matched endpoint teacher的robust squared-distance mixture求导。它直接使用全坐标；四块权重只监测，不控制该family的reward。当前首设计选择endpoint_direction，以便先明确测试统计方向与真实模型回拉。"
+  ],
+  "reward_design": {
+    "reward_view": "endpoint_direction",
+    "derivative_path": "flowr_endpoint_vjp",
+    "coordinate_representation": "native_model_endpoint_world_coordinates_A",
+    "window": [
+      0,
+      0.5
+    ],
+    "native_rms_ratio": 0.3,
+    "geometry_block_weights": [
+      0,
+      1,
+      2,
+      1
+    ],
+    "geometry_block_order": [
+      "centroid_3",
+      "shape_6",
+      "pair_5",
+      "landmark_60"
+    ],
+    "time_ramp_power": 0,
+    "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "scale_definition": "z_j=phi_j(Y)/s_j，s_j=max(1e-5,sqrt((1/(t_last-t_first))*integral_[t_first,t_last] mean_b Var_candidates(phi_j(Y_b,t))dt))；使用endpoint reference完整50节点的固定尺度，不用proposal尺度。尺度保留原单位：centroid/softmin Å、shape Å²、占据/点对核无量纲。variance_scaled=Var_b,t(phi_j)/s_j²+0.05；额外.05是无量纲ridge。",
+    "block_weight_rationale": "块权重是声明的实验选择，并非拟合的最优值。centroid=0因当前top evidence无显式centroid增益；shape=1保留最强shape_yy及方向分量；pair=2因多个核有跨14批一致方向及强whole-window证据；landmark=1保留局部位置证据但避免60维及14项floor主导。注册公式每个feature权重为该block weight/feature count，所以shape=1/6、pair=2/5、landmark=1/60。不能解释为74项独立机制或保证消除floor放大。",
+    "formula": "每个原始score节点t，从已冻结endpoint reference取14批hi_scaled[b,t,j]、lo_scaled[b,t,j]、variance_scaled[b,t,j]。a_tj=clip(mean_b((hi_scaled-lo_scaled)/variance_scaled),-3,3)*w_j；R_t(Y)=sum_j (phi_j(Y)/s_j)*a_tj。几何输入是Y；奖励不含当步head或affinity loss。保留录得逐节点目标，不从whole-window符号外推所有节点，也不制造阶段多项式。",
+    "exact_gradient": "g_t=J_Y(FLOWR,x_t;detached self-conditioning)^T grad_Y R_t(Y)，包含真实FLOWR坐标路径及Å坐标缩放；不是identity、saved-endpoint gradient、拟合surrogate或时间导数。",
+    "dose_reference": "predictive_flow",
+    "preserve_native_rigid_pose": false,
+    "dose_calibration": "线性FLOWR原生预测位移Delta_flow=(Y_native-x_t)*dt/(1-t)在模型坐标系计算。归一化VJP方向；未限幅目标RMS=.3*RMS_A(Delta_flow)*schedule(t)。原生随机proposal先完成，之后施加coordinate-only bounded step；逐原子cap、剩余累计path cap与新severe receptor clash backtracking作用后记录实际RMS和cap缩减。eta=.3在注册范围[.1,3]内，是首次表示实验剂量而非已测量最优值，输入不提供旧实际dose，不能声称实际剂量已变大。",
+    "schedule_and_support": "schedule(t)=(.1+.9*clip((t-window_start)/(window_end-window_start),0,1))^0=1；所有50个真实节点0.00至0.49在proposal t+dt<=.5时均正向计划支持，实际梯度可为0，安全限幅/拒绝也可能使实际注入0，须保留原因。window来自input learned_window及reference，不写死任意门限；score=.50导致proposal=.51时不注入。之后原生继续到1，无selection或cloning。",
+    "trend_fit_policy": "65/74拟合degree0、1/74 degree1、8/74 degree2；没有逐feature趋势映射和系数，因此不杜撰stage-specific趋势。当前registered formula采用已有逐节点hi/lo，仅让schedule常数；这些节点目标是录得条件分布，不声称存在显著时间趋势。"
+  },
+  "label_semantics": {
+    "recorded_label": "原始pre-selection pic50_on是同一joint FLOWR forward中的head输出；native endpoint与它来自同次forward。",
+    "head_reads": "Head reads pooled latent features，不是独立的endpoint-coordinate-only affinity evaluation。endpoint几何与head关联可能反映共同latent、全局结构或oracle选择，不能赋予纯坐标因果语义。",
+    "loss_exclusion": "当前head、predicted categorical outputs和self-conditioning detached；标量只依赖endpoint几何。没有affinity-head backprop、新拟合affinity网络或额外production target/head forward。",
+    "teacher_conditioning": "当前direction family仅用冻结离线hi/lo/variance，不用当步head重算方向。若切pointcloud，Hungarian assignment、teacher subset及score prior须在一次导数和数值审计中固定；老师score来自已记录离线标签，不能导回head。"
+  },
+  "post_native_reward_response": {
+    "kind": "first_order_only_at_old_x_t",
+    "measured_post_native_endpoint_reward": false,
+    "old_endpoint_reward_measured": true,
+    "injection_timing": "先return detached native prediction与self-conditioning，原生stochastic integration得到x_(t+dt)^native，再加缓存g_t所构造的bounded displacement。",
+    "control_estimate": "DeltaR_control^(1)=g_t dot DeltaX_control，DeltaX_control为caps/backtracking之后实际注入，g_t在旧x_t求得。运行代码记录此量；若另列native+control的线性估计，应单独标g_t dot(DeltaX_native+DeltaX_control)。",
+    "limitation": "不再forward就没有新endpoint Y(x_(t+dt)+DeltaX)，所以不能称此数为测量到的endpoint reward提升，不能据此断言新head提高；stochastic native motion、lag及曲率可使线性预测失准。",
+    "required_observations": [
+      "actual injection RMS",
+      "predictive-flow RMS",
+      "stochastic-native RMS",
+      "gradient norm",
+      "schedule and amplitude",
+      "per-atom/path caps",
+      "clash backtracking",
+      "active/skipped nodes",
+      "old endpoint geometry reward",
+      "first-order response label",
+      "native continuation to1 and final predicted affinity"
+    ]
+  },
+  "production_extra_forward_calls_per_step": 0,
+  "full_zero_validation_required": true,
+  "full_zero_validation_scope": "切换到真实endpoint derivative path后重新跑完整gradient_zero vs native，而不是只复用历史proposal-path检查。相同checkpoint、seed、初始状态、原生RNG/self-conditioning和全部integration参数下，从0到1核对每步coordinates、atomics、bonds、scores、返回condition、RNG消费与最终结构；eta=0时所有actual injection必须精确为0，窗口结束后无注入/selection。preflight必须保存恢复RNG，不能污染zero分支。若GPU执行未通过，CPU公式测试不能替代。",
+  "one_time_numerical_audit": {
+    "required": true,
+    "executed": false,
+    "evaluation_point": "首次非零VJP处的旧x_t，direction d=g/||g||",
+    "epsilon_model_coordinate_units": [
+      0.003,
+      0.01
+    ],
+    "central_difference": "D_eps=[R(FLOWR(x_t+eps*d;fixed condition))-R(FLOWR(x_t-eps*d;fixed condition))]/(2eps)，与g dot d比较；固定模型状态、native RNG、self-conditioning、categorical masks及若使用teacher时的assignment/prior。",
+    "additional_joint_FLOWR_forward_calls": 4,
+    "call_count_breakdown": "2个epsilon×正负2次=4次额外FLOWR joint forwards，复用必需生产forward的analytic VJP。head可能随joint调用产生，但其值detached、忽略且不参与loss。这四次一次性成本须单列，不能报告首次成本为0。",
+    "current_registered_pass_rule": "两个numerical均>0，且两者中至少一个relative_error<.15；保存每个epsilon的analytic/numerical/relative_error，而非只保存passed。",
+    "rng_policy": "各+/-forward重置到同一审计前native RNG，结束恢复它；审计必须不改变生产路径或self-conditioning。",
+    "production_extra_forward_calls_per_step": 0,
+    "gpu_validation_status": "not_executed; future real FLOWR/GPU audit required"
+  },
+  "required_registry_extension": [
+    {
+      "name": "optional_discovery_frozen_feature_weights",
+      "scope": "后续细权重对照需要；当前四块baseline不依赖此扩展",
+      "implementation_status": "not_registered_or_implemented_in_current_formula",
+      "principle": "仅从冻结discovery全窗口证据定义feature_weights/mask，结合q<.05、abs(high_low_integrated_z)>=.1、14批同向比例>=12/14；方向以每节点录得证据处理，不把整窗符号强制到所有节点。尺度floor项另外报告并检验其未触底尺度/原单位效应及梯度贡献；不能只因tiny p/q赋大权重。没有足够稳定原单位支持的floor项可在该新实验置0，全部原始统计仍保留；不依据atom types、counts或graph筛选。",
+      "control": "冻结相同endpoint reference、geometry family、native dose和schedule，比较当前4块baseline与新fine weights；重新注册公式、审查、CPU数值导数、实际FLOWR一次性VJP审计及fullzero后才用。重新归一化块内正feature weights并日志各块梯度贡献，不能把权重筛选的变化误称剂量变化。",
+      "uncertainty": "该门槛是声明的探索设计，非输入证明的最佳阈值；endpoint47项显著并不全满足效应与稳定性条件。input未给全部74项floor身份及完整effect映射，不在本响应伪造最终fine-mask。"
+    }
+  ],
+  "selection_evidence": {
+    "selected_candidate": {
+      "round": 2,
+      "all_head_change_vs_native": 0.08046085834503103,
+      "unique_head_change_vs_native": 0.11168611956014729,
+      "score_coverage": 1,
+      "valid_rate_change": -0.010000000000000009
+    },
+    "head_runner_up": {
+      "round": 12,
+      "all_head_change_vs_native": 0.0371982479095454,
+      "winner_margin": 0.04326261043548563
+    },
+    "physical_tradeoff": {
+      "round": 9,
+      "all_head_change_vs_native": 0.033956341743468954,
+      "negative_MMFF_p90_relative_change": 0.31307010417494485,
+      "surround_RMS_improvement_fraction": 0.027205655085070335,
+      "winner_all_head_margin": 0.046504516601562074,
+      "decision": "以round2为历史affinity父基准；能量较好的round9不是首要winner。endpoint设计是待测新奖励，尚无推理结果。"
+    },
+    "representation_comparison": {
+      "independent_batches": 14,
+      "nodes": 50,
+      "same_features": 74,
+      "endpoint_q_below_005": 47,
+      "proposal_q_below_005": 0,
+      "endpoint_minimum_q": 0.000014936572000139932,
+      "pair2_5_endpoint_delta_z": 0.6306622038407781,
+      "pair2_5_proposal_delta_z": -0.413814,
+      "endpoint_scale_floor_count": 14,
+      "decision": "独立批次/相同节点和特征支持representation intervention，替代继续扩大无显著支持的proposal force；不证明endpoint目标因果或最终affinity获益。"
+    },
+    "reference_readback": {
+      "sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+      "first_last_score_time": [
+        0,
+        0.49
+      ],
+      "blocks": [
+        3,
+        6,
+        5,
+        60
+      ],
+      "floor_counts": [
+        0,
+        0,
+        0,
+        14
+      ],
+      "shape_yy_direction_negative_nodes": 48,
+      "pair2_5_direction_positive_nodes": 39,
+      "landmark00_occupancy3_direction_positive_nodes": 47,
+      "note": "相同已校验SHA的真实endpoint reference显示逐节点方向会变；不能把整窗效应扩展为全部50节点同号。"
+    },
+    "thresholds": {
+      "meaningful": 0.05,
+      "flat": 0.02,
+      "source": "local affinity_skill.classify defaults; not explicitly supplied campaign thresholds"
+    },
+    "missing_endpoint_metrics": [
+      "all/valid/unique absolute predicted means",
+      "valid mean change",
+      "best valid and PB-fast scores",
+      "unique Top5",
+      "yield and absolute validity denominators",
+      "Steer mean/best"
+    ]
+  },
+  "limitations": [
+    "endpoint vs proposal比较使用同批已记录joint head labels；14批是统计单位，50节点或克隆/粒子不是独立样本。q和bootstrap CI支持关联假设，不是实验affinity或binding因果证据。",
+    "14项scale floor全属于landmark；tiny effect例如landmark03 occupancy3=-.0068421虽显著，仍可能受floor与inverse-scale spatial gradient放大。四块baseline没有逐feature过滤，ridge .05和方向clip±3不能自动消除1/s梯度放大；每块gradient/实际dose需报告，fine-mask扩展尚未实现。",
+    "current endpoint_direction是线性几何特征reward，离开discovery support时并不饱和到已证明的最优target；block weights、eta=.3是实验选择，不是拟合的最佳几何程序。预注册实际位移、支持范围与失败诊断，不许把坐标非零当affinity必然增益。",
+    "多数趋势常数且input无每feature拟合系数；registered逐节点hi/lo合法，但节点波动不是显著stage趋势。完整50节点0.00–.49对应原生proposal至.50，最后score .50的.51 proposal不属于控制支持。",
+    "真实FLOWR VJP在旧x_t，而注入在原生后x_(t+dt)。无额外production re-forward的响应只有first-order估计；新endpoint reward/head响应未测量。",
+    "一次性VJP审计目前真实代码额外4次joint前向。production新增调用0不代表额外反向计算、保存activation或首次审计成本为0；CPU注册公式检查不证明GPU数值路径或最终affinity获益。",
+    "注册几何teacher实现要求固定全部active slots，当前mask必须全true；无类型/图门禁但不支持任意缺槽点云。predictive-flow calibration只支持验证的线性schedule，cosine时需另行注册验证。",
+    "输入无旧actual injection、caps/backtracking/continuation或完整终点质量；无法证明旧剂量不足、endpoint方案有效或超过Steer。fullzero与实际GPU审计尚未执行，新30轮预算本次不消耗推理轮。",
+    "validation/heldout仅验证冻结设计；发现失败保留并形成新的discovery假设，不能回调同一验证winner或删去不利样本。"
+  ]
+}

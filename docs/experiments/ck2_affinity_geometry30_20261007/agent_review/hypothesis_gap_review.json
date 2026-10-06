@@ -21,9 +21,13 @@
       13
     ],
     "heldout_used": false,
-    "first_four_round_outcomes_used": false,
+    "first_four_round_outcomes_used": true,
     "no_source_changes": true,
-    "no_inference_started": true
+    "no_inference_started": true,
+    "first_four_outcomes_available_and_read": [
+      1
+    ],
+    "future_round_results_used": false
   },
   "conclusion": "表示缺口有实测支持：原74维统计是被SDE强烈压缩的proposal几何，新端点统计在同一批次/节点/标签下呈现更强且部分反向的关联。优先审查纯端点几何经真实FLOWR坐标VJP的独立分支；这不证明表示差异就是旧引导弱效的唯一原因，也不证明干预将提高最终head。",
   "score_semantics": {
@@ -171,7 +175,7 @@
       "minimum_variance_scaled": 0.050000000025306246,
       "scale_floor_count": 14,
       "q_below_05": 47,
-      "min_q": 0.000014936572000139932,
+      "min_q": 1.4936572000139932e-05,
       "degree_counts": {
         "0": 65,
         "1": 1,
@@ -191,8 +195,8 @@
           "score_correlation_integrated": -0.19521742264851843,
           "positive_batch_fraction": 0,
           "time_last_minus_first_delta_z": 0.14842659841885375,
-          "p": 2.0184556756945854e-7,
-          "q": 0.000014936572000139932,
+          "p": 2.0184556756945854e-07,
+          "q": 1.4936572000139932e-05,
           "feature": "shape_yy",
           "proposal_integrated_z": -0.23827030006331307,
           "proposal_q": 0.3210812138717797
@@ -217,8 +221,8 @@
           "score_correlation_integrated": 0.21291994009736678,
           "positive_batch_fraction": 1,
           "time_last_minus_first_delta_z": 0.08241040214927668,
-          "p": 5.915882712118703e-7,
-          "q": 0.0000218887660348392,
+          "p": 5.915882712118703e-07,
+          "q": 2.18887660348392e-05,
           "feature": "pair_kernel_2.5",
           "proposal_integrated_z": -0.41381425504104963,
           "proposal_q": 0.09652032745059179
@@ -230,8 +234,8 @@
           "score_correlation_integrated": 0.17311595173020308,
           "positive_batch_fraction": 1,
           "time_last_minus_first_delta_z": 0.2821762425232497,
-          "p": 0.000003953234526706504,
-          "q": 0.0000975131183254271,
+          "p": 3.953234526706504e-06,
+          "q": 9.75131183254271e-05,
           "feature": "pair_kernel_3.5",
           "proposal_integrated_z": -0.24081800936439107,
           "proposal_q": 0.3210812138717797
@@ -266,7 +270,7 @@
       "combined_148_BH_sensitivity": {
         "endpoint_q_below_05": 40,
         "proposal_q_below_05": 2,
-        "min_endpoint_joint_q": 0.000029873144000279864,
+        "min_endpoint_joint_q": 2.9873144000279864e-05,
         "semantics": "Post-hoc multiplicity sensitivity across two representations, not independent replication or adjustment for all historical searches."
       },
       "full_population_audit_snapshots": [
@@ -506,7 +510,20 @@
       "10项显著壳核同时触及1e-5尺度下限；例如landmark_01_occupancy3 z=-.001956，其q=.00371不代表大效应或氢键。",
       "新端点数据仍用14批独立单位；同胞/克隆、50时间点均非额外n，未提供root-balanced或adjusted lag端点关联。",
       "65条degree0、8条degree2、1条degree1；次数>0不等于阶段机制已确立，时间导数不是空间力。"
-    ]
+    ],
+    "endpoint_reference_relocation": {
+      "runtime_reference_path": "configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz",
+      "runtime_reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+      "runtime_reference_bytes": 2294648,
+      "current_manifest_sha256": "1fef60edcd0431a53cb7b9964f2ad896c863c3a25019c916d3c56b004f3ec24b",
+      "retained_statistic_hashes": {
+        "effect_functions.json": "87a270387d99fb78fb2ddd30fa29455874e521612ac5680fe47675c6c7a67498",
+        "manifest.json": "1fef60edcd0431a53cb7b9964f2ad896c863c3a25019c916d3c56b004f3ec24b",
+        "representation_audit.parquet": "074789ecd667df9b294a35a92db4d4cd066d16e14cbe497c07309122d8c667b7",
+        "whole_window_effects.parquet": "b3c14e72c5037a1574cea5df86d58190b6113692b3ffcc91c50ecdbd3258274b"
+      },
+      "note": "Earlier endpoint file_hashes preserve the stats-only packet snapshot; that packet was superseded by the single runtime library with original elite endpoints. Scientific tables are byte-identical."
+    }
   },
   "hypotheses": [
     {
@@ -612,7 +629,7 @@
     "current_status": "新增endpoint源已出现但尚未启用；具体执行就绪、源码hash与集成问题另存endpoint_design_review。首4轮保持冻结。"
   },
   "decision_limits": [
-    "本审阅没有读取首4轮结果或新留出数据。",
+    "仅在原始gap分析后读取已完成R1的开发性报告；未读取R2–4未出结果或新留出数据。",
     "当前q统计支持表示层面的观察差异，不能证明LLM改善亲和力、因果优势、真实结合能或未见seed泛化。",
     "后续亲和力优先比较继续保留all/valid/unique、失败分母与原Steer基准；能量是独立终态诊断，不反向改写初4轮目标。"
   ],
@@ -625,5 +642,72 @@
     "D:/llm_controlled_generation/tmp/flowr_root_scnet_source/flowr/models/fm_pocket.py": "e2d10a5789820bc7127e3dc3e3e144785b29db1098c4f739ad22647f5756a2b4",
     "D:/llm_controlled_generation/tmp/flowr_root_scnet_source/flowr/models/pocket.py": "1b5d4ec5f2de2fd4ae36c1e126245112773826de3362264efae18df3d04a0c24"
   },
-  "endpoint_current_source_sha256": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550"
+  "endpoint_current_source_sha256": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550",
+  "round1_development_update": {
+    "source": "docs/experiments/ck2_affinity_geometry30_20261007/round_01/local/guidance_response.json",
+    "source_sha256": "1aa4fec75417ee9f9a4e1494d5b8060b564cc365922c7fc0022e0ffb068f9221",
+    "outcome_source": "docs/experiments/ck2_affinity_geometry30_20261007/round_01.outcome.json",
+    "outcome_sha256": "b98e96cf300f4f83f6fac89479c34374ab7719f4d118935345a7e762484b767d",
+    "reward_view": "motif_mixture",
+    "native_rms_ratio": 0.3,
+    "independent_batch_pairs": 2,
+    "candidate_count_per_arm": 100,
+    "dose": [
+      {
+        "active_steps": 50,
+        "arm": "gradient",
+        "batch": 0,
+        "mean_injection_A": 0.0112287187745329,
+        "mean_injection_over_native": 0.20648201340981118,
+        "mean_observed_native_A": 0.08730234997272492,
+        "mean_path_A": 0.5614359498023986,
+        "no_post_window_injection": true,
+        "reward_gain_per_step": 0.546920091176033,
+        "reward_improved_fraction": 0.7732
+      },
+      {
+        "active_steps": 50,
+        "arm": "gradient",
+        "batch": 1,
+        "mean_injection_A": 0.011259473889600486,
+        "mean_injection_over_native": 0.20788681944700158,
+        "mean_observed_native_A": 0.08630873161107301,
+        "mean_path_A": 0.5629736846685409,
+        "no_post_window_injection": true,
+        "reward_gain_per_step": 0.5912524724960327,
+        "reward_improved_fraction": 0.7612
+      }
+    ],
+    "matched_continuation": [
+      {
+        "batch": 0,
+        "final_over_window_RMS": 2.197471857070923,
+        "final_paired_RMS_A_mean": 0.41937142610549927,
+        "head_pair_delta_abs_mean": 0.15746108055114746,
+        "head_pair_delta_mean": 0.02837935447692871,
+        "head_pair_delta_p10": -0.2446566581726074,
+        "head_pair_delta_p90": 0.29356079101562527,
+        "head_positive_fraction": 0.58,
+        "n": 50,
+        "window_paired_RMS_A_mean": 0.1908426731824875
+      },
+      {
+        "batch": 1,
+        "final_over_window_RMS": 2.108731508255005,
+        "final_paired_RMS_A_mean": 0.42315933108329773,
+        "head_pair_delta_abs_mean": 0.21068696022033692,
+        "head_pair_delta_mean": 0.004597101211547851,
+        "head_pair_delta_p10": -0.3634719371795654,
+        "head_pair_delta_p90": 0.3462744235992432,
+        "head_positive_fraction": 0.62,
+        "n": 50,
+        "window_paired_RMS_A_mean": 0.20067009329795837
+      }
+    ],
+    "head_mean_change_vs_native": 0.016488227844238423,
+    "cap_fraction": 0.0,
+    "backtrack_rejected_fraction": 0.0,
+    "interpretation": "R1 is the historical motif_mixture parent at eta .3, not the new 74-feature endpoint/VJP family. Actual injection and registered reward response are substantial; final coordinates and individual head values change but positive/negative effects partly cancel. Flat campaign mean response is not zero intervention. Slot-paired RMS spans potentially different graphs, so final/window ratio is not a same-structure physical amplification claim.",
+    "next_interpretation": "Keep frozen R2 dose escalation to test response curve. If larger measured dose changes reward/coordinates without meaningful mean-head benefit, the now-supported representation/VJP branch becomes a more specific hypothesis; do not assert its success in advance."
+  }
 }
