@@ -1,0 +1,946 @@
+{
+  "schema_version": "affinity-geometry-design-review-1.0",
+  "review_date": "2026-10-07",
+  "reviewer": {
+    "role": "Analyst/Designer",
+    "execution_identity": "authorized subagent simulation",
+    "scope": "Local source/data review and CPU numerical tests; no remote inference, molecule generation, head queries, source edits or Git operations."
+  },
+  "execution_ready": true,
+  "execution_ready_meaning": "当前三个已注册坐标奖励、固定25个活跃槽位参考及50节点对齐的数学/集成检查没有已知重大执行阻断。此布尔值不代表GPU完整轨迹等价、亲和力有效性、因果机制或30轮driver选择政策已由本审阅验证。",
+  "execution_ready_scope": {
+    "reward_views": [
+      "affinity_landmark",
+      "affinity_direction",
+      "affinity_pointcloud"
+    ],
+    "active_slots_per_teacher": 25,
+    "reference_nodes": 50,
+    "score_times": [
+      0,
+      0.49
+    ],
+    "proposal_state_times": [
+      0.01,
+      0.5
+    ],
+    "verified": [
+      "factory registration",
+      "finite CPU reward/coordinate gradients",
+      "fixed-anchor finite differences",
+      "float32/float64 bounded-step dtype and zero-dose return",
+      "actual-node evaluator alignment",
+      "current-reference finite dimensions and scales",
+      "invalid control parameter rejection"
+    ],
+    "not_verified_here": [
+      "real GPU FLOWR full-trajectory native/zero equality for this new family",
+      "new generation outcomes",
+      "affinity efficacy",
+      "30-round driver program-selection policy",
+      "unseen-seed generalization"
+    ]
+  },
+  "source_hashes": {
+    "src/evomolsteer/continuous/affinity_geometry.py": "e64fd897ea14ff88a44fd9fae16fe2f36fab138405a99921fdde109307b19de9",
+    "src/evomolsteer/generation/affinity_geometry_reward.py": "2dfbff4d9aabde27e47fdc3cb84a054799aa6eb493d5c759d0b1cf382466669f",
+    "src/evomolsteer/generation/coordinate_evaluation.py": "0cbff8f98983ce64e474a48ce0f429ca4049dd39bb2b93713f474af2ce8c6ddf",
+    "src/evomolsteer/generation/coordinate_controller.py": "166b7375981f9f8aec0deb99237953d4bdb6ee2d9837ef3f0d916e462e27fe85",
+    "skills/affinity-coordinate-search/SKILL.md": "1a4be652ac26a4f4c5662e0f502f9da0c88c50836bfbc027d013910001ce4de3",
+    "tests/test_affinity_geometry.py": "303f327e5d3a25d0944801f37660a3c4410ee59bf08c74774be716680249882f"
+  },
+  "data_sources": {
+    "manifest_path": "docs/experiments/ck2_affinity_geometry30_20261007/mining/manifest.json",
+    "manifest_sha256": "74d6c96af23e86172b9b6199b12c4037800674d757a2863ef1237ca0fd3a830c",
+    "previous_manifest_sha256_before_runtime_reference_relocation": "a88d79c7e4a32177160140f519b9dd6bfd7b3b5a6b4e60c0d8edf88ab8424a37",
+    "runtime_reference_path": "configs/experiments/ck2_affinity_geometry30_v1/geometry_reference.json.gz",
+    "reference_sha256": "7544b0b0ea4cef2abb3f599d988c6b9131c7ae2181f4b866535473de46efab08",
+    "reference_bytes": 3024290,
+    "relocation_note": "同SHA teacher library已迁至唯一运行参考路径；原docs副本已清理。manifest变化来自runtime_reference_path记录，科学参考字节未改变。",
+    "whole_window_effects_path": "docs/experiments/ck2_affinity_geometry30_20261007/mining/whole_window_effects.parquet",
+    "whole_window_effects_sha256": "e6b82ce7c2fe214d0bae8d2b8b0a770f5b7f1e8b1b73f8dd6547772e2e8a85eb",
+    "functions_path": "docs/experiments/ck2_affinity_geometry30_20261007/mining/effect_functions.json",
+    "functions_sha256": "1093f869d1facce7069f3b0f1fcfa55517556c001934f37e53c3db61ce79cde3",
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "heldout_used": false,
+    "raw_source_verification_scope": "读取manifest中14份原始轨迹路径/hash和实际紧凑参考；本轮没有重新读取全部原始trajectory文件。"
+  },
+  "verified_contract": {
+    "time": "原始score t的已保存target head标签对应当步预测终点；控制及teacher目标是原生proposal x_(t+dt)。只含score 0…0.49、proposal 0.01…0.50；.49→.50为最后控制更新，.50→.51无参考、无注入，之后native续推。",
+    "affinity": "源代码只使用离线已有head标签；运行奖励与新增reward-response日志均为坐标函数，没有额外每步模型/head调用、head反传或模型Jacobian。",
+    "conditional_derivative": "预测终点anchor用于Hungarian槽位对应、最近teacher和先验；全部在该次坐标导数中固定。直接计算∂R(x_proposal|stopgrad(anchor))/∂x_proposal，不能称为完整FLOWR端点拉回。",
+    "graph": "atom类型参数未用于三个奖励；不引入SMC、克隆或图选择门。原生类别/键转移仍由生成器决定。",
+    "support": "全部活跃原子均为core_mask，属于全局坐标控制。noncore=0由支持定义造成，不能证明局部性或周围区域自由。",
+    "reward_vs_affinity": "局部坐标步升高注册reward与最终预测head变好是两个不同验收量；当前数据/数值测试仅验证前者的可计算性。"
+  },
+  "formulas": {
+    "features": "z(x)=[centroid(3), svec central covariance(6), pair radial kernels(5), 20 receptor landmark fields×3]，74维；分量分别以全窗口背景尺度s_j标准化。off-diagonal乘sqrt(2)。",
+    "affinity_direction": "R_dir=Σ_j [w_j clip(mean_b((h_bj-l_bj)/v_bj),-3,3)] z_j(x)/s_j；时间导数不进入空间力。",
+    "affinity_landmark": "q_hb=Σ_j w_j (z_j/s_j-h_bj)^2/v_bj，q_lb类似；R=τ[logsumexp_b(-q_hb/τ)-logsumexp_b(-q_lb/τ)]。",
+    "affinity_landmark_label": "这是共享对角尺度的高/低score距离混合对比，不是已规范化Gaussian密度比；缺少各组件logdet正规化，不能冒称完整likelihood ratio。",
+    "affinity_pointcloud_prior": "固定anchor的Hungarian匹配给出endpoint距离d_b²与proposal teacher T_b；π=softmax(-d_b²/T_endpoint+β(score_b-mean_score))，取最近k个teacher。",
+    "affinity_pointcloud_reward": "q_b=mean_i ||x_i-T_bi||²；C_b=δ²(sqrt(1+q_b/δ²)-1)；R=τ logsumexp_b(logπ_b-C_b/τ)。",
+    "units": "centroid/landmark soft distance: Å；shape tensor: Å²；radial fields/pair kernels: dimensionless。pointcloud q/C/τ及endpoint temperature为Å²，δ为Å；其他两种标准化特征奖励的τ为无量纲。",
+    "field_semantics": "occupancy3/5实际为以受体landmark距离3/5Å为中心、宽度1Å的径向Gaussian壳核，不是球内原子数；softmin为带log(N)正规化的距离场而非严格最小距离。",
+    "pointcloud_feature_role": "affinity_pointcloud的74维observables仅诊断。其梯度来自匹配的原始proposal坐标，geometry_block_weights不改变该family的reward；不能把它的效果归因于74维块权重。"
+  },
+  "real_data_findings": {
+    "feature_count": 74,
+    "batch_count": 14,
+    "nodes": 50,
+    "grid_step_exact": true,
+    "all_means_variances_finite": true,
+    "minimum_variance_scaled": 0.05,
+    "n_q_below_0_05": 0,
+    "minimum_q": 0.09652032745059179,
+    "unadjusted_bootstrap_CI_excluding_zero": 15,
+    "interpretation": "15项未校正bootstrap CI不跨零，不能替代74项BH后的0项显著；当前没有可宣称的多重校正亲和力方向机制。",
+    "temporal_fit_degree_counts": {
+      "0": 74
+    },
+    "degree_zero_meaning": "LOBO在0–3次候选中全部选择0次，支持高低score差异曲线的常数近似；不意味着分子坐标静止，也不证明各阶段无差异。运行参考仍是50个实测节点，不用这些拟合导数作力。",
+    "top_descriptive_effects": [
+      {
+        "feature": "pair_kernel_2.5",
+        "high_low_integrated_z": -0.41381425504104963,
+        "CI_low": -0.6045868497476342,
+        "CI_high": -0.2258207913493596,
+        "score_correlation_integrated": -0.12395096447034627,
+        "positive_batch_fraction": 0.14285714285714285,
+        "endpoint_minus_start_delta_z": 0.02172018874801749,
+        "p": 0.0013043287493323215,
+        "q": 0.09652032745059179
+      },
+      {
+        "feature": "shape_yy",
+        "high_low_integrated_z": -0.23827030006331307,
+        "CI_low": -0.46114836816244315,
+        "CI_high": -0.07366049210997275,
+        "score_correlation_integrated": -0.09846911824047687,
+        "positive_batch_fraction": 0.14285714285714285,
+        "endpoint_minus_start_delta_z": 0.18147491389491674,
+        "p": 0.037078625052750225,
+        "q": 0.3210812138717797
+      },
+      {
+        "feature": "pair_kernel_1.5",
+        "high_low_integrated_z": -0.1514346044105614,
+        "CI_low": -0.280658829276577,
+        "CI_high": -0.031880825896994175,
+        "score_correlation_integrated": -0.0648239933982523,
+        "positive_batch_fraction": 0.2857142857142857,
+        "endpoint_minus_start_delta_z": -0.009549099393805771,
+        "p": 0.03905041790332456,
+        "q": 0.3210812138717797
+      },
+      {
+        "feature": "pair_kernel_3.5",
+        "high_low_integrated_z": -0.24081800936439107,
+        "CI_low": -0.39927482633784367,
+        "CI_high": -0.08790648746506968,
+        "score_correlation_integrated": -0.11065558392731638,
+        "positive_batch_fraction": 0.2857142857142857,
+        "endpoint_minus_start_delta_z": -0.08225588622459871,
+        "p": 0.013266539031443904,
+        "q": 0.3210812138717797
+      },
+      {
+        "feature": "landmark_03_softmin",
+        "high_low_integrated_z": 0.24304766037622244,
+        "CI_low": 0.042926853298529355,
+        "CI_high": 0.4422139881862181,
+        "score_correlation_integrated": 0.0617219859963706,
+        "positive_batch_fraction": 0.7142857142857143,
+        "endpoint_minus_start_delta_z": 0.24635032984998198,
+        "p": 0.03701798388611387,
+        "q": 0.3210812138717797
+      },
+      {
+        "feature": "landmark_01_softmin",
+        "high_low_integrated_z": 0.20105534063926273,
+        "CI_low": 0.034506070210980906,
+        "CI_high": 0.3618410326493588,
+        "score_correlation_integrated": 0.08987177228213106,
+        "positive_batch_fraction": 0.6428571428571429,
+        "endpoint_minus_start_delta_z": -0.498786441543179,
+        "p": 0.03794232456981079,
+        "q": 0.3210812138717797
+      },
+      {
+        "feature": "landmark_15_occupancy5",
+        "high_low_integrated_z": -0.027371309665201748,
+        "CI_low": -0.05124450343920039,
+        "CI_high": -0.006131632491008234,
+        "score_correlation_integrated": -0.09122333287633726,
+        "positive_batch_fraction": 0.21428571428571427,
+        "endpoint_minus_start_delta_z": -0.11980063926262054,
+        "p": 0.036280563246997716,
+        "q": 0.3210812138717797
+      },
+      {
+        "feature": "landmark_16_softmin",
+        "high_low_integrated_z": 0.2674143537669218,
+        "CI_low": 0.0864513609476252,
+        "CI_high": 0.4880196868264766,
+        "score_correlation_integrated": 0.09617189625185892,
+        "positive_batch_fraction": 0.8571428571428571,
+        "endpoint_minus_start_delta_z": -0.28890407430802534,
+        "p": 0.025722822656414006,
+        "q": 0.3210812138717797
+      },
+      {
+        "feature": "landmark_12_softmin",
+        "high_low_integrated_z": 0.24721384413512673,
+        "CI_low": 0.07203463634996263,
+        "CI_high": 0.44001653167628546,
+        "score_correlation_integrated": 0.08802687664110367,
+        "positive_batch_fraction": 0.7857142857142857,
+        "endpoint_minus_start_delta_z": -0.35111299085133674,
+        "p": 0.02473620520222387,
+        "q": 0.3210812138717797
+      }
+    ],
+    "clipped_scale_count": 28,
+    "clipped_scale_floor_native_feature_units": 1e-05,
+    "clipped_scale_features": [
+      "pair_kernel_7.0",
+      "landmark_01_occupancy3",
+      "landmark_01_occupancy5",
+      "landmark_02_occupancy3",
+      "landmark_02_occupancy5",
+      "landmark_03_occupancy3",
+      "landmark_03_occupancy5",
+      "landmark_04_occupancy3",
+      "landmark_05_occupancy3",
+      "landmark_05_occupancy5",
+      "landmark_06_occupancy3",
+      "landmark_07_occupancy3",
+      "landmark_08_occupancy3",
+      "landmark_08_occupancy5",
+      "landmark_09_occupancy3",
+      "landmark_09_occupancy5",
+      "landmark_10_occupancy3",
+      "landmark_10_occupancy5",
+      "landmark_11_occupancy3",
+      "landmark_11_occupancy5",
+      "landmark_12_occupancy3",
+      "landmark_12_occupancy5",
+      "landmark_14_occupancy3",
+      "landmark_14_occupancy5",
+      "landmark_15_occupancy3",
+      "landmark_15_occupancy5",
+      "landmark_18_occupancy3",
+      "landmark_19_occupancy3"
+    ],
+    "near_constant_teacher_features": [
+      "landmark_01_occupancy3",
+      "landmark_03_occupancy3",
+      "landmark_05_occupancy3"
+    ],
+    "block_response": {
+      "centroid": {
+        "count": 3,
+        "selected_teacher_feature_std_min": 0.13605991849915183,
+        "selected_teacher_feature_std_max": 0.30766838945943176,
+        "n_feature_std_above_1e_12": 3,
+        "max_abs_high_low_integrated_z": 0.13743343312947423,
+        "q_lt_05": 0
+      },
+      "shape": {
+        "count": 6,
+        "selected_teacher_feature_std_min": 0.0033761106765987777,
+        "selected_teacher_feature_std_max": 0.48935893364638805,
+        "n_feature_std_above_1e_12": 6,
+        "max_abs_high_low_integrated_z": 0.23827030006331323,
+        "q_lt_05": 0
+      },
+      "pair": {
+        "count": 5,
+        "selected_teacher_feature_std_min": 5.336399327640084e-05,
+        "selected_teacher_feature_std_max": 0.20695494158521854,
+        "n_feature_std_above_1e_12": 5,
+        "max_abs_high_low_integrated_z": 0.4138142550410496,
+        "q_lt_05": 0
+      },
+      "landmark": {
+        "count": 60,
+        "selected_teacher_feature_std_min": 3.8865071147781877e-16,
+        "selected_teacher_feature_std_max": 0.5773110382722342,
+        "n_feature_std_above_1e_12": 57,
+        "max_abs_high_low_integrated_z": 0.26741435376692174,
+        "q_lt_05": 0
+      }
+    },
+    "root_count_minimum_across_batches": [
+      {
+        "time": 0,
+        "minimum_roots_across_batches": 50
+      },
+      {
+        "time": 0.1,
+        "minimum_roots_across_batches": 4
+      },
+      {
+        "time": 0.25,
+        "minimum_roots_across_batches": 1
+      },
+      {
+        "time": 0.49,
+        "minimum_roots_across_batches": 1
+      }
+    ],
+    "teacher_support": {
+      "teachers_per_node": 28,
+      "teachers_per_batch": 2,
+      "shape_per_node": [
+        28,
+        25,
+        3
+      ],
+      "caution": "这是14批的经验teacher集合，不是28个独立构象模式。后期最小根数为1，clone/teacher不得当独立n；新模块未实现root-balanced/lag-adjusted affinity推断。"
+    },
+    "statistical_definition": "每批每节点按已记录head的上下四分位候选计算proposal特征均值差，以全窗背景尺度标准化；先对每批全窗积分，再14批t检验/BH74；2000次固定seed42批次bootstrap，尺度固定不重估。该统计是同期score分层关联，不是选择效应、留存因果效应或新增affinity因果收益。",
+    "independent_summary_recomputation": {
+      "high_low_integrated_z_max_error": 2.6367796834847468e-15,
+      "p_max_error": 1.7541523789077473e-14,
+      "q_max_error": 1.0547118733938987e-14,
+      "CI_max_error": 3.4416913763379853e-15,
+      "positive_batch_fraction_max_error": 0,
+      "end_minus_start_max_error": 4.529709940470639e-14
+    }
+  },
+  "numerical_tests": {
+    "pytest": {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_affinity_geometry.py -q -p no:cacheprovider",
+      "passed": 8,
+      "output": "........                                                                 [100%]\n8 passed in 1.73s\nPYTEST_EXIT=0"
+    },
+    "reward_fd": {
+      "cases": [
+        {
+          "time": 0,
+          "family": "affinity_landmark",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.0010182591079319144,
+          "min_reward_gain": 0.009601627104747323,
+          "all_finite": true
+        },
+        {
+          "time": 0,
+          "family": "affinity_landmark",
+          "dtype": "torch.float64",
+          "FD_relative_error": 3.5245953841641773e-10,
+          "min_reward_gain": 0.00960160294487089,
+          "all_finite": true
+        },
+        {
+          "time": 0,
+          "family": "affinity_direction",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.0005036871850811322,
+          "min_reward_gain": 0.005405358262631665,
+          "all_finite": true
+        },
+        {
+          "time": 0,
+          "family": "affinity_direction",
+          "dtype": "torch.float64",
+          "FD_relative_error": 1.858043996592713e-10,
+          "min_reward_gain": 0.005404529962754978,
+          "all_finite": true
+        },
+        {
+          "time": 0,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.0014724132057179963,
+          "min_reward_gain": 8.20159912109375e-05,
+          "all_finite": true
+        },
+        {
+          "time": 0,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float64",
+          "FD_relative_error": 8.749531498399752e-11,
+          "min_reward_gain": 8.200732443053305e-05,
+          "all_finite": true
+        },
+        {
+          "time": 0.1,
+          "family": "affinity_landmark",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.0003457367713815128,
+          "min_reward_gain": 0.04443560318662876,
+          "all_finite": true
+        },
+        {
+          "time": 0.1,
+          "family": "affinity_landmark",
+          "dtype": "torch.float64",
+          "FD_relative_error": 2.061015585817563e-09,
+          "min_reward_gain": 0.044433440076576236,
+          "all_finite": true
+        },
+        {
+          "time": 0.1,
+          "family": "affinity_direction",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.00045254513816263454,
+          "min_reward_gain": 0.0151369384043889,
+          "all_finite": true
+        },
+        {
+          "time": 0.1,
+          "family": "affinity_direction",
+          "dtype": "torch.float64",
+          "FD_relative_error": 2.2558973709403717e-10,
+          "min_reward_gain": 0.015136209357837771,
+          "all_finite": true
+        },
+        {
+          "time": 0.1,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.000699028509242269,
+          "min_reward_gain": 6.073713302612305e-05,
+          "all_finite": true
+        },
+        {
+          "time": 0.1,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float64",
+          "FD_relative_error": 2.2730254302448057e-11,
+          "min_reward_gain": 6.0776054242706046e-05,
+          "all_finite": true
+        },
+        {
+          "time": 0.25,
+          "family": "affinity_landmark",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.0006515931844485935,
+          "min_reward_gain": 0.11588977355738139,
+          "all_finite": true
+        },
+        {
+          "time": 0.25,
+          "family": "affinity_landmark",
+          "dtype": "torch.float64",
+          "FD_relative_error": 5.608467304656175e-10,
+          "min_reward_gain": 0.1158854159968814,
+          "all_finite": true
+        },
+        {
+          "time": 0.25,
+          "family": "affinity_direction",
+          "dtype": "torch.float32",
+          "FD_relative_error": 1.408151293832629e-05,
+          "min_reward_gain": 0.019417810859891915,
+          "all_finite": true
+        },
+        {
+          "time": 0.25,
+          "family": "affinity_direction",
+          "dtype": "torch.float64",
+          "FD_relative_error": 7.720134596812713e-11,
+          "min_reward_gain": 0.019418977067616083,
+          "all_finite": true
+        },
+        {
+          "time": 0.25,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.001153511767459549,
+          "min_reward_gain": 7.909536361694336e-05,
+          "all_finite": true
+        },
+        {
+          "time": 0.25,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float64",
+          "FD_relative_error": 1.3584898847828864e-10,
+          "min_reward_gain": 7.899299254610082e-05,
+          "all_finite": true
+        },
+        {
+          "time": 0.49,
+          "family": "affinity_landmark",
+          "dtype": "torch.float32",
+          "FD_relative_error": 9.890357861798221e-05,
+          "min_reward_gain": 0.2679529684227382,
+          "all_finite": true
+        },
+        {
+          "time": 0.49,
+          "family": "affinity_landmark",
+          "dtype": "torch.float64",
+          "FD_relative_error": 2.391747897549259e-09,
+          "min_reward_gain": 0.2679263694649201,
+          "all_finite": true
+        },
+        {
+          "time": 0.49,
+          "family": "affinity_direction",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.00022299089202366962,
+          "min_reward_gain": 0.03000398478629762,
+          "all_finite": true
+        },
+        {
+          "time": 0.49,
+          "family": "affinity_direction",
+          "dtype": "torch.float64",
+          "FD_relative_error": 1.0826098469633074e-10,
+          "min_reward_gain": 0.030006296398589427,
+          "all_finite": true
+        },
+        {
+          "time": 0.49,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float32",
+          "FD_relative_error": 0.0022135029588631243,
+          "min_reward_gain": 3.916025161743164e-05,
+          "all_finite": true
+        },
+        {
+          "time": 0.49,
+          "family": "affinity_pointcloud",
+          "dtype": "torch.float64",
+          "FD_relative_error": 5.978996254425401e-10,
+          "min_reward_gain": 3.9114721228639127e-05,
+          "all_finite": true
+        }
+      ],
+      "families": 3,
+      "score_times": [
+        0,
+        0.1,
+        0.25,
+        0.49
+      ],
+      "actual_teacher_indices": [
+        0,
+        14
+      ],
+      "setup": "Actual teachers plus deterministic 0.01 Å random perturbation; fixed endpoint anchor. Central FD eps=1e-5 for float64 and 0.001 for float32; test a 0.001 Å RMS ascent step.",
+      "maximum_relative_error_float64": 2.391747897549259e-09,
+      "maximum_relative_error_float32": 0.0022135029588631243,
+      "minimum_local_reward_increase": 3.9114721228639127e-05,
+      "all_finite": true
+    },
+    "feature_vector_jvp": {
+      "scope": "CPU double, 74-feature JVP checked against independent NumPy central finite differences; no FLOWR or head calls",
+      "step_A": 1e-05,
+      "direction_RMS_A": 1,
+      "cases": [
+        {
+          "score_time": 0,
+          "teachers": 2,
+          "feature_count": 74,
+          "max_numpy_torch_value_error": 1.7763568394002505e-15,
+          "max_standardized_JVP_absolute_error": 1.8992430976580422e-07,
+          "max_relative_error_derivative_above_1e_7": 1.369335560671695e-07,
+          "informative_derivatives": 124,
+          "small_derivatives": 24,
+          "worst_feature_absolute_error": "pair_kernel_1.5"
+        },
+        {
+          "score_time": 0.1,
+          "teachers": 2,
+          "feature_count": 74,
+          "max_numpy_torch_value_error": 1.1102230246251565e-16,
+          "max_standardized_JVP_absolute_error": 6.697007785058755e-08,
+          "max_relative_error_derivative_above_1e_7": 2.3113768930268757e-08,
+          "informative_derivatives": 129,
+          "small_derivatives": 19,
+          "worst_feature_absolute_error": "global_centroid_x"
+        },
+        {
+          "score_time": 0.25,
+          "teachers": 2,
+          "feature_count": 74,
+          "max_numpy_torch_value_error": 1.7763568394002505e-15,
+          "max_standardized_JVP_absolute_error": 3.093122901481375e-08,
+          "max_relative_error_derivative_above_1e_7": 4.291495947172114e-08,
+          "informative_derivatives": 139,
+          "small_derivatives": 9,
+          "worst_feature_absolute_error": "global_centroid_x"
+        },
+        {
+          "score_time": 0.49,
+          "teachers": 2,
+          "feature_count": 74,
+          "max_numpy_torch_value_error": 1.7763568394002505e-15,
+          "max_standardized_JVP_absolute_error": 8.41165020858154e-08,
+          "max_relative_error_derivative_above_1e_7": 3.733719043614536e-08,
+          "informative_derivatives": 142,
+          "small_derivatives": 6,
+          "worst_feature_absolute_error": "global_centroid_x"
+        }
+      ],
+      "random_seed": 20261007,
+      "teacher_indices": [
+        0,
+        14
+      ],
+      "interpretation": "4时刻×2真实teacher×74分量的方向导数检查；接近零导数单独记为small，不把相对误差或零相关解释为科学证据。"
+    },
+    "torch_numpy_value_and_rigid_translation": [
+      {
+        "time": 0,
+        "numpy_torch_max_abs": 1.4210854715202004e-14,
+        "shape_pair_translation_max_error": 1.734723475976807e-18,
+        "landmark_translation_response_rms": 0.009482218194436409,
+        "centroid_translation_max_error": 1.1084883011491797e-14
+      },
+      {
+        "time": 0.1,
+        "numpy_torch_max_abs": 7.105427357601002e-15,
+        "shape_pair_translation_max_error": 1.2212453270876722e-15,
+        "landmark_translation_response_rms": 0.009515329108637267,
+        "centroid_translation_max_error": 8.668413209456105e-15
+      },
+      {
+        "time": 0.25,
+        "numpy_torch_max_abs": 7.105427357601002e-15,
+        "shape_pair_translation_max_error": 1.7763568394002505e-15,
+        "landmark_translation_response_rms": 0.009544758056989799,
+        "centroid_translation_max_error": 4.760081218080359e-15
+      },
+      {
+        "time": 0.49,
+        "numpy_torch_max_abs": 7.105427357601002e-15,
+        "shape_pair_translation_max_error": 3.774758283725532e-15,
+        "landmark_translation_response_rms": 0.009504028660137612,
+        "centroid_translation_max_error": 6.678685382510707e-15
+      }
+    ],
+    "invariants": [
+      {
+        "time": 0,
+        "family": "affinity_landmark",
+        "slot_permutation_max_error": 1.8984813721090177e-14,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 0.4100670529631524
+      },
+      {
+        "time": 0,
+        "family": "affinity_direction",
+        "slot_permutation_max_error": 1.0658141036401503e-14,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 18.031798946897453
+      },
+      {
+        "time": 0,
+        "family": "affinity_pointcloud",
+        "slot_permutation_max_error": 0,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 0
+      },
+      {
+        "time": 0.1,
+        "family": "affinity_landmark",
+        "slot_permutation_max_error": 1.3722356584366935e-13,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 0.7408136318255423
+      },
+      {
+        "time": 0.1,
+        "family": "affinity_direction",
+        "slot_permutation_max_error": 2.1316282072803006e-14,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 70.15241736525104
+      },
+      {
+        "time": 0.1,
+        "family": "affinity_pointcloud",
+        "slot_permutation_max_error": 0,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 0
+      },
+      {
+        "time": 0.25,
+        "family": "affinity_landmark",
+        "slot_permutation_max_error": 3.0375701953744283e-13,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 3.214423738051133
+      },
+      {
+        "time": 0.25,
+        "family": "affinity_direction",
+        "slot_permutation_max_error": 2.1316282072803006e-14,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 90.89879078455368
+      },
+      {
+        "time": 0.25,
+        "family": "affinity_pointcloud",
+        "slot_permutation_max_error": 0,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 0
+      },
+      {
+        "time": 0.49,
+        "family": "affinity_landmark",
+        "slot_permutation_max_error": 3.7569947153315297e-13,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 3.640620266713152
+      },
+      {
+        "time": 0.49,
+        "family": "affinity_direction",
+        "slot_permutation_max_error": 9.592326932761353e-14,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 34.887594871582536
+      },
+      {
+        "time": 0.49,
+        "family": "affinity_pointcloud",
+        "slot_permutation_max_error": 0,
+        "atom_type_change_max_error": 0,
+        "geometry_block_weight_change_effect": 0
+      }
+    ],
+    "fixed_anchor_detached": true,
+    "cpu_zero_eta_exact": true,
+    "bounded_step_preserves_dtype": true,
+    "actual_teacher_nonrigid_response": [
+      {
+        "time": 0,
+        "standardized_nonrigid_change_RMS": {
+          "centroid": 0.04949518581379847,
+          "shape": 0.01917534771100854,
+          "pair": 0.010253653954975609,
+          "landmark": 0.025147882405810545
+        }
+      },
+      {
+        "time": 0.1,
+        "standardized_nonrigid_change_RMS": {
+          "centroid": 0.04949518581400832,
+          "shape": 0.01977980246119269,
+          "pair": 0.0588629529247021,
+          "landmark": 0.031159611840495698
+        }
+      },
+      {
+        "time": 0.25,
+        "standardized_nonrigid_change_RMS": {
+          "centroid": 0.04949518581394457,
+          "shape": 0.03519065088901877,
+          "pair": 0.02517559988719279,
+          "landmark": 0.027363059889504524
+        }
+      },
+      {
+        "time": 0.49,
+        "standardized_nonrigid_change_RMS": {
+          "centroid": 0.04949518581380844,
+          "shape": 0.04259440452883896,
+          "pair": 0.03578710333542035,
+          "landmark": 0.028980537222250476
+        }
+      }
+    ],
+    "interpretation_of_response": "四个特征块均对真实结构扰动有数值响应，且受体场对平移响应、shape/pair对整体平移不变。不能据此声称每个单独分量有有效信号。",
+    "invalid_parameters_verified": {
+      "initial_guard_tests": [
+        {
+          "family": "affinity_pointcloud",
+          "parameter": "teacher_endpoint_temperature_A2",
+          "test_value": "0.0",
+          "result": "ValueError: Invalid geometry response"
+        },
+        {
+          "family": "affinity_pointcloud",
+          "parameter": "teacher_neighbors",
+          "test_value": "0",
+          "result": "ValueError: Invalid teacher support/scales"
+        },
+        {
+          "family": "affinity_landmark",
+          "parameter": "mixture_temperature",
+          "test_value": "nan",
+          "result": "ValueError: Invalid geometry response"
+        },
+        {
+          "family": "affinity_pointcloud",
+          "parameter": "teacher_score_beta",
+          "test_value": "nan",
+          "result": "ValueError: Invalid geometry response"
+        },
+        {
+          "family": "affinity_pointcloud",
+          "parameter": "pointcloud_delta_A",
+          "test_value": "nan",
+          "result": "ValueError: Invalid geometry response"
+        }
+      ],
+      "final_weights_and_schedule": [
+        {
+          "parameter": "geometry_block_weights",
+          "value": "[-1, 1, 1, 1]",
+          "status": "ValueError: Four finite nonnegative geometry weights required"
+        },
+        {
+          "parameter": "geometry_block_weights",
+          "value": "[0, 0, 0, 0]",
+          "status": "ValueError: Four finite nonnegative geometry weights required"
+        },
+        {
+          "parameter": "geometry_block_weights",
+          "value": "[1, 1, 1]",
+          "status": "ValueError: Four finite nonnegative geometry weights required"
+        },
+        {
+          "parameter": "geometry_block_weights",
+          "value": "[1, 1, nan, 1]",
+          "status": "ValueError: Four finite nonnegative geometry weights required"
+        },
+        {
+          "parameter": "time_ramp_power",
+          "value": "nan",
+          "status": "ValueError: Finite nonnegative time schedule required"
+        },
+        {
+          "parameter": "time_ramp_power",
+          "value": "-1",
+          "status": "ValueError: Finite nonnegative time schedule required"
+        },
+        {
+          "parameter": "time_ramp_power",
+          "value": "inf",
+          "status": "ValueError: Finite nonnegative time schedule required"
+        }
+      ]
+    },
+    "actual_teacher_multi_mode_response": [
+      {
+        "time": 0,
+        "reward_k1": 0,
+        "gradient_rms_k1": 0,
+        "reward_k4": -0.00928611493884901,
+        "gradient_rms_k4": 0.003943381764594418
+      },
+      {
+        "time": 0.1,
+        "reward_k1": 0,
+        "gradient_rms_k1": 0,
+        "reward_k4": -0.006147491978003572,
+        "gradient_rms_k4": 0.00325416314669733
+      },
+      {
+        "time": 0.25,
+        "reward_k1": 0,
+        "gradient_rms_k1": 0,
+        "reward_k4": -0.015371213036368125,
+        "gradient_rms_k4": 0.005738397290242549
+      },
+      {
+        "time": 0.49,
+        "reward_k1": 0,
+        "gradient_rms_k1": 0,
+        "reward_k4": -0.0015222572376201171,
+        "gradient_rms_k4": 0.0015112530516452954
+      }
+    ],
+    "time_integration": {
+      "diagnostic_nodes": 50,
+      "last_score": 0.49,
+      "last_state": 0.5,
+      "all_reference_exact": true
+    }
+  },
+  "issues_fixed_and_retested": [
+    {
+      "id": "proposal_endpoint_window_alignment",
+      "before": "诊断按score<=.5会请求不存在的.5 reference，实际对应proposal .51越过学习窗口。",
+      "after": "新schema按state_time<=.5保留50节点。全部节点精确命中，最后score=.49/proposal=.5；没有扩充.51参考。",
+      "status": "resolved"
+    },
+    {
+      "id": "soft_mixture_instead_of_expected_cost",
+      "before": "期望robust cost在对称两teacher测试偏爱不存在的中间折中构象。",
+      "before_observation": {
+        "midpoint_reward": -0.41421356237309515,
+        "teacher_plus_reward": -0.6180339887498949,
+        "teacher_minus_reward": -0.6180339887498949,
+        "midpoint_gradient_rms": 0,
+        "midpoint_distance_to_each_mode_A": 1
+      },
+      "after_observation": {
+        "midpoint_reward": -0.4142135623730952,
+        "teacher_plus_reward": -0.3060581503234845,
+        "teacher_minus_reward": -0.3060581503234845,
+        "midpoint_gradient_rms": 0,
+        "midpoint_perturbed_01A_reward": -0.411013635386488,
+        "midpoint_distance_to_each_mode_A": 1
+      },
+      "after": "改为τ logsumexp(log_prior−cost/τ)后，两teacher处reward高于中点，微扰离开中点也升reward。精确中点仍因对称梯度为0。有限温度、重叠teacher仍可平滑混合，不能承诺完全不折中。",
+      "status": "resolved_and_limits_retained"
+    },
+    {
+      "id": "finite_control_validation",
+      "after": "tau、β、endpoint温度、δ、scales、维度、teacher支持、四项权重以及ramp均有相应检查；负/NaN/全零权重和非法ramp被拒绝。",
+      "status": "resolved"
+    }
+  ],
+  "unresolved_execution_blockers": [],
+  "scientific_and_reporting_limits": [
+    {
+      "id": "no_affinity_mechanism",
+      "detail": "本次74项全部q>=.09652；纯坐标探索仍合理，但不能写成已学习到确定的优势因果规律。保留高/低score关联与后续干预效果的区别。"
+    },
+    {
+      "id": "scale_and_missing_coverage",
+      "detail": "28项尺度落到1e-5数值下限；3个teacher场近不变。源码对候选特征std<=1e-12把Spearman记0，未附特征覆盖；这些0只能视为未提供信息，不能证明显著/真实零关联。"
+    },
+    {
+      "id": "lineage_and_bootstrap",
+      "detail": "统计独立单位最多14发现批次；同根克隆、同teacher和50时间点不是独立重复。尺度固定的bootstrap是条件不确定性，未包含重新估计尺度或选teacher的不确定性。"
+    },
+    {
+      "id": "teacher_diversity_and_provenance",
+      "detail": "第二teacher按混合单位74维endpoint特征欧氏距离>1e-3选取，并非物理RMS或已发现模式；尺度依赖且无定量去克隆保证。参考保存batch但未保留teacher_slots/root IDs，必要时需由原轨迹重建。建议后续显式保存compact provenance并明确几何多样性单位。"
+    },
+    {
+      "id": "global_control_and_metric_units",
+      "detail": "全部mask为core，旧bare5Å noncore解释不适用；pointcloud的nearest_standardized_rms实为Å，报告应按family标注。"
+    },
+    {
+      "id": "conditional_piecewise_geometry",
+      "detail": "Hungarian分配/邻居/π固定于一次导数，不包含anchor或模型的导数；跨步离散对应可变，有限步/caps/native continuation不保证reward或head单调。"
+    },
+    {
+      "id": "linear_or_contrast_extrapolation",
+      "detail": "direction和landmark奖励没有经验支持门控；正梯度方向可能超出发现集，并不自动保持物理兼容。剂量、caps、实际reward改变量和终态head必须分别报告。"
+    },
+    {
+      "id": "dose_is_not_old_dose",
+      "detail": "默认ramp0给dose_gate=1，不继承旧KL/selection幅度抑制；同η不等于旧架构有效剂量。必须比较actual RMS/path、caps和native续推响应。"
+    },
+    {
+      "id": "evaluation_boundary",
+      "detail": "未运行新家族GPU完整zero/native轨迹验证、未评估新增30轮生成或选择driver。现有CPU零剂量检查不能替代这些运行时证据。"
+    },
+    {
+      "id": "physical_interpretation",
+      "detail": "无atom类型/键/电荷/溶剂或能量函数进入当前奖励。径向壳核与形状匹配不能当氢键、真实亲和力或MMFF机制，新增物理指标需从有效终态图独立评价。"
+    }
+  ],
+  "recommendation": "可进入已授权的探索性运行前校验及30轮流程；按亲和力优先协议分别记录注入剂量、注册reward改变和终态head。保留真实zero/native控制与不利批次；不因q失败阻断探索，也不据数值通过宣称有效。"
+}

@@ -3,10 +3,13 @@ import argparse,hashlib,json,os,subprocess
 from pathlib import Path
 
 
-def dispatch(repo,work,number,campaign,program,reference,previous,arms='gradient',batches='0,1',n=100):
+def dispatch(repo,work,number,campaign,program,reference,previous,arms='gradient',batches='0,1',n=100,profile='motif15'):
     repo,work,program,reference=map(lambda v:Path(v).resolve(),(repo,work,program,reference))
-    if not 1<=number<=15 or campaign!=f'coordinate_r{number:02d}_motif15' or n not in (50,100):raise ValueError('New fifteen-round identity contract')
-    if not program.is_relative_to(repo/'configs/experiments/ck2_motif_seed42_v1') or not reference.is_relative_to(program.parent):raise ValueError('Committed motif program/reference required')
+    contracts={'motif15':(15,'ck2_motif_seed42_v1'),'affinity30':(30,'ck2_affinity_geometry30_v1')}
+    if profile not in contracts:raise ValueError('Unknown campaign profile')
+    limit,config=contracts[profile]
+    if not 1<=number<=limit or campaign!=f'coordinate_r{number:02d}_{profile}' or n not in (50,100):raise ValueError('New campaign identity contract')
+    if not program.is_relative_to(repo/'configs/experiments'/config) or not reference.is_relative_to(program.parent):raise ValueError('Committed program/reference required')
     sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
     identity={'round':number,'campaign':campaign,'program_sha256':sha(program),'reference_sha256':sha(reference),'previous_report':previous,'arms':arms,'batches':batches,'n_per_arm':n}
     folder=work/f'round{number:02d}.dispatch';metadata=folder/'launch.json'
@@ -31,5 +34,5 @@ def dispatch(repo,work,number,campaign,program,reference,previous,arms='gradient
 if __name__=='__main__':
     p=argparse.ArgumentParser()
     for k in ('repo','work','campaign','program','reference','previous'):p.add_argument('--'+k,required=True)
-    p.add_argument('--round',type=int,required=True);p.add_argument('--arms',default='gradient');p.add_argument('--batches',default='0,1');p.add_argument('--n',type=int,default=100)
-    a=p.parse_args();print(json.dumps(dispatch(a.repo,a.work,a.round,a.campaign,a.program,a.reference,a.previous,a.arms,a.batches,a.n)))
+    p.add_argument('--round',type=int,required=True);p.add_argument('--arms',default='gradient');p.add_argument('--batches',default='0,1');p.add_argument('--n',type=int,default=100);p.add_argument('--profile',default='motif15')
+    a=p.parse_args();print(json.dumps(dispatch(a.repo,a.work,a.round,a.campaign,a.program,a.reference,a.previous,a.arms,a.batches,a.n,a.profile)))

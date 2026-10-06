@@ -3,6 +3,11 @@ name: evomolsteer-motif-evolution
 description: Coordinate-space motif discovery, lineage controls and bounded evolution of differentiable reward programs.
 ---
 
+For the newly counted affinity-primary geometry campaign, use
+[affinity-coordinate-search](../affinity-coordinate-search/SKILL.md) instead.
+That self-contained profile replaces this historical balanced Pareto objective
+and element-channel preferences; it does not change historical experiment rules.
+
 Use coordinate-analyst and coordinate-designer contracts first. The molecular
 sampling tree is a genealogy of dependent clones, not a Brownian phylogenetic
 tree. Never apply independent contrasts to zero-length cloned branches or count

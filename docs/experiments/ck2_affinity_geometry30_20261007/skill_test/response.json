@@ -1,0 +1,143 @@
+{
+  "affinity_head_gradient": false,
+  "coordinate_features": [
+    "已注册的受体坐标系区域位置：对全部有效坐标槽计算 mu_r=sum_i w_ri*x_i，并保留 (mu_x-o_rx,mu_y-o_ry,mu_z-o_rz)，单位 Å；w_ri 由原生 endpoint 到已测量 landmark 的高斯距离权重确定，在本次坐标导数中冻结。实际控制变量是 proposal x(t+dt)，匹配 score t 的参考节点。",
+    "已注册 shape_mixture 的区域中心二阶矩：C_r=sum_i w_ri*(x_i-mu_r)*(x_i-mu_r)^T，使用 [Cxx,Cyy,Czz,sqrt(2)Cxy,sqrt(2)Cxz,sqrt(2)Cyz]，单位 Å²；完整窗口的固定尺度使其无量纲化，不额外重复 trace。特征保留方向和大小，但不能唯一确定点云或化学图。",
+    "已注册 motif_mixture/motif_contrast 的 landmark 壳层占据：d_ri=min_l ||x_i-landmark_rl||，S_r(a)=sum_i w_ri*exp[-0.5*((d_ri-a)/1 Å)^2]，a=2、4、6 Å。使用 all 通道；该平滑壳层几何量不是氢键或真实物理接触。",
+    "已注册的全坐标点对分布：P_r(a)=sum_(i≠j) normalized(w_ri*w_rj)*exp[-0.5*((||x_i-x_j||-a)/0.75 Å)^2]，a=1.5、3、5 Å，排除自身点对；用作几何奖励描述符，不作为分子接受阈值或锁图条件。",
+    "进一步的完整点云对应提案：对 discovery 高分/低分 pre-selection 点云分别求排列不变的软运输对应 P，记录 sum_ij P_ij*||x_i-y_j||² 及受体 landmark 距离场残差。可利用现有 native endpoint 预测条件化对应，坐标求导时冻结 P、参考点云和条件权重；它不是 FLOWR endpoint Jacobian。当前 make_coordinate_reward 注册表没有这个完整点云项，须先注册确定性可微公式并完成数值导数和 zero/native 检查，不能直接执行自由 LLM 代码。",
+    "离线高低分空间场与完整窗口变化：仅以原始 Steer 已记录的同一事件 pre-selection 分数划分高/低分，比较受体框架下 landmark 高斯占据场、centroid、六维二阶矩和完整点云对应残差；在全部真实 score/state 节点上保留两组分布、选择前后变化及整个窗口的积分。时间曲线导数仅作诊断，不能充当空间奖励梯度；validation/heldout 不定义目标。"
+  ],
+  "feature_priority": "3D_coordinates",
+  "input_sha256": "e469d510d367256d1a5f922ddb5575c915ba55a7431039a2ab95d6977589246f",
+  "limitations": [
+    "input.json 没有活动正式阈值字段；此行为测试使用 src/evomolsteer/continuous/affinity_skill.py 的可观察默认阈值 meaningful=0.05、flat=0.02。不能将默认参数误称为已验证的活动注册阈值；正式新推理前应在冻结计划中记录阈值。",
+    "四个案例只提供 head_change；没有实际 injection RMS、predictive-flow RMS、stochastic-native RMS、dose/amplitude gate、cap/backtracking、active steps、几何奖励前后变化或 continuation 响应。不能证明坐标已经移动、奖励响应存在、剂量不足或目标错误，只能提出能被这些记录检验的干预。",
+    "输入仅有 all/unique 相对 matched-native 均值变化和 valid-rate 变化、score coverage；没有 all/valid/unique 绝对均值、valid mean 变化、best valid/PB-fast、unique Top-5、yield、绝对有效率、分母或 Steer mean/best。不能由此宣称超过 Steer 或完整满足全部终点质量指标。",
+    "12 个程序均有 score_coverage=1.0，valid_rate_change 介于 -0.03 与 +0.02，但绝对有效率、PB-fast 覆盖和失败记录仍未提供。代码 admissibility 只检查有效率变化>=-0.10、覆盖>=0.99，不能替代化学有效性审计。",
+    "本地 classify 把 shell4=-0.006818304061889879 放入 ±0.02 的 flat_response，只有 gain<-0.02 才算 negative_affinity；Skill 的负向结果文字分支更宽。为避免把轻微负值丢失，shell4 同时包含 dose_escalation 和 geometry_target_revision，并明确它尚无稳定负效应证据。",
+    "本地 audit_behavior 只检查选中轮次、必要干预名称、两个 SHA、特征优先级和禁用 head 的布尔/整数；不验证证据说明是否真实、坐标公式是否已注册、阈值来源、有效剂量、完整终点指标或科学因果性。通过该审计只是行为一致性。",
+    "坐标注册表已有 coordinate_mixture、spread_upper、selection_contrast、shape_mixture、count_conditioned_shape、motif_mixture、motif_contrast；完整点云软对应是尚需注册的提案。pure all-coordinate 特征优先，不以原子类型、计数分层或图身份筛选程序。",
+    "predictive_flow_increment 当前只支持线性 schedule，cosine schedule 会拒绝；若未来模型采用 cosine，不能沿用线性残差剂量。冻结 endpoint 对应的 proposal 坐标梯度不包含网络 endpoint Jacobian。",
+    "MMFF/周围松弛是次级代理指标，输入 negative_MMFF 的编码符号及绝对量无法独立复核。亲和力是模型预测而非实测结合能力；没有批次级误差、独立泛化或因果证据，候选/克隆不应视为独立重复。",
+    "最大新推理预算为30轮；本测试没有执行推理。输入轮号不是新活动已消耗预算的可靠证明。保留所有不利批次与失败，冻结新设计后用独立 validation/heldout 评估，不据其结果回调同一冻结设计。"
+  ],
+  "per_step_affinity_calls": 0,
+  "primary_objective": "predicted_affinity",
+  "response_actions": [
+    {
+      "id": "validation13",
+      "interventions": [
+        "dose_escalation"
+      ],
+      "evidence": "head_change=+0.011900920867920384，低于 flat 上界+0.02，也低于 meaningful=+0.05；属于正向近零响应。首个下一步是在 discovery 中对冻结父公式做 1×/2×/4× 已测量有效剂量的对照，同时固定参考窗口和剂量校准方式，并记录各节点 injection RMS、flow/native RMS、gate、cap、backtracking、累计位移及 native continuation 后的终点 head；只有实际位移离开旧范围才称剂量升级成功，requested weight 增大不足以证明。若 validation13 确为验证集，该结果只评估既有冻结方案：上述升级形成新的 discovery 设计并另取新验证，不能用 validation13 改它自身的目标。"
+    },
+    {
+      "id": "shell4",
+      "interventions": [
+        "dose_escalation",
+        "geometry_target_revision"
+      ],
+      "evidence": "head_change=-0.006818304061889879，符号负但仍在 ±0.02 的近零带内，因此满足本地 flat-response 的剂量分支，同时保留 Skill 所要求的负向目标检查。候选 round4 的 all=-0.006817765235901163、unique=+0.016426293458339458、周围 RMS 改善+0.0076345490520127735，说明分布和物理诊断可与整体 head 方向不同；不是已证实的 shell 失效。先核实实际位移和 shell reward 响应：若实际位移不足，在匹配父公式中用 2×/4× 有效剂量检验；若坐标及奖励已经明显响应而 head 仍负，则改 shell-only 的 discovery 目标/方向及 score t→proposal t+dt 对齐，比较加入受体位置、二阶矩或全点云残差的注册表示对照。不得仅因周围 RMS 稍好继续承诺亲和力提升，也不得用 graph equality、NOS/count 偏好修补。"
+    },
+    {
+      "id": "boundary9",
+      "interventions": [
+        "parent_refinement"
+      ],
+      "evidence": "head_change=+0.033956341743468954，介于+0.02与+0.05之间；是相对 matched native 的 promising gain，尚未达到 meaningful。保留该父程序，在 discovery 上分别比较实际 dose 的 0.5×/1×/2×、固定 dose 下几何 sharpness/temperature 和单区域定位，各改变一次并用同一原生校准、节点和 caps 解释实际位移。候选 round9 的 unique=+0.06220178812477872，MMFF p90 编码改善+0.31307010417494485、周围 RMS 改善+0.027205655085070335，可作诊断，但不让它替代 round2 的+0.08046085834503103主亲和力增益。输入无 Steer mean/best，不能断言该父低于或超过 Steer；也不能只凭 boundary 名称确认真实窗口边界对齐。"
+    },
+    {
+      "id": "dose2",
+      "interventions": [
+        "secondary_energy_assessment",
+        "parent_refinement"
+      ],
+      "evidence": "head_change=+0.08046067237854038，超过+0.05阈值+0.03046067237854038；对应选中候选 round2 的 all=+0.08046085834503103、unique=+0.11168611956014729。案例值与候选值相差约1.86e-7，按各自原数保留，不强行写成相同。先保留亲和力增益，再在相近 affinity 下审查或细化 MMFF median/p90、strain、relaxation、PB-fast 和有效/唯一产率；round2 的 negative_MMFF_relative_change=-0.012390074796338801、周围 RMS=-0.04569592533072098、valid-rate=-0.01提示约1.239%能量编码退化、4.570%周围松弛编码退化与1个百分点有效率下降，而 p90=+0.17692920511601673提示尾部指标不同。记录这些反证并做相同亲和力水平的能量细化，不能直接换成 head=+0.033956341743468954的round9来宣称成功。继续探索父方案剂量、锐度和定位时保持 head 首要，确认增益在独立冻结评估中保留。"
+    }
+  ],
+  "selected_round": 2,
+  "selection_evidence": {
+    "objective": "在基本可用性和缺失评分可见的条件下，最大化程序的 all_head_change_vs_native；唯一有效候选均值作单独复核，能量/形状只在获得明确 head 增益后于相近 affinity 下比较。",
+    "primary_comparator": "matched_native_all_predicted_mean_change",
+    "thresholds_used": {
+      "meaningful_gain": 0.05,
+      "flat_abs_band": 0.02,
+      "source": "src/evomolsteer/continuous/affinity_skill.py: classify 默认参数；input 没有正式活动阈值",
+      "threshold_status": "local_behavior_test_default"
+    },
+    "supplied_candidate_count": 12,
+    "supported_candidate_count_by_local_audit_rule": 12,
+    "score_coverage_range": [
+      1,
+      1
+    ],
+    "valid_rate_change_range": [
+      -0.030000000000000027,
+      0.020000000000000018
+    ],
+    "selected_candidate": {
+      "round": 2,
+      "all_head_change_vs_native": 0.08046085834503103,
+      "unique_head_change_vs_native": 0.11168611956014729,
+      "valid_rate_change": -0.010000000000000009,
+      "score_coverage": 1,
+      "negative_MMFF_relative_change": -0.012390074796338801,
+      "negative_MMFF_p90_relative_change": 0.17692920511601673,
+      "surround_RMS_improvement_fraction": -0.04569592533072098,
+      "meaningful_gain_margin": 0.030460858345031025
+    },
+    "head_runner_up": {
+      "round": 12,
+      "all_head_change_vs_native": 0.0371982479095454,
+      "unique_head_change_vs_native": 0.07363628304522951,
+      "winner_all_head_margin": 0.04326261043548563
+    },
+    "physical_tradeoff_counterexample": {
+      "round": 9,
+      "all_head_change_vs_native": 0.033956341743468954,
+      "unique_head_change_vs_native": 0.06220178812477872,
+      "negative_MMFF_relative_change": 0.000046995006814265494,
+      "negative_MMFF_p90_relative_change": 0.31307010417494485,
+      "surround_RMS_improvement_fraction": 0.027205655085070335,
+      "valid_rate_change": -0.020000000000000018,
+      "score_coverage": 1,
+      "winner_all_head_margin": 0.046504516601562074,
+      "winner_unique_head_margin": 0.04948433143536857,
+      "decision": "round9 的物理诊断较好，但 head 比 round2 低且未达到+0.05。当前选 round2，随后在相近 head 下评估能量；不能恢复历史物理优先 Pareto 的选择逻辑。"
+    },
+    "ranking_top4_by_all_head_change": [
+      {
+        "round": 2,
+        "all_head_change_vs_native": 0.08046085834503103
+      },
+      {
+        "round": 12,
+        "all_head_change_vs_native": 0.0371982479095454
+      },
+      {
+        "round": 9,
+        "all_head_change_vs_native": 0.033956341743468954
+      },
+      {
+        "round": 10,
+        "all_head_change_vs_native": 0.024121360778808665
+      }
+    ],
+    "distinct_endpoint_reporting": {
+      "all_absolute_mean": null,
+      "valid_absolute_mean": null,
+      "unique_absolute_mean": null,
+      "valid_mean_change_vs_native": null,
+      "best_valid_score": null,
+      "best_PB_fast_score": null,
+      "unique_top5": null,
+      "yield": null,
+      "Steer_mean_benchmark": null,
+      "Steer_best_benchmark": null,
+      "reason": "input.json 未提供；保留 null，避免把 delta 当绝对分数、unique 当all、Steer当匹配对照或把评分覆盖当产率。"
+    },
+    "decision_falsifier": "若相同协议的批次级/独立冻结评估不保留 round2 的 meaningful all-head 增益，或补齐绝对有效性/评分覆盖后不满足基本可用性，应重新审查程序；本次点估计选择不证明几何机制或真实结合能力。"
+  },
+  "skill_sha256": "1a4be652ac26a4f4c5662e0f502f9da0c88c50836bfbc027d013910001ce4de3"
+}

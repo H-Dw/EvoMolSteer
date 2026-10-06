@@ -14,9 +14,9 @@ from evomolsteer.generation.motif_campaign import proposal,record,AXES
 
 class MotifDriver(Driver):
     def __init__(self,args):
-        args.config_root='configs/experiments/ck2_motif_seed42_v1'
-        args.evidence_root='docs/experiments/ck2_motif_seed42_20261006'
-        args.state_root='test/motif_campaign_driver'
+        args.config_root=getattr(args,'config_root','configs/experiments/ck2_motif_seed42_v1')
+        args.evidence_root=getattr(args,'evidence_root','docs/experiments/ck2_motif_seed42_20261006')
+        args.state_root=getattr(args,'state_root','test/motif_campaign_driver')
         args.memory_reconnect=True
         super().__init__(args)
         self.setup_forward()
@@ -139,7 +139,8 @@ class MotifDriver(Driver):
                 if status!='0':raise RuntimeError(f'Remote inference exit {status}; inspect round log, do not silently skip a round')
                 break
             self.event('inference_running',round=number);time.sleep(45)
-        archive=self.root/'data/archives'/(label+'.tar.gz');dataset=self.root/'data/generated'/label;out=self.root/'results'/f'motif_round{number}'
+        prefix=getattr(self.args,'output_prefix','motif')
+        archive=self.root/'data/archives'/(label+'.tar.gz');dataset=self.root/'data/generated'/label;out=self.root/'results'/f'{prefix}_round{number}'
         local=self.evidence/f'round_{number:02d}/local';outcome=self.evidence/f'round_{number:02d}.outcome.json'
         archive.parent.mkdir(parents=True,exist_ok=True)
         with self.ssh.open_sftp() as sftp:
@@ -156,6 +157,8 @@ class MotifDriver(Driver):
                   ('window/report.json','window','evaluate_window_flowr.py',['--dataset',dataset,'--campaign',label,'--original',self.root/'data/optimized/main1000_w050/analysis_inputs_v2','--original-campaign','main1000_w050','--output',out/'window'])]
             for f,name,script,args in jobs:
                 if not self.complete_json(out/f):self.py(number,name,script,*args)
+            if getattr(self.args,'record_response',False) and not self.complete_json(out/'guidance_response.json'):
+                self.py(number,'response','analyze_guidance_response.py','--dataset',dataset,'--campaign',label,'--output',out/'guidance_response.json')
             self.py(number,'retain','preserve_terminal_reports.py','--results',out,'--dataset',dataset,'--campaign',label,'--output',local)
         validate_retention(local,r['n_per_arm']*len(r['arms']))
         if outcome.exists():
@@ -177,7 +180,7 @@ class MotifDriver(Driver):
         report=self.evidence/f'round_{number:02d}/comparison/comparison.json';audit=self.evidence/f'cleanup_after_round{number:02d}.local.json'
         plan={'allowed_bases':[str(self.root/p) for p in ('data/generated','data/archives','results')],
               'protected':[str(self.root/p) for p in ('data/optimized','data/reference_terminal','configs','src')],
-              'result_report':str(report),'targets':[str(self.root/'data/generated'/label),str(self.root/'results'/f'motif_round{number}'),
+              'result_report':str(report),'targets':[str(self.root/'data/generated'/label),str(self.root/'results'/f'{getattr(self.args,"output_prefix","motif")}_round{number}'),
                    str(self.root/'data/archives'/(label+'.tar.gz')),str(self.root/'data/archives'/(label+'.tar.gz.json'))]}
         if audit.exists():
             prior=read_json(audit)

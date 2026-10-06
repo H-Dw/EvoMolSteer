@@ -104,6 +104,12 @@ class CoordinateExtension(WindowExtension):
             self.controlled_updates+=1
             actual,guard=reject_new_severe_clashes(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
             rms=(actual.square().sum((1,2))/mask.sum(1)).sqrt()*scale;self.path_rms+=rms
+            if self.program.get('record_reward_response',False):
+                with torch.no_grad():
+                    after_value,_=self.reward((curr['coords']+actual)*scale+com[:,None],self.endpoint_atoms,mask,reference_time,anchor)
+                row.update(reward_before=value.detach().cpu().tolist(),reward_after=after_value.cpu().tolist(),
+                    reward_change=(after_value-value.detach()).cpu().tolist(),
+                    first_order_reward_change=(g.detach()*actual).sum((1,2)).cpu().tolist())
             row.update({k:v.detach().cpu().tolist() for k,v in {**{k:v for k,v in detail.items() if k!='core_mask'},**control,**guard}.items()})
             outside=(~detail['core_mask'])&mask
             row.update(reward=value.detach().cpu().tolist(),injection_rms_A=rms.cpu().tolist(),cumulative_rms_A=self.path_rms.cpu().tolist(),

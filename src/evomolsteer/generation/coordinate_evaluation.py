@@ -22,6 +22,8 @@ def evaluate(dataset,campaign,output):
                 if z['resampled'].any():raise ValueError('Particle resampling prohibited')
                 times=np.round(z['score_time'][:,0].astype(float),6)
                 ids=np.flatnonzero((times>=reference['window'][0]-1e-7)&(times<=reference['window'][1]+1e-7))
+                if reference['schema_version']=='affinity-coordinate-library-1.0':
+                    ids=ids[z['state_time'][ids]<=reference['window'][1]+1e-6]
                 view=reference.get('control_representation','current')
                 coords=z[f'{view}_coords'][ids].astype(float)*cfg['coord_scale']+com[None]
                 anchors=z['predicted_coords'][ids].astype(float)*cfg['coord_scale']+com[None] if reference.get('spatial_anchor')=='endpoint' else None

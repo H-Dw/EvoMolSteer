@@ -92,7 +92,7 @@ def record(campaign,evidence,number):
     groups=[{'label':'Original Steer','arm':'single','terminal_report':str(original.resolve())},
             {'label':'Native','arm':'unguided','terminal_report':str((baseline/'terminal_report.json').resolve()),'execution_report':str((baseline/'execution_report.json').resolve())},
             {'label':r['campaign'],'arm':'gradient','terminal_report':str((local/'terminal_report.json').resolve()),'execution_report':str((local/'execution_report.json').resolve())}]
-    manifest={'groups':groups,'native':'Native','steer':'Original Steer','tests':[r['campaign']],'round':number,'maximum_rounds':15}
+    manifest={'groups':groups,'native':'Native','steer':'Original Steer','tests':[r['campaign']],'round':number,'maximum_rounds':c['maximum_rounds']}
     write_json(local.parent/'comparison_manifest.json',manifest);compare(local.parent/'comparison_manifest.json',local.parent/'comparison')
     def tail(p,arm):
         d=pd.read_csv(p/'candidate_metrics.csv');v=converged_energy(d[d.arm==arm])
