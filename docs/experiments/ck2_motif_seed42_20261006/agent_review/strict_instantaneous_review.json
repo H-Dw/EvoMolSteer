@@ -1,0 +1,166 @@
+{
+  "schema_version": "strict-instantaneous-reference-review-1.0",
+  "date": "2026-10-07",
+  "reviewer": {
+    "identity": "Analyst/Designer subagent simulation",
+    "scope": "Local read-only source/reference/protocol review; only this JSON and companion Markdown written. No source/config changes, Git submission, remote access or inference."
+  },
+  "decision": "PASS for reference data and prospective protocol as inspected. The running local driver must load the updated implementation before its next affected freeze; this audit does not claim that restart has already occurred.",
+  "summary_zh": "strict即时选择参考仅改变背景尺度估计的时间范围；真实受控节点的即时选择目标、原始物理均值、去除ridge并还原后的经验协方差和ESS保持一致。实际正则化后的物理协方差及奖励可能改变，不能称控制等价。",
+  "checked_scope": {
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "controlled_edges_per_batch": 50,
+    "raw_frames_recomputed_per_channel": 700,
+    "channels": [
+      "all",
+      "NOS_C"
+    ],
+    "score_times": [
+      0,
+      0.49
+    ],
+    "proposal_state_times_observed": [
+      0.009999999776482582,
+      0.5
+    ],
+    "learning_window": [
+      0,
+      0.5
+    ],
+    "control_last_step": [
+      0.49,
+      0.5
+    ],
+    "outside_frame": "score=.5 -> proposal=.51 retained as context. In the instantaneous reference it retains its same-event selected moments, but contributes neither to scale quadrature nor any actual reward injection.",
+    "source_policy": "Only discovery trajectories0–13; no actual t=1 label or validation/heldout result used to construct/review targets."
+  },
+  "independent_raw_audit": {
+    "method": "Independently select resampled events by actual state_time within the learned window; recompute motif primitives from raw proposal coordinates, detached forecast labels/anchors and masks. Use channel-specific finite masks. Compute unweighted candidate population variance(ddof0) per event/batch, equal-batch mean and manual normalized trapezoidal score-time quadrature.",
+    "scale_formula": "s_j^2 = sum_k w_k * mean_b Var_unweighted(phi_(b,k,j)); k = score0… .49, w=normalized trapezoid. Instantaneous target uses normalized same-event selection_probability, not descendant counts.",
+    "hashes": "All14 raw trajectory byte hashes matched the reference source hashes.",
+    "results": {
+      "all": {
+        "raw_scale_relative_error_max": 0,
+        "raw_scale_absolute_error_max": 0,
+        "selected_center_scaled_error_max": 2.8421709430404007e-13,
+        "background_center_scaled_error_max": 3.410605131648481e-13,
+        "selected_regularized_dimensionless_covariance_error_max": 4.263256414560601e-14,
+        "ESS_error_max": 0
+      },
+      "NOS_C": {
+        "raw_scale_relative_error_max": 0,
+        "raw_scale_absolute_error_max": 0,
+        "selected_center_scaled_error_max": 2.2737367544323206e-13,
+        "background_center_scaled_error_max": 2.8421709430404007e-13,
+        "selected_regularized_dimensionless_covariance_error_max": 2.842170943040401e-14,
+        "ESS_error_max": 0
+      }
+    },
+    "error_interpretation": "Raw recomputation against the NEW reference confirms its implementation. Dimensionless covariance errors here compare the same new scale/ridge; they do not claim old and new regularized physical covariances are identical."
+  },
+  "historical_parity": {
+    "comparison": "Old all/cross references versus new strict all/cross; all51 stored frames x14 batches x selected/background =1428 moment pairs per channel, including every actually controlled node.",
+    "unchanged_metadata": [
+      "features/order",
+      "regions and receptor atoms",
+      "atom vocabulary",
+      "times",
+      "batches",
+      "trajectory source hashes",
+      "required input hashes",
+      "spatial anchor",
+      "proposal representation",
+      "spatial width",
+      "source mining manifest"
+    ],
+    "selection_weights": "Old selected_probability_ESS and new target_weight_ESS are semantically the same quantity for instantaneous references; values matched exactly, availability and n_available also matched.",
+    "raw_covariance_reconstruction": "Given dimensionless regularized Creg=.9*C+.1*diag(C)+.01I, subtract .01 from the diagonal and divide off-diagonals by .9, then multiply by outer(feature_scale,feature_scale). Only this reconstructed empirical physical covariance is compared across versions.",
+    "results": {
+      "all": {
+        "physical_center_error_divided_by_old_feature_scale_max": 2.408078988642248e-13,
+        "raw_physical_covariance_error_divided_by_old_scale_outer_max": 8.255782529062496e-14,
+        "ESS_error_max": 0,
+        "max_scale_reduction_fraction_from_old": 0.24647802771220073
+      },
+      "NOS_C": {
+        "physical_center_error_divided_by_old_feature_scale_max": 2.2844019747556836e-13,
+        "raw_physical_covariance_error_divided_by_old_scale_outer_max": 7.11381296628815e-14,
+        "ESS_error_max": 0,
+        "max_scale_reduction_fraction_from_old": 0.2456912518908142
+      }
+    },
+    "crucial_distinction": "Actual regularized physical covariance = .9*Cphys+.1*diag(Cphys)+.01*diag(s_j^2). The last term changes with strict scale, so precision, reward, dose gate and resulting trajectories need not remain equal despite unchanged raw targets.",
+    "survival_parity": "For each channel, strict instantaneous feature_scale is exactly equal to the already-corrected boundary_survival scale; only target weights/moments differ.",
+    "historical_freeze": "R1–8 reference hashes remain their original values. R1–9 program byte hashes still match their frozen plan records; R9 keeps its already-dispatched corrected survival reference unchanged.",
+    "sidecars": "Both strict compressed-file SHA256 and byte size match their manifest sidecars."
+  },
+  "protocol_review": {
+    "declared_before": "R11/R12 dispatch and R13–15 validation/heldout evaluation; the design ledger contains an explicit prospective strict-normalization revision.",
+    "R11": "Restore the completed balanced Pareto parent; halve its dose. If its target is instantaneous, route to the matching strict all/cross reference.",
+    "R12": "Restore the completed affinity Pareto parent; set time_ramp_power=1. If its target is instantaneous, route to the matching strict all/cross reference.",
+    "factor_interpretation": "If the restored parent used historical normalization, scale/ridge and dose or ramp both change. This is not a single-factor causal ablation. If the parent already uses strict normalization, replacement is numerically a no-op; record the actual frozen program/reference diff rather than asserting two numerical factors changed in every case.",
+    "R13": "Selection pool is explicitly restricted to discovery rounds9–12. Their comparisons remain development data; R1–8 may motivate restored architectures but cannot directly become the final strict-scope winner.",
+    "R14_R15": "Use round13.plan.parent_round and copy that same discovery program. Validation/heldout scores are not fed back into choose(); only round/run metadata and evaluation batches change.",
+    "scope_gate": "For number>=9, freeze rejects references without scale_score_times or whose last scale score reaches the learning-window end. The inspected references additionally passed the full actual-state grid and source checks above.",
+    "interpretation_limits": [
+      "Pareto/choose always returning a candidate does not prove a jointly improving solution; feasibility fallback must remain visible in the final report.",
+      "Current seed42 batch splits are prospective tests for this campaign, not new-master-seed generalization. Historical aggregate access in earlier work prevents a blanket claim that all prior context was fully blinded.",
+      "This review did not inspect R13–15 outcomes. Their plan files were not yet present at the snapshot, so protocol consistency is a source/ledger audit, not proof of future execution."
+    ]
+  },
+  "execution_action": {
+    "finding": "MotifDriver is a persistent loop; proposal is imported at process start. Editing files or pulling Git does not replace already-loaded Python functions.",
+    "owner_plan": "Owner confirmed a controlled restart of the local driver during detached R10 inference; the remote inference and its frozen reference remain unchanged.",
+    "status": "Required adoption step acknowledged, not performed or independently confirmed by this reviewer. Restart/resume and subsequent freeze hashes should be recorded by the owner.",
+    "tests": "Owner reports185 local tests passed. This reviewer did not rerun the suite; the700-frame/channel independent numerical audit was executed."
+  },
+  "provenance": {
+    "source_mining_manifest_sha256": "97f1903cde2d76aba2d27ecc5754e994d02ae33279c72303b9510fcec8a2302e",
+    "references": [
+      {
+        "channel": "all",
+        "historical_path": "configs/experiments/ck2_motif_seed42_v1/all_reference.json.gz",
+        "historical_sha256": "bf889345e358e41299a57b79d64befbf38fef08ae19da672868d066f77867034",
+        "strict_path": "configs/experiments/ck2_motif_seed42_v1/strict_all_reference.json.gz",
+        "strict_sha256": "c065a2672da77c1741cfea90d27b1e0e73e52c23a3eabd90aa50c9ed15e68ea2",
+        "strict_bytes": 3381250
+      },
+      {
+        "channel": "NOS_C",
+        "historical_path": "configs/experiments/ck2_motif_seed42_v1/cross_reference.json.gz",
+        "historical_sha256": "7613c3266036f3e31cedfbdfaf1370cee016d9eef50b620cd5b3aa3617fe3e70",
+        "strict_path": "configs/experiments/ck2_motif_seed42_v1/strict_cross_reference.json.gz",
+        "strict_sha256": "c7d393e7accd59080a89a1b581528cf7f9853d0d159eb8e616ec1f578f505842",
+        "strict_bytes": 3389430
+      }
+    ],
+    "unchanged_R09": {
+      "reference_sha256": "02bd7a4e31791454c91de606cd23e4f8718a782b3af2999e139df82f60153a3f",
+      "program_sha256": "e55b9d9c1d954168ffef27fc162c32e1a7f65e9e8a5e8ac80de9c761dcb08db4",
+      "plan_sha256": "de305b29c7c500b5afcf2188130090d5f599ea0fa1f895e1f86046739cccea25"
+    },
+    "inspected_source_hashes": {
+      "src/evomolsteer/generation/motif_reward.py": "4654c8484e878022bc310a7096e3bc9abe2d6c27fc87f29d92a4c8b33e40633f",
+      "src/evomolsteer/generation/motif_campaign.py": "5a28bde793f346f0b10670581844bca939dfb1f8f01e531d28e1327b60e9b2e0",
+      "scripts/resume_motif_campaign.py": "e6c906ca1469d18bb41e2d0014b52dfacc63ac075e881d92354bbee3d7881514",
+      "docs/experiments/ck2_motif_seed42_20261006/design_decisions.json": "8dc689916f4b0c1512fc583113ab9d5c319495c50a4bad8373c492cd94af68c5"
+    },
+    "hash_semantics": "Exact local bytes at audit snapshot; later intentional code/ledger changes require a new recorded hash, not a claim that this snapshot already reviewed them."
+  }
+}
+
