@@ -1,0 +1,212 @@
+{
+  "schema_version": "motif-campaign-method-audit-1.0",
+  "date": "2026-10-07",
+  "identity": "Authorized Analyst/Designer subagent simulation",
+  "scope": "Read-only local methods and retained evidence audit. No remote access, generation, source/config changes, Git commit or validation/heldout-driven design. Only these two new review documents are written.",
+  "snapshot": "Task began with10 completed rounds. During local audit, campaign metadata showed11 completed/12 started; R11 retained energy rows were additionally checked. R13–15 programs were not yet frozen and their outcomes were not inspected.",
+  "conclusion": "The pipeline supports reproducible exploratory distribution imitation, not established advantageous-region or affinity mechanisms. Current retained energy numbers are internally equal under converged filtering, but development p90/coverage has a latent mask inconsistency. The strict-scope winner/replay protocol is implemented prospectively; final effective-parameter invariance and success remain unverified until R13–15 exist.",
+  "findings": [
+    {
+      "id": "EVIDENCE_NOT_MECHANISM",
+      "severity": "interpretation",
+      "source": [
+        "continuous/coordinate_mining.py",
+        "continuous/boundary_motifs.py",
+        "results/spatial_motif_discovery_v3/whole_window_evidence.csv",
+        "results/boundary_motif_discovery_v1/whole_window_evidence.csv"
+      ],
+      "finding": "Proposal selection_shift、root-balanced selection/retained、充分调整同期affinity、受控lag和within-root均无FDR显著特征。可以拟合经验几何分布并提出探索性干预，不能宣称已学到ASN117/VAL116的因果亲和力优势或持续空间方向。",
+      "verified_statistics": {
+        "proposal_selection_shift": "0/54, min q=.22847",
+        "proposal_partial_affinity": "0/51, min q=.78671",
+        "proposal_controlled_lag": "0/54, min q=.31856, min time coverage=.44752",
+        "proposal_within_root": "0/54, min q=.10140, min coverage=.56143",
+        "proposal_partially_adjusted_lag": "2/54 significant; only starting-score adjustment",
+        "boundary": "36 features x4 metrics;0 significant whole-curve effects; retained/root-balanced retained integral0/36 each; low-tail integral2/36"
+      },
+      "action": "保留nulls、coverage与所有失败分母；将优势规则表述为预声明几何模仿假说，模型head收益不等于实验亲和力。"
+    },
+    {
+      "id": "TIME_AND_MULTIPLICITY_SCOPE",
+      "severity": "interpretation",
+      "source": [
+        "continuous/coordinate_mining.py:238",
+        "continuous/functional.py:16",
+        "continuous/boundary_motifs.py:55"
+      ],
+      "finding": "常规motif表按score0… .5共51节点计算，proposal含.51；actual-boundary表才严格限定score0… .49、proposal至.5。不能把两者的q或趋势混作同一严格实际状态窗口的结果。",
+      "fitting": "整窗LOBO one-SE次数0–5，bounded kernel selected_mean在logit空间拟合后sigmoid；小于clip epsilon1e-8的tiny核会丢失拟合变化。reward使用实测节点矩，不使用这些拟合曲线。导数仅为时间导数。",
+      "limits": "FDR按metric/defined feature family控制，未校正跨历史区域探索、不同统计族及反复生成轮次的自适应选择。边界整曲线符号置换保留批次内时间依赖，但依赖批次可交换/符号对称等假设；bootstrap区间条件于已选次数。",
+      "action": "严格范围的最终表述引用boundary统计；普通51节点结果注明历史score口径。若要声称严格窗口内的即时选择/lag优势，需另做匹配范围统计，不能由仅修正scale替代；本审核不启动新挖掘。"
+    },
+    {
+      "id": "LINEAGE_UNIT",
+      "severity": "interpretation",
+      "source": [
+        "continuous/coordinate_mining.py:73",
+        "continuous/coordinate_mining.py:183",
+        "continuous/boundary_motifs.py:35"
+      ],
+      "finding": "lag将同节点每个存活parent计一次并平均其child后续分数；等根和within-root是合理的依赖性诊断，未定义节点保留缺失且按覆盖归一化。它们不消除存活混杂或根谱系塌缩。",
+      "verified_context": "14个发现批次末端平均仅1.2143根，11批仅1根；先前严格边界审计也显示11/14批的早期目标只来自一个祖先。",
+      "limits": "后代数用于克隆质量而非独立n；700节点、候选行、克隆数均不是额外实验重复。部分支持的lag积分是不同可观测子域上的平均，不能等同完整窗口效应。条件高斯分量是经验批次矩，不是真实独立构象mode。",
+      "action": "发现统计以批次为单位；最终配对批次为描述性验证单位，不能使用候选级显著性。"
+    },
+    {
+      "id": "ENERGY_MASK_LATENT_MISMATCH",
+      "severity": "medium_future_robustness",
+      "source": [
+        "generation/motif_campaign.py:97",
+        "generation/motif_reporting.py:19",
+        "generation/terminal_evaluation.py:19",
+        "generation/terminal_evaluation.py:114"
+      ],
+      "finding": "terminal MMFF中位数和heldout能量显式筛energy_status=='converged'；campaign.record.tail目前只对mmff_relief_per_heavy做dropna，并用同一长度算energy coverage。energy_relaxation会给not_converged输出有限数值，因此未来这类行可进入开发p90/coverage。",
+      "actual_impact": "R1–10全部保留candidate rows独立复核，非converged但relief非空均0，非缺失无穷值均0；dropna p90与converged p90相同，中位数与报告一致。审阅中新增检查的R11也为0。因此没有证据称当前已混入失败能量或旧结果错误。",
+      "recommended_fix": "前瞻统一收敛且有限的能量mask用于median/p90/coverage；保留not_converged、unsupported、error、invalid等失败计数。任何重算须记录版本并核对当前数据数值不变，不改冻结生成参数。",
+      "reviewer_action": "No source or results modified."
+    },
+    {
+      "id": "COVERAGE_AND_SOFT_ELIGIBILITY",
+      "severity": "interpretation",
+      "source": [
+        "generation/terminal_evaluation.py:109",
+        "generation/motif_reporting.py:25",
+        "generation/motif_campaign.py:28"
+      ],
+      "finding": "surround RMS按可计算记录求均值，可能含非收敛优化位移；MMFF中位数/p90应按收敛能量。两者coverage不同，不能统一称全部attempts的物理均值。当前R1–11恰无非收敛且RMS非空行，但未来不能假定一致。",
+      "energy_meaning": "H-only preparation后与同图局部MMFF94s relaxation的能量下降/重原子；不是全局应变、跨图绝对稳定性或受体结合自由能。valid但PB-fail仍可有合法能量；不应以PB通过与否暗中筛掉高应变。",
+      "reporting": "各arm保留attempted、converged_energy_n、available_surround_n、状态计数，失败不填零。最终中位数/p90是成功计算子集统计，失败分母另列。",
+      "selection_limit": "choose先做不含质量率的Pareto，再在该front内应用-2百分点质量偏好；若没有eligible则回退。质量不合格方案可先支配并排除front外合格方案，因此这不是全局硬资格门槛，也不保证最终winner满足联合目标。不得把返回winner本身当作成功判定。"
+    }
+  ],
+  "energy_checks": {
+    "rows_examined": 1300,
+    "includes": "R1 gradient/native/zero各100; R2–11 gradient各100. This is row coverage, not independent sample size.",
+    "gradient_converged_n_by_round": [
+      96,
+      97,
+      96,
+      98,
+      99,
+      100,
+      98,
+      98,
+      96,
+      98,
+      95
+    ],
+    "native_and_zero_R1_converged_n": 98,
+    "nonconverged_nonmissing_relief_rows": 0,
+    "nonconverged_nonmissing_surround_rows": 0,
+    "p90_dropna_equals_converged": true,
+    "median_report_check": "Verified R1–10 all arms; R11 supplementary check covered p90/status/coverage, not a claimed repeat of every terminal summary."
+  },
+  "frozen_protocol": {
+    "checked": "Source and actually existing R9–12 plans/configurations; R13–15 not yet available.",
+    "final_pool": "proposal(13) restricts discovery outcomes to rounds9–12. freeze enforces strict scale_score_times for number>=9.",
+    "actual_R11": {
+      "parent_round": 9,
+      "target": "boundary_survival",
+      "reference_sha256": "02bd7a4e31791454c91de606cd23e4f8718a782b3af2999e139df82f60153a3f",
+      "eta": 0.025,
+      "ramp": 0,
+      "interpretation": "Parent already strict; actual numerical change is eta half, not another scale replacement."
+    },
+    "actual_R12": {
+      "parent_round": 2,
+      "target": "instantaneous",
+      "reference_sha256": "c065a2672da77c1741cfea90d27b1e0e73e52c23a3eabd90aa50c9ed15e68ea2",
+      "eta": 0.3,
+      "ramp": 1,
+      "interpretation": "R2 restored with strict-scale/ridge change plus ramp1; no single-factor attribution."
+    },
+    "replay": "proposal(14/15) uses round13.plan.parent_round and copies that same completed discovery program; it does not rerank using validation/heldout performance.",
+    "effective_parameter_keys_to_verify_after_freeze": [
+      "reference_sha256",
+      "target_definition",
+      "window",
+      "reward_view",
+      "motif_components",
+      "native_rms_ratio",
+      "mixture_temperature",
+      "robust_delta",
+      "time_ramp_power",
+      "dose_reference",
+      "core_radius_A",
+      "contrast_bound_nats",
+      "initial_update_dose(default normalized)",
+      "preserve_native_rigid_pose(default normalized)",
+      "constraints",
+      "FLOWR checkpoint/native integrator/steps"
+    ],
+    "invariance_limit": "Round IDs, report paths, batch seeds and provenance metadata naturally differ. Compare normalized effective parameters and hashes of frozen scientific inputs, not only whole JSON byte hashes. No completed invariant check for nonexistent R13–15 is claimed.",
+    "blinding": "No R13–15 outcomes used here. These are fixed-master-seed batch checks in this campaign; prior historical aggregate access must be disclosed, and they are not independent biological affinity validation."
+  },
+  "missing_features_ranked": [
+    {
+      "priority": 1,
+      "name": "Graph-aware intraligand deformation tails and localized strain components",
+      "confirmed_gap": "当前9种motif只有centroid、3个shell均值和3个pair核均值；不识别成键/非成键、键级、键角、扭转、平面性或少数最坏几何。整体均值改善仍可掩盖造成MMFF尾部的少量坏几何。",
+      "candidate_observables": "合法终态图上分解bond/angle/torsion/nonbonded MMFF贡献及每原子/局部relax位移；记录按类型标准化的bond-length/angle残差与平滑最大值/上尾。示意几何项(sum w_ij*(r_ij-l_type)^2, sum w_ijk*(cos(theta)-c_type)^2)必须明确类型、单位和非键排除。",
+      "falsifiable_value": "若MMFF高尾与具体几何项及局部变形无一致批次关系，该机制不进入奖励；若未来受控修正降低该项却未改善总体能量尾部/覆盖或损害head与多样性，也不能宣称解决目标。",
+      "boundary": "本轮只建议诊断，不回灌终态标签到冻结参考。早期噪声和未定图没有可冒充的MMFF；任何后续化学项须有可计算类型与可信表示，不能锁定原图。"
+    },
+    {
+      "priority": 2,
+      "name": "Typed receptor compatibility and orientation",
+      "confirmed_gap": "最近受体距离shell与NOS/碳类别没有化学角色、氢键方向、芳香平面、partial charge或全口袋逐原子拥挤。严重clash backtrack只排除极端情况，不等于评价受体相容性。",
+      "candidate_observables": "在化学可定义的状态记录按元素/角色分层的vdW overlap上尾、donor/acceptor角度、芳香法向和邻近口袋密度；对比全口袋与预声明区域。softplus((R_i+R_j-r_ij)/s)^2仅是带类型几何重叠代理，参数未验证前不称结合能。",
+      "falsifiable_value": "若局部motif与较低surround松弛伴随更严重受体碰撞/不合理角色方向，局部兼容性假说被否定；任何新约束须在相同剂量和失败分母下同时评估head、validity与几何。",
+      "boundary": "真实affinity仍须独立评估；无氢/质子化/角色证据时不能称氢键，新增目标不准用硬组成或图相等gate。"
+    },
+    {
+      "priority": 3,
+      "name": "Chemistry-conditional geometry and uncertainty/support",
+      "confirmed_gap": "当前motif reference把批内不同图/化学环境的几何混在均值协方差中；all/NOS/NOS_C与总计数不足以指定局部valence/charge/aromaticity。其它历史shape分支做过计数条件化，不代表当前motif已具备这些信息。",
+      "candidate_observables": "记录固定条件原子角色/键邻域下的joint几何矩、有效槽位、祖先ESS、covariance ridge份额及LOO稳定性；若原始数据含软分类概率，可增加entropy与跨步标签/anchor变化率，否则明确缺测。",
+      "falsifiable_value": "若条件划分只有低覆盖/单祖先支持，或条件后几何-能量关系消失，defer该分层而非外推；改善不能只来自减少可计算/可生成的化学空间。",
+      "boundary": "保持图自由生成，硬标签detach只给条件梯度；不伪造离散导数。统计分层不是额外NN，也不是因果识别。"
+    },
+    {
+      "priority": 4,
+      "name": "Persistence of local geometry through native continuation",
+      "confirmed_gap": "窗口内聚合拟合不说明同一干预的局部几何在.5→1是否保持、是否经native类别改变转成远端形变；现有终态RMS和窗口距离只提供端点摘要。",
+      "candidate_observables": "作为开发性诊断跟踪固定身份定义下的区域/周边位移、类别切换与可置换几何变化，并区分即时reward下降、真实x_.5改善和最终兼容性。",
+      "falsifiable_value": "若窗口收益在native续推中消失或变为远端应变，不能用窗口fit证明终态优势；反之持续性也只是中介线索，不是因果证明。",
+      "boundary": "不延长当前引导窗口，不把t1标签倒灌学习，不将时间导数直接当空间力。所有候选未实施，排序是可证伪信息价值，不是保证收益。"
+    }
+  ],
+  "provenance": {
+    "source_hashes": {
+      "src/evomolsteer/generation/motif_campaign.py": "5a28bde793f346f0b10670581844bca939dfb1f8f01e531d28e1327b60e9b2e0",
+      "src/evomolsteer/generation/motif_reporting.py": "1c28d8fa2233a11853dee412de661992faf9f895e5e1643ddad76280f7e71003",
+      "src/evomolsteer/generation/terminal_evaluation.py": "f2ff14258356579961e7e011f37fecb7c3991fbe91b2cb7afd53046c35deed93",
+      "src/evomolsteer/continuous/coordinate_mining.py": "4161e9969af345791db51eb5bb69f49343f8f03e54afd8c23e6d4872ca15c9b5",
+      "src/evomolsteer/continuous/boundary_motifs.py": "703edbbd220bccf20ac608904effa5862aec83876c25dc01473fa54c021b0c4a",
+      "src/evomolsteer/continuous/spatial_motifs.py": "ba16fd990f418b3f6fcdf1f8f75b4a006013a60ed46ba403350f62a063ef1ead",
+      "src/evomolsteer/continuous/functional.py": "70dba80f8475557e74986599fc3adb8d93918ba799cbe82a530e7a33fb5e7abb",
+      "scripts/resume_motif_campaign.py": "e6c906ca1469d18bb41e2d0014b52dfacc63ac075e881d92354bbee3d7881514"
+    },
+    "evidence_hashes": {
+      "results/spatial_motif_discovery_v3/whole_window_evidence.csv": "999cc821be7f99709dad8d1512ce2c18e08b31beeebb415e1a7daac570f38f86",
+      "results/boundary_motif_discovery_v1/whole_window_evidence.csv": "cdf20d491ce8ff8ff5de2663a6086b407e079961e9f9262f2a45b8781e7a6c47"
+    },
+    "candidate_metrics_root": "docs/experiments/ck2_motif_seed42_20261006/round_NN/local/candidate_metrics.csv",
+    "candidate_metrics_sha256_by_round": {
+      "10": "716aa107ae316481ae706c4663343b42fed1b229a358bce0336a2270684b0483",
+      "11": "889e415a33ed897166ed2a79e7f0e08ec06c36acf5acef4a7121df49cfaded10",
+      "01": "33d7d796e189331f86f3f7c417f93a3923d4354d37e24e800655eab5ee47e42d",
+      "02": "84ded70e02b522ff1bf33f71f9eed80a7c5288ae9ece48ad8dfb9249dca40623",
+      "03": "39e88d98b0ee2395983c1b2cd75daf462b921b9a048e8d7a3240c6704bfbabbc",
+      "04": "3c84ace084b17e159735bd50106591cd66d7a17341dcae9efb0289ea06e6a9ae",
+      "05": "ac7e7e392c68b33e26c5d47534c7eeb99f98869786f95677a73a52be34d291ef",
+      "06": "a8c30b12951589a180e15c5e344b8dee9aa05d5a83a89f288b9351ed5b77b4bf",
+      "07": "1bac6e64af58e14ea851ae80f590f243fad00ac43d6cb94b9d4b2f57a5fec008",
+      "08": "65b13ca3e666439cdeb7e9932e79d588a7f6fdb628b88f5eed613717ec047a53",
+      "09": "98d4b1b95e58c4e5b8aeab98f4ebab1233d8e9864fb41684395069cc638286cc"
+    },
+    "note": "This records inspected snapshots. Later source fixes may resolve the latent mask issue but cannot be represented as already reviewed here."
+  }
+}
+
