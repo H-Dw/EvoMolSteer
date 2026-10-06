@@ -9,6 +9,15 @@ from .prototypes import write_json
 AXES=('all_head_change_vs_native','shape_improvement_fraction','negative_MMFF_relative_change','surround_RMS_improvement_fraction','negative_MMFF_p90_relative_change')
 
 
+def validate_initial_pairing(actual,native):
+    a,n=actual['initial_state_signatures'],native['initial_state_signatures']
+    keys=[k for k in a if k.startswith('gradient/')]
+    if not keys or any(n.get(k.replace('gradient/','unguided/',1))!=a[k] for k in keys):raise ValueError('Gradient/native initial states differ')
+    return {'passed':True,'batches':sorted(int(k.split('/')[1]) for k in keys),
+        'fields':'Initial coordinates, atom/bond/charge states and mask byte signatures',
+        'actual_signatures':{k:a[k] for k in keys}}
+
+
 def pareto_front(outcomes):
     if not outcomes:return []
     vectors=np.asarray([[r.get(k,np.nan) for k in AXES] for r in outcomes],float)
@@ -67,6 +76,8 @@ def record(campaign,evidence,number):
     c=read_json(campaign);r=next(v for v in c['rounds'] if v['round']==number);evidence=Path(evidence)
     local=evidence/f'round_{number:02d}/local';baseline=local if 'unguided' in r['arms'] else evidence/'round_01/local'
     at,nt=(read_json(p/'terminal_report.json') for p in (local,baseline));aw,nw=(read_json(p/'window/report.json') for p in (local,baseline))
+    pairing=validate_initial_pairing(aw,nw)
+    write_json(local.parent/'initial_pairing.json',pairing)
     actual,native=at['results']['gradient'],nt['results']['unguided'];shape,ns=aw['results']['gradient'],nw['results']['unguided']
     execution=read_json(local/'execution_report.json');audit=read_json(local/'coordinate_audit.json')
     if not execution['no_particle_resampling'] or execution['outside_window_injection'] or not audit['coordinate_preflight']['passed']:raise ValueError('Execution contract failed')

@@ -1,4 +1,6 @@
 from evomolsteer.generation.motif_campaign import pareto_front,choose,proposal,AXES
+from evomolsteer.generation.motif_campaign import validate_initial_pairing
+import pytest
 
 
 def row(n,head=0,physical=0):
@@ -25,3 +27,9 @@ def test_boundary_target_plans_and_count_threshold_roundoff():
     a,b=row(1,.01,.1),row(2,.1,-.1)
     a['PB_rate_change']=.96-.98
     assert choose([a,b])['round']==1
+
+
+def test_initial_seed_alone_cannot_replace_actual_state_pairing():
+    actual={'initial_state_signatures':{'gradient/17':'abc'}}
+    assert validate_initial_pairing(actual,{'initial_state_signatures':{'unguided/17':'abc'}})['passed']
+    with pytest.raises(ValueError,match='initial states'):validate_initial_pairing(actual,{'initial_state_signatures':{'unguided/17':'different'}})
