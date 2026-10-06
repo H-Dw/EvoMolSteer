@@ -74,7 +74,7 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
     if digest(reference) != p['reference_sha256'] or p['seed'] != 42:
         raise ValueError('Parent reference/seed mismatch')
     allowed = {'native_rms_ratio','dose_reference','initial_update_dose','preserve_native_rigid_pose',
-               'constraints.max_atom_step_A','constraints.max_pair_distance_change_A','mixture_temperature','robust_delta'}
+               'constraints.max_atom_step_A','constraints.max_pair_distance_change_A','constraints.initial_atom_step_A','mixture_temperature','robust_delta'}
     if set(changes)-allowed or kind not in ('exact_replay','single_factor'):
         raise ValueError('Unsupported rollback factor')
     if (kind == 'exact_replay' and changes) or (kind == 'single_factor' and len(changes) != 1):
@@ -84,6 +84,7 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
         parts = field.split('.');container = q
         for key in parts[:-1]:container = container[key]
         before[field] = container.get(parts[-1], {'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}.get(field))
+        if field=='constraints.initial_atom_step_A' and before[field] is None:before[field]=container['max_atom_step_A']
         if before[field] == value:raise ValueError('Factor does not change the parent')
         container[parts[-1]] = value
     q['round'] = number
@@ -93,6 +94,7 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
         raise ValueError('Invalid dose/atom cap')
     if 'max_pair_distance_change_A' in q['constraints'] and (not np.isfinite(q['constraints']['max_pair_distance_change_A']) or q['constraints']['max_pair_distance_change_A']<=0):
         raise ValueError('Invalid pair-distance cap')
+    if 'initial_atom_step_A' in q['constraints'] and not (np.isfinite(q['constraints']['initial_atom_step_A']) and 0<q['constraints']['initial_atom_step_A']<=q['constraints']['max_atom_step_A']):raise ValueError('Initial cap must only tighten the first controlled update')
     if q.get('initial_update_dose','native') not in ('native','cap_to_flow') or q.get('dose_reference','observed_native') not in ('observed_native','predictive_flow'):
         raise ValueError('Invalid dose policy')
     if q.get('initial_update_dose')=='cap_to_flow' and q.get('dose_reference','observed_native')!='observed_native':raise ValueError('Initial cap requires native calibration')

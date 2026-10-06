@@ -40,7 +40,8 @@ def evaluate(dataset,campaign,output):
                 with torch.no_grad():
                     value,detail=reward(torch.tensor(coords[k]),torch.tensor(atoms[k]),torch.tensor(mask[k]),t,
                         torch.tensor(anchors[k]) if anchors is not None else None)
-                available=detail['available'].numpy();features=detail['observables_A'].numpy()
+                available=detail['available'].numpy()
+                features=detail['observables' if 'observables' in detail else 'observables_A'].numpy()
                 row={'arm':arm,'batch':batch,'time':t,'state_time':float(state_times[k]),'within_control_state_window':bool(state_times[k]<=reference['window'][1]+1e-6),'n_available':int(available.sum()),
                      'mean_reward':float(value[available].mean()) if available.any() else None,
                      'mean_standardized_residual':float(detail['nearest_standardized_rms'][available].mean()) if available.any() else None,
@@ -57,6 +58,7 @@ def evaluate(dataset,campaign,output):
                     'dose_reference':v.get('dose_reference',program.get('dose_reference','observed_native')),
                     'first_controlled_update':v.get('first_controlled_update'),
                     'initial_update_dose':v.get('initial_update_dose',program.get('initial_update_dose','native')),
+                    'atom_step_cap_A':v.get('atom_step_cap_A'),
                     'raw_gradient_l2_native_mean':average('raw_gradient_l2_native'),
                     'post_projection_l2_native_mean':average('post_projection_l2_native'),
                     'projection_retained_squared_fraction_mean':average('projection_retained_squared_fraction'),
@@ -92,6 +94,7 @@ def evaluate(dataset,campaign,output):
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed']:raise ValueError('Coordinate derivative failed')
     report={'schema_version':'current-coordinate-evaluation-1.0','window':reference['window'],'batch_results':audit,
+        'observable_unit':reference.get('feature_unit','A'),
         'coordinate_preflight':preflight,'inference_commit':cfg['extension']['code_commit'],
         'program_sha256':digest(root/'reward_program.json'),'reference_sha256':digest(root/'reference.json.gz'),
         'endpoint_at_window_end':table[np.isclose(table.state_time,reference['window'][1])].to_dict('records'),

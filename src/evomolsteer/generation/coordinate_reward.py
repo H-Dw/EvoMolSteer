@@ -4,6 +4,14 @@ import numpy as np
 import torch
 
 
+def atom_step_cap(constraints,first_controlled):
+    """Cap the first *controlled* update, independent of absolute score time."""
+    regular=constraints['max_atom_step_A'];initial=constraints.get('initial_atom_step_A',regular)
+    if not all(math.isfinite(v) for v in (regular,initial)) or not 0<initial<=regular:
+        raise ValueError('Initial atom cap must tighten the regular control cap')
+    return initial if first_controlled else regular
+
+
 def predictive_flow_increment(current,endpoint,t,dt,cosine_schedule=False):
     """Euler displacement of the verified linear endpoint-parameterized flow."""
     if cosine_schedule or not (0<=t<1 and dt>0):raise ValueError('Linear flow schedule and valid step required')

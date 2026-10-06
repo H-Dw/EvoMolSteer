@@ -38,6 +38,23 @@ def test_reference_and_budget_cannot_be_relaxed_by_rollback(tmp_path):
     with pytest.raises(ValueError,match='reference/seed'):freeze(c,p,r,tmp_path/'next.json',tmp_path/'plan.json',4,'bad',{},'Changed input','exact_replay')
 
 
+def test_first_update_cap_restores_parent_later_cap_and_records_effective_default(tmp_path):
+    c,p,r=setup_case(tmp_path)
+    q=freeze(c,p,r,tmp_path/'next.json',tmp_path/'plan.json',4,'initialcap',
+        {'constraints.initial_atom_step_A':.0125},'Isolate initial dose saturation')
+    assert q['constraints']=={'max_atom_step_A':.025,'initial_atom_step_A':.0125}
+    assert q['backtracking']['before']=={'constraints.initial_atom_step_A':.025}
+    assert q['window']==[.2,.7] and q['native_rms_ratio']==.05
+
+
+@pytest.mark.parametrize('cap',[0.,.025,.026,float('nan')])
+def test_initial_cap_cannot_relax_or_silently_replay_default(tmp_path,cap):
+    c,p,r=setup_case(tmp_path);before=digest(c)
+    with pytest.raises(ValueError):freeze(c,p,r,tmp_path/'next.json',tmp_path/'plan.json',4,'bad',
+        {'constraints.initial_atom_step_A':cap},'Invalid initial cap')
+    assert digest(c)==before and not (tmp_path/'next.json').exists()
+
+
 def test_paired_batch_evidence_rejects_missing_or_duplicate_units():
     # Missing/duplicated batches must fail before access to outcome values.
     a={'batch_results':[{'arm':'gradient','batch':0}]}

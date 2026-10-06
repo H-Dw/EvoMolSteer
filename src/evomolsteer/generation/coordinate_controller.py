@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import torch
 from .window_controller import WindowExtension
-from .coordinate_reward import remove_rigid_pose_gradient,predictive_flow_increment,calibration_increment
+from .coordinate_reward import remove_rigid_pose_gradient,predictive_flow_increment,calibration_increment,atom_step_cap
 from .coordinate_contrast import make_coordinate_reward
 from .local_reward import bounded_local_step
 from .multistage_reward import preserve_native_geometry
@@ -88,10 +88,12 @@ class CoordinateExtension(WindowExtension):
             first_controlled=self.controlled_updates==0
             dose_delta=calibration_increment(native,flow_delta,mask,dose_view,self.program.get('initial_update_dose','native'),first_controlled)
             row.update(first_controlled_update=first_controlled,initial_update_dose=self.program.get('initial_update_dose','native'))
+            atom_cap=atom_step_cap(c,first_controlled)
+            row['atom_step_cap_A']=atom_cap
             # Density cancellation is evaluated in float64; the physical update
             # must retain FLOWR's coordinate dtype (including a zero-dose arm).
             amplitude_gate=detail['dose_gate'].to(g)
-            proposed,control=bounded_local_step(g,dose_delta,mask,amplitude_gate,eta,scale,c['max_atom_step_A'],c['max_cumulative_rms_A']-self.path_rms)
+            proposed,control=bounded_local_step(g,dose_delta,mask,amplitude_gate,eta,scale,atom_cap,c['max_cumulative_rms_A']-self.path_rms)
             row['calibration_rms_A']=control['native_rms_A'].detach().cpu().tolist()
             row.update(dose_reference=dose_view,
                 observed_native_rms_A=(native.square().sum((1,2))/mask.sum(1)).sqrt().mul(scale).cpu().tolist(),

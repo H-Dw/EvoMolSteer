@@ -146,3 +146,12 @@ def test_pair_guard_can_limit_internal_deformation_below_atom_cap():
     assert b['max_actual_pair_distance_change_A'].item()<=.01
     difference=(torch.cdist(x+new,x+new)-torch.cdist(x,x)).abs().max()
     assert difference<=.01 and new.norm()<old.norm()
+
+
+def test_initial_atom_cap_is_control_counter_based_and_preserves_later_updates():
+    from evomolsteer.generation.coordinate_reward import atom_step_cap
+    c={'max_atom_step_A':.025,'initial_atom_step_A':.0125}
+    assert atom_step_cap(c,True)==.0125 and atom_step_cap(c,False)==.025
+    assert atom_step_cap({'max_atom_step_A':.025},True)==.025
+    for invalid in (0.,-.01,.026,float('nan')):
+        with pytest.raises(ValueError):atom_step_cap({**c,'initial_atom_step_A':invalid},True)
