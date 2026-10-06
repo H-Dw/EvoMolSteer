@@ -6,8 +6,9 @@ if __name__=='__main__':
     p.add_argument('--role',choices=['Analyst','Designer']);p.add_argument('--request');p.add_argument('--response')
     p.add_argument('--dataset');p.add_argument('--campaign');p.add_argument('--output');p.add_argument('--round',type=int)
     p.add_argument('--transport-mining');p.add_argument('--influence')
+    p.add_argument('--composition-mining')
     a=p.parse_args()
-    if a.action=='export':export(a.mining,a.role,transport=a.transport_mining,influence=a.influence)
+    if a.action=='export':export(a.mining,a.role,transport=a.transport_mining,influence=a.influence,composition=a.composition_mining)
     elif a.action=='import':import_response(a.request,a.response,a.mining)
     elif a.action=='compile':compile_design(a.mining,a.dataset,a.campaign,a.output,a.round)
     else:

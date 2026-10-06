@@ -20,7 +20,7 @@ ANALYST={'type':'object','additionalProperties':False,'properties':{'schema_vers
     'required':['schema_version','agent','observations','rules','counterevidence','limitations']}
 DESIGNER={'type':'object','additionalProperties':False,'properties':{'schema_version':{'const':'coordinate-1.0'},
     'agent':{'const':'Designer'},'design_status':{'enum':['exploratory','deferred']},
-    'architecture':{'enum':['spread_upper','coordinate_mixture','selection_contrast','shape_mixture']},'regions':{'type':'array','items':{'type':'string'},'minItems':1,'uniqueItems':True},
+    'architecture':{'enum':['spread_upper','coordinate_mixture','selection_contrast','shape_mixture','count_conditioned_shape']},'regions':{'type':'array','items':{'type':'string'},'minItems':1,'uniqueItems':True},
     'channel':{'enum':['all','NOS']},'window':{'type':'array','items':{'type':'number'},'minItems':2,'maxItems':2},
     'native_rms_ratio':{'type':'number','minimum':0,'maximum':1},'mixture_temperature':{'type':'number','exclusiveMinimum':0},
     'robust_delta':{'type':'number','exclusiveMinimum':0},'rationale':{'type':'string'},
@@ -31,7 +31,7 @@ DESIGNER={'type':'object','additionalProperties':False,'properties':{'schema_ver
     'required':['schema_version','agent','design_status','architecture','regions','channel','window','native_rms_ratio','mixture_temperature','robust_delta','rationale','evidence_ids','limitations']}
 
 
-def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116'),transport=None,influence=None):
+def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116'),transport=None,influence=None,composition=None):
     mining=Path(mining);dest=mining/'agents';dest.mkdir(exist_ok=True)
     m=read_json(mining/'manifest.json');catalog=read_json(mining/'feature_catalog.json')
     if role not in ('Analyst','Designer'):raise ValueError('Unknown role')
@@ -54,9 +54,10 @@ def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116'),transport=None,
         'features':{f:catalog['features'][f] for f in selected.feature.unique()},
         'functions':{f:fits[f] for f in selected.feature.unique() if f in fits},
         'interpretation':m['interpretation'],'source_manifest_sha256':digest(mining/'manifest.json')}
-    if transport:
-        extra=Path(transport);mm=read_json(extra/'manifest.json');cc=read_json(extra/'feature_catalog.json')
-        if mm['window']!=m['window'] or mm['splits']['discovery']!=m['splits']['discovery'] or mm['sources']!=m['sources'] or mm.get('spatial_anchor')!=m.get('spatial_anchor'):raise ValueError('Supplementary evidence support mismatch')
+    for kind, extra_path in [('transport',transport),('composition',composition)]:
+        if not extra_path:continue
+        extra=Path(extra_path);mm=read_json(extra/'manifest.json');cc=read_json(extra/'feature_catalog.json')
+        if any(mm.get(k)!=m.get(k) for k in ('window','times','sources','spatial_anchor','control_representation')) or mm['splits']['discovery']!=m['splits']['discovery']:raise ValueError('Supplementary evidence support mismatch')
         dd=pd.read_csv(extra/'whole_window_evidence.csv');dd=dd[dd.split=='discovery']
         ss=pd.concat([dd[dd.feature.map(lambda f:cc['features'][f]['region'] in landmarks)],
             dd.sort_values(['q','feature']).groupby('metric',sort=True).head(8)]).drop_duplicates(['feature','metric']).sort_values(['metric','feature'])
@@ -64,7 +65,7 @@ def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116'),transport=None,
         payload['evidence'] += [{'evidence_id':f'coordinate:discovery:{r.feature}:{r.metric}',**r._asdict()} for r in ss.itertuples(index=False)]
         payload['features'].update({f:cc['features'][f] for f in ss.feature.unique()})
         ff=read_json(extra/'continuous_functions.json');payload['functions'].update({f:ff[f] for f in ss.feature.unique() if f in ff})
-        payload['supplementary_transport_manifest_sha256']=digest(extra/'manifest.json')
+        payload[f'supplementary_{kind}_manifest_sha256']=digest(extra/'manifest.json')
     if influence:
         extra=Path(influence);mm=read_json(extra/'manifest.json')
         if mm['window']!=m['window'] or mm['source_manifest_sha256']!=digest(mining/'manifest.json'):raise ValueError('Influence source/window mismatch')
@@ -102,10 +103,15 @@ def validate(data,schema,bundle):
         if set(data['regions'])-known_regions:raise ValueError('Unmeasured region')
         # An exploratory design is allowed, but its regional observables must be supplied.
         for r in data['regions']:
-            kinds=tuple('shape_'+k for k in ('xx','yy','zz','xy','xz','yz')) if data['architecture']=='shape_mixture' else ('spread',) if data['architecture']=='spread_upper' else ('centroid_x','centroid_y','centroid_z','spread')
+            kinds=tuple('shape_'+k for k in ('xx','yy','zz','xy','xz','yz')) if data['architecture'] in ('shape_mixture','count_conditioned_shape') else ('spread',) if data['architecture']=='spread_upper' else ('centroid_x','centroid_y','centroid_z','spread')
             prefix='proposal_' if bundle.get('control_representation')=='proposal' else ''
             needed=[f'{r}::{data["channel"]}::{prefix+k}' for k in kinds]
             if any(f not in bundle['features'] for f in needed):raise ValueError('Missing controlled observable')
+        if data['architecture']=='count_conditioned_shape':
+            if data['channel']!='NOS' or not bundle.get('supplementary_composition_manifest_sha256'):
+                raise ValueError('Conditioning requires supplied discovery composition evidence')
+            if any(f'whole_ligand::all::predicted_{a}_count' not in bundle['features'] for a in ('N','O','S')):
+                raise ValueError('Conditioning requires all global N/O/S count definitions')
     return True
 
 
@@ -127,9 +133,15 @@ def compile_design(mining,dataset,campaign,output,round_number):
     if not 1<=round_number<=30:raise ValueError('Round outside authorized bound')
     out=Path(output)
     if out.exists():raise FileExistsError(out)
-    if design['architecture']=='shape_mixture':
+    if design['architecture'] in ('shape_mixture','count_conditioned_shape'):
         from ..generation.coordinate_shape import build
-    reference=out/'reference.json.gz';build(dataset,campaign,mining,reference,design['regions'],design['channel'])
+    reference=out/'reference.json.gz'
+    if design['architecture']=='count_conditioned_shape':
+        from ..generation.coordinate_conditioning import build as build_conditioning
+        parent=out/'parent_reference.json.gz'
+        build(dataset,campaign,mining,parent,design['regions'],design['channel'])
+        build_conditioning(dataset,campaign,parent,reference,out/'conditioning_audit')
+    else:build(dataset,campaign,mining,reference,design['regions'],design['channel'])
     program={k:design[k] for k in ('window','native_rms_ratio','mixture_temperature','robust_delta')}
     program.update({k:design[k] for k in ('dose_reference','preserve_native_rigid_pose','initial_update_dose','contrast_bound_nats') if k in design})
     program.update(schema_version='current-coordinate-program-1.0',family='LLM_evidence_bound_coordinate_design',

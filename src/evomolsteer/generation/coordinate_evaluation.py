@@ -65,6 +65,8 @@ def evaluate(dataset,campaign,output):
                     'backtrack_factor_mean':average('backtrack_factor'),
                     'max_actual_pair_distance_change_A_mean':average('max_actual_pair_distance_change_A'),
                     'dose_gate_mean':average('dose_gate'),
+                    'conditional_supported_fraction':average('available'),
+                    'conditional_component_ESS_mean':average('conditional_component_ESS'),
                     'background_support_gate_mean':average('background_support_gate'),
                     'contrast_amplitude_gate_mean':average('contrast_amplitude_gate'),
                     'bounded_response_gate_mean':average('bounded_response_gate'),

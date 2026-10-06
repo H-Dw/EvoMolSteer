@@ -32,3 +32,11 @@ def test_single_nos_slot_has_legal_zero_shape_and_frobenius_scaling_is_exact():
     absent,_,_=measure(x,np.array([[3,3]]))
     assert np.isnan(absent[0,names.index('r::NOS::shape_xx')])
     assert absent[0,names.index('r::NOS::shape_eligible_slots')]==0
+
+
+def test_global_composition_is_measured_once_and_uses_active_endpoint_slots():
+    x=np.zeros((2,4,3));atoms=np.array([[4,5,9,4],[3,3,3,3]]);mask=np.array([[1,1,1,0],[1,1,1,1]],bool)
+    cat={'regions':{'r':{'points_A':[[0,0,0]]},'s':{'points_A':[[1,1,1]]}},'atom_vocabulary':{'N':4,'O':5,'S':9}}
+    v,names,meta=regional_observables(x,x,x,atoms,mask,cat,.2,.01,feature_family='composition')
+    np.testing.assert_array_equal(v,[[1.,1.,1.],[0.,0.,0.]])
+    assert len(names)==3 and all(not m['coordinate_control'] for m in meta.values())

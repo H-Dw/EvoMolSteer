@@ -2,7 +2,7 @@ import copy
 import pytest
 from evomolsteer.io import digest,read_json
 from evomolsteer.generation.prototypes import write_json
-from evomolsteer.generation.coordinate_backtracking import freeze,paired_batch_outcomes,freeze_contrast,freeze_shape
+from evomolsteer.generation.coordinate_backtracking import freeze,paired_batch_outcomes,freeze_contrast,freeze_shape,freeze_conditioning
 
 
 def setup_case(tmp_path):
@@ -114,4 +114,39 @@ def test_shape_ablation_rejects_simultaneous_dose_retuning_without_mutation(tmp_
     d=read_json(contract);d['inherit_without_simultaneous_retuning']['native_rms_ratio']=.5;write_json(contract,d)
     with pytest.raises(ValueError,match='controls'):
         freeze_shape(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'shape','Invalid design',contract)
+    assert digest(c)==before and not (tmp_path/'next.json').exists()
+
+
+def conditioning_case(tmp_path):
+    import gzip,json
+    from test_coordinate_conditioning import conditioned
+    c,p,old=setup_case(tmp_path);r=conditioned()
+    ref=copy.deepcopy(r.reference)
+    for key in ('conditional_frames','conditional_support'):ref.pop(key)
+    old.write_bytes(gzip.compress(json.dumps(ref).encode(),mtime=0))
+    parent=read_json(p);parent.update(reward_view='shape_mixture',window=ref['window'],reference_sha256=digest(old));write_json(p,parent)
+    new=tmp_path/'conditional.gz';ref=copy.deepcopy(r.reference);ref['conditioning_parent_reference_sha256']=digest(old)
+    new.write_bytes(gzip.compress(json.dumps(ref).encode(),mtime=0))
+    contract=tmp_path/'designer.json';write_json(contract,{'schema_version':'count-conditioning-designer-contract-1.0','agent':'Designer',
+        'parent_reference_sha256':digest(old),'reference_sha256':digest(new),
+        'declared_changes':['exact count stratum geometry','empirical selected count-mass mixture prior','zero dose for unsupported counts'],
+        'inherit_without_simultaneous_retuning':{**{k:parent[k] for k in ('native_rms_ratio','mixture_temperature','robust_delta','constraints')},
+            'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}})
+    return c,p,old,new,contract
+
+
+def test_conditioning_freeze_preserves_parent_and_requires_zero_control(tmp_path):
+    c,p,old,new,contract=conditioning_case(tmp_path);before=digest(p)
+    q=freeze_conditioning(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'conditioned','Composition hypothesis',contract)
+    assert digest(p)==before and q['window']==read_json(p)['window'] and q['reward_view']=='count_conditioned_shape'
+    assert read_json(c)['rounds'][-1]['arms']==['unguided','gradient_zero','gradient']
+
+
+def test_conditioning_freeze_rejects_changed_geometry_or_controls(tmp_path):
+    import gzip,json
+    c,p,old,new,contract=conditioning_case(tmp_path);before=digest(c)
+    ref=json.loads(gzip.decompress(new.read_bytes()));ref['feature_scale_A2'][0]=2.
+    new.write_bytes(gzip.compress(json.dumps(ref).encode(),mtime=0))
+    with pytest.raises(ValueError,match='parent geometry'):
+        freeze_conditioning(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'invalid','Confounded geometry',contract)
     assert digest(c)==before and not (tmp_path/'next.json').exists()

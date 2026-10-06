@@ -60,3 +60,16 @@ def test_shape_design_requires_measured_directional_tensor_components():
     assert validate(d,DESIGNER,bundle)
     bundle['features'].pop('r::NOS::proposal_shape_xz')
     with pytest.raises(ValueError,match='Missing controlled'):validate(d,DESIGNER,bundle)
+
+
+def test_conditioning_design_requires_grounded_global_count_evidence():
+    bundle={'window':[.2,.6],'evidence':[{'evidence_id':'e'}], 'control_representation':'proposal',
+        'features':{f'r::NOS::proposal_shape_{k}':{'region':'r'} for k in ('xx','yy','zz','xy','xz','yz')}}
+    d={'schema_version':'coordinate-1.0','agent':'Designer','design_status':'exploratory','architecture':'count_conditioned_shape',
+        'regions':['r'],'channel':'NOS','window':[.2,.6],'native_rms_ratio':.05,'mixture_temperature':.25,'robust_delta':1.,
+        'rationale':'Conditional imitation','evidence_ids':['e'],'limitations':['No discrete force']}
+    with pytest.raises(ValueError,match='composition evidence'):validate(d,DESIGNER,bundle)
+    bundle['supplementary_composition_manifest_sha256']='frozen'
+    with pytest.raises(ValueError,match='global N/O/S'):validate(d,DESIGNER,bundle)
+    bundle['features'].update({f'whole_ligand::all::predicted_{a}_count':{'region':'whole_ligand'} for a in ('N','O','S')})
+    assert validate(d,DESIGNER,bundle)

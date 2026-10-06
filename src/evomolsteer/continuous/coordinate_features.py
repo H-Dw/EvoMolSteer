@@ -10,9 +10,19 @@ from scipy.special import logsumexp
 def regional_observables(current, endpoint, proposal, atoms, mask, catalog, t, dt,
                          spatial_width_A=4.0,spatial_anchor='current',include_proposal=False,feature_family='geometry'):
     if not (0<=t<1 and dt>0 and spatial_width_A>0):raise ValueError('Invalid transport domain or spatial width')
-    if feature_family not in ('geometry','transport','joint','shape'):raise ValueError('Unknown feature family')
+    if feature_family not in ('geometry','transport','joint','shape','composition'):raise ValueError('Unknown feature family')
     names, columns, metadata = [], [], {}
     mask = np.asarray(mask, bool)
+    if feature_family=='composition':
+        # Global type counts are measured once, not repeated for each region.
+        # These are endpoint predictions on noisy slots, not early chemistry.
+        for element in ('N','O','S'):
+            name=f'whole_ligand::all::predicted_{element}_count'
+            names.append(name);columns.append(((atoms==catalog['atom_vocabulary'][element])&mask).sum(1).astype(float))
+            metadata[name]={'region':'whole_ligand','channel':'all','kind':f'predicted_{element}_count',
+                'unit':'count','coordinate_control':False,'spatial_anchor':'not_applicable','representation':'predicted endpoint hard labels',
+                'interpretation':'Global masked endpoint-labelled slot count; not physical early chemistry or a discrete gradient target'}
+        return np.column_stack(columns),names,metadata
     delta = endpoint-current
     native = (proposal-current)/dt
     for region, record in sorted(catalog['regions'].items()):

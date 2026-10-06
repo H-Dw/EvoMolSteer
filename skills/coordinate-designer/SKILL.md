@@ -64,3 +64,16 @@ Keep matched parent region, channel and dose controls to isolate representation.
 Composition indicators are shared global masks; do not label repeated region
 flags as multiple affinity directions. Statistical non-significance must remain
 visible, and the tensor does not determine unique geometry or bond chemistry.
+
+The optional count_conditioned_shape uses the same six shape observables and
+fixed global scales, conditioned on current detached endpoint N/O/S counts.
+Require supplied discovery composition evidence. Use exact observed strata at
+the same real sampling node; no nearest-count fallback or linear extrapolation
+of tensor means. Keep empirical selected count-mass priors and disclose this
+prior change separately from stratification and sparse zero-dose fallback.
+Require >=3 records per batch, >=2 distinct discovery batches per node,
+prior ESS>=1.5 and maximum leave-one-batch-out center RMS<=1 in scaled space.
+Inspect native support coverage, root ESS and covariance ridge contribution;
+clones are not independent measurements. Do not turn an observational O-count
+association into a chemical editing force. Counts do not determine bond graph
+or charge. Freeze parent controls and require fresh full zero/native equivalence.

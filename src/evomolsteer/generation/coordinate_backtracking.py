@@ -282,3 +282,53 @@ def freeze_shape(campaign,parent_program,parent_reference,new_reference,output,e
         'reward_view':'shape_mixture','native_rms_ratio':q['native_rms_ratio'],'dose_reference':q.get('dose_reference','observed_native'),
         'parent_round':p['round'],'kind':'representation_ablation','changes':changes,'status':'frozen'})
     c['status']='backtracking';write_json(campaign,c);return q
+
+
+def freeze_conditioning(campaign,parent_program,parent_reference,new_reference,output,evidence,number,name,reason,designer_contract):
+    """Preserve geometry moments and all dose controls; declare count stratification."""
+    from .window_reference import load_reference
+    from .coordinate_conditioning import CoordinateCountConditionedShapeReward
+    campaign,parent_program,parent_reference,new_reference,output,evidence,designer_contract=map(Path,
+        (campaign,parent_program,parent_reference,new_reference,output,evidence,designer_contract))
+    c,p,contract=read_json(campaign),read_json(parent_program),read_json(designer_contract)
+    if output.exists() or evidence.exists():raise FileExistsError('Immutable conditioning plan exists')
+    if number!=max(r['round'] for r in c['rounds'])+1 or not number<=c['maximum_rounds']<=30:
+        raise ValueError('Sequential conditioning round within budget required')
+    parent=next(r for r in c['rounds'] if r['round']==p['round'])
+    if parent['status']!='completed' or c['rounds_started']!=c['rounds_completed']:
+        raise ValueError('Retain preceding evaluation before conditioning')
+    if p['seed']!=42 or p['reward_view']!='shape_mixture' or digest(parent_reference)!=p['reference_sha256']:
+        raise ValueError('Verified shape parent required')
+    a,b=load_reference(parent_reference),load_reference(new_reference)
+    if b.get('conditioning_parent_reference_sha256')!=digest(parent_reference) or any(b.get(k)!=v for k,v in a.items()):
+        raise ValueError('Unconditional parent geometry or provenance changed')
+    if contract['schema_version']!='count-conditioning-designer-contract-1.0' or contract['agent']!='Designer':
+        raise ValueError('Conditioning Designer contract required')
+    if contract['parent_reference_sha256']!=digest(parent_reference) or contract['reference_sha256']!=digest(new_reference):
+        raise ValueError('Designer reference binding differs')
+    defaults={'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}
+    controls=contract['inherit_without_simultaneous_retuning']
+    required={'native_rms_ratio','mixture_temperature','robust_delta','dose_reference','initial_update_dose','preserve_native_rigid_pose','constraints'}
+    if set(controls)!=required or any(p.get(k,defaults.get(k))!=v for k,v in controls.items()):
+        raise ValueError('Conditioning must inherit all parent dose controls')
+    declared=['exact count stratum geometry','empirical selected count-mass mixture prior','zero dose for unsupported counts']
+    if contract['declared_changes']!=declared:
+        raise ValueError('All three coupled conditioning changes must be disclosed')
+    q=copy.deepcopy(p);changes={'reward_view':'count_conditioned_shape','reference_sha256':digest(new_reference),
+        'conditional_support':b['conditional_support'],'coupled_changes':declared}
+    q.update(round=number,reward_view='count_conditioned_shape',reference_sha256=digest(new_reference),designer_sha256=digest(designer_contract))
+    q['backtracking']={'parent_round':p['round'],'parent_program_sha256':digest(parent_program),
+        'kind':'conditioning_ablation','changes':changes,'reason':reason}
+    CoordinateCountConditionedShapeReward(q,b)
+    write_json(output,q)
+    write_json(evidence,{'round':number,'parent_round':p['round'],'kind':'conditioning_ablation','changes':changes,
+        'reason':reason,'program_sha256':digest(output),'reference_sha256':digest(new_reference),
+        'parent_reference_sha256':digest(parent_reference),'designer_contract_sha256':digest(designer_contract),
+        'window':q['window'],'parent_geometry_parity':True,
+        'limitation':'Conditional coordinate imitation, no discrete force or causal affinity mechanism',
+        'fallback':'Restore tested parent when actual window geometry or terminal physics regresses; preserve all attempted denominators.'})
+    c['rounds'].append({'round':number,'campaign':name,'arms':['unguided','gradient_zero','gradient'],
+        'batches':parent['batches'],'n_per_arm':parent['n_per_arm'],'seed':42,'reference_sha256':digest(new_reference),
+        'reward_view':q['reward_view'],'native_rms_ratio':q['native_rms_ratio'],'dose_reference':q.get('dose_reference','observed_native'),
+        'parent_round':p['round'],'kind':'conditioning_ablation','changes':changes,'status':'frozen'})
+    c['status']='backtracking';write_json(campaign,c);return q

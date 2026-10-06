@@ -69,6 +69,9 @@ class CoordinateSelectionContrastReward(CoordinateMixtureReward):
 
 
 def make_coordinate_reward(program,reference):
+    if program['reward_view']=='count_conditioned_shape':
+        from .coordinate_conditioning import CoordinateCountConditionedShapeReward
+        return CoordinateCountConditionedShapeReward(program,reference)
     if program['reward_view']=='shape_mixture':
         from .coordinate_shape import CoordinateShapeReward
         return CoordinateShapeReward(program,reference)
