@@ -20,7 +20,7 @@ ANALYST={'type':'object','additionalProperties':False,'properties':{'schema_vers
     'required':['schema_version','agent','observations','rules','counterevidence','limitations']}
 DESIGNER={'type':'object','additionalProperties':False,'properties':{'schema_version':{'const':'coordinate-1.0'},
     'agent':{'const':'Designer'},'design_status':{'enum':['exploratory','deferred']},
-    'architecture':{'enum':['spread_upper','coordinate_mixture','selection_contrast']},'regions':{'type':'array','items':{'type':'string'},'minItems':1,'uniqueItems':True},
+    'architecture':{'enum':['spread_upper','coordinate_mixture','selection_contrast','shape_mixture']},'regions':{'type':'array','items':{'type':'string'},'minItems':1,'uniqueItems':True},
     'channel':{'enum':['all','NOS']},'window':{'type':'array','items':{'type':'number'},'minItems':2,'maxItems':2},
     'native_rms_ratio':{'type':'number','minimum':0,'maximum':1},'mixture_temperature':{'type':'number','exclusiveMinimum':0},
     'robust_delta':{'type':'number','exclusiveMinimum':0},'rationale':{'type':'string'},
@@ -102,7 +102,7 @@ def validate(data,schema,bundle):
         if set(data['regions'])-known_regions:raise ValueError('Unmeasured region')
         # An exploratory design is allowed, but its regional observables must be supplied.
         for r in data['regions']:
-            kinds=('spread',) if data['architecture']=='spread_upper' else ('centroid_x','centroid_y','centroid_z','spread')
+            kinds=tuple('shape_'+k for k in ('xx','yy','zz','xy','xz','yz')) if data['architecture']=='shape_mixture' else ('spread',) if data['architecture']=='spread_upper' else ('centroid_x','centroid_y','centroid_z','spread')
             prefix='proposal_' if bundle.get('control_representation')=='proposal' else ''
             needed=[f'{r}::{data["channel"]}::{prefix+k}' for k in kinds]
             if any(f not in bundle['features'] for f in needed):raise ValueError('Missing controlled observable')
@@ -127,6 +127,8 @@ def compile_design(mining,dataset,campaign,output,round_number):
     if not 1<=round_number<=30:raise ValueError('Round outside authorized bound')
     out=Path(output)
     if out.exists():raise FileExistsError(out)
+    if design['architecture']=='shape_mixture':
+        from ..generation.coordinate_shape import build
     reference=out/'reference.json.gz';build(dataset,campaign,mining,reference,design['regions'],design['channel'])
     program={k:design[k] for k in ('window','native_rms_ratio','mixture_temperature','robust_delta')}
     program.update({k:design[k] for k in ('dose_reference','preserve_native_rigid_pose','initial_update_dose','contrast_bound_nats') if k in design})

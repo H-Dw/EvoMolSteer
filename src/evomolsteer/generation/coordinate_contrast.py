@@ -69,6 +69,9 @@ class CoordinateSelectionContrastReward(CoordinateMixtureReward):
 
 
 def make_coordinate_reward(program,reference):
+    if program['reward_view']=='shape_mixture':
+        from .coordinate_shape import CoordinateShapeReward
+        return CoordinateShapeReward(program,reference)
     if program['reward_view']=='selection_contrast':return CoordinateSelectionContrastReward(program,reference)
     if program['reward_view'] not in ('coordinate_mixture','spread_upper'):raise ValueError('Unknown coordinate reward')
     return CoordinateMixtureReward(program,reference)

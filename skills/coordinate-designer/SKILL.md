@@ -51,3 +51,16 @@ falls smoothly from empirical candidate q90 to q98; degenerate support means zer
 injection. Missing/OOD states use native continuation. No extra neural fitting is
 needed, but the Gaussian moments are statistical approximations. Density maths
 uses double precision; the actual displacement retains FLOWR's native dtype.
+
+The optional shape_mixture is a directional representation ablation. Use the six
+svec central second-moment components (xx, yy, zz, sqrt(2)*xy/xz/yz), in A^2;
+do not append their duplicated trace. They still contain trace and are not pure
+anisotropy. Scales are fixed across the entire learned window, from quadrature
+of equal-batch unweighted within-candidate variances. Covariance shrinkage and
+the .01*I floor operate in dimensionless scaled space, never with a .15 A floor.
+An unestimable scale defers the design. Missing or single-slot NOS masks receive
+zero dose. Endpoint spatial anchors are held fixed during each derivative.
+Keep matched parent region, channel and dose controls to isolate representation.
+Composition indicators are shared global masks; do not label repeated region
+flags as multiple affinity directions. Statistical non-significance must remain
+visible, and the tensor does not determine unique geometry or bond chemistry.
