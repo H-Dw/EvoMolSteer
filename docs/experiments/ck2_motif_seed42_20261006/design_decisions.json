@@ -82,6 +82,19 @@
       "revision": "Exclude outside-state variance from survival reference normalization",
       "tests": "Synthetic outside-variance reference test plus ancestry conservation and existing gradient tests pass",
       "trigger": "Subagent found .51 background variance entered 51-node scale and covariance ridge prevents exact cancellation"
+    },
+    {
+      "declared_before_round": 11,
+      "historical_policy": "R1-8 results and references unchanged; R9 already-dispatched Agent program unchanged",
+      "interpretation": "R11/12 combine a scope correction and a dose change, and therefore are not single-factor causal ablations.",
+      "motivation": "No outside-state background variance should calibrate the final learned-window reward; independent prior audit found sensitivity in tiny kernels. This scope decision is independent of still-unavailable validation/heldout outcomes.",
+      "prospective_rounds": {
+        "11": "Balanced parent at half dose plus strict in-window instantaneous scale if needed",
+        "12": "Affinity parent with ramp1 plus strict in-window instantaneous scale if needed",
+        "13": "Choose only strict-scope R9-12",
+        "14-15": "Replay same frozen discovery parent without tuning"
+      },
+      "revision": "Strict normalization for instantaneous targets and final winner eligibility"
     }
   ],
   "schema_version": "reward-design-ledger-1.0"
