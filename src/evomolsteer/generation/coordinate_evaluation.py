@@ -71,6 +71,8 @@ def evaluate(dataset,campaign,output):
                 'nonzero_injection_steps':sum(max(v['injection_l2_A'])>0 for v in trace),
                 'mean_path_rms_A':float(np.mean(active[-1]['cumulative_rms_A'])) if active else 0.,
                 'guard_rejection_fraction':float(np.mean([np.logical_not(v['geometry_accepted']) for v in active])) if active else 0.,
+                'guard_backtrack_fraction':float(np.mean([np.asarray(v['backtrack_factor'])<.99999 for v in active])) if active else 0.,
+                'mean_guard_backtrack_factor':float(np.mean([v['backtrack_factor'] for v in active])) if active else 1.,
                 'cap_fraction':float(np.mean([np.asarray(v['cap_factor'])<.99999 for v in active])) if active else 0.,
                 'first_controlled_update_fraction_squared_injection':float(squared[0].sum()/squared.sum()) if squared.sum()>0 else None,
                 'no_injection_after_window':all(max(v['injection_l2_A'])==0 for v in trace if v['state_time']>reference['window'][1]+1e-6)})

@@ -74,7 +74,7 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
     if digest(reference) != p['reference_sha256'] or p['seed'] != 42:
         raise ValueError('Parent reference/seed mismatch')
     allowed = {'native_rms_ratio','dose_reference','initial_update_dose','preserve_native_rigid_pose',
-               'constraints.max_atom_step_A','mixture_temperature','robust_delta'}
+               'constraints.max_atom_step_A','constraints.max_pair_distance_change_A','mixture_temperature','robust_delta'}
     if set(changes)-allowed or kind not in ('exact_replay','single_factor'):
         raise ValueError('Unsupported rollback factor')
     if (kind == 'exact_replay' and changes) or (kind == 'single_factor' and len(changes) != 1):
@@ -91,6 +91,8 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
         if not np.isfinite(q[key]) or (q[key]<0 if key=='native_rms_ratio' else q[key]<=0):raise ValueError('Invalid control magnitude')
     if q['native_rms_ratio']>1 or not np.isfinite(q['constraints']['max_atom_step_A']) or q['constraints']['max_atom_step_A']<=0:
         raise ValueError('Invalid dose/atom cap')
+    if 'max_pair_distance_change_A' in q['constraints'] and (not np.isfinite(q['constraints']['max_pair_distance_change_A']) or q['constraints']['max_pair_distance_change_A']<=0):
+        raise ValueError('Invalid pair-distance cap')
     if q.get('initial_update_dose','native') not in ('native','cap_to_flow') or q.get('dose_reference','observed_native') not in ('observed_native','predictive_flow'):
         raise ValueError('Invalid dose policy')
     if q.get('initial_update_dose')=='cap_to_flow' and q.get('dose_reference','observed_native')!='observed_native':raise ValueError('Initial cap requires native calibration')
