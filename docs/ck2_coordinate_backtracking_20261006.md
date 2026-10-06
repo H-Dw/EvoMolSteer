@@ -94,5 +94,19 @@ seed42、完整100步、动态窗口后native继续到1、无新SMC和原Steer/c
 因此不能将该试验称为纯内部形变投影。
 
 八维selection/background统计已重新提取：714个batch-time selected center/cov与R3完全一致。
-参考仅约数百KB；背景已经历先前SMC，扣除它可能同时扣掉累计选择优势。
+参考约1MB；背景已经历先前SMC，扣除它可能同时扣掉累计选择优势。
 密度比是后续架构假设，不能只因表面合理就替代已冻结奖励。
+
+第九轮触发回退的候选步占3.48%/5.64%；首步平方注入比例降到4.84%/4.32%。
+shape仅改善.161%，all-head −.011879，周围松弛变差7.181%。
+因此撤回该约束，下一轮恢复R3，单独测试刚体梯度投影。
+
+新selection_contrast候选由同一discovery selected/background八维Gaussian mixture构成，
+奖励为C tanh((log p_sel−log p_bg)/C)，C=1 nat仅是工程探索参数。
+背景后验加权的经验q90→q98平滑门控限制OOD，退化分位数对应零剂量。
+外部剂量还乘sqrt(2k/(1+2k))，k为平均配对Gaussian KL/D；
+它是经验矩近似，不是真实mixture KL、选择因果性或物理能量。
+tanh的sech²也保留在实际剂量中，避免方向归一化抵消饱和。
+密度与微弱差异使用float64，实际位移仍保持FLOWR float32，已补集成测试。
+`freeze-contrast`要求714组selected moments逐值一致、共同来源/窗口/特征相同，
+将该轮标为架构变化并执行native/zero/gradient三臂；完整zero不相同不得晋升。

@@ -37,3 +37,15 @@ def test_supplementary_evidence_rejects_other_source_and_influence(tmp_path):
     with pytest.raises(ValueError,match='support mismatch'):export(main,'Analyst',landmarks=('r',),transport=other)
     write_json(other/'manifest.json',{'window':[0.,.1],'source_manifest_sha256':'different'})
     with pytest.raises(ValueError,match='source/window mismatch'):export(main,'Analyst',landmarks=('r',),influence=other)
+
+
+def test_contrast_requires_bound_and_every_observable():
+    bundle={'window':[.2,.6],'evidence':[{'evidence_id':'e','feature':'r::all::proposal_spread'}],
+        'control_representation':'proposal','features':{f'r::all::proposal_{k}':{'region':'r'} for k in ('centroid_x','centroid_y','centroid_z','spread')}}
+    d={'schema_version':'coordinate-1.0','agent':'Designer','design_status':'exploratory','architecture':'selection_contrast',
+       'regions':['r'],'channel':'all','window':[.2,.6],'native_rms_ratio':.05,'mixture_temperature':.25,'robust_delta':1.,
+       'rationale':'Incremental preference hypothesis','evidence_ids':['e'],'limitations':['Background has previous SMC history']}
+    with pytest.raises(ValueError,match='Contrast bound'):validate(d,DESIGNER,bundle)
+    assert validate({**d,'contrast_bound_nats':1.},DESIGNER,bundle)
+    bundle['features'].pop('r::all::proposal_centroid_z')
+    with pytest.raises(ValueError,match='Missing controlled'):validate({**d,'contrast_bound_nats':1.},DESIGNER,bundle)

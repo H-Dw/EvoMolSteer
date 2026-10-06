@@ -5,8 +5,8 @@ from pathlib import Path
 import numpy as np
 from ..continuous.coordinate_features import regional_moments
 from ..storage.trajectory import TrajectoryPackage
-from ..io import read_json,digest,write_json
-from .prototypes import regularize_covariance
+from ..io import read_json,digest
+from .prototypes import regularize_covariance,write_json
 
 
 def mode_record(v,w,batch,availability,std_floor_A):
@@ -14,12 +14,20 @@ def mode_record(v,w,batch,availability,std_floor_A):
     mu=w@v;d=v-mu;cov=np.einsum('bi,b,bj->ij',d,w,d)
     bg=v.mean(0);residual=v-bg;background=residual.T@residual/len(v)
     regularized_background=regularize_covariance(background,.1,std_floor_A)
+    regularized_selected=regularize_covariance(cov,.1,std_floor_A)
     shift=mu-bg;positive=w>0
-    return {'center_A':mu.tolist(),'covariance_A2':regularize_covariance(cov,.1,std_floor_A).tolist(),
+    q=np.einsum('bi,ib->b',residual,np.linalg.solve(regularized_background,residual.T))/v.shape[1]
+    kl=.5*(np.trace(np.linalg.solve(regularized_background,regularized_selected))+
+        shift@np.linalg.solve(regularized_background,shift)-len(mu)+
+        np.linalg.slogdet(regularized_background)[1]-np.linalg.slogdet(regularized_selected)[1])
+    return {'center_A':mu.tolist(),'covariance_A2':regularized_selected.tolist(),
         'raw_selected_eigenvalues_A2':np.linalg.eigvalsh(cov).tolist(),
         'background_center_A':bg.tolist(),'background_covariance_A2':regularized_background.tolist(),
         'selected_probability_ESS':float(1/(w@w)),
         'selected_KL_to_uniform':float(np.sum(w[positive]*np.log(w[positive]*len(v)))),
+        'paired_gaussian_KL_nats':float(max(0,kl)),
+        'background_support_q90':float(np.quantile(q,.90)),
+        'background_support_q98':float(np.quantile(q,.98)),
         'dimension_normalized_mean_contrast':float(np.sqrt(max(0,shift@np.linalg.solve(regularized_background,shift)/len(mu)))),
         'unweighted_spread_variance_A2':np.var(v[:,3::4],axis=0,ddof=1).tolist(),
         'source_batch':batch,'availability':float(availability),'n_available':len(v)}

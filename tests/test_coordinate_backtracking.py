@@ -2,7 +2,7 @@ import copy
 import pytest
 from evomolsteer.io import digest,read_json
 from evomolsteer.generation.prototypes import write_json
-from evomolsteer.generation.coordinate_backtracking import freeze,paired_batch_outcomes
+from evomolsteer.generation.coordinate_backtracking import freeze,paired_batch_outcomes,freeze_contrast
 
 
 def setup_case(tmp_path):
@@ -45,3 +45,20 @@ def test_paired_batch_evidence_rejects_missing_or_duplicate_units():
     with pytest.raises(ValueError,match='Paired batch'):paired_batch_outcomes(a,n,a,n)
     a['batch_results'].append(a['batch_results'][0].copy())
     with pytest.raises(ValueError,match='Duplicate batch'):paired_batch_outcomes(a,n,a,n)
+
+
+def test_contrast_freeze_rejects_a_changed_selected_target(tmp_path):
+    import gzip,json
+    c,p,old=setup_case(tmp_path)
+    reference={'window':[.2,.7],'times':[.2], 'features':['r::all::proposal_spread'],'batches':[0],
+        'regions':{'r':{'points_A':[[0,0,0]]}},'channel':'all','sources':[{'sha256':'original'}],
+        'spatial_anchor':'endpoint','control_representation':'proposal','required_input_sha256':{},
+        'frames':[{'time':.2,'modes':[{'source_batch':0,'center_A':[1.],'covariance_A2':[[1.]]}]}]}
+    old.write_bytes(gzip.compress(json.dumps(reference).encode(),mtime=0))
+    parent=read_json(p);parent['reference_sha256']=digest(old);write_json(p,parent)
+    new=tmp_path/'new.gz';changed=copy.deepcopy(reference);changed['frames'][0]['modes'][0]['center_A']=[2.]
+    new.write_bytes(gzip.compress(json.dumps(changed).encode(),mtime=0))
+    before=digest(c)
+    with pytest.raises(ValueError,match='Selected moment parity'):
+        freeze_contrast(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'contrast','Cannot silently change selected targets')
+    assert digest(c)==before and not (tmp_path/'next.json').exists()

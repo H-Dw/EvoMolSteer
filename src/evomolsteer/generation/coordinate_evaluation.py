@@ -6,14 +6,14 @@ import torch
 from ..io import read_json,write_json,write_table,digest
 from ..trajectory_source import open_trajectory
 from .window_reference import load_reference
-from .coordinate_reward import CoordinateMixtureReward
+from .coordinate_contrast import make_coordinate_reward
 
 
 def evaluate(dataset,campaign,output):
     root=Path(dataset)/'results'/campaign;out=Path(output)
     if not (root/'COMPLETE.json').is_file():raise ValueError('Incomplete inference')
     cfg=read_json(root/'config.json');program=read_json(root/'reward_program.json')
-    reference=load_reference(root/'reference.json.gz');reward=CoordinateMixtureReward(program,reference)
+    reference=load_reference(root/'reference.json.gz');reward=make_coordinate_reward(program,reference)
     rows=[];audit=[];motion=[];dose_rows=[];torch.set_num_threads(1)
     for arm in cfg['experiment']['arms'].split(','):
         for path in sorted((root/arm).glob('batch_*')):
@@ -62,6 +62,10 @@ def evaluate(dataset,campaign,output):
                     'projection_retained_squared_fraction_mean':average('projection_retained_squared_fraction'),
                     'backtrack_factor_mean':average('backtrack_factor'),
                     'max_actual_pair_distance_change_A_mean':average('max_actual_pair_distance_change_A'),
+                    'dose_gate_mean':average('dose_gate'),
+                    'background_support_gate_mean':average('background_support_gate'),
+                    'contrast_amplitude_gate_mean':average('contrast_amplitude_gate'),
+                    'bounded_response_gate_mean':average('bounded_response_gate'),
                     'observed_native_rms_A':average('observed_native_rms_A','native_rms_A'),
                     'predictive_flow_rms_A':average('predictive_flow_rms_A'),
                     'calibration_rms_A':average('calibration_rms_A','native_rms_A'),

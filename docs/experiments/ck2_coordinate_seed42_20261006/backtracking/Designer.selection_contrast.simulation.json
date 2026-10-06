@@ -1,0 +1,229 @@
+{
+  "schema_version": "selection-contrast-designer-contract-1.0",
+  "agent": "Designer",
+  "invocation": "subagent simulation",
+  "date": "2026-10-06",
+  "status": "offline_review_complete; candidate_not_yet_validated_in_FLOWR_inference",
+  "review_conclusion": "当前公式与参考统计遵守已约定的条件选择对比设计。审阅发现的 float64 门控向物理更新传播问题已由主进程修复；未发现其余会改变当前数学定义的实质错误。离线审阅不等于新架构的真实 FLOWR 验证。",
+  "hypothesis": "同一时刻候选池内，选择概率加权密度相对未加权背景的差异可作为受限的增量偏好。背景已经包含历史 SMC；扣除背景是否有利于累计 Steer 模仿仍是探索假说。",
+  "observables": {
+    "features": [
+      "ck2:A:ASN117::NOS::proposal_centroid_x",
+      "ck2:A:ASN117::NOS::proposal_centroid_y",
+      "ck2:A:ASN117::NOS::proposal_centroid_z",
+      "ck2:A:ASN117::NOS::proposal_spread",
+      "ck2:A:VAL116::NOS::proposal_centroid_x",
+      "ck2:A:VAL116::NOS::proposal_centroid_y",
+      "ck2:A:VAL116::NOS::proposal_centroid_z",
+      "ck2:A:VAL116::NOS::proposal_spread"
+    ],
+    "dimension": 8,
+    "representation": "actual native proposal in aligned receptor world angstrom",
+    "anchor": "predicted endpoint spatial weights, detached during each derivative",
+    "channel": "NOS based on fixed predicted endpoint hard labels",
+    "feature_definition": "For each of ASN117 and VAL116: Gaussian-weighted centroid relative to receptor-region point mean, plus weighted spread.",
+    "derivative": "gradient with respect to actual proposal coordinates only; no endpoint-model Jacobian, hard-type or bond derivative",
+    "missing_feature_rule": "No eligible NOS slots: mark unavailable, zero reward contribution and zero dose; native channels continue."
+  },
+  "reference_contract": {
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "independent_unit": "batch; clones and time nodes do not create additional independent replicates",
+    "selected": "Per-batch moments weighted by the recorded selection probabilities, renormalized after the joint finite-feature mask.",
+    "background": "Unweighted moments of the same finite-feature pre-resampling candidate pool; not the unguided FLOWR density.",
+    "regularization": "Existing regularize_covariance(covariance, 0.1, std_floor_A=0.15), identical policy for selected and background.",
+    "mixture_weights": "1/14 for each batch representative; components are not recovered physical lineage or pose modes",
+    "sources": {
+      "active_contrast_reference": {
+        "path": "configs/experiments/ck2_coordinate_seed42_v1/joint_contrast/reference.json.gz",
+        "sha256": "a006e269cf8e1dc2859bc914f8f3e36565d5f7245b4256856d832c7f7c00d71b"
+      },
+      "source_selected_reference": {
+        "path": "configs/experiments/ck2_coordinate_seed42_v1/endpoint_anchor_round03/reference.json.gz",
+        "sha256": "16b60305e81722ea6894ec74fea8deb382ac1d0ff4ddd531b0eecf1188e195c6"
+      },
+      "earlier_background_reference": {
+        "path": "configs/experiments/ck2_coordinate_seed42_v1/joint_selection_background/reference.json.gz",
+        "sha256": "d134513a4080179669f0ebcc4481a6052e7369b375a1a5d14fbd379579ed1877"
+      },
+      "earlier_background_parity": {
+        "path": "docs/experiments/ck2_coordinate_seed42_20261006/backtracking/joint_background_parity.json",
+        "sha256": "dec3b07518b920af2db0b3b5f3c1cfd81fd1b0e7eeaf6279fc246b557871f229"
+      }
+    },
+    "new_reference_readonly_check": {
+      "paired_batch_times": 714,
+      "max_selected_center_difference_from_R3": 0.0,
+      "max_selected_covariance_difference_from_R3": 0.0,
+      "finite_nonnegative_KL_and_ordered_support_thresholds": true,
+      "positive_definite_covariances_checked": 1428,
+      "degenerate_support_modes": 0,
+      "scope": "Local reference integrity and parity inspection, not inference or physical validation."
+    }
+  },
+  "formula": {
+    "normalized_component": "log phi_b(z) = -0.5 * ((z-mu_b)^T Sigma_b^-1 (z-mu_b) + logdet(Sigma_b) + D*log(2*pi)) - log(B)",
+    "mixture": "log p(z) = logsumexp_b(log phi_b(z)); selected and background use the same B=14 and D=8",
+    "logratio": "ell = log p_selected - log p_background",
+    "bounded_reward": "R = C*tanh(ell/C)",
+    "dimension_warning": "Gaussian exponent uses full Mahalanobis squared distance. Division by D is used in q support statistics and KL amplitude, not in the Gaussian exponent.",
+    "implementation": "Float64 observables/density evaluation, Cholesky triangular solves, log determinants and logsumexp; coordinate gradient returns to incoming FLOWR dtype."
+  },
+  "dose_gates": {
+    "paired_KL": "K_b = 0.5*(tr(Sigma_bg^-1 Sigma_sel) + delta_mu^T Sigma_bg^-1 delta_mu - D + logdet(Sigma_bg) - logdet(Sigma_sel))",
+    "small_roundoff_rule": "Builder clamps tiny negative computed KL to zero; current reference was checked for finite nonnegative values.",
+    "dimension_normalized_average": "k_t = mean_b(K_b)/D; divide by D exactly once",
+    "selection_amplitude": "G_sel = sqrt(2*k_t/(1+2*k_t))",
+    "selection_amplitude_interpretation": "Engineering amplitude from average paired Gaussian KL; not the actual mixture KL. The paired average upper-bounds equal-weight mixture KL and may include finite-sample covariance noise.",
+    "background_q": "q_bg,b(z) = (z-mu_bg,b)^T Sigma_bg,b^-1 (z-mu_bg,b)/D",
+    "background_threshold_source": "q90/q98 of actual unweighted same-batch, same-time candidate q values, using NumPy quantile default linear interpolation; no synthetic candidates or chi-square thresholds.",
+    "component_support": "u_b=clip((q_bg,b-q90_b)/(q98_b-q90_b),0,1); h_b=1-u_b^2*(3-2*u_b) for usable quantiles",
+    "mixture_support": "H_bg=sum_b posterior_bg,b(z)*h_b; posterior is softmax of normalized background log components",
+    "saturation_amplitude": "S_bound=1-tanh(ell/C)^2",
+    "combined_gate": "dose_gate = stop_gradient(G_sel * H_bg * S_bound); no old nearest-selected-residual dose gate is additionally applied",
+    "requested_injection_RMS_A": "eta * calibration_RMS_A * dose_gate, followed by existing native-dtype gradient normalization, caps and geometry backtracking",
+    "weak_gradient_rule": "Keep the existing coordinate gradient RMS threshold 1e-8; below it request no displacement. Do not rescale G_sel to unit mean or raise eta merely to cancel weak contrast.",
+    "unit_normalization_note": "S_bound explicitly enters external amplitude because unit-normalizing gradient(R) alone would cancel tanh saturation. Gates are detached and do not add their own gradient directions."
+  },
+  "support_degeneracy_and_fallback": {
+    "usable_quantiles": "q98-q90 > 1e-12 in dimension-normalized q units",
+    "degenerate_component": "h_b=0 even at its center; do not invent an empirical support width",
+    "mixture_after_degeneracy": "Keep original background posterior weights, including mass assigned to unusable components; do not renormalize usable components to restore full dose.",
+    "outside_support": "When H_bg=0, zero coordinate injection and unchanged native proposal; native categorical sampling continues.",
+    "identical_selected_background": "With identical moments and K_b=0, logratio/reward/coordinate gradient and dose_gate are zero.",
+    "zero_eta": "Zero physical update with the original coordinate dtype; complete new-reward rollout equivalence remains to be established in FLOWR.",
+    "corrupt_reference": "Missing keys or failed Cholesky are input failures, not scientific native-fallback observations. Current constructor checks required fields; complete finite/range validation for arbitrary external references is not yet automatic.",
+    "geometry_guard": "Rejected added displacement becomes zero; existing native defects are not certified chemically valid by this guard."
+  },
+  "exploratory_parameters": {
+    "reward_view": "selection_contrast",
+    "contrast_bound_nats": 1.0,
+    "support_quantile_levels": [
+      0.9,
+      0.98
+    ],
+    "parameter_origin": "Predeclared engineering choices, not affinity-fitted or physical constants.",
+    "recommended_comparison_parent": "Frozen R3/R6 joint eight-dimensional reference and control baseline; no round number or run is authorized by this document.",
+    "inherit_without_simultaneous_retuning": {
+      "native_rms_ratio": 0.05,
+      "dose_reference": "observed_native",
+      "initial_update_dose": "native",
+      "preserve_native_rigid_pose": false,
+      "constraints": {
+        "max_atom_step_A": 0.025,
+        "max_cumulative_rms_A": 1.25,
+        "max_pair_distance_change_A": 0.06,
+        "severe_receptor_clash_A": 0.8,
+        "backtrack_attempts": 7
+      }
+    },
+    "compatibility_fields": "mixture_temperature and robust_delta are still required by the inherited class constructor, but do not enter the normalized-Gaussian contrast reward.",
+    "pair_cap_note": "Inherited pair cap 0.06 A is redundant under atom cap 0.025 A; retain only to isolate architecture, not as a claim of additional shape protection."
+  },
+  "execution_contract": {
+    "master_seed": 42,
+    "integration_steps": 100,
+    "window_source": "reference.window",
+    "current_window": [
+      0.0,
+      0.5
+    ],
+    "time_alignment": "score t -> actual proposal state t+dt; endpoint anchor from score t",
+    "last_controlled_transition": "0.49 -> 0.50 for this reference; score 0.50 proposal 0.51 must not be injected",
+    "after_window": "Native continuation to t=1 with zero added control",
+    "native_sampler": "Keep actual runtime SDE and categorical sampling; no new SMC or cloning",
+    "RNG_and_conditioning": "Reward evaluation must not consume native sampler RNG or mutate native predictions/self-conditioning.",
+    "physical_dtype": "Only the external amplitude gate is converted with detail[dose_gate].to(g) before bounded_local_step; density diagnostics remain float64.",
+    "reference_time_nodes": "Use exact supplied times, no fixed 0.1 bins or silent node deletion."
+  },
+  "review_findings": [
+    {
+      "id": "SC-01",
+      "severity": "resolved_integration_blocker",
+      "finding": "Float64 dose_gate originally promoted requested/step to float64 while native/pocket coordinates remained float32, risking torch.cdist dtype failure, including zero-dose paths.",
+      "resolution": "Parent added amplitude_gate=detail[dose_gate].to(g) at controller lines 91-94; reviewed the change. New test covers float32 proposal, actual geometry guard/cdist and exact eta=0 update.",
+      "verification_limit": "Static inspection of the fix and test; this reviewer did not run the Torch suite or a FLOWR rollout."
+    },
+    {
+      "id": "SC-02",
+      "severity": "interpretation_limit",
+      "finding": "Posterior-weighted empirical support and mean Gaussian KL follow the proposed formulas, but neither measures causal affinity benefit or calibrated out-of-distribution probability."
+    },
+    {
+      "id": "SC-03",
+      "severity": "nonblocking_for_checked_reference",
+      "finding": "Constructor verifies required keys but does not comprehensively validate arbitrary external KL/quantile values. The current 714 modes pass the explicit local finite/range/SPD inspection."
+    }
+  ],
+  "validation_status": {
+    "parent_reported_related_tests_passed_before_dtype_fix": 20,
+    "reviewed_tests": [
+      "normalized Gaussian against torch.distributions with unequal covariance volumes",
+      "conditional-anchor finite difference",
+      "identical density zero reward/gradient/gate",
+      "empirical quantiles and degenerate support",
+      "float32 update dtype and zero-dose exact update"
+    ],
+    "reviewer_test_execution": "No Torch test suite run; the active Python lacks torch. Reviewed test source and inspected reference arrays with NumPy.",
+    "new_architecture_FLOWR_inference": "not performed",
+    "required_before_scientific_rollout_claims": [
+      "new-reward real native-state finite-difference check",
+      "full zero-dose/native trajectory equivalence or explicitly scoped evidence",
+      "record actual gate factors, support coverage and injection/cap/backtrack histories"
+    ]
+  },
+  "evaluation_and_limits": [
+    "Evaluate actual x_0.5 independently of the reward, including both shape directions; a lower feature loss or higher density ratio is not success by itself.",
+    "At t=1 retain all candidate failures, validity/PB coverage, unique graphs, same-state head and valid-graph MMFF/surround relaxation coverage; head is a shared model prediction, not experimental affinity.",
+    "The reference background has undergone previous SMC. Subtracting it can discard useful accumulated structure as well as shared nuisance geometry.",
+    "Gaussian components are moment approximations. Sparse conditional NOS support, correlated regional views, genealogy collapse and 50 candidates per batch limit density and tail accuracy.",
+    "Only discovery batches 0–13 define this reward. Reused seed42 development batches do not provide heldout validation or evidence of unseen-seed generalization.",
+    "The new gate may deliberately yield very small or zero injection. Do not label lack of movement an implementation failure without checking measured support, KL and actual dose.",
+    "No extra neural model is fitted, but this is still empirical statistical fitting; it does not identify a unique optimal path, physical energy or regional causal mechanism."
+  ],
+  "reviewed_source_snapshots": [
+    {
+      "path": "src/evomolsteer/generation/coordinate_contrast.py",
+      "sha256": "51b7f0222ae18a4e5ed4e3c6f0f2c03e5fc1a271c40f105ae367e398d2a55a2d"
+    },
+    {
+      "path": "src/evomolsteer/generation/coordinate_reference.py",
+      "sha256": "3493be9dd62e64360871e19fdc7adc8396ef33be7dee4dc0c66ac2a4835cd611"
+    },
+    {
+      "path": "src/evomolsteer/generation/coordinate_controller.py",
+      "sha256": "2c37bfb3e5d909095d5c4a8b336c4aa9da1d5a62a2228f96daf1b9ef88c832f4"
+    },
+    {
+      "path": "src/evomolsteer/generation/coordinate_reward.py",
+      "sha256": "db4262519c6ee973cdb824d05071917f21c58146f22baa07cdcc114d9433c879"
+    },
+    {
+      "path": "src/evomolsteer/generation/local_reward.py",
+      "sha256": "9cf5b648a97147a7193eb668f5da83d84e7f7b84b06c176052bd42b4283df274"
+    },
+    {
+      "path": "src/evomolsteer/generation/multistage_reward.py",
+      "sha256": "23a80a21e467befaa2ff92983dd8603d75a24d4db5a09ba64958738dbfce196b"
+    },
+    {
+      "path": "tests/test_coordinate_contrast.py",
+      "sha256": "6f7feabd9621476eb87abe75d50769470f45c1323149bb78ad9c69618d2979f0"
+    }
+  ],
+  "serialization": "UTF-8, LF; listed source hashes are exact current local bytes, not a cross-platform byte-identity promise"
+}

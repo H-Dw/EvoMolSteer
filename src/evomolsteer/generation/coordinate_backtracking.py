@@ -130,6 +130,8 @@ def record(campaign, evidence, number):
     execution=read_json(local/'execution_report.json');audit=read_json(local/'coordinate_audit.json')
     if terminal['n']!=r['n_per_arm'] or not execution['no_particle_resampling'] or execution['outside_window_injection'] or not audit['coordinate_preflight']['passed']:
         raise ValueError('Missing candidates or failed execution/gradient check')
+    if 'gradient_zero' in r['arms'] and aw['zero_equivalence_passed'] is not True:
+        raise ValueError('New architecture requires full zero/native equivalence')
     original=evidence.parent/'ck2_terminal_seed42_20261005/reference/terminal_report.json'
     manifest={'groups':[{'label':'Original Steer','arm':'single','terminal_report':str(original.resolve())},
         {'label':'Native','arm':'unguided','terminal_report':str((baseline/'terminal_report.json').resolve()),'execution_report':str((baseline/'execution_report.json').resolve())},
@@ -178,3 +180,44 @@ def paired_batch_outcomes(actual_window,native_window,actual_terminal,native_ter
             'MMFF_n_actual':at[batch]['all_mmff_relief_per_heavy_n'],'MMFF_n_native':nt[batch]['all_mmff_relief_per_heavy_n'],
             'surround_n_actual':at[batch]['all_relax_rms_surround_A_n'],'surround_n_native':nt[batch]['all_relax_rms_surround_A_n']})
     return output
+
+
+def freeze_contrast(campaign,parent_program,parent_reference,new_reference,output,evidence,number,name,reason):
+    """Change reward architecture while requiring exact paired selected-moment parity."""
+    from .window_reference import load_reference
+    campaign,parent_program,parent_reference,new_reference,output,evidence=map(Path,
+        (campaign,parent_program,parent_reference,new_reference,output,evidence))
+    c=read_json(campaign);p=read_json(parent_program)
+    if output.exists() or evidence.exists():raise FileExistsError('Immutable plan already exists')
+    if number!=max(r['round'] for r in c['rounds'])+1 or not number<=c['maximum_rounds']<=30:raise ValueError('Sequential round within budget required')
+    parent=next(r for r in c['rounds'] if r['round']==p['round'])
+    if parent['status']!='completed' or c['rounds_started']!=c['rounds_completed']:raise ValueError('Retain current evaluation first')
+    if digest(parent_reference)!=p['reference_sha256'] or p['seed']!=42 or p['reward_view']!='coordinate_mixture':raise ValueError('Verified mixture parent required')
+    a,b=load_reference(parent_reference),load_reference(new_reference)
+    for key in ('window','times','features','batches','regions','channel','sources','spatial_anchor','control_representation','required_input_sha256'):
+        if a[key]!=b[key]:raise ValueError('Contrast representation or source differs')
+    if len(a['frames'])!=len(b['frames']) or len(b['frames'])!=len(b['times']):raise ValueError('Complete paired frames required')
+    checked=0
+    for f,g in zip(a['frames'],b['frames']):
+        if f['time']!=g['time']:raise ValueError('Paired frame times required')
+        if len(f['modes'])!=len(g['modes']):raise ValueError('Unpaired modes')
+        for m,n in zip(f['modes'],g['modes']):
+            for key in ('source_batch','center_A','covariance_A2'):
+                if m[key]!=n[key]:raise ValueError('Selected moment parity required')
+            for key in ('background_center_A','background_covariance_A2','background_support_q90','background_support_q98','paired_gaussian_KL_nats'):
+                if key not in n:raise ValueError('Empirical background/support missing')
+            checked+=1
+    q=copy.deepcopy(p);q.update(round=number,reward_view='selection_contrast',contrast_bound_nats=1.,reference_sha256=digest(new_reference))
+    changes={'reward_view':'selection_contrast','contrast_bound_nats':1.,'reference_sha256':digest(new_reference)}
+    q['backtracking']={'parent_round':p['round'],'parent_program_sha256':digest(parent_program),'kind':'architecture_change','changes':changes,'reason':reason}
+    # Validate the executable before mutating the campaign manifest.
+    from .coordinate_contrast import make_coordinate_reward
+    make_coordinate_reward(q,b)
+    write_json(output,q);write_json(evidence,{'round':number,'parent_round':p['round'],'kind':'architecture_change',
+        'changes':changes,'reason':reason,'selected_moment_pairs_checked':checked,'selected_moments_exactly_equal':True,
+        'program_sha256':digest(output),'old_reference_sha256':digest(parent_reference),'reference_sha256':digest(new_reference),
+        'window':q['window'],'fallback':'Restore parent; weak contrast and unsupported states receive smaller/zero dose, never increase eta to cancel those gates.'})
+    c['rounds'].append({'round':number,'campaign':name,'arms':['unguided','gradient_zero','gradient'],'batches':parent['batches'],'n_per_arm':parent['n_per_arm'],
+        'seed':42,'reference_sha256':digest(new_reference),'reward_view':q['reward_view'],'native_rms_ratio':q['native_rms_ratio'],
+        'dose_reference':q.get('dose_reference','observed_native'),'parent_round':p['round'],'kind':'architecture_change','changes':changes,'status':'frozen'})
+    c['status']='backtracking';write_json(campaign,c);return q

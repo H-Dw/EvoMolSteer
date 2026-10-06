@@ -20,12 +20,13 @@ ANALYST={'type':'object','additionalProperties':False,'properties':{'schema_vers
     'required':['schema_version','agent','observations','rules','counterevidence','limitations']}
 DESIGNER={'type':'object','additionalProperties':False,'properties':{'schema_version':{'const':'coordinate-1.0'},
     'agent':{'const':'Designer'},'design_status':{'enum':['exploratory','deferred']},
-    'architecture':{'enum':['spread_upper','coordinate_mixture']},'regions':{'type':'array','items':{'type':'string'},'minItems':1,'uniqueItems':True},
+    'architecture':{'enum':['spread_upper','coordinate_mixture','selection_contrast']},'regions':{'type':'array','items':{'type':'string'},'minItems':1,'uniqueItems':True},
     'channel':{'enum':['all','NOS']},'window':{'type':'array','items':{'type':'number'},'minItems':2,'maxItems':2},
     'native_rms_ratio':{'type':'number','minimum':0,'maximum':1},'mixture_temperature':{'type':'number','exclusiveMinimum':0},
     'robust_delta':{'type':'number','exclusiveMinimum':0},'rationale':{'type':'string'},
     'dose_reference':{'enum':['observed_native','predictive_flow']},'preserve_native_rigid_pose':{'type':'boolean'},
     'initial_update_dose':{'enum':['native','cap_to_flow']},
+    'contrast_bound_nats':{'type':'number','exclusiveMinimum':0},
     'evidence_ids':{'type':'array','items':{'type':'string'},'minItems':1},'limitations':{'type':'array','items':{'type':'string'}}},
     'required':['schema_version','agent','design_status','architecture','regions','channel','window','native_rms_ratio','mixture_temperature','robust_delta','rationale','evidence_ids','limitations']}
 
@@ -96,6 +97,7 @@ def validate(data,schema,bundle):
         if data['window']!=bundle['window']:raise ValueError('Design/learning window mismatch')
         if not all(np.isfinite(data[k]) for k in ('native_rms_ratio','mixture_temperature','robust_delta')):raise ValueError('Nonfinite control parameter')
         if data.get('initial_update_dose')=='cap_to_flow' and data.get('dose_reference','observed_native')!='observed_native':raise ValueError('Initial cap requires native-dose parent')
+        if data['architecture']=='selection_contrast' and ('contrast_bound_nats' not in data or not np.isfinite(data['contrast_bound_nats']) or data['contrast_bound_nats']<=0):raise ValueError('Contrast bound must be supplied and finite')
         known_regions={v['region'] for v in bundle['features'].values()}
         if set(data['regions'])-known_regions:raise ValueError('Unmeasured region')
         # An exploratory design is allowed, but its regional observables must be supplied.
@@ -127,7 +129,7 @@ def compile_design(mining,dataset,campaign,output,round_number):
     if out.exists():raise FileExistsError(out)
     reference=out/'reference.json.gz';build(dataset,campaign,mining,reference,design['regions'],design['channel'])
     program={k:design[k] for k in ('window','native_rms_ratio','mixture_temperature','robust_delta')}
-    program.update({k:design[k] for k in ('dose_reference','preserve_native_rigid_pose','initial_update_dose') if k in design})
+    program.update({k:design[k] for k in ('dose_reference','preserve_native_rigid_pose','initial_update_dose','contrast_bound_nats') if k in design})
     program.update(schema_version='current-coordinate-program-1.0',family='LLM_evidence_bound_coordinate_design',
         reward_view=design['architecture'],reference_sha256=digest(reference),core_radius_A=5.,round=round_number,seed=42,
         evidence_sha256=digest(dest/'coordinate_evidence.json'),designer_sha256=digest(dest/'Designer.coordinate.response.json'),

@@ -8,7 +8,8 @@ import sys
 import numpy as np
 import torch
 from .window_controller import WindowExtension
-from .coordinate_reward import CoordinateMixtureReward,remove_rigid_pose_gradient,predictive_flow_increment,calibration_increment
+from .coordinate_reward import remove_rigid_pose_gradient,predictive_flow_increment,calibration_increment
+from .coordinate_contrast import make_coordinate_reward
 from .local_reward import bounded_local_step
 from .multistage_reward import preserve_native_geometry
 from ..io import clean,digest,write_json
@@ -18,7 +19,7 @@ class CoordinateExtension(WindowExtension):
     def configure(self,model,opt,out):
         if model.inpainting_mode or model.graph_inpainting or model._inpaint_self_condition:raise ValueError('Inpainting unsupported')
         self.model,self.opt,self.out=model,opt,out;model.requires_grad_(False);model._gradient=self
-        self.reward=CoordinateMixtureReward(self.program,self.reference);self.preflight_done=False
+        self.reward=make_coordinate_reward(self.program,self.reference);self.preflight_done=False
         self.code_commit=subprocess.check_output(['git','-C',str(Path(__file__).resolve().parents[3]),'rev-parse','HEAD'],text=True).strip()
         self.checkpoint_hash=digest(opt.checkpoint)
         shutil.copy2(opt.program,out/'reward_program.json');shutil.copy2(opt.reference,out/'reference.json.gz')
@@ -87,7 +88,10 @@ class CoordinateExtension(WindowExtension):
             first_controlled=self.controlled_updates==0
             dose_delta=calibration_increment(native,flow_delta,mask,dose_view,self.program.get('initial_update_dose','native'),first_controlled)
             row.update(first_controlled_update=first_controlled,initial_update_dose=self.program.get('initial_update_dose','native'))
-            proposed,control=bounded_local_step(g,dose_delta,mask,detail['dose_gate'],eta,scale,c['max_atom_step_A'],c['max_cumulative_rms_A']-self.path_rms)
+            # Density cancellation is evaluated in float64; the physical update
+            # must retain FLOWR's coordinate dtype (including a zero-dose arm).
+            amplitude_gate=detail['dose_gate'].to(g)
+            proposed,control=bounded_local_step(g,dose_delta,mask,amplitude_gate,eta,scale,c['max_atom_step_A'],c['max_cumulative_rms_A']-self.path_rms)
             row['calibration_rms_A']=control['native_rms_A'].detach().cpu().tolist()
             row.update(dose_reference=dose_view,
                 observed_native_rms_A=(native.square().sum((1,2))/mask.sum(1)).sqrt().mul(scale).cpu().tolist(),

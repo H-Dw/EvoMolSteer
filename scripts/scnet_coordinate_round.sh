@@ -5,6 +5,8 @@ campaign=${2:?campaign}
 program=${3:?program}
 reference=${4:?reference}
 previous_report=${5:?previous retained report relative to repository}
+arms=${6:-gradient}
+batch_indices=${7:-}
 repo=$(cd "$(dirname "$0")/.." && pwd)
 work=${EXPERIMENT_ROOT:-/opt/evomolsteer-coordinate-seed42-20261006}
 python=${FLOWR_PYTHON:-/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python}
@@ -37,4 +39,4 @@ m.update(status='active',round=number,campaigns=[sys.argv[3]],completed_rounds=n
 (work/'round_ready.json').write_text(json.dumps(m,indent=2))
 PY
 export EXPERIMENT_ROOT="$work"
-bash "$repo/scripts/scnet_terminal_experiment.sh" "$campaign" coordinate "$program" "$reference" gradient 100
+bash "$repo/scripts/scnet_terminal_experiment.sh" "$campaign" coordinate "$program" "$reference" "$arms" 100 "$batch_indices"

@@ -36,3 +36,18 @@ a declared experimental assumption and must be compared at the same reference.
 Use matched seed42 controls. Evaluate actual x at window end independently of reward,
 then final chemical validity, energy proxy, predicted affinity and diversity.
 No regional affinity mechanism is confirmed until independent controls support it.
+
+The optional selection_contrast architecture compares normalized Gaussian mixtures
+of paired selected/background joint moments. It requires contrast_bound_nats and
+empirical candidate support quantiles. Both use equal discovery-batch weights;
+keep covariance determinants and the full Mahalanobis Gaussian exponent. The
+background has previous SMC history, so subtracting it is a new incremental-choice
+hypothesis, not a guaranteed way to recover cumulative Steer advantage.
+
+Bound the log ratio and preserve its saturation in the external dose after unit
+gradient normalization. Use paired-Gaussian KL / feature dimension as a weak-
+contrast amplitude gate, not as the true mixture KL or causal evidence. Support
+falls smoothly from empirical candidate q90 to q98; degenerate support means zero
+injection. Missing/OOD states use native continuation. No extra neural fitting is
+needed, but the Gaussian moments are statistical approximations. Density maths
+uses double precision; the actual displacement retains FLOWR's native dtype.
