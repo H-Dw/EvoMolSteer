@@ -111,3 +111,42 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
     c['stop_conditions']=['30 rounds started','User requests stop','Execution cannot satisfy finite-gradient, no-SMC or data-preservation contract']
     write_json(campaign,c)
     return q
+
+
+def record(campaign, evidence, number):
+    """Record an already preserved evaluation; keep every outcome axis separate."""
+    from .terminal_comparison import compare
+    campaign,evidence=Path(campaign),Path(evidence)
+    c=read_json(campaign);r=next(v for v in c['rounds'] if v['round']==number)
+    if c['rounds_started']!=number or c['rounds_completed']!=number-1 or r['status']!='running':raise ValueError('Round counters/state mismatch')
+    local=evidence/f'round_{number:02d}/local';baseline=evidence/'round_01/local';destination=local.parent/'comparison'
+    if destination.exists():raise FileExistsError('Comparison is immutable')
+    native=read_json(baseline/'window/report.json')['results']['unguided']
+    actual=read_json(local/'window/report.json')['results']['gradient']
+    terminal=read_json(local/'terminal_report.json')['results']['gradient']
+    nt=read_json(baseline/'terminal_report.json')['results']['unguided']
+    execution=read_json(local/'execution_report.json');audit=read_json(local/'coordinate_audit.json')
+    if terminal['n']!=r['n_per_arm'] or not execution['no_particle_resampling'] or execution['outside_window_injection'] or not audit['coordinate_preflight']['passed']:
+        raise ValueError('Missing candidates or failed execution/gradient check')
+    original=evidence.parent/'ck2_terminal_seed42_20261005/reference/terminal_report.json'
+    manifest={'groups':[{'label':'Original Steer','arm':'single','terminal_report':str(original.resolve())},
+        {'label':'Native','arm':'unguided','terminal_report':str((baseline/'terminal_report.json').resolve()),'execution_report':str((baseline/'execution_report.json').resolve())},
+        {'label':r['campaign'],'arm':'gradient','terminal_report':str((local/'terminal_report.json').resolve()),'execution_report':str((local/'execution_report.json').resolve())}],
+        'native':'Native','steer':'Original Steer','tests':[r['campaign']],'round':number,'maximum_rounds':c['maximum_rounds']}
+    write_json(local.parent/'comparison_manifest.json',manifest);compare(local.parent/'comparison_manifest.json',destination)
+    outcome={'round':number,'parent_round':r['parent_round'],'kind':r['kind'],'changes':r['changes'],
+        'shape_improvement_fraction':1-actual['symmetric_shape_A']/native['symmetric_shape_A'],
+        'actual_window_shape':actual,'native_shape':native,'terminal':terminal,'dose_audit':audit,
+        'all_head_change_vs_native':terminal['all_pic50_on_rescore_mean']-nt['all_pic50_on_rescore_mean'],
+        'MMFF_relief_relative_change':terminal['all_mmff_relief_per_heavy_median']/nt['all_mmff_relief_per_heavy_median']-1,
+        'surround_RMS_improvement_fraction':1-terminal['all_relax_rms_surround_A_mean']/nt['all_relax_rms_surround_A_mean'],
+        'interpretation':'Paired reused development batches; partial regression triggers rollback reasoning, not automatic exploration stop.'}
+    if r['kind']=='exact_replay':
+        parent=evidence/f"round_{r['parent_round']:02d}/local"
+        pt=read_json(parent/'terminal_report.json')['results']['gradient'];pw=read_json(parent/'window/report.json')['results']['gradient']
+        outcome['replay_differences']={f:terminal[f]-pt[f] for f in ('valid_connected','pb_fast_pass','all_pic50_on_rescore_mean','all_mmff_relief_per_heavy_median','all_relax_rms_surround_A_mean')}
+        outcome['replay_differences']['symmetric_shape_A']=actual['symmetric_shape_A']-pw['symmetric_shape_A']
+        outcome['replay_agreement_1e_7']=all(abs(v)<1e-7 for v in outcome['replay_differences'].values())
+    write_json(evidence/f'round_{number:02d}.outcome.json',outcome)
+    r['status']='completed';r['inference_commit']=execution['code_commit'];c.update(rounds_completed=number,status='backtracking');write_json(campaign,c)
+    return outcome
