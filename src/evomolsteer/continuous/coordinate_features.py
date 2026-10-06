@@ -10,7 +10,7 @@ from scipy.special import logsumexp
 def regional_observables(current, endpoint, proposal, atoms, mask, catalog, t, dt,
                          spatial_width_A=4.0,spatial_anchor='current',include_proposal=False,feature_family='geometry'):
     if not (0<=t<1 and dt>0 and spatial_width_A>0):raise ValueError('Invalid transport domain or spatial width')
-    if feature_family not in ('geometry','transport','joint'):raise ValueError('Unknown feature family')
+    if feature_family not in ('geometry','transport','joint','shape'):raise ValueError('Unknown feature family')
     names, columns, metadata = [], [], {}
     mask = np.asarray(mask, bool)
     delta = endpoint-current
@@ -45,7 +45,21 @@ def regional_observables(current, endpoint, proposal, atoms, mask, catalog, t, d
                 pc=(weights[...,None]*proposal).sum(1)
                 ps=np.sqrt((weights*((proposal-pc[:,None])**2).sum(-1)).sum(1))
                 values.update({**{f'proposal_centroid_{a}':pc[:,k]-origin[k] for k,a in enumerate('xyz')},'proposal_spread':ps})
-            if feature_family!='geometry':
+            if feature_family=='shape':
+                # The fixed receptor frame retains directional shape information
+                # discarded by scalar spread. One eligible slot has a legal zero
+                # covariance and no shape direction; diagnostics retain that fact.
+                values={}
+                values['shape_eligible_slots']=eligible.sum(1).astype(float)
+                values['shape_informative']=(eligible.sum(1)>=2).astype(float)
+                values['shape_effective_slots']=1/(weights**2).sum(1)
+                for prefix,state in [('shape_',current)]+([('proposal_shape_',proposal)] if include_proposal else []):
+                    mu=(weights[...,None]*state).sum(1);centered=state-mu[:,None]
+                    tensor=np.einsum('bn,bni,bnj->bij',weights,centered,centered)
+                    values[prefix+'trace']=np.trace(tensor,axis1=1,axis2=2)
+                    for pair,i,j in [('xx',0,0),('yy',1,1),('zz',2,2),('xy',0,1),('xz',0,2),('yz',1,2)]:
+                        values[prefix+pair]=tensor[:,i,j]*(np.sqrt(2) if i!=j else 1.)
+            elif feature_family!='geometry':
                 remaining=np.sqrt((weights*(delta**2).sum(-1)).sum(1))
                 den=remaining*speed
                 alignment=np.divide((weights*(delta*native).sum(-1)).sum(1),den,
@@ -59,15 +73,19 @@ def regional_observables(current, endpoint, proposal, atoms, mask, catalog, t, d
                 values=transport if feature_family=='transport' else {**values,**transport}
             for kind, value in values.items():
                 name = f'{region}::{channel}::{kind}'
-                names.append(name);columns.append(np.where(valid, value, np.nan))
+                names.append(name);columns.append(value if kind in ('shape_eligible_slots','shape_informative') else np.where(valid, value, np.nan))
                 metadata[name] = {'region':region,'channel':channel,'kind':kind,
-                    'unit':'A' if 'centroid' in kind or 'spread' in kind or kind=='remaining_rms' else
+                    'unit':'dimensionless' if kind in ('shape_eligible_slots','shape_informative','shape_effective_slots') else 'A^2' if 'shape_' in kind else 'A' if 'centroid' in kind or 'spread' in kind or kind=='remaining_rms' else
                         'dimensionless' if kind in ('transport_coherence','effective_slots','anchor_core_weight','current_core_weight') else 'A/time',
-                    'coordinate_control':'centroid' in kind or 'spread' in kind,
+                    'coordinate_control':'centroid' in kind or 'spread' in kind or ('shape_' in kind and kind not in ('shape_eligible_slots','shape_informative','shape_effective_slots')),
                     'spatial_anchor':spatial_anchor,
-                    'representation':'proposal' if kind.startswith('proposal') else 'current' if 'centroid' in kind or 'spread' in kind else 'matched-slot transport',
+                    'representation':'proposal' if kind.startswith('proposal') else 'current' if 'centroid' in kind or 'spread' in kind or 'shape_' in kind else 'matched-slot transport',
                     'mask':'predicted endpoint hard labels held fixed',
-                    'interpretation':'weighted matched-slot cosine of remaining displacement and measured native velocity; SDE/corrector included' if kind=='transport_coherence' else
+                    'interpretation':'Number of eligible endpoint-labelled slots; not physical early chemistry' if kind=='shape_eligible_slots' else
+                        'At least two eligible slots; one-slot covariance is a legal zero with no shape direction' if kind=='shape_informative' else
+                        'Conditional Gaussian weight concentration, not physical contacts or independent atoms' if kind=='shape_effective_slots' else
+                        'Fixed-receptor-frame weighted central second moment; sqrt(2) off-diagonal scaling; trace repeats spread squared; not unique molecular geometry or physical energy' if 'shape_' in kind else
+                        'weighted matched-slot cosine of remaining displacement and measured native velocity; SDE/corrector included' if kind=='transport_coherence' else
                         'Gaussian weight concentration; not count of physical contacts' if kind=='effective_slots' else
                         'Gaussian mass within fixed 5 A diagnostic radius; not a reward threshold' if kind.endswith('core_weight') else
                         'weighted remaining matched-slot displacement; not energy' if kind=='remaining_rms' else

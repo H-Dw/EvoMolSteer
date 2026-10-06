@@ -135,6 +135,16 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
                 nos=np.isin(atoms,[catalog['atom_vocabulary'][a] for a in ('N','O','S')]).sum(1)
                 # Composition and global pose controls are diagnostics, not causal identification.
                 nuisance=np.column_stack([center,radius,nos])
+                if feature_family=='shape':
+                    # Adjust regional direction evidence for common whole-ligand
+                    # second moments in the same measured representation. This
+                    # is a confounding diagnostic, not causal identification.
+                    global_columns=[];uniform=mask.astype(float)/mask.sum(1)[:,None]
+                    for whole in (arrays[0],arrays[2]):
+                        global_center=(uniform[...,None]*whole).sum(1);centered=whole-global_center[:,None]
+                        tensor=np.einsum('bn,bni,bnj->bij',uniform,centered,centered)
+                        global_columns.extend(tensor[:,i,j] for i,j in ((0,0),(1,1),(2,2),(0,1),(0,2),(1,2)))
+                    nuisance=np.column_stack([nuisance,*global_columns])
                 lag,lagpartial,parents=np.full(len(names),np.nan),np.full(len(names),np.nan),0
                 if k+1<len(ids):lag,lagpartial,parents=lag_evidence(x,scores[i],scores[ids[k+1]],selected[k])
                 values={'population_mean':mu,'selected_mean':sel,'selection_shift':sel-mu,
@@ -164,6 +174,7 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
         'spatial_anchor':spatial_anchor,'control_representation':control_representation,
         'region_subset':list(catalog['regions']),'include_proposal_observables':include_proposal,
         'feature_family':feature_family,'core_diagnostic_radius_A':5.,
+        'shape_partial_nuisance':'same-event partial correlation: global centroid/radius/NOS count plus masked whole-ligand current AND proposal second moments. Lag partial correlation still adjusts starting score only.' if feature_family=='shape' else None,
         'analysis_code_sha256':{p.name:digest(p) for p in (Path(__file__),Path(__file__).with_name('coordinate_features.py'))},
         'n_features':len(metadata),'n_statistic_rows':len(table),'storage':'lossless float64 zstd Parquet; no node feature cache',
         'interpretation':['Selection association is partly tautological: selection uses this affinity head.',

@@ -8,7 +8,7 @@ if __name__=='__main__':
     p.add_argument('--batches',help='optional comma-separated engineering subset');p.add_argument('--spatial-width-A',type=float,default=4.)
     p.add_argument('--spatial-anchor',choices=['current','endpoint'],default='current')
     p.add_argument('--control-representation',choices=['current','proposal'],default='current');p.add_argument('--regions')
-    p.add_argument('--feature-family',choices=['geometry','transport','joint'],default='geometry')
+    p.add_argument('--feature-family',choices=['geometry','transport','joint','shape'],default='geometry')
     a=p.parse_args();mine(a.dataset,a.campaign,a.analysis,a.output,
                          [int(b) for b in a.batches.split(',')] if a.batches else None,a.spatial_width_A,
                          a.spatial_anchor,a.regions.split(',') if a.regions else None,a.control_representation,a.feature_family)

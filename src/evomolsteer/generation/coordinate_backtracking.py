@@ -182,7 +182,7 @@ def paired_batch_outcomes(actual_window,native_window,actual_terminal,native_ter
     return output
 
 
-def freeze_contrast(campaign,parent_program,parent_reference,new_reference,output,evidence,number,name,reason):
+def freeze_contrast(campaign,parent_program,parent_reference,new_reference,output,evidence,number,name,reason,designer_contract=None):
     """Change reward architecture while requiring exact paired selected-moment parity."""
     from .window_reference import load_reference
     campaign,parent_program,parent_reference,new_reference,output,evidence=map(Path,
@@ -207,7 +207,14 @@ def freeze_contrast(campaign,parent_program,parent_reference,new_reference,outpu
             for key in ('background_center_A','background_covariance_A2','background_support_q90','background_support_q98','paired_gaussian_KL_nats'):
                 if key not in n:raise ValueError('Empirical background/support missing')
             checked+=1
-    q=copy.deepcopy(p);q.update(round=number,reward_view='selection_contrast',contrast_bound_nats=1.,reference_sha256=digest(new_reference))
+    if designer_contract is None:raise ValueError('Designer contrast contract required')
+    contract=read_json(designer_contract)
+    if contract['agent']!='Designer' or contract['schema_version']!='selection-contrast-designer-contract-1.0':raise ValueError('Wrong Designer contract')
+    sources=contract['reference_contract']['sources']
+    if sources['active_contrast_reference']['sha256']!=digest(new_reference) or sources['source_selected_reference']['sha256']!=digest(parent_reference):raise ValueError('Designer reference binding differs')
+    spec=contract['exploratory_parameters'];defaults={'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}
+    if any(p.get(key,defaults.get(key))!=value for key,value in spec['inherit_without_simultaneous_retuning'].items()):raise ValueError('Contrast control must inherit the declared parent')
+    q=copy.deepcopy(p);q.update(round=number,reward_view='selection_contrast',contrast_bound_nats=spec['contrast_bound_nats'],reference_sha256=digest(new_reference),designer_sha256=digest(designer_contract))
     changes={'reward_view':'selection_contrast','contrast_bound_nats':1.,'reference_sha256':digest(new_reference)}
     q['backtracking']={'parent_round':p['round'],'parent_program_sha256':digest(parent_program),'kind':'architecture_change','changes':changes,'reason':reason}
     # Validate the executable before mutating the campaign manifest.
@@ -216,6 +223,7 @@ def freeze_contrast(campaign,parent_program,parent_reference,new_reference,outpu
     write_json(output,q);write_json(evidence,{'round':number,'parent_round':p['round'],'kind':'architecture_change',
         'changes':changes,'reason':reason,'selected_moment_pairs_checked':checked,'selected_moments_exactly_equal':True,
         'program_sha256':digest(output),'old_reference_sha256':digest(parent_reference),'reference_sha256':digest(new_reference),
+        'designer_contract_sha256':digest(designer_contract),
         'window':q['window'],'fallback':'Restore parent; weak contrast and unsupported states receive smaller/zero dose, never increase eta to cancel those gates.'})
     c['rounds'].append({'round':number,'campaign':name,'arms':['unguided','gradient_zero','gradient'],'batches':parent['batches'],'n_per_arm':parent['n_per_arm'],
         'seed':42,'reference_sha256':digest(new_reference),'reward_view':q['reward_view'],'native_rms_ratio':q['native_rms_ratio'],

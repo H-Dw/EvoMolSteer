@@ -110,3 +110,18 @@ tanh的sech²也保留在实际剂量中，避免方向归一化抵消饱和。
 密度与微弱差异使用float64，实际位移仍保持FLOWR float32，已补集成测试。
 `freeze-contrast`要求714组selected moments逐值一致、共同来源/窗口/特征相同，
 将该轮标为架构变化并执行native/zero/gradient三臂；完整zero不相同不得晋升。
+
+第十轮移除刚体梯度后shape改善2.743%，all-head +.006806，valid100/PB99。
+但MMFF/heavy变差2.527%，周围松弛变差15.345%，所以不将其晋升为兼容性改善。
+第十一轮改测经过Designer合同校验的selection_contrast，其他控制恢复R3。
+
+已补充缺失的方向表征`--feature-family shape`：
+中心化二阶矩的xx/yy/zz/sqrt(2)xy/sqrt(2)xz/sqrt(2)yz，以及trace、有效槽位和覆盖诊断。
+每个预声明区域同时测current/proposal和all/NOS，共272个分量/诊断特征。
+单NOS槽位的tensor=0是合法无形状信息状态，不能误记为缺失；没有NOS才缺失。
+全程使用固定受体框架、真实选择节点、batch summaries和全窗口拟合/导数，新增缓存为零。
+同期partial correlation额外控制全配体current/proposal tensor；lag partial仍仅控制起始评分。
+discovery14批次的新分析：11/272 selection-shift、23/272 low-tail enrichment显著；
+调整起始评分的lag为0/248 q<.05（min q=.05468），没有由此确认因果方向优势。
+trace与spread平方冗余，A²特征的统计协方差单位是A⁴；不直接复用坐标SD floor。
+逐分量Legendre拟合未保证PSD，只作描述；未来控制需用实际节点经验tensor并检查单位和梯度。
