@@ -1,0 +1,857 @@
+{
+  "schema_version": "analyst-designer-final-campaign-review-1.0",
+  "date": "2026-10-07",
+  "identity": {
+    "role": "Analyst + Designer",
+    "mode": "authorized subagent simulation",
+    "scope": "本地保留证据的只读复核；只创建本审阅 JSON/Markdown，不改源码、奖励、已有结果或远端状态。"
+  },
+  "decision": {
+    "execution_and_reproducibility": "通过本次保留证据审计。",
+    "matched_native_effect": "冻结奖励在三批留出上出现小幅、部分指标改善；不能称为五项指标共同改善。",
+    "historical_steer_goal": "未达到历史 Steer 的绝对预测评分、MMFF 松弛能量释放与配体周边松弛 RMS 水平；核心联合目标尚未实现。",
+    "LLM_specific_advantage": "没有 LLM 与非 LLM 设计流程的对照，不能把效果归因于 LLM 独有优势。",
+    "mechanism": "结果支持可执行的条件坐标分布模仿探索，不证明所用区域具有因果性亲和力优势。",
+    "additional_experiment_started": false
+  },
+  "quantitative_verification": {
+    "rounds_verified": 15,
+    "numerical_comparisons": 947,
+    "max_absolute_recomputation_error": 1.7763568394002505e-15,
+    "tolerance": 5e-12,
+    "numeric_mismatches": [],
+    "retained_file_hash_mismatches": [],
+    "all_rounds_finite_nonconverged_MMFF_rows": 0,
+    "all_rounds_converged_nonfinite_MMFF_rows": 0,
+    "all_rounds_infinite_surround_rows": 0,
+    "energy_mask": "energy_status == 'converged' AND finite(metric)，统一用于 MMFF 中位数、p90 和对应覆盖率。",
+    "scope": "逐轮从 candidate_metrics.csv 独立重算 all/valid/unique/PB 子集能量、主要终态摘要、p90/覆盖与 outcome；从保留 window 批次表重算形状汇总；逐字段核对最终留出汇总及源哈希。未重跑量化化学或原始轨迹计算。",
+    "conclusion": "旧 outcome 与当前 converged-finite 口径一致，未发现先前口径使已报告数值混入失败能量。",
+    "coverage_caveat": "MMFF 仅描述收敛且可计算子集，失败不补零；周边 RMS 为可计算有限记录均值，概念上不是同一过滤条件。本次留出二者覆盖恰好一致。"
+  },
+  "frozen_protocol": {
+    "final_discovery_pool": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "selected_parent_round": 9,
+    "validation": {
+      "round": 13,
+      "batches": [
+        14,
+        15
+      ],
+      "arms": [
+        "unguided",
+        "gradient_zero",
+        "gradient"
+      ],
+      "n_per_arm": 100
+    },
+    "heldout": {
+      "rounds": [
+        14,
+        15
+      ],
+      "batches": [
+        17,
+        18,
+        19
+      ],
+      "arms": [
+        "unguided",
+        "gradient"
+      ],
+      "n_per_arm": 150
+    },
+    "parameter_match": "排除 round、program_id 和 derivation 后，R9/R13/R14/R15 所有其余程序字段相等。",
+    "effective_program_sha256": "3f90012df243d8704a659c25cd8d50d6e1e9d6e6f337e9ff7ab674a45301ec64",
+    "reward": {
+      "target_definition": "boundary_survival",
+      "reward_view": "motif_mixture",
+      "channel": "all",
+      "motif_components": "joint",
+      "eta": 0.05,
+      "mixture_temperature": 0.5,
+      "robust_delta": 2,
+      "time_ramp_power": 0,
+      "dose_reference": "predictive_flow",
+      "preserve_native_rigid_pose": false,
+      "constraints": {
+        "backtrack_attempts": 7,
+        "max_atom_step_A": 0.025,
+        "max_cumulative_rms_A": 1.25,
+        "severe_receptor_clash_A": 0.8
+      }
+    },
+    "reference_sha256": "02bd7a4e31791454c91de606cd23e4f8718a782b3af2999e139df82f60153a3f",
+    "scale_score_times": {
+      "count": 50,
+      "min": 0,
+      "max": 0.49
+    },
+    "timing": "score t 对应 proposal x_(t+0.01)；有效注入 score 0…0.49，共 50 步，最后 .49→.50；其后 native 完成 t=1。参考 score .50→state .51 仅为上下文，不进入严格尺度或注入。",
+    "master_seed": 42,
+    "native_steps": 100,
+    "new_SMC": false,
+    "actual_initial_pairing": "所有轮次 gradient 与其匹配 native 的初态签名一致。",
+    "zero_control": "R13 两批全部 100 步记录字段以及 final tensors 与 native 逐字节一致；这验证零强度执行一致性，不是有效强度的科学获益证明。",
+    "runtime_source_check": "R9/R13/R14/R15 的 coordinate_controller.py、coordinate_reward.py、spatial_motifs.py 字节哈希相同；motif_reward.py 除离线参考构造函数 build 外的 AST 相同。冻结参考文件字节不变。",
+    "runtime_hashes": {
+      "src/evomolsteer/generation/coordinate_controller.py": {
+        "9": "c230d05849180f84c31dbf6c8b8607c2911d6eecc2f5302ae0e7dc13ba917b42",
+        "13": "c230d05849180f84c31dbf6c8b8607c2911d6eecc2f5302ae0e7dc13ba917b42",
+        "14": "c230d05849180f84c31dbf6c8b8607c2911d6eecc2f5302ae0e7dc13ba917b42",
+        "15": "c230d05849180f84c31dbf6c8b8607c2911d6eecc2f5302ae0e7dc13ba917b42"
+      },
+      "src/evomolsteer/generation/coordinate_reward.py": {
+        "9": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
+        "13": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
+        "14": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
+        "15": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086"
+      },
+      "src/evomolsteer/continuous/spatial_motifs.py": {
+        "9": "ba16fd990f418b3f6fcdf1f8f75b4a006013a60ed46ba403350f62a063ef1ead",
+        "13": "ba16fd990f418b3f6fcdf1f8f75b4a006013a60ed46ba403350f62a063ef1ead",
+        "14": "ba16fd990f418b3f6fcdf1f8f75b4a006013a60ed46ba403350f62a063ef1ead",
+        "15": "ba16fd990f418b3f6fcdf1f8f75b4a006013a60ed46ba403350f62a063ef1ead"
+      },
+      "motif_reward_AST_excluding_reference_builder": {
+        "9": "c869a18e2f434aeacefc91a5d9261df11c02811c31e9d874332f643eb3fbb56f",
+        "13": "c869a18e2f434aeacefc91a5d9261df11c02811c31e9d874332f643eb3fbb56f",
+        "14": "c869a18e2f434aeacefc91a5d9261df11c02811c31e9d874332f643eb3fbb56f",
+        "15": "c869a18e2f434aeacefc91a5d9261df11c02811c31e9d874332f643eb3fbb56f"
+      }
+    },
+    "executed_program_sha256": {
+      "9": "e55b9d9c1d954168ffef27fc162c32e1a7f65e9e8a5e8ac80de9c761dcb08db4",
+      "13": "dc86bff7efc5ef9a8f7f1ca9909c2d5035d1fbee245c341c53d97eb8c6537062",
+      "14": "c877108f0a3cbc04c85e59dff04cb783014baa3225b4706b79ad9dafeb8bf0ba",
+      "15": "c4668ef82f3f08ede1ba3fe043db5aa0a46c381dbcb7e13fce6c8bd87485a550"
+    },
+    "inference_commits": {
+      "9": "c8f4144ba8e4285117b6839dac340bb5277396c2",
+      "13": "07a0ab4c2381d62955dece2782ba4da9aa11738d",
+      "14": "fee3537f694fa339c2d8e4eadbf4a091fecf9ce9",
+      "15": "0a2488f6130390aa500b49a3e7a5c8776704fb50"
+    },
+    "checkpoint_sha256": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0",
+    "native_integrator": {
+      "integration-steps": 100,
+      "integration-coord-noise-std": 0.2,
+      "integration-type-strategy": "uniform-sample",
+      "integration-bond-strategy": "uniform-sample",
+      "integration-coord-strategy": "continuous",
+      "integration-cat-noise-level": 1,
+      "corrector-sch-a": 0.5,
+      "corrector-sch-b": 0.5,
+      "corrector-iter-weight": 5,
+      "integration-coord-noise-scale": 0.2,
+      "use-sde-simulation": true,
+      "use-cosine-scheduler": false,
+      "cat-noise-euler-guard": false
+    },
+    "metadata_clarification": [
+      "flowr_args 中旧 use_sde_simulation 默认值不代表实跑配置；extension/native_integrator 与 runtime_integrator 均记录实际 SDE=true、coord noise=0.2。",
+      "extension.apply_guidance=false 表示内置 Steer guidance 关闭；自定义坐标梯度仍按记录注入。",
+      "execution_report.reference_sha256=3315bd… 对应 configs/experiments/ck2_terminal_seed42_v1/local_reference.json.gz 的旧终点区域诊断。实际 motif 奖励参考由 reward_program、coordinate_audit 和 config.extension 一致绑定 02bd7a…，两个参考哈希的差异不是冻结失效。"
+    ],
+    "selection_limit": "选择函数对 Pareto 前沿施加质量偏好并可回退，不是联合目标已满足的证明。R13–15 未据验证或留出结果重新择优。",
+    "historical_scope": "R1–8 保留原有 score-grid 尺度例外；没有把它们冒充严格 actual-window 实验或纳入最终候选池。"
+  },
+  "heldout": {
+    "summary_sha256": "3b58188cdec4edbc1303365078c911736183754bb9f5414475b7705b3f0ef1db",
+    "arms": {
+      "gradient": {
+        "MMFF_relief_per_heavy_median": 0.5285084878537929,
+        "MMFF_relief_per_heavy_p90": 1.3424156799500375,
+        "PB_fast_pass": 143,
+        "all_head": 7.4672952683766685,
+        "all_head_n": 150,
+        "attempted": 150,
+        "batches": [
+          17,
+          18,
+          19
+        ],
+        "boundary_shape_A": 0.22386848074456922,
+        "energy_converged": 144,
+        "energy_coverage": 0.96,
+        "energy_failure_counts": {
+          "converged": 144,
+          "not_applicable": 6
+        },
+        "surround_RMS_available_n": 144,
+        "surround_RMS_coverage": 0.96,
+        "surround_relax_RMS_A": 0.3298238177194384,
+        "unique_graphs": 99,
+        "unique_valid_head": 7.277921339478156,
+        "unique_valid_head_n": 99,
+        "valid": 144,
+        "valid_head": 7.469213863213857,
+        "valid_head_n": 144
+      },
+      "unguided": {
+        "MMFF_relief_per_heavy_median": 0.5265641051984252,
+        "MMFF_relief_per_heavy_p90": 1.493452058558423,
+        "PB_fast_pass": 139,
+        "all_head": 7.460157909393311,
+        "all_head_n": 150,
+        "attempted": 150,
+        "batches": [
+          17,
+          18,
+          19
+        ],
+        "boundary_shape_A": 0.22708080652563378,
+        "energy_converged": 140,
+        "energy_coverage": 0.9333333333333333,
+        "energy_failure_counts": {
+          "converged": 140,
+          "not_applicable": 10
+        },
+        "surround_RMS_available_n": 140,
+        "surround_RMS_coverage": 0.9333333333333333,
+        "surround_relax_RMS_A": 0.3492188219146691,
+        "unique_graphs": 99,
+        "unique_valid_head": 7.272337210298788,
+        "unique_valid_head_n": 99,
+        "valid": 140,
+        "valid_head": 7.463794176919119,
+        "valid_head_n": 140
+      }
+    },
+    "comparison_vs_matched_native": {
+      "MMFF_median_improvement": -0.0036925848841045106,
+      "MMFF_p90_improvement": 0.1011323917248309,
+      "head_change": 0.007137358983357878,
+      "shape_improvement": 0.01414617919591521,
+      "surround_RMS_improvement": 0.055538255609744236
+    },
+    "paired_batch_changes": [
+      {
+        "MMFF_median_change": -0.0023928674508214565,
+        "MMFF_p90_change": 0.17273044134249904,
+        "PB_count_change": 1,
+        "batch": 17,
+        "boundary_shape_change_A": 0.000477147598262756,
+        "head_change": 0.043394479751587056,
+        "n_per_arm": 50,
+        "surround_RMS_change_A": -0.017566299797108942,
+        "valid_count_change": 1
+      },
+      {
+        "MMFF_median_change": 0.02620169201988931,
+        "MMFF_p90_change": -0.7345468416191592,
+        "PB_count_change": 3,
+        "batch": 18,
+        "boundary_shape_change_A": -0.007633960499690728,
+        "head_change": -0.02514339447021463,
+        "n_per_arm": 50,
+        "surround_RMS_change_A": -0.0016538747384935437,
+        "valid_count_change": 3
+      },
+      {
+        "MMFF_median_change": 0.003621522629525531,
+        "MMFF_p90_change": -0.08311873258496161,
+        "PB_count_change": 0,
+        "batch": 19,
+        "boundary_shape_change_A": -0.0024801644417657143,
+        "head_change": 0.0031609916687012074,
+        "n_per_arm": 50,
+        "surround_RMS_change_A": -0.03826059032828388,
+        "valid_count_change": 0
+      }
+    ],
+    "beneficial_batch_count": {
+      "head": 2,
+      "boundary_shape": 2,
+      "MMFF_median": 1,
+      "MMFF_p90": 2,
+      "surround_RMS": 3
+    },
+    "quality": "gradient/native valid=144/140，PB-fast=143/139，各以 150 attempted 为分母；两者 unique graph 均 99。有效率及 PB 各增加 2.667 个百分点。",
+    "within_arm_coverage": "gradient/native MMFF 收敛有限数为 144/140，coverage=96%/93.333%；配体周边 RMS 可用数同为 144/140。所有 head 均有 150 个值；有效子集 head 为 144/140，unique-first head 为 99/99。",
+    "uncertainty": "核心比较单位为 3 个配对生成批次，而非 150 个候选，更不是 R1–15 的候选行总数。相同 master seed=42 的不同批次流不证明新主种子、靶点或生物学泛化；未作候选级显著性宣称。"
+  },
+  "historical_steer_comparison": {
+    "source": "docs/experiments/ck2_terminal_seed42_20261005/reference/terminal_report.json",
+    "source_sha256": "6b7f53e49d2a70486424741d85c30e0442c37e95e737432d6cb88b84a3cd8635",
+    "historical": {
+      "attempted": 100,
+      "all_head": 7.510350561141967,
+      "valid_head": 7.501144297268926,
+      "MMFF_relief_per_heavy_median": 0.398679332140369,
+      "surround_RMS_A": 0.20292062155759588,
+      "valid": 98,
+      "PB_fast": 98,
+      "unique_graphs": 24,
+      "energy_n": 98
+    },
+    "heldout_gradient_minus_or_relative_to_steer": {
+      "all_head_change": -0.04305529276529896,
+      "valid_head_change": -0.031930434055069234,
+      "MMFF_median_relative_worsening": 0.3256480716379675,
+      "surround_RMS_relative_worsening": 0.625383439040093
+    },
+    "interpretation": "历史 Steer 为发现批次且有克隆复制，并非本次留出的配对随机化对照。可以列绝对基准差距，不能把 150 对 100 的差异作同条件因果推断；unique=99 对 24 也不能替代归一分母或处理克隆的多样性分析。"
+  },
+  "scientific_limits": [
+    "FLOWR head 与原选择评分共享模型，不是实测亲和力或独立 oracle。all-head 包含无效结构，必须同时报告 valid/unique-head 与失败分母。",
+    "边界 shape 是固定受体坐标系内真实 x_.5 的、跨候选双向最近邻 Hungarian 原子槽位距离；无类型约束，不是终态化学等价、局部终点缺口或结合模式证明。",
+    "MMFF/heavy 是同图局部松弛后的能量下降，不是全局应变、结合能或自由能。周边 RMS 是配体区域外原子的松弛位移，不是受体松弛或直接环境相容性测量。",
+    "筛选权重、末端存活权重与 root-balanced 权重定义不同；克隆后代频数可定义模仿目标，却不能充当独立样本。发现集存在明显根谱系塌缩。",
+    "实际边界 whole-curve 统计没有显著机制证据；部分积分 low-tail 结果不能变成固定空间力或已发现的 affinity 因果区域。奖励仍是预声明探索性分布拟合。",
+    "R1–12 在重复开发批次上自适应筛选，不能用 R2 或 R9 开发阶段较大效应替代冻结留出效应。R13 是验证，R14–15 是本轮不调参留出；历史汇总上下文可见，不能称绝对全盲外部验证。",
+    "LLM 参与证据审阅与受约束程序设计，确定性挖掘、预设候选与 Pareto 程序选择也参与了流程；没有设计流程消融，无法区分各自的因果贡献。"
+  ],
+  "residual_reporting_note": "当前结果无非有限 surrounding RMS；若将来出现 inf，terminal_evaluation 的普通均值与 heldout 的有限值过滤需继续保持一致。本次不存在该数值污染。",
+  "all_rounds": [
+    {
+      "round": 1,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 96,
+      "gradient_PB": 95,
+      "gradient_converged_energy": 96,
+      "zero_equivalence": true,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.021735339164733247,
+        "unique_head_change_vs_native": 0.07325931108762962,
+        "shape_improvement_fraction": 0.03608992789078136,
+        "negative_MMFF_relative_change": -0.04440632407427647,
+        "negative_MMFF_p90_relative_change": -0.28565233416817826,
+        "surround_RMS_improvement_fraction": -0.016822009472441612,
+        "MMFF_p90": 2.1943658608510304,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": -0.020000000000000018,
+        "PB_rate_change": -0.030000000000000027,
+        "energy_coverage_change": -0.020000000000000018
+      },
+      "source_sha256": {
+        "outcome": "c4162160dc22789a90cc76bb3c383e17235832cbfa42320f51f92481d734d0d3",
+        "candidate_metrics": "33d7d796e189331f86f3f7c417f93a3923d4354d37e24e800655eab5ee47e42d",
+        "terminal_report": "8f798aff7b739e9897c0e181a8e889103ff0391a6350f32f8f351858d484980a",
+        "window": "db92018292334c25ad2100575d9c9f80cc366e74ea6bad676d2645303ec03190",
+        "executed_program": "3ac617fb2d339e4471f6a2c0acdfe362a130db8c323df5409817672565561612",
+        "config": "0baee1704100971456aa2330c3964d9483ca0926c8843f811d793ab2f45bbfbc"
+      }
+    },
+    {
+      "round": 2,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 97,
+      "gradient_PB": 97,
+      "gradient_converged_energy": 97,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.08046085834503103,
+        "unique_head_change_vs_native": 0.11168611956014729,
+        "shape_improvement_fraction": 0.07401362130368594,
+        "negative_MMFF_relative_change": -0.012390074796338801,
+        "negative_MMFF_p90_relative_change": 0.17692920511601673,
+        "surround_RMS_improvement_fraction": -0.0456959253307212,
+        "MMFF_p90": 1.4048264879676815,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": -0.010000000000000009,
+        "PB_rate_change": -0.010000000000000009,
+        "energy_coverage_change": -0.010000000000000009
+      },
+      "source_sha256": {
+        "outcome": "e0fbbd31f11fcc03a0da1d802d39fa795a908445063c029670be6bae97d1e987",
+        "candidate_metrics": "84ded70e02b522ff1bf33f71f9eed80a7c5288ae9ece48ad8dfb9249dca40623",
+        "terminal_report": "cf2833522b89d35943aad10b77e8cfb5b115b288e5610a64156933d4ae2b4f23",
+        "window": "01a2046ca59f5bcb25ba6bc276646d5d73e6c2f5f7ea0ffe54a1942f7d8a96c9",
+        "executed_program": "1829d27538f4f854914e4c6b2a39fa99af52a89806b919fde3fca6e52eebbf7f",
+        "config": "212266fdeff309ed2274780d5d26e91e5063972ac8c95853540198e9601eeebd"
+      }
+    },
+    {
+      "round": 3,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 96,
+      "gradient_PB": 96,
+      "gradient_converged_energy": 96,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.015093188285827175,
+        "unique_head_change_vs_native": 0.07986560007045806,
+        "shape_improvement_fraction": 0.010669553158041634,
+        "negative_MMFF_relative_change": 0.0050415766312458254,
+        "negative_MMFF_p90_relative_change": 0.1800307091012564,
+        "surround_RMS_improvement_fraction": 0.01158663906404056,
+        "MMFF_p90": 1.399532806089908,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": -0.020000000000000018,
+        "PB_rate_change": -0.020000000000000018,
+        "energy_coverage_change": -0.020000000000000018
+      },
+      "source_sha256": {
+        "outcome": "ec38769bfb0ca66a561230a9925e037c067632edfd5b58968179e45dab734ee9",
+        "candidate_metrics": "39e88d98b0ee2395983c1b2cd75daf462b921b9a048e8d7a3240c6704bfbabbc",
+        "terminal_report": "18f64b78a6fe957ebc59ead2ede72c4086bafc78b02ac13a68280609c0b14bb7",
+        "window": "c6bddc84454c30405fc914dae5e149300c5273857277fe52da1e67c22a33814e",
+        "executed_program": "dd0835be163cfd98b03fde8e75763c9811e865b307d05e5a7e0c463ce909aa3f",
+        "config": "1c751720063ddaac1ddbca7ed754ca7cfab2fa1b3685220d663d1dd675edfa2d"
+      }
+    },
+    {
+      "round": 4,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 98,
+      "gradient_PB": 98,
+      "gradient_converged_energy": 98,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": -0.006817765235901163,
+        "unique_head_change_vs_native": 0.016426293458339458,
+        "shape_improvement_fraction": -0.018266322582317862,
+        "negative_MMFF_relative_change": -0.00132017575590071,
+        "negative_MMFF_p90_relative_change": 0.06850729174576176,
+        "surround_RMS_improvement_fraction": 0.0076345490520127735,
+        "MMFF_p90": 1.5898822288898715,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": 0,
+        "PB_rate_change": 0,
+        "energy_coverage_change": 0
+      },
+      "source_sha256": {
+        "outcome": "1f3b85c8b9e3d8b27106b362f20129ddcb08dfc778c7701916313ef9fbd16a34",
+        "candidate_metrics": "3c84ace084b17e159735bd50106591cd66d7a17341dcae9efb0289ea06e6a9ae",
+        "terminal_report": "9f7325ad9b1ee1de8be6e7075fdbe489059c66daa690fcdde9b6728686672b57",
+        "window": "a6ffd5546e068f8c06b08b727d094f46daab858f35cd54515e4a9f0d19efb268",
+        "executed_program": "1fa89c8b0693ba5c4d5e0c7a36e74994dfffbc91f7adaf33b78116e1bd3309d5",
+        "config": "9709c513d087194e0a756e7d5eda24fd38863c3ea047b9026b7ec44cef4bd7ea"
+      }
+    },
+    {
+      "round": 5,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 99,
+      "gradient_PB": 98,
+      "gradient_converged_energy": 99,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.011445999145507812,
+        "unique_head_change_vs_native": 0.021896166438877707,
+        "shape_improvement_fraction": 0.011871643730164583,
+        "negative_MMFF_relative_change": -0.0023386833036334043,
+        "negative_MMFF_p90_relative_change": -0.2725569906721761,
+        "surround_RMS_improvement_fraction": -0.12551749166739623,
+        "MMFF_p90": 2.1720145813176432,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": 0.010000000000000009,
+        "PB_rate_change": 0,
+        "energy_coverage_change": 0.010000000000000009
+      },
+      "source_sha256": {
+        "outcome": "0194faffbb9a1d56514b19ed6241a9fbcf2200507f836cb2d38c0b0f1666b454",
+        "candidate_metrics": "ac7e7e392c68b33e26c5d47534c7eeb99f98869786f95677a73a52be34d291ef",
+        "terminal_report": "1eee9d3cb62324146c8abd43577bb2e154362ace6599df235ab0f1898774c7a8",
+        "window": "7025c284400c6531fe086a1102c6cde0685894a8f223b3db82e4e6e1577f0bf7",
+        "executed_program": "df254e90140c4a055f65a53ec90793a5ec49be7633a2ee530e1c5544f64e7062",
+        "config": "1e6761355a6bc370cd35a1dd01376978e7c05428ed34c4fc2236a4badd69863f"
+      }
+    },
+    {
+      "round": 6,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 100,
+      "gradient_PB": 100,
+      "gradient_converged_energy": 100,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.008069472312927317,
+        "unique_head_change_vs_native": 0.030081048679812206,
+        "shape_improvement_fraction": 0.02611095590488477,
+        "negative_MMFF_relative_change": -0.0005562218922388062,
+        "negative_MMFF_p90_relative_change": 0.1996732502407662,
+        "surround_RMS_improvement_fraction": -0.014487094933443245,
+        "MMFF_p90": 1.3660066959967077,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": 0.020000000000000018,
+        "PB_rate_change": 0.020000000000000018,
+        "energy_coverage_change": 0.020000000000000018
+      },
+      "source_sha256": {
+        "outcome": "d7002e8cb9d1f223b8fbd9d40b72b237ec42b06d1fd43b95c59f9fed8cbd4327",
+        "candidate_metrics": "a8c30b12951589a180e15c5e344b8dee9aa05d5a83a89f288b9351ed5b77b4bf",
+        "terminal_report": "dbd6a9c9b659a7ff73a719c2319e6fa1b8494df3b8f30170f81524edcfaf7cf6",
+        "window": "825e2c4c08d3a54fe4d41edaf97df1e46ee69a48f18d62aac8d422f1c44c18a4",
+        "executed_program": "336be11ac834c5e6b476344530f650977ee768879ea12fd94174c1736d0e4142",
+        "config": "c11cc3085167ba933d0283bbd19148938afd64cd27615d03ae5176943ccee32d"
+      }
+    },
+    {
+      "round": 7,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 98,
+      "gradient_PB": 98,
+      "gradient_converged_energy": 98,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.001392445564269984,
+        "unique_head_change_vs_native": 0.001875835916269608,
+        "shape_improvement_fraction": -0.0011775310474348988,
+        "negative_MMFF_relative_change": -0.0003469077612898719,
+        "negative_MMFF_p90_relative_change": 0.1302195308704337,
+        "surround_RMS_improvement_fraction": 0.023313941445234798,
+        "MMFF_p90": 1.484551085210603,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": 0,
+        "PB_rate_change": 0,
+        "energy_coverage_change": 0
+      },
+      "source_sha256": {
+        "outcome": "fb0b1026ac748646d8f2094a8851e215fa1ba2031a343d5b96679e5c0254055a",
+        "candidate_metrics": "1bac6e64af58e14ea851ae80f590f243fad00ac43d6cb94b9d4b2f57a5fec008",
+        "terminal_report": "1e5a6b37a9099ac8692fe5d1405328b0bff738b1dd5bfbcbfce6d7fad9c85bcd",
+        "window": "28c05e928af39e3c1ec2576587eae5330519eb5576ac76c992f924ea1f1a7d94",
+        "executed_program": "ce145af66aca0e4350e1e86b3d06d20f359d7deb302cce35d10cf10ea8f0189e",
+        "config": "893d7674e0fb73a7fe819e66b4ac80f57627273f1470e7869e6a57c2edb4c2a5"
+      }
+    },
+    {
+      "round": 8,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 98,
+      "gradient_PB": 98,
+      "gradient_converged_energy": 98,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.0023418378829953568,
+        "unique_head_change_vs_native": 0.005754544078439672,
+        "shape_improvement_fraction": -0.005460920857988327,
+        "negative_MMFF_relative_change": -0.0013249840622380216,
+        "negative_MMFF_p90_relative_change": -0.14580940904907003,
+        "surround_RMS_improvement_fraction": 0.0015608014878952803,
+        "MMFF_p90": 1.9556803837531633,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": 0,
+        "PB_rate_change": 0,
+        "energy_coverage_change": 0
+      },
+      "source_sha256": {
+        "outcome": "989eb1dd88478c9942adf390d5b8ccdbbdd6c8e7643af6289bb05a98d0959e9c",
+        "candidate_metrics": "65b13ca3e666439cdeb7e9932e79d588a7f6fdb628b88f5eed613717ec047a53",
+        "terminal_report": "1abb35d8ec6fe64bb59b59208516a4ee7443d314b092110300a5b83a4926fa93",
+        "window": "bbe98d960dfd097b0141efdcfad228025c0741b157677eb7adbe2f94f1de5f92",
+        "executed_program": "c1ffc452caf3655a7a809503f44908328e9bb6c81e91092f0f4ded7b54a88fb2",
+        "config": "cf5fa2cd9f2825527db91b4641192b5df18386b30d393815e63266a90e0009aa"
+      }
+    },
+    {
+      "round": 9,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 96,
+      "gradient_PB": 96,
+      "gradient_converged_energy": 96,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.033956341743468954,
+        "unique_head_change_vs_native": 0.06220178812477872,
+        "shape_improvement_fraction": 0.035082134135523635,
+        "negative_MMFF_relative_change": 0.000046995006814265494,
+        "negative_MMFF_p90_relative_change": 0.31307010417494485,
+        "surround_RMS_improvement_fraction": 0.027205655085070335,
+        "MMFF_p90": 1.1724596705778418,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": -0.020000000000000018,
+        "PB_rate_change": -0.020000000000000018,
+        "energy_coverage_change": -0.020000000000000018
+      },
+      "source_sha256": {
+        "outcome": "cd2cec6b2262f6f11d4a8e5dd113f616ef45023aefa0b3185eb6e1d05d69beba",
+        "candidate_metrics": "98d4b1b95e58c4e5b8aeab98f4ebab1233d8e9864fb41684395069cc638286cc",
+        "terminal_report": "350dab9370dac5e49c39ebc92f8da0a2ac87ca640aa215b6e0dd662c92b8b3c8",
+        "window": "3156de32118f0f6a5f21d9f2b73537fe24b1d86d9d66f5b47b8c2b24dfbcae7c",
+        "executed_program": "e55b9d9c1d954168ffef27fc162c32e1a7f65e9e8a5e8ac80de9c761dcb08db4",
+        "config": "41e7e726c63dbd1013287cdd79f9dda645e49c38383f5aaa9bbd26068f613b5f"
+      }
+    },
+    {
+      "round": 10,
+      "split": "discovery",
+      "parent_round": 0,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 98,
+      "gradient_PB": 98,
+      "gradient_converged_energy": 98,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.024121360778808665,
+        "unique_head_change_vs_native": 0.03763037337213415,
+        "shape_improvement_fraction": 0.009324689473894976,
+        "negative_MMFF_relative_change": -0.0000732883464360512,
+        "negative_MMFF_p90_relative_change": 0.23853141426794078,
+        "surround_RMS_improvement_fraction": -0.04355555344014128,
+        "MMFF_p90": 1.2996831446831631,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": 0,
+        "PB_rate_change": 0,
+        "energy_coverage_change": 0
+      },
+      "source_sha256": {
+        "outcome": "11e75bb52169737ef1e0fa528979b2daeb7e8dd232cfc84bcaed267edad8e0c2",
+        "candidate_metrics": "716aa107ae316481ae706c4663343b42fed1b229a358bce0336a2270684b0483",
+        "terminal_report": "be90243a2b86af7aaef1e87f9a56b761190f46b9a51c2c82e80ac67b1b3c03e6",
+        "window": "07ea6f9088537c596fd386a1a8877e0bba17f8a52b8b11e4834c43dd0592a9eb",
+        "executed_program": "351b490ea41bb30a28a35793601ceb4fe4868eafb6f73b2a9710e19a0463835d",
+        "config": "5ea78c8bcbc90ba7fe0bec43f79ff5d7e18027e2ca54e38d4f0c3d6162682680"
+      }
+    },
+    {
+      "round": 11,
+      "split": "discovery",
+      "parent_round": 9,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 95,
+      "gradient_PB": 95,
+      "gradient_converged_energy": 95,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.009523019790648846,
+        "unique_head_change_vs_native": 0.04218189267144634,
+        "shape_improvement_fraction": -0.001265881915513134,
+        "negative_MMFF_relative_change": -0.0003409803253313637,
+        "negative_MMFF_p90_relative_change": 0.23667096109313934,
+        "surround_RMS_improvement_fraction": -0.02546996828830328,
+        "MMFF_p90": 1.3028585870823228,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": -0.030000000000000027,
+        "PB_rate_change": -0.030000000000000027,
+        "energy_coverage_change": -0.030000000000000027
+      },
+      "source_sha256": {
+        "outcome": "aa5cf7202175ecdead3a973202b488ca0e197a3c4ee00bcbf29ea5e06108e121",
+        "candidate_metrics": "889e415a33ed897166ed2a79e7f0e08ec06c36acf5acef4a7121df49cfaded10",
+        "terminal_report": "5234a18930b1a5492a37aae2ad9bd5f46aaf08328dd03bc669de550107817335",
+        "window": "ca54716626c2ed2f3edb7b4d137a53119888d33f3dcb9b74a55323b2e4565429",
+        "executed_program": "0764f9fb3657cb7e66927ef397f8086e95410bd71270379d7e6573f0462f1648",
+        "config": "a62057eff786e2fce8e6a1454c72462c5319f04d5b88d5441be05208a5409421"
+      }
+    },
+    {
+      "round": 12,
+      "split": "discovery",
+      "parent_round": 2,
+      "baseline_round": 1,
+      "gradient_attempted": 100,
+      "gradient_valid": 96,
+      "gradient_PB": 96,
+      "gradient_converged_energy": 96,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.0371982479095454,
+        "unique_head_change_vs_native": 0.07363628304522951,
+        "shape_improvement_fraction": 0.017750719912337343,
+        "negative_MMFF_relative_change": -0.0072137593321150995,
+        "negative_MMFF_p90_relative_change": -0.2597935839577623,
+        "surround_RMS_improvement_fraction": -0.1064173708348608,
+        "MMFF_p90": 2.150229855215631,
+        "native_MMFF_p90": 1.706811244791768,
+        "valid_rate_change": -0.020000000000000018,
+        "PB_rate_change": -0.020000000000000018,
+        "energy_coverage_change": -0.020000000000000018
+      },
+      "source_sha256": {
+        "outcome": "b2d93826e5ae131e23c1a1468d65802c2e1c240945b142cd687fb18966342b6d",
+        "candidate_metrics": "7590c21a17bd8ce2af2059c1e595186a8c856cd81ce58a39ea977aecaa619177",
+        "terminal_report": "2b62dbe36bdc383d01ac699793dc630cd94e40be43606e43d5f09dcdbf994363",
+        "window": "a1119d8006cbe97519b4330753264939552b099c635ebf899f85e29a83f3953c",
+        "executed_program": "0d02de4d64da207b1bb632062be3164134479a73db4f6b552103f9f64363b7b7",
+        "config": "d931342c0901c76c31fe0de7ff1ee8d71e67662b1f7b8315ad3db3a13f64eb75"
+      }
+    },
+    {
+      "round": 13,
+      "split": "validation",
+      "parent_round": 9,
+      "baseline_round": 13,
+      "gradient_attempted": 100,
+      "gradient_valid": 98,
+      "gradient_PB": 98,
+      "gradient_converged_energy": 98,
+      "zero_equivalence": true,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.011900892257689755,
+        "unique_head_change_vs_native": 0.022526036447553466,
+        "shape_improvement_fraction": 0.019788908687055184,
+        "negative_MMFF_relative_change": -0.008713560515996033,
+        "negative_MMFF_p90_relative_change": 0.13694517860974964,
+        "surround_RMS_improvement_fraction": -0.0053276548281073755,
+        "MMFF_p90": 0.9789015753862178,
+        "native_MMFF_p90": 1.134228731622582,
+        "valid_rate_change": 0.030000000000000027,
+        "PB_rate_change": 0.030000000000000027,
+        "energy_coverage_change": 0.030000000000000027
+      },
+      "source_sha256": {
+        "outcome": "ab125992973009c5344685460c6d5e2824bb5318be850f50b4af12066ef25b55",
+        "candidate_metrics": "f76af8afaf666e7d695f5758d671234ef0528c19905185147d6cce77e3595a24",
+        "terminal_report": "da66de4272f96cb1a2b3f45923561d7de292ab668f8cbc53278cb8671e81e5fc",
+        "window": "c35864188a5f688e83d7865f8c7a8295f5970fdb3e00df09c766c52545595fdd",
+        "executed_program": "dc86bff7efc5ef9a8f7f1ca9909c2d5035d1fbee245c341c53d97eb8c6537062",
+        "config": "e5f3f49de327557b6dd077143519ab727b86ec5686547ec46fc2bf10122240a8"
+      }
+    },
+    {
+      "round": 14,
+      "split": "heldout",
+      "parent_round": 9,
+      "baseline_round": 14,
+      "gradient_attempted": 50,
+      "gradient_valid": 49,
+      "gradient_PB": 49,
+      "gradient_converged_energy": 49,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": 0.043394479751587056,
+        "unique_head_change_vs_native": 0.03729727533128546,
+        "shape_improvement_fraction": -0.002131885223356056,
+        "negative_MMFF_relative_change": 0.004496497369325114,
+        "negative_MMFF_p90_relative_change": -0.12793640985735655,
+        "surround_RMS_improvement_fraction": 0.05331421232366851,
+        "MMFF_p90": 1.5228577548655675,
+        "native_MMFF_p90": 1.3501273135230685,
+        "valid_rate_change": 0.020000000000000018,
+        "PB_rate_change": 0.020000000000000018,
+        "energy_coverage_change": 0.020000000000000018
+      },
+      "source_sha256": {
+        "outcome": "fc9b073df0c2b009abd7f9f3d3821e8286ce693ad44a59bb5f817da0f31ac613",
+        "candidate_metrics": "e0c4fd546c8e67521de8ca8acf6e80d3363a1d4b4f402625d8ea96beefccd4ce",
+        "terminal_report": "56b9a917ab5c54eda6aa4d582410ea86c5457fba3b49b1e3846e5df43108cd35",
+        "window": "6cca72c8e149b779f1391e8da847c982643640d1a8cffa827b3cd13179656449",
+        "executed_program": "c877108f0a3cbc04c85e59dff04cb783014baa3225b4706b79ad9dafeb8bf0ba",
+        "config": "4f4adb1a40a05a5e54a7e8518cbbb9234b5eaf4c8cedd0398b2ecc3e59c36530"
+      }
+    },
+    {
+      "round": 15,
+      "split": "heldout",
+      "parent_round": 9,
+      "baseline_round": 15,
+      "gradient_attempted": 100,
+      "gradient_valid": 95,
+      "gradient_PB": 94,
+      "gradient_converged_energy": 95,
+      "zero_equivalence": null,
+      "recomputed_outcome": {
+        "all_head_change_vs_native": -0.010991201400756268,
+        "unique_head_change_vs_native": -0.011861233681625727,
+        "shape_improvement_fraction": 0.02211087807532386,
+        "negative_MMFF_relative_change": -0.003941543956214266,
+        "negative_MMFF_p90_relative_change": 0.2355325134788504,
+        "surround_RMS_improvement_fraction": 0.056898002000526415,
+        "MMFF_p90": 1.1585114213886112,
+        "native_MMFF_p90": 1.5154489128905027,
+        "valid_rate_change": 0.029999999999999916,
+        "PB_rate_change": 0.029999999999999916,
+        "energy_coverage_change": 0.029999999999999916
+      },
+      "source_sha256": {
+        "outcome": "ab3b45166f5962efc6acbdd825170fe8589a41fcc8bbccbd9293dfe343a5c4a4",
+        "candidate_metrics": "55feeb324b2a3882d6ded7b772dc9ba1284aba15e7a1fb5085571967e9b052f5",
+        "terminal_report": "c4e06c8c1fd5aea28fb2b59c62f895dbc9a92b2ceeab714bba49df3db2dbffb6",
+        "window": "d2b0180790abec9c2a2d15a71b9e95a0c445f9157887032e2d861f0606ceee4b",
+        "executed_program": "c4668ef82f3f08ede1ba3fe043db5aa0a46c381dbcb7e13fce6c8bd87485a550",
+        "config": "87126e312e86cae4080adb48c79e5e6d8dab83ebe0c168ce4ad8ab4fa7ea915d"
+      }
+    }
+  ],
+  "provenance": {
+    "saved_campaign_verification": {
+      "sha256": "4c89a8cb710719f77110b7bd54defb7490a0e0cad1e88d7273408bc06805959f",
+      "passed": true,
+      "rounds_verified": 15,
+      "attempts": 2000,
+      "frozen_validation": {
+        "checked_rounds": [
+          13,
+          14,
+          15
+        ],
+        "effective_program_sha256": "3f90012df243d8704a659c25cd8d50d6e1e9d6e6f337e9ff7ab674a45301ec64",
+        "parent_round": 9
+      },
+      "energy_checks": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "strict_scope_rounds": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    "source_hashes": {
+      "src/evomolsteer/generation/motif_campaign.py": "95b4d788984fdc358edd764f041b215805feda29953df3efdde0b4db1e0e744b",
+      "src/evomolsteer/generation/motif_reporting.py": "7a5c545100f0dfd04e679bf7feef5c23605f1a29002d9d52ab09f6833bca43c2",
+      "src/evomolsteer/generation/terminal_statistics.py": "914b66e0ef301da2281f3070bf19977a00f84623b2762ea40211dac84928160f",
+      "src/evomolsteer/generation/terminal_evaluation.py": "0129049317ec2cfe05164dfca21d960279f884d3f4680a1c233f80ea21d96b81",
+      "src/evomolsteer/generation/local_execution.py": "ade74bf2f6fe71af4feafe799f5de6225fe59a5f83ee4298864db905c917c24d"
+    },
+    "prior_method_audit_sha256": "5a41157d6c2232d84db69740abbf8b4b7da357e5a18a553e80ea2f4e0bea725f",
+    "heldout_sources": [
+      {
+        "candidate_metrics_sha256": "e0c4fd546c8e67521de8ca8acf6e80d3363a1d4b4f402625d8ea96beefccd4ce",
+        "round": 14,
+        "window_sha256": "6cca72c8e149b779f1391e8da847c982643640d1a8cffa827b3cd13179656449"
+      },
+      {
+        "candidate_metrics_sha256": "55feeb324b2a3882d6ded7b772dc9ba1284aba15e7a1fb5085571967e9b052f5",
+        "round": 15,
+        "window_sha256": "d2b0180790abec9c2a2d15a71b9e95a0c445f9157887032e2d861f0606ceee4b"
+      }
+    ]
+  },
+  "conclusion": "工程合同和数值一致性通过；冻结奖励对匹配 native 有局部的描述性收益，但没有实现所有物理与评分指标的共同改善，也未达到历史 Steer 的绝对物理基准。当前证据不足以证明 LLM 特异优势、亲和力因果机制或核心联合目标已完成。"
+}
