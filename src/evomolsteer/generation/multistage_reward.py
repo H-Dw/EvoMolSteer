@@ -149,4 +149,7 @@ def preserve_native_geometry(native_x, delta, mask, pocket_x, pocket_mask, scale
         factor = torch.where(take,torch.full_like(factor,fraction),factor)
         accepted |= okay
         if bool(accepted.all()): break
-    return result, {'geometry_accepted':accepted, 'backtrack_factor':factor}
+    actual_pair_change = (
+        torch.cdist(native_x+result,native_x+result)*scale-before_pairs).abs().masked_fill(~pair_mask,0).amax((1,2))
+    return result, {'geometry_accepted':accepted, 'backtrack_factor':factor,
+                    'max_actual_pair_distance_change_A':actual_pair_change}

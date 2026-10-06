@@ -60,6 +60,8 @@ def evaluate(dataset,campaign,output):
                     'raw_gradient_l2_native_mean':average('raw_gradient_l2_native'),
                     'post_projection_l2_native_mean':average('post_projection_l2_native'),
                     'projection_retained_squared_fraction_mean':average('projection_retained_squared_fraction'),
+                    'backtrack_factor_mean':average('backtrack_factor'),
+                    'max_actual_pair_distance_change_A_mean':average('max_actual_pair_distance_change_A'),
                     'observed_native_rms_A':average('observed_native_rms_A','native_rms_A'),
                     'predictive_flow_rms_A':average('predictive_flow_rms_A'),
                     'calibration_rms_A':average('calibration_rms_A','native_rms_A'),

@@ -123,10 +123,10 @@ def record(campaign, evidence, number):
     if c['rounds_started']!=number or c['rounds_completed']!=number-1 or r['status']!='running':raise ValueError('Round counters/state mismatch')
     local=evidence/f'round_{number:02d}/local';baseline=evidence/'round_01/local';destination=local.parent/'comparison'
     if destination.exists():raise FileExistsError('Comparison is immutable')
-    native=read_json(baseline/'window/report.json')['results']['unguided']
-    actual=read_json(local/'window/report.json')['results']['gradient']
-    terminal=read_json(local/'terminal_report.json')['results']['gradient']
-    nt=read_json(baseline/'terminal_report.json')['results']['unguided']
+    nw=read_json(baseline/'window/report.json');aw=read_json(local/'window/report.json')
+    native=nw['results']['unguided'];actual=aw['results']['gradient']
+    at=read_json(local/'terminal_report.json');nb=read_json(baseline/'terminal_report.json')
+    terminal=at['results']['gradient'];nt=nb['results']['unguided']
     execution=read_json(local/'execution_report.json');audit=read_json(local/'coordinate_audit.json')
     if terminal['n']!=r['n_per_arm'] or not execution['no_particle_resampling'] or execution['outside_window_injection'] or not audit['coordinate_preflight']['passed']:
         raise ValueError('Missing candidates or failed execution/gradient check')
@@ -143,6 +143,7 @@ def record(campaign, evidence, number):
         'MMFF_relief_relative_change':terminal['all_mmff_relief_per_heavy_median']/nt['all_mmff_relief_per_heavy_median']-1,
         'surround_RMS_improvement_fraction':1-terminal['all_relax_rms_surround_A_mean']/nt['all_relax_rms_surround_A_mean'],
         'interpretation':'Paired reused development batches; partial regression triggers rollback reasoning, not automatic exploration stop.'}
+    outcome['paired_batch_outcomes']=paired_batch_outcomes(aw,nw,at,nb)
     if r['kind']=='exact_replay':
         parent=evidence/f"round_{r['parent_round']:02d}/local"
         pt=read_json(parent/'terminal_report.json')['results']['gradient'];pw=read_json(parent/'window/report.json')['results']['gradient']
@@ -152,3 +153,28 @@ def record(campaign, evidence, number):
     write_json(evidence/f'round_{number:02d}.outcome.json',outcome)
     r['status']='completed';r['inference_commit']=execution['code_commit'];c.update(rounds_completed=number,status='backtracking');write_json(campaign,c)
     return outcome
+
+
+def paired_batch_outcomes(actual_window,native_window,actual_terminal,native_terminal):
+    """Separate batch directions and denominators; never count particles as replicates."""
+    def batches(report,arm):
+        rows=[v for v in report['batch_results'] if v['arm']==arm]
+        result={v['batch']:v for v in rows}
+        if len(result)!=len(rows):raise ValueError('Duplicate batch evidence')
+        return result
+    aw,nw,at,nt=(batches(report,arm) for report,arm in
+                 [(actual_window,'gradient'),(native_window,'unguided'),(actual_terminal,'gradient'),(native_terminal,'unguided')])
+    if not aw.keys()==nw.keys()==at.keys()==nt.keys():raise ValueError('Paired batch evidence required')
+    output=[]
+    for batch in sorted(aw):
+        if not aw[batch]['n']==nw[batch]['n']==at[batch]['n']==nt[batch]['n']:raise ValueError('Attempted denominators mismatch')
+        output.append({'batch':batch,'n_attempted':at[batch]['n'],
+            'shape_improvement_fraction':1-aw[batch]['symmetric_shape_A']/nw[batch]['symmetric_shape_A'],
+            'all_head_change':at[batch]['all_pic50_on_rescore_mean']-nt[batch]['all_pic50_on_rescore_mean'],
+            'MMFF_relief_relative_change':at[batch]['all_mmff_relief_per_heavy_median']/nt[batch]['all_mmff_relief_per_heavy_median']-1,
+            'surround_RMS_improvement_fraction':1-at[batch]['all_relax_rms_surround_A_mean']/nt[batch]['all_relax_rms_surround_A_mean'],
+            'valid_count_change':at[batch]['valid_connected']-nt[batch]['valid_connected'],
+            'PB_count_change':at[batch]['pb_fast_pass']-nt[batch]['pb_fast_pass'],
+            'MMFF_n_actual':at[batch]['all_mmff_relief_per_heavy_n'],'MMFF_n_native':nt[batch]['all_mmff_relief_per_heavy_n'],
+            'surround_n_actual':at[batch]['all_relax_rms_surround_A_n'],'surround_n_native':nt[batch]['all_relax_rms_surround_A_n']})
+    return output

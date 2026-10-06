@@ -143,5 +143,6 @@ def test_pair_guard_can_limit_internal_deformation_below_atom_cap():
     assert a['backtrack_factor'].item()==1. and delta.norm(dim=-1).max()<.025
     new,b=preserve_native_geometry(x,delta,mask,pocket,pm,1.,{**constraints,'max_pair_distance_change_A':.01})
     assert b['geometry_accepted'].all() and b['backtrack_factor'].item()<1
+    assert b['max_actual_pair_distance_change_A'].item()<=.01
     difference=(torch.cdist(x+new,x+new)-torch.cdist(x,x)).abs().max()
     assert difference<=.01 and new.norm()<old.norm()

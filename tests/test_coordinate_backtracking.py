@@ -2,7 +2,7 @@ import copy
 import pytest
 from evomolsteer.io import digest,read_json
 from evomolsteer.generation.prototypes import write_json
-from evomolsteer.generation.coordinate_backtracking import freeze
+from evomolsteer.generation.coordinate_backtracking import freeze,paired_batch_outcomes
 
 
 def setup_case(tmp_path):
@@ -36,3 +36,12 @@ def test_reference_and_budget_cannot_be_relaxed_by_rollback(tmp_path):
     with pytest.raises(ValueError):freeze(c,p,r,tmp_path/'next.json',tmp_path/'plan.json',4,'bad',{},'Budget exhausted','exact_replay')
     config['maximum_rounds']=30;write_json(c,config);r.write_bytes(b'changed reference')
     with pytest.raises(ValueError,match='reference/seed'):freeze(c,p,r,tmp_path/'next.json',tmp_path/'plan.json',4,'bad',{},'Changed input','exact_replay')
+
+
+def test_paired_batch_evidence_rejects_missing_or_duplicate_units():
+    # Missing/duplicated batches must fail before access to outcome values.
+    a={'batch_results':[{'arm':'gradient','batch':0}]}
+    n={'batch_results':[{'arm':'unguided','batch':1}]}
+    with pytest.raises(ValueError,match='Paired batch'):paired_batch_outcomes(a,n,a,n)
+    a['batch_results'].append(a['batch_results'][0].copy())
+    with pytest.raises(ValueError,match='Duplicate batch'):paired_batch_outcomes(a,n,a,n)
