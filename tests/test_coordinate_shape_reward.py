@@ -8,8 +8,9 @@ from evomolsteer.generation.coordinate_shape import CoordinateShapeReward, dimen
 def fixture():
     ref = {'schema_version':'regional-shape-mixture-1.0', 'window':[.2,.7], 'times':[.2,.7],
         'channel':'NOS','atom_vocabulary':{'N':1,'O':2,'S':3}, 'spatial_width_A':4.,
+        'feature_unit':'A^2','spatial_anchor':'endpoint','control_representation':'proposal',
         'regions':{'patch':{'points_A':[[0.,0,0],[1.,0,0]]}}, 'feature_scale_A2':[1.,2.,3.,4.,5.,6.],
-        'frames':[{'modes':[{'center_scaled':[.4]*6,'covariance_dimensionless':np.eye(6).tolist()}]} for _ in range(2)]}
+        'frames':[{'time':t,'modes':[{'center_scaled':[.4]*6,'covariance_dimensionless':np.eye(6).tolist()}]} for t in (.2,.7)]}
     program = {'window':[.2,.7], 'mixture_temperature':.25,'robust_delta':1.,'core_radius_A':5.}
     return CoordinateShapeReward(program,ref)
 
@@ -54,6 +55,8 @@ def test_uninformative_one_slot_and_missing_nos_produce_no_dose_or_gradient():
     value,detail=reward(x,atoms,mask,.2,x.detach())
     gradient,=torch.autograd.grad(value.sum(),x)
     assert not detail['available'].any() and value.eq(0).all() and gradient.eq(0).all() and detail['dose_gate'].eq(0).all()
+    with pytest.raises(ValueError,match='active atom'):
+        reward(x,atoms,torch.zeros_like(mask),.2,x.detach())
 
 
 def test_fixed_whole_window_scaling_has_consistent_units_and_positive_covariance():
@@ -63,3 +66,13 @@ def test_fixed_whole_window_scaling_has_consistent_units_and_positive_covariance
     np.testing.assert_allclose(np.asarray(m['center_scaled'])*scale,v.mean(0))
     assert np.linalg.eigvalsh(m['covariance_dimensionless']).min()>=.01-1e-12
     with pytest.raises(ValueError):time_weights([.2,.2,.7])
+
+
+def test_reference_rejects_bad_late_covariance_and_wrong_units_before_execution():
+    import copy
+    r=fixture()
+    for key,value in [('feature_unit','A'),('feature_scale_A2',[1.]*4)]:
+        ref=copy.deepcopy(r.reference);ref[key]=value
+        with pytest.raises(ValueError):CoordinateShapeReward(r.program,ref)
+    ref=copy.deepcopy(r.reference);ref['frames'][-1]['modes'][0]['covariance_dimensionless'][0][0]=-1.
+    with pytest.raises(ValueError,match='Positive definite'):CoordinateShapeReward(r.program,ref)

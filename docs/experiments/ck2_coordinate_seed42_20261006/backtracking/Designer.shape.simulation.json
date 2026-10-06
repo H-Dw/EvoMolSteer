@@ -1,0 +1,64 @@
+{
+  "agent": "Designer",
+  "availability": {
+    "mean": 0.9974789915966387,
+    "minimum": 0.84,
+    "single_slot_rule": "Reference excludes eligible NOS count<2; reward dose zero for uninformative slots. This changes support as well as representation; preserve full attempted denominator."
+  },
+  "availability_change_disclosed": true,
+  "covariance_rule": ".9*C + .1*diag(C) + .01*I in dimensionless scaled feature space",
+  "evidence_status": "All six VAL116/NOS proposal selection shifts have q=1; adjusted lag associations nonsignificant. Representation test, not demonstrated affinity direction.",
+  "feature_scale_A2": [
+    0.002178375424496567,
+    0.0783411433956998,
+    0.0984074576569173,
+    0.019600896159895458,
+    0.01744562355774345,
+    0.12924889582284407
+  ],
+  "formula": "M=sum_i w_i (x_i-mu)(x_i-mu)^T; z=svec(M)/s; q_b=(z-mu_b)^T Sigma_b^-1 (z-mu_b)/6; R=tau*logmeanexp_b(-delta^2*(sqrt(1+q_b/delta^2)-1)/tau)",
+  "gradient": "Direct conditional proposal-coordinate derivative, no endpoint anchor/hard-type derivatives; aggregate translation gradient zero, receptor-frame rotation permitted",
+  "inherit_without_simultaneous_retuning": {
+    "constraints": {
+      "backtrack_attempts": 7,
+      "max_atom_step_A": 0.025,
+      "max_cumulative_rms_A": 1.25,
+      "max_pair_distance_change_A": 0.06,
+      "severe_receptor_clash_A": 0.8
+    },
+    "dose_reference": "predictive_flow",
+    "initial_update_dose": "native",
+    "mixture_temperature": 0.25,
+    "native_rms_ratio": 0.05,
+    "preserve_native_rigid_pose": false,
+    "robust_delta": 1.0
+  },
+  "invocation": "Existing Analyst/Designer subagent simulation with local source/reference checks",
+  "limitations": [
+    "Selected covariance modes are batch moments, not actual unique conformer modes",
+    "Six components still contain trace",
+    "Statistical standardization is not chemical direction importance",
+    "Predicted head is not experimental affinity; MMFF relief is not binding energy",
+    "Only two reused development batches; no independent generalization evidence"
+  ],
+  "observables": "VAL116/NOS six svec central second moments, fixed detached endpoint weights, actual proposal world coordinates",
+  "parent_reference_sha256": "534066f674d08872060537fc1e5a530689b7a3a6b5a07b9a8f051e1b49cb7861",
+  "reference_sha256": "e8855860070ab43b3c0aea3a07b818b1d103d044cc297e2c7ab83711a22363f0",
+  "required_real_checks": [
+    "Coordinate finite differences at real FLOWR state",
+    "Complete zero-dose/native identity",
+    "Actual x_window_end independent whole-shape comparison",
+    "Failure-inclusive terminal validity, shared-head affinity, MMFF relief and surround RMS"
+  ],
+  "review": "Subagent independently checked all714 positive-definite reference covariance matrices. Empty masks now rejected; subsequent local targeted tests passed.",
+  "reviewed_sources": {
+    "skills/coordinate-designer/SKILL.md": "d4b5dc89e87fc551a50652838a6506fa965ace56304f279c6771ea5effab17a2",
+    "src/evomolsteer/generation/coordinate_shape.py": "73bf9d8b71f67a2ff3b549afd996ba666410b31877f204a34a5c4794effcacc8",
+    "tests/test_coordinate_shape_reward.py": "28d5cb017f8bb31e52d501d4f04f71452071b6855b6cafb27c2ae28d65fa4091"
+  },
+  "scale_max_min_ratio": 59.33270012569762,
+  "scale_rule": "Trapezoid whole-window mean of equal-batch unweighted within-candidate population variance; square root. Fixed across all time nodes.",
+  "schema_version": "shape-designer-contract-1.0",
+  "status": "exploratory; real inference pending",
+  "time_alignment": "Learning uses 51 score nodes 0-.5. Final learned proposal is .51; actual injection only through .49->.50. Native inference continues to1."
+}

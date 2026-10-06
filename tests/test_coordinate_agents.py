@@ -49,3 +49,14 @@ def test_contrast_requires_bound_and_every_observable():
     assert validate({**d,'contrast_bound_nats':1.},DESIGNER,bundle)
     bundle['features'].pop('r::all::proposal_centroid_z')
     with pytest.raises(ValueError,match='Missing controlled'):validate({**d,'contrast_bound_nats':1.},DESIGNER,bundle)
+
+
+def test_shape_design_requires_measured_directional_tensor_components():
+    bundle={'window':[.2,.6],'evidence':[{'evidence_id':'e','feature':'r::NOS::proposal_shape_xx'}],
+        'control_representation':'proposal','features':{f'r::NOS::proposal_shape_{k}':{'region':'r'} for k in ('xx','yy','zz','xy','xz','yz')}}
+    d={'schema_version':'coordinate-1.0','agent':'Designer','design_status':'exploratory','architecture':'shape_mixture',
+        'regions':['r'],'channel':'NOS','window':[.2,.6],'native_rms_ratio':.05,'mixture_temperature':.25,'robust_delta':1.,
+        'rationale':'Representation ablation, not identified affinity direction','evidence_ids':['e'],'limitations':['Tensor contains trace']}
+    assert validate(d,DESIGNER,bundle)
+    bundle['features'].pop('r::NOS::proposal_shape_xz')
+    with pytest.raises(ValueError,match='Missing controlled'):validate(d,DESIGNER,bundle)

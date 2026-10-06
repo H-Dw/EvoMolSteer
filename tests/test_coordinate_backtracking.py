@@ -2,7 +2,7 @@ import copy
 import pytest
 from evomolsteer.io import digest,read_json
 from evomolsteer.generation.prototypes import write_json
-from evomolsteer.generation.coordinate_backtracking import freeze,paired_batch_outcomes,freeze_contrast
+from evomolsteer.generation.coordinate_backtracking import freeze,paired_batch_outcomes,freeze_contrast,freeze_shape
 
 
 def setup_case(tmp_path):
@@ -78,4 +78,40 @@ def test_contrast_freeze_rejects_a_changed_selected_target(tmp_path):
     before=digest(c)
     with pytest.raises(ValueError,match='Selected moment parity'):
         freeze_contrast(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'contrast','Cannot silently change selected targets')
+    assert digest(c)==before and not (tmp_path/'next.json').exists()
+
+
+def shape_case(tmp_path):
+    import gzip,json,numpy as np
+    c,p,old=setup_case(tmp_path)
+    shared={'window':[.2,.7],'times':[.2,.7],'batches':[0],'regions':{'r':{'points_A':[[0,0,0]]}},
+        'channel':'all','sources':[{'path':'single/batch_000/trajectory.h5','sha256':'source'}],
+        'required_input_sha256':{},'spatial_anchor':'endpoint','control_representation':'proposal','spatial_width_A':4.}
+    shared['frames']=[{'time':t} for t in shared['times']]
+    old.write_bytes(gzip.compress(json.dumps(shared).encode(),mtime=0))
+    parent=read_json(p);parent['reference_sha256']=digest(old);write_json(p,parent)
+    ref={**shared,'schema_version':'regional-shape-mixture-1.0','feature_unit':'A^2','feature_scale_A2':[1.]*6,
+        'frames':[{'time':t,'modes':[{'source_batch':0,'center_scaled':[0.]*6,'covariance_dimensionless':np.eye(6).tolist()}]} for t in shared['times']]}
+    new=tmp_path/'shape.gz';new.write_bytes(gzip.compress(json.dumps(ref).encode(),mtime=0))
+    contract=tmp_path/'designer.json';write_json(contract,{'schema_version':'shape-designer-contract-1.0','agent':'Designer',
+        'parent_reference_sha256':digest(old),'reference_sha256':digest(new),'availability_change_disclosed':True,
+        'inherit_without_simultaneous_retuning':{**{k:parent[k] for k in ('native_rms_ratio','mixture_temperature','robust_delta','constraints')},
+            'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}})
+    return c,p,old,new,contract
+
+
+def test_shape_ablation_requires_bound_parent_controls_and_records_availability(tmp_path):
+    c,p,old,new,contract=shape_case(tmp_path);before=digest(p)
+    q=freeze_shape(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'shape','Representation test',contract)
+    assert digest(p)==before and q['reward_view']=='shape_mixture' and q['window']==[.2,.7]
+    assert q['constraints']==read_json(p)['constraints'] and q['backtracking']['kind']=='representation_ablation'
+    assert 'single NOS' in read_json(tmp_path/'plan.json')['availability_change']
+    assert read_json(c)['rounds'][-1]['arms']==['unguided','gradient_zero','gradient']
+
+
+def test_shape_ablation_rejects_simultaneous_dose_retuning_without_mutation(tmp_path):
+    c,p,old,new,contract=shape_case(tmp_path);before=digest(c)
+    d=read_json(contract);d['inherit_without_simultaneous_retuning']['native_rms_ratio']=.5;write_json(contract,d)
+    with pytest.raises(ValueError,match='controls'):
+        freeze_shape(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'shape','Invalid design',contract)
     assert digest(c)==before and not (tmp_path/'next.json').exists()

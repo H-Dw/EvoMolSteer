@@ -134,10 +134,28 @@ class CoordinateShapeReward(CoordinateMixtureReward):
         self.scale = np.asarray(reference['feature_scale_A2'])
         if not all(math.isfinite(v) and v > 0 for v in (self.tau, self.delta)) or not np.isfinite(self.scale).all() or (self.scale <= 0).any():
             raise ValueError('Finite positive shape response/scales required')
+        dimension = 6*len(reference['regions'])
+        if self.scale.shape != (dimension,) or reference.get('feature_unit') != 'A^2' or reference.get('spatial_anchor') != 'endpoint' or reference.get('control_representation') != 'proposal':
+            raise ValueError('Tensor units/dimension/conditional view mismatch')
+        if list(self.times[[0,-1]]) != self.window or not np.all(np.diff(self.times)>0) or len(reference['frames']) != len(self.times):
+            raise ValueError('Complete increasing learned window required')
+        for t, frame in zip(self.times, reference['frames']):
+            if frame['time'] != t or not frame['modes']:
+                raise ValueError('Matched nonempty shape reference frames required')
+            for mode in frame['modes']:
+                center = np.asarray(mode['center_scaled']); covariance = np.asarray(mode['covariance_dimensionless'])
+                if center.shape != (dimension,) or covariance.shape != (dimension,dimension) or not np.isfinite(center).all() or not np.isfinite(covariance).all() or not np.allclose(covariance,covariance.T,rtol=1e-12,atol=1e-12):
+                    raise ValueError('Finite symmetric shape moments required')
+                try:
+                    np.linalg.cholesky(covariance)
+                except np.linalg.LinAlgError as error:
+                    raise ValueError('Positive definite shape covariance required') from error
 
     def observables(self, x, atoms, mask, anchor=None):
         if anchor is None or anchor.shape != x.shape:
             raise ValueError('Matched detached endpoint anchor required')
+        if not bool(mask.bool().any(1).all()):
+            raise ValueError('At least one active atom per particle required')
         anchor = anchor.detach()
         if atoms.ndim == 3:
             atoms = atoms.detach().argmax(-1)

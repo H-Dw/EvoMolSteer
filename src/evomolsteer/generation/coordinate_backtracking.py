@@ -231,3 +231,54 @@ def freeze_contrast(campaign,parent_program,parent_reference,new_reference,outpu
         'seed':42,'reference_sha256':digest(new_reference),'reward_view':q['reward_view'],'native_rms_ratio':q['native_rms_ratio'],
         'dose_reference':q.get('dose_reference','observed_native'),'parent_round':p['round'],'kind':'architecture_change','changes':changes,'status':'frozen'})
     c['status']='backtracking';write_json(campaign,c);return q
+
+
+def freeze_shape(campaign,parent_program,parent_reference,new_reference,output,evidence,number,name,reason,designer_contract):
+    """Freeze a declared tensor representation/availability ablation of a parent."""
+    from .window_reference import load_reference
+    from .coordinate_shape import CoordinateShapeReward
+    campaign,parent_program,parent_reference,new_reference,output,evidence,designer_contract=map(Path,
+        (campaign,parent_program,parent_reference,new_reference,output,evidence,designer_contract))
+    c,p,contract=read_json(campaign),read_json(parent_program),read_json(designer_contract)
+    if output.exists() or evidence.exists():raise FileExistsError('Immutable shape plan exists')
+    if number!=max(r['round'] for r in c['rounds'])+1 or not number<=c['maximum_rounds']<=30:
+        raise ValueError('Sequential shape round within budget required')
+    parent=next(r for r in c['rounds'] if r['round']==p['round'])
+    if parent['status']!='completed' or c['rounds_started']!=c['rounds_completed']:
+        raise ValueError('Retain preceding result before a new representation test')
+    if p['seed']!=42 or digest(parent_reference)!=p['reference_sha256']:
+        raise ValueError('Parent seed/reference mismatch')
+    a,b=load_reference(parent_reference),load_reference(new_reference)
+    same=('window','times','batches','regions','channel','sources','required_input_sha256',
+          'spatial_anchor','control_representation','spatial_width_A')
+    if any(a[k]!=b[k] for k in same):raise ValueError('Shape parent source/window/region contract differs')
+    if contract['schema_version']!='shape-designer-contract-1.0' or contract['agent']!='Designer':
+        raise ValueError('Shape Designer contract required')
+    if contract['parent_reference_sha256']!=digest(parent_reference) or contract['reference_sha256']!=digest(new_reference):
+        raise ValueError('Designer reference binding differs')
+    defaults={'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}
+    controls=contract['inherit_without_simultaneous_retuning']
+    required={'native_rms_ratio','mixture_temperature','robust_delta','dose_reference','initial_update_dose','preserve_native_rigid_pose','constraints'}
+    if set(controls)!=required or any(p.get(k,defaults.get(k))!=v for k,v in controls.items()):
+        raise ValueError('Shape controls must inherit the declared parent')
+    if not contract.get('availability_change_disclosed'):
+        raise ValueError('Single-slot support change must be disclosed')
+    if len(b['frames'])!=len(a['frames']) or any([m['source_batch'] for m in f['modes']]!=b['batches'] for f in b['frames']):
+        raise ValueError('Complete shape batch/time reference required')
+    changes={'reward_view':'shape_mixture','reference_sha256':digest(new_reference),
+             'observable_family':'six directional central second moments; informative slots>=2'}
+    q=copy.deepcopy(p);q.update(round=number,reward_view='shape_mixture',reference_sha256=digest(new_reference),designer_sha256=digest(designer_contract))
+    q['backtracking']={'parent_round':p['round'],'parent_program_sha256':digest(parent_program),
+        'kind':'representation_ablation','changes':changes,'reason':reason}
+    CoordinateShapeReward(q,b)
+    write_json(output,q)
+    write_json(evidence,{'round':number,'parent_round':p['round'],'kind':'representation_ablation','changes':changes,
+        'reason':reason,'program_sha256':digest(output),'old_reference_sha256':digest(parent_reference),
+        'reference_sha256':digest(new_reference),'designer_contract_sha256':digest(designer_contract),'window':q['window'],
+        'availability_change':'Unlike centroid/spread parent, single NOS slots lack shape direction and receive zero dose; full attempted denominators retained.',
+        'fallback':'If only tensor residual improves, restore parent and do not claim physical or affinity benefit.'})
+    c['rounds'].append({'round':number,'campaign':name,'arms':['unguided','gradient_zero','gradient'],
+        'batches':parent['batches'],'n_per_arm':parent['n_per_arm'],'seed':42,'reference_sha256':digest(new_reference),
+        'reward_view':'shape_mixture','native_rms_ratio':q['native_rms_ratio'],'dose_reference':q.get('dose_reference','observed_native'),
+        'parent_round':p['round'],'kind':'representation_ablation','changes':changes,'status':'frozen'})
+    c['status']='backtracking';write_json(campaign,c);return q
