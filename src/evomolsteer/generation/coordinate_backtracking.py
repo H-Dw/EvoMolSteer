@@ -304,6 +304,15 @@ def freeze_conditioning(campaign,parent_program,parent_reference,new_reference,o
         raise ValueError('Unconditional parent geometry or provenance changed')
     if contract['schema_version']!='count-conditioning-designer-contract-1.0' or contract['agent']!='Designer':
         raise ValueError('Conditioning Designer contract required')
+    review_file=contract.get('agent_review_file')
+    if not isinstance(review_file,str) or Path(review_file).name!=review_file:
+        raise ValueError('Bound local agent review file required')
+    review=(designer_contract.parent/review_file).resolve()
+    if review.parent!=designer_contract.resolve().parent or not review.is_file() or review.stat().st_size==0:
+        raise ValueError('Agent review must be nonempty and inside contract directory')
+    reviewed=read_json(review)
+    if reviewed.get('invocation',{}).get('role')!='Analyst + Designer' or digest(review)!=contract.get('agent_review_sha256'):
+        raise ValueError('Agent review role or checksum mismatch')
     if contract['parent_reference_sha256']!=digest(parent_reference) or contract['reference_sha256']!=digest(new_reference):
         raise ValueError('Designer reference binding differs')
     defaults={'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}

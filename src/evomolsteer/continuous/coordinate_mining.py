@@ -52,12 +52,13 @@ def window_descendants(indices):
     return np.asarray(rows[::-1])
 
 
-def lag_evidence(x,score,next_score,selected):
+def lag_evidence(x,score,next_score,selected,nuisance=None):
     count=np.bincount(selected,minlength=len(score));alive=count>0
     delta=np.bincount(selected,weights=next_score,minlength=len(score))/np.maximum(count,1)-score
     # Each retained parent is one observation; control the starting oracle score.
     raw=correlation(x[alive],delta[alive])
-    adjusted=partial_correlation(x[alive],delta[alive],score[alive,None])
+    controls=score[alive,None] if nuisance is None else np.column_stack([score[alive],np.asarray(nuisance)[alive]])
+    adjusted=partial_correlation(x[alive],delta[alive],controls)
     return raw,adjusted,int(alive.sum())
 
 
@@ -88,9 +89,10 @@ def curve_fit(times,curves,max_degree=5):
 METRICS=('population_mean','selected_mean','selection_shift','retained_shift',
          'low_enrichment','high_enrichment','affinity_correlation','partial_affinity_correlation',
          'lag_gain_correlation','lag_partial_gain_correlation','native_difference')
+EXTENDED_METRICS=('lag_controlled_gain_correlation',)
 
 
-def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='current',regions=None,control_representation='current',feature_family='geometry'):
+def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='current',regions=None,control_representation='current',feature_family='geometry',control_lag_nuisance=False):
     root=Path(dataset);source=root/'results'/campaign;out=Path(output)
     if out.exists():raise FileExistsError(out)
     cfg=read_json(Path(analysis)/'config.json');catalog=read_json(Path(analysis)/'feature_catalog.json')
@@ -155,6 +157,11 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
                     'partial_affinity_correlation':partial_correlation(x,scores[i],nuisance),
                     'lag_gain_correlation':lag,'lag_partial_gain_correlation':lagpartial,
                     'native_difference':mu-mean(nx,np.ones(n))}
+                if control_lag_nuisance:
+                    controlled=np.full(len(names),np.nan)
+                    if k+1<len(ids):
+                        _,controlled,_=lag_evidence(x,scores[i],scores[ids[k+1]],selected[k],nuisance)
+                    values['lag_controlled_gain_correlation']=controlled
                 rows.append(pd.DataFrame({'batch':batch,'time':t,'feature':names,'available_fraction':np.isfinite(x).mean(0),**values}))
                 roots=z.read('root_slot',int(i));unique=np.unique(roots).size
                 audit.append({'batch':batch,'time':t,'candidates':n,'unique_roots':unique,
@@ -174,6 +181,7 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
         'spatial_anchor':spatial_anchor,'control_representation':control_representation,
         'region_subset':list(catalog['regions']),'include_proposal_observables':include_proposal,
         'feature_family':feature_family,'core_diagnostic_radius_A':5.,
+        'lag_nuisance_control':('starting score plus current global centroid/radius and predicted NOS count; shape family also includes whole current/proposal second moments' if control_lag_nuisance else 'starting score only'),
         'shape_partial_nuisance':'same-event partial correlation: global centroid/radius/NOS count plus masked whole-ligand current AND proposal second moments. Lag partial correlation still adjusts starting score only.' if feature_family=='shape' else None,
         'analysis_code_sha256':{p.name:digest(p) for p in (Path(__file__),Path(__file__).with_name('coordinate_features.py'))},
         'n_features':len(metadata),'n_statistic_rows':len(table),'storage':'lossless float64 zstd Parquet; no node feature cache',
@@ -193,7 +201,7 @@ def summarize(table,grid,splits,out):
         d=table[table.batch.isin(bs)];batch_ids=sorted(d.batch.unique())
         if len(batch_ids)<2:continue
         for feature,g in d.groupby('feature',sort=True):
-            for metric in METRICS:
+            for metric in METRICS+tuple(m for m in EXTENDED_METRICS if m in table.columns):
                 pivot=g.pivot(index='batch',columns='time',values=metric).reindex(index=batch_ids,columns=grid)
                 # Last node has no future *within-window* observation; never extrapolate.
                 eligible=grid[:-1] if metric.startswith('lag_') else grid

@@ -74,3 +74,13 @@ def test_lineage_and_whole_window_fit():
     from numpy.polynomial import Legendre
     f=Legendre(fit['legendre_coefficients'],domain=[fit['time_start'],fit['time_end']])
     np.testing.assert_allclose(f.deriv()(t),2,atol=1e-10)
+
+
+def test_controlled_lag_does_not_turn_global_motion_or_clones_into_regional_evidence():
+    rng=np.random.default_rng(42);global_motion=rng.normal(size=100);score=rng.normal(size=100)
+    selected=np.repeat(np.arange(50),2);delta=global_motion+.1*rng.normal(size=100)
+    next_score=np.repeat((score+delta)[:50],2)
+    raw,start,n=lag_evidence(global_motion[:,None],score,next_score,selected)
+    _,controlled,nn=lag_evidence(global_motion[:,None],score,next_score,selected,global_motion[:,None])
+    assert n==nn==50 and start[0]>.9 and raw[0]>.9
+    assert np.isnan(controlled[0])  # no independent regional variation remains

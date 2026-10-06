@@ -127,8 +127,10 @@ def conditioning_case(tmp_path):
     parent=read_json(p);parent.update(reward_view='shape_mixture',window=ref['window'],reference_sha256=digest(old));write_json(p,parent)
     new=tmp_path/'conditional.gz';ref=copy.deepcopy(r.reference);ref['conditioning_parent_reference_sha256']=digest(old)
     new.write_bytes(gzip.compress(json.dumps(ref).encode(),mtime=0))
+    review=tmp_path/'review.json';write_json(review,{'schema_version':'review-1.0','invocation':{'role':'Analyst + Designer'}})
     contract=tmp_path/'designer.json';write_json(contract,{'schema_version':'count-conditioning-designer-contract-1.0','agent':'Designer',
         'parent_reference_sha256':digest(old),'reference_sha256':digest(new),
+        'agent_review_file':review.name,'agent_review_sha256':digest(review),
         'declared_changes':['exact count stratum geometry','empirical selected count-mass mixture prior','zero dose for unsupported counts'],
         'inherit_without_simultaneous_retuning':{**{k:parent[k] for k in ('native_rms_ratio','mixture_temperature','robust_delta','constraints')},
             'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}})
@@ -149,4 +151,12 @@ def test_conditioning_freeze_rejects_changed_geometry_or_controls(tmp_path):
     new.write_bytes(gzip.compress(json.dumps(ref).encode(),mtime=0))
     with pytest.raises(ValueError,match='parent geometry'):
         freeze_conditioning(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'invalid','Confounded geometry',contract)
+    assert digest(c)==before and not (tmp_path/'next.json').exists()
+
+
+def test_conditioning_freeze_rejects_empty_review_placeholder(tmp_path):
+    c,p,old,new,contract=conditioning_case(tmp_path);before=digest(c)
+    (tmp_path/'review.json').write_bytes(b'')
+    with pytest.raises(ValueError,match='nonempty'):
+        freeze_conditioning(c,p,old,new,tmp_path/'next.json',tmp_path/'plan.json',4,'invalid','Empty review',contract)
     assert digest(c)==before and not (tmp_path/'next.json').exists()

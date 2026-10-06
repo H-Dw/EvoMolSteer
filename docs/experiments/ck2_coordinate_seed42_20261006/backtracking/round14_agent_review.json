@@ -1,0 +1,173 @@
+{
+  "schema_version": "round14-analyst-designer-review-1.0",
+  "invocation": {
+    "role": "Analyst + Designer",
+    "mode": "authorized subagent API simulation",
+    "date": "2026-10-06",
+    "scope": "只读本地源码、发现集摘要和 R13 保留结果；没有远端访问、推理、heldout 选规则、源码修改或模型训练。",
+    "parent_reported_commit": "094046a"
+  },
+  "decision": {
+    "status": "suitable_for_one_predeclared_exploratory_conditional_representation_experiment",
+    "blocking_source_defect_identified": false,
+    "required_source_fix": [],
+    "reason": "精确计数组内经验矩避免线性条件均值外推，重聚合、支持校验与条件导数一致。可检验条件参考是否更合适，但不能据此预言收益或确认组成优势机制。"
+  },
+  "contract": {
+    "region": "ck2:A:VAL116",
+    "channel": "NOS",
+    "dimensions": 6,
+    "observables": "同节点 endpoint anchor 固定的 native proposal 中央二阶矩 svec：(xx,yy,zz,sqrt(2)xy,sqrt(2)xz,sqrt(2)yz)，仍含 trace。",
+    "units": {
+      "observables": "A^2",
+      "raw_covariance": "A^4",
+      "scaled_covariance": "dimensionless"
+    },
+    "scale_and_regularization": "沿用 R13 全窗口固定尺度；标准化后 .9*C+.1*diag(C)+.01*I，不按条件组重新缩放。",
+    "condition": "有效 mask 内 endpoint 硬预测的精确 (N,O,S) 计数，在单次求导中固定计数、类别和 anchor，仅对实际 proposal 坐标求梯度。",
+    "selected_mass_denominator": "每批在父参考 informative shape 子集 NOS>=2 内归一化，保持 R13 口径；原整批质量另外保留。",
+    "group_weights": "组内选择概率归一化求几何矩；组件先验为该组合 selected_mass 在合格发现批次之间归一化。",
+    "reward": "q_b=(z-mu_b)^T Sigma_b^-1(z-mu_b)/6; rho(q)=delta^2*(sqrt(1+q/delta^2)-1); R=tau*logsumexp(log(pi_b)-rho(q_b)/tau)",
+    "gate": "sqrt(min(q)/(1+min(q))); 不支持组合零梯度、零剂量，继续 native。",
+    "window": [
+      0,
+      0.5
+    ],
+    "last_controlled_transition": ".49 -> .50",
+    "after_window": "native continuation to 1; no SMC",
+    "support": {
+      "minimum_records_per_batch": 3,
+      "minimum_unique_batches_at_same_time_count": 2,
+      "minimum_prior_ESS": 1.5,
+      "maximum_LOO_center_change_scaled_RMS": 1
+    },
+    "preserved_controls": "冻结 R13 的 eta、predictive_flow、temperature/delta、所有 caps/guards、刚体策略、seed 和积分设置；不继承 R12 首步 cap。"
+  },
+  "evidence": {
+    "reference_path": "configs/experiments/ck2_coordinate_seed42_v1/val116_count_conditioned_v2/reference.json.gz",
+    "reference_sha256": "10606e73d260b5c994a8905539d8e4ab289a0bf56aee059a0a46942966e8fad9",
+    "parent_reference_sha256": "e8855860070ab43b3c0aea3a07b818b1d103d044cc297e2c7ab83711a22363f0",
+    "discovery_batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "geometry_source": "原始 Steer 的候选和选择概率；native 数据仅作覆盖诊断，不拟合几何目标。",
+    "geometry_parent_max_difference": 7.105427357601002e-15,
+    "raw_moment_reaggregation_max_difference": 6.661338147750939e-16,
+    "conditional_modes": 2052,
+    "minimum_conditional_covariance_eigenvalue": 0.010000062587062977,
+    "regularization_reconstruction_max_difference": 2.6645352591003757e-15,
+    "parquet_hashes_verified": true
+  },
+  "support_diagnostics": {
+    "candidate_time_count_combinations_after_basic_batch_support": 326,
+    "accepted": 256,
+    "accepted_with_two_batches": 28,
+    "accepted_with_at_least_one_single_root_component": 232,
+    "minimum_prior_ESS": 1.5365862878690644,
+    "median_prior_ESS": 5.054950492258041,
+    "maximum_component_prior": 0.7930317521576609,
+    "maximum_LOO_center_change_scaled_RMS": 0.9806184974258633,
+    "maximum_weighted_ridge_trace_fraction": 0.6708168727171925,
+    "maximum_individual_component_ridge_trace_fraction": 0.9801900486941788,
+    "minimum_group_probability_ESS": 2.3078058879922736,
+    "minimum_group_root_ESS": 0.9999999999999991,
+    "accepted_positive_S_combinations": 0,
+    "full_51_score_node_trapezoid_mean_native_coverage": 0.8224857142857143,
+    "actual_50_controlled_updates_equal_step_mean_native_coverage": 0.8252285714285713,
+    "minimum_ensemble_node_coverage": {
+      "score_time": 0.47,
+      "fraction": 0.49142857142857144
+    },
+    "last_controlled_update_coverage": {
+      "score_time": 0.49,
+      "state_time": 0.5,
+      "fraction": 0.5471428571428572
+    },
+    "minimum_batch_node_coverage": 0.4,
+    "mean_discarded_parent_available_selection_mass_first50": 0.12682247919526424
+  },
+  "r13_context": {
+    "development_batches": 2,
+    "attempted": 100,
+    "valid": 98,
+    "PB_fast": 97,
+    "unique": 71,
+    "actual_window_shape_improvement_fraction_vs_native": -0.0022674823758208618,
+    "all_FLOWR_head_change_vs_native": 0.0274286746978758,
+    "MMFF_relief_relative_change_vs_native": 0.04026711882335765,
+    "surround_RMS_improvement_fraction_vs_native": -0.04055159116202134,
+    "path_RMS_A": 0.05991804916411639,
+    "interpretation": "R13 提高模型 head，但真实 x_.5 整体 shape 略退化，MMFF 应变释放与周围松弛更差；两批 shape 方向不一致。不能宣称联合改善，也不能直接归因于组成混合。"
+  },
+  "mandatory_disclosures_vs_R13": [
+    "目标按精确计数组合分层。",
+    "混合先验从均匀批次权重改为组合的条件选择质量权重。",
+    "稀疏/不稳定组合零剂量回退；实际覆盖与末段剂量随之改变。"
+  ],
+  "risks_and_required_reporting": [
+    {
+      "id": "R1",
+      "finding": "82.25% 是 51 个 score 节点的梯形平均；实际控制步平均为 82.52%，但末段约半数 native 粒子回退。",
+      "action": "报告逐时刻覆盖及完整失败/回退分母，不能把平均覆盖描述成全程每粒子覆盖。"
+    },
+    {
+      "id": "R2",
+      "finding": "相同 eta/caps 不代表相同实际剂量；条件协方差、residual gate 与支持回退都会改变注入。",
+      "action": "报告每节点 requested/applied RMS、非零注入比例及累计剂量；承认末段剂量门控混杂。"
+    },
+    {
+      "id": "R3",
+      "finding": "232/256 个保留组合至少包含一个单根组件；某些组件主要由 ridge 决定。",
+      "action": "保留根 ESS、prior/posterior ESS 和 ridge 贡献；记录数、克隆、组件和时间节点不作独立重复。"
+    },
+    {
+      "id": "R4",
+      "finding": "LOO 仅检查加权中心，不保证协方差、组件责任或梯度稳定；经验均值 PSD 不等于单分子可达。",
+      "action": "保持工程稳定性与科学证据的区分；不将 regularization 的正定保证视为方向信息充分。"
+    },
+    {
+      "id": "R5",
+      "finding": "全部支持组合的 S=0；精确 N/O/S 不确定键图、电荷或位点化学。",
+      "action": "S>0 回退不解释成含硫不利；不把 O 的观察性关联转成减少 O 的因果规则。"
+    }
+  ],
+  "implementation_review": {
+    "checked": "当前构造器重验同节点唯一批次/记录数、经验质量先验、ESS/LOO、PSD 均值及 SPD 协方差；shape 父类拒绝空 atom mask。",
+    "mandatory_source_repair": "本次审阅未发现当前工件需阻断实验的源码问题。",
+    "pending_live_validation": "R14 尚未运行；须独立记录真实 FLOWR FD、zero/native 全部100步及final tensors一致性，以及 .5之后零注入。"
+  },
+  "validation": {
+    "independently_run_command": ".venv/Scripts/python.exe -B -m pytest tests/test_coordinate_conditioning.py tests/test_coordinate_shape_reward.py -q -p no:cacheprovider",
+    "independently_observed_result": "9 passed in 8.57s",
+    "parent_reported_suite": "146 tests passed; commit 094046a pushed。此项由主代理报告，未重复运行全套。"
+  },
+  "outcome_contract": [
+    "主要结论基于全部候选真实 x_.5 的独立 shape 指标，以及终态 valid/PB、模型 head、同图能量代理、周围松弛、多样性。",
+    "可用子集 conditional reward/residual 只作诊断，不能跨不同参考直接比较 reward 值或排除回退粒子。",
+    "若只改善条件 tensor 残差，报告为条件矩拟合改善、目标收益未证实。",
+    "固定 seed42 的复用开发批次不能证明未见 seed 泛化、真实亲和力或因果优势；不宣称离散类别梯度、FLOWR Jacobian 或物理能量梯度。"
+  ],
+  "reviewed_files_sha256": {
+    "src/evomolsteer/generation/coordinate_conditioning.py": "05d5b603ef030bc16d565fca5a686a4a4dfb5fdaf3d8363e2084036e6beae2aa",
+    "src/evomolsteer/generation/coordinate_shape.py": "73bf9d8b71f67a2ff3b549afd996ba666410b31877f204a34a5c4794effcacc8",
+    "tests/test_coordinate_conditioning.py": "3803423634ac14c8f0e67dff8fdad9420e88775c395fce34f87aa5633db246e5",
+    "tests/test_coordinate_shape_reward.py": "28d5cb017f8bb31e52d501d4f04f71452071b6855b6cafb27c2ae28d65fa4091",
+    "results/coordinate_count_conditioning_v2/audit.json": "d082bda6afb2d1a31d62c4e5ff4acdb51f6588d35e4322da5fe5e71ab6cac6a5",
+    "results/coordinate_count_conditioning_v2/conditional_diagnostics.parquet": "ee2ebda07e169ff219954461c56b4220f9df1060b112d5d9a2ffddd6138a4049",
+    "results/coordinate_count_conditioning_v2/native_coverage.parquet": "86537d020eea6b9abfbd3243d9261ed53cc23367ebb2009855010514a8905653",
+    "docs/experiments/ck2_coordinate_seed42_20261006/round_13.outcome.json": "0edb27b31613f3c3bc775821b6527df496a4bbb85bd4c02a081df00f306656bf"
+  }
+}
