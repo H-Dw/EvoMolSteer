@@ -1,0 +1,131 @@
+{
+  "actions_taken": "只读审阅并写此忽略目录报告；未修改共享repo/docs、未停止R14、未运行新推理、未新增agent。",
+  "findings": [
+    {
+      "id": "P1-STATE",
+      "issue": "恢复入口只接受running；finish的record先改成completed，随后cleanup/freeze/push任一步失败都无法恢复。部分下载/评估、preserve及comparison目录存在时，当前不可变目录约束也会阻止重试。",
+      "locations": [
+        "scripts/resume_coordinate_campaign.py:80",
+        "scripts/resume_coordinate_campaign.py:116",
+        "scripts/resume_coordinate_campaign.py:166",
+        "src/evomolsteer/generation/coordinate_backtracking.py:135"
+      ],
+      "priority": "P1",
+      "required_fix": "引入原子持久化阶段状态及单实例锁；区分downloaded/verified/evaluated/retained/cleaned/frozen/pushed/launched/completed。重启依据工件hash验证已完成阶段后继续，不删除不可变科学报告以掩盖半完成状态。final close同样需要可恢复。"
+    },
+    {
+      "id": "P1-LAUNCH",
+      "issue": "nohup已成功但本地running状态尚未写入时中断，会留下远端运行/本地frozen。仅返回PID不足以证明正确任务启动；没有跨driver与远端清理的排他锁。",
+      "locations": [
+        "scripts/resume_coordinate_campaign.py:126",
+        "scripts/resume_coordinate_campaign.py:132",
+        "scripts/scnet_coordinate_round.sh"
+      ],
+      "priority": "P1",
+      "required_fix": "使用唯一launch token绑定round/program/reference/commit及参数，先持久化submitting；远端原子登记并拒绝重复启动。恢复时按token核对存活、exit与工件，而非盲重启。增加连接重试和无marker但进程已死的明确错误状态。"
+    },
+    {
+      "id": "P1-PROVENANCE",
+      "issue": "resolve_parent未核对目录中父程序与当时实际保留的inference_config/reward_program.json；freeze计划的preserved_commit写死adf9...，对后续架构父轮不准确。git add仅追加指定文件也未隔离既有staged内容，或阻止dirty源码影响本地分析。",
+      "locations": [
+        "src/evomolsteer/generation/coordinate_exploration.py:59",
+        "src/evomolsteer/generation/coordinate_backtracking.py:74",
+        "scripts/resume_coordinate_campaign.py:64"
+      ],
+      "priority": "P1",
+      "required_fix": "以父轮retention及实际inference程序/运行commit为权威，验证解析JSON或已登记跨平台字节SHA；记录父程序和实际代码来源。启动前限定预期工作树/暂存区变更，验证remote commit精确匹配；不要修改旧冻结程序来修来源。"
+    },
+    {
+      "id": "P1-RETENTION",
+      "issue": "删除工具对surviving_report只要求存在并计算字节hash，空文件或错误轮次JSON也可通过；清理审计在删除后才写。若阶段间中断，缺少持久化的删除前完整性凭据。",
+      "locations": [
+        "scripts/resume_coordinate_campaign.py:69",
+        "scripts/resume_coordinate_campaign.py:141",
+        "scripts/retire_experiment_outputs.py:17",
+        "scripts/preserve_terminal_reports.py"
+      ],
+      "priority": "P1",
+      "required_fix": "删除前验证非空JSON、轮次/状态、retention清单和必要文件hash及候选分母，原子保存inventory/cleanup-pending，再删除并写完成审计。保留报告目录的部分写入必须被识别为未完成。"
+    },
+    {
+      "id": "P1-STOP",
+      "issue": "配置中的User requests stop只是字符串，循环没有消费暂停/停止信号；固定计划总是推进到30。数值上限有效，但没有把上限与必须用完区分。",
+      "locations": [
+        "scripts/resume_coordinate_campaign.py:166",
+        "src/evomolsteer/generation/coordinate_backtracking.py:130"
+      ],
+      "priority": "P1",
+      "required_fix": "在轮间和启动前读取持久化stop/pause标志；明确当前运行如何收尾。允许基于无可执行新假说或工程契约失败保留结果后等待，不把单次部分退化当停止原因，也不把30解释为必须完成的配额。"
+    },
+    {
+      "id": "P2-POLICY",
+      "issue": "固定proposal分支仅检查前轮文件存在，测试中的{}即足够；大多数后续轮次忽略前轮内容，理由中的离线18%数字未绑定证据路径/hash。",
+      "locations": [
+        "src/evomolsteer/generation/coordinate_exploration.py:22",
+        "tests/test_coordinate_exploration.py:6"
+      ],
+      "priority": "P2",
+      "required_fix": "验证前轮outcome schema、round、执行成功和retention绑定；将本策略称为预声明敏感性扫描，逐项引用假说证据。仅24/27/30等真正分支可称结果适应；避免宣称每轮已重新完成LLM科学分析。"
+    },
+    {
+      "id": "P2-SELECTION",
+      "issue": "24/27/30依据两个复用开发批次的平均代理指标适应选择，未纳入valid/PB退化或两批方向，max并列值也缺明确稳定决胜规则。",
+      "locations": [
+        "src/evomolsteer/generation/coordinate_exploration.py:42",
+        "src/evomolsteer/generation/coordinate_exploration.py:47"
+      ],
+      "priority": "P2",
+      "required_fix": "保留全部败例和选择台账，注明开发集多次选择偏倚。若用联合门槛，需预声明valid/PB与缺失分母的处理；稳定按round决胜。末轮不是独立确认或最优参数证明。"
+    },
+    {
+      "id": "P2-NULL",
+      "issue": "无有效能量样本时None指标会在比值或不等式中触发异常，科学失败可能被当作driver崩溃，无法形成完整outcome。",
+      "locations": [
+        "src/evomolsteer/generation/coordinate_exploration.py:10",
+        "src/evomolsteer/generation/coordinate_exploration.py:71",
+        "src/evomolsteer/generation/coordinate_backtracking.py:135"
+      ],
+      "priority": "P2",
+      "required_fix": "将不可估指标保存为missing及分母；入选条件遇到missing应失败或转入预声明分支，保留完整失败结果，不伪造零或丢弃候选。"
+    },
+    {
+      "id": "P2-ARGS",
+      "issue": "远端参数硬编码gradient、0,1和100，而freeze继承父轮arms/batches/n_per_arm。当前计划相符，但没有在启动边界验证二者一致。",
+      "locations": [
+        "scripts/resume_coordinate_campaign.py:130",
+        "scripts/scnet_coordinate_round.sh"
+      ],
+      "priority": "P2",
+      "required_fix": "从冻结轮次manifest生成启动参数，或明确拒绝不等于当前固定契约的配置；不允许计划和实际执行分母漂移。"
+    }
+  ],
+  "invocation": {
+    "date": "2026-10-06",
+    "mode": "authorized subagent API simulation",
+    "role": "Analyst + Designer",
+    "scope": "只读代码及少量调用依赖；不修改共享源码/docs，不运行driver、推理或新实验。"
+  },
+  "needed_validation_before_unattended_continuation": [
+    "用mock远端/临时目录模拟在download、verify、preserve、record、cleanup、freeze、push、nohup确认前后及final close中断；恢复不重复推理、不丢报告、不越界删除。",
+    "空/错误轮次报告不能触发删除；部分retention不能被当作完整。",
+    "两个driver不能同时启动同一token；丢失SSH确认后能识别既有任务。",
+    "30轮上限、用户停止信号、父程序被修改、既有暂存区内容、None指标和相同排名都具有确定结果。"
+  ],
+  "positive_findings": [
+    "freeze 校验按序新增轮次、maximum_rounds<=30、seed42、父轮completed及单一允许字段变化；reference内容以SHA匹配。",
+    "每轮先执行本地评估、保留候选/报告和比较，再删除本地大文件；远端清理位于已push/pull前轮报告之后。",
+    "retire脚本验证绝对路径、allowed/protected边界及symlink，原始SMC和checkpoints受保护。",
+    "科学分析留在本地；所读远端脚本运行FLOWR、终态导出和归档及必要清理/来源检查。",
+    "部分指标退化被记录而非直接触发停止；开发集复用的限制已有部分文字声明。"
+  ],
+  "schema_version": "coordinate-continuation-agent-review-1.0",
+  "source_hashes_at_report_creation": {
+    "scripts/preserve_terminal_reports.py": "658b39f11e878f10fba55b7ff17083e1470b5fd7b7b16496e5acdbf878bcc9c2",
+    "scripts/resume_coordinate_campaign.py": "a3ed2f2deca07aa10c65445386d953306b47c2e9516452033f55aae74fb6c830",
+    "scripts/retire_experiment_outputs.py": "142953408bb767ec1e4e880db83db1cb788994aa139aa37c8205c18897f812f9",
+    "scripts/scnet_coordinate_round.sh": "0b4fb19d9a8e2bae657a0fdf7cd01789174c0885ba28129e3de2ce66e3349b06",
+    "src/evomolsteer/generation/coordinate_backtracking.py": "8ff7a282225e4b00a020b8cb043bab8397e4a628b373c0f6e75e5c8c5067b6d2",
+    "src/evomolsteer/generation/coordinate_exploration.py": "23e7d47749e63288de69a5962e2192959b904b6d287e7906097e1681b2d3b156"
+  },
+  "verdict": "当前R14保留/评估可继续；无人值守进入后续轮次前应修复恢复与启动事务。该意见针对读取时版本，主代理后续修改需另行校验。"
+}

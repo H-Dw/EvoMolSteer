@@ -103,7 +103,8 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
                          'changes': changes, 'before': before, 'reason': reason}
     write_json(output, q)
     write_json(evidence, {'schema_version':'coordinate-backtrack-plan-1.0','round':number,'parent_round':p['round'],
-        'preserved_commit':'adf9f3670492a666aa109597eefde82d43c0c87f','kind':kind,'changes':changes,'before':before,'reason':reason,
+        'preserved_stop_checkpoint':'adf9f3670492a666aa109597eefde82d43c0c87f','parent_inference_commit':parent.get('inference_commit'),
+        'kind':kind,'changes':changes,'before':before,'reason':reason,
         'program_sha256':digest(output),'reference_sha256':digest(reference),'window':q['window'],
         'validity':'Conditional coordinate imitation; no causal affinity claim. Original Steer remains protected.',
         'fallback':'If a factor regresses, restore the frozen parent and test another identifiable factor; partial regression is not an automatic stop.'})
