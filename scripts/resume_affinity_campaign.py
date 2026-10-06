@@ -15,6 +15,7 @@ EVIDENCE='docs/experiments/ck2_affinity_geometry30_20261007'
 SKILL='skills/affinity-coordinate-search/SKILL.md'
 ENDPOINT_SKILL='skills/affinity-endpoint-pullback/SKILL.md'
 SPARSE_SKILL='skills/affinity-sparse-coordinate/SKILL.md'
+SPARSE_REVIEW='sparse_trace_review.json'
 OLD_REPORT='docs/experiments/ck2_motif_seed42_20261006/round_15/comparison/comparison.json'
 
 class AffinityDriver(MotifDriver):
@@ -28,7 +29,7 @@ class AffinityDriver(MotifDriver):
             folder=self.evidence/'sparse_skill_test_v2'
             audit_sparse_behavior(self.root/SPARSE_SKILL,folder/'input.json',folder/'prompt.txt',folder/'response.json',
                                   self.evidence/'endpoint_mining/sparse_coordinate_prior_v2.json')
-            review=read_json(self.evidence/'agent_review/sparse_fidelity_review.json')
+            review=read_json(self.evidence/'agent_review'/SPARSE_REVIEW)
             if review.get('execution_ready') is not True:raise ValueError('Sparse Agent integration review is not ready for real runtime validation')
             for path,expected in review['source_hashes'].items():
                 if digest(self.root/path)!=expected:raise ValueError('Sparse Agent review does not cover current source: '+path)
@@ -84,7 +85,7 @@ class AffinityDriver(MotifDriver):
         for k in ('compiled_design_sha256','designer_sha256','agent_review_sha256','boundary_agent_review_sha256','derivation'):p.pop(k,None)
         skill=SPARSE_SKILL if self.args.sparse_profile else ENDPOINT_SKILL if self.args.endpoint_profile else SKILL
         audit_folder='sparse_skill_test_v2' if self.args.sparse_profile else 'endpoint_skill_test' if self.args.endpoint_profile else 'skill_test'
-        review_name='sparse_fidelity_review.json' if self.args.sparse_profile else 'endpoint_design_review.json' if self.args.endpoint_profile else 'geometry_design_review.json'
+        review_name=SPARSE_REVIEW if self.args.sparse_profile else 'endpoint_design_review.json' if self.args.endpoint_profile else 'geometry_design_review.json'
         p.update(round=number,program_id=f'ck2_affinity_geometry30_round{number:02d}',seed=42,
             skill_sha256=digest(self.root/skill),skill_behavior_audit_sha256=digest(self.evidence/audit_folder/'behavior_audit.json'),
             geometry_review_sha256=digest(self.evidence/'agent_review'/review_name),
@@ -93,6 +94,8 @@ class AffinityDriver(MotifDriver):
         if self.args.endpoint_profile or self.args.sparse_profile:
             p['endpoint_designer_response_sha256']=digest(self.evidence/audit_folder/'response.json')
             p['endpoint_compiled_baseline_sha256']=digest(self.evidence/audit_folder/'compiled_design.json')
+        if 7<=number<=26:p['head_native_labels_relative_path']=EVIDENCE+'/round_06/local/head_scores_window.parquet'
+        else:p.pop('head_native_labels_relative_path',None)
         arms=['gradient'];batches=[0,1];split='discovery'
         if number==1 or (self.args.endpoint_profile and number==5) or (self.args.sparse_profile and number==6):arms=['unguided','gradient_zero','gradient']
         if number>=27:

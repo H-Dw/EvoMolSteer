@@ -115,4 +115,11 @@ def evaluate(dataset,campaign,output):
         'endpoint_at_window_end':table[np.isclose(table.state_time,reference['window'][1])].to_dict('records'),
         'time_alignment':reference.get('time_alignment','current state'),
         'interpretation':'Controlled response is a proxy; proposal at last score time may be outside the control window. Use independent actual-state whole-shape and terminal measures for conclusions'}
-    write_json(out/'coordinate_audit.json',report);return report
+    if program.get('objective_profile')=='affinity_primary_coordinate30':
+        from .head_response import analyze
+        native_labels=program.get('head_native_labels_relative_path')
+        if native_labels:native_labels=Path(__file__).resolve().parents[3]/native_labels
+        analyze(root,out,reference['window'],native_labels)
+        report['head_response_sha256']=digest(out/'head_window_response.json')
+    write_json(out/'coordinate_audit.json',report)
+    return report

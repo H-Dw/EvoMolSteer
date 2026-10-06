@@ -19,6 +19,12 @@ def preserve(results, dataset, campaign, output):
     if not all((results/p).is_file() for p in FILES):
         raise ValueError('Scientific evaluation and execution audit must be complete')
     cfg = read_json(root/'config.json')
+    program=read_json(root/'reward_program.json')
+    if program.get('objective_profile')=='affinity_primary_coordinate30':
+        from evomolsteer.generation.head_response import verify_report
+        verify_report(results)
+        if read_json(results/'coordinate_audit.json').get('head_response_sha256')!=digest(results/'head_window_response.json'):
+            raise ValueError('Coordinate/head diagnostic provenance mismatch; retain raw data and rerun analysis')
     if read_json(root/'COMPLETE.json')['status'] != 'complete':
         raise ValueError('Inference incomplete')
     execution = read_json(results/'execution_report.json')
@@ -28,7 +34,8 @@ def preserve(results, dataset, campaign, output):
     if len(rows) != cfg['experiment']['n']*len(cfg['experiment']['arms'].split(',')):
         raise ValueError('Failed candidates must also be preserved')
     copied = []
-    extras=[p for p in ['coordinate_audit.json','coordinate_time_metrics.csv','coordinate_time_rates.csv','coordinate_injection_motion.csv','coordinate_dose_time.csv','guidance_response.json'] if (results/p).is_file()]
+    extras=[p for p in ['coordinate_audit.json','coordinate_time_metrics.csv','coordinate_time_rates.csv','coordinate_injection_motion.csv','coordinate_dose_time.csv','guidance_response.json',
+                        'head_scores_window.parquet','paired_head_window.parquet','head_window_response.json'] if (results/p).is_file()]
     for source, relative in [(results/p, p) for p in FILES+extras] + [
             (root/p, 'inference_config/'+p) for p in ['config.json', 'reward_program.json', 'COMPLETE.json']]:
         dest = output/relative; dest.parent.mkdir(parents=True, exist_ok=True)

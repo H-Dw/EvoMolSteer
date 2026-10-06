@@ -156,9 +156,17 @@ class MotifDriver(Driver):
                   ('coordinate_audit.json','coordinate','evaluate_coordinate_flowr.py',['--dataset',dataset,'--campaign',label,'--output',out]),
                   ('window/report.json','window','evaluate_window_flowr.py',['--dataset',dataset,'--campaign',label,'--original',self.root/'data/optimized/main1000_w050/analysis_inputs_v2','--original-campaign','main1000_w050','--output',out/'window'])]
             for f,name,script,args in jobs:
-                if not self.complete_json(out/f):self.py(number,name,script,*args)
+                ready=self.complete_json(out/f)
+                if name=='coordinate' and read_json(dataset/'results'/label/'reward_program.json').get('objective_profile')=='affinity_primary_coordinate30':
+                    from evomolsteer.generation.head_response import verify_report
+                    try:
+                        verify_report(out)
+                        ready=ready and read_json(out/f).get('head_response_sha256')==digest(out/'head_window_response.json')
+                    except (OSError,ValueError,KeyError):ready=False
+                if not ready:self.py(number,name,script,*args)
             if getattr(self.args,'record_response',False) and not self.complete_json(out/'guidance_response.json'):
                 self.py(number,'response','analyze_guidance_response.py','--dataset',dataset,'--campaign',label,'--output',out/'guidance_response.json')
+            if local.exists():self.quarantine_partial(local)
             self.py(number,'retain','preserve_terminal_reports.py','--results',out,'--dataset',dataset,'--campaign',label,'--output',local)
         validate_retention(local,r['n_per_arm']*len(r['arms']))
         if outcome.exists():

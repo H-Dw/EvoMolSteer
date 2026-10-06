@@ -1,0 +1,258 @@
+{
+  "schema_version": "sparse-trace-integration-review-1.0",
+  "date": "2026-10-07",
+  "identity": "Authorized Analyst/Designer subagent simulation",
+  "execution_ready": true,
+  "unresolved_execution_blockers": [],
+  "readiness_scope": "新增本地评分轨迹诊断及恢复/留存路径可用于R6完成后的评价，并支持R7继续。R6原推理提交及旧审阅不变；R7仍须满足原有完整运行与zero证书门槛。本审阅不是亲和力有效性证明。",
+  "review_scope": "只读源码、局部测试、合成真实HDF5文件fixture；只新增本JSON及Markdown，不修改源码、Skill、literal响应、旧审阅、冻结奖励或实验配置，不远端、不生成。",
+  "provenance": {
+    "inherited_review_path": "docs/experiments/ck2_affinity_geometry30_20261007/agent_review/sparse_fidelity_review.json",
+    "inherited_review_sha256": "40c872026922ecac6e2f670121063747a591095b3e5049240ac68ddc87071aa0",
+    "inherited_markdown_sha256": "16632cd512a33c64f53b18e89ed5455a0ef6fcdd47f2ad33e81c325c6653d311",
+    "inherited_sources": 67,
+    "source_count": 73,
+    "newly_bound_paths": [
+      "src/evomolsteer/generation/head_response.py",
+      "scripts/analyze_head_response.py",
+      "tests/test_head_response.py",
+      ".gitignore",
+      "scripts/resume_coordinate_campaign.py",
+      "src/evomolsteer/generation/coordinate_exploration.py"
+    ],
+    "changed_inherited_sources": {
+      "src/evomolsteer/generation/coordinate_evaluation.py": {
+        "previous": "110b5aa925459044691c55bc29a8f89d4bdbd0cc17a2b4b605dd895967243349",
+        "current": "a0df1afe77eff2d3e905444ae472f1ef5906f666410c234d9f50c469097e3f99"
+      },
+      "scripts/resume_motif_campaign.py": {
+        "previous": "3a4df307cbddfc0376a3bb5d53be341cd2c04a75262cfeb26d91b2294471b8fe",
+        "current": "d00336c8390077690b976f001a4e76dd60a94832a820cce6aaa6d1554d049593"
+      },
+      "scripts/resume_affinity_campaign.py": {
+        "previous": "d1288bb2c5321e93f008130f175e651049a1b0c008b824cb816b5d2679e3fe54",
+        "current": "0786f1cf771f289c3e510921d17b8a8299502a0d7d1058ae37281ca0d63e5662"
+      },
+      "scripts/preserve_terminal_reports.py": {
+        "previous": "b5e8a691a6a8cab3beeb5ede21d5aaa1d00ab7af2f0d5c7a4ebf967cf578bc42",
+        "current": "2a4fde5e949ba5654cb7c391465207735897480acc9532587f9f4bdd7012bbe8"
+      }
+    },
+    "source_base_commit": "65e03d739ddc441ac096928cfa6e5a854d8a8ace",
+    "hash_semantics": "本机当前磁盘字节SHA256；CRLF/LF字节差异不等于科学内容变化。此审阅不绑定动态campaign/round输出。"
+  },
+  "scientific_contract": {
+    "input": "仅读已记录pic50_on；同批同seed同slot的gradient与unguided差，不另算head，不读取窗口后几何，不作为reward输入。",
+    "representation": "记录分数是原native FLOWR forward同时产出的joint latent-head标签，与预测endpoint伴随；不是每步独立构象重评分，更不是真实结合亲和力。",
+    "time_support": "动态window来自参考；在本100步任务筛选score_time>=0且proposal state_time<=.5，实际50个score节点0,.01,...,.49。score=.5对应proposal=.51被排除。",
+    "last_node_semantics": "window_end_nodes记录最后受控更新之前的score=.49标签；不是t=.5重新评分或最后一次注入的即时收益。同刻差异主要反映之前累积路径分叉。",
+    "formula": {
+      "delta": "d_i(t)=pic50_gradient_i(t)-pic50_native_i(t)",
+      "mean_delta": "mean_i d_i(t)",
+      "mean_absolute_delta": "mean_i |d_i(t)|",
+      "positive_fraction": "mean_i 1[d_i(t)>0]",
+      "net_signal_fraction": "|mean(d)|/mean(|d|)",
+      "cancellation_fraction": "1-net_signal_fraction",
+      "zero_change": "mean_absolute_delta=0时两个ratio为null，避免0/0",
+      "rate": "每batch按score_time排序后np.gradient(mean_delta,actual_score_time)；端点采用单侧差分。"
+    },
+    "interpretation": "较小mean_delta与较大mean_absolute_delta同时出现支持正负抵消的描述；不能单凭它判断奖励无效、局部机制因果或最终head变化。d_dt_mean_delta是观察性时间变化率，不是空间梯度。",
+    "replication": "候选槽位和节点重复相关；独立推理比较单位是batch，本轮仅两个开发批。无节点/槽位p值，不能将100候选或50时刻当独立n。复用相同native还使跨轮比较相关。"
+  },
+  "pairing_and_storage": {
+    "seed_source": "COMPLETE仅作完成门控；seed严格取final_records内唯一seed，不假设COMPLETE含seed。",
+    "same_run": "存在本轮native时优先使用并记录current_native_arm，不读取或误hash外部路径。",
+    "reused_native": "R7–26显式引用R6 compact native；checkpoint/input/native integrator/window metadata必须逐项相等，再按batch+精确score_time配对并检查seed、形状、非空和finite。重复native/guided节点拒绝。",
+    "validation": "R27–30清除继承head_native_labels_relative_path，使用各自新native；冻结奖励参数不因该诊断改变。",
+    "schema": "head_scores_window.parquet列arm:string,batch:int32,seed:int64,score_time:float64,scores:list<float64>；本任务每行50个分数，无坐标/几何展开。两张Parquet都UNCOMPRESSED。",
+    "precision": "将源分数数值精确保留为float64容器；源若为float32，转换不会创造额外有效精度。",
+    "artifacts": [
+      "head_scores_window.parquet",
+      "paired_head_window.parquet",
+      "head_window_response.json"
+    ],
+    "ignore_policy": "仅docs/experiments下上述两种Parquet文件名放开Git忽略，其他Parquet继续忽略。",
+    "provenance": "JSON分别记录inference_commit、head_response.py analysis_code_sha256、标签/配对文件SHA和实际native来源SHA；coordinate_audit绑定head JSON，retention对整套文件再校验。完整分析路由由本review source_hashes绑定。",
+    "limits": "这套metadata+seed配对本身不是全部RNG/初态/slot排序逐位相等的独立证明；继续依赖既有生成、100步执行与zero证书。该独立模块也不取代完整trajectory节点数/完整候选分母审计。"
+  },
+  "resolved_findings": [
+    {
+      "id": "premature_coordinate_completion",
+      "status": "resolved",
+      "evidence": "head分析成功后才写coordinate_audit；恢复时校验三件套SHA及coordinate/head绑定，缺失或损坏重新评价，不能以旧coordinate标记跳过。"
+    },
+    {
+      "id": "incomplete_diagnostic_retention",
+      "status": "resolved",
+      "evidence": "affinity_primary_coordinate30的preserve强制verify_report及绑定；fixture证实Parquet损坏后拒绝留存且不创建新报告目录。"
+    },
+    {
+      "id": "wrong_native_provenance",
+      "status": "resolved",
+      "evidence": "本轮native存在时baseline=None；验证轮移除R6引用，源SHA指向实际采用的当前标签。"
+    },
+    {
+      "id": "ratio_semantics",
+      "status": "resolved",
+      "evidence": "残余信号比例与其1减项分别命名net_signal_fraction/cancellation_fraction；不把0称低抵消。"
+    },
+    {
+      "id": "partial_report_copy_recovery",
+      "status": "resolved_with_safe_quarantine",
+      "evidence": "缺retention.json且local半成品存在时，driver先调用已有quarantine_partial再重存；只允许工作区内未被Git跟踪的目录，保留半成品不删除原数据。完成manifest验证后才进入清理。该最后分支按源码复核，未注入真实进程中断。"
+    },
+    {
+      "id": "seed_contract_and_order",
+      "status": "resolved",
+      "evidence": "final_records唯一seed、重复节点/空值/非finite拒绝，分batch按实际时刻排序求变化率。"
+    }
+  ],
+  "local_verification": {
+    "key_test_command": "PYTHONPATH=src .venv/Scripts/python.exe -m pytest tests/test_head_response.py tests/test_sparse_reward.py tests/test_sparse_campaign.py tests/test_sparse_agent.py tests/test_endpoint_campaign.py tests/test_affinity_campaign.py -q",
+    "key_tests_result": "19 passed in 20.35s；在新增第三个head测试之前收集。",
+    "updated_head_test_result": "3 passed in 1.71s；含真实pack_arrays HDF5、小型外部native复用、窗口裁剪及SHA拒绝。与前项有重叠，不合并称22独立测试。",
+    "independent_fixture": {
+      "passed": true,
+      "cli_invoked": true,
+      "real_hdf5_package": true,
+      "arms": 3,
+      "batches": 2,
+      "candidates_per_batch": 50,
+      "steps": 100,
+      "consumed_score_nodes": 50,
+      "last_score_time": 0.49,
+      "last_proposal_time": 0.5,
+      "labels_rows": 300,
+      "paired_rows": 100,
+      "labels_bytes": 5295,
+      "paired_bytes": 7694,
+      "compression": "UNCOMPRESSED",
+      "scores_type": "list<float64>",
+      "current_native_precedence": true,
+      "external_native_table_equal": true,
+      "contract_mismatch_rejected": true,
+      "seed_from_final_records_without_COMPLETE_seed": true,
+      "checksummed_three_artifact_retention": true,
+      "corruption_rejected_before_retention": true,
+      "symmetric_fixture_last_mean_absolute_delta": 0.49000000000000027,
+      "symmetric_fixture_positive_fraction": 0.5,
+      "symmetric_fixture_cancellation_fraction": 1.0,
+      "fixture_size_caveat": "分数高度规则且Parquet字典编码可复用；此byte大小不可作为真实随机分数压缩率估计。"
+    },
+    "recovery_checks": "完成发布顺序和driver重算/隔离分支只读核验；fixture覆盖保存校验，未启动远端或真实故障进程。"
+  },
+  "runtime_evidence": {
+    "new_head_diagnostic_real_campaign_run": false,
+    "new_head_diagnostic_real_campaign_note": "本审阅未读取任何新真实campaign的head三件套；只有本地合成文件端到端测试。",
+    "actual_sparse_FLOWR_FD_run": true,
+    "FD_source": "test/affinity_campaign_driver/live_round06_fd.json",
+    "FD_source_sha256": "ba6b51548cc16675afbd1944ca588faaa8d176595f51090e104aa228f782a9d0",
+    "FD": {
+      "affinity_head_gradient": false,
+      "checks": [
+        {
+          "analytic": 3.398519515991211,
+          "epsilon": 0.003,
+          "numerical": 3.3086142539978027,
+          "relative_error": 0.026454243258093067
+        },
+        {
+          "analytic": 3.398519515991211,
+          "epsilon": 0.01,
+          "numerical": 3.360748291015625,
+          "relative_error": 0.011114023267443146
+        }
+      ],
+      "derivative_path": "flowr_endpoint_vjp",
+      "frozen_self_condition_and_assignment": true,
+      "one_time_extra_forward_calls": 4,
+      "passed": true,
+      "production_extra_forward_calls_per_step": 0,
+      "score_time": 0.0
+    },
+    "actual_sparse_full_zero_run_verified_here": false,
+    "actual_sparse_GPU_validation_complete": false,
+    "runtime_limits": "R6真实FD仅提供score=0单点两步长检查；相对误差2.6454%/1.1114%，独立4次额外审计forward，生产额外forward为0。不能据此宣称所有时刻导数或完整zero已验证；R6当前完整zero仍pending。"
+  },
+  "remaining_scientific_limits": [
+    "新诊断不改变现有经验端点几何奖励，不补足观察关联的因果性或留出泛化。",
+    "head差异与空间奖励变化可联合描述，无法从同时变化分离图/化学/几何原因。",
+    "预native端点VJP、后native注入仍有步内滞后；新增分数记录不提供post-native新endpoint实测。",
+    "R7继续资格不等于奖励亲和力收益已证实，必须如实报告后续完整zero、失败分母、终态同构rescore及物理检查。"
+  ],
+  "source_hashes": {
+    "src/evomolsteer/continuous/affinity_endpoint.py": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550",
+    "src/evomolsteer/continuous/affinity_geometry.py": "e64fd897ea14ff88a44fd9fae16fe2f36fab138405a99921fdde109307b19de9",
+    "src/evomolsteer/continuous/affinity_skill.py": "fae2a96ae9d81ab12e8bc2c1cb6bd43194e83e06bf38a538f7d22f1c1480ca67",
+    "src/evomolsteer/continuous/endpoint_design.py": "0a56145f4b97f76f17a667ff3fb8846ff8b49f00cb19fa99b6700aca864fe367",
+    "src/evomolsteer/generation/endpoint_reward.py": "43b41d751f1787c10f8fd311727093ce34984f2d3f63802ab3aec52f3ba57321",
+    "src/evomolsteer/generation/endpoint_controller.py": "aff932043e9ea139ce270c6d4f769ee03e849195e3ec220e90535dc66feb8bd6",
+    "src/evomolsteer/generation/endpoint_campaign.py": "7470ce7609d74c724a1ed2167d8c048f75591e83bb4be68c355f7e5713211df2",
+    "src/evomolsteer/generation/affinity_geometry_reward.py": "2dfbff4d9aabde27e47fdc3cb84a054799aa6eb493d5c759d0b1cf382466669f",
+    "src/evomolsteer/generation/coordinate_contrast.py": "7e3043f402d90d8d6e7bec6e86d46e790b3981b2c94e3008c42643ed76d93388",
+    "src/evomolsteer/generation/coordinate_reward.py": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
+    "src/evomolsteer/generation/coordinate_controller.py": "166b7375981f9f8aec0deb99237953d4bdb6ee2d9837ef3f0d916e462e27fe85",
+    "src/evomolsteer/generation/coordinate_evaluation.py": "a0df1afe77eff2d3e905444ae472f1ef5906f666410c234d9f50c469097e3f99",
+    "src/evomolsteer/generation/affinity_campaign.py": "1633aeb224cb918a2270379fdd9f0056f5d31c4caeef134fa79f69ac78deb33f",
+    "src/evomolsteer/generation/affinity_reporting.py": "057f49152c016044e00fc186a7db946fca84ff56ee1d55a4b7b8bd779da6fd63",
+    "src/evomolsteer/generation/motif_campaign.py": "d31156e39c676c4009d12b4550fb821e6deefcba32a72f72242a6aa0e41bf683",
+    "src/evomolsteer/generation/terminal_statistics.py": "914b66e0ef301da2281f3070bf19977a00f84623b2762ea40211dac84928160f",
+    "src/evomolsteer/generation/scalar_guidance.py": "ece33698002824d183707e6ab415dc31c89adae9f65c2ea408a3e9198b29ef0b",
+    "src/evomolsteer/generation/window_controller.py": "4da674295feef6e5d94af7d15268f424a5a5c90ff901e91f67bc9a541bf10e9b",
+    "src/evomolsteer/generation/gradient_controller.py": "1c8a9aaa72cae8c9552727c82e2601f2928ab32af4ed962e3ca80ab6291a81e0",
+    "src/evomolsteer/generation/controller.py": "75367467d08410ba71e0c1aa8f9bab811fed4ba6dbb1387773ce79e8a0d14579",
+    "src/evomolsteer/generation/window_evaluation.py": "73787b507bb2afa6f8dc7c743e294b7a0dc2f44c338a63d24ee4ddaf3f23ebdc",
+    "src/evomolsteer/generation/zero_equivalence.py": "ade7b1fb2d1c14e61efe1c4a5aa44582a97f3e79f0e35f0a294110e1ca9b3f86",
+    "src/evomolsteer/generation/local_reward.py": "9cf5b648a97147a7193eb668f5da83d84e7f7b84b06c176052bd42b4283df274",
+    "src/evomolsteer/generation/multistage_reward.py": "fcd89e49b948f48ab50d42f480399cf35694a4d806b687e47f780887b4e78db7",
+    "scripts/generate_affinity_endpoint_flowr.py": "938876abad3aed3aa137597a7a4a095ca44f20f33f1c6ac4454a1d847346b7e2",
+    "scripts/mine_affinity_endpoint.py": "01c8d6bcdbc8ae92f4f1515042ed0b1b818b0f6794d9d597debee7be02ba2b26",
+    "scripts/resume_motif_campaign.py": "d00336c8390077690b976f001a4e76dd60a94832a820cce6aaa6d1554d049593",
+    "scripts/resume_affinity_campaign.py": "0786f1cf771f289c3e510921d17b8a8299502a0d7d1058ae37281ca0d63e5662",
+    "scripts/dispatch_motif_round.py": "df20b3e95f611a8c6f9fffff275a399f5d9da399ab9234513adb28bc8e386f03",
+    "scripts/scnet_motif_round.sh": "0a726e1c362be87a1bf0e2a646584c4bc35b13f35d9b075aa8db265bfcaaf8e0",
+    "scripts/scnet_terminal_experiment.sh": "84e121a2ae14c00e9abf8cadde303b96d065f0c5718c488269e6cc0d08040f5c",
+    "scripts/analyze_guidance_response.py": "e48c37be297da44cf8bc94d5446918cd3841007663205a7d15a08bb83f466b78",
+    "scripts/check_terminal_round_ready.py": "cb4401adf104da31f17840ff757726f4db1bdbc61c596671507dfddc1dc263c2",
+    "scripts/preserve_terminal_reports.py": "2a4fde5e949ba5654cb7c391465207735897480acc9532587f9f4bdd7012bbe8",
+    "scripts/report_affinity_campaign.py": "6290fb63caeddb91d753a8b5a1d598e6660c43cd88b429d5d4f71b978cd15471",
+    "skills/affinity-endpoint-pullback/SKILL.md": "d61ea015a77a20c78196aa895df969233e7d5d98dfa3a6e1129d5c1792f47c3e",
+    "skills/affinity-coordinate-search/SKILL.md": "1a4be652ac26a4f4c5662e0f502f9da0c88c50836bfbc027d013910001ce4de3",
+    "tests/test_affinity_endpoint.py": "8a3d3e76e6c6bc8d39b655811750462581c7a15fefd71f36e2bb649e320b675e",
+    "tests/test_endpoint_campaign.py": "0428396fc9409bfe676c950551662384f508d550e6559c7dbfc0d562e9eed804",
+    "tests/test_affinity_geometry.py": "303f327e5d3a25d0944801f37660a3c4410ee59bf08c74774be716680249882f",
+    "tests/test_affinity_campaign.py": "2128498a8ea151c3f46709be5df3773197e76acb1c5179f23a6ecc319baf78d1",
+    "tests/test_affinity_reporting.py": "b8f0d1a61f31c3fb6c03a7c7dabaa3b1ad8026eebe37745e9a9579a67a30e62c",
+    "tests/test_affinity_skill.py": "783bf810c16c81b570aa3257d0ef80c2e25723a4c70959f3423cbc9e34fb9801",
+    "tests/test_terminal_statistics.py": "8c8de4afb77debc593c92dcf5ff641dad296d37814aa53c83c182b65a830e6b2",
+    "tests/test_motif_campaign.py": "140d5f8e17ecf2091fc524028332a38cdcd03e36ebe35f05432104f578afbbef",
+    "src/evomolsteer/continuous/endpoint_prior.py": "d6095459442b037d4134b7ff3664d251311a051c87cb8278feb3235e2f748f7d",
+    "src/evomolsteer/continuous/sparse_design.py": "c97f825709c04f0c6bd43954bcc55e5a53da2fa58bc766ab5dff7ba8a936a916",
+    "src/evomolsteer/generation/sparse_reward.py": "3605513281a729acb487fa1b5d92c9a68f2d3c31eacc3d3e1fc403af768b3265",
+    "src/evomolsteer/generation/sparse_campaign.py": "2dde99d8aed12220f14a78a299e50948b63a812ec427f26ab58d62476ab8a029",
+    "scripts/build_endpoint_prior.py": "d317077a7aee7906c35df7ee794579a5212b4f61c670e0f4a7f29c4619182887",
+    "scripts/verify_sparse_agent.py": "543aed6cd0115028bf249058a24a0fcd18e16a2a29994c1adb79a67f4a446581",
+    "skills/affinity-sparse-coordinate/SKILL.md": "ce8bb6c6c53ac738c4ee3ae402ff7a0a9b78cc53589092b5aa06150434000222",
+    "tests/test_endpoint_prior.py": "64a799cfbce12da4f6349fc64a0b91df8a1d0840f14277bc64fdbb2b7a82feea",
+    "tests/test_sparse_reward.py": "e8b27af2f3dc7eb6621ddee926e0f4249e8e99d3384e7d82670f7cbafbbb4b67",
+    "tests/test_sparse_campaign.py": "ed7cb49a5b24982cdc8421e98d795eebc9d4d62e753833380a5a31a124377de5",
+    "tests/test_sparse_agent.py": "d507fe7fe9dc643d015bea0c9a413ddb6200bd3dc42e2db3c4ce005e631ab173",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/sparse_coordinate_prior_v2.json": "6394d0089a3e75c5e4246cc4f11bc9e89ad18dd0375ab8432b999e2d72229639",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/whole_window_effects.parquet": "b3c14e72c5037a1574cea5df86d58190b6113692b3ffcc91c50ecdbd3258274b",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/effect_functions.json": "87a270387d99fb78fb2ddd30fa29455874e521612ac5680fe47675c6c7a67498",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/input.json": "061fce4731d40df75d8c808cd6ac021c8a98f0659eb462c7bfbd8dbae949cd61",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/prompt.txt": "c2bd73b248e2761747185c9d71e6406970642dd9198dad37f3a47ce966b1545d",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/response.json": "0a3298b528d0a52c407fe2881eea052f745f5ac1706cdd238368ab1d29e72460",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/response.md": "6958d08c82a243f81e80d35c12df7b39bfb964fb5c4e18c6a8e2a695fc40ea67",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/behavior_audit.json": "8cac0944a393a98fb7f307c1e6765415153061a90ab157eb680aa36bb38dbcc8",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/compiled_design.json": "d086420613851c04641a9d99258b5c1af3dd92dbf382c6b65f878a0d82ba03e7",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test/compiled_design.json": "89764f2815c468d59eb1e410ee958e1d9f9a827c4edd6f28604f8aa473d6c95d",
+    "configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "src/evomolsteer/generation/head_response.py": "62d6cabc16f4706c622f125228cc5f048a7ecff41231147ab82ead6570098157",
+    "scripts/analyze_head_response.py": "1140bff6bb85b7e1628412228e309ac654668229c119a2dcfde464fbdadfdcf2",
+    "tests/test_head_response.py": "1e15d67de797a06beff5e47c8a53c6ff77df424a15daedbe45424494c9a11231",
+    ".gitignore": "74990d06d4a822f384fcf68bf91d9067df1134a4ad2311821bea76e11e9c8d73",
+    "scripts/resume_coordinate_campaign.py": "21d4f26220fa3e8b100386d9e27acc17d983258a6770a7223ca252bb85b05d78",
+    "src/evomolsteer/generation/coordinate_exploration.py": "f0a44e129999bc4203176c7627f3d56ff0fe796cfb0bdae5cd8f48be8e9841f2"
+  }
+}
