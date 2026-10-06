@@ -1,0 +1,417 @@
+{
+  "schema_version": "sparse-fidelity-integration-review-1.0",
+  "date": "2026-10-07",
+  "identity": "Authorized Analyst/Designer subagent simulation",
+  "execution_ready": true,
+  "actual_sparse_GPU_validation_passed": false,
+  "actual_sparse_FLOWR_FD_run": false,
+  "actual_sparse_full_zero_run": false,
+  "readiness_scope": "可启动第6轮真实GPU校验；当前哈希快照的数学、literal编译、实际/评价路由和注册策略无重大未解决执行阻断。旧R5 FD/zero及本审阅CPU测试均不能充当新稀疏loss的GPU证书。",
+  "review_scope": "仅创建新的sparse_fidelity_review.json/md；无源码、旧审阅、literal响应、运行配置改动；无远端或生成。",
+  "resolved_findings": [
+    {
+      "id": "silent_dense_fallback",
+      "status": "resolved",
+      "evidence": "公共make_coordinate_reward按geometry_feature_weights存在分派SparseEndpointReward；EndpointCoordinateExtension.configure调用相同factory，离线coordinate_evaluation也使用它。错误多项式缺证书会被拒绝。"
+    },
+    {
+      "id": "unsupported_polynomial_direction",
+      "status": "constrained",
+      "evidence": "24项拟合全部不符合经验节点fidelity门槛；compile校验精确原函数和允许标记，runtime Legendre也要求来源证书。当前literal/注册自适应只用node_contrast或linear_node_effect。"
+    },
+    {
+      "id": "reference_identity",
+      "status": "resolved_for_frozen_path",
+      "evidence": "v2真实响应、输入及prior reference hash一致；audit拒绝被篡改reference；保存的audit和重新编译产物逐字段一致。冻结审阅同时绑定literal、prior、compiled与audit字节。"
+    },
+    {
+      "id": "subset_function_copy",
+      "status": "resolved",
+      "evidence": "apply_sparse_fields按非零feature weights选取节点函数；密集切换移除7项稀疏配置，冻结回放保持字段不变。"
+    }
+  ],
+  "fidelity": {
+    "gate": {
+      "relative_node_rmse_max": 0.35,
+      "strong_sign_conflict_nodes": 0,
+      "quiet_node_large_fit_fraction_max": 0.1,
+      "strong_or_large_abs_z": 0.1
+    },
+    "selected_fields": 24,
+    "allowed_legendre_fields": 0,
+    "empirical_values": 1200,
+    "node_count": 50,
+    "rmse_range": [
+      0.3859132831079996,
+      0.9313753477878598
+    ],
+    "strong_field_node_conflicts": 125,
+    "empirical_values_exact": true,
+    "rule_interpretation": "这些是基于发现集反证设定的工程忠实度门槛，不是显著性检验或新独立验证。线性节点系数精确通过实测平均值，但并不证明节点噪声方向有因果效益。",
+    "current_formula": "z_j=phi_j(Y)/s_j; c_j(t_k)=mean_b(high_scaled-low_scaled)_b,k,j; Vbar_kj=mean_b(Var(phi_j)/s_j²+.05); D_kj=clip(c_j(t_k)/Vbar_kj,-3,3); w_j=B_block*m_j/sum_block(m); R_k=sum_j w_j*z_j*D_kj.",
+    "continuous_scope": "c_j可用相邻经验值作分段线性插值；当前runtime只允许50个实际节点请求，variance取同节点。不能据此宣称已支持任意非网格积分或新增精确阶段断点。",
+    "node_contrast_difference": "node_contrast用mean_b[(hi-lo)/V]，linear_node_effect用mean_b(hi-lo)/mean_b(V)，两者不是同一公式。块内归一化保留系数预算，非同实际梯度/dose。"
+  },
+  "literal_and_freeze": {
+    "family": "endpoint_direction",
+    "direction_mode": "linear_node_effect",
+    "selected_parent_round": 3,
+    "dose_control_round": 5,
+    "eta": 0.3,
+    "block_weights": [
+      0,
+      1,
+      2,
+      1
+    ],
+    "feature_weights": "24 supported binary fields in exact74 order",
+    "window": [
+      0,
+      0.5
+    ],
+    "score_nodes": [
+      0,
+      0.49
+    ],
+    "last_controlled_update": [
+      0.49,
+      0.5
+    ],
+    "ramp_power": 0,
+    "compiled_design_sha256": "d086420613851c04641a9d99258b5c1af3dd92dbf382c6b65f878a0d82ba03e7",
+    "audit_saved_equals_fresh": true,
+    "compiled_saved_equals_recomputed": true,
+    "R6_effective_parameters_equal_literal": true,
+    "R6_arms": [
+      "unguided",
+      "gradient_zero",
+      "gradient"
+    ],
+    "interpretation": "亲和力父程序与端点VJP剂量对照分开。R3/R5是重复开发批次点估计，不能宣称独立优越性；η=.3匹配requested ratio但实际RMS仍须记录。"
+  },
+  "runtime_review": {
+    "VJP": "pure geometry R evaluated on the single existing target endpoint forward; autograd.grad wrt pre-native coordinate leaf; affinity detached and original head tensors carry rejection hooks; returned cond/pred detached.",
+    "cost": "one production target forward per step, one geometry backward at active nodes; four extra target forwards only for one-time FD, separately counted. Native off-target/final computations remain separate.",
+    "lag": "pre-native x_t derivative injected into native proposal after SDE/category sampling. No derivative through the integrator/discrete transition; finite-step reward/head monotonicity unproven.",
+    "scope": "dynamic full learned window contains50 positive-schedule controlled nodes; .49→.50 last update, then native to1. WindowExtension forbids SMC and preserves native categorical sampling; no graph/type/equality/pair-distance selection gate.",
+    "zero": "R6 three arms and record() require full saved100-step/final native-zero byte equality. Internal cond/RNG states are not directly exported as byte-comparison evidence; do not claim that certificate.",
+    "monitoring": "nearest_standardized_rms remains dense74 diagnostic, not the24-field reward distance. All74 observables are still computed; sparse coefficients alone do not establish lower feature-extraction cost."
+  },
+  "policy_review": {
+    "scope": "Registered deterministic search, not independent LLM invention every round.",
+    "global_parent": "Global viable affinity parent is retained across failures. Sparse refinement chooses a viable sparse template; dense teacher/landmark revisions restore endpoint baseline, with sparse fields cleared.",
+    "negative_branch": "A negative preceding mean-head result triggers direction/target revision rather than unconditional escalation. Other scheduled branches can change architecture, dose, blocks or ramp; do not call every round a single-factor experiment.",
+    "freeze": "R26 freezes a global discovery winner; R27 validation and R28–30 heldout replay it. Pure-memory extreme future scores do not reselect or change its effective parameters.",
+    "batch_scope": "Master seed42 remains fixed; derived batches20–27 are new batches, not new main seeds or targets. Repeated batches0/1 are adaptive development evidence.",
+    "source_binding": "Review source_hashes also includes immutable Skill/input/prompt/literal/prior/compiled/audit/test artifacts. Dynamic round programs and outcome reports are deliberately excluded."
+  },
+  "tests": {
+    "targeted_pytest": {
+      "passed": 19,
+      "elapsed_seconds": 10.01,
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_endpoint_prior.py tests/test_sparse_reward.py tests/test_sparse_campaign.py tests/test_sparse_agent.py tests/test_affinity_endpoint.py tests/test_endpoint_campaign.py -q -p no:cacheprovider",
+      "scope": "Independently executed CPU tests"
+    },
+    "full_suite_parent_report": {
+      "passed": 228,
+      "elapsed_seconds": 25.85,
+      "independently_rerun_by_this_reviewer": false
+    },
+    "independent_formula_and_FD": {
+      "audit_passed": true,
+      "registered_type": "SparseEndpointReward",
+      "response_family": "endpoint_direction",
+      "mode": "linear_node_effect",
+      "eta": 0.3,
+      "prior_nodes_exact": true,
+      "empirical_value_count": 1200,
+      "recomputed_fidelity_fields": 24,
+      "strong_conflicts": 125,
+      "rmse_min_max": [
+        0.3859132831079996,
+        0.9313753477878598
+      ],
+      "bad_legendre_rejected": true,
+      "all50_node_reward_reconstruction_max_error": 7.105427357601002e-15,
+      "synthetic_nonlinear_VJP_checks": [
+        {
+          "time": 0,
+          "fd_relative_error": 4.519661238794666e-11,
+          "main_calls": 1,
+          "head_hook_calls": 0,
+          "dtype": "torch.float64",
+          "cond_detached": true
+        },
+        {
+          "time": 0.1,
+          "fd_relative_error": 7.165441320672575e-13,
+          "main_calls": 1,
+          "head_hook_calls": 0,
+          "dtype": "torch.float64",
+          "cond_detached": true
+        },
+        {
+          "time": 0.25,
+          "fd_relative_error": 4.7108545997198055e-11,
+          "main_calls": 1,
+          "head_hook_calls": 0,
+          "dtype": "torch.float64",
+          "cond_detached": true
+        },
+        {
+          "time": 0.49,
+          "fd_relative_error": 3.4991474794307516e-11,
+          "main_calls": 1,
+          "head_hook_calls": 0,
+          "dtype": "torch.float64",
+          "cond_detached": true
+        }
+      ],
+      "scope": "CPU actual references and synthetic nonlinear endpoint; not real FLOWR"
+    },
+    "independent_policy_and_driver": {
+      "scope": "Pure-memory compiler/driver/policy test; no remote/inference or writes",
+      "audit_saved_exact": true,
+      "compiled_saved_exact": true,
+      "compiled_sha256": "d086420613851c04641a9d99258b5c1af3dd92dbf382c6b65f878a0d82ba03e7",
+      "R6_three_arms": [
+        "unguided",
+        "gradient_zero",
+        "gradient"
+      ],
+      "R6_effective_literal_parameters_unchanged": true,
+      "registered_cases": [
+        {
+          "round": 6,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.3
+        },
+        {
+          "round": 7,
+          "type": "EndpointGeometryReward",
+          "mode": null,
+          "eta": 0.3
+        },
+        {
+          "round": 8,
+          "type": "SparseEndpointReward",
+          "mode": "node_contrast",
+          "eta": 0.3
+        },
+        {
+          "round": 9,
+          "type": "SparseEndpointReward",
+          "mode": "node_contrast",
+          "eta": 0.3
+        },
+        {
+          "round": 10,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.3
+        },
+        {
+          "round": 11,
+          "type": "EndpointGeometryReward",
+          "mode": null,
+          "eta": 0.51
+        },
+        {
+          "round": 12,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.3
+        },
+        {
+          "round": 13,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.3
+        },
+        {
+          "round": 14,
+          "type": "EndpointGeometryReward",
+          "mode": null,
+          "eta": 0.51
+        },
+        {
+          "round": 15,
+          "type": "EndpointGeometryReward",
+          "mode": null,
+          "eta": 0.3
+        },
+        {
+          "round": 16,
+          "type": "SparseEndpointReward",
+          "mode": "node_contrast",
+          "eta": 0.51
+        },
+        {
+          "round": 17,
+          "type": "SparseEndpointReward",
+          "mode": "node_contrast",
+          "eta": 0.3
+        },
+        {
+          "round": 18,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.51
+        },
+        {
+          "round": 19,
+          "type": "EndpointGeometryReward",
+          "mode": null,
+          "eta": 0.51
+        },
+        {
+          "round": 20,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.51
+        },
+        {
+          "round": 21,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.51
+        },
+        {
+          "round": 22,
+          "type": "EndpointGeometryReward",
+          "mode": null,
+          "eta": 0.51
+        },
+        {
+          "round": 23,
+          "type": "EndpointGeometryReward",
+          "mode": null,
+          "eta": 0.3
+        },
+        {
+          "round": 24,
+          "type": "SparseEndpointReward",
+          "mode": "node_contrast",
+          "eta": 0.867
+        },
+        {
+          "round": 25,
+          "type": "SparseEndpointReward",
+          "mode": "node_contrast",
+          "eta": 0.3
+        },
+        {
+          "round": 26,
+          "type": "SparseEndpointReward",
+          "mode": "linear_node_effect",
+          "eta": 0.867
+        }
+      ],
+      "frozen_winner_in_synthetic_case": 12,
+      "frozen_checks": [
+        27,
+        28,
+        29,
+        30
+      ],
+      "validation_scores_do_not_reselect": true,
+      "all_programs_50_active_nodes": true,
+      "sparse_keys": [
+        "geometry_feature_weights",
+        "geometry_direction_mode",
+        "geometry_direction_functions",
+        "geometry_direction_times",
+        "coordinate_prior_sha256",
+        "geometry_weight_normalization",
+        "geometry_curve_fidelity_audit"
+      ]
+    },
+    "note": "实际参考数据用于CPU公式检查；非线性端点映射明确为合成函数。没有把它描述为真实FLOWR或GPU试验。"
+  },
+  "limitations": [
+    "q值与筛选描述符来自同一14批发现集；clone、teacher、time不得扩充独立n。经验节点吻合是拟合忠实度，不是亲和力因果性。",
+    "全分子shape/pair及landmark标量通过FLOWR Jacobian可影响广泛坐标；不能因某block名为区域就声称其他原子不受控。",
+    "移除floor仍有小尺度字段；unit-gradient normalization、取消和caps可能改变实际dose，不能以系数预算推断。",
+    "第6轮相对R5同时改变字段集合、块内归一化及variance aggregation；匹配requested剂量仍不是纯单因素因果识别。",
+    "拟合门槛、当前节点方向与最佳程序均需冻结批次检验；历史Steer100不是等预算配对对照。",
+    "已有R5真实FD/zero仅作为旧路径背景；新稀疏loss的实际GPU FD、zero、计数、内存及最终效应仍待R6。"
+  ],
+  "runtime_acceptance_pending": [
+    "新loss真实FLOWR条件FD通过；4审计forward单列，生产每步1次。",
+    "完整三臂native-zero记录/final字节等价；head拒绝hook未触发，无窗外注入/SMC。",
+    "分别报告一阶reward估计、实际坐标路径、终态head和有效性/能量coverage，不混用。"
+  ],
+  "integration_blockers": [],
+  "final_judgment": "execution_ready=true，允许启动第6轮真实GPU验证。当前未发现重大执行缺陷；actual_sparse_GPU_validation_passed=false。",
+  "source_hashes": {
+    "src/evomolsteer/continuous/affinity_endpoint.py": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550",
+    "src/evomolsteer/continuous/affinity_geometry.py": "e64fd897ea14ff88a44fd9fae16fe2f36fab138405a99921fdde109307b19de9",
+    "src/evomolsteer/continuous/affinity_skill.py": "fae2a96ae9d81ab12e8bc2c1cb6bd43194e83e06bf38a538f7d22f1c1480ca67",
+    "src/evomolsteer/continuous/endpoint_design.py": "0a56145f4b97f76f17a667ff3fb8846ff8b49f00cb19fa99b6700aca864fe367",
+    "src/evomolsteer/generation/endpoint_reward.py": "43b41d751f1787c10f8fd311727093ce34984f2d3f63802ab3aec52f3ba57321",
+    "src/evomolsteer/generation/endpoint_controller.py": "aff932043e9ea139ce270c6d4f769ee03e849195e3ec220e90535dc66feb8bd6",
+    "src/evomolsteer/generation/endpoint_campaign.py": "7470ce7609d74c724a1ed2167d8c048f75591e83bb4be68c355f7e5713211df2",
+    "src/evomolsteer/generation/affinity_geometry_reward.py": "2dfbff4d9aabde27e47fdc3cb84a054799aa6eb493d5c759d0b1cf382466669f",
+    "src/evomolsteer/generation/coordinate_contrast.py": "7e3043f402d90d8d6e7bec6e86d46e790b3981b2c94e3008c42643ed76d93388",
+    "src/evomolsteer/generation/coordinate_reward.py": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
+    "src/evomolsteer/generation/coordinate_controller.py": "166b7375981f9f8aec0deb99237953d4bdb6ee2d9837ef3f0d916e462e27fe85",
+    "src/evomolsteer/generation/coordinate_evaluation.py": "110b5aa925459044691c55bc29a8f89d4bdbd0cc17a2b4b605dd895967243349",
+    "src/evomolsteer/generation/affinity_campaign.py": "1633aeb224cb918a2270379fdd9f0056f5d31c4caeef134fa79f69ac78deb33f",
+    "src/evomolsteer/generation/affinity_reporting.py": "057f49152c016044e00fc186a7db946fca84ff56ee1d55a4b7b8bd779da6fd63",
+    "src/evomolsteer/generation/motif_campaign.py": "d31156e39c676c4009d12b4550fb821e6deefcba32a72f72242a6aa0e41bf683",
+    "src/evomolsteer/generation/terminal_statistics.py": "914b66e0ef301da2281f3070bf19977a00f84623b2762ea40211dac84928160f",
+    "src/evomolsteer/generation/scalar_guidance.py": "ece33698002824d183707e6ab415dc31c89adae9f65c2ea408a3e9198b29ef0b",
+    "src/evomolsteer/generation/window_controller.py": "4da674295feef6e5d94af7d15268f424a5a5c90ff901e91f67bc9a541bf10e9b",
+    "src/evomolsteer/generation/gradient_controller.py": "1c8a9aaa72cae8c9552727c82e2601f2928ab32af4ed962e3ca80ab6291a81e0",
+    "src/evomolsteer/generation/controller.py": "75367467d08410ba71e0c1aa8f9bab811fed4ba6dbb1387773ce79e8a0d14579",
+    "src/evomolsteer/generation/window_evaluation.py": "73787b507bb2afa6f8dc7c743e294b7a0dc2f44c338a63d24ee4ddaf3f23ebdc",
+    "src/evomolsteer/generation/zero_equivalence.py": "ade7b1fb2d1c14e61efe1c4a5aa44582a97f3e79f0e35f0a294110e1ca9b3f86",
+    "src/evomolsteer/generation/local_reward.py": "9cf5b648a97147a7193eb668f5da83d84e7f7b84b06c176052bd42b4283df274",
+    "src/evomolsteer/generation/multistage_reward.py": "fcd89e49b948f48ab50d42f480399cf35694a4d806b687e47f780887b4e78db7",
+    "scripts/generate_affinity_endpoint_flowr.py": "938876abad3aed3aa137597a7a4a095ca44f20f33f1c6ac4454a1d847346b7e2",
+    "scripts/mine_affinity_endpoint.py": "01c8d6bcdbc8ae92f4f1515042ed0b1b818b0f6794d9d597debee7be02ba2b26",
+    "scripts/resume_motif_campaign.py": "3a4df307cbddfc0376a3bb5d53be341cd2c04a75262cfeb26d91b2294471b8fe",
+    "scripts/resume_affinity_campaign.py": "d1288bb2c5321e93f008130f175e651049a1b0c008b824cb816b5d2679e3fe54",
+    "scripts/dispatch_motif_round.py": "df20b3e95f611a8c6f9fffff275a399f5d9da399ab9234513adb28bc8e386f03",
+    "scripts/scnet_motif_round.sh": "0a726e1c362be87a1bf0e2a646584c4bc35b13f35d9b075aa8db265bfcaaf8e0",
+    "scripts/scnet_terminal_experiment.sh": "84e121a2ae14c00e9abf8cadde303b96d065f0c5718c488269e6cc0d08040f5c",
+    "scripts/analyze_guidance_response.py": "e48c37be297da44cf8bc94d5446918cd3841007663205a7d15a08bb83f466b78",
+    "scripts/check_terminal_round_ready.py": "cb4401adf104da31f17840ff757726f4db1bdbc61c596671507dfddc1dc263c2",
+    "scripts/preserve_terminal_reports.py": "b5e8a691a6a8cab3beeb5ede21d5aaa1d00ab7af2f0d5c7a4ebf967cf578bc42",
+    "scripts/report_affinity_campaign.py": "6290fb63caeddb91d753a8b5a1d598e6660c43cd88b429d5d4f71b978cd15471",
+    "skills/affinity-endpoint-pullback/SKILL.md": "d61ea015a77a20c78196aa895df969233e7d5d98dfa3a6e1129d5c1792f47c3e",
+    "skills/affinity-coordinate-search/SKILL.md": "1a4be652ac26a4f4c5662e0f502f9da0c88c50836bfbc027d013910001ce4de3",
+    "tests/test_affinity_endpoint.py": "8a3d3e76e6c6bc8d39b655811750462581c7a15fefd71f36e2bb649e320b675e",
+    "tests/test_endpoint_campaign.py": "0428396fc9409bfe676c950551662384f508d550e6559c7dbfc0d562e9eed804",
+    "tests/test_affinity_geometry.py": "303f327e5d3a25d0944801f37660a3c4410ee59bf08c74774be716680249882f",
+    "tests/test_affinity_campaign.py": "2128498a8ea151c3f46709be5df3773197e76acb1c5179f23a6ecc319baf78d1",
+    "tests/test_affinity_reporting.py": "b8f0d1a61f31c3fb6c03a7c7dabaa3b1ad8026eebe37745e9a9579a67a30e62c",
+    "tests/test_affinity_skill.py": "783bf810c16c81b570aa3257d0ef80c2e25723a4c70959f3423cbc9e34fb9801",
+    "tests/test_terminal_statistics.py": "8c8de4afb77debc593c92dcf5ff641dad296d37814aa53c83c182b65a830e6b2",
+    "tests/test_motif_campaign.py": "140d5f8e17ecf2091fc524028332a38cdcd03e36ebe35f05432104f578afbbef",
+    "src/evomolsteer/continuous/endpoint_prior.py": "d6095459442b037d4134b7ff3664d251311a051c87cb8278feb3235e2f748f7d",
+    "src/evomolsteer/continuous/sparse_design.py": "c97f825709c04f0c6bd43954bcc55e5a53da2fa58bc766ab5dff7ba8a936a916",
+    "src/evomolsteer/generation/sparse_reward.py": "3605513281a729acb487fa1b5d92c9a68f2d3c31eacc3d3e1fc403af768b3265",
+    "src/evomolsteer/generation/sparse_campaign.py": "2dde99d8aed12220f14a78a299e50948b63a812ec427f26ab58d62476ab8a029",
+    "scripts/build_endpoint_prior.py": "d317077a7aee7906c35df7ee794579a5212b4f61c670e0f4a7f29c4619182887",
+    "scripts/verify_sparse_agent.py": "543aed6cd0115028bf249058a24a0fcd18e16a2a29994c1adb79a67f4a446581",
+    "skills/affinity-sparse-coordinate/SKILL.md": "ce8bb6c6c53ac738c4ee3ae402ff7a0a9b78cc53589092b5aa06150434000222",
+    "tests/test_endpoint_prior.py": "64a799cfbce12da4f6349fc64a0b91df8a1d0840f14277bc64fdbb2b7a82feea",
+    "tests/test_sparse_reward.py": "e8b27af2f3dc7eb6621ddee926e0f4249e8e99d3384e7d82670f7cbafbbb4b67",
+    "tests/test_sparse_campaign.py": "ed7cb49a5b24982cdc8421e98d795eebc9d4d62e753833380a5a31a124377de5",
+    "tests/test_sparse_agent.py": "d507fe7fe9dc643d015bea0c9a413ddb6200bd3dc42e2db3c4ce005e631ab173",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/sparse_coordinate_prior_v2.json": "6394d0089a3e75c5e4246cc4f11bc9e89ad18dd0375ab8432b999e2d72229639",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/whole_window_effects.parquet": "b3c14e72c5037a1574cea5df86d58190b6113692b3ffcc91c50ecdbd3258274b",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_mining/effect_functions.json": "87a270387d99fb78fb2ddd30fa29455874e521612ac5680fe47675c6c7a67498",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/input.json": "061fce4731d40df75d8c808cd6ac021c8a98f0659eb462c7bfbd8dbae949cd61",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/prompt.txt": "c2bd73b248e2761747185c9d71e6406970642dd9198dad37f3a47ce966b1545d",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/response.json": "0a3298b528d0a52c407fe2881eea052f745f5ac1706cdd238368ab1d29e72460",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/response.md": "6958d08c82a243f81e80d35c12df7b39bfb964fb5c4e18c6a8e2a695fc40ea67",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/behavior_audit.json": "8cac0944a393a98fb7f307c1e6765415153061a90ab157eb680aa36bb38dbcc8",
+    "docs/experiments/ck2_affinity_geometry30_20261007/sparse_skill_test_v2/compiled_design.json": "d086420613851c04641a9d99258b5c1af3dd92dbf382c6b65f878a0d82ba03e7",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test/compiled_design.json": "89764f2815c468d59eb1e410ee958e1d9f9a827c4edd6f28604f8aa473d6c95d",
+    "configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c"
+  },
+  "reviewed_commit": "f78a1bf851d4206704b022bfff41ba5e619a6dfa"
+}

@@ -13,7 +13,7 @@ from .coordinate_reward import predictive_flow_increment,calibration_increment,a
 from .local_reward import bounded_local_step
 from .multistage_reward import reject_new_severe_clashes
 from .scalar_guidance import detached
-from .endpoint_reward import EndpointGeometryReward
+from .coordinate_contrast import make_coordinate_reward
 from ..io import write_json,clean,digest
 
 
@@ -35,7 +35,7 @@ class EndpointCoordinateExtension(CoordinateExtension):
     def configure(self,model,opt,out):
         if model.inpainting_mode or model.graph_inpainting or model._inpaint_self_condition:raise ValueError('Inpainting unsupported')
         self.model,self.opt,self.out=model,opt,out;model.requires_grad_(False);model._gradient=self
-        self.reward=EndpointGeometryReward(self.program,self.reference);self.preflight_done=False;self.preflight_forward_calls=0
+        self.reward=make_coordinate_reward(self.program,self.reference);self.preflight_done=False;self.preflight_forward_calls=0
         self.code_commit=subprocess.check_output(['git','-C',str(Path(__file__).resolve().parents[3]),'rev-parse','HEAD'],text=True).strip()
         self.checkpoint_hash=digest(opt.checkpoint)
         shutil.copy2(opt.program,out/'reward_program.json');shutil.copy2(opt.reference,out/'reference.json.gz')
