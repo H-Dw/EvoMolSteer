@@ -17,6 +17,11 @@ class NotApplicable(ValueError):pass
 
 class RewardProgram:
     def __init__(self,program,catalog):
+        program=copy.deepcopy(program)
+        self.ignored_legacy_constraints=[]
+        if 'max_pair_distance_change_A' in program['constraints']:
+            program['constraints'].pop('max_pair_distance_change_A')
+            self.ignored_legacy_constraints.append('max_pair_distance_change_A')
         json.dumps(program,allow_nan=False)
         Draft202012Validator(PROGRAM).validate(program)
         self.program,self.catalog=program,catalog
@@ -75,7 +80,6 @@ class RewardProgram:
         proposed=x+delta; accepted=torch.ones(len(x),dtype=torch.bool,device=x.device)
         pm=mask[:,:,None].bool()&mask[:,None,:].bool()
         pair_change=(torch.cdist(proposed,proposed)-torch.cdist(x,x)).abs().masked_fill(~pm,0).amax((1,2))
-        accepted &= pair_change<=c['max_pair_distance_change_A']
         points=torch.tensor([p for r in self.catalog['regions'].values() for p in r['points_A']],dtype=x.dtype,device=x.device)
         new_counts=torch.zeros(len(x),dtype=torch.int64,device=x.device)
         if len(points):
@@ -89,6 +93,7 @@ class RewardProgram:
         accepted &= torch.isfinite(after_reward)&(after_reward>=before_reward-1e-12)
         result=torch.where(accepted[:,None,None],proposed,x)
         return result,{'accepted':accepted,'pair_distance_change_A':pair_change,'new_clash_pairs':new_counts,
+                       'ignored_legacy_constraints':self.ignored_legacy_constraints,
                        'gradient_norm':gradient.norm(dim=(1,2)),'proposed_reward_delta':after_reward-before_reward,
                        'max_atom_displacement_A':(result-x).norm(dim=-1).amax(1)}
 

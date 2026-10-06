@@ -20,7 +20,6 @@ PROGRAM=obj({'version':{'const':'2.0'},'representation':{'const':'predicted_endp
     'direction':{'const':'reward_ascent'},'operator':{'const':'negative_smooth_window_sum'},'terms':arr(TERM),
     'constraints':obj({'max_atom_displacement_A':{'type':'number','exclusiveMinimum':0,'maximum':.1},
         'max_rms_displacement_A':{'type':'number','exclusiveMinimum':0,'maximum':.1},
-        'max_pair_distance_change_A':{'type':'number','exclusiveMinimum':0,'maximum':.2},
         'clash_threshold_A':{'const':1.2},'max_new_clash_pairs':{'const':0},'preserve_fixed_atoms':{'const':True}})})
 DESIGNER=obj({'schema_version':{'const':'2.0'},'agent':{'const':'Designer'},'dataset_id':S,
     'status':{'enum':['exploratory_offline_candidate','deferred']},'program':PROGRAM,

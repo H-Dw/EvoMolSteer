@@ -27,7 +27,10 @@ Avoid summing correlated regional views as independent mechanisms. Keep atom,
 bond and charge changes as native categorical channels; no fake discrete gradient.
 
 Separate reward shape from external dose calibration. Record native-RMS ratio,
-actual dose, per-atom/path caps, pair geometry change and receptor clash rejection.
+actual dose, per-atom/path caps, diagnostic pair geometry change and receptor
+clash rejection. Pair distances are not acceptance thresholds. Graph changes
+are allowed; never veto a candidate for differing from a prior or reference
+graph, or introduce a native-topology preservation term.
 Require numerical derivative checks and exact zero-dose native equivalence.
 Check physical support and node influence before converting a motion cue to force.
 Distinguish observed native RMS, which includes SDE score drift and startup
@@ -70,10 +73,13 @@ fixed global scales, conditioned on current detached endpoint N/O/S counts.
 Require supplied discovery composition evidence. Use exact observed strata at
 the same real sampling node; no nearest-count fallback or linear extrapolation
 of tensor means. Keep empirical selected count-mass priors and disclose this
-prior change separately from stratification and sparse zero-dose fallback.
+prior change separately from stratification and unconditional-parent fallback.
 Require >=3 records per batch, >=2 distinct discovery batches per node,
 prior ESS>=1.5 and maximum leave-one-batch-out center RMS<=1 in scaled space.
 Inspect native support coverage, root ESS and covariance ridge contribution;
 clones are not independent measurements. Do not turn an observational O-count
 association into a chemical editing force. Counts do not determine bond graph
-or charge. Freeze parent controls and require fresh full zero/native equivalence.
+or charge. For unseen count combinations use the measured unconditioned parent
+geometry mixture; do not veto novel composition or extrapolate conditional
+strata. Only an undefined geometry observable receives zero coordinate dose.
+Freeze parent controls and require fresh full zero/native equivalence.

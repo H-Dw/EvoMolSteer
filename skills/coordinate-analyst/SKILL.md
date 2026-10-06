@@ -41,3 +41,10 @@ Global fits include coefficients, domain, leave-one-batch-out degree selection a
 temporal derivatives. Derivative of a curve is not a spatial reward gradient.
 Current covariance/prototype targets are hypotheses, not unique optimal paths.
 Do not invent regional physical energies for noisy unresolved graphs.
+
+Chemical graph changes are an allowed consequence of coordinate guidance and
+native joint generation. Same/changed graph comparisons are descriptive
+post-treatment strata, not causes of quality loss. Judge all generated graphs
+by validity, geometry, energy diagnostics, affinity and diversity. Do not derive
+graph-equality penalties, composition vetoes or native-topology locks from these
+comparisons. An association with a low-quality tail requires a mechanism test.

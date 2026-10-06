@@ -1,0 +1,30 @@
+{
+  "schema_version": "topology-free-coordinate-config-1.0",
+  "master_seed": 42,
+  "reference_path": "configs/experiments/ck2_coordinate_seed42_v1/endpoint_anchor_round03/reference.json.gz",
+  "reference_sha256": "16b60305e81722ea6894ec74fea8deb382ac1d0ff4ddd531b0eecf1188e195c6",
+  "window": [
+    0.0,
+    0.5
+  ],
+  "programs": {
+    "from_round25.json": {
+      "sha256": "5f494b7ba592fe0bf689499a292f7bac24f237672092890f81201eb81fe2c336",
+      "source_round": 25,
+      "robust_delta": 0.25,
+      "native_rms_ratio": 0.05
+    },
+    "from_round26.json": {
+      "sha256": "555acf0f63f4039a052593c9fd7e658f75c0d0734dd5daf1b8c7dd0d70a144c4",
+      "source_round": 26,
+      "robust_delta": 4.0,
+      "native_rms_ratio": 0.05
+    }
+  },
+  "native_categorical_policy": "Do not reject, filter or repair candidates for graph changes. Native atom/bond generation continues.",
+  "changes": [
+    "Remove ligand pair-distance acceptance constraint",
+    "Use unconditional parent reward on unobserved composition in count-conditioned architecture"
+  ],
+  "validation_scope": "Unit and numerical-gradient tests; no new inference beyond completed30 rounds."
+}

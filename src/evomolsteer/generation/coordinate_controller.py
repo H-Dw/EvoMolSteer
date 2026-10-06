@@ -11,7 +11,7 @@ from .window_controller import WindowExtension
 from .coordinate_reward import remove_rigid_pose_gradient,predictive_flow_increment,calibration_increment,atom_step_cap
 from .coordinate_contrast import make_coordinate_reward
 from .local_reward import bounded_local_step
-from .multistage_reward import preserve_native_geometry
+from .multistage_reward import reject_new_severe_clashes
 from ..io import clean,digest,write_json
 
 
@@ -30,7 +30,10 @@ class CoordinateExtension(WindowExtension):
             'gradient_target':'actual native proposal coordinates; hard endpoint labels and optional endpoint spatial anchor held fixed',
             'reference_time_alignment':self.reference.get('time_alignment','state time s -> current reference s'),
             'conditional_gradient':'No derivative through endpoint anchor or atom identity; forecast refreshed at each native step',
-            'dose_rule':self.program.get('dose_reference','observed_native')+' RMS ratio times bounded residual gate, atom/path caps, native-geometry rejection',
+            'dose_rule':self.program.get('dose_reference','observed_native')+' RMS ratio times bounded residual gate, atom/path caps, severe-new-receptor-clash rejection',
+            'topology_policy':'Native atom/bond transitions remain free; no graph equality or ligand pair-distance acceptance gate',
+            'composition_fallback':'Unconditioned learned parent mixture for unseen counts; only mathematically undefined observables have zero coordinate dose',
+            'ignored_legacy_constraints':['max_pair_distance_change_A'] if 'max_pair_distance_change_A' in self.program['constraints'] else [],
             'initial_update_dose':self.program.get('initial_update_dose','native'),
             'coordinate_representation':self.reference['representation'],
             'native_integrator_parameters':self.model.integrator.hparams}
@@ -99,7 +102,7 @@ class CoordinateExtension(WindowExtension):
                 observed_native_rms_A=(native.square().sum((1,2))/mask.sum(1)).sqrt().mul(scale).cpu().tolist(),
                 predictive_flow_rms_A=(flow_delta.square().sum((1,2))/mask.sum(1)).sqrt().mul(scale).cpu().tolist() if flow_delta is not None else None)
             self.controlled_updates+=1
-            actual,guard=preserve_native_geometry(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
+            actual,guard=reject_new_severe_clashes(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
             rms=(actual.square().sum((1,2))/mask.sum(1)).sqrt()*scale;self.path_rms+=rms
             row.update({k:v.detach().cpu().tolist() for k,v in {**{k:v for k,v in detail.items() if k!='core_mask'},**control,**guard}.items()})
             outside=(~detail['core_mask'])&mask

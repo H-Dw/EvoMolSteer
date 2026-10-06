@@ -15,7 +15,7 @@ import torch
 from .gradient_controller import Extension, gradient_source
 from .window_reference import load_reference
 from .window_reward import WindowReward
-from .multistage_reward import native_relative_step, preserve_native_geometry
+from .multistage_reward import native_relative_step, reject_new_severe_clashes
 from ..io import digest, write_json, clean
 
 
@@ -83,6 +83,8 @@ class WindowExtension(Extension):
             'model_jacobian':'not needed for direct actual-state geometry reward',
             'apply_guidance':False,'particle_resampling':False,
             'native_categorical_sampling':True,'native_sde':True,'native_coord_noise_level':.2,
+            'topology_policy':'Native atom and bond transitions remain free; no graph equality or ligand pair-distance acceptance gate',
+            'ignored_legacy_constraints':['max_pair_distance_change_A'] if 'max_pair_distance_change_A' in self.program['constraints'] else [],
             'post_window_injection':False,'remote_role':'inference and lossless recording only'}
 
     def amend_config(self,c):
@@ -144,7 +146,7 @@ class WindowExtension(Extension):
             ratio=0. if trace.arm=='gradient_zero' else self.reward.ratio(s)
             c=self.program['constraints']
             proposed,control=native_relative_step(g,native,mask,ratio,scale,c['max_atom_step_A'],c['max_cumulative_rms_A']-self.path_rms)
-            actual,guard=preserve_native_geometry(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
+            actual,guard=reject_new_severe_clashes(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
             rms=actual.square().sum((1,2)).div(mask.sum(1)).sqrt()*scale;self.path_rms+=rms
             row.update({k:v.detach().cpu().tolist() for k,v in {**detail,**control,**guard}.items()})
             row.update(reward=value.detach().cpu().tolist(),gradient_norm=g.norm(dim=(1,2)).cpu().tolist(),

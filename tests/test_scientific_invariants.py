@@ -16,7 +16,7 @@ def fixture():
           'evidence_ids':['e'],'parameter_status':'exploratory_pilot'}
     p={'version':'2.0','selection_window':{'start':0.,'end':1.,'time_axis':'score_time'},'representation':'predicted_endpoint_world_A','direction':'reward_ascent',
        'operator':'negative_smooth_window_sum','terms':[term],
-       'constraints':{'max_atom_displacement_A':.05,'max_rms_displacement_A':.05,'max_pair_distance_change_A':.1,
+       'constraints':{'max_atom_displacement_A':.05,'max_rms_displacement_A':.05,
                       'clash_threshold_A':1.2,'max_new_clash_pairs':0,'preserve_fixed_atoms':True}}
     return p,cat
 
@@ -50,6 +50,19 @@ def test_undefined_objective_and_unapproved_operator_are_rejected():
     with pytest.raises(NotApplicable):r(torch.ones((1,2,3)),torch.tensor([[3,3]]),torch.ones((1,2),dtype=torch.bool),.5)
     bad=copy.deepcopy(p);bad['operator']='arbitrary_python'
     with pytest.raises(Exception):RewardProgram(bad,c)
+
+
+def test_retired_pair_limit_cannot_veto_a_reward_improving_coordinate_update():
+    p,c=fixture();p['constraints']['max_pair_distance_change_A']=1e-12
+    saved=copy.deepcopy(p);r=RewardProgram(p,c)
+    x=torch.tensor([[[5.,.5,0.],[6.,1.,0.]]],dtype=torch.float64)
+    atoms=torch.tensor([[4,3]]);mask=torch.ones((1,2),dtype=torch.bool)
+    updated,audit=r.guarded_step(x,atoms,mask,.5,mask)
+    assert p==saved
+    assert 'max_pair_distance_change_A' not in r.program['constraints']
+    assert audit['accepted'].all() and audit['pair_distance_change_A'].item()>1e-12
+    assert audit['ignored_legacy_constraints']==['max_pair_distance_change_A']
+    assert r(updated,atoms,mask,.5)[0]>r(x,atoms,mask,.5)[0]
 
 def test_selection_decomposition_is_not_a_generation_effect():
     phi=np.array([1.,4.,9.]);freq=np.array([0.,0.,1.]);next_population=np.array([10.,10.,10.])

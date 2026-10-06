@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import torch
 from .gradient_controller import Extension
-from .multistage_reward import MultistageReward, native_relative_step, preserve_native_geometry
+from .multistage_reward import MultistageReward, native_relative_step, reject_new_severe_clashes
 from .scalar_guidance import RegionalReward, detached
 
 
@@ -56,7 +56,8 @@ class MultistageExtension(Extension):
             'checkpoint_sha256':self.checkpoint_hash,
             'reward_program_sha256':self._sha(self.opt.program), 'reward_catalog_sha256':self._sha(self.opt.catalog),
             'gradient_target':'current model coordinates through live endpoint Jacobian; detached current-step atom masks and self-conditioning',
-            'execution':'native step + positive scalar preconditioned reward ascent, molecule-wise caps and native-proposal geometry backtracking',
+            'execution':'native step + positive scalar preconditioned reward ascent, molecule-wise caps and severe-new-receptor-clash backtracking',
+            'topology_policy':'Native atom and bond transitions remain free; ligand pair-distance changes are diagnostic only',
             'control_domain':[0,1], 'evidence_domain':[0,.5], 'late_reference':'freeze .5 reference, experimental continuation',
             'native_rms_ratio':self.opt.native_rms_ratio, 'max_atom_step_A':self.opt.max_atom_step_A,
             'arm_terms':self.arm_terms, 'gradient_arms_resample':False,
@@ -173,7 +174,7 @@ class MultistageExtension(Extension):
             proposed,control=native_relative_step(self.gradient,native,self.mask,self.ratio,scale,
                 self.opt.max_atom_step_A,c['max_cumulative_rms_A']-self.path_rms)
             if self.ratio>0:
-                actual,guard=preserve_native_geometry(curr['coords'],proposed,self.mask,
+                actual,guard=reject_new_severe_clashes(curr['coords'],proposed,self.mask,
                     self.pocket['coords'],self.pocket['mask'],scale,c)
             else:
                 actual=proposed

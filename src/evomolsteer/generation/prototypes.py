@@ -191,7 +191,7 @@ def compile_program(reference_dir, designer_path, output):
         'independent_validation': 'New generation batches, never reference fitting',
         'internal_weight_policy': 'One correlated two-observable patch; covariance handles units/correlation; equal independent batch mixture weights',
         'sensitivity': 'dR/dz=-sum_b responsibility_b * precision*(z-center_b)/sqrt(1+Mahalanobis_squared)',
-        'constraints': {'max_atom_step_A': .025, 'max_pair_distance_change_A': .05,
+        'constraints': {'max_atom_step_A': .025,
                         'severe_receptor_clash_A': 1.2, 'max_cumulative_rms_A': 2.5,
                         'backtrack_attempts': 5},
         'pilot_native_rms_ratios': [.05, .15, .3],

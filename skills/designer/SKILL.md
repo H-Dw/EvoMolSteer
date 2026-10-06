@@ -13,6 +13,6 @@ The program's selection_window must exactly match the bundle's observed score-ti
 
 Allowed observables are normalized ligand-to-region soft-min distances, N/O/S conditional variants and radius of gyration on endpoint world coordinates. Fix atom identities during differentiation. No discrete atom/bond optimization, fitted affinity surrogate, arbitrary atom-index correspondence across seeds, online resampling or whole-molecule collapse.
 
-Use reward ascent on a negative smooth-window penalty. Weights, gate widths and step budgets are explicit pilot choices. The runtime enforces editable masks, bounded atom/RMS displacements, pair-distance change limits and no new severe receptor clashes. Constraints cannot be traded against reward.
+Use reward ascent on a negative smooth-window penalty. Weights, gate widths and step budgets are explicit pilot choices. The runtime enforces editable masks, bounded atom/RMS displacements and no new severe receptor clashes. Pair-distance changes are diagnostics only. Native chemical graph changes are allowed and are not quality failures. Never add graph-equality or topology-preservation acceptance gates. Constraints cannot be traded against reward.
 
 Keep gradient_path=saved_endpoint_only_live_generator_jacobian_not_validated. Numerical gradient tests do not establish better generated molecules. Provide provenance, selected/deferred rules, failure modes and a future validation plan. Do not run generation or access held-out data.

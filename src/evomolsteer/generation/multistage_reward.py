@@ -122,12 +122,13 @@ def native_relative_step(gradient, native, mask, ratio, scale, max_atom_A, remai
                    'cap_factor':factor}
 
 
-def preserve_native_geometry(native_x, delta, mask, pocket_x, pocket_mask, scale, constraints):
-    """Backtrack only the added coordinate displacement, never native RNG/state.
+def reject_new_severe_clashes(native_x, delta, mask, pocket_x, pocket_mask, scale, constraints):
+    """Reject nonfinite updates or newly introduced severe receptor clashes.
 
-    Reject newly introduced severe receptor pairs and excessive within-ligand
-    pair-distance change relative to this exact native proposal. Existing native
-    defects remain visible and are not certified chemically valid by this guard.
+    Ligand pair-distance changes are diagnostics only, never an acceptance
+    condition. Atom identities, bonds and topology do not enter this guard.
+    Historical pair-distance limits are intentionally ignored; replay original
+    experiments with their recorded source commit.
     """
     mask = mask.bool(); pocket_mask = pocket_mask.bool()
     pair_mask = mask[:,:,None] & mask[:,None,:]
@@ -140,10 +141,9 @@ def preserve_native_geometry(native_x, delta, mask, pocket_x, pocket_mask, scale
     for attempt in range(constraints['backtrack_attempts']):
         fraction = .5**attempt
         candidate = native_x + delta*fraction
-        change = (torch.cdist(candidate,candidate)*scale-before_pairs).abs().masked_fill(~pair_mask,0).amax((1,2))
         receptor = torch.cdist(candidate,pocket_x)*scale
         new_clash = ((receptor<threshold)&(before_receptor>=threshold)&receptor_mask).any((1,2))
-        okay = torch.isfinite(candidate).all((1,2)) & ~new_clash & (change<=constraints['max_pair_distance_change_A'])
+        okay = torch.isfinite(candidate).all((1,2)) & ~new_clash
         take = okay & ~accepted
         result = torch.where(take[:,None,None],delta*fraction,result)
         factor = torch.where(take,torch.full_like(factor,fraction),factor)

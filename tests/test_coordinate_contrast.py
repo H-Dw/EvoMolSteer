@@ -65,15 +65,15 @@ def test_empirical_support_not_chi_squared_or_synthetic_coverage():
 
 def test_double_density_preserves_float_native_update_and_zero_equivalence():
     from evomolsteer.generation.local_reward import bounded_local_step
-    from evomolsteer.generation.multistage_reward import preserve_native_geometry
+    from evomolsteer.generation.multistage_reward import reject_new_severe_clashes
     r=fixture();x=torch.tensor([[[-1.,0,0],[1.,0,0]]],requires_grad=True)
     mask=torch.ones((1,2),dtype=torch.bool);a=torch.full((1,2),3)
     value,d=r(x,a,mask,.2,x.detach());g,=torch.autograd.grad(value.sum(),x)
     assert d['dose_gate'].dtype==torch.float64 and g.dtype==torch.float32
-    constraints={'backtrack_attempts':7,'severe_receptor_clash_A':.8,'max_pair_distance_change_A':.06}
+    constraints={'backtrack_attempts':7,'severe_receptor_clash_A':.8}
     pocket=torch.tensor([[[10.,10,10.]]]);pm=torch.ones((1,1),dtype=torch.bool)
     for eta in (0.,.05):
         step,_=bounded_local_step(g,torch.ones_like(x)*.01,mask,d['dose_gate'].to(g),eta,1.,.025,torch.ones(1))
-        actual,_=preserve_native_geometry(x.detach(),step,mask,pocket,pm,1.,constraints)
+        actual,_=reject_new_severe_clashes(x.detach(),step,mask,pocket,pm,1.,constraints)
         assert actual.dtype==x.dtype
         if eta==0:assert torch.equal(x.detach()+actual,x.detach())

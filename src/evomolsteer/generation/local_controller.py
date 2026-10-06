@@ -10,7 +10,7 @@ import torch
 from .window_controller import WindowExtension
 from .local_reward import LocalIntervalReward,bounded_local_step
 from .scalar_guidance import detached
-from .multistage_reward import preserve_native_geometry
+from .multistage_reward import reject_new_severe_clashes
 from ..io import digest,clean,write_json
 
 
@@ -29,7 +29,7 @@ class LocalExtension(WindowExtension):
                 'gradient_target':'current native coordinates through live FLOWR endpoint coordinate Jacobian',
                 'model_jacobian':'FLOWR.ROOT, parameters frozen, detached categorical labels and self-conditioning',
                 'gradient_support':self.program.get('gradient_support','full_pullback'),
-                'dose_rule':'eta * native_RMS * excess/sqrt(1+excess^2), then caps and native-geometry guard',
+                'dose_rule':'eta * native_RMS * excess/sqrt(1+excess^2), then caps and severe-new-receptor-clash guard',
                 'terminal_export':self.opt.export_terminal}
 
     def predict(self,curr,pocket,times,cond,equis,invs):
@@ -94,7 +94,7 @@ class LocalExtension(WindowExtension):
         if enabled:
             c=self.program['constraints'];eta=0. if trace.arm=='gradient_zero' else self.program['native_rms_ratio']
             proposed,control=bounded_local_step(self.g,native,mask,self.detail['dose_gate'],eta,scale,c['max_atom_step_A'],c['max_cumulative_rms_A']-self.path_rms)
-            actual,guard=preserve_native_geometry(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
+            actual,guard=reject_new_severe_clashes(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
             rms=(actual.square().sum((1,2))/mask.sum(1)).sqrt()*scale;self.path_rms+=rms
             # Keep the same bare geometric region for comparisons between supports.
             noncore=(~self.bare_core)&mask;outside_support=(~self.core)&mask

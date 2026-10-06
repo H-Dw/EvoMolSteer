@@ -162,7 +162,7 @@ def build(dataset, campaign, reference, output, audit_output, min_group_size=3, 
         conditioning_parent_reference_sha256=digest(reference),
         conditional_support={'min_group_size': min_group_size, 'min_batches': min_batches,
                              'min_prior_ESS': min_prior_ess, 'max_LOO_center_change_scaled_RMS': max_loo_rms,
-                             'unsupported_rule': 'zero dose; native dynamics continue'},
+                             'unsupported_rule': 'unconditioned parent geometry mixture; no composition veto'},
         conditional_mixture_definition='Empirical selected count-mass prior across equally weighted discovery batches; robust geometry mixture inside each exact count stratum')
     new['selected_mass_denominator'] = 'Per-batch selection probabilities normalized on the parent informative shape subset (NOS>=2), as in R13; original whole-batch masses also retained separately.'
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -244,11 +244,16 @@ class CoordinateCountConditionedShapeReward(CoordinateShapeReward):
         if atoms.ndim == 3:
             atoms = atoms.detach().argmax(-1)
         counts = torch.stack([((atoms == self.reference['atom_vocabulary'][a]) & mask.bool()).sum(1) for a in ('N', 'O', 'S')], 1)
-        raw, informative, core = self.observables(x.double(), atoms, mask, anchor.double() if anchor is not None else None)
+        # Novel composition is allowed. Start from the measured unconditional
+        # parent, and refine its geometry target only where a stratum exists.
+        # An undefined NOS tensor still has no informative coordinate gradient.
+        parent_value, parent = super().__call__(x, atoms, mask, time, anchor)
+        raw, informative, core = parent['observables'], parent['available'], parent['core_mask']
         z = raw/raw.new_tensor(self.scale)
-        value, nearest, gate = z.sum(1)*0, z.sum(1)*0, z.sum(1)*0
-        available = torch.zeros(len(z), dtype=torch.bool, device=z.device)
-        component_ess = torch.zeros_like(value)
+        value = parent_value.clone()
+        nearest, gate = parent['nearest_standardized_rms'].clone(), parent['dose_gate'].clone()
+        conditioned = torch.zeros(len(z), dtype=torch.bool, device=z.device)
+        component_ess = 1/parent['mode_responsibilities'].square().sum(1)
         for combo in self.reference['conditional_frames'][j]['combinations']:
             match = (counts == counts.new_tensor(combo['counts'])).all(1) & informative
             if not bool(match.any()):
@@ -264,7 +269,9 @@ class CoordinateCountConditionedShapeReward(CoordinateShapeReward):
             nearest[match] = q.amin(1).sqrt()
             gate[match] = torch.sqrt(q.amin(1)/(1+q.amin(1)))
             component_ess[match] = 1/logits.softmax(1).square().sum(1)
-            available |= match
-        return value, {'observables': raw, 'available': available, 'core_mask': core,
+            conditioned |= match
+        return value, {'observables': raw, 'available': informative, 'core_mask': core,
             'nearest_standardized_rms': nearest, 'dose_gate': gate,
+            'conditional_supported': conditioned,
+            'unconditional_fallback': informative & ~conditioned,
             'conditional_component_ESS': component_ess, 'conditioning_counts': counts}

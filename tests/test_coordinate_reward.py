@@ -132,20 +132,22 @@ def test_first_update_cap_is_per_molecule_masked_and_disabled_exactly():
     assert zero.eq(0).all()
 
 
-def test_pair_guard_can_limit_internal_deformation_below_atom_cap():
-    from evomolsteer.generation.multistage_reward import preserve_native_geometry
+def test_receptor_guard_does_not_veto_ligand_pair_distance_changes():
+    from evomolsteer.generation.multistage_reward import reject_new_severe_clashes
     x=torch.tensor([[[0.,0,0],[1.,0,0]]],dtype=torch.float64)
-    delta=torch.tensor([[[-.02,0,0],[.02,0,0]]],dtype=torch.float64)
+    delta=torch.tensor([[[-.05,0,0],[.05,0,0]]],dtype=torch.float64)
     mask=torch.ones((1,2),dtype=torch.bool);pocket=torch.tensor([[[10.,10,10]]],dtype=torch.float64)
     pm=torch.ones((1,1),dtype=torch.bool)
     constraints={'backtrack_attempts':7,'severe_receptor_clash_A':.8,'max_pair_distance_change_A':.06}
-    old,a=preserve_native_geometry(x,delta,mask,pocket,pm,1.,constraints)
-    assert a['backtrack_factor'].item()==1. and delta.norm(dim=-1).max()<.025
-    new,b=preserve_native_geometry(x,delta,mask,pocket,pm,1.,{**constraints,'max_pair_distance_change_A':.01})
-    assert b['geometry_accepted'].all() and b['backtrack_factor'].item()<1
-    assert b['max_actual_pair_distance_change_A'].item()<=.01
+    old,a=reject_new_severe_clashes(x,delta,mask,pocket,pm,1.,constraints)
+    assert a['backtrack_factor'].item()==1.
+    new,b=reject_new_severe_clashes(x,delta,mask,pocket,pm,1.,{**constraints,'max_pair_distance_change_A':.01})
+    assert b['geometry_accepted'].all() and b['backtrack_factor'].item()==1
+    assert b['max_actual_pair_distance_change_A'].item()>.06
     difference=(torch.cdist(x+new,x+new)-torch.cdist(x,x)).abs().max()
-    assert difference<=.01 and new.norm()<old.norm()
+    assert difference>.06
+    torch.testing.assert_close(new,old)
+    torch.testing.assert_close(new,delta)
 
 
 def test_initial_atom_cap_is_control_counter_based_and_preserves_later_updates():

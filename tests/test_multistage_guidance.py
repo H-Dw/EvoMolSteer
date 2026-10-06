@@ -2,7 +2,7 @@ import copy
 import numpy as np
 import pytest
 import torch
-from evomolsteer.generation.multistage_reward import MultistageReward, native_relative_step, preserve_native_geometry
+from evomolsteer.generation.multistage_reward import MultistageReward, native_relative_step, reject_new_severe_clashes
 from evomolsteer.generation.prototypes import measure_patch, fit_local_stages, regularize_covariance, retained_copies
 
 
@@ -94,12 +94,12 @@ def test_geometry_backtracking_preserves_native_and_fixed_mask():
     native=torch.tensor([[[1.201,0.,0.],[3.,0.,0.]]],dtype=torch.float64)
     original=native.clone();delta=torch.tensor([[[-.025,0.,0.],[0.,0.,0.]]],dtype=torch.float64)
     m=torch.ones(1,2,dtype=torch.bool);p=torch.zeros(1,1,3,dtype=torch.float64);pm=torch.ones(1,1,dtype=torch.bool)
-    c={'severe_receptor_clash_A':1.2,'max_pair_distance_change_A':.05,'backtrack_attempts':5}
-    actual,guard=preserve_native_geometry(native,delta,m,p,pm,1.,c)
+    c={'severe_receptor_clash_A':1.2,'backtrack_attempts':5}
+    actual,guard=reject_new_severe_clashes(native,delta,m,p,pm,1.,c)
     assert not actual.count_nonzero() and not guard['geometry_accepted'][0]
     torch.testing.assert_close(native,original)
     native[0,0,0]=1.21
-    actual,guard=preserve_native_geometry(native,delta,m,p,pm,1.,c)
+    actual,guard=reject_new_severe_clashes(native,delta,m,p,pm,1.,c)
     assert guard['backtrack_factor'][0]==.25
 
 

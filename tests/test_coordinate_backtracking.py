@@ -131,7 +131,7 @@ def conditioning_case(tmp_path):
     contract=tmp_path/'designer.json';write_json(contract,{'schema_version':'count-conditioning-designer-contract-1.0','agent':'Designer',
         'parent_reference_sha256':digest(old),'reference_sha256':digest(new),
         'agent_review_file':review.name,'agent_review_sha256':digest(review),
-        'declared_changes':['exact count stratum geometry','empirical selected count-mass mixture prior','zero dose for unsupported counts'],
+        'declared_changes':['exact count stratum geometry','empirical selected count-mass mixture prior','unconditioned parent fallback for unsupported counts'],
         'inherit_without_simultaneous_retuning':{**{k:parent[k] for k in ('native_rms_ratio','mixture_temperature','robust_delta','constraints')},
             'dose_reference':'observed_native','initial_update_dose':'native','preserve_native_rigid_pose':False}})
     return c,p,old,new,contract

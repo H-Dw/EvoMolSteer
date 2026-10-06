@@ -20,7 +20,7 @@ def conditioned():
     return CoordinateCountConditionedShapeReward(r.program,r.reference)
 
 
-def test_exact_counts_supported_fd_and_unsupported_native_fallback():
+def test_exact_counts_refine_targets_and_novel_counts_keep_parent_guidance():
     r = conditioned();rng=torch.Generator().manual_seed(42)
     x=torch.randn(2,7,3,dtype=torch.float64,generator=rng,requires_grad=True)
     anchor=x.detach().clone().requires_grad_(True)
@@ -28,7 +28,17 @@ def test_exact_counts_supported_fd_and_unsupported_native_fallback():
     mask=torch.ones((2,7),dtype=torch.bool)
     value,d=r(x,atoms,mask,.2,anchor)
     g,ga=torch.autograd.grad(value.sum(),(x,anchor),allow_unused=True)
-    assert ga is None and d['available'].tolist()==[True,False] and d['dose_gate'][1]==0 and g[1].eq(0).all()
+    assert ga is None and d['available'].tolist()==[True,True]
+    assert d['conditional_supported'].tolist()==[True,False]
+    assert d['unconditional_fallback'].tolist()==[False,True]
+    assert d['dose_gate'][1]>0 and g[1].count_nonzero()>0
+    from evomolsteer.generation.coordinate_shape import CoordinateShapeReward
+    parent=CoordinateShapeReward(r.program,r.reference)
+    parent_value,parent_detail=parent(x,atoms,mask,.2,anchor)
+    parent_gradient=torch.autograd.grad(parent_value.sum(),x)[0]
+    torch.testing.assert_close(value[1],parent_value[1])
+    torch.testing.assert_close(g[1],parent_gradient[1])
+    torch.testing.assert_close(d['dose_gate'][1],parent_detail['dose_gate'][1])
     assert torch.isfinite(g).all() and d['conditional_component_ESS'][0]>1
     direction=g/g.norm();epsilon=1e-5
     numerical=(r(x+epsilon*direction,atoms,mask,.2,anchor)[0].sum()-r(x-epsilon*direction,atoms,mask,.2,anchor)[0].sum())/(2*epsilon)
@@ -43,6 +53,21 @@ def test_conditional_mass_and_root_ess_do_not_treat_clones_as_independent():
     assert record['unique_roots']==2 and record['n_available']==3
     assert record['center_A2'][0]==pytest.approx(4.5) and record['mean_tensor_min_eigenvalue_A2']==0
     assert np.linalg.eigvalsh(record['covariance_dimensionless']).min()>=.01-1e-12
+
+
+def test_all_unseen_compositions_use_parent_and_undefined_tensor_stays_unavailable():
+    r=conditioned();x=torch.randn(3,7,3,dtype=torch.float64,requires_grad=True)
+    anchor=x.detach().clone();atoms=torch.full((3,7),2,dtype=torch.long)
+    atoms[2]=99;atoms[2,0]=1
+    saved=atoms.clone();mask=torch.ones((3,7),dtype=torch.bool)
+    value,detail=r(x,atoms,mask,.2,anchor)
+    gradient,=torch.autograd.grad(value.sum(),x)
+    assert torch.equal(atoms,saved)
+    assert detail['available'].tolist()==[True,True,False]
+    assert detail['unconditional_fallback'].tolist()==[True,True,False]
+    assert not detail['conditional_supported'].any()
+    assert gradient[:2].count_nonzero()>0 and not gradient[2].count_nonzero()
+    assert detail['dose_gate'][2]==0 and value[2]==0
 
 
 def test_conditional_reference_rejects_impossible_means_and_duplicate_counts():

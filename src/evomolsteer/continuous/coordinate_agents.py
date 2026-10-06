@@ -148,5 +148,5 @@ def compile_design(mining,dataset,campaign,output,round_number):
         reward_view=design['architecture'],reference_sha256=digest(reference),core_radius_A=5.,round=round_number,seed=42,
         evidence_sha256=digest(dest/'coordinate_evidence.json'),designer_sha256=digest(dest/'Designer.coordinate.response.json'),
         constraints={'backtrack_attempts':7,'max_atom_step_A':.025,'max_cumulative_rms_A':1.25,
-            'max_pair_distance_change_A':.06,'severe_receptor_clash_A':.8})
+            'severe_receptor_clash_A':.8})
     write_json(out/'program.json',program);return program
