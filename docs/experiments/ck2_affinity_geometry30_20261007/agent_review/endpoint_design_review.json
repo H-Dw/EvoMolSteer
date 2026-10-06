@@ -2,21 +2,55 @@
   "schema_version": "affinity-endpoint-design-review-1.0",
   "date": "2026-10-07",
   "identity": "Authorized Analyst/Designer subagent simulation",
-  "execution_ready": false,
+  "execution_ready": true,
   "mathematical_unit_checks_passed": true,
-  "readiness_scope": "新端点family的离线统计、纯几何公式及CPU VJP接口数值通过；完整pipeline尚未集成，不能进入自动dispatch。此状态不改变旧geometry_design_review的通过范围或首4轮冻结计划。",
+  "readiness_scope": "可启动第5轮真实GPU校验。当前端点数学接口、公开工厂、预测端点评价、独立远端入口、编译绑定和30轮策略已完成本地审阅；未发现重大执行阻断。此true不等于FLOWR GPU VJP、完整zero等价或亲和力收益已验证。首4轮冻结报告及literal Agent response未修改。",
   "source_hashes": {
     "src/evomolsteer/continuous/affinity_endpoint.py": "f59c2b73747a97a931e13a2911d84a2d73b563dd4c308ce5cfe9d3fe7165f550",
+    "src/evomolsteer/continuous/affinity_geometry.py": "e64fd897ea14ff88a44fd9fae16fe2f36fab138405a99921fdde109307b19de9",
+    "src/evomolsteer/continuous/affinity_skill.py": "fae2a96ae9d81ab12e8bc2c1cb6bd43194e83e06bf38a538f7d22f1c1480ca67",
+    "src/evomolsteer/continuous/endpoint_design.py": "0a56145f4b97f76f17a667ff3fb8846ff8b49f00cb19fa99b6700aca864fe367",
     "src/evomolsteer/generation/endpoint_reward.py": "43b41d751f1787c10f8fd311727093ce34984f2d3f63802ab3aec52f3ba57321",
-    "src/evomolsteer/generation/endpoint_controller.py": "7e58da3857d20363166c1eb03887ce4e89ef4da12eeb5dd6c2e979b1c3a7acd1",
-    "scripts/generate_affinity_endpoint_flowr.py": "938876abad3aed3aa137597a7a4a095ca44f20f33f1c6ac4454a1d847346b7e2",
-    "tests/test_affinity_endpoint.py": "8a3d3e76e6c6bc8d39b655811750462581c7a15fefd71f36e2bb649e320b675e",
-    "src/evomolsteer/generation/scalar_guidance.py": "ece33698002824d183707e6ab415dc31c89adae9f65c2ea408a3e9198b29ef0b",
+    "src/evomolsteer/generation/endpoint_controller.py": "641d597eb103453038910ea39f3a6e747a21e357891d70f9662d3ef1c16dbbb2",
+    "src/evomolsteer/generation/endpoint_campaign.py": "7470ce7609d74c724a1ed2167d8c048f75591e83bb4be68c355f7e5713211df2",
     "src/evomolsteer/generation/affinity_geometry_reward.py": "2dfbff4d9aabde27e47fdc3cb84a054799aa6eb493d5c759d0b1cf382466669f",
+    "src/evomolsteer/generation/coordinate_contrast.py": "d01266f626cb4aebc79431efac8e1a5f6a62bc5c0736d3ecd83b767c9e9b0799",
+    "src/evomolsteer/generation/coordinate_reward.py": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
     "src/evomolsteer/generation/coordinate_controller.py": "166b7375981f9f8aec0deb99237953d4bdb6ee2d9837ef3f0d916e462e27fe85",
-    "src/evomolsteer/generation/coordinate_evaluation.py": "0cbff8f98983ce64e474a48ce0f429ca4049dd39bb2b93713f474af2ce8c6ddf",
-    "src/evomolsteer/generation/coordinate_contrast.py": "03b9a3ce04bb064202f7fe0b145a2e4d27e3a223dab9c62f65aa0b8dcb70c880",
-    "src/evomolsteer/continuous/endpoint_design.py": "0a56145f4b97f76f17a667ff3fb8846ff8b49f00cb19fa99b6700aca864fe367"
+    "src/evomolsteer/generation/coordinate_evaluation.py": "110b5aa925459044691c55bc29a8f89d4bdbd0cc17a2b4b605dd895967243349",
+    "src/evomolsteer/generation/affinity_campaign.py": "1633aeb224cb918a2270379fdd9f0056f5d31c4caeef134fa79f69ac78deb33f",
+    "src/evomolsteer/generation/affinity_reporting.py": "057f49152c016044e00fc186a7db946fca84ff56ee1d55a4b7b8bd779da6fd63",
+    "src/evomolsteer/generation/motif_campaign.py": "d31156e39c676c4009d12b4550fb821e6deefcba32a72f72242a6aa0e41bf683",
+    "src/evomolsteer/generation/terminal_statistics.py": "914b66e0ef301da2281f3070bf19977a00f84623b2762ea40211dac84928160f",
+    "src/evomolsteer/generation/scalar_guidance.py": "ece33698002824d183707e6ab415dc31c89adae9f65c2ea408a3e9198b29ef0b",
+    "src/evomolsteer/generation/window_controller.py": "4da674295feef6e5d94af7d15268f424a5a5c90ff901e91f67bc9a541bf10e9b",
+    "src/evomolsteer/generation/gradient_controller.py": "1c8a9aaa72cae8c9552727c82e2601f2928ab32af4ed962e3ca80ab6291a81e0",
+    "src/evomolsteer/generation/controller.py": "75367467d08410ba71e0c1aa8f9bab811fed4ba6dbb1387773ce79e8a0d14579",
+    "src/evomolsteer/generation/window_evaluation.py": "73787b507bb2afa6f8dc7c743e294b7a0dc2f44c338a63d24ee4ddaf3f23ebdc",
+    "src/evomolsteer/generation/zero_equivalence.py": "ade7b1fb2d1c14e61efe1c4a5aa44582a97f3e79f0e35f0a294110e1ca9b3f86",
+    "src/evomolsteer/generation/local_reward.py": "9cf5b648a97147a7193eb668f5da83d84e7f7b84b06c176052bd42b4283df274",
+    "src/evomolsteer/generation/multistage_reward.py": "fcd89e49b948f48ab50d42f480399cf35694a4d806b687e47f780887b4e78db7",
+    "scripts/generate_affinity_endpoint_flowr.py": "938876abad3aed3aa137597a7a4a095ca44f20f33f1c6ac4454a1d847346b7e2",
+    "scripts/mine_affinity_endpoint.py": "01c8d6bcdbc8ae92f4f1515042ed0b1b818b0f6794d9d597debee7be02ba2b26",
+    "scripts/resume_motif_campaign.py": "3a4df307cbddfc0376a3bb5d53be341cd2c04a75262cfeb26d91b2294471b8fe",
+    "scripts/resume_affinity_campaign.py": "688c85ac67725d5ec6f524895c05709d07ad4e673cd4a2b599440b75006f8349",
+    "scripts/dispatch_motif_round.py": "df20b3e95f611a8c6f9fffff275a399f5d9da399ab9234513adb28bc8e386f03",
+    "scripts/scnet_motif_round.sh": "0a726e1c362be87a1bf0e2a646584c4bc35b13f35d9b075aa8db265bfcaaf8e0",
+    "scripts/scnet_terminal_experiment.sh": "84e121a2ae14c00e9abf8cadde303b96d065f0c5718c488269e6cc0d08040f5c",
+    "scripts/analyze_guidance_response.py": "e48c37be297da44cf8bc94d5446918cd3841007663205a7d15a08bb83f466b78",
+    "scripts/check_terminal_round_ready.py": "cb4401adf104da31f17840ff757726f4db1bdbc61c596671507dfddc1dc263c2",
+    "scripts/preserve_terminal_reports.py": "b5e8a691a6a8cab3beeb5ede21d5aaa1d00ab7af2f0d5c7a4ebf967cf578bc42",
+    "scripts/report_affinity_campaign.py": "6290fb63caeddb91d753a8b5a1d598e6660c43cd88b429d5d4f71b978cd15471",
+    "skills/affinity-endpoint-pullback/SKILL.md": "d61ea015a77a20c78196aa895df969233e7d5d98dfa3a6e1129d5c1792f47c3e",
+    "skills/affinity-coordinate-search/SKILL.md": "1a4be652ac26a4f4c5662e0f502f9da0c88c50836bfbc027d013910001ce4de3",
+    "tests/test_affinity_endpoint.py": "8a3d3e76e6c6bc8d39b655811750462581c7a15fefd71f36e2bb649e320b675e",
+    "tests/test_endpoint_campaign.py": "0428396fc9409bfe676c950551662384f508d550e6559c7dbfc0d562e9eed804",
+    "tests/test_affinity_geometry.py": "303f327e5d3a25d0944801f37660a3c4410ee59bf08c74774be716680249882f",
+    "tests/test_affinity_campaign.py": "2128498a8ea151c3f46709be5df3773197e76acb1c5179f23a6ecc319baf78d1",
+    "tests/test_affinity_reporting.py": "b8f0d1a61f31c3fb6c03a7c7dabaa3b1ad8026eebe37745e9a9579a67a30e62c",
+    "tests/test_affinity_skill.py": "783bf810c16c81b570aa3257d0ef80c2e25723a4c70959f3423cbc9e34fb9801",
+    "tests/test_terminal_statistics.py": "8c8de4afb77debc593c92dcf5ff641dad296d37814aa53c83c182b65a830e6b2",
+    "tests/test_motif_campaign.py": "140d5f8e17ecf2091fc524028332a38cdcd03e36ebe35f05432104f578afbbef"
   },
   "runtime_reference": {
     "path": "configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz",
@@ -129,14 +163,16 @@
     "mathematical_definition": "Y_t^world = coord_scale*Y_theta(x_t,categorical_t,pocket,t,stopgrad(cond_t))+COM; g_t = J_(Yworld)(x_t)^T grad_Y R_t(Y_t;fixed correspondence).",
     "actual_implementation": "endpoint_pullback创建x_t叶节点，只调用一次predict；loss只接收坐标/冻结标签/冻结anchor，不接收affinity；autograd.grad只对x_t取梯度。返回pred/cond/head均detach，g缓存到after_native。",
     "affinity_branch": "helper和predict wrapper都把affinity.items()逐tensor detach，覆盖TensorDict非普通dict的情形；共享生成backbone的坐标导数允许，head支路不参与loss。",
-    "self_condition_and_categories": "predict开始对cond递归detach；原生当前硬类别通过argmax进入forward，不对类别求导，也不冻结后续原生类型/键采样。当前model theta.requires_grad=False。",
+    "self_condition_and_categories": "当前原生atomics/bonds/charges等状态按原值进入forward；cond递归detach，奖励中预测类别argmax后detach。只对坐标叶节点求导，不对类别/键概率求导；后续原生类别/键采样仍可变化。model参数requires_grad=False。",
     "lagged_application": "g精确对应积分前x_t，随后在原生proposal x_(t+dt)上加有界delta。这是滞后注入；既非在proposal处重算的端点VJP，也没有穿过native SDE积分器/分类采样的梯度。",
     "temporal_support": "动态window来自reference，active条件要求score>=start且state_time<=end；此数据最后.49→.50控制，.50之后native续推。没有SMC入口。",
     "fixed_assignment": "pointcloud的teacher邻居/Hungarian对应/score先验由当次detached端点选定；coordinate derivative及FD两側固定该anchor。piecewise条件梯度不包含选择跳变。",
     "scale": "world坐标在reward前乘coord_scale加COM，输入叶节点为native坐标；VJP自然包含scale链式因子，注入用native dtype和Å caps。",
     "reward_semantics": "endpoint_reward映射三个既有公式到端点几何；pointcloud只使用teacher_endpoint_A作为目标，内部alias不意味着控制proposal统计。",
     "response_logging": "当前代码仅记录R(Y_t)、first_order_reward_change=g_used·actual。没有post-native endpoint重新forward，不能把该估计描述为实测reward_after或head改变。",
-    "graphical_history": "VJP完成后图释放、返回脱图cond，下一步不反传历史；全局输入坐标支持不等于局部受体区域控制。"
+    "graphical_history": "VJP完成后图释放、返回脱图cond，下一步不反传历史；全局输入坐标支持不等于局部受体区域控制。",
+    "runtime_audit": "每次predict统计closure调用数，扣除单独记录的FD审计forward后断言生产调用恰为1；原affinity输出若requires_grad则挂拒绝hook，随后逐tensor detach。trace保留生产/audit次数与head隔断标记，coordinate_evaluation逐步核查。源码机制通过审阅，实际GPU字段尚待生成。",
+    "spatial_scope": "74维几何包含全分子shape/pair和固定受体landmark场；本分支并非仅ASN117/VAL116局部原子控制，不能用局部区域发现来宣称空间力已局限该区域。"
   },
   "production_and_audit_cost": {
     "native_target_forward_per_integration_step": 1,
@@ -146,7 +182,9 @@
     "one_time_preflight_extra_target_forwards": 4,
     "preflight_note": "两个epsilon(.003,.01)各±一侧，共4次；属于独立审计开销，额外head作为该forward输出也会被计算但不反传。原生off-target诊断与final corrector仍按原协议另计。",
     "RNG_control": "当前FD已在每次±epsilon前恢复同一saved RNG，最终恢复审计前RNG。假定model.eval前向确定性；若未来目标forward本身消耗RNG，则需同时保存原forward前的RNG以匹配其解析导数的同一随机实现。",
-    "resource_limit": "反向需要保留activation，显存/耗时未在真实GPU测量；不能把0额外forward解读为0额外计算。"
+    "resource_limit": "反向需要保留activation，显存/耗时未在真实GPU测量；不能把0额外forward解读为0额外计算。",
+    "runtime_call_counter_implemented": true,
+    "runtime_call_counter_observed_on_FLOWR": false
   },
   "tests": {
     "pytest": {
@@ -458,7 +496,88 @@
     },
     "actual_FLOWR_VJP_preflight_run": false,
     "actual_FLOWR_full_zero_equivalence_run": false,
-    "molecule_generation_run": false
+    "molecule_generation_run": false,
+    "integration_targeted_pytest": {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_affinity_endpoint.py tests/test_endpoint_campaign.py tests/test_affinity_campaign.py tests/test_affinity_reporting.py tests/test_terminal_statistics.py tests/test_motif_campaign.py tests/test_affinity_skill.py -q -p no:cacheprovider",
+      "passed": 25,
+      "elapsed_seconds": 8.78,
+      "scope": "本审阅实际执行的CPU模块测试，非FLOWR推理。随后仅driver恢复分支增加；该新分支另做纯内存测试。"
+    },
+    "earlier_integration_subset": {
+      "passed": 23,
+      "elapsed_seconds": 6.92,
+      "files": [
+        "test_affinity_endpoint.py",
+        "test_endpoint_campaign.py",
+        "test_affinity_geometry.py",
+        "test_affinity_campaign.py",
+        "test_affinity_reporting.py"
+      ],
+      "scope": "最终runtime计数补丁前执行，保留顺序范围，不冒充最终完整源码的219项全测。"
+    },
+    "full_suite_parent_report": {
+      "passed": 219,
+      "independently_rerun_by_this_reviewer": false,
+      "scope": "根代理报告的全套结果；本审阅独立测试是上述25项及以下纯内存合同检查。"
+    },
+    "literal_design_binding": {
+      "behavior_audit_passed": true,
+      "compiler_vs_saved_baseline_effective_differences": {},
+      "update_program_vs_saved_baseline_effective_differences": {},
+      "family": "endpoint_direction",
+      "eta": 0.3,
+      "geometry_block_weights": [
+        0,
+        1,
+        2,
+        1
+      ],
+      "window": [
+        0,
+        0.5
+      ],
+      "dose_reference": "predictive_flow",
+      "note": "按磁盘literal response重新audit及compile，未修改原始响应或compiled baseline；driver同时绑定两者字节SHA。"
+    },
+    "in_memory_evaluator": {
+      "scope": "实际endpoint参考+合成轨迹的纯内存CPU评价；没有真实模型或文件写入",
+      "rows": 50,
+      "score_range": [
+        0,
+        0.49
+      ],
+      "actual_proposal_support_last": 0.5,
+      "monitored_view": "predicted",
+      "proposal_sentinel_999_excluded": true,
+      "matches_direct_endpoint_reward": true,
+      "valid_production_call_count_accepted": 100,
+      "bad_production_call_count_rejected": true,
+      "bad_affinity_detach_flag_rejected": true
+    },
+    "frozen_policy": {
+      "scope": "纯内存程序策略检查，非未来运行结果",
+      "endpoint_family_round_cases": 12,
+      "rounds": [
+        27,
+        28,
+        29,
+        30
+      ],
+      "families": [
+        "endpoint_direction",
+        "endpoint_landmark",
+        "endpoint_pointcloud"
+      ],
+      "effective_program_unchanged": true,
+      "historical_R1_R4_update_identity": true,
+      "extreme_new_validation_score_did_not_reselect": true
+    },
+    "two_phase_recovery": {
+      "scope": "实际driver.run、假本地状态、mock finish；未连接SSH",
+      "completed_round26_missing_frozen_winner_recovered": true,
+      "inference_not_called": true,
+      "frozen_identity_not_rewritten": true
+    }
   },
   "verified_fixes": [
     "FD各±epsilon恢复共同RNG并在finally恢复审计前状态。",
@@ -466,27 +585,12 @@
     "纯几何scalar要求shape=(batch,)且finite，VJP要求finite。",
     "端点运行库teacher与原始geometry库逐值一致；没有复制proposal云作为端点目标。",
     "current reference/原统计表与第一轮运行家族均未被本审阅修改。",
-    "New endpoint.describe dose_rule default now matches predictive_flow execution."
+    "New endpoint.describe dose_rule default now matches predictive_flow execution.",
+    "端点工厂/独立远端入口/预测端点评价已集成。",
+    "逐步生产forward计数和affinity拒绝hook已实现并由评价读取。",
+    "缺失物理数据保留None及summary NA；两阶段outcome恢复不重复推理。"
   ],
-  "integration_blockers": [
-    {
-      "id": "factory_registration_pending",
-      "status": "intentional_pending_round4_boundary",
-      "evidence": "coordinate_contrast.make_coordinate_reward当前不接受endpoint_*；新入口可直接创建EndpointGeometryReward，但公共评价工厂尚未注册。",
-      "required": "R4冻结边界之后注册新family并更新依赖源码hash/接口审阅，不把旧family过检哈希替换为未经复核的新状态。"
-    },
-    {
-      "id": "evaluation_representation_and_window_pending",
-      "status": "intentional_pending_round4_boundary",
-      "evidence": "coordinate_evaluation目前只对affinity-coordinate schema按state_time<=end裁剪，并按control_representation读取proposal。新endpoint库该字段仍为proposal（时间对齐约定），不能直接沿用。",
-      "required": "新schema评价读取predicted_coords，以对应proposal state_time筛选50节点；显式标出reward表示/derivative_path/gradient_evaluation_time。独立actual-shape指标仍使用真实proposal，二者分开。"
-    },
-    {
-      "id": "dispatch_and_profile_pending",
-      "status": "not_enabled",
-      "required": "独立入口编入本地计划/远端命令选择、部署哈希与新Skill v2行为验证后再启用。首4轮继续原冻结程序。"
-    }
-  ],
+  "integration_blockers": [],
   "reporting_issue": {
     "id": "default_dose_description_mismatch",
     "severity": "metadata_contract",
@@ -497,17 +601,17 @@
     "resolution": "Endpoint.describe now explicitly uses predictive_flow when the field is absent, matching after_native. Verified the current new source; old frozen sources remain unchanged."
   },
   "activation_validation_required": [
-    "新入口的三臂unguided / 真实VJP但eta0 / gradient；相同初态、seed和native RNG。",
-    "100积分步与final的坐标、atom/bond/charge、self-conditioning和RNG严格等价；记录可能的autograd/no_grad内核差异。不能直接沿用旧family零证书。",
-    "真实FLOWR FD需固定cond/类别/teacher对应，报告额外4 forward、单位、不同epsilon、正方向和误差。输出断言不能替代实际通过结果。",
-    "单次生产target forward计数与head支路梯度排除做运行时审计；model参数不得累积.grad。",
-    "若启用非默认刚体投影，追加对实际投影方向的条件FD或方向检查；当前初始家族未声称该可选变体已单独验证。",
-    "评价采用端点统计、实际proposal结构、终态head三个独立轴；不能用一阶预测响应替代实测终态收益。"
+    "第5轮三臂相同实际初态和原生RNG；完整100步记录的current/proposal/predicted坐标、类别/键/电荷、mask、head及final科学张量严格字节相等方能通过zero。",
+    "cond/RNG内部状态未直接导出和逐字节比较；当前依赖detach/RNG恢复源码约束及完整记录轨迹等价，不宣称获得内部状态字节证书。出现zero差异时先定位，不能跳过门槛。",
+    "真实FLOWR首次有效VJP需通过两epsilon固定cond/类别/anchor FD，额外4个joint target forward独立计数；未执行前GPU验证保持false。",
+    "每积分步生产target forward计数应为1；首次审计4次另列，head拒绝hook不得触发。此计数不包括原生off-target诊断与final corrector。",
+    "报告actual proposal shape、预测endpoint几何、终态head三条独立证据线；first_order_reward_change只是一阶估计，不能标作实测post-native endpoint reward。",
+    "显存/耗时、autograd/no_grad内核等价及未来不同family的完整行为须以真实运行证据评估；没有额外forward不等于没有额外backward成本。"
   ],
-  "final_judgment": "数学分支合理，统计与CPU链式导数测试支持继续完成预定集成和真实校验；当前execution_ready=false源于可明确定位的集成待办。未发现需要改动首4轮冻结程序的理由，未声称任何尚未运行的亲和力收益。",
+  "final_judgment": "execution_ready=true：按当前哈希快照可启动第5轮真实GPU数值/zero校验，未发现重大未解决执行缺陷。actual_gpu_validation_passed=false；真实FLOWR FD、完整zero、运行计数和亲和力效应均待本轮报告。保留观测关联、滞后注入与开发集选优的限制。",
   "compiler_review": {
     "source": "src/evomolsteer/continuous/endpoint_design.py",
-    "status": "Data-only compiler unit test passed; dispatch integration pending",
+    "status": "Literal response audit, recompilation and freeze-update equality passed; registered execution/evaluation/driver profile now integrated.",
     "verified": [
       "Registered endpoint family and real-VJP derivative path only",
       "Dynamic window equality with endpoint evidence",
@@ -517,9 +621,57 @@
       "Predictive-flow calibration, no rigid-pose projection, .15 A atom cap /6 A path cap /.8 A severe receptor clash threshold match current campaign constraints"
     ],
     "limitations": [
-      "The compiler binding alone does not add public factory/endpoint evaluation support.",
-      "For endpoint_pointcloud, geometric block weights remain monitoring-only.",
-      "Source/unit checks do not validate real GPU Jacobian, strict zero equivalence, model-call counters or affinity benefit."
+      "Compiler and source review authorize GPU validation only; actual FLOWR VJP, full zero equivalence and production counters remain unobserved.",
+      "endpoint_pointcloud的geometry_block_weights仅为诊断，不是点云力的权重。",
+      "driver binds current literal response and compiled baseline bytes; this audit independently verified their effective equality at the hashed snapshot."
     ]
-  }
+  },
+  "reviewed_commit": "d360a8fb6cd115d43f152db5f01033f3ce3f5cf3",
+  "actual_gpu_validation_passed": false,
+  "reviewed_artifact_hashes": {
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test/input.json": "a2f0e10d179e7b8ccd2bdb669a6dbb85c5edbb7718a8abbca3d276d8f3180a26",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test/prompt.txt": "da59c4fae06c5b108aa8d00ba688b03ea516573a6516f16cece7eaead2f861b0",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test/response.json": "cf5a2073b8e6c462c9107cad7823ee3e669cd0d76a3257ee186666c651c9c51d",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test/compiled_design.json": "89764f2815c468d59eb1e410ee958e1d9f9a827c4edd6f28604f8aa473d6c95d",
+    "docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test/behavior_audit.json": "2b6f14db2728e7a43b13d8c7eb1e30726ced98774ef59381bd798e87b21e2270"
+  },
+  "resolved_integration_issues": [
+    {
+      "id": "factory_registration_pending",
+      "status": "resolved",
+      "evidence": "make_coordinate_reward注册endpoint_*并创建EndpointGeometryReward；公共factory测试通过。"
+    },
+    {
+      "id": "evaluation_representation_and_window_pending",
+      "status": "resolved",
+      "evidence": "endpoint schema读取predicted_coords，按对应actual proposal state_time<=window_end筛选。合成轨迹确认0..0.49共50节点且最后proposal支持=.5；实际shape仍由独立window评价。"
+    },
+    {
+      "id": "dispatch_and_profile_pending",
+      "status": "resolved",
+      "evidence": "scnet按derivative_path选择独立generate_affinity_endpoint_flowr入口；driver --endpoint-profile第5轮literal compiled设计/三臂，后续endpoint策略及全局亲和力赢家保留。"
+    },
+    {
+      "id": "two_phase_outcome_recovery",
+      "status": "resolved",
+      "evidence": "completed但reward_view缺失或R26 frozen_winner缺失时，driver回放本地finish补齐元数据，不重新launch；纯内存恢复检查通过。"
+    }
+  ],
+  "integration_review": {
+    "dispatch": "远端仅推理、无损轨迹及终态模型重评分导出；科学评价/选优/记录由本地driver完成。SMC入口禁止，master seed42，学习窗口后native续推至1。",
+    "round5": "独立新family的unguided/gradient_zero/gradient各100、batch0/1；full zero或FD失败使record()拒绝推进，不借用旧family证书。",
+    "round6_to26": "注册自适应策略以开发集反馈更换端点目标/剂量；同时保留R1..26所有合格程序中的全局affinity候选。多个分支可能同时更改family和dose，不能事后描述为纯单因素因果实验。",
+    "round27_to30": "R26一次选定frozen_winner；R27 validation、R28..30 heldout只恢复该程序。R27含新zero；batch20..27均按master42派生，属于新批次而非新主seed/新靶点。纯内存检查确认有效参数不变。",
+    "selection": "主要按完整尝试集预测head均值变化，valid下降不超过10个百分点、head覆盖>=99%；第17轮以后仅在最佳增益>=.05时对距其<=.01的近邻候选按应变中位数/p90次级选择。该规则是预先工程决策，不是最优性证明。",
+    "energy_and_missing": "MMFF中位数/p90采用converged且finite；不存在可用物理记录时保留None，缺失物理轴不进入完整Pareto，仍保留失败报告。affinity次级能量处理None，summary缺失best/Top5显示NA。surround_RMS均值口径与MMFF覆盖不同。",
+    "final_reporting": "all-attempt配对head按batch/seed/slot一对一匹配；推断单位是批次。validation/heldout/合并冻结结果分别保存，历史Steer100为不等预算未配对基准，不能当严格匹配留出组。"
+  },
+  "nonblocking_limitations": [
+    "47/74关联q<.05是共同latent上的同期观测，非坐标变化提升真实亲和力的因果证据；克隆/teacher/时间点不能扩充独立n。",
+    "65/74函数degree0；14特征触及尺度floor。保留每节点经验方向是探索性建模，不能制造阶段机制；极小尺度和线性方向目标可能诱发离分布几何。",
+    "梯度在积分前x_t求值，原生SDE/分类更新后才注入，存在滞后；未穿过积分器或离散采样，也不保证有限步reward或head单调。",
+    "端点teacher选择/匹配/prior保持条件固定，仅给出分段条件梯度；prior来自已记录分数而非当步head求导。",
+    "第5轮比较同时改变表示/导数/参考目标且受控剂量标尺可能不同；收益不能单独归因于VJP，也不能证明LLM优于确定性基线。",
+    "已运行首4轮仅属重复开发批次适配；未来冻结批次结果未出，不能预判亲和力提升。"
+  ]
 }

@@ -1,37 +1,24 @@
-# 端点几何真实VJP：独立执行审阅
+# 端点坐标 VJP 集成审阅（2026-10-07）
 
-2026-10-07；已授权 Analyst/Designer subagent simulation。
+身份：已授权 Analyst/Designer subagent simulation。审阅提交 `d360a8fb6cd115d43f152db5f01033f3ce3f5cf3`；逐文件 SHA256 见同名 JSON（45 个源码/Skill/测试文件）。本审阅仅更新这两个文件。
 
-**execution_ready = false；单体数学检查通过。** 新端点入口尚未集成公共工厂、端点评价和dispatch。本结论不修改旧geometry审阅，也不改变正在执行的首4轮。当前源哈希与逐项待办见JSON。
+**execution_ready=true：可启动第5轮真实 GPU 校验。actual_gpu_validation_passed=false：尚未运行本分支真实 FLOWR FD、100步零剂量等价或效果实验。** CPU合同与数值测试不等同于FLOWR验证。
 
-## 已验证
+数学路径为 `g=J_Y(x_t)^T ∇_Y R_t(Y)`，reward只读取端点几何，原生affinity输出detach且挂拒绝反传hook。cond及teacher匹配/prior固定；坐标VJP在积分前求值，原生SDE/类别更新后才注入，存在步内滞后，不保证有限步几何reward或head上升。生产目标forward每步计数1；首次FD额外4次单列。反向仍增加显存与计算成本。
 
-- 同14发现批次、同50实际节点、同74特征，端点47项q<.05，最小1.49366e-5。effect/p/q/CI独立重算误差≤1.7e-15；这是联合latent标签的观察关联，不能宣称亲和力因果优势。
-- 12项测试通过。真实teacher几何配合**非线性toy端点映射**的24组接口检查全部通过，FD最大相对误差double 4.166e-9、float32 3.967e-4。
-- 每例生产predict只调用一次；head hook未被反传；pred/cond/head均脱图；零剂量步严格为0且dtype保持。这不是实际FLOWR/GPU证明。
-- 当前唯一运行参考：`configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz`；SHA256 `d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c`，2,294,648字节。所有teacher endpoint、score、batch与原库逐值一致；统计表保持原值。
+集成与实际本地检查：
 
-## 梯度和时序合同
+- 公共工厂及独立 `affinity_endpoint` 远端模式已注册；动态窗口来自参考，无SMC。最后受控更新 `.49→.50`，其后native到1。
+- literal Agent响应重新audit、compile，并经freeze使用的update函数后，有效参数与保存的compiled baseline完全一致：endpoint_direction、η=.3、块权重[0,1,2,1]、predictive_flow。driver同时记录原响应和编译基线SHA。
+- 纯内存评价用真实参考加合成轨迹，确认读取predicted而非proposal，50点评分0–.49，对应proposal支持至.5；错误forward数及detach标记被拒绝。
+- 25项针对性pytest通过；此前另23项子集通过。根代理报告全套219通过，本审阅未重跑全套，未混淆其来源。
+- 12例冻结策略检查覆盖3种endpoint family×R27–30，有效参数不变；注入夸大的后验validation分数也不重选赢家。历史R1–4程序经update仍逐字段不变。
+- driver两阶段完成状态恢复已修复；纯内存测试确认R26缺frozen_winner会补本地元数据，未调用推理。
 
-`g_t=J_{Yworld}(x_t;fixed cond,categories,pocket)^T ∇_Y R_t(Y_t)`。输入叶节点为native坐标，reward前的scale/COM转换进入正确链式法则；affinity字段逐tensor detach且不传入loss。原生生成backbone的坐标梯度并非affinity-head梯度。
+第5轮三臂将重新做完整zero。`record()`在zero失败、FD失败、SMC或窗外注入时拒绝推进。zero覆盖逐步记录科学张量及final；cond/RNG内部状态未直接保存比较，不得宣称内部状态已有字节证书。运行时forward计数和head隔断字段已经实现，但尚无真实GPU观测值。
 
-新实现一次已有target forward后计算VJP并释放图，再将detached预测交给native积分器。随后对proposal注入有界g：这是**积分前的真实VJP、积分后的滞后注入**，不保证proposal处reward单调，也不含native SDE或类别转移的梯度。
+R6–26为注册策略在开发批次上探索，同时保留全局affinity候选；R26选一次赢家，R27–30固定。主目标为完整尝试集预测head均值，近邻候选的应变指标仅在预声明条件下作次级选择；失败分母保留。MMFF中位数和p90只纳入converged且finite，缺失物理值保持None；surround RMS有独立覆盖口径。最终统计以批次为单位，历史Steer100是不等预算未配对基准。
 
-日志只记录旧端点reward及 `g·actual` 一阶估计；没有额外post-native forward，不能声称实测reward_after。动态窗口要求对应state<=.5，最后.49→.50；之后native到1。
+端点发现集47/74项q<.05，最小1.49e-5，但head来自共享latent，属于同期关联。65/74拟合degree0，14项触及尺度floor；不能据此声称独立优势机制。新奖励不是局限ASN117/VAL116的局部力，包含全分子shape/pair及受体landmark场；预测端点拟合、actual proposal构象和终态head必须分别报告。
 
-## 调用与数值审计
-
-生产每步保留原有target forward，加一次坐标backward，无额外生产模型/head调用；原有untarget诊断与final corrector另计。一次FD审计用2个epsilon、4次额外forward，单独记录。当前实现已在每个±epsilon前恢复共同RNG，并在末尾恢复审计前状态。
-
-TensorDict affinity脱图和scalar shape/finite检查已修正。若未来前向本身有随机性，还需保存原forward前的RNG以复现解析导数所对应的同一随机实现；当前运行model.eval。
-
-## 尚待完成
-
-1. 公共factory目前不识别endpoint_*，须在R4边界按计划集成。
-2. 新endpoint schema的评价必须读predicted_coords，以proposal state_time筛选50节点；当前control_representation='proposal'仅表达时间对齐，不能据此读proposal并冒充端点reward。真实proposal shape独立评价。
-3. dispatch、部署来源与新Skill v2行为校验尚未启用。
-4. 需完成真实FLOWR FD和100步+final的native/计算VJP但η0严格等价。启用autograd可能改变内核，旧家族零对照不能替代。
-
-元数据缺省差异已修复：新describe现与after_native一致，默认predictive_flow。新增数据式编译器通过动态window绑定测试，并保留当前campaign的剂量caps；工厂/评价/dispatch仍需另外集成。
-
-当前没有亲和力效果结论。新分支具备合理数学基础，但激活之前必须补齐上述集成与真实执行验证；不能以47项统计显著替代这些检查。
+当前没有重大执行阻断。第5轮仍需实测FLOWR FD、完整zero、调用计数、显存与耗时。不能预判亲和力收益，也不能把新分支的多项改变单独归因于VJP或LLM。
