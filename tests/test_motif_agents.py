@@ -31,3 +31,10 @@ def test_contrast_requires_declared_bound_and_no_arbitrary_code():
     with pytest.raises(ValueError):validate(d,DESIGNER,bundle())
     assert validate({**d,'contrast_bound_nats':2.},DESIGNER,bundle())
     with pytest.raises(ValidationError):validate({**d,'contrast_bound_nats':2.,'python':'arbitrary execution'},DESIGNER,bundle())
+
+
+def test_boundary_target_requires_actual_boundary_evidence():
+    d={**design(),'target_definition':'boundary_survival'};b=bundle()
+    with pytest.raises(ValueError,match='boundary evidence'):validate(d,DESIGNER,b)
+    b['boundary_evidence']={'target':'Measured actual boundary ancestry'}
+    assert validate(d,DESIGNER,b)

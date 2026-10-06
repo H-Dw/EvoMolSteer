@@ -64,6 +64,24 @@
         "round_02": "e0fbbd31f11fcc03a0da1d802d39fa795a908445063c029670be6bae97d1e987",
         "round_03": "ec38769bfb0ca66a561230a9925e037c067632edfd5b58968179e45dab734ee9"
       }
+    },
+    {
+      "fix": "Use only actual in-window proposal-state events for scale quadrature; .51 has no weight or scale influence in corrected survival reference. R1-8 original references remain frozen.",
+      "reference_changes": [
+        {
+          "corrected_sha256": "02bd7a4e31791454c91de606cd23e4f8718a782b3af2999e139df82f60153a3f",
+          "previous_sha256": "0e9d25467a19c7d9bf1a0c64de05f8d4f9fae3e25b8cd3f6a77a1a7a3261f69e",
+          "reference": "configs\\experiments\\ck2_motif_seed42_v1\\survival_all_reference.json.gz"
+        },
+        {
+          "corrected_sha256": "fc6a771b6f409c76f16d38fd9ac2402cbeb951540cfe5f97f34a6d2410d673f9",
+          "previous_sha256": "30f2db3a66bbef76a011fa642ae31c2c9fb2926d720eb925fc8f3642c12d89ce",
+          "reference": "configs\\experiments\\ck2_motif_seed42_v1\\survival_cross_reference.json.gz"
+        }
+      ],
+      "revision": "Exclude outside-state variance from survival reference normalization",
+      "tests": "Synthetic outside-variance reference test plus ancestry conservation and existing gradient tests pass",
+      "trigger": "Subagent found .51 background variance entered 51-node scale and covariance ridge prevents exact cancellation"
     }
   ],
   "schema_version": "reward-design-ledger-1.0"

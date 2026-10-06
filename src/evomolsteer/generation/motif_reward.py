@@ -18,7 +18,7 @@ def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous
     if m['feature_family']!='motif' or m['control_representation']!='proposal' or m['spatial_anchor']!='endpoint':raise ValueError('Matched motif evidence required')
     if not channels or set(channels)-{'all','NOS','NOS_C'}:raise ValueError('Unknown motif channels')
     if target not in ('instantaneous','boundary_survival'):raise ValueError('Unknown lineage target')
-    source=root/'results'/campaign;cfg=read_json(source/'config.json');frames={};sources=[]
+    source=root/'results'/campaign;cfg=read_json(source/'config.json');frames={};sources=[];scale_grid=None
     for b in m['splits']['discovery']:
         path=source/'single'/f'batch_{b:03d}'/'trajectory.h5'
         com=np.asarray(read_json(source/f'frame_batch_{b:03d}.json')['target_com'])[:,None]
@@ -31,6 +31,9 @@ def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous
                 # proposal of the last scored .5 event or a terminal t=1 label.
                 inside,copies=boundary_descendants(z.read('resampled'),z.read('state_time'),z.read('selected_indices'),m['window'])
                 survival={int(i):copies[k] for k,i in enumerate(inside)}
+                eligible=times[inside].tolist()
+                if scale_grid is None:scale_grid=eligible
+                if scale_grid!=eligible:raise ValueError('Unequal actual-boundary scale grids')
             for i in np.flatnonzero(z.read('resampled')):
                 t=float(times[i]);x=z.read('proposal_coords',int(i)).astype(float)*cfg['coord_scale']+com
                 anchor=z.read('predicted_coords',int(i)).astype(float)*cfg['coord_scale']+com
@@ -44,7 +47,8 @@ def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous
     times=sorted(frames)
     if times!=m['times']:raise ValueError('Incomplete learned time grid')
     if any([b for b,*_ in frames[t]]!=m['splits']['discovery'] for t in times):raise ValueError('Missing discovery batch')
-    scale=np.sqrt(time_weights(times)@np.asarray([np.mean([v.var(0) for _,v,_,_ in frames[t]],axis=0) for t in times]))
+    scale_times=times if scale_grid is None else scale_grid
+    scale=np.sqrt(time_weights(scale_times)@np.asarray([np.mean([v.var(0) for _,v,_,_ in frames[t]],axis=0) for t in scale_times]))
     if (scale<=1e-12).any() or not np.isfinite(scale).all():raise ValueError('Unestimable motif scale')
     measured=[]
     for t in times:
@@ -64,9 +68,10 @@ def build(dataset,campaign,mining,output,channels=('all',),target='instantaneous
         'features':[n.replace('::motif_','::proposal_motif_') for n in names],
         'feature_scale':scale.tolist(),'feature_unit':'mixed: centroid A; kernel densities dimensionless',
         'scale_definition':'fixed whole-window trapezoid mean of equal-batch unweighted within-candidate variance',
+        'scale_score_times':scale_times,
         'batches':m['splits']['discovery'],'sources':sources,'source_manifest_sha256':digest(mining/'manifest.json'),
         'target_definition':target,'target_weight_semantics':'Equal discovery batch; normalized same-event selection probability' if target=='instantaneous' else
-            'Equal discovery batch; exact descendant counts projected back through actual selection edges whose proposal state is <= learned end. Last outside-state context frame is unweighted and never injected.',
+            'Equal discovery batch; exact descendant counts projected back through actual selection edges whose proposal state is <= learned end. Outside-state context frame is excluded from scale estimation, unweighted and never injected.',
         'required_input_sha256':{name:digest(root/'inputs'/name) for name in INPUT_FILES},
         'limitations':['Associational selection imitation, not verified causal affinity features',
                        'Shell/pair kernels are geometry proxies, not PLIP chemically validated contacts or MMFF energies',

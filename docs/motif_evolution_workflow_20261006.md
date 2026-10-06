@@ -87,6 +87,12 @@ compiles a configuration into registered torch formulas, never runs arbitrary
 LLM Python. API transport uses the existing EVOMOLSTEER_BASE_URL/MODEL/API_KEY
 variables and strict JSON responses. Subagent simulation follows the same
 export/import/compile path without making a billed HTTP call.
+Optional `--boundary` attaches compact actual-boundary evidence, its separate
+whole-curve/integrated test counts and fitted effect/rate intervals. Designer
+declares `target_definition` as instantaneous or boundary_survival; compilation
+rejects a reference with a different lineage target. A boundary design requires
+measured boundary evidence. The additional request is about 359 KB, with source
+hashes and no per-candidate structures.
 
 ## Reward and dose
 

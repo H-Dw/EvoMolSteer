@@ -77,7 +77,11 @@ class MotifDriver(Driver):
             derivation={'plan':plan,'evidence':'docs/experiments/ck2_motif_seed42_20261006/mining',
                         'source_manifest_sha256':digest(self.evidence/'mining/manifest.json')},
             topology_policy='Free native graph transitions; no pair-distance acceptance or graph equality veto')
+        from evomolsteer.generation.window_reference import load_reference
+        p['target_definition']=load_reference(reference).get('target_definition','instantaneous')
         p['agent_review_sha256']=digest(self.evidence/'agent_review/Analyst_Designer.final_review.v3.json')
+        boundary_review=self.evidence/'agent_review/Analyst_Designer.boundary_review.json'
+        if p['target_definition']=='boundary_survival' and boundary_review.exists():p['boundary_agent_review_sha256']=digest(boundary_review)
         arms=['gradient'];batches=[0,1];n=100;split='discovery'
         if number==1:arms=['unguided','gradient_zero','gradient']
         if number==13:arms=['unguided','gradient_zero','gradient'];batches=[14,15];split='validation'
@@ -134,7 +138,15 @@ class MotifDriver(Driver):
                 if not self.complete_json(out/f):self.py(number,name,script,*args)
             self.py(number,'retain','preserve_terminal_reports.py','--results',out,'--dataset',dataset,'--campaign',label,'--output',local)
         validate_retention(local,r['n_per_arm']*len(r['arms']))
-        if outcome.exists():result=read_json(outcome)
+        if outcome.exists():
+            result=read_json(outcome)
+            if result['round']!=number or result['parent_round']!=r['parent_round'] or result['split']!=r['split']:raise ValueError('Retained outcome/plan mismatch')
+            # A crash can occur after the outcome is saved but before counters.
+            # Report retention was validated above; repair only that final state.
+            c=read_json(self.campaign)
+            if c['rounds_completed']<number:
+                if c['rounds_started']!=number or c['rounds'][-1]['round']!=number:raise ValueError('Nonsequential recovery')
+                c['rounds'][-1]['status']='completed';c['rounds_completed']=number;write_json(self.campaign,c)
         else:result=record(self.campaign,self.evidence,number)
         self.event('result_retained',round=number,head_change=result['all_head_change_vs_native'],shape_improvement=result['shape_improvement_fraction'],MMFF_p90=result['MMFF_p90'])
         self.cleanup_local(number,label);return result
