@@ -10,7 +10,17 @@ from scipy.special import logsumexp
 def regional_observables(current, endpoint, proposal, atoms, mask, catalog, t, dt,
                          spatial_width_A=4.0,spatial_anchor='current',include_proposal=False,feature_family='geometry'):
     if not (0<=t<1 and dt>0 and spatial_width_A>0):raise ValueError('Invalid transport domain or spatial width')
-    if feature_family not in ('geometry','transport','joint','shape','composition'):raise ValueError('Unknown feature family')
+    if feature_family not in ('geometry','transport','joint','shape','composition','motif'):raise ValueError('Unknown feature family')
+    if feature_family=='motif':
+        if spatial_anchor!='endpoint':raise ValueError('Motif evidence requires explicit forecast membership')
+        from .spatial_motifs import numpy_motifs
+        values,names,meta=numpy_motifs(current,atoms,mask,catalog,endpoint,spatial_width_A)
+        if include_proposal:
+            p,pnames,pm=numpy_motifs(proposal,atoms,mask,catalog,endpoint,spatial_width_A)
+            renamed={n:n.replace('::motif_', '::proposal_motif_') for n in pnames}
+            values=np.column_stack([values,p]);names+=list(renamed.values())
+            meta.update({renamed[n]:{**v,'representation':'proposal; fixed endpoint membership and labels'} for n,v in pm.items()})
+        return values,names,meta
     names, columns, metadata = [], [], {}
     mask = np.asarray(mask, bool)
     if feature_family=='composition':

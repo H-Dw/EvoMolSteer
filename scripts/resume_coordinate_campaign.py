@@ -23,10 +23,10 @@ from evomolsteer.generation.coordinate_campaign_report import summarize
 class Driver:
     def __init__(self,args):
         self.args=args;self.root=Path(args.repo).resolve();os.chdir(self.root)
-        self.cfg=self.root/'configs/experiments/ck2_coordinate_seed42_v1'
+        self.cfg=self.root/getattr(args,'config_root','configs/experiments/ck2_coordinate_seed42_v1')
         self.campaign=self.cfg/'campaign.json'
-        self.evidence=self.root/'docs/experiments/ck2_coordinate_seed42_20261006'
-        self.state=self.root/'test/coordinate_campaign_driver';self.state.mkdir(parents=True,exist_ok=True)
+        self.evidence=self.root/getattr(args,'evidence_root','docs/experiments/ck2_coordinate_seed42_20261006')
+        self.state=self.root/getattr(args,'state_root','test/coordinate_campaign_driver');self.state.mkdir(parents=True,exist_ok=True)
         self.lock=(self.state/'driver.lock').open('a+b');self.lock.seek(0)
         if self.lock.read(1)==b'':self.lock.write(b'0');self.lock.flush()
         self.lock.seek(0)
@@ -44,7 +44,9 @@ class Driver:
         password=os.environ.get('EVOMOLSTEER_SSH_PASSWORD') or getpass.getpass('SSH password: ')
         self.ssh.connect(args.host,port=args.port,username=args.user,password=password,
             timeout=25,auth_timeout=25,banner_timeout=25,look_for_keys=False,allow_agent=False)
-        self.ssh.get_transport().set_keepalive(30);password=None
+        self.ssh.get_transport().set_keepalive(30)
+        if getattr(args,'memory_reconnect',False):self._connection_secret=password
+        password=None
         self.event('connected')
 
     def event(self,stage,**data):

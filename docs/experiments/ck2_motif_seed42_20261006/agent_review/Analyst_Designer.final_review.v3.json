@@ -1,0 +1,403 @@
+{
+  "schema_version": "motif-final-review-v3-1.0",
+  "identity": {
+    "role": [
+      "Analyst",
+      "Designer"
+    ],
+    "execution_mode": "subagent simulation",
+    "date": "2026-10-06",
+    "work_done": "local read-only verification; only this independent review file created"
+  },
+  "scope": {
+    "dataset": "results/spatial_motif_discovery_v3",
+    "split": "discovery",
+    "batches": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "window": [
+      0,
+      0.5
+    ],
+    "score_nodes": 51,
+    "features": 108,
+    "heldout_used_for_design": false,
+    "old_review_modified": false,
+    "new_inference_started": false
+  },
+  "decision": {
+    "status": "continue_explicit_exploratory_ablations",
+    "conclusion": "v3 修复了根内相关未汇总和描述性核曲线越界两个已识别问题。joint/pair/shell/contrast 仍是预声明探索性表征比较，不是已证明的 affinity 优势机制。",
+    "scientific_claim": "统计反证仍在：调整后 lag、根均衡选择偏移与根内同期相关均未通过 q<.05；这不证明奖励无效，也不支持固定坐标方向或氢键/物理能量解释。",
+    "contrast_qualification": "当前 contrast 的饱和 gate 未控制弱对比幅度；允许作为明确记录该风险的探索，但不得宣称弱信号放大已解决。若试验合同要求保留微弱统计幅度，需在该臂启动前冻结相应处理与匹配对照。"
+  },
+  "fixes_verified": [
+    {
+      "id": "V3_ROOT_COVERAGE",
+      "status": "verified",
+      "source": "src/evomolsteer/continuous/coordinate_mining.py:228",
+      "implementation": "within_root_affinity_correlation 使用 available-node quadrature，coverage>=.25；按各批有效权重和重新归一化，不将 undefined 值当零。",
+      "observed": {
+        "summary_features": 108,
+        "n_batches_each": 14,
+        "q_lt_0_05": 0,
+        "min_q": 0.1014007225,
+        "mean_time_coverage_min": 0.53,
+        "mean_time_coverage_max": 0.987142857143,
+        "t0_finite": 0,
+        "t0_total": 1512,
+        "start_all_missing": true,
+        "endpoint_change_and_rate_all_missing": true
+      },
+      "interpretation": "现在可以报告根内同期相关的阴性多重检验结果；它仍是存活后、可识别时段的条件关联。coverage=.53 的壳核不能描述为整个0–.5均有信息，也不能推断其缺失早期效应为零。"
+    },
+    {
+      "id": "V3_BOUNDED_FITS",
+      "status": "verified",
+      "source": "results/spatial_motif_discovery_v3/continuous_functions.json",
+      "implementation": "72 条 selected_mean 壳/成对核曲线在 clipped-logit 空间作完整窗口 LOBO one-SE Legendre，再经 sigmoid 输出；36 条 centroid 保持 Å 空间。",
+      "observed": {
+        "kernel_curves": 72,
+        "centroid_curves": 36,
+        "evaluation_grid_points": 10001,
+        "all_coefficients_finite": true,
+        "all_kernel_values_in_unit_interval": true,
+        "min_evaluated_value": 3.5583262167520284e-09,
+        "max_evaluated_value": 0.8658769092178877,
+        "clip_epsilon": 1e-08,
+        "clipped_lower_batch_node_means": 6296,
+        "total_kernel_batch_node_means": 51408
+      },
+      "interpretation": "sigmoid 解析地保证有限系数下输出属于(0,1)，网格检查也通过。logit-CV 的误差目标和原始核空间不同，clip 可影响极小值；范围修复不等于数值校准、物理合理性或机制验证。",
+      "derivative": "d sigmoid(h(t))/dt = sigmoid(h)*(1-sigmoid(h))*dh/dt，仅为时间导数，不是坐标力。"
+    },
+    {
+      "id": "V3_MEASURED_REWARD",
+      "status": "verified_for_center_parity_and_code_path",
+      "source": "src/evomolsteer/generation/motif_reward.py",
+      "implementation": "build 从原始 discovery 的 proposal_coords、predicted anchor、selection_probability 计算加权/背景矩；运行时按真实 score 节点读取 frames；不使用 continuous_functions.json 或 p/q。",
+      "observed": {
+        "reference_path": "configs/experiments/ck2_motif_seed42_v1/cross_reference.json.gz",
+        "channels": [
+          "NOS_C"
+        ],
+        "features": 18,
+        "frames": 51,
+        "batches": 14,
+        "compared_center_values": 12852,
+        "max_selected_center_absolute_difference": 8.881784197001252e-15,
+        "max_background_center_absolute_difference": 7.105427357601002e-15,
+        "source_manifest_matches_v3": true
+      },
+      "limit": "本次验证节点中心和构造/读取路径，未从原始逐粒子数据独立重算 covariance，也没有运行新的 FLOWR、GPU FD 或完整零剂量测试。"
+    },
+    {
+      "id": "V3_PROVENANCE",
+      "status": "verified",
+      "source": "results/spatial_motif_discovery_v3/manifest.json",
+      "implementation": "manifest 已显式包含 spatial_motifs.py、coordinate_features.py、coordinate_mining.py 的 SHA；实际源码匹配。",
+      "source_manifest_sha256": "97f1903cde2d76aba2d27ecc5754e994d02ae33279c72303b9510fcec8a2302e"
+    }
+  ],
+  "motif_evidence_update": {
+    "within_root_examples": [
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+        "metric": "within_root_affinity_correlation",
+        "r": -0.0714596746,
+        "p": 0.0022039068,
+        "q": 0.1014007225,
+        "n_batches": 14,
+        "coverage": 0.97
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+        "metric": "within_root_affinity_correlation",
+        "r": -0.0600020792,
+        "p": 0.0260785646,
+        "q": 0.1387434337,
+        "n_batches": 14,
+        "coverage": 0.987142857143
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::motif_shell_2",
+        "metric": "within_root_affinity_correlation",
+        "r": -0.098580589,
+        "p": 0.0163798224,
+        "q": 0.1387434337,
+        "n_batches": 14,
+        "coverage": 0.53
+      }
+    ],
+    "existing_examples": [
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+        "metric": "high_enrichment",
+        "effect": -0.0105819929,
+        "q": 0.000543238290312,
+        "meaning": "上四分位的概率质量差；不是氢键、距离位移或下一步亲和力因果增益。"
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+        "metric": "high_enrichment",
+        "effect": -0.0055947981,
+        "q": 0.0129498696,
+        "meaning": "配对核在高尾部被轻度抑制；不能自动变为对所有样本的单方向排斥。"
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+        "metric": "lag_controlled_gain_correlation",
+        "r": 0.0067947372,
+        "q": 0.5969618646,
+        "meaning": "此前仅起始head调整的显著项没有在更多nuisance控制后保持；不支持固定+x。"
+      }
+    ],
+    "tiny_shells": "小 p 不能抵消微小物理核值、共享全局趋势、coverage 缺失与谱系相关。VAL116/NOS_C proposal_shell_2 的上尾关联可作探索依据，但根内 q=.1014、整体均值选择 q=.9967、进一步调整 lag q=.3186 不支持 affinity 机制。",
+    "counts_not_independent": "14批才是主要统计单位；末段11/14批只有一根谱系。候选数量、51节点和多种相关核不新增独立重复。"
+  },
+  "residual_issues": [
+    {
+      "id": "CONTRAST_WEAK_AMPLITUDE",
+      "severity": "design_limitation_to_freeze_and_log",
+      "source": "src/evomolsteer/generation/motif_reward.py",
+      "finding": "contrast dose_gate=1-tanh(ell/c)^2。ell接近0时gate接近1；它处理饱和而非弱selection/background差。",
+      "consequence": "若后续单位归一化非零梯度，几乎相同的密度仍可能产生接近完整的标尺剂量；完全相同的零梯度测试不能涵盖近似相同。",
+      "recommendation": "单独声明幅度合同并记录 logratio、原始梯度RMS、actual dose、selected/background差。需要弱幅度保留时使用预声明尺度/差异门控，不能从 p 值选剂量。"
+    },
+    {
+      "id": "TINY_KERNEL_SCALING",
+      "severity": "interpretation_and_numerics",
+      "finding": "核标准化仍可能放大极小壳核的坐标导数，logit 描述拟合修复并未解决这一运行时风险。",
+      "recommendation": "记录原始核、全窗scale、分量梯度和实际注入量；不要把重缩放后的统计可见性称为真实接触。"
+    },
+    {
+      "id": "VALIDITY_SCOPE",
+      "severity": "conditional",
+      "finding": "当前 reference 仅 NOS_C；需 NOS 与 C 同时存在才定义跨类pair。未定义该项可退回native或明确合法子项，不能拒绝图或候选。",
+      "recommendation": "以后 joint 同时请求多通道时，不能因未使用的NOS-only双槽条件连带关闭已定义NOS_C；validity按实际奖励可观测量解释。"
+    },
+    {
+      "id": "TIME_ALIGNMENT",
+      "severity": "unchanged_execution_contract",
+      "finding": "score t 对应 proposal t+dt；51评分节点不等于51次本窗口注入。",
+      "recommendation": "最后控制 .49->.50，.5评分节点的proposal.51仅供原始选择诊断；之后native到1。"
+    }
+  ],
+  "exploratory_ablation_contract": {
+    "allowed": [
+      "joint：一个联合相关分布，区分 centroid/shell/pair 的混合单位。",
+      "pair：检验内部相对几何，不保证受体位姿或新图能量。",
+      "shell：检验受体框架下统计投影，不称氢键/物理能量。",
+      "contrast：检验同节点增量选择密度，明确既有SMC背景及弱差异剂量问题。"
+    ],
+    "controlled": "同一原始发现集参考、真实时间对齐、native类别自由变化、冻结外部剂量和caps；改变架构后记录实际dose差，不能只用相同eta宣称相同剂量。",
+    "no_candidate_selection": "不引入新SMC、候选复制/淘汰或图/组成门控。",
+    "evaluation": "完整attempted分母，all/valid/unique预测head、valid/PB、MMFF覆盖和尾部、松弛位移、多样性；联合目标与局部拟合分开判断。平均改善和部分退化都记录。",
+    "claim_limit": "继续探索合理；截至本审阅，新架构的效力尚未经本次生成实验验证。"
+  },
+  "historical_provenance_note": {
+    "retained_review": "docs/experiments/ck2_motif_seed42_20261006/agent_review/Analyst_Designer.motif_review.simulation.json",
+    "retained_review_sha256": "2a50bfdd9532acaad1d9ee3808169fd4f63cd7f6041d0f7b339f1c946ff1c84a",
+    "note": "初轮review期间v2源目录发生并发更新。其within-root缺口文字针对首次读取的旧CSV，而旧review写入时的source_artifacts已捕获修复后CSV。旧文档保留为过程记录；本v3补充明确最终修复状态，不将旧缺口继续归于当前结果。",
+    "originally_read_v2_csv_sha256": "65e961dd372b21a461e587dd4885b257f7830b9e5f266ed6a434fcd0b6f47dc7",
+    "subsequently_observed_v2_and_v3_csv_sha256": "999cc821be7f99709dad8d1512ce2c18e08b31beeebb415e1a7daac570f38f86",
+    "comparison_limit": "当前v2/v3 1608行数值相等仅证明现在两个文件相等，不能据此称首次读取的旧v2全部字节不变。原有检验族的计数与保存的旧review一致，within-root新增最终汇总另列。"
+  },
+  "manifest_file_and_code_verification": [
+    {
+      "path": "results/spatial_motif_discovery_v3/batch_coordinate_statistics.parquet",
+      "sha256": "b46873c8779d622f8145a02f81dde96f50cd4b8ba69cc97264a184b2ac980927",
+      "matches_manifest": true
+    },
+    {
+      "path": "results/spatial_motif_discovery_v3/continuous_functions.json",
+      "sha256": "664bb4c82e61a40ac06d6a67d5aaf1cf1edd496eeec9f8e1e8c4a48335c8ee4c",
+      "matches_manifest": true
+    },
+    {
+      "path": "results/spatial_motif_discovery_v3/effect_functions.json",
+      "sha256": "8b2f77fc67dc1d2393e1eef9408463c6e584384bba615edc81825a8ba8fd1910",
+      "matches_manifest": true
+    },
+    {
+      "path": "results/spatial_motif_discovery_v3/feature_catalog.json",
+      "sha256": "b4e6f7c658feb51b31d4c9528f999390ca425077ec0a4444d46e9b965a7d280a",
+      "matches_manifest": true
+    },
+    {
+      "path": "results/spatial_motif_discovery_v3/lineage_diagnostics.csv",
+      "sha256": "e71669697f200e843d3b107587e78c3784a9cf90ba89ddfc3cc02e0c6dfdf6be",
+      "matches_manifest": true
+    },
+    {
+      "path": "results/spatial_motif_discovery_v3/whole_window_evidence.csv",
+      "sha256": "999cc821be7f99709dad8d1512ce2c18e08b31beeebb415e1a7daac570f38f86",
+      "matches_manifest": true
+    },
+    {
+      "path": "src/evomolsteer/continuous/coordinate_features.py",
+      "sha256": "8e396f5ead7f762af847a99a00a33ba46d95dd2f30800c4b00a62224285fcb27",
+      "matches_manifest": true
+    },
+    {
+      "path": "src/evomolsteer/continuous/coordinate_mining.py",
+      "sha256": "07d87d77347b468fa41cf848683bafeee13ef90dc970dac6f9cec54ddfa8fbf6",
+      "matches_manifest": true
+    },
+    {
+      "path": "src/evomolsteer/continuous/spatial_motifs.py",
+      "sha256": "ba16fd990f418b3f6fcdf1f8f75b4a006013a60ed46ba403350f62a063ef1ead",
+      "matches_manifest": true
+    }
+  ],
+  "additional_source_hashes": [
+    {
+      "path": "results/spatial_motif_discovery_v3/manifest.json",
+      "bytes": 8537,
+      "sha256": "97f1903cde2d76aba2d27ecc5754e994d02ae33279c72303b9510fcec8a2302e"
+    },
+    {
+      "path": "src/evomolsteer/generation/motif_reward.py",
+      "bytes": 10202,
+      "sha256": "96943dcc6d3e3873290afc8c177882418e72313054383ab025f6d525775b2119"
+    },
+    {
+      "path": "configs/experiments/ck2_motif_seed42_v1/cross_reference.json.gz",
+      "bytes": 3392446,
+      "sha256": "7613c3266036f3e31cedfbdfaf1370cee016d9eef50b620cd5b3aa3617fe3e70"
+    },
+    {
+      "path": "docs/experiments/ck2_motif_seed42_20261006/agent_review/Analyst_Designer.motif_review.simulation.json",
+      "bytes": 61427,
+      "sha256": "2a50bfdd9532acaad1d9ee3808169fd4f63cd7f6041d0f7b339f1c946ff1c84a"
+    }
+  ],
+  "metric_family_counts": [
+    {
+      "metric": "within_root_affinity_correlation",
+      "n_estimable": 108,
+      "n_q_below_0_05": 0,
+      "minimum_q": 0.101400722528
+    },
+    {
+      "metric": "selection_shift",
+      "n_estimable": 108,
+      "n_q_below_0_05": 0,
+      "minimum_q": 0.160989340722
+    },
+    {
+      "metric": "root_balanced_selection_shift",
+      "n_estimable": 108,
+      "n_q_below_0_05": 0,
+      "minimum_q": 0.326600062326
+    },
+    {
+      "metric": "retained_shift",
+      "n_estimable": 108,
+      "n_q_below_0_05": 0,
+      "minimum_q": 0.888604591122
+    },
+    {
+      "metric": "root_balanced_retained_shift",
+      "n_estimable": 108,
+      "n_q_below_0_05": 0,
+      "minimum_q": 0.998966672469
+    },
+    {
+      "metric": "high_enrichment",
+      "n_estimable": 108,
+      "n_q_below_0_05": 46,
+      "minimum_q": 0.000543238290312
+    },
+    {
+      "metric": "low_enrichment",
+      "n_estimable": 108,
+      "n_q_below_0_05": 9,
+      "minimum_q": 0.0353580331294
+    },
+    {
+      "metric": "partial_affinity_correlation",
+      "n_estimable": 102,
+      "n_q_below_0_05": 0,
+      "minimum_q": 0.786709347911
+    },
+    {
+      "metric": "lag_partial_gain_correlation",
+      "n_estimable": 108,
+      "n_q_below_0_05": 4,
+      "minimum_q": 0.00228915761916
+    },
+    {
+      "metric": "lag_controlled_gain_correlation",
+      "n_estimable": 108,
+      "n_q_below_0_05": 0,
+      "minimum_q": 0.318563781322
+    }
+  ],
+  "exact_within_root_rows": [
+    {
+      "split": "discovery",
+      "feature": "ck2:A:ASN117::NOS_C::motif_shell_2",
+      "metric": "within_root_affinity_correlation",
+      "window_mean": -0.0985805889683,
+      "ci_low": -0.17588313594,
+      "ci_high": -0.0212780419969,
+      "p": 0.0163798224029,
+      "n_batches": 14,
+      "mean_time_coverage": 0.53,
+      "start": null,
+      "end": 0.0617215508665,
+      "end_minus_start": null,
+      "mean_change_rate": null,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.138743433719
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "within_root_affinity_correlation",
+      "window_mean": -0.0600020792487,
+      "ci_low": -0.111640567684,
+      "ci_high": -0.0083635908137,
+      "p": 0.0260785646359,
+      "n_batches": 14,
+      "mean_time_coverage": 0.987142857143,
+      "start": null,
+      "end": -0.0800223410635,
+      "end_minus_start": null,
+      "mean_change_rate": null,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.138743433719
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "within_root_affinity_correlation",
+      "window_mean": -0.0714596746055,
+      "ci_low": -0.112077045164,
+      "ci_high": -0.0308423040468,
+      "p": 0.00220390683044,
+      "n_batches": 14,
+      "mean_time_coverage": 0.97,
+      "start": null,
+      "end": 0.174983597482,
+      "end_minus_start": null,
+      "mean_change_rate": null,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.101400722528
+    }
+  ]
+}

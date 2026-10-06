@@ -1,0 +1,1424 @@
+{
+  "schema_version": "motif-analyst-designer-review-1.0",
+  "identity": {
+    "role": [
+      "Analyst",
+      "Designer"
+    ],
+    "execution_mode": "subagent simulation",
+    "created_local_date": "2026-10-06",
+    "status": "evidence review and proposed experiments; no new inference performed"
+  },
+  "task_contract": {
+    "new_campaign_round_budget": 15,
+    "rounds_counted_independently_from_prior_30": true,
+    "objective": "提高 FLOWR 预测 affinity，同时使终态构象/松弛应变更接近原始 Steer；真实结合亲和力仍未经实验验证。",
+    "source_policy": "几何目标只用原始 Steer 的 discovery 0–13；旧 30 轮为已反复使用的开发结果。历史聚合 validation/heldout 报告曾可见，不称新方案全盲验证。",
+    "constraints": [
+      "图、原子及键类别可由原生过程自由变化；不设 native-topology lock、composition veto 或 graph-equality gate。",
+      "仅动态学习窗口内坐标梯度，之后 native 到 t=1；不新增候选 SMC、粒子淘汰/复制。",
+      "本审阅仅生成文档；没有代码编辑、远程操作或分子生成。",
+      "15 轮是本次预算，不是统计独立样本数；局部退化触发诊断和回溯，不自动结束整个研究。"
+    ]
+  },
+  "overall_decision": {
+    "recommendation": "先按预声明 joint / pair / shell 表征做有限探索；优先保留能同时作用 NOS 与碳槽位的 NOS_C 成对核作为可解释消融。随后分别检验背景对比、谱系权重、时间/实际剂量和尾部约束。",
+    "evidence_strength": "探索合理，区域因果优势 deferred。新增 motif 的尾部分位选择关联不等于均值移动或调整后下一步 affinity 增益。",
+    "no_automatic_derivation": "已有 joint/pair/shell/contrast/dose 架构是预设实验候选，不是由显著性检验自动推导出的最优奖励。",
+    "key_correction": "不能把高 motif 核值的 selection depletion 转为所有粒子持续减小该核值；需要真实同节点分布、双侧/联合目标和反证。",
+    "updated_input_status": "spatial_motif_discovery_v2 已补齐当前/原生 proposal 的成对核与壳核统计；尚缺条件角度/扭转 motif、具体 MMFF 力项归因及直接受体适配能量。"
+  },
+  "evidence_interpretation": [
+    {
+      "id": "E30",
+      "source": "docs/experiments/ck2_coordinate_seed42_20261006/backtracking/completed30/summary.json",
+      "finding": "30 轮尚未建立预测 affinity、MMFF 和周围松弛共同达到原 Steer 的结果；R25/26 提高 head 和 x_.5 shape，但尾部松弛变差。",
+      "independent_units": "仅两个重复开发批次；不能将 100 个粒子或 30 次自适应方案视作独立确认。"
+    },
+    {
+      "id": "ETAIL",
+      "source": "docs/experiments/ck2_coordinate_seed42_20261006/backtracking/round25_26_tradeoff_diagnosis/audit.json",
+      "finding": "native / R25 / R26 的 MMFF relief/heavy p90 为 1.706811 / 2.290123 / 2.290138；中位数为 .548773 / .571034 / .562339。",
+      "qualification": "能量差是在各自同一图内两种配体松弛方案之间计算；跨图分布比较可做，但不是不同图绝对能量或结合能排序。"
+    },
+    {
+      "id": "EGRAPH",
+      "source": "docs/experiments/ck2_coordinate_seed42_20261006/backtracking/round25_26_tradeoff_diagnosis/audit.json",
+      "finding": "98 个配对有效候选中 76 同图、22 变图；变图子集贡献 R25/26 净配对周围 RMS 增量的 .961534/.949374，但只有 11/22、10/22 的 MMFF 增加。",
+      "qualification": "图类别是处理后的变量；这只是算术分解，不能称变图导致退化，也不能拒绝变图候选。"
+    },
+    {
+      "id": "ECLONE",
+      "source": "docs/experiments/ck2_coordinate_seed42_20261006/backtracking/completed30/summary.json",
+      "finding": "Original Steer all-head 7.51035056、unique-valid-head 7.26822154、unique 24；native 7.43427486、7.27186835、unique 69。",
+      "qualification": "总体质量权重和独特结构权重回答不同问题；不能只取对自己有利的口径，也不能由此认定 Steer 优势全部源于克隆。"
+    },
+    {
+      "id": "ESUPPORT",
+      "source": "results/coordinate_transport_support_v1/whole_window_evidence.csv",
+      "finding": "ASN117 endpoint 5Å core 权重为 0；VAL116/NOS endpoint core 约 .723，但 current core 约 .000160，有效槽位约 1.90。",
+      "qualification": "预测终点 anchor 识别未来槽位，不能把当前噪声槽位称为已形成的结合接触。"
+    },
+    {
+      "id": "EOLD_SHAPE",
+      "source": "results/coordinate_shape_discovery_v1/whole_window_evidence.csv",
+      "finding": "11/272 selection_shift 显著项中 8 是重复的全局 NOS informative mask，2 是支持数，1 是 ASN118/all/current xx；lag_partial 0/248，min q=.0546813。",
+      "qualification": "旧 tensor 结果未确立 VAL116/NOS 的方向性 affinity 机制；root 晚期坍缩仍在。"
+    },
+    {
+      "id": "ENEW_NULL",
+      "source": "results/spatial_motif_discovery_v2/whole_window_evidence.csv",
+      "finding": "新增 motif：selection_shift 0/108、root_balanced_selection_shift 0/108、retained_shift 0/108、root_balanced_retained_shift 0/108、partial_affinity 0/102、lag_controlled 0/108，均按 q<.05。",
+      "qualification": "不显著不是证明无效；当前足以支持可控表征实验，不支持因果力场。"
+    },
+    {
+      "id": "ENEW_TAIL",
+      "source": "results/spatial_motif_discovery_v2/whole_window_evidence.csv",
+      "finding": "high_enrichment 46/108、low_enrichment 9/108 q<.05。VAL116/NOS_C proposal_pair_3 的高分位概率差约 −.005595，q=.012950；proposal_shell_2 约 −.010582，q=.000543。",
+      "qualification": "这是同节点候选分位指标的加权概率差，非 fold enrichment、距离变化或实验成功率。对 NOS_C centroid/shell，通道是 NOS 与 C 并集；只有 pair 真正采用跨 NOS-C 对，不能把所有 NOS_C 特征称作跨类相互作用。"
+    },
+    {
+      "id": "ENEW_LAG",
+      "source": "results/spatial_motif_discovery_v2/whole_window_evidence.csv",
+      "finding": "4 个 lag_partial 显著项均为 ASN117/VAL116 NOS centroid_x（current/proposal）；增加 current global centroid/radius 与 predicted NOS count 调整后均消失。",
+      "qualification": "VAL116/NOS proposal centroid_x: r=.0319663,q=.0109426；进一步控制后 r=.00679474,q=.596962。不能据此固定 +x。"
+    },
+    {
+      "id": "EROOTS",
+      "source": "results/spatial_motif_discovery_v2/lineage_diagnostics.csv",
+      "finding": "t=.5 的 14 批中 11 批仅 1 根，平均根数 1.214286；平均 selection ESS 48.427/50。",
+      "qualification": "selection ESS 衡量当步权重均匀性，不是祖先独立样本数。"
+    },
+    {
+      "id": "EFIT",
+      "source": "results/spatial_motif_discovery_v2/continuous_functions.json",
+      "finding": "已保存 0–.5、次数 0–5 的整批 LOBO one-SE Legendre 描述拟合；1001 点全域核值审计中 72 条核曲线有 44 条越出 [0,1]。",
+      "qualification": "该多项式不是受物理范围约束的控制目标；时间导数不等于空间梯度。"
+    },
+    {
+      "id": "EWITHIN_GAP",
+      "source": "src/evomolsteer/continuous/coordinate_mining.py:214",
+      "finding": "within_root_affinity_correlation 在批次表有值，但完整窗口 CSV 无汇总：t=0 每根单槽造成根内方差零，全部缺失；非 lag 的 finite.all(1) 规则于是移除所有批次。",
+      "qualification": "未汇总不能写成无显著根内效应。应保留节点 NaN 与原因，再明确报告可识别时域、coverage 和独立批数。"
+    }
+  ],
+  "why_shape_and_energy_separate": {
+    "established": [
+      "低阶 NOS 中心、spread、tensor 或核均值并不唯一确定键长、键角、扭转、立体化学和非键重叠。",
+      "当前/原生 proposal 的条件几何拟合不等于最终端点结构拟合；后续类别更新与 native continuation 可改变图和几何。",
+      "均值目标和均值 head 对少数高应变尾部候选不敏感；R25/26 的实际尾部已说明此点。",
+      "旧 NOS-only 条件奖励没有碳邻域协同项；新 NOS_C pair 梯度会同时影响两类槽位，这是可检验的表征变化。",
+      "observed native RMS 含 SDE 首步收缩；R25/26 首步实际注入约 .00505Å，为后续平均的约 6.6 倍，不能仅凭 eta 认定剂量相同。"
+    ],
+    "hypotheses_not_proven": [
+      "孤立 NOS 几何控制可能与周围骨架暂时不协调；尚无逐键/角/扭转能量记录证明哪一种力项负责。",
+      "图变化可能与尾部风险共现；不能将其解释为不允许新图。",
+      "更完整的局部几何可能减少尾部，也可能过约束、牺牲 affinity 或多样性。"
+    ],
+    "metric_limit": "surround RMS 为游离配体 MMFF 松弛、无受体力场且未刚体对齐的位移。它混合内部形变和整体姿态漂移，不能直接代表受体兼容性。"
+  },
+  "evidence_hypothesis_formula_falsification": [
+    {
+      "id": "H1_pair_coherence",
+      "evidence_ids": [
+        "ETAIL",
+        "EGRAPH",
+        "ENEW_TAIL",
+        "ENEW_NULL"
+      ],
+      "hypothesis": "联合 NOS-C 成对距离分布比仅 NOS 低阶形状更能描述局部与周围槽位的协调，但是否改善 affinity/能量需检验。",
+      "observables": "两预声明区域 × NOS_C 的 proposal_pair_1_5、proposal_pair_3、proposal_pair_5；固定 endpoint 权重和硬类型。pair-only D=6；all/NOS 对照仅作预声明参照。",
+      "formula": "a_ir=softmax_i[-d(anchor_i,P_r)^2/(2*4^2)] over eligible slots; W_ijr=a_ir*a_jr*1[i!=j]*1[NOS_i,C_j or C_i,NOS_j], normalized over ij; f_rk=sum_ij W_ijr exp[-(sqrt(||x_i-x_j||^2+eps^2)-r_k)^2/(2*.75^2)], r_k=(1.5,3,5) A; R_pair=robust_mixture(f,t).",
+      "parameter_origin": "沿用现有 spatial_motifs.py 的 4Å anchor、1.5/3/5Å 核中心、.75Å 宽度；均为预设几何尺度，不是发现的共价键或氢键参数。均值/协方差来自真实 discovery 同节点 selected 经验分布。",
+      "derivative": "只对实际 proposal x 求导；两端获得相反的相对几何梯度。固定标签/anchor；不是 FLOWR model Jacobian，不对离散类型或键求导。纯 pair 项平移/旋转不变，故不能单独保证受体放置。",
+      "falsification": [
+        "在实际剂量可比较时 pair 能拟合自身而 MMFF p90/CVaR、内部松弛或 affinity 未改善，则不能宣称协同几何假说得到支持。",
+        "只改善平均核、实际 x_.5 或终态无效，记录表征目标与任务目标分离。",
+        "不得以 q 值为方向符号，持续强制所有距离到 3Å 或把核降低等同于远离。"
+      ],
+      "readiness": "真实 motif 统计已提供；控制参考节点矩、协方差与数值验证须在运行前冻结。"
+    },
+    {
+      "id": "H2_shell_placement",
+      "evidence_ids": [
+        "ENEW_TAIL",
+        "ESUPPORT",
+        "ENEW_NULL",
+        "EFIT"
+      ],
+      "hypothesis": "shell-only 与 pair-only / joint 比较可区分受体框架放置和内部形状对结果的贡献。",
+      "formula": "s_rk=sum_i a_ir exp[-(min_p||x_i-p||-r_k)^2/(2*1^2)], r_k=(2,4,6) A; R_shell=robust_mixture(s,t); R_joint applies one covariance to concatenated centroid,shell,pair rather than counting correlated regions as separate mechanisms.",
+      "parameter_origin": "2/4/6Å 和 1Å 宽度为预声明核；不是能量最小位置。centroid 单位 Å，核无量纲，必须使用全窗口固定背景尺度后再求联合协方差。",
+      "derivative": "固定 anchor/类别，当前最邻近受体点距离分段可微；点切换处用一致子梯度并审计 FD，不能称严格全域光滑。",
+      "falsification": [
+        "shell 改善而 head/独立终态质量不变，不能称建立了受体接触优势。",
+        "2Å 核非常小；例如 VAL116/NOS_C 的 selected proposal_shell_2 在 score0 约6.07e-8、score.5约.00104。标准化后出现大剂量而物理变化仅远场时，应判为数值/表征问题。"
+      ],
+      "readiness": "可做架构消融；并未得到相对于全局放置的局部因果优势证据。"
+    },
+    {
+      "id": "H3_background_contrast",
+      "evidence_ids": [
+        "ENEW_TAIL",
+        "ENEW_NULL",
+        "ECLONE",
+        "EROOTS"
+      ],
+      "hypothesis": "与同批同刻、可比大小/组成的候选背景比较，可能减少常见几何趋势主导奖励；它拟合当步增量选择，不保证复现累计 Steer。",
+      "formula": "p_+(z,t)=B^-1 sum_b N(z;mu_b+,Sigma_b+); p_0(z,t)=B^-1 sum_b N(z;mu_b0,Sigma_b0); ell=log p_+-log p_0; R=c*tanh(ell/c). Use normalized Gaussians including logdet, logsumexp; do not substitute robust-mixture energy as a normalized density.",
+      "parameter_origin": "正/背景来自同节点 selected probability 与未加权候选；独立 native 是外部参照，不混称与选择池相同背景。STREME 启发的是背景匹配设计，不是其序列算法已在分子上得到验证。",
+      "dose_contract": "若单位梯度归一化，必须在外部剂量保留 tanh 饱和因子和明确的 weak-contrast 幅度，否则会把几乎零对比放大为固定剂量。旧 R11 只有约 .00012655Å 路径，不能以其阴性结果排除所有 motif 对比。",
+      "falsification": [
+        "对比优势在批次匹配、组成敏感性或根均衡后消失，不再称 selection-specific motif。",
+        "contrast 的小剂量结果只说明当前执行剂量下效应弱，须与同实际剂量的 parent 分开解释。"
+      ],
+      "readiness": "次序在表征消融之后；支持区/幅度处理为几何数值规则，不是图或组成 veto。对未见组成优先无条件 parent，只有所需观测未定义才无该项剂量。"
+    },
+    {
+      "id": "H4_tail_geometry",
+      "evidence_ids": [
+        "ETAIL",
+        "EGRAPH",
+        "ENEW_TAIL"
+      ],
+      "hypothesis": "在维持主 motif 目标时控制一分子内最大的受支持几何偏离，可能减轻少数尾部损失；这不是提前获得真实 MMFF 能量。",
+      "formula": "v_j=(softplus((L_j(t)-f_j)/s_j)+softplus((f_j-U_j(t))/s_j)) with temperature and offsets explicitly fixed; R_tail=-lambda*tau_v*log(mean_j exp(v_j/tau_v)); alternatively use smooth squared distance outside a reference band. f_j are observed motif descriptors, not hard graph constraints.",
+      "parameter_origin": "L/U 从同节点发现 selected 分位区间获得；s 全窗口背景变化尺度。tau_v、lambda 为工程参数，必须单因素改变，不能从 q 值映射奖励权重。",
+      "limitations": "有限温度 softplus 在区间内仍有梯度；不能冒称严格 flat-bottom。mean-motif 和局部坏对仍可能相互抵消；真正逐对尾部罚需独立提取 pair-level 区间与支持证据后再启用。",
+      "falsification": [
+        "MMFF 高分位/CVaR 未下降、PB/valid 损失或 head 优势完全丢失，则该权衡未达到目标。",
+        "若收益只在丢掉能量失败分母后出现，判为评价失真。"
+      ],
+      "readiness": "目前为后续候选，不能把分位选择关联解释成物理排斥力。"
+    },
+    {
+      "id": "H5_temporal_dose",
+      "evidence_ids": [
+        "EFIT",
+        "ETAIL",
+        "EROOTS"
+      ],
+      "hypothesis": "稳定的同节点目标与实际剂量控制可减少时间错配/首步效应，需和换表征分开。",
+      "formula": "z_j=f_j/s_j; s_j^2 = time_quadrature mean_b Var_unweighted_candidates[f_j(t)]; q_b=(z-mu_b)^T Sigma_b^-1(z-mu_b)/D; rho_delta(q)=delta^2*(sqrt(1+q/delta^2)-1); R=tau*log(sum_b pi_b exp[-rho_delta(q_b)/tau]).",
+      "targets": "每批经验均值不是已识别真实构象模式。全窗口固定尺度；先真实节点目标，核均值用保界 PCHIP 或正值变换插值，协方差用 SPD 凸插值或显式 log-Cholesky。无约束 Legendre 仅用于趋势描述。",
+      "covariance": "缩放后无量纲 shrinkage 与 ridge 必须预声明，例如 (1-alpha)S+alpha*diag(S)+lambda*I。alpha/lambda 是工程假设，不可挪用 Å 型旧 floor 到核变量；近零尺度须标记并保留原始变化量。",
+      "dose": "Delta_x = amplitude(t,particle)*g/(RMS(g)+eps)，另施加冻结的 atom/path cap；amplitude 参照类型、实际 RMS 和首步份额分别记录。不能把观测 native RMS 与 predictive-flow RMS 互换后还称仅表征变化。",
+      "falsification": [
+        "只有启动节点贡献且后续趋势不支持时，称初态扰动效应，不称贯穿窗口的进化规律。",
+        "插值越界、协方差非 SPD、同节点错位或 zero/native 不一致属于执行错误，先修复不能当失败生物假说。"
+      ],
+      "readiness": "可直接约束本次实现与日志；剂量 envelope 作为单独候选，不预设越小或越大必然更好。"
+    }
+  ],
+  "clone_and_background_protocol": {
+    "main_estimand": "保留原 selected 概率质量，描述原 Steer 实际产生的累计分布；重复结构不能静默删除。",
+    "sensitivity_estimand": "每时刻每批每根等质量：w_i+=(p_i/sum_{j in root(i)}p_j)/(B*R_b); w_i0=1/(B*R_b*n_root(i))。这是根均衡的条件估计，不是主估计的无偏修正。",
+    "retained": "对末端留存根的比较条件于其存活；根已灭绝时没有该根的 retained 分布，不可零填。",
+    "independence": "批次为推断单位；整批 LOBO、整批 bootstrap、留根敏感性分开。Brownian phylogenetic independent contrasts 的假设未满足，不能直接套给 SMC 复制树。",
+    "new_motif_matching": "同 batch/time 的 selected vs candidate background；可按 heavy count 与 N/O/S 组成做离线匹配敏感性，但不得把支持不足的组成转为运行时 veto。",
+    "reporting": "同时报告 root/parent/unique counts、ESS、有效几何覆盖、每批效应和 q 的检验族；特征多、相关性强，不能合并多个重复区域为独立支持。"
+  },
+  "exact_timing_contract": {
+    "inference_steps": 100,
+    "discovery_score_times": "0,.01,...,.5 共51节点",
+    "control_coordinates": "原生 proposal x_(t+dt)；reference 的 score_time=t 不能被称作 state_time=t。",
+    "dynamic_window": "从冻结 discovery manifest 学得 [0,.5]；注入条件要求 proposal_time<=.5。",
+    "last_control_transition": ".49 -> .50",
+    "terminal_selection_node": "score=.5 的 proposal=.51 可作原始选择过程诊断，不能注入本轮窗口，也不能冒充真实 x_.5。",
+    "analysis": "保留全部51实际评分节点的选择分析；控制目标按 proposal 时间对齐，50次受控更新；不造 .1 bins。",
+    "derivative": "d f(t)/dt 只描述群体随时间变化；引导需要独立计算 ∂R/∂x。"
+  },
+  "implementation_review_required": [
+    {
+      "severity": "required_for_reporting",
+      "issue": "within_root 全窗口汇总缺失",
+      "action": "保留原始 NaN/原因和覆盖曲线，使用预声明 available-node 估计另列时域/coverage，不静默删 t0 也不零填。",
+      "source": "src/evomolsteer/continuous/coordinate_mining.py:214"
+    },
+    {
+      "severity": "required_if_fits_become_targets",
+      "issue": "44/72 核多项式越界",
+      "action": "真实节点/保界插值作奖励目标；描述拟合保留误差与越界审计，不能通过静默截断宣称原拟合通过。",
+      "source": "results/spatial_motif_discovery_v2/continuous_functions.json"
+    },
+    {
+      "severity": "required_for_provenance",
+      "issue": "manifest.analysis_code_sha256 当前未单列 spatial_motifs.py",
+      "action": "冻结参考时把实际特征实现、核参数、每个 source SHA 一并记录；本 review 额外保存该源文件 SHA。",
+      "source": "results/spatial_motif_discovery_v2/manifest.json"
+    },
+    {
+      "severity": "conditional_observable_contract",
+      "issue": "torch_motifs 返回跨全部请求通道的统一 validity",
+      "action": "若 joint 请求 all+NOS+NOS_C，单个 NOS+C 的合法 NOS_C 可因 NOS-only 要求>=2而连带零剂量。按请求子块验证，尽量用有效子块/无条件 parent，不把与奖励无关通道的缺失变成化学 gate。",
+      "source": "src/evomolsteer/continuous/spatial_motifs.py"
+    },
+    {
+      "severity": "required_before_new_architecture_inference",
+      "issue": "数值与执行合同",
+      "action": "NumPy/Torch 同状态一致、固定 anchor/标签真实 FD、空通道与极小核/尺度、原生 dtype、完整100步零剂量/native逐位一致、RNG和self-conditioning不受辅助计算影响；不把测试通过写成科学效果通过。",
+      "source": "skills/coordinate-designer/SKILL.md"
+    }
+  ],
+  "program_level_selection": {
+    "objective_vector": "[-all_head, -valid_head, energy_tail_distance_to_original_Steer, internal_relaxation_or_surround_proxy, invalid_fraction, -unique_diversity]，相关重复指标可仅作审阅并避免暗中重复加权。",
+    "frontier": "只在已完成整轮的奖励程序/参数方案之间记录 Pareto 非支配关系与不确定性；不对分子候选按 Pareto 淘汰/重采样。15 个方案无需实现完整遗传算法。",
+    "all_attempted_denominator": "每批 attempted、valid、PB、energy-supported、converged 全报告；all/valid/unique head 分开；所有原生生成图均纳入。",
+    "tail": "median/p90/上10%均值或CVaR 与分布图；以批次为主报告，n=2 时不把100粒子CI当确认性显著。",
+    "physical_diagnostics": "配体同图 MMFF relief/heavy、原始/刚体对齐后 RMS 分开；如需受体兼容性，另列真实受体碰撞/独立力场指标，不能重命名当前 ligand-only surround。",
+    "partial_regression": "一次部分退化保留到前沿和台账，比较收益/代价并回溯单因素；不因单指标失败自动停全任务，也不靠增加轮数直到宣称胜利。",
+    "success_wording": "只有冻结后相对于 native/Steer 的多指标证据均匹配预声明目标才报告联合改善；当前与后续使用同 FLOWR head 只能报告预测评分改善。"
+  },
+  "suggested_budget_allocation": [
+    {
+      "round_slots": "1–4",
+      "purpose": "冻结新 motif 实现和参考；joint、pair、shell 的预声明表征消融及匹配控制。首个新架构做完整 zero/native；各臂实际剂量须报告。"
+    },
+    {
+      "round_slots": "5–7",
+      "purpose": "只对前段有解释价值的分支逐项检验 contrast、根均衡参考或一个协同项；不同时改区域、剂量和先验。"
+    },
+    {
+      "round_slots": "8–10",
+      "purpose": "按尾部和节点贡献反馈检验一个时间剂量 envelope 或一个软几何尾部项；局部退化时回滚到明确 parent 后再改一个因素。"
+    },
+    {
+      "round_slots": "11–12",
+      "purpose": "对方案级 Pareto 候选做必要的可识别消融/复现；不可只挑最优 head，丢弃能量失败或低多样性。"
+    },
+    {
+      "round_slots": "13–15",
+      "purpose": "冻结少量候选作批次扩展或预先保留随机流确认，不再调参。若仍用相同 master seed42 或已见批次，明确其验证范围，不能称新seed/全盲泛化。"
+    }
+  ],
+  "allocation_limits": "这是可重排的预算建议，不是要求跑满15轮，也不授权超预算重跑。所有实际重放/生成应计入统一台账；清理前保留报告、分母、配置/代码/参考hash和尾部诊断摘要，原始Steer/checkpoints不动。",
+  "outstanding_inputs": [
+    "新 motif 节点参考的选中/背景 joint covariance、固定全窗口尺度及独立控制程序尚未在本审阅中验证。",
+    "within-root correlation 当前仅有批次节点表，完整窗口 inferential summary 缺失。",
+    "新 shell/pair 拟合没有同时置信带和驻点不确定性，不能用拟合驻点命名机制阶段。",
+    "角度/扭转和 per-pair 极端几何的发现统计尚未提供；不能称已发现具体化学稳定 motif。",
+    "旧候选完整结构已按要求清理，现有聚合报告不能定位具体能量项；如需重放必须归入新预算。",
+    "未有受体力场结合能、实验亲和力或新的全盲测试；终态能量只对可参数化有效图有定义。"
+  ],
+  "external_method_references": [
+    {
+      "name": "STREME official documentation",
+      "url": "https://meme-suite.org/meme/doc/streme.html",
+      "transfer": "学习正例/匹配背景设计；不把序列 motif 算法或其显著性公式直接用于克隆分子。"
+    },
+    {
+      "name": "Felsenstein (1985), Phylogenies and the Comparative Method",
+      "url": "https://www.journals.uchicago.edu/doi/10.1086/284325",
+      "transfer": "谱系相关会破坏独立样本假设；本任务不满足经典 Brownian independent contrasts 前提。"
+    },
+    {
+      "name": "Deb et al. (2002), NSGA-II",
+      "url": "https://homes.cs.washington.edu/~sagarwal/nsga2j.pdf",
+      "transfer": "借鉴方案级非支配权衡；本次不执行候选分子遗传选择、重采样或图门控。"
+    }
+  ],
+  "source_artifacts": [
+    {
+      "path": "skills/coordinate-analyst/SKILL.md",
+      "bytes": 3404,
+      "sha256": "ad3b4b8db9b775cabd433ffaefe935ee42ac3e6569abe8a437a169b56c60753c"
+    },
+    {
+      "path": "skills/coordinate-designer/SKILL.md",
+      "bytes": 5888,
+      "sha256": "c13d88987634e76f3b7b5bf1d2b808c6279db9a23f61e65d4cf5829f4e09fda9"
+    },
+    {
+      "path": "src/evomolsteer/continuous/spatial_motifs.py",
+      "bytes": 5337,
+      "sha256": "ba16fd990f418b3f6fcdf1f8f75b4a006013a60ed46ba403350f62a063ef1ead"
+    },
+    {
+      "path": "src/evomolsteer/continuous/coordinate_mining.py",
+      "bytes": 19238,
+      "sha256": "07d87d77347b468fa41cf848683bafeee13ef90dc970dac6f9cec54ddfa8fbf6"
+    },
+    {
+      "path": "docs/experiments/ck2_coordinate_seed42_20261006/backtracking/completed30/summary.json",
+      "bytes": 67667,
+      "sha256": "11fc2912d6aa60e994270291aafb65b38d37708a23afe5f42a0bc5117c2afefa"
+    },
+    {
+      "path": "docs/experiments/ck2_coordinate_seed42_20261006/backtracking/round25_26_tradeoff_diagnosis/audit.json",
+      "bytes": 47885,
+      "sha256": "bdbccf188588c29f9faa8da29081afafe88fbce81c5d54bed5ff35f74a3e5189"
+    },
+    {
+      "path": "results/spatial_motif_discovery_v2/manifest.json",
+      "bytes": 8443,
+      "sha256": "0faa0ec7e9b8da378e88b77ad580f6953c7510e9fdefad02571fbb31179dfc99"
+    },
+    {
+      "path": "results/spatial_motif_discovery_v2/whole_window_evidence.csv",
+      "bytes": 426273,
+      "sha256": "999cc821be7f99709dad8d1512ce2c18e08b31beeebb415e1a7daac570f38f86"
+    },
+    {
+      "path": "results/spatial_motif_discovery_v2/continuous_functions.json",
+      "bytes": 65872,
+      "sha256": "1fc48a9421fc89afc1aa34896aaed747ce7e8744974d6d95d57f47b0f55d5999"
+    },
+    {
+      "path": "results/spatial_motif_discovery_v2/lineage_diagnostics.csv",
+      "bytes": 40774,
+      "sha256": "e71669697f200e843d3b107587e78c3784a9cf90ba89ddfc3cc02e0c6dfdf6be"
+    },
+    {
+      "path": "results/spatial_motif_discovery_v2/batch_coordinate_statistics.parquet",
+      "bytes": 9843204,
+      "sha256": "b46873c8779d622f8145a02f81dde96f50cd4b8ba69cc97264a184b2ac980927"
+    },
+    {
+      "path": "results/coordinate_controlled_lag_discovery_v1/whole_window_evidence.csv",
+      "bytes": 195560,
+      "sha256": "97f81b1fcdb4c90f6973e7853386df8cec8b3222117e8116fbf90414fd186726"
+    },
+    {
+      "path": "results/coordinate_shape_discovery_v1/whole_window_evidence.csv",
+      "bytes": 596522,
+      "sha256": "d8b63539078fc16b88bdff445255c3ed5c7a16bf76863d393663eea59b18c096"
+    },
+    {
+      "path": "results/coordinate_transport_support_v1/whole_window_evidence.csv",
+      "bytes": 486686,
+      "sha256": "4963ad92468532631c78d77e3dbe1771fc18e2f487dabd191bae2a24ce9c178d"
+    }
+  ],
+  "local_git_commit_at_review": "9ee5c081e121cbe6ac1e7cd68ba83290a73e33b6",
+  "motif_metric_families": [
+    {
+      "metric": "selection_shift",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 0,
+      "min_q": 0.160989340722
+    },
+    {
+      "metric": "root_balanced_selection_shift",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 0,
+      "min_q": 0.326600062326
+    },
+    {
+      "metric": "retained_shift",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 0,
+      "min_q": 0.888604591122
+    },
+    {
+      "metric": "root_balanced_retained_shift",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 0,
+      "min_q": 0.998966672469
+    },
+    {
+      "metric": "high_enrichment",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 46,
+      "min_q": 0.000543238290312
+    },
+    {
+      "metric": "low_enrichment",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 9,
+      "min_q": 0.0353580331294
+    },
+    {
+      "metric": "partial_affinity_correlation",
+      "n_finite_q": 102,
+      "n_q_lt_0_05": 0,
+      "min_q": 0.786709347911
+    },
+    {
+      "metric": "lag_partial_gain_correlation",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 4,
+      "min_q": 0.00228915761916
+    },
+    {
+      "metric": "lag_controlled_gain_correlation",
+      "n_finite_q": 108,
+      "n_q_lt_0_05": 0,
+      "min_q": 0.318563781322
+    }
+  ],
+  "exact_motif_evidence_rows": [
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "selection_shift",
+      "window_mean": 1.0678484377e-05,
+      "ci_low": -0.000221954721391,
+      "ci_high": 0.000243311690144,
+      "p": 0.92251879765,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 5.5091665442e-05,
+      "end": -1.549978409e-05,
+      "end_minus_start": -7.0591449532e-05,
+      "mean_change_rate": -0.000141182899064,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.996730627894
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "retained_shift",
+      "window_mean": 0.00201743136645,
+      "ci_low": -0.00374012534647,
+      "ci_high": 0.00777498807937,
+      "p": 0.462557624207,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00164651057118,
+      "end": -0.000564277450917,
+      "end_minus_start": 0.00108223312026,
+      "mean_change_rate": 0.00216446624052,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.888604591122
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "low_enrichment",
+      "window_mean": -0.00193400256043,
+      "ci_low": -0.00510599665401,
+      "ci_high": 0.00123799153316,
+      "p": 0.210516285976,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00394786526236,
+      "end": -0.00596458574057,
+      "end_minus_start": -0.00991245100293,
+      "mean_change_rate": -0.0198249020059,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.378929314758
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "high_enrichment",
+      "window_mean": -0.00112391578879,
+      "ci_low": -0.00397015733929,
+      "ci_high": 0.00172232576171,
+      "p": 0.409057979666,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00407694618562,
+      "end": -0.00682704389917,
+      "end_minus_start": -0.0109039900848,
+      "mean_change_rate": -0.0218079801696,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.475035073161
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "partial_affinity_correlation",
+      "window_mean": -0.00837646346916,
+      "ci_low": -0.0370051277756,
+      "ci_high": 0.0202522008373,
+      "p": 0.538278293313,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0267151073577,
+      "end": 0.0144072640197,
+      "end_minus_start": 0.0411223713774,
+      "mean_change_rate": 0.0822447427549,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.811834227545
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "lag_partial_gain_correlation",
+      "window_mean": 0.0319662917119,
+      "ci_low": 0.0173147205682,
+      "ci_high": 0.0466178628556,
+      "p": 0.000405283052695,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.0226507097875,
+      "end": 0.0620022293907,
+      "end_minus_start": 0.0846529391781,
+      "mean_change_rate": 0.172761100364,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.0109426424228
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "lag_controlled_gain_correlation",
+      "window_mean": 0.00679473715012,
+      "ci_low": -0.00986321790315,
+      "ci_high": 0.0234526922034,
+      "p": 0.394205522577,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00305108653436,
+      "end": 0.0807977198216,
+      "end_minus_start": 0.083848806356,
+      "mean_change_rate": 0.171120012971,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.596961864557
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "root_balanced_selection_shift",
+      "window_mean": -1.4201581906e-05,
+      "ci_low": -0.000212926324541,
+      "ci_high": 0.000184523160728,
+      "p": 0.87967516482,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -3.1039068936e-05,
+      "end_minus_start": -3.1039068936e-05,
+      "mean_change_rate": -6.2078137872e-05,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.985262702876
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "metric": "root_balanced_retained_shift",
+      "window_mean": -5.940099914e-05,
+      "ci_low": -0.00520110388915,
+      "ci_high": 0.00508230189087,
+      "p": 0.980467289645,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.000798387292142,
+      "end_minus_start": -0.000798387292142,
+      "mean_change_rate": -0.00159677458428,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.998966672469
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "selection_shift",
+      "window_mean": -8.2379175344e-05,
+      "ci_low": -0.000211076960101,
+      "ci_high": 4.6318609414e-05,
+      "p": 0.190004299415,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 1.010588222e-06,
+      "end": -0.000461211510547,
+      "end_minus_start": -0.00046222209877,
+      "mean_change_rate": -0.000924444197539,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.57914739404
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "retained_shift",
+      "window_mean": -0.000240629818863,
+      "ci_low": -0.00166897959803,
+      "ci_high": 0.00118771996031,
+      "p": 0.721745521311,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -3.2496972741e-05,
+      "end": -0.000682205399522,
+      "end_minus_start": -0.000649708426781,
+      "mean_change_rate": -0.00129941685356,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.888604591122
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "low_enrichment",
+      "window_mean": -0.000526216388807,
+      "ci_low": -0.00370688212509,
+      "ci_high": 0.00265444934748,
+      "p": 0.726515852505,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 7.4792044675e-05,
+      "end": 0.00463824980657,
+      "end_minus_start": 0.00456345776189,
+      "mean_change_rate": 0.00912691552378,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.871819023006
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "high_enrichment",
+      "window_mean": -0.00559479808952,
+      "ci_low": -0.00912811573726,
+      "ci_high": -0.00206148044179,
+      "p": 0.00455643560754,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00373688574678,
+      "end": -0.00491966726484,
+      "end_minus_start": -0.00865655301161,
+      "mean_change_rate": -0.0173131060232,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.0129498696214
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "partial_affinity_correlation",
+      "window_mean": -0.0318564808851,
+      "ci_low": -0.0711220978965,
+      "ci_high": 0.00740913612624,
+      "p": 0.103184131442,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0169807986237,
+      "end": -0.0990292114933,
+      "end_minus_start": -0.116010010117,
+      "mean_change_rate": -0.232020020234,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.786709347911
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "lag_partial_gain_correlation",
+      "window_mean": 0.0132851003546,
+      "ci_low": -0.0190652392826,
+      "ci_high": 0.0456354399918,
+      "p": 0.391097878095,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.097056250673,
+      "end": 0.0565760327113,
+      "end_minus_start": -0.0404802179617,
+      "mean_change_rate": -0.0826126897178,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.527982135429
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "lag_controlled_gain_correlation",
+      "window_mean": -0.0208129159789,
+      "ci_low": -0.0449095520513,
+      "ci_high": 0.00328372009363,
+      "p": 0.0847655931967,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.131334099585,
+      "end": 0.0154723856292,
+      "end_minus_start": -0.115861713956,
+      "mean_change_rate": -0.23645247746,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.386819314579
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "root_balanced_selection_shift",
+      "window_mean": -6.2401530901e-05,
+      "ci_low": -0.000167573851121,
+      "ci_high": 4.277078932e-05,
+      "p": 0.222300921195,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.000427573847504,
+      "end_minus_start": -0.000427573847504,
+      "mean_change_rate": -0.000855147695008,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.644382535191
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+      "metric": "root_balanced_retained_shift",
+      "window_mean": -0.000380197050084,
+      "ci_low": -0.00160614071432,
+      "ci_high": 0.000845746614156,
+      "p": 0.514591737758,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": -0.000777645005994,
+      "end_minus_start": -0.000777645005994,
+      "mean_change_rate": -0.00155529001199,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.998966672469
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "selection_shift",
+      "window_mean": -4.274812e-09,
+      "ci_low": -1.61026131e-07,
+      "ci_high": 1.52476508e-07,
+      "p": 0.953915001932,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 5.8476e-11,
+      "end": 2.684984023e-06,
+      "end_minus_start": 2.684925547e-06,
+      "mean_change_rate": 5.369851095e-06,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.996730627894
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "retained_shift",
+      "window_mean": 7.20605067e-07,
+      "ci_low": -6.33674519e-07,
+      "ci_high": 2.074884654e-06,
+      "p": 0.271050730844,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -1.366222e-09,
+      "end": 3.949287628e-06,
+      "end_minus_start": 3.95065385e-06,
+      "mean_change_rate": 7.9013077e-06,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.888604591122
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "low_enrichment",
+      "window_mean": 0.0042254923378,
+      "ci_low": 0.000620792189596,
+      "ci_high": 0.007830192486,
+      "p": 0.025010208037,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00294749470763,
+      "end": -0.0148969694992,
+      "end_minus_start": -0.0119494747916,
+      "mean_change_rate": -0.0238989495832,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.122777384909
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "high_enrichment",
+      "window_mean": -0.0105819928779,
+      "ci_low": -0.014165420748,
+      "ci_high": -0.00699856500767,
+      "p": 2.419708717e-05,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00070615662322,
+      "end": 0.0119490060323,
+      "end_minus_start": 0.0112428494091,
+      "mean_change_rate": 0.0224856988182,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.000543238290312
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "partial_affinity_correlation",
+      "window_mean": -0.0200682093755,
+      "ci_low": -0.0570599180068,
+      "ci_high": 0.0169234992557,
+      "p": 0.262223783703,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0419933801029,
+      "end": 0.0497619055374,
+      "end_minus_start": 0.00776852543451,
+      "mean_change_rate": 0.015537050869,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.786709347911
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "lag_partial_gain_correlation",
+      "window_mean": 0.022777847765,
+      "ci_low": -0.00281738580892,
+      "ci_high": 0.0483730813389,
+      "p": 0.0767207466078,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.072896958295,
+      "end": 0.168725661745,
+      "end_minus_start": 0.09582870345,
+      "mean_change_rate": 0.195568782551,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.147961439886
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "lag_controlled_gain_correlation",
+      "window_mean": -0.0234963636352,
+      "ci_low": -0.0430192912057,
+      "ci_high": -0.00397343606473,
+      "p": 0.022003427642,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0757293641853,
+      "end": 0.0845371542465,
+      "end_minus_start": 0.00880779006118,
+      "mean_change_rate": 0.0179750817575,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.318563781322
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "root_balanced_selection_shift",
+      "window_mean": -1.5287416e-08,
+      "ci_low": -1.30767742e-07,
+      "ci_high": 1.00192909e-07,
+      "p": 0.779390683697,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": 2.671660764e-06,
+      "end_minus_start": 2.671660764e-06,
+      "mean_change_rate": 5.343321527e-06,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.985262702876
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+      "metric": "root_balanced_retained_shift",
+      "window_mean": 3.1773478e-07,
+      "ci_low": -8.2291978e-07,
+      "ci_high": 1.458389339e-06,
+      "p": 0.557669609485,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": 2.331589709e-06,
+      "end_minus_start": 2.331589709e-06,
+      "mean_change_rate": 4.663179418e-06,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.998966672469
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "selection_shift",
+      "window_mean": -0.000158449005518,
+      "ci_low": -0.000273001306605,
+      "ci_high": -4.3896704432e-05,
+      "p": 0.010473332086,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 5.749894799e-05,
+      "end": 5.8276851282e-05,
+      "end_minus_start": 7.77903292e-07,
+      "mean_change_rate": 1.555806585e-06,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.228472663655
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "retained_shift",
+      "window_mean": -0.000613113665035,
+      "ci_low": -0.0023365169104,
+      "ci_high": 0.00111028958033,
+      "p": 0.455886249928,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00121539248566,
+      "end": -4.521146756e-06,
+      "end_minus_start": 0.0012108713389,
+      "mean_change_rate": 0.0024217426778,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.888604591122
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "low_enrichment",
+      "window_mean": 0.00254467815924,
+      "ci_low": -0.00148058172515,
+      "ci_high": 0.00656993804363,
+      "p": 0.195186236463,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": -0.00577602503901,
+      "end": -0.00773090757073,
+      "end_minus_start": -0.00195488253172,
+      "mean_change_rate": -0.00390976506344,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.364662525198
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "high_enrichment",
+      "window_mean": -0.0101273038929,
+      "ci_low": -0.0133332625005,
+      "ci_high": -0.00692134528533,
+      "p": 1.2165982319e-05,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.00647078016568,
+      "end": -0.000934291639866,
+      "end_minus_start": -0.00740507180554,
+      "mean_change_rate": -0.0148101436111,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.000543238290312
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "partial_affinity_correlation",
+      "window_mean": 0.00260847628182,
+      "ci_low": -0.0406668251633,
+      "ci_high": 0.0458837777269,
+      "p": 0.898386502216,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0433878730223,
+      "end": -0.0623469130281,
+      "end_minus_start": -0.10573478605,
+      "mean_change_rate": -0.211469572101,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.954535658605
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "lag_partial_gain_correlation",
+      "window_mean": -0.000257083071157,
+      "ci_low": -0.0239680181801,
+      "ci_high": 0.0234538520377,
+      "p": 0.981668148836,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0758168396111,
+      "end": -0.112199259896,
+      "end_minus_start": -0.188016099507,
+      "mean_change_rate": -0.383706325524,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.996843628471
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "lag_controlled_gain_correlation",
+      "window_mean": -0.00621859240953,
+      "ci_low": -0.0334280531647,
+      "ci_high": 0.0209908683457,
+      "p": 0.629725154941,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0794404142101,
+      "end": -0.1168260574,
+      "end_minus_start": -0.196266471611,
+      "mean_change_rate": -0.400543819614,
+      "missing_node_policy": "Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero",
+      "q": 0.747366117952
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "root_balanced_selection_shift",
+      "window_mean": -8.4188273261e-05,
+      "ci_low": -0.000186602940554,
+      "ci_high": 1.8226394031e-05,
+      "p": 0.099147751177,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": 5.7015868417e-05,
+      "end_minus_start": 5.7015868417e-05,
+      "mean_change_rate": 0.000114031736835,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.594886507062
+    },
+    {
+      "split": "discovery",
+      "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_6",
+      "metric": "root_balanced_retained_shift",
+      "window_mean": -0.000678455559459,
+      "ci_low": -0.00202593139785,
+      "ci_high": 0.000669020278932,
+      "p": 0.296462473804,
+      "n_batches": 14,
+      "mean_time_coverage": 1.0,
+      "start": 0.0,
+      "end": 2.6178379042e-05,
+      "end_minus_start": 2.6178379042e-05,
+      "mean_change_rate": 5.2356758084e-05,
+      "missing_node_policy": "Complete curve required",
+      "q": 0.998966672469
+    }
+  ],
+  "selected_descriptive_functions": {
+    "ck2:A:VAL116::NOS_C::proposal_motif_pair_3": {
+      "cv_mse_by_degree": [
+        0.015349636106230165,
+        0.0013603075435917342,
+        0.0002634624016351866,
+        0.00014018298034399588,
+        8.094036358134757e-05,
+        7.975030933525508e-05
+      ],
+      "degree": 4,
+      "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+      "legendre_coefficients": [
+        0.12414967207609309,
+        0.20489078931842605,
+        0.07413821935301641,
+        -0.029298031715958413,
+        -0.022905254755076886
+      ],
+      "n_independent_batches": 14,
+      "time_end": 0.5,
+      "time_start": 0.0
+    },
+    "ck2:A:VAL116::NOS_C::proposal_motif_shell_2": {
+      "cv_mse_by_degree": [
+        5.295805244501252e-08,
+        2.61251038229367e-08,
+        9.164690539638616e-09,
+        3.4980618921618694e-09,
+        2.4042734887105764e-09,
+        2.282548121625412e-09
+      ],
+      "degree": 4,
+      "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+      "legendre_coefficients": [
+        0.00012102437025130956,
+        0.0002837373309005541,
+        0.00029049281580266164,
+        0.00019852483738539044,
+        9.824457039959196e-05
+      ],
+      "n_independent_batches": 14,
+      "time_end": 0.5,
+      "time_start": 0.0
+    },
+    "ck2:A:VAL116::NOS_C::proposal_motif_shell_6": {
+      "cv_mse_by_degree": [
+        0.023944353741854812,
+        0.0010262866687953595,
+        0.000277947251602347,
+        5.072162432121515e-05,
+        5.0494333022988676e-05,
+        4.860181078400508e-05
+      ],
+      "degree": 3,
+      "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+      "legendre_coefficients": [
+        0.49239802651739534,
+        0.2622206254064819,
+        -0.06111821771043528,
+        -0.039742178945079816
+      ],
+      "n_independent_batches": 14,
+      "time_end": 0.5,
+      "time_start": 0.0
+    },
+    "ck2:A:VAL116::NOS::proposal_motif_centroid_x": {
+      "cv_mse_by_degree": [
+        0.011645470687919135,
+        0.0002651163681437786,
+        0.00025306964036236814,
+        0.0002540204606883218,
+        0.00025504909335101234,
+        0.00025542126422467467
+      ],
+      "degree": 1,
+      "derivative_semantics": "temporal derivative of an ensemble curve, not a coordinate force",
+      "legendre_coefficients": [
+        2.0574580233318036,
+        -0.1848203648974998
+      ],
+      "n_independent_batches": 14,
+      "time_end": 0.5,
+      "time_start": 0.0
+    }
+  },
+  "descriptive_fit_grid_audit": {
+    "grid_points": 1001,
+    "domain_score_time": [
+      0,
+      0.5
+    ],
+    "n_kernels": 72,
+    "violations": [
+      {
+        "feature": "ck2:A:ASN117::NOS::motif_pair_5",
+        "degree": 2,
+        "grid_min": -0.006906187889375843,
+        "grid_max": 0.05345628523219743
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS::motif_shell_4",
+        "degree": 4,
+        "grid_min": -6.765638897136724e-06,
+        "grid_max": 0.00028997091837906015
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS::motif_shell_6",
+        "degree": 3,
+        "grid_min": -0.0014375466563734361,
+        "grid_max": 0.10953476932988886
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS::proposal_motif_pair_3",
+        "degree": 2,
+        "grid_min": -0.031487734666838435,
+        "grid_max": 0.7591272764098798
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS::proposal_motif_pair_5",
+        "degree": 1,
+        "grid_min": -0.013338701840397739,
+        "grid_max": 0.031634921597419347
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS::proposal_motif_shell_4",
+        "degree": 4,
+        "grid_min": -8.071850342429806e-06,
+        "grid_max": 0.00035573404776624736
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS::proposal_motif_shell_6",
+        "degree": 3,
+        "grid_min": -0.004785762721009855,
+        "grid_max": 0.12275221014201323
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::motif_pair_3",
+        "degree": 5,
+        "grid_min": -0.018784155687712197,
+        "grid_max": 0.24188151333395644
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.0013316656443119388,
+        "grid_max": 0.019580165111021102
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::motif_shell_4",
+        "degree": 4,
+        "grid_min": -3.4563690759418153e-06,
+        "grid_max": 0.00014480315778954992
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::motif_shell_6",
+        "degree": 3,
+        "grid_min": -0.0005180545890266508,
+        "grid_max": 0.060070762862329194
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::proposal_motif_pair_3",
+        "degree": 3,
+        "grid_min": -0.0034873786122931946,
+        "grid_max": 0.27445293962078243
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::proposal_motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.0002463524526922999,
+        "grid_max": 0.020769389603638375
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::proposal_motif_shell_4",
+        "degree": 4,
+        "grid_min": -3.726658726918808e-06,
+        "grid_max": 0.00017595841028440995
+      },
+      {
+        "feature": "ck2:A:ASN117::NOS_C::proposal_motif_shell_6",
+        "degree": 3,
+        "grid_min": -0.002442060903424203,
+        "grid_max": 0.06722963982773889
+      },
+      {
+        "feature": "ck2:A:ASN117::all::motif_pair_3",
+        "degree": 5,
+        "grid_min": -0.01746927915849883,
+        "grid_max": 0.2634498597054624
+      },
+      {
+        "feature": "ck2:A:ASN117::all::motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.0009585007284157947,
+        "grid_max": 0.017132968288592995
+      },
+      {
+        "feature": "ck2:A:ASN117::all::motif_shell_4",
+        "degree": 4,
+        "grid_min": -3.4406185301811734e-06,
+        "grid_max": 0.000144463732712113
+      },
+      {
+        "feature": "ck2:A:ASN117::all::motif_shell_6",
+        "degree": 3,
+        "grid_min": -0.0005099435035781814,
+        "grid_max": 0.05994154764464302
+      },
+      {
+        "feature": "ck2:A:ASN117::all::proposal_motif_pair_3",
+        "degree": 4,
+        "grid_min": -0.002435505272673541,
+        "grid_max": 0.2870519289305954
+      },
+      {
+        "feature": "ck2:A:ASN117::all::proposal_motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.00024491449195704145,
+        "grid_max": 0.018677342803021354
+      },
+      {
+        "feature": "ck2:A:ASN117::all::proposal_motif_shell_4",
+        "degree": 4,
+        "grid_min": -3.7132058450119646e-06,
+        "grid_max": 0.00017555739154616795
+      },
+      {
+        "feature": "ck2:A:ASN117::all::proposal_motif_shell_6",
+        "degree": 3,
+        "grid_min": -0.0024298739316572712,
+        "grid_max": 0.0670843480471567
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::motif_pair_3",
+        "degree": 3,
+        "grid_min": -0.018013499662824783,
+        "grid_max": 0.6159563518666422
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.007308713126431566,
+        "grid_max": 0.14333568456659568
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::motif_shell_2",
+        "degree": 4,
+        "grid_min": -5.304584107279617e-05,
+        "grid_max": 0.002549787107133495
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::proposal_motif_pair_3",
+        "degree": 3,
+        "grid_min": -0.023042783930500604,
+        "grid_max": 0.6196161893164001
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::proposal_motif_pair_5",
+        "degree": 3,
+        "grid_min": -0.011936980517808074,
+        "grid_max": 0.13918702987107273
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::proposal_motif_shell_2",
+        "degree": 4,
+        "grid_min": -4.349373374938005e-05,
+        "grid_max": 0.0029560040448227535
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS::proposal_motif_shell_4",
+        "degree": 3,
+        "grid_min": -0.0014260613749049744,
+        "grid_max": 0.29202396999585334
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::motif_pair_3",
+        "degree": 5,
+        "grid_min": -0.02011476820037006,
+        "grid_max": 0.33962830159029367
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.0017223819416329767,
+        "grid_max": 0.0390842082972276
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::motif_shell_2",
+        "degree": 4,
+        "grid_min": -1.54410634579988e-05,
+        "grid_max": 0.0008597641835884027
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_3",
+        "degree": 4,
+        "grid_min": -0.00021012092843503138,
+        "grid_max": 0.35097539427650026
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.000414562907377168,
+        "grid_max": 0.04249763112415028
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_2",
+        "degree": 4,
+        "grid_min": -1.2363079700827538e-05,
+        "grid_max": 0.0009920239247395077
+      },
+      {
+        "feature": "ck2:A:VAL116::NOS_C::proposal_motif_shell_4",
+        "degree": 3,
+        "grid_min": -0.0002618046860584852,
+        "grid_max": 0.13912613086192938
+      },
+      {
+        "feature": "ck2:A:VAL116::all::motif_pair_3",
+        "degree": 5,
+        "grid_min": -0.018261112940479392,
+        "grid_max": 0.33677774992913506
+      },
+      {
+        "feature": "ck2:A:VAL116::all::motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.0012172085729431712,
+        "grid_max": 0.029767193860168024
+      },
+      {
+        "feature": "ck2:A:VAL116::all::motif_shell_2",
+        "degree": 4,
+        "grid_min": -1.5381165353363543e-05,
+        "grid_max": 0.0008573216931721273
+      },
+      {
+        "feature": "ck2:A:VAL116::all::proposal_motif_pair_3",
+        "degree": 4,
+        "grid_min": -0.002503159395251864,
+        "grid_max": 0.35567828559033277
+      },
+      {
+        "feature": "ck2:A:VAL116::all::proposal_motif_pair_5",
+        "degree": 4,
+        "grid_min": -0.00038176997217343866,
+        "grid_max": 0.03291139903791976
+      },
+      {
+        "feature": "ck2:A:VAL116::all::proposal_motif_shell_2",
+        "degree": 4,
+        "grid_min": -1.2289916763251566e-05,
+        "grid_max": 0.0009891772989321277
+      },
+      {
+        "feature": "ck2:A:VAL116::all::proposal_motif_shell_4",
+        "degree": 3,
+        "grid_min": -0.00023930750445247395,
+        "grid_max": 0.13876037771883423
+      }
+    ],
+    "is_exhaustive_analytic_bound": false
+  }
+}

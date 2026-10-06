@@ -89,7 +89,7 @@ def curve_fit(times,curves,max_degree=5):
 METRICS=('population_mean','selected_mean','selection_shift','retained_shift',
          'low_enrichment','high_enrichment','affinity_correlation','partial_affinity_correlation',
          'lag_gain_correlation','lag_partial_gain_correlation','native_difference')
-EXTENDED_METRICS=('lag_controlled_gain_correlation',)
+EXTENDED_METRICS=('lag_controlled_gain_correlation','root_balanced_selection_shift','root_balanced_retained_shift','within_root_affinity_correlation')
 
 
 def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='current',regions=None,control_representation='current',feature_family='geometry',control_lag_nuisance=False):
@@ -162,6 +162,21 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
                     if k+1<len(ids):
                         _,controlled,_=lag_evidence(x,scores[i],scores[ids[k+1]],selected[k],nuisance)
                     values['lag_controlled_gain_correlation']=controlled
+                if feature_family=='motif':
+                    roots=z.read('root_slot',int(i));_,group,count=np.unique(roots,return_inverse=True,return_counts=True)
+                    prior=1/count[group];balanced_probability=p/np.bincount(group,weights=p)[group].clip(1e-30)
+                    retained=copies[k]/np.bincount(group,weights=copies[k])[group].clip(1e-30)
+                    values['root_balanced_selection_shift']=mean(x,balanced_probability)-mean(x,prior)
+                    # Roots lost before the end have no retained distribution;
+                    # retain this retrospective survival confounding explicitly.
+                    alive_root=np.bincount(group,weights=copies[k])[group]>0
+                    values['root_balanced_retained_shift']=mean(x,retained)-mean(x,prior*alive_root)
+                    residual=x.copy();score_residual=scores[i].copy()
+                    for g in np.unique(group):
+                        ids_root=group==g
+                        residual[ids_root]-=mean(x[ids_root],np.ones(ids_root.sum()))
+                        score_residual[ids_root]-=score_residual[ids_root].mean()
+                    values['within_root_affinity_correlation']=correlation(residual,score_residual)
                 rows.append(pd.DataFrame({'batch':batch,'time':t,'feature':names,'available_fraction':np.isfinite(x).mean(0),**values}))
                 roots=z.read('root_slot',int(i));unique=np.unique(roots).size
                 audit.append({'batch':batch,'time':t,'candidates':n,'unique_roots':unique,
@@ -183,8 +198,9 @@ def mine(dataset,campaign,analysis,output,batches=None,width=4.,spatial_anchor='
         'feature_family':feature_family,'core_diagnostic_radius_A':5.,
         'lag_nuisance_control':('starting score plus current global centroid/radius and predicted NOS count; shape family also includes whole current/proposal second moments' if control_lag_nuisance else 'starting score only'),
         'shape_partial_nuisance':'same-event partial correlation: global centroid/radius/NOS count plus masked whole-ligand current AND proposal second moments. Lag partial correlation still adjusts starting score only.' if feature_family=='shape' else None,
-        'analysis_code_sha256':{p.name:digest(p) for p in (Path(__file__),Path(__file__).with_name('coordinate_features.py'))},
+        'analysis_code_sha256':{p.name:digest(p) for p in (Path(__file__),Path(__file__).with_name('coordinate_features.py'),*([Path(__file__).with_name('spatial_motifs.py')] if feature_family=='motif' else []))},
         'n_features':len(metadata),'n_statistic_rows':len(table),'storage':'lossless float64 zstd Parquet; no node feature cache',
+        'motif_root_diagnostics':'Equal extant root mass per event; within-root residual correlations. Roots are not additional independent statistical replicates. Retained-root shifts condition on survival.' if feature_family=='motif' else None,
         'interpretation':['Selection association is partly tautological: selection uses this affinity head.',
             'Lag associations condition on survival and starting score; observational, not causal.',
             'Batch is the independent unit; roots collapse within a batch.',
@@ -209,7 +225,8 @@ def summarize(table,grid,splits,out):
                 finite=np.isfinite(curves);coverage=finite@w
                 # Late genealogical collapse makes lag effects unidentifiable.
                 # Keep the available evidence with explicit coverage, never zero-fill effects.
-                valid=coverage>=.25 if metric.startswith('lag_') else finite.all(1)
+                partial_support=metric.startswith('lag_') or metric=='within_root_affinity_correlation'
+                valid=coverage>=.25 if partial_support else finite.all(1)
                 curves=curves[valid];coverage=coverage[valid];finite=finite[valid]
                 if len(curves)<2:continue
                 a=(np.where(finite,curves,0)@w)/coverage;m=float(a.mean());se=float(a.std(ddof=1)/np.sqrt(len(a)))
@@ -218,10 +235,21 @@ def summarize(table,grid,splits,out):
                 summary.append({'split':split,'feature':feature,'metric':metric,'window_mean':m,
                     'ci_low':m-ci,'ci_high':m+ci,'p':p,'n_batches':len(a),
                     'mean_time_coverage':float(coverage.mean()),
-                    'start':float(curves[:,0].mean()),'end':float(curves[:,-1].mean()),
-                    'end_minus_start':float((curves[:,-1]-curves[:,0]).mean()),
-                    'mean_change_rate':float((curves[:,-1]-curves[:,0]).mean()/(eligible[-1]-eligible[0]))})
-                if split=='discovery' and metric=='selected_mean':fits[feature]=curve_fit(eligible,curves)
+                    'start':float(curves[:,0].mean()) if np.isfinite(curves[:,0]).all() else None,
+                    'end':float(curves[:,-1].mean()) if np.isfinite(curves[:,-1]).all() else None,
+                    'end_minus_start':float((curves[:,-1]-curves[:,0]).mean()) if np.isfinite(curves[:,[0,-1]]).all() else None,
+                    'mean_change_rate':float((curves[:,-1]-curves[:,0]).mean()/(eligible[-1]-eligible[0])) if np.isfinite(curves[:,[0,-1]]).all() else None,
+                    'missing_node_policy':'Undefined genealogical contrasts are omitted with reported quadrature coverage, never treated as zero' if partial_support else 'Complete curve required'})
+                if split=='discovery' and metric=='selected_mean':
+                    bounded=('motif_' in feature and 'centroid' not in feature)
+                    if bounded:
+                        from scipy.special import logit
+                        fits[feature]={**curve_fit(eligible,logit(np.clip(curves,1e-8,1-1e-8))),
+                            'output_transform':'sigmoid','legal_output_range':[0.,1.],
+                            'transform_clip_epsilon':1e-8,'cv_loss_space':'logit',
+                            'derivative_semantics':'sigmoid(h(t))*(1-sigmoid(h(t)))*h_prime(t); temporal only, not a coordinate force',
+                            'target_use':'Descriptive fit; reward uses exact measured-node reference distributions, never this transformed curve'}
+                    else:fits[feature]=curve_fit(eligible,curves)
                 if split=='discovery' and metric in ('selection_shift','retained_shift','partial_affinity_correlation') and np.isfinite(curves).all():
                     effect_functions.setdefault(metric,{})[feature]=curve_fit(eligible,curves)
     summ=pd.DataFrame(summary)
