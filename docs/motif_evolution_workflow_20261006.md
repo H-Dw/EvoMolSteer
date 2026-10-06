@@ -57,6 +57,16 @@ LLM prompts. The Analyst gets this compact evidence and the Designer gets its
 review, feature definitions, formula contract and counterevidence. Original
 trajectories remain the reproducible source.
 
+`scripts/motif_agents.py` exposes export/import/api/compile actions for Analyst
+and Designer. The bounded packet includes per-metric counts/null evidence, top
+rows, definitions and relevant functions; it does not include structures. Designer
+export requires a grounded Analyst response. Compilation checks exact evidence
+and reference hashes, whitelist/observable/window/units and declared dose. It
+compiles a configuration into registered torch formulas, never runs arbitrary
+LLM Python. API transport uses the existing EVOMOLSTEER_BASE_URL/MODEL/API_KEY
+variables and strict JSON responses. Subagent simulation follows the same
+export/import/compile path without making a billed HTTP call.
+
 ## Reward and dose
 
 For measured feature vector z=F(x; detached forecast labels/anchor)/sigma, use

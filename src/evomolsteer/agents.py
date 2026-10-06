@@ -42,6 +42,9 @@ def render_report(data):
     return '\n'.join(lines)+'\n'
 
 def import_response(request_path,response_path,analysis):
+    if read_json(request_path).get('schema_version')=='motif-agent-1.0':
+        from .continuous.motif_agents import import_response as motif_import
+        return motif_import(request_path,response_path,Path(request_path).parent)
     if read_json(request_path).get('schema_version')=='coordinate-1.0':
         from .continuous.coordinate_agents import import_response as coordinate_import
         return coordinate_import(request_path,response_path,analysis)
@@ -68,6 +71,7 @@ def call_api(request_path,analysis):
     with httpx.Client(timeout=180) as client:
         response=client.post(base.rstrip('/')+'/chat/completions',headers={'Authorization':'Bearer '+key},json=body)
         response.raise_for_status();content=response.json()['choices'][0]['message']['content']
-    data=json.loads(content);path=Path(analysis)/'agents'/f'{request["role"]}.raw_api.json';write_json(path,data)
+    destination=Path(request_path).parent if request.get('schema_version')=='motif-agent-1.0' else Path(analysis)/'agents'
+    data=json.loads(content);path=destination/f'{request["role"]}.raw_api.json';write_json(path,data)
     # No fallback to a weaker schema; errors remain visible.
     return import_response(request_path,path,analysis)
