@@ -4,7 +4,7 @@ from ..generation.endpoint_reward import FAMILIES
 from ..io import read_json,digest,write_json
 from .affinity_skill import audit_behavior
 
-REGISTERED_ENDPOINT_FAMILIES=set(FAMILIES)|{'endpoint_supported_attractor'}
+REGISTERED_ENDPOINT_FAMILIES=set(FAMILIES)|{'endpoint_supported_attractor','endpoint_regional_pointcloud'}
 
 
 def audit_endpoint_behavior(skill,task,prompt,response,reference_sha,output=None):

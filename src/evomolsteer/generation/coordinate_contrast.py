@@ -69,6 +69,9 @@ class CoordinateSelectionContrastReward(CoordinateMixtureReward):
 
 
 def make_coordinate_reward(program,reference):
+    if program['reward_view']=='endpoint_regional_pointcloud':
+        from .regional_point_reward import RegionalPointReward
+        return RegionalPointReward(program,reference)
     if program['reward_view']=='endpoint_supported_attractor':
         from .persistent_reward import PersistentEndpointReward
         return PersistentEndpointReward(program,reference)

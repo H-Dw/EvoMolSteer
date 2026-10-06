@@ -31,3 +31,10 @@ def test_frozen_program_preserves_history_formula_and_target_metadata():
     p=dict(window=[.1,.6],reference_sha256='immutable',reward_view='endpoint_supported_attractor',
            target_definition='bounded_supported_elite_prototypes_and_lineage_increments',history_strength=1.)
     assert update_program(p,{'action':'frozen_validation'},[.1,.6],'immutable')==p
+
+
+def test_dense_switch_preserves_shared_score_prior_and_temperature():
+    p=dict(reward_view='endpoint_pointcloud',teacher_score_beta=6.,mixture_temperature=1.5,history_strength=4.)
+    result=apply_persistent_fields(p,{'action':'parent_refinement'})
+    assert result['teacher_score_beta']==6. and result['mixture_temperature']==1.5
+    assert 'history_strength' not in result

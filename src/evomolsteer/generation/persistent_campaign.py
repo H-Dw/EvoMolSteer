@@ -4,7 +4,7 @@ from .affinity_campaign import select_parent
 from .sparse_campaign import SPARSE_KEYS
 from ..continuous.persistent_design import HISTORY_KEYS
 
-PERSISTENT_KEYS=HISTORY_KEYS+('history_prior_sha256','history_prior_relative_path',
+PERSISTENT_KEYS=tuple(k for k in HISTORY_KEYS if k not in ('mixture_temperature','teacher_score_beta'))+('history_prior_sha256','history_prior_relative_path',
                           'persistent_designer_response_sha256','persistent_behavior_audit_sha256')
 
 

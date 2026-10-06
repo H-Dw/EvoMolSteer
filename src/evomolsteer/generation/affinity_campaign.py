@@ -48,7 +48,8 @@ def update_program(parent,plan,window,reference_sha):
     if plan.get('action')=='frozen_validation':
         if p['window']!=list(window) or p['reference_sha256']!=reference_sha:raise ValueError('Frozen discovery support cannot change')
         return p
-    allowed={'reward_view','native_rms_ratio','teacher_neighbors','teacher_score_beta','teacher_endpoint_temperature_A2','time_ramp_power','geometry_block_weights'}
+    allowed={'reward_view','native_rms_ratio','teacher_neighbors','teacher_score_beta','teacher_endpoint_temperature_A2','time_ramp_power','geometry_block_weights',
+             'coordinate_region_weights','coordinate_region_radius_A','coordinate_background_weight','mixture_temperature','pointcloud_delta_A'}
     p.update({k:v for k,v in plan.items() if k in allowed})
     p.update(window=list(window),reference_sha256=reference_sha,record_reward_response=True,
         objective_profile='affinity_primary_coordinate30',affinity_head_gradient=False,additional_per_step_affinity_calls=0)
