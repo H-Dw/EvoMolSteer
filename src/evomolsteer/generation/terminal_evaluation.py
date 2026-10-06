@@ -12,6 +12,7 @@ from posebusters import PoseBusters
 from ..io import read_json,write_json,digest,clean
 from .prototypes import measure_patch
 from .window_reference import load_reference
+from .terminal_statistics import converged_energy
 
 RDLogger.DisableLog('rdApp.warning')
 
@@ -111,9 +112,8 @@ def summarize(rows):
             values=pd.to_numeric(frame.get(name,pd.Series(dtype=float)),errors='coerce').dropna()
             summary[group+'_'+name+'_mean']=float(values.mean()) if len(values) else None
             summary[group+'_'+name+'_n']=len(values)
-        energies=frame[frame.energy_status.eq('converged')] if 'energy_status' in frame else frame.iloc[:0]
         for name in ['mmff_relief_kcal_mol','mmff_relief_per_heavy']:
-            values=pd.to_numeric(energies.get(name,pd.Series(dtype=float)),errors='coerce').dropna()
+            values=converged_energy(frame,name)
             summary[group+'_'+name+'_median']=float(values.median()) if len(values) else None
             summary[group+'_'+name+'_n']=len(values)
     summary['energy_failure_counts']=d.energy_status.fillna('not_applicable').value_counts().to_dict() if 'energy_status' in d else {}

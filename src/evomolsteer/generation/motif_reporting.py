@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from ..io import read_json,digest
 from .prototypes import write_json
+from .terminal_statistics import converged_energy,finite_values
 
 
 def heldout(evidence,rounds=(14,15)):
@@ -17,7 +18,7 @@ def heldout(evidence,rounds=(14,15)):
     if table.duplicated(['arm','batch','slot']).any():raise ValueError('Duplicate heldout candidates')
     arms={};paired=[]
     for arm in ('unguided','gradient'):
-        d=table[table.arm==arm];energy=d[d.energy_status=='converged'].mmff_relief_per_heavy.dropna()
+        d=table[table.arm==arm];energy=converged_energy(d);surround=finite_values(d,'relax_rms_surround_A')
         valid=d[d.valid_connected];unique=valid.drop_duplicates('smiles')
         arms[arm]={'attempted':len(d),'batches':sorted(map(int,d.batch.unique())),
             'all_head':float(d.pic50_on_rescore.mean()),'valid_head':float(valid.pic50_on_rescore.mean()),
@@ -25,8 +26,11 @@ def heldout(evidence,rounds=(14,15)):
             'all_head_n':int(d.pic50_on_rescore.notna().sum()),'valid_head_n':int(valid.pic50_on_rescore.notna().sum()),
             'unique_valid_head_n':int(unique.pic50_on_rescore.notna().sum()),
             'PB_fast_pass':int(d.pb_fast_pass.sum()),'unique_graphs':len(unique),'energy_converged':len(energy),
+            'energy_failure_counts':d.energy_status.fillna('not_applicable').value_counts().to_dict(),
+            'energy_coverage':len(energy)/len(d),'surround_RMS_available_n':len(surround),
+            'surround_RMS_coverage':len(surround)/len(d),
             'MMFF_relief_per_heavy_median':float(energy.median()),'MMFF_relief_per_heavy_p90':float(energy.quantile(.9)),
-            'surround_relax_RMS_A':float(d.relax_rms_surround_A.mean()),
+            'surround_relax_RMS_A':float(surround.mean()),
             'boundary_shape_A':float(np.average(window.loc[window.arm==arm,'symmetric_shape_A'],weights=window.loc[window.arm==arm,'n']))}
     for batch in sorted(table.batch.unique()):
         ds={arm:table[(table.arm==arm)&(table.batch==batch)] for arm in arms}
@@ -34,7 +38,7 @@ def heldout(evidence,rounds=(14,15)):
         if not np.array_equal(g.slot.to_numpy(),n.slot.to_numpy()) or not np.array_equal(g.seed.to_numpy(),n.seed.to_numpy()):raise ValueError('Heldout initial-slot alignment differs')
         wg=window[(window.arm=='gradient')&(window.batch==batch)].iloc[0]
         wn=window[(window.arm=='unguided')&(window.batch==batch)].iloc[0]
-        eg=g[g.energy_status=='converged'].mmff_relief_per_heavy;en=n[n.energy_status=='converged'].mmff_relief_per_heavy
+        eg=converged_energy(g);en=converged_energy(n)
         paired.append({'batch':int(batch),'n_per_arm':len(g),'head_change':float(g.pic50_on_rescore.mean()-n.pic50_on_rescore.mean()),
             'MMFF_median_change':float(eg.median()-en.median()),
             'MMFF_p90_change':float(eg.quantile(.9)-en.quantile(.9)),

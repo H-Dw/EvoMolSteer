@@ -2,11 +2,14 @@
 import hashlib
 import json
 from pathlib import Path
+import numpy as np
+import pandas as pd
 
 from ..io import digest, read_json
 from .coordinate_exploration import validate_retention
 from .motif_campaign import validate_initial_pairing
 from .window_reference import load_reference
+from .terminal_statistics import converged_energy,finite_values
 
 
 def effective_program(program):
@@ -40,6 +43,7 @@ def audit(evidence, config, require_complete=True):
     if numbers != expected or not numbers:
         raise ValueError('Sequential retained rounds required; final audit needs fifteen')
     rounds = {r['round']: r for r in campaign['rounds']}
+    results = {r['round']: r for r in outcomes}
     references = {digest(p): p for p in config.glob('*reference.json.gz')}
     programs, checks = {}, []
     baseline = read_json(evidence / 'round_01/local/window/report.json')
@@ -87,6 +91,18 @@ def audit(evidence, config, require_complete=True):
             raise ValueError('Zero-dose/native equivalence failed')
         pairing = validate_initial_pairing(window,
             window if 'unguided' in entry['arms'] else baseline)
+        candidates = pd.read_csv(local / 'candidate_metrics.csv')
+        native_rows = candidates if 'unguided' in entry['arms'] else pd.read_csv(
+            evidence / 'round_01/local/candidate_metrics.csv')
+        gradient_rows = candidates.loc[candidates.arm.eq('gradient')]
+        native_rows = native_rows.loc[native_rows.arm.eq('unguided')]
+        eg,en = converged_energy(gradient_rows),converged_energy(native_rows)
+        expected_coverage = len(eg)/len(gradient_rows)-len(en)/len(native_rows)
+        result = results[number]
+        if (not np.isclose(float(eg.quantile(.9)),result['MMFF_p90'],rtol=1e-12,atol=1e-12)
+                or not np.isclose(float(en.quantile(.9)),result['native_MMFF_p90'],rtol=1e-12,atol=1e-12)
+                or not np.isclose(expected_coverage,result['energy_coverage_change'],rtol=1e-12,atol=1e-12)):
+            raise ValueError('Retained outcome energy tail/coverage differs from converged finite statistics')
         ref = load_reference(references[p['reference_sha256']])
         strict = bool(ref.get('scale_score_times')) and max(ref['scale_score_times']) < p['window'][1]-1e-6
         if number >= 9 and not strict:
@@ -97,6 +113,9 @@ def audit(evidence, config, require_complete=True):
             'initial_pairing': pairing, 'full_native_steps': 100,
             'nonzero_guidance_steps_per_batch': [b['nonzero_injection_steps'] for b in active],
             'strict_window_scale': strict,
+            'energy_statistics_consistent': True,
+            'gradient_converged_finite_energy_n': len(eg),
+            'gradient_surround_RMS_available_n': len(finite_values(gradient_rows,'relax_rms_surround_A')),
             'zero_equivalence': window.get('zero_equivalence_passed')})
     frozen = None
     if 13 in programs:

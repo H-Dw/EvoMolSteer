@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from ..io import read_json,digest
 from .prototypes import write_json
+from .terminal_statistics import converged_energy
 
 AXES=('all_head_change_vs_native','shape_improvement_fraction','negative_MMFF_relative_change','surround_RMS_improvement_fraction','negative_MMFF_p90_relative_change')
 
@@ -94,7 +95,7 @@ def record(campaign,evidence,number):
     manifest={'groups':groups,'native':'Native','steer':'Original Steer','tests':[r['campaign']],'round':number,'maximum_rounds':15}
     write_json(local.parent/'comparison_manifest.json',manifest);compare(local.parent/'comparison_manifest.json',local.parent/'comparison')
     def tail(p,arm):
-        d=pd.read_csv(p/'candidate_metrics.csv');v=d[d.arm==arm].mmff_relief_per_heavy.dropna()
+        d=pd.read_csv(p/'candidate_metrics.csv');v=converged_energy(d[d.arm==arm])
         return float(v.quantile(.9)),int(len(v))
     aq,an=tail(local,'gradient');nq,nn=tail(baseline,'unguided')
     outcome={'round':number,'parent_round':r['parent_round'],'reason':r['reason'],'split':r['split'],

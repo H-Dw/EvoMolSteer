@@ -183,3 +183,10 @@ rounds 9–12; only round identity and derivation metadata may differ. Unknown
 future control fields remain part of this freeze check. `--allow-incomplete`
 supports an interim audit without claiming campaign completion. Execution
 verification does not establish improved affinity or energy.
+
+Energy medians, p90 and availability share the converged-and-finite mask in
+`generation/terminal_statistics.py`. Surrounding relaxation RMS uses available
+finite records and reports its own count/coverage. The campaign verifier compares
+retained outcome tails/coverage with this explicit mask, so immutable older
+reports cannot silently disagree with current definitions. In this campaign,
+R1–12 had no nonconverged finite energy; their recorded values are unchanged.
