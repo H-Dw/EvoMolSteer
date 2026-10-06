@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import torch
 from .window_controller import WindowExtension
-from .coordinate_reward import CoordinateMixtureReward,remove_rigid_pose_gradient,predictive_flow_increment
+from .coordinate_reward import CoordinateMixtureReward,remove_rigid_pose_gradient,predictive_flow_increment,calibration_increment
 from .local_reward import bounded_local_step
 from .multistage_reward import preserve_native_geometry
 from ..io import clean,digest,write_json
@@ -30,10 +30,12 @@ class CoordinateExtension(WindowExtension):
             'reference_time_alignment':self.reference.get('time_alignment','state time s -> current reference s'),
             'conditional_gradient':'No derivative through endpoint anchor or atom identity; forecast refreshed at each native step',
             'dose_rule':self.program.get('dose_reference','observed_native')+' RMS ratio times bounded residual gate, atom/path caps, native-geometry rejection',
+            'initial_update_dose':self.program.get('initial_update_dose','native'),
             'coordinate_representation':self.reference['representation'],
             'native_integrator_parameters':self.model.integrator.hparams}
 
     def predict(self,curr,pocket,times,cond,equis,invs):
+        if self.model._lineage.i==0:self.controlled_updates=0
         pred,new_cond=super().predict(curr,pocket,times,cond,equis,invs)
         self.endpoint_atoms=pred['atomics'].detach().argmax(-1)
         self.endpoint_coords=pred['coords'].detach()
@@ -57,8 +59,12 @@ class CoordinateExtension(WindowExtension):
                 value,detail=self.reward(x*scale+com[:,None],self.endpoint_atoms,mask,reference_time,anchor)
                 g,=torch.autograd.grad(value.sum(),x)
             if not bool(torch.isfinite(g).all()):raise ValueError('Nonfinite coordinate gradient')
+            raw_gradient_squared=g.detach().square().sum((1,2))
             if self.program.get('preserve_native_rigid_pose'):
                 g=remove_rigid_pose_gradient(g.detach(),x.detach(),mask)
+            row.update(raw_gradient_l2_native=raw_gradient_squared.sqrt().cpu().tolist(),
+                post_projection_l2_native=g.detach().norm(dim=(1,2)).cpu().tolist(),
+                projection_retained_squared_fraction=(g.detach().square().sum((1,2))/raw_gradient_squared.clamp_min(1e-30)).cpu().tolist())
             # Native categorical channels and RNG states are never touched.
             if not self.preflight_done and float(g.norm())>1e-7:
                 direction=g/g.norm();analytic=float((g*direction).sum());checks=[]
@@ -78,12 +84,15 @@ class CoordinateExtension(WindowExtension):
             # stochastic score drift, initial contraction or categorical gradients.
             cosine=self.model.integrator.use_cosine_scheduler
             flow_delta=predictive_flow_increment(self.before,self.endpoint_coords,trace.t,trace.dt,cosine) if dose_view=='predictive_flow' or not cosine else None
-            dose_delta=flow_delta if dose_view=='predictive_flow' else native
+            first_controlled=self.controlled_updates==0
+            dose_delta=calibration_increment(native,flow_delta,mask,dose_view,self.program.get('initial_update_dose','native'),first_controlled)
+            row.update(first_controlled_update=first_controlled,initial_update_dose=self.program.get('initial_update_dose','native'))
             proposed,control=bounded_local_step(g,dose_delta,mask,detail['dose_gate'],eta,scale,c['max_atom_step_A'],c['max_cumulative_rms_A']-self.path_rms)
             row['calibration_rms_A']=control['native_rms_A'].detach().cpu().tolist()
             row.update(dose_reference=dose_view,
                 observed_native_rms_A=(native.square().sum((1,2))/mask.sum(1)).sqrt().mul(scale).cpu().tolist(),
                 predictive_flow_rms_A=(flow_delta.square().sum((1,2))/mask.sum(1)).sqrt().mul(scale).cpu().tolist() if flow_delta is not None else None)
+            self.controlled_updates+=1
             actual,guard=preserve_native_geometry(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
             rms=(actual.square().sum((1,2))/mask.sum(1)).sqrt()*scale;self.path_rms+=rms
             row.update({k:v.detach().cpu().tolist() for k,v in {**{k:v for k,v in detail.items() if k!='core_mask'},**control,**guard}.items()})

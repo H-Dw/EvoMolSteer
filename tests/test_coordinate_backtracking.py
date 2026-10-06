@@ -8,7 +8,7 @@ from evomolsteer.generation.coordinate_backtracking import freeze
 def setup_case(tmp_path):
     ref=tmp_path/'reference.gz';ref.write_bytes(b'frozen reference')
     parent=tmp_path/'parent.json';write_json(parent,{'round':3,'seed':42,'reference_sha256':digest(ref),'window':[.2,.7],
-        'reward_view':'coordinate_mixture','native_rms_ratio':.05,'constraints':{'max_atom_step_A':.025}})
+        'reward_view':'coordinate_mixture','native_rms_ratio':.05,'mixture_temperature':.25,'robust_delta':1.,'constraints':{'max_atom_step_A':.025}})
     campaign=tmp_path/'campaign.json';write_json(campaign,{'rounds':[{'round':3,'status':'completed','batches':[0,1],'n_per_arm':100}],
         'rounds_started':1,'rounds_completed':1,'maximum_rounds':30})
     return campaign,parent,ref

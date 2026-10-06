@@ -10,6 +10,29 @@ def predictive_flow_increment(current,endpoint,t,dt,cosine_schedule=False):
     return (endpoint-current)*dt/(1-t)
 
 
+def calibration_increment(native, flow, mask, dose_reference='observed_native', initial_update_dose='native', first_controlled=False):
+    """Calibrate magnitude only; never change native dynamics or reward direction.
+
+    Optional first-window update uses min(native RMS, linear-flow RMS), per
+    molecule. No fixed time or population-mean cap enters the execution.
+    """
+    if dose_reference not in ('observed_native','predictive_flow') or initial_update_dose not in ('native','cap_to_flow'):
+        raise ValueError('Invalid dose calibration')
+    if initial_update_dose=='cap_to_flow' and dose_reference!='observed_native':
+        raise ValueError('Initial cap is an ablation of observed-native calibration')
+    if dose_reference=='predictive_flow':
+        if flow is None:raise ValueError('Linear predictive flow unavailable')
+        return flow
+    if initial_update_dose=='native' or not first_controlled:
+        return native
+    if flow is None:raise ValueError('Initial cap requires verified linear predictive flow')
+    weight=mask[...,None].to(native.dtype)
+    native_l2=(native.square()*weight).sum((1,2)).sqrt()
+    flow_l2=(flow.square()*weight).sum((1,2)).sqrt()
+    factor=(flow_l2/native_l2.clamp_min(1e-30)).clamp(max=1.)
+    return native*factor[:,None,None]
+
+
 def remove_rigid_pose_gradient(g,x,mask):
     """Orthogonal projection off whole-ligand translation and infinitesimal rotation."""
     weight=mask.to(x.dtype);n=weight.sum(1).clamp_min(1)
@@ -28,6 +51,9 @@ class CoordinateMixtureReward:
         if reference['schema_version']!='current-coordinate-mixture-1.0':raise ValueError('Wrong reference view')
         self.tau=float(program['mixture_temperature']);self.delta=float(program['robust_delta'])
         if not all(math.isfinite(v) and v>0 for v in (self.tau,self.delta)):raise ValueError('Invalid response law')
+        if program.get('initial_update_dose','native') not in ('native','cap_to_flow'):raise ValueError('Invalid initial dose policy')
+        if program.get('initial_update_dose')=='cap_to_flow' and program.get('dose_reference','observed_native')!='observed_native':
+            raise ValueError('Initial cap requires observed-native parent dose')
 
     def active(self,t,s):return t>=self.window[0]-1e-6 and s<=self.window[1]+1e-6 and s>t
 

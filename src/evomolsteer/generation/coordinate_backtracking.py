@@ -87,6 +87,14 @@ def freeze(campaign, parent_program, reference, output, evidence, number, name, 
         if before[field] == value:raise ValueError('Factor does not change the parent')
         container[parts[-1]] = value
     q['round'] = number
+    for key in ('native_rms_ratio','mixture_temperature','robust_delta'):
+        if not np.isfinite(q[key]) or (q[key]<0 if key=='native_rms_ratio' else q[key]<=0):raise ValueError('Invalid control magnitude')
+    if q['native_rms_ratio']>1 or not np.isfinite(q['constraints']['max_atom_step_A']) or q['constraints']['max_atom_step_A']<=0:
+        raise ValueError('Invalid dose/atom cap')
+    if q.get('initial_update_dose','native') not in ('native','cap_to_flow') or q.get('dose_reference','observed_native') not in ('observed_native','predictive_flow'):
+        raise ValueError('Invalid dose policy')
+    if q.get('initial_update_dose')=='cap_to_flow' and q.get('dose_reference','observed_native')!='observed_native':raise ValueError('Initial cap requires native calibration')
+    if 'preserve_native_rigid_pose' in q and not isinstance(q['preserve_native_rigid_pose'],bool):raise ValueError('Pose projection must be boolean')
     q['backtracking'] = {'parent_round': p['round'], 'parent_program_sha256': digest(parent_program), 'kind': kind,
                          'changes': changes, 'before': before, 'reason': reason}
     write_json(output, q)

@@ -113,3 +113,20 @@ def test_flow_dose_avoids_startup_contraction_and_is_frame_equivariant():
     rot=torch.tensor([[0.,-1,0],[1,0,0],[0,0,1]])
     torch.testing.assert_close(predictive_flow_increment(x@rot+5,end@rot+5,0.,.01),flow@rot)
     with pytest.raises(ValueError):predictive_flow_increment(x,end,.2,.01,True)
+
+
+def test_first_update_cap_is_per_molecule_masked_and_disabled_exactly():
+    from evomolsteer.generation.coordinate_reward import calibration_increment
+    native=torch.tensor([[[10.,0,0],[999.,999.,999.]],[[1.,0,0],[999.,999.,999.]]])
+    flow=torch.tensor([[[1.,0,0],[0.,0,0]],[[2.,0,0],[0.,0,0]]])
+    mask=torch.tensor([[True,False],[True,False]])
+    rng=torch.get_rng_state().clone()
+    assert calibration_increment(native,flow,mask) is native
+    assert calibration_increment(native,flow,mask,initial_update_dose='cap_to_flow',first_controlled=False) is native
+    capped=calibration_increment(native,flow,mask,initial_update_dose='cap_to_flow',first_controlled=True)
+    torch.testing.assert_close(capped[:,0,0],torch.tensor([1.,1.]))
+    assert torch.equal(rng,torch.get_rng_state()) and native[0,0,0]==10
+    with pytest.raises(ValueError):calibration_increment(native,flow,mask,'predictive_flow','cap_to_flow',True)
+    with pytest.raises(ValueError):calibration_increment(native,None,mask,initial_update_dose='cap_to_flow',first_controlled=True)
+    zero=calibration_increment(native,torch.zeros_like(flow),mask,initial_update_dose='cap_to_flow',first_controlled=True)
+    assert zero.eq(0).all()
