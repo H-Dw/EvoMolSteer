@@ -1,0 +1,42 @@
+{
+  "agent": "Designer",
+  "architecture": "motif_mixture",
+  "channel": "all",
+  "design_status": "exploratory",
+  "dose_reference": "predictive_flow",
+  "evidence_ids": [
+    "M_METRIC_COUNTS",
+    "M_LINEAGE",
+    "motif:discovery:ck2:A:VAL116::all::proposal_motif_shell_2:high_enrichment",
+    "motif:discovery:ck2:A:VAL116::NOS_C::proposal_motif_shell_2:high_enrichment",
+    "motif:discovery:ck2:A:VAL116::all::proposal_motif_shell_2:within_root_affinity_correlation",
+    "motif:discovery:ck2:A:ASN117::all::proposal_motif_centroid_y:selected_mean",
+    "motif:discovery:ck2:A:ASN117::all::proposal_motif_centroid_y:selection_shift",
+    "motif:discovery:ck2:A:ASN117::all::proposal_motif_shell_2:lag_controlled_gain_correlation"
+  ],
+  "limitations": [
+    "本响应是subagent simulation的Designer严格JSON模块测试；仅导入并编译到独立接口目录，不修改已冻结R1配置，也不启动生成。",
+    "packet中proposal的selection_shift为0/54、root_balanced_selection_shift为0/54、partial affinity为0/51、lag_controlled与within_root各0/54通过q<.05。探索合理不等于已发现亲和力因果区域；14批才是主要独立统计单位，末端11批仅一根。",
+    "ASN117/all proposal_shell_2的lag_controlled coverage仅.44752；其缺失时刻不作零填或阶段规律外推。较小p或高尾部关联不证明物理接触、真实binding affinity、能量下降或全程稳定方向。",
+    "核无量纲而centroid为Å，scale与协方差必须依据同一实测参考冻结并在无量纲空间正则。极小shell经尺度和梯度归一化可被放大，需检查原始特征、分量梯度、实际剂量和失败覆盖。",
+    "编译通过只说明schema、证据及reference合同可读取；真实条件FD、完整100步zero/native一致、RNG/self-conditioning独立性和GPU生成有效性尚不能因本测试被宣称通过。",
+    "实际运行后需同时评价真实x_.5、最终all/valid/unique head、valid/PB、MMFF覆盖与median/p90、周围松弛及多样性。若只降低局部reward缺口而head或独立结构/能量无联合改善，应保留该反证；不删除失败候选或锁图来制造收益。",
+    "本次未选contrast；其规范化密度、饱和与弱差异幅度合同需单独冻结。不得把方案级Pareto比较变成生成候选重采样，也不得用validation/heldout结果调整本设计。"
+  ],
+  "mixture_temperature": 0.25,
+  "motif_components": "joint",
+  "native_rms_ratio": 0.1,
+  "preserve_native_rigid_pose": false,
+  "rationale": "采用预设的 all/joint motif_mixture 作为接口编译测试和探索性表征基线，不宣称发现了Affinity机制。all与NOS_C共享壳核高分位选择信号，而整体均值选择、根均衡、调整后同期及进一步调整lag均未显著，因此不从q值推出局部方向、奖励权重或NOS特异机制。将两个预声明区域的centroid xyz、三种shell与三种pair核组合为18维联合描述，保持相关协方差，不把重叠区域视为独立机制。对真实proposal坐标x使用固定endpoint anchor和原生硬类别的条件梯度∂R/∂x；不用FLOWR终点Jacobian，不对原子/键离散类别伪造梯度。设z为全窗口固定背景尺度归一化后的实测特征，q_b=(z-mu_b)^T Sigma_b^-1(z-mu_b)/D，D=18；R=tau*log[(1/B)sum_b exp{-delta^2*(sqrt(1+q_b/delta^2)-1)/tau}]。mu_b与Sigma_b取discovery各批同真实评分节点的经验selection分布，批次等权；其均值不是已识别完整构象mode，参考来自实测节点而非描述性多项式。eta=.1、tau=.25、delta=1及平坦time_ramp_power=0是预声明工程起点，非从亲和力拟合得到的最优值；外部剂量采用predictive-flow RMS并记录actual dose，避免把随机首步收缩误称目标控制量。动态窗口来自packet的[0,.5]，score=t对应proposal=t+dt，最后注入.49→.50，之后native完成到1。保留原生图自由变化，无SMC、组成veto、pair-distance接受阈值或native图锁定。后续pair、shell、contrast应作为独立表征消融，而非把本轮joint当作已有效的奖励。",
+  "regions": [
+    "ck2:A:ASN117",
+    "ck2:A:VAL116"
+  ],
+  "robust_delta": 1,
+  "schema_version": "motif-agent-1.0",
+  "time_ramp_power": 0,
+  "window": [
+    0,
+    0.5
+  ]
+}

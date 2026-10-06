@@ -1,0 +1,99 @@
+{
+  "agent": "Analyst",
+  "counterevidence": [
+    {
+      "evidence_ids": [
+        "M_METRIC_COUNTS"
+      ],
+      "finding": "提供的proposal检验族中，selection_shift、root_balanced_selection_shift、retained_shift和root_balanced_retained_shift均为0/54，partial_affinity为0/51，within_root_affinity为0/54通过q<.05。",
+      "uncertainty": "未显著不是证明没有效应，但不能称已发现稳定选择均值方向、末端留存优势或独立亲和力机制。"
+    },
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:VAL116::NOS_C::proposal_motif_shell_2:within_root_affinity_correlation",
+        "motif:discovery:ck2:A:VAL116::all::proposal_motif_shell_2:within_root_affinity_correlation"
+      ],
+      "finding": "VAL116/NOS_C proposal_shell_2 根内同期r=-.0714596746、p=.002203907，但q=.101400723、coverage=.97；VAL116/all对应r=-.0689318056、q同样=.101400723。",
+      "uncertainty": "不能用未校正p覆盖q或把小核的相关性解释为亲和力因果机制；起点和端点变化率缺失，不补零。"
+    },
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:ASN117::all::proposal_motif_shell_2:lag_controlled_gain_correlation",
+        "motif:discovery:ck2:A:ASN117::NOS_C::proposal_motif_shell_2:within_root_affinity_correlation"
+      ],
+      "finding": "ASN117/all proposal_shell_2 的lag_controlled=-.0289023142，q=.318563781，覆盖仅.447521866；ASN117/NOS_C proposal_shell_2 的根内相关覆盖仅.561428571，q=.138743434。",
+      "uncertainty": "这些是可识别时段条件均值，不能宣称整个0–.5均有同方向证据；singleton根的undefined对比不是零效应。"
+    },
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:ASN117::all::proposal_motif_centroid_y:population_mean",
+        "motif:discovery:ck2:A:ASN117::all::proposal_motif_centroid_y:selected_mean",
+        "motif:discovery:ck2:A:ASN117::all::proposal_motif_centroid_y:selection_shift"
+      ],
+      "finding": "ASN117/all proposal_centroid_y 的population和selected均值都显著偏离零，但selection_shift仅-.0006179284、q=.228472664。",
+      "uncertainty": "坐标均值不为零主要与坐标框架有关；不能把population_mean的小p作为选择优势。"
+    }
+  ],
+  "limitations": [
+    "本响应由已授权subagent simulation模拟Analyst接口；只依据本request的discovery packet，不宣称运行实验或验证奖励有效。",
+    "目标窗口由packet定义为[0,.5]，51个评分节点；proposal在score=t对应实际state=t+dt，最后本窗口控制应为.49→.50；score=.5的proposal不能冒充x_.5。",
+    "endpoint anchor与硬类别只标注预测未来槽位；对实际proposal的条件几何分析不是已形成的物理接触、固定图或真正化学能量。",
+    "整窗logit-Legendre/sigmoid拟合是描述性模型，时间导数不是空间梯度；奖励应使用真实节点分布。裁剪到1e-8及极小壳核的尺度放大须另记，不能用小p推断亲和力机制。",
+    "本packet没有完整候选结构、逐能量项、实验亲和力或新生成结果，无法判断具体应变机制、真实结合能或joint/pair/shell设计优劣。",
+    "图变化允许由原生类别过程发生；不根据这些关联增加图等同性、组成veto、pair-distance接受阈值或候选重采样。"
+  ],
+  "observations": [
+    {
+      "evidence_ids": [
+        "M_METRIC_COUNTS"
+      ],
+      "finding": "在本 packet 的54个 proposal 特征中，high_enrichment 有21项、low_enrichment 有4项 q<.05；这描述同节点候选分位尾部的选择概率质量差，不是分子距离变化或真实亲和力增益。",
+      "uncertainty": "packet是每个检验族的精简行和完整计数，不能把92条传输证据当成全部检验，也不能把相关区域/通道视为独立机制。"
+    },
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:VAL116::all::proposal_motif_shell_2:high_enrichment",
+        "motif:discovery:ck2:A:VAL116::NOS_C::proposal_motif_shell_2:high_enrichment"
+      ],
+      "finding": "VAL116/all proposal_shell_2 的 high_enrichment=-0.0102979025，q=.000625960，14批、时间覆盖1；NOS_C对应=-0.0105819929，q=.000543238。两通道共有信号支持比较表征，尚不能证明NOS特异的有益接触。",
+      "uncertainty": "壳核是条件几何描述而非氢键或能量；同一模型分数参与选择，关联具有部分同义性，不能将高尾部抑制变成全体粒子的固定排斥力。"
+    },
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:VAL116::NOS::proposal_motif_centroid_x:lag_partial_gain_correlation",
+        "M_METRIC_COUNTS"
+      ],
+      "finding": "VAL116/NOS proposal_centroid_x 的起始head调整lag关联为.0319662917，q=.0109426424，14批、覆盖1；但提供的更充分lag_controlled检验族0/54通过q<.05。",
+      "uncertainty": "起始分数调整不足以识别坐标因果方向；进一步控制后没有该族的显著支持，不能推出+x guidance。"
+    },
+    {
+      "evidence_ids": [
+        "M_LINEAGE"
+      ],
+      "finding": "根谱系在窗口末端明显集中：14批中11批只有一根，平均根数1.214285714。",
+      "uncertainty": "克隆后代与时间节点并不增加独立重复；以批次作为不确定性的主要单位，根内/根均衡分析只能诊断部分谱系混杂。"
+    }
+  ],
+  "rules": [
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:VAL116::all::proposal_motif_shell_2:high_enrichment",
+        "motif:discovery:ck2:A:VAL116::all::proposal_motif_shell_2:within_root_affinity_correlation",
+        "M_METRIC_COUNTS"
+      ],
+      "feature": "ck2:A:VAL116::all::proposal_motif_shell_2",
+      "rationale": "保留壳核尾部选择关联作为joint/shell探索依据；其根内关联q=.101400723且亲和力调整族未显著，不足以规定固定吸引/排斥或命名有益结合机制。",
+      "status": "deferred"
+    },
+    {
+      "evidence_ids": [
+        "motif:discovery:ck2:A:VAL116::NOS::proposal_motif_centroid_x:lag_partial_gain_correlation",
+        "M_METRIC_COUNTS"
+      ],
+      "feature": "ck2:A:VAL116::NOS::proposal_motif_centroid_x",
+      "rationale": "lag_partial的弱正关联不在更充分控制族中保持；不将受体框架下的+x当作可识别优势方向。",
+      "status": "deferred"
+    }
+  ],
+  "schema_version": "motif-agent-1.0"
+}
