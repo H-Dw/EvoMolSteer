@@ -9,6 +9,12 @@ from .window_reference import load_reference
 from .coordinate_contrast import make_coordinate_reward
 
 
+def regional_attention_summary(trace_row):
+    """Retain measured spatial emphasis before disposable traces are retired."""
+    fields=('regional_attention_min','regional_attention_max','regional_core_fraction','injection_noncore_fraction')
+    return {key+'_mean':float(np.mean(trace_row[key])) if key in trace_row else None for key in fields}
+
+
 def evaluate(dataset,campaign,output):
     root=Path(dataset)/'results'/campaign;out=Path(output)
     if not (root/'COMPLETE.json').is_file():raise ValueError('Incomplete inference')
@@ -74,6 +80,7 @@ def evaluate(dataset,campaign,output):
                     'dose_gate_mean':average('dose_gate'),
                     'conditional_supported_fraction':average('conditional_supported', 'available'),
                     'unconditional_fallback_fraction':average('unconditional_fallback'),
+                    **regional_attention_summary(v),
                     'conditional_component_ESS_mean':average('conditional_component_ESS'),
                     'background_support_gate_mean':average('background_support_gate'),
                     'contrast_amplitude_gate_mean':average('contrast_amplitude_gate'),

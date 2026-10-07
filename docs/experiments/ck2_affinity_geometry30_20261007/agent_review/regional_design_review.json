@@ -770,7 +770,14 @@
       "passed": 256,
       "independently_rerun_full_suite": false
     },
-    "independent_numeric_scope": "Actual frozen teacher library evaluated on CPU at t=0,.10,.25,.40,.49; NumPy vs Torch scalar, conditional FD, permutation/type invariance, float32 dtype, nonlinear CPU surrogate VJP and shared parameter routes. The surrogate is not FLOWR."
+    "independent_numeric_scope": "Actual frozen teacher library evaluated on CPU at t=0,.10,.25,.40,.49; NumPy vs Torch scalar, conditional FD, permutation/type invariance, float32 dtype, nonlinear CPU surrogate VJP and shared parameter routes. The surrogate is not FLOWR.",
+    "regional_monitoring_amendment": {
+      "passed": 1,
+      "failed": 0,
+      "elapsed_seconds": 6.26,
+      "file": "tests/test_regional_monitoring.py",
+      "scope": "Existing trace aggregation and missing-value retention only; no GPU inference."
+    }
   },
   "pending_real_runtime_validation": {
     "actual_new_family_FLOWR_GPU_FD_executed": false,
@@ -874,7 +881,7 @@
     "src/evomolsteer/generation/controller.py": "c90cd2fde849044354cf8927f60fdca745d692ac90107291cdceedfe53b52b14",
     "src/evomolsteer/generation/coordinate_contrast.py": "a19d286ef3e652ebd3e6a49406aa2f62abdb20a6f4dd5ecb2dea1d51fb19945c",
     "src/evomolsteer/generation/coordinate_controller.py": "166b7375981f9f8aec0deb99237953d4bdb6ee2d9837ef3f0d916e462e27fe85",
-    "src/evomolsteer/generation/coordinate_evaluation.py": "485d31e547c3ce46609715a4f4ba07d47723404030dd9428b92bb73c1b53382d",
+    "src/evomolsteer/generation/coordinate_evaluation.py": "e896c11a7f088df0d91d38e6ada306b690141106ff5e9cd929d008711c4cae68",
     "src/evomolsteer/generation/coordinate_exploration.py": "f0a44e129999bc4203176c7627f3d56ff0fe796cfb0bdae5cd8f48be8e9841f2",
     "src/evomolsteer/generation/coordinate_reward.py": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
     "src/evomolsteer/generation/endpoint_campaign.py": "7470ce7609d74c724a1ed2167d8c048f75591e83bb4be68c355f7e5713211df2",
@@ -913,13 +920,14 @@
     "tests/test_persistent_reward.py": "6468c806e2eb9c0849845288929d52aa234191ce5500e1bab5836663093db23c",
     "tests/test_regional_agent.py": "de2e2832f863df7b78846a17125ff4057c29eb11ccb178021e7aa818365ea6ba",
     "tests/test_regional_campaign.py": "6f331f375e1cf1c684c5e7636714fdbb6e029d1b24d4b8f5f4bf63e00c5b0cc6",
+    "tests/test_regional_monitoring.py": "b7050a9a3e54e9fc90ff551776be0d8d20459b63ac5ec1b59e810d45db015b27",
     "tests/test_regional_point_reward.py": "3df7b27c4a702d72826a3cea139b6d8d886a7a89862a13a8ce9b2b132fa39d8e",
     "tests/test_sparse_agent.py": "d507fe7fe9dc643d015bea0c9a413ddb6200bd3dc42e2db3c4ce005e631ab173",
     "tests/test_sparse_campaign.py": "ed7cb49a5b24982cdc8421e98d795eebc9d4d62e753833380a5a31a124377de5",
     "tests/test_sparse_reward.py": "e8b27af2f3dc7eb6621ddee926e0f4249e8e99d3384e7d82670f7cbafbbb4b67",
     "tests/test_terminal_statistics.py": "8c8de4afb77debc593c92dcf5ff641dad296d37814aa53c83c182b65a830e6b2"
   },
-  "source_hash_count": 134,
+  "source_hash_count": 135,
   "source_hash_semantics": "Exact local bytes; source/control/data/input/response/audit/compiled artifacts are immutable reviewed dependencies. Cross-platform LF/CRLF byte differences are not normalized here. Dynamic campaign state and round outcomes are excluded.",
   "inheritance": {
     "prior_review_path": "docs/experiments/ck2_affinity_geometry30_20261007/agent_review/persistent_design_review.json",
@@ -929,6 +937,7 @@
     "changed_since_prior_review": [
       "src/evomolsteer/continuous/endpoint_design.py",
       "src/evomolsteer/generation/coordinate_contrast.py",
+      "src/evomolsteer/generation/coordinate_evaluation.py",
       "src/evomolsteer/generation/affinity_campaign.py",
       "scripts/resume_affinity_campaign.py",
       "src/evomolsteer/generation/persistent_campaign.py",
@@ -936,5 +945,45 @@
     ],
     "previous_review_modified": false
   },
-  "reviewed_git_head": "9e7d3f7ff79ef6e3043529b6a28ee6d0151d232f"
+  "reviewed_git_head": "32299b333e780ec9a202e7eb8d0509e2e6dba9ff",
+  "analysis_retention_amendment": {
+    "date": "2026-10-07",
+    "scope": "Local analysis/retention only; the loss, inference, Skill/input/literal response and compiled program did not change.",
+    "previous_regional_review_json_sha256": "982097688fb149ec8999b27415483ed2bcff5bcb7f21ccedab1079ea211369e2",
+    "previous_regional_review_md_sha256": "1e80cb94364417e29ffb782ef39bcb51c14150f0b039f035fafcfc8d10650c3e",
+    "changed_existing_source": [
+      "src/evomolsteer/generation/coordinate_evaluation.py"
+    ],
+    "added_test": "tests/test_regional_monitoring.py",
+    "saved_table": "coordinate_dose_time.csv",
+    "added_columns": [
+      "regional_attention_min_mean",
+      "regional_attention_max_mean",
+      "regional_core_fraction_mean",
+      "injection_noncore_fraction_mean"
+    ],
+    "data_origin": "Per-step existing guidance_trace records only; no model/geometry recomputation is added for these four columns.",
+    "reduction": "Arithmetic mean across molecules in each batch/time row; absent keys map to None and remain missing after CSV serialization.",
+    "interpretation_limits": [
+      "Attention min/max are averages of molecule-level extrema, not a global minimum/maximum or normalized attention.",
+      "Core fraction refers to the detached endpoint anchor and declared radius. The region is geometric, not an independently causal residue.",
+      "Noncore fraction is the mean of per-molecule squared-injection fractions, including runtime zero-injection values encoded0; it is not the fraction of total batch squared injection or a statistic conditional on nonzero dose.",
+      "Presence of unequal attention weights and noncore-dose summaries supports runtime diagnosis, not affinity causality or proof that surrounding atoms are unmodified.",
+      "The initial256-test full-suite record predates this analysis-only amendment; only the new relevant test was independently rerun."
+    ],
+    "independent_tests": {
+      "command": ".venv/Scripts/python.exe -m pytest -q tests/test_regional_monitoring.py",
+      "passed": 1,
+      "failed": 0,
+      "elapsed_seconds": 6.26,
+      "additional_fixture": "Exact four arithmetic means checked; missing-key output and CSV round-trip preserve missing values."
+    },
+    "all_prior134_paths_rehashed": true,
+    "total_bound_paths": 135,
+    "new_family_actual_GPU_FD_executed": false,
+    "new_family_full100_zero_native_executed": false,
+    "new_family_GPU_validation_pending_round": 13,
+    "execution_ready": true,
+    "blockers": []
+  }
 }
