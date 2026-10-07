@@ -22,3 +22,5 @@ be replayed with its exact frozen reward to restore the missing checks; this is
 an infrastructure repair of the same intervention, not an additional optimization
 round. Both the invalid original report and the repaired provenance will be
 preserved and clearly identified.
+
+Resolved: round 8 replay produced exactly identical 50 affinity rescores and 48 converged MMFF relief values (maximum absolute difference zero). Its real PB-fast pass rate is 0.96, with zero PB evaluation errors. Reward JSON values are unchanged. See round08_replay/repair_comparison.json and both retained inference commits.
