@@ -58,6 +58,18 @@ def test_normalized_ancestor_aliases_keep_exact_initial_bytes(tmp_path):
     for key in ['current_coords','current_atomics','current_bonds']:
         assert capsule[key].tobytes()==arrays[key][:1].tobytes()
 
+def test_unused_model_state_and_bound_reference_are_omitted_with_hashes(tmp_path):
+    root,folder,_=fixture(tmp_path);run=root/'results/test'
+    (run/'reference.json.gz').write_bytes(b'bound reference')
+    write_json(run/'reward_program.json',{'window':[.2,.6],'reference_sha256':digest(run/'reference.json.gz')})
+    for name in ['initial_state.pt.gz','final_prediction.pt.gz','molecules_all_built.sdf']:
+        (folder/name).write_bytes(b'unused model state')
+    out=tmp_path/'view';m=export_evaluation_view(root,'test',out)
+    assert len(m['omitted_source_files'])==4
+    for relative,item in m['omitted_source_files'].items():
+        assert not (out/relative).exists() and digest(root/relative)==item['sha256']
+    assert execution_audit(root,'test')==execution_audit(out,'test')
+
 def test_compact_archive_verifies_every_payload_and_preserves_original(tmp_path):
     root,folder,_=fixture(tmp_path);archive=tmp_path/'transport.tar.gz';original=digest(folder/'trajectory.h5')
     meta=archiver.archive(root,'test',archive,evaluation_only=True)

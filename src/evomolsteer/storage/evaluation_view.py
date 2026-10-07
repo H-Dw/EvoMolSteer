@@ -11,6 +11,7 @@ from ..io import read_json,write_json,digest
 from .trajectory import TrajectoryPackage
 
 INITIAL_FIELDS=('current_coords','current_atomics','current_bonds')
+UNREAD_TERMINAL_ARTIFACTS={'initial_state.pt.gz','final_prediction.pt.gz','molecules_all_built.sdf'}
 
 def execution_arrays(source):
     source=Path(source)
@@ -34,12 +35,20 @@ def export_evaluation_view(dataset,campaign,destination):
     if not run.is_relative_to(root/'results') or run.name!=campaign:raise ValueError('One campaign required')
     if out.exists() or out.is_relative_to(root):raise ValueError('Fresh destination outside original dataset required')
     if read_json(run/'COMPLETE.json')['status']!='complete':raise ValueError('Complete generation required')
-    batches=[];copied={}
+    if (run/'EVALUATION_VIEW.json').exists():raise ValueError('Already a terminal view; full source trajectories required')
+    program=read_json(run/'reward_program.json')
+    batches=[];copied={};omitted={}
     for directory in [root/'inputs',run]:
         for p in sorted(directory.rglob('*')):
             if p.is_symlink():raise ValueError('Symlinks not supported')
             if not p.is_file():continue
-            relative=p.relative_to(root);target=out/relative;target.parent.mkdir(parents=True,exist_ok=True)
+            relative=p.relative_to(root)
+            reference_copy=p==run/'reference.json.gz' and program.get('reference_sha256')==digest(p)
+            if reference_copy or (p.is_relative_to(run) and p.name in UNREAD_TERMINAL_ARTIFACTS):
+                omitted[relative.as_posix()]={'sha256':digest(p),'bytes':p.stat().st_size,
+                    'reason':'Exact reference already bound to frozen program' if reference_copy else 'Unused by terminal evaluator and execution auditor'}
+                continue
+            target=out/relative;target.parent.mkdir(parents=True,exist_ok=True)
             if p.name in ['trajectory.h5','trajectory.npz']:
                 arrays=execution_arrays(p);snapshot=target.with_name('execution_state.npz')
                 np.savez_compressed(snapshot,**arrays)
@@ -56,7 +65,8 @@ def export_evaluation_view(dataset,campaign,destination):
                 copied[relative.as_posix()]=digest(p)
     m={'schema_version':'terminal-execution-view-1.0','complete':True,'campaign':campaign,'batches':batches,
        'converter_source_sha256':digest(Path(__file__)),
-       'copied_file_sha256':copied,'usage':'Terminal chemistry/energy evaluation and execution audit only; not intermediate coordinate mining',
+       'copied_file_sha256':copied,'omitted_source_files':omitted,
+       'usage':'Terminal chemistry/energy evaluation and execution audit only; not intermediate coordinate mining',
        'retained_arrays':'Exact initial coordinates/atomics/bonds and all selected_indices/resampled records',
        'omitted':'Intermediate structure arrays, which are disposable in these inference tests; original Steer learning trajectories are unaffected',
        'source_deleted':False}

@@ -65,3 +65,7 @@ verified local reports authorize retirement. Full/view audit equality, copied
 payload checksums, normalized ancestor aliases and transport round trips are
 tested before use; neither mathematical inference nor evaluation definitions
 change with this transport policy.
+The view also omits unused initial/final PyTorch objects, the alternate built-SDF
+copy and a reference copy only when its hash equals the frozen program reference.
+Every omission records its original hash and reason. Raw decodable SDFs, all-slot
+scores, failure records, checks and learning inputs remain available.
