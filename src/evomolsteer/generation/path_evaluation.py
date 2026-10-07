@@ -35,7 +35,9 @@ def execution_audit(dataset,campaign):
             sources.append({'batch':batch,'arm':arm,'sha256':digest(folder/'trajectory.h5')})
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed'] or preflight['affinity_head_gradient']:raise ValueError('Actual FLOWR VJP validation failed')
-    if len(set(v for k,v in signatures.items() if k.endswith('/'+str(rows[0]['batch']))))>1:raise ValueError('Paired initial states differ')
+    for batch in sorted({v['batch'] for v in rows}):
+        if len(set(v for k,v in signatures.items() if k.endswith('/'+str(batch))))>1:
+            raise ValueError('Paired initial states differ')
     return {'schema_version':'compact-path-execution-1.0','campaign':campaign,'code_commit':cfg['extension']['code_commit'],
         'window':p['window'],'steps':100,'no_particle_resampling':True,'outside_window_injection':False,
         'affinity_head_gradient':False,'additional_production_calls_per_step':0,'initial_state_signatures':signatures,
@@ -72,6 +74,11 @@ def retain_round(dataset,campaign,evaluated,output,threshold,baseline=None):
     summary={'campaign':campaign,'threshold_pic50':threshold,'results':{a:summarize_tail(d[d.arm==a],threshold) for a in arms}}
     if baseline:
         old=pd.read_csv(baseline)
+        old=old[old.batch.isin(d.batch.unique())]
+        old_execution=read_json(Path(baseline).parent/'execution_report.json')
+        for key,value in execution['initial_state_signatures'].items():
+            if key not in old_execution['initial_state_signatures'] or value!=old_execution['initial_state_signatures'][key]:
+                raise ValueError('Screening and baseline initial states differ')
         for arm in ['gradient','unguided']:
             control=old[old.arm==arm]
             if len(control):summary['versus_'+arm]=paired_effect(d[d.arm=='gradient'],control)
