@@ -10,6 +10,7 @@ import paramiko
 import pandas as pd
 from evomolsteer.io import read_json,digest,write_json
 from evomolsteer.storage.generation_archive import verify_generation_archive
+from evomolsteer.storage.remote_transfer import download_resumable
 from evomolsteer.generation.path_evaluation import retain_round,summarize_tail
 from evomolsteer.continuous.terminal_path_library import build_library
 
@@ -41,11 +42,24 @@ class Driver:
         self.args=args;self.root=Path(args.repo).resolve();self.cfg=self.root/'configs/experiments/elite_path20_v1'
         self.docs=self.root/'docs/experiments/elite_path20_20261007';self.state=self.root/'test/elite_path20_driver'
         self.state.mkdir(parents=True,exist_ok=True);self.work=args.remote_work;self.remote_repo=args.remote_repo
-        self.ssh=paramiko.SSHClient();self.ssh.load_system_host_keys();self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.ssh.connect(args.host,port=args.port,username='root',password=os.environ[args.password_env],look_for_keys=False,allow_agent=False,timeout=30)
-        self.ssh.get_transport().set_keepalive(30)
+        self.connect()
         self.threshold=read_json(self.root/'results/elite_path20/round02_credit/manifest.json')['threshold_pic50']
         self.control=pd.read_csv(self.docs/'round04/candidate_metrics.csv')
+    def connect(self):
+        if hasattr(self,'ssh'):self.ssh.close()
+        self.ssh=paramiko.SSHClient();self.ssh.load_system_host_keys();self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        a=self.args
+        self.ssh.connect(a.host,port=a.port,username='root',password=os.environ[a.password_env],look_for_keys=False,allow_agent=False,timeout=30)
+        self.ssh.get_transport().set_keepalive(30)
+    def download(self,remote_path,local_path,number):
+        for attempt in range(3):
+            try:
+                with self.ssh.open_sftp() as sftp:return download_resumable(sftp,remote_path,local_path)
+            except (OSError,EOFError,paramiko.SSHException) as error:
+                if attempt==2:raise
+                self.emit('download_retry',round=number,attempt=attempt+1,error_type=type(error).__name__,
+                    retained_partial_bytes=Path(local_path).stat().st_size if Path(local_path).exists() else 0)
+                self.connect()
     def emit(self,phase,**data):
         item={'phase':phase,**data};write_json(self.state/'driver_state.json',item);print(json.dumps(item),flush=True)
     def local(self,args):
@@ -134,8 +148,7 @@ class Driver:
         return path,reference,batches,arms,n
     def collect(self,number):
         campaign=f'elite_path_r{number:02d}';archive=self.state/f'round{number:02d}.tar.gz'
-        with self.ssh.open_sftp() as sftp:
-            for suffix in ['', '.json']:sftp.get(self.work+'/'+campaign+'.tar.gz'+suffix,str(archive)+suffix)
+        for suffix in ['', '.json']:self.download(self.work+'/'+campaign+'.tar.gz'+suffix,str(archive)+suffix,number)
         dataset=self.root/f'test/data/elite_path20/round{number:02d}';evaluated=self.root/f'results/elite_path20/round{number:02d}'
         verified=verify_generation_archive(archive,str(archive)+'.json',dataset)
         cfg=read_json(dataset/'results'/campaign/'config.json')['experiment']
