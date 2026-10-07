@@ -8,6 +8,9 @@ from ..trajectory_source import open_trajectory
 
 def execution_audit(dataset,campaign):
     root=Path(dataset)/'results'/campaign;cfg=read_json(root/'config.json');p=read_json(root/'reward_program.json')
+    view=read_json(root/'EVALUATION_VIEW.json') if (root/'EVALUATION_VIEW.json').exists() else None
+    if view and (view.get('schema_version')!='terminal-execution-view-1.0' or not view.get('complete') or view['campaign']!=campaign):
+        raise ValueError('Unknown/incomplete terminal execution view')
     if read_json(root/'COMPLETE.json')['status']!='complete' or cfg['experiment']['seed']!=42:
         raise ValueError('Complete seed-42 experiment required')
     a,b=p['window'];rows=[];sources=[];signatures={}
@@ -20,19 +23,24 @@ def execution_audit(dataset,campaign):
                 raise ValueError('Injection outside learned support')
             if any(v.get('production_target_forward_calls')!=1 or not v.get('affinity_outputs_detached') for v in trace):
                 raise ValueError('One production forward and detached head required')
-            with open_trajectory(folder/'trajectory.h5') as tr:
+            source=folder/'execution_state.npz' if view else folder/'trajectory.h5'
+            if view:
+                entry=next(v for v in view['batches'] if v['batch_path']==folder.relative_to(root).as_posix())
+                if digest(source)!=entry['snapshot_sha256']:raise ValueError('Execution snapshot checksum mismatch')
+            with open_trajectory(source) as tr:
                 n=tr['selected_indices'].shape[1]
                 if np.asarray(tr['resampled']).any() or not np.array_equal(tr['selected_indices'],np.tile(np.arange(n),(100,1))):
                     raise ValueError('Recorded selection contract violated')
                 sig=hashlib.sha256()
                 for field in ['current_coords','current_atomics','current_bonds']:sig.update(tr[field][0].tobytes())
                 signatures[f'{arm}/{batch}']=sig.hexdigest()
+                if view and sig.hexdigest()!=entry['initial_state_signature']:raise ValueError('Execution snapshot signature mismatch')
             active=[v for v in trace if v['reward_evaluated']]
             rows.append({'arm':arm,'batch':batch,'n':n,'controlled_steps':len(active),
                 'nonzero_steps':sum(max(v['injection_l2_A'])>0 for v in trace),
                 'mean_cumulative_rms_A':float(np.mean(active[-1]['cumulative_rms_A'])) if active else 0.,
                 'mean_active_injection_rms_A':float(np.mean([v['injection_rms_A'] for v in active])) if active else 0.})
-            sources.append({'batch':batch,'arm':arm,'sha256':digest(folder/'trajectory.h5')})
+            sources.append({'batch':batch,'arm':arm,'sha256':entry['source_trajectory_sha256'] if view else digest(source)})
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed'] or preflight['affinity_head_gradient']:raise ValueError('Actual FLOWR VJP validation failed')
     for batch in sorted({v['batch'] for v in rows}):
@@ -88,6 +96,8 @@ def retain_round(dataset,campaign,evaluated,output,threshold,baseline=None):
     for name in ['config.json','reward_program.json','COMPLETE.json']:
         target=out/'inference_config'/name;target.parent.mkdir(exist_ok=True)
         target.write_bytes((root/name).read_bytes().replace(b'\r\n',b'\n'))
+    if (root/'EVALUATION_VIEW.json').exists():
+        (out/'inference_config/EVALUATION_VIEW.json').write_bytes((root/'EVALUATION_VIEW.json').read_bytes())
     write_json(out/'comparison.json',summary)
     files=[{'path':p.relative_to(out).as_posix(),'sha256':digest(p),'bytes':p.stat().st_size} for p in sorted(out.rglob('*')) if p.is_file()]
     retention={'status':'complete','campaign':campaign,'candidate_rows':len(d),'files':files,

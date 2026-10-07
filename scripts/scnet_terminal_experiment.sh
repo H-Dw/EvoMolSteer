@@ -26,4 +26,6 @@ case "$mode" in window|local|coordinate|affinity_endpoint) ;; *) exit 2;; esac
  --root "$work/generated" --checkpoint "$flowr/checkpoints/flowr_root_v2.ckpt" \
  --steps 100 --program "$program" --reference "$reference" --campaign "$round" \
  --n "$n" --batch 50 --seed 42 --arms "$arms" --export-terminal "${extra[@]}"
-"$python" scripts/archive_generation.py --dataset "$work/generated" --campaign "$round" --output "$work/$round.tar.gz"
+archive_options=()
+if [ "${EVALUATION_ARCHIVE_ONLY:-0}" = 1 ]; then archive_options+=(--evaluation-only); fi
+"$python" scripts/archive_generation.py --dataset "$work/generated" --campaign "$round" --output "$work/$round.tar.gz" "${archive_options[@]}"

@@ -5,10 +5,19 @@ import io
 import json
 from pathlib import Path
 import tarfile
+import tempfile
 from evomolsteer.io import read_json,digest,write_json
 
 
-def archive(root,campaign,output):
+def archive(root,campaign,output,evaluation_only=False):
+    if evaluation_only:
+        from evomolsteer.storage.evaluation_view import export_evaluation_view
+        with tempfile.TemporaryDirectory(prefix='evomolsteer-evaluation-') as stage:
+            dataset=Path(stage)/'dataset';export_evaluation_view(root,campaign,dataset)
+            result=archive(dataset,campaign,output)
+        result['transport']='terminal-execution-view-1.0'
+        write_json(Path(str(output)+'.json'),result)
+        return result
     root=Path(root).resolve();run=(root/'results'/campaign).resolve();output=Path(output).resolve()
     if not run.is_relative_to(root/'results') or run.name!=campaign:raise ValueError('One campaign name required')
     if read_json(run/'COMPLETE.json')['status']!='complete':raise ValueError('Incomplete campaign')
@@ -53,4 +62,5 @@ def archive(root,campaign,output):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--campaign',required=True);p.add_argument('--output',required=True)
-    a=p.parse_args();print(json.dumps(archive(a.dataset,a.campaign,a.output),indent=2))
+    p.add_argument('--evaluation-only',action='store_true')
+    a=p.parse_args();print(json.dumps(archive(a.dataset,a.campaign,a.output,a.evaluation_only),indent=2))

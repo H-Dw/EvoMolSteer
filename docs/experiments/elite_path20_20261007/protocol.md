@@ -52,3 +52,16 @@ those same batches; round 20 repeats the frozen winner and native control on new
 batches 34–35. Neither confirmation panel tunes the selected reward. Confidence
 intervals over batches are omitted when only one batch is present. Two-batch
 intervals remain limited; the final report also pools the two frozen panels.
+
+Since round 12, transport may use a `terminal-execution-view-1.0` archive. This
+contains byte-identical terminal SDFs, scores, inputs, traces and preflight records;
+exact initial tensors and all selection/resampling arrays support the same local
+execution audit. Original trajectory hashes and converter source hashes remain
+in retained provenance. This view is explicitly unsuitable for intermediate
+coordinate mining. Its purpose is to avoid transferring disposable arrays that
+terminal analysis never reads over the slow remote connection. Original Steer
+learning data are unaffected, and full generation remains on the server until
+verified local reports authorize retirement. Full/view audit equality, copied
+payload checksums, normalized ancestor aliases and transport round trips are
+tested before use; neither mathematical inference nor evaluation definitions
+change with this transport policy.

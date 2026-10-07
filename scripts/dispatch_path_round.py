@@ -50,7 +50,7 @@ def dispatch(repo,work,program,reference,number,previous=None,batches='30,31',ar
         if number!=4:raise ValueError('Initial inference must be round 4')
         report=repo/'docs/experiments/elite_path20_20261007/round03_library_manifest.json'
     targets=[str(work/'generated')]
-    if old:targets.extend(str(work/(old['campaign']+s)) for s in ['.tar.gz','.tar.gz.json'])
+    if old:targets.extend(str(work/(old['campaign']+s)) for s in ['.tar.gz','.tar.gz.json','.full_transport.tar.gz','.full_transport.tar.gz.json'])
     plan={'allowed_bases':[str(work)],'protected':[str(repo),'/root/private_data/MolSteer/flowr_root/experiments/ck2_clk3_lineage_20261003',
         '/root/private_data/MolSteer/flowr_root/checkpoints'],'result_report':str(report),'targets':targets}
     plan_file=work/f'cleanup_before_round{number:02d}.plan.json';plan_file.write_text(json.dumps(plan))
