@@ -1,0 +1,30 @@
+[13:09:01] Explicit valence for atom # 6 O, 3, is greater than permitted
+[13:09:01] Explicit valence for atom # 9 C, 5, is greater than permitted
+[13:09:01] Explicit valence for atom # 6 C, 5, is greater than permitted
+{"arm": "unguided", "batch": 26, "n": 50, "valid": 47, "pb_fast": 47}
+[13:09:21] Explicit valence for atom # 0 C, 5, is greater than permitted
+[13:09:22] Explicit valence for atom # 13 N, 4, is greater than permitted
+[13:09:22] Explicit valence for atom # 22 N, 4, is greater than permitted
+[13:09:22] Explicit valence for atom # 6 C, 5, is greater than permitted
+[13:09:22] Explicit valence for atom # 2 C, 5, is greater than permitted
+[13:09:22] Explicit valence for atom # 1 N, 4, is greater than permitted
+[13:09:23] Explicit valence for atom # 14 C, 5, is greater than permitted
+{"arm": "unguided", "batch": 27, "n": 50, "valid": 43, "pb_fast": 43}
+[13:09:40] Explicit valence for atom # 6 O, 3, is greater than permitted
+[13:09:40] Explicit valence for atom # 22 N, 4, is greater than permitted
+{"arm": "gradient", "batch": 26, "n": 50, "valid": 48, "pb_fast": 48}
+[13:10:01] Explicit valence for atom # 16 C, 5, is greater than permitted
+Traceback (most recent call last):
+  File "D:\llm_controlled_generation\EvoMolSteer\scripts\evaluate_terminal.py", line 9, in <module>
+    a=p.parse_args();r=evaluate_terminal(a.dataset,a.campaign,a.reference,a.output,a.arms.split(','),[int(v) for v in a.batches.split(',')],a.workers)
+                       ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\llm_controlled_generation\EvoMolSteer\src\evomolsteer\generation\terminal_evaluation.py", line 151, in evaluate_terminal
+    sources.append({'path':str(folder/name),'sha256':digest(folder/name)})
+                                                     ~~~~~~^^^^^^^^^^^^^
+  File "D:\llm_controlled_generation\EvoMolSteer\src\evomolsteer\io.py", line 10, in digest
+    for b in iter(lambda:f.read(1024*1024),b''): h.update(b)
+             ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\llm_controlled_generation\EvoMolSteer\src\evomolsteer\io.py", line 10, in <lambda>
+    for b in iter(lambda:f.read(1024*1024),b''): h.update(b)
+                         ~~~~~~^^^^^^^^^^^
+MemoryError
