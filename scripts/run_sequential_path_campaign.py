@@ -126,8 +126,21 @@ class Driver:
                 change={key:value};reason=HYPOTHESES[number]+f' All other executable fields restored from evaluated kernel parent {parent}.'
             p.update(change)
         else:
-            frozen=read_json(self.docs/'frozen_validation.json') if (self.docs/'frozen_validation.json').exists() else {'winner_round':self.best()}
-            if number==18:write_json(self.docs/'frozen_validation.json',frozen)
+            frozen_path=self.docs/'frozen_validation.json'
+            if not frozen_path.exists():
+                if number!=18:raise ValueError('Freeze confirmation before observing its labels')
+                winner=self.best();source=self.cfg/f'round{winner:02d}.json'
+                frozen={'winner_round':winner,'source_program_sha256':digest(source),
+                    'reference_sha256':read_json(source)['reference_sha256'],
+                    'selection_policy':'Predeclared rank: mean >= incumbent screen mean - 0.02 and validity >= 0.90 first; then distinct elite graphs, mean, p95, strain; earliest round breaks ties',
+                    'selection_screen_batch':30,'master_seed':42,
+                    'confirmation_panels':{'18':{'batches':[32,33],'arms':['unguided','gradient']},
+                        '19':{'batches':[32,33],'arms':['gradient'],'parent':4},
+                        '20':{'batches':[34,35],'arms':['unguided','gradient']}}}
+                write_json(frozen_path,frozen)
+            else:frozen=read_json(frozen_path)
+            if digest(self.cfg/f'round{frozen["winner_round"]:02d}.json')!=frozen['source_program_sha256']:
+                raise ValueError('Frozen winner source changed')
             parent=4 if number==19 else frozen['winner_round'];p=read_json(self.cfg/f'round{parent:02d}.json')
             change={};reason='Frozen independent confirmation; no reward tuning on these validation batches.'
         # Historical Skill signatures remain parent provenance, never current bindings.

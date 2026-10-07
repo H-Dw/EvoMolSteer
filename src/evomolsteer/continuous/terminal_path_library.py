@@ -66,7 +66,7 @@ def build_library(dataset, graph, credit, metrics, baseline, output, budget=2):
     for f in frames:
         b=np.asarray(f['teacher_batches'])
         f['teacher_base_log_weight']=[float(-np.log((b==v).sum())) for v in b]
-    ref.update(reference_variant='decoded-terminal-path-library-1.0',allowed_reward_views=['endpoint_pointcloud'],
+    ref.update(reference_variant='decoded-terminal-path-library-1.0',allowed_reward_views=['endpoint_pointcloud','endpoint_path_value'],
         sources=gm['sources'],teacher_library={'graph_sha256':digest(graph/'manifest.json'),'credit_sha256':digest(credit/'manifest.json')},
         terminal_paths=final_paths,label_semantics=cm['label_semantics'],path_clock='Native endpoint forecast at current source state_time',
         terminal_threshold_pic50=cm['threshold_pic50'],future_semantics=cm['future_semantics'])
@@ -78,6 +78,6 @@ def build_library(dataset, graph, credit, metrics, baseline, output, budget=2):
         'teacher_score_min':min(s for f in frames for s in f['teacher_scores']),
         'teacher_score_max':max(s for f in frames for s in f['teacher_scores']),
         'reference_sha256':digest(out),'reference_bytes':out.stat().st_size,'source_code_sha256':digest(__file__),
-        'change':'Terminal path labels and exact IDs only; executable endpoint pointcloud formula unchanged',
+        'change':'Terminal path labels and exact IDs only; the consuming program chooses its formula and dose independently',
         'limitations':['Observed Steer future, not native value','All teacher paths preselected from donor panel','No claim of improvement before prospective paired inference']}
     return report

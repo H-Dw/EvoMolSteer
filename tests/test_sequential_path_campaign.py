@@ -50,6 +50,18 @@ def test_independent_confirmation_remains_frozen(tmp_path):
     assert json.loads(path.read_text())['derivation']['parent_round']==6
     assert (batches,arms,n)==('34,35','unguided,gradient',100)
 
+
+def test_confirmation_rejects_post_freeze_program_change(tmp_path):
+    d,_=driver(tmp_path);d.best=lambda:6
+    d.freeze(18)
+    source=d.cfg/'round06.json';p=json.loads(source.read_text());p['native_rms_ratio']=.99;write(source,p)
+    with pytest.raises(ValueError,match='Frozen winner'):d.freeze(20)
+
+
+def test_later_confirmation_cannot_select_from_its_own_labels(tmp_path):
+    d,_=driver(tmp_path);d.best=lambda:7
+    with pytest.raises(ValueError,match='before observing'):d.freeze(19)
+
 def test_formula_requires_a_bound_designer_response(tmp_path):
     d,p=driver(tmp_path)
     p['reward_view']='endpoint_pointcloud';write(d.cfg/'round05.json',p)

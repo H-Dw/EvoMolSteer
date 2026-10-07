@@ -20,7 +20,7 @@ def test_true_scalar_derivative_points_toward_higher_future():
     assert g[:,:,0].sum()>0
     eps=1e-5;mask=torch.ones(x.shape[:2],dtype=torch.bool);direction=g/g.norm()
     hi,_=reward(x+eps*direction,mask,mask,.2,x.detach());lo,_=reward(x-eps*direction,mask,mask,.2,x.detach())
-    assert float((hi-lo)/(2*eps))==pytest.approx(float(g.norm()),rel=1e-5)
+    assert float(((hi-lo)/(2*eps)).detach())==pytest.approx(float(g.norm()),rel=1e-5)
 def test_constant_labels_and_single_neighbor_are_plateaus():
     p,r,x=fixture();r['frames'][0]['teacher_scores']=[8,8]
     assert gradient(p,r,x)[2].abs().max()==0
