@@ -14,6 +14,18 @@ from evomolsteer.generation.terminal_evaluation import evaluate_terminal
 from evomolsteer.generation.path_evaluation import retain_round,summarize_tail
 from evomolsteer.continuous.terminal_path_library import build_library
 
+HYPOTHESES={
+    7:'Increase coordinate dose alone to distinguish a weak displacement from an unhelpful direction. A larger dose that lowers affinity rejects this dose direction; it does not excuse the scalar construction.',
+    8:'Include all available identity-bearing teachers instead of the nearest four. This tests whether hard local truncation discards a distant high-utility path; the finite archive, not 1000 fabricated teachers, defines actual support.',
+    9:'Strengthen decoded terminal utility contrast at fixed coordinate dose. This changes direction toward higher labeled paths, rather than increasing controller amplitude.',
+    10:'Soften teacher competition to avoid a single dominating posterior and improve coordinate transitions between supported paths.',
+    11:'Keep every learned step active but shift dose toward later, less-censored geometry. The ramp is normalized by the supplied learning window, not a hardcoded molecular time.',
+    12:'Blend the prior with the previous endpoint posterior propagated through exact shared path IDs. This tests temporal path coherence without selection, resampling or chemical graph restrictions.',
+    13:'Test a larger continuity blend independently from the best retained kernel. Excessive path commitment could prevent discovery; remaining base mass preserves alternative supported paths.',
+    15:'Narrow the coordinate kernel at fixed dose to test whether broad geometry neighborhoods dilute the decoded future utility contrast.',
+    16:'Replace matched point displacement with scaled permutation-invariant coordinate geometry. This tests whether matching individual atom positions obscures a useful spatial configuration; no atom type rewards are introduced.',
+    17:'Attenuate dose when local observed utility contrast is nearly flat, avoiding amplification of weak evidence by RMS normalization. This is an evidence-amplitude test, not a molecular identity gate.'}
+
 class Driver:
     def __init__(self,args):
         self.args=args;self.root=Path(args.repo).resolve();self.cfg=self.root/'configs/experiments/elite_path20_v1'
@@ -87,7 +99,7 @@ class Driver:
                     10:float(p['mixture_temperature'])*2,11:1.,12:.5,13:.8,15:float(p['teacher_endpoint_temperature_A2'])/2,
                     16:'geometry',17:True}[number]
                 if value==old:raise ValueError('Identical single-axis proposal')
-                change={key:value};reason=f'Sequential test of {key}; all other executable fields restored from evaluated kernel parent {parent}.'
+                change={key:value};reason=HYPOTHESES[number]+f' All other executable fields restored from evaluated kernel parent {parent}.'
             p.update(change)
         else:
             frozen=read_json(self.docs/'frozen_validation.json') if (self.docs/'frozen_validation.json').exists() else {'winner_round':self.best()}
@@ -107,7 +119,8 @@ class Driver:
         batches='34,35' if number==20 else '32,33' if number>=18 else '30'
         arms='unguided,gradient' if number in [18,20] else 'gradient';n=100 if number>=18 else 50
         write_json(self.docs/f'round{number:02d}_plan.json',{'round':number,'parent':parent,'change':change,'reason':reason,
-            'batches':batches,'arms':arms,'n_per_arm':n,'program_sha256':digest(path),'reference_sha256':digest(reference)})
+            'batches':batches,'arms':arms,'n_per_arm':n,'program_sha256':digest(path),'reference_sha256':digest(reference),
+            'parent_screen_metrics':self.metrics(parent) if (self.docs/f'round{parent:02d}/candidate_metrics.csv').exists() else None})
         return path,reference,batches,arms,n
     def collect(self,number):
         campaign=f'elite_path_r{number:02d}';archive=self.state/f'round{number:02d}.tar.gz'
