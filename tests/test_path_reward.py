@@ -40,3 +40,11 @@ def test_dynamic_support_and_invalid_parameters():
     assert reward.active(.2,.21) and not reward.active(.59,.61) and not reward.active(.1,.2)
     p['path_history_mix']=1
     with pytest.raises(ValueError):PathValueReward(p,r)
+
+def test_geometry_kernel_accepts_json_landmarks_and_has_the_scalar_derivative():
+    p,r,x=fixture();p['path_kernel_space']='geometry'
+    r.update(landmarks_A=[[-3.,0.,0.],[3.,0.,0.]],origin_A=[0.,0.,0.],feature_scale=[1.]*20)
+    reward,v,g,d=gradient(p,r,x);assert torch.isfinite(g).all() and g.norm()>0
+    direction=g/g.norm();eps=1e-5;mask=torch.ones(x.shape[:2],dtype=torch.bool)
+    hi,_=reward(x+eps*direction,mask,mask,.2,x.detach());lo,_=reward(x-eps*direction,mask,mask,.2,x.detach())
+    assert float(((hi-lo)/(2*eps)).detach())==pytest.approx(float(g.norm()),rel=1e-5)

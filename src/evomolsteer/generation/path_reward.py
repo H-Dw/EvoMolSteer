@@ -67,7 +67,7 @@ class PathValueReward:
         if self.space=='pointcloud':q=(x[:,None]-target).square().sum(-1).mean(2)
         else:
             z=torch_geometry(x,self.reference['landmarks_A'],self.reference['origin_A'])
-            yt=numpy_geometry(np.asarray(targets).reshape(-1,x.shape[1],3),self.reference['landmarks_A'],self.reference['origin_A'])
+            yt=numpy_geometry(np.asarray(targets).reshape(-1,x.shape[1],3),np.asarray(self.reference['landmarks_A']),self.reference['origin_A'])
             y=x.new_tensor(yt).reshape(len(x),len(targets[0]),-1);scale=x.new_tensor(self.reference['feature_scale'])
             q=((z[:,None]-y)/scale).square().mean(2)
         cost=self.delta**2*(torch.sqrt(1+q/self.delta**2)-1)/self.bandwidth
