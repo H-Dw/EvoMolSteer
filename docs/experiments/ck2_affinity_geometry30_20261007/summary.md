@@ -1,6 +1,6 @@
 # New affinity-primary geometry campaign
 
-11/30 rounds retained. Seed42, dynamic learned window, complete100 native steps; no SMC.
+12/30 rounds retained. Seed42, dynamic learned window, complete100 native steps; no SMC.
 
 |Round|Split|Reward|Dose|Mean head delta|Best valid head|Unique Top5|Response|
 |---:|---|---|---:|---:|---:|---:|---|
@@ -15,6 +15,7 @@
 |9|discovery|endpoint_supported_attractor|0.3|-0.041429|8.177889|8.055673|negative_affinity|
 |10|discovery|endpoint_pointcloud|0.51|0.206789|8.236473|8.114897|meaningful_gain|
 |11|discovery|endpoint_supported_attractor|0.3|-0.039052|8.353724|8.080254|negative_affinity|
+|12|discovery|endpoint_pointcloud|0.867|0.139001|8.297089|8.097913|meaningful_gain|
 
 Historical Steer100 mean7.510351, best-valid8.347940; not an equal-budget paired heldout arm.
 Mean/maximum/top5 and physical tails are distinct outcomes. Recorded head predictions are not measured affinity.
