@@ -89,6 +89,8 @@ def record(campaign,evidence,number):
     if not execution['no_particle_resampling'] or execution['outside_window_injection'] or not audit['coordinate_preflight']['passed']:raise ValueError('Execution contract failed')
     if 'gradient_zero' in r['arms'] and aw['zero_equivalence_passed'] is not True:raise ValueError('Full zero/native mismatch')
     original=evidence.parent/'ck2_terminal_seed42_20261005/reference/terminal_report.json'
+    if c.get('original_steer_report_relative_path'):
+        original=Path(__file__).resolve().parents[3]/c['original_steer_report_relative_path']
     groups=[{'label':'Original Steer','arm':'single','terminal_report':str(original.resolve())},
             {'label':'Native','arm':'unguided','terminal_report':str((baseline/'terminal_report.json').resolve()),'execution_report':str((baseline/'execution_report.json').resolve())},
             {'label':r['campaign'],'arm':'gradient','terminal_report':str((local/'terminal_report.json').resolve()),'execution_report':str((local/'execution_report.json').resolve())}]

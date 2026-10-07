@@ -39,6 +39,12 @@ class SkillDriver(MotifDriver):
             except FileNotFoundError:
                 with sftp.file(work+'/round_ready.json','w') as f:f.write(json.dumps(state))
 
+    def py(self,number,name,script,*args):
+        values=list(args)
+        if script=='evaluate_terminal.py' and '--workers' in values:
+            values[values.index('--workers')+1]='1'
+        return super().py(number,name,script,*values)
+
     def push(self,number):
         self.command(number,'git_add',['git','add','--',str(self.cfg),str(self.evidence)])
         if subprocess.run(['git','diff','--cached','--quiet'],cwd=self.root).returncode:

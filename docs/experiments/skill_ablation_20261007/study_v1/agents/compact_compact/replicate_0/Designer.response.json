@@ -1,0 +1,37 @@
+{
+  "agent": "Designer",
+  "request_sha256": "6bf057e86ad02b90815d1329239719f5964126d1f66e6984697ad6dd7bd41aa8",
+  "analyst_response_sha256": "5a2387d8e2779afaaa5c36068d41d202b0e751bb0223ad5fe2a841c40d67f348",
+  "decision": "retain_existing",
+  "base_program_id": "program_20",
+  "updates": {},
+  "evidence_ids": [
+    "quality:program_20",
+    "quality:program_3",
+    "quality:program_19",
+    "quality:program_8",
+    "quality:program_4",
+    "endpoint_effects:3",
+    "endpoint_effects:4",
+    "endpoint_effects:10",
+    "endpoint_effects:14",
+    "endpoint_effects:15",
+    "information_audit",
+    "regional_curves",
+    "curve_support",
+    "lineage_support",
+    "survival_effects:0",
+    "regional_effects:249",
+    "regional_effects:449"
+  ],
+  "rationale": "Retain incumbent program_20 unchanged for one independent paired comparison with native generation. Discovery mean_pic50_delta is +0.2303, valid-rate change +0.01, and MMFF relief per heavy atom median/p90 0.4769/0.9546. Program_3 has essentially the same mean (+0.2293) and larger p90 (1.2526); program_19 has smaller mean (+0.2128) and p90 (0.9079); program_8 has smaller mean (+0.1390) and p90 (0.7310); program_4 has better best-valid affinity (8.5580 versus 8.2371) but valid-rate change -0.02. Adaptive reuse and absent comparative uncertainty do not justify a parameter change or certify acceptable strain. Observed targets are selection-associated endpoint geometry: lower shape_xx/yy and landmark_00 softmin, higher pair_kernel_2.5 and landmark_00 occupancy3; these untyped proxies are not affinity energies. Top-four teacher overlap 0.470 and excess fixed-frame RMS 0.081 A motivate preserving coordinate detail, while the audit does not test causal final-affinity benefit. Use registered endpoint_pointcloud: Y_t is the native FLOWR endpoint forecast in the recorded world frame, in angstroms. Detach Hungarian assignment and nearest-teacher selection; q_m=mean_i||Y_t,i-teacher_m,assignment(i)||^2; pi_m is the registered detached cost/recorded-score prior. R=tau*logsumexp_m(log(pi_m)-rho_delta(q_m)/tau), rho_delta(q)=delta^2*(sqrt(1+q/delta^2)-1). Reference: configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz, SHA256 d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c. Experimental settings are inherited from the hashed program, not estimated from observed contrasts: tau=0.5, teacher_endpoint_temperature_A2=4, K=4, teacher_score_beta=2, robust_delta=2, native_rms_ratio=0.33 relative to predictive_flow, time_ramp_power=0 (ramp factor 1), and existing bounded step/backtracking controls. Spatial ascent uses g_t=J_FLOWR_endpoint(X_t)^T*grad_Y R through the existing native graph: zero additional production forwards, no affinity-head gradient, no SMC, no graph veto. Temporal feature rates are neither this spatial gradient nor physical atom velocity. Guide only at exact learned nodes t=0.00,...,0.49; native continuation applies at unsupported clocks, including t=0.5 and later. Failed Legendre fidelity, late regional reversals, and no corrected survival q<0.05 oppose adding a fixed direction or terminal attractor. Validation hypotheses: final predicted affinity over all attempts is maintained/improved and strain means/physical tails do not materially regress relative to native. Use independent paired batches with matched starts/seeds, batch-level uncertainty, and explicit invalid-attempt/evaluation-failure accounting; compare means and tails separately. Check the endpoint VJP offline with fixed detached correspondences, exact-node gating and production forward-call counts. The supplied contract lacks numerical material-strain thresholds and failure scoring; preregister those before evaluating the hypotheses and do not claim validation from discovery.",
+  "failure_modes": [
+    "Adaptive discovery reuse and small mean differences may fail to reproduce; best-valid affinity can hide invalid attempts and failures.",
+    "Geometric proximity and recorded teacher scores may not transfer to final affinity; the information audit did not evaluate the full reward or FLOWR VJP.",
+    "Untyped Hungarian correspondences may conflate chemically different arrangements; assignment and nearest-teacher switches create piecewise gradients.",
+    "Attraction may move rigid pose, increase clashes or strain, or saturate inherited dose/backtracking controls; affinity improvement does not establish acceptable physical tails.",
+    "Endpoint Jacobian propagation can attenuate or redirect attraction; substituting temporal rates or direct endpoint displacement violates the derivative contract.",
+    "Off-node use, late extrapolation or failed compact fits exceed support; sparse lineage and nonsignificant corrected survival effects cannot certify terminal quality.",
+    "Missing all-attempt failure scoring, strain means/baseline and material-regression threshold prevent a definitive objective/constraint judgment from these summaries."
+  ]
+}
