@@ -4,13 +4,12 @@ Each next single-axis proposal is created only after the preceding report is
 retained. Parameter trials are registered adaptive tests, not independent LLM
 inventions. No credentials, generated structures, or network settings enter Skills.
 """
-import argparse,copy,json,os,shlex,subprocess,time,shutil,contextlib
+import argparse,copy,json,os,shlex,subprocess,time,shutil,sys
 from pathlib import Path
 import paramiko
 import pandas as pd
 from evomolsteer.io import read_json,digest,write_json
 from evomolsteer.storage.generation_archive import verify_generation_archive
-from evomolsteer.generation.terminal_evaluation import evaluate_terminal
 from evomolsteer.generation.path_evaluation import retain_round,summarize_tail
 from evomolsteer.continuous.terminal_path_library import build_library
 
@@ -25,6 +24,17 @@ HYPOTHESES={
     15:'Narrow the coordinate kernel at fixed dose to test whether broad geometry neighborhoods dilute the decoded future utility contrast.',
     16:'Replace matched point displacement with scaled permutation-invariant coordinate geometry. This tests whether matching individual atom positions obscures a useful spatial configuration; no atom type rewards are introduced.',
     17:'Attenuate dose when local observed utility contrast is nearly flat, avoiding amplification of weak evidence by RMS normalization. This is an evidence-amplitude test, not a molecular identity gate.'}
+
+def evaluate_isolated(root,dataset,campaign,evaluated,cfg,logfile):
+    """Fresh process owns all third-party logging streams for one evaluation."""
+    with Path(logfile).open('w',encoding='utf-8') as log:
+        subprocess.run([sys.executable,str(Path(root)/'scripts/evaluate_terminal.py'),
+            '--dataset',str(dataset),'--campaign',campaign,'--reference',str(Path(root)/'configs/experiments/ck2_terminal_seed42_v1/local_reference.json.gz'),
+            '--output',str(evaluated),'--arms',cfg['arms'],'--batches',','.join(map(str,cfg['batch_indices'])),'--workers','1'],
+            cwd=root,stdout=log,stderr=subprocess.STDOUT,check=True)
+    checked=pd.read_csv(Path(evaluated)/'candidate_metrics.csv')
+    if 'pb_error' in checked and checked.pb_error.notna().any():
+        raise ValueError('PoseBusters evaluation error; retain raw structures and diagnose before advancing')
 
 class Driver:
     def __init__(self,args):
@@ -130,10 +140,11 @@ class Driver:
         verified=verify_generation_archive(archive,str(archive)+'.json',dataset)
         cfg=read_json(dataset/'results'/campaign/'config.json')['experiment']
         self.emit('local_evaluation',round=number,archive_verified=True)
-        with (self.state/f'round{number:02d}.evaluation.log').open('w',encoding='utf-8') as log,contextlib.redirect_stdout(log),contextlib.redirect_stderr(log):
-            evaluate_terminal(dataset,campaign,self.root/'configs/experiments/ck2_terminal_seed42_v1/local_reference.json.gz',evaluated,cfg['arms'].split(','),cfg['batch_indices'],workers=1)
-            baseline=self.docs/'round04/candidate_metrics.csv' if number<=17 else self.docs/'round18/candidate_metrics.csv' if number==19 else None
-            result=retain_round(dataset,campaign,evaluated,self.docs/f'round{number:02d}',self.threshold,baseline)
+        # PoseBusters/RDKit bind process-global streams. A fresh interpreter per
+        # round prevents a later round from reusing a closed redirected stream.
+        evaluate_isolated(self.root,dataset,campaign,evaluated,cfg,self.state/f'round{number:02d}.evaluation.log')
+        baseline=self.docs/'round04/candidate_metrics.csv' if number<=17 else self.docs/'round18/candidate_metrics.csv' if number==19 else None
+        result=retain_round(dataset,campaign,evaluated,self.docs/f'round{number:02d}',self.threshold,baseline)
         write_json(self.docs/f'round{number:02d}/archive_verification.json',verified)
         # Verification report is added to the retention checksum list.
         retention=read_json(self.docs/f'round{number:02d}/retention.json')
@@ -178,10 +189,18 @@ class Driver:
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--repo',default='.');p.add_argument('--host',default='ksai.scnet.cn');p.add_argument('--port',type=int,default=10544)
     p.add_argument('--password-env',default='MOLSTEER_SCNET_PASSWORD');p.add_argument('--start',type=int,default=6);p.add_argument('--last',type=int,default=20)
+    p.add_argument('--collect-only',type=int,help='Resume local collection of an already completed remote round; do not start inference')
     p.add_argument('--remote-repo',default='/root/private_data/MolSteer/EvoMolSteer')
     p.add_argument('--remote-work',default='/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_elite_path20_20261007')
     a=p.parse_args()
     if not 6<=a.start<=a.last<=20:raise ValueError('Twenty-round budget')
     d=Driver(a)
-    try:d.run()
+    try:
+        if a.collect_only is not None:
+            if not 6<=a.collect_only<=20 or read_json(d.cfg/'campaign.json')['rounds_completed']!=a.collect_only-1:
+                raise ValueError('Collection must resume the next unfinished round')
+            if d.remote(f'cat {shlex.quote(d.work+f"/round{a.collect_only:02d}.exit")}')!='0':
+                raise ValueError('Remote inference not complete')
+            d.collect(a.collect_only)
+        else:d.run()
     finally:d.ssh.close()
