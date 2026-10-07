@@ -14,7 +14,7 @@ def sources():
 
 def test_actual_agent_obeys_terminal_credit_missingness_and_capacity():
     root, folder, ref = sources()
-    result = audit_terminal_behavior(root/'skills/affinity-terminal-lineage/SKILL.md', folder/'input.json',
+    result = audit_terminal_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-terminal-lineage.md', folder/'input.json',
         folder/'prompt.txt', folder/'response.json', ref)
     assert result['selected_round'] == 7 and result['terminal_credit_response_verified']
     assert result['missing_extinction_not_low_affinity_verified'] and result['sparse_early_credit_not_filled_verified']
@@ -36,5 +36,5 @@ def test_hash_correct_response_cannot_ignore_revised_skill(tmp_path, conflict):
     else: bad['reward_design']['derivative_path'] = 'identity'
     path = tmp_path/'response.json'; write_json(path, bad)
     with pytest.raises(ValueError):
-        audit_terminal_behavior(root/'skills/affinity-terminal-lineage/SKILL.md', folder/'input.json',
+        audit_terminal_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-terminal-lineage.md', folder/'input.json',
             folder/'prompt.txt', path, ref)

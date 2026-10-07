@@ -78,7 +78,8 @@ def export(mining,role,landmarks=('ck2:A:ASN117','ck2:A:VAL116'),transport=None,
         analyst=read_json(dest/'Analyst.coordinate.response.json')
         validate(analyst,ANALYST,payload);payload={**payload,'analyst_document':analyst}
     schema=ANALYST if role=='Analyst' else DESIGNER
-    skill=(PROJECT/'skills'/f'coordinate-{role.lower()}'/'SKILL.md').read_text(encoding='utf-8')
+    from ..skill_guidance import render
+    skill=render(role)
     request={'schema_version':'coordinate-1.0','role':role,'bundle_sha256':digest(bundle),'response_schema':schema,
         'messages':[{'role':'system','content':skill+'\nReturn only JSON matching this schema:\n'+json.dumps(schema)},
             {'role':'user','content':'Analyze only supplied discovery evidence; no causal claim or generation.\n'+json.dumps(payload,ensure_ascii=False,allow_nan=False)}]}

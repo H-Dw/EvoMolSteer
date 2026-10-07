@@ -5,7 +5,8 @@ from pathlib import Path
 
 def dispatch(repo,work,number,campaign,program,reference,previous,arms='gradient',batches='0,1',n=100,profile='motif15'):
     repo,work,program,reference=map(lambda v:Path(v).resolve(),(repo,work,program,reference))
-    contracts={'motif15':(15,'ck2_motif_seed42_v1'),'affinity30':(30,'ck2_affinity_geometry30_v1')}
+    contracts={'motif15':(15,'ck2_motif_seed42_v1'),'affinity30':(30,'ck2_affinity_geometry30_v1'),
+               'skill_ablation':(30,'skill_ablation_v1')}
     if profile not in contracts:raise ValueError('Unknown campaign profile')
     limit,config=contracts[profile]
     if not 1<=number<=limit or campaign!=f'coordinate_r{number:02d}_{profile}' or n not in (50,100):raise ValueError('New campaign identity contract')

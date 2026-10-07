@@ -13,7 +13,7 @@ def sources():
 
 def test_literal_new_skill_response_and_registered_compilation():
     root,e,f,prior,h=sources()
-    audit=audit_persistent_behavior(root/'skills/affinity-persistent-coordinate/SKILL.md',f/'input.json',f/'prompt.txt',f/'response.json',prior,h)
+    audit=audit_persistent_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-persistent-coordinate.md',f/'input.json',f/'prompt.txt',f/'response.json',prior,h)
     reference=root/'configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz'
     p=compile_persistent(read_json(f/'response.json'),{},load_reference(reference),digest(reference),
         read_json(prior),digest(prior),read_json(h),digest(h),h.relative_to(root).as_posix())
@@ -29,4 +29,4 @@ def test_unchanged_diagnosis_or_fabricated_history_is_rejected(tmp_path):
         if change=='dose_only':bad['trajectory_case']['intervention']='dose_escalation'
         else:bad['history_feature_names'].append('shape_xx')
         write_json(path,bad)
-        with pytest.raises(ValueError):audit_persistent_behavior(root/'skills/affinity-persistent-coordinate/SKILL.md',f/'input.json',f/'prompt.txt',path,prior,h)
+        with pytest.raises(ValueError):audit_persistent_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-persistent-coordinate.md',f/'input.json',f/'prompt.txt',path,prior,h)

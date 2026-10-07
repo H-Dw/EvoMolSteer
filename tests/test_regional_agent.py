@@ -10,7 +10,7 @@ def sources():
 
 def test_literal_regional_agent_responds_to_numeric_contradictions():
     root,e,f=sources()
-    result=audit_regional_behavior(root/'skills/affinity-regional-pointcloud/SKILL.md',f/'input.json',f/'prompt.txt',f/'response.json',e/'regional_mining_v1/region_prior.json')
+    result=audit_regional_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-regional-pointcloud.md',f/'input.json',f/'prompt.txt',f/'response.json',e/'regional_mining_v1/region_prior.json')
     assert result['selected_round']==7 and result['selected_region']==0
     assert result['node_sign_contradiction_verified'] and result['information_limitations_verified']
 
@@ -24,4 +24,4 @@ def test_hash_correct_but_behavior_wrong_response_is_rejected(tmp_path,change):
     elif change=='incorrect_dose':bad['reward_design']['native_rms_ratio']=.51
     else:bad['reward_design']['derivative_path']='identity'
     path=tmp_path/'response.json';write_json(path,bad)
-    with pytest.raises(ValueError):audit_regional_behavior(root/'skills/affinity-regional-pointcloud/SKILL.md',f/'input.json',f/'prompt.txt',path,e/'regional_mining_v1/region_prior.json')
+    with pytest.raises(ValueError):audit_regional_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-regional-pointcloud.md',f/'input.json',f/'prompt.txt',path,e/'regional_mining_v1/region_prior.json')

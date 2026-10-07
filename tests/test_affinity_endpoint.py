@@ -60,7 +60,7 @@ def test_literal_endpoint_agent_behavior_and_design_compile():
     from evomolsteer.continuous.endpoint_design import audit_endpoint_behavior,compile_endpoint
     root=Path(__file__).resolve().parents[1];folder=root/'docs/experiments/ck2_affinity_geometry30_20261007/endpoint_skill_test'
     response=read_json(folder/'response.json');ref=root/'configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz'
-    audit=audit_endpoint_behavior(root/'skills/affinity-endpoint-pullback/SKILL.md',folder/'input.json',folder/'prompt.txt',response,digest(ref))
+    audit=audit_endpoint_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-endpoint-pullback.md',folder/'input.json',folder/'prompt.txt',response,digest(ref))
     program=compile_endpoint(response,{},load_reference(ref),digest(ref))
     assert audit['passed'] and audit['representation_intervention']
     assert program['reward_view']=='endpoint_direction' and program['geometry_block_weights']==[0,1,2,1]

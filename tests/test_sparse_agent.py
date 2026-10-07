@@ -9,7 +9,7 @@ from evomolsteer.generation.window_reference import load_reference
 def test_literal_agent_changed_design_in_response_to_node_counterevidence():
     root=Path(__file__).resolve().parents[1];e=root/'docs/experiments/ck2_affinity_geometry30_20261007'
     folder=e/'sparse_skill_test_v2';prior_path=e/'endpoint_mining/sparse_coordinate_prior_v2.json'
-    skill=root/'skills/affinity-sparse-coordinate/SKILL.md'
+    skill=root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-sparse-coordinate.md'
     result=audit_sparse_behavior(skill,folder/'input.json',folder/'prompt.txt',folder/'response.json',prior_path)
     assert result['sparse_response_verified'] and result['direction_mode']=='linear_node_effect' and result['recorded_function_count']==24
     response=read_json(folder/'response.json');reference=root/'configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz'

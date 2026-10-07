@@ -1,0 +1,46 @@
+{
+  "choice_contract": "Registered historical programs may be retained or changed within declared scalar bounds, or deferred; no architecture or parameter is required to win.",
+  "derivative_and_dose": "g_t = J_FLOWR_endpoint(X_t)^T * grad_Y R. Use existing native forward graph, no affinity-head gradient or additional production forward. Relative RMS dose and bounded backtracking are supplied program controls; ramp factor = (0.1+0.9*phase)^time_ramp_power.",
+  "families": {
+    "endpoint_direction": {
+      "formula": "R = sum_f Phi_f*d_f. Node contrast d = clip(mean_batches((high-low)/V),-3,3)*block_normalized_feature_weights. Recorded empirical/approved polynomial direction uses effect_f(t)/mean(V_f), clipped then weighted.",
+      "scope": "Only registered fields/functions and their supplied fidelity certificates.",
+      "source": "sparse_reward.py or affinity_geometry_reward.py"
+    },
+    "endpoint_pointcloud": {
+      "correspondence": "Hungarian squared-distance assignment between detached Y_t and each teacher endpoint; choose K nearest by mean assignment cost C_m.",
+      "formula": "q_m = mean_i ||Y_t,i - teacher_m,assignment(i)||^2; R = tau*logsumexp_m(log(pi_m)-rho_delta(q_m)/tau).",
+      "prior": "pi_m = softmax(-C_m/T + beta*(s_m-mean(s)) + optional teacher_base_log_weight_m); detached.",
+      "source": "endpoint_reward.py + affinity_geometry_reward.py"
+    },
+    "endpoint_regional_pointcloud": {
+      "formula": "a_i = background + sum_r w_r*node_salience_r(t)*exp(-||Y_anchor,i-landmark_r||^2/(2*radius^2)); detach a. q_m = sum_i a_i*||Y_t,i-teacher_m,assignment(i)||^2/sum_i a_i. R = tau*logsumexp(log(pi_m)-rho_delta(q_m)/tau).",
+      "prior": "Same unweighted detached assignment and nearest-teacher prior as pointcloud, without optional base log weight.",
+      "source": "regional_point_reward.py"
+    },
+    "endpoint_supported_attractor": {
+      "formula": "q_m = sum_f (Phi_f - teacher_Phi_m,f)^2 * w_f(t)/mean(V_f); attraction = tau*logsumexp(log_softmax(beta*(s-mean(s)))-rho_delta(q)/tau). R = attraction - h*phase^p*rho_delta(sum_f (Phi_f-Phi_previous_detached_f-observed_increment_f)^2*w_history_f/mean(V_f)).",
+      "scope": "History penalty only when immediate previous supported endpoint exists. Recorded salience, when active, multiplies weights by clip(abs(effect),0.1,2).",
+      "source": "persistent_reward.py"
+    }
+  },
+  "purpose": "Execution definitions shared by every Designer condition, not preferred architectures.",
+  "schema_version": "coordinate-reward-capabilities-1.0",
+  "source_sha256": {
+    "affinity_geometry_reward.py": "49f6015c5908180c50d7ad02ef2b55ddbf96b6618dafcb3b60a45adbfda29884",
+    "endpoint_reward.py": "e2a43d18b5c0c9815d8127e7c24e915e714757ff745915b113fb8849d1edfcf3",
+    "persistent_reward.py": "36876861fdc021117092c51a55e7dd57161973e5488ca9a451f6d586acaba176",
+    "regional_point_reward.py": "48f19b1341a9a66da23b7c7d3ac527727e3da17d89fade229158dfcf640e96c0",
+    "sparse_reward.py": "3605513281a729acb487fa1b5d92c9a68f2d3c31eacc3d3e1fc403af768b3265"
+  },
+  "support": "Exact reference clocks and learned window supplied by data; native continuation outside support.",
+  "symbols": {
+    "Phi": "registered coordinate observables divided by recorded feature scale",
+    "V": "recorded scaled feature variance",
+    "X_t": "current coordinates",
+    "Y_t": "native FLOWR endpoint forecast",
+    "rho_delta(q)": "delta^2 * (sqrt(1 + q/delta^2) - 1)",
+    "s_m": "recorded teacher score",
+    "theta": "scalar parameters supplied in program registry"
+  }
+}

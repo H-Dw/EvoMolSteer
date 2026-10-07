@@ -58,7 +58,8 @@ def export(mining,role,output,top_per_metric=6,boundary=None):
     if role=='Designer':
         analyst=read_json(output/'Analyst.motif.response.json');validate(analyst,ANALYST,bundle);payload['analyst']=analyst
     schema=ANALYST if role=='Analyst' else DESIGNER
-    skill=(PROJECT/'skills'/f'coordinate-{role.lower()}'/'SKILL.md').read_text(encoding='utf8')+'\n'+(PROJECT/'skills/motif-evolution/SKILL.md').read_text(encoding='utf8')
+    from ..skill_guidance import render
+    skill=render(role)
     request={'schema_version':'motif-agent-1.0','role':role,'bundle_sha256':digest(bundlepath),'response_schema':schema,
         'messages':[{'role':'system','content':skill+'\nReturn only JSON matching this schema:\n'+json.dumps(schema)},
                     {'role':'user','content':'Use supplied discovery evidence only. Propose code-defined hypotheses with counterevidence and no graph veto.\n'+json.dumps(payload,ensure_ascii=False,allow_nan=False)}]}

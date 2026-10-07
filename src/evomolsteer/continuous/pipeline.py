@@ -127,7 +127,8 @@ def build_evidence(analysis):
     evidence.append({'evidence_id':'continuous:trends:controls','method':'selection_moment_control',
         'interpretation':'Levels, instantaneous preference, realized copying, noise and retrospective ancestry remain distinct.',
         'data':moments,'source':str(trends_path.relative_to(analysis)),'source_sha256':digest(trends_path)})
-    skill=Path(__file__).resolve().parents[3]/'skills/continuous-analyst/SKILL.md'
+    from ..skill_guidance import render
+    skill_text=render('Analyst',cfg.get('agent_guidance_modules',{}).get('Analyst',[]))
     bundle={'schema_version':'continuous-3.0','scope':scope,'time_binning':False,'evidence':evidence,
         'fit_protocol':read_json(analysis/'discovery/continuous/trends/method.json'),
         'energy_status':cat.get('energy_status',{}),
@@ -144,7 +145,7 @@ def build_evidence(analysis):
     transport['transport_note']='Only this LLM view uses 8 significant decimal digits and columnar control tables; full-precision evidence and tables remain authoritative. Time arrays are shared via scope.score_times.'
     write_json(analysis/'agents/Analyst.continuous.request.json',{'role':'Analyst','schema_version':'continuous-3.0',
         'bundle_sha256':digest(analysis/'agents/continuous_evidence.json'),'response_schema':SCHEMA,
-        'messages':[{'role':'system','content':skill.read_text(encoding='utf-8')+'\nReturn JSON matching:\n'+json.dumps(SCHEMA)},
+        'messages':[{'role':'system','content':skill_text+'\nReturn JSON matching:\n'+json.dumps(SCHEMA)},
                     {'role':'user','content':json.dumps(transport,ensure_ascii=False,allow_nan=False,separators=(',',':'))}]})
     lines=['# Whole-window selection analysis', '',
         f"Observed window: {scope['window_start']}–{scope['window_end']}; {len(scope['steps'])} original event times.",
