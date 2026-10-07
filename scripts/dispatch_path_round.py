@@ -12,7 +12,7 @@ def verify_retention(path):
             raise ValueError('Retained report checksum mismatch')
     return m
 
-def dispatch(repo,work,program,reference,number,previous=None,batches='30,31',arms='gradient',n=100):
+def dispatch(repo,work,program,reference,number,previous=None,batches='30,31',arms='gradient',n=100,flowr_root=None,retry_failed=False):
     repo,work,program,reference=map(lambda x:Path(x).resolve(),(repo,work,program,reference))
     p=json.loads(program.read_text());campaign=f'elite_path_r{number:02d}'
     if not 4<=number<=20 or p['round']!=number or p['seed']!=42 or n%50 or n<50:
@@ -29,12 +29,23 @@ def dispatch(repo,work,program,reference,number,previous=None,batches='30,31',ar
     active=work/'active.json'
     old=json.loads(active.read_text()) if active.exists() else None
     if old:
-        if number!=old['round']+1:raise ValueError('Sequential round required')
+        if number!=old['round']+1 and not (retry_failed and number==old['round']):raise ValueError('Sequential round required')
         exit_file=work/f'round{old["round"]:02d}.exit'
         if not exit_file.is_file():raise ValueError('Previous inference still active')
-        if not previous:raise ValueError('Previous report missing')
-        report=Path(previous).resolve();m=verify_retention(report)
-        if m['campaign']!=old['campaign']:raise ValueError('Wrong previous report')
+        if retry_failed:
+            if number!=old['round'] or int(exit_file.read_text())==0:raise ValueError('Only failed execution can be retried')
+            if (work/'generated/results'/campaign/'COMPLETE.json').exists():raise ValueError('Completed generation cannot be retried')
+            attempt=len(list(work.glob(f'round{number:02d}.failed*.json')))+1
+            report=work/f'round{number:02d}.failed{attempt}.json'
+            log=work/f'round{number:02d}.log'
+            failure={'status':'failed_execution','launch':old,'exit_code':int(exit_file.read_text()),
+                'log_sha256':hashlib.sha256(log.read_bytes()).hexdigest(),'log_tail':log.read_text(errors='replace').splitlines()[-15:]}
+            report.write_text(json.dumps(failure));log.rename(work/f'round{number:02d}.failed{attempt}.log')
+            exit_file.rename(work/f'round{number:02d}.failed{attempt}.exit')
+        else:
+            if not previous:raise ValueError('Previous report missing')
+            report=Path(previous).resolve();m=verify_retention(report)
+            if m['campaign']!=old['campaign']:raise ValueError('Wrong previous report')
     else:
         if number!=4:raise ValueError('Initial inference must be round 4')
         report=repo/'docs/experiments/elite_path20_20261007/round03_library_manifest.json'
@@ -49,9 +60,12 @@ def dispatch(repo,work,program,reference,number,previous=None,batches='30,31',ar
         'protected_inputs':plan['protected'][1:]}
     (work/'round_ready.json').write_text(json.dumps(ready))
     commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    flowr_root=Path(flowr_root).resolve() if flowr_root else repo.parent/'flowr_root'
+    if not (flowr_root/'flowr/models/fm_pocket.py').is_file():raise ValueError('FLOWR program path missing')
     with (work/f'round{number:02d}.log').open('wb') as log:
         child=subprocess.Popen(['bash',str(repo/'scripts/scnet_path_round.sh'),str(number),campaign,str(program),str(reference),arms,str(n),batches],
-            stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,env={**os.environ,'EXPERIMENT_ROOT':str(work)})
+            stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,
+            env={**os.environ,'EXPERIMENT_ROOT':str(work),'FLOWR_ROOT':str(flowr_root)})
     result={'round':number,'campaign':campaign,'pid':child.pid,'inference_commit':commit,'arms':arms,'batches':batch_ids,'n':n,'status':'launched'}
     active.write_text(json.dumps(result));(work/f'round{number:02d}.launch.json').write_text(json.dumps(result))
     return result
@@ -61,4 +75,5 @@ if __name__=='__main__':
     for key in ['repo','work','program','reference']:p.add_argument('--'+key,required=True)
     p.add_argument('--round',type=int,required=True);p.add_argument('--previous')
     p.add_argument('--batches',default='30,31');p.add_argument('--arms',default='gradient');p.add_argument('--n',type=int,default=100)
-    a=p.parse_args();print(json.dumps(dispatch(a.repo,a.work,a.program,a.reference,a.round,a.previous,a.batches,a.arms,a.n)))
+    p.add_argument('--flowr-root');p.add_argument('--retry-failed',action='store_true')
+    a=p.parse_args();print(json.dumps(dispatch(a.repo,a.work,a.program,a.reference,a.round,a.previous,a.batches,a.arms,a.n,a.flowr_root,a.retry_failed)))
