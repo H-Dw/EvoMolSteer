@@ -64,6 +64,11 @@ def plot(reports, summary, output):
         path = output / ('path_campaign.' + suffix)
         if path.exists():raise FileExistsError(path)
         fig.savefig(path, dpi=180, metadata={'Date': None} if suffix == 'svg' else {})
+        if suffix == 'svg':
+            # Matplotlib path lines have cosmetic trailing spaces; preserve XML
+            # line separators while making the exported artifact diff-clean.
+            path.write_text('\n'.join(line.rstrip() for line in path.read_text(encoding='utf-8').splitlines()) + '\n',
+                            encoding='utf-8', newline='\n')
     plt.close(fig)
     write_json(output / 'figure_provenance.json', {'summary_sha256': digest(summary), 'plot_code_sha256': digest(__file__),
                                                 'screen_comparison': 'batch30 only; repaired round08 replay',
