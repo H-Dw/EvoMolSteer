@@ -1,0 +1,19 @@
+{
+  "arms": "gradient",
+  "batches": "30",
+  "change": {
+    "reward_view": "endpoint_path_value"
+  },
+  "n_per_arm": 50,
+  "parent": 5,
+  "program_sha256": "808b4f40c26b709b09b9f3eceb02a9ab9916954ad2b01225f667a07933754523",
+  "reason": [
+    "Test R=tau*(logsumexp(log(b)+beta*(u-mean(u))-C/tau)-logsumexp(log(b)-C/tau)) against the completed terminal-source endpoint_pointcloud parent. Freeze that source, controller, dose, window [0.0,0.5], all existing scalar values and evaluation protocol. History, geometry projection and contrast amplitude remain disabled; no affinity-head gradients or extra production head calls are introduced.",
+    "For a fixed selected teacher set, assignments and prior, define p_u=softmax(log(b)+beta*(u-mean(u))-C/tau) and p_0=softmax(log(b)-C/tau). Then grad_x R=-sum_j((p_u[j]-p_0[j])*grad_x C_j). Background subtraction removes the common density attraction: equal utilities imply p_u=p_0 and zero gradient; centering also makes R zero in this case. A single selected teacher likewise gives zero gradient.",
+    "The observable is the FLOWR endpoint coordinate cloud. The implementation freezes Hungarian atom correspondence and nearest-neighbor selection using a detached endpoint anchor, then differentiates C=delta^2*(sqrt(1+q/delta^2)-1)/bandwidth, where q is matched mean squared coordinate displacement. The required derivative continues through the real FLOWR endpoint VJP to the current state; a temporal feature derivative is not this spatial gradient.",
+    "u is a detached predicted-affinity label from an observed decoded terminal Steer descendant, using the supplied terminal-path reference. b is supplied reference mass intended to balance donor batches and deduplicated current ancestors; this reward code consumes that mass without verifying its construction. Existing scalar values are experimental choices carried forward, not newly inferred measurements. These retrospective utilities are neither measured affinities nor calibrated native-future probabilities.",
+    "The source-only screen produced zero valid elites in 50 outputs, a paired mean pIC50 gain of 0.023600 versus gradient, 48 valid outputs, PB-fast rate 0.94 and strain p90 2.526952 per heavy atom. Its weaker validity/PB and worse strain, plus one-batch uncertainty, oppose assuming a useful formula benefit. A formula-only screen is justified by the identifiable removal of density attraction, not by demonstrated tail improvement. The packet reports five passing unit tests; inspected formula tests establish local toy cancellation, label sensitivity and finite-difference agreement. Actual inference and the integrated FLOWR VJP remain unverified; region-specific causal and native-continuation evidence are absent."
+  ],
+  "reference_sha256": "9650202ab260f2d7e4a3ebaeffe0817e072913dc06b7aec74241b3459316ae9f",
+  "round": 6
+}
