@@ -9,6 +9,21 @@ class EndpointGeometryReward(AffinityGeometryReward):
         if program.get('derivative_path')!='flowr_endpoint_vjp' or reference['schema_version']!='affinity-endpoint-library-1.0':
             raise ValueError('True FLOWR endpoint derivative contract required')
         if program['reward_view'] not in FAMILIES:raise ValueError('Unregistered endpoint formula')
+        allowed=reference.get('allowed_reward_views')
+        if allowed is not None and program['reward_view'] not in allowed:
+            raise ValueError('Reference labels do not support this endpoint formula')
+        if reference.get('reference_variant')=='terminal-descendant-endpoint-library-1.0':
+            import numpy as np
+            for frame in reference['frames']:
+                weights=np.asarray(frame.get('teacher_base_log_weight',[]),float)
+                if weights.shape!=(len(frame['teacher_endpoint_A']),) or not np.isfinite(weights).all():
+                    raise ValueError('Explicit finite terminal batch/ancestor prior required')
+                batches=np.asarray(frame.get('teacher_batches',[]))
+                if batches.shape!=weights.shape:raise ValueError('Terminal teacher batch indices required')
+                for batch in np.unique(batches):
+                    subset=batches==batch
+                    if not np.allclose(weights[subset],-np.log(subset.sum()),rtol=0,atol=1e-12):
+                        raise ValueError('Terminal base prior must give equal batches then ancestors')
         p=copy.deepcopy(program);r=copy.deepcopy(reference)
         p['reward_view']=FAMILIES[p['reward_view']];r['schema_version']='affinity-coordinate-library-1.0'
         if p['reward_view']=='affinity_pointcloud':

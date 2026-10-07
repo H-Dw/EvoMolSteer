@@ -1,0 +1,694 @@
+{
+  "schema_version": "terminal-lineage-agent-response-4.0",
+  "skill_sha256": "bef51d4f8224e4cf5de256624272913d5f9a32f8590400e9f83ce6e50807ff67",
+  "input_sha256": "b85ddad2c27a958640d9f009b140bccdadb8ae990fb3bb2f41f8771b434d875a",
+  "prompt_sha256": "e14caf47bb467c2d147070b16c8761082768d3b268027d478c17f3478de0a34c",
+  "terminal_reference_sha256": "254d8f42eaaf097bf5fdaa87fa409235f8feb25aee6afe5f35dc2d5faba2d3dd",
+  "parent_reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+  "primary_objective": "predicted_affinity",
+  "selected_round": 7,
+  "selection_rationale": "Preserve global measured R7: all-head gain +0.2292925739288325 and unique-head gain +0.2288584818143642, validity change +.01. All12 recorded rounds have smaller all-head gains. New R11 is negative (-.03905237674713202 all-head, -.03675461726383489 unique); R12 +.1390014886856079 all-head and +.06250335283325459 unique remain below R7 by .0902910852432246 and .1663551289811096. R12 validity change +.02 is useful but does not override mean affinity. This reference-only trial is an exploratory teacher-library comparison, not a new measured winner.",
+  "candidate_comparison": [
+    {
+      "all_head_change_vs_native": 0.016488227844238423,
+      "round": 1,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.011518640202271335,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": 0.053347773551940314,
+      "round": 2,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.08850637075744494,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": 0.061806340217589906,
+      "round": 3,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.08212185780003978,
+      "valid_rate_change": -0.010000000000000009
+    },
+    {
+      "all_head_change_vs_native": 0.030307297706603897,
+      "round": 4,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.030178765224714077,
+      "valid_rate_change": -0.020000000000000018
+    },
+    {
+      "all_head_change_vs_native": 0.05975222110748302,
+      "round": 5,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.10995091505096699,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": -0.006338667869568049,
+      "round": 6,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.01481985423875809,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": 0.2292925739288325,
+      "round": 7,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.2288584818143642,
+      "valid_rate_change": 0.010000000000000009
+    },
+    {
+      "all_head_change_vs_native": -0.009526290893554723,
+      "round": 8,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.04694562839892047,
+      "valid_rate_change": -0.030000000000000027
+    },
+    {
+      "all_head_change_vs_native": -0.04142868518829346,
+      "round": 9,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": -0.03796944725950535,
+      "valid_rate_change": -0.010000000000000009
+    },
+    {
+      "all_head_change_vs_native": 0.20678879261016814,
+      "round": 10,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.1706918389324974,
+      "valid_rate_change": -0.020000000000000018
+    },
+    {
+      "all_head_change_vs_native": -0.03905237674713202,
+      "round": 11,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": -0.03675461726383489,
+      "valid_rate_change": -0.020000000000000018
+    },
+    {
+      "all_head_change_vs_native": 0.1390014886856079,
+      "round": 12,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.06250335283325459,
+      "valid_rate_change": 0.020000000000000018
+    }
+  ],
+  "metric_reporting": {
+    "available": [
+      "all_head_change_vs_native",
+      "unique_head_change_vs_native",
+      "valid_rate_change",
+      "score_coverage"
+    ],
+    "unavailable": [
+      "absolute_all_head_mean",
+      "valid_head_mean",
+      "absolute_unique_head_mean",
+      "best_valid_head",
+      "Top5_mean",
+      "absolute_failure_counts",
+      "absolute_valid_or_unique_rates",
+      "energy_or_strain_values",
+      "paired_affinity_uncertainty",
+      "actual_FD_zero_RMS_and_absolute_change_arrays"
+    ],
+    "rationale": "Keep all/valid/unique means, best, Top5, coverage and every failure denominator separate in new exports. Coverage=1 for all12 rows is recorded scoring coverage, not chemical validity. Do not fill missing metrics from earlier input versions or select by filtered/best statistics. Strain is secondary after a clear affinity gain. Steer100 is a historical subset, not a verified full maximum or matched heldout arm; this input supplies no numeric subset benchmark."
+  },
+  "response_actions": [
+    {
+      "id": "new_R1_flat",
+      "interventions": [
+        "dose_escalation"
+      ],
+      "observed_head_change": 0.016488227844238423,
+      "origin": "actual_new_campaign",
+      "evidence": "The actual +.016488227844238423 is small. Inspect actual delivered RMS, FLOWR FD, full zero/native equality, caps and individual absolute/signed changes before a matched strength exploration. A small signed mean does not establish a weak or inactive control. These dose diagnostics are not numerically supplied in this input."
+    },
+    {
+      "id": "new_R2_gain",
+      "interventions": [
+        "parent_refinement",
+        "secondary_energy_assessment"
+      ],
+      "observed_head_change": 0.053347773551940314,
+      "origin": "actual_new_campaign",
+      "evidence": "Actual +.053347773551940314 all-head and +.08850637075744494 unique justify retaining/refining the positive arm and assessing strain secondarily. No strain values are supplied; R7 is still the stronger measured global parent."
+    },
+    {
+      "id": "new_R4_promising",
+      "interventions": [
+        "parent_refinement"
+      ],
+      "observed_head_change": 0.030307297706603897,
+      "origin": "actual_new_campaign",
+      "evidence": "Actual +.030307297706603897 all-head and +.030178765224714077 unique are promising but below R7. Refine without discarding validity change -.02 or promoting the arm by a different statistic."
+    },
+    {
+      "id": "counterfactual_negative",
+      "interventions": [
+        "geometry_target_revision"
+      ],
+      "observed_head_change": -0.1,
+      "origin": "hypothetical_diagnostic_only",
+      "evidence": "The -.1 is hypothetical_diagnostic_only. Revise coordinate target/omitted features and backtrack to measured R7, rather than claim a GPU observation or simply raise strength."
+    }
+  ],
+  "per_step_affinity_calls": 0,
+  "affinity_head_gradient": false,
+  "feature_priority": "3D_coordinates",
+  "coordinate_features": [
+    "intact_predicted_endpoint_pointcloud_in_receptor_frame",
+    "conditional_Hungarian_matched_XYZ",
+    "survival_Gaussian_region_soft_mass",
+    "survival_region_local_dx_dy_dz",
+    "survival_region_local_cxx_cyy_czz_cxy_cxz_cyz"
+  ],
+  "coordinate_feature_use": "Intact matched XYZ coordinates form the registered reward. The200 regional moment fields only describe supplied survival evidence; no q-significant feature mask, signed moment force or terminal-credit high/low discriminant is inferred.",
+  "production_extra_forward_calls_per_step": 0,
+  "full_zero_validation_required": true,
+  "post_native_reward_response": {
+    "kind": "first_order_only_at_old_x_t",
+    "measured_post_native_endpoint_reward": false,
+    "explanation": "g_t is evaluated at old x_t on the already required target forward. g_t dot Delta x_inject is a lagged, fixed-node first-order estimate after the native step; without a new model forward the actual post-native endpoint reward has not been measured."
+  },
+  "one_time_numerical_audit": {
+    "executed": false,
+    "additional_joint_FLOWR_forward_calls": 4,
+    "status": "pending_actual_FLOWR_GPU",
+    "protocol": "Use two central-FD perturbation sizes and both signs at an observed support node: compare g_t dot u with [R(F(x_t+epsilon*u))-R(F(x_t-epsilon*u))]/(2*epsilon). Freeze self-conditioning, endpoint anchor, Hungarian assignment, selected teachers and prior across the comparison. Four extra actual joint FLOWR forwards are one-time preflight cost, not per-step production inference; retain the registered preflight tolerances and report errors rather than invent a pass.",
+    "full100step_zero_native_equality": {
+      "executed": false,
+      "passed": null,
+      "requirement": "For the new reference, run eta0 and native through all100 steps with identical seeds, budgets, sampler/caches and settings; require equality of coordinates, chemistry outputs, head scores and complete failure denominators. Prior-program or CPU checks do not certify it."
+    }
+  },
+  "lineage_case": {
+    "base_prior": "equal_batch_then_ancestor",
+    "decoded_final_rescore_label": false,
+    "extinction_affinity_label": null,
+    "future_resampling_in_labels": true,
+    "initial_alive_median": 1,
+    "near_duplicate_RMS_threshold_A": 0.001,
+    "nodes_fewer_than3_ancestors": 349,
+    "nodes_fewer_than6_ancestors": 531,
+    "original_teacher_cap_per_batch": 2,
+    "teacher_cap_per_batch": 2,
+    "teacher_counts_first_last": [
+      17,
+      28
+    ],
+    "terminal_geometry_outside_window_used": false,
+    "terminal_score_time": 0.99,
+    "whole_window_credit_strata_allowed": false,
+    "total_batch_nodes": 700,
+    "nodes_fewer_than3_fraction": 0.49857142857142855,
+    "nodes_fewer_than6_fraction": 0.7585714285714286,
+    "nodes_with3_to5_ancestors": 182,
+    "nodes_with_atleast6_ancestors": 169,
+    "teacher_counts_per_node": [
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      18,
+      18,
+      18,
+      18,
+      18,
+      18,
+      20,
+      21,
+      21,
+      23,
+      23,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      25,
+      25,
+      27,
+      27,
+      27,
+      27,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28
+    ],
+    "original_teacher_count_per_node": 28,
+    "revised_max_teacher_count": 28,
+    "matched_teacher_cap_confirmed": true,
+    "conditional_prior_strictly_equal_batch": false,
+    "explanation": "349/700 batch-nodes (49.857%) have fewer than3 observed ancestors and531/700 (75.857%) fewer than6; initial alive median is1. Revised intact teachers total17 at the first learned node and28 at the last, with per-batch cap2 matching original R7 cap2 and28 teachers/node. Pool totals are not per-batch medians or independent motifs. Sparse early support rejects whole-window terminal-credit high/low strata. Last recorded joint-latent head is t=.99 (row99), while stored terminal state time is1; it is not the decoded final-molecule rescore. Extinction remains null. Future recorded selection can annotate earlier ancestry without admitting terminal/out-of-window geometry to the learned window.",
+    "base_prior_explanation": "At node n let m_(n,b) be the number of retained ancestors in represented batch b and B_n the number of represented batches. Give each ancestor base mass1/(B_n*m_(n,b)); teacher_base_log_weight=-log(m_(n,b)), with the common -log(B_n) canceled by normalization. Thus total base mass per represented batch is equal, without clone-count or teacher-count bonus. Actual nearest-K restriction and offline credit-score factors subsequently change the conditional mass, so the conditional prior is not guaranteed equal across batches.",
+    "near_duplicate_explanation": "Exclude fixed-receptor-frame Hungarian RMS<=.001 A and retain candidates above that threshold, subject to the same cap2. This only excludes near copies, without certifying distinct basins, causal modes or final-affinity benefit; no geometry realignment or atom-type test is added."
+  },
+  "survival_is_affinity_causality": false,
+  "descendant_count_prior_bonus": false,
+  "early_diversity_narrowing_acknowledged": true,
+  "survival_evidence": {
+    "all_records_read": 400,
+    "fields": 200,
+    "independent_batches": 14,
+    "measures": [
+      "survival_enrichment_z",
+      "survival_enrichment_change_rate_z"
+    ],
+    "summary_by_measure": {
+      "survival_enrichment_change_rate_z": {
+        "records": 200,
+        "q_lt_005": 0,
+        "minimum_q": 0.3018985343962196
+      },
+      "survival_enrichment_z": {
+        "records": 200,
+        "q_lt_005": 0,
+        "minimum_q": 0.12042655325259675
+      }
+    },
+    "joint_BH_scope": 400,
+    "joint_BH_recomputed_max_abs_q_error": 0,
+    "q_lt_005_count": 0,
+    "smallest_q_examples": [
+      {
+        "CI_high": 0.5150851628253139,
+        "CI_low": 0.19982446127051165,
+        "effect_z": 0.3650506249191145,
+        "feature": "landmark_00_soft_mass",
+        "independent_batches": 14,
+        "measure": "survival_enrichment_z",
+        "p": 0.00077996286627336,
+        "positive_batch_fraction": 0.8571428571428571,
+        "q": 0.12042655325259675
+      },
+      {
+        "CI_high": -0.21525478954277502,
+        "CI_low": -0.5961610976415989,
+        "effect_z": -0.4191468287002188,
+        "feature": "landmark_05_local_czz",
+        "independent_batches": 14,
+        "measure": "survival_enrichment_z",
+        "p": 0.0010969463060831622,
+        "positive_batch_fraction": 0.14285714285714285,
+        "q": 0.12042655325259675
+      },
+      {
+        "CI_high": -0.22769533579954304,
+        "CI_low": -0.5422261810622899,
+        "effect_z": -0.3898229542210253,
+        "feature": "landmark_09_local_czz",
+        "independent_batches": 14,
+        "measure": "survival_enrichment_z",
+        "p": 0.00031380851966515536,
+        "positive_batch_fraction": 0.07142857142857142,
+        "q": 0.12042655325259675
+      },
+      {
+        "CI_high": -0.1594295040869907,
+        "CI_low": -0.45613586067134815,
+        "effect_z": -0.3079485920074085,
+        "feature": "landmark_14_local_czz",
+        "independent_batches": 14,
+        "measure": "survival_enrichment_z",
+        "p": 0.0012042655325259675,
+        "positive_batch_fraction": 0.07142857142857142,
+        "q": 0.12042655325259675
+      }
+    ],
+    "interpretation": "All400 supplied survival field/measure tests have q>=.12042655325259675; no q<.05. Survival enrichment min q=.12042655325259675 and enrichment-change-rate min q=.3018985343962196. For example landmark00 soft mass effect+.3650506249191145,12/14 positive batches,p=.00077996286627336 still has q=.12042655325259675. These descriptive survival associations are not statistically supported terminal-affinity features. Parent-debias offspring, then equal batches; residual shared-root dependence and Gaussian overlap remain.",
+    "no_significant_terminal_advantage_features_claimed": true
+  },
+  "reward_design": {
+    "reward_view": "endpoint_pointcloud",
+    "derivative_path": "flowr_endpoint_vjp",
+    "coordinate_representation": "predicted_endpoint_world_A",
+    "window": [
+      0,
+      0.5
+    ],
+    "reference_sha256": "254d8f42eaaf097bf5fdaa87fa409235f8feb25aee6afe5f35dc2d5faba2d3dd",
+    "native_rms_ratio": 0.3,
+    "time_ramp_power": 0,
+    "geometry_block_weights": [
+      0,
+      1,
+      2,
+      1
+    ],
+    "teacher_neighbors": 4,
+    "teacher_score_beta": 2,
+    "teacher_endpoint_temperature_A2": 4,
+    "mixture_temperature": 0.5,
+    "pointcloud_delta_A": 1,
+    "teacher_cap_per_batch": 2,
+    "original_teacher_cap_per_batch": 2,
+    "teacher_library_base_prior": "equal_batch_then_ancestor",
+    "target_definition": "intact_surviving_ancestor_pointclouds_ranked_by_mean_terminal_descendant_credit",
+    "changed_factor": "teacher_library_reference_only_at_matched_cap2",
+    "formula": {
+      "backward_lineage": "At last scored row L=99 initialize M_L(d)=d. For j=L-1,...,0, M_j(d)=selected_indices[j,M_(j+1)(d)]. selected_indices[j,child] maps row j+1 child to row j parent. Never apply selected_indices[L] to the same row L pre-selection score labels.",
+      "labels": "D_(j,i)={d:M_j(d)=i}; alive_(j,i)=1[|D_(j,i)|>0]; credit_(j,i)=sum_{d in D_(j,i)}head[L,d]/|D_(j,i)| if alive, else null. Credit is the observed mean last joint-head score among descendants, not survival probability, descendant count, an imputed extinction score or decoded final affinity.",
+      "library": "At each exact learned node retain complete receptor-frame XYZ clouds of surviving ancestors, ranked by observed mean credit. Exclude only near copies with registered fixed-frame Hungarian RMS<=.001 A; cap at2 teachers per batch. A node/batch may supply fewer teachers, without padding, clone-count replication or invented credit. Retain prototypes separately.",
+      "base_prior": "For each retained teacher k from batch b: log_base_k=-log(m_(n,b)); normalized full-library base mass is1/(B_n*m_(n,b)). No term proportional to descendants/clone counts. Equal base batch mass is before geometric nearest-K and offline score weighting.",
+      "conditional_prior": "Use the unchanged registered R7 nearest-K point-cloud prior construction with K<=4 available teachers, beta2 and endpoint temperature4 A^2, including declared log_base_k and observed offline terminal credit. Normalize on the actual selected teachers and detach the result. Nearest-K may omit a batch, and score factors can alter its mass; do not call this strictly equal-batch conditional prior.",
+      "coordinates_and_reward": "For frozen Hungarian correspondences and intact matched T_k, q_k(Y) is the unchanged registered R7 squared endpoint point-cloud distance, preserving its exact coordinate normalization. rho_k=delta^2*(sqrt(1+q_k/delta^2)-1),delta=1 A;R(Y)=tau*logsumexp_k(log pi_k-rho_k/tau),tau=.5. Keep alternatives separate inside the mixture. With normalized pi and nonnegative cost,R<=0 has a finite upper bound, no finite lower bound. Do not introduce a new local-moment sum or distance normalization in this reference-only test.",
+      "actual_gradient": "g_t=J_FLOWR(x_t)^T grad_Y R, using actual predicted endpoint coordinates from the already required target forward. Self-conditioning, endpoint anchor, assignments, teacher choice/base weights/scores and prior are fixed/detached. No affinity-head or atom-type gradient. The returned derivative is conditional, not a total derivative of recomputed membership, assignments or priors.",
+      "support_and_application": "Use the dynamic input/manifest window and all50 exact times0,...,.49; this input's window is[0,.5], not a generic hardcoded endpoint. With time-ramp power0 the schedule is1 on every supported update. Preserve eta=.3 and existing native RMS/cap settings; inject after the native step with old-x_t VJP. Finish native to1 after the learned window. No arbitrary bins, sparse full-window credit strata, polynomial extrapolation, graph/pair-distance acceptance, SMC, resampling/cloning or extra production head/forward."
+    },
+    "evidence_to_formula": "The sparse credit evidence and nonsignificant survival tests motivate an exploratory library of observed intact ancestors rather than a fitted all-window terminal-affinity field. Matching original cap2 removes the previously identified pool-capacity change. Change only the declared teacher reference and its recorded content/base weights under unchanged registered R7 loss settings. Early available library17 versus original28 is a consequence of survival restriction and remains a diversity limitation; cap matching does not prove efficacy."
+  },
+  "comparison_and_backtracking": {
+    "new_trial_executed": false,
+    "retained_parent_round": 7,
+    "matched_settings": "endpoint_pointcloud; cap2; eta.3; K4; beta2; teacher endpoint temperature4 A^2; tau.5; delta1 A; time power0; same learned support and native completion.",
+    "policy": "Run matched paired discovery comparison with complete all/valid/unique/best/Top5 and failure outcomes only after numerical/zero checks and independent review. Retain R7 on final mean-affinity regression; transient reward/geometric reconstruction or survival enrichment is not terminal efficacy. Freeze the discovery winner before fresh unretuned validation; the Skill's total new budget30 is a constraint, not a claim that30 new runs happened."
+  },
+  "mining_provenance": {
+    "complete_survival_batches": 14,
+    "multiple_testing": "BH jointly over 400 survival field/measure tests; not terminal affinity effects",
+    "nodes_with_fewer_than3_ancestors": 349,
+    "nodes_with_fewer_than6_ancestors": 531,
+    "parent_reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "reference_sha256": "254d8f42eaaf097bf5fdaa87fa409235f8feb25aee6afe5f35dc2d5faba2d3dd",
+    "schema_version": "terminal-credit-mining-1.0",
+    "source_code_sha256": "214102d2cbc864d6533301bae752185909d359f330dab90c4de383b09340162b",
+    "sources": [
+      {
+        "path": "results/main1000_w050/single/batch_000/trajectory.h5",
+        "sha256": "db4c930675c8b02ee7758fec1ec7e2138562552ca70792cdb6e3b8eacc7c524b"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_001/trajectory.h5",
+        "sha256": "2f9d564b3e9f84ec4878849c05842c3e0e3a84be7ebdf89b73b15a2312c89c46"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_002/trajectory.h5",
+        "sha256": "7eda5d9bd46c2fd030e4b27ca27ff68d8a7bed4eb2621226a04de2d028f5585d"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_003/trajectory.h5",
+        "sha256": "ffc7f5eefa1bdcb644f9cd9d2aae56a711289bd15c80eaea2e0d033754ff76e6"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_004/trajectory.h5",
+        "sha256": "b216ad6b44e033efd66f7fc399d3bbfb2a1ab614f7bd774e6a7e92053079e8ce"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_005/trajectory.h5",
+        "sha256": "477834e5ac6a4b0ca1eb679484046963d251b8d95018fe932bdc2e5d257f7e68"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_006/trajectory.h5",
+        "sha256": "dd48709ae1fbadcb8d0c8be1ee4070c6ee9bd61c102b00ac0903dd8f624fb1ac"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_007/trajectory.h5",
+        "sha256": "21595a600ca36a21be96d6a410f62f161c2486823e2bc34845fd4feb45111ac7"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_008/trajectory.h5",
+        "sha256": "4cddb6542f002b4aa357e5d7d9bd0806cf74241709e50a01f1d9493279e9d4a8"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_009/trajectory.h5",
+        "sha256": "693376489568667f50dc226248dc269d9fb9afce27748eaf1c0e5cf30a2d21d1"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_010/trajectory.h5",
+        "sha256": "39f69bce0d5acec12b6d0dcf4c8f65b4fbb565bfd80eab8034f2c17a688e831e"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_011/trajectory.h5",
+        "sha256": "8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_012/trajectory.h5",
+        "sha256": "39a819d241166b8c71469d2742261301934f6cc518232d9584c664ad43dbbdf5"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_013/trajectory.h5",
+        "sha256": "64427a7cc8c6ba9ed091acd7cf6940ad6bc38b0b97484f3d21917ed5957034e7"
+      }
+    ],
+    "storage": "Two parent-debiased moment strata and one compact credit table; no expanded candidate cache",
+    "table_bytes": {
+      "batch_node_credit.parquet": 17630,
+      "batch_node_survival_moments.parquet": 2885340,
+      "whole_window_survival_effects.parquet": 27244
+    },
+    "teacher_counts_per_node": [
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      18,
+      18,
+      18,
+      18,
+      18,
+      18,
+      20,
+      21,
+      21,
+      23,
+      23,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      25,
+      25,
+      27,
+      27,
+      27,
+      27,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28,
+      28
+    ],
+    "teachers_per_batch_max": 2,
+    "terminal_metadata": [
+      {
+        "batch": 0,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 1,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 2,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 3,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 4,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 5,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 6,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 7,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 8,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 9,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 10,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 11,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 12,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 13,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      }
+    ],
+    "times": [
+      0,
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2,
+      0.21,
+      0.22,
+      0.23,
+      0.24,
+      0.25,
+      0.26,
+      0.27,
+      0.28,
+      0.29,
+      0.3,
+      0.31,
+      0.32,
+      0.33,
+      0.34,
+      0.35,
+      0.36,
+      0.37,
+      0.38,
+      0.39,
+      0.4,
+      0.41,
+      0.42,
+      0.43,
+      0.44,
+      0.45,
+      0.46,
+      0.47,
+      0.48,
+      0.49
+    ],
+    "total_batch_nodes": 700,
+    "window": [
+      0,
+      0.5
+    ]
+  },
+  "hash_binding_scope": "Skill,input,prompt hashes were computed from complete current V4 file bytes. Terminal/parent reference and source-code/trajectory hashes are exactly the supplied immutable bindings; their external byte contents were not reread under the three-file task scope.",
+  "new_GPU_validation": {
+    "executed": false,
+    "actual_model_FD_passed": null,
+    "full100step_zero_passed": null,
+    "final_affinity_gain": null
+  },
+  "uncertainties": [
+    "Initial alive median1 and349/531 sparse-node counts rule out reliable whole-window terminal-credit contrasts. Other per-node ancestor medians and raw lineage maps are not supplied; pooled teacher totals cannot replace them.",
+    "Survival/extinction and mean descendant joint-head credit are observational outcomes of original selection, not measured biochemical affinity or causal future quality. Extinction is missing future score, even if native final decoding could separately fail.",
+    "All400 survival tests are nonsignificant under joint BH, so no local field is claimed as a significant terminal-affinity advantage feature or a learned signed force.",
+    "Matching per-batch cap2 does not retain all early diversity: revised teacher counts begin17 versus original28. Survivor-only intact prototypes may still harm free generation or final affinity.",
+    "Hungarian RMS threshold.001 A only removes near copies; it does not prove distinct conformational basins or independent causal modes.",
+    "Equal-batch/equal-ancestor base weights are subsequently changed by nearest-K and offline scores; resulting conditional prototype mass need not remain equal-batch.",
+    "Parent-debiased survival moments still share roots and use overlapping Gaussian regions. Nominal14 batch inference does not erase selection conditioning or all dependence.",
+    "Last recorded score at.99 is not the decoded final-molecule rescore at1. Late selection may inform offline labels; terminal geometry must stay outside the learned coordinate teacher/guidance support.",
+    "The input lacks absolute affinity means/best/Top5, failure counts, strain results and numeric dose/FD/zero diagnostics. Do not fabricate them or infer a weak dose from a signed average.",
+    "Reference teacher arrays, per-batch base-log-weight vectors and raw source trajectories were not independently reloaded under this task's three-file scope. The main compiler/auditor must verify the supplied reference and source bindings.",
+    "The registered coordinate distance and conditional prior normalization must remain exactly R7's; this response proposes no new distance convention, gate or online affinity call.",
+    "No actual new-reference GPU FD, full100step zero/native equality, paired efficacy or heldout check has run; source/CPU/local JSON consistency cannot substitute."
+  ]
+}

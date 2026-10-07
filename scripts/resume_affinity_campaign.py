@@ -13,6 +13,8 @@ from evomolsteer.continuous.persistent_design import audit_persistent_behavior
 from evomolsteer.generation.persistent_campaign import propose_persistent,apply_persistent_fields
 from evomolsteer.continuous.regional_design import audit_regional_behavior
 from evomolsteer.generation.regional_campaign import propose_regional,apply_regional_fields
+from evomolsteer.generation.terminal_campaign import propose_terminal
+from evomolsteer.continuous.terminal_design import audit_terminal_behavior
 
 CONFIG='configs/experiments/ck2_affinity_geometry30_v1'
 EVIDENCE='docs/experiments/ck2_affinity_geometry30_20261007'
@@ -24,6 +26,10 @@ PERSISTENT_SKILL='skills/affinity-persistent-coordinate/SKILL.md'
 PERSISTENT_REVIEW='persistent_design_review.json'
 REGIONAL_SKILL='skills/affinity-regional-pointcloud/SKILL.md'
 REGIONAL_REVIEW='regional_design_review.json'
+TERMINAL_SKILL='skills/affinity-terminal-lineage/SKILL.md'
+TERMINAL_REVIEW='terminal_design_review.json'
+TERMINAL_FOLDER='terminal_skill_test_v4'
+TERMINAL_REFERENCE='terminal_reference.json.gz'
 OLD_REPORT='docs/experiments/ck2_motif_seed42_20261006/round_15/comparison/comparison.json'
 
 class AffinityDriver(MotifDriver):
@@ -33,6 +39,17 @@ class AffinityDriver(MotifDriver):
         super().__init__(args)
         self.check_skill();self.bootstrap_remote()
     def check_skill(self):
+        if self.args.terminal_credit:
+            if not self.args.regional_profile:raise ValueError('Terminal extension requires the reviewed regional workflow')
+            folder=self.evidence/TERMINAL_FOLDER
+            audit_terminal_behavior(self.root/TERMINAL_SKILL,folder/'input.json',folder/'prompt.txt',folder/'response.json',self.cfg/TERMINAL_REFERENCE)
+            review=read_json(self.evidence/'agent_review'/TERMINAL_REVIEW)
+            if review.get('execution_ready') is not True:raise ValueError('Terminal integration review not ready')
+            for path,expected in review['source_hashes'].items():
+                if digest(self.root/path)!=expected:raise ValueError('Terminal review stale for '+path)
+            regional=self.evidence/'regional_skill_test'
+            audit_regional_behavior(self.root/REGIONAL_SKILL,regional/'input.json',regional/'prompt.txt',regional/'response.json',self.evidence/'regional_mining_v1/region_prior.json')
+            return
         if self.args.regional_profile:
             folder=self.evidence/'regional_skill_test'
             audit_regional_behavior(self.root/REGIONAL_SKILL,folder/'input.json',folder/'prompt.txt',folder/'response.json',
@@ -93,11 +110,14 @@ class AffinityDriver(MotifDriver):
             raise ValueError('New sequential30 budget')
         rows=[read_json(p) for p in sorted(self.evidence.glob('round_*.outcome.json'))]
         programs={r['round']:read_json(self.cfg/f"backtrack_round{r['round']:02d}.json") for r in rows}
-        plan=(propose_regional(number,rows,programs,read_json(self.evidence/'regional_mining_v1/region_prior.json')) if self.args.regional_profile else
+        plan=(propose_terminal(number,rows,programs,read_json(self.evidence/'regional_mining_v1/region_prior.json')) if self.args.terminal_credit else
+              propose_regional(number,rows,programs,read_json(self.evidence/'regional_mining_v1/region_prior.json')) if self.args.regional_profile else
               propose_persistent(number,rows,programs) if self.args.persistent_profile else
               propose_sparse(number,rows,programs) if self.args.sparse_profile else
               propose_endpoint(number,rows,programs) if self.args.endpoint_profile else propose(number,rows,programs));parent=plan['parent_round']
-        if self.args.regional_profile and number==13:
+        if self.args.terminal_credit and number==17:
+            base=read_json(self.evidence/TERMINAL_FOLDER/'compiled_design.json')
+        elif self.args.regional_profile and number==13:
             base=read_json(self.evidence/'regional_skill_test/compiled_design.json')
         elif self.args.persistent_profile and number==9:
             base=read_json(self.evidence/'persistent_skill_test/compiled_design.json')
@@ -109,17 +129,21 @@ class AffinityDriver(MotifDriver):
             template=plan.get('template_round',parent)
             base=programs[template] if template else read_json(self.root/'configs/experiments/ck2_motif_seed42_v1/backtrack_round09.json')
         family=plan.get('reward_view',base['reward_view'])
-        reference=self.cfg/('endpoint_reference.json.gz' if family.startswith('endpoint_') else
+        is_terminal=plan.get('terminal_credit',base.get('reference_variant')=='terminal-descendant-endpoint-library-1.0')
+        reference=self.cfg/(TERMINAL_REFERENCE if is_terminal else 'endpoint_reference.json.gz' if family.startswith('endpoint_') else
                             'survival_reference.json.gz' if family=='motif_mixture' else 'geometry_reference.json.gz')
         from evomolsteer.generation.window_reference import load_reference
         ref=load_reference(reference);p=update_program(base,plan,ref['window'],digest(reference))
         if self.args.sparse_profile:p=apply_sparse_fields(p,plan,read_json(self.evidence/'endpoint_mining/sparse_coordinate_prior_v2.json'))
         if self.args.persistent_profile:p=apply_persistent_fields(p,plan)
         if self.args.regional_profile:p=apply_regional_fields(p,plan,read_json(self.evidence/'regional_mining_v1/region_prior.json'))
+        if is_terminal:
+            if family!='endpoint_pointcloud':raise ValueError('Terminal prior supports only the intact endpoint loss')
+            p.update(reference_variant='terminal-descendant-endpoint-library-1.0',target_definition='coherent_terminal_descendant_credit_endpoint_ancestors')
         for k in ('compiled_design_sha256','designer_sha256','agent_review_sha256','boundary_agent_review_sha256','derivation'):p.pop(k,None)
-        skill=REGIONAL_SKILL if self.args.regional_profile else PERSISTENT_SKILL if self.args.persistent_profile else SPARSE_SKILL if self.args.sparse_profile else ENDPOINT_SKILL if self.args.endpoint_profile else SKILL
-        audit_folder='regional_skill_test' if self.args.regional_profile else 'persistent_skill_test' if self.args.persistent_profile else 'sparse_skill_test_v2' if self.args.sparse_profile else 'endpoint_skill_test' if self.args.endpoint_profile else 'skill_test'
-        review_name=REGIONAL_REVIEW if self.args.regional_profile else PERSISTENT_REVIEW if self.args.persistent_profile else SPARSE_REVIEW if self.args.sparse_profile else 'endpoint_design_review.json' if self.args.endpoint_profile else 'geometry_design_review.json'
+        skill=TERMINAL_SKILL if self.args.terminal_credit else REGIONAL_SKILL if self.args.regional_profile else PERSISTENT_SKILL if self.args.persistent_profile else SPARSE_SKILL if self.args.sparse_profile else ENDPOINT_SKILL if self.args.endpoint_profile else SKILL
+        audit_folder=TERMINAL_FOLDER if self.args.terminal_credit else 'regional_skill_test' if self.args.regional_profile else 'persistent_skill_test' if self.args.persistent_profile else 'sparse_skill_test_v2' if self.args.sparse_profile else 'endpoint_skill_test' if self.args.endpoint_profile else 'skill_test'
+        review_name=TERMINAL_REVIEW if self.args.terminal_credit else REGIONAL_REVIEW if self.args.regional_profile else PERSISTENT_REVIEW if self.args.persistent_profile else SPARSE_REVIEW if self.args.sparse_profile else 'endpoint_design_review.json' if self.args.endpoint_profile else 'geometry_design_review.json'
         p.update(round=number,program_id=f'ck2_affinity_geometry30_round{number:02d}',seed=42,
             skill_sha256=digest(self.root/skill),skill_behavior_audit_sha256=digest(self.evidence/audit_folder/'behavior_audit.json'),
             geometry_review_sha256=digest(self.evidence/'agent_review'/review_name),
@@ -131,7 +155,7 @@ class AffinityDriver(MotifDriver):
         if 7<=number<=26:p['head_native_labels_relative_path']=EVIDENCE+'/round_06/local/head_scores_window.parquet'
         else:p.pop('head_native_labels_relative_path',None)
         arms=['gradient'];batches=[0,1];split='discovery'
-        if number==1 or (self.args.endpoint_profile and number==5) or (self.args.sparse_profile and number==6) or (self.args.persistent_profile and number in (9,11)) or (self.args.regional_profile and number==13):arms=['unguided','gradient_zero','gradient']
+        if number==1 or (self.args.endpoint_profile and number==5) or (self.args.sparse_profile and number==6) or (self.args.persistent_profile and number in (9,11)) or (self.args.regional_profile and number==13) or (self.args.terminal_credit and number==17):arms=['unguided','gradient_zero','gradient']
         if number>=27:
             arms=['unguided','gradient'];batches=[20+2*(number-27),21+2*(number-27)];split='validation' if number==27 else 'heldout'
             if number==27:arms.insert(1,'gradient_zero')
@@ -234,6 +258,7 @@ if __name__=='__main__':
     profile.add_argument('--sparse-profile',action='store_true',help='Use independently retested, node-faithful coordinate Skill from round6')
     profile.add_argument('--persistent-profile',action='store_true',help='Use actual Agent-tested bounded coordinate prototypes and supported lineage increments from round9')
     profile.add_argument('--regional-profile',action='store_true',help='Use independently tested intact regional coordinates from round12 after compressed-target regression')
+    p.add_argument('--terminal-credit',action='store_true',help='Extend reviewed regional search with actual Agent-tested descendant-credit teacher library from round17')
     p.add_argument('--host',default='ksai.scnet.cn');p.add_argument('--port',type=int,default=10544);p.add_argument('--user',default='root')
     p.add_argument('--remote-repo',default='/root/private_data/MolSteer/EvoMolSteer')
     p.add_argument('--remote-work',default='/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_affinity_geometry30_20261007')

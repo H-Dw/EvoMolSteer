@@ -54,6 +54,8 @@ class AffinityGeometryReward(CoordinateMixtureReward):
                 ids=np.argsort(costs,kind='stable')[:k]
                 target=np.stack([proposal[i,assignments[i]] for i in ids])
                 logits=-costs[ids]/float(self.program.get('teacher_endpoint_temperature_A2',4.))+float(self.program.get('teacher_score_beta',2.))*(scores[ids]-scores.mean())
+                if 'teacher_base_log_weight' in frame:
+                    logits=logits+np.asarray(frame['teacher_base_log_weight'])[ids]
                 priors.append(logits);matched.append(target)
             target=x.new_tensor(np.array(matched));logits=x.new_tensor(np.array(priors));log_prior=logits.log_softmax(1).detach()
             residual=x[:,None]-target;q=residual.square().sum(-1).mean(2)

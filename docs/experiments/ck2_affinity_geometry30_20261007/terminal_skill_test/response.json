@@ -1,0 +1,585 @@
+{
+  "schema_version": "terminal-lineage-agent-response-1.0",
+  "skill_sha256": "7ca6bf553251b4a3b8ee039b7a7184978bd41f575dd076a315b0f6fa9f6cd6ff",
+  "input_sha256": "0a6d11a4df9e1231496d6bfb2d33e196dc2527a5118c433f975dfd6ac43755c4",
+  "prompt_sha256": "fc524d0682253fb73f679c39ba3097ffe61bedde67ffad899faf79a53203d7c6",
+  "terminal_reference_sha256": "0cccd6e34a2ff56328474fe938a1580be3678922705fe45b386c74460cc13a91",
+  "parent_reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+  "primary_objective": "predicted_affinity",
+  "selected_round": 7,
+  "candidate_comparison": [
+    {
+      "all_head_change_vs_native": 0.016488227844238423,
+      "round": 1,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.011518640202271335,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": 0.053347773551940314,
+      "round": 2,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.08850637075744494,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": 0.061806340217589906,
+      "round": 3,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.08212185780003978,
+      "valid_rate_change": -0.010000000000000009
+    },
+    {
+      "all_head_change_vs_native": 0.030307297706603897,
+      "round": 4,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.030178765224714077,
+      "valid_rate_change": -0.020000000000000018
+    },
+    {
+      "all_head_change_vs_native": 0.05975222110748302,
+      "round": 5,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.10995091505096699,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": -0.006338667869568049,
+      "round": 6,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.01481985423875809,
+      "valid_rate_change": 0
+    },
+    {
+      "all_head_change_vs_native": 0.2292925739288325,
+      "round": 7,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.2288584818143642,
+      "valid_rate_change": 0.010000000000000009
+    },
+    {
+      "all_head_change_vs_native": -0.009526290893554723,
+      "round": 8,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.04694562839892047,
+      "valid_rate_change": -0.030000000000000027
+    },
+    {
+      "all_head_change_vs_native": -0.04142868518829346,
+      "round": 9,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": -0.03796944725950535,
+      "valid_rate_change": -0.010000000000000009
+    },
+    {
+      "all_head_change_vs_native": 0.20678879261016814,
+      "round": 10,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.1706918389324974,
+      "valid_rate_change": -0.020000000000000018
+    },
+    {
+      "all_head_change_vs_native": -0.03905237674713202,
+      "round": 11,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": -0.03675461726383489,
+      "valid_rate_change": -0.020000000000000018
+    },
+    {
+      "all_head_change_vs_native": 0.1390014886856079,
+      "round": 12,
+      "score_coverage": 1,
+      "unique_head_change_vs_native": 0.06250335283325459,
+      "valid_rate_change": 0.020000000000000018
+    }
+  ],
+  "selection_rationale": "R7 remains global measured winner: all-head +.2292925739288325, unique +.2288584818143642. R11 all-head -.03905237674713202 regresses; R12 +.1390014886856079 remains .0902910852432246 below R7 and has unique +.06250335283325459. Changing the teacher library is an exploratory reference-only comparison, not measured improvement. Other available rounds also remain below R7. Missing absolute means/best/Top5/energy/failure counts are unavailable, not inferred.",
+  "response_actions": [
+    {
+      "id": "new_R1_flat",
+      "interventions": [
+        "dose_escalation"
+      ],
+      "observed_head_change": 0.016488227844238423,
+      "origin": "actual_new_campaign",
+      "evidence": "Small +.016488227844238423 supports checking delivered dose, caps and absolute changes before a strength comparison; signed mean alone is not a dose measure."
+    },
+    {
+      "id": "new_R2_gain",
+      "interventions": [
+        "parent_refinement",
+        "secondary_energy_assessment"
+      ],
+      "observed_head_change": 0.053347773551940314,
+      "origin": "actual_new_campaign",
+      "evidence": "Actual +.053347773551940314 supports refinement and secondary strain assessment; no strain values are supplied and R7 remains stronger."
+    },
+    {
+      "id": "new_R4_promising",
+      "interventions": [
+        "parent_refinement"
+      ],
+      "observed_head_change": 0.030307297706603897,
+      "origin": "actual_new_campaign",
+      "evidence": "Actual +.030307297706603897 is promising but below R7; preserve R7 and retain -.02 validity change in the denominator."
+    },
+    {
+      "id": "counterfactual_negative",
+      "interventions": [
+        "geometry_target_revision"
+      ],
+      "observed_head_change": -0.1,
+      "origin": "hypothetical_diagnostic_only",
+      "evidence": "The -.1 case is hypothetical only; revise target/omitted features and backtrack, not claim an observed GPU result."
+    }
+  ],
+  "per_step_affinity_calls": 0,
+  "affinity_head_gradient": false,
+  "feature_priority": "3D_coordinates",
+  "coordinate_features": [
+    "intact_endpoint_pointcloud_receptor_xyz",
+    "conditional_Hungarian_matched_XYZ",
+    "survival_Gaussian_soft_mass",
+    "survival_local_dx_dy_dz",
+    "survival_local_covariance_six_entries"
+  ],
+  "production_extra_forward_calls_per_step": 0,
+  "full_zero_validation_required": true,
+  "post_native_reward_response": {
+    "kind": "first_order_only_at_old_x_t",
+    "measured_post_native_endpoint_reward": false
+  },
+  "one_time_numerical_audit": {
+    "executed": false,
+    "additional_joint_FLOWR_forward_calls": 4,
+    "full100step_zero_executed": false,
+    "protocol": "Two central-FD epsilon values times two signs on actual FLOWR, with anchor/correspondences/teacher priors/self-conditioning fixed; then separate new-reference full100-step eta0/native equality. All checks are pending."
+  },
+  "lineage_case": {
+    "decoded_final_rescore_label": false,
+    "extinction_affinity_label": null,
+    "future_resampling_in_labels": true,
+    "initial_alive_median": 1,
+    "nodes_fewer_than3_ancestors": 349,
+    "nodes_fewer_than6_ancestors": 531,
+    "teacher_counts_first_last": [
+      17,
+      140
+    ],
+    "terminal_geometry_outside_window_used": false,
+    "terminal_score_time": 0.99,
+    "whole_window_credit_strata_allowed": false,
+    "total_batch_nodes": 700,
+    "under3_fraction": 0.49857142857142855,
+    "under6_fraction": 0.7585714285714286,
+    "teacher_counts_per_node": [
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      18,
+      18,
+      19,
+      19,
+      19,
+      19,
+      19,
+      19,
+      22,
+      23,
+      23,
+      25,
+      26,
+      27,
+      28,
+      29,
+      31,
+      34,
+      35,
+      37,
+      39,
+      41,
+      43,
+      45,
+      46,
+      51,
+      52,
+      58,
+      58,
+      62,
+      66,
+      71,
+      77,
+      80,
+      84,
+      92,
+      99,
+      109,
+      118,
+      131,
+      139,
+      140,
+      140
+    ],
+    "rationale": "349/700 nodes (49.857%) have fewer than3 observable ancestors;531/700 (75.857%) fewer than6; initial alive median=1. Teacher library grows17 to140 over50 observed nodes. Sparse early credit cannot support whole-window high/low strata. Last joint-latent head is scored at .99, despite stored terminal state time1; it is not a decoded final-molecule affinity rescore. Extinction stays null, never zero or a low-affinity label. Late recorded selection informs offline ancestry; terminal geometry outside learned window is not a teacher."
+  },
+  "survival_is_affinity_causality": false,
+  "descendant_count_prior_bonus": false,
+  "early_diversity_narrowing_acknowledged": true,
+  "survival_evidence": {
+    "records_read": 400,
+    "fields": 200,
+    "independent_batches": 14,
+    "joint_BH400_recomputed_max_q_error": 0,
+    "summary_by_measure": {
+      "survival_enrichment_change_rate_z": {
+        "records": 200,
+        "q_lt_005": 0,
+        "positive_q_lt_005": 0,
+        "negative_q_lt_005": 0,
+        "minimum_q": 0.3018985343962196
+      },
+      "survival_enrichment_z": {
+        "records": 200,
+        "q_lt_005": 0,
+        "positive_q_lt_005": 0,
+        "negative_q_lt_005": 0,
+        "minimum_q": 0.12042655325259675
+      }
+    },
+    "example": {
+      "CI_high": 0.5150851628253139,
+      "CI_low": 0.19982446127051165,
+      "effect_z": 0.3650506249191145,
+      "feature": "landmark_00_soft_mass",
+      "independent_batches": 14,
+      "measure": "survival_enrichment_z",
+      "p": 0.00077996286627336,
+      "positive_batch_fraction": 0.8571428571428571,
+      "q": 0.12042655325259675
+    },
+    "interpretation": "No q<.05 under joint400 BH. These are descriptive survival associations, not significant terminal-affinity features or a causal loss direction. Equal children per extant parent and equal batches do not remove all root dependence."
+  },
+  "reward_design": {
+    "reward_view": "endpoint_pointcloud",
+    "derivative_path": "flowr_endpoint_vjp",
+    "coordinate_representation": "predicted_endpoint_world_A",
+    "window": [
+      0,
+      0.5
+    ],
+    "reference_sha256": "0cccd6e34a2ff56328474fe938a1580be3678922705fe45b386c74460cc13a91",
+    "native_rms_ratio": 0.3,
+    "time_ramp_power": 0,
+    "geometry_block_weights": [
+      0,
+      1,
+      2,
+      1
+    ],
+    "teacher_neighbors": 4,
+    "teacher_score_beta": 2,
+    "teacher_endpoint_temperature_A2": 4,
+    "mixture_temperature": 0.5,
+    "pointcloud_delta_A": 1,
+    "changed_factor": "teacher_library_reference_only",
+    "formula": "At last recorded score row L=99 initialize ancestor_map_L(d)=d. For j=L-1,...,0 set ancestor_map_j(d)=selected_indices[j,ancestor_map_(j+1)(d)]; never apply row L selection to that row's pre-selection scores. Alive(j,i)=count{d:ancestor_map_j(d)=i}>0; credit(j,i)=mean of head[L,d] over those descendants if alive, else null. At each observed guidance node keep intact surviving ancestor clouds, ranked by mean terminal-descendant credit with no clone-count bonus. Use frozen conditional Hungarian correspondences, K<=4 available distinct teachers and offline normalized score priors; q_k=mean_i||Y_i-T_ki||^2;rho_k=1^2*(sqrt(1+q_k/1^2)-1);R=.5*logsumexp(log pi_k-rho_k/.5). Pull grad_Y R through actual FLOWR endpoint VJP to x_t; no atom-type, graph or pair-distance gate, affinity-head loss or extra production forward. Reward has finite upper bound0, no finite lower bound.",
+    "support": "Read dynamic window [0,.5] and all50 times from manifest; S(t)=1 at each supported update, then native to1. No whole-window sparse credit strata, arbitrary bins or fitted missing contrasts.",
+    "conditional_derivative": "Anchor, self-conditioning, Hungarian assignment and prior fixed; this is endpoint-only conditional differentiation and a lagged post-native first-order response."
+  },
+  "mining_provenance": {
+    "complete_survival_batches": 14,
+    "multiple_testing": "BH jointly over 400 survival field/measure tests; not terminal affinity effects",
+    "nodes_with_fewer_than3_ancestors": 349,
+    "nodes_with_fewer_than6_ancestors": 531,
+    "parent_reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "reference_sha256": "0cccd6e34a2ff56328474fe938a1580be3678922705fe45b386c74460cc13a91",
+    "schema_version": "terminal-credit-mining-1.0",
+    "source_code_sha256": "9563a2ba3c35fb00f5b5b3df1576a2073a4cb7db3f7e9cfa439a9465fdcc4a15",
+    "sources": [
+      {
+        "path": "results/main1000_w050/single/batch_000/trajectory.h5",
+        "sha256": "db4c930675c8b02ee7758fec1ec7e2138562552ca70792cdb6e3b8eacc7c524b"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_001/trajectory.h5",
+        "sha256": "2f9d564b3e9f84ec4878849c05842c3e0e3a84be7ebdf89b73b15a2312c89c46"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_002/trajectory.h5",
+        "sha256": "7eda5d9bd46c2fd030e4b27ca27ff68d8a7bed4eb2621226a04de2d028f5585d"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_003/trajectory.h5",
+        "sha256": "ffc7f5eefa1bdcb644f9cd9d2aae56a711289bd15c80eaea2e0d033754ff76e6"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_004/trajectory.h5",
+        "sha256": "b216ad6b44e033efd66f7fc399d3bbfb2a1ab614f7bd774e6a7e92053079e8ce"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_005/trajectory.h5",
+        "sha256": "477834e5ac6a4b0ca1eb679484046963d251b8d95018fe932bdc2e5d257f7e68"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_006/trajectory.h5",
+        "sha256": "dd48709ae1fbadcb8d0c8be1ee4070c6ee9bd61c102b00ac0903dd8f624fb1ac"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_007/trajectory.h5",
+        "sha256": "21595a600ca36a21be96d6a410f62f161c2486823e2bc34845fd4feb45111ac7"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_008/trajectory.h5",
+        "sha256": "4cddb6542f002b4aa357e5d7d9bd0806cf74241709e50a01f1d9493279e9d4a8"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_009/trajectory.h5",
+        "sha256": "693376489568667f50dc226248dc269d9fb9afce27748eaf1c0e5cf30a2d21d1"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_010/trajectory.h5",
+        "sha256": "39f69bce0d5acec12b6d0dcf4c8f65b4fbb565bfd80eab8034f2c17a688e831e"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_011/trajectory.h5",
+        "sha256": "8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_012/trajectory.h5",
+        "sha256": "39a819d241166b8c71469d2742261301934f6cc518232d9584c664ad43dbbdf5"
+      },
+      {
+        "path": "results/main1000_w050/single/batch_013/trajectory.h5",
+        "sha256": "64427a7cc8c6ba9ed091acd7cf6940ad6bc38b0b97484f3d21917ed5957034e7"
+      }
+    ],
+    "storage": "Two parent-debiased moment strata and one compact credit table; no expanded candidate cache",
+    "table_bytes": {
+      "batch_node_credit.parquet": 17630,
+      "batch_node_survival_moments.parquet": 2885340,
+      "whole_window_survival_effects.parquet": 27244
+    },
+    "teacher_counts_per_node": [
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      18,
+      18,
+      19,
+      19,
+      19,
+      19,
+      19,
+      19,
+      22,
+      23,
+      23,
+      25,
+      26,
+      27,
+      28,
+      29,
+      31,
+      34,
+      35,
+      37,
+      39,
+      41,
+      43,
+      45,
+      46,
+      51,
+      52,
+      58,
+      58,
+      62,
+      66,
+      71,
+      77,
+      80,
+      84,
+      92,
+      99,
+      109,
+      118,
+      131,
+      139,
+      140,
+      140
+    ],
+    "terminal_metadata": [
+      {
+        "batch": 0,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 1,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 2,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 3,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 4,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 5,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 6,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 7,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 8,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 9,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 10,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 11,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 12,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      },
+      {
+        "batch": 13,
+        "future_resampling_nodes": 1,
+        "terminal_index": 99,
+        "terminal_score_time": 0.99,
+        "terminal_state_time": 1
+      }
+    ],
+    "times": [
+      0,
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2,
+      0.21,
+      0.22,
+      0.23,
+      0.24,
+      0.25,
+      0.26,
+      0.27,
+      0.28,
+      0.29,
+      0.3,
+      0.31,
+      0.32,
+      0.33,
+      0.34,
+      0.35,
+      0.36,
+      0.37,
+      0.38,
+      0.39,
+      0.4,
+      0.41,
+      0.42,
+      0.43,
+      0.44,
+      0.45,
+      0.46,
+      0.47,
+      0.48,
+      0.49
+    ],
+    "total_batch_nodes": 700,
+    "window": [
+      0,
+      0.5
+    ]
+  },
+  "source_binding_semantics": "Skill/input/prompt hashes computed from bytes read for this v1 response; terminal/parent reference and manifest hashes are supplied bindings, not independently reread external files.",
+  "uncertainties": [
+    "V1 pre-activation numerical response only; later revised Skill/input must receive a separate response, not overwrite this literal.",
+    "Early survivor-only teacher library narrows diversity;17 pooled first-node teachers are not a per-batch ancestor median or17 independent causal modes.",
+    "Survival labels and descendants' mean joint-head credit are observational selection outcomes, not measured biochemical affinity; last head .99 differs from decoded final rescore.",
+    "Missing early credit contrasts remain missing; extinction null cannot become failure affinity0. No survival test passes q<.05.",
+    "Only supplied400 summary tests can be numerically checked; raw parent maps, byte contents of the declared reference and individual credit labels were not reread under the three-file scope.",
+    "No new actual-model FD, full100step zero/native equality or affinity test has executed; preserve R7 on regression."
+  ]
+}
