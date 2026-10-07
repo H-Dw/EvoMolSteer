@@ -7,7 +7,7 @@ root=Path(args.repo);ev=root/'docs/experiments/ck2_affinity_geometry30_20261007'
 if out.exists():raise FileExistsError('Immutable literal Agent input folder already exists: '+str(out))
 if args.completed_through<10:raise ValueError('R9/R10 counterevidence required')
 out.mkdir(parents=True)
-skill=root/'skills/affinity-regional-pointcloud/SKILL.md';prior=ev/'regional_mining_v1/region_prior.json'
+skill=root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-regional-pointcloud.md';prior=ev/'regional_mining_v1/region_prior.json'
 old=read_json(ev/'persistent_skill_test/input.json');data=read_json(prior)
 t=pd.read_parquet(ev/'regional_mining_v1/whole_window_effects.parquet')
 rows=[read_json(ev/f'round_{n:02d}.outcome.json') for n in range(1,args.completed_through+1)]

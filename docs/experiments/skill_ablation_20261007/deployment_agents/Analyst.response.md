@@ -1,0 +1,7 @@
+Retain **program_20 unchanged as the candidate for a fresh paired generation comparison**. Its discovery mean pIC50 gain is +0.230299 with validity change +0.01 and MMFF relief per heavy median/p90 0.476946/0.954550. Adaptive reused batches and absent quality uncertainty prevent a validated-winner or strain-noninferiority claim. Other programs improve individual tails or maxima (`quality:program_20`, `quality:program_3`, `quality:program_19`, `quality:program_4`, `quality:program_8`).
+
+Across 14 independent batches, smaller xx/yy shape, short-scale pair kernels and local regional contrasts associate with selection. Complete exact-node trajectories show mid-window peaks followed by weakening or reversals near 0.49. For example landmark_00 soft mass peaks +1.641 z at 0.16 and ends -0.275; landmark_07 local yy ends +0.296 despite negative whole-window enrichment. Defer uniform feature directions and chemical interpretations (`endpoint_effects:3`, `endpoint_effects:4`, `endpoint_effects:10`, `regional_curves`).
+
+All 24 audited fitted curves fail fidelity criteria; none of 400 survival tests passes joint BH q<0.05. Forecast increments are not physical atom velocities. Sparse ancestry, overlapping regions, missing future labels and unvalidated discovery quality limit transfer to final affinity (`curve_support`, `lineage_support`, `survival_effects:0`, `information_audit`).
+
+Schema validation and evidence-ID checks passed. Request SHA256: fd39b71ea51d64e6268b718e528467c61f7f19913f92b3fa1b5a393c82dbf781

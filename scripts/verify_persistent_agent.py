@@ -10,7 +10,7 @@ def verify(root):
     e=root/'docs/experiments/ck2_affinity_geometry30_20261007';folder=e/'persistent_skill_test'
     prior=e/'endpoint_mining/sparse_coordinate_prior_v2.json';history=e/'kinematics_mining_v3/kinematics_prior.json'
     reference=root/'configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz'
-    audit=audit_persistent_behavior(root/'skills/affinity-persistent-coordinate/SKILL.md',folder/'input.json',folder/'prompt.txt',
+    audit=audit_persistent_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-persistent-coordinate.md',folder/'input.json',folder/'prompt.txt',
                 folder/'response.json',prior,history,folder/'behavior_audit.json')
     program=compile_persistent(read_json(folder/'response.json'),read_json(e/'sparse_skill_test_v2/compiled_design.json'),
         load_reference(reference),digest(reference),read_json(prior),digest(prior),read_json(history),digest(history),history.relative_to(root).as_posix())

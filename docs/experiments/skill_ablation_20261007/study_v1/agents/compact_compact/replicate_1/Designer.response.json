@@ -1,0 +1,33 @@
+{
+  "agent": "Designer",
+  "request_sha256": "f2c14c08558355bae85ae65f86604eb40153c3536babcb20203d83e135547024",
+  "analyst_response_sha256": "c47e0909577c072a936a6dca6f11780ded107194a805419fb338892b4efef4dd",
+  "decision": "retain_existing",
+  "base_program_id": "program_20",
+  "updates": {},
+  "evidence_ids": [
+    "quality:program_20",
+    "quality:program_3",
+    "quality:program_19",
+    "quality:program_8",
+    "quality:program_4",
+    "information_audit",
+    "endpoint_effects:3",
+    "endpoint_effects:4",
+    "endpoint_effects:10",
+    "regional_curves",
+    "curve_support",
+    "increment_effects:14",
+    "lineage_support",
+    "survival_effects:0"
+  ],
+  "rationale": "Retain the registered incumbent program_20 unchanged as the candidate for a prospective paired generation comparison. Its supplied discovery mean predicted pIC50 delta is +0.23030, validity change +0.01, and MMFF relief per-heavy median/p90 0.47695/0.95455. Program_3 has almost the same affinity mean (+0.22929) with p90 1.25258; program_19 and program_8 offer lower p90 (0.90787/0.73102) but smaller affinity means (+0.21284/+0.13900). Program_4 has higher best-valid pIC50, but validity decreases by 0.02. These adaptive reused rows lack paired uncertainty, all-attempt failure accounting and physical means; they support retaining a test candidate, not superiority or established absence of material strain regression. No supplied comparison warrants choosing a new scalar value.\n\nThe observable is the complete native FLOWR predicted endpoint Y_t in world-frame angstrom coordinates, rather than physical atom velocity. Use the registered endpoint_pointcloud reference configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz (SHA256 d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c). Detached Hungarian squared-distance assignments and mean costs C_m select K nearest teacher endpoints. With those assignments held fixed, q_m = mean_i ||Y_t,i - teacher_m,assignment(i)||^2 and R = tau*logsumexp_m(log(pi_m)-rho_delta(q_m)/tau), where rho_delta(q)=delta^2*(sqrt(1+q/delta^2)-1) and the detached prior is softmax(-C_m/T + beta*(s_m-mean(s)) + the registered optional base log weight). Preserve K=4, T=4.0 A^2, beta=2.0, tau=0.5, native_rms_ratio=0.33 and time_ramp_power=0.0 from the registry; robust_delta=2 and the existing constraints come from the hash-matched source program. These are historical experimental controls, not effect-derived optima. No new feature, reference or parameter is proposed.\n\nThe information audit finds +0.0810 A compressed-choice excess fixed RMS and top-four overlap 0.470, supporting fidelity concerns for compressed moments; its compressed score correlation exceeds the full-distance correlation and it excludes the full reward and Jacobian, so it proves no affinity advantage. Smaller x/y endpoint shape moments and larger pair_kernel_2.5 are observed selection associations, not instructions to shrink coordinates. Regional contrasts vary over time, all selected Legendre fits are disallowed for runtime use, only one increment contrast survives correction, and no survival test does. These findings do not justify replacing the tested pointcloud with a fitted direction or survival attraction.\n\nDifferentiate spatially through q_m and R at the native endpoint, then use g_t=J_FLOWR_endpoint(X_t)^T*grad_Y R from the existing forward graph. Temporal contrast derivatives are not this spatial gradient. Keep the registered relative RMS dose, bounded backtracking and constant ramp; use only exact learned reference nodes t=0.00,...,0.49 within the nominal [0.0,0.5] window and native continuation at unsupported times and after the window. Use no additional production forward, affinity-head gradient, SMC or graph veto.\n\nValidation hypotheses are that this unchanged candidate maintains or improves final predicted affinity and avoids material physical regression relative to paired native generation. Evaluate matched generation attempts with batches as independent units, report all attempts, validity and failures explicitly, and compare affinity means separately from physical means and tails with paired uncertainty. A best-valid maximum, selection association or endpoint distance decrease cannot satisfy the objective alone. The supplied evidence gives no material-regression margin or MMFF units; fix the evaluation margin before prospective results and do not declare success from these discovery summaries.",
+  "failure_modes": [
+    "Discovery selection and teacher-score priors may fail to improve terminal predicted affinity; neither local selection nor sparse terminal survival supplies a validated final-affinity effect.",
+    "Untyped coordinate matching does not encode interaction energy or chemical strain: lower endpoint q can coexist with affinity or MMFF regression. No mechanism attributing quality loss to changed chemical graphs is demonstrated.",
+    "Detached assignment and nearest-teacher switches make the reward piecewise differentiable; the endpoint Jacobian can redirect or amplify the spatial guidance. Preserved dose and backtracking controls require prospective verification.",
+    "Interpolating, extrapolating, or using disallowed fitted feature directions would leave learned support; unmatched nodes must receive native continuation.",
+    "Sparse ancestors, overlapping Gaussian regions and correlated descendants limit independent interpretation; generation batches remain the statistical units.",
+    "Omitting invalid attempts, missing scores or physical tails can make a selected-valid affinity gain appear to satisfy an all-attempt objective. The bound data cannot establish the physical non-regression margin."
+  ]
+}

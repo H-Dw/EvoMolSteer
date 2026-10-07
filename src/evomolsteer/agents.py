@@ -83,6 +83,11 @@ def call_api(request_path,analysis):
     else:messages=request['messages']
     body={'model':model,'messages':messages,'temperature':0,
           'response_format':{'type':'json_schema','json_schema':{'name':request['role'],'strict':True,'schema':request['response_schema']}}}
+    if request.get('schema_version')=='literal-skill-ablation-1.0':
+        # Scalar update keys are deliberately optional; strict vendor schemas
+        # require every object property to be required. Validate the complete
+        # local contract after JSON-mode transport rather than narrowing choices.
+        body['response_format']={'type':'json_object'}
     with httpx.Client(timeout=180) as client:
         response=client.post(base.rstrip('/')+'/chat/completions',headers={'Authorization':'Bearer '+key},json=body)
         response.raise_for_status();content=response.json()['choices'][0]['message']['content']

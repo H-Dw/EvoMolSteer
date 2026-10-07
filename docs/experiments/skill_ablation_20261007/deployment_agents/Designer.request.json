@@ -1,0 +1,126 @@
+{
+  "bindings": {
+    "analyst_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\deployment_agents\\Analyst.response.json",
+    "analyst_response_sha256": "4f35e5996f2a456c5f6bddd7b8d9ac006771341faea8ba70e76cb11211f5d92a",
+    "evidence_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\evidence.json",
+    "formula_registry_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\formula_registry.json",
+    "formula_registry_sha256": "a79de7b4ea03ceb7dd590ead5b302ad2752cbf6b8d8be6d29ebb6e6f718daad8",
+    "scalar_update_bounds": {
+      "coordinate_background_weight": [
+        0.05,
+        2.0
+      ],
+      "coordinate_region_radius_A": [
+        1.0,
+        10.0
+      ],
+      "history_strength": [
+        0.0,
+        4.0
+      ],
+      "history_time_power": [
+        0.0,
+        4.0
+      ],
+      "mixture_temperature": [
+        0.05,
+        4.0
+      ],
+      "native_rms_ratio": [
+        0.1,
+        3.0
+      ],
+      "pointcloud_delta_A": [
+        0.25,
+        4.0
+      ],
+      "teacher_endpoint_temperature_A2": [
+        0.25,
+        32.0
+      ],
+      "teacher_neighbors": [
+        1,
+        28
+      ],
+      "teacher_score_beta": [
+        0.0,
+        8.0
+      ],
+      "time_ramp_power": [
+        0.0,
+        2.0
+      ]
+    }
+  },
+  "evidence_sha256": "5c8f625fcbc1dc6cfba8c0fc0e8cfcc8aa92fe3ea7133dccbe7e3f308a5f5237",
+  "instruction_hash_scope": "Role treatment before the shared output-format suffix",
+  "instruction_sha256": "6ea6aecf91f06e57ae443a4960ac879a4af1fe0a7b9a2d3f2fbddfe2cc5bc46c",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "agent": {
+        "const": "Designer"
+      },
+      "analyst_response_sha256": {
+        "type": "string"
+      },
+      "base_program_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "decision": {
+        "enum": [
+          "retain_existing",
+          "modify_existing",
+          "defer"
+        ]
+      },
+      "evidence_ids": {
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "failure_modes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "rationale": {
+        "type": "string"
+      },
+      "request_sha256": {
+        "type": "string"
+      },
+      "updates": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "agent",
+      "request_sha256",
+      "analyst_response_sha256",
+      "decision",
+      "base_program_id",
+      "updates",
+      "evidence_ids",
+      "rationale",
+      "failure_modes"
+    ],
+    "type": "object"
+  },
+  "role": "Designer",
+  "schema_version": "literal-skill-ablation-1.0",
+  "system_instruction": "---\nname: evomolsteer-designer\ndescription: Turn molecular coordinate evidence into a compact, testable differentiable reward design.\n---\n\nYou are Designer. Read the supplied Analyst result, evidence, objective and\nexecution contract. Return a declarative design using the supplied formula\nregistry and response schema, with concise evidence-to-formula justification.\n\nSeparate observed targets from experimental choices. State the coordinate\nobservable, reference and parameter origins, derivative path and expected\nfailure modes. A temporal feature derivative is not a spatial reward gradient.\nKeep guidance within the supplied learned support and use the derivative path\nappropriate to its coordinate representation. Follow the execution contract;\ndo not substitute an affinity-gradient or particle-selection algorithm.\n\nCompare the design with supplied incumbent and counterevidence. Preserve a\ntested incumbent when no evidence justifies a change; an exploratory proposal\nor deferred design is also valid. Judge affinity and strain as distinct outcomes\nusing the task's priorities and evaluation criteria. Do not attribute quality\nloss to a changed chemical graph without a demonstrated mechanism.\n\nReturn the requested program and validation hypotheses.\n\nReturn JSON matching the supplied response schema.",
+  "variant": {
+    "a": [],
+    "analyst": "compact",
+    "d": [],
+    "designer": "compact",
+    "id": "standard_core"
+  }
+}

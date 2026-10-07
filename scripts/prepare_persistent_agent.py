@@ -33,7 +33,7 @@ def prepare(root):
         'reward_registry':{'first_family':'endpoint_supported_attractor','first_eta':.3,'first_history_strength':0.,
             'history_strength_candidates':[.25,1.,4.],'geometry_block_weights':[0.,1.,2.,1.],
             'salience':'observed_abs_effect','prototype_robust_delta':2.,'mixture_temperature':.5,'teacher_score_beta':2.}}
-    skill=root/'skills/affinity-persistent-coordinate/SKILL.md';out.mkdir(parents=True);write_json(out/'input.json',packet)
+    skill=root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-persistent-coordinate.md';out.mkdir(parents=True);write_json(out/'input.json',packet)
     text=('Simulate Analyst and Designer using exactly '+str(skill)+'. Read the input, two priors, velocity effect table, landmark context and implementation generation/persistent_reward.py. '+
           'Write literal UTF-8 response.json and concise response.md only. Bind skill_sha256, input_sha256, prompt_sha256, prior_sha256, kinematics_prior_sha256. '+
           'Return primary_objective, affinity_head_gradient, selected_round, score_coverage_interpretation, feature_priority=3D_coordinates, coordinate_features, per_step_affinity_calls=0 and response_actions in the same audit schema as sparse_skill_test_v2/response.json. '+

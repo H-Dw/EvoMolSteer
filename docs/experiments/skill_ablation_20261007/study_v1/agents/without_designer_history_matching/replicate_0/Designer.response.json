@@ -1,0 +1,38 @@
+{
+  "agent": "Designer",
+  "request_sha256": "a07a2741e949d15db7bf80bff78ff4dcde393b2bcf3e0261a56b3ad90c4330ed",
+  "analyst_response_sha256": "005673770ed32c9aad21a24776b1efd41c22eb951a360777e7fcad2619ef4c37",
+  "decision": "retain_existing",
+  "base_program_id": "program_20",
+  "updates": {},
+  "evidence_ids": [
+    "quality:program_20",
+    "quality:program_3",
+    "quality:program_4",
+    "quality:program_19",
+    "quality:program_8",
+    "quality:program_16",
+    "quality:program_21",
+    "information_audit",
+    "endpoint_effects:3",
+    "endpoint_effects:4",
+    "endpoint_effects:10",
+    "endpoint_effects:13",
+    "regional_effects:0",
+    "regional_curves",
+    "curve_support",
+    "survival_effects:0",
+    "lineage_support"
+  ],
+  "rationale": "Observed evidence: program_20 has discovery mean predicted pIC50 delta +0.23030, validity change +0.010, and MMFF relief per heavy median 0.47695/p90 0.95455. Its affinity advantage over program_3 and program_4 is only about 0.001 without paired uncertainty. Regional program_19 has lower affinity delta +0.21284 and lower strain p90 0.90787; program_8 has lower affinity delta +0.13900 and lower p90 0.73102. These adaptive reused discovery summaries support a comparison candidate, not superiority or established strain non-regression. Given affinity priority and no demonstrated benefit from changing the incumbent, retain program_20 unchanged.\n\nExperimental choice and parameter origins: use the registered endpoint_pointcloud program configs/experiments/ck2_affinity_geometry30_v1/backtrack_round26.json and endpoint_reference.json.gz (reference SHA256 d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c). The inherited values are mixture_temperature tau=0.5, native_rms_ratio=0.33, teacher_endpoint_temperature_A2 T=4.0, teacher_neighbors K=4, teacher_score_beta beta=2.0, time_ramp_power=0.0, and source-program robust_delta delta=2. They are historical experimental choices, not parameter estimates derived from selection contrasts. No scalar updates are proposed.\n\nCoordinate observable and formula: Y_t is the native FLOWR predicted endpoint in world-frame angstrom coordinates. At an exact learned node, use detached Hungarian squared-distance assignments and the K nearest reference teacher endpoints by unweighted mean assignment cost C_m. Let q_m=mean_i ||Y_t,i-teacher_m,assignment(i)||^2, pi_m=softmax(-C_m/T+beta*(s_m-mean(s))+optional recorded teacher_base_log_weight_m), detached as registered, and rho_delta(q)=delta^2*(sqrt(1+q/delta^2)-1). Use R=tau*logsumexp_m(log(pi_m)-rho_delta(q_m)/tau). Separate teacher endpoints preserve alternatives in the objective; their existence does not establish distinct real conformational modes. The information audit shows compressed top-four overlap 0.470 and excess fixed RMS 0.081 A, supporting full-coordinate retention without proving an affinity advantage. Related shape and pair-kernel associations do not justify independently averaged geometric targets.\n\nDerivative and dose: differentiate the coordinate reward through the existing native forward graph, g_t=J_FLOWR_endpoint(X_t)^T*grad_Y R, holding assignment, neighborhood and prior detached. A temporal feature-change derivative is not this spatial gradient. Apply only at exact reference nodes t=0.00,...,0.49 in the declared [0,0.5] learned window and use native continuation elsewhere. Retain the registered relative RMS dose and bounded backtracking (7 attempts, max_atom_step_A=0.15, max_cumulative_rms_A=6.0); the inherited ramp is one. Use zero additional production forward calls, no affinity-head gradient, no SMC and no graph veto. Reward scaling alone is not a dose intervention under gradient normalization. The supplied quality summaries do not measure actual delivered displacements or establish a monotone dose response.\n\nAlternatives and counterevidence: landmark_00 soft-mass enrichment is reproducible, but node contrasts reverse sign and there is no conditional test of added information beyond global geometry. Registered regional program_19 has a possible strain-tail tradeoff without demonstrated affinity non-inferiority, so regional emphasis is deferred. All 24 audited Legendre curves fail runtime fidelity; do not replace the endpoint reference with these fits. Terminal survival has minimum corrected q=0.1204 and sparse ancestral support, so it does not justify terminal-affinity credit or changing the reference.\n\nValidation hypotheses: in fresh paired independent generation batches, the unchanged candidate should maintain or improve final mean predicted target affinity relative to native generation while strain does not materially regress. Evaluate all attempts and failures with explicit validity and affinity-label missingness accounting; missing labels are not automatically affinity failures. Compare physical median and p90/severe tails separately from affinity and specify a material strain-regression margin before evaluation. Estimate paired batch uncertainty. Record delivered per-step/cumulative RMS, clipping and backtracking acceptance to distinguish weak delivery from an ineffective coordinate target. Increased coordinate reward alone is insufficient evidence of quality improvement. No generation or validation outcome is claimed here.",
+  "failure_modes": [
+    "Adaptive reuse and absent paired uncertainty can make a near-tied discovery mean look like a winning program; baseline strain and material-regression margin are not supplied.",
+    "Untyped fixed-frame pointcloud matching can conflate global pose with conformation and omit chemically important interactions.",
+    "Multiple teacher terms can blend incompatible conformations; the supplied evidence contains no verified mode decomposition.",
+    "Detached Hungarian assignments and nearest-teacher changes make the reward only piecewise differentiable and can change guidance abruptly.",
+    "Clipping and backtracking can reduce or reject the nominal RMS dose; stronger nominal guidance and whole-reward scaling need not improve quality.",
+    "Integrated regional associations can reverse at individual nodes; unavailable polynomial fits or unsupported times can impose a wrong target.",
+    "Immediate selection and terminal survival are not terminal affinity effects; descendants and clones do not increase independent batch support.",
+    "Valid-only affinity summaries or unreported missingness can conceal failures, while affinity means can conceal materially worse physical tails."
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "bindings": {
+    "analyst_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\agents\\compact_compact\\replicate_1\\Analyst.response.json",
+    "analyst_response_sha256": "c47e0909577c072a936a6dca6f11780ded107194a805419fb338892b4efef4dd",
+    "evidence_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\evidence.json",
+    "formula_registry_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\formula_registry.json",
+    "formula_registry_sha256": "a79de7b4ea03ceb7dd590ead5b302ad2752cbf6b8d8be6d29ebb6e6f718daad8"
+  },
+  "evidence_sha256": "5c8f625fcbc1dc6cfba8c0fc0e8cfcc8aa92fe3ea7133dccbe7e3f308a5f5237",
+  "instruction_hash_scope": "Role treatment before the shared output-format suffix",
+  "instruction_sha256": "6cdbe31c79fd3cc729c5b3f6aebdc8c82655fdf2a6a1ab50969f21d5bc2b8380",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "agent": {
+        "const": "Designer"
+      },
+      "analyst_response_sha256": {
+        "type": "string"
+      },
+      "base_program_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "decision": {
+        "enum": [
+          "retain_existing",
+          "modify_existing",
+          "defer"
+        ]
+      },
+      "evidence_ids": {
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "failure_modes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "rationale": {
+        "type": "string"
+      },
+      "request_sha256": {
+        "type": "string"
+      },
+      "updates": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "agent",
+      "request_sha256",
+      "analyst_response_sha256",
+      "decision",
+      "base_program_id",
+      "updates",
+      "evidence_ids",
+      "rationale",
+      "failure_modes"
+    ],
+    "type": "object"
+  },
+  "role": "Designer",
+  "schema_version": "literal-skill-ablation-1.0",
+  "system_instruction": "---\nname: evomolsteer-designer\ndescription: Turn molecular coordinate evidence into a compact, testable differentiable reward design.\n---\n\nYou are Designer. Read the supplied Analyst result, evidence, objective and\nexecution contract. Return a declarative design using the supplied formula\nregistry and response schema, with concise evidence-to-formula justification.\n\nSeparate observed targets from experimental choices. State the coordinate\nobservable, reference and parameter origins, derivative path and expected\nfailure modes. A temporal feature derivative is not a spatial reward gradient.\nKeep guidance within the supplied learned support and use the derivative path\nappropriate to its coordinate representation. Follow the execution contract;\ndo not substitute an affinity-gradient or particle-selection algorithm.\n\nCompare the design with supplied incumbent and counterevidence. Preserve a\ntested incumbent when no evidence justifies a change; an exploratory proposal\nor deferred design is also valid. Judge affinity and strain as distinct outcomes\nusing the task's priorities and evaluation criteria. Do not attribute quality\nloss to a changed chemical graph without a demonstrated mechanism.\n\nReturn the requested program and validation hypotheses. Optional guidance\nmodules are selected explicitly by the caller from\n[guidance_modules.md](references/guidance_modules.md); they do not establish\nempirically optimal parameters.\n\nReturn JSON matching the supplied response schema.",
+  "variant": {
+    "a": [],
+    "analyst": "compact",
+    "d": [],
+    "designer": "compact",
+    "id": "compact_compact"
+  }
+}

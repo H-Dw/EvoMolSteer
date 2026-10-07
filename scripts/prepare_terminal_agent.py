@@ -15,7 +15,7 @@ ev = root/'docs/experiments/ck2_affinity_geometry30_20261007'
 out = Path(a.output)
 if out.exists(): raise FileExistsError(out)
 out.mkdir(parents=True)
-skill = root/'skills/affinity-terminal-lineage/SKILL.md'
+skill = root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-terminal-lineage.md'
 folder = ev/a.mining_folder
 manifest = read_json(folder/'manifest.json')
 t = pd.read_parquet(folder/'batch_node_credit.parquet')

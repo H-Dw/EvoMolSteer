@@ -8,6 +8,7 @@ PROJECT = Path(__file__).resolve().parents[2]
 
 def modules(role, root=PROJECT):
     path = Path(root)/'skills'/role.lower()/'references/guidance_modules.md'
+    if not path.exists():return {}
     body = path.read_text(encoding='utf-8')
     chunks = re.split(r'^## Module: ([a-z_]+)\s*$', body, flags=re.MULTILINE)
     return {chunks[i]: chunks[i+1].strip() for i in range(1, len(chunks), 2)}

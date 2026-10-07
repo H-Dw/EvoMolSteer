@@ -20,7 +20,4 @@ or deferred design is also valid. Judge affinity and strain as distinct outcomes
 using the task's priorities and evaluation criteria. Do not attribute quality
 loss to a changed chemical graph without a demonstrated mechanism.
 
-Return the requested program and validation hypotheses. Optional guidance
-modules are selected explicitly by the caller from
-[guidance_modules.md](references/guidance_modules.md); they do not establish
-empirically optimal parameters.
+Return the requested program and validation hypotheses.

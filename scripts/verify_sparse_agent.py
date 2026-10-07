@@ -10,7 +10,7 @@ def verify(root):
     evidence=root/'docs/experiments/ck2_affinity_geometry30_20261007'
     folder=evidence/'sparse_skill_test_v2';prior=evidence/'endpoint_mining/sparse_coordinate_prior_v2.json'
     reference=root/'configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz'
-    audit=audit_sparse_behavior(root/'skills/affinity-sparse-coordinate/SKILL.md',folder/'input.json',folder/'prompt.txt',
+    audit=audit_sparse_behavior(root/'docs/experiments/skill_ablation_20261007/legacy_skills/affinity-sparse-coordinate.md',folder/'input.json',folder/'prompt.txt',
                                folder/'response.json',prior,folder/'behavior_audit.json')
     program=compile_sparse(read_json(folder/'response.json'),read_json(evidence/'endpoint_skill_test/compiled_design.json'),
                            load_reference(reference),digest(reference),read_json(prior),digest(prior))

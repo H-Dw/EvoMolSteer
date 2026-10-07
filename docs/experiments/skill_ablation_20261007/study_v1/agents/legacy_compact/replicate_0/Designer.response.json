@@ -1,0 +1,32 @@
+{
+  "agent": "Designer",
+  "request_sha256": "abc71aab778d2a040212a8dc4e7e3175f3ea46357e96068d555c317bc3c8a14c",
+  "analyst_response_sha256": "0550d7e0eadf25084cce1291e48c581edc2e081602041f6fdbc104e3751befbc",
+  "decision": "retain_existing",
+  "base_program_id": "program_20",
+  "updates": {},
+  "evidence_ids": [
+    "quality:program_20",
+    "quality:program_3",
+    "quality:program_4",
+    "quality:program_19",
+    "quality:program_8",
+    "endpoint_effects:3",
+    "endpoint_effects:4",
+    "endpoint_effects:10",
+    "curve_support",
+    "regional_curves",
+    "information_audit",
+    "lineage_support"
+  ],
+  "rationale": "Retain incumbent program_20 unchanged for a frozen, exploratory independent paired comparison. quality:program_20 reports discovery mean predicted pIC50 delta 0.2302989435, validity change +0.01, and MMFF relief per heavy atom median/p90 0.4769462625/0.9545503373. All quality rows use adaptive reused discovery batches. Its mean affinity advantage over program_3/program_4 is only 0.0010063696/0.0009345150 without paired uncertainty; program_19 and program_8 have lower p90 relief (0.9078655263/0.7310244597) with lower affinity deltas (0.2128393650/0.1390014887). These outcomes justify preserving the tested incumbent as a candidate, not declaring it optimal, strain-safe, or independently superior; no scalar change is supported.\n\nThe coordinate observable is native FLOWR predicted_endpoint_world_A atom coordinates Y_t, compared with recorded teacher endpoint clouds from configs/experiments/ck2_affinity_geometry30_v1/endpoint_reference.json.gz (SHA256 d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c). Retain the endpoint_pointcloud formula: choose K=4 nearest teachers using detached Hungarian mean squared assignment costs C_m; q_m=mean_i||Y_t,i-teacher_m,assignment(i)||^2; pi_m=softmax(-C_m/4+2*(s_m-mean(s)) plus any registered optional teacher base log weight); R=0.5*logsumexp_m(log(pi_m)-rho_2(q_m)/0.5), with assignments and priors detached. All targets and scalars are inherited from the registry and its hashed program, not estimated as optimal from observational effect sizes: native_rms_ratio=0.33, mixture_temperature=0.5, teacher_endpoint_temperature_A2=4, teacher_neighbors=4, teacher_score_beta=2, time_ramp_power=0 and source robust_delta=2. Preserve its predictive_flow dose reference and bounded backtracking (7 attempts, max atom step 0.15 A, cumulative RMS 6 A, receptor-clash threshold 0.8 A).\n\nUse g_t=J_FLOWR_endpoint(X_t)^T grad_Y R through the existing native forward graph, with zero additional production forward calls per step, no affinity-head gradient, no SMC and no graph veto. Apply only at exact learned reference nodes t=0.00,...,0.49 inside the nominal [0,0.5] window; continue natively outside support. Observed x/y forecast-shape contrasts and pair-kernel enrichment are associations, not a physical attraction or causal coordinate optimum. curve_support rejects all 24 analytic runtime curves; regional_curves contains sign reversals. Neither their temporal d_dt_z nor an integrated contrast supplies grad_Y R. information_audit shows representation-dependent teacher choice but does not validate a full-reward or VJP advantage.\n\nValidation hypotheses: on new independent batches with paired seeds and a matched unguided arm, the frozen program maintains or improves batch-mean final predicted pIC50 while separately avoiding material regression in validity and strain median/p90. Count every attempt and failure, report denominators and paired batch uncertainty, and predefine the strain materiality margin before evaluation because none is supplied. Assess physical tails independently from mean affinity and window-shape change. Teacher imitation can lose useful geometry or overfit predicted scores, so these hypotheses require generation evidence. No inference, reward compilation, or generation validation was performed for this response.",
+  "failure_modes": [
+    "Adaptive discovery reuse and near-tied means may disappear or reverse on independent batches; no superiority or strain nonregression is established.",
+    "Coordinate teacher imitation may improve predicted affinity while harming strain tails or validity; matched unguided physical tails and the materiality margin are absent.",
+    "Detached Hungarian assignments and nearest-teacher membership can switch discontinuously; the within-selection differentiable reward does not remove these boundaries, and backtracking may exhaust its bound.",
+    "Sparse or correlated teacher support and collapsed ancestry can overfit repeated endpoints; scores are oracle predictions, not experimental affinities.",
+    "Observational forecast-shape enrichment, rejected analytic curves, and temporal contrast derivatives cannot justify a new current-contact, monotone-time, or causal regional guidance rule.",
+    "World-frame point-cloud distances and untyped atom correspondences need not encode chemical or receptor interactions; chemical graph changes alone do not demonstrate the mechanism of any quality loss.",
+    "Extrapolating past exact learned nodes or replacing the endpoint VJP with a direct forecast force or affinity gradient would invalidate the execution contract."
+  ]
+}

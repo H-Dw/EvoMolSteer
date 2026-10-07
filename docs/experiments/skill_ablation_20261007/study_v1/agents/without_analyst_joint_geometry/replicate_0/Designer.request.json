@@ -1,0 +1,89 @@
+{
+  "bindings": {
+    "analyst_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\agents\\without_analyst_joint_geometry\\replicate_0\\Analyst.response.json",
+    "analyst_response_sha256": "ada4a401412ca3b8e324ff6a3b7c3b576e53bfea7c7820ac40ba965c05bec2d9",
+    "evidence_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\evidence.json",
+    "formula_registry_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\skill_ablation_20261007\\study_v1\\formula_registry.json",
+    "formula_registry_sha256": "a79de7b4ea03ceb7dd590ead5b302ad2752cbf6b8d8be6d29ebb6e6f718daad8"
+  },
+  "evidence_sha256": "5c8f625fcbc1dc6cfba8c0fc0e8cfcc8aa92fe3ea7133dccbe7e3f308a5f5237",
+  "instruction_hash_scope": "Role treatment before the shared output-format suffix",
+  "instruction_sha256": "89461cc930b315fbfd1f7601efce4af9533dd3d2cb93e35fdb220312a1a063a1",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "agent": {
+        "const": "Designer"
+      },
+      "analyst_response_sha256": {
+        "type": "string"
+      },
+      "base_program_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "decision": {
+        "enum": [
+          "retain_existing",
+          "modify_existing",
+          "defer"
+        ]
+      },
+      "evidence_ids": {
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "failure_modes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "rationale": {
+        "type": "string"
+      },
+      "request_sha256": {
+        "type": "string"
+      },
+      "updates": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "agent",
+      "request_sha256",
+      "analyst_response_sha256",
+      "decision",
+      "base_program_id",
+      "updates",
+      "evidence_ids",
+      "rationale",
+      "failure_modes"
+    ],
+    "type": "object"
+  },
+  "role": "Designer",
+  "schema_version": "literal-skill-ablation-1.0",
+  "system_instruction": "---\nname: evomolsteer-designer\ndescription: Turn molecular coordinate evidence into a compact, testable differentiable reward design.\n---\n\nYou are Designer. Read the supplied Analyst result, evidence, objective and\nexecution contract. Return a declarative design using the supplied formula\nregistry and response schema, with concise evidence-to-formula justification.\n\nSeparate observed targets from experimental choices. State the coordinate\nobservable, reference and parameter origins, derivative path and expected\nfailure modes. A temporal feature derivative is not a spatial reward gradient.\nKeep guidance within the supplied learned support and use the derivative path\nappropriate to its coordinate representation. Follow the execution contract;\ndo not substitute an affinity-gradient or particle-selection algorithm.\n\nCompare the design with supplied incumbent and counterevidence. Preserve a\ntested incumbent when no evidence justifies a change; an exploratory proposal\nor deferred design is also valid. Judge affinity and strain as distinct outcomes\nusing the task's priorities and evaluation criteria. Do not attribute quality\nloss to a changed chemical graph without a demonstrated mechanism.\n\nReturn the requested program and validation hypotheses. Optional guidance\nmodules are selected explicitly by the caller from\n[guidance_modules.md](references/guidance_modules.md); they do not establish\nempirically optimal parameters.\n\n## Guidance: coherent_modes\n\nConsider whether a multimodal coordinate objective preserves real conformations\nbetter than independently averaged feature targets. Keep alternatives distinct\nwhen averaging would create unsupported geometry. Compare the simplest such\nobjective with the supplied incumbent and compressed alternatives.\n\n## Guidance: regional_emphasis\n\nIf regional evidence is reproducible, consider spatial emphasis within a coherent\ncoordinate objective. Check whether it improves the target outcome beyond global\nmatching and whether surrounding coordinates remain compatible. Regional\nenrichment does not itself prescribe an attraction direction.\n\n## Guidance: history_matching\n\nUse parent-child increments only when their coordinate meaning, support and\nuncertainty are supplied. An increment-matching term is a separate hypothesis;\ncompare it with a design without history, and avoid promoting position evidence\ninto evidence for beneficial velocities.\n\n## Guidance: dose_calibration\n\nDistinguish reward shape from delivered displacement. If the controller normalizes\nthe gradient, multiplying the whole reward may not change the dose. Use actual\nupdates, clipping and paired quality changes to diagnose a weak dose or a wrong\ntarget; do not assume stronger guidance is monotonically better.\n\nReturn JSON matching the supplied response schema.",
+  "variant": {
+    "a": [
+      "continuous_dynamics",
+      "localization",
+      "lineage_credit"
+    ],
+    "analyst": "compact",
+    "d": [
+      "coherent_modes",
+      "regional_emphasis",
+      "history_matching",
+      "dose_calibration"
+    ],
+    "designer": "compact",
+    "id": "without_analyst_joint_geometry"
+  }
+}

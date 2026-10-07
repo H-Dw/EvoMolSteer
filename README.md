@@ -123,3 +123,17 @@ seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生
 - [坐标挖掘和逐轮实验结论](docs/ck2_coordinate_seed42_report_20261006.md)
 - [保存报告的跨轮比较](docs/experiments/ck2_coordinate_seed42_20261006/campaign_summary/summary.md)
 - 生成入口：`scripts/generate_coordinate_flowr.py`；报告入口：`scripts/summarize_coordinate_campaign.py`。
+
+## 2026-10-07 精简角色指引与真实消融
+
+活动指引统一为 `skills/analyst/SKILL.md` 和 `skills/designer/SKILL.md`；其余入口仅链接到这两个角色。
+任务目标、参考坐标、学习窗口、公式能力和参数来自输入数据及执行契约。
+当前证据下没有改变奖励的8项额外建议已移出活动Skills，实验原文与字面响应保留在实验档案。
+
+- [消融设计、质量指标与适用边界](docs/experiments/skill_ablation_20261007/report.zh-CN.md)
+- [通用角色接口与输入格式](docs/role_agent_workflow.md)
+- 标准入口：`scripts/role_agent.py`，支持导出、验证、API调用和奖励编译。
+- 消融重放：`scripts/prepare_skill_ablation.py`、`scripts/skill_ablation_agent.py`、`scripts/assemble_skill_ablation.py`、`scripts/report_skill_ablation.py`。
+
+新接口允许保留、修改或暂缓，不规定正确候选、剂量或奖励公式；编译器检查执行合法性并保留字面选择。
+原 `prepare_*_agent.py` / `verify_*_agent.py` 的固定案例接口用于冻结历史记录重放。

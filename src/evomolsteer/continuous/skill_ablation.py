@@ -48,7 +48,9 @@ UPDATES = {
 
 def variants():
     """Factorial role replacement plus one-at-a-time removal from full advice."""
-    all_a=list(modules('Analyst'));all_d=list(modules('Designer'))
+    frozen=Path(__file__).resolve().parents[3]/'docs/experiments/skill_ablation_20261007/study_v1/treatment_modules.json'
+    advice=read_json(frozen) if frozen.exists() else {r:modules(r) for r in ('Analyst','Designer')}
+    all_a=list(advice['Analyst']);all_d=list(advice['Designer'])
     result=[dict(id='legacy_legacy',analyst='legacy',designer='legacy',a=[],d=[]),
             dict(id='compact_legacy',analyst='compact',designer='legacy',a=[],d=[]),
             dict(id='legacy_compact',analyst='legacy',designer='compact',a=[],d=[]),
@@ -62,7 +64,16 @@ def variants():
 
 
 def instruction(role, variant, root):
-    if variant[role.lower()]=='compact':return render(role,variant['a' if role=='Analyst' else 'd'],root)
+    if variant[role.lower()]=='compact':
+        if variant['id']=='standard_core':return render(role,(),root)
+        frozen=Path(root)/'docs/experiments/skill_ablation_20261007/study_v1'
+        if (frozen/(role+'.core.md')).exists() and (frozen/'treatment_modules.json').exists():
+            content=(frozen/(role+'.core.md')).read_text(encoding='utf-8').rstrip()
+            advice=read_json(frozen/'treatment_modules.json')[role]
+            for name in variant['a' if role=='Analyst' else 'd']:
+                content+='\n\n## Guidance: '+name+'\n\n'+advice[name]
+            return content+'\n'
+        return render(role,variant['a' if role=='Analyst' else 'd'],root)
     archive=Path(root)/'docs/experiments/skill_ablation_20261007/legacy_skills'
     names=['coordinate-analyst','continuous-analyst'] if role=='Analyst' else ['affinity-endpoint-pullback','affinity-regional-pointcloud','affinity-terminal-lineage']
     return '\n\n'.join((archive/(n+'.md')).read_text(encoding='utf-8') for n in names)
@@ -72,6 +83,7 @@ def export_request(root, evidence, folder, variant, role, analyst=None):
     folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
     packet=read_json(evidence);content=instruction(role,variant,root)
     binding={'evidence_path':str(Path(evidence).resolve())}
+    if variant['id']=='standard_core':binding['scalar_update_bounds']=UPDATES
     if role=='Designer':
         if analyst is None:raise ValueError('Designer requires actual Analyst response')
         validate_response(analyst.parent/'Analyst.request.json',analyst,evidence)
@@ -84,6 +96,7 @@ def export_request(root, evidence, folder, variant, role, analyst=None):
     schema=ANALYST_SCHEMA if role=='Analyst' else DESIGNER_SCHEMA
     request={'schema_version':'literal-skill-ablation-1.0','role':role,'variant':variant,
         'evidence_sha256':digest(evidence),'instruction_sha256':sha(content),
+        'instruction_hash_scope':'Role treatment before the shared output-format suffix',
         'response_schema':schema,'bindings':binding,
         'system_instruction':content+'\nReturn JSON matching the supplied response schema.'}
     path=folder/(role+'.request.json');write_json(path,request)
@@ -97,6 +110,8 @@ def payload(request):
     if digest(path)!=request['evidence_sha256']:raise ValueError('Evidence changed')
     packet=read_json(path)
     value={k:packet[k] for k in ('task','execution_contract','evidence','program_registry','incumbent_program_id')}
+    if 'scalar_update_bounds' in request['bindings']:
+        value['execution_contract']['allowed_scalar_updates']=request['bindings']['scalar_update_bounds']
     if 'analyst_path' in request['bindings']:
         path=Path(request['bindings']['analyst_path'])
         if digest(path)!=request['bindings']['analyst_response_sha256']:raise ValueError('Analyst response changed')
