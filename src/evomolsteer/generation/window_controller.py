@@ -13,7 +13,7 @@ import types
 import numpy as np
 import torch
 from .gradient_controller import Extension, gradient_source
-from .window_reference import load_reference
+from .window_reference import load_reference,reference_node_time
 from .window_reward import WindowReward
 from .multistage_reward import native_relative_step, reject_new_severe_clashes
 from ..io import digest, write_json, clean
@@ -51,7 +51,7 @@ class WindowExtension(Extension):
             raise ValueError('Reference and integration grid mismatch')
         for t in np.arange(opt.steps)/opt.steps:
             s=t+1/opt.steps
-            target_t=t if self.reference.get('control_representation')=='proposal' else s
+            target_t=reference_node_time(self.reference,t,s)
             if t>=a-1e-6 and s<=b+1e-6 and min(abs(np.asarray(self.reference['times'])-target_t))>2e-6:
                 raise ValueError('Learning reference does not cover every controlled state')
         inp=Path(opt.input_dataset);inp=inp/'inputs' if (inp/'inputs').is_dir() else inp

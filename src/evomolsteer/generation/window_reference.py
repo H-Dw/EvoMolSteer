@@ -12,6 +12,18 @@ def load_reference(path):
     return json.loads(gzip.decompress(Path(path).read_bytes()))
 
 
+def reference_node_time(reference, score_time, state_time):
+    """Keep forecast labels on their pre-native clock, not terminal-state time."""
+    representation=reference.get('control_representation','current')
+    if reference.get('schema_version')=='affinity-endpoint-library-1.0':
+        if representation not in ('proposal','predicted_endpoint'):
+            raise ValueError('Endpoint libraries require an explicit pre-native forecast clock')
+        return score_time
+    if representation=='proposal':return score_time
+    if representation=='current':return state_time
+    raise ValueError('Unknown reference time representation')
+
+
 def descriptor(x, atoms, bonds, vocabulary_size):
     center=x.mean(1);centered=x-center[:,None]
     covariance=np.einsum('bni,bnj->bij',centered,centered)/x.shape[1]

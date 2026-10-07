@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import torch
 from .window_controller import WindowExtension
+from .window_reference import reference_node_time
 from .coordinate_reward import remove_rigid_pose_gradient,predictive_flow_increment,calibration_increment,atom_step_cap
 from .coordinate_contrast import make_coordinate_reward
 from .local_reward import bounded_local_step
@@ -55,7 +56,7 @@ class CoordinateExtension(WindowExtension):
         trace.arr['native_proposal_coords'].append(nparr(curr['coords']))
         if enabled:
             com=torch.stack([torch.as_tensor(v.com) for v in self.pocket['complex']]).reshape(-1,3).to(native)
-            reference_time=trace.t if self.reference.get('control_representation','current')=='proposal' else s
+            reference_time=reference_node_time(self.reference,trace.t,s)
             anchor=self.endpoint_coords*scale+com[:,None] if self.reference.get('spatial_anchor')=='endpoint' else None
             row['reference_time']=reference_time
             with torch.enable_grad():
