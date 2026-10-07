@@ -1,5 +1,5 @@
 """Compile one agent-reviewed teacher-source intervention without scalar drift."""
-import argparse,copy
+import argparse,copy,json
 from pathlib import Path
 from evomolsteer.io import read_json,write_json,digest
 
@@ -19,7 +19,8 @@ def compile_design(folder,parent,output):
         'designer_sha256':digest(folder/'Designer.response.json'),'designer_request_sha256':digest(folder/'Designer.request.json'),
         'scientific_justification':r['justification'],'validation_hypotheses':r['validation_hypotheses'],
         'one_change':'Replace online-stratified teacher source with decoded terminal paths; formula/dose unchanged'})
-    write_json(output,p);return p
+    Path(output).write_text(json.dumps(p,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+    return p
 if __name__=='__main__':
     p=argparse.ArgumentParser()
     for key in ['folder','parent','output']:p.add_argument('--'+key,required=True)
