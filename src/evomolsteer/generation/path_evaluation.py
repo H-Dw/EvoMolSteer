@@ -63,7 +63,7 @@ def paired_effect(candidate,control):
     batches=delta.groupby(c.batch).mean().to_numpy()
     rng=np.random.default_rng(42);boot=batches[rng.integers(0,len(batches),(2000,len(batches)))].mean(1)
     return {'paired_mean_pic50':float(delta.mean()),'batch_means':batches.tolist(),
-        'batch_bootstrap_CI95':np.quantile(boot,[.025,.975]).tolist(),'n_batches':len(batches),
+        'batch_bootstrap_CI95':np.quantile(boot,[.025,.975]).tolist() if len(batches)>1 else None,'n_batches':len(batches),
         'limitation':'Exploratory fixed-seed batch panel; adaptive screening is not independent confirmation'}
 
 def retain_round(dataset,campaign,evaluated,output,threshold,baseline=None):

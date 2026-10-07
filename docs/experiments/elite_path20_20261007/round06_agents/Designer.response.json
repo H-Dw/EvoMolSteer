@@ -1,0 +1,27 @@
+{
+  "schema_version": "path-kernel-designer-1.0",
+  "role": "Designer",
+  "input_sha256": "61eb8f64be95a5ae01af9b241bf9b29b785a207901f022d2dbfed7cb3e6960a5",
+  "instruction_sha256": "f03ef6560e10c1014f491889f64eaa41adbef6920f6a0476d9288edddfeff9c2",
+  "decision": "test_formula",
+  "reward_view": "endpoint_path_value",
+  "justification": [
+    "Test R=tau*(logsumexp(log(b)+beta*(u-mean(u))-C/tau)-logsumexp(log(b)-C/tau)) against the completed terminal-source endpoint_pointcloud parent. Freeze that source, controller, dose, window [0.0,0.5], all existing scalar values and evaluation protocol. History, geometry projection and contrast amplitude remain disabled; no affinity-head gradients or extra production head calls are introduced.",
+    "For a fixed selected teacher set, assignments and prior, define p_u=softmax(log(b)+beta*(u-mean(u))-C/tau) and p_0=softmax(log(b)-C/tau). Then grad_x R=-sum_j((p_u[j]-p_0[j])*grad_x C_j). Background subtraction removes the common density attraction: equal utilities imply p_u=p_0 and zero gradient; centering also makes R zero in this case. A single selected teacher likewise gives zero gradient.",
+    "The observable is the FLOWR endpoint coordinate cloud. The implementation freezes Hungarian atom correspondence and nearest-neighbor selection using a detached endpoint anchor, then differentiates C=delta^2*(sqrt(1+q/delta^2)-1)/bandwidth, where q is matched mean squared coordinate displacement. The required derivative continues through the real FLOWR endpoint VJP to the current state; a temporal feature derivative is not this spatial gradient.",
+    "u is a detached predicted-affinity label from an observed decoded terminal Steer descendant, using the supplied terminal-path reference. b is supplied reference mass intended to balance donor batches and deduplicated current ancestors; this reward code consumes that mass without verifying its construction. Existing scalar values are experimental choices carried forward, not newly inferred measurements. These retrospective utilities are neither measured affinities nor calibrated native-future probabilities.",
+    "The source-only screen produced zero valid elites in 50 outputs, a paired mean pIC50 gain of 0.023600 versus gradient, 48 valid outputs, PB-fast rate 0.94 and strain p90 2.526952 per heavy atom. Its weaker validity/PB and worse strain, plus one-batch uncertainty, oppose assuming a useful formula benefit. A formula-only screen is justified by the identifiable removal of density attraction, not by demonstrated tail improvement. The packet reports five passing unit tests; inspected formula tests establish local toy cancellation, label sensitivity and finite-difference agreement. Actual inference and the integrated FLOWR VJP remain unverified; region-specific causal and native-continuation evidence are absent."
+  ],
+  "failure_modes": [
+    "Flat local utilities, one selected neighbor, or a single dominant teacher posterior can remove useful guidance even when terminal labels differ globally.",
+    "Nearest-neighbor membership and Hungarian correspondence can switch between calls. The derivative is exact conditional on the detached support and assignments, not across these discrete changes; sparse early teacher coverage also limits reliable directions.",
+    "Survival censoring, Steer selection, clone dependence, per-ancestor maxima and donor preselection can make utility contrasts reflect retrospective selection rather than causal coordinate benefit. No receptor-region or chemical-interaction interpretation follows.",
+    "Removing background attraction can remove a useful pull toward observed coordinate support. Utility contrast alone need not preserve validity, PB quality or low strain; attraction outside well-covered support may fail despite increasing the scalar reward."
+  ],
+  "validation_hypotheses": [
+    "At fixed detached anchors, constant utilities and a single neighbor must give zero coordinate gradient; the symmetric two-teacher label swap must reverse direction; central finite differences must agree with the scalar derivative. The existing inspected tests cover these local claims, not end-to-end generation.",
+    "Use the supplied paired batch30, master seed42, n=50 screen. Compare endpoint_path_value with the completed terminal-source endpoint_pointcloud parent using identical source identities/labels, controller, dose, scalar settings, window and common terminal decoding/rescore protocol, including scorer clock 0.9999 and elite threshold pIC50=8.258901977539063. Formula is the only experimental change.",
+    "Primary hypothesis: the formula increases valid terminal elite count divided by all generated outputs and increases unique elite graphs. Report both counts, all-output and valid-output score distributions, validity/PB rates and secondary strain median/p90 with convergence counts. A mean-score gain alone does not establish the tail hypothesis; improvement explained by duplicates or validity loss fails the useful-path claim.",
+    "A nonpositive elite-yield difference fails this fixed screen, while zero elites in both arms remains inconclusive for a small population effect. A single adaptively screened batch and its degenerate batch-bootstrap interval cannot establish reproducibility. Independent paired batches with uncertainty are needed before claiming general benefit; no parameter tuning or later-module changes belong to this test."
+  ]
+}

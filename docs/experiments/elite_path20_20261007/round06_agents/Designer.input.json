@@ -1,0 +1,151 @@
+{
+  "counterevidence": [
+    "Terminal source replacement alone gave small mean gain, zero tail hits, weaker validity/PB and worse strain p90 on one batch",
+    "No region-specific causal or native-future probability evidence exists"
+  ],
+  "execution_contract": {
+    "affinity_head_gradient": false,
+    "only_change": "reward_view from endpoint_pointcloud to endpoint_path_value",
+    "parameters": "All initial scalar controller/kernel parameters remain fixed",
+    "production_extra_head_calls": 0,
+    "window": [
+      0.0,
+      0.5
+    ]
+  },
+  "formula_registry": {
+    "endpoint_path_value": {
+      "C": "Robust matched endpoint pointcloud squared RMS cost divided by fixed bandwidth",
+      "b": "Equal donor batch mass, deduplicated current ancestor mass",
+      "derivative": "Differentiate C with respect to FLOWR endpoint; real FLOWR endpoint VJP to current state",
+      "flat_utility": "Constant utilities give zero scalar contrast gradient; no attraction to background density",
+      "scalar": "R=tau*(logsumexp(log(b)+beta*(u-mean(u))-C/tau)-logsumexp(log(b)-C/tau))",
+      "status": "Implemented, five unit tests passed; actual inference still pending",
+      "u": "Observed decoded terminal Steer descendant score, detached label"
+    }
+  },
+  "future_modules": "History, geometry projection and contrast amplitude flags remain disabled until sequential later tests",
+  "latest_source_test": {
+    "campaign": "elite_path_r05",
+    "results": {
+      "gradient": {
+        "all_mean_pic50": 7.611883850097656,
+        "elite_unique_graphs": 0,
+        "elite_valid_n": 0,
+        "elite_yield": 0.0,
+        "n": 50,
+        "pb_fast_rate": 0.94,
+        "strain_converged_n": 48,
+        "strain_median_per_heavy": 0.5141576312236773,
+        "strain_p90_per_heavy": 2.5269521092059133,
+        "valid_max_pic50": 8.169127464294434,
+        "valid_mean_pic50": 7.613293091456096,
+        "valid_n": 48,
+        "valid_p95_pic50": 8.137326002120972
+      }
+    },
+    "threshold_pic50": 8.258901977539063,
+    "versus_gradient": {
+      "batch_bootstrap_CI95": [
+        0.023599805831909126,
+        0.023599805831909126
+      ],
+      "batch_means": [
+        0.023599805831909126
+      ],
+      "limitation": "Exploratory fixed-seed batch panel; adaptive screening is not independent confirmation",
+      "n_batches": 1,
+      "paired_mean_pic50": 0.023599805831909126
+    },
+    "versus_unguided": {
+      "batch_bootstrap_CI95": [
+        0.14446423530578606,
+        0.14446423530578606
+      ],
+      "batch_means": [
+        0.14446423530578606
+      ],
+      "limitation": "Exploratory fixed-seed batch panel; adaptive screening is not independent confirmation",
+      "n_batches": 1,
+      "paired_mean_pic50": 0.14446423530578606
+    }
+  },
+  "previous_analyst": {
+    "findings": [
+      {
+        "claim": "The source replacement is a testable correction of teacher outcome semantics: E_graph scores are online joint endpoint forecasts at score_time, whereas E_credit labels come from decoded terminal molecules under the common rescore protocol. The label_clock 1.0 identifies terminal structure time; ancestor credit is attached at current state_time. These are final predicted-affinity labels, not experimentally measured affinity.",
+        "evidence_ids": [
+          "E_graph",
+          "E_credit"
+        ]
+      },
+      {
+        "claim": "Terminal credit describes observed descendants under continued Steer, not native continuation utility. Extinction is censored and cannot be assigned failed-affinity credit. Verified coordinate-copy provenance and native_transport/resampling_copy edges support tracing observed paths, but survival and selection preference do not establish causal benefit.",
+        "evidence_ids": [
+          "E_graph",
+          "E_credit"
+        ]
+      },
+      {
+        "claim": "Early coordinate benefit is poorly identifiable: observable ancestor coverage is 17/700 (2.43%) at t=0, 37/700 (5.29%) at t=0.25, 320/700 (45.71%) at t=0.49, and 443/700 (63.29%) at t=0.50. Elite ancestor counts rise 8, 9, 27, 33 at those times as observation support changes. This cannot establish an early-to-late affinity trend. Learning snapshots cover t=0 through 0.49; t=0.50 is a selection/current-state boundary, not an additional teacher learning slice.",
+        "evidence_ids": [
+          "E_observability",
+          "E_graph",
+          "E_library"
+        ]
+      },
+      {
+        "claim": "Clone dependence materially limits sample size: 669 valid terminal records include 34 elite records but only 20 unique elite graphs. Credit takes a maximum per unique terminal graph at each ancestor and counts clones separately; descendant multiplicity and repeated times are not independent replicates. The donor panel spans batches 0-13, but no batch-specific effect estimates or direction agreement are supplied.",
+        "evidence_ids": [
+          "E_credit",
+          "E_graph",
+          "E_observability"
+        ]
+      },
+      {
+        "claim": "The candidate library supplies 28 terminal paths representing 23 unique terminal graphs, with 14-26 teachers per learning time and scores 7.733001-8.704806. Since its minimum is below the fixed elite threshold 8.258901977539063, it is not an elite-only library. Its exact path identities and terminal labels justify testing teacher replacement; they do not identify receptor regions, affinity hotspots, or chemical interaction energies.",
+        "evidence_ids": [
+          "E_library",
+          "E_credit"
+        ]
+      },
+      {
+        "claim": "The incumbent offers room for a tail-focused test: round04 gradient and unguided arms each produced zero valid elites among 100 outputs. Gradient increased all-output mean predicted pIC50 by 0.091805 and valid-output mean by 0.094018; its valid maximum was 8.132037, below the elite threshold. Strain medians were 0.505397 versus 0.565349 per heavy atom, but strain is secondary. No uncertainty estimate establishes these mean or strain differences as reproducible benefits.",
+        "evidence_ids": [
+          "E_control"
+        ]
+      },
+      {
+        "claim": "Hypothesis for this module: replacing the online endpoint-strata teacher source with terminal-path teachers will increase valid terminal elite yield under the unchanged endpoint_pointcloud formula and control settings. Evaluate candidate versus incumbent on the supplied paired batch30 panel, master seed42, n=50, using the same terminal decoding/rescore and fixed elite threshold; report elite count per all generated outputs, unique elite graphs, final score distribution, validity, and secondary strain. Changing teacher source, labels, and identities together tests that module as a whole.",
+        "evidence_ids": [
+          "E_library",
+          "E_credit",
+          "E_control"
+        ]
+      },
+      {
+        "claim": "Falsification of the proposed elite-yield benefit is a reproducible candidate-control difference at or below zero with uncertainty excluding a positive effect; an apparent gain explained entirely by duplicate graphs or validity loss would also fail the proposed useful-path benefit. A nonpositive result on the frozen n=50 screen fails that screen, but zero elites in both arms or a wide interval is inconclusive for a small population effect. No prospective outcome has yet been supplied.",
+        "evidence_ids": [
+          "E_control",
+          "E_library",
+          "E_credit"
+        ]
+      }
+    ],
+    "input_sha256": "f184c33f46594f213cb6b88cc2bc5a02bd5a4dac81a12c109706caedd1f59e15",
+    "instruction_sha256": "107ce817494fad7b83078024df966bed889969a570e7187f387fb4236bc68068",
+    "limitations": [
+      "The packet supplies no new terminal-conditioned spatial effect sizes, uncertainty intervals, multiplicity corrections, or cross-batch coordinate contrasts; spatial directions and hotspot hypotheses must be deferred. [E_graph, E_credit, E_library]",
+      "Terminal futures are selected under continued Steer; survival censoring, shared ancestry, per-ancestor maxima, and donor preselection prevent interpreting retrospective association as native or causal value. [E_credit, E_library]",
+      "Sparse early support and time-varying observability prevent direct comparison of elite ancestor fractions across the whole window. [E_observability]",
+      "One adaptively selected frozen screening batch of 50 outputs is a screen, not independent validation; neither a positive point estimate nor zero events establishes the population effect.",
+      "E_credit label_clock=1.0 refers to the terminal structure. The coordinator clarified that the common head-rescore clock is 0.9999; that separate scorer clock is not encoded in the frozen packet and does not change its bindings.",
+      "The response verifies input/instruction file hashes, not the external trajectory, Parquet, or reference artifacts; their identities and summaries are taken from the supplied evidence."
+    ],
+    "next_module": "terminal_path_teacher_source",
+    "recommendation": "test",
+    "role": "Analyst",
+    "schema_version": "path-analyst-1.0"
+  },
+  "schema_version": "path-kernel-design-input-1.0"
+}

@@ -14,8 +14,9 @@ to t=1. No inference resampling, affinity-head gradient or added production
 affinity-head forward is allowed. Chemical graphs may change freely.
 
 Module order: (1) sparse typed path graph, (2) decoded terminal elite credit,
-(3) evidence and identity-bearing coordinate library, (4) individual registered
-reward interventions, including coverage and continuity, (5) future potential.
+(3) evidence and identity-bearing coordinate library, (4) incumbent control and
+teacher-source test, (5) future-potential formula, followed by individual
+registered dose, coverage and continuity interventions.
 Later modules are not optimized while their prerequisite module is unresolved.
 Analyst and Designer simulations are sequential and preserve their literal
 Skills, prompt, response, compilation and program hashes.
@@ -39,3 +40,15 @@ Each round stores its evidence and scientific derivation, rather than a private
 reasoning transcript. Declines trigger diagnosis and a new single-axis trial from
 a retained parent, not an overwrite of the best result. No iteration is counted
 as an inference round unless it actually launched and completed that inference.
+
+Rounds 1–3 are local prerequisite modules. Round 4 is the unchanged prospective
+incumbent control; round 5 changes teacher source; round 6 changes reward formula.
+Rounds 7–17 are registered sequential adaptive single-axis tests. A declining
+trial is retained but the next proposal returns to the best evaluated kernel
+parent, rather than accumulating unsuccessful changes. These parameter trials
+are not represented as independent LLM inventions. Round 18 freezes the selected
+winner before observing new batches 32–33; round 19 runs the old incumbent on
+those same batches; round 20 repeats the frozen winner and native control on new
+batches 34–35. Neither confirmation panel tunes the selected reward. Confidence
+intervals over batches are omitted when only one batch is present. Two-batch
+intervals remain limited; the final report also pools the two frozen panels.

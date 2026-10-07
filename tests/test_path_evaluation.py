@@ -12,3 +12,8 @@ def test_paired_effect_and_coverage():
     s=paired_effect(data([8,8,8,8]),data([7,7,7,7]))
     assert s['paired_mean_pic50']==1 and s['batch_bootstrap_CI95']==[1.,1.]
     with pytest.raises(ValueError):paired_effect(data([8]*4),data([7]*4).iloc[:3])
+
+def test_one_batch_does_not_claim_a_batch_uncertainty_interval():
+    s=paired_effect(data([8]*4).iloc[:2],data([7]*4).iloc[:2])
+    assert s['paired_mean_pic50']==1 and s['n_batches']==1
+    assert s['batch_bootstrap_CI95'] is None
