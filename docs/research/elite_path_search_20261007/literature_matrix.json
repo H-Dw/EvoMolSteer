@@ -1,0 +1,134 @@
+{
+  "schema_version": "elite-path-literature-evidence-1.0",
+  "retrieved_on": "2026-10-07",
+  "scope": "Targeted primary-source synthesis for archived Steer trajectories, rare high-affinity paths and coordinate guidance; not an exhaustive systematic review",
+  "project_code_baseline": "daf1b6b46c424f46fb182b4c32101b1d311ba728",
+  "sources": [
+    {
+      "id": "ePF",
+      "title": "Mitigating Premature Exploitation in Particle-based Monte Carlo for Inference-Time Scaling",
+      "year": 2026,
+      "publication": "ICML 2026, PMLR 306:34996-35064",
+      "status": "Peer-reviewed conference paper; arXiv first submitted in 2025",
+      "primary_url": "https://proceedings.mlr.press/v306/giannone26b.html",
+      "full_text_url": "https://arxiv.org/html/2510.05825",
+      "read_regions": ["Abstract", "Sections 3.1-3.3", "Section 5 limitations", "Appendix E computational cost", "Appendix F.2 tree-search comparison"],
+      "verified_finding": "Entropic annealing changes resampling temperature based on diversity; one-step look-ahead modulation evaluates a successor to mitigate myopic particle selection.",
+      "project_proposal": "Use archived successor and terminal outcomes for offline look-ahead, plus genealogy and geometry-mode coverage; avoid extra online model calls.",
+      "limits": ["Results concern LLM mathematical reasoning, not ligand affinity", "LaM adds one extra forward pass", "Local weight ESS does not by itself diagnose cumulative root loss in current data", "Better search cannot repair a systematically inaccurate reward"]
+    },
+    {
+      "id": "TDS",
+      "title": "Practical and Asymptotically Exact Conditional Sampling in Diffusion Models",
+      "year": 2023,
+      "publication": "NeurIPS 2023, volume 36",
+      "status": "Peer-reviewed conference paper",
+      "primary_url": "https://proceedings.neurips.cc/paper_files/paper/2023/hash/63e8bc7bbf1cfea36d1d1b6538aecce5-Abstract.html",
+      "full_text_url": "https://arxiv.org/html/2306.17775v2",
+      "read_regions": ["Abstract and Introduction", "Section 3.2, equations 6-12", "Protein motif-scaffolding scope"],
+      "verified_finding": "Optimal twisting uses the likelihood of a future terminal condition given an intermediate state. Practical denoised-estimate twisting requires nontrivial importance corrections for SMC consistency.",
+      "project_proposal": "Replace instantaneous-score-only evidence with policy-specific future elite potential.",
+      "limits": ["Diffusion and Riemannian diffusion examples do not establish FLOWR affinity results", "No-resampling approximate gradient guidance does not inherit asymptotic exactness", "An endpoint point estimate can miss multimodal future outcomes"]
+    },
+    {
+      "id": "FK",
+      "title": "A General Framework for Inference-time Scaling and Steering of Diffusion Models",
+      "year": 2025,
+      "publication": "ICML 2025, PMLR 267:55810-55827",
+      "status": "Peer-reviewed conference paper",
+      "primary_url": "https://proceedings.mlr.press/v267/singhal25b.html",
+      "full_text_url": "https://arxiv.org/html/2501.06848v5",
+      "read_regions": ["Abstract", "Feynman-Kac steering framework and potentials", "Section 4.2 difference/max/sum comparison"],
+      "verified_finding": "Intermediate potentials redistribute particles toward terminal rewards; different potential histories affect performance and diversity. Difference potentials may undervalue trajectories already at a high-reward plateau.",
+      "project_proposal": "Provide absolute future value separately from its time derivative; do not prune high-value plateau modes from the prior library.",
+      "limits": ["Max-potential results do not prove max is best for this target", "Resampling and terminal importance correction differ from the allowed GG protocol", "No demonstrated CK2/CLK3 performance transfer"]
+    },
+    {
+      "id": "AMC",
+      "title": "Data-driven methods to estimate the committor function in conceptual ocean models",
+      "year": 2023,
+      "publication": "Nonlinear Processes in Geophysics 30:195-216; DOI 10.5194/npg-30-195-2023",
+      "status": "Peer-reviewed journal article",
+      "primary_url": "https://npg.copernicus.org/articles/30/195/2023/",
+      "full_text_url": "https://npg.copernicus.org/articles/30/195/2023/",
+      "read_regions": ["Section 2.3 committor", "Section 2.4 analog methods, equations 11-14", "Discussion of complexity and estimation limitations"],
+      "verified_finding": "A Markov chain built from nearest historical states and their successors can estimate committors via a sparse transition matrix, without a trained neural predictor.",
+      "project_proposal": "Use same-clock native edges to construct a nonstationary finite-horizon graph and backward value recursion; smoothly extend values using coordinate kernels.",
+      "limits": ["Original setting is physical ocean dynamics, not generative algorithm time", "FLOWR projected coordinate features need not be Markov-complete", "High-dimensional sparse coverage can impair accuracy", "Steer-future descendants are not labels for native continuation probability"]
+    },
+    {
+      "id": "WE",
+      "title": "The weighted ensemble path sampling method is statistically exact for a broad class of stochastic processes and binning procedures",
+      "year": 2010,
+      "publication": "Journal of Chemical Physics 132:054107; DOI 10.1063/1.3306345",
+      "status": "Peer-reviewed journal article; earlier arXiv preprint in 2008",
+      "primary_url": "https://pubmed.ncbi.nlm.nih.gov/20136305/",
+      "full_text_url": "https://arxiv.org/pdf/0810.1963",
+      "read_regions": ["Abstract", "Splitting/combining and weight preservation", "Adaptive bin discussion", "History dependence and conclusions"],
+      "verified_finding": "Appropriate weighted splitting and merging of trajectories can preserve process statistics across a broad class of processes and binning choices.",
+      "project_proposal": "Keep rare geometry-path regions in an offline archive; preserve lineage and weighting metadata instead of letting clone counts dominate evidence.",
+      "limits": ["Family balancing is not a proof of unbiased importance weighting", "Using WE ideas offline is not executing the original algorithm", "Unknown future outcomes cannot be recovered by reweighting observed descendants alone"]
+    },
+    {
+      "id": "MAP_ELITES",
+      "title": "Illuminating search spaces by mapping elites",
+      "year": 2015,
+      "publication": "arXiv:1504.04909; submitted 20 April 2015",
+      "status": "Original preprint as retrieved",
+      "primary_url": "https://arxiv.org/abs/1504.04909",
+      "full_text_url": "https://arxiv.org/html/1504.04909v1",
+      "read_regions": ["Abstract", "Sections 1-2", "Archive algorithm and low-dimensional descriptors"],
+      "verified_finding": "MAP-Elites keeps high-performing solutions across different low-dimensional feature niches rather than returning only a single global winner.",
+      "project_proposal": "Archive terminal elite paths across data-supported coordinate trajectory modes; retain intact representatives and independent-family coverage.",
+      "limits": ["The HTML-rendered cover has a later rendering date; bibliography uses original submission date", "A 255-dimensional grid would be impractical", "Archived-data regrouping does not itself discover unseen chemistry or execute mutation/crossover search"]
+    },
+    {
+      "id": "FLOW_GUIDANCE",
+      "title": "On the Guidance of Flow Matching",
+      "year": 2025,
+      "publication": "ICML 2025, PMLR 267:16993-17029",
+      "status": "Peer-reviewed conference paper",
+      "primary_url": "https://proceedings.mlr.press/v267/feng25s.html",
+      "full_text_url": "https://arxiv.org/html/2502.02150",
+      "read_regions": ["Section 2 flow matching", "Section 3.1 general guidance and coupling assumptions", "Section 3.2 Monte Carlo guidance", "Section 3.3 localized guidance and covariance", "Section 3.4 Gaussian approximation"],
+      "verified_finding": "General flow guidance depends on conditional endpoint/coupling distributions. Gradient methods appear under local and path assumptions, with endpoint covariance relevant to approximation.",
+      "project_proposal": "Treat the current endpoint-VJP reward as an approximate control; preserve multiple future modes and consider data-supported anisotropic geometry.",
+      "limits": ["The diffusion h-transform is not automatically an exact ODE guidance formula", "FLOWR includes discrete variables and self-conditioning not captured by coordinate-only state projection", "Learned mode covariance is not automatically the true conditional endpoint covariance"]
+    },
+    {
+      "id": "FK_FLOW",
+      "title": "Feynman-Kac-Flow: Inference Steering of Conditional Flow Matching to an Energy-Tilted Posterior",
+      "year": 2025,
+      "publication": "arXiv:2509.01543",
+      "status": "Preprint as retrieved",
+      "primary_url": "https://arxiv.org/abs/2509.01543",
+      "full_text_url": "https://arxiv.org/html/2509.01543v1",
+      "read_regions": ["Abstract and Introduction", "Sections II.2-II.3", "Deterministic path impoverishment", "Endpoint look-ahead construction", "Section III experiment scope"],
+      "verified_finding": "The paper adapts Feynman-Kac steering to conditional flow matching, addresses deterministic path loss using a stochastic process and studies mode isolation and stereochemical transition-state generation.",
+      "project_proposal": "Audit whether copied paths actually diversify; reuse already-computed flow forecasts as geometry features without new affinity evaluations.",
+      "limits": ["The algorithm includes resampling and stochastic-process changes", "Generating stereochemically correct transition states is not binding-affinity optimization", "Its tilted-distribution guarantees cannot be claimed for the proposed no-Steer kernel reward"]
+    }
+  ],
+  "supplemental_not_used_for_core_claims": [
+    {
+      "title": "Training-Free Guided Diffusion for Planning: A Unified Framework via Doob’s h-Transform with Safety Guarantees",
+      "primary_url": "https://proceedings.mlr.press/v306/hoshino26a.html",
+      "status": "ICML 2026 official metadata and abstract read",
+      "reason": "Full text through OpenReview was challenge-blocked; do not use unread safety/error theorems to claim FLOWR guarantees"
+    },
+    {
+      "title": "Adaptive Multilevel Splitting for Rare Event Analysis",
+      "primary_url": "https://www.tandfonline.com/doi/full/10.1080/07362990601139628",
+      "status": "2007 journal metadata/abstract located",
+      "reason": "INRIA full text access was bot-blocked in this search; not needed for core algorithm proposal"
+    }
+  ],
+  "proposals_not_literature_results": [
+    "Current FLOWR missing path identity and future-policy label audit",
+    "Terminal affinity-tail teacher archive with independent-family limits",
+    "Same-clock native transition graph and finite-window backward potential",
+    "Coordinate-kernel potential with cached soft prefix mode priors and endpoint VJP",
+    "Workflow response controls using shuffled genealogy, unknown outcomes, clones and plateau paths",
+    "Matched-seed fixed-output final affinity-tail ablation protocol"
+  ]
+}
