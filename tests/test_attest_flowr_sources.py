@@ -44,6 +44,14 @@ def test_cannot_overwrite(tmp_path):
         attest(root, before, ['model.py'])
 
 
+def test_experiment_side_record_inside_program_root(tmp_path):
+    root, _, _ = inputs(tmp_path)
+    output = root / 'experiments' / 'run01' / 'source.before.json'
+    record = attest(root, output, ['model.py'])
+    assert output.exists()
+    assert record['files']['model.py']['bytes'] == len(b'implementation\n')
+
+
 @pytest.mark.parametrize('names', [[], ['model.py', 'model.py'], ['../outside.py']])
 def test_source_scope_rejected(tmp_path, names):
     root, before, _ = inputs(tmp_path)

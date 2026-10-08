@@ -13,8 +13,8 @@ from evomolsteer.io import digest, read_json, write_json
 
 def attest(input_dataset, output_record, relative_sources, reference_record=None):
     root, output = Path(input_dataset).resolve(), Path(output_record).resolve()
-    if not root.is_dir() or output.is_relative_to(root):
-        raise ValueError('An existing input dataset and separate output record are required')
+    if not root.is_dir():
+        raise ValueError('An existing input dataset is required')
     if output.exists():
         raise FileExistsError('Attestation records cannot be overwritten')
     if not relative_sources or len(set(relative_sources)) != len(relative_sources):
@@ -25,6 +25,8 @@ def attest(input_dataset, output_record, relative_sources, reference_record=None
         target = (root / relative).resolve()
         if relative.is_absolute() or not target.is_relative_to(root) or not target.is_file():
             raise ValueError('Each declared source must resolve inside the input dataset')
+        if output == target:
+            raise ValueError('Output record must differ from every declared source')
         files[relative.as_posix()] = {'sha256': digest(target), 'bytes': target.stat().st_size}
     record = {'schema_version': 'flowr-upstream-source-attestation-1.0',
               'input_dataset': str(root), 'files': files,
