@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rcParams['svg.hashsalt']='evomolsteer-dynamic-cohorts-v1'
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -20,8 +21,8 @@ def plot(evidence,output):
     axs[0,1].set_ylabel('Mean candidate count per batch');axs[0,1].legend(frameon=False,fontsize=8)
     region_fields=['landmark_00_softmin','landmark_03_softmin','landmark_04_softmin','landmark_12_occupancy3']
     for feature in region_fields:
-        d=trends[trends.feature==feature];axs[1,0].plot(d.time,d.contrast_z,label=feature.replace('landmark_','L'))
-        axs[1,0].plot(d.time,d.fitted_contrast_z,ls='--',alpha=.5)
+        d=trends[trends.feature==feature];line,=axs[1,0].plot(d.time,d.contrast_z,label=feature.replace('landmark_','L'))
+        axs[1,0].plot(d.time,d.fitted_contrast_z,ls='--',alpha=.5,color=line.get_color())
     axs[1,0].axhline(0,c='grey',lw=.7);axs[1,0].set_ylabel('Positive - lower-score contrast (z)')
     axs[1,0].legend(frameon=False,fontsize=7)
     axs[1,1].plot(g.index,g.root_n,label='Mean ancestral families')
@@ -30,7 +31,9 @@ def plot(evidence,output):
     axs[1,1].set_ylabel('Coverage diagnostics, not independent n');axs[1,1].legend(frameon=False,fontsize=8)
     for ax in axs.flat:ax.set_xlabel('Pre-selection score time');ax.spines[['right','top']].set_visible(False)
     fig.suptitle('Dynamic cohorts over the complete learned window (14 independent batches)')
-    fig.savefig(output/'dynamic_cohorts.png',dpi=180);fig.savefig(output/'dynamic_cohorts.svg');plt.close(fig)
+    fig.savefig(output/'dynamic_cohorts.png',dpi=180)
+    svg=output/'dynamic_cohorts.svg';fig.savefig(svg,metadata={'Date':None});plt.close(fig)
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text(encoding='utf-8').splitlines())+'\n',encoding='utf-8',newline='\n')
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--evidence',required=True);p.add_argument('--output',required=True)

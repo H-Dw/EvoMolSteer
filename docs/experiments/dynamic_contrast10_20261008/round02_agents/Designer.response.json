@@ -1,0 +1,156 @@
+{
+  "schema_version": "dynamic-regional-designer-1.0",
+  "role": "Designer",
+  "input_sha256": "c19d8ca4fdf989c143273b4df17bbf674fbb96772a0c914cbf0acd2217c7ce52",
+  "instruction_sha256": "49d53860554dcb157d71ce4521c0dbf01d9cf00f3441b643486a5f97cd9168a7",
+  "decision": "test_formula",
+  "reward_view": "endpoint_dynamic_region",
+  "selected_feature_indices": [14, 15, 23, 24, 25, 26, 51],
+  "formula": {
+    "registry_id": "endpoint_dynamic_region",
+    "status": "Exploratory additive test; historical R26 remains the incumbent pending final outcome confirmation.",
+    "coordinate_observable": "y is the actual FLOWR predicted endpoint in the original receptor world frame, in Angstrom, at the pre-selection score clock. Evaluate the frozen pure-coordinate field map on all fixed active slots; do not substitute current-state coordinates or affinity-head gradients.",
+    "field_definitions": {
+      "distance": "d_il = sqrt(||y_i - landmark_l||^2 + 1e-20), with original frozen receptor landmarks and N active slots.",
+      "softmin": "f_softmin_l(y) = -0.5 * (logsumexp_i(-d_il / 0.5) - log(N)); distance units are Angstrom.",
+      "occupancy3": "f_occupancy3_l(y) = mean_i exp(-0.5 * ((d_il - 3.0) / 1.0)^2); dimensionless shell occupancy centered at 3 Angstrom, not cumulative occupancy inside a ball.",
+      "occupancy5": "f_occupancy5_l(y) = mean_i exp(-0.5 * ((d_il - 5.0) / 1.0)^2); dimensionless shell occupancy centered at 5 Angstrom."
+    },
+    "measured_fields": [
+      {"index": 14, "field": "landmark_00_softmin", "observed_direction": "lower", "integrated_contrast_z": -0.4601070377732683, "CI95": [-0.6319952726018341, -0.2888572631986611], "q": 0.0033866363016983, "agreeing_batches": 14},
+      {"index": 15, "field": "landmark_00_occupancy3", "observed_direction": "higher", "integrated_contrast_z": 0.4624491236205445, "CI95": [0.2990785787822114, 0.6444335669465336], "q": 0.0033866363016983, "agreeing_batches": 14},
+      {"index": 23, "field": "landmark_03_softmin", "observed_direction": "higher", "integrated_contrast_z": 0.3825251614067776, "CI95": [0.1904854539407558, 0.5939619929629607], "q": 0.0186962184871744, "agreeing_batches": 12},
+      {"index": 24, "field": "landmark_03_occupancy3", "observed_direction": "lower", "integrated_contrast_z": -0.0725891929787244, "CI95": [-0.1066382321343941, -0.0408321102182063], "q": 0.0088288641621826, "agreeing_batches": 12},
+      {"index": 25, "field": "landmark_03_occupancy5", "observed_direction": "lower", "integrated_contrast_z": -0.3806489430198524, "CI95": [-0.5422035831823541, -0.2225679624108003], "q": 0.0064054218322410, "agreeing_batches": 12},
+      {"index": 26, "field": "landmark_04_softmin", "observed_direction": "lower", "integrated_contrast_z": -0.2512368235035571, "CI95": [-0.42955361148588, -0.0744646587723631], "q": 0.0465217017689476, "agreeing_batches": 11},
+      {"index": 51, "field": "landmark_12_occupancy3", "observed_direction": "lower", "integrated_contrast_z": -0.3091441126916048, "CI95": [-0.5048094254236171, -0.1221151180591240], "q": 0.0295214353108394, "agreeing_batches": 11}
+    ],
+    "reference_and_target_origin": {
+      "dynamic_reference_sha256": "663243e0f6c25d1962dd2407a47f9a767147d19c7b3a2cb23070406ac3075e46",
+      "original_teacher_reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+      "targets": "At each supplied score node t, mu_plus[b,t] and mu_lower[b,t] are observed within-batch, root-balanced coordinate-field means of separated higher and lower recorded online joint-head scores. The weighted Otsu threshold and margin_fraction=0.10 define these event-relative cohorts; ambiguous records and unidentifiable events are excluded. No unobserved future, terminal negative, ideal molecular structure, atomwise chemical target, or effect coefficient is substituted for an empirical center.",
+      "scale": "Use the frozen per-node feature_scale s[t,j] from the reference. It is sqrt(equal-observed-batch mean root-balanced population variance), floored for each landmark field kind at 0.10 times its median raw scale across landmarks, then clipped at 1e-6. These empirical units make z_j = f_I[j](y) / s[t,I[j]] dimensionless; retain the registered floors without tuning.",
+      "variance": "Use the stored dimensionless cohort variances v_plus[t,j] and v_lower[t,j], each equal to mean observed-batch within-cohort variance divided by s[t,j]^2 plus the frozen 0.25 ridge. Set v[t,j] = (v_plus[t,j] + v_lower[t,j]) / 2 for both kernels. The ridge and shell widths are registered smoothing choices, not measured affinity-optimal parameters.",
+      "components": "Retain one positive and one lower-score field-center component for every identifiable generation batch at the actual node, with equal batch weights. B_t is 13 or 14; missing cells are omitted rather than filled with zeros or negative labels. Retain the original R26 endpoint teacher clouds and their conditional mixture as separate modes."
+    },
+    "exact_scalar": {
+      "selected_dimension": 7,
+      "standardized_centers": "m_plus[b,t,j] = mu_plus[b,t,I[j]] / s[t,I[j]]; m_lower[b,t,j] = mu_lower[b,t,I[j]] / s[t,I[j]].",
+      "component_cost": "C_c,b(z,t) = (1 / (2*7)) * sum_j ((z_j - m_c[b,t,j])^2 / v[t,I[j]]), for c in {plus, lower}.",
+      "kernel": "K_c(z,t) = (1 / B_t) * sum_b exp(-C_c,b(z,t) / tau); ell_c(z,t) = tau * log(K_c(z,t)), evaluated with logsumexp. tau=1.0. These are the registered common-bandwidth Gaussian moment kernels; the factor 1/7 averages the fields. They are not an estimate of a normalized native coordinate density or causal affinity ratio.",
+      "regional": "Delta(z,t) = ell_plus(z,t) - ell_lower(z,t); A(z,t) = 2.0 * tanh(Delta(z,t) / 2.0).",
+      "total": "R(y,t) = R_R26(y,t) + 0.05 * A(z(y),t) = R_R26(y,t) + 0.10 * tanh(Delta(z(y),t) / 2.0). R_R26 is the unchanged registered original endpoint teacher-mixture attraction, with the original teacher targets, correspondence, priors and parameters. The addition is bounded between -0.10 and +0.10 scalar units; that bound alone is not a bound on controller displacement.",
+      "orientation": "Ascend the total scalar. Positive-minus-lower-score kernel orientation is fixed; there are no separately fitted sign weights or effect-derived multipliers. A multimodal local gradient need not point monotonically along every whole-window marginal effect."
+    },
+    "derivative_path": {
+      "path": "flowr_endpoint_vjp",
+      "expression": "grad_x R = J_endpoint_world(x,t)^T * [grad_y R_R26 + 0.05 * sech^2(Delta/2.0) * grad_y Delta]. J_endpoint_world includes the actual FLOWR endpoint computation and conversion into the measured world frame. Differentiate the shell/softmin map and the registered total scalar through that existing endpoint graph.",
+      "fixed_during_evaluation": "Freeze the reference moments, scales, common variances, event labels, landmarks, masks, and detached incumbent correspondence anchors/priors during each derivative evaluation. Affinity outputs are detached. Native atom, bond and charge transitions remain free; no fake categorical derivative or graph-preservation veto is introduced.",
+      "production_forward_calls_added": 0,
+      "temporal_derivative": "None is used as a force. All 74 supplied effect fits and all seven selected fits have degree 0 and zero fitted temporal derivatives. Reward moments remain the supplied observed node distributions; do not replace them with effect fits or add a temporal ramp/sign switch."
+    },
+    "registered_controls": {
+      "regional_weight": 0.05,
+      "regional_temperature": 1.0,
+      "regional_bound": 2.0,
+      "regional_response": "contrast",
+      "parameter_origin": "Exploratory registered scalar strength, temperature and bound; not inferred optimal weights from significance, effect size, score gap or temporal derivatives.",
+      "cohort_policy": {"margin_fraction": 0.10, "hard_mix": 0.0, "gap_weight": false},
+      "window": [0.0, 0.5],
+      "score_node_range": [0.0, 0.49],
+      "actual_update_end": 0.5,
+      "screen_batch": 36,
+      "seed": 42,
+      "incumbent_controls_retained": {
+        "native_rms_ratio": 0.33,
+        "dose_reference": "predictive_flow",
+        "time_ramp_power": 0.0,
+        "mixture_temperature": 0.5,
+        "teacher_neighbors": 4,
+        "teacher_endpoint_temperature_A2": 4.0,
+        "teacher_score_beta": 2.0,
+        "robust_delta": 2,
+        "geometry_block_weights": [0.0, 1.0, 2.0, 1.0],
+        "preserve_native_rigid_pose": false,
+        "max_atom_step_A": 0.15,
+        "max_cumulative_rms_A": 6.0,
+        "severe_receptor_clash_A": 0.8,
+        "backtrack_attempts": 7,
+        "affinity_head_gradient": false,
+        "additional_per_step_affinity_calls": 0
+      },
+      "support_rule": "Use actual learned score nodes only and require the corresponding actual update to finish within [0.00,0.50]. The last learned score is 0.49, whose supported update ends at 0.50. Continue native inference to the final endpoint after the learned window under the unchanged execution contract."
+    },
+    "evidence_ids": ["E_cohort", "E_cohort_weight_coverage", "E_effects", "E_fit", "E_timecourse", "E_prior_failure"]
+  },
+  "justification": "Test only the registered additive regional scalar against unchanged historical R26. The selected four landmarks have whole-window multiplicity-adjusted support and 11-14 of 14 batch sign agreement, strongest at landmark 00. Landmark 03 occupancy3 is small despite q=0.008829; landmark 04 softmin is the weakest selected effect, q=0.046522, with unsupported accompanying occupancy fields. Landmark 12 supports reduced occupancy3, not a proven distance or chemical-interaction mechanism. All selected fitted contrasts are constant; raw end-minus-start changes are descriptive, and slightly lower higher-degree CV errors for landmark 03 occupancy3 and landmark 04 softmin do not override the supplied constant selections. Coverage is 695/700 cells; five missing cells at t=0.12,0.23,0.25,0.26,0.28 are not negatives. Threshold means move from 7.924210 through 8.457349 to 8.277626, and positive-minus-lower mean score separation spans 0.314089-0.558941, ending at its minimum. The Designer-only E_cohort_weight_coverage corrects the Analyst's statement that effective sizes and margin summaries are absent: positive ESS min/median/max is 3/23.530387/46, lower-score ESS is 3/12.592797/43, cohort root-count medians are 2 and minima are 1, and guard-margin min/median/max is 0.000623367/0.027830648/0.098725319. These aggregates do not establish time-specific reliable support or independence; total mean roots collapse from 50 to 6.143 at 0.10, 2 at 0.25 and 1.214 at 0.49. The independent units remain 14 generation batches. hard_mix=0 and gap_weight=false supply no spatially close nuisance-matched contrast, so score distances, ambiguous exclusions and alternative regional hypotheses must remain visible. Significant global shape/pair fields confound a region-specific interpretation; supported landmark 06 and 10 alternatives are retained as later hypotheses outside this test's allowed indices. A different frozen source lost paired final predicted pIC50 by -0.094791 on batches 32 and 33, with both batch means negative and reported CI95 [-0.104803,-0.084780]. That counterevidence supports retaining R26 and requiring independent confirmation; it neither tests this scalar nor demonstrates a graph-change or regional failure mechanism. The 0.05 addition is a falsifiable exploratory control, not a validated improvement. Acceptance must follow final predicted target affinity first and strain separately as a secondary outcome, without a new neural fit or tuning any other axis.",
+  "failure_modes": [
+    "Recorded online joint-head separation can fail to transfer to final predicted affinity, independent endpoint rescoring, or measured affinity. An event-relative lower score does not identify a failed molecule or reduced survival.",
+    "Adaptive thresholds, small score margins, late narrowing score separation, and ambiguous boundary membership can create unstable cohort centers. Raising negative hardness without the missing nuisance-matched and margin-distance diagnostics would change this experiment.",
+    "Clone descendants and repeated time points can overstate evidence. Root balancing and ESS summaries do not make them independent batches; one-root cohort support may hide lineage-specific geometry.",
+    "The five unidentifiable cells may be informative missingness. Near-complete grid coverage and observed-cell fitting do not justify imputation or terminal labels.",
+    "Unmatched global size, pose, shape, pair geometry or composition can explain part of the regional association. Shell fields are untyped occupancy proxies rather than established interactions or energy terms.",
+    "Equal-batch Gaussian moment centers can miss within-batch multimodal geometry or bridge unsupported field combinations. Keep the original teacher modes and inspect empirical influence; do not average whole molecule coordinates into an ideal target.",
+    "Correlated fields from landmark 03 are averaged within one seven-field scalar, not independent causal rewards. A small but significant occupancy3 effect and marginal landmark 04 evidence may have little useful motion or conflict with stronger fields.",
+    "Bounded tanh saturation, weak contrast, small empirical scales, sparse kernel support, or external gradient normalization can yield tiny, unstable or disproportionately amplified updates. A small bounded scalar does not guarantee a small change of gradient direction or physical dose.",
+    "Using a temporal fit derivative, a current-state surrogate gradient, a detached fake endpoint path, extra production affinity calls, or the wrong world-frame scale would invalidate the registered endpoint experiment.",
+    "An affinity gain can accompany worse strain, validity, coverage or tails; improved strain cannot rescue an affinity regression under the stated objective. Incomplete strain availability needs explicit denominators.",
+    "Adaptive screen selection on batch 36 can overfit fixed seed 42. Reusing confirmation labels for later tuning would invalidate acceptance. Chemical graph changes alone do not explain an outcome or justify a graph/pair-distance veto."
+  ],
+  "verification": [
+    {
+      "check": "Actual response provenance binding",
+      "status": "passed",
+      "result": "Actual SHA256 matches Designer.request.json for input and instructions. Literal base/module Skill hashes and Analyst.response.json also match the request/packet.",
+      "hashes": {
+        "Designer.input.json": "c19d8ca4fdf989c143273b4df17bbf674fbb96772a0c914cbf0acd2217c7ce52",
+        "Designer.instructions.md": "49d53860554dcb157d71ce4521c0dbf01d9cf00f3441b643486a5f97cd9168a7",
+        "Designer.request.json": "479086d391cdb6f2f1afe1dd5615d57f9713845a22a6dfdb5ed743d9063e3e9a",
+        "base_skill": "6ea6aecf91f06e57ae443a4960ac879a4af1fe0a7b9a2d3f2fbddfe2cc5bc46c",
+        "module_skill": "090043b4f79b49905839dd1e9d5724ed349893547c61d78ffff4aff627d9ca1b",
+        "Analyst.response.json": "4e46287d4ae0c17122e45e8fccbde074418959e11a6293faab6e4e150aa1f7fa"
+      }
+    },
+    {
+      "check": "Freeze reference and single-change program",
+      "status": "required_before_inference",
+      "pass_condition": "Verify the dynamic reference hash and original teacher-reference provenance. Compare all original per-node teacher clouds, scores, priors and timings to R26; verify finite positive scales/common variances and paired observed batch components. The allowed seven indices and regional scalar are the only reward modification; retain every supplied physical controller, teacher-mixture and cohort parameter."
+    },
+    {
+      "check": "Registered scalar mathematics and coordinate derivative",
+      "status": "required_before_inference",
+      "pass_condition": "At representative first, middle and last learned nodes, compare double-precision automatic coordinate derivatives with directional finite differences of the actual registered scalar and fixed correspondence. Identical cohorts must yield exactly zero added scalar/gradient; swapping cohort centers must reverse the added scalar/gradient; the regional term must remain within [-2,2]. Check finite derivatives, weak/tiny support and saturated cases."
+    },
+    {
+      "check": "Real FLOWR endpoint VJP and production call accounting",
+      "status": "required_before_inference",
+      "pass_condition": "In offline diagnostics, recompute the actual endpoint after a small perturbation of the current FLOWR coordinates and compare the full directional derivative to the endpoint-world VJP. An endpoint-only scalar audit is insufficient. Verify detached affinity outputs, correct world-frame conversion and zero added production neural forward/head calls."
+    },
+    {
+      "check": "Incumbent identity and native equivalence",
+      "status": "required_before_inference",
+      "pass_condition": "With regional_weight=0, recover the exact R26 scalar, endpoint/current-state gradients, controller steps and full matched trajectory. With total external dose=0, recover the full unguided native trajectory under identical seed, noise and categorical RNG scheduling. Preserve free native atom/bond/charge transitions and the existing physical constraints."
+    },
+    {
+      "check": "Complete learned window, missingness and lineage diagnostics",
+      "status": "required_before_inference",
+      "pass_condition": "Account for all 700 batch-time cells, the five omissions, 13/14-node mixture weights and no missing-as-negative labels. Inspect time-specific cohort ESS/root counts, normalized weights, continuous score gaps and boundary distances alongside supplied aggregate summaries. Use only actual score nodes 0.00-0.49 with the final update ending at 0.50; complete later inference natively under the unchanged contract. No time derivative becomes a force."
+    },
+    {
+      "check": "Influence and actual physical-dose response",
+      "status": "required_before_inference",
+      "pass_condition": "Measure actual VJP gradient norms, cosine and added-gradient ratio against R26 across learned nodes, especially one-root late cohorts. Record kernel/center influence, tanh saturation, realized displacement and each existing cap/backtrack/clash decision. Verify that the unchanged dose normalization does not conceal undefined or unstable directions. Diagnose a technical failure without silently changing the registered formula or controller."
+    },
+    {
+      "check": "Matched exploratory screen",
+      "status": "planned_outcome_test",
+      "hypothesis": "The regional addition improves final predicted target affinity relative to R26 at unchanged dose; observed field movement alone is insufficient.",
+      "pass_condition": "Run the registered batch 36, seed 42 screen against the matched unchanged R26 control, with identical generation conditions. Report paired final pIC50, all/valid/unique denominators, chemical validity, diversity, failure coverage and affinity tails; report strain coverage, median and tails separately. Keep graph changes as diagnostic outcomes rather than acceptance vetoes. No acceptance from an online score or scalar increase alone."
+    },
+    {
+      "check": "Frozen independent confirmation and falsification",
+      "status": "planned_outcome_test",
+      "pass_condition": "Freeze the candidate program, source/reference hashes, independent batch panel and protocol acceptance rule before observing confirmation labels. Use matched final predicted-affinity changes with generation batches as the uncertainty units; inspect batch consistency and failure-inclusive coverage. Reject or retain R26 when the protocol shows no confirmed affinity benefit or an affinity regression; assess strain separately under the stated secondary priority. Do not tune this candidate with confirmation labels, claim measured affinity, or reuse the prior different-source result as this test's outcome."
+    }
+  ]
+}

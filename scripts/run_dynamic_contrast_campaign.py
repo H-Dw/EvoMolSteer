@@ -12,6 +12,7 @@ from evomolsteer.generation.path_evaluation import retain_round,summarize_tail
 from evomolsteer.continuous.dynamic_regions import mine
 from run_sequential_path_campaign import Driver as TransportDriver,evaluate_isolated
 from prepare_dynamic_agent_inputs import verified_response
+from dispatch_path_round import verify_retention
 
 
 class Driver(TransportDriver):
@@ -30,6 +31,16 @@ class Driver(TransportDriver):
         self.remote(f'timeout 180 git -C {q(self.remote_repo)} -c http.proxy=http://127.0.0.1:17897 pull --ff-only origin main')
         if self.remote(f'git -C {q(self.remote_repo)} rev-parse HEAD')!=commit:raise ValueError('Remote exact commit mismatch')
         return commit
+
+    def retire_local_reported(self,number):
+        verify_retention(self.docs/f'round{number:02d}/retention.json')
+        dataset=self.root/f'test/data/dynamic_contrast10/round{number:02d}'
+        base=(self.root/'test/data/dynamic_contrast10').resolve()
+        if not dataset.resolve().is_relative_to(base) or dataset.resolve()==base:raise ValueError('Unsafe local generated retirement')
+        if dataset.exists():shutil.rmtree(dataset)
+        for f in [self.state/f'round{number:02d}.tar.gz',self.state/f'round{number:02d}.tar.gz.json']:
+            if not f.resolve().is_relative_to(self.state.resolve()):raise ValueError('Unsafe local archive retirement')
+            if f.exists():f.unlink()
 
     def metrics(self,number):
         d=pd.read_csv(self.docs/f'round{number:02d}/candidate_metrics.csv')
@@ -130,14 +141,10 @@ class Driver(TransportDriver):
         if c['rounds_completed']!=number-1:raise ValueError('Local sequential state changed')
         c['rounds_completed']=number;c['rounds'].append({'round':number,'status':'complete','kind':'actual_FLOWR_inference',
             'results':summary,'retention_report':str(retentionfile.relative_to(self.root)).replace('\\','/')})
-        write_json(self.cfg/'campaign.json',c);self.emit('round_complete',round=number,summary=summary)
+        (self.cfg/'campaign.json').write_text(json.dumps(c,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+        self.emit('round_complete',round=number,summary=summary)
         self.push(f'Retain dynamic contrast round {number} and paired terminal outcomes')
-        base=(self.root/'test/data/dynamic_contrast10').resolve()
-        if not dataset.resolve().is_relative_to(base) or dataset.resolve()==base:raise ValueError('Unsafe local generated retirement')
-        shutil.rmtree(dataset)
-        for f in [archive,Path(str(archive)+'.json')]:
-            if not f.resolve().is_relative_to(self.state.resolve()):raise ValueError('Unsafe local archive retirement')
-            f.unlink()
+        self.retire_local_reported(number)
 
     def run(self):
         for number in range(self.args.start,self.args.last+1):
@@ -174,12 +181,19 @@ if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--repo',default='.');p.add_argument('--host',default='ksai.scnet.cn');p.add_argument('--port',type=int,default=10544)
     p.add_argument('--password-env',default='MOLSTEER_SCNET_PASSWORD');p.add_argument('--start',type=int,default=1);p.add_argument('--last',type=int,default=10)
     p.add_argument('--collect-only',type=int)
+    p.add_argument('--resume-publish',type=int,help='Publish an already verified local report and retire its temporary data without rerunning inference or evaluation')
     p.add_argument('--remote-repo',default='/root/private_data/MolSteer/EvoMolSteer')
     p.add_argument('--remote-work',default='/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_dynamic_contrast10_20261008')
     a=p.parse_args()
     if not 1<=a.start<=a.last<=10:raise ValueError('Fresh ten-round budget')
     d=Driver(a)
     try:
-        if a.collect_only is not None:d.collect(a.collect_only)
+        if a.resume_publish is not None:
+            if read_json(d.cfg/'campaign.json')['rounds_completed']!=a.resume_publish:raise ValueError('Only the last retained round can resume publication')
+            verify_retention(d.docs/f'round{a.resume_publish:02d}/retention.json')
+            d.push(f'Retain dynamic contrast round {a.resume_publish} and its verified terminal evidence')
+            d.retire_local_reported(a.resume_publish)
+            d.emit('publication_resumed',round=a.resume_publish)
+        elif a.collect_only is not None:d.collect(a.collect_only)
         else:d.run()
     finally:d.ssh.close()
