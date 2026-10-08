@@ -38,7 +38,13 @@ class Driver(BaseDriver):
         # Preliminary/raw mining payloads never enter the published report set.
         paths=[p for p in self.docs.rglob('*') if p.is_file() and
             not any(v in p.parts for v in ['joint_contrast_v1','branch_mutation_v1']) and p.name!='augmented_reference.json.gz']
-        if paths:self.local(['git','add','-f',*[str(p.relative_to(self.root)) for p in paths]])
+        if paths:
+            # A growing evidence dataset exceeds Windows' command-line limit.
+            # Keep the same explicit publication whitelist, passing exact paths
+            # as UTF-8/NUL data instead of constructing one long argv.
+            pathspec=self.state/'publication.paths.nul'
+            pathspec.write_bytes(b''.join(p.relative_to(self.root).as_posix().encode('utf-8')+b'\0' for p in paths))
+            self.local(['git','--literal-pathspecs','add','-f','--pathspec-from-file='+str(pathspec),'--pathspec-file-nul'])
         self.local(['git','diff','--cached','--check'])
         if self.local(['git','diff','--cached','--name-only']):self.local(['git','commit','-m',message])
         self.local(['git','-c','http.proxy=http://127.0.0.1:7897','push','origin','main'])
