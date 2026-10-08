@@ -4,7 +4,9 @@
 
 程序、模型和输入仍位于 `/root/private_data/MolSteer/`。新节点提供一张K500SM_AI GPU，Torch 2.9.0 / HIP 6.3.26093，预检可用显存67,844,964,352字节。模型为 `flowr_root/checkpoints/flowr_root_v2.ckpt`。
 
-私有存储总配额5 GiB，可用约1.70 GiB，不能承载100个target的新轨迹。组存储可用约114 GiB。因此仅新增输出使用独立目录 `/root/group_data/daweihuang/MolSteer/flowr_root/experiments/crossdocked100_steer_learning`，在原实验目录创建同名链接；不搬移或删除模型、输入和历史Steer结果。新目录权限限制为所有者访问，控制文件位于同一用户目录下的 `controls/crossdocked100_steer_20261009`。
+私有存储总配额5 GiB，可用约1.70 GiB，不能承载100个target的新轨迹。组存储显示约114 GiB可用，但实际创建新目录返回只读文件系统，不能用于本任务。仅新增输出改为节点本地独立目录 `/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_20261009`，可用约422 GiB，在原实验目录创建同名链接；不搬移或删除模型、输入和历史Steer结果。新目录权限限制为所有者访问。控制文件保存在私有仓库的 `test/crossdocked100_steer_control_20261009`。
+
+节点本地输出不是私有持久盘；释放或销毁计算节点前需要取回归档。100-target结果无法直接塞入当前私有配额，此处没有宣称链接能扩容私有存储。
 
 生成使用仓库配置 `configs/generation_crossdocked100_steer.json`：100组独立pocket/ligand输入，每target 1000候选槽位、10批×100、100积分步、seed=42。仅优化本target预测亲和力，0–0.5包含评分窗口内51个选择事件，随后推理至1.0。没有奖励梯度。
 
