@@ -1,0 +1,155 @@
+{
+  "agent": "Analyst",
+  "counterevidence": [
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_noise_RMS_A",
+        "selection_innovation/teacher_contrast_RMS_A",
+        "selection_innovation/teacher_control_root_ESS"
+      ],
+      "finding": "噪声与对比方向幅度几乎相等，局部独立控制根极少，保守支持度大量为零。不能宣称当前挖掘已找到可靠的整个学习窗口优势场；高强度外推可能离开有利教师模态。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/observed_child_score_gain",
+        "selection_innovation/teacher_score_gap"
+      ],
+      "finding": "高分路径的已观察下一步评分平均下降，表明当前高分方向与下一步或终态提升之间没有已建立的单调关系。没有未被选择分支的后续标签和同剂量配对native反事实，不能用下降给淘汰分支反向加信用，也不能把高低分空间差当作独立亲和力因果机制。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_expected_probability_advantage",
+        "selection_innovation/teacher_sign_calibration_cosine"
+      ],
+      "finding": "选择概率优势和符号校准余弦主要由评分排序与方向定义保证。本轮工具正确只保存描述统计，未对它们报告显著性。这些检查验证符号和选择合同，不能作为机制有效性证据。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/innovation_RMS_A",
+        "selection_innovation/observed_child_score_gain"
+      ],
+      "finding": "父内创新幅度与评分增量相关性因缺少有效同父分支变异而不可用。均值创新由模型再预测、当前状态更新和自条件共同决定，不能将其解释为保留分支之间可独立比较的因果优势变化率。",
+      "status": "supported"
+    }
+  ],
+  "evidence_sha256": "951e8af12d4f82c4f6e6d4df2c59e13c0547f4561849ae110cb205c4beab62e5",
+  "hypotheses": [
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_contrast_internal_fraction",
+        "selection_innovation/teacher_innovation_contrast_alignment",
+        "selection_innovation/teacher_noise_RMS_A",
+        "selection_innovation/teacher_control_root_ESS"
+      ],
+      "finding": "注册的 joint_innovation 可作为小幅、保守的几何外推试验：完整教师T保留原始对应和多模态先验，虚拟中心取T'=T+λ c^γ d，其中d为高分教师减同事件较低分匹配近邻的联合方向，c为原始根/跨批次支持度。先只改变 field_strength_A，保留其余参数和R26控制剂量；候选范围应从约0.05–0.25 Å起步，实际位移还乘小置信度，不是直接平移这一数值。必须检验正方向、反方向/精确零方向控制和实际梯度变化；几何噪声与信号同量级，预期收益仅为探索假设。后期新方向支持为零时保留原R26奖励，不能伪造全程新知识。",
+      "status": "exploratory"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/innovation_native_alignment",
+        "selection_innovation/innovation_RMS_A",
+        "selection_innovation/observed_child_score_gain"
+      ],
+      "finding": "独立于空间方向试验，可使用注册的 native_control 单轴控制诊断：同一次原生forward/backward测量实际端点VJP传递G=||gX||/(scale·||gYworld||)，再探索有界饱和剂量h(G)=G/(G+Gref)，与总剂量匹配的固定剂量对照比较。该建议来自绑定的实际模型/积分源码审计和低创新-原生位移一致性，不是历史XYZ已测得的Jacobian结论。先获得冻结基线诊断再定义Gref，不能用本轮终态亲和力反向设阈值，也不能硬删除与原生流负余弦的方向。",
+      "status": "exploratory"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_contrast_internal_fraction",
+        "selection_innovation/teacher_contrast_atom_participation_fraction",
+        "selection_innovation/teacher_innovation_contrast_alignment"
+      ],
+      "finding": "新注册的非侵入式decoder输出梯度hook适合作为后续信息缺口的观测工具：在既有一次backward上记录coord embedding、坐标输出及层输出的奖励梯度RMS和空间梯度能量集中度，比较是否映射到上述优势形状区域。历史数据没有这些激活；新hook尚未运行模型。即便形成对应，也只说明当前奖励的条件敏感度，不能声称这些模块因果提升亲和力，不能据此直接拟合affinity head或新增生产forward。",
+      "status": "exploratory"
+    }
+  ],
+  "instruction_sha256": "a1f7d913732f9dba7d2f96bf2a2832652e41518ad1f856a5d4c2fc812d4fb8eb",
+  "limitations": [
+    "只在14个发现批次上做关联挖掘，批次是置信区间与趋势验证的独立单位，时间节点、教师和克隆不是额外独立样本。",
+    "未知的淘汰分支未来保持删失；没有用最终亲和力给这些分支补造成功/失败标签。",
+    "本证据包没有完整的Price原生运输/期望选择/实现复制分解，故不报告其新的效应数值。原生位移、选择概率、实际未复制比例与端点创新分别解释，不能把共同原生运动当成筛选富集。",
+    "所拟合的时间函数仅总结完整观察窗口；导数为群体指标的时间变化率，不是可施加在单分子上的空间梯度。",
+    "输入端点单位为世界坐标Å。评分时刻0.00–0.49与实际状态终点0.50不同；首个节点没有父子创新观测。窗口从输入读取，奖励结束后应原生续推到1。",
+    "实际源码/config审计通过6项检查，但这是配置和代码审计，并未运行真实模型Jacobian或模块因果实验。R26使用真实FLOWR的条件端点VJP，冻结旧self-conditioning及离散匹配；在原生提议后注入旧状态方向。原生实现含score漂移与噪声，不能直接套用一般ODE或标准连续SDE的分布保证。",
+    "由绑定源码审计可知整个奖励乘正标量通常会被当前RMS归一化抵消；相对目标权重改变方向，native_rms_ratio或有界gate改变真实剂量。必须量化新机制自己的梯度/教师移位/剂量响应和配对窗口坐标变化，而非只报告原R26非零梯度。",
+    "绑定文献Feng等ICML2025的flow guidance近似和Wang等ICLR2025的optimal-control思想仅提供条件Jacobian/控制代价审计动机。当前self-conditioning、离散图和源码SDE不满足直接宣称精确引导、端点协方差或完整最优控制的条件。",
+    "正式判定前应先通过hash绑定、精确no-op逐位合同、原生RNG/初始状态配对、无重采样/无head求导/无额外生产forward和实际轨迹响应门槛，再对冻结新批次的平均预测亲和力做比较；应变为次级，历史Steer是非配对参照。失败模块回退R26并保留报告，不因接口合规就宣称收益。"
+  ],
+  "observations": [
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_expected_probability_advantage",
+        "selection_innovation/teacher_lower_rejected_fraction"
+      ],
+      "finding": "已实际执行 selection_innovation 与 flow_compatibility 两项工具，返回码均为0，输入未改变，输出完整且SHA绑定。14个独立发现批次的700个事件覆盖评分时刻0.00–0.49、最后实际选择状态0.50。教师相对均匀分配的选择概率优势均值为0.006998；较低分几何近邻中实际未被复制的比例仅0.32623。选择偏好与一次复制存活不同，不能把所有较低分近邻都标为终态失败。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_contrast_internal_fraction",
+        "selection_innovation/teacher_contrast_translation_fraction",
+        "selection_innovation/teacher_contrast_rotation_fraction",
+        "selection_innovation/teacher_contrast_atom_participation_fraction"
+      ],
+      "finding": "教师与同一事件较低评分几何近邻的联合方向中，78.65%的平方幅度为内部形状变化，13.22%为平移，8.12%为小转角旋转；原子槽位参与度为38.35%。这支持研究联合构象局部变化，不能将其简化成整个分子的同向位移或独立边际区域相加，也不能从无类型的槽位权重命名官能团。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_contrast_RMS_A",
+        "selection_innovation/teacher_noise_RMS_A",
+        "selection_innovation/teacher_score_gap"
+      ],
+      "finding": "全窗口联合差异幅度为0.06567 Å，批次bootstrap区间[0.05820,0.07231]；方向噪声RMS为0.06668 Å，区间[0.06041,0.07263]；在线评分差为0.17242 pIC50。差异幅度与噪声同量级，评分差还参与选择器，不能据此称为已验证的亲和力坐标梯度。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_innovation_contrast_alignment",
+        "selection_innovation/innovation_native_alignment",
+        "selection_innovation/innovation_RMS_A"
+      ],
+      "finding": "沿真实保留父子边的教师端点预测创新，与优势联合方向的平均余弦为0.22609，95%区间[0.19691,0.25161]，BH q=2.219e−9；创新与此前原生积分位移的平均余弦仅0.09179，区间[0.08092,0.10348]，q=2.219e−9。预测创新幅度均值0.07193 Å。这说明预测再估计方向有一定选择关联，却不等于真实原子速度，也不是对模型模块的因果归因。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/observed_child_score_gain",
+        "selection_innovation/teacher_expected_probability_advantage"
+      ],
+      "finding": "观测保留父节点的平均下一节点评分增量为−0.03633，95%区间[−0.04310,−0.02979]，q=1.834e−7，14批方向均为负。高分教师在当前事件获更多期望质量，并不要求其下一次重新预测评分单调上升：当前选择偏好与经过原生积分、self-conditioning和时间变化后的再估计是两个不同量。回归均值、端点预测或评分表征的时间变化是待检验解释，当前数据未分辨其原因。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_control_root_ESS",
+        "selection_innovation/teacher_contrast_coherence"
+      ],
+      "finding": "几何近邻控制的根权重ESS全窗口均值仅1.29738；方向局部相干性0.81238不意味着独立证据充分。结合跨批次方向支持后的保守置信度仅11.5%教师非零，最高0.007693；后期单根控制使支持度严格归零。克隆复制不能增加独立样本量，不能用平滑趋势填造后期优势方向。",
+      "status": "supported"
+    },
+    {
+      "evidence_ids": [
+        "selection_innovation/teacher_contrast_RMS_A",
+        "selection_innovation/innovation_RMS_A",
+        "selection_innovation/teacher_innovation_contrast_alignment",
+        "selection_innovation/observed_child_score_gain"
+      ],
+      "finding": "留一批次选择的全窗口Legendre趋势显示：差异幅度采用一次拟合，时间导数−0.22116 Å/模型时间；创新幅度采用二次拟合；创新方向一致性采用一次拟合，导数+0.55584/模型时间；观测下一步评分增量的一次拟合导数−0.12887 pIC50/模型时间。这些是群体曲线的描述函数，不是奖励对坐标的梯度，不能外推到0.5之后或代替实际空间方向。",
+      "status": "supported"
+    }
+  ],
+  "request_sha256": "d9b84cb86357c3bfb98fa4189857fd256489c10f8d119bcfd6a7610a906d9929",
+  "schema_version": "flowcompat-agent-1.0",
+  "tool_receipt_sha256": [
+    "2f2a17d606c29c5a5ec6fc4a6ccce658b8d2caa22b519ec12af029b64ef9a9b2",
+    "9407d925aebe2ef99f530ad46c9f583219c2571994b76a7c9b6175d6a9342938"
+  ],
+  "window": [
+    0.0,
+    0.5
+  ]
+}

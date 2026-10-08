@@ -1,0 +1,173 @@
+{
+  "bindings": {
+    "analyst_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\agents\\v2\\Analyst.flowcompat.response.json",
+    "analyst_response_sha256": "6a85925b0a2381a215459de820de63cdf72bd399d9448b8813f0fd2527c6bd27",
+    "evidence_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\mining\\agent_joint_v3\\evidence.json",
+    "registry_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\agents\\v2\\registry.json",
+    "registry_sha256": "047696661f01a3a700ff8fcdccbcd93093e332c0054c138ab3cbe651134251fd",
+    "skill_files": {
+      "D:\\llm_controlled_generation\\EvoMolSteer\\skills\\designer\\SKILL.md": "6ea6aecf91f06e57ae443a4960ac879a4af1fe0a7b9a2d3f2fbddfe2cc5bc46c",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\skills\\flow-compatibility\\SKILL.md": "abdd4ecc19f6a7c5816ce7e33e3a59f3369cf4bbc4577b1adb258f154d9990c8"
+    },
+    "tool_receipts": {
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\agents\\flow.receipt.json": "9407d925aebe2ef99f530ad46c9f583219c2571994b76a7c9b6175d6a9342938",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\agents\\mining.receipt.json": "2f2a17d606c29c5a5ec6fc4a6ccce658b8d2caa22b519ec12af029b64ef9a9b2"
+    }
+  },
+  "evidence_sha256": "951e8af12d4f82c4f6e6d4df2c59e13c0547f4561849ae110cb205c4beab62e5",
+  "instruction_sha256": "8cc51080fadd90e9bfea528264756891ac0d852b04f4c80c885d7f7712902507",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "agent": {
+        "const": "Designer"
+      },
+      "analyst_response_sha256": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "base_program_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "decision": {
+        "enum": [
+          "retain",
+          "trial",
+          "defer"
+        ]
+      },
+      "evidence_ids": {
+        "items": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "evidence_sha256": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "failure_modes": {
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "formula_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "instruction_sha256": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "rationale": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "request_sha256": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "schema_version": {
+        "const": "flowcompat-agent-1.0"
+      },
+      "tool_receipt_sha256": {
+        "items": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "updates": {
+        "additionalProperties": false,
+        "properties": {
+          "flow_control.gradient_norm_saturation": {
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "flow_control.jacobian_gain_saturation": {
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "flow_control.parallel_component_scale": {
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "flow_control.time_envelope_power": {
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "innovation.field_strength_A": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "innovation.region_weight_mix": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "innovation.reliability_power": {
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "native_rms_ratio": {
+            "maximum": 1.0,
+            "minimum": 0.05,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "window": {
+        "items": {
+          "type": "number"
+        },
+        "maxItems": 2,
+        "minItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "schema_version",
+      "request_sha256",
+      "instruction_sha256",
+      "evidence_sha256",
+      "tool_receipt_sha256",
+      "window",
+      "agent",
+      "analyst_response_sha256",
+      "decision",
+      "base_program_id",
+      "formula_id",
+      "updates",
+      "evidence_ids",
+      "rationale",
+      "failure_modes"
+    ],
+    "type": "object"
+  },
+  "role": "Designer",
+  "schema_version": "flowcompat-agent-1.0",
+  "system_instruction": "---\nname: evomolsteer-designer\ndescription: Turn molecular coordinate evidence into a compact, testable differentiable reward design.\n---\n\nYou are Designer. Read the supplied Analyst result, evidence, objective and\nexecution contract. Return a declarative design using the supplied formula\nregistry and response schema, with concise evidence-to-formula justification.\n\nSeparate observed targets from experimental choices. State the coordinate\nobservable, reference and parameter origins, derivative path and expected\nfailure modes. A temporal feature derivative is not a spatial reward gradient.\nKeep guidance within the supplied learned support and use the derivative path\nappropriate to its coordinate representation. Follow the execution contract;\ndo not substitute an affinity-gradient or particle-selection algorithm.\n\nCompare the design with supplied incumbent and counterevidence. Preserve a\ntested incumbent when no evidence justifies a change; an exploratory proposal\nor deferred design is also valid. Judge affinity and strain as distinct outcomes\nusing the task's priorities and evaluation criteria. Do not attribute quality\nloss to a changed chemical graph without a demonstrated mechanism.\n\nReturn the requested program and validation hypotheses.\n\n---\nname: evomolsteer-flow-compatibility\ndescription: Bind selection innovation analysis to coordinate rewards and test actual flow-matching guidance responses before judging efficacy.\n---\n\nUse this module with the supplied Analyst or Designer role and the explicit\nexecution registry. The learned time window, target, regions, units and statistical\nunits come from input data. Do not replace them with remembered molecule details.\n\nAnalyst must run the registered `selection_innovation` mining tool and the\n`flow_compatibility` configuration audit, then cite their bound output identifiers.\nCompare candidates within the same selection event, separate native integration,\nexpected score-weighted selection and realized offspring copying, and report how\ncoordinate contrasts change over the complete observed window. Use independent\nbatches or independently observed ancestry as uncertainty units. Repeated copies\nare weights; an extinct branch has unobserved future quality. A selector score,\nretention count or attention weight alone is not causal evidence of an affinity\nmechanism. Record counterevidence and multiplicity-adjusted results. Coordinate\nproxies do not establish a chemical interaction, energy or neural-module cause.\n\nDesigner must consume the validated Analyst result and actual tool receipts.\nChoose only a registered formula and bounded parameter updates. Explain the\nobservable, sign, representation and origin of each proposed direction. Preserve\njoint spatial context and reliability rather than combining incompatible local\ntargets. A temporal trend derivative is not a spatial gradient. Do not write\nexecutable model-generated code or introduce a new predictive model.\n\nUse the actual model endpoint pullback for an endpoint reward, with the stated\nself-conditioning and correspondence convention. Calibrate the coordinate update\nagainst the native flow and inspect the time envelope and gradient orientation.\nDo not add production model forwards, affinity-head derivatives, particle\nresampling, graph-equality vetoes or atomic-type optimization. Guidance support\nmust equal the supplied learned support; continue native inference after it.\n\nBefore evaluating affinity, verify that literal role instructions, evidence,\ntool outputs, compiled parameters and numerical modules are hash bound. A new\nmechanism must change its own expected diagnostic and the actual trajectory;\nan old nonzero guidance gradient is insufficient. Include an exact no-op control\nto distinguish a new mechanism from numerical arithmetic drift. Keep this\nimplementation gate separate from efficacy. Then compare paired baseline and\ncandidate affinity, uncertainty and secondary strain. Retain a verified incumbent\nor revert an unsuccessful exploratory module rather than treating compliance as\nproof of benefit. Report concise evidence-to-formula rationale, not private\nreasoning transcripts.\n",
+  "window": [
+    0.0,
+    0.5
+  ]
+}

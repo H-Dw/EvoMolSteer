@@ -1,0 +1,40 @@
+{
+  "agent": "Designer",
+  "analyst_response_sha256": "6a85925b0a2381a215459de820de63cdf72bd399d9448b8813f0fd2527c6bd27",
+  "base_program_id": "R26_augmented",
+  "decision": "trial",
+  "evidence_ids": [
+    "selection_innovation/teacher_contrast_internal_fraction",
+    "selection_innovation/teacher_innovation_contrast_alignment",
+    "selection_innovation/teacher_contrast_RMS_A",
+    "selection_innovation/teacher_noise_RMS_A",
+    "selection_innovation/teacher_control_root_ESS",
+    "selection_innovation/observed_child_score_gain"
+  ],
+  "evidence_sha256": "951e8af12d4f82c4f6e6d4df2c59e13c0547f4561849ae110cb205c4beab62e5",
+  "failure_modes": [
+    "弱独立家族支持使新移位极小；可能没有可分辨轨迹响应。必须报告机制诊断并保留no-op对照，不能因原R26引导生效就接受新模块。",
+    "高分减低分方向含selector关联、噪声与生存删失，外推并非native未来亲和力因果方向；终态亲和力可能下降，失败恢复R26而不增大剂量掩盖方向问题。",
+    "正方向可能超过局部可靠区域或在邻居/Hungarian切换处不连续；当前匹配和先验冻结是条件导数，需真实VJP数值核验与teacher切换诊断。",
+    "不能将群体时间拟合导数当作空间力，也不能将只有无类型槽位的权重解释为具体官能团或某个模型模块的因果重视。",
+    "基线RMS剂量归一化会抵消奖励整体倍率；本轮只有目标中心方向变化，η不变。保持实际dt/原生score漂移和噪声、旧self-conditioning冻结，生产每步不增加forward、不对亲和力头求导、不做粒子重采样或化学图gate。",
+    "反方向试验当前未注册负field_strength，不能通过修改冻结输入临时伪造该对照；本轮以精确零方向和无信息算术控制为必要条件，若后续注册反方向需新的证据与版本绑定。",
+    "最终筛选与趋势同为14个发现批次，不能用它们反复调参后声称独立改善；候选选择完成后必须冻结并用未参与选择的新批次确认。"
+  ],
+  "formula_id": "joint_innovation",
+  "instruction_sha256": "8cc51080fadd90e9bfea528264756891ac0d852b04f4c80c885d7f7712902507",
+  "rationale": "选择单轴、保守的联合虚拟教师中心试验，而非宣称挖掘出亲和力梯度。沿真实保留路径的端点预测创新与完整优势构象方向有平均余弦0.22609、批次区间[0.19691,0.25161]、BH q=2.219e-9；对比方向78.65%为内部形状变化，支持在完整点云中测试局部联合变化。反证是对比RMS0.06567 Å与噪声RMS0.06668 Å同量级、独立控制根ESS均值1.29738、观测下一节点评分均值下降0.03633。故保持R26所有原始teacher、在线评分先验、邻居和Hungarian匹配、混合温度及η=0.33，不改变原子/图或另加预测模型。仅将匹配后的目标改为T'=T+λ c d，λ=0.25 Å是注册上界内的探索选择，c和RMS单位方向d来自实际工具，不是LLM捏造的位置。默认reliability_power=1、region_weight_mix=0和flow_control空保持原有空间背景及控制。实际c最高0.007693、11.5%教师非零；因此最大教师移位仅0.001923 Å，整个1400教师平均0.00004545 Å，λ不是直接注入0.25 Å。c=0的节点不给新方向，仍运行原R26引导；总控制支持从绑定输入读取，目前0–0.5，随后native续推。先检查新接口空配置与旧R26逐位一致，再检查此机制自己的教师移位、梯度差和配对窗口坐标响应；仅原有gX非零不算实施通过。真正生成后再比较配对R26、无引导的终态平均预测亲和力，次看有效率/PB与应变；缺少实施响应则回到特征/置信度诊断，不把数值轨迹差异或selector相关性当性能证明。",
+  "request_sha256": "b3ec908488f479f81e6aa4af9ba2d463770802dbe2bf2919ba34b4910194507f",
+  "schema_version": "flowcompat-agent-1.0",
+  "tool_receipt_sha256": [
+    "2f2a17d606c29c5a5ec6fc4a6ccce658b8d2caa22b519ec12af029b64ef9a9b2",
+    "9407d925aebe2ef99f530ad46c9f583219c2571994b76a7c9b6175d6a9342938"
+  ],
+  "updates": {
+    "innovation.field_strength_A": 0.25
+  },
+  "window": [
+    0.0,
+    0.5
+  ]
+}

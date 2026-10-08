@@ -1,0 +1,649 @@
+{
+  "analyst_document": {
+    "agent": "Analyst",
+    "counterevidence": [
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_noise_RMS_A",
+          "selection_innovation/teacher_contrast_RMS_A",
+          "selection_innovation/teacher_control_root_ESS"
+        ],
+        "finding": "噪声与对比方向幅度几乎相等，局部独立控制根极少，保守支持度大量为零。不能宣称当前挖掘已找到可靠的整个学习窗口优势场；高强度外推可能离开有利教师模态。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/observed_child_score_gain",
+          "selection_innovation/teacher_score_gap"
+        ],
+        "finding": "高分路径的已观察下一步评分平均下降，表明当前高分方向与下一步或终态提升之间没有已建立的单调关系。没有未被选择分支的后续标签和同剂量配对native反事实，不能用下降给淘汰分支反向加信用，也不能把高低分空间差当作独立亲和力因果机制。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_expected_probability_advantage",
+          "selection_innovation/teacher_sign_calibration_cosine"
+        ],
+        "finding": "选择概率优势和符号校准余弦主要由评分排序与方向定义保证。本轮工具正确只保存描述统计，未对它们报告显著性。这些检查验证符号和选择合同，不能作为机制有效性证据。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/innovation_RMS_A",
+          "selection_innovation/observed_child_score_gain"
+        ],
+        "finding": "父内创新幅度与评分增量相关性因缺少有效同父分支变异而不可用。均值创新由模型再预测、当前状态更新和自条件共同决定，不能将其解释为保留分支之间可独立比较的因果优势变化率。",
+        "status": "supported"
+      }
+    ],
+    "evidence_sha256": "951e8af12d4f82c4f6e6d4df2c59e13c0547f4561849ae110cb205c4beab62e5",
+    "hypotheses": [
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_contrast_internal_fraction",
+          "selection_innovation/teacher_innovation_contrast_alignment",
+          "selection_innovation/teacher_noise_RMS_A",
+          "selection_innovation/teacher_control_root_ESS"
+        ],
+        "finding": "注册的 joint_innovation 可作为小幅、保守的几何外推试验：完整教师T保留原始对应和多模态先验，虚拟中心取T'=T+λ c^γ d，其中d为高分教师减同事件较低分匹配近邻的联合方向，c为原始根/跨批次支持度。先只改变 field_strength_A，保留其余参数和R26控制剂量；候选范围应从约0.05–0.25 Å起步，实际位移还乘小置信度，不是直接平移这一数值。必须检验正方向、反方向/精确零方向控制和实际梯度变化；几何噪声与信号同量级，预期收益仅为探索假设。后期新方向支持为零时保留原R26奖励，不能伪造全程新知识。",
+        "status": "exploratory"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/innovation_native_alignment",
+          "selection_innovation/innovation_RMS_A",
+          "selection_innovation/observed_child_score_gain"
+        ],
+        "finding": "独立于空间方向试验，可使用注册的 native_control 单轴控制诊断：同一次原生forward/backward测量实际端点VJP传递G=||gX||/(scale·||gYworld||)，再探索有界饱和剂量h(G)=G/(G+Gref)，与总剂量匹配的固定剂量对照比较。该建议来自绑定的实际模型/积分源码审计和低创新-原生位移一致性，不是历史XYZ已测得的Jacobian结论。先获得冻结基线诊断再定义Gref，不能用本轮终态亲和力反向设阈值，也不能硬删除与原生流负余弦的方向。",
+        "status": "exploratory"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_contrast_internal_fraction",
+          "selection_innovation/teacher_contrast_atom_participation_fraction",
+          "selection_innovation/teacher_innovation_contrast_alignment"
+        ],
+        "finding": "新注册的非侵入式decoder输出梯度hook适合作为后续信息缺口的观测工具：在既有一次backward上记录coord embedding、坐标输出及层输出的奖励梯度RMS和空间梯度能量集中度，比较是否映射到上述优势形状区域。历史数据没有这些激活；新hook尚未运行模型。即便形成对应，也只说明当前奖励的条件敏感度，不能声称这些模块因果提升亲和力，不能据此直接拟合affinity head或新增生产forward。",
+        "status": "exploratory"
+      }
+    ],
+    "instruction_sha256": "a1f7d913732f9dba7d2f96bf2a2832652e41518ad1f856a5d4c2fc812d4fb8eb",
+    "limitations": [
+      "只在14个发现批次上做关联挖掘，批次是置信区间与趋势验证的独立单位，时间节点、教师和克隆不是额外独立样本。",
+      "未知的淘汰分支未来保持删失；没有用最终亲和力给这些分支补造成功/失败标签。",
+      "本证据包没有完整的Price原生运输/期望选择/实现复制分解，故不报告其新的效应数值。原生位移、选择概率、实际未复制比例与端点创新分别解释，不能把共同原生运动当成筛选富集。",
+      "所拟合的时间函数仅总结完整观察窗口；导数为群体指标的时间变化率，不是可施加在单分子上的空间梯度。",
+      "输入端点单位为世界坐标Å。评分时刻0.00–0.49与实际状态终点0.50不同；首个节点没有父子创新观测。窗口从输入读取，奖励结束后应原生续推到1。",
+      "实际源码/config审计通过6项检查，但这是配置和代码审计，并未运行真实模型Jacobian或模块因果实验。R26使用真实FLOWR的条件端点VJP，冻结旧self-conditioning及离散匹配；在原生提议后注入旧状态方向。原生实现含score漂移与噪声，不能直接套用一般ODE或标准连续SDE的分布保证。",
+      "由绑定源码审计可知整个奖励乘正标量通常会被当前RMS归一化抵消；相对目标权重改变方向，native_rms_ratio或有界gate改变真实剂量。必须量化新机制自己的梯度/教师移位/剂量响应和配对窗口坐标变化，而非只报告原R26非零梯度。",
+      "绑定文献Feng等ICML2025的flow guidance近似和Wang等ICLR2025的optimal-control思想仅提供条件Jacobian/控制代价审计动机。当前self-conditioning、离散图和源码SDE不满足直接宣称精确引导、端点协方差或完整最优控制的条件。",
+      "正式判定前应先通过hash绑定、精确no-op逐位合同、原生RNG/初始状态配对、无重采样/无head求导/无额外生产forward和实际轨迹响应门槛，再对冻结新批次的平均预测亲和力做比较；应变为次级，历史Steer是非配对参照。失败模块回退R26并保留报告，不因接口合规就宣称收益。"
+    ],
+    "observations": [
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_expected_probability_advantage",
+          "selection_innovation/teacher_lower_rejected_fraction"
+        ],
+        "finding": "已实际执行 selection_innovation 与 flow_compatibility 两项工具，返回码均为0，输入未改变，输出完整且SHA绑定。14个独立发现批次的700个事件覆盖评分时刻0.00–0.49、最后实际选择状态0.50。教师相对均匀分配的选择概率优势均值为0.006998；较低分几何近邻中实际未被复制的比例仅0.32623。选择偏好与一次复制存活不同，不能把所有较低分近邻都标为终态失败。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_contrast_internal_fraction",
+          "selection_innovation/teacher_contrast_translation_fraction",
+          "selection_innovation/teacher_contrast_rotation_fraction",
+          "selection_innovation/teacher_contrast_atom_participation_fraction"
+        ],
+        "finding": "教师与同一事件较低评分几何近邻的联合方向中，78.65%的平方幅度为内部形状变化，13.22%为平移，8.12%为小转角旋转；原子槽位参与度为38.35%。这支持研究联合构象局部变化，不能将其简化成整个分子的同向位移或独立边际区域相加，也不能从无类型的槽位权重命名官能团。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_contrast_RMS_A",
+          "selection_innovation/teacher_noise_RMS_A",
+          "selection_innovation/teacher_score_gap"
+        ],
+        "finding": "全窗口联合差异幅度为0.06567 Å，批次bootstrap区间[0.05820,0.07231]；方向噪声RMS为0.06668 Å，区间[0.06041,0.07263]；在线评分差为0.17242 pIC50。差异幅度与噪声同量级，评分差还参与选择器，不能据此称为已验证的亲和力坐标梯度。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_innovation_contrast_alignment",
+          "selection_innovation/innovation_native_alignment",
+          "selection_innovation/innovation_RMS_A"
+        ],
+        "finding": "沿真实保留父子边的教师端点预测创新，与优势联合方向的平均余弦为0.22609，95%区间[0.19691,0.25161]，BH q=2.219e−9；创新与此前原生积分位移的平均余弦仅0.09179，区间[0.08092,0.10348]，q=2.219e−9。预测创新幅度均值0.07193 Å。这说明预测再估计方向有一定选择关联，却不等于真实原子速度，也不是对模型模块的因果归因。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/observed_child_score_gain",
+          "selection_innovation/teacher_expected_probability_advantage"
+        ],
+        "finding": "观测保留父节点的平均下一节点评分增量为−0.03633，95%区间[−0.04310,−0.02979]，q=1.834e−7，14批方向均为负。高分教师在当前事件获更多期望质量，并不要求其下一次重新预测评分单调上升：当前选择偏好与经过原生积分、self-conditioning和时间变化后的再估计是两个不同量。回归均值、端点预测或评分表征的时间变化是待检验解释，当前数据未分辨其原因。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_control_root_ESS",
+          "selection_innovation/teacher_contrast_coherence"
+        ],
+        "finding": "几何近邻控制的根权重ESS全窗口均值仅1.29738；方向局部相干性0.81238不意味着独立证据充分。结合跨批次方向支持后的保守置信度仅11.5%教师非零，最高0.007693；后期单根控制使支持度严格归零。克隆复制不能增加独立样本量，不能用平滑趋势填造后期优势方向。",
+        "status": "supported"
+      },
+      {
+        "evidence_ids": [
+          "selection_innovation/teacher_contrast_RMS_A",
+          "selection_innovation/innovation_RMS_A",
+          "selection_innovation/teacher_innovation_contrast_alignment",
+          "selection_innovation/observed_child_score_gain"
+        ],
+        "finding": "留一批次选择的全窗口Legendre趋势显示：差异幅度采用一次拟合，时间导数−0.22116 Å/模型时间；创新幅度采用二次拟合；创新方向一致性采用一次拟合，导数+0.55584/模型时间；观测下一步评分增量的一次拟合导数−0.12887 pIC50/模型时间。这些是群体曲线的描述函数，不是奖励对坐标的梯度，不能外推到0.5之后或代替实际空间方向。",
+        "status": "supported"
+      }
+    ],
+    "request_sha256": "d9b84cb86357c3bfb98fa4189857fd256489c10f8d119bcfd6a7610a906d9929",
+    "schema_version": "flowcompat-agent-1.0",
+    "tool_receipt_sha256": [
+      "2f2a17d606c29c5a5ec6fc4a6ccce658b8d2caa22b519ec12af029b64ef9a9b2",
+      "9407d925aebe2ef99f530ad46c9f583219c2571994b76a7c9b6175d6a9342938"
+    ],
+    "window": [
+      0.0,
+      0.5
+    ]
+  },
+  "analyst_response_sha256": "6a85925b0a2381a215459de820de63cdf72bd399d9448b8813f0fd2527c6bd27",
+  "evidence": {
+    "augmented_reference_sha256": "4b69298c56cde368da66798da0ac052ea3de682ecb87b605b80f19d1147f18be",
+    "confidence_maximum": 0.007693297774520592,
+    "confidence_nonzero_fraction": 0.115,
+    "evidence_items": [
+      {
+        "CI_high": 0.07746305167462356,
+        "CI_low": 0.06609133497469195,
+        "id": "selection_innovation/innovation_RMS_A",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "innovation_RMS_A",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.07193176847104014
+      },
+      {
+        "CI_high": 0.10348416013451932,
+        "CI_low": 0.0809232740581846,
+        "id": "selection_innovation/innovation_native_alignment",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "innovation_native_alignment",
+        "null_tested": true,
+        "p": 1.4794244712945053e-09,
+        "positive_batch_fraction": 1.0,
+        "q": 2.219136706941758e-09,
+        "whole_window_mean": 0.09179207769179012
+      },
+      {
+        "CI_high": -0.02979119493662714,
+        "CI_low": -0.04310281692494955,
+        "id": "selection_innovation/observed_child_score_gain",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "observed_child_score_gain",
+        "null_tested": true,
+        "p": 1.8342877041638497e-07,
+        "positive_batch_fraction": 0.0,
+        "q": 1.8342877041638497e-07,
+        "whole_window_mean": -0.03633393929926736
+      },
+      {
+        "CI_high": 0.07231275151797022,
+        "CI_low": 0.058202983764885266,
+        "id": "selection_innovation/teacher_contrast_RMS_A",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_contrast_RMS_A",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.06567090350386037
+      },
+      {
+        "CI_high": 0.8196398067249339,
+        "CI_low": 0.8051945207104074,
+        "id": "selection_innovation/teacher_contrast_coherence",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_contrast_coherence",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.8123842581912123
+      },
+      {
+        "CI_high": 1.3462099125364444,
+        "CI_low": 1.2587463556851322,
+        "id": "selection_innovation/teacher_control_root_ESS",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_control_root_ESS",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 1.2973760932944618
+      },
+      {
+        "CI_high": 0.18721342053964818,
+        "CI_low": 0.15932685912549804,
+        "id": "selection_innovation/teacher_score_gap",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_score_gap",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.17241645842290096
+      },
+      {
+        "CI_high": 0.07263431618501551,
+        "CI_low": 0.06041428294130161,
+        "id": "selection_innovation/teacher_noise_RMS_A",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_noise_RMS_A",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.06667535248180735
+      },
+      {
+        "CI_high": 0.34080417881438313,
+        "CI_low": 0.3105548469387757,
+        "id": "selection_innovation/teacher_lower_rejected_fraction",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_lower_rejected_fraction",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.3262269193391645
+      },
+      {
+        "CI_high": 0.007478571557314691,
+        "CI_low": 0.006503882085163787,
+        "id": "selection_innovation/teacher_expected_probability_advantage",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_expected_probability_advantage",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.006998446141368068
+      },
+      {
+        "CI_high": 0.9776592872577694,
+        "CI_low": 0.966852507587849,
+        "id": "selection_innovation/teacher_sign_calibration_cosine",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_sign_calibration_cosine",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.9728211858330873
+      },
+      {
+        "CI_high": 0.2516095376581755,
+        "CI_low": 0.1969100424917561,
+        "id": "selection_innovation/teacher_innovation_contrast_alignment",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_innovation_contrast_alignment",
+        "null_tested": true,
+        "p": 1.2305827595384855e-09,
+        "positive_batch_fraction": 1.0,
+        "q": 2.219136706941758e-09,
+        "whole_window_mean": 0.22609323221740954
+      },
+      {
+        "CI_high": 0.1580853489889955,
+        "CI_low": 0.10917106744541547,
+        "id": "selection_innovation/teacher_contrast_translation_fraction",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_contrast_translation_fraction",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.13224450753947314
+      },
+      {
+        "CI_high": 0.09825040342657473,
+        "CI_low": 0.06636630964023964,
+        "id": "selection_innovation/teacher_contrast_rotation_fraction",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_contrast_rotation_fraction",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.08124876801611632
+      },
+      {
+        "CI_high": 0.8227532496282434,
+        "CI_low": 0.7447782475854388,
+        "id": "selection_innovation/teacher_contrast_internal_fraction",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_contrast_internal_fraction",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.7865067244444112
+      },
+      {
+        "CI_high": 0.41687084104933764,
+        "CI_low": 0.35245511903694193,
+        "id": "selection_innovation/teacher_contrast_atom_participation_fraction",
+        "interpretation": "Descriptive within-selector association; batch is the independent unit.",
+        "metric": "teacher_contrast_atom_participation_fraction",
+        "null_tested": false,
+        "p": null,
+        "positive_batch_fraction": 1.0,
+        "q": null,
+        "whole_window_mean": 0.3835339828962917
+      }
+    ],
+    "exact_null_controls": {
+      "exact_zero_equal_score": 1400,
+      "exact_zero_identical_cloud": 1400
+    },
+    "independent_batches": 14,
+    "limitations": [
+      "Recorded latent/head score is also the selector: score-gap association is not independent affinity validation.",
+      "Late family collapse can remove independent local control families; confidence then vanishes exactly.",
+      "Rejected parent futures are unknown. Observed child gains condition on surviving parents.",
+      "Full joint endpoint contrast is a local extrapolation hypothesis, not an estimated affinity gradient.",
+      "Historical coordinates contain no module activations/Jacobians: no model-module attribution is made.",
+      "The original reference points to normalized H5 identities; actual NPZ sources are separately hashed and teacher-equivalence verified."
+    ],
+    "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "schema_version": "selection-innovation-evidence-1.0",
+    "scope": {
+      "extrapolation_allowed": false,
+      "last_selected_state_time": 0.5,
+      "observed_innovation_times": [
+        0.01,
+        0.02,
+        0.03,
+        0.04,
+        0.05,
+        0.06,
+        0.07,
+        0.08,
+        0.09,
+        0.1,
+        0.11,
+        0.12,
+        0.13,
+        0.14,
+        0.15,
+        0.16,
+        0.17,
+        0.18,
+        0.19,
+        0.2,
+        0.21,
+        0.22,
+        0.23,
+        0.24,
+        0.25,
+        0.26,
+        0.27,
+        0.28,
+        0.29,
+        0.3,
+        0.31,
+        0.32,
+        0.33,
+        0.34,
+        0.35,
+        0.36,
+        0.37,
+        0.38,
+        0.39,
+        0.4,
+        0.41,
+        0.42,
+        0.43,
+        0.44,
+        0.45,
+        0.46,
+        0.47,
+        0.48,
+        0.49
+      ],
+      "score_times": [
+        0.0,
+        0.01,
+        0.02,
+        0.03,
+        0.04,
+        0.05,
+        0.06,
+        0.07,
+        0.08,
+        0.09,
+        0.1,
+        0.11,
+        0.12,
+        0.13,
+        0.14,
+        0.15,
+        0.16,
+        0.17,
+        0.18,
+        0.19,
+        0.2,
+        0.21,
+        0.22,
+        0.23,
+        0.24,
+        0.25,
+        0.26,
+        0.27,
+        0.28,
+        0.29,
+        0.3,
+        0.31,
+        0.32,
+        0.33,
+        0.34,
+        0.35,
+        0.36,
+        0.37,
+        0.38,
+        0.39,
+        0.4,
+        0.41,
+        0.42,
+        0.43,
+        0.44,
+        0.45,
+        0.46,
+        0.47,
+        0.48,
+        0.49
+      ],
+      "window": [
+        0.0,
+        0.5
+      ]
+    },
+    "teacher_records": 1400,
+    "unavailable_metrics": [
+      "within_parent_innovation_gain_correlation"
+    ]
+  },
+  "registry": {
+    "context": {
+      "failure_ledger": {
+        "design_response": "Preserve R26 labels and full endpoint modes. Change prior, coordinate niche support or local SPD metric in isolation. Native-future calibration remains unavailable, never relabel censored branches as failure.",
+        "measured_failures": [
+          "Terminal-descendant teacher replacement did not beat R26 independently.",
+          "Background-subtracted potentials, doubling dose, and broad teacher expansion degraded mean affinity.",
+          "Seven/eight marginal spatial-field contrast did not beat R26; increasing its coefficient worsened affinity.",
+          "Hard reweighting can lower final control ESS below a partition-stage floor."
+        ],
+        "sources": {
+          "docs/experiments/dynamic_contrast10_20261008/report.zh-CN.md": "356b10bce474a08a2b578d8e77dc3b923c4a7c9d31404678eccbede5b791c4d6",
+          "docs/experiments/elite_path20_20261007/report.zh-CN.md": "ecad1ed54b0fb7db924799e153eb74da9fba8909918e0bfe1a1db8b297e608dc"
+        }
+      },
+      "goal": "Improve final predicted CK2 affinity; coordinate geometry primary, strain secondary. Preserve actual learned window and native continuation. New30budget; do not confuse earliercompletedrounds.",
+      "model_audit_text": "# FLOWR梯度控制与历史选择数据的兼容性审计\n\n日期：2026-10-09。本报告是只读源码与文献审计；没有新增推理，没有测得新的亲和力收益，没有执行模型模块消融。它供本轮Analyst/Designer作为来源绑定的证据使用。\n\n## 1. 首先区分五个对象\n\n历史Steer每个选择事件同时保存当前噪声状态 `X_t`、当步FLOWR预测端点 `Y_t=Fθ(X_t,C_t,P,t)`、原生积分提议 `Z_(t+dt)`、在线评分与重采样索引。评分来自 `Y_t` 的共享模型输出；被复制的是提议状态及条件信息。当前控制器的主要奖励也作用在 `Y_t`，不能将它解释为实际 `X_t` 的势能或t=1真实解码状态的亲和力。\n\nSteer有效的直接机制是：按在线评分把计算预算重新分配给有利候选，保留其状态和self-conditioning，再通过后续随机生成分支探索周边；它不需要给出可微的有利坐标方向。高分候选拥有更高的**期望**复制数，实际存活仍受多项式抽样随机性影响。单次未被选中不能等同于低质量；缺失后续不能等同于终态失败。\n\n源码：`generation/controller.py:63`（current/时钟/谱系）、`:82`（score与endpoint）、`:108`（choose）、`:126`（复制事件与持久化）；`tests/fixtures/upstream_generate_selective.py.txt`（完整原生循环）。应结合实际文件版本核验行号。\n\n## 2. 当前R26的真实梯度是什么\n\n`generation/endpoint_controller.py:20–32` 在当前归一化坐标X上重新启用自动微分，用唯一的原生target forward计算Y及新条件C。亲和力输出detach，条件与Hungarian对应冻结，求得：\n\n`gX = J_F(X; frozen C,P,t)^T · scale · ∇_Yworld R(Yworld,t)`。\n\n这里J是真实FLOWR坐标预测器的Jacobian，并非额外拟合模型。它是固定当前离散标签和旧self-conditioning的条件导数；不是从t到1整个随机、离散、递归生成过程的完整Jacobian。`endpoint_controller.py:54–96` 只在实际学习窗口计算；`:123–173` 等原生积分完成后才注入该方向。因此g是在旧X_t上计算的、施加在新提议Z上的**滞后控制方向**。已有代码准确把 `g·ΔX` 命名为旧状态奖励的一阶估计，不能宣称这是新状态的新鲜奖励增加。\n\nR26的完整端点点云混合奖励见 `generation/affinity_geometry_reward.py:45–76` 与 `endpoint_reward.py:7–35`。先验含在线评分，坐标匹配与teacher邻居离散冻结。原子与化学图没有接受gate；坐标变化可通过下一次模型前向改变原生图分布，这本身不是质量失败。\n\n## 3. 原生动力学不是只有线性FLOW ODE\n\n`generation/coordinate_reward.py:15–18` 的predictive_flow_increment准确计算线性端点参数化的确定性flow分量：\n\n`v_t=(Y_t−X_t)/(1−t)`，`ΔX_flow=dt·v_t`。\n\n但是 `generation/controller.py:271` 显式启用原生SDE模式且坐标噪声为0.2；`window_controller.py:68–82` 在关闭粒子选择后仍保持此设定。不要把关闭Steer重采样理解为关闭原生随机生成。\n\n本轮下载并SHA验证的实际远端源码 `test/flowcompat30_driver/integrator.py::coord_step`（126–176行）在非cosine、非velocity-sample情况下实际执行：\n\n`g_t=1/(t+0.01)`（t<0.9，否则0），\n\n`s_t=(t·v_t−X_t)/(1−t+ε)`，\n\n`Z=X_t+dt·(v_t+g_t·s_t)+dt·sqrt(2·g_t·coord_noise_level)·ξ`。\n\n最后一项源码乘的是dt而非sqrt(dt)。本项目必须保留这个已匹配的实现；不能直接套用连续时间标准SDE的分布、KL或Doob变换保证。观测native位移混合flow、score漂移、噪声；特别早期的收缩不能被解释成有利区域的稳定优化方向。predictive-flow剂量仅选定校准分量，并没有删除score或噪声。\n\n在固定C、离散标签、同一个ξ时，令 `d=1−t+ε`、`A=1+g_t·t/d`、`B=g_t/d`，则原生坐标提议为：\n\n`Z=[1−dt·B−dt·A/(1−t)]X + [dt·A/(1−t)]F(X)+noise`。\n\n其条件Jacobian为 `J_Z=[1−dt·B−dt·A/(1−t)]I+[dt·A/(1−t)]J_F`。这由原生源码代数推导，区别于J_F；不是已实测的模块敏感度。若Designer设计proposal坐标奖励、pre-native控制或endpoint输出修正，必须声明使用哪个状态与Jacobian，并使用实际dt/schedule。奖励对时间的导数dR/dt不等于空间控制梯度。\n\n## 4. 容易被忽略的控制效应\n\n`generation/local_reward.py:55–67` 令控制RMS等于 `η·predictive_flow_RMS·dose_gate`，再执行逐原子与累计上限。因此把整个R乘任意正标量，在非零梯度阈值与数值误差以外会被归一化抵消；修改reward coefficient不必然改变真实剂量。多奖励的相对权重主要改变方向，η和gate改变剂量。\n\n当前上限是防过大位移与新严重受体碰撞；它们不能证明能量合理。`path_rms`是逐步RMS之和，不是最终净位移或控制能量。固定累计RMS也不等同于固定 `Σ||ΔX||²/dt`。现有R26 dose有效参数η=0.33；实际点云曲率由 `pointcloud_delta_A` 默认1Å控制，继承的 `robust_delta=2` 不作用于该公式。\n\n匹配冻结让一次数值VJP核验有明确含义，但跨步Hungarian对应/K近邻切换仍会造成目标不连续。无需禁止切换，应先记录teacher posterior与对应变化、梯度方向一致性，分析其与后续预测和终态的关系。\n\n## 5. 尚可新增且不增加生产前向的测量\n\n下面是待实现的工具输出，不是假装已有观测结论。每项只保留批次×实际时间的汇总/分位数和少量异常索引；逐原子完整数组为可选诊断，不默认常驻。\n\n|信息|计算与用途|解释边界|\n|---|---|---|\n|端点到状态的敏感度传递|同一次reverse请求gY与gX；`||gX||/(scale·||gYworld||)`、区域梯度能量分布|反映当前**奖励**经模型的敏感度，不是亲和力头贡献，不是全Jacobian谱|\n|方向与原生流/漂移关系|gX分别与Δflow、观测Δnative的余弦；`gX·Δnative`|抗原生方向可能有益；不能简单硬删除负余弦方向|\n|跨步稳定性|同一未复制谱系的端点innovation、当前/前步梯度余弦、teacher posterior换模率|随机和离散状态改变会影响innovation，不是模型预测方差的无偏估计|\n|区域选择创新|从实际亲子路径计算区域Δendpoint、Δcurrent、Δproposal，分离期望选择项与复制噪声|需在同一事件/亲本背景比较，不能把全群体共同native运动算富集|\n|联合空间构型|landmark对/三元组的占据共现、局部点云协方差/方向、相对区域距离角度，固定受体坐标系|不能只把显著边际字段相加；区域重叠和整体姿态要作为混杂处理|\n|高值路径与局部变化的联系|在线评分持久性、分数相对事件中位数的margin、优势事件中的空间方向一致性；独立批次与家族权重|在线分数改善参与选择，非native未来因果收益；灭绝后未来保持删失|\n|局部控制动作可信度|原始/投影梯度、实际剂量、clash backtrack、窗口内覆盖、dt归一化动作成本|识别被cap、数值no-op或控制未落实，不能仅看终态均分是否变|\n\n`torch.autograd.grad(value.sum(), (X,Y))` 可从已存在图同时取得所需梯度；不需要dense Jacobian，不需要亲和力求导，不需要额外神经前向。精确实施应做小型自动微分测试确认gX与旧实现逐位一致，避免新增无信息机制制造浮点扰动后被误当算法收益。\n\n## 6. 模型模块“重视区域”必须怎样核实\n\n真正的口袋模型主要为 `flowr/models/pocket.py::LigandGenerator/LigandDecoder`，并由 `pocket_util.py::SemlaLayer` 组合self-attention、pocket条件attention及feedforward；不是把旧mol-only `semla.py::SemlaGenerator` 任意当作本次checkpoint架构。LigandDecoder将当前与self-conditioning坐标共同embedding，当前和口袋的RBF距离进入边与interaction模块，端点投影和图投影共享上游表征。旧条件坐标是一条独立输入路径，当前梯度将它冻结。\n\n历史轨迹没有记录hidden activations、attention或模块干预，因此仅由XYZ不能识别“哪个模块因果重视哪个区域”。若确需测试：在保留的正常forward上装可选hook，将 `gen.ligand_dec.layers[i].self_attention/cond_attention` 的equivariant更新、梯度×更新按区域汇总；也可在单独审计的小样本上做条件坐标/指定模块干预，并与正常前向配对。attention大小和gradient×activation仍是解释性代理，不能直接声明亲和力因果贡献。真实模块消融额外调用必须计入审计预算；当前生产推理不加这些重复前向。\n\n来源版本：本轮已下载并核验实际远端 `test/flowcompat30_driver/fm_pocket.py` SHA=`beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426`、`integrator.py` SHA=`e9abd83167f708da4712db2ac49ab24ac44a39c59c46a54c20789c7873c58000`。上述动力学、`fm_pocket.py:874` forward、`:1471` predictions、`:1970` selective生成语义已在这两份准确源码上复核。实际源码也含residual selfconditioning/categorical guard选项，但选项存在不代表checkpoint启用，仍应读hparams。\n\n口袋模块结构主要读缓存 `tmp/flowr_root_scnet_source/flowr/models/pocket.py` 与 `pocket_util.py`，尚未逐文件与远端绑定，因此模块hook应以运行时实例名称和捕获源码为准。缓存整文件SHA为 integrator=`ce858a27d25fd268a855181f4434bceb1ad14150d03d401dd28b8cbb165cfc20`，fm_pocket=`e2d10a5789820bc7127e3dc3e3e144785b29db1098c4f739ad22647f5756a2b4`。即便差异只是版本或换行，也不能拿缓存哈希代替实际执行合同。\n\n## 7. 两类值得顺序探索的新机制\n\n**数据挖掘优先：** 学习条件于当前事件、根/父谱系和全局姿态的“优势选择创新”，重点是哪些区域的endpoint改变在高在线margin路径中反复出现，并报告被排除分支的已观察对照、复制运气和删失。对原始/期望/实现选择项分别输出全窗口曲线与批次CI；时间拟合用留一批次验证，曲线和导数只描述时间规律。已有74项压缩边际几何不显著或失败，不能继续把其常数差值重新包装成新规则。\n\n**奖励/控制优先：** 保留R26联合多模态点云基底。先在相同forward中量化敏感度传递、切换与流方向，再注册单轴的“VJP增益/创新可信度→有界剂量”机制，与R26进行相同总剂量的负对照；检验改变来自剂量分配而非额外信息或浮点归一化。另一条独立实验轴是已学区域创新的联合点云方向项，按完整模式而非各区域均值吸引。必须保持窗口由输入声明读取，并在窗口后原生续推。\n\n一个可检验的维度正确的gate为 `G=||gX||/||gY_native||`，`h(G)=G/(G+G_ref)`；gY_native已包含world到native的scale，二者比值无量纲。G_ref可用预先注册的固定常数或先行baseline诊断冻结，不根据当轮最终亲和力即时调节。h只改变剂量分配，不能声称获得了完整条件协方差或value function。避免每个batch重新以自身分位数定门槛导致样本之间相互依赖；配套总剂量匹配的控制。zero开关要求严格走原R26数学运算路径。\n\n若直接在预测端点Y上做输出修正δY，则实际原生状态变化为 `dt·A/(1−t)·δY`（上述源码条件下）；这是一种不同控制接口，不等于R26的J_Fᵀ梯度。需要独立新扩展、准确self-conditioning语义、zero/native逐位检查和剂量匹配。若使用proposal势 `R(Z,s)` 并回传 `J_Zᵀ∇_ZR`，也应明确它优化的是s时刻已学状态，不能声称完整t=1值函数。这两条先作为后续预注册备选，不混入初始R26比较。\n\n## 8. 既有失败约束与实施反馈门槛\n\n历史 `ck2_affinity_geometry30_20261007/30_rounds_workflow_and_reward_analysis.zh-CN.md`、`elite_path20_20261007/report.zh-CN.md`、`dynamic_contrast10_20261008/report.zh-CN.md`、`selection_path20_20261008/report.zh-CN.md` 已记录：压缩/稀疏方向、父子历史奖励、整窗晚期dose重配、宽teacher覆盖、窄核、过高剂量、强化在线分数、普通边际区域对比、终态信用替换、niche/协方差/逐原子robust等不能自动改善R26。新方案必须声明具体新信息/新控制机理，不能只重复这些名字。\n\n分析Agent需要提交实际tool运行receipt及输出SHA，引用正/反证；Designer响应必须改变可执行程序并有公式与参数绑定。生成前进行固定坐标的梯度/剂量响应核验和无信息控制逐位一致测试，生成后确认实际覆盖、非零剂量、窗口外零注入、正常native RNG、相同initial SHA与单步生产forward预算。实施确认不等于性能确认；最终仍以冻结新批次的全部尝试平均pIC50主指标、有效率/PB和应变次指标比较R26与native，历史Steer为非配对参照。失败方案留下报告/commit，恢复原R26源/程序/Skills运行合同。\n\n## 9. 一手文献与迁移边界\n\n[Feng等，On the Guidance of Flow Matching，ICML 2025](https://proceedings.mlr.press/v267/feng25s.html) 的[全文](https://arxiv.org/html/2502.02150)区分一般flow guidance、局部近似与协方差近似；单纯搬用扩散梯度不具有一般保证。其Gaussian/affine条件下Jacobian与端点条件协方差的关系，为审计敏感度与时间尺度提供启发。FLOWR当前self-conditioning、离散随机图和源码SDE不满足直接套用全部条件，未声称复现论文的精确引导或学习新协方差模型。[作者代码](https://github.com/AI4Science-WestlakeU/flow_guidance)当前仅核实项目说明，未逐文件复现。\n\n[Wang等，Training Free Guided Flow Matching with Optimal Control，ICLR 2025](https://arxiv.org/html/2410.18070v3)将奖励、动态控制和运行成本联合考虑，实际算法涉及沿完整ODE轨迹的co-state/VJP及多次更新。它支持把reward方向、控制代价和动态响应分开审计，而不支持把当前单步端点VJP宣称为完整OC-Flow。为保持生产前向预算，本轮借鉴控制成本/条件Jacobian诊断，不执行其全轨迹迭代求解。[作者代码](https://github.com/WangLuran/Guided-Flow-Matching-with-Optimal-Control)已核实仓库身份，未声称复現分子实验。\n\nFeng的Gaussian affine近似若进一步设α=t、β=1−t，reward取正，则速度修正系数变为 `(1−t)/t · ∇X R(F_t(X))`（由其调度公式代入推导）。这个量在t=0形式奇异，理想独立Gaussian路径中的J_F会相应趋零；实际神经预测、自条件、离散标签及当前随机实现不保证抵消。尤其不能把已经归一化的单位gX直接乘1/t而放大。若探索该时间形状，必须有明确有限边界、独立schedule轴、固定dose对照和“近似启发”说明；不把它作为既有FLOWR的严格正确调度。教师点云协方差也不是条件于当前X的真实端点协方差。\n\n[FLOWR.ROOT作者仓库](https://github.com/jule-c/flowr_root)为底层生成与Steer实现来源；实际执行仍由本地/远端捕获的版本和checkpoint SHA绑定，不能以最新README替代运行源码。\n",
+      "module_sensitivity": "Inference-only existing-backward decoder output gradient RMS and per-slot concentration; no attention causal claim, no additional forward/backward. Newly instrumented code null tested offline and actual pairednullcontrol required."
+    },
+    "formulas": {
+      "joint_innovation": {
+        "allowed_updates": [
+          "innovation.field_strength_A",
+          "innovation.reliability_power",
+          "innovation.region_weight_mix"
+        ],
+        "code_files": {
+          "src/evomolsteer/generation/flowcompat_control.py": "772edb8bcfa0fa051f23510ed3a8fbc96233fea8c60f14937b2c3c32650358b0",
+          "src/evomolsteer/generation/flowcompat_controller.py": "92cb5b2f1fd5b8b3ff10fb60ba1958cba560bfcb2a5e5853434a24d7dc1aeadd",
+          "src/evomolsteer/generation/innovation_reward.py": "10e6ddac09b61d0b49c0764e569e0dbe6b7cf2047da64d6691ed70ce20b477ca",
+          "src/evomolsteer/generation/module_sensitivity.py": "5d486d8ed5a678e64ce05fb3a332cd0178691c39ed06651ac8db749805e5df29"
+        },
+        "reward_view": "endpoint_innovation"
+      },
+      "native_control": {
+        "allowed_updates": [
+          "flow_control.time_envelope_power",
+          "flow_control.parallel_component_scale",
+          "flow_control.gradient_norm_saturation",
+          "flow_control.jacobian_gain_saturation"
+        ],
+        "code_files": {
+          "src/evomolsteer/generation/flowcompat_control.py": "772edb8bcfa0fa051f23510ed3a8fbc96233fea8c60f14937b2c3c32650358b0",
+          "src/evomolsteer/generation/flowcompat_controller.py": "92cb5b2f1fd5b8b3ff10fb60ba1958cba560bfcb2a5e5853434a24d7dc1aeadd",
+          "src/evomolsteer/generation/innovation_reward.py": "10e6ddac09b61d0b49c0764e569e0dbe6b7cf2047da64d6691ed70ce20b477ca",
+          "src/evomolsteer/generation/module_sensitivity.py": "5d486d8ed5a678e64ce05fb3a332cd0178691c39ed06651ac8db749805e5df29"
+        },
+        "reward_view": "endpoint_pointcloud"
+      }
+    },
+    "programs": {
+      "R26": {
+        "program_path": "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\skill_ablation_v1\\incumbent.json",
+        "program_sha256": "93da2e4cfa7b9d214d3b55b6fb25c6bd20dba832065d06a7c1d602965e47f21f",
+        "reference_path": "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\skill_ablation_v1\\endpoint_reference.json.gz",
+        "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c"
+      },
+      "R26_augmented": {
+        "program_path": "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\skill_ablation_v1\\incumbent.json",
+        "program_sha256": "93da2e4cfa7b9d214d3b55b6fb25c6bd20dba832065d06a7c1d602965e47f21f",
+        "reference_path": "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\flowcompat30_v1\\innovation_reference.json.gz",
+        "reference_sha256": "4b69298c56cde368da66798da0ac052ea3de682ecb87b605b80f19d1147f18be"
+      }
+    }
+  },
+  "request_bindings": {
+    "evidence_sha256": "951e8af12d4f82c4f6e6d4df2c59e13c0547f4561849ae110cb205c4beab62e5",
+    "instruction_sha256": "8cc51080fadd90e9bfea528264756891ac0d852b04f4c80c885d7f7712902507",
+    "tool_receipt_sha256": [
+      "2f2a17d606c29c5a5ec6fc4a6ccce658b8d2caa22b519ec12af029b64ef9a9b2",
+      "9407d925aebe2ef99f530ad46c9f583219c2571994b76a7c9b6175d6a9342938"
+    ]
+  },
+  "request_sha256": "b3ec908488f479f81e6aa4af9ba2d463770802dbe2bf2919ba34b4910194507f",
+  "tool_receipts": [
+    {
+      "code_files": {
+        "D:/llm_controlled_generation/EvoMolSteer/scripts/flowcompat_agent.py": "0e569369b7f6995b5e7c430e64885110d3deaf64b9e2d9e8f260f41f8f64d80e",
+        "D:/llm_controlled_generation/EvoMolSteer/src/evomolsteer/continuous/flowcompat_agents.py": "0251a4fa97b18f4358327424c2f351c6680dc3b65de0f7f4ed2fb02c70842c02"
+      },
+      "command": [
+        "D:\\llm_controlled_generation\\EvoMolSteer\\.venv\\Scripts\\python.exe",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\flowcompat_agent.py",
+        "--action",
+        "audit-flow",
+        "--program",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\skill_ablation_v1\\incumbent.json",
+        "--reference",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\skill_ablation_v1\\endpoint_reference.json.gz",
+        "--output",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\agents\\flow_configuration_audit.json",
+        "--source-module",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\test\\flowcompat30_driver\\fm_pocket.py",
+        "--source-module",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\test\\flowcompat30_driver\\integrator.py",
+        "--model-audit",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\model_compatibility_audit.md"
+      ],
+      "complete_outputs": true,
+      "input_files": {
+        "D:/llm_controlled_generation/EvoMolSteer/configs/experiments/skill_ablation_v1/endpoint_reference.json.gz": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+        "D:/llm_controlled_generation/EvoMolSteer/configs/experiments/skill_ablation_v1/incumbent.json": "93da2e4cfa7b9d214d3b55b6fb25c6bd20dba832065d06a7c1d602965e47f21f",
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/model_compatibility_audit.md": "90af139c982598c4edf5a6fcffce61c5b51128376c974aac8a4bbcf792e2d1fb",
+        "D:/llm_controlled_generation/EvoMolSteer/test/flowcompat30_driver/fm_pocket.py": "beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426",
+        "D:/llm_controlled_generation/EvoMolSteer/test/flowcompat30_driver/integrator.py": "e9abd83167f708da4712db2ac49ab24ac44a39c59c46a54c20789c7873c58000"
+      },
+      "inputs_unchanged": true,
+      "output_files": {
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/agents/flow_configuration_audit.json": "efc0176b9fbc17b126f23efe5e07906b96069e8be3caef48a6de5f5e3f2907fa"
+      },
+      "plan_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\agents\\flow.plan.json",
+      "plan_sha256": "f597b4e9faed16917299321d786b84bcb0d4b6228078f1f686064ffa5cdbf0ed",
+      "returncode": 0,
+      "schema_version": "flowcompat-tool-receipt-1.0",
+      "stderr_tail": "",
+      "stdout_tail": "",
+      "tool_id": "flow_compatibility"
+    },
+    {
+      "code_files": {
+        "D:/llm_controlled_generation/EvoMolSteer/scripts/mine_selection_innovation.py": "c1a09f0270fa798b6be149c60a54c48351f9387fc21f1ef0e1825c3157661045",
+        "D:/llm_controlled_generation/EvoMolSteer/src/evomolsteer/continuous/selection_innovation.py": "6f05ebb56ed248b38ec3738e3c2ac21b3af11184195517da23b67e1e7e7a4a7b"
+      },
+      "command": [
+        "D:\\llm_controlled_generation\\EvoMolSteer\\.venv\\Scripts\\python.exe",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\mine_selection_innovation.py",
+        "--dataset",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\data\\raw\\ck2_clk3_lineage_20261003",
+        "--campaign",
+        "main1000_w050",
+        "--reference",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\skill_ablation_v1\\endpoint_reference.json.gz",
+        "--output",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\mining\\agent_joint_v3",
+        "--seed",
+        "42",
+        "--neighbours",
+        "6"
+      ],
+      "complete_outputs": true,
+      "input_files": {
+        "D:/llm_controlled_generation/EvoMolSteer/configs/experiments/skill_ablation_v1/endpoint_reference.json.gz": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+        "D:/llm_controlled_generation/EvoMolSteer/data/raw/ck2_clk3_lineage_20261003/results/main1000_w050/config.json": "4ac951f173b3de6ce6e64e8eec9dd3e7935d151fbbff33865cd2c16ef318ca8e"
+      },
+      "inputs_unchanged": true,
+      "output_files": {
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/mining/agent_joint_v3/augmented_reference.json.gz": "4b69298c56cde368da66798da0ac052ea3de682ecb87b605b80f19d1147f18be",
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/mining/agent_joint_v3/event_statistics.parquet": "34e5911978da8cda2c84c20cf0e87692e8b9cc39b0a8f7efe971c1efaf72fe24",
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/mining/agent_joint_v3/evidence.json": "951e8af12d4f82c4f6e6d4df2c59e13c0547f4561849ae110cb205c4beab62e5",
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/mining/agent_joint_v3/fitted_trends.json": "07a8fe972ca73cb530818a2ff8ef37d233ad3a5798ba048fd3142f519b284177",
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/mining/agent_joint_v3/manifest.json": "100cedb0432cefe38922cfca31ae8c75f8df7e7bfd84d738c37cf9fc7163174e",
+        "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/flowcompat30_20261009/mining/agent_joint_v3/whole_window_effects.parquet": "bb53a6c572478a2a2d958f0b670ed0101ae1eb0488f2d51b331179b024affdf9"
+      },
+      "plan_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\agents\\mining.plan.json",
+      "plan_sha256": "5d059ef61f5859356b81c92578517d93f88e1411fd543038e96f29b3b8a71619",
+      "returncode": 0,
+      "schema_version": "flowcompat-tool-receipt-1.0",
+      "stderr_tail": "",
+      "stdout_tail": "selection innovation batch 0: 50 observed decisions\nselection innovation batch 1: 50 observed decisions\nselection innovation batch 2: 50 observed decisions\nselection innovation batch 3: 50 observed decisions\nselection innovation batch 4: 50 observed decisions\nselection innovation batch 5: 50 observed decisions\nselection innovation batch 6: 50 observed decisions\nselection innovation batch 7: 50 observed decisions\nselection innovation batch 8: 50 observed decisions\nselection innovation batch 9: 50 observed decisions\nselection innovation batch 10: 50 observed decisions\nselection innovation batch 11: 50 observed decisions\nselection innovation batch 12: 50 observed decisions\nselection innovation batch 13: 50 observed decisions\n{\"augmented_reference_sha256\": \"4b69298c56cde368da66798da0ac052ea3de682ecb87b605b80f19d1147f18be\", \"events\": 700, \"maximum_teacher_match_RMS_A\": 1.2270054431213764e-06, \"schema_version\": \"selection-innovation-mining-1.0\", \"teacher_records\": 1400}\n",
+      "tool_id": "selection_innovation"
+    }
+  ]
+}
