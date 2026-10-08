@@ -39,6 +39,20 @@ class Driver(BaseDriver):
         self.state.mkdir(parents=True,exist_ok=True);self.work=a.remote_work;self.remote_repo=a.remote_repo
         self.threshold=read_json(self.docs/'protocol.json')['tail_threshold_pic50'];self.connect()
 
+    def push(self,message):
+        self.local(['git','add',str(self.cfg.relative_to(self.root))])
+        # Preliminary/raw mining payloads never enter the published report set.
+        paths=[p for p in self.docs.rglob('*') if p.is_file() and
+            'joint_contrast_v1' not in p.parts and p.name!='augmented_reference.json.gz']
+        if paths:self.local(['git','add','-f',*[str(p.relative_to(self.root)) for p in paths]])
+        self.local(['git','diff','--cached','--check'])
+        if self.local(['git','diff','--cached','--name-only']):self.local(['git','commit','-m',message])
+        self.local(['git','-c','http.proxy=http://127.0.0.1:7897','push','origin','main'])
+        commit=self.local(['git','rev-parse','HEAD']);q=shlex.quote
+        self.remote(f'timeout 180 git -C {q(self.remote_repo)} -c http.proxy=http://127.0.0.1:17897 pull --ff-only origin main')
+        if self.remote(f'git -C {q(self.remote_repo)} rev-parse HEAD')!=commit:raise ValueError('Exact deployment commit required')
+        return commit
+
     def best(self,admissible_only=True):
         rows=read_json(self.cfg/'campaign.json')['rounds']
         rows=[r for r in rows if 3<=r['round']<=24 and (r['screening_admissible'] or not admissible_only)]
