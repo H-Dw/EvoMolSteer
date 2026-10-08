@@ -25,6 +25,9 @@ def report(repo):
     table=pd.DataFrame(records);table.to_csv(docs/'rounds_summary.csv',index=False)
     confirmation={'complete':False,'adopt_candidate':False}
     if state['rounds_completed']==30:
+        from validate_flowcompat_confirmation import ConfirmationAudit
+        integrity=ConfirmationAudit(root).run()
+        write_json(docs/'confirmation_integrity.json',integrity)
         controls=pd.concat([pd.read_csv(docs/f'round{n:02d}/candidate_metrics.csv') for n in [25,27,29]])
         candidates=pd.concat([pd.read_csv(docs/f'round{n:02d}/candidate_metrics.csv') for n in [26,28,30]])
         r26=controls[controls.arm.eq('gradient')];native=controls[controls.arm.eq('unguided')]
@@ -33,7 +36,8 @@ def report(repo):
             effect['limitation']='Frozen candidate on six held-out generation batches with fixed master seed; batch bootstrap, not independent molecules or biological affinity validation.'
         metrics={key:summarize_tail(value,read_json(docs/'protocol.json')['tail_threshold_pic50']) for key,value in [('candidate',candidates),('R26',r26),('native',native)]}
         steer=read_json(docs/'steer_reference.json')['all'];m=metrics['candidate'];baseline=metrics['R26']
-        checks={'positive_independent_effect':a['paired_mean_pic50']>.01 and a['batch_bootstrap_CI95'][0]>0,
+        checks={'confirmation_integrity':integrity['integrity_passed'] and integrity['eligible_for_efficacy_decision'],
+            'positive_independent_effect':a['paired_mean_pic50']>.01 and a['batch_bootstrap_CI95'][0]>0,
             'positive_vs_native':b['paired_mean_pic50']>0,
             'validity':m['valid_n']/m['n']>=baseline['valid_n']/baseline['n']-.03,
             'pose_quality':m['pb_fast_rate']>=baseline['pb_fast_rate']-.03,
@@ -42,6 +46,7 @@ def report(repo):
             'screened_before_confirmation':read_json(docs/'frozen_validation.json')['screening_admissible'],
             'implementation':all(read_json(docs/f'round{n:02d}/implementation_feedback.json').get('implementation_passed',False) for n in [26,28,30])}
         confirmation={'complete':True,'adopt_candidate':all(checks.values()),'checks':checks,
+            'integrity_report':'confirmation_integrity.json',
             'metrics':metrics,'versus_R26':a,'versus_native':b,'historical_Steer_unpaired':steer,
             'frozen_candidate':read_json(docs/'frozen_validation.json')}
     write_json(docs/'confirmation.json',confirmation)

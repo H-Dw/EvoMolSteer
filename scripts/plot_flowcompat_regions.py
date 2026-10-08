@@ -66,17 +66,27 @@ def plot(input_dataset, output_dataset):
     plt.close(fig)
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(projection='3d')
+    display_points = []
     for region in regions:
         center = np.array(region['landmark_A'], float)
         vector = np.array(region['whole_window_xyz'], float)
         norm = np.linalg.norm(vector)
         if norm == 0:
             raise ValueError('Qualified regional vector cannot be zero')
+        display_points.extend((center, center + 1.5 * vector / norm))
         ax.scatter(*center, color='#2368a0', s=30)
         ax.quiver(*center, *(vector / norm), length=1.5, color='#c2502f', arrow_length_ratio=.25)
         ax.text(*center, f' {region["region"]:02d}', fontsize=9)
     ax.set(xlabel='World x (A)', ylabel='World y (A)', zlabel='World z (A)',
            title='Regional landmarks and normalized association directions')
+    # Equal box dimensions alone distort world-space directions when axis
+    # ranges differ. Include arrow tips, then use the same range on all axes.
+    points = np.asarray(display_points)
+    low, high = points.min(axis=0), points.max(axis=0)
+    midpoint = (low + high) / 2
+    half_range = max(float((high - low).max()) / 2, .5) + .5
+    for axis, setter in enumerate((ax.set_xlim, ax.set_ylim, ax.set_zlim)):
+        setter(midpoint[axis] - half_range, midpoint[axis] + half_range)
     ax.set_box_aspect((1, 1, 1))
     fig.text(.09, .03, 'Arrows have equal display length; they are not physical displacement or causal force.', fontsize=8)
     fig.tight_layout(rect=[0, .05, 1, 1])
