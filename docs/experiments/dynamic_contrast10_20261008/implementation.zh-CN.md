@@ -26,6 +26,8 @@
 
 用0–3阶Legendre函数拟合整个窗口的标准化差异，留一批次交叉验证并用一标准误差规则选择最简复杂度，保存解析时间导数。初始74项都选择0阶：跨批次稳定的平均差异有证据，额外时间曲率没有。观察到的端点差不能取代交叉验证结果；时间导数也不是坐标梯度。奖励仍可使用各节点观测到的群体中心，中心的变化与两群体差异曲线的变化是不同问题。
 
+进一步增加独立的群体目标曲线模块，分别拟合正例与对照的原始单位特征，不改冻结奖励。普通对照下，L00距离的正/负群体均选择线性函数，拟合速率约−0.241/−0.255Å每单位生成时间；L03距离两群体都选择三次函数。L03的5Å壳层密度正例选择二次、对照三次，L12的3Å密度两群体选择线性；L00与L03的3Å密度及L04距离保持常数模型。难负例与扩大模糊带下的相应函数也已独立保存。因此“优势差值基本稳定”不能解释为“优势区域完全不动”。这些是群体场的描述函数，不能恢复每个seed的三维原子轨迹，也尚未被本轮Analyst/Designer调用或推理奖励使用。
+
 初始七项候选：L00距离减小/3Å壳层密度增加；L03距离增加/3Å与5Å壳层密度下降；L04距离减小；L12的3Å壳层密度下降。L04、L12的批次一致性较弱，是待实验验证的假设，不能据此指定真实化学作用。完整效应、区间、q值、原始曲线与拟合函数见rest_mining。
 
 额外坐标注释将L00映射到Val53 CG1、L03到Asp120 OD1、L04到Glu114 CD、L12到Glu55 OE1，均与参考PDB原子坐标精确重合。该注释帮助定位区域，不证明相互作用；初始Analyst/Designer调用没有使用这些事后添加的残基标签。壳层密度上升也不等于所有原子向landmark移动：原子位于壳层峰值内侧或外侧时，局部梯度方向不同。
@@ -72,6 +74,8 @@ python scripts/audit_dynamic_selection.py --events ANALYSIS_DIR/event_cohorts.pa
   --manifest ANALYSIS_DIR/manifest.json --output SELECTION_AUDIT.json
 python scripts/annotate_reward_landmarks.py --reference REFERENCE.json.gz
   --receptor EXACT_RECEPTOR.pdb --output LANDMARK_ANNOTATIONS.json
+python scripts/fit_cohort_targets.py --reference REFERENCE.json.gz
+  --output COHORT_TARGET_FUNCTIONS.json --maximum-degree 3
 python scripts/prepare_dynamic_agent_inputs.py --repo . --role Analyst
 python scripts/prepare_dynamic_agent_inputs.py --repo . --role Designer
 python scripts/run_dynamic_contrast_campaign.py --start 1 --last 10
