@@ -21,4 +21,5 @@ source_args=(--input-dataset "$flowr"
  --checkpoint "$flowr/checkpoints/flowr_root_v2.ckpt" --steps 100 --program "$program" --reference "$reference" \
  --campaign "$campaign" --n "$n" --batch 50 --seed 42 --arms "$arms" --batch-indices "$batches" --export-terminal
 "$python" scripts/attest_flowr_sources.py "${source_args[@]}" --reference-record "$work/$tag.upstream.before.json" --output-record "$work/$tag.upstream.after.json"
+"$python" scripts/bind_flowr_source_attestation.py --dataset "$work/generated" --campaign "$campaign" --before-record "$work/$tag.upstream.before.json" --after-record "$work/$tag.upstream.after.json"
 "$python" scripts/archive_generation.py --dataset "$work/generated" --campaign "$campaign" --output "$work/$campaign.tar.gz" --evaluation-only
