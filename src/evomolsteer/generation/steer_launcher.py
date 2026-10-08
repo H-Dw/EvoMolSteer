@@ -30,7 +30,7 @@ class SteerLearningConfig:
     input_manifest:str|None=None
     campaign:str='steer_learning'
     samples:int=1000
-    batch_size:int=50
+    batch_size:int=100
     steps:int=100
     window_start:float=0.0
     window_end:float=0.5

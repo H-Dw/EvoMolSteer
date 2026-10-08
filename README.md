@@ -148,7 +148,7 @@ seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生
 
 ## CrossDocked 多 target 单目标生成
 
-`scripts/run_steer_targets.py` 自动发现 target、生成独立配置并调用已有 Steer 入口。默认每 target 1000候选、seed42、选择窗口 `[0,0.5]`；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。可关闭压缩、修改分组大小或保留工作目录；已归档 target 可单独恢复供 LLM 读取评分事件。
+`scripts/run_steer_targets.py` 自动发现 target、生成独立配置并调用已有 Steer 入口。默认每 target 1000候选（10批×100）、seed42、选择窗口 `[0,0.5]`；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。可关闭压缩、修改分组大小或保留工作目录；已归档 target 可单独恢复供 LLM 读取评分事件。
 
 - [控制流程、参数、实测压缩比例与恢复接口](docs/steer_target_campaign.md)
 - [CrossDocked 100-target 配置](configs/generation_crossdocked100_steer.json)、[通用配置](configs/generation_target_collection.example.json)、[显式输入清单](configs/target_collection.example.json)

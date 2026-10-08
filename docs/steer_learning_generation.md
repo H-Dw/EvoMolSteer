@@ -29,7 +29,7 @@ python scripts/generate_steer_learning.py --config /path/to/generation.json
 
 `--dry-run` 校验路径、输入角色、采样范围和输出占用，只输出执行计划。正式执行必须使用新的空输出目录，输入文件按 SHA-256 校验后复制，原输入不修改。`samples` 是每个 arm 的候选总数，必须是 `batch_size` 的整数倍；不在输出端提前剔除失败或重复分子。
 
-已有 CK2/CLK3 输入可直接使用 `configs/generation_ck2_clk3_steer_learning.json`：指定历史实验输入、v2 checkpoint、1000 候选/arm、50 候选/批次、100 步、窗口 `[0,0.5]`、seed 42，保存到新的实验目录。配置包含 `single,unguided`，以便之后进行匹配背景的富集分析。在远端 EvoMolSteer 仓库目录执行：
+已有 CK2/CLK3 输入可直接使用 `configs/generation_ck2_clk3_steer_learning.json`：指定历史实验输入、v2 checkpoint、1000 候选/arm、100 候选/批次（10批）、100 步、窗口 `[0,0.5]`、seed 42，保存到新的实验目录。配置包含 `single,unguided`，以便之后进行匹配背景的富集分析。在远端 EvoMolSteer 仓库目录执行：
 
 ```bash
 python scripts/generate_steer_learning.py --config configs/generation_ck2_clk3_steer_learning.json

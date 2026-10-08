@@ -35,7 +35,7 @@ class TargetCampaignConfig:
     ligand_suffix:str='.sdf'
     campaign:str='single_w050'
     samples:int=1000
-    batch_size:int=50
+    batch_size:int=100
     steps:int=100
     window_start:float=0.
     window_end:float=.5
@@ -201,7 +201,8 @@ def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flus
     for path in (Path(cfg.checkpoint),Path(cfg.python_executable),Path(cfg.flowr_root)/'flowr/models/fm_pocket.py',Path(cfg.flowr_root)/'flowr/gen/generate_from_pdb_selective.py'):
         if not path.is_file():raise FileNotFoundError(path)
     plan={'format':FORMAT,'catalog_targets':len(catalog),'selected_targets':len(selected),
-          'samples_per_target':cfg.samples,'objective':'target predicted affinity','arms':['single'],
+          'samples_per_target':cfg.samples,'batch_size':cfg.batch_size,
+          'batches_per_target':cfg.samples//cfg.batch_size,'objective':'target predicted affinity','arms':['single'],
           'selection_window':[cfg.window_start,cfg.window_end],'integration_end':1.,'compress':cfg.compress,
           'archive_every_targets':cfg.archive_every,'remove_archived_targets':cfg.compress and cfg.remove_archived_targets,
           'generator_script':str(script),'first_job_config':asdict(inner),'targets':selected}
