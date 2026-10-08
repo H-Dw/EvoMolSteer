@@ -40,6 +40,13 @@ def execution_audit(dataset,campaign):
                 'nonzero_steps':sum(max(v['injection_l2_A'])>0 for v in trace),
                 'mean_cumulative_rms_A':float(np.mean(active[-1]['cumulative_rms_A'])) if active else 0.,
                 'mean_active_injection_rms_A':float(np.mean([v['injection_rms_A'] for v in active])) if active else 0.})
+            pressure=[v['selection_pressure_summary'] for v in active if 'selection_pressure_summary' in v]
+            if pressure:
+                rows[-1]['teacher_pressure']={
+                    'mean_ess':float(np.mean([v['teacher_ess_mean'] for v in pressure])),
+                    'minimum_ess':float(min(v['teacher_ess_min'] for v in pressure)),
+                    'mean_uniform_base_chance':float(np.mean([v['uniform_base_chance_mean'] for v in pressure])),
+                    'mean_covered_niches':float(np.mean([v['covered_coordinate_niches_mean'] for v in pressure]))}
             sources.append({'batch':batch,'arm':arm,'sha256':entry['source_trajectory_sha256'] if view else digest(source)})
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed'] or preflight['affinity_head_gradient']:raise ValueError('Actual FLOWR VJP validation failed')

@@ -133,6 +133,11 @@ class EndpointCoordinateExtension(CoordinateExtension):
         trace.arr['native_proposal_coords'].append(nparr(curr['coords']))
         if enabled:
             g,value,detail=self.cached;raw=g.square().sum((1,2))
+            if 'selection_pressure_audit' in detail:
+                pressure=detail['selection_pressure_audit']
+                row['selection_pressure_summary']={'teacher_ess_mean':float(pressure[:,0].mean()),
+                    'teacher_ess_min':float(pressure[:,0].min()),'uniform_base_chance_mean':float(pressure[:,1].mean()),
+                    'covered_coordinate_niches_mean':float(pressure[:,2].mean())}
             if self.program.get('preserve_native_rigid_pose'):g=remove_rigid_pose_gradient(g,self.before,mask)
             row.update(raw_gradient_l2_native=raw.sqrt().cpu().tolist(),post_projection_l2_native=g.norm(dim=(1,2)).cpu().tolist(),
                 projection_retained_squared_fraction=(g.square().sum((1,2))/raw.clamp_min(1e-30)).cpu().tolist())
@@ -146,7 +151,7 @@ class EndpointCoordinateExtension(CoordinateExtension):
             proposed,control=bounded_local_step(g,calibration,mask,detail['dose_gate'].to(g),eta,scale,cap,c['max_cumulative_rms_A']-self.path_rms)
             actual,guard=reject_new_severe_clashes(curr['coords'],proposed,mask,self.pocket['coords'],self.pocket['mask'],scale,c)
             rms=(actual.square().sum((1,2))/mask.sum(1)).sqrt()*scale;self.path_rms+=rms;self.controlled_updates+=1
-            row.update({k:v.detach().cpu().tolist() for k,v in {**{k:v for k,v in detail.items() if k!='core_mask'},**control,**guard}.items()})
+            row.update({k:v.detach().cpu().tolist() for k,v in {**{k:v for k,v in detail.items() if k not in ('core_mask','selection_pressure_audit')},**control,**guard}.items()})
             outside=(~detail['core_mask'])&mask
             row.update(reward=value.cpu().tolist(),reward_before=value.cpu().tolist(),
                 first_order_reward_change=(g*actual).sum((1,2)).cpu().tolist(),injection_rms_A=rms.cpu().tolist(),

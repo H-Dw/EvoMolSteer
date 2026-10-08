@@ -1,0 +1,259 @@
+{
+  "available_mechanisms": [
+    "rank quality prior",
+    "ESS base chance",
+    "coordinate niches",
+    "shrunk local SPD covariance",
+    "atomwise robust coordinate residual"
+  ],
+  "baseline": {
+    "additional_per_step_affinity_calls": 0,
+    "affinity_head_gradient": false,
+    "constraints": {
+      "backtrack_attempts": 7,
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "severe_receptor_clash_A": 0.8
+    },
+    "contrast_bound_nats": 2.0,
+    "coordinate_representation": "predicted_endpoint_world_A",
+    "core_radius_A": 5.0,
+    "derivation": {
+      "no_private_reasoning_transcript": true,
+      "plan": {
+        "action": "parent_refinement",
+        "global_parent_retained": true,
+        "native_rms_ratio": 0.33,
+        "parent_round": 7,
+        "reason": "Dose refinement of measured global affinity winner; regressions never overwrite the parent.",
+        "regional": false,
+        "template_round": 7,
+        "time_ramp_power": 0.0
+      },
+      "source": "Existing Steer coordinate library, recorded scores, Agent-vetted registered adaptive policy"
+    },
+    "derivative_path": "flowr_endpoint_vjp",
+    "dose_reference": "predictive_flow",
+    "endpoint_compiled_baseline_sha256": "76d3d19cf91c5b693bae9a319240bc5117d1b2432db0071269a56770a1b5f01f",
+    "endpoint_designer_response_sha256": "0cf51b573137448f9e713b3d11c0edfc2abd049049c8729e81c7a5a29687b260",
+    "family": "coordinate_only_affinity_endpoint",
+    "geometry_block_weights": [
+      0.0,
+      1.0,
+      2.0,
+      1.0
+    ],
+    "geometry_review_sha256": "66abe45aa1c8943df9bbd84fffeb540ab7a6a32d85b440f995a741ec0c93a651",
+    "mixture_temperature": 0.5,
+    "motif_components": "joint",
+    "native_rms_ratio": 0.33,
+    "objective_profile": "affinity_primary_coordinate30",
+    "preserve_native_rigid_pose": false,
+    "program_id": "ck2_affinity_geometry30_round26",
+    "record_reward_response": true,
+    "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "reward_view": "endpoint_pointcloud",
+    "robust_delta": 2,
+    "round": 26,
+    "schema_version": "current-coordinate-program-1.0",
+    "seed": 42,
+    "skill_behavior_audit_sha256": "8ecf2a0154d4d90d8095c4f264fefff88d885c886b5d13eba36ca5e97586ea76",
+    "skill_sha256": "bef51d4f8224e4cf5de256624272913d5f9a32f8590400e9f83ce6e50807ff67",
+    "target_definition": "recorded_joint_head_endpoint_strata",
+    "teacher_endpoint_temperature_A2": 4.0,
+    "teacher_neighbors": 4,
+    "teacher_score_beta": 2.0,
+    "time_ramp_power": 0.0,
+    "topology_policy": "Free native graph transitions; no pair-distance acceptance or graph equality veto",
+    "window": [
+      0.0,
+      0.5
+    ]
+  },
+  "failure_ledger": {
+    "design_response": "Preserve R26 labels and full endpoint modes. Change prior, coordinate niche support or local SPD metric in isolation. Native-future calibration remains unavailable, never relabel censored branches as failure.",
+    "measured_failures": [
+      "Terminal-descendant teacher replacement did not beat R26 independently.",
+      "Background-subtracted potentials, doubling dose, and broad teacher expansion degraded mean affinity.",
+      "Seven/eight marginal spatial-field contrast did not beat R26; increasing its coefficient worsened affinity.",
+      "Hard reweighting can lower final control ESS below a partition-stage floor."
+    ],
+    "sources": {
+      "docs/experiments/dynamic_contrast10_20261008/report.zh-CN.md": "356b10bce474a08a2b578d8e77dc3b923c4a7c9d31404678eccbede5b791c4d6",
+      "docs/experiments/elite_path20_20261007/report.zh-CN.md": "ecad1ed54b0fb7db924799e153eb74da9fba8909918e0bfe1a1db8b297e608dc"
+    }
+  },
+  "mining": {
+    "batches": 14,
+    "event_count": 700,
+    "expected_ess_fraction_mean": 0.9595878291375541,
+    "expected_ess_fraction_min": 0.8062457889394863,
+    "limitations": "Expected probabilities audit the same selector; low mode ESS is regularized, not independent evidence. Realized copying can narrow roots even with mild one-step expected pressure.",
+    "mean_score_gain_from_expected_selection": 0.04506482579034914,
+    "niche_effective_n_min": 1.0,
+    "q_significant_by_term": {
+      "expected_selection": 0,
+      "native": 68,
+      "realized_selection": 0,
+      "resampling_noise": 0
+    },
+    "realized_ess_fraction_mean": 0.5012322639036629,
+    "root_count_first_mean": 31.214285714285715,
+    "root_count_last_mean": 1.2142857142857142,
+    "top_expected_selection_features": [
+      {
+        "CI_high": -0.009717333991151595,
+        "CI_low": -0.028187258985693377,
+        "feature": "pair_kernel_2.5",
+        "p": 0.0017837763872495874,
+        "q": 0.13199945265646945,
+        "same_sign_batch_fraction": 0.8571428571428571,
+        "term": "expected_selection",
+        "whole_window_mean_rate": -0.018899220771878722
+      },
+      {
+        "CI_high": -0.01917548000897945,
+        "CI_low": -0.07894294325290187,
+        "feature": "shape_yy",
+        "p": 0.0176628159206151,
+        "q": 0.27203894180262334,
+        "same_sign_batch_fraction": 0.7857142857142857,
+        "term": "expected_selection",
+        "whole_window_mean_rate": -0.0460577771584589
+      },
+      {
+        "CI_high": -0.0021539133347806827,
+        "CI_low": -0.015743366734079226,
+        "feature": "pair_kernel_1.5",
+        "p": 0.0264552405065016,
+        "q": 0.27203894180262334,
+        "same_sign_batch_fraction": 0.8571428571428571,
+        "term": "expected_selection",
+        "whole_window_mean_rate": -0.008822076388683948
+      },
+      {
+        "CI_high": -0.001341893982231408,
+        "CI_low": -0.010489783619567946,
+        "feature": "pair_kernel_3.5",
+        "p": 0.029409615330013333,
+        "q": 0.27203894180262334,
+        "same_sign_batch_fraction": 0.7142857142857143,
+        "term": "expected_selection",
+        "whole_window_mean_rate": -0.00603069007461471
+      },
+      {
+        "CI_high": 0.06413565366099198,
+        "CI_low": 0.009190823296695419,
+        "feature": "landmark_01_softmin",
+        "p": 0.020882849258952216,
+        "q": 0.27203894180262334,
+        "same_sign_batch_fraction": 0.7142857142857143,
+        "term": "expected_selection",
+        "whole_window_mean_rate": 0.03819766149721097
+      },
+      {
+        "CI_high": 0.06417658726189808,
+        "CI_low": 0.010236168868233156,
+        "feature": "landmark_16_softmin",
+        "p": 0.023757842946988964,
+        "q": 0.27203894180262334,
+        "same_sign_batch_fraction": 0.7857142857142857,
+        "term": "expected_selection",
+        "whole_window_mean_rate": 0.03666103744135454
+      },
+      {
+        "CI_high": 0.0554254683428271,
+        "CI_low": 0.010079951184854549,
+        "feature": "landmark_12_softmin",
+        "p": 0.01934203908978658,
+        "q": 0.27203894180262334,
+        "same_sign_batch_fraction": 0.7857142857142857,
+        "term": "expected_selection",
+        "whole_window_mean_rate": 0.03296663218896993
+      },
+      {
+        "CI_high": 0.05155934536446806,
+        "CI_low": 0.0071510109631204785,
+        "feature": "landmark_19_softmin",
+        "p": 0.020730666295815783,
+        "q": 0.27203894180262334,
+        "same_sign_batch_fraction": 0.7857142857142857,
+        "term": "expected_selection",
+        "whole_window_mean_rate": 0.029799377302669926
+      },
+      {
+        "CI_high": 0.03277081446978573,
+        "CI_low": 0.003340396901302299,
+        "feature": "landmark_08_softmin",
+        "p": 0.046431184536003034,
+        "q": 0.3817675172960249,
+        "same_sign_batch_fraction": 0.7142857142857143,
+        "term": "expected_selection",
+        "whole_window_mean_rate": 0.01701972036253863
+      },
+      {
+        "CI_high": -6.590679569606755e-05,
+        "CI_low": -0.0015311370020772675,
+        "feature": "landmark_19_occupancy5",
+        "p": 0.057586765458479246,
+        "q": 0.42614206439274643,
+        "same_sign_batch_fraction": 0.6428571428571429,
+        "term": "expected_selection",
+        "whole_window_mean_rate": -0.0008098415422616945
+      }
+    ],
+    "window": [
+      0.0,
+      0.5
+    ]
+  },
+  "protocol": {
+    "confirmation_acceptance": "Frozen four-batch paired mean versus R26 >0.01 and bootstrap lower bound >0, native improvement >0; validity/PB no more than 0.03 below R26, strain median <=1.3*max(R26 median, historical Steer median). No automatic wet-lab claim.",
+    "confirmation_batches": [
+      43,
+      44,
+      45,
+      46
+    ],
+    "controls": "Matched initial coordinate/atom/bond hashes and same RNG; native and R26 per panel. Historical completed Steer is an unpaired reference, not a randomized equal-compute control.",
+    "freeze": "Choose best admissible screen mean before confirmation labels. If none admissible, confirm best exploratory mean as an explicitly unaccepted hypothesis; default remains R26.",
+    "inference": "100 native integration steps, guidance on dynamically declared support only, then native to final; no particle selection, affinity-head gradient, or extra production model forward.",
+    "master_seed": 42,
+    "maximum_rounds": 20,
+    "n_per_arm": 100,
+    "retention": "Verify and publish reports before deleting local/remote generated structures; original Steer and checkpoints protected.",
+    "rollback": "Restore byte-exact R26 active program, baseline Skills selector and baseline numerical source checks after every screen/failed confirmation. Research modules and their commits remain archived but disabled.",
+    "round_schedule": {
+      "1": "Fresh native/R26 screening controls",
+      "17": "New native/R26 controls A",
+      "18": "Frozen candidate A",
+      "19": "New native/R26 controls B",
+      "2-16": "Sequential single-mechanism tests, always anchored in R26 unless a screen passes predeclared criteria",
+      "20": "Same frozen candidate B"
+    },
+    "schema_version": "selection-path20-protocol-1.0",
+    "scope": "Coordinate-only hypotheses; no chemical-graph equality gate. All posterior priors/correspondences conditioned on a frozen model endpoint.",
+    "screening_acceptance": "All-attempt paired mean improvement over R26 >0.005 pIC50, positive in both batches, validity and PB-fast >=0.90; provisional only.",
+    "screening_batches": [
+      41,
+      42
+    ],
+    "tail_threshold_pic50": 8.258901977539063,
+    "tail_threshold_source": "Previously frozen donor-valid p95, not optimized on new outcomes"
+  },
+  "registered_pilot": {
+    "change": "Only within-reference quality ordering in the original full point-cloud teacher prior; beta=2 and all R26 controller/geometry parameters unchanged.",
+    "reward_view": "endpoint_selection_path",
+    "selection_path": {
+      "quality": "rank"
+    },
+    "status": "Exploratory compatibility hypothesis; not causal affinity evidence or a trained contrastive encoder."
+  },
+  "representations": {
+    "first_root_count": "after_first_selection",
+    "selection_accounting": "actual_current_and_proposal_world_A",
+    "teacher_library": "predicted_endpoint_world_A",
+    "warning": "Price/native trends describe actual current/proposal coordinates; the distinct R26 reward teachers are predicted endpoints. Do not merge the representations or interpret root loss as independently identified fitness."
+  },
+  "role": "Analyst"
+}

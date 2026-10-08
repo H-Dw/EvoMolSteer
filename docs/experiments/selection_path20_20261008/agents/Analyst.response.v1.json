@@ -1,0 +1,27 @@
+{
+  "input_sha256": "b87187044302207a5c2059fdcd17019f846f6e1df90f022d193e687e7220a694",
+  "instruction_sha256": "2806bf39e0352bd08c250501b8f7a9dc819396bfcc8dd5da5741387f24427be2",
+  "selection_feature_q_discoveries": 0,
+  "native_feature_q_discoveries": 68,
+  "unknown_future_is_failure": false,
+  "clone_unit_for_significance": false,
+  "native_future_fitness_measured": false,
+  "decision": "test_registered_pilot",
+  "evidence_rules": [
+    "[mining.q_significant_by_term; mining.top_expected_selection_features] BH 校正后 expected_selection、realized_selection 和 resampling_noise 的显著特征均为 0，native 为 68。最强 expected_selection 特征 pair_kernel_2.5 的均值为 -0.018899、CI 为 [-0.028187,-0.009717]，但 q=0.131999，不能据其未校正显著性指定新的空间引导方向；原生趋势不能改称选择效应。",
+    "[mining.window; baseline.coordinate_representation] 对相同事件令 u 为积分前的等权特征均值、v 为积分后的等权均值、w 为按选择概率加权的均值、c 为按实际复制次数加权的均值，则 c-u=(v-u)+(w-v)+(c-w)。三项依次为 native、expected_selection、resampling_noise，realized_selection=c-v=(w-v)+(c-w)。不可将 realized_selection 与上述三项再次相加；除以积分时间间隔只是人口变化记账，不是物理速度或空间梯度。",
+    "[mining.batches; mining.event_count; mining.root_count_first_mean; mining.root_count_last_mean; mining.realized_ess_fraction_mean] 不确定性以 14 个独立批次为统计单位，700 个事件及克隆后代不是独立重复。平均源家族数由 31.214286 降至 1.214286，显示实际复制导致严重家族塌缩；realized ESS fraction 的均值为 0.501232，不能以较温和的单步期望压力掩盖该依赖。",
+    "[mining.expected_ess_fraction_mean; mining.expected_ess_fraction_min; mining.niche_effective_n_min; mining.limitations] expected ESS fraction 均值 0.959588、最小值 0.806246 仅审计既有选择器，不能独立验证其收益。最低 niche effective n 为 1；正则化不能制造独立样本或消除累计复制依赖。",
+    "[mining.mean_score_gain_from_expected_selection; failure_ledger.design_response; registered_pilot.status] 期望选择的记录分数增益 0.045065 受同一选择器诱导的偏差影响，不等于原生续推后的亲和力收益。未来标签缺失或分支删失保持未知；不得按失败亲和力、独立负样本或零分填充。数值评分和无类型距离代理不是分子能量或化学相互作用证据。",
+    "[registered_pilot.change; registered_pilot.selection_path; baseline.motif_components; failure_ledger] 允许测试的单一机制为原始完整点云参考内的质量排序 quality=rank。它保持联合端点模式、beta=2 与 R26 几何及控制参数，属于已有标签的探索性兼容假设；没有新增边际坐标特征、已证实选择方向或原生未来校准。已有 teacher replacement、背景扣除势、加倍剂量、扩张 teacher 和边际场失败支持保持变更范围狭窄。",
+    "[protocol.controls; protocol.inference; protocol.rollback; baseline.window] 试验须按注册条件匹配初始坐标、原子、键哈希与 RNG，并同时比较 native 与不可变 R26；完整保留图转变自由度。动态支持内持续非零引导，之后原生续推至最终；不使用粒子选择、亲和力头梯度或额外生产神经前向。每次 screen 或失败确认后恢复字节一致的 R26 程序及 baseline Skills。",
+    "[protocol.screening_acceptance; protocol.freeze; protocol.confirmation_acceptance] 可测试不等于可接受：screen 以全部尝试为分母，配对平均 pIC50 改善须 >0.005、两个批次均正、validity 与 PB-fast 均 >=0.90；确认标签揭示前冻结候选。最终接受要求四个独立批次配对 R26 平均改善 >0.01、bootstrap 下界 >0、相对 native 改善 >0、validity/PB 较 R26 降幅不超过 0.03，并满足注册 strain 上限。没有可接受候选时仍保留 R26；有利富集不能替代匹配最终结果。"
+  ],
+  "limitations": [
+    "[mining; registered_pilot] 输入提供轨迹挖掘与注册假设，未提供该 rank pilot 的匹配最终结果；此决策只许可按既有协议测试，不声称 pilot 已成功。",
+    "[mining.q_significant_by_term] BH 后选择关联无显著项不证明真实选择效应必为零；它限制当前可主张的坐标方向及收益证据。",
+    "[mining.root_count_last_mean; mining.niche_effective_n_min] 末端源家族约 1.21、局部有效样本最小为 1，限制模式覆盖、局部精度和泛化；实际有效独立性以批次而非后代数表达。",
+    "[failure_ledger.design_response; mining.window; baseline.coordinate_representation] 原生未来亲和力未标定，观察支持限于 t=0 到 0.5 的预测端点世界坐标（Å），不能把预测端点、当前状态、选择偏好、生存和最终质量等同。输入未给出删失数量或完整未来标签覆盖率，不能补造这些统计量。",
+    "[protocol.controls] 历史 completed Steer 是非配对参考，不能替代随机、等计算量的匹配对照；数值亲和力验证本身也不构成湿实验结论。"
+  ]
+}

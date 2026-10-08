@@ -1,0 +1,86 @@
+{
+  "input_sha256": "56dbc73d9da770e5b1c7588f0e4f4adfa0d6fcd7c76fa2843b24d8891b11d44a",
+  "instruction_sha256": "ab64118e03a7f206cc3a2cbd149146f83e765be2d51264108294ca6b3df06f62",
+  "selection_feature_q_discoveries": 0,
+  "native_feature_q_discoveries": 68,
+  "accounting_representation": "actual_current_and_proposal_world_A",
+  "teacher_representation": "predicted_endpoint_world_A",
+  "first_root_count_semantics": "after_first_selection",
+  "unknown_future_is_failure": false,
+  "clone_unit_for_significance": false,
+  "native_future_fitness_measured": false,
+  "decision": "test_registered_pilot",
+  "reward_view": "endpoint_selection_path",
+  "selection_path": {
+    "quality": "rank"
+  },
+  "single_testable_mechanism": "仅将原始 R26 完整预测端点教师库内的 raw 分数幅度改为平均秩质量排序；不依据 Price 边际特征另建空间场。",
+  "affinity_head_gradient": false,
+  "extra_production_forwards": 0,
+  "support_source": {
+    "evidence_ids": [
+      "baseline.reference_sha256",
+      "baseline.window",
+      "representations.teacher_library",
+      "registered_pilot.change"
+    ],
+    "path": "configs/experiments/skill_ablation_v1/endpoint_reference.json.gz",
+    "sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+    "verified_from_file": true,
+    "schema_version": "affinity-endpoint-library-1.0",
+    "representation": "predicted_endpoint_world_A",
+    "window": [0.0, 0.5],
+    "actual_supported_clocks": "50 个节点 t=0.00,0.01,...,0.49；每节点原始完整教师点云数 M=28。只在注册实际节点评估，原生积分至 0.5 后继续原生至最终；不外推为连续时间上新增的教师支持。",
+    "teacher_base_log_weight_present": false,
+    "guidance_schedule": "R26 time_ramp_power=0，所以每个支持节点的正剂量门为 1；保留 native_rms_ratio=0.33 及原控制约束。这不等于每粒子实际注入必非零，须报告实际注入、零梯度及约束拒绝。"
+  },
+  "conditional_gradient_formula": {
+    "execution_sources": [
+      "src/evomolsteer/generation/formula_registry.py",
+      "src/evomolsteer/generation/selection_path_reward.py",
+      "src/evomolsteer/generation/affinity_geometry_reward.py",
+      "src/evomolsteer/generation/endpoint_controller.py"
+    ],
+    "coordinate_observable": "Y=F_t(X) 是本次原生 FLOWR 前向给出的世界坐标预测端点（Å）；X 是该前向的积分前坐标。F_t 包含内部坐标至 Å 的转换。Price 中的实际 current/proposal 坐标并非 Y。",
+    "frozen_condition": "A=stop_gradient(Y)。以 A 与该节点每个原始教师 Z_m 的平方距离做 Hungarian 对应 sigma_m；C_m=(1/N)sum_i||A_i-Z_m,sigma_m(i)||²。保持 R26 的稳定最近邻规则，选 C 最小的 K=min(4,M) 个教师。教师、分数、秩、对应、选中集合、C_m、pi_m 及自条件均冻结；不对离散对应或先验求导。对应只取几何，不设原子类型、键或化学图相等门。",
+    "rank_prior": "在该节点全部 M 个原始教师分数上计算 average-rank（并列取平均）：r_m=(rank_average(s_m)-0.5)/M-0.5。对选中 K 个教师，l_m=-C_m/T+beta*r_m，pi_m=softmax_m(l_m)。T=4 Å²、beta=2 固定。该替换的参照原式为 beta*(s_m-mean_all(s))；秩标签是排序代理，不是分子能量。",
+    "scalar": "q_m(Y)=(1/N)sum_i||Y_i-Z_m,sigma_m(i)||²；rho_delta(q)=delta²*(sqrt(1+q/delta²)-1)；R_t(Y|A)=tau*logsumexp_m(log(pi_m)-rho_delta(q_m)/tau)。tau=0.5；delta=1 Å 为原点云实现 pointcloud_delta_A 缺省值，R26 的 robust_delta=2 不作用于此点云曲率。每个分量保持完整联合点云，不将教师中心或边际特征平均成新构象。",
+    "posterior_responsibility": "a_m=softmax_m(log(pi_m)-rho_delta(q_m)/tau)。",
+    "endpoint_partial": "在上述冻结条件下，partial R_t/partial Y_i = -sum_m a_m*(Y_i-Z_m,sigma_m(i))/(N*sqrt(1+q_m/delta²))。",
+    "flowr_pullback": "g_X=J_F_t(X)^T*grad_Y R_t。使用该次原生前向的坐标图做 VJP；亲和力头输出 detach，未进入标量或导数。不使用 d(feature)/dt、Price 人口变化率或分数排序导数充当空间力。",
+    "injection_and_response": "保留 R26 的 predictive_flow RMS 剂量校准、ratio=0.33、单原子步长<=0.15 Å、累计 RMS<=6 Å、7 次回退与 0.8 Å 严重受体新碰撞检查。VJP 在旧 X_t 计算，注入位于原生积分之后，方向响应 g_X·DeltaX 仅为旧点的一阶估计；未额外前向测量新的预测端点奖励。一次性有限差分审计单独记账，不混作生产每步前向。"
+  },
+  "evidence_rules": [
+    "[mining.q_significant_by_term; mining.top_expected_selection_features] BH 校正后 expected_selection、realized_selection、resampling_noise 的发现均为 0，native 为 68。最强 expected_selection 的 pair_kernel_2.5 均值 -0.018899、CI [-0.028187,-0.009717]，q=0.131999；其未校正 p 或 CI 不足以宣称显著选择区域或指定新的坐标方向。原生趋势必须保留为原生趋势；零发现也不证明真实效应必为零。",
+    "[representations.selection_accounting; representations.teacher_library; mining.window] 实际 current/proposal 世界坐标与 R26 predicted_endpoint 世界坐标是不同的观测对象，虽均用 Å。令 u 为积分前 current 等权均值、v 为 proposal 等权均值、w 为 proposal 按选择概率加权均值、c 为 proposal 按实际复制次数加权均值：c-u=(v-u)+(w-v)+(c-w)，realized_selection=c-v=(w-v)+(c-w)。native、expected_selection、resampling_noise 三项精确记账；不能再加一次 realized_selection。除以积分时间间隔不构成物理速度或空间梯度；此记账不能自动迁移为 endpoint 教师先验的因果收益。",
+    "[mining.batches; mining.event_count; representations.first_root_count; mining.root_count_first_mean; mining.root_count_last_mean] 不确定性以 14 个独立批次为单位；700 个事件和复制后代均非独立重复。31.214286 是第一次选择之后的平均源家族数，并非初始家族数；至末次选择降为 1.214286，是实际累计家族塌缩。不能据家族丢失把删失支系或其未测最终亲和力独立标为失败。",
+    "[mining.expected_ess_fraction_mean; mining.expected_ess_fraction_min; mining.realized_ess_fraction_mean; mining.niche_effective_n_min] 期望 ESS fraction 均值 0.959588、最小 0.806246，与实际复制 ESS fraction 均值 0.501232 及源家族塌缩并存。温和的单步期望压力不能排除累计复制依赖；局部有效 n 最小为 1。正则化不创造独立证据。新 rank 教师先验的 ESS 是另一对象，须实际测量，不能沿用这些选择器 ESS 作为新先验验证。",
+    "[mining.mean_score_gain_from_expected_selection; failure_ledger.design_response] 记录分数的期望选择增益 0.045065 受同一选择器诱导，不是原生续推后的亲和力收益。未知未来保持未知；不以零分、负样本或失败填充。数值标签、无类型距离及其秩不是分子能量、特定化学相互作用或已测湿实验亲和力。",
+    "[registered_pilot; baseline; failure_ledger.measured_failures] 只测试 quality=rank；原始教师来源、完整联合点云、K=4、beta=2、T=4、tau=0.5、剂量、时钟、控制与图转变政策全部继承 R26。该假设检验教师质量排序能否替代 raw 标签幅度，未引入 ESS floor、niche balance、teacher replacement、局部精度、原子残差或剂量变化。历史 teacher replacement、背景扣除、加倍剂量、扩张教师及边际空间场失败支持此有限变更，并要求失败后回到 R26。",
+    "[protocol.controls; protocol.inference; baseline.topology_policy] 所有试验臂须匹配初始坐标、原子、键哈希与 RNG；每 panel 同时给 native 和不可变 R26。100 次原生积分内按实际学习支持启用坐标引导，之后原生续推至最终；保持替代化学图可达性，不做粒子复制选择、亲和力头梯度或额外生产神经前向。历史 completed Steer 仅为非配对参考。",
+    "[protocol.screening_acceptance; protocol.freeze; protocol.confirmation_acceptance; protocol.rollback] 测试许可不构成成功或接受。全部尝试为评价分母；按注册 screen 门槛选择候选，并在确认标签揭示前冻结。最终接受须同时满足匹配最终亲和力、有效率、PB 和 strain 条件；有利富集、先验 ESS 或正的一阶奖励方向均不能替代它。每次 screen 或失败确认之后恢复字节一致 R26 程序与 baseline Skills；候选保持归档且默认禁用。"
+  ],
+  "preregistered_controls_and_acceptance": {
+    "screen": "batches=[41,42]，每臂 n=100，master_seed=42；与 R26 的全部尝试配对平均 pIC50 改善>0.005，两个批次分别为正，validity 与 PB-fast 均>=0.90。只作 provisional screen。",
+    "freeze": "确认标签揭示前选择并冻结最佳 admissible screen 候选。若无 admissible 候选，最佳探索性均值只能作为明确未接受的确认假设，默认仍为 R26；不据确认标签调参。",
+    "confirmation": "四个独立批次 [43,44,45,46]：冻结候选相对 R26 配对平均改善>0.01，配对 bootstrap 下界>0，相对 native 改善>0；validity/PB 较 R26 降幅<=0.03；strain median<=1.3*max(R26 median,historical Steer median)。",
+    "dose_and_direction_audit": "逐实际支持节点报告 guidance coverage、gradient norm、实际 injection RMS/max-atom/cumulative RMS、相对 predictive-flow 剂量、约束或零梯度造成的零注入、teacher-prior ESS 及 g_X·DeltaX 的符号与幅度。time_ramp_power=0 或 beta=2 本身不能证明实际剂量非零或方向有效；一阶响应不是新的端点前向评估或最终结果。",
+    "rollback": "每次 screen 和失败确认后恢复不可变 R26 的字节一致 active program、baseline Skills 路由及 baseline numerical source checks；保存失败原因和结果，失败模块不继续启用。"
+  },
+  "justification": "[registered_pilot; baseline; failure_ledger; mining] 独立复核支持按已有协议测试一个探索性质量排序机制：R26 的完整端点几何与已验证控制是固定参照，而 raw 数值幅度对教师先验竞争强度的作用可由 rank 替换作单一机制检验。秩不依赖分数的正单调重标定，但可改变局部相对先验，不能先验断言压力更适宜或未来亲和力提高。BH 后选择特征零发现及实际家族塌缩限制坐标因果解读，并不逻辑禁止这个有匹配对照、冻结确认与回退的兼容性试验。所有收益判断以原生续推后的匹配最终结果为准；R26 持续作为默认。",
+  "limitations": [
+    "[registered_pilot.status; mining; Analyst_response.limitations] 输入没有该 quality=rank 候选的匹配最终生成结果；test_registered_pilot 仅是注册测试许可，不声称候选已运行、已成功或已提高亲和力。未执行新的生成实验。",
+    "[representations; failure_ledger.design_response] 未测或校准这些支系的原生未来 fitness；当前状态、预测端点、selector 分数、生存与最终质量需分别解释。输入未给完整未来标签覆盖率或删失数量，不能补造。",
+    "[mining.root_count_last_mean; mining.niche_effective_n_min] 末次平均源家族约 1.21、局部有效 n 最小 1，限制覆盖及独立性；完整教师点云仍是经验支持，不保证某个动态新分子构象、化学图或局部几何的外推可靠。",
+    "[conditional_gradient_formula; baseline.derivative_path] 梯度在冻结 self-conditioning、对应、近邻与先验条件下成立，不能解释为跨对应切换的全导数。实际注入有积分后滞后和约束缩减；未用额外前向验证注入后的新端点奖励。",
+    "[protocol.controls; protocol.confirmation_acceptance] 历史 Steer 非配对；screen 为自适应筛选，不能取代独立冻结确认。注册计算亲和力和 PB/strain 评价不自动支持湿实验或物理能量结论。"
+  ],
+  "file_verification": {
+    "input_and_instruction_hashes_match_request": true,
+    "base_skill_sha256": "6ea6aecf91f06e57ae443a4960ac879a4af1fe0a7b9a2d3f2fbddfe2cc5bc46c",
+    "module_skill_sha256": "5ad3106019680c820bea8494d950c411f278ecf586f3b63b9e39233bff75e0cf",
+    "base_and_module_skill_hashes_match_request": true,
+    "selection_path_reward_source_sha256": "90d63f21c078f30d02e21b769ef5ce5d4c6d2ba53eae631c674abae1f91c1a4e",
+    "formula_registry_source_sha256": "5ace83d11d646cab89e3c1263bc10915700bd0d9752c3fdb0a30455398bf9418"
+  }
+}
