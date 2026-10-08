@@ -53,7 +53,9 @@ def dispatch(repo,work,program,reference,number,previous=None,batches='41,42',ar
     if not (flowr/'flowr/models/fm_pocket.py').is_file():raise ValueError('FLOWR root missing')
     commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
     with (work/f'round{number:02d}.log').open('wb') as log:
-        child=subprocess.Popen(['bash',str(repo/'scripts/scnet_flowcompat_round.sh'),str(number),campaign,str(program),str(reference),arms,str(n),batches,'affinity_endpoint' if number==1 else 'flowcompat'],
+        interface='affinity_endpoint' if number==1 else p.get('generation_interface','flowcompat')
+        if interface not in ['affinity_endpoint','flowcompat','flowcompat_v2']:raise ValueError('Unregistered FLOWR interface')
+        child=subprocess.Popen(['bash',str(repo/'scripts/scnet_flowcompat_round.sh'),str(number),campaign,str(program),str(reference),arms,str(n),batches,interface],
             stdout=log,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL,start_new_session=True,
             env={**os.environ,'FLOWR_ROOT':str(flowr),'EXPERIMENT_ROOT':str(work)})
     result={'round':number,'campaign':campaign,'pid':child.pid,'status':'launched','inference_commit':commit,'n':n,'batches':batch_ids,'arms':arms}

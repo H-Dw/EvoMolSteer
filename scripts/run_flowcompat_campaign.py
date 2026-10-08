@@ -16,15 +16,7 @@ from evomolsteer.continuous.flowcompat_agents import verify_execution_response
 SPEC={
  3:('innovation','field_strength_A',.05),4:('innovation','field_strength_A',.15),
  5:('innovation','field_strength_A',.3),6:('innovation','field_strength_A',.6),
- 7:('innovation','field_strength_A',1.),8:('innovation','reliability_power',.5),
- 9:('innovation','region_weight_mix',.1),10:('innovation','region_weight_mix',.25),
- 11:('innovation','region_weight_mix',.5),12:('innovation','region_weight_mix',.75),
- 13:('flow_control','parallel_component_scale',.5),14:('flow_control','parallel_component_scale',0.),
- 15:('flow_control','parallel_component_scale',1.5),16:('flow_control','parallel_component_scale',2.),
- 17:('flow_control','time_envelope_power',.25),18:('flow_control','time_envelope_power',.5),
- 19:('flow_control','time_envelope_power',1.),20:('flow_control','time_envelope_power',2.),
- 21:('flow_control','jacobian_gain_saturation',.1),22:('flow_control','jacobian_gain_saturation',.3),
- 23:('flow_control','jacobian_gain_saturation',1.),24:('flow_control','jacobian_gain_saturation',3.)}
+ 7:('innovation','field_strength_A',1.)}
 REASONS={
  'field_strength_A':'Bounded extrapolation from higher endpoint toward its coordinate contrast against local lower-scoring candidates; conditional empirical direction, not physical force or causal affinity gradient.',
  'reliability_power':'Reduce excessive confidence attenuation only after measuring the pilot direction; cannot turn unobserved late support into established advantage.',
@@ -45,7 +37,7 @@ class Driver(BaseDriver):
         self.local(['git','add',str(self.cfg.relative_to(self.root))])
         # Preliminary/raw mining payloads never enter the published report set.
         paths=[p for p in self.docs.rglob('*') if p.is_file() and
-            'joint_contrast_v1' not in p.parts and p.name!='augmented_reference.json.gz']
+            not any(v in p.parts for v in ['joint_contrast_v1','branch_mutation_v1']) and p.name!='augmented_reference.json.gz']
         if paths:self.local(['git','add','-f',*[str(p.relative_to(self.root)) for p in paths]])
         self.local(['git','diff','--cached','--check'])
         if self.local(['git','diff','--cached','--name-only']):self.local(['git','commit','-m',message])
@@ -57,11 +49,11 @@ class Driver(BaseDriver):
 
     def best(self,admissible_only=True):
         rows=read_json(self.cfg/'campaign.json')['rounds']
-        rows=[r for r in rows if 3<=r['round']<=24 and (r['screening_admissible'] or not admissible_only)]
+        rows=[r for r in rows if 3<=r['round']<=24 and r['round'] not in [8,10] and (r['screening_admissible'] or not admissible_only)]
         return max(rows,key=lambda r:(r['mean_vs_R26'],-r['round']))['round'] if rows else None
 
     def reference(self,p):
-        for f in [self.cfg/'innovation_reference.json.gz',self.root/'configs/experiments/skill_ablation_v1/endpoint_reference.json.gz']:
+        for f in [self.cfg/'branch_reference.json.gz',self.cfg/'innovation_reference.json.gz',self.root/'configs/experiments/skill_ablation_v1/endpoint_reference.json.gz']:
             if f.exists() and digest(f)==p['reference_sha256']:return f
         raise ValueError('Bound immutable teacher reference required')
 
@@ -70,10 +62,12 @@ class Driver(BaseDriver):
         if file.exists():return file,self.reference(read_json(file)),read_json(planfile)
         base=read_json(self.root/'configs/experiments/skill_ablation_v1/incumbent.json');p=copy.deepcopy(base)
         arms='gradient';batches=[47,48];parent='historical_R26';reason='';change={}
-        if number in [1,2,25,27,29]:
+        if number in [1,2,8,25,27,29]:
             arms='unguided,gradient'
+            if number==8:arms='gradient'
             if number>=25:batches=list(range(49+(number-25),51+(number-25)))
-            reason='Paired native/R26 control; new-interface empty rule and measured Jacobian diagnostics.' if number==2 else 'Original matched native/R26 baseline and frozen initial random streams.'
+            reason='Paired native/R26 control; new-interface empty rule and measured Jacobian diagnostics.' if number in [2,8] else 'Original matched native/R26 baseline and frozen initial random streams.'
+            if number==8:p['generation_interface']='flowcompat_v2'
             if number==25:
                 winner=self.best();eligible=winner is not None
                 if winner is None:winner=self.best(False)
@@ -88,6 +82,46 @@ class Driver(BaseDriver):
             if digest(source)!=frozen['program_sha256']:raise ValueError('Frozen candidate changed')
             p=read_json(source);batches=list(range(49+(number-26),51+(number-26)))
             reason='Independent confirmation of unchanged frozen reward and controller; no retuning on confirmation labels.'
+        elif number>=9:
+            parity=read_json(self.docs/'round08/implementation_feedback.json')
+            if not parity['null_control_parity']:raise ValueError('V2 numerical null control must pass first')
+            binding=read_json(self.cfg/'supplemental_binding.json')
+            gate=read_json(self.root/binding['validation_path'])
+            if not gate['passed']:raise ValueError('Actual supplemental Designer response required')
+            from evomolsteer.continuous.flowcompat_supplemental import validate_response
+            validate_response(self.root/binding['request_path'],self.root/binding['response_path'])
+            specs=read_json(self.cfg/'adaptive_schedule_v2.json')['rounds']
+            trial=specs[str(number)];parent=trial['parent'];reason=trial['reason']
+            if parent=='branch_pilot':p=read_json(self.cfg/'branch_pilot.json')
+            elif isinstance(parent,int):p=read_json(self.cfg/f'round{parent:02d}.json')
+            else:p=copy.deepcopy(base)
+            if number==9:
+                p=read_json(self.cfg/'branch_pilot.json');change=p['flowcompat_provenance']['parameter_updates']
+            else:
+                group,key=trial['axis'].split('.') if '.' in trial['axis'] else ('',trial['axis'])
+                value=trial['value']
+                if trial.get('dose_match_gain_round'):
+                    gain_program=read_json(self.cfg/f"round{trial['dose_match_gain_round']:02d}.json")
+                    s=gain_program['flow_control']['jacobian_gain_saturation']
+                    table=pd.read_parquet(self.docs/'round02/flow_response.parquet')
+                    weight=table['predictive_flow_rms_A'].to_numpy();g=table['flowcompat_jacobian_gain'].to_numpy()
+                    factor=float(np.sum(weight*g/(g+s))/np.sum(weight))
+                    value=base['native_rms_ratio']*factor
+                    reason+=' Frozen batch/time baseline proxy budget factor='+str(factor)+'; actual dose is separately compared.'
+                if group:p.setdefault(group,{})[key]=value
+                else:p[key]=value
+                if group=='branch_mixture':
+                    p['reward_view']='endpoint_branch_mixture';p['reference_sha256']=digest(self.cfg/'branch_reference.json.gz')
+                provenance=copy.deepcopy(read_json(self.cfg/'branch_pilot.json')['flowcompat_provenance'])
+                provenance.update(parameter_updates={trial['axis']:value},parameter_origin='Sequential engineering control from actual bound supplemental design; not a fresh LLM call',
+                    formula_id=trial['formula_id'])
+                registry=read_json(self.root/binding['registry_path'])
+                formula=registry['formulas'][trial['formula_id']]
+                if trial['axis'] not in formula['allowed_updates']:raise ValueError('Trial axis outside actually registered design family')
+                provenance.update(reference_kind=formula['reference_kind'],code_files=formula['code_files'])
+                p['reward_view']=formula['reward_view']
+                p['flowcompat_provenance']=provenance;change={trial['axis']:value}
+            p['generation_interface']='flowcompat_v2'
         else:
             parity=read_json(self.docs/'round02/implementation_feedback.json')
             if not parity['null_control_parity']:raise ValueError('No-op numerical control must pass before mechanism trials')
@@ -115,7 +149,7 @@ class Driver(BaseDriver):
             'changed_axis':change,'program_sha256':digest(file),'reference_sha256':digest(reference),
             'learned_window':p['window'],'design_origin':'Actual bound LLM design families with sequential engineering parameter tests; not thirty independent LLM calls.'}
         write_json(planfile,plan);(self.cfg/'active_program.json').write_bytes(file.read_bytes())
-        write_json(self.cfg/'active_workflow.json',{'candidate_enabled':number not in [1,2,25,27,29],
+        write_json(self.cfg/'active_workflow.json',{'candidate_enabled':number not in [1,2,8,25,27,29],
             'temporary_trial':True,'program_sha256':digest(file),'default_after_round':'historical_R26'})
         return file,reference,plan
 
@@ -133,20 +167,21 @@ class Driver(BaseDriver):
             elif old.exists():
                 with np.load(old,allow_pickle=False) as z,np.load(window,allow_pickle=False) as current:
                     delta=coords-z['coords'].astype(float)*float(z['coord_scale'])
-                    if number==2:
+                    if number in [2,8]:
                         null &= all(z[key].dtype==current[key].dtype and z[key].tobytes()==current[key].tobytes() for key in z.files)
                 rms=np.sqrt((delta**2).sum(-1).mean(1));distances.append({'arm':arm,'batch':batch,'mean_RMS_A':float(rms.mean()),'max_RMS_A':float(rms.max())})
                 null &= bool(np.array_equal(delta,np.zeros_like(delta)))
             trace=[json.loads(v) for v in (folder/'guidance_trace.jsonl').read_text().splitlines()]
             active=[r for r in trace if r['reward_evaluated']]
             fields=['contrast_teacher_shift_rms_A','flowcompat_native_cosine_before','flowcompat_native_cosine_after',
-                'flowcompat_gradient_adjustment_relative_rms','flowcompat_schedule_factor','flowcompat_jacobian_gain','flowcompat_gradient_lag_cosine']
+                'flowcompat_gradient_adjustment_relative_rms','flowcompat_schedule_factor','flowcompat_jacobian_gain','flowcompat_gradient_lag_cosine',
+                'branch_virtual_mass_mean','branch_virtual_teacher_shift_rms_A','branch_region_weight_rms_difference']
             rows[-1]['active_steps']=len(active)
             rows[-1]['mechanisms']={k:float(np.mean([r[k] for r in active if k in r])) for k in fields if any(k in r for r in active)}
             rows[-1]['module_sha256']=active[0].get('flowcompat_module_sha256') if active else None
         mechanism_response=any(r['mean_RMS_A']>1e-6 for r in distances if r['arm']=='gradient')
         report={'schema_version':'implementation-before-efficacy-1.0','round':number,
-            'null_control_parity':null if number==2 else None,'actual_window_coordinate_response':mechanism_response,
+            'null_control_parity':null if number in [2,8] else None,'actual_window_coordinate_response':mechanism_response,
             'window_differences_against_paired_R26':distances,'batch_diagnostics':rows,
             'interpretation':'Response proves deployment/perturbation, not beneficial affinity or causal module importance.'}
         write_json(output/'implementation_feedback.json',report);return report
@@ -175,14 +210,26 @@ class Driver(BaseDriver):
                 if any(k in r['mechanisms'] for r in feedback['batch_diagnostics'])}
             diagnostics['paired_window_coordinate_rms_A']=float(np.mean([r['mean_RMS_A'] for r in feedback['window_differences_against_paired_R26']]))
             diagnostics['contrast_gradient_relative_change']=formula['maximum_gradient_relative_change']
+            diagnostics['branch_gradient_relative_change']=formula['maximum_gradient_relative_change']
+            for key in ['branch_virtual_mass_mean','branch_virtual_teacher_shift_rms_A']:
+                values=[r['mechanisms'][key] for r in feedback['batch_diagnostics'] if key in r['mechanisms']]
+                if values:diagnostics[key]=float(np.mean(values))
+            values=[r['mechanisms']['branch_region_weight_rms_difference'] for r in feedback['batch_diagnostics'] if 'branch_region_weight_rms_difference' in r['mechanisms']]
+            if values:diagnostics['branch_region_weight_rms_change']=float(np.mean(values))
+            base=read_json(self.root/'configs/experiments/skill_ablation_v1/incumbent.json')
+            diagnostics['guidance_dose_relative_change']=abs(p['native_rms_ratio']/base['native_rms_ratio']-1)
+            null_round=8 if p.get('generation_interface')=='flowcompat_v2' else 2
             diagnostics['flowcompat_schedule_absolute_change']=float(np.mean([abs(1-r['mechanisms']['flowcompat_schedule_factor']) for r in feedback['batch_diagnostics'] if 'flowcompat_schedule_factor' in r['mechanisms']]))
             gate_input={'program_sha256':digest(program),'request_sha256':p['flowcompat_provenance']['request_sha256'],
                 'code_files':measured_code,'execution_checks':{k:True for k in ['actual_flowr_model','actual_endpoint_vjp','no_resampling','no_head_gradient','no_extra_production_forward','window_matches','initial_state_pair_matches']},
-                'no_op_control':{'exact_baseline_arithmetic':formula['null_exact'] and read_json(self.docs/'round02/implementation_feedback.json')['null_control_parity'],
+                'no_op_control':{'exact_baseline_arithmetic':formula['null_exact'] and read_json(self.docs/f'round{null_round:02d}/implementation_feedback.json')['null_control_parity'],
                     'max_gradient_relative_change':0 if formula['null_exact'] else None},'diagnostics':diagnostics}
             write_json(evaluated/'implementation_gate_input.json',gate_input)
             try:
-                verify_execution_response(program,evaluated/'implementation_gate_input.json',evaluated/'implementation_gate.json')
+                checker=verify_execution_response
+                if p['flowcompat_provenance'].get('workflow_version')=='flowcompat-supplemental-agent-2.0':
+                    from evomolsteer.continuous.flowcompat_supplemental import verify_execution_response as checker
+                checker(program,evaluated/'implementation_gate_input.json',evaluated/'implementation_gate.json')
                 feedback['implementation_passed']=True
             except ValueError as error:
                 feedback['implementation_passed']=False;feedback['implementation_rejection']=str(error)
@@ -197,14 +244,16 @@ class Driver(BaseDriver):
         out=self.docs/f'round{number:02d}'
         for name in ['flow_response.parquet','decoder_sensitivity.parquet','flow_response_summary.json','conditional_formula_audit.json','implementation_gate_input.json','implementation_gate.json']:
             if (evaluated/name).exists():shutil.copy2(evaluated/name,out/name)
-        if number==2:
+        if number in [2,8]:
             original=pd.read_csv(self.docs/'round01/candidate_metrics.csv');new=pd.read_csv(out/'candidate_metrics.csv')
+            original=original[original.arm.isin(new.arm.unique())].reset_index(drop=True)
+            new=new.reset_index(drop=True)
             cols=['arm','batch','slot','pic50_on_rescore','smiles']
             parity=original[cols].equals(new[cols]);feedback['null_control_terminal_parity']=parity
             feedback['null_control_parity'] &= parity;write_json(out/'implementation_feedback.json',feedback)
         summary['historical_Steer_reference']=read_json(self.docs/'steer_reference.json')
         gain=summary.get('versus_gradient',{}).get('paired_mean_pic50');admissible=False
-        if baseline and number>=3:
+        if baseline and number>=3 and number not in [8,10]:
             m=summary['results']['gradient'];admissible=(gain>.005 and min(summary['versus_gradient']['batch_means'])>0 and m['valid_n']/m['n']>=.9 and m['pb_fast_rate']>=.9 and feedback.get('implementation_passed',False))
         write_json(out/'comparison.json',summary);write_json(out/'archive_verification.json',verified)
         rollback=restore_incumbent(self.root,'flowcompat30_v1','Candidate remains provisional; failed proposals never overwrite R26.',number)
@@ -221,6 +270,8 @@ class Driver(BaseDriver):
         c['rounds_completed']=number;c['rounds'].append({'round':number,'status':'complete','kind':'actual_FLOWR_inference',
             'screening_admissible':admissible,'mean_vs_R26':gain,'results':summary,'implementation_feedback':feedback})
         write_json(self.cfg/'campaign.json',c);self.emit('round_complete',round=number,mean_vs_R26=gain,admissible=admissible,results=summary['results'])
+        from report_flowcompat_campaign import report
+        report(self.root)
         self.push(f'Retain flow-compatibility round {number}; restore immutable R26')
         self.retire_local(number)
 

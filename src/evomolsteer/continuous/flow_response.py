@@ -15,8 +15,14 @@ def conditional_formula_audit(program,reference):
     p=read_json(program);r=json.loads(gzip.decompress(Path(reference).read_bytes()))
     baseline=dict(p);baseline['reward_view']='endpoint_pointcloud';baseline.pop('innovation',None)
     null=dict(p);null['innovation']={}
-    old=EndpointGeometryReward(baseline,r);new=InnovationReward(p,r) if p['reward_view']=='endpoint_innovation' else old
-    empty=InnovationReward(null,r);records=[]
+    old=EndpointGeometryReward(baseline,r)
+    if p['reward_view']=='endpoint_branch_mixture':
+        from ..generation.branch_mixture_reward import BranchMixtureReward
+        new=BranchMixtureReward(p,r);null['branch_mixture']={};empty=BranchMixtureReward(null,r)
+    else:
+        new=InnovationReward(p,r) if p['reward_view']=='endpoint_innovation' else old
+        empty=InnovationReward(null,r)
+    records=[]
     # Sparse supported directions can occur anywhere in the learned window.
     # Testing three fixed nodes can falsely label an implemented field inactive.
     ids=range(len(r['times']))
@@ -47,7 +53,8 @@ def mine_execution(dataset,campaign,output):
             row={'batch':batch,'arm':arm,'time':r['score_time'],'state_time':r['state_time']}
             for key in ['flowcompat_jacobian_gain','flowcompat_native_cosine_before','flowcompat_native_cosine_after',
                 'flowcompat_gradient_lag_cosine','flowcompat_schedule_factor','flowcompat_gradient_adjustment_relative_rms',
-                'contrast_teacher_shift_rms_A','injection_rms_A','observed_native_rms_A','predictive_flow_rms_A']:
+                'contrast_teacher_shift_rms_A','branch_virtual_teacher_shift_rms_A','branch_virtual_mass_mean',
+                'branch_eligible_teacher_fraction','injection_rms_A','observed_native_rms_A','predictive_flow_rms_A']:
                 if key in r and r[key] is not None:row[key]=float(np.mean(r[key]))
             rows.append(row)
             for name,v in r.get('decoder_output_sensitivity',{}).items():
