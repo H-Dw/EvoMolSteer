@@ -141,6 +141,22 @@ class Driver(TransportDriver):
         write_json(self.cfg/'campaign.json',c);self.emit('round_complete',round=number,mean_vs_R26=gain,admissible=admissible,results=summary['results'])
         self.push(f'Retain selection-path round {number}; restore immutable R26 workflow')
         self.retire_local(number)
+    def wait_for_inference(self,number):
+        q=shlex.quote
+        while True:
+            status=self.remote(f'if test -f {q(self.work+f"/round{number:02d}.exit")}; then cat {q(self.work+f"/round{number:02d}.exit")}; else echo running; fi')
+            if status!='running':
+                if status!='0':raise RuntimeError('Inference failed, retain raw state: '+self.remote(f'tail -n 30 {q(self.work+f"/round{number:02d}.log")}'))
+                return
+            time.sleep(30)
+    def resume_existing(self,number):
+        if read_json(self.cfg/'campaign.json')['rounds_completed']!=number-1:raise ValueError('Only the next unretained round can reconnect')
+        active=json.loads(self.remote('cat '+shlex.quote(self.work+'/active.json')))
+        if active['round']!=number or active['campaign']!=f'selection_path_r{number:02d}':raise ValueError('Active inference identity mismatch')
+        self.emit('reconnected_existing_inference',round=number,original_inference_commit=active['inference_commit'],no_generation_rerun=True)
+        self.wait_for_inference(number);self.collect(number)
+        self.args.start=number+1
+        if self.args.start<=self.args.last:self.run()
     def run(self):
         for number in range(self.args.start,self.args.last+1):
             if read_json(self.cfg/'campaign.json')['rounds_completed']!=number-1:raise ValueError('Previous report not retained')
@@ -152,19 +168,14 @@ class Driver(TransportDriver):
             if number>1:command+=['--previous',self.remote_repo+f'/docs/experiments/selection_path20_20261008/round{number-1:02d}/retention.json']
             self.remote('source /opt/MolSteer/scripts/scnet/activate_dtk.sh\n'+' '.join(q(v) for v in command))
             self.emit('inference_started',round=number,commit=commit,batches=plan['batches'],arms=plan['arms'])
-            while True:
-                status=self.remote(f'if test -f {q(self.work+f"/round{number:02d}.exit")}; then cat {q(self.work+f"/round{number:02d}.exit")}; else echo running; fi')
-                if status!='running':
-                    if status!='0':raise RuntimeError('Inference failed, retain raw state: '+self.remote(f'tail -n 30 {q(self.work+f"/round{number:02d}.log")}'))
-                    break
-                time.sleep(30)
+            self.wait_for_inference(number)
             self.collect(number)
         self.emit('requested_sequence_complete',last=self.args.last)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--repo',default='.');p.add_argument('--host',default='ksai.scnet.cn');p.add_argument('--port',type=int,default=10544)
     p.add_argument('--password-env',default='MOLSTEER_SCNET_PASSWORD');p.add_argument('--start',type=int,default=1);p.add_argument('--last',type=int,default=20)
-    p.add_argument('--collect-only',type=int);p.add_argument('--resume-publish',type=int)
+    p.add_argument('--collect-only',type=int);p.add_argument('--resume-publish',type=int);p.add_argument('--resume-active',type=int)
     p.add_argument('--remote-repo',default='/root/private_data/MolSteer/EvoMolSteer')
     p.add_argument('--remote-work',default='/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_selection_path20_20261008')
     a=p.parse_args()
@@ -175,6 +186,7 @@ if __name__=='__main__':
             n=a.resume_publish;verify_retention(d.docs/f'round{n:02d}/retention.json')
             if read_json(d.cfg/'campaign.json')['rounds_completed']!=n:raise ValueError('Only final retained publication can resume')
             d.push(f'Publish retained selection-path round {n} without a scientific rerun');d.retire_local(n)
+        elif a.resume_active is not None:d.resume_existing(a.resume_active)
         elif a.collect_only is not None:d.collect(a.collect_only)
         else:d.run()
     except BaseException as error:

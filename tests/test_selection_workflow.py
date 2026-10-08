@@ -50,3 +50,11 @@ def test_single_module_schedule_does_not_inherit_failed_parameters():
     assert trials[2][0]=={'quality':'rank'}
     assert trials[11][0]=={'precision_mix':.1} and trials[11][1]=={}
     assert all(len(spec)==1 for spec,extra,reason in trials.values())
+
+
+def test_reconnect_checks_round_without_dispatching_again(tmp_path):
+    module=driver_module();d=object.__new__(module.Driver);d.cfg=tmp_path
+    write_json(tmp_path/'campaign.json',{'rounds_completed':2})
+    d.work='/protected/experiment';d.remote=lambda command:'{"round":4,"campaign":"selection_path_r04"}'
+    with pytest.raises(ValueError,match='Active inference identity mismatch'):d.resume_existing(3)
+    with pytest.raises(ValueError,match='next unretained round'):d.resume_existing(2)
