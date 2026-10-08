@@ -131,7 +131,10 @@ class Driver(BaseDriver):
             old=states/key
             if number in [1,25,27,29]:shutil.copy2(window,old)
             elif old.exists():
-                with np.load(old,allow_pickle=False) as z:delta=coords-z['coords'].astype(float)*float(z['coord_scale'])
+                with np.load(old,allow_pickle=False) as z,np.load(window,allow_pickle=False) as current:
+                    delta=coords-z['coords'].astype(float)*float(z['coord_scale'])
+                    if number==2:
+                        null &= all(z[key].dtype==current[key].dtype and z[key].tobytes()==current[key].tobytes() for key in z.files)
                 rms=np.sqrt((delta**2).sum(-1).mean(1));distances.append({'arm':arm,'batch':batch,'mean_RMS_A':float(rms.mean()),'max_RMS_A':float(rms.max())})
                 null &= bool(np.array_equal(delta,np.zeros_like(delta)))
             trace=[json.loads(v) for v in (folder/'guidance_trace.jsonl').read_text().splitlines()]
@@ -252,4 +255,8 @@ if __name__=='__main__':
     try:
         if a.collect_only:d.collect(a.collect_only)
         else:d.run()
+    except BaseException as error:
+        state=restore_incumbent(d.root,'flowcompat30_v1','Execution interrupted; preserve raw outputs and restore baseline.',read_json(d.cfg/'campaign.json')['rounds_completed'])
+        write_json(d.docs/'execution_interruption.json',{'error_type':type(error).__name__,'rollback':state,'raw_data_retained':True})
+        raise
     finally:d.ssh.close()
