@@ -1,5 +1,6 @@
 """Sequential experimental proposals, matched final evaluation and real rollback."""
 import argparse,copy,json,shlex,shutil,time
+import paramiko
 from pathlib import Path
 import pandas as pd
 from evomolsteer.io import read_json,write_json,digest
@@ -146,11 +147,21 @@ class Driver(TransportDriver):
     def wait_for_inference(self,number):
         q=shlex.quote
         while True:
-            status=self.remote(f'if test -f {q(self.work+f"/round{number:02d}.exit")}; then cat {q(self.work+f"/round{number:02d}.exit")}; else echo running; fi')
+            status=self.read_inference_status(number)
             if status!='running':
                 if status!='0':raise RuntimeError('Inference failed, retain raw state: '+self.remote(f'tail -n 30 {q(self.work+f"/round{number:02d}.log")}'))
                 return
             time.sleep(30)
+    def read_inference_status(self,number):
+        # Only this read-only query is retried; dispatch/pull/mutations are not.
+        q=shlex.quote
+        command=f'if test -f {q(self.work+f"/round{number:02d}.exit")}; then cat {q(self.work+f"/round{number:02d}.exit")}; else echo running; fi'
+        for attempt in range(3):
+            try:return self.remote(command)
+            except (OSError,EOFError,paramiko.SSHException) as error:
+                if attempt==2:raise
+                self.emit('read_status_reconnect',round=number,attempt=attempt+1,error_type=type(error).__name__,no_generation_rerun=True)
+                self.connect()
     def resume_existing(self,number):
         if read_json(self.cfg/'campaign.json')['rounds_completed']!=number-1:raise ValueError('Only the next unretained round can reconnect')
         active=json.loads(self.remote('cat '+shlex.quote(self.work+'/active.json')))

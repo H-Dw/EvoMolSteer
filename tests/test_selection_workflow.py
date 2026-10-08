@@ -94,3 +94,18 @@ def test_adoption_rejects_mutated_frozen_proposal(tmp_path):
     with pytest.raises(ValueError,match='Frozen proposal changed'):
         activate_confirmed(tmp_path,'trial',frozen,{'mean':True})
     assert read_json(folder/'active_workflow.json')['candidate_enabled'] is False
+
+
+def test_read_status_reconnect_does_not_repeat_generation():
+    module=driver_module();d=object.__new__(module.Driver);d.work='/experiment'
+    calls=[]
+    def remote(command):
+        calls.append(command)
+        if len(calls)==1:raise module.paramiko.SSHException('transport closed')
+        return '0'
+    d.remote=remote;events=[];d.emit=lambda *args,**kwargs:events.append(kwargs)
+    reconnects=[];d.connect=lambda:reconnects.append(True)
+    assert d.read_inference_status(13)=='0'
+    assert len(reconnects)==1 and calls[0]==calls[1]
+    assert all('dispatch' not in command and 'git' not in command for command in calls)
+    assert events[0]['no_generation_rerun'] is True
