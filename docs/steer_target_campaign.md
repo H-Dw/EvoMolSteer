@@ -138,3 +138,5 @@ python scripts/read_steer_event.py \
 发现模块：`evomolsteer.generation.target_catalog.discover_targets`；控制模块：`evomolsteer.generation.steer_campaign.run_campaign`；存储模块：`evomolsteer.storage.target_archive` 提供 `archive_target_directories`、`verify_target_archive`、`restore_target` 和限定输出根目录的回收函数。
 
 新增测试使用 CPU 记录夹具模拟生成脚本调用，验证12个 target 分为10+2、断点续跑、任务失败重试、不开启压缩、逐字节恢复、输入不变和回收保护。真实历史批次另进行了数组逐比特回放与 tar 文件逐字节校验。它们不代表执行了新的 FLOWR GPU 推理。
+
+最终相关回归为 **86项通过**。远端拉取代码后完成真实目录 dry-run：100个独立配对、全部输入哈希与审计记录一致，单目标、seed=42、0–0.5选择窗口、推理到1.0、每10个 target 归档配置均确认；未创建生成输出或启动GPU推理。记录见 `docs/crossdocked_steer_campaign_20261008/remote_dry_run.json`。该目录包含93个蛋白目录，其中7个各有两组复合物，因此采用相对配对路径区分任务，不能按目录合并成93个任务。
