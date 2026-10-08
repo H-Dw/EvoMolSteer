@@ -5,6 +5,15 @@ import pandas as pd
 from evomolsteer.io import read_json,write_json,digest
 
 
+def verified_response(output,role):
+    output=Path(output);request=read_json(output/(role+'.request.json'));response=read_json(output/(role+'.response.json'))
+    for key,suffix in [('input_sha256','.input.json'),('instruction_sha256','.instructions.md')]:
+        if request[key]!=digest(output/(role+suffix)) or response.get(key)!=request[key]:
+            raise ValueError('Actual Agent input/instruction binding changed')
+    if response.get('role')!=role:raise ValueError('Agent response role differs')
+    return response
+
+
 def prepare(repo,role='Analyst'):
     repo=Path(repo).resolve();docs=repo/'docs/experiments/dynamic_contrast10_20261008'
     evidence=docs/'rest_mining';out=docs/'round02_agents';out.mkdir(parents=True,exist_ok=True)
@@ -34,7 +43,11 @@ def prepare(repo,role='Analyst'):
             'Screen selection is adaptive; confirmation panels frozen before observing their labels']}
     if role=='Designer':
         analyst=out/'Analyst.response.json'
-        packet['analyst_result']=read_json(analyst);packet['analyst_response_sha256']=digest(analyst)
+        packet['analyst_result']=verified_response(out,'Analyst');packet['analyst_response_sha256']=digest(analyst)
+        identifiable=cohorts[cohorts.identifiable]
+        packet['evidence']['E_cohort_weight_coverage']={
+            name:{'min':float(identifiable[name].min()),'median':float(identifiable[name].median()),'max':float(identifiable[name].max())}
+            for name in ['positive_effective_n','negative_effective_n','positive_root_n','negative_root_n','margin']}
     write_json(out/(role+'.input.json'),packet)
     skill=repo/'skills'/role.lower()/'SKILL.md';module=repo/'skills/dynamic-cohort-contrast/SKILL.md'
     instructions=skill.read_text(encoding='utf-8')+'\n\n'+module.read_text(encoding='utf-8')+'\n\n'

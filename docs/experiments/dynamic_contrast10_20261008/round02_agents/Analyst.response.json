@@ -1,0 +1,75 @@
+{
+  "schema_version": "dynamic-regional-analyst-1.0",
+  "role": "Analyst",
+  "input_sha256": "9aba2cb124b9cca7f9a827525a8073013e50e79c34732def51ee34dbee9e463a",
+  "instruction_sha256": "8c3125b9d936b1a0314501809d706007a9566125f4a3117c5f7ef28be77a8d66",
+  "findings": [
+    {
+      "claim": "The objective is final predicted target affinity first and strain second. These measurements instead contrast relative recorded online joint-head scores using predicted endpoint world coordinates in Angstrom at the pre-selection score clock. The complete supplied score grid is t=0.00 through 0.49; learned support is [0.00,0.50] and the actual update ends at 0.50. Neither current-state coordinates, survival benefit nor final affinity gain follows from these cohort associations.",
+      "evidence_ids": ["E_cohort", "E_timecourse"]
+    },
+    {
+      "claim": "Root-balanced weighted Otsu with margin_fraction=0.10 separates dynamic positives, observed lower-score controls and ambiguous boundaries; lower-score controls are event-relative, not failed molecules. The reported mean threshold moves from 7.924210 at t=0 to a maximum 8.457349 at 0.17 and 8.277626 at 0.49. Mean positive-minus-lower score separation is 0.425735 initially, ranges from 0.314089 to 0.558941, and ends at its minimum. Reported mean particle counts range over positives 21.643-37.214, lower-score controls 11.929-24.714 and ambiguous 0.714-5.643. Keep continuous score distances and the guard band rather than treating these adaptive ranks as fixed terminal quality classes.",
+      "evidence_ids": ["E_cohort", "E_timecourse"]
+    },
+    {
+      "claim": "Coverage is 695 of 700 batch-time cells (99.286%). Exactly five unidentifiable cells are missing: only 13 batches are observed at t=0.12,0.23,0.25,0.26,0.28. Per-batch grid coverage is 0.96 for batch 3 and 0.98 for batches 2,7,11; the other batches have full coverage. Fits use observed cells. Missing events or future labels must not become lower-score negatives, and near-complete grid coverage does not establish unbiased missingness.",
+      "evidence_ids": ["E_cohort", "E_timecourse", "E_fit"]
+    },
+    {
+      "claim": "Ancestral support collapses despite roughly 50 reported particles per batch: mean roots fall from 50 at t=0 to 6.143 at 0.10, 2 at 0.25 and 1.214 at 0.49. Root balance reduces clone mass bias but does not create independent replicates. The independent statistical units remain the 14 generation batches; particle counts, repeated times and surviving descendants cannot increase that count. Per-cohort effective weights and effective sample sizes are not supplied.",
+      "evidence_ids": ["E_cohort", "E_timecourse", "E_fit"]
+    },
+    {
+      "claim": "All 74 supplied effect fits and all seven selected regional fits have degree 0 and zero fitted temporal derivatives. Nonzero raw end-minus-start differences therefore describe observed endpoints, not an established fitted temporal trend or a coordinate force. Higher-degree fits are not uniformly worse: landmark_03_occupancy3 has CV MSE 0.037132 at degree 0 versus 0.036726 at degree 3, and landmark_04_softmin 1.084591 versus 1.083770 at degree 1; the supplied selections nevertheless remain constant. Defer a fitted time ramp or sign switch.",
+      "evidence_ids": ["E_effects", "E_fit"]
+    },
+    {
+      "claim": "The four registered regions have corrected whole-window support, strongest at landmark 00. Regional specificity remains uncertain: global shape_xx and shape_yy contrasts are -0.406553 and -0.401778 (q=0.003896,0.001224), while pair_kernel_2.5 is +0.486278 (q=0.000798; 14/14 batch sign agreement). Other supported regional hypotheses include landmark 06 softmin +0.183314 and occupancy5 -0.232974 (q=0.014730,0.012518; 13/14 agreement) and landmark 10 softmin -0.231117 and occupancy5 +0.187678 (q=0.019129,0.039434). Preserve such alternatives for later registered tests; their indices are outside this experiment's allowed feature set. These coordinate proxies establish neither chemical interactions nor energy contributions.",
+      "evidence_ids": ["E_effects", "E_cohort"]
+    },
+    {
+      "claim": "Retain the recorded R26 endpoint attractor as the incumbent. A previously frozen new source lost predicted affinity on independent batches 32 and 33: paired mean pIC50 change -0.094791, batch means -0.084780 and -0.104803, reported batch-bootstrap CI95 [-0.104803,-0.084780]. That two-batch counterevidence argues against replacing the incumbent, but it is not an outcome for this proposed dynamic contrast and does not identify a regional mechanism.",
+      "evidence_ids": ["E_prior_failure", "E_cohort"]
+    },
+    {
+      "claim": "Test the supplied one-change contract: add the empirical regional scalar on indices [14,15,23,24,25,26,51] to the unchanged R26 teacher-mixture attraction. Differentiate the registered bounded tanh contrast of log positive versus log lower-score common-variance, equal-batch Gaussian moment kernels through the actual FLOWR endpoint coordinate VJP, with affinity outputs detached and no added production forward calls. Regional weight 0.05, temperature 1.0 and bound 2.0 are exploratory registered controls, not effect-derived optimal weights. Use only learned support [0,0.5], screen batch 36 with seed 42, then judge acceptance by matched final predicted affinity and secondary strain on confirmation panels frozen before their labels are observed. Keep alternative spatial modes; Gaussian moments need empirical validation and should not be interpreted as a single ideal molecule.",
+      "evidence_ids": ["E_cohort", "E_effects", "E_fit", "E_prior_failure"]
+    }
+  ],
+  "regions": [
+    {
+      "indices": [14, 15],
+      "direction": "Favor lower landmark_00_softmin and higher landmark_00_occupancy3. Integrated standardized contrasts are -0.460107 (CI [-0.631995,-0.288857]) and +0.462449 (CI [0.299079,0.644434]); both q=0.003386636 and both agree in 14/14 batches. The broader occupancy5 feature has q=0.106495, so support is strongest for the selected proximity and occupancy3 fields.",
+      "time_course": "Across t=0.00-0.49 both selected fits are constant, with coefficients -0.460107 and +0.462449 and zero temporal derivatives. Raw end-minus-start changes are -0.172864 and +0.080870, consistent with stronger endpoint separation in the favored directions but without established fitted time dependence.",
+      "evidence_ids": ["E_effects", "E_fit", "E_cohort"]
+    },
+    {
+      "indices": [23, 24, 25],
+      "direction": "Favor higher landmark_03_softmin and lower landmark_03_occupancy3/occupancy5. Integrated standardized contrasts are +0.382525 (CI [0.190485,0.593962], q=0.018696), -0.072589 (CI [-0.106638,-0.040832], q=0.008829) and -0.380649 (CI [-0.542204,-0.222568], q=0.006405). Each has 12/14 batch sign agreement; the occupancy3 magnitude is small despite its corrected significance.",
+      "time_course": "All three supplied fits are constant across t=0.00-0.49 with zero temporal derivatives. Raw end-minus-start changes are +0.144327, +0.003108 and -0.034163 respectively; these are descriptive endpoint differences, not fitted acceleration away from this landmark.",
+      "evidence_ids": ["E_effects", "E_fit", "E_cohort"]
+    },
+    {
+      "indices": [51],
+      "direction": "Favor lower landmark_12_occupancy3: integrated standardized contrast -0.309144, CI [-0.504809,-0.122115], q=0.029521 and 11/14 batch sign agreement. Occupancy5 corroborates reduced occupancy (q=0.035076) but is outside the allowed indices; softmin does not pass q<0.05 (q=0.059637), so infer reduced occupancy rather than a proven distance mechanism.",
+      "time_course": "The selected fit is constant across t=0.00-0.49, coefficient -0.309144 and zero temporal derivative. Raw end-minus-start contrast is -0.234550, suggesting greater endpoint occupancy separation without a resolved fitted trend.",
+      "evidence_ids": ["E_effects", "E_fit", "E_cohort"]
+    },
+    {
+      "indices": [26],
+      "direction": "Weakly favor lower landmark_04_softmin: integrated standardized contrast -0.251237, CI [-0.429554,-0.074465], q=0.046522 and 11/14 batch sign agreement. This is the weakest selected region; corresponding occupancy3 and occupancy5 do not pass q<0.05 (q=0.151675,0.071686). Do not invent an occupancy target or optimal strength.",
+      "time_course": "The selected fit is constant across t=0.00-0.49, coefficient -0.251237 and zero temporal derivative. Raw end-minus-start contrast +0.054300 weakens the negative proximity separation slightly; it does not justify changing direction or imposing a temporal ramp.",
+      "evidence_ids": ["E_effects", "E_fit", "E_cohort"]
+    }
+  ],
+  "limitations": [
+    "Online endpoint-forecast score association is observational; final predicted affinity outcomes, survival benefit and measured affinity for this contrast are absent. [E_cohort]",
+    "Five unidentifiable batch-time cells and unobserved futures are missing evidence, not negative labels; the latest fitted score clock is 0.49 although the supported update ends at 0.50. [E_cohort,E_timecourse,E_fit]",
+    "Root collapse, repeated descendants and serial times limit independence. Raw cohort counts do not report effective cohort weights or independent support. [E_cohort,E_timecourse]",
+    "hard_mix=0 and gap_weight=false; no spatially close, nuisance-matched lower-score contrast or boundary-margin distribution is supplied. Retain ambiguous exclusions and defer increasing negative hardness or claiming regional specificity. [E_cohort,E_effects]",
+    "Landmark softmin and shell fields are untyped coordinate proxies; correlated shape effects, Gaussian approximation of multimodal fields and uncertain time changes require validation. No atomwise target or chemical-energy interpretation is justified. [E_effects,E_fit,E_cohort]",
+    "The prior negative confirmation concerns a different source and only two fixed-seed batches. Adaptive screening must not replace a frozen independent confirmation of this candidate. [E_prior_failure,E_cohort]"
+  ],
+  "recommendation": "test"
+}

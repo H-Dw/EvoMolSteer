@@ -11,6 +11,7 @@ from evomolsteer.storage.generation_archive import verify_generation_archive
 from evomolsteer.generation.path_evaluation import retain_round,summarize_tail
 from evomolsteer.continuous.dynamic_regions import mine
 from run_sequential_path_campaign import Driver as TransportDriver,evaluate_isolated
+from prepare_dynamic_agent_inputs import verified_response
 
 
 class Driver(TransportDriver):
@@ -58,11 +59,12 @@ class Driver(TransportDriver):
             change={};reason='Fresh paired native and validated historical incumbent control, before any new regional reward trial.'
         elif number==2:
             p=read_json(self.cfg/'round01.json');parent=1
-            binding=read_json(self.docs/'round02_agents/Designer.request.json');response=read_json(self.docs/'round02_agents/Designer.response.json')
-            for k in ['input_sha256','instruction_sha256']:
-                if response[k]!=binding[k]:raise ValueError('Designer response binding mismatch')
+            response=verified_response(self.docs/'round02_agents','Designer')
+            verified_response(self.docs/'round02_agents','Analyst')
             if response['decision']!='test_formula' or response['reward_view']!='endpoint_dynamic_region':raise ValueError('Designer deferred or changed registry')
             reference=self.cfg/'rest_reference.json.gz'
+            expected=json.loads(__import__('gzip').decompress(reference.read_bytes()))['dynamic_cohort']['selected_feature_indices']
+            if sorted(response['selected_feature_indices'])!=expected:raise ValueError('Designer proposed unsupported regional fields')
             change={'reward_view':'endpoint_dynamic_region','regional_weight':.05,'regional_temperature':1.,
                 'regional_bound':2.,'regional_response':'contrast','reference_sha256':digest(reference)}
             reason=response['justification'];p.update(change)
