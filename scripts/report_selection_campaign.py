@@ -1,10 +1,52 @@
 """Summarize the predeclared experiment; no validation-based reward retuning."""
 import argparse
+import hashlib
+import subprocess
 from pathlib import Path
 import pandas as pd
 from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.generation.path_evaluation import summarize_tail,paired_effect
 from dispatch_path_round import verify_retention
+from evomolsteer.generation.selection_workflow import activate_confirmed,restore_incumbent
+
+ROUND_DIRECTIONS={
+ 1:'建立无引导/R26配对控制',2:'质量标签排序，β=2',3:'降低排序先验强度，β=1',
+ 4:'教师先验ESS下限50%',5:'教师先验ESS下限75%',6:'仅旧归一化实现的负对照',
+ 7:'几何模式计数去偏，强度0.5（早期实现）',8:'几何模式计数去偏，强度1',
+ 9:'优先选择每个几何模式的代表',10:'优先覆盖不同教师来源批次',
+11:'收缩协方差坐标度量，混合0.1',12:'协方差混合0.25',13:'协方差混合0.5',
+14:'逐原子稳健坐标误差，δ=1Å',15:'逐原子稳健误差曲率，δ=2Å',
+16:'用修正后实现重测最佳筛选参数',17:'冻结候选，建立确认批次43/44的控制',
+18:'冻结候选在批次43/44的确认',19:'确认批次45/46的控制',20:'同一冻结候选在批次45/46的确认'}
+
+
+def confirmation_source_audit(root, docs):
+    """Numerical source, reference and paired initial states must stay fixed."""
+    source_paths=['src/evomolsteer/generation/'+name for name in
+        ['selection_path_reward.py','endpoint_reward.py','endpoint_controller.py',
+         'coordinate_contrast.py','scalar_guidance.py']]
+    hashes={path:digest(root/path) for path in source_paths};rounds={}
+    for n in [17,18,19,20]:
+        report=read_json(docs/f'round{n:02d}/execution_report.json')
+        commit=report['code_commit']
+        for path,sha in hashes.items():
+            data=subprocess.check_output(['git','show',f'{commit}:{path}'],cwd=root)
+            if hashlib.sha256(data).hexdigest()!=sha:
+                raise ValueError(f'Confirmation numerical source changed: round {n}, {path}')
+        if (not report['no_particle_resampling'] or report['affinity_head_gradient']
+                or report['outside_window_injection'] or report['steps']!=100
+                or report['additional_production_calls_per_step']!=0):
+            raise ValueError('Confirmation generation audit failed')
+        rounds[n]=report
+    for control,candidate in [(17,18),(19,20)]:
+        for key,sha in rounds[candidate]['initial_state_signatures'].items():
+            batch=key.split('/')[-1]
+            for arm in ['gradient','unguided']:
+                if rounds[control]['initial_state_signatures'][f'{arm}/{batch}']!=sha:
+                    raise ValueError('Confirmation paired initial states differ')
+    return {'numerical_source_sha256':hashes,
+            'inference_commits':{str(n):r['code_commit'] for n,r in rounds.items()},
+            'same_initial_states':True,'no_resampling_or_affinity_gradient':True}
 
 
 def report(root):
@@ -43,9 +85,13 @@ def report(root):
       'PB_retained':m['candidate']['pb_fast_rate']>=m['R26']['pb_fast_rate']-.03,
       'secondary_strain_within_limit':m['candidate']['strain_median_per_heavy']<=strain_limit,
       'secondary_strain_p90_within_limit':m['candidate']['strain_p90_per_heavy']<=tail_limit}
+    source_audit=confirmation_source_audit(root,docs)
+    active=(activate_confirmed(root,'selection_path20_v1',frozen,checks) if all(checks.values())
+        else restore_incumbent(root,'selection_path20_v1','Frozen independent confirmation failed; retain historical R26.',20))
     outcome={'frozen_candidate':frozen,'confirmation_results':m,'versus_R26':vsbase,'versus_native':vsnative,
       'historical_Steer':steer,'acceptance_checks':checks,'accepted':all(checks.values()),
-      'strain_limit_per_heavy':strain_limit,'strain_p90_limit_per_heavy':tail_limit,'active_workflow':read_json(cfg/'active_workflow.json'),
+      'strain_limit_per_heavy':strain_limit,'strain_p90_limit_per_heavy':tail_limit,'active_workflow':active,
+      'confirmation_source_audit':source_audit,
       'comparison_limits':['Historical Steer is unpaired, unequal compute and donor-influenced.',
         'Four fixed-seed independent batches provide limited uncertainty resolution; no wet-lab claim.',
         'All-attempt mean and chemically valid mean are both reported.'],
@@ -62,7 +108,7 @@ def report(root):
       '', '## 各轮方向与最终结果','', '|轮次|独立变化/目的|平均pIC50|对R26|对无引导|有效/PB|应变中位数|筛选合格|', '|---|---|---:|---:|---:|---|---:|---|']
     for r in records:
         rb='—' if r['vs_R26'] is None else f"{r['vs_R26']:+.6f}";rn='—' if r['vs_native'] is None else f"{r['vs_native']:+.6f}"
-        lines.append(f"|{r['round']}|{r['reason']}|{r['mean_pic50']:.6f}|{rb}|{rn}|{r['valid_n']}/{r['n']}; {r['pb_fast_rate']:.2f}|{r['strain_median']:.4f}|{r['screening_admissible']}|")
+        lines.append(f"|{r['round']}|{ROUND_DIRECTIONS[r['round']]}|{r['mean_pic50']:.6f}|{rb}|{rn}|{r['valid_n']}/{r['n']}; {r['pb_fast_rate']:.2f}|{r['strain_median']:.4f}|{'是' if r['screening_admissible'] else '否'}|")
     lines+=['', '每轮失败及暂时合格后均恢复R26程序、基础Skills与数值源文件校验；第18/20轮只确认提前冻结的同一候选，没有根据确认标签调参。没有粒子重采样、亲和力头梯度或化学图限制。全部推理完成100步，动态支持内引导，之后原生续推。',
       '', '数值一致性审计改变了探索解释：第6轮没有新学习规则，也重现了第4轮约+0.02518的提升；第4轮相对这个负对照的差值仅-0.00000285。早期结果不能仅归因于ESS或排序规则。随后统一R26归一化方式，消除无信息的niche常量偏移和单位协方差效应；第7轮在额外修复前启动，仅作探索证据。最终候选只从第8–16轮选取，第16轮负责用当前实现重新评估最佳参数。修订在揭示独立确认标签前注册，原版本报告与提交均保留。',
       '', '700个Steer选择事件的几何群体变化分析显示原生趋势68项BH显著、选择项0项，不能把原生积分规律称为优势区域。质量排序、ESS、模式覆盖、局部度量和稳健损失均为待验证机制。方法、来源、公式和限制见[研究设计](research_and_design.zh-CN.md)；精简数据见mining目录；真实Agent字面输入、响应和修复记录见agents目录。',
