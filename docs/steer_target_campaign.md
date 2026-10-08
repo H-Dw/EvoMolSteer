@@ -173,3 +173,5 @@ python scripts/read_steer_event.py \
 2026-10-09默认批次调整后的相关22项测试通过，远端已拉取并验证每 target 为1000候选、每批100、共10批，全部100组输入哈希一致。归档间隔仍为10个 target，未启动新GPU生成；该划分与旧20批×50的质量比较尚未进行。新验证见 `docs/crossdocked_steer_campaign_20261008/batch100_remote_dry_run_20261009.json`，上方历史压缩测量与旧验证记录保持原始50候选批次语义。
 
 2026-10-09并行控制改进共通过72项本地相关测试（70项回归＋2项旧集合迁移/路径保护测试），包含真实多进程争抢同一target、两个控制器同时进入不同CPU记录夹具任务、并行归档合并、完整异常与竞争诊断，以及已发布归档的中断恢复。这些是控制器与存储测试，没有启动FLOWR GPU推理；记录见 `docs/crossdocked_steer_campaign_20261008/concurrency_tests_20261009.json`。
+
+远端Linux环境拉取 `57d0f7c` 后，15项控制器/多进程测试全部通过，100个target的输入哈希、10批×100、每10个target归档，以及进度目录与三种跳过标记均核验一致。生产输出尚未创建，没有启动GPU生成；记录见 `docs/crossdocked_steer_campaign_20261008/concurrency_remote_validation_20261009.json`。
