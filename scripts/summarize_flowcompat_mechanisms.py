@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from evomolsteer.io import digest, read_json, write_json
+from evomolsteer.generation.path_evaluation import paired_effect
 
 
 def summarize(input_dataset, output_dataset):
@@ -22,7 +23,7 @@ def summarize(input_dataset, output_dataset):
         if not (folder / 'retention.json').exists():
             continue
         names = ['comparison.json', 'implementation_feedback.json', 'retention.json',
-                 'flow_response.parquet', 'inference_config/reward_program.json']
+                 'flow_response.parquet', 'candidate_metrics.csv', 'inference_config/reward_program.json']
         for name in names:
             path = folder / name
             if path.is_file():
@@ -83,12 +84,13 @@ def summarize(input_dataset, output_dataset):
         a, b = by_round[test], by_round[control]
         if a['versus_R26'] is None or b['versus_R26'] is None:
             continue
-        if a['versus_R26']['n_batches'] != b['versus_R26']['n_batches']:
-            raise ValueError('Matched contrasts require the same batch coverage')
+        left = pd.read_csv(source / f'round{test:02d}' / 'candidate_metrics.csv')
+        right = pd.read_csv(source / f'round{control:02d}' / 'candidate_metrics.csv')
+        paired = paired_effect(left[left.arm.eq('gradient')], right[right.arm.eq('gradient')])
         dose_a, dose_b = a['mean_RMS_path_proxy_A'], b['mean_RMS_path_proxy_A']
         contrasts.append({'contrast': label, 'rounds': [test, control],
-                          'batch_delta_pic50': (np.asarray(a['versus_R26']['batch_means']) - np.asarray(b['versus_R26']['batch_means'])).tolist(),
-                          'mean_delta_pic50': a['mean_pic50'] - b['mean_pic50'],
+                          'batch_delta_pic50': paired['batch_means'],
+                          'mean_delta_pic50': paired['paired_mean_pic50'],
                           'dose_proxy_relative_difference': (dose_a / dose_b - 1) if dose_a is not None and dose_b else None,
                           'interpretation': 'Adaptive screening contrast, not independent confirmation or a causal effect estimate'})
     write_json(output / 'mechanism_comparisons.json', {

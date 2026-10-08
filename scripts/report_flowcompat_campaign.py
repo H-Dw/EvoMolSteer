@@ -29,6 +29,8 @@ def report(repo):
         candidates=pd.concat([pd.read_csv(docs/f'round{n:02d}/candidate_metrics.csv') for n in [26,28,30]])
         r26=controls[controls.arm.eq('gradient')];native=controls[controls.arm.eq('unguided')]
         a=paired_effect(candidates,r26);b=paired_effect(candidates,native)
+        for effect in [a,b]:
+            effect['limitation']='Frozen candidate on six held-out generation batches with fixed master seed; batch bootstrap, not independent molecules or biological affinity validation.'
         metrics={key:summarize_tail(value,read_json(docs/'protocol.json')['tail_threshold_pic50']) for key,value in [('candidate',candidates),('R26',r26),('native',native)]}
         steer=read_json(docs/'steer_reference.json')['all'];m=metrics['candidate'];baseline=metrics['R26']
         checks={'positive_independent_effect':a['paired_mean_pic50']>.01 and a['batch_bootstrap_CI95'][0]>0,
@@ -56,6 +58,19 @@ def report(repo):
     lines+=['', '未通过实施门的终态数值仅作描述；未通过筛选的试验不覆盖R26默认。六个新批次确认后才可判断是否升级。', '',
         '独立验证完成：'+str(confirmation['complete'])+'；满足升级条件：'+str(confirmation['adopt_candidate'])+'.', '',
         '参考：[FK steering](https://arxiv.org/abs/2501.06848)说明群体重采样如何保留有望得到高奖励的路径；[Flow guidance](https://proceedings.mlr.press/v267/feng25s.html)说明一般flow guidance的条件与近似边界。当前实现属于有界条件端点控制，不声称精确FK分布或完整未来价值梯度。']
+    if confirmation['complete']:
+        lines+=['', '## 冻结候选的六批独立确认', '',
+                '候选来自第'+str(confirmation['frozen_candidate']['selected_round'])+'轮；确认期间没有改奖励或强度。每组300个完整推理样本。', '',
+                '|组别|全部尝试pIC50均值|有效/PB|应变中位/P90|极高分产率|',
+                '|---|---:|---|---|---:|']
+        for key,label in [('candidate','冻结候选'),('R26','历史最优R26'),('native','无引导')]:
+            m=confirmation['metrics'][key]
+            lines.append(f'|{label}|{m["all_mean_pic50"]:.6f}|{m["valid_n"]/m["n"]:.1%}/{m["pb_fast_rate"]:.1%}|{m["strain_median_per_heavy"]:.4f}/{m["strain_p90_per_heavy"]:.4f}|{m["elite_yield"]:.1%}|')
+        for key,label in [('versus_R26','R26'),('versus_native','无引导')]:
+            effect=confirmation[key];low,high=effect['batch_bootstrap_CI95']
+            lines.append(f'\n相对{label}的配对均值差 {effect["paired_mean_pic50"]:+.6f}，六批bootstrap区间 [{low:+.6f}, {high:+.6f}]。')
+        lines+=['', '升级判据逐项结果：'+str(confirmation['checks']),
+                '', '这些比较检验的是同一预测亲和力模型及本地构象/应变指标；历史Steer依然是预算和设计数据不同的非配对参照。']
     (docs/'progress.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     return confirmation
 

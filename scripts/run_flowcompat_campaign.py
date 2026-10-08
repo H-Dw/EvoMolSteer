@@ -53,7 +53,7 @@ class Driver(BaseDriver):
         return max(rows,key=lambda r:(r['mean_vs_R26'],-r['round']))['round'] if rows else None
 
     def reference(self,p):
-        for f in [self.cfg/'branch_reference.json.gz',self.cfg/'innovation_reference.json.gz',self.root/'configs/experiments/skill_ablation_v1/endpoint_reference.json.gz']:
+        for f in [self.cfg/'regional_common_depth_reference.json.gz',self.cfg/'regional_reference.json.gz',self.cfg/'branch_reference.json.gz',self.cfg/'innovation_reference.json.gz',self.root/'configs/experiments/skill_ablation_v1/endpoint_reference.json.gz']:
             if f.exists() and digest(f)==p['reference_sha256']:return f
         raise ValueError('Bound immutable teacher reference required')
 
@@ -61,7 +61,7 @@ class Driver(BaseDriver):
         file=self.cfg/f'round{number:02d}.json';planfile=self.docs/f'round{number:02d}_plan.json'
         if file.exists():return file,self.reference(read_json(file)),read_json(planfile)
         base=read_json(self.root/'configs/experiments/skill_ablation_v1/incumbent.json');p=copy.deepcopy(base)
-        arms='gradient';batches=[47,48];parent='historical_R26';reason='';change={}
+        arms='gradient';batches=[47,48];parent='historical_R26';reason='';change={};selection_eligible=True
         if number in [1,2,8,25,27,29]:
             arms='unguided,gradient'
             if number==8:arms='gradient'
@@ -82,6 +82,31 @@ class Driver(BaseDriver):
             if digest(source)!=frozen['program_sha256']:raise ValueError('Frozen candidate changed')
             p=read_json(source);batches=list(range(49+(number-26),51+(number-26)))
             reason='Independent confirmation of unchanged frozen reward and controller; no retuning on confirmation labels.'
+        elif 22<=number<=24 and (self.cfg/'regional_binding.json').exists():
+            if not read_json(self.docs/'round08/implementation_feedback.json')['null_control_parity']:
+                raise ValueError('V2 numerical null control must pass first')
+            from evomolsteer.continuous.regional_workflow import validate_response
+            binding=read_json(self.cfg/'regional_binding.json')
+            if not read_json(self.root/binding['validation_path'])['passed']:
+                raise ValueError('Actual independently bound regional Designer response required')
+            validate_response(self.root/binding['request_path'],self.root/binding['response_path'])
+            trial=read_json(self.cfg/'regional_schedule_v1.json')['rounds'][str(number)]
+            p=read_json(self.cfg/'regional_pilot.json');parent='regional_pilot';reason=trial['reason']
+            selection_eligible=not trial.get('negative_control',False)
+            if number==22:
+                change=p['flowcompat_provenance']['parameter_updates']
+            else:
+                group,key=trial['axis'].split('.')
+                if group!='branch_mixture' or key not in ['virtual_mass','direction_sign']:
+                    raise ValueError('Regional paired control permits one registered budget/sign axis')
+                value=trial['value']
+                if key=='virtual_mass' and not 0<=value<=.5 or key=='direction_sign' and value not in [-1.,1.]:
+                    raise ValueError('Regional paired control outside frozen bounds')
+                p['branch_mixture'][key]=value;change={trial['axis']:value}
+                p['flowcompat_provenance'].update(parameter_updates=change,
+                    parameter_origin='Frozen paired control of an actual regional design; not a fresh LLM response',
+                    paired_control_schedule_sha256=digest(self.cfg/'regional_schedule_v1.json'))
+            p['generation_interface']='flowcompat_v2'
         elif number>=9:
             parity=read_json(self.docs/'round08/implementation_feedback.json')
             if not parity['null_control_parity']:raise ValueError('V2 numerical null control must pass first')
@@ -147,6 +172,7 @@ class Driver(BaseDriver):
         write_json(file,p);reference=self.reference(p)
         plan={'round':number,'parent':parent,'reason':reason,'batches':batches,'arms':arms,'n_per_arm':100,
             'changed_axis':change,'program_sha256':digest(file),'reference_sha256':digest(reference),
+            'selection_eligible':selection_eligible,
             'learned_window':p['window'],'design_origin':'Actual bound LLM design families with sequential engineering parameter tests; not thirty independent LLM calls.'}
         write_json(planfile,plan);(self.cfg/'active_program.json').write_bytes(file.read_bytes())
         write_json(self.cfg/'active_workflow.json',{'candidate_enabled':number not in [1,2,8,25,27,29],
@@ -229,6 +255,8 @@ class Driver(BaseDriver):
                 checker=verify_execution_response
                 if p['flowcompat_provenance'].get('workflow_version')=='flowcompat-supplemental-agent-2.0':
                     from evomolsteer.continuous.flowcompat_supplemental import verify_execution_response as checker
+                elif p['flowcompat_provenance'].get('workflow_version')=='flowcompat-regional-agent-1.0':
+                    from evomolsteer.continuous.regional_workflow import verify_execution_response as checker
                 checker(program,evaluated/'implementation_gate_input.json',evaluated/'implementation_gate.json')
                 feedback['implementation_passed']=True
             except ValueError as error:
@@ -256,7 +284,7 @@ class Driver(BaseDriver):
             feedback['null_control_parity'] &= parity;write_json(out/'implementation_feedback.json',feedback)
         summary['historical_Steer_reference']=read_json(self.docs/'steer_reference.json')
         gain=summary.get('versus_gradient',{}).get('paired_mean_pic50');admissible=False
-        if baseline and number>=3 and number not in [8,10]:
+        if baseline and number>=3 and number not in [8,10] and read_json(self.docs/f'round{number:02d}_plan.json').get('selection_eligible',True):
             m=summary['results']['gradient'];admissible=(gain>.005 and min(summary['versus_gradient']['batch_means'])>0 and m['valid_n']/m['n']>=.9 and m['pb_fast_rate']>=.9 and feedback.get('implementation_passed',False))
         write_json(out/'comparison.json',summary);write_json(out/'archive_verification.json',verified)
         rollback=restore_incumbent(self.root,'flowcompat30_v1','Candidate remains provisional; failed proposals never overwrite R26.',number)
