@@ -34,3 +34,5 @@ def test_conditional_coordinate_gradient_not_time_derivative():
     a,_=reward(x.detach()+eps*v,atoms,mask,0.,anchor);b,_=reward(x.detach()-eps*v,atoms,mask,0.,anchor)
     assert torch.allclose((a.sum()-b.sum())/(2*eps),(g*v).sum(),rtol=1e-5,atol=1e-8)
     assert detail['selection_pressure_audit'][:,0].min()>=3-1e-8
+    assert detail['selection_pressure_audit'].shape==(2,4)
+    assert detail['selection_pressure_audit'][:,3].min()>=1-1e-8

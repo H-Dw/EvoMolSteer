@@ -47,6 +47,9 @@ def execution_audit(dataset,campaign):
                     'minimum_ess':float(min(v['teacher_ess_min'] for v in pressure)),
                     'mean_uniform_base_chance':float(np.mean([v['uniform_base_chance_mean'] for v in pressure])),
                     'mean_covered_niches':float(np.mean([v['covered_coordinate_niches_mean'] for v in pressure]))}
+                if all('posterior_ess_mean' in v for v in pressure):
+                    rows[-1]['teacher_pressure']['mean_posterior_ess']=float(np.mean([v['posterior_ess_mean'] for v in pressure]))
+                    rows[-1]['teacher_pressure']['minimum_posterior_ess']=float(min(v['posterior_ess_min'] for v in pressure))
             sources.append({'batch':batch,'arm':arm,'sha256':entry['source_trajectory_sha256'] if view else digest(source)})
     preflight=read_json(root/'coordinate_gradient_preflight.json')
     if not preflight['passed'] or preflight['affinity_head_gradient']:raise ValueError('Actual FLOWR VJP validation failed')

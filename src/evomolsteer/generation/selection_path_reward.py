@@ -85,9 +85,11 @@ class SelectionPathReward(EndpointGeometryReward):
         if self.spec.get('robust_aggregation')=='atom':cost=(delta**2*(torch.sqrt(1+per_atom/delta**2)-1)).mean(2)
         else:cost=delta**2*(torch.sqrt(1+q/delta**2)-1)
         reward=self.tau*torch.logsumexp(log_prior-cost/self.tau,1)
+        posterior=(log_prior-cost/self.tau-reward[:,None]/self.tau).exp().detach()
+        pressure=torch.cat([x.new_tensor(audit),posterior.square().sum(1).reciprocal()[:,None]],dim=1).detach()
         phase=(time-self.window[0])/(self.window[1]-self.window[0])
         dose=(.1+.9*np.clip(phase,0,1))**float(self.program.get('time_ramp_power',0))
         return reward,{'observables':torch_geometry(x.double(),self.reference['landmarks_A'],self.reference['origin_A']),
           'available':mask.any(1),'core_mask':mask.bool(),'nearest_standardized_rms':q.amin(1).sqrt(),
           'dose_gate':x.new_full((len(x),),dose),'time_dose_factor':x.new_full((len(x),),dose),
-          'selection_pressure_audit':x.new_tensor(audit).detach()}
+          'selection_pressure_audit':pressure}

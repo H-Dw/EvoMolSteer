@@ -138,6 +138,9 @@ class EndpointCoordinateExtension(CoordinateExtension):
                 row['selection_pressure_summary']={'teacher_ess_mean':float(pressure[:,0].mean()),
                     'teacher_ess_min':float(pressure[:,0].min()),'uniform_base_chance_mean':float(pressure[:,1].mean()),
                     'covered_coordinate_niches_mean':float(pressure[:,2].mean())}
+                if pressure.shape[1]>3:
+                    row['selection_pressure_summary']['posterior_ess_mean']=float(pressure[:,3].mean())
+                    row['selection_pressure_summary']['posterior_ess_min']=float(pressure[:,3].min())
             if self.program.get('preserve_native_rigid_pose'):g=remove_rigid_pose_gradient(g,self.before,mask)
             row.update(raw_gradient_l2_native=raw.sqrt().cpu().tolist(),post_projection_l2_native=g.norm(dim=(1,2)).cpu().tolist(),
                 projection_retained_squared_fraction=(g.square().sum((1,2))/raw.clamp_min(1e-30)).cpu().tolist())
