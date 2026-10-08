@@ -23,8 +23,9 @@ def discover_targets(dataset,*,manifest=None,protein_glob='**/*_pocket10.pdb',
                      protein_suffix='_pocket10.pdb',ligand_suffix='.sdf',expected_targets=None):
     """No random selection, ambiguous pairs, silent omissions or pickle loading.
 
-    Auto discovery identifies one target per parent folder. For a general split
-    or multiple complexes in one folder, supply a JSON target manifest.
+    Auto discovery identifies each pocket/ligand pair by its relative path
+    without the protein suffix, including multiple complexes in one folder.
+    A JSON target manifest can supply explicit identities for a general split.
     """
     root=Path(dataset).resolve()
     if not root.is_dir():raise NotADirectoryError(root)
@@ -41,8 +42,7 @@ def discover_targets(dataset,*,manifest=None,protein_glob='**/*_pocket10.pdb',
             if not protein.is_file() or not protein.name.endswith(protein_suffix):
                 raise ValueError('Discovery glob includes a nonmatching protein: '+str(protein))
             ligand=protein.with_name(protein.name[:-len(protein_suffix)]+ligand_suffix)
-            identifier=protein.parent.relative_to(root).as_posix()
-            if identifier=='.':identifier=protein.name[:-len(protein_suffix)]
+            identifier=protein.relative_to(root).as_posix()[:-len(protein_suffix)]
             rows.append({'target_id':identifier,'target_protein':str(protein.relative_to(root)),
                          'target_ligand':str(ligand.relative_to(root))})
     if not rows:raise ValueError('No target inputs discovered')

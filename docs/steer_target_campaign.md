@@ -14,7 +14,7 @@ crossdocked_pocket10/
   ...
 ```
 
-脚本按文件名配对、按 target ID 排序，并要求发现数量为100；缺配体、同一 target 有多个自动配对、重复 ID 或路径越界均报错，不随机选一个文件。测试集成员由指定的已准备目录决定；脚本不从训练目录猜测测试集，也不加载未知 pickle。通用数据可提供 `configs/target_collection.example.json` 格式的显式 target 清单。
+脚本按文件名配对，每个配对使用去除 `_pocket10.pdb` 后缀的相对路径作为 target ID，按 ID 排序，并要求发现数量为100。同一蛋白目录中的多个复合物分别执行自己的单目标任务，不合并、不遗漏；缺配体、显式清单重复 ID 或路径越界均报错。测试集成员由指定的已准备目录决定；脚本不从训练目录猜测测试集，也不加载未知 pickle。通用数据可提供 `configs/target_collection.example.json` 格式的显式 target 清单。
 
 当前服务器执行入口为：
 
@@ -107,7 +107,7 @@ python scripts/verify_steer_target_archive.py \
 
 python scripts/verify_steer_target_archive.py \
   --archive /path/to/archives/targets_0000.tar.gz \
-  --target ABL2_HUMAN_274_551_0 --output /path/to/restored_ABL2
+  --target ABL2_HUMAN_274_551_0/4xli_B_rec_4xli_1n1_lig_tt_min_0 --output /path/to/restored_ABL2
 
 python scripts/read_steer_event.py \
   --batch-directory /path/to/restored_ABL2/results/single_w050/single/batch_000 \

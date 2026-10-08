@@ -59,15 +59,19 @@ def fake_generation(monkeypatch,*,fail_once=None):
 
 def test_crossdocked_discovery_is_exact_and_preserves_explicit_identity(tmp_path):
     cfg=config(tmp_path,2);rows=discover_targets(cfg.input_dataset,expected_targets=2)
-    assert [r['target_id'] for r in rows]==['target_000','target_001']
+    assert [r['target_id'] for r in rows]==['target_000/reference','target_001/reference']
     assert rows[0]['files']['target_ligand']['path']=='target_000/reference.sdf'
     with pytest.raises(ValueError):discover_targets(cfg.input_dataset,expected_targets=100)
     p=Path(cfg.input_dataset)/'target_000/other_pocket10.pdb';p.write_text('protein');p.with_name('other.sdf').write_text('ligand')
-    with pytest.raises(ValueError):discover_targets(cfg.input_dataset)
+    rows=discover_targets(cfg.input_dataset,expected_targets=3)
+    assert [r['target_id'] for r in rows]==['target_000/other','target_000/reference','target_001/reference']
     manifest=tmp_path/'targets.json';atomic_json(manifest,{'format':FORMAT,'targets':[
         {'target_id':'chosen / A','target_protein':'target_000/reference_pocket10.pdb','target_ligand':'target_000/reference.sdf'}]})
     rows=discover_targets(cfg.input_dataset,manifest=manifest)
     assert rows[0]['key']==target_key('chosen / A') and '/' not in rows[0]['key']
+    duplicated=read_json(manifest);duplicated['targets']*=2;atomic_json(manifest,duplicated)
+    with pytest.raises(ValueError,match='duplicate'):discover_targets(cfg.input_dataset,manifest=manifest)
+    atomic_json(manifest,{'format':FORMAT,'targets':[duplicated['targets'][0]]})
     data=read_json(manifest);data['targets'][0]['target_ligand']='../model.ckpt';atomic_json(manifest,data)
     with pytest.raises(ValueError):discover_targets(cfg.input_dataset,manifest=manifest)
 
@@ -82,11 +86,24 @@ def test_twelve_targets_create_ten_plus_two_archives_and_are_restorable(tmp_path
     assert all(r['summary']['failed_slots']==1 for r in result['targets'].values())
     assert not list((Path(cfg.output_dataset)/'targets').iterdir())
     item=result['archives'][0];output=tmp_path/'restored'
-    restore_target(Path(cfg.output_dataset)/item['path'],'target_000',output,item['metadata'])
+    restore_target(Path(cfg.output_dataset)/item['path'],'target_000/reference',output,item['metadata'])
     assert read_json(output/'results/single_w050/final_records.json')[1]['build_success'] is False
     for p,h in input_hashes.items():assert digest(p)==h
     run_campaign(cfg)
     assert len(calls)==12  # archived targets are never generated again
+
+
+def test_multiple_pockets_in_one_protein_folder_run_independent_targets(tmp_path,monkeypatch):
+    cfg=config(tmp_path,1)
+    p=Path(cfg.input_dataset)/'target_000/other_pocket10.pdb';p.write_text('another pocket')
+    p.with_name('other.sdf').write_text('another ligand')
+    cfg=replace(cfg,expected_targets=2,compress=False);calls=fake_generation(monkeypatch)
+    result=run_campaign(cfg)
+    assert result['status']=='complete' and len(calls)==2
+    assert set(result['targets'])=={'target_000/other','target_000/reference'}
+    proteins={read_json(c.input_manifest)['files']['target_protein'] for c in calls}
+    assert proteins=={str(p),str(p.with_name('reference_pocket10.pdb'))}
+    assert all(tuple(c.arms)==('single',) for c in calls)
 
 
 def test_resume_partial_group_and_disabled_compression(tmp_path,monkeypatch):
@@ -108,9 +125,9 @@ def test_failed_task_can_retry_in_a_new_attempt_and_keeps_failure_log(tmp_path,m
     assert failed['status']=='partial_failure' and failed['totals']['failed_targets']==1
     result=run_campaign(cfg,retry_failed=True)
     assert result['status']=='complete' and len(calls)==3
-    attempts=result['targets']['target_000']['attempts']
+    attempts=result['targets']['target_000/reference']['attempts']
     assert len(attempts)==2 and attempts[0]['state']=='failed' and attempts[1]['state']=='complete'
-    assert '__attempt_002' in result['targets']['target_000']['dataset']
+    assert '__attempt_002' in result['targets']['target_000/reference']['dataset']
 
 
 def test_dry_run_and_input_change_do_not_launch_or_overwrite(tmp_path,monkeypatch):
