@@ -23,10 +23,24 @@ def sdf_reference_xyz(path):
 
 def build_catalog(root,config,vocab):
     root=Path(root); regions={}; features={}
-    for pocket,pdb,sdf in [('ck2','3PE1_protein_aligned.pdb','3PE1_ligand_aligned.sdf'),
-                           ('clk3','6KHF_protein_aligned.pdb','6KHF_ligand_aligned.sdf')]:
-        if pocket not in config.get('feature_pockets', ['ck2', 'clk3']):
-            continue
+    input_spec=root/'inputs/pocket_inputs.json'
+    if input_spec.exists():
+        from .io import read_json
+        spec=read_json(input_spec)
+        roles=spec['files']
+        names=config.get('feature_pockets',['target'] if spec.get('off_target_is_target_alias') else ['target','off_target'])
+        aliases={'target':'target','off_target':'off_target','ck2':'target','clk3':'off_target'}
+        pockets=[]
+        for name in names:
+            if name not in aliases:
+                raise ValueError('Use target/off_target feature pockets for a specified-input dataset')
+            role=aliases[name]
+            pockets.append((name,roles[role+'_protein'],roles[role+'_ligand']))
+    else:
+        pockets=[v for v in [('ck2','3PE1_protein_aligned.pdb','3PE1_ligand_aligned.sdf'),
+                             ('clk3','6KHF_protein_aligned.pdb','6KHF_ligand_aligned.sdf')]
+                 if v[0] in config.get('feature_pockets',['ck2','clk3'])]
+    for pocket,pdb,sdf in pockets:
         atoms=pdb_atoms(root/'inputs'/pdb); ref=sdf_reference_xyz(root/'inputs'/sdf)
         grouped={}
         for a in atoms:

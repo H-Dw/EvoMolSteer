@@ -40,7 +40,8 @@ def mine_endpoint(dataset,campaign,output,batches=range(14),window=(0.,.5),coord
     root=Path(dataset);source=root/'results'/campaign;out=Path(output)
     if out.exists():raise FileExistsError(out)
     batches=list(batches);cfg=read_json(source/'config.json')
-    points,origin=landmarks(root/'inputs/3PE1_protein_aligned.pdb',root/'inputs/3PE1_ligand_aligned.sdf')
+    from ..trajectory_source import pocket_input_path
+    points,origin=landmarks(pocket_input_path(root,'target_protein'),pocket_input_path(root,'target_ligand'))
     features=names(points);nodes={};sources=[];representations=[]
     for b in batches:
         path=source/'single'/f'batch_{b:03d}'/'trajectory.h5'
@@ -85,11 +86,11 @@ def mine_endpoint(dataset,campaign,output,batches=range(14),window=(0.,.5),coord
             frame.update(teacher_endpoint_A=recorded['teacher_endpoint_A'],teacher_scores=recorded['teacher_scores'],
                          teacher_batches=recorded['teacher_batches'])
         teacher_source={'sha256':digest(coordinate_library),'role':'Recorded elite endpoint point clouds, no fitted model'}
-    from ..generation.launcher import INPUT_FILES
+    from ..trajectory_source import pocket_input_hashes
     ref={'schema_version':'affinity-endpoint-library-1.0','window':list(window),'times':grid.tolist(),'frames':frames,
         'landmarks_A':points.tolist(),'origin_A':origin.tolist(),'features':features,'feature_scale':scale.tolist(),
         'control_representation':'proposal','spatial_anchor':'endpoint','representation':'native model endpoint world coordinates',
-        'required_input_sha256':{name:digest(root/'inputs'/name) for name in INPUT_FILES},'sources':sources,'discovery_batches':batches,
+        'required_input_sha256':pocket_input_hashes(root),'sources':sources,'discovery_batches':batches,
         'teacher_library':teacher_source,
         'label_semantics':'Recorded joint forward head label, not an independent endpoint-coordinate affinity rescore',
         'time_alignment':'Original score t with actual proposal state t+dt inside learned support; reward forecast at t',

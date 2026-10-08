@@ -18,10 +18,13 @@ class StepTrajectoryWriter:
     Durable stages survive interrupted generation; no unfinished batch is marked
     COMPLETE. A replay of the same step is allowed only if every input bit matches.
     """
-    def __init__(self,batch_directory,*,expected_steps,metadata=None):
+    def __init__(self,batch_directory,*,expected_steps,metadata=None,codec='gzip_shuffle'):
         self.root=Path(batch_directory).resolve()
         if type(expected_steps) is not int or expected_steps<1:
             raise ValueError('expected_steps must be a positive integer')
+        if codec not in ('none','gzip_shuffle'):
+            raise ValueError('Unknown lossless trajectory codec')
+        self.codec=codec
         self.root.mkdir(parents=True,exist_ok=True)
         self.stages=self.root/'trajectory.stages'
         self.manifest_path=self.root/'trajectory.manifest.json'
@@ -31,7 +34,7 @@ class StepTrajectoryWriter:
         with exclusive_lock(self.lock):
             if self.manifest_path.exists():
                 manifest=read_json(self.manifest_path)
-                if manifest.get('format')!='evomolsteer.streaming.v1' or manifest['expected_steps']!=expected_steps or manifest['metadata']!=(metadata or {}):
+                if manifest.get('format')!='evomolsteer.streaming.v1' or manifest['expected_steps']!=expected_steps or manifest['metadata']!=(metadata or {}) or manifest.get('codec','gzip_shuffle')!=codec:
                     raise ValueError('Existing stream has a different schema/configuration')
             else:
                 if self.final_path.exists() or self.stages.exists() or (self.root/'trajectory.npz').exists():
@@ -39,7 +42,8 @@ class StepTrajectoryWriter:
                 self.stages.mkdir()
                 atomic_json(self.manifest_path,{'format':'evomolsteer.streaming.v1','state':'recording',
                     'expected_steps':self.expected_steps,'metadata':metadata or {},'schema':None,'steps':[],
-                    'raw_npz_created':False,'stage_container':'gzip_wrapped_hdf5'})
+                    'raw_npz_created':False,'codec':codec,
+                    'stage_container':'gzip_wrapped_hdf5' if codec!='none' else 'unfiltered_hdf5'})
 
     def append(self,step,fields):
         if type(step) is not int or not 0<=step<self.expected_steps:
@@ -62,6 +66,19 @@ class StepTrajectoryWriter:
                 return record
             if manifest['state']!='recording' or step!=len(manifest['steps']):
                 raise ValueError('Steps must be committed consecutively before finalization')
+            if self.codec=='none':
+                dest=self.stages/f'step_{step:06d}.h5'
+                partial=dest.with_suffix('.h5.partial')
+                if dest.exists():
+                    with TrajectoryPackage(dest) as p:p.verify(arrays)
+                else:
+                    if partial.exists():checked_path(partial,self.stages).unlink()
+                    pack_arrays(arrays,dest,codec='none')
+                record={'step':step,'file':dest.relative_to(self.root).as_posix(),'sha256':digest(dest),
+                        'bytes':dest.stat().st_size,'array_sha256':hashes}
+                manifest['schema']=schema;manifest['steps'].append(record)
+                atomic_json(self.manifest_path,manifest)
+                return record
             dest=self.stages/f'step_{step:06d}.h5.gz'
             raw=dest.with_suffix('')
             partial=raw.with_suffix(raw.suffix+'.partial')
@@ -130,7 +147,7 @@ class StepTrajectoryWriter:
                 else:
                     partial=self.final_path.with_suffix('.h5.partial')
                     if partial.exists():checked_path(partial,self.root).unlink()
-                    report=pack_arrays(arrays,self.final_path,codec='gzip_shuffle')
+                    report=pack_arrays(arrays,self.final_path,codec=self.codec)
                 manifest.update(state='consolidated',final=report)
                 atomic_json(self.manifest_path,manifest)
             # Never delete a stage before durable publication + successful full comparison.

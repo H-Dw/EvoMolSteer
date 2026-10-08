@@ -1,4 +1,5 @@
 import ast
+from pathlib import Path
 import pytest
 from evomolsteer.generation.instrumentation import instrument_source
 
@@ -49,3 +50,10 @@ def test_changed_or_duplicated_capture_site_is_rejected():
         instrument_source(SOURCE.replace('# Integrate the ODE using Euler', '# changed upstream loop'))
     with pytest.raises(RuntimeError):
         instrument_source(SOURCE.replace('            # put into tuples\n', '            # put into tuples\n' * 2))
+
+
+def test_full_upstream_fixture_restores_native_algorithm_line_for_line():
+    source=(Path(__file__).parent/'fixtures/upstream_generate_selective.py.txt').read_text()
+    changed=instrument_source(source)
+    assert ''.join(line for line in changed.splitlines(True) if 'self._lineage.' not in line)==source
+    assert sorted(callback_names(ast.parse(changed)))==['before','begin','end','propose','score']

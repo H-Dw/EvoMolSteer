@@ -255,10 +255,10 @@ def main(extension=None):
               '--ckpt_path',opt.checkpoint,'--save_dir',str(out),'--integration_steps',str(opt.steps),
               '--cut_pocket','--pocket_cutoff','7','--max_sample_iter','0',
               '--no_cat_noise_euler_guard','--no_ligand_valence_repair',
-              '--pdb_file_target',str(inp/'3PE1_protein_aligned.pdb'),
-              '--ligand_file_target',str(inp/'3PE1_ligand_aligned.sdf'),
-              '--pdb_file_untarget',str(inp/'6KHF_protein_aligned.pdb'),
-              '--ligand_file_untarget',str(inp/'6KHF_ligand_aligned.sdf')]
+              '--pdb_file_target',str(inp/getattr(opt,'input_files',{}).get('target_protein','3PE1_protein_aligned.pdb')),
+              '--ligand_file_target',str(inp/getattr(opt,'input_files',{}).get('target_ligand','3PE1_ligand_aligned.sdf')),
+              '--pdb_file_untarget',str(inp/getattr(opt,'input_files',{}).get('off_target_protein','6KHF_protein_aligned.pdb')),
+              '--ligand_file_untarget',str(inp/getattr(opt,'input_files',{}).get('off_target_ligand','6KHF_ligand_aligned.sdf'))]
     args=get_args(); sys.argv=argv
     args.seed=opt.seed; torch.set_float32_matmul_precision('high')
     loaded=load_model(args); model,hparams,vocab,vc,vh,va,vpa,vpr=loaded

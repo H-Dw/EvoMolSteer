@@ -54,7 +54,8 @@ def torch_geometry(x,points,origin):
 def mine(dataset,campaign,output,batches=range(14),window=(0.,.5),teachers_per_batch=2):
     root=Path(dataset);source=root/'results'/campaign;out=Path(output)
     if out.exists():raise FileExistsError(out)
-    cfg=read_json(source/'config.json');points,origin=landmarks(root/'inputs/3PE1_protein_aligned.pdb',root/'inputs/3PE1_ligand_aligned.sdf')
+    from ..trajectory_source import pocket_input_path
+    cfg=read_json(source/'config.json');points,origin=landmarks(pocket_input_path(root,'target_protein'),pocket_input_path(root,'target_ligand'))
     fields=names(points);nodes={};sources=[];effects=[];all_var=[]
     for b in batches:
         path=source/'single'/f'batch_{b:03d}'/'trajectory.h5'
@@ -108,12 +109,12 @@ def mine(dataset,campaign,output,batches=range(14),window=(0.,.5),teachers_per_b
             'teacher_endpoint_A':sum([r['teachers_endpoint_A'] for r in group],[]),'teacher_scores':sum([r['teacher_scores'] for r in group],[]),
             'teacher_batches':sum([[r['batch']]*len(r['teacher_scores']) for r in group],[]),
             'root_count_min':min(r['roots'] for r in group)})
-    from ..generation.launcher import INPUT_FILES
+    from ..trajectory_source import pocket_input_hashes
     ref={'schema_version':'affinity-coordinate-library-1.0','window':list(window),'times':times,'frames':frames,
         'landmarks_A':points.tolist(),'origin_A':origin.tolist(),'features':fields,'feature_scale':scale.tolist(),
         'control_representation':'proposal','spatial_anchor':'endpoint','representation':'actual native proposal, affinity-stratified coordinate teachers',
         'feature_unit':'mixed coordinate geometry; centroid/distances A, covariance A2, densities dimensionless',
-        'required_input_sha256':{name:digest(root/'inputs'/name) for name in INPUT_FILES},'sources':sources,'discovery_batches':list(batches),
+        'required_input_sha256':pocket_input_hashes(root),'sources':sources,'discovery_batches':list(batches),
         'time_alignment':'score t labels its endpoint forecast; coordinate control proposal at t+dt, only states within learned window',
         'label_semantics':'Recorded pre-selection target head only; no t=1 labels and no additional network fits or per-step head calls',
         'limitations':['Within-event score association is observational and shares the original oracle','Dependent clones are not independent samples',

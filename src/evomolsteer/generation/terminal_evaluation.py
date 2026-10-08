@@ -124,7 +124,8 @@ def evaluate_terminal(dataset,campaign,reference_path,output,arms,batches,worker
     root=Path(dataset);campaign_root=root/'results'/campaign;out=Path(output)
     if not (campaign_root/'COMPLETE.json').exists():raise ValueError('Campaign incomplete')
     out.mkdir(parents=True,exist_ok=True);reference=load_reference(reference_path)
-    protein=root/'inputs/3PE1_protein_aligned.pdb';points=protein_points(protein)
+    from ..trajectory_source import pocket_input_path
+    protein=pocket_input_path(root,'target_protein');points=protein_points(protein)
     sources=[];allrows=[];batch_summaries=[];pbrows=[]
     for arm in arms:
         for batch in batches:

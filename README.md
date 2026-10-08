@@ -137,3 +137,11 @@ seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生
 
 新接口允许保留、修改或暂缓，不规定正确候选、剂量或奖励公式；编译器检查执行合法性并保留字面选择。
 原 `prepare_*_agent.py` / `verify_*_agent.py` 的固定案例接口用于冻结历史记录重放。
+
+## 指定输入的 Steer 生成与可读归档
+
+`scripts/generate_steer_learning.py` 调用配置路径的 FLOWR.ROOT，在指定评分窗口内进行原生 Steer Sampling，默认 `[0,0.5]`，之后继续推理到 t=1。默认不压缩、不打包：保留窗口内全部候选、完整谱系、最终结构与评分、失败结果、输入及坐标参照；原始输入不修改。
+
+- [配置、数据格式、事件读取接口与验证说明](docs/steer_learning_generation.md)
+- [通用生成配置](configs/generation_steer_learning.example.json)、[输入角色清单](configs/pocket_inputs.example.json)、[CK2/CLK3 可执行配置](configs/generation_ck2_clk3_steer_learning.json)
+- LLM 单事件读取：`scripts/read_steer_event.py`；真实数据存储回放：`scripts/replay_steer_learning_storage.py`。

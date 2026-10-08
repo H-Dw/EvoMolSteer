@@ -1,0 +1,34 @@
+{
+  "schema_version": "steer-learning-validation-1.0",
+  "date": "2026-10-08",
+  "command": ".venv/Scripts/python.exe -m pytest tests/test_steer_learning.py tests/test_online_storage.py tests/test_storage_lossless.py tests/test_generation_instrumentation.py tests/test_generation_batches.py tests/test_selection_scope.py tests/test_continuous_analysis.py tests/test_affinity_geometry.py tests/test_affinity_endpoint.py tests/test_terminal_statistics.py -q --disable-warnings --maxfail=1",
+  "exit_code": 0,
+  "passed": 70,
+  "seconds": 27.88,
+  "default_storage_codec": "none",
+  "model_inference_executed": false,
+  "cli_help_checks": [
+    "scripts/generate_steer_learning.py",
+    "scripts/read_steer_event.py"
+  ],
+  "real_data_replays": [
+    "real_replay_none.json",
+    "real_replay.json"
+  ],
+  "verified_contracts": [
+    "All candidates within the score window, including eliminated siblings",
+    "Complete all-step genealogy and native terminal output",
+    "Exact numeric dtype and bit patterns in both storage codecs",
+    "Original integration step IDs and configurable score-time bounds",
+    "Native forecast probability precision, no new f16 conversion",
+    "Original input preservation, portable roles and coordinate context checksums",
+    "Incomplete and failed runs cannot be published as complete",
+    "Old whole-window ingest consumes the portable window dataset",
+    "Full upstream source fixture is recovered after removing five capture callbacks"
+  ],
+  "limitations": [
+    "CPU recording harness and stored-data replay are not a GPU generation test",
+    "Historical f16 forecasts remain f16; native precision cannot be reconstructed retrospectively",
+    "Archive preserves its declared schema, not post-window geometry or restart/RNG state"
+  ]
+}
