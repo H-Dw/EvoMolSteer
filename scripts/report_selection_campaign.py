@@ -74,6 +74,8 @@ def report(root):
     candidate=concat([18,20],'gradient');baseline=concat([17,19],'gradient');native=concat([17,19],'unguided')
     m={label:summarize_tail(d,threshold) for label,d in [('candidate',candidate),('R26',baseline),('native',native)]}
     vsbase=paired_effect(candidate,baseline);vsnative=paired_effect(candidate,native)
+    for effect in [vsbase,vsnative]:
+        effect['limitation']='Frozen proposal on four new fixed-seed batches; batch bootstrap has limited resolution and does not establish broader-seed or experimental affinity generalization.'
     steer=read_json(docs/'steer_reference.json');frozen=read_json(docs/'frozen_validation.json')
     strain_limit=1.3*max(m['R26']['strain_median_per_heavy'],steer['all']['strain_median_per_heavy'])
     tail_limit=1.3*max(m['R26']['strain_p90_per_heavy'],steer['all']['strain_p90_per_heavy'])
@@ -112,6 +114,7 @@ def report(root):
     lines+=['', '每轮失败及暂时合格后均恢复R26程序、基础Skills与数值源文件校验；第18/20轮只确认提前冻结的同一候选，没有根据确认标签调参。没有粒子重采样、亲和力头梯度或化学图限制。全部推理完成100步，动态支持内引导，之后原生续推。',
       '', '数值一致性审计改变了探索解释：第6轮没有新学习规则，也重现了第4轮约+0.02518的提升；第4轮相对这个负对照的差值仅-0.00000285。早期结果不能仅归因于ESS或排序规则。随后统一R26归一化方式，消除无信息的niche常量偏移和单位协方差效应；第7轮在额外修复前启动，仅作探索证据。最终候选只从第8–16轮选取，第16轮负责用当前实现重新评估最佳参数。修订在揭示独立确认标签前注册，原版本报告与提交均保留。',
       '', '700个Steer选择事件的几何群体变化分析显示原生趋势68项BH显著、选择项0项，不能把原生积分规律称为优势区域。质量排序、ESS、模式覆盖、局部度量和稳健损失均为待验证机制。方法、来源、公式和限制见[研究设计](research_and_design.zh-CN.md)；精简数据见mining目录；真实Agent字面输入、响应和修复记录见agents目录。',
+      '', '奖励标量、条件坐标导数、协方差度量及对应源码字段见[奖励数学定义](reward_formulas.zh-CN.md)。选择项未显著表示当前检验未发现证据，不等于不存在可利用信号。教师权重ESS与独立家族数分别解释。应变使用MMFF弛豫能差除以重原子数，是几何能量诊断，不是结合自由能。',
       '', '历史Steer不是同随机状态、同计算量对照；教师donor参与奖励设计，因此全体Steer与非donor子集分别报告。当前验证是固定主种子下四个批次，不能外推为实验结合活性结论。',
       '', '确认同时检查应变中位数与P90，二者均不超过R26和历史Steer相应值较大者的1.3倍。该次级质量门槛在确认标签揭示前补充，不在推理中限制化学图或筛选粒子。第2轮没有保留新增的后验ESS汇总，该诊断缺失已记录；分数、结构质量、配对及无重采样审计仍完整。',
       '', '共完成20轮、2300次完整模型生成尝试。原始Steer/checkpoints保留；每轮报告通过校验、发布后清理生成轨迹，最终清理审计另存。']
