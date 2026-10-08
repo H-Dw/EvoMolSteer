@@ -134,7 +134,8 @@ def report(root):
       '', '第一组确认退化的直接证据、稀有模式权重与质量标签的竞争，以及后续可检验原因见[失败解释](failure_interpretation.zh-CN.md)。其中原因保持假设表述；确认过程中没有改变冻结参数。',
       '', '历史Steer不是同随机状态、同计算量对照；教师donor参与奖励设计，因此全体Steer与非donor子集分别报告。当前验证是固定主种子下四个批次，不能外推为实验结合活性结论。',
       '', '确认同时检查应变中位数与P90，二者均不超过R26和历史Steer相应值较大者的1.3倍。该次级质量门槛在确认标签揭示前补充，不在推理中限制化学图或筛选粒子。第2轮没有保留新增的后验ESS汇总，该诊断缺失已记录；分数、结构质量、配对及无重采样审计仍完整。',
-      '', '共完成20轮、2300次完整模型生成尝试。原始Steer/checkpoints保留；每轮报告通过校验、发布后清理生成轨迹，最终清理审计另存。']
+      '', '共完成20轮、2300次完整模型生成尝试。原始Steer/checkpoints保留；每轮报告通过校验、发布后清理生成轨迹。最终[清理审计](final_cleanup.json)、[远端完成核验](completion_verification.json)与[本地验证记录](verification.json)均保存。',
+      '', '![各轮探索与独立确认](rounds_analysis.png)']
     (docs/'report.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n')
     print({'accepted':outcome['accepted'],'candidate_round':frozen['selected_round'],'vs_R26':vsbase,'vs_native':vsnative,'checks':checks})
     return outcome
