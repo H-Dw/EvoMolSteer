@@ -1,0 +1,63 @@
+{
+  "additional_per_step_affinity_calls": 0,
+  "affinity_head_gradient": false,
+  "constraints": {
+    "backtrack_attempts": 7,
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "severe_receptor_clash_A": 0.8
+  },
+  "contrast_bound_nats": 2.0,
+  "coordinate_representation": "predicted_endpoint_world_A",
+  "core_radius_A": 5.0,
+  "derivation": {
+    "parent_round": 1,
+    "single_module_change": {
+      "reward_view": "endpoint_dynamic_region",
+      "regional_weight": 0.05,
+      "regional_temperature": 1.0,
+      "regional_bound": 2.0,
+      "regional_response": "contrast",
+      "reference_sha256": "663243e0f6c25d1962dd2407a47f9a767147d19c7b3a2cb23070406ac3075e46"
+    },
+    "scientific_justification": "Test only the registered additive regional scalar against unchanged historical R26. The selected four landmarks have whole-window multiplicity-adjusted support and 11-14 of 14 batch sign agreement, strongest at landmark 00. Landmark 03 occupancy3 is small despite q=0.008829; landmark 04 softmin is the weakest selected effect, q=0.046522, with unsupported accompanying occupancy fields. Landmark 12 supports reduced occupancy3, not a proven distance or chemical-interaction mechanism. All selected fitted contrasts are constant; raw end-minus-start changes are descriptive, and slightly lower higher-degree CV errors for landmark 03 occupancy3 and landmark 04 softmin do not override the supplied constant selections. Coverage is 695/700 cells; five missing cells at t=0.12,0.23,0.25,0.26,0.28 are not negatives. Threshold means move from 7.924210 through 8.457349 to 8.277626, and positive-minus-lower mean score separation spans 0.314089-0.558941, ending at its minimum. The Designer-only E_cohort_weight_coverage corrects the Analyst's statement that effective sizes and margin summaries are absent: positive ESS min/median/max is 3/23.530387/46, lower-score ESS is 3/12.592797/43, cohort root-count medians are 2 and minima are 1, and guard-margin min/median/max is 0.000623367/0.027830648/0.098725319. These aggregates do not establish time-specific reliable support or independence; total mean roots collapse from 50 to 6.143 at 0.10, 2 at 0.25 and 1.214 at 0.49. The independent units remain 14 generation batches. hard_mix=0 and gap_weight=false supply no spatially close nuisance-matched contrast, so score distances, ambiguous exclusions and alternative regional hypotheses must remain visible. Significant global shape/pair fields confound a region-specific interpretation; supported landmark 06 and 10 alternatives are retained as later hypotheses outside this test's allowed indices. A different frozen source lost paired final predicted pIC50 by -0.094791 on batches 32 and 33, with both batch means negative and reported CI95 [-0.104803,-0.084780]. That counterevidence supports retaining R26 and requiring independent confirmation; it neither tests this scalar nor demonstrates a graph-change or regional failure mechanism. The 0.05 addition is a falsifiable exploratory control, not a validated improvement. Acceptance must follow final predicted target affinity first and strain separately as a secondary outcome, without a new neural fit or tuning any other axis.",
+    "historical_parent_provenance": {},
+    "no_private_reasoning_transcript": true
+  },
+  "derivative_path": "flowr_endpoint_vjp",
+  "dose_reference": "predictive_flow",
+  "family": "coordinate_only_affinity_endpoint",
+  "geometry_block_weights": [
+    0.0,
+    1.0,
+    2.0,
+    1.0
+  ],
+  "mixture_temperature": 0.5,
+  "motif_components": "joint",
+  "native_rms_ratio": 0.33,
+  "objective_profile": "dynamic_contrast10",
+  "preserve_native_rigid_pose": false,
+  "program_id": "dynamic_contrast_r02",
+  "record_reward_response": true,
+  "reference_sha256": "663243e0f6c25d1962dd2407a47f9a767147d19c7b3a2cb23070406ac3075e46",
+  "reward_view": "endpoint_dynamic_region",
+  "robust_delta": 2,
+  "round": 2,
+  "schema_version": "current-coordinate-program-1.0",
+  "seed": 42,
+  "target_definition": "recorded_joint_head_endpoint_strata",
+  "teacher_endpoint_temperature_A2": 4.0,
+  "teacher_neighbors": 4,
+  "teacher_score_beta": 2.0,
+  "time_ramp_power": 0.0,
+  "topology_policy": "Free native graph transitions; no pair-distance acceptance or graph equality veto",
+  "window": [
+    0.0,
+    0.5
+  ],
+  "regional_weight": 0.05,
+  "regional_temperature": 1.0,
+  "regional_bound": 2.0,
+  "regional_response": "contrast"
+}
