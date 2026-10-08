@@ -26,9 +26,21 @@ def confirmation_source_audit(root, docs):
         ['selection_path_reward.py','endpoint_reward.py','endpoint_controller.py',
          'coordinate_contrast.py','scalar_guidance.py']]
     hashes={path:digest(root/path) for path in source_paths};rounds={}
+    frozen=read_json(docs/'frozen_validation.json')
+    expected_programs={
+        'control':read_json(root/'configs/experiments/skill_ablation_v1/incumbent.json'),
+        'candidate':read_json(root/f"configs/experiments/selection_path20_v1/round{frozen['selected_round']:02d}.json")}
+    def numerical_program(program):
+        return {key:value for key,value in program.items() if key not in ['round','program_id','derivation']}
     for n in [17,18,19,20]:
         report=read_json(docs/f'round{n:02d}/execution_report.json')
         commit=report['code_commit']
+        program=read_json(docs/f'round{n:02d}/inference_config/reward_program.json')
+        expected=expected_programs['control' if n in [17,19] else 'candidate']
+        if numerical_program(program)!=numerical_program(expected):
+            raise ValueError(f'Confirmation reward parameters differ: round {n}')
+        if report['window']!=program['window']:
+            raise ValueError('Confirmation guidance support differs')
         for path,sha in hashes.items():
             data=subprocess.check_output(['git','show',f'{commit}:{path}'],cwd=root)
             if hashlib.sha256(data).hexdigest()!=sha:
@@ -46,7 +58,8 @@ def confirmation_source_audit(root, docs):
                     raise ValueError('Confirmation paired initial states differ')
     return {'numerical_source_sha256':hashes,
             'inference_commits':{str(n):r['code_commit'] for n,r in rounds.items()},
-            'same_initial_states':True,'no_resampling_or_affinity_gradient':True}
+            'same_initial_states':True,'same_frozen_reward_parameters':True,
+            'no_resampling_or_affinity_gradient':True}
 
 
 def report(root):
