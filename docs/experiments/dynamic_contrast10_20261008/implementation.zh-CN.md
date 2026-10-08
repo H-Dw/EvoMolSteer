@@ -52,7 +52,7 @@ T=1、C=2是冻结的实验选择，不是文献或数据自动决定的常数�
 在仓库根目录运行，下列相对路径是示例数据集配置，窗口、批次及参考可通过参数或输入声明替换。
 
 ```text
-python scripts/mine_dynamic_regions.py --dataset DATASET --campaign CAMPAIGN 
+python scripts/mine_dynamic_regions.py --dataset DATASET --campaign CAMPAIGN
   --incumbent-reference REFERENCE.json.gz --output ANALYSIS_DIR
 python scripts/audit_dynamic_selection.py --events ANALYSIS_DIR/event_cohorts.parquet
   --manifest ANALYSIS_DIR/manifest.json --output SELECTION_AUDIT.json
