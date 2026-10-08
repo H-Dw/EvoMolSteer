@@ -71,6 +71,24 @@ def paired_comparison(candidate, control):
     return result
 
 
+def qualified_peak(candidate, native, incumbent):
+    eligible = candidate[candidate.valid_connected & candidate.pb_fast_pass]
+    if eligible.empty:
+        return None
+    best = eligible.sort_values('pic50_on_rescore', ascending=False, kind='stable').iloc[0]
+    fields = ['batch', 'slot', 'seed', 'pic50_on_rescore', 'pic50_off_rescore', 'valid_connected',
+              'pb_fast_pass', 'energy_status', 'mmff_relief_per_heavy', 'smiles',
+              'min_protein_distance_A', 'severe_pairs_below_1_2A']
+    def record(row):
+        return {name: row[name] for name in fields if name in row}
+    result = {'candidate': record(best)}
+    for name, control in [('native_same_initial_slot', native), ('incumbent_same_initial_slot', incumbent)]:
+        matched = control[control.batch.eq(best.batch) & control.slot.eq(best.slot)]
+        result[name] = record(matched.iloc[0]) if len(matched) else None
+    result['limitation'] = 'Post-hoc best qualified molecule, not an independent average effect or a regional causal attribution.'
+    return result
+
+
 def build_report(reports, config_dir, output, steer_metrics=None, donor_batches=range(14)):
     reports, config_dir, output = map(lambda p: Path(p).resolve(), (reports, config_dir, output))
     campaign = read_json(config_dir / 'campaign.json')
@@ -166,6 +184,7 @@ def build_report(reports, config_dir, output, steer_metrics=None, donor_batches=
                   'selected_vs_native_panel_b': paired_comparison(candidate_b, native_b),
                   'selected_vs_incumbent_panel_a': paired_comparison(candidate_a, incumbent),
                   'incumbent_vs_native_panel_a': paired_comparison(incumbent, native_a),
+                  'best_qualified_candidate': qualified_peak(candidate, native, incumbent),
                   'frozen_selection': frozen,
                   'attempted_records': sum(len(d) for d in frames.values()),
                   'screening_independent_batches': 1,
