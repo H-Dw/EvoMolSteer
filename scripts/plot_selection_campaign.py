@@ -32,10 +32,12 @@ def plot(directory):
     labels=['Native','R26','Frozen candidate'];keys=['native','R26','candidate']
     colors=['#999999','#266ba9','#178363'];values=final['confirmation_results'];x=np.arange(3)
     ax=axes[1,0]
-    ax.bar(x,[values[k]['all_mean_pic50'] for k in keys],color=colors,width=.6)
+    # Points support a zoomed score axis without truncated bar lengths.
+    ax.scatter(x,[values[k]['all_mean_pic50'] for k in keys],c=colors,s=100,marker='D',zorder=3)
     low=min(values[k]['all_mean_pic50'] for k in keys)-.08
     high=max(values[k]['all_mean_pic50'] for k in keys)+.08
     ax.set(xticks=x,xticklabels=labels,ylim=(low,high),ylabel='All-attempt mean pIC50',title='Independent confirmation: n=200 per arm')
+    ax.grid(axis='y',alpha=.2)
     for i,k in enumerate(keys):
         value=values[k]['all_mean_pic50'];ax.text(i,value+.005,f'{value:.4f}',ha='center',fontsize=9)
     ax=axes[1,1]
