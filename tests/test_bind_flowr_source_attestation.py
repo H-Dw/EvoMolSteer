@@ -1,4 +1,6 @@
 import importlib.util
+import hashlib
+import json
 from pathlib import Path
 
 import pytest
@@ -50,6 +52,24 @@ def test_mismatch_does_not_write_config(tmp_path):
     with pytest.raises(ValueError):
         bind(root, 'trial', before, after)
     assert (run / 'config.json').read_bytes() == original_bytes
+
+
+def test_raw_and_canonical_hashes_are_distinct_for_actual_controller_format(tmp_path):
+    root, run, before, after, original = inputs(tmp_path)
+    original['coordinate_note'] = '坐标'
+    # The real controller preserves insertion order and writes no trailing LF.
+    raw = json.dumps(original, indent=2, default=str).encode('utf-8')
+    (run / 'config.json').write_bytes(raw)
+    raw_sha = hashlib.sha256(raw).hexdigest()
+    canonical_sha = hashlib.sha256((json.dumps(original, ensure_ascii=False, indent=2,
+        sort_keys=True, allow_nan=False) + '\n').encode('utf-8')).hexdigest()
+    assert raw_sha != canonical_sha
+    bind(root, 'trial', before, after)
+    result = read_json(run / 'config.json')
+    bound = result.pop('upstream_source_attestation')
+    assert result == original
+    assert bound['generation_config_sha256_before_binding'] == raw_sha
+    assert bound['generation_config_canonical_sha256_before_binding'] == canonical_sha
 
 
 @pytest.mark.parametrize('campaign', ['../trial', '/trial', 'trial\\other', '.', '..'])

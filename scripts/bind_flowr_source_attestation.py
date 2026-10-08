@@ -4,6 +4,8 @@ Only metadata is added after inference; model sources, tensors, reward program,
 and existing parsed configuration fields remain unchanged.
 """
 import argparse
+import hashlib
+import json
 from pathlib import Path
 
 from evomolsteer.io import digest, read_json, write_json
@@ -30,11 +32,14 @@ def bind(dataset, campaign, before_record, after_record):
         raise ValueError('Generation configuration belongs to a different campaign')
     if 'upstream_source_attestation' in config:
         raise FileExistsError('A completed source binding cannot be overwritten')
+    canonical_before = hashlib.sha256((json.dumps(config, ensure_ascii=False, indent=2,
+        sort_keys=True, allow_nan=False) + '\n').encode('utf-8')).hexdigest()
     config['upstream_source_attestation'] = {
         'schema_version': 'bound-flowr-upstream-source-attestation-1.0',
         'before': before, 'after': after,
         'before_record_sha256': digest(before_record), 'after_record_sha256': digest(after_record),
         'generation_config_sha256_before_binding': digest(config_path),
+        'generation_config_canonical_sha256_before_binding': canonical_before,
         'binder_sha256': digest(__file__),
         'scope': 'Declared upstream source files only; metadata added after inference, no numerical change',
     }

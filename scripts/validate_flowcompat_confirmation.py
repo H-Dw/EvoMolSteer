@@ -67,6 +67,28 @@ def recorded_json_sha(data):
     return hashlib.sha256(body.encode("utf-8")).hexdigest()
 
 
+def verify_generation_config_binding(config):
+    """Verify parsed fields without pretending to reconstruct controller bytes.
+
+    The controller's unsorted serialization and the metadata binder's canonical
+    serialization differ. The raw digest is retained as a byte identity record;
+    only the separately attested canonical digest is reproducible from fields.
+    """
+    bound = config["upstream_source_attestation"]
+    raw_sha = bound.get("generation_config_sha256_before_binding")
+    require(valid_sha(raw_sha), "Missing or malformed original raw generation configuration SHA")
+    canonical_sha = bound.get("generation_config_canonical_sha256_before_binding")
+    require(valid_sha(canonical_sha),
+            "Legacy upstream binding lacks a canonical pre-binding configuration SHA: evidence insufficient; "
+            "the recorded raw SHA cannot establish whether parsed numerical fields changed")
+    original = {key: value for key, value in config.items() if key != "upstream_source_attestation"}
+    require(canonical_sha == recorded_json_sha(original),
+            "Canonical pre-binding generation configuration fields mismatch")
+    return {"raw_generation_config_sha256": raw_sha,
+            "canonical_generation_config_sha256": canonical_sha,
+            "canonical_fields_match": True, "raw_original_bytes_reconstructed": False}
+
+
 class GitSources:
     """Resolve the complete static local Python import closure at an actual commit."""
     def __init__(self, repo):
@@ -345,9 +367,7 @@ class ConfirmationAudit:
         before_sha, after_sha = recorded_json_sha(before), recorded_json_sha(after)
         require(bound.get("before_record_sha256") == before_sha and bound.get("after_record_sha256") == after_sha,
                 "Embedded before/after original byte checksums cannot be reproduced")
-        original_cfg = {key: value for key, value in cfg.items() if key != "upstream_source_attestation"}
-        require(bound.get("generation_config_sha256_before_binding") == recorded_json_sha(original_cfg),
-                "Source binder altered original generation configuration fields")
+        config_binding = verify_generation_config_binding(cfg)
         if before_path.exists() or after_path.exists():
             require(before_path.is_file() and after_path.is_file(), "Only one redundant upstream side record exists")
             require(self.load(before_path) == before and self.load(after_path) == after
@@ -365,7 +385,8 @@ class ConfirmationAudit:
         binder_sha = self.git.hashes(commit, ["scripts/bind_flowr_source_attestation.py"])["scripts/bind_flowr_source_attestation.py"]
         require(bound.get("binder_sha256") == binder_sha, "Upstream binder does not match executed Git source")
         self.rounds[number]["upstream"] = before
-        return {"files": before["files"], "scope": "Exactly four declared upstream files; not all dependencies"}
+        return {"files": before["files"], "configuration_binding": config_binding,
+                "scope": "Exactly four declared upstream files; not all dependencies"}
 
     def gate(self, number, null_round):
         data = self.rounds[number]
@@ -559,6 +580,7 @@ class ConfirmationAudit:
                 "boundaries": ["Retained reports and Git/source attestations are evidence records; retired raw arrays are not re-created or re-audited.",
                                "Upstream source identity covers only four declared FLOWR files, not all installed dependencies or hardware.",
                                "Checkpoint identity uses recorded SHA; this audit does not reread the remote checkpoint.",
+                               "Pre-binding configuration field identity uses a separately attested canonical SHA; recorded raw byte SHA is not reconstructed from the parsed object.",
                                "Static local imports are reconstructed from executed Git objects; dynamic third-party imports are outside this closure.",
                                "Six fixed-seed generation batches support a paired batch analysis, not six biological replicates or an affinity validation.",
                                "A passing audit checks integrity and implementation; the separate preregistered efficacy criteria must still pass."]}

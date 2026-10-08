@@ -25,6 +25,11 @@ def sha(text):
     return validator.hashlib.sha256(text.encode()).hexdigest()
 
 
+def controller_raw_sha(data):
+    """Match the distinct unsorted/no-trailing-newline controller serialization."""
+    return sha(json.dumps(data, indent=2, default=str))
+
+
 def git(repo, *args):
     return subprocess.check_output(["git", "-C", str(repo), *args], stderr=subprocess.PIPE).decode().strip()
 
@@ -114,7 +119,8 @@ def panel(tmp_path):
             config["upstream_source_attestation"] = {
                 "schema_version": "bound-flowr-upstream-source-attestation-1.0", "before": before, "after": after,
                 "before_record_sha256": validator.recorded_json_sha(before), "after_record_sha256": validator.recorded_json_sha(after),
-                "generation_config_sha256_before_binding": validator.recorded_json_sha(config),
+                "generation_config_sha256_before_binding": controller_raw_sha(config),
+                "generation_config_canonical_sha256_before_binding": validator.recorded_json_sha(config),
                 "binder_sha256": sha(sources["scripts/bind_flowr_source_attestation.py"])}
         execution = {"campaign": campaign, "code_commit": commit, "steps": 100, "window": [0., .5],
                      "no_particle_resampling": True, "outside_window_injection": False, "affinity_head_gradient": False,
@@ -187,7 +193,8 @@ def panel(tmp_path):
         config["extension"]["code_commit"] = actual_commit
         if "upstream_source_attestation" in config:
             original = {key: value for key, value in config.items() if key != "upstream_source_attestation"}
-            config["upstream_source_attestation"]["generation_config_sha256_before_binding"] = validator.recorded_json_sha(original)
+            config["upstream_source_attestation"]["generation_config_sha256_before_binding"] = controller_raw_sha(original)
+            config["upstream_source_attestation"]["generation_config_canonical_sha256_before_binding"] = validator.recorded_json_sha(original)
         write_json(config_path, config)
         execution = validator.read_json(folder / "execution_report.json")
         execution["code_commit"] = actual_commit
@@ -234,6 +241,8 @@ def test_complete_real_git_panel_and_newline_normalized_retained_program_pass(pa
     assert result["eligible_for_efficacy_decision"]
     assert "not assessed" in result["adoption_decision"]
     assert validator.digest(panel / "configurations/round26.json") != validator.digest(panel / "reports/round26/inference_config/reward_program.json")
+    binding = validator.read_json(panel / "reports/round26/inference_config/config.json")["upstream_source_attestation"]
+    assert binding["generation_config_sha256_before_binding"] != binding["generation_config_canonical_sha256_before_binding"]
     closure = next(row["detail"]["code_files"] for row in result["checks"] if row["check"] == "round26_frozen_source_closure")
     assert "src/evomolsteer/generation/helper.py" in closure
 
@@ -353,6 +362,38 @@ def test_missing_bound_upstream_evidence_fails_closed(panel):
     assert not result["eligible_for_efficacy_decision"]
 
 
+def test_legacy_raw_only_binding_is_insufficient_not_proof_of_numeric_modification(panel):
+    mutate_json(panel, 26, "inference_config/config.json", lambda data: data["upstream_source_attestation"].pop("generation_config_canonical_sha256_before_binding"))
+    result = audit(panel)
+    failure = failed(result, "round26_upstream_attestation")[0]["error"]
+    assert "Legacy upstream binding" in failure and "evidence insufficient" in failure
+    assert "fields mismatch" not in failure
+    assert not result["integrity_passed"]
+
+
+def test_real_round18_legacy_binding_is_classified_as_insufficient_evidence():
+    path = SCRIPT.parents[1] / "docs/experiments/flowcompat30_20261009/round18/inference_config/config.json"
+    if not path.is_file():
+        pytest.skip("Historical round18 retained fixture unavailable")
+    config = validator.read_json(path)
+    assert "generation_config_canonical_sha256_before_binding" not in config["upstream_source_attestation"]
+    with pytest.raises(ValueError, match="Legacy upstream binding.*evidence insufficient"):
+        validator.verify_generation_config_binding(config)
+
+
+def test_changed_original_fields_fail_canonical_digest_even_if_raw_sha_is_well_formed(panel):
+    mutate_json(panel, 26, "inference_config/config.json", lambda data: data["extension"].update(native_coord_noise_level=.4))
+    result = audit(panel)
+    failure = failed(result, "round26_upstream_attestation")[0]["error"]
+    assert "Canonical pre-binding generation configuration fields mismatch" in failure
+
+
+def test_raw_sha_is_retained_identity_only_but_still_must_have_valid_syntax(panel):
+    mutate_json(panel, 26, "inference_config/config.json", lambda data: data["upstream_source_attestation"].update(generation_config_sha256_before_binding="malformed"))
+    result = audit(panel)
+    assert "original raw" in failed(result, "round26_upstream_attestation")[0]["error"]
+
+
 def test_before_after_source_changes_cannot_be_hidden_by_rehashing_metadata(panel):
     def change(data):
         bound = data["upstream_source_attestation"]
@@ -390,7 +431,8 @@ def test_integrity_pass_is_separate_from_screening_or_affinity_adoption(panel):
         def update_config(data):
             data["extension"]["code_commit"] = commit
             original = {key: value for key, value in data.items() if key != "upstream_source_attestation"}
-            data["upstream_source_attestation"]["generation_config_sha256_before_binding"] = validator.recorded_json_sha(original)
+            data["upstream_source_attestation"]["generation_config_sha256_before_binding"] = controller_raw_sha(original)
+            data["upstream_source_attestation"]["generation_config_canonical_sha256_before_binding"] = validator.recorded_json_sha(original)
         mutate_json(panel, number, "inference_config/config.json", update_config)
         retention = panel / "reports" / f"round{number:02d}/retention.json"
         record = validator.read_json(retention)
