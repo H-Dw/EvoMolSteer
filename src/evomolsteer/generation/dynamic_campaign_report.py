@@ -110,6 +110,12 @@ def build_report(reports, config_dir, output, steer_metrics=None, donor_batches=
                'reward_view': program['reward_view'], 'regional_weight': program.get('regional_weight', 0.),
                'regional_response': program.get('regional_response', 'none'),
                'window': json.dumps(program['window']), **qualified_summary(g, threshold)}
+        dose = [r for r in execution.get('batch_results', []) if r['arm'] == 'gradient']
+        if dose:
+            row.update(controlled_steps_min=min(r['controlled_steps'] for r in dose),
+                       nonzero_steps_min=min(r['nonzero_steps'] for r in dose),
+                       mean_active_injection_rms_A=float(np.mean([r['mean_active_injection_rms_A'] for r in dose])),
+                       mean_cumulative_path_rms_A=float(np.mean([r['mean_cumulative_rms_A'] for r in dose])))
         control = frames[1] if 2 <= number <= 7 else frames[8] if number == 9 else data
         for arm in ['gradient', 'unguided']:
             if arm == 'gradient' and control is data:
@@ -152,6 +158,8 @@ def build_report(reports, config_dir, output, steer_metrics=None, donor_batches=
                   'candidate_round': chosen, 'master_seed': 42, 'threshold_pic50': threshold,
                   'selected': qualified_summary(candidate, threshold),
                   'native': qualified_summary(native, threshold),
+                  'screening_controls': {a: qualified_summary(frames[1][frames[1].arm.eq(a)], threshold)
+                                         for a in ['gradient', 'unguided']},
                   'incumbent_panel_a': qualified_summary(incumbent, threshold),
                   'selected_vs_native_pooled': paired_comparison(candidate, native),
                   'selected_vs_native_panel_a': paired_comparison(candidate_a, native_a),
@@ -163,6 +171,13 @@ def build_report(reports, config_dir, output, steer_metrics=None, donor_batches=
                   'screening_independent_batches': 1,
                   'confirmation_independent_batches': int(candidate.batch.nunique()),
                   'checkpoint_sha256': next(iter(checkpoint_hashes))}
+    seed_rows = [d[['batch', 'seed']] for d in frames.values() if 'seed' in d]
+    if seed_rows:
+        seeds = pd.concat(seed_rows).drop_duplicates()
+        if seeds.batch.duplicated().any():
+            raise ValueError('Batch RNG stream changed between paired rounds')
+        validation['observed_inference_rng_seeds_by_batch'] = {str(int(r.batch)): int(r.seed)
+                                                              for r in seeds.itertuples()}
     all_hits = pd.concat(hits, ignore_index=True)
     adaptive = all_hits[all_hits['round'].between(2, 7)]
     validation['adaptive_elites'] = {'records': len(adaptive), 'unique_graphs': int(adaptive.smiles.nunique()),

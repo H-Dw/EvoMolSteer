@@ -23,7 +23,7 @@ def plot(summary, output):
     ax = axes[0, 0]
     ax.plot(screen['round'], screen.all_mean_pic50, 'o-', color='#2563eb', label='Candidate / R26 replay')
     incumbent = float(screen.loc[screen['round'].eq(1), 'all_mean_pic50'].iloc[0])
-    baseline = read_json(summary.parent / 'round01/comparison.json')['results']['unguided']['all_mean_pic50']
+    baseline = v['screening_controls']['unguided']['all_mean_pic50']
     ax.axhline(incumbent, color='#475569', ls='--', label='R26 screen control')
     ax.axhline(baseline, color='#d97706', ls=':', label='Native screen control')
     ax.set(xticks=range(1, 8), xlabel='Sequential round (one screening batch)', ylabel='All-attempt mean predicted pIC50')
