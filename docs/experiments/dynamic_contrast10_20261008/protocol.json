@@ -1,0 +1,35 @@
+{
+  "schema_version": "dynamic-contrast-ten-round-protocol-1.0",
+  "maximum_rounds": 10,
+  "master_seed": 42,
+  "historical_incumbent": "configs/experiments/skill_ablation_v1/incumbent.json",
+  "objective": "Final predicted target affinity first; valid high-tail paths and strain reported separately",
+  "coordinate_support": "Read from evidence and program; currently 0 to 0.5. Complete native inference to 1",
+  "screen_batches": [36],
+  "frozen_confirmation_batches": [37,38,39,40],
+  "rounds": {
+    "1": "Paired historical incumbent and native controls on a fresh screen batch",
+    "2": "Add dynamic positive versus observed-rest regional contrast at weight 0.05; preserve all incumbent control parameters",
+    "3": "Increase only regional scalar weight to 0.15",
+    "4": "Increase only regional scalar weight to 0.40",
+    "5": "Replace observed-rest controls with a 0.75 spatial-hard mixture; retain best tested dose",
+    "6": "Increase only score ambiguity margin from 0.10 to 0.20 weighted IQR",
+    "7": "Test regional positive attraction instead of background repulsion from the best tested parent",
+    "8": "Freeze candidate before seeing confirmation labels; paired historical incumbent and native on batches 37,38",
+    "9": "Frozen candidate on the same batches 37,38",
+    "10": "Frozen candidate and native on fresh batches 39,40"
+  },
+  "selection_rule": "Among rounds 2-7 with validity and PB-fast at least 0.90, maximize all-attempt mean pIC50; then valid p95, distinct qualified elites and lower median strain. If no admissible candidate, confirm the best mean candidate as a failed exploratory proposal, never replace the incumbent automatically.",
+  "tail_threshold_pic50": 8.258901977539063,
+  "statistics_unit": "Generation batch, not copies or time nodes; one-batch screen has no inferential confidence interval",
+  "execution": {
+    "steps": 100,
+    "resampling": false,
+    "affinity_head_gradient": false,
+    "additional_production_forward_calls_per_step": 0,
+    "checkpoint": "flowr_root_v2.ckpt",
+    "chemical_graph_policy": "Free native changes; no chemical identity or pair-distance gate",
+    "remote_role": "Inference and cryptographically verified transport only; scientific analysis local",
+    "retention": "Local evidence, declarative rationale, code commits and reports. Clean previous generated data before the next round; preserve original Steer and checkpoints."
+  }
+}
