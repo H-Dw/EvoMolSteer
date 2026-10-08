@@ -34,15 +34,18 @@ def report(root):
     vsbase=paired_effect(candidate,baseline);vsnative=paired_effect(candidate,native)
     steer=read_json(docs/'steer_reference.json');frozen=read_json(docs/'frozen_validation.json')
     strain_limit=1.3*max(m['R26']['strain_median_per_heavy'],steer['all']['strain_median_per_heavy'])
-    checks={'paired_R26_mean_gt_0_01':vsbase['paired_mean_pic50']>.01,
+    tail_limit=1.3*max(m['R26']['strain_p90_per_heavy'],steer['all']['strain_p90_per_heavy'])
+    checks={'matched_implementation_screen_admissible':frozen['screening_admissible'],
+      'paired_R26_mean_gt_0_01':vsbase['paired_mean_pic50']>.01,
       'batch_bootstrap_lower_gt_0':vsbase['batch_bootstrap_CI95'][0]>0,
       'native_mean_improved':vsnative['paired_mean_pic50']>0,
       'validity_retained':m['candidate']['valid_n']/m['candidate']['n']>=m['R26']['valid_n']/m['R26']['n']-.03,
       'PB_retained':m['candidate']['pb_fast_rate']>=m['R26']['pb_fast_rate']-.03,
-      'secondary_strain_within_limit':m['candidate']['strain_median_per_heavy']<=strain_limit}
+      'secondary_strain_within_limit':m['candidate']['strain_median_per_heavy']<=strain_limit,
+      'secondary_strain_p90_within_limit':m['candidate']['strain_p90_per_heavy']<=tail_limit}
     outcome={'frozen_candidate':frozen,'confirmation_results':m,'versus_R26':vsbase,'versus_native':vsnative,
       'historical_Steer':steer,'acceptance_checks':checks,'accepted':all(checks.values()),
-      'strain_limit_per_heavy':strain_limit,'active_workflow':read_json(cfg/'active_workflow.json'),
+      'strain_limit_per_heavy':strain_limit,'strain_p90_limit_per_heavy':tail_limit,'active_workflow':read_json(cfg/'active_workflow.json'),
       'comparison_limits':['Historical Steer is unpaired, unequal compute and donor-influenced.',
         'Four fixed-seed independent batches provide limited uncertainty resolution; no wet-lab claim.',
         'All-attempt mean and chemically valid mean are both reported.'],
@@ -61,8 +64,10 @@ def report(root):
         rb='—' if r['vs_R26'] is None else f"{r['vs_R26']:+.6f}";rn='—' if r['vs_native'] is None else f"{r['vs_native']:+.6f}"
         lines.append(f"|{r['round']}|{r['reason']}|{r['mean_pic50']:.6f}|{rb}|{rn}|{r['valid_n']}/{r['n']}; {r['pb_fast_rate']:.2f}|{r['strain_median']:.4f}|{r['screening_admissible']}|")
     lines+=['', '每轮失败及暂时合格后均恢复R26程序、基础Skills与数值源文件校验；第18/20轮只确认提前冻结的同一候选，没有根据确认标签调参。没有粒子重采样、亲和力头梯度或化学图限制。全部推理完成100步，动态支持内引导，之后原生续推。',
+      '', '数值一致性审计改变了探索解释：第6轮没有新学习规则，也重现了第4轮约+0.02518的提升；第4轮相对这个负对照的差值仅-0.00000285。早期结果不能仅归因于ESS或排序规则。随后统一R26归一化方式，消除无信息的niche常量偏移和单位协方差效应；第7轮在额外修复前启动，仅作探索证据。最终候选只从第8–16轮选取，第16轮负责用当前实现重新评估最佳参数。修订在揭示独立确认标签前注册，原版本报告与提交均保留。',
       '', '700个Steer选择事件的几何群体变化分析显示原生趋势68项BH显著、选择项0项，不能把原生积分规律称为优势区域。质量排序、ESS、模式覆盖、局部度量和稳健损失均为待验证机制。方法、来源、公式和限制见[研究设计](research_and_design.zh-CN.md)；精简数据见mining目录；真实Agent字面输入、响应和修复记录见agents目录。',
       '', '历史Steer不是同随机状态、同计算量对照；教师donor参与奖励设计，因此全体Steer与非donor子集分别报告。当前验证是固定主种子下四个批次，不能外推为实验结合活性结论。',
+      '', '确认同时检查应变中位数与P90，二者均不超过R26和历史Steer相应值较大者的1.3倍。该次级质量门槛在确认标签揭示前补充，不在推理中限制化学图或筛选粒子。第2轮没有保留新增的后验ESS汇总，该诊断缺失已记录；分数、结构质量、配对及无重采样审计仍完整。',
       '', '共完成20轮、2300次完整模型生成尝试。原始Steer/checkpoints保留；每轮报告通过校验、发布后清理生成轨迹，最终清理审计另存。']
     (docs/'report.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8',newline='\n')
     print({'accepted':outcome['accepted'],'candidate_round':frozen['selected_round'],'vs_R26':vsbase,'vs_native':vsnative,'checks':checks})
