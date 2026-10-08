@@ -58,7 +58,8 @@ def summarize(input_dataset, output_dataset):
     for number, table in tables.items():
         # Empty-mechanism controls 2/8 cover screening batches. Frozen controls
         # 25/27/29 cover the respective held-out candidate pairs 26/28/30.
-        control_number = {26: 25, 28: 27, 30: 29}.get(number, 8 if number >= 8 else 2)
+        control_number = (number if number in [2, 8, 25, 27, 29] else
+                          {26: 25, 28: 27, 30: 29}.get(number, 8 if number >= 8 else 2))
         control = tables.get(control_number)
         paired = None
         if control is not None:

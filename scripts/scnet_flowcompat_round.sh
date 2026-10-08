@@ -12,8 +12,13 @@ export PYTHONPATH="$repo/src:$flowr:$flowr/experiments/evomolsteer_online_202610
 export OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1
 cd "$repo"
 "$python" scripts/check_terminal_round_ready.py --manifest "$work/round_ready.json" --campaign "$campaign" --program "$program"
+source_args=(--input-dataset "$flowr"
+ --relative-source flowr/models/fm_pocket.py --relative-source flowr/models/integrator.py
+ --relative-source flowr/models/pocket.py --relative-source flowr/models/pocket_util.py)
+"$python" scripts/attest_flowr_sources.py "${source_args[@]}" --output-record "$work/$tag.upstream.before.json"
 "$python" -u "scripts/generate_${mode}_flowr.py" --flowr-root "$flowr" \
  --input-dataset "$flowr/experiments/ck2_clk3_lineage_20261003" --root "$work/generated" \
  --checkpoint "$flowr/checkpoints/flowr_root_v2.ckpt" --steps 100 --program "$program" --reference "$reference" \
  --campaign "$campaign" --n "$n" --batch 50 --seed 42 --arms "$arms" --batch-indices "$batches" --export-terminal
+"$python" scripts/attest_flowr_sources.py "${source_args[@]}" --reference-record "$work/$tag.upstream.before.json" --output-record "$work/$tag.upstream.after.json"
 "$python" scripts/archive_generation.py --dataset "$work/generated" --campaign "$campaign" --output "$work/$campaign.tar.gz" --evaluation-only
