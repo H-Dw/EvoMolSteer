@@ -242,6 +242,9 @@ class Driver(BaseDriver):
         baseline=self.docs/'round01/candidate_metrics.csv' if 2<=number<=24 else self.docs/f'round{number-1:02d}/candidate_metrics.csv' if number in [26,28,30] else None
         summary=retain_round(dataset,campaign,evaluated,self.docs/f'round{number:02d}',self.threshold,baseline)
         out=self.docs/f'round{number:02d}'
+        # Preserve the pre-efficacy gate as its own retained artifact, not only
+        # inside the growing campaign ledger. Confirmation reads this file.
+        write_json(out/'implementation_feedback.json',feedback)
         for name in ['flow_response.parquet','decoder_sensitivity.parquet','flow_response_summary.json','conditional_formula_audit.json','implementation_gate_input.json','implementation_gate.json']:
             if (evaluated/name).exists():shutil.copy2(evaluated/name,out/name)
         if number in [2,8]:
