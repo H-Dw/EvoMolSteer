@@ -11,6 +11,7 @@ from .innovation_reward import InnovationReward
 from .coordinate_reward import predictive_flow_increment
 from .scalar_guidance import detached
 from .flowcompat_control import control_geometry, cosine
+from .module_sensitivity import DecoderSensitivity
 from ..io import digest, clean
 
 
@@ -39,6 +40,7 @@ class FlowCompatibilityExtension(EndpointCoordinateExtension):
         self.program=original
         self.reward=InnovationReward(original,self.reference) if original['reward_view']=='endpoint_innovation' else EndpointGeometryReward(original,self.reference)
         self.previous_gradient=None;self.module_sha=digest(Path(__file__))
+        self.sensitivity=DecoderSensitivity(model)
 
     def describe(self):
         return {**super().describe(),'flowcompat_module_sha256':self.module_sha,
@@ -53,6 +55,7 @@ class FlowCompatibilityExtension(EndpointCoordinateExtension):
             self.path_rms=torch.zeros(len(self.before),device=self.before.device);self.controlled_updates=0
             self.previous_gradient=None
         active=trace.arm!='unguided' and self.reward.active(trace.t,trace.t+trace.dt)
+        self.sensitivity.reset()
         condition=detached(cond);calls=[];audit_before=self.preflight_forward_calls
         def forward(x):
             calls.append(1);state=dict(curr);state['coords']=x
@@ -97,6 +100,8 @@ class FlowCompatibilityExtension(EndpointCoordinateExtension):
         row.update({k:v.detach().cpu().tolist() for k,v in extra.items()})
         row['flowcompat_module_sha256']=self.module_sha
         row['agent_request_sha256']=self.program.get('agent_request_sha256')
+        if self.sensitivity.records:
+            row['decoder_output_sensitivity']=self.sensitivity.records
         lines[-1]=json.dumps(clean(row),allow_nan=False)
         path.write_text('\n'.join(lines)+'\n')
         return result

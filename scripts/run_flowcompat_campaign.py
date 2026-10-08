@@ -4,12 +4,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from evomolsteer.io import read_json,write_json,digest
-from evomolsteer.generation.path_evaluation import retain_round,paired_effect
+from evomolsteer.generation.path_evaluation import retain_round,paired_effect,execution_audit
 from evomolsteer.generation.selection_workflow import restore_incumbent
 from evomolsteer.storage.generation_archive import verify_generation_archive
 from run_selection_path_campaign import Driver as BaseDriver
 from run_sequential_path_campaign import evaluate_isolated
 from dispatch_path_round import verify_retention
+from evomolsteer.continuous.flow_response import conditional_formula_audit,mine_execution
+from evomolsteer.continuous.flowcompat_agents import verify_execution_response
 
 SPEC={
  3:('innovation','field_strength_A',.05),4:('innovation','field_strength_A',.15),
@@ -89,7 +91,7 @@ class Driver(BaseDriver):
         else:
             parity=read_json(self.docs/'round02/implementation_feedback.json')
             if not parity['null_control_parity']:raise ValueError('No-op numerical control must pass before mechanism trials')
-            gate=read_json(self.docs/'agents/Designer.validation.json')
+            binding=read_json(self.cfg/'agent_binding.json');gate=read_json(self.root/binding['validation_path'])
             if not gate['passed']:raise ValueError('Actual bound Designer/tool response required')
             winner=self.best()
             if winner is not None:p=read_json(self.cfg/f'round{winner:02d}.json');parent=winner
@@ -98,6 +100,14 @@ class Driver(BaseDriver):
                 p['reward_view']='endpoint_innovation';p['reference_sha256']=digest(self.cfg/'innovation_reference.json.gz')
             change={group:{key:value}};reason=REASONS[key]
             p['agent_request_sha256']=gate['request_sha256'];p['agent_response_sha256']=gate['response_sha256']
+            pilot=read_json(self.cfg/'designer_pilot.json')
+            if number==3:
+                p=pilot;change=pilot['flowcompat_provenance']['parameter_updates']
+                reason='Actual Designer-compiled first pilot; literal input, tools, formula and code bound.'
+            else:
+                p['flowcompat_provenance']=copy.deepcopy(pilot['flowcompat_provenance'])
+                p['flowcompat_provenance'].update(parameter_updates={group+'.'+key:value},
+                    parameter_origin='Sequential registered engineering trial of Agent-vetted design families, not an independent LLM response')
         p.update(round=number,program_id=f'flowcompat30_round{number:02d}',seed=42,
             derivation={'parent':parent,'scientific_hypothesis':reason,'changed_axis':change,'private_reasoning_transcript':False})
         write_json(file,p);reference=self.reference(p)
@@ -143,11 +153,47 @@ class Driver(BaseDriver):
         for suffix in ['', '.json']:self.download(self.work+'/'+campaign+'.tar.gz'+suffix,str(archive)+suffix,number)
         dataset=self.root/f'test/data/flowcompat30/round{number:02d}';evaluated=self.root/f'results/flowcompat30/round{number:02d}'
         verified=verify_generation_archive(archive,str(archive)+'.json',dataset)
-        cfg=read_json(dataset/'results'/campaign/'config.json')['experiment'];self.emit('local_evaluation',round=number)
+        run=dataset/'results'/campaign;cfg=read_json(run/'config.json')['experiment']
+        evaluated.mkdir(parents=True,exist_ok=True)
+        feedback=self.feedback(dataset,campaign,number,evaluated)
+        mine_execution(dataset,campaign,evaluated)
+        program=self.cfg/f'round{number:02d}.json';p=read_json(program)
+        formula=conditional_formula_audit(program,self.reference(p));write_json(evaluated/'conditional_formula_audit.json',formula)
+        feedback['conditional_formula_audit']=formula
+        execution=execution_audit(dataset,campaign)
+        if number>=3 and 'flowcompat_provenance' in p:
+            import hashlib,subprocess
+            code_files=p['flowcompat_provenance']['code_files'];measured_code={}
+            for file in code_files:
+                blob=subprocess.check_output(['git','-C',str(self.root),'show',execution['code_commit']+':'+file])
+                measured_code[file]=hashlib.sha256(blob).hexdigest()
+            diagnostics={k:float(np.mean([r['mechanisms'][k] for r in feedback['batch_diagnostics'] if k in r['mechanisms']]))
+                for k in ['contrast_teacher_shift_rms_A','flowcompat_gradient_adjustment_relative_rms']
+                if any(k in r['mechanisms'] for r in feedback['batch_diagnostics'])}
+            diagnostics['paired_window_coordinate_rms_A']=float(np.mean([r['mean_RMS_A'] for r in feedback['window_differences_against_paired_R26']]))
+            diagnostics['contrast_gradient_relative_change']=formula['maximum_gradient_relative_change']
+            diagnostics['flowcompat_schedule_absolute_change']=float(np.mean([abs(1-r['mechanisms']['flowcompat_schedule_factor']) for r in feedback['batch_diagnostics'] if 'flowcompat_schedule_factor' in r['mechanisms']]))
+            gate_input={'program_sha256':digest(program),'request_sha256':p['flowcompat_provenance']['request_sha256'],
+                'code_files':measured_code,'execution_checks':{k:True for k in ['actual_flowr_model','actual_endpoint_vjp','no_resampling','no_head_gradient','no_extra_production_forward','window_matches','initial_state_pair_matches']},
+                'no_op_control':{'exact_baseline_arithmetic':formula['null_exact'] and read_json(self.docs/'round02/implementation_feedback.json')['null_control_parity'],
+                    'max_gradient_relative_change':0 if formula['null_exact'] else None},'diagnostics':diagnostics}
+            write_json(evaluated/'implementation_gate_input.json',gate_input)
+            try:
+                verify_execution_response(program,evaluated/'implementation_gate_input.json',evaluated/'implementation_gate.json')
+                feedback['implementation_passed']=True
+            except ValueError as error:
+                feedback['implementation_passed']=False;feedback['implementation_rejection']=str(error)
+                write_json(evaluated/'implementation_gate.json',{'implementation_passed':False,'reason':str(error),'efficacy_assessed':False})
+        self.emit('implementation_checked_before_affinity',round=number,passed=feedback.get('implementation_passed'),
+            actual_window_coordinate_response=feedback['actual_window_coordinate_response'])
+        write_json(evaluated/'implementation_feedback.json',feedback)
+        self.emit('local_evaluation',round=number)
         evaluate_isolated(self.root,dataset,campaign,evaluated,cfg,self.state/f'round{number:02d}.evaluation.log')
         baseline=self.docs/'round01/candidate_metrics.csv' if 2<=number<=24 else self.docs/f'round{number-1:02d}/candidate_metrics.csv' if number in [26,28,30] else None
         summary=retain_round(dataset,campaign,evaluated,self.docs/f'round{number:02d}',self.threshold,baseline)
-        out=self.docs/f'round{number:02d}';feedback=self.feedback(dataset,campaign,number,out)
+        out=self.docs/f'round{number:02d}'
+        for name in ['flow_response.parquet','decoder_sensitivity.parquet','flow_response_summary.json','conditional_formula_audit.json','implementation_gate_input.json','implementation_gate.json']:
+            if (evaluated/name).exists():shutil.copy2(evaluated/name,out/name)
         if number==2:
             original=pd.read_csv(self.docs/'round01/candidate_metrics.csv');new=pd.read_csv(out/'candidate_metrics.csv')
             cols=['arm','batch','slot','pic50_on_rescore','smiles']
@@ -156,12 +202,14 @@ class Driver(BaseDriver):
         summary['historical_Steer_reference']=read_json(self.docs/'steer_reference.json')
         gain=summary.get('versus_gradient',{}).get('paired_mean_pic50');admissible=False
         if baseline and number>=3:
-            m=summary['results']['gradient'];admissible=(gain>.005 and min(summary['versus_gradient']['batch_means'])>0 and m['valid_n']/m['n']>=.9 and m['pb_fast_rate']>=.9 and feedback['actual_window_coordinate_response'])
+            m=summary['results']['gradient'];admissible=(gain>.005 and min(summary['versus_gradient']['batch_means'])>0 and m['valid_n']/m['n']>=.9 and m['pb_fast_rate']>=.9 and feedback.get('implementation_passed',False))
         write_json(out/'comparison.json',summary);write_json(out/'archive_verification.json',verified)
         rollback=restore_incumbent(self.root,'flowcompat30_v1','Candidate remains provisional; failed proposals never overwrite R26.',number)
         write_json(out/'rollback.json',rollback)
         retention=read_json(out/'retention.json')
-        for name in ['comparison.json','archive_verification.json','implementation_feedback.json','rollback.json']:
+        for name in ['comparison.json','archive_verification.json','implementation_feedback.json','rollback.json',
+            'flow_response.parquet','decoder_sensitivity.parquet','flow_response_summary.json','conditional_formula_audit.json','implementation_gate_input.json','implementation_gate.json']:
+            if not (out/name).exists():continue
             retention['files']=[r for r in retention['files'] if r['path']!=name]
             retention['files'].append({'path':name,'sha256':digest(out/name),'bytes':(out/name).stat().st_size})
         write_json(out/'retention.json',retention)
