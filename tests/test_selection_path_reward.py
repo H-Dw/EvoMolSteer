@@ -35,6 +35,17 @@ def test_inactive_floor_exact_incumbent_arithmetic(dtype):
     ga,=torch.autograd.grad(a.sum(),x);gb,=torch.autograd.grad(b.sum(),x)
     assert torch.equal(a,b) and torch.equal(ga,gb)
 
+
+@pytest.mark.parametrize('spec',[{'niche_balance':.5},{'precision_mix':.5}])
+def test_no_geometric_information_reduces_to_incumbent(spec):
+    p,r,x=fixture();f=r['frames'][0];m,n=np.asarray(f['teacher_endpoint_A']).shape[:2]
+    f['teacher_niche']=[0]*m;f['teacher_precision']=np.broadcast_to(np.eye(3),(m,n,3,3)).tolist()
+    x=x.detach().float().requires_grad_(True);mask=torch.ones(x.shape[:2],dtype=torch.bool);atoms=torch.zeros_like(mask,dtype=torch.long)
+    base=EndpointGeometryReward(p,r);p['selection_path']=spec;new=SelectionPathReward(p,r)
+    a,_=base(x,atoms,mask,0.,x.detach());b,_=new(x,atoms,mask,0.,x.detach())
+    ga,=torch.autograd.grad(a.sum(),x);gb,=torch.autograd.grad(b.sum(),x)
+    assert torch.equal(a,b) and torch.equal(ga,gb)
+
 def test_conditional_coordinate_gradient_not_time_derivative():
     p,r,x=fixture();p['selection_path']={'precision_mix':.25,'ess_fraction':.75}
     reward=SelectionPathReward(p,r);x.requires_grad_(True)

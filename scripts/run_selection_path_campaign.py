@@ -43,7 +43,7 @@ class Driver(TransportDriver):
         return commit
     def best(self,admissible_only=False,current_only=False):
         c=read_json(self.cfg/'campaign.json');rows=[r for r in c['rounds'] if 2<=r['round']<=16 and r['round']!=6]
-        if current_only:rows=[r for r in rows if r['round']>=7]
+        if current_only:rows=[r for r in rows if r['round']>=8]
         if admissible_only:rows=[r for r in rows if r['screening_admissible']]
         return max(rows,key=lambda r:(r['mean_vs_R26'], -r['round']))['round'] if rows else None
     def reference(self,p):

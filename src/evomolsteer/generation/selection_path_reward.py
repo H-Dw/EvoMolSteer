@@ -69,7 +69,11 @@ class SelectionPathReward(EndpointGeometryReward):
             if self.spec.get('quality')=='rank':quality=(rankdata(scores,method='average')-.5)/len(scores)-.5
             logits=-np.asarray(costs)[ids]/self.program['teacher_endpoint_temperature_A2']+self.program['teacher_score_beta']*quality[ids]
             strength=self.spec.get('niche_balance',0)
-            if strength:logits-=strength*np.log([np.sum(groups[ids]==groups[i]) for i in ids])
+            if strength:
+                occupancy=np.array([np.sum(groups[ids]==groups[i]) for i in ids],float)
+                # Common logit offsets cancel analytically; avoid injecting them
+                # into floating arithmetic when occupancy is already equal.
+                logits-=strength*np.log(occupancy/occupancy.max())
             if 'teacher_base_log_weight' in frame:logits+=np.asarray(frame['teacher_base_log_weight'])[ids]
             probability,base_chance=ess_floor_prior(logits,self.spec.get('ess_fraction',0))
             rawpriors.append(logits)
@@ -91,8 +95,9 @@ class SelectionPathReward(EndpointGeometryReward):
         residual=x[:,None]-target;per_atom=residual.square().sum(-1)
         mix=self.spec.get('precision_mix',0)
         if mix:
-            metric=x.new_tensor(np.asarray(metrics));anisotropic=torch.einsum('bkni,bknij,bknj->bkn',residual,metric,residual)
-            per_atom=(1-mix)*per_atom+mix*anisotropic
+            metric=x.new_tensor(np.asarray(metrics))-torch.eye(3,dtype=x.dtype,device=x.device)
+            correction=torch.einsum('bkni,bknij,bknj->bkn',residual,metric,residual)
+            per_atom=per_atom+mix*correction
         q=per_atom.mean(2);delta=float(self.program.get('pointcloud_delta_A',1.))
         if self.spec.get('robust_aggregation')=='atom':cost=(delta**2*(torch.sqrt(1+per_atom/delta**2)-1)).mean(2)
         else:cost=delta**2*(torch.sqrt(1+q/delta**2)-1)
