@@ -1,9 +1,11 @@
 {
   "additional_per_step_affinity_calls": 0,
   "affinity_head_gradient": false,
-  "agent_request_sha256": "7f062205b36fa37bd1956d9851b04b569cbcf97324e5d3903f45abd00faa9bb7",
+  "agent_request_sha256": "ad0b48dafdf472cde7325c7a76e2889da3163d6b206ac2c68bc3b15cff3795e9",
   "branch_mixture": {
-    "virtual_mass": 0.025
+    "direction_sign": 1.0,
+    "region_weight_mix": 0.0,
+    "virtual_mass": 0.05
   },
   "constraints": {
     "backtrack_attempts": 7,
@@ -15,12 +17,18 @@
   "coordinate_representation": "predicted_endpoint_world_A",
   "core_radius_A": 5.0,
   "derivation": {
-    "changed_axis": {
-      "branch_mixture.virtual_mass": 0.025
+    "no_private_reasoning_transcript": true,
+    "plan": {
+      "action": "parent_refinement",
+      "global_parent_retained": true,
+      "native_rms_ratio": 0.33,
+      "parent_round": 7,
+      "reason": "Dose refinement of measured global affinity winner; regressions never overwrite the parent.",
+      "regional": false,
+      "template_round": 7,
+      "time_ramp_power": 0.0
     },
-    "parent": "branch_pilot",
-    "private_reasoning_transcript": false,
-    "scientific_hypothesis": "Pilot9 actual field changed gradient/trajectory but lowered affinity in both paired batches; reduce only virtual-mode mass to test an over-strong/noisy observational coordinate direction without changing teachers or controller."
+    "source": "Existing Steer coordinate library, recorded scores, Agent-vetted registered adaptive policy"
   },
   "derivative_path": "flowr_endpoint_vjp",
   "dose_reference": "predictive_flow",
@@ -28,7 +36,7 @@
   "endpoint_designer_response_sha256": "0cf51b573137448f9e713b3d11c0edfc2abd049049c8729e81c7a5a29687b260",
   "family": "coordinate_only_affinity_endpoint",
   "flowcompat_provenance": {
-    "analyst_response_sha256": "da0848b71b60c772ce65eb014b41da9b5e869046fd6143489b5d74dca8d1043f",
+    "analyst_response_sha256": "d6938181610aed7b9b908f2054c5bb6696fc087fab771c2a4537d553bbab4312",
     "code_files": {
       "scripts/generate_flowcompat_v2_flowr.py": "5f9c11a1e00521b1bd642ec89d49012b7216ab61fc44a255cbe8c7e1a8a3baf1",
       "src/evomolsteer/__init__.py": "80bf5e1288723ab5edc9ed4542d20c491404e56e461bbd1b0cafa3910c1a52ce",
@@ -85,43 +93,81 @@
       "src/evomolsteer/storage/transactions.py": "f7ce8f8242445194f0ced60bfe853a09c14faaa35b3a5ee78bfd4942ebf8b133",
       "src/evomolsteer/trajectory_source.py": "71d1911594ff226c288085a4571c3e729876ace818aa88a6f7b7dbc93edff3c9"
     },
+    "compiler_version": "flowcompat-regional-agent-1.0",
     "context_files": {
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\feature_to_reward_map.zh-CN.md": "118087b3cbd6de4043871bf87add34ce984eec9eac9d6de9ff6fcc867c546038",
       "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\mining\\branch_mutation_v2\\report.zh-CN.md": "c67f5550a75e00ae67650b707b67eb6b883cbe64b4e13b9a4b3683ab95b3e2d6",
       "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\mining\\multi_depth_v1\\report.zh-CN.md": "f192b80a8f1c97fefba9d95bc69620d49cb2597f9b6c6fe2095c263bccf9d06d",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\mining\\regional_reference_v2\\report.zh-CN.md": "7f7ea4212a739c9288ea777ba84f463558dc47278aa400b762ec35b3a4032955",
       "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\numerical_strategy_v2.md": "8c1b0466592df46c15c0d3efacbc468363ee35bf35753717d083250087b17ed0",
-      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\round02\\implementation_feedback.json": "2b1dc4c7a90336c02b67183f13f5d2deae2c5017a91f5e943f18422b0dc10a80"
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\round02\\implementation_feedback.json": "2b1dc4c7a90336c02b67183f13f5d2deae2c5017a91f5e943f18422b0dc10a80",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\round09\\comparison.json": "8ebe5752e06549a797dd449beedbdf4bb0a49d354e58656b55d873aad9ebe2ec",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\round09\\implementation_gate.json": "40023169ff0423484e9e9de6b3a3e4cba97c4f1446d2b9d1cc91ab0d5f5be590"
     },
-    "designer_response_sha256": "798a753444ce4151f4b64c4b2322317d5b0be77540b2a8c41d1c4c15fe57515f",
-    "evidence_sha256": "2c5aeeb35d79b61be184eed8a7d5a3dc8dd965a49f2da75cb9616b38058cb5d5",
+    "designer_response_sha256": "8ff397c859590fc1bbde1606dff899b33b549caefe381bc6d1e9d9d9ec3b053c",
+    "evidence_sha256": "3ef7635ac70d563f73bef96f4c7555d5cae1c7ec9e22c66a3e4b90117cc8fb58",
     "extra_tool_receipt_sha256": [
       "8bf94ac6e72d4c0f996215b637ca3238f38cef42700ce9d089b7d5a6d85d2d33"
     ],
-    "formula_id": "branch_mixture",
-    "frozen_originals": {
+    "formula_id": "branch_mixture_regional",
+    "frozen_helpers": {
       "scripts/flowcompat_agent.py": "0e569369b7f6995b5e7c430e64885110d3deaf64b9e2d9e8f260f41f8f64d80e",
+      "scripts/flowcompat_supplemental_agent.py": "254b99b3b9ecc28e4abd0c1f902912e505776ad02e81f61b78c8d02909597aea",
+      "scripts/synthesize_regional_reference.py": "60da4956ab00ca8968a42fe315ed5bec561a97af646e163bf8efe036822be32d",
+      "skills/flow-compatibility-supplemental/SKILL.md": "ea991816cfc49e79ca1d0d58833cb760464c3b37691abd786a89bc2e959e9af3",
       "skills/flow-compatibility/SKILL.md": "abdd4ecc19f6a7c5816ce7e33e3a59f3369cf4bbc4577b1adb258f154d9990c8",
-      "src/evomolsteer/continuous/flowcompat_agents.py": "0251a4fa97b18f4358327424c2f351c6680dc3b65de0f7f4ed2fb02c70842c02"
+      "src/evomolsteer/continuous/flowcompat_agents.py": "0251a4fa97b18f4358327424c2f351c6680dc3b65de0f7f4ed2fb02c70842c02",
+      "src/evomolsteer/continuous/flowcompat_supplemental.py": "53ab060aeb0949bb136cbd82a5421fdc31a6de83ad8f0071c424e4cb4174879f",
+      "src/evomolsteer/continuous/regional_reference.py": "3083769f31b2b2e68721e955e9254031bb16181c2002613485e30a54566692ab"
     },
     "implementation_gate_required": true,
-    "instruction_sha256": "e43d6cf802fcc8745f0073fc44f79ac298afcb31653bce3a581d13378f9a7c70",
-    "parameter_origin": "Sequential engineering control from actual bound supplemental design; not a fresh LLM call",
+    "instruction_sha256": "0f0588553f592c874ecf3ca70f8e37d751f51ff29151c49d9023ce3996f805d1",
+    "paired_direction_controls_required": true,
     "parameter_updates": {
-      "branch_mixture.virtual_mass": 0.025
+      "branch_mixture.virtual_mass": 0.05
     },
-    "reference_kind": "branch_mutation",
-    "registry_sha256": "fc9a5c373ae678ad9b048f24375fb4f736c014f8c9606ede9a3597555f72f26a",
-    "request_sha256": "7f062205b36fa37bd1956d9851b04b569cbcf97324e5d3903f45abd00faa9bb7",
+    "reference_kind": "regional_reference",
+    "regional_recipe": {
+      "original_branch_reference_sha256": "50d7232b5501152c87fe20329ebfa0e4b0fbfd2f519cdd0e1e6dad9b8f23f801",
+      "receipt_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\mining\\regional_reference_v2\\execution_receipt.json",
+      "receipt_sha256": "04c5710d3b8834f0174f9a2318a62db9e15d4440d0ba8e6c36ba27ff02c5fa34",
+      "reference_path": "D:\\llm_controlled_generation\\EvoMolSteer\\configs\\experiments\\flowcompat30_v1\\regional_common_depth_reference.json.gz",
+      "reference_sha256": "4349026db4963c55712cf7bd70f7085b1243290cf465f2acd2693420cd7a4b12",
+      "rules_path": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\flowcompat30_20261009\\mining\\regional_reference_v2\\regional_rules.json",
+      "rules_sha256": "d2227f155d3fabf24db945f25bfd44b0e0112e04bfe034ae4eca1cdf79b728e0",
+      "synthesis_code_files": {
+        "D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\synthesize_common_depth_reference.py": "cd4d34cb0f8ba37993a7c71ddc49298b458140747d91e74a4a71574350f5eae5",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\__init__.py": "80bf5e1288723ab5edc9ed4542d20c491404e56e461bbd1b0cafa3910c1a52ce",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\continuous\\__init__.py": "a1ea0fd435b29d9686d544d58972a9182b4d529d41b141b70f5922c5cf7efbba",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\continuous\\regional_common_depth.py": "954f95b96c6ec7173d727633d171bddeeb091c5f0f238fd0203e563efd437d51",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\continuous\\regional_reference.py": "3083769f31b2b2e68721e955e9254031bb16181c2002613485e30a54566692ab",
+        "D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\io.py": "78adf5006633cbdb9e3bcdc55cd0f2e998ca5e8c82c4af7c83c676d39ce323e4"
+      },
+      "tool_id": "regional_common_depth"
+    },
+    "registry_sha256": "781e8c68cd390baa78e40383d18429402ff3ccac9fad7802838406faa8ed3bf0",
+    "request_sha256": "ad0b48dafdf472cde7325c7a76e2889da3163d6b206ac2c68bc3b15cff3795e9",
     "source_evidence_sha256": [
+      "118087b3cbd6de4043871bf87add34ce984eec9eac9d6de9ff6fcc867c546038",
+      "40023169ff0423484e9e9de6b3a3e4cba97c4f1446d2b9d1cc91ab0d5f5be590",
+      "62a25d97fbf056d7233b404ec8d9afcd26829de16c716f41c869e1103d84b1c8",
       "798a439dff8fef26099ea1e6ce0d0c8c077cca30747f61c817a42d4cf62b3f31",
+      "7f7ea4212a739c9288ea777ba84f463558dc47278aa400b762ec35b3a4032955",
+      "8ebe5752e06549a797dd449beedbdf4bb0a49d354e58656b55d873aad9ebe2ec",
       "951e8af12d4f82c4f6e6d4df2c59e13c0547f4561849ae110cb205c4beab62e5",
-      "d0ad95131802a50ab6c9b2086ae8a134d7b89608774c512225b8d78f3fde5e1b"
+      "d0ad95131802a50ab6c9b2086ae8a134d7b89608774c512225b8d78f3fde5e1b",
+      "d2227f155d3fabf24db945f25bfd44b0e0112e04bfe034ae4eca1cdf79b728e0"
     ],
     "tool_receipt_sha256": [
       "2f2a17d606c29c5a5ec6fc4a6ccce658b8d2caa22b519ec12af029b64ef9a9b2",
       "3fa2bf01a8aeff454a10fb568326a4ac5ed4b6b8b6c21a11cbd9599dc8dcc010",
       "9407d925aebe2ef99f530ad46c9f583219c2571994b76a7c9b6175d6a9342938"
     ],
-    "workflow_version": "flowcompat-supplemental-agent-2.0"
+    "workflow_files": {
+      "D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\flowcompat_regional_agent.py": "5d23a5edd54ae9b14d3d8b044fe522658f573f135cee416cd2e9d7319ee309db",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\continuous\\regional_workflow.py": "cd26dc1daa3d3220db8504ce27298b2c246a79bba8a3fb3e0184bf24b50bddb5"
+    },
+    "workflow_version": "flowcompat-regional-agent-1.0"
   },
   "generation_interface": "flowcompat_v2",
   "geometry_block_weights": [
@@ -136,12 +182,12 @@
   "native_rms_ratio": 0.33,
   "objective_profile": "affinity_primary_coordinate30",
   "preserve_native_rigid_pose": false,
-  "program_id": "flowcompat30_round11",
+  "program_id": "ck2_affinity_geometry30_round26",
   "record_reward_response": true,
-  "reference_sha256": "50d7232b5501152c87fe20329ebfa0e4b0fbfd2f519cdd0e1e6dad9b8f23f801",
+  "reference_sha256": "4349026db4963c55712cf7bd70f7085b1243290cf465f2acd2693420cd7a4b12",
   "reward_view": "endpoint_branch_mixture",
   "robust_delta": 2,
-  "round": 11,
+  "round": 22,
   "schema_version": "current-coordinate-program-1.0",
   "seed": 42,
   "skill_behavior_audit_sha256": "8ecf2a0154d4d90d8095c4f264fefff88d885c886b5d13eba36ca5e97586ea76",
