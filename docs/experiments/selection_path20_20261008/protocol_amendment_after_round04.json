@@ -1,0 +1,12 @@
+{
+  "registered_after_observing": 4,
+  "before_observing": [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+  "reason": "Round 4 improvement is sparse while mean floor mixing is about 4.5e-5. Reward-only numerical audit found a separate prior-normalization backend difference. Neither sparse response nor graph changes identify its cause.",
+  "normalization_policy": "New ordinary proposals use the exact R26 Torch log_softmax arithmetic. Legacy NumPy normalization exists only as an explicit diagnostic flag.",
+  "round06": "Replace high-floor 0.9 proposal by legacy-normalization-only negative control. Exclude it from learned-rule winner selection.",
+  "round16": "Replace dose refinement by re-evaluation of best admissible parameter set under corrected normalization; repeated current sets are labeled reproducibility controls.",
+  "confirmation_pool": "Rounds 7-16 only, using the corrected implementation; earliest best admissible mean as before. If none admissible, best exploratory current mean and keep R26 default.",
+  "unchanged": "Maximum 20 inference rounds, n=100, master seed42, paired controls, dynamically learned support, complete native continuation and original independent confirmation acceptance.",
+  "old_evidence_retained": "Rounds2-5 retain their original inference commit and backend. Their performance remains measured, but cannot be attributed solely to the intended feature change.",
+  "chemical_graph_gate": false
+}

@@ -31,11 +31,12 @@ class SelectionPathReward(EndpointGeometryReward):
     def __init__(self,program,reference):
         p=copy.deepcopy(program);p['reward_view']='endpoint_pointcloud';super().__init__(p,reference)
         self.spec=copy.deepcopy(program.get('selection_path',{}))
-        allowed={'quality','ess_fraction','niche_balance','selection','precision_mix','robust_aggregation'}
+        allowed={'quality','ess_fraction','niche_balance','selection','precision_mix','robust_aggregation','legacy_prior_normalization'}
         if set(self.spec)-allowed:raise ValueError('Unknown selection-path mechanism')
         if self.spec.get('quality','raw') not in ['raw','rank']:raise ValueError('Quality mapping')
         if self.spec.get('selection','nearest') not in ['nearest','niche','batch']:raise ValueError('Teacher coverage')
         if self.spec.get('robust_aggregation','cloud') not in ['cloud','atom']:raise ValueError('Robust aggregation')
+        if not isinstance(self.spec.get('legacy_prior_normalization',False),bool):raise ValueError('Diagnostic normalization flag')
         for k in ['ess_fraction','precision_mix']:
             if not math.isfinite(self.spec.get(k,0)) or not 0<=self.spec.get(k,0)<=1:raise ValueError('Bounded selection parameter')
         if not math.isfinite(self.spec.get('niche_balance',0)) or self.spec.get('niche_balance',0)<0:raise ValueError('Niche balance')
@@ -49,7 +50,7 @@ class SelectionPathReward(EndpointGeometryReward):
         if abs(self.times[j]-time)>2e-6:raise ValueError('Only actual learned nodes supported')
         frame=self.reference['frames'][j];clouds=np.asarray(frame['teacher_endpoint_A']);scores=np.asarray(frame['teacher_scores'])
         groups=np.asarray(frame.get('teacher_niche',np.zeros(len(clouds),int)))
-        batches=np.asarray(frame['teacher_batches']);matched=[];logpriors=[];metrics=[];audit=[]
+        batches=np.asarray(frame['teacher_batches']);matched=[];logpriors=[];rawpriors=[];metrics=[];audit=[]
         for cloud in anchor.detach().cpu().numpy():
             costs=[];assignments=[]
             for teacher in clouds:
@@ -69,13 +70,24 @@ class SelectionPathReward(EndpointGeometryReward):
             logits=-np.asarray(costs)[ids]/self.program['teacher_endpoint_temperature_A2']+self.program['teacher_score_beta']*quality[ids]
             strength=self.spec.get('niche_balance',0)
             if strength:logits-=strength*np.log([np.sum(groups[ids]==groups[i]) for i in ids])
+            if 'teacher_base_log_weight' in frame:logits+=np.asarray(frame['teacher_base_log_weight'])[ids]
             probability,base_chance=ess_floor_prior(logits,self.spec.get('ess_fraction',0))
+            rawpriors.append(logits)
             logpriors.append(np.log(probability));matched.append(np.stack([clouds[i,assignments[i]] for i in ids]))
             if self.spec.get('precision_mix',0)>0:
                 precision=np.asarray(frame['teacher_precision'])
                 metrics.append(np.stack([precision[i,assignments[i]] for i in ids]))
             audit.append([1/(probability@probability),base_chance,len(np.unique(groups[ids]))])
-        target=x.new_tensor(np.asarray(matched));log_prior=x.new_tensor(np.asarray(logpriors)).detach()
+        target=x.new_tensor(np.asarray(matched))
+        if self.spec.get('legacy_prior_normalization',False):
+            log_prior=x.new_tensor(np.asarray(logpriors)).detach()
+        else:
+            # Preserve R26 arithmetic whenever no real prior change is requested.
+            log_prior=x.new_tensor(np.asarray(rawpriors)).log_softmax(1).detach()
+            epsilon=x.new_tensor([v[1] for v in audit])[:,None]
+            mixed=(1-epsilon)*log_prior.exp()+epsilon/log_prior.shape[1]
+            log_prior=torch.where(epsilon>0,mixed.log(),log_prior).detach()
+            for row,ess in zip(audit,log_prior.exp().square().sum(1).reciprocal().cpu().tolist()):row[0]=ess
         residual=x[:,None]-target;per_atom=residual.square().sum(-1)
         mix=self.spec.get('precision_mix',0)
         if mix:

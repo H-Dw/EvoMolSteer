@@ -14,7 +14,7 @@ TRIALS={
  3:({'quality':'rank'},{'teacher_score_beta':1.},'Weaker rank tilt tests whether the previous ordering gives excessive relative competition.'),
  4:({'ess_fraction':.5},{},'Minimum local teacher ESS at half the selected support; preserves ordering with minimal uniform mass.'),
  5:({'ess_fraction':.75},{},'Higher exploration base chance, changing only the ESS target in the same mechanism.'),
- 6:({'ess_fraction':.9},{},'Test a nearly uniform local prior; affinity direction, not coefficient magnitude, decides acceptance.'),
+ 6:({'legacy_prior_normalization':True},{},'Negative control: legacy NumPy normalization only, with unchanged R26 scalar and no actual ESS floor; not eligible as a learned-rule winner.'),
  7:({'niche_balance':.5},{},'Partial inverse niche occupancy discourages duplicate geometric modes without subtracting attraction.'),
  8:({'niche_balance':1.},{},'Equalize local niche prior mass before quality tilt; separate rare-mode coverage from mean quality.'),
  9:({'selection':'niche'},{},'Nearest representative per geometric niche before filling K; fixed teacher count and unchanged dose.'),
@@ -41,8 +41,9 @@ class Driver(TransportDriver):
         self.remote(f'timeout 180 git -C {q(self.remote_repo)} -c http.proxy=http://127.0.0.1:17897 pull --ff-only origin main')
         if self.remote(f'git -C {q(self.remote_repo)} rev-parse HEAD')!=commit:raise ValueError('Exact source commit required')
         return commit
-    def best(self,admissible_only=False):
-        c=read_json(self.cfg/'campaign.json');rows=[r for r in c['rounds'] if 2<=r['round']<=16]
+    def best(self,admissible_only=False,current_only=False):
+        c=read_json(self.cfg/'campaign.json');rows=[r for r in c['rounds'] if 2<=r['round']<=16 and r['round']!=6]
+        if current_only:rows=[r for r in rows if r['round']>=7]
         if admissible_only:rows=[r for r in rows if r['screening_admissible']]
         return max(rows,key=lambda r:(r['mean_vs_R26'], -r['round']))['round'] if rows else None
     def reference(self,p):
@@ -59,8 +60,8 @@ class Driver(TransportDriver):
             batches={1:[41,42],17:[43,44],19:[45,46]}[number];arms='unguided,gradient'
             reason='Matched native/R26 control panel with immutable baseline source and declared random streams.'
             if number==17:
-                best=self.best(True);admissible=best is not None
-                if best is None:best=self.best()
+                best=self.best(True,current_only=True);admissible=best is not None
+                if best is None:best=self.best(current_only=True)
                 selected=read_json(self.cfg/f'round{best:02d}.json');ref=self.reference(selected)
                 write_json(self.docs/'frozen_validation.json',{'selected_round':best,'screening_admissible':admissible,
                   'program_sha256':digest(self.cfg/f'round{best:02d}.json'),'reference_sha256':digest(ref),
@@ -72,9 +73,9 @@ class Driver(TransportDriver):
             reason='Independent confirmation of the frozen proposal; no validation-driven retuning.'
         elif number==16:
             best=self.best(True)
-            if best is not None:p=read_json(self.cfg/f'round{best:02d}.json');parent=best
-            p['native_rms_ratio']=.27
-            reason='A single dose refinement of an admissible proposal, otherwise the restored R26; learned-window coverage remains unchanged.'
+            if best is None:best=self.best()
+            p=read_json(self.cfg/f'round{best:02d}.json');parent=best
+            reason='Refresh the best admissible parameter proposal under R26-matched Torch prior normalization before confirmation; if already current, this is an explicit reproducibility control, not a new dose change.'
         else:
             if number==2:
                 for role in ['Analyst','Designer']:
@@ -126,6 +127,7 @@ class Driver(TransportDriver):
         if baseline:
             gain=summary['versus_gradient']['paired_mean_pic50'];m=summary['results']['gradient']
             admissible=gain>.005 and min(summary['versus_gradient']['batch_means'])>0 and m['valid_n']/m['n']>=.90 and m['pb_fast_rate']>=.90
+            if number==6:admissible=False
         write_json(out/'comparison.json',summary)
         reason=('Candidate failed predeclared matched screening; restore R26 code path/program/Skills.' if baseline and not admissible
                 else 'Provisional result retained; restore R26 default until frozen confirmation is complete.')

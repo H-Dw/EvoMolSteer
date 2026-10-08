@@ -10,7 +10,7 @@ from evomolsteer.generation.selection_path_reward import SelectionPathReward
 
 def audit(program,reference,output):
     p=read_json(program);r=json.loads(gzip.decompress(Path(reference).read_bytes()));spec=copy.deepcopy(p)
-    spec['selection_path']={'ess_fraction':0.};base=EndpointGeometryReward(p,r);new=SelectionPathReward(spec,r)
+    spec['selection_path']={'legacy_prior_normalization':True};base=EndpointGeometryReward(p,r);new=SelectionPathReward(spec,r)
     rng=np.random.default_rng(42);results=[]
     for f in r['frames']:
         values=np.asarray(f['teacher_endpoint_A'])[:4];x=torch.tensor(values+rng.normal(0,.2,values.shape),dtype=torch.float32,requires_grad=True)

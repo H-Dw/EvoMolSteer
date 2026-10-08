@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import numpy as np
 import torch
+import pytest
 from evomolsteer.generation.endpoint_reward import EndpointGeometryReward
 from evomolsteer.generation.selection_path_reward import SelectionPathReward
 from evomolsteer.continuous.selection_pressure import coordinate_niches
@@ -21,6 +22,15 @@ def fixture():
 def test_empty_mechanism_exact_incumbent_scalar_and_gradient():
     p,r,x=fixture();x.requires_grad_(True);mask=torch.ones(x.shape[:2],dtype=torch.bool);atoms=torch.zeros_like(mask,dtype=torch.long)
     base=EndpointGeometryReward(p,r);new=SelectionPathReward(p,r)
+    a,_=base(x,atoms,mask,0.,x.detach());b,_=new(x,atoms,mask,0.,x.detach())
+    ga,=torch.autograd.grad(a.sum(),x);gb,=torch.autograd.grad(b.sum(),x)
+    assert torch.equal(a,b) and torch.equal(ga,gb)
+
+
+@pytest.mark.parametrize('dtype',[torch.float32,torch.float64])
+def test_inactive_floor_exact_incumbent_arithmetic(dtype):
+    p,r,x=fixture();x=x.detach().to(dtype).requires_grad_(True);mask=torch.ones(x.shape[:2],dtype=torch.bool);atoms=torch.zeros_like(mask,dtype=torch.long)
+    base=EndpointGeometryReward(p,r);p['selection_path']={'ess_fraction':0.};new=SelectionPathReward(p,r)
     a,_=base(x,atoms,mask,0.,x.detach());b,_=new(x,atoms,mask,0.,x.detach())
     ga,=torch.autograd.grad(a.sum(),x);gb,=torch.autograd.grad(b.sum(),x)
     assert torch.equal(a,b) and torch.equal(ga,gb)
