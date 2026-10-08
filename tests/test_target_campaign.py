@@ -119,11 +119,16 @@ def test_resume_partial_group_and_disabled_compression(tmp_path,monkeypatch):
     assert all((Path(other.output_dataset)/r['dataset']/'learning_dataset_manifest.json').exists() for r in result['targets'].values())
 
 
-def test_failed_task_can_retry_in_a_new_attempt_and_keeps_failure_log(tmp_path,monkeypatch):
+def test_failed_task_requires_explicit_marker_reset_and_keeps_failure_log(tmp_path,monkeypatch):
     cfg=config(tmp_path,2);calls=fake_generation(monkeypatch,fail_once='target_000')
     failed=run_campaign(cfg)
     assert failed['status']=='partial_failure' and failed['totals']['failed_targets']==1
-    result=run_campaign(cfg,retry_failed=True)
+    skipped=run_campaign(cfg,retry_failed=True)
+    assert skipped['worker']['no_available_targets'] and len(calls)==2
+    error=Path(cfg.output_dataset)/'generation_progress'/(target_key('target_000/reference')+'.error')
+    assert 'Simulated unavailable GPU' in error.read_text() and 'Traceback' in error.read_text()
+    error.rename(error.with_suffix('.error.reviewed'))
+    result=run_campaign(cfg)
     assert result['status']=='complete' and len(calls)==3
     attempts=result['targets']['target_000/reference']['attempts']
     assert len(attempts)==2 and attempts[0]['state']=='failed' and attempts[1]['state']=='complete'

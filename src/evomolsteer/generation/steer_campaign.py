@@ -1,4 +1,4 @@
-"""Sequential single-target Steer jobs, automatic configs and ten-target archives."""
+"""Cooperating single-target Steer workers and verified ten-target archives."""
 import argparse
 from dataclasses import asdict,dataclass,field,replace
 import json
@@ -9,13 +9,18 @@ import signal
 import shutil
 import subprocess
 import sys
+import socket
+import traceback
+import uuid
 
 from ..io import digest,read_json
-from ..storage.transactions import atomic_json,exclusive_lock,checked_path
-from ..storage.target_archive import archive_target_directories,verify_target_archive,retire_archived_directories
+from ..storage.transactions import atomic_json,checked_path
 from ..trajectory_source import validate_input_bundle
 from .steer_launcher import SteerLearningConfig,INPUT_FORMAT,verify_dataset
-from .target_catalog import discover_targets,FORMAT as CATALOG_FORMAT
+from .target_catalog import discover_targets
+from .target_progress import TargetProgress,TargetClaimConflict,FORMAT as PROGRESS_FORMAT
+from .campaign_journal import CampaignJournal
+from .target_archiving import TargetArchiveCoordinator
 
 FORMAT='evomolsteer.steer_target_campaign.v1'
 
@@ -133,49 +138,78 @@ def run_target_job(command,log,environment):
         raise
 
 
-def _emit_reports(root,state):
-    totals={'targets':len(state['targets']),'successful_targets':sum(r['state'] in ('complete','archived') for r in state['targets'].values()),
-            'failed_targets':sum(r['state']=='failed' for r in state['targets'].values()),'archive_groups':len(state['archives']),
-            'archive_bytes':sum(a['metadata']['archive_bytes'] for a in state['archives'])}
-    atomic_json(root/'results_summary.json',{'format':FORMAT,'status':state['status'],'totals':totals,
-        'targets':{key:{k:v for k,v in row.items() if k in ('state','summary','dataset','archive','attempts')} for key,row in state['targets'].items()},
-        'archives':state['archives']})
+def _claim_target(root,cfg,row,script,journal,progress,worker):
+    with journal.transaction() as state:
+        record=state['targets'][row['target_id']]
+        # A lost terminal marker never justifies re-generating an archived or
+        # verified completed dataset. Failed markers, however, require explicit
+        # human inspection/reset before a new attempt can be claimed.
+        if record['state'] in ('complete','archived') and not progress.statuses(row['key']):
+            progress.migrate(row['key'],'finished')
+        claim=progress.claim(row['key'])
+        if claim is None:return None,progress.statuses(row['key'])
+        number=len(record['attempts'])+1
+        job=root/'jobs'/row['key']/f'attempt_{number:03d}'
+        output=root/'targets'/(row['key'] if number==1 else row['key']+f'__attempt_{number:03d}')
+        command=[sys.executable,'-u',str(script),'--config',str(job/'generation.json')]
+        attempt={'number':number,'config':(job/'generation.json').relative_to(root).as_posix(),
+                 'log':(job/'generation.log').relative_to(root).as_posix(),'command':command,'state':'running',
+                 'owner_token':claim.token,'worker':worker}
+        record['attempts'].append(attempt)
+        record.update(state='running',dataset=output.relative_to(root).as_posix(),owner_token=claim.token)
+        return {'claim':claim,'job':job,'output':output,'attempt':number,'command':command},[]
 
 
-def _publish_group(root,cfg,state,rows):
-    index=len(state['archives'])
-    path=root/'archives'/f'targets_{index:04d}.tar.gz'
-    directories={row['key']:root/state['targets'][row['target_id']]['dataset'] for row in rows}
-    sidecar=Path(str(path)+'.json')
-    ids={row['key']:row['target_id'] for row in rows}
-    # Recover a published archive after a crash before collection-state update.
-    if path.exists():
-        verified=verify_target_archive(path,sidecar if sidecar.exists() else None)
-        if verified['manifest']['targets']!={k:{'target_id':v} for k,v in ids.items()}:
-            raise ValueError('Published group differs from the pending target list')
-        verified.pop('manifest');metadata=verified
-        if not sidecar.exists():atomic_json(sidecar,metadata)
-    else:
-        if Path(str(path)+'.partial').exists():
-            # Preserve any interrupted container; a new packing attempt can proceed.
-            abandoned=Path(str(path)+'.partial')
-            n=0
-            while Path(str(abandoned)+f'.abandoned_{n}').exists():n+=1
-            abandoned.rename(Path(str(abandoned)+f'.abandoned_{n}'))
-        metadata=archive_target_directories(directories,path,target_ids=ids,compression_level=cfg.compression_level)
-    item={'path':path.relative_to(root).as_posix(),'target_ids':list(ids.values()),'directories':{k:p.relative_to(root).as_posix() for k,p in directories.items()},
-          'metadata':metadata,'retirement':'pending' if cfg.remove_archived_targets else 'kept'}
-    state['archives'].append(item)
-    for row in rows:
-        record=state['targets'][row['target_id']];record.update(state='archived',archive=item['path'])
-    # Make the verified archive locator durable before retiring any working copy.
-    atomic_json(root/'campaign_state.json',state)
-    if cfg.remove_archived_targets:
-        item['retirement']=retire_archived_directories(path,metadata,directories,owned_root=root/'targets')
-        atomic_json(root/'campaign_state.json',state)
-    print(json.dumps({'event':'target_group_archived','target_count':len(rows),
-                      'source_bytes':metadata['source_bytes'],'archive_bytes':metadata['archive_bytes'],
-                      'reduction_percent':metadata['reduction_percent'],'path':str(path)}),flush=True)
+def _complete_target(row,task,summary,journal,progress):
+    with journal.transaction() as state:
+        record=state['targets'][row['target_id']]
+        if record.get('owner_token')!=task['claim'].token:
+            raise TargetClaimConflict('Concurrent target execution: campaign ownership changed before completion')
+        progress.finish(task['claim'])
+        record.update(state='complete',summary=summary)
+        record['attempts'][-1]['state']='complete'
+
+
+def _fail_target(row,task,error,journal,progress,detail):
+    with journal.transaction() as state:
+        progress.fail(task['claim'],detail)
+        record=state['targets'][row['target_id']]
+        record.update(state='failed',error=str(error))
+        for attempt in record['attempts']:
+            if attempt.get('owner_token')==task['claim'].token:attempt.update(state='failed',error=str(error))
+
+
+def _run_target(cfg,row,task,journal,progress,worker):
+    job,output=task['job'],task['output']
+    try:
+        # The empty running marker has already been created and committed.
+        job.mkdir(parents=True)
+        input_manifest=job/'pocket_inputs.json'
+        atomic_json(input_manifest,{'format':INPUT_FORMAT,'files':{role:str(Path(cfg.input_dataset)/value['path'])
+                    for role,value in row['files'].items()}})
+        child=_job_config(cfg,row,output,input_manifest).resolved()
+        atomic_json(job/'generation.json',asdict(child))
+        for value in row['files'].values():
+            if digest(Path(cfg.input_dataset)/value['path'])!=value['sha256']:
+                raise ValueError('Target input changed during this campaign')
+        print(json.dumps({'event':'target_start','target_id':row['target_id'],'attempt':task['attempt'],
+                          'worker':worker['id']}),flush=True)
+        run_target_job(task['command'],job/'generation.log',cfg.runtime_environment)
+        summary=_result(output,cfg,row)
+        _complete_target(row,task,summary,journal,progress)
+        return True
+    except BaseException as error:
+        detail=('target_id: '+row['target_id']+'\nworker: '+json.dumps(worker)+'\n'
+                +'attempt: '+str(task['attempt'])+'\n\n--- full controller traceback ---\n'+traceback.format_exc())
+        log=job/'generation.log'
+        if log.is_file():
+            checked_path(log,journal.root)
+            detail+='\n--- complete generation stdout/stderr log ---\n'+log.read_text(encoding='utf-8',errors='replace')
+        _fail_target(row,task,error,journal,progress,detail)
+        print(json.dumps({'event':'target_error','target_id':row['target_id'],'error':str(error),
+                          'error_file':str(progress.path(row['key'],'error'))}),flush=True)
+        if not isinstance(error,Exception) or not cfg.continue_on_error:raise
+        return False
 
 
 def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flush_archives=False):
@@ -205,78 +239,45 @@ def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flus
           'batches_per_target':cfg.samples//cfg.batch_size,'objective':'target predicted affinity','arms':['single'],
           'selection_window':[cfg.window_start,cfg.window_end],'integration_end':1.,'compress':cfg.compress,
           'archive_every_targets':cfg.archive_every,'remove_archived_targets':cfg.compress and cfg.remove_archived_targets,
+          'generation_progress':str(root/'generation_progress'),'progress_format':PROGRESS_FORMAT,
+          'skip_markers':['running','finished','error'],
           'generator_script':str(script),'first_job_config':asdict(inner),'targets':selected}
     if dry_run:return plan
-    state_path=root/'campaign_state.json'
-    if root.exists() and any(root.iterdir()) and not state_path.is_file():raise FileExistsError('Collection output is not owned by this controller')
     root.mkdir(parents=True,exist_ok=True)
-    with exclusive_lock(root/'.target_campaign.lock'):
-        configuration=json.loads(json.dumps(asdict(cfg)))
-        if state_path.exists():
-            state=read_json(state_path)
-            if state.get('format')!=FORMAT or state['config']!=configuration or state['catalog']!=selected:
-                raise ValueError('Resume configuration or target input hashes changed; use a new output collection')
-        else:
-            state={'format':FORMAT,'config':configuration,'catalog':selected,'status':'running','archives':[],
-                   'targets':{r['target_id']:{'state':'pending','attempts':[]} for r in selected}}
-            atomic_json(root/'targets_resolved.json',{'format':CATALOG_FORMAT,'dataset':cfg.input_dataset,'targets':selected})
-            atomic_json(state_path,state)
-        for item in state['archives']:
-            verify_target_archive(root/item['path'],item['metadata'])
-            if item['retirement']=='pending':
-                directories={k:root/p for k,p in item['directories'].items()}
-                item['retirement']=retire_archived_directories(root/item['path'],item['metadata'],directories,owned_root=root/'targets')
-                atomic_json(state_path,state)
-        executed=0
-        for row in selected:
-            record=state['targets'][row['target_id']]
-            if record['state']=='archived':continue
-            if record['state']=='complete':
-                _result(root/record['dataset'],cfg,row)
-            elif record['state']=='failed' and not retry_failed:
-                continue
-            else:
-                if max_targets is not None and executed>=max_targets:break
-                executed+=1
-                # A fully finished child can be collected after parent interruption.
-                if record.get('dataset') and (root/record['dataset']/'learning_dataset_manifest.json').is_file() and read_json(root/record['dataset']/'learning_dataset_manifest.json').get('state')=='complete':
-                    record.update(state='complete',summary=_result(root/record['dataset'],cfg,row))
-                    atomic_json(state_path,state)
-                else:
-                    number=len(record['attempts'])+1
-                    job=root/'jobs'/row['key']/f'attempt_{number:03d}';job.mkdir(parents=True)
-                    output=root/'targets'/(row['key'] if number==1 else row['key']+f'__attempt_{number:03d}')
-                    input_manifest=job/'pocket_inputs.json'
-                    atomic_json(input_manifest,{'format':INPUT_FORMAT,'files':{role:str(Path(cfg.input_dataset)/value['path']) for role,value in row['files'].items()}})
-                    child=_job_config(cfg,row,output,input_manifest).resolved()
-                    path=job/'generation.json';atomic_json(path,asdict(child))
-                    command=[sys.executable,'-u',str(script),'--config',str(path)]
-                    attempt={'number':number,'config':path.relative_to(root).as_posix(),'log':(job/'generation.log').relative_to(root).as_posix(),'command':command,'state':'running'}
-                    record['attempts'].append(attempt);record.update(state='running',dataset=output.relative_to(root).as_posix())
-                    atomic_json(state_path,state)
-                    print(json.dumps({'event':'target_start','target_id':row['target_id'],'attempt':number}),flush=True)
-                    try:
-                        for value in row['files'].values():
-                            if digest(Path(cfg.input_dataset)/value['path'])!=value['sha256']:
-                                raise ValueError('Target input changed during this campaign')
-                        run_target_job(command,job/'generation.log',cfg.runtime_environment)
-                        record.update(state='complete',summary=_result(output,cfg,row));attempt['state']='complete'
-                    except BaseException as error:
-                        attempt.update(state='failed',error=str(error));record.update(state='failed',error=str(error))
-                        atomic_json(state_path,state);_emit_reports(root,state)
-                        if not isinstance(error,Exception) or not cfg.continue_on_error:raise
-                    atomic_json(state_path,state)
-            waiting=[r for r in selected if state['targets'][r['target_id']]['state']=='complete']
-            if cfg.compress:
-                while len(waiting)>=cfg.archive_every:
-                    _publish_group(root,cfg,state,waiting[:cfg.archive_every]);waiting=waiting[cfg.archive_every:]
-            _emit_reports(root,state)
-        waiting=[r for r in selected if state['targets'][r['target_id']]['state']=='complete']
-        exhausted=all(r['state'] in ('complete','archived','failed') for r in state['targets'].values())
-        if cfg.compress and waiting and (exhausted or flush_archives):_publish_group(root,cfg,state,waiting)
-        state['status']='complete' if all(r['state'] in ('complete','archived') for r in state['targets'].values()) else ('partial_failure' if exhausted else 'pending')
-        atomic_json(state_path,state);_emit_reports(root,state)
-        return read_json(root/'results_summary.json')
+    progress=TargetProgress(root,selected)
+    journal=CampaignJournal(root,json.loads(json.dumps(asdict(cfg))),selected,progress,FORMAT)
+    archive=TargetArchiveCoordinator(root,cfg,journal,progress)
+    worker={'id':uuid.uuid4().hex,'pid':os.getpid(),'host':socket.gethostname()}
+    stats={'identity':worker,'claimed':0,'finished':0,'errors':0,'skipped':0,'skipped_markers':{s:0 for s in ('running','finished','error')}}
+    if retry_failed:
+        print(json.dumps({'event':'retry_failed_ignored','reason':'Existing error markers always skip; review and explicitly reset a target before retrying'}),flush=True)
+    archive.run()  # repair a reserved group/retirement without an inference lock
+    counts=progress.counts()
+    if not counts['available']:
+        stats['skipped']=len(selected)
+        stats['skipped_markers']={s:counts[s] for s in stats['skipped_markers']}
+        queue=[]
+    else:queue=selected
+    for row in queue:
+        if max_targets is not None and stats['claimed']>=max_targets:break
+        task,markers=_claim_target(root,cfg,row,script,journal,progress,worker)
+        if task is None:
+            stats['skipped']+=1
+            for suffix in markers:stats['skipped_markers'][suffix]+=1
+            print(json.dumps({'event':'target_skipped','target_id':row['target_id'],'markers':markers}),flush=True)
+            continue
+        stats['claimed']+=1
+        succeeded=_run_target(cfg,row,task,journal,progress,worker)
+        stats['finished' if succeeded else 'errors']+=1
+        archive.run()
+    archive.run(flush=flush_archives)
+    result=journal.summary();stats['no_available_targets']=stats['claimed']==0
+    if stats['no_available_targets']:
+        print(json.dumps({'event':'no_available_targets','message':'All selected targets have running, finished or error markers; no inference was started',
+                          'progress':progress.counts()}),flush=True)
+    result['worker']=stats
+    atomic_json(progress.root/'workers'/f"{worker['id']}.json",stats)
+    return result
 
 
 def main(argv=None):
@@ -290,7 +291,9 @@ def main(argv=None):
     p.add_argument('--compress',action=argparse.BooleanOptionalAction,default=None)
     p.add_argument('--remove-archived-targets',action=argparse.BooleanOptionalAction,default=None)
     p.add_argument('--continue-on-error',action=argparse.BooleanOptionalAction,default=None)
-    p.add_argument('--max-targets',type=int);p.add_argument('--retry-failed',action='store_true');p.add_argument('--flush-archives',action='store_true')
+    p.add_argument('--max-targets',type=int)
+    p.add_argument('--retry-failed',action='store_true',help='Deprecated; never bypasses existing error markers')
+    p.add_argument('--flush-archives',action='store_true')
     p.add_argument('--dry-run',action='store_true');a=p.parse_args(argv)
     values=read_json(a.config) if a.config else {}
     run_keys={'config','dry_run','max_targets','retry_failed','flush_archives'}
@@ -298,7 +301,7 @@ def main(argv=None):
     result=run_campaign(TargetCampaignConfig(**values),dry_run=a.dry_run,max_targets=a.max_targets,
                         retry_failed=a.retry_failed,flush_archives=a.flush_archives)
     print(json.dumps(result,ensure_ascii=False,indent=2))
-    if not a.dry_run and result['status']=='partial_failure':raise SystemExit(2)
+    if not a.dry_run and result['status'] in ('partial_failure','archive_error','markers_only'):raise SystemExit(2)
 
 
 if __name__=='__main__':main()

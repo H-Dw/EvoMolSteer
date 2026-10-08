@@ -1,0 +1,38 @@
+{
+  "schema_version": "steer-target-progress-validation-1.0",
+  "date": "2026-10-09",
+  "platform": "Windows",
+  "model_inference_executed": false,
+  "unique_local_tests_passed": 72,
+  "runs": [
+    {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_target_concurrency.py tests/test_target_campaign.py tests/test_target_archive.py tests/test_steer_learning.py tests/test_online_storage.py tests/test_storage_lossless.py tests/test_generation_instrumentation.py tests/test_generation_batches.py tests/test_selection_scope.py -q --disable-warnings --maxfail=1",
+      "passed": 70,
+      "seconds": 101.4,
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/Scripts/python.exe -m pytest tests/test_target_concurrency.py::test_legacy_campaign_backfills_finished_and_complete_error_log tests/test_target_concurrency.py::test_progress_api_rejects_keys_that_escape_the_marker_directory -q --disable-warnings --maxfail=1",
+      "passed": 2,
+      "seconds": 2.88,
+      "exit_code": 0
+    }
+  ],
+  "contracts": [
+    "Four real processes claim one target exactly once with an empty running/finished marker",
+    "Two real controller processes enter different CPU fixture jobs simultaneously and merge 2+2 target archives without duplicate execution or lost state",
+    "Existing running, finished and error markers all skip; an all-marked queue starts no inference",
+    "A competing finished marker becomes error with the competition reason, complete traceback and child log",
+    "Incomplete archive groups are not flushed while another target is running",
+    "Published archive reservation recovers after interruption without regenerating candidates",
+    "Failed targets skip even with the old retry option; only explicit marker reset permits a new attempt",
+    "Legacy states migrate without inference; retained child failure logs are preserved",
+    "Unsafe marker keys are rejected; archives restore retained bytes and protect biological inputs"
+  ],
+  "archive_unit": "finished target jobs, default 10 targets per archive",
+  "progress_directory": "<output_dataset>/generation_progress",
+  "limitations": [
+    "A force-killed process leaves running occupied until explicit inspection/reset",
+    "Workers choose devices through their launch environment; no automatic GPU allocation"
+  ]
+}

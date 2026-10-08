@@ -1,10 +1,15 @@
 """Durable, narrowly scoped file publication and retirement for generated data."""
 from contextlib import contextmanager
 import json
+import errno
 import os
 from pathlib import Path
 import uuid
 from ..io import clean,digest
+
+
+class WriterBusyError(RuntimeError):
+    """A nonblocking OS lock is held by another cooperating writer."""
 
 
 def atomic_json(path,value):
@@ -18,7 +23,7 @@ def atomic_json(path,value):
 
 
 @contextmanager
-def exclusive_lock(path):
+def exclusive_lock(path,*,blocking=False):
     """OS locks release on process death; the one-byte lock file stays reusable."""
     path = Path(path)
     path.parent.mkdir(parents=True,exist_ok=True)
@@ -31,13 +36,21 @@ def exclusive_lock(path):
         try:
             if os.name=='nt':
                 import msvcrt
-                msvcrt.locking(handle.fileno(),msvcrt.LK_NBLCK,1)
+                import time
+                while True:
+                    try:
+                        msvcrt.locking(handle.fileno(),msvcrt.LK_NBLCK,1)
+                        break
+                    except OSError as error:
+                        if not blocking or error.errno not in (errno.EACCES,errno.EAGAIN,errno.EDEADLK):raise
+                        time.sleep(.05)
             else:
                 import fcntl
-                fcntl.flock(handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+                fcntl.flock(handle.fileno(),fcntl.LOCK_EX|(0 if blocking else fcntl.LOCK_NB))
             acquired=True
         except OSError as error:
-            raise RuntimeError('Another writer owns '+str(path)) from error
+            if error.errno not in (errno.EACCES,errno.EAGAIN,errno.EDEADLK):raise
+            raise WriterBusyError('Another writer owns '+str(path)) from error
         yield
     finally:
         if acquired:

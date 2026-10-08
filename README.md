@@ -150,6 +150,8 @@ seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生
 
 `scripts/run_steer_targets.py` 自动发现 target、生成独立配置并调用已有 Steer 入口。默认每 target 1000候选（10批×100）、seed42、选择窗口 `[0,0.5]`；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。可关闭压缩、修改分组大小或保留工作目录；已归档 target 可单独恢复供 LLM 读取评分事件。
 
+多个相同配置的worker可以共享输出目录。`generation_progress/<target_key>.running` 通过原子创建领取任务；成功转为 `.finished`，异常或重复完成竞争转为 `.error` 并保存完整诊断。三种标记均跳过；没有可领取target时直接结束。推理与压缩不占用共享状态锁，归档单独互斥；已有 `.error` 不会自动重试。
+
 - [控制流程、参数、实测压缩比例与恢复接口](docs/steer_target_campaign.md)
 - [CrossDocked 100-target 配置](configs/generation_crossdocked100_steer.json)、[通用配置](configs/generation_target_collection.example.json)、[显式输入清单](configs/target_collection.example.json)
 - 当前服务器入口：`bash scripts/scnet_steer_targets.sh`；归档读取：`scripts/verify_steer_target_archive.py`。

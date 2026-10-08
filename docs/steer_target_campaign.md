@@ -1,6 +1,6 @@
 # 多 target 单目标 Steer 生成与分组 tar.gz 归档
 
-入口 `scripts/run_steer_targets.py` 顺序调用现有 `scripts/generate_steer_learning.py`：发现 target → 写入该 target 的输入清单和生成配置 → 执行 FLOWR.ROOT → 校验并收集完整结果 → 达到配置的 target 数后归档。每个任务只传递 `arms=["single"]`，只优化自己的 target predicted affinity，没有 CK2/CLK3 联合选择或坐标梯度。
+入口 `scripts/run_steer_targets.py` 支持多个worker以相同配置、同一输出目录并行运行。每个worker依次领取可用target，调用现有 `scripts/generate_steer_learning.py`：发现 target → 原子创建运行标记 → 写入输入清单和生成配置 → 执行 FLOWR.ROOT → 校验完整结果并发布完成标记 → 达到配置的 target 数后归档。每个任务只传递 `arms=["single"]`，只优化自己的 target predicted affinity，没有 CK2/CLK3 联合选择或坐标梯度。
 
 ## 默认运行
 
@@ -46,7 +46,7 @@ python scripts/run_steer_targets.py --config configs/generation_target_collectio
 | `--compression-level` | 6 | gzip等级1–9，数组和文件字节不会量化 |
 | `--remove-archived-targets` / `--no-remove-archived-targets` | 回收 | 校验归档并持久化定位信息后，是否回收这些已生成工作目录 |
 | `--max-targets` | 无限制 | 本次最多执行多少个尚未完成的 target；不改变已冻结的测试集 |
-| `--retry-failed` | 关闭 | 为任务级失败创建新 attempt；保留旧失败诊断，不覆盖旧输出 |
+| `--retry-failed` | 旧选项 | 保留命令行兼容性，但忽略该选项；不能绕过 `.error` 标记 |
 | `--flush-archives` | 关闭 | 主动打包当前不足整组的已完成 target |
 | `--continue-on-error` | 开启 | 记录失败任务并继续其他 target；最终有失败时退出码为2 |
 
@@ -72,6 +72,27 @@ bash scripts/scnet_steer_targets.sh --no-remove-archived-targets
 
 同一配置重新运行会跳过已完成/归档的 target。`--max-targets` 中途停止后不足10个的工作组暂存，下一次运行继续积累；完成整个队列时会打包最后不足10个的组。任务级失败不计入成功归档组，但目标内部的分子构建失败属于完整结果，应随该 target 一起归档。输入清单、文件哈希或核心配置改变时，要求使用新的输出集合。
 
+## 并行领取与进度文件
+
+进度保存在输出根目录 `generation_progress/`，每个target使用一个状态文件。安全的单段ID直接作为文件名；CrossDocked的ID包含目录分隔符，因此使用现有 `target_key` 转换为单段文件名，完整ID与文件名的映射保存在 `generation_progress/targets.json` 和 `targets_resolved.json`。例如 `A` 对应 `A.running`，复杂ID对应 `<target_key>.running`。
+
+- 新target的第一项任务操作是以 `O_CREAT|O_EXCL` 原子创建空的 `.running` 文件，然后才创建该target的job/config目录并启动推理；同时竞争的worker只有一个能创建成功。
+- 存在 `.running`、`.finished` 或 `.error` 中任何一种，就跳过该target。`.running` 不根据时间自动抢占，`.error` 不自动重试。
+- 全部批次、终末结果、失败槽位及输入校验完成后，将空 `.running` 转为 `.finished`。完成标记在tar.gz归档与工作数据回收后仍保留。
+- 出现异常时转为 `.error`，保存worker、target和attempt信息、完整Python异常链，以及完整生成日志（stdout/stderr）。默认继续下一个target。模型构建失败的候选槽位属于正常完整结果，不会单独把整个target标成 `.error`。
+- 完成时若已存在同一target的 `.finished`，将它转为 `.error`，写入重复执行竞争原因及完整诊断。正常完成采用无覆盖的发布操作，也会检测在发布瞬间新出现的 `.finished`。
+- 全部target已有状态标记时，输出 `no_available_targets` 及running/finished/error计数，不启动推理；不等待其他worker完成。旧集合的完成、失败或运行状态会一次性迁移为相应标记。
+
+共享状态JSON只在短事务中持有 `.target_campaign.lock`；推理期间不持有此锁。归档使用独立的 `.target_archive.lock`，保证每个包仅由一个worker发布，其他worker可继续领取、推理并提交结果。包的target成员在压缩前写入 `archive_pending`，中断后按同一成员列表恢复；压缩、逐字节验证和回收不持有共享状态锁。默认依然是每 **10个完成的target** 一个包，计数不受worker数量或batch数量影响；还有 `.running` 时不会把不足10个的组误当作队列末尾归档，显式 `--flush-archives` 除外。
+
+可在多个终端运行同一条命令：
+
+```bash
+bash scripts/scnet_steer_targets.sh
+```
+
+所有worker需使用同一代码版本、配置和输出目录；如使用多块GPU，各进程在启动环境中选择自己的设备，本控制器不自动分配GPU。进程被强制终止时可能留下 `.running`，可从 `campaign_state.json` 中查看该attempt的worker PID、主机与日志；确认任务已经停止后再人工检查并移走标记。要重试 `.error`，先保留并审核其诊断，再显式移走该标记；新执行会创建新的attempt，不覆盖旧失败输出。保留或迁移旧集合不会启动额外推理。
+
 ## 输出与完整性
 
 ```text
@@ -79,6 +100,12 @@ bash scripts/scnet_steer_targets.sh --no-remove-archived-targets
   targets_resolved.json
   campaign_state.json
   results_summary.json
+  generation_progress/
+    targets.json                      # target_id -> 文件名使用的target_key
+    <target_key>.running              # 推理中，空文件
+    <target_key>.finished             # 全部结果校验完成，空文件
+    <target_key>.error                # 异常/竞争的完整诊断
+    workers/<worker_id>.json          # 本次执行的领取/跳过/完成数量
   jobs/<target_key>/attempt_001/
     pocket_inputs.json, generation.json, generation.log
   targets/<target_key>/                 # 尚未归档或选择保留的完整数据集
@@ -144,3 +171,5 @@ python scripts/read_steer_event.py \
 最终相关回归为 **86项通过**。远端拉取代码后完成真实目录 dry-run：100个独立配对、全部输入哈希与审计记录一致，单目标、seed=42、0–0.5选择窗口、推理到1.0、每10个 target 归档配置均确认；未创建生成输出或启动GPU推理。记录见 `docs/crossdocked_steer_campaign_20261008/remote_dry_run.json`。该目录包含93个蛋白目录，其中7个各有两组复合物，因此采用相对配对路径区分任务，不能按目录合并成93个任务。
 
 2026-10-09默认批次调整后的相关22项测试通过，远端已拉取并验证每 target 为1000候选、每批100、共10批，全部100组输入哈希一致。归档间隔仍为10个 target，未启动新GPU生成；该划分与旧20批×50的质量比较尚未进行。新验证见 `docs/crossdocked_steer_campaign_20261008/batch100_remote_dry_run_20261009.json`，上方历史压缩测量与旧验证记录保持原始50候选批次语义。
+
+2026-10-09并行控制改进共通过72项本地相关测试（70项回归＋2项旧集合迁移/路径保护测试），包含真实多进程争抢同一target、两个控制器同时进入不同CPU记录夹具任务、并行归档合并、完整异常与竞争诊断，以及已发布归档的中断恢复。这些是控制器与存储测试，没有启动FLOWR GPU推理；记录见 `docs/crossdocked_steer_campaign_20261008/concurrency_tests_20261009.json`。
