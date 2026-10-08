@@ -44,7 +44,13 @@ def audit(event_table, mining_manifest, output, seed=42):
               'whole_window_batch_weighted_offspring_difference': float(effects.mean()),
               'batch_bootstrap_CI95': np.quantile(boot, [.025, .975]).tolist(),
               'batch_integrated_offspring_differences': dict(zip(map(str, batches), effects.tolist())),
+              'final_cohort_weight_effective_n': {
+                  name: {'min': float(valid[name].min()), 'median': float(valid[name].median()),
+                         'max': float(valid[name].max()),
+                         'observed_events_below_partition_minimum_3': int((valid[name] < 3 - 1e-9).sum())}
+                  for name in ['positive_effective_n', 'negative_effective_n']},
               'semantics': 'Root-balanced cohort offspring expectations; not survival probability or terminal success.',
-              'limitation': 'Online labels and offspring use the same selection mechanism; this audits correspondence, not an independent affinity benefit.'}
+              'limitations': ['Online labels and offspring use the same selection mechanism; this audits correspondence, not an independent affinity benefit.',
+                  'The partition checks root-balanced ESS before hard reweighting. Final hard-control ESS can be lower; recorded below without retrospectively changing the frozen experiment.']}
     write_json(output, result)
     return result
