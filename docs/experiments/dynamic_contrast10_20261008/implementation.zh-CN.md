@@ -26,6 +26,8 @@
 
 初始七项候选：L00距离减小/3Å壳层密度增加；L03距离增加/3Å与5Å壳层密度下降；L04距离减小；L12的3Å壳层密度下降。L04、L12的批次一致性较弱，是待实验验证的假设，不能据此指定真实化学作用。完整效应、区间、q值、原始曲线与拟合函数见rest_mining。
 
+额外坐标注释将L00映射到Val53 CG1、L03到Asp120 OD1、L04到Glu114 CD、L12到Glu55 OE1，均与参考PDB原子坐标精确重合。该注释帮助定位区域，不证明相互作用；初始Analyst/Designer调用没有使用这些事后添加的残基标签。壳层密度上升也不等于所有原子向landmark移动：原子位于壳层峰值内侧或外侧时，局部梯度方向不同。
+
 ## Analyst、Designer与可微函数
 
 Analyst读取基础Skill、通用dynamic-cohort-contrast模块和冻结的证据包，区别质量、选择、缺失未来、谱系依赖和空间场含义。Designer读取Analyst响应、相同证据、已验证R26及执行合同，提出注册的坐标标量。指令、输入、响应分别保存SHA并核验；响应确实解释了695/700覆盖、家族依赖、七项字段、常数趋势及相反证据。此检查是一次真实sub-agent调用的绑定与证据一致性检查，不是反事实Skills消融。
@@ -56,6 +58,8 @@ python scripts/mine_dynamic_regions.py --dataset DATASET --campaign CAMPAIGN
   --incumbent-reference REFERENCE.json.gz --output ANALYSIS_DIR
 python scripts/audit_dynamic_selection.py --events ANALYSIS_DIR/event_cohorts.parquet
   --manifest ANALYSIS_DIR/manifest.json --output SELECTION_AUDIT.json
+python scripts/annotate_reward_landmarks.py --reference REFERENCE.json.gz
+  --receptor EXACT_RECEPTOR.pdb --output LANDMARK_ANNOTATIONS.json
 python scripts/prepare_dynamic_agent_inputs.py --repo . --role Analyst
 python scripts/prepare_dynamic_agent_inputs.py --repo . --role Designer
 python scripts/run_dynamic_contrast_campaign.py --start 1 --last 10
