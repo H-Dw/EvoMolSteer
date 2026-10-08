@@ -17,9 +17,16 @@ def conditional_formula_audit(program,reference):
     null=dict(p);null['innovation']={}
     old=EndpointGeometryReward(baseline,r);new=InnovationReward(p,r) if p['reward_view']=='endpoint_innovation' else old
     empty=InnovationReward(null,r);records=[]
-    ids=sorted(set([0,len(r['times'])//2,len(r['times'])-1]))
+    # Sparse supported directions can occur anywhere in the learned window.
+    # Testing three fixed nodes can falsely label an implemented field inactive.
+    ids=range(len(r['times']))
     for i in ids:
-        f=r['frames'][i];x=torch.tensor(np.asarray(f['teacher_endpoint_A'])[:4]+.1,dtype=torch.float32,requires_grad=True)
+        f=r['frames'][i];clouds=np.asarray(f['teacher_endpoint_A'])
+        probe_ids=list(range(min(3,len(clouds))))
+        if 'teacher_contrast_confidence' in f:
+            probe_ids.append(int(np.argmax(f['teacher_contrast_confidence'])))
+        probe_ids=sorted(set(probe_ids))
+        x=torch.tensor(clouds[probe_ids]+.1,dtype=torch.float32,requires_grad=True)
         mask=torch.ones(x.shape[:2],dtype=torch.bool);atoms=torch.zeros_like(mask,dtype=torch.long);anchor=x.detach()
         a,_=old(x,atoms,mask,r['times'][i],anchor);b,_=new(x,atoms,mask,r['times'][i],anchor);c,_=empty(x,atoms,mask,r['times'][i],anchor)
         ga,=torch.autograd.grad(a.sum(),x);gb,=torch.autograd.grad(b.sum(),x);gc,=torch.autograd.grad(c.sum(),x)
