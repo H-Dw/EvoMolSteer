@@ -26,12 +26,16 @@ def write_report(input_dataset, configuration_dataset, output_dataset):
         raise ValueError('Adoption and independent integrity must agree')
     frozen = read_json(source / 'frozen_validation.json')
     selected = frozen['selected_round']
+    active = read_json(configuration / 'active_workflow.json')
     output.mkdir(parents=True, exist_ok=True)
     inputs = {str(p): digest(p) for p in [configuration / 'campaign.json', source / 'confirmation.json',
               source / 'confirmation_integrity.json', source / 'frozen_validation.json', source / 'protocol.json']}
-    for p in [configuration / f'round{selected:02d}.json', source / 'checkpoint_metadata.json',
+    for p in [configuration / f'round{selected:02d}.json', configuration / 'active_workflow.json',
+              configuration / 'active_program.json', configuration / 'active_skills.json', source / 'checkpoint_metadata.json',
               source / 'runtime_architecture_addendum.zh-CN.md', source / 'scientific_design.zh-CN.md']:
         inputs[str(p)] = digest(p)
+    if (source / 'activation.json').is_file():
+        inputs[str(source / 'activation.json')] = digest(source / 'activation.json')
     for family in ['joint_contrast_v2', 'branch_mutation_v2', 'multi_depth_v1', 'regional_reference_v2']:
         for p in (source / 'mining' / family).rglob('*'):
             if p.is_file() and p.name != 'augmented_reference.json.gz':
@@ -54,6 +58,7 @@ def write_report(input_dataset, configuration_dataset, output_dataset):
         lines += ['', f'候选相对{label}：配对均值差 {effect["paired_mean_pic50"]:+.6f}，六批 bootstrap 95% 区间 [{low:+.6f}, {high:+.6f}]。']
     lines += ['', f'独立完整性审核通过：{integrity["integrity_passed"]}；可用于效果决策：{integrity["eligible_for_efficacy_decision"]}。',
         f'预登记升级条件全部满足：{adopted}。'+('候选具备升级证据；实际默认切换需以代码中的活动配置为准。' if adopted else '候选未获确认，生产默认保留 R26；失败试验与代码记录仍保留。'), '',
+        f'实际活动配置：{active["default"]}；candidate_enabled={active["candidate_enabled"]}；奖励 SHA={digest(configuration / "active_program.json")}。', '',
         '检验采用批次为重采样单位，不能把 300 个后代当作 300 次独立实验。应变只统计有效且 MMFF 优化收敛的分子，是生成构象到同图松弛构象的能量差代理，表中单列覆盖；不是全部尝试均有物理能量。指标来自同一预测亲和力模型及构象检查，尚无实验结合常数验证。', '',
         '## 与历史 Steer 的关系', '']
     steer = confirmation['historical_Steer_unpaired']
