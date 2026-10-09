@@ -1,0 +1,20 @@
+{
+  "role": "Designer",
+  "condition": "D2_without_trajectory",
+  "family": "structure",
+  "updates": {
+    "ligand_anchor_weight": 0.5,
+    "contact_weight": 0.1,
+    "repulsion_weight": 1,
+    "native_rms_ratio": 0.33,
+    "time_ramp_power": 0
+  },
+  "rationale": "Select structure as a prospective geometry hypothesis. The ligand anchor targets the original 25-heavy-atom bound ligand; anisotropic support motivates testing it, without generated-state enrichment or affinity evidence. Contact and repulsion target the original receptor crop; 3.6 A and 2 A thresholds come from the registry, not measured optima. Modest anchor/contact weights are exploratory choices, and repulsion strength is uncalibrated. No generated Steer clouds, scores, or trajectory are required; static is unsupported because its teacher coordinates are absent. Preserve native_rms_ratio 0.33 for protocol comparability and use a constant schedule because no stage preference is supported. Execute FLOWR endpoint VJP with detached Hungarian correspondence, not temporal derivatives. Relative component weights can alter direction; whole-reward scaling may cancel after gradient normalization. Final predicted pIC50, strain, displacement, and graph transitions must determine effectiveness.",
+  "failure_modes": [
+    "Original-ligand anchoring may bias generated size or shape and restrict useful graph transitions; detached assignment can switch discontinuously.",
+    "Untyped centre-distance contacts can reward geometrically close but chemically unfavorable poses and do not establish binding energy or affinity.",
+    "No supplied original-pose distances activate the sub-2 A penalty; repulsion weight 1 has no calibration from generated clashes.",
+    "Geometry improvement may fail to improve final predicted pIC50 or may increase strain; no outcome comparison supports effectiveness.",
+    "Constant scheduling and relative weights are prospective controls; missing trajectories cannot justify stage emphasis."
+  ]
+}

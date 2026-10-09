@@ -1,0 +1,20 @@
+{
+  "role": "Analyst",
+  "condition": "D4_pocket_only",
+  "findings": [
+    {"evidence_id": "structure:protein_crop", "finding": "The supplied receptor crop contains 308 heavy atoms within a reported 12 A radius around centroid [23.353, -30.938, 13.330] A; no atom coordinates or residue identities are provided."},
+    {"evidence_id": "structure:protein_crop", "finding": "Reported nearest protein-neighbor distance quantiles are 1.226, 1.371 and 3.896 A. These describe receptor geometry, not ligand contacts or ligand clashes; short values can include bonded neighbors."},
+    {"evidence_id": "structure:geometry", "finding": "There are no affinity labels or generated Steer observations. The available receptor summary supports geometric hypotheses but no association between steering parameters and target pIC50."}
+  ],
+  "directions": [
+    "Geometric hypothesis: compare contact_weight 0, 0.1, 0.25 and 0.5 with other settings fixed to test whether contact attraction improves occupancy without excessive crowding; no optimum is established.",
+    "Geometric hypothesis: compare repulsion_weight 0.5, 1, 2 and 4 at a fixed contact weight, measuring generated ligand-protein clashes and strain to assess the contact/repulsion tradeoff.",
+    "Control-strength hypothesis: compare native_rms_ratio 0.1, 0.2 and 0.33, then time_ramp_power 0, 1 and 2, changing one key at a time under the supplied protocol and assessing final predicted pIC50, strain and graph transitions."
+  ],
+  "limitations": [
+    "Aggregate crop statistics cannot resolve pocket accessibility, contact sites, chemical complementarity or per-atom force directions.",
+    "The pocket field is an untyped geometric proxy; improved contacts or fewer clashes do not establish improved affinity.",
+    "No ligand reward template, generated candidates, historical comparisons or affinity labels are supplied; enrichment, survival and temporal trends cannot be estimated.",
+    "Directions are untested hypotheses. Single-seed comparisons are exploratory; there is no evidence-based winner. Only the four pocket-supported update keys apply."
+  ]
+}

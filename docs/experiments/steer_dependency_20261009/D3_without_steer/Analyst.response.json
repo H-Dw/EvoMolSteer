@@ -1,0 +1,38 @@
+{
+  "role": "Analyst",
+  "condition": "D3_without_steer",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original 25-heavy-atom ligand is flattened and anisotropic: covariance eigenvalues are 0.111, 5.696 and 9.303 A^2. Its centroid is (22.817, -29.983, 14.470) A; this supplies a geometric anchor, without chemical or affinity support."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "Reported ligand-to-protein nearest-distance quantiles span 2.858–4.005 A. The original pose's reported minimum exceeds the field's 2 A repulsion threshold; this does not establish clash behavior for generated poses."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "LEU45, ILE174 and VAL66 have 10, 9 and 9 ligand atoms within 4.5 A. These observations support testing distributed occupancy around the original pose, without establishing preferred interactions."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "Contact proxies disagree in emphasis: PHE113 has the largest displayed Gaussian contact sum (18.712) but only 6 ligand atoms within 4.5 A; LEU45 has 10 such atoms and a sum of 16.926. Neither metric identifies an affinity-optimal region."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The local receptor crop contains 308 heavy atoms within the stated 12 A crop and has centroid (23.353, -30.938, 13.330) A. It supports a local receptor-distance field; it supplies no comparison of generated outcomes."
+    }
+  ],
+  "directions": [
+    "Test structure versus pocket with matched shared settings; use a declared structure anchor weight such as 1. This tests the original ligand's geometric constraint, with no evidence-backed winner.",
+    "Sweep contact_weight over allowed values while holding other settings fixed; record regional coverage and nearest-distance distributions. More Gaussian-shell contact is a geometric hypothesis, not an affinity result.",
+    "Within structure, compare ligand_anchor_weight 0.5, 1 and 2; assess pose proximity and whether stronger shape constraints restrict graph transitions. The observed ligand shape motivates this test but does not select a weight.",
+    "Test repulsion_weight and time_ramp_power in separate controlled sweeps using their allowed values; measure generated distances below 2 A and final geometric occupancy. Original static coordinates cannot select either setting."
+  ],
+  "limitations": [
+    "No generated Steer trajectories, affinity labels or outcome comparisons are supplied; enrichment, selection survival, temporal trends and pIC50 gains cannot be estimated.",
+    "Contacts are untyped distances and Gaussian shells, without interaction energies, atom chemistry or strain evidence; they cannot rank affinity or establish hydrogen bonds.",
+    "Only summaries and 10 of 53 contact regions are supplied. Per-atom correspondences, ligand eigenvectors and complete regional coverage are unavailable.",
+    "The local static crop does not establish receptor flexibility, solvent effects or the feasibility of new graph transitions."
+  ]
+}

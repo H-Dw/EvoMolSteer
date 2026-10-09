@@ -1,0 +1,38 @@
+{
+  "role": "Analyst",
+  "condition": "D2_without_trajectory",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original 25-heavy-atom bound ligand has strongly anisotropic, approximately planar spatial support: covariance eigenvalues are 0.111, 5.696 and 9.303 A^2. This supports a shape-anchoring hypothesis, not evidence of generated-state enrichment or higher affinity."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "Displayed original-pose contact regions include LEU45 with 10 ligand atoms within 4.5 A, and ILE174 and VAL66 with 9 each. These are candidate geometric neighborhoods; counts do not establish favorable interactions or selection survival."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "PHE113 has the largest displayed proxy contact sum (18.71), despite fewer nearby ligand atoms than LEU45. Atom counts and shell sums give different geometric rankings, and region sizes differ; neither ranking identifies an affinity optimum."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "Supplied nearest-protein distance quantiles span 2.858-4.005 A. The original pose therefore provides no positive example of the formula's sub-2 A repulsion penalty; it cannot determine how strongly generated poses need repulsion."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The receptor crop contains 308 heavy atoms within a stated 12 A radius and supplies spatial context for pocket guidance. Its geometry alone provides no historical enrichment, trajectory-stage trend or outcome comparison."
+    }
+  ],
+  "directions": [
+    "Compare registered pocket, structure and static formulas under the common seed 42, 100 steps, window [0.0, 0.5] and native_rms_ratio 0.33; evaluate final predicted pIC50 and secondary strain before ranking them.",
+    "For structure, vary ligand_anchor_weight over [0.5, 1, 2] while holding other settings fixed to test the anisotropic original-ligand shape hypothesis; measure pose displacement alongside pIC50, strain and graph transitions.",
+    "For pocket and structure, vary contact_weight over [0, 0.1, 0.25, 0.5, 1] and repulsion_weight over [0.5, 1, 2, 4] separately first; compare geometric contact and sub-2 A overlap observables with final outcomes.",
+    "For all three formulas, test native_rms_ratio [0.1, 0.2, 0.33] and time_ramp_power [0, 1, 2] as prospective controls. Scheduling choices are experimental hypotheses because no trajectory evidence supports a particular stage emphasis."
+  ],
+  "limitations": [
+    "No affinity labels, generated outcomes, observed group comparisons or historical trajectories are supplied; enrichment, survival and temporal trends are unestimable.",
+    "Contacts are untyped distance proxies from one original bound pose; energies, interaction favorability and target-optimal geometry are unknown.",
+    "Only 10 of 53 original contact regions are displayed; the compression note supplies no usable q-value table.",
+    "Static teacher-cloud dependency is declared, but teacher coordinates and comparisons are absent. Formula effectiveness and optimal settings remain untested."
+  ]
+}

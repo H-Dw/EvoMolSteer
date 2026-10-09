@@ -1,0 +1,21 @@
+{
+  "role": "Designer",
+  "condition": "D3_without_steer",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.25,
+    "ligand_anchor_weight": 1,
+    "native_rms_ratio": 0.33,
+    "repulsion_weight": 1,
+    "time_ramp_power": 0
+  },
+  "rationale": "Choose the registered structure reward as an exploratory geometric hypothesis. The anchor target comes from the original bound ligand; contact and repulsion distances use the original receptor crop. The 3.6 A shell and 2 A cutoff come from the formula registry, not inferred affinity optima. No generated Steer history is required. Static ligand anisotropy and distributed contacts motivate testing pose occupancy, but provide no statistical evidence of pIC50 improvement or a winning family. These declared weights are test settings; retain the matched 0.33 native RMS ratio. Compute spatial guidance through FLOWR endpoint VJP with detached Hungarian correspondence. Component weights alter guidance direction; uniform scalar scaling may cancel under normalization. Compare outcomes before claiming benefit.",
+  "failure_modes": [
+    "Untyped contacts can favor geometric occupancy without improving predicted pIC50 or physical affinity.",
+    "The original ligand anchor can restrict graph transitions or impose an unsuitable shape on different atom counts.",
+    "Detached Hungarian correspondence can switch abruptly or provide unstable guidance for dissimilar generated graphs.",
+    "A 2 A untyped repulsion cutoff does not encode atom-specific steric radii, chemistry, or ligand strain.",
+    "The static receptor crop and partial contact summaries omit flexibility, solvent effects, and complete regional evidence.",
+    "Time derivatives are not spatial gradients; guidance requires the registered endpoint VJP execution path."
+  ]
+}
