@@ -1,0 +1,108 @@
+{
+  "time_utc": "2026-10-09T07:28:32.488519+00:00",
+  "commit": "9d93387e299b1bf48438406a7f0f19e0cfabd162",
+  "default_profile": {
+    "flowr_root": "/root/private_data/MolSteer/flowr_root",
+    "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
+    "python_executable": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+    "input_dataset": "/root/private_data/MolSteer/data/hiqbind_test",
+    "target_manifest": "/root/private_data/MolSteer/data/hiqbind_test/targets.json",
+    "output_dataset": "/opt/MolSteer/generated_datasets/hiqbind_steer_learning_s100_b20_w050",
+    "expected_targets": null,
+    "campaign": "single_w050",
+    "samples": 100,
+    "batch_size": 20,
+    "steps": 100,
+    "window_start": 0.0,
+    "window_end": 0.5,
+    "seed": 42,
+    "storage_codec": "none",
+    "capture_bond_probabilities": false,
+    "compress": true,
+    "archive_every": 10,
+    "compression_level": 6,
+    "remove_archived_targets": true,
+    "continue_on_error": true
+  },
+  "alternative_profile": {
+    "flowr_root": "/root/private_data/MolSteer/flowr_root",
+    "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
+    "python_executable": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+    "input_dataset": "/root/private_data/MolSteer/data/crossdocked_pocket10",
+    "output_dataset": "/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_s100_b20_w050",
+    "expected_targets": 100,
+    "campaign": "single_w050",
+    "samples": 100,
+    "batch_size": 20,
+    "steps": 100,
+    "window_start": 0.0,
+    "window_end": 0.5,
+    "seed": 42,
+    "storage_codec": "none",
+    "capture_bond_probabilities": false,
+    "compress": true,
+    "archive_every": 10,
+    "compression_level": 6,
+    "remove_archived_targets": true,
+    "continue_on_error": true
+  },
+  "default_dry_run": {
+    "command": [
+      "bash",
+      "scripts/scnet_steer_targets.sh",
+      "--dry-run"
+    ],
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "usage: run_steer_targets.py [-h]\n                            [--config CONFIG | --dataset {hiqbind,crossdocked100}]\n                            [--flowr-root FLOWR_ROOT]\n                            [--checkpoint CHECKPOINT]\n                            [--input-dataset INPUT_DATASET]\n                            [--output-dataset OUTPUT_DATASET]\n                            [--python PYTHON_EXECUTABLE]\n                            [--target-manifest TARGET_MANIFEST]\n                            [--expected-targets EXPECTED_TARGETS]\n                            [--campaign CAMPAIGN] [--samples SAMPLES]\n                            [--batch-size BATCH_SIZE] [--steps STEPS]\n                            [--seed SEED] [--window-start WINDOW_START]\n                            [--window-end WINDOW_END]\n                            [--storage-codec {none,gzip_shuffle}]\n                            [--archive-every ARCHIVE_EVERY]\n                            [--compression-level COMPRESSION_LEVEL]\n                            [--compress | --no-compress]\n                            [--remove-archived-targets | --no-remove-archived-targets]\n                            [--continue-on-error | --no-continue-on-error]\n                            [--max-targets MAX_TARGETS] [--retry-failed]\n                            [--flush-archives] [--dry-run]\nrun_steer_targets.py: error: HiQBind needs a prepared test input directory and an explicit target manifest. input_dataset=/root/private_data/MolSteer/data/hiqbind_test; target_manifest=/root/private_data/MolSteer/data/hiqbind_test/targets.json. Provide both --input-dataset and --target-manifest or use a prepared --config. No inference or automatic dataset fallback was started.\n"
+  },
+  "alternative_dry_run": {
+    "command": [
+      "bash",
+      "scripts/scnet_steer_targets.sh",
+      "--dataset",
+      "crossdocked100",
+      "--dry-run"
+    ],
+    "returncode": 0,
+    "catalog_targets": 100,
+    "samples_per_target": 100,
+    "batch_size": 20,
+    "batches_per_target": 5,
+    "selection_window": [
+      0.0,
+      0.5
+    ],
+    "objective": "target predicted affinity",
+    "first_job_config": {
+      "flowr_root": "/root/private_data/MolSteer/flowr_root",
+      "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
+      "input_dataset": "/root/private_data/MolSteer/data/crossdocked_pocket10",
+      "output_dataset": "/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_s100_b20_w050/targets/ABL2_HUMAN_274_551_0_4xli_B_rec_4xli_1n1_lig_tt_min_0_22b55345e3bb",
+      "python_executable": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python3.11",
+      "input_manifest": "/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_s100_b20_w050/jobs/ABL2_HUMAN_274_551_0_4xli_B_rec_4xli_1n1_lig_tt_min_0_22b55345e3bb/pocket_inputs.json",
+      "campaign": "single_w050",
+      "samples": 100,
+      "batch_size": 20,
+      "steps": 100,
+      "window_start": 0.0,
+      "window_end": 0.5,
+      "seed": 42,
+      "arms": [
+        "single"
+      ],
+      "storage_codec": "none",
+      "capture_bond_probabilities": false
+    }
+  },
+  "old_results_absent": true,
+  "old_link_absent": true,
+  "hiqbind_inputs_available": false,
+  "hiqbind_output_exists": false,
+  "crossdocked_alternative_output_exists": false,
+  "old_task_live_processes": [],
+  "checkpoint_exists": true,
+  "crossdocked_inputs_preserved": true,
+  "original_ck2_clk3_preserved": true,
+  "gpu_inference_started": false
+}
