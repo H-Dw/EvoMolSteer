@@ -1,0 +1,101 @@
+{
+  "time_utc": "2026-10-09T07:22:26.777508+00:00",
+  "output_actual": "/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_20261009",
+  "output_entry": "/root/private_data/MolSteer/flowr_root/experiments/crossdocked100_steer_learning",
+  "stopped_processes": [
+    {
+      "pid": 365,
+      "ppid": 1,
+      "state": "S",
+      "start_ticks": "272016025",
+      "argv": [
+        "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+        "-u",
+        "scripts/run_steer_targets.py",
+        "--config",
+        "configs/generation_crossdocked100_steer.json"
+      ]
+    },
+    {
+      "pid": 21085,
+      "ppid": 365,
+      "state": "S",
+      "start_ticks": "276808493",
+      "argv": [
+        "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+        "-u",
+        "/root/private_data/MolSteer/EvoMolSteer/scripts/generate_steer_learning.py",
+        "--config",
+        "/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_20261009/jobs/IMA1_HUMAN_68_497_0_4u5s_A_rec_4u54_3c5_lig_tt_min_0_d3dcb78aa667/attempt_001/generation.json"
+      ]
+    },
+    {
+      "pid": 21088,
+      "ppid": 21085,
+      "state": "S",
+      "start_ticks": "276808791",
+      "argv": [
+        "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python3.11",
+        "-u",
+        "-m",
+        "evomolsteer.generation.steer_worker",
+        "--request",
+        "/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_20261009/targets/IMA1_HUMAN_68_497_0_4u5s_A_rec_4u54_3c5_lig_tt_min_0_d3dcb78aa667/results/single_w050/generation_request.json"
+      ]
+    }
+  ],
+  "config": {
+    "archive_every": 10,
+    "batch_size": 100,
+    "campaign": "single_w050",
+    "capture_bond_probabilities": false,
+    "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
+    "compress": true,
+    "compression_level": 6,
+    "continue_on_error": true,
+    "expected_targets": 100,
+    "flowr_root": "/root/private_data/MolSteer/flowr_root",
+    "input_dataset": "/root/private_data/MolSteer/data/crossdocked_pocket10",
+    "ligand_suffix": ".sdf",
+    "output_dataset": "/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_20261009",
+    "protein_glob": "**/*_pocket10.pdb",
+    "protein_suffix": "_pocket10.pdb",
+    "python_executable": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python3.11",
+    "remove_archived_targets": true,
+    "runtime_environment": {},
+    "samples": 1000,
+    "seed": 42,
+    "steps": 100,
+    "storage_codec": "none",
+    "target_ids": [],
+    "target_manifest": null,
+    "window_end": 0.5,
+    "window_start": 0.0
+  },
+  "target_states": {
+    "failed": 18,
+    "archived": 20,
+    "complete": 7,
+    "running": 1,
+    "pending": 54
+  },
+  "archives": [
+    {
+      "path": "archives/targets_0000.tar.gz",
+      "target_count": 10,
+      "bytes": 724104460
+    },
+    {
+      "path": "archives/targets_0001.tar.gz",
+      "target_count": 10,
+      "bytes": 676415248
+    }
+  ],
+  "forced_kill_pids": [],
+  "disk_bytes_before": 2701328384,
+  "logical_bytes_before": 2694634439,
+  "files_before": 1953,
+  "output_deleted": true,
+  "entry_deleted": true,
+  "owned_processes_remaining": []
+}

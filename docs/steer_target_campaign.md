@@ -4,7 +4,15 @@
 
 ## 默认运行
 
-已读取并确认远端 `/root/private_data/MolSteer/data/crossdocked_pocket10` 有 **100 个口袋/配体配对**，输入文件哈希见 `docs/crossdocked_steer_campaign_20261008/remote_inputs.json`。目录形如：
+当前默认数据集为 **HiQBind**，配置为 `configs/generation_hiqbind_steer.json`。服务器预定输入目录为 `/root/private_data/MolSteer/data/hiqbind_test`，显式测试清单为该目录中的 `targets.json`；2026-10-09检查时尚无这套输入。默认入口会清楚报错并退出，不能把 CrossDocked 输入改名当作 HiQBind，也不会自动切回备选数据。清单沿用 `evomolsteer.target_collection.v1` 格式，每行包含唯一的 `target_id`、相对于输入目录的 `target_protein` 和 `target_ligand`（PDB/SDF）。清单必须来自已确认的测试划分，多个配体/链需使用不同系统ID。
+
+不硬编码 HiQBind 测试系统数；论文图注与源数据清单的数量差异尚未解决，待确认实际测试成员后可用 `--expected-targets` 校验。HiQBind总数据库和论文测试集合不能混用。准备好另一目录时同时覆盖两个输入参数：
+
+```bash
+bash scripts/scnet_steer_targets.sh --input-dataset /path/to/hiqbind_test --target-manifest /path/to/hiqbind_test/targets.json --dry-run
+```
+
+**CrossDocked100为备选**，使用 `--dataset crossdocked100` 或其显式配置。已确认远端 `/root/private_data/MolSteer/data/crossdocked_pocket10` 有 **100 个口袋/配体配对**，输入文件哈希见 `docs/crossdocked_steer_campaign_20261008/remote_inputs.json`。目录形如：
 
 ```text
 crossdocked_pocket10/
@@ -22,6 +30,8 @@ crossdocked_pocket10/
 # 在远端已拉取更新的 EvoMolSteer 仓库内
 bash scripts/scnet_steer_targets.sh --dry-run
 bash scripts/scnet_steer_targets.sh
+# 仅在显式选择备选集合时运行 CrossDocked100
+bash scripts/scnet_steer_targets.sh --dataset crossdocked100 --dry-run
 ```
 
 该主机包装脚本使用已有 FLOWR/DTK 环境；可通过 `FLOWR_PYTHON`、`FLOWR_ROOT`、`FLOWR_ACTIVATE` 指定主机环境。通用控制器不包含主机认证或 Git 操作。在已经激活的其他运行环境使用：
@@ -30,11 +40,11 @@ bash scripts/scnet_steer_targets.sh
 python scripts/run_steer_targets.py --config configs/generation_target_collection.example.json
 ```
 
-服务器配置为 `configs/generation_crossdocked100_steer.json`。默认每个 target 生成 **100 个终末候选槽位，5个批次，每批20个候选**、100个积分步，主种子42；steering duration 为0.5，真实评分窗口为 `[0,0.5]`，随后无重采样地继续到 t=1。这里归档默认“每10个”是 **10个 target 任务**，相应共1000个候选槽位，与一个 target 内的5个生成批次分别计数。分子构建失败和重复后代仍保留。目标与非目标角色在内部接口中别名指向同一口袋；非目标评分不具有真实选择性意义。
+HiQBind默认配置和 `configs/generation_crossdocked100_steer.json` 备选配置均为每个 target 生成 **100 个终末候选槽位，5个批次，每批20个候选**、100个积分步，主种子42；steering duration 为0.5，真实评分窗口为 `[0,0.5]`，随后无重采样地继续到 t=1。这里归档默认“每10个”是 **10个 target 任务**，相应共1000个候选槽位，与一个 target 内的5个生成批次分别计数。分子构建失败和重复后代仍保留。目标与非目标角色在内部接口中别名指向同一口袋；非目标评分不具有真实选择性意义。
 
 重采样只在当前批次内部进行：20个候选共同参与评分与竞争，按概率抽取20个后代槽位，各批次之间不交换 seed。100/20参考官方 PDB 生成模板的数量和batch设置，并显式启用0.5时长的Steer；官方模板自身默认未启用Steer，论文没有披露实际竞争群体大小，因此这不是声称已恢复作者完整实验配置。当前固定100槽位包含失败和重复后代，不启用过滤后的补采。
 
-服务器新默认输出为节点本地 `/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_s100_b20_w050`，避免与旧1000槽位/100粒子集合混用；节点释放前须取回归档。已有任务保存的配置不会随源码默认值自动变化。显式 `--samples` / `--batch-size` 仍可覆盖；修改已冻结集合的核心配置会被拒绝，应指定新的 `--output-dataset`。
+服务器默认输出为节点本地 `/opt/MolSteer/generated_datasets/hiqbind_steer_learning_s100_b20_w050`，CrossDocked备选输出为 `/opt/MolSteer/generated_datasets/crossdocked100_steer_learning_s100_b20_w050`；节点释放前须取回需要保留的归档。已有任务保存的配置不会随源码默认值自动变化。显式 `--samples` / `--batch-size` 仍可覆盖；修改已冻结集合的核心配置会被拒绝，应指定新的 `--output-dataset`。旧1000槽位/100粒子CrossDocked后台任务于2026-10-09按用户要求停止并删除其专属结果，记录见 `docs/hiqbind_default_20261009/old_campaign_cleanup.json`。
 
 ## 可配置行为
 

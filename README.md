@@ -146,12 +146,12 @@ seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生
 - [通用生成配置](configs/generation_steer_learning.example.json)、[输入角色清单](configs/pocket_inputs.example.json)、[CK2/CLK3 可执行配置](configs/generation_ck2_clk3_steer_learning.json)
 - LLM 单事件读取：`scripts/read_steer_event.py`；真实数据存储回放：`scripts/replay_steer_learning_storage.py`。
 
-## CrossDocked 多 target 单目标生成
+## HiQBind 默认集合与 CrossDocked 备选集合的单目标生成
 
-`scripts/run_steer_targets.py` 自动发现 target、生成独立配置并调用已有 Steer 入口。默认每 target 100候选（5批×20）、100积分步、seed42、steering duration 0.5（评分窗口 `[0,0.5]`），之后继续无重采样推理至1.0；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。可覆盖总量及群体大小、关闭压缩、修改分组大小或保留工作目录；已归档 target 可单独恢复供 LLM 读取评分事件。新服务器配置使用独立的 `crossdocked100_steer_learning_s100_b20_w050` 输出集合。
+`scripts/run_steer_targets.py` 默认使用 **HiQBind** 配置，需指定已准备的测试输入目录及显式 `targets.json` 清单；缺输入即退出，不自动切换数据集。`--dataset crossdocked100` 可选择备选100-target集合，`--config` 可使用自定义集合；两种选择参数互斥。脚本根据清单生成独立配置并调用已有 Steer 入口。默认每 target 100候选（5批×20）、100积分步、seed42、steering duration 0.5（评分窗口 `[0,0.5]`），之后继续无重采样推理至1.0；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。HiQBind 与 CrossDocked 使用不同输出目录，已冻结任务不会随默认值改变。
 
 多个相同配置的worker可以共享输出目录。`generation_progress/<target_key>.running` 通过原子创建领取任务；成功转为 `.finished`，异常或重复完成竞争转为 `.error` 并保存完整诊断。三种标记均跳过；没有可领取target时直接结束。推理与压缩不占用共享状态锁，归档单独互斥；已有 `.error` 不会自动重试。
 
 - [控制流程、参数、实测压缩比例与恢复接口](docs/steer_target_campaign.md)
-- [CrossDocked 100-target 配置](configs/generation_crossdocked100_steer.json)、[通用配置](configs/generation_target_collection.example.json)、[显式输入清单](configs/target_collection.example.json)
-- 当前服务器入口：`bash scripts/scnet_steer_targets.sh`；归档读取：`scripts/verify_steer_target_archive.py`。
+- [HiQBind 默认配置](configs/generation_hiqbind_steer.json)、[CrossDocked 100-target 备选配置](configs/generation_crossdocked100_steer.json)、[通用配置](configs/generation_target_collection.example.json)、[显式输入清单](configs/target_collection.example.json)
+- 当前服务器入口：`bash scripts/scnet_steer_targets.sh`；备选：`bash scripts/scnet_steer_targets.sh --dataset crossdocked100`；归档读取：`scripts/verify_steer_target_archive.py`。

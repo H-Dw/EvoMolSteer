@@ -11,4 +11,6 @@ export PYTHONPATH="$repo/src:$flowr:$flowr/experiments/evomolsteer_online_202610
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-4}
 export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
 cd "$repo"
-exec "$python" -u scripts/run_steer_targets.py --config configs/generation_crossdocked100_steer.json "$@"
+# The Python controller defaults to HiQBind. Use --dataset crossdocked100 for
+# the alternative collection, or --config for a fully explicit campaign.
+exec "$python" -u scripts/run_steer_targets.py "$@"

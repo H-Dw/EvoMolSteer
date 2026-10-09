@@ -22,6 +22,7 @@ from .target_catalog import discover_targets
 from .target_progress import TargetProgress,TargetClaimConflict,FORMAT as PROGRESS_FORMAT
 from .campaign_journal import CampaignJournal
 from .target_archiving import TargetArchiveCoordinator
+from .dataset_profiles import DEFAULT_DATASET,DATASET_CONFIGS,load_dataset_profile,validate_profile_inputs
 
 FORMAT='evomolsteer.steer_target_campaign.v1'
 
@@ -283,7 +284,11 @@ def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flus
 
 def main(argv=None):
     p=argparse.ArgumentParser(description='Single-target Steer collection; default tar.gz after every ten completed targets')
-    p.add_argument('--config');p.add_argument('--flowr-root');p.add_argument('--checkpoint')
+    profile=p.add_mutually_exclusive_group()
+    profile.add_argument('--config',help='Explicit campaign config, replacing the dataset profile')
+    profile.add_argument('--dataset',choices=tuple(DATASET_CONFIGS),default=DEFAULT_DATASET,
+                         help=f'Prepared dataset profile (default {DEFAULT_DATASET})')
+    p.add_argument('--flowr-root');p.add_argument('--checkpoint')
     p.add_argument('--input-dataset');p.add_argument('--output-dataset');p.add_argument('--python',dest='python_executable')
     p.add_argument('--target-manifest');p.add_argument('--expected-targets',type=int);p.add_argument('--campaign')
     p.add_argument('--samples',type=int,help=f'Candidate slots per target (default {DEFAULT_STEER_SAMPLES})')
@@ -298,9 +303,12 @@ def main(argv=None):
     p.add_argument('--retry-failed',action='store_true',help='Deprecated; never bypasses existing error markers')
     p.add_argument('--flush-archives',action='store_true')
     p.add_argument('--dry-run',action='store_true');a=p.parse_args(argv)
-    values=read_json(a.config) if a.config else {}
-    run_keys={'config','dry_run','max_targets','retry_failed','flush_archives'}
+    values=read_json(a.config) if a.config else load_dataset_profile(a.dataset)
+    run_keys={'config','dataset','dry_run','max_targets','retry_failed','flush_archives'}
     values.update({k:v for k,v in vars(a).items() if k not in run_keys and v is not None})
+    if not a.config:
+        try:validate_profile_inputs(a.dataset,values)
+        except FileNotFoundError as error:p.error(str(error))
     result=run_campaign(TargetCampaignConfig(**values),dry_run=a.dry_run,max_targets=a.max_targets,
                         retry_failed=a.retry_failed,flush_archives=a.flush_archives)
     print(json.dumps(result,ensure_ascii=False,indent=2))
