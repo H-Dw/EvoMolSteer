@@ -1,0 +1,96 @@
+{
+  "allowed_updates": {
+    "contact_weight": [
+      0,
+      0.1,
+      0.25,
+      0.5,
+      1
+    ],
+    "ligand_anchor_weight": [
+      0.5,
+      1,
+      2
+    ],
+    "native_rms_ratio": [
+      0.1,
+      0.2,
+      0.33
+    ],
+    "repulsion_weight": [
+      0.5,
+      1,
+      2,
+      4
+    ],
+    "time_ramp_power": [
+      0,
+      1,
+      2
+    ]
+  },
+  "compression": "Strongest 8 and weakest 2 q-values per supplied table; exploratory selected evidence, not a new complete enrichment analysis",
+  "condition": "D3_without_steer",
+  "evidence": [
+    {
+      "data": {
+        "known_ligand_heavy_atoms": 25,
+        "ligand_centroid_A": [
+          22.816840000000003,
+          -29.98296,
+          14.46984
+        ],
+        "ligand_covariance_eigenvalues_A2": [
+          0.11128956109381832,
+          5.69582366755073,
+          9.302824838555452
+        ],
+        "no_affinity_labels": true,
+        "origin": "Original common receptor/bound ligand, not generated Steer",
+        "protein_heavy_atoms_in_crop": 308
+      },
+      "evidence_id": "structure:geometry",
+      "kind": "structure_geometry"
+    }
+  ],
+  "execution": {
+    "affinity_head_gradient": false,
+    "derivative_path": "FLOWR endpoint VJP",
+    "native_rms_ratio": 0.33,
+    "particle_selection": false,
+    "seed": 42,
+    "steps": 100,
+    "window": [
+      0.0,
+      0.5
+    ],
+    "window_origin": "R26 matched protocol"
+  },
+  "formula_notes": {
+    "full": "R26 robust multimodal pointcloud",
+    "pocket": "Same field without ligand attraction; untyped geometric proxy, not a physical affinity energy",
+    "static": "All times use last elite pointclouds, beta=0",
+    "structure": "-wL*(sqrt(1+Hungarian_MSE)-1)+wC*saturated_3.6A_contact-wR*sum(relu(2A-d)^2)/N",
+    "unweighted": "R26 with score beta=0"
+  },
+  "formula_registry": {
+    "pocket": {
+      "historical_dependency": "No generated Steer or bound ligand reward; receptor crop",
+      "program": "configs/experiments/steer_dependency_v1/D3_without_steer_pocket.json",
+      "reference": "configs/experiments/steer_dependency_v1/pocket.json.gz"
+    },
+    "structure": {
+      "historical_dependency": "No generated Steer; original bound ligand and receptor",
+      "program": "configs/experiments/steer_dependency_v1/D3_without_steer_structure.json",
+      "reference": "configs/experiments/steer_dependency_v1/structure.json.gz"
+    }
+  },
+  "information_level": "structure",
+  "objective": "Improve final FLOWR predicted target pIC50; strain secondary; allow graph transitions",
+  "removed_instruction_blocks": [
+    "lineage",
+    "temporal",
+    "elite_geometry",
+    "history_matching"
+  ]
+}
