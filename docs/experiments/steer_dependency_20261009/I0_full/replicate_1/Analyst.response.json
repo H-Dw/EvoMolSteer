@@ -1,0 +1,44 @@
+{
+  "role": "Analyst",
+  "condition": "I0_full",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "Whole-window high-versus-low score comparisons support larger pair_kernel_2.5: integrated contrast +0.631 z, CI [0.495, 0.758], q=2.19e-5, positive batch fraction 1.0, but score correlation is only +0.213. Related supplied contrasts are positive at 1.5 and 3.5 (endpoint_effects:9 and :11; +0.562 and +0.540 z) and negative at 7.0 (endpoint_effects:13; -0.485 z, q=1.46e-4). These are scale-dependent geometric associations, not evidence that increasing receptor contact weight improves affinity."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "Smaller shape_yy is associated with the higher-score endpoint group: -0.513 z, CI [-0.620, -0.424], q=1.49e-5, positive batch fraction 0.0. Regional enrichment agrees for local_cyy at landmarks 7, 17, 1, 16 and 0 (regional_effects:75, :175, :15, :165 and :5; effects -0.560 to -0.672 z, q<=1.31e-4). Later survival effects for landmarks 7 and 16 retain the negative sign but weaken to -0.299 and -0.317 z with q=0.219 (survival_effects:75 and :165). This supports an exploratory coordinate-shape hypothesis, with weaker evidence for persistent survival."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "Successful versus failed increments show a decrease in landmark_00_softmin rate: -4.914 z, CI [-6.855, -2.616], q=0.0461, positive batch fraction 1/14. Landmark_00_occupancy3 is higher in the endpoint comparison (+0.545 z, q=2.35e-4; endpoint_effects:15), while its increment-rate increase (+4.277 z, CI [2.014, 6.310]; increment_effects:15) has q=0.0811. Thus the landmark-0 localization association is supported across observables, but the occupancy increment result remains exploratory after multiplicity correction."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "Landmark_00_soft_mass shows immediate regional enrichment +0.639 z, CI [0.492, 0.791], q=1.88e-4, positive batch fraction 1.0 (regional_effects:0), compared with later survival enrichment +0.365 z, CI [0.200, 0.515], q=0.120, positive batch fraction 12/14 across 14 independent batches. The supplied survival estimate is numerically smaller by 0.274 z, but neither a paired attenuation test nor a calibrated comparison of the two estimands is supplied. No supplied survival row has q<0.05, and descendant score-credit, ancestral diversity and lineage missingness are unavailable, preventing a conclusion about future pIC50 credit."
+    },
+    {
+      "evidence_id": "endpoint_effects:34",
+      "finding": "Landmark_06_occupancy5 has a negative high-versus-low endpoint contrast (-0.365 z, CI [-0.482, -0.253], q=6.79e-4) despite a positive last-minus-first temporal delta (+0.603 z). Landmark_06_softmin has a positive endpoint contrast (+0.294 z, q=6.84e-4) despite a negative temporal delta (-0.903 z; endpoint_effects:32); local_dy enrichment is positive (+0.425 z, q=1.15e-4; regional_effects:62). These different observables and estimands do not establish a within-node sign reversal. The supplied aggregate trends cannot justify a stage-dependent attraction or ramp rule without empirical node contrasts, node support and fitted-versus-observed checks."
+    },
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original bound ligand contains 25 heavy atoms with covariance eigenvalues [0.111, 5.696, 9.303] A^2, giving a thin, anisotropic reference shape; the receptor crop contains 308 heavy atoms. This permits a new geometry-only anchor/contact/repulsion hypothesis using the supplied structure formula. The structure has no affinity labels and is not generated Steer evidence, so it cannot estimate enrichment, selection survival, score credit or temporal trends, nor identify how its principal axes map onto historical shape_yy."
+    }
+  ],
+  "directions": [
+    "Use the supplied full formula as the historical baseline. Test native_rms_ratio=0.2 against the recorded 0.33 while keeping other settings, the 100-step [0.0,0.5] execution window and matched seeds fixed; treat this as a conservative steering-strength hypothesis rather than a demonstrated consequence of the associations. Compare final predicted target pIC50 with strain as the secondary outcome, including graph-transition outcomes.",
+    "Run matched full, unweighted and static comparisons with the same native_rms_ratio and time_ramp_power to isolate the possible contributions of historical score weighting and stage-specific teacher coordinates. The full/unweighted/static programs support only those two update keys; the supplied evidence does not already demonstrate any between-formula performance difference.",
+    "For pocket and structure alternatives, use a restrained geometry-only comparison of contact_weight=0.1 versus 0.25 and repulsion_weight=1 versus 2 at a matched native_rms_ratio; hold structure ligand_anchor_weight=1 initially. These are allowed parameter values and new hypotheses. Check whether short-range geometric association can be translated into improved predicted pIC50 without increased strain or excessive overlap; no chemical or physical affinity interpretation of the untyped contact proxy is established.",
+    "Use time_ramp_power=0 as a proposed neutral reference and regard values 1 or 2 as exploratory controls. Before adopting a stage-dependent rule, obtain empirical per-node contrasts, support and fitted-versus-observed residuals, plus descendant survival and score credit with ancestor counts/diversity and missingness denominators. Landmark-0 localization and y-direction covariance are candidate observables to track, not directly supported new reward terms."
+  ],
+  "limitations": [
+    "The manifest contains selected strongest eight and weakest two q-values per table, not full tables or raw observations. This is exploratory selected evidence; correlated features and omitted comparisons prevent a new complete enrichment analysis or independent replication assessment.",
+    "Observed endpoint, increment, regional and survival contrasts have different estimands and scales. Association and temporal change do not identify a causal intervention, and confidence intervals for individual effects do not test differences between effects.",
+    "Fourteen independent batches are stated for survival, but no ancestral counts, effective ancestral diversity, individual descendant coverage, missingness numerators/denominators or score-credit observations are supplied. These quantities cannot be quantified from the request; batch count is not ancestral diversity.",
+    "Per-node empirical contrasts, node sample support, fitted effects and observed-versus-fitted comparisons are absent. Last-minus-first deltas are not node-level score effects, so neither stage dependence nor ramp superiority is established.",
+    "Counterevidence includes near-zero endpoint contrasts for landmark_11_occupancy3 and landmark_19_occupancy3 (endpoint_effects:48 and :72; q=0.867 and 0.963), including a large temporal delta for the latter without score-group enrichment. Supplied regional nulls (:439 and :107) and survival nulls (:369 and :43) further argue against a universal local-coordinate rule. Except for increment_effects:14, supplied increment q-values are >=0.0811; supplied survival q-values are >=0.1204.",
+    "The request supplies no observed final FLOWR pIC50 or strain outcomes for the proposed formula/parameter comparisons. It specifies no affinity-head gradient and no particle selection during the proposed execution; historical selection/survival associations therefore cannot be assumed to reproduce directly under endpoint VJP steering."
+  ]
+}

@@ -26,7 +26,15 @@ def run(repo, flowr, work, spec_path):
     checkpoint = flowr / 'checkpoints/flowr_root_v2.ckpt'
     if digest(checkpoint) != 'f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0':
         raise ValueError('Wrong FLOWR checkpoint')
-    program, reference = repo / spec['program'], repo / spec['reference']
+    # Specifications may be authored on Windows and executed on Linux.
+    # Interpret serialized relative paths portably, with containment checks.
+    def artifact_path(value):
+        relative = Path(str(value).replace('\\', '/'))
+        target = (repo / relative).resolve()
+        if relative.is_absolute() or ':' in str(relative) or not target.is_relative_to(repo.resolve()):
+            raise ValueError('Program/reference must remain inside the pinned repository')
+        return target
+    program, reference = artifact_path(spec['program']), artifact_path(spec['reference'])
     if digest(program) != spec['program_sha256'] or digest(reference) != spec['reference_sha256']:
         raise ValueError('Frozen program/reference mismatch')
     work.mkdir(parents=True, exist_ok=True)

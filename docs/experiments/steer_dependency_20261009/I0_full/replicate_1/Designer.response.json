@@ -1,0 +1,19 @@
+{
+  "role": "Designer",
+  "condition": "I0_full",
+  "family": "full",
+  "updates": {
+    "native_rms_ratio": 0.2,
+    "time_ramp_power": 0
+  },
+  "rationale": "Select the concrete registered R26 robust multimodal pointcloud function full, implemented by configs/experiments/steer_dependency_v1/I0_full_full.json with reference configs/experiments/skill_ablation_v1/endpoint_reference.json.gz, and apply native_rms_ratio=0.2 and time_ramp_power=0. Its coordinate targets originate from stage-specific selected historical elite pointclouds; its affinity weighting originates from their historical scores. Both dependencies are retained explicitly. Preserve the distinct teacher coordinate modes rather than independently averaging feature targets, which could produce unsupported geometry. Endpoint pair-kernel associations at 1.5, 2.5 and 3.5 and the negative shape_yy and regional local_cyy associations motivate retaining a whole-conformation historical proxy, but do not establish the reward's causal effect on predicted pIC50. The smaller RMS ratio is a conservative proposed steering-strength choice relative to the recorded 0.33, not an estimated optimum. A constant ramp is the neutral choice because aggregate temporal deltas and increment rates do not establish a supported stage-dependent intervention. Do not add parent-child increment matching: the supplied summaries lack coordinate-valued target increments, node support and uncertainty sufficient to define that separate term. This choice requires more history than unweighted, static or structure, and its dependency should be assessed against those registered controls with matched parameters; no comparative advantage is already observed. Evaluate through FLOWR endpoint VJP with detached correspondence, retaining the supplied 100 steps, seed 42 and [0.0,0.5] window. Historical affinity scores weight geometric modes; there is no affinity-head gradient or particle selection. Component weighting can change direction, whereas whole-scalar rescaling may cancel under gradient normalization. No untyped geometric association is interpreted as a physical binding energy.",
+  "failure_modes": [
+    "Historical selected teachers and affinity weights can reproduce selection bias or a scoring-model artifact; exploratory compressed association tables do not establish causal or transferable improvement.",
+    "Multimodal coordinate attraction can still distort molecular geometry, increase strain or discourage useful graph transitions; atom-count changes and detached correspondence can make guidance unstable or discontinuous.",
+    "Stage-specific targets may be misaligned with the current FLOWR trajectory. Per-node empirical contrasts, support and observed-versus-fitted residuals are absent, so historical stage dependence remains an assumption of the registered function.",
+    "The supplied survival rows have q>=0.1204 and lack ancestral diversity, missingness denominators and descendant score credit; immediate enrichment cannot establish persistent final pIC50 benefit.",
+    "The selected native_rms_ratio=0.2 and constant ramp have no supplied final pIC50 or strain outcomes. Lower guidance can understeer, and constant guidance can act at unsuitable stages.",
+    "Coordinate matching and historical score weighting do not supply chemical interaction typing or a physical affinity energy; the predicted target pIC50 objective may not improve despite better geometric agreement.",
+    "Changing only an overall reward magnitude may have little effect under gradient normalization, and the current no-selection endpoint-VJP execution need not reproduce historical selection or increment associations."
+  ]
+}

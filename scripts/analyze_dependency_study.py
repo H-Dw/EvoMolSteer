@@ -55,9 +55,10 @@ if __name__ == '__main__':
     for item in plan['cohorts']:
         frames[item['name']], outcomes[item['name']] = metrics(item['metrics'], item['arm'])
     comparison = {}
+    controls = plan.get('controls', ['native', 'R26'])
     for name in frames:
         if name not in ['native', 'R26']:
-            comparison[name] = {control: paired(frames[name], frames[control]) for control in ['native', 'R26']}
+            comparison[name] = {control: paired(frames[name], frames[control]) for control in controls if control != name}
     write_json(output / 'quality_summary.json', {'schema_version': 'dependency-quality-1.0', 'outcomes': outcomes,
         'paired_comparisons': comparison, 'primary': 'All-attempt FLOWR predicted pIC50, not experimental affinity',
         'secondary': 'Converged same-graph local MMFF94s relief per heavy atom; not physical binding energy',
