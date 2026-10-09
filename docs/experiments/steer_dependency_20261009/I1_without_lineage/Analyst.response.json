@@ -1,0 +1,53 @@
+{
+  "role": "Analyst",
+  "condition": "I1_without_lineage",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "pair_kernel_2.5 has a positive whole-window high-versus-low score contrast of 0.631 z (CI 0.495 to 0.758; q=2.19e-5), positive in every reported batch. The 1.5 and 3.5 kernels also have positive contrasts, whereas pair_kernel_7.0 is negative (-0.485 z; q=1.46e-4). These observed associations support testing scale-specific geometry, not uniformly increasing all pair interactions. Score correlations are modest (approximately 0.17 to 0.21 for the positive kernels), and temporal deltas differ in sign."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy is lower in the high-score group across the window (-0.513 z; CI -0.620 to -0.424; q=1.49e-5), with no positive reported batches. Its last-minus-first delta is positive (+0.148 z); this aggregate temporal change does not establish an early-versus-late benefit reversal. The corresponding negative increment contrast has q=0.161, so change-rate support is weaker than endpoint support."
+    },
+    {
+      "evidence_id": "endpoint_effects:15",
+      "finding": "landmark_00_occupancy3 is positively associated with the high-score group (+0.545 z; CI 0.393 to 0.699; q=2.35e-4), with positive contrasts in every reported batch. Regional soft_mass is also positive (+0.639 z; q=1.88e-4). Occupancy has a positive temporal delta (+0.234 z), but its positive success-versus-failure increment contrast has q=0.081, limiting confidence in a dynamic steering rule."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "landmark_00_softmin has the strongest supplied increment evidence: a negative success-versus-failure integrated rate contrast (-4.914 z; CI -6.855 to -2.616; q=0.0461), positive in only 1 of 14 reported batch fractions. This supports a candidate change-rate hypothesis for the measured softmin feature; its physical interpretation and steering benefit require feature definitions and intervention tests. The other supplied increment rows have q greater than 0.05."
+    },
+    {
+      "evidence_id": "regional_effects:75",
+      "finding": "landmark_07_local_cyy has negative regional enrichment (-0.646 z; CI -0.768 to -0.534; q=7.08e-5), with no positive reported batches. Regions 17, 1, 16 and 0 show the same local_cyy sign with q at most 1.31e-4, consistent with the whole-window shape_yy association. This is evidence for a regional covariance hypothesis; it does not identify chemical contacts or demonstrate that directly constraining this coordinate improves affinity."
+    },
+    {
+      "evidence_id": "endpoint_effects:34",
+      "finding": "Region 6 has negative occupancy5 endpoint enrichment (-0.365 z; q=6.79e-4), positive softmin enrichment (+0.294 z; q=6.84e-4), and positive local_dy regional enrichment (+0.425 z; q=1.15e-4). Occupancy5 increases over time (+0.603 z) while softmin decreases (-0.903 z), opposing their respective whole-window score-group signs. These are distinct observables rather than evidence of a stage-specific reversal; node contrasts are needed to resolve when, and whether, the associations change."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "landmark_00_soft_mass has suggestive positive survival enrichment (+0.365 z; CI 0.200 to 0.515), observed in 12 of 14 batches, but q=0.120. No supplied survival row has q below 0.05. Negative local_czz and local_cyy survival associations also remain above that threshold; endpoint or regional enrichment therefore cannot be promoted to a confirmed selection-survival rule."
+    },
+    {
+      "evidence_id": "endpoint_effects:72",
+      "finding": "landmark_19_occupancy3 has a large negative temporal delta (-1.372 z) but nearly zero high-versus-low score contrast (-0.003 z; CI -0.129 to 0.130; q=0.963). landmark_11_occupancy3 is likewise near null (q=0.867), and several supplied regional and increment contrasts are near null. Temporal movement alone is not evidence of affinity enrichment, and the selected associations do not support a universal landmark rule."
+    }
+  ],
+  "directions": [
+    "Compare all five registered formulas under the supplied matched protocol; measure final predicted target pIC50 and secondary strain before ranking candidates.",
+    "Test coordinate hypotheses with one-factor contrasts within the allowed parameter grids, including contact_weight=0; keep graph transitions available.",
+    "Treat time_ramp_power values 0, 1 and 2 as competing schedules. Obtain observed per-node contrasts, support and fitted-versus-observed checks before specifying a stage-dependent rule.",
+    "Track pair-kernel scale, shape_yy/local_cyy, region 0 occupancy/soft_mass and region 6 occupancy/softmin/local_dy during interventions; check whether predicted affinity changes accompany the proposed geometry."
+  ],
+  "limitations": [
+    "Evidence is an exploratory compression of the strongest eight and weakest two q-values per table. It does not support a new complete enrichment analysis, independent feature ranking, or claims that omitted features lack effects.",
+    "Supplied observables include integrated group contrasts, confidence intervals, p/q values, batch sign fractions, score correlations, temporal deltas, regional enrichment and survival summaries. Raw empirical node contrasts, node support, fitted values and their agreement with observations are absent; stage-specific sign changes cannot be assessed.",
+    "Associations and reported confidence intervals do not establish causal steering benefit. Feature definitions, joint dependence, score-group construction and uncertainty procedures are not supplied; combined geometry rules may double-count correlated observables.",
+    "The survival rows report 14 independent batches, but full sample sizes and node-level denominators are absent. No supplied survival association passes q<0.05, and the execution protocol disables particle selection, so survival summaries are not a tested execution mechanism here.",
+    "The original receptor/bound-ligand geometry contains 25 ligand heavy atoms and 308 protein heavy atoms in the crop, plus centroid and covariance eigenvalues, but no affinity labels. It can motivate geometrical hypotheses only; it cannot independently estimate enrichment, survival or temporal trends. Axis and landmark definitions needed for physical interpretation are absent.",
+    "The registry says full uses stage-specific elite coordinates and affinity weights, unweighted uses stage-specific selected coordinates with scores zero, and static uses final selected teacher clouds. Structure and pocket use original structural information. These are dependency descriptions; no comparative formula outcomes are supplied, so none is an established winner.",
+    "The objective is final FLOWR predicted target pIC50 with strain secondary. The structure and pocket fields are geometric proxies, and no experimental affinity validation or direct mapping from individual observed features to each allowed parameter is supplied."
+  ]
+}
