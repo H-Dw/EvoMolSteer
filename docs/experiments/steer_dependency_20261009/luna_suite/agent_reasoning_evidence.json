@@ -1,0 +1,492 @@
+{
+  "rows": [
+    {
+      "condition": "I0_full",
+      "removed": [],
+      "findings": [
+        {
+          "evidence_id": "endpoint_effects:4",
+          "finding": "Across the supplied integrated endpoint comparison, higher shape_yy is associated with lower enrichment (high-low integrated z=-0.513, 95% CI [-0.620,-0.424], q=1.49e-5); all 14 batches have a negative effect, while its score correlation is -0.195. This is an observed association, not a causal coordinate rule."
+        },
+        {
+          "evidence_id": "endpoint_effects:10",
+          "finding": "pair_kernel_2.5 has a positive integrated endpoint association (z=0.631, 95% CI [0.495,0.758], q=2.19e-5), positive in all batches, with score correlation 0.213. The scale-specific opposite result for pair_kernel_7.0 (z=-0.485, q=1.46e-4; endpoint_effects:13) argues against treating pair-kernel proximity as a single monotone effect."
+        },
+        {
+          "evidence_id": "endpoint_effects:15",
+          "finding": "landmark_00_occupancy3 is positively associated with integrated endpoint enrichment (z=0.545, 95% CI [0.393,0.699], q=2.35e-4; all batches positive), whereas landmark_06_occupancy5 is negative (z=-0.365, q=6.79e-4; endpoint_effects:34). These contrasts support localized, scale-specific hypotheses, not a global occupancy target."
+        },
+        {
+          "evidence_id": "increment_effects:15",
+          "finding": "For immediate success/failure increments, landmark_00_occupancy3 has positive integrated rate contrast (z=4.28, CI [2.01,6.31]) but q=0.081, so it does not pass a 0.05 false-discovery threshold; landmark_00_softmin is negative (z=-4.91, q=0.046; increment_effects:14). Increment evidence is exploratory and its signs do not justify equating endpoint enrichment with immediate success."
+        },
+        {
+          "evidence_id": "regional_effects:75",
+          "finding": "Regional endpoint associations are heterogeneous by component and region: local_cyy is negative at landmarks 07, 17, 01, 16 and 00 (all listed q<=1.31e-4), while local_dy is positive at landmarks 06 and 02 (q<=1.31e-4). This favors region/component-specific tests over a uniform directional coordinate bias."
+        },
+        {
+          "evidence_id": "survival_effects:0",
+          "finding": "No supplied survival contrast meets q<0.05: landmark_00_soft_mass is positive (z=0.365, q=0.120), while several local_czz effects are negative but also q=0.120 or larger. Therefore the endpoint/increment patterns cannot be claimed to persist into later survival or score credit."
+        }
+      ],
+      "directions": [
+        "For the full program, compare time_ramp_power values 0, 1, and 2 while holding other supported parameters fixed; the supplied endpoint time deltas vary in direction and do not establish a reliable temporal trend.",
+        "For a pocket or original-structure geometric proxy, run a small factorial sensitivity over contact_weight and repulsion_weight (supported values only), with ligand_anchor_weight included only for the structure formula. Treat these as geometric design hypotheses, since the pocket field is explicitly untyped and the structure evidence has no affinity labels.",
+        "Use native_rms_ratio values 0.1, 0.2, and 0.33 as a controlled constraint sensitivity, and inspect whether endpoint gains persist without excessive native-geometry deviation; current evidence does not establish the best setting.",
+        "If using regional observables, test localized components such as early landmark occupancy and local_cyy/local_dy separately, retaining an ablation or neutral-weight comparison; observed association alone does not specify a causal steering sign."
+      ],
+      "limitations": [
+        "Evidence is a compressed selection of strongest and weakest q-values, explicitly exploratory, and is not a new complete enrichment analysis.",
+        "Endpoint and increment summaries are observational associations; they do not identify causal effects of changing steering weights.",
+        "Survival results use 14 independent batches and none of the supplied contrasts is significant after the reported multiple-testing adjustment.",
+        "The structure geometry describes the original common receptor and bound ligand, not generated Steer structures, and supplies no affinity labels.",
+        "The pocket formula is an untyped geometric proxy rather than a physical affinity energy; the reported analysis does not validate it as an affinity predictor.",
+        "Only listed parameter values and formula-specific update keys are supported; the supplied evidence does not determine optimal values or establish generalization beyond this condition."
+      ],
+      "selected_family": "full",
+      "updates": {
+        "time_ramp_power": 0
+      },
+      "design_rationale": "Select the registered full multimodal pointcloud reward and set its supported time_ramp_power to 0 as a temporal-neutral comparison. The supplied endpoint time deltas vary in direction, and the Analyst found no reliable temporal trend; this choice avoids imposing an unsupported time-dependent emphasis while retaining the full family's stage-specific elite-coordinate and affinity-weight history. The observed pair-kernel and localized occupancy associations are correlational and do not establish causal coordinate updates."
+    },
+    {
+      "condition": "I1_without_lineage",
+      "removed": [
+        "lineage"
+      ],
+      "findings": [
+        {
+          "evidence_id": "endpoint_effects:4",
+          "finding": "Across the integrated window, shape_yy is lower in the high group (z=-0.513, 95% CI [-0.620,-0.424], q=1.49e-5; positive-batch fraction 0). Its first-to-last time delta is +0.148, so the integrated contrast does not establish a matching temporal trend."
+        },
+        {
+          "evidence_id": "endpoint_effects:10",
+          "finding": "pair_kernel_2.5 has a positive integrated high-low contrast (z=0.631, CI [0.495,0.758], q=2.19e-5; positive in all batches), whereas pair_kernel_7.0 is negative (endpoint_effects:13, z=-0.485, CI [-0.617,-0.357], q=1.46e-4). The scale-specific sign difference argues against treating pair-kernel features as one monotonic rule."
+        },
+        {
+          "evidence_id": "endpoint_effects:34",
+          "finding": "At landmark 06, occupancy5 has a negative integrated contrast (z=-0.365, CI [-0.482,-0.253], q=6.79e-4), while softmin is positive (endpoint_effects:32, z=0.294, CI [0.201,0.391], q=6.84e-4). Their first-to-last deltas also differ (+0.603 versus -0.903), so neither a single shared endpoint direction nor a common temporal rule is supported."
+        },
+        {
+          "evidence_id": "increment_effects:14",
+          "finding": "For landmark_00_softmin, the supplied success/failure integrated rate contrast is negative (z=-4.91, CI [-6.85,-2.62], q=0.046; positive in 1/14 batches). This is an increment-level association and should not be conflated with endpoint high-low effects."
+        },
+        {
+          "evidence_id": "regional_effects:62",
+          "finding": "Regional enrichment has opposing local components: landmark_06_local_dy is positive (z=0.425, CI [0.339,0.515], q=1.15e-4; positive in all batches), while several local_cyy regions are negative, including landmark_07_local_cyy (regional_effects:75, z=-0.646, q=7.08e-5). These are component- and region-specific associations."
+        },
+        {
+          "evidence_id": "structure:geometry",
+          "finding": "The original bound ligand provides a geometric reference (25 heavy atoms; centroid [22.82,-29.98,14.47] Å; covariance eigenvalues [0.111,5.696,9.303] Å²) within a crop containing 308 protein heavy atoms. It supports pose/shape anchoring hypotheses, not affinity estimates."
+        }
+      ],
+      "directions": [
+        "Treat the observed favorable low/mid pair-kernel scales and unfavorable broad scale as separate hypotheses; compare allowed contact_weight and repulsion_weight settings instead of imposing a single monotonic distance preference.",
+        "Use native_rms_ratio as a cautious structural tether in candidate comparisons, since a reference ligand pose is available; retain an untethered or weaker setting as a comparator because geometry alone does not show which setting improves predicted pIC50.",
+        "Keep time_ramp_power comparisons exploratory. The provided integrated contrasts and selected first-to-last deltas do not establish consistent stage-specific effects; do not encode a stage-dependent rule from these summaries.",
+        "For landmark 00, compare occupancy-oriented and softmin-oriented hypotheses separately; increment and endpoint summaries differ in observable and support, so neither alone warrants a fixed steering target."
+      ],
+      "limitations": [
+        "Evidence is a compressed selection of strongest and weakest q-values, not a complete enrichment analysis; absent rows are not evidence of no effect.",
+        "Integrated high-low endpoint contrasts, success/failure increment rates, regional enrichment, and survival enrichment are distinct measures and cannot be substituted for one another.",
+        "The supplied summaries do not give empirical per-node fitted-versus-observed comparisons or enough nodewise support to validate a stage-dependent steering rule.",
+        "The receptor/bound-ligand geometry and the untyped pocket proxy are not physical affinity energies; there are no affinity labels or affinity-head gradients in this execution.",
+        "Associations across the supplied historical window do not establish that an allowed parameter update will improve final FLOWR predicted target pIC50; that requires direct comparisons."
+      ],
+      "selected_family": "structure",
+      "updates": {
+        "contact_weight": 0.25,
+        "ligand_anchor_weight": 1,
+        "native_rms_ratio": 0.2,
+        "repulsion_weight": 1,
+        "time_ramp_power": 0
+      },
+      "design_rationale": "Choose the registered structure family because the supplied original bound ligand and receptor geometry supports a pose and shape anchoring hypothesis without requiring generated lineage. Use a cautious native tether and moderate contact and repulsion settings as a direct candidate comparison, not as a claim that these settings improve predicted pIC50. The endpoint summaries show scale-specific opposing pair-kernel directions, so they do not justify a single monotonic distance rule; the selected time_ramp_power=0 avoids encoding unsupported stage dependence. This family uses the original bound ligand reference and receptor crop, not historical generated Steer coordinates or affinity labels."
+    },
+    {
+      "condition": "I2_without_temporal",
+      "removed": [
+        "temporal"
+      ],
+      "findings": [
+        {
+          "evidence_id": "endpoint_effects:4",
+          "finding": "At the endpoint, shape_yy is lower in the high-score group (integrated z=-0.513; 95% CI [-0.620,-0.424], q=1.49e-5), with negative direction in 0/14 batches. This is a replicated association, not evidence that changing this coordinate improves activity."
+        },
+        {
+          "evidence_id": "endpoint_effects:9",
+          "finding": "Pair-kernel signals depend on spatial scale: scales 1.5–3.5 have positive endpoint associations (integrated z=0.540–0.631; q=2.19e-5 to 9.75e-5), while scale 7.0 is negative (z=-0.485, q=1.46e-4). This supports a scale-sensitive geometry hypothesis rather than a monotonic 'more contact is better' rule."
+        },
+        {
+          "evidence_id": "endpoint_effects:15",
+          "finding": "Landmark 00 occupancy3 has a positive endpoint association (integrated z=0.545, CI [0.393,0.699], q=2.35e-4; positive in all batches). Its success/failure increment estimate is positive but does not pass q<0.05 (q=0.081), so the endpoint contrast is stronger evidence than the increment result."
+        },
+        {
+          "evidence_id": "regional_effects:5",
+          "finding": "Local cyy enrichment is consistently negative at landmarks 00, 01, 07, and 16 (effect z about -0.56 to -0.67; q=7.08e-5 to 1.31e-4; positive in 0/14 batches), while local dy is consistently positive at landmarks 02 and 06 (z=0.405–0.425; q=1.15e-4 to 1.31e-4; positive in 14/14). These are regional coordinate associations, not direct causal gradients."
+        },
+        {
+          "evidence_id": "survival_effects:0",
+          "finding": "The supplied later-survival contrasts do not meet q<0.05: even the strongest listed signal, landmark_00_soft_mass, has q=0.120 (effect z=0.365). The listed local czz and local cyy survival associations are negative but also not significant after correction (q≥0.120); no robust claim that endpoint-associated coordinates predict later survival is supported here."
+        },
+        {
+          "evidence_id": "structure:geometry",
+          "finding": "The original bound ligand has 25 heavy atoms and an anisotropic coordinate cloud (covariance eigenvalues 0.111, 5.696, and 9.303 Å²), centered at [22.82, -29.98, 14.47] Å in the supplied receptor crop. This makes a restrained ligand-pose anchor a plausible geometry hypothesis; the evidence provides no affinity labels."
+        }
+      ],
+      "directions": [
+        "As a design hypothesis, test native_rms_ratio 0.1 and 0.2 against the supplied 0.33 in the full formula, then assess final predicted pIC50 and strain; endpoint associations alone do not establish which setting wins.",
+        "In the original-structure formula, compare ligand_anchor_weight 1 versus 2 while keeping the native-pose restraint explicit; evaluate pose deviation and final predicted pIC50 because no affinity-labeled structural comparison is supplied.",
+        "In the receptor-only pocket formula, sweep contact_weight across 0.1, 0.25, and 0.5 and repulsion_weight across 1 and 2. Treat this as a geometric proxy study, since the pocket objective is not a physical affinity energy.",
+        "Use the endpoint pattern as a diagnostic hypothesis: retain multi-scale pair geometry and inspect local dy/cyy contributions separately, with independent evaluation of final predicted pIC50 and strain before adopting any coordinate bias."
+      ],
+      "limitations": [
+        "The supplied table is an exploratory compression of selected strongest and weakest q-values, not a complete enrichment analysis; unlisted effects and multiplicity context are unavailable.",
+        "Endpoint and regional associations are observational contrasts. They do not establish causal coordinate updates or predict the response to changing a reward weight.",
+        "Later-survival signals shown here do not pass q<0.05, so endpoint findings should not be interpreted as demonstrated survival or score-credit effects.",
+        "This condition removes temporal instruction blocks. Although selected records include time-delta fields, this evidence is insufficient to infer a usable temporal trend or justify a time-ramp schedule.",
+        "The receptor/ligand structure has no affinity labels, and the pocket formula is explicitly an untyped geometric proxy rather than a physical affinity model.",
+        "Only the listed parameter values and formula-specific update keys are supported for proposed parameter comparisons; no new complete experiment or independent validation data are provided."
+      ],
+      "selected_family": "structure",
+      "updates": {
+        "ligand_anchor_weight": 2,
+        "native_rms_ratio": 0.2
+      },
+      "design_rationale": "The structure family uses the supplied original bound ligand and receptor, matching the supported restrained pose-anchor hypothesis. The supplied anisotropic ligand geometry makes that restraint plausible; comparing anchor weight 2 and native_rms_ratio 0.2 is an explicitly allowed parameter hypothesis, not a causal conclusion from endpoint associations. No time ramp is proposed because this condition removes temporal instructions and supplies no robust temporal evidence."
+    },
+    {
+      "condition": "I3_without_elite_geometry",
+      "removed": [
+        "elite_geometry"
+      ],
+      "findings": [
+        {
+          "evidence_id": "endpoint_effects:9",
+          "finding": "pair_kernel_1.5 与终点整合 z 呈正相关（0.562，95% CI 0.406 至 0.714，q=1.46e-4），14/14 batch 方向为正；同组 pair_kernel_2.5 与 3.5 也均为正，说明较短程成对几何关联方向一致。它们是观察到的终点关联，不证明提高该权重会因果改善 pIC50。"
+        },
+        {
+          "evidence_id": "endpoint_effects:13",
+          "finding": "pair_kernel_7.0 与终点整合 z 呈负相关（-0.485，95% CI -0.617 至 -0.357，q=1.46e-4），14/14 batch 方向为负；关联随距离尺度改变而反转，不支持对所有 pair 距离统一增权。"
+        },
+        {
+          "evidence_id": "endpoint_effects:4",
+          "finding": "shape_yy 与终点整合 z 呈负相关（-0.513，95% CI -0.620 至 -0.424，q=1.49e-5），且所有 batch 方向均为负；时间首末差为正（0.148），与整体负向关系并不一致，不能据此拟合时间递增规则。"
+        },
+        {
+          "evidence_id": "regional_effects:75",
+          "finding": "区域 7 的 landmark_07_local_cyy 富集效应为负（-0.646，95% CI -0.768 至 -0.534，q=7.08e-5），14/14 batch 方向均为负；相邻证据还显示多个区域的 local_cyy 负向，而 landmark_06_local_dy 正向（regional_effects:62，0.425，q=1.15e-4），提示局部各向异性分量的方向依区域和分量而异。"
+        },
+        {
+          "evidence_id": "endpoint_effects:32",
+          "finding": "landmark_06_softmin 的终点关联为正（0.294，95% CI 0.201 至 0.391，q=6.84e-4），但时间首末差显著为负（-0.903）；landmark_06_occupancy5 则整体为负、时间差为正（endpoint_effects:34）。这类整体与时间变化方向不一致，不能支持简单的阶段性加权方案。"
+        },
+        {
+          "evidence_id": "survival_effects:0",
+          "finding": "landmark_00_soft_mass 对后续存活富集的估计为正（0.365，95% CI 0.200 至 0.515），但 q=0.120；同表列出的 local_czz 等负向信号 q 值也至少为 0.120。因此当前压缩证据不足以确立终点效果可转化为后续存活收益。"
+        }
+      ],
+      "directions": [
+        "在 structure 公式允许的网格上，将 ligand_anchor_weight=0.5、1、2 与其余参数固定的基线比较；已结合配体几何只提供锚定假设，不能视为亲和力证据。",
+        "对 full、pocket、static、unweighted 等协议分别做 native_rms_ratio 的受支持档位消融（0.1、0.2、0.33），检验短程 pair 几何方向能否在各历史依赖条件下复现。",
+        "只在支持 contact_weight 的 pocket/structure 公式内测试 0、0.1、0.25、0.5、1，并与 repulsion_weight 的 0.5、1、2、4 做小型交叉消融；将近程 pair 正向、远程 pair 负向作为待检验的范围选择假设，而非直接映射到这些参数。",
+        "对支持 time_ramp_power 的公式比较 0、1、2，并报告逐阶段观测对比及不确定性；由于整体与首末变化方向出现反转，暂不据此预设单调阶段规则。"
+      ],
+      "limitations": [
+        "输入是按表压缩的最强 8 项和最弱 2 项探索性证据，并非完整富集分析；多项效果来自同一实验表，不能当作独立重复。",
+        "增量效果中所列最低 q 值约为 0.081，未达到 0.05；后续存活效果所列 q 值至少为 0.120。不得把这些结果表述为已证实的即时选择差异或后续存活收益。",
+        "没有提供祖先多样性、缺失率、完整节点对比或模型拟合与观测对照，因此不能量化未来 score credit 的偏差或解释其阶段变化。",
+        "原始受体/配体结构不是生成的 Steer，且没有 affinity labels；结构几何只能形成新设计假设，不能提供富集、选择存活或亲和力提升结论。",
+        "结果目标是 FLOWR 预测靶点 pIC50，且未提供独立实测标签；观察到的相关性不能替代因果消融或外部验证。"
+      ],
+      "selected_family": "structure",
+      "updates": {
+        "ligand_anchor_weight": 0.5
+      },
+      "design_rationale": "选择 structure family，因为该公式只依赖原始结合配体与受体几何，符合本条件移除 elite_geometry 后的信息约束。以支持网格中的较低 ligand_anchor_weight=0.5 作为保守锚定假设；Analyst 明确指出该几何不是亲和力证据，也未观察到因果效果。该值只定义待测设计，不代表预测 pIC50 会提升。其余参数保持 family 基线。"
+    },
+    {
+      "condition": "I4_without_history_matching",
+      "removed": [
+        "history_matching"
+      ],
+      "findings": [
+        {
+          "evidence_id": "endpoint_effects:10",
+          "finding": "Across the integrated endpoint comparison, pair_kernel_2.5 is positively associated with the higher-pIC50 group (z=0.631, 95% CI 0.495 to 0.758, q=2.19e-5; positive in all batches). This supports a short-range pair-geometry association, not a causal design rule."
+        },
+        {
+          "evidence_id": "endpoint_effects:4",
+          "finding": "shape_yy is negatively associated with the higher-pIC50 group (z=-0.513, CI -0.620 to -0.424, q=1.49e-5; positive in 0/14 batches), while its last-minus-first change is +0.148. The direction of the integrated association therefore does not establish a temporal trajectory rule."
+        },
+        {
+          "evidence_id": "regional_effects:5",
+          "finding": "Region 0 local_cyy has negative enrichment (effect z=-0.575, CI -0.717 to -0.462, q=1.31e-4; positive in 0/14 batches), whereas region 0 soft_mass is positive in the same selected table. Local covariance components and mass thus show distinct associations."
+        },
+        {
+          "evidence_id": "regional_effects:62",
+          "finding": "Region 6 local_dy is positively associated with endpoint enrichment (effect z=0.425, CI 0.339 to 0.515, q=1.15e-4; positive in all batches). This is a localized coordinate association and does not show that changing this component improves pIC50."
+        },
+        {
+          "evidence_id": "increment_effects:14",
+          "finding": "For immediate success-versus-failure parent-edge contrasts, region 0 softmin is negative (rate z=-4.91, q=0.046) while the paired occupancy3 contrast is positive (rate z=4.28, q=0.081). These are exploratory contrasts with q-values near or above 0.05 and different feature directions; they do not justify a single monotonic stage rule."
+        },
+        {
+          "evidence_id": "survival_effects:0",
+          "finding": "Region 0 soft_mass has positive later-survival enrichment (effect z=0.365, CI 0.200 to 0.515; 12/14 batches positive), but q=0.120. It is suggestive cross-stage agreement with endpoint enrichment, not FDR-significant survival evidence."
+        }
+      ],
+      "directions": [
+        "As a bounded hypothesis, sweep contact_weight over the allowed values for the receptor-only pocket proxy, prioritizing local contact structure while evaluating final predicted pIC50 and strain; treat this as new geometry testing, since supplied associations do not identify a causal contact weight.",
+        "For the structure-based objective, compare ligand_anchor_weight values while retaining the bound ligand as a geometric anchor; its 25 heavy atoms and anisotropic coordinate spread (covariance eigenvalues 0.111, 5.696, 9.303 A2) suggest checking orientation and shape fit separately. This is a geometry-based design hypothesis, not affinity evidence.",
+        "Use a small factorial sweep of repulsion_weight and native_rms_ratio to test whether reducing clashes while allowing conformational movement improves the pIC50 objective without excess strain; the supplied manifest gives no direct parameter-response results.",
+        "Do not encode a stage-dependent time ramp from these selected results alone: endpoint associations have mixed last-minus-first changes, the observed parent-edge effects disagree by feature, and survival q-values do not pass 0.10. If explored, compare allowed time_ramp_power settings prospectively and report immediate selection and later survival separately."
+      ],
+      "limitations": [
+        "The manifest contains compressed strongest/weakest selected results, not a complete enrichment analysis; omitted effects cannot be treated as null.",
+        "This condition explicitly removes history matching. The supplied evidence does not provide matched historical information, ancestral diversity, or missingness summaries, so cross-condition and lineage-adjusted claims are unavailable.",
+        "Parent-edge contrasts are observational associations. The evidence does not establish parameter interventions, causal effects, or a fitted stage-dependent rule; do not infer a time trend solely from endpoint high-low effects.",
+        "The original bound-ligand/receptor structure provides geometric context only and has no affinity labels. Receptor-only and ligand-anchored geometric proxies are not physical affinity energies.",
+        "The reported endpoint is a predicted target pIC50, with strain secondary. No per-update parameter response, generated-coordinate structural validation, or experimental affinity measurement is supplied."
+      ],
+      "selected_family": "structure",
+      "updates": {
+        "contact_weight": 0.25,
+        "ligand_anchor_weight": 1,
+        "native_rms_ratio": 0.33,
+        "repulsion_weight": 2,
+        "time_ramp_power": 0
+      },
+      "design_rationale": "Choose the registered structure family because it combines ligand-coordinate anchoring with receptor-contact and clash terms, keeping a multimodal geometric objective tied to a real bound conformation instead of averaging separate feature targets into unsupported geometry. The ligand and receptor coordinates originate from the original common bound structure, not generated Steer history. Set time_ramp_power to 0 because selected endpoint, parent-edge, and survival results do not establish a temporal rule. The selected weights are a bounded prospective geometry hypothesis; the supplied associations do not identify causal parameter values, and this objective is not an affinity energy."
+    },
+    {
+      "condition": "I5_without_all",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ],
+      "findings": [
+        {
+          "evidence_id": "endpoint_effects:4",
+          "finding": "Across the reported endpoint comparison, shape_yy is lower in the high group (integrated z=-0.513; q=1.49e-5; CI [-0.620,-0.424]); batch positivity is 0/14. This is an association, not evidence that changing this shape improves affinity."
+        },
+        {
+          "evidence_id": "endpoint_effects:9",
+          "finding": "Pair-kernel features show a scale-dependent pattern: kernels 1.5, 2.5 and 3.5 have positive high-low effects (z≈0.54–0.63; q≤9.76e-5; 14/14 positive batches), while kernel 7.0 is negative (z=-0.485; q=1.46e-4; 0/14 positive batches)."
+        },
+        {
+          "evidence_id": "endpoint_effects:15",
+          "finding": "Landmark 00 occupancy3 is positively associated with endpoint group (z=0.545; q=2.35e-4; 14/14 positive batches), whereas landmark 06 occupancy5 is negative (z=-0.365; q=6.79e-4; 0/14); these localized observations do not establish a causal geometric target."
+        },
+        {
+          "evidence_id": "regional_effects:5",
+          "finding": "Reported regional enrichment includes negative local_cyy effects at landmarks 00, 01, 07, 16 and 17, while local_dy is positive at landmarks 02 and 06; the listed intervals exclude zero and q-values range from 7.08e-5 to 1.31e-4. These can motivate localized geometric hypotheses, not claims about physical affinity."
+        },
+        {
+          "evidence_id": "increment_effects:14",
+          "finding": "The strongest listed increment association is landmark_00_softmin (rate z=-4.91, q=0.046, 1/14 positive batches); landmark_00_occupancy3 has q=0.081, and most other listed increments are not significant after correction. Treat these increment results as exploratory."
+        },
+        {
+          "evidence_id": "survival_effects:0",
+          "finding": "No listed survival association passes q<0.05: the strongest shown is landmark_00_soft_mass (z=0.365, q=0.120; 14 independent batches). The supplied survival table therefore does not establish a robust survival predictor."
+        }
+      ],
+      "directions": [
+        "For the full formulation, compare the allowed native_rms_ratio values 0.1, 0.2 and 0.33, then time_ramp_power 0, 1 and 2; evaluate these as design interventions rather than assuming the endpoint associations are causal.",
+        "For the pocket formulation, test contact_weight and repulsion_weight settings from the supplied allowed values to probe whether broad contact attraction versus steric separation changes generated geometry.",
+        "For the structure formulation, vary ligand_anchor_weight across 0.5, 1 and 2 alongside contact_weight, while treating the bound ligand pose as a geometric reference rather than an affinity label.",
+        "Compare the static and unweighted formulations with supported native_rms_ratio and time_ramp_power settings to separate dependence on selected coordinate clouds from score weighting."
+      ],
+      "limitations": [
+        "The supplied evidence is a compressed selection of strongest and weakest q-values, not a complete enrichment analysis; missing features may change the overall picture.",
+        "The removed instruction blocks include lineage, temporal, elite_geometry and history_matching. This call has no evidence to reconstruct those histories or their causal effects.",
+        "Endpoint and regional statistics are associations; the structure record gives a bound-ligand geometry but explicitly has no affinity labels. The receptor coordinates alone cannot estimate enrichment, selection survival or temporal trends.",
+        "The stated objective is final FLOWR predicted target pIC50 with strain secondary, but this evidence contains no direct comparison of candidate interventions on those outcomes."
+      ],
+      "selected_family": "structure",
+      "updates": {
+        "contact_weight": 0.25,
+        "ligand_anchor_weight": 1,
+        "native_rms_ratio": 0.2,
+        "repulsion_weight": 2,
+        "time_ramp_power": 1
+      },
+      "design_rationale": "选择 structure family，因为此信息消融只提供原始结合配体与受体几何，不依赖生成轨迹或阶段性 elite 历史。采用中等配体锚定、较轻接触项与较强排斥，并收紧 native RMS 比例作为可检验的几何干预；结合姿势仅是几何参考，所给统计关联不能证明这些改动会提高 pIC50。"
+    },
+    {
+      "condition": "D1_without_scores",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ],
+      "findings": [
+        {
+          "evidence_id": "structure:geometry",
+          "finding": "The supplied original bound ligand has 25 heavy atoms and a strongly anisotropic coordinate distribution: covariance eigenvalues are 0.11, 5.70, and 9.30 Å². This supports treating the observed pose as spatially extended rather than roughly spherical; it does not establish a generated ligand's preferred geometry."
+        },
+        {
+          "evidence_id": "structure:original_contacts",
+          "finding": "In the original bound pose, the reported quantiles of nearest protein-center distances span about 2.86–4.00 Å. The listed closest regions include LEU45, ILE174, VAL66, VAL53, PHE113, HIS160, MET163, VAL116, ASP175, and HIS115; these are geometric proximities from an untyped Gaussian-shell proxy, not identified interactions or energetic contributions."
+        },
+        {
+          "evidence_id": "structure:original_contacts",
+          "finding": "The supplied contact summary covers 10 regions out of 53 total. The strongest listed proxy contact sums are PHE113 (18.71), LEU45 (16.93), and ILE174 (16.52), but this selected summary is not a complete ranked contact analysis and cannot establish residue importance."
+        },
+        {
+          "evidence_id": "structure:protein_crop",
+          "finding": "The receptor crop contains 308 heavy atoms within a 12 Å crop centered near the input site. This defines the spatial scope of the available receptor geometry, but gives no information about binding affinity or generated-state outcomes."
+        }
+      ],
+      "directions": [
+        "As a new geometric design hypothesis, compare the allowed contact_weight settings (0, 0.1, 0.25, 0.5, 1) in the pocket objective, which removes ligand attraction, and inspect whether generated poses retain plausible proximity to the supplied pocket geometry.",
+        "For the structure objective, explore the allowed ligand_anchor_weight values (0.5, 1, 2) as a controlled test of adherence to the original bound pose; treat this as pose-shape exploration rather than evidence of improved pIC50.",
+        "Compare allowed repulsion_weight values (0.5, 1, 2, 4) as a geometric clash-control hypothesis, checking generated structures for close contacts rather than assuming the largest setting is best.",
+        "Use allowed native_rms_ratio and time_ramp_power settings as bounded sensitivity dimensions; without scores or trajectories, select settings only after evaluating new generated structures and final target predictions."
+      ],
+      "limitations": [
+        "This call contains no affinity labels and no observed generated-state comparison table. It cannot establish enrichment, selection survival, temporal trends, or which configuration improves final target pIC50.",
+        "The supplied contact proxy uses untyped center distances and a Gaussian shell, not interaction types or a physical energy model; listed contacts are not evidence of hydrogen bonds, hydrophobicity, or energetic favorability.",
+        "The contact evidence is explicitly compressed to selected strongest and weakest q-values, and the displayed region list is partial; it does not support complete ranking or significance claims.",
+        "Historical lineage, temporal, elite-geometry, and history-matching information is removed. The supplied receptor structure and bound ligand describe an original pose, not generated Steer outcomes or an experimentally validated optimum."
+      ],
+      "selected_family": "pocket",
+      "updates": {
+        "contact_weight": 0.25,
+        "native_rms_ratio": 0.2,
+        "repulsion_weight": 1,
+        "time_ramp_power": 1
+      },
+      "design_rationale": "Choose the pocket family because it uses the supplied receptor crop without requiring generated Steer history or bound-ligand attraction. The moderate contact setting and baseline repulsion are bounded geometry hypotheses; native_rms_ratio and time_ramp_power are permitted sensitivity settings, not evidence-based optima. The untyped contact proxy supports only geometric proximity checks, and no affinity or generated-state outcomes were supplied."
+    },
+    {
+      "condition": "D2_without_trajectory",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ],
+      "findings": [
+        {
+          "evidence_id": "structure:geometry",
+          "finding": "The supplied reference is the original receptor with its bound ligand, with 25 ligand heavy atoms and no affinity labels. Its ligand coordinate covariance eigenvalues (0.111, 5.696, 9.303 Å²) indicate a strongly anisotropic pose; this describes reference geometry, not a predicted optimum."
+        },
+        {
+          "evidence_id": "structure:original_contacts",
+          "finding": "The original bound pose has observed close geometric neighborhoods around A:45:LEU, A:174:ILE, A:66:VAL, A:53:VAL, A:113:PHE, A:160:HIS, A:163:MET, A:116:VAL, A:175:ASP, and A:115:HIS. These are untyped distance-based proxy contacts, not validated interactions or energetic contributions."
+        },
+        {
+          "evidence_id": "structure:protein_crop",
+          "finding": "The receptor crop contains 308 heavy atoms within the stated 12 Å crop radius. Its nearest-neighbor distance quantiles include 1.226 and 1.371 Å, so the provided geometry includes very short separations that warrant treating the crop as geometric context rather than a validated physical energy landscape."
+        }
+      ],
+      "directions": [
+        "As a new geometry-based hypothesis, compare small changes to contact_weight (0, 0.1, 0.25, 0.5, 1) and repulsion_weight (0.5, 1, 2, 4) in the pocket or structure formula, while holding other settings fixed; evaluate generated predictions before inferring benefit.",
+        "As a new geometry-based hypothesis, test ligand_anchor_weight values 0.5, 1, and 2 in the structure formula to examine whether retaining reference-pose geometry helps while allowing graph transitions; the supplied evidence does not establish the best value.",
+        "Treat native_rms_ratio and time_ramp_power as controlled sensitivity parameters within their allowed values, and compare final target pIC50 and secondary strain empirically; the static evidence alone cannot select settings."
+      ],
+      "limitations": [
+        "No generated-state comparisons, target pIC50 outcomes, affinity labels, or strain measurements are supplied, so enrichment, selection survival, temporal trends, and parameter effects cannot be estimated.",
+        "The supplied evidence is compressed exploratory selected evidence, not a complete enrichment analysis.",
+        "This condition removes lineage, temporal, elite-geometry, and history-matching instruction blocks; no trajectory-derived claims are supported.",
+        "Contact sums use untyped center distances and a Gaussian shell, and the stated pocket formula is a geometric proxy rather than a physical affinity energy."
+      ],
+      "selected_family": "static",
+      "updates": {
+        "native_rms_ratio": 0.2,
+        "time_ramp_power": 0
+      },
+      "design_rationale": "Select the registered static family because this condition supplies only final selected teacher clouds and removes trajectory and history information. The permitted native_rms_ratio and time_ramp_power settings are controlled hypotheses, not evidence-based optima; static uses beta=0, so time ramping contributes no temporal signal. No score or trajectory dependency is introduced."
+    },
+    {
+      "condition": "D3_without_steer",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ],
+      "findings": [
+        {
+          "evidence_id": "structure:geometry",
+          "finding": "The original bound ligand has 25 heavy atoms and a compact, anisotropic geometry (covariance eigenvalues 0.11, 5.70, and 9.30 Å²). This supplies a native-pose reference for a structural restraint, but does not establish a target-optimal ligand shape."
+        },
+        {
+          "evidence_id": "structure:original_contacts",
+          "finding": "In the observed bound pose, the supplied nearest-protein distance quantiles are about 2.86–4.00 Å. Untyped geometric proxy contacts are concentrated among LEU45, ILE174, VAL66, VAL53, PHE113, HIS160, MET163, and VAL116; this describes the original pose only."
+        },
+        {
+          "evidence_id": "structure:original_contacts",
+          "finding": "The contact summary includes very short minimum center distances (about 2.86–2.89 Å for ASP175 and VAL116), while the metric has no atom typing or interaction labels. These close approaches motivate testing repulsion sensitivity, but cannot by themselves identify clashes or favorable interactions."
+        },
+        {
+          "evidence_id": "structure:protein_crop",
+          "finding": "The receptor evidence is a 308-heavy-atom crop of radius 12 Å around the standard input site. It can support local geometric hypotheses, but does not describe the full receptor environment."
+        }
+      ],
+      "directions": [
+        "For the structure objective, compare the allowed ligand_anchor_weight values 0.5, 1, and 2 to assess whether a stronger native-pose restraint preserves the observed ligand geometry while allowing graph transitions.",
+        "For both supported objectives, sweep allowed contact_weight values 0, 0.1, 0.25, 0.5, and 1; treat the contact term as an untyped geometric proxy and evaluate generated outcomes separately.",
+        "Test allowed repulsion_weight values 0.5, 1, 2, and 4, paying particular attention to whether the short-distance geometry changes without over-penalizing the native pose.",
+        "Compare allowed native_rms_ratio values 0.1, 0.2, and 0.33 and time_ramp_power values 0, 1, and 2 as design hypotheses; their effects on final target pIC50 require generated-state evaluation."
+      ],
+      "limitations": [
+        "Evidence is limited to an original receptor crop and its bound ligand geometry; there are no generated Steer states, affinity labels, or observed outcome comparisons.",
+        "The contact scores use untyped center distances and a Gaussian shell, and the structure formula is not a physical affinity energy.",
+        "This evidence cannot estimate enrichment, selection survival, temporal trends, or a validated target optimum.",
+        "The ablation removed lineage, temporal, elite-geometry, and history-matching instruction blocks; no conclusions about those omitted histories can be recovered from this call."
+      ],
+      "selected_family": "structure",
+      "updates": {
+        "contact_weight": 0.25,
+        "ligand_anchor_weight": 1,
+        "native_rms_ratio": 0.2,
+        "repulsion_weight": 1,
+        "time_ramp_power": 1
+      },
+      "design_rationale": "Select the registered structure family because this objective has an original bound ligand reference and local receptor geometry. The ligand anchor and RMS restraint use only the original bound pose; the contact and repulsion terms use the receptor crop and untyped geometric distances, so they are geometric proxies rather than affinity evidence. These moderate allowed settings are hypotheses for testing: the supplied evidence contains no affinity labels or generated outcomes and cannot establish an optimum. No lineage, temporal, elite-geometry, or history-matching information is available in this ablation."
+    },
+    {
+      "condition": "D4_pocket_only",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ],
+      "findings": [
+        {
+          "evidence_id": "structure:geometry",
+          "finding": "The supplied structure is the original common receptor/bound-ligand input, not a generated Steer structure; it contains 308 protein heavy atoms in the crop and has no affinity labels."
+        },
+        {
+          "evidence_id": "structure:protein_crop",
+          "finding": "The receptor crop is centered at [23.35, -30.94, 13.33] Å with a 12 Å radius and contains 308 protein heavy atoms; nearest-protein-neighbor distance quantiles are approximately 1.23, 1.37, and 3.90 Å."
+        }
+      ],
+      "directions": [
+        "Treat the pocket field as an untyped geometric proxy rather than a physical affinity energy; use modest contact weights (0 or 0.1/0.25) as candidate settings and assess outcomes with the specified final FLOWR predicted target pIC50 objective.",
+        "Because the supplied neighbor-distance quantiles include very short distances, compare repulsion weights 1 and 2 as a geometry-checking sensitivity experiment; these coordinates alone do not establish that stronger repulsion improves affinity.",
+        "Compare native_rms_ratio 0.2 and 0.33 and time_ramp_power 0 and 1 as permitted pocket-field sensitivities, while allowing graph transitions as specified."
+      ],
+      "limitations": [
+        "The evidence contains only receptor geometry, no affinity labels, generated designs, measured outcomes, or observed comparisons; it cannot support enrichment, selection-survival, temporal-trend, or causal-effect estimates.",
+        "The nearest-neighbor quantiles do not specify atom-pair identities or a full contact/clash analysis, so they cannot identify particular residues or ligand interaction motifs.",
+        "The pocket objective omits ligand attraction and is explicitly an untyped geometric proxy; proposed parameter settings are new design hypotheses, not statistically supported findings."
+      ],
+      "selected_family": "pocket",
+      "updates": {
+        "contact_weight": 0.1,
+        "native_rms_ratio": 0.2,
+        "repulsion_weight": 1,
+        "time_ramp_power": 1
+      },
+      "design_rationale": "Select the registered pocket family, which uses only the original receptor crop and has no generated-Steer or bound-ligand reward dependency. Use a modest contact term and repulsion weight 1 as exploratory geometric-proxy settings; compare the lower RMS ratio and a linear time ramp while evaluating the specified final FLOWR predicted target pIC50 objective. These settings are hypotheses, not affinity-supported conclusions."
+    }
+  ],
+  "scope": "Reproducible evidence, direction hypotheses and formula choice; not private hidden chain of thought."
+}
