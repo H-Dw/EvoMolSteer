@@ -21,7 +21,7 @@ def test_conditional_gradient_and_padding():
     assert torch.isfinite(gradient).all() and gradient[0, 2].norm() == 0
     direction = gradient / gradient.norm(); eps = 1e-5
     numerical = (reward(x+eps*direction, None, mask, .2, anchor)[0] - reward(x-eps*direction, None, mask, .2, anchor)[0])/(2*eps)
-    assert float(numerical) == pytest.approx(float((gradient*direction).sum()), rel=1e-5)
+    assert float(numerical.detach()) == pytest.approx(float((gradient*direction).sum()), rel=1e-5)
 
 def test_frame_covariance_and_permutation():
     p, r = example(); x = torch.tensor([[[2.8, .1, .2], [3.3, 1.1, .2]]], dtype=torch.float64)

@@ -35,11 +35,14 @@ def prepare(repo, input_path, config, docs):
     for name in ['unweighted', 'static']:
         data = copy.deepcopy(reference)
         for frame in data['frames']:
-            frame['teacher_scores'] = [0.0] * len(frame['teacher_endpoint_A'])
             if name == 'static':
                 for key in list(frame):
                     if key.startswith('teacher_'):
                         frame[key] = copy.deepcopy(data['frames'][-1][key])
+            frame['teacher_scores'] = [0.0] * len(frame['teacher_endpoint_A'])
+            for key in ['high_scaled', 'low_scaled', 'variance_scaled', 'score_gap_mean']:
+                frame.pop(key, None)
+        data['allowed_reward_views'] = ['endpoint_pointcloud']
         data['dependency_ablation'] = name
         data['label_semantics'] = 'Recorded affinities removed; equal score prior'
         path = config / (name + '.json.gz'); save_gzip(path, data); references[name] = path
@@ -78,6 +81,8 @@ def prepare(repo, input_path, config, docs):
         'ligand_covariance_eigenvalues_A2': np.linalg.eigvalsh(np.cov(ligand.T, bias=True)).tolist(),
         'origin': 'Original common receptor/bound ligand, not generated Steer',
         'no_affinity_labels': True}}]
+    from .structure_spatial_evidence import spatial_evidence
+    structural_support = support + spatial_evidence(inp / '3PE1_protein_aligned.pdb', ligand)
     out = []
     for identity, removed, level in CONDITIONS:
         folder = docs / identity; folder.mkdir(exist_ok=True)
@@ -117,7 +122,7 @@ def prepare(repo, input_path, config, docs):
                 'steps': 100, 'seed': 42, 'native_rms_ratio': .33, 'derivative_path': 'FLOWR endpoint VJP',
                 'affinity_head_gradient': False, 'particle_selection': False},
             'compression': 'Strongest 8 and weakest 2 q-values per supplied table; exploratory selected evidence, not a new complete enrichment analysis',
-            'evidence': entries + support if level == 'full' else support,
+            'evidence': entries + support if level == 'full' else structural_support,
             'formula_registry': registry,
             'formula_notes': {'full': 'R26 robust multimodal pointcloud', 'unweighted': 'R26 with score beta=0',
                 'static': 'All times use last elite pointclouds, beta=0',
@@ -130,6 +135,7 @@ def prepare(repo, input_path, config, docs):
             packet['evidence'][0] = copy.deepcopy(support[0])
             for key in ['known_ligand_heavy_atoms', 'ligand_centroid_A', 'ligand_covariance_eigenvalues_A2']:
                 packet['evidence'][0]['data'].pop(key)
+            packet['evidence'] = [x for x in packet['evidence'] if x['kind'] != 'original_ligand_geometry']
         write_json(folder / 'evidence.json', packet)
         for role in ['Analyst', 'Designer']:
             text = (repo / ('skills/steer-dependency-' + role.lower() + '/SKILL.md')).read_text()
