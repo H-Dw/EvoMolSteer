@@ -4,6 +4,7 @@ Read-only with respect to frozen inputs. This is a report, not an Agent input,
 new selection criterion, reward fit, or private reasoning transcript.
 """
 import argparse
+import csv
 from pathlib import Path
 
 from evomolsteer.io import digest, read_json, write_json
@@ -61,6 +62,21 @@ def write_report(input_dataset, configuration_dataset, output_dataset):
         f'实际活动配置：{active["default"]}；candidate_enabled={active["candidate_enabled"]}；奖励 SHA={digest(configuration / "active_program.json")}。', '',
         '检验采用批次为重采样单位，不能把 300 个后代当作 300 次独立实验。应变只统计有效且 MMFF 优化收敛的分子，是生成构象到同图松弛构象的能量差代理，表中单列覆盖；不是全部尝试均有物理能量。指标来自同一预测亲和力模型及构象检查，尚无实验结合常数验证。', '',
         '## 与历史 Steer 的关系', '']
+    distribution = source / 'derived_evidence/pair_effects/paired_effect_distribution.csv'
+    if distribution.is_file():
+        inputs[str(distribution)] = digest(distribution)
+        with distribution.open(encoding='utf-8', newline='') as stream:
+            held_out = {int(row['round']): row for row in csv.DictReader(stream)
+                        if int(row['round']) in (26, 28, 30)}
+        if set(held_out) != {26, 28, 30}:
+            raise ValueError('All three retained held-out heterogeneity summaries required')
+        shares = [float(held_out[n]['top5_absolute_effect_share']) for n in (26, 28, 30)]
+        medians = [float(held_out[n]['median_delta_pic50']) for n in (26, 28, 30)]
+        lines[-2:-2] = [
+            '事后配对分布显示：第26/28/30轮各100个尝试中，绝对差异最大的5个尝试分别占总绝对差异的'
+            + '/'.join(f'{value:.2%}' for value in shares)
+            + '；配对差异中位数分别为' + '/'.join(f'{value:+.3g}' for value in medians)
+            + ' pIC50。六批均值改善并不意味着大多数分子明显改善；收益集中于少数路径。此描述未新增选择阈值或改变冻结确认。', '']
     steer = confirmation['historical_Steer_unpaired']
     lines += [f'原 Steer 共 {steer["n"]} 个尝试，平均预测 pIC50 {steer["all_mean_pic50"]:.6f}，最高有效分数 {steer["valid_max_pic50"]:.6f}，极高分产率 {steer["elite_yield"]:.1%}；应变中位/P90 {steer["strain_median_per_heavy"]:.4f}/{steer["strain_p90_per_heavy"]:.4f}。', '',
         '历史 Steer 的发现供体参与奖励构建，样本量、在线评分和分支探索预算也不同；这是非配对参照。本轮无引导和梯度组也保留原生 SDE 与离散随机采样。Steer 特有的是复制高分路径后获得多个随机后代并在线重新分配群体预算，历史结果具有更高的极高分尾部产率；不能用不等预算确定该优势的因果幅度。当前局部几何奖励尚未证明采样分布等价，也未证明更自由区域与邻域适配同步改善。', '',

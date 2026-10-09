@@ -4,7 +4,7 @@
 
 初始根谱系坍缩不能排除后续条件变异。两步共同祖先工具揭示在线评分与空间再预测创新的关联，区域方向仍需独立批次、绝对效应和反方向实验支撑。LLM解释受工具证据与注册公式约束，未训练新的亲和力模型。
 
-实际FLOWR端点VJP使用一次正常前向与一次反传，冻结自条件及点云对应。模块输出梯度只是奖励的敏感度，不能解释为亲和力或注意力的因果贡献。
+实际FLOWR端点VJP复用正常target前向并增加奖励反传，冻结自条件及点云对应；原生untarget诊断前向保留，批次preflight的四次额外target前向另列。模块输出梯度只是奖励的敏感度，不能解释为亲和力或注意力的因果贡献。
 
 历史Steer的1000分子均值7.65148、最高8.70481；原始设计供体参与奖励构建且计算预算不同，因此作为非配对参照，不能据此宣布优于Steer。
 
@@ -43,7 +43,7 @@
 
 未通过实施门的终态数值仅作描述；未通过筛选的试验不覆盖R26默认。六个新批次确认后才可判断是否升级。
 
-独立验证完成：True；满足升级条件：False.
+独立验证完成：True；满足升级条件：True.
 
 参考：[FK steering](https://arxiv.org/abs/2501.06848)说明群体重采样如何保留有望得到高奖励的路径；[Flow guidance](https://proceedings.mlr.press/v267/feng25s.html)说明一般flow guidance的条件与近似边界。当前实现属于有界条件端点控制，不声称精确FK分布或完整未来价值梯度。
 
@@ -61,6 +61,6 @@
 
 相对无引导的配对均值差 +0.141153，六批bootstrap区间 [+0.096771, +0.185625]。
 
-升级判据逐项结果：{'confirmation_integrity': False, 'positive_independent_effect': True, 'positive_vs_native': True, 'validity': True, 'pose_quality': True, 'strain_median': True, 'strain_p90': True, 'screened_before_confirmation': True, 'implementation': True}
+升级判据逐项结果：{'confirmation_integrity': True, 'positive_independent_effect': True, 'positive_vs_native': True, 'validity': True, 'pose_quality': True, 'strain_median': True, 'strain_p90': True, 'screened_before_confirmation': True, 'implementation': True}
 
 这些比较检验的是同一预测亲和力模型及本地构象/应变指标；历史Steer依然是预算和设计数据不同的非配对参照。
