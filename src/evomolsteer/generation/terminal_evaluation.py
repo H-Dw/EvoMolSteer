@@ -123,7 +123,10 @@ def summarize(rows):
 def evaluate_terminal(dataset,campaign,reference_path,output,arms,batches,workers=4):
     root=Path(dataset);campaign_root=root/'results'/campaign;out=Path(output)
     if not (campaign_root/'COMPLETE.json').exists():raise ValueError('Campaign incomplete')
-    out.mkdir(parents=True,exist_ok=True);reference=load_reference(reference_path)
+    reference=load_reference(reference_path)
+    if not all(k in reference for k in ['catalog','features','frames']) or not reference['frames']:
+        raise ValueError('Terminal evaluation requires a local diagnostic reference with catalog/features/frames; reward teacher libraries are not diagnostic references')
+    out.mkdir(parents=True,exist_ok=True)
     from ..trajectory_source import pocket_input_path
     protein=pocket_input_path(root,'target_protein');points=protein_points(protein)
     sources=[];allrows=[];batch_summaries=[];pbrows=[]

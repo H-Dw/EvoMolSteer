@@ -1,0 +1,43 @@
+{
+  "role": "Analyst",
+  "condition": "I5_without_all",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "pair_kernel_2.5 is positively associated with endpoint score: high-low integrated z=0.631, CI [0.495, 0.758], q=2.19e-5, positive in every supplied batch. The supplied 1.5/3.5 kernels are also positive, whereas the 7.0 kernel is negative; this supports a scale-dependent internal geometry hypothesis, not a receptor-contact effect."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy is lower in the high-score group (z=-0.513, CI [-0.620, -0.424], q=1.49e-5, no positive batches), despite a positive last-minus-first change of 0.148. Temporal movement alone does not identify the score-favorable direction."
+    },
+    {
+      "evidence_id": "regional_effects:75",
+      "finding": "Landmark 07 local_cyy has negative enrichment (z=-0.646, CI [-0.768, -0.534], q=7.08e-5, no positive batches). Similar negative local_cyy associations at landmarks 00/01/16/17 support testing reduced local y spread; supplied positive local_dy signals show that displacement and spread are distinct observables."
+    },
+    {
+      "evidence_id": "endpoint_effects:15",
+      "finding": "Landmark 00 occupancy3 is positively associated with endpoint score (z=0.545, CI [0.393, 0.699], q=2.35e-4, all batches positive). Its positive regional soft_mass enrichment provides convergent evidence for regional population, without establishing a causal attraction target."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "Landmark 00 softmin has a negative success-failure integrated rate contrast (z=-4.914, CI [-6.855, -2.616], q=0.0461). The corresponding occupancy3 increment has q=0.0811, and other supplied increment effects have larger q-values; endpoint enrichment cannot be assumed to imply reliable transition gains."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "Landmark 00 soft_mass survival enrichment is positive (z=0.365, CI [0.200, 0.515], 12/14 batches positive), but q=0.1204. Every supplied survival q-value exceeds 0.05, so these summaries do not establish adjusted-significant survival associations."
+    }
+  ],
+  "directions": [
+    "Compare the registered full, unweighted, static, structure and pocket families using final predicted target pIC50 and secondary strain. Search native_rms_ratio {0.1, 0.2, 0.33} and time_ramp_power {0, 1, 2} as intervention hypotheses; the supplied associations do not identify a winning family or ramp.",
+    "Monitor pair kernels, shape_yy, local_cyy/local_dy, landmark 00 occupancy/soft_mass and landmark 06 occupancy/softmin alongside final scores. Landmark 06 occupancy rises over time despite negative endpoint association, while softmin falls despite positive association; assess intervention outcomes rather than copying temporal trends.",
+    "For structure and pocket, test allowed contact_weight and repulsion_weight changes with clash and geometry observables. Treat receptor contact tuning as a new hypothesis because the internal pair-kernel associations do not measure receptor contacts.",
+    "For structure, test ligand_anchor_weight {0.5, 1, 2}. The supplied 25-atom bound ligand has covariance eigenvalues [0.111, 5.696, 9.303] A2, suggesting a thin geometric template; anchoring its coordinates is a design hypothesis requiring score and strain validation."
+  ],
+  "limitations": [
+    "Evidence contains selected strongest eight and weakest two q-values per table, not raw comparisons or a complete new enrichment analysis; feature dependence and unreported results limit interpretation.",
+    "Associations and supplied temporal deltas do not establish causality or the efficacy of any allowed parameter update. No candidate-family outcome comparison is supplied.",
+    "Landmark coordinates, axis-frame definitions and feature formulas are absent, preventing translation of local signals into physical interaction sites or exact new forces.",
+    "Original receptor/bound-ligand geometry has no affinity labels. Geometry alone supplies no enrichment, survival or temporal estimates.",
+    "Execution has no particle selection or affinity-head gradient; supplied survival evidence does not demonstrate selection behavior in this execution."
+  ]
+}

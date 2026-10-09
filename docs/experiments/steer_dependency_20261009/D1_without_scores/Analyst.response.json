@@ -1,0 +1,38 @@
+{
+  "role": "Analyst",
+  "condition": "D1_without_scores",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original bound ligand has 25 heavy atoms and covariance eigenvalues 0.111, 5.696 and 9.303 A2, supporting a nearly planar, anisotropic pose reference. This is static geometry, not evidence that this shape improves generated-ligand pIC50."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "LEU45, ILE174 and VAL66 each neighbor 9-10 ligand atoms within 4.5 A, suggesting distributed pocket occupancy as a design hypothesis. PHE113 has the largest listed proxy sum (18.712) despite only six neighboring ligand atoms; atom counts and distance weighting affect this untyped proxy."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "Reported nearest-protein distance quantiles span 2.858-4.005 A with median 3.682 A. They describe the occupied reference pose near the formula's 3.6 A contact shell, but do not establish an optimal contact distance or attractive interaction."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The receptor crop contains 308 heavy atoms within a reported 12 A radius. Its protein-neighbor distance quantiles describe receptor geometry; they cannot establish ligand clash frequency or ligand-receptor repulsion strength."
+    },
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The supplied geometry has no affinity labels. No score, trajectory, selection comparison or teacher pointcloud is supplied, so historical enrichment, survival and temporal trends are unavailable in this request."
+    }
+  ],
+  "directions": [
+    "Compare registered structure and pocket controls under the supplied seed, 100 steps and [0, 0.5] window, evaluating final predicted pIC50 and secondary strain; the reference pose alone cannot select a winner.",
+    "For structure and pocket, compare contact_weight 0, 0.25 and 0.5 with other settings fixed, using ligand-receptor distances and occupancy across the listed regions to test the geometric contact hypothesis.",
+    "For structure, compare ligand_anchor_weight 0.5, 1 and 2 while holding contact and repulsion fixed; assess pose retention alongside pIC50, strain and graph transitions to test the value of the planar reference.",
+    "Evaluate repulsion_weight 0.5, 1, 2 and 4 only in structure or pocket, against observed generated ligand-receptor distances below 2 A. Treat native_rms_ratio and time_ramp_power changes as prospective experiments, not historically supported trends."
+  ],
+  "limitations": [
+    "Only original receptor and bound-ligand summaries are observed; formula registry descriptions do not expose selected historical coordinates or outcomes.",
+    "The listed regions are a subset of 53, and summaries omit full atom coordinates, atom types and interaction labels. They cannot support an affinity or physical-energy interpretation.",
+    "The compression note mentions selected q-values, but no comparison table or q-value is supplied; no statistical association or enrichment estimate can be reported.",
+    "All proposed updates are unvalidated hypotheses within registered parameter support. A single seed and static reference cannot establish robustness, strain improvement or the best formula."
+  ]
+}

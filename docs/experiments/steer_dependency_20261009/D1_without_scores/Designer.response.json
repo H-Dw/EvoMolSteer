@@ -1,0 +1,21 @@
+{
+  "role": "Designer",
+  "condition": "D1_without_scores",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.25,
+    "ligand_anchor_weight": 0.5,
+    "repulsion_weight": 1,
+    "native_rms_ratio": 0.33,
+    "time_ramp_power": 1
+  },
+  "rationale": "Choose structure as a prospective geometric hypothesis, with a modest ligand anchor and contact component. The attraction target is the original bound-ligand pointcloud; its anisotropic, nearly planar geometry supplies a pose reference. Contact and repulsion targets use the original receptor crop. The 3.6 A contact shell and 2 A exclusion threshold originate in the registered formula, not inferred affinity optima. None requires generated Steer coordinates, trajectories, or historical affinity scores. No supplied statistical comparison establishes improved pIC50 or optimal weights. Component weights specify the proposed direction; retaining native_rms_ratio 0.33 preserves the matched protocol's gradient magnitude setting, while the linear ramp is an unvalidated timing hypothesis. Evaluate using FLOWR endpoint VJP with detached Hungarian correspondence, keeping seed 42, 100 steps, and window [0, 0.5].",
+  "failure_modes": [
+    "The original pose may constrain novel graphs or bias occupancy without improving final predicted pIC50; check strain and graph transitions.",
+    "Untyped contacts can reward chemically unfavorable proximity, and 2 A repulsion is an incomplete clash proxy.",
+    "Detached Hungarian matching remains piecewise across correspondence changes and may produce unstable guidance.",
+    "Whole-scalar rescaling may cancel under gradient normalization; component reweighting changes direction and is not evidence of stronger effective guidance.",
+    "Time derivatives are not spatial gradients; incorrect endpoint VJP implementation invalidates the update.",
+    "Absent historical outcomes and single-seed evaluation cannot establish a winning family, calibrated weights, or robustness."
+  ]
+}
