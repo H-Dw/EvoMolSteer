@@ -1,0 +1,163 @@
+{
+  "conditions": {
+    "D3_without_steer": [
+      {
+        "compiled": {
+          "family": "structure",
+          "information_level": "structure",
+          "numerical_fingerprint": "64e14601b9e13f8890b25d8d0e0430c199ce9f62ccade4cb6f334af3d4fda6b5",
+          "program": "configs/experiments/steer_dependency_v1/D3_without_steer.json",
+          "reference": "configs/experiments/steer_dependency_v1/structure.json.gz",
+          "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d"
+        },
+        "directions": [
+          "Test structure versus pocket with matched shared settings; use a declared structure anchor weight such as 1. This tests the original ligand's geometric constraint, with no evidence-backed winner.",
+          "Sweep contact_weight over allowed values while holding other settings fixed; record regional coverage and nearest-distance distributions. More Gaussian-shell contact is a geometric hypothesis, not an affinity result.",
+          "Within structure, compare ligand_anchor_weight 0.5, 1 and 2; assess pose proximity and whether stronger shape constraints restrict graph transitions. The observed ligand shape motivates this test but does not select a weight.",
+          "Test repulsion_weight and time_ramp_power in separate controlled sweeps using their allowed values; measure generated distances below 2 A and final geometric occupancy. Original static coordinates cannot select either setting."
+        ],
+        "family": "structure",
+        "rationale": "Choose the registered structure reward as an exploratory geometric hypothesis. The anchor target comes from the original bound ligand; contact and repulsion distances use the original receptor crop. The 3.6 A shell and 2 A cutoff come from the formula registry, not inferred affinity optima. No generated Steer history is required. Static ligand anisotropy and distributed contacts motivate testing pose occupancy, but provide no statistical evidence of pIC50 improvement or a winning family. These declared weights are test settings; retain the matched 0.33 native RMS ratio. Compute spatial guidance through FLOWR endpoint VJP with detached Hungarian correspondence. Component weights alter guidance direction; uniform scalar scaling may cancel under normalization. Compare outcomes before claiming benefit.",
+        "replicate": "primary",
+        "updates": {
+          "contact_weight": 0.25,
+          "ligand_anchor_weight": 1,
+          "native_rms_ratio": 0.33,
+          "repulsion_weight": 1,
+          "time_ramp_power": 0
+        }
+      },
+      {
+        "compiled": {
+          "family": "structure",
+          "information_level": "structure",
+          "numerical_fingerprint": "2737c1627c17c7b5ebc22c0503646b38ac895d706a40efbe7a812a5f9a0ebcf2",
+          "program": "configs/experiments/steer_dependency_v1/D3_without_steer__replicate_1.json",
+          "reference": "configs/experiments/steer_dependency_v1/structure.json.gz",
+          "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d"
+        },
+        "directions": [
+          "Test a structure-field hypothesis with ligand_anchor_weight=0.5, contact_weight=0, repulsion_weight=1, native_rms_ratio=0.2, and time_ramp_power=1; compare ligand_anchor_weight=1 under otherwise identical settings. The bound-ligand template motivates this anchor comparison, while weaker anchoring may permit greater coordinate and graph variation. Measure the tradeoff rather than claiming either setting improves affinity. Evidence: structure:geometry, structure:original_contacts.",
+          "Test the receptor-only pocket program with contact_weight in {0, 0.1, 0.25}, repulsion_weight=1, native_rms_ratio=0.2, and time_ramp_power=1. Compare these matched settings to determine whether adding the untyped contact proxy improves final predicted target pIC50 or merely increases geometric contact. Examine occupancy across the supplied residue regions without assigning interaction or affinity labels. Evidence: structure:protein_crop, structure:original_contacts.",
+          "For a selected matched configuration, separately compare repulsion_weight=1 versus 2 and native_rms_ratio=0.1 versus 0.2; compare time_ramp_power in {0, 1, 2} only with the same program and other weights. Track generated ligand-protein distances below 2 A and endpoint displacement to assess collision control and steering strength. The original-pose distance quantiles are a diagnostic reference, not a validated generated-state optimum. Evidence: structure:original_contacts, structure:protein_crop.",
+          "Evaluate hypotheses with matched seed repeats while retaining the supplied 100 steps, window [0.0, 0.5], endpoint VJP, disabled affinity-head gradient, and disabled particle selection. Record final FLOWR predicted target pIC50 as the primary outcome, strain as secondary, and graph transitions, contact proxy, anchor displacement, and short-distance counts as observables. Compare with the matched current native_rms_ratio=0.33 protocol before interpreting improvement. Evidence: structure:geometry, structure:original_contacts, structure:protein_crop."
+        ],
+        "family": "structure",
+        "rationale": "Choose the registered structure program configs/experiments/steer_dependency_v1/D3_without_steer_structure.json with reference configs/experiments/steer_dependency_v1/structure.json.gz. Its concrete spatial reward is R(x) = -0.5*(sqrt(1+Hungarian_MSE(x,L_original))-1) - sum(relu(2 A-d(x,P_original))^2)/N; the registered saturated 3.6 A contact term has weight 0. The ligand target comes exclusively from the original bound-ligand coordinates: the supplied 25-heavy-atom, anisotropic nearly planar template motivates a modest anchor as a prospective pose hypothesis. The clearance target comes exclusively from the original 308-heavy-atom receptor crop; the fixed 2 A threshold is a registered collision-control heuristic, not an optimum estimated from the original-pose quantiles. Neither target requires generated Steer states, lineage, temporal observations, elite geometry or history matching. There are no treatment comparisons, affinity labels or q-values supporting superiority, and the objective remains final FLOWR predicted target pIC50 with strain secondary; this coordinate reward does not directly optimize or measure binding energy. Set contact_weight=0 because the untyped contact summaries do not validate a contact objective; use ligand_anchor_weight=0.5 to permit coordinate variation while retaining a weak structural reference, and repulsion_weight=1 to oppose short distances. Relative component weights alter the spatial direction. Use native_rms_ratio=0.2 as a conservative prospective steering setting relative to the supplied 0.33 protocol, with registered time_ramp_power=1; whole-scalar ramping or rescaling may cancel under gradient normalization and is not evidence of a directional change. Execute through the FLOWR endpoint VJP with detached Hungarian correspondence, retaining seed 42, 100 steps, window [0.0,0.5], disabled affinity-head gradient and disabled particle selection. Time derivatives must not substitute for spatial gradients. Assess final predicted target pIC50, strain, graph transitions, anchor displacement and sub-2 A distances in matched comparisons before claiming improvement.",
+        "replicate": "replicate_1",
+        "updates": {
+          "contact_weight": 0,
+          "ligand_anchor_weight": 0.5,
+          "native_rms_ratio": 0.2,
+          "repulsion_weight": 1,
+          "time_ramp_power": 1
+        }
+      }
+    ],
+    "I0_full": [
+      {
+        "compiled": {
+          "family": "structure",
+          "information_level": "full",
+          "numerical_fingerprint": "1e79336bca0672d98db1927e78fb2f808655b4d2e8b60c35f1b6b6ed984c4203",
+          "program": "configs/experiments/steer_dependency_v1/I0_full.json",
+          "reference": "configs/experiments/steer_dependency_v1/structure.json.gz",
+          "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d"
+        },
+        "directions": [
+          "Test a regional coordinate objective that increases landmark 00 occupancy or soft mass and reduces local y spread, using the endpoint and incremental associations as hypotheses. Evaluate final predicted pIC50 and strain separately, and require replication before treating later-survival benefit as established.",
+          "Test shorter-scale pair organization and reduced landmark 06 occupancy5, with steric checks. Do not equate the positive 1.5-scale kernel association with permission to introduce close-contact clashes; kernel definitions and chemical typing are absent.",
+          "Use the allowed ligand_anchor_weight values [0.5,1,2], contact_weight values [0,0.1,0.25,0.5,1] and repulsion_weight values [0.5,1,2,4] as controlled mechanism tests. The evidence identifies coordinate associations, not an optimal coefficient or a justified increase in generic contact attraction.",
+          "Compare the registered full, unweighted, static, structure and pocket fields under the supplied matched execution protocol to isolate score weighting, stage coordinates and structural anchoring. No supplied outcome ranks these formulas, so retain all as experimental alternatives.",
+          "Treat time_ramp_power [0,1,2] as a schedule experiment rather than a supported stage rule. Collect observed node-level contrasts, fitted-versus-observed checks, ancestor counts and descendant score credit before deciding when a coordinate preference should strengthen or reverse. Keep window [0,0.5] and native_rms_ratio 0.33 as the stated baseline."
+        ],
+        "family": "structure",
+        "rationale": "Choose structure as a testable design without generated history, not an empirically ranked winner. The original 25-heavy-atom bound ligand supplies the Hungarian coordinate anchor; the original receptor crop supplies the registered 2 A repulsion target. Neither requires generated Steer coordinates, affinity weights or parent-child increments. A real bound conformation avoids independently averaged feature targets; registered multimodal fields remain alternatives for preserving distinct selected conformations. Endpoint enrichment motivates coordinate hypotheses, but missing landmark mappings prevent converting regional associations into executable targets here. Landmark 00 increment support does not supply a coordinate displacement target, so no increment-matching term is added. Contact weight zero avoids inferring affinity from generic proximity; repulsion weight two is a proposed clash-control tradeoff, not an estimated optimum. Keep native_rms_ratio 0.33 and the matched execution contract, with time_ramp_power zero because stage-specific evidence is absent. Use FLOWR endpoint VJP with detached Hungarian correspondence. Component weights change direction; whole-scalar rescaling may cancel under gradient normalization. Evaluate final predicted pIC50 and strain against registered historical alternatives.",
+        "replicate": "primary",
+        "updates": {
+          "contact_weight": 0,
+          "ligand_anchor_weight": 1,
+          "native_rms_ratio": 0.33,
+          "repulsion_weight": 2,
+          "time_ramp_power": 0
+        }
+      },
+      {
+        "compiled": {
+          "family": "full",
+          "information_level": "full",
+          "numerical_fingerprint": "b81eb76c3658a1176f09a065a8df1612917ba8cd1e9ebfc3622ea6f6974be923",
+          "program": "configs/experiments/steer_dependency_v1/I0_full__replicate_1.json",
+          "reference": "configs/experiments/skill_ablation_v1/endpoint_reference.json.gz",
+          "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c"
+        },
+        "directions": [
+          "Use the supplied full formula as the historical baseline. Test native_rms_ratio=0.2 against the recorded 0.33 while keeping other settings, the 100-step [0.0,0.5] execution window and matched seeds fixed; treat this as a conservative steering-strength hypothesis rather than a demonstrated consequence of the associations. Compare final predicted target pIC50 with strain as the secondary outcome, including graph-transition outcomes.",
+          "Run matched full, unweighted and static comparisons with the same native_rms_ratio and time_ramp_power to isolate the possible contributions of historical score weighting and stage-specific teacher coordinates. The full/unweighted/static programs support only those two update keys; the supplied evidence does not already demonstrate any between-formula performance difference.",
+          "For pocket and structure alternatives, use a restrained geometry-only comparison of contact_weight=0.1 versus 0.25 and repulsion_weight=1 versus 2 at a matched native_rms_ratio; hold structure ligand_anchor_weight=1 initially. These are allowed parameter values and new hypotheses. Check whether short-range geometric association can be translated into improved predicted pIC50 without increased strain or excessive overlap; no chemical or physical affinity interpretation of the untyped contact proxy is established.",
+          "Use time_ramp_power=0 as a proposed neutral reference and regard values 1 or 2 as exploratory controls. Before adopting a stage-dependent rule, obtain empirical per-node contrasts, support and fitted-versus-observed residuals, plus descendant survival and score credit with ancestor counts/diversity and missingness denominators. Landmark-0 localization and y-direction covariance are candidate observables to track, not directly supported new reward terms."
+        ],
+        "family": "full",
+        "rationale": "Select the concrete registered R26 robust multimodal pointcloud function full, implemented by configs/experiments/steer_dependency_v1/I0_full_full.json with reference configs/experiments/skill_ablation_v1/endpoint_reference.json.gz, and apply native_rms_ratio=0.2 and time_ramp_power=0. Its coordinate targets originate from stage-specific selected historical elite pointclouds; its affinity weighting originates from their historical scores. Both dependencies are retained explicitly. Preserve the distinct teacher coordinate modes rather than independently averaging feature targets, which could produce unsupported geometry. Endpoint pair-kernel associations at 1.5, 2.5 and 3.5 and the negative shape_yy and regional local_cyy associations motivate retaining a whole-conformation historical proxy, but do not establish the reward's causal effect on predicted pIC50. The smaller RMS ratio is a conservative proposed steering-strength choice relative to the recorded 0.33, not an estimated optimum. A constant ramp is the neutral choice because aggregate temporal deltas and increment rates do not establish a supported stage-dependent intervention. Do not add parent-child increment matching: the supplied summaries lack coordinate-valued target increments, node support and uncertainty sufficient to define that separate term. This choice requires more history than unweighted, static or structure, and its dependency should be assessed against those registered controls with matched parameters; no comparative advantage is already observed. Evaluate through FLOWR endpoint VJP with detached correspondence, retaining the supplied 100 steps, seed 42 and [0.0,0.5] window. Historical affinity scores weight geometric modes; there is no affinity-head gradient or particle selection. Component weighting can change direction, whereas whole-scalar rescaling may cancel under gradient normalization. No untyped geometric association is interpreted as a physical binding energy.",
+        "replicate": "replicate_1",
+        "updates": {
+          "native_rms_ratio": 0.2,
+          "time_ramp_power": 0
+        }
+      }
+    ],
+    "I5_without_all": [
+      {
+        "compiled": {
+          "family": "full",
+          "information_level": "full",
+          "numerical_fingerprint": "d29cc843c50e865f891c62e5dc78edc4ba6159d3b78c8ba0f9d762b9d1aa8403",
+          "program": "configs/experiments/steer_dependency_v1/I5_without_all.json",
+          "reference": "configs/experiments/skill_ablation_v1/endpoint_reference.json.gz",
+          "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c"
+        },
+        "directions": [
+          "Compare the registered full, unweighted, static, structure and pocket families using final predicted target pIC50 and secondary strain. Search native_rms_ratio {0.1, 0.2, 0.33} and time_ramp_power {0, 1, 2} as intervention hypotheses; the supplied associations do not identify a winning family or ramp.",
+          "Monitor pair kernels, shape_yy, local_cyy/local_dy, landmark 00 occupancy/soft_mass and landmark 06 occupancy/softmin alongside final scores. Landmark 06 occupancy rises over time despite negative endpoint association, while softmin falls despite positive association; assess intervention outcomes rather than copying temporal trends.",
+          "For structure and pocket, test allowed contact_weight and repulsion_weight changes with clash and geometry observables. Treat receptor contact tuning as a new hypothesis because the internal pair-kernel associations do not measure receptor contacts.",
+          "For structure, test ligand_anchor_weight {0.5, 1, 2}. The supplied 25-atom bound ligand has covariance eigenvalues [0.111, 5.696, 9.303] A2, suggesting a thin geometric template; anchoring its coordinates is a design hypothesis requiring score and strain validation."
+        ],
+        "family": "full",
+        "rationale": "Test the registered full multimodal pointcloud reward with conservative guidance and a constant ramp. Its attraction targets originate in stage-specific historical elite coordinates; mixture weights require historical affinity scores. These targets are geometrical hypotheses, not binding energies. Positive short-scale pair kernels and reduced local y spread motivate testing coordinate guidance, but do not establish that elite matching improves pIC50 or that this family wins. The 0.1 guidance ratio limits intervention strength; ramp power 0 avoids inferring a spatial force or schedule from temporal deltas. Use the registered FLOWR endpoint VJP with correspondence detached. Keep the supplied execution window and assess final predicted target pIC50 and secondary strain.",
+        "replicate": "primary",
+        "updates": {
+          "native_rms_ratio": 0.1,
+          "time_ramp_power": 0
+        }
+      },
+      {
+        "compiled": {
+          "family": "structure",
+          "information_level": "full",
+          "numerical_fingerprint": "86fc0518798d8153634af6075887d5499a99d553c0e30eb9b9cd32e9ea898f87",
+          "program": "configs/experiments/steer_dependency_v1/I5_without_all__replicate_1.json",
+          "reference": "configs/experiments/steer_dependency_v1/structure.json.gz",
+          "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d"
+        },
+        "directions": [
+          "Test whether historical reference choices change final predicted target pIC50 by comparing full, unweighted and static with the same supplied execution: FLOWR endpoint VJP, seed 42, 100 steps, window [0.0, 0.5], native_rms_ratio=0.33, no affinity-head gradient and no particle selection. Treat score weighting and stage-specific reference effects as hypotheses to measure; the registry describes references but supplies no outcomes for these programs.",
+          "Use structure and pocket as geometry-based candidate baselines. Within structure, compare ligand_anchor_weight=0.5, 1 and 2 while fixing the other controls; then compare structure with pocket at matched contact, repulsion, RMS and ramp settings to assess the contribution of the original bound-ligand anchor. Record ligand alignment error, receptor distances and final predicted pIC50; a benefit cannot be inferred from the flattened ligand geometry alone.",
+          "Test moderate contact_weight values 0.1 and 0.25 against the allowed zero-contact control in structure or pocket, holding the anchor fixed where supported. Compare repulsion_weight=1 and 2, escalating to 4 only if the distance-below-2-A penalty remains problematic. Measure the specified saturated 3.6-A contact term and clash penalty directly. The short-scale pair-kernel evidence motivates this experiment but does not calibrate these receptor-contact weights.",
+          "For a selected reference formula, compare native_rms_ratio=0.1, 0.2 and 0.33 at fixed time_ramp_power, then compare time_ramp_power=0, 1 and 2 at fixed RMS ratio. Retain the supplied steering window and other execution settings. Rank observed final predicted pIC50 first and strain second, while monitoring shape_yy and landmark-00/06 observables if their original definitions are available; endpoint associations do not establish an optimal ramp."
+        ],
+        "family": "structure",
+        "rationale": "Select the registered structure function in configs/experiments/steer_dependency_v1/I5_without_all_structure.json, using configs/experiments/steer_dependency_v1/structure.json.gz: R_structure = -(sqrt(1 + Hungarian_MSE) - 1) + 0.1*saturated_3.6A_contact - 2*sum(relu(2A - d)^2)/N. The ligand alignment target originates from the original 25-heavy-atom bound ligand; the contact and repulsion targets originate from the original receptor crop. This function requires neither generated Steer coordinates nor historical scores, lineage, survival or stage-specific teacher clouds. Its anchor is a proposed pose/shape proxy, supported as a testable geometry baseline by structure:geometry; the flattened ligand covariance does not establish a pIC50 benefit. Endpoint pair-kernel associations (endpoint_effects:10, :9, :11 and :13) motivate testing a modest geometric component but do not identify receptor contact distances or calibrate its weight. Contact weight 0.1 and repulsion weight 2 provide a conservative attraction-versus-clash hypothesis while ligand anchor weight 1 retains the registered original-ligand target. The chosen native_rms_ratio 0.2 moderates guidance relative to the supplied 0.33; time_ramp_power 1 is an exploratory registered scheduling choice, not an optimum inferred from temporal statistics. Use the registered ramp convention and FLOWR endpoint VJP with detached Hungarian correspondence, preserving seed 42, 100 steps, window [0.0, 0.5], disabled affinity-head gradient and disabled particle selection. Compute spatial reward gradients at the predicted endpoint and pull them back through FLOWR; do not substitute observed time derivatives. Relative contact, anchor and repulsion weights can alter direction, whereas whole-scalar rescaling can cancel under gradient normalization. Final predicted target pIC50 remains the outcome to measure, with strain secondary; no measured gain or binding-energy claim is implied.",
+        "replicate": "replicate_1",
+        "updates": {
+          "contact_weight": 0.1,
+          "ligand_anchor_weight": 1,
+          "native_rms_ratio": 0.2,
+          "repulsion_weight": 2,
+          "time_ramp_power": 1
+        }
+      }
+    ]
+  },
+  "generation_labels_disclosed": false,
+  "limits": "Two fresh-context draws assess response instability, not a powered statistical model of skill causality"
+}

@@ -26,6 +26,8 @@ def save_gzip(path, data):
 
 def prepare(repo, input_path, config, docs):
     repo, config, docs = Path(repo), Path(config), Path(docs)
+    if (docs / 'protocol.json').exists():
+        raise FileExistsError('Frozen study already exists; use explicit new config/report outputs')
     config.mkdir(parents=True, exist_ok=True); docs.mkdir(parents=True, exist_ok=True)
     original = repo / 'configs/experiments/skill_ablation_v1/incumbent.json'
     refpath = repo / 'configs/experiments/skill_ablation_v1/endpoint_reference.json.gz'
@@ -219,7 +221,9 @@ def compile_program(repo, folder):
     if folder.parent.name == identity and folder.name.startswith('replicate_'):
         identity += '__' + folder.name
         program['program_id'] = identity
-    output = repo / 'configs/experiments/steer_dependency_v1' / (identity + '.json')
+    output = (repo / entry['program']).parent / (identity + '.json')
+    if output.exists() and read_json(output) != program:
+        raise FileExistsError('Compiled program is frozen; create a new replicate or condition')
     write_json(output, program)
     numerical = {k: v for k, v in program.items() if k not in ['program_id', 'agent_provenance']}
     import hashlib

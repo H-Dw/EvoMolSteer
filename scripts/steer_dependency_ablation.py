@@ -12,9 +12,11 @@ if __name__ == '__main__':
     p.add_argument('action', choices=['prepare', 'export', 'validate', 'compile', 'api'])
     p.add_argument('--repo', default=str(Path(__file__).resolve().parents[1]))
     p.add_argument('--input'); p.add_argument('--folder'); p.add_argument('--role', choices=['Analyst', 'Designer'])
+    p.add_argument('--config-output', default='configs/experiments/steer_dependency_v1')
+    p.add_argument('--report-output', default='docs/experiments/steer_dependency_20261009')
     a = p.parse_args(); repo = Path(a.repo)
     if a.action == 'prepare':
-        prepare(repo, a.input, repo / 'configs/experiments/steer_dependency_v1', repo / 'docs/experiments/steer_dependency_20261009')
+        prepare(repo, a.input, repo / a.config_output, repo / a.report_output)
     elif a.action == 'export': export(a.folder, a.role)
     elif a.action == 'validate': validate(a.folder, a.role)
     elif a.action == 'compile': compile_program(repo, a.folder)
