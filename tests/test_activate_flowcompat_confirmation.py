@@ -43,7 +43,9 @@ def routing(tmp_path):
     write_json(cfg / 'campaign.json', {'maximum_rounds': 30, 'rounds_completed': 30,
         'rounds': [{'round': i, 'status': 'complete'} for i in range(1, 31)]})
     confirmation = {'complete': True, 'adopt_candidate': True,
-        'checks': {'implementation': True, 'confirmation_integrity': True}, 'frozen_candidate': frozen}
+        'checks': {key: True for key in ['confirmation_integrity', 'positive_independent_effect', 'positive_vs_native',
+            'validity', 'pose_quality', 'strain_median', 'strain_p90', 'screened_before_confirmation', 'implementation']},
+        'frozen_candidate': frozen}
     integrity = {'integrity_passed': True, 'eligible_for_efficacy_decision': True}
     write_json(evidence / 'confirmation.json', confirmation)
     write_json(evidence / 'confirmation_integrity.json', integrity)
@@ -59,7 +61,7 @@ def test_plan_retains_full_reference_and_literal_profiles(routing):
     assert (routing[1] / 'active_program.json').read_bytes() == b'previous default'
 
 
-@pytest.mark.parametrize('change', ['efficacy', 'integrity', 'ineligible', 'candidate', 'baseline', 'skill', 'incomplete'])
+@pytest.mark.parametrize('change', ['efficacy', 'integrity', 'ineligible', 'candidate', 'baseline', 'skill', 'incomplete', 'missing_check'])
 def test_rejection_leaves_default_unchanged(routing, change):
     root, cfg, evidence, confirmation, integrity = routing
     confirmation, integrity = copy.deepcopy(confirmation), copy.deepcopy(integrity)
@@ -77,6 +79,8 @@ def test_rejection_leaves_default_unchanged(routing, change):
         (root / 'skills/designer/SKILL.md').write_text('changed')
     elif change == 'incomplete':
         write_json(cfg / 'campaign.json', {'maximum_rounds': 30, 'rounds_completed': 29, 'rounds': []})
+    elif change == 'missing_check':
+        confirmation['checks'].pop('positive_independent_effect')
     with pytest.raises(ValueError):
         validated_plan(root, cfg, evidence, confirmation, integrity)
     assert (cfg / 'active_program.json').read_bytes() == b'previous default'

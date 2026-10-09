@@ -21,7 +21,9 @@ def validated_plan(root, configuration, evidence, confirmation, integrity):
     if not integrity.get('integrity_passed') or not integrity.get('eligible_for_efficacy_decision'):
         raise ValueError('Independent integrity gate must pass')
     checks = confirmation.get('checks', {})
-    if not checks or not all(value is True for value in checks.values()):
+    expected_checks = {'confirmation_integrity', 'positive_independent_effect', 'positive_vs_native',
+        'validity', 'pose_quality', 'strain_median', 'strain_p90', 'screened_before_confirmation', 'implementation'}
+    if set(checks) != expected_checks or not all(value is True for value in checks.values()):
         raise ValueError('Every prespecified confirmation check must pass')
     state = read_json(configuration / 'campaign.json')
     if state['maximum_rounds'] != 30 or state['rounds_completed'] != 30 or [r['round'] for r in state['rounds']] != list(range(1, 31)) or any(r['status'] != 'complete' for r in state['rounds']):
