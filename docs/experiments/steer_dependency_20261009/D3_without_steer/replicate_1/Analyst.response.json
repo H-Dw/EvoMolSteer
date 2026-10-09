@@ -1,0 +1,40 @@
+{
+  "role": "Analyst",
+  "condition": "D3_without_steer",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original bound ligand has 25 heavy atoms, centroid [22.81684, -29.98296, 14.46984] A, and covariance eigenvalues [0.11129, 5.69582, 9.30282] A2. This supports an anisotropic, nearly planar coordinate template as a new design hypothesis; it does not establish that retaining this shape improves predicted target pIC50."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "The supplied nearest-protein distance quantiles span 2.85844 to 4.00461 A in the original bound pose. These are available geometric reference observables, but they provide no evidence that the reward's 3.6 A contact shell or 2 A repulsion threshold is optimal for generated molecules."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "The supplied regions include LEU A:45 with 10 ligand atoms within 4.5 A, ILE A:174 and VAL A:66 with 9 each, and VAL A:53 with 7. These observations suggest testing distributed occupancy near several regions rather than inferring a single privileged contact site. They contain no interaction-type, energy, enrichment, or selection labels."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "PHE A:113 has the largest proxy contact sum among the listed regions (18.71167), while involving 6 ligand atoms within 4.5 A and 11 protein heavy atoms; LEU A:45 has a smaller sum (16.92603), 10 ligand atoms, and 8 protein heavy atoms. The disagreement between these geometric summaries is counterevidence to ranking residue importance by raw proxy sum alone, which can depend on atom counts and distances."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The original receptor crop provides 308 heavy atoms in a 12 A radius around the standard input site, supporting a receptor-only pocket field without generated Steer history. Its protein-neighbor distance quantiles describe receptor packing; they do not measure ligand clearance, cavity accessibility, binding affinity, or generated-pose quality."
+    }
+  ],
+  "directions": [
+    "Test a structure-field hypothesis with ligand_anchor_weight=0.5, contact_weight=0, repulsion_weight=1, native_rms_ratio=0.2, and time_ramp_power=1; compare ligand_anchor_weight=1 under otherwise identical settings. The bound-ligand template motivates this anchor comparison, while weaker anchoring may permit greater coordinate and graph variation. Measure the tradeoff rather than claiming either setting improves affinity. Evidence: structure:geometry, structure:original_contacts.",
+    "Test the receptor-only pocket program with contact_weight in {0, 0.1, 0.25}, repulsion_weight=1, native_rms_ratio=0.2, and time_ramp_power=1. Compare these matched settings to determine whether adding the untyped contact proxy improves final predicted target pIC50 or merely increases geometric contact. Examine occupancy across the supplied residue regions without assigning interaction or affinity labels. Evidence: structure:protein_crop, structure:original_contacts.",
+    "For a selected matched configuration, separately compare repulsion_weight=1 versus 2 and native_rms_ratio=0.1 versus 0.2; compare time_ramp_power in {0, 1, 2} only with the same program and other weights. Track generated ligand-protein distances below 2 A and endpoint displacement to assess collision control and steering strength. The original-pose distance quantiles are a diagnostic reference, not a validated generated-state optimum. Evidence: structure:original_contacts, structure:protein_crop.",
+    "Evaluate hypotheses with matched seed repeats while retaining the supplied 100 steps, window [0.0, 0.5], endpoint VJP, disabled affinity-head gradient, and disabled particle selection. Record final FLOWR predicted target pIC50 as the primary outcome, strain as secondary, and graph transitions, contact proxy, anchor displacement, and short-distance counts as observables. Compare with the matched current native_rms_ratio=0.33 protocol before interpreting improvement. Evidence: structure:geometry, structure:original_contacts, structure:protein_crop."
+  ],
+  "limitations": [
+    "Only the original receptor and bound-ligand geometry are supplied. There are no generated Steer states, lineage, temporal observations, elite geometry, or history-matching evidence; no enrichment, selection-survival, temporal-trend, or historical-success claims can be made.",
+    "No observed treatment comparisons, affinity labels, predicted target pIC50 values, or strain measurements are supplied. All proposed settings are prospective geometric hypotheses, and no statistical superiority or effect size can be estimated.",
+    "Contacts use untyped centre distances and a Gaussian shell. Residue identity and geometric proximity do not establish hydrogen bonds, electrostatic interactions, physical binding energy, or causal contribution to affinity.",
+    "Only 10 of 53 contact regions are shown. Their summaries do not establish complete pocket coverage, a unique binding mode, or an optimal contact distribution; receptor and ligand flexibility are not characterized by the supplied static geometry.",
+    "The covariance eigenvalues characterize shape but no principal-axis vectors are supplied. The manifest does not establish a preferred coordinate orientation for newly generated molecules, nor does it validate anchoring across graph transitions.",
+    "The compression description is metadata, not an observed enrichment table: the actual supplied evidence contains no q-values or group comparisons. Parameter effects, reward calibration, and transfer from original-pose geometry to predicted target pIC50 require new matched observations."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "role": "Designer",
+  "condition": "D3_without_steer",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0,
+    "ligand_anchor_weight": 0.5,
+    "native_rms_ratio": 0.2,
+    "repulsion_weight": 1,
+    "time_ramp_power": 1
+  },
+  "rationale": "Choose the registered structure program configs/experiments/steer_dependency_v1/D3_without_steer_structure.json with reference configs/experiments/steer_dependency_v1/structure.json.gz. Its concrete spatial reward is R(x) = -0.5*(sqrt(1+Hungarian_MSE(x,L_original))-1) - sum(relu(2 A-d(x,P_original))^2)/N; the registered saturated 3.6 A contact term has weight 0. The ligand target comes exclusively from the original bound-ligand coordinates: the supplied 25-heavy-atom, anisotropic nearly planar template motivates a modest anchor as a prospective pose hypothesis. The clearance target comes exclusively from the original 308-heavy-atom receptor crop; the fixed 2 A threshold is a registered collision-control heuristic, not an optimum estimated from the original-pose quantiles. Neither target requires generated Steer states, lineage, temporal observations, elite geometry or history matching. There are no treatment comparisons, affinity labels or q-values supporting superiority, and the objective remains final FLOWR predicted target pIC50 with strain secondary; this coordinate reward does not directly optimize or measure binding energy. Set contact_weight=0 because the untyped contact summaries do not validate a contact objective; use ligand_anchor_weight=0.5 to permit coordinate variation while retaining a weak structural reference, and repulsion_weight=1 to oppose short distances. Relative component weights alter the spatial direction. Use native_rms_ratio=0.2 as a conservative prospective steering setting relative to the supplied 0.33 protocol, with registered time_ramp_power=1; whole-scalar ramping or rescaling may cancel under gradient normalization and is not evidence of a directional change. Execute through the FLOWR endpoint VJP with detached Hungarian correspondence, retaining seed 42, 100 steps, window [0.0,0.5], disabled affinity-head gradient and disabled particle selection. Time derivatives must not substitute for spatial gradients. Assess final predicted target pIC50, strain, graph transitions, anchor displacement and sub-2 A distances in matched comparisons before claiming improvement.",
+  "failure_modes": [
+    "The original bound pose may bias generated molecules toward a geometry that reduces chemical exploration or predicted target pIC50; modest anchoring still does not establish transfer across graph transitions.",
+    "Changes in atom count or graph topology can make Hungarian correspondences unstable or chemically inappropriate; detached assignments remove differentiation through matching but do not resolve correspondence ambiguity.",
+    "The registered 2 A untyped centre-distance repulsion cannot distinguish atom types, realistic clearance, receptor flexibility or physical interaction energies, and may under- or over-penalize configurations.",
+    "With contact_weight=0, clearance and anchoring may permit insufficient receptor occupancy or miss useful alternative poses; the partial summaries of 10 of 53 regions do not establish complete pocket coverage.",
+    "Gradient normalization can cancel whole-scalar time ramping and rescaling; a changed schedule cannot be assumed to alter the reward direction, and native_rms_ratio=0.2 may understeer or disturb the FLOWR trajectory.",
+    "Endpoint VJP gradients can become unreliable near assignment switches or small spatial gradient norms; gradients estimated from temporal differences would violate the execution contract.",
+    "No supplied affinity, strain, generated-state or matched-treatment results calibrate these weights. Better geometric proximity or fewer short distances may fail to improve final predicted target pIC50 or may increase strain."
+  ]
+}

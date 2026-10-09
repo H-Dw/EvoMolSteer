@@ -1,0 +1,22 @@
+{
+  "role": "Designer",
+  "condition": "I5_without_all",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.1,
+    "ligand_anchor_weight": 1,
+    "native_rms_ratio": 0.2,
+    "repulsion_weight": 2,
+    "time_ramp_power": 1
+  },
+  "rationale": "Select the registered structure function in configs/experiments/steer_dependency_v1/I5_without_all_structure.json, using configs/experiments/steer_dependency_v1/structure.json.gz: R_structure = -(sqrt(1 + Hungarian_MSE) - 1) + 0.1*saturated_3.6A_contact - 2*sum(relu(2A - d)^2)/N. The ligand alignment target originates from the original 25-heavy-atom bound ligand; the contact and repulsion targets originate from the original receptor crop. This function requires neither generated Steer coordinates nor historical scores, lineage, survival or stage-specific teacher clouds. Its anchor is a proposed pose/shape proxy, supported as a testable geometry baseline by structure:geometry; the flattened ligand covariance does not establish a pIC50 benefit. Endpoint pair-kernel associations (endpoint_effects:10, :9, :11 and :13) motivate testing a modest geometric component but do not identify receptor contact distances or calibrate its weight. Contact weight 0.1 and repulsion weight 2 provide a conservative attraction-versus-clash hypothesis while ligand anchor weight 1 retains the registered original-ligand target. The chosen native_rms_ratio 0.2 moderates guidance relative to the supplied 0.33; time_ramp_power 1 is an exploratory registered scheduling choice, not an optimum inferred from temporal statistics. Use the registered ramp convention and FLOWR endpoint VJP with detached Hungarian correspondence, preserving seed 42, 100 steps, window [0.0, 0.5], disabled affinity-head gradient and disabled particle selection. Compute spatial reward gradients at the predicted endpoint and pull them back through FLOWR; do not substitute observed time derivatives. Relative contact, anchor and repulsion weights can alter direction, whereas whole-scalar rescaling can cancel under gradient normalization. Final predicted target pIC50 remains the outcome to measure, with strain secondary; no measured gain or binding-energy claim is implied.",
+  "failure_modes": [
+    "Original bound-ligand anchoring can bias generation toward its pose and shape and impair useful graph transitions; the original structure supplies no affinity labels or intervention outcomes.",
+    "Hungarian correspondence must be detached during the endpoint VJP. Changes in atom count or correspondence can make guidance discontinuous; graph transitions require the registered matching behavior and must not silently assume a fixed 25-atom generated ligand.",
+    "The untyped 3.6-A contact and 2-A repulsion terms are geometric proxies. They cannot distinguish favorable chemistry, reproduce physical binding energy, or guarantee adequate atom-type-specific exclusion distances.",
+    "Short-scale pair-kernel effects are coordinate associations with unspecified feature definitions. Translating them directly into receptor contact targets or treating z effects as raw coordinate magnitudes would be unsupported.",
+    "The selected evidence is exploratory and compressed. Endpoint and regional associations do not establish a causal reward gradient; landmark coordinates and coordinate-frame definitions are absent, so this function does not add landmark-specific forces or global y-axis compression.",
+    "Native RMS ratio 0.2 and linear ramp power 1 are unvalidated choices. Guidance may saturate, distort the ligand or increase strain; endpoint-VJP normalization and a vanishing net gradient can change their practical effect.",
+    "Survival q-values are not below 0.05 and particle selection is disabled, so survival evidence does not justify claiming selection benefits. A single seed-42 run cannot establish robustness or experimental affinity."
+  ]
+}

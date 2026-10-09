@@ -1,0 +1,44 @@
+{
+  "role": "Analyst",
+  "condition": "I5_without_all",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "Higher-score endpoints show greater pair_kernel_2.5: high-low integrated effect 0.6307 z, CI [0.4952, 0.7579], q=2.19e-5, score correlation 0.2129, and positive batch fraction 1.0. The supplied 1.5 and 3.5 kernels also associate positively, whereas the 7.0 kernel associates negatively (endpoint_effects:9, :11, :13). This supports a scale-dependent coordinate association; feature definitions are insufficient to translate these kernel scales into receptor contact distances."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "Higher-score endpoints have lower shape_yy: effect -0.5128 z, CI [-0.6196, -0.4238], q=1.49e-5, score correlation -0.1952, and positive batch fraction 0.0. Negative local_cyy enrichment at supplied regions 0, 1, 7, 16 and 17 is consistent with a hypothesis of reduced spread along the recorded y axis. These are coordinate-frame associations, not evidence that imposing global compression improves affinity."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "Successful versus failed increments have a lower integrated landmark_00_softmin rate: -4.9144 z, CI [-6.8549, -2.6157], q=0.0461, positive batch fraction 0.0714. Endpoint landmark_00_occupancy3 is positively associated with score (endpoint_effects:15; effect 0.5449 z, q=0.000235), but its increment association has q=0.0811 (increment_effects:15). This makes landmark 00 a supported observable for a proximity hypothesis, with stronger endpoint evidence than evidence for increasing occupancy during successful increments."
+    },
+    {
+      "evidence_id": "regional_effects:62",
+      "finding": "Region 6 local_dy has positive enrichment: effect 0.4247 z, CI [0.3393, 0.5149], q=0.0001149, and positive batch fraction 1.0. However, endpoint landmark_06_occupancy5 is negatively associated with score and landmark_06_softmin positively associated (endpoint_effects:34 and :32). The available evidence therefore supports monitoring regional displacement and proximity separately, rather than uniformly increasing occupancy around every landmark."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "The strongest supplied survival association, landmark_00_soft_mass, has effect 0.3651 z, CI [0.1998, 0.5151], positive batch fraction 0.8571 across 14 independent batches, but q=0.1204. None of the supplied survival rows has q<0.05. Survival evidence is exploratory and does not establish a selection-survival benefit; particle selection is disabled in the supplied execution."
+    },
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original bound ligand contains 25 heavy atoms, has centroid [22.81684, -29.98296, 14.46984] A, and covariance eigenvalues [0.11129, 5.69582, 9.30282] A^2, indicating a strongly flattened coordinate distribution. The receptor crop contains 308 heavy atoms. These geometry observables support testing ligand anchoring and contact-versus-repulsion hypotheses, but the structure supplies no affinity labels, generated-Steer enrichment, survival measurements, or temporal estimates."
+    }
+  ],
+  "directions": [
+    "Test whether historical reference choices change final predicted target pIC50 by comparing full, unweighted and static with the same supplied execution: FLOWR endpoint VJP, seed 42, 100 steps, window [0.0, 0.5], native_rms_ratio=0.33, no affinity-head gradient and no particle selection. Treat score weighting and stage-specific reference effects as hypotheses to measure; the registry describes references but supplies no outcomes for these programs.",
+    "Use structure and pocket as geometry-based candidate baselines. Within structure, compare ligand_anchor_weight=0.5, 1 and 2 while fixing the other controls; then compare structure with pocket at matched contact, repulsion, RMS and ramp settings to assess the contribution of the original bound-ligand anchor. Record ligand alignment error, receptor distances and final predicted pIC50; a benefit cannot be inferred from the flattened ligand geometry alone.",
+    "Test moderate contact_weight values 0.1 and 0.25 against the allowed zero-contact control in structure or pocket, holding the anchor fixed where supported. Compare repulsion_weight=1 and 2, escalating to 4 only if the distance-below-2-A penalty remains problematic. Measure the specified saturated 3.6-A contact term and clash penalty directly. The short-scale pair-kernel evidence motivates this experiment but does not calibrate these receptor-contact weights.",
+    "For a selected reference formula, compare native_rms_ratio=0.1, 0.2 and 0.33 at fixed time_ramp_power, then compare time_ramp_power=0, 1 and 2 at fixed RMS ratio. Retain the supplied steering window and other execution settings. Rank observed final predicted pIC50 first and strain second, while monitoring shape_yy and landmark-00/06 observables if their original definitions are available; endpoint associations do not establish an optimal ramp."
+  ],
+  "limitations": [
+    "The evidence is a selected compression of the strongest eight and weakest two q-values per table, explicitly exploratory. It is not a complete fresh enrichment analysis and cannot establish that omitted observables are irrelevant.",
+    "Sample sizes for endpoint and increment comparisons, feature normalizations, kernel definitions, landmark coordinates, coordinate-frame construction, CI confidence levels and detailed dependence handling are not supplied. Effect z values from different tables are not directly interchangeable or usable as raw coordinate targets.",
+    "Weak endpoint associations at landmark_11_occupancy3 and landmark_19_occupancy3 have q=0.8673 and 0.9627. Temporal movement is also not equivalent to score benefit: landmark_19_occupancy3 has last-minus-first delta -1.3720 z despite nearly zero score association, while landmark_06_occupancy5 increases over time despite a negative endpoint association.",
+    "Observed score, increment, enrichment and survival comparisons are associations. They do not identify a causal force, justify treating every landmark as an attraction site, establish improved final pIC50 under an intervention, or validate experimental affinity.",
+    "The formula registry specifies historical dependencies and supported update keys but provides no executable contents, current contact/anchor/repulsion settings, baseline outcomes or reference pointclouds. No region-specific displacement or shape-control update is declared supported.",
+    "Survival observations came from the supplied comparison evidence; their transfer to the proposed execution is uncertain because particle selection is disabled. Seed-42 comparisons can support an initial controlled screen but cannot by themselves establish robustness across seeds."
+  ]
+}
