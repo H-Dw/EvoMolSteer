@@ -1,7 +1,14 @@
 """Render the measured Luna screen and independent confirmation, locally."""
-import argparse,time,subprocess
+import argparse,time,subprocess,json
 from pathlib import Path
-from evomolsteer.io import read_json,write_json
+from evomolsteer.io import read_json as _read_json,write_json
+
+def read_json(path):
+ for attempt in range(5):
+  try:return _read_json(path)
+  except json.JSONDecodeError:
+   if attempt==4:raise
+   time.sleep(.2)
 
 def render(repo):
  s=repo/'docs/experiments/steer_dependency_20261009/luna_suite'

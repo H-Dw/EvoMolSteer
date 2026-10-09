@@ -2,7 +2,15 @@
 import argparse,json,os,subprocess,time
 from pathlib import Path
 import paramiko
-from evomolsteer.io import read_json,write_json
+from evomolsteer.io import read_json as _read_json,write_json
+
+def read_json(path):
+ # Local collector may be replacing a compact report at this instant.
+ for attempt in range(5):
+  try:return _read_json(path)
+  except json.JSONDecodeError:
+   if attempt==4:raise
+   time.sleep(.2)
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--repo',required=True);p.add_argument('--work',required=True);p.add_argument('--commit',required=True);p.add_argument('--deadline-seconds',type=int,default=14400);a=p.parse_args()
