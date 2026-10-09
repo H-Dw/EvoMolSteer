@@ -15,6 +15,7 @@ def metrics(path, arm):
         raise ValueError('Complete identified candidate metrics required')
     if not np.isfinite(frame.pic50_on_rescore).all():
         raise ValueError('All-attempt affinity coverage required')
+    frame['energy_status'] = frame.energy_status.fillna('not_applicable')
     energy = converged_energy(frame)
     valid = frame[frame.valid_connected]
     result = {'n': len(frame), 'affinity_mean_all': float(frame.pic50_on_rescore.mean()),

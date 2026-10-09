@@ -1,0 +1,43 @@
+{
+  "role": "Analyst",
+  "condition": "I3_without_elite_geometry",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "Pair-kernel associations differ by scale: 2.5 has high-low contrast +0.631 z (CI 0.495 to 0.758; q=2.19e-5), while 7.0 has -0.485 z (endpoint_effects:13; q=1.46e-4). The supplied 1.5/2.5/3.5 contrasts are positive in all reported batches; this does not establish receptor-contact benefit."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy is negatively associated with endpoint score grouping (-0.513 z; CI -0.620 to -0.424; q=1.49e-5). Selected regional local_cyy contrasts at regions 0/1/7/16/17 also range from -0.560 to -0.672 z, with no positive batches and q<=1.31e-4; a y-dispersion penalty remains a new causal hypothesis."
+    },
+    {
+      "evidence_id": "regional_effects:0",
+      "finding": "Landmark 00 soft_mass enrichment is +0.639 z (q=1.88e-4); later survival enrichment is smaller, +0.365 z (survival_effects:0; CI 0.200 to 0.515; q=0.120; 12/14 independent batches positive). Supplied survival q-values are all >=0.120, so immediate enrichment does not establish corrected-significant survival or future score credit."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "Landmark 00 softmin change-rate contrast is -4.914 z (CI -6.855 to -2.616; q=0.0461). Its occupancy3 rate contrast is +4.277 z but q=0.0811 (increment_effects:15), despite positive endpoint occupancy enrichment +0.545 z (endpoint_effects:15; q=2.35e-4). Endpoint occupancy and successful change are distinct observables."
+    },
+    {
+      "evidence_id": "endpoint_effects:34",
+      "finding": "Landmark 06 occupancy5 has negative integrated contrast (-0.365 z; q=6.79e-4) but positive last-minus-first delta (+0.603 z). Its softmin has positive integrated contrast (+0.294 z; endpoint_effects:32; q=6.84e-4) but negative temporal delta (-0.903 z). These summaries caution against assuming a uniform direction across time; they do not locate node-level sign reversals."
+    },
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original bound structure supplies 25 ligand heavy atoms, 308 cropped protein heavy atoms, centroid (22.817, -29.983, 14.470) A and covariance eigenvalues (0.111, 5.696, 9.303) A2. Its anisotropy supports a static geometry hypothesis, but provides no affinity labels or evidence that matching it improves generated outcomes."
+    }
+  ],
+  "directions": [
+    "Compare full, unweighted, static, structure and pocket rewards under matched seeds and the supplied execution protocol; use final predicted target pIC50 as primary and strain as secondary, allowing graph transitions. Select no winner from these observational summaries.",
+    "Within the allowed update grids, test contact, repulsion and ligand-anchor weights with controlled comparisons and interaction checks; inspect clashes and receptor distances before treating short pair-kernel enrichment as beneficial contact.",
+    "Treat reduced y dispersion and landmark 00 occupancy as geometry hypotheses for prospective validation; retain weak landmark 11/19 endpoint effects as counterevidence against a general occupancy reward.",
+    "Obtain empirical node contrasts, support counts and fitted-versus-observed comparisons before testing time_ramp_power 0/1/2. Report distinct/effective ancestor diversity and descendant missingness before interpreting survival or future score credit."
+  ],
+  "limitations": [
+    "Evidence is compressed to the strongest eight and weakest two q-values per table; findings describe selected exploratory associations, not a complete enrichment analysis or causal effects.",
+    "Survival reports 14 independent batches, but distinct ancestor counts, effective diversity, descendant denominators, missingness and future score-credit contrasts are absent; these cannot be quantified.",
+    "No empirical node contrasts, node support or fitted-versus-observed results are supplied. Whole-window contrasts and temporal deltas cannot justify a stage-dependent rule.",
+    "Feature definitions, coordinate alignment details and full sample counts are absent; pair kernels cannot be identified as receptor contacts from their names, and axis-specific hypotheses may depend on alignment.",
+    "The supplied structure is the original receptor/ligand with no affinity labels. No reward-comparison outcomes or cross-condition contrasts are supplied, so neither a reward winner nor an effect of removing elite_geometry instructions is established."
+  ]
+}

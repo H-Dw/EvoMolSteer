@@ -1,0 +1,21 @@
+{
+  "role": "Designer",
+  "condition": "I3_without_elite_geometry",
+  "family": "structure",
+  "updates": {
+    "ligand_anchor_weight": 1,
+    "contact_weight": 0,
+    "repulsion_weight": 2,
+    "native_rms_ratio": 0.2,
+    "time_ramp_power": 0
+  },
+  "rationale": "Choose structure as a prospective history-free geometry hypothesis, not an established winner. The ligand target is the original bound ligand's heavy-atom cloud; the repulsion target is separation from the original receptor crop using the registered 2 A threshold. Neither requires generated Steer coordinates, score weights, selected teachers or parent-child history. Unit anchoring and stronger repulsion are provisional geometry safeguards, not fitted effect sizes. Disable the untyped contact term because pair-kernel enrichment does not establish receptor-contact benefit. A constant ramp avoids deriving stage rules from unsupported temporal summaries; the 0.2 native RMS ratio is a conservative permitted intervention. Use FLOWR endpoint VJP with detached Hungarian correspondence. Evaluate final predicted target pIC50 and strain against matched pocket and historical-family controls. Increment matching is not registered here and its coordinate definitions and support are incomplete, so no increment term is introduced.",
+  "failure_modes": [
+    "Original ligand geometry may be unsuitable for generated graph transitions or may constrain useful alternative poses.",
+    "Hungarian correspondence switches can make the reward locally nonsmooth; detached correspondence requires consistent coordinate frames.",
+    "Untyped 2 A repulsion can miss chemically relevant clashes and penalize legitimate close contacts.",
+    "Constant guidance may have unsuitable timing; supplied temporal contrasts do not establish an alternative schedule.",
+    "Gradient normalization can cancel whole-reward scaling; relative component weights still alter direction.",
+    "Geometry improvement need not improve predicted pIC50, strain or physical binding affinity; matched prospective comparison is required."
+  ]
+}
