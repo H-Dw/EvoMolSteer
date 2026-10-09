@@ -1,0 +1,36 @@
+{
+  "schema_version": "guidance-sample-size-1.0",
+  "experiment_name": "evomolsteer_flowcompat_scale1000_20261009",
+  "n_per_arm": 1000,
+  "batch": 50,
+  "batch_indices": [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74],
+  "seed": 42,
+  "steps": 100,
+  "historical_dataset": "experiments/ck2_clk3_lineage_20261003",
+  "checkpoint": "checkpoints/flowr_root_v2.ckpt",
+  "checkpoint_sha256": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0",
+  "minimum_free_bytes": 734003200,
+  "upstream_sources": ["flowr/models/fm_pocket.py", "flowr/models/integrator.py", "flowr/models/pocket.py", "flowr/models/pocket_util.py"],
+  "cohorts": [
+    {
+      "name": "R11",
+      "arms": "gradient",
+      "program": "configs/experiments/flowcompat30_v1/round11.json",
+      "program_sha256": "65e21d4b3cd2f6472fbe4f6c4710c5fc9b4974e15a24de876a997ac63296834c",
+      "reference": "configs/experiments/flowcompat30_v1/branch_reference.json.gz",
+      "reference_sha256": "50d7232b5501152c87fe20329ebfa0e4b0fbfd2f519cdd0e1e6dad9b8f23f801"
+    },
+    {
+      "name": "R26_native",
+      "arms": "unguided,gradient",
+      "program": "configs/experiments/skill_ablation_v1/incumbent.json",
+      "program_sha256": "93da2e4cfa7b9d214d3b55b6fb25c6bd20dba832065d06a7c1d602965e47f21f",
+      "reference": "configs/experiments/skill_ablation_v1/endpoint_reference.json.gz",
+      "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c"
+    }
+  ],
+  "comparison_semantics": "1000 final attempts per arm and batch50 match historical Steer; online selection compute budget is not equated.",
+  "analysis_policy": "Compare all-attempt and valid-score means, max, upper quantiles, elite yield at the existing frozen threshold, unique high-score graphs and local strain evaluation. A larger maximum alone does not establish a better sampler.",
+  "monitor": "none",
+  "cleanup_policy": "After verified terminal transport and seed SDF retention, delete only this cohort's full test trajectories. Historical Steer and checkpoints stay protected."
+}
