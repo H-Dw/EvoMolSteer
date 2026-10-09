@@ -47,11 +47,11 @@ def write_report(input_dataset, configuration_dataset, output_dataset):
         f'完成 30/30 轮真实 FLOWR 推理，共 {attempts} 个生成尝试。轮数包含数值 null、反方向和新批次验证，不是 30 个独立 LLM 设计；重复控制也不代表不同分子。', '',
         '## 最终确认', '',
         f'冻结候选来自第 {selected} 轮，两批探索均值改善 {state["rounds"][selected-1]["mean_vs_R26"]:+.6f} pIC50；随后用六个新批次验证，验证期间未调奖励或强度。', '',
-        '|组别|全部尝试平均预测 pIC50|有效/PB-fast|应变中位/P90，kcal/mol/重原子|应变覆盖|极高分产率|',
-        '|---|---:|---|---|---|---:|']
+        '|组别|全部尝试平均预测 pIC50|有效分子平均预测 pIC50|有效/PB-fast|应变中位/P90，kcal/mol/重原子|应变覆盖|极高分产率|',
+        '|---|---:|---:|---|---|---|---:|']
     for key, label in [('candidate', f'冻结 R{selected} 候选'), ('R26', '历史最优 R26'), ('native', '无引导')]:
         m = confirmation['metrics'][key]
-        lines.append(f'|{label}，N={m["n"]}|{m["all_mean_pic50"]:.6f}|{m["valid_n"]/m["n"]:.1%}/{m["pb_fast_rate"]:.1%}|{m["strain_median_per_heavy"]:.4f}/{m["strain_p90_per_heavy"]:.4f}|{m["strain_converged_n"]}/{m["n"]}|{m["elite_yield"]:.1%}|')
+        lines.append(f'|{label}，N={m["n"]}|{m["all_mean_pic50"]:.6f}|{m["valid_mean_pic50"]:.6f}|{m["valid_n"]/m["n"]:.1%}/{m["pb_fast_rate"]:.1%}|{m["strain_median_per_heavy"]:.4f}/{m["strain_p90_per_heavy"]:.4f}|{m["strain_converged_n"]}/{m["n"]}|{m["elite_yield"]:.1%}|')
     for key, label in [('versus_R26', 'R26'), ('versus_native', '无引导')]:
         effect = confirmation[key]
         low, high = effect['batch_bootstrap_CI95']
