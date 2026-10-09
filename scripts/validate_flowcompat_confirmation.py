@@ -89,6 +89,25 @@ def verify_generation_config_binding(config):
             "canonical_fields_match": True, "raw_original_bytes_reconstructed": False}
 
 
+def loading_upper_limit(config):
+    """Validate the dataloader enumeration bound, not a generated population.
+
+    The frozen controller loads through the largest declared batch index and
+    skips undeclared batches before model generation. This single varying
+    argument is therefore compared through its exact batch-derived contract.
+    """
+    exp = config["experiment"]
+    indices, size = exp["batch_indices"], exp["batch"]
+    require(isinstance(indices, list) and indices and len(indices) == len(set(indices))
+            and all(type(value) is int and value >= 0 for value in indices)
+            and type(size) is int and size > 0, "Invalid batch declaration for loader enumeration")
+    expected = (max(indices) + 1) * size
+    actual = config["flowr_args"].get("sample_n_molecules_per_target")
+    require(type(actual) is int and actual == expected,
+            "FLOWR loader enumeration limit must equal (max(batch_indices)+1)*batch")
+    return actual
+
+
 class GitSources:
     """Resolve the complete static local Python import closure at an actual commit."""
     def __init__(self, repo):
@@ -331,8 +350,12 @@ class ConfirmationAudit:
         for name in ("checkpoint_sha256", "native_integrator_parameters", "native_sde", "native_coord_noise_level", "native_categorical_sampling"):
             require(left["extension"].get(name) == right["extension"].get(name), "Actual native/checkpoint setting differs: " + name)
         require(left["runtime_integrator"] == right["runtime_integrator"], "Actual runtime integrator changed")
-        # save_dir is the sole declared FLOWR argument change between campaigns.
-        clean = lambda args: {key: value for key, value in args.items() if key != "save_dir"}
+        loading_upper_limit(left)
+        loading_upper_limit(right)
+        # Only a validated enumeration bound and the output path vary. Every
+        # other FLOWR argument retains exact comparison, including new fields.
+        clean = lambda args: {key: value for key, value in args.items()
+                             if key not in {"save_dir", "sample_n_molecules_per_target"}}
         require(clean(left["flowr_args"]) == clean(right["flowr_args"]), "Underlying FLOWR arguments changed")
 
     def code_closure(self, number, expected=None):
@@ -490,6 +513,9 @@ class ConfirmationAudit:
         sigs = []
         for control, candidate in zip(CONTROL_ROUNDS, CANDIDATE_ROUNDS):
             a, b = self.rounds[control], self.rounds[candidate]
+            require(loading_upper_limit(a["config"]) == loading_upper_limit(b["config"]),
+                    "Paired candidate/control loader enumeration limits differ")
+            self.native_settings(b, a)
             for batch in a["config"]["experiment"]["batch_indices"]:
                 keys = [a["execution"]["initial_state_signatures"][f"{arm}/{batch}"] for arm in ("gradient", "unguided")]
                 keys.append(b["execution"]["initial_state_signatures"][f"gradient/{batch}"])

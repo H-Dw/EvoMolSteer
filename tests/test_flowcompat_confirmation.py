@@ -109,7 +109,8 @@ def panel(tmp_path):
                "native_integrator_parameters": {"integration-steps": 100, "use-sde-simulation": True},
                "native_sde": True, "native_coord_noise_level": .2, "native_categorical_sampling": True}
         config = {"experiment": exp, "extension": ext, "runtime_integrator": {"use_sde_simulation": True, "coord_noise_level": .2},
-                  "flowr_args": {"save_dir": "/remote/" + campaign, "scientific_option": "fixed"}}
+                  "flowr_args": {"save_dir": "/remote/" + campaign, "scientific_option": "fixed",
+                                 "sample_n_molecules_per_target": (max(batches) + 1) * 50}}
         if number >= 25:
             before = {"schema_version": "flowr-upstream-source-attestation-1.0", "input_dataset": "/remote/flowr_root",
                       "files": upstream_files, "captured_UTC": "2026-10-09T01:00:00+00:00", "scope": "Exactly four declared files",
@@ -245,6 +246,57 @@ def test_complete_real_git_panel_and_newline_normalized_retained_program_pass(pa
     assert binding["generation_config_sha256_before_binding"] != binding["generation_config_canonical_sha256_before_binding"]
     closure = next(row["detail"]["code_files"] for row in result["checks"] if row["check"] == "round26_frozen_source_closure")
     assert "src/evomolsteer/generation/helper.py" in closure
+    assert validator.read_json(panel / "reports/round01/inference_config/config.json")["flowr_args"]["sample_n_molecules_per_target"] == 2450
+    assert validator.read_json(panel / "reports/round30/inference_config/config.json")["flowr_args"]["sample_n_molecules_per_target"] == 2750
+
+
+@pytest.mark.parametrize("number,limit", [(1, 2450), (25, 2550), (26, 2550), (27, 2650), (28, 2650), (29, 2750), (30, 2750)])
+def test_loader_limit_is_an_exact_declared_batch_bound(panel, number, limit):
+    config = validator.read_json(panel / "reports" / f"round{number:02d}/inference_config/config.json")
+    assert validator.loading_upper_limit(config) == limit
+    baseline = validator.read_json(panel / "reports/round01/inference_config/config.json")
+    validator.ConfirmationAudit(panel).native_settings({"config": config}, {"config": baseline})
+
+
+@pytest.mark.parametrize("limit", [2551, 2450, 100, 2550., True, None])
+def test_loader_limit_is_never_unconditionally_ignored(panel, limit):
+    config = validator.read_json(panel / "reports/round26/inference_config/config.json")
+    config["flowr_args"]["sample_n_molecules_per_target"] = limit
+    baseline = validator.read_json(panel / "reports/round01/inference_config/config.json")
+    with pytest.raises(ValueError, match="loader enumeration limit"):
+        validator.ConfirmationAudit(panel).native_settings({"config": config}, {"config": baseline})
+
+
+def test_other_flowr_arguments_remain_strict_after_valid_loader_normalization(panel):
+    config = validator.read_json(panel / "reports/round26/inference_config/config.json")
+    config["flowr_args"]["scientific_option"] = "changed"
+    baseline = validator.read_json(panel / "reports/round01/inference_config/config.json")
+    with pytest.raises(ValueError, match="Underlying FLOWR arguments changed"):
+        validator.ConfirmationAudit(panel).native_settings({"config": config}, {"config": baseline})
+
+
+def test_valid_individual_loader_limits_must_still_match_within_a_pair(panel):
+    left = validator.read_json(panel / "reports/round25/inference_config/config.json")
+    right = validator.read_json(panel / "reports/round26/inference_config/config.json")
+    right["experiment"]["batch_indices"] = [51, 52]
+    right["flowr_args"]["sample_n_molecules_per_target"] = 2650
+    assert validator.loading_upper_limit(left) == 2550
+    assert validator.loading_upper_limit(right) == 2650
+    check = validator.ConfirmationAudit(panel)
+    check.rounds = {25: {"config": left}, 26: {"config": right}}
+    with pytest.raises(ValueError, match="Paired candidate/control loader enumeration limits differ"):
+        check.panel_pairing()
+
+
+def test_bad_bound_with_rebound_canonical_evidence_is_still_rejected(panel):
+    def change(data):
+        data["flowr_args"]["sample_n_molecules_per_target"] = 2650
+        original = {key: value for key, value in data.items() if key != "upstream_source_attestation"}
+        data["upstream_source_attestation"]["generation_config_canonical_sha256_before_binding"] = validator.recorded_json_sha(original)
+    mutate_json(panel, 26, "inference_config/config.json", change)
+    result = audit(panel)
+    assert not result["integrity_passed"]
+    assert "loader enumeration limit" in failed(result, "six_batch_pairing_native_runtime_and_upstream")[0]["error"]
 
 
 def test_retained_file_tampering_fails_without_relying_on_cached_pass(panel):
