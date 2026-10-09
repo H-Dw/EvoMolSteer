@@ -57,21 +57,22 @@ def validate_test_indices(system_ids,splits):
 
 
 def unpack_final_metadata(archive,destination):
-    """Keep only split/index metadata and LMDB; never unpack RDKit pickle objects."""
+    """Keep plain published membership lists and split metadata, without LMDB."""
     destination=Path(destination);destination.mkdir(parents=True,exist_ok=True)
     inventory=[]
     with tarfile.open(archive,'r:gz') as tar:
         for member in tar:
             inventory.append({'name':member.name,'bytes':member.size})
             name=PurePosixPath(member.name)
-            wanted=name.name in ('splits.npz','system_ids.pkl','system_ids.json','data.mdb','lock.mdb') or name.suffix=='.lmdb'
+            wanted=name.name in ('splits.npz','system_ids.pkl','system_ids.json',
+                'system_ids_train.pkl','system_ids_val.pkl','system_ids_test.pkl',
+                'test_data.csv','test_data_processed.csv')
             if not wanted:continue
             if name.is_absolute() or '..' in name.parts or not member.isfile() or member.size>32*1024**3:
                 raise ValueError('Unsupported official metadata member: '+member.name)
             output=destination/Path(*name.parts)
             if output.exists():raise FileExistsError(output)
             output.parent.mkdir(parents=True,exist_ok=True)
-            # tarfile's sparse-aware extraction prevents inflating LMDB map holes.
             tar.extract(member,path=destination,filter='data')
     return inventory
 
@@ -79,20 +80,31 @@ def unpack_final_metadata(archive,destination):
 def read_official_test_ids(metadata_root):
     root=Path(metadata_root);splits=list(root.rglob('splits.npz'))
     if len(splits)!=1:raise ValueError('Exactly one published splits.npz is required')
+    # This release has generation membership lists and separate affinity-local
+    # indices. The affinity indices must not be applied to the generation lists.
+    membership={role:list(root.rglob('system_ids_'+role+'.pkl')) for role in ('train','val','test')}
+    if all(len(paths)==1 for paths in membership.values()):
+        groups={role:plain_metadata(paths[0].read_bytes()) for role,paths in membership.items()}
+        for role,ids in groups.items():
+            if not isinstance(ids,list) or not ids or len(set(ids))!=len(ids) or any(
+                not isinstance(s,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*',s) for s in ids):
+                raise ValueError('Invalid published generation membership: '+role)
+        if any(set(groups[a])&set(groups[b]) for a,b in (('train','val'),('train','test'),('val','test'))):
+            raise ValueError('Published generation memberships overlap')
+        with np.load(splits[0],allow_pickle=False) as arrays:
+            affinity_counts={role:len(arrays['idx_'+role]) for role in groups}
+        proof={'method':'published per-split generation system_ids lists',
+               'total_systems':sum(map(len,groups.values())),'test_systems':len(groups['test']),
+               'generation_membership_counts':{role:len(ids) for role,ids in groups.items()},
+               'affinity_index_counts':affinity_counts,'affinity_indices_used_for_selection':False,
+               'generation_memberships_disjoint':True,'splits_sha256':digest(splits[0]),
+               'membership_sha256':{role:digest(paths[0]) for role,paths in membership.items()}}
+        return groups['test'],proof
     ids_json=list(root.rglob('system_ids.json'));ids_pickle=list(root.rglob('system_ids.pkl'))
     if len(ids_json)==1:ids=json.loads(ids_json[0].read_text())
     elif len(ids_pickle)==1:ids=plain_metadata(ids_pickle[0].read_bytes())
     else:
-        import lmdb
-        candidates=list(root.rglob('data.mdb'))+list(root.rglob('*.lmdb'))
-        if len(candidates)!=1:raise ValueError('Exactly one published LMDB is required for system IDs')
-        db=candidates[0]
-        env=lmdb.open(str(db.parent if db.name=='data.mdb' else db),subdir=db.name=='data.mdb',readonly=True,lock=False)
-        try:
-            with env.begin() as txn:data=txn.get(b'system_ids')
-        finally:env.close()
-        if not data:raise ValueError('Published LMDB lacks system_ids metadata')
-        ids=plain_metadata(data)
+        raise ValueError('Published plain generation membership lists are missing')
     with np.load(splits[0],allow_pickle=False) as arrays:
         selected=validate_test_indices(ids,{key:arrays[key] for key in ('idx_train','idx_val','idx_test')})
     return selected,{'method':'official idx_test mapped through system_ids','total_systems':len(ids),

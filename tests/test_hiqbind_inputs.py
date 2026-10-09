@@ -25,6 +25,19 @@ def test_plain_metadata_rejects_executable_pickle():
     with pytest.raises(pickle.UnpicklingError):plain_metadata(pickle.dumps(Exception('not plain metadata')))
 
 
+def test_generation_membership_is_distinct_from_affinity_local_indices(tmp_path):
+    for role,ids in [('train',['train_A']),('val',['val_B']),('test',['test_C','unlabelled_D'])]:
+        (tmp_path/f'system_ids_{role}.pkl').write_bytes(pickle.dumps(ids))
+    # Different affinity datasets each use local index zero, with fewer labelled
+    # test systems. These indices cannot select generation members globally.
+    np.savez(tmp_path/'splits.npz',idx_train=np.array([0]),idx_val=np.array([0]),idx_test=np.array([0]))
+    ids,proof=read_official_test_ids(tmp_path)
+    assert ids==['test_C','unlabelled_D'] and proof['test_systems']==2
+    assert proof['affinity_index_counts']['test']==1 and proof['affinity_indices_used_for_selection'] is False
+    (tmp_path/'system_ids_val.pkl').write_bytes(pickle.dumps(['test_C']))
+    with pytest.raises(ValueError,match='overlap'):read_official_test_ids(tmp_path)
+
+
 def test_selected_structures_are_exact_bytes_and_training_is_not_extracted(tmp_path):
     archive=tmp_path/'input.tar.gz'
     with tarfile.open(archive,'w:gz') as tar:
