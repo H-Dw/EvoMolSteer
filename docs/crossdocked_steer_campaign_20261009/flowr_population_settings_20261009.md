@@ -84,6 +84,8 @@ Figure 6 的“每口袋”输出描述不能证明双目标实验使用两组�
 
 Source Data 的 Figure 3 表包含 target、分子索引、评分和性质；Figure 6 主要为两目标 pIC50 和方法名；Figure 7 为 CK2α/CLK3 值。它们没有 population/batch/lineage ID，不能通过最终分子行数反推出竞争群体划分。
 
+后续逐 target 计数发现 Figure 3a Source Data 含 297 个不同 target_id，与图注报告的 278 不一致。上表的 278 是正文披露值，不是对 Source Data 实际输入数的核验；差异原因尚未解释。详细计数和 GPU/预算分析见 [补充核查](flowr_sample_budget_and_gpu_20261009.md)。
+
 论文另有亲和力预测的多随机种子重复和补充材料中的多次生成重复；这些是其他实验的重复轴，不能直接当作 Steer 的独立粒子群体数。已检查材料也没有给出“固定 1000 预算下 20×50 对比 10×100”的作者消融结果。
 
 ## 4. GitHub 及发表代码归档中的具体配置
