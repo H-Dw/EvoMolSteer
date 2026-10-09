@@ -53,4 +53,6 @@ Skills 是通用分析约束；分子名称、区域编号、实际时间范围�
 
 最终第 25–30 轮只使用冻结候选与六个新批次，期间不调参。`scripts/validate_flowcompat_confirmation.py --repo <仓库> --output <独立审核JSON>` 检查冻结、真实配对、代码与模型证据完整性；`report_flowcompat_campaign.py` 再应用预先设定的效果条件。两者通过也只是同一目标/预测模型内证据，不是生物学亲和力验证。
 
+完整确认后，`scripts/activate_flowcompat_confirmation.py` 用 `--repo --input-dataset --configuration-dataset --output` 独立生成升级计划，只有加入 `--apply` 且所有条件通过才改变活动配置。它重新读取真实确认与源码审核，核对冻结奖励、参考和受保护 R26，保留已验证的角色与补充 Skills；不改奖励公式、模型或冻结文件。未完成验证、未通过效果/完整性、候选/基线/角色指令变化时拒绝升级。此接口的八项拒绝/正确路由测试已通过，真实升级状态以 `activation.json` 和 `active_workflow.json` 为准。
+
 生成中间数据在校验和发布后按显式白名单删除，留下紧凑报告、代码、参数和来源哈希；这些报告不能独立还原已经退休的测试坐标。历史原始 Steer 始终保留，支持重新挖掘与重建统计。
