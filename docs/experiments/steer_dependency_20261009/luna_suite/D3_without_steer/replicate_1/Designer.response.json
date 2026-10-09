@@ -1,0 +1,20 @@
+{
+  "role": "Designer",
+  "condition": "D3_without_steer",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.25,
+    "ligand_anchor_weight": 0.5,
+    "native_rms_ratio": 0.2,
+    "repulsion_weight": 2,
+    "time_ramp_power": 1
+  },
+  "rationale": "Select the registered structure reward because the only permitted coordinate reference is the original receptor-bound ligand pose. Its ligand anchor and contact shell are geometrical proxies, not affinity or interaction-energy targets; the supplied contacts do not establish causal anchors or an optimum. Use a modest contact term and reduced anchor weight as testable hypotheses, preserving some pose guidance while allowing graph transitions. Use repulsion_weight 2 as a steric-scrutiny hypothesis given the crop short nearest-neighbor distances, which are not localized and may not be clashes. Use native_rms_ratio 0.2 and time_ramp_power 1 as controlled candidate settings, not evidence-backed improvements. No generated Steer, lineage, temporal, elite-geometry, or history-matching information is available or used.",
+  "failure_modes": [
+    "The original bound pose may overconstrain optimization or encode a pose that is not appropriate for molecules reached through graph transitions.",
+    "Untyped distance and Gaussian-shell contacts do not represent chemically specific interactions or binding energy, so increased contact reward may worsen predicted pIC50 or strain.",
+    "The short crop neighbor distances may be artifacts or genuine clashes; a global repulsion adjustment cannot localize or diagnose them.",
+    "No affinity labels, generated outcomes, matched controls, or replicate statistics support a claim that these settings improve pIC50 or strain.",
+    "The reward uses FLOWR endpoint VJP with detached correspondence; time derivatives are not spatial gradients, and whole-scalar rescaling may be canceled by gradient normalization."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "role": "Analyst",
+  "condition": "D3_without_steer",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The reference is the original receptor-bound ligand pose, with 25 heavy atoms, and is explicitly not a generated Steer structure. No affinity labels are supplied, so this geometry alone does not establish potency or enrichment."
+    },
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The ligand covariance eigenvalues (0.111, 5.696, 9.303 Å²) indicate a comparatively narrow dimension and two broader dimensions in the observed pose; this is a geometric observation, not evidence that a particular shape should be optimized."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "The supplied bound-pose proxy reports close ligand neighborhoods around LEU45, ILE174, VAL66, VAL53, PHE113, HIS160, MET163, VAL116, ASP175, and HIS115. These are untyped distance/Gaussian-shell summaries, not chemically typed interactions or energetic contributions."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "The strongest listed proxy sums include PHE113 (18.71), LEU45 (16.93), and ILE174 (16.52), while listed ligand-atom counts within 4.5 Å range from 3 to 10. This describes the observed pose only; it does not identify causal anchors or an optimum."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The receptor crop contains 308 heavy atoms within a 12 Å crop radius. Its reported nearest-neighbor quantiles include distances as short as 1.23 Å, so the input crop geometry warrants steric scrutiny; the summary does not identify which atoms or whether these are true clashes."
+    }
+  ],
+  "directions": [
+    "As a testable design hypothesis, compare small contact_weight changes (0.1, 0.25, 0.5) against the current setting while holding other supported parameters fixed; assess final predicted pIC50 and strain on matched runs rather than treating the bound-pose proxy as a target optimum.",
+    "Probe repulsion_weight values (1, 2, 4) to test whether reducing close-contact penalties improves final predictions and pose plausibility; inspect atom-level geometry because the supplied crop summary cannot localize short-distance pairs.",
+    "Compare ligand_anchor_weight 0.5, 1, and 2 as an explicit test of dependence on the original bound pose, with graph transitions allowed and outcomes evaluated using the stated pIC50 objective. This is applicable to the structure formula only.",
+    "Evaluate native_rms_ratio (0.1, 0.2, 0.33) and time_ramp_power (0, 1, 2) as separate controlled ablations; these are candidate settings, not statistically supported improvements from the supplied evidence."
+  ],
+  "limitations": [
+    "Only structure-level evidence is provided. No generated molecules, scored outcomes, affinity labels, baseline comparison, or replicate statistics are supplied; enrichment, selection survival, temporal trends, and parameter effects cannot be estimated.",
+    "The receptor-bound ligand and contact summaries describe one reference pose. Contacts are untyped geometric proxies, with no interaction or energy labels, and cannot establish binding strength or causal residue contributions.",
+    "The evidence manifest is explicitly a compressed exploratory selection of strongest 8 and weakest 2 q-values per supplied table, not a complete enrichment analysis; no q-value table or comparisons are included in this call.",
+    "D3 removes lineage, temporal, elite-geometry, and history-matching instruction blocks. The execution metadata also says particle selection is false and affinity-head gradients are absent; conclusions about those unavailable signals are unsupported.",
+    "Candidate settings are constrained by the supplied allowed_updates and formula registry. The pocket formula has no ligand-anchor update; the structure formula can include it. Any claimed improvement requires generated evaluation against matched controls."
+  ]
+}

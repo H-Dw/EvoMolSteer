@@ -1,0 +1,335 @@
+{
+  "limits": "Primary Agent calls are stochastic workflow realizations, not isolated coefficient or causally identified instruction effects",
+  "quality_sha256": "554c3c6570a5a9960050e7dcf9f0280ef6a0cb0c3ea020396e8ed208862f035d",
+  "rows": [
+    {
+      "Analyst_directions": [
+        "For the full program, compare time_ramp_power values 0, 1, and 2 while holding other supported parameters fixed; the supplied endpoint time deltas vary in direction and do not establish a reliable temporal trend.",
+        "For a pocket or original-structure geometric proxy, run a small factorial sensitivity over contact_weight and repulsion_weight (supported values only), with ligand_anchor_weight included only for the structure formula. Treat these as geometric design hypotheses, since the pocket field is explicitly untyped and the structure evidence has no affinity labels.",
+        "Use native_rms_ratio values 0.1, 0.2, and 0.33 as a controlled constraint sensitivity, and inspect whether endpoint gains persist without excessive native-geometry deviation; current evidence does not establish the best setting.",
+        "If using regional observables, test localized components such as early landmark occupancy and local_cyy/local_dy separately, retaining an ablation or neutral-weight comparison; observed association alone does not specify a causal steering sign."
+      ],
+      "Designer_failure_modes": [
+        "A zero ramp may discard useful stage-specific temporal structure, even though the supplied evidence does not establish its direction.",
+        "The endpoint associations are exploratory and observational; they may not reproduce under intervention or generalize beyond I0_full.",
+        "The full family depends on stage-specific elite coordinates and affinity weights, so its outcome cannot be attributed to this single parameter change alone.",
+        "Gradient-normalized optimization may reduce the effect of whole-scalar rescaling, and coordinate reward components do not guarantee improved final pIC50 or low strain."
+      ],
+      "Designer_family": "full",
+      "Designer_rationale": "Select the registered full multimodal pointcloud reward and set its supported time_ramp_power to 0 as a temporal-neutral comparison. The supplied endpoint time deltas vary in direction, and the Analyst found no reliable temporal trend; this choice avoids imposing an unsupported time-dependent emphasis while retaining the full family's stage-specific elite-coordinate and affinity-weight history. The observed pair-kernel and localized occupancy associations are correlational and do not establish causal coordinate updates.",
+      "condition": "I0_full",
+      "information_level": "full",
+      "program": "configs/experiments/steer_dependency_v1/luna/I0_full.json",
+      "program_sha256": "7b5b35d2f9155a6c333d6fd6c7578bfd4815463481adbc3d89f8e534623a8a15",
+      "quality": {
+        "affinity_max": 8.204536437988281,
+        "affinity_mean_all": 7.579446215629577,
+        "affinity_mean_valid": 7.589804321527481,
+        "affinity_p95": 8.061075067520141,
+        "elite_valid": 0,
+        "energy_status_counts": {
+          "converged": 96,
+          "not_applicable": 4
+        },
+        "mmff_converged_n": 96,
+        "n": 100,
+        "pb_fast_pass": 96,
+        "source_sha256": "7ba1a1174e64d339663aecee8cde619a57665ce81fa1d3923f3004f0fe7e9238",
+        "strain_median_per_heavy": 0.5067503573284117,
+        "strain_p90_per_heavy": 0.9450691222923234,
+        "valid": 96,
+        "valid_unique_graphs": 59
+      },
+      "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+      "removed": []
+    },
+    {
+      "Analyst_directions": [
+        "Treat the observed favorable low/mid pair-kernel scales and unfavorable broad scale as separate hypotheses; compare allowed contact_weight and repulsion_weight settings instead of imposing a single monotonic distance preference.",
+        "Use native_rms_ratio as a cautious structural tether in candidate comparisons, since a reference ligand pose is available; retain an untethered or weaker setting as a comparator because geometry alone does not show which setting improves predicted pIC50.",
+        "Keep time_ramp_power comparisons exploratory. The provided integrated contrasts and selected first-to-last deltas do not establish consistent stage-specific effects; do not encode a stage-dependent rule from these summaries.",
+        "For landmark 00, compare occupancy-oriented and softmin-oriented hypotheses separately; increment and endpoint summaries differ in observable and support, so neither alone warrants a fixed steering target."
+      ],
+      "Designer_failure_modes": [
+        "Geometric anchoring may preserve the reference pose while failing to improve final predicted target pIC50; no affinity labels or affinity-head gradient are available.",
+        "The selected contact and repulsion weights are exploratory settings, and the reported pair-kernel associations do not validate these exact parameter values.",
+        "A fixed-time reward may miss useful stage-specific behavior, while the supplied evidence is insufficient to support a time-dependent rule.",
+        "The untyped geometric proxy must not be interpreted as a physical binding energy."
+      ],
+      "Designer_family": "structure",
+      "Designer_rationale": "Choose the registered structure family because the supplied original bound ligand and receptor geometry supports a pose and shape anchoring hypothesis without requiring generated lineage. Use a cautious native tether and moderate contact and repulsion settings as a direct candidate comparison, not as a claim that these settings improve predicted pIC50. The endpoint summaries show scale-specific opposing pair-kernel directions, so they do not justify a single monotonic distance rule; the selected time_ramp_power=0 avoids encoding unsupported stage dependence. This family uses the original bound ligand reference and receptor crop, not historical generated Steer coordinates or affinity labels.",
+      "condition": "I1_without_lineage",
+      "information_level": "full",
+      "program": "configs/experiments/steer_dependency_v1/luna/I1_without_lineage.json",
+      "program_sha256": "5a814aebe0e8f30c4e9e78481936e3d62096c0e9ba859484471e07ac6851c148",
+      "quality": {
+        "affinity_max": 8.19597339630127,
+        "affinity_mean_all": 7.583066682815552,
+        "affinity_mean_valid": 7.584942143372815,
+        "affinity_p95": 8.04417576789856,
+        "elite_valid": 0,
+        "energy_status_counts": {
+          "converged": 99,
+          "not_applicable": 1
+        },
+        "mmff_converged_n": 99,
+        "n": 100,
+        "pb_fast_pass": 99,
+        "source_sha256": "013068338f7f5781dd8fd7a85fdbe8be18f63b194545e1a62fabc12d1df0784e",
+        "strain_median_per_heavy": 0.5048374957292413,
+        "strain_p90_per_heavy": 1.1174204923178488,
+        "valid": 99,
+        "valid_unique_graphs": 53
+      },
+      "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d",
+      "removed": [
+        "lineage"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "As a design hypothesis, test native_rms_ratio 0.1 and 0.2 against the supplied 0.33 in the full formula, then assess final predicted pIC50 and strain; endpoint associations alone do not establish which setting wins.",
+        "In the original-structure formula, compare ligand_anchor_weight 1 versus 2 while keeping the native-pose restraint explicit; evaluate pose deviation and final predicted pIC50 because no affinity-labeled structural comparison is supplied.",
+        "In the receptor-only pocket formula, sweep contact_weight across 0.1, 0.25, and 0.5 and repulsion_weight across 1 and 2. Treat this as a geometric proxy study, since the pocket objective is not a physical affinity energy.",
+        "Use the endpoint pattern as a diagnostic hypothesis: retain multi-scale pair geometry and inspect local dy/cyy contributions separately, with independent evaluation of final predicted pIC50 and strain before adopting any coordinate bias."
+      ],
+      "Designer_failure_modes": [
+        "Endpoint coordinate associations are observational and do not establish that these parameter changes improve predicted pIC50.",
+        "The structure has no affinity labels, so the anchor is a geometric restraint rather than an affinity reward.",
+        "A stronger anchor or tighter native RMS restraint may preserve the starting pose at the cost of useful conformational changes.",
+        "Evaluation must include predicted pIC50, strain, and pose deviation; the supplied evidence does not validate these outcomes."
+      ],
+      "Designer_family": "structure",
+      "Designer_rationale": "The structure family uses the supplied original bound ligand and receptor, matching the supported restrained pose-anchor hypothesis. The supplied anisotropic ligand geometry makes that restraint plausible; comparing anchor weight 2 and native_rms_ratio 0.2 is an explicitly allowed parameter hypothesis, not a causal conclusion from endpoint associations. No time ramp is proposed because this condition removes temporal instructions and supplies no robust temporal evidence.",
+      "condition": "I2_without_temporal",
+      "information_level": "full",
+      "program": "configs/experiments/steer_dependency_v1/luna/I2_without_temporal.json",
+      "program_sha256": "c85753655631e5c5b093accd6445200b8fa43903b8ef7539f5b9c04d208e6358",
+      "quality": {
+        "affinity_max": 8.195818901062012,
+        "affinity_mean_all": 7.615934224128723,
+        "affinity_mean_valid": 7.617980207715716,
+        "affinity_p95": 8.041640043258667,
+        "elite_valid": 0,
+        "energy_status_counts": {
+          "converged": 98,
+          "not_applicable": 2
+        },
+        "mmff_converged_n": 98,
+        "n": 100,
+        "pb_fast_pass": 98,
+        "source_sha256": "5e42914bb55b3933dcecab77858091b0503017693aa1c7c967ee6d4cd76e9daa",
+        "strain_median_per_heavy": 0.5111211656319896,
+        "strain_p90_per_heavy": 1.0986401416623937,
+        "valid": 98,
+        "valid_unique_graphs": 54
+      },
+      "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d",
+      "removed": [
+        "temporal"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "在 structure 公式允许的网格上，将 ligand_anchor_weight=0.5、1、2 与其余参数固定的基线比较；已结合配体几何只提供锚定假设，不能视为亲和力证据。",
+        "对 full、pocket、static、unweighted 等协议分别做 native_rms_ratio 的受支持档位消融（0.1、0.2、0.33），检验短程 pair 几何方向能否在各历史依赖条件下复现。",
+        "只在支持 contact_weight 的 pocket/structure 公式内测试 0、0.1、0.25、0.5、1，并与 repulsion_weight 的 0.5、1、2、4 做小型交叉消融；将近程 pair 正向、远程 pair 负向作为待检验的范围选择假设，而非直接映射到这些参数。",
+        "对支持 time_ramp_power 的公式比较 0、1、2，并报告逐阶段观测对比及不确定性；由于整体与首末变化方向出现反转，暂不据此预设单调阶段规则。"
+      ],
+      "Designer_failure_modes": [
+        "原始结合配体的几何锚定可能约束构象空间或阻碍图转换。",
+        "缺少 affinity labels；配体距离或接触信号不能解释为结合能或亲和力提升。",
+        "终点相关性不能证明调整该权重会因果改善 FLOWR 预测 pIC50，且没有独立实测标签验证。"
+      ],
+      "Designer_family": "structure",
+      "Designer_rationale": "选择 structure family，因为该公式只依赖原始结合配体与受体几何，符合本条件移除 elite_geometry 后的信息约束。以支持网格中的较低 ligand_anchor_weight=0.5 作为保守锚定假设；Analyst 明确指出该几何不是亲和力证据，也未观察到因果效果。该值只定义待测设计，不代表预测 pIC50 会提升。其余参数保持 family 基线。",
+      "condition": "I3_without_elite_geometry",
+      "information_level": "full",
+      "program": "configs/experiments/steer_dependency_v1/luna/I3_without_elite_geometry.json",
+      "program_sha256": "80c28325750b6c2e2445dfabef8244c16292d42b07592b0ef6cc9303ded4caf0",
+      "quality": {
+        "affinity_max": 8.358579635620117,
+        "affinity_mean_all": 7.735337891578674,
+        "affinity_mean_valid": 7.741976598296502,
+        "affinity_p95": 8.10702428817749,
+        "elite_valid": 1,
+        "energy_status_counts": {
+          "converged": 99,
+          "not_applicable": 1
+        },
+        "mmff_converged_n": 99,
+        "n": 100,
+        "pb_fast_pass": 99,
+        "source_sha256": "e713ac0a375bdbbbafc50d23cd7e35938507cd81ff6e09add7a1f29ac532a895",
+        "strain_median_per_heavy": 0.4919526036455061,
+        "strain_p90_per_heavy": 0.8049514546676468,
+        "valid": 99,
+        "valid_unique_graphs": 44
+      },
+      "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d",
+      "removed": [
+        "elite_geometry"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "As a bounded hypothesis, sweep contact_weight over the allowed values for the receptor-only pocket proxy, prioritizing local contact structure while evaluating final predicted pIC50 and strain; treat this as new geometry testing, since supplied associations do not identify a causal contact weight.",
+        "For the structure-based objective, compare ligand_anchor_weight values while retaining the bound ligand as a geometric anchor; its 25 heavy atoms and anisotropic coordinate spread (covariance eigenvalues 0.111, 5.696, 9.303 A2) suggest checking orientation and shape fit separately. This is a geometry-based design hypothesis, not affinity evidence.",
+        "Use a small factorial sweep of repulsion_weight and native_rms_ratio to test whether reducing clashes while allowing conformational movement improves the pIC50 objective without excess strain; the supplied manifest gives no direct parameter-response results.",
+        "Do not encode a stage-dependent time ramp from these selected results alone: endpoint associations have mixed last-minus-first changes, the observed parent-edge effects disagree by feature, and survival q-values do not pass 0.10. If explored, compare allowed time_ramp_power settings prospectively and report immediate selection and later survival separately."
+      ],
+      "Designer_failure_modes": [
+        "The bound structure may overconstrain conformational changes that improve predicted pIC50.",
+        "Contact and repulsion terms are geometric proxies and do not measure binding affinity.",
+        "The selected evidence is compressed and observational, with no parameter-response results or experimental affinity validation.",
+        "Combining anchor, contact, and repulsion terms may trade off orientation, clashes, strain, and predicted pIC50 in ways not captured by the evidence."
+      ],
+      "Designer_family": "structure",
+      "Designer_rationale": "Choose the registered structure family because it combines ligand-coordinate anchoring with receptor-contact and clash terms, keeping a multimodal geometric objective tied to a real bound conformation instead of averaging separate feature targets into unsupported geometry. The ligand and receptor coordinates originate from the original common bound structure, not generated Steer history. Set time_ramp_power to 0 because selected endpoint, parent-edge, and survival results do not establish a temporal rule. The selected weights are a bounded prospective geometry hypothesis; the supplied associations do not identify causal parameter values, and this objective is not an affinity energy.",
+      "condition": "I4_without_history_matching",
+      "information_level": "full",
+      "program": "configs/experiments/steer_dependency_v1/luna/I4_without_history_matching.json",
+      "program_sha256": "489a15d243498167094e8e517b2d72dad6f210bdb1bea47696ffc986e88c4ca7",
+      "quality": null,
+      "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d",
+      "removed": [
+        "history_matching"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "For the full formulation, compare the allowed native_rms_ratio values 0.1, 0.2 and 0.33, then time_ramp_power 0, 1 and 2; evaluate these as design interventions rather than assuming the endpoint associations are causal.",
+        "For the pocket formulation, test contact_weight and repulsion_weight settings from the supplied allowed values to probe whether broad contact attraction versus steric separation changes generated geometry.",
+        "For the structure formulation, vary ligand_anchor_weight across 0.5, 1 and 2 alongside contact_weight, while treating the bound ligand pose as a geometric reference rather than an affinity label.",
+        "Compare the static and unweighted formulations with supported native_rms_ratio and time_ramp_power settings to separate dependence on selected coordinate clouds from score weighting."
+      ],
+      "Designer_failure_modes": [
+        "原始配体结合姿势可能不适用于生成分子，锚定会限制图转换或引入偏置。",
+        "端点和区域统计是关联且为压缩选择结果，不能确定所选参数方向具有因果收益。",
+        "当前证据没有候选干预对 FLOWR pIC50 或应变的直接比较。",
+        "梯度归一化可能抵消整体标量缩放；奖励分量权重改变方向但效果仍需实际评估。"
+      ],
+      "Designer_family": "structure",
+      "Designer_rationale": "选择 structure family，因为此信息消融只提供原始结合配体与受体几何，不依赖生成轨迹或阶段性 elite 历史。采用中等配体锚定、较轻接触项与较强排斥，并收紧 native RMS 比例作为可检验的几何干预；结合姿势仅是几何参考，所给统计关联不能证明这些改动会提高 pIC50。",
+      "condition": "I5_without_all",
+      "information_level": "full",
+      "program": "configs/experiments/steer_dependency_v1/luna/I5_without_all.json",
+      "program_sha256": "e6654ede09fdb0a61711cffed50eb2070ed79d0ccf9b93fde0d8c6520749ff1c",
+      "quality": null,
+      "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "As a new geometric design hypothesis, compare the allowed contact_weight settings (0, 0.1, 0.25, 0.5, 1) in the pocket objective, which removes ligand attraction, and inspect whether generated poses retain plausible proximity to the supplied pocket geometry.",
+        "For the structure objective, explore the allowed ligand_anchor_weight values (0.5, 1, 2) as a controlled test of adherence to the original bound pose; treat this as pose-shape exploration rather than evidence of improved pIC50.",
+        "Compare allowed repulsion_weight values (0.5, 1, 2, 4) as a geometric clash-control hypothesis, checking generated structures for close contacts rather than assuming the largest setting is best.",
+        "Use allowed native_rms_ratio and time_ramp_power settings as bounded sensitivity dimensions; without scores or trajectories, select settings only after evaluating new generated structures and final target predictions."
+      ],
+      "Designer_failure_modes": [
+        "Untyped center-distance contacts may reward geometric proximity without representing favorable interactions or binding energy.",
+        "A pocket-only objective may not preserve ligand pose or shape because ligand attraction is absent.",
+        "No generated structures, affinity labels, or comparison outcomes are available to determine whether these settings improve final pIC50 or strain."
+      ],
+      "Designer_family": "pocket",
+      "Designer_rationale": "Choose the pocket family because it uses the supplied receptor crop without requiring generated Steer history or bound-ligand attraction. The moderate contact setting and baseline repulsion are bounded geometry hypotheses; native_rms_ratio and time_ramp_power are permitted sensitivity settings, not evidence-based optima. The untyped contact proxy supports only geometric proximity checks, and no affinity or generated-state outcomes were supplied.",
+      "condition": "D1_without_scores",
+      "information_level": "unweighted",
+      "program": "configs/experiments/steer_dependency_v1/luna/D1_without_scores.json",
+      "program_sha256": "a36cc640db69dcfdd2fe7c4b6448cf8b133baecc86a44e659a65955d1bdd0262",
+      "quality": null,
+      "reference_sha256": "8a949fc2fe8f5376700a884b137824d0a43b1c7a367441d0a1c23ff67364def7",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "As a new geometry-based hypothesis, compare small changes to contact_weight (0, 0.1, 0.25, 0.5, 1) and repulsion_weight (0.5, 1, 2, 4) in the pocket or structure formula, while holding other settings fixed; evaluate generated predictions before inferring benefit.",
+        "As a new geometry-based hypothesis, test ligand_anchor_weight values 0.5, 1, and 2 in the structure formula to examine whether retaining reference-pose geometry helps while allowing graph transitions; the supplied evidence does not establish the best value.",
+        "Treat native_rms_ratio and time_ramp_power as controlled sensitivity parameters within their allowed values, and compare final target pIC50 and secondary strain empirically; the static evidence alone cannot select settings."
+      ],
+      "Designer_failure_modes": [
+        "No generated-state target pIC50 or strain results are supplied, so these settings cannot be claimed to improve either outcome.",
+        "The static family has no temporal signal; changing time_ramp_power may be operationally inert.",
+        "The original geometric evidence does not establish an optimal native_rms_ratio or validate a physical affinity landscape."
+      ],
+      "Designer_family": "static",
+      "Designer_rationale": "Select the registered static family because this condition supplies only final selected teacher clouds and removes trajectory and history information. The permitted native_rms_ratio and time_ramp_power settings are controlled hypotheses, not evidence-based optima; static uses beta=0, so time ramping contributes no temporal signal. No score or trajectory dependency is introduced.",
+      "condition": "D2_without_trajectory",
+      "information_level": "static",
+      "program": "configs/experiments/steer_dependency_v1/luna/D2_without_trajectory.json",
+      "program_sha256": "cafc34e6c71c6cf5a6d150dbeabf44ccf8f883adc5d7f8b212cffd1814d327f8",
+      "quality": null,
+      "reference_sha256": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "For the structure objective, compare the allowed ligand_anchor_weight values 0.5, 1, and 2 to assess whether a stronger native-pose restraint preserves the observed ligand geometry while allowing graph transitions.",
+        "For both supported objectives, sweep allowed contact_weight values 0, 0.1, 0.25, 0.5, and 1; treat the contact term as an untyped geometric proxy and evaluate generated outcomes separately.",
+        "Test allowed repulsion_weight values 0.5, 1, 2, and 4, paying particular attention to whether the short-distance geometry changes without over-penalizing the native pose.",
+        "Compare allowed native_rms_ratio values 0.1, 0.2, and 0.33 and time_ramp_power values 0, 1, and 2 as design hypotheses; their effects on final target pIC50 require generated-state evaluation."
+      ],
+      "Designer_failure_modes": [
+        "The native-pose restraint may preserve a bound geometry that is not optimal for final predicted pIC50 or may limit useful graph transitions.",
+        "Untyped center-distance contacts may reward geometries without favorable chemical interactions; short distances alone do not establish clashes.",
+        "The receptor crop omits the rest of the receptor environment, and no generated-state or affinity-label evidence supports predicting enrichment or target improvement.",
+        "The selected weights are permitted design hypotheses, not validated optima; whole-scalar rescaling may have little effect under gradient normalization."
+      ],
+      "Designer_family": "structure",
+      "Designer_rationale": "Select the registered structure family because this objective has an original bound ligand reference and local receptor geometry. The ligand anchor and RMS restraint use only the original bound pose; the contact and repulsion terms use the receptor crop and untyped geometric distances, so they are geometric proxies rather than affinity evidence. These moderate allowed settings are hypotheses for testing: the supplied evidence contains no affinity labels or generated outcomes and cannot establish an optimum. No lineage, temporal, elite-geometry, or history-matching information is available in this ablation.",
+      "condition": "D3_without_steer",
+      "information_level": "structure",
+      "program": "configs/experiments/steer_dependency_v1/luna/D3_without_steer.json",
+      "program_sha256": "e8b5f3393817a659388622ad89c689178db1d77ef315cbc6bfd7aa24e2b33466",
+      "quality": null,
+      "reference_sha256": "8a50a23a525c32bbc54e1a7503d1c1e4e5c5c747bad170ad95e16453e52f646d",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ]
+    },
+    {
+      "Analyst_directions": [
+        "Treat the pocket field as an untyped geometric proxy rather than a physical affinity energy; use modest contact weights (0 or 0.1/0.25) as candidate settings and assess outcomes with the specified final FLOWR predicted target pIC50 objective.",
+        "Because the supplied neighbor-distance quantiles include very short distances, compare repulsion weights 1 and 2 as a geometry-checking sensitivity experiment; these coordinates alone do not establish that stronger repulsion improves affinity.",
+        "Compare native_rms_ratio 0.2 and 0.33 and time_ramp_power 0 and 1 as permitted pocket-field sensitivities, while allowing graph transitions as specified."
+      ],
+      "Designer_failure_modes": [
+        "The receptor coordinates have no affinity labels, so the geometric proxy may not improve predicted target pIC50.",
+        "Nearest-neighbor quantiles alone do not identify atom-pair clashes or interaction motifs; repulsion weight 1 may be insufficient or excessive.",
+        "The pocket objective omits ligand attraction and may constrain geometry without favoring productive ligand interactions."
+      ],
+      "Designer_family": "pocket",
+      "Designer_rationale": "Select the registered pocket family, which uses only the original receptor crop and has no generated-Steer or bound-ligand reward dependency. Use a modest contact term and repulsion weight 1 as exploratory geometric-proxy settings; compare the lower RMS ratio and a linear time ramp while evaluating the specified final FLOWR predicted target pIC50 objective. These settings are hypotheses, not affinity-supported conclusions.",
+      "condition": "D4_pocket_only",
+      "information_level": "pocket",
+      "program": "configs/experiments/steer_dependency_v1/luna/D4_pocket_only.json",
+      "program_sha256": "579e8063281a988ef8156b87243c8aa8f2a75128e36add3b1a1156495659c5ce",
+      "quality": null,
+      "reference_sha256": "8a949fc2fe8f5376700a884b137824d0a43b1c7a367441d0a1c23ff67364def7",
+      "removed": [
+        "lineage",
+        "temporal",
+        "elite_geometry",
+        "history_matching"
+      ]
+    }
+  ]
+}

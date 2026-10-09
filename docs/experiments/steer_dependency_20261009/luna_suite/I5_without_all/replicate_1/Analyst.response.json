@@ -1,0 +1,42 @@
+{
+  "role": "Analyst",
+  "condition": "I5_without_all",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "pair_kernel_2.5 is positively associated with the high-versus-low integrated endpoint (z=0.631, 95% CI 0.495 to 0.758, q=2.19e-5), with positive batch fraction 1.0 and score correlation 0.213. This is an observed association, not a causal design rule."
+    },
+    {
+      "evidence_id": "endpoint_effects:13",
+      "finding": "pair_kernel_7.0 has the opposite association (z=-0.485, 95% CI -0.617 to -0.357, q=1.46e-4; positive batch fraction 0). Together with the positive 1.5–3.5 kernels, this argues against assuming that larger pair distance scales are uniformly favorable."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy is negatively associated with the integrated endpoint (z=-0.513, 95% CI -0.620 to -0.424, q=1.49e-5; positive batch fraction 0). Its last-minus-first time delta is small and positive (0.148), so the endpoint contrast does not establish a temporal trend."
+    },
+    {
+      "evidence_id": "endpoint_effects:15",
+      "finding": "landmark_00_occupancy3 has a positive endpoint association (z=0.545, 95% CI 0.393 to 0.699, q=2.35e-4; positive batch fraction 1.0); the supplied increment estimate is also positive but weaker after correction (q=0.081)."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "landmark_00_softmin has a negative success-versus-failure integrated rate contrast (z=-4.91, 95% CI -6.85 to -2.62, q=0.046; positive batch fraction 0.071). This differs from the positive landmark_00 occupancy3 association and cautions against treating nearby landmark summaries as interchangeable."
+    },
+    {
+      "evidence_id": "regional_effects:0",
+      "finding": "landmark_00_soft_mass is positively associated with regional enrichment (z=0.639, 95% CI 0.492 to 0.791, q=1.88e-4; positive batch fraction 1.0), an exploratory regional signal in the supplied selected evidence."
+    }
+  ],
+  "directions": [
+    "Prioritize a controlled comparison of the allowed pair-kernel/contact scales, checking whether moderate-distance contact rewards retain the positive endpoint association while the 7.0-scale behavior remains unfavorable; interpret this as a hypothesis to test, not as a physical affinity result.",
+    "Test modest contact_weight settings (0, 0.1, 0.25, 0.5) against the current setting and report endpoint, increment, and regional outcomes separately, since landmark occupancy, softmin, and soft_mass signals differ.",
+    "Run a small native_rms_ratio sweep (0.1, 0.2, 0.33) with otherwise fixed settings to see whether endpoint gains persist under tighter or looser native-geometry restraint; the current evidence does not identify a causal optimum.",
+    "For promising settings, compare time_ramp_power values (0, 1, 2) and require replicated endpoint outcomes before interpreting any time-dependent effect; the supplied last-minus-first deltas are feature-specific and are not a general temporal trend estimate."
+  ],
+  "limitations": [
+    "The supplied tables are a compressed, exploratory selection of strongest and weakest q-values, not a complete enrichment analysis; unshown results and selection effects limit inference.",
+    "Associations across endpoint, increment, regional, and survival summaries are not causal effects of steering parameters, and correlated features should not be treated as independent confirmation.",
+    "The structure record describes the original bound ligand and receptor only, has no affinity labels, and cannot establish generated-Steer geometry or predict binding affinity.",
+    "No complete temporal analysis is supplied; isolated last-minus-first feature deltas do not support a broad selection-survival or temporal-trend claim."
+  ]
+}

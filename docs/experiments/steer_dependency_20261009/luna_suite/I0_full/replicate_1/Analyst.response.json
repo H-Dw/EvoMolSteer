@@ -1,0 +1,41 @@
+{
+  "role": "Analyst",
+  "condition": "I0_full",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "Integrated endpoint enrichment is positive for pair_kernel_2.5 (z=0.631, 95% CI 0.495 to 0.758, q=2.19e-5), with positive effects in all batches and positive score correlation. This supports an association at this distance scale, not a causal reward effect."
+    },
+    {
+      "evidence_id": "endpoint_effects:13",
+      "finding": "pair_kernel_7.0 has the opposite integrated association (z=-0.485, 95% CI -0.617 to -0.357, q=1.46e-4; zero batches positive), so the pair-kernel signal is scale-dependent rather than uniformly favorable."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy is negatively associated with the endpoint (z=-0.513, 95% CI -0.620 to -0.424, q=1.49e-5; zero batches positive), while its last-minus-first temporal delta is positive (+0.148). The temporal direction differs from the integrated endpoint sign."
+    },
+    {
+      "evidence_id": "endpoint_effects:34",
+      "finding": "landmark_06_occupancy5 is negatively associated with the endpoint (z=-0.365, CI -0.482 to -0.253, q=6.79e-4), whereas landmark_06_softmin is positively associated (z=0.294, q=6.84e-4; endpoint_effects:32). These summaries at the same landmark give contrasting signals."
+    },
+    {
+      "evidence_id": "increment_effects:15",
+      "finding": "The landmark_00_occupancy3 success-failure integrated rate contrast is positive (z=4.277, CI 2.014 to 6.310), but q=0.081 and therefore does not pass a 0.05 FDR threshold. Treat this as exploratory evidence, not a confirmed incremental predictor."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "landmark_00_soft_mass has a positive survival-enrichment estimate (z=0.365; 14 independent batches), but q=0.120. The supplied survival table therefore does not establish a multiplicity-adjusted association with later survival."
+    }
+  ],
+  "directions": [
+    "Prioritize a small controlled comparison of the allowed contact_weight settings (0, 0.1, 0.25, 0.5, 1) and repulsion_weight settings (0.5, 1, 2, 4), since positive and negative pair-kernel associations vary by distance; evaluate endpoint and survival outcomes separately.",
+    "Treat landmark_00 occupancy and soft-mass signals as candidates for a follow-up comparison, while requiring multiplicity-adjusted support and checking immediate selection against later survival before encoding a time-dependent rule.",
+    "Keep geometry-derived structure reward as a proxy hypothesis: compare ligand_anchor_weight values (0.5, 1, 2) and native_rms_ratio values (0.1, 0.2, 0.33) against the supplied full condition before favoring the original-ligand geometry."
+  ],
+  "limitations": [
+    "The evidence is a compressed, selected set of strongest and weakest q-values, not a complete enrichment analysis; omitted comparisons may change the broader pattern.",
+    "The tables support associations and contrasts only. The endpoint and survival results do not by themselves show that steering with a feature causes improved pIC50.",
+    "The supplied results do not provide empirical node-level contrasts or fitted-versus-observed calibration diagnostics, so no stage-specific rule is established.",
+    "The structure uses the original receptor and bound ligand, has no affinity labels, and is not generated Steer evidence; its geometric reward is an untyped proxy rather than a physical affinity energy."
+  ]
+}

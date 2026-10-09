@@ -55,8 +55,12 @@ def run(root, reference):
             # Only the new field has three interpretable observables.
             if np.asarray(active[0]['observables']).shape[-1] == 3:
                 for idx, label in enumerate(['forecast_anchor', 'forecast_contact', 'forecast_repulsion']):
+                    all_values = np.concatenate([np.asarray(r['observables'])[:, idx] for r in active])
                     item[label + '_first'] = float(np.asarray(active[0]['observables'])[:, idx].mean())
                     item[label + '_last'] = float(np.asarray(active[-1]['observables'])[:, idx].mean())
+                    item[label + '_nonzero_fraction'] = float((all_values != 0).mean())
+                    item[label + '_min'] = float(all_values.min())
+                    item[label + '_max'] = float(all_values.max())
         batches.append(item)
     return {'schema_version': 'dependency-response-1.0', 'reference_sha256': digest(reference),
             'batches': batches, 'limits': 'Terminal proxies cover decoded molecules; forecast progression is observational and includes native flow; first-order ascent is not an exact finite-step reward or affinity improvement'}
