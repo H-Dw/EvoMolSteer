@@ -1,0 +1,44 @@
+{
+  "role": "Analyst",
+  "condition": "I0_full",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "Across the supplied integrated endpoint comparison, higher shape_yy is associated with lower enrichment (high-low integrated z=-0.513, 95% CI [-0.620,-0.424], q=1.49e-5); all 14 batches have a negative effect, while its score correlation is -0.195. This is an observed association, not a causal coordinate rule."
+    },
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "pair_kernel_2.5 has a positive integrated endpoint association (z=0.631, 95% CI [0.495,0.758], q=2.19e-5), positive in all batches, with score correlation 0.213. The scale-specific opposite result for pair_kernel_7.0 (z=-0.485, q=1.46e-4; endpoint_effects:13) argues against treating pair-kernel proximity as a single monotone effect."
+    },
+    {
+      "evidence_id": "endpoint_effects:15",
+      "finding": "landmark_00_occupancy3 is positively associated with integrated endpoint enrichment (z=0.545, 95% CI [0.393,0.699], q=2.35e-4; all batches positive), whereas landmark_06_occupancy5 is negative (z=-0.365, q=6.79e-4; endpoint_effects:34). These contrasts support localized, scale-specific hypotheses, not a global occupancy target."
+    },
+    {
+      "evidence_id": "increment_effects:15",
+      "finding": "For immediate success/failure increments, landmark_00_occupancy3 has positive integrated rate contrast (z=4.28, CI [2.01,6.31]) but q=0.081, so it does not pass a 0.05 false-discovery threshold; landmark_00_softmin is negative (z=-4.91, q=0.046; increment_effects:14). Increment evidence is exploratory and its signs do not justify equating endpoint enrichment with immediate success."
+    },
+    {
+      "evidence_id": "regional_effects:75",
+      "finding": "Regional endpoint associations are heterogeneous by component and region: local_cyy is negative at landmarks 07, 17, 01, 16 and 00 (all listed q<=1.31e-4), while local_dy is positive at landmarks 06 and 02 (q<=1.31e-4). This favors region/component-specific tests over a uniform directional coordinate bias."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "No supplied survival contrast meets q<0.05: landmark_00_soft_mass is positive (z=0.365, q=0.120), while several local_czz effects are negative but also q=0.120 or larger. Therefore the endpoint/increment patterns cannot be claimed to persist into later survival or score credit."
+    }
+  ],
+  "directions": [
+    "For the full program, compare time_ramp_power values 0, 1, and 2 while holding other supported parameters fixed; the supplied endpoint time deltas vary in direction and do not establish a reliable temporal trend.",
+    "For a pocket or original-structure geometric proxy, run a small factorial sensitivity over contact_weight and repulsion_weight (supported values only), with ligand_anchor_weight included only for the structure formula. Treat these as geometric design hypotheses, since the pocket field is explicitly untyped and the structure evidence has no affinity labels.",
+    "Use native_rms_ratio values 0.1, 0.2, and 0.33 as a controlled constraint sensitivity, and inspect whether endpoint gains persist without excessive native-geometry deviation; current evidence does not establish the best setting.",
+    "If using regional observables, test localized components such as early landmark occupancy and local_cyy/local_dy separately, retaining an ablation or neutral-weight comparison; observed association alone does not specify a causal steering sign."
+  ],
+  "limitations": [
+    "Evidence is a compressed selection of strongest and weakest q-values, explicitly exploratory, and is not a new complete enrichment analysis.",
+    "Endpoint and increment summaries are observational associations; they do not identify causal effects of changing steering weights.",
+    "Survival results use 14 independent batches and none of the supplied contrasts is significant after the reported multiple-testing adjustment.",
+    "The structure geometry describes the original common receptor and bound ligand, not generated Steer structures, and supplies no affinity labels.",
+    "The pocket formula is an untyped geometric proxy rather than a physical affinity energy; the reported analysis does not validate it as an affinity predictor.",
+    "Only listed parameter values and formula-specific update keys are supported; the supplied evidence does not determine optimal values or establish generalization beyond this condition."
+  ]
+}

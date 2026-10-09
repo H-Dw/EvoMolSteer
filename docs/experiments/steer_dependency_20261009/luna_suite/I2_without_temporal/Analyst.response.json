@@ -1,0 +1,44 @@
+{
+  "role": "Analyst",
+  "condition": "I2_without_temporal",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "At the endpoint, shape_yy is lower in the high-score group (integrated z=-0.513; 95% CI [-0.620,-0.424], q=1.49e-5), with negative direction in 0/14 batches. This is a replicated association, not evidence that changing this coordinate improves activity."
+    },
+    {
+      "evidence_id": "endpoint_effects:9",
+      "finding": "Pair-kernel signals depend on spatial scale: scales 1.5–3.5 have positive endpoint associations (integrated z=0.540–0.631; q=2.19e-5 to 9.75e-5), while scale 7.0 is negative (z=-0.485, q=1.46e-4). This supports a scale-sensitive geometry hypothesis rather than a monotonic 'more contact is better' rule."
+    },
+    {
+      "evidence_id": "endpoint_effects:15",
+      "finding": "Landmark 00 occupancy3 has a positive endpoint association (integrated z=0.545, CI [0.393,0.699], q=2.35e-4; positive in all batches). Its success/failure increment estimate is positive but does not pass q<0.05 (q=0.081), so the endpoint contrast is stronger evidence than the increment result."
+    },
+    {
+      "evidence_id": "regional_effects:5",
+      "finding": "Local cyy enrichment is consistently negative at landmarks 00, 01, 07, and 16 (effect z about -0.56 to -0.67; q=7.08e-5 to 1.31e-4; positive in 0/14 batches), while local dy is consistently positive at landmarks 02 and 06 (z=0.405–0.425; q=1.15e-4 to 1.31e-4; positive in 14/14). These are regional coordinate associations, not direct causal gradients."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "The supplied later-survival contrasts do not meet q<0.05: even the strongest listed signal, landmark_00_soft_mass, has q=0.120 (effect z=0.365). The listed local czz and local cyy survival associations are negative but also not significant after correction (q≥0.120); no robust claim that endpoint-associated coordinates predict later survival is supported here."
+    },
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original bound ligand has 25 heavy atoms and an anisotropic coordinate cloud (covariance eigenvalues 0.111, 5.696, and 9.303 Å²), centered at [22.82, -29.98, 14.47] Å in the supplied receptor crop. This makes a restrained ligand-pose anchor a plausible geometry hypothesis; the evidence provides no affinity labels."
+    }
+  ],
+  "directions": [
+    "As a design hypothesis, test native_rms_ratio 0.1 and 0.2 against the supplied 0.33 in the full formula, then assess final predicted pIC50 and strain; endpoint associations alone do not establish which setting wins.",
+    "In the original-structure formula, compare ligand_anchor_weight 1 versus 2 while keeping the native-pose restraint explicit; evaluate pose deviation and final predicted pIC50 because no affinity-labeled structural comparison is supplied.",
+    "In the receptor-only pocket formula, sweep contact_weight across 0.1, 0.25, and 0.5 and repulsion_weight across 1 and 2. Treat this as a geometric proxy study, since the pocket objective is not a physical affinity energy.",
+    "Use the endpoint pattern as a diagnostic hypothesis: retain multi-scale pair geometry and inspect local dy/cyy contributions separately, with independent evaluation of final predicted pIC50 and strain before adopting any coordinate bias."
+  ],
+  "limitations": [
+    "The supplied table is an exploratory compression of selected strongest and weakest q-values, not a complete enrichment analysis; unlisted effects and multiplicity context are unavailable.",
+    "Endpoint and regional associations are observational contrasts. They do not establish causal coordinate updates or predict the response to changing a reward weight.",
+    "Later-survival signals shown here do not pass q<0.05, so endpoint findings should not be interpreted as demonstrated survival or score-credit effects.",
+    "This condition removes temporal instruction blocks. Although selected records include time-delta fields, this evidence is insufficient to infer a usable temporal trend or justify a time-ramp schedule.",
+    "The receptor/ligand structure has no affinity labels, and the pocket formula is explicitly an untyped geometric proxy rather than a physical affinity model.",
+    "Only the listed parameter values and formula-specific update keys are supported for proposed parameter comparisons; no new complete experiment or independent validation data are provided."
+  ]
+}

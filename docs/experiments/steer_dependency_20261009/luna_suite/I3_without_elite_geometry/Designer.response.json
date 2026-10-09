@@ -1,0 +1,14 @@
+{
+  "role": "Designer",
+  "condition": "I3_without_elite_geometry",
+  "family": "structure",
+  "updates": {
+    "ligand_anchor_weight": 0.5
+  },
+  "rationale": "选择 structure family，因为该公式只依赖原始结合配体与受体几何，符合本条件移除 elite_geometry 后的信息约束。以支持网格中的较低 ligand_anchor_weight=0.5 作为保守锚定假设；Analyst 明确指出该几何不是亲和力证据，也未观察到因果效果。该值只定义待测设计，不代表预测 pIC50 会提升。其余参数保持 family 基线。",
+  "failure_modes": [
+    "原始结合配体的几何锚定可能约束构象空间或阻碍图转换。",
+    "缺少 affinity labels；配体距离或接触信号不能解释为结合能或亲和力提升。",
+    "终点相关性不能证明调整该权重会因果改善 FLOWR 预测 pIC50，且没有独立实测标签验证。"
+  ]
+}

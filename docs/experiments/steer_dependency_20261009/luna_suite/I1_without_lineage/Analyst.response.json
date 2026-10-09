@@ -1,0 +1,43 @@
+{
+  "role": "Analyst",
+  "condition": "I1_without_lineage",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "Across the integrated window, shape_yy is lower in the high group (z=-0.513, 95% CI [-0.620,-0.424], q=1.49e-5; positive-batch fraction 0). Its first-to-last time delta is +0.148, so the integrated contrast does not establish a matching temporal trend."
+    },
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "pair_kernel_2.5 has a positive integrated high-low contrast (z=0.631, CI [0.495,0.758], q=2.19e-5; positive in all batches), whereas pair_kernel_7.0 is negative (endpoint_effects:13, z=-0.485, CI [-0.617,-0.357], q=1.46e-4). The scale-specific sign difference argues against treating pair-kernel features as one monotonic rule."
+    },
+    {
+      "evidence_id": "endpoint_effects:34",
+      "finding": "At landmark 06, occupancy5 has a negative integrated contrast (z=-0.365, CI [-0.482,-0.253], q=6.79e-4), while softmin is positive (endpoint_effects:32, z=0.294, CI [0.201,0.391], q=6.84e-4). Their first-to-last deltas also differ (+0.603 versus -0.903), so neither a single shared endpoint direction nor a common temporal rule is supported."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "For landmark_00_softmin, the supplied success/failure integrated rate contrast is negative (z=-4.91, CI [-6.85,-2.62], q=0.046; positive in 1/14 batches). This is an increment-level association and should not be conflated with endpoint high-low effects."
+    },
+    {
+      "evidence_id": "regional_effects:62",
+      "finding": "Regional enrichment has opposing local components: landmark_06_local_dy is positive (z=0.425, CI [0.339,0.515], q=1.15e-4; positive in all batches), while several local_cyy regions are negative, including landmark_07_local_cyy (regional_effects:75, z=-0.646, q=7.08e-5). These are component- and region-specific associations."
+    },
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The original bound ligand provides a geometric reference (25 heavy atoms; centroid [22.82,-29.98,14.47] Å; covariance eigenvalues [0.111,5.696,9.303] Å²) within a crop containing 308 protein heavy atoms. It supports pose/shape anchoring hypotheses, not affinity estimates."
+    }
+  ],
+  "directions": [
+    "Treat the observed favorable low/mid pair-kernel scales and unfavorable broad scale as separate hypotheses; compare allowed contact_weight and repulsion_weight settings instead of imposing a single monotonic distance preference.",
+    "Use native_rms_ratio as a cautious structural tether in candidate comparisons, since a reference ligand pose is available; retain an untethered or weaker setting as a comparator because geometry alone does not show which setting improves predicted pIC50.",
+    "Keep time_ramp_power comparisons exploratory. The provided integrated contrasts and selected first-to-last deltas do not establish consistent stage-specific effects; do not encode a stage-dependent rule from these summaries.",
+    "For landmark 00, compare occupancy-oriented and softmin-oriented hypotheses separately; increment and endpoint summaries differ in observable and support, so neither alone warrants a fixed steering target."
+  ],
+  "limitations": [
+    "Evidence is a compressed selection of strongest and weakest q-values, not a complete enrichment analysis; absent rows are not evidence of no effect.",
+    "Integrated high-low endpoint contrasts, success/failure increment rates, regional enrichment, and survival enrichment are distinct measures and cannot be substituted for one another.",
+    "The supplied summaries do not give empirical per-node fitted-versus-observed comparisons or enough nodewise support to validate a stage-dependent steering rule.",
+    "The receptor/bound-ligand geometry and the untyped pocket proxy are not physical affinity energies; there are no affinity labels or affinity-head gradients in this execution.",
+    "Associations across the supplied historical window do not establish that an allowed parameter update will improve final FLOWR predicted target pIC50; that requires direct comparisons."
+  ]
+}

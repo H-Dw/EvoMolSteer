@@ -1,0 +1,68 @@
+{
+  "condition": "D4_pocket_only",
+  "evidence_sha256": "3ba93a71f5d06fa1936df1bfea41f372604ae0272c7190fa718c8b6b3ae34607",
+  "instruction_sha256": "62898c3778907bfda2441c7a9860dff5029f4502fa753f0e6e9b7e52058e3ae8",
+  "messages": [
+    {
+      "content": "---\nname: steer-dependency-analyst\ndescription: Analyze the supplied coordinate evidence under an explicit historical-information ablation.\n---\n\nYou are Analyst. Read the supplied evidence manifest and report supported\ncoordinate hypotheses, available observables, limitations and counterevidence.\nStatistical associations require observed comparisons; a receptor structure\nalone cannot provide enrichment, selection survival or temporal trend estimates.\nDistinguish statistical findings from new geometrical design hypotheses.\nUse only evidence supplied to this call. Return the requested JSON schema.\n\n\n\n\nReturn only JSON matching {\"type\": \"object\", \"required\": [\"role\", \"condition\", \"findings\", \"directions\", \"limitations\"], \"additionalProperties\": false, \"properties\": {\"role\": {\"const\": \"Analyst\"}, \"condition\": {\"type\": \"string\"}, \"findings\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"evidence_id\", \"finding\"], \"additionalProperties\": false, \"properties\": {\"evidence_id\": {\"type\": \"string\"}, \"finding\": {\"type\": \"string\"}}}}, \"directions\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"limitations\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
+      "role": "system"
+    },
+    {
+      "content": "{\"evidence\": {\"allowed_updates\": {\"contact_weight\": [0, 0.1, 0.25, 0.5, 1], \"ligand_anchor_weight\": [0.5, 1, 2], \"native_rms_ratio\": [0.1, 0.2, 0.33], \"repulsion_weight\": [0.5, 1, 2, 4], \"time_ramp_power\": [0, 1, 2]}, \"compression\": \"Strongest 8 and weakest 2 q-values per supplied table; exploratory selected evidence, not a new complete enrichment analysis\", \"condition\": \"D4_pocket_only\", \"evidence\": [{\"data\": {\"no_affinity_labels\": true, \"origin\": \"Original common receptor/bound ligand, not generated Steer\", \"protein_heavy_atoms_in_crop\": 308}, \"evidence_id\": \"structure:geometry\", \"kind\": \"structure_geometry\"}, {\"data\": {\"crop_centroid_A\": [23.35277922077922, -30.93796428571429, 13.329594155844163], \"crop_radius_A\": 12, \"nearest_protein_neighbor_A_quantiles\": [1.2258193178441887, 1.3707734017451196, 3.8961954519761983], \"origin\": \"Original receptor crop around the standard FLOWR input site\", \"protein_heavy_atoms\": 308}, \"evidence_id\": \"structure:protein_crop\", \"kind\": \"receptor_geometry\"}], \"execution\": {\"affinity_head_gradient\": false, \"derivative_path\": \"FLOWR endpoint VJP\", \"native_rms_ratio\": 0.33, \"particle_selection\": false, \"seed\": 42, \"steps\": 100, \"window\": [0.0, 0.5], \"window_origin\": \"R26 matched protocol\"}, \"formula_notes\": {\"full\": \"R26 robust multimodal pointcloud\", \"pocket\": \"Same field without ligand attraction; untyped geometric proxy, not a physical affinity energy\", \"static\": \"All times use last elite pointclouds, beta=0\", \"structure\": \"-wL*(sqrt(1+Hungarian_MSE)-1)+wC*saturated_3.6A_contact-wR*sum(relu(2A-d)^2)/N\", \"unweighted\": \"R26 with score beta=0\"}, \"formula_registry\": {\"pocket\": {\"historical_dependency\": \"No generated Steer or bound ligand reward; receptor crop\", \"program\": \"configs/experiments/steer_dependency_v1/D4_pocket_only_pocket.json\", \"reference\": \"configs/experiments/steer_dependency_v1/pocket.json.gz\", \"supported_update_keys\": [\"contact_weight\", \"native_rms_ratio\", \"repulsion_weight\", \"time_ramp_power\"]}}, \"information_level\": \"pocket\", \"objective\": \"Improve final FLOWR predicted target pIC50; strain secondary; allow graph transitions\", \"removed_instruction_blocks\": [\"lineage\", \"temporal\", \"elite_geometry\", \"history_matching\"]}}",
+      "role": "user"
+    }
+  ],
+  "requested_model": "gpt-6-luna",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "condition": {
+        "type": "string"
+      },
+      "directions": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "findings": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "evidence_id": {
+              "type": "string"
+            },
+            "finding": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "evidence_id",
+            "finding"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "limitations": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "condition",
+      "findings",
+      "directions",
+      "limitations"
+    ],
+    "type": "object"
+  },
+  "role": "Analyst",
+  "schema_version": "steer-dependency-agent-1.0"
+}

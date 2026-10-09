@@ -1,0 +1,19 @@
+{
+  "role": "Designer",
+  "condition": "I1_without_lineage",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.25,
+    "ligand_anchor_weight": 1,
+    "native_rms_ratio": 0.2,
+    "repulsion_weight": 1,
+    "time_ramp_power": 0
+  },
+  "rationale": "Choose the registered structure family because the supplied original bound ligand and receptor geometry supports a pose and shape anchoring hypothesis without requiring generated lineage. Use a cautious native tether and moderate contact and repulsion settings as a direct candidate comparison, not as a claim that these settings improve predicted pIC50. The endpoint summaries show scale-specific opposing pair-kernel directions, so they do not justify a single monotonic distance rule; the selected time_ramp_power=0 avoids encoding unsupported stage dependence. This family uses the original bound ligand reference and receptor crop, not historical generated Steer coordinates or affinity labels.",
+  "failure_modes": [
+    "Geometric anchoring may preserve the reference pose while failing to improve final predicted target pIC50; no affinity labels or affinity-head gradient are available.",
+    "The selected contact and repulsion weights are exploratory settings, and the reported pair-kernel associations do not validate these exact parameter values.",
+    "A fixed-time reward may miss useful stage-specific behavior, while the supplied evidence is insufficient to support a time-dependent rule.",
+    "The untyped geometric proxy must not be interpreted as a physical binding energy."
+  ]
+}

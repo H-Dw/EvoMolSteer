@@ -164,8 +164,21 @@ SCHEMAS = {
             'family': {'type': 'string'}, 'updates': {'type': 'object'}, 'rationale': {'type': 'string'},
             'failure_modes': {'type': 'array', 'items': {'type': 'string'}}}}}
 
-def export(folder, role):
+def declared_model(folder):
+    for directory in (Path(folder), *Path(folder).parents):
+        protocol = directory / 'protocol.json'
+        if protocol.is_file():
+            model = read_json(protocol).get('agent_model')
+            if model: return model
+    return None
+
+
+def export(folder, role, requested_model=None):
     folder = Path(folder); packet = read_json(folder / 'evidence.json')
+    model = declared_model(folder)
+    if model and requested_model and model != requested_model:
+        raise ValueError('Requested model conflicts with the study protocol')
+    requested_model = requested_model or model
     for family, entry in packet['formula_registry'].items():
         entry['supported_update_keys'] = (list(packet['allowed_updates']) if family == 'structure' else
             [k for k in packet['allowed_updates'] if k != 'ligand_anchor_weight'] if family == 'pocket' else
@@ -179,6 +192,7 @@ def export(folder, role):
             {'role': 'user', 'content': json.dumps(payload, ensure_ascii=False)}],
         'evidence_sha256': digest(folder / 'evidence.json'),
         'instruction_sha256': digest(folder / (role + '.instructions.md'))}
+    if requested_model is not None: request['requested_model'] = requested_model
     write_json(folder / (role + '.request.json'), request)
     return request
 
@@ -186,6 +200,8 @@ def validate(folder, role):
     import jsonschema
     folder = Path(folder); response = read_json(folder / (role + '.response.json'))
     request = read_json(folder / (role + '.request.json')); packet = read_json(folder / 'evidence.json')
+    if declared_model(folder) and request.get('requested_model') != declared_model(folder):
+        raise ValueError('Agent request does not pin the study model')
     jsonschema.validate(response, SCHEMAS[role])
     if request['evidence_sha256'] != digest(folder / 'evidence.json') or response['condition'] != packet['condition']:
         raise ValueError('Request/evidence/condition changed')
@@ -208,7 +224,7 @@ def validate(folder, role):
         'request_sha256': digest(folder / (role + '.request.json')), 'available_evidence_ids_verified': True})
     return response
 
-def compile_program(repo, folder):
+def compile_program(repo, folder, output_dir=None):
     repo, folder = Path(repo), Path(folder)
     validate(folder, 'Analyst'); response = validate(folder, 'Designer')
     if response is None: return None
@@ -221,7 +237,8 @@ def compile_program(repo, folder):
     if folder.parent.name == identity and folder.name.startswith('replicate_'):
         identity += '__' + folder.name
         program['program_id'] = identity
-    output = (repo / entry['program']).parent / (identity + '.json')
+    output = (repo / output_dir if output_dir is not None else (repo / entry['program']).parent) / (identity + '.json')
+    output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists() and read_json(output) != program:
         raise FileExistsError('Compiled program is frozen; create a new replicate or condition')
     write_json(output, program)

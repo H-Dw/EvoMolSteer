@@ -1,0 +1,16 @@
+{
+  "role": "Designer",
+  "condition": "I2_without_temporal",
+  "family": "structure",
+  "updates": {
+    "ligand_anchor_weight": 2,
+    "native_rms_ratio": 0.2
+  },
+  "rationale": "The structure family uses the supplied original bound ligand and receptor, matching the supported restrained pose-anchor hypothesis. The supplied anisotropic ligand geometry makes that restraint plausible; comparing anchor weight 2 and native_rms_ratio 0.2 is an explicitly allowed parameter hypothesis, not a causal conclusion from endpoint associations. No time ramp is proposed because this condition removes temporal instructions and supplies no robust temporal evidence.",
+  "failure_modes": [
+    "Endpoint coordinate associations are observational and do not establish that these parameter changes improve predicted pIC50.",
+    "The structure has no affinity labels, so the anchor is a geometric restraint rather than an affinity reward.",
+    "A stronger anchor or tighter native RMS restraint may preserve the starting pose at the cost of useful conformational changes.",
+    "Evaluation must include predicted pIC50, strain, and pose deviation; the supplied evidence does not validate these outcomes."
+  ]
+}

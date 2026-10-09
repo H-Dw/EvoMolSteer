@@ -1,0 +1,43 @@
+{
+  "role": "Analyst",
+  "condition": "I3_without_elite_geometry",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:9",
+      "finding": "pair_kernel_1.5 与终点整合 z 呈正相关（0.562，95% CI 0.406 至 0.714，q=1.46e-4），14/14 batch 方向为正；同组 pair_kernel_2.5 与 3.5 也均为正，说明较短程成对几何关联方向一致。它们是观察到的终点关联，不证明提高该权重会因果改善 pIC50。"
+    },
+    {
+      "evidence_id": "endpoint_effects:13",
+      "finding": "pair_kernel_7.0 与终点整合 z 呈负相关（-0.485，95% CI -0.617 至 -0.357，q=1.46e-4），14/14 batch 方向为负；关联随距离尺度改变而反转，不支持对所有 pair 距离统一增权。"
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy 与终点整合 z 呈负相关（-0.513，95% CI -0.620 至 -0.424，q=1.49e-5），且所有 batch 方向均为负；时间首末差为正（0.148），与整体负向关系并不一致，不能据此拟合时间递增规则。"
+    },
+    {
+      "evidence_id": "regional_effects:75",
+      "finding": "区域 7 的 landmark_07_local_cyy 富集效应为负（-0.646，95% CI -0.768 至 -0.534，q=7.08e-5），14/14 batch 方向均为负；相邻证据还显示多个区域的 local_cyy 负向，而 landmark_06_local_dy 正向（regional_effects:62，0.425，q=1.15e-4），提示局部各向异性分量的方向依区域和分量而异。"
+    },
+    {
+      "evidence_id": "endpoint_effects:32",
+      "finding": "landmark_06_softmin 的终点关联为正（0.294，95% CI 0.201 至 0.391，q=6.84e-4），但时间首末差显著为负（-0.903）；landmark_06_occupancy5 则整体为负、时间差为正（endpoint_effects:34）。这类整体与时间变化方向不一致，不能支持简单的阶段性加权方案。"
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "landmark_00_soft_mass 对后续存活富集的估计为正（0.365，95% CI 0.200 至 0.515），但 q=0.120；同表列出的 local_czz 等负向信号 q 值也至少为 0.120。因此当前压缩证据不足以确立终点效果可转化为后续存活收益。"
+    }
+  ],
+  "directions": [
+    "在 structure 公式允许的网格上，将 ligand_anchor_weight=0.5、1、2 与其余参数固定的基线比较；已结合配体几何只提供锚定假设，不能视为亲和力证据。",
+    "对 full、pocket、static、unweighted 等协议分别做 native_rms_ratio 的受支持档位消融（0.1、0.2、0.33），检验短程 pair 几何方向能否在各历史依赖条件下复现。",
+    "只在支持 contact_weight 的 pocket/structure 公式内测试 0、0.1、0.25、0.5、1，并与 repulsion_weight 的 0.5、1、2、4 做小型交叉消融；将近程 pair 正向、远程 pair 负向作为待检验的范围选择假设，而非直接映射到这些参数。",
+    "对支持 time_ramp_power 的公式比较 0、1、2，并报告逐阶段观测对比及不确定性；由于整体与首末变化方向出现反转，暂不据此预设单调阶段规则。"
+  ],
+  "limitations": [
+    "输入是按表压缩的最强 8 项和最弱 2 项探索性证据，并非完整富集分析；多项效果来自同一实验表，不能当作独立重复。",
+    "增量效果中所列最低 q 值约为 0.081，未达到 0.05；后续存活效果所列 q 值至少为 0.120。不得把这些结果表述为已证实的即时选择差异或后续存活收益。",
+    "没有提供祖先多样性、缺失率、完整节点对比或模型拟合与观测对照，因此不能量化未来 score credit 的偏差或解释其阶段变化。",
+    "原始受体/配体结构不是生成的 Steer，且没有 affinity labels；结构几何只能形成新设计假设，不能提供富集、选择存活或亲和力提升结论。",
+    "结果目标是 FLOWR 预测靶点 pIC50，且未提供独立实测标签；观察到的相关性不能替代因果消融或外部验证。"
+  ]
+}
