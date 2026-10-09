@@ -18,6 +18,8 @@ INPUT_FORMAT='evomolsteer.pocket_inputs.v1'
 DATASET_FORMAT='evomolsteer.selection_learning_dataset.v1'
 ROLES=('target_protein','target_ligand','off_target_protein','off_target_ligand')
 STAGED_NAMES=dict(zip(ROLES,('target_protein.pdb','target_ligand.sdf','off_target_protein.pdb','off_target_ligand.sdf')))
+DEFAULT_STEER_SAMPLES=100
+DEFAULT_STEER_BATCH_SIZE=20
 
 
 @dataclass(frozen=True)
@@ -29,8 +31,8 @@ class SteerLearningConfig:
     python_executable:str=sys.executable
     input_manifest:str|None=None
     campaign:str='steer_learning'
-    samples:int=1000
-    batch_size:int=100
+    samples:int=DEFAULT_STEER_SAMPLES
+    batch_size:int=DEFAULT_STEER_BATCH_SIZE
     steps:int=100
     window_start:float=0.0
     window_end:float=0.5
@@ -235,7 +237,9 @@ def main(argv=None):
     p.add_argument('--config')
     p.add_argument('--flowr-root');p.add_argument('--checkpoint');p.add_argument('--input-dataset');p.add_argument('--output-dataset')
     p.add_argument('--python',dest='python_executable');p.add_argument('--input-manifest');p.add_argument('--campaign')
-    p.add_argument('--samples',type=int);p.add_argument('--batch-size',type=int);p.add_argument('--steps',type=int)
+    p.add_argument('--samples',type=int,help=f'Candidate slots per arm (default {DEFAULT_STEER_SAMPLES})')
+    p.add_argument('--batch-size',type=int,help=f'Competing particles per batch (default {DEFAULT_STEER_BATCH_SIZE})')
+    p.add_argument('--steps',type=int)
     p.add_argument('--window-start',type=float);p.add_argument('--window-end',type=float);p.add_argument('--seed',type=int)
     p.add_argument('--arms',help='Comma separated single,joint,unguided; default single')
     p.add_argument('--storage-codec',choices=['none','gzip_shuffle'])

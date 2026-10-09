@@ -16,7 +16,8 @@ import uuid
 from ..io import digest,read_json
 from ..storage.transactions import atomic_json,checked_path
 from ..trajectory_source import validate_input_bundle
-from .steer_launcher import SteerLearningConfig,INPUT_FORMAT,verify_dataset
+from .steer_launcher import (SteerLearningConfig,INPUT_FORMAT,verify_dataset,
+                             DEFAULT_STEER_SAMPLES,DEFAULT_STEER_BATCH_SIZE)
 from .target_catalog import discover_targets
 from .target_progress import TargetProgress,TargetClaimConflict,FORMAT as PROGRESS_FORMAT
 from .campaign_journal import CampaignJournal
@@ -39,8 +40,8 @@ class TargetCampaignConfig:
     protein_suffix:str='_pocket10.pdb'
     ligand_suffix:str='.sdf'
     campaign:str='single_w050'
-    samples:int=1000
-    batch_size:int=100
+    samples:int=DEFAULT_STEER_SAMPLES
+    batch_size:int=DEFAULT_STEER_BATCH_SIZE
     steps:int=100
     window_start:float=0.
     window_end:float=.5
@@ -285,7 +286,9 @@ def main(argv=None):
     p.add_argument('--config');p.add_argument('--flowr-root');p.add_argument('--checkpoint')
     p.add_argument('--input-dataset');p.add_argument('--output-dataset');p.add_argument('--python',dest='python_executable')
     p.add_argument('--target-manifest');p.add_argument('--expected-targets',type=int);p.add_argument('--campaign')
-    p.add_argument('--samples',type=int);p.add_argument('--batch-size',type=int);p.add_argument('--steps',type=int);p.add_argument('--seed',type=int)
+    p.add_argument('--samples',type=int,help=f'Candidate slots per target (default {DEFAULT_STEER_SAMPLES})')
+    p.add_argument('--batch-size',type=int,help=f'Competing particles per batch (default {DEFAULT_STEER_BATCH_SIZE})')
+    p.add_argument('--steps',type=int);p.add_argument('--seed',type=int)
     p.add_argument('--window-start',type=float);p.add_argument('--window-end',type=float)
     p.add_argument('--storage-codec',choices=['none','gzip_shuffle']);p.add_argument('--archive-every',type=int);p.add_argument('--compression-level',type=int)
     p.add_argument('--compress',action=argparse.BooleanOptionalAction,default=None)

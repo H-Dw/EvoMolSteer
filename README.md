@@ -148,7 +148,7 @@ seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生
 
 ## CrossDocked 多 target 单目标生成
 
-`scripts/run_steer_targets.py` 自动发现 target、生成独立配置并调用已有 Steer 入口。默认每 target 1000候选（10批×100）、seed42、选择窗口 `[0,0.5]`；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。可关闭压缩、修改分组大小或保留工作目录；已归档 target 可单独恢复供 LLM 读取评分事件。
+`scripts/run_steer_targets.py` 自动发现 target、生成独立配置并调用已有 Steer 入口。默认每 target 100候选（5批×20）、100积分步、seed42、steering duration 0.5（评分窗口 `[0,0.5]`），之后继续无重采样推理至1.0；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。可覆盖总量及群体大小、关闭压缩、修改分组大小或保留工作目录；已归档 target 可单独恢复供 LLM 读取评分事件。新服务器配置使用独立的 `crossdocked100_steer_learning_s100_b20_w050` 输出集合。
 
 多个相同配置的worker可以共享输出目录。`generation_progress/<target_key>.running` 通过原子创建领取任务；成功转为 `.finished`，异常或重复完成竞争转为 `.error` 并保存完整诊断。三种标记均跳过；没有可领取target时直接结束。推理与压缩不占用共享状态锁，归档单独互斥；已有 `.error` 不会自动重试。
 
