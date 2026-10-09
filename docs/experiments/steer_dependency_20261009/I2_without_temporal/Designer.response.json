@@ -1,0 +1,21 @@
+{
+  "role": "Designer",
+  "condition": "I2_without_temporal",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.1,
+    "ligand_anchor_weight": 1,
+    "repulsion_weight": 2,
+    "native_rms_ratio": 0.33,
+    "time_ramp_power": 0
+  },
+  "rationale": "Choose structure as an executable, history-free geometric hypothesis, not a predicted winner. Its anchor target originates from the original bound ligand; contact and repulsion targets originate from the original receptor crop. None requires generated Steer coordinates, historical scores, reference stages or parent-child increments. The complete ligand template retains one observed anisotropic conformation instead of independently averaging feature targets; multimodal teacher-cloud guidance remains a distinct comparison. Short-scale kernel associations motivate a small contact component, but do not calibrate its coefficient or establish binding energy. Use the registered Hungarian anchor and clash penalty with bounded component weights, retaining the matched native RMS cap and execution window. Constant ramp is a design choice without temporal calibration. Evaluate through FLOWR endpoint VJP with detached correspondence. Do not introduce regional covariance or increment-matching targets: coordinate definitions and usable coordinate increments are absent. Component weights alter direction; uniform scalar rescaling may cancel under normalization. Compare final predicted pIC50, strain and validity under matched execution.",
+  "failure_modes": [
+    "The original bound pose may exclude useful alternative conformations; multimodal teacher references should be evaluated separately rather than averaged.",
+    "Untyped contact and repulsion fields are geometric proxies and do not establish physical binding affinity.",
+    "Hungarian correspondence can match chemically incompatible atoms and change discontinuously, especially across graph transitions.",
+    "Selected enrichment associations do not establish causal guidance effects or optimal component weights.",
+    "Anchor and contact forces may increase strain or clashes despite the repulsion term and native RMS cap.",
+    "Endpoint VJP must differentiate coordinates with detached correspondence; feature time derivatives are not spatial gradients."
+  ]
+}
