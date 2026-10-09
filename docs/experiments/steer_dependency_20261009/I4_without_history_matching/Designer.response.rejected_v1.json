@@ -1,0 +1,20 @@
+{
+  "role": "Designer",
+  "condition": "I4_without_history_matching",
+  "family": "full",
+  "updates": {
+    "contact_weight": 0.1,
+    "ligand_anchor_weight": 1,
+    "repulsion_weight": 2,
+    "native_rms_ratio": 0.33,
+    "time_ramp_power": 0
+  },
+  "rationale": "Propose the registered full multimodal pointcloud family as a testable candidate, without claiming superiority. Its attraction targets are actual stage-specific elite coordinate clouds; their selection and affinity weights require historical generated coordinates and predicted scores. Keeping alternative clouds distinct avoids unsupported geometry from independently averaged features. Short-range kernel associations motivate a modest contact component, but do not establish causal benefit or binding energy. Receptor geometry supplies the contact and repulsion proxy; increased repulsion is a precaution against close contacts, not an inferred optimum. Retain the matched native RMS ratio and ligand anchor weight. Use a constant ramp because supplied temporal deltas lack stage support. Apply FLOWR endpoint VJP with detached correspondence; time derivatives are not spatial gradients. These component weights change direction, whereas uniform scalar rescaling may cancel under normalization. Validate final predicted pIC50, strain and graph transitions under the supplied protocol.",
+  "failure_modes": [
+    "Selected historical clouds and affinity weights can reproduce sampling or predictor bias; associations do not establish intervention success.",
+    "Stage-specific clouds remain a historical design assumption without supplied stage-support or fitted-versus-observed validation.",
+    "Elite modes may constrain useful graph transitions, and detached correspondence can switch abruptly.",
+    "Untyped contact attraction can create clashes or strain despite repulsion; it is not a physical affinity energy.",
+    "Corrected survival evidence is inconclusive, and transfer beyond seed 42, 100 steps and window 0–0.5 is untested."
+  ]
+}

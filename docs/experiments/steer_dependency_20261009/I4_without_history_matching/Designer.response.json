@@ -1,0 +1,17 @@
+{
+  "role": "Designer",
+  "condition": "I4_without_history_matching",
+  "family": "full",
+  "updates": {
+    "native_rms_ratio": 0.33,
+    "time_ramp_power": 0
+  },
+  "rationale": "Propose the registered full multimodal pointcloud reward as an experimental candidate. Its targets originate from stage-specific selected elite coordinates, and affinity weights originate from historical predicted scores; both historical coordinates and scores are required. Keeping conformational alternatives distinct can preserve their joint geometry better than independently averaged feature targets. Endpoint kernel, spread and landmark associations motivate testing coordinate guidance, but do not establish causal improvement or validate this family. Retain the supplied native RMS dose of 0.33 and use a constant ramp as an operational baseline because temporal deltas lack stage support. The full registry permits only dose and time updates; no geometric component weights are requested. Apply FLOWR endpoint VJP with detached correspondence; time derivatives are not spatial gradients. Uniform reward rescaling may cancel under gradient normalization. Assess final predicted pIC50, strain and graph transitions without assuming a winner.",
+  "failure_modes": [
+    "Selected historical clouds and affinity weights can reproduce sampling or predictor bias; associations do not establish intervention success.",
+    "Stage-specific targets remain an unvalidated historical design assumption without supplied stage-support or fitted-versus-observed checks.",
+    "Elite conformations may constrain useful graph transitions, and detached correspondence can switch abruptly.",
+    "Pointcloud similarity alone does not guarantee low strain, freedom from clashes or physical affinity.",
+    "Corrected survival evidence is inconclusive, and transfer beyond seed 42, 100 steps and window 0–0.5 is untested."
+  ]
+}

@@ -164,6 +164,10 @@ SCHEMAS = {
 
 def export(folder, role):
     folder = Path(folder); packet = read_json(folder / 'evidence.json')
+    for family, entry in packet['formula_registry'].items():
+        entry['supported_update_keys'] = (list(packet['allowed_updates']) if family == 'structure' else
+            [k for k in packet['allowed_updates'] if k != 'ligand_anchor_weight'] if family == 'pocket' else
+            ['native_rms_ratio', 'time_ramp_power'])
     payload = {'evidence': packet}
     if role == 'Designer': payload['Analyst'] = read_json(folder / 'Analyst.response.json')
     instruction = (folder / (role + '.instructions.md')).read_text()
