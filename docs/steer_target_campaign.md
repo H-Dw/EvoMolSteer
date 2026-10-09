@@ -6,7 +6,7 @@
 
 当前默认数据集为 **HiQBind**，配置为 `configs/generation_hiqbind_steer.json`。服务器预定输入目录为 `/root/private_data/MolSteer/data/hiqbind_test`，显式测试清单为该目录中的 `targets.json`；2026-10-09检查时尚无这套输入。默认入口会清楚报错并退出，不能把 CrossDocked 输入改名当作 HiQBind，也不会自动切回备选数据。清单沿用 `evomolsteer.target_collection.v1` 格式，每行包含唯一的 `target_id`、相对于输入目录的 `target_protein` 和 `target_ligand`（PDB/SDF）。清单必须来自已确认的测试划分，多个配体/链需使用不同系统ID。
 
-不硬编码 HiQBind 测试系统数；论文图注与源数据清单的数量差异尚未解决，待确认实际测试成员后可用 `--expected-targets` 校验。HiQBind总数据库和论文测试集合不能混用。准备好另一目录时同时覆盖两个输入参数：
+随后从作者Zenodo发布包核验出 **297个生成测试系统**，其成员与Figure3的Steer源数据完全一致，因此该发布版本的默认 `expected_targets` 为297；279行带亲和力标签的测试表不作为生成成员清单。作者还提供31,197个训练ID和77个验证ID，三个生成成员集合互不重叠。使用不同版本的已确认测试集合时可覆盖 `--expected-targets`。HiQBind总数据库和测试集合不能混用。准备好另一目录时同时覆盖两个输入参数：
 
 ```bash
 bash scripts/scnet_steer_targets.sh --input-dataset /path/to/hiqbind_test --target-manifest /path/to/hiqbind_test/targets.json --dry-run

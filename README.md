@@ -150,6 +150,8 @@ seed42新campaign从1编号，上限30轮；每轮保存报告后删除上轮生
 
 `scripts/run_steer_targets.py` 默认使用 **HiQBind** 配置，需指定已准备的测试输入目录及显式 `targets.json` 清单；缺输入即退出，不自动切换数据集。`--dataset crossdocked100` 可选择备选100-target集合，`--config` 可使用自定义集合；两种选择参数互斥。脚本根据清单生成独立配置并调用已有 Steer 入口。默认每 target 100候选（5批×20）、100积分步、seed42、steering duration 0.5（评分窗口 `[0,0.5]`），之后继续无重采样推理至1.0；每完成10个 target 进行 tar.gz 无损归档，验证后回收这些工作目录。HiQBind 与 CrossDocked 使用不同输出目录，已冻结任务不会随默认值改变。
 
+HiQBind默认对应作者Zenodo发布的297个生成测试系统，成员集合与Figure3 Steer源数据完全一致。`scripts/prepare_hiqbind_test.py --archive-cache <已校验的官方包目录> --output <测试结构目录>` 可从官方发布包提取测试结构及清单；读取分代测试ID列表，与279行带亲和力标签测试表区分。输入结构逐字节提取，不重新制备构象。详见 [HiQBind数据准备与运行记录](docs/hiqbind_steer_campaign_20261009/launch_report.md)。
+
 多个相同配置的worker可以共享输出目录。`generation_progress/<target_key>.running` 通过原子创建领取任务；成功转为 `.finished`，异常或重复完成竞争转为 `.error` 并保存完整诊断。三种标记均跳过；没有可领取target时直接结束。推理与压缩不占用共享状态锁，归档单独互斥；已有 `.error` 不会自动重试。
 
 - [控制流程、参数、实测压缩比例与恢复接口](docs/steer_target_campaign.md)

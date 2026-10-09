@@ -66,7 +66,7 @@ def test_explicit_config_and_cli_overrides_replace_profile(tmp_path,monkeypatch,
 def test_profiles_keep_distinct_output_roots_and_same_sampling_policy():
     hiq=load_dataset_profile();cross=load_dataset_profile('crossdocked100')
     assert hiq['output_dataset']!=cross['output_dataset']
-    assert hiq['target_manifest'] and hiq['expected_targets'] is None
+    assert hiq['target_manifest'] and hiq['expected_targets']==297
     assert cross['expected_targets']==100
     for name in ('samples','batch_size','steps','window_start','window_end','archive_every','remove_archived_targets'):
         assert hiq[name]==cross[name]
