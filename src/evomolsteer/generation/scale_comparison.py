@@ -41,7 +41,8 @@ def terminal_summary(frame: pd.DataFrame, threshold: float) -> dict:
     return summary
 
 
-def paired_summary(candidate: pd.DataFrame, control: pd.DataFrame) -> dict:
+def paired_summary(candidate: pd.DataFrame, control: pd.DataFrame,
+                   campaign_complete: bool = False) -> dict:
     validate_candidates(candidate)
     validate_candidates(control)
     effect = paired_effect(candidate, control)
@@ -58,11 +59,40 @@ def paired_summary(candidate: pd.DataFrame, control: pd.DataFrame) -> dict:
         batch_means_by_id={str(k): float(v) for k, v in batch_means.items()},
         slots_gain_at_least_0_01=int((delta.difference >= .01).sum()),
         slots_loss_at_least_0_01=int((delta.difference <= -.01).sum()),
-        limitation='Frozen reward on new batches; completed-batch snapshot of a still-running '
-                   'campaign. Bootstrap resamples batches (2000 draws, seed 42), not independent '
+        limitation='Frozen reward on new batches; '+
+                   ('all registered generation batches completed. ' if campaign_complete else
+                    'completed-batch snapshot of a still-running campaign. ')+
+                   'Bootstrap resamples batches (2000 draws, seed 42), not independent '
                    'molecules. No biological affinity validation.',
     )
     return effect
+
+
+def terminal_scope(config: dict, completion: dict, planned_n: int,
+                   planned_batches: list[int], captured_unix: float,
+                   snapshot: dict | None = None) -> dict:
+    """Full scope comes from actual completion and exact registered coverage."""
+    experiment = config['experiment']
+    if completion.get('status') != 'complete':
+        raise ValueError('Verified terminal completion required')
+    if snapshot is not None:
+        if not snapshot.get('snapshot_complete') or snapshot['original_expected_n_per_arm'] != planned_n:
+            raise ValueError('Completed snapshot / planned size mismatch')
+        if experiment['n'] != snapshot['snapshot_n_per_arm'] or sorted(experiment['batch_indices']) != sorted(snapshot['included_batches']):
+            raise ValueError('Snapshot and derived configuration coverage differ')
+        return dict(snapshot)
+    arms = experiment['arms'].split(',')
+    if experiment['n'] != planned_n or sorted(experiment['batch_indices']) != sorted(planned_batches):
+        raise ValueError('Full campaign differs from registered size / batches')
+    if completion.get('records') != planned_n*len(arms) or any(completion.get(arm, {}).get('n') != planned_n for arm in arms):
+        raise ValueError('Actual completed arm counts differ from registered experiment')
+    return {'schema_version': 'completed-campaign-scope-1.0',
+            'snapshot_complete': True, 'source_campaign_complete_at_capture': True,
+            'snapshot_n_per_arm': planned_n, 'original_expected_n_per_arm': planned_n,
+            'included_batches': sorted(planned_batches), 'excluded_declared_batches': [],
+            'captured_unix': captured_unix,
+            'semantics': 'Full registered generation; COMPLETE and exact per-arm/batch counts verified. '
+                         'Legacy snapshot_n_per_arm denotes the evaluated view size.'}
 
 
 def compare_completed_panel(r11: pd.DataFrame, r26: pd.DataFrame, native: pd.DataFrame,
@@ -94,6 +124,7 @@ def compare_completed_panel(r11: pd.DataFrame, r26: pd.DataFrame, native: pd.Dat
         if frame.groupby('batch').size().to_dict() != per_batch:
             raise ValueError('Cross-cohort per-batch coverage differs')
     panel = {'R11': candidate, 'R26': r26, 'unguided': native}
+    complete = snapshot_scope.get('source_campaign_complete_at_capture', False)
     return {
         'schema_version': 'completed-scale-comparison-1.0',
         'threshold_pic50': float(threshold),
@@ -103,9 +134,9 @@ def compare_completed_panel(r11: pd.DataFrame, r26: pd.DataFrame, native: pd.Dat
                       'paired_batches': batches, 'n_per_arm': expected},
         'paired_panel': {name: terminal_summary(frame, threshold)
                          for name, frame in panel.items()},
-        'paired_effects': {'R11_vs_unguided': paired_summary(candidate, native),
-                           'R11_vs_R26': paired_summary(candidate, r26),
-                           'R26_vs_unguided': paired_summary(r26, native)},
+        'paired_effects': {'R11_vs_unguided': paired_summary(candidate, native, complete),
+                           'R11_vs_R26': paired_summary(candidate, r26, complete),
+                           'R26_vs_unguided': paired_summary(r26, native, complete)},
         'full_unpaired': {'R11': terminal_summary(r11, threshold),
                           'historical_Steer': terminal_summary(steer, threshold)},
         'reference_limitations': 'Historical Steer has different initial seed streams, extra '

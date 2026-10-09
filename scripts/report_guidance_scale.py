@@ -10,7 +10,7 @@ import pandas as pd
 
 from evomolsteer.io import digest, read_json, write_json, write_table
 from evomolsteer.generation.path_evaluation import retain_round
-from evomolsteer.generation.scale_comparison import compare_completed_panel
+from evomolsteer.generation.scale_comparison import compare_completed_panel, terminal_scope
 
 
 def table(rows: dict) -> list[str]:
@@ -93,9 +93,14 @@ def main() -> None:
         if read_json(historical_report)[key] != read_json(Path(args.r11_evaluated)/'terminal_report.json')[key]:
             raise ValueError(f'Historical Steer evaluation differs: {key}')
     croot = Path(args.controls_dataset)/'results/R26_native'
-    scope = read_json(croot/'SNAPSHOT.json')
-    if scope['original_expected_n_per_arm'] != spec['n_per_arm']:
-        raise ValueError('Snapshot planned N differs from registered experiment')
+    snapshot_path = croot/'SNAPSHOT.json'
+    if not snapshot_path.exists() and not args.status_inspection:
+        raise ValueError('Full campaign requires a timestamped status inspection')
+    scope = terminal_scope(read_json(croot/'config.json'), read_json(croot/'COMPLETE.json'),
+                           spec['n_per_arm'], spec['batch_indices'],
+                           read_json(args.status_inspection)['inspected_unix'] if args.status_inspection else 0.,
+                           read_json(snapshot_path) if snapshot_path.exists() else None)
+    is_complete = scope['source_campaign_complete_at_capture']
     input_digests = []
     for dataset, evaluated, campaign, cohort in [
         (args.r11_dataset, args.r11_evaluated, 'R11', spec['cohorts'][0]),
@@ -109,6 +114,8 @@ def main() -> None:
             raise ValueError('FLOWR model checkpoint differs')
         if cfg['experiment']['batch'] != spec['batch'] or cfg['experiment']['steps'] != spec['steps']:
             raise ValueError('Integrator steps / batch size differ')
+        if is_complete and not cfg.get('upstream_source_attestation', {}).get('after', {}).get('source_unchanged'):
+            raise ValueError('Before/after FLOWR source attestation required for completed cohorts')
         input_digests.append({p.name: digest(p) for p in (Path(dataset)/'inputs').iterdir() if p.is_file()})
         if report['reference_sha256'] != read_json(Path(args.r11_evaluated)/'terminal_report.json')['reference_sha256']:
             raise ValueError('Structural evaluation reference differs between cohorts')
@@ -137,7 +144,7 @@ def main() -> None:
         Path(args.r11_evaluated)/'candidate_metrics.csv',
         Path(args.controls_evaluated)/'candidate_metrics.csv', Path(args.steer_metrics),
         Path(args.steer_reference), historical_report, Path(args.protocol), Path(args.spec),
-        croot/'SNAPSHOT.json', Path(__file__),
+        snapshot_path if snapshot_path.exists() else croot/'COMPLETE.json', croot/'config.json', Path(__file__),
         Path(__file__).parents[1]/'src/evomolsteer/generation/scale_comparison.py']}
     if args.status_inspection:
         result['latest_status_inspection'] = read_json(args.status_inspection)
@@ -168,24 +175,33 @@ def main() -> None:
     plot_comparison(output, frames, {'R11': r11, 'historical_Steer': steer})
     captured = datetime.fromtimestamp(scope['captured_unix'], timezone(timedelta(hours=8))).isoformat()
     m, s = result['full_unpaired']['R11'], result['full_unpaired']['historical_Steer']
+    completion_description = ('三个方法均完成全部注册批次，完整生成任务已结束。' if is_complete else
+                              '捕获时完整对照任务仍在运行。派生快照的 COMPLETE 只证明该快照完成，'
+                              '不代表 1,000 样本任务完成。')
     lines = ['# 当前生成与对照比较', '',
              f'固定快照：{captured}。R11 已完成注册的 {spec["n_per_arm"]} 次生成；'
              f'R26 与无引导各完成 {scope["snapshot_n_per_arm"]} 个可成对评估的样本，'
-             f'共同批次 {scope["included_batches"]}。捕获时完整对照任务仍在运行。'
-             '派生快照的 COMPLETE 只证明该快照完成，不代表 1,000 样本任务完成。', '',
+             f'共同批次 {scope["included_batches"]}。'+completion_description, '',
              '主要结果：Gradient guidance 相对无引导的差异应以共同批次的配对比较判断；'
-             'Steer 为历史非配对参照。当前记录不更换奖励函数、默认配置或正在运行的推理。', '',
-             '## 相同初始随机状态的部分对照', '',
+             'Steer 为历史非配对参照。当前记录不更换奖励函数、默认配置或推理结果。', '',
+             '## 相同初始随机状态的'+('完整对照' if is_complete else '部分对照'), '',
              '每组使用同一批次/slot，初始坐标、原子及键状态签名一致。master seed=42，'
              '批次种子为 42+100003×batch；推理共 100 步。']
     if args.status_inspection:
         latest = result['latest_status_inspection']
         latest_time = datetime.fromtimestamp(latest['inspected_unix'], timezone(timedelta(hours=8))).isoformat()
-        state = latest['cohorts']['R26_native']['arms']
-        lines[4:4] = [f'后续只读检查：{latest_time}，后台状态 {latest["status"]["status"]}；'
-                      f'无引导已结束 {state["unguided"]["completed_attempts"]} 个样本，'
-                      f'R26 已结束 {state["gradient"]["completed_attempts"]} 个。'
-                      '这些新增批次没有混入下面已冻结并评估的统计。', '']
+        if is_complete:
+            if latest['status']['status'] != 'complete' or latest['status']['actual_attempts_per_arm'] != spec['n_per_arm']:
+                raise ValueError('Full archive and worker completion record disagree')
+            completed_time = datetime.fromtimestamp(latest['status']['completed_unix'], timezone(timedelta(hours=8))).isoformat()
+            status_line = f'只读检查：{latest_time}；后台任务已于 {completed_time} 完成。'
+        else:
+            state = latest['cohorts']['R26_native']['arms']
+            status_line = (f'后续只读检查：{latest_time}，后台状态 {latest["status"]["status"]}；'
+                           f'无引导已结束 {state["unguided"]["completed_attempts"]} 个样本，'
+                           f'R26 已结束 {state["gradient"]["completed_attempts"]} 个。'
+                           '这些新增批次没有混入下面已冻结并评估的统计。')
+        lines[4:4] = [status_line, '']
     lines += ['']+table(result['paired_panel'])
     lines += ['', f'极高分阈值为既定值 {threshold:.9f}，没有根据本次结果重新选择。', '']
     for label, effect in result['paired_effects'].items():
@@ -199,17 +215,19 @@ def main() -> None:
     versus_native = result['paired_effects']['R11_vs_unguided']
     versus_r26 = result['paired_effects']['R11_vs_R26']
     interval_r26 = versus_r26['batch_bootstrap_CI95']
-    r26_conclusion = ('当前部分对照没有证据证明 R11 优于 R26。' if interval_r26[0] <= 0 <= interval_r26[1]
-                      else 'R11 与 R26 的差异需待完整注册批次确认。')
+    r26_conclusion = ('当前对照没有证据证明 R11 优于 R26。' if interval_r26[0] <= 0 <= interval_r26[1]
+                      else 'R11 与 R26 的均值差应结合区间和实际效应大小判断。')
     lines += [f'R11 相对无引导的配对均值提升为 {versus_native["paired_mean_pic50"]:+.6f}；'
               f'{r26_conclusion}差异体现在少数生成路径上：R11 与 R26 的 '
               f'{len(frames["R11"])-versus_r26["slots_gain_at_least_0_01"]-versus_r26["slots_loss_at_least_0_01"]}'
               f'/{len(frames["R11"])} 个 slot 分数差绝对值小于 0.01。'
               '先前六个独立批次的 +0.021049 优势不应直接外推到这些新批次；'
               '需要把当前的批次依赖纳入最终结论。', '',
-              f'{len(scope["included_batches"])} 个批次仍是部分结果。区间按批次重采样 2,000 次，随机种子 42；'
-              f'没有将同一批次的 {spec["batch"]} 个分子视为 {spec["batch"]} 个独立重复。'
-              f'完整 {len(spec["batch_indices"])} 批对照结束后才能给出完整判定。', '',
+              (f'完整 {len(scope["included_batches"])} 个新批次均已评估。' if is_complete else
+               f'{len(scope["included_batches"])} 个批次仍是部分结果。')+
+              '区间按批次重采样 2,000 次，随机种子 42；'
+              f'没有将同一批次的 {spec["batch"]} 个分子视为 {spec["batch"]} 个独立重复。'+
+              ('' if is_complete else f'完整 {len(spec["batch_indices"])} 批对照结束后才能给出完整判定。'), '',
               '## 相同最终尝试数的历史参照', '']+table(result['full_unpaired'])
     lines += ['', f'R11 相对 Steer 的全部尝试均值差为 {m["all_mean_pic50"]-s["all_mean_pic50"]:+.6f}；'
               f'最高有效分数差为 {m["valid_max_pic50"]-s["valid_max_pic50"]:+.6f}。'
@@ -221,12 +239,7 @@ def main() -> None:
               '这反映本地同图松弛的能量变化，不直接证明结合自由能更好。', '',
               f'有效独立化学图数：R11={m["unique_valid_graphs"]}，Steer={s["unique_valid_graphs"]}；'
               '不能将某些坐标方向上的自由度增加等同于最终图多样性必然增加。', '',
-              f'当前 R11 的前 {scope["snapshot_n_per_arm"]} 个样本已找到最高有效分数 '
-              f'{result["paired_panel"]["R11"]["valid_max_pic50"]:.6f}，完整 {m["n"]} 个为 '
-              f'{m["valid_max_pic50"]:.6f}；极高分有效计数由 '
-              f'{result["paired_panel"]["R11"]["elite_valid_n"]} 增至 {m["elite_valid_n"]}。'
-              '同一固定样本流内的累计结果表明，增加生成数带来更多命中，但本次没有缩小最高分与 Steer 的差距。'
-              '先前 300 样本确认使用不同批次，因此不能将它与本次 1,000 样本的最高分差异完全归因于数量。', '',
+              '先前 300 样本确认使用不同批次，不能将它与本次 1,000 样本的最高分差异完全归因于数量。', '',
               '## 如何解释当前结果', '',
               'R11 的质量结果须分别考察整体分布和极高亲和力尾部。扩大生成数量能够增加发现稀有路径的机会，'
               '但如果单位尝试的极高分产率没有提升，仅增加数量不会复现在线筛选的选择压力。'
@@ -237,7 +250,8 @@ def main() -> None:
               '历史 Steer 的 700 个设计供体参与了奖励构建，且在线评分/重采样预算更多。'
               '所以 N=1,000 的比较是同尝试数的描述性参照，而不是独立训练外、等计算量的胜负检验。', '',
               '## 执行与评估边界', '',
-              'R11/R26 在输入声明的 0–0.5 学习窗口执行 50 次有效坐标更新，0.5–1.0 原生续推；'
+              f'R11/R26 在输入声明的 {execution_r11["window"]} 学习窗口执行 '
+              f'{result["guidance_feedback"]["R11"]["nonzero_steps_per_batch"]} 次有效坐标更新，窗口结束后原生续推至 1.0；'
               '无引导没有坐标注入。100 步均无粒子重采样，使用真实 FLOWR 端点 Jacobian 的反传，'
               '没有对 affinity head 求导，也没有额外的每步生产目标前向。'
               'preflight 额外前向属于一次数值验证，原生 untarget 诊断前向仍存在。', '',

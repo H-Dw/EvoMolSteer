@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from evomolsteer.generation.scale_comparison import (
-    compare_completed_panel, paired_summary, terminal_summary, validate_candidates,
+    compare_completed_panel, paired_summary, terminal_summary, validate_candidates, terminal_scope,
 )
 
 
@@ -74,3 +74,37 @@ def test_batch_bootstrap_is_deterministic_and_tracks_heterogeneity(panel):
     assert one == two
     assert one['n_batches'] == 2 and one['positive_batch_n'] == 2
     assert one['batch_bootstrap_CI95'] == pytest.approx([.1, .1])
+
+
+def test_full_scope_requires_exact_completed_counts_and_batches():
+    config = {'experiment': {'n': 4, 'arms': 'gradient,unguided', 'batch_indices': [1, 2]}}
+    complete = {'status': 'complete', 'records': 8, 'gradient': {'n': 4}, 'unguided': {'n': 4}}
+    scope = terminal_scope(config, complete, 4, [1, 2], 100.)
+    assert scope['source_campaign_complete_at_capture'] and scope['snapshot_n_per_arm'] == 4
+    assert scope['excluded_declared_batches'] == []
+    complete['unguided']['n'] = 2
+    with pytest.raises(ValueError, match='Actual completed arm counts'):
+        terminal_scope(config, complete, 4, [1, 2], 100.)
+    with pytest.raises(ValueError, match='registered size / batches'):
+        terminal_scope(config, complete, 4, [1, 2, 3], 100.)
+
+
+def test_completed_snapshot_does_not_imply_whole_campaign_completion():
+    config = {'experiment': {'n': 2, 'arms': 'gradient,unguided', 'batch_indices': [1]}}
+    snapshot = {'snapshot_complete': True, 'original_expected_n_per_arm': 4,
+                'snapshot_n_per_arm': 2, 'included_batches': [1],
+                'source_campaign_complete_at_capture': False}
+    scope = terminal_scope(config, {'status': 'complete'}, 4, [1, 2], 100., snapshot)
+    assert not scope['source_campaign_complete_at_capture']
+    snapshot['snapshot_n_per_arm'] = 3
+    with pytest.raises(ValueError, match='derived configuration coverage'):
+        terminal_scope(config, {'status': 'complete'}, 4, [1, 2], 100., snapshot)
+
+
+def test_full_panel_effect_is_not_labelled_as_running(panel):
+    r11, r26, native, steer, scope, r11_audit, control_audit = panel
+    scope.update(source_campaign_complete_at_capture=True, original_expected_n_per_arm=4)
+    result = compare_completed_panel(r11[r11.batch.le(2)], r26, native, steer, 7.25,
+                                     scope, r11_audit, control_audit)
+    assert 'all registered generation batches completed' in result['paired_effects']['R11_vs_R26']['limitation']
+    assert 'still-running' not in result['paired_effects']['R11_vs_R26']['limitation']
