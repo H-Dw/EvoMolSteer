@@ -211,7 +211,11 @@ def compile_program(repo, folder):
     program['program_id'] = packet['condition']
     program['agent_provenance'] = {'Analyst_sha256': digest(folder / 'Analyst.response.json'),
         'Designer_sha256': digest(folder / 'Designer.response.json'), 'evidence_sha256': digest(folder / 'evidence.json')}
-    output = repo / 'configs/experiments/steer_dependency_v1' / (packet['condition'] + '.json')
+    identity = packet['condition']
+    if folder.parent.name == identity and folder.name.startswith('replicate_'):
+        identity += '__' + folder.name
+        program['program_id'] = identity
+    output = repo / 'configs/experiments/steer_dependency_v1' / (identity + '.json')
     write_json(output, program)
     numerical = {k: v for k, v in program.items() if k not in ['program_id', 'agent_provenance']}
     import hashlib

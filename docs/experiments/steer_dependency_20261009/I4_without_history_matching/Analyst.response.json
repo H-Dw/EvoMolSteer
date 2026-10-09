@@ -1,0 +1,43 @@
+{
+  "role": "Analyst",
+  "condition": "I4_without_history_matching",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "Higher-score endpoints show greater pair_kernel_2.5 (+0.631 z, CI 0.495–0.758, q=2.19e-5; all batches positive), with modest score correlation 0.213. Supplied 1.5/3.5 kernels are also positive, whereas 7.0 is negative; this supports a scale-specific association, not causal contact benefit."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy is lower in higher-score endpoints (-0.513 z, CI -0.620–-0.424, q=1.49e-5; no positive batches). Its increment contrast is also negative but weaker after correction (increment_effects:4, q=0.161). Lower y spread is a coordinate hypothesis with stronger endpoint than change evidence."
+    },
+    {
+      "evidence_id": "regional_effects:0",
+      "finding": "Landmark 00 soft_mass has immediate enrichment +0.639 z (q=0.000188), versus later survival +0.365 z across 14 batches (survival_effects:0, q=0.120; 12/14 positive). Endpoint occupancy3 is positive (q=0.000235), and softmin change is negative (increment_effects:14, q=0.0461). These align directionally, but corrected survival evidence is inconclusive and score credit is unavailable."
+    },
+    {
+      "evidence_id": "regional_effects:75",
+      "finding": "Landmark 07 local_cyy has immediate enrichment -0.646 z (q=7.08e-5; all batches negative), versus survival -0.299 z (survival_effects:75, q=0.219; 13/14 negative). Landmark 16 shows similar attenuation (-0.672 to -0.317 z). No sign reversal appears in these supplied comparisons, but later survival support is weaker."
+    },
+    {
+      "evidence_id": "endpoint_effects:34",
+      "finding": "Landmark 06 occupancy5 is negatively associated with endpoint score (-0.365 z, q=0.000679), although its last-minus-first delta is +0.603 z. Its softmin association is positive while its temporal delta is negative (endpoint_effects:32). Local_dy enrichment is positive (regional_effects:62, +0.425 z). Whole-window association and temporal movement are different observables; these summaries do not establish a stage-dependent rule."
+    },
+    {
+      "evidence_id": "endpoint_effects:72",
+      "finding": "Landmark 19 occupancy3 has near-zero endpoint association (-0.003 z, q=0.963) despite a large temporal delta (-1.372 z); landmark 11 occupancy3 is also unsupported (q=0.867). Temporal movement alone therefore does not identify a useful score-associated coordinate."
+    }
+  ],
+  "directions": [
+    "Test modest contact_weight values from the allowed grid, checking whether the short-range kernel associations translate into higher final predicted pIC50 while monitoring strain and sub-2 Å clashes; retain repulsion_weight comparisons at 1, 2 and 4.",
+    "Treat landmark 00 mass and reduced y spread as exploratory coordinate hypotheses. Obtain empirical node contrasts, support counts and fitted-versus-observed checks before choosing time_ramp_power 0, 1 or 2.",
+    "Compare full, unweighted, static, structure and pocket programs under matched execution settings; evaluate final predicted pIC50, strain and graph transitions without preselecting a reward winner.",
+    "For structure-based hypotheses, vary ligand_anchor_weight within 0.5, 1 and 2 and native_rms_ratio within 0.1, 0.2 and 0.33. The original ligand geometry can suggest anchoring and shape tests, but supplies no affinity validation."
+  ],
+  "limitations": [
+    "Only selected strongest eight and weakest two q-values per table are supplied; this is exploratory compressed evidence, not a complete enrichment analysis. Associations do not establish causal guidance effects.",
+    "Survival rows report 14 independent batches, but ancestral counts, diversity, descendant coverage and missingness are absent and cannot be quantified. Future score-credit contrasts are absent.",
+    "Empirical node contrasts, stage support and fitted-versus-observed results are absent; temporal deltas cannot establish local sign changes or justify a stage-dependent rule.",
+    "The supplied original structure has 25 ligand and 308 cropped protein heavy atoms, with ligand covariance eigenvalues 0.111, 5.696 and 9.303 Å²; it has no affinity labels. Geometry and the untyped pocket proxy cannot establish enrichment or physical affinity.",
+    "No intervention outcomes are supplied. Execution uses seed 42, 100 steps, window 0–0.5, endpoint VJP and native_rms_ratio 0.33, without particle selection or affinity-head gradient; transfer beyond this protocol is untested."
+  ]
+}
