@@ -1,0 +1,17 @@
+{
+  "role": "Designer",
+  "condition": "D4_pocket_only",
+  "family": "pocket",
+  "updates": {
+    "contact_weight": 0.1,
+    "native_rms_ratio": 0.2,
+    "repulsion_weight": 1,
+    "time_ramp_power": 1
+  },
+  "rationale": "Select the registered pocket family, which uses only the original receptor crop and has no generated-Steer or bound-ligand reward dependency. Use a modest contact term and repulsion weight 1 as exploratory geometric-proxy settings; compare the lower RMS ratio and a linear time ramp while evaluating the specified final FLOWR predicted target pIC50 objective. These settings are hypotheses, not affinity-supported conclusions.",
+  "failure_modes": [
+    "The receptor coordinates have no affinity labels, so the geometric proxy may not improve predicted target pIC50.",
+    "Nearest-neighbor quantiles alone do not identify atom-pair clashes or interaction motifs; repulsion weight 1 may be insufficient or excessive.",
+    "The pocket objective omits ligand attraction and may constrain geometry without favoring productive ligand interactions."
+  ]
+}

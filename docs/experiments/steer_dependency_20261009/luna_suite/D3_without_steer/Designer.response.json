@@ -1,0 +1,19 @@
+{
+  "role": "Designer",
+  "condition": "D3_without_steer",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.25,
+    "ligand_anchor_weight": 1,
+    "native_rms_ratio": 0.2,
+    "repulsion_weight": 1,
+    "time_ramp_power": 1
+  },
+  "rationale": "Select the registered structure family because this objective has an original bound ligand reference and local receptor geometry. The ligand anchor and RMS restraint use only the original bound pose; the contact and repulsion terms use the receptor crop and untyped geometric distances, so they are geometric proxies rather than affinity evidence. These moderate allowed settings are hypotheses for testing: the supplied evidence contains no affinity labels or generated outcomes and cannot establish an optimum. No lineage, temporal, elite-geometry, or history-matching information is available in this ablation.",
+  "failure_modes": [
+    "The native-pose restraint may preserve a bound geometry that is not optimal for final predicted pIC50 or may limit useful graph transitions.",
+    "Untyped center-distance contacts may reward geometries without favorable chemical interactions; short distances alone do not establish clashes.",
+    "The receptor crop omits the rest of the receptor environment, and no generated-state or affinity-label evidence supports predicting enrichment or target improvement.",
+    "The selected weights are permitted design hypotheses, not validated optima; whole-scalar rescaling may have little effect under gradient normalization."
+  ]
+}

@@ -94,16 +94,32 @@
       81,
       82
     ],
+    "declared_before_Luna_generation_labels": true,
+    "eligible_conditions": [
+      "D3_without_steer",
+      "D4_pocket_only",
+      "D3_without_steer__replicate_1",
+      "M3_without_steer_matched_dose"
+    ],
     "n_per_arm": 300,
-    "rule": "Confirm strongest teacher-free screen candidate plus matched R26/native; report screening selection bias separately"
+    "rule": "Confirm strongest candidate whose Agent input and reward both exclude all generated Steer data; paired R26/native on six new batches; candidates with historical statistical inputs are ineligible even if their final reward has no teachers"
   },
   "equivalence": "Identical numerical programs share measured inference; no fictitious independent trials",
+  "extra_controls": [
+    "M1/M2 immutable numerical inference reused",
+    "M3 zero-Steer D3 geometry at R26 matched dose .33 and ramp0"
+  ],
   "frozen_R26_sha256": "93da2e4cfa7b9d214d3b55b6fb25c6bd20dba832065d06a7c1d602965e47f21f",
   "instruction_block_origin": "Literal excerpts from skill_ablation_20261007/study_v1/treatment_modules.json",
   "limits": "One independent fresh-context Analyst and Designer per condition; no claim of LLM response variance from a single call",
   "model_switch": "Explicit user instruction: all new subagent roles use GPT6-Luna, not Sol",
   "previous_model_results_excluded_from_instruction_effects": true,
   "reference_sha256": "d706173b74a937c5becac08ccbcff187f48e50ca3303d9021667e466fa5fb77c",
+  "replicate_plan": [
+    "I0_full",
+    "I5_without_all",
+    "D3_without_steer"
+  ],
   "schema_version": "steer-dependency-study-1.0",
   "screen": {
     "batches": [

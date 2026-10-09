@@ -1,0 +1,34 @@
+{
+  "role": "Analyst",
+  "condition": "D1_without_scores",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The supplied original bound ligand has 25 heavy atoms and a strongly anisotropic coordinate distribution: covariance eigenvalues are 0.11, 5.70, and 9.30 Å². This supports treating the observed pose as spatially extended rather than roughly spherical; it does not establish a generated ligand's preferred geometry."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "In the original bound pose, the reported quantiles of nearest protein-center distances span about 2.86–4.00 Å. The listed closest regions include LEU45, ILE174, VAL66, VAL53, PHE113, HIS160, MET163, VAL116, ASP175, and HIS115; these are geometric proximities from an untyped Gaussian-shell proxy, not identified interactions or energetic contributions."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "The supplied contact summary covers 10 regions out of 53 total. The strongest listed proxy contact sums are PHE113 (18.71), LEU45 (16.93), and ILE174 (16.52), but this selected summary is not a complete ranked contact analysis and cannot establish residue importance."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The receptor crop contains 308 heavy atoms within a 12 Å crop centered near the input site. This defines the spatial scope of the available receptor geometry, but gives no information about binding affinity or generated-state outcomes."
+    }
+  ],
+  "directions": [
+    "As a new geometric design hypothesis, compare the allowed contact_weight settings (0, 0.1, 0.25, 0.5, 1) in the pocket objective, which removes ligand attraction, and inspect whether generated poses retain plausible proximity to the supplied pocket geometry.",
+    "For the structure objective, explore the allowed ligand_anchor_weight values (0.5, 1, 2) as a controlled test of adherence to the original bound pose; treat this as pose-shape exploration rather than evidence of improved pIC50.",
+    "Compare allowed repulsion_weight values (0.5, 1, 2, 4) as a geometric clash-control hypothesis, checking generated structures for close contacts rather than assuming the largest setting is best.",
+    "Use allowed native_rms_ratio and time_ramp_power settings as bounded sensitivity dimensions; without scores or trajectories, select settings only after evaluating new generated structures and final target predictions."
+  ],
+  "limitations": [
+    "This call contains no affinity labels and no observed generated-state comparison table. It cannot establish enrichment, selection survival, temporal trends, or which configuration improves final target pIC50.",
+    "The supplied contact proxy uses untyped center distances and a Gaussian shell, not interaction types or a physical energy model; listed contacts are not evidence of hydrogen bonds, hydrophobicity, or energetic favorability.",
+    "The contact evidence is explicitly compressed to selected strongest and weakest q-values, and the displayed region list is partial; it does not support complete ranking or significance claims.",
+    "Historical lineage, temporal, elite-geometry, and history-matching information is removed. The supplied receptor structure and bound ligand describe an original pose, not generated Steer outcomes or an experimentally validated optimum."
+  ]
+}

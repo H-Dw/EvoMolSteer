@@ -1,0 +1,24 @@
+{
+  "role": "Analyst",
+  "condition": "D4_pocket_only",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The supplied structure is the original common receptor/bound-ligand input, not a generated Steer structure; it contains 308 protein heavy atoms in the crop and has no affinity labels."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The receptor crop is centered at [23.35, -30.94, 13.33] Å with a 12 Å radius and contains 308 protein heavy atoms; nearest-protein-neighbor distance quantiles are approximately 1.23, 1.37, and 3.90 Å."
+    }
+  ],
+  "directions": [
+    "Treat the pocket field as an untyped geometric proxy rather than a physical affinity energy; use modest contact weights (0 or 0.1/0.25) as candidate settings and assess outcomes with the specified final FLOWR predicted target pIC50 objective.",
+    "Because the supplied neighbor-distance quantiles include very short distances, compare repulsion weights 1 and 2 as a geometry-checking sensitivity experiment; these coordinates alone do not establish that stronger repulsion improves affinity.",
+    "Compare native_rms_ratio 0.2 and 0.33 and time_ramp_power 0 and 1 as permitted pocket-field sensitivities, while allowing graph transitions as specified."
+  ],
+  "limitations": [
+    "The evidence contains only receptor geometry, no affinity labels, generated designs, measured outcomes, or observed comparisons; it cannot support enrichment, selection-survival, temporal-trend, or causal-effect estimates.",
+    "The nearest-neighbor quantiles do not specify atom-pair identities or a full contact/clash analysis, so they cannot identify particular residues or ligand interaction motifs.",
+    "The pocket objective omits ligand attraction and is explicitly an untyped geometric proxy; proposed parameter settings are new design hypotheses, not statistically supported findings."
+  ]
+}

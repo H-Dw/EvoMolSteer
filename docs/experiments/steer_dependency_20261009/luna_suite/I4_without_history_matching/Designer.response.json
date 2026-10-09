@@ -1,0 +1,19 @@
+{
+  "role": "Designer",
+  "condition": "I4_without_history_matching",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.25,
+    "ligand_anchor_weight": 1,
+    "native_rms_ratio": 0.33,
+    "repulsion_weight": 2,
+    "time_ramp_power": 0
+  },
+  "rationale": "Choose the registered structure family because it combines ligand-coordinate anchoring with receptor-contact and clash terms, keeping a multimodal geometric objective tied to a real bound conformation instead of averaging separate feature targets into unsupported geometry. The ligand and receptor coordinates originate from the original common bound structure, not generated Steer history. Set time_ramp_power to 0 because selected endpoint, parent-edge, and survival results do not establish a temporal rule. The selected weights are a bounded prospective geometry hypothesis; the supplied associations do not identify causal parameter values, and this objective is not an affinity energy.",
+  "failure_modes": [
+    "The bound structure may overconstrain conformational changes that improve predicted pIC50.",
+    "Contact and repulsion terms are geometric proxies and do not measure binding affinity.",
+    "The selected evidence is compressed and observational, with no parameter-response results or experimental affinity validation.",
+    "Combining anchor, contact, and repulsion terms may trade off orientation, clashes, strain, and predicted pIC50 in ways not captured by the evidence."
+  ]
+}

@@ -25,8 +25,10 @@ if __name__ == '__main__':
     checked = []
     for entry in read_json(study / 'protocol.json')['conditions']:
         folder = study / entry['condition']; packet = read_json(folder / 'evidence.json')
+        requested_models = {}
         for role in ['Analyst', 'Designer']:
             request = read_json(folder / (role + '.request.json'))
+            requested_models[role] = request.get('requested_model', 'legacy_inherited_not_pinned')
             instruction = (folder / (role + '.instructions.md')).read_text(encoding='utf-8')
             if request['instruction_sha256'] != digest(folder / (role + '.instructions.md')):
                 raise ValueError('Instruction delivery hash changed')
@@ -54,6 +56,7 @@ if __name__ == '__main__':
         checked.append({'condition':entry['condition'],'instruction_delivery_verified':True,
             'literal_block_removal_verified':True,'available_evidence_citations_verified':True,
             'response_used_by_compiler':True,'information_level':entry['information_level'],
+            'requested_models':requested_models,
             'family':compiled['family'],'evidence_sha256':digest(folder/'evidence.json')})
     write_json(a.output,{'passed':True,'conditions':checked,
         'limits':'Verifies delivered instructions and executed choices, not hidden attention or instruction causality. Teacher-free reward still inherits the matched R26 window/controller and original FLOWR input site.'})

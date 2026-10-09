@@ -1,0 +1,42 @@
+{
+  "role": "Analyst",
+  "condition": "I5_without_all",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "Across the reported endpoint comparison, shape_yy is lower in the high group (integrated z=-0.513; q=1.49e-5; CI [-0.620,-0.424]); batch positivity is 0/14. This is an association, not evidence that changing this shape improves affinity."
+    },
+    {
+      "evidence_id": "endpoint_effects:9",
+      "finding": "Pair-kernel features show a scale-dependent pattern: kernels 1.5, 2.5 and 3.5 have positive high-low effects (z≈0.54–0.63; q≤9.76e-5; 14/14 positive batches), while kernel 7.0 is negative (z=-0.485; q=1.46e-4; 0/14 positive batches)."
+    },
+    {
+      "evidence_id": "endpoint_effects:15",
+      "finding": "Landmark 00 occupancy3 is positively associated with endpoint group (z=0.545; q=2.35e-4; 14/14 positive batches), whereas landmark 06 occupancy5 is negative (z=-0.365; q=6.79e-4; 0/14); these localized observations do not establish a causal geometric target."
+    },
+    {
+      "evidence_id": "regional_effects:5",
+      "finding": "Reported regional enrichment includes negative local_cyy effects at landmarks 00, 01, 07, 16 and 17, while local_dy is positive at landmarks 02 and 06; the listed intervals exclude zero and q-values range from 7.08e-5 to 1.31e-4. These can motivate localized geometric hypotheses, not claims about physical affinity."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "The strongest listed increment association is landmark_00_softmin (rate z=-4.91, q=0.046, 1/14 positive batches); landmark_00_occupancy3 has q=0.081, and most other listed increments are not significant after correction. Treat these increment results as exploratory."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "No listed survival association passes q<0.05: the strongest shown is landmark_00_soft_mass (z=0.365, q=0.120; 14 independent batches). The supplied survival table therefore does not establish a robust survival predictor."
+    }
+  ],
+  "directions": [
+    "For the full formulation, compare the allowed native_rms_ratio values 0.1, 0.2 and 0.33, then time_ramp_power 0, 1 and 2; evaluate these as design interventions rather than assuming the endpoint associations are causal.",
+    "For the pocket formulation, test contact_weight and repulsion_weight settings from the supplied allowed values to probe whether broad contact attraction versus steric separation changes generated geometry.",
+    "For the structure formulation, vary ligand_anchor_weight across 0.5, 1 and 2 alongside contact_weight, while treating the bound ligand pose as a geometric reference rather than an affinity label.",
+    "Compare the static and unweighted formulations with supported native_rms_ratio and time_ramp_power settings to separate dependence on selected coordinate clouds from score weighting."
+  ],
+  "limitations": [
+    "The supplied evidence is a compressed selection of strongest and weakest q-values, not a complete enrichment analysis; missing features may change the overall picture.",
+    "The removed instruction blocks include lineage, temporal, elite_geometry and history_matching. This call has no evidence to reconstruct those histories or their causal effects.",
+    "Endpoint and regional statistics are associations; the structure record gives a bound-ligand geometry but explicitly has no affinity labels. The receptor coordinates alone cannot estimate enrichment, selection survival or temporal trends.",
+    "The stated objective is final FLOWR predicted target pIC50 with strain secondary, but this evidence contains no direct comparison of candidate interventions on those outcomes."
+  ]
+}

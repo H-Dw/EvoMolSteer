@@ -1,0 +1,19 @@
+{
+  "role": "Designer",
+  "condition": "I5_without_all",
+  "family": "structure",
+  "updates": {
+    "contact_weight": 0.25,
+    "ligand_anchor_weight": 1,
+    "native_rms_ratio": 0.2,
+    "repulsion_weight": 2,
+    "time_ramp_power": 1
+  },
+  "rationale": "选择 structure family，因为此信息消融只提供原始结合配体与受体几何，不依赖生成轨迹或阶段性 elite 历史。采用中等配体锚定、较轻接触项与较强排斥，并收紧 native RMS 比例作为可检验的几何干预；结合姿势仅是几何参考，所给统计关联不能证明这些改动会提高 pIC50。",
+  "failure_modes": [
+    "原始配体结合姿势可能不适用于生成分子，锚定会限制图转换或引入偏置。",
+    "端点和区域统计是关联且为压缩选择结果，不能确定所选参数方向具有因果收益。",
+    "当前证据没有候选干预对 FLOWR pIC50 或应变的直接比较。",
+    "梯度归一化可能抵消整体标量缩放；奖励分量权重改变方向但效果仍需实际评估。"
+  ]
+}

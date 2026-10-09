@@ -1,0 +1,29 @@
+{
+  "role": "Analyst",
+  "condition": "D2_without_trajectory",
+  "findings": [
+    {
+      "evidence_id": "structure:geometry",
+      "finding": "The supplied reference is the original receptor with its bound ligand, with 25 ligand heavy atoms and no affinity labels. Its ligand coordinate covariance eigenvalues (0.111, 5.696, 9.303 Å²) indicate a strongly anisotropic pose; this describes reference geometry, not a predicted optimum."
+    },
+    {
+      "evidence_id": "structure:original_contacts",
+      "finding": "The original bound pose has observed close geometric neighborhoods around A:45:LEU, A:174:ILE, A:66:VAL, A:53:VAL, A:113:PHE, A:160:HIS, A:163:MET, A:116:VAL, A:175:ASP, and A:115:HIS. These are untyped distance-based proxy contacts, not validated interactions or energetic contributions."
+    },
+    {
+      "evidence_id": "structure:protein_crop",
+      "finding": "The receptor crop contains 308 heavy atoms within the stated 12 Å crop radius. Its nearest-neighbor distance quantiles include 1.226 and 1.371 Å, so the provided geometry includes very short separations that warrant treating the crop as geometric context rather than a validated physical energy landscape."
+    }
+  ],
+  "directions": [
+    "As a new geometry-based hypothesis, compare small changes to contact_weight (0, 0.1, 0.25, 0.5, 1) and repulsion_weight (0.5, 1, 2, 4) in the pocket or structure formula, while holding other settings fixed; evaluate generated predictions before inferring benefit.",
+    "As a new geometry-based hypothesis, test ligand_anchor_weight values 0.5, 1, and 2 in the structure formula to examine whether retaining reference-pose geometry helps while allowing graph transitions; the supplied evidence does not establish the best value.",
+    "Treat native_rms_ratio and time_ramp_power as controlled sensitivity parameters within their allowed values, and compare final target pIC50 and secondary strain empirically; the static evidence alone cannot select settings."
+  ],
+  "limitations": [
+    "No generated-state comparisons, target pIC50 outcomes, affinity labels, or strain measurements are supplied, so enrichment, selection survival, temporal trends, and parameter effects cannot be estimated.",
+    "The supplied evidence is compressed exploratory selected evidence, not a complete enrichment analysis.",
+    "This condition removes lineage, temporal, elite-geometry, and history-matching instruction blocks; no trajectory-derived claims are supported.",
+    "Contact sums use untyped center distances and a Gaussian shell, and the stated pocket formula is a geometric proxy rather than a physical affinity energy."
+  ]
+}

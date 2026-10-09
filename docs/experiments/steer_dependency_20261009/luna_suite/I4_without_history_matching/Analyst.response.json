@@ -1,0 +1,43 @@
+{
+  "role": "Analyst",
+  "condition": "I4_without_history_matching",
+  "findings": [
+    {
+      "evidence_id": "endpoint_effects:10",
+      "finding": "Across the integrated endpoint comparison, pair_kernel_2.5 is positively associated with the higher-pIC50 group (z=0.631, 95% CI 0.495 to 0.758, q=2.19e-5; positive in all batches). This supports a short-range pair-geometry association, not a causal design rule."
+    },
+    {
+      "evidence_id": "endpoint_effects:4",
+      "finding": "shape_yy is negatively associated with the higher-pIC50 group (z=-0.513, CI -0.620 to -0.424, q=1.49e-5; positive in 0/14 batches), while its last-minus-first change is +0.148. The direction of the integrated association therefore does not establish a temporal trajectory rule."
+    },
+    {
+      "evidence_id": "regional_effects:5",
+      "finding": "Region 0 local_cyy has negative enrichment (effect z=-0.575, CI -0.717 to -0.462, q=1.31e-4; positive in 0/14 batches), whereas region 0 soft_mass is positive in the same selected table. Local covariance components and mass thus show distinct associations."
+    },
+    {
+      "evidence_id": "regional_effects:62",
+      "finding": "Region 6 local_dy is positively associated with endpoint enrichment (effect z=0.425, CI 0.339 to 0.515, q=1.15e-4; positive in all batches). This is a localized coordinate association and does not show that changing this component improves pIC50."
+    },
+    {
+      "evidence_id": "increment_effects:14",
+      "finding": "For immediate success-versus-failure parent-edge contrasts, region 0 softmin is negative (rate z=-4.91, q=0.046) while the paired occupancy3 contrast is positive (rate z=4.28, q=0.081). These are exploratory contrasts with q-values near or above 0.05 and different feature directions; they do not justify a single monotonic stage rule."
+    },
+    {
+      "evidence_id": "survival_effects:0",
+      "finding": "Region 0 soft_mass has positive later-survival enrichment (effect z=0.365, CI 0.200 to 0.515; 12/14 batches positive), but q=0.120. It is suggestive cross-stage agreement with endpoint enrichment, not FDR-significant survival evidence."
+    }
+  ],
+  "directions": [
+    "As a bounded hypothesis, sweep contact_weight over the allowed values for the receptor-only pocket proxy, prioritizing local contact structure while evaluating final predicted pIC50 and strain; treat this as new geometry testing, since supplied associations do not identify a causal contact weight.",
+    "For the structure-based objective, compare ligand_anchor_weight values while retaining the bound ligand as a geometric anchor; its 25 heavy atoms and anisotropic coordinate spread (covariance eigenvalues 0.111, 5.696, 9.303 A2) suggest checking orientation and shape fit separately. This is a geometry-based design hypothesis, not affinity evidence.",
+    "Use a small factorial sweep of repulsion_weight and native_rms_ratio to test whether reducing clashes while allowing conformational movement improves the pIC50 objective without excess strain; the supplied manifest gives no direct parameter-response results.",
+    "Do not encode a stage-dependent time ramp from these selected results alone: endpoint associations have mixed last-minus-first changes, the observed parent-edge effects disagree by feature, and survival q-values do not pass 0.10. If explored, compare allowed time_ramp_power settings prospectively and report immediate selection and later survival separately."
+  ],
+  "limitations": [
+    "The manifest contains compressed strongest/weakest selected results, not a complete enrichment analysis; omitted effects cannot be treated as null.",
+    "This condition explicitly removes history matching. The supplied evidence does not provide matched historical information, ancestral diversity, or missingness summaries, so cross-condition and lineage-adjusted claims are unavailable.",
+    "Parent-edge contrasts are observational associations. The evidence does not establish parameter interventions, causal effects, or a fitted stage-dependent rule; do not infer a time trend solely from endpoint high-low effects.",
+    "The original bound-ligand/receptor structure provides geometric context only and has no affinity labels. Receptor-only and ligand-anchored geometric proxies are not physical affinity energies.",
+    "The reported endpoint is a predicted target pIC50, with strain secondary. No per-update parameter response, generated-coordinate structural validation, or experimental affinity measurement is supplied."
+  ]
+}
