@@ -4,9 +4,9 @@
 |I1_without_lineage|lineage|structure|1/0.25/1|0.2 / 0|7.5831|+0.0036|99/100|0.5048|
 |I2_without_temporal|temporal|structure|2/0.0/2.0|0.2 / 0.0|7.6159|+0.0365|98/100|0.5111|
 |I3_without_elite_geometry|elite_geometry|structure|0.5/0.0/2.0|0.33 / 0.0|7.7353|+0.1559|99/100|0.4920|
-|I4_without_history_matching|history_matching|structure|1/0.25/2|0.33 / 0|待完成|待完成|待完成|待完成|
-|I5_without_all|lineage, temporal, elite_geometry, history_matching|structure|1/0.25/2|0.2 / 1|待完成|待完成|待完成|待完成|
-|D1_without_scores|lineage, temporal, elite_geometry, history_matching; unweighted|pocket|0.0/0.25/1|0.2 / 1|待完成|待完成|待完成|待完成|
+|I4_without_history_matching|history_matching|structure|1/0.25/2|0.33 / 0|7.6941|+0.1146|98/100|0.4845|
+|I5_without_all|lineage, temporal, elite_geometry, history_matching|structure|1/0.25/2|0.2 / 1|7.5832|+0.0038|98/100|0.5281|
+|D1_without_scores|lineage, temporal, elite_geometry, history_matching; unweighted|pocket|0.0/0.25/1|0.2 / 1|7.5439|-0.0356|97/100|0.5384|
 |D2_without_trajectory|lineage, temporal, elite_geometry, history_matching; static|static|—/—/—|0.2 / 0|待完成|待完成|待完成|待完成|
 |D3_without_steer|lineage, temporal, elite_geometry, history_matching; structure|structure|1/0.25/1|0.2 / 1|待完成|待完成|待完成|待完成|
 |D4_pocket_only|lineage, temporal, elite_geometry, history_matching; pocket|pocket|0.0/0.1/1|0.2 / 1|待完成|待完成|待完成|待完成|
