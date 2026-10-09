@@ -134,3 +134,9 @@ Steer 通过评分提高候选的期望复制数，再复制生成状态和条�
 数据工具、角色/API 和生成命令见同目录 `reproduction.zh-CN.md`；公式与限制见 `scientific_design.zh-CN.md`、`remaining_features.zh-CN.md`；独立校验见 `confirmation_integrity.json`；全部配置、哈希和结果见各 round 的 plan/retention。
 
 [FLOWR 作者代码](https://github.com/jule-c/flowr_root)、[FK steering](https://arxiv.org/abs/2501.06848)、[Flow guidance](https://proceedings.mlr.press/v267/feng25s.html)、[Optimal-control flow matching](https://arxiv.org/html/2410.18070v3)、[FK-Flow](https://arxiv.org/html/2509.01543v1)、[Price 分解](https://pmc.ncbi.nlm.nih.gov/articles/PMC4415573/)提供机制与分析依据；本项目不宣称完整实现这些方法或其分布保证。
+
+## 最终数据归档
+
+全部逐轮报告已校验、提交、推送并在远端拉取后，最后一轮远端生成目录及运输包按显式白名单删除，共 28,203,344 字节；本地数值控制缓存删除 495,767 字节。此前各轮已在下一轮生成前同样清理，不能把这里的最后一次删除量当作总释放量。
+
+原始 Steer 轨迹、checkpoint、源码、精简挖掘结果和每轮公开假设/效果/执行哈希保留。远端清理后重新读取 checkpoint 和四份关键上游源码，校验值与原记录一致；详见 remote_final_environment.json。退休的测试坐标不能由汇总报告还原，需要按保留 commit 和参数重新生成。
