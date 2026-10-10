@@ -14,6 +14,10 @@ selection preference, survival and final quality. Summaries and fitted functions
 describe their supplied populations; repeated descendants are not independent
 replicates. Missing future labels are missing, rather than failed affinity.
 
+When decoded final-quality labels are supplied, trace them into the observed
+ancestors and distinguish final benefit from an intermediate ranking advantage.
+Use the registered calculation tools for label distributions and contrasts.
+
 Compare effect sizes, uncertainty, multiplicity correction, cross-batch agreement
 and coverage. A selection association is a hypothesis about benefit. Do not infer
 chemical interactions or energies from untyped distance proxies. If evidence is

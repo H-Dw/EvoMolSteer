@@ -21,3 +21,7 @@ using the task's priorities and evaluation criteria. Do not attribute quality
 loss to a changed chemical graph without a demonstrated mechanism.
 
 Return the requested program and validation hypotheses.
+
+For a terminal-outcome task, verify that the compiled teacher labels actually
+come from the supplied final-quality calculation, rather than intermediate head
+scores. Bind the label source and both score/state clocks to the program.
