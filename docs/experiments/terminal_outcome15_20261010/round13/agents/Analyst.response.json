@@ -1,0 +1,45 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "00c77c1df1d1ab51b16d5fa77ad49275848b597e4f7cc9c0ee4e8ab37b42dba6",
+  "instruction_sha256": "6c174a186125dfa0ba04b08d4c6905b1ffcd6c1c67eef80382634f9eb94fe140",
+  "evidence_sha256": "66b640234e8df6d220504c9aa93c604b244d7d075b502936852a9fca74994f46",
+  "tool_receipt_sha256": "2459e296a0c64f199d735a1480c7446ff474533e13a1613b6ea490451272bf17",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/alias_credit",
+    "outcome/tail_regularization",
+    "outcome/prospective"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "TO12 (R9 family-mean parent with count-regularized tail prior) had all-slot mean pIC50 7.6358238172531125 and valid mean 7.641488989194234 (96/100 valid), versus R9's all-slot mean 7.624640707969665 and 93/100 valid. The paired all-slot difference was +0.01118310928344724, with batch differences +0.02561287879943846 and -0.0032466602325439808. This is an exploratory two-batch result with mixed signs, not evidence of robust improvement. TO12 produced no valid elite; p90 strain was 1.544111918369345.",
+      "evidence_ids": ["outcome/prospective", "outcome/labels"]
+    },
+    {
+      "finding": "The registered R12 reference has 1,203 teacher records; 510 prior utilities change under strength-2 count shrinkage and 134 records are singletons. Batch-equal raw tail fraction is 0.06908604191425627 and regularized fraction 0.060817920631641174; mean affinity component change is zero. These are retrospective prior-credit support statistics, not affinity efficacy or a calibrated native-success probability. Invalid decoded offspring remain in the denominator; extinct branches remain censored.",
+      "evidence_ids": ["outcome/tail_regularization", "outcome/alias_credit", "outcome/censoring"]
+    },
+    {
+      "finding": "For TO13, the registered single-axis hypothesis is to set branch_mixture.virtual_mass from 0.025 to 0 while retaining the R12/R9-derived reference, final-family mean plus 0.25 regularized tail prior, shrinkage strength 2, teacher selection, numerical guidance settings and clocks. This removes legacy instantaneous-score virtual branch modes so the endpoint objective uses final-family geometry only. The evidence does not establish that those virtual modes caused dilution; assess the proposed change only through its actual compiled binding, full FLOWR run and final outcomes. This is not the previously failed matched-field extension.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks", "outcome/alias_credit", "outcome/tail_regularization", "outcome/prospective"]
+    },
+    {
+      "finding": "Labels are common-protocol decoded-final family means traced through observed ancestors, with score support [0,0.5] and proposal-state control support [0,0.51]. Mean censoring is 0.9042577030812327; descendants and repeated event times do not create independent replicates. Missing future outcomes remain unknown, not zero.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks", "outcome/censoring"]
+    }
+  ],
+  "extensions_ready": true,
+  "rationale": "The evidence supports one bounded alignment test after returning to the R12/R9 reference: remove only the legacy virtual branch mass while retaining the final-family distribution prior and all other settings. TO12's mean and validity were higher than R9 in this adaptive two-batch panel, but its batch signs were mixed and it produced no valid elite. The test should be judged by completed final affinity first, with validity and strain reported separately; first-order reward response alone is not efficacy. TO6 remains the designated quality fallback if a primary regression occurs.",
+  "counterevidence": [
+    "TO12's paired batch changes versus R9 have opposite signs; development data are only two adaptive batches and do not provide new-batch confirmation.",
+    "TO12 has no valid elite and p90 strain remains 1.544111918369345; its single mean comparison should not conceal quality and strain tradeoffs.",
+    "The prior uses selected descendants, with 134 singleton records and approximately 90.4% mean censoring. Its tail component is a heuristic and extinct branches cannot be imputed as failures.",
+    "The prior matched-field direction extension regressed at TO7; this response does not revive that module or infer a supported spatial motif."
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "schema_version": "workflow-response-audit-TO10-TO12-verified-1.0",
+  "supersedes_unverified_draft": {
+    "path": "docs/experiments/terminal_outcome15_20261010/workflow_response_audit_TO10_TO12.json",
+    "sha256": "c506a41321cd322b2d644d21f6607ef028e9df51e678383ed9b67825da7e16d8",
+    "correction": "The draft contained an incorrect R11/R9 reference SHA in two places. It mixed a program-hash suffix into the reference hash. The actual family_tail025_v1/reference.json.gz SHA, independently read from the file, is 4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d; this verified version uses that exact value throughout. The draft remains unchanged as requested."
+  },
+  "verification_execution": {
+    "method": "Read-only Python verification loaded the literal request/response JSON, registered receipt JSON, compiled config JSON, reward_response JSON, source reference files, and completed summary JSON; SHA256 values were computed from each referenced file's bytes.",
+    "checks": [
+      "For R10/R11/R12: Designer request's bound Analyst response SHA equals the actual response file SHA.",
+      "For R10/R11/R12: compiled config outcome_binding request, Analyst response, Designer response, evidence, receipt, reference, and updates agree with the bound files and role response.",
+      "For R10/R11/R12: reward_response reference SHA equals the actual on-disk reference file SHA; program/reference control hashes match recorded R9 comparator.",
+      "For R10/R11/R12: summary metrics, paired deltas, controlled-step counts and first-order responses were programmatically compared against completed summary.json files. R12 summary.json appeared after the earlier draft and was included in this verified version.",
+      "For R12: changed-record, singleton, raw/regularized fraction and utility-delta fields were programmatically compared against outcome/tail_regularization in the calculator evidence.",
+      "For the prior draft: the erroneous R11 reference hash string was found twice; both occurrences are explicitly corrected here."
+    ],
+    "result": "All 3 rounds passed config/request/response/reference/receipt/Skill/summary binding checks; numeric summary and calculator fields match their source JSON files. The actual R11 reference SHA is 4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d."
+  },
+  "rounds": {
+    "R10": {
+      "accepted_designer_request": {
+        "path": "docs/experiments/terminal_outcome15_20261010/round10/designer_bound_v2/Designer.request.json",
+        "sha256": "7dae4bc71ef049ccb55cdc48c9d2c0c65f483db7a1e1eb4f59faa0a0313e4dd9"
+      },
+      "analyst_response_sha256": "91819d6ad6406c28636096edee4ef804d77723d51f4d01cb2b9a79000146df22",
+      "designer_response_sha256": "7bb2f43277e112a2b334834b2beb021aacb26f91ce4e68266a3e17f30b08260e",
+      "feedback_receipt_sha256": "e2e45ff83d76df355f6b9e3ed127c8da5f695abb104564a841aef1fd7568f83c",
+      "compiled_program": {
+        "id": "terminal_outcome15_round10",
+        "sha256": "d9db7784f4c9dbbe491a02f983f00911f3c87e251b937e27460960b12c6d2a17",
+        "base_program_sha256": "e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58",
+        "reference_path": "docs/experiments/terminal_outcome15_20261010/mining/family_budget4_tail025_v1/reference.json.gz",
+        "reference_file_sha256": "280ab7b64ef8efffa795a2e989231d5877aca81ed84a1bb424121b934b436ece",
+        "reference_selection": "family mean, per-batch budget 4, tail weight 0.25, instantaneous branches",
+        "only_requested_axis": "per-batch teacher budget 2 to 4; Designer parameter updates are empty"
+      },
+      "reward_response": {"stage": "reward_objective_only", "changed_event_count": 39, "control_program_sha256": "e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58", "control_reference_sha256": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d"},
+      "completed_summary": {
+        "status": "complete",
+        "all_mean_pic50": 7.619523510932923,
+        "valid_mean_pic50": 7.627744173266224,
+        "valid_n": 97,
+        "n": 100,
+        "elite_valid_n": 0,
+        "strain_p90_per_heavy": 1.535980070224126,
+        "paired_all_slot_delta_vs_R9": -0.005117197036743235,
+        "paired_batch_means_vs_R9": [-0.016292438507080165, 0.006058044433593697],
+        "actual_FLOWR_controlled_steps": 51,
+        "first_order_positive_fraction_by_batch": [1.0, 1.0],
+        "first_order_reward_gain_mean_by_batch": [0.0023754535968032097, 0.002272962020453241]
+      },
+      "binding_note": "The first Designer request used a stale Analyst response hash and was rejected before compile; only the v2 request above is bound into the compiled config."
+    },
+    "R11": {
+      "designer_request": {
+        "path": "docs/experiments/terminal_outcome15_20261010/round11/rollback_r09/Designer.request.json",
+        "sha256": "b09a7434672d85580953f953d21214caab9484288091b898face84f06e8f4e39"
+      },
+      "analyst_response_sha256": "ffb21a9bc659903d77f912c33167e530cc29b6cde917dbb4c362d8ce0a535f06",
+      "designer_response_sha256": "57f7a51aeadacddd17a47069620623973f30fb8ab41c6905439fd405b8fc0ab3",
+      "feedback_receipt_sha256": "1b3e37d358bc9932d46e3dcab126d213692ae0ed37f82df1ca4564d1bef53c8c",
+      "rollback_parent": "terminal_outcome15_round09",
+      "only_parameter_update": {"teacher_neighbors": 6},
+      "compiled_program": {
+        "id": "terminal_outcome15_round11",
+        "sha256": "f765e78c6b1c6e833548641490c2180ba695089e7498b5603d8140118828bd34",
+        "base_program_sha256": "e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58",
+        "reference_path": "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_v1/reference.json.gz",
+        "reference_file_sha256": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d",
+        "reference_selection": "R9 family mean, per-batch budget 2, tail weight 0.25, instantaneous branches"
+      },
+      "reward_response": {"stage": "reward_objective_only", "changed_event_count": 51, "control_program_sha256": "e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58", "control_reference_sha256": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d"},
+      "completed_summary": {
+        "status": "complete",
+        "all_mean_pic50": 7.5852863359451295,
+        "valid_mean_pic50": 7.603212195948551,
+        "valid_n": 95,
+        "n": 100,
+        "elite_valid_n": 0,
+        "strain_p90_per_heavy": 1.8400475006969703,
+        "paired_all_slot_delta_vs_R9": -0.039354372024536136,
+        "paired_batch_means_vs_R9": [0.03183825492858888, -0.11054699897766115],
+        "actual_FLOWR_controlled_steps": 51,
+        "first_order_positive_fraction_by_batch": [1.0, 1.0],
+        "first_order_reward_gain_mean_by_batch": [0.002319918688573999, 0.002222460193722737]
+      }
+    },
+    "R12": {
+      "designer_request": {
+        "path": "docs/experiments/terminal_outcome15_20261010/round12/agents/Designer.request.json",
+        "sha256": "c7677a1c1cf6ba7b73752a7f63da6c83d6e4e06dc6e7625f36c9577f30478c41"
+      },
+      "analyst_response_sha256": "419a166500ab3169302db191123e646ce0e616099324df054abc50547fbdba58",
+      "designer_response_sha256": "19798ec3720a6c439a623518b36ccdbdcfae16c350259a310b4bf336a9d7c51c",
+      "feedback_receipt_sha256": "ae2b8f9ea0975fa2257c1fb045068189a3f2be6e097c70a0fc33ef15c159319c",
+      "rollback_parent": "terminal_outcome15_round09",
+      "updates": {},
+      "compiled_program": {
+        "id": "terminal_outcome15_round12",
+        "sha256": "02a942e6cd66c60380a5f132be2fd28e727b87e0308435f87cedc991ca479319",
+        "base_program_sha256": "e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58",
+        "reference_path": "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_shrink2_v1/reference.json.gz",
+        "reference_file_sha256": "b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31",
+        "reference_selection": "R9 family mean, per-batch budget 2, tail weight 0.25, instantaneous branches, count shrinkage strength 2"
+      },
+      "calculator_receipt": {
+        "path": "docs/experiments/terminal_outcome15_20261010/tool_receipts/family_tail025_shrink2_v1.json",
+        "sha256": "11d58e256603b6e1fafb9d61bce47afc48fbb220411122c26cdd229aa683d9b5",
+        "returncode": 0,
+        "inputs_unchanged": true
+      },
+      "calculator_results": {
+        "teacher_records": 1203,
+        "prior_records_changed": 510,
+        "singleton_records": 134,
+        "strength": 2.0,
+        "tail_weight": 0.25,
+        "mean_component_change": 0.0,
+        "batch_equal_raw_fraction": 0.06908604191425627,
+        "batch_equal_regularized_fraction": 0.060817920631641174,
+        "batch_equal_utility_change": -0.0020670303206537606,
+        "point_selection_unchanged": true,
+        "denominator": "All observed final slots, including invalid decoding; donor batch baseline uses same denominator"
+      },
+      "reward_response": {"stage": "reward_objective_only", "changed_event_count": 51, "control_program_sha256": "e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58", "control_reference_sha256": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d"},
+      "completed_summary": {
+        "status": "complete",
+        "all_mean_pic50": 7.6358238172531125,
+        "valid_mean_pic50": 7.641488989194234,
+        "valid_n": 96,
+        "n": 100,
+        "elite_valid_n": 0,
+        "strain_p90_per_heavy": 1.544111918369345,
+        "paired_all_slot_delta_vs_R9": 0.01118310928344724,
+        "paired_batch_means_vs_R9": [0.02561287879943846, -0.0032466602325439808],
+        "actual_FLOWR_controlled_steps": 51,
+        "first_order_positive_fraction_by_batch": [1.0, 1.0],
+        "first_order_reward_gain_mean_by_batch": [0.0023696403459889195, 0.0022807041570836995]
+      },
+      "runtime_status": "A completed round12/summary.json is now present. Its values are recorded descriptively, but no R12 efficacy conclusion is made in this audit. The 51-event reward_response remains an objective-comparison artifact; actual FLOWR execution is evidenced separately by the completed summary."
+    }
+  },
+  "conclusions_and_limits": [
+    "Rollback chain is verified: R11 starts from R9 and applies only teacher_neighbors=6; after its negative primary comparison, R12 returns to R9 with empty numeric updates and the regularized prior reference.",
+    "The R12 count formula, strength, denominator including invalid decodes, raw and regularized fractions, changed-prior count and unchanged mean/point selection are present in calculator evidence and in the actual reference file whose SHA is bound by config and reward response.",
+    "R10, R11, and the now-present R12 summaries report completed FLOWR runs with 51 controlled steps each. First-order VJP response values are not second-forward reward measurements; full-generation affinity/validity/strain are separately reported in each summary.",
+    "R10 and R11 regressed in all-slot mean versus R9. R12's summary is recorded descriptively, but this audit makes no efficacy conclusion about R12; its paired batch values are mixed and the panel remains exploratory.",
+    "The panels contain two adaptive development batches and high censoring; extinct futures are unknown, descendants are related, and the shrinkage output is a heuristic rather than Bayesian or native-success calibration."
+  ],
+  "evidence_paths": [
+    "docs/experiments/terminal_outcome15_20261010/round10/designer_rebinding.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/designer_bound_v2/Designer.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/designer_bound_v2/Designer.response.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/reward_response.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/rollback_r09/Designer.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/rollback_r09/Designer.response.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/reward_response.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/agents/Designer.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/agents/Designer.response.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/reward_response.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/validation.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/rollback.json",
+    "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_shrink2_v1/evidence.json",
+    "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_shrink2_v1/reference.json.gz",
+    "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_shrink2_v1/support_credit.csv",
+    "docs/experiments/terminal_outcome15_20261010/tool_receipts/family_tail025_shrink2_v1.json",
+    "configs/experiments/terminal_outcome15_v1/round10_R11_budget4_tail025.json",
+    "configs/experiments/terminal_outcome15_v1/round11_R11_neighbors6.json",
+    "configs/experiments/terminal_outcome15_v1/round12_R11_tail_shrink2.json"
+  ]
+}

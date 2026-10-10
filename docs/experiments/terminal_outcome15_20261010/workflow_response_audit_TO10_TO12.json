@@ -1,0 +1,127 @@
+{
+  "schema_version": "workflow-response-audit-TO10-TO12-1.0",
+  "scope": "Read-only audit of R10-R12 literal requests, frozen Skill snapshots, agent responses, compiled reward responses, and completed runtime summaries. No next-round choice or reward change is proposed.",
+  "binding_and_rollback": {
+    "R10": {
+      "accepted_designer_request": "round10/designer_bound_v2/Designer.request.json",
+      "accepted_designer_response": "round10/designer_bound_v2/Designer.response.json",
+      "accepted_request_sha256": "7dae4bc71ef049ccb55cdc48c9d2c0c65f483db7a1e1eb4f59faa0a0313e4dd9",
+      "accepted_analyst_response_sha256": "91819d6ad6406c28636096edee4ef804d77723d51f4d01cb2b9a79000146df22",
+      "finding": "The first Designer binding referenced a stale Analyst response and was rejected before compilation; the accepted v2 request binds the final Analyst SHA and is the request named by the R10 compiled config. This is a repaired workflow issue, not an efficacy observation.",
+      "base": "terminal_outcome15_round09",
+      "changed_axis": "teacher per-batch support budget 2 to 4; R9 family-mean plus 0.25 tail prior retained"
+    },
+    "R11": {
+      "analyst_request": "round11/rollback_r09/Analyst.request.json",
+      "designer_request": "round11/rollback_r09/Designer.request.json",
+      "base": "terminal_outcome15_round09",
+      "updates": {"teacher_neighbors": 6},
+      "reference_sha256": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf1c0840bb5d58",
+      "finding": "The failed R10 budget-4 reference was replaced by R9's budget-2 reference and all R9 fields; the only R11 change was teacher_neighbors 4 to 6. The completed R11 negative comparison then triggered another explicit rollback to R9 for R12."
+    },
+    "R12": {
+      "analyst_request": "round12/agents/Analyst.request.json",
+      "designer_request": "round12/agents/Designer.request.json",
+      "base": "terminal_outcome15_round09",
+      "updates": {},
+      "reference_sha256": "b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31",
+      "finding": "R12 config and reward response bind the count-regularized R9-derived reference while all generation parameter updates remain empty. The selected teacher identities and coordinates are held constant."
+    },
+    "frozen_skill_bindings": "For accepted R10 v2, R11 rollback_r09, and R12, the declared Analyst/Designer/terminal-outcome Skill snapshot hashes match the corresponding literal snapshot files; each Designer request's Analyst response SHA matches the response file it names."
+  },
+  "compiled_reference_response": {
+    "R10": {
+      "program": "terminal_outcome15_round10",
+      "program_sha256": "d9db7784f4c9dbbe491a02f983f00911f3c87e251b937e27460960b12c6d2a17",
+      "reference_sha256": "280ab7b64ef8efffa795a2e989231d5877aca81ed84a1bb424121b934b436ece",
+      "reference_selection": "family mean, per-batch budget 4, tail weight 0.25, instantaneous branches",
+      "reward_response_changed_events": 39
+    },
+    "R11": {
+      "program": "terminal_outcome15_round11",
+      "program_sha256": "f765e78c6b1c6e833548641490c2180ba695089e7498b5603d8140118828bd34",
+      "reference_sha256": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf1c0840bb5d58",
+      "reference_selection": "restored R9 family mean, per-batch budget 2, tail weight 0.25, instantaneous branches",
+      "only_program_update": "teacher_neighbors 4 to 6",
+      "reward_response_changed_events": 51
+    },
+    "R12": {
+      "program": "terminal_outcome15_round12",
+      "program_sha256": "02a942e6cd66c60380a5f132be2fd28e727b87e0308435f87cedc991ca479319",
+      "reference_sha256": "b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31",
+      "reference_selection": "R9 family mean, per-batch budget 2, tail weight 0.25, instantaneous branches, tail shrinkage strength 2",
+      "calculator_support": "1,203 teacher records; 510 nonzero prior changes; 134 singleton records; mean-component change 0; geometric point selection unchanged; denominator includes all observed offspring slots including invalid decodes",
+      "batch_equal_raw_fraction": 0.06908604191425627,
+      "batch_equal_regularized_fraction": 0.060817920631641174,
+      "batch_equal_utility_change": -0.0020670303206537606,
+      "reward_response_changed_events": 51,
+      "interpretation": "The registered calculator outputs were incorporated into the compiled reference. The 51-event reward-objective comparison is not an actual FLOWR rollout or efficacy result."
+    }
+  },
+  "completed_runtime": {
+    "R9_parent": {"all_mean_pic50": 7.624640707969665, "valid_mean_pic50": 7.641468791551487, "valid_n": 93, "elite_valid_n": 1, "strain_p90_per_heavy": 1.6039388329828215},
+    "R10": {
+      "status": "complete",
+      "all_mean_pic50": 7.619523510932923,
+      "valid_mean_pic50": 7.627744173266224,
+      "valid_n": 97,
+      "elite_valid_n": 0,
+      "strain_p90_per_heavy": 1.535980070224126,
+      "paired_all_slot_delta_vs_R9": -0.005117197036743235,
+      "actual_FLOWR_controlled_steps": 51,
+      "first_order_positive_fraction_by_batch": [1.0, 1.0],
+      "first_order_reward_gain_mean_by_batch": [0.0023754535968032097, 0.002272962020453241]
+    },
+    "R11": {
+      "status": "complete",
+      "all_mean_pic50": 7.5852863359451295,
+      "valid_mean_pic50": 7.603212195948551,
+      "valid_n": 95,
+      "elite_valid_n": 0,
+      "strain_p90_per_heavy": 1.8400475006969703,
+      "paired_all_slot_delta_vs_R9": -0.039354372024536136,
+      "actual_FLOWR_controlled_steps": 51,
+      "first_order_positive_fraction_by_batch": [1.0, 1.0],
+      "first_order_reward_gain_mean_by_batch": [0.002319918688573999, 0.002222460193722737]
+    },
+    "R12": {
+      "status": "inference in progress at audit time; no completed round12/summary.json",
+      "reward_objective_response_events": 51,
+      "actual_FLOWR_or_affinity_efficacy_claim": false
+    }
+  },
+  "audit_conclusions": [
+    "Rollback guidance reached the actual R11/R12 design chain: both use R9 as base; R11 restores R9's budget-2 reference and changes only teacher_neighbors; after R11 regressed, R12 returns to R9 with empty parameter updates and binds the shrinkage reference.",
+    "The R12 denominator, strength-2 formula, raw/regularized fractions and prior changes are present in the registered calculator outputs and in the reference hash consumed by the R12 reward response/config. Its 0 mean-component change and unchanged point selection make this a prior-credit-only module.",
+    "R10 and R11 completed 51 controlled FLOWR steps. Their reported gains are first-order VJP diagnostics, not second-forward measured reward changes. Final affinity is separately assessed by the completed full-rollout summaries.",
+    "R10 and R11 both lost all-slot mean affinity against R9. R10's secondary validity/strain differences and increased teacher coverage did not rescue its primary comparison; R11 also had no valid elite and higher p90 strain. R12 has no completed runtime result here."
+  ],
+  "limitations": [
+    "The completed comparisons use two adaptive development batches; they do not establish new-batch confirmation.",
+    "Mean censoring is approximately 0.9043; extinct futures remain unknown, and descendant copies/repeated event times are not independent.",
+    "Tail shrinkage is a count-based heuristic, not Bayesian estimation or calibrated native-success probability. Invalid decoded offspring are included in its denominator as specified.",
+    "The first R10 Designer request was rejected for a stale Analyst hash; only the re-bound v2 request was compiled."
+  ],
+  "evidence_paths": [
+    "docs/experiments/terminal_outcome15_20261010/round10/agents/Analyst.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/designer_bound_v2/Designer.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/designer_rebinding.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/reward_response.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/rollback_r09/Analyst.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/rollback_r09/Designer.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/reward_response.json",
+    "docs/experiments/terminal_outcome15_20261010/round11/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/agents/Analyst.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/agents/Designer.request.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/reward_response.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/validation.json",
+    "docs/experiments/terminal_outcome15_20261010/round12/rollback.json",
+    "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_shrink2_v1/evidence.json",
+    "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_shrink2_v1/reference.json.gz",
+    "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_shrink2_v1/support_credit.csv",
+    "configs/experiments/terminal_outcome15_v1/round10_R11_budget4_tail025.json",
+    "configs/experiments/terminal_outcome15_v1/round11_R11_neighbors6.json",
+    "configs/experiments/terminal_outcome15_v1/round12_R11_tail_shrink2.json"
+  ]
+}

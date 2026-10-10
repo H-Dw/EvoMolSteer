@@ -1,0 +1,30 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Designer",
+  "request_sha256": "e03542836697253e948e886871e5af0e56b327969647e5e076e74934ea94f019",
+  "instruction_sha256": "1ea8dd21a6bf507affd0c13d703ade4bbb90b5fdfe6daf849fb3252ac731e3aa",
+  "evidence_sha256": "66b640234e8df6d220504c9aa93c604b244d7d075b502936852a9fca74994f46",
+  "tool_receipt_sha256": "2459e296a0c64f199d735a1480c7446ff474533e13a1613b6ea490451272bf17",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/alias_credit",
+    "outcome/tail_regularization",
+    "outcome/prospective"
+  ],
+  "analyst_response_sha256": "95980dcddd2b3ed1093d30f471d43f1ce7bb6da6920d804166f2d32cf65c56cc",
+  "base_program_id": "terminal_outcome15_round12",
+  "updates": {
+    "branch_mixture.virtual_mass": 0.0
+  },
+  "rationale": "TO13以注册的terminal_outcome15_round12为基础，只将branch_mixture.virtual_mass从0.025设为0；保留family_tail025_shrink2_v1参考（SHA-256 b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31）、decoded-final图内均值再等图平均、观察尾部权重0.25及强度2收缩、教师选择/坐标、endpoint_branch_mixture公式其余数值、真实FLOWR endpoint VJP、剂量与全部窗口。这样唯一去掉的是源自即时分支模板的虚拟点云模式，奖励几何只对齐最终家族教师；它检验“即时分支虚拟模式与最终标签不一致可能稀释奖励”的单一对齐假设，不代表已经证明了这种稀释，也不启用TO7失败的matched-field方向。R12相对R9的两批paired all-slot均值差为+0.011183109，valid为96/100对93/100，但batch差分别+0.025612879和-0.003246660，且没有valid elite，p90 strain为1.54411；这是小型自适应开发证据，不能据此宣称改善。首阶FLOWR响应也只验证路径，不等于二次前向测得的奖励或最终亲和力提升。维持decoded_final标签时钟1.0、score窗口[0,0.5]、控制至0.51及其后native continuation。必须验证绑定后的编译程序和实际VJP，再用完整generation及最终解码结果评估亲和力优先、validity和strain分别报告。若主要亲和力回归，恢复TO12基线；TO6保留为质量fallback。",
+  "counterevidence": [
+    "R12相对R9的两个batch差异异号，面板只有两个自适应开发批次，不构成独立新批次确认；R12无valid elite。",
+    "R12的p90 strain为1.54411，valid率虽为96/100仍需和亲和力分开评估；去除virtual mass可能影响有效探索，现无TO13完整生成结果。",
+    "当前即时虚拟分支方向来自即时模板，而最终家族标签来自clock 1.0；二者的时间语义差异只是可检验假设，没有证据证明virtual modes导致奖励稀释或其移除会改善亲和力。TO7的final-family-matched方向试验曾失败，不可将其纳入本次设计或当前成功证据。",
+    "参考统计来自受选择且相关的后代，平均删失率约0.9043；收缩尾部先验不是native成功概率，灭绝分支未来质量未知。工具receipt与正向first-order FLOWR VJP响应都不证明完整轨迹疗效。"
+  ]
+}
