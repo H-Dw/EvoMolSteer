@@ -1,0 +1,27 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Designer",
+  "request_sha256": "829e8d0bc3075c7ba0469028839d76feaf616bf41ecc0575478d36fe8e981415",
+  "instruction_sha256": "00824c6be91921a1538ee341837cdb29ad66d082018aab90584966008393a7cd",
+  "evidence_sha256": "cba2f830d3130584f8bb18c8961536ce9cd66c0d351766ac9b324e75d3eaa196",
+  "tool_receipt_sha256": "13a9ca9fb839e711d63909d253efe394cd03faefbda4a43cfac92fafd33747ec",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/tail_regularization",
+    "outcome/prospective"
+  ],
+  "analyst_response_sha256": "cb35aa40bbf83ebbca026deec6423ea19157b9385295d0cbcd882ee2b985b3ad",
+  "base_program_id": "terminal_outcome15_round12",
+  "updates": {},
+  "rationale": "TO14冻结并完整恢复注册的TO12候选 `terminal_outcome15_round12`（程序SHA-256 02a942e6cd66c60380a5f132be2fd28e727b87e0308435f87cedc991ca479319），updates={}且不替换reference。维持 family_tail025_shrink2_v1（SHA-256 b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31）、final-family图内mean后等图平均与强度2收缩的0.25 tail prior、teacher坐标/选择、`branch_mixture.virtual_mass=0.025`及其他全部reward/控制参数。TO13将mass置零后相对TO12的paired all-slot mean为-0.018100142，两批差异均负（-0.003292627、-0.032907658）；因此按primary affinity优先规则回滚至TO12，而不是把TO13的较低strain单独视为胜出。TO12是TO01–13开发面板的affinity-first候选：all-slot mean 7.635823817、valid 96/100、median strain 0.53709（native 0.58213），但p90 strain 1.544高于native 1.357与历史Steer 1.381，且无elite；TO6仍是quality fallback，历史R11保留为对照。TO14在新批次133、134对candidate/native/R11/R26作冻结确认，TO15继续用完全相同的冻结公式跑135、136，无论TO14结果如何不再调参。奖励目标与TO12相同，预期anchor数学对照为no-op；仍须核实真实FLOWR的51步VJP/注入响应和100步完整生成的decoded-final结果，余下49步是native continuation。标签来自clock 1.0的decoded-final family outcomes；坐标评分仅在[0,0.5]，状态控制至[0,0.51]。首阶VJP响应与实现验证都不构成最终亲和力效能证据，因此本响应不预告TO14/15结果。",
+  "counterevidence": [
+    "TO12相对TO9的开发均值优势来自两个自适应批次且batch signs相反；TO13两个批次都低于TO12，支持回滚但仍不是对TO14新批次结果的预测。",
+    "TO12的p90 strain高于native及历史Steer，并无elite终产物；较高valid率和较低median strain不能掩盖尾部strain与elite表现。TO6保留为质量fallback，R11作为历史对照。",
+    "尾部先验基于受选择、相关的后代，平均删失约90.4%；count shrinkage是启发式，不是Bayesian posterior或native成功概率，灭绝分支的未来结果未知。",
+    "TO14与TO12具有相同冻结reward目标，anchor comparison预期no-op；即便实际51步VJP为正，也只验证坐标梯度路径/注入，不替代full 100-step decoded-final亲和力、validity和strain评估。"
+  ]
+}

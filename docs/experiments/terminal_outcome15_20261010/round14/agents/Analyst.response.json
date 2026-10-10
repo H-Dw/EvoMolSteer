@@ -1,0 +1,45 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "9e576afdf283809011000a329153fb8804981d60e9b011f4ff98598c40f3d578",
+  "instruction_sha256": "dc55a8cfddce8c4992a732418b07a388d5a03ba665c324aae5d6a22b2b733cc6",
+  "evidence_sha256": "cba2f830d3130584f8bb18c8961536ce9cd66c0d351766ac9b324e75d3eaa196",
+  "tool_receipt_sha256": "13a9ca9fb839e711d63909d253efe394cd03faefbda4a43cfac92fafd33747ec",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/tail_regularization",
+    "outcome/prospective"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "TO13's virtual-mass removal regressed against TO12 on the primary paired all-slot mean: -0.018100142478942854, with both batch differences negative (-0.0032926273345947267 and -0.03290765762329098). The frozen selection file therefore restores TO12's program and virtual_mass 0.025. For TO14 and TO15, preserve the TO12 reference/configuration, keep parameter updates empty and do not retune after seeing either confirmation result.",
+      "evidence_ids": ["outcome/prospective", "outcome/clocks"]
+    },
+    {
+      "finding": "TO12 is the affinity-first development candidate selected from TO01-TO13: all-slot mean pIC50 7.6358238172531125, 96/100 valid, median strain 0.53709 versus native 0.58213, and paired all-slot gain +0.01118310928344724 versus TO9. Its p90 strain 1.544 per heavy atom remains above native 1.357 and historical Steer 1.381, and it yielded no elite final molecules. Retain TO6 as the quality fallback and historical R11 as a control; do not describe the TO12 choice as overall success or a tail-discovery advantage.",
+      "evidence_ids": ["outcome/prospective", "outcome/labels", "outcome/censoring"]
+    },
+    {
+      "finding": "TO14 is a frozen confirmation, not an optimization: use the unchanged TO12 shrinkage-strength-2 reference (SHA b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31), with family-mean plus 0.25 regularized-tail prior and virtual_mass 0.025. The expected identical reward objective makes a no-op anchor comparison appropriate; verify the 51-step first-order response/injection and full 100-step final evaluation without interpreting VJP gain as measured affinity improvement. Selection specifies paired candidate/native/R11/R26 controls on batches 133-134, then the same frozen formula on batches 135-136 regardless of TO14's result.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks", "outcome/tail_regularization", "outcome/prospective"]
+    },
+    {
+      "finding": "The primary labels are decoded-final family means traced through observed ancestors; score support is [0,0.5] and proposal-state support [0,0.51]. Mean censoring is 0.9042577030812327. Extinct futures are unknown and shared descendants/repeated event times are not independent observations. Tail regularization is a selected-descendant heuristic, not a calibrated native-success probability.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks", "outcome/censoring", "outcome/tail_regularization"]
+    }
+  ],
+  "updates": {},
+  "extensions_ready": true,
+  "rationale": "The registered selection freezes the highest development all-slot mean candidate after TO13's primary regression. Restore the full TO12 virtual mass and preserve its R9-derived count-regularized reference exactly; TO14 and TO15 are independent-batch confirmation with empty updates. Report TO12's affinity-first rank alongside validity, strain and elite tradeoffs, and keep TO6 and historical R11 available as specified. A no-op reward comparison is expected because the frozen reward objective is intentionally identical to TO12.",
+  "counterevidence": [
+    "TO12's development advantage versus TO9 came from two adaptive batches with mixed paired signs; it does not establish new-batch benefit.",
+    "TO12 has no elite outputs and elevated p90 strain despite its higher valid mean; TO13's strain reduction did not compensate for lower affinity in either batch.",
+    "Mean censoring is approximately 90.4%; extinct branches remain unknown and the 134 singleton supports in the tail-credit calculation are sparse. Descendant observations are related, not independent.",
+    "The count-shrunk tail is a heuristic and not a Bayesian posterior or native-continuation probability. Do not infer benefit from prior changes or first-order VJP response alone."
+  ]
+}

@@ -32,7 +32,7 @@ u_f=\mu_f+0.25\widetilde p_f.
 
 (u_f) 是构造 prior 的启发式 utility；0.25 项不与 pIC50 同单位，也不是经校准的 native success probability。收缩强度 2 是计数启发式，不是 Bayesian posterior。family 中后代有共同祖先且受选择影响；灭绝分支的未来标签仍未知，不用批次基准填补。
 
-TO12 计算器在 1,203 条 family 记录中报告 134 条 singleton、510 条 prior utility 改变；batch-equal raw tail fraction 为 0.0690860，regularized fraction 为 0.0608179，family-mean 分量变化为零，batch-equal utility 变化为 -0.00206703。这些是参考库计算结果，不是 TO12 的生成效能。参考的 batch base log weight 对每个事件内的 donor batch 等权，再在 batch 内对教师等权；程序校验的字段为每条教师记录 
+TO12 计算器在 1,203 条 family 记录中报告 134 条 singleton、510 条 prior utility 改变；batch-equal raw tail fraction 为 0.0690860，regularized fraction 为 0.0608179，family-mean 分量变化为零，batch-equal utility 变化为 -0.00206703。这些是参考库计算结果，不是 TO12 的生成效能。参考的 batch base log weight 对每个事件内的 donor batch 等权，再在 batch 内对教师等权；程序校验的字段为每条教师记录
 \(b_m=-\log N_{b,e}\)，其中 (N_{b,e}) 是该事件该批次的教师数。
 
 ## 冻结 anchor 的教师选择与多模态点云奖励
@@ -52,7 +52,7 @@ C_m=\frac1N\sum_i\|A_{t,i}-T_{m,\sigma_m(i)}\|^2.
 \quad \pi_m=\operatorname{softmax}_{m\in S_4}(\ell_m),
 \]
 
-其中 (T=4.0\ \text{Å}^2)，\(\beta=2.0\)，(s_m) 是参考库中绑定的教师 utility/score，(b_m) 是上面的批次等权 base log weight。选择、assignment 和 \(\pi_m\) 均冻结。当前端点 (Y_t) 到匹配教师点云的平方距离均值为
+其中 (T=4.0\ \text{Å}^2)，\(\beta=2.0\)，(s_m) 是参考库中绑定的教师 utility/score，(b_m) 是上面的批次等权 base log weight。批次等权只描述完整教师库的基础权重；最近 K 个教师的截取、几何邻近项和质量项会改变实际归一化先验，并不保证每个生成分子的 prior 在批次间等权。选择、assignment 和 \(\pi_m\) 均冻结。当前端点 (Y_t) 到匹配教师点云的平方距离均值为
 
 \[
 q_m(Y_t)=\frac1N\sum_i\|Y_{t,i}-T_{m,\sigma_m(i)}\|^2,
