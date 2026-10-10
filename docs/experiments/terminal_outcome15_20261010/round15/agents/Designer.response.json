@@ -1,0 +1,29 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Designer",
+  "request_sha256": "de484ba27bc567cc07c2aea8a782e52dd13f23d03f0a471dc42577d8a4e5705a",
+  "instruction_sha256": "30a271e97355df813e8ca5299cb4c94797a12f50399d205221a0d05537d5e92e",
+  "evidence_sha256": "cba2f830d3130584f8bb18c8961536ce9cd66c0d351766ac9b324e75d3eaa196",
+  "tool_receipt_sha256": "13a9ca9fb839e711d63909d253efe394cd03faefbda4a43cfac92fafd33747ec",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/family_ranking",
+    "outcome/alias_credit",
+    "outcome/tail_regularization",
+    "outcome/prospective"
+  ],
+  "analyst_response_sha256": "d70c8dd551362f5555d1a924de672213a7dbdbe3f5ebe03ffaa275a3f55910a4",
+  "base_program_id": "terminal_outcome15_round14",
+  "updates": {},
+  "rationale": "TO15是预先锁定的第二个独立新批次确认，不是优化轮次。以TO14 runtime `terminal_outcome15_round14` 为基线；该程序已恢复TO12，包含 `branch_mixture.virtual_mass=0.025` 及原样 `family_tail025_shrink2_v1` reference（SHA-256 b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31）。保持全部参数/公式/teacher点与选择、最终家族图均值和0.25 count-shrunk tail prior不变，updates={}；不看TO14结果，也不允许按其结果适配。只在新批次135、136使用预选candidate并与native、历史R11、R26对照。相同reward objective意味着anchor identity预期保持不变；这是冻结设计预期，不是技能或实现失败。仍须实际验证FLOWR endpoint VJP及51步受控注入，之后按时钟继续49步native，并完成完整decoded-final评价。标签是clock 1.0的最终解码结果；coordinate评分支持[0,0.5]，状态控制至[0,0.51]。TO12基于截至TO13开发数据被选作affinity-first候选：all-slot mean pIC50 7.635823817、valid 96/100，较TO9的paired均值+0.011183109，但仅两批且batch差异异号；它没有valid elite，p90 strain 1.544高于native，故不能视为整体成功或预告新批次收益。TO13移除virtual mass后两批均回归，支持恢复而非保证TO12在独立数据上优越。保留TO6作为quality fallback（98/100 valid、p90 strain 1.08270，但all-slot mean 7.60821较低），并保留历史R11/R26控制。新批次结果需分别报告primary affinity、validity、strain与tail表现；尾部收缩来自受选择且相关的observed descendants，不是native成功概率或Bayesian posterior。",
+  "counterevidence": [
+    "TO12相对TO9的开发paired均值变化来自两个自适应批次且符号相反；不能当作独立确认或TO15效能证据。",
+    "TO12无valid elite且p90 strain 1.544高于native；TO6具有更强的validity/strain质量画像，但其all-slot mean较低，需按首要亲和力与次要质量指标分别评价。",
+    "TO13移除虚拟分支模式后两批相对TO12均为负，但这不足以证明恢复TO12会在新批次获益。TO15应保持预先固定的选择，不能据任何中间确认结果改参。",
+    "平均未来删失约90.4%；共享祖先的后代不独立，灭绝分支的最终结果未知，count-shrunk tail utility是启发式而非校准native概率。正向首阶VJP或expected anchor no-op均不能替代完整生成与最终解码评价。"
+  ]
+}

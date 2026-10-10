@@ -35,6 +35,7 @@ def run_tool(plan_path, receipt):
     plan = read_json(plan_path)
     specs = {'terminal_outcome': ('mine_terminal_outcomes.py', 'terminal_outcome.py'),
              'outcome_summary': ('summarize_outcome_labels.py', 'outcome_summary.py'),
+             'outcome_evidence_scope': ('summarize_outcome_evidence_scope.py', 'outcome_evidence_scope.py'),
              'outcome_feedback': ('summarize_outcome_feedback.py', 'outcome_feedback.py'),
              'outcome_alias_credit': ('pool_outcome_alias_credit.py', 'outcome_alias_credit.py'),
              'outcome_tail_regularization': ('regularize_outcome_tail_credit.py', 'outcome_tail_regularization.py'),
@@ -45,7 +46,9 @@ def run_tool(plan_path, receipt):
         raise ValueError('Registered outcome calculation plan required')
     flags = {'--dataset', '--campaign', '--metrics', '--baseline', '--output', '--score-start', '--score-end',
              '--mode', '--budget', '--threshold', '--tail-weight', '--branch-mode', '--score-tolerance', '--shrinkage'}
-    if plan['tool_id'] == 'outcome_summary':
+    if plan['tool_id'] == 'outcome_evidence_scope':
+        flags = {'--evidence', '--scope', '--output'}
+    elif plan['tool_id'] == 'outcome_summary':
         flags = {'--labels', '--evidence', '--output'}
     elif plan['tool_id'] == 'outcome_feedback':
         flags = {'--evidence', '--reports', '--output'}

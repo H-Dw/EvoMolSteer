@@ -1,0 +1,66 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "03ee9b5294fe572bf36851a2dc5adf6cc363d6464e4b6c16da7b0c650a080bd9",
+  "instruction_sha256": "16e10586698a82ca6ccb8281d75b2f3d2fbdf1be0e304a06380a1d6a21995776",
+  "evidence_sha256": "cba2f830d3130584f8bb18c8961536ce9cd66c0d351766ac9b324e75d3eaa196",
+  "tool_receipt_sha256": "13a9ca9fb839e711d63909d253efe394cd03faefbda4a43cfac92fafd33747ec",
+  "score_window": [
+    0.0,
+    0.5
+  ],
+  "window": [
+    0.0,
+    0.51
+  ],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/family_ranking",
+    "outcome/alias_credit",
+    "outcome/tail_regularization",
+    "outcome/prospective"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "TO15 is a second frozen independent-batch confirmation of the preselected TO12 candidate, using batches 135–136 with candidate/native/historical R11/R26 controls. The TO15 task and registry allow no parameter updates; keep updates empty and use the unchanged TO14 runtime derived from restored TO12: virtual_mass 0.025, family-mean teacher credit, tail weight 0.25 and the count-shrinkage-2 reference (SHA b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31). The reward anchor identity is expected. Run the actual 51 controlled steps through the clock-derived boundary and 49 native steps thereafter, followed by full decoded-final evaluation. Do not condition TO15 choices on TO14 outcomes; the TO14 and TO15 frozen panels jointly assess the locked candidate.",
+      "evidence_ids": [
+        "outcome/labels",
+        "outcome/clocks",
+        "outcome/prospective"
+      ]
+    },
+    {
+      "finding": "TO12 remains the development affinity-first choice: all-slot mean pIC50 7.6358238172531125, valid mean 7.641488989194234 with 96/100 valid, and paired mean +0.01118310928344724 versus TO09. Its paired batch changes had opposite signs (+0.02561287879943846 and -0.0032466602325439808), so this adaptive development panel does not establish independent benefit. TO12 has no valid elite and p90 strain 1.544111918369345 per heavy atom, higher than native; TO06 remains the quality fallback (98/100 valid, p90 strain 1.0827024787219954), with its lower all-slot mean 7.608208017349243.",
+      "evidence_ids": [
+        "outcome/prospective",
+        "outcome/censoring"
+      ]
+    },
+    {
+      "finding": "The preceding virtual-mass removal in TO13 regressed versus TO12: paired all-slot mean -0.018100142478942854, with batch differences -0.0032926273345947267 and -0.03290765762329098; TO13 also had 95/100 valid and no valid elite. This supports restoring TO12 mass 0.025 but is not evidence that TO15 will improve. Likewise TO11’s failed teacher-neighbor expansion remains counterevidence and was already rolled back; do not revive it during confirmation.",
+      "evidence_ids": [
+        "outcome/prospective"
+      ]
+    },
+    {
+      "finding": "Count-regularized tail credit is only a heuristic on selected observed descendants. The registered calculator reports 1,203 teacher records, 510 changed prior credits and 134 singleton records; mean credit and point selection are unchanged, while invalid decoded offspring remain in the denominator. The observed tail fraction and shrinkage are not calibrated affinity or native-success probabilities, and related descendants are not independent evidence.",
+      "evidence_ids": [
+        "outcome/tail_regularization",
+        "outcome/alias_credit",
+        "outcome/censoring"
+      ]
+    }
+  ],
+  "updates": {},
+  "extensions_ready": true,
+  "rationale": "The locked task tests the TO12 development candidate on new batches with no adaptation. Its prior development affinity advantage came from a small adaptive panel with mixed batch signs and material strain/no-elite tradeoffs; TO13’s two negative batch changes justify restoring TO12 mass but not predicting a confirmation gain. Preserve the exact registered reference, controls, and post-boundary native continuation so the new batches assess the already selected program.",
+  "counterevidence": [
+    "TO12’s paired development comparison to TO09 has opposite batch signs, and its development sample is not independent confirmation.",
+    "TO12 has zero valid elites and elevated p90 strain; TO06 has a stronger quality profile and remains the fallback.",
+    "TO13 virtual-mass removal regressed in both batches; that favors rollback to TO12 but does not prove TO12 superiority on fresh batches.",
+    "Mean future censoring is 0.9042577030812327; extinct branches have unknown outcomes. Copy families and descendants are related, and the count-shrunk tail prior is a heuristic rather than a calibrated probability."
+  ]
+}

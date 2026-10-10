@@ -1,0 +1,71 @@
+{
+  "title": "Outcome evidence scope tool readback",
+  "purpose": "Verify reporting scope for base geometry and matched geometry with the newly registered report-only tool. No reward, generation or frozen Agent configuration was changed.",
+  "execution_order": [
+    {
+      "tool": "scope_geometry",
+      "returncode": 0
+    },
+    {
+      "tool": "scope_matched_geometry",
+      "returncode": 0
+    }
+  ],
+  "scopes": [
+    {
+      "scope": "geometry",
+      "prefix": "outcome/geometry/",
+      "prefix_matches_expected": true,
+      "feature_count_from_output": 76,
+      "feature_count_reported": 76,
+      "minimum_q_from_feature_rows": 0.038545516174459324,
+      "minimum_q_reported": 0.038545516174459324,
+      "q_below_0_05_from_feature_rows": 2,
+      "corrected_significant_reported": 2,
+      "evidence_sha256": "06a19cba3b855c6b2abc482e05a596a08b6ec23d3cf73b91b1a2d8db13e7915a",
+      "source_tool_sha256": "22cba6dc290e6bd0b667ee6d1b498b65f1914d5ecc8eeaf45342e1a02f8113d0",
+      "output_path": "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/terminal_outcome15_20261010/scope_verified/geometry.json",
+      "output_sha256": "0cd32cb547814d4095e9734d8940ac6ff429950cafb05941e528b4251c03c1a0",
+      "receipt_path": "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/terminal_outcome15_20261010/tool_receipts/scope_geometry.json",
+      "receipt_sha256": "e8971a4115c117013233fed92396a5b2c3f88343cf23d2f9150a48ba3b1b2a8c",
+      "plan_path": "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/terminal_outcome15_20261010/tool_plans/scope_geometry.json",
+      "plan_sha256": "584886b13ae96a3a0ba1af301868ea5cac39d892744fd9ad1ed2f7bfddc17271",
+      "receipt_returncode": 0,
+      "receipt_inputs_unchanged": true,
+      "receipt_output_matches": true,
+      "support": null
+    },
+    {
+      "scope": "matched_geometry",
+      "prefix": "outcome/matched/",
+      "prefix_matches_expected": true,
+      "feature_count_from_output": 137,
+      "feature_count_reported": 137,
+      "minimum_q_from_feature_rows": 0.9753044394568644,
+      "minimum_q_reported": 0.9753044394568644,
+      "q_below_0_05_from_feature_rows": 0,
+      "corrected_significant_reported": 0,
+      "evidence_sha256": "649fb28030fedb25318a0750f2f37261d47318b32bbb2fa105be34c7267c1d2a",
+      "source_tool_sha256": "22cba6dc290e6bd0b667ee6d1b498b65f1914d5ecc8eeaf45342e1a02f8113d0",
+      "output_path": "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/terminal_outcome15_20261010/scope_verified/matched_geometry.json",
+      "output_sha256": "77cb1aec758690d5cfd067ebb84cf778727c08e52027f8d4f5892a8edb1375e7",
+      "receipt_path": "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/terminal_outcome15_20261010/tool_receipts/scope_matched_geometry.json",
+      "receipt_sha256": "bb1f3c7a357ab41ee6a43460f333cb276f346dad12dfde817ec3e03041a1f884",
+      "plan_path": "D:/llm_controlled_generation/EvoMolSteer/docs/experiments/terminal_outcome15_20261010/tool_plans/scope_matched_geometry.json",
+      "plan_sha256": "974556061f80b04d83f00a980fe2b63c2385cf9ae81565d47a2dae0cb6629e33",
+      "receipt_returncode": 0,
+      "receipt_inputs_unchanged": true,
+      "receipt_output_matches": true,
+      "support": {
+        "id": "outcome/matched_support",
+        "matching": "Distinct immediate parents, common grandparent, nearest online score, no pair reuse; equal families and batches",
+        "online_tolerance": 0.25,
+        "supported_batch_events": 152,
+        "total_pairs": 266
+      }
+    }
+  ],
+  "interpretation": "The base geometry selection uses outcome/geometry/* (76 entries; two q<0.05). The matched-branch selection uses outcome/matched/* (137 entries; zero q<0.05; min q 0.9753044394568644; support 266 pairs and 152 supported batch-events). The two prefixes represent different evidence families and must not be mixed. The matched packet also carries inherited outcome/geometry/* rows, which are not matched-geometry evidence.",
+  "prior_report_correction": "This readback independently confirms the scope correction in development_review_verified.json. It does not modify that audit or any historical Agent response/configuration.",
+  "all_receipts_and_readbacks_verified": true
+}
