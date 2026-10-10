@@ -82,6 +82,24 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
         raise ValueError('Executed calculation receipt required')
     verify_tool_artifacts(r)
     instruction_files = [ROOT/f'skills/{role.lower()}/SKILL.md', ROOT/'skills/terminal-outcome/SKILL.md']
+    for module in reg.get('instruction_modules', []):
+        source = (ROOT/'skills'/module/'SKILL.md').resolve()
+        if not source.is_relative_to(ROOT/'skills') or not source.is_file():
+            raise ValueError('Registered local instruction module required')
+        instruction_files.append(source)
+    out = Path(output)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out/(role+'.request.json')
+    if path.exists():
+        raise FileExistsError(path)
+    snapshots = {}
+    for source in instruction_files:
+        frozen = out/'skill_snapshots'/(source.parent.name+'.md')
+        frozen.parent.mkdir(exist_ok=True)
+        if frozen.exists() and frozen.read_bytes() != source.read_bytes():
+            raise ValueError('Skill changed during one role pair; use a fresh request revision')
+        frozen.write_bytes(source.read_bytes())
+        snapshots[str(frozen.resolve())] = digest(frozen)
     text = '\n\n'.join(p.read_text(encoding='utf-8').strip() for p in instruction_files)
     text += '\n\nTASK:\n'+reg['task']+'\n'
     text += '\nREGISTERED FORMULAS:\n'+json.dumps(outcome_capabilities(), ensure_ascii=False, sort_keys=True)+'\n'
@@ -90,7 +108,7 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
         'instruction_sha256': hashlib.sha256(text.encode()).hexdigest(), 'evidence_sha256': digest(evidence),
         'bindings': {'evidence': str(Path(evidence).resolve()), 'registry': str(Path(registry).resolve()),
             'registry_sha256': digest(registry), 'receipt': str(Path(receipt).resolve()), 'receipt_sha256': digest(receipt),
-            'skills': {str(p.resolve()): digest(p) for p in instruction_files}},
+            'skills': snapshots, 'skill_sources': {str(p.resolve()): digest(p) for p in instruction_files}},
         'response_contract': {'common_required': ['schema_version', 'agent', 'request_sha256', 'instruction_sha256',
             'evidence_sha256', 'tool_receipt_sha256', 'score_window', 'window', 'evidence_ids', 'rationale', 'counterevidence'],
             'Analyst_required': ['label_source', 'findings', 'extensions_ready'],
@@ -102,11 +120,6 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
             raise ValueError('Actual Analyst response required')
         validate_response(Path(analyst).parent/'Analyst.request.json', analyst)
         request['bindings'].update(analyst=str(Path(analyst).resolve()), analyst_response_sha256=digest(analyst))
-    out = Path(output)
-    out.mkdir(parents=True, exist_ok=True)
-    path = out/(role+'.request.json')
-    if path.exists():
-        raise FileExistsError(path)
     write_json(path, request)
     (out/(role+'.instructions.md')).write_text(text, encoding='utf-8')
     return path

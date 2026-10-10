@@ -33,6 +33,7 @@ Steer 数据与模型 checkpoint 保留；生成固定 seed=42，100 个积分�
    当前使用 GPT6-Luna subagent。请求包含 literal 角色 Skill、terminal-outcome
    模块、注册工具证据、收据、父程序和本轮允许改变的参数。
    请求、Skill、计算输入输出、Analyst 响应和 Designer 响应均校验 SHA256。
+   后续请求保存每份 Skill 的不可变副本，避免修改后续指引时破坏旧轮次的重放校验。
 4. Analyst 必须使用最终解码标签解释优势，同时保留删失、效应量及反证。
    Designer 只能据已校验分析选择注册公式，每轮最多改变一条数值轴。
    基础标签替换轮不改变剂量参数，也不启用匹配分支/尾部比例扩展。
@@ -68,3 +69,10 @@ Steer 数据与模型 checkpoint 保留；生成固定 seed=42，100 个积分�
 
 基础改造完成后才依次探索同祖先/相近即时分的空间、接触及速度对比，以及
 后代尾部比例与分布。失败候选保留报告，恢复已验证父程序继续探索。
+
+已注册但须在基础测试完成后启用的扩展计算器为
+`pool_outcome_alias_credit.py`（完全复制状态的后代分布信用，保持教师坐标选择不变）、
+`analyze_outcome_conditioned_geometry.py`（同祖先/相近即时分的等家族空间效应）
+和 `build_outcome_matched_reference.py`（将有支持的最终家族优势方向编译成
+分支虚拟模式）。后者不使用逐克隆最好后代评分。每个计算器都有独立入口、
+不可变输入输出及收据；每轮反馈由 `summarize_outcome_feedback.py` 绑定进下一轮证据。

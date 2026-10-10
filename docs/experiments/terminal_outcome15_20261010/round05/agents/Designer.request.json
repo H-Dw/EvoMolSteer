@@ -1,0 +1,92 @@
+{
+  "bindings": {
+    "analyst": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\round05\\agents\\Analyst.response.json",
+    "analyst_response_sha256": "a65c52262e727a2758e4c30107d0219d46df63b1f75b7d8ebe00b6b7baa5e9df",
+    "evidence": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\feedback\\round05\\evidence.json",
+    "receipt": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\tool_receipts\\round05.feedback.json",
+    "receipt_sha256": "7b0732abd36717d974fe7450b875f9163f8ef78de6c97d8ec0fe4da01cae65aa",
+    "registry": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\round05\\agents\\registry.json",
+    "registry_sha256": "88f10aa9331c7af098e95b0d8a08910ceed35a242015dc2f4ff1edee988e0914",
+    "skill_sources": {
+      "D:\\llm_controlled_generation\\EvoMolSteer\\skills\\designer\\SKILL.md": "e85d1349e3a240177b8c04e33d7b6d45cbd9262558f3c5468d7bb043b9118109",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\skills\\terminal-outcome-extension\\SKILL.md": "092be9ac0ea2be73c636563ddbba32cab14015634b4809d400ca164d0f3f98df",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\skills\\terminal-outcome\\SKILL.md": "f2eff66367d5e5ab87f292e0ccd1d9ef605500ca42886dd010699a38901185ae"
+    },
+    "skills": {
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\round05\\agents\\skill_snapshots\\designer.md": "e85d1349e3a240177b8c04e33d7b6d45cbd9262558f3c5468d7bb043b9118109",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\round05\\agents\\skill_snapshots\\terminal-outcome-extension.md": "092be9ac0ea2be73c636563ddbba32cab14015634b4809d400ca164d0f3f98df",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\round05\\agents\\skill_snapshots\\terminal-outcome.md": "f2eff66367d5e5ab87f292e0ccd1d9ef605500ca42886dd010699a38901185ae"
+    }
+  },
+  "evidence_sha256": "e5c9b241a1ca0f922204e4504437ddc5b2f1cc035782093c1d06e473c6eabc9d",
+  "instruction_sha256": "ddcd1d9015523c1dee42d72e30f83eac625c27ac1495bba633006b574b2797c0",
+  "label_clock": 1.0,
+  "response_contract": {
+    "Analyst_required": [
+      "label_source",
+      "findings",
+      "extensions_ready"
+    ],
+    "Designer_required": [
+      "analyst_response_sha256",
+      "base_program_id",
+      "updates"
+    ],
+    "common_required": [
+      "schema_version",
+      "agent",
+      "request_sha256",
+      "instruction_sha256",
+      "evidence_sha256",
+      "tool_receipt_sha256",
+      "score_window",
+      "window",
+      "evidence_ids",
+      "rationale",
+      "counterevidence"
+    ],
+    "label_source": "decoded_final",
+    "one_change_per_trial": true,
+    "parameter_limits": {
+      "branch_mixture.region_weight_mix": [
+        0.0,
+        1.0
+      ],
+      "branch_mixture.virtual_mass": [
+        0.0,
+        0.1
+      ],
+      "native_rms_ratio": [
+        0.05,
+        0.8
+      ],
+      "teacher_endpoint_temperature_A2": [
+        0.5,
+        12.0
+      ],
+      "teacher_neighbors": [
+        1,
+        28
+      ],
+      "teacher_score_beta": [
+        0.0,
+        6.0
+      ],
+      "time_ramp_power": [
+        0.0,
+        2.0
+      ]
+    }
+  },
+  "role": "Designer",
+  "schema_version": "terminal-outcome-agent-1.0",
+  "score_window": [
+    0.0,
+    0.5
+  ],
+  "system_instruction": "---\nname: evomolsteer-designer\ndescription: Turn molecular coordinate evidence into a compact, testable differentiable reward design.\n---\n\nYou are Designer. Read the supplied Analyst result, evidence, objective and\nexecution contract. Return a declarative design using the supplied formula\nregistry and response schema, with concise evidence-to-formula justification.\n\nSeparate observed targets from experimental choices. State the coordinate\nobservable, reference and parameter origins, derivative path and expected\nfailure modes. A temporal feature derivative is not a spatial reward gradient.\nKeep guidance within the supplied learned support and use the derivative path\nappropriate to its coordinate representation. Follow the execution contract;\ndo not substitute an affinity-gradient or particle-selection algorithm.\n\nCompare the design with supplied incumbent and counterevidence. Preserve a\ntested incumbent when no evidence justifies a change; an exploratory proposal\nor deferred design is also valid. Judge affinity and strain as distinct outcomes\nusing the task's priorities and evaluation criteria. Do not attribute quality\nloss to a changed chemical graph without a demonstrated mechanism.\n\nReturn the requested program and validation hypotheses.\n\nFor a terminal-outcome task, verify that the compiled teacher labels actually\ncome from the supplied final-quality calculation, rather than intermediate head\nscores. Bind the label source and both score/state clocks to the program.\n\n---\nname: evomolsteer-terminal-outcome\ndescription: Trace decoded final quality into observed selection ancestors and design coordinate rewards from outcome distributions.\n---\n\nUse the task's registered terminal-outcome tools. Perform numerical calculations\nwith these tools, and cite their output IDs and receipts; do not estimate effects\nfrom remembered examples or mental arithmetic. Read the literal score window,\nproposal/state control window, label clock, donor partition and censoring policy.\nSelection at score t acts on the proposal at t+dt. The last controlled state is\nderived from observed clocks, never a fixed number in these instructions.\n\nAnalyst: the primary advantage label is the common-protocol decoded final\naffinity, traced through exact selected-parent indices. An intermediate head\nscore is a conditioning variable and a selector diagnostic, not the final target.\nSeparate intermediate-high/final-ordinary from intermediate-ordinary/final-good.\nReport observed descendant count, valid fraction, affinity distribution and\ntail fraction, with shared ancestors and independent batches identified.\nAn extinct branch has unknown continuation, not zero affinity. These outcomes\nwere observed under selection and are not calibrated native-continuation values.\nKeep coordinate observations inside the supplied score window; final labels can\ncome from later times without extending the feature or guidance support.\n\nComplete and verify the label-source change before using optional extensions.\nIf requested, compare distinct natural branches with a common ancestor and\nsimilar intermediate score: spatial occupancy, geometric contacts, displacements\nand velocities. Use supplied matching tolerances and support counts. Exact\ncopies and zero contrasts remain controls. Contact proxies do not establish\nhydrogen bonds or physical energies. If requested, compare descendant tail\nfractions and quantiles rather than selecting only the best observed child.\nAvoid overstating small-sample maxima, repeated graphs or survivor associations.\n\nDesigner: consume the validated Analyst response and actual calculation receipts.\nUse the registered outcome-conditioned multi-mode coordinate formula. Specify\nteacher selection and prior label separately. Preserve their final-quality\nprovenance in the executable reference; a prose instruction alone is insufficient.\nChoose one registered change per trial and explain its expected numerical effect.\nKeep bounded dose and native flow calibration. Pull endpoint geometry gradients\nthrough the real model endpoint Jacobian; do not differentiate affinity heads,\nadd production forwards, resample particles or veto chemical graph changes.\nContinue native inference after the dynamically derived state boundary.\n\nVerify instruction, tool, label, reference and compiled-program bindings and\nactual trajectory response before judging efficacy. Assess final predicted\naffinity first, secondary strain and validity separately; retain a verified\nincumbent or restore it after a failed trial. Report concise evidence-to-formula\nrationale and counterevidence, not private reasoning transcripts.\n\n---\nname: evomolsteer-terminal-outcome-extension\ndescription: Audit copied-state credit and test conditional spatial or descendant-distribution extensions after foundational outcome labeling.\n---\n\nUse this module only when the supplied completed foundation experiments verify\nactual final-label teacher and trajectory response. A verified implementation\nis not evidence of improved affinity. Report opposite batch effects, validity,\nstrain and tail coverage before accepting an incumbent.\n\nPool observed outcomes of exactly copied generation states before interpreting\ntheir coordinate advantage. Identical states with different eventual scores\ndescribe stochastic descendants, not different preexisting coordinate quality.\nUse unioned terminal identities and the registered graph-aware mean, quantiles,\nvalid fraction and tail fraction. Do not choose the luckiest clone's score as\nthe value of an indistinguishable geometry. Distinguish unchanged teacher-point\nselection from changed pooled prior credit; the calculator must state both.\n\nWhen the task enables a conditional spatial extension, use actual calculated\ndistinct natural branches sharing an ancestor and similar instantaneous score.\nRead the matching tolerance, ancestor and batch support, equal-family weighting,\nzero contrasts and missing events. Compare occupancy, receptor-contact proxies,\ncoordinate displacement and native forecast velocity. Contact features remain\ngeometric proxies; derivatives of temporal fits are not spatial force fields.\n\nWhen the task enables a distribution extension, use the observed offspring\nfraction and distribution rather than a maximum. Counts and related chemical\ngraphs do not create independent repeats or calibrated native success rates.\nA parent-based shrinkage, when registered, is a heuristic and must retain\nunknown extinct futures; its strength requires separate calibration.\n\nKeep every coordinate observation inside the task's score window and derive\ncontrol support from the actual proposal clock. Preserve native continuation\noutside it. Specify one changed module or parameter axis per trial. Keep a\nverified parent available and restore it after regressions; a failed test may\nmotivate a new hypothesis, not overwrite a stronger historical checkpoint.\n\nVerify the immutable literal instructions, executed calculators, teacher fields,\ncompiled reward and actual generation response. If a supported field is null,\nreport the algebraic no-op and missing evidence; do not misdiagnose it as a\nmissing Skill or manufacture a force. If a nonzero change was requested but\nwas not compiled or executed, repair that integration before judging efficacy.\n\nTASK:\nFoundation final-outcome relabeling has actual 51-step response and completed R03/R04 evaluations, but unstable batch effects and strain prevent calling it a stable improvement. For R05 change only pooled exact-copy family credit in teacher priors, keeping teacher coordinates, branch modes and every numeric parameter equal to R04. Use actual alias-credit calculator receipt and prospective feedback. Explain why pooling fixes lucky-copy credit and distinguishes it from teacher selection; retain historical R11 as fallback. No conditional-spatial or tail-weight extensions yet. Designer updates must be empty. Report evidence, limitations, actual implementation gate and anticipated falsification.\n\nREGISTERED FORMULAS:\n{\"choice_contract\": \"Registered historical programs may be retained or changed within declared scalar bounds, or deferred; no architecture or parameter is required to win.\", \"derivative_and_dose\": \"g_t = J_FLOWR_endpoint(X_t)^T * grad_Y R. Use existing native forward graph, no affinity-head gradient or additional production forward. Relative RMS dose and bounded backtracking are supplied program controls; ramp factor = (0.1+0.9*phase)^time_ramp_power.\", \"families\": {\"endpoint_branch_mixture\": {\"formula\": \"Original endpoint-pointcloud modes retain mass 1-alpha; eligible natural branch modes add mass alpha at Y_m+min(raw_branch_RMS_A,0.2)*direction_unit. Regional residual weight=1+region_mix*confidence*(recorded_atom_weight-1). Same robust curvature and logsumexp.\", \"source\": \"branch_mixture_reward.py\", \"support\": \"Actual distinct immediate parents with a common grandparent; missing directions are exact baseline, no chemical graph restriction\"}, \"endpoint_pointcloud\": {\"correspondence\": \"Hungarian squared-distance assignment between detached Y_t and each teacher endpoint; choose K nearest by mean assignment cost C_m.\", \"formula\": \"q_m = mean_i ||Y_t,i - teacher_m,assignment(i)||^2; R = tau*logsumexp_m(log(pi_m)-rho_delta(q_m)/tau).\", \"prior\": \"pi_m = softmax(-C_m/T + beta*(s_m-mean(s)) + optional teacher_base_log_weight_m); detached.\", \"source\": \"endpoint_reward.py + affinity_geometry_reward.py\"}}, \"purpose\": \"Execution definitions shared by every Designer condition, not preferred architectures.\", \"schema_version\": \"coordinate-reward-capabilities-1.0\", \"source_sha256\": {\"affinity_geometry_reward.py\": \"49f6015c5908180c50d7ad02ef2b55ddbf96b6618dafcb3b60a45adbfda29884\", \"branch_mixture_reward.py\": \"fa59fe96ffb50c0e842b0371cd9ed784b914cdf2a8f3451c6d6e2471a1ec08f2\", \"endpoint_reward.py\": \"e2a43d18b5c0c9815d8127e7c24e915e714757ff745915b113fb8849d1edfcf3\", \"persistent_reward.py\": \"36876861fdc021117092c51a55e7dd57161973e5488ca9a451f6d586acaba176\", \"regional_point_reward.py\": \"48f19b1341a9a66da23b7c7d3ac527727e3da17d89fade229158dfcf640e96c0\", \"sparse_reward.py\": \"3605513281a729acb487fa1b5d92c9a68f2d3c31eacc3d3e1fc403af768b3265\"}, \"support\": \"Exact reference clocks and learned window supplied by data; native continuation outside support.\", \"symbols\": {\"Phi\": \"registered coordinate observables divided by recorded feature scale\", \"V\": \"recorded scaled feature variance\", \"X_t\": \"current coordinates\", \"Y_t\": \"native FLOWR endpoint forecast\", \"rho_delta(q)\": \"delta^2 * (sqrt(1 + q/delta^2) - 1)\", \"s_m\": \"recorded teacher score\", \"theta\": \"scalar parameters supplied in program registry\"}}\n",
+  "window": [
+    0.0,
+    0.51
+  ]
+}

@@ -32,6 +32,8 @@ def score(manifest, dataset, scratch, output):
     for cohort in results:
         d = pd.read_csv(out/'results'/cohort/'candidate_metrics.csv')
         candidate = d[d.arm == 'gradient']
+        if len(d[d.arm == 'unguided']):
+            comparisons[cohort+'/within_job_native'] = paired_effect(candidate, d[d.arm == 'unguided'])
         for control, folder, arm in [('native', DOC/'round01/results/R26', 'unguided'),
                                     ('R26_051', DOC/'round01/results/R26', 'gradient'),
                                     ('R11_051', DOC/'round02/results/R11', 'gradient')]:
@@ -48,6 +50,32 @@ def score(manifest, dataset, scratch, output):
                 if execution['initial_state_signatures']['gradient/'+str(batch)] != old_execution['initial_state_signatures'][arm+'/'+str(batch)]:
                     raise ValueError('Cross-campaign paired initial coordinate/atom/bond states differ')
             comparisons[cohort+'/'+control] = paired_effect(candidate, old)
+        executed = read_json(out/'results'/cohort/'inference_config/reward_program.json')
+        binding = executed.get('outcome_binding', {})
+        parent_sha = binding.get('base_program_sha256')
+        if parent_sha:
+            parents = [p for p in (ROOT/'configs/experiments/terminal_outcome15_v1').glob('round*.json')
+                       if '.jobs.' not in p.name and digest(p) == parent_sha]
+            if len(parents) != 1:
+                raise ValueError('Registered candidate parent cannot be identified uniquely')
+            parent = read_json(parents[0])
+            for folder in (DOC/f'round{parent["round"]:02d}/results').glob('*'):
+                old_program = folder/'inference_config/reward_program.json'
+                if not old_program.is_file() or read_json(old_program) != parent:
+                    continue
+                old = pd.read_csv(folder/'candidate_metrics.csv')
+                old = old[(old.arm == 'gradient')&old.batch.isin(candidate.batch.unique())]
+                if len(old) != len(candidate):
+                    continue
+                execution = read_json(out/'results'/cohort/'execution_report.json')
+                prior = read_json(folder/'execution_report.json')
+                for batch in candidate.batch.unique():
+                    key = 'gradient/'+str(batch)
+                    if execution['initial_state_signatures'][key] != prior['initial_state_signatures'][key]:
+                        raise ValueError('Candidate and registered immediate parent initial states differ')
+                comparisons[cohort+'/immediate_parent'] = {**paired_effect(candidate, old),
+                    'parent_round': parent['round'], 'parent_program_id': parent['program_id'],
+                    'parent_program_sha256': parent_sha}
     original = pd.read_csv(ROOT/'docs/experiments/guidance_vs_steer_20261007/steer_full1000/candidate_metrics.csv')
     summary = {'round': plan['round'], 'status': 'complete', 'seed': 42, 'results': results,
         'paired_comparisons': comparisons, 'historical_steer_unpaired': summarize_tail(original, threshold),

@@ -22,6 +22,7 @@ if __name__ == '__main__':
     p.add_argument('--summary-key')
     p.add_argument('--evidence', help='Registered extension/feedback evidence override')
     p.add_argument('--receipt', help='Receipt for the overridden evidence')
+    p.add_argument('--module', action='append', default=[])
     a = p.parse_args()
     output = DOC/f'round{a.round:02d}'/a.revision
     registry_path = output/'registry.json'
@@ -29,6 +30,7 @@ if __name__ == '__main__':
     reference = CFG/'references'/(a.kind+'.json.gz')
     if not registry_path.exists():
         write_json(registry_path, {'task': a.task, 'round': a.round, 'allowed_updates': a.allowed_update,
+            'instruction_modules': a.module,
             'base_programs': {read_json(base)['program_id']: {'path': str(base), 'sha256': digest(base)}},
             'reference': {'path': str(reference), 'sha256': digest(reference)},
             'formula_registry': ['endpoint_pointcloud', 'endpoint_branch_mixture'],

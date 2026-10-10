@@ -1,0 +1,40 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "f3b63ec74f90dad6b59bf1304a982fd75b0bc69c4cf975347f458b231112342f",
+  "instruction_sha256": "4eec9f61dd54685ff9811bb75249019d45d4d42c9f3f1444f683c7a4c00b781c",
+  "evidence_sha256": "e5c9b241a1ca0f922204e4504437ddc5b2f1cc035782093c1d06e473c6eabc9d",
+  "tool_receipt_sha256": "7b0732abd36717d974fe7450b875f9163f8ef78de6c97d8ec0fe4da01cae65aa",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/alias_credit",
+    "outcome/prospective"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "The registered alias-credit calculator completed successfully (pooled_mean receipt SHA-256 80bf7306e66078c26fdbd19b121225458e12b67b9a1adc6f33585866ecead70e; feedback evidence binds its alias output). It pooled decoded-final graph-aware means across exact coordinate/chemical-state copies, used 1,203 teacher records, left coordinate selection unchanged, and set tail_weight=0. Copy-count quantiles were 1, 2, 2.5. The batch-equal mean quality change was -0.01121; its reported quantiles were [-0.55727, 0, 0, 0, 0.02637]. This supports pooling indistinguishable copies so a lucky descendant is not treated as a different teacher point, while also showing the pooled credit is not uniformly favorable.",
+      "evidence_ids": ["outcome/alias_credit", "outcome/labels"]
+    },
+    {
+      "finding": "The prospective feedback confirms the foundation label wiring and actual 51-step response for R03/R04: label_source=decoded_final, score support [0, 0.5], state control through 0.51, agent binding present for the decoded-label arms, and 100% positive first-order FLOWR responses in each of two reported batches. These first-order VJP gains are implementation/response checks, not measured final-affinity gains. In the paired final-metric panels, R03 R26_mean versus R26_051 averaged +0.01979 pIC50 with batch means -0.08799 and +0.12757 (n=2; reported 95% interval [-0.08799, 0.12757]); R04 R11_mean versus R11_051 averaged +0.01702 with batch means -0.09711 and +0.13114 (n=2; interval [-0.09711, 0.13114]). Runtime response therefore does not establish stable efficacy.",
+      "evidence_ids": ["outcome/prospective", "outcome/clocks"]
+    },
+    {
+      "finding": "The R05 design comparison should change only pooled exact-copy family prior credit relative to the bound terminal_outcome15_round04 base: keep teacher-point coordinates and branch modes fixed and retain every numeric parameter. This separates the credit assignment for copies of one identical state from which teacher point is selected. The pooled reference is bound at SHA-256 d4f7aad1801a6e1934624f0d1e468d9ca58b85fee63058f794b96e88f31b2e2f. There is no R05 prospective result yet; the R03/R04 panels are development evidence, and historical R11 remains the fallback.",
+      "evidence_ids": ["outcome/alias_credit", "outcome/prospective", "outcome/labels"]
+    }
+  ],
+  "extensions_ready": false,
+  "rationale": "Pooling exact copies is justified as a credit-assignment correction: identical preexisting teacher coordinates cannot be distinguished by their stochastic descendant outcomes, so a single lucky clone should not receive a distinct coordinate advantage. The registered calculator changes pooled prior credit while explicitly leaving coordinate selection unchanged. For R05, keep the R04 teacher coordinates, branch modes and numeric values constant and compare only the pooled family prior; retain R11 as fallback. The R03/R04 first-order response verifies a working endpoint pathway, while paired final metrics have opposing batch signs and wide two-batch intervals. Thus the rationale is to test less luck-sensitive credit, not to claim improved affinity. Conditional spatial and tail-reward extensions remain disabled.",
+  "counterevidence": [
+    "The alias-credit batch-equal mean change is slightly negative (-0.01121); its lower-tail quantile is -0.55727 while the median and two adjacent quartiles are zero. Pooling may remove lucky-copy overcredit, but this retrospective distribution does not promise a gain.",
+    "R03 and R04 paired final-metric comparisons each use two development batches with opposite batch means and intervals spanning zero. The 100% positive first-order response is a VJP diagnostic, not a second-forward affinity improvement.",
+    "Feedback reports high censoring in the underlying outcomes (mean 0.9043); copied-family descendant distributions are selection-conditioned and not calibrated native success probabilities. Related descendants do not add independent evidence.",
+    "No prospective R05 pooled-credit evaluation exists yet. Do not infer a matched-branch or tail-reward effect from tail_weight=0 or from this copy-family calculation; retain the historical R11 fallback if the paired test regresses."
+  ]
+}
