@@ -1,0 +1,38 @@
+{
+  "schema_version": "family-mean-diagnostic-note-1.0",
+  "source": "historical Steer campaign main1000_w050; not R05 generated data",
+  "tool_id": "terminal_outcome",
+  "receipt_sha256": "ea69ad91a4d12c442148d2132f798406d9c91f79d0504b272d81f23fc7329f71",
+  "output_hashes": {
+    "evidence.json": "06a19cba3b855c6b2abc482e05a596a08b6ec23d3cf73b91b1a2d8db13e7915a",
+    "event_support.csv": "6dfb2ba5162c39858803096826d3f63412ef53b08b93f3d58e9ee7fa7f33630d",
+    "ancestor_outcomes.parquet": "1fc271361fdc8e14e07f9a1e7b3e2f1783ce10df06f38b1edf660a2396457b08",
+    "batch_event_effects.parquet": "0454284c7b268ba2412619d1686842cedf24751edea38e5aca2a5ac0a5098a3f"
+  },
+  "family_ranking": {
+    "changed_batch_events": 26,
+    "total_batch_events": 714,
+    "donor_batches": 14,
+    "changed_event_times": [
+      0.35, 0.38, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 0.47, 0.48, 0.49, 0.5
+    ],
+    "geometric_statistical_unit": "One exact-copy state family per event, then equal generation batches",
+    "credit_rule": "Pool all observed descendant graphs before ranking teacher geometry; extinct families remain unknown",
+    "label_rule": "Decoded final valid-molecule score mean per chemical graph, then equal-graph mean per observed ancestor; no best-copy score"
+  },
+  "support_and_limits": {
+    "score_window": [0.0, 0.5],
+    "control_window": [0.0, 0.51],
+    "known_families_per_batch_event_range": [1, 25],
+    "mean_censored_fraction": 0.9042577030812327,
+    "interpretation": "Teacher selection changes were observed in 26/714 historical batch-event cells, concentrated late in the window. This diagnoses a ranking difference; it does not show that family-mean ranking improves prospective affinity.",
+    "censoring": "Extinct families have unknown futures; lineage clones, family members, and repeated event times are not independent observations.",
+    "scope": "No reward formula or parameters were changed by this diagnostic. R05 metrics are available, but this note makes no R06 design or inference choice."
+  },
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/family_ranking"
+  ]
+}

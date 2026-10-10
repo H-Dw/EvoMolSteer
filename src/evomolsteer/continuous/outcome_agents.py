@@ -37,6 +37,7 @@ def run_tool(plan_path, receipt):
              'outcome_summary': ('summarize_outcome_labels.py', 'outcome_summary.py'),
              'outcome_feedback': ('summarize_outcome_feedback.py', 'outcome_feedback.py'),
              'outcome_alias_credit': ('pool_outcome_alias_credit.py', 'outcome_alias_credit.py'),
+             'outcome_path_coverage': ('analyze_outcome_path_coverage.py', 'outcome_path_coverage.py'),
              'outcome_matched_reference': ('build_outcome_matched_reference.py', 'outcome_matched_reference.py'),
              'outcome_conditioned_geometry': ('analyze_outcome_conditioned_geometry.py', 'outcome_conditioned_geometry.py')}
     if plan.get('tool_id') not in specs or set(plan) != {'tool_id', 'arguments', 'input_files', 'output_files'}:
@@ -53,6 +54,8 @@ def run_tool(plan_path, receipt):
         flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output', '--tail-weight'}
     elif plan['tool_id'] == 'outcome_matched_reference':
         flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output', '--score-tolerance'}
+    elif plan['tool_id'] == 'outcome_path_coverage':
+        flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output'}
     args = plan['arguments']
     if len(args) % 2 or set(args[::2])-flags or len(set(args[::2])) != len(args[::2]):
         raise ValueError('Literal registered argument pairs required')
@@ -61,7 +64,10 @@ def run_tool(plan_path, receipt):
         raise FileExistsError('Immutable tool output already exists')
     script, module = specs[plan['tool_id']]
     command = [sys.executable, str(ROOT/'scripts'/script), *args]
-    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    try:
+        p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace')
+    except KeyboardInterrupt:
+        p = subprocess.CompletedProcess(command, 130, '', 'Calculation interrupted; no successful receipt inferred')
     outputs = {str(Path(v).resolve()): digest(v) for v in plan['output_files'] if Path(v).is_file()}
     result = {'schema_version': VERSION, 'tool_id': plan['tool_id'], 'plan_sha256': digest(plan_path),
         'command': command, 'returncode': p.returncode, 'input_files': files, 'output_files': outputs,
@@ -115,6 +121,9 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
             'Designer_required': ['analyst_response_sha256', 'base_program_id', 'updates'],
             'label_source': 'decoded_final', 'parameter_limits': UPDATES,
             'one_change_per_trial': True}}
+    request['response_contract']['extensions_ready_definition'] = (
+        'Foundation final-label implementation verified in completed runtime reports; '
+        'does not assert improved affinity. Enabled modules are determined separately by the registered task.')
     if role == 'Designer':
         if not analyst:
             raise ValueError('Actual Analyst response required')

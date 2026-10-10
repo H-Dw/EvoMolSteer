@@ -8,7 +8,7 @@ if __name__ == '__main__':
         p.add_argument('--'+key, required=True)
     p.add_argument('--score-start', type=float, default=0.)
     p.add_argument('--score-end', type=float, default=.5)
-    p.add_argument('--mode', choices=['mean', 'distribution', 'p75', 'instantaneous', 'hierarchical'], default='mean')
+    p.add_argument('--mode', choices=['mean', 'family_mean', 'distribution', 'p75', 'instantaneous', 'hierarchical'], default='mean')
     p.add_argument('--shrinkage', type=float, default=2.)
     p.add_argument('--budget', type=int, default=2)
     p.add_argument('--threshold', type=float, default=8.258901977539063)

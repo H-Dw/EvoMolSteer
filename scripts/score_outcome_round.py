@@ -34,6 +34,23 @@ def score(manifest, dataset, scratch, output):
         candidate = d[d.arm == 'gradient']
         if len(d[d.arm == 'unguided']):
             comparisons[cohort+'/within_job_native'] = paired_effect(candidate, d[d.arm == 'unguided'])
+        # Frozen confirmation jobs carry clock-matched historical controls on
+        # the same new batches. They must not silently reuse development data.
+        for control in results:
+            if control == cohort:
+                continue
+            control_table = pd.read_csv(out/'results'/control/'candidate_metrics.csv')
+            control_table = control_table[(control_table.arm == 'gradient')&
+                                          control_table.batch.isin(candidate.batch.unique())]
+            if len(control_table) != len(candidate):
+                continue
+            execution = read_json(out/'results'/cohort/'execution_report.json')
+            control_execution = read_json(out/'results'/control/'execution_report.json')
+            for batch in candidate.batch.unique():
+                key = 'gradient/'+str(batch)
+                if execution['initial_state_signatures'][key] != control_execution['initial_state_signatures'][key]:
+                    raise ValueError('Same-round candidate/control initial states differ')
+            comparisons[cohort+'/same_round_'+control] = paired_effect(candidate, control_table)
         for control, folder, arm in [('native', DOC/'round01/results/R26', 'unguided'),
                                     ('R26_051', DOC/'round01/results/R26', 'gradient'),
                                     ('R11_051', DOC/'round02/results/R11', 'gradient')]:

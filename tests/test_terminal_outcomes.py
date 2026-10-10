@@ -4,6 +4,19 @@ import pytest
 from evomolsteer.continuous.terminal_outcome import outcome_labels, observed_support, choose_teachers, utility
 
 
+def test_family_credit_prevents_luckiest_copy_winning_teacher_rank():
+    from evomolsteer.continuous.terminal_outcome import copied_state_outcomes
+    metrics = pd.DataFrame({'slot': [0, 1, 2], 'valid_connected': [True]*3,
+        'pic50_on_rescore': [9., 6., 8.], 'smiles': ['lucky', 'ordinary', 'stable']})
+    lab = outcome_labels(np.array([[0, 1, 2]]), metrics, 8.5)[0]
+    parents = np.array([0, 0, 2])
+    family, _ = copied_state_outcomes(lab, parents, metrics, 8.5)
+    xyz = np.array([[[0., 0., 0.]], [[0., 0., 0.]], [[1., 0., 0.]]])
+    assert choose_teachers(xyz, utility(lab, 'mean'), 1) == [0]
+    assert choose_teachers(xyz, utility(family, 'family_mean'), 1) == [2]
+    assert family.loc[0, 'terminal_mean'] == family.loc[1, 'terminal_mean'] == 7.5
+
+
 def test_final_labels_censoring_and_duplicate_graph_mean():
     selected = np.array([[0, 0, 2], [0, 1, 1]], dtype=int)
     metrics = pd.DataFrame({'slot': [0, 1, 2], 'valid_connected': [True]*3,

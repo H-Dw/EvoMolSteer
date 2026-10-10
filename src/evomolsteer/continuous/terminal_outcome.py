@@ -61,7 +61,7 @@ def observed_support(clock, state, resampled, score_window):
 
 
 def utility(labels, mode, tail_weight=0., parent_quality=None, shrinkage=2.):
-    if mode in ('mean', 'instantaneous'):
+    if mode in ('mean', 'instantaneous', 'family_mean'):
         return labels.terminal_mean.to_numpy(float)
     if mode == 'distribution':
         return labels.terminal_mean.to_numpy(float)+tail_weight*labels.tail_fraction.to_numpy(float)
@@ -98,6 +98,26 @@ def choose_teachers(xyz, scores, budget):
     return chosen
 
 
+def copied_state_outcomes(labels, parents, metrics, threshold):
+    """Assign unioned observed family credit before ranking identical states."""
+    from .outcome_alias_credit import pooled_outcome
+    family = labels.copy()
+    credits = {}
+    for parent in np.unique(parents):
+        ids = parents == parent
+        # Unknown and observed-invalid families remain unavailable targets.
+        if not labels.loc[ids, 'valid_n'].sum():
+            family.loc[ids, 'terminal_mean'] = np.nan
+            continue
+        slot = int(np.flatnonzero(ids)[0])
+        credit = pooled_outcome(labels, parents, slot, metrics, threshold)
+        credits[int(parent)] = credit
+        for key in ('terminal_mean', 'terminal_p75', 'tail_fraction', 'valid_fraction',
+                    'observed_n', 'unique_graph_n', 'terminal_slot_ids'):
+            family.loc[ids, key] = credit[key]
+    return family, credits
+
+
 def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(0., .5),
           mode='mean', budget=2, threshold=8.258901977539063, tail_weight=.5,
           branch_mode='instantaneous', score_tolerance=.25, shrinkage=2.):
@@ -121,6 +141,14 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
         com = np.asarray(read_json(source/f'frame_batch_{batch:03d}.json')['target_com'])[:, None, :]
         with open_trajectory(path) as tr:
             clock, state, selected, _, _, resampled = validate_lineage(tr)
+            # NPZ indexing decompresses a whole member on each access. Load
+            # consumed arrays once per batch, then discard them at batch end.
+            # This is a bounded memory working set, never a persisted cache.
+            fields = tr
+            if mode == 'family_mean':
+                fields = {name: np.asarray(tr[name]) for name in (
+                    'predicted_coords', 'current_coords', 'proposal_coords', 'pic50_on',
+                    'current_atomics', 'current_bonds', 'current_charges')}
             steps, window = observed_support(clock, state, resampled, score_window)
             if control_window is not None and window != control_window:
                 raise ValueError('Donor clocks disagree')
@@ -133,19 +161,36 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
                     'teacher_slots': [], 'teacher_outcomes': [], 'teacher_base_log_weight': [],
                     'teacher_contrast_direction_unit': [], 'teacher_contrast_confidence': [],
                     'teacher_contrast_atom_weight': [], 'teacher_contrast_provenance': []})
-                xyz = np.asarray(tr['predicted_coords'][step], float)*cfg['coord_scale']+com
-                current = np.asarray(tr['current_coords'][step], float)*cfg['coord_scale']+com
-                proposal = np.asarray(tr['proposal_coords'][step], float)*cfg['coord_scale']+com
-                online = np.asarray(tr['pic50_on'][step], float)
+                xyz = np.asarray(fields['predicted_coords'][step], float)*cfg['coord_scale']+com
+                current = np.asarray(fields['current_coords'][step], float)*cfg['coord_scale']+com
+                proposal = np.asarray(fields['proposal_coords'][step], float)*cfg['coord_scale']+com
+                online = np.asarray(fields['pic50_on'][step], float)
                 lab = labels[step].copy()
+                family_credit = {}
+                statistical_ids = np.arange(len(lab))
+                family_lab = lab
+                if mode == 'family_mean':
+                    parents = selected[step-1] if step else np.arange(len(lab))
+                    for parent in np.unique(parents):
+                        ids = parents == parent
+                        for field in ('current_coords', 'current_atomics', 'current_bonds', 'current_charges'):
+                            values = fields[field][step][ids]
+                            if not np.array_equal(values, np.broadcast_to(values[0], values.shape)):
+                                raise ValueError('Ranked family is not an identical copied state')
+                    family_lab, family_credit = copied_state_outcomes(lab, parents, metrics[metrics.batch == batch], threshold)
+                    statistical_ids = np.unique(parents, return_index=True)[1]
                 if step:
                     parent_quality = labels[step-1].terminal_mean.to_numpy(float)[selected[step-1]]
                 else:
                     bm = metrics[(metrics.batch == batch)&metrics.valid_connected&metrics.pic50_on_rescore.notna()]
                     parent_quality = np.full(len(lab), bm.groupby('smiles').pic50_on_rescore.mean().mean())
-                quality = utility(lab, mode, tail_weight, parent_quality, shrinkage)
+                quality = utility(family_lab, mode, tail_weight, parent_quality, shrinkage)
                 rank_score = online if mode == 'instantaneous' else quality
                 chosen = choose_teachers(xyz, rank_score, budget)
+                family_selection_changed = None
+                if mode == 'family_mean':
+                    node_choice = choose_teachers(xyz, lab.terminal_mean.to_numpy(float), budget)
+                    family_selection_changed = set(parents[chosen]) != set(parents[node_choice])
                 saved = next((v for v in base['frames'] if abs(v['time']-time) <= 2e-6), None) if mode == 'instantaneous' else None
                 original_indices = []
                 if saved is not None:
@@ -159,11 +204,15 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
                 lab['batch'], lab['step'], lab['score_time'], lab['state_time'] = batch, int(step), time, float(state[step])
                 lab['online_score'] = online
                 lab['utility'] = quality
+                if mode == 'family_mean':
+                    lab['copy_family_mean'] = quality
                 label_rows.append(lab)
                 displacement = np.sqrt(np.sum((proposal-current)**2, axis=-1).mean(1))
                 z = np.column_stack([numpy_geometry(xyz, np.asarray(base['landmarks_A']), np.asarray(base['origin_A'])),
                                      displacement, displacement/(state[step]-clock[step])])
                 known = np.isfinite(quality)
+                if mode == 'family_mean':
+                    known &= np.isin(np.arange(len(lab)), statistical_ids)
                 effect = np.full(len(features), np.nan)
                 if known.sum() >= 2 and np.ptp(quality[known]) > 1e-12:
                     lo, hi = np.quantile(quality[known], [.25, .75])
@@ -178,6 +227,8 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
                 rho = float(spearmanr(online[known], quality[known]).statistic) if known.sum() >= 3 and np.ptp(quality[known]) else np.nan
                 events.append({'batch': batch, 'time': time, 'known': int(known.sum()), 'censored': int((lab.observed_n == 0).sum()),
                     'instant_final_spearman': rho, 'teachers': len(chosen)})
+                if mode == 'family_mean':
+                    events[-1]['copy_family_selection_changed'] = family_selection_changed
                 for teacher_index, slot in enumerate(chosen):
                     old_k = original_indices[teacher_index] if original_indices else None
                     f['teacher_endpoint_A'].append(saved['teacher_endpoint_A'][old_k] if old_k is not None else xyz[slot].tolist())
@@ -185,6 +236,8 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
                     f['teacher_batches'].append(batch)
                     f['teacher_slots'].append(int(slot))
                     outcome = lab.iloc[slot].to_dict()
+                    if mode == 'family_mean':
+                        outcome['alias_family_credit'] = family_credit[int(parents[slot])]
                     f['teacher_outcomes'].append(outcome)
                     f['teacher_base_log_weight'].append(float(-np.log(len(chosen))))
                     direction, confidence, weight = np.zeros_like(xyz[slot]), 0., np.ones(xyz.shape[1])
@@ -220,7 +273,8 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
         sources=sources, reference_variant='decoded-outcome-distribution-1.0',
         label_semantics=('Recorded instantaneous on-target affinity head; boundary-only matched control' if mode == 'instantaneous' else
                          'Decoded final valid molecule mean per chemical graph, then equal graph mean per observed ancestor'+
-                         ('; heuristic graph-count-weighted shrinkage toward observed parent mean, not a calibrated posterior' if mode == 'hierarchical' else '')),
+                         ('; heuristic graph-count-weighted shrinkage toward observed parent mean, not a calibrated posterior' if mode == 'hierarchical' else '')+
+                         ('; unioned exact-copy family credit before teacher ranking; one family per geometric contrast' if mode == 'family_mean' else '')),
         teacher_selection={'mode': mode, 'per_batch_budget': budget, 'tail_weight': tail_weight, 'branch_mode': branch_mode,
                            'shrinkage': shrinkage if mode == 'hierarchical' else 0.},
         label_clock=1., threshold_pic50=threshold, future_semantics='Observed Steer descendants; extinct future censored',
@@ -267,6 +321,12 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
         'limitations': ['Retrospective Steer-conditioned quality, not native rollout probability',
                         'Whole-window contrasts condition on observed future; not causal feature effects',
                         'No affinity-head derivative, physical-energy inference or chemical-graph gate']}
+    if mode == 'family_mean':
+        packet['evidence_items'].append({'id': 'outcome/family_ranking',
+            'changed_batch_events': sum(e['copy_family_selection_changed'] for e in events),
+            'total_batch_events': len(events),
+            'geometric_statistical_unit': 'One exact-copy state family per event, then equal generation batches',
+            'credit': 'Pool all observed descendant graphs before ranking teacher geometry; extinct families remain unknown'})
     write_json(out/'evidence.json', packet)
     write_json(out/'manifest.json', {**{k: packet[k] for k in ['window', 'score_window', 'reference_sha256', 'metrics_sha256', 'source_code_sha256']},
         'sources': sources, 'outputs': {p.name: {'sha256': digest(p), 'bytes': p.stat().st_size} for p in out.iterdir() if p.is_file()}})

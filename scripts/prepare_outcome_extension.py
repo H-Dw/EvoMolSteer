@@ -45,6 +45,11 @@ def prepare(kind, evidence, key, labels, tail_weight=0., tolerance=.25):
         args += ['--metrics', str(metrics), '--tail-weight', str(tail_weight)]
         inputs += [metrics]
         files += [output/'reference.json.gz', output/'alias_credit.csv']
+    elif kind == 'path_coverage':
+        tool = 'outcome_path_coverage'
+        args += ['--metrics', str(metrics)]
+        inputs += [metrics]
+        files += [output/'coverage_by_batch_event.csv', output/'coverage_by_event.csv']
     else:
         raise ValueError('Registered sequential extension required')
     target = DOC/'tool_plans'/(key+'.json')
@@ -58,7 +63,7 @@ def prepare(kind, evidence, key, labels, tail_weight=0., tolerance=.25):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('--kind', choices=['matched_geometry', 'matched_field', 'pooled_credit'], required=True)
+    p.add_argument('--kind', choices=['matched_geometry', 'matched_field', 'pooled_credit', 'path_coverage'], required=True)
     p.add_argument('--evidence', required=True)
     p.add_argument('--key', required=True)
     p.add_argument('--labels', default='docs/experiments/terminal_outcome15_20261010/mining/mean/ancestor_outcomes.parquet')
