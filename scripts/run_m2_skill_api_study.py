@@ -122,8 +122,8 @@ def indices(x):
 for p in root.rglob('*.json'):
  try: used=set(indices(json.loads(p.read_text())))
  except (ValueError,UnicodeError): continue
- if used.intersection({2000,2001,2002,2003}): print(p)
-""".replace("REPO", repr(self.config["remote_repo"]))
+ if used.intersection(BATCHSET): print(p)
+""".replace("REPO", repr(self.config["remote_repo"])).replace("BATCHSET", repr(set(activation["screen_batches"])))
             result = shell(client, shlex.join([self.config["remote_python"], "-c", check]))
             # Own new study files are expected after deployment; any historical
             # occurrence requires manual collision assessment before generation.
@@ -141,7 +141,7 @@ for p in root.rglob('*.json'):
             return self.state["program_results"][key]
         activation = read_json(self.study / "activation.json")
         batches = activation["screen_batches"]
-        name = "DSF_" + signature[:12] + "_" + ("controls" if "," in arms else "g")
+        name = "DSF_" + signature[:12] + "_b" + str(batches[0]) + "_" + ("controls" if "," in arms else "g")
         spec_path = self.config_root / "jobs" / (name + ".json")
         spec = {"name": name, "arms": arms, "batch": 50, "batches": batches,
             "n": 50 * len(batches), "seed": 42, "steps": 100,
@@ -304,7 +304,7 @@ print(json.dumps({'removed':removed}))
         write_json(self.study / "transport_records" / (name + ".retirement.json"), record)
 
     def run(self):
-        if not (self.study / "activation.json").exists(): prepare(self.repo, self.study)
+        if not (self.study / "activation.json").exists(): prepare(self.repo, self.study, self.config.get("screen_batches"))
         self.preflight()
         activation = read_json(self.study / "activation.json")
         self.save(status="running", phase="P0")

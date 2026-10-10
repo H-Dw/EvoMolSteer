@@ -51,6 +51,23 @@ def test_no_fallback_or_fake_success(tmp_path, monkeypatch):
     assert not (tmp_path / "a.json").exists()
 
 
+def test_one_neutral_json_repair_preserves_failed_attempt(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "unit-secret")
+    sent = []
+    def respond(request):
+        sent.append(json.loads(request.content))
+        content = '{"ok":true invalid}' if len(sent) == 1 else '{"ok":true}'
+        return httpx.Response(200, json={"model": "deepseek-flash", "choices": [
+            {"finish_reason": "stop", "message": {"content": content}}]})
+    path = tmp_path / "a.json"
+    assert call_json([{"role": "user", "content": "JSON only"}], SCHEMA, path,
+                     transport=httpx.MockTransport(respond), input_store=tmp_path / "inputs") == {"ok": True}
+    assert len(sent) == 2 and sent[1]["messages"][0] == sent[0]["messages"][0]
+    assert "Do not add research advice" in sent[1]["messages"][-1]["content"]
+    assert path.with_suffix(".attempt_1.invalid.txt").exists()
+    assert len(read_json(path.with_suffix(".receipt.json"))["interface_repairs"]) == 1
+
+
 @pytest.mark.parametrize("module", ["A1", "A2", "A3", "A4", "D1", "D2", "D3", "D4"])
 def test_exact_module_drop_and_alternative(module):
     activation = read_json(STUDY / "activation.json")

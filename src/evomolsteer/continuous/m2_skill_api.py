@@ -57,7 +57,7 @@ def compact_tables(entries):
     return out
 
 
-def prepare(repo, study):
+def prepare(repo, study, screen_batches=None):
     repo, study = Path(repo), Path(study)
     if (study / "activation.json").exists():
         raise FileExistsError("Study already frozen; resume or choose a new path")
@@ -130,7 +130,7 @@ def prepare(repo, study):
         "backend": "real DeepSeek API", "agent_model": "deepseek-flash",
         "model_fallback": False, "thinking": "disabled", "chain_replicates": 6,
         "wording_replicates": 2, "fresh_calls_per_wording": 3, "master_seed": 42,
-        "screen_batches": [2000, 2001, 2002, 2003], "batch_size": 50,
+        "screen_batches": screen_batches or original["generation_plan"]["screen_batches"], "batch_size": 50,
         "conditions": active, "phase_order": ["P0", "P1", "P2-G", "P2-U"],
         "bound_inputs": packet["sources"], "evidence_sha256": digest(study / "evidence.json"),
         "analyst_freeze": "Six P_struct Analyst outputs; fixed before P1. Analyst deletion/alternative completes before Designer calls",
