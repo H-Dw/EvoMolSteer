@@ -1,0 +1,55 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "2f6fcea14c5ee002417d54007ad0d144f287ecb92ccac5248bae16708d81ea23",
+  "instruction_sha256": "adb23438e85006d985a1d97b2d4772ea18c0b71c526510dd3864c7c4ee7bda66",
+  "evidence_sha256": "046c35ff2c05116147a99ac07e315b1c5aafdd6d7161acdb3adf81480a05331b",
+  "tool_receipt_sha256": "4b86d90f113b0a42517d77981f7331080d48c8c28c6adc75954a2681686658b6",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/rank_crossover",
+    "outcome/descendants",
+    "outcome/geometry/landmark_08_occupancy3",
+    "outcome/geometry/landmark_08_occupancy5",
+    "outcome/geometry/landmark_08_softmin",
+    "outcome/geometry/coordinate_displacement_RMS_A",
+    "outcome/geometry/pair_kernel_5.0"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "For the historical R11 comparison, replace instantaneous teacher selection and its prior label with the computed decoded-final equal-graph-mean reference. The immediate score is a conditioning variable and selector diagnostic only; it is not the final target. The final label is recorded at clock 1.0. Coordinate features remain supported only over score time 0.0–0.5, with the derived proposal/state control window ending at 0.51 over 51 events and 14 donor batches.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks"]
+    },
+    {
+      "finding": "Current score rank does not determine final quality. Under the event-wise current-score Q75 and donor-derived final cutoffs, intermediate-high/final-ordinary ancestors are 0.3721 of the reported batch-equal observations (mean final affinity 7.5968, valid fraction 0.9658, tail fraction 0.0339); intermediate-other/final-high ancestors are 0.1304 (7.9203, 0.9419, 0.0605). For context, intermediate-high/final-high ancestors are 0.1152 (7.8955, 0.9420, 0.1240). Final-high is affinity >= observed Q75 and strictly > median; final-ordinary is <= median, avoiding overlap on ties. The three listed fractions sum to only about 0.6177 and are not a complete partition.",
+      "evidence_ids": ["outcome/rank_crossover"]
+    },
+    {
+      "finding": "The summary contains 3,387 known and 32,282 censored ancestor observations, mean valid fraction 0.9677 and mean tail fraction 0.0400 at pIC50 threshold 8.2589. Observed descendant-count quantiles are 2, 4, 11 and unique-graph-count quantiles are 1, 2, 5. These records repeat across time and share ancestry; they are descriptive observations, not independent N. Extinct branches have unknown future quality.",
+      "evidence_ids": ["outcome/descendants", "outcome/censoring"]
+    },
+    {
+      "finding": "Across the supported score window, the strongest corrected coordinate contrasts are landmark_08_occupancy3 (effect 2.60e-8, q=0.0415) and landmark_08_occupancy5 (effect 5.06e-5, q=0.0415), each evaluated over 14 batches with same-sign effects in 12/14. These enrichment effects are extremely small and identify only indexed occupancy features, not a fixed chemical motif. landmark_08_softmin has an opposing effect (-0.01798, q=0.0727); displacement RMS (0.000468, q=0.6004) and pair_kernel_5.0 (-0.001537, q=0.2742) do not support a general movement or contact-proxy reward. These are retrospective whole-window associations, not coordinate forces.",
+      "evidence_ids": [
+        "outcome/geometry/landmark_08_occupancy3",
+        "outcome/geometry/landmark_08_occupancy5",
+        "outcome/geometry/landmark_08_softmin",
+        "outcome/geometry/coordinate_displacement_RMS_A",
+        "outcome/geometry/pair_kernel_5.0"
+      ]
+    }
+  ],
+  "extensions_ready": false,
+  "rationale": "The evidence supports changing the R11 teacher/prior label source to decoded-final equal-graph means while retaining the immediate score only as a condition or diagnostic, keeping geometry support at [0.0, 0.5] and state control through 0.51, and preserving all R11 numeric parameters including branch virtual mass for the base comparison. The occupancy associations are small exploratory signals under heavy censoring and are not grounds to add a motif-specific force or optional extensions. The R1/R2 boundary-control behavior is still being assessed in prospective generation, so no efficacy claim follows from this retrospective analysis.",
+  "counterevidence": [
+    "Mean censoring is 0.9043; extinct branches have unknown outcomes and descendant observations share ancestry.",
+    "The three reported crossover groups cover only about 0.6177 of the batch-equal observations. Intermediate-high/final-ordinary is more represented than either reported high-final group, while intermediate-other/final-high also occurs; neither result makes current score a sufficient final-quality ranking.",
+    "Only the two landmark_08 occupancy entries have q<0.05, and their effects are numerically tiny. The neighboring softmin effect has the opposite sign and q=0.0727; displacement RMS and pair_kernel_5.0 are not corrected-significant.",
+    "The outcomes are retrospective under Steer selection rather than calibrated native-continuation probabilities. R1/R2 boundary-control response remains under prospective evaluation; matched-branch and tail-reward extensions are not ready."
+  ]
+}

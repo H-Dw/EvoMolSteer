@@ -37,6 +37,7 @@ def run_tool(plan_path, receipt):
              'outcome_summary': ('summarize_outcome_labels.py', 'outcome_summary.py'),
              'outcome_feedback': ('summarize_outcome_feedback.py', 'outcome_feedback.py'),
              'outcome_alias_credit': ('pool_outcome_alias_credit.py', 'outcome_alias_credit.py'),
+             'outcome_matched_reference': ('build_outcome_matched_reference.py', 'outcome_matched_reference.py'),
              'outcome_conditioned_geometry': ('analyze_outcome_conditioned_geometry.py', 'outcome_conditioned_geometry.py')}
     if plan.get('tool_id') not in specs or set(plan) != {'tool_id', 'arguments', 'input_files', 'output_files'}:
         raise ValueError('Registered outcome calculation plan required')
@@ -50,6 +51,8 @@ def run_tool(plan_path, receipt):
         flags = {'--dataset', '--campaign', '--labels', '--evidence', '--output', '--score-tolerance'}
     elif plan['tool_id'] == 'outcome_alias_credit':
         flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output', '--tail-weight'}
+    elif plan['tool_id'] == 'outcome_matched_reference':
+        flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output', '--score-tolerance'}
     args = plan['arguments']
     if len(args) % 2 or set(args[::2])-flags or len(set(args[::2])) != len(args[::2]):
         raise ValueError('Literal registered argument pairs required')
@@ -105,7 +108,7 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
     if path.exists():
         raise FileExistsError(path)
     write_json(path, request)
-    (out/(role+'.instructions.md')).write_text(text+'\n', encoding='utf-8')
+    (out/(role+'.instructions.md')).write_text(text, encoding='utf-8')
     return path
 
 

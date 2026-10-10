@@ -42,3 +42,16 @@ def test_parent_distribution_shrinkage_preserves_censoring_and_dampens_singleton
     assert result[0] < result[1] < 9.
     assert np.isnan(result[2])
     np.testing.assert_allclose(utility(labels, 'hierarchical', parent_quality=np.array([7., 7., np.nan]), shrinkage=0.)[:2], [9., 9.])
+
+
+def test_invalid_high_head_is_observed_failure_not_quality_or_censoring():
+    selected = np.array([[0, 0, 2]])
+    metrics = pd.DataFrame({'slot': [0, 1, 2], 'valid_connected': [True, False, True],
+        'pic50_on_rescore': [7., 10., 8.], 'smiles': ['valid', 'invalid', 'other']})
+    root = outcome_labels(selected, metrics, 8.5)[0]
+    assert root.loc[0, 'terminal_mean'] == 7.
+    assert root.loc[0, 'observed_n'] == 2
+    assert root.loc[0, 'valid_fraction'] == .5
+    assert root.loc[0, 'tail_fraction'] == 0.
+    assert root.loc[0, 'future_observed']
+    assert not root.loc[1, 'future_observed']

@@ -7,6 +7,7 @@ import pandas as pd
 from evomolsteer.io import digest, read_json, write_json
 from evomolsteer.generation.terminal_evaluation import evaluate_terminal
 from evomolsteer.generation.path_evaluation import retain_round, summarize_tail, paired_effect
+from evomolsteer.continuous.outcome_execution import response_records
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT/'docs/experiments/terminal_outcome15_20261010'
@@ -69,7 +70,8 @@ def score(manifest, dataset, scratch, output):
             'score_window': p.get('score_window'), 'state_control_window': p['window'],
             'reference_sha256': p['reference_sha256'], 'label_source': binding['label_source'] if binding else 'instantaneous_control',
             'agent_binding_present': bool(binding), 'mean_cumulative_rms_A':
-                [r['mean_cumulative_rms_A'] for r in execution['batch_results'] if r['arm'] == 'gradient']}
+                [r['mean_cumulative_rms_A'] for r in execution['batch_results'] if r['arm'] == 'gradient'],
+            'actual_response': response_records(dataset, job['campaign'], p)}
     write_json(out/'summary.json', summary)
     files = [{'path': p.relative_to(out).as_posix(), 'sha256': digest(p), 'bytes': p.stat().st_size}
              for p in sorted(out.rglob('*')) if p.is_file() and p.name != 'retention.json']
