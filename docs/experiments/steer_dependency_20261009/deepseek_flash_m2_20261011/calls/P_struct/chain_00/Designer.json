@@ -1,0 +1,58 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "endpoint_effects:3",
+    "endpoint_effects:4",
+    "endpoint_effects:5",
+    "endpoint_effects:8",
+    "regional_effects:5",
+    "regional_effects:75",
+    "regional_effects:105",
+    "regional_effects:165",
+    "regional_effects:195",
+    "increment_effects:14",
+    "increment_effects:15",
+    "survival_effects:0",
+    "information_audit",
+    "curve_support",
+    "lineage_support",
+    "reference",
+    "projection"
+  ],
+  "expected_response": {
+    "coordinate_response": "endpoint pointcloud R(Y) via the real FLOWR endpoint VJP; no edit applied under retain",
+    "incumbent_parameters": {
+      "mixture_temperature": 0.5,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0,
+      "teacher_endpoint_temperature_A2": 4.0,
+      "teacher_neighbors": 4,
+      "time_ramp_power": 0.0
+    },
+    "observable_to_change_if_edited": "pair-kernel endpoint enrichment contrasts (endpoint_effects:9-13) and shape_yy/shape_xx plus local_cyy signs, with positive batch fraction preserved at >=0.857"
+  },
+  "failure_modes": [
+    "Changing mixture_temperature to 0.25 or 1.0 without a measured endpoint response would be an unmeasured indirect shift, since M2 has no separate pair-kernel force and the contract requires measurement for indirect shifts.",
+    "Treating the pair-kernel enrichment z-scores as physical interaction energies or as evidence of neural-module causation would misread derived coordinate diagnostics.",
+    "Using teacher_neighbors as a distance or pair-kernel bandwidth would misread a dimensionless count.",
+    "Reading the temporal change-rate contrasts (regional_effects:213,229,249,269,283,289,349,379,389,393,399) as a coordinate gradient would violate the contract that a temporal derivative is not a coordinate gradient.",
+    "Editing native_rms_ratio or time_ramp_power in lane G would be an out-of-lane edit and would not be read by the instantiated reward/controller.",
+    "Treating survival or increment effects as terminal affinity effects would conflate different label semantics."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "incumbent, unchanged; allowed set {0.25,0.5,1}",
+    "native_rms_ratio": "incumbent 0.33, U-lane, not editable in lane G",
+    "pointcloud_delta_A": "incumbent 1.0, inside teacher pairwise assignment RMS band 0.446-1.050 A",
+    "teacher_endpoint_temperature_A2": "incumbent 4.0, unchanged",
+    "teacher_neighbors": "incumbent 4, unchanged; dimensionless count, not a bandwidth",
+    "time_ramp_power": "incumbent 0.0, U-lane, not editable in lane G"
+  },
+  "rationale": "D1: The Analyst's strongest signed, batch-consistent contrasts are the pair-kernel enrichment rows (endpoint_effects:9-13, |z|=0.32-0.63, positive batch fraction 1.0 for kernels 1.5-3.5) and the global shape_yy/shape_xx compression (endpoint_effects:3-4, q=1.5e-5 and 8.1e-4, positive batch fraction 0.0-0.07). The only registered coordinate response these could act through is the endpoint pointcloud R(Y)=tau*logsumexp_j(log_pi_j - rho_delta(q_j)/tau) with q_j the Hungarian mean-square endpoint distance, pulled back by the real FLOWR endpoint VJP. The bounded scalar that changes the cost scale of that mixture is mixture_temperature (A^2), allowed {0.25,0.5,1}. D2: The registered spatial scales are the teacher pairwise assignment RMS quantiles 0.446/0.863/1.050 A and the declared 5 A Gaussian regional radius with 0.25 background; the incumbent pointcloud_delta_A=1.0 sits inside the teacher dispersion band, so it is data-supported rather than a free hyperparameter. Lowering mixture_temperature to 0.25 would sharpen the softmin toward the nearest teacher cloud and steepen the gradient direction, but the reference explicitly warns that teacher pairwise dispersion is not a measured initial-seed residual or affinity energy, so the expected response range is not established. D3: Lane G permits only the bounded G scalars; native_rms_ratio and time_ramp_power are U-lane and are left unchanged, so no delivered-displacement or schedule edit is available here. D4: Counterevidence is decisive against an edit. The increment (success-vs-failure) contrasts are weak and mostly non-significant after joint BH (only increment_effects:14 survives at q=0.046 with positive batch fraction 0.071), survival soft_mass contrasts have q>=0.120, the curve-fidelity audit rejects runtime Legendre use with relative node RMSE 0.39-0.93 and up to 15 strong sign-conflict nodes, and lineage support is sparse (349 nodes with <3 ancestors, 531 with <6). The formula contract states M2 contains no separate pair-kernel or feature-enrichment force, so a mixture_temperature change is an indirect shift that requires measurement, and the Analyst's own regional-emphasis and temporal-rate hypotheses are explicitly descriptive and cannot yet prescribe a reward edit. No allowed G value has a defensible expected advantage over the incumbent, so the discriminating test is to retain the incumbent and measure whether the pair-kernel endpoint contrasts and shape_yy/local_cyy signs are reproduced under the current mixture_temperature=0.5 before any scalar is moved. Concrete failure condition for the retained incumbent: if a future measured run shows the pair-kernel endpoint contrasts reversing sign or the positive batch fraction collapsing below 0.857 while shape_yy/local_cyy signs are preserved, the incumbent mixture_temperature would be falsified and a bounded edit would then be justified.",
+  "role": "Designer"
+}

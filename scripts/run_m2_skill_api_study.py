@@ -350,7 +350,16 @@ print(json.dumps({'removed':removed}))
                     "mean_pic50": result["outcomes"]["gradient"]["summary"]["affinity_mean_all"],
                     "metrics": result["outcomes"]["gradient"]["metrics"]})
                 self.save(status="running")
-            review_function(self.study, row)
+            try:
+                review_function(self.study, row)
+            except Exception as error:
+                # A failed semantic audit cannot erase measured generation or
+                # masquerade as a module response. Keep the independent screens
+                # moving; interpretation/pruning for this condition stays gated.
+                write_json(self.study / "reviews" / (row["condition_id"] + ".unconfirmed.json"),
+                    {"status": "functional_review_unconfirmed", "error_type": type(error).__name__,
+                     "error": str(error), "generation_results_preserved": True,
+                     "module_response_and_necessity_claims_allowed": False})
             self.report()
             self.commit("ablation(m2-api): record " + row["condition_id"] + " six-chain screen and functional audit")
         self.save(status="screen_complete", task=None,

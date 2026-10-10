@@ -1,0 +1,119 @@
+{
+  "api_receipts": {
+    "Analyst": {
+      "provider_request_id": "ac084ddd-4c00-4f45-a256-40b2aa639062",
+      "request_sha256": "fe72dfc609e0375183371fd18eb6835645607216067d44ecda305d6fd1d16b19",
+      "requested_model": "deepseek-flash",
+      "response_sha256": "fbc0b9eff9262f7271403ff9acaa74190e7601f78932cf2cd481a88cc75e726e",
+      "returned_model": "deepseek-flash"
+    },
+    "Designer": {
+      "provider_request_id": "ab8d7040-7cab-4192-9300-6d0026181b25",
+      "request_sha256": "8b6846aa6e6e4180dfa0dbde0a825c60675ba9f476c86547cf14756a4de85dc1",
+      "requested_model": "deepseek-flash",
+      "response_sha256": "04836dbea64daf9341b5607dc3a882967eb5ad50b723f1d6af0995e9ba5d534c",
+      "returned_model": "deepseek-flash"
+    }
+  },
+  "archive_sha256": "0e4b9a6df636769aca21a9a8338ab50a98c7f9984c4a69d63ca44ed842c300cf",
+  "backend": "real_api",
+  "background_pid": 162092,
+  "continued_batch": 138,
+  "delivery": {
+    "batches": [
+      {
+        "batch": 137,
+        "controlled_steps": 50,
+        "first_order_positive_fraction": 1.0,
+        "last_controlled_state_time": 0.5,
+        "mean_delivered_over_calibration": 0.33000001444170585,
+        "mean_injection_rms_A": 0.014786060366779565,
+        "mean_predictive_calibration_rms_A": 0.04480624157041311,
+        "nearest_teacher_rms_A_first": 0.913602157831192,
+        "nearest_teacher_rms_A_last": 0.4592164776101708,
+        "nonzero_steps": 50,
+        "post_window_nonzero": 0,
+        "trace_sha256": "b65349e45742900d89834359ed6e53c073180d1feeaa33f424eb70ce07a0518f"
+      }
+    ],
+    "semantics": "Actual coordinate injection; positive scalar response is not an affinity derivative"
+  },
+  "execution_audit": {
+    "batches": [
+      {
+        "arm": "gradient",
+        "batch": 137,
+        "controlled_steps": 50,
+        "max_atom_injection_A": 0.07257935404777527,
+        "mean_active_injection_rms_A": 0.014786060366779567,
+        "post_window_nonzero_injections": 0,
+        "preflight_extra_forwards": 4,
+        "reward_evaluated_steps": 50,
+        "steps": 100,
+        "trace_sha256": "b65349e45742900d89834359ed6e53c073180d1feeaa33f424eb70ce07a0518f"
+      },
+      {
+        "arm": "unguided",
+        "batch": 137,
+        "controlled_steps": 0,
+        "max_atom_injection_A": 0.0,
+        "mean_active_injection_rms_A": 0,
+        "post_window_nonzero_injections": 0,
+        "preflight_extra_forwards": 0,
+        "reward_evaluated_steps": 0,
+        "steps": 100,
+        "trace_sha256": "9aa7872f29cbdd60ded9a1a3a33ab9272121cb9e9c81e3b70cffa848f9898011"
+      }
+    ],
+    "passed": true,
+    "zero_check_limit": "t=window_end tensors byte-exact; final scores exact, final coordinates at exported SDF precision; full final tensor omitted by evaluation transport",
+    "zero_controls": []
+  },
+  "formal_designer_decision": "retain",
+  "model": "deepseek-flash",
+  "original_steer_preserved": true,
+  "paired_initial_states_equal": true,
+  "results": {
+    "gradient": {
+      "affinity_max": 8.121562004089355,
+      "affinity_mean_all": 7.6460035610198975,
+      "affinity_mean_valid": 7.650939659196503,
+      "affinity_p95": 8.05223536491394,
+      "elite_valid": 0,
+      "energy_status_counts": {
+        "converged": 49,
+        "not_applicable": 1
+      },
+      "mmff_converged_n": 49,
+      "n": 50,
+      "pb_fast_pass": 49,
+      "source_sha256": "d2d5355ad5dffba796a96fb5a681c021c65fa18ca46bbf11b514d7451b970b0d",
+      "strain_median_per_heavy": 0.4861814719977778,
+      "strain_p90_per_heavy": 1.0351466791207389,
+      "valid": 49,
+      "valid_unique_graphs": 28
+    },
+    "unguided": {
+      "affinity_max": 8.211247444152832,
+      "affinity_mean_all": 7.536253356933594,
+      "affinity_mean_valid": 7.564465988766063,
+      "affinity_p95": 8.119719123840332,
+      "elite_valid": 0,
+      "energy_status_counts": {
+        "converged": 44,
+        "not_applicable": 6
+      },
+      "mmff_converged_n": 44,
+      "n": 50,
+      "pb_fast_pass": 44,
+      "source_sha256": "d2d5355ad5dffba796a96fb5a681c021c65fa18ca46bbf11b514d7451b970b0d",
+      "strain_median_per_heavy": 0.5327512567884898,
+      "strain_p90_per_heavy": 1.9607337237081686,
+      "valid": 44,
+      "valid_unique_graphs": 38
+    }
+  },
+  "scope": "Partial bootstrap snapshot: batch137, n=50 per arm; not the full 200-per-arm cohort or any module performance conclusion",
+  "status": "first_two_closed_branches_verified",
+  "supervisor_state": "running"
+}
