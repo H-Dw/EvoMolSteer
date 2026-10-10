@@ -1,6 +1,8 @@
-# TO12 当前可执行奖励公式
+# TO12/TO14–TO15 实验候选的可执行奖励公式（未采纳为当前最佳）
 
 本文记录 TO12 配置实际调用的坐标奖励和控制路径。它描述程序如何计算和注入力，不表示奖励已提升最终亲和力。
+
+十五轮已完成：该候选虽然优于无引导，独立验证的均值低于历史 R11/R26，且应变尾部偏高，因此未采纳。本轮 `active_program.json` 已恢复为历史 R11 的时钟匹配版本，采用即时 on-target 教师分数，不包含本文的最终家族 utility 与尾部收缩。其端点点云混合、真实 FLOWR VJP、0.025 虚拟质量及 0.33 原生流 RMS 标定机制相同；教师点云及 score 的来源不同。参考 `active_workflow.json` 与 `final_decision.json` 区分实验候选和实际保留配置。
 
 ## 奖励作用在 FLOWR 端点预测上
 
@@ -12,6 +14,8 @@ g_t=\nabla_{X_t}R(Y_t)=J_{\mathrm{FLOWR}}(X_t)^\top\nabla_{Y_t}R.
 
 实现中先从预测端点复制一个停止梯度的 anchor，用它确定教师对应、排序和 prior；这些离散/先验量在反传时冻结。奖励对 live 端点坐标求导，再经同一次 FLOWR 计算图的 Jacobian VJP 回到 (X_t)。原子类型和 affinity 输出均停止梯度；不调用 affinity 梯度，也不增加每步 production forward。端点坐标以复合物世界坐标 Å 表示。
 
+控制器先完成原生随机推进，再向 proposal 注入由步前 (X_t) 的 VJP 构造的有界位移：\(X_{t+\Delta t}=X^{\mathrm{native}}_{t+\Delta t}+\operatorname{bounded}(g_t)\)。这是滞后一个积分步的坐标注入，并未在新 proposal 上额外重算端点梯度；self-conditioning、原子类别、assignment 和 prior 都视作本步固定条件。日志的首阶响应是该步前梯度与实际注入的内积，不能解释为重新前向测得的奖励或亲和力提升。
+
 ## 家族标签、尾部项与批次权重
 
 教师的最终质量来自 decoded-final 标签。对 exact-copy family (f)，先在每个化学图 (g) 内求有效 decoded 分子的最终亲和力均值，再让每个图等权：
@@ -21,7 +25,7 @@ g_t=\nabla_{X_t}R(Y_t)=J_{\mathrm{FLOWR}}(X_t)^\top\nabla_{Y_t}R.
 \left(\frac{1}{|V_{fg}|}\sum_{k\in V_{fg}}y_{fgk}\right),
 \]
 
-其中 (V_{fg}) 是该图中有效 decoded 分子。最终标签时钟是 1.0；TO6/TO9/TO12 的教师排序和主先验已使用最终家族均值。中间 head 分数仅保留在继承的即时分支方向构建及条件匹配诊断中，不是这些教师的最终质量标签。
+其中 (V_{fg}) 是该图中有效 decoded 分子。最终标签时钟是 1.0；TO6/TO9/TO12 的教师排序使用最终家族均值。TO6 的主先验使用均值，TO9 使用均值加原始尾部比例，TO12 则使用下文的均值加收缩尾部比例 utility；TO12 公式中的 (s_m) 明确是 (u_f)。中间 head 分数仅保留在继承的即时分支方向构建及条件匹配诊断中，不是这些教师的先验质量分。
 
 尾部定义使用 final pIC50 阈值 (8.258901977539063)。原始 family tail fraction (p_f) 的分母是观测到的全部 terminal offspring slots，**包括无效 decoded offspring**；分子是其中达到阈值的有效 offspring 数。批次基准 (p_b) 使用同一分母。TO12 的 count shrinkage 是
 
@@ -70,7 +74,7 @@ R_0(Y_t)=\tau\log\sum_{m\in S_4}\pi_m
 
 ## 即时分支的虚拟模式
 
-TO12 从 TO9 的 family-tail-0.25 参考继承 instantaneous 分支字段；它不使用 TO7 的 final-family-matched 分支方向。对符合原生分支支持的教师 (m)，参考中给出的单位方向 (d_m) 和观测幅度 (r_m) 生成虚拟点云
+TO12 从 TO9 的 family-tail-0.25 参考继承 instantaneous 分支字段；它不使用 TO7 的 final-family-matched 分支方向。分支资格要求已观察到前两个选择事件、共同祖父与不同直接父节点的谱系证明、至少两个观测变异、正置信度和正幅度；前两个节点没有合格方向。低分直接父节点列表不得包含当前父节点，也不得重复。这里的资格检查用于确保方向有观测谱系支持，不限制化学图变化。对合格教师 (m)，参考中给出的单位方向 (d_m) 和观测幅度 (r_m) 生成虚拟点云
 
 \[
 T'_m=T_m+\min(r_m,0.2\ \text{Å})d_m.
@@ -95,7 +99,9 @@ R(Y_t)=\tau\log\sum_{m\in S_4}\pi_m\left[
 F_t=(Y_t-X_t)\frac{\Delta t}{1-t}.
 \]
 
-代码先按 reward 梯度方向构造注入，再将每个分子的 RMS 注入目标限制为 \(0.33\times\operatorname{RMS}(F_t)\)（本配置 (\texttt{time\_ramp\_power}=0)，时间因子为 1），随后施加单原子最大步长 0.15 Å 和整个控制窗口累计 RMS 上限 6 Å。新产生的严重受体碰撞由 `reject_new_severe_clashes` 保护；阈值为 `severe_receptor_clash_A=0.8` Å，并使用配置的 7 次 backtrack 限额。这是几何安全保护，不是化学图 gate。
+代码先按 reward 梯度方向构造注入，再将每个分子的 RMS 注入目标限制为 \(0.33\times\operatorname{RMS}(F_t)\)（本配置 (\texttt{time\_ramp\_power}=0)，时间因子为 1），随后施加单原子最大步长 0.15 Å 和整个控制窗口路径预算 6 Å。路径预算累加每步每个分子的 RMS 注入，即 \(\sum_t\operatorname{RMS}(\Delta X_t)\)，并非把所有位移向量相加后再取 RMS。新产生的严重受体碰撞由 `reject_new_severe_clashes` 保护；阈值为 `severe_receptor_clash_A=0.8` Å，并使用配置的 7 次 backtrack 限额。这是几何安全保护，不是化学图 gate。
+
+在梯度非零且数值正常时，将整个奖励乘一个正的常数主要会被该方向归一化抵消，不能把奖励的整体尺度直接当作注入强度。教师 utility、混合 prior 和各项相对权重会改变梯度方向；`native_rms_ratio` 则设定目标剂量，最终实现剂量还受单步/路径预算与碰撞回溯影响。应从轨迹中的实际注入、累计路径 RMS 和对照的终态指标判断是否有效，而不是只看原始梯度范数。
 
 ## 控制与标签时钟
 
@@ -107,5 +113,6 @@ F_t=(Y_t-X_t)\frac{\Delta t}{1-t}.
 - `src/evomolsteer/generation/branch_mixture_reward.py`：保留原教师质量并加入有界虚拟分支模式。
 - `src/evomolsteer/generation/endpoint_controller.py`：真实 FLOWR endpoint VJP、剂量、cap、碰撞保护与逐步轨迹记录。
 - `src/evomolsteer/generation/flowcompat_controller.py`：FLOWR forward/VJP 包装与接口审计。
+- `src/evomolsteer/generation/flowcompat_v2_controller.py`：当前 `flowcompat_v2` 接口适配器，选择分支奖励并调用上述控制器。
 - `src/evomolsteer/generation/local_reward.py`：本配置使用其中 `bounded_local_step` 控制 helper；`LocalIntervalReward` 不是 TO12 的奖励函数。
 - 参数核对文件：`configs/experiments/terminal_outcome15_v1/round06_R11_family_rank.json`、`round09_R11_family_tail025.json`、`round12_R11_tail_shrink2.json`。

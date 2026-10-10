@@ -1,0 +1,53 @@
+{
+  "schema_version": "terminal-outcome-formula-audit-1.0",
+  "auditor": "GPT6-Luna Designer",
+  "scope": "Read-only audit of the three literal Designer/terminal-outcome Skills, reward_formula.zh-CN.md, TO12 and frozen TO15 configs, confirmation.freeze.json, and executable reward/controller sources. No TO14 outcome was inspected or used to redesign TO15.",
+  "bindings": {
+    "round12_config_sha256": "02a942e6cd66c60380a5f132be2fd28e727b87e0308435f87cedc991ca479319",
+    "round15_frozen_config_sha256": "89eca5a90bab16dbb15730e538b26d4e10c113d0fcedb8d8ccf9ace11c5f0001",
+    "confirmation_freeze_sha256": "912b7d17375835c335eb0386d8503e1e30a79e883892761b8df53dce9c438b50",
+    "reference_sha256": "b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31",
+    "source_hashes_verified_against_freeze": {
+      "affinity_geometry_reward.py": "49f6015c5908180c50d7ad02ef2b55ddbf96b6618dafcb3b60a45adbfda29884",
+      "branch_mixture_reward.py": "fa59fe96ffb50c0e842b0371cd9ed784b914cdf2a8f3451c6d6e2471a1ec08f2",
+      "endpoint_reward.py": "e2a43d18b5c0c9815d8127e7c24e915e714757ff745915b113fb8849d1edfcf3",
+      "endpoint_controller.py": "175b687a6bbf2ef30cd3b575d256e829eb752f116130fa9685614cd6eaa51ee7",
+      "flowcompat_controller.py": "92cb5b2f1fd5b8b3ff10fb60ba1958cba560bfcb2a5e5853434a24d7dc1aeadd",
+      "coordinate_reward.py": "f431a6b4a41bb80afbabfacd8f8316833037b3e2715464e882176c73db8b9086",
+      "local_reward.py": "9cf5b648a97147a7193eb668f5da83d84e7f7b84b06c176052bd42b4283df274"
+    }
+  },
+  "checks": {
+    "program_and_freeze": "pass: R12 and frozen R15 have identical reward-defining fields; endpoint_branch_mixture, virtual_mass 0.025, the same shrink-2 reference, neighbors 4, T=4.0 A^2, beta=2, eta=0.33, score window [0,0.5], control window [0,0.51], and listed safety limits agree. Freeze pins the same reference and maps confirmation batches 14/15 to 133-134/135-136 using development data only.",
+    "endpoint_geometry_and_prior": "pass with score-provenance clarification: detached FLOWR endpoint world coordinates in Angstrom are Hungarian-matched to final-family teacher endpoint clouds; stable nearest-4 selection uses anchor mean squared cost C_m. Executed logits are -C_m/4 + 2*(teacher_scores_m - mean(all frame teacher_scores)) + teacher_base_log_weight_m, normalized over selected teachers and detached. pointcloud_delta_A defaults to 1 A; robust_delta=2 is not consumed by this endpoint formula. The library's teacher_scores equal family_mean + 0.25*regularized_tail for all 1,203 records checked across its frames (max absolute discrepancy 0). The final-family mean and regularized tail derive from decoded-final labels; they are not the intermediate online/head score.",
+    "batch_prior": "pass: terminal reference validation requires finite per-record base log weights -log(N_batch,event), which gives equal base mass to each represented donor batch before geometric top-4 selection; the final selected-and-renormalized prior need not remain batch-equal. The document now states this limitation.",
+    "virtual_branch": "pass, with support detail omitted in prose: mass 0.025 is assigned only to eligible instantaneous natural-branch virtual modes; each keeps original mass 1-alpha and adds alpha at a direction shifted by min(raw direction RMS, 0.2 A). Assignment and teacher prior stay anchored to the original teacher. Region mixing defaults to zero, so atom residual weights are one. Missing support falls back exactly to the pointcloud baseline; eligibility checks lag-two observation, common grandparent, distinct immediate-parent slots, at least two distinct observed mutations, positive confidence and amplitude (and no support at the first two nodes). This is not a chemical graph gate.",
+    "coordinates_and_vjp": "pass: controller maps native endpoint coordinates to complex world-A coordinates by coord_scale and pocket COM, freezes the anchor/atom categories/assignment/prior, differentiates the endpoint geometry scalar through the actual FLOWR forward graph to current x_t, and detaches affinity outputs. One production forward per step; finite-difference preflight forwards are separately logged and one-time, not production calls.",
+    "dose_and_guards": "pass with cumulative-cap wording clarification: predictive_flow_increment is (endpoint-current)*dt/(1-t) and rejects cosine schedules; per-molecule RMS target is eta 0.33 times predictive-flow RMS times dose gate (time_ramp_power=0 gives 1). The step is gradient-direction scaled, then capped at 0.15 A per atom, path budget 6 A, and tested against newly introduced receptor distances below 0.8 A using at most 7 backtracking trials. In code path_rms is the sum over controlled updates of each update's per-molecule RMS, not an RMS of the accumulated displacement vector. This is a geometric new-clash guard, not a graph/topology veto.",
+    "clocks_and_continuation": "pass: active reward/control windows are [0,0.5]/[0,0.51]; the registered 100-step trajectory has 51 controlled steps and 49 native continuation steps; decoded-final labels are at clock 1.0. Controller applies the coordinate increment after native stochastic advancement and records first-order response without a second endpoint forward.",
+    "efficacy_limits": "pass: retrospective teacher utility and selected descendant statistics are not prospective effectiveness proof. Outcomes are Steer-conditioned and related, mean future censoring is about 0.9043, extinct futures are unknown, and the count-shrunk tail feature is a heuristic rather than a native probability/posterior. Actual FLOWR/VJP verification establishes execution/path response only; full decoded-final batch evaluation is needed for affinity, validity and strain."
+  },
+  "discrepancies": [
+    {
+      "severity": "material wording correction",
+      "location": "reward_formula.zh-CN.md near the family-label paragraph (line 24)",
+      "finding": "The sentence that TO6/TO9/TO12 teacher ranking and main prior use the final family mean, followed by a contrast with intermediate head scores, is incomplete: executable teacher_scores used in the prior are the bounded final-family utility family_mean + 0.25*regularized_tail. The document defines this utility below and later calls s_m utility/score, so the equations are recoverable, but the earlier wording could incorrectly imply the executable prior is mean-only. State explicitly that s_m is decoded-final u_f; intermediate/online scores are not the prior score. This was verified across the full reference (1,203/1,203 exact)."
+    },
+    {
+      "severity": "precision clarification",
+      "location": "reward_formula.zh-CN.md near the protection paragraph (line 98)",
+      "finding": "“整个控制窗口累计 RMS 上限 6 Å” is ambiguous. The implementation increments path_rms by each controlled step's per-molecule RMS injection and spends the remaining 6 Å budget against that sum; it does not compute RMS of the vector-summed total displacement."
+    },
+    {
+      "severity": "implementation-map omission",
+      "location": "reward_formula.zh-CN.md implementation list (lines 104-110)",
+      "finding": "The selected config specifies generation_interface=flowcompat_v2 and the freeze manifest hashes flowcompat_v2_controller.py. That adapter subclasses FlowCompatibilityExtension and selects BranchMixtureReward before delegating to the FLOWR VJP controller; the listed flowcompat_controller.py supplies the delegated implementation, but the actual v2 adapter is not named in the document. This is an incomplete source map, not a reward-equation mismatch."
+    },
+    {
+      "severity": "minor support detail",
+      "location": "reward_formula.zh-CN.md instantaneous-branch section (lines 71-88)",
+      "finding": "The phrase “符合原生分支支持” is accurate but does not enumerate the executable provenance gate (lag-2 observed branch, shared grandparent, distinct immediate parent slots, at least two observed mutations, positive confidence and amplitude; early nodes have no eligible direction)."
+    }
+  ],
+  "conclusion": "The mathematical reward, endpoint coordinate frame, frozen-anchor FLOWR Jacobian VJP, batch base-prior construction, virtual branch mass, dose direction/ratio, windows and native continuation are supported by the executable sources and frozen configs. The points above are documentation precision issues; no source/config/Skill/frozen artifact was changed. This is a source/formula audit only, not a performance proof or an efficacy prediction."
+}

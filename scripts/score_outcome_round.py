@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT/'docs/experiments/terminal_outcome15_20261010'
 
 
-def score(manifest, dataset, scratch, output):
+def score(manifest, dataset, scratch, output, historical_steer=None):
     plan = read_json(manifest)
     dataset, scratch, out = map(Path, (dataset, scratch, output))
     threshold = read_json(DOC/'protocol.json')['tail_threshold']
@@ -93,7 +93,16 @@ def score(manifest, dataset, scratch, output):
                 comparisons[cohort+'/immediate_parent'] = {**paired_effect(candidate, old),
                     'parent_round': parent['round'], 'parent_program_id': parent['program_id'],
                     'parent_program_sha256': parent_sha}
-    original = pd.read_csv(ROOT/'docs/experiments/guidance_vs_steer_20261007/steer_full1000/candidate_metrics.csv')
+    if historical_steer is None:
+        snapshot = DOC/'historical_steer/candidate_metrics.csv'
+        if snapshot.is_file():
+            expected = read_json(snapshot.parent/'manifest.json')['output_sha256']
+            if digest(snapshot) != expected:
+                raise ValueError('Historical terminal metrics snapshot changed')
+            historical_steer = snapshot
+        else:
+            historical_steer = ROOT/'docs/experiments/guidance_vs_steer_20261007/steer_full1000/candidate_metrics.csv'
+    original = pd.read_csv(historical_steer)
     summary = {'round': plan['round'], 'status': 'complete', 'seed': 42, 'results': results,
         'paired_comparisons': comparisons, 'historical_steer_unpaired': summarize_tail(original, threshold),
         'interpretation': 'Fixed development batches are adaptive screening; frozen new batches required for confirmation',
@@ -133,5 +142,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
     for key in ['manifest', 'dataset', 'scratch', 'output']:
         p.add_argument('--'+key, required=True)
+    p.add_argument('--historical-steer', help='Optional explicit historical terminal metrics CSV; default is the verified compact snapshot')
     a = p.parse_args()
-    score(a.manifest, a.dataset, a.scratch, a.output)
+    score(a.manifest, a.dataset, a.scratch, a.output, a.historical_steer)
