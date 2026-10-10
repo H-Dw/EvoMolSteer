@@ -10,7 +10,7 @@ from dispatch_path_round import verify_retention
 from retire_experiment_outputs import retire
 
 
-def dispatch(repo, work, manifest, previous=None):
+def dispatch(repo, work, manifest, previous=None, retry_failed=False):
     repo, work, manifest = map(lambda v: Path(v).resolve(), (repo, work, manifest))
     plan = json.loads(manifest.read_text())
     number = plan['round']
@@ -30,12 +30,21 @@ def dispatch(repo, work, manifest, previous=None):
     work.mkdir(parents=True, exist_ok=True)
     old = json.loads((work/'active.json').read_text()) if (work/'active.json').exists() else None
     if old:
-        if number != old['round']+1 or not (work/f'round{old["round"]:02d}.exit').is_file():
+        exit_file = work/f'round{old["round"]:02d}.exit'
+        if (number != old['round']+1 and not (retry_failed and number == old['round'])) or not exit_file.is_file():
             raise ValueError('Prior serial inference incomplete')
-        if not previous:
+        if retry_failed:
+            if number != old['round'] or int(exit_file.read_text()) == 0:
+                raise ValueError('Only a failed execution may be retried')
+            attempt = 1+len(list(work.glob(f'round{number:02d}.failed*.log')))
+            (work/f'round{number:02d}.log').rename(work/f'round{number:02d}.failed{attempt}.log')
+            exit_file.rename(work/f'round{number:02d}.failed{attempt}.exit')
+            report = repo/'docs/experiments/terminal_outcome15_20261010/protocol.json'
+        elif not previous:
             raise ValueError('Prior result retention required')
-        report = Path(previous).resolve()
-        verify_retention(report)
+        else:
+            report = Path(previous).resolve()
+            verify_retention(report)
     else:
         if number != 1:
             raise ValueError('Campaign starts at one')
@@ -67,5 +76,6 @@ if __name__ == '__main__':
     for key in ['repo', 'work', 'manifest']:
         p.add_argument('--'+key, required=True)
     p.add_argument('--previous')
+    p.add_argument('--retry-failed', action='store_true')
     a = p.parse_args()
-    dispatch(a.repo, a.work, a.manifest, a.previous)
+    dispatch(a.repo, a.work, a.manifest, a.previous, a.retry_failed)
