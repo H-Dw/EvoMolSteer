@@ -1,0 +1,55 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "a6a9b71575a5486fcee5b8c66f06b1af0b473cfe571b93c699d20a2dabff0f9c",
+  "instruction_sha256": "99633fc379393ff2380c187a75a2a762e0d275ed398a0677e910f9b8b8209604",
+  "evidence_sha256": "046c35ff2c05116147a99ac07e315b1c5aafdd6d7161acdb3adf81480a05331b",
+  "tool_receipt_sha256": "4b86d90f113b0a42517d77981f7331080d48c8c28c6adc75954a2681686658b6",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/rank_crossover",
+    "outcome/descendants",
+    "outcome/geometry/landmark_08_occupancy3",
+    "outcome/geometry/landmark_08_occupancy5",
+    "outcome/geometry/landmark_08_softmin",
+    "outcome/geometry/coordinate_displacement_RMS_A",
+    "outcome/geometry/pair_kernel_5.0"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "The outcome target is decoded final valid-molecule affinity, averaged within each chemical graph and then equally across graphs for each observed ancestor (label clock 1.0). Coordinate evidence is limited to score time 0.0–0.5 and proposal/control support through 0.51, with 51 events across 14 donor batches.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks"]
+    },
+    {
+      "finding": "Current rank and final quality cross. Using each event's current-score Q75 and donor-derived final thresholds, the reported intermediate-high/final-ordinary group has batch-equal ancestor fraction 0.3721, mean final affinity 7.5968, valid fraction 0.9658 and tail fraction 0.0339. The intermediate-other/final-high group has fraction 0.1304, mean final affinity 7.9203, valid fraction 0.9419 and tail fraction 0.0605. Final-high requires affinity >= observed Q75 and strictly > median; final-ordinary is <= median, so ties do not enter both groups. The listed fractions are not a full mutually exclusive partition: these three reported groups sum to about 0.6177 of the batch-equal observations.",
+      "evidence_ids": ["outcome/rank_crossover"]
+    },
+    {
+      "finding": "Across repeated observed ancestor-time records there are 3,387 known and 32,282 censored observations; mean valid fraction is 0.9677 and mean tail fraction is 0.0400 at pIC50 threshold 8.2589. Observed descendant-count quantiles are 2, 4, 11 and unique-graph-count quantiles are 1, 2, 5. These are descriptive summaries: repeated times, shared ancestors and related descendants are not independent sample units. Extinct branches retain unknown continuation quality.",
+      "evidence_ids": ["outcome/descendants", "outcome/censoring"]
+    },
+    {
+      "finding": "The strongest corrected whole-window coordinate associations are landmark_08_occupancy3 (effect 2.60e-8, q=0.0415) and landmark_08_occupancy5 (effect 5.06e-5, q=0.0415), each across 14 batches with same-sign effects in 12/14. These enrichment statistics are numerically tiny. The neighboring landmark_08_softmin contrast is negative (effect -0.01798, q=0.0727; same-sign in 12/14), while displacement RMS is weak (effect 0.000468, q=0.6004) and pair_kernel_5.0 is also not corrected-significant (effect -0.001537, q=0.2742). Thus landmark_08 occupancy is only a candidate association, not evidence for a fixed chemical motif or causal coordinate reward. The registered contrasts summarize the supplied full score window; they do not define a time-local force.",
+      "evidence_ids": [
+        "outcome/geometry/landmark_08_occupancy3",
+        "outcome/geometry/landmark_08_occupancy5",
+        "outcome/geometry/landmark_08_softmin",
+        "outcome/geometry/coordinate_displacement_RMS_A",
+        "outcome/geometry/pair_kernel_5.0"
+      ]
+    }
+  ],
+  "extensions_ready": false,
+  "rationale": "Use the decoded-final ancestor outcome as the target and keep geometry support within [0.0, 0.5] with proposal/control through 0.51. The crossover summaries directly show that current-high/final-ordinary ancestors are common among the listed categories and that some current-other ancestors reach final-high. The weak, tiny landmark occupancy associations can motivate a bounded exploratory hypothesis, but high censoring, partial group coverage, ancestry dependence and the opposing softmin signal make any coordinate direction uncertain. The label-source change still needs prospective paired native/R26/R11 inference before claiming benefit.",
+  "counterevidence": [
+    "Mean censored fraction in the source evidence is 0.9043; extinct branches are unknown outcomes, not zero-affinity failures.",
+    "The three crossover categories are not exhaustive, and their batch-equal fractions cover about 0.6177 only. Repeated records and shared lineages cannot be counted as independent replicates.",
+    "The occupancy effects are extremely small and only two geometry entries have q<0.05. landmark_08_softmin has an opposing effect sign and q=0.0727; displacement RMS and pair_kernel_5.0 do not support a broad movement/contact reward.",
+    "The outcomes are retrospective under Steer selection rather than calibrated native-continuation probabilities. No prospective paired generation test has established improvement, and matched-branch or tail-reward extensions remain disabled."
+  ]
+}

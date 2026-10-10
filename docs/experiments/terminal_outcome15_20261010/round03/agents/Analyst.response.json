@@ -1,0 +1,47 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "c4788cebc364dc223a960384a1709fb0e5fd840606714c262db789cfce80bc0e",
+  "instruction_sha256": "ebd8bee4158d2fedda161bbebc86b8e0929f9ea0645cac2a140991f985adffc1",
+  "evidence_sha256": "32e1d231d5f65efec1c33236409a83da65eac09e21e4e3c40ede923bdc40848c",
+  "tool_receipt_sha256": "c2d63ba230115646f0a5492b2b5ff86e74fe1b57ce1135a6e2895913def83351",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/geometry/landmark_08_occupancy3",
+    "outcome/geometry/landmark_08_occupancy5",
+    "outcome/geometry/landmark_08_softmin",
+    "outcome/geometry/coordinate_displacement_RMS_A",
+    "outcome/geometry/pair_kernel_5.0"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "The primary label is the common-protocol decoded final valid-molecule affinity, averaged per chemical graph and then equally across graphs for each observed ancestor. Labels are at clock 1.0; coordinate observations cover score times 0.0–0.5, with proposal/control support through 0.51 across 51 events and 14 donor batches.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks"]
+    },
+    {
+      "finding": "At score time 0.5, event_support.csv reports 27–35 known descendants per batch and 15–23 censored descendants. The current-to-final Spearman diagnostic ranges from -0.431 to 0.461 across batches (11 positive, 3 negative), so intermediate ranking is heterogeneous and cannot stand in for final quality. The supplied summaries do not provide the two intermediate-rank-by-final-quality strata; I therefore cannot quantify intermediate-high/final-ordinary versus intermediate-ordinary/final-good outcomes here.",
+      "evidence_ids": ["outcome/labels", "outcome/censoring", "outcome/clocks"]
+    },
+    {
+      "finding": "The strongest corrected geometry associations are landmark_08_occupancy3 (effect 2.60e-8, q=0.0415) and landmark_08_occupancy5 (effect 5.06e-5, q=0.0415), each evaluated across 14 batches with same-sign effects in 12/14. These are small, hypothesis-generating differences. landmark_08_softmin is directionally opposite (effect -0.01798, q=0.0727; same sign in 12/14) and remains a counter-signal after correction.",
+      "evidence_ids": ["outcome/geometry/landmark_08_occupancy3", "outcome/geometry/landmark_08_occupancy5", "outcome/geometry/landmark_08_softmin"]
+    },
+    {
+      "finding": "The whole-window trends are descriptive temporal curves, not coordinate forces. Displacement RMS has q=0.6004 with same-sign support in 7/14 batches; pair_kernel_5.0 has q=0.2742. These provide no corrected support for a general movement or contact-proxy reward.",
+      "evidence_ids": ["outcome/geometry/coordinate_displacement_RMS_A", "outcome/geometry/pair_kernel_5.0"]
+    }
+  ],
+  "extensions_ready": false,
+  "rationale": "Use decoded-final labels as the target, with coordinate support bounded by the observed score/control windows. The landmark_08 occupancy associations are the only geometry signals below q=0.05 in the supplied outcome evidence, but their small effects, high censoring, survivor-conditioned sampling, and opposing softmin signal make them exploratory hypotheses only. They do not establish a causal coordinate preference or native-continuation benefit.",
+  "counterevidence": [
+    "Mean censored fraction is 0.9043; extinct branches have unknown continuation quality, and clones/descendants are not independent evidence.",
+    "Only two occupancy statistics pass q<0.05; the neighboring landmark_08_softmin result has q=0.0727 with an opposing sign, and the displacement statistic is weak (q=0.6004).",
+    "Current-to-final ranking diagnostics vary across the 14 batches, including three negative correlations. The available outputs do not resolve the intermediate-high/final-ordinary and intermediate-ordinary/final-good strata, or report a valid-fraction/tail-fraction distribution.",
+    "These are retrospective outcomes under Steer selection, not calibrated probabilities under native continuation; the matched-ancestor and descendant-tail extensions were not run."
+  ]
+}

@@ -34,3 +34,11 @@ def test_distribution_does_not_rank_a_single_best_child():
     np.testing.assert_allclose(utility(labels, 'distribution', .5)[:2], [7.55, 7.9])
     xyz = np.array([[[0., 0., 0.]], [[1., 0., 0.]], [[2., 0., 0.]]])
     assert choose_teachers(xyz, utility(labels, 'mean'), 2) == [1, 0]
+
+
+def test_parent_distribution_shrinkage_preserves_censoring_and_dampens_singletons():
+    labels = pd.DataFrame({'terminal_mean': [9., 9., np.nan], 'unique_graph_n': [1, 10, 0]})
+    result = utility(labels, 'hierarchical', parent_quality=np.array([7., 7., np.nan]), shrinkage=2.)
+    assert result[0] < result[1] < 9.
+    assert np.isnan(result[2])
+    np.testing.assert_allclose(utility(labels, 'hierarchical', parent_quality=np.array([7., 7., np.nan]), shrinkage=0.)[:2], [9., 9.])

@@ -20,6 +20,8 @@ if __name__ == '__main__':
     p.add_argument('--revision', default='agents')
     p.add_argument('--summary', action='store_true')
     p.add_argument('--summary-key')
+    p.add_argument('--evidence', help='Registered extension/feedback evidence override')
+    p.add_argument('--receipt', help='Receipt for the overridden evidence')
     a = p.parse_args()
     output = DOC/f'round{a.round:02d}'/a.revision
     registry_path = output/'registry.json'
@@ -34,4 +36,8 @@ if __name__ == '__main__':
     summary_key = a.summary_key or a.kind
     evidence = DOC/'summaries'/summary_key/'evidence.json' if a.summary else DOC/'mining'/a.kind/'evidence.json'
     receipt = DOC/'tool_receipts'/(summary_key+'.summary.json' if a.summary else a.kind+'.json')
+    if bool(a.evidence) != bool(a.receipt):
+        raise ValueError('Evidence override and actual receipt must be supplied together')
+    if a.evidence:
+        evidence, receipt = Path(a.evidence), Path(a.receipt)
     print(export_request(a.role, evidence, registry_path, receipt, output, a.analyst))

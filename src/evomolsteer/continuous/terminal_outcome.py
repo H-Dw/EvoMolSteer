@@ -60,13 +60,23 @@ def observed_support(clock, state, resampled, score_window):
     return steps, [lo, round(float(state[steps[-1]]), 6)]
 
 
-def utility(labels, mode, tail_weight=0.):
+def utility(labels, mode, tail_weight=0., parent_quality=None, shrinkage=2.):
     if mode in ('mean', 'instantaneous'):
         return labels.terminal_mean.to_numpy(float)
     if mode == 'distribution':
         return labels.terminal_mean.to_numpy(float)+tail_weight*labels.tail_fraction.to_numpy(float)
     if mode == 'p75':
         return labels.terminal_p75.to_numpy(float)
+    if mode == 'hierarchical':
+        value = labels.terminal_mean.to_numpy(float)
+        count = labels.unique_graph_n.to_numpy(float)
+        parent = np.asarray(parent_quality, float)
+        known = np.isfinite(value)
+        if parent.shape != value.shape or not np.isfinite(shrinkage) or shrinkage < 0 or not np.isfinite(parent[known]).all():
+            raise ValueError('Known parent outcomes and finite nonnegative heuristic shrinkage required')
+        result = np.full_like(value, np.nan)
+        result[known] = (count[known]*value[known]+shrinkage*parent[known])/(count[known]+shrinkage)
+        return result
     raise ValueError('Registered decoded-outcome label required')
 
 
@@ -90,7 +100,7 @@ def choose_teachers(xyz, scores, budget):
 
 def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(0., .5),
           mode='mean', budget=2, threshold=8.258901977539063, tail_weight=.5,
-          branch_mode='instantaneous', score_tolerance=.25):
+          branch_mode='instantaneous', score_tolerance=.25, shrinkage=2.):
     root, out = Path(dataset), Path(output)
     if out.exists():
         raise FileExistsError(out)
@@ -128,7 +138,12 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
                 proposal = np.asarray(tr['proposal_coords'][step], float)*cfg['coord_scale']+com
                 online = np.asarray(tr['pic50_on'][step], float)
                 lab = labels[step].copy()
-                quality = utility(lab, mode, tail_weight)
+                if step:
+                    parent_quality = labels[step-1].terminal_mean.to_numpy(float)[selected[step-1]]
+                else:
+                    bm = metrics[(metrics.batch == batch)&metrics.valid_connected&metrics.pic50_on_rescore.notna()]
+                    parent_quality = np.full(len(lab), bm.groupby('smiles').pic50_on_rescore.mean().mean())
+                quality = utility(lab, mode, tail_weight, parent_quality, shrinkage)
                 rank_score = online if mode == 'instantaneous' else quality
                 chosen = choose_teachers(xyz, rank_score, budget)
                 saved = next((v for v in base['frames'] if abs(v['time']-time) <= 2e-6), None) if mode == 'instantaneous' else None
@@ -203,9 +218,11 @@ def build(dataset, campaign, metrics_path, baseline_path, output, score_window=(
     ref.pop('branch_mutation', None)
     ref.update(window=control_window, score_window=list(score_window), times=sorted(frames), frames=[frames[t] for t in sorted(frames)],
         sources=sources, reference_variant='decoded-outcome-distribution-1.0',
-        label_semantics=('Recorded instantaneous joint head; boundary-only matched control' if mode == 'instantaneous' else
-                         'Decoded final valid molecule mean per chemical graph, then equal graph mean per observed ancestor'),
-        teacher_selection={'mode': mode, 'per_batch_budget': budget, 'tail_weight': tail_weight, 'branch_mode': branch_mode},
+        label_semantics=('Recorded instantaneous on-target affinity head; boundary-only matched control' if mode == 'instantaneous' else
+                         'Decoded final valid molecule mean per chemical graph, then equal graph mean per observed ancestor'+
+                         ('; heuristic graph-count-weighted shrinkage toward observed parent mean, not a calibrated posterior' if mode == 'hierarchical' else '')),
+        teacher_selection={'mode': mode, 'per_batch_budget': budget, 'tail_weight': tail_weight, 'branch_mode': branch_mode,
+                           'shrinkage': shrinkage if mode == 'hierarchical' else 0.},
         label_clock=1., threshold_pic50=threshold, future_semantics='Observed Steer descendants; extinct future censored',
         teacher_library={'terminal_metrics_sha256': digest(metrics_path), 'baseline_sha256': digest(baseline_path)},
         time_alignment='Endpoint forecast at score t; control ends at last observed proposal state t+dt')

@@ -19,16 +19,37 @@ UPDATES = {'native_rms_ratio': (.05, .8), 'teacher_score_beta': (0., 6.),
     'branch_mixture.region_weight_mix': (0., 1.)}
 
 
+def outcome_capabilities():
+    from ..generation.formula_registry import formula_registry
+    caps = formula_registry(ROOT)
+    caps['families'] = {'endpoint_pointcloud': caps['families']['endpoint_pointcloud'],
+        'endpoint_branch_mixture': {
+            'formula': 'Original endpoint-pointcloud modes retain mass 1-alpha; eligible natural branch modes add mass alpha at Y_m+min(raw_branch_RMS_A,0.2)*direction_unit. Regional residual weight=1+region_mix*confidence*(recorded_atom_weight-1). Same robust curvature and logsumexp.',
+            'support': 'Actual distinct immediate parents with a common grandparent; missing directions are exact baseline, no chemical graph restriction',
+            'source': 'branch_mixture_reward.py'}}
+    caps['source_sha256']['branch_mixture_reward.py'] = digest(ROOT/'src/evomolsteer/generation/branch_mixture_reward.py')
+    return caps
+
+
 def run_tool(plan_path, receipt):
     plan = read_json(plan_path)
     specs = {'terminal_outcome': ('mine_terminal_outcomes.py', 'terminal_outcome.py'),
-             'outcome_summary': ('summarize_outcome_labels.py', 'outcome_summary.py')}
+             'outcome_summary': ('summarize_outcome_labels.py', 'outcome_summary.py'),
+             'outcome_feedback': ('summarize_outcome_feedback.py', 'outcome_feedback.py'),
+             'outcome_alias_credit': ('pool_outcome_alias_credit.py', 'outcome_alias_credit.py'),
+             'outcome_conditioned_geometry': ('analyze_outcome_conditioned_geometry.py', 'outcome_conditioned_geometry.py')}
     if plan.get('tool_id') not in specs or set(plan) != {'tool_id', 'arguments', 'input_files', 'output_files'}:
         raise ValueError('Registered outcome calculation plan required')
     flags = {'--dataset', '--campaign', '--metrics', '--baseline', '--output', '--score-start', '--score-end',
-             '--mode', '--budget', '--threshold', '--tail-weight', '--branch-mode', '--score-tolerance'}
+             '--mode', '--budget', '--threshold', '--tail-weight', '--branch-mode', '--score-tolerance', '--shrinkage'}
     if plan['tool_id'] == 'outcome_summary':
         flags = {'--labels', '--evidence', '--output'}
+    elif plan['tool_id'] == 'outcome_feedback':
+        flags = {'--evidence', '--reports', '--output'}
+    elif plan['tool_id'] == 'outcome_conditioned_geometry':
+        flags = {'--dataset', '--campaign', '--labels', '--evidence', '--output', '--score-tolerance'}
+    elif plan['tool_id'] == 'outcome_alias_credit':
+        flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output', '--tail-weight'}
     args = plan['arguments']
     if len(args) % 2 or set(args[::2])-flags or len(set(args[::2])) != len(args[::2]):
         raise ValueError('Literal registered argument pairs required')
@@ -60,6 +81,7 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
     instruction_files = [ROOT/f'skills/{role.lower()}/SKILL.md', ROOT/'skills/terminal-outcome/SKILL.md']
     text = '\n\n'.join(p.read_text(encoding='utf-8').strip() for p in instruction_files)
     text += '\n\nTASK:\n'+reg['task']+'\n'
+    text += '\nREGISTERED FORMULAS:\n'+json.dumps(outcome_capabilities(), ensure_ascii=False, sort_keys=True)+'\n'
     request = {'schema_version': VERSION, 'role': role, 'window': packet['window'],
         'score_window': packet['score_window'], 'label_clock': 1., 'system_instruction': text,
         'instruction_sha256': hashlib.sha256(text.encode()).hexdigest(), 'evidence_sha256': digest(evidence),
@@ -186,14 +208,32 @@ def compile_program(request, response, output, number):
     return p
 
 
+def api_payload(request_path):
+    """Expose the same literal programs and response hashes as file-aware agents."""
+    req = read_json(request_path)
+    b = req['bindings']
+    verify_tool_artifacts(read_json(b['receipt']))
+    reg = read_json(b['registry'])
+    programs = {}
+    for key, record in reg['base_programs'].items():
+        if digest(record['path']) != record['sha256']:
+            raise ValueError('API parent program changed')
+        programs[key] = read_json(record['path'])
+    payload = {'request_sha256': digest(request_path), 'instruction_sha256': req['instruction_sha256'],
+        'evidence_sha256': req['evidence_sha256'], 'tool_receipt_sha256': b['receipt_sha256'],
+        'window': req['window'], 'score_window': req['score_window'], 'response_contract': req['response_contract'],
+        'evidence': read_json(b['evidence']), 'registry': reg, 'base_programs_actual': programs,
+        'capabilities': outcome_capabilities()}
+    if req['role'] == 'Designer':
+        payload['analyst'] = read_json(b['analyst'])
+        payload['analyst_response_sha256'] = b['analyst_response_sha256']
+    return payload
+
+
 def call_api(request_path, output):
     """Optional external API transport; current experiments use subagents."""
     req = read_json(request_path)
-    b = req['bindings']
-    payload = {'request_sha256': digest(request_path), 'evidence': read_json(b['evidence']),
-               'registry': read_json(b['registry']), 'receipt_sha256': b['receipt_sha256']}
-    if req['role'] == 'Designer':
-        payload['analyst'] = read_json(b['analyst'])
+    payload = api_payload(request_path)
     with httpx.Client(timeout=180) as client:
         res = client.post(os.environ['EVOMOLSTEER_LLM_BASE_URL'].rstrip('/')+'/chat/completions',
             headers={'Authorization': 'Bearer '+os.environ['EVOMOLSTEER_LLM_API_KEY']},

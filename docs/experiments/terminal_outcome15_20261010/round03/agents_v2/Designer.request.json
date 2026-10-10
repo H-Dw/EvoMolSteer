@@ -1,0 +1,86 @@
+{
+  "bindings": {
+    "analyst": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\round03\\agents_v2\\Analyst.response.json",
+    "analyst_response_sha256": "c6c04dbfc410201e95fada85209a14a5cc2d1832e0d7d53568a3e605523f6430",
+    "evidence": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\summaries\\mean_v2\\evidence.json",
+    "receipt": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\tool_receipts\\mean_v2.summary.json",
+    "receipt_sha256": "4b86d90f113b0a42517d77981f7331080d48c8c28c6adc75954a2681686658b6",
+    "registry": "D:\\llm_controlled_generation\\EvoMolSteer\\docs\\experiments\\terminal_outcome15_20261010\\round03\\agents_v2\\registry.json",
+    "registry_sha256": "0e398191c6b73def40efb01fe78a923930fbbc3b1dcddf8e72467d39981753d6",
+    "skills": {
+      "D:\\llm_controlled_generation\\EvoMolSteer\\skills\\designer\\SKILL.md": "e85d1349e3a240177b8c04e33d7b6d45cbd9262558f3c5468d7bb043b9118109",
+      "D:\\llm_controlled_generation\\EvoMolSteer\\skills\\terminal-outcome\\SKILL.md": "f2eff66367d5e5ab87f292e0ccd1d9ef605500ca42886dd010699a38901185ae"
+    }
+  },
+  "evidence_sha256": "046c35ff2c05116147a99ac07e315b1c5aafdd6d7161acdb3adf81480a05331b",
+  "instruction_sha256": "8b749474412388f55fa450c5b5a4d19d1e82264839ce844abdfefc44e7292979",
+  "label_clock": 1.0,
+  "response_contract": {
+    "Analyst_required": [
+      "label_source",
+      "findings",
+      "extensions_ready"
+    ],
+    "Designer_required": [
+      "analyst_response_sha256",
+      "base_program_id",
+      "updates"
+    ],
+    "common_required": [
+      "schema_version",
+      "agent",
+      "request_sha256",
+      "instruction_sha256",
+      "evidence_sha256",
+      "tool_receipt_sha256",
+      "score_window",
+      "window",
+      "evidence_ids",
+      "rationale",
+      "counterevidence"
+    ],
+    "label_source": "decoded_final",
+    "one_change_per_trial": true,
+    "parameter_limits": {
+      "branch_mixture.region_weight_mix": [
+        0.0,
+        1.0
+      ],
+      "branch_mixture.virtual_mass": [
+        0.0,
+        0.1
+      ],
+      "native_rms_ratio": [
+        0.05,
+        0.8
+      ],
+      "teacher_endpoint_temperature_A2": [
+        0.5,
+        12.0
+      ],
+      "teacher_neighbors": [
+        1,
+        28
+      ],
+      "teacher_score_beta": [
+        0.0,
+        6.0
+      ],
+      "time_ramp_power": [
+        0.0,
+        2.0
+      ]
+    }
+  },
+  "role": "Designer",
+  "schema_version": "terminal-outcome-agent-1.0",
+  "score_window": [
+    0.0,
+    0.5
+  ],
+  "system_instruction": "---\nname: evomolsteer-designer\ndescription: Turn molecular coordinate evidence into a compact, testable differentiable reward design.\n---\n\nYou are Designer. Read the supplied Analyst result, evidence, objective and\nexecution contract. Return a declarative design using the supplied formula\nregistry and response schema, with concise evidence-to-formula justification.\n\nSeparate observed targets from experimental choices. State the coordinate\nobservable, reference and parameter origins, derivative path and expected\nfailure modes. A temporal feature derivative is not a spatial reward gradient.\nKeep guidance within the supplied learned support and use the derivative path\nappropriate to its coordinate representation. Follow the execution contract;\ndo not substitute an affinity-gradient or particle-selection algorithm.\n\nCompare the design with supplied incumbent and counterevidence. Preserve a\ntested incumbent when no evidence justifies a change; an exploratory proposal\nor deferred design is also valid. Judge affinity and strain as distinct outcomes\nusing the task's priorities and evaluation criteria. Do not attribute quality\nloss to a changed chemical graph without a demonstrated mechanism.\n\nReturn the requested program and validation hypotheses.\n\nFor a terminal-outcome task, verify that the compiled teacher labels actually\ncome from the supplied final-quality calculation, rather than intermediate head\nscores. Bind the label source and both score/state clocks to the program.\n\n---\nname: evomolsteer-terminal-outcome\ndescription: Trace decoded final quality into observed selection ancestors and design coordinate rewards from outcome distributions.\n---\n\nUse the task's registered terminal-outcome tools. Perform numerical calculations\nwith these tools, and cite their output IDs and receipts; do not estimate effects\nfrom remembered examples or mental arithmetic. Read the literal score window,\nproposal/state control window, label clock, donor partition and censoring policy.\nSelection at score t acts on the proposal at t+dt. The last controlled state is\nderived from observed clocks, never a fixed number in these instructions.\n\nAnalyst: the primary advantage label is the common-protocol decoded final\naffinity, traced through exact selected-parent indices. An intermediate head\nscore is a conditioning variable and a selector diagnostic, not the final target.\nSeparate intermediate-high/final-ordinary from intermediate-ordinary/final-good.\nReport observed descendant count, valid fraction, affinity distribution and\ntail fraction, with shared ancestors and independent batches identified.\nAn extinct branch has unknown continuation, not zero affinity. These outcomes\nwere observed under selection and are not calibrated native-continuation values.\nKeep coordinate observations inside the supplied score window; final labels can\ncome from later times without extending the feature or guidance support.\n\nComplete and verify the label-source change before using optional extensions.\nIf requested, compare distinct natural branches with a common ancestor and\nsimilar intermediate score: spatial occupancy, geometric contacts, displacements\nand velocities. Use supplied matching tolerances and support counts. Exact\ncopies and zero contrasts remain controls. Contact proxies do not establish\nhydrogen bonds or physical energies. If requested, compare descendant tail\nfractions and quantiles rather than selecting only the best observed child.\nAvoid overstating small-sample maxima, repeated graphs or survivor associations.\n\nDesigner: consume the validated Analyst response and actual calculation receipts.\nUse the registered outcome-conditioned multi-mode coordinate formula. Specify\nteacher selection and prior label separately. Preserve their final-quality\nprovenance in the executable reference; a prose instruction alone is insufficient.\nChoose one registered change per trial and explain its expected numerical effect.\nKeep bounded dose and native flow calibration. Pull endpoint geometry gradients\nthrough the real model endpoint Jacobian; do not differentiate affinity heads,\nadd production forwards, resample particles or veto chemical graph changes.\nContinue native inference after the dynamically derived state boundary.\n\nVerify instruction, tool, label, reference and compiled-program bindings and\nactual trajectory response before judging efficacy. Assess final predicted\naffinity first, secondary strain and validity separately; retain a verified\nincumbent or restore it after a failed trial. Report concise evidence-to-formula\nrationale and counterevidence, not private reasoning transcripts.\n\nTASK:\nFoundation label-source replacement only. Use actual decoded-final crossover, descendant distributions and complete score-window geometric trends from registered tools. Distinguish intermediate-high/final-ordinary versus intermediate-other/final-high, retain censoring and non-independent ancestry. Optional matched-branch and tail-reward extensions are not yet enabled. Designer must retain numeric base parameters (updates={}) and use the calculated mean reference. No promised affinity improvement before paired full inference.\n",
+  "window": [
+    0.0,
+    0.51
+  ]
+}
