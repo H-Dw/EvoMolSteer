@@ -1,0 +1,73 @@
+{
+  "schema_version": "conditional-matched-field-diagnostic-note-1.0",
+  "source": "historical Steer campaign main1000_w050; not R06 prospective data",
+  "calculators": [
+    {
+      "tool_id": "outcome_conditioned_geometry",
+      "receipt_sha256": "e84d492007604543872644b18fbb6578a2526950a26f0aae2e24a248ee84f14a",
+      "evidence_sha256": "649fb28030fedb25318a0750f2f37261d47318b32bbb2fa105be34c7267c1d2a"
+    },
+    {
+      "tool_id": "outcome_matched_reference",
+      "receipt_sha256": "384f4f72e8cf6489e778cd0227fe4802da609597175611d4f44bf4e3b253ac90",
+      "evidence_sha256": "bec1af17355556ef6281f4c047919516492c8661856f1ae96f1fa74069c940d4",
+      "branch_support_sha256": "891131c33917d1c8e68a9b6e82cbe8d67912d374864f6121189a7cee31adbe60",
+      "matched_reference_sha256": "dfaabe81fde2bd866fda3fa54670cf9e59610e1a07b2805f59f7f63e38f817a2"
+    }
+  ],
+  "support": {
+    "matching": "Distinct immediate parents, common grandparent, nearest online score, no pair reuse; equal families and batches",
+    "online_score_tolerance": 0.25,
+    "score_window": [0.0, 0.5],
+    "control_window": [0.0, 0.51],
+    "donor_batches": 14,
+    "matched_pairs": 266,
+    "matched_ancestor_events": 264,
+    "supported_batch_events": 152,
+    "batch_event_rows": 686,
+    "rows_without_match": 534,
+    "exact_zero_coordinate_feature_pairs": 0,
+    "qualified_teacher_events": 101,
+    "teacher_events": 1169,
+    "nonzero_batch_time_events": 95
+  },
+  "branch_direction_support": {
+    "unit": "One exact-copy family per geometric contrast; observed family-mean final affinity conditioned on common grandparent and similar online score",
+    "point_selection_and_priors_unchanged": true,
+    "qualified_raw_RMS_A_quantiles": {
+      "p25": 0.0097,
+      "median": 0.020329,
+      "p75": 0.043331,
+      "max": 0.087401
+    },
+    "qualified_confidence_quantiles": {
+      "p25": 0.008165,
+      "median": 0.013163,
+      "p75": 0.017105,
+      "max": 0.03047
+    },
+    "lower_branch_count_median": 1,
+    "lower_branch_count_max": 3,
+    "sparsity": "Only 101 of 1169 teacher records qualified; the other records had zero confidence/direction support. Qualified amplitudes and confidence were small."
+  },
+  "geometry_evidence": {
+    "matched_features_tested": 137,
+    "corrected_q_min": 0.9753044394568644,
+    "corrected_q_max": 0.9977626606147817,
+    "interpretation": "No corrected-significant matched geometry feature. The lowest uncorrected p was 0.0383 for region_16_receptor_contact5, but its corrected q was 0.9753; it does not support a fixed motif or contact direction.",
+    "censored_fraction_mean": 0.9042577030812327
+  },
+  "limitations": {
+    "selection": "Conditional spatial fields are direction-only: teacher point selection and priors remain frozen to the family_mean_v2 reference.",
+    "outcomes": "Retrospective Steer-conditioned survivor branches; extinct futures are unknown, and repeated descendants/events are not independent replicates.",
+    "proxies": "Occupancy/contact measures are geometric proxies, not binding energies or hydrogen-bond evidence. Temporal fit derivatives are not spatial forces.",
+    "efficacy": "These support calculations do not establish prospective affinity benefit; R06 paired batch results were mixed, so no efficacy claim is made."
+  },
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/matched_support",
+    "outcome/matched_reward_modes"
+  ]
+}
