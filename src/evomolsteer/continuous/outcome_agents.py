@@ -37,6 +37,7 @@ def run_tool(plan_path, receipt):
              'outcome_summary': ('summarize_outcome_labels.py', 'outcome_summary.py'),
              'outcome_feedback': ('summarize_outcome_feedback.py', 'outcome_feedback.py'),
              'outcome_alias_credit': ('pool_outcome_alias_credit.py', 'outcome_alias_credit.py'),
+             'outcome_tail_regularization': ('regularize_outcome_tail_credit.py', 'outcome_tail_regularization.py'),
              'outcome_path_coverage': ('analyze_outcome_path_coverage.py', 'outcome_path_coverage.py'),
              'outcome_matched_reference': ('build_outcome_matched_reference.py', 'outcome_matched_reference.py'),
              'outcome_conditioned_geometry': ('analyze_outcome_conditioned_geometry.py', 'outcome_conditioned_geometry.py')}
@@ -52,6 +53,8 @@ def run_tool(plan_path, receipt):
         flags = {'--dataset', '--campaign', '--labels', '--evidence', '--output', '--score-tolerance'}
     elif plan['tool_id'] == 'outcome_alias_credit':
         flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output', '--tail-weight'}
+    elif plan['tool_id'] == 'outcome_tail_regularization':
+        flags = {'--evidence', '--metrics', '--output', '--shrinkage'}
     elif plan['tool_id'] == 'outcome_matched_reference':
         flags = {'--dataset', '--campaign', '--labels', '--metrics', '--evidence', '--output', '--score-tolerance'}
     elif plan['tool_id'] == 'outcome_path_coverage':

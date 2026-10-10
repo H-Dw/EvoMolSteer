@@ -1,0 +1,45 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "9e15af6100c54f27439aa5f84106d8c1d31ba6adb509d8a26b432c1590466c76",
+  "instruction_sha256": "fb3234fe87bf2b6299b8d93e8de4c7e4e51faea48813912eb9e6efdb4aaf6a6f",
+  "evidence_sha256": "4b4c4d93d6f88d068ebebbed4a967ce41f255af14c95182b1c772d4f0762a4e1",
+  "tool_receipt_sha256": "ae2b8f9ea0975fa2257c1fb045068189a3f2be6e097c70a0fc33ef15c159319c",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/alias_credit",
+    "outcome/tail_regularization",
+    "outcome/prospective"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "TO11 (teacher_neighbors=6) regressed against TO9/R9 on the primary all-slot affinity metric: paired mean difference was -0.039354372024536136, with batch differences +0.03183825492858887 and -0.11054699897766115. TO11 had valid_n 95/100, p90 strain 1.8400475006969703, and no valid elite. Follow the rollback instruction: restore R9 N4, program terminal_outcome15_round09 (SHA e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58), using its family_tail025_v1 reference; retain R6 as the quality fallback.",
+      "evidence_ids": ["outcome/prospective", "outcome/labels", "outcome/censoring"]
+    },
+    {
+      "finding": "The executed count-regularization calculator reports 1,203 teacher records, 510 with changed detached prior utility and 134 singleton records. With strength 2 and tail weight 0.25, batch-equal raw tail fraction 0.06908604191425627 became 0.060817920631641174; mean affinity component change was exactly 0 and batch-equal utility change was -0.0020670303206537606. The denominator includes every observed final slot, including invalid decoding, and the donor batch fraction uses the same denominator. This is prior-credit regularization only; teacher identities and endpoint coordinates/point selection remain unchanged. These are calculator responses, not efficacy evidence.",
+      "evidence_ids": ["outcome/tail_regularization", "outcome/alias_credit", "outcome/labels"]
+    },
+    {
+      "finding": "TO12 is limited to the registered count-regularized tail prior on the restored R9 reference. Keep teacher budget 2, tail weight 0.25, family-mean and branch settings, windows and all generation parameters unchanged; there are no parameter updates. The regularized fraction is a count-shrunk observed-descendant statistic, not a Bayesian posterior or calibrated native-success probability. No TO12 prospective affinity/strain outcome is supplied in this request.",
+      "evidence_ids": ["outcome/alias_credit", "outcome/tail_regularization", "outcome/clocks", "outcome/prospective"]
+    },
+    {
+      "finding": "The decoded-final family-mean label is traced through the observed trajectory on 51 events; score support is [0,0.5] and proposal-state control support [0,0.51]. Mean censoring is 0.9042577030812327. Extinct futures remain unknown, and descendants sharing a family are not independent observations. The computed tail fraction summarizes selected descendants and is not a native continuation probability.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks", "outcome/censoring"]
+    }
+  ],
+  "updates": [],
+  "extensions_ready": true,
+  "rationale": "The rollback response preserves the best retained R9 mean-affinity parent after TO11's primary regression, with R6 retained as the quality fallback. TO12 tests only the registered ν=2 count shrinkage of the 0.25 tail prior. The calculator verifies the credit-only change and unchanged mean/point selection; 510 prior changes and 134 singleton records characterize support, not benefit. Foundation readiness denotes completed final-label runtime verification and does not imply the regularization improves affinity.",
+  "counterevidence": [
+    "TO11's all-slot affinity was lower than TO9 despite higher validity, and batch effects had opposite signs; the single-axis neighbor expansion is rejected and R9 restored.",
+    "134 singleton teacher records have sparse descendant support, and mean censoring is about 90.4%; shrinkage toward the donor batch fraction can reduce noisy tail values but cannot recover extinct outcomes.",
+    "Observed descendants are related and were generated under selection. The raw and regularized tail fractions are not calibrated native probabilities; no prospective TO12 endpoint result is yet present."
+  ]
+}

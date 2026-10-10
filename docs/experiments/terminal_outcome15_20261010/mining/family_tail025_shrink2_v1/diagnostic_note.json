@@ -1,0 +1,48 @@
+{
+  "schema_version": "terminal-outcome-diagnostic-note-1.0",
+  "tool_id": "outcome_tail_regularization",
+  "tool_plan": "docs/experiments/terminal_outcome15_20261010/tool_plans/family_tail025_shrink2_v1.json",
+  "tool_receipt": "docs/experiments/terminal_outcome15_20261010/tool_receipts/family_tail025_shrink2_v1.json",
+  "tool_receipt_sha256": "11d58e256603b6e1fafb9d61bce47afc48fbb220411122c26cdd229aa683d9b5",
+  "exit_status": 0,
+  "inputs_unchanged": true,
+  "source": {
+    "reference": "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_v1/reference.json.gz",
+    "reference_sha256": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d",
+    "source_evidence": "docs/experiments/terminal_outcome15_20261010/mining/family_tail025_v1/evidence.json",
+    "metrics_sha256": "d88f7e52487be144fb5f84d9005f55690907acd82ca6cab046ef41628b34e5ad"
+  },
+  "regularization": {
+    "strength": 2.0,
+    "tail_weight": 0.25,
+    "formula": "(observed_n * raw_tail_fraction + strength * donor_batch_tail_fraction) / (observed_n + strength)",
+    "teacher_records": 1203,
+    "changed_prior_records": 510,
+    "singleton_records": 134,
+    "mean_component_change": 0.0,
+    "batch_equal_raw_tail_fraction": 0.06908604191425627,
+    "batch_equal_regularized_tail_fraction": 0.060817920631641174,
+    "batch_equal_utility_change": -0.0020670303206537606,
+    "denominator": "All observed final slots, including invalid decoding; donor baseline uses the same denominator"
+  },
+  "source_check": {
+    "teacher_endpoint_coordinates_unchanged": true,
+    "teacher_batches_and_slots_unchanged": true,
+    "geometric_point_selection_unchanged": true,
+    "instantaneous_branch_mode_unchanged": true,
+    "score_window_and_control_window_unchanged": true,
+    "mean_component_unchanged": true,
+    "interpretation": "The calculation retains R9 teacher identities and forecast endpoints. It changes detached utility/prior credit through the shrunken tail fraction; it does not change geometric point selection, the mean-affinity component, branch field, or time support."
+  },
+  "limits": [
+    "The calculator is diagnostic only; no inference or prospective efficacy test was run.",
+    "Shrinkage is a count-based heuristic, not Bayesian calibration or native-rollout success probability.",
+    "Descendant copies are related observations; singleton families are especially weakly supported.",
+    "Extinct branches remain censored, not zero-quality observations."
+  ],
+  "output_hashes": {
+    "evidence.json": "1f6187f061b5593ee06a3a07266ad41b02538ee4e451070779ed78ecd90da647",
+    "reference.json.gz": "b38bcdfd454bc0cbb5ddb71b508589f98aadf2bb88687de9216123994374ac31",
+    "support_credit.csv": "4052e26eb2279f50e533bc91a552536580c064a309279d0dd9e606b062281d4f"
+  }
+}

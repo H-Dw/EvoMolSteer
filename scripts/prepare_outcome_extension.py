@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT/'docs/experiments/terminal_outcome15_20261010'
 
 
-def prepare(kind, evidence, key, labels, tail_weight=0., tolerance=.25):
+def prepare(kind, evidence, key, labels, tail_weight=0., tolerance=.25, shrinkage=2.):
     evidence, labels = [(ROOT/Path(v)).resolve() for v in (evidence, labels)]
     packet = read_json(evidence)
     reference = Path(packet['reference_path'])
@@ -50,6 +50,12 @@ def prepare(kind, evidence, key, labels, tail_weight=0., tolerance=.25):
         args += ['--metrics', str(metrics)]
         inputs += [metrics]
         files += [output/'coverage_by_batch_event.csv', output/'coverage_by_event.csv']
+    elif kind == 'tail_regularization':
+        tool = 'outcome_tail_regularization'
+        args = ['--evidence', str(evidence), '--metrics', str(metrics),
+                '--output', str(output), '--shrinkage', str(shrinkage)]
+        inputs = [evidence, reference, metrics]
+        files += [output/'reference.json.gz', output/'support_credit.csv']
     else:
         raise ValueError('Registered sequential extension required')
     target = DOC/'tool_plans'/(key+'.json')
@@ -63,11 +69,12 @@ def prepare(kind, evidence, key, labels, tail_weight=0., tolerance=.25):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('--kind', choices=['matched_geometry', 'matched_field', 'pooled_credit', 'path_coverage'], required=True)
+    p.add_argument('--kind', choices=['matched_geometry', 'matched_field', 'pooled_credit', 'path_coverage', 'tail_regularization'], required=True)
     p.add_argument('--evidence', required=True)
     p.add_argument('--key', required=True)
     p.add_argument('--labels', default='docs/experiments/terminal_outcome15_20261010/mining/mean/ancestor_outcomes.parquet')
     p.add_argument('--tail-weight', type=float, default=0.)
     p.add_argument('--score-tolerance', type=float, default=.25)
+    p.add_argument('--shrinkage', type=float, default=2.)
     a = p.parse_args()
-    prepare(a.kind, a.evidence, a.key, a.labels, a.tail_weight, a.score_tolerance)
+    prepare(a.kind, a.evidence, a.key, a.labels, a.tail_weight, a.score_tolerance, a.shrinkage)
