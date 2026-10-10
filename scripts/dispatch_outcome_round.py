@@ -49,7 +49,9 @@ def dispatch(repo, work, manifest, previous=None, retry_failed=False):
             raise ValueError('Prior result retention required')
         else:
             report = Path(previous).resolve()
-            verify_retention(report)
+            retained = verify_retention(report)
+            if retained.get('round') != old['round']:
+                raise ValueError('Retention does not describe the immediately preceding round')
     else:
         if number != 1:
             raise ValueError('Campaign starts at one')

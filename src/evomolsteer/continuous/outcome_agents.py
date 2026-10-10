@@ -21,23 +21,28 @@ UPDATES = {'native_rms_ratio': (.05, .8), 'teacher_score_beta': (0., 6.),
 
 def run_tool(plan_path, receipt):
     plan = read_json(plan_path)
-    if plan.get('tool_id') != 'terminal_outcome' or set(plan) != {'tool_id', 'arguments', 'input_files', 'output_files'}:
+    specs = {'terminal_outcome': ('mine_terminal_outcomes.py', 'terminal_outcome.py'),
+             'outcome_summary': ('summarize_outcome_labels.py', 'outcome_summary.py')}
+    if plan.get('tool_id') not in specs or set(plan) != {'tool_id', 'arguments', 'input_files', 'output_files'}:
         raise ValueError('Registered outcome calculation plan required')
     flags = {'--dataset', '--campaign', '--metrics', '--baseline', '--output', '--score-start', '--score-end',
              '--mode', '--budget', '--threshold', '--tail-weight', '--branch-mode', '--score-tolerance'}
+    if plan['tool_id'] == 'outcome_summary':
+        flags = {'--labels', '--evidence', '--output'}
     args = plan['arguments']
     if len(args) % 2 or set(args[::2])-flags or len(set(args[::2])) != len(args[::2]):
         raise ValueError('Literal registered argument pairs required')
     files = {str(Path(v).resolve()): digest(v) for v in plan['input_files']}
     if any(Path(v).exists() for v in plan['output_files']):
         raise FileExistsError('Immutable tool output already exists')
-    command = [sys.executable, str(ROOT/'scripts/mine_terminal_outcomes.py'), *args]
+    script, module = specs[plan['tool_id']]
+    command = [sys.executable, str(ROOT/'scripts'/script), *args]
     p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace')
     outputs = {str(Path(v).resolve()): digest(v) for v in plan['output_files'] if Path(v).is_file()}
     result = {'schema_version': VERSION, 'tool_id': plan['tool_id'], 'plan_sha256': digest(plan_path),
         'command': command, 'returncode': p.returncode, 'input_files': files, 'output_files': outputs,
         'inputs_unchanged': all(digest(v) == sha for v, sha in files.items()),
-        'source_sha256': digest(ROOT/'src/evomolsteer/continuous/terminal_outcome.py'),
+        'source_sha256': digest(ROOT/'src/evomolsteer/continuous'/module),
         'stdout_tail': p.stdout[-1000:], 'stderr_tail': p.stderr[-3000:]}
     write_json(receipt, result)
     if p.returncode or not result['inputs_unchanged'] or len(outputs) != len(plan['output_files']):
@@ -51,6 +56,7 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
     packet, reg, r = read_json(evidence), read_json(registry), read_json(receipt)
     if r['returncode'] or not r['inputs_unchanged'] or str(Path(evidence).resolve()) not in r['output_files']:
         raise ValueError('Executed calculation receipt required')
+    verify_tool_artifacts(r)
     instruction_files = [ROOT/f'skills/{role.lower()}/SKILL.md', ROOT/'skills/terminal-outcome/SKILL.md']
     text = '\n\n'.join(p.read_text(encoding='utf-8').strip() for p in instruction_files)
     text += '\n\nTASK:\n'+reg['task']+'\n'
@@ -81,6 +87,18 @@ def export_request(role, evidence, registry, receipt, output, analyst=None):
     return path
 
 
+def verify_tool_artifacts(receipt):
+    """A receipt is evidence only while its immutable inputs and outputs match."""
+    if receipt.get('returncode') != 0 or receipt.get('inputs_unchanged') is not True:
+        raise ValueError('Successful immutable calculation required')
+    for key in ('input_files', 'output_files'):
+        if not receipt.get(key):
+            raise ValueError('Calculation artifact inventory missing')
+        for path, sha in receipt[key].items():
+            if not Path(path).is_file() or digest(path) != sha:
+                raise ValueError('Executed calculation artifact changed: '+path)
+
+
 def validate_response(request_path, response_path):
     req, r = read_json(request_path), read_json(response_path)
     b = req['bindings']
@@ -90,6 +108,10 @@ def validate_response(request_path, response_path):
             raise ValueError('Bound calculation artifact changed')
     if any(digest(p) != sha for p, sha in b['skills'].items()):
         raise ValueError('Bound literal Skill changed')
+    verify_tool_artifacts(read_json(b['receipt']))
+    required = req['response_contract']['common_required']+req['response_contract'][req['role']+'_required']
+    if set(required)-set(r):
+        raise ValueError('Required role response fields missing')
     expected = {'schema_version': VERSION, 'agent': req['role'], 'request_sha256': digest(request_path),
         'instruction_sha256': req['instruction_sha256'], 'evidence_sha256': req['evidence_sha256'],
         'tool_receipt_sha256': b['receipt_sha256'], 'score_window': req['score_window'], 'window': req['window']}
@@ -108,12 +130,17 @@ def validate_response(request_path, response_path):
         if r.get('analyst_response_sha256') != b['analyst_response_sha256'] or digest(b['analyst']) != b['analyst_response_sha256']:
             raise ValueError('Designer is not bound to actual Analyst')
         updates = r.get('updates', {})
+        allowed = read_json(b['registry']).get('allowed_updates', list(UPDATES))
+        if set(updates)-set(allowed):
+            raise ValueError('Update is outside this serial module trial')
         if len(updates) > 1 or set(updates)-set(UPDATES):
             raise ValueError('At most one registered parameter axis per trial')
         for key, value in updates.items():
             lo, hi = UPDATES[key]
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= value <= hi:
                 raise ValueError('Parameter outside finite bounded registry')
+            if key == 'teacher_neighbors' and int(value) != value:
+                raise ValueError('Teacher neighbor count must be integral')
     return r
 
 
@@ -127,7 +154,11 @@ def compile_program(request, response, output, number):
     p = read_json(base['path'])
     if digest(base['path']) != base['sha256']:
         raise ValueError('Base checkpoint changed')
-    for key in ['flowcompat_binding', 'agent_binding', 'flowcompat_supplemental_binding']:
+    provenance = {key: p[key] for key in ('program_id', 'agent_request_sha256', 'skill_sha256',
+        'endpoint_designer_response_sha256', 'derivation') if key in p}
+    for key in ['flowcompat_binding', 'agent_binding', 'flowcompat_supplemental_binding',
+                'skill_sha256', 'skill_behavior_audit_sha256', 'endpoint_designer_response_sha256',
+                'geometry_review_sha256', 'endpoint_compiled_baseline_sha256', 'derivation', 'control_origin']:
         p.pop(key, None)
     for dotted, value in r['updates'].items():
         target = p
@@ -142,7 +173,11 @@ def compile_program(request, response, output, number):
     p.update(program_id=f'terminal_outcome15_round{number:02d}', round=number, seed=42,
         window=evidence['window'], score_window=evidence['score_window'], reference_sha256=ref['sha256'],
         target_definition='decoded_final_observed_ancestor_distribution', agent_request_sha256=digest(request),
+        derivation={'source': 'Executed terminal-outcome tools and validated Luna Analyst/Designer responses',
+                    'rationale': r['rationale'], 'counterevidence': r['counterevidence'],
+                    'parent_provenance': provenance, 'no_private_reasoning_transcript': True},
         generation_interface='flowcompat_v2', outcome_binding={'schema_version': VERSION,
+            'base_program_sha256': base['sha256'],
             'analyst_response_sha256': req['bindings']['analyst_response_sha256'], 'designer_response_sha256': digest(response),
             'request_sha256': digest(request), 'instruction_sha256': req['instruction_sha256'],
             'receipt_sha256': req['bindings']['receipt_sha256'], 'evidence_sha256': req['evidence_sha256'],
