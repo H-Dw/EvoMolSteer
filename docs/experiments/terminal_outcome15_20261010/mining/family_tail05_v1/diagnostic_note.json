@@ -1,0 +1,48 @@
+{
+  "schema_version": "family-tail-utility-diagnostic-note-1.0",
+  "source": "historical Steer campaign main1000_w050; R06 teacher coordinates and family-first selection retained",
+  "tool_id": "outcome_alias_credit",
+  "receipt_sha256": "2ac3a50fb4d8966d03f96b93f70611c41d2f950e950d48f0cc5fa0b77f58e9a3",
+  "receipt_returncode": 0,
+  "inputs_unchanged": true,
+  "output_hashes": {
+    "evidence.json": "dc1dc4711c966d63d31f5be9cc0a0d113a773cd8771fdc69bd5bec28b0d45593",
+    "alias_credit.csv": "982f7331bcde34af7845ade5c2127b24fe9b7fd79b87e4e4dacd0115e5cbe980",
+    "reference.json.gz": "6651f1a14797739ac150bbbd2591cc438829d06dabd28b7b91ceb6584beebecc"
+  },
+  "definition": {
+    "tail_threshold_pic50": 8.258901977539063,
+    "tail_weight": 0.5,
+    "utility": "pooled decoded-final graph mean + 0.5 * observed final-tail fraction",
+    "tail_fraction_denominator": "All observed terminal slots in the exact-copy family, including invalid decoded offspring; valid_fraction is reported separately",
+    "coordinate_selection_unchanged": true,
+    "semantics": "Observed exact-state copy-family distribution; no maximum-child reward and no native-success probability"
+  },
+  "support_and_calculated_changes": {
+    "teacher_records": 1203,
+    "donor_batches": 14,
+    "copy_n_quantiles_25_50_75": [1.0, 2.0, 2.0],
+    "observed_family_size_quantiles_25_50_75": [4.0, 11.0, 43.0],
+    "unique_graph_count_quantiles_25_50_75": [2.0, 4.0, 14.0],
+    "tail_fraction_quantiles_25_50_75_max": [0.0, 0.0, 0.073170731707317, 1.0],
+    "valid_fraction_quantiles_25_50_75": [0.9583333333333334, 1.0, 1.0],
+    "records_with_nonzero_tail_fraction": 398,
+    "batch_equal_mean_tail_fraction": 0.06908604191425625,
+    "mean_component_change_batch_equal": 0.0,
+    "tail_utility_delta_quantiles_25_50_75_max": [0.0, 0.0, 0.036585365853658125, 0.5],
+    "batch_equal_mean_tail_utility_delta": 0.034543020957128065,
+    "batches_with_zero_observed_tail_credit": [1, 5, 6, 8, 10, 12]
+  },
+  "interpretation_and_limits": {
+    "selection_vs_prior": "This calculator reports point/coordinate selection unchanged and changes credit/prior values only. It does not change which teacher coordinates are selected.",
+    "utility_units": "The added tail term is a heuristic utility component, not calibrated affinity units or a measured physical quantity.",
+    "censoring": "Unknown extinct futures remain censored. Observed offspring are Steer-conditioned; related descendants are not independent trials.",
+    "scope": "Retrospective credit diagnostic only. No inference or efficacy claim is made."
+  },
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/alias_credit"
+  ]
+}
