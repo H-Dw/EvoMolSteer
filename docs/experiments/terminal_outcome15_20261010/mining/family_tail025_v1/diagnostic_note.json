@@ -1,0 +1,69 @@
+{
+  "schema_version": "family-tail-utility-diagnostic-note-1.0",
+  "source": "historical Steer campaign main1000_w050; labels and teacher library based on R06 family-mean source (not R08-derived credit)",
+  "tool_id": "outcome_alias_credit",
+  "receipt_sha256": "19bb5b087cfe9d15ad12be6e0efc4a1d98e4afa7355f13db721b7c09f5e1d964",
+  "receipt_returncode": 0,
+  "plan_sha256": "f539dfed3785ba3620eeb8b2f30c47cfc086753f1c8aab7505b900066a3d05c0",
+  "inputs_unchanged": true,
+  "output_hashes": {
+    "evidence.json": "4a992999e44b97cb7108eb55dd5264bb0f3b38be2f86c3a21ea8353b297f53d8",
+    "alias_credit.csv": "cf40b60c76451ae4e347406a135b1b0cb884388befbb19e274655dcb3f9184b0",
+    "reference.json.gz": "4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d"
+  },
+  "definition": {
+    "tail_threshold_pic50": 8.258901977539063,
+    "tail_weight": 0.25,
+    "utility": "graph-aware decoded-final mean + 0.25 * observed final-tail fraction",
+    "tail_fraction_denominator": "All observed terminal offspring slots in each exact-copy family, including invalid decoded offspring; valid_fraction is separate.",
+    "coordinate_selection_unchanged": true,
+    "semantics": "Observed exact-state copy-family distribution; no max-child credit or native-success probability."
+  },
+  "support_and_calculated_changes": {
+    "teacher_records": 1203,
+    "donor_batches": 14,
+    "records_with_nonzero_tail_fraction": 398,
+    "tail_fraction_quantiles_25_50_75_max": [
+      0.0,
+      0.0,
+      0.073170731707317,
+      1.0
+    ],
+    "valid_fraction_quantiles_25_50_75": [
+      0.9583333333333334,
+      1.0,
+      1.0
+    ],
+    "utility_delta_quantiles_25_50_75_max": [
+      0.0,
+      0.0,
+      0.018292682926829507,
+      0.25
+    ],
+    "batch_equal_mean_tail_fraction": 0.06908604191425625,
+    "batch_equal_mean_utility_delta": 0.017271510478563984,
+    "mean_component_change_batch_equal": 0.0,
+    "batches_with_zero_observed_tail_credit": [
+      1,
+      5,
+      6,
+      8,
+      10,
+      12
+    ],
+    "relative_to_R8_weight_0.5_same_source": "The registered tail term is halved from 0.5 to 0.25 for the same underlying R06 mean library; batch-equal tail utility delta is half the R08 diagnostic delta (0.0172715 vs 0.0345430). This is a calculator contrast, not an observed R9 outcome."
+  },
+  "interpretation_and_limits": {
+    "selection_vs_prior": "Teacher coordinate selection is unchanged; this diagnostic changes prior credit only.",
+    "units": "The weighted tail component is a heuristic combined utility, not calibrated affinity units or a measured physical quantity.",
+    "censoring": "Unknown extinct futures remain censored; observed Steer descendants and related graphs do not form independent trials.",
+    "efficacy": "R8 had mixed paired batch results versus R6 despite positive comparisons versus native; this retrospective weight sensitivity does not establish R9 efficacy. R6 remains quality fallback pending R9 full evaluation.",
+    "runtime": "A fresh compiled-reference VJP is needed for R9; calculator execution alone is not reward-path/runtime verification."
+  },
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/alias_credit"
+  ]
+}
