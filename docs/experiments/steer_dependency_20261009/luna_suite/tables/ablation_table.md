@@ -7,6 +7,6 @@
 |I4_without_history_matching|history_matching|structure|1/0.25/2|0.33 / 0|7.6941|+0.1146|98/100|0.4845|
 |I5_without_all|lineage, temporal, elite_geometry, history_matching|structure|1/0.25/2|0.2 / 1|7.5832|+0.0038|98/100|0.5281|
 |D1_without_scores|lineage, temporal, elite_geometry, history_matching; unweighted|pocket|0.0/0.25/1|0.2 / 1|7.5439|-0.0356|97/100|0.5384|
-|D2_without_trajectory|lineage, temporal, elite_geometry, history_matching; static|static|—/—/—|0.2 / 0|待完成|待完成|待完成|待完成|
-|D3_without_steer|lineage, temporal, elite_geometry, history_matching; structure|structure|1/0.25/1|0.2 / 1|待完成|待完成|待完成|待完成|
-|D4_pocket_only|lineage, temporal, elite_geometry, history_matching; pocket|pocket|0.0/0.1/1|0.2 / 1|待完成|待完成|待完成|待完成|
+|D2_without_trajectory|lineage, temporal, elite_geometry, history_matching; static|static|—/—/—|0.2 / 0|7.6523|+0.0729|97/100|0.5126|
+|D3_without_steer|lineage, temporal, elite_geometry, history_matching; structure|structure|1/0.25/1|0.2 / 1|7.5832|+0.0038|98/100|0.5281|
+|D4_pocket_only|lineage, temporal, elite_geometry, history_matching; pocket|pocket|0.0/0.1/1|0.2 / 1|7.5320|-0.0474|97/100|0.5380|
