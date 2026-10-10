@@ -193,7 +193,9 @@ def role_call(repo, study, row, chain, role, analyst=None, delivery=None):
         {"role": "user", "content": json.dumps(read_json(study / "evidence.json"), separators=(",", ":"))},
         {"role": "user", "content": json.dumps(task, separators=(",", ":"))}]
     result = call_json(messages, schema, folder / (role + ".json"), input_store=study / "inputs")
-    known = set(read_json(study / "evidence_index.json")["ids"])
+    # Packet section names are genuine metadata sources too (e.g. reference
+    # geometry or projection coverage), rather than invented contrast rows.
+    known = set(read_json(study / "evidence_index.json")["ids"]) | set(read_json(study / "evidence.json"))
     claimed = result.get("evidence_ids", []) if role == "Designer" else [
         value for finding in result["findings"] for value in finding["evidence_ids"]]
     if not set(claimed) <= known:
