@@ -1,0 +1,81 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "../../../inputs/28a7c9006b9d68cfb5be64a1193f74b61a98eaa61edfd21945c42704584df7fc.txt",
+        "content_sha256": "28a7c9006b9d68cfb5be64a1193f74b61a98eaa61edfd21945c42704584df7fc",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../../inputs/ce61fb8cdf8e604d7f1dffc28f0ca9684be593f6d99cb1784c8aa5b0fade711f.txt",
+        "content_sha256": "ce61fb8cdf8e604d7f1dffc28f0ca9684be593f6d99cb1784c8aa5b0fade711f",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../../inputs/5722265da0275b95cded06c36385871088c7561ddba983b5e1347f7fee7edc06.txt",
+        "content_sha256": "5722265da0275b95cded06c36385871088c7561ddba983b5e1347f7fee7edc06",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "findings": {
+        "items": {
+          "additionalProperties": true,
+          "properties": {
+            "claim": {
+              "type": "string"
+            },
+            "evidence_ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "priority": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "evidence_ids",
+            "claim"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "hypotheses": {
+        "items": {
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "limitations": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "findings"
+    ],
+    "type": "object"
+  }
+}

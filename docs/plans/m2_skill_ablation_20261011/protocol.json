@@ -1,0 +1,246 @@
+{
+  "schema_version": "m2-skill-ablation-plan-1.0",
+  "status": "PLANNED_ONLY",
+  "execution_enabled": false,
+  "purpose": "Module instruction -> role information -> operative coordinate reward -> trajectory -> final predicted quality",
+  "study_date": "2026-10-11",
+  "agent_backend": "future isolated subagent proxy",
+  "requested_agent_model": "gpt-5.6-luna",
+  "role_models": {
+    "Analyst": "gpt-5.6-luna",
+    "Designer": "gpt-5.6-luna",
+    "functional_reviewer_if_used": "gpt-5.6-luna"
+  },
+  "fresh_context": "fork_turns=none",
+  "fallback_model_allowed": false,
+  "agent_replicates": {
+    "chains_per_condition": 6,
+    "meaning_preserving_task_wordings": 2,
+    "fresh_chains_per_wording": 3,
+    "token_seed_reproducibility_claim": false,
+    "condition_names_blinded": true,
+    "downstream_Designer_in_Analyst_ablation": "same frozen D0-G instructions; one independent fresh call per Analyst response; finalists optionally replayed",
+    "designer_phase_Analyst_inputs": "same six frozen A* responses for every Designer treatment; no generated quality data"
+  },
+  "execution_baseline": {
+    "job_path": "configs/experiments/steer_dependency_v1/jobs/M2_static_teacher.json",
+    "program": "configs/experiments/steer_dependency_v1/D2_without_trajectory_static.json",
+    "program_sha256": "91fd96a203e1d4138378fecb01e11d433cd6d9e7b8455da036a70c713c4999b6",
+    "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+    "reference_sha256": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+    "FLOWR_checkpoint": "flowr_root_v2.ckpt",
+    "FLOWR_checkpoint_sha256": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0",
+    "steps": 100,
+    "heavy_atom_slots": 25,
+    "master_seed": 42,
+    "batch_seed_rule": "42+100003*b",
+    "window_policy": "derive from immutable learning/reference metadata; current [0,0.5] is descriptive, not a Skill literal",
+    "teacher_source_score_time": 0.49,
+    "teacher_bank_size": 28,
+    "teacher_scores_beta": 0,
+    "teacher_neighbors": 4,
+    "native_rms_ratio": 0.33,
+    "time_ramp_power": 0,
+    "actual_pointcloud_delta_A": 1,
+    "legacy_robust_delta_not_effective": true,
+    "geometry_block_weights_not_pointcloud_force": true,
+    "no_SMC": true,
+    "no_affinity_head_derivative": true,
+    "extra_production_forwards_per_step": 0,
+    "continue_native_to_time": 1,
+    "graph_transitions_allowed": true,
+    "checkpoint_binding_must_be_reverified_at_activation": true
+  },
+  "lanes": {
+    "G": {
+      "hold_fixed": [
+        "teacher_bank",
+        "teacher_score_beta",
+        "eta",
+        "ramp",
+        "execution_contract"
+      ],
+      "prospective_allowed_changes": {
+        "teacher_neighbors": [
+          2,
+          4,
+          8
+        ],
+        "teacher_endpoint_temperature_A2": [
+          2,
+          4,
+          8
+        ],
+        "mixture_temperature": [
+          0.25,
+          0.5,
+          1
+        ],
+        "pointcloud_delta_A": [
+          0.5,
+          1,
+          2
+        ],
+        "region_recipe": "data-bound sparse soft emphasis, positive outside-region weight; compiler/equivalence interface needs implementation"
+      },
+      "maximum_edits": "one preregistered atomic geometry recipe; no contact/energy/new trajectory target"
+    },
+    "U": {
+      "reward_shape": "frozen chosen G result",
+      "native_rms_ratio": [
+        0.2,
+        0.33,
+        0.5
+      ],
+      "time_ramp_power": [
+        0,
+        1,
+        2
+      ],
+      "maximum_edits": "one dose parameter; no shape or teacher edits"
+    }
+  },
+  "phase_order": [
+    "P0 same-model cleanup/structure baseline",
+    "P1 Analyst individual deletion/alternative then sequential pruning",
+    "P2 Designer shape then dose ablation with frozen Analyst output pool",
+    "P3 combination and final-context necessity checks"
+  ],
+  "condition_matrix": "conditions.csv",
+  "condition_rows": 46,
+  "no_queue_or_remote_job_created": true,
+  "generation_plan": {
+    "molecules_per_batch": 50,
+    "screen_batches": [
+      2000,
+      2001,
+      2002,
+      2003
+    ],
+    "confirmation_batches": [
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011
+    ],
+    "final_necessity_batches": [
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019
+    ],
+    "contingency_batches": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
+      2026,
+      2027,
+      2028,
+      2029,
+      2030,
+      2031,
+      2032,
+      2033,
+      2034,
+      2035
+    ],
+    "batch_indices_require_unused_check_before_activation": true,
+    "screen_n_per_distinct_program": 200,
+    "initial_confirmation_n_per_distinct_program": 400,
+    "final_n_per_distinct_program": 400,
+    "same_program_same_rng_results_shared_not_new_replicates": true,
+    "sample_size_freeze": "estimate crossed role/batch variation using screen; freeze size before viewing confirmation outcomes",
+    "outcome_driven_optional_stopping": false,
+    "budget_formula": "200*U_screen + 400*U_confirmation + 400*U_final + distinct matched controls, before preregistered contingency",
+    "base_call_upper_bound_before_optional_replays_and_functional_fixtures": 396,
+    "base_candidate_program_slots_upper_bound": 252,
+    "bound_interpretation": "Counting draft slots, not mandatory distinct rewards or submitted tasks; equivalent designs can sharply reduce inference",
+    "budget_is_not_an_execution_authorization": true
+  },
+  "evaluation": {
+    "primary": "mean final FLOWR predicted target pIC50 across attempted generation, with score coverage and missingness disclosed",
+    "secondary": [
+      "validity",
+      "PB fast",
+      "MMFF strain relief per heavy atom median and p90",
+      "energy convergence coverage",
+      "fixed-threshold elite-valid attempt yield",
+      "P95 affinity",
+      "unique valid and high-affinity graphs"
+    ],
+    "elite_threshold": 8.258901977539063,
+    "elite_threshold_origin": "historical frozen evaluation manifest; not a Skill literal",
+    "historical_Steer_role": "unpaired different-online-budget reference; preserved without rerun",
+    "m2_mean_all_reference": 7.7446608543396,
+    "statistics": "crossed role-chain and generation-batch blocked paired comparison; identical programs retain multiplicity as policy outcomes but do not become independent molecular samples",
+    "multiplicity": "Holm hypothesis tests; simultaneous CI construction must be preregistered by max-T or conservative familywise inversion before execution",
+    "maintenance": {
+      "point_delta_min": 0,
+      "CI_lower_greater_than": -0.02
+    },
+    "necessity_affinity": {
+      "both_keep_minus_drop_and_keep_minus_alternative_CI_lower_greater_than": 0.05,
+      "positive_role_chains_at_least": 5,
+      "role_chains_total": 6
+    },
+    "equivalence_band_pic50": [
+      -0.02,
+      0.02
+    ],
+    "secondary_necessity": "affinity equivalent plus confirmed >10% strain worsening under deletion and alternative",
+    "quality_envelope_proposed": {
+      "MMFF_median_relative_worsening_max": 0.1,
+      "MMFF_p90_relative_worsening_max": 0.1,
+      "PB_rate_drop_max": 0.02
+    },
+    "inconclusive_is_not_no_effect": true,
+    "bad_alternative_alone_is_not_necessity": true
+  },
+  "retirement": {
+    "literal_legacy_modules": [
+      "continuous_dynamics",
+      "joint_geometry",
+      "lineage_credit",
+      "localization",
+      "coherent_modes",
+      "dose_calibration",
+      "history_matching",
+      "regional_emphasis"
+    ],
+    "literal_dependency_blocks": [
+      "lineage",
+      "temporal",
+      "elite_geometry",
+      "history_matching"
+    ],
+    "data_are_not_removed_with_instruction": true,
+    "similar_new_themes_unproven_until_ablation": true
+  },
+  "future_required_implementation": [
+    "opaque request/module assembler",
+    "G/U bounded compiler and regional/M2 no-op equivalence",
+    "blinded functional scoring and evidence checks",
+    "effective numerical signatures and trajectory readouts",
+    "crossed uncertainty/equivalence statistics",
+    "content-addressed compact transport and protected cleanup"
+  ],
+  "modular_skills": {
+    "Analyst": "skills/analyst/SKILL.md",
+    "Designer": "skills/designer/SKILL.md"
+  },
+  "fixed_contract": "contracts/shared_contract.md",
+  "registry": "module_registry.json",
+  "rubric": "response_rubric.json",
+  "scope_limit": "Contextual necessity in this target/evidence/registry/Agent workflow; no universal necessity claim"
+}

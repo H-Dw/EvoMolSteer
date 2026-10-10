@@ -1,0 +1,46 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "teacher_neighbors",
+    "value": 8
+  },
+  "evidence_ids": [
+    "endpoint_effects:10",
+    "endpoint_effects:9",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "regional_effects:0",
+    "regional_effects:4",
+    "regional_effects:5",
+    "increment_effects:10",
+    "increment_effects:13",
+    "information_audit",
+    "curve_support"
+  ],
+  "expected_response": {
+    "batch_criterion": "same sign in a majority of the 14 independent batches",
+    "direction": "positive shift",
+    "observable": "pair_kernel_2.5 endpoint coordinate feature (with pair_kernel_1.5/3.5/5.0 correlated)",
+    "scale_reference": "native endpoint world-coordinate scale; teacher pairwise assignment RMS quantiles 0.446/0.863/1.050 A are a dispersion reference, not an affinity energy"
+  },
+  "failure_modes": [
+    "pair_kernel_2.5 does not shift positive, or shifts positive only in the survival/increment measure while the endpoint contrast stays null (increment_effects:10 q=0.208, increment_effects:13 q=0.208 do not survive joint correction)",
+    "pair_kernel_7.0 becomes enriched instead of remaining depleted, indicating the neighborhood change moved the response in the wrong direction",
+    "the shift appears only in a few batches rather than a majority of the 14 independent batches",
+    "the change is a whole-reward rescaling canceled by normalization rather than a component-direction change in the pair-kernel term",
+    "landmark curves with 7-15 strong sign-conflict nodes and relative RMSE 0.72-0.93 (landmark_05, landmark_15, landmark_16) contaminate the readout"
+  ],
+  "parameter_origins": {
+    "derivative_path": "flowr_endpoint_vjp (supplied execution lane)",
+    "incumbent_teacher_neighbors": "4 (supplied incumbent)",
+    "mixture_temperature": "0.5 (incumbent, unchanged)",
+    "native_rms_ratio": "0.33 (incumbent, unchanged; fixed-dose lane)",
+    "pointcloud_delta_A": "1.0 (incumbent, unchanged)",
+    "teacher_endpoint_temperature_A2": "4.0 (incumbent, unchanged)",
+    "teacher_neighbors": "prospective hyperparameter choice within allowed_G [2,4,8]; direction supported by endpoint_effects:9-13, magnitude not identified by the data",
+    "time_ramp_power": "0.0 (incumbent, unchanged; fixed-dose lane)"
+  },
+  "rationale": "Analyst hypothesis 1 (priority 1) is the only endpoint contrast with a coherent signed direction and full cross-batch agreement: pair_kernel_2.5 (+0.631, q=2.2e-5, 14/14), pair_kernel_1.5 (+0.562, 14/14), pair_kernel_3.5 (+0.540, 14/14) and pair_kernel_5.0 (+0.319, 12/14) are enriched while pair_kernel_7.0 is depleted (-0.485, 0/14). The registered formula represents this response because the pair-kernel features are computed on the native endpoint world coordinates, and the endpoint-coordinate reward is pulled back through the real FLOWR endpoint VJP (derivative_path=flowr_endpoint_vjp), so changing the teacher-neighborhood scale changes the coordinate response that the pair-kernel term measures. The incumbent teacher_neighbors=4 sits inside the enriched 1.5-5.0 A band; the depleted 7.0 A row shows the response is not monotone in neighborhood size, so the edit moves the mixture toward the larger, still-enriched end of the supported band rather than rescaling the whole reward. teacher_neighbors=8 is a registered bounded value (allowed_G: [2,4,8]) and is a prospective hyperparameter choice, not a data-supported scale: the data support the direction (mid-range pair distances enriched, long-range depleted) but do not identify 8 as the optimum, so this is a discriminating test of whether the compactness direction survives at a wider neighborhood. The numerical observable that should change if implemented is the pair_kernel_2.5 endpoint feature (and the correlated 1.5/3.5/5.0 features) shifting positive with majority-batch agreement, with pair_kernel_7.0 not becoming further enriched. This is a coordinate-only control edit; no affinity-head derivative, extra production forward, resampling, graph veto or atomic-type control is introduced, and the FLOWR model, reference and integrator bindings are preserved.",
+  "role": "Designer"
+}
