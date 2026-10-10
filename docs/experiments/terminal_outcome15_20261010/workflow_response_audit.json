@@ -1,0 +1,70 @@
+{
+  "schema_version": "workflow-response-audit-1.0",
+  "scope": "Read-only responsiveness audit for completed rounds 1-9 and compiled R10 artifacts. No R11 design or generation performed.",
+  "round_response_map": [
+    {"round": 1, "instruction_or_module": "R26 matched-state boundary control; instantaneous teacher scoring", "observed_response": "Final-label API was bound as a boundary-only control, while the actual teacher scoring remained instantaneous; this was not decoded-final relabeling."},
+    {"round": 2, "instruction_or_module": "R11 endpoint branch mixture; virtual mass 0.025", "observed_response": "Reward response changed; base reference remains instantaneous and numeric settings are unchanged."},
+    {"round": 3, "instruction_or_module": "Decoded-final outcome label replacement", "observed_response": "51 reward events changed; no branch matching or tail utility."},
+    {"round": 4, "instruction_or_module": "R11 template with decoded-final equal-graph mean label", "observed_response": "51 reward events changed; preserves R11 numeric parameters and branch virtual mass. R03 comparison had opposite batch signs, so not robust improvement."},
+    {"round": 5, "instruction_or_module": "Exact-copy family pooled mean credit in teacher priors", "observed_response": "17 events changed; teacher points/coordinates, branch, and parameters unchanged. This is active prior credit, not a new point-selection module."},
+    {"round": 6, "instruction_or_module": "Family mean pooled before teacher ranking", "observed_response": "Four reward events changed; calculator support reported 26/714 changed selections. One exact-copy family per geometric contrast; instantaneous branch retained."},
+    {"round": 7, "instruction_or_module": "Conditional matched branch-direction field", "observed_response": "43 events changed; sparse support (101/1169 directions), no aggregate corrected-significant motif. R07 regressed against R06 in both batches and was retired."},
+    {"round": 8, "instruction_or_module": "Family mean plus 0.5 times observed final high-affinity offspring fraction", "observed_response": "51 events changed; points/selection unchanged. Utility is a history-conditioned heuristic, not native success probability or max-child reward."},
+    {"round": 9, "instruction_or_module": "Tail weight 0.5 to 0.25", "observed_response": "51 events changed; isolates tail coefficient in the compiled reward. Results were mixed versus R08; one valid elite is not sufficient for promotion."},
+    {"round": 10, "instruction_or_module": "Teacher support budget 2 to 4 with R06 family ranking and 0.25 tail prior", "observed_response": "Compiled reward response changed 39 events. The inference is running; no final R10 efficacy result is included here."}
+  ],
+  "diagnostic_only_or_noop": [
+    "Matched-geometry and final-teacher-coverage calculator outputs are diagnostics; they do not themselves alter reward or prove efficacy.",
+    "The R10 pooled-credit calculator and path-coverage calculator quantify teacher composition/coverage; they are not an additional reward axis.",
+    "R05 pooled prior credit leaves teacher coordinates unchanged; R08/R09 tail changes alter prior utility but explicitly preserve point selection.",
+    "R10 configuration keeps branch mode instantaneous; no matched-field extension is active."
+  ],
+  "windows_and_controller_semantics": {
+    "score_window": [0.0, 0.5],
+    "proposal_state_window": [0.0, 0.51],
+    "boundary_behavior": "The tool derives the control boundary from observed resampled state times and verifies endpoint alignment; 0.51 is not a hardcoded universal value. The compiled R10 config records these windows.",
+    "teacher_and_guidance_coordinates": "Historical teacher coordinates are forecast endpoint clouds indexed by learned score time t, while their state_time denotes t+dt. The endpoint controller evaluates a fresh native forecast from pre-native x_t against that endpoint library, differentiates through the forecast Jacobian, then applies a bounded lagged correction after the native step at x_(t+dt). This is first-order endpoint reward guidance, not direct guidance on the final decoded molecule or a measured affinity-head gradient."
+  },
+  "runtime_dependency_audit": {
+    "finding": "R10 budget-4 calculator provenance points to a different baseline artifact hash than the budget-2 R26 family-mean artifact, but code-path and consumed-data checks found no runtime numerical dependency on baseline-stored teacher coordinates in family_mean mode.",
+    "consumed_static_fields": "Landmarks, origin, feature definitions/scales, representation metadata, trajectory sources, discovery batches, and label/time semantics were checked equal.",
+    "data_equality": "family_mean_v2 and family_mean_budget4_v1 ancestor outcomes (35700x17), batch-event effects (54264x4), and trends matched exactly. Existing 1203 shared teachers matched on non-prior fields; prior differences were event-level normalization for the larger budget. New teacher coordinates came from the same bound historical predicted_coords and calculated labels.",
+    "interpretation_limit": "Baseline provenance hashes differ as metadata; this alone is not evidence of a runtime confound. The audit establishes dependency separation for the checked fields, not causal efficacy."
+  },
+  "observed_round_outcomes": [
+    {"round": 1, "valid_mean": 7.56139, "valid_n": 99, "p90_strain": 1.00358},
+    {"round": 2, "valid_mean": 7.57527, "valid_n": 99, "p90_strain": 0.98745},
+    {"round": 3, "valid_mean": 7.58568, "valid_n": 97, "p90_strain": 1.6974},
+    {"round": 4, "valid_mean": 7.596987916022232, "valid_n": 97, "p90_strain": 1.332650530227324, "paired_comparison": {"name": "R11_mean/R11_051", "paired_mean_pic50": 0.017017736434936558, "batch_means": [-0.09710857391357418, 0.1311440467834473], "parent_round": 2}},
+    {"round": 5, "valid_mean": 7.611987, "valid_n": 96, "p90_strain": 1.17119, "paired_vs_R04_batch_deltas": [0.007016, 0.014306]},
+    {"round": 6, "valid_mean": 7.611456, "valid_n": 98, "p90_strain": 1.082702, "paired_vs_R05_batch_deltas": [0.017041, -0.000773]},
+    {"round": 7, "valid_mean": 7.610981366069047, "valid_n": 97, "p90_strain": 1.1795246657574214, "paired_comparison": {"name": "R11_family_matched/immediate_parent", "paired_mean_pic50": -0.005228333473205575, "batch_means": [-0.003395328521728516, -0.007061338424682635], "parent_round": 6}},
+    {"round": 8, "valid_mean": 7.62687, "valid_n": 97, "p90_strain": 1.79411, "paired_vs_R06_batch_deltas": [0.072355, -0.044485]},
+    {"round": 9, "valid_mean": 7.6414688, "valid_n": 93, "p90_strain": 1.60394, "paired_vs_R08_batch_deltas": [-0.063744, 0.068740]}
+  ],
+  "limits": [
+    "Repeated time nodes and descendants sharing ancestry are not independent sample units; extinction is censoring, not a negative outcome observation.",
+    "Current high-affinity state and eventual final decoded affinity are distinct endpoints; labels are decoded-final history labels, with censored branches excluded from observed final comparisons.",
+    "Rounds 3-9 show mixed batch responses, and R07 regressed; the sequence does not establish a stable causal improvement. R06 remains the quality fallback as recorded by the experiment owner.",
+    "R10 has compiled/bound artifacts and a changed-event response but no completed final summary at audit time; no R10 efficacy claim is made."
+  ],
+  "evidence_paths": [
+    "docs/experiments/terminal_outcome15_20261010/round01/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round02/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round03/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round04/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round05/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round06/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round07/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round08/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round09/summary.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/reward_response.json",
+    "docs/experiments/terminal_outcome15_20261010/round10/designer_rebinding.json",
+    "configs/experiments/terminal_outcome15_v1/round10_R11_budget4_tail025.json",
+    "src/evomolsteer/continuous/terminal_outcome.py",
+    "src/evomolsteer/generation/endpoint_controller.py",
+    "src/evomolsteer/generation/flowcompat_v2_controller.py",
+    "src/evomolsteer/generation/window_reference.py",
+    "docs/experiments/terminal_outcome15_20261010/mining/family_budget4_coverage_v1/diagnostic_note.json"
+  ]
+}

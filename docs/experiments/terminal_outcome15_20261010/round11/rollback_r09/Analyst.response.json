@@ -1,0 +1,45 @@
+{
+  "schema_version": "terminal-outcome-agent-1.0",
+  "agent": "Analyst",
+  "request_sha256": "c80e5afe7b18fd9abb2fde7b0e1ff8720920ee3ca6a5beb506a4d12025fd456b",
+  "instruction_sha256": "0989aaee8a996dbcac57f855313d71d6e64db612f49b80496ec3849c7be0a124",
+  "evidence_sha256": "4db3e75f20a08aab67814d18e400738441e89912c8b778b227e0e736d9ad54ee",
+  "tool_receipt_sha256": "1b3e37d358bc9932d46e3dcab126d213692ae0ed37f82df1ca4564d1bef53c8c",
+  "score_window": [0.0, 0.5],
+  "window": [0.0, 0.51],
+  "evidence_ids": [
+    "outcome/labels",
+    "outcome/clocks",
+    "outcome/censoring",
+    "outcome/family_ranking",
+    "outcome/alias_credit",
+    "outcome/prospective"
+  ],
+  "label_source": "decoded_final",
+  "findings": [
+    {
+      "finding": "Rollback to terminal_outcome15_round09 as the next parent: its program SHA is e18074b7e4d887b3a8ca6c9f5b106516a399606ea68656c035dc1c0840bb5d58 and its family_tail025_v1 reference SHA is 4e87a04501c1aed3ac09786ba3da492b2cfc46f3fdef183cf5e5549d299fb10d. R10 budget-four had higher retrospective teacher coverage, but its all-slot mean affinity fell by 0.005117 versus R9 and elite yield went from one valid elite to zero; therefore the secondary coverage gain does not override the primary-objective rollback instruction.",
+      "evidence_ids": ["outcome/prospective", "outcome/alias_credit"]
+    },
+    {
+      "finding": "R9 is the retained best mean-affinity candidate in this history (valid mean 7.641468791551487, 93/100 valid, p90 strain 1.6039388329828215, one unique valid elite). Keep R6 as the designated quality fallback. R9 versus R8 remains mixed across the two batches, so R9 is a parent choice for the requested controlled test, not evidence of robust efficacy.",
+      "evidence_ids": ["outcome/prospective", "outcome/censoring"]
+    },
+    {
+      "finding": "Recommend one exploratory axis only: increase teacher_neighbors from 4 to 6, leaving R9's reference, teacher budget 2, 0.25 tail prior, family-first ranking, instantaneous branch mode, windows, and all other numerical settings fixed. The R9 endpoint frames contain 17–28 teacher endpoints, so K=6 is within the available point support rather than automatically capped at four. This tests broader geometric neighbor support after budget-four coverage failed the primary comparison; it is a hypothesis, not an expected improvement claim.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks", "outcome/alias_credit", "outcome/prospective"]
+    },
+    {
+      "finding": "The registered labels are decoded-final family means, with instantaneous branch modes and score support [0,0.5] linked to proposal-state support [0,0.51]. Mean censoring is 0.9042577030812327; extinct futures remain unknown, and descendants sharing a family are not independent replicates. The tail fraction and prior utility are retrospective Steer-conditioned quantities, not calibrated native success probabilities.",
+      "evidence_ids": ["outcome/labels", "outcome/clocks", "outcome/censoring", "outcome/alias_credit"]
+    }
+  ],
+  "extensions_ready": true,
+  "rationale": "The frozen task requires rollback after R10's negative primary comparison. Use R9's retained program and reference exactly, with R6 available as quality fallback, then vary only teacher_neighbors to 6. The R9 frames provide 17–28 teacher endpoints, so the registered nearest-teacher K can change effective support. Preserve all R9 reward and branch settings; inspect the compiled reference/program and actual response to ensure this is a nonzero single-axis change. Foundation readiness means the final-label implementation has completed runtime verification; it does not establish affinity improvement.",
+  "counterevidence": [
+    "R10's higher teacher coverage did not translate into better primary all-slot affinity; it was lower than R9 by 0.005117 and had no valid elite. This is direct counterevidence against assuming broader support improves quality.",
+    "R9 had 93/100 valid and a single valid elite; versus R8 its batch effects had opposite signs. R6 remains the required quality fallback.",
+    "Only two adaptive development batches are available, with high censoring and shared descendant ancestry. Retrospective labels are selection-conditioned, so neither family means nor tail fractions are calibrated native continuation outcomes.",
+    "Teacher-neighbor expansion may dilute useful local geometry or increase strain; no prospective evidence establishes the direction of its effect."
+  ]
+}

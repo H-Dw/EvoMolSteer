@@ -46,13 +46,6 @@ outside it. Specify one changed module or parameter axis per trial. Keep a
 verified parent available and restore it after regressions; a failed test may
 motivate a new hypothesis, not overwrite a stronger historical checkpoint.
 
-When the task requires rollback after a primary-objective regression, the next
-trial must start from the best retained eligible parent, not the failed trial.
-Record the parent identity and the reverted module before selecting another
-axis. A secondary improvement does not silently waive the task's rollback rule.
-Preserve the failed artifacts as counterevidence and freeze the new request;
-do not revise an already validated response after handing it to the next role.
-
 Verify the immutable literal instructions, executed calculators, teacher fields,
 compiled reward and actual generation response. If a supported field is null,
 report the algebraic no-op and missing evidence; do not misdiagnose it as a
