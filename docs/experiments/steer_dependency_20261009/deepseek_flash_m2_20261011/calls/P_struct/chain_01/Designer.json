@@ -1,0 +1,37 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "mixture_temperature",
+    "value": 0.25
+  },
+  "evidence_ids": [
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "information_audit",
+    "formula_contract",
+    "reference"
+  ],
+  "expected_response": {
+    "coordinate_response": "endpoint point-cloud reward gradient dR/dY via the softmin over teacher clouds, pulled back by the real FLOWR endpoint VJP",
+    "mechanism": "lower mixture_temperature sharpens the A^2 softmin cost scale, increasing relative weight of short-range pair-kernel agreement (1.5-5.0 A) over the long-range 7.0 A kernel",
+    "observable": "short-range pair-kernel enrichment contrast (pair_kernel_1.5/2.5/3.5/5.0 integrated z) relative to pair_kernel_7.0, and final predicted target pIC50",
+    "unchanged": "native_rms_ratio=0.33, time_ramp_power=0.0, pointcloud_delta_A=1.0, teacher_endpoint_temperature_A2=4.0, teacher_neighbors=4"
+  },
+  "failure_modes": [
+    "No pIC50 gain, or a reversal of the short-range pair-kernel sign, would contradict the proposal and favor retaining the incumbent.",
+    "The pair-kernel contrasts are derived coordinate diagnostics; M2 contains no separate pair-kernel force, so an indirect shift requires measurement and may not materialize.",
+    "Increment (success-failure) contrasts for pair_kernel_2.5 and pair_kernel_7.0 do not survive joint BH (q=0.208), so the increment-level support is weak even though the endpoint-level support is strong.",
+    "Curve-fidelity audit disallows Legendre runtime use for all listed node summaries (relative_node_rmse 0.386-0.931), so no node-curve reward is used here.",
+    "Outcome evaluation data for the current study are not supplied to the design roles, so the discriminating test is the registered endpoint observable, not a supplied outcome."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "prospective hyperparameter choice within allowed_G grid {0.25,0.5,1}; incumbent 0.5",
+    "pair_kernel_ordering": "data-supported signed endpoint contrast on 14 independent batches (endpoint_effects:9-13)",
+    "teacher_RMS_quantiles": "reference teacher dispersion, not a measured initial-seed residual or affinity energy"
+  },
+  "rationale": "Analyst hypothesis 1 (priority 1) is the only finding that is both signed, batch-reproducible and directly bound to a permitted reward scalar. The endpoint point-cloud reward R(Y)=tau*logsumexp_j(log_pi_j - rho_delta(q_j)/tau) with q_j the mean squared endpoint distance to the assigned teacher cloud; mixture_temperature is the A^2 cost scale of that softmin over teacher clouds. Lowering it from the incumbent 0.5 to 0.25 sharpens the softmin so the endpoint VJP pulls the predicted endpoint cloud toward the nearest teacher cloud rather than averaging over the 7.0 A-scale neighbors. This is the registered formula's own response: the coordinate response changed is the endpoint point-cloud reward gradient dR/dY, propagated by the real FLOWR endpoint VJP (dR/dx_t = J_FLOWR_endpoint^T dR/dY), not a temporal derivative and not an affinity-head derivative. The numerical observable that should change if the design is implemented is the short-range pair-kernel enrichment contrast (pair_kernel_1.5/2.5/3.5/5.0 integrated z, currently +0.56/+0.63/+0.54/+0.32 with 0.86-1.0 positive batch fraction) moving further positive relative to pair_kernel_7.0 (-0.49, 0.0 positive batch fraction), together with the primary endpoint, final predicted target pIC50. The scale is data-supported only in the weak sense that the signed kernel ordering is measured on 14 independent batches; the specific value 0.25 is a prospective hyperparameter choice inside the allowed grid {0.25,0.5,1}, not a measured residual. Teacher pairwise assignment RMS quantiles (0.446/0.863/1.050 A) are teacher dispersion, not an initial-seed residual, so they bound the plausible cost scale but do not fix it. No dose edit is made: native_rms_ratio stays 0.33 and time_ramp_power stays 0.0, so delivered displacement and coverage are unchanged and the edit is a component-direction change in the reward, not a whole-reward rescaling that normalization would cancel.",
+  "role": "Designer"
+}

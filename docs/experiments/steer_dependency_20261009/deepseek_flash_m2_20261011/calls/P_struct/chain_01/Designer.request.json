@@ -1,0 +1,91 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "../../../inputs/49ca0779e20773e6f07df0aa200f079aa8e55df0c1f4dcc34ac7de7ffd20cf97.txt",
+        "content_sha256": "49ca0779e20773e6f07df0aa200f079aa8e55df0c1f4dcc34ac7de7ffd20cf97",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../../inputs/72971e27e0d91efb06fb78bcbf1a5898dcfbc977d110cf9b7ed5ae082c0339fa.txt",
+        "content_sha256": "72971e27e0d91efb06fb78bcbf1a5898dcfbc977d110cf9b7ed5ae082c0339fa",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../../inputs/17d845a7eab4b2f61d027cf774a1c5427bcf518f90a8aab4eee6cbbbe8813759.txt",
+        "content_sha256": "17d845a7eab4b2f61d027cf774a1c5427bcf518f90a8aab4eee6cbbbe8813759",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "retain",
+          "defer",
+          "edit"
+        ]
+      },
+      "edit": {
+        "additionalProperties": false,
+        "properties": {
+          "parameter": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "parameter",
+          "value"
+        ],
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "evidence_ids": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "expected_response": {
+        "type": "object"
+      },
+      "failure_modes": {
+        "type": "array"
+      },
+      "parameter_origins": {
+        "type": "object"
+      },
+      "rationale": {
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "edit",
+      "evidence_ids",
+      "rationale"
+    ],
+    "type": "object"
+  }
+}
