@@ -110,6 +110,8 @@ Analyst/Designer 由明确指定的 GPT6-Luna subagent 模拟。每次携带冻�
 
 本地依次修改、commit、经已授权连接 push；远端先 pull、校验上轮结果保留清单、清理本任务生成载荷后执行 FLOWR 推理。结构包与逐文件 SHA 均验证后才进入本地科学分析。已保留逐最终分子 CSV、批次指标、Agent 输入输出、参考库、拟合/效应紧凑表、每轮执行/源代码证明与清理审计；省略可重建的大特征缓存。
 
+最终远端清理已完成：仅删除本任务末轮生成载荷与传输包，共 108,809,847 字节。先校验全部结果保留清单，再删除；原始 Steer 与 checkpoints 属于保护路径。各轮结构载荷按已授权策略退休，需要重算时依赖原始 Steer、对应代码/config 与确定性种子重新生成。详见 retirement/final.remote.json。
+
 重建入口：collect_outcome_round.py（显式输入包接口与校验）、score_outcome_round.py（本地完整终态评估）、summarize_outcome_campaign.py（只读已验证报告）、outcome_agent.py（tool/export/validate/compile/api）、dispatch_outcome_round.py（远端顺序生成）。每轮配置与 jobs manifest 在 configs/experiments/terminal_outcome15_v1/。计算过程用 family labels/reference/receipts 的哈希与对应 commit 可重放；报告不包含私人思维链。
 
 验证结论针对当前单口袋、固定原子数与有限批次。最终回溯标签的可执行实现已完成；是否改善亲和力、构象或尾部必须分别由上面的独立结果判定。下一次探索应基于最终处置保留的配置，而非失败候选。

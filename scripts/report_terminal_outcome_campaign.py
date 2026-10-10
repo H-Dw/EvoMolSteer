@@ -1,4 +1,5 @@
 """Read retained reports only; never fit, regenerate or select a new reward."""
+import hashlib
 import json
 from pathlib import Path
 
@@ -31,6 +32,22 @@ if aggregate['completed_rounds'] != 15:
     raise ValueError('Fifteen completed rounds required')
 validation = aggregate['frozen_confirmation']
 decision = load(DOC/'final_decision.json')
+cleanup_note = ''
+cleanup_path = DOC/'retirement/final.remote.json'
+if cleanup_path.exists():
+    cleanup = load(cleanup_path)
+    plan = load(DOC/'final_cleanup.plan.json')
+    retained_sha = hashlib.sha256((DOC/'round15/retention.json').read_bytes()).hexdigest()
+    if (cleanup['status'] != 'deleted' or cleanup['report_sha256'] != retained_sha
+            or {row['path'] for row in cleanup['targets']} != set(plan['targets'])
+            or cleanup['protected'] != plan['protected']):
+        raise ValueError('Final cleanup audit does not match retained results and explicit plan')
+    cleanup_note = (
+        f"最终远端清理已完成：仅删除本任务末轮生成载荷与传输包，共 {cleanup['bytes']:,} 字节。"
+        '先校验全部结果保留清单，再删除；原始 Steer 与 checkpoints 属于保护路径。'
+        '各轮结构载荷按已授权策略退休，需要重算时依赖原始 Steer、对应代码/config 与确定性种子重新生成。'
+        '详见 retirement/final.remote.json。'
+    )
 lines = [
     '# 最终解码标签回溯与动态坐标奖励：TO01–TO15 完成报告',
     '',
@@ -130,6 +147,8 @@ lines += [
     '## 复现与保留',
     '',
     '本地依次修改、commit、经已授权连接 push；远端先 pull、校验上轮结果保留清单、清理本任务生成载荷后执行 FLOWR 推理。结构包与逐文件 SHA 均验证后才进入本地科学分析。已保留逐最终分子 CSV、批次指标、Agent 输入输出、参考库、拟合/效应紧凑表、每轮执行/源代码证明与清理审计；省略可重建的大特征缓存。',
+    '',
+    cleanup_note,
     '',
     '重建入口：collect_outcome_round.py（显式输入包接口与校验）、score_outcome_round.py（本地完整终态评估）、summarize_outcome_campaign.py（只读已验证报告）、outcome_agent.py（tool/export/validate/compile/api）、dispatch_outcome_round.py（远端顺序生成）。每轮配置与 jobs manifest 在 configs/experiments/terminal_outcome15_v1/。计算过程用 family labels/reference/receipts 的哈希与对应 commit 可重放；报告不包含私人思维链。',
     '',
