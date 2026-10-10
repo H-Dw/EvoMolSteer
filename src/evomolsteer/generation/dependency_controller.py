@@ -11,7 +11,7 @@ from ..io import digest
 
 class DependencyExtension(FlowCompatibilityV2Extension):
     def configure(self, model, opt, out):
-        if self.program['reward_view'] != 'endpoint_structure_field':
+        if self.program['reward_view'] not in ('endpoint_structure_field', 'endpoint_static_hybrid'):
             return super().configure(model, opt, out)
         EndpointCoordinateExtension.configure(self, model, opt, out)
         self.previous_gradient = None
@@ -27,6 +27,11 @@ class DependencyExtension(FlowCompatibilityV2Extension):
                 reference_origin='Receptor/bound ligand; no generated Steer coordinates or labels',
                 conditional_gradient='Forecast-based ligand assignment detached; contact field differentiable',
                 support_semantics='Execution window inherited from matched R26 protocol; no learned temporal support')
+        elif self.program['reward_view'] == 'endpoint_static_hybrid':
+            result.update(execution_domain=self.reward.window,
+                reference_origin='Original bound pose plus fixed selected Steer forecast teachers',
+                conditional_gradient='Forecast correspondence, neighbor selection and priors detached; scalar mixture differentiated',
+                support_semantics='Proposed static mixture and optional phase contact; no fitted temporal advantage claim')
         return result
 
 

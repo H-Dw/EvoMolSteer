@@ -69,6 +69,9 @@ class CoordinateSelectionContrastReward(CoordinateMixtureReward):
 
 
 def make_coordinate_reward(program,reference):
+    if program['reward_view']=='endpoint_static_hybrid':
+        from .static_hybrid_reward import StaticHybridReward
+        return StaticHybridReward(program,reference)
     if program['reward_view']=='endpoint_structure_field':
         from .structure_field_reward import StructureFieldReward
         return StructureFieldReward(program,reference)
