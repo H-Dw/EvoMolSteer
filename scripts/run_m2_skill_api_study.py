@@ -202,6 +202,7 @@ for p in root.rglob('*.json'):
         root = restored / "results" / name
         delivery = self.delivery(root)
         write_json(reports / (name + ".delivery.json"), delivery)
+        self.forecast_response(root, reports / (name + ".forecast_features.parquet"))
         outcomes = {}
         for arm in arms.split(","):
             frame, summary = metrics(output / "candidate_metrics.csv", arm)
@@ -247,11 +248,37 @@ for p in root.rglob('*.json'):
                 "mean_injection_rms_A": float(np.mean([r["injection_rms_A"] for r in active])),
                 "mean_predictive_calibration_rms_A": float(calibration.mean()),
                 "mean_delivered_over_calibration": float(np.mean(injection / np.maximum(calibration, 1e-12))),
+                "nearest_teacher_rms_A_first": float(np.asarray(active[0]["nearest_standardized_rms"]).mean()),
+                "nearest_teacher_rms_A_last": float(np.asarray(active[-1]["nearest_standardized_rms"]).mean()),
                 "first_order_positive_fraction": float(np.mean([np.asarray(r["first_order_reward_change"]) > 0 for r in active])),
                 "last_controlled_state_time": max(r["state_time"] for r in active),
                 "post_window_nonzero": sum(np.any(np.asarray(r["injection_l2_A"]) > 0) for r in trace if not r["active"]),
                 "trace_sha256": digest(folder / "guidance_trace.jsonl")})
         return {"batches": rows, "semantics": "Actual coordinate injection; positive scalar response is not an affinity derivative"}
+
+    def forecast_response(self, root, destination):
+        """Small full-window batch means; no particle-expanded feature cache."""
+        import gzip
+        reference = json.loads(gzip.decompress((self.repo / REF).read_bytes()))
+        features = reference["features"]
+        rows = []
+        for folder in sorted(root.glob("gradient/batch_*")):
+            trace = [json.loads(line) for line in (folder / "guidance_trace.jsonl").read_text().splitlines()]
+            for item in trace:
+                if not item["active"]: continue
+                values = np.asarray(item["observables"])
+                if values.ndim != 2 or values.shape[1] != len(features):
+                    raise ValueError("Forecast feature representation mismatch")
+                rows.append({"batch": int(folder.name.split("_")[-1]),
+                    "score_time": item["score_time"], "state_time": item["state_time"],
+                    **dict(zip(features, values.mean(0)))})
+        pd.DataFrame(rows).to_parquet(destination, index=False, compression=None)
+        write_json(destination.with_suffix(".semantics.json"), {
+            "reference_sha256": digest(self.repo / REF), "features": features,
+            "representation": "Executed reward endpoint observables before this step's injection",
+            "rows": len(rows), "aggregation": "mean over fixed slots in each independent RNG batch and actual control step",
+            "numeric_type": "float64", "range": reference["window"],
+            "no_stage_binning": True, "limitation": "Batch means cannot reconstruct individual paths; observed evolution includes native flow"})
 
     def cleanup(self, name, restored):
         if not restored.resolve().is_relative_to(self.transport.resolve()) or restored.name != "restored" + name:
