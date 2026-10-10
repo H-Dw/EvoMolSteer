@@ -39,6 +39,11 @@ def dispatch(repo, work, manifest, previous=None, retry_failed=False):
             attempt = 1+len(list(work.glob(f'round{number:02d}.failed*.log')))
             (work/f'round{number:02d}.log').rename(work/f'round{number:02d}.failed{attempt}.log')
             exit_file.rename(work/f'round{number:02d}.failed{attempt}.exit')
+            for job in plan['jobs']:
+                for suffix in ['source.before.json', 'source.after.json']:
+                    record = work/(job['campaign']+'.'+suffix)
+                    if record.is_file():
+                        record.rename(record.with_name(record.name+f'.failed{attempt}'))
             report = repo/'docs/experiments/terminal_outcome15_20261010/protocol.json'
         elif not previous:
             raise ValueError('Prior result retention required')
