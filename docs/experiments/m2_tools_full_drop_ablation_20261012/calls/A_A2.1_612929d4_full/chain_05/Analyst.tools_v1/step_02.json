@@ -1,0 +1,69 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The observed window is the score-clock interval [0.0, 0.5] with 50 observed score nodes at 0.01 spacing, and the curve-support audit reports a selection rule with selected_count 0.0 and curve_fidelity 0.49; recorded affinities were removed and an equal score prior applies, so no absolute affinity target is available and last-record credit cannot be read as final affinity benefit.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared distance and native endpoint VJP, so coordinate contrasts are selection/geometry evidence rather than physical interaction energies or affinity-head derivatives.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast functions over the complete observed support are non-monotone and unstable: landmark_00_soft_mass shows 4 sign changes with first_rate_z +9.27 and last_rate_z -10.00, landmark_00_local_dx shows 6 sign changes with 9 strong sign conflicts, and landmark_00_local_dz shows 10 sign changes; no polynomial fit is accepted and extrapolation is disallowed, so a constant rule is not supported and a time-conditioned rule would need validated observed-node interpolation only.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Local coordinate features at landmark_00 (dx, dy, dz, cxx, cyy) have relative_node_RMSE between 0.41 and 0.78 with whole-window z magnitudes below 0.6, indicating weak whole-window marginal signal and poor fit fidelity; these isolated marginal descriptors do not by themselves establish a coherent joint coordinate pattern.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03",
+          "E598d52f84227fbcc"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned regional attention on landmark_00_soft_mass",
+        "evidence_refs": [
+          "E2e106e083189d150"
+        ],
+        "falsifier": "If observed-node interpolation of landmark_00_soft_mass fails to reproduce the sign reversal, or if independent-batch agreement is absent, the time-conditioned rule is not supported.",
+        "observable": "landmark_00_soft_mass contrast at observed score nodes",
+        "scope": "observed window [0.0, 0.5], 14 independent batches",
+        "statement": "A time-conditioned contrast rule on landmark_00_soft_mass, using only observed-node interpolation within [0.0, 0.5], would track the sign reversal from positive early rate to negative late rate better than a constant rule."
+      },
+      {
+        "direction": "withhold signed prioritization of landmark_00_local_dx and landmark_00_local_dz",
+        "evidence_refs": [
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb"
+        ],
+        "falsifier": "A counterexample batch showing consistent same-sign rate for these features across the window would weaken the withholding.",
+        "observable": "sign_changes and strong_sign_conflicts per feature",
+        "scope": "observed window [0.0, 0.5], 14 independent batches",
+        "statement": "The strong sign conflicts and multiple sign changes in landmark_00_local_dx and landmark_00_local_dz indicate that a single signed direction for these local coordinates is not reproducible across batches."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or current-study outcome data are supplied, so last-record credit cannot be presented as final affinity benefit and the immediate-selection versus descendant-survival comparison is unavailable.",
+      "No joint_diagnostics, regional_effects, survival_effects, increment_effects, turnover_accounting, branch_adjusted or lineage_support rows were read in this turn, so multiplicity-adjusted ranking, independent-batch counterexample checks, joint-versus-marginal coupling, and parent-child increment accounting remain unassessed.",
+      "The curve-support audit reports selected_count 0.0 and curve_fidelity 0.49; the selection rule and fidelity rule details were not read, so selection enrichment versus absolute geometric descriptor cannot be fully separated.",
+      "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+    ],
+    "role": "Analyst"
+  }
+}

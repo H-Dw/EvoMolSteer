@@ -1,0 +1,97 @@
+{
+  "findings": [
+    {
+      "claim": "The observed window is the learning window [0.0,0.5] with 50 observed score times at 0.01 spacing; recorded affinities were removed and an equal score prior is used, so no absolute affinity target is available in this evidence.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The curve-support selection rule is explicit and bounded: absolute integrated z >= 0.1, batch direction fraction >= 0.857, scale-floor exclusion, and q < 0.05, yielding 24 selected features; the fidelity rule requires relative RMSE <= 0.35, strong sign-conflict nodes = 0, and quiet-node large-fit fraction <= 0.1. This is a selection-enrichment criterion, not an absolute geometric descriptor.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Independent-batch support exists: 14 independent batches are used for the information audit and for complete survival batches, with leave-one-batch exclusion in the audit; this permits batch-agreement checks rather than single-run point estimates.",
+      "evidence_refs": [
+        "E2bb8390452ed517a",
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The audit explicitly limits interpretation: the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, nonnegative excess distance is by construction rather than a causal affinity effect, rigid alignment retains fixed Hungarian correspondence rather than a globally solved rotation/permutation distance, node summaries are correlated within-batch candidates, and teacher score correlations are observational, not a validated affinity predictor.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Ancestral coverage is sparse: of 700 total batch nodes, 349 have fewer than 3 ancestors and 531 have fewer than 6 ancestors, so descendant survival/quality credit is thin for most nodes and last-record credit cannot be presented as final affinity benefit.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Terminal metadata show terminal score time 0.99 and terminal state time 1.0 with one future-resampling node per batch, all beyond the observed window [0.0,0.5]; decoded terminal labels are therefore not available within the observed support, and the immediate-selection versus later-label comparison is unavailable.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Survival multiple testing is BH jointly over 400 survival field/measure tests and is explicitly not terminal affinity effects; the lineage table is a terminal-credit-mining diagnostic, not a causal selection effect.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 7
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "favor features with consistent signed contrast across the 14 independent batches",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "a selected feature whose sign reverses in a majority of independent batches, or whose relative node RMSE exceeds 0.35 with strong sign-conflict nodes present",
+      "observable": "signed integrated contrast z per feature over the observed window",
+      "scope": "observed selection nodes, window [0.0,0.5]",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes, restricted to the 24 features passing the declared selection and fidelity rules, are the best-supported coordinate direction evidence within the observed window."
+    },
+    {
+      "direction": "prefer observed-window contrast over descendant credit when ancestral coverage is thin",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "a feature with strong observed-window contrast whose survival effect is robustly opposite across independent batches with adequate ancestral coverage",
+      "observable": "per-feature agreement between observed-window contrast sign and survival effect sign",
+      "scope": "nodes with at least 6 ancestors only",
+      "statement": "Immediate selection evidence and descendant survival credit may disagree, and where they do, direction priorities should follow the immediate observed-window contrast rather than sparse ancestral credit."
+    },
+    {
+      "direction": "retain freedom for global pose and shape; adjust local regions only where the adjusted diagnostic shows excess beyond common motion",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "adjusted excess distance indistinguishable from zero across batches while the unadjusted descriptor appears large",
+      "observable": "difference between fixed-frame RMS and proper-rigid RMS versus excess distance",
+      "scope": "whole observed window, 14 independent batches",
+      "statement": "Local coordinate information should be separated from global pose and shape: the audit's fixed-Hungarian rigid RMS and proper-rigid RMS are distinct from the compressed-choice excess distance, so a region should only be credited with information beyond common motion when the adjusted diagnostic supports it."
+    }
+  ],
+  "limitations": [
+    "No current-study outcome data are supplied to the Analyst; final predicted target affinity cannot be evaluated here.",
+    "Decoded terminal labels are outside the observed window (terminal score time 0.99, terminal state time 1.0), so last-record credit is not final affinity benefit and the immediate-versus-later comparison is unavailable.",
+    "The audit metrics are diagnostic and observational; they are not the full score-weighted reward, its FLOWR Jacobian, or a validated affinity predictor.",
+    "Ancestral coverage is sparse (349 of 700 nodes with fewer than 3 ancestors; 531 with fewer than 6), limiting descendant-credit inference.",
+    "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

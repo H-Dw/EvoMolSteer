@@ -1,0 +1,89 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance term and no affinity-head derivative.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The information audit is a geometric nearest-teacher versus Hungarian fixed-frame RMS comparison over 14 independent batches; it explicitly is not the full score-weighted reward or its FLOWR Jacobian, and its nonnegative excess distance is by construction rather than a causal affinity effect.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Compressed-choice excess fixed RMS is small (whole-window mean about 0.081 A, CI95 roughly 0.070-0.092) while top4 teacher overlap is only about 0.47, so selection enrichment relative to the fixed-frame reference is modest and should not be read as an absolute geometric descriptor of affinity.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Terminal credit is available only as parent-debiased survival moments and a compact credit table over 14 complete-survival batches, with multiple testing applied jointly over 400 survival field/measure tests; these are survival/quality credits, not terminal affinity effects.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Ancestral coverage is thin: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, so last-record or survival credit cannot be presented as final affinity benefit and the terminal-affinity comparison is unavailable.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Continuous contrast features are observed-node linear fits with extrapolation disallowed and no accepted polynomial; several landmark features show large first-to-last rate reversals (e.g. landmark_00_soft_mass first_rate_z about +9.3 to last_rate_z about -10.0) with multiple sign changes and strong sign conflicts, so a constant rule is not supported over the observed window.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E5d1c4c6e5dbe0cb6"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Curve support is restricted to 24 selected features under a fidelity rule requiring relative RMSE <= 0.35, zero strong sign-conflict nodes and quiet-node large-fit fraction <= 0.1, with selection requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857 and q < 0.05; this is a filtered subset, not the full feature population.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 7
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant coordinate contrast weighting",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "Ed4e7d28e7b0423e0"
+      ],
+      "falsifier": "a selected feature whose observed-node contrast is constant in sign and magnitude within fit fidelity, or a time-conditioned rule that fails to improve over the constant rule on held-out batches",
+      "observable": "validated observed-node contrast curve for a selected landmark feature",
+      "scope": "observed score window [0.0, 0.5], selected curve-support features only",
+      "statement": "A time-conditioned regional attention rule using validated observed-node contrast changes may outperform a constant static regional rule, because landmark contrast features reverse sign across the observed window rather than holding a fixed direction."
+    },
+    {
+      "direction": "treat selection enrichment as a modest geometric contrast, not an affinity proxy",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "an independent batch set showing high chosen-teacher score correlation with the same selection rule",
+      "observable": "compressed chosen-teacher score correlation and top4 teacher overlap",
+      "scope": "14 independent batches, whole observed window",
+      "statement": "Selection enrichment at observed nodes is only weakly aligned with teacher score (compressed chosen-teacher score correlation about 0.10), so a coordinate rule that assumes strong score alignment would be over-claiming."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record and survival credit cannot be interpreted as final affinity benefit.",
+    "The information audit is not the full score-weighted reward or its FLOWR Jacobian, and its excess-distance metric is nonnegative by construction, so it is not a causal affinity effect.",
+    "Continuous trend fits are observed-node linear with extrapolation disallowed and no accepted polynomial; no arbitrary time bins or extrapolation are used.",
+    "Turnover, moment, pair-kernel and joint-motif diagnostics were not read in this pass and are not claimed here.",
+    "No current-study outcome data are available to this role."
+  ],
+  "role": "Analyst"
+}

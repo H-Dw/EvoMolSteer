@@ -1,0 +1,30 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:3",
+    "continuous:2",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Adopting C009-C011 (temporal_teacher_blend) would inject an observed-teacher term whose contrast sign reverses within the window (landmark_00_soft_mass: first_rate_z +9.27, last_rate_z -10.00, 4 sign changes), so the blended reward could push coordinates in opposing directions at different score nodes and displace surrounding coordinates without a reproducible affinity benefit.",
+    "Adopting C001 or C003 (pointcloud_delta_A 0.5 or 2.0) would change the robust-kernel curvature without any supplied observed spatial scale or uncertainty to justify it; a narrower delta would sharpen sensitivity to endpoint noise and a broader delta would flatten the endpoint gradient, either way degrading the primary affinity signal relative to the incumbent default.",
+    "Adopting C005 or C007 (teacher_neighbors 2 or 8) would change mode coverage without intact-teacher dispersion or joint-geometry evidence; too few neighbors risks collapsing onto a single teacher mode, too many risks averaging competing directions, and neither effect is supported by the read evidence.",
+    "Adopting C004 or C008 (region_index / temporal_region_index) would re-weight regional attention with no supporting regional_effects or joint_diagnostics rows, so the attention shift is unvalidated and could move coordinates away from the affinity-relevant region.",
+    "Treating the non-monotone continuous contrasts or the weak local-coordinate marginals (relative_node_RMSE 0.41-0.78, whole-window z below 0.6) as an independent force would overstate evidence that the registered formula does not contain, since the executing pointcloud scalar has no pair-kernel, moment or geometry-block term."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "The incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, static endpoint-pointcloud reward, no temporal blend) is retained because no registered choice has a defensible expected advantage under the affinity-first objective. H001's time-conditioned regional attention on landmark_00_soft_mass is the only hypothesis with a plausible mechanism, but its supporting evidence is a non-monotone contrast with 4 sign changes, first_rate_z +9.27 vs last_rate_z -10.00, no accepted polynomial and extrapolation disallowed; the registered temporal_teacher_blend choices (C009-C011) would mix a static endpoint reward with an observed-teacher term whose sign is not reproducible across the window, and the temporal_region_index choice (C008) only re-indexes attention without a validated contrast, so neither is supported. H002's strong sign conflicts in landmark_00_local_dx and landmark_00_local_dz argue against any signed coordinate prioritization, which also removes the rationale for a distance-curvature edit: the pointcloud_delta_A choices (C001=0.5, C002=1.0, C003=2.0) change the robust-kernel bandwidth, but the supplied evidence gives no observed spatial scale or uncertainty that would justify narrowing or broadening it, and the incumbent already sits at the default 1.0 A. The teacher_neighbors choices (C005=2, C006=4, C007=8) alter neighbor count, not bandwidth, and no intact-teacher dispersion or joint-geometry evidence was read to show that mode coverage improves at a different count; the incumbent count of 4 is therefore kept. Region_index (C004) is a static regional re-index with no supporting regional_effects evidence. Because the objective is final predicted affinity primary and the observed window is score-clock [0.0,0.5] with recorded affinities removed and an equal score prior, last-record coordinate credit cannot be read as final affinity benefit, so an edit would be a speculative displacement of surrounding coordinates rather than an evidence-backed gain. Retaining the incumbent is the defensible choice; deferring is unnecessary since the incumbent is well-defined and the evidence positively argues against the offered edits.",
+  "role": "Designer"
+}

@@ -1,0 +1,24 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "Ed4e7d28e7b0423e0",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1"
+  ],
+  "failure_modes": [
+    "Changing pointcloud_delta_A (C001-C003) would alter the robust kernel curvature and displace surrounding coordinates without any observed affinity response to calibrate the direction, since recorded affinities were removed and replaced by an equal score prior.",
+    "Changing teacher_neighbors (C004-C006) would alter teacher mixture coverage and competing directions without a validated affinity predictor; neighbor count is not a distance bandwidth and the fixed temperatures must be preserved.",
+    "Enabling temporal_teacher_blend (C007-C009) would change regional attention at observed score nodes, but the audit states the nearest-teacher geometry is not the score-weighted reward or its FLOWR Jacobian, so the change is not evidence of affinity benefit.",
+    "Any edit justified by last-record or survival credit risks optimizing a survivor-biased signal, since 349 of 700 nodes have fewer than 3 ancestors and 531 fewer than 6.",
+    "Treating a temporal derivative or a diagnostic moment/pair-kernel feature as a spatial gradient or an independent force would be an interface violation, as the executing pointcloud scalar contains no such term."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is an endpoint pointcloud with a detached FLOWR endpoint VJP (Eaa4bda02c9a2c3a1). The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5], and recorded affinities were removed in favor of an equal score prior (E0857891f4effbfe1), so no observed label carries absolute affinity information and last-record credit cannot be read as final affinity benefit. Curve support is restricted to 24 of 200 continuous features under the selection and fidelity rules (Ed4e7d28e7b0423e0), and the information audit states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, with nonnegative excess distance being by construction rather than a causal affinity effect (E2bb8390452ed517a). Ancestral coverage is sparse, with 349 of 700 nodes having fewer than 3 ancestors and 531 fewer than 6 (Ed0d7945bdeeda8f1), so survival-based credit is survivor-biased for much of the population. The offered choices would change pointcloud_delta_A (C001-C003), teacher_neighbors (C004-C006) or temporal_teacher_blend (C007-C009). None of these has a defensible expected advantage on the affinity-primary objective from the supplied evidence: the delta choices alter the robust kernel curvature without any observed affinity response to calibrate direction, the neighbor-count choices alter teacher mixture coverage without a validated affinity predictor, and the temporal blend changes regional attention at observed score nodes but the audit explicitly denies that the nearest-teacher geometry is the score-weighted reward or its Jacobian. H001 (same-signed integrated contrast across batches) and H002 (down-weight sparse-ancestor last-record credit) both argue for caution rather than for a specific registered parameter edit. Retaining the incumbent is therefore the evidence-supported decision; the incumbent already uses pointcloud_delta_A=1.0, teacher_neighbors=4 and no temporal blend, and no registered change is justified.",
+  "role": "Designer"
+}

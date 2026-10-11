@@ -1,0 +1,88 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The observed support is the learning window [0.0,0.5] with 50 observed score times at 0.01 spacing, and the curve-support selection retained 24 features under a rule requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05 and exclusion of a scale floor; this is a selection-enrichment criterion, not an absolute geometric descriptor.",
+        "evidence_refs": [
+          "E0857891f4effbfe1",
+          "Ed4e7d28e7b0423e0"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "The information audit reports 14 independent batches and states that its geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, that nonnegative excess distance is by construction rather than a causal affinity effect, and that teacher score correlations are observational and not a validated affinity predictor; the compressed-choice excess fixed RMS is small relative to the fixed and proper-rigid RMS values, so the geometric contrast is a weak, non-causal diagnostic.",
+        "evidence_refs": [
+          "E2bb8390452ed517a"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Lineage support covers 14 complete-survival batches over 700 total batch nodes, but 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, and multiple testing is BH jointly over 400 survival field/measure tests explicitly not terminal affinity effects; terminal metadata show a single future-resampling node per batch at terminal score time 0.99 and state time 1.0, so last-record survival credit cannot be presented as final affinity benefit.",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "The continuous-trend table shows that the inspected landmark features are non-polynomial (polynomial_accepted false, extrapolation_allowed false) with multiple sign changes and strong sign conflicts, e.g. landmark_00_soft_mass has 4 sign changes and 1 strong conflict, landmark_00_local_dx has 6 sign changes and 9 strong conflicts, and landmark_00_local_cxy has 9 sign changes and 14 strong conflicts; these are time-conditioned contrast curves, not constant rules and not absolute reward targets.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E5d1c4c6e5dbe0cb6"
+        ],
+        "priority": 5
+      },
+      {
+        "claim": "Several landmark local features have large first-rate and last-rate z values of opposite sign (e.g. landmark_00_local_dy first_rate_z strongly negative and last_rate_z positive; landmark_00_local_cyy similarly reversed), indicating rate changes across the observed window rather than a single constant direction, while whole-window z values remain small in magnitude.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 6
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant coordinate contrast at observed score nodes",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03",
+          "E2e106e083189d150"
+        ],
+        "falsifier": "If the sign reversal disappears under independent-batch resampling, or if the contrast change is not reproducible across the 14 independent batches, the time-conditioned direction is not supported.",
+        "observable": "validated observed-node contrast change of the named landmark local features over [0.0,0.5]",
+        "scope": "observed score nodes within the learning window only; no extrapolation beyond 0.5",
+        "statement": "A time-conditioned regional attention recipe using validated observed-node contrast changes for the landmark features with the largest rate reversals (landmark_00_local_dy and landmark_00_local_cyy) would express a direction that a constant rule cannot, because their first-rate and last-rate z values have opposite signs across the observed window."
+      },
+      {
+        "direction": "prefer the more stable soft-mass contrast over high-conflict local derivative contrasts",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E5d1c4c6e5dbe0cb6"
+        ],
+        "falsifier": "If an independent batch set shows the soft-mass contrast acquiring comparable sign conflicts or the local features stabilizing, the priority ordering is weakened.",
+        "observable": "sign_changes, strong_sign_conflicts and relative_node_RMSE of the compared landmark features",
+        "scope": "observed window [0.0,0.5]",
+        "statement": "Prioritizing landmark_00_soft_mass over the local derivative features is warranted because it has fewer sign changes and strong sign conflicts and a lower relative node RMSE, whereas the local derivative features show many sign changes and strong conflicts consistent with unstable marginal descriptors."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal affinity labels are supplied; last-record survival credit and terminal metadata cannot be interpreted as final affinity benefit, and the corresponding comparison is unavailable.",
+      "The information audit explicitly states its geometric comparison is not the full score-weighted reward or its FLOWR Jacobian, so no causal affinity effect can be claimed from it.",
+      "Turnover, moment and pair-kernel diagnostics were not read in this session; no within-path versus cohort-composition conclusion is asserted.",
+      "No current study outcome data are available to this role, so no claim about realized affinity improvement is made.",
+      "The curve lookup for landmark_00_softmin failed as an unknown feature; only delivered feature names were used."
+    ],
+    "role": "Analyst"
+  }
+}
