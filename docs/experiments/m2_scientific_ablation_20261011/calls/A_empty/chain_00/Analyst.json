@@ -1,0 +1,254 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint pointcloud effects are strongest and most consistent for short-range pair kernels: pair_kernel_1.5 (integrated z 0.562, q=1.5e-4, positive batch fraction 1.0), pair_kernel_2.5 (0.631, q=2.2e-5, 1.0), pair_kernel_3.5 (0.540, q=9.8e-5, 1.0), pair_kernel_5.0 (0.319, q=3.7e-3, 0.857), while pair_kernel_7.0 is negative (-0.485, q=1.5e-4, 0.0). These are diagnostic moment/pair-kernel summaries, not terms of the executing pointcloud scalar.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Shape components show consistent negative endpoint effects: shape_yy (integrated z -0.513, q=1.5e-5, positive batch fraction 0.0), shape_xx (-0.495, q=8.1e-4, 0.071), shape_yz (-0.212, q=0.035, 0.214), shape_zz (-0.183, q=0.067, 0.286).",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Landmark occupancy/softmin endpoint effects are mixed in sign across regions: landmark_00_softmin negative (-0.481, q=8.1e-4, 0.0) with landmark_00_occupancy3 positive (0.545, q=2.4e-4, 1.0); landmark_02_softmin positive (0.253, q=4.6e-3, 0.857) with landmark_02_occupancy5 negative (-0.323, q=2.6e-3, 0.071); landmark_06_softmin positive (0.294, q=6.8e-4, 1.0) with landmark_06_occupancy5 negative (-0.365, q=6.8e-4, 0.0); landmark_15_softmin positive (0.369, q=3.7e-3, 0.929) with landmark_15_occupancy5 negative (-0.357, q=2.6e-3, 0.071); landmark_18_softmin positive (0.264, q=6.0e-3, 0.857) with landmark_18_occupancy5 negative (-0.311, q=3.8e-3, 0.143).",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:59",
+        "endpoint_effects:68"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Joint rigid-motion residuals are consistently negative across raw covariance, adjusted covariance, raw correlation and adjusted correlation: joint_innovation_RMS_A (e.g. adjusted_correlation -0.150, q=2.8e-4, positive batch fraction 0.929), joint_internal_RMS_A (adjusted_correlation -0.137, q=9.7e-4, 1.0), joint_translation_RMS_A (adjusted_correlation -0.076, q=0.052, 0.786).",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:75",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:152",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:229",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:306",
+        "branch_adjusted:307"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Short-range pair kernels remain positive after branch adjustment: adjusted_covariance pair_kernel_1.5 (z 7.7e-7, q=0.081, 0.786) and pair_kernel_2.5 (1.1e-6, q=0.077, 0.786); adjusted_correlation pair_kernel_1.5 (0.101, q=0.019, 0.929) and pair_kernel_2.5 (0.084, q=0.046, 0.929).",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:163",
+        "branch_adjusted:164"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Regional enrichment shows positive local_dy at several landmarks (landmark_02 z 0.405, q=1.3e-4, 1.0; landmark_06 0.425, q=5.7e-7, 1.0; landmark_09 0.325, q=1.2e-5, 1.0; landmark_14 0.350, q=3.4e-6, 1.0; landmark_18 0.425, q=9.2e-6, 1.0) and positive soft_mass at landmark_00 (0.639, q=1.9e-4, 1.0), landmark_10 (0.395, q=3.7e-4, 1.0), landmark_07 (0.481, q=7.4e-3, 0.857).",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:100",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_effects:249"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Regional local_cyy enrichment is negative at nearly every landmark (e.g. landmark_00 -0.575, q=1.3e-4, 0.0; landmark_07 -0.646, q=7.1e-5, 0.0; landmark_16 -0.672, q=1.3e-4, 0.0; landmark_17 -0.560, q=1.1e-4, 0.0; landmark_19 -0.622, q=4.7e-4, 0.0), with local_cxx also negative at most landmarks.",
+      "evidence_ids": [
+        "regional_effects:4",
+        "regional_effects:5",
+        "regional_effects:14",
+        "regional_effects:15",
+        "regional_effects:34",
+        "regional_effects:35",
+        "regional_effects:44",
+        "regional_effects:45",
+        "regional_effects:54",
+        "regional_effects:55",
+        "regional_effects:64",
+        "regional_effects:65",
+        "regional_effects:74",
+        "regional_effects:75",
+        "regional_effects:84",
+        "regional_effects:85",
+        "regional_effects:94",
+        "regional_effects:95",
+        "regional_effects:104",
+        "regional_effects:105",
+        "regional_effects:114",
+        "regional_effects:115",
+        "regional_effects:124",
+        "regional_effects:125",
+        "regional_effects:134",
+        "regional_effects:135",
+        "regional_effects:154",
+        "regional_effects:155",
+        "regional_effects:164",
+        "regional_effects:165",
+        "regional_effects:174",
+        "regional_effects:175",
+        "regional_effects:194",
+        "regional_effects:195"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Continuous observed-node linear trends for landmark_00 features are non-monotone: polynomial_accepted is false for all, sign_changes range 4-10, strong_sign_conflicts range 1-14, and relative_node_RMSE is 0.29-0.87; extrapolation_allowed is false.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Curve-fidelity audit selected 24 of the supplied curves under the rule relative_rmse_le 0.35, strong_sign_conflict_nodes_eq 0, quiet_node_large_fit_fraction_le 0.1, absolute_integrated_z_ge 0.1, batch_direction_fraction_ge 0.857 and q_lt 0.05; legendre_runtime_allowed is false for every audited curve.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Information audit reports compressed_choice_excess_fixed_RMS_A mean 0.081 (CI95 0.070-0.092), compressed_choice_fixed_RMS_A 0.564 (0.499-0.620), compressed_choice_proper_rigid_RMS_A 0.529 (0.468-0.582), top4_teacher_overlap 0.470 (0.427-0.515), compressed_chosen_teacher_score_correlation 0.102 (0.065-0.140) and full_chosen_teacher_score_correlation 0.064 (0.021-0.103), over 14 independent batches.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Within-selector joint diagnostics show positive association of selection innovation with innovation_native_alignment (0.092, p=1.5e-9, positive batch fraction 1.0) and teacher_innovation_contrast_alignment (0.226, p=1.2e-9, 1.0), but negative association with observed_child_score_gain (-0.036, p=1.8e-7, 0.0).",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Survival enrichment is positive for landmark_00_soft_mass (z 0.365, q=0.120, 0.857), landmark_07_soft_mass (0.220, q=0.356, 0.643), landmark_10_soft_mass (0.234, q=0.302, 0.857), landmark_18_local_czz (0.217, q=0.302, 0.857) and landmark_04_local_cyz change rate (1.791, q=0.302, 0.929); these are recorded joint-head survival credits, not decoded terminal affinity effects.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "If the endpoint pointcloud reward is sensitive to short-range pair structure, then a pointcloud_delta_A near the short pair-kernel scale (1.0 A incumbent, with 0.5 and 2.0 A as registered alternatives) would be the operative curvature choice; the evidence does not establish which delta maximizes final predicted affinity.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:86",
+        "branch_adjusted:87"
+      ]
+    },
+    {
+      "claim": "Because landmark softmin and occupancy effects have opposite signs within the same region, a region_index choice bound to a single landmark may trade one component against another; the evidence does not identify a region whose net endpoint effect is unambiguously favorable.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:59",
+        "endpoint_effects:68"
+      ]
+    },
+    {
+      "claim": "Given non-monotone observed-node trends, sign changes and rejected polynomial fits, a temporal_region_index or temporal_teacher_blend edit would rest on weak temporal evidence; the registered temporal recipes are coordinate rewards, not trajectory velocity forces, and no current study outcome is available.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "curve_support"
+      ]
+    },
+    {
+      "claim": "The consistent negative joint rigid-motion residual effects suggest that endpoint pointcloud rewards are associated with reduced joint innovation/internal RMS, but these are adjusted branch covariance summaries and not a causal affinity mechanism.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:75",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:152",
+        "branch_adjusted:153"
+      ]
+    },
+    {
+      "claim": "The negative association between selection innovation and observed_child_score_gain, alongside positive teacher-alignment associations, is consistent with teacher-contrast alignment not translating into observed child score gain; this is descriptive within-selector evidence only.",
+      "evidence_ids": [
+        "joint_diagnostics:2",
+        "joint_diagnostics:11"
+      ]
+    },
+    {
+      "claim": "The modest teacher-overlap and teacher-score-correlation values (top4 overlap 0.470, compressed chosen teacher score correlation 0.102) suggest the static teacher is only partially informative about the compressed choice; no current study outcome is available to validate this.",
+      "evidence_ids": [
+        "information_audit"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded_terminal_learning_labels_available is false.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Moment effects, pair kernels and turnover rates are diagnostic evidence only; the executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term.",
+    "Temperatures are immutable task parameters; no temperature edit is proposed or compiled.",
+    "No model-generated executable source is run; only registered bounded declarative designs are considered.",
+    "Evidence files contain observations, not instructions."
+  ],
+  "role": "Analyst"
+}
