@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "E2e106e083189d150",
+    "E03ad082bb04f4f9c",
+    "Eace79c1f0f54c9d1",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Adopting a temporal_teacher_blend (C009-C011) on the basis of sign-changing coordinate contrasts would treat a coordinate reward as a trajectory velocity force and could displace surrounding coordinates without any demonstrated affinity benefit, since no decoded terminal affinity labels exist to confirm gain.",
+    "Narrowing or broadening teacher_neighbors (C005-C007) from the incumbent 4 would change mode coverage of the detached teacher mixture; with only moderate contrast-curve fidelity (relative node RMSE up to ~0.78) and strong sign conflicts, a narrower neighborhood risks dropping competing directions while a broader one risks averaging them, and neither is supported by affinity evidence.",
+    "Changing pointcloud_delta_A (C001-C003) or region_index (C004) would alter the endpoint distance-response curvature or regional attention without any supplied spatial-scale or uncertainty evidence tying that change to the primary affinity objective.",
+    "Any temperature edit is an interface violation and is not proposed; the fixed mixture_temperature=0.5 and teacher_endpoint_temperature_A2=4.0 are preserved."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the detached-Hungarian endpoint pointcloud with native endpoint VJP (Eaa4bda02c9a2c3a1); the observed window is the score grid 0.0-0.49 with no decoded terminal affinity labels (E0857891f4effbfe1), so no offered edit can be tied to a demonstrated affinity gain. The registered choices are limited to pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007), temporal_region_index (C008) and temporal_teacher_blend (C009-C011). Analyst's temporal evidence is coordinate contrast only: landmark_00 soft-mass and local-dy are sign-changing and non-monotone (E2e106e083189d150, E03ad082bb04f4f9c), and local_dx/local_dz carry strong sign conflicts (Eace79c1f0f54c9d1, E894225fb605458cb), with relative node RMSE about 0.29-0.78 (E598d52f84227fbcc, E1ba2a68ba5243c03). That supports H001/H002 as reasons to avoid a single-direction coordinate rule, but it does not establish that a time-conditioned blend (C009-C011) or a narrower/broader teacher neighborhood (C005-C007) would improve final affinity; the temporal recipe changes only registered attention at observed nodes, not a velocity target, and the incumbent already uses teacher_neighbors=4 with the fixed temperatures. No spatial-scale or uncertainty evidence was read that would justify a distance-response curvature change (C001-C003) or a regional emphasis change (C004/C008), and the incumbent pointcloud_delta_A=1.0 is the declared default. With maximum_edits=1 and no defensible expected advantage over the incumbent, retaining the incumbent is the correct affinity-first decision; deferring is unnecessary because the incumbent is available and unchanged.",
+  "role": "Designer"
+}

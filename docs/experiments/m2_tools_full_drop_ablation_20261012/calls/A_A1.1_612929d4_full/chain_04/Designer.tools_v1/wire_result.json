@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "E2bb8390452ed517a",
+    "Ed4e7d28e7b0423e0",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03",
+    "Ed0d7945bdeeda8f1"
+  ],
+  "failure_modes": [
+    "Uncalibrated temporal_teacher_blend (C009-C011) applies an observed-node contrast whose sign reverses within the window, so the blended reward can push coordinates in a direction that is only locally valid and reverses later in the window.",
+    "Narrowing pointcloud_delta_A to 0.5 A (C001) steepens rho_delta and amplifies the endpoint-VJP force, displacing surrounding coordinates and risking the 0.15 A per-step and 6.0 A cumulative RMS constraints with no measured affinity gain.",
+    "Reducing teacher_neighbors to 2 (C005) with thin ancestral coverage (349 nodes with fewer than 3 ancestors, 531 with fewer than 6) can select a poorly representative teacher set and bias the detached prior.",
+    "Any coordinate-only edit is a reward-shaping diagnostic; with no decoded terminal labels, a geometric teacher-alignment improvement cannot be shown to improve final predicted affinity, so an edit could appear successful on diagnostics while failing the primary objective."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.1/D1.2: The only registered temporal recipes (C008-C011) change regional attention or blend a validated observed-node coordinate contrast into the static endpoint reward; they do not add a velocity force, and the observed-node fits reverse sign within the window (first_rate_z about +9.3 to last_rate_z about -10.0 for landmark_00_soft_mass, 4 sign changes; landmark_00_local_dy about -72.4 to +5.5, 6 sign changes) with polynomial_accepted=false and extrapolation_allowed=false. That supports H001's form in principle, but the registered blend scalars (0.25/0.5/1.0) are not tied to any measured contrast magnitude, and the information audit shows the geometric teacher signal is weak (excess fixed-frame RMS about 0.081 A, chosen-teacher score correlation about 0.10 compressed / 0.064 full), so no defensible expected affinity advantage can be computed for a specific blend value. D2.1/D2.2: The offered pointcloud_delta_A values (0.5/1.0/2.0) and teacher_neighbors counts (2/4/8) are exploratory choices; the incumbent already uses delta=1.0 A and 4 neighbors, and the supplied evidence gives no distance-response curvature or neighborhood-dispersion statistic that would justify narrowing or broadening the teacher neighborhood. Neighbor count is a count, not a bandwidth, and the fixed temperatures (mixture 0.5, teacher_endpoint 4.0 A^2) are immutable. D4.1: The incumbent (D2_without_trajectory_static, delta=1.0 A, 4 neighbors, native_rms_ratio 0.33, contrast bound 2.0 nats) is already the registered static configuration; none of C001-C011 shows a defensible expected advantage over it on the affinity-primary objective. D4.2: A concrete failure mode of an uncalibrated temporal blend or a narrowed delta is unnecessary displacement of surrounding coordinates (the regional term carries positive surrounding weight) and, for delta=0.5 A, a steeper rho_delta that amplifies endpoint-VJP force on already-weak teacher alignment, risking the 0.15 A per-step and 6.0 A cumulative RMS constraints without any measured affinity benefit. Because final predicted affinity is primary and no observed label carries absolute affinity information (recorded affinities removed, equal score prior; terminal score time 0.99 outside the observed window), retaining the incumbent is the evidence-supported choice.",
+  "role": "Designer"
+}

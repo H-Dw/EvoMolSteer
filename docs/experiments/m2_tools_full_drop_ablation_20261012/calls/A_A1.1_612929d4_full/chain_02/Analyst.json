@@ -1,0 +1,97 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5] and curve support [0.0,0.49]; recorded affinities are removed and the label prior is equal, so no decoded terminal affinity labels exist in the supplied evidence.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions are supplied only as observed-node linear interpolations (method observed_node_linear) with extrapolation disallowed and polynomial fits rejected; they are coordinate contrast curves over the observed support, not absolute reward targets.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The inspected landmark_00 features show sign-changing, non-monotone behavior: e.g. landmark_00_soft_mass has 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dy has 6 sign changes with large opposing first/last rate z-scores; a constant rule is not supported over the window for these features.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Several inspected features carry strong sign conflicts (landmark_00_local_dx: 9 strong_sign_conflicts, 6 sign changes; landmark_00_local_dz: 7 strong_sign_conflicts, 10 sign changes), so opposing observations exist and weaken any single-direction coordinate rule for those features.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "Relative node RMSE for the inspected features ranges from about 0.29 to 0.78, indicating only moderate fit fidelity of the observed-node linear representation; rate-based priorities should be treated as uncertain rather than precise.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F006",
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant contrast weighting on sign-changing landmark_00 features",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "falsifier": "A validated fit showing no sign change or a constant-sign rate across the observed nodes for these features would remove the basis for time conditioning.",
+      "id": "H001",
+      "observable": "sign and rate of the landmark_00 soft-mass and local-dy contrast curves at observed score nodes",
+      "scope": "observed window [0.0,0.49], predicted_endpoint_world_A features, no extrapolation",
+      "statement": "A time-conditioned coordinate contrast rule for landmark_00 soft-mass and local-dy features would track the observed sign reversals better than a constant rule, because these features change sign within the observed window."
+    },
+    {
+      "direction": "deprioritize single-direction rules on high-conflict local derivative features",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3"
+      ],
+      "falsifier": "Independent-batch agreement with a consistent sign and no strong conflicts would restore priority for these features.",
+      "id": "H002",
+      "observable": "strong_sign_conflicts and sign_changes counts for landmark_00_local_dx and local_dz",
+      "scope": "observed window, 14 independent batches",
+      "statement": "Coordinate rules keyed to landmark_00_local_dx and local_dz should be deprioritized because their strong sign conflicts indicate non-reproducible direction across batches."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record or survival credit cannot be presented as final affinity benefit, and the immediate-versus-descendant comparison is unavailable.",
+    "Only six continuous_trends rows were read; the remaining 194 rows and the branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, regional_effects, survival_effects and turnover_accounting tables were not inspected, so multiplicity-adjusted ranking and joint-versus-marginal comparisons are not established here.",
+    "No uncertainty-adjusted or coverage-based ranking was computed from the read evidence, so no priority decision differing from point estimates alone is claimed.",
+    "The supplied contrast curves are coordinate contrasts, not physical interaction energies or evidence of neural-module causation, and no temperature or executable design change is proposed."
+  ],
+  "role": "Analyst"
+}

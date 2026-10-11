@@ -1,0 +1,27 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "curve_support",
+    "information_audit",
+    "lineage_support"
+  ],
+  "failure_modes": [
+    "Choosing C003 (delta=2.0) or C001 (delta=0.5) without a dose-response measurement would change the robust-kernel curvature with no evidence of endpoint-affinity gain; a too-large delta flattens the robust penalty toward plain mean squared distance and a too-small delta saturates it, either of which can displace surrounding coordinates beyond the local excess signal identified in H003.",
+    "Choosing C006 (teacher_neighbors=8) would broaden the teacher mixture using only a count change; with 349 nodes having fewer than 3 ancestors and 531 fewer than 6 (Ed0d7945bdeeda8f1), broader neighborhoods would draw on weakly supported teachers and could pull coordinates toward modes not represented in the observed support, while C004 (neighbors=2) would narrow mode coverage.",
+    "Choosing C009 (temporal_teacher_blend=1.0) would replace the static endpoint reward entirely with the observed-teacher coordinate reward; because the temporal recipe is a coordinate contrast at observed score nodes and not a velocity target, this would not add trajectory force but would remove the static endpoint signal that the incumbent's affinity-primary objective relies on, and the observed window ends at 0.5 while terminal times are 0.99/1.0.",
+    "Treating the audit's ~0.081 A excess fixed-frame RMS or the ~0.102 teacher-score correlation as a reward-response slope would be a category error; the audit states these are not the score-weighted reward or its Jacobian, so acting on them as if they predicted affinity gain would be an unsupported edit."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP (Eaa4bda02c9a2c3a1); the observed support is the score/state clock [0.0,0.5] with 50 observed times and an equal score prior, so no absolute affinity label exists inside support (E0857891f4effbfe1). The only registered edits are pointcloud_delta_A (C001-C003), teacher_neighbors (C004-C006) and temporal_teacher_blend (C007-C009). The incumbent already sits at pointcloud_delta_A=1.0 and teacher_neighbors=4, i.e. the middle of both registered ranges, and the temporal_teacher recipe is a coordinate reward at observed nodes, not a velocity force, so it cannot be justified as a trajectory force. Analyst's temporal evidence (H001) supports signed favorable contrast at the 24 curve-support features passing fidelity and multiplicity rules (Ed4e7d28e7b0423e0), but that is a direction statement, not a dose statement: nothing in the delivered evidence quantifies the response of the endpoint reward to delta in {0.5,1.0,2.0} or to neighbor counts {2,4,8}. The information audit explicitly states its excess-distance and teacher-score quantities are not the full score-weighted reward or its FLOWR Jacobian and are not a validated affinity predictor (E2bb8390452ed517a), so it cannot license a curvature or bandwidth change. Lineage support shows terminal score/state times 0.99/1.0 outside the observed window and sparse ancestral coverage (Ed0d7945bdeeda8f1), so terminal credit cannot be used to prefer a broader or narrower teacher neighborhood. With no defensible expected advantage for any offered value over the incumbent, retaining the incumbent is the correct affinity-first choice; deferring is unnecessary because the incumbent is a valid registered configuration.",
+  "role": "Designer"
+}

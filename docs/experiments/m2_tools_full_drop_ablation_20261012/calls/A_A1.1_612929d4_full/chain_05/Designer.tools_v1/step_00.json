@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "E2bb8390452ed517a",
+      "Ed0d7945bdeeda8f1",
+      "Ed4e7d28e7b0423e0"
+    ],
+    "failure_modes": [
+      "Sharpening pointcloud_delta_A (C001) would increase endpoint-kernel sensitivity to the detached Hungarian mean-squared distance without any observed affinity label to justify it, risking unnecessary displacement of surrounding coordinates while the affinity-primary objective remains unmeasurable.",
+      "Widening pointcloud_delta_A (C002/C003) would relax the endpoint match and could allow larger endpoint displacement, degrading the coordinate-control objective without evidence that the incumbent delta=1.0 A is over-constrained.",
+      "Changing teacher_neighbors (C004-C006) is a count change, not a distance bandwidth; with weak teacher-score correlations (~0.064-0.102) and top4 overlap ~0.470, broader or narrower neighborhoods could reduce mode coverage or amplify competing directions without validated benefit.",
+      "Enabling temporal_teacher_blend (C007-C009) would mix in a time-conditioned coordinate teacher; the only temporal evidence is a validated absolute contrast at observed score nodes, and treating a temporal derivative as a spatial gradient would be an unsupported force interpretation.",
+      "Any temperature edit is an interface violation and is not proposed; mixture_temperature=0.5 and teacher_endpoint_temperature_A2=4.0 remain fixed.",
+      "No observed affinity labels and no decoded terminal labels are supplied, so no edit can be validated against final predicted target affinity; last-record credit must not be read as terminal affinity benefit."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared distance and native endpoint VJP (Eaa4bda02c9a2c3a1). Observed support is the learning window [0.0,0.5] with recorded affinities removed and an equal score prior, so no observed affinity label can rank coordinates (E0857891f4effbfe1). The only registered edits are pointcloud_delta_A (C001-C003), teacher_neighbors (C004-C006) and temporal_teacher_blend (C007-C009). The incumbent already uses pointcloud_delta_A=1.0 A, teacher_neighbors=4 and no temporal blend, and the fixed temperatures (mixture 0.5, teacher_endpoint 4.0 A^2) are immutable. The information audit gives a compressed-choice excess fixed-RMS of about 0.081 A (CI95 ~0.070-0.092) over a fixed RMS of about 0.564 A, with proper-rigid RMS about 0.529 A, and this excess is nonnegative by construction rather than a causal affinity effect (E2bb8390452ed517a). Teacher-score correlations are weak (compressed ~0.102, full ~0.064) and top4 overlap ~0.470, so they are observational and not a validated affinity predictor. Curve support is a selection-enrichment criterion (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05) with a fidelity rule of relative RMSE <= 0.35, quiet-node large-fit fraction <= 0.1 and zero strong sign-conflict nodes, not an absolute geometric descriptor (Ed4e7d28e7b0423e0). Lineage support covers 14 complete-survival batches over 700 batch nodes, but 349 nodes have fewer than 3 ancestors and 531 fewer than 6, and terminal metadata show a single future-resampling node per batch at terminal score time 0.99 and state time 1.0, so last-record credit is not decoded terminal affinity benefit (Ed0d7945bdeeda8f1). No supplied evidence provides a defensible expected advantage for any offered edit: narrowing delta (C001) would sharpen the endpoint kernel without affinity-label support, widening it (C002/C003) would relax the endpoint match without evidence that the incumbent is over-constrained, changing teacher_neighbors (C004-C006) is a count change with no validated mode-coverage benefit and the incumbent k=4 already matches the top4 overlap diagnostic, and temporal_teacher_blend (C007-C009) would introduce a time-conditioned coordinate teacher whose only temporal evidence is a validated absolute contrast at observed score nodes, not a trajectory velocity force. Because the objective is affinity-primary and no observed affinity labels or decoded terminal labels exist, retaining the incumbent is the only defensible choice; deferral is unnecessary since the incumbent is fully specified and executable.",
+    "role": "Designer"
+  }
+}

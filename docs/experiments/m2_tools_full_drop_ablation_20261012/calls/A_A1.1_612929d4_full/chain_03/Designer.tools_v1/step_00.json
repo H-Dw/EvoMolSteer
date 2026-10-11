@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E2bb8390452ed517a",
+      "Ed4e7d28e7b0423e0",
+      "Ed0d7945bdeeda8f1",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "E5d1c4c6e5dbe0cb6",
+      "E03ad082bb04f4f9c"
+    ],
+    "failure_modes": [
+      "Selecting a temporal blend (C009-C011) or temporal region (C008) would condition teacher coordinates on unstable observed-node fits with sign reversals, displacing surrounding coordinates without a validated affinity gain.",
+      "Changing pointcloud_delta_A (C001/C003) or teacher_neighbors (C005/C007) without supplied spatial-scale or dispersion evidence risks unnecessary displacement of surrounding coordinates and receptor clashes, with no expected affinity advantage.",
+      "Treating the signed contrast or teacher-score correlation as an affinity target would misattribute a coordinate diagnostic as a causal affinity effect, since no observed affinity label exists in the window."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "rationale": "Incumbent already sits at the registered defaults (pointcloud_delta_A=1.0 -> C002, teacher_neighbors=4 -> C006, region_index=0 -> C004), so no offered choice is an operative change except the temporal blend/region options. Analyst evidence does not support any of them. H002: continuous-trend rows show large first-to-last rate reversals, multiple sign changes, strong sign conflicts and no accepted polynomial with extrapolation disallowed, so a time-conditioned teacher (C009-C011) or temporal region (C008) is not defensible over the static rule. H001: the only directional signal is a signed contrast at retained curve-support features, which is a coordinate reward, not an affinity target, and the audit states teacher-score correlations are observational, not a validated affinity predictor. H003: terminal labels lie outside the observed window and ancestral coverage is sparse, so no affinity benefit can be credited to any edit. D2.1/D2.2: no supplied spatial-scale or intact-teacher dispersion evidence was read that would justify a narrower/broader neighborhood (C005/C007) or a different distance curvature (C001/C003); neighbor count is not a bandwidth and temperatures are immutable. D4.1: with no defensible expected advantage and affinity-first priority, retaining the incumbent is the correct decision; evidence would have to change (accepted time-conditioned fit, decoded terminal labels, or validated affinity predictor) to justify an edit.",
+    "role": "Designer"
+  }
+}

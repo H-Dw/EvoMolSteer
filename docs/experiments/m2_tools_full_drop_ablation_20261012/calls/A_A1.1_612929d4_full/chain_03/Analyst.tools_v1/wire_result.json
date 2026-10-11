@@ -1,0 +1,118 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5]; recorded affinities were removed and replaced by an equal score prior, so no observed affinity label exists inside the window and last-record or survival credit cannot be presented as final affinity benefit.",
+      "evidence_refs": [
+        "E0857891f4effbfe1",
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Terminal metadata place the terminal score time at 0.99 and terminal state time at 1.0, outside the observed window, with one future-resampling node per batch; decoded terminal labels are therefore unavailable to this analysis and the selection-versus-descendant comparison cannot be completed.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The information audit reports 14 independent batches and a compressed-choice excess fixed-frame RMS of about 0.081 A (CI95 ~0.070-0.092) over a fixed RMS of about 0.564 A, but explicitly states this is not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction rather than a causal affinity effect.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Teacher-score correlations with the chosen compressed candidate are weak (whole-window mean ~0.10, CI95 ~0.065-0.140) and the audit states these correlations are observational and not a fitted or independently validated affinity predictor, so they cannot be used as an absolute reward target.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "The curve-support selection rule retained 24 features requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05 and exclusion of the scale floor, with a fidelity rule of relative RMSE <= 0.35, strong sign-conflict nodes = 0 and quiet-node large-fit fraction <= 0.1; this is a filtered subset, not the full feature population.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Continuous-trend rows for landmark_00 local features show large first-to-last rate reversals (e.g. local_dy first_rate_z ~ -72.4 to last_rate_z ~ +5.5; local_cxy first_rate_z ~ +64.8 to last_rate_z ~ -19.7) with 4-10 sign changes, 1-14 strong sign conflicts and relative node RMSE 0.29-0.87, and no polynomial was accepted and extrapolation is disallowed; these are unstable observed-node linear fits, not validated time-conditioned rules.",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "E5d1c4c6e5dbe0cb6",
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Lineage support shows 349 nodes with fewer than 3 ancestors and 531 with fewer than 6 ancestors out of 700 total batch nodes, with at most 2 teachers per batch, so ancestral coverage is sparse and survivor/ancestor-weighted credit is biased toward the minority of well-covered nodes.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "The information audit lists explicit limitations: node summaries describe correlated within-batch candidates with uncertainty taken from independent batches, and proper rigid alignment retains fixed Hungarian correspondence rather than a globally solved rotation/permutation distance, so regional or joint claims cannot be upgraded to global pose or shape conclusions.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 9
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Prefer signed contrast direction at observed selection nodes for the retained curve-support features; treat the contrast as a coordinate reward, not an absolute geometric descriptor or affinity target.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "A retained feature whose batch direction fraction falls below the selection threshold or whose sign reverses across independent batches would weaken the proposed direction.",
+      "observable": "Signed integrated contrast z and batch direction fraction for retained curve-support features at observed score nodes.",
+      "scope": "Observed window [0.0,0.5], 14 independent batches, retained features only.",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes may carry reproducible directional information over the complete observed window, but only for the 24 features passing the curve-support selection rule and only as observed-node interpolation without extrapolation."
+    },
+    {
+      "direction": "Retain a constant or static contrast rule rather than a time-conditioned rule until a validated fit exists.",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "E5d1c4c6e5dbe0cb6",
+        "E2e106e083189d150"
+      ],
+      "falsifier": "A feature with an accepted polynomial fit, zero strong sign conflicts and low relative node RMSE would support a time-conditioned rule.",
+      "observable": "Sign changes, strong sign conflicts, relative node RMSE and polynomial acceptance per continuous-trend feature.",
+      "scope": "landmark_00 local features, observed window only.",
+      "statement": "A time-conditioned contrast rule is not supported over a constant rule by the supplied continuous trends, because the observed-node linear fits show multiple sign changes, strong sign conflicts and no accepted polynomial."
+    },
+    {
+      "direction": "Treat turnover and survival credit as accounting diagnostics only; do not express them as a causal selection effect or atom velocity.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "Decoded terminal labels with adequate ancestral coverage would allow the within-path versus cohort-composition comparison.",
+      "observable": "Parent-child increment contrasts, turnover residual and ancestor counts per node.",
+      "scope": "Observed window, 14 batches, 700 batch nodes.",
+      "statement": "Within-path coordinate change cannot be separated from changing cohort composition with the supplied evidence, because terminal labels are outside the observed window and ancestral coverage is sparse."
+    }
+  ],
+  "limitations": [
+    "No observed affinity labels exist in the window (recorded affinities removed, equal score prior), so final predicted target affinity cannot be evaluated from the supplied observations.",
+    "Decoded terminal labels are unavailable; terminal score/state times (0.99/1.0) lie outside the observed window, so last-record credit cannot be presented as final affinity benefit.",
+    "The information audit states its metrics are not the full score-weighted reward or its FLOWR Jacobian, and that teacher-score correlations are observational, not a validated affinity predictor.",
+    "Continuous-trend fits are observed-node linear with no accepted polynomial and extrapolation disallowed; they are unstable and cannot support arbitrary time bins or extrapolation.",
+    "Ancestral coverage is sparse (349 nodes with <3 ancestors, 531 with <6 of 700), so survivor/ancestor-weighted credit is biased.",
+    "No joint-diagnostics, regional-effects, survival-effects, increment-effects, endpoint-effects, branch-adjusted or turnover-accounting rows were read in this analysis, so coupling, redundancy and multiplicity-adjusted ranking claims remain unsupported here.",
+    "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

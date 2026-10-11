@@ -1,0 +1,98 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so any coordinate contrast is a reward-side signal rather than a physical interaction energy.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score/state clock [0.0, 0.5] with 50 observed score times at 0.01 spacing, and the learning window equals the observed window; recorded affinities were removed and replaced by an equal score prior, so no absolute affinity label is available inside the observed support.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "The curve-support selection rule admits 24 features requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857, exclusion of scale-floor features and q < 0.05, with a fidelity rule of relative RMSE <= 0.35, zero strong sign-conflict nodes and quiet-node large-fit fraction <= 0.1; this is a selection-enrichment criterion, not an absolute geometric descriptor.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The information audit is based on 14 independent batches and reports compressed-choice excess fixed-frame RMS of about 0.081 A (CI95 ~0.070-0.092) and compressed-choice fixed RMS of about 0.564 A (CI95 ~0.499-0.620), with proper-rigid RMS about 0.529 A; the audit explicitly states these are not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction, not a causal affinity effect.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Teacher-score correlations are weak and observational: compressed chosen-teacher score correlation ~0.102 (CI95 ~0.065-0.140) and full chosen-teacher score correlation ~0.064 (CI95 ~0.021-0.103), with top4 teacher overlap ~0.470; the audit states these are not a fitted or independently validated affinity predictor.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Lineage support covers 14 complete-survival batches over 700 total batch nodes, but 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, and terminal metadata place terminal score time at 0.99 and terminal state time at 1.0, outside the observed window [0.0, 0.5]; therefore last-record or terminal credit cannot be presented as final affinity benefit within the observed support.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Multiple testing for survival fields is BH-adjusted jointly over 400 survival field/measure tests and is explicitly not terminal affinity effects; the parent reference differs from the lineage reference, so survival credit is a separate accounting quantity from the endpoint affinity objective.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 7
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase signed favorable contrast at selected observed nodes",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "a selected feature showing strong sign conflicts or relative RMSE above 0.35, or batch direction fraction below 0.857, would remove it from the supported set",
+      "observable": "signed contrast of the 24 selected curve-support features at observed score nodes",
+      "scope": "observed window [0.0, 0.5], 14 independent batches",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes, restricted to the 24 curve-support features passing the fidelity and multiplicity rules, are the best-supported coordinate direction for the endpoint reward, because these features combine batch reproducibility, fit fidelity and absence of strong sign conflicts."
+    },
+    {
+      "direction": "prefer observed-window contrast evidence over terminal credit for direction setting",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "falsifier": "decoded terminal affinity labels showing the same sign as observed-window contrasts would weaken the separation claim",
+      "observable": "agreement between observed-window contrast signs and survival-credit signs",
+      "scope": "observed window versus terminal times 0.99/1.0",
+      "statement": "Immediate selection evidence and later survival/quality credit should be treated as different semantics: without decoded terminal labels the last-record credit cannot be equated with final affinity benefit, so direction priorities should not be driven by terminal credit alone."
+    },
+    {
+      "direction": "retain freedom in surrounding coordinates and act only on the local excess beyond rigid alignment",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "a proper-rigid RMS much smaller than fixed-frame RMS would indicate most residual is global pose rather than local coordinate information",
+      "observable": "difference between fixed-frame RMS and proper-rigid RMS",
+      "scope": "14 independent batches, observed window",
+      "statement": "Local coordinate information should be separated from global pose and shape: the audit's proper-rigid RMS (~0.529 A) is close to fixed-frame RMS (~0.564 A), so rigid alignment explains only a small part of the residual and the remaining excess (~0.081 A) is the candidate local signal, while surrounding coordinates should retain freedom."
+    }
+  ],
+  "limitations": [
+    "No current study outcome data are supplied to the Analyst, so no claim about final affinity improvement can be made.",
+    "Recorded affinities were removed and replaced by an equal score prior, so absolute affinity labels are unavailable within the observed support.",
+    "Terminal score/state times (0.99/1.0) lie outside the observed window [0.0, 0.5]; terminal or last-record credit is unobserved for the current study and is not final affinity benefit.",
+    "The information audit metrics are not the full score-weighted reward or its FLOWR Jacobian, and nonnegative excess distance is by construction rather than a causal affinity effect.",
+    "Teacher-score correlations are observational and are not a fitted or independently validated affinity predictor.",
+    "Survival multiple testing is BH-adjusted over 400 survival field/measure tests and is not terminal affinity effects.",
+    "Ancestral coverage is sparse: 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, limiting lineage-based inference.",
+    "No temperature edit is permitted; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}
