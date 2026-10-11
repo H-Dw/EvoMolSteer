@@ -34,6 +34,9 @@ def full_input_packet(study):
         "linear_argument":"observed values_z at shared_times; interpolate within observed support only",
         "observable":"favorable minus comparison coordinate feature, standardized by original feature scale",
         "not_absolute_target":True,"functions":functions}
+    definitions=study/"evidence/observable_definitions.json"
+    if definitions.exists():
+        packet["observable_definitions"]=dict(read_json(definitions),source_sha256=digest(definitions))
     return packet
 
 

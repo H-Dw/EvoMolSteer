@@ -131,12 +131,15 @@ def prepare(repo, study):
     for name,key in [(BASE,"program_sha256"),(REF,"reference_sha256")]:
         if digest(repo/name)!=p["baseline"][key]:raise ValueError("Frozen M2 changed")
     packet=build(repo,study/"evidence")
+    from .observables import build as build_observable_definitions
+    definitions=build_observable_definitions(repo,study)
     historical=historical_control(repo,study/"evaluation_controls")
     pcopy=copy.deepcopy(p)
     write_json(study/"module_registry.json",read_json(repo/PLAN/"module_registry.json"))
     activation={"schema_version":"scientific-activation-3.0","plan":PLAN,
         "protocol_sha256":digest(repo/PLAN/"protocol.json"),"protocol":pcopy,
         "packet_sha256":digest(study/"evidence/packet.json"),"screen_batches":p["batches"]["screen"],
+        "observable_definitions_sha256":digest(definitions),
         "bound_inputs":packet["source_sha256"],"model":"deepseek-flash","frozen_M2":BASE,
         "module_registry_sha256":digest(study/"module_registry.json"),
         "historical_control_sha256":digest(historical),
@@ -152,6 +155,13 @@ def validate_activation(repo,study):
         raise ValueError("Scientific activation identity mismatch")
     if digest(study/"evidence/packet.json")!=a["packet_sha256"]:
         raise ValueError("Scientific evidence packet changed")
+    if not a.get("observable_definitions_sha256"):
+        raise ValueError("Source-bound observable definitions required before scientific calls")
+    if digest(study/"evidence/observable_definitions.json")!=a["observable_definitions_sha256"]:
+        raise ValueError("Observable definitions changed after activation")
+    if a.get("observable_definitions_sha256"):
+        for path,sha in read_json(study/"evidence/observable_definitions.json")["source_code_sha256"].items():
+            if digest(repo/path)!=sha:raise ValueError("Observable extractor changed: "+path)
     if digest(study/"module_registry.json")!=a["module_registry_sha256"] or digest(study/"evaluation_controls/historical_steer.metrics.parquet")!=a["historical_control_sha256"]:
         raise ValueError("Frozen module registry or historical control changed")
     for path,sha in a["bound_inputs"].items():

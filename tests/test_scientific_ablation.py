@@ -219,6 +219,7 @@ def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(
     write_json(study/'evidence/continuous_functions.json',{'times':[.1,.2],'window':[.1,.3],
         'functions':{'feature':{'method':'observed_node_linear','observed_support':[.1,.2],'values_z':[1.,-1.]}}})
     write_json(study/'evidence/index.json',{'ids':[]})
+    write_json(study/'evidence/observable_definitions.json',{'occupancy':'radial shell, not within-radius count'})
     write_json(study/'module_registry.json',{'modules':MODULES})
     monkeypatch.setattr(agents,'validate_activation',lambda *a:{'protocol':{
         'lanes':{'G':{'allowed':{'teacher_neighbors':[2,4,8]}}},
@@ -235,6 +236,7 @@ def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(
     assert observed[1][1]['required']==['role','findings']
     payload=json.loads(observed[1][0][1]['content'])
     assert payload['continuous_functions']['functions']['feature']['values_z']==[1.,-1.]
+    assert payload['observable_definitions']['occupancy']=='radial shell, not within-radius count'
 
 
 def test_design_schema_repairs_illegal_grid_without_forcing_an_edit():
@@ -298,3 +300,13 @@ def test_secondary_necessity_requires_affinity_equivalence_and_converged_energy(
     assert classify_module({'simultaneous_CI':[-.1,.1]},eq,functional_valid=True,secondary=[secondary,secondary])=='INCONCLUSIVE'
     failed=drop.assign(energy_status='failed')
     assert compare_strain([full],[failed],replicates=1000)['status']=='UNAVAILABLE'
+
+
+def test_landmark_occupancy_is_a_shell_and_not_a_within_radius_contact_count():
+    from evomolsteer.continuous.affinity_geometry import names,numpy_geometry
+    points=np.zeros((1,3));fields=names(points);i=fields.index('landmark_00_occupancy3')
+    x=np.array([[[0.,0.,0.],[0.,0.,0.]],[[3.,0.,0.],[3.,0.,0.]]])
+    geometry=numpy_geometry(x,points,np.zeros(3))
+    assert geometry[0,i]==pytest.approx(np.exp(-4.5))
+    assert geometry[1,i]==pytest.approx(1.)
+    assert geometry[1,fields.index('landmark_00_softmin')]==pytest.approx(3.)
