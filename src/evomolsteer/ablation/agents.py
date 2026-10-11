@@ -79,6 +79,25 @@ def operative_incumbent(program):
     return view
 
 
+def bind_evidence_schema(schema,known):
+    """Formatting contract: cite only sources actually delivered to this role.
+
+    Applies identically to full/drop/alternative. This does not require a
+    scientific finding, but lets the common neutral repair handle mistyped or
+    invented evidence identifiers before an invalid response reaches a recipe.
+    """
+    def bind(value):
+        if isinstance(value,dict):
+            for key,item in value.items():
+                if key=="evidence_ids" and isinstance(item,dict) and item.get("type")=="array":
+                    item["items"]={"type":"string","enum":sorted(known)}
+                else:bind(item)
+        elif isinstance(value,list):
+            for item in value:bind(item)
+    bind(schema)
+    return schema
+
+
 def call_role(repo, study, case, chain, role, active, *, alternative=None,
               analyst=None, incumbent=None, lane="G", delivery=None, caller=call_json):
     repo,study=Path(repo),Path(study)
@@ -113,11 +132,12 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
             "diagnostic_limit":"Moment effects, pair kernels and turnover rates are diagnostic evidence only. The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term. Legacy robust_delta is ignored; the executing curvature is pointcloud_delta_A (default 1 A). Compilation uses the original frozen program."}}
     if analyst is not None:task["Analyst_response"]=analyst
     if delivery is not None:task["delivery_diagnostics"]=delivery
+    known=set(read_json(study/"evidence/index.json")["ids"]) | set(packet) | set(task)
+    bind_evidence_schema(schema,known)
     messages=[{"role":"system","content":prompt},
         {"role":"user","content":json.dumps(packet,separators=(",",":"))},
         {"role":"user","content":json.dumps(task,separators=(",",":"))}]
     result=caller(messages,schema,folder/(role+".json"),input_store=study/"inputs",max_output_tokens=16384)
-    known=set(read_json(study/"evidence/index.json")["ids"]) | set(packet) | set(task)
     def citations(x):
         if isinstance(x,dict):
             for k,v in x.items():

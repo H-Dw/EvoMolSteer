@@ -1,0 +1,309 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint pointcloud contrast is dominated by pair-distance shell densities: pair_kernel_1.5/2.5/3.5/5.0 show positive integrated z (0.56, 0.63, 0.54, 0.32) with q<0.005 and positive batch fractions 1.0/1.0/1.0/0.857, while pair_kernel_7.0 is negative (-0.49, q=1.5e-4, positive fraction 0.0). These are radial shell densities, not bond labels or interaction energies.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Shape anisotropy is the second consistent endpoint axis: shape_xx (-0.50), shape_yy (-0.51), shape_zz (-0.18) and shape_yz (-0.21) are all negative with q<0.07, and shape_yy has positive batch fraction 0.0. Signs are definition-bound (sqrt(2)-scaled covariance entries) and cannot be compared across observables as a shared quality axis.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Landmark softmin and occupancy3 terms carry mixed but mostly significant endpoint contrast: softmin is negative at landmarks 00, 04, 06, 10, 18, 19 and positive at 01, 02, 03, 05, 12, 15, 16; occupancy3 is positive at 00, 04, 07, 10, 13, 19 and negative at 01, 02, 03, 05, 06, 12, 15, 18. Softmin is a normalized soft minimum distance, not a quality benefit.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:17",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:50",
+        "endpoint_effects:59",
+        "endpoint_effects:62",
+        "endpoint_effects:68"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Regional enrichment_z confirms the same pattern at the landmark level: soft_mass enrichment is positive at landmarks 00, 07, 10, 17 (q<0.01) and negative at 03, 11, 12; local_dy enrichment is positive at 02, 06, 09, 14, 18 (q<0.001) and negative at 00, 01, 03, 11, 12, 13, 16, 19.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:100",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_effects:249"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Observed-node linear trends are non-monotone: most features show 3-13 sign changes and strong sign conflicts, and polynomial fits are rejected (polynomial_accepted=false) with relative node RMSE 0.28-1.0. Only a minority of features (e.g. landmark_01_local_dz, landmark_04_local_cyz, landmark_08_local_dz, landmark_14_local_cyz, landmark_17_local_cyz, landmark_18_local_cyz, landmark_19_local_dz, landmark_19_local_cyz) show large first/last rate z with consistent sign.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:39",
+        "continuous:87",
+        "continuous:134",
+        "continuous:147",
+        "continuous:207",
+        "continuous:213",
+        "continuous:249",
+        "continuous:267",
+        "continuous:314",
+        "continuous:338",
+        "continuous:368",
+        "continuous:377",
+        "continuous:415",
+        "continuous:447",
+        "continuous:488",
+        "continuous:497",
+        "continuous:524",
+        "continuous:537",
+        "continuous:567",
+        "continuous:579",
+        "continuous:584",
+        "continuous:587",
+        "continuous:597"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Curve-fidelity audit rejects runtime Legendre use (legendre_runtime_allowed=false for all 24 selected curves) and reports quiet-node large-fit fractions 0.08-0.34 with 0-15 strong sign-conflict nodes; selection retained 24 of the candidate curves under relative_rmse<=0.35, strong_sign_conflict_nodes_eq=0, quiet_node_large_fit_fraction<=0.1.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Joint rigid-motion residuals are the most consistent branch-adjusted signals: joint_innovation_RMS_A, joint_internal_RMS_A and joint_translation_RMS_A are negative in both raw and adjusted covariance/correlation views with q<0.05 and same-sign batch fractions 0.71-1.0. These are residual magnitudes, not physical interaction energies.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Pair-kernel 1.5 and 2.5 remain positive after branch adjustment in both covariance and correlation metrics (q<0.05, same-sign batch fraction 0.79-0.93), while pair_kernel_7.0 is negative (q=0.034). This is the strongest branch-adjusted coordinate signal.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:163",
+        "branch_adjusted:164"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Survival enrichment is weak and mostly null: only landmark_00_soft_mass (0.37), landmark_07_soft_mass (0.22), landmark_10_soft_mass (0.23) and landmark_18_local_czz (0.22) reach q<0.36, while survival change-rate z is large for landmark_04_local_cyz (1.79), landmark_17_local_cxx (5.24), landmark_19_local_cxx (5.30) and landmark_19_local_cyy (5.37). Survival credit is recorded joint-head credit, not decoded terminal affinity.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:524",
+        "survival_effects:584",
+        "survival_effects:587"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Turnover residual rates are large and positive for landmark_00_local_cxx/cyy, landmark_01_local_cyy, landmark_04_local_cxx, landmark_07_local_cxx/cyy, landmark_08_local_cxx/cyy, landmark_10_local_cxx/cyy, landmark_11_local_cyy, landmark_12_local_cyy, landmark_13_local_cyy, landmark_16_local_cyy, landmark_17_local_cxx/cyy, landmark_18_local_cxy, landmark_19_local_cxx/cyy (q<0.06). The turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+      "evidence_ids": [
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:314",
+        "turnover:317",
+        "turnover:338",
+        "turnover:347",
+        "turnover:368",
+        "turnover:374",
+        "turnover:377",
+        "turnover:407",
+        "turnover:488",
+        "turnover:497",
+        "turnover:524",
+        "turnover:527",
+        "turnover:563",
+        "turnover:584",
+        "turnover:587"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Within-selector joint diagnostics show innovation_native_alignment (0.092, p=1.5e-9), teacher_innovation_contrast_alignment (0.226, p=1.2e-9) and observed_child_score_gain (-0.036, p=1.8e-7) as the only tested associations; these are descriptive within-selector associations with batch as the independent unit, not causal affinity effects.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Information audit reports compressed_choice_excess_fixed_RMS_A mean 0.081 (CI 0.070-0.092), compressed_choice_fixed_RMS_A 0.564, compressed_choice_proper_rigid_RMS_A 0.529, top4_teacher_overlap 0.470, compressed_chosen_teacher_score_correlation 0.102 and full_chosen_teacher_score_correlation 0.064. Nonnegative excess distance is by construction, not a causal affinity effect.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "If the endpoint pointcloud contrast is driven by short-range pair-distance shell density, then a pointcloud_delta_A near the incumbent 1.0 A (the executing curvature) should preserve the pair_kernel_1.5/2.5 signal; larger deltas would smooth the shell and attenuate it. This is a hypothesis about the executing scalar, not a decision.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ]
+    },
+    {
+      "claim": "If shape_xx/shape_yy negativity reflects a real endpoint geometry preference, then landmark regions with the strongest negative local_cxx/cyy enrichment (00, 01, 03, 04, 05, 07, 08, 09, 10, 11, 12, 13, 15, 16, 17, 19) should be the regions where coordinate control has the most leverage. This is a hypothesis, not a decision.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8",
+        "regional_effects:4",
+        "regional_effects:5",
+        "regional_effects:14",
+        "regional_effects:15"
+      ]
+    },
+    {
+      "claim": "If most observed-node trends are non-monotone with rejected polynomial fits, then a temporal teacher blend that uses only validated absolute contrast at actual score nodes (blend in {0.25,0.5,1.0}) is more defensible than extrapolating linear rates. This is a hypothesis about the temporal recipe, not a decision.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:39",
+        "continuous:87",
+        "continuous:134",
+        "continuous:147",
+        "continuous:207",
+        "continuous:213",
+        "continuous:249",
+        "continuous:267",
+        "continuous:314",
+        "continuous:338",
+        "continuous:368",
+        "continuous:377",
+        "continuous:415",
+        "continuous:447",
+        "continuous:488",
+        "continuous:497",
+        "continuous:524",
+        "continuous:537",
+        "continuous:567",
+        "continuous:579",
+        "continuous:584",
+        "continuous:587",
+        "continuous:597"
+      ]
+    },
+    {
+      "claim": "If survival enrichment is weak while turnover residual rates are large and positive, then the recorded joint-head credit is dominated by score reclassification and extant-parent weighting rather than by terminal affinity selection. This is a hypothesis about credit semantics, not a decision.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:314",
+        "turnover:317",
+        "turnover:338",
+        "turnover:347",
+        "turnover:368",
+        "turnover:374",
+        "turnover:377",
+        "turnover:407",
+        "turnover:488",
+        "turnover:497",
+        "turnover:524",
+        "turnover:527",
+        "turnover:563",
+        "turnover:584",
+        "turnover:587"
+      ]
+    },
+    {
+      "claim": "If joint rigid-motion residuals are consistently negative after branch adjustment, then the endpoint pointcloud contrast may partly reflect reduced rigid-motion residual rather than a specific chemical geometry. This is a hypothesis, not a decision.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ]
+    },
+    {
+      "claim": "If teacher score correlations are only 0.06-0.10 and top4_teacher_overlap is 0.47, then teacher-based coordinate rewards carry limited affinity information and should not be treated as validated affinity predictors. This is a hypothesis about teacher reliability, not a decision.",
+      "evidence_ids": [
+        "information_audit",
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Endpoint forecast descriptors are not atom velocities, neural attention, physical energies or causal affinity gradients.",
+    "Coordinate covariance is not by itself an inferred chemical mechanism.",
+    "Softmin is a normalized soft minimum distance; lower means geometrically closer, without establishing a quality benefit.",
+    "Landmark occupancy3/occupancy5 are radial shell densities, not atom counts within a radius, and are not monotone in distance.",
+    "Pair kernels are radial pair-distance shell densities, not bond labels or interaction energies.",
+    "Signs on different observables cannot be compared as a shared quality axis without their definitions.",
+    "Temperatures are immutable task parameters; no temperature edit is proposed or compiled.",
+    "No current study outcome is available to either role."
+  ],
+  "role": "Analyst"
+}

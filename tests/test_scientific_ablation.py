@@ -310,3 +310,14 @@ def test_landmark_occupancy_is_a_shell_and_not_a_within_radius_contact_count():
     assert geometry[0,i]==pytest.approx(np.exp(-4.5))
     assert geometry[1,i]==pytest.approx(1.)
     assert geometry[1,fields.index('landmark_00_softmin')]==pytest.approx(3.)
+
+
+def test_evidence_schema_prevents_invented_table_ids_without_forcing_findings():
+    schema=copy.deepcopy(agents.ANALYST_SCHEMA)
+    agents.bind_evidence_schema(schema,{'continuous:199','observable_definitions'})
+    jsonschema.validate({'role':'Analyst','findings':[]},schema)
+    response={'role':'Analyst','findings':[{'claim':'Supplied curve',
+        'evidence_ids':['continuous:597'],'priority':1}]}
+    with pytest.raises(jsonschema.ValidationError):jsonschema.validate(response,schema)
+    response['findings'][0]['evidence_ids']=['continuous:199']
+    jsonschema.validate(response,schema)

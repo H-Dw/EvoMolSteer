@@ -1,0 +1,83 @@
+{
+  "body": {
+    "max_tokens": 16384,
+    "messages": [
+      {
+        "content_relative_path": "../../../inputs/6bb808cee73f3bd9189bb687a66fd4698cf8dc26b8975ec002d023dabcae9e41.txt",
+        "content_sha256": "6bb808cee73f3bd9189bb687a66fd4698cf8dc26b8975ec002d023dabcae9e41",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../../inputs/64c47235b0b3cedcf3846cc577cf13ae252258eea21b4ec262173e1e13444262.txt",
+        "content_sha256": "64c47235b0b3cedcf3846cc577cf13ae252258eea21b4ec262173e1e13444262",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../../inputs/c904b96debb7091441683988f59644930e99f98a02997a446882cf522e8a1792.txt",
+        "content_sha256": "c904b96debb7091441683988f59644930e99f98a02997a446882cf522e8a1792",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "findings": {
+        "items": {
+          "additionalProperties": true,
+          "properties": {
+            "claim": {
+              "type": "string"
+            },
+            "evidence_ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "priority": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "evidence_ids",
+            "claim"
+          ],
+          "type": "object"
+        },
+        "maxItems": 12,
+        "type": "array"
+      },
+      "hypotheses": {
+        "items": {
+          "type": "object"
+        },
+        "maxItems": 6,
+        "type": "array"
+      },
+      "limitations": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "findings"
+    ],
+    "type": "object"
+  }
+}
