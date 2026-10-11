@@ -1,0 +1,284 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate selection evidence and descendant survival/quality credit disagree in direction for several landmark fields. Endpoint integrated effects are strongly positive for landmark_00_occupancy3 (endpoint_effects:15, +0.545), pair_kernel_1.5 (endpoint_effects:9, +0.562) and pair_kernel_2.5 (endpoint_effects:10, +0.631), while the corresponding survival-enrichment effects are weak and mostly non-significant (survival_effects:0 +0.365, survival_effects:70 +0.220, survival_effects:100 +0.234, survival_effects:186 +0.217). Because decoded terminal learning labels are unavailable (decoded_terminal_learning_labels_available=false), last-record joint-head credit cannot be presented as final affinity benefit; the immediate-vs-descendant comparison is unavailable and the disagreement should only shift direction priorities, not be read as a validated affinity gain.",
+      "evidence_ids": [
+        "decoded_terminal_learning_labels_available",
+        "lineage_support",
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "endpoint_effects:15",
+        "endpoint_effects:9",
+        "endpoint_effects:10"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Ancestral coverage is thin: lineage_support reports 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, out of 700 total batch nodes, and only 14 complete-survival batches. Survival credit is therefore concentrated on a minority of well-covered nodes, and the significant survival change-rate effects (e.g. survival_effects:249 +1.79, survival_effects:393 +1.26) rest on few independent batches. This survivor bias limits how far descendant credit can be generalized to the full node population.",
+      "evidence_ids": [
+        "lineage_support",
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:200",
+        "survival_effects:249",
+        "survival_effects:393"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Multiplicity-adjusted support changes the ranking relative to point estimates. After BH adjustment the pair_kernel_1.5 and pair_kernel_2.5 adjusted-covariance effects remain the strongest supported coordinate hypotheses (branch_adjusted:86 q=0.081, branch_adjusted:87 q=0.077; adjusted-correlation branch_adjusted:240 q=0.019, branch_adjusted:241 q=0.046), whereas many larger raw-covariance point estimates (e.g. landmark softmin entries) have q well above 0.1. A concrete priority decision that differs from point-estimate ranking is to rank pair_kernel_1.5/2.5 above the larger-magnitude but unsupported landmark softmin raw-covariance terms.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Independent-batch agreement and opposing observations qualify the pair_kernel direction. The pair_kernel_1.5/2.5 adjusted effects have same-sign batch fractions of 0.79-0.93 (branch_adjusted:86,87,240,241), while the joint_innovation_RMS_A and joint_internal_RMS_A adjusted-correlation effects are consistently negative with same-sign fractions of 0.93-1.0 (branch_adjusted:228,230,305,307). A counterexample that would weaken the pair_kernel direction is a batch in which the pair_kernel_1.5 adjusted correlation reverses sign; the reported 0.79-0.93 same-sign fractions show such reversals exist in a minority of batches, so the direction should be used with reduced confidence rather than as a uniform rule.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Local coordinate information is separable from global pose and shape. The joint_innovation_RMS_A and joint_internal_RMS_A effects survive adjustment (branch_adjusted:74 q=0.038, branch_adjusted:76 q=0.044; adjusted branch_adjusted:151 q=0.020, branch_adjusted:153 q=0.030) and are dominated by internal rather than translation motion (joint_diagnostics:14 internal fraction 0.787 vs joint_diagnostics:12 translation 0.132 and joint_diagnostics:13 rotation 0.081). The global centroid and shape terms are largely non-significant after adjustment (branch_adjusted:77-85), so the region that adds information beyond common motion is the internal/pair-distance structure, and the surrounding coordinates that should retain freedom are the global centroid and rigid-pose degrees of freedom.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "joint_diagnostics:14",
+        "joint_diagnostics:12",
+        "joint_diagnostics:13"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Coherent joint coordinate patterns are better supported than isolated marginal descriptors. The pair_kernel_1.5/2.5/3.5 family shows a coherent positive adjusted-covariance and adjusted-correlation pattern (branch_adjusted:86,87,240,241,163,164,165), while the isolated shape_xx/shape_yy/shape_zz marginals are weak or negative (branch_adjusted:80-85). The coupling evidence therefore favors the pair-distance shell family over single-moment shape descriptors; incompatible conformations should not be averaged into an unsupported target.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:165",
+        "branch_adjusted:242",
+        "branch_adjusted:243"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "The supplied continuous contrast functions for landmark_00 fields span the full observed support [0.0,0.49] with multiple sign changes (e.g. continuous:0 4 sign changes, continuous:1 6, continuous:3 10, continuous:7 9) and no accepted polynomial (polynomial_accepted=false for all landmark_00 rows). The observed-node linear interpolation is the only validated representation; a constant rule is not supported over a time-conditioned rule because the curves change sign and rate within the window, but no extrapolation beyond [0.0,0.49] is permitted.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous_functions",
+        "curve_support"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Curve fidelity is poor for the landmark_00 fields: relative_node_RMSE ranges from about 0.29 to 0.87 and strong_sign_conflict_nodes range from 1 to 14 (continuous:0-9), and curve_support reports quiet_node_large_fit_fraction up to 0.18 with strong_sign_conflict_nodes up to 15 for other landmarks. The contrast curves are therefore not absolute reward targets and should not be used as a fitted quality axis; they are diagnostic evidence only.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "curve_support"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Population-contrast changes and parent-child increment contrasts diverge. For landmark_00_local_cxx the population rate is near zero (turnover:12) while the edge rate is strongly negative (turnover:13) and the turnover residual is strongly positive (turnover:14, +4.29, q=0.038); similar large positive turnover residuals appear for landmark_00_local_cyy (turnover:17, +5.05, q=0.033), landmark_04_local_cxx (turnover:134, +5.67), landmark_07_local_cxx (turnover:224, +5.08), landmark_07_local_cyy (turnover:227, +5.63), landmark_16_local_cyy (turnover:497, +6.37) and landmark_19_local_cyy (turnover:587, +5.37). The evidence therefore supports changing cohort composition and reclassification/parent weighting rather than a within-path change; the residual is an accounting diagnostic, not a causal selection effect or atom velocity.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:497",
+        "turnover:584",
+        "turnover:587"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "The turnover residual is large and positive for many landmark local_cxx/local_cyy fields while the corresponding population rates are small, indicating that the observed whole-window change is dominated by turnover of the extant cohort rather than by within-path coordinate change. Because lineage_support notes the residual includes score reclassification and extant-parent weighting, the residual cannot be interpreted as a causal selection effect; it is an accounting diagnostic only.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:497",
+        "turnover:584",
+        "turnover:587",
+        "lineage_support"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "The information audit shows the compressed-choice excess fixed-RMS is small (0.081 A, CI 0.070-0.092) and the chosen-teacher score correlation is weak (0.102 compressed, 0.064 full), so the geometric nearest-teacher signal is a modest observational association, not a validated affinity predictor. Joint diagnostics show innovation_native_alignment and teacher_innovation_contrast_alignment are positive and significant (joint_diagnostics:1, joint_diagnostics:11), but observed_child_score_gain is negative (joint_diagnostics:2, -0.036), so the joint pattern does not translate into a positive child-score gain.",
+      "evidence_ids": [
+        "information_audit",
+        "joint_diagnostics:1",
+        "joint_diagnostics:11",
+        "joint_diagnostics:2",
+        "joint_diagnostics:4",
+        "joint_diagnostics:10"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "The coordinate observables are endpoint forecast descriptors, not atom velocities, neural attention, physical energies or causal affinity gradients (observable_definitions scope). The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term (formula_registry diagnostic_limit), and temperatures are immutable (teacher_modes temperature_edits=false). Any coordinate hypothesis must therefore be expressed through the permitted pointcloud/regional/temporal reward recipes, and the pair-kernel and moment effects remain descriptive rather than operative.",
+      "evidence_ids": [
+        "observable_definitions",
+        "formula_registry",
+        "incumbent",
+        "teacher_modes",
+        "limitations"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "A testable coordinate intervention is to increase the pair_kernel_1.5/2.5 shell density in the region around the landmark with the strongest adjusted support, using a pointcloud_delta_A of 1.0 A and teacher_neighbors of 4, with the intended response being a positive shift in the pair_kernel_1.5/2.5 adjusted correlation. The discriminating failure condition is a reversal of the pair_kernel_1.5 adjusted correlation sign in the majority of independent batches, which would falsify the direction.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "allowed_edits"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "A second testable intervention is to target the internal/pair-distance structure while leaving global centroid and rigid-pose degrees of freedom free, using a regional reward recipe bound to the landmark with the strongest joint_internal_RMS_A adjusted effect. The intended response is a reduction in joint_internal_RMS_A without a compensating increase in joint_translation_RMS_A; the discriminating failure condition is a joint_internal_RMS_A reduction accompanied by a joint_translation_RMS_A increase, which would indicate the effect is pose-driven rather than internal.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "joint_diagnostics:14",
+        "joint_diagnostics:12",
+        "joint_diagnostics:13"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "A time-conditioned regional reward recipe could express the observed sign changes in the landmark_00 continuous contrasts, using the temporal_region_index bound to a verified continuous salience and a temporal_teacher_blend of 0.5. The intended response is a regional attention shift that follows the observed sign changes within [0.0,0.49]; the discriminating failure condition is a fitted curve that extrapolates beyond the observed support or that requires a polynomial not accepted by the curve fidelity audit.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "curve_support",
+        "allowed_edits"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "A testable accounting hypothesis is that the large positive turnover residuals for landmark local_cxx/local_cyy fields are driven by reclassification and extant-parent weighting rather than by within-path coordinate change. The intended response is a reduction in the turnover residual when parent weighting is held fixed; the discriminating failure condition is a turnover residual that remains large and positive after reclassification is controlled, which would indicate a within-path change component.",
+      "evidence_ids": [
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:497",
+        "turnover:584",
+        "turnover:587",
+        "lineage_support"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "A testable hypothesis is that the immediate endpoint effects for landmark_00_occupancy3 and pair_kernel_1.5/2.5 will not be reproduced by descendant survival credit once decoded terminal labels become available. The intended response is a convergence of immediate and descendant directions; the discriminating failure condition is a persistent divergence between the two, which would confirm that last-record credit is not a proxy for final affinity benefit.",
+      "evidence_ids": [
+        "endpoint_effects:15",
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "decoded_terminal_learning_labels_available"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "A testable hypothesis is that the weak chosen-teacher score correlation (0.064-0.102) and the negative observed_child_score_gain (-0.036) will limit the benefit of any teacher-contrast-based reward recipe. The intended response is a measurable improvement in the chosen-teacher score correlation under a teacher-contrast recipe; the discriminating failure condition is no improvement or a worsening of the observed_child_score_gain, which would indicate the teacher contrast is not a usable affinity signal.",
+      "evidence_ids": [
+        "information_audit",
+        "joint_diagnostics:2",
+        "joint_diagnostics:4",
+        "joint_diagnostics:10",
+        "formula_registry"
+      ],
+      "priority": 6
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded terminal learning labels are unavailable.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term; those effects are diagnostic only.",
+    "Temperatures are immutable task parameters and no temperature edit is proposed."
+  ],
+  "role": "Analyst"
+}
