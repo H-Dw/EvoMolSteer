@@ -1,0 +1,58 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "incumbent",
+    "formula_registry",
+    "observable_definitions",
+    "objective",
+    "clocks",
+    "limitations",
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "branch_adjusted:86",
+    "branch_adjusted:87",
+    "branch_adjusted:240",
+    "branch_adjusted:241",
+    "endpoint_effects:4",
+    "branch_adjusted:158",
+    "branch_adjusted:235",
+    "curve_support",
+    "continuous:1",
+    "continuous:2",
+    "continuous:17",
+    "joint_diagnostics:1",
+    "joint_diagnostics:2",
+    "joint_diagnostics:11",
+    "joint_diagnostics:14",
+    "information_audit",
+    "teacher_modes",
+    "lineage_support",
+    "decoded_terminal_learning_labels_available"
+  ],
+  "expected_response": {
+    "decision": "retain",
+    "edit": null,
+    "expected_effect": "No change to the incumbent coordinate program; no operative reward edit is compiled.",
+    "primary_objective": "Final predicted target affinity primary; validity and strain secondary; coordinate control only."
+  },
+  "failure_modes": [
+    "Pair-kernel and shape_yy contrasts are diagnostic only and cannot be expressed by the executing pointcloud scalar; treating them as an operative reward would be an interface violation.",
+    "Selecting a region_index from mixed-sign landmark softmin/occupancy contrasts would overfit one landmark without a shared direction.",
+    "A temporal_region_index or temporal_teacher_blend edit would rely on continuous curves that fail the fidelity audit or show strong sign conflicts.",
+    "Changing teacher_neighbors would rely on descriptive joint diagnostics and an audit that is not the full score-weighted reward or its FLOWR Jacobian.",
+    "Any temperature proposal would be an interface violation, not a research condition."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "fixed task parameter 0.5; immutable",
+    "pointcloud_delta_A": "incumbent default 1.0 A; unchanged",
+    "teacher_endpoint_temperature_A2": "fixed task parameter 4.0; immutable",
+    "teacher_neighbors": "incumbent 4; unchanged"
+  },
+  "rationale": "Retain the incumbent. The Analyst's strongest reproducible signed contrasts are on pair_kernel_1.5 and pair_kernel_2.5 (endpoint_effects:9, endpoint_effects:10; branch_adjusted:86, branch_adjusted:87, branch_adjusted:240, branch_adjusted:241), but the formula registry states the executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term, so no registered bounded edit (pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index, temporal_teacher_blend) can express that observable. The shape_yy negative contrast (endpoint_effects:4; branch_adjusted:158, branch_adjusted:235) is likewise a coordinate covariance contrast, not a term in the executing reward, and observable_definitions states coordinate covariance is not by itself an inferred chemical mechanism. Landmark softmin/occupancy contrasts are mixed in sign across landmarks, so no single region_index is defensibly favored. The continuous contrast functions are observed-node linear interpolations with many sign changes and strong sign conflicts (continuous:1, continuous:2, continuous:17) and the curve fidelity audit accepts only 24 of the audited curves, so a temporal_region_index or temporal_teacher_blend edit is not supported by validated time-conditioned salience. Joint diagnostics are descriptive within-selector associations (joint_diagnostics:1, joint_diagnostics:2, joint_diagnostics:11, joint_diagnostics:14) and the information audit explicitly notes it is not the full score-weighted reward or its FLOWR Jacobian, so teacher_neighbors is not defensibly changed. Descendant credit is recorded joint-head credit with decoded terminal labels unavailable (lineage_support, decoded_terminal_learning_labels_available), so no affinity-first advantage is established. Temperatures are immutable and no temperature edit is proposed. With no defensible expected advantage over the incumbent under the affinity-first objective, retaining the incumbent is the correct bounded choice.",
+  "role": "Designer"
+}
