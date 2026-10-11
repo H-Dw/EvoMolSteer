@@ -1,0 +1,60 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "incumbent",
+    "formula_registry",
+    "observable_definitions",
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "branch_adjusted:163",
+    "branch_adjusted:164",
+    "branch_adjusted:240",
+    "branch_adjusted:241",
+    "endpoint_effects:3",
+    "endpoint_effects:4",
+    "branch_adjusted:158",
+    "branch_adjusted:235",
+    "branch_adjusted:74",
+    "branch_adjusted:76",
+    "branch_adjusted:151",
+    "branch_adjusted:153",
+    "branch_adjusted:228",
+    "branch_adjusted:230",
+    "continuous:0",
+    "continuous:20",
+    "continuous:60",
+    "continuous:100",
+    "continuous:150",
+    "curve_support",
+    "information_audit",
+    "lineage_support",
+    "teacher_modes",
+    "clocks",
+    "limitations"
+  ],
+  "expected_response": {
+    "decision": "retain",
+    "edit": null,
+    "note": "No registered bounded edit is tied to a supported operative reward change; incumbent retained with no parameter change."
+  },
+  "failure_modes": [
+    "Treating pair-kernel, moment or joint-RMS diagnostics as if they were terms in the executing pointcloud scalar would be an interface error; they are not reward terms.",
+    "Selecting a pointcloud_delta_A value without a signed curvature-response contrast would be an unsupported guess, not an evidence-bound edit.",
+    "Choosing a region_index or temporal_region_index from sign-inconsistent landmark contrasts would overstate a per-landmark signed contrast as a shared quality axis.",
+    "Setting temporal_teacher_blend or temporal_region_index from curves that are observed-node linear interpolations with no accepted polynomial fit and no extrapolation would exceed the supplied support.",
+    "Changing teacher_neighbors as if it were a distance bandwidth would misread a count for a bandwidth and would disturb fixed temperatures and teacher provenance."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "fixed task parameter 0.5; immutable",
+    "pointcloud_delta_A": "incumbent default 1.0 A; unchanged",
+    "teacher_endpoint_temperature_A2": "fixed task parameter 4.0; immutable",
+    "teacher_neighbors": "incumbent 4; unchanged"
+  },
+  "rationale": "Retain the incumbent. The Analyst's strongest reproducible contrasts (short-separation pair_kernel_1.5/2.5/3.5 positive, pair_kernel_7.0 reversed; shape_yy/shape_xx negative; joint internal/innovation RMS negative) are diagnostic coordinate observables, and the executing pointcloud scalar contains no pair-kernel, moment, joint-motif or geometry-block term, so no registered bounded edit (pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index, temporal_teacher_blend) can be tied to those contrasts as an operative reward change. The only registered edit that touches the executing curvature is pointcloud_delta_A, but the evidence supplies no signed curvature comparison (no delta sweep, no curvature-response contrast), so changing it would be an unsupported guess rather than a defensible expected advantage. Regional and temporal edits are likewise unsupported: landmark softmin/occupancy signs are mixed and not comparable across observables, and the time-conditioned soft-mass contrasts are observed-node linear interpolations with no accepted polynomial fit and no extrapolation, so a temporal_region_index or temporal_teacher_blend choice cannot be justified from the supplied curves. Teacher-neighbor count is a count, not a distance bandwidth, and the fixed temperatures and teacher provenance must be preserved. Because the objective is affinity-first and no supplied evidence establishes an expected affinity advantage for any permitted edit, retaining the incumbent is the defensible choice; the Analyst's hypotheses remain testable but are not operative reward terms.",
+  "role": "Designer"
+}
