@@ -1,0 +1,44 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "endpoint_effects:15",
+    "endpoint_effects:16",
+    "endpoint_effects:14",
+    "increment_effects:14",
+    "increment_effects:15",
+    "increment_effects:10",
+    "increment_effects:13",
+    "curve_support",
+    "lineage_support",
+    "information_audit",
+    "reference",
+    "formula_contract"
+  ],
+  "expected_response": {
+    "current_evidence": "not established; increment contrasts not jointly significant (q=0.208 for pair_kernel_2.5/7.0)",
+    "direction_if_implemented": "positive shift in pair_kernel_1.5-3.5 with unchanged or improved validity/strain",
+    "observable": "endpoint pair_kernel_1.5-3.5 contrasts and validity/strain"
+  },
+  "failure_modes": [
+    "Sharpening mixture_temperature to 0.25 could over-concentrate the softmin on a single nearest teacher cloud, reducing coverage of the pair_kernel_1.5-3.5 band the hypothesis intends to favor.",
+    "The pair-kernel endpoint contrasts are enrichment contrasts, not causal affinity effects; a positive shift in them need not improve final predicted pIC50.",
+    "Weak curve fidelity (24/… rows retained) and sparse ancestor support (349 nodes <3 ancestors) could make any observed shift non-reproducible across the 14 independent batches.",
+    "A change that only rescales the reward would be canceled by the existing RMS normalization and produce no delivered displacement; this edit is a direction change, but its magnitude is unverified."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "incumbent 0.5 retained; 0.25 would be a prospective hyperparameter choice, not data-supported",
+    "native_rms_ratio": "incumbent 0.33 retained; lane G permits no dose edit",
+    "pointcloud_delta_A": "incumbent 1.0 retained",
+    "teacher_endpoint_temperature_A2": "incumbent 4.0 retained",
+    "teacher_neighbors": "incumbent 4 retained",
+    "time_ramp_power": "incumbent 0.0 retained"
+  },
+  "rationale": "D1: The Analyst's priority-1 hypothesis proposes lowering mixture_temperature 0.5->0.25 to sharpen the softmin over teacher clouds, citing pair-kernel endpoint contrasts (pair_kernel_1.5 +0.562, 2.5 +0.631, 3.5 +0.540, all positive batch fraction 1.0) and the reference teacher pairwise assignment RMS quantiles (0.446/0.863/1.050 A). The registered formula R(Y)=tau*logsumexp_j(log_pi_j - rho_delta(q_j)/tau) does make mixture_temperature the A^2 cost scale of that softmin, so the edit is mechanically connected to the named coordinate response. D2: The reference quantiles are a data-supported spatial scale, but they are teacher pairwise dispersion, and the manifest explicitly warns this is not a measured initial-seed residual or affinity energy; the incumbent 0.5 sits inside the allowed set and no supplied measurement establishes that 0.25 is the better cost scale, so 0.25 is a prospective hyperparameter choice, not a data-supported one. D3: The lane is G, so no dose edit is available; native_rms_ratio and time_ramp_power are left unchanged, and the proposal is a component-direction change (softmin sharpening) rather than a whole-reward rescale, which is the admissible form. D4: Counterevidence is decisive against acting now. The increment (success-vs-failure) contrasts that would license a causal reading are not jointly significant: pair_kernel_2.5 q=0.208, pair_kernel_7.0 q=0.208, shape_xx q=0.095, shape_yy q=0.161; only landmark_00_softmin (q=0.046) and landmark_00_occupancy3 (q=0.081) approach threshold, and those point at a regional emphasis, not at mixture_temperature. curve_support retains only 24 of the audited rows under the strict rule, and lineage_support reports 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, so the large endpoint pair-kernel estimates rest on weak curve fidelity and ancestor support. The information_audit further states the compressed-choice excess distance is nonnegative by construction and is not a causal affinity effect, and no endpoint-only affinity model is fitted. Concrete failure condition: if the edit is implemented and the pair_kernel_1.5-3.5 endpoint contrasts do not shift positively, or validity/strain degrade, the hypothesis is falsified; with the current evidence the expected advantage over the incumbent is not defensible, and a discriminating test (e.g. a paired run at 0.25 vs 0.5 scored on the pair-kernel band plus validity/strain) is preferable to an unbacked change. Retaining the incumbent is therefore the evidence-justified choice; the proposal is not adopted and not silently replaced.",
+  "role": "Designer"
+}

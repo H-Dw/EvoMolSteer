@@ -1,0 +1,267 @@
+{
+  "findings": [
+    {
+      "claim": "Signed endpoint coordinate contrasts between favorable and comparison populations are dominated by pair-kernel features: pair_kernel_1.5 (+0.562 integrated z, 1.0 positive batch fraction, q=1.5e-4), pair_kernel_2.5 (+0.631, 1.0, q=2.2e-5), pair_kernel_3.5 (+0.540, 1.0, q=9.8e-5), pair_kernel_5.0 (+0.319, 0.857, q=3.7e-3) are enriched in the favorable population, while pair_kernel_7.0 is depleted (-0.485, 0.0 positive batch fraction, q=1.5e-4). These are signed enrichment contrasts in derived coordinate diagnostics, not absolute structural descriptions and not physical interaction energies.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Global shape contrasts are signed and negative in the favorable population: shape_xx (-0.495, q=8.1e-4), shape_yy (-0.513, q=1.5e-5), shape_zz (-0.183, q=0.067), shape_yz (-0.212, q=0.035). shape_yy has 0.0 positive batch fraction, i.e. the sign is consistent across all 14 independent batches. These describe a more compact endpoint covariance in the favorable population, not a causal affinity effect.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Global centroid contrasts are weak and not robust: global_centroid_y is -0.243 (q=0.014) but only 0.214 positive batch fraction; global_centroid_x (-0.111, q=0.257) and global_centroid_z (-0.061, q=0.481) are unresolved. No global pose translation direction is sufficiently supported to prioritize.",
+      "evidence_ids": [
+        "endpoint_effects:1",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Landmark occupancy and softmin contrasts are mixed in sign across landmarks: landmark_00_occupancy3 is enriched (+0.545, 1.0, q=2.4e-4) while landmark_00_softmin is depleted (-0.481, 0.0, q=8.1e-4); landmark_02_softmin (+0.253, 0.857, q=4.6e-3), landmark_03_softmin (+0.360, 0.929, q=0.013), landmark_05_softmin (+0.396, 0.857, q=2.9e-3), landmark_06_softmin (+0.294, 1.0, q=6.8e-4), landmark_15_softmin (+0.369, 0.929, q=3.7e-3), landmark_18_softmin (+0.264, 0.857, q=6.0e-3) are enriched. The sign disagreement between occupancy and softmin at the same landmark indicates these are different measures of the same local geometry, not independent confirmations.",
+      "evidence_ids": [
+        "endpoint_effects:15",
+        "endpoint_effects:14",
+        "endpoint_effects:16",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:59",
+        "endpoint_effects:68"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Regional soft_mass enrichment is localized to specific landmarks: landmark_00 (+0.639, 1.0, q=1.9e-4), landmark_10 (+0.395, 1.0, q=3.7e-4), landmark_07 (+0.481, 0.857, q=7.4e-3), landmark_17 (+0.312, 0.714, q=0.054). Local_dy enrichment is also localized: landmark_02 (+0.405, 1.0, q=1.3e-4), landmark_06 (+0.425, 1.0, q=1.1e-4), landmark_09 (+0.325, 1.0, q=4.8e-4), landmark_14 (+0.350, 1.0, q=2.0e-4), landmark_18 (+0.425, 1.0, q=4.3e-4). These are regional emphases with spatial extent around the named landmark coordinates, not global pose or shape effects.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:70",
+        "regional_effects:92",
+        "regional_effects:100",
+        "regional_effects:142",
+        "regional_effects:182"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Local covariance contrasts are consistently negative in the favorable population across nearly all landmarks: local_cxx and local_cyy are negative with q<0.05 at landmarks 00,01,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19. local_cyy has 0.0 positive batch fraction at landmarks 00,01,06,07,08,09,10,12,13,16,17,19. This is a broad, reproducible regional compaction signal, not a single-landmark artifact.",
+      "evidence_ids": [
+        "regional_effects:4",
+        "regional_effects:5",
+        "regional_effects:14",
+        "regional_effects:15",
+        "regional_effects:34",
+        "regional_effects:35",
+        "regional_effects:44",
+        "regional_effects:45",
+        "regional_effects:54",
+        "regional_effects:55",
+        "regional_effects:64",
+        "regional_effects:65",
+        "regional_effects:74",
+        "regional_effects:75",
+        "regional_effects:84",
+        "regional_effects:85",
+        "regional_effects:94",
+        "regional_effects:95",
+        "regional_effects:104",
+        "regional_effects:105",
+        "regional_effects:114",
+        "regional_effects:115",
+        "regional_effects:124",
+        "regional_effects:125",
+        "regional_effects:134",
+        "regional_effects:135",
+        "regional_effects:144",
+        "regional_effects:145",
+        "regional_effects:154",
+        "regional_effects:155",
+        "regional_effects:164",
+        "regional_effects:165",
+        "regional_effects:174",
+        "regional_effects:175",
+        "regional_effects:184",
+        "regional_effects:185",
+        "regional_effects:194",
+        "regional_effects:195"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Local_dy is negative in the favorable population at landmarks 00,01,03,05,07,08,11,12,13,15,16,19 (q<0.05 at 00,01,03,11,12,13,16,19), while local_dy is positive at landmarks 02,06,09,10,14,17,18. The sign of the local_dy contrast is landmark-dependent, so a single global dy direction is not supported; the regional pattern must be respected.",
+      "evidence_ids": [
+        "regional_effects:2",
+        "regional_effects:12",
+        "regional_effects:32",
+        "regional_effects:52",
+        "regional_effects:72",
+        "regional_effects:82",
+        "regional_effects:112",
+        "regional_effects:122",
+        "regional_effects:132",
+        "regional_effects:152",
+        "regional_effects:162",
+        "regional_effects:172",
+        "regional_effects:192"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Increment (success-failure) contrasts are much weaker than endpoint contrasts: only landmark_00_softmin (q=0.046, rate z=-4.91), landmark_00_occupancy3 (q=0.081, rate z=+4.28), pair_kernel_2.5 (q=0.208, rate z=+3.96), pair_kernel_7.0 (q=0.208, rate z=-3.14), shape_xx (q=0.095, rate z=-3.70), shape_yy (q=0.161, rate z=-3.85) approach or reach nominal significance. The endpoint contrasts are the better-supported evidence; increment contrasts are consistent in sign with endpoint contrasts for pair_kernel_2.5, pair_kernel_7.0, shape_xx, shape_yy, and landmark_00_softmin.",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:10",
+        "increment_effects:13",
+        "increment_effects:3",
+        "increment_effects:4"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Survival enrichment contrasts are weaker than endpoint contrasts and mostly not significant after BH: landmark_00_soft_mass (+0.365, q=0.120), landmark_07_soft_mass (+0.220, q=0.356), landmark_10_soft_mass (+0.234, q=0.302), landmark_18_local_czz (+0.217, q=0.302). Local_czz survival enrichment is negative at landmarks 05,09,14,15,16,19 (q=0.12-0.30). Survival semantics differ from endpoint semantics; these do not establish terminal affinity effects.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:46",
+        "survival_effects:56",
+        "survival_effects:96",
+        "survival_effects:146",
+        "survival_effects:156",
+        "survival_effects:246",
+        "survival_effects:286",
+        "survival_effects:326",
+        "survival_effects:366",
+        "survival_effects:396"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Support quality is limited: the information audit reports 14 independent batches, leave-one-batch exclusion, and metrics that are not the full score-weighted reward or its FLOWR Jacobian; the curve_support audit shows relative node RMSE 0.39-0.93 and strong sign-conflict nodes up to 15, with only 24 of 400 survival field/measure tests passing the fidelity rule; lineage_support reports 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, and BH correction jointly over 400 tests. Large estimates with weak support or contradictory batch signs should lose priority.",
+      "evidence_ids": [
+        "information_audit",
+        "curve_support",
+        "lineage_support"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "The reference declares label_semantics 'Recorded affinities removed; equal score prior' and teacher_scores_beta=0, so the supplied labels are not observed affinities and the teacher prior is uniform. The formula contract states that pair kernels, centroids, covariance and landmark mass are derived coordinate diagnostics and that M2 contains no separate pair-kernel or feature-enrichment force. Any indirect shift requires measurement; statistics do not prove a k choice.",
+      "evidence_ids": [
+        "reference",
+        "formula_contract"
+      ],
+      "priority": 11
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Testable coordinate hypothesis: the observable to change is the endpoint point-cloud reward R(Y) through the existing FLOWR endpoint VJP; the intended change is to increase the pair-kernel enrichment at the 1.5-3.5 A scale and decrease it at the 7.0 A scale, matching the signed endpoint contrasts. The source and scale of the target is the endpoint_effects table (pair_kernel_2.5 integrated z=+0.631, pair_kernel_7.0 integrated z=-0.485) with the reference pairwise teacher assignment RMS quantiles (0.446, 0.863, 1.050 A) setting the physical scale. A response that would support the proposal is a positive shift in the 1.5-3.5 A pair-kernel enrichment and a negative shift in the 7.0 A enrichment under the real FLOWR endpoint VJP; a response that would contradict it is no measurable shift or an opposite-sign shift. This hypothesis can edit a permitted reward because the pair-kernel scale enters the endpoint point-cloud reward through the declared rho_delta and mixture_temperature parameters.",
+      "evidence_ids": [
+        "endpoint_effects:10",
+        "endpoint_effects:9",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "formula_contract"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Testable regional hypothesis: the observable to change is the local soft_mass and local_dy enrichment around landmark_00, landmark_02, landmark_06, landmark_07, landmark_09, landmark_10, landmark_14, landmark_17, landmark_18; the intended change is to increase soft_mass at landmarks 00,07,10,17 and increase local_dy at landmarks 02,06,09,14,18. The source and scale of the target is the regional_effects table with the declared regional_recipe (one evidence-bound landmark, weight 1, Gaussian radius 5 A, background 0.25). A response that would support the proposal is a positive shift in the named regional enrichment measures with surrounding coordinates retaining freedom; a response that would contradict it is no shift or a shift in the opposite direction. This hypothesis can edit a permitted reward through the declared regional_recipe parameters.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:70",
+        "regional_effects:92",
+        "regional_effects:100",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_recipe"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Testable shape hypothesis: the observable to change is the global and local covariance (shape_xx, shape_yy, local_cxx, local_cyy); the intended change is to decrease these covariance components, matching the negative signed contrasts. The source and scale of the target is the endpoint_effects table (shape_yy integrated z=-0.513, 0.0 positive batch fraction) and the regional_effects table (local_cyy negative with 0.0 positive batch fraction at 12 landmarks). A response that would support the proposal is a negative shift in these covariance components; a response that would contradict it is no shift or a positive shift. This hypothesis can edit a permitted reward through the declared pointcloud_delta_A and mixture_temperature parameters.",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "regional_effects:5",
+        "regional_effects:15",
+        "regional_effects:65",
+        "regional_effects:75",
+        "regional_effects:85",
+        "regional_effects:95",
+        "regional_effects:105",
+        "regional_effects:115",
+        "regional_effects:125",
+        "regional_effects:135",
+        "regional_effects:145",
+        "regional_effects:155",
+        "regional_effects:165",
+        "regional_effects:175",
+        "regional_effects:185",
+        "regional_effects:195"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Unresolved direction: no global centroid translation contrast is sufficiently supported. global_centroid_y has q=0.014 but only 0.214 positive batch fraction and the increment contrast is not significant (q=0.303); global_centroid_x and global_centroid_z are unresolved in both endpoint and increment tables. This proposed direction is left unresolved and should not be prescribed as a reward edit.",
+      "evidence_ids": [
+        "endpoint_effects:1",
+        "endpoint_effects:0",
+        "endpoint_effects:2",
+        "increment_effects:0",
+        "increment_effects:1",
+        "increment_effects:2"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Descriptive finding that cannot yet prescribe a reward edit: the landmark occupancy and softmin contrasts disagree in sign at the same landmark (e.g. landmark_00_occupancy3 +0.545 vs landmark_00_softmin -0.481). Because these are different measures of the same local geometry and the formula contract states that statistics do not prove a k choice, this pattern is descriptive and does not yet prescribe a specific landmark occupancy or softmin reward edit.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:59",
+        "endpoint_effects:68"
+      ],
+      "priority": 5
+    }
+  ],
+  "limitations": [
+    "Observational conditional high/low contrast; the supplied labels are not observed affinities (reference label_semantics: 'Recorded affinities removed; equal score prior').",
+    "No endpoint-only affinity model is fitted; endpoint reward requires the real FLOWR coordinate pullback, not an identity gradient.",
+    "Pair kernels, centroids, covariance and landmark mass are derived coordinate diagnostics; M2 contains no separate pair-kernel or feature-enrichment force, and an indirect shift requires measurement.",
+    "Teacher pairwise dispersion is not a measured initial-seed residual or affinity energy; teacher score correlations are observational and are not a fitted or independently validated affinity predictor.",
+    "Node summaries describe correlated within-batch candidates; uncertainty uses 14 independent batches, and lineage_support reports 349 nodes with fewer than 3 ancestors and 531 with fewer than 6.",
+    "curve_support shows relative node RMSE 0.39-0.93 and strong sign-conflict nodes up to 15, with only 24 of 400 survival field/measure tests passing the fidelity rule.",
+    "Selection, survival, last-record joint-head labels and decoded terminal rescoring have different semantics; survival contrasts do not establish terminal affinity effects.",
+    "The declared objective is final predicted target pIC50; validity and secondary strain are evaluated separately, and a changed chemical graph is permitted.",
+    "Control support is derived from the supplied learning metadata; native inference continues after that support, with no particle resampling, affinity-head derivatives, extra production model forwards, graph-equality restrictions or atomic-type control."
+  ],
+  "role": "Analyst"
+}

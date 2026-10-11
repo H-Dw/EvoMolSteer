@@ -1,0 +1,46 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "endpoint_effects:10",
+    "endpoint_effects:9",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "endpoint_effects:3",
+    "endpoint_effects:4",
+    "increment_effects:10",
+    "increment_effects:13",
+    "increment_effects:3",
+    "increment_effects:4",
+    "information_audit",
+    "curve_support",
+    "lineage_support",
+    "reference",
+    "formula_contract"
+  ],
+  "expected_response": {
+    "direction_if_edit_implemented": "increase at 1.5-3.5 A, decrease at 7.0 A",
+    "discriminating_test": "measure the endpoint pair-kernel enrichment response under the real FLOWR endpoint VJP before changing any registered scalar",
+    "incumbent_expectation": "no change; incumbent retained",
+    "observable": "endpoint pair-kernel enrichment at 1.5-3.5 A and 7.0 A under the real FLOWR endpoint VJP"
+  },
+  "failure_modes": [
+    "Proposed mixture_temperature or pointcloud_delta_A change produces no measurable shift in the 1.5-3.5 A or 7.0 A pair-kernel enrichment under the real FLOWR endpoint VJP.",
+    "Observed shift is opposite in sign to the endpoint contrasts (1.5-3.5 A enrichment decreases or 7.0 A enrichment increases).",
+    "Observed change is only a whole-reward rescaling canceled by the existing RMS normalization, with no component-direction change.",
+    "Endpoint contrasts do not replicate in the increment or survival semantics, which are weaker and partly non-significant after BH.",
+    "Teacher pairwise dispersion is mistaken for a measured initial-seed residual or affinity energy, and the scale choice is treated as data-supported when it is prospective."
+  ],
+  "parameter_origins": {
+    "data_supported_scale": "reference pairwise teacher assignment RMS quantiles 0.446, 0.863, 1.050 A",
+    "mixture_temperature": "prospective hyperparameter (incumbent 0.5 A^2); not a measured scale",
+    "native_rms_ratio": "U-lane dose field, unchanged (incumbent 0.33)",
+    "pointcloud_delta_A": "prospective hyperparameter (incumbent 1.0 A pseudo-Huber curvature)",
+    "teacher_endpoint_temperature_A2": "prospective (incumbent 4.0 A^2); log_pi detached, beta=0",
+    "teacher_neighbors": "prospective count (incumbent 4); formula contract states statistics do not prove a k choice",
+    "time_ramp_power": "U-lane schedule field, unchanged (incumbent 0.0)"
+  },
+  "rationale": "D1: The Analyst's priority-1 hypothesis ties the signed endpoint pair-kernel contrasts (pair_kernel_2.5 +0.631, 1.0 positive batch fraction, q=2.2e-5; pair_kernel_7.0 -0.485, 0.0 positive batch fraction, q=1.5e-4) to the endpoint point-cloud reward R(Y)=tau*logsumexp_j(log_pi_j - rho_delta(q_j)/tau). The only registered scalar that changes the coordinate response of that formula is mixture_temperature (A^2 cost scale), which sets the softmin sharpness over teacher clouds; pointcloud_delta_A sets the pseudo-Huber curvature of rho_delta and teacher_neighbors sets the count k. D2: The reference pairwise teacher assignment RMS quantiles (0.446, 0.863, 1.050 A) are the only data-supported spatial scale, and they sit inside the 1.5-3.5 A enriched band; the incumbent mixture_temperature=0.5 A^2 is a prospective hyperparameter, not a measured scale. However, the formula contract states M2 contains no separate pair-kernel or feature-enrichment force and that an indirect shift requires measurement, so no registered scalar is shown to move the 1.5-3.5 A enrichment up and the 7.0 A enrichment down. D3: Lane G permits only the bounded G scalars; native_rms_ratio and time_ramp_power are U-lane dose fields and are left unchanged, and no dose edit is proposed. D4: Counterevidence is decisive against an edit now: increment contrasts are much weaker (pair_kernel_2.5 q=0.208, pair_kernel_7.0 q=0.208, shape_xx q=0.095, shape_yy q=0.161), curve_support shows relative node RMSE 0.39-0.93 with up to 15 strong sign-conflict nodes and only 24/400 survival tests passing the fidelity rule, lineage_support reports 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, and the reference declares label_semantics 'Recorded affinities removed; equal score prior' with teacher_scores_beta=0. A concrete failure condition for any proposed edit is: after the real FLOWR endpoint VJP, the 1.5-3.5 A pair-kernel enrichment does not increase or the 7.0 A enrichment does not decrease relative to the incumbent, or the change is indistinguishable from whole-reward rescaling canceled by the existing RMS normalization. Because no registered bounded scalar has a defensible expected advantage over the incumbent, the discriminating test is to retain the incumbent and measure the endpoint pair-kernel enrichment response under the real FLOWR endpoint VJP before any scalar is changed.",
+  "role": "Designer"
+}
