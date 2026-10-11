@@ -1,0 +1,270 @@
+{
+  "findings": [
+    {
+      "claim": "Signed favorable-minus-comparison coordinate contrasts at the observed selection nodes and over the complete observed window are strongest for the pair-distance shell densities: pair_kernel_1.5, 2.5 and 3.5 show positive whole-window integrated z with positive batch fractions of 1.0 (endpoint_effects:9-11), while pair_kernel_7.0 is negative with positive batch fraction 0.0 (endpoint_effects:13). The same ordering appears in the branch-adjusted raw and adjusted correlations (branch_adjusted:163,164,240,241). These are selection-enrichment contrasts on a radial shell-density observable, not an absolute geometric descriptor or a physical interaction energy.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The pair_kernel observable is defined as a mean over ordered i!=j of exp(-0.5*((||x_i-x_j||-a)/sigma)^2) with sigma=0.75 A, i.e. a radial pair-distance shell density that is not a bond label or interaction energy. A positive contrast on pair_kernel_1.5/2.5 therefore means enrichment of short pair distances among selected nodes relative to comparison, and cannot be read as a favorable absolute geometry or as evidence of a chemical mechanism.",
+      "evidence_ids": [
+        "observable_definitions",
+        "endpoint_effects:9",
+        "endpoint_effects:13"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Immediate selection evidence and available descendant survival credit disagree in direction for several coordinates. landmark_00_soft_mass is positive on both selection (regional_effects:0) and survival (survival_effects:0), but landmark_05_local_czz, landmark_09_local_czz, landmark_14_local_czz, landmark_15_local_czz, landmark_16_local_czz, landmark_18_local_czz and landmark_19_local_czz are negative on survival enrichment (survival_effects:56,96,146,156,286,326,366,396) while their selection contrasts are weak or mixed. This disagreement should lower the priority of a czz-direction rule relative to coordinates where selection and survival agree.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:23",
+        "survival_effects:46",
+        "survival_effects:249",
+        "survival_effects:56",
+        "survival_effects:96",
+        "survival_effects:146",
+        "survival_effects:156",
+        "survival_effects:286",
+        "survival_effects:326",
+        "survival_effects:366",
+        "survival_effects:396"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The survival table is recorded joint-head credit with BH correction over 400 survival field/measure tests, and decoded terminal learning labels are not available. Last-record joint-head credit therefore cannot be presented as final affinity benefit; the final-affinity comparison is unavailable in the supplied evidence.",
+      "evidence_ids": [
+        "lineage_support",
+        "decoded_terminal_learning_labels_available",
+        "limitations"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Joint-motion diagnostics are the most reproducible coordinate signals: joint_innovation_RMS_A and joint_internal_RMS_A are negative with q well below 0.05 and same-sign batch fractions of 0.93-1.0 in raw covariance, adjusted covariance, raw correlation and adjusted correlation (branch_adjusted:74,76,151,153,228,230,305,307). joint_translation_RMS_A is weaker but same-signed. These are joint pose/shape diagnostics, not isolated marginal descriptors.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "A multiplicity-adjusted ranking differs from a point-estimate ranking. Global centroid coordinates have small point estimates but q values near 0.9 and same-sign batch fractions near 0.4-0.6 (branch_adjusted:0,77,154,231), whereas joint_innovation_RMS_A and joint_internal_RMS_A have larger magnitudes, q below 0.05 and same-sign batch fractions of 0.93-1.0. Ranking by adjusted support therefore promotes the joint-motion coordinates and demotes the centroid coordinates.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307",
+        "branch_adjusted:0",
+        "branch_adjusted:77",
+        "branch_adjusted:154",
+        "branch_adjusted:231"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Shape_yy is the only shape coordinate with a consistent negative sign across raw covariance, adjusted covariance, raw correlation and adjusted correlation (branch_adjusted:4,81,158,235), with same-sign batch fractions of 0.79-1.0. Other shape entries such as shape_xx and shape_zz are mixed in sign or have low same-sign batch fractions (branch_adjusted:3,80,5,82). A shape_yy direction rule is therefore better supported than a general shape rule.",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "branch_adjusted:4",
+        "branch_adjusted:81",
+        "branch_adjusted:5",
+        "branch_adjusted:82",
+        "branch_adjusted:3",
+        "branch_adjusted:80"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "The counterexample that would weaken a shape_yy direction rule is a batch with positive shape_yy contrast; the supplied same-sign batch fraction for shape_yy is 1.0 in raw correlation and adjusted correlation (branch_adjusted:158,235), so no such counterexample is present in the 14 independent batches. By contrast, pair_kernel_1.5 and joint_innovation_RMS_A also have high same-sign fractions (branch_adjusted:163,240,74,305), so reproducibility supports their use, while coordinates with same-sign fractions near 0.5 do not.",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "branch_adjusted:163",
+        "branch_adjusted:240",
+        "branch_adjusted:74",
+        "branch_adjusted:305"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Joint diagnostics separate local coordinate information from global pose and shape. teacher_contrast_internal_fraction is 0.79 and teacher_contrast_translation_fraction is 0.13, with rotation fraction 0.08 (joint_diagnostics:12,13,14), so most of the teacher contrast is internal rather than rigid-motion. innovation_native_alignment and teacher_innovation_contrast_alignment are positive and null-tested (joint_diagnostics:1,11), while observed_child_score_gain is negative (joint_diagnostics:2). These are descriptive within-selector associations with batch as the independent unit, not causal effects.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:12",
+        "joint_diagnostics:13"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Because the internal fraction dominates the teacher contrast, a region that adds information beyond common motion is one whose internal coordinate pattern is not explained by translation or rotation. The surrounding coordinates that should retain freedom are the global centroid and the rigid-motion components, since joint_translation_RMS_A is the weakest of the joint-motion diagnostics (branch_adjusted:75,152,229,306) while joint_internal_RMS_A is the strongest (branch_adjusted:76,153,230,307).",
+      "evidence_ids": [
+        "joint_diagnostics:14",
+        "joint_diagnostics:12",
+        "joint_diagnostics:13",
+        "branch_adjusted:74",
+        "branch_adjusted:76"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "The supplied continuous contrast functions are observed-node linear interpolations over the observed support [0.0,0.49] with no extrapolation allowed. For landmark_00 features the first and last rate z values have opposite signs for most components (continuous:0-9), and the relative node RMSE is 0.29-0.87, so a constant rule and a time-conditioned rule are not equivalent. The curves are contrasts, not absolute reward targets, and no arbitrary time bins or outside-window values are used.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous_functions"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Population-contrast changes and parent-child increment contrasts differ. For landmark_00_local_cxx the population rate is near zero (turnover:12) while the edge rate is negative and the turnover residual rate is positive with q about 0.038 (turnover:13,14). Similar large positive turnover residuals appear for landmark_00_local_cyy, landmark_01_local_cyy, landmark_04_local_cxx, landmark_07_local_cxx, landmark_07_local_cyy, landmark_08_local_cxx, landmark_08_local_cyy, landmark_12_local_cyy, landmark_16_local_cyy, landmark_17_local_cxx, landmark_18_local_cxy and landmark_19_local_cxx (turnover:17,47,134,224,227,254,257,377,497,524,563,584). The residual is an accounting diagnostic that includes score reclassification and extant-parent weighting, not a causal selection effect or an atom velocity.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Observable: pair_kernel_1.5 and pair_kernel_2.5 radial shell densities. Intended response: increase the favorable-minus-comparison contrast at observed selection nodes. Target origin: short pair distances among selected nodes. Scale: sigma=0.75 A shells at a=1.5 and 2.5 A. Discriminating failure condition: a batch with negative pair_kernel_1.5 or 2.5 contrast, which is absent in the supplied 14 batches. This remains a measurable contrast, not a target, and the executing pointcloud scalar has no pair-kernel term.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "observable_definitions"
+      ]
+    },
+    {
+      "claim": "Observable: joint_internal_RMS_A and joint_innovation_RMS_A. Intended response: reduce internal joint-motion residual relative to comparison. Target origin: internal coordinate pattern not explained by translation or rotation. Scale: whole observed window. Discriminating failure condition: a batch with positive joint_internal_RMS_A contrast; the supplied same-sign batch fraction is 0.93-1.0, so no such batch is present.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307",
+        "joint_diagnostics:14"
+      ]
+    },
+    {
+      "claim": "Observable: shape_yy. Intended response: negative favorable-minus-comparison contrast. Target origin: global shape component. Scale: whole observed window. Discriminating failure condition: a batch with positive shape_yy contrast; the supplied same-sign batch fraction is 1.0 in raw and adjusted correlation, so no such batch is present.",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "branch_adjusted:4",
+        "branch_adjusted:81"
+      ]
+    },
+    {
+      "claim": "Observable: landmark_00 continuous contrast curves. Intended response: time-conditioned rather than constant contrast. Target origin: observed-node interpolation over [0.0,0.49]. Scale: whole observed window. Discriminating failure condition: a curve whose first and last rate z values share sign and whose relative node RMSE is small; several landmark_00 curves have opposite-sign first and last rates and relative node RMSE above 0.4, so a constant rule is not supported for them.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous_functions"
+      ]
+    },
+    {
+      "claim": "Observable: turnover residual rate. Intended response: distinguish within-path change from changing cohort composition. Target origin: parent-child increment contrasts. Scale: whole observed window. Discriminating failure condition: a coordinate whose population rate and edge rate agree in sign and magnitude, leaving no residual; several coordinates show large positive residuals with q below 0.05, so composition change and reclassification cannot be excluded.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ]
+    },
+    {
+      "claim": "Observable: teacher_contrast_internal_fraction and innovation_native_alignment. Intended response: retain freedom for global pose and shape while prioritizing internal coordinate patterns. Target origin: internal fraction of the teacher contrast. Scale: whole observed window. Discriminating failure condition: a selector where translation or rotation fraction dominates the internal fraction; the supplied internal fraction is 0.79 versus 0.13 translation and 0.08 rotation, so this failure condition is not met.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:12",
+        "joint_diagnostics:13"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded terminal learning labels are unavailable.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects are retained; current study outcomes are withheld from design roles.",
+    "The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term, so the pair-kernel and joint-motion findings are diagnostic evidence only."
+  ],
+  "role": "Analyst"
+}
