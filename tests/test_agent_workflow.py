@@ -174,3 +174,37 @@ def test_interface_revision_rejects_stale_requests(monkeypatch, tmp_path):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-not-a-real-key")
     with pytest.raises(ValueError, match="versioned"):
         call_json([], {}, tmp_path / "x.json", response_parser=strict_json)
+
+
+def test_null_api_content_uses_bounded_repair_and_raw_cache_integrity(monkeypatch, tmp_path):
+    from evomolsteer.agent_workflow.contracts import format_contract
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-not-a-real-key")
+    requests = []
+    def handler(request):
+        requests.append(json.loads(request.content))
+        content = None if len(requests) == 1 else '{"ok":true}'
+        return httpx.Response(200, json={"model": "deepseek-flash", "id": "test", "usage": {},
+            "choices": [{"finish_reason": "stop", "message": {"content": content}}]})
+    path = tmp_path / "x.json"
+    kwargs = dict(transport=httpx.MockTransport(handler), response_parser=strict_json,
+                  format_policy=POLICY, format_builder=format_contract)
+    schema = {"type": "object", "properties": {"ok": {"const": True}}, "required": ["ok"], "additionalProperties": False}
+    assert call_json([], schema, path, **kwargs) == {"ok": True}
+    receipt = read_json(path.with_suffix(".receipt.json"))
+    assert len(requests) == 2 and len(receipt["interface_repairs"]) == 1
+    raw = tmp_path / receipt["raw_response_path"]
+    raw.write_text('{"ok":true,"extra":1}', encoding="utf-8")
+    with pytest.raises(ValueError, match="checksum"):
+        call_json([], schema, path, **kwargs)
+
+
+def test_fake_reference_digest_rejected(tools):
+    tools.execute("get_evidence", {"source_ids": ["regional_effects:0"]})
+    manifest = tools.provenance()
+    identity = next(iter(manifest["references"].values()))
+    identity["source_sha256"] = "fake"
+    import hashlib
+    key = "E" + hashlib.sha256(canonical(identity).encode()).hexdigest()[:16]
+    manifest["references"] = {key: identity}
+    with pytest.raises(ValueError, match="digest"):
+        EvidenceTools(DATA).import_references(manifest)

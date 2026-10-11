@@ -36,7 +36,14 @@ def suite(repo, study, output, cases, max_steps):
         directory = output / case
         active = [m["id"] for m in registry if m["role"] == "Analyst" and
                   not (case == "drop" and m["id"] == "A1.1")]
-        if case == "findings":
+        if case == "tools":
+            task = {"test_type": "tool-routing-only", "feature": next(iter(tools.curves["functions"])),
+                    "request": "Exercise the registered tools: get_curve for the supplied feature; read_definition for regional_fields; "
+                               "get_evidence for curve_support; then read_field on its delivered ref, path [curve_fidelity_audit], offset 0, limit 2. "
+                               "Return concise factual findings citing the actual observations, and state the curve support/fit limitations. "
+                               "This is a routing/format probe, not a scientific ablation or reward optimization."}
+            instructions = "You are Analyst in an API tool-routing regression test.\n" + interface
+        elif case == "findings":
             records = tools.execute("get_evidence", {"source_ids": [f"regional_effects:{i}" for i in range(14)]})
             task = {"test_type": "output-format-only", "records": records,
                     "request": "Return exactly 14 separate findings, one concise factual description for each supplied row, "
@@ -58,7 +65,11 @@ def suite(repo, study, output, cases, max_steps):
         count = sum(len(v["evidence_refs"]) for v in wire["findings"] + wire["hypotheses"])
         if case != "findings" and count == 0:
             raise ValueError("An empty answer does not establish source-bound analysis success")
-        row = {"case": case, "status": "validated", "active_Analyst_modules": active if case != "findings" else [],
+        if case == "tools":
+            used = {read_json(p).get("tool") for p in (directory / "Analyst").glob("step_[0-9][0-9].json")}
+            if not {"get_curve", "read_definition", "get_evidence", "read_field"}.issubset(used):
+                raise ValueError("The API did not actually exercise the requested registered tools")
+        row = {"case": case, "status": "validated", "active_Analyst_modules": active if case not in {"findings", "tools"} else [],
                "steps": read_json(directory / "Analyst/completed.json")["steps"],
                "findings": len(result["findings"]), "hypotheses": len(result["hypotheses"]), "valid_citations": count,
                "instruction_sha256": hashlib.sha256(instructions.encode()).hexdigest(),
@@ -130,8 +141,8 @@ def main():
     parser.add_argument("--max-steps", type=int, default=10)
     args = parser.parse_args()
     cases = args.cases.split(",")
-    if not cases or any(c not in {"citation", "findings", "drop"} for c in cases) or len(set(cases)) != len(cases):
-        parser.error("Choose unique prior failure classes: citation,findings,drop")
+    if not cases or any(c not in {"citation", "findings", "drop", "tools"} for c in cases) or len(set(cases)) != len(cases):
+        parser.error("Choose unique prior failure classes: citation,findings,drop,tools")
     suite(Path(__file__).resolve().parents[1], args.study, args.output_dir, cases, args.max_steps)
 
 
