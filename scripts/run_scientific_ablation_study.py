@@ -66,6 +66,10 @@ for p in root.rglob('*.json'):
         self.save(preflight_passed=True,protocol_sha256=activation["protocol_sha256"],model="deepseek-flash")
 
     def _budget(self):
+        # Count actual successful request receipts, including declared role
+        # chains prepared before inference and verified cached/resumed calls.
+        self.state["api_calls"]=sum(read_json(p).get("backend")=="real_api"
+            for p in self.study.rglob("*.receipt.json"))
         budget=self.protocol["budgets"]
         if self.state["api_calls"]>=budget["maximum_api_role_calls"]:
             raise RuntimeError("Preregistered API budget reached; preserve unresolved tests")

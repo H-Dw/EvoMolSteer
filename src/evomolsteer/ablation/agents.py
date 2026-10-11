@@ -43,6 +43,23 @@ def role_prompt(repo, study, role, active, alternative=None):
     return f"You are {role}. Return JSON only.\n\n"+contract+"\n\n"+assemble(modules,role,active,alternative)
 
 
+def design_schema(allowed, region_count):
+    """Legal interface bounds, without required scientific recommendations."""
+    schema=copy.deepcopy(DESIGN_SCHEMA)
+    shape=schema["properties"]["edit"]
+    shape["properties"]["parameter"]["enum"]=list(allowed)
+    shape["allOf"]=[]
+    for name,values in allowed.items():
+        values=list(range(region_count)) if isinstance(values,str) else values
+        shape["allOf"].append({"if":{"type":"object","properties":{"parameter":{"const":name}}},
+            "then":{"properties":{"value":{"enum":values}}}})
+    schema["allOf"]=[{"if":{"properties":{"decision":{"enum":["retain","defer"]}}},
+        "then":{"properties":{"edit":{"type":"null"}}}},
+        {"if":{"properties":{"decision":{"const":"edit"}}},
+         "then":{"properties":{"edit":{"type":"object"}}}}]
+    return schema
+
+
 def call_role(repo, study, case, chain, role, active, *, alternative=None,
               analyst=None, incumbent=None, lane="G", delivery=None, caller=call_json):
     repo,study=Path(repo),Path(study)
@@ -52,7 +69,7 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
     packet=full_input_packet(study)
     allowed=protocol["lanes"][lane]["allowed"]
     if role=="Designer":
-        schema["properties"]["edit"]["properties"]["parameter"]["enum"]=list(allowed)
+        schema=design_schema(allowed,len(packet["teacher_modes"]["landmarks_A"]))
     prompt=role_prompt(repo,study,role,active,alternative)
     folder=study/"calls"/case/f"chain_{chain:02d}";folder.mkdir(parents=True,exist_ok=True)
     (folder/(role+".instructions.md")).write_text(prompt,encoding="utf-8")

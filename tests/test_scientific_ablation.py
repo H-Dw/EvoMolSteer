@@ -25,6 +25,7 @@ from evomolsteer.io import write_json, digest
 from evomolsteer.ablation import agents
 import gzip
 import json
+import jsonschema
 
 
 @pytest.fixture
@@ -228,3 +229,15 @@ def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(
     assert observed[1][1]['required']==['role','findings']
     payload=json.loads(observed[1][0][1]['content'])
     assert payload['continuous_functions']['functions']['feature']['values_z']==[1.,-1.]
+
+
+def test_design_schema_repairs_illegal_grid_without_forcing_an_edit():
+    schema=agents.design_schema({'teacher_neighbors':[2,4,8],'region_index':'bound region'},20)
+    response={'role':'Designer','decision':'retain','edit':None,'evidence_ids':[],'rationale':'Unsupported edit'}
+    jsonschema.validate(response,schema)
+    response.update(decision='edit',edit={'parameter':'teacher_neighbors','value':3})
+    with pytest.raises(jsonschema.ValidationError):jsonschema.validate(response,schema)
+    response['edit']={'parameter':'region_index','value':20}
+    with pytest.raises(jsonschema.ValidationError):jsonschema.validate(response,schema)
+    response['edit']['value']=19
+    jsonschema.validate(response,schema)
