@@ -72,7 +72,8 @@ for p in root.rglob('*.json'):
         self.state.setdefault("matched_controls",{})
         self.state.setdefault("pruning",[])
         self.state.setdefault("api_calls",0)
-        self.save(preflight_passed=True,protocol_sha256=activation["protocol_sha256"],model="deepseek-flash",
+        self.save(status="ready",error=None,error_type=None,preflight_passed=True,
+            protocol_sha256=activation["protocol_sha256"],model="deepseek-flash",
             secondary_statistical_amendment_sha256=statistical_sha,**prior_policy)
 
     def _budget(self):
