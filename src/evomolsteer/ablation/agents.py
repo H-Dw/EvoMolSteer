@@ -130,7 +130,10 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
             "temporal_teacher":"(1-blend)*R_static + blend*R_observed_teacher(time); one shared FLOWR endpoint, no velocity target",
             "dose":"Actual endpoint-VJP force normalized and RMS-scaled relative to native predictive update; eta and ramp only in U lane",
             "diagnostic_limit":"Moment effects, pair kernels and turnover rates are diagnostic evidence only. The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term. Legacy robust_delta is ignored; the executing curvature is pointcloud_delta_A (default 1 A). Compilation uses the original frozen program."}}
-    if analyst is not None:task["Analyst_response"]=analyst
+    # Fresh provider dicts and source-tracked JSON caches have different key
+    # insertion orders. Canonicalize the handoff before hashing request bytes;
+    # values, ordered findings and literal instructions remain unchanged.
+    if analyst is not None:task["Analyst_response"]=json.loads(json.dumps(analyst,sort_keys=True))
     if delivery is not None:task["delivery_diagnostics"]=delivery
     known=set(read_json(study/"evidence/index.json")["ids"]) | set(packet) | set(task)
     bind_evidence_schema(schema,known)

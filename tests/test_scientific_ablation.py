@@ -214,7 +214,7 @@ def test_synthetic_sign_missing_and_unit_probes_are_quarantined():
 
 def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(tmp_path,monkeypatch):
     study=tmp_path/'study';study.mkdir()
-    packet={'tables':{},'clocks':{'observed_score_times':[.1,.2],'learning_window':[.1,.3]}}
+    packet={'tables':{},'clocks':{'observed_score_times':[.1,.2],'learning_window':[.1,.3]},'teacher_modes':{'landmarks_A':[[0.,0.,0.]]}}
     write_json(study/'evidence/packet.json',packet)
     write_json(study/'evidence/continuous_functions.json',{'times':[.1,.2],'window':[.1,.3],
         'functions':{'feature':{'method':'observed_node_linear','observed_support':[.1,.2],'values_z':[1.,-1.]}}})
@@ -227,7 +227,10 @@ def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(
         'packet_sha256':digest(study/'evidence/packet.json')})
     observed=[]
     def caller(messages,schema,path,**kwargs):
-        observed.append((messages,schema));return {'role':'Analyst','findings':[]}
+        observed.append((messages,schema))
+        if json.loads(messages[-1]['content'])['role']=='Designer':
+            return {'role':'Designer','decision':'retain','edit':None,'evidence_ids':[],'rationale':'Retain'}
+        return {'role':'Analyst','findings':[]}
     agents.call_role(REPO,study,'full',0,'Analyst',['A1.1','A4.1'],caller=caller)
     agents.call_role(REPO,study,'drop',0,'Analyst',['A1.1'],caller=caller)
     assert observed[0][0][1]==observed[1][0][1]
@@ -237,6 +240,10 @@ def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(
     payload=json.loads(observed[1][0][1]['content'])
     assert payload['continuous_functions']['functions']['feature']['values_z']==[1.,-1.]
     assert payload['observable_definitions']['occupancy']=='radial shell, not within-radius count'
+    fresh={'findings':[],'role':'Analyst'};cached={'role':'Analyst','findings':[]}
+    agents.call_role(REPO,study,'handoff',0,'Designer',[],analyst=fresh,caller=caller)
+    agents.call_role(REPO,study,'handoff',0,'Designer',[],analyst=cached,caller=caller)
+    assert observed[2][0]==observed[3][0], 'Fresh/cached handoff must have identical request bytes'
 
 
 def test_design_schema_repairs_illegal_grid_without_forcing_an_edit():
