@@ -1,5 +1,6 @@
 """Opt-in integration with the existing scientific role and reward compiler APIs."""
 import copy
+import hashlib
 import re
 from pathlib import Path
 
@@ -91,7 +92,10 @@ def call_role_tools(repo, study, case, chain, role, active, *, alternative=None,
     interface_path = repo / "skills/agent-json-interface/SKILL.md"
     prompt += "\n\n" + interface_path.read_text(encoding="utf-8")
     prompt += "\n\n" + (interface_path.parent / "references/wire_examples.md").read_text(encoding="utf-8")
-    task = {"role": role, "case": case, "chain": chain, "lane": lane,
+    # Condition names are audit paths, not scientific inputs. In particular,
+    # do not tell a role which instruction was deleted through its task ID.
+    task = {"role": role, "case_id": hashlib.sha256((case + str(chain)).encode()).hexdigest()[:16],
+            "chain": chain, "lane": lane,
             "task_wording": ("Interpret the supplied evidence and answer the coordinate-design task." if chain < 3 else
                 "Use these observations to provide your response to the supplied molecular coordinate task."),
             "maximum_edits": 1, "objective": tools.packet["objective"],

@@ -157,3 +157,17 @@ HiQBind默认对应作者Zenodo发布的297个生成测试系统，成员集合�
 - [控制流程、参数、实测压缩比例与恢复接口](docs/steer_target_campaign.md)
 - [HiQBind 默认配置](configs/generation_hiqbind_steer.json)、[CrossDocked 100-target 备选配置](configs/generation_crossdocked100_steer.json)、[通用配置](configs/generation_target_collection.example.json)、[显式输入清单](configs/target_collection.example.json)
 - 当前服务器入口：`bash scripts/scnet_steer_targets.sh`；备选：`bash scripts/scnet_steer_targets.sh --dataset crossdocked100`；归档读取：`scripts/verify_steer_target_archive.py`。
+
+## 当前 M2 科学子模块消融：真实 API 工具接口
+
+当前完整/删除队列使用 `deepseek-flash` 和 `evidence-tools-v1`，依次比较 9 个 Analyst、8 个 Designer 子模块；不运行替代条件或温度消融。
+完整证据库由只读分页工具提供，回复通过固定 JSON 契约和确定性引用/原文提取验证。
+角色任务 ID 不透露删除条件；Designer 阶段逐链复用真实冻结 Analyst 输出及已校验的引用来源。
+
+- [冻结实验计划](docs/plans/m2_scientific_ablation_20261012_tools_v5/plan.zh-CN.md)
+- [启动与首批健康检查](docs/experiments/m2_tools_full_drop_ablation_20261012/launch.zh-CN.md)
+- 状态：`docs/experiments/m2_tools_full_drop_ablation_20261012/run_status.json`；逐模块结果和最终质量由同目录生成。
+- 启动：`scripts/start_scientific_ablation_study.ps1`；默认加载 `configs/experiments/m2_tools_full_drop_ablation_20261012/runner.json`。
+
+本地进行实际 API 调用和评价，远端拉取已提交代码后只运行 FLOWR；每批结构经下载、校验和评价后清理，原始 Steer 保留。
+旧 `m2_full_drop_ablation_20261012` 的 direct-v4 队列已停止并存档，不继承旧选择或跳过状态。

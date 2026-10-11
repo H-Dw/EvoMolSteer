@@ -93,3 +93,28 @@ def test_frozen_handoff_rejects_wrong_response_or_stale_hash(tmp_path):
     write_json(folder/'Analyst.json',{**response,'limitations':['changed']})
     with pytest.raises(ValueError,match='changed'):
         analyst_source(study,'D-G_full',0,response)
+
+
+def test_condition_names_do_not_reveal_deletion_to_role_and_two_wordings_delivered(tmp_path,monkeypatch):
+    import evomolsteer.agent_workflow.ablation_adapter as adapter
+    import evomolsteer.ablation.agents as agents
+    import evomolsteer.ablation.protocol as protocol
+    study=tmp_path/'study'
+    for name in ['packet.json','index.json','continuous_functions.json','observable_definitions.json']:
+        destination=study/'evidence'/name
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(OLD/'evidence'/name,destination)
+    monkeypatch.setattr(protocol,'validate_activation',lambda *a:{'protocol':{
+        'temperature_policy':{'parameters':{}},'lanes':{'G':{}}},'packet_sha256':'test'})
+    monkeypatch.setattr(agents,'role_prompt',lambda *a:'Actual active modules only')
+    tasks=[]
+    def capture(role,tools,prompt,task,*args,**kwargs):
+        tasks.append(task)
+        return {'role':'Analyst','findings':[],'hypotheses':[],'limitations':[]}
+    monkeypatch.setattr(adapter,'run_agent',capture)
+    adapter.call_role_tools(REPO,study,'A_A1.1_full',0,'Analyst',[])
+    adapter.call_role_tools(REPO,study,'A_A1.1_drop',3,'Analyst',[])
+    assert tasks[0]['task_wording'] != tasks[1]['task_wording']
+    for task in tasks:
+        assert 'case' not in task and len(task['case_id']) == 16
+        assert 'A1.1' not in str(task) and '_drop' not in str(task) and '_full' not in str(task)
