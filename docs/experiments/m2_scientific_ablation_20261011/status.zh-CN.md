@@ -2,10 +2,11 @@
 
 模型：真实 DeepSeek API / deepseek-flash。
 
-状态：screening；已完成比较 0/17；跳过 6；已处理 6/17。
+状态：pruning_confirmed；已完成比较 1/17；跳过 6；已处理 7/17。
 
 |模块|功能验证|确认结论|是否精简|
 |---|---|---|---|
+|A4.1|True|PERFORMANCE_EQUIVALENT_IN_THIS_CONTEXT|True|
 |A1.1|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
 |A1.2|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
 |A2.1|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
