@@ -1,3 +1,5 @@
+> 2026-10-11 修订：本目录保留为旧版未完成基线与调用审计，当前状态为 failed，禁止按旧 activation 直接续跑。后续采用[固定默认温度 v2 计划](../../../plans/m2_skill_ablation_20261011_fixed_temperature_v2/plan.zh-CN.md)，固定 M2 两种默认奖励温度。温度 0.25 候选仅为历史记录，不进入新版消融或基准选择。旧执行配置的阶段偏离及实际完成范围见[协议审计](protocol_audit_20261011/report.zh-CN.md)。下文为原启动说明。
+
 本轮将 M2 模块消融从代理 Agent 改为真实 DeepSeek API。Analyst、Designer 和功能审阅均请求 `deepseek-flash`，不设置其他模型回退。原计划的 GPT-5.6 Luna 配置保留为历史规划，实际配置见 activation.json。
 
 后台流程先生成配对 M2 与无引导控制，每个 arm 200 个分子；随后先完成 Analyst 的删除/方向修改，再固定六份 P_struct Analyst 输出测试 Designer。共 25 个指令条件、每条件六条独立调用链；另有两个数值控制。六条链采用两种等义任务表述，各三次。API 不承诺 token 随机性可复现；FLOWR 固定主随机种子 42 和新批次 137–140。相同有效奖励共享推理结果，避免将重复调用变成虚假的独立分子样本。

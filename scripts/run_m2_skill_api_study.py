@@ -22,7 +22,8 @@ import pandas as pd
 import paramiko
 
 from evomolsteer.continuous.m2_skill_api import (
-    BASE, REF, prepare, role_call, compile_reward, review_function, effective_signature)
+    BASE, REF, prepare, role_call, compile_reward, review_function, effective_signature,
+    validate_activation_policy, validate_fixed_temperatures)
 from evomolsteer.io import digest, read_json, write_json
 from evomolsteer.deepseek_api import FORMAT_POLICY, LLMInterfaceError
 from analyze_dependency_study import metrics
@@ -98,7 +99,9 @@ class Study:
         return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=self.repo, text=True).strip()
 
     def preflight(self):
-        activation = read_json(self.study / "activation.json")
+        # Reject an archived queue or unreviewed later phase before opening SSH
+        # or generating even the common controls.
+        activation = validate_activation_policy(self.repo, self.study)
         for path, sha in activation["bound_inputs"].items():
             if digest(self.repo / path) != sha:
                 raise ValueError("Frozen local input changed: " + path)
@@ -137,6 +140,7 @@ for p in root.rglob('*.json'):
         self.save(preflight_passed=True)
 
     def infer(self, program_path, signature, arms="gradient", lane="screen"):
+        validate_fixed_temperatures(self.repo, read_json(program_path))
         key = signature + ":" + arms + ":" + lane
         if key in self.state["program_results"]:
             return self.state["program_results"][key]
@@ -335,21 +339,16 @@ print(json.dumps({'removed':removed}))
         self.state["program_results"][base_sha + ":gradient:screen"] = controls
         self.save()
         rows = activation["conditions"]
-        # The full structured Analyst pool freezes before any ablation result.
-        pstruct = next(r for r in rows if r["condition_id"] == "P_struct")
-        ordered = [pstruct] + [r for r in rows if r["intervention_role"] != "none" and r is not pstruct]
+        # Preserve the matrix's P0 then P1 order. Selection and downstream
+        # frozen pools are not decided prospectively by choosing P_struct.
+        ordered = [r for r in rows if r["intervention_role"] != "none"]
         for row in ordered:
             self.save(status="running", phase=row["phase"] + "-" + row["lane"], task=row["condition_id"])
             for chain in range(6):
                 identity = row["condition_id"] + ":" + str(chain)
                 if any(x["identity"] == identity for x in self.state["chains"]): continue
                 if row["phase"] == "P2":
-                    analyst = read_json(self.study / "calls/P_struct" / f"chain_{chain:02d}" / "Analyst.json")
-                    folder = self.study / "calls" / row["condition_id"] / f"chain_{chain:02d}"
-                    write_json(folder / "Analyst.json", analyst)
-                    write_json(folder / "Analyst.frozen_input.json", {
-                        "source": f"calls/P_struct/chain_{chain:02d}/Analyst.json",
-                        "sha256": digest(folder / "Analyst.json"), "new_call": False})
+                    raise ValueError("P2 needs reviewed selected A* and a staged executor; no P_struct fallback")
                 else:
                     analyst = self.call_role(row, chain, "Analyst")
                 designer = self.call_role(row, chain, "Designer", analyst,
@@ -381,9 +380,10 @@ print(json.dumps({'removed':removed}))
             self.report()
             self.commit("ablation(m2-api): record " + row["condition_id"] + " six-chain screen and functional audit")
         self.save(status="screen_complete", task=None,
-            next_phase="Confirmation and crossed semantic/statistical review before pruning or final-context necessity")
+            next_phase="P1 functional/statistical review and Analyst pruning/selection before any P2 activation",
+            downstream_phases_blocked=True)
         self.report()
-        self.commit("report(m2-api): complete ordered Analyst and Designer module screens")
+        self.commit("report(m2-api): complete initial P0/P1 screens and await Analyst selection")
 
     def report(self):
         if "controls" not in self.state:

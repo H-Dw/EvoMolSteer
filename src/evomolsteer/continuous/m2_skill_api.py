@@ -17,12 +17,17 @@ from evomolsteer.deepseek_api import call_json
 from evomolsteer.io import digest, read_json, write_json
 
 PLAN = "docs/plans/m2_skill_ablation_20261011"
+CURRENT_PLAN = "docs/plans/m2_skill_ablation_20261011_fixed_temperature_v2"
 BASE = "configs/experiments/steer_dependency_v1/D2_without_trajectory_static.json"
 REF = "configs/experiments/steer_dependency_v1/static.json.gz"
 SOURCE = "docs/experiments/skill_ablation_20261007/study_v1/evidence.json"
-G = {"teacher_neighbors": [2, 4, 8], "teacher_endpoint_temperature_A2": [2, 4, 8],
-     "mixture_temperature": [.25, .5, 1], "pointcloud_delta_A": [.5, 1, 2]}
+G = {"teacher_neighbors": [2, 4, 8], "pointcloud_delta_A": [.5, 1, 2]}
 U = {"native_rms_ratio": [.2, .33, .5], "time_ramp_power": [0, 1, 2]}
+TEMPERATURE_KEYS = ("mixture_temperature", "teacher_endpoint_temperature_A2")
+# Signature canonicalization must not change when the permitted edit set changes.
+# Existing immutable calls/programs remain auditable under their old signatures.
+NUMERIC_KEYS = ("teacher_neighbors", "teacher_endpoint_temperature_A2",
+                "mixture_temperature", "pointcloud_delta_A", *U)
 ANALYST_SCHEMA = {"type": "object", "additionalProperties": False,
     "required": ["role", "findings"], "properties": {
         "role": {"const": "Analyst"}, "findings": {"type": "array", "items": {
@@ -57,17 +62,58 @@ def compact_tables(entries):
     return out
 
 
+def validate_fixed_temperatures(repo, program):
+    base = read_json(Path(repo) / BASE)
+    fixed = {key: base[key] for key in TEMPERATURE_KEYS}
+    if any(program.get(key) != value for key, value in fixed.items()):
+        raise ValueError("Temperatures must remain at the frozen M2 defaults")
+    return fixed
+
+
+def validate_activation_policy(repo, study):
+    """Reject legacy queues and unsupported downstream stages before side effects."""
+    repo, study = Path(repo), Path(study)
+    activation = read_json(study / "activation.json")
+    if activation.get("plan_path") != CURRENT_PLAN:
+        raise ValueError("Legacy study is archival; prepare a new fixed-temperature study")
+    protocol = read_json(repo / CURRENT_PLAN / "protocol.json")
+    if activation.get("plan_sha256") != digest(repo / CURRENT_PLAN / "protocol.json"):
+        raise ValueError("Activated plan checksum mismatch")
+    fixed = validate_fixed_temperatures(repo, read_json(repo / BASE))
+    if activation.get("temperature_policy") != protocol["temperature_policy"] or protocol["temperature_policy"]["parameters"] != fixed:
+        raise ValueError("Fixed-temperature policy mismatch")
+    evidence = read_json(study / "evidence.json")
+    if digest(study / "evidence.json") != activation["evidence_sha256"]:
+        raise ValueError("Frozen evidence checksum mismatch")
+    if evidence.get("fixed_parameters") != fixed or any(key in evidence.get("allowed_G", {}) or key in evidence.get("allowed_U", {}) for key in TEMPERATURE_KEYS):
+        raise ValueError("Agent interface contradicts fixed-temperature policy")
+    if any(row["phase"] not in {"P0", "P1"} for row in activation["conditions"]):
+        raise ValueError("Initial executor stops after P1; P2/P3 require reviewed selections and a staged executor")
+    with (repo / CURRENT_PLAN / "conditions.csv").open(encoding="utf-8") as stream:
+        expected = [r for r in csv.DictReader(stream) if r["phase"] in {"P0", "P1"}]
+    strip_status = lambda row: {key: value for key, value in row.items() if key != "status"}
+    if [strip_status(r) for r in activation["conditions"]] != [strip_status(r) for r in expected]:
+        raise ValueError("Activated conditions differ from the fixed-temperature master matrix")
+    return activation
+
+
 def prepare(repo, study, screen_batches=None):
     repo, study = Path(repo), Path(study)
     if (study / "activation.json").exists():
         raise FileExistsError("Study already frozen; resume or choose a new path")
-    original = read_json(repo / PLAN / "protocol.json")
+    original = read_json(repo / CURRENT_PLAN / "protocol.json")
+    for entry in read_json(repo / CURRENT_PLAN / "artifact_manifest.json")["files"]:
+        if digest(repo / CURRENT_PLAN / entry["path"]) != entry["sha256"]:
+            raise ValueError("Revised plan artifact changed: " + entry["path"])
     base = read_json(repo / BASE)
+    fixed = validate_fixed_temperatures(repo, base)
+    if original["temperature_policy"]["parameters"] != fixed:
+        raise ValueError("Plan defaults do not match frozen M2")
     for path, key in [(BASE, "program_sha256"), (REF, "reference_sha256")]:
         if digest(repo / path) != original["execution_baseline"][key]:
             raise ValueError("M2 input changed")
     reference = json.loads(gzip.decompress((repo / REF).read_bytes()))
-    modules = read_json(repo / PLAN / "module_registry.json")["modules"]
+    modules = read_json(repo / CURRENT_PLAN / "module_registry.json")["modules"]
     for module in modules:
         if hashlib.sha256(module["instruction"].encode()).hexdigest() != module["instruction_sha256"]:
             raise ValueError("Instruction registry changed")
@@ -85,7 +131,10 @@ def prepare(repo, study, screen_batches=None):
             rms.append(float(np.sqrt(d[rows, cols].mean())))
     packet = {"schema_version": "m2-modular-evidence-1.0", "tables": compact_tables(kept),
         "task": "Improve final predicted target pIC50; validity and strain are secondary; coordinate-only control",
-        "sources": {SOURCE: digest(repo / SOURCE), BASE: digest(repo / BASE), REF: digest(repo / REF)},
+        "sources": {SOURCE: digest(repo / SOURCE), BASE: digest(repo / BASE), REF: digest(repo / REF),
+                    CURRENT_PLAN + "/protocol.json": digest(repo / CURRENT_PLAN / "protocol.json"),
+                    CURRENT_PLAN + "/module_registry.json": digest(repo / CURRENT_PLAN / "module_registry.json"),
+                    CURRENT_PLAN + "/contracts/shared_contract.md": digest(repo / CURRENT_PLAN / "contracts/shared_contract.md")},
         "projection": {"input_rows": len(evidence["evidence"]), "retained_rows": len(kept),
             "all_scalar_effect_rows_retained": True,
             "omitted": "Prior candidate performance and raw node curves; coverage and fit summaries retained",
@@ -96,7 +145,9 @@ def prepare(repo, study, screen_batches=None):
             "label_semantics": reference["label_semantics"],
             "pairwise_teacher_assignment_rms_A_quantiles": np.quantile(rms, [.1, .5, .9]).tolist(),
             "scale_warning": "Teacher pairwise dispersion is not a measured initial-seed residual or affinity energy"},
-        "incumbent": {k: base.get(k, 1.) for k in [*G, *U]},
+        "incumbent": {k: base.get(k, 1.) for k in [*G, *U, *TEMPERATURE_KEYS]},
+        "fixed_parameters": fixed,
+        "temperature_policy": "Immutable incumbent temperatures in every lane and every treatment; no temperature proposals",
         "execution": evidence["execution_contract"],
         "allowed_G": {**G, "region_index": list(range(len(reference["landmarks_A"])))},
         "allowed_U": U,
@@ -116,28 +167,35 @@ def prepare(repo, study, screen_batches=None):
     write_json(study / "evidence_index.json", {"ids": ids, "regions": {
         x["evidence_id"]: x["data"]["region"] for x in kept if "region" in x["data"]}})
     write_json(study / "module_registry.json", {"modules": modules})
-    with (repo / PLAN / "conditions.csv").open(encoding="utf-8") as stream:
+    with (repo / CURRENT_PLAN / "conditions.csv").open(encoding="utf-8") as stream:
         conditions = list(csv.DictReader(stream))
-    # Activate fixed P0/P1/P2 module screens only. Later pruning and final
-    # necessity are decisions requiring crossed uncertainty, not screen winners.
-    active = [x for x in conditions if x["phase"] in {"P0", "P1", "P2"}
-              and x["condition_id"] not in {"A_full_G", "U_scalar_noop"}]
+    # All 46 conditions remain in the master matrix. Only initial P0/P1
+    # screens can execute before Analyst selection and downstream reviews.
+    active = [x for x in conditions if x["phase"] in {"P0", "P1"}]
+    deferred = [x for x in conditions if x["phase"] not in {"P0", "P1"}]
     for row in active:
         row.update(requested_agent_model="deepseek-flash", status="QUEUED")
+    for row in deferred:
+        row.update(requested_agent_model="deepseek-flash", status="WAITING_PREDECESSOR_REVIEW")
     write_json(study / "activation.json", {
-        "schema_version": "m2-skill-api-activation-1.0", "status": "CONFIGURED",
+        "schema_version": "m2-skill-api-activation-2.0-fixed-temperature", "status": "CONFIGURED",
+        "plan_path": CURRENT_PLAN, "plan_sha256": digest(repo / CURRENT_PLAN / "protocol.json"),
         "historical_plan_sha256": digest(repo / PLAN / "protocol.json"),
+        "temperature_policy": original["temperature_policy"],
         "backend": "real DeepSeek API", "agent_model": "deepseek-flash",
         "model_fallback": False, "thinking": "disabled", "chain_replicates": 6,
         "wording_replicates": 2, "fresh_calls_per_wording": 3, "master_seed": 42,
         "screen_batches": screen_batches or original["generation_plan"]["screen_batches"], "batch_size": 50,
-        "conditions": active, "phase_order": ["P0", "P1", "P2-G", "P2-U"],
+        "conditions": active, "deferred_conditions": deferred, "condition_matrix_rows": len(conditions),
+        "phase_order": ["P0", "P1", "Analyst selection review", "P2-G", "G selection review", "P2-U", "P3"],
+        "executor_scope": "P0/P1 initial screens only; stop at the Analyst selection gate",
         "bound_inputs": packet["sources"], "evidence_sha256": digest(study / "evidence.json"),
-        "analyst_freeze": "Six P_struct Analyst outputs; fixed before P1. Analyst deletion/alternative completes before Designer calls",
-        "dose_shape": "M2 frozen shape; isolates D3 without outcome-selected shape changes",
+        "analyst_freeze": "After P1 review, select A* then freeze six actual outputs; no P_struct substitution",
+        "dose_shape": "After G review, freeze selected G shape; no automatic M2 substitution",
         "protocol_amendments": ["Real deepseek-flash replaces the planned proxy model",
-            "P2 uses preregistered full Analyst pool and frozen M2 dose shape, avoiding unconfirmed screen selection",
-            "P0/P1/P2 screening activated; final-context pruning/necessity remains gated on statistical review",
+            "User directed fixed M2 default temperatures; no temperature edits or ablations",
+            "Original selected A* and selected G dependencies restored; downstream phases deferred",
+            "All master-matrix rows retained, including A_full_G and U_scalar_noop",
             "Functional Reviewer uses the same real API once per six-chain condition; no outcome access"],
         "no_claim": "Screens alone do not prove module necessity or no effect",
     })
@@ -166,12 +224,19 @@ def instruction(repo, study, row, role):
             value = m["alternative_instruction"] if m["id"] == row["changed_module"] else m["instruction"]
             blocks.append(value if condition == "P_flat" else "## " + m["id"] + "\n" + value)
         text = "\n\n".join(blocks)
-    contract = (repo / PLAN / "contracts/shared_contract.md").read_text(encoding="utf-8")
+    activation = read_json(study / "activation.json")
+    plan = activation.get("plan_path", PLAN)
+    contract = (repo / plan / "contracts/shared_contract.md").read_text(encoding="utf-8")
     return "You are " + role + ". Return a JSON object only.\n\n" + contract + "\n\n" + text
 
 
 def role_call(repo, study, row, chain, role, analyst=None, delivery=None):
-    schema = ANALYST_SCHEMA if role == "Analyst" else DESIGN_SCHEMA
+    activation = validate_activation_policy(repo, study)
+    if row not in activation["conditions"]:
+        raise ValueError("Role call is not an activated condition")
+    schema = copy.deepcopy(ANALYST_SCHEMA if role == "Analyst" else DESIGN_SCHEMA)
+    if role == "Designer":
+        schema["properties"]["edit"]["properties"]["parameter"]["enum"] = [*G, "region_index"]
     case = hashlib.sha256((row["condition_id"] + str(chain)).encode()).hexdigest()[:12]
     folder = study / "calls" / row["condition_id"] / f"chain_{chain:02d}"
     folder.mkdir(parents=True, exist_ok=True)
@@ -188,7 +253,7 @@ def role_call(repo, study, row, chain, role, analyst=None, delivery=None):
     if delivery is not None:
         task["delivery_diagnostics"] = delivery
     if row["lane"] == "U":
-        task["fixed_reward_shape"] = "M2; only one allowed_U edit; allowed_G is inaccessible"
+        raise ValueError("U calls require a reviewed selected G shape in a staged executor")
     messages = [{"role": "system", "content": prompt},
         {"role": "user", "content": json.dumps(read_json(study / "evidence.json"), separators=(",", ":"))},
         {"role": "user", "content": json.dumps(task, separators=(",", ":"))}]
@@ -207,7 +272,7 @@ def effective_signature(program):
     operative = {k: v for k, v in program.items() if k not in {
         "program_id", "round", "robust_delta", "geometry_block_weights", "target_definition"}}
     operative.setdefault("pointcloud_delta_A", 1.)
-    for key in [*G, *U]:
+    for key in NUMERIC_KEYS:
         if key in operative:
             operative[key] = int(operative[key]) if key == "teacher_neighbors" else float(operative[key])
     return hashlib.sha256(json.dumps(operative, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -215,6 +280,7 @@ def effective_signature(program):
 
 def compile_reward(repo, study, row, chain, response):
     program = read_json(repo / BASE)
+    validate_fixed_temperatures(repo, program)
     index = read_json(study / "evidence_index.json")
     edit = response["edit"]
     if response["decision"] in {"retain", "defer"}:
@@ -224,6 +290,8 @@ def compile_reward(repo, study, row, chain, response):
         if edit is None:
             raise ValueError("Edit decision without operative edit")
         parameter, value = edit["parameter"], edit["value"]
+        if parameter in TEMPERATURE_KEYS:
+            raise ValueError("Temperature edits are disabled; retain the frozen M2 defaults")
         allowed = U if row["lane"] == "U" else G
         if parameter == "region_index" and row["lane"] == "G":
             ref = json.loads(gzip.decompress((repo / REF).read_bytes()))
@@ -239,6 +307,7 @@ def compile_reward(repo, study, row, chain, response):
             raise ValueError("Illegal parameter, lane or bounded value")
         else:
             program[parameter] = value
+    validate_fixed_temperatures(repo, program)
     # The digest describes effective numerical behavior, excluding metadata and
     # known unused legacy fields. Same-reward calls share inference, not samples.
     sha = effective_signature(program)
