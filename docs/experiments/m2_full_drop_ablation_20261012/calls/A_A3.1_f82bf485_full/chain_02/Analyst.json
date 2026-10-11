@@ -1,0 +1,228 @@
+{
+  "findings": [
+    {
+      "claim": "Decoded terminal learning labels are unavailable, so descendant credit is recorded joint-head credit rather than decoded terminal affinity; the immediate-selection versus descendant-credit comparison cannot be presented as a final-affinity benefit and is reported as unavailable.",
+      "evidence_ids": [
+        "decoded_terminal_learning_labels_available",
+        "lineage_support",
+        "limitations"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Ancestral coverage is thin: 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, out of 700 total batch nodes, so many nodes carry little ancestral support for any lineage-based credit claim.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Survival enrichment is weak and mostly null: landmark_00_soft_mass (0.365, q=0.120), landmark_07_soft_mass (0.220, q=0.356), landmark_10_soft_mass (0.234, q=0.302), landmark_18_local_czz (0.217, q=0.302) and landmark_04_local_cyz change-rate (1.79, q=0.302) all fail BH q<0.05, so no survival field is a confirmed survivor-bias direction.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Endpoint contrasts are strongest and most reproducible for pair_kernel_1.5 (0.562, q=1.5e-4, positive batch fraction 1.0), pair_kernel_2.5 (0.631, q=2.2e-5, 1.0), pair_kernel_3.5 (0.540, q=9.8e-5, 1.0), pair_kernel_5.0 (0.319, q=0.0037, 0.857), pair_kernel_7.0 (-0.485, q=1.5e-4, 0.0) and landmark_00_occupancy3 (0.545, q=2.4e-4, 1.0); these are the only endpoint features with both large integrated z and near-unanimous batch direction.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "endpoint_effects:15"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "After branch adjustment the pair_kernel_1.5 and pair_kernel_2.5 raw-covariance effects remain positive (8.7e-7, q=0.134; 1.7e-6, q=0.116) and their adjusted correlations remain positive (0.101, q=0.019; 0.084, q=0.046), while joint_innovation_RMS_A and joint_internal_RMS_A are negative and significant (adjusted correlation -0.150, q=2.8e-4; -0.137, q=9.7e-4), indicating the pair-shell signal is not merely a global-motion artifact.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Global centroid coordinates do not survive adjustment: raw-covariance centroid effects have q>=0.69 and adjusted-covariance centroid effects have q>=0.86, so centroid translation is not a supported coordinate direction.",
+      "evidence_ids": [
+        "branch_adjusted:0",
+        "branch_adjusted:1",
+        "branch_adjusted:2",
+        "branch_adjusted:77",
+        "branch_adjusted:78",
+        "branch_adjusted:79"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Shape_yy is the one shape component with a consistent negative sign (raw correlation -0.103, q=2.6e-3, positive batch fraction 1.0; adjusted correlation -0.100, q=0.015, 1.0), whereas shape_xx, shape_zz and the off-diagonal shape terms are not significant after adjustment.",
+      "evidence_ids": [
+        "branch_adjusted:3",
+        "branch_adjusted:4",
+        "branch_adjusted:5",
+        "branch_adjusted:158",
+        "branch_adjusted:235"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "The landmark_00 continuous contrast curves are non-monotone with many sign changes (e.g. local_dx 6, local_dy 6, local_cxy 9, local_cyz 7) and no polynomial is accepted (polynomial_accepted false, extrapolation_allowed false), so a constant rule is not supported and any time-conditioned rule must stay within the observed support [0.0,0.49].",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "The curve-fidelity audit selected 24 curves under the rule relative_rmse<=0.35, quiet_node_large_fit_fraction<=0.1 and strong_sign_conflict_nodes=0, but the listed candidates have relative_node_rmse 0.39-0.93 and up to 15 strong sign-conflict nodes, so the selected set is small and the fits are not uniformly faithful.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Joint diagnostics show selection innovation is positively associated with native alignment (0.092, q=2.2e-9) and teacher innovation-contrast alignment (0.226, q=2.2e-9) but negatively associated with observed child score gain (-0.036, q=1.8e-7), and teacher contrast is 79% internal rather than translation/rotation, so coherent internal joint patterns carry the signal while the observed child score gain moves oppositely.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Turnover accounting separates population rate from edge rate and turnover residual: for many features the population rate is small while the edge rate and turnover residual are large and opposite in sign (e.g. landmark_00_local_cxx population -0.058 vs edge -4.34 and residual +4.29; landmark_07_local_cyy population 0.863 vs edge -4.77 and residual +5.63), so the evidence is consistent with changing cohort composition and reclassification rather than a within-path change; the residual is an accounting diagnostic, not a causal selection effect.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377",
+        "turnover:497",
+        "turnover:524",
+        "turnover:563",
+        "turnover:584",
+        "turnover:587"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Parent-child increment contrasts are mostly not significant after BH (e.g. landmark_00_softmin -4.91, q=0.046; landmark_00_occupancy3 4.28, q=0.081; shape_xx -3.70, q=0.095; shape_yy -3.85, q=0.161; shape_xz 3.00, q=0.207; pair_kernel_2.5 3.96, q=0.208; pair_kernel_7.0 -3.14, q=0.208), so within-path increment evidence is weaker than the endpoint contrasts.",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:3",
+        "increment_effects:4",
+        "increment_effects:7",
+        "increment_effects:10",
+        "increment_effects:13"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Hypothesis: the pair-distance shell density at 1.5-2.5 A is the most reproducible coordinate signal, and a pointcloud_delta_A edit that changes the endpoint pointcloud reward scale would test whether this shell density is expressed by the permitted reward recipe; the discriminating failure condition is that the pair_kernel_1.5/2.5 endpoint contrast loses its positive batch direction or its adjusted correlation after the edit.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ]
+    },
+    {
+      "claim": "Hypothesis: shape_yy is a coherent negative-sign coordinate direction (raw and adjusted correlations both negative with positive batch fraction 1.0, endpoint integrated z -0.513), and a region_index edit bound to a landmark whose local_cyy curve is negative would test whether the shape_yy direction is expressible; the discriminating failure condition is a sign reversal of the shape_yy adjusted correlation or a loss of its batch unanimity.",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "endpoint_effects:4"
+      ]
+    },
+    {
+      "claim": "Hypothesis: a time-conditioned rule using the validated observed-node interpolation of the landmark_00 contrast curves could express the non-monotone sign changes, whereas a constant rule cannot; the discriminating failure condition is that the time-conditioned rule's fit fidelity falls below the curve_support thresholds (relative_rmse<=0.35, strong_sign_conflict_nodes=0) or requires extrapolation outside [0.0,0.49].",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "curve_support"
+      ]
+    },
+    {
+      "claim": "Hypothesis: the joint internal contrast pattern (79% internal fraction, positive innovation-contrast alignment) is a coherent joint coordinate pattern that adds information beyond common motion, while the negative association with observed child score gain indicates the joint pattern is not redundant with the marginal score gain; the discriminating failure condition is that the internal fraction drops or the innovation-contrast alignment loses significance.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14"
+      ]
+    },
+    {
+      "claim": "Hypothesis: the large edge-rate and turnover-residual terms with opposite signs to the population rate indicate changing cohort composition and reclassification rather than within-path change; the discriminating failure condition is that the turnover residual becomes small relative to the edge rate or that the population rate and edge rate align in sign.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227"
+      ]
+    },
+    {
+      "claim": "Hypothesis: the weak survival enrichment signals (landmark_00_soft_mass, landmark_07_soft_mass, landmark_10_soft_mass, landmark_18_local_czz, landmark_04_local_cyz change-rate) are survivor-bias candidates that would need decoded terminal labels to be interpreted as final-affinity benefit; the discriminating failure condition is that decoded terminal labels become available and the survival enrichment does not predict terminal affinity.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "lineage_support"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term; moment and pair-kernel effects are diagnostic evidence only.",
+    "No temperature edit is permitted; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

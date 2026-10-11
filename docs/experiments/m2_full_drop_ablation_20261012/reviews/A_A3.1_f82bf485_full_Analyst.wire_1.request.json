@@ -1,0 +1,88 @@
+{
+  "body": {
+    "max_tokens": 16384,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/4b5cc9621f536fc62c67d7e3fe15fd22bf67b8e6d84512534a6959d00c09b807.txt",
+        "content_sha256": "4b5cc9621f536fc62c67d7e3fe15fd22bf67b8e6d84512534a6959d00c09b807",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/64c47235b0b3cedcf3846cc577cf13ae252258eea21b4ec262173e1e13444262.txt",
+        "content_sha256": "64c47235b0b3cedcf3846cc577cf13ae252258eea21b4ec262173e1e13444262",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/671aef523a2b505bf096d8b0bede516382131933e2dd6b99d66ffb62258ae526.txt",
+        "content_sha256": "671aef523a2b505bf096d8b0bede516382131933e2dd6b99d66ffb62258ae526",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/4b86863cd5fd2cc30a3a1316e1805110df59313fb2d9616b12041f7a28f614fa.txt",
+        "content_sha256": "4b86863cd5fd2cc30a3a1316e1805110df59313fb2d9616b12041f7a28f614fa",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "assessments": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "chain": {
+              "maximum": 5,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "explanation": {
+              "maxLength": 250,
+              "type": "string"
+            },
+            "module": {
+              "enum": [
+                "A3.1"
+              ]
+            },
+            "quote": {
+              "maxLength": 200,
+              "type": "string"
+            },
+            "score": {
+              "enum": [
+                0,
+                1,
+                2,
+                "NA"
+              ]
+            }
+          },
+          "required": [
+            "chain",
+            "module",
+            "score",
+            "quote",
+            "explanation"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      }
+    },
+    "required": [
+      "assessments"
+    ],
+    "type": "object"
+  }
+}
