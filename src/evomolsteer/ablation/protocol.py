@@ -161,6 +161,37 @@ def validate_activation(repo,study):
     return a
 
 
+def validate_prior_policy(repo,study,config,state):
+    """Bind a declared prior RNG policy before any scientific result is used.
+
+    The immutable scientific plan stays intact. A source-tracked amendment
+    identifies a technical input-construction change and excluded warmup data.
+    Resuming under another policy would invalidate paired comparisons.
+    """
+    mode=config.get("prior_seed_mode","legacy_stream")
+    if mode not in {"legacy_stream","indexed_batch"}:
+        raise ValueError("Unknown prior RNG policy")
+    previous=state.get("prior_seed_mode")
+    if previous is not None and previous!=mode:
+        raise ValueError("Cannot mix prior RNG policies in a scientific study")
+    path=Path(study)/"prior_policy_amendment.json"
+    if mode=="indexed_batch":
+        amendment=read_json(path)
+        if (amendment["prior_seed_mode"]!=mode or
+            amendment["master_seed"]!=42 or amendment["batch_seed_multiplier"]!=100003 or
+            amendment["protocol_sha256"]!=digest(Path(repo)/PLAN/"protocol.json") or
+            not amendment["fresh_matched_controls_required"]):
+            raise ValueError("Unbound indexed-prior amendment")
+        sha=digest(path)
+        if state.get("prior_policy_amendment_sha256",sha)!=sha:
+            raise ValueError("Prior amendment changed after activation")
+        if previous is None and any(state.get(k) for k in ["conditions","measured","matched_controls","program_results"]):
+            raise ValueError("Indexed prior cannot adopt unbound earlier results")
+    else:
+        sha=None
+    return {"prior_seed_mode":mode,"prior_policy_amendment_sha256":sha}
+
+
 PLAN_TEXT = """# M2 科学子模块消融 v3
 
 本版由用户授权实施实验。父版和旧调用不覆盖。保留八个一级工作流模块，拆为九个 Analyst、八个 Designer 科学子模块。实际指令、竞争策略、数据前提和功能评分见 module_registry.json；条件见 conditions.csv。

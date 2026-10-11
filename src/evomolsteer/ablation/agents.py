@@ -60,6 +60,22 @@ def design_schema(allowed, region_count):
     return schema
 
 
+def operative_incumbent(program):
+    """Expose the executing pointcloud formula, not inert legacy metadata.
+
+    Compilation continues to use the original frozen program. This read-only
+    interface prevents `robust_delta` and motif labels from being mistaken for
+    active loss terms in the historical endpoint-pointcloud checkpoint.
+    """
+    if program is None:return None
+    view=copy.deepcopy(program)
+    if view.get("reward_view") in {"endpoint_pointcloud","endpoint_regional_pointcloud","endpoint_temporal_pointcloud"}:
+        for key in ["robust_delta","geometry_block_weights","motif_components","target_definition","round"]:
+            view.pop(key,None)
+        view.setdefault("pointcloud_delta_A",1.)
+    return view
+
+
 def call_role(repo, study, case, chain, role, active, *, alternative=None,
               analyst=None, incumbent=None, lane="G", delivery=None, caller=call_json):
     repo,study=Path(repo),Path(study)
@@ -82,7 +98,7 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
             "Use these observations to provide your response to the supplied molecular coordinate task."),
         "interface_notes":"Optional findings/hypotheses/details may be empty when unsupported. No submodule function is required by the schema. Prioritize at most twelve concise findings and six hypotheses. Cite supplied curves rather than reproducing numeric arrays. Analyst hypotheses belong in hypotheses; operative decisions belong to Designer.",
         "allowed_edits":allowed,
-        "incumbent":incumbent,
+        "incumbent":operative_incumbent(incumbent),
         "fixed_parameters":protocol["temperature_policy"]["parameters"],
         "formula_registry":{
             "pointcloud":"R=tau*logsumexp(log_pi-rho_delta(q)/tau); q=Hungarian mean squared endpoint distance; rho_delta=delta^2*(sqrt(1+q/delta^2)-1)",
@@ -91,7 +107,7 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
             "temporal_region":"Same static teacher coordinates; only validated absolute contrast changes regional attention at actual score nodes",
             "temporal_teacher":"(1-blend)*R_static + blend*R_observed_teacher(time); one shared FLOWR endpoint, no velocity target",
             "dose":"Actual endpoint-VJP force normalized and RMS-scaled relative to native predictive update; eta and ramp only in U lane",
-            "diagnostic_limit":"Moment effects, pair kernels and turnover rates are evidence, not separate forces in the pointcloud reward"}}
+            "diagnostic_limit":"Moment effects, pair kernels and turnover rates are diagnostic evidence only. The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term. Legacy robust_delta is ignored; the executing curvature is pointcloud_delta_A (default 1 A). Compilation uses the original frozen program."}}
     if analyst is not None:task["Analyst_response"]=analyst
     if delivery is not None:task["delivery_diagnostics"]=delivery
     messages=[{"role":"system","content":prompt},

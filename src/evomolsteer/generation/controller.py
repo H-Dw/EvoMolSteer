@@ -19,7 +19,7 @@ import flowr.models.fm_pocket as fm
 from evomolsteer.storage.streaming import StepTrajectoryWriter
 from evomolsteer.storage.transactions import atomic_json
 from .instrumentation import instrument_source
-from .batches import resolve_batches
+from .batches import resolve_batches,loading_count,indexed_pairs
 from .rng import rng_state,set_rng
 
 RDLogger.DisableLog('rdApp.warning')
@@ -242,10 +242,11 @@ def main(extension=None):
     p.add_argument('--arms',default='unguided,single,joint'); p.add_argument('--window',type=float,default=.5)
     p.add_argument('--window-start',type=float,default=0.);p.add_argument('--steps',type=int,default=100)
     p.add_argument('--seed',type=int,default=42); p.add_argument('--verify-passive',action='store_true')
+    p.add_argument('--prior-seed-mode',choices=['legacy_stream','indexed_batch'],default='legacy_stream')
     if extension is not None: extension.add_arguments(p)
     opt=p.parse_args(); root=Path(opt.root); out=root/'results'/opt.campaign
     opt.batch_indices=resolve_batches(opt.n,opt.batch,getattr(opt,'batch_indices',None))
-    loading_n=(max(opt.batch_indices)+1)*opt.batch
+    loading_n=loading_count(opt.batch,opt.batch_indices,opt.prior_seed_mode)
     if extension is not None: extension.prepare(opt, out)
     out.mkdir(parents=True,exist_ok=True)
     assert not (out/'COMPLETE.json').exists(),'Do not overwrite completed campaign'
@@ -285,7 +286,9 @@ def main(extension=None):
         extension.amend_config(config)
     (out/'config.json').write_text(json.dumps(config,indent=2,default=str))
     allrows=[]; started=time.time()
-    for batch,(bt,bo) in enumerate(zip(dlt,dlo)):
+    pairs=(enumerate(zip(dlt,dlo)) if opt.prior_seed_mode=='legacy_stream' else
+        indexed_pairs(args,dst,dso,interpolant,util.get_dataloader,opt.batch_indices,opt.seed))
+    for batch,(bt,bo) in pairs:
         lig,pt,po,frame=make_inputs(model,bt,bo,'cuda')
         # Consume preceding priors in native order. Sampler RNG is normally
         # restored after every batch, so skipping its inference preserves that order.

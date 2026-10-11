@@ -1,0 +1,276 @@
+{
+  "body": {
+    "max_tokens": 16384,
+    "messages": [
+      {
+        "content_relative_path": "../../../inputs/d1f519f78771296201792eaea791ba3fec2fd1cdc2e48e15ad1365ebdf2da3bd.txt",
+        "content_sha256": "d1f519f78771296201792eaea791ba3fec2fd1cdc2e48e15ad1365ebdf2da3bd",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../../inputs/83abc9715c600abde1947b3c5b48491ce975b7274f7ae07dff62f8a340d51e27.txt",
+        "content_sha256": "83abc9715c600abde1947b3c5b48491ce975b7274f7ae07dff62f8a340d51e27",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../../inputs/906f33f5f9ef9df6b29bac0a6f0e8b0eee0babfe94fd71a09e8da54e9c8d608d.txt",
+        "content_sha256": "906f33f5f9ef9df6b29bac0a6f0e8b0eee0babfe94fd71a09e8da54e9c8d608d",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "decision": {
+              "enum": [
+                "retain",
+                "defer"
+              ]
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "edit": {
+              "type": "null"
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "decision": {
+              "const": "edit"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "edit": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    ],
+    "properties": {
+      "decision": {
+        "enum": [
+          "retain",
+          "defer",
+          "edit"
+        ]
+      },
+      "edit": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "parameter": {
+                  "const": "pointcloud_delta_A"
+                }
+              },
+              "type": "object"
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "enum": [
+                    0.5,
+                    1.0,
+                    2.0
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "parameter": {
+                  "const": "region_index"
+                }
+              },
+              "type": "object"
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "parameter": {
+                  "const": "teacher_neighbors"
+                }
+              },
+              "type": "object"
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "enum": [
+                    2,
+                    4,
+                    8
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "parameter": {
+                  "const": "temporal_region_index"
+                }
+              },
+              "type": "object"
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "parameter": {
+                  "const": "temporal_teacher_blend"
+                }
+              },
+              "type": "object"
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "enum": [
+                    0.25,
+                    0.5,
+                    1.0
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "properties": {
+          "parameter": {
+            "enum": [
+              "pointcloud_delta_A",
+              "region_index",
+              "teacher_neighbors",
+              "temporal_region_index",
+              "temporal_teacher_blend"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "parameter",
+          "value"
+        ],
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "evidence_ids": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "expected_response": {
+        "type": "object"
+      },
+      "failure_modes": {
+        "type": "array"
+      },
+      "parameter_origins": {
+        "type": "object"
+      },
+      "rationale": {
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "edit",
+      "evidence_ids",
+      "rationale"
+    ],
+    "type": "object"
+  }
+}

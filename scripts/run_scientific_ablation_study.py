@@ -18,12 +18,12 @@ import numpy as np
 import pandas as pd
 
 from run_m2_skill_api_study import Study, shell
-from evomolsteer.ablation.protocol import prepare, validate_activation
+from evomolsteer.ablation.protocol import prepare, validate_activation, validate_prior_policy
 from evomolsteer.ablation.agents import call_role, review
 from evomolsteer.ablation.compiler import compile_program
 from evomolsteer.ablation.diagnostics import run_probes
 from evomolsteer.ablation.response import observed_response
-from evomolsteer.ablation.statistics import compare, summarize, quality_envelope, pruning_decision, classify_module
+from evomolsteer.ablation.statistics import compare, compare_strain, summarize, quality_envelope, pruning_decision, classify_module
 from evomolsteer.continuous.m2_skill_api import BASE, REF, effective_signature
 from evomolsteer.deepseek_api import LLMInterfaceError
 from evomolsteer.io import digest, read_json, write_json
@@ -32,11 +32,20 @@ from evomolsteer.io import digest, read_json, write_json
 class ScientificStudy(Study):
     def preflight(self):
         activation=validate_activation(self.repo,self.study)
+        prior_policy=validate_prior_policy(self.repo,self.study,self.config,self.state)
         work=PurePosixPath(self.config["remote_work"])
         flowr=PurePosixPath(self.config["flowr"])
         if not work.is_relative_to(flowr/"experiments") or not work.name.startswith("evomolsteer_dependency_"):
             raise ValueError("Explicit owned scientific workspace required")
         self.protocol=activation["protocol"]
+        statistical_path=self.study/"secondary_statistical_amendment.json"
+        statistical=read_json(statistical_path)
+        if (statistical["protocol_sha256"]!=activation["protocol_sha256"] or
+            statistical["confidence_family_multiplier"]!=3):
+            raise ValueError("Unbound secondary endpoint family")
+        statistical_sha=digest(statistical_path)
+        if self.state.get("secondary_statistical_amendment_sha256",statistical_sha)!=statistical_sha:
+            raise ValueError("Statistical amendment changed after activation")
         self.modules=read_json(self.study/"module_registry.json")["modules"]
         with self.ssh() as client:
             check="""import pathlib,json
@@ -63,7 +72,8 @@ for p in root.rglob('*.json'):
         self.state.setdefault("matched_controls",{})
         self.state.setdefault("pruning",[])
         self.state.setdefault("api_calls",0)
-        self.save(preflight_passed=True,protocol_sha256=activation["protocol_sha256"],model="deepseek-flash")
+        self.save(preflight_passed=True,protocol_sha256=activation["protocol_sha256"],model="deepseek-flash",
+            secondary_statistical_amendment_sha256=statistical_sha,**prior_policy)
 
     def _budget(self):
         # Count actual successful request receipts, including declared role
@@ -169,8 +179,13 @@ for p in root.rglob('*.json'):
         return [self.frames(self.measure(self.repo/r["program"],self.repo/r["reference"],r["signature"],batches)) for r in condition["rows"]]
 
     def contrast(self,left,right,*,paired_roles=False,family=None):
-        if family is None:family=self.protocol["evaluation"]["confirmation_families"]
+        if family is None:family=3*self.protocol["evaluation"]["confirmation_families"]
         return compare(left,right,family=family,replicates=self.protocol["evaluation"]["bootstrap_replicates"],paired_roles=paired_roles)
+
+    def strain_contrast(self,full,other,*,paired_roles=False,family=None):
+        if family is None:family=3*self.protocol["evaluation"]["confirmation_families"]
+        return compare_strain(full,other,family=family,
+            replicates=self.protocol["evaluation"]["bootstrap_replicates"],paired_roles=paired_roles)
 
     def sequential(self,phase,role,active,incumbent,*,lane="G",frozen=None,offset=0):
         ids=[m["id"] for m in self.modules if m["role"]==role and m["lane"]==lane]
@@ -196,16 +211,19 @@ for p in root.rglob('*.json'):
             envelope=quality_envelope(ss,sm)
             normal=full["functional"]
             function_pass=normal is not None and sum(a["score"]==2 for a in normal["assessments"] if a["module"]==module)>=5
+            screen_strain=[self.strain_contrast(cf,other,paired_roles=role=="Designer",family=1) for other in [cd,ca]]
             result={"phase":phase,"module":module,"full":full["case"],"drop":drop["case"],"alternative":alt["case"],
                 "screen_drop_minus_full":ds,"screen_drop_minus_M2":ms,"function_pass":function_pass,
-                "screen_is_confirmation":False,"active_before":active,"confirmation":None}
+                "screen_is_confirmation":False,"active_before":active,"confirmation":None,"screen_strain":screen_strain}
             # Screens never establish absence of an effect. Confirm promising
             # pruning, or a sizeable potential necessary effect, prospectively.
             potential=(ds["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and
                 ms["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and envelope["passed"])
             possible_necessary=(-ds["delta_pic50"]>e["necessity_effect_pic50"] and
                 self.contrast(cf,ca,paired_roles=role=="Designer",family=1)["delta_pic50"]>e["necessity_effect_pic50"])
-            if potential or possible_necessary:
+            possible_secondary=(all(x["status"]=="AVAILABLE" for x in screen_strain) and
+                any(all(x["endpoints"][metric]["relative_worsening"]>.10 for x in screen_strain) for metric in ["median","p90"]))
+            if potential or possible_necessary or possible_secondary:
                 start=self.protocol["batches"]["confirmation_base"]+(offset+step)*self.protocol["batches"]["confirmation_stride"]
                 batches=list(range(start,start+self.protocol["batches"]["confirmation_count"]))
                 ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
@@ -214,10 +232,14 @@ for p in root.rglob('*.json'):
                 cdm=self.contrast(fd,mm)
                 env=quality_envelope(summarize(fd,e["elite_threshold"]),summarize(mm,e["elite_threshold"]))
                 decision=pruning_decision(cdf,cdm,env,margin=e["M2_noninferiority_margin_pic50"])
+                secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
                 classification=classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
-                    self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=function_pass,effect=e["necessity_effect_pic50"])
+                    self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=function_pass,
+                    effect=e["necessity_effect_pic50"],secondary=secondary)
+                if classification=="STRAIN_NECESSARY_IN_THIS_CONTEXT":
+                    decision={"adopt":False,"status":"CONFIRMED_STRAIN_BENEFIT_KEEP_CURRENT"}
                 result["confirmation"]={"batches":batches,"drop_minus_full":cdf,"drop_minus_M2":cdm,"quality_envelope":env,
-                    "classification":classification,"role_designs_frozen_from_screen":True}
+                    "classification":classification,"secondary_strain":secondary,"role_designs_frozen_from_screen":True}
                 # An ineffective prompt can be retired without claiming that its
                 # scientific method was tested when delivery/semantics failed.
                 if decision["adopt"] and not function_pass:
@@ -325,11 +347,13 @@ for p in root.rglob('*.json'):
             batches=list(range(3000+16*step,3008+16*step))
             ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
             passed=full["functional"] is not None and sum(x["score"]==2 for x in full["functional"]["assessments"])>=5
+            secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
             record={"module":module,"batches":batches,
                 "classification":classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
-                    self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=passed),
+                    self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=passed,secondary=secondary),
                 "full_minus_drop":self.contrast(ff,fd,paired_roles=role=="Designer"),
                 "full_minus_alternative":self.contrast(ff,fa,paired_roles=role=="Designer"),
+                "secondary_strain":secondary,
                 "not_inherited_from_initial_context":True}
             records.append(record);self.save();self.write_report()
             self.commit("ablation(scientific): independently retest final-context "+module)

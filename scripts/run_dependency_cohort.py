@@ -42,6 +42,7 @@ def run(repo, flowr, work, spec_path):
             '--program', str(program), '--reference', str(reference), '--campaign', spec['name'],
             '--n', str(spec['n']), '--batch', str(spec['batch']), '--steps', '100', '--seed', '42',
             '--arms', spec['arms'], '--batch-indices', ','.join(map(str, spec['batches'])), '--export-terminal']
+        command+=['--prior-seed-mode',spec.get('prior_seed_mode','legacy_stream')]
         write_json(work / (spec['name'] + '.command.json'), {'command': command, 'code_commit': commit})
         sources = ['flowr/models/fm_pocket.py', 'flowr/models/utils.py', 'flowr/data/data_modules.py', 'flowr/util/smc.py']
         # Use the established upstream source list, rather than guessing layout.

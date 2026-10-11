@@ -82,6 +82,53 @@ def quality_envelope(candidate, m2, *, strain_margin=.10, rate_margin=.02):
     return {"passed":not reasons,"reasons":reasons,"scope":"Secondary point-estimate acceptance envelope, not significance of strain effects"}
 
 
+def compare_strain(full, other, *, family=324, replicates=100000, seed=42, paired_roles=False):
+    """Uncertainty of worsening after an instruction intervention.
+
+    The endpoints are means of independent-batch medians/p90s among actually
+    converged energy evaluations. No absent energy is imputed. Repeated role
+    programs share the same batch observations, as in the affinity comparison.
+    A positive ratio means the intervention worsens strain relative to full.
+    """
+    _,batches=_matrix(full);_,other_batches=_matrix(other)
+    if batches!=other_batches or len(batches)<2:raise ValueError("Matched strain batches required")
+    if set(map(tuple,full[0][['batch','slot']].to_numpy()))!=set(map(tuple,other[0][['batch','slot']].to_numpy())):
+        raise ValueError("Unmatched strain attempt identifiers")
+    if paired_roles and len(full)!=len(other):raise ValueError("Frozen strain role inputs mismatch")
+    if family<1 or replicates<1000:raise ValueError("Valid strain confidence budget required")
+    def values(frames,q):
+        result=[]
+        for f in frames:
+            energy=pd.to_numeric(f.loc[f.energy_status.eq('converged'),'mmff_relief_per_heavy'],errors='coerce')
+            usable=f.loc[energy.index,['batch']].assign(energy=energy)
+            usable=usable.loc[np.isfinite(usable.energy)]
+            row=usable.groupby('batch').energy.quantile(q).reindex(batches).to_numpy()
+            if not np.isfinite(row).all() or (row<0).any():return None
+            result.append(row)
+        return np.asarray(result)
+    endpoints={}
+    for label,q in [('median',.5),('p90',.9)]:
+        a,b=values(full,q),values(other,q)
+        if a is None or b is None or a.mean()<=0:
+            return {'status':'UNAVAILABLE','reason':'missing converged batch or nonpositive reference strain','no_energy_imputation':True}
+        rng=np.random.default_rng(seed);bootstrap=[]
+        for begin in range(0,replicates,500):
+            n=min(500,replicates-begin);bi=rng.integers(0,len(batches),(n,len(batches)))
+            ai=rng.integers(0,len(a),(n,len(a)))
+            ri=ai if paired_roles else rng.integers(0,len(b),(n,len(b)))
+            av=a[ai[:,:,None],bi[:,None,:]].mean((1,2));bv=b[ri[:,:,None],bi[:,None,:]].mean((1,2))
+            if (av<=0).any():return {'status':'UNAVAILABLE','reason':'nonpositive resampled strain scale','no_energy_imputation':True}
+            bootstrap.append(bv/av-1.)
+        boot=np.concatenate(bootstrap);alpha=.05/family
+        endpoints[label]={'relative_worsening':float(b.mean()/a.mean()-1.),
+            'simultaneous_CI':np.quantile(boot,[alpha/2,1-alpha/2]).tolist(),
+            'full_batch_quantile_mean':float(a.mean()),'other_batch_quantile_mean':float(b.mean())}
+    return {'status':'AVAILABLE','endpoints':endpoints,'independent_generation_batches':len(batches),
+        'family':family,'bootstrap_replicates':replicates,'paired_frozen_Analyst_inputs':paired_roles,
+        'scope':'Converged-only batch quantiles; scoring/energy coverage and failure rates reported separately',
+        'no_energy_imputation':True}
+
+
 def pruning_decision(drop_vs_full, drop_vs_m2, envelope, *, margin=.02, valid_chains=True):
     if not valid_chains:return {"adopt":False,"status":"INTERFACE_INCOMPLETE"}
     safe=(drop_vs_full["simultaneous_CI"][0]>-margin and drop_vs_m2["simultaneous_CI"][0]>-margin and envelope["passed"])
@@ -91,12 +138,16 @@ def pruning_decision(drop_vs_full, drop_vs_m2, envelope, *, margin=.02, valid_ch
     return {"adopt":False,"status":"NEGATIVE_OR_INCONCLUSIVE_KEEP_CURRENT"}
 
 
-def classify_module(full_minus_drop, full_minus_alternative, *, functional_valid, effect=.05):
+def classify_module(full_minus_drop, full_minus_alternative, *, functional_valid, effect=.05, secondary=None):
     if not functional_valid:return "FUNCTIONAL_OR_INTERFACE_BOTTLENECK"
     if full_minus_drop["simultaneous_CI"][0]>effect and full_minus_alternative["simultaneous_CI"][0]>effect:
         return "AFFINITY_NECESSARY_IN_THIS_CONTEXT"
     if full_minus_drop["simultaneous_CI"][1]<0:
         return "NEGATIVE_IN_THIS_CONTEXT"
-    if all(-.02<x["simultaneous_CI"][0] and x["simultaneous_CI"][1]<.02 for x in [full_minus_drop,full_minus_alternative]):
+    equivalent=all(-.02<x["simultaneous_CI"][0] and x["simultaneous_CI"][1]<.02 for x in [full_minus_drop,full_minus_alternative])
+    if equivalent and secondary and all(x.get('status')=='AVAILABLE' for x in secondary):
+        if any(all(x['endpoints'][metric]['simultaneous_CI'][0]>.10 for x in secondary) for metric in ['median','p90']):
+            return "STRAIN_NECESSARY_IN_THIS_CONTEXT"
+    if equivalent:
         return "PERFORMANCE_EQUIVALENT_IN_THIS_CONTEXT"
     return "INCONCLUSIVE"

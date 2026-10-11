@@ -10,7 +10,7 @@ import torch
 from evomolsteer.ablation.evidence import fit_continuous, evaluate_curve, turnover_accounting
 from evomolsteer.ablation.modules import MODULES, assemble
 from evomolsteer.ablation.diagnostics import contrast_fixture, geometry_fixture
-from evomolsteer.ablation.statistics import compare, pruning_decision, classify_module
+from evomolsteer.ablation.statistics import compare, compare_strain, pruning_decision, classify_module
 from evomolsteer.generation.temporal_teacher_reward import TemporalTeacherReward
 from evomolsteer.generation.endpoint_reward import EndpointGeometryReward
 from evomolsteer.generation.coordinate_contrast import make_coordinate_reward
@@ -20,9 +20,11 @@ from evomolsteer.generation.flowcompat_controller import FlowCompatibilityExtens
 from evomolsteer.generation.window_reference import load_reference
 from evomolsteer.io import read_json
 from evomolsteer.continuous.m2_skill_api import BASE, REF
+from evomolsteer.generation.batches import loading_count,indexed_pairs
 from evomolsteer.ablation.compiler import compile_program
 from evomolsteer.io import write_json, digest
 from evomolsteer.ablation import agents
+from evomolsteer.ablation import protocol
 import gzip
 import json
 import jsonschema
@@ -245,3 +247,54 @@ def test_design_schema_repairs_illegal_grid_without_forcing_an_edit():
     with pytest.raises(jsonschema.ValidationError):jsonschema.validate(response,schema)
     response['edit']['value']=19
     jsonschema.validate(response,schema)
+
+
+def test_indexed_input_policy_avoids_unused_prefix_and_preserves_master_seed():
+    assert loading_count(50,[2100,2101],'legacy_stream')==105100
+    assert loading_count(50,[2100,2101],'indexed_batch')==50
+    calls=[]
+    def loader(args,data,interpolant):
+        calls.append((args.seed,data));return [(args.seed,data)]
+    args=SimpleNamespace(seed=42)
+    pairs=list(indexed_pairs(args,'target','off',None,loader,[2100,2101],42))
+    assert args.seed==42 and len(calls)==4
+    assert pairs[0][1][0][0]==pairs[0][1][1][0]==42+100003*2100
+    assert pairs[1][1][0][0]==42+100003*2101
+
+
+def test_prior_amendment_cannot_adopt_legacy_results_or_change_on_resume(tmp_path):
+    study=tmp_path/'study';study.mkdir()
+    plan=tmp_path/protocol.PLAN;plan.mkdir(parents=True)
+    write_json(plan/'protocol.json',{'frozen':True})
+    amendment={'prior_seed_mode':'indexed_batch','master_seed':42,'batch_seed_multiplier':100003,
+        'protocol_sha256':digest(plan/'protocol.json'),'fresh_matched_controls_required':True}
+    write_json(study/'prior_policy_amendment.json',amendment)
+    config={'prior_seed_mode':'indexed_batch'}
+    bound=protocol.validate_prior_policy(tmp_path,study,config,{})
+    assert protocol.validate_prior_policy(tmp_path,study,config,bound)==bound
+    with pytest.raises(ValueError,match='earlier results'):
+        protocol.validate_prior_policy(tmp_path,study,config,{'program_results':{'legacy':{}}})
+    with pytest.raises(ValueError,match='mix prior'):
+        protocol.validate_prior_policy(tmp_path,study,config,{'prior_seed_mode':'legacy_stream'})
+    amendment['reason']='changed';write_json(study/'prior_policy_amendment.json',amendment)
+    with pytest.raises(ValueError,match='changed after activation'):
+        protocol.validate_prior_policy(tmp_path,study,config,bound)
+
+
+def test_role_incumbent_exposes_executing_curvature_and_no_inert_motif_force():
+    original=read_json(REPO/BASE);view=agents.operative_incumbent(original)
+    assert view['pointcloud_delta_A']==1.
+    assert not set(view)&{'robust_delta','geometry_block_weights','motif_components'}
+    assert original['robust_delta']==2 and 'pointcloud_delta_A' not in original
+
+
+def test_secondary_necessity_requires_affinity_equivalence_and_converged_energy():
+    full=scores().assign(energy_status='converged',mmff_relief_per_heavy=1.)
+    drop=full.assign(mmff_relief_per_heavy=1.2)
+    secondary=compare_strain([full]*6,[drop]*6,replicates=1000)
+    assert secondary['endpoints']['median']['simultaneous_CI']==pytest.approx([.2,.2])
+    eq={'simultaneous_CI':[0.,0.]}
+    assert classify_module(eq,eq,functional_valid=True,secondary=[secondary,secondary])=='STRAIN_NECESSARY_IN_THIS_CONTEXT'
+    assert classify_module({'simultaneous_CI':[-.1,.1]},eq,functional_valid=True,secondary=[secondary,secondary])=='INCONCLUSIVE'
+    failed=drop.assign(energy_status='failed')
+    assert compare_strain([full],[failed],replicates=1000)['status']=='UNAVAILABLE'

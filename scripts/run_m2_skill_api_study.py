@@ -142,6 +142,8 @@ for p in root.rglob('*.json'):
     def infer(self, program_path, signature, arms="gradient", lane="screen", *, reference_path=None, batches=None):
         validate_fixed_temperatures(self.repo, read_json(program_path))
         key = signature + ":" + arms + ":" + lane
+        prior_mode=self.config.get('prior_seed_mode','legacy_stream')
+        if prior_mode!='legacy_stream':key+=':'+prior_mode
         reference_path = Path(reference_path) if reference_path is not None else self.repo / REF
         if not reference_path.resolve().is_relative_to(self.repo):
             raise ValueError("Inference reference must be inside the pinned repository")
@@ -152,11 +154,13 @@ for p in root.rglob('*.json'):
         activation = read_json(self.study / "activation.json")
         batches = list(batches) if batches is not None else activation["screen_batches"]
         name = "DSF_" + signature[:12] + "_b" + str(batches[0]) + "_" + ("controls" if "," in arms else "g")
+        if prior_mode!='legacy_stream':name+='_'+prior_mode
         spec_path = self.config_root / "jobs" / (name + ".json")
         spec = {"name": name, "arms": arms, "batch": 50, "batches": batches,
             "n": 50 * len(batches), "seed": 42, "steps": 100,
             "program": program_path.relative_to(self.repo).as_posix(), "program_sha256": digest(program_path),
-            "reference": reference_path.relative_to(self.repo).as_posix(), "reference_sha256": digest(reference_path)}
+            "reference": reference_path.relative_to(self.repo).as_posix(), "reference_sha256": digest(reference_path),
+            "prior_seed_mode":prior_mode}
         write_json(spec_path, spec)
         commit = self.commit("experiment(m2-api): bind " + name + " real API reward")
         self.save(status="running", task=name, code_commit=commit)
@@ -222,6 +226,7 @@ for p in root.rglob('*.json'):
             frame[columns].to_csv(compact_path, index=False)
             outcomes[arm] = {"summary": summary, "metrics": compact_path.relative_to(self.repo).as_posix()}
         result = {"name": name, "effective_signature": signature, "code_commit": remote["code_commit"],
+            "prior_seed_mode":prior_mode,
             "outcomes": outcomes, "delivery": delivery, "archive_sha256": digest(self.transport / (name + ".tar.gz")),
             "initial_state_signatures": remote["initial_state_signatures"]}
         self.state["program_results"][key] = result
