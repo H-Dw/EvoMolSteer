@@ -1,0 +1,81 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and an equal score prior is used, so no observed affinity label is available to the Analyst.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Continuous landmark coordinate contrasts are non-monotone over the observed window: landmark_00_soft_mass shows 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dx shows 6 sign changes with 9 strong sign conflicts, so a constant (time-invariant) coordinate rule is not supported by these curves.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Landmark local derivative features have large opposing first-versus-last rate z-scores (e.g. landmark_00_local_dy first_rate_z strongly negative, last_rate_z positive; landmark_00_local_cyy similarly reversed), indicating rate changes within the observed window rather than a stable signed direction.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Branch-adjusted raw-covariance effects for global centroid coordinates are not distinguishable from zero (global_centroid_x/y/z all have CIs spanning zero, p>=0.55, same_sign_batch_fraction near 0.36-0.5), so global translation-like centroid motion is not supported as a signed favorable contrast.",
+        "evidence_refs": [
+          "Ed061d96cc23b359b",
+          "E8059a7206f447cdc",
+          "E887f2d11255b77af"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Shape components show weak, mostly negative whole-window covariance effects with same_sign_batch_fraction about 0.79 for shape_xx and shape_yy, but CIs still include zero and q-values are not significant (q=0.23 and 0.15), so shape evidence is suggestive only and not a validated signed direction.",
+        "evidence_refs": [
+          "E455d8ea90d2c10e1",
+          "Ec3d5c7e8cb8584c5"
+        ],
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant coordinate contrast at observed score nodes",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "If a constant rule matches the observed-node fit fidelity (relative_node_RMSE) of the time-conditioned rule and shows no sign-change advantage, the time-conditioning hypothesis is weakened.",
+        "observable": "landmark_00_soft_mass and landmark_00_local_dx continuous contrast curves over the observed window",
+        "scope": "observed score window [0.0,0.5], predicted endpoint world coordinates, no extrapolation",
+        "statement": "A time-conditioned landmark coordinate contrast (using validated observed-node interpolation of the supplied continuous contrast functions) may better express the observed sign reversals than a constant coordinate rule."
+      },
+      {
+        "direction": "deprioritize global centroid translation control",
+        "evidence_refs": [
+          "Ed061d96cc23b359b",
+          "E8059a7206f447cdc",
+          "E887f2d11255b77af"
+        ],
+        "falsifier": "A reproducible same-sign batch majority with a CI excluding zero for a centroid component would weaken this deprioritization.",
+        "observable": "branch-adjusted raw covariance of global_centroid_x/y/z",
+        "scope": "whole observed window, 14 independent batches",
+        "statement": "Global centroid translation is unlikely to be a productive control direction because branch-adjusted centroid covariance effects are null with mixed batch signs."
+      }
+    ],
+    "limitations": [
+      "No observed affinity labels are supplied (recorded affinities removed, equal score prior), so no claim about final predicted target affinity benefit can be made from these observations.",
+      "Descendant survival/quality credit, terminal decoded labels and turnover accounting were not read in this turn; last-record or survival credit cannot be presented as final affinity benefit.",
+      "Continuous contrast curves are coordinate contrasts, not absolute reward targets or physical interaction energies; no causal neural-module claim is supported.",
+      "Shape-component evidence is weak (CIs include zero, q not significant) and is reported as suggestive only."
+    ],
+    "role": "Analyst"
+  }
+}

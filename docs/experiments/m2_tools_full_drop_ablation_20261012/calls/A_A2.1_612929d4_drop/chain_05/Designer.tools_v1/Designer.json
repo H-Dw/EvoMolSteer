@@ -1,0 +1,29 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "temporal_teacher_blend",
+    "value": 0.5
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:3",
+    "continuous:2",
+    "continuous:4",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "If the observed-node contrast is noisy, the half-weight blend can displace surrounding coordinates that the static teacher held in place, since the regional attention has positive surrounding weight and the blend does not restrict which observed nodes contribute; unnecessary displacement of neighboring landmark coordinates is the concrete predicted failure.",
+    "Because recorded affinities were removed and replaced by an equal score prior, no absolute affinity benefit is observable, so a coordinate improvement under C010 cannot be confirmed as a final-affinity gain and the edit could be neutral or harmful on the primary objective.",
+    "The landmark rate structure has many sign changes and strong sign conflicts with no accepted polynomial fit and extrapolation disallowed, so the time-conditioned contrast may not generalize beyond the observed window [0.0,0.5] to the predicted endpoint.",
+    "If the static teacher is the dominant source of correct endpoint geometry, halving its weight may degrade the endpoint pointcloud reward even when the observed-node contrast is locally accurate."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": "C010"
+  },
+  "rationale": "Analyst H001 is the only hypothesis with a registered operative counterpart: the temporal_teacher recipe changes regional attention at observed score nodes using validated absolute contrasts, which is exactly the time-conditioned coordinate contrast H001 calls for, and it is a coordinate reward rather than a velocity target. The supporting evidence is that landmark_00_local_dy and landmark_00_local_dz rate z-values change sign within the observed window (first_rate_z -72.4 to last_rate_z +5.5 for dy; 6 and 10 sign changes with 4 and 7 strong sign conflicts) while whole-window means stay small (landmark_00_soft_mass whole_window_z 0.639, landmark_00_local_cxx whole_window_z -0.579), so a stationary coordinate target cannot represent the observed structure and a time-conditioned alternative is defensible. C010 sets temporal_teacher_blend to 0.5, a partial blend that keeps the static detached teacher as the majority component and adds the observed-node contrast at half weight; this is the conservative midpoint between the incumbent static program (blend 0) and full replacement (C011, blend 1.0), and it preserves the shared learned support, the fixed temperatures (mixture_temperature 0.5, teacher_endpoint_temperature_A2 4.0) and the native endpoint VJP path. C009 (0.25) would leave the observed-node contrast too weak to act on the sign-changing landmark rates, and C011 (1.0) would discard the static teacher entirely on evidence whose whole-window means are small and whose polynomial fits were not accepted. H002 is not selected because its shape_xx/shape_yy effects do not survive multiplicity (q 0.153 and 0.232) and the global centroid contrast is null (q 0.722/0.692/0.965), so there is no defensible expected advantage over the incumbent for a shape-covariance edit. The affinity-first priority is respected: this edit changes only a registered attention scalar on the coordinate reward, adds no affinity-head derivative, no extra model forward and no temperature change.",
+  "role": "Designer"
+}

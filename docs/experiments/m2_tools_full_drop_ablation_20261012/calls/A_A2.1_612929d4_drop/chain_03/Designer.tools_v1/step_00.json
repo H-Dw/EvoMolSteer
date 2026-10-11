@@ -1,0 +1,34 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "C010",
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03",
+      "Ed061d96cc23b359b",
+      "E8059a7206f447cdc",
+      "E887f2d11255b77af",
+      "E455d8ea90d2c10e1",
+      "Ec3d5c7e8cb8584c5",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "If the observed-node contrast is noisy, the blended temporal term can displace surrounding coordinates unnecessarily (extra RMS displacement) without improving final predicted affinity, since no observed affinity label is available to confirm benefit.",
+      "Because the temporal contrast is a coordinate reward and not a velocity force, a temporal derivative misread as a spatial gradient would push coordinates in the wrong direction; the registered recipe avoids this but the risk is a mis-specified blend.",
+      "Blend=0.5 may still be too strong if the static teacher carries most of the useful signal; the fallback is to retain the incumbent static program (D2_without_trajectory_static) if the temporal term degrades endpoint reward.",
+      "No observed affinity labels are supplied, so any predicted affinity advantage from this edit is unverifiable within the current evidence; the decision rests on coordinate-contrast fidelity only."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Analyst F002/F003 show the landmark coordinate contrasts are non-monotone within the observed window (landmark_00_soft_mass 4 sign changes, first_rate_z positive vs last_rate_z negative; landmark_00_local_dx 6 sign changes with 9 strong sign conflicts; local_dy/local_cyy rate reversals), so a stationary coordinate target cannot express the observed sign reversals. H001's time-conditioned contrast is the only registered option that changes regional attention at observed score nodes while keeping the same static teachers and shared FLOWR endpoint. Among the offered temporal_teacher_blend values, C010 (0.5) is the balanced choice: it conditions on the validated observed-node contrast without letting the observed-teacher term dominate the static reward, and it does not touch teacher coordinates, teacher_neighbors, pointcloud_delta_A, region_index or any temperature. C009 (0.25) would under-weight the only evidence-supported temporal structure; C011 (1.0) would discard the static teacher entirely, which the weak, CI-spanning shape/centroid evidence (F004/F005) does not justify. This is a coordinate reward edit only: it is not a velocity target, not a spatial gradient, and not an affinity-head derivative. Affinity remains primary; the edit is expected to improve endpoint coordinate reward fidelity at observed score nodes, with validity/strain unchanged since no graph or temperature parameter is altered.",
+    "role": "Designer"
+  }
+}

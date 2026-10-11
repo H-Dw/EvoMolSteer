@@ -1,0 +1,81 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal, so no observed affinity outcome is available to score coordinate rules against.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Continuous landmark coordinate features are non-monotone across the observed window: landmark_00_soft_mass shows 4 sign changes with a positive first rate and negative last rate, and landmark_00_local_dx shows 6 sign changes with 9 strong sign conflicts, so a constant (time-invariant) coordinate rule is not supported by these curves.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Landmark local displacement rates are large and sign-flipping (e.g. landmark_00_local_dy first_rate_z strongly negative, last_rate_z positive; landmark_00_local_dz 10 sign changes), indicating the observed-node linear fits are unstable at the endpoints and extrapolation is not allowed for any of these features.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Global centroid covariance contrasts are null: global_centroid_x/y/z have confidence intervals spanning zero with p-values well above 0.5 and same-sign batch fractions near or below 0.5, so global translation carries no reproducible signed contrast in this window.",
+        "evidence_refs": [
+          "Ed061d96cc23b359b",
+          "E8059a7206f447cdc",
+          "E887f2d11255b77af"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Shape covariance contrasts are the only branch-adjusted features with consistent sign across batches: shape_xx and shape_yy have negative whole-window means with same-sign batch fraction ~0.79, and shape_yy reaches nominal p~0.048 though q~0.15 does not survive multiple-testing correction.",
+        "evidence_refs": [
+          "E455d8ea90d2c10e1",
+          "Ec3d5c7e8cb8584c5"
+        ],
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant coordinate contrast",
+        "evidence_refs": [
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb"
+        ],
+        "falsifier": "If a constant rule matches the observed-node contrast within fit fidelity across the window, the time-conditioning adds nothing.",
+        "observable": "landmark_00_local_dx/dy/dz observed-node contrast",
+        "scope": "observed score window [0.0,0.5], no extrapolation",
+        "statement": "A time-conditioned coordinate contrast on landmark local displacement (rather than a constant rule) may better express the observed sign changes in landmark_00_local_dx/dy/dz, since the observed-node linear fits show opposite first and last rates."
+      },
+      {
+        "direction": "negative shape_xx/shape_yy covariance contrast",
+        "evidence_refs": [
+          "E455d8ea90d2c10e1",
+          "Ec3d5c7e8cb8584c5",
+          "Ed061d96cc23b359b"
+        ],
+        "falsifier": "If shape contrasts fail to replicate in held-out batches or q-values remain non-significant, the direction should not be prioritized.",
+        "observable": "shape_xx and shape_yy raw covariance contrast",
+        "scope": "observed window, 14 independent batches",
+        "statement": "Shape (second-moment) coordinate contrasts, not global centroid translation, are the more reproducible signed signal and could be a candidate target region, but the evidence is only nominally significant and does not survive multiple-testing correction."
+      }
+    ],
+    "limitations": [
+      "No observed affinity outcome or decoded terminal label is supplied; recorded affinities are removed and the label prior is equal, so no coordinate rule can be scored against final affinity benefit here.",
+      "Selection enrichment versus absolute geometric descriptors cannot be separated because selection-node and descendant survival/quality credit tables were not read in this turn.",
+      "Continuous trend fits are observed-node linear with extrapolation disallowed; endpoint rates are unstable and should not be treated as trajectory velocity forces.",
+      "Branch-adjusted shape effects are only nominally significant (q>0.15) and are not established as reproducible signed contrasts."
+    ],
+    "role": "Analyst"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "findings": [
+    {
+      "claim": "The supplied continuous contrast functions are observed-node linear fits over the observed window only; extrapolation is disallowed for every row read, so no time-conditioned rule can be validated beyond the observed support.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Landmark-00 local coordinate contrasts show multiple sign changes and strong sign conflicts within the observed window (e.g. local_dx: 6 sign changes, 9 strong conflicts; local_dz: 10 sign changes, 7 strong conflicts), so a constant-sign coordinate rule is not supported by these rows.",
+      "evidence_refs": [
+        "Eace79c1f0f54c9d1",
+        "E894225fb605458cb"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "First-to-last rate reversals are large for several landmark-00 features (e.g. local_dy first_rate_z strongly negative, last_rate_z positive; local_cyy similar reversal), indicating the contrast direction is not stable across the observed window.",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Whole-window z values for the read landmark-00 features are small in magnitude relative to the first/last rate z values, so the integrated whole-window contrast is weak even where local rates are large.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control; the read contrast rows are coordinate descriptors and are not themselves affinity outcomes.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant coordinate contrast",
+      "evidence_refs": [
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb"
+      ],
+      "falsifier": "If a constant-sign rule matches the observed-node contrast as well as a time-conditioned rule on held-out observed nodes, the time-conditioning adds no information.",
+      "observable": "landmark_00_local_dx / local_dy / local_dz observed-node contrast",
+      "scope": "observed window only; no extrapolation",
+      "statement": "A time-conditioned coordinate contrast on landmark-00 local displacement features may track the observed sign reversals better than a constant rule, but only within the observed window."
+    },
+    {
+      "direction": "prefer soft-mass contrast over local derivative contrast",
+      "evidence_refs": [
+        "E2e106e083189d150"
+      ],
+      "falsifier": "If soft-mass whole-window contrast fails independent-batch agreement or is dominated by strong sign conflicts, the preference is unsupported.",
+      "observable": "landmark_00_soft_mass whole-window contrast",
+      "scope": "observed window only",
+      "statement": "Landmark-00 soft mass may carry a more stable whole-window signal than the local displacement derivatives, since its whole-window z is positive while its rate z values reverse sign."
+    }
+  ],
+  "limitations": [
+    "Only six continuous_trends rows were read; the remaining 194 curve features, branch_adjusted, endpoint_effects, increment_effects, survival_effects, turnover_accounting, regional_effects, joint_diagnostics and lineage_support tables were not inspected, so selection enrichment versus absolute geometry, descendant survival credit, independent-batch counterexamples, joint coupling and turnover accounting remain unassessed.",
+    "No decoded terminal labels or affinity outcomes were supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "The read rows are coordinate descriptors in predicted endpoint world coordinates; they are not physical interaction energies or evidence of neural-module causation.",
+    "No registered reward recipe was evaluated here; the hypotheses are descriptive and not a compiled intervention."
+  ],
+  "role": "Analyst"
+}
