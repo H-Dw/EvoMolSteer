@@ -1,6 +1,7 @@
 """Frozen scientific-submodule plans and study activation."""
 import copy
 import csv
+import shutil
 from pathlib import Path
 
 from evomolsteer.continuous.m2_skill_api import BASE, REF
@@ -9,6 +10,7 @@ from .modules import MODULES, assemble
 from .evidence import build, historical_control
 
 PLAN = "docs/plans/m2_scientific_ablation_20261011_v3"
+FULL_DROP_PLAN = "docs/plans/m2_scientific_ablation_20261012_full_drop_v4"
 PARENT = "docs/plans/m2_skill_ablation_20261011_fixed_temperature_v2"
 
 
@@ -115,19 +117,90 @@ def create_plan(repo):
     return out
 
 
-def validate_plan(repo):
-    root=Path(repo)/PLAN
+def reserved_batches(protocol):
+    """All prospectively assigned RNG batches, including conditional stages."""
+    b=protocol["batches"]
+    result=set(b["screen"]) | set(b["final"]) | set(b.get("shape_selection", range(2500,2508)))
+    for base in [b["confirmation_base"],b["final_removal_base"]]:
+        for step in range(len(protocol["module_ids"])):
+            start=base+step*b["confirmation_stride"]
+            result.update(range(start,start+b["confirmation_count"]))
+    return sorted(result)
+
+
+def validate_full_drop_protocol(protocol):
+    policy=protocol.get("comparison_policy",{})
+    if policy.get("treatments")!=["full","drop"] or policy.get("empty_conditions_allowed") is not False:
+        raise ValueError("This runner requires the full/drop-only protocol; restart in a new study")
+
+
+def create_full_drop_plan(repo):
+    """Versioned restart; the original three-condition plan stays immutable."""
+    repo=Path(repo).resolve();out=repo/FULL_DROP_PLAN
+    if (out/"artifact_manifest.json").exists():
+        validate_plan(repo,FULL_DROP_PLAN);return out
+    validate_plan(repo,PLAN)
+    source=repo/PLAN
+    p=copy.deepcopy(read_json(source/"protocol.json"))
+    p.update(schema_version="scientific-submodule-ablation-4.0",parent_plan=PLAN,
+        parent_protocol_sha256=digest(source/"protocol.json"),
+        authorization="User requested restarting all 17 submodules with full versus deletion only",
+        comparison_policy={"treatments":["full","drop"],"empty_conditions_allowed":False,
+            "previous_study_results_used_for_selection":False,"module_errors":"skip_and_keep_current"},
+        phase_order=["matched controls","Analyst sequential full/drop",
+            "freeze six actual Analyst outputs","Designer shape full/drop",
+            "freeze independently confirmed shape","Designer dose full/drop",
+            "independent final confirmation","final-context full/drop validation"])
+    p["temperature_policy"]["policy_scope"]="All full/drop conditions and both execution lanes"
+    p["batches"].update(screen=list(range(4100,4104)),confirmation_base=4200,
+        shape_selection=list(range(4500,4508)),final=list(range(4800,4816)),final_removal_base=5000)
+    p["evaluation"].pop("bad_alternative_is_not_necessity",None)
+    p["evaluation"].update(confirmation_families=68,
+        multiplicity_scope="At most 17 modules x 2 contrasts (full/drop and drop/M2) x 2 contexts; three endpoint families; final recipe separately declared",
+        necessity_policy="Full-minus-drop simultaneous CI lower > 0.05, with verified full-condition function; no replacement treatment")
+    p["reserved_batch_indices"]=reserved_batches(p)
+    out.mkdir(parents=True,exist_ok=True)
+    write_json(out/"protocol.json",p)
+    registry=read_json(source/"module_registry.json")
+    for m in registry["modules"]:m.pop("alternative_instruction",None)
+    registry["schema_version"]="scientific-submodules-full-drop-2.0"
+    write_json(out/"module_registry.json",registry)
+    for sub in ["contracts","skills"]:shutil.copytree(source/sub,out/sub,dirs_exist_ok=True)
+    rows=[{"id":"F0_M2","phase":"controls","role":"none","lane":"G","module":"","intervention":"frozen"},
+          {"id":"N0_native","phase":"controls","role":"none","lane":"G","module":"","intervention":"none"}]
+    for phase,role,lane in [("A","Analyst","G"),("D-G","Designer","G"),("D-U","Designer","U")]:
+        for m in registry["modules"]:
+            if m["role"]==role and m["lane"]==lane:
+                for kind in ["full","drop"]:
+                    rows.append({"id":phase+"_"+m["id"]+"_"+kind,"phase":phase,"role":role,
+                        "lane":lane,"module":m["id"],"intervention":kind})
+    with (out/"conditions.csv").open("w",encoding="utf-8",newline="") as stream:
+        w=csv.DictWriter(stream,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+    functional=read_json(source/"functional_validation.json")
+    functional["pass"]="5 of 6 full calls with score 2 for the focal function; deletion response independently measured"
+    write_json(out/"functional_validation.json",functional)
+    (out/"plan.zh-CN.md").write_text(FULL_DROP_PLAN_TEXT,encoding="utf-8")
+    write_json(out/"artifact_manifest.json",{"files":[{"path":x.relative_to(out).as_posix(),"sha256":digest(x)}
+        for x in sorted(out.rglob("*")) if x.is_file()]})
+    return out
+
+
+def validate_plan(repo,plan=PLAN):
+    if plan not in {PLAN,FULL_DROP_PLAN}:raise ValueError("Unregistered scientific plan")
+    root=Path(repo)/plan
     for item in read_json(root/"artifact_manifest.json")["files"]:
         if digest(root/item["path"])!=item["sha256"]:
             raise ValueError("Frozen scientific plan changed: "+item["path"])
 
 
-def prepare(repo, study):
+def prepare(repo, study, *, plan=PLAN):
     repo,study=Path(repo).resolve(),Path(study).resolve()
-    validate_plan(repo)
+    validate_plan(repo,plan)
     if (study/"activation.json").exists():
-        validate_activation(repo,study);return read_json(study/"activation.json")
-    p=read_json(repo/PLAN/"protocol.json")
+        a=validate_activation(repo,study)
+        if a["plan"]!=plan:raise ValueError("Cannot reuse another plan's activation")
+        return a
+    p=read_json(repo/plan/"protocol.json")
     for name,key in [(BASE,"program_sha256"),(REF,"reference_sha256")]:
         if digest(repo/name)!=p["baseline"][key]:raise ValueError("Frozen M2 changed")
     packet=build(repo,study/"evidence")
@@ -135,9 +208,9 @@ def prepare(repo, study):
     definitions=build_observable_definitions(repo,study)
     historical=historical_control(repo,study/"evaluation_controls")
     pcopy=copy.deepcopy(p)
-    write_json(study/"module_registry.json",read_json(repo/PLAN/"module_registry.json"))
-    activation={"schema_version":"scientific-activation-3.0","plan":PLAN,
-        "protocol_sha256":digest(repo/PLAN/"protocol.json"),"protocol":pcopy,
+    write_json(study/"module_registry.json",read_json(repo/plan/"module_registry.json"))
+    activation={"schema_version":"scientific-activation-4.0" if plan==FULL_DROP_PLAN else "scientific-activation-3.0","plan":plan,
+        "protocol_sha256":digest(repo/plan/"protocol.json"),"protocol":pcopy,
         "packet_sha256":digest(study/"evidence/packet.json"),"screen_batches":p["batches"]["screen"],
         "observable_definitions_sha256":digest(definitions),
         "bound_inputs":packet["source_sha256"],"model":"deepseek-flash","frozen_M2":BASE,
@@ -149,10 +222,13 @@ def prepare(repo, study):
 
 
 def validate_activation(repo,study):
-    repo,study=Path(repo).resolve(),Path(study).resolve();validate_plan(repo)
+    repo,study=Path(repo).resolve(),Path(study).resolve()
     a=read_json(study/"activation.json")
-    if a["plan"]!=PLAN or a["protocol_sha256"]!=digest(repo/PLAN/"protocol.json") or a["model"]!="deepseek-flash":
+    plan=a["plan"];validate_plan(repo,plan)
+    if a["protocol_sha256"]!=digest(repo/plan/"protocol.json") or a["model"]!="deepseek-flash":
         raise ValueError("Scientific activation identity mismatch")
+    if a["protocol"]!=read_json(repo/plan/"protocol.json"):
+        raise ValueError("Activated protocol differs from its frozen source")
     if digest(study/"evidence/packet.json")!=a["packet_sha256"]:
         raise ValueError("Scientific evidence packet changed")
     if not a.get("observable_definitions_sha256"):
@@ -187,9 +263,10 @@ def validate_prior_policy(repo,study,config,state):
     path=Path(study)/"prior_policy_amendment.json"
     if mode=="indexed_batch":
         amendment=read_json(path)
+        protocol_sha=digest(Path(repo)/config.get("plan",PLAN)/"protocol.json")
         if (amendment["prior_seed_mode"]!=mode or
             amendment["master_seed"]!=42 or amendment["batch_seed_multiplier"]!=100003 or
-            amendment["protocol_sha256"]!=digest(Path(repo)/PLAN/"protocol.json") or
+            amendment["protocol_sha256"]!=protocol_sha or
             not amendment["fresh_matched_controls_required"]):
             raise ValueError("Unbound indexed-prior amendment")
         sha=digest(path)
@@ -200,6 +277,24 @@ def validate_prior_policy(repo,study,config,state):
     else:
         sha=None
     return {"prior_seed_mode":mode,"prior_policy_amendment_sha256":sha}
+
+
+FULL_DROP_PLAN_TEXT = """# M2 科学子模块消融：仅完整与删除条件（v4）
+
+日期：2026-10-12。按用户要求重新开始全部 17 个子模块。旧三条件实验停止并保留历史结果，本版不继承其精简选择、角色输出、失败跳过名单或分子测量结果。
+
+每个子模块只有完整条件和删除该模块的条件，先 Analyst 的 9 项，再冻结六份真实 Analyst 输出，依次测试 Designer 的 6 个形状模块和 2 个剂量模块。完整条件使用本步骤的当前活动指引；删除条件仅移除该焦点模块，其他文字、完整证据、模型和奖励接口相同。确认安全的删除进入下一步骤，并在最终上下文再次进行完整/删除复核。没有替代方向、全部关闭或温度消融条件。
+
+角色均为真实 DeepSeek API 的 deepseek-flash，每条件六条空白上下文链。固定原默认温度、seed42、学习支持决定的引导窗口；窗口后继续原生 FLOWR 至终态。不使用新的 Steer/SMC 或 affinity-head 求导。M2 和无引导是配对数值控制；历史 Steer 是非配对参考，不是本次角色输入。
+
+筛查：4100–4103，每个不同程序 200 个分子。第 i 个子模块的确认批次为 4200+16i 至 4207+16i，每个程序 400 个。形状选择确认 4500–4507。最终评估 4800–4815，每程序 800 个。最终剩余模块复核为 5000+16i 至 5007+16i。执行前检查全部预留索引未与其他研究使用的索引冲突。相同数值奖励共享真实生成结果，不增加独立样本数。
+
+主要指标是全部尝试的终态预测 pIC50，同时报告评分覆盖、失败、PB fast 和应变。拟删除模块需在独立确认中，相对完整条件及匹配 M2 的同时区间下界均高于 -0.02，且通过质量包络。完整减删除的同时区间下界超过 0.05 且功能检查通过时，标记当前上下文中的亲和力必要性。亲和力等价但删除后的应变增加区间下界超过 10% 时，标记次级质量必要性。宽区间记为未解决，数值等价仅表明当前接口中的指引冗余。
+
+统计族最多 17×2×2=68 个对比，再覆盖亲和力、应变中位数与 P90 三类端点；最终方案对基准的确认单独声明。使用角色链与独立生成批次的交叉重采样。接口错误按既有授权跳过该模块、保留指引、记录因果未确认，继续剩余任务。格式/引用/单位探针只验证接口，隔离存储，不参与分子生成或模块性能比较。
+
+所有源码先本地提交并 push，远端 pull 后只执行 FLOWR。仅在传输校验、执行审计、本地质量评价与精简报告保存后清理本研究原始输出；原始 Steer、模型、历史报告和其他任务保留。\n
+"""
 
 
 PLAN_TEXT = """# M2 科学子模块消融 v3

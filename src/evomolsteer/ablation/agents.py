@@ -43,7 +43,8 @@ def full_input_packet(study):
 
 def role_prompt(repo, study, role, active, alternative=None):
     modules=read_json(Path(study)/"module_registry.json")["modules"]
-    contract=(Path(repo)/PLAN/"contracts/shared_contract.md").read_text(encoding="utf-8")
+    plan=read_json(Path(study)/"activation.json").get("plan",PLAN) if (Path(study)/"activation.json").exists() else PLAN
+    contract=(Path(repo)/plan/"contracts/shared_contract.md").read_text(encoding="utf-8")
     return f"You are {role}. Return JSON only.\n\n"+contract+"\n\n"+assemble(modules,role,active,alternative)
 
 
@@ -134,6 +135,8 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
     repo,study=Path(repo),Path(study)
     activation=validate_activation(repo,study)
     protocol=activation["protocol"]
+    if protocol.get("comparison_policy",{}).get("treatments")==["full","drop"] and alternative is not None:
+        raise ValueError("Replacement treatments are prohibited in this study")
     schema=copy.deepcopy(ANALYST_SCHEMA if role=="Analyst" else DESIGN_SCHEMA)
     if role=="Analyst":
         schema["properties"]["findings"]["maxItems"]=12

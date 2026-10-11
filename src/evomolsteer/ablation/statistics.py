@@ -138,13 +138,15 @@ def pruning_decision(drop_vs_full, drop_vs_m2, envelope, *, margin=.02, valid_ch
     return {"adopt":False,"status":"NEGATIVE_OR_INCONCLUSIVE_KEEP_CURRENT"}
 
 
-def classify_module(full_minus_drop, full_minus_alternative, *, functional_valid, effect=.05, secondary=None):
+def classify_module(full_minus_drop, full_minus_alternative=None, *, functional_valid, effect=.05, secondary=None):
+    """Full/drop necessity; the second contrast is for historical audits only."""
     if not functional_valid:return "FUNCTIONAL_OR_INTERFACE_BOTTLENECK"
-    if full_minus_drop["simultaneous_CI"][0]>effect and full_minus_alternative["simultaneous_CI"][0]>effect:
+    contrasts=[full_minus_drop]+([full_minus_alternative] if full_minus_alternative is not None else [])
+    if all(x["simultaneous_CI"][0]>effect for x in contrasts):
         return "AFFINITY_NECESSARY_IN_THIS_CONTEXT"
     if full_minus_drop["simultaneous_CI"][1]<0:
         return "NEGATIVE_IN_THIS_CONTEXT"
-    equivalent=all(-.02<x["simultaneous_CI"][0] and x["simultaneous_CI"][1]<.02 for x in [full_minus_drop,full_minus_alternative])
+    equivalent=all(-.02<x["simultaneous_CI"][0] and x["simultaneous_CI"][1]<.02 for x in contrasts)
     if equivalent and secondary and all(x.get('status')=='AVAILABLE' for x in secondary):
         if any(all(x['endpoints'][metric]['simultaneous_CI'][0]>.10 for x in secondary) for metric in ['median','p90']):
             return "STRAIN_NECESSARY_IN_THIS_CONTEXT"

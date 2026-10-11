@@ -19,7 +19,7 @@ import pandas as pd
 import jsonschema
 
 from run_m2_skill_api_study import Study, shell
-from evomolsteer.ablation.protocol import prepare, validate_activation, validate_prior_policy
+from evomolsteer.ablation.protocol import prepare, validate_activation, validate_prior_policy, reserved_batches, validate_full_drop_protocol
 from evomolsteer.ablation.agents import call_role, review
 from evomolsteer.ablation.compiler import compile_program
 from evomolsteer.ablation.diagnostics import run_probes
@@ -54,6 +54,9 @@ class ScientificStudy(Study):
         if not work.is_relative_to(flowr/"experiments") or not work.name.startswith("evomolsteer_dependency_"):
             raise ValueError("Explicit owned scientific workspace required")
         self.protocol=activation["protocol"]
+        validate_full_drop_protocol(self.protocol)
+        if activation["plan"]!=self.config.get("plan"):
+            raise ValueError("Configured study plan differs from activation")
         statistical_path=self.study/"secondary_statistical_amendment.json"
         statistical=read_json(statistical_path)
         if (statistical["protocol_sha256"]!=activation["protocol_sha256"] or
@@ -78,7 +81,7 @@ for p in root.rglob('*.json'):
  try:used=set(indices(json.loads(p.read_text())))
  except (ValueError,UnicodeError):continue
  if used.intersection(RESERVED) and OWN not in str(p):print(p)
-""".replace("REPO",repr(self.config["remote_repo"])).replace("RESERVED",repr(set(range(2100,3600)))).replace("OWN",repr(self.config["config_output"]))
+""".replace("REPO",repr(self.config["remote_repo"])).replace("RESERVED",repr(set(reserved_batches(self.protocol)))).replace("OWN",repr(self.config["config_output"]))
             collisions=shell(client,shlex.join([self.config["remote_python"],"-c",check])).strip()
             if collisions:raise ValueError("Unused batch check failed: "+collisions)
             shell(client,"mkdir -p "+shlex.quote(str(work)))
@@ -148,7 +151,9 @@ for p in root.rglob('*.json'):
     def frames(self,result,arm="gradient"):
         return pd.read_csv(self.repo/result["outcomes"][arm]["metrics"])
 
-    def condition(self,case,role,active,incumbent,*,lane="G",alternative=None,frozen=None,focal=None,designer_context=None):
+    def condition(self,case,role,active,incumbent,*,lane="G",frozen=None,focal=None,designer_context=None):
+        if "alternative" in case or case.endswith("_empty"):
+            raise ValueError("Only full/drop scientific conditions and selected-policy calls are permitted")
         if case in self.state["conditions"]:
             value=self.state["conditions"][case]
             failed_review=self.study/"reviews"/(case+".unconfirmed.json")
@@ -170,12 +175,12 @@ for p in root.rglob('*.json'):
         if designer_context is not None:designer_ids=designer_context
         for chain in range(6):
             if role=="Analyst":
-                analyst=self._call(case,chain,"Analyst",active,alternative=alternative,incumbent=incumbent,lane=lane)
+                analyst=self._call(case,chain,"Analyst",active,incumbent=incumbent,lane=lane)
                 designer=self._call(case,chain,"Designer",designer_ids,analyst=analyst,incumbent=incumbent,lane=lane)
             else:
                 if frozen is None or len(frozen)!=6:raise ValueError("Designer requires six actual frozen selected Analyst outputs")
                 analyst=frozen[chain]
-                designer=self._call(case,chain,"Designer",active,alternative=alternative,analyst=analyst,
+                designer=self._call(case,chain,"Designer",active,analyst=analyst,
                     incumbent=incumbent,lane=lane,delivery=delivery)
             folder=self.study/"calls"/case/f"chain_{chain:02d}"
             path,reference,sha,receipt=compile_program(self.repo,self.study,designer,incumbent,lane=lane,folder=folder)
@@ -197,7 +202,7 @@ for p in root.rglob('*.json'):
         # A nonresponse remains an explicit interface/functional bottleneck.
         for row in rows:
             row["screen_result"]=self.measure(self.repo/row["program"],self.repo/row["reference"],row["signature"],self.protocol["batches"]["screen"])
-        value={"case":case,"role":role,"lane":lane,"active":active,"alternative":alternative,"rows":rows,
+        value={"case":case,"role":role,"lane":lane,"active":active,"rows":rows,
             "functional":functional,"valid":len(rows)==6,"distinct_rewards":len({r["signature"] for r in rows})}
         self.state["conditions"][case]=value
         self.save(status="screening",task=case)
@@ -288,8 +293,7 @@ for p in root.rglob('*.json'):
         full=self.condition(prefix+"_full",role,active,incumbent,lane=lane,frozen=frozen,focal=[module])
         dropped=[x for x in active if x!=module]
         drop=self.condition(prefix+"_drop",role,dropped,incumbent,lane=lane,frozen=frozen,focal=[module])
-        alt=self.condition(prefix+"_alternative",role,active,incumbent,lane=lane,frozen=frozen,alternative=module,focal=[module])
-        cf=self.condition_frames(full,screen);cd=self.condition_frames(drop,screen);ca=self.condition_frames(alt,screen)
+        cf=self.condition_frames(full,screen);cd=self.condition_frames(drop,screen)
         m2=[self.frames(self.controls(screen))]
         ds=self.contrast(cd,cf,paired_roles=role=="Designer",family=1)
         ms=self.contrast(cd,m2,family=1)
@@ -297,31 +301,29 @@ for p in root.rglob('*.json'):
         envelope=quality_envelope(ss,sm)
         normal=full["functional"]
         function_pass=normal is not None and sum(a["score"]==2 for a in normal["assessments"] if a["module"]==module)>=5
-        screen_strain=[self.strain_contrast(cf,other,paired_roles=role=="Designer",family=1) for other in [cd,ca]]
-        result={"phase":phase,"module":module,"full":full["case"],"drop":drop["case"],"alternative":alt["case"],
+        screen_strain=[self.strain_contrast(cf,cd,paired_roles=role=="Designer",family=1)]
+        result={"phase":phase,"module":module,"full":full["case"],"drop":drop["case"],"comparison_policy":"full_drop_only",
             "screen_drop_minus_full":ds,"screen_drop_minus_M2":ms,"function_pass":function_pass,
             "screen_is_confirmation":False,"active_before":active,"confirmation":None,"screen_strain":screen_strain}
         # Screens never establish absence of an effect. Confirm promising
         # pruning, or a sizeable potential necessary effect, prospectively.
         potential=(ds["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and
             ms["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and envelope["passed"])
-        possible_necessary=(-ds["delta_pic50"]>e["necessity_effect_pic50"] and
-            self.contrast(cf,ca,paired_roles=role=="Designer",family=1)["delta_pic50"]>e["necessity_effect_pic50"])
+        possible_necessary=-ds["delta_pic50"]>e["necessity_effect_pic50"]
         possible_secondary=(all(x["status"]=="AVAILABLE" for x in screen_strain) and
             any(all(x["endpoints"][metric]["relative_worsening"]>.10 for x in screen_strain) for metric in ["median","p90"]))
         if potential or possible_necessary or possible_secondary:
             start=self.protocol["batches"]["confirmation_base"]+(offset+step)*self.protocol["batches"]["confirmation_stride"]
             batches=list(range(start,start+self.protocol["batches"]["confirmation_count"]))
-            ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
+            ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches)
             mm=[self.frames(self.controls(batches))]
             cdf=self.contrast(fd,ff,paired_roles=role=="Designer")
             cdm=self.contrast(fd,mm)
             env=quality_envelope(summarize(fd,e["elite_threshold"]),summarize(mm,e["elite_threshold"]))
             decision=pruning_decision(cdf,cdm,env,margin=e["M2_noninferiority_margin_pic50"])
-            secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
+            secondary=[self.strain_contrast(ff,fd,paired_roles=role=="Designer")]
             classification=classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
-                self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=function_pass,
-                effect=e["necessity_effect_pic50"],secondary=secondary)
+                functional_valid=function_pass,effect=e["necessity_effect_pic50"],secondary=secondary)
             if classification=="STRAIN_NECESSARY_IN_THIS_CONTEXT":
                 decision={"adopt":False,"status":"CONFIRMED_STRAIN_BENEFIT_KEEP_CURRENT"}
             result["confirmation"]={"batches":batches,"drop_minus_full":cdf,"drop_minus_M2":cdm,"quality_envelope":env,
@@ -428,7 +430,7 @@ for p in root.rglob('*.json'):
         return program
 
     def run(self):
-        prepare(self.repo,self.study);self.preflight()
+        prepare(self.repo,self.study,plan=self.config["plan"]);self.preflight()
         if not self.state.get("functional_preflight_passed"):
             run_probes(self.repo,self.study)
             self.state["api_calls"]+=6
@@ -439,17 +441,14 @@ for p in root.rglob('*.json'):
         a=[m["id"] for m in self.modules if m["role"]=="Analyst"]
         dg=[m["id"] for m in self.modules if m["role"]=="Designer" and m["lane"]=="G"]
         du=[m["id"] for m in self.modules if m["role"]=="Designer" and m["lane"]=="U"]
-        self.optional_condition("A_empty","Analyst",[],incumbent,focal=a)
         a=self.sequential("A", "Analyst", a, incumbent, offset=0)
         frozen=self.freeze_analyst(a)
         a=self.state.get("frozen_analyst_active",a)
-        self.optional_condition("D-G_empty","Designer",[],incumbent,frozen=frozen,focal=dg)
         dg=self.sequential("D-G", "Designer", dg, incumbent, frozen=frozen, offset=9)
         gcase=self.optional_condition("selected_G_fresh","Designer",dg,incumbent,frozen=frozen,focal=dg or ["D4.1"])
-        g=self.optional_selection(gcase,incumbent,"G",list(range(2500,2508)))
+        g=self.optional_selection(gcase,incumbent,"G",self.protocol["batches"]["shape_selection"])
         # Dose calls retain selected G instructions but can modify only dose.
         combined=dg+du
-        self.optional_condition("D-U_empty","Designer",dg,g,lane="U",frozen=frozen,focal=du)
         combined=self.sequential("D-U","Designer",combined,g,lane="U",frozen=frozen,offset=15)
         finalcase=self.optional_condition("selected_U_fresh","Designer",combined,g,lane="U",frozen=frozen,focal=du or ["D3.1"])
         final=self.optional_selection(finalcase,g,"final",self.protocol["batches"]["final"])
@@ -496,16 +495,18 @@ for p in root.rglob('*.json'):
         prefix="final_context_"+module
         full=self.condition(prefix+"_full",role,active,incumbent,lane=lane,frozen=frozen,focal=[module],designer_context=d)
         drop=self.condition(prefix+"_drop",role,[x for x in active if x!=module],incumbent,lane=lane,frozen=frozen,focal=[module],designer_context=d)
-        alt=self.condition(prefix+"_alternative",role,active,incumbent,lane=lane,frozen=frozen,alternative=module,focal=[module],designer_context=d)
-        batches=list(range(3000+16*step,3008+16*step))
-        ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
+        b=self.protocol["batches"]
+        start=b["final_removal_base"]+b["confirmation_stride"]*step
+        batches=list(range(start,start+b["confirmation_count"]))
+        ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches)
         passed=full["functional"] is not None and sum(x["score"]==2 for x in full["functional"]["assessments"])>=5
-        secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
-        record={"module":module,"batches":batches,
+        secondary=[self.strain_contrast(ff,fd,paired_roles=role=="Designer")]
+        mm=[self.frames(self.controls(batches))]
+        record={"module":module,"batches":batches,"comparison_policy":"full_drop_only",
             "classification":classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
-                self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=passed,secondary=secondary),
+                functional_valid=passed,secondary=secondary),
             "full_minus_drop":self.contrast(ff,fd,paired_roles=role=="Designer"),
-            "full_minus_alternative":self.contrast(ff,fa,paired_roles=role=="Designer"),
+            "drop_minus_M2":self.contrast(fd,mm),
             "secondary_strain":secondary,
             "not_inherited_from_initial_context":True}
         records.append(record);self.save();self.write_report()
@@ -549,6 +550,7 @@ for p in root.rglob('*.json'):
         pd.DataFrame(skipped).to_csv(self.study/"skipped_modules.csv",index=False)
         processed=len({r["module"] for r in self.state.get("pruning",[])}|{r["module"] for r in skipped})
         write_json(self.study/"study_summary.json",{"status":self.state.get("status"),"model":"deepseek-flash",
+            "comparison_policy":"full_drop_only","treatments":["full","drop"],
             "completed_submodules":len(rows),"total_submodules":17,"api_calls":self.state.get("api_calls",0),
             "processed_submodules":processed,"skipped_submodules":len(skipped),"skipped_modules":skipped,
             "stage_failures":self.state.get("stage_failures",[]),
