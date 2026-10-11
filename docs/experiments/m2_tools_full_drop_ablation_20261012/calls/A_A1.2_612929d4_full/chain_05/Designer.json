@@ -1,0 +1,30 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "information_audit",
+    "continuous:0",
+    "continuous:7",
+    "continuous:1",
+    "lineage_support",
+    "curve_support",
+    "objective"
+  ],
+  "failure_modes": [
+    "If a temporal_teacher or temporal_region edit (C008-C011) were applied, the changed regional attention at observed score nodes could displace surrounding coordinates without any observed affinity label to confirm benefit, since the supporting landmark_00 fits show sign changes and strong sign conflicts and several fail the relative-RMSE<=0.35 fidelity rule; the predicted failure is unnecessary coordinate displacement with no measurable affinity gain.",
+    "If a pointcloud_delta_A curvature edit (C001-C003) were applied, the expected response would be a rescaled endpoint-VJP force magnitude, but the only supporting signal is a small, by-construction nonnegative selection-enrichment excess distance that the audit states is not the score-weighted reward or its FLOWR Jacobian, so the edit could increase displacement without affinity improvement.",
+    "If teacher_neighbors were changed (C005-C007), sparse ancestor coverage (349 nodes with fewer than 3 ancestors, 531 with fewer than 6) and weak observational teacher-score correlations mean the teacher mixture could shift mode coverage in competing directions without validated affinity benefit.",
+    "Treating a temporal derivative as a spatial coordinate gradient, or treating diagnostic pair-kernel/moment/turnover features as operative reward terms, would be an interface violation; the executing pointcloud scalar contains no such terms."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Retain the incumbent (D2_without_trajectory_static, pointcloud_delta_A=1.0, teacher_neighbors=4, static endpoint pointcloud reward). The objective is affinity-primary with coordinate control only, and the reward view is the detached-Hungarian endpoint pointcloud with native endpoint VJP; no observed affinity labels exist in the learning window [0.0,0.5] and no decoded terminal labels are supplied, so no registered choice can be shown to improve final predicted affinity. H001 (time-conditioned contrast for landmark_00 local features) is supported only by observed-node linear fits with extrapolation disallowed, polynomial not accepted, and several of those features fail the declared fidelity rule (relative node RMSE above 0.35 with whole-window z near zero), so the temporal_teacher/temporal_region choices (C008-C011) rest on weak, non-fidelity-passing marginal evidence and would change teacher coordinates or regional attention without a demonstrated affinity advantage. H002 is explicitly a small selection-enrichment signal, not an affinity benefit, and the audit states its excess distance is nonnegative by construction and is not the score-weighted reward or its FLOWR Jacobian; it therefore cannot justify a distance-curvature edit (C001-C003). H003 confirms terminal/survival credit cannot be read as affinity benefit. Teacher-score correlations are weak and observational, and lineage ancestor coverage is sparse, so no teacher-neighborhood count change (C005-C007) is defensible. With maximum_edits=1 and no evidence of expected advantage over the incumbent, retaining is the correct bounded declarative action; temperatures remain fixed and untouched.",
+  "role": "Designer"
+}

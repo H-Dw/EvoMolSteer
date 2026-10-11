@@ -1,0 +1,75 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached-Hungarian endpoint mean squared distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5] and curve support [0.0,0.49]; recorded affinities were removed and an equal score prior applies, so no decoded terminal affinity labels exist in the supplied evidence.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions are supplied only as observed-node linear interpolations over the observed support with extrapolation disallowed and polynomial fits not accepted; the sampled landmark_00 features show multiple sign changes (4-10) and strong sign conflicts (1-9) with large first-to-last rate reversals, so a constant rule is not supported and any time-conditioned rule must stay within the observed nodes.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The sampled landmark_00 features are local coordinate descriptors (soft mass, local dx/dy/dz, local cxx/cyy) in predicted endpoint world A; they are coordinate contrasts, not absolute interaction energies or evidence of neural-module causation, and their whole-window z values are small relative to their rate z values.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned coordinate contrast at observed nodes",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c"
+      ],
+      "falsifier": "A constant rule matching or exceeding the observed-node fit fidelity across independent batches, or disappearance of the sign changes under batch agreement, would weaken this.",
+      "observable": "landmark_00 local coordinate contrast features over score times 0.0-0.49",
+      "scope": "observed window only; no extrapolation",
+      "statement": "A time-conditioned coordinate contrast rule over the observed score nodes may better express the landmark_00 local-coordinate evidence than a constant rule, because the observed-node linear fits show sign changes and rate reversals within the window."
+    },
+    {
+      "direction": "local-versus-global separation",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E598d52f84227fbcc"
+      ],
+      "falsifier": "A supplied adjusted or joint diagnostic showing the local descriptors add no information beyond common motion would falsify the added-information claim.",
+      "observable": "landmark_00 local dx/dy/dz and cxx/cyy versus global centroid",
+      "scope": "predicted endpoint world A features",
+      "statement": "Local landmark_00 coordinate descriptors may carry information beyond global pose, but the supplied evidence does not include an adjustment or joint diagnostic that isolates local from global motion, so this remains untested."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; recorded affinities were removed and an equal score prior applies, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "No independent-batch agreement, multiplicity-adjusted support, coverage, covariance, intact-conformation or mode diagnostics were read in this turn, so coordinate hypotheses cannot be ranked by uncertainty or reproducibility here.",
+    "No parent-child increment, turnover residual, branch-adjusted or survival tables were read, so within-path change versus changing cohort composition is not assessed.",
+    "The sampled continuous_trends rows cover only landmark_00 features; other landmarks and features were not read.",
+    "No registered reward recipe was evaluated against these contrasts, so any intervention remains descriptive rather than an executed reward change."
+  ],
+  "role": "Analyst"
+}

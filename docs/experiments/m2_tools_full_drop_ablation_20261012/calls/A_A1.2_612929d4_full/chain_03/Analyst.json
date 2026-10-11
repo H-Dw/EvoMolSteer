@@ -1,0 +1,84 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts are not physical interaction energies.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5] and curve support [0.0,0.49]; recorded affinities were removed and an equal score prior applies, so no decoded terminal affinity labels are available for this study.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions for landmark_00 features are non-monotone across the observed support: landmark_00_soft_mass shows 4 sign changes with first_rate_z +9.27 and last_rate_z -10.00, and landmark_00_local_dy shows 6 sign changes with first_rate_z -72.37 and last_rate_z +5.52, so a constant rule is not supported over the full window.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Several landmark_00 local descriptors carry strong sign conflicts (landmark_00_local_dx: 9 strong_sign_conflicts, 6 sign changes; landmark_00_local_dz: 7 strong_sign_conflicts, 10 sign changes) and no polynomial fit was accepted, so these marginal descriptors are not reproducible enough to prioritize as coordinate rules.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Whole-window z values for the read landmark_00 features are small in magnitude (e.g. soft_mass 0.64, local_dx -0.18, local_dy -0.30, local_dz -0.02, local_cxx -0.58, local_cyy -0.58), so the endpoint-coordinate evidence does not establish a large net whole-window effect for these features.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned coordinate contrast",
+      "evidence_ids": [
+        "continuous:0"
+      ],
+      "falsifier": "A validated fit or observed-node interpolation showing no sign change in the rate over the observed support.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass contrast across observed score nodes",
+      "scope": "observed window 0.0-0.49 only; no extrapolation",
+      "statement": "A time-conditioned contrast rule for landmark_00_soft_mass, rather than a constant rule, better describes the observed support because its rate changes sign within the window."
+    },
+    {
+      "direction": "deprioritize marginal descriptors",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3"
+      ],
+      "falsifier": "Independent-batch agreement with no strong sign conflicts for these features over the observed support.",
+      "id": "H002",
+      "observable": "sign_changes and strong_sign_conflicts for landmark_00_local_dx and landmark_00_local_dz",
+      "scope": "observed window 0.0-0.49",
+      "statement": "Marginal landmark_00 local displacement descriptors (dx, dz) should not be prioritized as coordinate rules because of strong sign conflicts and rejected polynomial fits."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record or survival credit cannot be presented as final affinity benefit, and the immediate-selection versus descendant-credit comparison is unavailable.",
+    "Only the first six continuous_trends rows were read; the remaining 194 rows, branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, regional_effects, survival_effects and turnover_accounting tables were not inspected, so uncertainty/multiplicity ranking, joint-pose separation and turnover accounting are not established here.",
+    "No independent-batch counterexample or opposing-observation check beyond the reported sign-conflict counts was performed.",
+    "No registered reward recipe was evaluated as an intervention; the hypotheses remain descriptive of the supplied coordinate contrasts."
+  ],
+  "role": "Analyst"
+}

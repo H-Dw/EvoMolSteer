@@ -1,0 +1,120 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed support is the learning window [0.0,0.5] with 50 observed score times at 0.01 spacing; recorded affinities were removed and replaced by an equal score prior, so no observed affinity label is available in this window.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The curve-support selection retained 24 features under a rule requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05 and exclusion of a scale floor; the fidelity rule requires relative RMSE <= 0.35, strong sign-conflict nodes = 0 and quiet-node large-fit fraction <= 0.1.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The information audit covers 14 independent batches and reports a compressed-choice excess fixed-frame RMS of about 0.081 A (CI95 ~0.070-0.092) and a compressed-choice fixed RMS of about 0.564 A (CI95 ~0.499-0.620); the audit explicitly states these are not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction, not a causal affinity effect.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Teacher-score correlations are weak and observational: compressed chosen-teacher score correlation ~0.102 (CI95 ~0.065-0.140) and full chosen-teacher score correlation ~0.064 (CI95 ~0.021-0.103), with top4 teacher overlap ~0.470; the audit states these are not a fitted or independently validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "Lineage support shows 14 complete-survival batches over 700 total batch nodes, but 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, and terminal metadata place terminal score time at 0.99 and terminal state time at 1.0, outside the observed window [0.0,0.5]; multiple testing is BH over 400 survival field/measure tests and is not terminal affinity effects.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F006",
+      "priority": 6
+    },
+    {
+      "claim": "Continuous-trend rows for landmark_00 local features are observed-node linear fits with extrapolation disallowed and polynomial not accepted; they show large first/last rate z values with multiple sign changes and strong sign conflicts (e.g. landmark_00_local_dy first_rate_z ~ -72.4, last_rate_z ~ 5.5, 6 sign changes, 4 strong conflicts; landmark_00_local_cxy 9 sign changes, 14 strong conflicts), so a constant rule is not supported over a time-conditioned rule for these features.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:1"
+      ],
+      "id": "F007",
+      "priority": 7
+    },
+    {
+      "claim": "Several landmark_00 features have whole-window z near zero with relative node RMSE above the 0.35 fidelity threshold (e.g. landmark_00_local_dy whole_window_z ~ -0.30, RMSE ~0.67; landmark_00_local_cxy whole_window_z ~0.10, RMSE ~0.87), so their whole-window marginal evidence is weak and their fits fail the declared fidelity rule.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7"
+      ],
+      "id": "F008",
+      "priority": 8
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant contrast for landmark_00 local features",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:1"
+      ],
+      "falsifier": "a constant contrast with relative node RMSE <= 0.35 and zero strong sign-conflict nodes across the observed window",
+      "id": "H001",
+      "observable": "observed-node contrast values of landmark_00 local features across [0.0,0.5]",
+      "scope": "observed window only; no extrapolation",
+      "statement": "A time-conditioned coordinate contrast over the observed window may better describe landmark_00 local displacement features than a constant rule, because the observed-node linear fits show sign changes and strong sign conflicts between first and last rates."
+    },
+    {
+      "direction": "selection enrichment in compressed-choice excess fixed-frame RMS",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "falsifier": "batch bootstrap CI including zero or sign reversal across independent batches",
+      "id": "H002",
+      "observable": "compressed_choice_excess_fixed_RMS_A batch bootstrap CI over independent batches",
+      "scope": "14 independent batches, observed window",
+      "statement": "Compressed-choice geometric excess distance is a reproducible but small selection-enrichment signal across 14 independent batches, not an absolute geometric descriptor or an affinity benefit."
+    },
+    {
+      "direction": "descriptive only; no terminal-affinity claim",
+      "evidence_ids": [
+        "lineage_support",
+        "clocks"
+      ],
+      "falsifier": "supplied decoded terminal affinity labels within the observed window",
+      "id": "H003",
+      "observable": "terminal metadata times and lineage ancestor coverage",
+      "scope": "terminal credit mining, not terminal affinity",
+      "statement": "Last-record or survival credit cannot be presented as final affinity benefit because terminal score/state times (0.99/1.0) lie outside the observed window and no decoded terminal labels are supplied."
+    }
+  ],
+  "limitations": [
+    "No observed affinity labels are available in the learning window; recorded affinities were removed and replaced by an equal score prior.",
+    "No decoded terminal labels are supplied, so last-record/survival credit cannot be interpreted as final affinity benefit.",
+    "The information audit metrics are not the full score-weighted reward or its FLOWR Jacobian, and nonnegative excess distance is by construction rather than a causal affinity effect.",
+    "Teacher-score correlations are observational and not a fitted or independently validated affinity predictor.",
+    "Continuous-trend fits are observed-node linear with extrapolation disallowed; polynomial fits were not accepted, so no extrapolated or polynomial trend is claimed.",
+    "Ancestor coverage is sparse (349 nodes with fewer than 3 ancestors, 531 with fewer than 6), limiting lineage-based inference.",
+    "No current study outcome data are available to this role."
+  ],
+  "role": "Analyst"
+}
