@@ -80,7 +80,10 @@ def run_review(calls, rubrics, output, *, caller=call_json, input_store=None, ev
     validator = lambda value: extract_review(value, calls, rubrics, cards)
     def contract(shape, errors=None):
         return "Return JSON matching this schema. " + canonical({"schema": shape, "format_errors": errors})
-    raw = caller(messages, schema, output, input_store=input_store, max_output_tokens=4096,
+    # Final selected policies can contain several focal modules across six
+    # chains. Allocate response space for complete coverage, never truncate it.
+    raw = caller(messages, schema, output, input_store=input_store,
+                 max_output_tokens=min(16384, max(4096, len(calls) * len(rubrics) * 256)),
                  response_parser=strict_json, response_validator=validator, format_policy=POLICY,
                  format_builder=contract)
     result = validator(raw)

@@ -1,4 +1,4 @@
-param([string]$Config = 'configs/experiments/m2_full_drop_ablation_20261012/runner.json')
+param([string]$Config = 'configs/experiments/m2_tools_full_drop_ablation_20261012/runner.json')
 $ErrorActionPreference = 'Stop'
 $taskRepo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 if (-not $env:DEEPSEEK_API_KEY) {

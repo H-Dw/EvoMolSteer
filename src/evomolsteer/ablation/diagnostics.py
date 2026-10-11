@@ -49,7 +49,11 @@ def geometry_fixture(packet, unit):
             "Registered curvature parameters have units Angstrom; no temperature edit is legal."]}
 
 
-def run_probes(repo, study, *, caller=call_json):
+def run_probes(repo, study, *, caller=call_json, interface_mode="direct-v4"):
+    if interface_mode == "evidence-tools-v1":
+        from evomolsteer.agent_workflow.diagnostics import run_tool_probes
+        return run_tool_probes(repo, study, caller=caller)
+    if interface_mode != "direct-v4":raise ValueError("Unknown diagnostic interface")
     repo,study=Path(repo),Path(study);validate_activation(repo,study)
     output=study/"diagnostics";output.mkdir(parents=True,exist_ok=True)
     packet=read_json(study/"evidence/packet.json")

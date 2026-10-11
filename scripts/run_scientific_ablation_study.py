@@ -63,6 +63,8 @@ class ScientificStudy(Study):
             raise ValueError("Explicit owned scientific workspace required")
         self.protocol=activation["protocol"]
         validate_full_drop_protocol(self.protocol)
+        if self.protocol.get("agent_interface",interface)!=interface:
+            raise ValueError("Agent interface differs from the frozen protocol")
         if activation["plan"]!=self.config.get("plan"):
             raise ValueError("Configured study plan differs from activation")
         statistical_path=self.study/"secondary_statistical_amendment.json"
@@ -104,11 +106,14 @@ for p in root.rglob('*.json'):
             protocol_sha256=activation["protocol_sha256"],model="deepseek-flash",
             secondary_statistical_amendment_sha256=statistical_sha,**prior_policy)
 
+    def _api_count(self):
+        return sum(read_json(p).get("backend")=="real_api"
+                   for p in self.study.rglob("*.receipt.json"))
+
     def _budget(self):
         # Count actual successful request receipts, including declared role
         # chains prepared before inference and verified cached/resumed calls.
-        self.state["api_calls"]=sum(read_json(p).get("backend")=="real_api"
-            for p in self.study.rglob("*.receipt.json"))
+        self.state["api_calls"]=self._api_count()
         budget=self.protocol["budgets"]
         if self.state["api_calls"]>=budget["maximum_api_role_calls"]:
             raise ExecutionBudgetExceeded("Preregistered API budget reached; preserve unresolved tests")
@@ -117,15 +122,13 @@ for p in root.rglob('*.json'):
 
     def _call(self,case,chain,role,active,**kwargs):
         self._budget()
-        output=self.study/"calls"/case/f"chain_{chain:02d}"/(role+".json")
-        cached=output.exists() and output.with_suffix(".receipt.json").exists()
         self.save(status="calling_real_api",task=case,active_role=role,active_chain=chain)
         try:
             result=call_role(self.repo,self.study,case,chain,role,active,
                              interface_mode=getattr(self,"interface_mode","direct-v4"),**kwargs)
         except (LLMInterfaceError, jsonschema.ValidationError, ValueError) as error:
             raise ModuleExecutionError(case,"role_response",error,role=role,chain=chain) from error
-        if not cached:self.state["api_calls"]+=1
+        self.state["api_calls"]=self._api_count()
         self.save()
         return result
 
@@ -378,10 +381,14 @@ for p in root.rglob('*.json'):
                     for row in value["rows"]:
                         p=(self.repo/row["response"]).with_name("Analyst.json")
                         response=read_json(p);validate_evidence_citations(response,known)
-                        receipt=read_json(p.with_suffix(".receipt.json"))
                         delivery=read_json(p.with_suffix(".delivery.json"))
-                        if receipt.get("response_sha256")!=digest(p) or receipt.get("backend")!="real_api":
-                            raise ValueError("Invalid fallback Analyst receipt")
+                        if getattr(self,"interface_mode","direct-v4")=="evidence-tools-v1":
+                            from evomolsteer.agent_workflow.ablation_adapter import analyst_source
+                            analyst_source(self.study,value["case"],row["chain"],response)
+                        else:
+                            receipt=read_json(p.with_suffix(".receipt.json"))
+                            if receipt.get("response_sha256")!=digest(p) or receipt.get("backend")!="real_api":
+                                raise ValueError("Invalid fallback Analyst receipt")
                         if delivery["active_modules"]!=value["active"] or delivery.get("alternative"):
                             raise ValueError("Fallback pool instructions differ")
                         outputs.append({"path":p.relative_to(self.repo).as_posix(),"sha256":digest(p)})
@@ -442,8 +449,8 @@ for p in root.rglob('*.json'):
     def run(self):
         prepare(self.repo,self.study,plan=self.config["plan"]);self.preflight()
         if not self.state.get("functional_preflight_passed"):
-            run_probes(self.repo,self.study)
-            self.state["api_calls"]+=6
+            run_probes(self.repo,self.study,interface_mode=self.interface_mode)
+            self.state["api_calls"]=self._api_count()
             self.save(functional_preflight_passed=True)
             self.commit("test(scientific): verify real API sign, missingness and unit response")
         incumbent=read_json(self.repo/BASE)
