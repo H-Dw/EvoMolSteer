@@ -7,7 +7,7 @@ Existing successful reports can be reused only after verifying their sources.
 import argparse
 from pathlib import Path
 from evomolsteer.io import read_json, write_json, digest
-from evomolsteer.storage.generation_archive import verify_generation_archive
+from evomolsteer.storage.generation_archive import verify_generation_archive, restoration_destination
 from evomolsteer.generation.terminal_evaluation import evaluate_terminal
 from audit_dependency_execution import audit
 
@@ -51,4 +51,4 @@ if __name__ == '__main__':
     p.add_argument('--workers', type=int, default=2)
     a = p.parse_args(); transport = Path(a.transport)
     run(a.name, transport / (a.name + '.tar.gz'), transport / (a.name + '.tar.gz.json'),
-        transport / ('restored' + a.name), Path(a.reports), Path(a.output), Path(a.reference), a.workers)
+        restoration_destination(transport,a.name), Path(a.reports), Path(a.output), Path(a.reference), a.workers)

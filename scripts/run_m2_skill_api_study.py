@@ -26,6 +26,7 @@ from evomolsteer.continuous.m2_skill_api import (
     validate_activation_policy, validate_fixed_temperatures)
 from evomolsteer.io import digest, read_json, write_json
 from evomolsteer.deepseek_api import FORMAT_POLICY, LLMInterfaceError
+from evomolsteer.storage.generation_archive import restoration_destination
 from analyze_dependency_study import metrics
 from remote_session import bridge
 
@@ -212,7 +213,7 @@ for p in root.rglob('*.json'):
             "--output", str(output), "--reference", str(self.repo / "configs/experiments/ck2_terminal_seed42_v1/local_reference.json.gz"),
             "--workers", "2"]
         subprocess.run(command, cwd=self.repo, check=True)
-        restored = self.transport / ("restored" + name)
+        restored = restoration_destination(self.transport,name)
         root = restored / "results" / name
         delivery = self.delivery(root)
         write_json(reports / (name + ".delivery.json"), delivery)
@@ -310,7 +311,7 @@ for p in root.rglob('*.json'):
             "no_stage_binning": True, "limitation": "Batch means cannot reconstruct individual paths; observed evolution includes native flow"})
 
     def cleanup(self, name, restored):
-        if not restored.resolve().is_relative_to(self.transport.resolve()) or restored.name != "restored" + name:
+        if not restored.resolve().is_relative_to(self.transport.resolve()) or restored.name != restoration_destination(self.transport,name).name:
             raise ValueError("Unsafe local retirement target")
         shutil.rmtree(restored)
         for suffix in [".tar.gz", ".tar.gz.json"]:

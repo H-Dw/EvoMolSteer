@@ -6,7 +6,7 @@ import tarfile
 import pytest
 
 from evomolsteer.io import digest
-from evomolsteer.storage.generation_archive import verify_generation_archive, MANIFEST
+from evomolsteer.storage.generation_archive import verify_generation_archive, restoration_destination, MANIFEST
 
 
 def make_archive(tmp_path, extra=None, corrupt=False):
@@ -56,3 +56,19 @@ def test_generation_archive_rejects_payload_and_transport_corruption(tmp_path):
     meta["archive_sha256"] = "0" * 64
     with pytest.raises(ValueError, match="transport"):
         verify_generation_archive(archive, meta, tmp_path / "restored")
+
+
+def test_short_restoration_preserves_payload_and_avoids_long_cohort_duplication(tmp_path):
+    archive,meta=make_archive(tmp_path)
+    name='DSF_c62e296818e0_b2100_controls_indexed_batch'
+    destination=restoration_destination(tmp_path,name)
+    assert len(destination.name)==14
+    assert destination!=restoration_destination(tmp_path,name+'_another')
+    receipt=verify_generation_archive(archive,meta,destination)
+    assert receipt['verified'] and (destination/'inputs/example.txt').read_bytes()==b'molecular coordinates\n'
+
+
+@pytest.mark.parametrize('name',['','..','../outside','C:outside','sub\\outside'])
+def test_short_restoration_rejects_unsafe_campaign_names(tmp_path,name):
+    with pytest.raises(ValueError,match='safe campaign'):
+        restoration_destination(tmp_path,name)

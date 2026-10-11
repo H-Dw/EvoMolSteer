@@ -10,6 +10,18 @@ from evomolsteer.io import digest, read_json, safe_extract
 MANIFEST = "GENERATION_ARCHIVE_MANIFEST.json"
 
 
+def restoration_destination(transport, name):
+    """Short, deterministic cache root for unchanged manifest-relative paths.
+
+    Long study/cohort labels exceeded Windows' filename length on real Linux
+    transports. Only the local working-directory name changes; archive member
+    names, manifest and payload bytes stay identical.
+    """
+    if not isinstance(name,str) or name in {'','.','..'} or any(c in name for c in '/\\:'):
+        raise ValueError('One safe campaign name required')
+    return Path(transport)/('r_'+hashlib.sha256(name.encode('utf-8')).hexdigest()[:12])
+
+
 def verify_generation_archive(archive, metadata, destination):
     """Check transport and every payload before restoring into a new directory.
 
