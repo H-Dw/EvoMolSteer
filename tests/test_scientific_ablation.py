@@ -40,6 +40,8 @@ def compiler_files(tmp_path):
             'region_index':'evidence-bound','temporal_region_index':'evidence-bound','temporal_teacher_blend':[.25,.5,1.]}},
         'U':{'allowed':{'native_rms_ratio':[.2,.33,.5],'time_ramp_power':[0.,1.,2.]}}}}})
     write_json(study/'evidence/index.json',{'ids':['regional_effects:0'],'regions':{'regional_effects:0':0}})
+    write_json(study/'evidence/packet.json',{'tables':{'survival_effects':{'columns':['evidence_id','feature'],
+        'rows':[['survival:0','landmark_00_soft_mass']]}}})
     _,reference=temporal_inputs()
     (study/'evidence/temporal_reference.json.gz').write_bytes(gzip.compress(json.dumps(reference).encode(),mtime=0))
     write_json(study/'evidence/regional_salience.json',{'times':reference['times'],'window':reference['window'],
@@ -71,6 +73,8 @@ def test_compiler_refuses_unbound_region_and_synthetic_probe(compiler_files):
     path,ref,_,_=compile_program(repo,study,edit('temporal_region_index',0,['regional_effects:0']),p)
     reward=make_coordinate_reward(read_json(path),load_reference(ref))
     assert reward.node_salience[0,0]==.1 and reward.node_salience[-1,0]==2.
+    path,_,_,_=compile_program(repo,study,edit('region_index',0,['survival:0']),p)
+    assert read_json(path)['coordinate_region_weights'][0]==1.
     with pytest.raises(ValueError,match='quarantined'):
         compile_program(repo,study,edit('teacher_neighbors',2),p,folder=study/'diagnostics')
 

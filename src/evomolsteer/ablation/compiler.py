@@ -2,6 +2,7 @@
 import copy
 import gzip
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -17,6 +18,15 @@ def compile_program(repo, study, response, incumbent, *, lane="G", folder=None):
     activation=read_json(study/"activation.json")
     allowed=activation["protocol"]["lanes"][lane]["allowed"]
     index=read_json(study/"evidence/index.json")
+    # Survival, lineage and branch summaries encode the region in their typed
+    # feature name even when they have no separate `region` column. Do not
+    # reject a genuine region-bound hypothesis because of that storage choice.
+    for table in read_json(study/"evidence/packet.json")["tables"].values():
+        if "feature" not in table["columns"]:continue
+        j=table["columns"].index("feature")
+        for row in table["rows"]:
+            match=re.match(r"landmark_(\d+)_",str(row[j]))
+            if match:index["regions"].setdefault(row[0],int(match.group(1)))
     p=copy.deepcopy(incumbent)
     validate_fixed_temperatures(repo,p)
     # Every incumbent has explicit file provenance; shape phases can build upon

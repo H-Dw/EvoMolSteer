@@ -66,6 +66,9 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
     activation=validate_activation(repo,study)
     protocol=activation["protocol"]
     schema=copy.deepcopy(ANALYST_SCHEMA if role=="Analyst" else DESIGN_SCHEMA)
+    if role=="Analyst":
+        schema["properties"]["findings"]["maxItems"]=12
+        schema["properties"]["hypotheses"]["maxItems"]=6
     packet=full_input_packet(study)
     allowed=protocol["lanes"][lane]["allowed"]
     if role=="Designer":
@@ -77,7 +80,7 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
         "lane":lane,"response_schema":schema,"maximum_edits":1,
         "task_wording":("Interpret the supplied evidence and answer the coordinate-design task." if chain<3 else
             "Use these observations to provide your response to the supplied molecular coordinate task."),
-        "interface_notes":"Optional findings/hypotheses/details may be empty when unsupported. No submodule function is required by the schema. Prioritize concise observations rather than reproducing tables.",
+        "interface_notes":"Optional findings/hypotheses/details may be empty when unsupported. No submodule function is required by the schema. Prioritize at most twelve concise findings and six hypotheses. Cite supplied curves rather than reproducing numeric arrays. Analyst hypotheses belong in hypotheses; operative decisions belong to Designer.",
         "allowed_edits":allowed,
         "incumbent":incumbent,
         "fixed_parameters":protocol["temperature_policy"]["parameters"],
@@ -94,7 +97,7 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
     messages=[{"role":"system","content":prompt},
         {"role":"user","content":json.dumps(packet,separators=(",",":"))},
         {"role":"user","content":json.dumps(task,separators=(",",":"))}]
-    result=caller(messages,schema,folder/(role+".json"),input_store=study/"inputs")
+    result=caller(messages,schema,folder/(role+".json"),input_store=study/"inputs",max_output_tokens=16384)
     known=set(read_json(study/"evidence/index.json")["ids"]) | set(packet) | set(task)
     def citations(x):
         if isinstance(x,dict):
@@ -142,7 +145,7 @@ def review(study, case, role, focal_ids, *, caller=call_json):
         {"role":"user","content":json.dumps({"calls":[{"chain":i,"response":v} for i,v in enumerate(calls)],
             "rubrics":[{"module":m["id"],"goal":m["label_zh"],"checks":m["functional_rubric"]} for m in modules]},separators=(",",":"))}]
     path=study/"reviews"/(case+"_"+role+".json")
-    result=caller(messages,schema,path,input_store=study/"inputs")
+    result=caller(messages,schema,path,input_store=study/"inputs",max_output_tokens=16384)
     expected={(i,m["id"]) for i in range(6) for m in modules}
     actual={(a["chain"],a["module"]) for a in result["assessments"]}
     if actual!=expected or len(result["assessments"])!=len(expected):raise ValueError("Functional review coverage incomplete")

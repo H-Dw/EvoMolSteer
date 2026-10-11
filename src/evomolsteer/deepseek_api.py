@@ -76,17 +76,19 @@ def unused_path(output, template):
 
 
 def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
-              transport=None, attempts=3, sleep=time.sleep, input_store=None):
+              transport=None, attempts=3, sleep=time.sleep, input_store=None, max_output_tokens=8192):
     if model != "deepseek-flash":
         raise ValueError("This study requires exactly deepseek-flash; no fallback")
     if attempts < 1:
         raise ValueError("A positive network attempt budget is required")
+    if isinstance(max_output_tokens,bool) or not isinstance(max_output_tokens,int) or not 512<=max_output_tokens<=65536:
+        raise ValueError("Bounded positive output token budget required")
     output = Path(output)
     request_path = output.with_suffix(".request.json")
     receipt_path = output.with_suffix(".receipt.json")
     body = {"model": model, "messages": messages,
             "thinking": {"type": "disabled"}, "temperature": 0,
-            "max_tokens": 8192, "response_format": {"type": "json_object"}}
+            "max_tokens": max_output_tokens, "response_format": {"type": "json_object"}}
     def store_request(body, path, *, policy=None):
         stored_body = dict(body)
         if input_store is not None:
@@ -159,6 +161,13 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
             wire = response.json()
             choice = wire["choices"][0]
             if choice.get("finish_reason") != "stop":
+                incomplete=unused_path(output,".incomplete_{index}.txt")
+                incomplete.write_text(choice["message"].get("content", ""),encoding="utf-8")
+                write_json(incomplete.with_suffix(".receipt.json"),{
+                    "requested_model":model,"returned_model":wire.get("model"),"valid":False,
+                    "finish_reason":choice.get("finish_reason"),"usage":wire.get("usage"),
+                    "provider_request_id":wire.get("id"),"content_sha256":digest(incomplete),
+                    "request_sha256":digest(request_path),"max_output_tokens":max_output_tokens})
                 raise ValueError("Incomplete JSON answer; no incumbent masquerading as success")
             if wire.get("model") != model:
                 write_json(unused_path(output, ".model_mismatch_{index}.json"), {
