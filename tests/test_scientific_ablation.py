@@ -207,8 +207,10 @@ def test_synthetic_sign_missing_and_unit_probes_are_quarantined():
 
 def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(tmp_path,monkeypatch):
     study=tmp_path/'study';study.mkdir()
-    packet={'tables':{},'clocks':{}}
+    packet={'tables':{},'clocks':{'observed_score_times':[.1,.2],'learning_window':[.1,.3]}}
     write_json(study/'evidence/packet.json',packet)
+    write_json(study/'evidence/continuous_functions.json',{'times':[.1,.2],'window':[.1,.3],
+        'functions':{'feature':{'method':'observed_node_linear','observed_support':[.1,.2],'values_z':[1.,-1.]}}})
     write_json(study/'evidence/index.json',{'ids':[]})
     write_json(study/'module_registry.json',{'modules':MODULES})
     monkeypatch.setattr(agents,'validate_activation',lambda *a:{'protocol':{
@@ -224,3 +226,5 @@ def test_role_ablation_changes_only_instructions_not_evidence_or_science_schema(
     assert observed[0][1]==observed[1][1]
     assert '## A4.1' in observed[0][0][0]['content'] and '## A4.1' not in observed[1][0][0]['content']
     assert observed[1][1]['required']==['role','findings']
+    payload=json.loads(observed[1][0][1]['content'])
+    assert payload['continuous_functions']['functions']['feature']['values_z']==[1.,-1.]

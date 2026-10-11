@@ -11,6 +11,32 @@ from .protocol import PLAN, validate_activation
 from .modules import assemble
 
 
+def full_input_packet(study):
+    """Bind complete time functions, not only endpoint/rate summaries.
+
+    All scalar weak/null evidence remains in the primary packet. Shared clock
+    storage avoids repeating the same fifty times in every fallback function.
+    The original tool output/hash remains immutable and independently readable.
+    """
+    study=Path(study)
+    packet=read_json(study/"evidence/packet.json")
+    path=study/"evidence/continuous_functions.json"
+    source=read_json(path)
+    if source["times"]!=packet["clocks"]["observed_score_times"] or source["window"]!=packet["clocks"]["learning_window"]:
+        raise ValueError("Full function input clock mismatch")
+    functions={}
+    for feature,value in source["functions"].items():
+        functions[feature]={"method":value["method"],"observed_support":value["observed_support"]}
+        key="coefficients" if value["method"]=="legendre" else "values_z"
+        functions[feature][key]=value[key]
+    packet["continuous_functions"]={"source_sha256":digest(path),"shared_times":source["times"],
+        "Legendre_argument":"u=2*(t-support_start)/(support_end-support_start)-1",
+        "linear_argument":"observed values_z at shared_times; interpolate within observed support only",
+        "observable":"favorable minus comparison coordinate feature, standardized by original feature scale",
+        "not_absolute_target":True,"functions":functions}
+    return packet
+
+
 def role_prompt(repo, study, role, active, alternative=None):
     modules=read_json(Path(study)/"module_registry.json")["modules"]
     contract=(Path(repo)/PLAN/"contracts/shared_contract.md").read_text(encoding="utf-8")
@@ -23,7 +49,7 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
     activation=validate_activation(repo,study)
     protocol=activation["protocol"]
     schema=copy.deepcopy(ANALYST_SCHEMA if role=="Analyst" else DESIGN_SCHEMA)
-    packet=read_json(study/"evidence/packet.json")
+    packet=full_input_packet(study)
     allowed=protocol["lanes"][lane]["allowed"]
     if role=="Designer":
         schema["properties"]["edit"]["properties"]["parameter"]["enum"]=list(allowed)
@@ -34,7 +60,7 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
         "lane":lane,"response_schema":schema,"maximum_edits":1,
         "task_wording":("Interpret the supplied evidence and answer the coordinate-design task." if chain<3 else
             "Use these observations to provide your response to the supplied molecular coordinate task."),
-        "interface_notes":"Optional findings/hypotheses/details may be empty when unsupported. No submodule function is required by the schema.",
+        "interface_notes":"Optional findings/hypotheses/details may be empty when unsupported. No submodule function is required by the schema. Prioritize concise observations rather than reproducing tables.",
         "allowed_edits":allowed,
         "incumbent":incumbent,
         "fixed_parameters":protocol["temperature_policy"]["parameters"],
@@ -65,6 +91,8 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
     write_json(folder/(role+".delivery.json"),{"active_modules":active,"alternative":alternative,
         "instruction_sha256":digest(folder/(role+".instructions.md")),
         "evidence_sha256":activation["packet_sha256"],"role":role,
+        "continuous_function_source_sha256":digest(study/"evidence/continuous_functions.json"),
+        "complete_input_sha256":hashlib.sha256(json.dumps(packet,separators=(",",":")).encode()).hexdigest(),
         "model":"deepseek-flash","backend":"real_api","schema_forces_module_function":False})
     return result
 
@@ -93,7 +121,7 @@ def review(study, case, role, focal_ids, *, caller=call_json):
         "A correct statement of unavailable decoded labels is not proof of final-quality credit analysis. "
         "Do not reward mere keywords or infer necessity. Return JSON only.")
     messages=[{"role":"system","content":prompt},
-        {"role":"user","content":json.dumps(read_json(study/"evidence/packet.json"),separators=(",",":"))},
+        {"role":"user","content":json.dumps(full_input_packet(study),separators=(",",":"))},
         {"role":"user","content":json.dumps({"calls":[{"chain":i,"response":v} for i,v in enumerate(calls)],
             "rubrics":[{"module":m["id"],"goal":m["label_zh"],"checks":m["functional_rubric"]} for m in modules]},separators=(",",":"))}]
     path=study/"reviews"/(case+"_"+role+".json")
