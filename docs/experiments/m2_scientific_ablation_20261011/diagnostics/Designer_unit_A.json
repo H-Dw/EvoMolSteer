@@ -1,0 +1,25 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "teacher_modes"
+  ],
+  "expected_response": {
+    "basis": "observed teacher-mode assignment RMS quantiles 0.446-1.050 A lie within the incumbent core_radius_A=5.0 spatial emphasis",
+    "direction": "unchanged",
+    "scope": "coordinate-only endpoint affinity reward; no temperature or graph-equality change"
+  },
+  "failure_modes": [
+    "Treating the teacher-mode assignment RMS as an intramolecular distance or as a mixture-bandwidth statistic would mis-specify the spatial emphasis.",
+    "Increasing teacher_neighbors or pointcloud_delta_A without observed-scale support would be an unsupported exploratory change."
+  ],
+  "parameter_origins": {
+    "core_radius_A": "incumbent",
+    "geometry_block_weights": "incumbent",
+    "pointcloud_delta_A": "incumbent",
+    "teacher_endpoint_temperature_A2": "incumbent fixed-parameter policy",
+    "teacher_neighbors": "incumbent"
+  },
+  "rationale": "The supplied teacher-mode assignment RMS quantiles (0.446, 0.863, 1.050 A) are observed spatial scales of the intact teacher dispersion, not an intramolecular distance statistic and not a mixture-bandwidth estimate. The incumbent already encodes a spatial emphasis through core_radius_A=5.0, geometry_block_weights=[0,1,2,1], and teacher_endpoint_temperature_A2=4.0, with teacher_neighbors=4 and pointcloud_delta_A=2.0. The observed dispersion is small relative to the 5.0 A core radius, so the incumbent's distance-response curvature already spans the observed scale; no bounded edit is justified by the supplied evidence. Temperatures are immutable and no temperature edit is proposed.",
+  "role": "Designer"
+}

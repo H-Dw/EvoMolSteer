@@ -1,0 +1,23 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "teacher_modes"
+  ],
+  "expected_response": {
+    "basis": "observed teacher-mode dispersion within incumbent spatial emphasis",
+    "direction": "unchanged"
+  },
+  "failure_modes": [
+    "Treating the teacher-mode dispersion as an intramolecular distance or mixture bandwidth would mis-specify curvature.",
+    "Selecting an exploratory neighbor or delta value without observed support would be an unsupported spatial-emphasis edit."
+  ],
+  "parameter_origins": {
+    "core_radius_A": "incumbent",
+    "geometry_block_weights": "incumbent",
+    "pointcloud_delta_A": "incumbent",
+    "teacher_neighbors": "incumbent"
+  },
+  "rationale": "The supplied teacher-mode dispersion (assignment RMS quantiles 0.0446/0.0863/0.1050 nm) is an observed spatial scale of the registered teacher modes, not an intramolecular distance statistic and not a mixture-bandwidth estimate. The incumbent already encodes a spatial emphasis through core_radius_A=5.0 and geometry_block_weights [0,1,2,1] with teacher_neighbors=4 and pointcloud_delta_A=1.0 A, which are consistent with the observed sub-0.11 nm mode dispersion. No supplied evidence justifies changing the distance-response curvature or spatial emphasis, and the allowed edits (teacher_neighbors, pointcloud_delta_A) are exploratory choices rather than observed scales. Retaining the incumbent avoids an unsupported curvature change; the expected response range is unchanged.",
+  "role": "Designer"
+}
