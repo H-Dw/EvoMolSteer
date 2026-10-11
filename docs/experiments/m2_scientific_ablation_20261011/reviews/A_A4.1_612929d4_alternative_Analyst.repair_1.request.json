@@ -1,0 +1,98 @@
+{
+  "body": {
+    "max_tokens": 16384,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/4b5cc9621f536fc62c67d7e3fe15fd22bf67b8e6d84512534a6959d00c09b807.txt",
+        "content_sha256": "4b5cc9621f536fc62c67d7e3fe15fd22bf67b8e6d84512534a6959d00c09b807",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/64c47235b0b3cedcf3846cc577cf13ae252258eea21b4ec262173e1e13444262.txt",
+        "content_sha256": "64c47235b0b3cedcf3846cc577cf13ae252258eea21b4ec262173e1e13444262",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/1315719fdc0ddf49834d717ff8899039f52adc073021e66c71b88e9a1524730f.txt",
+        "content_sha256": "1315719fdc0ddf49834d717ff8899039f52adc073021e66c71b88e9a1524730f",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/bc3c0269313c5c9325a7e117b6e29744597a795a33e7762e391a5a1353f271cb.txt",
+        "content_sha256": "bc3c0269313c5c9325a7e117b6e29744597a795a33e7762e391a5a1353f271cb",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/e1ee17770a1dc93be6fc8abf8ddeea8b48265374bec528a36b357c3176144bb7.txt",
+        "content_sha256": "e1ee17770a1dc93be6fc8abf8ddeea8b48265374bec528a36b357c3176144bb7",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/51ddd3699c0accd04bd935cf5ed302383c5976b40e06fa356618b83d5a5ebc98.txt",
+        "content_sha256": "51ddd3699c0accd04bd935cf5ed302383c5976b40e06fa356618b83d5a5ebc98",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "assessments": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "chain": {
+              "maximum": 5,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "explanation": {
+              "maxLength": 250,
+              "type": "string"
+            },
+            "module": {
+              "enum": [
+                "A4.1"
+              ]
+            },
+            "quote": {
+              "maxLength": 200,
+              "type": "string"
+            },
+            "score": {
+              "enum": [
+                0,
+                1,
+                2,
+                "NA"
+              ]
+            }
+          },
+          "required": [
+            "chain",
+            "module",
+            "score",
+            "quote",
+            "explanation"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      }
+    },
+    "required": [
+      "assessments"
+    ],
+    "type": "object"
+  }
+}
