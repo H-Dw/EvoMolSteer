@@ -1,0 +1,245 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint pointcloud effects for pair-distance shell densities are the strongest and most consistent in the supplied endpoint table: pair_kernel_1.5, 2.5, 3.5 and 5.0 show positive integrated z with positive batch fractions, while pair_kernel_7.0 is negative. These are diagnostic shell-density contrasts, not bond labels or interaction energies.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Landmark softmin and occupancy endpoint effects are mixed in sign across landmarks: several softmin terms are negative (e.g. landmark_00, 04, 06, 18) while others are positive (e.g. landmark_01, 03, 05, 12, 15, 16), and occupancy3/occupancy5 terms likewise split. No single landmark direction is uniformly favorable.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:17",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:50",
+        "endpoint_effects:59",
+        "endpoint_effects:62",
+        "endpoint_effects:68"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Shape endpoint effects are predominantly negative for shape_xx, shape_yy, shape_zz and shape_yz, with shape_yy the largest magnitude and zero positive batch fraction. These are coordinate covariance descriptors, not inferred chemical mechanisms.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Global centroid endpoint effects are weak and not consistently signed: centroid_y is negative with low positive batch fraction, while centroid_x and centroid_z have confidence intervals spanning zero.",
+      "evidence_ids": [
+        "endpoint_effects:0",
+        "endpoint_effects:1",
+        "endpoint_effects:2"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Observed-node linear trends for landmark_00 features show large first-to-last rate z changes with many sign changes and strong sign conflicts, and polynomial fits are not accepted; extrapolation is disallowed. These are within-window descriptive trends only.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Several continuous features show significant whole-window or rate z values with high batch-direction consistency (e.g. landmark_01_local_dz, landmark_01_local_cyy, landmark_02_local_cyz, landmark_04_local_cyz, landmark_06_local_cyz, landmark_17_local_cyz, landmark_18_local_cyz). These are coordinate trends, not trajectory velocity forces or causal affinity gradients.",
+      "evidence_ids": [
+        "continuous:39",
+        "continuous:47",
+        "continuous:60",
+        "continuous:84",
+        "continuous:87",
+        "continuous:134",
+        "continuous:147"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Joint innovation, translation and internal RMS features show negative branch-adjusted raw and adjusted covariance/correlation effects with high same-sign batch fractions, indicating branch-associated reductions in these joint geometry residuals. These are adjusted branch covariance/correlation diagnostics, not rigid-motion residuals or causal effects.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:75",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:152",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:229",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:306",
+        "branch_adjusted:307"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Pair-kernel 1.5 and 2.5 features show positive branch-adjusted covariance and correlation effects with high same-sign batch fractions, consistent with the endpoint pair-kernel pattern.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:165",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Survival enrichment effects are mostly weak and mixed; a few features (e.g. landmark_00_soft_mass, landmark_07_soft_mass, landmark_10_soft_mass, landmark_18_local_czz, landmark_04_local_cyz, landmark_12_local_cyy) show positive survival enrichment z with high positive batch fractions. These are recorded joint-head survival credits, not decoded terminal affinity.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:377"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Turnover accounting shows large edge-rate and turnover-residual-rate z values for several features, with turnover residuals often larger in magnitude than population rates. The turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Within-selector joint diagnostics show a positive association between selection innovation and native alignment and teacher innovation-contrast alignment, and a negative association with observed child score gain. These are descriptive within-selector associations with batch as the independent unit, not causal effects.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "The information audit reports compressed-choice excess fixed RMS and teacher overlap metrics with batch bootstrap intervals, and explicitly notes these are not the full score-weighted reward or its FLOWR Jacobian and are not a causal affinity effect.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "If the endpoint pointcloud scalar is sensitive to pair-distance shell densities, then the consistent positive endpoint and branch-adjusted effects for pair_kernel_1.5 and 2.5 suggest these shells are the most robustly associated coordinate features in the supplied evidence. This is a diagnostic association, not a causal affinity mechanism.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:165"
+      ]
+    },
+    {
+      "claim": "The predominantly negative shape and shape_yz endpoint effects, together with negative branch-adjusted shape_yy effects, suggest that reduced shape anisotropy is associated with the favorable-minus-comparison contrast in the supplied data. Coordinate covariance is not by itself an inferred chemical mechanism.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8",
+        "branch_adjusted:80",
+        "branch_adjusted:81",
+        "branch_adjusted:82",
+        "branch_adjusted:85"
+      ]
+    },
+    {
+      "claim": "The continuous features with significant whole-window z and high batch-direction consistency may be candidates for temporal regional attention, but the supplied evidence does not establish that they are validated absolute contrasts or that they would improve final predicted affinity.",
+      "evidence_ids": [
+        "continuous:39",
+        "continuous:47",
+        "continuous:60",
+        "continuous:84",
+        "continuous:87",
+        "continuous:134",
+        "continuous:147"
+      ]
+    },
+    {
+      "claim": "The survival enrichment features with positive z and high positive batch fractions may reflect selection-associated coordinate structure, but survival credits are recorded joint-head credits and not decoded terminal affinity, so they cannot be interpreted as terminal affinity effects.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:377"
+      ]
+    },
+    {
+      "claim": "The large turnover residual rates for several features suggest that score reclassification and extant-parent weighting contribute substantially to observed turnover, but the supplied evidence does not separate these components or establish causal selection.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377"
+      ]
+    },
+    {
+      "claim": "The within-selector associations between selection innovation and native alignment, teacher innovation-contrast alignment, and observed child score gain may indicate that selection innovation is related to teacher contrast structure, but these are descriptive associations and not causal affinity effects.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Coordinate observables are endpoint forecast descriptors, not atom velocities, neural attention, physical energies or causal affinity gradients.",
+    "Pair kernels and landmark occupancies are radial shell densities, not bond labels, interaction energies or monotone distance measures.",
+    "The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term; moment and pair-kernel effects are diagnostic only.",
+    "No current study outcome is available to either role.",
+    "Some previously cited continuous and survival evidence identifiers were not present in the supplied ID-to-record mapping and were removed; the corresponding claims are retained only where the remaining cited records support them."
+  ],
+  "role": "Analyst"
+}

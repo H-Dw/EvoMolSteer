@@ -1,0 +1,234 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only. Recorded affinities are removed and an equal score prior applies over the learning window [0.0,0.5]; decoded terminal learning labels are not available, so no supplied evidence measures final affinity directly.",
+      "evidence_ids": [
+        "objective",
+        "clocks",
+        "decoded_terminal_learning_labels_available",
+        "limitations"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Endpoint pointcloud effects are strongest and most consistent for pair-distance shell densities: pair_kernel_1.5, 2.5, 3.5 and 5.0 show positive integrated z with positive batch fractions (1.0, 1.0, 1.0, 0.857), while pair_kernel_7.0 is negative with zero positive batch fraction. These are radial shell densities, not bond labels or interaction energies.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Landmark soft-minimum and occupancy features at several landmarks carry endpoint effects (e.g., landmark_00_softmin negative, landmark_00_occupancy3 positive, landmark_00_occupancy5 positive), and shape_xx and shape_yy are negative with low q values. Occupancy is a radial shell density peaking at a, not an atom count, and shape entries are coordinate covariance, not a mechanism.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Joint residual features show the most consistent branch-adjusted associations: joint_innovation_RMS_A, joint_translation_RMS_A and joint_internal_RMS_A are negative in both raw and adjusted covariance/correlation metrics with high same-sign batch fractions (up to 1.0). These are descriptive within-selector associations with batch as the independent unit, not causal affinity effects.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:229",
+        "branch_adjusted:230",
+        "branch_adjusted:151",
+        "branch_adjusted:152",
+        "branch_adjusted:153"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Pair-kernel 1.5, 2.5 and 3.5 also appear as positive branch-adjusted raw and adjusted correlations, consistent with the endpoint pair-kernel pattern. The adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+      "evidence_ids": [
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:165",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Continuous observed-node linear trends for landmark_00 features show large first/last rate z values with sign changes and strong sign conflicts, and polynomial fits are not accepted (polynomial_accepted false, extrapolation_allowed false). Curve fitting does not establish causal benefit or a gradient, and no time bins or outside-window analysis are supplied.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "The curve-fidelity audit selected 24 curves under rules requiring relative RMSE <= 0.35, quiet-node large-fit fraction <= 0.1 and zero strong sign conflicts; the audit reports relative node RMSE values well above 0.35 for the listed curves and legendre_runtime_allowed false throughout, so the selected curves are not high-fidelity reconstructions.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Regional enrichment z effects are heterogeneous across landmarks: soft_mass is positive at landmarks 0, 7 and 10, local_dy is positive at landmarks 2, 6, 9, 14 and 18, and local_cyy is negative at many landmarks. These are endpoint forecast descriptors, not atom velocities, neural attention or physical energies.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:142",
+        "regional_effects:182"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Survival enrichment effects are mostly weak and null: landmark_00_soft_mass, landmark_07_soft_mass, landmark_10_soft_mass and landmark_18_local_czz show positive survival enrichment z, while landmark_04_local_cyz shows a positive change-rate z. Descendant credit is recorded joint-head credit, not decoded terminal affinity.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Turnover accounting separates population, edge and turnover-residual rates; several turnover_residual_rate entries are large and positive (e.g., landmark_00_local_cxx, landmark_00_local_cyy, landmark_01_local_cyy, landmark_04_local_cxx, landmark_07_local_cyy, landmark_08_local_cxx, landmark_16_local_cyy, landmark_17_local_cxx, landmark_19_local_cxx). The turnover residual includes score reclassification and extant-parent weighting, not only resampling, and these are descriptive whole-window rates, not causal selection tests.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:227",
+        "turnover:254",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Within-selector joint diagnostics show a positive association of selection innovation with innovation_native_alignment and teacher_innovation_contrast_alignment, and a negative association with observed_child_score_gain. These are descriptive within-selector associations with batch as the independent unit, not causal affinity effects.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "The information audit compares geometric nearest-teacher selection against Hungarian fixed-frame RMS with leave-one-batch exclusion and reports compressed-choice excess fixed RMS and teacher overlap metrics; teacher modes supply 28 static teachers with assignment RMS quantiles and temperature_edits false. The incumbent fixes mixture_temperature 0.5 and teacher_endpoint_temperature_A2 4.0, and temperatures are immutable task parameters.",
+      "evidence_ids": [
+        "information_audit",
+        "teacher_modes",
+        "incumbent",
+        "fixed_parameters"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "If the endpoint pointcloud reward is sensitive to pair-distance shell densities, then the positive endpoint and branch-adjusted associations for pair_kernel_1.5, 2.5 and 3.5 and the negative association for pair_kernel_7.0 suggest that shorter-range pair shells are more favorably associated with the recorded endpoint contrast than longer-range shells. This is a diagnostic association, not a physical interaction energy or a causal affinity gradient.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:165"
+      ]
+    },
+    {
+      "claim": "If landmark soft-minimum and occupancy features are the operative endpoint descriptors, then the positive soft_mass enrichment at landmarks 0, 7 and 10 and the negative landmark_00_softmin endpoint effect suggest that proximity to specific landmarks is associated with the recorded endpoint contrast. Occupancy is a radial shell density, not an atom count, and proximity does not establish a quality benefit.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "regional_effects:0",
+        "regional_effects:70",
+        "regional_effects:100"
+      ]
+    },
+    {
+      "claim": "If joint residual features are informative, then the consistent negative branch-adjusted associations for joint_innovation_RMS_A, joint_translation_RMS_A and joint_internal_RMS_A suggest that lower joint residual magnitudes are associated with the recorded endpoint contrast. These are descriptive within-selector associations, not causal affinity effects.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:229",
+        "branch_adjusted:230",
+        "joint_diagnostics:1",
+        "joint_diagnostics:2"
+      ]
+    },
+    {
+      "claim": "If observed-node linear trends are used for temporal teacher recipes, then the large first/last rate z values, sign changes and strong sign conflicts for landmark_00 features, together with the curve-fidelity audit's high relative node RMSE and legendre_runtime_allowed false, suggest that these trends are not reliable for extrapolation or for a temporal derivative target. A temporal derivative is not a coordinate gradient.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "curve_support"
+      ]
+    },
+    {
+      "claim": "If turnover residual rates reflect score reclassification and extant-parent weighting, then the large positive turnover_residual_rate entries at several landmarks suggest that selection and reclassification contribute substantially to the recorded turnover. This is descriptive whole-window accounting, not a causal selection test.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:227",
+        "turnover:254",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ]
+    },
+    {
+      "claim": "If the static teacher set is used for the endpoint reward, then the information audit's compressed-choice excess fixed RMS and teacher overlap metrics, together with the 28 static teachers and assignment RMS quantiles, suggest that teacher selection is only moderately aligned with the recorded endpoint contrast. Teacher score correlations are observational and are not a fitted or independently validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit",
+        "teacher_modes",
+        "incumbent"
+      ]
+    }
+  ],
+  "limitations": [
+    "Recorded affinities are removed and an equal score prior applies; decoded terminal learning labels are not available, so no supplied evidence measures final affinity directly.",
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis are supplied.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects are retained; current study outcomes are withheld from design roles.",
+    "Occupancy is a radial shell density peaking at a, not the number of atoms within radius a, and is not monotone in distance.",
+    "Pair kernels are radial pair-distance shell densities, not bond labels or interaction energies.",
+    "Shape and regional covariance entries are coordinate covariance, not by themselves an inferred chemical mechanism.",
+    "Temperatures are immutable task parameters; no role may propose or compile a temperature edit.",
+    "A temporal derivative is not a coordinate gradient."
+  ],
+  "role": "Analyst"
+}
