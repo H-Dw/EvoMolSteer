@@ -1,0 +1,53 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "incumbent",
+    "allowed_edits",
+    "formula_registry",
+    "fixed_parameters",
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "branch_adjusted:86",
+    "branch_adjusted:87",
+    "branch_adjusted:163",
+    "branch_adjusted:164",
+    "branch_adjusted:167",
+    "branch_adjusted:228",
+    "branch_adjusted:230",
+    "branch_adjusted:305",
+    "branch_adjusted:307",
+    "joint_diagnostics:1",
+    "joint_diagnostics:11",
+    "joint_diagnostics:14",
+    "curve_support",
+    "continuous_functions",
+    "decoded_terminal_learning_labels_available",
+    "lineage_support",
+    "limitations"
+  ],
+  "expected_response": {
+    "decision": "retain",
+    "edit": null,
+    "note": "Incumbent preserved; no registered bounded declarative edit expresses the supported short-range pair-kernel or joint-internal direction, and temporal conditioning is not supported by the supplied curves."
+  },
+  "failure_modes": [
+    "Selecting a region_index or temporal_region_index edit on the strength of landmark softmin point estimates whose positive_batch_fraction is 0.0-0.86 and whose adjusted q does not survive (endpoint_effects:14,20,32,68) would over-prioritize batch-inconsistent evidence.",
+    "Extending the short-range pair-kernel direction to the 7.0 A shell would contradict the sign flip and loss of batch agreement at endpoint_effects:13 and branch_adjusted:167.",
+    "Treating the turnover residual as a causal selection effect or atom velocity would misread an accounting diagnostic that includes score reclassification and extant-parent weighting (turnover:1,2,14,17).",
+    "Treating recorded descendant joint-head credit as final affinity benefit would be unsupported because decoded terminal learning labels are unavailable and ancestral coverage is thin (lineage_support).",
+    "Proposing any temperature change would violate the immutable fixed-parameter policy (fixed_parameters)."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "fixed task parameter 0.5; immutable",
+    "pointcloud_delta_A": "incumbent default 1.0 A; unchanged",
+    "teacher_endpoint_temperature_A2": "fixed task parameter 4.0; immutable",
+    "teacher_neighbors": "incumbent 4; unchanged"
+  },
+  "rationale": "Retain the incumbent. The Analyst's strongest reproducible coordinate signal is the short-range pair-kernel shell family (endpoint_effects:9-11 with positive_batch_fraction 1.0; branch_adjusted:86,87,163,164 surviving BH at q<0.05), but the executing pointcloud scalar contains no pair-kernel, moment, joint-motif or geometry-block term (formula_registry diagnostic_limit), so no registered bounded edit maps that diagnostic onto the operative reward. The permitted edits are pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index and temporal_teacher_blend; none of these is a pair-kernel or joint-internal-RMS control, and the Analyst's own hypothesis 1 is a diagnostic priority rather than a registered design. The counterexample at the 7.0 A shell (endpoint_effects:13 integrated z=-0.485, positive_batch_fraction 0.0; branch_adjusted:167 negative) shows the short-range direction is not safely extendable, and the joint internal-RMS family (branch_adjusted:228,230,305,307; joint_diagnostics:14 internal fraction 0.787) is likewise a coupling diagnostic with no operative handle. Temporal conditioning is unsupported: every continuous function is an observed-node linear interpolant with extrapolation_allowed=false, polynomial_accepted=false throughout, and frequent sign changes (continuous_functions, curve_support), so a temporal_region_index or temporal_teacher_blend edit would not be evidence-bound. Descendant credit cannot arbitrate because decoded_terminal_learning_labels_available is false and lineage_support shows thin ancestral coverage (349 nodes with fewer than 3 ancestors, 531 with fewer than 6, of 700), so the recorded survival enrichment is survivor-conditioned. With no defensible expected advantage over the incumbent and no registered edit that expresses the supported direction, retaining the incumbent is the correct choice; temperatures remain fixed and no temperature edit is proposed.",
+  "role": "Designer"
+}

@@ -1,0 +1,60 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "incumbent",
+    "formula_registry",
+    "allowed_edits",
+    "branch_adjusted:86",
+    "branch_adjusted:87",
+    "branch_adjusted:240",
+    "branch_adjusted:241",
+    "branch_adjusted:151",
+    "branch_adjusted:153",
+    "branch_adjusted:305",
+    "branch_adjusted:307",
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "endpoint_effects:15",
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5",
+    "continuous:6",
+    "continuous:7",
+    "continuous:8",
+    "continuous:9",
+    "curve_support",
+    "lineage_support",
+    "decoded_terminal_learning_labels_available",
+    "clocks",
+    "teacher_modes",
+    "fixed_parameters",
+    "observable_definitions"
+  ],
+  "expected_response": {
+    "coordinate_control": "only",
+    "primary": "Final predicted target affinity",
+    "secondary": "Validity and strain evaluated separately"
+  },
+  "failure_modes": [
+    "A pair-kernel or joint-RMS direction cannot be compiled because the executing pointcloud scalar has no such term; attempting to encode it via an allowed edit would be an unregistered substitution.",
+    "A regional or temporal edit chosen from non-monotone, low-fidelity landmark_00 curves would extrapolate beyond observed support and could displace surrounding coordinates without a validated affinity benefit.",
+    "Survival-based direction priorities are weakly identified given thin ancestral coverage and no BH-surviving survival field."
+  ],
+  "parameter_origins": {
+    "allowed_edits": "registered bounded declarative design set",
+    "fixed_parameters": "mixture_temperature 0.5, teacher_endpoint_temperature_A2 4.0 (immutable)",
+    "incumbent": "supplied incumbent program D2_without_trajectory_static"
+  },
+  "rationale": "Retain the incumbent. The Analyst's most reproducible adjusted directions are short-range pair-distance shell density (pair_kernel_1.5/2.5, adjusted covariance q=0.077-0.081, adjusted correlation q=1.9e-2/4.0e-3, same-sign batch fraction 0.79-0.93) and negative joint innovation/internal RMS (adjusted correlation -0.150/-0.137, q<1e-3). However, the executing pointcloud scalar contains no pair-kernel, moment, joint-motif or geometry-block term (formula_registry diagnostic_limit), so no registered bounded edit (pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index, temporal_teacher_blend) can express that direction. The remaining candidate levers are not defensibly supported: global centroid effects are non-significant and collapse under adjustment (branch_adjusted:0-2, 77-79); shape_yy is the only reproducible shape sign but is not addressable by any allowed edit; landmark_00 continuous contrasts are non-monotone with 4-10 sign changes and no accepted polynomial (continuous:0-9, curve_support), so a time-conditioned or regional edit would be extrapolation beyond observed support; survival enrichment is weak and no field survives BH at q<0.05 with thin ancestral coverage (349/700 nodes <3 ancestors, 531 <6). With decoded terminal learning labels unavailable, descendant credit cannot be presented as final affinity benefit. Because no allowed edit has a defensible expected advantage over the incumbent under the affinity-first objective, retaining the incumbent is the correct choice; the incumbent's fixed temperatures (mixture_temperature 0.5, teacher_endpoint_temperature_A2 4.0) are preserved and no temperature edit is proposed.",
+  "role": "Designer"
+}

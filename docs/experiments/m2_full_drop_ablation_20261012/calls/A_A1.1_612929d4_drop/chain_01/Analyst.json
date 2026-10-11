@@ -1,0 +1,259 @@
+{
+  "findings": [
+    {
+      "claim": "Decoded terminal learning labels are unavailable, so descendant credit is recorded joint-head credit, not final affinity benefit. Survival enrichment (e.g. landmark_00_soft_mass survival_effects:0 z=0.365, q=0.120; landmark_10_soft_mass survival_effects:100 z=0.234, q=0.302) and endpoint effects (landmark_00_occupancy3 endpoint_effects:15 integrated z=0.545, q=2.4e-4) are different semantics; the immediate-selection versus descendant-survival comparison cannot be resolved into a final-affinity direction and is reported as unavailable.",
+      "evidence_ids": [
+        "decoded_terminal_learning_labels_available",
+        "lineage_support",
+        "survival_effects:0",
+        "survival_effects:100",
+        "survival_effects:186",
+        "endpoint_effects:15",
+        "endpoint_effects:9"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Ancestral coverage is thin: lineage_support reports 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, out of 700 total batch nodes, and only 14 complete-survival batches. Survivor bias is therefore material; survival enrichment z values are small (max ~0.37) with q values mostly above 0.1, so last-record credit should not be presented as final affinity benefit.",
+      "evidence_ids": [
+        "lineage_support",
+        "survival_effects:0",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:393"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Multiplicity-adjusted support ranks pair_kernel_1.5 and pair_kernel_2.5 above point estimates alone: adjusted_covariance pair_kernel_1.5 (branch_adjusted:86) q=0.081, pair_kernel_2.5 (branch_adjusted:87) q=0.077, with adjusted_correlation q=0.019 and 0.046 (branch_adjusted:240,241) and same-sign batch fractions 0.79-0.93. Endpoint effects for pair_kernel_1.5/2.5/3.5 (endpoint_effects:9-11) have q<=1e-4 with positive_batch_fraction 1.0, while pair_kernel_7.0 (endpoint_effects:13) is negative with q=1.5e-4. A priority decision that weights adjusted q and batch agreement differs from ranking by whole_window_mean magnitude alone.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Joint diagnostics show coherent coupling: joint_innovation_RMS_A and joint_internal_RMS_A have adjusted_correlation q=2.8e-4 and 9.7e-4 (branch_adjusted:305,307) with same-sign batch fraction 0.93-1.0, and adjusted_covariance q=0.020 and 0.030 (branch_adjusted:151,153). These joint terms are stronger and more reproducible than isolated marginal centroid or shape descriptors, indicating internal-motion coupling rather than independent per-coordinate effects.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:74",
+        "branch_adjusted:76"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Shape_yy is the one shape marginal with consistent adjusted support (raw_correlation branch_adjusted:158 q=0.0026, adjusted_correlation branch_adjusted:235 q=0.015, adjusted_covariance branch_adjusted:81 q=0.13), while shape_xx, shape_zz and off-diagonal shape terms are not supported after adjustment. This separates a local shape signal from global pose terms (global_centroid_x/y/z adjusted q>=0.86, branch_adjusted:77-79).",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "branch_adjusted:81",
+        "branch_adjusted:234",
+        "branch_adjusted:3",
+        "branch_adjusted:4",
+        "branch_adjusted:5"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Supplied continuous contrast functions are observed-node linear interpolations over support [0.0,0.49] with extrapolation_allowed=false and polynomial_accepted=false for all listed soft_mass features. They show multiple sign changes (e.g. continuous:0 sign_changes=4, continuous:20 sign_changes=7) and relative_node_RMSE 0.28-0.81, so a constant rule is not supported over the window and no time bins or extrapolation are warranted.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Curve fidelity audit (curve_support) shows last_empirical_z and last_fit_z frequently disagree in sign (e.g. landmark_00_softmin last_empirical_z=-0.146 vs last_fit_z=-0.481; landmark_02_softmin -0.188 vs 0.253) with strong_sign_conflict_nodes up to 15 and relative_node_rmse up to 0.93. The selected_count is 24 under a rule requiring relative_rmse<=0.35 and zero strong sign conflicts, so most curves fail fidelity and should not be treated as validated fits.",
+      "evidence_ids": [
+        "curve_support",
+        "continuous:0",
+        "continuous:10",
+        "continuous:20"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Turnover accounting separates population_rate, edge_rate and turnover_residual_rate. For landmark_00_local_cxx (turnover:12-14) population_rate z=-0.058 (p=0.86) while edge_rate z=-4.34 (p=0.004) and turnover_residual_rate z=4.29 (p=0.002); similar large residual rates appear for landmark_00_local_cyy (turnover:17 z=5.05), landmark_04_local_cxx (turnover:134 z=5.67) and landmark_16_local_cyy (turnover:497 z=6.37). The residual is an accounting diagnostic including reclassification and parent weighting, not a causal selection effect or atom velocity.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:497"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Parent-child increment contrasts are mostly weak: landmark_00_softmin increment_effects:14 has q=0.046 with negative_batch_fraction 0.93, landmark_00_occupancy3 increment_effects:15 q=0.081, shape_xx increment_effects:3 q=0.095, shape_yy increment_effects:4 q=0.161, shape_xz increment_effects:7 q=0.207, pair_kernel_2.5 increment_effects:10 q=0.208, pair_kernel_7.0 increment_effects:13 q=0.208. These do not establish within-path change versus changing cohort composition; the turnover residual is the appropriate accounting diagnostic.",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:3",
+        "increment_effects:4",
+        "increment_effects:7",
+        "increment_effects:10",
+        "increment_effects:13"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Joint diagnostics show selection innovation is associated with native alignment (joint_diagnostics:1 q=2.2e-9, positive_batch_fraction 1.0) and teacher innovation-contrast alignment (joint_diagnostics:11 q=2.2e-9), but negatively associated with observed_child_score_gain (joint_diagnostics:2 q=1.8e-7, positive_batch_fraction 0.0). Teacher contrast is predominantly internal (joint_diagnostics:14 mean 0.787) with atom participation 0.384 (joint_diagnostics:15). This is descriptive within-selector association, not a causal affinity effect.",
+      "evidence_ids": [
+        "joint_diagnostics:2",
+        "joint_diagnostics:1",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Information audit reports compressed_choice_excess_fixed_RMS_A mean 0.081 (CI 0.070-0.092) and top4_teacher_overlap 0.470 (CI 0.427-0.515), with teacher score correlations 0.064-0.102. Teacher modes are static (28 teachers, assignment RMS quantiles 0.446/0.863/1.050 A) and temperatures are immutable (temperature_edits=false). Coordinate observables are endpoint forecast descriptors, not physical interaction energies or neural-module causation.",
+      "evidence_ids": [
+        "information_audit",
+        "teacher_modes",
+        "clocks",
+        "observable_definitions"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Regional enrichment_z effects identify landmark soft_mass and local_dy signals (e.g. regional_effects:0 landmark_00_soft_mass z=0.639 q=1.9e-4; regional_effects:22 landmark_02_local_dy z=0.405 q=1.3e-4; regional_effects:62 landmark_06_local_dy z=0.425 q=5.7e-7; regional_effects:92 landmark_09_local_dy z=0.325 q=1.2e-5; regional_effects:142 landmark_14_local_dy z=0.350 q=3.4e-6; regional_effects:182 landmark_18_local_dy z=0.425 q=9.2e-6). Parent-edge contrast rates for local_cxx/local_cyy are strongly negative (regional_effects:404 z=-4.34, regional_effects:405 z=-4.79), indicating the local shape terms are not uniformly favorable.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_effects:400",
+        "regional_effects:404",
+        "regional_effects:405"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "A coordinate intervention targeting short-range pair-distance shell density (pair_kernel_1.5-3.5) is testable: observable is pair_kernel_a for a in {1.5,2.5,3.5}; intended response is increased shell density; target origin is the executing pointcloud scalar with teacher_neighbors and pointcloud_delta_A; spatial scale is 1.5-3.5 A; discriminating failure is no change in endpoint affinity or a sign reversal in pair_kernel_7.0. The permitted reward recipe that could express this is the endpoint pointcloud with adjusted teacher neighbors.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "A joint internal-motion hypothesis is testable: observable is joint_internal_RMS_A; intended response is reduced internal RMS while preserving translation; target origin is the joint innovation term; spatial scale is whole-molecule internal coordinates; discriminating failure is reduced internal RMS without endpoint affinity change or with increased joint_translation_RMS_A. This remains descriptive unless a permitted reward recipe expresses it.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "A time-conditioned regional attention hypothesis is testable: observable is the validated absolute contrast change at actual score nodes; intended response is regional attention shift; target origin is the temporal_region recipe; temporal scale is the observed support [0.0,0.49]; discriminating failure is no improvement over a constant rule or a fit that fails the curve fidelity audit. The permitted temporal_teacher_blend values are 0.25, 0.5, 1.0.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "curve_support"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "A shape_yy-specific hypothesis is testable: observable is shape_yy; intended response is a change in the yy covariance component; target origin is the regional shape term; spatial scale is the global shape tensor; discriminating failure is no endpoint affinity change or a compensating change in shape_xx/shape_zz. This is a marginal descriptor and may be redundant with joint internal motion.",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "branch_adjusted:81",
+        "branch_adjusted:3",
+        "branch_adjusted:4",
+        "branch_adjusted:5"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "A turnover-residual hypothesis is testable: observable is turnover_residual_rate; intended response is a change in the residual; target origin is the parent-child increment accounting; temporal scale is the whole window; discriminating failure is a residual change explained entirely by reclassification or parent weighting rather than within-path change. The residual is an accounting diagnostic, not a causal selection effect.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:497"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "A landmark-region hypothesis is testable: observable is regional enrichment_z for soft_mass and local_dy; intended response is increased enrichment at the named landmark; target origin is the regional attention recipe; spatial scale is the 5.0 A radius; discriminating failure is no endpoint affinity change or a negative parent-edge contrast for the same region. The permitted region_index is an evidence-bound landmark.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_effects:400",
+        "regional_effects:404",
+        "regional_effects:405"
+      ],
+      "priority": 6
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded terminal learning labels are unavailable.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Temperatures are immutable task parameters; no temperature edit is proposed or compiled.",
+    "Coordinate observables are endpoint forecast descriptors, not physical interaction energies or neural-module causation."
+  ],
+  "role": "Analyst"
+}

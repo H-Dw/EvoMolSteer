@@ -1,0 +1,258 @@
+{
+  "findings": [
+    {
+      "claim": "Decoded terminal learning labels are unavailable (decoded_terminal_learning_labels_available=false). Descendant credit is recorded joint-head credit over the learning window [0,0.5], not decoded terminal affinity. Last-record credit therefore cannot be presented as final affinity benefit; the immediate-selection versus descendant-credit comparison is unavailable.",
+      "evidence_ids": [
+        "decoded_terminal_learning_labels_available",
+        "lineage_support",
+        "clocks"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Ancestral coverage is thin: of 700 total batch nodes, 349 have fewer than 3 ancestors and 531 have fewer than 6. Survival/credit estimates rest on few-ancestor nodes, so survivor bias is a live concern and descendant-credit direction priorities are weakly identified.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Survival enrichment is weak and mostly null: landmark_00_soft_mass (0.365, q=0.120), landmark_07_soft_mass (0.220, q=0.356), landmark_10_soft_mass (0.234, q=0.302), landmark_18_local_czz (0.217, q=0.302), landmark_02_local_dz (0.206, q=0.356), landmark_04_local_czz (0.266, q=0.302). No survival field survives BH at q<0.05, so survival credit does not establish a directional coordinate rule.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:23",
+        "survival_effects:46"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Immediate endpoint selection evidence is stronger than survival credit: pair_kernel_1.5 (0.562, q=1.5e-4), pair_kernel_2.5 (0.631, q=2.2e-5), pair_kernel_3.5 (0.540, q=9.8e-5), pair_kernel_5.0 (0.319, q=3.7e-3), landmark_00_occupancy3 (0.545, q=2.4e-4), with negative pair_kernel_7.0 (-0.485, q=1.5e-4) and shape_yy (-0.513, q=1.5e-5), shape_xx (-0.495, q=8.1e-4). Selection and survival disagree in strength, so direction priorities should weight immediate selection over descendant survival credit.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "endpoint_effects:15",
+        "endpoint_effects:4",
+        "endpoint_effects:3"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "After branch adjustment, pair_kernel_1.5 (adjusted covariance 1.26e-6, q=0.081; adjusted correlation 0.141, q=1.9e-2) and pair_kernel_2.5 (1.86e-6, q=0.077; 0.126, q=4.0e-3) retain positive sign with high same-sign batch fraction (0.79-0.93). Joint innovation/internal RMS are negative and significant (adjusted correlation -0.150, q=2.8e-4; -0.137, q=9.7e-4). These are the most reproducible adjusted directions.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Global centroid raw-covariance effects (x 8.6e-7, y 3.7e-6, z 4.1e-7) are not significant (q=0.69-0.97) and collapse under adjusted covariance (q=0.86-0.97). Global translation carries no reproducible coordinate signal; local/regional information should be separated from global pose.",
+      "evidence_ids": [
+        "branch_adjusted:0",
+        "branch_adjusted:1",
+        "branch_adjusted:2",
+        "branch_adjusted:77",
+        "branch_adjusted:78",
+        "branch_adjusted:79"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Shape diagonal terms are negative and partly reproducible: shape_yy raw covariance -7.2e-5 (q=0.153) and raw correlation -0.103 (q=2.6e-3), adjusted correlation -0.100 (q=1.5e-2); shape_xx adjusted correlation -0.030 (q=0.30). Shape_yy is the one shape component with consistent negative sign across raw and adjusted views; shape_zz and off-diagonals are not reproducible.",
+      "evidence_ids": [
+        "branch_adjusted:3",
+        "branch_adjusted:4",
+        "branch_adjusted:5",
+        "branch_adjusted:80",
+        "branch_adjusted:81",
+        "branch_adjusted:82",
+        "branch_adjusted:158",
+        "branch_adjusted:235"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Continuous contrast functions for landmark_00 are non-monotone with many sign changes (soft_mass 4, local_dx 6, local_dy 6, local_dz 10, local_cxx 6, local_cyy 4, local_czz 7, local_cxy 9, local_cxz 7, local_cyz 7) and no polynomial accepted (polynomial_accepted=false, extrapolation_allowed=false). A constant rule is not supported; any time-conditioned rule must use observed-node interpolation within [0,0.49] only.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Soft-mass contrast curves show sign changes and rate reversals across the window (e.g., landmark_00 first_rate_z 9.27 to last_rate_z -10.00; landmark_02 55.9 to 5.1; landmark_09 54.1 to 1.8). Rate changes are not stable, so a time-conditioned rule would need validated fits; the supplied evidence does not support arbitrary time bins.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Curve fidelity audit selected 24 curves under strict rules (relative_rmse_le 0.35, strong_sign_conflict_nodes_eq 0, quiet_node_large_fit_fraction_le 0.1). Most landmark_00 curves fail fidelity (relative_node_RMSE 0.29-0.99, strong sign conflicts up to 14), so fitted curves are not reliable absolute reward targets and should not be extrapolated.",
+      "evidence_ids": [
+        "curve_support",
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Turnover accounting shows large positive turnover_residual_rate for many local_cxx/cyy terms (e.g., landmark_00_local_cxx 4.29, q=0.038; landmark_00_local_cyy 5.05, q=0.033; landmark_04_local_cxx 5.67, q=0.012; landmark_07_local_cxx 5.08, q=0.012; landmark_16_local_cyy 6.37, q=0.012; landmark_17_local_cxx 5.24, q=0.012; landmark_19_local_cxx 5.30, q=0.012; landmark_19_local_cyy 5.37, q=0.031). The residual is an accounting diagnostic including reclassification and parent weighting, not a causal selection effect or atom velocity.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584",
+        "turnover:587"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Parent-child increment contrasts are mostly not significant after BH (landmark_00_softmin -4.91, q=0.046; landmark_00_occupancy3 4.28, q=0.081; shape_xx -3.70, q=0.095; shape_yy -3.85, q=0.161; shape_xz 3.00, q=0.207; pair_kernel_2.5 3.96, q=0.208; pair_kernel_7.0 -3.14, q=0.208). Within-path change is weakly supported; changing cohort composition cannot be excluded.",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:3",
+        "increment_effects:4",
+        "increment_effects:7",
+        "increment_effects:10",
+        "increment_effects:13"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Hypothesis: a coordinate intervention targeting short-range pair-distance shell density (pair_kernel_1.5-2.5) is the most reproducible direction, with observable = pair_kernel_1.5/2.5 contrast, intended response = positive adjusted covariance/correlation, target origin = local pair geometry, scale = 1.5-2.5 A, discriminating failure = adjusted correlation sign reversal or same-sign batch fraction below 0.5.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "endpoint_effects:9",
+        "endpoint_effects:10"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Hypothesis: joint innovation/internal RMS is a coherent joint coordinate pattern (adjusted correlation -0.150/-0.137, q<1e-3; teacher_innovation_contrast_alignment 0.226, q=2.2e-9) that adds information beyond isolated marginals; a discriminating failure would be loss of the negative adjusted sign under leave-one-batch exclusion.",
+      "evidence_ids": [
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:305",
+        "branch_adjusted:307",
+        "joint_diagnostics:1",
+        "joint_diagnostics:11"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Hypothesis: shape_yy is a reproducible negative shape direction (raw correlation -0.103, q=2.6e-3; adjusted -0.100, q=1.5e-2; endpoint -0.513, q=1.5e-5), while shape_xx/zz and off-diagonals are not; a discriminating failure would be sign reversal in an independent batch set.",
+      "evidence_ids": [
+        "branch_adjusted:4",
+        "branch_adjusted:81",
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "endpoint_effects:4"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Hypothesis: a time-conditioned rule using validated observed-node interpolation of soft-mass contrast could express a within-window change, but only if curve fidelity (relative_rmse_le 0.35, zero strong sign conflicts) is met; otherwise the finding remains descriptive and no temporal recipe should be compiled.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "curve_support"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Hypothesis: the large positive turnover_residual_rate for local_cxx/cyy reflects changing cohort composition and parent weighting rather than within-path change; a discriminating failure would be a residual that vanishes when parent weights are held fixed.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Hypothesis: survival enrichment for soft_mass and local_czz is too weak and too few-ancestor to support a coordinate rule; a discriminating failure would be a survival effect that survives BH at q<0.05 with adequate ancestral coverage.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "lineage_support"
+      ],
+      "priority": 6
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded terminal learning labels are unavailable.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Global centroid and most shape off-diagonal effects are not reproducible after branch adjustment.",
+    "No survival field survives BH at q<0.05; survival-based direction priorities are weakly identified."
+  ],
+  "role": "Analyst"
+}
