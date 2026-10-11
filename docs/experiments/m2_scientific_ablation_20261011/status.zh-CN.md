@@ -2,7 +2,7 @@
 
 模型：真实 DeepSeek API / deepseek-flash。
 
-状态：screening；已完成子模块 0/17。
+状态：failed；已完成子模块 0/17。
 
 |模块|功能验证|确认结论|是否精简|
 |---|---|---|---|

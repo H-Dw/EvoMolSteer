@@ -11,7 +11,7 @@ import jsonschema
 from evomolsteer.io import digest, read_json, write_json
 
 
-FORMAT_POLICY = "json-interface-v3"
+FORMAT_POLICY = "json-interface-v4"
 
 
 class LLMInterfaceError(ValueError):
@@ -50,11 +50,13 @@ def validation_diagnostics(error):
         values = error.validator_value
         if error.validator == "enum" and len(values) > 64:
             info.update(allowed_value_count=len(values),
-                allowed_values_location="response_schema at schema_pointer")
+                allowed_values_location="supplied source-ID mapping and response_schema source-ID enums")
         else:
             info["allowed_value_or_values"] = values
     else:
         info["constraint"] = error.validator_value
+        if error.validator=="verbatim_quote":
+            info["invalid_value"] = error.instance
     return info
 
 
@@ -68,7 +70,7 @@ def response_diagnostics(error, result, schema):
     if not isinstance(error, jsonschema.ValidationError):
         return info
     validator = jsonschema.validators.validator_for(schema)(schema)
-    errors = list(validator.iter_errors(result))
+    errors = list(validator.iter_errors(result)) + list(error.context)
     rest = [e for e in errors if (list(e.absolute_path), e.validator) !=
             (list(error.absolute_path), error.validator)]
     if rest:
@@ -91,6 +93,8 @@ def format_message(schema, diagnostics=None):
             "Inspect each invalid_value at its instance_pointer. For invalid source citations, consult the supplied ID-to-record mapping; "
             "correct a reference only when that record supports the original claim, otherwise state that claim's lack of support in permitted fields. "
             "Never guess a replacement ID or invent a source. "
+            "For verbatim_quote errors, copy an exact supporting excerpt from the supplied role response; "
+            "if no supporting excerpt exists, correct the assessment using the supplied rubric. "
             "Do not add research advice. Do not emit another role's decision fields outside the permitted properties.\n"
             + json.dumps(contract, ensure_ascii=False, separators=(",", ":")))
 
@@ -106,7 +110,8 @@ def unused_path(output, template):
 
 
 def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
-              transport=None, attempts=3, sleep=time.sleep, input_store=None, max_output_tokens=8192):
+              transport=None, attempts=3, sleep=time.sleep, input_store=None, max_output_tokens=8192,
+              response_validator=None):
     if model != "deepseek-flash":
         raise ValueError("This study requires exactly deepseek-flash; no fallback")
     if attempts < 1:
@@ -152,6 +157,10 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
             raise ValueError("Cached response checksum mismatch")
         result = read_json(output)
         jsonschema.validate(result, schema)
+        # Cached schema-valid responses can still violate source/quote
+        # contracts. Never silently accept, replace, or retry such a cache.
+        if response_validator is not None:
+            response_validator(result)
         return result
     key = os.environ.get("DEEPSEEK_API_KEY")
     if not key:
@@ -209,6 +218,8 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
             try:
                 result = json.loads(content)
                 jsonschema.validate(result, schema)
+                if response_validator is not None:
+                    response_validator(result)
             except (json.JSONDecodeError, jsonschema.ValidationError) as error:
                 diagnostics = response_diagnostics(error, result, schema)
                 invalid_path = unused_path(output, ".attempt_{index}.invalid.txt")

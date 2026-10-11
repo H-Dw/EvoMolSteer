@@ -16,6 +16,7 @@ import time
 
 import numpy as np
 import pandas as pd
+import jsonschema
 
 from run_m2_skill_api_study import Study, shell
 from evomolsteer.ablation.protocol import prepare, validate_activation, validate_prior_policy
@@ -24,14 +25,29 @@ from evomolsteer.ablation.compiler import compile_program
 from evomolsteer.ablation.diagnostics import run_probes
 from evomolsteer.ablation.response import observed_response
 from evomolsteer.ablation.statistics import compare, compare_strain, summarize, quality_envelope, pruning_decision, classify_module
+from evomolsteer.ablation.execution import ExecutionBudgetExceeded, ModuleExecutionError, failure_record
 from evomolsteer.continuous.m2_skill_api import BASE, REF, effective_signature
 from evomolsteer.deepseek_api import LLMInterfaceError
 from evomolsteer.io import digest, read_json, write_json
 
 
 class ScientificStudy(Study):
+    def __init__(self, repo, config):
+        super().__init__(repo, config)
+        self.state.setdefault("skipped_modules", [])
+        self.state.setdefault("stage_failures", [])
+        if self.state.get("status") == "failed" and self.state.get("error"):
+            self.state.setdefault("failure_before_skip_resume", {
+                k:self.state.get(k) for k in ["phase","task","active_role","active_chain","error","error_type","updated_unix"]})
+
     def preflight(self):
         activation=validate_activation(self.repo,self.study)
+        error_policy=self.study/"execution_error_policy.json"
+        if self.config.get("module_error_policy")!="skip_and_keep_current":
+            raise ValueError("Explicit user-authorized module skip policy required")
+        policy_sha=digest(error_policy)
+        if self.state.get("execution_error_policy_sha256",policy_sha)!=policy_sha:
+            raise ValueError("Execution error policy changed after resume")
         prior_policy=validate_prior_policy(self.repo,self.study,self.config,self.state)
         work=PurePosixPath(self.config["remote_work"])
         flowr=PurePosixPath(self.config["flowr"])
@@ -73,6 +89,7 @@ for p in root.rglob('*.json'):
         self.state.setdefault("pruning",[])
         self.state.setdefault("api_calls",0)
         self.save(status="ready",error=None,error_type=None,preflight_passed=True,
+            execution_error_policy_sha256=policy_sha,
             protocol_sha256=activation["protocol_sha256"],model="deepseek-flash",
             secondary_statistical_amendment_sha256=statistical_sha,**prior_policy)
 
@@ -83,16 +100,19 @@ for p in root.rglob('*.json'):
             for p in self.study.rglob("*.receipt.json"))
         budget=self.protocol["budgets"]
         if self.state["api_calls"]>=budget["maximum_api_role_calls"]:
-            raise RuntimeError("Preregistered API budget reached; preserve unresolved tests")
+            raise ExecutionBudgetExceeded("Preregistered API budget reached; preserve unresolved tests")
         if len(self.state["program_results"])>=budget["maximum_distinct_inference_cohorts"]:
-            raise RuntimeError("Preregistered distinct cohort budget reached")
+            raise ExecutionBudgetExceeded("Preregistered distinct cohort budget reached")
 
     def _call(self,case,chain,role,active,**kwargs):
         self._budget()
         output=self.study/"calls"/case/f"chain_{chain:02d}"/(role+".json")
         cached=output.exists() and output.with_suffix(".receipt.json").exists()
         self.save(status="calling_real_api",task=case,active_role=role,active_chain=chain)
-        result=call_role(self.repo,self.study,case,chain,role,active,**kwargs)
+        try:
+            result=call_role(self.repo,self.study,case,chain,role,active,**kwargs)
+        except (LLMInterfaceError, jsonschema.ValidationError, ValueError) as error:
+            raise ModuleExecutionError(case,"role_response",error,role=role,chain=chain) from error
         if not cached:self.state["api_calls"]+=1
         self.save()
         return result
@@ -129,7 +149,13 @@ for p in root.rglob('*.json'):
         return pd.read_csv(self.repo/result["outcomes"][arm]["metrics"])
 
     def condition(self,case,role,active,incumbent,*,lane="G",alternative=None,frozen=None,focal=None,designer_context=None):
-        if case in self.state["conditions"]:return self.state["conditions"][case]
+        if case in self.state["conditions"]:
+            value=self.state["conditions"][case]
+            failed_review=self.study/"reviews"/(case+".unconfirmed.json")
+            if value.get("functional") is None and failed_review.exists():
+                report=read_json(failed_review)
+                raise ModuleExecutionError(case,"functional_review",ValueError(report["error"]),role="Reviewer")
+            return value
         rows=[]
         delivery=None
         if lane=="U":
@@ -161,9 +187,12 @@ for p in root.rglob('*.json'):
             self._budget()
             functional=review(self.study,case,role,focal or active)
             self.state["api_calls"]+=1
+        except ExecutionBudgetExceeded:
+            raise
         except Exception as error:
             write_json(self.study/"reviews"/(case+".unconfirmed.json"),{"error_type":type(error).__name__,"error":str(error),
                 "necessity_claim_allowed":False,"generation_results_preserved":True})
+            raise ModuleExecutionError(case,"functional_review",error,role="Reviewer") from error
         # Semantic response is measured before a new molecule cohort is launched.
         # A nonresponse remains an explicit interface/functional bottleneck.
         for row in rows:
@@ -188,75 +217,174 @@ for p in root.rglob('*.json'):
         return compare_strain(full,other,family=family,
             replicates=self.protocol["evaluation"]["bootstrap_replicates"],paired_roles=paired_roles)
 
+    def _module_is_skipped(self,module):
+        return any(r["module"]==module for r in self.state.get("skipped_modules",[]))
+
+    def skip_module(self,module,phase,active,error):
+        if self._module_is_skipped(module):return
+        record=failure_record(module,phase,active,error)
+        self.state["skipped_modules"].append(record)
+        write_json(self.study/"skipped_modules"/(phase+"_"+module+".json"),record)
+        self.save(status="continuing_after_module_error",phase=phase,task=module,error=None,error_type=None)
+        self.write_report()
+        self.commit("ablation(scientific): skip failed comparison "+module+" without causal attribution")
+
+    def optional_condition(self,case,*args,**kwargs):
+        if any(r.get("case")==case for r in self.state.get("stage_failures",[])):return None
+        try:return self.condition(case,*args,**kwargs)
+        except (ModuleExecutionError,LLMInterfaceError,jsonschema.ValidationError,ValueError) as error:
+            if not isinstance(error,ModuleExecutionError):
+                error=ModuleExecutionError(case,"common_condition",error)
+            record=failure_record("COMMON_STAGE",self.state.get("phase"),[],error)
+            self.state["stage_failures"].append(record)
+            write_json(self.study/"stage_failures"/(case+".json"),record)
+            self.save(status="continuing_after_stage_error",task=case)
+            return None
+
+    def optional_selection(self,condition,incumbent,label,batches):
+        if condition is None:return incumbent
+        try:return self.choose_program(condition,incumbent,label,batches)
+        except (ModuleExecutionError,LLMInterfaceError,jsonschema.ValidationError,ValueError) as error:
+            record=failure_record("COMMON_STAGE",label+"_selection",[],error)
+        except RuntimeError as error:
+            if isinstance(error,ExecutionBudgetExceeded) or not str(error).startswith(("FLOWR failed:","Remote driver exited:")):
+                raise
+            record=failure_record("COMMON_STAGE",label+"_selection",[],error)
+        self.state["stage_failures"].append(record)
+        write_json(self.study/"stage_failures"/(label+"_selection.json"),record)
+        self.save(status="continuing_after_stage_error",task=label)
+        return incumbent
+
     def sequential(self,phase,role,active,incumbent,*,lane="G",frozen=None,offset=0):
         ids=[m["id"] for m in self.modules if m["role"]==role and m["lane"]==lane]
-        screen=self.protocol["batches"]["screen"]
-        e=self.protocol["evaluation"]
         for step,module in enumerate(ids):
+            if self._module_is_skipped(module):continue
             saved=next((r for r in self.state["pruning"] if r["phase"]==phase and r["module"]==module),None)
             if saved:
                 if saved["decision"]["adopt"]:active=saved["selected_active"]
                 continue
-            maskhash=hashlib.sha256(",".join(active).encode()).hexdigest()[:8]
-            prefix=f"{phase}_{module}_{maskhash}"
-            self.save(phase=phase,task=module)
-            full=self.condition(prefix+"_full",role,active,incumbent,lane=lane,frozen=frozen,focal=[module])
-            dropped=[x for x in active if x!=module]
-            drop=self.condition(prefix+"_drop",role,dropped,incumbent,lane=lane,frozen=frozen,focal=[module])
-            alt=self.condition(prefix+"_alternative",role,active,incumbent,lane=lane,frozen=frozen,alternative=module,focal=[module])
-            cf=self.condition_frames(full,screen);cd=self.condition_frames(drop,screen);ca=self.condition_frames(alt,screen)
-            m2=[self.frames(self.controls(screen))]
-            ds=self.contrast(cd,cf,paired_roles=role=="Designer",family=1)
-            ms=self.contrast(cd,m2,family=1)
-            ss=summarize(cd,e["elite_threshold"]);sm=summarize(m2,e["elite_threshold"])
-            envelope=quality_envelope(ss,sm)
-            normal=full["functional"]
-            function_pass=normal is not None and sum(a["score"]==2 for a in normal["assessments"] if a["module"]==module)>=5
-            screen_strain=[self.strain_contrast(cf,other,paired_roles=role=="Designer",family=1) for other in [cd,ca]]
-            result={"phase":phase,"module":module,"full":full["case"],"drop":drop["case"],"alternative":alt["case"],
-                "screen_drop_minus_full":ds,"screen_drop_minus_M2":ms,"function_pass":function_pass,
-                "screen_is_confirmation":False,"active_before":active,"confirmation":None,"screen_strain":screen_strain}
-            # Screens never establish absence of an effect. Confirm promising
-            # pruning, or a sizeable potential necessary effect, prospectively.
-            potential=(ds["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and
-                ms["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and envelope["passed"])
-            possible_necessary=(-ds["delta_pic50"]>e["necessity_effect_pic50"] and
-                self.contrast(cf,ca,paired_roles=role=="Designer",family=1)["delta_pic50"]>e["necessity_effect_pic50"])
-            possible_secondary=(all(x["status"]=="AVAILABLE" for x in screen_strain) and
-                any(all(x["endpoints"][metric]["relative_worsening"]>.10 for x in screen_strain) for metric in ["median","p90"]))
-            if potential or possible_necessary or possible_secondary:
-                start=self.protocol["batches"]["confirmation_base"]+(offset+step)*self.protocol["batches"]["confirmation_stride"]
-                batches=list(range(start,start+self.protocol["batches"]["confirmation_count"]))
-                ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
-                mm=[self.frames(self.controls(batches))]
-                cdf=self.contrast(fd,ff,paired_roles=role=="Designer")
-                cdm=self.contrast(fd,mm)
-                env=quality_envelope(summarize(fd,e["elite_threshold"]),summarize(mm,e["elite_threshold"]))
-                decision=pruning_decision(cdf,cdm,env,margin=e["M2_noninferiority_margin_pic50"])
-                secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
-                classification=classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
-                    self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=function_pass,
-                    effect=e["necessity_effect_pic50"],secondary=secondary)
-                if classification=="STRAIN_NECESSARY_IN_THIS_CONTEXT":
-                    decision={"adopt":False,"status":"CONFIRMED_STRAIN_BENEFIT_KEEP_CURRENT"}
-                result["confirmation"]={"batches":batches,"drop_minus_full":cdf,"drop_minus_M2":cdm,"quality_envelope":env,
-                    "classification":classification,"secondary_strain":secondary,"role_designs_frozen_from_screen":True}
-                # An ineffective prompt can be retired without claiming that its
-                # scientific method was tested when delivery/semantics failed.
-                if decision["adopt"] and not function_pass:
-                    decision["status"]="CONFIRMED_SAFE_INSTRUCTION_PRUNING_SCIENCE_UNRESOLVED"
-            else:
-                decision={"adopt":False,"status":"SCREEN_NEGATIVE_OR_UNRESOLVED_KEEP_CURRENT"}
-            if decision["adopt"]:active=dropped
-            result.update(decision=decision,selected_active=active)
-            self.state["pruning"].append(result)
-            self.save(status="pruning_confirmed",task=module)
-            write_json(self.study/"pruning"/(phase+"_"+module+".json"),result)
-            self.write_report()
-            self.commit("ablation(scientific): "+decision["status"].lower()+" "+module)
+            previous=self.state.get("failure_before_skip_resume",{})
+            if previous.get("phase")==phase and str(previous.get("task","")).startswith(phase+"_"+module+"_"):
+                error=ModuleExecutionError(previous["task"],"prior_run_failure",ValueError(previous["error"]),
+                    role=previous.get("active_role"),chain=previous.get("active_chain"))
+                self.skip_module(module,phase,active,error)
+                continue
+            try:
+                active=self._sequential_step(phase,role,active,incumbent,module,step,lane=lane,frozen=frozen,offset=offset)
+            except (ModuleExecutionError,LLMInterfaceError,jsonschema.ValidationError,ValueError) as error:
+                self.skip_module(module,phase,active,error)
+            except RuntimeError as error:
+                if isinstance(error,ExecutionBudgetExceeded) or not str(error).startswith(("FLOWR failed:","Remote driver exited:")):
+                    raise
+                self.skip_module(module,phase,active,ModuleExecutionError(self.state.get("task"),"FLOWR",error))
         return active
 
+    def _sequential_step(self,phase,role,active,incumbent,module,step,*,lane="G",frozen=None,offset=0):
+        screen=self.protocol["batches"]["screen"]
+        e=self.protocol["evaluation"]
+        maskhash=hashlib.sha256(",".join(active).encode()).hexdigest()[:8]
+        prefix=f"{phase}_{module}_{maskhash}"
+        self.save(phase=phase,task=module)
+        full=self.condition(prefix+"_full",role,active,incumbent,lane=lane,frozen=frozen,focal=[module])
+        dropped=[x for x in active if x!=module]
+        drop=self.condition(prefix+"_drop",role,dropped,incumbent,lane=lane,frozen=frozen,focal=[module])
+        alt=self.condition(prefix+"_alternative",role,active,incumbent,lane=lane,frozen=frozen,alternative=module,focal=[module])
+        cf=self.condition_frames(full,screen);cd=self.condition_frames(drop,screen);ca=self.condition_frames(alt,screen)
+        m2=[self.frames(self.controls(screen))]
+        ds=self.contrast(cd,cf,paired_roles=role=="Designer",family=1)
+        ms=self.contrast(cd,m2,family=1)
+        ss=summarize(cd,e["elite_threshold"]);sm=summarize(m2,e["elite_threshold"])
+        envelope=quality_envelope(ss,sm)
+        normal=full["functional"]
+        function_pass=normal is not None and sum(a["score"]==2 for a in normal["assessments"] if a["module"]==module)>=5
+        screen_strain=[self.strain_contrast(cf,other,paired_roles=role=="Designer",family=1) for other in [cd,ca]]
+        result={"phase":phase,"module":module,"full":full["case"],"drop":drop["case"],"alternative":alt["case"],
+            "screen_drop_minus_full":ds,"screen_drop_minus_M2":ms,"function_pass":function_pass,
+            "screen_is_confirmation":False,"active_before":active,"confirmation":None,"screen_strain":screen_strain}
+        # Screens never establish absence of an effect. Confirm promising
+        # pruning, or a sizeable potential necessary effect, prospectively.
+        potential=(ds["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and
+            ms["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and envelope["passed"])
+        possible_necessary=(-ds["delta_pic50"]>e["necessity_effect_pic50"] and
+            self.contrast(cf,ca,paired_roles=role=="Designer",family=1)["delta_pic50"]>e["necessity_effect_pic50"])
+        possible_secondary=(all(x["status"]=="AVAILABLE" for x in screen_strain) and
+            any(all(x["endpoints"][metric]["relative_worsening"]>.10 for x in screen_strain) for metric in ["median","p90"]))
+        if potential or possible_necessary or possible_secondary:
+            start=self.protocol["batches"]["confirmation_base"]+(offset+step)*self.protocol["batches"]["confirmation_stride"]
+            batches=list(range(start,start+self.protocol["batches"]["confirmation_count"]))
+            ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
+            mm=[self.frames(self.controls(batches))]
+            cdf=self.contrast(fd,ff,paired_roles=role=="Designer")
+            cdm=self.contrast(fd,mm)
+            env=quality_envelope(summarize(fd,e["elite_threshold"]),summarize(mm,e["elite_threshold"]))
+            decision=pruning_decision(cdf,cdm,env,margin=e["M2_noninferiority_margin_pic50"])
+            secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
+            classification=classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
+                self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=function_pass,
+                effect=e["necessity_effect_pic50"],secondary=secondary)
+            if classification=="STRAIN_NECESSARY_IN_THIS_CONTEXT":
+                decision={"adopt":False,"status":"CONFIRMED_STRAIN_BENEFIT_KEEP_CURRENT"}
+            result["confirmation"]={"batches":batches,"drop_minus_full":cdf,"drop_minus_M2":cdm,"quality_envelope":env,
+                "classification":classification,"secondary_strain":secondary,"role_designs_frozen_from_screen":True}
+            # An ineffective prompt can be retired without claiming that its
+            # scientific method was tested when delivery/semantics failed.
+            if decision["adopt"] and not function_pass:
+                decision["status"]="CONFIRMED_SAFE_INSTRUCTION_PRUNING_SCIENCE_UNRESOLVED"
+        else:
+            decision={"adopt":False,"status":"SCREEN_NEGATIVE_OR_UNRESOLVED_KEEP_CURRENT"}
+        if decision["adopt"]:active=dropped
+        result.update(decision=decision,selected_active=active)
+        self.state["pruning"].append(result)
+        self.save(status="pruning_confirmed",task=module)
+        write_json(self.study/"pruning"/(phase+"_"+module+".json"),result)
+        self.write_report()
+        self.commit("ablation(scientific): "+decision["status"].lower()+" "+module)
+        return active
+
+
     def freeze_analyst(self,active):
+        """Use only actual validated outputs; declare a common-stage fallback."""
+        path=self.study/"selected_Analyst_pool.json"
+        if path.exists() and read_json(path).get("fallback"):
+            active=read_json(path)["active_modules"]
+        try:
+            result=self._freeze_analyst(active)
+            self.state["frozen_analyst_active"]=active
+            self.save()
+            return result
+        except (ModuleExecutionError,LLMInterfaceError,jsonschema.ValidationError,ValueError) as error:
+            from evomolsteer.ablation.agents import full_input_packet,validate_evidence_citations
+            packet=full_input_packet(self.study)
+            known=set(read_json(self.study/"evidence/index.json")["ids"])|set(packet)|{
+                "role","case_id","lane","response_schema","maximum_edits","task_wording",
+                "interface_notes","allowed_edits","incumbent","fixed_parameters","formula_registry"}
+            candidates=[v for v in self.state["conditions"].values() if v["role"]=="Analyst" and v.get("valid")]
+            candidates.sort(key=lambda v:(v["active"]!=active,len(set(v["active"])^set(active)),v["case"]))
+            for value in candidates:
+                outputs=[]
+                try:
+                    for row in value["rows"]:
+                        p=(self.repo/row["response"]).with_name("Analyst.json")
+                        response=read_json(p);validate_evidence_citations(response,known)
+                        receipt=read_json(p.with_suffix(".receipt.json"))
+                        delivery=read_json(p.with_suffix(".delivery.json"))
+                        if receipt.get("response_sha256")!=digest(p) or receipt.get("backend")!="real_api":
+                            raise ValueError("Invalid fallback Analyst receipt")
+                        if delivery["active_modules"]!=value["active"] or delivery.get("alternative"):
+                            raise ValueError("Fallback pool instructions differ")
+                        outputs.append({"path":p.relative_to(self.repo).as_posix(),"sha256":digest(p)})
+                except (ValueError,jsonschema.ValidationError):continue
+                if len(outputs)!=6:continue
+                write_json(path,{"active_modules":value["active"],"outputs":outputs,
+                    "selected_from":value["case"],"fallback":True,"error":str(error)[:2000],
+                    "not_outputs_of_failed_selected_instructions":True,"current_generation_outcomes_supplied":False})
+                self.state["frozen_analyst_active"]=value["active"]
+                self.state["stage_failures"].append(failure_record("COMMON_STAGE","Analyst_handoff",active,error))
+                self.save();self.commit("ablation(scientific): preserve validated actual Analyst pool after handoff failure")
+                return [read_json(self.repo/r["path"]) for r in outputs]
+            raise
+
+    def _freeze_analyst(self,active):
         path=self.study/"selected_Analyst_pool.json"
         if path.exists():
             pool=read_json(path)
@@ -311,53 +439,77 @@ for p in root.rglob('*.json'):
         a=[m["id"] for m in self.modules if m["role"]=="Analyst"]
         dg=[m["id"] for m in self.modules if m["role"]=="Designer" and m["lane"]=="G"]
         du=[m["id"] for m in self.modules if m["role"]=="Designer" and m["lane"]=="U"]
-        self.condition("A_empty","Analyst",[],incumbent,focal=a)
+        self.optional_condition("A_empty","Analyst",[],incumbent,focal=a)
         a=self.sequential("A", "Analyst", a, incumbent, offset=0)
         frozen=self.freeze_analyst(a)
-        self.condition("D-G_empty","Designer",[],incumbent,frozen=frozen,focal=dg)
+        a=self.state.get("frozen_analyst_active",a)
+        self.optional_condition("D-G_empty","Designer",[],incumbent,frozen=frozen,focal=dg)
         dg=self.sequential("D-G", "Designer", dg, incumbent, frozen=frozen, offset=9)
-        gcase=self.condition("selected_G_fresh","Designer",dg,incumbent,frozen=frozen,focal=dg or ["D4.1"])
-        g=self.choose_program(gcase,incumbent,"G",list(range(2500,2508)))
+        gcase=self.optional_condition("selected_G_fresh","Designer",dg,incumbent,frozen=frozen,focal=dg or ["D4.1"])
+        g=self.optional_selection(gcase,incumbent,"G",list(range(2500,2508)))
         # Dose calls retain selected G instructions but can modify only dose.
         combined=dg+du
-        self.condition("D-U_empty","Designer",dg,g,lane="U",frozen=frozen,focal=du)
+        self.optional_condition("D-U_empty","Designer",dg,g,lane="U",frozen=frozen,focal=du)
         combined=self.sequential("D-U","Designer",combined,g,lane="U",frozen=frozen,offset=15)
-        finalcase=self.condition("selected_U_fresh","Designer",combined,g,lane="U",frozen=frozen,focal=du or ["D3.1"])
-        final=self.choose_program(finalcase,g,"final",self.protocol["batches"]["final"])
+        finalcase=self.optional_condition("selected_U_fresh","Designer",combined,g,lane="U",frozen=frozen,focal=du or ["D3.1"])
+        final=self.optional_selection(finalcase,g,"final",self.protocol["batches"]["final"])
+        selection_path=self.study/"final.selection.json"
+        selection_ok=finalcase is not None and selection_path.exists() and not any(
+            r["phase"]=="final_selection" for r in self.state.get("stage_failures",[]))
         self.state["selected_workflow"]={"Analyst":a,"Designer":combined,"program":final,
-            "candidate_accepted":read_json(self.study/"final.selection.json")["accepted"]}
+            "candidate_accepted":read_json(selection_path)["accepted"] if selection_ok else False,
+            "final_role_failure_fallback":not selection_ok}
         self.final_context(a,combined,final,frozen)
         self.final_report(final)
-        self.save(status="complete",phase="complete",task=None,
+        self.save(status="complete_with_skips" if self.state["skipped_modules"] or self.state["stage_failures"] else "complete",phase="complete",task=None,
             no_universal_module_necessity_claim=True)
         self.write_report()
         self.commit("report(scientific): complete sequential submodule study and final comparisons")
 
     def final_context(self,a,d,incumbent,frozen):
-        """Retest retained functions in final context; no screen claim inherited."""
+        """Retest retained functions; failed modules stay explicitly unresolved."""
         records=self.state.setdefault("final_context",[])
         for step,module in enumerate(a+d):
             if any(r["module"]==module for r in records):continue
-            m=next(m for m in self.modules if m["id"]==module)
-            role=m["role"];active=a if role=="Analyst" else d;lane=m["lane"]
-            if role=="Analyst":lane="G"
-            prefix="final_context_"+module
-            full=self.condition(prefix+"_full",role,active,incumbent,lane=lane,frozen=frozen,focal=[module],designer_context=d)
-            drop=self.condition(prefix+"_drop",role,[x for x in active if x!=module],incumbent,lane=lane,frozen=frozen,focal=[module],designer_context=d)
-            alt=self.condition(prefix+"_alternative",role,active,incumbent,lane=lane,frozen=frozen,alternative=module,focal=[module],designer_context=d)
-            batches=list(range(3000+16*step,3008+16*step))
-            ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
-            passed=full["functional"] is not None and sum(x["score"]==2 for x in full["functional"]["assessments"])>=5
-            secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
-            record={"module":module,"batches":batches,
-                "classification":classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
-                    self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=passed,secondary=secondary),
-                "full_minus_drop":self.contrast(ff,fd,paired_roles=role=="Designer"),
-                "full_minus_alternative":self.contrast(ff,fa,paired_roles=role=="Designer"),
-                "secondary_strain":secondary,
-                "not_inherited_from_initial_context":True}
-            records.append(record);self.save();self.write_report()
-            self.commit("ablation(scientific): independently retest final-context "+module)
+            if self._module_is_skipped(module):
+                records.append({"module":module,"classification":"SKIPPED_EXECUTION_ERROR", "causal_claim_supported":False})
+                self.save();continue
+            try:
+                self._final_context_step(a,d,incumbent,frozen,module,step)
+            except (ModuleExecutionError,LLMInterfaceError,jsonschema.ValidationError,ValueError) as error:
+                self.skip_module(module,"final_context",a if module.startswith("A") else d,error)
+                records.append({"module":module,"classification":"SKIPPED_EXECUTION_ERROR","causal_claim_supported":False})
+                self.save()
+            except RuntimeError as error:
+                if isinstance(error,ExecutionBudgetExceeded) or not str(error).startswith(("FLOWR failed:","Remote driver exited:")):
+                    raise
+                self.skip_module(module,"final_context",a if module.startswith("A") else d,
+                    ModuleExecutionError(self.state.get("task"),"FLOWR",error))
+                records.append({"module":module,"classification":"SKIPPED_EXECUTION_ERROR","causal_claim_supported":False})
+                self.save()
+
+    def _final_context_step(self,a,d,incumbent,frozen,module,step):
+        records=self.state.setdefault("final_context",[])
+        m=next(m for m in self.modules if m["id"]==module)
+        role=m["role"];active=a if role=="Analyst" else d;lane=m["lane"]
+        if role=="Analyst":lane="G"
+        prefix="final_context_"+module
+        full=self.condition(prefix+"_full",role,active,incumbent,lane=lane,frozen=frozen,focal=[module],designer_context=d)
+        drop=self.condition(prefix+"_drop",role,[x for x in active if x!=module],incumbent,lane=lane,frozen=frozen,focal=[module],designer_context=d)
+        alt=self.condition(prefix+"_alternative",role,active,incumbent,lane=lane,frozen=frozen,alternative=module,focal=[module],designer_context=d)
+        batches=list(range(3000+16*step,3008+16*step))
+        ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches);fa=self.condition_frames(alt,batches)
+        passed=full["functional"] is not None and sum(x["score"]==2 for x in full["functional"]["assessments"])>=5
+        secondary=[self.strain_contrast(ff,other,paired_roles=role=="Designer") for other in [fd,fa]]
+        record={"module":module,"batches":batches,
+            "classification":classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
+                self.contrast(ff,fa,paired_roles=role=="Designer"),functional_valid=passed,secondary=secondary),
+            "full_minus_drop":self.contrast(ff,fd,paired_roles=role=="Designer"),
+            "full_minus_alternative":self.contrast(ff,fa,paired_roles=role=="Designer"),
+            "secondary_strain":secondary,
+            "not_inherited_from_initial_context":True}
+        records.append(record);self.save();self.write_report()
+        self.commit("ablation(scientific): independently retest final-context "+module)
 
     def final_report(self,program):
         batches=self.protocol["batches"]["final"]
@@ -392,16 +544,22 @@ for p in root.rglob('*.json'):
                 "screen_drop_delta":r["screen_drop_minus_full"]["delta_pic50"],"adopted_removal":r["decision"]["adopt"],
                 "status":r["decision"]["status"],"confirmation_class":c.get("classification"),
                 "confirmation_drop_delta":c.get("drop_minus_full",{}).get("delta_pic50")})
+        skipped=self.state.get("skipped_modules",[])
         pd.DataFrame(rows).to_csv(self.study/"submodule_results.csv",index=False)
+        pd.DataFrame(skipped).to_csv(self.study/"skipped_modules.csv",index=False)
+        processed=len({r["module"] for r in self.state.get("pruning",[])}|{r["module"] for r in skipped})
         write_json(self.study/"study_summary.json",{"status":self.state.get("status"),"model":"deepseek-flash",
             "completed_submodules":len(rows),"total_submodules":17,"api_calls":self.state.get("api_calls",0),
+            "processed_submodules":processed,"skipped_submodules":len(skipped),"skipped_modules":skipped,
+            "stage_failures":self.state.get("stage_failures",[]),
             "independent_inference_cohorts":len(self.state.get("program_results",{})),"results":rows,
             "final_context":self.state.get("final_context",[]),"selected_workflow":self.state.get("selected_workflow"),
             "performance_goal_not_assumed":True,"raw_outputs_retired_after_verification":True})
         lines=["# 科学子模块消融运行状态", "", "模型：真实 DeepSeek API / deepseek-flash。", "",
-            f"状态：{self.state.get('status')}；已完成子模块 {len(rows)}/17。", "",
+            f"状态：{self.state.get('status')}；已完成比较 {len(rows)}/17；跳过 {len(skipped)}；已处理 {processed}/17。", "",
             "|模块|功能验证|确认结论|是否精简|", "|---|---|---|---|"]
         lines += [f"|{r['module']}|{r['function_pass']}|{r['confirmation_class'] or r['status']}|{r['adopted_removal']}|" for r in rows]
+        lines += [f"|{r['module']}|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|" for r in skipped]
         lines += ["", "筛查不等于确认。功能未响应、接口瓶颈和证据不足不表述为科学方法无效。历史 Steer 比较不成对且在线预算不同。", ""]
         (self.study/"status.zh-CN.md").write_text("\n".join(lines),encoding="utf-8")
 

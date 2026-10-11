@@ -1,0 +1,306 @@
+{
+  "findings": [
+    {
+      "claim": "Pair-distance shell densities at 1.5-3.5 A show the largest and most reproducible whole-window endpoint contrasts (pair_kernel_1.5 integrated z=0.562, pair_kernel_2.5 z=0.631, pair_kernel_3.5 z=0.540; all positive-batch fraction 1.0, q<1e-4), and the same features survive branch-mutation adjustment (adjusted_covariance pair_kernel_1.5 z=7.7e-7, q=0.081; pair_kernel_2.5 z=1.1e-6, q=0.077). These are radial shell densities, not bond labels or interaction energies.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Shape_yy is the only global shape component with a strong, consistently negative endpoint contrast (integrated z=-0.513, positive-batch fraction 0.0, q=1.5e-5) and it remains negative after branch adjustment (raw_correlation -0.103, q=0.0026; adjusted_correlation -0.100, q=0.0003). The same negative local_cyy enrichment recurs at many landmarks (e.g. regional_effects:5,15,75,165,195 all negative with positive-batch fraction 0.0).",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "regional_effects:5",
+        "regional_effects:15",
+        "regional_effects:75",
+        "regional_effects:165",
+        "regional_effects:195"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Landmark softmin and occupancy5 features carry opposing signs at different landmarks: softmin is negative at landmarks 00, 04, 06, 18, 19 (e.g. endpoint_effects:14 z=-0.481, :32 z=0.294, :68 z=0.264, :70 z=-0.311) while occupancy3/occupancy5 are positive at 00 and negative at 02, 06, 18. Because softmin is a normalized soft-minimum distance and occupancy is a radial shell density, a single sign cannot be read as a shared quality axis; the direction is landmark-specific.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:32",
+        "endpoint_effects:34",
+        "endpoint_effects:68",
+        "endpoint_effects:70",
+        "branch_adjusted:145",
+        "branch_adjusted:147",
+        "branch_adjusted:264",
+        "branch_adjusted:265",
+        "branch_adjusted:301"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Every supplied continuous contrast function is flagged polynomial_accepted=false with extrapolation_allowed=false and is fit by observed_node_linear over the observed support [0.0,0.49]. Relative node RMSE ranges from ~0.28 to ~0.99, and sign_changes range from 0 to 13 with strong_sign_conflicts up to 18, so the curves are non-monotone and no constant or low-order rule is validated across the window.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous:10",
+        "continuous:11",
+        "continuous:12",
+        "continuous:13",
+        "continuous:14",
+        "continuous:15",
+        "continuous:16",
+        "continuous:17",
+        "continuous:18",
+        "continuous:19"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "The soft_mass curves show a common qualitative pattern: a mid-window rise followed by a late-window decline (e.g. continuous:0 first_z=-0.366, last_z=-0.275 with a positive mid-window excursion; continuous:70 first_z=0.264, last_z=0.440; continuous:150 first_z=-0.383, last_z=-0.559). This is a time-conditioned shape, not a constant rule, and the late rate_z values are large in magnitude (e.g. -10.0 for continuous:0), so a constant-rule comparison would misrepresent the observed support.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Local displacement (dx,dy,dz) curves at landmarks 00-03 show large first_rate_z and last_rate_z values with frequent sign changes (e.g. continuous:2 first_rate_z=-72.4, last_rate_z=5.5, 6 sign changes; continuous:32 first_rate_z=-66.2, last_rate_z=20.8, 4 sign changes). These are coordinate contrasts, not trajectory velocity forces, and their non-monotone structure means any time-conditioned rule must be validated against the observed nodes rather than extrapolated.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:11",
+        "continuous:12",
+        "continuous:13",
+        "continuous:21",
+        "continuous:22",
+        "continuous:23",
+        "continuous:31",
+        "continuous:32",
+        "continuous:33"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Selection innovation is positively associated with innovation_native_alignment (z=0.092, p=1.5e-9, positive-batch fraction 1.0) and with teacher_innovation_contrast_alignment (z=0.226, p=1.2e-9, positive-batch fraction 1.0), but negatively associated with observed_child_score_gain (z=-0.036, p=1.8e-7, positive-batch fraction 0.0). The internal fraction of teacher contrast is 0.787, so the joint signal is dominated by internal motion rather than translation or rotation.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Teacher contrast decomposes into translation fraction 0.132, rotation fraction 0.081, internal fraction 0.787, and atom participation fraction 0.384. The internal component is the largest, so a region that adds information beyond common motion should be identified by the internal fraction and atom participation, not by the translation or rotation components alone.",
+      "evidence_ids": [
+        "joint_diagnostics:12",
+        "joint_diagnostics:13",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Joint innovation RMS, joint translation RMS, and joint internal RMS all show negative branch-adjusted raw_covariance effects (joint_innovation_RMS_A z=-5.2e-5, q=0.038; joint_internal_RMS_A z=-5.0e-5, q=0.044; joint_translation_RMS_A z=-1.1e-5, q=0.095) and negative adjusted_correlation effects (joint_innovation_RMS_A -0.150, q=0.0003; joint_internal_RMS_A -0.137, q=1.3e-5; joint_translation_RMS_A -0.076, q=0.005). The internal component is the strongest, consistent with the joint diagnostics.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:75",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:152",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:229",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:306",
+        "branch_adjusted:307"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Survival enrichment is positive for soft_mass at landmarks 00, 07, 10 (e.g. survival_effects:0 z=0.365, q=0.120; :70 z=0.220, q=0.356; :100 z=0.234, q=0.302) and for local_czz at landmark 18 (z=0.217, q=0.302), while survival enrichment change-rate is strongly positive for local_cyz at landmarks 04 and 14 (e.g. survival_effects:249 z=1.79, q=0.302; :393 z=1.26, q=0.538). These are recorded joint-head survival credits, not decoded terminal affinity effects.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:393"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Turnover accounting shows large positive turnover_residual_rate values for local_cxx, local_cyy, and local_cyz at many landmarks (e.g. turnover:14 z=4.29, q=0.038; :17 z=5.05, q=0.033; :47 z=6.40, q=0.014; :134 z=5.67, q=0.012; :224 z=5.08, q=0.012; :227 z=5.63, q=0.019; :254 z=5.54, q=0.012; :257 z=4.58, q=0.055; :377 z=5.58, q=0.012; :407 z=4.13, q=0.058). The residual is an accounting diagnostic that includes score reclassification and extant-parent weighting, not a causal selection effect or atom velocity.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377",
+        "turnover:407"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Decoded terminal learning labels are not available (decoded_terminal_learning_labels_available=false), and lineage support records 349 nodes with fewer than 3 ancestors and 531 with fewer than 6 ancestors out of 700 total batch nodes. Descendant credit is recorded joint-head credit, not decoded terminal affinity, so last-record credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "lineage_support",
+        "decoded_terminal_learning_labels_available",
+        "limitations"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "A coordinate intervention that increases pair-distance shell density at 1.5-2.5 A (observable: pair_kernel_1.5 and pair_kernel_2.5; intended response: positive change in the endpoint contrast; target origin: the pair-distance shell features; spatial scale: 1.5-2.5 A; discriminating failure: no positive change in pair_kernel_1.5/2.5 or a negative change in pair_kernel_7.0) could be expressed by the registered pointcloud reward recipe, which operates on endpoint coordinates. This remains a descriptive hypothesis because the executing pointcloud scalar has no pair-kernel term.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ]
+    },
+    {
+      "claim": "A coordinate intervention that reduces shape_yy and local_cyy (observable: shape_yy and local_cyy; intended response: negative change in the endpoint contrast; target origin: the shape and local covariance features; spatial scale: global shape and 5 A landmark regions; discriminating failure: no negative change in shape_yy or local_cyy, or a positive change in shape_xx) could be expressed by the registered pointcloud reward recipe. This remains a descriptive hypothesis because the executing pointcloud scalar has no moment or geometry-block term.",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "regional_effects:5",
+        "regional_effects:15",
+        "regional_effects:75",
+        "regional_effects:165",
+        "regional_effects:195"
+      ]
+    },
+    {
+      "claim": "A time-conditioned regional attention rule that follows the observed soft_mass rise-then-decline pattern (observable: soft_mass at each landmark; intended response: attention weight tracks the observed node values; target origin: the validated continuous salience curves; temporal scale: within the observed support [0.0,0.49]; discriminating failure: attention weight diverges from the observed node values or requires extrapolation outside the support) could be expressed by the registered temporal_region recipe, which uses only validated absolute contrast changes at actual score nodes. This remains a descriptive hypothesis because the curves are not validated as causal benefit.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ]
+    },
+    {
+      "claim": "A coordinate intervention that increases the internal fraction of teacher contrast while reducing joint internal RMS (observable: teacher_contrast_internal_fraction and joint_internal_RMS_A; intended response: positive change in internal fraction and negative change in joint internal RMS; target origin: the joint internal motion features; spatial scale: the active slot cloud; discriminating failure: no change in internal fraction or a positive change in joint internal RMS) could be expressed by the registered pointcloud reward recipe. This remains a descriptive hypothesis because the joint diagnostics are descriptive within-selector associations, not causal selection effects.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15",
+        "branch_adjusted:74",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:153"
+      ]
+    },
+    {
+      "claim": "A coordinate intervention that increases soft_mass at landmarks 00, 07, 10 and local_czz at landmark 18 while increasing local_cyz at landmarks 04 and 14 (observable: survival enrichment and survival enrichment change-rate; intended response: positive change in survival credit; target origin: the survival field features; spatial scale: 5 A landmark regions; discriminating failure: no positive change in survival credit or a negative change in the same features) could be expressed by the registered pointcloud reward recipe. This remains a descriptive hypothesis because survival credit is recorded joint-head credit, not decoded terminal affinity.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:393"
+      ]
+    },
+    {
+      "claim": "A coordinate intervention that reduces the turnover residual for local_cxx, local_cyy, and local_cyz (observable: turnover_residual_rate; intended response: negative change in the residual; target origin: the turnover accounting features; spatial scale: 5 A landmark regions; discriminating failure: no negative change in the residual or a positive change in the population rate) could be expressed by the registered pointcloud reward recipe. This remains a descriptive hypothesis because the residual is an accounting diagnostic that includes score reclassification and extant-parent weighting, not a causal selection effect.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377",
+        "turnover:407"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Decoded terminal learning labels are not available, so last-record credit cannot be presented as final affinity benefit.",
+    "The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term, so pair-kernel and moment findings are diagnostic only.",
+    "Survival-effect records for landmarks 17, 18, 19 change-rate features (survival_effects:497, :524, :584, :587) are not present in the supplied ID-to-record mapping; the corresponding claims about those specific records lack support and were removed."
+  ],
+  "role": "Analyst"
+}

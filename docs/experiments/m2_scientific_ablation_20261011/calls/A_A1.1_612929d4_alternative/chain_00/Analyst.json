@@ -1,0 +1,352 @@
+{
+  "findings": [
+    {
+      "claim": "Short-range pair-distance shell densities (pair_kernel_1.5, 2.5, 3.5, 5.0) show the largest and most reproducible endpoint contrasts: integrated z 0.32-0.63, q<=0.004, positive batch fraction 0.86-1.0, with the same sign in raw and adjusted branch covariance/correlation. pair_kernel_7.0 is opposite in sign (z=-0.485, q=1.5e-4, positive batch fraction 0.0). These are diagnostic shell densities, not bond labels or interaction energies.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Shape diagonal/off-diagonal terms are weak and mostly negative: shape_yy integrated z=-0.513 (q=1.5e-5, positive batch fraction 0.0), shape_xx z=-0.495 (q=8.1e-4), shape_yz z=-0.212 (q=0.035). The local_cyy component is negative at essentially every landmark (regional_effects:5,15,75,85,105,125,135,145,155,165,175,185,195), so the shape signal is a broad, not localized, tendency.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8",
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "regional_effects:5",
+        "regional_effects:15",
+        "regional_effects:75",
+        "regional_effects:85",
+        "regional_effects:105",
+        "regional_effects:125",
+        "regional_effects:135",
+        "regional_effects:145",
+        "regional_effects:155",
+        "regional_effects:165",
+        "regional_effects:175",
+        "regional_effects:185",
+        "regional_effects:195"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Global centroid coordinates carry no usable endpoint contrast: integrated z between -0.24 and -0.06 with q>=0.014, and the adjusted-covariance centroid rows are null (q>=0.62). Centroid position is not a supported coordinate direction in this evidence.",
+      "evidence_ids": [
+        "endpoint_effects:0",
+        "endpoint_effects:1",
+        "endpoint_effects:2",
+        "branch_adjusted:77",
+        "branch_adjusted:78",
+        "branch_adjusted:79",
+        "branch_adjusted:231",
+        "branch_adjusted:232",
+        "branch_adjusted:233"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Landmark softmin distances are mixed in sign across landmarks: positive for landmark_00 (z=0.545), 03 (0.360), 05 (0.396), 06 (0.294), 12 (0.335), 15 (0.369), 16 (0.224), 18 (0.264); negative for landmark_02 (-0.323), 04 (-0.351), 07 (-0.397), 14 (-0.204), 19 (-0.075). Softmin is a normalized distance, so a sign on one landmark cannot be transferred to another as a shared quality axis.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:50",
+        "endpoint_effects:59",
+        "endpoint_effects:62",
+        "endpoint_effects:68",
+        "branch_adjusted:106",
+        "branch_adjusted:145",
+        "branch_adjusted:263",
+        "branch_adjusted:299"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Landmark occupancy3 and occupancy5 are consistently negative where significant (landmark_02, 03, 05, 06, 15, 18 occupancy5 z=-0.17 to -0.36, q<=0.036; occupancy3 z=-0.002 to -0.017), while landmark_00 occupancy3/5 are positive (z=0.545/0.208). Occupancy is a radial shell density peaking at a=3 or 5 A, not an atom count and not monotone in distance.",
+      "evidence_ids": [
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:21",
+        "endpoint_effects:22",
+        "endpoint_effects:24",
+        "endpoint_effects:25",
+        "endpoint_effects:30",
+        "endpoint_effects:31",
+        "endpoint_effects:33",
+        "endpoint_effects:34",
+        "endpoint_effects:60",
+        "endpoint_effects:61",
+        "endpoint_effects:69",
+        "endpoint_effects:70"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Joint-motion diagnostics are the most reproducible adjusted signals: joint_innovation_RMS_A (adjusted covariance q=0.020, adjusted correlation q=2.8e-4, same-sign batch fraction 0.93-1.0), joint_internal_RMS_A (q=0.030/9.7e-4) and joint_translation_RMS_A (q=0.072/0.052) are all negative. These are joint-motion summaries, not rigid-motion residuals of the region moments themselves.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:75",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:152",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:229",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:306",
+        "branch_adjusted:307"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Within-selector associations are descriptive: innovation_native_alignment (mean 0.092, q=2.2e-9) and teacher_innovation_contrast_alignment (0.226, q=2.2e-9) are positive, while observed_child_score_gain is negative (-0.036, q=1.8e-7, positive batch fraction 0.0). teacher_contrast_internal_fraction is 0.787, so most of the teacher contrast is internal rather than translation/rotation.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Across the full observed support [0.0,0.49], the landmark_00/01 continuous features show many sign changes (3-10) and strong sign conflicts (1-18), with relative node RMSE 0.29-1.0 and polynomial_accepted=false throughout. No constant or time-conditioned rule is validated by these fits; the curves are observed-node interpolations, not absolute reward targets.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous:10",
+        "continuous:11",
+        "continuous:12",
+        "continuous:13",
+        "continuous:14",
+        "continuous:15",
+        "continuous:16",
+        "continuous:17",
+        "continuous:18",
+        "continuous:19"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "The soft_mass curves are non-monotone: they rise to a mid-window maximum (e.g. landmark_00 peaks near t~0.16, landmark_07 near t~0.15) then decline, with first/last rate z of opposite sign (landmark_00 first_rate_z 9.27, last_rate_z -10.0). A constant rule would misrepresent the observed shape; a time-conditioned rule would need the validated observed-node interpolation, not arbitrary bins.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Turnover accounting separates population rate, edge rate and residual: for landmark_00_local_cxx the population rate is null (z=-0.058) while edge rate is -4.34 (q=0.055) and residual +4.29 (q=0.038); similar large positive residuals appear for local_cyy, local_cxx and local_cyy at landmarks 04, 07, 08, 12, 16, 17, 19. The residual is an accounting diagnostic that includes score reclassification and extant-parent weighting, not a causal selection effect or atom velocity.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Descendant credit is recorded joint-head credit, not decoded terminal affinity: decoded_terminal_learning_labels_available is false, terminal metadata show terminal_score_time 0.99 and terminal_state_time 1.0 with one future resampling node per batch, and 349/700 nodes have fewer than 3 ancestors. Survival enrichment is weak (landmark_00_soft_mass z=0.365, q=0.12; landmark_18_local_czz z=0.217, q=0.30) and cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "lineage_support",
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:393",
+        "decoded_terminal_learning_labels_available"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "The information audit reports compressed_choice_excess_fixed_RMS_A 0.081 (CI 0.070-0.092) and top4_teacher_overlap 0.470 (CI 0.427-0.515), with teacher score correlations 0.064-0.102; the audit itself states these are not the full score-weighted reward or its FLOWR Jacobian and are not a causal affinity effect. curve_support selects 24 of 24 audited curves under a fidelity rule, but the audit records quiet_node_large_fit_fraction up to 0.34 and strong_sign_conflict_nodes up to 15, so selection does not establish causal benefit.",
+      "evidence_ids": [
+        "information_audit",
+        "curve_support",
+        "teacher_modes",
+        "limitations"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Testable coordinate hypothesis: a pointcloud_delta_A edit that changes the effective short-range pair-distance shell weighting (pair_kernel_1.5-3.5 positive, pair_kernel_7.0 negative) should shift the endpoint reward in the direction of the positive short-shell contrast. Observable: pair_kernel_1.5/2.5/3.5 and 7.0 contrasts at the endpoint. Intended response: increased short-shell density with decreased 7.0 A shell density. Target origin: the executing pointcloud scalar's Hungarian endpoint distance, not the diagnostic pair kernels. Scale: whole-window endpoint, delta in {0.5,1.0,2.0} A. Discriminating failure: no change in the pair-kernel contrasts or an opposite-sign shift in the endpoint reward.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Testable coordinate hypothesis: a region_index edit at a landmark with positive softmin contrast (e.g. landmark_00, 03, 05, 06, 12, 15, 16, 18) should increase that landmark's softmin distance while a landmark with negative contrast (02, 04, 07, 14, 19) should decrease it. Observable: landmark_softmin and occupancy3/5 at the chosen landmark. Intended response: softmin moves toward the sign of the landmark's endpoint contrast. Target origin: the Gaussian landmark attention in the regional formula. Scale: single landmark region, radius 5 A. Discriminating failure: softmin moves opposite to the landmark's contrast sign, or the effect is not reproducible across the 14 independent batches.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32",
+        "endpoint_effects:50",
+        "endpoint_effects:59",
+        "endpoint_effects:62",
+        "endpoint_effects:68"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Testable coordinate hypothesis: reducing joint_innovation_RMS_A and joint_internal_RMS_A (the most reproducible adjusted signals) should be associated with the favorable endpoint direction. Observable: joint_innovation_RMS_A, joint_internal_RMS_A, joint_translation_RMS_A. Intended response: lower joint internal/innovation RMS at the endpoint. Target origin: the endpoint pointcloud reward's Hungarian alignment, not a velocity target. Scale: whole-window endpoint. Discriminating failure: joint RMS decreases without a corresponding endpoint reward change, or the association reverses in held-out batches.",
+      "evidence_ids": [
+        "branch_adjusted:74",
+        "branch_adjusted:75",
+        "branch_adjusted:76",
+        "branch_adjusted:151",
+        "branch_adjusted:152",
+        "branch_adjusted:153",
+        "branch_adjusted:228",
+        "branch_adjusted:229",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:306",
+        "branch_adjusted:307"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Testable temporal hypothesis: a temporal_region_index edit at a landmark whose soft_mass curve peaks mid-window (e.g. landmark_00 near t~0.16, landmark_07 near t~0.15) should express the observed-node interpolation of that curve rather than a constant rule. Observable: the landmark soft_mass contrast at actual score nodes. Intended response: attention follows the validated observed-node curve within [0.0,0.49]. Target origin: the temporal_region formula using the same static teacher coordinates. Scale: observed support only, no extrapolation. Discriminating failure: the curve's sign changes are not reproduced, or the effect requires extrapolation beyond 0.49.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Testable accounting hypothesis: the large positive turnover residuals for local_cxx/local_cyy at landmarks 00, 04, 07, 08, 12, 16, 17, 19 indicate that within-path change and changing cohort composition are not separable in the supplied evidence. Observable: population_rate, edge_rate and turnover_residual_rate for the same feature. Intended response: none claimed; the residual is an accounting diagnostic. Target origin: parent-child increment contrasts. Scale: whole-window rate. Discriminating failure: a residual that vanishes when parent weighting is held fixed would indicate composition rather than within-path change.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:377",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Testable lineage hypothesis: survival enrichment for landmark_00_soft_mass (z=0.365, q=0.12) and landmark_18_local_czz (z=0.217, q=0.30) is weak and cannot be tested against final affinity because decoded terminal labels are unavailable. Observable: survival_enrichment_z and survival_enrichment_change_rate_z. Intended response: none claimed; the comparison to final affinity is unavailable. Target origin: recorded joint-head credit. Scale: whole-window survival. Discriminating failure: decoded terminal labels, if supplied later, showing no relation between survival enrichment and final affinity.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:393",
+        "lineage_support",
+        "decoded_terminal_learning_labels_available"
+      ],
+      "priority": 6
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded_terminal_learning_labels_available is false.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling; it is an accounting diagnostic, not a causal selection effect or atom velocity.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis are permitted.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects are retained; current study outcomes are withheld from design roles.",
+    "Pair kernels, moment effects and turnover rates are diagnostic evidence only; the executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term.",
+    "Temperatures are immutable task parameters; no temperature edit is proposed or compiled."
+  ],
+  "role": "Analyst"
+}

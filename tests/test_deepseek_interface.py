@@ -107,7 +107,7 @@ def test_large_citation_enum_repair_identifies_all_bad_values_without_substituti
     assert call_json([],schema,path,transport=httpx.MockTransport(handler)) == valid
     assert len(calls) == 2
     assert json.loads(path.with_suffix(".attempt_1.invalid.txt").read_text()) == invalid
-    assert read_json(path.with_suffix(".receipt.json"))["format_policy"] == "json-interface-v3"
+    assert read_json(path.with_suffix(".receipt.json"))["format_policy"] == FORMAT_POLICY
 
 
 def test_retry_failure_records_are_append_only_and_not_fake_success(tmp_path, monkeypatch):

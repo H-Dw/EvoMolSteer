@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import jsonschema
 from pathlib import Path
 
 from evomolsteer.continuous.m2_skill_api import ANALYST_SCHEMA, DESIGN_SCHEMA
@@ -98,6 +99,36 @@ def bind_evidence_schema(schema,known):
     return schema
 
 
+def validate_evidence_citations(result, known):
+    """Check every nested citation, including unconstrained hypothesis objects.
+
+    This source-integrity contract is shared by all interventions. Raise the
+    standard validation type so fresh responses receive the same one neutral
+    interface repair before caching. Existing invalid caches remain preserved.
+    """
+    errors=[]
+    def walk(value,path=()):
+        if isinstance(value,dict):
+            for key,item in value.items():
+                if key=="evidence_ids":
+                    if not isinstance(item,list):
+                        errors.append(jsonschema.ValidationError("Citation IDs must be an array",
+                            validator="type",validator_value="array",instance=item,
+                            path=path+(key,),schema_path=("source_contract","evidence_ids")))
+                        continue
+                    for i,identifier in enumerate(item):
+                        if not isinstance(identifier,str) or identifier not in known:
+                            errors.append(jsonschema.ValidationError("Unknown scientific evidence citation",
+                                validator="enum",validator_value=sorted(known),instance=identifier,
+                                path=path+(key,i),schema_path=("source_contract","evidence_ids")))
+                else:walk(item,path+(key,))
+        elif isinstance(value,list):
+            for i,item in enumerate(value):walk(item,path+(i,))
+    walk(result)
+    if errors:
+        first=errors[0];first.context.extend(errors[1:]);raise first
+
+
 def call_role(repo, study, case, chain, role, active, *, alternative=None,
               analyst=None, incumbent=None, lane="G", delivery=None, caller=call_json):
     repo,study=Path(repo),Path(study)
@@ -140,16 +171,10 @@ def call_role(repo, study, case, chain, role, active, *, alternative=None,
     messages=[{"role":"system","content":prompt},
         {"role":"user","content":json.dumps(packet,separators=(",",":"))},
         {"role":"user","content":json.dumps(task,separators=(",",":"))}]
-    result=caller(messages,schema,folder/(role+".json"),input_store=study/"inputs",max_output_tokens=16384)
-    def citations(x):
-        if isinstance(x,dict):
-            for k,v in x.items():
-                if k=="evidence_ids":yield from v
-                else:yield from citations(v)
-        elif isinstance(x,list):
-            for v in x:yield from citations(v)
-    if not set(citations(result))<=known:
-        raise ValueError("Unknown scientific evidence citation")
+    validator=lambda value:validate_evidence_citations(value,known)
+    result=caller(messages,schema,folder/(role+".json"),input_store=study/"inputs",max_output_tokens=16384,
+        response_validator=validator)
+    validator(result)
     write_json(folder/(role+".delivery.json"),{"active_modules":active,"alternative":alternative,
         "instruction_sha256":digest(folder/(role+".instructions.md")),
         "evidence_sha256":activation["packet_sha256"],"role":role,
@@ -164,6 +189,25 @@ def _strings(x):
     if isinstance(x,dict):return sum((_strings(v) for v in x.values()),[])
     if isinstance(x,list):return sum((_strings(v) for v in x),[])
     return []
+
+
+def validate_review(result, calls, modules):
+    expected={(i,m["id"]) for i in range(6) for m in modules}
+    actual={(a["chain"],a["module"]) for a in result["assessments"]}
+    if actual!=expected or len(result["assessments"])!=len(expected):
+        raise jsonschema.ValidationError("Functional review coverage incomplete",
+            validator="coverage",validator_value="Assess every supplied chain/rubric exactly once",
+            path=("assessments",),schema_path=("review_contract","coverage"))
+    errors=[]
+    for i,a in enumerate(result["assessments"]):
+        if (a["quote"] and not any(a["quote"] in s for s in _strings(calls[a["chain"]]))) or (
+            a["score"] in {1,2} and not a["quote"]):
+            errors.append(jsonschema.ValidationError("Reviewer quote not in real role output",
+                validator="verbatim_quote",validator_value={"chain":a["chain"],"module":a["module"],
+                    "rule":"Copy an exact supporting excerpt from this chain; positive scores require a nonempty excerpt"},
+                instance=a["quote"],path=("assessments",i,"quote"),schema_path=("review_contract","quote")))
+    if errors:
+        first=errors[0];first.context.extend(errors[1:]);raise first
 
 
 def review(study, case, role, focal_ids, *, caller=call_json):
@@ -187,11 +231,7 @@ def review(study, case, role, focal_ids, *, caller=call_json):
         {"role":"user","content":json.dumps({"calls":[{"chain":i,"response":v} for i,v in enumerate(calls)],
             "rubrics":[{"module":m["id"],"goal":m["label_zh"],"checks":m["functional_rubric"]} for m in modules]},separators=(",",":"))}]
     path=study/"reviews"/(case+"_"+role+".json")
-    result=caller(messages,schema,path,input_store=study/"inputs",max_output_tokens=16384)
-    expected={(i,m["id"]) for i in range(6) for m in modules}
-    actual={(a["chain"],a["module"]) for a in result["assessments"]}
-    if actual!=expected or len(result["assessments"])!=len(expected):raise ValueError("Functional review coverage incomplete")
-    for a in result["assessments"]:
-        if a["quote"] and not any(a["quote"] in s for s in _strings(calls[a["chain"]])):
-            raise ValueError("Reviewer quote not in real role output")
+    validator=lambda value:validate_review(value,calls,modules)
+    result=caller(messages,schema,path,input_store=study/"inputs",max_output_tokens=16384,response_validator=validator)
+    validator(result)
     return result

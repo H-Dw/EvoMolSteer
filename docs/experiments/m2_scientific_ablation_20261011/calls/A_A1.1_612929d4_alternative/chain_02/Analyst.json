@@ -1,0 +1,237 @@
+{
+  "findings": [
+    {
+      "claim": "Label semantics: recorded affinities were removed and an equal score prior is used; decoded terminal learning labels are unavailable. Descendant credit in the survival table is recorded joint-head credit, not decoded terminal affinity, so last-record credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "clocks",
+        "decoded_terminal_learning_labels_available",
+        "lineage_support",
+        "limitations"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Ancestral coverage is thin: 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, out of 700 batch nodes across 14 independent batches; terminal metadata show one future resampling node per batch at terminal index 99. Survival fields are BH-adjusted jointly over 400 tests and are not terminal affinity effects.",
+      "evidence_ids": [
+        "lineage_support",
+        "limitations"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "The information audit compares geometric nearest-teacher selection under sparse salient fields against Hungarian fixed-frame RMS with leave-one-batch exclusion (14 batches). Its metrics are nonnegative excess distance by construction and are not a causal affinity effect; teacher score correlations are observational and not a validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit",
+        "limitations"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Available comparisons are descriptive only: compressed-choice excess fixed RMS 0.081 A (CI95 0.070-0.092), compressed-choice fixed RMS 0.564 A (0.499-0.620), proper-rigid RMS 0.529 A (0.468-0.582), top-4 teacher overlap 0.470 (0.427-0.515), compressed chosen teacher score correlation 0.102 (0.065-0.140), full chosen teacher score correlation 0.064 (0.021-0.103). These are not used here to rank design directions.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Endpoint contrasts for pair kernels are the strongest and most batch-consistent: pair_kernel_1.5 integrated z 0.562 (q 1.5e-4, positive batch fraction 1.0), pair_kernel_2.5 0.631 (q 2.2e-5, 1.0), pair_kernel_3.5 0.540 (q 9.8e-5, 1.0), pair_kernel_5.0 0.319 (q 3.7e-3, 0.857), pair_kernel_7.0 -0.485 (q 1.5e-4, 0.0). Sign flips between 5.0 and 7.0 A.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Shape contrasts are negative and mostly batch-consistent: shape_xx -0.495 (q 8.1e-4, positive batch fraction 0.071), shape_yy -0.513 (q 1.5e-5, 0.0), shape_zz -0.183 (q 0.067, 0.286), shape_yz -0.212 (q 0.035, 0.214). These are marginal descriptors, not joint-motion residuals.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Joint diagnostics separate local information from global pose: joint_innovation_RMS_A and joint_internal_RMS_A are negative with same-sign batch fraction 1.0 in both raw and adjusted covariance (e.g. adjusted correlation -0.150, q 2.8e-4 and -0.137, q 9.7e-4), while joint_translation_RMS_A is weaker (-0.076, q 0.052). Internal/innovation terms carry information beyond common translation.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:74",
+        "branch_adjusted:76"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Within-selector joint diagnostics: innovation_native_alignment 0.092 (q 2.2e-9, positive batch fraction 1.0) and teacher_innovation_contrast_alignment 0.226 (q 2.2e-9, 1.0) are positive, while observed_child_score_gain is negative -0.036 (q 1.8e-7, 0.0). teacher_contrast_internal_fraction is 0.787, so most teacher contrast is internal rather than rigid.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Continuous contrast functions for landmark 00 span the full observed support [0.0,0.49] with many sign changes (e.g. landmark_00_local_dz 10 sign changes, 7 strong sign conflicts; landmark_00_local_cxy 9 sign changes, 14 strong conflicts) and relative node RMSE 0.29-0.87. Polynomial fits are not accepted and extrapolation is disallowed, so no constant rule can be read off these curves.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Curve-fidelity audit: no candidate passes the selection rule (relative RMSE <= 0.35, quiet-node large-fit fraction <= 0.1, zero strong sign conflicts); selected_count is 24 under the absolute-integrated-z rule, and Legendre runtime is disallowed. Last empirical and last fit z frequently disagree in sign (e.g. landmark_16_occupancy5 empirical 0.315 vs fit -0.175 with 15 strong sign conflicts).",
+      "evidence_ids": [
+        "curve_support",
+        "continuous_functions"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Turnover accounting: population rates are small and mostly non-significant, while edge rates and turnover residuals are large and often significant (e.g. landmark_00_local_cxx edge -4.34, residual +4.29; landmark_16_local_cyy edge -5.90, residual +6.37). The residual is an accounting diagnostic that mixes score reclassification and extant-parent weighting, not a causal selection effect or atom velocity.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:17",
+        "turnover:14",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:254",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Parent-child increment contrasts are mostly not significant after adjustment: landmark_00_softmin -4.91 (q 0.046, positive batch fraction 0.071) and landmark_00_occupancy3 +4.28 (q 0.081, 0.857) are the clearest, while shape_xx -3.70 (q 0.095), shape_yy -3.85 (q 0.161), shape_xz +3.00 (q 0.207), pair_kernel_2.5 +3.96 (q 0.208) and pair_kernel_7.0 -3.14 (q 0.208) are weaker. Within-path change and changing cohort composition are not separable from these increments alone.",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:3",
+        "increment_effects:4",
+        "increment_effects:7",
+        "increment_effects:10",
+        "increment_effects:13"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Hypothesis: short-range pair-distance shell density (1.5-3.5 A) is the most reproducible coordinate signal, with a sign reversal at 7.0 A. Testable as a coordinate intervention on pair_kernel observables; discriminating failure condition is a same-sign batch fraction below 0.857 or a q above 0.05 in an independent batch set.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Hypothesis: joint internal/innovation RMS carries information beyond common translation, so a region should retain freedom where internal RMS is high while translation is left unconstrained. Discriminating failure condition is joint_translation_RMS_A matching joint_internal_RMS_A in magnitude and batch consistency.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "joint_diagnostics:1",
+        "joint_diagnostics:11"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Hypothesis: landmark 00 contrasts are time-conditioned rather than constant, given 4-10 sign changes and 1-14 strong sign conflicts per feature with no accepted polynomial fit. Discriminating failure condition is a constant rule matching the observed-node interpolation within the observed support.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "curve_support"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Hypothesis: the large edge-rate/turnover-residual gap indicates cohort composition change rather than within-path change, since population rates are near zero while residuals are large. Discriminating failure condition is a population rate of comparable magnitude and significance to the residual.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:17",
+        "turnover:14",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:254",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Hypothesis: survival enrichment is weak and mostly not significant after BH adjustment (e.g. landmark_00_soft_mass 0.365, q 0.120; landmark_10_soft_mass 0.234, q 0.302), so survival credit should not be treated as final affinity benefit. Discriminating failure condition is a survival effect surviving joint adjustment with a same-sign batch fraction above 0.857.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:100",
+        "survival_effects:70",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:393",
+        "survival_effects:579"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Hypothesis: local_dy enrichment is positive and batch-consistent at several landmarks (e.g. landmark_02_local_dy 0.405, q 1.3e-4, positive batch fraction 1.0; landmark_06_local_dy 0.425, q 5.7e-7, 1.0; landmark_18_local_dy 0.425, q 9.2e-6, 1.0), while local_cyy is consistently negative. Discriminating failure condition is a landmark where local_dy and local_cyy share sign and batch consistency.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_effects:229",
+        "regional_effects:249",
+        "regional_effects:269",
+        "regional_effects:389"
+      ],
+      "priority": 6
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded terminal learning labels are unavailable.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Temperatures are immutable task parameters; no temperature edit is proposed or compiled.",
+    "Moment effects, pair kernels and turnover rates are diagnostic evidence only; the executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term."
+  ],
+  "role": "Analyst"
+}
