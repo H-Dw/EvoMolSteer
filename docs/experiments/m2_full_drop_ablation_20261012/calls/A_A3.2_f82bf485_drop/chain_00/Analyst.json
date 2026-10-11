@@ -1,0 +1,296 @@
+{
+  "findings": [
+    {
+      "claim": "Decoded terminal learning labels are unavailable (decoded_terminal_learning_labels_available=false); lineage_support records terminal metadata at terminal_score_time 0.99 / terminal_state_time 1.0 with one future_resampling_node per batch, so descendant credit is recorded joint-head credit, not decoded terminal affinity. No final-affinity benefit comparison can be reported.",
+      "evidence_ids": [
+        "decoded_terminal_learning_labels_available",
+        "lineage_support",
+        "clocks"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Survival enrichment is weak and mostly null: landmark_00_soft_mass (survival_effects:0, effect_z 0.365, q 0.120), landmark_07_soft_mass (survival_effects:70, 0.220, q 0.356), landmark_10_soft_mass (survival_effects:100, 0.234, q 0.302), landmark_18_local_czz (survival_effects:186, 0.217, q 0.302), landmark_02_local_dz (survival_effects:23, 0.206, q 0.356), landmark_04_local_czz (survival_effects:46, 0.266, q 0.302). All are BH-adjusted non-significant; none is a decoded terminal affinity effect.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:23",
+        "survival_effects:46"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Endpoint point-estimate ranking is dominated by pair kernels: pair_kernel_1.5 (endpoint_effects:9, integrated z 0.562, q 1.46e-4), pair_kernel_2.5 (endpoint_effects:10, 0.631, q 2.19e-5), pair_kernel_3.5 (endpoint_effects:11, 0.540, q 9.75e-5), pair_kernel_5.0 (endpoint_effects:12, 0.319, q 3.71e-3), with pair_kernel_7.0 negative (endpoint_effects:13, -0.485, q 1.46e-4) and landmark_00_occupancy3 positive (endpoint_effects:15, 0.545, q 2.35e-4) versus landmark_00_softmin negative (endpoint_effects:14, -0.481, q 8.13e-4).",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "endpoint_effects:15",
+        "endpoint_effects:14"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Branch-adjusted covariance and correlation agree on the short pair kernels: pair_kernel_1.5 (branch_adjusted:86, q 0.081; branch_adjusted:240, q 0.019) and pair_kernel_2.5 (branch_adjusted:87, q 0.077; branch_adjusted:241, q 0.046), with same-sign batch fractions 0.79 and 0.93. Joint innovation and internal RMS are negative and reproducible (branch_adjusted:228, q 9.3e-5, 1.0 same-sign; branch_adjusted:230, q 1.5e-4, 1.0; branch_adjusted:305, q 2.8e-4, 0.93; branch_adjusted:307, q 9.7e-4, 1.0).",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Shape_yy is the one shape coordinate with a consistent negative association across raw and adjusted views (branch_adjusted:158, q 4.2e-5, 1.0 same-sign; branch_adjusted:235, q 2.9e-4, 1.0), while shape_yz is weaker (branch_adjusted:81, q 0.131; branch_adjusted:85, q 0.255). Joint translation and internal RMS are negative in both raw and adjusted covariance (branch_adjusted:75/76 and branch_adjusted:152/153).",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "branch_adjusted:81",
+        "branch_adjusted:85",
+        "branch_adjusted:75",
+        "branch_adjusted:76",
+        "branch_adjusted:152",
+        "branch_adjusted:153"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Continuous contrast functions are observed-node linear fits over support [0.0,0.49] with extrapolation_allowed=false and polynomial_accepted=false; landmark_00 and landmark_01 features show many sign changes (e.g., continuous:1 sign_changes 6, strong_sign_conflicts 9; continuous:7 sign_changes 9, strong_sign_conflicts 14; continuous:17 sign_changes 7, strong_sign_conflicts 18) and relative_node_RMSE up to 0.995, so a constant rule is not supported and a time-conditioned rule would need validated fits rather than arbitrary bins.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous:10",
+        "continuous:11",
+        "continuous:12",
+        "continuous:13",
+        "continuous:14",
+        "continuous:15",
+        "continuous:16",
+        "continuous:17",
+        "continuous:18",
+        "continuous:19"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "curve_support reports only 24 of the candidate curves pass the fidelity rule (relative_rmse_le 0.35, strong_sign_conflict_nodes_eq 0, quiet_node_large_fit_fraction_le 0.1), and the listed audit entries show last_fit_z disagreeing in sign with last_empirical_z for many features (e.g., landmark_00_softmin last_empirical_z -0.146 vs last_fit_z -0.481; landmark_02_softmin -0.188 vs 0.253; landmark_06_softmin -0.402 vs 0.294). Curve fits are not absolute reward targets.",
+      "evidence_ids": [
+        "curve_support",
+        "continuous_functions"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Turnover accounting separates population, edge and residual rates: population rates are mostly non-significant (e.g., turnover:0 q 0.826; turnover:39 q 0.012 is an exception), while edge rates and turnover_residual_rate are large and significant for many local_cxx/local_cyy features (turnover:14 q 0.038, turnover:17 q 0.033, turnover:47 q 0.014, turnover:134 q 0.012, turnover:224 q 0.012, turnover:227 q 0.019, turnover:254 q 0.012, turnover:257 q 0.055, turnover:497 q 0.012, turnover:524 q 0.012, turnover:584 q 0.012, turnover:587 q 0.031). The residual is an accounting diagnostic including reclassification and parent weighting, not a causal selection effect.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584",
+        "turnover:587"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Parent-child increment contrasts are mostly non-significant after BH: landmark_00_softmin (increment_effects:14, q 0.046, success_failure_integrated_rate_z -4.91) and landmark_00_occupancy3 (increment_effects:15, q 0.081, +4.28) are the strongest, with shape_xx (increment_effects:3, q 0.095, -3.70), shape_yy (increment_effects:4, q 0.161, -3.85), pair_kernel_2.5 (increment_effects:10, q 0.208, +3.96), pair_kernel_7.0 (increment_effects:13, q 0.208, -3.14), landmark_03_occupancy5 (increment_effects:25, q 0.161, -3.02) and landmark_01_occupancy5 (increment_effects:19, q 0.227, -2.56).",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:3",
+        "increment_effects:4",
+        "increment_effects:10",
+        "increment_effects:13",
+        "increment_effects:25",
+        "increment_effects:19"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Joint diagnostics show selection innovation is positively associated with innovation_native_alignment (joint_diagnostics:1, q 2.2e-9, 1.0 positive batch fraction) and teacher_innovation_contrast_alignment (joint_diagnostics:11, q 2.2e-9, 1.0), but negatively associated with observed_child_score_gain (joint_diagnostics:2, q 1.8e-7, 0.0 positive batch fraction). Teacher contrast is dominated by internal fraction (joint_diagnostics:14, 0.787) over translation (joint_diagnostics:12, 0.132) and rotation (joint_diagnostics:13, 0.081).",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:12",
+        "joint_diagnostics:13"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "information_audit reports compressed_choice_excess_fixed_RMS_A mean 0.081 (CI 0.070-0.092) and compressed_chosen_teacher_score_correlation mean 0.102 (CI 0.065-0.140), with top4_teacher_overlap 0.470; teacher_modes lists 28 teachers with assignment_rms_A quantiles [0.446, 0.863, 1.050] and temperature_edits=false. These are observational geometric diagnostics, not causal affinity effects.",
+      "evidence_ids": [
+        "information_audit",
+        "teacher_modes"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Regional enrichment_z is positive for soft_mass at several landmarks (regional_effects:0 q 1.9e-4; regional_effects:100 q 3.7e-4; regional_effects:70 q 7.4e-3) and for local_dy at landmarks 02, 06, 09, 14, 18 (regional_effects:22 q 1.3e-4; regional_effects:62 q 5.7e-7; regional_effects:92 q 1.2e-5; regional_effects:142 q 3.4e-6; regional_effects:182 q 9.2e-6), while local_cyy is consistently negative (regional_effects:5 q 1.3e-4; regional_effects:15 q 1.3e-4; regional_effects:75 q 7.1e-5; regional_effects:165 q 1.3e-4; regional_effects:195 q 4.7e-4). Parent-edge contrast rates are large for local_cxx/local_cyy (regional_effects:404 q 0.029; regional_effects:405 q 0.036; regional_effects:474 q 0.004; regional_effects:475 q 0.030; regional_effects:594 q 0.004; regional_effects:595 q 0.030).",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_effects:400",
+        "regional_effects:408",
+        "regional_effects:438",
+        "regional_effects:457",
+        "regional_effects:478",
+        "regional_effects:518",
+        "regional_effects:538",
+        "regional_effects:557",
+        "regional_effects:558",
+        "regional_effects:568",
+        "regional_effects:598"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Short pair-distance shell density (pair_kernel_1.5-3.5) is the most reproducible coordinate hypothesis: positive in endpoint, branch-adjusted covariance and adjusted correlation with high same-sign batch fractions, while pair_kernel_7.0 is negative. A testable intervention would target the 1.5-3.5 A pair shell; the discriminating failure condition is a sign reversal or loss of batch agreement in the short-kernel contrast under the endpoint-VJP reward.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Shape_yy and joint internal/innovation RMS are consistently negative across raw and adjusted views with high same-sign batch fractions, suggesting a within-path change rather than cohort composition; the discriminating failure condition is a positive adjusted shape_yy or joint_internal_RMS_A contrast in an independent batch set.",
+      "evidence_ids": [
+        "branch_adjusted:158",
+        "branch_adjusted:235",
+        "branch_adjusted:81",
+        "branch_adjusted:85",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Most continuous contrast curves have many sign changes and poor fit fidelity, so a time-conditioned rule is only defensible for the 24 curves passing the curve_support fidelity rule; the discriminating failure condition is a validated fit that reverses sign within the observed support.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous:10",
+        "continuous:11",
+        "continuous:12",
+        "continuous:13",
+        "continuous:14",
+        "continuous:15",
+        "continuous:16",
+        "continuous:17",
+        "continuous:18",
+        "continuous:19",
+        "curve_support"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Large edge and turnover_residual rates for local_cxx/local_cyy indicate changing cohort composition and reclassification rather than a clean within-path change; the discriminating failure condition is a population rate that matches the residual rate, which would support within-path change instead.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:227",
+        "turnover:254",
+        "turnover:257",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584",
+        "turnover:587"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Selection innovation aligns with teacher contrast and native alignment but anti-aligns with observed child score gain, so a teacher-contrast-based coordinate rule may not improve observed child score; the discriminating failure condition is a positive association between selection innovation and observed_child_score_gain.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:12",
+        "joint_diagnostics:13"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Regional soft_mass and local_dy enrichment is positive at several landmarks while local_cyy is consistently negative, suggesting a region-specific coordinate hypothesis; the discriminating failure condition is a sign reversal of the local_cyy enrichment in an independent batch set.",
+      "evidence_ids": [
+        "regional_effects:0",
+        "regional_effects:22",
+        "regional_effects:62",
+        "regional_effects:92",
+        "regional_effects:142",
+        "regional_effects:182",
+        "regional_effects:5",
+        "regional_effects:15",
+        "regional_effects:75",
+        "regional_effects:165",
+        "regional_effects:195"
+      ],
+      "priority": 6
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded_terminal_learning_labels_available=false.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Temperatures are immutable task parameters; no temperature edit is proposed."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,61 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "decoded_terminal_learning_labels_available",
+    "lineage_support",
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "branch_adjusted:86",
+    "branch_adjusted:87",
+    "branch_adjusted:240",
+    "branch_adjusted:241",
+    "branch_adjusted:158",
+    "branch_adjusted:235",
+    "branch_adjusted:228",
+    "branch_adjusted:230",
+    "joint_diagnostics:1",
+    "joint_diagnostics:2",
+    "joint_diagnostics:11",
+    "joint_diagnostics:14",
+    "curve_support",
+    "continuous:1",
+    "continuous:7",
+    "continuous:17",
+    "turnover:14",
+    "turnover:17",
+    "turnover:47",
+    "turnover:134",
+    "information_audit",
+    "teacher_modes",
+    "incumbent",
+    "formula_registry",
+    "observable_definitions",
+    "limitations"
+  ],
+  "expected_response": {
+    "decision": "retain",
+    "edit": null,
+    "expected_direction": "no operative change; incumbent preserved",
+    "note": "No registered bounded edit maps to the pair-kernel observable; decoded terminal affinity labels unavailable.",
+    "primary_observable": "short pair-distance shell (pair_kernel_1.5-3.5)"
+  },
+  "failure_modes": [
+    "If a short pair-shell edit were compiled, the executing pointcloud scalar has no pair-kernel term, so the intended 1.5-3.5 A shell response would not be produced and surrounding coordinates could be displaced without the hypothesized benefit.",
+    "A time-conditioned teacher/attention edit built on poorly fitted continuous curves (many sign changes, relative_node_RMSE up to ~0.995) could reverse sign within the observed support and degrade rather than improve the endpoint.",
+    "A teacher-contrast-based coordinate rule may not improve observed child score, since selection innovation anti-aligns with observed_child_score_gain (joint_diagnostics:2).",
+    "Any edit justified by turnover_residual_rate would conflate score reclassification and extant-parent weighting with a causal selection effect."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "fixed_parameters (0.5, immutable)",
+    "pointcloud_delta_A": "incumbent (1.0 A)",
+    "teacher_endpoint_temperature_A2": "fixed_parameters (4.0, immutable)",
+    "teacher_neighbors": "incumbent (4)"
+  },
+  "rationale": "Retain the incumbent. The Analyst's strongest reproducible coordinate signal is the short pair-distance shell (pair_kernel_1.5-3.5 positive in endpoint_effects:9-11 and branch_adjusted:86/87/240/241; pair_kernel_7.0 negative in endpoint_effects:13), but the executing pointcloud scalar contains no pair-kernel term (formula_registry diagnostic_limit; observable_definitions scope), so no registered bounded edit (pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index, temporal_teacher_blend) can be tied to that observable without treating a diagnostic feature as a force the formula does not contain. The remaining candidate levers are unsupported: decoded terminal affinity labels are unavailable (decoded_terminal_learning_labels_available=false; lineage_support records joint-head credit at terminal_score_time 0.99), so no final-affinity advantage can be predicted; continuous contrast curves mostly fail the curve_support fidelity rule with many sign changes (continuous:1/7/17), so a time-conditioned teacher/attention edit is not defensible; turnover residuals for local_cxx/local_cyy (turnover:14/17/47/134) are accounting diagnostics including reclassification and parent weighting, not causal selection effects; and joint_diagnostics:2 shows selection innovation anti-aligns with observed child score gain (joint_diagnostics:1/11/14), so a teacher-contrast-based coordinate rule may not improve observed child score. With affinity primary and no defensible expected advantage over the incumbent, retaining the incumbent is the correct bounded choice; temperatures are immutable and no temperature edit is proposed.",
+  "role": "Designer"
+}

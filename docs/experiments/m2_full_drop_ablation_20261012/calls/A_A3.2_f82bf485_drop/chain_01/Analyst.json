@@ -1,0 +1,257 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate endpoint selection evidence is strongest for short-range pair kernels: pair_kernel_1.5 (endpoint_effects:9, integrated z 0.562, q 1.5e-4, positive batch fraction 1.0), pair_kernel_2.5 (endpoint_effects:10, z 0.631, q 2.2e-5, fraction 1.0) and pair_kernel_3.5 (endpoint_effects:11, z 0.540, q 9.8e-5, fraction 1.0), with pair_kernel_5.0 weaker (endpoint_effects:12, z 0.319, q 3.7e-3) and pair_kernel_7.0 opposite in sign (endpoint_effects:13, z -0.485, q 1.5e-4). Branch-adjusted raw and adjusted correlations agree in sign and batch direction for the 1.5 and 2.5 kernels (branch_adjusted:163/164/240/241).",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Descendant survival credit is recorded joint-head credit, not decoded terminal affinity. The only survival_enrichment_z entries with q below 0.5 are landmark_00_soft_mass (survival_effects:0, z 0.365, q 0.120), landmark_07_soft_mass (survival_effects:70, z 0.220, q 0.356), landmark_10_soft_mass (survival_effects:100, z 0.234, q 0.302), landmark_18_local_czz (survival_effects:186, z 0.217, q 0.302) and landmark_02_local_dz (survival_effects:23, z 0.206, q 0.356); several negative entries (survival_effects:46, 56, 96, 146, 156, 195) are also nominally significant. Because decoded_terminal_learning_labels_available is false, none of these can be presented as final affinity benefit.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:23",
+        "survival_effects:46",
+        "survival_effects:56",
+        "survival_effects:96",
+        "survival_effects:146",
+        "survival_effects:156",
+        "survival_effects:195"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "The actual later-label calculation is unavailable: decoded_terminal_learning_labels_available is false, terminal metadata place terminal_index 99 at terminal_score_time 0.99 and terminal_state_time 1.0, outside the learning window [0.0,0.5] and the curve support [0.0,0.49]. Ancestral coverage is thin (lineage_support reports 349 nodes with fewer than 3 ancestors and 531 with fewer than 6), so last-record survival credit cannot be compared with final affinity benefit; that comparison is reported as unavailable.",
+      "evidence_ids": [
+        "decoded_terminal_learning_labels_available",
+        "lineage_support",
+        "clocks",
+        "limitations"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Immediate selection evidence and descendant survival credit disagree in direction priority. The endpoint contrast favors short-range pair kernels (endpoint_effects:9-11) and penalizes pair_kernel_7.0 (endpoint_effects:13), whereas survival enrichment is positive for soft_mass at landmarks 00, 07 and 10 (survival_effects:0, 70, 100) and shows no significant pair-kernel survival effect. This disagreement is why pair-kernel direction should be prioritized over soft-mass direction in the immediate-selection reading, while the survival reading remains a separate, weaker credit signal.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Multiplicity-adjusted support and coverage rank coordinate hypotheses differently from point estimates alone. pair_kernel_1.5 and pair_kernel_2.5 retain q below 0.02 in both raw and adjusted covariance/correlation families (branch_adjusted:86, 87, 163, 164, 240, 241), while joint_innovation_RMS_A and joint_internal_RMS_A have the smallest q values (branch_adjusted:228, 230, 305, 307) but are joint-motion diagnostics rather than local coordinate hypotheses. A concrete priority decision that differs from point-estimate ranking is to rank pair_kernel_1.5/2.5 above landmark_00_softmin and landmark_00_occupancy3 despite comparable point estimates, because the pair kernels have higher same-sign batch fractions (0.79-0.93) and lower q.",
+      "evidence_ids": [
+        "branch_adjusted:86",
+        "branch_adjusted:87",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Independent-batch agreement supports the short-range pair-kernel direction: pair_kernel_1.5 and 2.5 have same_sign_batch_fraction 0.79-0.93 across 14 independent batches (branch_adjusted:163, 164, 240, 241), whereas pair_kernel_7.0 has negative whole-window means and lower same-sign fractions (branch_adjusted:167, 244). The counterexample that would weaken the proposed short-range pair-kernel direction is a batch in which pair_kernel_1.5 or 2.5 changes sign; the supplied same-sign fractions show that this occurs in roughly one to three of fourteen batches, so the direction is reproducible but not unanimous.",
+      "evidence_ids": [
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241",
+        "branch_adjusted:167",
+        "branch_adjusted:244",
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:305",
+        "branch_adjusted:307"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Local coordinate information must be separated from global pose and shape. The joint diagnostics show selection innovation is associated with native alignment (joint_diagnostics:1, q 2.2e-9) and teacher innovation-contrast alignment (joint_diagnostics:11, q 2.2e-9), while observed child score gain is negatively associated (joint_diagnostics:2, q 1.8e-7). The teacher contrast is predominantly internal (joint_diagnostics:14, mean 0.787) with atom participation fraction 0.384 (joint_diagnostics:15), so the region that adds information beyond common motion is the internal/local component, and the surrounding coordinates that should retain freedom are the global translation and rotation components (joint_diagnostics:12, 13). No adjustment beyond the supplied joint diagnostics is claimed.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15",
+        "information_audit"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "The supplied continuous contrast functions for landmark_00 span the complete observed support [0.0,0.49] with observed_node_linear interpolation and no extrapolation. They show sign changes and rate changes: landmark_00_soft_mass rises from -0.366 to a peak near 1.64 and returns to -0.275 (continuous:0), while landmark_00_local_dx and local_dy change sign multiple times (continuous:1, 2). A constant rule would miss these sign changes; a time-conditioned rule using the observed-node interpolation is supported by the supplied fits, but the curve is a contrast, not an absolute reward target.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous_functions",
+        "curve_support"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Curve fidelity is limited: curve_support reports relative_node_rmse between 0.386 and 0.931 for the audited curves, with strong_sign_conflict_nodes up to 15, and legendre_runtime_allowed is false for all audited entries. The selected_count is 24 under a rule requiring relative_rmse_le 0.35 and strong_sign_conflict_nodes_eq 0, so most audited curves fail the fidelity rule. This limits how strongly any time-conditioned rule can be justified from these curves.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "curve_support"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Population-contrast changes and parent-child increment contrasts differ. Turnover accounting shows large positive edge_rate and turnover_residual_rate for landmark_00_soft_mass (turnover:1, 2), landmark_00_local_cxx (turnover:14), landmark_00_local_cyy (turnover:17), landmark_01_local_cyy (turnover:47), landmark_04_local_cxx (turnover:134), landmark_07_local_cxx (turnover:224), landmark_08_local_cxx (turnover:254), landmark_16_local_cyy (turnover:497), landmark_17_local_cxx (turnover:524) and landmark_19_local_cxx (turnover:584). The turnover residual is an accounting diagnostic that includes score reclassification and extant-parent weighting, not a causal selection effect or atom velocity, so it cannot by itself establish within-path change versus changing cohort composition.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:224",
+        "turnover:254",
+        "turnover:497",
+        "turnover:524",
+        "turnover:584"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Parent-child increment contrasts are mostly not significant after multiplicity adjustment: landmark_00_softmin has a negative success-failure integrated rate (increment_effects:14, q 0.046) and landmark_00_occupancy3 a positive one (increment_effects:15, q 0.081), while shape_xx, shape_yy, shape_xz, pair_kernel_2.5, pair_kernel_7.0, landmark_03_occupancy5 and landmark_16_occupancy3 have q between 0.096 and 0.226 (increment_effects:3, 4, 7, 10, 13, 25, 63). The evidence therefore supports within-path change only weakly and does not cleanly separate it from changing cohort composition.",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:3",
+        "increment_effects:4",
+        "increment_effects:7",
+        "increment_effects:10",
+        "increment_effects:13",
+        "increment_effects:25",
+        "increment_effects:63"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "A testable coordinate intervention can be expressed with the registered pointcloud_delta_A edit: observable is the endpoint pointcloud reward R=tau*logsumexp(log_pi-rho_delta(q)/tau) with q the Hungarian mean squared endpoint distance; intended response is a change in the short-range pair-kernel contrast; target origin is the endpoint world coordinates; spatial scale is the pair-kernel shell radius (1.5-3.5 A); temporal scale is the learning window [0.0,0.5]. The discriminating failure condition is a batch in which pair_kernel_1.5 or 2.5 changes sign under the intervention. The permitted reward recipe that could express this is the endpoint pointcloud with pointcloud_delta_A in {0.5, 1.0, 2.0}; the temporal_teacher_blend recipe remains descriptive because no validated absolute contrast change is available at actual score nodes.",
+      "evidence_ids": [
+        "allowed_edits",
+        "incumbent",
+        "formula_registry",
+        "observable_definitions",
+        "teacher_modes"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "Short-range pair-kernel contrast (1.5-3.5 A) is the most reproducible immediate-selection coordinate signal and would be the first hypothesis to test with a pointcloud_delta_A edit.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "branch_adjusted:163",
+        "branch_adjusted:164",
+        "branch_adjusted:240",
+        "branch_adjusted:241"
+      ]
+    },
+    {
+      "claim": "Soft-mass survival enrichment at landmarks 00, 07 and 10 is a recorded joint-head credit signal that may or may not correspond to final affinity benefit; it cannot be tested as an affinity hypothesis without decoded terminal labels.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "decoded_terminal_learning_labels_available"
+      ]
+    },
+    {
+      "claim": "The internal component of the teacher contrast, not the global translation or rotation component, carries the selection-innovation association; a hypothesis that local internal coordinates add information beyond common motion is supported by the joint diagnostics.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:11",
+        "joint_diagnostics:14",
+        "joint_diagnostics:15"
+      ]
+    },
+    {
+      "claim": "A time-conditioned contrast rule for landmark_00 may outperform a constant rule, but the low curve fidelity (relative_node_rmse up to 0.93, strong sign conflicts) makes this hypothesis weak and descriptive.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "curve_support"
+      ]
+    },
+    {
+      "claim": "Large turnover residuals at landmark_00 and landmark_01 local coordinates may reflect score reclassification and parent weighting rather than within-path change; this remains an accounting hypothesis, not a causal selection effect.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47"
+      ]
+    },
+    {
+      "claim": "Parent-child increment contrasts for landmark_00_softmin and landmark_00_occupancy3 are the only increment effects with q below 0.1, suggesting a weak within-path change hypothesis that requires independent-batch confirmation.",
+      "evidence_ids": [
+        "increment_effects:14",
+        "increment_effects:15",
+        "increment_effects:3",
+        "increment_effects:4"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects retained; current study outcomes are withheld from design roles.",
+    "Decoded terminal learning labels are unavailable, so last-record credit cannot be presented as final affinity benefit.",
+    "The executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term; pair-kernel and moment effects are diagnostic only."
+  ],
+  "role": "Analyst"
+}
