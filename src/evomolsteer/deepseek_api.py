@@ -11,7 +11,7 @@ import jsonschema
 from evomolsteer.io import digest, read_json, write_json
 
 
-FORMAT_POLICY = "json-interface-v2"
+FORMAT_POLICY = "json-interface-v3"
 
 
 class LLMInterfaceError(ValueError):
@@ -44,9 +44,36 @@ def validation_diagnostics(error):
     elif error.validator == "type":
         info.update(expected_type=error.validator_value, actual_type=type(error.instance).__name__)
     elif error.validator in {"const", "enum"}:
-        info["allowed_value_or_values"] = error.validator_value
+        # Large source-ID enums already occur in the response schema. Repeating
+        # thousands of valid IDs obscures the offending value and repair task.
+        info["invalid_value"] = error.instance
+        values = error.validator_value
+        if error.validator == "enum" and len(values) > 64:
+            info.update(allowed_value_count=len(values),
+                allowed_values_location="response_schema at schema_pointer")
+        else:
+            info["allowed_value_or_values"] = values
     else:
         info["constraint"] = error.validator_value
+    return info
+
+
+def response_diagnostics(error, result, schema):
+    """One bounded repair addresses all invalid references, not only the last.
+
+    Values are diagnostics only; this never rewrites a response, substitutes
+    evidence IDs or supplies a new scientific finding.
+    """
+    info = validation_diagnostics(error)
+    if not isinstance(error, jsonschema.ValidationError):
+        return info
+    validator = jsonschema.validators.validator_for(schema)(schema)
+    errors = list(validator.iter_errors(result))
+    rest = [e for e in errors if (list(e.absolute_path), e.validator) !=
+            (list(error.absolute_path), error.validator)]
+    if rest:
+        info["additional_errors"] = [validation_diagnostics(e) for e in rest[:31]]
+        info["unreported_error_count"] = max(0, len(rest) - 31)
     return info
 
 
@@ -60,7 +87,10 @@ def format_message(schema, diagnostics=None):
         contract["validation_errors"] = diagnostics
     return ("Output-format contract only. Return JSON satisfying the supplied schema. "
             "Optional fields remain optional; this adds no research requirements. "
-            "Preserve the same substantive findings and choices in schema-compatible fields. "
+            "Preserve supported substantive findings and choices in schema-compatible fields. "
+            "Inspect each invalid_value at its instance_pointer. For invalid source citations, consult the supplied ID-to-record mapping; "
+            "correct a reference only when that record supports the original claim, otherwise state that claim's lack of support in permitted fields. "
+            "Never guess a replacement ID or invent a source. "
             "Do not add research advice. Do not emit another role's decision fields outside the permitted properties.\n"
             + json.dumps(contract, ensure_ascii=False, separators=(",", ":")))
 
@@ -175,11 +205,12 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
                     "provider_request_id": wire.get("id"), "valid": False})
                 raise ValueError("Provider returned a different model; fallback is prohibited")
             content = choice["message"]["content"]
+            result = None
             try:
                 result = json.loads(content)
                 jsonschema.validate(result, schema)
             except (json.JSONDecodeError, jsonschema.ValidationError) as error:
-                diagnostics = validation_diagnostics(error)
+                diagnostics = response_diagnostics(error, result, schema)
                 invalid_path = unused_path(output, ".attempt_{index}.invalid.txt")
                 invalid_path.write_text(content, encoding="utf-8")
                 write_json(invalid_path.with_suffix(".receipt.json"), {

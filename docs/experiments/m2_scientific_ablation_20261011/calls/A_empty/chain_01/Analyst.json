@@ -1,0 +1,234 @@
+{
+  "findings": [
+    {
+      "claim": "Objective is final predicted target affinity (primary), with validity and strain secondary and coordinate control only. Decoded terminal learning labels are unavailable, so no finding here can be read as a decoded terminal affinity outcome.",
+      "evidence_ids": [
+        "objective",
+        "clocks",
+        "decoded_terminal_learning_labels_available",
+        "limitations"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Score/state clocks run over observed support [0.0,0.49] with learning window [0.0,0.5]; terminal metadata place terminal score time at 0.99 and state time at 1.0, i.e. beyond the observed support. Any statement about the terminal endpoint is therefore an extrapolation, not an observed label.",
+      "evidence_ids": [
+        "clocks",
+        "lineage_support",
+        "limitations"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "All supplied observables are endpoint forecast descriptors in predicted_endpoint_world_A: soft_mass, landmark softmin/occupancy, pair kernels, shape and regional moments. They are not atom velocities, neural attention, physical interaction energies, or causal affinity gradients; coordinate covariance alone is not an inferred mechanism.",
+      "evidence_ids": [
+        "observable_definitions",
+        "formula_registry",
+        "limitations"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Endpoint effects for pair kernels are the strongest and most consistent in the supplied table: pair_kernel_1.5 (0.562), 2.5 (0.631), 3.5 (0.540) and 5.0 (0.319) are positive with positive_batch_fraction 1.0, 1.0, 1.0 and 0.857, while pair_kernel_7.0 is negative (-0.485, positive_batch_fraction 0.0). These are label-bound favorable-minus-comparison contrasts, not interaction energies.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Landmark softmin and occupancy3 effects are mixed in sign across landmarks: landmark_00_softmin is negative (-0.481) while landmark_00_occupancy3 is positive (0.545); landmark_02_softmin positive (0.253) with landmark_02_occupancy5 negative (-0.323); landmark_06_softmin positive (0.294) with landmark_06_occupancy3/5 negative. No single landmark shell direction is uniformly favorable.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:17",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Shape effects are predominantly negative: shape_xx -0.495, shape_yy -0.513, shape_zz -0.183, shape_yz -0.212, with shape_yy showing positive_batch_fraction 0.0. These are standardized coordinate contrasts, not strain energies.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:8"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "Joint residual features are consistently negative under both raw and adjusted covariance: joint_innovation_RMS_A (-0.142 raw, -0.150 adjusted), joint_internal_RMS_A (-0.130 raw, -0.137 adjusted), joint_translation_RMS_A (-0.067 raw, -0.076 adjusted), all with same_sign_batch_fraction 0.93-1.0. These are branch-adjusted covariance contrasts, not rigid-motion residuals of a physical trajectory.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:151",
+        "branch_adjusted:153",
+        "branch_adjusted:74",
+        "branch_adjusted:76"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "Continuous trend fits for landmark_00 features are all observed_node_linear with polynomial_accepted=false, extrapolation_allowed=false, and relative_node_RMSE 0.29-0.87; several show strong_sign_conflicts (e.g. landmark_00_local_dxy 14, landmark_00_local_dy 4). Curve fitting does not establish a causal benefit or a gradient.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "priority": 8
+    },
+    {
+      "claim": "Curve-support audit selected 24 of the candidate curves under rules requiring relative_rmse<=0.35, quiet_node_large_fit_fraction<=0.1 and zero strong sign conflicts; the retained set includes pair_kernel_1.5/2.5/3.5/5.0/7.0, shape_xx, shape_yy and several landmark softmin/occupancy5 curves. Legendre runtime is disallowed for all audited curves.",
+      "evidence_ids": [
+        "curve_support",
+        "limitations"
+      ],
+      "priority": 9
+    },
+    {
+      "claim": "Survival enrichment effects are weak and mostly non-significant after BH: landmark_00_soft_mass 0.365 (q=0.120), landmark_07_soft_mass 0.220 (q=0.356), landmark_10_soft_mass 0.234 (q=0.302), landmark_18_local_czz 0.217 (q=0.302). These are recorded joint-head survival credits, not decoded terminal affinity effects.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:70",
+        "survival_effects:100",
+        "survival_effects:186",
+        "survival_effects:249",
+        "survival_effects:227",
+        "survival_effects:134",
+        "survival_effects:17"
+      ],
+      "priority": 10
+    },
+    {
+      "claim": "Turnover accounting separates population, edge and turnover_residual rates; several turnover_residual_rate entries are large and positive (e.g. landmark_00_local_cxx 4.29, landmark_00_local_cyy 5.05, landmark_01_local_cyy 6.40, landmark_04_local_cxx 5.67, landmark_07_local_cyy 5.63, landmark_17_local_cxx 5.24) with q_BH_600_rates below 0.06. The residual includes score reclassification and extant-parent weighting, not only resampling, and is descriptive rather than a causal selection test.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:227",
+        "turnover:524"
+      ],
+      "priority": 11
+    },
+    {
+      "claim": "Information audit reports compressed_choice_excess_fixed_RMS_A 0.081 (CI 0.070-0.092) and top4_teacher_overlap 0.470 (CI 0.427-0.515) over 14 independent batches; joint diagnostics show selection_innovation/innovation_native_alignment 0.092 (p~1.5e-9) and observed_child_score_gain -0.036 (p~1.8e-7). These are within-selector associations with batch as the independent unit, not causal affinity effects.",
+      "evidence_ids": [
+        "information_audit",
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11",
+        "limitations"
+      ],
+      "priority": 12
+    }
+  ],
+  "hypotheses": [
+    {
+      "claim": "If any coordinate signal is worth testing, the pair-kernel band 1.5-5.0 A is the most internally consistent candidate, since all four kernels are positive with high positive_batch_fraction and all four survive the curve-support audit; pair_kernel_7.0 is the opposing sign. This is a hypothesis about a diagnostic contrast, not a claim of interaction energy or affinity benefit.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:10",
+        "endpoint_effects:11",
+        "endpoint_effects:12",
+        "endpoint_effects:13",
+        "curve_support"
+      ]
+    },
+    {
+      "claim": "Landmark softmin and occupancy3/5 contrasts may encode opposing geometric directions at the same landmark (closer softmin vs. shell occupancy), so a single landmark index cannot be assumed to carry one favorable direction without its observable definition.",
+      "evidence_ids": [
+        "endpoint_effects:14",
+        "endpoint_effects:15",
+        "endpoint_effects:16",
+        "endpoint_effects:20",
+        "endpoint_effects:23",
+        "endpoint_effects:29",
+        "endpoint_effects:32"
+      ]
+    },
+    {
+      "claim": "The consistently negative joint innovation/internal RMS contrasts suggest that lower joint residual is associated with the favorable-minus-comparison label in this evidence; whether this reflects a controllable coordinate direction or a selection artifact is unresolved.",
+      "evidence_ids": [
+        "branch_adjusted:228",
+        "branch_adjusted:230",
+        "branch_adjusted:151",
+        "branch_adjusted:153"
+      ]
+    },
+    {
+      "claim": "Because all continuous fits are observed_node_linear with extrapolation disallowed and many strong sign conflicts, any temporal-region attention change would rest on within-support interpolation only; outside-window behavior is unsupported by this evidence.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous:10",
+        "continuous:11",
+        "continuous:12",
+        "continuous:13",
+        "continuous:14",
+        "continuous:15",
+        "continuous:16",
+        "continuous:17",
+        "continuous:18",
+        "continuous:19"
+      ]
+    },
+    {
+      "claim": "Large positive turnover_residual_rate entries could indicate that the recorded credit is dominated by reclassification and extant-parent weighting rather than resampling; this would make turnover-derived directions unreliable as coordinate-control targets.",
+      "evidence_ids": [
+        "turnover:1",
+        "turnover:2",
+        "turnover:14",
+        "turnover:17",
+        "turnover:47",
+        "turnover:134",
+        "turnover:227",
+        "turnover:524"
+      ]
+    },
+    {
+      "claim": "The small but significant selection-innovation associations (native alignment positive, observed child score gain negative) are consistent with the selector tracking teacher geometry while not improving observed child score; this is a diagnostic tension, not evidence of neural-module causation.",
+      "evidence_ids": [
+        "information_audit",
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:11"
+      ]
+    }
+  ],
+  "limitations": [
+    "Descendant credit is recorded joint-head credit, not decoded terminal affinity; decoded terminal learning labels are unavailable.",
+    "Turnover residual includes score reclassification and extant-parent weighting, not only resampling.",
+    "Adjusted branch covariance is supplied evidence; region moments themselves are not rigid-motion residuals.",
+    "Curve fitting does not establish causal benefit or a gradient; no time bins or outside-window analysis are supplied.",
+    "Static teachers are last-learning-node forecasts, not actual final structures.",
+    "All weak and null scalar effects are retained; current study outcomes are withheld from design roles.",
+    "Temperatures are immutable task parameters; no temperature edit is proposed or evaluated here.",
+    "Observables are endpoint forecast descriptors in predicted_endpoint_world_A, not physical interaction energies, atom velocities, neural attention, or causal affinity gradients."
+  ],
+  "role": "Analyst"
+}

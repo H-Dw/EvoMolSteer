@@ -82,6 +82,34 @@ def test_network_retries_do_not_use_up_the_format_repair(tmp_path, monkeypatch):
     assert read_json(path.with_suffix(".receipt.json"))["attempts"] == 4
 
 
+def test_large_citation_enum_repair_identifies_all_bad_values_without_substitution(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only-key")
+    known = [f"source:{i}" for i in range(600)]
+    schema = {"type":"object", "properties":{
+        "claim":{"type":"string"}, "evidence_ids":{"type":"array", "items":{"enum":known}}}}
+    invalid = {"claim":"Original supported observation", "evidence_ids":["source:0","source:601","source:602"]}
+    valid = dict(invalid, evidence_ids=["source:0"])
+    calls = []
+    def handler(request):
+        body = json.loads(request.content); calls.append(body)
+        if len(calls) == 1:
+            return response(json.dumps(invalid))
+        message = body["messages"][-1]["content"]
+        errors = json.loads(message.split("\n",1)[1])["validation_errors"]
+        all_errors = [errors] + errors["additional_errors"]
+        assert {e["invalid_value"] for e in all_errors} == {"source:601","source:602"}
+        assert all(e["allowed_value_count"] == 600 for e in all_errors)
+        assert all("allowed_value_or_values" not in e for e in all_errors)
+        assert "Never guess a replacement ID" in message
+        assert json.loads(body["messages"][-2]["content"]) == invalid
+        return response(json.dumps(valid))
+    path = tmp_path/"Analyst.json"
+    assert call_json([],schema,path,transport=httpx.MockTransport(handler)) == valid
+    assert len(calls) == 2
+    assert json.loads(path.with_suffix(".attempt_1.invalid.txt").read_text()) == invalid
+    assert read_json(path.with_suffix(".receipt.json"))["format_policy"] == "json-interface-v3"
+
+
 def test_retry_failure_records_are_append_only_and_not_fake_success(tmp_path, monkeypatch):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only-key")
     path = tmp_path / "a.json"
