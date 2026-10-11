@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "teacher_modes"
+  ],
+  "expected_response": {
+    "basis": "incumbent retained; no permitted edit supported by supplied evidence",
+    "direction": "unchanged",
+    "exploratory_choices": [],
+    "observed_spatial_scales_A": [
+      0.4455401722780583,
+      0.8628020070907517,
+      1.049585475768908
+    ]
+  },
+  "failure_modes": [
+    "Treating the teacher assignment RMS quantiles as an intramolecular distance or mixture-bandwidth statistic and inferring teacher-mixture behavior from it.",
+    "Selecting a permitted teacher_neighbors or pointcloud_delta_A value without supplied evidence of benefit to the primary endpoint affinity objective.",
+    "Proposing a temperature edit, which is an interface violation rather than a research condition."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "immutable task parameter, not edited",
+    "pointcloud_delta_A": "incumbent (robust_delta=2)",
+    "teacher_neighbors": "incumbent"
+  },
+  "rationale": "The supplied teacher-dispersion record reports 28 teacher modes with assignment RMS quantiles 0.446, 0.863 and 1.050 A. These are observed spatial scales of the registered teacher assignment, not an intramolecular distance statistic and not a mixture-bandwidth measurement, so they cannot be used to infer teacher-mixture behavior. The incumbent already carries teacher_neighbors=4 and robust_delta=2 (pointcloud_delta_A=2.0), both inside the allowed edit ranges, and the incumbent's coordinate-only endpoint reward uses the real FLOWR endpoint VJP with the declared detached matching convention. No supplied evidence establishes that a different permitted value of teacher_neighbors or pointcloud_delta_A would improve the primary endpoint affinity objective, and the observed scales alone do not justify a curvature or spatial-emphasis change. The incumbent is therefore retained; no temperature parameter is proposed or edited.",
+  "role": "Designer"
+}

@@ -1,0 +1,101 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/5af8a8fcf538e03b023f59b03b182185e78a901f2224345a10362ec27c98dbb2.txt",
+        "content_sha256": "5af8a8fcf538e03b023f59b03b182185e78a901f2224345a10362ec27c98dbb2",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/e554c2efed8300adfb5f0e3b1370970bf80ad62e17a22302d9f2fbf1baa614c7.txt",
+        "content_sha256": "e554c2efed8300adfb5f0e3b1370970bf80ad62e17a22302d9f2fbf1baa614c7",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/91b6e11322697c0fb75d15acf8695905bd307399e400edfd34cf26ea6a1ccf49.txt",
+        "content_sha256": "91b6e11322697c0fb75d15acf8695905bd307399e400edfd34cf26ea6a1ccf49",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/0ee69f9a09657db22c313b1249d9d10326ea1b2083dfa49b3f5a0b5a06eee376.txt",
+        "content_sha256": "0ee69f9a09657db22c313b1249d9d10326ea1b2083dfa49b3f5a0b5a06eee376",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "retain",
+          "defer",
+          "edit"
+        ]
+      },
+      "edit": {
+        "additionalProperties": false,
+        "properties": {
+          "parameter": {
+            "enum": [
+              "teacher_neighbors",
+              "pointcloud_delta_A"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "parameter",
+          "value"
+        ],
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "evidence_ids": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "expected_response": {
+        "type": "object"
+      },
+      "failure_modes": {
+        "type": "array"
+      },
+      "parameter_origins": {
+        "type": "object"
+      },
+      "rationale": {
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "edit",
+      "evidence_ids",
+      "rationale"
+    ],
+    "type": "object"
+  }
+}

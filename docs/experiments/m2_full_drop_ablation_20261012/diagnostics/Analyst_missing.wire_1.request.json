@@ -1,0 +1,87 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/a3ec15baf390ad5c726319991500fd8199ef426d5348b045070fc52cf6f6718b.txt",
+        "content_sha256": "a3ec15baf390ad5c726319991500fd8199ef426d5348b045070fc52cf6f6718b",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/c1c2ebd906197dcaf6a23d7504c6b802fe5412f17450ae24728fc509555a8967.txt",
+        "content_sha256": "c1c2ebd906197dcaf6a23d7504c6b802fe5412f17450ae24728fc509555a8967",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/2c2105ea3ca2ed1dc0c970ed809e661466572d530458627690c0f09d2ab7ccae.txt",
+        "content_sha256": "2c2105ea3ca2ed1dc0c970ed809e661466572d530458627690c0f09d2ab7ccae",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/ae0fc3354545a06c67f056d5d4f5e5bb1ab645f06d72534af1f032a0fb25a549.txt",
+        "content_sha256": "ae0fc3354545a06c67f056d5d4f5e5bb1ab645f06d72534af1f032a0fb25a549",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "findings": {
+        "items": {
+          "additionalProperties": true,
+          "properties": {
+            "claim": {
+              "type": "string"
+            },
+            "evidence_ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "priority": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "evidence_ids",
+            "claim"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "hypotheses": {
+        "items": {
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "limitations": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "findings"
+    ],
+    "type": "object"
+  }
+}
