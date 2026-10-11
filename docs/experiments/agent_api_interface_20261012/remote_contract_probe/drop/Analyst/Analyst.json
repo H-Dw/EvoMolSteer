@@ -1,0 +1,76 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-coordinate effects are dominated by shape (pose-invariant) descriptors rather than global centroid translation: shape_yy shows the strongest integrated high-low contrast with all batches agreeing in sign, and shape_xx is similarly negative, whereas global_centroid_x and global_centroid_z have intervals spanning zero. This separates global pose from shape information.",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "global_centroid_y is the only centroid component with a q-significant integrated effect, but its positive_batch_fraction is low (0.21), so the mean is carried by a minority of batches; this is weaker and less reproducible than the shape effects and should not be prioritized as a coordinate rule on point estimate alone.",
+      "evidence_ids": [
+        "endpoint_effects:1"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast features over the observed window are non-monotone: landmark_00_local_dy and landmark_00_local_dz show multiple sign changes with large opposing first/last rate z-values, and polynomial fits are not accepted (extrapolation_allowed false, observed_node_linear). A constant rule is therefore not supported by these curves; any time-conditioned use must stay within the observed support.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:3",
+        "continuous:1"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Several local landmark features (e.g. landmark_00_local_dx, landmark_00_local_cyy) have large opposing first and last rate z-values with multiple strong sign conflicts, indicating rate changes within the window rather than a stable direction; these are not reliable constant-direction coordinate rewards.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:5",
+        "continuous:4"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "decrease shape_yy / shape_xx",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3"
+      ],
+      "falsifier": "shape_yy or shape_xx integrated contrast loses sign consistency across independent batches or its q-value rises above the multiplicity threshold",
+      "id": "H001",
+      "observable": "integrated high-low contrast of shape_yy and shape_xx over the observed window",
+      "scope": "observed endpoint world-coordinate features, learning window [0,0.5]",
+      "statement": "A shape-oriented coordinate reward (targeting shape_yy and shape_xx reduction) will improve final predicted target affinity more than a global-centroid translation reward, because shape effects are the only endpoint contrasts with consistent batch sign agreement."
+    },
+    {
+      "direction": "time-conditioned within observed support",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:3"
+      ],
+      "falsifier": "a constant rule matches the observed-node interpolation within the reported relative node RMSE",
+      "id": "H002",
+      "observable": "first vs last rate z of landmark_00_local_dy and landmark_00_local_dz",
+      "scope": "observed nodes only, no extrapolation",
+      "statement": "A time-conditioned contrast rule for local landmark rates is preferable to a constant rule, since local_dy/local_dz rates change sign within the observed window."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or current-study outcome data are supplied, so last-record/endpoint credit cannot be presented as final affinity benefit; the immediate-selection vs descendant-survival comparison is unavailable.",
+    "Ancestral coverage and survivor-bias diagnostics (lineage_support, turnover_accounting, increment_effects, joint_diagnostics, regional_effects, branch_adjusted) were not read within the turn budget; multiplicity-adjusted ranking and parent-child increment decomposition remain unverified.",
+    "Continuous contrast curves are coordinate rewards, not absolute affinity targets or trajectory velocity forces; no causal neural-module claim is supported.",
+    "Temperature and other fixed task parameters were not examined and are not proposed for edit."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,193 @@
+{
+  "body": {
+    "max_tokens": 6144,
+    "messages": [
+      {
+        "content_relative_path": "inputs/3420754f89c8483ac3486dce3176a4ff17d8c8e907074104fcf1a187f8ba33c7.txt",
+        "content_sha256": "3420754f89c8483ac3486dce3176a4ff17d8c8e907074104fcf1a187f8ba33c7",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/2badea8a8ebf3da7fb270d23473859d60cbf000ecf3f3943dbae7e825b2b1bc0.txt",
+        "content_sha256": "2badea8a8ebf3da7fb270d23473859d60cbf000ecf3f3943dbae7e825b2b1bc0",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/84bc9814899896a59efd7151b8fba00fd9602c11ca6db82ddcf38ec6fc2b0e36.txt",
+        "content_sha256": "84bc9814899896a59efd7151b8fba00fd9602c11ca6db82ddcf38ec6fc2b0e36",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E01bcf9c975b5ad52",
+                          "E0857891f4effbfe1",
+                          "E2c67661c1da7881b",
+                          "E3264e6fe00a6cdea",
+                          "E3f3cff83848da5ac",
+                          "E856ab8cf43e034a1",
+                          "E88edfbfeebf2363e",
+                          "E8caae75f5074cbe5",
+                          "Eaa0c2a031ce8d402",
+                          "Eafd4cd15d69bb77d",
+                          "Ed7678ec7e1e822e0",
+                          "Edfc39ac33c1dbd8f",
+                          "Ee47fe2433d0c4110",
+                          "Ee4c6450e457377ab",
+                          "Ef6d1a12e8163b0d5"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E01bcf9c975b5ad52",
+                          "E0857891f4effbfe1",
+                          "E2c67661c1da7881b",
+                          "E3264e6fe00a6cdea",
+                          "E3f3cff83848da5ac",
+                          "E856ab8cf43e034a1",
+                          "E88edfbfeebf2363e",
+                          "E8caae75f5074cbe5",
+                          "Eaa0c2a031ce8d402",
+                          "Eafd4cd15d69bb77d",
+                          "Ed7678ec7e1e822e0",
+                          "Edfc39ac33c1dbd8f",
+                          "Ee47fe2433d0c4110",
+                          "Ee4c6450e457377ab",
+                          "Ef6d1a12e8163b0d5"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

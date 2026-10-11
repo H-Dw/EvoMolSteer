@@ -1,0 +1,56 @@
+{
+  "findings": [
+    {
+      "claim": "The curve for landmark_00_local_cxx is a degree-3 observed-node linear fit over observed support [0.0, 0.49] with extrapolation not allowed; polynomial_accepted is false and relative_node_RMSE is 0.4365, above the 0.35 fidelity threshold.",
+      "evidence_ids": [
+        "continuous:4",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The curve shows 6 sign changes and 2 strong sign conflicts, and the fidelity rule requires strong_sign_conflict_nodes_eq 0, so this feature fails the curve-fidelity rule on sign conflicts as well as on relative RMSE.",
+      "evidence_ids": [
+        "continuous:4",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "curve_support selected 24 features under a rule requiring |integrated z| >= 0.1, batch direction fraction >= 0.857, q < 0.05, and exclusion of the scale floor; landmark_00_local_cxx is not among the listed keys_preview entries.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The two read curve_fidelity_audit entries (landmark_00_occupancy3 and landmark_00_softmin) both have legendre_runtime_allowed false and relative_node_rmse about 0.584, exceeding the 0.35 threshold; occupancy3 has 2 strong sign conflicts and softmin has 1.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "regional_fields defines local_dx_dy_dz as a weighted centroid offset in A and local_cxx_cyy_czz_cxy_cxz_cyz as a weighted second-moment matrix in A^2, with Gaussian weights of radius_A 5.0 A; the landmark_00_local_cxx curve is expressed in predicted_endpoint_world_A_features coordinates.",
+      "evidence_ids": [
+        "observable_definitions",
+        "continuous:4",
+        "curve_support"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [],
+  "limitations": [
+    "This was a routing/format probe, not a scientific ablation or reward optimization; no causal or reward claim is supported.",
+    "The curve_fidelity_audit container holds 24 items but only 2 were read (offset 0, limit 2); the remaining 22 entries were not inspected.",
+    "landmark_00_local_cxx itself has no curve_fidelity_audit entry in the delivered preview, so its per-feature fidelity flags (quiet_node_large_fit_fraction, strong_sign_conflict_nodes) were not directly observed.",
+    "The clock observation covers only the learning window [0.0, 0.5] with recorded affinities removed and an equal score prior; no statement about behavior outside that window is supported."
+  ],
+  "role": "Analyst"
+}

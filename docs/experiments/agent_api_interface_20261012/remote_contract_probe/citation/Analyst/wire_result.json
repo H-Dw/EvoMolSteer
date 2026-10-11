@@ -1,0 +1,87 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities were removed and an equal score prior applies, so no observed affinity label is available to validate any coordinate reward against the primary endpoint.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the learning window [0.0, 0.5] with 50 observed score times at 0.01 spacing, and curve support is reported over [0.0, 0.49]; all continuous-trend rows carry extrapolation_allowed=false, so any time-conditioned rule must be restricted to observed-node interpolation within this support.",
+      "evidence_refs": [
+        "E0857891f4effbfe1",
+        "E2e106e083189d150"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions for landmark_00 coordinates are non-monotone across the observed window: landmark_00_soft_mass shows 4 sign changes with first_rate_z +9.27 and last_rate_z -10.00, and landmark_00_local_dx shows 6 sign changes with first_rate_z -17.49 and last_rate_z +8.11; a constant-sign rule is therefore not supported by these curves.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Several landmark_00 local coordinate trends carry strong sign conflicts (landmark_00_local_dx: 9; landmark_00_local_dz: 7; landmark_00_local_dy: 4) and relative_node_RMSE between roughly 0.29 and 0.78, so the fitted linear observed-node trends are imperfect and their direction is not reproducible across the window.",
+      "evidence_refs": [
+        "Eace79c1f0f54c9d1",
+        "E894225fb605458cb",
+        "E03ad082bb04f4f9c"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Joint diagnostics show a positive within-selector association for selection_innovation/innovation_native_alignment (whole_window_mean 0.092, positive_batch_fraction 1.0, q 2.2e-09) and a negative association for selection_innovation/observed_child_score_gain (whole_window_mean -0.036, positive_batch_fraction 0.0, q 1.8e-07); these are descriptive within-selector associations with batch as the independent unit, not causal selection effects.",
+      "evidence_refs": [
+        "Ea58f999174b5eda6",
+        "E3a4a9bb077147451"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Teacher-contrast coherence is high (whole_window_mean 0.812, positive_batch_fraction 1.0) and teacher_contrast_RMS_A is positive (0.066), indicating coherent joint teacher-contrast patterns rather than isolated marginal descriptors; these rows are descriptive and null_tested=false, so they support coupling but not a tested reward target.",
+      "evidence_refs": [
+        "Ec48596022aa1bc1b",
+        "E44169c3960a5b573"
+      ],
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant-sign coordinate contrast",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "If a constant-sign rule achieves equal or lower relative_node_RMSE and no strong sign conflicts on the same observed nodes, the time-conditioned form adds no information.",
+      "observable": "landmark_00_soft_mass and landmark_00_local_dx contrast values at observed score times",
+      "scope": "observed window [0.0, 0.49], landmark_00 coordinates only",
+      "statement": "A time-conditioned coordinate contrast on landmark_00 soft-mass and local-dx, using observed-node interpolation within [0.0, 0.49] and allowing the sign to change at the observed sign-change nodes, would track the supplied contrast curves better than a constant-sign rule."
+    },
+    {
+      "direction": "joint coherent contrast over isolated marginals",
+      "evidence_refs": [
+        "Ec48596022aa1bc1b",
+        "E44169c3960a5b573",
+        "E4e0223afdfd8c6a7"
+      ],
+      "falsifier": "If joint coherence is reproduced by a single marginal coordinate alone, or if coherence drops to the marginal level under batch resampling, the joint pattern is redundant.",
+      "observable": "teacher_contrast_coherence and teacher_contrast_RMS_A within-selector associations",
+      "scope": "within-selector, batch as independent unit, observed window",
+      "statement": "A coherent joint teacher-contrast pattern (high teacher_contrast_coherence with positive teacher_contrast_RMS_A) carries information beyond isolated marginal landmark_00 descriptors and should be preferred as the coupling-aware coordinate signal."
+    }
+  ],
+  "limitations": [
+    "No current study outcome data are supplied, and recorded affinities were removed with an equal score prior, so no finding here can be validated against the primary endpoint of final predicted target affinity.",
+    "Last-record or descendant survival/quality credit is not available as decoded terminal labels in the read evidence; no comparison of immediate selection evidence against final affinity benefit can be made.",
+    "The joint diagnostics are explicitly descriptive within-selector associations with batch as the independent unit; they are not causal selection effects and do not establish neural-module causation.",
+    "Continuous-trend rows read so far are limited to landmark_00 features; other regions and the full 200-row continuous_trends table were not exhaustively read, so regional generalization is not established.",
+    "No uncertainty/multiplicity-adjusted ranking across all coordinate hypotheses was completed within the turn budget, so the priority ordering above is based on the read subset only."
+  ],
+  "role": "Analyst"
+}
