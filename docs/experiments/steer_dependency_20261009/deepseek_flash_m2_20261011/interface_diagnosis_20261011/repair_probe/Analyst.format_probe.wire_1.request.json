@@ -1,0 +1,97 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/28a7c9006b9d68cfb5be64a1193f74b61a98eaa61edfd21945c42704584df7fc.txt",
+        "content_sha256": "28a7c9006b9d68cfb5be64a1193f74b61a98eaa61edfd21945c42704584df7fc",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/72971e27e0d91efb06fb78bcbf1a5898dcfbc977d110cf9b7ed5ae082c0339fa.txt",
+        "content_sha256": "72971e27e0d91efb06fb78bcbf1a5898dcfbc977d110cf9b7ed5ae082c0339fa",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/5a225fc44a5f2a7116b1a722cef245e69ed3961851f52d5080dbdf0a1ed16aee.txt",
+        "content_sha256": "5a225fc44a5f2a7116b1a722cef245e69ed3961851f52d5080dbdf0a1ed16aee",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/fa1f2dbaf00b83ab0a4d40f4c71172ecee2474a2a44d80a59370be84dd9f98bf.txt",
+        "content_sha256": "fa1f2dbaf00b83ab0a4d40f4c71172ecee2474a2a44d80a59370be84dd9f98bf",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/c9a9ba17235a3328585353a74b85970bd42f08b792614f74a14e06d98cfa8aed.txt",
+        "content_sha256": "c9a9ba17235a3328585353a74b85970bd42f08b792614f74a14e06d98cfa8aed",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/5a7fb0ac0e34114413cff501caa9c30ba50554d8b8023b7078f4f624a5da7930.txt",
+        "content_sha256": "5a7fb0ac0e34114413cff501caa9c30ba50554d8b8023b7078f4f624a5da7930",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v2",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "findings": {
+        "items": {
+          "additionalProperties": true,
+          "properties": {
+            "claim": {
+              "type": "string"
+            },
+            "evidence_ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "priority": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "evidence_ids",
+            "claim"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "hypotheses": {
+        "items": {
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "limitations": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "findings"
+    ],
+    "type": "object"
+  }
+}

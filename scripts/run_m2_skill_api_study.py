@@ -24,6 +24,7 @@ import paramiko
 from evomolsteer.continuous.m2_skill_api import (
     BASE, REF, prepare, role_call, compile_reward, review_function, effective_signature)
 from evomolsteer.io import digest, read_json, write_json
+from evomolsteer.deepseek_api import FORMAT_POLICY, LLMInterfaceError
 from analyze_dependency_study import metrics
 from remote_session import bridge
 
@@ -303,6 +304,22 @@ print(json.dumps({'removed':removed}))
             record = json.loads(shell(client, shlex.join([self.config["remote_python"], "-c", script])))
         write_json(self.study / "transport_records" / (name + ".retirement.json"), record)
 
+    def call_role(self, row, chain, role, analyst=None, delivery=None):
+        location = {"condition": row["condition_id"], "chain": chain, "role": role}
+        self.save(active_role_call=location, interface_format_policy=FORMAT_POLICY)
+        try:
+            result = role_call(self.repo, self.study, row, chain, role, analyst, delivery)
+        except LLMInterfaceError as error:
+            failure = {**location, "recorded_unix": time.time(), "output": error.output,
+                "diagnostics": error.diagnostics, "format_policy": FORMAT_POLICY,
+                "counted_as_valid_chain": False, "incumbent_fallback": False}
+            self.state.setdefault("interface_failures", []).append(failure)
+            self.save(status="failed", error_type=type(error).__name__, error=str(error))
+            self.report()
+            raise
+        self.save(active_role_call=None)
+        return result
+
     def run(self):
         if not (self.study / "activation.json").exists(): prepare(self.repo, self.study, self.config.get("screen_batches"))
         self.preflight()
@@ -334,8 +351,8 @@ print(json.dumps({'removed':removed}))
                         "source": f"calls/P_struct/chain_{chain:02d}/Analyst.json",
                         "sha256": digest(folder / "Analyst.json"), "new_call": False})
                 else:
-                    analyst = role_call(self.repo, self.study, row, chain, "Analyst")
-                designer = role_call(self.repo, self.study, row, chain, "Designer", analyst,
+                    analyst = self.call_role(row, chain, "Analyst")
+                designer = self.call_role(row, chain, "Designer", analyst,
                                      controls["delivery"] if row["lane"] == "U" else None)
                 path, sha = compile_reward(self.repo, self.study, row, chain, designer)
                 result = self.infer(path, sha)
@@ -350,6 +367,7 @@ print(json.dumps({'removed':removed}))
                     "mean_pic50": result["outcomes"]["gradient"]["summary"]["affinity_mean_all"],
                     "metrics": result["outcomes"]["gradient"]["metrics"]})
                 self.save(status="running")
+                self.report()
             try:
                 review_function(self.study, row)
             except Exception as error:
@@ -368,6 +386,8 @@ print(json.dumps({'removed':removed}))
         self.commit("report(m2-api): complete ordered Analyst and Designer module screens")
 
     def report(self):
+        if "controls" not in self.state:
+            return
         conditions = {}
         for chain in self.state["chains"]:
             conditions.setdefault(chain["condition"], []).append(chain)
@@ -377,10 +397,18 @@ print(json.dumps({'removed':removed}))
         for condition, chains in conditions.items():
             means = [x["mean_pic50"] for x in chains]
             values.append({"condition": condition, "chains": len(chains), "distinct_rewards": len({x["effective_sha256"] for x in chains}),
+                "expected_chains": 6, "condition_complete": len(chains) == 6,
                 "mean_chain_pic50": float(np.mean(means)), "delta_vs_M2": float(np.mean(means) - m2),
                 "delta_vs_native": float(np.mean(means) - native)})
+        policies = sorted({read_json(path).get("format_policy", "json-interface-v1")
+            for role in ("Analyst", "Designer")
+            for path in (self.study / "calls").glob("*/*/" + role + ".receipt.json")})
         write_json(self.study / "screen_summary.json", {"conditions": values,
             "M2_mean": m2, "native_mean": native, "backend": "real DeepSeek API",
+            "interface_failures": self.state.get("interface_failures", []),
+            "observed_format_policies": policies, "mixed_format_policy": len(policies) > 1,
+            "module_necessity_claims_allowed": False,
+            "summary_scope": "Completed valid role chains only. Missing chains are not imputed. Identical programs are not independent generation replicates.",
             "model": "deepseek-flash", "limitations": "Exploratory screen. Identical rewards reuse matched inference. No module removal, necessity or equivalence claim from this table. Original Steer retained as historical unpaired comparator."})
 
 
@@ -394,4 +422,5 @@ if __name__ == "__main__":
         study.run()
     except Exception as error:
         study.save(status="failed", error_type=type(error).__name__, error=str(error))
+        study.report()
         raise
