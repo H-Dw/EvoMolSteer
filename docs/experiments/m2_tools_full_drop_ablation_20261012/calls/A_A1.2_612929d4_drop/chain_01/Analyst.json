@@ -1,0 +1,83 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached-Hungarian endpoint mean squared distance and native endpoint VJP, so coordinate contrasts are reward-relevant only through that endpoint scalar.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0 to 0.49 with learning window [0.0,0.5] and curve support [0.0,0.49]; labels are recorded affinities removed under an equal score prior, so no absolute affinity target is available and contrasts must be interpreted as signed favorable-versus-comparison coordinate differences at observed selection nodes.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions for landmark_00 local coordinates are non-monotone across the observed support: landmark_00_local_dx shows 6 sign changes with 9 strong sign conflicts, landmark_00_local_dz shows 10 sign changes with 7 strong sign conflicts, and landmark_00_local_dy shows 6 sign changes with 4 strong sign conflicts, all with polynomial_accepted false and extrapolation_allowed false.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3",
+        "continuous:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Rate estimates at the window ends are large and opposing for several local coordinates (e.g. landmark_00_local_dx first_rate_z about -17.5 versus last_rate_z about +8.1; landmark_00_local_dy first_rate_z about -72.4 versus last_rate_z about +5.5), while whole-window z values are small and near zero, indicating that endpoint rate magnitudes do not translate into a stable whole-window signed direction.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:2"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Landmark soft-mass and local second-moment features also fail to give a stable signed direction: landmark_00_soft_mass has 4 sign changes and 1 strong sign conflict with whole_window_z about 0.64, and landmark_00_local_cyy has 4 sign changes with whole_window_z about -0.58; relative node RMSE values (about 0.29 to 0.78) indicate imperfect fit fidelity for the observed-node linear method.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:5"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant signed contrast on landmark_00 local coordinates",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3",
+        "continuous:2"
+      ],
+      "falsifier": "A constant-sign contrast with comparable or better fit fidelity and no strong sign conflicts across independent batches would weaken the time-conditioned hypothesis.",
+      "id": "H001",
+      "observable": "signed landmark_00 local coordinate contrast evaluated at observed score nodes",
+      "scope": "observed window [0.0,0.49] only; no extrapolation",
+      "statement": "A time-conditioned coordinate contrast rule for landmark_00 local displacement may outperform a constant rule, because the observed-node linear fits show sign changes and opposing endpoint rates within the observed window rather than a single stable sign."
+    },
+    {
+      "direction": "down-weight endpoint-rate-only ranking in favor of whole-window and conflict-aware evidence",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:2",
+        "continuous:0"
+      ],
+      "falsifier": "A feature with large endpoint rates, near-zero sign conflicts and a consistent whole-window sign across independent batches would support rate-magnitude ranking.",
+      "id": "H002",
+      "observable": "whole-window z and strong_sign_conflicts per feature",
+      "scope": "landmark_00 local coordinate features in the observed window",
+      "statement": "Prioritizing landmark_00 local coordinate contrasts by endpoint rate magnitude alone is not supported, because large first/last rate z values coexist with near-zero whole-window z and multiple strong sign conflicts."
+    }
+  ],
+  "limitations": [
+    "Only continuous_trends rows for landmark_00 features were read; branch_adjusted, joint_diagnostics, regional_effects, increment_effects, turnover_accounting, survival_effects and endpoint_effects were not inspected, so multiplicity-adjusted support, independent-batch agreement, coupling and turnover accounting could not be evaluated.",
+    "No absolute affinity target is available (recorded affinities removed, equal score prior), so contrasts cannot be converted into an absolute geometric or energetic target.",
+    "The supplied evidence does not establish neural-module causation or physical interaction energies; coordinate contrasts are reward-relevant only through the declared endpoint pointcloud scalar.",
+    "No current study outcome data are available to this role, so no claim about realized affinity improvement is made."
+  ],
+  "role": "Analyst"
+}

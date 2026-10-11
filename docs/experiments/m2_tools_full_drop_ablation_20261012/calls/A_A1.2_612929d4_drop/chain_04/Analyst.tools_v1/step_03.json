@@ -1,0 +1,104 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "At the observed selection nodes, the landmark_00 softmin coordinate shows a small but consistently negative signed contrast (favorable-versus-comparison) over the complete observed window, with the raw-covariance estimate negative and the raw-correlation estimate negative; this is a selection-enrichment contrast, not an absolute geometric descriptor.",
+        "evidence_refs": [
+          "E554bf1b5c3cee17e",
+          "E124eda945fd3a3a6"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The landmark_00 occupancy3 coordinate shows a positive signed contrast over the observed window in both raw-covariance and raw-correlation metrics, opposite in sign to softmin, indicating the two landmark descriptors carry distinct signed directions rather than a single common geometric effect.",
+        "evidence_refs": [
+          "E92e735f7b1514f1b",
+          "E2d704eb304a28cf6"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Multiplicity-adjusted support weakens these contrasts: the raw-covariance softmin q is about 0.15 and the raw-correlation softmin q about 0.12, while occupancy3 q values are about 0.19 and 0.12; none reach a strict multiplicity threshold, so ranking by point estimate alone would overstate priority relative to q-adjusted ranking.",
+        "evidence_refs": [
+          "E554bf1b5c3cee17e",
+          "E124eda945fd3a3a6",
+          "E92e735f7b1514f1b",
+          "E2d704eb304a28cf6"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Independent-batch agreement is incomplete: same-sign batch fractions are about 0.71 for softmin and occupancy3 raw contrasts, and the adjusted-covariance occupancy5 contrast has a CI spanning zero with only about 0.64 same-sign batches, so reproducibility does not uniformly support a single coordinate rule.",
+        "evidence_refs": [
+          "E554bf1b5c3cee17e",
+          "E2d704eb304a28cf6",
+          "E6268d28025ae3624"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Continuous contrast functions for landmark_00 local coordinates are non-monotone across the observed support: they show multiple sign changes (4 to 10) and strong sign conflicts (1 to 14), with no accepted polynomial fit and no extrapolation allowed, so a constant rule is not supported and a time-conditioned rule would require validated observed-node interpolation rather than arbitrary bins.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03",
+          "E5cf1ecb7c628685b",
+          "E5d1c4c6e5dbe0cb6"
+        ],
+        "priority": 5
+      },
+      {
+        "claim": "The observed window is the learning window [0.0, 0.5] with 50 observed score times and equal score prior (recorded affinities removed), so all contrasts above are selection-node coordinate contrasts within that window and cannot be read as absolute reward targets or physical interaction energies.",
+        "evidence_refs": [
+          "E0857891f4effbfe1",
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 6
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "negative for softmin, positive for occupancy3",
+        "evidence_refs": [
+          "E554bf1b5c3cee17e",
+          "E124eda945fd3a3a6",
+          "E92e735f7b1514f1b",
+          "E2d704eb304a28cf6"
+        ],
+        "falsifier": "A batch-level replication in which the softmin contrast is non-negative or the occupancy3 contrast is non-positive with same-sign batch fraction near 0.5 would weaken the proposed direction.",
+        "observable": "signed favorable-versus-comparison coordinate contrast at observed selection nodes",
+        "scope": "observed window [0.0,0.5], landmark_00, predicted_endpoint_world_A features",
+        "statement": "A signed landmark_00 softmin coordinate contrast (favorable minus comparison) at observed selection nodes is negative over the observed window, while the occupancy3 contrast is positive, and these directions are separable rather than a single common-motion effect."
+      },
+      {
+        "direction": "time-conditioned, sign-changing",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03",
+          "E5cf1ecb7c628685b",
+          "E5d1c4c6e5dbe0cb6"
+        ],
+        "falsifier": "A validated fit with no accepted polynomial and no extrapolation that nonetheless shows a single stable sign across all observed nodes would contradict the time-varying claim.",
+        "observable": "continuous contrast function over observed score nodes",
+        "scope": "observed window [0.0,0.5], landmark_00 local dx/dy/dz and quadratic terms",
+        "statement": "The landmark_00 local coordinate contrasts are time-varying with multiple sign changes and strong sign conflicts, so a constant contrast rule is not supported and any time-conditioned rule must be validated by observed-node interpolation within the window."
+      }
+    ],
+    "limitations": [
+      "No current-study outcome data are supplied, so no claim about final predicted affinity improvement can be made.",
+      "Multiplicity-adjusted q values for the landmark_00 contrasts do not reach a strict threshold; the signed directions are suggestive, not established.",
+      "The supplied evidence does not include a validated time-conditioned contrast fit for landmark_00, so a time-conditioned rule remains descriptive rather than executable.",
+      "Turnover, increment and joint-diagnostic tables were not read in this pass; within-path change versus cohort-composition explanations remain unassessed.",
+      "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+    ],
+    "role": "Analyst"
+  }
+}

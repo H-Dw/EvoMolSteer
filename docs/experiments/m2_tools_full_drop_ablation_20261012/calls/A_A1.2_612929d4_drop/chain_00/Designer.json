@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "If a time-conditioned recipe (C008-C011) were applied on this evidence, the conflicting first-rate/last-rate signs and repeated sign changes would likely produce a non-reproducible signed contrast, so the temporal teacher term would add noise rather than a stable direction and could displace surrounding coordinates without affinity gain.",
+    "If pointcloud_delta_A were changed to 0.5 or 2.0 A (C001/C003) without spatial-scale evidence, the rho_delta curvature would be altered in an unvalidated direction, risking either over-soft matching that ignores endpoint mismatch or over-hard matching that drives unnecessary coordinate displacement and strain.",
+    "If teacher_neighbors were narrowed to 2 (C005), mode coverage of the detached teacher mixture would shrink and competing directions could be dropped; if broadened to 8 (C007), the neighborhood would mix distinct modes, both without any delivered dispersion evidence to justify the change.",
+    "Retaining the incumbent leaves any true affinity benefit from an unread spatial or regional signal unrealized; this is accepted because the affinity-first objective forbids unsupported coordinate edits and no current study outcome data are available to either role."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control, and the observed window is the score-time interval [0.0,0.5] in native endpoint world coordinates. The only delivered temporal evidence is the first six landmark_00 continuous_trends rows: no polynomial fit is accepted, all are restricted to observed-node interpolation with extrapolation disallowed, relative node RMSE is high (about 0.29-0.78), sign changes and strong sign conflicts are frequent, and whole-window z values are small and mixed in sign. That is exactly the condition under which H001 says a constant rule is not yet outperformed, so no time-conditioned teacher-coordinate or regional-attention recipe (C008-C011) is supported. The spatial choices C001-C003 change only the pointcloud_delta_A dose of the registered rho_delta curvature; the incumbent already uses delta=1.0 A (C002), and no delivered spatial-scale or uncertainty evidence distinguishes 0.5 or 2.0 A, so a dose change would be an unsupported exploratory edit rather than a defensible expected advantage. The teacher_neighbors choices C005-C007 are counts, not distance bandwidths, and no intact-teacher dispersion or joint-geometry evidence was delivered to justify narrowing or broadening the neighborhood; the incumbent count of 4 is retained. C004 (region_index 0) is a static regional selection with no supporting regional_effects evidence read. Because the affinity-first priority means an unsupported coordinate edit risks unnecessary displacement of surrounding coordinates without a demonstrated affinity benefit, and because the evidence does not change the incumbent-versus-alternative comparison, retaining the incumbent is the defensible choice. Temperatures are immutable and no temperature edit is proposed.",
+  "role": "Designer"
+}

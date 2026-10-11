@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "continuous:2",
+    "continuous:1",
+    "continuous:0",
+    "branch_adjusted:0",
+    "branch_adjusted:1",
+    "branch_adjusted:2",
+    "branch_adjusted:4",
+    "branch_adjusted:3"
+  ],
+  "failure_modes": [
+    "If a time-conditioned teacher blend (C009-C011) were adopted, the observed-node contrast could track the early-negative/late-positive reversal in landmark_00_local_dy and landmark_00_local_dx, but because the curves have 6 sign changes and multiple strong sign conflicts, the blend could amplify a spurious reversal and displace surrounding landmark coordinates away from the static teacher's stable configuration, degrading the endpoint pointcloud reward rather than improving affinity.",
+    "If pointcloud_delta_A were reduced (C001) or increased (C003), the Huber-like rho_delta curvature would change the effective force on large endpoint displacements; with no validated absolute geometric target and null branch-adjusted global-centroid evidence, this could over- or under-penalize legitimate native graph transitions and increase strain without a supported affinity benefit.",
+    "If teacher_neighbors were changed (C005/C007), the detached nearest-k teacher mixture would shift mode coverage; with no supplied teacher-mixture evidence from an unrelated intramolecular distance statistic, a narrower neighborhood could collapse onto a single mode and a broader one could average competing directions, neither of which is supported by the intact-teacher dispersion evidence read here."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Retain the incumbent D2_without_trajectory_static. H001 (time-conditioned coordinate contrast) is the only hypothesis with a plausible operative reward edit among the offered choices, but the supporting temporal evidence is non-monotone with multiple sign changes and strong sign conflicts (landmark_00_local_dy first z=-72.4 to last z=+5.5, 6 sign changes, 4 strong conflicts; landmark_00_local_dx first z=-17.5 to last z=+8.1, 6 sign changes, 9 strong conflicts), and no polynomial was accepted, so no smooth time-conditioned functional form is validated. The registered temporal_teacher option (C009-C011) blends a static reward with an observed-teacher reward at observed score nodes; the evidence does not establish that the observed-node teacher contrast is a better coordinate target than the static teacher, and the blend values are exploratory scalars with no supplied dose-response. The temporal_region option (C008) changes only regional attention at observed nodes, again without evidence that the static regional attention is mis-specified. H002 (deprioritize global-centroid control) is consistent with the incumbent, which already uses landmark/regional attention rather than global-centroid control, so it does not motivate an edit. The pointcloud_delta_A choices (C001-C003) and teacher_neighbors choices (C005-C007) are not connected to any Analyst hypothesis: the branch-adjusted global-centroid contrasts are null (p=0.60/0.55/0.95, q>0.69) and the only nominally small shape contrasts (shape_yy p=0.048, shape_xx p=0.096) do not survive multiplicity adjustment (q=0.15/0.23), so there is no defensible expected advantage for changing the distance-response curvature or the teacher neighborhood. The objective is affinity-primary with coordinate control only, and no outcome evaluation data were supplied, so a coordinate-only edit cannot be justified as improving final predicted affinity. Retaining the incumbent is the evidence-supported choice; the fixed temperatures (mixture_temperature=0.5, teacher_endpoint_temperature_A2=4.0) are immutable and are not edited.",
+  "role": "Designer"
+}

@@ -1,0 +1,31 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E124eda945fd3a3a6",
+    "E2d704eb304a28cf6",
+    "E92e735f7b1514f1b",
+    "E554bf1b5c3cee17e",
+    "E99174a1223635f5a",
+    "E9d44c186d961b04d",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "If a temporal_teacher_blend edit (C009-C011) were compiled, the unvalidated non-monotone landmark_00 trend would drive the observed-teacher term with the wrong sign over part of the window, displacing surrounding coordinates without a reproducible affinity gain.",
+    "If a pointcloud_delta_A edit (C001-C003) were compiled without a supplied spatial-scale estimate, the curvature change would alter the effective distance response over an unknown range, risking unnecessary displacement of surrounding coordinates and receptor clash near the 0.8 A severe-clash threshold.",
+    "If teacher_neighbors were changed (C005-C007) on the basis of the occupancy contrast alone, mode coverage would shift without intact-teacher dispersion evidence, potentially collapsing competing directions and degrading the primary affinity objective.",
+    "Any edit that treats the temporal derivative as a spatial coordinate gradient would apply a force the registered formula does not contain, producing a spurious displacement with no affinity basis."
+  ],
+  "hypothesis_refs": [
+    "H001"
+  ],
+  "rationale": "H001's signed landmark_00 occupancy contrast (occupancy3 positive, softmin negative at observed selection nodes) is the only operative candidate, and the registered choices that could express it are the temporal_teacher_blend options (C009-C011) and the temporal_region_index (C008). The Analyst's own temporal evidence blocks that route: continuous landmark_00 local-coordinate trends are non-monotone (sign_changes 4-10, strong_sign_conflicts 1-9), poorly fit (relative_node_RMSE 0.29-0.78), with polynomial_accepted false and extrapolation_allowed false, and first-rate vs last-rate z-values of opposite sign. A time-conditioned teacher recipe therefore has no validated contrast function to bind, and the temporal_region recipe changes regional attention at observed score nodes rather than the occupancy contrast itself. The static incumbent already uses teacher_neighbors=4 with the fixed mixture_temperature 0.5 and teacher_endpoint_temperature_A2 4.0; the offered neighbor counts (C005-C007) are counts, not distance bandwidths, and no intact-teacher dispersion or joint-geometry evidence was read to justify narrowing or broadening mode coverage. The pointcloud_delta_A choices (C001-C003) are a distance-response curvature, but the Analyst supplied no spatial-scale or uncertainty evidence for landmark_00 distances, so a curvature edit would be an unsupported exploratory choice rather than a defensible expected advantage. Multiplicity adjustment further weakens the point-estimate ranking (adjusted-covariance variants non-significant), and same-sign batch fractions of 0.64-0.86 are only partial agreement. Under the affinity-first objective, with no current-study outcome data and no registered recipe that provably expresses the occupancy contrast, retaining the incumbent is the defensible decision; the evidence would change it only if a validated time-conditioned contrast or a spatial-scale estimate for the landmark distance response were supplied.",
+  "role": "Designer"
+}

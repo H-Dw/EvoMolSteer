@@ -1,0 +1,92 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so coordinate contrasts below are diagnostic of the coordinate program, not direct affinity measurements.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Observed score times span the full learning window [0.0,0.5] at 0.01 spacing (50 nodes), and the curve support is [0.0,0.49]; continuous contrast functions are evaluated only at observed nodes with extrapolation disallowed, so any time-conditioned rule must stay inside this support.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Local landmark coordinate contrasts are non-monotone: landmark_00_local_dy shows a strongly negative first rate (z=-72.4) reversing to a positive last rate (z=5.5) with 6 sign changes and 4 strong sign conflicts, and landmark_00_local_dx similarly reverses (first z=-17.5, last z=8.1) with 6 sign changes and 9 strong sign conflicts. A constant-direction rule is not supported by these curves.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:1"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Landmark_00_soft_mass has a positive first rate (z=9.3) reversing to a negative last rate (z=-10.0) with 4 sign changes and 1 strong sign conflict, while its whole-window z is small (0.64); the whole-window mean does not capture the within-window reversal.",
+      "evidence_ids": [
+        "continuous:0"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Branch-adjusted raw-covariance contrasts for global centroid coordinates are not distinguishable from zero (global_centroid_x p=0.60, y p=0.55, z p=0.95; all q>0.69) with same-sign batch fractions near or below 0.5, so no global-centroid coordinate direction is supported.",
+      "evidence_ids": [
+        "branch_adjusted:0",
+        "branch_adjusted:1",
+        "branch_adjusted:2"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "Shape contrasts are the only branch-adjusted features with nominally small p-values (shape_yy p=0.048, shape_xx p=0.096) and elevated same-sign batch fractions (0.79), but neither survives multiplicity adjustment (q=0.15 and q=0.23), so shape evidence is suggestive only and not a supported direction.",
+      "evidence_ids": [
+        "branch_adjusted:4",
+        "branch_adjusted:3"
+      ],
+      "id": "F006",
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant coordinate contrast",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:1",
+        "clocks"
+      ],
+      "falsifier": "If a constant-direction contrast matches the observed-node curve as well as the time-conditioned one (no reduction in relative node RMSE), the time-conditioning adds no information.",
+      "id": "H001",
+      "observable": "observed-node contrast of landmark_00_local_dy over the observed score times",
+      "scope": "within the observed window [0.0,0.5] only; no extrapolation",
+      "statement": "A time-conditioned coordinate contrast on local landmark displacement (e.g. landmark_00_local_dy) may track the observed sign reversal better than a constant-direction rule, because the observed-node linear fits show early negative and late positive rates with multiple sign changes."
+    },
+    {
+      "direction": "deprioritize global-centroid coordinate control",
+      "evidence_ids": [
+        "branch_adjusted:0",
+        "branch_adjusted:1",
+        "branch_adjusted:2"
+      ],
+      "falsifier": "A reproducible same-sign batch effect with q below the multiplicity threshold would weaken this deprioritization.",
+      "id": "H002",
+      "observable": "branch-adjusted raw covariance of global_centroid_x/y/z",
+      "scope": "whole observed window, 14 independent batches",
+      "statement": "Global centroid coordinate contrasts are unlikely to carry a reproducible direction, since branch-adjusted raw-covariance effects are null with mixed batch signs."
+    }
+  ],
+  "limitations": [
+    "No outcome evaluation data for the current study were supplied; all statements are diagnostic of the coordinate program, not of achieved affinity.",
+    "Continuous contrast functions are observed-node linear fits with extrapolation disallowed; no polynomial was accepted, so no smooth time-conditioned functional form is validated.",
+    "The supplied evidence does not include a validated absolute geometric target or an affinity-head derivative; coordinate contrasts are not physical interaction energies or evidence of neural-module causation.",
+    "Multiplicity-adjusted support was read only for the branch_adjusted table; other tables (regional, survival, turnover, joint) were not exhaustively read, so their hypotheses remain unranked here."
+  ],
+  "role": "Analyst"
+}

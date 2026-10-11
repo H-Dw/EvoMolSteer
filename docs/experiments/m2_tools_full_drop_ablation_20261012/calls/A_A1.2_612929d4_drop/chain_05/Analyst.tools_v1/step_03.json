@@ -1,0 +1,69 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "At the observed selection nodes, landmark_00 occupancy contrasts are signed and favorable-versus-comparison: occupancy3 raw correlation is positive (whole-window mean +0.042, CI excludes zero, p=0.028, q=0.116) while softmin raw correlation is negative (whole-window mean -0.042, CI excludes zero, p=0.026, q=0.116). These are selection-enrichment contrasts at observed nodes, not an absolute geometric descriptor of the pose.",
+        "evidence_refs": [
+          "E124eda945fd3a3a6",
+          "E2d704eb304a28cf6"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Multiplicity-adjusted support weakens the point-estimate ranking: the same landmark_00 occupancy3/softmin raw-covariance contrasts have p=0.047/0.072 but q=0.151/0.189, and the adjusted-covariance versions are non-significant (q=0.30/0.36). Ranking by point estimate alone would over-prioritize these; after adjustment only the correlation-form contrasts remain the strongest candidates.",
+        "evidence_refs": [
+          "E554bf1b5c3cee17e",
+          "E92e735f7b1514f1b",
+          "E99174a1223635f5a",
+          "E9d44c186d961b04d"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Independent-batch agreement is partial, not unanimous: same-sign batch fractions are 0.71 for softmin and occupancy3 raw correlation and 0.64-0.86 across the covariance variants, with 14 independent batches. The counterexample that would weaken the proposed direction is a batch subset where the occupancy3 sign flips to negative (or softmin to positive); reproducibility is therefore moderate and the direction should be used with reduced confidence.",
+        "evidence_refs": [
+          "E124eda945fd3a3a6",
+          "E2d704eb304a28cf6",
+          "E92e735f7b1514f1b",
+          "E6268d28025ae3624"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Continuous landmark_00 local-coordinate trends are non-monotone and poorly fit: sign_changes range 4-10, strong_sign_conflicts 1-9, relative_node_RMSE 0.29-0.78, and polynomial_accepted is false with extrapolation_allowed false for all read rows. First-rate and last-rate z-values have opposite signs (e.g. local_dy first_rate_z -72.4 vs last_rate_z +5.5), so a constant rule is not supported and a time-conditioned rule would require validated fits that are not available.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "Increase occupancy3-type occupancy and decrease softmin-type occupancy at the observed selection nodes.",
+        "evidence_refs": [
+          "E124eda945fd3a3a6",
+          "E2d704eb304a28cf6",
+          "E92e735f7b1514f1b"
+        ],
+        "falsifier": "A batch subset with reversed sign (occupancy3 negative or softmin positive) or adjusted-covariance significance loss would weaken the direction.",
+        "observable": "landmark_00_occupancy3 and landmark_00_softmin contrast values at observed score nodes over the full observed window.",
+        "scope": "Observed selection nodes, complete observed window [0.0,0.5]; coordinate contrast only, not an absolute geometric target.",
+        "statement": "Signed landmark_00 occupancy contrasts (occupancy3 positive, softmin negative) at observed selection nodes carry reproducible favorable-versus-comparison information beyond common motion."
+      }
+    ],
+    "limitations": [
+      "Only landmark_00 features were read; other landmarks and regional/joint diagnostics were not inspected, so no global pose or shape claim is made.",
+      "No adjusted or joint diagnostic read here establishes that landmark_00 adds information beyond common motion; the raw-versus-adjusted covariance difference is noted but not resolved.",
+      "Continuous trends are non-monotone with rejected polynomial fits and no extrapolation, so no time-conditioned rule is supported.",
+      "No current-study outcome data are available; findings are descriptive contrasts, not causal selection effects or physical interaction energies.",
+      "No reward recipe is proposed here; whether a permitted registered recipe can express the occupancy contrast remains untested."
+    ],
+    "role": "Analyst"
+  }
+}

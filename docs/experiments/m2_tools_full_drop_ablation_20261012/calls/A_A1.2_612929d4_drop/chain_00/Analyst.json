@@ -1,0 +1,79 @@
+{
+  "findings": [
+    {
+      "claim": "The observed window is the score-time interval [0.0,0.5] with 50 observed score nodes at 0.01 spacing, and the label semantics are recorded affinities removed under an equal score prior; the coordinate representation is native model endpoint world coordinates.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary, coordinate control only; this fixes the endpoint pointcloud reward as the primary target and makes any coordinate contrast a diagnostic rather than an absolute reward target.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "Across the first six landmark_00 continuous features, no polynomial fit is accepted (polynomial_accepted false for all), all are restricted to observed-node linear interpolation with extrapolation disallowed, and relative node RMSE ranges from about 0.29 to 0.78, so the supplied evidence does not support a smooth time-conditioned coordinate rule for these features.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 2
+    },
+    {
+      "claim": "These landmark_00 features show repeated sign changes (4 to 10) and strong sign conflicts (1 to 9) with first-rate and last-rate z values of opposite sign (e.g. landmark_00_local_dx first_rate_z negative and last_rate_z positive), which is counterevidence against a stable signed direction for these local coordinate descriptors.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:2",
+        "continuous:5",
+        "continuous:0"
+      ],
+      "id": "F004",
+      "priority": 3
+    },
+    {
+      "claim": "Whole-window z values for these landmark_00 features are small in magnitude (about 0.02 to 0.64) and mixed in sign, so the whole-window mean contrast does not establish a consistent favorable-versus-comparison direction at these nodes.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F005",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "descriptive only; no registered reward recipe is supported by these rows",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2"
+      ],
+      "falsifier": "A validated fit or observed-node interpolation with consistent sign and low relative node RMSE across independent batches would weaken this descriptive limitation.",
+      "id": "H001",
+      "observable": "landmark_00 local coordinate features over observed score nodes",
+      "scope": "observed window [0.0,0.5], 14 independent batches",
+      "statement": "A time-conditioned coordinate rule for landmark_00 local descriptors would be preferred over a constant rule only if a validated fit or observed-node interpolation shows a reproducible signed contrast across the observed window; the supplied rows show no accepted polynomial and conflicting rate signs, so a constant rule is not yet outperformed."
+    }
+  ],
+  "limitations": [
+    "Only the first six continuous_trends rows and the clocks/objective metadata were read; the remaining 194 continuous features, branch_adjusted, joint_diagnostics, regional_effects, survival_effects, increment_effects and turnover_accounting tables were not inspected, so no population-contrast, coupling, or turnover conclusion is asserted.",
+    "No independent-batch agreement or opposing-observation check beyond the reported sign_changes and strong_sign_conflicts fields was performed, so reproducibility of any coordinate direction is not established.",
+    "The supplied evidence does not include current study outcome data, so no claim about affinity improvement or neural-module causation is made.",
+    "No temperature edit is proposed or considered; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

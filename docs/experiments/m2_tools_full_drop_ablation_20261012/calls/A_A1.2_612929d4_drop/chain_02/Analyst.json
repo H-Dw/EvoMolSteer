@@ -1,0 +1,86 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native FLOWR endpoint VJP, so coordinate contrasts are reward-shaping signals rather than physical interaction energies.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.00-0.49 with learning window [0.0,0.5] and curve support [0.0,0.49]; labels are recorded affinities removed under an equal score prior, so no absolute affinity target is observable and all coordinate statements are relative contrasts within this window.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions for landmark_00 features are non-monotone across the observed support: local_dy shows 6 sign changes with strong sign conflicts (first_rate_z -72.4, last_rate_z +5.5), local_dz shows 10 sign changes, and local_dx shows 6 sign changes with 9 strong sign conflicts; no polynomial fit is accepted and extrapolation is disallowed for any of them.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:3",
+        "continuous:1"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Whole-window z values for these landmark_00 features are small and mixed in sign (soft_mass +0.64, local_dx -0.18, local_dy -0.30, local_dz -0.02, local_cxx -0.58, local_cyy -0.58), so the endpoint-level marginal evidence does not support a stable signed direction for any single local coordinate descriptor.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Rate changes are large relative to level changes (e.g. local_dy first_rate_z -72.4 versus first_z +0.09; local_cyy first_rate_z -36.5 versus first_z +0.13), indicating that any time-conditioned contrast rule would be driven by within-window rate structure rather than by a constant offset; this is a diagnostic of the contrast curve, not a velocity force.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:5"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant coordinate contrast",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:3"
+      ],
+      "falsifier": "If independent-batch agreement on the sign of the local_dy contrast at matched observed nodes is not better than chance, or if the sign-change pattern is not reproducible across batches, the time-conditioned direction is weakened and should not be used.",
+      "id": "H001",
+      "observable": "landmark_00_local_dy and landmark_00_local_dz contrast values at observed score nodes",
+      "scope": "observed window 0.00-0.49 only; no extrapolation",
+      "statement": "A time-conditioned contrast on landmark_00 local_dy (and, secondarily, local_dz) may carry more usable signal than a constant rule, because the observed-node linear contrast changes sign repeatedly within the window while the whole-window mean is near zero."
+    },
+    {
+      "direction": "descriptive only; no signed marginal rule",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "falsifier": "A reproducible same-sign whole-window effect across independent batches with a small number of sign changes would overturn this descriptive limitation.",
+      "id": "H002",
+      "observable": "whole_window_z and sign_changes for landmark_00 soft_mass, local_cxx, local_cyy",
+      "scope": "observed window 0.00-0.49",
+      "statement": "Isolated marginal landmark_00 descriptors (soft_mass, local_cxx, local_cyy) do not by themselves support a signed coordinate rule, because their whole-window z values are small and mixed in sign despite large first/last rate z values."
+    }
+  ],
+  "limitations": [
+    "Only continuous_trends rows for landmark_00 features and the clocks/objective metadata were read; branch_adjusted, joint_diagnostics, regional_effects, increment_effects, turnover_accounting, survival_effects and endpoint_effects tables were not inspected, so multiplicity-adjusted support, independent-batch agreement, joint coupling and parent-child turnover could not be evaluated.",
+    "No absolute affinity target is observable: recorded affinities are removed and the score prior is equal, so all statements are relative coordinate contrasts within the observed window.",
+    "No registered reward recipe was selected or evaluated here; the permitted temporal_region recipe could express a time-conditioned contrast hypothesis, but this remains untested and no new reward is claimed.",
+    "The supplied evidence does not establish neural-module causation or physical interaction energies from these coordinate proxies."
+  ],
+  "role": "Analyst"
+}

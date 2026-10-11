@@ -1,0 +1,194 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/f3ca558c7ad03f8797f42312467c43caf3a668c3f6c7d68ae41db7c879665d65.txt",
+        "content_sha256": "f3ca558c7ad03f8797f42312467c43caf3a668c3f6c7d68ae41db7c879665d65",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/f82c9eb304d97adcc13d3cb5105165cffab3db8ca3f4aade6ae1f11c7bc1283d.txt",
+        "content_sha256": "f82c9eb304d97adcc13d3cb5105165cffab3db8ca3f4aade6ae1f11c7bc1283d",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0.txt",
+        "content_sha256": "3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/8627c90323c826c952b074743a32c79497fbd9855ad8aa670554b1a537b04040.txt",
+        "content_sha256": "8627c90323c826c952b074743a32c79497fbd9855ad8aa670554b1a537b04040",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/663b9bcfc9d57b9f486c2b3e8226bc3b2d9fea2432854ee30d36e2e275c9620b.txt",
+        "content_sha256": "663b9bcfc9d57b9f486c2b3e8226bc3b2d9fea2432854ee30d36e2e275c9620b",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/2536b8c4253a7180ef5de5c62615e3a6513da3a8e8c3d496c6d861ae6fc7189b.txt",
+        "content_sha256": "2536b8c4253a7180ef5de5c62615e3a6513da3a8e8c3d496c6d861ae6fc7189b",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E894225fb605458cb",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eace79c1f0f54c9d1"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E894225fb605458cb",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eace79c1f0f54c9d1"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}
