@@ -1,0 +1,69 @@
+{
+  "body": {
+    "max_tokens": 4096,
+    "messages": [
+      {
+        "content_relative_path": "inputs/df6cc04e5a60f6d8abf9351a21e854a74f84728f01d77fb936dec8905bd0a284.txt",
+        "content_sha256": "df6cc04e5a60f6d8abf9351a21e854a74f84728f01d77fb936dec8905bd0a284",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/05a0fa80b82a440814cecb9a1fa5823cd3b0884a8df719ec014eb904263da34e.txt",
+        "content_sha256": "05a0fa80b82a440814cecb9a1fa5823cd3b0884a8df719ec014eb904263da34e",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/de8328c9291af45349886450e84e23687fc0219c7f77c85825efec031c98d7fa.txt",
+        "content_sha256": "de8328c9291af45349886450e84e23687fc0219c7f77c85825efec031c98d7fa",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "checks": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "explanation": {
+              "maxLength": 600,
+              "type": "string"
+            },
+            "id": {
+              "enum": [
+                "signed_contrast_response",
+                "missing_claim_withheld",
+                "physical_unit_consistency"
+              ]
+            },
+            "passed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "passed",
+            "explanation"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      }
+    },
+    "required": [
+      "checks"
+    ],
+    "type": "object"
+  }
+}

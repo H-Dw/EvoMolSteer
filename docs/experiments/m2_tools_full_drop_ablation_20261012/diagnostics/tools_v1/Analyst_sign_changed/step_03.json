@@ -1,0 +1,71 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The supplied regional evidence is a label-bound favorable-minus-comparison enrichment contrast (measure 'enrichment_z'), not an absolute geometric descriptor; effect_z is the contrast divided by the original feature scale, so signs are not comparable across observables as a shared quality axis.",
+        "evidence_refs": [
+          "E4827d9a049eb1718",
+          "E53cfb6a1f6d45adc"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "At region 0, landmark_00 local_cyy shows a positive signed contrast (effect_z ~0.575, q~1.3e-4, positive_batch_fraction 1.0) and local_cxx is also positive (effect_z ~0.579, q~1.8e-3), while landmark_00 soft_mass is negative (effect_z ~-0.639, q~1.9e-4, positive_batch_fraction 0.0).",
+        "evidence_refs": [
+          "E8b7dc2edfab2e678",
+          "E96d0eb4097fc5f86",
+          "E53cfb6a1f6d45adc"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "At region 1, landmark_01 local_cyy is positive (effect_z ~0.560, q~1.3e-4, positive_batch_fraction 1.0) and local_dy is positive (effect_z ~0.499, q~4.2e-3), whereas landmark_01 local_cxz is negative (effect_z ~-0.381, q~0.061).",
+        "evidence_refs": [
+          "Ee22d4ddc47b133bb",
+          "Ea60a5165a999e8a7",
+          "E92e9d62482734b40"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "At region 2, landmark_02 local_dy is negative (effect_z ~-0.405, q~1.3e-4, positive_batch_fraction 0.0) and local_dz is negative (effect_z ~-0.262, q~0.029), while landmark_02 soft_mass is weakly positive (effect_z ~0.151, q~0.089).",
+        "evidence_refs": [
+          "E2d36dc7cb7a497f8",
+          "E3bb2ec41fc1b2f43",
+          "E7ccec262cecbb244"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "The observed support is the native model endpoint world coordinates over score times 0.0-0.49 with learning window 0.0-0.5 and curve support 0.0-0.49; recorded affinities were removed and an equal score prior applies, so these contrasts are selection enrichment, not absolute affinity.",
+        "evidence_refs": [
+          "E36ce5e758c90e653"
+        ],
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "region- and component-dependent sign structure",
+        "evidence_refs": [
+          "E8b7dc2edfab2e678",
+          "Ee22d4ddc47b133bb",
+          "Ea60a5165a999e8a7",
+          "E2d36dc7cb7a497f8"
+        ],
+        "falsifier": "A region/component with a stable sign across independent batches and a confidence interval excluding zero in the opposite direction.",
+        "observable": "enrichment_z (label-bound favorable-minus-comparison contrast)",
+        "scope": "observed selection nodes, regions 0-2, observed window 0.0-0.49",
+        "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes are non-uniform across regions and components, with local_cyy consistently positive at regions 0 and 1 and local_dy sign-flipping between regions 1 and 2."
+      }
+    ],
+    "limitations": [
+      "Only regional contrast evidence is supplied in this isolated interface probe; no outcome evaluation data are available to this role.",
+      "Effect_z signs are not comparable across observables as a shared quality axis without each observable's definition.",
+      "These are selection-enrichment contrasts at observed nodes, not absolute geometric descriptors, physical interaction energies, or evidence of neural-module causation.",
+      "No temporal-derivative or trajectory-velocity interpretation is supported by the supplied evidence."
+    ],
+    "role": "Analyst"
+  }
+}

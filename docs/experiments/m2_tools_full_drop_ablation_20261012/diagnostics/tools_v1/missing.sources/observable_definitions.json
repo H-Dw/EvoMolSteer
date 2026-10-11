@@ -1,0 +1,64 @@
+{
+  "contrast": "Effect_z is a label-bound favorable-minus-comparison contrast divided by the original feature scale. A sign on one observable cannot be compared to another as a shared quality axis without its definition.",
+  "coordinates": "x_i and landmarks l_r in the common receptor frame, Angstrom; c=mean_i(x_i); N is active slot count",
+  "global_centroid": {
+    "formula": "c - supplied origin_A",
+    "units": "A"
+  },
+  "landmark_occupancy3_and_occupancy5": {
+    "a_A": [
+      3.0,
+      5.0
+    ],
+    "formula": "mean_i exp(-0.5*((||x_i-l_r||-a)/sigma)^2)",
+    "meaning": "Radial shell density peaking at a; NOT the number of atoms within radius a, and not monotone in distance",
+    "sigma_A": 1.0,
+    "units": "dimensionless"
+  },
+  "landmark_softmin": {
+    "T_A": 0.5,
+    "formula": "-T*(logsumexp_i(-||x_i-l_r||/T)-log(N))",
+    "meaning": "Normalized soft minimum distance; lower means geometrically closer, without establishing a quality benefit",
+    "units": "A"
+  },
+  "pair_kernel": {
+    "a_A": [
+      1.5,
+      2.5,
+      3.5,
+      5.0,
+      7.0
+    ],
+    "formula": "mean over ordered i != j of exp(-0.5*((||x_i-x_j||-a)/sigma)^2)",
+    "meaning": "Radial pair-distance shell density; not a bond label or interaction energy",
+    "sigma_A": 0.75,
+    "units": "dimensionless"
+  },
+  "regional_fields": {
+    "local_cxx_cyy_czz_cxy_cxz_cyz": {
+      "formula": "sum_i[w_i*((x_i-l_r)-mu)*((x_i-l_r)-mu)^T]/sum_i w_i; raw entries without sqrt(2) scaling",
+      "units": "A^2"
+    },
+    "local_dx_dy_dz": {
+      "formula": "mu=sum_i[w_i*(x_i-l_r)]/sum_i w_i",
+      "units": "A"
+    },
+    "radius_A": 5.0,
+    "soft_mass": {
+      "formula": "sum_i w_i/N",
+      "units": "dimensionless"
+    },
+    "weights": "w_i=exp(-||x_i-l_r||^2/(2*radius_A^2))"
+  },
+  "schema_version": "coordinate-observable-definitions-1.0",
+  "scope": "Endpoint forecast descriptors, not atom velocities, neural attention, physical energies or causal affinity gradients. Coordinate covariance is not by itself an inferred chemical mechanism.",
+  "semantics_source": "Exact coordinate extraction formulas; common data dictionary, not a research instruction or a favorable direction",
+  "shape": {
+    "formula": "C=mean_i[(x_i-c)(x_i-c)^T]; diagonal entries C_aa; off-diagonal entries sqrt(2)*C_ab",
+    "units": "A^2"
+  },
+  "source_code_sha256": {
+    "src/evomolsteer/continuous/affinity_geometry.py": "47e14a41eb3e62319ff5e90ab28b2878c84aa2aab4e8bc19bf5184a66e0f1bd2",
+    "src/evomolsteer/continuous/endpoint_regions.py": "80e880be71b30af8315150ea868d978b7941f39f319236cefc8a9ba5d96c8484"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "At observed selection node landmark_00, the signed favorable-minus-comparison contrast is positive and significant for the soft_mass component (effect_z=0.639, q=1.9e-4, positive_batch_fraction=1.0), indicating selection enrichment of soft mass at that node.",
+        "evidence_refs": [
+          "E9f2a1db6f36bcf99",
+          "E4827d9a049eb1718"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "At landmark_00 the local_dy and local_cyy contrasts are negative and significant (effect_z=-0.301, q=9.7e-3 and effect_z=-0.575, q=1.3e-4 respectively), with low positive_batch_fraction (0.071 and 0.0), indicating depletion of these signed coordinate components at the selection node.",
+        "evidence_refs": [
+          "E15f9365c4b7b35f6",
+          "Ed6a313786c3fdc03",
+          "E4827d9a049eb1718"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "The local_cxx contrast at landmark_00 is negative and significant (effect_z=-0.579, q=1.8e-3), while local_dz is not distinguishable from zero (effect_z=-0.024, q=0.868), so the signed contrast is component-specific rather than a uniform geometric shift.",
+        "evidence_refs": [
+          "E14077dad754e0684",
+          "Ec790f0c82d06869a",
+          "E4827d9a049eb1718"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "These regional_effects rows are label-bound enrichment contrasts (measure=enrichment_z) at observed selection nodes; they quantify selection enrichment, not an absolute geometric descriptor of the population.",
+        "evidence_refs": [
+          "E4827d9a049eb1718",
+          "E9f2a1db6f36bcf99"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "soft_mass positive; local_dy, local_cyy, local_cxx negative",
+        "evidence_refs": [
+          "E9f2a1db6f36bcf99",
+          "E15f9365c4b7b35f6",
+          "Ed6a313786c3fdc03",
+          "E14077dad754e0684"
+        ],
+        "falsifier": "A re-measured contrast at the same node with sign reversal or q above the declared threshold.",
+        "observable": "enrichment_z signed contrast per component at landmark_00",
+        "scope": "observed selection nodes within the observed window [0.0,0.49]",
+        "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes are component-specific, with soft_mass enriched and local_dy/local_cyy/local_cxx depleted at landmark_00."
+      }
+    ],
+    "limitations": [
+      "Only regional contrast evidence is supplied in this isolated interface probe; no outcome or affinity data are available.",
+      "Effect_z signs are definition-bound per observable and cannot be compared across observables as a shared quality axis.",
+      "The complete observed window is represented only by the delivered rows read here; no claim is made about unread regions or nodes.",
+      "No causal or physical-interaction interpretation is supported by these coordinate contrasts."
+    ],
+    "role": "Analyst"
+  }
+}

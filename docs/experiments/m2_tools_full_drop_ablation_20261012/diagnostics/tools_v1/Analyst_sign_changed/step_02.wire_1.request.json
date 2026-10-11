@@ -1,0 +1,189 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/d9e4c4146d7e668cd244af7692b1626ba7774364fdcd84360a9b8ca2db7a4ed1.txt",
+        "content_sha256": "d9e4c4146d7e668cd244af7692b1626ba7774364fdcd84360a9b8ca2db7a4ed1",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/3690bb71c70da53cdcd0a0d3d4ca1cc93a4bcd8d5bdfac7f036f49bc3106a3a8.txt",
+        "content_sha256": "3690bb71c70da53cdcd0a0d3d4ca1cc93a4bcd8d5bdfac7f036f49bc3106a3a8",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0.txt",
+        "content_sha256": "3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/d18d49e3d59d079bf3e1d7a6c3e71441f161eeeac697a2c00d5ed08999f3077e.txt",
+        "content_sha256": "d18d49e3d59d079bf3e1d7a6c3e71441f161eeeac697a2c00d5ed08999f3077e",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/d91b7c0057c2c3e36737afb92d07b25a9307ef0a5fa73958a330f1ee7e5dabca.txt",
+        "content_sha256": "d91b7c0057c2c3e36737afb92d07b25a9307ef0a5fa73958a330f1ee7e5dabca",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/245068a0b6ca263b648ba7108fb2ccdcab4bfcf8ce43a9637563ec81a1a5ade8.txt",
+        "content_sha256": "245068a0b6ca263b648ba7108fb2ccdcab4bfcf8ce43a9637563ec81a1a5ade8",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/740a8ce12ea1277307488fdc9e97cae8a93d8e666da05128a087fb0516bc4801.txt",
+        "content_sha256": "740a8ce12ea1277307488fdc9e97cae8a93d8e666da05128a087fb0516bc4801",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E36ce5e758c90e653",
+                          "E4827d9a049eb1718",
+                          "E59f087e961207250"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E36ce5e758c90e653",
+                          "E4827d9a049eb1718",
+                          "E59f087e961207250"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

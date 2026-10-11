@@ -1,0 +1,47 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; this fixes the evaluation ordering for any contrast-based reward.",
+        "evidence_refs": [
+          "E533c3a61c159cef7"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The supplied contrast definition is label-bound: Effect_z is a favorable-minus-comparison contrast divided by the original feature scale, so its sign is only interpretable relative to the bound label and observable, and cannot be treated as a shared quality axis across observables.",
+        "evidence_refs": [
+          "E4827d9a049eb1718"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "The observed support is the native model endpoint world coordinate representation over score times 0.0 to 0.49 with learning window 0.0 to 0.5, and recorded affinities are removed with an equal score prior, so no absolute affinity label is available in this probe.",
+        "evidence_refs": [
+          "E219cc46f73089060"
+        ],
+        "priority": 3
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "Higher signed favorable-minus-comparison contrast at selection nodes indicates selection enrichment relative to the comparison population.",
+        "evidence_refs": [
+          "E4827d9a049eb1718",
+          "E219cc46f73089060"
+        ],
+        "falsifier": "Contrast sign at selection nodes is not distinguishable from the comparison population, or the contrast tracks an absolute geometric quantity independent of the bound label.",
+        "observable": "Effect_z contrast at observed selection nodes over the observed window",
+        "scope": "Observed selection nodes within the supplied learning window only",
+        "statement": "Signed favorable-versus-comparison coordinate contrasts evaluated at the observed selection nodes over the complete observed window would be a label-bound selection-enrichment signal rather than an absolute geometric descriptor."
+      }
+    ],
+    "limitations": [
+      "Only regional contrast evidence and metadata are supplied in this isolated interface probe; no per-node contrast values, curve features or outcome data were delivered.",
+      "Recorded affinities are removed and an equal score prior applies, so no absolute affinity or geometric-descriptor claim can be supported.",
+      "No generation or compilation follows this probe, so no design recommendation is made."
+    ],
+    "role": "Analyst"
+  }
+}
