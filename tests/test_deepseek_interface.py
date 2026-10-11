@@ -22,6 +22,18 @@ def response(content):
         "choices": [{"finish_reason": "stop", "message": {"content": content}}]})
 
 
+def test_wrong_provider_model_cannot_be_a_valid_role_call(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only-key")
+    def wrong(request):
+        return httpx.Response(200, json={"model": "another-model", "id": "mock", "choices": [
+            {"finish_reason":"stop","message":{"content":"{\"ok\":true}"}}]})
+    path = tmp_path/"Analyst.json"
+    with pytest.raises(ValueError, match="different model"):
+        call_json([], SIMPLE, path, transport=httpx.MockTransport(wrong))
+    assert not path.exists() and not path.with_suffix(".receipt.json").exists()
+    assert path.with_suffix(".model_mismatch_1.json").exists()
+
+
 def test_historical_extra_field_has_specific_neutral_repair(tmp_path, monkeypatch):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only-key")
     original = HISTORICAL.read_text(encoding="utf-8")

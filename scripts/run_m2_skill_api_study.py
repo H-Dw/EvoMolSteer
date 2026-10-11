@@ -139,19 +139,24 @@ for p in root.rglob('*.json'):
             shell(client, f"test $(df -Pk {shlex.quote(str(work))} | awk 'NR==2 {{print $4}}') -gt 409600")
         self.save(preflight_passed=True)
 
-    def infer(self, program_path, signature, arms="gradient", lane="screen"):
+    def infer(self, program_path, signature, arms="gradient", lane="screen", *, reference_path=None, batches=None):
         validate_fixed_temperatures(self.repo, read_json(program_path))
         key = signature + ":" + arms + ":" + lane
+        reference_path = Path(reference_path) if reference_path is not None else self.repo / REF
+        if not reference_path.resolve().is_relative_to(self.repo):
+            raise ValueError("Inference reference must be inside the pinned repository")
+        if batches is not None:
+            key += ":" + ",".join(map(str, batches)) + ":" + digest(reference_path)
         if key in self.state["program_results"]:
             return self.state["program_results"][key]
         activation = read_json(self.study / "activation.json")
-        batches = activation["screen_batches"]
+        batches = list(batches) if batches is not None else activation["screen_batches"]
         name = "DSF_" + signature[:12] + "_b" + str(batches[0]) + "_" + ("controls" if "," in arms else "g")
         spec_path = self.config_root / "jobs" / (name + ".json")
         spec = {"name": name, "arms": arms, "batch": 50, "batches": batches,
             "n": 50 * len(batches), "seed": 42, "steps": 100,
             "program": program_path.relative_to(self.repo).as_posix(), "program_sha256": digest(program_path),
-            "reference": REF, "reference_sha256": digest(self.repo / REF)}
+            "reference": reference_path.relative_to(self.repo).as_posix(), "reference_sha256": digest(reference_path)}
         write_json(spec_path, spec)
         commit = self.commit("experiment(m2-api): bind " + name + " real API reward")
         self.save(status="running", task=name, code_commit=commit)
@@ -242,10 +247,23 @@ for p in root.rglob('*.json'):
     @staticmethod
     def delivery(root):
         rows = []
+        timeline = []
         for folder in sorted(root.glob("*/batch_*")):
             if folder.parent.name != "gradient": continue
             trace = [json.loads(line) for line in (folder / "guidance_trace.jsonl").read_text().splitlines()]
             active = [r for r in trace if r["active"]]
+            for item in active:
+                received=np.asarray(item["injection_rms_A"])
+                requested=np.asarray(item["requested_rms_A"])
+                calibrated=np.asarray(item["calibration_rms_A"])
+                timeline.append({"batch":int(folder.name.split("_")[-1]),"score_time":item["score_time"],
+                    "state_time":item["state_time"],"injection_rms_A":float(received.mean()),
+                    "requested_rms_A":float(requested.mean()),
+                    "delivered_over_calibration":float(np.mean(received/np.maximum(calibrated,1e-12))),
+                    "cap_active_fraction":float(np.mean(np.asarray(item["cap_factor"])<1.-1e-6)),
+                    "backtrack_fraction":float(np.mean(np.asarray(item["backtrack_factor"])<1.-1e-6)),
+                    "zero_injection_fraction":float(np.mean(received==0)),
+                    "noncore_energy_fraction":float(np.mean(item["injection_noncore_fraction"]))})
             injection = np.asarray([r["injection_rms_A"] for r in active])
             calibration = np.asarray([r["calibration_rms_A"] for r in active])
             rows.append({"batch": int(folder.name.split("_")[-1]), "controlled_steps": len(active),
@@ -259,7 +277,8 @@ for p in root.rglob('*.json'):
                 "last_controlled_state_time": max(r["state_time"] for r in active),
                 "post_window_nonzero": sum(np.any(np.asarray(r["injection_l2_A"]) > 0) for r in trace if not r["active"]),
                 "trace_sha256": digest(folder / "guidance_trace.jsonl")})
-        return {"batches": rows, "semantics": "Actual coordinate injection; positive scalar response is not an affinity derivative"}
+        return {"batches": rows, "observed_node_delivery":timeline,
+            "semantics": "Actual coordinate injection; positive scalar response is not an affinity derivative; noncore energy is squared displacement, not physical potential energy"}
 
     def forecast_response(self, root, destination):
         """Small full-window batch means; no particle-expanded feature cache."""

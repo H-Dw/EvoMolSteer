@@ -160,6 +160,11 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
             choice = wire["choices"][0]
             if choice.get("finish_reason") != "stop":
                 raise ValueError("Incomplete JSON answer; no incumbent masquerading as success")
+            if wire.get("model") != model:
+                write_json(unused_path(output, ".model_mismatch_{index}.json"), {
+                    "requested_model": model, "returned_model": wire.get("model"),
+                    "provider_request_id": wire.get("id"), "valid": False})
+                raise ValueError("Provider returned a different model; fallback is prohibited")
             content = choice["message"]["content"]
             try:
                 result = json.loads(content)

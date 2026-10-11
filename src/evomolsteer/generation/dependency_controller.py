@@ -11,7 +11,8 @@ from ..io import digest
 
 class DependencyExtension(FlowCompatibilityV2Extension):
     def configure(self, model, opt, out):
-        if self.program['reward_view'] not in ('endpoint_structure_field', 'endpoint_static_hybrid'):
+        if self.program['reward_view'] not in ('endpoint_structure_field', 'endpoint_static_hybrid',
+                'endpoint_regional_pointcloud', 'endpoint_temporal_pointcloud'):
             return super().configure(model, opt, out)
         EndpointCoordinateExtension.configure(self, model, opt, out)
         self.previous_gradient = None
@@ -32,6 +33,16 @@ class DependencyExtension(FlowCompatibilityV2Extension):
                 reference_origin='Original bound pose plus fixed selected Steer forecast teachers',
                 conditional_gradient='Forecast correspondence, neighbor selection and priors detached; scalar mixture differentiated',
                 support_semantics='Proposed static mixture and optional phase contact; no fitted temporal advantage claim')
+        elif self.program['reward_view'] == 'endpoint_temporal_pointcloud':
+            result.update(reference_origin='Frozen last-learning-node forecasts plus observed-score-node historical forecast teachers',
+                temporal_teacher_blend=self.program['temporal_teacher_blend'],
+                scientific_teacher_sources=self.reference.get('scientific_sources'),
+                conditional_gradient='Both analytic losses use one differentiated FLOWR endpoint; assignments and priors detached',
+                support_semantics='Historical forecast teacher at the current score node, not actual terminal structure or trajectory velocity')
+        elif self.program['reward_view'] == 'endpoint_regional_pointcloud':
+            result.update(reference_origin='Frozen intact teachers with detached coordinate-region attention',
+                conditional_gradient='Endpoint coordinate matching with fixed anchor membership and positive surrounding weight',
+                empirical_temporal_attention='coordinate_region_node_salience' in self.program)
         return result
 
 
