@@ -1,0 +1,42 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "allowed_edits",
+    "incumbent",
+    "formula_registry",
+    "branch_adjusted:240",
+    "branch_adjusted:241",
+    "branch_adjusted:305",
+    "branch_adjusted:307",
+    "branch_adjusted:158",
+    "branch_adjusted:167",
+    "branch_adjusted:244",
+    "joint_diagnostics:14",
+    "joint_diagnostics:12",
+    "joint_diagnostics:13",
+    "continuous:0",
+    "continuous:10",
+    "curve_support",
+    "decoded_terminal_learning_labels_available",
+    "lineage_support"
+  ],
+  "expected_response": {
+    "predicted_direction": "no change to the operative pointcloud reward; incumbent retained",
+    "primary_observable": "final predicted target affinity (not measured in supplied evidence)"
+  },
+  "failure_modes": [
+    "If an edit were made to region_index or teacher_neighbors without a demonstrated link to the executing pointcloud scalar, the pair-kernel and joint-motion observables would not be expected to respond, so the predicted benefit would be unsupported.",
+    "A time-conditioned regional attention or teacher blend would require extrapolation outside [0.0, 0.49] or arbitrary time bins, both disallowed, and could displace surrounding coordinates without evidence.",
+    "Increasing long-range pair density or shape_yy would be contradicted by the negative, batch-coherent directions in branch_adjusted:158, :167, and :244."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "fixed task parameter 0.5",
+    "pointcloud_delta_A": "incumbent default 1.0 A",
+    "teacher_endpoint_temperature_A2": "fixed task parameter 4.0",
+    "teacher_neighbors": "incumbent default 4"
+  },
+  "rationale": "Retain the incumbent. The Analyst's strongest multiplicity-adjusted, batch-coherent directions are short-range pair-kernel density (branch_adjusted:240, :241) and reduced joint internal/innovation RMS (branch_adjusted:305, :307), but the executing pointcloud scalar contains no pair-kernel, moment, or joint-motif term (formula_registry diagnostic_limit), so no registered bounded edit maps those observables onto the operative reward. The permitted edits are pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index, and temporal_teacher_blend; none of these is shown by the supplied evidence to change the pair-kernel or joint-motion observables, and the Analyst itself notes the finding remains descriptive unless a region-restricted teacher set expresses it. The incumbent already uses teacher_neighbors 4 and pointcloud_delta_A 1.0, and no supplied contrast isolates a defensible expected advantage for moving to 2, 8, 0.5, or 2.0. Temporal alternatives are not supported either: continuous curves are observed-node linear interpolations with extrapolation_allowed false and polynomial_accepted false throughout, and curve_support reports legendre_runtime_allowed false, so a time-conditioned regional attention or teacher blend cannot be justified over the stationary incumbent. Opposing evidence (shape_yy negative with same-sign fraction 1.0, branch_adjusted:158; pair_kernel_7.0 negative, branch_adjusted:167, :244) further argues against an unvalidated displacement of surrounding coordinates. Because decoded_terminal_learning_labels_available is false and descendant credit is recorded joint-head credit rather than decoded terminal affinity, the affinity-first objective is not served by any registered edit here; retaining the incumbent is the defensible choice.",
+  "role": "Designer"
+}
