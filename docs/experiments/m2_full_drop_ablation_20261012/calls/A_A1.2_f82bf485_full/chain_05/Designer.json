@@ -1,0 +1,63 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "allowed_edits",
+    "incumbent",
+    "fixed_parameters",
+    "formula_registry",
+    "teacher_modes",
+    "limitations",
+    "objective",
+    "decoded_terminal_learning_labels_available",
+    "lineage_support",
+    "branch_adjusted:74",
+    "branch_adjusted:76",
+    "branch_adjusted:86",
+    "branch_adjusted:87",
+    "branch_adjusted:151",
+    "branch_adjusted:153",
+    "branch_adjusted:240",
+    "branch_adjusted:241",
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:15",
+    "joint_diagnostics:2",
+    "joint_diagnostics:11",
+    "joint_diagnostics:14",
+    "continuous:0",
+    "continuous:1",
+    "continuous_functions",
+    "curve_support",
+    "survival_effects:0",
+    "survival_effects:100",
+    "turnover:1",
+    "turnover:2",
+    "information_audit"
+  ],
+  "expected_response": {
+    "decision": "retain",
+    "edit": null,
+    "expected_effect": "No change to the executing reward; the incumbent pointcloud_delta_A=1.0 A, teacher_neighbors=4, mixture_temperature=0.5 and teacher_endpoint_temperature_A2=4.0 remain fixed.",
+    "predicted_direction": "No coordinate displacement beyond the native predictive update; avoids the predicted failure of unnecessary surrounding-coordinate displacement."
+  },
+  "failure_modes": [
+    "If a permitted edit were applied, the predicted failure is unnecessary displacement of surrounding coordinates: increasing pointcloud_delta_A or concentrating regional attention would raise innovation magnitude, which is negatively associated with observed child score gain (joint_diagnostics:2), so the edit would be expected to degrade rather than improve the primary affinity objective.",
+    "A region_index edit would over-concentrate attention on one landmark whose soft_mass contrast is small and sign-inconsistent across landmarks, and the continuous contrast curves are non-smooth with large rate reversals and imperfect fits, so the selected region would not be supported.",
+    "A teacher_neighbors edit would treat a count as a distance bandwidth and would alter the static teacher mixture without supplied dispersion evidence, changing teacher provenance without justification.",
+    "A temporal_region_index or temporal_teacher_blend edit would impose a time-conditioned rule that the supplied evidence does not select over a constant rule, and would risk interpreting a temporal derivative as a spatial gradient.",
+    "Any edit that relies on pair-kernel or joint-RMS findings would be inoperative because the executing pointcloud scalar contains no such term."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "fixed parameter 0.5; immutable task parameter",
+    "pointcloud_delta_A": "incumbent default 1.0 A; formula registry states executing curvature is pointcloud_delta_A and legacy robust_delta is ignored",
+    "region_index": "not set; no landmark selected by supplied evidence",
+    "teacher_endpoint_temperature_A2": "fixed parameter 4.0; immutable task parameter",
+    "teacher_neighbors": "incumbent 4; teacher modes are static last-learning-node forecasts, temperature_edits false",
+    "temporal_region_index": "not set; no validated time-conditioned contrast selected",
+    "temporal_teacher_blend": "not set; temporal teacher recipe requires validated contrast functions"
+  },
+  "rationale": "Retain the incumbent. The Analyst's strongest supported coordinate findings (compact internal-distance band at pair_kernel_1.5/2.5 A, joint internal RMS separation from pose) are diagnostic only: the formula registry states the executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term, so no permitted edit (pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index, temporal_teacher_blend) can express them. The permitted edits that could be tied to evidence are not defensibly advantageous: (a) pointcloud_delta_A changes only the robust curvature of the same Hungarian endpoint distance; the supplied evidence gives no contrast on delta itself, and the incumbent default 1.0 A is the frozen program value, so changing it would be an unsupported dose edit; (b) region_index would concentrate attention on a landmark, but the landmark soft_mass contrasts are small and sign-inconsistent across landmarks (|whole-window z| <= 0.64) and the continuous contrast curves are non-smooth with large first-to-last rate reversals and imperfect fits (relative node RMSE 0.39-0.93), so no single landmark is selected by the evidence; (c) teacher_neighbors is a count, not a bandwidth, and the teacher modes are static last-learning-node forecasts with temperature_edits false, so narrowing or broadening the neighborhood is not supported by the supplied dispersion evidence; (d) temporal_region_index and temporal_teacher_blend would require a validated time-conditioned contrast, and the Analyst explicitly reports that the supplied evidence does not select between constant and time-conditioned rules without a validated fit. Counterevidence also argues against an aggressive edit: innovation magnitude is negatively associated with observed child score gain (joint_diagnostics:2, positive_batch_fraction 0.0) even though it aligns with teacher contrast (joint_diagnostics:11), so a rule that increases displacement/innovation would be expected to fail, and unnecessary displacement of surrounding coordinates is a concrete predicted failure. Descendant credit is recorded joint-head credit, not decoded terminal affinity (decoded_terminal_learning_labels_available false), and ancestral coverage is thin (349 nodes with fewer than 3 ancestors), so survival-based steering is not defensible. With affinity primary and no permitted edit carrying a defensible expected advantage, retaining the incumbent is the correct bounded choice.",
+  "role": "Designer"
+}

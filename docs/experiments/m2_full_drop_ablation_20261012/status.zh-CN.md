@@ -2,7 +2,7 @@
 
 模型：真实 DeepSeek API / deepseek-flash。
 
-状态：pruning_confirmed；已完成比较 1/17；跳过 0；已处理 1/17。
+状态：screening；已完成比较 1/17；跳过 0；已处理 1/17。
 
 |模块|功能验证|确认结论|是否精简|
 |---|---|---|---|

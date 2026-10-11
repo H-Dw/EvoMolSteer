@@ -1,0 +1,61 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "Analyst_response",
+    "incumbent",
+    "formula_registry",
+    "allowed_edits",
+    "joint_diagnostics:14",
+    "joint_diagnostics:12",
+    "joint_diagnostics:13",
+    "branch_adjusted:240",
+    "branch_adjusted:241",
+    "branch_adjusted:305",
+    "branch_adjusted:307",
+    "branch_adjusted:228",
+    "branch_adjusted:230",
+    "branch_adjusted:167",
+    "branch_adjusted:244",
+    "branch_adjusted:77",
+    "branch_adjusted:78",
+    "branch_adjusted:79",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5",
+    "continuous:6",
+    "continuous:7",
+    "continuous:8",
+    "continuous:9",
+    "curve_support",
+    "observable_definitions",
+    "decoded_terminal_learning_labels_available",
+    "lineage_support",
+    "limitations"
+  ],
+  "expected_response": {
+    "decision": "retain",
+    "edit": null,
+    "note": "No permitted edit has a defensible expected advantage under the supplied evidence; incumbent fallback is declared."
+  },
+  "failure_modes": [
+    "A permitted edit (region_index, teacher_neighbors, temporal_region_index, temporal_teacher_blend) is compiled as if the executing pointcloud scalar contained a pair-kernel, moment or joint-motif term, which formula_registry states it does not.",
+    "A time-conditioned regional attention edit is justified from continuous contrast curves whose last empirical and last fit z disagree in sign (curve_support), producing a non-monotone response that a constant rule cannot reproduce.",
+    "A batch whose pair_kernel_1.5 contrast reverses sign or whose joint_internal_RMS_A is not uniformly negative would contradict the proposed internal-contrast direction (branch_adjusted:240, 241, 305, 307).",
+    "Survival enrichment in soft_mass features is used to rank coordinate hypotheses even though descendant credit is joint-head credit, not decoded terminal affinity (decoded_terminal_learning_labels_available false; lineage_support)."
+  ],
+  "parameter_origins": {
+    "mixture_temperature": "fixed task parameter 0.5; immutable",
+    "pointcloud_delta_A": "incumbent default 1.0 A; unchanged",
+    "region_index": "not edited",
+    "teacher_endpoint_temperature_A2": "fixed task parameter 4.0; immutable",
+    "teacher_neighbors": "incumbent 4; unchanged",
+    "temporal_region_index": "not edited",
+    "temporal_teacher_blend": "not edited"
+  },
+  "rationale": "Retain the incumbent. The Analyst's own evidence shows the executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term (formula_registry), so the registered pair_kernel_1.5/2.5 and joint_internal_RMS_A contrasts (branch_adjusted:240, 241, 305, 307) cannot be expressed by any permitted edit; treating them as an operative force would be a diagnostic feature the formula does not contain. The permitted edits are pointcloud_delta_A, region_index, teacher_neighbors, temporal_region_index and temporal_teacher_blend. No supplied evidence establishes a defensible expected advantage for changing any of these: the continuous contrast functions are observed-node linear interpolants over [0.0, 0.49] with extrapolation_allowed false and polynomial_accepted false, with multiple sign changes and relative node RMSE 0.29-0.87 (continuous:0-9), and curve_support reports only 24 of the audited curves passing its fidelity rule with legendre_runtime_allowed false throughout and last_empirical_z versus last_fit_z sign conflicts. A time-conditioned regional attention edit (temporal_region_index, temporal_teacher_blend) would therefore rest on curves that are relative contrasts, not absolute targets (observable_definitions), and no validated fit supports a specific blend. A region_index or teacher_neighbors edit would be a spatial emphasis choice not tied to any operative term, since the joint-motion terms are uniformly negative across batches (branch_adjusted:228, 230, fraction 1.0) and pair_kernel_7.0 is negative (branch_adjusted:167, 244), so they are not candidate favorable directions. Global centroid and shape entries are null after adjustment (branch_adjusted:77-79), and joint_diagnostics:12-14 attribute the informative extent to the internal fraction, which the incumbent already leaves free via preserve_native_rigid_pose false. Decoded terminal learning labels are unavailable (decoded_terminal_learning_labels_available false; lineage_support), so no final-affinity benefit comparison can justify an edit. Retaining the incumbent is the defensible choice; the evidence that would change this decision is a validated time-conditioned contrast fit or an operative term that actually contains the pair-shell or internal-motion observable.",
+  "role": "Designer"
+}
