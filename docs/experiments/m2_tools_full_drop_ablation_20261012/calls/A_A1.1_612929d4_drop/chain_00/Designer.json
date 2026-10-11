@@ -1,0 +1,27 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "endpoint_effects:1",
+    "curve_support",
+    "lineage_support",
+    "clocks"
+  ],
+  "failure_modes": [
+    "Selecting C001-C003 (pointcloud_delta_A) would alter the robust kernel curvature without any evidence that shape-coupled contrast is expressed by the pointcloud scalar; the shape signal is a coordinate contrast, not a kernel-bandwidth effect, so the edit would displace surrounding coordinates without targeting the observed shape_yy/shape_xx direction.",
+    "Selecting C004-C006 (teacher_neighbors) treats neighbor count as a distance bandwidth; the Analyst evidence gives no bandwidth or mode-coverage justification, and changing k would shift the teacher mixture without addressing the shape-coupled contrast, risking unnecessary displacement of surrounding coordinates.",
+    "Selecting C007-C009 (temporal_teacher_blend) changes only dose of the same static teachers; with no validated absolute contrast change at observed score nodes and no decoded terminal labels, the blend cannot be shown to improve the affinity-primary objective and may amplify unvalidated teacher coordinates.",
+    "Any edit here would be justified by coordinate contrasts that are not physical interaction energies or affinity benefit; treating them as such would violate the affinity-first priority and the declared semantics."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Analyst's strongest reproducible endpoint signal is shape-coupled (shape_yy integrated z ~ -0.51, zero positive batch fraction; shape_xx ~ -0.50), while centroid terms are weaker or null. H001/H002 point toward a time-conditioned regional attention rule modulating landmark occupancy/softmin contrast at observed score nodes, not toward any of the offered scalar choices. The registered choices only expose pointcloud_delta_A (C001-C003), teacher_neighbors count (C004-C006) and temporal_teacher_blend (C007-C009). None of these is a shape-coupled regional attention edit: delta changes the robust pointcloud kernel curvature, neighbor count changes the teacher count, and blend changes only the temporal dose of the same static teachers. Curve support is restricted (24/200 features pass; fidelity audit is a container summary only), and no decoded terminal labels exist, so no offered scalar has a defensible expected advantage over the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal blend). Retaining the incumbent is therefore the evidence-supported choice; the shape-coupled regional attention direction remains a hypothesis requiring a validated contrast fit before any edit.",
+  "role": "Designer"
+}

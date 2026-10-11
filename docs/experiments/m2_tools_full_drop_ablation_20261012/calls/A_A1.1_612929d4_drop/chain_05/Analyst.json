@@ -1,0 +1,83 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate selection evidence and descendant survival credit disagree in sign for the same landmark-00 local descriptors: survival enrichment z is negative for local_cxx (z=-0.32, q=0.30) and local_cyy (z=-0.25, q=0.30) while the soft-mass occupancy feature is positive (z=+0.37, q=0.12). Because no survival test survives BH correction (all q>0.05), the disagreement is not resolved by multiplicity-adjusted support and should lower, not raise, priority for these local-shape directions.",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:4",
+        "survival_effects:5"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The actual later-label calculation is terminal-credit mining over 14 complete-survival batches with BH applied jointly over 400 survival field/measure tests, and it is explicitly not a terminal affinity effect. Ancestral coverage is thin: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch, so last-record survival credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The information audit shows the compressed-choice excess fixed-frame RMS is small (mean 0.081 A, CI95 0.070-0.092) and the chosen-teacher score correlation is weak (compressed 0.102, full 0.064), with top4 teacher overlap only 0.47. This indicates the selection signal is a weak, non-causal geometric proxy rather than a validated affinity predictor, so point-estimate ranking alone would overstate coordinate hypotheses.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Curve support is restricted to 24 selected features under a strict rule (|integrated z|>=0.1, batch direction fraction>=0.857, q<0.05) with a fidelity rule requiring relative RMSE<=0.35 and zero strong sign-conflict nodes; the fidelity audit is a container summary only and its numeric contents were not read, so no claim about individual contrast-curve sign changes or rate changes can be made from this evidence.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control, and the score clock covers observed score times 0.00-0.49 within a 0.0-0.5 learning window; recorded affinities are removed and an equal score prior is used, so no observed affinity outcome is available to either role.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase landmark-00 soft-mass occupancy weight; do not add local_cxx/local_cyy directional terms",
+      "evidence_ids": [
+        "survival_effects:0",
+        "survival_effects:4",
+        "survival_effects:5",
+        "curve_support"
+      ],
+      "falsifier": "a batch-level sign reversal or q>=0.05 for the occupancy feature after multiplicity adjustment, or a strong sign conflict in the corresponding contrast curve",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass survival enrichment z and its batch direction fraction",
+      "scope": "observed score nodes 0.00-0.49, 14 independent batches",
+      "statement": "A time-conditioned regional attention rule that up-weights landmark-00 soft-mass occupancy while leaving local_cxx/local_cyy directions free may improve coordinate contrast relative to a constant rule, because the only positive survival signal is the occupancy feature and the local-shape directions are negative or null."
+    },
+    {
+      "direction": "rank by batch agreement and ancestral coverage rather than point estimate",
+      "evidence_ids": [
+        "information_audit",
+        "lineage_support"
+      ],
+      "falsifier": "a feature with high point estimate but low batch agreement that still reproduces a positive effect in held-out batches",
+      "id": "H002",
+      "observable": "positive_batch_fraction and independent_batches per feature",
+      "scope": "14 independent batches, 700 batch nodes",
+      "statement": "Because the chosen-teacher score correlation is weak and the excess fixed-frame RMS is small, a coordinate rule that prioritizes point-estimate magnitude alone is not supported; a rule conditioned on independent-batch agreement and coverage would rank hypotheses differently."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels are supplied, so last-record survival credit cannot be compared with final affinity benefit; that comparison is unavailable.",
+    "The curve fidelity audit is a container summary only; individual contrast-curve sign changes, fit fidelity and rate changes were not read and are not claimed.",
+    "Survival, increment and endpoint effect tables were only partially read (first rows of survival_effects); no multiplicity-adjusted ranking across all 400 survival and 74 increment/endpoint tests is asserted.",
+    "The information audit metrics are geometric proxies, not the full score-weighted reward or its FLOWR Jacobian, and are not causal affinity effects.",
+    "No current study outcome data are available to the Analyst role."
+  ],
+  "role": "Analyst"
+}

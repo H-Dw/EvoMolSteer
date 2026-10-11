@@ -1,0 +1,70 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate selection evidence and descendant credit are not the same quantity: the information audit compares geometric nearest-teacher choice under sparse salient fields against Hungarian fixed-frame RMS with leave-one-batch exclusion over 14 independent batches, and explicitly states it is not the full score-weighted reward or its FLOWR Jacobian, and that nonnegative excess distance is by construction rather than a causal affinity effect.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Ancestral coverage is thin and survivor-biased: of 700 total batch nodes, 349 have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch, so last-record credit is computed on a small surviving subset rather than the full candidate population.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "The later-label calculation is terminal-credit mining (schema terminal-credit-mining-1.0) with multiple testing BH jointly over 400 survival field/measure tests, and the lineage table states these are not terminal affinity effects; terminal metadata show one future-resampling node per batch at terminal index 99 (score time 0.99, state time 1.0), so decoded terminal affinity labels are not supplied and the final-affinity comparison is unavailable.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Curve support is restricted: only 24 of 200 continuous features pass the selection rule (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05, scale floor excluded), and the fidelity audit is delivered as a container summary only, so the remaining 176 features are not validated as usable contrast curves.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate control only, so selection/survival credit cannot be substituted for the primary endpoint.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Prefer high-coverage, multiplicity-adjusted features over raw point-estimate leaders.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "Ed0d7945bdeeda8f1"
+      ],
+      "falsifier": "A feature with strong point estimate but q >= 0.05 or < 3 ancestors showing reproducible independent-batch agreement would weaken this ranking rule.",
+      "observable": "Per-feature q, batch direction fraction, and ancestor counts for the candidate coordinate region.",
+      "scope": "Coordinate hypothesis ranking within the observed window [0.0, 0.5].",
+      "statement": "Direction priorities should be set by uncertainty- and coverage-adjusted support rather than point estimates: features with q < 0.05, batch direction fraction >= 0.857 and adequate ancestral coverage should outrank features with larger point estimates but thin ancestry or single-batch support."
+    },
+    {
+      "direction": "Use time-conditioned contrast only for the 24 validated features; constant rule elsewhere.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "A validated feature whose time-conditioned fit does not improve on the constant rule at observed nodes would remove the justification for conditioning.",
+      "observable": "Relative node RMSE, sign changes and strong sign conflicts per feature across the observed score times.",
+      "scope": "Observed score times 0.0-0.49, no extrapolation.",
+      "statement": "A time-conditioned contrast rule is only justified where validated fits exist at observed score nodes; a constant rule should be retained where the fidelity audit fails (relative RMSE > 0.35 or strong sign conflicts)."
+    }
+  ],
+  "limitations": [
+    "Decoded terminal affinity labels are not supplied; last-record survival credit cannot be presented as final affinity benefit and the immediate-selection versus descendant-quality comparison remains unavailable.",
+    "The information audit is not the full score-weighted reward or its FLOWR Jacobian, and its excess-distance metric is nonnegative by construction, so it cannot establish a causal affinity effect.",
+    "The curve fidelity audit is delivered as a container summary only; individual per-feature fit values were not read, so per-feature fidelity claims beyond the selection rule are unsupported.",
+    "No current study outcome data are available to this role, so no reward or intervention effect can be confirmed."
+  ],
+  "role": "Analyst"
+}

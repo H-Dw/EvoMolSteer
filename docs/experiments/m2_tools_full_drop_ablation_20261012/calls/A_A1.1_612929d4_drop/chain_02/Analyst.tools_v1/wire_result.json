@@ -1,0 +1,85 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Terminal credit is not final affinity benefit: lineage support records terminal score time 0.99 and terminal state time 1.0 with one future-resampling node per batch, and its multiple-testing note states the BH correction covers 400 survival field/measure tests, not terminal affinity effects. Last-record survival credit therefore cannot be presented as decoded terminal affinity benefit.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Ancestral coverage is thin: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch, so descendant survival/quality credit is dominated by sparse-ancestry nodes and survivor bias cannot be separated from genuine lineage quality.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The information audit shows the compressed choice is only weakly aligned with teacher geometry: compressed-choice excess fixed RMS is about 0.081 A (CI 0.070-0.092), top-4 teacher overlap about 0.47, and chosen-teacher score correlation about 0.10 (compressed) and 0.064 (full), all with 14 independent batches. This is observational and explicitly not a fitted or validated affinity predictor.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Among endpoint effects, shape descriptors carry the strongest and most reproducible signal: shape_yy has integrated z about -0.51 with 0.0 positive batch fraction and q about 1.5e-5, and shape_xx has integrated z about -0.50 with 0.07 positive batch fraction and q about 8e-4. Global centroid components are weaker and inconsistent (centroid_y q about 0.014 but only 0.21 positive batch fraction; centroid_x and centroid_z are not significant).",
+      "evidence_refs": [
+        "Ecbb36ef90768cba0",
+        "E3114d60bf4cd5720",
+        "E52fcd92a3390dbcf",
+        "Ed9b75ded9192a9b0",
+        "Ee92b78bec6fdbbb4"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "The curve-support selection rule retained 24 features requiring absolute integrated z at least 0.1, batch direction fraction at least 0.857, q below 0.05 and exclusion of the scale floor, with a fidelity rule of relative RMSE at most 0.35, quiet-node large-fit fraction at most 0.1 and zero strong sign conflicts. The fidelity audit contents are a container summary only and were not read numerically, so per-curve sign changes and rate changes remain unverified.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase regional attention weight on shape-coupled landmark regions relative to static uniform weighting",
+      "evidence_refs": [
+        "Ecbb36ef90768cba0",
+        "E3114d60bf4cd5720",
+        "Ed4e7d28e7b0423e0"
+      ],
+      "falsifier": "If the time-conditioned regional rule does not increase the shape_xx/shape_yy endpoint contrast over the static rule, or if the sign of the shape effect flips across batches, the hypothesis is rejected.",
+      "observable": "endpoint pointcloud integrated contrast and per-batch positive fraction for shape_xx/shape_yy under the temporal_region recipe versus the static recipe",
+      "scope": "observed score window 0.0-0.5, 14 independent batches, native endpoint VJP only",
+      "statement": "A time-conditioned regional attention rule that shifts weight toward shape-coupled landmark regions (shape_xx/shape_yy direction) will produce a larger endpoint pointcloud contrast than the static rule, because the strongest reproducible endpoint effects are shape descriptors rather than global centroid translation."
+    },
+    {
+      "direction": "deprioritize global centroid translation as a control direction",
+      "evidence_refs": [
+        "Ed9b75ded9192a9b0",
+        "E52fcd92a3390dbcf",
+        "Ee92b78bec6fdbbb4"
+      ],
+      "falsifier": "If a centroid component shows a large integrated z with high positive batch fraction and low q in an independent batch set, the deprioritization is weakened.",
+      "observable": "endpoint integrated z and positive batch fraction for global_centroid_x/y/z",
+      "scope": "observed score window 0.0-0.5, 14 independent batches",
+      "statement": "Global centroid translation is not a reliable coordinate direction for this objective, because centroid_x and centroid_z endpoint effects are not significant and centroid_y has low batch agreement despite a small q value."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied, so last-record survival credit cannot be compared with final affinity benefit; the immediate-selection versus descendant-credit comparison is unavailable.",
+    "The curve fidelity audit was delivered only as a container summary; per-curve sign changes, fit fidelity and rate changes across the full observed support were not read and cannot be asserted.",
+    "The information audit metrics are observational and explicitly not a fitted or validated affinity predictor, and the excess-distance metric is nonnegative by construction rather than a causal affinity effect.",
+    "No current study outcome data are available to the Analyst, so no claim about realized affinity improvement can be made.",
+    "Turnover accounting, joint diagnostics and regional effect rows were not read in this pass, so within-path change versus cohort-composition explanations remain untested here."
+  ],
+  "role": "Analyst"
+}

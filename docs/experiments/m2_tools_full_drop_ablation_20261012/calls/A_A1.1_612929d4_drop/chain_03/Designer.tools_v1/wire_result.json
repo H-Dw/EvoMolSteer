@@ -1,0 +1,25 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E95127897611354eb",
+    "Ed4e7d28e7b0423e0",
+    "Eaa4bda02c9a2c3a1",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "If a temporal_teacher_blend (C007-C009) were selected, the unvalidated contrast would displace surrounding coordinates at observed score nodes without a fidelity-passing feature, risking unnecessary geometric displacement and strain while the affinity-primary objective is unchanged.",
+    "If pointcloud_delta_A were narrowed (C001) or widened (C003), the robust delta would change the endpoint-VJP force scale on a metric that is nonnegative by construction and not the score-weighted reward, so the predicted affinity response is unsupported and could increase displacement of surrounding coordinates.",
+    "If teacher_neighbors were reduced to 2 (C004) or raised to 8 (C006), mode coverage would shift on a teacher set with at most 2 teachers per batch and thin ancestral coverage, so competing teacher directions could be over- or under-mixed without evidence of affinity benefit.",
+    "Any temperature edit is an interface violation and is not proposed; terminal metadata outside [0.0,0.5] cannot be used to justify a change."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H004"
+  ],
+  "rationale": "Retain the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal blend). The only registered edits are pointcloud_delta_A (C001/C002/C003), teacher_neighbors (C004/C005/C006) and temporal_teacher_blend (C007/C008/C009). The incumbent already sits at C002 and C005, so the live alternatives are the narrower/wider delta, the 2/8 neighbor counts, and the temporal blends. Analyst's fidelity audit (E95127897611354eb, Ed4e7d28e7b0423e0) shows all 24 selected continuous features fail the declared relative_node_rmse<=0.35 rule and many carry strong sign conflicts, so no validated time-conditioned contrast exists; H004's own falsifier is met and the temporal_teacher_blend choices (C007-C009) cannot be justified as a coordinate reward edit. The information audit (E2bb8390452ed517a) states its excess-distance metric is nonnegative by construction and is not the score-weighted reward or its FLOWR Jacobian, so it gives no defensible expected advantage for narrowing or widening delta; the compressed-choice excess fixed RMS is only ~0.081 A against ~0.564 A raw, i.e. a small fraction of total geometric error, and the chosen-teacher score correlations are weak and observational. Lineage support (Ed0d7945bdeeda8f1) shows 349/700 nodes with <3 ancestors and at most 2 teachers per batch, so neighbor-count changes (C004/C006) cannot be supported by within-path credit and would only alter mode coverage without evidence of benefit. The objective (Eaa4bda02c9a2c3a1) is affinity-primary with coordinate control only and no affinity-head derivative, and the clocks (E0857891f4effbfe1) confine observed support to [0.0,0.5], so no extrapolation or temperature edit is available. With no fidelity-passing feature and no causal affinity evidence, retaining the incumbent is the defensible choice; deferral is unnecessary because the incumbent is a valid registered configuration.",
+  "role": "Designer"
+}

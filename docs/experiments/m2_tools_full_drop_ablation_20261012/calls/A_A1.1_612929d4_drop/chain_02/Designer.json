@@ -1,0 +1,32 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "temporal_teacher_blend",
+    "value": 0.5
+  },
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "curve_support",
+    "lineage_support",
+    "information_audit"
+  ],
+  "failure_modes": [
+    "If the time-conditioned regional rule does not increase the shape_xx/shape_yy endpoint contrast over the static rule, or the shape effect sign flips across batches, H001 is rejected and the blend should be reverted to the incumbent static recipe.",
+    "Unnecessary displacement of surrounding coordinates: the regional rule adds positive surrounding weight, so a mis-scaled blend could move non-landmark coordinates without improving the shape-coupled endpoint contrast; the dose is kept at 0.5 rather than 1.0 to bound this.",
+    "Sparse-ancestry survivor bias (349/700 nodes with fewer than 3 ancestors, at most 2 teachers per batch) means any observed-teacher time slice may reflect survivor composition rather than genuine lineage quality, so the temporal teacher term may not generalize.",
+    "The information-audit alignment metrics are observational and explicitly not a fitted or validated affinity predictor, so the expected advantage is directional only and no realized affinity improvement can be claimed.",
+    "No decoded terminal affinity labels are supplied, so last-record survival credit cannot be compared with final affinity benefit; if the blend improves survival credit without improving final affinity, the affinity-primary objective is not met."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": "C008"
+  },
+  "rationale": "Objective is affinity-primary coordinate control with the endpoint pointcloud reward and native endpoint VJP (Eaa4bda02c9a2c3a1, E0857891f4effbfe1). The strongest reproducible endpoint signal is shape-coupled (shape_yy integrated z about -0.51, positive batch fraction 0.0, q about 1.5e-5; shape_xx integrated z about -0.50, positive batch fraction 0.07, q about 8e-4), while global centroid components are weak or inconsistent (E3114d60bf4cd5720, Ecbb36ef90768cba0, Ed9b75ded9192a9b0, E52fcd92a3390dbcf, Ee92b78bec6fdbbb4). This supports H001 (time-conditioned regional attention toward shape-coupled landmark regions) and H002 (deprioritize centroid translation). Among registered choices, C008 (temporal_teacher_blend 0.5) is the only offered edit that changes the teacher coordinate/attention recipe at observed score nodes while preserving the same static teachers, shared FLOWR endpoint and fixed temperatures; it is a coordinate reward, not a velocity target. C007 (0.25) is a weaker dose of the same registered recipe and C009 (1.0) fully replaces the static term, which risks over-committing to a single observed-teacher time slice given the thin ancestral coverage (349/700 nodes with fewer than 3 ancestors, at most 2 teachers per batch) and the observational, non-predictive information-audit metrics (Ed0d7945bdeeda8f1, E2bb8390452ed517a). C001-C003 change pointcloud_delta_A, which alters the robust kernel curvature rather than the teacher coordinate observable, and C004-C006 change teacher_neighbors, a count rather than a distance bandwidth; neither is tied to the shape-versus-centroid evidence. C008 is therefore the bounded, evidence-linked edit.",
+  "role": "Designer"
+}
