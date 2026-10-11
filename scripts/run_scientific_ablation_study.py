@@ -41,6 +41,14 @@ class ScientificStudy(Study):
                 k:self.state.get(k) for k in ["phase","task","active_role","active_chain","error","error_type","updated_unix"]})
 
     def preflight(self):
+        interface=self.config.get("agent_interface","direct-v4")
+        if interface not in {"direct-v4","evidence-tools-v1"}:
+            raise ValueError("Unknown scientific agent interface")
+        existing=self.state.get("agent_interface","direct-v4" if self.state.get("api_calls",0) else interface)
+        if interface!=existing:
+            raise ValueError("Agent interface cannot change within an active study; use a separately versioned study")
+        self.interface_mode=interface
+        self.state["agent_interface"]=interface
         activation=validate_activation(self.repo,self.study)
         error_policy=self.study/"execution_error_policy.json"
         if self.config.get("module_error_policy")!="skip_and_keep_current":
@@ -113,7 +121,8 @@ for p in root.rglob('*.json'):
         cached=output.exists() and output.with_suffix(".receipt.json").exists()
         self.save(status="calling_real_api",task=case,active_role=role,active_chain=chain)
         try:
-            result=call_role(self.repo,self.study,case,chain,role,active,**kwargs)
+            result=call_role(self.repo,self.study,case,chain,role,active,
+                             interface_mode=getattr(self,"interface_mode","direct-v4"),**kwargs)
         except (LLMInterfaceError, jsonschema.ValidationError, ValueError) as error:
             raise ModuleExecutionError(case,"role_response",error,role=role,chain=chain) from error
         if not cached:self.state["api_calls"]+=1
@@ -190,7 +199,8 @@ for p in root.rglob('*.json'):
         functional=None
         try:
             self._budget()
-            functional=review(self.study,case,role,focal or active)
+            functional=review(self.study,case,role,focal or active,
+                              interface_mode=getattr(self,"interface_mode","direct-v4"))
             self.state["api_calls"]+=1
         except ExecutionBudgetExceeded:
             raise

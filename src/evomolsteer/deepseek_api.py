@@ -111,7 +111,8 @@ def unused_path(output, template):
 
 def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
               transport=None, attempts=3, sleep=time.sleep, input_store=None, max_output_tokens=8192,
-              response_validator=None):
+              response_validator=None, response_parser=None, format_policy=FORMAT_POLICY,
+              format_builder=None):
     if model != "deepseek-flash":
         raise ValueError("This study requires exactly deepseek-flash; no fallback")
     if attempts < 1:
@@ -148,14 +149,27 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
                 raise ValueError("Existing call belongs to different instructions; original request preserved")
         else:
             write_json(path, stored)
-    store_request(body, request_path)
+    if response_parser is not None and format_policy == FORMAT_POLICY:
+        raise ValueError("A custom parser requires a versioned format policy")
+    store_request(body, request_path, policy=None if format_policy == FORMAT_POLICY else format_policy)
     if receipt_path.exists() and output.exists():
         receipt = read_json(receipt_path)
         if receipt["request_sha256"] != digest(request_path):
             raise ValueError("Existing call belongs to different instructions")
         if receipt.get("response_sha256") != digest(output):
             raise ValueError("Cached response checksum mismatch")
-        result = read_json(output)
+        result = (response_parser(output.read_text(encoding="utf-8"))
+                  if response_parser is not None else read_json(output))
+        if format_policy != FORMAT_POLICY:
+            raw = output.parent / receipt.get("raw_response_path", "")
+            if (receipt.get("format_policy") != format_policy or not raw.is_file() or
+                raw.resolve().parent != output.parent.resolve() or
+                digest(raw) != receipt.get("raw_response_sha256")):
+                raise ValueError("Cached raw API response/protocol checksum mismatch")
+            raw_result = (response_parser(raw.read_text(encoding="utf-8")) if response_parser is not None
+                          else json.loads(raw.read_text(encoding="utf-8")))
+            if raw_result != result:
+                raise ValueError("Cached extraction differs from raw API response")
         jsonschema.validate(result, schema)
         # Cached schema-valid responses can still violate source/quote
         # contracts. Never silently accept, replace, or retry such a cache.
@@ -170,10 +184,11 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
     # Keep the scientific request/hash stable. Record the complete wire request
     # separately so cached v1 successes remain readable and prompt changes are
     # visible in receipts, rather than being hidden in the old request file.
-    wire_messages = messages + [{"role": "user", "content": format_message(schema)}]
+    builder = format_builder or format_message
+    wire_messages = messages + [{"role": "user", "content": builder(schema)}]
     body = dict(body, messages=wire_messages)
     wire_path = unused_path(output, ".wire_{index}.request.json")
-    store_request(body, wire_path, policy=FORMAT_POLICY)
+    store_request(body, wire_path, policy=format_policy)
     http_attempts = 0
     endpoint = "https://api.deepseek.com/chat/completions"
     with httpx.Client(timeout=timeout, transport=transport, trust_env=True) as client:
@@ -214,9 +229,15 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
                     "provider_request_id": wire.get("id"), "valid": False})
                 raise ValueError("Provider returned a different model; fallback is prohibited")
             content = choice["message"]["content"]
+            if format_policy != FORMAT_POLICY and content is None:
+                # Some JSON-mode empty answers have null content. Treat them as
+                # empty text and use the same bounded neutral format repair.
+                content = ""
+            if format_policy != FORMAT_POLICY and not isinstance(content, str):
+                raise ValueError("Provider content is not text; no valid JSON response")
             result = None
             try:
-                result = json.loads(content)
+                result = (response_parser(content) if response_parser is not None else json.loads(content))
                 jsonschema.validate(result, schema)
                 if response_validator is not None:
                     response_validator(result)
@@ -228,23 +249,28 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
                     "provider": "DeepSeek", "returned_model": wire.get("model"),
                     "usage": wire.get("usage"), "provider_request_id": wire.get("id"),
                     "error_type": type(error).__name__, "diagnostics": diagnostics,
-                    "format_policy": FORMAT_POLICY, "http_attempt": http_attempts,
+                    "format_policy": format_policy, "http_attempt": http_attempts,
                     "valid": False, "content_sha256": digest(invalid_path)})
                 if interface_attempt:
                     raise LLMInterfaceError(diagnostics, output) from None
                 body = dict(body, messages=wire_messages + [
                     {"role": "assistant", "content": content},
-                    {"role": "user", "content": format_message(schema, diagnostics)}])
+                    {"role": "user", "content": builder(schema, diagnostics)}])
                 repair_path = unused_path(output, ".repair_{index}.request.json")
-                store_request(body, repair_path, policy=FORMAT_POLICY)
+                store_request(body, repair_path, policy=format_policy)
                 repairs.append({"request_sha256": digest(repair_path), "path": repair_path.name})
                 continue
+            raw_path = None
+            if format_policy != FORMAT_POLICY:
+                raw_path = unused_path(output, ".raw_{index}.txt")
+                raw_path.write_text(content, encoding="utf-8")
             write_json(output, result)
             write_json(receipt_path, {
                 "provider": "DeepSeek", "endpoint": endpoint,
                 "requested_model": model, "returned_model": wire.get("model"),
                 "request_sha256": digest(request_path), "wire_request_sha256": digest(wire_path),
-                "wire_request_path": wire_path.name, "format_policy": FORMAT_POLICY,
+                "wire_request_path": wire_path.name, "format_policy": format_policy,
+                **({"raw_response_path": raw_path.name, "raw_response_sha256": digest(raw_path)} if raw_path else {}),
                 "response_sha256": digest(output), "usage": wire.get("usage"),
                 "provider_request_id": wire.get("id"), "attempts": http_attempts,
                 "interface_repairs": repairs,

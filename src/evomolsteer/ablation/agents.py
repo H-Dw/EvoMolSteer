@@ -131,7 +131,14 @@ def validate_evidence_citations(result, known):
 
 
 def call_role(repo, study, case, chain, role, active, *, alternative=None,
-              analyst=None, incumbent=None, lane="G", delivery=None, caller=call_json):
+              analyst=None, incumbent=None, lane="G", delivery=None, caller=call_json,
+              interface_mode="direct-v4"):
+    if interface_mode == "evidence-tools-v1":
+        from evomolsteer.agent_workflow.ablation_adapter import call_role_tools
+        return call_role_tools(repo, study, case, chain, role, active, alternative=alternative,
+                               analyst=analyst, incumbent=incumbent, lane=lane, delivery=delivery, caller=caller)
+    if interface_mode != "direct-v4":
+        raise ValueError("Unknown agent interface version")
     repo,study=Path(repo),Path(study)
     activation=validate_activation(repo,study)
     protocol=activation["protocol"]
@@ -213,8 +220,13 @@ def validate_review(result, calls, modules):
         first=errors[0];first.context.extend(errors[1:]);raise first
 
 
-def review(study, case, role, focal_ids, *, caller=call_json):
+def review(study, case, role, focal_ids, *, caller=call_json, interface_mode="direct-v4"):
     """Assess actual functions in full/drop/alternative without condition labels."""
+    if interface_mode == "evidence-tools-v1":
+        from evomolsteer.agent_workflow.ablation_adapter import review_tools
+        return review_tools(study, case, role, focal_ids, caller=caller)
+    if interface_mode != "direct-v4":
+        raise ValueError("Unknown agent interface version")
     study=Path(study);registry=read_json(study/"module_registry.json")["modules"]
     modules=[m for m in registry if m["role"]==role and m["id"] in focal_ids]
     calls=[read_json(study/"calls"/case/f"chain_{i:02d}"/(role+".json")) for i in range(6)]
