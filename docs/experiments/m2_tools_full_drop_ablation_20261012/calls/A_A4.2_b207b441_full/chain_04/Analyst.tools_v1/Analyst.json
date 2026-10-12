@@ -1,0 +1,113 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities were removed and the label prior is equal-score, so no observed affinity outcome is available to either role.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed support is the learning window [0.0,0.5] with score nodes at 0.00-0.49 in 0.01 steps; the curve-support selection retained 24 features under a rule requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05 and exclusion of a scale floor, with a fidelity rule of relative RMSE <= 0.35, zero strong sign-conflict nodes and quiet-node large-fit fraction <= 0.1.",
+      "evidence_ids": [
+        "clocks",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The information audit reports 14 independent batches and a compressed-choice excess fixed-frame RMS of about 0.081 A (CI95 ~0.070-0.092), with compressed-choice fixed RMS ~0.564 A and proper-rigid RMS ~0.529 A; the audit itself states these are not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction, not a causal affinity effect.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Teacher-score correlations are weak and observational: compressed chosen-teacher score correlation ~0.102 (CI95 ~0.065-0.140) and full chosen-teacher score correlation ~0.064 (CI95 ~0.021-0.103), with top4 teacher overlap ~0.470; the audit explicitly flags these as not a fitted or independently validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Lineage support covers 14 complete-survival batches over 700 total batch nodes, but ancestral coverage is sparse: 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch; terminal metadata show a single future-resampling node per batch at terminal score time 0.99 and state time 1.0, outside the observed window.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "Continuous contrast functions are observed-node linear fits with extrapolation disallowed and polynomial fits not accepted; the inspected landmark features show multiple sign changes (4-10) and strong sign conflicts (1-9) with relative node RMSE from ~0.29 to ~0.78, so a constant rule is not supported and time-conditioned structure is not stably validated across the window.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F006",
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "signed favorable-minus-comparison",
+      "evidence_ids": [
+        "curve_support",
+        "information_audit"
+      ],
+      "falsifier": "Contrast sign reverses or batch direction fraction falls below the selection threshold on held-out batches.",
+      "id": "H001",
+      "observable": "signed coordinate contrast at observed selection nodes",
+      "scope": "observed window [0.0,0.5], 14 independent batches",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes may carry directional information over the complete observed window, but the evidence supports only selection enrichment of a geometric descriptor, not an absolute geometric target or an affinity benefit."
+    },
+    {
+      "direction": "disagreement affects direction priority",
+      "evidence_ids": [
+        "lineage_support",
+        "information_audit"
+      ],
+      "falsifier": "Decoded terminal labels become available and show survival credit tracks final affinity.",
+      "id": "H002",
+      "observable": "selection-node contrast versus descendant survival credit",
+      "scope": "14 complete-survival batches, 700 batch nodes",
+      "statement": "Immediate selection evidence and later survival/quality credit may disagree, and without decoded terminal labels last-record credit cannot be presented as final affinity benefit; the unavailable terminal-affinity comparison should be reported rather than substituted."
+    },
+    {
+      "direction": "no stable monotone direction",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "falsifier": "A validated fit with accepted polynomial and low relative node RMSE and no strong sign conflicts.",
+      "id": "H003",
+      "observable": "contrast value and local rate across observed nodes",
+      "scope": "observed support only, no extrapolation",
+      "statement": "A time-conditioned contrast rule is not supported by the inspected continuous trends because fits are observed-node linear with extrapolation disallowed, polynomial fits rejected, and multiple sign changes and strong sign conflicts present; a constant rule is likewise unsupported."
+    }
+  ],
+  "limitations": [
+    "No current-study outcome data are supplied to the design roles; final predicted target affinity cannot be evaluated here.",
+    "Recorded affinities were removed and the label prior is equal-score, so no observed affinity label is available.",
+    "The information audit metrics are geometric nearest-teacher comparisons, not the full score-weighted reward or its FLOWR Jacobian, and nonnegative excess distance is by construction rather than a causal affinity effect.",
+    "Teacher-score correlations are observational and not a fitted or independently validated affinity predictor.",
+    "Terminal metadata lie outside the observed window (score time 0.99, state time 1.0), so last-record credit is not decoded terminal affinity benefit.",
+    "Ancestral coverage is sparse (349 nodes with fewer than 3 ancestors, 531 with fewer than 6), limiting lineage-based inference.",
+    "Continuous trends are observed-node linear with extrapolation disallowed and polynomial fits rejected; sign changes and strong sign conflicts prevent a stable constant or time-conditioned rule.",
+    "No joint covariance, intact-conformation or mode diagnostics were read, so coherent joint-pattern versus isolated-marginal comparison is not supported by the evidence read.",
+    "No population-contrast versus parent-child increment turnover comparison was read, so within-path change versus changing cohort composition is not resolved here."
+  ],
+  "role": "Analyst"
+}

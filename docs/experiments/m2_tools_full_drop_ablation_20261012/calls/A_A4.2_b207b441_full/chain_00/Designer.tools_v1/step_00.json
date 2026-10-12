@@ -1,0 +1,31 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "Eace79c1f0f54c9d1",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "Ec3d5c7e8cb8584c5",
+      "E455d8ea90d2c10e1",
+      "Ed061d96cc23b359b",
+      "E8059a7206f447cdc",
+      "E887f2d11255b77af"
+    ],
+    "failure_modes": [
+      "Applying a temporal_teacher blend (C009-C011) would inject an unvalidated time-conditioned contrast into regional attention, risking unnecessary displacement of surrounding coordinates without demonstrated affinity benefit.",
+      "Changing pointcloud_delta_A (C001-C003) or teacher_neighbors (C005-C007) without spatial-scale or dispersion evidence could alter the reward curvature or teacher mixture in an unsupported direction.",
+      "Treating the observed early/late rate reversal as a spatial coordinate gradient would mis-specify the reward, since it is a temporal derivative of a contrast, not a coordinate force.",
+      "No decoded terminal labels or current-study outcome data are available, so any predicted numerical affinity response would be unsupported."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.1/D1.2: H001 is the only hypothesis with a registered operative counterpart, the temporal_teacher recipe (C009-C011), which changes regional attention at observed score nodes using validated absolute contrasts while keeping the same static teachers and shared FLOWR endpoint. The evidence (E2e106e083189d150, E03ad082bb04f4f9c, Eace79c1f0f54c9d1) shows large early-to-late rate sign reversals with multiple sign changes, but polynomial_accepted=false and no extrapolation, so no validated functional form exists to predict a numerical response; the observed rate reversal is a temporal derivative of the contrast, not a spatial coordinate gradient, and cannot be converted into a predicted displacement magnitude. D2.1: the only registered spatial-scale choices are pointcloud_delta_A (C001-C003) and region_index (C004); the incumbent already uses delta=1.0 A, and no supplied spatial-scale or uncertainty evidence distinguishes 0.5/1.0/2.0 A curvature, so no defensible expected response range can be stated. D2.2: teacher_neighbors (C005-C007) is a count, not a distance bandwidth; the incumbent uses 4, and no intact-teacher dispersion or joint-geometry evidence was read to justify narrower (2) or broader (8) neighborhoods or to assess mode coverage. D4.1: H002's shape_yy/shape_xx contrasts (Ec3d5c7e8cb8584c5, E455d8ea90d2c10e1) remain non-significant after multiplicity adjustment (q=0.153, q=0.232), and centroid contrasts (Ed061d96cc23b359b, E8059a7206f447cdc, E887f2d11255b77af) are indistinguishable from zero, so no registered edit has a defensible expected advantage over the incumbent. D4.2: the predicted failure of any temporal-blend edit is unnecessary displacement of surrounding coordinates driven by an unvalidated time-conditioned contrast, which under the affinity-first priority cannot be justified without terminal affinity evidence. Retaining the incumbent is therefore the evidence-supported choice.",
+    "role": "Designer"
+  }
+}

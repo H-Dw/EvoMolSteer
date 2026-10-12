@@ -1,0 +1,30 @@
+{
+  "decision": "edit",
+  "edit_choice": "C010",
+  "evidence_refs": [
+    "E03ad082bb04f4f9c",
+    "E1ba2a68ba5243c03",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "Ed061d96cc23b359b",
+    "E8059a7206f447cdc",
+    "E887f2d11255b77af",
+    "E455d8ea90d2c10e1",
+    "Ec3d5c7e8cb8584c5",
+    "E7e61e91ec1e2e406"
+  ],
+  "failure_modes": [
+    "If the observed-node contrast is dominated by noise rather than a reproducible sign reversal, the time-conditioned term will inject a spurious alternating component into the endpoint reward and displace surrounding coordinates without improving final predicted affinity; the falsifier in H001 (a constant rule matching the observed-node contrast as well as the time-conditioned rule) would then hold.",
+    "Because the contrast curve is non-monotone with strong sign conflicts and no accepted polynomial, a blend of 0.5 may still over-weight the late-window reversal relative to the early-window behavior, producing unnecessary displacement of surrounding coordinates near the landmark region and degrading secondary validity/strain metrics even if affinity is unchanged.",
+    "The temporal recipe changes only regional attention at observed score nodes; if the observed support ends at 0.5 and native inference continues beyond it, the time-conditioned term provides no registered contrast outside the observed window, so any benefit is confined to the observed support and cannot be extrapolated.",
+    "No decoded terminal labels or final affinity outcomes are supplied, so the expected affinity advantage of C010 over the incumbent static teacher is inferred from coordinate-contrast evidence alone and remains unverified against the primary objective."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Analyst's temporal evidence (F002/F003, H001) shows the landmark local contrast features are non-monotone within the observed window [0.0,0.5]: landmark_00_local_dy and landmark_00_local_cyy have large early-window rate magnitudes that reverse sign by the last observed node, with multiple sign changes and strong sign conflicts, and no polynomial fit was accepted with extrapolation disallowed. A stationary coordinate target (the incumbent static teacher, blend=0) cannot reproduce this sign-reversing observed-node contrast, whereas the registered temporal_teacher recipe (1-blend)*R_static + blend*R_observed_teacher(time) changes only the regional attention at observed score nodes using the same shared FLOWR endpoint and the same static teachers, with no velocity target and no temperature edit. Among the offered temporal_teacher_blend choices, C010 (0.5) is the defensible middle dose: it conditions the reward on the observed-node contrast while retaining half the static teacher, so the shared learned support and teacher provenance are preserved and the change is confined to the registered scalar/attention term rather than teacher coordinates or dose. C011 (1.0) would discard the static teacher entirely and over-commit to a contrast curve that is itself non-monotone and multiplicity-untested, and C009 (0.25) would leave the sign-reversing behavior largely unexpressed. The spatial evidence (F004/F005, H002) does not support a competing spatial edit: centroid raw-covariance effects are null and shape-covariance effects do not survive multiplicity adjustment, so no distance-curvature or spatial-emphasis change (C001-C003) or teacher-neighbor count change (C005-C007) has a defensible expected advantage over the incumbent. This is a coordinate-reward edit only; it is not a claim of physical interaction energy or neural-module causation, and final predicted affinity remains primary with validity and strain evaluated separately.",
+  "role": "Designer"
+}

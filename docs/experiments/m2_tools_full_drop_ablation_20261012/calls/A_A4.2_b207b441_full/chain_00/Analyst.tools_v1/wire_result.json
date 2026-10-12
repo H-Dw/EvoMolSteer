@@ -1,0 +1,75 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts are not physical interaction energies.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Continuous contrast functions over the observed window [0,0.5] show sign changes and rate reversals for landmark local coordinate features: e.g. landmark_00_local_dy has first_rate_z -72.4 and last_rate_z +5.5 with 6 sign changes, and landmark_00_local_dx has first_rate_z -17.5 and last_rate_z +8.1 with 6 sign changes. These are time-conditioned, not constant, rules, and no extrapolation is allowed.",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "Eace79c1f0f54c9d1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Landmark soft-mass (landmark_00_soft_mass) shows a strong early positive rate (first_rate_z 9.27) reversing to a strong negative late rate (last_rate_z -10.0) with 4 sign changes and one strong sign conflict, indicating a supported time-conditioned contrast rather than a constant rule.",
+      "evidence_refs": [
+        "E2e106e083189d150"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Branch-adjusted raw-covariance contrasts for global centroid coordinates are not distinguishable from zero (global_centroid_x p=0.60, y p=0.55, z p=0.95; all q>0.69), so centroid position provides no multiplicity-adjusted support for a coordinate hypothesis.",
+      "evidence_refs": [
+        "Ed061d96cc23b359b",
+        "E8059a7206f447cdc",
+        "E887f2d11255b77af"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Shape covariance contrasts are the only branch-adjusted features approaching significance: shape_yy has p=0.048 with 78.6% same-sign batches and negative whole-window mean, and shape_xx has p=0.096 with 78.6% same-sign batches; both remain non-significant after multiplicity adjustment (q=0.153 and q=0.232).",
+      "evidence_refs": [
+        "Ec3d5c7e8cb8584c5",
+        "E455d8ea90d2c10e1"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast on landmark local coordinate features",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "Eace79c1f0f54c9d1"
+      ],
+      "falsifier": "A constant-rule fit achieving equal or lower relative node RMSE than the observed-node linear time-conditioned fit, or absence of the early/late rate sign reversal in held-out observed nodes.",
+      "observable": "landmark_00_local_dy and landmark_00_local_dx contrast values at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted_endpoint_world_A_features",
+      "statement": "A time-conditioned contrast rule on landmark local coordinate features (e.g. landmark_00_local_dy and landmark_00_local_dx) would express the observed early-negative/late-positive rate reversal better than a constant rule, since both features show large first-to-last rate sign flips with multiple sign changes."
+    },
+    {
+      "direction": "negative shape_yy / shape_xx covariance contrast",
+      "evidence_refs": [
+        "Ec3d5c7e8cb8584c5",
+        "E455d8ea90d2c10e1"
+      ],
+      "falsifier": "Multiplicity-adjusted q remaining above the declared threshold, or same-sign batch fraction dropping toward 0.5 in additional independent batches.",
+      "observable": "branch_mutation raw_covariance for shape_yy and shape_xx",
+      "scope": "whole observed window, 14 independent batches",
+      "statement": "A shape-covariance-oriented coordinate contrast (shape_yy, shape_xx) is the most plausible branch-level coordinate hypothesis, since these are the only branch-adjusted features with same-sign batch fractions near 0.79 and the smallest p-values."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or current-study outcome data are supplied, so last-record or survival credit cannot be presented as final affinity benefit; the immediate-selection versus descendant-survival comparison is unavailable.",
+    "Continuous trend rows report observed-node linear fits with polynomial_accepted=false and no extrapolation; no validated parametric fit is available to justify a specific time-conditioned functional form.",
+    "Branch-adjusted and continuous-trend evidence are diagnostic coordinate contrasts, not physical interaction energies or evidence of neural-module causation.",
+    "No joint-diagnostics, turnover-accounting, survival, endpoint or increment rows were read in this analysis, so coupling, cohort-composition and terminal-credit questions remain unaddressed."
+  ],
+  "role": "Analyst"
+}

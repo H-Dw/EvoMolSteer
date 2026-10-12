@@ -1,0 +1,76 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-coordinate contrasts over the observed window are dominated by shape (second-moment) descriptors rather than centroid translation: shape_yy shows the strongest negative high-low integrated effect with zero positive batches, and shape_xx is similarly negative, while global_centroid_x and global_centroid_z are indistinguishable from zero.",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "global_centroid_y carries a small but multiplicity-surviving negative endpoint effect, but its positive-batch fraction is low and its score correlation is weak, so it is a selection-enrichment contrast rather than an absolute geometric target.",
+      "evidence_ids": [
+        "endpoint_effects:1"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous landmark contrast functions are non-monotone across the observed support: several features show multiple sign changes and large first-to-last rate reversals (e.g. landmark_00_local_dy and landmark_00_local_dx), and no polynomial fit is accepted, so a constant rule is not supported and only observed-node interpolation is licensed.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:1",
+        "continuous:0",
+        "continuous:3"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The learning window is [0.0,0.5] with observed score times on a 0.01 grid and recorded affinities removed under an equal score prior, so all contrasts are relative selection evidence and cannot be read as absolute affinity benefit.",
+      "evidence_ids": [
+        "clocks",
+        "objective"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase late-window weight on shape_yy/shape_xx contrast",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "continuous:0"
+      ],
+      "falsifier": "no change or opposite-sign shift in shape_yy/shape_xx integrated effect versus the static incumbent at matched dose",
+      "id": "H001",
+      "observable": "endpoint shape_yy and shape_xx high-low integrated z",
+      "scope": "observed window [0.0,0.5], predicted endpoint world coordinates",
+      "statement": "A time-conditioned regional attention recipe that up-weights the observed-node contrast for shape_yy/shape_xx late in the window will shift the endpoint pointcloud toward the favorable shape direction more than a constant static rule."
+    },
+    {
+      "direction": "blend static and observed-teacher reward using the validated local_dy curve",
+      "evidence_ids": [
+        "continuous:2",
+        "clocks"
+      ],
+      "falsifier": "blend produces contrast values outside the observed-node range or fails to reduce node RMSE",
+      "id": "H002",
+      "observable": "landmark_00_local_dy observed-node contrast",
+      "scope": "observed score nodes only, no extrapolation",
+      "statement": "The non-monotone landmark_00_local_dy contrast reflects within-path coordinate change rather than cohort reclassification, so a temporal teacher blend keyed to that feature should track the observed-node curve without extrapolation."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied, so last-record/survival credit cannot be presented as final affinity benefit.",
+    "Turnover, increment and joint-diagnostic tables were not read in this budget; within-path change versus cohort composition remains unresolved.",
+    "Contrast curves are relative selection evidence, not absolute reward targets or physical interaction energies."
+  ],
+  "role": "Analyst"
+}

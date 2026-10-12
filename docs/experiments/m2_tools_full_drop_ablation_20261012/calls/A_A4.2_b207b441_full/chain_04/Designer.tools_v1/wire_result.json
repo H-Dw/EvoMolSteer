@@ -1,0 +1,31 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "Ed4e7d28e7b0423e0",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Selecting a temporal_teacher_blend (C009-C011) would add a time-conditioned coordinate reward whose direction is not stably validated: the continuous trends show multiple sign changes and strong sign conflicts with extrapolation disallowed, so the blend could displace surrounding coordinates in an unsupported direction without any demonstrated affinity benefit.",
+    "Changing pointcloud_delta_A (C001-C003) would alter the endpoint pointcloud curvature based only on a geometric nearest-teacher RMS that the audit itself says is not the score-weighted reward or its FLOWR Jacobian; a smaller delta would sharpen the reward toward nearest-teacher matching and a larger delta would flatten it, neither with a validated affinity response.",
+    "Changing teacher_neighbors (C005-C007) would treat a teacher count as a distance bandwidth; with at most 2 teachers per batch and sparse ancestral coverage, increasing k would mix in weakly supported teachers and decreasing k would over-concentrate on a single nearest teacher, risking unnecessary displacement of surrounding coordinates.",
+    "Changing region_index or temporal_region_index (C004, C008) would shift regional attention without any read joint-covariance, intact-conformation or mode diagnostic, so mode coverage and competing directions cannot be assessed and the edit could suppress a productive region.",
+    "Any edit here would be justified by coordinate-graph or geometric-descriptor evidence alone, which is not a failure mechanism for affinity; treating it as one would violate the affinity-first priority and the task's statement that coordinate graph changes alone are not a failure mechanism."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H003"
+  ],
+  "rationale": "Objective is affinity-primary with coordinate control only, and no observed affinity outcome is available (Eaa4bda02c9a2c3a1, E0857891f4effbfe1), so any edit must be justified by coordinate evidence alone. The offered choices are bounded declarative edits: pointcloud_delta_A (C001-C003) changes the executed endpoint pointcloud curvature, region_index (C004) and temporal_region_index (C008) change regional attention, teacher_neighbors (C005-C007) changes the teacher count k, and temporal_teacher_blend (C009-C011) mixes a time-conditioned observed-teacher coordinate reward. D1.1/D1.2: the only temporal evidence is the continuous-trend table, which is observed-node linear with extrapolation disallowed, polynomial fits rejected, and multiple sign changes with strong sign conflicts (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03); H003 states no stable monotone or constant direction is supported, so a time-conditioned teacher blend (C009-C011) cannot be predicted to improve the coordinate observable, and a stationary target is not distinguishable from the alternatives on this evidence. D2.1/D2.2: the only spatial-scale evidence is the information audit, which reports compressed-choice excess fixed-frame RMS ~0.081 A (CI95 ~0.070-0.092) against compressed-choice fixed RMS ~0.564 A and proper-rigid RMS ~0.529 A, and explicitly states these are geometric nearest-teacher comparisons, not the score-weighted reward or its FLOWR Jacobian, with nonnegative excess distance by construction (E2bb8390452ed517a). That does not license a distance-response curvature change (C001-C003) or a narrower/broader teacher neighborhood (C005-C007); teacher_neighbors is a count, not a bandwidth, and the audit's weak observational teacher-score correlations (~0.102 and ~0.064) are not a validated affinity predictor. D4.1/D4.2: lineage support shows sparse ancestral coverage (349 nodes with fewer than 3 ancestors, 531 with fewer than 6) and terminal metadata outside the observed window (Ed0d7945bdeeda8f1), so survival/last-record credit cannot be read as final affinity benefit (H002); the curve-support selection rule is an enrichment criterion for a geometric descriptor, not an absolute geometric target (Ed4e7d28e7b0423e0, H001). No offered edit has a defensible expected advantage over the incumbent under the affinity-first priority, and the incumbent already uses teacher_neighbors=4, pointcloud_delta_A=1.0 and no temporal blend, so retaining the incumbent is the evidence-supported choice. Temperatures remain fixed and no temperature edit is proposed.",
+  "role": "Designer"
+}
