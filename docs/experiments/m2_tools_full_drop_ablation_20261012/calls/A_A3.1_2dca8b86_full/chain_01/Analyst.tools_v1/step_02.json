@@ -1,0 +1,77 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The learning window is the observed score-time grid 0.0-0.49 with curve support 0.0-0.49 and recorded affinities removed under an equal score prior, so all coordinate contrasts are selection/score-clock observations rather than absolute affinity measurements.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast features are observed-node linear fits with extrapolation disallowed and polynomial fits not accepted; several landmark local features show large first-to-last rate reversals (e.g. landmark_00_local_dy first_rate_z -72.4 to last_rate_z +5.5; landmark_00_local_cyy -36.5 to +17.1) with multiple sign changes and strong sign conflicts, indicating time-conditioned rather than constant contrast behavior.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03",
+          "Eace79c1f0f54c9d1"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Fit fidelity varies across features: landmark_00_soft_mass has relative node RMSE 0.286 with whole-window z 0.639, while landmark_00_local_dx has RMSE 0.782 with 9 strong sign conflicts and whole-window z -0.184, so point-estimate ranking alone would over-rank the poorly fit local derivative features relative to the better-fit soft-mass feature.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Landmark_00_local_dz shows 10 sign changes and 7 strong sign conflicts with whole-window z near zero (-0.024), so its marginal descriptor carries little coherent whole-window information and should not be treated as a stable directional target.",
+        "evidence_refs": [
+          "E894225fb605458cb"
+        ],
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03"
+        ],
+        "falsifier": "A constant-sign rule matching the observed-node contrast trajectory within fit RMSE would falsify the need for time conditioning.",
+        "observable": "landmark_00_local_dy and landmark_00_local_cyy contrast values at observed score nodes",
+        "scope": "observed window 0.0-0.49 only; no extrapolation",
+        "statement": "A time-conditioned contrast rule that follows the observed-node contrast trajectory of landmark_00_local_dy and landmark_00_local_cyy (sign-reversing, rate-changing) would express the observed within-window change better than a constant-sign rule, because the observed-node linear fits show large first-to-last rate reversals with multiple sign changes."
+      },
+      {
+        "direction": "prefer better-fit, lower-conflict features",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb"
+        ],
+        "falsifier": "If local derivative features had equal or better fit fidelity and fewer conflicts, the ranking would not change.",
+        "observable": "relative_node_RMSE and strong_sign_conflicts per feature",
+        "scope": "supplied continuous_trends rows only",
+        "statement": "Prioritizing landmark_00_soft_mass over the poorly fit local derivative features for coordinate hypotheses would change the ranking relative to point estimates alone, because soft_mass has lower relative node RMSE and fewer strong sign conflicts than local_dx/local_dz."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or final affinity outcomes are supplied, so last-record or survival credit cannot be presented as final affinity benefit; the descendant-survival versus immediate-selection comparison is unavailable.",
+      "No joint_diagnostics, regional_effects, survival_effects, increment_effects or turnover_accounting rows were read in this turn, so coupling, redundancy, ancestral coverage and survivor-bias questions remain unassessed.",
+      "Contrast curves are coordinate contrasts, not absolute reward targets or physical interaction energies; no neural-module causation is claimed.",
+      "Temperatures are immutable task parameters and were not proposed or edited."
+    ],
+    "role": "Analyst"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E1ba2a68ba5243c03",
+      "E894225fb605458cb"
+    ],
+    "failure_modes": [
+      "If a temporal_teacher blend were compiled, the observed-teacher coordinate reward could displace surrounding coordinates at observed score nodes without evidence of affinity gain, since the blend changes only a scalar and the evidence is coordinate-contrast, not affinity outcome.",
+      "If a narrower or broader teacher_neighbors choice were compiled, mode coverage could shift without a distance-bandwidth justification; neighbor count is not a bandwidth and no joint-geometry evidence was read to support a change.",
+      "If a pointcloud_delta_A curvature change were compiled, the distance-response curvature would change the endpoint MSD shaping without supplied spatial-scale or uncertainty evidence supporting the direction.",
+      "Treating the temporal derivative of a contrast feature as a spatial coordinate gradient would be an invalid inference; the supplied contrasts are score-clock observations, not velocity forces."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Objective is affinity-primary coordinate control with the endpoint pointcloud reward and detached Hungarian endpoint MSD (Eaa4bda02c9a2c3a1); the learning window is the observed score grid 0.0-0.49 with recorded affinities removed under an equal score prior (E0857891f4effbfe1), so all contrasts are score-clock observations, not absolute affinity measurements. Analyst's temporal evidence (H001) shows sign-reversing, rate-changing observed-node contrast trajectories for landmark_00_local_dy and landmark_00_local_cyy (E03ad082bb04f4f9c, E1ba2a68ba5243c03), and H002 shows the better-fit, lower-conflict feature is landmark_00_soft_mass (E2e106e083189d150) while local derivative features are poorly fit with many strong sign conflicts (Eace79c1f0f54c9d1, E894225fb605458cb). The registered temporal_teacher choices (C009-C011) change only a blend scalar toward an observed-teacher coordinate reward at observed score nodes; they do not change teacher coordinates, regional attention, or dose, and the temporal_region choice (C008) changes only regional attention. No supplied evidence quantifies an expected affinity gain from any of these blends, and the incumbent already uses static teachers with teacher_neighbors=4 and pointcloud_delta_A=1.0. Because the objective is affinity-primary and the evidence is coordinate-contrast only, with no decoded terminal labels or final affinity outcomes, no registered edit has a defensible expected advantage over the incumbent. Retaining the incumbent is the evidence-supported choice; the temporal-conditioning question remains a limitation rather than a compiled edit. Temperatures are immutable and were not proposed.",
+    "role": "Designer"
+  }
+}

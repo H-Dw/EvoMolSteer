@@ -1,0 +1,84 @@
+{
+  "findings": [
+    {
+      "claim": "The supplied continuous contrast functions are observed-node linear fits over the complete observed window [0.0,0.5]; no polynomial fit was accepted for the landmark_00 features read, and extrapolation is disallowed, so these curves are descriptive within-support contrasts rather than absolute reward targets.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The landmark_00 local coordinate contrasts are non-monotone: each read feature shows multiple sign changes (4-10) with strong sign conflicts (1-9) and large first-vs-last rate z-scores of opposite sign, so a constant rule is not supported and a time-conditioned rule is the better description of the observed support.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Whole-window z-scores for the read landmark_00 features are small in magnitude (|z| < 0.65) and mixed in sign, so the net whole-window coordinate contrast is weak even where local rates are large; local rate evidence should not be presented as a whole-window effect.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control, and the observed label semantics are recorded affinities removed with an equal score prior, so no observed affinity benefit can be claimed from these coordinate contrasts.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned regional attention on landmark_00 local coordinates",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "falsifier": "a constant regional weight matches or exceeds the time-conditioned rule in observed-node fit fidelity across the window",
+      "observable": "observed-node contrast value at landmark_00 local coordinate features over [0.0,0.5]",
+      "scope": "observed window only; no extrapolation",
+      "statement": "A time-conditioned regional attention recipe that follows the observed-node contrast sign changes at landmark_00 local coordinates will track the observed contrast better than a constant regional weight over the observed window."
+    },
+    {
+      "direction": "regional attention with surrounding-coordinate freedom",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E1ba2a68ba5243c03",
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "falsifier": "conditioning on the local landmark contrast degrades whole-window contrast or regional diagnostics relative to the incumbent static regional weight",
+      "observable": "whole-window z of landmark_00 features and regional effect diagnostics",
+      "scope": "observed window only",
+      "statement": "Retaining freedom for the surrounding coordinates of the landmark_00 region while conditioning attention on the local landmark contrast will preserve the weak whole-window net contrast without forcing an unsupported absolute geometric target."
+    }
+  ],
+  "limitations": [
+    "Only the first six continuous_trends rows (landmark_00 features) were read; the remaining 194 curve features and the branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, regional_effects, survival_effects and turnover_accounting tables were not inspected in this turn.",
+    "No decoded terminal labels or current-study outcome data are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "The read contrasts are coordinate features in predicted endpoint world A; they are not physical interaction energies and do not establish neural-module causation.",
+    "No uncertainty/multiplicity-adjusted ranking across coordinate hypotheses was performed because the relevant adjusted-support tables were not read."
+  ],
+  "role": "Analyst"
+}

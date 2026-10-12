@@ -1,0 +1,82 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud with a detached Hungarian endpoint mean squared distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The observed support is the learning window [0.0, 0.5] with 50 observed score times at 0.01 spacing, and the label semantics are recorded affinities removed with an equal score prior; therefore no decoded terminal affinity labels are supplied and last-record or survival credit cannot be presented as final affinity benefit.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Curve support is restricted to 24 selected features under an explicit selection rule requiring absolute integrated z at least 0.1, batch direction fraction at least 0.857, exclusion of a scale floor and q below 0.05, with a fidelity rule of relative RMSE at most 0.35, quiet-node large-fit fraction at most 0.1 and zero strong sign conflicts; this is a selection-enrichment criterion, not an absolute geometric descriptor.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Continuous contrast functions over the observed window show sign changes and rate reversals rather than a constant rule: for example landmark_00_soft_mass has four sign changes with a positive first rate z and a negative last rate z, and landmark_00_local_dx has six sign changes with a negative first rate z and a positive last rate z, both with polynomial_accepted false and extrapolation_allowed false.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Several local coordinate contrasts carry many strong sign conflicts and high relative node RMSE, such as landmark_00_local_cxy with nine sign changes, fourteen strong sign conflicts and relative node RMSE about 0.87, and landmark_00_local_dy with six sign changes and relative node RMSE about 0.67; these are not validated as stable time-conditioned rules.",
+      "evidence_refs": [
+        "E5d1c4c6e5dbe0cb6",
+        "E03ad082bb04f4f9c"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Some features show low relative node RMSE with few sign conflicts, such as landmark_00_soft_mass at about 0.29 relative node RMSE with one strong sign conflict and landmark_00_local_cyy at about 0.41 with one strong sign conflict, so fit fidelity and conflict counts, not point estimates alone, separate candidate coordinate hypotheses.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Ed4e7d28e7b0423e0"
+      ],
+      "falsifier": "No difference in the observed-node contrast response between the constant and time-conditioned rule, or a sign pattern inconsistent with the delivered continuous trend.",
+      "observable": "landmark_00_soft_mass contrast evaluated at observed score nodes",
+      "scope": "observed window [0.0, 0.5] only, no extrapolation",
+      "statement": "A time-conditioned regional attention rule keyed to the observed-node contrast of landmark_00_soft_mass, which changes sign within the observed window, would produce a different coordinate response than a constant static regional rule."
+    },
+    {
+      "direction": "exclude from time-conditioned control",
+      "evidence_refs": [
+        "E5d1c4c6e5dbe0cb6",
+        "E03ad082bb04f4f9c"
+      ],
+      "falsifier": "A validated fit with zero strong sign conflicts and relative node RMSE within the fidelity rule for the same feature.",
+      "observable": "strong sign conflict count and relative node RMSE per feature",
+      "scope": "observed window [0.0, 0.5]",
+      "statement": "Local coordinate contrasts with many strong sign conflicts and high relative node RMSE, such as landmark_00_local_cxy and landmark_00_local_dy, should not be promoted to a time-conditioned reward because their observed-node fits are not validated."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record, survival and terminal-rescoring semantics cannot be equated with final affinity benefit.",
+    "No current study outcome data are available to this role, so no causal selection effect, atom velocity or neural-module causation is claimed.",
+    "Uncertainty, multiplicity-adjusted support and coverage tables were not read in this turn, so the ranking-versus-point-estimate comparison and the joint-versus-marginal coupling comparison remain unsupported here.",
+    "The curve fidelity audit container was delivered only as a summary; its per-feature numeric contents were not read.",
+    "Temperatures are immutable task parameters and no temperature edit is proposed."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,25 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Adopting C009-C011 would blend an observed-node teacher whose contrast is only a linear fit with extrapolation disallowed and multiple sign changes, risking attention that follows noise rather than a validated temporal signal.",
+    "Adopting C001-C003 or C005-C007 without spatial-scale or joint-geometry evidence could displace surrounding coordinates and increase strain without any measurable affinity benefit, since no affinity labels are observed.",
+    "Any temperature edit is an interface violation and was not proposed; the fixed mixture_temperature=0.5 and teacher_endpoint_temperature_A2=4.0 are preserved."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.1/D1.2: The only registered temporal edits are C008 (temporal_region_index), C009-C011 (temporal_teacher_blend) and C004 (region_index); these change regional attention or blend a validated observed-node contrast teacher, not teacher coordinates or dose, and the incumbent already carries teacher_neighbors=4, pointcloud_delta_A=1.0, mixture_temperature=0.5 and teacher_endpoint_temperature_A2=4.0. Analyst's temporal evidence (F003/F005) shows observed-node linear fits with extrapolation_allowed=false, polynomial_accepted=false, multiple sign changes and strong sign conflicts, and unstable endpoint rate z values, so no time-conditioned contrast is validated well enough to justify switching the incumbent's static teacher to a blended observed-teacher recipe; H001's own falsifier (constant weight matching or requiring out-of-support values) is not excluded by the read evidence. D2.1/D2.2: No spatial-scale or uncertainty rows (joint_diagnostics, regional_effects, branch_adjusted, information_audit) were read, so a distance-response curvature or neighborhood-width change (C001-C003, C005-C007) cannot be justified; neighbor count is not a bandwidth and the fixed temperatures are immutable. D4.1/D4.2: With no observed affinity labels (F002) and no decoded terminal, survival or turnover evidence, no registered edit shows a defensible expected affinity advantage over the incumbent, and the affinity-first priority argues against an unvalidated coordinate displacement that could move surrounding coordinates without measurable benefit. Retaining the incumbent is therefore the supported choice; deferral is unnecessary since the incumbent is a valid registered configuration.",
+  "role": "Designer"
+}

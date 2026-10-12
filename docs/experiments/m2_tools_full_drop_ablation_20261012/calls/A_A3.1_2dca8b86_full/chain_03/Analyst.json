@@ -1,0 +1,84 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached-Hungarian endpoint mean squared distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Observed score times span the full learning window [0.0, 0.5] at 0.01 spacing (50 nodes), and the label semantics state recorded affinities were removed with an equal score prior; therefore no observed affinity label exists in this packet and no last-record or terminal credit can be presented as final affinity benefit.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions are reported only as observed-node linear fits over the observed support with extrapolation_allowed=false and polynomial_accepted=false for every row read; several landmark features show multiple sign changes and strong sign conflicts (e.g. landmark_00_local_dz has 10 sign changes and 7 strong sign conflicts; landmark_00_local_dx has 6 sign changes and 9 strong sign conflicts), so a constant rule is not supported and any time-conditioned rule must stay within the observed nodes.",
+      "evidence_ids": [
+        "continuous:3",
+        "continuous:1",
+        "continuous:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Fit fidelity varies strongly across landmark features: relative_node_RMSE ranges from about 0.29 (landmark_00_soft_mass) to about 0.78 (landmark_00_local_dx), so low-RMSE features are the only ones where a smooth observed-node contrast curve is credible, while high-RMSE features should be treated as noisy marginal descriptors.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Whole-window z values for the read landmark features are small in magnitude (about -0.58 to +0.64) while first/last rate z values are large (e.g. -72.4 and +5.5 for landmark_00_local_dy), indicating that endpoint rate estimates are unstable and that whole-window mean contrasts, not endpoint rates, are the more defensible summary.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase",
+      "evidence_ids": [
+        "continuous:0",
+        "clocks"
+      ],
+      "falsifier": "A constant regional weight achieves equal or lower relative_node_RMSE on the same observed nodes, or the time-conditioned rule requires values outside the observed support.",
+      "id": "H001",
+      "observable": "relative_node_RMSE and sign_changes of the landmark contrast under observed-node interpolation",
+      "scope": "observed score nodes 0.0-0.5 only; no extrapolation",
+      "statement": "A time-conditioned regional attention rule that follows the validated observed-node contrast of a low-RMSE landmark feature (e.g. landmark_00_soft_mass) will track the observed contrast better than a constant regional weight, without extrapolating beyond the observed score nodes."
+    },
+    {
+      "direction": "decrease",
+      "evidence_ids": [
+        "continuous:3",
+        "continuous:1"
+      ],
+      "falsifier": "A high-sign-conflict feature shows a stable, reproducible whole-window contrast with consistent sign across independent batches.",
+      "id": "H002",
+      "observable": "sign_changes and strong_sign_conflicts per feature",
+      "scope": "landmark local derivative features over the observed window",
+      "statement": "High-sign-conflict landmark features (e.g. landmark_00_local_dz, landmark_00_local_dx) carry marginal, unstable contrast information and should not be used as direction priorities for coordinate control."
+    }
+  ],
+  "limitations": [
+    "No observed affinity labels are present (recorded affinities removed, equal score prior), so selection enrichment, descendant survival credit and final affinity benefit cannot be compared or claimed.",
+    "No decoded terminal labels, lineage survival or turnover accounting rows were read in this turn; the requested immediate-versus-descendant comparison and parent-child increment residual analysis remain unavailable.",
+    "No joint_diagnostics, regional_effects, branch_adjusted or information_audit rows were read, so multiplicity-adjusted support, coverage ranking and local-versus-global pose separation could not be evaluated.",
+    "Continuous trends are observed-node linear fits with extrapolation disallowed; no validated polynomial or time-binned rule is supported by the evidence read.",
+    "The endpoint pointcloud reward is a coordinate contrast, not a physical interaction energy or evidence of neural-module causation."
+  ],
+  "role": "Analyst"
+}

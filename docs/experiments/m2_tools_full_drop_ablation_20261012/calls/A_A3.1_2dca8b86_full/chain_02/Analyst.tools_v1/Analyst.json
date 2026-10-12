@@ -1,0 +1,62 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts are selection/geometric descriptors rather than physical interaction energies.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Across the observed window [0.0,0.5] the landmark coordinate contrast features show frequent sign changes and strong sign conflicts (e.g. landmark_00_local_dy: 6 sign changes, 4 strong conflicts; landmark_00_local_cxy: 9 sign changes, 14 strong conflicts), so a constant-sign rule is not supported and any time-conditioned rule would need validated fits that are not accepted here (polynomial_accepted=false, extrapolation_allowed=false).",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:0"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "First-to-last rate changes are large and opposite in sign for several features (landmark_00_local_dy first_rate_z=-72.4 to last_rate_z=+5.5; landmark_00_local_cxy first_rate_z=+64.8 to last_rate_z=-19.7), indicating the observed contrast direction is not stable over the window and cannot be extrapolated beyond observed nodes.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Whole-window z values for these landmark features are small relative to the within-window rate excursions (e.g. landmark_00_soft_mass whole_window_z=0.64 with first_rate_z=9.3 and last_rate_z=-10.0), so the net window-level contrast is weak even where local rates are large; point-estimate ranking of these features would overstate support.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7"
+      ],
+      "falsifier": "If a constant-sign rule matches the observed-node contrast as well as the time-conditioned rule, or if no validated fit is accepted, the hypothesis is not supported.",
+      "id": "H001",
+      "observable": "landmark local displacement contrast at observed score nodes",
+      "scope": "observed window [0.0,0.5], observed nodes only",
+      "statement": "A time-conditioned coordinate contrast on a landmark local displacement feature (e.g. landmark_00_local_dy) would track the observed sign reversal within [0.0,0.5] better than a constant-sign rule, but only if a validated fit is available; the registered temporal_teacher recipe (blend of static and observed-teacher endpoint reward) is the permitted expression."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied to this role, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "Continuous trend rows report polynomial_accepted=false and extrapolation_allowed=false, so no extrapolation beyond observed nodes and no arbitrary time bins are justified.",
+    "The supplied evidence covers coordinate contrasts only; no claim about neural-module causation or physical interaction energy is made.",
+    "Independent batches are reported per feature (14), but no multiplicity-adjusted ranking table was read in this turn, so uncertainty-adjusted prioritization is not asserted."
+  ],
+  "role": "Analyst"
+}
