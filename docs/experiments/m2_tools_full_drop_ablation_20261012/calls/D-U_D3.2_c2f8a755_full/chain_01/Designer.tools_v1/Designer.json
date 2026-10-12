@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "curve_support",
+    "continuous:0",
+    "continuous:2",
+    "continuous:1",
+    "information_audit",
+    "lineage_support",
+    "objective"
+  ],
+  "failure_modes": [
+    "A time-conditioned regional-attention edit could be misread as a teacher-coordinate or velocity change, displacing surrounding coordinates without affinity evidence.",
+    "A time_ramp_power edit (C005/C006) would reallocate dose over the support even though delivery is already uniform, risking unnecessary coordinate displacement.",
+    "Treating the temporal derivative or coordinate contrast as a spatial gradient or affinity derivative would justify an unsupported edit.",
+    "Last-record survival credit could be mistaken for final affinity benefit, biasing the decision toward an unvalidated edit."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered time-conditioned alternative (temporal_teacher/temporal_region) changes only regional attention at observed score nodes using the same static teachers and the same shared FLOWR endpoint; it does not move teacher coordinates and is not a velocity target. The supplied continuous contrast curves show sign changes and rate reversals with no accepted polynomial (E2e106e083189d150, E03ad082bb04f4f9c, Eace79c1f0f54c9d1), so a stationary coordinate target is not clearly dominated, and the observed support is bounded to the learning window [0.0,0.5] with no extrapolation (E0857891f4effbfe1, Ed4e7d28e7b0423e0). D3.2: Schedule edits are permitted in lane U, but the delivery diagnostics show mean_delivered_over_calibration ~0.33 with zero post-window injection and no cap/backtrack activity across all 9 batches, i.e. dose is already uniform over the full learned support; the offered time_ramp_power choices (C004=0.0, C005=1.0, C006=2.0) would reallocate dose without evidence of an early/late advantage, and the incumbent already uses time_ramp_power=0.0. D4.1: The incumbent (native_rms_ratio=0.33, time_ramp_power=0.0) is exactly the offered C002/C004 combination, so no offered edit provides a defensible expected advantage; the information audit explicitly limits interpretation (E2bb8390452ed517a) and lineage support shows sparse ancestry with survival credit that is not terminal affinity (Ed0d7945bdeeda8f1). D4.2: The predicted failure of a dose or attention edit is unnecessary displacement of surrounding coordinates (noncore energy is squared displacement, not physical potential energy) and reallocation of control strength that is conflated with target motion; because the objective is affinity-first and no decoded terminal affinity labels are supplied, this prediction supports retaining the incumbent rather than editing.",
+  "role": "Designer"
+}

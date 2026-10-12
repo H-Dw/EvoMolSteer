@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting C003 (native_rms_ratio 0.5) would increase injection RMS beyond the current calibration-consistent dose and displace surrounding non-target coordinates without evidence of final-affinity benefit, violating the affinity-first priority.",
+    "Selecting C005/C006 (time_ramp_power 1.0/2.0) would impose an unvalidated early/late dose profile on a support that is already uniformly and completely covered, conflating control strength with target motion.",
+    "Treating the sign-changing landmark coordinate contrasts or their first/last rate z-values as a validated time-conditioned teacher/attention rule, or as a spatial gradient, would over-read descriptive endpoint-coordinate evidence.",
+    "Reading selection-node enrichment as final affinity benefit: no decoded terminal labels or outcome evaluation data are supplied, so last-record credit cannot be presented as final affinity gain."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The offered choices are dose/ramp scalars (native_rms_ratio C001-C003, time_ramp_power C004-C006); none is a teacher-coordinate or regional-attention recipe, so no registered option changes teacher coordinates or regional attention. The incumbent already carries time_ramp_power=0.0 (C004), i.e. a stationary dose over the window, and the Analyst's temporal evidence is descriptive only: the inspected landmark contrasts show 4-10 sign changes and 1-9 strong sign conflicts with extrapolation disallowed, and their first/last rate z-values are large while whole-window z-values are small and mixed in sign. That is a coordinate contrast over the predicted endpoint world representation, not a validated time-conditioned rule and not a trajectory velocity force; a temporal derivative is not a spatial gradient, so it cannot justify a time-conditioned teacher or attention edit. D3.2: Delivery coverage is uniform and complete over the learned support - 50 controlled steps per batch, nonzero_steps=50, first_order_positive_fraction=1.0, post_window_nonzero=0, delivered_over_calibration ~0.33 at every observed node, zero_injection_fraction=0.0, cap_active_fraction=0.0, backtrack_fraction=0.0, and noncore_energy_fraction=0.0. There is no coverage gap to repair by reallocating dose, and no evidence that an early/late reweighting would improve the affinity-primary objective; changing time_ramp_power would alter control strength, not target motion, and is unsupported. D4.1: The incumbent (native_rms_ratio=0.33, time_ramp_power=0.0) is already the registered value C002/C004, so the only defensible registered action is to retain it; the evidence does not provide a defensible expected advantage for any alternative dose or ramp. D4.2: The predicted failure of an unnecessary dose increase (C003) is larger displacement of surrounding coordinates: injection RMS is already near the predictive calibration scale (mean_injection_rms_A ~0.0147 vs mean_predictive_calibration_rms_A ~0.0446), and the nearest-teacher RMS is still large (first ~0.88-0.92 A, last ~0.35-0.47 A), so raising the ratio would push non-target coordinates without evidence of affinity benefit, while the affinity-first priority is not served by coordinate displacement alone. Retaining the incumbent avoids that failure. No temperature edit is proposed; temperatures are immutable task parameters.",
+  "role": "Designer"
+}

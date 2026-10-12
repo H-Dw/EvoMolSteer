@@ -1,0 +1,30 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03"
+    ],
+    "failure_modes": [
+      "Selecting C003 (native_rms_ratio 0.5) would raise injection RMS and could violate max_atom_step_A=0.15 or max_cumulative_rms_A=6.0 and increase severe_receptor_clash_A=0.8, unnecessarily displacing surrounding coordinates.",
+      "Selecting C001 (native_rms_ratio 0.2) would under-deliver relative to the native predictive update and leave the endpoint farther from the detached teacher, weakening the primary affinity objective.",
+      "Selecting a time_ramp_power edit (C004/C005/C006) would redistribute dose within the same learned support without validated temporal evidence, concentrating injection early or late and risking early-step clash or late-step under-delivery.",
+      "Adopting a time-conditioned teacher or regional-attention change from the non-monotone observed-node contrast would overfit descriptive diagnostics (polynomial_accepted=false, extrapolation_allowed=false) and conflate target motion with control strength.",
+      "Treating the positive scalar coordinate injection response or a temporal derivative as an affinity gradient would misstate the reward semantics and could drive coordinate displacement without affinity benefit."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The incumbent teacher is a stationary detached nearest-k endpoint pointcloud (teacher_score_beta=0, teacher_neighbors=4, teacher_endpoint_temperature_A2=4.0) with a static regional Gaussian landmark attention; the only registered temporal alternative is the temporal_teacher recipe, which keeps the same shared FLOWR endpoint and static teachers and changes only regional attention at observed score nodes via a validated absolute contrast. Analyst's temporal evidence (continuous:0-5) shows non-monotone contrast with four to ten sign changes, opposing first/last rate z-values, polynomial_accepted=false, extrapolation_allowed=false and relative node RMSE 0.29-0.78, so no validated time-conditioned contrast is available to justify switching teacher coordinates or regional attention; the observed-node contrast is a coordinate reward diagnostic, not a trajectory velocity force, and a temporal derivative is not a spatial gradient. D3.2: The delivery diagnostics show the fixed schedule already delivers a constant mean_delivered_over_calibration of 0.33 across all 50 controlled steps in every batch with zero_injection_fraction=0, cap_active_fraction=0, backtrack_fraction=0 and post_window_nonzero=0, i.e. full learned-support coverage with no dose shortfall; the offered time_ramp_power choices (C004=0.0, C005=1.0, C006=2.0) would only redistribute dose within the same support, and no temporal evidence supports a specific early/late reallocation, so the fixed schedule is retained. D4.1: The incumbent native_rms_ratio is 0.33, which is exactly the registered choice C002; the offered alternatives C001=0.2 and C003=0.5 have no supporting evidence of a defensible expected advantage, and the observed nearest_teacher_rms_A already decreases from about 0.88-0.92 at the first node to about 0.35-0.47 at the last node under the incumbent, so no edit is warranted. D4.2: The predicted failure of an unnecessary edit is displacement of surrounding coordinates: raising native_rms_ratio to 0.5 (C003) would increase injection RMS and risk the max_atom_step_A=0.15 and max_cumulative_rms_A=6.0 constraints and severe_receptor_clash_A=0.8, while lowering to 0.2 (C001) would under-deliver and leave the endpoint short of the teacher; a time_ramp_power edit would concentrate dose early or late without evidence and could push early steps toward clash. Because the objective is affinity-first with validity and strain secondary, and no decoded terminal affinity outcome is supplied, the incumbent is retained rather than edited.",
+    "role": "Designer"
+  }
+}

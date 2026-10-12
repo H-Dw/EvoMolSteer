@@ -1,0 +1,27 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3"
+  ],
+  "failure_modes": [
+    "A nonzero time_ramp_power (C005/C006) would concentrate control early or late without validated directional evidence, displacing surrounding coordinates while the whole-window coordinate contrast remains weak and sign-conflicted.",
+    "Changing native_rms_ratio away from 0.33 (C001/C003) would alter control strength only; with no observed affinity labels it cannot be shown to improve final predicted affinity and risks larger unnecessary coordinate displacement.",
+    "Treating the landmark-00 rate sign reversal as a spatial gradient or velocity force would mis-specify the reward; the evidence is a coordinate contrast, not a trajectory velocity target.",
+    "No registered choice implements a time-conditioned teacher-coordinate or regional-attention change, so any attempt to encode H001 through the offered dose/ramp scalars would be an unsupported substitution."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The Analyst's temporal evidence is coordinate-contrast only (observed-node linear fits over [0.0,0.5], extrapolation disallowed, polynomial rejected) with rate sign reversals on landmark-00 soft mass and local dy; these are coordinate rewards, not trajectory velocity forces, and no observed affinity labels exist to convert them into affinity benefit. A time-conditioned teacher/attention recipe would change teacher coordinates or regional attention, not merely dose, and the registered choices offered here are only native_rms_ratio (C001-C003) and time_ramp_power (C004-C006) - i.e. dose/ramp scalars - so no registered choice implements the time-conditioned coordinate change the evidence would motivate. D3.2: Delivery diagnostics show mean_delivered_over_calibration ~0.330 with first_order_positive_fraction 1.0, nonzero_steps 50, post_window_nonzero 0, and no cap/backtrack activation across all eight batches, so the fixed schedule already covers the full learned support uniformly; there is no coverage gap that a continuous dose reallocation would close, and changing time_ramp_power would alter control strength, not target motion. D4.1: The incumbent already sits at native_rms_ratio 0.33 (C002) with time_ramp_power 0.0 (C004); the evidence provides no defensible expected affinity advantage for moving to 0.2/0.5 or to a nonzero ramp, since the only affinity-relevant signal (final predicted affinity) is unobserved and the coordinate contrasts are weak whole-window (small whole_window_z) with conflicting signs. D4.2: Opposing evidence - multiple sign changes and strong sign conflicts in the contrast fits - predicts that a nonzero ramp or altered dose would displace surrounding coordinates without a validated directional benefit, and since coordinate graph changes alone are not a failure mechanism but unnecessary displacement of surrounding coordinates is, the affinity-first priority favors retaining the incumbent. Temperatures are immutable and were not proposed.",
+  "role": "Designer"
+}

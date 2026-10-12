@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "clocks"
+  ],
+  "failure_modes": [
+    "A nonzero time_ramp_power (C005/C006) would impose a monotone dose profile on a non-monotone observed contrast (4-10 sign changes), displacing surrounding coordinates without tracking the observed rate signs.",
+    "Changing native_rms_ratio (C001/C002/C003) alters control strength, not the shape_yy/shape_xx coordinate contrast that carries the only strong signed endpoint evidence, so it cannot be expected to move the primary affinity objective.",
+    "Treating the temporal derivative of a coordinate contrast as a spatial gradient would misdirect the endpoint VJP reward and is not supported by the supplied semantics.",
+    "No decoded terminal labels or current-study outcome data are supplied, so any claimed affinity benefit from an edit would be unverifiable; survival/last-record credit is not final affinity."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered temporal recipe changes only regional attention at observed score nodes using the same static teachers and shared FLOWR endpoint; it does not move teacher coordinates and is not a velocity force. Analyst's continuous evidence (landmark_00_soft_mass with 4 sign changes, first_rate_z≈+9.3 vs last_rate_z≈-10.0; local_dx/dy/dz with 6-10 sign changes) shows the observed-window contrast is non-monotone and no polynomial was accepted with extrapolation disallowed, so a stationary coordinate target is not defensibly worse than a time-conditioned alternative over the full window; the temporal derivative is a rate of change of a coordinate contrast, not a spatial gradient. D3.2: Delivery diagnostics show mean_delivered_over_calibration≈0.330 with first_order_positive_fraction=1.0, nonzero_steps=50, post_window_nonzero=0 and zero backtrack/cap fractions across all 9 batches, i.e. the incumbent already delivers the full learned support uniformly; the offered schedule choices are time_ramp_power values (C004=0.0, C005=1.0, C006=2.0) and the incumbent already uses time_ramp_power=0.0, so no continuous dose reallocation is warranted and the fixed schedule is retained. D4.1: The only endpoint contrasts with strong, batch-consistent signed evidence are shape_yy (q≈1.5e-5, 0/14 positive) and shape_xx (q≈8e-4, 1/14 positive); centroid_y is weak (q≈0.014, 3/14) and centroid_x/z are null. The registered choices C001-C003 (native_rms_ratio 0.2/0.33/0.5) and C004-C006 (time_ramp_power) are dose/schedule scalars, not shape-contrast edits, so none of them is a defensible expected-advantage edit against the incumbent native_rms_ratio=0.33 and time_ramp_power=0.0. Retaining the incumbent is therefore the evidence-supported choice. D4.2: Predicted failure of an unnecessary dose or ramp edit: raising native_rms_ratio or adding a nonzero ramp would displace surrounding coordinates beyond the observed support without a shape-targeted benefit, since the observed non-monotone rate signs would not be reproduced by a monotone ramp and the endpoint shape contrast would not be selectively reduced; the affinity-first priority is not served by a coordinate-graph or dose change alone.",
+  "role": "Designer"
+}
