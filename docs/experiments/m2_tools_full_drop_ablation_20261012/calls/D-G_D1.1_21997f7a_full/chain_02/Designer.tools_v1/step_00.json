@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "E52fcd92a3390dbcf"
+    ],
+    "failure_modes": [
+      "Selecting a temporal_teacher_blend or temporal_region_index choice would alter only a registered attention/scalar weight, not teacher coordinates; if the observed non-monotone contrast does not reproduce on held-out observed nodes, the time-conditioned rule could degrade the endpoint contrast rather than improve it.",
+      "Changing pointcloud_delta_A without supplied spatial-scale or uncertainty evidence could displace surrounding coordinates unnecessarily, since the robust curvature controls how far the endpoint pointcloud is allowed to move; an unsupported delta edit risks unnecessary coordinate displacement with no demonstrated affinity gain.",
+      "Narrowing or broadening teacher_neighbors without intact-teacher dispersion or joint-geometry evidence could reduce mode coverage or introduce competing directions, and neighbor count is not a distance bandwidth, so the change would not be a controlled spatial emphasis.",
+      "Treating the endpoint coordinate contrasts as physical interaction energies or as evidence of neural-module causation would overstate the evidence; they are signed coordinate contrasts at the observed endpoint only."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "The registered choices are limited to pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007), temporal_region_index (C008) and temporal_teacher_blend (C009-C011). The incumbent already sits at pointcloud_delta_A=1.0 (C002) and teacher_neighbors=4 (C006), so those offered values are not edits. The Analyst's strongest evidence is a signed endpoint contrast for shape_yy/shape_xx (F001) and a weak, axis-specific centroid_y contrast (F002); these are endpoint coordinate contrasts, not a distance-response curvature or a teacher-neighborhood bandwidth. No supplied spatial-scale or uncertainty evidence justifies changing the robust distance curvature delta, and no intact-teacher dispersion or joint-geometry evidence was read to justify narrowing or broadening the teacher neighborhood. The temporal evidence (F003) supports a time-conditioned contrast over the observed window, but the registered temporal_teacher_blend and temporal_region_index choices change only a registered scalar/attention weight, not teacher coordinates or velocity, and the Analyst's own falsifier for H001 requires held-out observed-node comparison that is not available. With affinity primary and no defensible expected advantage over the incumbent, retaining the incumbent is the correct bounded action; H002's direction is noted but no registered choice maps to a shape_yy/shape_xx contrast edit.",
+    "role": "Designer"
+  }
+}
