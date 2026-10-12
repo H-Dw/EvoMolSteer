@@ -1,0 +1,69 @@
+{
+  "schema_version": "temporal-study-plan-1.0",
+  "execution_enabled": false,
+  "output": "docs/plans/temporal_guidance_20261013/prepared_final",
+  "evidence": "docs/experiments/compact_skills_verification_20261012/evidence",
+  "base_program": "configs/experiments/steer_dependency_v1/D2_without_trajectory_static.json",
+  "static_reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+  "temporal_reference": "docs/experiments/compact_skills_verification_20261012/evidence/temporal_reference.json.gz",
+  "source_sha256": {
+    "base_program": "91fd96a203e1d4138378fecb01e11d433cd6d9e7b8455da036a70c713c4999b6",
+    "static_reference": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+    "temporal_reference": "380b60616f830cddf5cc88480efc80e8dec691a0184b34475044ae18d4899acc"
+  },
+  "stage_profiles": null,
+  "control_manifest": "docs/experiments/m2_tools_full_drop_ablation_20261012/shared_control_bank/manifest.json",
+  "historical_metrics": "docs/experiments/m2_tools_full_drop_ablation_20261012/evaluation_controls/historical_steer.metrics.parquet",
+  "base_skills": {"Analyst": "skills/analyst/SKILL.md", "Designer": "skills/designer/SKILL.md"},
+  "contract": "docs/plans/temporal_guidance_20261013/contracts/temporal_contract.md",
+  "chains": 6,
+  "max_steps": 14,
+  "max_output_tokens": 8192,
+  "master_seed": 42,
+  "steps": 100,
+  "batch_size": 50,
+  "prior_seed_mode": "indexed_batch",
+  "screen_batches": [6376, 6377, 6378, 6379],
+  "confirmation_batches": [6376, 6377, 6378, 6379, 6380, 6381, 6382, 6383],
+  "enabled_conditions": [],
+  "mining_inputs": {
+    "moments": "docs/experiments/ck2_affinity_geometry30_20261007/regional_mining_v1/batch_node_moments.parquet",
+    "prior": "docs/experiments/ck2_affinity_geometry30_20261007/regional_mining_v1/region_prior.json",
+    "max_knots": 2,
+    "minimum_nodes": 6,
+    "method": "whole-window continuous spline; nested leave-one-batch-out; compact profiles only"
+  },
+  "evaluation": {
+    "primary": "all-attempt final predicted pIC50 plus score coverage and failures",
+    "affinity_noninferiority_margin": 0.02,
+    "elite_threshold": 8.258901977539063,
+    "quality_secondary": ["valid_connected", "pb_fast_pass", "converged_MMFF_relief_per_heavy_median", "converged_MMFF_relief_per_heavy_p90"],
+    "tails": ["p95", "p99", "elite_valid_fraction_all_attempts"],
+    "paired_batch_bootstrap_seed": 42,
+    "historical_steer_comparison": "independent batches; unequal online budget; do not call it paired",
+    "diagnostics": ["requested_rms_A", "injection_rms_A", "cumulative_rms_A", "cap_factor", "gradient_norm", "backtracking", "teacher_mode_coverage", "gradient_direction_change", "window_state_compatibility"]
+  },
+  "recipes": {
+    "W1_early_soft": {"route": "dose", "knots": [0, 0.5, 1], "dose": [0.35, 1, 1.65], "blend": [0, 0, 0], "delta": [1, 1, 1], "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward"},
+    "W2_middle_peak": {"route": "dose", "knots": [0, 0.5, 1], "dose": [0.5, 1.5, 0.5], "blend": [0, 0, 0], "delta": [1, 1, 1], "description": "Middle emphasis with positive guidance throughout; same M2 reward"},
+    "W3_early_strong_control": {"route": "dose", "knots": [0, 0.5, 1], "dose": [1.65, 1, 0.35], "blend": [0, 0, 0], "delta": [1, 1, 1], "description": "Opposite time-order control; equal integral of RMS ratios"},
+    "S1_observed_to_static": {"route": "reward", "knots": [0, 0.5, 1], "dose": [1, 1, 1], "blend": [1, 0.5, 0], "delta": [1, 1, 1], "description": "Early same-clock historical forecasts, smoothly approach frozen static teachers"},
+    "S2_constant_blend": {"route": "reward", "knots": [0, 0.5, 1], "dose": [1, 1, 1], "blend": [0.5, 0.5, 0.5], "delta": [1, 1, 1], "description": "Constant blend control; same two sources without staged relevance"},
+    "S3_static_to_observed_control": {"route": "reward", "knots": [0, 0.5, 1], "dose": [1, 1, 1], "blend": [0, 0.5, 1], "delta": [1, 1, 1], "description": "Opposite temporal relevance control at fixed dose"},
+    "C1_robust_to_base": {"route": "reward", "knots": [0, 0.5, 1], "dose": [1, 1, 1], "blend": [0, 0, 0], "delta": [0.5, 0.75, 1], "description": "Earlier robust response to large residuals, then baseline curvature; not a tolerance radius"},
+    "C2_constant_curvature": {"route": "reward", "knots": [0, 0.5, 1], "dose": [1, 1, 1], "blend": [0, 0, 0], "delta": [0.75, 0.75, 0.75], "description": "Constant curvature control with the same discrete mean delta; no temperature change"},
+    "C3_base_to_robust_control": {"route": "reward", "knots": [0, 0.5, 1], "dose": [1, 1, 1], "blend": [0, 0, 0], "delta": [1, 0.75, 0.5], "description": "Opposite curvature timing at fixed dose and fixed teachers"}
+  },
+  "conditions": [
+    {"id": "W00_canonical", "route": "dose", "phase": 1, "recipes": ["W1_early_soft", "W2_middle_peak", "W3_early_strong_control"], "extensions": {"Analyst": [], "Designer": []}},
+    {"id": "W10_analyst_extension", "route": "dose", "phase": 1, "recipes": ["W1_early_soft", "W2_middle_peak", "W3_early_strong_control"], "extensions": {"Analyst": ["skills/temporal-dose-analyst/SKILL.md"], "Designer": []}},
+    {"id": "W01_designer_extension", "route": "dose", "phase": 1, "recipes": ["W1_early_soft", "W2_middle_peak", "W3_early_strong_control"], "extensions": {"Analyst": [], "Designer": ["skills/temporal-dose-designer/SKILL.md"]}},
+    {"id": "W11_both_extensions", "route": "dose", "phase": 1, "recipes": ["W1_early_soft", "W2_middle_peak", "W3_early_strong_control"], "extensions": {"Analyst": ["skills/temporal-dose-analyst/SKILL.md"], "Designer": ["skills/temporal-dose-designer/SKILL.md"]}},
+    {"id": "S00_canonical", "route": "reward", "phase": 2, "recipes": ["S1_observed_to_static", "S2_constant_blend", "S3_static_to_observed_control"], "extensions": {"Analyst": [], "Designer": []}},
+    {"id": "S10_analyst_extension", "route": "reward", "phase": 2, "recipes": ["S1_observed_to_static", "S2_constant_blend", "S3_static_to_observed_control"], "extensions": {"Analyst": ["skills/staged-reward-analyst/SKILL.md"], "Designer": []}},
+    {"id": "S01_designer_extension", "route": "reward", "phase": 2, "recipes": ["S1_observed_to_static", "S2_constant_blend", "S3_static_to_observed_control"], "extensions": {"Analyst": [], "Designer": ["skills/staged-reward-designer/SKILL.md"]}},
+    {"id": "S11_both_extensions", "route": "reward", "phase": 2, "recipes": ["S1_observed_to_static", "S2_constant_blend", "S3_static_to_observed_control"], "extensions": {"Analyst": ["skills/staged-reward-analyst/SKILL.md"], "Designer": ["skills/staged-reward-designer/SKILL.md"]}},
+    {"id": "C00_canonical", "route": "reward", "phase": 3, "recipes": ["C1_robust_to_base", "C2_constant_curvature", "C3_base_to_robust_control"], "extensions": {"Analyst": [], "Designer": []}},
+    {"id": "C11_both_extensions", "route": "reward", "phase": 3, "recipes": ["C1_robust_to_base", "C2_constant_curvature", "C3_base_to_robust_control"], "extensions": {"Analyst": ["skills/staged-reward-analyst/SKILL.md"], "Designer": ["skills/staged-reward-designer/SKILL.md"]}}
+  ]
+}
