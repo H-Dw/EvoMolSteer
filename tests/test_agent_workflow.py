@@ -89,6 +89,23 @@ def test_curve_keeps_empirical_nodes_fit_diagnostics_and_no_extrapolation(tools)
     assert "curve_support" in tools.resolve([curve["ref"]])
 
 
+def test_curve_discovery_and_call_schema_use_the_same_real_features(tools):
+    names = tools.catalogue()['curve_feature_names']
+    assert names == sorted(tools.curves['functions'])
+    assert names == tools.schemas['get_curve']['properties']['feature']['enum']
+    result = tools.execute('get_curve', {'feature': names[0]})
+    assert result['ok'] and result['observation']['source']['kind'] == 'curve'
+
+
+def test_endpoint_feature_without_curve_is_rejected_before_delivery(tools):
+    missing = 'landmark_00_softmin'
+    assert missing not in tools.curves['functions']
+    before = tools.provenance()
+    with pytest.raises(jsonschema.ValidationError):
+        tools.validate_call('get_curve', {'feature': missing})
+    assert tools.provenance() == before
+
+
 def test_metadata_container_paging_is_explicit(tools):
     source = tools.execute("get_evidence", {"source_ids": ["curve_support"]})["observation"]["records"][0]
     assert source["data"]["curve_fidelity_audit"]["container_summary_only"]

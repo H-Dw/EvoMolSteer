@@ -53,7 +53,7 @@ class EvidenceTools:
                 "descending": {"type": "boolean"}, "absolute": {"type": "boolean"},
                 "offset": integer(0, 100000), "limit": integer(1, 24)}),
             "get_evidence": obj({"source_ids": dict(strings, minItems=1, maxItems=24)}),
-            "get_curve": obj({"feature": {"type": "string"}}),
+            "get_curve": obj({"feature": {"enum": sorted(self.curves["functions"])}}),
             "read_metadata": obj({"section": {"enum": ["clocks", "objective", "limitations", "teacher_modes", "prerequisites"]}}),
             "read_definition": obj({"key": {"enum": sorted(self.definitions)}}),
             "read_field": obj({"ref": {"type": "string"}, "path": {"type": "array", "items": {"type": "string"}},
@@ -76,6 +76,7 @@ class EvidenceTools:
             for name, rows in self.tables.items()},
             "tools": {name: {"arguments": schema} for name, schema in self.schemas.items()},
             "definitions": sorted(self.definitions), "curve_features": len(self.curves["functions"]),
+            "curve_feature_names": sorted(self.curves["functions"]),
             "paging": "All rows, including null/weak/negative evidence, are available. No automatic ranking/filtering.",
             "containers": "Large nested fields have explicit summaries. read_field retrieves a source-bound page."}
 
