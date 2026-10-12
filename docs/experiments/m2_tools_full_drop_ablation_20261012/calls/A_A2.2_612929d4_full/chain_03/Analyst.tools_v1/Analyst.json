@@ -1,0 +1,88 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal-score, so no observed affinity outcome is available to rank coordinates.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The information audit compares geometric nearest-teacher distance under sparse salient fields against Hungarian fixed-frame RMS over 14 independent batches, and explicitly states this is not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction rather than a causal affinity effect.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Lineage support covers 14 complete-survival batches over 700 batch nodes, but 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, and terminal metadata are recorded at score time 0.99 / state time 1.0 outside the observed learning window [0.0,0.5]; last-record credit therefore cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "lineage_support",
+        "clocks"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The curve-support selection rule retains 24 features with absolute integrated z >= 0.1, batch direction fraction >= 0.857 and q < 0.05, and the fidelity rule requires relative RMSE <= 0.35 with zero strong sign-conflict nodes; this is a selection-enrichment criterion, not an absolute geometric descriptor.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Continuous landmark trends are observed-node linear fits with extrapolation disallowed and polynomial fits rejected; the inspected landmark_00 features show multiple sign changes (4-10) and strong sign conflicts (1-14) with relative node RMSE 0.29-0.87, so a constant rule is not supported and no time-conditioned rule is validated by these fits.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Prioritize signed coordinate contrasts at observed selection nodes over the full observed window, treating them as selection enrichment rather than an absolute geometric descriptor.",
+      "evidence_ids": [
+        "curve_support",
+        "information_audit"
+      ],
+      "falsifier": "A reproducible opposing-sign contrast in an independent batch, or a contrast that fails the batch-direction-fraction and q thresholds, would weaken the proposed direction.",
+      "id": "H001",
+      "observable": "Signed favorable-versus-comparison coordinate contrast at observed selection nodes.",
+      "scope": "Observed learning window [0.0,0.5], 14 independent batches.",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes may carry reproducible directional information over the complete observed window, but the supplied evidence does not establish that this contrast tracks final affinity."
+    },
+    {
+      "direction": "Do not adopt a constant landmark_00 coordinate rule; retain descriptive status pending validated fits.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3"
+      ],
+      "falsifier": "A validated fit with relative node RMSE within the fidelity rule and zero strong sign-conflict nodes would support a time-conditioned rule.",
+      "id": "H002",
+      "observable": "Sign changes and strong sign conflicts of landmark_00 local features across observed nodes.",
+      "scope": "Observed learning window [0.0,0.5], 14 independent batches.",
+      "statement": "Landmark_00 local coordinate trends show sign changes and strong sign conflicts across the observed window, so a constant coordinate rule is not supported and any time-conditioned rule would require validated fits that are not present."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record and survival credit cannot be interpreted as final affinity benefit.",
+    "The information audit is a geometric nearest-teacher comparison, not the score-weighted reward or its FLOWR Jacobian, and its excess-distance metric is nonnegative by construction.",
+    "Continuous landmark trends are observed-node linear fits with extrapolation disallowed and polynomial fits rejected; no validated time-conditioned contrast function is available.",
+    "No current study outcome data are available to the Analyst, so no coordinate hypothesis can be confirmed against final affinity."
+  ],
+  "role": "Analyst"
+}

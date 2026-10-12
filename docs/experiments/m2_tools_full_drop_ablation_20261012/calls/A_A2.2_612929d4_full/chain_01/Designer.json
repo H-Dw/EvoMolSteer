@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "curve_support",
+    "information_audit",
+    "lineage_support"
+  ],
+  "failure_modes": [
+    "Selecting C001 or C003 (pointcloud_delta_A 0.5 or 2.0) would alter the curvature of rho_delta without any supplied measurement of the distance-response curvature, so the expected affinity response direction is unknown and the change is unjustified.",
+    "Selecting C004 or C006 (teacher_neighbors 2 or 8) would treat neighbor count as a distance bandwidth; with no intact-teacher dispersion or joint-geometry evidence, mode coverage could collapse or competing directions could be over-averaged, displacing surrounding coordinates without a validated affinity benefit.",
+    "Selecting C007-C009 (temporal_teacher_blend) would shift regional attention at observed score nodes using a recipe whose contrast function is not validated here; because a temporal derivative is not a coordinate gradient, this could displace surrounding coordinates while the primary affinity objective remains unmeasured.",
+    "Treating the curve-support selection enrichment, the information-audit metrics, or the BH-adjusted survival tests as a validated affinity predictor would overstate evidence and could drive an edit that the reward formula does not contain.",
+    "Any temperature edit is an interface violation and is not proposed; the fixed mixture_temperature 0.5 and teacher_endpoint_temperature_A2 4.0 are preserved."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "The objective is final predicted target affinity as primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared distance and a FLOWR endpoint VJP path (Eaa4bda02c9a2c3a1). The observed support is the learning window [0.0,0.5] with score nodes at 0.01 spacing and recorded affinities removed under an equal score prior, so no observed affinity label exists inside the window against which any coordinate rule could be validated (E0857891f4effbfe1). The curve-support selection rule admits 24 features by an enrichment criterion (absolute integrated z at least 0.1, batch direction fraction at least about 0.857, q below 0.05), which is a selection-enrichment criterion and not an absolute geometric descriptor (Ed4e7d28e7b0423e0). The information audit states its metrics are not the full score-weighted reward or its FLOWR Jacobian, that nonnegative excess distance is by construction rather than a causal affinity effect, and that teacher score correlations are observational and not a validated affinity predictor (E2bb8390452ed517a). Lineage support shows 14 complete-survival batches over 700 batch nodes with 349 nodes having fewer than 3 ancestors and 531 fewer than 6, and its BH-adjusted survival tests are explicitly not terminal affinity effects; terminal score time 0.99 and state time 1.0 lie outside the observed window (Ed0d7945bdeeda8f1). The offered choices are pointcloud_delta_A (C001-C003), teacher_neighbors (C004-C006) and temporal_teacher_blend (C007-C009). The incumbent already uses pointcloud_delta_A 1.0 and teacher_neighbors 4, so C002 and C005 are no-ops; C001/C003 would change the curvature of rho_delta, but no supplied evidence measures the distance-response curvature or the expected response range, so a narrower or broader delta cannot be justified. C004/C006 would change the teacher count, but neighbor count is not a distance bandwidth and no intact-teacher dispersion or joint-geometry evidence is supplied to compare narrower versus broader neighborhoods. C007-C009 would change only the temporal teacher blend, but the temporal recipe changes regional attention at observed score nodes and not a velocity target, and no validated absolute contrast function or temporal evidence is supplied to prefer a blend over the static incumbent. Because the affinity-first priority cannot be evaluated without any observed affinity label or current study outcome, and because the diagnostic evidence is explicitly not the reward or its Jacobian, no registered bounded edit has a defensible expected advantage over the incumbent. Retaining the incumbent is therefore the supported decision; the evidence would change it only if a validated affinity-linked coordinate observable or a measured distance-response curvature were supplied.",
+  "role": "Designer"
+}

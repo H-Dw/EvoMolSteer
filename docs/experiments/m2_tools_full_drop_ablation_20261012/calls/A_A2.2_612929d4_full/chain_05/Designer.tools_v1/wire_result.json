@@ -1,0 +1,24 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Adopting a temporal_teacher_blend or temporal_region_index edit without a delivered effect estimate could shift regional attention at observed score nodes and displace surrounding coordinates without evidence of affinity gain, since the read diagnostics cover only landmark_00 local features.",
+    "Changing pointcloud_delta_A or teacher_neighbors on the basis of sign-change diagnostics would treat a temporal-derivative/contrast diagnostic as a spatial-gradient or distance-bandwidth signal the formula does not contain, risking unnecessary coordinate displacement.",
+    "Because recorded affinities were removed and an equal score prior is used, any edit justified by an assumed terminal affinity improvement would be unsupported and could not be validated against final predicted affinity."
+  ],
+  "hypothesis_refs": [
+    "H001"
+  ],
+  "rationale": "Analyst's temporal evidence (H001, F003/F004) shows landmark_00 local contrast features with multiple sign changes and strong sign conflicts, rejected polynomial fits, and small whole-window z with large opposite-sign first/last rate z. That supports a time-conditioned contrast in principle, but the registered temporal choices (C008 temporal_region_index, C009/C010/C011 temporal_teacher_blend) are offered without any delivered observation quantifying their effect on the endpoint pointcloud reward, and the Analyst read only landmark_00 local rows. The incumbent already uses teacher_neighbors=4 with pointcloud_delta_A=1.0 and mixture_temperature=0.5; the offered pointcloud_delta_A alternatives (C001=0.5, C002=1.0, C003=2.0) and teacher_neighbors alternatives (C005=2, C006=4, C007=8) are not tied by any read evidence to a defensible expected affinity advantage, and C002/C006 merely restate incumbent values. With affinity primary and no decoded terminal affinity labels available (F002), no registered edit has a supported expected advantage over the incumbent, so retaining the incumbent is the defensible choice.",
+  "role": "Designer"
+}

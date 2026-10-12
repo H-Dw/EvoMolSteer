@@ -1,0 +1,90 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and a FLOWR endpoint VJP derivative path, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed support is the learning window [0.0,0.5] with score nodes at 0.01 spacing from 0.0 to 0.49, and recorded affinities were removed with an equal score prior, so no observed affinity label exists inside the window to validate a coordinate rule against.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The curve-support selection rule admits only features with absolute integrated z at least 0.1, batch direction fraction at least about 0.857, q below 0.05 and above the scale floor, yielding 24 selected features; this is a selection-enrichment criterion, not an absolute geometric descriptor.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The information audit reports 14 independent batches and explicitly states that its metrics are not the full score-weighted reward or its FLOWR Jacobian, that nonnegative excess distance is by construction rather than a causal affinity effect, and that teacher score correlations are observational and not a validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Lineage support shows 14 complete-survival batches over 700 total batch nodes, with 349 nodes having fewer than 3 ancestors and 531 having fewer than 6, and multiple testing is BH jointly over 400 survival field/measure tests that are explicitly not terminal affinity effects; terminal metadata places the terminal score time at 0.99 and state time at 1.0, outside the observed window.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "favor signed contrast at observed selection nodes across the full observed window",
+      "evidence_ids": [
+        "curve_support",
+        "clocks"
+      ],
+      "falsifier": "a selected contrast feature whose batch direction fraction falls below the selection threshold or whose sign reverses across independent batches",
+      "id": "H001",
+      "observable": "signed favorable-minus-comparison coordinate contrast at observed selection nodes",
+      "scope": "observed window [0.0,0.5], observed score nodes only",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at the observed selection nodes over the complete observed window can be prioritized as a coordinate reward direction, provided the population, label and observable are bound and selection enrichment is distinguished from an absolute geometric descriptor."
+    },
+    {
+      "direction": "down-weight directions where selection evidence and descendant credit disagree",
+      "evidence_ids": [
+        "lineage_support",
+        "information_audit"
+      ],
+      "falsifier": "a direction whose selection contrast and descendant credit agree in sign across all independent batches",
+      "id": "H002",
+      "observable": "agreement between selection-node contrast sign and descendant survival/quality credit sign",
+      "scope": "observed window with ancestral coverage reported; terminal labels unavailable",
+      "statement": "Immediate selection evidence and available descendant survival or quality credit may disagree, and that disagreement should affect direction priorities; without decoded terminal labels, last-record credit must not be presented as final affinity benefit."
+    },
+    {
+      "direction": "rank coordinate hypotheses by adjusted support and coverage rather than point estimate magnitude",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "falsifier": "a coordinate hypothesis whose adjusted-support ranking coincides with its point-estimate ranking across all independent batches",
+      "id": "H003",
+      "observable": "multiplicity-adjusted q values and ancestor-coverage counts per coordinate hypothesis",
+      "scope": "observed window, independent batches as the statistical unit",
+      "statement": "Uncertainty, multiplicity-adjusted support and coverage can rank coordinate hypotheses differently from point estimates alone, because 349 of 700 nodes have fewer than 3 ancestors and survival tests are BH-adjusted over 400 field/measure tests."
+    }
+  ],
+  "limitations": [
+    "No current study outcome data are supplied to the design roles, so no coordinate rule can be validated against final affinity here.",
+    "Recorded affinities were removed with an equal score prior, so no observed affinity label exists inside the learning window.",
+    "Terminal score time 0.99 and state time 1.0 lie outside the observed window [0.0,0.5]; last-record and survival credit are not decoded terminal affinity labels.",
+    "The information audit metrics are not the full score-weighted reward or its FLOWR Jacobian, and nonnegative excess distance is by construction rather than a causal affinity effect.",
+    "Teacher score correlations are observational and are not a fitted or independently validated affinity predictor.",
+    "Temperatures are immutable task parameters and no temperature edit is proposed or evaluated."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,24 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1",
+    "Ed4e7d28e7b0423e0",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Selecting C001/C002/C003 (pointcloud_delta_A) would alter the endpoint pointcloud curvature without any decoded terminal affinity label or validated affinity predictor, so the predicted response direction is unverifiable and could displace surrounding coordinates under the max_atom_step_A and cumulative-RMS constraints.",
+    "Selecting C004/C005/C006 (teacher_neighbors) would change the nearest-k teacher count, but neighbor count is not a distance bandwidth and the lineage table shows sparse ancestral coverage (349 nodes with fewer than 3 ancestors), so narrower or broader neighborhoods could reduce mode coverage or introduce competing teacher directions without evidence of affinity gain.",
+    "Selecting C007/C008/C009 (temporal_teacher_blend) would mix observed-node teacher coordinates into the reward; the observed window ends at 0.5 while terminal score time is 0.99, so the temporal teacher is undefined at the terminal endpoint and could bias the endpoint away from the affinity-primary objective.",
+    "Treating selection or survival contrasts (H001-H003) as final affinity benefit would repeat the audit's stated error: last-record and survival credit are not decoded terminal affinity labels."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H003"
+  ],
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is a detached Hungarian endpoint pointcloud with native endpoint VJP; coordinate contrasts are not physical interaction energies or affinity-head derivatives (Eaa4bda02c9a2c3a1). The information audit explicitly limits its metrics: compressed-choice excess fixed-RMS and teacher-score correlations are not the full score-weighted reward or its FLOWR Jacobian, nonnegative excess distance is by construction rather than a causal affinity effect, and teacher score correlations are observational, not a validated affinity predictor (E2bb8390452ed517a). Lineage support shows 14 complete-survival batches over 700 batch nodes but 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, and terminal metadata lie at score time 0.99 / state time 1.0 outside the observed learning window [0.0,0.5]; its multiple testing is BH over 400 survival field/measure tests, not terminal affinity effects (Ed0d7945bdeeda8f1). Curve support selects 24 features under an integrated-z, batch-direction and q<0.05 rule with a fidelity rule, but the per-feature fidelity audit is a container summary not read numerically (Ed4e7d28e7b0423e0). Observed score times span 0.0-0.49 within [0.0,0.5] with recorded affinities removed and an equal score prior, so no decoded terminal affinity labels exist for this study (E0857891f4effbfe1). H001-H003 are selection/survival contrasts and adjusted-support rankings, not evidence of a final affinity benefit. No registered choice (pointcloud_delta_A, teacher_neighbors, temporal_teacher_blend) has a defensible expected advantage over the incumbent D2_without_trajectory_static, whose pointcloud_delta_A=1.0 and teacher_neighbors=4 already sit at the registered defaults; changing dose or neighborhood width without decoded terminal labels or a validated affinity predictor would be an unsupported edit. Temperatures remain immutable and were not proposed. Retaining the incumbent is therefore the evidence-supported decision.",
+  "role": "Designer"
+}

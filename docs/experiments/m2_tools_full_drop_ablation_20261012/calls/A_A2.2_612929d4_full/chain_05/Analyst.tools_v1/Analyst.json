@@ -1,0 +1,66 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a FLOWR endpoint VJP derivative path, so any coordinate contrast is a reward-shaping signal rather than a direct affinity measurement.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed learning window is [0.0, 0.5] with 50 observed score times at 0.01 spacing, and curve support is reported as [0.0, 0.49]; recorded affinities were removed and an equal score prior is used, so no decoded terminal affinity labels are available for the current study.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast features at landmark_00 show sign changes and strong sign conflicts across the observed window (e.g., landmark_00_local_dx has 6 sign changes and 9 strong sign conflicts; landmark_00_local_dz has 10 sign changes and 7 strong sign conflicts), and no polynomial fit is accepted (polynomial_accepted=false, extrapolation_allowed=false) for the rows read.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3",
+        "continuous:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Whole-window z values for the landmark_00 local features read are small in magnitude (e.g., -0.18, -0.30, -0.02, -0.58, -0.58, 0.64) while first/last rate z values are large and opposite in sign, indicating that endpoint rate estimates are unstable and not a reliable constant-direction rule over the window.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant coordinate contrast at landmark_00 local features",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3",
+        "continuous:0"
+      ],
+      "falsifier": "If a constant-direction rule shows no sign changes and no strong sign conflicts across independent batches over the observed window, the time-conditioned hypothesis is weakened.",
+      "id": "H001",
+      "observable": "sign changes and strong sign conflicts of landmark_00 local contrast features across observed score times",
+      "scope": "observed window [0.0, 0.5], landmark_00 local features, predicted endpoint world coordinates",
+      "statement": "A time-conditioned coordinate contrast at landmark_00 local displacement features may better express the observed sign-changing pattern than a constant-direction rule, because the read features show multiple sign changes and rejected polynomial fits over the observed window."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are available; recorded affinities were removed and an equal score prior is used, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "Only the first six continuous_trends rows and the clocks/objective metadata were read; other tables (branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, regional_effects, survival_effects, turnover_accounting, lineage_support, information_audit, curve_support) were not inspected in this response.",
+    "The read continuous_trends rows cover landmark_00 local features only; no claim is made about other landmarks or global pose/shape adjustments.",
+    "No causal selection effect, atom velocity, or physical interaction energy is claimed from these coordinate contrast diagnostics."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,88 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts are reward-relevant only through that endpoint path and are not physical interaction energies.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The observed window is the score-time grid 0.0 to 0.49 with learning window [0.0,0.5]; recorded affinities are removed and an equal score prior is used, so no decoded terminal affinity labels are available and last-record or survival credit cannot be presented as final affinity benefit.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast functions are only validated as observed-node linear interpolations: polynomial fits are not accepted and extrapolation is disallowed for the inspected landmark features, so any time-conditioned rule must stay inside the observed support and cannot be extrapolated.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "The inspected landmark contrasts show sign reversals and strong sign conflicts across the window (e.g. landmark_00_soft_mass has 4 sign changes and 1 strong conflict; landmark_00_local_dx has 6 sign changes and 9 strong conflicts; landmark_00_local_dz has 10 sign changes and 7 strong conflicts), so a constant-sign coordinate rule is not supported by these curves and a time-conditioned rule would be required to track them.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Whole-window z values for the inspected landmark features are small and mixed in sign (e.g. soft_mass +0.64, local_dx -0.18, local_dy -0.30, local_dz -0.02, local_cxx -0.58, local_cyy -0.58), so the net whole-window marginal effect is weak and does not by itself justify prioritizing any single landmark coordinate.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned coordinate contrast at observed nodes",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb"
+        ],
+        "falsifier": "a constant rule matching or exceeding the time-conditioned rule on independent-batch agreement, or the time-conditioned rule failing to reproduce the observed sign changes",
+        "observable": "sign and rate of the landmark contrast curves across the observed window",
+        "scope": "observed score times 0.0-0.49 only; no extrapolation",
+        "statement": "A time-conditioned regional attention rule over observed score nodes, using the validated observed-node contrast curves rather than a constant rule, would better track the sign-reversing landmark contrasts than a static constant rule."
+      },
+      {
+        "direction": "prefer soft-mass landmark over local derivative landmarks",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "independent-batch evidence showing the local derivative landmarks have larger, reproducible whole-window effects than soft_mass",
+        "observable": "whole-window z and strong sign conflicts per landmark feature",
+        "scope": "inspected landmark features in the observed window",
+        "statement": "Prioritizing landmark_00_soft_mass over the local derivative landmarks is weakly supported at best, because its whole-window z is small and its curve reverses sign despite fewer conflicts than the local derivative features."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal affinity labels are supplied; recorded affinities are removed and an equal score prior is used, so final affinity benefit cannot be evaluated from the delivered evidence.",
+      "Only the first six continuous_trends rows were read; the remaining 194 rows and the branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, regional_effects, survival_effects and turnover_accounting tables were not inspected, so multiplicity-adjusted ranking and independent-batch counterexample checks are incomplete.",
+      "No joint or covariance diagnostics were read, so separation of local coordinate information from global pose/shape and any coupling claims remain unsupported.",
+      "Contrast curves are coordinate rewards through the endpoint VJP, not absolute reward targets or physical interaction energies; no neural-module causation is claimed."
+    ],
+    "role": "Analyst"
+  }
+}
