@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "A temporal_region or temporal_teacher edit would apply an unvalidated time-conditioned coordinate contrast, displacing surrounding coordinates outside the observed score window [0.0,0.5] with no evidence for the displacement direction.",
+    "A pointcloud_delta_A change (C001/C003) alters only the robust-kernel dose and would enlarge or shrink endpoint displacement without any supplied affinity benefit, risking unnecessary movement of neighboring coordinates.",
+    "A teacher_neighbors change (C005/C007) or region_index change (C004) alters only the teacher count or static regional attention, which the evidence does not link to improved final predicted affinity.",
+    "Treating the observed-node temporal derivative or rate z-values as a spatial gradient would misdirect the coordinate reward and is not a supported failure mechanism for affinity."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The incumbent is a stationary coordinate target (reward_view endpoint_pointcloud, derivative_path flowr_endpoint_vjp, time_ramp_power 0.0, window [0.0,0.5]). The permitted time-conditioned alternatives are the registered temporal_region (C008) and temporal_teacher (C009-C011) recipes, which change regional attention or blend a validated observed-node coordinate contrast teacher; they are coordinate rewards, not trajectory velocity forces, and no temporal derivative is read as a spatial gradient. Analyst's temporal evidence (continuous:0-5) shows non-monotone observed-node contrast with four to ten sign changes and large opposing first/last rate z-values, with polynomial_accepted false, extrapolation_allowed false and relative node RMSE ~0.29-0.78. That supports H002 (a single signed whole-window contrast is unsupported) and leaves H001 unfalsified but unvalidated: no registered temporal recipe is confirmed to express these contrast changes, and the curves are descriptive diagnostics over the observed window, not absolute reward targets. D4.1: Compared with the incumbent, the offered edits are pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007) and the temporal recipes (C008-C011). The incumbent already uses pointcloud_delta_A 1.0 and teacher_neighbors 4, so C002 and C006 are no-ops; C001/C003 change only the robust-kernel dose, C004 is a static regional index, and C005/C007 change only the teacher count. None of these has a defensible expected affinity advantage from the supplied evidence, and the temporal recipes lack a validated fit. D4.2: The predicted failure of a temporal or dose edit is unnecessary displacement of surrounding coordinates: a time-conditioned or larger-dose coordinate reward would push the endpoint pointcloud beyond the observed support, and the non-monotone, non-extrapolable contrast curves give no basis for the direction of that displacement, while the affinity-first priority is not served by coordinate graph change alone. Retaining the incumbent therefore preserves the shared learned support and the fixed temperatures (mixture_temperature 0.5, teacher_endpoint_temperature_A2 4.0) with no temperature edit.",
+  "role": "Designer"
+}

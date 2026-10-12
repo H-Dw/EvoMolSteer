@@ -1,0 +1,23 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "E2e106e083189d150",
+    "E03ad082bb04f4f9c",
+    "Eace79c1f0f54c9d1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Temporal-blend edits (C009/C010/C011) would apply a contrast whose rate reverses sign within the observed window, displacing surrounding landmark coordinates in inconsistent directions.",
+    "Dose edits (C001/C002/C003) change pointcloud_delta_A without any supplied affinity evidence to justify a larger or smaller endpoint-VJP force.",
+    "Teacher-count edits (C005/C006/C007) alter static teacher support with no evidence that k=2, 4 or 8 changes final predicted affinity.",
+    "No observed affinity labels are available (equal score prior), so no offered edit can be validated against the primary objective in this turn."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The registered time-conditioned alternatives (C008 temporal_region_index, C009/C010/C011 temporal_teacher_blend) change regional attention or blend a validated observed-node coordinate contrast into the teacher; they do not change the static teacher coordinates themselves and are not velocity forces. Analyst's temporal evidence (F003/H001: landmark-00 soft-mass first-rate z ~ +9.3 vs last-rate z ~ -10.0 with 4 sign changes; local dy first-rate z ~ -72.4 vs last-rate z ~ +5.5 with 6 sign changes) is consistent with a time-conditioned contrast, but the same rows show strong sign conflicts and the whole-window z magnitudes are small (F004/H002), so the observed-node fits do not establish a stable direction. D4.1: The incumbent (D2_without_trajectory_static, pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal blend) already sits at the registered defaults; the offered edits are dose (C001/C002/C003 pointcloud_delta_A), static teacher count (C005/C006/C007), static region (C004) or temporal attention/blend (C008-C011). No supplied evidence converts these coordinate contrasts into expected affinity advantage: the objective is final predicted target affinity primary (Eaa4bda02c9a2c3a1) and the label semantics state recorded affinities were removed with an equal score prior (E0857891f4effbfe1), so no observed affinity labels exist to score any candidate. With no defensible expected advantage and no selection-enriched node subset (curve_support selected_count 0), retaining the incumbent is the evidence-supported choice. D4.2: Predicted failure of the temporal-blend edits: blending an observed-node contrast whose rate reverses sign within [0.0,0.5] would apply a direction that flips mid-window, displacing surrounding landmark coordinates (soft mass and local dy neighbors) without a stable target, and the small whole-window z means the integrated displacement would be dominated by noise rather than signal; the affinity-first priority is not served by such displacement, and coordinate graph change alone is not treated as a failure mechanism.",
+  "role": "Designer"
+}
