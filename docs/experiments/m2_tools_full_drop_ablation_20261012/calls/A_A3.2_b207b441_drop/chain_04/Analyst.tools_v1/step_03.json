@@ -1,0 +1,59 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Endpoint-integrated contrasts for the global centroid are weak and mostly null: centroid_x and centroid_z have confidence intervals spanning zero with q>0.25, while centroid_y shows a small negative integrated effect (q~0.014) with only ~21% positive batches. These are selection-window endpoint contrasts, not absolute geometric descriptors or physical interaction energies.",
+        "evidence_refs": [
+          "Ed9b75ded9192a9b0",
+          "E52fcd92a3390dbcf",
+          "Ee92b78bec6fdbbb4"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Shape (second-moment) endpoint contrasts are the strongest and most consistent signals: shape_yy has a negative integrated effect with q~1.5e-5 and 0% positive batches, shape_xx is negative with q~8e-4 and ~7% positive batches, and shape_zz is negative but weaker (q~0.067). The direction is a signed favorable-versus-comparison contrast at observed nodes over the observed window, not an absolute reward target.",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "Efd40af47235b6ecf"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Continuous contrast functions over the complete observed support are non-monotone: landmark local features show multiple sign changes (e.g. 4-10 sign changes) and strong sign conflicts, with first-rate and last-rate z-scores of opposite sign and large magnitude, and no accepted polynomial fit (extrapolation disallowed). This supports a time-conditioned rather than constant rule, but the curves are coordinate contrasts, not absolute reward targets.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 3
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "increase magnitude of negative shape_yy/shape_xx integrated contrast",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1"
+        ],
+        "falsifier": "If the time-conditioned rule yields an integrated shape_yy contrast no more negative than the constant rule, or reverses sign, the hypothesis is rejected.",
+        "observable": "endpoint-integrated shape_yy and shape_xx contrast z-scores",
+        "scope": "observed score window [0,0.5], predicted_endpoint_world_A features",
+        "statement": "A time-conditioned regional attention recipe that up-weights the observed-node contrast for shape_yy (and secondarily shape_xx) during the late observed window will produce a larger negative integrated shape contrast than a constant-weight rule, because the observed contrast curves change sign and rate across the window."
+      }
+    ],
+    "limitations": [
+      "Recorded affinities are removed and the label prior is equal, so no final-affinity benefit can be claimed; endpoint contrasts are coordinate contrasts only.",
+      "No decoded terminal labels or descendant survival/quality credit were read, so last-record credit cannot be presented as final affinity benefit and the immediate-versus-descendant comparison is unavailable.",
+      "Continuous trend rows report observed-node linear fits with extrapolation disallowed; no validated polynomial was accepted, so no extrapolation beyond the observed window is supported.",
+      "Turnover accounting, increment effects and joint diagnostics were not read in this budget; within-path change versus cohort composition remains unassessed."
+    ],
+    "role": "Analyst"
+  }
+}

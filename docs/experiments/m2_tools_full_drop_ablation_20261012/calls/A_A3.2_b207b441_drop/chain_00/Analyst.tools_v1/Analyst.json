@@ -1,0 +1,78 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-integrated shape contrasts are the strongest signed coordinate signals: shape_yy shows a negative high-low integrated z with zero positive batches and a small q, and shape_xx is similarly negative with a small q; both are absolute geometric descriptors of the endpoint pointcloud, not selection enrichment.",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Global centroid_y shows a negative high-low integrated z with a small q and low positive-batch fraction, while centroid_x and centroid_z are not distinguishable from zero; the centroid shift is a population-level contrast, not a per-node selection effect.",
+      "evidence_ids": [
+        "endpoint_effects:1",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous landmark features over the observed window are non-monotone: landmark_00_soft_mass and landmark_00_local_dx/dy/dz show multiple sign changes and strong sign conflicts with no accepted polynomial, so a constant rule is not supported and any time-conditioned rule must be validated at observed nodes only.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The observed window is the learning window [0.0,0.5] with score times on a 0.01 grid and curve support [0.0,0.49]; recorded affinities were removed and an equal score prior is used, so no final-affinity benefit can be read from these coordinate contrasts.",
+      "evidence_ids": [
+        "clocks",
+        "objective"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase magnitude of negative shape_yy/shape_xx endpoint contrast",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "continuous:0"
+      ],
+      "falsifier": "no change or opposite-sign shift in endpoint-integrated shape_yy/shape_xx contrast relative to the static rule at matched batches",
+      "id": "H001",
+      "observable": "endpoint-integrated shape_yy and shape_xx high-low z",
+      "scope": "observed score window [0.0,0.5], predicted endpoint world coordinates",
+      "statement": "A time-conditioned regional attention rule keyed to validated landmark contrast changes at observed score nodes will produce a larger signed endpoint shape_yy/shape_xx contrast than a constant static-teacher rule."
+    },
+    {
+      "direction": "more negative centroid_y high-low integrated contrast",
+      "evidence_ids": [
+        "endpoint_effects:1",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "falsifier": "centroid_y contrast unchanged or centroid_x/centroid_z contrast changes comparably",
+      "id": "H002",
+      "observable": "endpoint-integrated global_centroid_y z",
+      "scope": "observed score window, predicted endpoint world coordinates",
+      "statement": "A centroid_y-directed coordinate contrast at observed selection nodes will shift the endpoint centroid_y contrast without altering centroid_x or centroid_z."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final-affinity outcomes are supplied; last-record and survival credit cannot be presented as final affinity benefit.",
+    "Continuous trend fits are observed-node linear with no accepted polynomial and no extrapolation; time-conditioned claims are restricted to the observed window.",
+    "Turnover, increment and survival tables were not read in this budget; within-path change versus cohort composition remains unassessed.",
+    "Contrast curves are coordinate rewards, not absolute reward targets or physical interaction energies."
+  ],
+  "role": "Analyst"
+}

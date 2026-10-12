@@ -1,0 +1,23 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "Ed4e7d28e7b0423e0",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1"
+  ],
+  "failure_modes": [
+    "Adopting a temporal_region or temporal_teacher blend would change regional attention or teacher coordinates without any observed affinity label to validate the direction, risking unnecessary displacement of surrounding coordinates under the affinity-first priority.",
+    "Narrowing teacher_neighbors (C004) would reduce mode coverage of the intact-teacher dispersion and could bias the detached prior toward a single competing direction; broadening (C006) would mix opposing directions without evidence of benefit.",
+    "Changing pointcloud_delta_A (C001-C003) alters the robust distance-response curvature and thus the effective force range, but no delivered evidence establishes the expected response direction or magnitude for final predicted affinity.",
+    "Treating the curve-support selection rule or the information-audit excess-distance metric as a causal affinity effect would misread a diagnostic/selection artifact as reward evidence."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean squared distance and native endpoint VJP (Eaa4bda02c9a2c3a1). The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5] and recorded affinities removed in favor of an equal score prior (E0857891f4effbfe1), so no observed affinity label exists to score any coordinate contrast against. The curve-support audit is a selection-enrichment criterion (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05, relative RMSE <= 0.35), not an absolute geometric descriptor (Ed4e7d28e7b0423e0), and the information audit explicitly states its comparison is not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction rather than a causal affinity effect (E2bb8390452ed517a). Lineage support is sparse (349 nodes with fewer than 3 ancestors, 531 with fewer than 6) and its survival tests are not terminal affinity effects (Ed0d7945bdeeda8f1). H001's registered temporal_region recipe is a coordinate/attention reward, not a velocity force, and its observable (regional attention change at observed score nodes) has no delivered measurement here; H002's selection-versus-survival sign disagreement is likewise unquantified. No offered choice (pointcloud_delta_A, teacher_neighbors, temporal_teacher_blend) has a defensible expected affinity advantage over the incumbent under the affinity-first priority, and temperatures are immutable. Retaining the incumbent is therefore the evidence-supported action.",
+  "role": "Designer"
+}

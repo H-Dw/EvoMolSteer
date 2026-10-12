@@ -1,0 +1,86 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-integrated contrasts over the observed window are strongest and most consistent for pair-kernel features: pair_kernel_2.5 (z=0.63, q=2.2e-5, positive in 14/14 batches), pair_kernel_1.5 (z=0.56, q=1.5e-4, 14/14) and pair_kernel_3.5 (z=0.54, q=9.8e-5, 14/14). These are signed favorable-versus-comparison coordinate contrasts at the observed nodes, not absolute geometric descriptors.",
+      "evidence_ids": [
+        "endpoint_effects:10",
+        "endpoint_effects:9",
+        "endpoint_effects:11"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Shape anisotropy contrasts are consistently negative: shape_yy (z=-0.51, q=1.5e-5, 0/14 positive batches) and shape_xx (z=-0.50, q=8.1e-4, 1/14) are the strongest signed endpoint contrasts, with shape_yz weaker (z=-0.21, q=0.035).",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "endpoint_effects:8"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Global centroid contrasts are weak and mostly null: centroid_y is marginally negative (z=-0.24, q=0.014) while centroid_x (q=0.26) and centroid_z (q=0.48) are not distinguishable from zero, so centroid position is not a supported coordinate target.",
+      "evidence_ids": [
+        "endpoint_effects:1",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Continuous landmark contrast functions are non-monotone over the observed window: e.g. landmark_00_soft_mass has 4 sign changes with first_rate_z=+9.3 and last_rate_z=-10.0, and landmark_00_local_dx has 6 sign changes with first_rate_z=-17.5 and last_rate_z=+8.1. No polynomial fit is accepted (polynomial_accepted=false) and extrapolation is disallowed, so a constant rule is not supported and only observed-node interpolation is valid.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "The observed window is the learning window [0.0,0.5] with 50 observed score times and curve support [0.0,0.49]; recorded affinities were removed and an equal score prior applies, so no decoded terminal affinity labels are available and last-record credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase pair_kernel_1.5/2.5/3.5 contrast; decrease shape_yy and shape_xx contrast",
+      "evidence_ids": [
+        "endpoint_effects:10",
+        "endpoint_effects:9",
+        "endpoint_effects:4",
+        "endpoint_effects:3"
+      ],
+      "falsifier": "Endpoint-integrated pair_kernel contrast fails to exceed the static-rule baseline, or shape_yy/shape_xx contrast does not remain negative, in a held-out batch set.",
+      "id": "H001",
+      "observable": "endpoint-integrated pair_kernel and shape contrast z-scores at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted_endpoint_world_A coordinates, 14 independent batches",
+      "statement": "A time-conditioned regional attention rule that upweights pair-kernel-consistent (compact, 1.5-3.5 A) endpoint geometry and downweights shape_yy/shape_xx anisotropy will improve the primary endpoint affinity relative to the static constant rule."
+    },
+    {
+      "direction": "time-conditioned blend of static and observed-teacher reward",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1"
+      ],
+      "falsifier": "A constant rule matches the time-conditioned rule on observed-node fit fidelity (relative_node_RMSE) across the window.",
+      "id": "H002",
+      "observable": "sign changes and first/last rate z of landmark contrast curves",
+      "scope": "observed-node interpolation only; no polynomial extrapolation",
+      "statement": "Because landmark contrast functions change sign within the observed window, a time-conditioned (blend) teacher recipe using observed-node interpolation should track the contrast better than a constant rule, without extrapolation beyond [0.0,0.5]."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; recorded affinities were removed and an equal score prior applies, so final-affinity benefit cannot be verified from these observations.",
+    "Descendant survival/quality credit and parent-child increment contrasts were not read in this pass; the within-path versus cohort-composition question (A4.2) and turnover residual accounting remain unaddressed.",
+    "Continuous trend rows are diagnostic coordinate contrasts, not physical interaction energies or evidence of neural-module causation.",
+    "No current study outcome data are available to the design roles."
+  ],
+  "role": "Analyst"
+}

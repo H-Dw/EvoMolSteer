@@ -1,0 +1,112 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5]; recorded affinities were removed and replaced by an equal score prior, so no observed affinity label is available to either role and last-record credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "clocks",
+        "information_audit"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Selection enrichment is real but modest: the compressed chosen teacher excess fixed-frame RMS is about 0.081 A (CI95 ~0.070-0.092) against a fixed-frame RMS of about 0.564 A, and top-4 teacher overlap is about 0.47 (CI95 ~0.43-0.52). This is a selection/geometric descriptor, not an absolute interaction energy or a causal affinity effect.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Chosen-teacher score correlations are weak (compressed ~0.10, full ~0.064), so the geometric nearest-teacher signal is only loosely related to teacher scores and cannot be treated as a validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Lineage support covers 14 independent batches and 700 batch nodes, but ancestral coverage is thin: 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch. Survival/terminal-credit tests are BH-adjusted over 400 field/measure tests and are explicitly not terminal affinity effects.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "The curve-support audit selected 24 curves under a strict rule (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05, scale floor excluded) with fidelity thresholds relative RMSE <= 0.35 and zero strong sign conflicts; the per-curve fidelity contents are stored as a container summary and were not read numerically here.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F006",
+      "priority": 6
+    },
+    {
+      "claim": "The continuous-trend rows read for landmark_00 features show no accepted polynomial fits, no extrapolation allowed, and multiple sign changes with strong sign conflicts (e.g. soft_mass 4 sign changes/1 conflict; local_dx 6/9; local_dy 6/4; local_dz 10/7), so a constant rule is not supported over the complete observed support for these features.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3"
+      ],
+      "id": "F007",
+      "priority": 7
+    },
+    {
+      "claim": "Whole-window z values for these landmark_00 features are small in magnitude (e.g. soft_mass ~0.64, local_dx ~-0.18, local_dy ~-0.30, local_dz ~-0.02), so the endpoint-integrated contrast is weak relative to the within-window rate variation.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3"
+      ],
+      "id": "F008",
+      "priority": 8
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast rather than constant contrast",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "curve_support"
+      ],
+      "falsifier": "A constant contrast rule matches or exceeds the time-conditioned rule on relative node RMSE and strong sign conflicts across the observed window.",
+      "id": "H001",
+      "observable": "observed-node contrast value and its sign at each score time in [0.0,0.49]",
+      "scope": "landmark_00 soft_mass and local_dx/dy/dz features, observed window only, no extrapolation",
+      "statement": "A time-conditioned coordinate contrast at observed score nodes (using validated observed-node interpolation of the landmark_00 soft_mass/local_dx/local_dy/local_dz contrasts) would track the observed sign changes better than a constant contrast rule over the complete observed window."
+    },
+    {
+      "direction": "selection enrichment, not absolute descriptor",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "falsifier": "Excess fixed RMS scales with an absolute geometric or affinity measure rather than with teacher proximity.",
+      "id": "H002",
+      "observable": "compressed_choice_excess_fixed_RMS_A and top4_teacher_overlap",
+      "scope": "14 independent batches, whole observed window",
+      "statement": "The modest selection enrichment (compressed choice excess fixed RMS ~0.081 A) reflects selection toward nearest teachers rather than an absolute geometric or energetic improvement, so it should not be used as a reward target."
+    }
+  ],
+  "limitations": [
+    "No observed affinity labels are supplied (recorded affinities removed, equal score prior), so final predicted affinity benefit cannot be evaluated from the delivered evidence.",
+    "Descendant survival/terminal-credit tests are not terminal affinity effects and cannot be presented as final affinity benefit.",
+    "Ancestral coverage is thin (349 nodes <3 ancestors, 531 nodes <6 ancestors), limiting within-path change inference.",
+    "The curve-fidelity container was delivered as a summary only; its per-curve numeric contents were not read, so per-curve fidelity claims are not made.",
+    "Continuous-trend rows read cover only landmark_00 features; other features were not inspected.",
+    "No current study outcome data are available to the Analyst role."
+  ],
+  "role": "Analyst"
+}

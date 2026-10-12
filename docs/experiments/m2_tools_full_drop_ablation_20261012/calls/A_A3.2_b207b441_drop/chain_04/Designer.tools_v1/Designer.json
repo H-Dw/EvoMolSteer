@@ -1,0 +1,35 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "temporal_teacher_blend",
+    "value": 0.5
+  },
+  "evidence_ids": [
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "endpoint_effects:5",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "If the time-conditioned rule yields an integrated shape_yy contrast no more negative than the constant rule, or reverses sign, H001 is rejected and the edit provides no advantage over the incumbent.",
+    "Full replacement of the static teacher (blend=1.0) would discard the incumbent's static regional attention and could unnecessarily displace surrounding coordinates; C010 avoids this by retaining half the static term.",
+    "Because recorded affinities are removed and the label prior is equal, no final-affinity benefit can be claimed from these coordinate contrasts; the affinity-primary objective may be unaffected or worsened.",
+    "Continuous trend rows disallow extrapolation and no polynomial was accepted, so behavior beyond the observed window [0,0.5] is unsupported.",
+    "Turnover accounting, increment effects and joint diagnostics were not read, so within-path change versus cohort composition remains unassessed."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": "C010"
+  },
+  "rationale": "Analyst F002 shows the strongest, most consistent endpoint-integrated contrasts are the second-moment shape features: shape_yy negative with q~1.5e-5 and 0% positive batches, shape_xx negative with q~8e-4 and ~7% positive batches, shape_zz weaker (q~0.067). F003 shows the observed-node contrast curves are non-monotone with multiple sign changes and opposite-sign first/last rates, and no accepted polynomial (extrapolation disallowed). This supports a time-conditioned rather than constant rule, matching H001. Among the registered bounded choices, C010 (temporal_teacher_blend=0.5) is the only offered edit that changes the temporal teacher mixture: per the formula registry, temporal_teacher is (1-blend)*R_static + blend*R_observed_teacher(time), using the same shared FLOWR endpoint with no velocity target. It changes teacher coordinates/attention weighting at observed score nodes, not dose, and preserves the shared learned support and fixed temperatures. C009 (0.25) would under-weight the observed-teacher term relative to the static incumbent; C011 (1.0) would fully replace the static teacher and discard the incumbent's static regional attention, risking unnecessary displacement of surrounding coordinates. C010 is the balanced, defensible edit. The objective remains affinity-primary; these are coordinate contrasts only, so no final-affinity benefit is claimed.",
+  "role": "Designer"
+}

@@ -1,0 +1,72 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-integrated contrasts are signed and feature-specific rather than a uniform geometric shift: shape_yy shows the strongest negative high-low integrated contrast (z=-0.513, q=1.5e-5, 0/14 positive batches), with shape_xx (z=-0.495, q=8.1e-4) and global_centroid_y (z=-0.243, q=0.014) also negative, while global_centroid_x and global_centroid_z are not distinguishable from zero (q=0.257 and q=0.481). This is a selection-enrichment contrast at observed nodes, not an absolute geometric descriptor.",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "endpoint_effects:1",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Continuous contrast functions over the complete observed window are non-monotone and poorly fit by low-degree polynomials: all inspected landmark features have polynomial_accepted=false, relative_node_RMSE from 0.29 to 0.78, and 4-10 sign changes with 1-9 strong sign conflicts. First-rate and last-rate z values frequently reverse sign (e.g. landmark_00_local_dy first_rate_z=-72.4 vs last_rate_z=+5.5), so a constant rule is not supported and a time-conditioned rule is indicated, but only within observed support (extrapolation_allowed=false).",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control; the observed contrasts are coordinate/endpoint diagnostics and are not themselves affinity benefit.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "reduce negative shape_yy/shape_xx integrated contrast",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "continuous:0",
+        "continuous:2"
+      ],
+      "falsifier": "No change or a more negative integrated contrast for shape_yy/shape_xx under the time-conditioned rule versus the constant rule at matched batches.",
+      "id": "H001",
+      "observable": "endpoint-integrated high-low contrast z for shape_yy and shape_xx at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted_endpoint_world_A features, no extrapolation",
+      "statement": "A time-conditioned regional attention rule that down-weights the shape_yy/shape_xx contrast direction early and relaxes it late in the observed window will produce a more favorable endpoint-integrated contrast than a constant rule, because the observed contrast functions change sign and rate within the window."
+    },
+    {
+      "direction": "increase late-window weight on the favorable contrast direction",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1"
+      ],
+      "falsifier": "The recipe cannot alter regional attention at observed nodes, or the change does not track the validated contrast sign changes.",
+      "id": "H002",
+      "observable": "regional attention weight at observed score nodes",
+      "scope": "registered temporal_teacher recipe only; no temperature or velocity edit",
+      "statement": "The registered temporal_teacher recipe (blend of static and observed-teacher regional attention) can express the time-conditioned contrast hypothesis because it changes regional attention at observed score nodes using validated absolute contrast changes, without a velocity target."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or current-study outcome data were supplied, so last-record/survival credit cannot be presented as final affinity benefit; the immediate-selection versus descendant-survival comparison is unavailable.",
+    "Turnover, increment and joint-diagnostic tables were not read in this pass; within-path change versus changing cohort composition is therefore not adjudicated here.",
+    "Contrast curves are diagnostics over observed support only; extrapolation is disallowed and no absolute reward target is claimed.",
+    "No temperature edit is proposed or permitted; all statements are coordinate-contrast diagnostics, not physical interaction energies or neural-module causation."
+  ],
+  "role": "Analyst"
+}
