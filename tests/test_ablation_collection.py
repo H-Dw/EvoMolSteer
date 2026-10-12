@@ -1,9 +1,14 @@
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from evomolsteer.ablation.collection import (
     merge_observations, historical_difference, tool_outcome, evidence_coverage,
+    capture_state,
+    compare_snapshots,
 )
 
 
@@ -58,3 +63,43 @@ def test_coverage_keeps_unread_tables_and_rejects_fabricated_references():
     assert result['regional']['available_rows']==1
     with pytest.raises(ValueError,match='not in the supplied'):
         evidence_coverage(packet,{'trends':{'t:999'}})
+
+
+def test_live_state_truncation_retries_and_preserves_exact_captured_bytes(monkeypatch):
+    complete=b'{"status": "running", "n": 3}\n'
+    snapshots=iter([b'', b'{"status":', complete])
+    monkeypatch.setattr(Path,'read_bytes',lambda _:next(snapshots))
+    blob,state=capture_state('state.json',delay=0)
+    assert blob==complete
+    assert state=={'status':'running','n':3}
+
+
+def test_persistently_incomplete_state_is_rejected_instead_of_imputed(monkeypatch):
+    monkeypatch.setattr(Path,'read_bytes',lambda _:b'{')
+    with pytest.raises(json.JSONDecodeError):
+        capture_state('state.json',delay=0)
+
+
+def test_snapshot_comparison_marks_overlapping_data_and_rejects_other_study(tmp_path):
+    old=tmp_path/'old';new=tmp_path/'new'
+    for folder,n,cohorts,modules in [(old,2,['c0'],['A1']), (new,4,['c0','c1'],['A1','D1'])]:
+        folder.mkdir()
+        (folder/'source_manifest.json').write_text(json.dumps({
+            'study':'same','collection_time_Asia_Shanghai':folder.name,
+            'state_sha256':folder.name,'generated_attempts_deduplicated':n}))
+        pd.DataFrame({'cohort':cohorts}).to_csv(folder/'cohort_quality.csv',index=False)
+        pd.DataFrame({'module':modules}).to_csv(folder/'module_results.csv',index=False)
+        pd.DataFrame({'program':['p'],'label':['M2'],'attempts':[n],
+                      'mean_pic50':[7. if n==2 else 7.1]}).to_csv(folder/'program_quality.csv',index=False)
+    change=compare_snapshots(old,new)
+    assert change['additional_attempts']==2
+    assert change['added_cohorts']==['c1']
+    assert change['added_completed_modules']==['D1']
+    assert change['overlapping_snapshots_not_independent_experiments'] is True
+    with pytest.raises(ValueError,match='preserve'):
+        compare_snapshots(new,old)
+    manifest=json.loads((new/'source_manifest.json').read_text())
+    manifest['study']='different'
+    (new/'source_manifest.json').write_text(json.dumps(manifest))
+    with pytest.raises(ValueError,match='same study'):
+        compare_snapshots(old,new)

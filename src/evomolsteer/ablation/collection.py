@@ -8,6 +8,7 @@ import gzip
 import hashlib
 import json
 import re
+import time
 from collections import Counter, defaultdict
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -93,6 +94,22 @@ def evidence_coverage(packet, observed):
     return result
 
 
+def capture_state(path, *, attempts=5, delay=.2):
+    """Capture complete bytes when a live writer briefly truncates its JSON.
+
+    Retry only incomplete JSON. Never invent state or proceed with partial data.
+    The successfully parsed bytes are archived verbatim and used throughout.
+    """
+    for attempt in range(attempts):
+        blob = Path(path).read_bytes()
+        try:
+            return blob, json.loads(blob)
+        except json.JSONDecodeError:
+            if attempt == attempts-1:
+                raise
+            time.sleep(delay)
+
+
 def collect(repo, study, output):
     repo=Path(repo).resolve()
     study=Path(study);output=Path(output)
@@ -102,8 +119,7 @@ def collect(repo, study, output):
         raise ValueError("Collection output must be separate from the active study")
     output.mkdir(parents=True, exist_ok=True)
     # Capture one state, rather than merging completed results with a live glob.
-    state_bytes = (study/"run_status.json").read_bytes()
-    state = json.loads(state_bytes)
+    state_bytes, state = capture_state(study/"run_status.json")
     activation = read_json(study/"activation.json")
     modules = read_json(study/"module_registry.json")["modules"]
     labels = {m["id"]: m["label_zh"] for m in modules}
@@ -314,6 +330,54 @@ def collect(repo, study, output):
     write_json(output/"source_manifest.json",snapshot)
     write_report(output,snapshot,summaries,completed,failures,comparisons,tool_report,responses,modules)
     return snapshot
+
+
+def compare_snapshots(previous, current):
+    """Describe additional observations; overlapping snapshots are not treatments."""
+    previous, current = Path(previous), Path(current)
+    old = read_json(previous/'source_manifest.json')
+    new = read_json(current/'source_manifest.json')
+    if old['study'] != new['study']:
+        raise ValueError('Snapshot updates must refer to the same study')
+    old_cohorts = pd.read_csv(previous/'cohort_quality.csv')
+    new_cohorts = pd.read_csv(current/'cohort_quality.csv')
+    if (new['generated_attempts_deduplicated'] < old['generated_attempts_deduplicated']
+            or not set(old_cohorts.cohort).issubset(set(new_cohorts.cohort))):
+        raise ValueError('An update must preserve the completed observations of its previous snapshot')
+    old_modules = pd.read_csv(previous/'module_results.csv')
+    new_modules = pd.read_csv(current/'module_results.csv')
+    old_quality = pd.read_csv(previous/'program_quality.csv').set_index('program')
+    new_quality = pd.read_csv(current/'program_quality.csv').set_index('program')
+    added_cohorts = sorted(set(new_cohorts.cohort)-set(old_cohorts.cohort))
+    added_modules = sorted(set(new_modules.module)-set(old_modules.module))
+    changes = []
+    for key in new_quality.index.intersection(old_quality.index):
+        before, after = old_quality.loc[key], new_quality.loc[key]
+        changes.append({'program':key,'label':after.label,
+            'attempts_before':int(before.attempts),'attempts_after':int(after.attempts),
+            'mean_pic50_before':float(before.mean_pic50),'mean_pic50_after':float(after.mean_pic50),
+            'descriptive_mean_change':float(after.mean_pic50-before.mean_pic50)})
+    result = {'previous_time':old['collection_time_Asia_Shanghai'],
+        'current_time':new['collection_time_Asia_Shanghai'],
+        'previous_state_sha256':old['state_sha256'],'current_state_sha256':new['state_sha256'],
+        'additional_attempts':new['generated_attempts_deduplicated']-old['generated_attempts_deduplicated'],
+        'added_cohorts':added_cohorts,'added_completed_modules':added_modules,
+        'program_quality_changes':changes,
+        'overlapping_snapshots_not_independent_experiments':True,
+        'no_causal_reward_improvement_claim_from_pooled_mean_changes':True}
+    write_json(current/'change_from_previous.json',result)
+    lines=['# 相比上次快照新增的结果','',
+        f"上次：{result['previous_time']}；本次：{result['current_time']}。",
+        f"新增 {len(added_cohorts)} 个完成队列、{result['additional_attempts']:,} 次去重生成尝试。",
+        '新增完成模块：'+('、'.join(added_modules) or '无')+'。','',
+        '两次快照包含重叠样本。下表变化来自新增批次纳入统计，不是奖励修改的因果效应，也不是两次独立实验。','',
+        '|程序|上次尝试数|本次尝试数|上次平均 pIC50|本次平均 pIC50|描述性均值变化|',
+        '|---|---:|---:|---:|---:|---:|']
+    for x in changes:
+        lines.append(f"|{x['label']}|{x['attempts_before']}|{x['attempts_after']}|"
+            f"{x['mean_pic50_before']:.4f}|{x['mean_pic50_after']:.4f}|{x['descriptive_mean_change']:+.4f}|")
+    (current/'changes.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+    return result
 
 
 def write_report(output,snapshot,summaries,completed,failures,comparisons,tools,responses,modules):
