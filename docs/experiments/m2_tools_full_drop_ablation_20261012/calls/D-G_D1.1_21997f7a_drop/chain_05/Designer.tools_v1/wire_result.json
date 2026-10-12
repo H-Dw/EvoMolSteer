@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Adopting a temporal_teacher_blend (C009-C011) on sign-changing, unvalidated landmark contrasts would displace teacher coordinates and surrounding atoms without a demonstrated affinity benefit.",
+    "Changing pointcloud_delta_A (C001-C003) or region_index (C004) without supplied spatial-scale/uncertainty evidence risks altering the response range in an unsupported direction.",
+    "Changing teacher_neighbors (C005-C007) treats a neighbor count as a distance bandwidth and could reduce mode coverage or introduce competing directions without joint-geometry evidence.",
+    "Any temperature edit is an interface violation and was not proposed; fixed temperatures were preserved."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The only registered time-conditioned options are temporal_teacher_blend (C009-C011) and temporal_region_index (C008). Per the formula registry, temporal_teacher changes the teacher coordinate mixture ((1-blend)*R_static + blend*R_observed_teacher(time)) while temporal_region changes only regional attention at observed score nodes; neither is a velocity target, and a temporal derivative is not a spatial gradient. Analyst's temporal evidence (F003/F004, H001) shows the inspected landmark contrasts are sign-changing (4-10 sign changes, 1-9 strong conflicts) with small, mixed-sign whole-window z, so no specific time-conditioned rule is validated against the constant rule; a blend would displace teacher coordinates without a defensible expected advantage. D2.1: No supplied spatial-scale or uncertainty table was read, so no distance-response curvature (pointcloud_delta_A C001-C003) or spatial emphasis (region_index C004) can be justified; the incumbent delta=1.0 A already matches the declared default and the observed scales are not established as differing from it. D2.2: No intact-teacher dispersion or joint-geometry diagnostics were read, so narrower (C005/C006) versus broader (C007) teacher neighborhoods cannot be compared on mode coverage; teacher_neighbors is a count, not a bandwidth, and the fixed temperatures (mixture 0.5, teacher endpoint 4.0 A^2) are immutable. D4.1: The incumbent (program D2_without_trajectory_static, delta=1.0 A, teacher_neighbors=4, no temporal recipe) is the only configuration with a declared, evidence-consistent basis; the delivered evidence does not establish a defensible expected advantage for any registered edit, so retaining the incumbent is the correct affinity-first choice. D4.2: The predicted failure of an unsupported edit is unnecessary displacement of surrounding coordinates (via the endpoint-VJP force) and possible strain/clash increase without affinity benefit, since the objective is affinity-primary and coordinate graph changes alone are not a failure mechanism; this prediction reinforces retaining the incumbent.",
+  "role": "Designer"
+}

@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "Ed4e7d28e7b0423e0",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Selecting a temporal_teacher_blend (C009-C011) would displace surrounding coordinates toward observed teachers without validated affinity benefit, since the temporal contrast is a coordinate reward at observed nodes and not a trajectory velocity force or affinity predictor.",
+    "Choosing a pointcloud_delta_A value (C001-C003) other than the incumbent 1.0 A would alter distance-response curvature without supplied spatial-scale or uncertainty evidence, risking unnecessary displacement of surrounding coordinates and secondary strain.",
+    "Changing teacher_neighbors (C005-C007) treats a neighbor count as a distance bandwidth; without intact-teacher dispersion and joint-geometry evidence this can reduce mode coverage and introduce competing directions.",
+    "Interpreting last-record survival or geometric teacher-proximity enrichment as final affinity benefit would misattribute a non-causal geometric descriptor to the primary objective."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Objective is final predicted affinity primary with validity/strain secondary and coordinate control only; recorded affinities are removed with an equal-score prior, so no observed affinity outcome can rank coordinate hypotheses (Eaa4bda02c9a2c3a1, E0857891f4effbfe1). Observed support is the learning window [0.0,0.5] at 0.01 score spacing, and the curve-support selection rule (|integrated z|>=0.1, batch direction fraction>=0.857, q<0.05, no scale floor) yields 24 selected features under relative RMSE<=0.35 with zero strong sign conflicts (Ed4e7d28e7b0423e0). The inspected continuous contrast functions are observed-node linear interpolations with extrapolation disallowed and polynomial fits rejected, showing 4-10 sign changes and 1-9 strong sign conflicts at relative node RMSE 0.29-0.78 (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03). This weakly identifies a time-conditioned rule (H001) but does not establish a defensible expected affinity advantage over the incumbent static teacher program, and the audit states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian and is not a causal affinity effect (E2bb8390452ed517a). Lineage support covers 14 complete survival batches over 700 batch nodes with terminal metadata at score time 0.99, but 349 nodes have fewer than 3 ancestors and 531 fewer than 6, and multiple testing is BH over 400 survival tests explicitly not terminal affinity effects, so last-record survival credit cannot be presented as final affinity benefit (Ed0d7945bdeeda8f1). On the offered choices: pointcloud_delta_A (C001-C003) is a distance-response curvature whose registered rho_delta is a bounded transform of detached endpoint mean squared distance, and the supplied evidence gives no observed spatial scale or uncertainty that would justify departing from the incumbent 1.0 A; teacher_neighbors (C005-C007) is a count, not a distance bandwidth, and the intact-teacher dispersion and joint-geometry evidence needed to compare narrower versus broader neighborhoods was not read, so mode coverage and competing directions cannot be compared; region_index (C004) and temporal_region_index (C008) are static/attention indices with no supplied regional effect evidence read; temporal_teacher_blend (C009-C011) would change teacher coordinates toward observed teachers, but the temporal evidence is a coordinate contrast at observed nodes, not a validated affinity predictor, and a temporal derivative is not a spatial gradient. Because no registered bounded declarative edit has a defensible expected advantage under the affinity-first priority, retaining the incumbent is the supported decision; the evidence would change this only if a validated affinity predictor or decoded terminal label showed a specific offered parameter improving final predicted affinity.",
+  "role": "Designer"
+}

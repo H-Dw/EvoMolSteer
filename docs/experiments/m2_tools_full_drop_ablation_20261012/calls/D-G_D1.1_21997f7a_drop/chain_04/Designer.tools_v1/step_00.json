@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "Eace79c1f0f54c9d1",
+      "E894225fb605458cb"
+    ],
+    "failure_modes": [
+      "Adopting a temporal teacher blend (C009-C011) would shift surrounding coordinates toward observed-teacher geometry with no observed affinity labels to justify the displacement, risking unnecessary coordinate movement and strain without affinity benefit.",
+      "Selecting a narrower or broader pointcloud_delta_A (C001-C003) without supplied spatial-scale/uncertainty support would change distance-response curvature on an exploratory basis and could over- or under-constrain the endpoint pointcloud relative to the incumbent's 1.0 A.",
+      "Treating the large first/last rate z values as a spatial gradient or as physical interaction energy would misread a temporal derivative as a coordinate gradient and could motivate an unsupported control edit."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Analyst's temporal evidence is coordinate-contrast only: landmark-00 soft mass and local dy show large first/last rate z with sign reversals inside [0.0,0.5] while whole-window z is small (F003, F004; H001, H002). That supports a time-conditioned coordinate contrast in principle, but the registered temporal options are temporal_region_index (C008) and temporal_teacher_blend (C009-C011), which change regional attention or mix in an observed-teacher coordinate reward. The declared objective is final predicted target affinity primary, and the label semantics state recorded affinities were removed with an equal score prior, so no observed affinity labels exist to convert these coordinate contrasts into expected affinity benefit (F005). The incumbent already uses teacher_neighbors=4 with the static regional recipe and pointcloud_delta_A=1.0; the offered pointcloud_delta_A choices (C001-C003) are distance-response curvature edits, and the supplied spatial-scale/uncertainty evidence read here does not establish a defensible expected affinity advantage for narrowing or broadening that curvature. Under D4.1, an edit is chosen only when evidence provides a defensible expected advantage; here the evidence changes the decision toward retaining the incumbent rather than editing, because the only supported signal is a coordinate rate reversal whose affinity consequence is unobserved. Retaining also avoids the D4.2 failure mode: a temporal teacher blend would displace surrounding coordinates toward observed-teacher geometry without any demonstrated affinity gain, and coordinate graph change alone is not a failure mechanism but unnecessary coordinate displacement is. Temperatures remain fixed and untouched.",
+    "role": "Designer"
+  }
+}
