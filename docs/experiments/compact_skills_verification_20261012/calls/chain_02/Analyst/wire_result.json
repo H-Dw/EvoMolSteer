@@ -1,0 +1,77 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud over predicted endpoint world coordinates, so any coordinate hypothesis must be expressed as an endpoint-coordinate reward rather than a trajectory velocity force.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Observed support spans the full learning window [0.0, 0.5] with 50 observed score times at 0.01 spacing, and recorded affinities were removed with an equal score prior; selection preference in this window is therefore association evidence only and cannot be read as measured final affinity benefit.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Across the 20 landmark soft-mass features, whole-window z magnitudes are small (largest is landmark_00_soft_mass at about 0.64) while first-rate and last-rate z values are large and of opposite sign for several landmarks (e.g. landmark_00_soft_mass first_rate_z about +9.3 and last_rate_z about -10.0; landmark_10_soft_mass first_rate_z about +66.3 and last_rate_z about -11.6; landmark_11_soft_mass first_rate_z about -66.3 and last_rate_z about +10.8). This pattern indicates changing contrasts within the window rather than a stationary target.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E88a1b6d50276da1e",
+        "Ebfdd229bdaca644c"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The same soft-mass trends carry many sign changes and strong sign conflicts (e.g. landmark_15_soft_mass has 17 strong sign conflicts and relative_node_RMSE about 0.99; landmark_09_soft_mass has 14 strong sign conflicts and 10 sign changes), and polynomial_accepted is false with extrapolation_allowed false for all 20 rows, so no accepted polynomial or extrapolated absolute coordinate target is supported.",
+      "evidence_refs": [
+        "E17a2625f3ccde2df",
+        "E3b2ce8fd1ae3c7bc"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "All 20 soft-mass trend rows report independent_batches = 14, so the effective independent support is 14 batches, not the 50 observed score times; repeated descendants within a batch are not additional independent samples.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E65c5cdcb88f99c74"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "reward the endpoint-coordinate contrast of landmark_00_soft_mass in the direction of its positive whole-window z, without asserting an absolute coordinate target or spatial gradient",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "the landmark_00_soft_mass whole-window z is not positive, or its sign changes and strong sign conflicts are not reproduced under the declared independent batches",
+      "observable": "landmark_00_soft_mass (predicted endpoint world coordinate feature)",
+      "scope": "global over the observed window [0.0, 0.5]",
+      "statement": "A bounded endpoint-coordinate reward on the landmark_00 soft-mass observable, evaluated over the whole observed window [0.0, 0.5], is a supported candidate because its whole-window z is the largest among the soft-mass trends while its first-rate and last-rate z have opposite signs, consistent with a changing contrast rather than a stationary target."
+    },
+    {
+      "direction": "reward the endpoint-coordinate contrast of landmark_10_soft_mass in the direction of its positive whole-window z, with the contrast bound respected",
+      "evidence_refs": [
+        "E88a1b6d50276da1e",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "the landmark_10_soft_mass whole-window z is not positive, or the first-rate and last-rate signs do not oppose under the declared independent batches",
+      "observable": "landmark_10_soft_mass (predicted endpoint world coordinate feature)",
+      "scope": "global over the observed window [0.0, 0.5]",
+      "statement": "A bounded endpoint-coordinate reward on the landmark_10 soft-mass observable is a supported candidate for a changing-contrast term, since its first-rate z is strongly positive and its last-rate z is negative with a positive whole-window z, but the large rate magnitudes and 4 sign changes mean the term must be bounded and must not be interpreted as an absolute coordinate target."
+    }
+  ],
+  "limitations": [
+    "No current study outcome data are supplied to the design roles, so no hypothesis here can claim measured final affinity benefit; selection preference is association evidence only.",
+    "The soft-mass trends are untyped coordinate proxies in predicted endpoint world coordinates; they are not physical interaction energies and are not evidence of neural-module causation.",
+    "All 20 soft-mass trend rows have polynomial_accepted = false and extrapolation_allowed = false, so no extrapolated absolute coordinate target or spatial gradient is supported by these rows.",
+    "A temporal derivative or contrast does not by itself specify an absolute coordinate target or spatial gradient; no such target is asserted here.",
+    "Only soft-mass features were queried in this pass; other coordinate features (local covariance and displacement components) were not examined and remain unassessed.",
+    "Temperatures are immutable task parameters and no temperature edit is proposed or implied."
+  ],
+  "role": "Analyst"
+}

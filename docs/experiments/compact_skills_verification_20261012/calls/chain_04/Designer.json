@@ -1,0 +1,30 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:100",
+    "continuous:110",
+    "continuous:70",
+    "continuous:90",
+    "continuous:30"
+  ],
+  "failure_modes": [
+    "Affinity response is unverifiable in this condition: recorded affinities are removed and the label prior is equal-score, so any retained or edited reward cannot be shown to improve final predicted target affinity from the supplied evidence.",
+    "The retained endpoint pointcloud reward depends on detached-Hungarian endpoint MSD and the real FLOWR endpoint VJP; if the detached matching convention or endpoint VJP binding is altered, the reward scalar and its coordinate response become invalid even though the declarative parameters are unchanged.",
+    "Strain and structural validity are evaluated separately from affinity; retaining the incumbent does not by itself guarantee acceptable strain or valid chemistry, and a changed graph under free native transitions could raise strain without an affinity gain.",
+    "The soft-mass features are untyped coordinate proxies in predicted endpoint world coordinates, not physical interaction energies; treating their temporal rate contrasts as a validated coordinate target would be unsupported.",
+    "If the regional contrast-tracking hypothesis (H001) were later adopted, it would fail if the landmark_00 soft-mass contrast does not change sign within the observed window or if whole-window z stays within noise while the opposite-sign rate pattern disappears."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Retain the incumbent D2_without_trajectory_static program. The objective is final predicted target affinity primary with coordinate control only (Eaa4bda02c9a2c3a1), and the observed support is the learning window 0.0-0.5 with recorded affinities removed and an equal-score prior (E0857891f4effbfe1), so no offered edit can be justified by measured affinity benefit. H002 is supported: the soft-mass continuous trends show small whole-window z (largest ~0.64) with rejected polynomial fits and strong sign conflicts (E2e106e083189d150, E88a1b6d50276da1e, Ebfdd229bdaca644c, E65c5cdcb88f99c74, E3b2ce8fd1ae3c7bc, Ecea6847a29085c95), so no global absolute-coordinate target is warranted. H001's regional contrast-tracking term is at most a deferred possibility: the opposite-sign first/last rate z values are association evidence in untyped coordinate proxies, not a validated affinity benefit, and the registered regional/temporal choices would change the operative reward without evidence that the change improves final predicted affinity. No registered choice is therefore selected; the incumbent pointcloud reward (delta=1.0 A, teacher_neighbors=4, mixture temperature 0.5, teacher endpoint temperature 4.0) is preserved unchanged, and temperatures are immutable task parameters not proposed for edit.",
+  "role": "Designer"
+}

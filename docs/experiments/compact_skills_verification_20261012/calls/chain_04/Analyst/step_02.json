@@ -1,0 +1,76 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud over predicted endpoint world coordinates with a fixed mixture temperature of 0.5 and teacher endpoint temperature 4.0.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Observed support spans the learning window 0.0-0.5 with 50 observed score times at 0.01 spacing; recorded affinities are removed and the label prior is equal-score, so selection preference is association evidence only, not measured final affinity benefit.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Across the 20 landmark soft-mass features, whole-window z magnitudes are small (largest about 0.64 for landmark_00_soft_mass) while first/last rate z values are large and of opposite sign for several landmarks (e.g. landmark_00 first_rate_z ~ +9.3, last_rate_z ~ -10.0; landmark_10 first_rate_z ~ +66.3, last_rate_z ~ -11.6; landmark_11 first_rate_z ~ -66.3, last_rate_z ~ +10.8), indicating changing contrasts rather than a stationary coordinate target.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E88a1b6d50276da1e",
+          "Ebfdd229bdaca644c"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Polynomial fits are not accepted for any of the 20 soft-mass trends, relative node RMSE is high (roughly 0.29-0.99), and sign changes range from 4 to 10 with strong sign conflicts up to 17, so no landmark soft-mass trajectory supports a stable monotone coordinate direction over the observed window.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E65c5cdcb88f99c74",
+          "E17a2625f3ccde2df",
+          "E3b2ce8fd1ae3c7bc"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "track the supplied validated contrast change; do not impose an absolute coordinate target or spatial gradient",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E0857891f4effbfe1"
+        ],
+        "falsifier": "the regional term fails if the landmark_00 soft-mass contrast does not change sign within the observed window or if the whole-window z remains within noise while the rate z values lose their opposite-sign pattern",
+        "observable": "landmark_00_soft_mass regional attention weight under the supplied Gaussian landmark attention with positive background",
+        "scope": "regional (single landmark), observed window 0.0-0.5",
+        "statement": "A bounded regional coordinate reward on landmark_00 soft-mass attention, scoped to the observed window 0.0-0.5, may be defensible only as a contrast-tracking term because its whole-window mean shift is small while its early and late rates have opposite signs."
+      },
+      {
+        "direction": "retain incumbent rather than add a global absolute-coordinate target",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E65c5cdcb88f99c74",
+          "E88a1b6d50276da1e",
+          "Ebfdd229bdaca644c",
+          "Ecea6847a29085c95"
+        ],
+        "falsifier": "a global target would become supported only if a landmark soft-mass trend showed an accepted polynomial fit with a consistent whole-window z and no strong sign conflicts",
+        "observable": "whole-window z and polynomial_accepted across all 20 landmark soft-mass continuous trends",
+        "scope": "global (all landmarks), observed window 0.0-0.5",
+        "statement": "No global coordinate target should be derived from the soft-mass trends: the largest whole-window z is about 0.64 and all polynomial fits are rejected, so a global absolute-coordinate reward would be unsupported by the supplied evidence."
+      }
+    ],
+    "limitations": [
+      "Recorded affinities are removed and the label prior is equal-score; selection preference is association evidence, not descendant survival or measured final affinity benefit.",
+      "No current-study outcome data are available to either role, so no hypothesis here can be validated against final predicted affinity.",
+      "Soft-mass features are untyped coordinate proxies in predicted endpoint world coordinates; they are not physical interaction energies or evidence of neural-module causation.",
+      "Temporal rate contrasts do not by themselves specify an absolute coordinate target or spatial gradient, so no absolute target is proposed.",
+      "Temperatures (mixture 0.5, teacher endpoint 4.0) are immutable task parameters and are not proposed for edit."
+    ],
+    "role": "Analyst"
+  }
+}

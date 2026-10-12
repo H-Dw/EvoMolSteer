@@ -1,0 +1,27 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "E2e106e083189d150",
+    "E88a1b6d50276da1e",
+    "E3b2ce8fd1ae3c7bc",
+    "E17a2625f3ccde2df",
+    "E65c5cdcb88f99c74"
+  ],
+  "failure_modes": [
+    "Affinity response: the retained endpoint-pointcloud reward is a coordinate-only proxy; no measured final affinity benefit is established, and the soft-mass whole-window z magnitudes (~0.64) are too small to expect a detectable affinity change.",
+    "Strain/validity: retaining the incumbent leaves the existing constraint envelope (max_atom_step_A=0.15, max_cumulative_rms_A=6.0, severe_receptor_clash_A=0.8, backtrack_attempts=7) unchanged; free native graph transitions could still yield strained or invalid endpoints, which must be scored separately from affinity.",
+    "Contrast instability: the cited soft-mass trends show many sign changes and strong sign conflicts with relative_node_RMSE near 0.99, so any future contrast-based term built on them could reverse sign within the window.",
+    "Support: only 14 independent batches underlie the soft-mass trends; treating the 50 observed score times as independent would overstate support.",
+    "Scope: only soft-mass features were assessed; local covariance and displacement components remain unexamined, so no claim is made about them.",
+    "No temperature edit is proposed or implied; temperatures remain immutable task parameters."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "The Analyst handoff supports only untyped endpoint-coordinate soft-mass contrasts (H001, H002) whose whole-window z magnitudes are small (largest ~0.64) while first-rate and last-rate z values are large and of opposite sign, with polynomial_accepted=false and extrapolation_allowed=false for all 20 rows and effective independent support of 14 batches rather than 50 score times. No registered choice edits the soft-mass contrast direction or the landmark_00/landmark_10 observable: the offered choices change pointcloud_delta_A (C001-C003), region_index (C004-C009), teacher_neighbors (C010-C012), temporal_region_index (C013-C018) or temporal_teacher_blend (C019-C021), none of which is bound by the cited evidence to the soft-mass contrast hypotheses. Because the objective is final predicted target affinity primary and no current-study outcome is available, the association-only soft-mass evidence does not justify an operative edit, so the tested incumbent (D2_without_trajectory_static, pointcloud_delta_A=1.0, teacher_neighbors=4, native_rms_ratio=0.33, temperatures fixed) is retained.",
+  "role": "Designer"
+}

@@ -1,0 +1,109 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-integrated contrast for pair_kernel_2.5 is positive with all batches same-sign (high_low_integrated_z=0.631, CI [0.495,0.758], positive_batch_fraction=1.0, q=2.19e-05), indicating preferred seeds end at higher short-range pair-kernel occupancy than their controls.",
+      "evidence_ids": [
+        "endpoint_effects:10"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "pair_kernel_1.5 and pair_kernel_3.5 show the same positive direction with all batches same-sign (z=0.562 and 0.540, positive_batch_fraction=1.0), while pair_kernel_7.0 is negative (z=-0.485, positive_batch_fraction=0.0), so the supported contrast is confined to short-range pair kernels.",
+      "evidence_ids": [
+        "endpoint_effects:9",
+        "endpoint_effects:11",
+        "endpoint_effects:13"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "landmark_00_occupancy3 is positive (z=0.545, CI [0.393,0.699], positive_batch_fraction=1.0, q=2.35e-04) whereas landmark_00_softmin is negative (z=-0.481, positive_batch_fraction=0.0), so the landmark-00 signal is occupancy-specific rather than a uniform softmin shift.",
+      "evidence_ids": [
+        "endpoint_effects:15",
+        "endpoint_effects:14"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "landmark_05_softmin and landmark_15_softmin are positive (z=0.396 and 0.369, positive_batch_fraction 0.857 and 0.929), while landmark_05_occupancy5, landmark_15_occupancy5 and landmark_15_occupancy3 are negative, indicating a mixed-direction landmark signal rather than a single global occupancy trend.",
+      "evidence_ids": [
+        "endpoint_effects:29",
+        "endpoint_effects:59",
+        "endpoint_effects:31",
+        "endpoint_effects:61",
+        "endpoint_effects:60"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "shape_xx and shape_yy endpoint contrasts are negative (z=-0.495 and -0.513, positive_batch_fraction 0.071 and 0.0), so preferred seeds end with smaller global shape extents along those axes.",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary and coordinate control only; the learning window is [0.0,0.5] with recorded affinities removed and an equal score prior, so these contrasts are selection associations, not measured final affinity benefit.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F006",
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase",
+      "evidence_ids": [
+        "endpoint_effects:10",
+        "endpoint_effects:9",
+        "endpoint_effects:11",
+        "endpoint_effects:13"
+      ],
+      "falsifier": "Endpoint-integrated pair_kernel_2.5 contrast fails to increase, or the long-range pair_kernel_7.0 contrast becomes positive, under the edited reward.",
+      "id": "H001",
+      "observable": "endpoint-integrated pair_kernel_2.5 contrast between preferred and control endpoints",
+      "scope": "global endpoint coordinate field over the observed window [0.0,0.5]",
+      "statement": "Rewarding increased short-range pair-kernel occupancy (pair_kernel_1.5-3.5) at the endpoint, with no reward on long-range pair_kernel_7.0, would raise the endpoint-integrated short-range contrast that distinguishes preferred seeds from controls."
+    },
+    {
+      "direction": "increase occupancy3 only",
+      "evidence_ids": [
+        "endpoint_effects:15",
+        "endpoint_effects:14"
+      ],
+      "falsifier": "landmark_00_occupancy3 contrast does not increase, or landmark_00_softmin contrast moves in the same direction as occupancy3.",
+      "id": "H002",
+      "observable": "endpoint-integrated landmark_00_occupancy3 and landmark_00_softmin contrasts",
+      "scope": "regional landmark-00 field over the observed window [0.0,0.5]",
+      "statement": "Rewarding increased landmark_00 occupancy3 while not rewarding landmark_00 softmin would raise the landmark-00 occupancy contrast without shifting the softmin contrast."
+    },
+    {
+      "direction": "decrease",
+      "evidence_ids": [
+        "endpoint_effects:3",
+        "endpoint_effects:4"
+      ],
+      "falsifier": "shape_xx or shape_yy endpoint contrast does not decrease, or increases, under the edited reward.",
+      "id": "H003",
+      "observable": "endpoint-integrated shape_xx and shape_yy contrasts",
+      "scope": "global centroid/shape field over the observed window [0.0,0.5]",
+      "statement": "Rewarding reduced global shape extent along x and y would lower the endpoint shape_xx and shape_yy contrasts that separate preferred seeds from controls."
+    }
+  ],
+  "limitations": [
+    "All cited contrasts are selection associations between preferred seeds and their controls; no descendant survival or measured final affinity outcome is supplied, so none of these directions is established as a final-benefit effect.",
+    "The label semantics remove recorded affinities and use an equal score prior, so the endpoint contrasts cannot be read as affinity improvements.",
+    "Landmark and pair-kernel features are untyped coordinate proxies; no energy or chemical-interaction interpretation is supported.",
+    "Contradictory signs across landmark occupancy and softmin features (e.g., landmark_05/15) are retained as unresolved rather than resolved into a single direction.",
+    "No temporal derivative is treated as a coordinate gradient or absolute target; the observed window is limited to [0.0,0.5]."
+  ],
+  "role": "Analyst"
+}

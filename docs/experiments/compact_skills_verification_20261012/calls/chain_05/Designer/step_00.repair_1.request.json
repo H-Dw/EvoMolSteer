@@ -1,0 +1,207 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/a1e01bd2054d782359ccf1e86652cc1c67bc3b03aa841e89b7a4de978f0ae77d.txt",
+        "content_sha256": "a1e01bd2054d782359ccf1e86652cc1c67bc3b03aa841e89b7a4de978f0ae77d",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/ac10119f8dc56351cb0da37372631498c7dfccb69a3a13f178a3ba42d2d809f9.txt",
+        "content_sha256": "ac10119f8dc56351cb0da37372631498c7dfccb69a3a13f178a3ba42d2d809f9",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/eb851691ddd2ff60586559852e9ff96a88223871b6909f2c9f04c6d54873b57c.txt",
+        "content_sha256": "eb851691ddd2ff60586559852e9ff96a88223871b6909f2c9f04c6d54873b57c",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/930e52f785d0f7ccdc25dbb2c42d2e767694281f8dd8cdf7408ec14d16de4df1.txt",
+        "content_sha256": "930e52f785d0f7ccdc25dbb2c42d2e767694281f8dd8cdf7408ec14d16de4df1",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/04f1ace9d7940736ed25b2f89ae919b54ad0c032de5662a98eb749bf414a44a1.txt",
+        "content_sha256": "04f1ace9d7940736ed25b2f89ae919b54ad0c032de5662a98eb749bf414a44a1",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "C001",
+                        "C002",
+                        "C003",
+                        "C004",
+                        "C005",
+                        "C006",
+                        "C007",
+                        "C008",
+                        "C009"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "C001",
+                      "C002",
+                      "C003",
+                      "C004",
+                      "C005",
+                      "C006",
+                      "C007",
+                      "C008",
+                      "C009"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E0857891f4effbfe1",
+                    "Eaa4bda02c9a2c3a1"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "not": {}
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

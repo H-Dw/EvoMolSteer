@@ -1,0 +1,237 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/a1e01bd2054d782359ccf1e86652cc1c67bc3b03aa841e89b7a4de978f0ae77d.txt",
+        "content_sha256": "a1e01bd2054d782359ccf1e86652cc1c67bc3b03aa841e89b7a4de978f0ae77d",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/5a9179e6892883c0b6a647a7799941942f58d993a96e0984185cf2920d6d0b68.txt",
+        "content_sha256": "5a9179e6892883c0b6a647a7799941942f58d993a96e0984185cf2920d6d0b68",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/301877b6410265cd9236aecec7537524727e23af7c4473e75f0645aa1f198004.txt",
+        "content_sha256": "301877b6410265cd9236aecec7537524727e23af7c4473e75f0645aa1f198004",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "C001",
+                        "C002",
+                        "C003",
+                        "C004",
+                        "C005",
+                        "C006",
+                        "C007",
+                        "C008",
+                        "C009",
+                        "C010",
+                        "C011",
+                        "C012",
+                        "C013",
+                        "C014",
+                        "C015",
+                        "C016",
+                        "C017"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "C001",
+                      "C002",
+                      "C003",
+                      "C004",
+                      "C005",
+                      "C006",
+                      "C007",
+                      "C008",
+                      "C009",
+                      "C010",
+                      "C011",
+                      "C012",
+                      "C013",
+                      "C014",
+                      "C015",
+                      "C016",
+                      "C017"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E0857891f4effbfe1",
+                    "E17a2625f3ccde2df",
+                    "E2e106e083189d150",
+                    "E342a60b38bb0a51b",
+                    "E36816785ddd4dc09",
+                    "E3b2ce8fd1ae3c7bc",
+                    "E57315f2f7083ab82",
+                    "E5dc651b941b4c9fd",
+                    "E65c5cdcb88f99c74",
+                    "E735f24e742723e38",
+                    "E76b26ba622888d46",
+                    "E7a4b1090068e0439",
+                    "E88a1b6d50276da1e",
+                    "E8d8c32b13334497b",
+                    "Eaa4bda02c9a2c3a1",
+                    "Eae2d1a5138c82451",
+                    "Ebfdd229bdaca644c",
+                    "Ecaa47212cd4165ae",
+                    "Ecea6847a29085c95",
+                    "Ed6483d1bca6d6f77",
+                    "Efb15fb117b45eea6",
+                    "Eff027945cf60d210"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "enum": [
+                    "H001",
+                    "H002"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}
