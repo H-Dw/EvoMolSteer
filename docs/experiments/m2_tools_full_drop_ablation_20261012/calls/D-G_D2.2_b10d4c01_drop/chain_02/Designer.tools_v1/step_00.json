@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "Temporal blend (C009/C010/C011) tracks a sign-flipping landmark_00_soft_mass contrast, displacing surrounding coordinates in the wrong direction over part of the observed window while leaving the shape_yy/shape_xx endpoint signal untouched.",
+      "Changing teacher_neighbors (C005/C006/C007) or pointcloud_delta_A (C001/C002/C003) alters the endpoint-VJP dose/teacher set without evidence that the shape-descriptor contrast moves in the predicted direction, risking unnecessary displacement of surrounding coordinates.",
+      "No decoded terminal labels or current-study outcome data are available, so any edit's expected affinity advantage is unverifiable and could be a null or adverse move relative to the incumbent."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered temporal options (C008 temporal_region_index, C009/C010/C011 temporal_teacher_blend) change only regional attention or the teacher blend at observed score nodes; they reuse the same static detached teachers and the same shared FLOWR endpoint, so they do not change teacher coordinates and add no velocity target. The Analyst's temporal evidence (continuous:0-3) shows non-monotone, sign-flipping rate features with no accepted polynomial and extrapolation disallowed, so a time-conditioned contrast is only defensible as observed-node interpolation, not as a stationary constant rule. D4.1: The incumbent already sits at teacher_neighbors=4, pointcloud_delta_A=1.0, region_index=0, and no temporal blend; the offered edits are single-parameter moves away from that incumbent (C005/C006/C007 neighbor counts, C001/C002/C003 delta, C004 region, C008-C011 temporal). The endpoint evidence is strongest and most batch-consistent for shape_yy and shape_xx contrasts (endpoint_effects:4, endpoint_effects:3), with centroid_y weaker (endpoint_effects:1) and centroid_x/z null (endpoint_effects:0, endpoint_effects:2). None of the registered choices is a shape_yy/shape_xx contrast edit, and the temporal choices act on landmark_00_soft_mass attention rather than on the shape descriptors that carry the endpoint signal. With no decoded terminal labels and no current-study outcome data (metadata/clocks: affinities removed, equal score prior), the expected advantage of any offered edit over the incumbent is not defensible, so I retain the incumbent rather than spend the single allowed edit. D4.2: Predicted failure of the temporal alternatives: because the observed landmark_00_soft_mass contrast flips sign within the window (first_rate_z positive, last_rate_z negative), a blend toward the observed teacher would displace surrounding coordinates in the wrong direction over part of the window, and the positive surrounding Gaussian attention would spread that unnecessary displacement to neighboring landmarks; the endpoint shape_yy/shape_xx signal would not be addressed. This is a coordinate-displacement failure, not a graph-change failure, and it is not offset by any affinity-first benefit that the supplied evidence can support. Temperatures are immutable and were not proposed for edit.",
+    "role": "Designer"
+  }
+}

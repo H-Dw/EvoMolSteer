@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Unvalidated temporal_teacher_blend or temporal_region_index could shift surrounding landmark coordinates via positive regional attention weight without any demonstrated affinity gain.",
+    "Increasing pointcloud_delta_A (C002/C003) would loosen endpoint matching and permit larger coordinate displacement, risking strain/clash without affinity benefit.",
+    "Changing teacher_neighbors without validated evidence could alter the detached teacher set and displace coordinates while leaving final affinity unchanged."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The only registered time-conditioned options are temporal_region_index (C008) and temporal_teacher_blend (C009-C011); both are coordinate/attention recipes over the same static detached teachers, not velocity targets, and neither is a temperature edit. Analyst's temporal evidence is descriptive only: the inspected continuous_trends rows are observed-node coordinate contrasts with extrapolation disallowed, multiple sign changes and strong sign conflicts, and small mixed-sign whole-window z-values, so no time-conditioned rule is validated against a constant rule (H001). D4.1: The incumbent already uses teacher_neighbors=4, pointcloud_delta_A=1.0 and no temporal recipe; the offered alternatives (C001-C003 dose, C004/C008 region, C005-C007 neighbor count, C009-C011 blend) are not supported by any expected-advantage evidence, and the objective is affinity-primary with no decoded terminal labels or outcome data available (H002). Retaining the incumbent is therefore the defensible choice; evidence would change this only if a validated observed-node contrast or decoded terminal affinity benefit favored a specific registered value. D4.2: A concrete failure response to adopting an unsupported time-conditioned blend or larger dose is unnecessary displacement of surrounding coordinates: the regional recipe carries positive surrounding weight, so an unvalidated blend could shift neighboring landmark coordinates without affinity benefit, and a larger pointcloud_delta_A would loosen the endpoint matching and permit larger coordinate excursions. Because coordinate graph changes alone are not a failure mechanism and affinity is primary, I avoid that displacement by not editing.",
+  "role": "Designer"
+}
