@@ -557520,7 +557520,7 @@
   "model": "deepseek-flash",
   "numerical_reuse": {
     "aa26106a518fdde2575c25176e3009ee6fc1edb0c6f6f353030d3b91e66e81b6:6376,6377,6378,6379,6380,6381,6382,6383": {
-      "action": "generate_new_numerical_program",
+      "action": "reuse_numerical_program",
       "attempts": 400,
       "batches": [
         6376,
@@ -557533,6 +557533,7 @@
         6383
       ],
       "cohort": "DSF_aa26106a518f_b6376_g_indexed_batch",
+      "first_action": "generate_new_numerical_program",
       "independent_confirmation": false,
       "note": null,
       "paired_initial_states_verified": true,
@@ -634324,6 +634325,275 @@
         "sample_reuse_not_additional_observations": true,
         "scope": "all_unfinished_evaluations"
       }
+    },
+    {
+      "active_before": [
+        "D1.2",
+        "D4.1",
+        "D4.2",
+        "D3.1",
+        "D3.2"
+      ],
+      "both_execute_M2": false,
+      "comparison_policy": "full_drop_only",
+      "confirmation": {
+        "batches": [
+          6376,
+          6377,
+          6378,
+          6379,
+          6380,
+          6381,
+          6382,
+          6383
+        ],
+        "classification": "INCONCLUSIVE",
+        "drop_minus_M2": {
+          "CI95": [
+            -8.881784197001252e-16,
+            8.881784197001252e-16
+          ],
+          "batch_deltas": {
+            "6376": -8.881784197001252e-16,
+            "6377": 0.0,
+            "6378": 8.881784197001252e-16,
+            "6379": 8.881784197001252e-16,
+            "6380": 8.881784197001252e-16,
+            "6381": 0.0,
+            "6382": 8.881784197001252e-16,
+            "6383": 8.881784197001252e-16
+          },
+          "bootstrap_replicates": 100000,
+          "delta_pic50": -8.881784197001252e-16,
+          "family": 204,
+          "independent_generation_batches": 8,
+          "interpretation": "Conditional role-policy and RNG-batch comparison; repeated numerical programs share biological observations",
+          "left_role_chains": 6,
+          "paired_frozen_Analyst_inputs": false,
+          "right_role_chains": 1,
+          "simultaneous_CI": [
+            -1.7763568394002505e-15,
+            1.7763568394002505e-15
+          ]
+        },
+        "drop_minus_full": {
+          "CI95": [
+            0.0,
+            0.05834015965461781
+          ],
+          "batch_deltas": {
+            "6376": 0.015536429087319448,
+            "6377": 0.007632548014322893,
+            "6378": 0.02260520140330069,
+            "6379": 0.035270050366719374,
+            "6380": 0.013315846125285802,
+            "6381": 0.009121691385904462,
+            "6382": 0.012928857803344407,
+            "6383": 0.027349781990052335
+          },
+          "bootstrap_replicates": 100000,
+          "delta_pic50": 0.017970050772030177,
+          "family": 204,
+          "independent_generation_batches": 8,
+          "interpretation": "Conditional role-policy and RNG-batch comparison; repeated numerical programs share biological observations",
+          "left_role_chains": 6,
+          "paired_frozen_Analyst_inputs": true,
+          "right_role_chains": 6,
+          "simultaneous_CI": [
+            0.0,
+            0.11400822465653332
+          ]
+        },
+        "independent_confirmation": false,
+        "inference_scope": "paired development evaluation on reused sample bank; no fresh held-out confirmation",
+        "quality_envelope": {
+          "passed": true,
+          "reasons": [],
+          "scope": "Secondary point-estimate acceptance envelope, not significance of strain effects"
+        },
+        "role_designs_frozen_from_screen": true,
+        "secondary_strain": [
+          {
+            "bootstrap_replicates": 100000,
+            "endpoints": {
+              "median": {
+                "full_batch_quantile_mean": 0.49406927108781834,
+                "other_batch_quantile_mean": 0.4892176464983778,
+                "relative_worsening": -0.009819725438010907,
+                "simultaneous_CI": [
+                  -0.06210973657598389,
+                  0.0
+                ]
+              },
+              "p90": {
+                "full_batch_quantile_mean": 1.0138331086884511,
+                "other_batch_quantile_mean": 0.9474368554816319,
+                "relative_worsening": -0.06549031851279052,
+                "simultaneous_CI": [
+                  -0.43269596646021247,
+                  0.041771556853760466
+                ]
+              }
+            },
+            "family": 204,
+            "independent_generation_batches": 8,
+            "no_energy_imputation": true,
+            "paired_frozen_Analyst_inputs": true,
+            "scope": "Converged-only batch quantiles; scoring/energy coverage and failure rates reported separately",
+            "status": "AVAILABLE"
+          }
+        ],
+        "shared_control_bank": {
+          "attempts_per_arm": 400,
+          "batches": [
+            6376,
+            6377,
+            6378,
+            6379,
+            6380,
+            6381,
+            6382,
+            6383
+          ],
+          "cohort": "DSF_c62e296818e0_b6376_controls_indexed_batch",
+          "independent_confirmation": false,
+          "manifest_sha256": "3935f9defa867be53674d154dab3e019977f3ac7d96e2b832a85e67d8dcf9cea",
+          "policy_sha256": "a1966e06231bee4489d382453c35b1547fd383243772f560b6b229b111dc5898",
+          "sample_reuse_not_additional_observations": true,
+          "scope": "all_unfinished_evaluations"
+        }
+      },
+      "decision": {
+        "adopt": true,
+        "status": "SHARED_BANK_NONINFERIOR_PRUNING"
+      },
+      "drop": "D-U_D3.1_2dd27e2a_drop",
+      "drop_numerical_signatures": [
+        "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+      ],
+      "full": "D-U_D3.1_2dd27e2a_full",
+      "full_numerical_signatures": [
+        "aa26106a518fdde2575c25176e3009ee6fc1edb0c6f6f353030d3b91e66e81b6",
+        "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+      ],
+      "function_pass": true,
+      "independent_confirmation": false,
+      "module": "D3.1",
+      "note": null,
+      "phase": "D-U",
+      "screen_drop_minus_M2": {
+        "CI95": [
+          -8.881784197001252e-16,
+          8.881784197001252e-16
+        ],
+        "batch_deltas": {
+          "6376": -8.881784197001252e-16,
+          "6377": 0.0,
+          "6378": 8.881784197001252e-16,
+          "6379": 8.881784197001252e-16,
+          "6380": 8.881784197001252e-16,
+          "6381": 0.0,
+          "6382": 8.881784197001252e-16,
+          "6383": 8.881784197001252e-16
+        },
+        "bootstrap_replicates": 100000,
+        "delta_pic50": -8.881784197001252e-16,
+        "family": 1,
+        "independent_generation_batches": 8,
+        "interpretation": "Conditional role-policy and RNG-batch comparison; repeated numerical programs share biological observations",
+        "left_role_chains": 6,
+        "paired_frozen_Analyst_inputs": false,
+        "right_role_chains": 1,
+        "simultaneous_CI": [
+          -8.881784197001252e-16,
+          8.881784197001252e-16
+        ]
+      },
+      "screen_drop_minus_full": {
+        "CI95": [
+          0.0,
+          0.05834015965461781
+        ],
+        "batch_deltas": {
+          "6376": 0.015536429087319448,
+          "6377": 0.007632548014322893,
+          "6378": 0.02260520140330069,
+          "6379": 0.035270050366719374,
+          "6380": 0.013315846125285802,
+          "6381": 0.009121691385904462,
+          "6382": 0.012928857803344407,
+          "6383": 0.027349781990052335
+        },
+        "bootstrap_replicates": 100000,
+        "delta_pic50": 0.017970050772030177,
+        "family": 1,
+        "independent_generation_batches": 8,
+        "interpretation": "Conditional role-policy and RNG-batch comparison; repeated numerical programs share biological observations",
+        "left_role_chains": 6,
+        "paired_frozen_Analyst_inputs": true,
+        "right_role_chains": 6,
+        "simultaneous_CI": [
+          0.0,
+          0.05834015965461781
+        ]
+      },
+      "screen_is_confirmation": false,
+      "screen_strain": [
+        {
+          "bootstrap_replicates": 100000,
+          "endpoints": {
+            "median": {
+              "full_batch_quantile_mean": 0.49406927108781834,
+              "other_batch_quantile_mean": 0.4892176464983778,
+              "relative_worsening": -0.009819725438010907,
+              "simultaneous_CI": [
+                -0.03210369895757254,
+                0.0
+              ]
+            },
+            "p90": {
+              "full_batch_quantile_mean": 1.0138331086884511,
+              "other_batch_quantile_mean": 0.9474368554816319,
+              "relative_worsening": -0.06549031851279052,
+              "simultaneous_CI": [
+                -0.22990292934707302,
+                0.0
+              ]
+            }
+          },
+          "family": 1,
+          "independent_generation_batches": 8,
+          "no_energy_imputation": true,
+          "paired_frozen_Analyst_inputs": true,
+          "scope": "Converged-only batch quantiles; scoring/energy coverage and failure rates reported separately",
+          "status": "AVAILABLE"
+        }
+      ],
+      "selected_active": [
+        "D1.2",
+        "D4.1",
+        "D4.2",
+        "D3.2"
+      ],
+      "shared_control_bank": {
+        "attempts_per_arm": 400,
+        "batches": [
+          6376,
+          6377,
+          6378,
+          6379,
+          6380,
+          6381,
+          6382,
+          6383
+        ],
+        "cohort": "DSF_c62e296818e0_b6376_controls_indexed_batch",
+        "independent_confirmation": false,
+        "manifest_sha256": "3935f9defa867be53674d154dab3e019977f3ac7d96e2b832a85e67d8dcf9cea",
+        "policy_sha256": "a1966e06231bee4489d382453c35b1547fd383243772f560b6b229b111dc5898",
+        "sample_reuse_not_additional_observations": true,
+        "scope": "all_unfinished_evaluations"
+      }
     }
   ],
   "secondary_statistical_amendment_sha256": "567ec3084d2040d6a5e283711ab8944d74d19ac5cd6e9da695bad558922dd710",
@@ -634567,7 +634837,7 @@
   ],
   "stage_failures": [],
   "started_unix": 1791745980.6194208,
-  "status": "screening",
-  "task": "D-U_D3.1_2dd27e2a_drop",
-  "updated_unix": 1791801813.5436962
+  "status": "pruning_confirmed",
+  "task": "D3.1",
+  "updated_unix": 1791801823.976397
 }
