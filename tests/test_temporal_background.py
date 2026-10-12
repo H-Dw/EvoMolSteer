@@ -39,3 +39,26 @@ def test_resume_never_relaunches_completed_or_skipped_cases(tmp_path):
         raise AssertionError('already attempted')
     assert study.attempt('done', should_not_run) == {'cached': True}
     assert study.attempt('bad', should_not_run) is None
+
+
+def test_confirmation_loads_only_missing_cohort(tmp_path, monkeypatch):
+    import pandas as pd
+    from evomolsteer.io import write_json
+    study = coordinator(tmp_path / 'study')
+    study.repo = tmp_path
+    study.plan = {'control_manifest': 'bank.json', 'screen_batches': [0, 1, 2, 3],
+                  'confirmation_batches': list(range(8))}
+    write_json(tmp_path / 'bank.json', {'effective_signature': 'M2'})
+    calls = []
+    def infer(program, signature, *, batches, lane, reference_path):
+        calls.append(list(batches))
+        target = tmp_path / ('cohort_' + str(batches[0]) + '.csv')
+        pd.DataFrame({'batch': batches, 'slot': [0] * len(batches)}).to_csv(target, index=False)
+        return {'outcomes': {'gradient': {'metrics': target.name}}, 'initial_state_signatures': {}}
+    study.infer = infer
+    monkeypatch.setattr(module, 'compare_result', lambda *args: {'eligible_for_400': True})
+    study.measure(tmp_path / 'program.json', tmp_path / 'reference.json', 'candidate', [0, 1, 2, 3], 'screen')
+    result = study.measure(tmp_path / 'program.json', tmp_path / 'reference.json', 'candidate', list(range(8)), 'confirmation')
+    assert calls == [[0, 1, 2, 3], [4, 5, 6, 7]]
+    merged = pd.read_csv(tmp_path / result['result']['outcomes']['gradient']['metrics'])
+    assert merged.batch.tolist() == list(range(8))

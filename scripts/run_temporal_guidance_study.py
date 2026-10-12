@@ -102,13 +102,19 @@ class TemporalStudy(Study):
         bank = read_json(self.repo / self.plan['control_manifest'])
         if signature == bank['effective_signature']:
             return {'reuse_M2': True, 'notice': '本次 Agent 输出未改变执行函数', 'new_FLOWR_runs': 0}
-        # Generate each indexed batch once per program. This makes confirmation
-        # add only the missing 200 attempts, with the same cache across prompts.
+        # Load the checkpoint once per four-batch cohort. Confirmation reuses
+        # the first cohort and adds only the missing 200 attempts. Grouping
+        # does not change indexed-batch priors, noise or the per-batch size.
         pieces = []
-        for batch in batches:
-            key = signature + ':batch:' + str(batch)
-            piece = self.attempt('generation_' + signature[:12] + '_b' + str(batch),
-                lambda batch=batch: self.infer(program, signature, batches=[batch],
+        groups = [self.plan['screen_batches'],
+                  [b for b in self.plan['confirmation_batches'] if b not in self.plan['screen_batches']]]
+        for cohort in groups:
+            group = [b for b in cohort if b in batches]
+            if not group:
+                continue
+            key = signature + ':batches:' + ','.join(map(str, group))
+            piece = self.attempt('generation_' + signature[:12] + '_b' + '-'.join(map(str, group)),
+                lambda group=group: self.infer(program, signature, batches=group,
                                               lane='temporal', reference_path=reference))
             if piece is None:
                 raise RuntimeError('Incomplete cohort after a skipped batch: ' + key)
