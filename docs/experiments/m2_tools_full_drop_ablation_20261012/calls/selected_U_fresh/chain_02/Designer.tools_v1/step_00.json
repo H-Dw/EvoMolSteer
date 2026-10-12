@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "E52fcd92a3390dbcf",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "A time_ramp_power edit (C005/C006) applies a monotone weight to a non-monotone contrast, displacing surrounding landmark and local_dx/dy/dz coordinates away from observed-node values without improving the primary affinity endpoint.",
+      "A dose-only edit (C001/C003) changes native_rms_ratio away from the incumbent 0.33 with no dose-response evidence; delivered_over_calibration is already near 0.33 with zero backtrack and zero cap activation, so no expected affinity gain.",
+      "Interpreting the temporal derivative or rate z-scores as a spatial gradient would misdirect the coordinate reward; the registered temporal recipe changes only regional attention at observed score nodes, not teacher coordinates or velocity.",
+      "No decoded terminal labels or current-study outcome data are supplied, so any claimed final-affinity benefit from an edit is unverifiable."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered choices split into dose-only edits (C001-C003, native_rms_ratio) and time-conditioned ramp edits (C004-C006, time_ramp_power). Analyst's temporal evidence (F003, H001) is that landmark_00_soft_mass and local derivative features are non-monotone over the observed window with large opposing first/last rate z-scores, no accepted polynomial and extrapolation disallowed. That supports a time-conditioned coordinate contrast in principle, but the registered temporal_recipe changes only a scalar/attention weight on the same static detached teachers at observed score nodes; it does not change teacher coordinates and is not a velocity force. The incumbent already carries time_ramp_power=0.0 (C004), i.e. the stationary coordinate target. D4.1: The incumbent's native_rms_ratio=0.33 equals C002, so C001/C003 would be dose-only changes with no evidence of expected advantage; the endpoint evidence (F001, F002) is a signed coordinate contrast, not a dose-response, and the delivery diagnostics show delivered_over_calibration already pinned near 0.33 with zero backtrack and zero cap activation, so a dose edit has no defensible expected gain. C005/C006 would impose a monotone ramp on a demonstrably non-monotone contrast, which the observed sign changes contradict. D4.2: The concrete failure mode of a ramp edit is unnecessary displacement of surrounding coordinates: a monotone time weight applied to a sign-flipping contrast would push non-target landmark and local_dx/dy/dz coordinates away from their observed-node values, and the endpoint evidence shows shape_yy/shape_xx contrasts are the consistent signal while centroid translation is weak and axis-specific, so a global ramp risks displacing the weak centroid axes without improving the primary affinity endpoint. Because final predicted affinity is primary and no registered choice has a defensible expected advantage over the incumbent, retaining the incumbent is the correct affinity-first decision. Temperatures were not proposed for edit.",
+    "role": "Designer"
+  }
+}

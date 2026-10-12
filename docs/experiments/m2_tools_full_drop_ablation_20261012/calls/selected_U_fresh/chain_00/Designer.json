@@ -1,0 +1,32 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "curve_support",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5",
+    "information_audit",
+    "lineage_support",
+    "objective"
+  ],
+  "failure_modes": [
+    "Increasing native_rms_ratio (e.g. C003) would enlarge per-step displacement and could push surrounding non-core coordinates beyond the intended local region without any validated affinity gain, since the geometric proximity metrics are not an affinity predictor.",
+    "Adding a time ramp (C005/C006) would modulate dose over the window using a temporal schedule that is not a spatial gradient and is not supported by a validated contrast, risking unnecessary displacement of surrounding coordinates.",
+    "Selecting a time-conditioned teacher/attention recipe is not available among the registered choices and would be weakly identified given the sign-changing, conflict-laden observed-node contrasts.",
+    "Retaining the incumbent leaves the primary affinity objective unevaluated because no decoded terminal affinity labels or current-study outcome data are supplied."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The permitted time-conditioned alternative is a temporal_teacher recipe that keeps the same static teachers and the same shared FLOWR endpoint, changing only regional attention at observed score nodes via a validated absolute contrast; it is a coordinate reward, not a trajectory velocity force, and the observed-node contrast is only weakly identified (multiple sign changes and strong sign conflicts, relative node RMSE 0.29-0.78). The registered choices offered here are dose (native_rms_ratio) and time_ramp_power, not a teacher-coordinate or attention recipe, so no offered choice implements the time-conditioned teacher. D4.1: The incumbent already sits at native_rms_ratio 0.33 with time_ramp_power 0.0; the delivery diagnostics show mean delivered/calibration ~0.33 with first-order positive fraction 1.0 and nearest-teacher RMS falling from ~0.91 to ~0.35-0.47 A, so the current dose is already effective and no evidence provides a defensible expected advantage for a different registered dose or ramp. D4.2: Raising dose (C003) or adding a ramp (C005/C006) would displace surrounding coordinates without a validated affinity benefit, since the information audit states the geometric teacher-proximity metrics are not the score-weighted reward or its FLOWR Jacobian and are not a causal affinity effect, and no decoded terminal affinity labels are supplied; the affinity-first priority therefore favors retaining the incumbent.",
+  "role": "Designer"
+}

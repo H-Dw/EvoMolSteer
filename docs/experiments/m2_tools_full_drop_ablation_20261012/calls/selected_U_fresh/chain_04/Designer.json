@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:2",
+    "continuous:1",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "Selecting C005 or C006 (nonzero time_ramp_power) would apply a monotone dose ramp inconsistent with the observed non-monotone first/last rate structure, unnecessarily displacing surrounding coordinates without evidence of affinity gain.",
+    "Selecting C001/C003 (native_rms_ratio 0.2 or 0.5) would change dose magnitude with no supplied affinity evidence; the incumbent 0.33 already delivers cleanly (delivered_over_calibration ~0.33, zero_injection_fraction 0.0).",
+    "Treating the observed temporal rate change as a spatial gradient or as a trajectory velocity force would be an interface violation; the registered temporal recipes are coordinate/attention rewards only.",
+    "No decoded terminal labels or observed affinities are supplied, so any claim that a coordinate edit improves final predicted affinity is unsupported."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered temporal alternatives (C004/C005/C006 time_ramp_power, and the temporal_region recipe) change only the dose/attention schedule over the same static detached teachers; they do not change teacher coordinates. Analyst's temporal evidence (continuous:0, continuous:2) shows landmark-00 soft mass and local dy have large first/last rate z with sign reversals and small whole-window z, i.e. a time-conditioned rate-change pattern rather than a constant rule. That supports the time-conditioned hypothesis H001/H002 as a description of the observed coordinate contrasts, but the registered temporal recipes are coordinate/attention rewards, not trajectory velocity forces, and the observed rate change is a temporal derivative, not a spatial gradient. D4.1: The incumbent already has time_ramp_power=0.0 (C004) with native_rms_ratio=0.33 (C002), and the delivery diagnostics show first_order_positive_fraction=1.0, zero_injection_fraction=0.0, cap_active_fraction=0.0, backtrack_fraction=0.0 and delivered_over_calibration ~0.33 across all 8 batches, i.e. the incumbent dose is already delivered cleanly and consistently. No supplied evidence converts these coordinate contrasts into affinity benefit: the objective is final predicted target affinity primary, and label semantics state recorded affinities were removed with an equal score prior, so no observed affinity labels exist to justify a change. With maximum_edits=1 and only one bounded declarative choice available, there is no defensible expected affinity advantage over the incumbent, so I retain it. D4.2: Opposing evidence (multiple sign changes and strong sign conflicts in the continuous fits; whole-window z small) predicts that switching to a nonzero time_ramp_power (C005/C006) would impose a monotone dose ramp that does not match the observed non-monotone rate structure, unnecessarily displacing surrounding coordinates late in the window while the affinity objective is unchanged. That predicted failure mode is why I do not select C005/C006.",
+  "role": "Designer"
+}

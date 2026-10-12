@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "curve_support",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "information_audit",
+    "lineage_support",
+    "objective"
+  ],
+  "failure_modes": [
+    "A time-conditioned ramp (C005/C006) would displace surrounding non-landmark coordinates via the positive Gaussian regional weight without an affinity-head derivative, and the information audit states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian.",
+    "A dose-only change (C001/C003) alters native_rms_ratio away from the incumbent 0.33 with no supplied evidence of an expected affinity advantage, risking larger coordinate displacement for no demonstrated benefit.",
+    "Treating the temporal derivative of a contrast feature as a spatial coordinate gradient would be an invalid interpretation; the registered temporal recipe changes only regional attention at observed score nodes, not a velocity target.",
+    "Extrapolating any time-conditioned rule beyond the observed window [0.0,0.5] is unsupported; terminal metadata at score time 0.99 lies outside the observed support."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered choices split into dose-only edits (C001-C003, native_rms_ratio) and time-conditioned edits (C004-C006, time_ramp_power). The incumbent already carries native_rms_ratio=0.33 (C002) and time_ramp_power=0.0 (C004), so the only non-incumbent options are a dose change (C001/C003) or a temporal ramp (C005/C006). Analyst's temporal evidence (F003, H001) shows the continuous contrast features change sign and reverse rate across the observed window with no accepted polynomial, so a time-conditioned teacher/attention recipe is the only direction with a defensible mechanism; a stationary constant rule is not supported. However, the temporal_region recipe changes regional attention at observed score nodes using the same static teachers, and the supplied evidence does not quantify an expected affinity advantage for that change over the incumbent. D4.1: The incumbent is the reference configuration with the declared affinity-first objective; the evidence does not establish a defensible expected advantage for any offered edit, so retaining the incumbent is the correct choice. D4.2: The concrete failure mode of a time-conditioned ramp (C005/C006) is unnecessary displacement of surrounding coordinates: the regional recipe uses a positive surrounding Gaussian weight, so a ramp that grows with score time would push non-landmark coordinates away from their native positions without an affinity-head derivative to justify it, and the information audit (F004) warns that the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian. Because the objective is affinity-first and coordinate graph changes alone are not a failure mechanism, this predicted displacement is a reason to defer the temporal edit rather than adopt it. No temperature edit is proposed; the fixed parameters (mixture_temperature=0.5, teacher_endpoint_temperature_A2=4.0) are immutable.",
+  "role": "Designer"
+}

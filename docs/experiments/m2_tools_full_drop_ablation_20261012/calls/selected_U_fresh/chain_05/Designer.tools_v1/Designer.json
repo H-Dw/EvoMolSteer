@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Adopting a nonzero time_ramp_power (C005/C006) would modulate the endpoint-VJP dose over score time without a validated time-conditioned contrast, displacing surrounding coordinates while leaving the primary affinity endpoint unimproved.",
+    "Changing native_rms_ratio (C001/C003) alters only dose magnitude; with sign-conflicting landmark contrasts this scales unnecessary displacement rather than improving final predicted affinity.",
+    "Treating the large first/last rate z-values of the coordinate features as a spatial gradient or as evidence of neural-module causation would misread a temporal derivative as a coordinate reward direction."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The offered choices are only dose (native_rms_ratio C001-C003) and time-ramp power (C004-C006); none is a teacher-coordinate or regional-attention recipe. The incumbent already carries time_ramp_power=0.0 (C004) with native_rms_ratio=0.33 (C002), so the stationary coordinate target is the incumbent and the time-conditioned alternatives are the ramp powers 1.0/2.0. Analyst's temporal evidence is descriptive only: the inspected continuous contrast features are endpoint-world coordinate features over the observed support [0.0,0.5] with extrapolation disallowed, showing multiple sign changes and strong sign conflicts, and their whole-window z-values are small and mixed in sign while only the first/last rate z-values are large. A temporal derivative of a coordinate feature is not a spatial gradient and does not license a coordinate reward direction, so no time-conditioned rule is validated against the constant rule. D4.1: Compared with the incumbent, no offered edit has a defensible expected advantage; the evidence does not distinguish a ramp from the stationary rule, and the affinity-first objective is not served by an unvalidated dose or ramp change. D4.2: The predicted failure of adopting a ramp is unnecessary displacement of surrounding coordinates: a nonzero ramp power would scale the endpoint-VJP dose over score time, and with sign-conflicting landmark contrasts the surrounding (non-landmark) coordinates would be pushed without a validated affinity benefit, while the primary affinity endpoint is unchanged in expectation. Because coordinate graph changes alone are not a failure mechanism and the affinity-first priority is unmet, retaining the incumbent is the defensible choice.",
+  "role": "Designer"
+}
