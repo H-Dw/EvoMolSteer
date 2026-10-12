@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Ed4e7d28e7b0423e0",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E2bb8390452ed517a",
+      "Ed0d7945bdeeda8f1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "A time-conditioned ramp (C005/C006) displaces surrounding non-landmark coordinates, increasing noncore squared displacement and strain with no demonstrated affinity benefit.",
+      "Selecting a dose-only change (C001/C003) alters injection RMS without any time-conditioned evidence, and the incumbent already matches C002/C004, so it is not a supported edit.",
+      "Treating the observed coordinate contrast curves or their temporal derivatives as physical interaction energies or as a spatial gradient would misstate the reward semantics.",
+      "Presenting last-record survival credit or nearest-teacher distance as final affinity benefit, when no decoded terminal affinity labels are supplied."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered alternatives split into a dose-only knob (native_rms_ratio C001/C002/C003) and a time-conditioned ramp (time_ramp_power C004/C005/C006). The incumbent already sits at native_rms_ratio=0.33 (C002) and time_ramp_power=0.0 (C004), so the only genuinely time-conditioned option is a ramp power edit, which under the temporal_region recipe changes regional attention at observed score nodes while keeping the same static teachers and the same shared FLOWR endpoint. That is a coordinate/attention change, not a teacher-coordinate change and not a velocity force; the observed curves are coordinate contrasts, and a temporal derivative is not a spatial gradient. D4.1: The evidence does not supply a defensible expected advantage for any offered edit. The observed support is the learning window [0.0,0.5] with 50 observed score times, and the curve-support rule retained 24 features under a fidelity rule; the continuous contrasts show sign changes and rate reversals with no accepted polynomial, so a constant rule is unsupported but so is any specific ramp exponent. The information audit states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, and teacher score correlations are observational, not a validated affinity predictor. No decoded terminal affinity labels are supplied, so no realized affinity benefit can be claimed for a ramp. Because the objective is affinity-first and the evidence gives no expected advantage, retaining the incumbent is the defensible choice; the evidence would change this decision only if a validated contrast showed a consistent, non-conflicting sign over the observed window with a decoded affinity endpoint. D4.2: The concrete failure response I predict for a time-conditioned ramp is unnecessary displacement of surrounding coordinates: a ramp that grows the regional attention weight late in the window would pull non-landmark neighbors along with the attended region, raising noncore squared displacement and strain without a demonstrated affinity gain, and could push cumulative RMS toward the 6.0 A constraint. That prediction is why I do not select C005/C006; a coordinate graph change alone is not treated as a failure mechanism, and no temperature, resampling, affinity-head derivative, extra model forward or graph-equality restriction is proposed.",
+    "role": "Designer"
+  }
+}

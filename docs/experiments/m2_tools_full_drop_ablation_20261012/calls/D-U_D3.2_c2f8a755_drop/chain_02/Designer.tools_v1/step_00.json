@@ -1,0 +1,28 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "E52fcd92a3390dbcf",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "A time-conditioned or dose-ramped edit could displace surrounding coordinates without tracking the observed non-monotone landmark and local-derivative sign changes, since no polynomial was accepted and extrapolation is disallowed.",
+      "The endpoint shape_yy/shape_xx coordinate contrasts could move opposite to the signed favorable-versus-comparison direction or lose batch consistency, with no affinity benefit demonstrable because recorded affinities were removed and an equal score prior applies.",
+      "Treating the temporal derivative features as a spatial gradient would misdirect the coordinate update; the evidence supports only observed-node interpolation, not a constant or extrapolated rule."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered temporal recipes (temporal_teacher, temporal_region) change only teacher coordinates/regional attention at observed score nodes, not dose; the offered choices C004-C006 are time_ramp_power values, which the formula registry places in the U-lane dose/ramp path, so they are dose edits rather than teacher-coordinate or attention edits. The Analyst's temporal evidence (continuous:0-3) shows non-monotone, sign-flipping rate features with no accepted polynomial and extrapolation disallowed, so a time-conditioned rule is not defensibly supported over the full window; only observed-node interpolation is warranted. D4.1: The incumbent already has time_ramp_power=0.0 (constant dose) and native_rms_ratio=0.33, matching C002. The endpoint evidence (endpoint_effects:3,4) is a signed coordinate contrast, not an affinity target, and the clocks observation shows recorded affinities were removed with an equal score prior, so no absolute affinity benefit can be claimed for any offered edit. No offered choice provides a defensible expected advantage over the incumbent, so I retain it. D4.2: A concrete failure of a time-conditioned or larger-dose edit would be unnecessary displacement of surrounding coordinates: the non-monotone landmark_00_soft_mass and local_dx/dy/dz features (continuous:0-3) would be driven by a rule that does not track the observed sign changes, and the endpoint shape_yy/shape_xx contrasts (endpoint_effects:3,4) could move in the wrong direction or lose batch consistency. Because affinity is primary and no offered edit is supported by affinity evidence, retaining the incumbent avoids that displacement risk. Temperatures are immutable and were not proposed for edit.",
+    "role": "Designer"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03"
+    ],
+    "failure_modes": [
+      "A nonzero time_ramp_power (C005/C006) would apply a monotone dose schedule to a contrast whose observed-node direction reverses within the window, displacing surrounding coordinates along an unstable direction and risking secondary strain/validity without demonstrated affinity gain.",
+      "Changing native_rms_ratio away from the incumbent 0.33 would alter dose without evidence of advantage, since delivered_over_calibration is already fixed at 0.33 and no decoded terminal affinity outcome is supplied.",
+      "Treating the observed-node contrast curves as absolute reward targets or extrapolating them beyond [0.0,0.5] would be unsupported (polynomial_accepted false, extrapolation_allowed false).",
+      "Interpreting a temporal derivative as a spatial coordinate gradient would mis-specify the reward; the endpoint VJP is the only coordinate gradient."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The offered choices are only dose scalars (native_rms_ratio C001-C003) and time_ramp_power (C004-C006). The incumbent already sits at native_rms_ratio 0.33 (C002) with time_ramp_power 0.0 (C004), so the only registered temporal alternative is a ramp exponent, which changes dose scheduling only; it does not change teacher coordinates or regional attention. Analyst's temporal evidence (F003/F004, H001/H002) shows the observed-node contrast curves are non-monotone with four to ten sign changes, opposing first/last rate z-values, polynomial_accepted false, extrapolation_allowed false and relative node RMSE 0.29-0.78. A monotone ramp exponent cannot express that reversal, and the curves are descriptive diagnostics over the observed window, not absolute reward targets. D4.1: No offered edit has a defensible expected advantage over the incumbent; the incumbent's 0.33 ratio is already the middle registered dose and the delivered_over_calibration is pinned at 0.33 across all batches, so changing dose would not be evidence-driven. D4.2: The predicted failure of a ramp edit is unnecessary displacement of surrounding coordinates: a nonzero ramp power would up-weight late-window endpoint-VJP force, and since the observed contrast direction reverses within the window, that extra late dose would push surrounding coordinates along a direction the diagnostics show is not stable, risking strain and validity without any supplied affinity benefit. Affinity-first priority therefore favors retaining the incumbent. No temperature edit is proposed; temperatures are immutable.",
+    "role": "Designer"
+  }
+}
