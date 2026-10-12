@@ -1,0 +1,217 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/5a5f8d960538018e747b4d853c2a948fcbd117f2118c9d66e3b1bf681dc6891f.txt",
+        "content_sha256": "5a5f8d960538018e747b4d853c2a948fcbd117f2118c9d66e3b1bf681dc6891f",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/5e674ca89210fed57e61ca71c273e622e4728d0c7eedf64d22bfe78b3b52c604.txt",
+        "content_sha256": "5e674ca89210fed57e61ca71c273e622e4728d0c7eedf64d22bfe78b3b52c604",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/2a9827daff54aafca8e0708ededed0dbd3a9ee48a575c09776be96dd0f1d0b7f.txt",
+        "content_sha256": "2a9827daff54aafca8e0708ededed0dbd3a9ee48a575c09776be96dd0f1d0b7f",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "C001",
+                        "C002",
+                        "C003",
+                        "C004",
+                        "C005",
+                        "C006",
+                        "C007",
+                        "C008",
+                        "C009",
+                        "C010",
+                        "C011"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "C001",
+                      "C002",
+                      "C003",
+                      "C004",
+                      "C005",
+                      "C006",
+                      "C007",
+                      "C008",
+                      "C009",
+                      "C010",
+                      "C011"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E03ad082bb04f4f9c",
+                    "E0857891f4effbfe1",
+                    "E1ba2a68ba5243c03",
+                    "E2e106e083189d150",
+                    "E3114d60bf4cd5720",
+                    "E52fcd92a3390dbcf",
+                    "E598d52f84227fbcc",
+                    "E894225fb605458cb",
+                    "Eaa4bda02c9a2c3a1",
+                    "Eace79c1f0f54c9d1",
+                    "Ecbb36ef90768cba0",
+                    "Ed9b75ded9192a9b0",
+                    "Ee92b78bec6fdbbb4",
+                    "Efd40af47235b6ecf"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "enum": [
+                    "H001",
+                    "H002"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

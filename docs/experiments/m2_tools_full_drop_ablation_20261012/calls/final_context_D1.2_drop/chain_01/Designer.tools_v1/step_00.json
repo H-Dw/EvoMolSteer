@@ -1,0 +1,28 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "Ed4e7d28e7b0423e0",
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "E2bb8390452ed517a",
+      "Ed0d7945bdeeda8f1"
+    ],
+    "failure_modes": [
+      "If a temporal blend (C009-C011) were selected, the observed sign reversals in continuous contrast features (e.g. landmark_00_soft_mass, landmark_00_local_dy) could drive the reward in the wrong direction at later observed nodes, unnecessarily displacing surrounding coordinates without affinity benefit.",
+      "If teacher_neighbors were reduced (C005) or increased (C007), the detached nearest-teacher prior would shift the endpoint pointcloud reward geometry; with only observational teacher score correlations and no validated affinity predictor, this could move coordinates away from the native predictive update without improving final predicted affinity.",
+      "If pointcloud_delta_A were changed (C001/C003), the robust endpoint distance kernel would rescale the reward, altering coordinate displacement magnitude while the primary affinity objective remains unmeasured, risking unnecessary strain or validity loss.",
+      "Any edit risks unnecessary displacement of surrounding coordinates because the reward is a coordinate contrast, not a physical interaction energy or affinity-head derivative, and no current-study outcome data are available to confirm benefit."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Affinity-first priority with coordinate control only. The incumbent already sits at the registered defaults (pointcloud_delta_A=1.0 -> C002, teacher_neighbors=4 -> C006, region_index=0 -> C004, temporal_region_index=0 -> C008), so the offered choices that match the incumbent are not edits. The remaining offered choices (C001/C003 delta, C005/C007 neighbor counts, C009-C011 temporal blend) would change the reward geometry or attention without any supplied evidence of expected affinity advantage: the observed support is only the learning window [0.0,0.5] with 50 observed score times, the curve-support rule retained 24 features under a fidelity rule, and the continuous contrast features show sign changes and rate reversals with no accepted polynomial, so a constant or time-conditioned rule cannot be justified as better than the incumbent. The information audit explicitly states the nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian and that teacher score correlations are observational, not a validated affinity predictor; lineage support shows heavy ancestral sparsity and that last-record survival credit is not terminal affinity. No decoded terminal affinity labels or current-study outcomes are available, so no defensible expected advantage exists for any registered edit. Retaining the incumbent is therefore the evidence-supported choice; the evidence would change this decision only if a validated contrast feature showed a consistent, fidelity-passing direction within the observed window with a demonstrated endpoint-reward advantage.",
+    "role": "Designer"
+  }
+}

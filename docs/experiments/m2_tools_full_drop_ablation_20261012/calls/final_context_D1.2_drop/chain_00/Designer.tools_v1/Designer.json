@@ -1,0 +1,33 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "curve_support",
+    "information_audit",
+    "lineage_support",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting C001/C003 (pointcloud_delta_A 0.5 or 2.0) or C005/C007 (teacher_neighbors 2 or 8) would change the endpoint pointcloud scale or teacher count with no affinity-side evidence, and the larger delta or neighbor count can displace surrounding coordinates through the detached endpoint mean-squared-distance term without any demonstrated final-affinity benefit.",
+    "Selecting C009/C010/C011 (temporal_teacher_blend) would impose a time-conditioned teacher contrast whose observed-node fits show 4-10 sign changes and 1-9 strong sign conflicts at relative node RMSE 0.29-0.78, so the blend could chase sign-unstable contrasts and displace surrounding coordinates at observed score nodes while the primary affinity objective remains unmeasured.",
+    "Selecting C004/C008 (region_index or temporal_region_index) would reweight regional landmark attention using a static teacher set whose geometric proximity metrics are explicitly not the score-weighted reward or its FLOWR Jacobian, risking unnecessary displacement of surrounding coordinates for a non-causal geometric descriptor.",
+    "Treating last-record survival credit or compressed-choice excess fixed RMS as final affinity benefit would be a semantic error: survival credit is not terminal affinity, ancestral coverage is sparse (349 nodes with fewer than 3 ancestors, 531 with fewer than 6), and the excess-distance contrast is nonnegative by construction.",
+    "Any temperature edit is an interface violation and is not available; mixture_temperature and teacher_endpoint_temperature_A2 are immutable fixed parameters."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Objective is final predicted target affinity primary with validity and strain secondary and coordinate control only (Eaa4bda02c9a2c3a1); recorded affinities are removed and the label prior is equal-score over the observed window [0.0,0.5] at 0.01 score spacing (E0857891f4effbfe1), so no observed affinity outcome can rank the offered edits. The curve-support selection rule (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05, no scale floor) yields 24 selected features under relative RMSE <= 0.35 with zero strong sign conflicts (Ed4e7d28e7b0423e0), but the inspected continuous contrast fits are observed-node linear interpolations with extrapolation disallowed and polynomial fits rejected, showing 4-10 sign changes and 1-9 strong sign conflicts at relative node RMSE 0.29-0.78 (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03). That supports H001 only weakly: a time-conditioned contrast is not identified well enough to justify changing the registered temporal blend or region index, and the incumbent already uses teacher_neighbors=4 with pointcloud_delta_A=1.0, so C002/C006 are the incumbent values and C001/C003/C005/C007 would move the endpoint pointcloud scale or teacher count without any affinity-side evidence. The information audit states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction rather than a causal affinity effect (E2bb8390452ed517a), and lineage support covers 14 complete survival batches over 700 batch nodes with terminal metadata at score time 0.99 and state time 1.0 but 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, with BH multiple testing over 400 survival field/measure tests explicitly not terminal affinity effects (Ed0d7945bdeeda8f1). H002 therefore stands: the compressed-choice excess fixed RMS is a geometric descriptor of teacher proximity, not an affinity gain, so it cannot justify an edit. With one maximum edit, no decoded terminal affinity labels, and no defensible expected affinity advantage for any offered choice, retaining the incumbent is the evidence-supported decision; deferral is not needed because the incumbent is a valid registered configuration and the evidence affirmatively fails to support displacement.",
+  "role": "Designer"
+}

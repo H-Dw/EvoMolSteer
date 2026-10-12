@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "E2e106e083189d150",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "If a shape-contrast edit were approximated by an unregistered delta_A change, the detached endpoint kernel would rescale all coordinates uniformly, displacing surrounding coordinates without selectively reducing shape_yy/shape_xx and risking native-pose drift and clash/strain violations.",
+      "Temporal_teacher_blend or temporal_region choices would change attention at observed score nodes only; since landmark_00_soft_mass is non-monotone with 4 sign changes and no accepted polynomial, a constant or mis-timed blend could push the contrast in the wrong direction at some observed nodes while leaving the endpoint shape contrast unchanged.",
+      "teacher_neighbors changes (C005/C007) alter the detached nearest-k prior; with no evidence that k is mis-set, this risks perturbing the prior without addressing the signed endpoint contrast, degrading affinity-primary performance.",
+      "Retaining the incumbent leaves the observed shape_yy/shape_xx endpoint contrast unaddressed; if that contrast is causally favorable, the expected affinity gain is forgone, but no registered choice offers a defensible alternative."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "The Analyst's strongest signed endpoint contrasts are shape_yy (q~1.5e-5, 0/14 positive batches) and shape_xx (q~8e-4, 1/14 positive), with centroid_y weaker (q~0.014) and centroid_x/z null; continuous landmark features are non-monotone with no accepted polynomial and extrapolation disallowed. The registered choices offered here are pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007), temporal_region_index (C008) and temporal_teacher_blend (C009-C011). None of these is a shape_yy/shape_xx contrast edit: delta_A rescales the detached endpoint distance kernel, region/temporal_region indices and teacher_neighbors/blend alter teacher attention, not the signed shape contrast the evidence favors. The incumbent already uses pointcloud_delta_A=1.0 and teacher_neighbors=4, so C002/C006 would be no-ops, and the remaining choices lack a defensible expected advantage on the affinity-primary objective. Because the evidence supports a direction (reduce shape_yy/shape_xx endpoint contrast) that no registered bounded choice implements, and the task forbids inventing parameters, retaining the incumbent is the correct affinity-first decision rather than displacing coordinates with an unsupported edit.",
+    "role": "Designer"
+  }
+}

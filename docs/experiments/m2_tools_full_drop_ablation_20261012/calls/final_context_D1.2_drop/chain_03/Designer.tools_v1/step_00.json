@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03"
+    ],
+    "failure_modes": [
+      "Selecting a nonzero temporal_teacher_blend (C009-C011) without a validated observed-node fit would apply an unvalidated time-conditioned contrast, displacing surrounding coordinates in the observed window [0.0,0.5] without demonstrated affinity benefit, contrary to the affinity-first priority.",
+      "Changing pointcloud_delta_A (C001/C003) or teacher_neighbors (C005/C007) alters the endpoint reward scale or teacher count with no supplied evidence of expected affinity advantage, risking unnecessary coordinate displacement and secondary strain.",
+      "Treating the non-monotone continuous contrast curves as absolute reward targets would over-extrapolate descriptive diagnostics (polynomial_accepted=false, extrapolation_allowed=false) beyond the observed support.",
+      "Presenting last-record, survival, or selection credit as final predicted affinity benefit would misstate the objective, since no decoded terminal affinity labels are available to this role."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "The incumbent already sits at the registered defaults for every offered choice: pointcloud_delta_A=1.0 (C002), teacher_neighbors=4 (C006), and no temporal blend (C009-C011 are the only temporal_teacher_blend options, all nonzero). The Analyst's continuous-trend evidence is descriptive only: polynomial_accepted=false, extrapolation_allowed=false, relative node RMSE ~0.29-0.78, and the curves are observed-node contrast diagnostics, not absolute reward targets or extrapolable trajectories. That evidence supports H002 (a single signed whole-window contrast is unsupported) but does not establish a defensible expected advantage for any specific registered edit. H001's time-conditioned weighting would require a validated observed-node fit reproducing the sign changes; no such validated fit is supplied, and the offered temporal_teacher_blend values are fixed nonzero scalars rather than a validated time-conditioned contrast, so selecting one would be an unvalidated displacement of the reward away from the incumbent. Because the objective is affinity-primary and no decoded terminal affinity labels or final predicted affinity outcomes are available to this role, no offered edit has evidence of expected affinity advantage over the incumbent. Retaining the incumbent is therefore the evidence-supported choice; the decision would change to an edit only if a validated observed-node fit or a registered recipe expressing the non-monotone contrast were supplied.",
+    "role": "Designer"
+  }
+}

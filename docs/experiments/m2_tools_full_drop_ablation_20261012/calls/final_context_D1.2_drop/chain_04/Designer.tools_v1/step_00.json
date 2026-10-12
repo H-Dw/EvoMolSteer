@@ -1,0 +1,27 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "Eaa4bda02c9a2c3a1",
+      "E894225fb605458cb",
+      "Eace79c1f0f54c9d1"
+    ],
+    "failure_modes": [
+      "Applying a constant or endpoint-anchored coordinate contrast rule would miss the within-window sign reversal in landmark-00 soft mass and local dy rates, producing a mis-signed reward over part of the observed window.",
+      "Increasing pointcloud_delta_A or teacher_neighbors without affinity-label evidence would displace surrounding coordinates (larger endpoint pointcloud tolerance or broader teacher set) with no demonstrated primary-objective benefit, and could push cumulative RMS toward the 6.0 A constraint.",
+      "Treating these coordinate contrasts as physical interaction energies or as affinity benefit would overstate the evidence, since recorded affinities were removed and no decoded terminal labels are supplied.",
+      "A temporal blend edit would change only a registered scalar/attention weight, not a velocity target, so it cannot be justified as a trajectory force improvement from the delivered evidence."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "The Analyst's coordinate contrasts are whole-window observed-node linear fits with extrapolation disallowed and polynomial fits rejected, and the curve-support audit reports selected_count 0, so no selection-enriched node subset exists to justify a signed favorable-versus-comparison edit. The landmark-00 features show large first/last rate z with multiple sign changes and strong sign conflicts but small whole-window z, i.e. the rate of change itself reverses within [0.0,0.5]; a constant or endpoint-anchored rule is not supported, and a time-conditioned rule would require a validated contrast function that the evidence does not establish as an affinity benefit. Label semantics state recorded affinities were removed with an equal score prior, so no observed affinity labels convert these coordinate contrasts into the primary objective (final predicted target affinity). The registered choices are pointcloud_delta_A, region_index, teacher_neighbors and temporal blend scalars; none is tied by the delivered evidence to an expected affinity advantage, and the incumbent already uses pointcloud_delta_A=1.0 and teacher_neighbors=4. Under the affinity-first priority, an unsupported coordinate displacement risks unnecessary movement of surrounding coordinates without a defensible expected affinity gain, so the incumbent is retained rather than edited or deferred.",
+    "role": "Designer"
+  }
+}
