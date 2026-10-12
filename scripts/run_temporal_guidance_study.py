@@ -121,6 +121,7 @@ class TemporalStudy(Study):
             pieces.append(piece)
         frames = [pd.read_csv(self.repo / p['outcomes']['gradient']['metrics']) for p in pieces]
         target = self.study / 'transport_records' / (signature[:16] + '_' + label + '.metrics.csv')
+        target.parent.mkdir(parents=True, exist_ok=True)
         pd.concat(frames, ignore_index=True).to_csv(target, index=False)
         result = {'name': label, 'effective_signature': signature,
                   'outcomes': {'gradient': {'metrics': target.relative_to(self.repo).as_posix()}},
