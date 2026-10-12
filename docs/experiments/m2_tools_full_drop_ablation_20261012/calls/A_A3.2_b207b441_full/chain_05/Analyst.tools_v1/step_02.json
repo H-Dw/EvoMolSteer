@@ -1,0 +1,83 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached-Hungarian endpoint mean squared distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The observed learning window is the score-time interval [0.0, 0.5] with 50 observed score nodes at 0.01 spacing, and the curve support is [0.0, 0.49]; recorded affinities were removed and an equal score prior applies, so no absolute affinity label is present in the supplied observations.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast features over the observed support are non-monotone: landmark_00_soft_mass shows 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dx shows 6 sign changes with 9 strong sign conflicts; a constant rule is therefore not supported by these observed-node linear fits.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Several landmark_00 local contrast features have large-magnitude first and last rate z-scores of opposite sign (e.g. local_dy first_rate_z strongly negative and last_rate_z positive; local_cyy first_rate_z negative and last_rate_z positive), indicating rate changes within the observed window rather than a single constant rate.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Polynomial fits are not accepted for the inspected continuous trends and extrapolation is disallowed, so time-conditioned statements must remain within the observed support and cannot be extended beyond it.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "A constant rule matching the observed-node contrast values within the reported node RMSE across the window would falsify the need for time conditioning.",
+        "observable": "landmark_00_soft_mass and landmark_00_local_dx/dy contrast values at observed score nodes",
+        "scope": "observed support [0.0, 0.5] only; no extrapolation",
+        "statement": "A time-conditioned coordinate contrast rule over the observed window [0.0, 0.5] would track the observed sign changes in landmark_00 soft-mass and local displacement contrasts better than a constant rule, using only observed-node interpolation."
+      },
+      {
+        "direction": "rate reversal within window",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E1ba2a68ba5243c03",
+          "E894225fb605458cb"
+        ],
+        "falsifier": "A validated fit with no accepted sign change and consistent first/last rate sign would falsify the reversal claim.",
+        "observable": "first_rate_z versus last_rate_z sign and magnitude for landmark_00 local features",
+        "scope": "observed score nodes only",
+        "statement": "The observed within-window rate reversals in landmark_00 local contrasts reflect changing coordinate contrast structure rather than a single stable geometric descriptor."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or final affinity outcomes are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+      "The supplied observations are coordinate contrast and trend diagnostics only; they are not physical interaction energies or evidence of neural-module causation.",
+      "Only six of 200 continuous_trends rows were read; other features and tables (branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, regional_effects, survival_effects, turnover_accounting, lineage_support) were not inspected in this turn.",
+      "No temperature edit is proposed or permitted; temperatures are immutable fixed parameters."
+    ],
+    "role": "Analyst"
+  }
+}

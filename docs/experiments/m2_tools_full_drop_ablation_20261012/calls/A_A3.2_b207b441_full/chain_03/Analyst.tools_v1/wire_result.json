@@ -1,0 +1,82 @@
+{
+  "findings": [
+    {
+      "claim": "The observed window is the learning window [0.0,0.5] with 50 observed score times at 0.01 spacing; recorded affinities are removed and an equal score prior is used, so no absolute affinity label is available inside the observed support.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The curve-support selection rule is explicit and bounded: absolute integrated z >= 0.1, batch direction fraction >= 0.857, scale-floor exclusion, and q < 0.05, yielding 24 selected curves; the fidelity rule requires relative RMSE <= 0.35, zero strong sign-conflict nodes, and quiet-node large-fit fraction <= 0.1. This is a selection-enrichment criterion, not an absolute geometric descriptor.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Independent statistical units are 14 batches; the information audit reports batch-bootstrap CIs for compressed-choice excess fixed RMS (mean 0.081 A, CI 0.070-0.092), fixed RMS (mean 0.564 A), proper-rigid RMS (mean 0.529 A), top-4 teacher overlap (mean 0.470), and chosen-teacher score correlations (compressed 0.102, full 0.064). These are observational diagnostics, not a fitted or validated affinity predictor.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Terminal metadata show one future-resampling node per batch at terminal index 99 (score time 0.99, state time 1.0), outside the observed window [0.0,0.5]; 349 of 700 nodes have fewer than 3 ancestors and 531 have fewer than 6, so ancestral coverage is sparse and last-record credit cannot be presented as final affinity benefit.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Survival multiple testing is BH-adjusted jointly over 400 survival field/measure tests and is explicitly not a terminal affinity effect; the lineage storage is two parent-debiased moment strata plus a compact credit table, so survival credit is a separate semantic from decoded terminal labels.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "favorable-minus-comparison signed contrast",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "No selected curve satisfies the declared fidelity rule (relative RMSE <= 0.35, zero strong sign-conflict nodes) or the batch direction fraction falls below the declared threshold.",
+      "observable": "Signed coordinate contrast at observed selection nodes over [0.0,0.5]",
+      "scope": "observed selection nodes, complete observed window",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes, evaluated over the complete observed window, are enriched relative to the equal-score prior; the enrichment is a selection contrast and not an absolute geometric target."
+    },
+    {
+      "direction": "time-conditioned versus constant",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "No sign change or rate change is observed within the observed support, or the time-conditioned fit fails the declared fidelity rule.",
+      "observable": "Contrast value and its rate at observed score nodes",
+      "scope": "observed score nodes only, no extrapolation",
+      "statement": "A time-conditioned contrast rule (validated absolute contrast changes regional attention at observed score nodes) differs from a constant rule across the observed support, with sign changes and rate changes detectable at observed nodes without extrapolation."
+    },
+    {
+      "direction": "disagreement-aware priority",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "Selection and survival directions agree across all independent batches, or the survival tests are shown to be terminal affinity effects.",
+      "observable": "Sign agreement between selection contrast and survival effect direction",
+      "scope": "14 independent batches, observed window",
+      "statement": "Immediate selection evidence and available descendant survival credit may disagree in direction; where they do, direction priorities should follow the disagreement rather than treating last-record credit as final affinity benefit."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels are supplied; last-record and survival credit cannot be interpreted as final affinity benefit, and the terminal comparison is unavailable.",
+    "The information audit explicitly states its metrics are not the full score-weighted reward or its FLOWR Jacobian, and that teacher score correlations are observational, not a fitted or independently validated affinity predictor.",
+    "Curve fidelity details are stored as a container summary only; individual per-curve numeric contents were not read, so per-curve sign-change and rate-change claims remain unverified.",
+    "No current study outcome data are available to this role, so no causal selection effect, atom velocity, or neural-module causation is claimed.",
+    "Temperatures are immutable task parameters and were not proposed for edit."
+  ],
+  "role": "Analyst"
+}

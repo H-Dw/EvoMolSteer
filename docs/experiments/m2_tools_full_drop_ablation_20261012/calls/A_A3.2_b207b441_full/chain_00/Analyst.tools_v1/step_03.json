@@ -1,0 +1,72 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Endpoint-coordinate contrasts over the observed window are dominated by shape (second-moment) descriptors rather than centroid translation: shape_yy shows the strongest integrated high-low contrast (z=-0.513, q=1.5e-5, 0/14 batches positive), with shape_xx (z=-0.495, q=8.1e-4) and shape_zz (z=-0.183, q=0.067) aligned in sign. Centroid components are weak or null (global_centroid_x z=-0.111, q=0.257; global_centroid_z z=-0.061, q=0.481), with only global_centroid_y reaching significance (z=-0.243, q=0.014). This is a signed favorable-versus-comparison contrast at the observed selection nodes, not an absolute geometric target.",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "Efd40af47235b6ecf",
+          "Ed9b75ded9192a9b0",
+          "E52fcd92a3390dbcf",
+          "Ee92b78bec6fdbbb4"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The continuous contrast functions are non-monotone across the full observed support: landmark_00_local_dy has 6 sign changes with first_rate_z=-72.4 and last_rate_z=+5.5; landmark_00_local_dx has 6 sign changes (first_rate_z=-17.5, last_rate_z=+8.1); landmark_00_soft_mass has 4 sign changes (first_rate_z=+9.3, last_rate_z=-10.0). No polynomial was accepted and extrapolation is disallowed, so a constant rule is not supported and only observed-node interpolation is admissible.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "Eace79c1f0f54c9d1",
+          "E2e106e083189d150"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Endpoint contrasts and within-window temporal deltas disagree in magnitude and sign for several features: shape_yy has a large integrated contrast (z=-0.513) but a positive last-minus-first delta (z=+0.148), and shape_xx has a large integrated contrast (z=-0.495) with a near-zero delta (z=+0.002). This indicates the integrated high-low separation is not simply a monotone within-window drift, so endpoint-integrated credit and temporal-derivative credit must be treated as distinct quantities.",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "Efd40af47235b6ecf"
+        ],
+        "priority": 3
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "Eace79c1f0f54c9d1",
+          "E2e106e083189d150"
+        ],
+        "falsifier": "If a constant rule matches the observed-node contrast values within the reported relative_node_RMSE across the window, the time-conditioned hypothesis is rejected.",
+        "observable": "landmark_00_local_dx / landmark_00_local_dy / landmark_00_soft_mass observed-node contrast values",
+        "scope": "observed score window [0.0,0.5], predicted_endpoint_world_A features",
+        "statement": "A time-conditioned coordinate contrast rule (using validated observed-node interpolation of the landmark local-contrast curves) will express the endpoint shape separation better than a constant rule, because the supplied contrast functions change sign within the observed window."
+      },
+      {
+        "direction": "shape-descriptor priority over centroid",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "Efd40af47235b6ecf",
+          "Ed9b75ded9192a9b0",
+          "Ee92b78bec6fdbbb4"
+        ],
+        "falsifier": "If centroid components show equal or larger multiplicity-adjusted integrated contrasts than the shape components, the shape-priority hypothesis is rejected.",
+        "observable": "shape_xx / shape_yy / shape_zz integrated high-low contrast z",
+        "scope": "observed selection nodes, complete observed window",
+        "statement": "The dominant endpoint shape (second-moment) contrast, not centroid translation, is the coordinate pattern most consistent with favorable-versus-comparison separation at the observed selection nodes."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or final affinity outcomes are supplied; endpoint-integrated contrasts are coordinate contrasts, not evidence of final affinity benefit.",
+      "Continuous-trend rows are diagnostic coordinate contrasts; they are not absolute reward targets and no extrapolation beyond the observed window is permitted.",
+      "Joint/coupling, survival, increment and turnover tables were not read in this budget; coupling and survivor-bias questions remain unaddressed.",
+      "No temperature or reward-parameter edit is proposed; temperatures are immutable task parameters."
+    ],
+    "role": "Analyst"
+  }
+}

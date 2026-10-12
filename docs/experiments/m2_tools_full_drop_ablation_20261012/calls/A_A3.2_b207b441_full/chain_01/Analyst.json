@@ -1,0 +1,73 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities were removed and an equal score prior is used, so no absolute affinity target is available in the supplied evidence.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5]; the curve-support selection rule (|integrated z|>=0.1, batch-direction fraction>=0.857, q<0.05, scale floor excluded) selected 24 of 200 continuous features, and the fidelity rule requires relative RMSE<=0.35, quiet-node large-fit fraction<=0.1 and zero strong sign-conflict nodes.",
+      "evidence_ids": [
+        "curve_support",
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The information audit reports 14 independent batches and explicitly states its geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, that nonnegative excess distance is by construction rather than a causal affinity effect, and that teacher score correlations are observational, not a validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Lineage support shows 14 complete-survival batches over 700 total batch nodes, with 349 nodes having fewer than 3 ancestors and 531 fewer than 6; terminal metadata place terminal score time at 0.99 and state time at 1.0, outside the observed 0.0-0.49 window, so last-record credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "favorable-minus-comparison sign",
+      "evidence_ids": [
+        "curve_support",
+        "information_audit"
+      ],
+      "falsifier": "sign changes or strong sign conflicts across the observed support, or batch-direction fraction below the selection threshold",
+      "id": "H001",
+      "observable": "signed coordinate contrast at observed selection nodes",
+      "scope": "observed window 0.0-0.49, selection nodes only",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes over the complete observed window may carry selection-enrichment information, but this is a selection contrast and not an absolute geometric descriptor or physical interaction energy."
+    },
+    {
+      "direction": "time-conditioned versus constant",
+      "evidence_ids": [
+        "curve_support",
+        "clocks"
+      ],
+      "falsifier": "no accepted polynomial fit, relative node RMSE above 0.35, or no sign/rate change across the window",
+      "id": "H002",
+      "observable": "continuous contrast function over observed score nodes",
+      "scope": "observed support only, no extrapolation",
+      "statement": "A time-conditioned contrast rule may differ from a constant rule if validated fits show sign changes or rate changes across the observed support; a contrast curve is not an absolute reward target."
+    }
+  ],
+  "limitations": [
+    "No current-study outcome data are supplied to the design roles; final affinity benefit cannot be evaluated here.",
+    "Terminal labels are not decoded in the supplied evidence, so last-record joint-head credit is not evidence of final affinity benefit.",
+    "The information audit's geometric comparison is not the full score-weighted reward or its FLOWR Jacobian, and its excess-distance and score-correlation metrics are observational, not causal affinity effects.",
+    "Uncertainty, multiplicity-adjusted support and coverage rankings were not read in this turn, so no concrete priority decision differing from point-estimate ranking is asserted.",
+    "Joint covariance, intact-conformation and mode diagnostics were not read, so no coupling or redundancy claim is made.",
+    "Turnover accounting and parent-child increment contrasts were not read, so within-path change versus changing cohort composition is not resolved."
+  ],
+  "role": "Analyst"
+}

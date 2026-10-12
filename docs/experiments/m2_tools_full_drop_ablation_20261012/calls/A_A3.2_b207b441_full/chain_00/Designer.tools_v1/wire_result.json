@@ -1,0 +1,27 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Ecbb36ef90768cba0",
+    "E3114d60bf4cd5720",
+    "Efd40af47235b6ecf",
+    "Ed9b75ded9192a9b0",
+    "Ee92b78bec6fdbbb4",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "If a narrower delta (C001) were chosen without spatial-scale evidence, the robust kernel would over-weight small endpoint displacements, producing unnecessary displacement of surrounding coordinates and possible severe-receptor-clash constraint activation.",
+    "If a broader delta (C003) were chosen, the kernel would flatten the shape_yy/shape_xx separation that carries the dominant contrast, degrading the coordinate signal the incumbent currently expresses.",
+    "If temporal_teacher_blend (C009-C011) were chosen, teacher coordinates would be altered at observed score nodes despite non-monotone, sign-changing contrast curves with no accepted polynomial, risking attention misallocation and a temporal-derivative/spatial-gradient conflation.",
+    "If teacher_neighbors were changed (C005/C007), mode coverage would shift without bandwidth evidence, since neighbor count is not a distance bandwidth, potentially dropping competing directions or diluting the dominant shape mode."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Incumbent already sits at pointcloud_delta_A=1.0 (C002) with teacher_neighbors=4 (C006) and static endpoint reward; the offered edits are the only registered bounded declarative changes. Analyst evidence supports the incumbent's shape-descriptor regime: shape_yy (z=-0.513, q=1.5e-5) and shape_xx (z=-0.495, q=8.1e-4) dominate while centroid components are weak/null (global_centroid_x q=0.257, global_centroid_z q=0.481), consistent with H002 and with the incumbent's endpoint_pointcloud reward view. H001's time-conditioned alternative is not actionable here: the landmark local-contrast curves are non-monotone with 6 sign changes and no accepted polynomial, and the temporal_teacher/temporal_region choices (C008-C011) would change teacher coordinates or regional attention rather than dose, which the evidence does not justify over the static teacher. The delta choices C001/C003 would alter the robust-kernel curvature without any supplied spatial-scale or uncertainty evidence favoring a narrower or broader bandwidth, and neighbor-count choices C005/C007 are counts, not distance bandwidths, so they cannot be justified from the delivered dispersion evidence. Because endpoint-integrated contrasts and within-window temporal deltas disagree in sign and magnitude (F003), and no decoded terminal labels or final affinity outcomes are supplied, no offered edit has a defensible expected affinity advantage over the incumbent; retaining the incumbent is the affinity-first choice.",
+  "role": "Designer"
+}

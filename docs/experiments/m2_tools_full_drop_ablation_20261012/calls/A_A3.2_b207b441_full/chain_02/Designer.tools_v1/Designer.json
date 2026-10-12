@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "curve_support",
+    "information_audit",
+    "lineage_support"
+  ],
+  "failure_modes": [
+    "Selecting C001/C003 (pointcloud_delta_A 0.5 or 2.0) would alter the distance-response curvature without any supplied spatial-scale or uncertainty evidence supporting that curvature, risking unnecessary displacement of surrounding coordinates under the affinity-first priority.",
+    "Selecting C004/C006 (teacher_neighbors 2 or 8) would narrow or broaden the teacher neighborhood without intact-teacher dispersion or joint-geometry evidence, changing mode coverage and competing directions while neighbor count is not a distance bandwidth.",
+    "Selecting C007-C009 (temporal_teacher_blend) would change teacher coordinates or regional attention at observed score nodes without validated temporal contrast evidence, and could be misread as a velocity target even though a temporal derivative is not a coordinate gradient.",
+    "Treating the weak observational teacher-score correlations or the nonnegative excess distance as a validated affinity predictor would overstate the audit and misdirect the reward edit."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the detached-Hungarian endpoint pointcloud with native FLOWR endpoint VJP (Eaa4bda02c9a2c3a1). Observed support is the learning window [0.0,0.5] at 0.01 spacing with recorded affinities removed under an equal score prior (E0857891f4effbfe1), and the curve-support selection rule yields 24 selected features (Ed4e7d28e7b0423e0). The information audit rests on 14 independent batches with leave-one-batch exclusion, shows only a small compressed-choice excess fixed-RMS (whole-window mean about 0.081 A) and weak chosen-teacher score correlations (about 0.10 compressed, 0.064 full), so teacher-score correlation is observational and not a validated affinity predictor (E2bb8390452ed517a). Lineage support covers 14 complete-survival batches over 700 batch nodes but 349 nodes have fewer than 3 ancestors and 531 fewer than 6, with a single future-resampling node per batch at terminal score time 0.99, so ancestral coverage is sparse and last-record credit cannot be read as final affinity benefit (Ed0d7945bdeeda8f1). No current study outcome is available to this role, so no registered edit can be shown to have a defensible expected advantage over the incumbent. The incumbent already uses pointcloud_delta_A=1.0 and teacher_neighbors=4, so C002/C005 would be no-ops and C001/C003/C004/C006 would be unsupported curvature or bandwidth changes; the temporal_teacher_blend choices C007-C009 would change teacher coordinates or dose without validated temporal evidence, and H001/H002 remain untested hypotheses rather than established directional signal. Retaining the incumbent is therefore the evidence-supported choice.",
+  "role": "Designer"
+}

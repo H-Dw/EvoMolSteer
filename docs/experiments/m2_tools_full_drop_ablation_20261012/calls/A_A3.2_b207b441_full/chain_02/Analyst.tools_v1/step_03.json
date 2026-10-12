@@ -1,0 +1,68 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The observed support is the learning window [0.0,0.5] with 50 observed score times at 0.01 spacing, and recorded affinities were removed under an equal score prior; the curve-support selection rule requires absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05 and exclusion of the scale floor, yielding 24 selected features.",
+        "evidence_refs": [
+          "E0857891f4effbfe1",
+          "Ed4e7d28e7b0423e0"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "The information audit is based on 14 independent batches with leave-one-batch exclusion; the compressed-choice excess fixed-RMS is small (whole-window mean about 0.081 A) while the chosen-teacher score correlations are weak (compressed about 0.10, full about 0.064), so teacher-score correlation is observational and not a validated affinity predictor.",
+        "evidence_refs": [
+          "E2bb8390452ed517a"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Lineage support covers 14 complete-survival batches over 700 total batch nodes, but 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, and terminal metadata show a single future-resampling node per batch at terminal score time 0.99; ancestral coverage is therefore sparse and last-record credit cannot be presented as final affinity benefit.",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "Favor signed contrast-bound coordinate rewards over untyped marginal proxies",
+        "evidence_refs": [
+          "Ed4e7d28e7b0423e0",
+          "E2bb8390452ed517a"
+        ],
+        "falsifier": "Contrast direction fails to replicate across independent batches or is explained entirely by selection enrichment rather than a geometric descriptor",
+        "observable": "Signed coordinate contrast at observed selection nodes over the full observed window",
+        "scope": "Observed selection nodes within the learning window [0.0,0.5]",
+        "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes over the complete observed window may carry more usable directional signal than isolated marginal descriptors, provided the population, label and observable are bound and selection enrichment is distinguished from an absolute geometric descriptor."
+      },
+      {
+        "direction": "Let disagreement between immediate and descendant credit affect direction priorities",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1",
+          "E2bb8390452ed517a"
+        ],
+        "falsifier": "Immediate and descendant credit agree within batch uncertainty, or the disagreement is fully attributable to survivor bias",
+        "observable": "Difference between immediate selection contrast and descendant survival/quality credit",
+        "scope": "Nodes with at least one observed descendant within the window",
+        "statement": "Immediate selection evidence may disagree with available descendant survival or quality credit, and such disagreement should reorder direction priorities rather than be averaged into a single unsupported target."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels are supplied, so last-record credit cannot be interpreted as final affinity benefit and the immediate-versus-terminal comparison is unavailable.",
+      "Teacher score correlations are observational and not a fitted or independently validated affinity predictor; the audit is not the full score-weighted reward or its FLOWR Jacobian.",
+      "Nonnegative excess distance is by construction and is not a causal affinity effect; proper rigid alignment retains fixed Hungarian correspondence rather than a globally solved rotation/permutation distance.",
+      "Node summaries describe correlated within-batch candidates, so uncertainty rests on independent batches rather than node counts.",
+      "No current study outcome data are available to this role, so no reward recipe can be validated here."
+    ],
+    "role": "Analyst"
+  }
+}

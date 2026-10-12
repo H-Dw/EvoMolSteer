@@ -1,0 +1,98 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed learning window is the score-time interval 0.0 to 0.5 with 50 observed score nodes, and the curve support is the same interval; recorded affinities were removed and an equal score prior applies, so no absolute affinity label is observed.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Across the read continuous-trend rows, no polynomial fit is accepted and extrapolation is disallowed; the observed-node linear method is used, so any time-conditioned contrast rule must be restricted to the observed support rather than extrapolated.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The read landmark features show multiple sign changes and strong sign conflicts within the window (e.g. landmark_00_soft_mass has 4 sign changes and 1 strong conflict; landmark_00_local_dx has 6 sign changes and 9 strong conflicts), so a constant-sign rule is not supported and a time-conditioned rule is the better-supported form.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "First-rate and last-rate z values for the same feature frequently disagree in sign (e.g. landmark_00_soft_mass first_rate_z positive and last_rate_z negative; landmark_00_local_dx first_rate_z negative and last_rate_z positive), indicating rate changes across the observed support rather than a single stable trend.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "Whole-window z values for the read features are small in magnitude relative to the endpoint rate z values, so the integrated whole-window contrast is weak even where local rates are large; point-estimate ranking alone would overstate these features.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F006",
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast over observed support",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "clocks"
+      ],
+      "falsifier": "no improvement in observed-node fit fidelity or sign-change tracking relative to a constant rule within the observed window",
+      "id": "H001",
+      "observable": "landmark contrast value at observed score nodes",
+      "scope": "observed window 0.0 to 0.5 only",
+      "statement": "A time-conditioned coordinate contrast over the observed score window, using validated observed-node interpolation of the landmark contrast functions, will track the observed sign changes better than a constant contrast rule."
+    },
+    {
+      "direction": "rate-change detection",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1"
+      ],
+      "falsifier": "first-rate and last-rate z agree in sign for the feature under a validated fit",
+      "id": "H002",
+      "observable": "first_rate_z versus last_rate_z sign agreement",
+      "scope": "read landmark features in the observed window",
+      "statement": "Features whose first-rate and last-rate z disagree in sign are candidates for a within-window rate change rather than a stable monotone trend."
+    }
+  ],
+  "limitations": [
+    "Only six continuous_trends rows were read; the remaining 194 rows and the other tables (branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, lineage_support, regional_effects, survival_effects, turnover_accounting, information_audit, curve_support) were not inspected, so no claim about them is made.",
+    "No decoded terminal labels or final affinity outcomes are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "The read features are predicted_endpoint_world_A coordinate features; they are not physical interaction energies and do not establish neural-module causation.",
+    "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}
