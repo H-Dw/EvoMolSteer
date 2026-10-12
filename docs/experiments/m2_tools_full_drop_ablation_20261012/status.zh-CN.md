@@ -2,7 +2,7 @@
 
 模型：真实 DeepSeek API / deepseek-flash。
 
-状态：screening；已完成比较 8/17；跳过 4；已处理 12/17。
+状态：pruning_confirmed；已完成比较 9/17；跳过 4；已处理 13/17。
 
 |模块|功能验证|确认结论|是否精简|
 |---|---|---|---|
@@ -14,6 +14,7 @@
 |D1.1|False|FUNCTIONAL_OR_INTERFACE_BOTTLENECK|True|
 |D1.2|True|INCONCLUSIVE|False|
 |D2.1|True|AGENT_OUTPUT_UNCHANGED_EXECUTION_FUNCTION|True|
+|D2.2|True|AGENT_OUTPUT_UNCHANGED_EXECUTION_FUNCTION|True|
 |A1.2|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
 |A3.2|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
 |A4.1|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
@@ -24,3 +25,4 @@
 剩余实验固定复用 400 个 M2＋400 个无引导样本。复用记录不增加样本量，最终复核也不是独立留出验证。
 
 - D2.1：本次 Agent 输出未改变执行函数。
+- D2.2：本次 Agent 输出未改变执行函数。
