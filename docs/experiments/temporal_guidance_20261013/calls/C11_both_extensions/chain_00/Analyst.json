@@ -1,0 +1,118 @@
+{
+  "findings": [
+    {
+      "claim": "The learning window is [0.0, 0.5] with 50 observed score nodes at 0.01 spacing; the objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only.",
+      "evidence_ids": [
+        "clocks",
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Across the 200 continuous-trend rows, no feature has an accepted polynomial fit (polynomial_accepted=false throughout the queried page), and relative_node_RMSE is large (0.29-0.99), so no smooth whole-window coordinate trajectory is established.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Queried landmark_00 and landmark_01 features show frequent sign changes (3-10) and strong sign conflicts (1-18) between first and last rate estimates, indicating non-monotone, batch-conflicted temporal behavior rather than a stable directional contrast.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous:10",
+        "continuous:11",
+        "continuous:12",
+        "continuous:13",
+        "continuous:14",
+        "continuous:15",
+        "continuous:16",
+        "continuous:17",
+        "continuous:18",
+        "continuous:19"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Whole-window z magnitudes for the queried features are small (|z| < 0.65), so no queried coordinate feature shows a strong whole-window displacement on the supplied support.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "The registered reward-lane choices C1, C2 and C3 all keep dose_factors at 1.0 and teacher_blend at 0.0, differing only in the delta_A schedule; C1 and C3 are mirror-image curvature timings and C2 is a constant-curvature control with the same discrete mean delta.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "C1 lower early-window MSD than C3, converging by late window.",
+      "evidence_ids": [
+        "clocks",
+        "objective"
+      ],
+      "falsifier": "No reproducible C1-vs-C3 ordering in early-window MSD across independent batches, or an ordering that does not converge by the late window.",
+      "id": "H001",
+      "observable": "Hungarian-matched endpoint MSD and its per-node distribution across the 50 observed score nodes, compared between C1 and C3 at fixed dose_factors=1.0 and teacher_blend=0.0.",
+      "scope": "All seeds on the full learning window [0.0, 0.5]; reward lane only.",
+      "statement": "If the early-window curvature difference between C1 (robust-to-base) and C3 (base-to-robust) is causally relevant, then the endpoint MSD distribution under C1 should show lower early-window residual sensitivity than C3 at matched score nodes, with the ordering reversing or vanishing by the late window."
+    },
+    {
+      "direction": "No reproducible difference between C2 and the time-varying schedules.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "clocks"
+      ],
+      "falsifier": "A reproducible C1 or C3 advantage over C2 in final predicted target affinity across independent batches.",
+      "id": "H002",
+      "observable": "Final predicted target affinity and endpoint MSD summary statistics for C2 versus C1 and C3 at fixed dose_factors=1.0 and teacher_blend=0.0.",
+      "scope": "All seeds on the full learning window [0.0, 0.5]; reward lane only.",
+      "statement": "If the observed coordinate contrasts are non-monotone and batch-conflicted rather than a stable stage transition, then a constant-curvature control (C2) should be statistically indistinguishable from the time-varying schedules (C1, C3) on final predicted target affinity."
+    }
+  ],
+  "limitations": [
+    "temporal_profiles_available is false; no stage profile or data-derived knot is supported, so any phase knot would be a predeclared intervention rather than a discovered stage.",
+    "Only the first 24 of 200 continuous_trend rows were queried; the remaining landmark_02 through landmark_19 features are unqueried, which is distinct from absent.",
+    "No decoded final affinity labels are supplied in role input; selection, survival and last recorded joint-head scores are different labels and cannot substitute for measured final benefit.",
+    "The queried continuous_trend rows are predicted-endpoint world-coordinate features; no energy or chemical-interaction interpretation is attached to them.",
+    "The registered choices are predeclared interventions with no current study quality results available to roles; the hypotheses above are testable predictions, not observed guidance effects."
+  ],
+  "role": "Analyst"
+}

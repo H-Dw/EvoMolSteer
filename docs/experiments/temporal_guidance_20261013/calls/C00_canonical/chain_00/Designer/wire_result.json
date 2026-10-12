@@ -1,0 +1,21 @@
+{
+  "decision": "edit",
+  "edit_choice": "C1_robust_to_base",
+  "evidence_refs": [
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Affinity is the primary objective, but the clock observation carries no decoded-affinity labels (recorded affinities removed; equal score prior), so no improvement in final predicted target affinity can be claimed or falsified from this evidence; the C1-vs-C2 contrast is a coordinate/selection-clock contrast only.",
+    "Strain and structural validity are secondary and are not measured in the delivered observation; a coordinate contrast under C1 does not establish unchanged strain or valid chemistry, and graph changes are permitted so coordinate similarity alone cannot establish improved affinity.",
+    "The observation contains no independent batches, confidence intervals or p-values, so the H001 non-stationarity contrast is unquantified; a flat or noisy profile at this sample size would not distinguish a true stationary response from an underpowered test.",
+    "The registered recipes are predeclared interventions with knots_origin explicitly not a discovered biological stage; treating the C1 delta_A ramp as a discovered temporal stage boundary would be an unsupported inference.",
+    "No temporal profiles are available in this packet (temporal_profiles_available=false), so per-time coordinate values are unqueried rather than absent; the contrast must be evaluated on the recorded score times only, and any behavior past 0.5 is extrapolation and must be rejected.",
+    "Reward scalar multiplication alone is insufficient under RMS normalization, so the delta_A schedule must be applied through the registered table rather than by rescaling the reward scalar; if the compiled table does not change the executed trace, the edit should be reported as not delivered rather than credited."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "The delivered clock observation fixes the observed selection window at [0.0,0.5] with 50 recorded score times at 0.01 spacing, and the learning window equals that same interval, so no extrapolation is licensed. The incumbent reward view is an endpoint pointcloud with a FLOWR endpoint VJP derivative path, and the registered reward-route choices vary only delta_A over those same score times with dose_factors fixed at 1.0. H001 asks whether a time-dependent curvature schedule produces a non-stationary endpoint-coordinate contrast relative to a constant-curvature control; C1_robust_to_base is the registered rising-delta_A recipe (0.5 toward 1.0) and C2_constant_curvature is the matched constant control with the same discrete mean delta, so the C1-vs-C2 contrast is exactly the comparison H001 specifies. C3_base_to_robust_control is the opposite-timing control needed for H002, but H002 is a timing-isolation question that presupposes the H001 contrast exists; selecting C1 first tests the primary non-stationarity claim while keeping the frozen temperatures, teacher count, score beta, dose_factors=1.0 and base eta untouched. This is a predeclared intervention, not a discovered stage boundary, and the choice is made on the registered numerical signature rather than on any outcome data, which is withheld.",
+  "role": "Designer"
+}

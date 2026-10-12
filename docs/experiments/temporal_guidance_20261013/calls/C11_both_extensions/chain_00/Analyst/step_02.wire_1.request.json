@@ -1,0 +1,235 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/ee4b1f317a5c8bd84d9a5f406352b026247660514aa52c08349a072ef6bad1b7.txt",
+        "content_sha256": "ee4b1f317a5c8bd84d9a5f406352b026247660514aa52c08349a072ef6bad1b7",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/3c3f693bff07967120cc99913fd9a2e52aca168e6a0ef4f961faa4a7a21d9ef3.txt",
+        "content_sha256": "3c3f693bff07967120cc99913fd9a2e52aca168e6a0ef4f961faa4a7a21d9ef3",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0.txt",
+        "content_sha256": "3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/4b997a2d96b29c33b6cb71067095ba2440989909b416da4b35d6bedf93aa74fa.txt",
+        "content_sha256": "4b997a2d96b29c33b6cb71067095ba2440989909b416da4b35d6bedf93aa74fa",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/e226e7f5b1a3ecdda9183f1316f8a648c079b39a1192813fb7ef45cd5e079119.txt",
+        "content_sha256": "e226e7f5b1a3ecdda9183f1316f8a648c079b39a1192813fb7ef45cd5e079119",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/f5dbf966daa46a9f31710ca27bb07f4565ecd6b6c69185cb6cbe280faff93643.txt",
+        "content_sha256": "f5dbf966daa46a9f31710ca27bb07f4565ecd6b6c69185cb6cbe280faff93643",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/d2c5544de3501c2929aa8fb51900810156add93eed838379bc520b19916850f9.txt",
+        "content_sha256": "d2c5544de3501c2929aa8fb51900810156add93eed838379bc520b19916850f9",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E03fc89f4ed203720",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E1d456995ce26feaa",
+                          "E2ac7728a6a27621c",
+                          "E2bb7fa55d7b62d47",
+                          "E2e106e083189d150",
+                          "E342a60b38bb0a51b",
+                          "E37d793aaefd35e53",
+                          "E4141057a3148740f",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E735f24e742723e38",
+                          "E76a7b2a0351cc8c8",
+                          "E78f0d9f1c3e1b14f",
+                          "E894225fb605458cb",
+                          "Ea4fb188d2b42c7f7",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eace79c1f0f54c9d1",
+                          "Eadefbde47cada46a",
+                          "Ec569fdccc68ea4e0",
+                          "Ec589f2ee99a44490",
+                          "Ee0112f0eb567310e"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E03fc89f4ed203720",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E1d456995ce26feaa",
+                          "E2ac7728a6a27621c",
+                          "E2bb7fa55d7b62d47",
+                          "E2e106e083189d150",
+                          "E342a60b38bb0a51b",
+                          "E37d793aaefd35e53",
+                          "E4141057a3148740f",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E735f24e742723e38",
+                          "E76a7b2a0351cc8c8",
+                          "E78f0d9f1c3e1b14f",
+                          "E894225fb605458cb",
+                          "Ea4fb188d2b42c7f7",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eace79c1f0f54c9d1",
+                          "Eadefbde47cada46a",
+                          "Ec569fdccc68ea4e0",
+                          "Ec589f2ee99a44490",
+                          "Ee0112f0eb567310e"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

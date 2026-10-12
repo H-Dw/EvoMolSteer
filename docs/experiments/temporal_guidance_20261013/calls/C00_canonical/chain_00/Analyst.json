@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "claim": "The observed selection window is the native score-clock interval [0.0, 0.5] with 50 recorded score times at 0.01 spacing; the learning window equals this same interval, so no extrapolation beyond the observed support is licensed.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Recorded affinities were removed and replaced by an equal score prior, so the supplied clock observation carries no decoded-affinity label; any coordinate contrast here is selection/score-clock evidence, not measured final benefit.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "The coordinate representation is native model endpoint world coordinates, and the incumbent reward view is an endpoint pointcloud with a FLOWR endpoint VJP derivative path; the registered reward-route choices vary only delta_A over the same score times with dose_factors fixed at 1.0.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F003",
+      "priority": 2
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Contrast between the rising-delta_A schedule and the constant-delta_A control should be non-stationary across the window rather than flat.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "falsifier": "If the endpoint coordinate contrast between the rising-delta_A schedule and the constant-delta_A control is statistically indistinguishable from a stationary (time-invariant) profile across the whole observed window, the hypothesis is falsified.",
+      "id": "H001",
+      "observable": "Endpoint pointcloud coordinate observables (landmark local dx/dy/dz and soft_mass) evaluated at the recorded score times.",
+      "scope": "Global over the observed window [0.0, 0.5]; no extrapolation past 0.5.",
+      "statement": "A time-dependent curvature schedule on the endpoint pointcloud reward (delta_A rising from 0.5 toward 1.0 across the observed window, as in the registered C1 recipe) is associated with a changing contrast in endpoint coordinate observables over the full observed window, relative to the constant-curvature control C2."
+    },
+    {
+      "direction": "Sign of the early-versus-late coordinate contrast should reverse between the rising and falling schedules.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "falsifier": "If the rising and falling delta_A schedules yield coordinate contrasts of the same sign and comparable magnitude across the window, the timing interpretation is falsified.",
+      "id": "H002",
+      "observable": "Endpoint pointcloud coordinate observables at the recorded score times, compared between the rising and falling delta_A schedules.",
+      "scope": "Global over the observed window [0.0, 0.5].",
+      "statement": "The opposite-timing control (delta_A falling from 1.0 toward 0.5, registered C3) should produce a coordinate contrast of opposite sign to the rising schedule at matched dose, isolating timing rather than magnitude of curvature."
+    }
+  ],
+  "limitations": [
+    "No temporal profiles are available in this packet (temporal_profiles_available=false); the supplied clock observation is metadata only and does not contain per-time coordinate values.",
+    "The clock observation reports no decoded affinity labels (recorded affinities removed; equal score prior), so no claim about final predicted target affinity or descendant survival can be supported from this evidence.",
+    "The registered recipes are predeclared interventions, not discovered stage boundaries; the knots_origin field explicitly states they are not a discovered biological stage.",
+    "No independent batches, confidence intervals, or p-values are present in the delivered clock observation, so statistical support for any coordinate contrast is unquantified here.",
+    "The coordinate observables are untyped proxies; no energy or chemical-interaction interpretation is warranted."
+  ],
+  "role": "Analyst"
+}
