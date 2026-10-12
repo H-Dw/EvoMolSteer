@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "information_audit",
+    "objective",
+    "lineage_support",
+    "curve_support",
+    "clocks"
+  ],
+  "failure_modes": [
+    "Choosing C001/C003 (narrower/wider pointcloud_delta_A) would change rho_delta curvature and displace surrounding coordinates without any supplied evidence tying that curvature to final predicted affinity; the nonnegative excess-distance contrast is not a force term the formula lacks.",
+    "Choosing C004/C006 (fewer/more teacher_neighbors) treats neighbor count as a distance bandwidth and would alter mode coverage of the detached teacher mixture without validated affinity benefit; lineage sparsity means added neighbors draw on weakly supported ancestors.",
+    "Choosing C007-C009 (temporal_teacher_blend) would shift regional attention at observed score nodes using a coordinate contrast, not a trajectory velocity force; with only one terminal resampling node per batch and sparse ancestral coverage, this risks unnecessary displacement of surrounding coordinates while final affinity remains unobserved.",
+    "Any edit here would be justified by a diagnostic geometric contrast rather than the primary affinity objective, and could not be falsified within the supplied evidence because no decoded terminal affinity labels exist."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "The Analyst's own strongest claim (F002) is that no supplied evidence establishes that coordinate selection improves final predicted target affinity, and the objective is affinity-primary. The only quantitative selection contrast (F001) is a relative geometric enrichment (compressed-choice excess fixed-RMS ~0.081 A) that is nonnegative by construction, not a score-weighted reward or FLOWR Jacobian effect, so it cannot justify a specific pointcloud_delta_A or teacher_neighbors value. The registered choices C001-C003 change the pointcloud scalar delta (curvature of rho_delta), C004-C006 change the teacher count k, and C007-C009 change the temporal teacher blend; none of these is bound by delivered evidence to an expected affinity gain. Temporal evidence (F003) shows sparse ancestral coverage (349 nodes <3 ancestors, 531 <6) and a single terminal resampling node per batch, so a time-conditioned teacher blend (C007-C009) would act on weakly supported regional attention rather than a validated affinity signal, and a temporal derivative is not a coordinate gradient. H001's enrichment is a selection contrast, not an absolute descriptor, and H002 warns that selection and survival credit may disagree in direction without decoded terminal labels. With no decoded terminal affinity labels and no current-study outcome, the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, static teacher, fixed temperatures) is retained rather than edited.",
+  "role": "Designer"
+}

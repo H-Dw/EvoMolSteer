@@ -1,0 +1,31 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "pointcloud_delta_A",
+    "value": 1.0
+  },
+  "evidence_ids": [
+    "endpoint_effects:9",
+    "endpoint_effects:10",
+    "endpoint_effects:11",
+    "endpoint_effects:12",
+    "endpoint_effects:13",
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "objective"
+  ],
+  "failure_modes": [
+    "If the broader delta mainly relaxes the 7.0 A regime rather than the 1.5-5.0 A regime, the observed sign reversal at 7.0 A (q=1.5e-4, 0% positive batches) would be reinforced instead of corrected, and the short-range kernel gain would not be reproduced.",
+    "Unnecessary displacement of surrounding coordinates: a larger delta lowers the marginal penalty on mid-range motion, so atoms outside the intended short-range contacts can drift, risking the secondary strain/clash constraints (severe_receptor_clash_A=0.8, max_cumulative_rms_A=6.0) even while the coordinate reward improves.",
+    "Because no decoded terminal affinity labels or independent-batch survival credit were delivered, an improved endpoint coordinate contrast cannot be claimed as final predicted affinity benefit; if affinity does not follow the coordinate contrast, the edit yields no primary-objective gain.",
+    "The joint-pattern hypothesis H001 is untested in this lane; if raising short-range occupancy does not also lower the 7.0 A kernel or does not reproduce negative shape_yy/shape_xx, the joint-pattern rationale fails and the incumbent should be retained."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": "C002"
+  },
+  "rationale": "Analyst's endpoint contrasts (F003/H001) show a coherent, batch-consistent short-to-mid-range pair-kernel gain (1.5-5.0 A: q=1.5e-4 to 3.7e-3, 86-100% positive batches) with a sign reversal at 7.0 A (q=1.5e-4, 0% positive), plus negative shape_yy/shape_xx. The registered pointcloud_delta_A is the only offered knob that changes the coordinate observable the reward actually contains: rho_delta(q)=delta^2*(sqrt(1+q/delta^2)-1) is a soft, curvature-limited distance response, so raising delta from the incumbent 1.0 A to 2.0 A (C002) broadens the effective distance-response curvature and reduces the per-unit penalty on mid-range displacements, which is the direction implied by the positive 1.5-5.0 A kernel contrasts. C001 (0.5 A) would sharpen the response and push the opposite way; C003 (2.0 A) is the same direction but a larger exploratory step than the evidence supports. This is a dose/curvature edit only: teacher coordinates, teacher provenance, regional attention, temporal recipe and the fixed temperatures (mixture_temperature=0.5, teacher_endpoint_temperature_A2=4.0) are untouched, and the shared learned support (teacher_neighbors=4, beta=0) is preserved. The objective remains affinity-primary; these are coordinate-reward diagnostics, not measured affinity benefit, so the edit is a bounded single-parameter change with the incumbent as fallback.",
+  "role": "Designer"
+}

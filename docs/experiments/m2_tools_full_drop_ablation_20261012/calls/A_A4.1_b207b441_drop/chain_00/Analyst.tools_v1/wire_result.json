@@ -1,0 +1,72 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and a FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The information audit reports a compressed-choice excess fixed-frame RMS of about 0.081 A (batch-bootstrap CI95 ~0.070-0.092) over 14 independent batches, i.e. the chosen geometric teacher is only modestly closer than the compressed alternative under fixed Hungarian correspondence; this is a selection-enrichment contrast, not an absolute geometric descriptor or a causal affinity effect.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Chosen-teacher score correlations are weak and observational: compressed-choice correlation ~0.102 (CI95 ~0.065-0.140) and full-choice correlation ~0.064 (CI95 ~0.021-0.103), so teacher-score agreement is not an independently validated affinity predictor and cannot be presented as final affinity benefit.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Lineage support shows 14 complete-survival batches but sparse ancestral coverage: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch; terminal metadata are last-record entries at terminal score time 0.99 and state time 1.0, so last-record survival credit is not decoded terminal affinity and survivor bias is expected.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Curve support selected 24 landmark occupancy/softmin features under a strict rule (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05, scale floor excluded) with a fidelity rule requiring relative RMSE <= 0.35 and zero strong sign conflicts; the fidelity audit contents are container-summary only and were not read numerically, so per-feature curve fidelity is unverified here.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase favorable-minus-comparison contrast at selection nodes",
+      "evidence_refs": [
+        "E2bb8390452ed517a",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "excess fixed RMS contrast CI includes zero or reverses sign under leave-one-batch exclusion",
+      "observable": "compressed_choice_excess_fixed_RMS_A and top4_teacher_overlap over the observed window",
+      "scope": "observed selection nodes, window [0.0,0.5], 14 independent batches",
+      "statement": "Signed favorable-versus-comparison coordinate contrasts at observed selection nodes over the complete observed window are enriched relative to the compressed alternative, but the effect is small and bounded; a coordinate reward that increases this contrast should shift selection toward the favorable teacher without claiming absolute geometric or affinity improvement."
+    },
+    {
+      "direction": "down-weight directions where selection contrast and survival credit disagree",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "survival credit and selection contrast agree in sign across batches with adequate ancestral coverage",
+      "observable": "parent-child increment contrasts and turnover residual versus selection-node contrasts",
+      "scope": "700 batch nodes, 14 batches, terminal index 99",
+      "statement": "Immediate selection evidence and later survival/quality credit may disagree because ancestral coverage is sparse and terminal labels are undecoded; direction priorities should follow the disagreement rather than treating last-record credit as final affinity benefit."
+    }
+  ],
+  "limitations": [
+    "No current-study outcome data are supplied to the design roles; final affinity benefit cannot be evaluated here.",
+    "The curve fidelity audit is a container summary only; its 24 per-feature numeric entries were not read, so per-feature curve fidelity remains unverified.",
+    "Last-record joint-head labels and decoded terminal rescoring have different semantics from selection enrichment; terminal affinity benefit is unavailable.",
+    "Turnover residual is an accounting diagnostic, not a causal selection effect or atom velocity.",
+    "Uncertainty, multiplicity-adjusted support and coverage ranking of coordinate hypotheses were not computed from the delivered observations, so no concrete priority decision differing from point-estimate ranking is asserted."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,27 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "E2bb8390452ed517a",
+      "Ed0d7945bdeeda8f1",
+      "Ed4e7d28e7b0423e0"
+    ],
+    "failure_modes": [
+      "Increasing pointcloud_delta_A (C002/C003) broadens the distance-response curvature and can displace surrounding coordinates without validated affinity gain, since the selection contrast is small and bounded and teacher-score correlation is weak.",
+      "Reducing teacher_neighbors (C004) narrows mode coverage under sparse ancestral support (many nodes with fewer than 3 ancestors), risking collapse onto a single teacher direction.",
+      "Increasing teacher_neighbors (C006) broadens the neighborhood and can mix competing directions, diluting the modest selection enrichment.",
+      "Enabling temporal_teacher_blend (C007-C009) changes regional attention at observed score nodes without validated temporal evidence; a temporal derivative is not a coordinate gradient and must not be treated as a spatial force.",
+      "Treating last-record survival credit as decoded terminal affinity would misdirect the design, since terminal labels are undecoded and survivor bias is expected."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared distance and FLOWR endpoint VJP; no affinity-head derivative or extra model forward is available as evidence (Eaa4bda02c9a2c3a1, E0857891f4effbfe1). The only registered edits are pointcloud_delta_A (C001-C003), teacher_neighbors (C004-C006) and temporal_teacher_blend (C007-C009). Analyst's selection-enrichment contrast is small and bounded (compressed-choice excess fixed-frame RMS ~0.081 A, CI95 ~0.070-0.092 over 14 batches) and teacher-score correlations are weak and observational (~0.102 and ~0.064), so it is not an independently validated affinity predictor (E2bb8390452ed517a). Lineage support shows sparse ancestral coverage (349/700 nodes with fewer than 3 ancestors, 531 with fewer than 6, at most 2 teachers per batch) and last-record terminal metadata at score time 0.99, so survival credit is not decoded terminal affinity and survivor bias is expected (Ed0d7945bdeeda8f1). Curve support selected 24 landmark features under a strict rule, but the fidelity audit is container-summary only and per-feature fidelity is unverified here (Ed4e7d28e7b0423e0). H001 predicts only a small bounded shift toward the favorable teacher from increased contrast, and H002 warns that selection contrast and survival credit may disagree; neither supplies a defensible expected advantage for a specific registered value over the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal blend). Because the incumbent already sits at the default delta and neighbor count, and no temporal evidence validates a blend, retaining the incumbent is the evidence-supported choice; a narrower or broader teacher neighborhood or a temporal blend would change teacher coordinates/attention without validated affinity benefit, and a distance-curvature change would alter the coordinate observable without a demonstrated response range.",
+    "role": "Designer"
+  }
+}
