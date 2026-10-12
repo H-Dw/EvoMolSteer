@@ -1,0 +1,25 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "Ecbb36ef90768cba0",
+    "E3114d60bf4cd5720",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "A time_ramp_power edit (C005/C006) would redistribute dose early/late without changing support; with no observed under/over-delivery at either end, it risks unnecessary displacement of surrounding coordinates from the detached nearest-k teachers and could activate cap/backtrack (currently 0.0), degrading the endpoint pointcloud reward with no affinity benefit.",
+    "Treating the non-monotone temporal derivative evidence (continuous:0-3) as a spatial gradient or as justification for a dose change would conflate target motion with control strength; no registered choice implements the teacher-coordinate/regional-attention change that H001 actually requires.",
+    "Changing native_rms_ratio (C001/C003) would alter control strength without evidence that the incumbent 0.33 is mis-scaled; the endpoint contrasts are signed coordinate contrasts, not dose-calibration signals.",
+    "No decoded terminal labels or current-study outcome data are supplied, so any claimed final-affinity benefit from an edit would be unsupported; last-record/survival credit cannot be presented as final affinity benefit."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The registered temporal recipes (temporal_teacher, temporal_region) change only teacher coordinates/regional attention at observed score nodes, not dose; the offered choices C004-C006 are time_ramp_power values, which are dose-lane (U-lane eta/ramp) parameters, not teacher-coordinate or attention edits. The Analyst's temporal evidence (continuous:0-3) shows non-monotone landmark_00_soft_mass and local derivative features with large opposing first/last rate z-scores, no accepted polynomial and extrapolation disallowed, so a constant rule is unsupported over the full window and only observed-node interpolation is warranted. That supports H001's time-conditioned coordinate contrast in principle, but no registered choice implements a teacher-coordinate or regional-attention change; the only offered edits are dose-ramp powers, so the temporal evidence cannot be converted into a permitted edit here. D3.2: Delivery diagnostics show mean_delivered_over_calibration ~0.33 with first_order_positive_fraction 1.0, nonzero_steps 50, post_window_nonzero 0, and no cap/backtrack activation across all eight batches, i.e. the fixed schedule already delivers uniformly over the full learned support [0.0,0.5] with no coverage gap. A time_ramp_power edit (C004=0.0 is the incumbent value; C005=1.0, C006=2.0) would redistribute dose early/late without changing support, but there is no evidence of under- or over-delivery at either end that would justify it, and conflating target motion (the non-monotone coordinate contrast) with control strength is exactly what the task forbids. D4.1: The incumbent already uses native_rms_ratio 0.33 (C002) and time_ramp_power 0.0 (C004); the endpoint evidence (shape_yy q~1.5e-5, 0/14 positive batches; shape_xx q~8e-4, 1/14 positive) is a signed coordinate contrast, not a dose or ramp signal, and centroid evidence is weak/axis-specific. No offered choice has a defensible expected advantage over the incumbent on the affinity-first objective, so retaining the incumbent is the evidence-supported decision. D4.2: Predicted failure of an unnecessary dose-ramp edit: raising time_ramp_power would concentrate injection RMS early or late, displacing surrounding coordinates away from the detached nearest-k teachers (nearest_teacher_rms_A already falls from ~0.91 to ~0.35-0.47 over the window) and risking cap/backtrack activation that is currently zero; this would degrade the endpoint pointcloud reward without any compensating affinity benefit, since the reward is endpoint-VJP coordinate-based and the temporal derivative is not a spatial gradient. This prediction reinforces retaining the incumbent. Temperatures (mixture_temperature 0.5, teacher_endpoint_temperature_A2 4.0) are immutable and were not proposed for edit.",
+  "role": "Designer"
+}

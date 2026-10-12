@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb"
+    ],
+    "failure_modes": [
+      "An unsupported time-conditioned teacher or regional-attention edit could displace surrounding coordinates in the wrong direction because the observed-node contrast fits show multiple sign changes and strong sign conflicts, with no observed affinity labels to confirm benefit.",
+      "Changing time_ramp_power would alter control strength (dose allocation) without temporal evidence of affinity advantage, risking early/late over- or under-injection while the affinity-primary objective is unmeasured.",
+      "Treating the observed-node contrast rate change as a spatial gradient or as a trajectory velocity force would misapply the evidence; these are coordinate contrasts only, not physical interaction energies or neural-module causation."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The incumbent teacher is a stationary detached nearest-k endpoint prior (teacher_score_beta=0, teacher_neighbors=4, teacher_endpoint_temperature_A2=4.0). The registered temporal_teacher recipe would change teacher coordinates/regional attention at observed score nodes, not merely dose; the registered temporal_region recipe changes regional attention only. Analyst's temporal evidence (continuous:0-3) shows observed-node linear contrast fits with extrapolation disallowed, polynomial fits rejected, multiple sign changes and strong sign conflicts, and whole-window z magnitudes small relative to first/last rate z. That supports a time-conditioned contrast as a hypothesis (H001/H002) but not a defensible expected affinity advantage, and no observed affinity labels exist (recorded affinities removed, equal score prior), so a coordinate contrast cannot be converted into affinity benefit. D3.2: Schedule edits are permitted in lane U, but the only registered schedule choices are time_ramp_power values (C004=0.0, C005=1.0, C006=2.0); the incumbent already uses time_ramp_power=0.0, and delivery diagnostics show mean_delivered_over_calibration ~0.33 with first_order_positive_fraction 1.0 and nonzero_steps 50 across all eight batches, i.e. full learned support is already covered with no post-window injection. No temporal evidence indicates that reallocating dose early or late would improve the affinity-primary objective, and changing ramp power would alter control strength without evidence, so the fixed schedule is retained. D4.1: Comparing the proposal with the incumbent, the evidence does not provide a defensible expected advantage for any registered edit; retaining the incumbent is the valid choice. D4.2: The predicted failure of an unsupported time-conditioned or ramp edit is unnecessary displacement of surrounding coordinates: the observed-node linear fits show sign reversals and strong sign conflicts, so a rule keyed to one landmark's rate could push neighboring coordinates in the wrong direction while the affinity-primary objective remains unmeasured; because coordinate graph changes alone are not a failure mechanism and no affinity labels are available, this risk is not offset by any demonstrated affinity gain. Temperatures are immutable and no temperature edit is proposed.",
+    "role": "Designer"
+  }
+}

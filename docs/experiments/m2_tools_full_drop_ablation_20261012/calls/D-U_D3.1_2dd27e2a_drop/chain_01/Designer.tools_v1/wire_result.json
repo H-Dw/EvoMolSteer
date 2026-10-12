@@ -1,0 +1,25 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E2e106e083189d150",
+    "E03ad082bb04f4f9c",
+    "Eace79c1f0f54c9d1",
+    "Ed4e7d28e7b0423e0",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Increasing native_rms_ratio to 0.5 (C003) could displace surrounding coordinates beyond the observed delivery coverage without evidence of affinity gain, since the nearest-teacher metric is not the score-weighted reward or its FLOWR Jacobian.",
+    "Adopting a time-conditioned ramp (C005/C006) would conflate target motion with control strength and extrapolate beyond the observed window, where no polynomial fit is accepted and sign reversals occur.",
+    "Treating last-record survival credit or coordinate contrasts as final affinity benefit would misstate the primary objective, because terminal affinity labels are not supplied and survival multiple testing is not terminal affinity."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The registered time-conditioned alternatives (C004/C005/C006, time_ramp_power) change only the dose/ramp schedule, not teacher coordinates or regional attention; the temporal_region recipe would alter regional attention at observed score nodes, but no registered choice instantiates it, and the observed continuous contrast curves show sign changes and rate reversals with no accepted polynomial (E2e106e083189d150, E03ad082bb04f4f9c, Eace79c1f0f54c9d1), so a stationary coordinate target is not demonstrably inferior and a temporal derivative must not be read as a spatial gradient. D3.2: Delivery coverage is uniform over the full learned support [0.0,0.5] with 50 nonzero controlled steps per batch, first_order_positive_fraction 1.0, post_window_nonzero 0, and mean delivered/calibration ~0.33 matching the incumbent native_rms_ratio 0.33; the incumbent already uses time_ramp_power 0.0, so no continuous dose reallocation is supported and the fixed schedule is retained. D4.1: The incumbent native_rms_ratio 0.33 equals the observed delivered/calibration ratio, so C001 (0.2) and C003 (0.5) would move dose away from the measured delivery without evidence of advantage; C002 (0.33) is numerically identical to the incumbent and is not an operative edit. D4.2: Opposing evidence (E2bb8390452ed517a, Ed0d7945bdeeda8f1) shows the nearest-teacher comparison is not the score-weighted reward or its FLOWR Jacobian, ancestral coverage is sparse, and survival multiple testing is not terminal affinity; a larger dose (C003) would risk unnecessary displacement of surrounding coordinates without affinity-first justification, so the incumbent is retained.",
+  "role": "Designer"
+}

@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting C001/C003 (native_rms_ratio 0.2/0.5) would change control strength with no evidence of affinity benefit and could displace surrounding non-landmark coordinates via the positive-weight regional attention.",
+    "Selecting C005/C006 (time_ramp_power 1.0/2.0) would impose a monotone dose ramp that the non-monotone, non-extrapolable observed-node contrast fits do not support, conflating target motion with control strength.",
+    "Treating the observed-node temporal contrast rates as spatial gradients or as absolute reward targets would misdirect the endpoint-VJP reward.",
+    "No decoded terminal affinity labels are supplied, so any claimed affinity improvement from an edit would be unsupported."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered temporal recipes (temporal_teacher, temporal_region) change only teacher coordinates/regional attention at observed score nodes, not dose; the offered choices C004-C006 are time_ramp_power values, i.e. dose-shaping in the U lane, not teacher-coordinate or attention edits, so they cannot express the non-monotone landmark soft-mass and local displacement contrast patterns (F003, H001). The observed-node fits are descriptive with polynomial_accepted false and extrapolation_allowed false (F004), so no validated time-conditioned coordinate target is available; a stationary coordinate target is retained and no temporal derivative is treated as a spatial gradient. D3.2: Delivery coverage is uniform over the full learned support [0.0,0.5] with 50/50 nonzero controlled steps, zero post-window injection, and mean delivered/calibration ~0.33 in every batch, so there is no coverage gap that a continuous dose reallocation could repair; the fixed schedule is retained. D4.1: The incumbent already uses native_rms_ratio 0.33 (C002) and time_ramp_power 0.0 (C004), so C002/C004 are not edits; C001/C003 would change control strength and C005/C006 would introduce a time ramp, and the supplied evidence provides no defensible expected affinity advantage for any of these, so the incumbent is retained. D4.2: The predicted failure of an unnecessary edit is displacement of surrounding coordinates: the regional recipe uses a detached background plus Gaussian landmark attention with positive surrounding weight, so raising dose or adding a ramp would move non-landmark coordinates without validated contrast support, and the endpoint pointcloud reward would credit that displacement while the primary affinity objective is unmeasured here; because affinity is primary and no decoded terminal affinity labels are supplied, the safer response is to retain rather than displace coordinates.",
+  "role": "Designer"
+}

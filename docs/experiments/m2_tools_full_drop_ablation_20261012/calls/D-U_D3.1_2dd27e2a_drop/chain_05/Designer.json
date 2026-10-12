@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting a nonzero time_ramp_power (C005/C006) would impose an early/late dose asymmetry that the sign-changing, mixed-sign temporal evidence does not support, risking unnecessary displacement of surrounding coordinates with no demonstrated affinity gain.",
+    "Increasing native_rms_ratio (C001-C003) would raise injection RMS above the observed delivered/calibration ratio, increasing noncore squared displacement and strain without evidence of improved final predicted affinity.",
+    "Treating the large first/last rate z-values as a monotone coordinate reward direction would conflate a temporal derivative with a spatial gradient and could drive a spurious time-conditioned teacher/attention change.",
+    "Interpreting selection-node enrichment as final affinity benefit would be unsupported because no decoded terminal labels are supplied."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered time-conditioned alternative (temporal_region/temporal_teacher) changes regional attention at observed score nodes using the same static teachers and shared FLOWR endpoint; it does not move teacher coordinates and is not a velocity target. Analyst's temporal evidence (F003/F004, H001) shows the inspected landmark coordinate contrasts are sign-changing (4-10 sign changes, 1-9 strong conflicts) with small, mixed-sign whole-window z, so no validated time-conditioned rule beats a constant rule; a stationary coordinate target is therefore not displaced by evidence. D3.2: Delivery coverage is complete and uniform over the full learned support (50/50 nonzero controlled steps, first_order_positive_fraction 1.0, post_window_nonzero 0, delivered_over_calibration ~0.33 at every observed node), so there is no coverage gap that a continuous dose reallocation (C001-C003) could exploit; the incumbent native_rms_ratio 0.33 already matches the delivered/calibration ratio, and the time_ramp_power choices (C004-C006) would only reshape dose, not support, with no temporal evidence supporting an early/late asymmetry. D4.1: The incumbent is the static coordinate-only endpoint program with time_ramp_power 0.0 and native_rms_ratio 0.33; the supplied evidence provides no defensible expected advantage for any registered edit, and the objective is affinity-primary with no decoded terminal labels (F002, H002), so retaining the incumbent is the evidence-supported choice. D4.2: Predicted failure of an unnecessary edit: raising native_rms_ratio or adding a nonzero ramp would increase injection RMS and displace surrounding coordinates (noncore squared displacement) without any observed affinity benefit, since no affinity-head derivative or decoded quality is available; this prediction reinforces retaining the incumbent under the affinity-first priority.",
+  "role": "Designer"
+}
