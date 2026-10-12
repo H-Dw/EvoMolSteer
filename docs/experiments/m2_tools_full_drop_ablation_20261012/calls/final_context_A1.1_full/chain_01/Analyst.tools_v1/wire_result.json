@@ -1,0 +1,70 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal, so no absolute affinity benefit can be read from these observations.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Continuous contrast functions over the observed window are non-monotone: landmark_00_soft_mass shows 4 sign changes with a strong sign conflict and a first-rate z of +9.27 flipping to a last-rate z of -10.00, and landmark_00_local_dy shows 6 sign changes with first-rate z -72.37 flipping to +5.52. A constant rule is therefore not supported; a time-conditioned rule is indicated, but no polynomial was accepted and extrapolation is disallowed.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E03ad082bb04f4f9c"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Branch-adjusted covariance contrasts are weak and mostly null: global_centroid_x/y/z raw covariances have CIs spanning zero (q 0.72, 0.69, 0.97) with same-sign batch fractions near 0.36-0.50, so centroid displacement is not a supported signed contrast.",
+      "evidence_refs": [
+        "Ed061d96cc23b359b",
+        "E8059a7206f447cdc",
+        "E887f2d11255b77af"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Shape covariance contrasts are the only branch-adjusted signals approaching significance: shape_yy has a negative whole-window mean with CI entirely below zero (p 0.048, q 0.153, same-sign fraction 0.79) and shape_xx is similarly negative (p 0.096, q 0.232, same-sign fraction 0.79), while shape_zz is null. This is a signed favorable-versus-comparison contrast at the observed nodes, not an absolute geometric descriptor.",
+      "evidence_refs": [
+        "Ec3d5c7e8cb8584c5",
+        "E455d8ea90d2c10e1",
+        "E7e61e91ec1e2e406"
+      ],
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E03ad082bb04f4f9c"
+      ],
+      "falsifier": "No sign reversal reproduced under observed-node interpolation, or relative node RMSE not improved over a constant rule.",
+      "observable": "landmark_00_soft_mass and landmark_00_local_dy contrast values at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted_endpoint_world_A features",
+      "statement": "A time-conditioned coordinate contrast on landmark_00_soft_mass and landmark_00_local_dy, using observed-node interpolation only, better expresses the observed sign reversals than a constant contrast rule."
+    },
+    {
+      "direction": "negative shape_yy covariance",
+      "evidence_refs": [
+        "Ec3d5c7e8cb8584c5",
+        "E455d8ea90d2c10e1",
+        "Ed061d96cc23b359b"
+      ],
+      "falsifier": "Sign of shape_yy covariance reverses or CI includes zero under additional independent batches.",
+      "observable": "branch-adjusted raw_covariance of shape_yy at observed nodes",
+      "scope": "14 independent batches, whole observed window",
+      "statement": "A signed negative shape_yy (and secondarily shape_xx) covariance contrast at the observed selection nodes is a more defensible coordinate direction than centroid displacement."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or current-study outcome data are supplied, so last-record or survival credit cannot be presented as final affinity benefit; the immediate-versus-descendant comparison is unavailable.",
+    "No joint-diagnostic, turnover-accounting, increment-effect or endpoint-effect rows were read in this turn, so within-path change versus cohort-composition explanations and joint-versus-marginal coupling remain unassessed.",
+    "Contrast curves are coordinate contrasts, not absolute reward targets or physical interaction energies; no neural-module causation is claimed.",
+    "Temperatures are immutable task parameters and were not proposed for edit."
+  ],
+  "role": "Analyst"
+}

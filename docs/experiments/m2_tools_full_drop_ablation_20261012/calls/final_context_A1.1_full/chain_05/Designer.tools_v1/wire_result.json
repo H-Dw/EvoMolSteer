@@ -1,0 +1,25 @@
+{
+  "decision": "edit",
+  "edit_choice": "C009",
+  "evidence_refs": [
+    "E2e106e083189d150",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "High temporal_teacher_blend (C010/C011) lets the non-monotone, sign-conflicting landmark soft-mass and local-derivative contrasts dominate, displacing surrounding coordinates away from the native endpoint and degrading the primary affinity objective.",
+    "Treating the temporal derivative as a spatial gradient or velocity force would misapply the recipe; the registered temporal_teacher only reweights regional attention at observed score nodes.",
+    "The observed-node contrast is evaluated only on the [0.0,0.5] window with selected_count 0 and no extrapolation, so any benefit beyond observed nodes is unverified.",
+    "No decoded terminal labels or current-study outcome data are supplied, so the expected affinity advantage cannot be confirmed from this evidence."
+  ],
+  "hypothesis_refs": [
+    "H001"
+  ],
+  "rationale": "D1.2: The incumbent is a stationary coordinate target (static teachers, teacher_neighbors=4, no temporal term). Analyst's temporal evidence shows the landmark soft-mass contrast is non-monotone within the observed window (whole-window z 0.639, 4 sign changes, 1 strong sign conflict, first/last rate z large and opposite, linear fit not polynomial-accepted, relative node RMSE 0.286), and the local derivative features are even less stable (4-10 sign changes, 1-9 strong conflicts, RMSE 0.41-0.78). This supports a time-conditioned alternative over a single constant rule, but only as a change to regional attention at observed score nodes, not as a velocity target: the registered temporal_teacher recipe keeps the same static teachers and the same shared FLOWR endpoint, and the temporal derivative is not a spatial gradient. D4.1: Among the offered temporal choices, C009 (temporal_teacher_blend=0.25) is the smallest dose that still activates the validated observed-node contrast, so it is the defensible expected advantage over the incumbent while limiting unnecessary displacement of surrounding coordinates; larger blends (C010, C011) would let an unstable, sign-conflicting contrast dominate the static endpoint reward. D4.2: The predicted failure is that a high blend over-trusts the non-monotone soft-mass and local-derivative curves, displacing surrounding coordinates away from the native endpoint and degrading the primary affinity objective; the low blend bounds that displacement. No temperature edit is proposed; the fixed mixture_temperature 0.5 and teacher_endpoint_temperature_A2 4.0 are preserved, and no resampling, affinity-head derivative, extra model forward, graph-equality restriction or atomic-type control is added.",
+  "role": "Designer"
+}

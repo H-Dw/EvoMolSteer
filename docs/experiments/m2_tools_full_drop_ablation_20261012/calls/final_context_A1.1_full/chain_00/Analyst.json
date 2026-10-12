@@ -1,0 +1,86 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so any coordinate contrast is a reward-shaping signal rather than a physical interaction energy.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed learning window is the score-time grid 0.00-0.49 with curve support 0.0-0.49, and recorded affinities were removed with an equal score prior, so no absolute affinity target is observable in the supplied evidence.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions over the complete observed support are non-monotone: landmark_00_soft_mass shows 4 sign changes with first_rate_z +9.27 and last_rate_z -10.00, and landmark_00_local_dy shows 6 sign changes with first_rate_z -72.37 and last_rate_z +5.52, so a constant rule is not supported and a time-conditioned rule is indicated.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Fit fidelity is weak for several features (relative_node_RMSE 0.29-0.78) and polynomial fits are not accepted, so the observed-node linear interpolation is the only validated representation and extrapolation is disallowed.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Strong sign conflicts are present across features (up to 9 for landmark_00_local_dx), indicating that marginal rate estimates are unstable and should not be ranked on point estimates alone.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned sign flip within the observed window",
+      "evidence_ids": [
+        "continuous:0",
+        "clocks"
+      ],
+      "falsifier": "No sign change in the observed-node contrast, or relative_node_RMSE not improved over the constant rule.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass contrast value at observed score nodes",
+      "scope": "observed score window 0.0-0.49 only; no extrapolation",
+      "statement": "A time-conditioned coordinate contrast that follows the observed-node sign of landmark_00_soft_mass (positive early, negative late) better expresses the observed support than a constant contrast rule."
+    },
+    {
+      "direction": "reject single-marginal ranking",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3",
+        "continuous:4"
+      ],
+      "falsifier": "A feature with zero sign changes and no strong sign conflicts over the full window.",
+      "id": "H002",
+      "observable": "sign_changes and strong_sign_conflicts per feature",
+      "scope": "supplied continuous_trends rows",
+      "statement": "Marginal landmark rate estimates are too unstable (multiple sign changes and strong sign conflicts) to support a single-feature coordinate intervention without multiplicity-adjusted support."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "Only continuous_trends rows were read; branch_adjusted, survival_effects, increment_effects, turnover_accounting, joint_diagnostics and regional_effects were not inspected in this turn.",
+    "Contrast curves are reward-shaping diagnostics, not absolute reward targets or physical interaction energies.",
+    "No temperature edit is proposed; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

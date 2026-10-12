@@ -1,0 +1,24 @@
+{
+  "decision": "edit",
+  "edit_choice": "C010",
+  "evidence_refs": [
+    "E2e106e083189d150",
+    "E03ad082bb04f4f9c",
+    "Ec3d5c7e8cb8584c5",
+    "E455d8ea90d2c10e1",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "If the observed sign reversals are not reproduced under observed-node interpolation, the blend adds noise and the static incumbent would have been preferable.",
+    "A blend of 0.5 may still displace surrounding coordinates near landmark_00 if the observed contrast is locally sharp, producing unnecessary geometric strain without affinity benefit.",
+    "Because no decoded terminal labels or current-study outcomes are supplied, the expected affinity advantage of C010 over the incumbent cannot be verified and remains a prediction, not a demonstrated gain.",
+    "The negative shape_yy/shape_xx covariance contrast (H002) is not directly addressed by a temporal blend; if that signed shape direction is the operative signal, this edit may not capture it."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Analyst's temporal evidence (continuous:0, continuous:2) shows non-monotone coordinate contrasts with strong sign reversals and no accepted polynomial, so a stationary coordinate target is not supported while a time-conditioned alternative is indicated within the observed window only. Among the registered temporal recipes, C010 (temporal_teacher_blend=0.5) is the bounded midpoint: it changes only the registered scalar blend of the observed-node teacher contrast into regional attention, keeping the same static teachers, the same shared FLOWR endpoint VJP, and the same learned support; it does not alter teacher coordinates, dose, or any temperature. C011 (blend=1.0) would fully replace the static teacher and risk unnecessary displacement of surrounding coordinates, while C009 (0.25) under-weights the observed reversals. The incumbent already uses teacher_neighbors=4 and pointcloud_delta_A=1.0, so no dose or neighbor edit is warranted. Affinity-first priority is preserved because the reward remains the endpoint pointcloud objective; the temporal contrast is a coordinate reward, not a trajectory velocity force, and no temporal derivative is treated as a spatial gradient.",
+  "role": "Designer"
+}
