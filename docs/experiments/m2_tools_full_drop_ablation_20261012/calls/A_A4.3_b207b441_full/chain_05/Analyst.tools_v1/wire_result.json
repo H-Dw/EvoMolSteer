@@ -1,0 +1,64 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts are not physical interaction energies.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Observed score times span the full learning window [0.0,0.5] at 0.01 spacing, and recorded affinities were removed with an equal score prior, so no decoded terminal affinity labels are available for these nodes.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast features are observed-node linear fits with extrapolation disallowed; several landmark features show multiple sign changes and strong sign conflicts across the window, so a constant rule is not supported for those features.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "First-rate and last-rate z values for the same landmark features have opposite signs (e.g. landmark_00_soft_mass, landmark_00_local_dx, landmark_00_local_dy, landmark_00_local_cxx, landmark_00_local_cyy), indicating time-conditioned rather than constant contrast behavior within the observed support.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast attention at observed score nodes",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "falsifier": "A constant contrast rule matches or exceeds the time-conditioned rule on held-out observed-node fit fidelity without added sign conflicts.",
+      "observable": "landmark contrast features at observed score times",
+      "scope": "observed window [0.0,0.5], predicted endpoint world coordinates",
+      "statement": "A time-conditioned coordinate contrast rule over the observed window would track the sign-changing landmark contrast features better than a constant rule, without extrapolation beyond [0.0,0.5]."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record or survival credit cannot be presented as final affinity benefit.",
+    "Continuous contrast curves are coordinate descriptors, not absolute reward targets or physical interaction energies.",
+    "No current study outcome data are available to this role, so no causal selection or neural-module claim is made."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,55 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed learning window is [0.0,0.5] with 50 observed score times at 0.01 spacing, and the curve support is [0.0,0.49]; recorded affinities are removed and an equal score prior is used, so no decoded terminal affinity labels are supplied and last-record or survival credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions over the observed support are non-polynomial (polynomial_accepted false) with relative node RMSE from about 0.29 to 0.78, multiple sign changes (4 to 10) and strong sign conflicts (1 to 9) across 14 independent batches; e.g. landmark_00_soft_mass has whole-window z 0.64 but first-rate z 9.27 and last-rate z -10.00, and landmark_00_local_dy has whole-window z -0.30 with first-rate z -72.37 and last-rate z 5.52. This supports a time-conditioned rather than constant contrast rule, but the curves are coordinate contrasts, not absolute reward targets.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast weighting within the observed window",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2",
+        "continuous:5"
+      ],
+      "falsifier": "A constant contrast rule matches or exceeds the time-conditioned rule on held-out observed-node fit fidelity without additional sign conflicts.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass and landmark_00_local_dy contrast values at observed score nodes",
+      "scope": "observed window [0.0,0.5], 14 independent batches, no extrapolation",
+      "statement": "A time-conditioned coordinate contrast rule over the observed window will track the observed sign reversals in landmark soft-mass and local displacement contrasts better than a constant rule, because the observed-node linear fits show large first-rate versus last-rate z reversals with no accepted polynomial."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; recorded affinities are removed and an equal score prior is used, so final affinity benefit cannot be verified from the delivered evidence.",
+    "Only continuous_trends rows and clock/objective metadata were read; branch-adjusted, survival, increment, turnover, joint, regional and lineage tables were not inspected, so selection enrichment versus absolute geometric descriptors and survivor-bias questions remain unresolved.",
+    "Contrast curves are coordinate contrasts over predicted endpoint world coordinates, not physical interaction energies or evidence of neural-module causation.",
+    "No current study outcome data are available to this role."
+  ],
+  "role": "Analyst"
+}

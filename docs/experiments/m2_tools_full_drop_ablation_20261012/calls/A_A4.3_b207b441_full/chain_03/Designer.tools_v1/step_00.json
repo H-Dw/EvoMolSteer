@@ -1,0 +1,27 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "C012",
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E5d1c4c6e5dbe0cb6",
+      "E2bb7fa55d7b62d47",
+      "E342a60b38bb0a51b",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "If the observed-node contrast is itself unstable (F003: strong sign conflicts up to 14, relative node RMSE up to ~0.87), blending it at 0.5 can inject a noisy teacher direction and displace surrounding coordinates unnecessarily, degrading the primary affinity endpoint rather than improving it.",
+      "If the non-monotone structure is a marginal-descriptor artifact rather than a joint-geometry effect, the time-conditioned blend may reduce marginal contrast error while leaving the endpoint affinity unchanged or worse; the falsifier in H001 (no reduction in relative node RMSE or sign-conflict count on held-out observed nodes) would then hold.",
+      "Because no decoded terminal labels or observed affinity outcomes are available, a coordinate-level improvement cannot be validated as an affinity benefit in this turn; the edit could be neutral or harmful on the primary objective while appearing favorable on coordinate diagnostics."
+    ],
+    "hypothesis_refs": [
+      "H001"
+    ],
+    "rationale": "Analyst H001 (F002) reports that every inspected landmark contrast feature is non-monotone over the observed window, with 4-10 sign changes and first-vs-last rate z-scores of opposite sign, and no polynomial fit accepted (extrapolation disallowed). A stationary coordinate target (incumbent static teacher, temporal_teacher_blend effectively 0) cannot express this reversal structure, whereas the registered temporal_teacher recipe (1-blend)*R_static + blend*R_observed_teacher(time) changes only the teacher-coordinate mixture at observed score nodes, keeping the shared FLOWR endpoint, the detached matching convention and the fixed temperatures. Among the offered blends, C012 (temporal_teacher_blend=0.5) is the defensible middle dose: it lets the validated observed-node contrast contribute while retaining half the static teacher, so the non-monotone structure is expressed without fully discarding the stationary prior that the incumbent encodes. C013 (blend=1.0) would drop the static teacher entirely and C011 (0.25) would leave the observed contrast too weak to change the coordinate observable appreciably; the evidence supports a time-conditioned rule but does not support abandoning the static component. This is a coordinate-reward edit only: it does not add a velocity target, does not touch the affinity head, adds no extra model forward, and does not alter mixture_temperature or teacher_endpoint_temperature_A2. Because the objective is affinity-primary and no observed affinity outcome is supplied, the expected advantage is stated as a coordinate-observable prediction (reduced sign-conflict/relative-node-RMSE mismatch at observed nodes) rather than a claimed affinity gain.",
+    "role": "Designer"
+  }
+}

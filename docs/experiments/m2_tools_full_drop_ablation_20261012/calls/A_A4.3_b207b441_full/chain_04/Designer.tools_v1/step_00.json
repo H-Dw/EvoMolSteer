@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03"
+    ],
+    "failure_modes": [
+      "A temporal_teacher_blend edit (C009-C011) would shift teacher coordinates toward observed-node teachers without a validated contrast function, risking unnecessary displacement of surrounding coordinates and degrading the primary endpoint affinity.",
+      "A teacher_neighbors edit (C005-C007) treats neighbor count as a distance bandwidth; with no intact-teacher dispersion evidence, narrower neighborhoods could drop competing modes and broader ones could average opposing directions, changing mode coverage without evidence.",
+      "A pointcloud_delta_A edit (C001-C003) alters distance-response curvature without supplied spatial-scale or uncertainty support, so the expected response range and direction cannot be predicted.",
+      "A region_index or temporal_region_index edit (C004, C008) changes regional attention without evidence that the selected region is the operative one, and could displace coordinates outside the intended region."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Objective is affinity-primary with coordinate control only and no affinity-head derivative or extra model forward (Eaa4bda02c9a2c3a1); the learning window is the observed score support [0.0,0.5] with recorded affinities removed and an equal score prior (E0857891f4effbfe1), so no decoded terminal affinity label exists to justify a reward change. Analyst's continuous trends show sign changes and strong sign conflicts with extrapolation disallowed (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03), which supports H001's direction only as a within-window time-conditioned contrast, not as a stationary coordinate target. The offered choices are pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007), temporal_region_index (C008) and temporal_teacher_blend (C009-C011). A temporal_teacher_blend edit would change teacher coordinates toward observed-node teachers, but the delivered evidence gives no validated contrast function or numerical response prediction for the endpoint pointcloud reward, and H002's joint-pattern priority is untested here. Teacher_neighbors is a count, not a distance bandwidth, and no intact-teacher dispersion or joint-geometry evidence was read to compare narrower versus broader neighborhoods. Pointcloud_delta_A and region_index edits have no supporting spatial-scale or uncertainty evidence in this turn. Because no registered bounded edit has a defensible expected advantage over the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, mixture_temperature=0.5, teacher_endpoint_temperature_A2=4.0), retaining the incumbent is the correct affinity-first decision; temperatures remain fixed and untouched.",
+    "role": "Designer"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "curve_support",
+    "information_audit",
+    "lineage_support"
+  ],
+  "failure_modes": [
+    "Adopting C001 or C003 (pointcloud_delta_A 0.5 or 2.0) would change the robust distance-response curvature without a validated distance scale, displacing surrounding coordinates through the endpoint VJP while the affinity benefit remains unmeasured; the excess fixed RMS of about 0.081 A is a compressed-choice diagnostic, not a distance bandwidth.",
+    "Adopting C004 or C006 (teacher_neighbors 2 or 8) would narrow or broaden the detached teacher neighborhood using a count rather than a distance bandwidth, risking mode collapse or averaging across competing directions with no evidence that mode coverage improves.",
+    "Adopting C007-C009 (temporal_teacher_blend) would condition the teacher on time without a validated sign or rate change in the observed support, since the per-feature curve-fidelity contents were not read; a temporal derivative is not a spatial gradient and must not be treated as one.",
+    "Treating sparse descendant survival credit (most nodes have fewer than 3 ancestors) as terminal affinity benefit would misdirect the affinity-first objective, because survival and last-record credit are not decoded terminal affinity labels.",
+    "Any temperature edit would be an interface violation rather than a research condition, since temperatures are immutable task parameters."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002",
+      "H003",
+      "H004"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so any registered coordinate edit is reward shaping rather than a measured affinity effect (Eaa4bda02c9a2c3a1, E0857891f4effbfe1). The observed support is the learning window [0.0,0.5] with 50 observed score times at 0.01 spacing, and the curve-support selection rule admits 24 features requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857 and q < 0.05 (E0857891f4effbfe1, Ed4e7d28e7b0423e0); this is a selection-enriched set, not an absolute geometric descriptor, so it does not by itself justify a distance-response curvature change. The information audit reports compressed-choice excess fixed RMS of about 0.081 A (CI95 ~0.070-0.092) and top4 teacher overlap about 0.47, with chosen-teacher score correlations near 0.06-0.10, and explicitly states these are not the full score-weighted reward or its FLOWR Jacobian and are not a validated affinity predictor (E2bb8390452ed517a). Lineage support covers 14 complete-survival batches over 700 batch nodes, but 349 nodes have fewer than 3 ancestors and 531 fewer than 6, with at most 2 teachers per batch, and terminal metadata shows a single future-resampling node per batch at terminal score time 0.99 and state time 1.0 (Ed0d7945bdeeda8f1); descendant survival credit is therefore sparse and is not a terminal affinity label. H001 and H002 concern reordering coordinate priorities by signed integrated contrast and by selection-versus-survival sign agreement, but neither supplies a registered parameter that changes the coordinate observable in the required direction, and the survival side of H002 is explicitly not terminal affinity. H003 conditions any time-conditioned contrast rule on validated sign or rate changes within the observed support; the per-feature numeric contents of the curve-fidelity audit container were not read, so no validated sign-change or rate-change verdict is available to justify switching from the static teacher to a temporal blend. H004 is an accounting diagnostic distinguishing within-path movement from cohort reclassification and does not identify a reward term. The incumbent already uses pointcloud_delta_A = 1.0 A, teacher_neighbors = 4, mixture_temperature = 0.5 and teacher_endpoint_temperature_A2 = 4.0, and the registered choices C001-C003 (pointcloud_delta_A 0.5/1.0/2.0), C004-C006 (teacher_neighbors 2/4/8) and C007-C009 (temporal_teacher_blend 0.25/0.5/1.0) are all unanchored by the supplied evidence: the excess-distance scale is a compressed-choice diagnostic rather than a distance bandwidth, neighbor count is not a distance bandwidth, and no validated temporal contrast change is available. Temperatures are immutable and were not treated as design variables. With affinity primary and no defensible expected advantage from any registered edit, retaining the incumbent is the correct decision; the evidence would change it only if a validated per-feature sign or rate change within [0.0,0.5] or a decoded terminal affinity comparison became available.",
+  "role": "Designer"
+}

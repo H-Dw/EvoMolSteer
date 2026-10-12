@@ -1,0 +1,67 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The learning window is the observed score-time support [0.0, 0.5] with 50 observed score nodes at 0.01 spacing, and recorded affinities were removed with an equal score prior, so no decoded terminal affinity labels are available for this study.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast features are reported only over the observed node support with extrapolation disallowed and observed-node linear interpolation; several landmark features show multiple sign changes and strong sign conflicts, so a constant rule is not supported and any time-conditioned rule must stay within the observed window.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2"
+      ],
+      "falsifier": "no sign change or rate reversal reproduced at observed nodes under validated interpolation",
+      "id": "H001",
+      "observable": "landmark contrast features at observed score nodes",
+      "scope": "observed window [0.0, 0.5] only",
+      "statement": "A time-conditioned coordinate contrast rule over the observed score window may better express the landmark contrast features than a constant rule, because the delivered continuous trends show sign changes and rate reversals within the observed support."
+    },
+    {
+      "direction": "joint pattern priority",
+      "evidence_ids": [
+        "continuous:4",
+        "continuous:5"
+      ],
+      "falsifier": "joint diagnostics show no coupling beyond marginal features",
+      "id": "H002",
+      "observable": "joint coordinate diagnostics versus marginal landmark features",
+      "scope": "observed endpoint world coordinates",
+      "statement": "Isolated marginal landmark descriptors may be redundant relative to coherent joint coordinate patterns, so joint diagnostics should be consulted before treating any single landmark feature as an independent target."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record or survival credit cannot be presented as final affinity benefit.",
+    "No current study outcome data are available to the Analyst, so no causal selection effect or atom-velocity claim is supported.",
+    "Continuous contrast curves are not absolute reward targets and extrapolation beyond the observed window is not allowed.",
+    "Turnover, pair-kernel and moment diagnostics were not read in this turn and are not asserted here."
+  ],
+  "role": "Analyst"
+}
