@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "A temporal_teacher_blend or temporal_region_index edit would apply an unvalidated, non-extrapolable contrast and could displace surrounding coordinates without affinity benefit, since the endpoint pointcloud reward provides no affinity-head derivative.",
+    "Changing pointcloud_delta_A (C001-C003) or teacher_neighbors (C005-C007) has no supporting evidence in the delivered observations and would alter the reward scale or teacher count without a defensible expected advantage.",
+    "The continuous contrast curves are descriptive diagnostics over the observed window only; treating them as absolute reward targets or extrapolating them beyond [0.0, 0.5] is unsupported.",
+    "No decoded terminal affinity labels or final predicted affinity outcomes are supplied, so no edit can be justified by measured affinity gain in this turn."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The incumbent is a stationary coordinate target (program D2_without_trajectory_static, time_ramp_power 0.0, teacher_score_beta 0, teacher_neighbors 4, pointcloud_delta_A 1.0). The permitted time-conditioned alternatives are the registered temporal recipes: temporal_region_index (C008) changes regional attention at observed score nodes, and temporal_teacher_blend (C009-C011) blends the static reward with an observed-teacher reward. Analyst's temporal evidence is descriptive only: the continuous contrast fits are observed-node linear fits with polynomial_accepted false and extrapolation_allowed false, relative node RMSE ~0.29-0.78, and they show four to ten sign changes with opposing first-rate and last-rate z-values. That is a non-monotone diagnostic over the observed window, not a validated time-conditioned reward, and the Analyst explicitly declined to propose a coordinate intervention because no registered recipe was confirmed to express the contrast. D4.1: Compared with the incumbent, none of the offered edits has a defensible expected advantage. The dose choices (C001-C003) change pointcloud_delta_A away from the incumbent 1.0 with no evidence tying delta to affinity; C004/C005-C007 change region_index or teacher_neighbors count with no supporting comparison; C008-C011 are the temporal alternatives, but the only temporal evidence is non-extrapolable and non-monotone, so a blend or attention change would be an unvalidated guess. Retaining the incumbent is therefore the evidence-supported choice, and the evidence changes the decision only in the direction of not editing: had a validated monotone or reproducible time-conditioned contrast been supplied, a temporal recipe would have been the candidate. D4.2: The concrete failure response predicted for a temporal edit is unnecessary displacement of surrounding coordinates: a blend or attention shift would move the endpoint pointcloud under a detached-Hungarian endpoint reward whose only signal is endpoint mean squared distance, so coordinates outside the intended region could be dragged without any affinity benefit, and the non-monotone sign changes mean the displacement direction would reverse within the window. Because the objective is affinity-first and coordinate graph changes alone are not a failure mechanism, this predicted displacement is a reason to retain rather than to edit. No temperature edit is proposed; temperatures are immutable.",
+  "role": "Designer"
+}
