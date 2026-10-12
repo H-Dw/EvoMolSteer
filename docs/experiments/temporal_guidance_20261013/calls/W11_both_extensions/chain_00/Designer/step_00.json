@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "W1_early_soft",
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E03ad082bb04f4f9c",
+      "Eace79c1f0f54c9d1",
+      "E03fc89f4ed203720",
+      "Eadefbde47cada46a",
+      "E2e106e083189d150"
+    ],
+    "failure_modes": [
+      "Affinity: final predicted target affinity does not improve or degrades relative to the incumbent despite verified dose delivery; the coordinate-rate change is a total-displacement shift rather than a timing effect.",
+      "Falsifier for H001: early-window first_rate_z magnitudes do not decrease, or late-window rate magnitudes increase by a comparable amount.",
+      "Dose delivery: requested dose_factors are not realized in the trace (flow magnitude, gradient cancellation, caps or clash backtracking), so equal sum(dt*w) ratio budget does not imply equal physical displacement; trace checks of requested vs delivered dose are required before interpreting quality.",
+      "Path coverage: rare-path coverage is lost even though dose delivery is verified.",
+      "Clone dependence: sign_changes or strong_sign_conflicts are dominated by a single batch, indicating clone-dependent noise rather than a reproducible temporal contrast (H002).",
+      "Scope: temporal_profiles_available is false and only the returned continuous_trends rows were inspected; unqueried features and score nodes are not evidence of absence, and no claim is made that this dose improves final affinity."
+    ],
+    "hypothesis_refs": [
+      "H001"
+    ],
+    "rationale": "Analyst H001 states that reducing early-window dose relative to later nodes, at preserved total ratio budget, should shrink early-window coordinate rate magnitudes without a compensating late-window increase. The delivered continuous_trends rows show large early rate magnitudes that decay or reverse by the end of the window (landmark_00_local_dy first_rate_z=-72.4 vs last_rate_z=+5.5; landmark_01_local_dy first_rate_z=-42.8 vs last_rate_z=+5.0; landmark_01_local_dz first_rate_z=-58.5 vs last_rate_z=+8.8), and no polynomial representation is accepted, so only the observed-node linear description is licensed. Among the offered dose recipes, W1_early_soft is the only one that lowers early dose_factors (0.35 rising to 1.65) while preserving the frozen delta_A=1, teacher_blend=0, temperatures, teacher matching and the M2 reward geometry; W3_early_strong_control is the opposite time-order control and W2_middle_peak does not implement the early-soft direction. This is a timing-only dose edit, not a reward-family change.",
+    "role": "Designer"
+  }
+}

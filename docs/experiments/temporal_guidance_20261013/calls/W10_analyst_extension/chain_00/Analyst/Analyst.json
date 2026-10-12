@@ -1,0 +1,83 @@
+{
+  "findings": [
+    {
+      "claim": "The learning/control support is the score-clock window [0.0, 0.5] with 50 observed score nodes at 0.01 spacing; the reward geometry is fixed (delta_A=1, teacher_blend=0) and only registered dose_factors vary across the offered temporal recipes.",
+      "evidence_ids": [
+        "clocks",
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Across the observed window, per-feature endpoint-coordinate trends are dominated by sign reversals and strong sign conflicts: e.g. landmark_00_local_dy has 6 sign changes and 4 strong sign conflicts, landmark_00_local_cxy has 9 sign changes and 14 strong sign conflicts, and landmark_01_local_cxy has 7 sign changes and 18 strong sign conflicts, so no stable monotone coordinate direction is established for these features.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:17"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Several features show large first-vs-last rate_z magnitudes with opposite signs (e.g. landmark_00_local_dy first_rate_z negative and last_rate_z positive; landmark_00_local_cxy first_rate_z positive and last_rate_z negative), indicating the local rate of change reverses within the window rather than a single sustained drift.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Whole-window z magnitudes for the inspected coordinate features are small relative to their first/last rate_z magnitudes (e.g. landmark_00_soft_mass whole_window_z ~0.64 with first_rate_z ~9.3 and last_rate_z ~-10.0), so the net displacement over the window is weak even where instantaneous rates are large.",
+      "evidence_ids": [
+        "continuous:0"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "No temporal_profiles are available in the supplied catalogue, so per-seed coordinate curves across the full window cannot be retrieved; the continuous_trends rows are the only whole-window temporal evidence delivered.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Test whether concentrating dose at high-|rate_z| nodes produces a larger endpoint coordinate displacement than the equal-integral uniform schedule.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:0"
+      ],
+      "falsifier": "If the concentrated-dose schedule produces endpoint coordinate displacement statistically indistinguishable from the equal-integral uniform schedule across independent batches, the rate-reversal timing hypothesis is not supported.",
+      "id": "H001",
+      "observable": "Per-node realized dose_factors and the resulting per-node coordinate rate_z profile on the same score nodes.",
+      "scope": "Whole observed window [0.0, 0.5], all 50 score nodes, fixed reward geometry.",
+      "statement": "If the observed coordinate contrasts are driven by within-window rate reversals rather than a sustained drift, then a dose schedule that concentrates control at nodes where the local rate magnitude is largest should change the endpoint coordinate trajectory more than an equal-integral schedule that spreads dose uniformly."
+    },
+    {
+      "direction": "Compare early-soft dose against equal-integral control at matched total delivered displacement.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "falsifier": "If early-soft dose at matched total displacement yields a significantly worse endpoint coordinate outcome than the equal-integral control across independent batches, the weak-net-displacement hypothesis is not supported.",
+      "id": "H002",
+      "observable": "Endpoint coordinate displacement and total realized dose integral under an early-soft versus equal-integral schedule.",
+      "scope": "Whole observed window [0.0, 0.5], fixed reward geometry.",
+      "statement": "If the net whole-window coordinate displacement is weak relative to instantaneous rates, then early-window dose reduction should not by itself degrade endpoint coordinate outcomes, provided total delivered displacement is held fixed."
+    }
+  ],
+  "limitations": [
+    "No temporal_profiles are available; per-seed coordinate curves across the full window could not be retrieved, so within-path change versus population turnover cannot be separated from the delivered evidence.",
+    "Descendant final quality and decoded final affinity are not observed in this role input; selection preference is association only and is not evidence of descendant survival or measured final benefit.",
+    "The continuous_trends rows report polynomial_accepted=false and relative_node_RMSE values up to ~0.99 for several features, so the fitted trend representations are not reliable for extrapolation and should not be treated as absolute coordinate targets.",
+    "The offered temporal recipes are predeclared interventions with knots_origin explicitly not a discovered biological stage; no data-derived stage boundary is established.",
+    "Unqueried features and tables are not evidence of absence; only the delivered rows were inspected."
+  ],
+  "role": "Analyst"
+}

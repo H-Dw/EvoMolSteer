@@ -1,0 +1,122 @@
+{
+  "findings": [
+    {
+      "claim": "The learning window and observed score times span [0.0, 0.5] with 50 score nodes at 0.01 spacing; the objective is final predicted target affinity primary, validity and strain secondary, coordinate control only.",
+      "evidence_ids": [
+        "clocks",
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Across the 20 landmark soft-mass features, whole-window z magnitudes are small (all |z| < 0.7) while first/last rate z values are large and frequently opposite in sign, indicating strong within-window rate contrasts rather than a stationary whole-window level shift.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "No landmark soft-mass feature has an accepted polynomial representation (polynomial_accepted=false for all 20), and all report multiple sign changes and strong sign conflicts, so no monotone or low-degree temporal trend is supported for these coordinates.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Extrapolation is disallowed for every reported continuous trend row, so no coordinate forecast beyond the observed [0.0, 0.5] window is supported.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-varying contrast; no absolute coordinate target implied",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:50",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:160"
+      ],
+      "falsifier": "A feature with accepted polynomial representation and consistent first/last rate sign across independent batches would contradict the reversal pattern.",
+      "id": "H001",
+      "observable": "landmark_XX_soft_mass first_rate_z vs last_rate_z sign contrast",
+      "scope": "global across the 20 landmark soft-mass features over the observed window [0.0, 0.5]",
+      "statement": "Landmark soft-mass coordinates show large early-window rate contrasts that reverse by the late window, consistent with a time-varying contrast rather than a fixed coordinate target."
+    }
+  ],
+  "limitations": [
+    "Temporal profiles are not available (temporal_profiles_available=false); only continuous trend summaries were queried.",
+    "Only soft-mass landmark features were examined; local covariance and displacement features were not queried.",
+    "No decoded final affinity labels are present; selection preference is association evidence, not descendant survival or measured final benefit.",
+    "The registered dose recipes (W1/W2/W3) are predeclared interventions, not discovered stage boundaries; no outcome data are available to judge them."
+  ],
+  "role": "Analyst"
+}

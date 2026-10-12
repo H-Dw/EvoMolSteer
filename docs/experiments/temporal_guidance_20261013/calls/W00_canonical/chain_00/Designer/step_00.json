@@ -1,0 +1,44 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "W3_early_strong_control",
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "E342a60b38bb0a51b",
+      "E735f24e742723e38",
+      "Ecea6847a29085c95",
+      "E57315f2f7083ab82",
+      "E5dc651b941b4c9fd",
+      "Ecaa47212cd4165ae",
+      "E65c5cdcb88f99c74",
+      "E76b26ba622888d46",
+      "E3b2ce8fd1ae3c7bc",
+      "E88a1b6d50276da1e",
+      "Ebfdd229bdaca644c",
+      "Efb15fb117b45eea6",
+      "E36816785ddd4dc09",
+      "Eae2d1a5138c82451",
+      "E17a2625f3ccde2df",
+      "Ed6483d1bca6d6f77",
+      "E8d8c32b13334497b",
+      "E7a4b1090068e0439",
+      "Eff027945cf60d210",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "Affinity is the primary objective but no decoded final affinity labels are present in the role input, so the expected affinity benefit of W3 is unverified; the dose ordering is association evidence from coordinate contrasts, not measured final benefit.",
+      "The dose lane changes only registered dose_factors; reward scalar multiplication is insufficient under RMS normalization, so any apparent effect must be attributed to the compiled dose table, not to a rescaled reward.",
+      "Equal sum(dt*w) is only a ratio budget; per-seed flow scales and the safety caps (minimum_dose_factor 0.25, maximum_dose_factor 2.0) require realized-dose auditing before the recipe is credited.",
+      "Strain and structural validity are secondary and are not assessed here; a coordinate-contrast match does not establish improved affinity, and changed chemical graphs would need separate validity checks.",
+      "Temporal profiles are unavailable (temporal_profiles_available=false) and only soft-mass landmark features were queried, so the reversal pattern is not confirmed on local covariance or displacement features.",
+      "If a feature with an accepted polynomial representation and consistent first/last rate sign across independent batches were found, H001 would be falsified and this edit would lose its basis."
+    ],
+    "hypothesis_refs": [
+      "H001"
+    ],
+    "rationale": "H001 states the landmark soft-mass coordinates carry large early-window rate contrasts that reverse by the late window, i.e. a time-varying contrast rather than a fixed coordinate target. The continuous-trend rows confirm this: whole-window z magnitudes are small while first/last rate z values are large and frequently opposite in sign, no polynomial representation is accepted, and extrapolation is disallowed. Under the dose lane the only registered lever that acts on this time-order contrast is the dose_factors table, and W3_early_strong_control is the registered recipe whose dose_factors are high early and low late (the mirror of W1_early_soft), matching the observed early-strong/late-reversed contrast. W2_middle_peak is a symmetric mid-window emphasis and does not encode the early-vs-late ordering the evidence reports. delta_A is held at 1.0 in all three recipes, consistent with the frozen-curvature constraint, and the reward view, teacher mixture and eta are unchanged. This is a predeclared intervention, not a discovered stage boundary; the knots_origin field says so explicitly.",
+    "role": "Designer"
+  }
+}

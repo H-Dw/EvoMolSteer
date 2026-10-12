@@ -1,0 +1,227 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/2af3ddf3c8c36585aa0c36148d1fcb2cbf9e7a90c33db44d125ad15252117ecc.txt",
+        "content_sha256": "2af3ddf3c8c36585aa0c36148d1fcb2cbf9e7a90c33db44d125ad15252117ecc",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/0f91a1ea6385373238a2bbf304ecebf5161bbbe7c05126d1367ddf9eb428a75d.txt",
+        "content_sha256": "0f91a1ea6385373238a2bbf304ecebf5161bbbe7c05126d1367ddf9eb428a75d",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0.txt",
+        "content_sha256": "3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/4b997a2d96b29c33b6cb71067095ba2440989909b416da4b35d6bedf93aa74fa.txt",
+        "content_sha256": "4b997a2d96b29c33b6cb71067095ba2440989909b416da4b35d6bedf93aa74fa",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/16beb5ab46eea90cb5b0499b94a7a5fe07d24fcb9b392a530134f4132acccbf9.txt",
+        "content_sha256": "16beb5ab46eea90cb5b0499b94a7a5fe07d24fcb9b392a530134f4132acccbf9",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/f42282ff77be297e69886385d2760edb818676729cea4ab560175b031defef0c.txt",
+        "content_sha256": "f42282ff77be297e69886385d2760edb818676729cea4ab560175b031defef0c",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/4edda0be673c84f6f8c12043283e581ef6660b44db35c318d3cc68bb1a3037d1.txt",
+        "content_sha256": "4edda0be673c84f6f8c12043283e581ef6660b44db35c318d3cc68bb1a3037d1",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E0857891f4effbfe1",
+                          "E17a2625f3ccde2df",
+                          "E2e106e083189d150",
+                          "E342a60b38bb0a51b",
+                          "E36816785ddd4dc09",
+                          "E3b2ce8fd1ae3c7bc",
+                          "E57315f2f7083ab82",
+                          "E5dc651b941b4c9fd",
+                          "E65c5cdcb88f99c74",
+                          "E735f24e742723e38",
+                          "E76b26ba622888d46",
+                          "E7a4b1090068e0439",
+                          "E88a1b6d50276da1e",
+                          "E8d8c32b13334497b",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eae2d1a5138c82451",
+                          "Ebfdd229bdaca644c",
+                          "Ecaa47212cd4165ae",
+                          "Ecea6847a29085c95",
+                          "Ed6483d1bca6d6f77",
+                          "Efb15fb117b45eea6",
+                          "Eff027945cf60d210"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E0857891f4effbfe1",
+                          "E17a2625f3ccde2df",
+                          "E2e106e083189d150",
+                          "E342a60b38bb0a51b",
+                          "E36816785ddd4dc09",
+                          "E3b2ce8fd1ae3c7bc",
+                          "E57315f2f7083ab82",
+                          "E5dc651b941b4c9fd",
+                          "E65c5cdcb88f99c74",
+                          "E735f24e742723e38",
+                          "E76b26ba622888d46",
+                          "E7a4b1090068e0439",
+                          "E88a1b6d50276da1e",
+                          "E8d8c32b13334497b",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eae2d1a5138c82451",
+                          "Ebfdd229bdaca644c",
+                          "Ecaa47212cd4165ae",
+                          "Ecea6847a29085c95",
+                          "Ed6483d1bca6d6f77",
+                          "Efb15fb117b45eea6",
+                          "Eff027945cf60d210"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}
