@@ -1,19 +1,44 @@
 {
   "api_calls": 531,
   "comparison_policy": "full_drop_only",
-  "completed_submodules": 7,
+  "completed_submodules": 8,
+  "distinct_inference_cohorts": 15,
   "final_context": [],
-  "independent_inference_cohorts": 14,
   "model": "deepseek-flash",
+  "numerical_reuse": {
+    "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd:6376,6377,6378,6379,6380,6381,6382,6383": {
+      "action": "reuse_M2",
+      "attempts": 400,
+      "batches": [
+        6376,
+        6377,
+        6378,
+        6379,
+        6380,
+        6381,
+        6382,
+        6383
+      ],
+      "cohort": "DSF_c62e296818e0_b6376_controls_indexed_batch",
+      "independent_confirmation": false,
+      "note": "本次 Agent 输出未改变执行函数",
+      "paired_initial_states_verified": true,
+      "reference_sha256": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+      "signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+    }
+  },
   "performance_goal_not_assumed": true,
-  "processed_submodules": 11,
+  "processed_submodules": 12,
   "raw_outputs_retired_after_verification": true,
   "results": [
     {
       "adopted_removal": false,
+      "both_execute_M2": null,
       "confirmation_class": "INCONCLUSIVE",
       "confirmation_drop_delta": -0.005262168049813276,
+      "execution_note": null,
       "function_pass": true,
+      "independent_confirmation": true,
       "module": "A1.1",
       "phase": "A",
       "screen_drop_delta": -0.0033468377590182286,
@@ -21,9 +46,12 @@
     },
     {
       "adopted_removal": false,
+      "both_execute_M2": null,
       "confirmation_class": "INCONCLUSIVE",
       "confirmation_drop_delta": -0.0057742814222976335,
+      "execution_note": null,
       "function_pass": true,
+      "independent_confirmation": true,
       "module": "A2.1",
       "phase": "A",
       "screen_drop_delta": -0.006693675518036457,
@@ -31,9 +59,12 @@
     },
     {
       "adopted_removal": true,
+      "both_execute_M2": null,
       "confirmation_class": "INCONCLUSIVE",
       "confirmation_drop_delta": 0.004879481196403468,
+      "execution_note": null,
       "function_pass": true,
+      "independent_confirmation": true,
       "module": "A2.2",
       "phase": "A",
       "screen_drop_delta": -0.0033468377590182286,
@@ -41,9 +72,12 @@
     },
     {
       "adopted_removal": true,
+      "both_execute_M2": null,
       "confirmation_class": "FUNCTIONAL_OR_INTERFACE_BOTTLENECK",
       "confirmation_drop_delta": 0.0,
+      "execution_note": null,
       "function_pass": false,
+      "independent_confirmation": true,
       "module": "A3.1",
       "phase": "A",
       "screen_drop_delta": 0.0,
@@ -51,9 +85,12 @@
     },
     {
       "adopted_removal": false,
+      "both_execute_M2": null,
       "confirmation_class": "INCONCLUSIVE",
       "confirmation_drop_delta": 0.0029534757137303913,
+      "execution_note": null,
       "function_pass": true,
+      "independent_confirmation": true,
       "module": "A4.3",
       "phase": "A",
       "screen_drop_delta": 0.0033468377590182286,
@@ -61,9 +98,12 @@
     },
     {
       "adopted_removal": true,
+      "both_execute_M2": null,
       "confirmation_class": "FUNCTIONAL_OR_INTERFACE_BOTTLENECK",
       "confirmation_drop_delta": 0.0,
+      "execution_note": null,
       "function_pass": false,
+      "independent_confirmation": true,
       "module": "D1.1",
       "phase": "D-G",
       "screen_drop_delta": 0.0,
@@ -71,16 +111,51 @@
     },
     {
       "adopted_removal": false,
+      "both_execute_M2": null,
       "confirmation_class": "INCONCLUSIVE",
       "confirmation_drop_delta": -0.0027705844243355315,
+      "execution_note": null,
       "function_pass": true,
+      "independent_confirmation": true,
       "module": "D1.2",
       "phase": "D-G",
       "screen_drop_delta": 0.0033468377590182286,
       "status": "NEGATIVE_OR_INCONCLUSIVE_KEEP_CURRENT"
+    },
+    {
+      "adopted_removal": true,
+      "both_execute_M2": true,
+      "confirmation_class": "AGENT_OUTPUT_UNCHANGED_EXECUTION_FUNCTION",
+      "confirmation_drop_delta": 0.0,
+      "execution_note": "本次 Agent 输出未改变执行函数",
+      "function_pass": true,
+      "independent_confirmation": false,
+      "module": "D2.1",
+      "phase": "D-G",
+      "screen_drop_delta": 0.0,
+      "status": "SHARED_BANK_CONTEXTUAL_REDUNDANCY"
     }
   ],
   "selected_workflow": null,
+  "shared_control_bank": {
+    "attempts_per_arm": 400,
+    "batches": [
+      6376,
+      6377,
+      6378,
+      6379,
+      6380,
+      6381,
+      6382,
+      6383
+    ],
+    "cohort": "DSF_c62e296818e0_b6376_controls_indexed_batch",
+    "independent_confirmation": false,
+    "manifest_sha256": "3935f9defa867be53674d154dab3e019977f3ac7d96e2b832a85e67d8dcf9cea",
+    "policy_sha256": "a1966e06231bee4489d382453c35b1547fd383243772f560b6b229b111dc5898",
+    "sample_reuse_not_additional_observations": true,
+    "scope": "all_unfinished_evaluations"
+  },
   "skipped_modules": [
     {
       "ablation_caused_the_error": "UNRESOLVED",
@@ -237,7 +312,7 @@
   ],
   "skipped_submodules": 4,
   "stage_failures": [],
-  "status": "screening",
+  "status": "pruning_confirmed",
   "total_submodules": 17,
   "treatments": [
     "full",
