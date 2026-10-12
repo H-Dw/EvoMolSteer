@@ -26,6 +26,7 @@ from evomolsteer.ablation.diagnostics import run_probes
 from evomolsteer.ablation.response import observed_response
 from evomolsteer.ablation.statistics import compare, compare_strain, summarize, quality_envelope, pruning_decision, classify_module
 from evomolsteer.ablation.execution import ExecutionBudgetExceeded, ModuleExecutionError, failure_record
+from evomolsteer.ablation.shared_controls import SharedControls
 from evomolsteer.continuous.m2_skill_api import BASE, REF, effective_signature
 from evomolsteer.deepseek_api import LLMInterfaceError
 from evomolsteer.io import digest, read_json, write_json
@@ -34,6 +35,7 @@ from evomolsteer.io import digest, read_json, write_json
 class ScientificStudy(Study):
     def __init__(self, repo, config):
         super().__init__(repo, config)
+        self.shared_controls = None
         self.state.setdefault("skipped_modules", [])
         self.state.setdefault("stage_failures", [])
         if self.state.get("status") == "failed" and self.state.get("error"):
@@ -76,6 +78,12 @@ class ScientificStudy(Study):
         if self.state.get("secondary_statistical_amendment_sha256",statistical_sha)!=statistical_sha:
             raise ValueError("Statistical amendment changed after activation")
         self.modules=read_json(self.study/"module_registry.json")["modules"]
+        shared_policy=self.config.get("shared_control_policy")
+        if shared_policy:
+            self.shared_controls=SharedControls(self.repo,shared_policy,activation["protocol_sha256"],
+                self.state,self.config["prior_seed_mode"])
+        elif self.state.get("shared_control_policy_sha256"):
+            raise ValueError("An activated shared-control policy cannot be removed on resume")
         with self.ssh() as client:
             check="""import pathlib,json
 root=pathlib.Path(REPO)/'configs/experiments'
@@ -104,7 +112,21 @@ for p in root.rglob('*.json'):
         self.save(status="ready",error=None,error_type=None,preflight_passed=True,
             execution_error_policy_sha256=policy_sha,
             protocol_sha256=activation["protocol_sha256"],model="deepseek-flash",
-            secondary_statistical_amendment_sha256=statistical_sha,**prior_policy)
+            secondary_statistical_amendment_sha256=statistical_sha,**prior_policy,
+            **({"shared_control_policy_sha256":self.shared_controls.policy_sha256,
+                "shared_control_bank":self.shared_controls.summary} if self.shared_controls else {}))
+
+    def evaluation_batches(self,batches):
+        """Apply the explicit amendment to every unfinished evaluation stage."""
+        return list(self.shared_controls.batches) if self.shared_controls else list(batches)
+
+    def evaluation_metadata(self):
+        if not self.shared_controls:return {"independent_confirmation":True}
+        return {"shared_control_bank":self.shared_controls.summary,"independent_confirmation":False,
+            "inference_scope":"paired development evaluation on reused sample bank; no fresh held-out confirmation"}
+
+    def comparison_metadata(self,full,drop):
+        return self.shared_controls.comparison(full,drop) if self.shared_controls else {}
 
     def _api_count(self):
         return sum(read_json(p).get("backend")=="real_api"
@@ -133,6 +155,9 @@ for p in root.rglob('*.json'):
         return result
 
     def controls(self,batches):
+        if self.shared_controls:
+            # Never regenerate controls, even if an old cache alias is missing.
+            return self.shared_controls.result
         key=",".join(map(str,batches))
         if key not in self.state["matched_controls"]:
             self._budget()
@@ -144,9 +169,12 @@ for p in root.rglob('*.json'):
         return self.state["matched_controls"][key]
 
     def measure(self,path,reference,sha,batches):
+        batches=self.evaluation_batches(batches)
         controls=self.controls(batches)
         key=sha+":"+",".join(map(str,batches))
-        if key not in self.state["measured"]:
+        if self.shared_controls:
+            result=self.shared_controls.measurement(self,path,reference,sha)
+        elif key not in self.state["measured"]:
             self._budget()
             result=self.infer(path,sha,lane="v3",reference_path=reference,batches=batches)
             for b in batches:
@@ -298,7 +326,7 @@ for p in root.rglob('*.json'):
         return active
 
     def _sequential_step(self,phase,role,active,incumbent,module,step,*,lane="G",frozen=None,offset=0):
-        screen=self.protocol["batches"]["screen"]
+        screen=self.evaluation_batches(self.protocol["batches"]["screen"])
         e=self.protocol["evaluation"]
         maskhash=hashlib.sha256(",".join(active).encode()).hexdigest()[:8]
         prefix=f"{phase}_{module}_{maskhash}"
@@ -317,7 +345,8 @@ for p in root.rglob('*.json'):
         screen_strain=[self.strain_contrast(cf,cd,paired_roles=role=="Designer",family=1)]
         result={"phase":phase,"module":module,"full":full["case"],"drop":drop["case"],"comparison_policy":"full_drop_only",
             "screen_drop_minus_full":ds,"screen_drop_minus_M2":ms,"function_pass":function_pass,
-            "screen_is_confirmation":False,"active_before":active,"confirmation":None,"screen_strain":screen_strain}
+            "screen_is_confirmation":False,"active_before":active,"confirmation":None,"screen_strain":screen_strain,
+            **self.comparison_metadata(full,drop)}
         # Screens never establish absence of an effect. Confirm promising
         # pruning, or a sizeable potential necessary effect, prospectively.
         potential=(ds["delta_pic50"]>=-e["M2_noninferiority_margin_pic50"] and
@@ -327,7 +356,7 @@ for p in root.rglob('*.json'):
             any(all(x["endpoints"][metric]["relative_worsening"]>.10 for x in screen_strain) for metric in ["median","p90"]))
         if potential or possible_necessary or possible_secondary:
             start=self.protocol["batches"]["confirmation_base"]+(offset+step)*self.protocol["batches"]["confirmation_stride"]
-            batches=list(range(start,start+self.protocol["batches"]["confirmation_count"]))
+            batches=self.evaluation_batches(range(start,start+self.protocol["batches"]["confirmation_count"]))
             ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches)
             mm=[self.frames(self.controls(batches))]
             cdf=self.contrast(fd,ff,paired_roles=role=="Designer")
@@ -337,10 +366,13 @@ for p in root.rglob('*.json'):
             secondary=[self.strain_contrast(ff,fd,paired_roles=role=="Designer")]
             classification=classify_module(self.contrast(ff,fd,paired_roles=role=="Designer"),
                 functional_valid=function_pass,effect=e["necessity_effect_pic50"],secondary=secondary)
+            if result.get("both_execute_M2"):
+                classification="AGENT_OUTPUT_UNCHANGED_EXECUTION_FUNCTION"
             if classification=="STRAIN_NECESSARY_IN_THIS_CONTEXT":
                 decision={"adopt":False,"status":"CONFIRMED_STRAIN_BENEFIT_KEEP_CURRENT"}
             result["confirmation"]={"batches":batches,"drop_minus_full":cdf,"drop_minus_M2":cdm,"quality_envelope":env,
-                "classification":classification,"secondary_strain":secondary,"role_designs_frozen_from_screen":True}
+                "classification":classification,"secondary_strain":secondary,"role_designs_frozen_from_screen":True,
+                **self.evaluation_metadata()}
             # An ineffective prompt can be retired without claiming that its
             # scientific method was tested when delivery/semantics failed.
             if decision["adopt"] and not function_pass:
@@ -348,6 +380,10 @@ for p in root.rglob('*.json'):
         else:
             decision={"adopt":False,"status":"SCREEN_NEGATIVE_OR_UNRESOLVED_KEEP_CURRENT"}
         if decision["adopt"]:active=dropped
+        if self.shared_controls:
+            # Keep original historical rows unchanged; new decisions explicitly
+            # disclose reuse rather than claiming independent confirmation.
+            decision["status"]=decision["status"].replace("CONFIRMED_","SHARED_BANK_")
         result.update(decision=decision,selected_active=active)
         self.state["pruning"].append(result)
         self.save(status="pruning_confirmed",task=module)
@@ -423,6 +459,7 @@ for p in root.rglob('*.json'):
 
     def choose_program(self,condition,incumbent,label,batches):
         """Select the modal role recipe; never the lucky best chain."""
+        batches=self.evaluation_batches(batches)
         counts=collections.Counter(r["signature"] for r in condition["rows"])
         base_sha=effective_signature({k:v for k,v in incumbent.items() if not k.startswith("_")})
         sha=sorted(counts,key=lambda x:(-counts[x],x!=base_sha,x))[0]
@@ -441,7 +478,7 @@ for p in root.rglob('*.json'):
             program["_reference_relative_path"]=REF
         record={"selection":"modal frozen role recipe, tie prefers incumbent", "selected_signature":sha,
             "delta_vs_M2":delta,"envelope":envelope,"accepted":accepted,"batches":batches,
-            "fallback":"confirmed matched M2" if not accepted else None,"program":program}
+            "fallback":"matched M2" if not accepted else None,"program":program,**self.evaluation_metadata()}
         write_json(self.study/(label+".selection.json"),record)
         self.commit("ablation(scientific): confirm "+label+" and bind selected incumbent")
         return program
@@ -514,7 +551,7 @@ for p in root.rglob('*.json'):
         drop=self.condition(prefix+"_drop",role,[x for x in active if x!=module],incumbent,lane=lane,frozen=frozen,focal=[module],designer_context=d)
         b=self.protocol["batches"]
         start=b["final_removal_base"]+b["confirmation_stride"]*step
-        batches=list(range(start,start+b["confirmation_count"]))
+        batches=self.evaluation_batches(range(start,start+b["confirmation_count"]))
         ff=self.condition_frames(full,batches);fd=self.condition_frames(drop,batches)
         passed=full["functional"] is not None and sum(x["score"]==2 for x in full["functional"]["assessments"])>=5
         secondary=[self.strain_contrast(ff,fd,paired_roles=role=="Designer")]
@@ -525,12 +562,14 @@ for p in root.rglob('*.json'):
             "full_minus_drop":self.contrast(ff,fd,paired_roles=role=="Designer"),
             "drop_minus_M2":self.contrast(fd,mm),
             "secondary_strain":secondary,
-            "not_inherited_from_initial_context":True}
+            "not_inherited_from_initial_context":True,**self.evaluation_metadata(),**self.comparison_metadata(full,drop)}
+        if record.get("both_execute_M2"):
+            record["classification"]="AGENT_OUTPUT_UNCHANGED_EXECUTION_FUNCTION"
         records.append(record);self.save();self.write_report()
-        self.commit("ablation(scientific): independently retest final-context "+module)
+        self.commit("ablation(scientific): retest final-context "+module)
 
     def final_report(self,program):
-        batches=self.protocol["batches"]["final"]
+        batches=self.evaluation_batches(self.protocol["batches"]["final"])
         path=self.study/"selected_program.json"
         p=copy.deepcopy(program);reference=self.repo/p.pop("_reference_relative_path",REF);write_json(path,p)
         result=self.measure(path,reference,effective_signature(p),batches)
@@ -551,7 +590,8 @@ for p in root.rglob('*.json'):
                 "unpaired":True,"equal_online_budget":False,"not_extreme_path_discovery_proof":True},
             "goals":{"native_superiority":vs_native["simultaneous_CI"][0]>0,
                 "M2_noninferiority":vs_m2["simultaneous_CI"][0]>-.02,"historical_mean_superiority":ci[0]>0},
-            "learning_and_guidance_support":p["window"],"native_completion":1.,"master_seed":42}
+            "learning_and_guidance_support":p["window"],"native_completion":1.,"master_seed":42,
+            "batches":batches,**self.evaluation_metadata()}
         write_json(self.study/"final_quality.json",record)
 
     def write_report(self):
@@ -561,7 +601,9 @@ for p in root.rglob('*.json'):
             rows.append({"phase":r["phase"],"module":r["module"],"function_pass":r["function_pass"],
                 "screen_drop_delta":r["screen_drop_minus_full"]["delta_pic50"],"adopted_removal":r["decision"]["adopt"],
                 "status":r["decision"]["status"],"confirmation_class":c.get("classification"),
-                "confirmation_drop_delta":c.get("drop_minus_full",{}).get("delta_pic50")})
+                "confirmation_drop_delta":c.get("drop_minus_full",{}).get("delta_pic50"),
+                "execution_note":r.get("note"),"both_execute_M2":r.get("both_execute_M2"),
+                "independent_confirmation":c.get("independent_confirmation",True)})
         skipped=self.state.get("skipped_modules",[])
         pd.DataFrame(rows).to_csv(self.study/"submodule_results.csv",index=False)
         pd.DataFrame(skipped).to_csv(self.study/"skipped_modules.csv",index=False)
@@ -571,7 +613,8 @@ for p in root.rglob('*.json'):
             "completed_submodules":len(rows),"total_submodules":17,"api_calls":self.state.get("api_calls",0),
             "processed_submodules":processed,"skipped_submodules":len(skipped),"skipped_modules":skipped,
             "stage_failures":self.state.get("stage_failures",[]),
-            "independent_inference_cohorts":len(self.state.get("program_results",{})),"results":rows,
+            "distinct_inference_cohorts":len(self.state.get("program_results",{})),"results":rows,
+            "shared_control_bank":self.state.get("shared_control_bank"),"numerical_reuse":self.state.get("numerical_reuse",{}),
             "final_context":self.state.get("final_context",[]),"selected_workflow":self.state.get("selected_workflow"),
             "performance_goal_not_assumed":True,"raw_outputs_retired_after_verification":True})
         lines=["# 科学子模块消融运行状态", "", "模型：真实 DeepSeek API / deepseek-flash。", "",
@@ -580,6 +623,9 @@ for p in root.rglob('*.json'):
         lines += [f"|{r['module']}|{r['function_pass']}|{r['confirmation_class'] or r['status']}|{r['adopted_removal']}|" for r in rows]
         lines += [f"|{r['module']}|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|" for r in skipped]
         lines += ["", "筛查不等于确认。功能未响应、接口瓶颈和证据不足不表述为科学方法无效。历史 Steer 比较不成对且在线预算不同。", ""]
+        if self.shared_controls:
+            lines += ["剩余实验固定复用 400 个 M2＋400 个无引导样本。复用记录不增加样本量，最终复核也不是独立留出验证。", ""]
+            lines += [f"- {r['module']}：{r['execution_note']}。" for r in rows if r.get("execution_note")]
         (self.study/"status.zh-CN.md").write_text("\n".join(lines),encoding="utf-8")
 
 

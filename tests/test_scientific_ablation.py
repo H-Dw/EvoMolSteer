@@ -85,6 +85,16 @@ def test_compiler_missing_reference_binding_does_not_generate(compiler_files):
     repo,study,p=compiler_files;p['reference_sha256']='0'*64
     with pytest.raises(ValueError,match='Reference'):compile_program(repo,study,{'decision':'retain','edit':None},p)
 
+
+def test_explicit_default_reuses_immutable_m2_program(compiler_files):
+    repo,study,p=compiler_files
+    first,_,sha,_=compile_program(repo,study,{'decision':'retain','edit':None},p)
+    original=first.read_bytes()
+    second,_,same,receipt=compile_program(repo,study,edit('pointcloud_delta_A',1.),p)
+    assert first==second and sha==same
+    assert second.read_bytes()==original
+    assert receipt['edit']=={'parameter':'pointcloud_delta_A','value':1.}
+
 REPO=Path(__file__).resolve().parents[1]
 
 

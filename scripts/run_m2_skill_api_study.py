@@ -318,10 +318,18 @@ for p in root.rglob('*.json'):
             (self.transport / (name + suffix)).unlink()
         with self.ssh() as client:
             # Resolve and validate within the new study root on the remote host.
+            # Frozen control data also have a permanent verified local copy;
+            # retain their remote terminal SDFs as requested by the user.
+            keep_seeds=False
+            if self.config.get("shared_control_policy"):
+                policy=read_json(self.repo/self.config["shared_control_policy"])
+                bank=read_json(self.repo/policy["manifest"])
+                keep_seeds=name==bank["result"]["name"]
             script = """import pathlib,shutil,json
 w=pathlib.Path(WORK).resolve()
 name=NAME
-targets=[w/'archives'/(name+'.tar.gz'),w/'archives'/(name+'.tar.gz.json'),w/'seed_structures'/name]
+targets=[w/'archives'/(name+'.tar.gz'),w/'archives'/(name+'.tar.gz.json')]
+if not KEEP_SEEDS:targets.append(w/'seed_structures'/name)
 removed=[]
 for target in targets:
  p=target.resolve()
@@ -329,7 +337,7 @@ for target in targets:
  if p.is_dir(): shutil.rmtree(p);removed.append(str(p))
  elif p.exists(): p.unlink();removed.append(str(p))
 print(json.dumps({'removed':removed}))
-""".replace("WORK", repr(self.config["remote_work"])).replace("NAME", repr(name))
+""".replace("WORK", repr(self.config["remote_work"])).replace("NAME", repr(name)).replace("KEEP_SEEDS",repr(keep_seeds))
             record = json.loads(shell(client, shlex.join([self.config["remote_python"], "-c", script])))
         write_json(self.study / "transport_records" / (name + ".retirement.json"), record)
 

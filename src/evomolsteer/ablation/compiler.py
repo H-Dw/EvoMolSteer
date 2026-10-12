@@ -84,7 +84,10 @@ def compile_program(repo, study, response, incumbent, *, lane="G", folder=None):
     sha=effective_signature(p)
     p["program_id"]="scientific_"+sha[:12]
     path=study/"programs"/(sha+".json")
-    if path.exists() and read_json(path)!=p:raise ValueError("Program signature collision")
+    if path.exists():
+        # Metadata and explicit default values do not constitute a new
+        # executable reward. Keep the first immutable numerical program.
+        if effective_signature(read_json(path))!=sha:raise ValueError("Program signature collision")
     if not path.exists():write_json(path,p)
     receipt={"effective_sha256":sha,"program":path.relative_to(repo).as_posix(),"program_sha256":digest(path),
         "reference":ref_relative,"reference_sha256":digest(repo/ref_relative),"edit":edit,"lane":lane,
