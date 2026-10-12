@@ -1,0 +1,27 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "endpoint_effects:1",
+    "continuous:0",
+    "clocks"
+  ],
+  "failure_modes": [
+    "If delta were narrowed to 0.5 A, the sharper robust-kernel curvature would increase per-step displacement of surrounding coordinates and risk cumulative-RMS and severe-receptor-clash constraint pressure without a calibrated affinity gain.",
+    "If delta were widened to 2.0 A, the flattened curvature would dilute the shape_yy/shape_xx endpoint contrast that is the only batch-consistent signal, degrading the primary affinity objective.",
+    "Changing teacher_neighbors to 2 or 8 would shift detached nearest-k mode coverage with no supplied dispersion or joint-geometry evidence, risking loss of competing directions or overweighting a single mode.",
+    "A temporal blend/region edit would condition on a non-monotone observed-node contrast (4 sign changes, opposing first/last rates, no accepted polynomial) and could chase a sign-flipping coordinate signal that does not correspond to a validated affinity improvement.",
+    "Any edit here would be a coordinate-graph change alone, which is not itself a failure mechanism; the failure would be unnecessary displacement of surrounding coordinates without affinity benefit."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H002",
+      "H001"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Incumbent already sits at pointcloud_delta_A=1.0 A with teacher_neighbors=4, mixture_temperature=0.5 and teacher_endpoint_temperature_A2=4.0 fixed. The only endpoint contrasts that are strong and batch-consistent are the signed shape_yy (q~1.5e-5, 0/14 positive) and shape_xx (q~8e-4, 1/14 positive) high-low integrated contrasts; centroid_y is weaker (q~0.014, 3/14) and centroid_x/z are indistinguishable from zero. These are signed favorable-versus-comparison coordinate contrasts at the observed endpoint, not absolute geometric targets, and no absolute affinity target exists (recorded affinities removed, equal score prior, window [0.0,0.5], support [0.0,0.49]). The offered choices are pointcloud_delta_A (0.5/1.0/2.0), region_index, teacher_neighbors (2/4/8) and temporal blend/region scalars. Narrowing delta to 0.5 A would sharpen the robust-kernel curvature and amplify displacement of surrounding coordinates for a contrast whose magnitude is not calibrated to any affinity scale, while widening to 2.0 A would flatten the curvature and dilute the only consistent signal; neither has a defensible expected affinity advantage over the incumbent 1.0 A. Changing teacher_neighbors from 4 to 2 or 8 alters mode coverage of the detached nearest-k prior without any supplied dispersion or joint-geometry evidence distinguishing narrower from broader neighborhoods, and neighbor count is not a distance bandwidth. The temporal blend/region choices would condition on the non-monotone landmark_00_soft_mass contrast (4 sign changes, first_rate_z~+9.3, last_rate_z~-10.0, no accepted polynomial, extrapolation disallowed), but that is a coordinate contrast at observed nodes, not a validated affinity benefit, and the incumbent already records the static recipe. With affinity primary and no calibrated expected advantage, retaining the incumbent is the defensible choice; the evidence would change this only if a registered choice showed a batch-consistent endpoint contrast aligned with a calibrated affinity direction.",
+  "role": "Designer"
+}

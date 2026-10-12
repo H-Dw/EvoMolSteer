@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "A narrower or broader teacher neighborhood (C005/C006/C007) could reduce mode coverage or over-smooth competing directions, but no intact-teacher dispersion or joint-geometry evidence was read to bound that trade-off.",
+    "A temporal teacher blend (C009/C010/C011) could displace surrounding coordinates unnecessarily if the sign-changing landmark contrast is applied as a time-conditioned reward without a validated fit.",
+    "Changing pointcloud_delta_A (C001/C002/C003) would alter the curvature of the endpoint distance response without observed spatial-scale or uncertainty evidence to justify the direction.",
+    "Treating coordinate contrast features as physical interaction energies or trajectory velocities would misstate the reward semantics and could drive an unsupported edit."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP (Eaa4bda02c9a2c3a1). The observed window is the score-clock interval [0.0,0.5] with 50 observed score times and curve support [0.0,0.49]; recorded affinities were removed and an equal score prior applies, so no absolute affinity label is available to justify a change (E0857891f4effbfe1). The inspected continuous contrast features are coordinate features of the predicted endpoint world representation, not physical interaction energies or trajectory velocities; they show multiple sign changes and strong sign conflicts, with large first/last rate z-values but small, mixed-sign whole-window z-values (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03). That pattern does not establish a monotone coordinate reward direction, so a time-conditioned rule would be descriptive rather than validated (H001), and no decoded terminal labels are supplied to connect selection enrichment to final affinity benefit (H002). The incumbent already uses pointcloud_delta_A=1.0 and teacher_neighbors=4 with fixed temperatures 0.5 and 4.0; the registered alternatives (C001-C003 delta, C005-C007 neighbor counts, C009-C011 temporal blend) are not supported by any observed scale, dispersion, or joint-geometry evidence in the delivered observations. Because the evidence does not provide a defensible expected advantage over the incumbent, retaining the incumbent is the correct affinity-first choice.",
+  "role": "Designer"
+}

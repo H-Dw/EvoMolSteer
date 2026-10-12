@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting a narrower or broader pointcloud_delta_A without supplied spatial-scale/uncertainty justification could displace surrounding coordinates and degrade the primary endpoint affinity while only changing coordinate geometry.",
+    "Choosing a teacher_neighbors count as if it were a distance bandwidth would alter mode coverage without evidence, risking collapse onto a subset of teacher modes or unnecessary displacement of surrounding coordinates.",
+    "Enabling a temporal teacher blend or temporal region index without a validated contrast function could inject an unvalidated time-conditioned reward direction and reverse the intended contrast within the observed window.",
+    "Treating descriptive non-monotone contrast diagnostics as absolute reward targets or extrapolating them beyond [0.0,0.5] would misdirect the controller outside observed support."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Affinity-first objective with coordinate-only control (Eaa4bda02c9a2c3a1); observed support is the score window [0.0,0.5] with curve support [0.0,0.49] and no decoded terminal affinity labels (E0857891f4effbfe1). The delivered continuous contrast diagnostics are non-monotone with multiple sign changes and opposing first/last rate z-values (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03), and are explicitly descriptive observed-node fits with polynomial_accepted false and extrapolation_allowed false. No registered choice is bound to a validated contrast function or to a spatial scale justified by supplied uncertainty: the offered pointcloud_delta_A values (0.5/1.0/2.0 A) are curvature/bandwidth edits with no delivered evidence of an expected affinity advantage, and the incumbent already uses 1.0 A; teacher_neighbors choices (2/4/8) are counts, not distance bandwidths, and the incumbent already uses 4; temporal_region_index and temporal_teacher_blend choices would require a validated absolute contrast change at observed score nodes, which the delivered evidence does not establish (H001 falsifier not cleared), and a single signed whole-window contrast is contradicted by the sign reversals (H002). Because no offered edit has a defensible expected advantage over the incumbent under the affinity-first priority, retaining the incumbent is the supported decision.",
+  "role": "Designer"
+}
