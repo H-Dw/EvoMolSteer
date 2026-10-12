@@ -1,0 +1,77 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Observed score times span the learning window [0.0,0.5] at 0.01 spacing, and the curve support is [0.0,0.49]; recorded affinities were removed and replaced by an equal score prior, so no absolute affinity target is observable in the supplied evidence.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast features are represented as predicted_endpoint_world_A_features with observed-node linear fits, polynomial fits rejected, and extrapolation disallowed; several landmark features show multiple sign changes and strong sign conflicts across the window, so a constant rule is not supported by these curves.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Landmark_00_soft_mass has a positive first-window rate and a negative last-window rate with four sign changes and one strong sign conflict, indicating a time-conditioned rather than constant contrast behavior within the observed support.",
+      "evidence_refs": [
+        "E2e106e083189d150"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Landmark_00_local_dx and landmark_00_local_dy show large-magnitude first and last rate z-values with opposite signs and multiple sign changes, so their within-window direction is not stable and cannot be treated as a fixed coordinate reward direction.",
+      "evidence_refs": [
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast over constant contrast",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c"
+      ],
+      "falsifier": "A constant rule with equal or better fit fidelity and no sign-change mismatch across the observed nodes.",
+      "observable": "landmark_00_soft_mass and landmark_00_local_dx/dy observed-node contrast curves",
+      "scope": "observed score window [0.0,0.5], no extrapolation",
+      "statement": "A time-conditioned contrast rule using validated observed-node interpolation may better match the sign-changing landmark contrast curves than a constant rule over the observed window."
+    },
+    {
+      "direction": "joint pattern over isolated marginals",
+      "evidence_refs": [
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "falsifier": "Joint diagnostics showing no coupling beyond marginal descriptors.",
+      "observable": "landmark local second-moment features cxx and cyy",
+      "scope": "observed endpoint world coordinates",
+      "statement": "Joint coordinate patterns may carry coupling information not captured by isolated marginal landmark descriptors, but the supplied continuous_trends rows alone do not establish a coherent joint mode."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "No current study outcome data are available to the Analyst; all statements are limited to the supplied observational tables and metadata.",
+    "Selection enrichment versus absolute geometric descriptors cannot be separated without the population/label/observable binding tables, which were not read in this turn.",
+    "Uncertainty, multiplicity-adjusted support and coverage rankings were not computed because the relevant branch_adjusted and joint_diagnostics rows were not retrieved within the turn budget."
+  ],
+  "role": "Analyst"
+}

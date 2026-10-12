@@ -1,0 +1,33 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "C010",
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03",
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "Ed9b75ded9192a9b0",
+      "Ee92b78bec6fdbbb4",
+      "E52fcd92a3390dbcf",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "If the observed-node contrast is noisy, blending it at 0.5 could displace surrounding coordinates away from the incumbent static shape-favorable configuration, degrading the endpoint shape contrast that F001 reports as coherent; the retained 0.5 static weight bounds but does not eliminate this displacement.",
+      "The temporal contrast is a coordinate reward, not a trajectory velocity force; if the controller treats the blended term as a velocity target, the resulting motion is not the registered reward and the expected fidelity gain would not appear.",
+      "Continuous trends disallow extrapolation beyond [0.0,0.5]; if the blend is applied outside the observed score-node window, the time-conditioned term is unsupported and could act as an unvalidated constant.",
+      "No decoded terminal labels or final-affinity outcomes were supplied, so the predicted affinity benefit of C010 is an expectation from observed-node contrast fidelity, not a measured final-affinity improvement."
+    ],
+    "hypothesis_refs": [
+      "H002",
+      "H001"
+    ],
+    "rationale": "Analyst F003/H002 shows the landmark contrast curves are non-monotone within the observed window, with multiple sign changes and opposite-sign first-rate/last-rate z, and no accepted polynomial; a constant contrast rule cannot represent that structure. The registered temporal_teacher recipe is the only offered edit that changes the contrast rule itself: (1-blend)*R_static + blend*R_observed_teacher(time), using the same static teachers and the same shared FLOWR endpoint VJP, with no velocity target and no temperature change. C010 sets temporal_teacher_blend=0.5, a balanced dose that lets the validated observed-node contrast modulate regional attention while retaining half the incumbent static reward, so the incumbent's coherent endpoint shape signal (F001: shape_yy and shape_xx negative integrated contrasts with small q and zero positive batches) is not discarded. C009 (0.25) under-weights the time-conditioned term relative to the sign-change evidence; C011 (1.0) fully replaces the static term and risks losing the endpoint shape coherence that F001 supports. C008 (temporal_region_index=0) selects a region but does not by itself change the contrast rule, and C004/C005/C006/C007 alter region index or teacher count rather than the temporal contrast, so they do not address H002. C001/C002/C003 change pointcloud_delta_A, which is a distance-response curvature parameter, not a temporal contrast; the Analyst temporal evidence does not justify a curvature change, and the incumbent delta=1.0 A is retained. The edit is expected to improve observed-node contrast fidelity (H002 observable) while preserving the endpoint shape advantage (H001), consistent with the affinity-primary objective.",
+    "role": "Designer"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5",
+    "objective"
+  ],
+  "failure_modes": [
+    "Selecting a temporal_teacher blend (C009-C011) would condition the teacher mixture on a contrast curve with four to six sign changes and strong sign conflicts, risking unnecessary displacement of surrounding coordinates without a validated affinity benefit.",
+    "Changing pointcloud_delta_A (C001-C003) or teacher_neighbors (C005-C007) is not supported by any supplied spatial-scale or intact-teacher dispersion statistic; neighbor count is not a distance bandwidth.",
+    "Any temperature edit would be an interface violation; temperatures are immutable task parameters and were not evaluated as design variables."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.1/D1.2: The only registered temporal edit is the temporal_teacher blend (C009-C011), which changes the teacher coordinate mixture at observed score nodes, not a velocity force; the incumbent already runs the static teacher program with teacher_neighbors=4 and pointcloud_delta_A=1.0. Analyst's temporal evidence (E2e106e083189d150) shows landmark_00_soft_mass has a positive first-window rate and negative last-window rate with four sign changes and one strong sign conflict, and the marginal landmark descriptors (Eace79c1f0f54c9d1, E03ad082bb04f4f9c) show six sign changes each with multiple strong sign conflicts. A time-conditioned blend would therefore be fit to an unstable, sign-conflicted contrast curve within the observed support [0.0,0.49] (E0857891f4effbfe1), and no validated constant rule or joint diagnostic is supplied to arbitrate. D2.1/D2.2: No supplied spatial-scale or intact-teacher dispersion statistic supports a narrower or broader teacher neighborhood; teacher_neighbors is a count, not a bandwidth, and the fixed temperatures (mixture_temperature=0.5, teacher_endpoint_temperature_A2=4.0) are immutable. D4.1/D4.2: The incumbent already uses the registered static teacher program with the default pointcloud_delta_A=1.0 and teacher_neighbors=4; the evidence does not establish a defensible expected advantage for any offered edit, and the affinity-first objective (Eaa4bda02c9a2c3a1) is not served by displacing surrounding coordinates on an unstable contrast signal. Retaining the incumbent is the evidence-supported choice.",
+  "role": "Designer"
+}

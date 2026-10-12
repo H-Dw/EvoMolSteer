@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting a temporal_teacher blend (C009-C011) would apply a coordinate reward whose observed-node sign is unstable (multiple sign changes and strong sign conflicts), risking unnecessary displacement of surrounding coordinates without validated affinity benefit.",
+    "Selecting a pointcloud_delta_A change (C001-C003) without supplied spatial-scale or uncertainty evidence could over-narrow or over-broaden the distance response, altering curvature in an unsupported direction.",
+    "Selecting a teacher_neighbors change (C005-C007) treats a neighbor count as a distance bandwidth and could reduce mode coverage or introduce competing teacher directions not supported by intact-teacher dispersion evidence.",
+    "Selecting temporal_region_index (C008) changes only regional attention at observed score nodes; with recorded affinities removed and an equal score prior, no affinity-label validation exists, so the edit could shift attention without improving final predicted affinity."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Affinity-first objective with coordinate control only; the incumbent already uses the registered endpoint pointcloud reward with pointcloud_delta_A=1.0, teacher_neighbors=4, static teachers and no temporal blend. Analyst evidence (F003-F005, H001-H002) shows the landmark contrast curves are observed-node linear interpolations in predicted endpoint world coordinates with extrapolation disallowed, polynomial fits rejected, relative node RMSE ~0.29-0.78, and heavy sign instability (up to 10 sign changes, up to 9 strong sign conflicts). That supports a time-conditioned contrast as a descriptive observation, but it does not establish a defensible expected affinity advantage for any offered edit: the temporal_teacher choices (C009-C011) change only a registered scalar blend of a coordinate reward, not a velocity force, and the observed-node sign conflicts mean the direction of the blend is not stable; the temporal_region choice (C008) changes only regional attention at observed score nodes with no affinity-label validation available (recorded affinities removed, equal score prior). The pointcloud_delta_A choices (C001-C003) alter distance-response curvature without any supplied spatial-scale or uncertainty evidence in the inspected rows to justify a narrower or broader kernel, and teacher_neighbors choices (C005-C007) are counts, not bandwidths, with no intact-teacher dispersion or joint-geometry evidence read. Since no observed affinity label exists to validate any coordinate contrast against final predicted affinity, and no inspected evidence provides a defensible expected advantage over the incumbent, retaining the incumbent is the evidence-supported choice.",
+  "role": "Designer"
+}
