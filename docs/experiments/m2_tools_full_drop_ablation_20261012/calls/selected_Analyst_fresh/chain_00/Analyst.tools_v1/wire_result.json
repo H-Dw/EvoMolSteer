@@ -1,0 +1,79 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal-score, so no observed affinity outcome is available to rank coordinate hypotheses by true affinity benefit.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The observed support is the learning window [0.0,0.5] with score nodes at 0.01 spacing; the curve-support selection rule requires absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05 and excludes a scale floor, yielding 24 selected features under a fidelity rule of relative RMSE <= 0.35 and zero strong sign conflicts.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions are fit only by observed-node linear interpolation with extrapolation disallowed and polynomial fits rejected; the inspected landmark features show multiple sign changes (4-10) and strong sign conflicts (1-9) with relative node RMSE 0.29-0.78, so a constant rule is not supported and a time-conditioned rule is only weakly identified at these nodes.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The information audit reports 14 independent batches and explicitly states that the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, that nonnegative excess distance is by construction rather than a causal affinity effect, and that teacher score correlations are observational and not a validated affinity predictor; compressed-choice excess fixed RMS is small (mean ~0.081 A) relative to fixed RMS (~0.56 A).",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Lineage support covers 14 complete survival batches over 700 batch nodes with terminal metadata at score time 0.99 and state time 1.0, but 349 nodes have fewer than 3 ancestors and 531 fewer than 6, and multiple testing is BH over 400 survival field/measure tests explicitly not terminal affinity effects; last-record survival credit therefore cannot be presented as final affinity benefit.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast at observed nodes",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "Ed4e7d28e7b0423e0"
+      ],
+      "falsifier": "No selected feature retains a stable sign or batch direction fraction >= 0.857 under observed-node interpolation, or relative node RMSE exceeds 0.35 with strong sign conflicts present.",
+      "observable": "landmark soft-mass and local-coordinate contrast features at observed score nodes",
+      "scope": "observed window [0.0,0.5], 14 independent batches",
+      "statement": "A time-conditioned coordinate contrast rule at observed score nodes could express the supported sign-changing landmark contrasts better than a constant rule, using only observed-node interpolation within [0.0,0.5]."
+    },
+    {
+      "direction": "descriptive geometric contrast only",
+      "evidence_refs": [
+        "E2bb8390452ed517a",
+        "Ed0d7945bdeeda8f1"
+      ],
+      "falsifier": "A validated affinity predictor or decoded terminal label shows the excess-distance contrast tracks final affinity benefit.",
+      "observable": "compressed_choice_excess_fixed_RMS_A and teacher overlap metrics",
+      "scope": "14 independent batches, whole window",
+      "statement": "Selection enrichment in compressed-choice excess fixed RMS is a geometric descriptor of teacher proximity, not evidence of affinity gain, so it should not be used as an absolute reward target."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels or current-study outcome data are supplied, so final affinity benefit cannot be evaluated and last-record survival credit is not final affinity benefit.",
+    "Continuous contrast functions are observed-node linear fits with extrapolation disallowed and polynomial fits rejected; they are not absolute reward targets and do not establish trajectory velocity forces.",
+    "The information audit metrics are geometric teacher-proximity diagnostics, not the full score-weighted reward or its FLOWR Jacobian, and are not a causal affinity effect.",
+    "Ancestral coverage is sparse (349 nodes with fewer than 3 ancestors, 531 with fewer than 6), so descendant survival or quality credit is subject to survivor bias and cannot be treated as an unbiased later-label comparison.",
+    "No joint covariance, intact-conformation or mode diagnostics were read, so coherent joint coordinate patterns versus isolated marginals cannot be compared from the evidence inspected."
+  ],
+  "role": "Analyst"
+}
