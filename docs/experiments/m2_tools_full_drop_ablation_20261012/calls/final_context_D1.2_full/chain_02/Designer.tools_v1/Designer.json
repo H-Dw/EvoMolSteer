@@ -1,0 +1,30 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "temporal_teacher_blend",
+    "value": 0.25
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "clocks"
+  ],
+  "failure_modes": [
+    "Over-weighting the temporal blend (e.g., C010/C011) displaces surrounding coordinates away from the favorable endpoint shape_yy/shape_xx configuration, reducing the primary endpoint affinity contrast and collapsing batch consistency toward 50% positive batches.",
+    "The observed non-monotone contrast is only supported on observed score nodes within [0.0,0.5]; extrapolation beyond the observed window is disallowed, so any benefit outside that support is unverified.",
+    "No decoded terminal labels or current-study outcome data are supplied, so the expected advantage is a coordinate-contrast prediction, not a demonstrated final-affinity gain."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": "C009"
+  },
+  "rationale": "D1.2: The incumbent is a stationary coordinate target (teacher_score_beta=0, static detached nearest-k teachers, time_ramp_power=0.0). Analyst's temporal evidence shows the observed-window landmark contrast is non-monotone (landmark_00_soft_mass: 4 sign changes, first_rate_z~+9.3, last_rate_z~-10.0; local_dx/dy/dz 6-10 sign changes with opposing first/last rate z-scores), no polynomial accepted and extrapolation disallowed. A constant rule is therefore not supported across the observed window, while a time-conditioned alternative is. Among the registered temporal recipes, C009 (temporal_teacher_blend=0.25) is the minimal dose that changes only the registered scalar blend of the observed-node teacher contrast into regional attention; it does not change teacher coordinates, does not add a velocity target, and preserves the shared learned support (same static teachers, same FLOWR endpoint VJP, same detached matching convention). The temporal derivative in the evidence is a rate of change of a coordinate contrast, not a spatial gradient, and is not treated as one. D4.1: Against the incumbent, the defensible expected advantage is that a small observed-node-conditioned blend tracks the documented sign-flipping contrast better than a constant rule, at the lowest registered dose (0.25) so the static endpoint reward remains dominant; larger blends (C010/C011) are not justified because the endpoint evidence is the primary affinity signal and the temporal evidence is only observed-node interpolation. D4.2: Opposing evidence is the strong, batch-consistent endpoint contrast for shape_yy (q~1.5e-5, 0/14 positive batches) and shape_xx (q~8e-4, 1/14 positive), plus the weak/axis-specific centroid evidence (centroid_y q~0.014, 3/14; centroid_x/z not distinguishable from zero). Predicted failure: a time-conditioned blend that is too strong would displace surrounding coordinates away from the favorable endpoint configuration, degrading the primary endpoint affinity contrast and collapsing batch consistency toward 50% positive batches. This prediction is why the design selects the smallest registered blend (0.25) rather than 0.5 or 1.0, keeping affinity-first priority; a coordinate graph change alone is not treated as a failure mechanism. Temperatures are immutable and were not proposed for edit.",
+  "role": "Designer"
+}

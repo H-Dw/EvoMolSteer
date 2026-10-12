@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "Ed4e7d28e7b0423e0",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03",
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1"
+  ],
+  "failure_modes": [
+    "Adopting a temporal_teacher_blend or temporal_region_index edit would alter teacher coordinates/regional attention at observed nodes on weakly identified, sign-conflicting contrast fits, displacing surrounding coordinates without demonstrated affinity benefit.",
+    "Increasing pointcloud_delta_A or teacher_neighbors would change dose/prior count only, with no evidence of expected affinity advantage over the incumbent's 1.0 A and 4 neighbors.",
+    "Treating the geometric excess-distance or last-record survival metrics as affinity gain would misread a diagnostic descriptor as the score-weighted reward, risking unnecessary coordinate displacement.",
+    "Sparse ancestral coverage makes any descendant survival or quality credit survivor-biased, so it cannot serve as an unbiased later-label comparison for design selection."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The offered time-conditioned alternatives (C008 temporal_region_index, C009-C011 temporal_teacher_blend) change teacher coordinates/regional attention at observed score nodes, not merely dose; the pointcloud_delta_A choices (C001-C003) and teacher_neighbors counts (C005-C007) are dose/prior-count edits, and C004 is a static region index. The temporal evidence is only observed-node linear interpolation with extrapolation disallowed, polynomial fits rejected, and the inspected landmark contrasts show 4-10 sign changes with 1-9 strong sign conflicts and relative node RMSE 0.29-0.78, so a time-conditioned rule is weakly identified at these nodes (H001 not established). D4.1: The incumbent already carries teacher_neighbors=4, pointcloud_delta_A=1.0, teacher_score_beta=0, time_ramp_power=0.0 and the static endpoint-pointcloud reward; no offered edit has a defensible expected advantage over it, since the objective is final predicted affinity primary and no observed affinity outcome or decoded terminal label is available to rank coordinate hypotheses (F001, F004, F005). D4.2: The predicted failure of a temporal or larger-dose edit is unnecessary displacement of surrounding coordinates: the audit's excess-distance contrast is a geometric teacher-proximity descriptor, not the score-weighted reward or its FLOWR Jacobian, and is not a causal affinity effect (H002), while ancestral coverage is sparse (349 nodes <3 ancestors, 531 <6), so any apparent survival credit is survivor-biased and cannot justify moving coordinates. Because coordinate graph changes alone are not a failure mechanism and affinity is primary, the defensible action is to retain the incumbent rather than adopt an unsupported temporal teacher/attention or dose change. Temperatures are immutable and were not proposed.",
+  "role": "Designer"
+}

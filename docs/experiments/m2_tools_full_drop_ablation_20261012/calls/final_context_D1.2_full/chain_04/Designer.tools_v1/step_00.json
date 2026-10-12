@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "Eace79c1f0f54c9d1",
+      "E894225fb605458cb"
+    ],
+    "failure_modes": [
+      "Adopting a temporal_teacher_blend or temporal_region edit on the basis of coordinate rate-change evidence alone would displace surrounding coordinates in conflicting directions (multiple sign changes, strong sign conflicts), risking strain/validity costs with no demonstrated affinity gain.",
+      "Treating the observed-node rate-change structure as a spatial gradient or as a velocity force would misapply the evidence; the temporal derivative is not a coordinate gradient and the recipes are coordinate rewards only.",
+      "Any proposal to alter mixture_temperature or teacher_endpoint_temperature_A2 would be an interface violation, since temperatures are immutable fixed parameters."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered temporal alternatives (C008 temporal_region_index, C009-C011 temporal_teacher_blend) are time-conditioned coordinate recipes. Per the formula registry, temporal_region changes only regional attention at observed score nodes using the same static teachers, and temporal_teacher changes only the blend between the static endpoint reward and an observed-node coordinate teacher reward; neither introduces a velocity target, and both are coordinate rewards rather than trajectory velocity forces. Analyst's temporal evidence (first/last rate z of large magnitude with sign reversal, small whole-window z) is consistent with a time-conditioned coordinate contrast, but it is a coordinate contrast only and carries no affinity label (recorded affinities removed, equal score prior), so it cannot be converted into expected affinity benefit. D4.1: Compared with the supplied incumbent (static coordinate-only endpoint reward, teacher_neighbors 4, pointcloud_delta_A 1.0, mixture_temperature 0.5), the offered edits are either dose changes (C001-C003 pointcloud_delta_A) or teacher/attention changes (C004-C011). The evidence provides no defensible expected affinity advantage for any of them: the incumbent already uses the default delta 1.0 and teacher_neighbors 4, and the temporal evidence is whole-window/observed-node coordinate structure without affinity labels. Retaining the incumbent is therefore the evidence-supported choice. D4.2: The predicted failure of adopting a temporal blend or regional-attention edit is unnecessary displacement of surrounding coordinates: the observed-node fits show multiple sign changes and strong sign conflicts, so a time-conditioned rule applied at observed nodes would push neighboring coordinates in conflicting directions within the window, risking strain and validity costs while the primary affinity objective is unmeasured. Because affinity is primary and no affinity evidence supports the change, this predicted failure mechanism argues against the edit. No temperature edit is proposed; temperatures remain the immutable fixed parameters.",
+    "role": "Designer"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03"
+    ],
+    "failure_modes": [
+      "A temporal_region or temporal_teacher edit would apply an unvalidated sign-changing contrast as a coordinate reward, displacing surrounding landmark coordinates without demonstrated affinity benefit.",
+      "A pointcloud_delta dose edit (C001-C003) changes only reward scale; with no endpoint or increment evidence read, it risks larger unnecessary coordinate displacement at unchanged affinity.",
+      "Treating the large first/last rate z-values as a spatial gradient direction would misread a temporal derivative as a coordinate reward, producing a misdirected edit.",
+      "Selection-node enrichment could be mistaken for final affinity benefit; no decoded terminal labels are supplied, so last-record credit cannot be presented as affinity gain (H002)."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The offered time-conditioned alternatives are temporal_region_index (C008) and temporal_teacher_blend (C009-C011). Per the registry, temporal_region changes only regional attention at observed score nodes using the same static teachers, and temporal_teacher blends the static coordinate reward with an observed-node teacher reward; neither changes teacher coordinates, and neither is a velocity target. The inspected continuous trends are coordinate features of the predicted endpoint world representation with extrapolation disallowed, multiple sign changes and strong sign conflicts, and small mixed-sign whole-window z-values; the Analyst explicitly did not validate any time-conditioned rule against a constant rule (H001). A temporal derivative is not a spatial gradient, so these rate z-values cannot be read as a coordinate reward direction. D4.1: The incumbent already uses teacher_neighbors=4, pointcloud_delta_A=1.0, region_index=0 and no temporal term, with the declared affinity-primary objective and the preserved FLOWR endpoint VJP. The supplied evidence provides no defensible expected affinity advantage for any registered edit: the pointcloud_delta choices (C001-C003) are dose-only changes with no supporting endpoint or increment evidence read, and the temporal choices rest on unvalidated descriptive contrasts. Retaining the incumbent is therefore the evidence-supported action. D4.2: The predicted failure of a temporal or dose edit is unnecessary displacement of surrounding coordinates: a sign-changing, unvalidated contrast applied as a coordinate reward would push neighboring landmark coordinates without a demonstrated affinity benefit, and the affinity-first priority is not served by coordinate graph change alone. This prediction reinforces retaining the incumbent rather than editing.",
+    "role": "Designer"
+  }
+}
