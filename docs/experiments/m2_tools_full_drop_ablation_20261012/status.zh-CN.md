@@ -2,7 +2,7 @@
 
 模型：真实 DeepSeek API / deepseek-flash。
 
-状态：screening；已完成比较 5/17；跳过 4；已处理 9/17。
+状态：pruning_confirmed；已完成比较 6/17；跳过 4；已处理 10/17。
 
 |模块|功能验证|确认结论|是否精简|
 |---|---|---|---|
@@ -11,6 +11,7 @@
 |A2.2|True|INCONCLUSIVE|True|
 |A3.1|False|FUNCTIONAL_OR_INTERFACE_BOTTLENECK|True|
 |A4.3|True|INCONCLUSIVE|False|
+|D1.1|False|FUNCTIONAL_OR_INTERFACE_BOTTLENECK|True|
 |A1.2|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
 |A3.2|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
 |A4.1|执行失败|SKIPPED_EXECUTION_ERROR（因果未确认）|False|
