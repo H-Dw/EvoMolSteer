@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "Ed4e7d28e7b0423e0",
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "Eace79c1f0f54c9d1",
+      "E2bb8390452ed517a",
+      "Ed0d7945bdeeda8f1"
+    ],
+    "failure_modes": [
+      "A temporal_region or temporal_teacher_blend edit reweights regional attention at observed score nodes and can displace surrounding coordinates through the positive surrounding Gaussian weight without any validated affinity benefit.",
+      "Narrowing teacher_neighbors to 2 concentrates the detached prior on sparse ancestors (349 nodes with fewer than 3 ancestors), risking mode collapse; broadening to 8 averages competing directions without a validated affinity signal.",
+      "Changing pointcloud_delta_A to 0.5 or 2.0 alters distance-response curvature with no supplied response range or direction, so the expected affinity effect is unquantified.",
+      "Treating the temporal derivative or the coordinate contrast as a spatial gradient or as physical interaction energy would misstate the reward semantics and is not supported by the supplied evidence."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The incumbent is a stationary coordinate target (program D2_without_trajectory_static, time_ramp_power 0.0, window [0.0,0.5]). The permitted time-conditioned alternatives are the registered temporal_region (C008) and temporal_teacher_blend (C009-C011) recipes, which change only regional attention at observed score nodes or blend a registered scalar toward observed-teacher coordinates; they do not change teacher coordinates, teacher provenance, or the fixed temperatures, and they are coordinate rewards rather than velocity forces. Analyst's temporal evidence (F003/H001) shows sign changes and rate reversals with no accepted polynomial, so a constant rule is not supported, but the evidence is restricted to observed-node interpolation inside [0.0,0.5] and the curve-support fidelity rule (F002) bounds which curves are usable. D2.1: The supplied spatial scales are core_radius_A 5.0 and the incumbent pointcloud_delta_A 1.0; the registered distance-response curvature choices are C001 (0.5), C002 (1.0) and C003 (2.0). The incumbent already sits at the default 1.0 A, and no delivered observation quantifies a response range or direction for a narrower or broader curvature, so any change would be an exploratory choice rather than an evidence-backed one. D2.2: The registered teacher-neighborhood choices are C005 (2), C006 (4) and C007 (8); the incumbent uses 4. Analyst's information audit (F004) states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, and lineage support (F005) shows heavy ancestral sparsity (349 nodes with fewer than 3 ancestors, 531 with fewer than 6), so narrower neighborhoods risk mode collapse onto sparse ancestors and broader neighborhoods risk averaging competing directions without a validated affinity signal. Neighbor count is a count, not a distance bandwidth, and the fixed temperatures and teacher provenance must be preserved. D4.1: Comparing each offered edit with the incumbent, none provides a defensible expected advantage: the temporal recipes are bounded to observed-node interpolation with no held-out improvement shown, the curvature choices lack a supplied response range, and the neighborhood choices trade sparse-ancestor coverage against unvalidated averaging. Retaining the incumbent is therefore the evidence-supported choice; the evidence would change this decision if a delivered observation showed a held-out observed-node improvement for a time-conditioned rule or a quantified response range for a curvature or neighborhood change. D4.2: The predicted failure response of the nearest competing edit (a temporal_teacher_blend or temporal_region change) is unnecessary displacement of surrounding coordinates: because the blend reweights regional attention at observed score nodes while the surrounding Gaussian weight stays positive, coordinates outside the attended region can be pushed by the renormalized reward even though the affinity-first objective is unchanged, and the sparse ancestral coverage means the observed-teacher term is estimated from few ancestors. That prediction keeps the design at the incumbent rather than accepting a coordinate displacement that is not tied to a validated affinity benefit; a coordinate graph change alone is not treated as a failure mechanism.",
+    "role": "Designer"
+  }
+}

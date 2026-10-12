@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03"
+    ],
+    "failure_modes": [
+      "Adopting a temporal blend or temporal region index without a validated registered recipe would impose an unvalidated time-conditioned contrast and could displace surrounding coordinates unnecessarily, degrading the affinity-primary endpoint reward.",
+      "Changing pointcloud_delta_A alters only the dose/curvature of the endpoint distance response; with no observed affinity outcome and non-monotone contrast diagnostics, a narrower or broader delta could shift the response range in an unsupported direction.",
+      "Changing teacher_neighbors treats a neighbor count as a distance bandwidth; narrower neighborhoods would reduce mode coverage and broader ones would mix competing teacher directions, neither justified by intact-teacher dispersion evidence read here.",
+      "Interpreting the observed-node temporal contrast rates as spatial gradients would misdirect coordinate control and is not supported by the endpoint-VJP reward semantics."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Objective is affinity-primary with coordinate control only, and the reward view is the endpoint pointcloud with a detached-Hungarian endpoint mean squared distance and no affinity-head derivative (Eaa4bda02c9a2c3a1). The observed support is the score window [0.0,0.5] with 50 observed nodes and curve support [0.0,0.49], with recorded affinities removed and an equal score prior, so no decoded terminal affinity outcome is available to justify a change (E0857891f4effbfe1). The continuous contrast diagnostics are non-monotone with multiple sign changes and large opposing first-rate and last-rate z-values, reported as observed-node fits with polynomial_accepted false, extrapolation_allowed false and relative node RMSE roughly 0.29-0.78 (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03). These are descriptive contrast diagnostics over the observed window, not absolute reward targets, and a temporal derivative is not a spatial gradient. H001 (time-conditioned contrast weighting) is not actionable because no registered temporal recipe was confirmed to express the observed contrast, and H002 rejects a single signed whole-window contrast, so no defensible expected advantage over the incumbent is established. The offered choices would change only dose (pointcloud_delta_A), regional attention index, teacher-neighbor count, or temporal blend; none is supported by the delivered evidence as an expected affinity improvement, and teacher_neighbors is a count rather than a distance bandwidth. Retaining the incumbent preserves the shared learned support, the fixed temperatures and the supplied teacher provenance.",
+    "role": "Designer"
+  }
+}
