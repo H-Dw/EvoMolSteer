@@ -14,7 +14,7 @@
 
 ## 实际角色行为
 
-六条空白上下文 Analyst→Designer 链，两种等义任务表述，各三条；API 温度保持 0，thinking disabled，无模型替代、无 subagent。共 24 次实际请求，12 个角色工作流成功，未发生格式修复或失败工具观察。
+六条空白上下文 Analyst→Designer 链，两种等义任务表述，各三条；API 温度保持 0，thinking disabled，无模型替代、无 subagent。共 24 个动作步骤、25 次实际请求，12 个角色工作流成功，没有失败工具观察。第六条 Designer 首次回答存在 JSON 分隔符错误，通过一次限定的中性格式修复成功提取；未回填伪造结果或更换奖励设计。
 
 Analyst 输出 28 条 findings、12 条 hypotheses，其中 hypotheses 明确给出坐标 observable、方向和否证条件。实际读取的是端点对照及相关元数据：例如短程 pair-kernel 正向富集、若干局部占据率／softmin 的混合方向、全局形状分量减小。这些是坐标统计关联，不能转述为已证实的作用能或最终亲和力机制。
 
