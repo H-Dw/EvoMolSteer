@@ -1,0 +1,32 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1",
+      "Ed4e7d28e7b0423e0",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03",
+      "E2bb8390452ed517a",
+      "Ed0d7945bdeeda8f1"
+    ],
+    "failure_modes": [
+      "Temporal teacher blend (C009-C011) or temporal_region_index (C008) would shift teacher coordinates/regional attention using sign-conflicted observed-node contrasts, displacing surrounding coordinates without validated affinity benefit.",
+      "Narrower teacher_neighbors (C005=2) risks mode collapse onto a single teacher direction; broader (C007=8) dilutes competing directions; neither is a distance bandwidth and neither has affinity evidence.",
+      "Any pointcloud_delta_A change (C001-C003) alters dose only, with no observed affinity outcome available to justify it; incumbent already equals the declared 1 A default.",
+      "Treating the geometric excess-distance contrast as an absolute reward target would misrepresent a descriptive teacher-proximity diagnostic as affinity gain."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered temporal options (C008 temporal_region_index, C009-C011 temporal_teacher_blend) change teacher coordinates/regional attention at observed score nodes, not merely dose; the static incumbent uses teacher_score_beta=0 with no temporal recipe. Analyst's temporal evidence is observed-node linear interpolation with extrapolation disallowed, polynomial fits rejected, 4-10 sign changes and 1-9 strong sign conflicts at relative node RMSE 0.29-0.78, so a time-conditioned teacher is only weakly identified and a temporal derivative is not a spatial gradient. D2.2: Neighbor count (C005=2, C006=4, C007=8) is a count, not a distance bandwidth; the incumbent already uses teacher_neighbors=4, and the audit states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian and nonnegative excess distance is by construction, not a causal affinity effect. Narrower neighborhoods risk mode collapse onto a single teacher direction; broader ones dilute competing directions without validated affinity benefit, and fixed temperatures (mixture 0.5, teacher endpoint 4.0 A^2) are immutable. D4.1: The objective is final predicted target affinity primary with recorded affinities removed and an equal-score prior, so no observed affinity outcome can rank any offered edit; the incumbent's pointcloud_delta_A=1.0 already matches the declared default, region_index=0 is the incumbent region, and no offered choice has a defensible expected affinity advantage. D4.2: Predicted failure of a temporal or neighborhood edit is unnecessary displacement of surrounding coordinates (excess fixed RMS already small ~0.081 A vs fixed RMS ~0.56 A) and attention collapse onto sign-conflicted landmark directions, with no affinity-first justification; since coordinate graph changes alone are not a failure mechanism and affinity is primary, retaining the incumbent is the defensible choice.",
+    "role": "Designer"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "Ecbb36ef90768cba0",
+    "E3114d60bf4cd5720",
+    "E52fcd92a3390dbcf",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Unnecessary displacement of surrounding coordinates if a temporal blend or broader teacher neighborhood is applied without validated contrast support, moving non-target landmarks while affinity is unchanged or worse.",
+    "Adopting a time-conditioned recipe whose blend magnitude is not tied to the observed sign-flip structure, producing attention changes that do not track the observed non-monotone contrast.",
+    "Treating endpoint coordinate contrasts (shape_yy/shape_xx) as affinity gains or as physical interaction energies, leading to a false expected-advantage claim.",
+    "Changing teacher_neighbors as if it were a distance bandwidth, altering mode coverage without evidence on intact-teacher dispersion."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The temporal evidence is non-monotone over the observed window (landmark_00_soft_mass and local derivative features show multiple sign changes with large opposing first/last rate z-scores; no polynomial accepted, extrapolation disallowed). The registered temporal recipes (C008-C011) change regional attention at observed score nodes via a validated absolute contrast, not teacher coordinates and not a velocity target; they are coordinate rewards. However, the offered temporal_teacher_blend values (0.25/0.5/1.0) are not tied by any delivered observation to the observed sign-flip structure, and the incumbent already runs the static teacher with the shared learned support. No evidence establishes that a time-conditioned blend beats the static rule on held-out observed nodes, so H001 remains untested and I do not adopt a temporal edit. D2.2: teacher_neighbors is a count, not a distance bandwidth; the incumbent uses 4 (C006). No intact-teacher dispersion or joint-geometry observation was read that would justify narrowing to 2 (C005) or broadening to 8 (C007), so mode coverage versus competing directions cannot be adjudicated from supplied evidence. D4.1: The only endpoint contrasts with strong, batch-consistent support are the signed shape_yy and shape_xx contrasts (negative, 0/14 and 1/14 positive batches); centroid_y is weaker and centroid_x/z are null. These are endpoint coordinate contrasts, not affinity targets, and the registered choices do not offer a shape-specific contrast edit. The offered pointcloud_delta_A values (C001-C003) and region_index (C004) are not supported by any delivered observation as producing a defensible expected affinity advantage, and the incumbent already uses delta=1.0 A. D4.2: A concrete failure response to an unsupported edit would be unnecessary displacement of surrounding coordinates: broadening teacher neighborhoods or adding a temporal blend without validated contrast support could move non-target landmark coordinates while the primary affinity objective is unchanged or degraded, and coordinate graph changes alone are not a failure mechanism. Given the affinity-first priority and the absence of outcome data, retaining the incumbent is the defensible choice. Temperatures are immutable and were not proposed for edit.",
+  "role": "Designer"
+}

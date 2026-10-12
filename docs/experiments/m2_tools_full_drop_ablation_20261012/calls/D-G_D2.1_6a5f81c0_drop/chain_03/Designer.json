@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Temporal blend (C009-C011) applies an unvalidated observed-node contrast, displacing surrounding coordinates without demonstrated affinity gain.",
+    "Narrowing teacher_neighbors to 2 (C005) reduces mode coverage and may bias the endpoint pointcloud reward.",
+    "Broadening teacher_neighbors to 8 (C007) mixes competing directions and dilutes the nearest-k prior.",
+    "Changing pointcloud_delta_A (C001-C003) alters the robust kernel scale with no supporting evidence, shifting effective reward magnitude."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The only registered time-conditioned options are temporal_region_index (C008) and temporal_teacher_blend (C009-C011), which change regional attention at observed score nodes or blend the observed-teacher coordinate reward; they do not change teacher coordinates or dose, and the temporal derivative is not treated as a spatial gradient. Analyst's temporal evidence is descriptive only: the observed-node fits have polynomial_accepted false, extrapolation_allowed false, relative node RMSE ~0.29-0.78, and no decoded terminal affinity labels exist, so no validated temporal contrast is available to justify a time-conditioned edit. D2.2: teacher_neighbors is a count, not a distance bandwidth; the incumbent already uses 4, and no intact-teacher dispersion or joint-geometry evidence was read to support narrowing to 2 (C005) or broadening to 8 (C007), so mode coverage and competing directions cannot be compared. D4.1: The incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, static teacher, fixed temperatures) is the only configuration with a supplied reference; the offered alternatives (delta 0.5/2.0, region_index 0, neighbor counts, temporal blends) have no defensible expected advantage in the delivered evidence, so retaining the incumbent is chosen. D4.2: A temporal blend or narrower neighborhood would displace surrounding coordinates without validated benefit and risks degrading the affinity-primary objective; since coordinate graph changes alone are not a failure mechanism and no affinity outcome data are supplied, the safer prediction is unnecessary coordinate displacement with no demonstrated affinity gain, which supports retaining the incumbent.",
+  "role": "Designer"
+}
