@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "A time-conditioned teacher/attention edit (C008-C011) applied to sign-conflicting landmark contrasts could displace surrounding coordinates without validated affinity benefit.",
+    "A narrower or broader teacher neighborhood (C005/C007) chosen without intact-teacher dispersion evidence could reduce mode coverage or over-smooth the teacher mixture.",
+    "A pointcloud_delta_A or region_index change (C001-C004) selected from exploratory values rather than observed spatial scales could alter the response range in an unsupported direction.",
+    "Treating a temporal derivative or coordinate contrast as a spatial gradient or as physical interaction energy would misstate the reward semantics."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The only temporal options offered are C008 (temporal_region_index=0), C009/C010/C011 (temporal_teacher_blend 0.25/0.5/1.0). Per the registry, temporal_region changes regional attention at observed score nodes using the same static teachers, and temporal_teacher blends the static endpoint reward with an observed-teacher(time) reward on the same shared FLOWR endpoint with no velocity target. Both are coordinate rewards, not trajectory velocity forces, and neither is a spatial gradient. Analyst's temporal evidence (F003/F004, H001) shows the inspected landmark contrasts are descriptive only: multiple sign changes (4-10) and strong sign conflicts (1-9), whole-window z small and mixed in sign, extrapolation disallowed. A sign-changing time-conditioned rule is therefore not validated against a constant rule, so no time-conditioned teacher-coordinate or attention change has a defensible expected advantage. D2.1: No supplied spatial scale or uncertainty table was read that would justify a distance-response curvature or spatial emphasis; the offered pointcloud_delta_A values (C001-C003) and region_index (C004) are exploratory choices without observed-scale support, and the incumbent already uses delta=1.0 A with core_radius 5.0 A. D2.2: No intact-teacher dispersion or joint-geometry evidence was read, so narrower (C005=2) versus broader (C007=8) teacher neighborhoods cannot be compared on mode coverage; neighbor count is a count, not a bandwidth, and the incumbent teacher_neighbors=4 is retained. D4.1: The incumbent (D2_without_trajectory_static, delta=1.0, neighbors=4, mixture_temperature 0.5, teacher_endpoint_temperature_A2 4.0) is the reference; evidence provides no expected advantage for any registered edit, so retaining the incumbent is the defensible choice. D4.2: Predicted failure of an unsupported edit: a time-conditioned or widened-neighborhood reward would displace surrounding coordinates along a sign-conflicting contrast, adding unnecessary coordinate movement and strain without demonstrated affinity benefit, which conflicts with the affinity-first priority; graph change alone is not treated as a failure mechanism. Temperatures are immutable and were not proposed.",
+  "role": "Designer"
+}

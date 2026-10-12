@@ -1,0 +1,328 @@
+{
+  "choices": {
+    "C001": {
+      "parameter": "pointcloud_delta_A",
+      "value": 0.5
+    },
+    "C002": {
+      "parameter": "pointcloud_delta_A",
+      "value": 1.0
+    },
+    "C003": {
+      "parameter": "pointcloud_delta_A",
+      "value": 2.0
+    },
+    "C004": {
+      "parameter": "region_index",
+      "value": 0
+    },
+    "C005": {
+      "parameter": "teacher_neighbors",
+      "value": 2
+    },
+    "C006": {
+      "parameter": "teacher_neighbors",
+      "value": 4
+    },
+    "C007": {
+      "parameter": "teacher_neighbors",
+      "value": 8
+    },
+    "C008": {
+      "parameter": "temporal_region_index",
+      "value": 0
+    },
+    "C009": {
+      "parameter": "temporal_teacher_blend",
+      "value": 0.25
+    },
+    "C010": {
+      "parameter": "temporal_teacher_blend",
+      "value": 0.5
+    },
+    "C011": {
+      "parameter": "temporal_teacher_blend",
+      "value": 1.0
+    }
+  },
+  "handoff": {
+    "findings": [
+      {
+        "claim": "The observed window is the score-clock interval [0.0,0.5] with 50 observed score nodes at 0.01 spacing, and the curve-support audit reports a selected_count of 0 over that window, so no selection-enriched node subset is available for signed favorable-versus-comparison contrasts; the contrast evidence is whole-window only.",
+        "evidence_ids": [
+          "clocks"
+        ],
+        "id": "F001",
+        "priority": 1
+      },
+      {
+        "claim": "The supplied continuous contrast functions are observed-node linear fits over the complete observed support with extrapolation disallowed and polynomial fits rejected; they are coordinate contrast curves, not absolute reward targets, and several show multiple sign changes with strong sign conflicts, so a constant rule is not supported by these fits.",
+        "evidence_ids": [
+          "continuous:0",
+          "continuous:1",
+          "continuous:2",
+          "continuous:3"
+        ],
+        "id": "F002",
+        "priority": 2
+      },
+      {
+        "claim": "Landmark-00 soft mass shows a first-rate z of about +9.3 and a last-rate z of about -10.0 with 4 sign changes and 1 strong sign conflict, while landmark-00 local dy shows a first-rate z of about -72.4 and last-rate z of about +5.5 with 6 sign changes; the rate of change itself changes sign within the observed window, which is a time-conditioned rather than constant pattern.",
+        "evidence_ids": [
+          "continuous:0",
+          "continuous:2"
+        ],
+        "id": "F003",
+        "priority": 3
+      },
+      {
+        "claim": "Whole-window z values for these landmark-00 features are small in magnitude (e.g. about +0.64 for soft mass, about -0.30 for local dy, about -0.18 for local dx) relative to the first/last rate z magnitudes, so the integrated whole-window contrast is weak even where endpoint rates are large; point-estimate ranking of whole-window means would not surface the rate-change structure.",
+        "evidence_ids": [
+          "continuous:0",
+          "continuous:1",
+          "continuous:2"
+        ],
+        "id": "F004",
+        "priority": 4
+      },
+      {
+        "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary and coordinate control only, and the label semantics state recorded affinities were removed with an equal score prior, so no observed affinity labels are available to convert these coordinate contrasts into affinity benefit.",
+        "evidence_ids": [
+          "objective",
+          "clocks"
+        ],
+        "id": "F005",
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant",
+        "evidence_ids": [
+          "continuous:0",
+          "continuous:2"
+        ],
+        "falsifier": "If the observed-node linear fit fails to reproduce the sign reversal at held-out observed nodes, or if a constant rule matches the observed-node RMSE, the time-conditioned hypothesis is not supported.",
+        "id": "H001",
+        "observable": "landmark_00_soft_mass and landmark_00_local_dy observed-node contrast values and their first/last rate z over the observed score nodes",
+        "scope": "observed window [0.0,0.5], predicted_endpoint_world_A features, no extrapolation",
+        "statement": "A time-conditioned coordinate contrast rule on landmark-00 soft mass and local dy, using the validated observed-node linear fits within [0.0,0.5], would track the sign reversal in rate that a constant whole-window rule misses."
+      },
+      {
+        "direction": "rate-change dominant",
+        "evidence_ids": [
+          "continuous:0",
+          "continuous:1",
+          "continuous:2"
+        ],
+        "falsifier": "If whole_window_z magnitudes are comparable to or larger than first/last rate z for the same features, the rate-change-dominance statement fails.",
+        "id": "H002",
+        "observable": "comparison of first_rate_z, last_rate_z and whole_window_z per feature",
+        "scope": "continuous_trends rows for landmark-00 features",
+        "statement": "The large first/last rate z values with small whole-window z indicate that within-window rate change, not the integrated whole-window mean, carries the coordinate contrast signal for these landmark features."
+      }
+    ],
+    "limitations": [
+      "No selection-enriched node subset is available (selected_count 0), so signed favorable-versus-comparison contrasts at selection nodes cannot be computed from the supplied evidence.",
+      "No decoded terminal labels or observed affinities are supplied (recorded affinities removed, equal score prior), so last-record or survival credit cannot be presented as final affinity benefit and the immediate-versus-descendant comparison is unavailable.",
+      "No covariance, intact-conformation or mode diagnostics were read in this turn, so coherent joint coordinate patterns versus isolated marginals cannot be assessed here.",
+      "No parent-child increment or turnover residual evidence was read in this turn, so within-path change versus changing cohort composition cannot be distinguished.",
+      "These are coordinate contrast observations only; they are not physical interaction energies, neural-module causation, or trajectory velocity forces."
+    ],
+    "role": "Analyst"
+  },
+  "initial_references": {
+    "references": {
+      "E00e41abde0319d86": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/9",
+        "source_id": "continuous:9",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E03ad082bb04f4f9c": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/2",
+        "source_id": "continuous:2",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E0857891f4effbfe1": {
+        "file": "packet.json",
+        "kind": "metadata",
+        "pointer": "/clocks",
+        "source_id": "metadata/clocks",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": null
+      },
+      "E1ba2a68ba5243c03": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/5",
+        "source_id": "continuous:5",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E2bb7fa55d7b62d47": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/11",
+        "source_id": "continuous:11",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E2e106e083189d150": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/0",
+        "source_id": "continuous:0",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E342a60b38bb0a51b": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/10",
+        "source_id": "continuous:10",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E598d52f84227fbcc": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/4",
+        "source_id": "continuous:4",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E5cf1ecb7c628685b": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/6",
+        "source_id": "continuous:6",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E5d1c4c6e5dbe0cb6": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/7",
+        "source_id": "continuous:7",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E894225fb605458cb": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/3",
+        "source_id": "continuous:3",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "Eaa4bda02c9a2c3a1": {
+        "file": "packet.json",
+        "kind": "metadata",
+        "pointer": "/objective",
+        "source_id": "metadata/objective",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": null
+      },
+      "Eace79c1f0f54c9d1": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/1",
+        "source_id": "continuous:1",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "Ec589f2ee99a44490": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/8",
+        "source_id": "continuous:8",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      }
+    },
+    "sources": {
+      "continuous_functions.json": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+      "index.json": "7c779de6e9ca48f63b88f13edc45180fa80303f4063e95edf5a72dbb1fa8ccf4",
+      "observable_definitions.json": "60729872cc6c5d5af1de407527ca5104200ec24e97cd1f3de15c6effbfb870c9",
+      "packet.json": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95"
+    }
+  },
+  "instruction_sha256": "595ca26cc755289c26b98520f1195377e269692d830e38fa21e6734d09b5e6d6",
+  "interface_version": "evidence-tools-json-v1",
+  "max_context_bytes": 280000,
+  "max_output_tokens": 8192,
+  "max_steps": 10,
+  "model": "deepseek-flash",
+  "role": "Designer",
+  "sources": {
+    "continuous_functions.json": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+    "index.json": "7c779de6e9ca48f63b88f13edc45180fa80303f4063e95edf5a72dbb1fa8ccf4",
+    "observable_definitions.json": "60729872cc6c5d5af1de407527ca5104200ec24e97cd1f3de15c6effbfb870c9",
+    "packet.json": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95"
+  },
+  "task": {
+    "case_id": "6c45a2686aa0e313",
+    "chain": 4,
+    "delivery_diagnostics": null,
+    "fixed_parameters": {
+      "mixture_temperature": 0.5,
+      "teacher_endpoint_temperature_A2": 4.0
+    },
+    "formula": "R=tau*logsumexp(log_pi-rho_delta(q)/tau), q=detached-Hungarian endpoint mean squared distance; rho_delta=delta^2*(sqrt(1+q/delta^2)-1). Actual pointcloud_delta_A defaults to 1 A. Native endpoint VJP, no affinity-head derivative, no extra model forward. teacher_neighbors is a count; temporal_recipe changes only a registered scalar/attention, not velocity. No temperature edits. Inert legacy metadata is not a reward term.",
+    "formula_registry": {
+      "diagnostic_limit": "Moment effects, pair kernels and turnover are diagnostic evidence. Executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term; legacy robust_delta is inert.",
+      "dose": "Endpoint-VJP force normalized and RMS-scaled against native predictive update; eta/ramp only in U lane.",
+      "prior": "Detached nearest-k teachers; log_pi=-q_anchor/prior_temperature; scores beta=0; k is a count.",
+      "regional": "Detached background plus Gaussian landmark attention; positive surrounding weight.",
+      "temporal_region": "Same static teachers; validated absolute contrast changes regional attention at observed score nodes.",
+      "temporal_teacher": "(1-blend)*R_static + blend*R_observed_teacher(time); same shared FLOWR endpoint, no velocity target."
+    },
+    "incumbent": {
+      "additional_per_step_affinity_calls": 0,
+      "affinity_head_gradient": false,
+      "constraints": {
+        "backtrack_attempts": 7,
+        "max_atom_step_A": 0.15,
+        "max_cumulative_rms_A": 6.0,
+        "severe_receptor_clash_A": 0.8
+      },
+      "contrast_bound_nats": 2.0,
+      "coordinate_representation": "predicted_endpoint_world_A",
+      "core_radius_A": 5.0,
+      "derivative_path": "flowr_endpoint_vjp",
+      "dose_reference": "predictive_flow",
+      "family": "coordinate_only_affinity_endpoint",
+      "mixture_temperature": 0.5,
+      "native_rms_ratio": 0.33,
+      "objective_profile": "affinity_primary_coordinate30",
+      "pointcloud_delta_A": 1.0,
+      "preserve_native_rigid_pose": false,
+      "program_id": "D2_without_trajectory_static",
+      "record_reward_response": true,
+      "reference_sha256": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+      "reward_view": "endpoint_pointcloud",
+      "schema_version": "current-coordinate-program-1.0",
+      "seed": 42,
+      "teacher_endpoint_temperature_A2": 4.0,
+      "teacher_neighbors": 4,
+      "teacher_score_beta": 0,
+      "time_ramp_power": 0.0,
+      "topology_policy": "Free native graph transitions; no pair-distance acceptance or graph equality veto",
+      "window": [
+        0.0,
+        0.5
+      ]
+    },
+    "lane": "G",
+    "maximum_edits": 1,
+    "objective": "Final predicted target affinity primary; validity and strain secondary; coordinate control only",
+    "role": "Designer",
+    "task_wording": "Use these observations to provide your response to the supplied molecular coordinate task."
+  }
+}

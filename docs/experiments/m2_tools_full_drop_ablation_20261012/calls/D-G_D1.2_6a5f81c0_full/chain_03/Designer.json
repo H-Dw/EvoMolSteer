@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Applying a temporal_teacher_blend (C009-C011) or temporal_region_index (C008) without a validated absolute contrast change would shift regional attention on unvalidated diagnostics and displace surrounding coordinates without demonstrated affinity benefit.",
+    "Changing pointcloud_delta_A to 0.5 A (C001) would sharpen the robust distance kernel and amplify small endpoint displacements, risking unnecessary coordinate movement and secondary strain/validity loss.",
+    "Changing teacher_neighbors to 2 or 8 (C005/C007) treats a neighbor count as a distance bandwidth and would alter mode coverage without intact-teacher dispersion or joint-geometry evidence.",
+    "Interpreting the observed non-monotone temporal contrast sign changes as a spatial gradient or as a velocity force would violate the endpoint-VJP coordinate-reward semantics."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The Analyst's temporal evidence is descriptive only. The continuous contrast curves are observed-node linear fits with polynomial_accepted false, extrapolation_allowed false, and relative node RMSE roughly 0.29-0.78, so they are not validated time-conditioned recipes and cannot be converted into a teacher-coordinate or regional-attention edit. The registered temporal options (C008 temporal_region_index, C009-C011 temporal_teacher_blend) would change regional attention or blend a time-conditioned teacher, but no validated absolute contrast change is available to justify them; the observed non-monotone sign changes (four to ten sign changes, opposing first/last rate z) are diagnostics, not a spatial gradient, and a temporal derivative is not a coordinate gradient. D2.1: The supplied spatial scales are the incumbent core_radius_A 5.0 and pointcloud_delta_A 1.0 with the registered alternatives 0.5/1.0/2.0 A. The evidence provides no observed distance-response curvature or uncertainty estimate that distinguishes these scales, so changing delta would be an exploratory choice without a defensible expected response range or direction; the incumbent 1.0 A is retained. D2.2: Intact-teacher dispersion and joint-geometry evidence were not read in this turn, so narrower (C005=2) versus broader (C007=8) teacher neighborhoods cannot be compared on mode coverage or competing directions; teacher_neighbors is a count, not a distance bandwidth, and the fixed temperatures (mixture 0.5, teacher endpoint A^2 4.0) are immutable. D4.1: The incumbent D2_without_trajectory_static already uses teacher_neighbors 4, pointcloud_delta_A 1.0, region_index 0, and no temporal blend; no registered bounded edit shows a defensible expected advantage over it, so retaining the incumbent is the evidence-supported choice. D4.2: The predicted failure of an unsupported edit is unnecessary displacement of surrounding coordinates: a broader teacher neighborhood or a temporal blend applied without validated contrast would pull the endpoint pointcloud toward unvalidated teacher geometry, and a smaller delta (0.5 A) would sharpen the robust kernel and amplify small endpoint displacements, risking strain and validity loss while the primary affinity objective is unmeasured. Because final predicted affinity is primary and no decoded terminal affinity outcome is supplied, no coordinate edit is justified.",
+  "role": "Designer"
+}

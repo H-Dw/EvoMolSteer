@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "curve_support",
+    "continuous:0",
+    "continuous:2",
+    "continuous:1",
+    "information_audit",
+    "lineage_support"
+  ],
+  "failure_modes": [
+    "A time-conditioned teacher blend (C009/C010/C011) or temporal region index (C008) could shift regional attention using observational teacher-score correlations that are not a validated affinity predictor, producing coordinate displacement without affinity benefit.",
+    "Increasing pointcloud_delta_A (C002/C003) or teacher_neighbors (C006/C007) could displace surrounding coordinates beyond the observed support, where nonnegative excess distance is by construction rather than a causal affinity effect.",
+    "Treating a temporal derivative or teacher-score correlation as a spatial gradient or physical interaction energy would misdirect the coordinate reward."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The supplied temporal evidence is coordinate-only. Continuous contrast curves (E2e106e083189d150, E03ad082bb04f4f9c, Eace79c1f0f54c9d1) show sign changes and rate reversals with no accepted polynomial, and the curve-support rule (Ed4e7d28e7b0423e0) restricts usable features to the observed window [0.0,0.5] (E0857891f4effbfe1). The registered temporal recipes (C008 temporal_region_index, C009/C010/C011 temporal_teacher_blend) change only regional attention or blend a static teacher with an observed-node teacher contrast; they do not change teacher coordinates and are not velocity forces. However, the information audit (E2bb8390452ed517a) states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, and teacher score correlations are observational, not a validated affinity predictor. No decoded terminal affinity labels exist (Ed0d7945bdeeda8f1), so no time-conditioned alternative has a demonstrated expected advantage over the stationary coordinate target. D2.1: The only supplied spatial scale is the incumbent core_radius_A=5.0 and pointcloud_delta_A=1.0; the registered distance-response curvature choices C001/C002/C003 (delta 0.5/1.0/2.0) are exploratory, and no supplied evidence quantifies a response range or direction for them, so no curvature edit is justified. D2.2: Teacher-neighbor counts C005/C006/C007 (2/4/8) are counts, not distance bandwidths; the incumbent already uses teacher_neighbors=4, and no intact-teacher dispersion or joint-geometry evidence was read that would favor narrower or broader neighborhoods, so mode coverage cannot be argued either way. D4.1: The incumbent (Eaa4bda02c9a2c3a1) is the affinity-primary coordinate-only endpoint program with fixed temperatures; none of the registered bounded choices has evidence of a defensible expected advantage, so retaining the incumbent is the correct decision. D4.2: The predicted failure of an unsupported edit is unnecessary displacement of surrounding coordinates: a broader teacher neighborhood or larger delta would pull the endpoint pointcloud beyond the observed support, and the audit (E2bb8390452ed517a) warns that nonnegative excess distance is by construction rather than a causal affinity effect, so such displacement would not be expected to improve final predicted affinity and could degrade validity/strain. This prediction reinforces retaining the incumbent under the affinity-first priority.",
+  "role": "Designer"
+}
