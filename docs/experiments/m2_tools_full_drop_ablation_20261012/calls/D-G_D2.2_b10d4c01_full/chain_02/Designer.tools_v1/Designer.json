@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "endpoint_effects:1",
+    "clocks"
+  ],
+  "failure_modes": [
+    "Broader teacher neighborhood (C006/C007) or larger pointcloud_delta_A (C002/C003) could displace surrounding coordinates and raise strain without demonstrated affinity benefit.",
+    "Temporal teacher blend (C009-C011) changes regional attention at observed score nodes but has no affinity-anchored target, risking drift of the coordinate reward away from the primary objective.",
+    "Treating the non-monotone temporal derivative as a spatial gradient would misdirect the coordinate update; the evidence supports only observed-node interpolation.",
+    "No absolute affinity target is available (recorded affinities removed, equal score prior), so any edit's expected affinity advantage remains unverified."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The temporal evidence (continuous:0-3) shows non-monotone, sign-flipping rate structure over the observed window with no accepted polynomial and extrapolation disallowed, so a stationary coordinate target is not supported across the full window; only observed-node interpolation is warranted. The registered temporal recipes (C008-C011) change regional attention at observed score nodes using the same static teachers and shared FLOWR endpoint, i.e. they alter teacher coordinates/attention rather than dose, and they are coordinate rewards, not velocity forces. However, the evidence is a coordinate contrast, not an affinity benefit, and no current-study outcome is available, so no temporal edit is defensibly superior. D2.2: Intact-teacher dispersion and joint-geometry evidence were not read this turn; neighbor count is a count, not a distance bandwidth, and the fixed temperatures and teacher provenance must be preserved, so narrower (C005) or broader (C006/C007) neighborhoods cannot be justified. D4.1: Against the incumbent (teacher_neighbors=4, pointcloud_delta_A=1.0, static program), the endpoint evidence (shape_yy q~1.5e-5, 0/14 positive batches; shape_xx q~8e-4, 1/14) is the strongest and most consistent signal, but it is a signed coordinate contrast with no absolute affinity target (recorded affinities removed, equal score prior), and the centroid evidence is weak and axis-specific. No registered choice is a shape_yy/shape_xx contrast edit, and the offered choices (delta_A, region_index, teacher_neighbors, temporal blend) are not tied to that evidence with a defensible expected affinity advantage. Retaining the incumbent is therefore the evidence-supported decision. D4.2: A concrete failure response of an unsupported edit would be unnecessary displacement of surrounding coordinates: a broader teacher neighborhood or larger delta_A would pull non-target regions and increase strain without demonstrated affinity gain, and a temporal blend would shift attention at observed nodes without an affinity-anchored target. Because affinity is primary and coordinate graph changes alone are not a failure mechanism, the design avoids these displacements by retaining the incumbent.",
+  "role": "Designer"
+}

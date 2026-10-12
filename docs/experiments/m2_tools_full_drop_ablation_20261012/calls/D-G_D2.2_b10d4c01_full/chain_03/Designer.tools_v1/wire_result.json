@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Unsupported temporal_teacher_blend or temporal_region edit would shift regional attention or teacher mixture without a validated time-conditioned contrast, displacing surrounding coordinates through the endpoint VJP with no demonstrated affinity gain.",
+    "Changing teacher_neighbors from 4 to 2 or 8 without intact-teacher dispersion or joint-geometry evidence would alter mode coverage and competing directions on an unvalidated count change.",
+    "Changing pointcloud_delta_A from 1.0 would rescale the detached-Hungarian endpoint distance and the normalized endpoint-VJP force without evidence of expected affinity advantage.",
+    "Treating the observed-node contrast trends as absolute reward targets or extrapolating them beyond the observed window [0.0, 0.5] would misstate the evidence, since polynomial_accepted and extrapolation_allowed are false."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The only registered time-conditioned options are temporal_region_index (C008) and temporal_teacher_blend (C009-C011). Per the formula registry, temporal_region changes only regional attention at observed score nodes using the same static teachers, and temporal_teacher blends the static endpoint reward with an observed-teacher coordinate reward; neither is a velocity force, and both are coordinate rewards, not trajectory velocity targets. Analyst's temporal evidence (F003/F004, H001/H002) shows non-monotone contrast with four to ten sign changes, polynomial_accepted false, extrapolation_allowed false, and relative node RMSE 0.29-0.78. That is descriptive diagnostic evidence over the observed window only, not a validated time-conditioned rule, so no registered temporal recipe is confirmed to express the observed contrast; H001's own falsifier (no registered temporal recipe can express the contrast, or the fit fails to reproduce sign changes) is not cleared. D2.2: The registered teacher_neighbors choices are counts (2/4/8), not distance bandwidths, and the incumbent already uses 4. Analyst did not read lineage_support, joint_diagnostics or regional_effects in this turn, so there is no intact-teacher dispersion or joint-geometry evidence supporting a narrower or broader neighborhood; changing a count without that evidence would be an unsupported edit. D4.1: The incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, static program, no temporal recipe) is the supplied baseline. The offered pointcloud_delta_A choices (0.5/1.0/2.0) and region_index=0 have no delivered evidence of expected advantage, and the objective is affinity-primary with coordinate control only; no decoded terminal affinity labels or final predicted affinity outcomes are supplied, so no offered edit has a defensible expected advantage. D4.2: The predicted failure of an unsupported edit is unnecessary displacement of surrounding coordinates: a narrower teacher count or a temporal blend would shift the detached teacher mixture and, through the endpoint VJP, move neighboring atoms without validated affinity benefit, while the affinity-first priority is not served by coordinate graph changes alone. Retaining the incumbent avoids that displacement and preserves the shared learned support and fixed temperatures.",
+  "role": "Designer"
+}
