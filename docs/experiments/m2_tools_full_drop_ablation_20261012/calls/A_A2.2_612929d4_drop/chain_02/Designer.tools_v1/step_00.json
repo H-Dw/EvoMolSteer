@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "C010",
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "Ec48596022aa1bc1b",
+      "E44169c3960a5b573",
+      "E3a4a9bb077147451",
+      "Ea58f999174b5eda6",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "If the observed-window sign changes in landmark_00_soft_mass and landmark_00_local_dy are noise rather than a reproducible time-conditioned contrast, the 0.5 blend will displace surrounding coordinates without affinity benefit; the static endpoint term limits but does not eliminate this.",
+      "Blend=0.5 still injects a temporal coordinate reward; if the observed-teacher contrast is misaligned with final affinity, unnecessary displacement of surrounding coordinates can occur, which is why blend=1.0 (pure temporal) was rejected.",
+      "No decoded terminal labels are supplied, so the immediate-versus-descendant direction disagreement (H003) cannot be resolved; the chosen blend is a bounded hedge, not a demonstrated affinity gain.",
+      "Temperatures are immutable and no temperature edit is proposed or evaluated."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H003"
+    ],
+    "rationale": "Analyst F003/H001 show the observed-window coordinate contrasts are non-monotone (landmark_00_soft_mass: 4 sign changes, first_rate_z positive, last_rate_z negative; landmark_00_local_dy: 6 sign changes, opposite rate signs), with no accepted polynomial and no extrapolation. A stationary coordinate target therefore cannot match the observed window, so the registered time-conditioned alternative is the defensible edit. Among the offered temporal choices, C010 (temporal_teacher_blend=0.5) is preferred over C009 (0.25) and C011 (1.0): the joint diagnostics show teacher_contrast_coherence whole-window mean near 0.81 with positive batch fraction 1.0 and teacher_contrast_RMS_A positive in all batches (F005), i.e. the observed-teacher contrast is coherent but the static endpoint reward is the incumbent's primary affinity signal; an even blend keeps the shared FLOWR endpoint reward and the shared learned support while conditioning regional attention on observed score nodes, whereas blend=1.0 would discard the static endpoint term entirely and blend=0.25 would under-use the coherent temporal signal. This changes only the registered temporal_teacher scalar/attention recipe (teacher coordinates unchanged, no velocity target, no temperature edit), consistent with the affinity-first objective. H003's disagreement between observed_child_score_gain (negative, zero positive batch fraction) and innovation_native_alignment (positive) is why I do not set direction from last-record credit alone and keep the static endpoint reward in the mixture rather than replacing it.",
+    "role": "Designer"
+  }
+}

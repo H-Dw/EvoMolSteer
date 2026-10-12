@@ -1,0 +1,96 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and a FLOWR endpoint VJP derivative path, so coordinate contrasts are not physical interaction energies.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed score window is the dense 0.00-0.49 grid (50 observed score times) with learning window [0.0,0.5]; recorded affinities are removed and an equal score prior is used, so no absolute affinity label is available in these observations.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions over the complete observed support are non-monotone: the read landmark features show multiple sign changes (e.g. 4-10 sign changes) and strong sign conflicts (1-14), with polynomial fits rejected (polynomial_accepted=false) and extrapolation disallowed, so a constant rule is not supported and any time-conditioned rule must stay within observed-node interpolation.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9",
+        "continuous:10",
+        "continuous:11"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "First-to-last rate changes are large and opposite in sign for several landmark coordinates (e.g. landmark_00_local_dy first_rate_z -72.4 vs last_rate_z +5.5; landmark_00_local_dx -17.5 vs +8.1), while whole-window z values are small (|z| < 0.65), indicating that the apparent trend is dominated by endpoint rate changes rather than a stable whole-window shift.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:1",
+        "continuous:0",
+        "continuous:5"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Relative node RMSE for these observed-node linear fits ranges roughly 0.29-0.87, so fit fidelity is moderate to poor and the sign-change counts should be treated as descriptive of the observed support rather than as a validated parametric law.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:7",
+        "continuous:1"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned sign flip near the observed rate crossover",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:1"
+      ],
+      "falsifier": "a constant-sign rule matches or exceeds the time-conditioned rule on observed-node relative RMSE without additional sign conflicts",
+      "id": "H001",
+      "observable": "sign and magnitude of the landmark local displacement contrast at observed score nodes",
+      "scope": "observed score window 0.0-0.5 only; no extrapolation",
+      "statement": "A time-conditioned coordinate contrast that follows the observed-node sign pattern of a landmark local displacement (e.g. landmark_00_local_dy) will track the observed contrast better than a constant-sign rule over the same window."
+    },
+    {
+      "direction": "rate turnover with near-zero whole-window effect",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:0",
+        "continuous:5"
+      ],
+      "falsifier": "whole-window z becomes large and same-sign with the endpoint rates under the supplied adjusted diagnostics",
+      "id": "H002",
+      "observable": "first_rate_z, last_rate_z and whole_window_z for the same landmark feature",
+      "scope": "observed score window 0.0-0.5",
+      "statement": "The large first-to-last rate changes with small whole-window z reflect within-window rate turnover rather than a stable cohort-level shift in the landmark coordinate."
+    }
+  ],
+  "limitations": [
+    "No absolute affinity labels are present (recorded affinities removed; equal score prior), so no claim about final predicted target affinity benefit can be made from these observations.",
+    "No decoded terminal labels or independent outcome evaluation data were supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "Continuous-trend polynomial fits were rejected and extrapolation is disallowed; only observed-node interpolation within 0.0-0.5 is supported.",
+    "The read rows cover only a subset of the 200 continuous_trends features and 14 delivered evidence handles; broader coverage, multiplicity-adjusted ranking and joint/regional diagnostics were not read in this turn.",
+    "Coordinate contrasts are endpoint pointcloud quantities under a detached matching convention, not physical interaction energies or evidence of neural-module causation."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,72 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts are not affinity-head derivatives.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Observed score times span the full learning window [0.0,0.5] at 0.01 spacing, and recorded affinities were removed with an equal score prior, so no decoded terminal affinity labels are available for the current study.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions are evaluated only on observed nodes (method observed_node_linear) with extrapolation disallowed and polynomial fits not accepted; several landmark features show multiple sign changes and strong sign conflicts, so a constant rule is not supported over the observed window.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Landmark local displacement and curvature features show large first-to-last rate reversals (e.g. landmark_00_local_dy first_rate_z strongly negative, last_rate_z positive) with relative node RMSE up to ~0.78, indicating time-conditioned rather than constant coordinate behavior within the observed support.",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "E1ba2a68ba5243c03",
+        "Eace79c1f0f54c9d1"
+      ],
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase temporal_region blend toward observed-node contrast changes",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E03ad082bb04f4f9c",
+        "E1ba2a68ba5243c03"
+      ],
+      "falsifier": "no improvement in relative node RMSE or persistent sign conflicts after time-conditioning",
+      "observable": "landmark local displacement/curvature contrast features at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted_endpoint_world_A features",
+      "statement": "A time-conditioned regional attention recipe that modulates landmark attention at observed score nodes using validated absolute contrast changes would track the observed sign reversals better than a static regional rule."
+    },
+    {
+      "direction": "retain freedom for surrounding coordinates, steer landmark region",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E598d52f84227fbcc",
+        "E894225fb605458cb"
+      ],
+      "falsifier": "joint diagnostics show the landmark region adds no information beyond common motion",
+      "observable": "landmark soft-mass and local curvature contrasts",
+      "scope": "observed window, predicted_endpoint_world_A features",
+      "statement": "Landmark soft-mass and local curvature features carry information beyond common global motion, so surrounding coordinates should retain freedom while the landmark region is steered."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record or survival credit cannot be presented as final affinity benefit.",
+    "No current study outcome data are available to the Analyst, so no causal selection or affinity-improvement claim is made.",
+    "Continuous trends are observed-node linear fits with extrapolation disallowed; no extrapolation beyond [0.0,0.5] is supported.",
+    "Turnover, pair-kernel and moment diagnostics were not read in this pass and are not asserted."
+  ],
+  "role": "Analyst"
+}

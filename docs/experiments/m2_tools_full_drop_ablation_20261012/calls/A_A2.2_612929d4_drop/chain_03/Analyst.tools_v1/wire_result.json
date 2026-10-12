@@ -1,0 +1,84 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Observed score times span the full learning window [0.0, 0.5] at 0.01 spacing (50 nodes), and the label semantics state recorded affinities were removed with an equal score prior, so no observed affinity outcome exists to validate any coordinate contrast against final affinity.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "The continuous contrast features are non-monotone across the observed support: landmark_00_local_dy shows 6 sign changes with first_rate_z -72.4 and last_rate_z +5.5, and landmark_00_local_cxy shows 9 sign changes with 14 strong sign conflicts, so a constant (time-invariant) rule is not supported for these coordinates.",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "E5d1c4c6e5dbe0cb6"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "No polynomial fit is accepted for any inspected continuous trend (polynomial_accepted false throughout) and extrapolation is disallowed, so time-conditioned statements must be restricted to observed-node interpolation within [0.0, 0.5].",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "Eace79c1f0f54c9d1",
+        "E03ad082bb04f4f9c",
+        "E894225fb605458cb",
+        "E598d52f84227fbcc",
+        "E1ba2a68ba5243c03",
+        "E5cf1ecb7c628685b",
+        "E5d1c4c6e5dbe0cb6",
+        "Ec589f2ee99a44490",
+        "E00e41abde0319d86",
+        "E342a60b38bb0a51b",
+        "E2bb7fa55d7b62d47"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Whole-window z values for the inspected landmark features are small in magnitude (e.g. landmark_00_soft_mass whole_window_z 0.64, landmark_00_local_dy -0.30, landmark_00_local_cxx -0.58) relative to the large first/last rate z values, indicating the net window-level contrast is weak even where local rate changes are large.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E03ad082bb04f4f9c",
+        "E598d52f84227fbcc"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase",
+      "evidence_refs": [
+        "E03ad082bb04f4f9c",
+        "E5d1c4c6e5dbe0cb6"
+      ],
+      "falsifier": "If the time-conditioned rule produces no reduction in sign-conflict count or node RMSE relative to the constant rule on the same observed nodes, the hypothesis is not supported.",
+      "observable": "sign and magnitude of landmark_00_local_dy and landmark_00_local_cxy contrast at observed score nodes",
+      "scope": "observed window [0.0, 0.5], predicted_endpoint_world_A features",
+      "statement": "A time-conditioned regional attention rule (registered temporal_region/temporal_teacher recipe) applied at observed score nodes may track the sign-changing landmark_00_local_dy and landmark_00_local_cxy contrasts better than a constant static rule, because these features reverse sign multiple times within the observed window."
+    },
+    {
+      "direction": "retain",
+      "evidence_refs": [
+        "E2e106e083189d150"
+      ],
+      "falsifier": "If whole_window_z for landmark_00_soft_mass is not distinguishable from zero under the supplied multiplicity adjustment, the anchor claim fails.",
+      "observable": "whole_window_z of landmark_00_soft_mass",
+      "scope": "observed window [0.0, 0.5]",
+      "statement": "Landmark_00_soft_mass may carry a weak but consistent whole-window signal (whole_window_z 0.64) that is not explained by the large local rate swings, so it could serve as a low-amplitude stable anchor while local derivative features remain free."
+    }
+  ],
+  "limitations": [
+    "No observed affinity outcome is available (recorded affinities removed, equal score prior), so no coordinate contrast can be validated against final predicted target affinity; the primary objective cannot be evaluated from the supplied evidence.",
+    "No descendant survival, terminal label, increment, turnover, joint-diagnostic, regional or branch-adjusted rows were read in this turn, so A1.2, A2.1, A3.1, A3.2 and A4.2 comparisons remain unassessed rather than negative.",
+    "Continuous trends are observed-node linear fits with no accepted polynomial and no extrapolation; all temporal statements are restricted to the observed window and are not absolute reward targets.",
+    "The inspected features are untyped coordinate proxies in predicted_endpoint_world_A; they are not physical interaction energies or evidence of neural-module causation."
+  ],
+  "role": "Analyst"
+}

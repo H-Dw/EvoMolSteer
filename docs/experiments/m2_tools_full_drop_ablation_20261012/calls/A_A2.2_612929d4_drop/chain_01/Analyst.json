@@ -1,0 +1,82 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; recorded affinities were removed and an equal score prior applies, so no observed affinity label is available to either role.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5]; all continuous contrast fits are restricted to observed nodes with extrapolation disallowed, so no time-conditioned rule may be evaluated outside this support.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous landmark contrast features show sign changes and strong sign conflicts across the observed window (e.g. landmark_00_local_dy has 6 sign changes and 4 strong conflicts; landmark_00_local_cxy has 9 sign changes and 14 strong conflicts), and no polynomial fit is accepted, so a constant rule is not supported over a time-conditioned rule for these coordinates.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "First-to-last rate reversals are large for several landmark coordinates (e.g. landmark_00_local_dy first_rate_z -72.4 versus last_rate_z +5.5; landmark_00_local_cxy +64.8 versus -19.7), indicating the direction of change is not stable across the observed window.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Whole-window z values for the read landmark features are small relative to their first/last rate z values (e.g. landmark_00_soft_mass whole_window_z 0.64 with first_rate_z 9.27 and last_rate_z -10.00), so endpoint-rate evidence and whole-window mean evidence are not interchangeable summaries.",
+      "evidence_ids": [
+        "continuous:0"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant contrast weighting",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:0"
+      ],
+      "falsifier": "a constant rule matching the observed-node contrast signs and rates within the reported node RMSE",
+      "id": "H001",
+      "observable": "sign and rate of the landmark contrast features at observed score nodes",
+      "scope": "observed window 0.0-0.49 only; no extrapolation",
+      "statement": "A time-conditioned contrast rule over observed score nodes may better express the landmark coordinate contrasts than a constant rule, because the read features show multiple sign changes and no accepted polynomial fit within the observed window."
+    },
+    {
+      "direction": "descriptive only until a registered reward recipe is bound",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:1"
+      ],
+      "falsifier": "consistent same-sign first and last rates with no strong sign conflicts for the targeted coordinate",
+      "id": "H002",
+      "observable": "first_rate_z versus last_rate_z sign agreement for the targeted coordinate",
+      "scope": "observed selection nodes and complete observed window",
+      "statement": "Landmark local displacement and cross-term coordinates carry unstable direction information, so a coordinate intervention targeting them should be tested against a discriminating failure condition rather than assumed favorable."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or current-study outcome data were supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "Only continuous_trends rows were read; branch_adjusted, endpoint_effects, increment_effects, joint_diagnostics, regional_effects, survival_effects and turnover_accounting were not inspected, so multiplicity-adjusted ranking, joint coupling and turnover accounting questions remain unanswered.",
+    "No absolute geometric or physical interaction-energy claim is made; the read features are untyped coordinate proxies in predicted endpoint world coordinates.",
+    "No temperature edit is proposed or evaluated; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

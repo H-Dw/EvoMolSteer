@@ -1,0 +1,101 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Observed score times span the full learning window [0.0,0.5] at 0.01 spacing, and the curve-support audit reports a selection rule with a selected count and a curve-fidelity rule; the label semantics are recorded affinities removed with an equal score prior, so last-record joint-head labels are not final affinity benefit.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast features over the observed window are non-monotone: landmark_00_soft_mass shows 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dy shows 6 sign changes with a large negative first_rate_z and positive last_rate_z; polynomial fits are not accepted and extrapolation is not allowed, so a constant rule is not supported over the complete window.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E03ad082bb04f4f9c"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Local coordinate features carry conflicting rate evidence: landmark_00_local_dx has 9 strong sign conflicts and landmark_00_local_dz has 10 sign changes with 7 strong sign conflicts, while landmark_00_local_cxx and landmark_00_local_cyy show fewer conflicts; this indicates that isolated marginal descriptors are not uniformly reliable and that some local coordinates are more coherent than others.",
+        "evidence_refs": [
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Joint diagnostics show a coherent teacher-contrast pattern: teacher_contrast_coherence has a whole-window mean near 0.81 with positive batch fraction 1.0, and teacher_contrast_RMS_A is positive across all batches; these are descriptive within-selector associations with batch as the independent unit, not causal selection effects.",
+        "evidence_refs": [
+          "Ec48596022aa1bc1b",
+          "E44169c3960a5b573"
+        ],
+        "priority": 5
+      },
+      {
+        "claim": "The selection-innovation diagnostic for observed_child_score_gain is negative with a null-tested q-value and zero positive batch fraction, while innovation_native_alignment is positive and null-tested; this disagreement between immediate selection evidence and descendant score credit is a direction-priority signal, but without decoded terminal labels it cannot be presented as final affinity benefit.",
+        "evidence_refs": [
+          "E3a4a9bb077147451",
+          "Ea58f999174b5eda6"
+        ],
+        "priority": 6
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned contrast over the observed window",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "A constant contrast rule matches the observed-node values within the reported relative node RMSE across the full window.",
+        "observable": "landmark_00_soft_mass and landmark_00_local_dy observed-node contrast values",
+        "scope": "observed score times [0.0,0.5] only",
+        "statement": "A time-conditioned coordinate contrast that follows the observed sign changes in landmark_00_soft_mass and landmark_00_local_dy will better match the observed window than a constant contrast rule, because the observed-node linear fits show opposite first and last rates with no accepted polynomial and no extrapolation."
+      },
+      {
+        "direction": "selective local-coordinate freedom",
+        "evidence_refs": [
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03",
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb"
+        ],
+        "falsifier": "High-conflict and low-conflict local coordinates show equivalent joint coherence in the supplied joint diagnostics.",
+        "observable": "strong_sign_conflicts and sign_changes per local coordinate feature",
+        "scope": "observed window, predicted endpoint world A features",
+        "statement": "Retaining freedom for local coordinates with fewer strong sign conflicts (landmark_00_local_cxx, landmark_00_local_cyy) while treating high-conflict coordinates (landmark_00_local_dx, landmark_00_local_dz) as less reliable will preserve coherent joint patterns better than averaging all local marginals equally."
+      },
+      {
+        "direction": "separate selection enrichment from descendant credit",
+        "evidence_refs": [
+          "E3a4a9bb077147451",
+          "Ea58f999174b5eda6"
+        ],
+        "falsifier": "Decoded terminal labels show observed_child_score_gain and innovation_native_alignment agree in sign and magnitude.",
+        "observable": "observed_child_score_gain and innovation_native_alignment within-selector associations",
+        "scope": "within-selector, batch as independent unit",
+        "statement": "The negative observed_child_score_gain association alongside positive innovation_native_alignment indicates that immediate selection evidence and descendant score credit disagree in direction, so direction priorities should not be set from last-record credit alone."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels are supplied, so last-record joint-head credit cannot be interpreted as final affinity benefit and the immediate-versus-descendant comparison remains unavailable.",
+      "The joint diagnostics are descriptive within-selector associations with batch as the independent unit; they are not causal selection effects or atom velocities.",
+      "Continuous contrast features are coordinate contrasts, not absolute reward targets, and extrapolation beyond the observed window is not allowed.",
+      "No affinity-head derivative, extra production model forward, particle resampling, graph-equality restriction or atomic-type control is available or permitted under the declared reward view.",
+      "Temperatures are immutable task parameters and no temperature edit is proposed or evaluated."
+    ],
+    "role": "Analyst"
+  }
+}

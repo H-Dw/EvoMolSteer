@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:2",
+    "joint_diagnostics:1",
+    "joint_diagnostics:4",
+    "joint_diagnostics:2"
+  ],
+  "failure_modes": [
+    "Selecting a temporal_teacher_blend choice (C009-C011) would only reweight dose toward the same static teachers, not change teacher coordinates, so it cannot realize the time-conditioned contrast of H001 and risks unnecessary displacement of surrounding coordinates without affinity benefit.",
+    "Selecting a pointcloud_delta_A choice (C001-C003) changes robust-kernel curvature without supplied spatial-scale or uncertainty support, and could over-displace coordinates near the core radius while leaving final predicted affinity unimproved.",
+    "Selecting a teacher_neighbors choice (C005-C007) treats a neighbor count as a distance bandwidth; without intact-teacher dispersion evidence this can narrow mode coverage and bias competing directions.",
+    "Any temperature edit is an interface violation and is not proposed; mixture_temperature 0.5 and teacher_endpoint_temperature_A2 4.0 are preserved.",
+    "Because recorded affinities were removed with an equal score prior, no decoded terminal affinity labels exist, so last-record or survival credit cannot be presented as final affinity benefit."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Incumbent is D2_without_trajectory_static with pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal recipe, mixture_temperature 0.5 and teacher_endpoint_temperature_A2 4.0 fixed. Analyst evidence supports time-conditioned contrast over a constant rule (H001) via non-monotone observed-node contrast functions with sign changes and polynomial_accepted=false, extrapolation_allowed=false, and supports coherent joint patterns over isolated marginals (H002) via null-tested innovation_native_alignment and teacher_contrast_coherence with positive_batch_fraction 1.0. However the offered registered choices are limited to pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007), temporal_region_index (C008) and temporal_teacher_blend (C009-C011). No offered choice changes the teacher coordinates or the observed-node contrast function itself; the temporal choices only reweight attention/dose toward the same static teachers, and the Analyst's temporal evidence is observed-node linear with no extrapolation and no decoded terminal affinity labels, so no defensible expected affinity advantage over the incumbent can be established. Changing pointcloud_delta_A would alter the robust-kernel curvature without spatial-scale or uncertainty evidence supporting a specific value, and changing teacher_neighbors is a count, not a distance bandwidth, with no intact-teacher dispersion evidence read to justify narrower or broader neighborhoods. Under the affinity-first objective and the rule to edit only when evidence provides a defensible expected advantage, retaining the incumbent is the supported decision; the temporal hypothesis remains a limitation to be tested when decoded terminal affinity labels and regional/survival tables are available.",
+  "role": "Designer"
+}

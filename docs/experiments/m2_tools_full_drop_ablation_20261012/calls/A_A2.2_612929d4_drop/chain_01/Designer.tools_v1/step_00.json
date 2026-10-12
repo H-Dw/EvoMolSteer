@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "E5d1c4c6e5dbe0cb6",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "A time-conditioned blend (C009-C011) applied without a bound observable could shift regional attention at observed nodes in a direction not supported by the sign-conflicted landmark contrasts, displacing surrounding coordinates without affinity benefit.",
+      "Narrowing teacher_neighbors to 2 (C005) would reduce mode coverage of the detached teacher mixture, and broadening to 8 (C007) would mix competing directions; neither is supported by intact-teacher dispersion evidence, and neighbor count is not a distance bandwidth.",
+      "Changing pointcloud_delta_A to 0.5 or 2.0 (C001/C003) alters the robust distance-response curvature without supplied spatial-scale justification, risking unnecessary displacement of surrounding coordinates under the max_atom_step_A and cumulative-RMS constraints.",
+      "Treating the temporal derivative (first/last rate z) as a spatial gradient would misdirect the coordinate reward, since the registered formula uses the endpoint VJP and detached matching, not trajectory velocity."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Analyst's temporal evidence (F003/F004, H001) shows landmark contrast features with multiple sign changes, strong sign conflicts and no accepted polynomial fit, and first-to-last rate reversals (e.g. landmark_00_local_dy first_rate_z -72.4 vs last_rate_z +5.5; landmark_00_local_cxy +64.8 vs -19.7). This supports a time-conditioned contrast rule over a constant one in principle, but the registered temporal choices (C008 temporal_region_index, C009-C011 temporal_teacher_blend) are not bound to any specific Analyst hypothesis about which coordinate observable changes or in which direction, and no numerical response can be predicted from the supplied evidence. The incumbent already uses teacher_neighbors=4, pointcloud_delta_A=1.0 and region_index=0, so C002/C006/C004 would be no-ops, and C001/C003 (delta 0.5/2.0) and C005/C007 (neighbors 2/8) have no supporting spatial-scale or dispersion evidence in the read observations. Under the affinity-first objective and the requirement that an edit be defensible, retaining the incumbent is the correct choice; the evidence does not change that decision because it establishes instability of the targeted coordinates rather than a favorable direction.",
+    "role": "Designer"
+  }
+}

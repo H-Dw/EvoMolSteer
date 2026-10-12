@@ -1,0 +1,94 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Observed score times span the full learning window [0.0,0.5] at 0.01 spacing (50 nodes), and the label semantics state recorded affinities were removed with an equal score prior; therefore no decoded terminal affinity labels exist in the supplied evidence and last-record or survival credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions over the complete observed support are non-monotone: landmark_00_soft_mass shows 4 sign changes with first_rate_z +9.27 and last_rate_z -10.00, and landmark_00_local_dy shows 6 sign changes with first_rate_z -72.37 and last_rate_z +5.52; all listed fits are observed-node linear with polynomial_accepted=false and extrapolation_allowed=false, so a constant rule is not supported and time-conditioned behavior is indicated but not extrapolable.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Several local coordinate features carry strong sign conflicts (landmark_00_local_dx: 9 strong_sign_conflicts, 6 sign changes; landmark_00_local_dz: 7 strong_sign_conflicts, 10 sign changes) with relative_node_RMSE up to 0.78, so marginal per-coordinate descriptors are unstable and should not be averaged into a single target.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:3"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Joint diagnostics show a coherent, null-tested selection-innovation association: innovation_native_alignment mean 0.0918 (CI 0.081-0.103, p~1.5e-9, q~2.2e-9, positive_batch_fraction 1.0) and teacher_contrast_coherence mean 0.812 (CI 0.805-0.820, positive_batch_fraction 1.0), while observed_child_score_gain is negative (mean -0.0363, CI -0.043 to -0.030, p~1.8e-7, positive_batch_fraction 0.0); this supports coherent joint coordinate patterns over isolated marginals and flags that immediate selection evidence disagrees in sign with observed child score gain.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:4",
+        "joint_diagnostics:2"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "Descriptive joint metrics innovation_RMS_A (mean 0.0719) and teacher_contrast_RMS_A (mean 0.0657) are reported without null tests (p and q null), so they are descriptive only and cannot be ranked as significant coordinate hypotheses.",
+      "evidence_ids": [
+        "joint_diagnostics:0",
+        "joint_diagnostics:3"
+      ],
+      "id": "F006",
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast rather than constant contrast",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "falsifier": "a constant rule matches or exceeds the observed-node fit fidelity (relative_node_RMSE) of the time-conditioned rule across the window",
+      "id": "H001",
+      "observable": "observed-node contrast value of landmark_00_soft_mass and landmark_00_local_dy across the 50 observed score times",
+      "scope": "observed support [0.0,0.5] only; no extrapolation",
+      "statement": "A time-conditioned contrast rule that follows the observed-node sign changes of landmark_00_soft_mass and landmark_00_local_dy will track the observed contrast better than a constant rule over the window [0.0,0.5]."
+    },
+    {
+      "direction": "prioritize coherent joint patterns; treat selection gain as non-predictive of later credit",
+      "evidence_ids": [
+        "joint_diagnostics:4",
+        "joint_diagnostics:1",
+        "joint_diagnostics:2"
+      ],
+      "falsifier": "isolated marginal descriptors match the joint coherence association, or observed_child_score_gain turns positive and significant",
+      "id": "H002",
+      "observable": "teacher_contrast_coherence, innovation_native_alignment and observed_child_score_gain at selection nodes",
+      "scope": "within-selector, batch as independent unit",
+      "statement": "Coherent joint coordinate patterns (high teacher_contrast_coherence and innovation_native_alignment) carry information beyond isolated marginal coordinate descriptors, and the negative observed_child_score_gain indicates immediate selection evidence should not be treated as later-label benefit."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied (recorded affinities removed, equal score prior), so final affinity benefit and last-record/survival credit cannot be evaluated; the descendant-survival versus immediate-selection comparison is unavailable.",
+    "No current study outcome data are supplied to the Analyst role, so no claim about realized affinity improvement can be made.",
+    "Continuous fits are observed-node linear with polynomial_accepted=false and extrapolation_allowed=false; no extrapolation beyond [0.0,0.5] is permitted.",
+    "innovation_RMS_A and teacher_contrast_RMS_A are descriptive (p and q null) and are not multiplicity-adjusted support.",
+    "No uncertainty/multiplicity-adjusted ranking table beyond the delivered q-values was read, so a formal coverage-adjusted priority ordering is not established.",
+    "No regional, survival, increment, turnover or lineage tables were read in this turn, so parent-child increment versus cohort-composition accounting is not assessed here."
+  ],
+  "role": "Analyst"
+}
