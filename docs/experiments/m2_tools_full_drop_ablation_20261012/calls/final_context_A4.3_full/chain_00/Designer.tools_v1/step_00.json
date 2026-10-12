@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "C009",
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E1ba2a68ba5243c03",
+      "E598d52f84227fbcc",
+      "E894225fb605458cb",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "A larger temporal_teacher_blend (C010/C011) would over-weight the observed-node teacher and displace surrounding coordinates beyond the observed sign structure, degrading the primary affinity objective.",
+      "Keying the temporal rule to first-node rate signs (landmark_00_local_dy, landmark_00_local_cyy) would be mis-specified because those rates reverse sign within the window.",
+      "Treating the temporal derivative as a spatial gradient or as a trajectory velocity force would violate the declared coordinate-reward semantics and the no-velocity-target constraint.",
+      "Any attempt to edit mixture_temperature or teacher_endpoint_temperature_A2 would be an interface violation; temperatures are immutable and were not proposed."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The incumbent is a stationary coordinate target (teacher_score_beta=0, static detached nearest-k teachers, no temporal term). Analyst's temporal evidence shows the observed contrast features are non-monotone over the observed support (landmark_00_soft_mass: 4 sign changes, first_rate_z positive and last_rate_z negative; landmark_00_local_dx: 6 sign changes with 9 strong sign conflicts), and polynomial fits are not accepted with extrapolation disallowed. This supports a time-conditioned alternative over a constant rule (H001) but only within validated observed-node interpolation. Among the registered temporal recipes, C009 (temporal_teacher_blend=0.25) is the smallest permitted blend: it changes teacher coordinates only through the registered temporal_teacher recipe ((1-blend)*R_static + blend*R_observed_teacher(time)) at observed score nodes, keeps the same shared FLOWR endpoint and static teachers, and does not introduce a velocity target. It is a coordinate/attention change, not a dose change (dose_reference stays predictive_flow, native_rms_ratio unchanged), and it does not touch the immutable temperatures. D4.1: The incumbent has no temporal term, so it cannot track the observed sign structure; the evidence gives a defensible expected advantage for a bounded time-conditioned blend, and the smallest blend is chosen to limit deviation from the incumbent. D4.2: The opposing evidence (H002: large early rate magnitudes in landmark_00_local_dy and landmark_00_local_cyy reverse sign by the last node) predicts that a rule keyed to first-node rate, or a large blend, would over-displace surrounding coordinates and mis-specify the direction. C009's low blend bounds that displacement while preserving affinity-first priority; a temporal derivative is treated as a rate change, not a spatial gradient.",
+    "role": "Designer"
+  }
+}

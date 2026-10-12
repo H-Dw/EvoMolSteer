@@ -1,0 +1,28 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E03ad082bb04f4f9c",
+      "E1ba2a68ba5243c03",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc"
+    ],
+    "failure_modes": [
+      "Temporal blend (C009-C011) would displace surrounding coordinates via the positive-weight regional attention term without demonstrated affinity gain, violating affinity-first priority.",
+      "Selecting C001/C003 (pointcloud_delta_A) or C005/C007 (teacher_neighbors) would change dose or teacher count with no supporting evidence in the delivered observations.",
+      "Treating the Analyst's sign-change coordinate contrasts as a spatial gradient or as evidence of neural-module causation would be an unsupported inference."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The offered time-conditioned alternatives are C008 (temporal_region_index), C009-C011 (temporal_teacher_blend) and C004 (region_index). Per the formula registry, temporal_region changes only regional attention at observed score nodes using the same static teachers, and temporal_teacher is a blend of the static reward with an observed-teacher coordinate reward; neither is a velocity target, and the Analyst's sign-change evidence (F003/F004) is a coordinate-contrast observation, not a spatial gradient. So the only defensible time-conditioned edit would be an attention/dose change, not a teacher-coordinate change. However, the Analyst's own limitations state that turnover, survival, increment and joint diagnostics were not read, so within-path change versus cohort composition cannot be adjudicated, and no decoded terminal affinity labels exist (F002). D4.1: The incumbent already uses teacher_neighbors=4 (C006), pointcloud_delta_A=1.0 (C002), and no temporal blend; the offered choices that would change dose (C001/C003) or teacher count (C005/C007) have no supporting evidence in the delivered observations, and the temporal blends (C009-C011) rest on H001, which is explicitly a coordinate-contrast hypothesis with a falsifier that has not been tested. D4.2: The predicted failure of a temporal blend is unnecessary displacement of surrounding coordinates: the regional term has positive surrounding weight, so a blend that shifts attention at observed nodes would move neighboring coordinates without any demonstrated affinity benefit, and the affinity-first priority is not served by a coordinate-only change. Since no evidence provides a defensible expected advantage over the incumbent, retaining the incumbent is the correct bounded choice.",
+    "role": "Designer"
+  }
+}

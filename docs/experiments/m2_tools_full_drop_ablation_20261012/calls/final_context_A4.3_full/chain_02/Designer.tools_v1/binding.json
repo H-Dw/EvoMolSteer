@@ -1,0 +1,326 @@
+{
+  "choices": {
+    "C001": {
+      "parameter": "pointcloud_delta_A",
+      "value": 0.5
+    },
+    "C002": {
+      "parameter": "pointcloud_delta_A",
+      "value": 1.0
+    },
+    "C003": {
+      "parameter": "pointcloud_delta_A",
+      "value": 2.0
+    },
+    "C004": {
+      "parameter": "region_index",
+      "value": 0
+    },
+    "C005": {
+      "parameter": "teacher_neighbors",
+      "value": 2
+    },
+    "C006": {
+      "parameter": "teacher_neighbors",
+      "value": 4
+    },
+    "C007": {
+      "parameter": "teacher_neighbors",
+      "value": 8
+    },
+    "C008": {
+      "parameter": "temporal_region_index",
+      "value": 0
+    },
+    "C009": {
+      "parameter": "temporal_teacher_blend",
+      "value": 0.25
+    },
+    "C010": {
+      "parameter": "temporal_teacher_blend",
+      "value": 0.5
+    },
+    "C011": {
+      "parameter": "temporal_teacher_blend",
+      "value": 1.0
+    }
+  },
+  "handoff": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal, so no observed affinity outcome is available to score coordinate hypotheses against.",
+        "evidence_ids": [
+          "objective",
+          "clocks"
+        ],
+        "id": "F001",
+        "priority": 1
+      },
+      {
+        "claim": "Continuous contrast functions over the observed window are non-monotone: landmark_00_soft_mass shows 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dy shows 6 sign changes with a strongly negative first rate and positive last rate. A constant rule is therefore not supported; only a time-conditioned rule over the observed support is consistent with these fits, and extrapolation is disallowed.",
+        "evidence_ids": [
+          "continuous:0",
+          "continuous:2"
+        ],
+        "id": "F002",
+        "priority": 2
+      },
+      {
+        "claim": "Several local coordinate contrasts have large first-to-last rate reversals (e.g. landmark_00_local_dx first_rate_z negative, last_rate_z positive; landmark_00_local_cyy similar), indicating the direction of change differs between early and late observed nodes rather than a single whole-window trend.",
+        "evidence_ids": [
+          "continuous:1",
+          "continuous:5"
+        ],
+        "id": "F003",
+        "priority": 3
+      },
+      {
+        "claim": "Branch-adjusted covariance contrasts for global centroid coordinates are not distinguishable from zero (all CIs span zero, q well above 0.5, same-sign batch fractions near 0.5), so centroid displacement is not supported as a signed favorable-versus-comparison contrast.",
+        "evidence_ids": [
+          "branch_adjusted:0",
+          "branch_adjusted:1",
+          "branch_adjusted:2"
+        ],
+        "id": "F004",
+        "priority": 4
+      },
+      {
+        "claim": "Shape covariance contrasts are the only branch-adjusted entries with consistent sign across batches (shape_xx and shape_yy same-sign fraction ~0.79) and negative whole-window means, but their multiplicity-adjusted q values (0.23 and 0.15) do not clear a conventional threshold, so they are candidate rather than confirmed contrasts.",
+        "evidence_ids": [
+          "branch_adjusted:3",
+          "branch_adjusted:4"
+        ],
+        "id": "F005",
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned sign reversal over the observed window",
+        "evidence_ids": [
+          "continuous:0",
+          "continuous:2"
+        ],
+        "falsifier": "A constant-sign rule matches or exceeds the time-conditioned rule on observed-node fit fidelity without extrapolation.",
+        "id": "H001",
+        "observable": "landmark_00_soft_mass and landmark_00_local_dy contrast values at observed score nodes",
+        "scope": "observed window [0.0,0.5], predicted endpoint world coordinates",
+        "statement": "A time-conditioned coordinate contrast that follows the observed sign reversal of landmark_00_soft_mass and landmark_00_local_dy will track the observed selection-node contrasts better than a constant-sign rule."
+      },
+      {
+        "direction": "negative shape covariance contrast",
+        "evidence_ids": [
+          "branch_adjusted:3",
+          "branch_adjusted:4"
+        ],
+        "falsifier": "Additional batches or tighter multiplicity adjustment move the q values above threshold or flip the same-sign batch fraction toward 0.5.",
+        "id": "H002",
+        "observable": "branch-adjusted shape_xx and shape_yy covariance contrasts",
+        "scope": "observed window, 14 independent batches",
+        "statement": "Shape covariance contrasts (shape_xx, shape_yy) carry a weak consistent negative signed contrast that could be expressed as a coordinate reward, but only if multiplicity-adjusted support strengthens."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal affinity labels are supplied; last-record or survival credit cannot be presented as final affinity benefit, and the immediate-selection versus descendant-survival comparison is unavailable.",
+      "No current-study outcome data are available to either role, so no coordinate hypothesis can be validated against final predicted affinity here.",
+      "Turnover, increment, joint-diagnostic and regional tables were not read in this budget; within-path change versus changing cohort composition remains unassessed.",
+      "Contrast curves are coordinate contrasts, not absolute reward targets or physical interaction energies, and no neural-module causation is implied."
+    ],
+    "role": "Analyst"
+  },
+  "initial_references": {
+    "references": {
+      "E03ad082bb04f4f9c": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/2",
+        "source_id": "continuous:2",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E0857891f4effbfe1": {
+        "file": "packet.json",
+        "kind": "metadata",
+        "pointer": "/clocks",
+        "source_id": "metadata/clocks",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": null
+      },
+      "E1ba2a68ba5243c03": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/5",
+        "source_id": "continuous:5",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E2e106e083189d150": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/0",
+        "source_id": "continuous:0",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E455d8ea90d2c10e1": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/branch_adjusted/rows/3",
+        "source_id": "branch_adjusted:3",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "branch_adjusted"
+      },
+      "E598d52f84227fbcc": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/4",
+        "source_id": "continuous:4",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "E7e61e91ec1e2e406": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/branch_adjusted/rows/5",
+        "source_id": "branch_adjusted:5",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "branch_adjusted"
+      },
+      "E8059a7206f447cdc": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/branch_adjusted/rows/1",
+        "source_id": "branch_adjusted:1",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "branch_adjusted"
+      },
+      "E887f2d11255b77af": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/branch_adjusted/rows/2",
+        "source_id": "branch_adjusted:2",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "branch_adjusted"
+      },
+      "E894225fb605458cb": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/3",
+        "source_id": "continuous:3",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "Eaa4bda02c9a2c3a1": {
+        "file": "packet.json",
+        "kind": "metadata",
+        "pointer": "/objective",
+        "source_id": "metadata/objective",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": null
+      },
+      "Eace79c1f0f54c9d1": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/continuous_trends/rows/1",
+        "source_id": "continuous:1",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "continuous_trends"
+      },
+      "Ec3d5c7e8cb8584c5": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/branch_adjusted/rows/4",
+        "source_id": "branch_adjusted:4",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "branch_adjusted"
+      },
+      "Ed061d96cc23b359b": {
+        "file": "packet.json",
+        "kind": "row",
+        "pointer": "/tables/branch_adjusted/rows/0",
+        "source_id": "branch_adjusted:0",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": "branch_adjusted"
+      }
+    },
+    "sources": {
+      "continuous_functions.json": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+      "index.json": "7c779de6e9ca48f63b88f13edc45180fa80303f4063e95edf5a72dbb1fa8ccf4",
+      "observable_definitions.json": "60729872cc6c5d5af1de407527ca5104200ec24e97cd1f3de15c6effbfb870c9",
+      "packet.json": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95"
+    }
+  },
+  "instruction_sha256": "c20d35dbf9cea8e5eb36861176df3f4ecfee8360dfb352d4b3015865036d9eff",
+  "interface_version": "evidence-tools-json-v1",
+  "max_context_bytes": 280000,
+  "max_output_tokens": 8192,
+  "max_steps": 10,
+  "model": "deepseek-flash",
+  "role": "Designer",
+  "sources": {
+    "continuous_functions.json": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+    "index.json": "7c779de6e9ca48f63b88f13edc45180fa80303f4063e95edf5a72dbb1fa8ccf4",
+    "observable_definitions.json": "60729872cc6c5d5af1de407527ca5104200ec24e97cd1f3de15c6effbfb870c9",
+    "packet.json": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95"
+  },
+  "task": {
+    "case_id": "4c13d3e91067bc56",
+    "chain": 2,
+    "delivery_diagnostics": null,
+    "fixed_parameters": {
+      "mixture_temperature": 0.5,
+      "teacher_endpoint_temperature_A2": 4.0
+    },
+    "formula": "R=tau*logsumexp(log_pi-rho_delta(q)/tau), q=detached-Hungarian endpoint mean squared distance; rho_delta=delta^2*(sqrt(1+q/delta^2)-1). Actual pointcloud_delta_A defaults to 1 A. Native endpoint VJP, no affinity-head derivative, no extra model forward. teacher_neighbors is a count; temporal_recipe changes only a registered scalar/attention, not velocity. No temperature edits. Inert legacy metadata is not a reward term.",
+    "formula_registry": {
+      "diagnostic_limit": "Moment effects, pair kernels and turnover are diagnostic evidence. Executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term; legacy robust_delta is inert.",
+      "dose": "Endpoint-VJP force normalized and RMS-scaled against native predictive update; eta/ramp only in U lane.",
+      "prior": "Detached nearest-k teachers; log_pi=-q_anchor/prior_temperature; scores beta=0; k is a count.",
+      "regional": "Detached background plus Gaussian landmark attention; positive surrounding weight.",
+      "temporal_region": "Same static teachers; validated absolute contrast changes regional attention at observed score nodes.",
+      "temporal_teacher": "(1-blend)*R_static + blend*R_observed_teacher(time); same shared FLOWR endpoint, no velocity target."
+    },
+    "incumbent": {
+      "_reference_relative_path": "configs/experiments/steer_dependency_v1/static.json.gz",
+      "additional_per_step_affinity_calls": 0,
+      "affinity_head_gradient": false,
+      "constraints": {
+        "backtrack_attempts": 7,
+        "max_atom_step_A": 0.15,
+        "max_cumulative_rms_A": 6.0,
+        "severe_receptor_clash_A": 0.8
+      },
+      "contrast_bound_nats": 2.0,
+      "coordinate_representation": "predicted_endpoint_world_A",
+      "core_radius_A": 5.0,
+      "derivative_path": "flowr_endpoint_vjp",
+      "dose_reference": "predictive_flow",
+      "family": "coordinate_only_affinity_endpoint",
+      "mixture_temperature": 0.5,
+      "native_rms_ratio": 0.33,
+      "objective_profile": "affinity_primary_coordinate30",
+      "pointcloud_delta_A": 1.0,
+      "preserve_native_rigid_pose": false,
+      "program_id": "scientific_c62e296818e0",
+      "record_reward_response": true,
+      "reference_sha256": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+      "reward_view": "endpoint_pointcloud",
+      "schema_version": "current-coordinate-program-1.0",
+      "seed": 42,
+      "teacher_endpoint_temperature_A2": 4.0,
+      "teacher_neighbors": 4,
+      "teacher_score_beta": 0,
+      "time_ramp_power": 0.0,
+      "topology_policy": "Free native graph transitions; no pair-distance acceptance or graph equality veto",
+      "window": [
+        0.0,
+        0.5
+      ]
+    },
+    "lane": "G",
+    "maximum_edits": 1,
+    "objective": "Final predicted target affinity primary; validity and strain secondary; coordinate control only",
+    "role": "Designer",
+    "task_wording": "Interpret the supplied evidence and answer the coordinate-design task."
+  }
+}

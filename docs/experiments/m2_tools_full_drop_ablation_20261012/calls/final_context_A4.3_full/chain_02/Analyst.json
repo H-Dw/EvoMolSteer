@@ -1,0 +1,83 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal, so no observed affinity outcome is available to score coordinate hypotheses against.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Continuous contrast functions over the observed window are non-monotone: landmark_00_soft_mass shows 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dy shows 6 sign changes with a strongly negative first rate and positive last rate. A constant rule is therefore not supported; only a time-conditioned rule over the observed support is consistent with these fits, and extrapolation is disallowed.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Several local coordinate contrasts have large first-to-last rate reversals (e.g. landmark_00_local_dx first_rate_z negative, last_rate_z positive; landmark_00_local_cyy similar), indicating the direction of change differs between early and late observed nodes rather than a single whole-window trend.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Branch-adjusted covariance contrasts for global centroid coordinates are not distinguishable from zero (all CIs span zero, q well above 0.5, same-sign batch fractions near 0.5), so centroid displacement is not supported as a signed favorable-versus-comparison contrast.",
+      "evidence_ids": [
+        "branch_adjusted:0",
+        "branch_adjusted:1",
+        "branch_adjusted:2"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Shape covariance contrasts are the only branch-adjusted entries with consistent sign across batches (shape_xx and shape_yy same-sign fraction ~0.79) and negative whole-window means, but their multiplicity-adjusted q values (0.23 and 0.15) do not clear a conventional threshold, so they are candidate rather than confirmed contrasts.",
+      "evidence_ids": [
+        "branch_adjusted:3",
+        "branch_adjusted:4"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned sign reversal over the observed window",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "falsifier": "A constant-sign rule matches or exceeds the time-conditioned rule on observed-node fit fidelity without extrapolation.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass and landmark_00_local_dy contrast values at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted endpoint world coordinates",
+      "statement": "A time-conditioned coordinate contrast that follows the observed sign reversal of landmark_00_soft_mass and landmark_00_local_dy will track the observed selection-node contrasts better than a constant-sign rule."
+    },
+    {
+      "direction": "negative shape covariance contrast",
+      "evidence_ids": [
+        "branch_adjusted:3",
+        "branch_adjusted:4"
+      ],
+      "falsifier": "Additional batches or tighter multiplicity adjustment move the q values above threshold or flip the same-sign batch fraction toward 0.5.",
+      "id": "H002",
+      "observable": "branch-adjusted shape_xx and shape_yy covariance contrasts",
+      "scope": "observed window, 14 independent batches",
+      "statement": "Shape covariance contrasts (shape_xx, shape_yy) carry a weak consistent negative signed contrast that could be expressed as a coordinate reward, but only if multiplicity-adjusted support strengthens."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record or survival credit cannot be presented as final affinity benefit, and the immediate-selection versus descendant-survival comparison is unavailable.",
+    "No current-study outcome data are available to either role, so no coordinate hypothesis can be validated against final predicted affinity here.",
+    "Turnover, increment, joint-diagnostic and regional tables were not read in this budget; within-path change versus changing cohort composition remains unassessed.",
+    "Contrast curves are coordinate contrasts, not absolute reward targets or physical interaction energies, and no neural-module causation is implied."
+  ],
+  "role": "Analyst"
+}

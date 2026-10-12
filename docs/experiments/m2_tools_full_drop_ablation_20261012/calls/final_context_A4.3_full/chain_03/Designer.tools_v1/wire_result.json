@@ -1,0 +1,24 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "E2bb8390452ed517a",
+    "Eaa4bda02c9a2c3a1",
+    "Ed0d7945bdeeda8f1",
+    "Ed4e7d28e7b0423e0"
+  ],
+  "failure_modes": [
+    "Temporal-blend edit (C007/C008/C009) would displace surrounding endpoint coordinates using selection-enriched contrasts that lack validated sign/rate changes, without demonstrated affinity gain.",
+    "Increasing teacher_neighbors (C005/C006) or pointcloud_delta_A (C002/C003) is unsupported: the only audit quantity is a non-causal, by-construction nonnegative excess distance, not the score-weighted reward or its FLOWR Jacobian.",
+    "Last-record joint-head credit at terminal score time 0.99 could be misread as final affinity benefit; it is outside the observed window and is not decoded terminal affinity.",
+    "Coordinate contrasts could be misread as physical interaction energies or affinity-head derivatives; the reward view is an endpoint pointcloud with a detached FLOWR endpoint VJP."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H003"
+  ],
+  "rationale": "D1.2: The registered temporal alternatives (C007/C008/C009) change only the teacher-coordinate blend between the static endpoint reward and an observed-teacher reward at observed score nodes; they do not alter the shared learned support, the FLOWR endpoint VJP, or the teacher set, and they are coordinate rewards rather than trajectory velocity forces. Analyst's temporal evidence is explicitly restricted: only 24 of 200 continuous features pass the selection/fidelity rules, and the audit states its fixed-frame RMS excess is not the score-weighted reward or its FLOWR Jacobian. No validated sign-change or rate-change evidence is delivered for the selected features, so H002's precondition for time-conditioning is unmet and the stationary coordinate target is preferred. D4.1: Against the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal blend), the offered edits are dose (C001/C002/C003), teacher count (C004/C005/C006) and temporal blend (C007/C008/C009). The only quantitative audit figure is a non-causal, by-construction nonnegative excess distance with top4 teacher overlap ~0.47 and chosen-teacher score correlation ~0.10; this does not establish a defensible expected affinity advantage for any offered value, and the objective is affinity-first with no outcome data available. Retaining the incumbent is therefore the evidence-supported choice. D4.2: The predicted failure of a temporal-blend edit is unnecessary displacement of surrounding coordinates: blending toward observed teachers would move the endpoint pointcloud on the strength of selection-enriched contrasts whose batch direction fraction and fidelity are only marginally validated, while lineage support shows sparse ancestral coverage (349 nodes with fewer than 3 ancestors) and terminal credit at score time 0.99 outside the observed window. That displacement would be a coordinate-graph change without demonstrated affinity benefit, so it is not adopted. Temperatures were not proposed for edit.",
+  "role": "Designer"
+}

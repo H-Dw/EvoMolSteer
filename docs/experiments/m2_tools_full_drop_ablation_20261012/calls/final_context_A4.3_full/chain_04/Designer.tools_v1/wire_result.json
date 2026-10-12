@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E1ba2a68ba5243c03",
+    "E598d52f84227fbcc",
+    "E894225fb605458cb",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Time-conditioned regional attention follows an unvalidated sign reversal in the late window and pushes surrounding coordinates away from the target, increasing endpoint pointcloud distance and lowering the primary affinity score.",
+    "Selecting a temporal blend or temporal region index on descriptive rate reversals with unaccepted polynomial fits overfits noise in the observed window and does not transfer to held-out observed nodes.",
+    "Treating the temporal derivative of a contrast as a spatial coordinate gradient would inject an unsupported coordinate target and displace surrounding coordinates without affinity justification.",
+    "Any temperature edit would be an interface violation; none is proposed."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The registered time-conditioned alternatives (C008 temporal_region_index, C009/C010/C011 temporal_teacher_blend) change regional attention at observed score nodes using the same static detached teachers; they do not change teacher coordinates and are not velocity forces. Analyst's temporal evidence is non-monotone: the landmark soft-mass contrast shows four sign changes with an early-positive/late-negative rate reversal (E2e106e083189d150) and the local dx contrast shows six sign changes with nine strong sign conflicts (Eace79c1f0f54c9d1), while the local dy/cyy and curvature/cross terms have large relative node RMSE with unaccepted polynomial fits (E03ad082bb04f4f9c, E1ba2a68ba5243c03, E598d52f84227fbcc, E894225fb605458cb). A temporal derivative is not a spatial gradient, so these rate reversals do not license a coordinate target. D4.1: The incumbent already uses teacher_neighbors=4, pointcloud_delta_A=1.0, region_index 0 and no temporal blend; the offered edits either duplicate the incumbent (C002, C006, C004) or add a time-conditioned attention term whose sign is not validated on held-out observed nodes. No offered choice carries a defensible expected affinity advantage over the incumbent, so the evidence supports retaining the incumbent rather than editing. D4.2: The predicted failure of a time-conditioned edit is that the unvalidated sign reversal drives regional attention the wrong way in the late window, displacing surrounding coordinates (the positive surrounding weight in the regional recipe) and inflating endpoint pointcloud distance, which under the affinity-primary objective degrades the primary score; because coordinate graph changes alone are not a failure mechanism, the relevant harm is the affinity loss, not the displacement itself. This prediction keeps the decision at retain. Temperatures are immutable and no temperature edit is proposed.",
+  "role": "Designer"
+}
