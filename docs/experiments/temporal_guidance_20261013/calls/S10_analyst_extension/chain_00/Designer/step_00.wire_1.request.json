@@ -1,0 +1,213 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/5eb16615da830c904c366d45473ad336b7b90621fcbcdb0fb47af01243cc38ff.txt",
+        "content_sha256": "5eb16615da830c904c366d45473ad336b7b90621fcbcdb0fb47af01243cc38ff",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/59d3b00e7168e48db179d9edf57a56b7de1a02a23cc865cf9343a4f1f47c4761.txt",
+        "content_sha256": "59d3b00e7168e48db179d9edf57a56b7de1a02a23cc865cf9343a4f1f47c4761",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/5a25b4ddd50c2f54d1ee0f64052459afc2587bae41934498dd789e3d172036d8.txt",
+        "content_sha256": "5a25b4ddd50c2f54d1ee0f64052459afc2587bae41934498dd789e3d172036d8",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "S1_observed_to_static",
+                        "S2_constant_blend",
+                        "S3_static_to_observed_control"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "S1_observed_to_static",
+                      "S2_constant_blend",
+                      "S3_static_to_observed_control"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E0857891f4effbfe1",
+                    "E0fb4034ba3291b6a",
+                    "E1ba2a68ba5243c03",
+                    "E1d456995ce26feaa",
+                    "E210a5e25037b4e8b",
+                    "E25ee21837ccd0b80",
+                    "E2e106e083189d150",
+                    "E3a7a618dc9cc0157",
+                    "E3db8c781e81ec823",
+                    "E4b0198475c2c8840",
+                    "E53de1297d4f4a971",
+                    "E59586c53eae9cbe1",
+                    "E598d52f84227fbcc",
+                    "E6acb9c8b84654f6b",
+                    "E712cbbf092d2340b",
+                    "E76a7b2a0351cc8c8",
+                    "E806c4020669c4d51",
+                    "E859f7d59788c14a6",
+                    "E9b7d9a5cdda05d7e",
+                    "Eaa4bda02c9a2c3a1",
+                    "Ed2ee4995f13ab182",
+                    "Ee105b71de8bcfd9b",
+                    "Ef7b9d9ccf6158fed",
+                    "Ef82b712880ec7822",
+                    "Efc009bddba1a8de6",
+                    "Efdf6211fdf4c5900"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "enum": [
+                    "H001",
+                    "H002"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

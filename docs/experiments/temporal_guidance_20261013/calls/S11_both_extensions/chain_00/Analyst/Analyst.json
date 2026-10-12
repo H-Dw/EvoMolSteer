@@ -1,0 +1,115 @@
+{
+  "findings": [
+    {
+      "claim": "Objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are therefore proxies, not affinity labels.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The learning window and observed score clocks span [0.0, 0.5] with 50 score nodes at 0.01 spacing; curve support is [0.0, 0.49] and label semantics are recorded affinities removed with an equal score prior.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "Across all 20 landmark soft_mass features, whole-window z magnitudes are small (|z| < ~0.64) and no polynomial trend is accepted; per-feature relative node RMSE is large (0.29-0.99), so no stable monotone regional direction is established over the full window.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F003",
+      "priority": 2
+    },
+    {
+      "claim": "Several landmarks show large first-vs-last rate z with sign reversal (e.g. landmark_00 first_rate_z ~ +9.3 to last_rate_z ~ -10.0; landmark_03 ~ -61.0 to +12.7; landmark_11 ~ -66.3 to +10.8), indicating changing local contrast direction rather than a stationary target; these are diagnostics, not permission to reverse the affinity objective.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:30",
+        "continuous:110"
+      ],
+      "id": "F004",
+      "priority": 2
+    },
+    {
+      "claim": "Strong sign conflicts are present for most landmarks (0-17), and sign_changes range 4-10, so within-window direction is not reproducible across batches for these soft_mass coordinates.",
+      "evidence_ids": [
+        "continuous:10",
+        "continuous:20",
+        "continuous:90",
+        "continuous:150"
+      ],
+      "id": "F005",
+      "priority": 3
+    },
+    {
+      "claim": "Teacher modes supply 20 static landmark world coordinates in Angstrom with assignment RMS quantiles ~0.45/0.86/1.05 A over 28 counts; these are endpoint teacher geometry, not a decoded final affinity.",
+      "evidence_ids": [
+        "teacher_modes"
+      ],
+      "id": "F006",
+      "priority": 2
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Test staged relevance (S1) against the constant-blend control (S2) and the reversed control (S3); do not assume the best final teacher suits every early seed.",
+      "evidence_ids": [
+        "clocks",
+        "continuous:0",
+        "continuous:30",
+        "continuous:110",
+        "teacher_modes"
+      ],
+      "falsifier": "If staged and constant-blend recipes produce indistinguishable per-landmark contrast trajectories and no reproducible knot is supported, the stage-dependent relevance hypothesis is not supported.",
+      "id": "H001",
+      "observable": "Per-landmark soft_mass contrast curves and their first/last rate z across the full [0.0,0.49] support, compared between the staged recipe and the constant-blend control at identical dose_factors.",
+      "scope": "All seeds in the observed window; landmark soft_mass coordinates only.",
+      "statement": "A stage-dependent teacher-relevance recipe (early same-clock historical endpoint forecasts smoothly approaching frozen static teachers) may merit testing at fixed dose, because the observed soft_mass contrasts change direction across the window while no stable absolute coordinate target is supported."
+    },
+    {
+      "direction": "Retain gradual delta_A unless an independently stable profile supports a knot.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:20",
+        "continuous:40",
+        "continuous:50"
+      ],
+      "falsifier": "A reproducible, batch-stable profile with accepted polynomial fit and low node RMSE would justify a data-derived knot.",
+      "id": "H002",
+      "observable": "Relative node RMSE and sign-change counts per landmark soft_mass feature under fixed dose.",
+      "scope": "Landmark soft_mass features across the full window.",
+      "statement": "A geometric response-scale (delta_A) change may merit testing only if a reproducible knot is independently supported; current evidence shows no accepted polynomial and large node RMSE, so gradual change should be retained rather than introducing a data-derived knot."
+    }
+  ],
+  "limitations": [
+    "Temporal profiles are not available; unqueried is not unavailable, and a missing profile is not evidence for a stage boundary.",
+    "No decoded final affinity labels are present; recorded affinities were removed and an equal score prior applied, so selection/survival cannot be equated with final affinity improvement.",
+    "Coordinate contrasts are untyped proxies; no energy or chemical-interaction interpretation is warranted.",
+    "Only soft_mass landmark features were queried here; other coordinate components (local_cxx..czz, dx..dz) were not examined in this pass.",
+    "The supplied fixed endpoint forecast teachers and historical forecast teachers were not directly compared at matching score clocks in this pass."
+  ],
+  "role": "Analyst"
+}

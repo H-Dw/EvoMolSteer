@@ -1,0 +1,25 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "S1_observed_to_static",
+    "evidence_refs": [
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "If the compiled teacher_blend table does not change the executed trace relative to the identity/M2 output, the edit did not change execution and no timing benefit can be credited (H001 falsifier).",
+      "If the realized blend departs from the registered smoothstep profile at any controlled score node, the hypothesis is not supported.",
+      "If staged (S1) and constant (S2) blends produce indistinguishable executed traces and reward scalars across the window, temporal staging is not supported and the effect is attributable to source presence, not timing (H002 falsifier).",
+      "Component-gradient cancellation between R_static and R_observed_forecast could yield a changed scalar without a changed injection direction; a changing scalar value alone does not prove changed injection, so gradient-direction and delivered-dose checks are required.",
+      "Recorded affinities were removed (equal score prior), so no decoded-affinity or final-benefit label exists in this input; affinity improvement cannot be claimed from this evidence, and strain/structural validity are not assessable here.",
+      "No temporal_profiles_available and no data-derived knots; the smoothstep profile is a predeclared intervention, not a discovered stage boundary, so any stage interpretation would be unsupported.",
+      "Unqueried numeric contents of the evidence tables were not read and are not evidence; unqueried is distinct from absent."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Analyst H001 states a time-dependent coordinate contrast over the full observed score-clock window [0.0,0.49] can be expressed as a smooth teacher-mixture reward R_t=(1-b(t))*R_static+b(t)*R_observed_forecast(t) with b(t) a smoothstep profile and dose_factors held at 1. The registered choice S1_observed_to_static implements exactly this: route=reward, dose_factors all 1.0, delta_A all 1.0, teacher_blend a smooth monotone profile from 1.0 at t=0 to 0.0 at t=0.49 over the 50 registered score times, matching the observed support with no extrapolation. This is the offered operative change that maps the actual temporal hypothesis to a registered reward policy while holding dose fixed. S2_constant_blend and S3_static_to_observed_control are the required controls (constant blend and time-order control) that H002 identifies as needed to attribute any benefit to timing rather than mere presence of both sources; they are comparison arms, not the primary edit. The clock observation confirms the learning window and curve support span [0.0,0.49] with 50 recorded score times at 0.01 spacing, so the blend is evaluated on the same native FLOWR endpoint across all controlled score nodes.",
+    "role": "Designer"
+  }
+}

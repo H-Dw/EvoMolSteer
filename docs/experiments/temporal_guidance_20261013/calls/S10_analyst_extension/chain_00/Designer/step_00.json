@@ -1,0 +1,28 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "S1_observed_to_static",
+    "evidence_refs": [
+      "E806c4020669c4d51",
+      "Ef7b9d9ccf6158fed",
+      "E25ee21837ccd0b80",
+      "E2e106e083189d150",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "Affinity first: if S1 does not improve final predicted target affinity over S2/S3 at matched score nodes, the staged-relevance hypothesis is falsified and the incumbent should be retained.",
+      "Coordinate response: if S1, S2 and S3 produce indistinguishable endpoint coordinate-contrast traces, the sign-changing cyy structure is not being exploited and the edit is not supported.",
+      "Strain/validity reported separately: any affinity gain accompanied by degraded strain or structural validity is not a net improvement.",
+      "delta_A and dose_factors are held at 1.0 in all three recipes, so this edit cannot test H002 (time-varying curvature); H002 remains deferred pending a registered curvature condition.",
+      "No temporal profiles are available and all continuous_trends rows report polynomial_accepted=false and extrapolation_allowed=false, so no stage boundary or out-of-window extrapolation is claimed; the S1 knots are a predeclared intervention, not a discovered stage.",
+      "Coordinate features are untyped endpoint-world proxies; no energy or chemical-interaction interpretation is warranted."
+    ],
+    "hypothesis_refs": [
+      "H001"
+    ],
+    "rationale": "Analyst F002/F001 report sign-changing cyy rate structure (first_rate_z strongly negative, last_rate_z positive, multiple sign changes, no accepted polynomial) across the full observed window, i.e. a changing regional direction rather than a stationary target. H001 proposes testing a stage-dependent teacher-relevance reward at fixed dose. The offered S1_observed_to_static recipe implements exactly that: early same-clock historical forecast teachers smoothly approaching frozen static teachers, with delta_A and dose_factors held at 1.0, matching the reward lane and the immutable fixed parameters. S2 (constant blend) and S3 (reversed) are the predeclared controls for the same comparison, so selecting S1 as the operative change is the offered choice that tests H001 without touching frozen temperatures, neighbor count, score beta or base eta.",
+    "role": "Designer"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "Ed1eea2fc79aef637",
+    "E2e106e083189d150",
+    "Ecea6847a29085c95",
+    "Ebfdd229bdaca644c",
+    "E342a60b38bb0a51b",
+    "E3b2ce8fd1ae3c7bc"
+  ],
+  "failure_modes": [
+    "Affinity is unverified: no decoded final affinity labels exist (recorded affinities removed, equal score prior), so any affinity improvement claim from S1 is unsupported; coordinate contrasts are untyped proxies.",
+    "Gradient cancellation: the observed-forecast and static-teacher components may produce opposing endpoint VJPs, so a changed scalar reward value does not prove changed injection; require gradient-direction and delivered-dose checks.",
+    "Timing attribution: if S1 is indistinguishable from S2 and S3 on per-landmark contrast trajectories, the benefit is not attributable to timing and the stage-dependent relevance hypothesis fails.",
+    "Knot validity: the S1 phase knot is a predeclared intervention, not a discovered stage; a data-derived knot would require an independently stable profile, which current evidence does not provide.",
+    "Coverage: only soft_mass landmark features were examined; other coordinate components were not queried, so the recipe's effect on them is unknown.",
+    "Temporal profiles are unavailable; unqueried is not unavailable, and a missing profile is not evidence for a stage boundary."
+  ],
+  "hypothesis_refs": [
+    "H001"
+  ],
+  "rationale": "H001 is the only hypothesis that maps onto an offered operative change: a stage-dependent teacher-relevance recipe at fixed dose, with S2 (constant blend) and S3 (reversed order) as the required controls. The observed soft_mass contrasts change direction across the window (large first-vs-last rate z with sign reversal) while no stable absolute coordinate target is supported, which is exactly the regime H001 targets. S1 keeps dose_factors=1 and delta_A=1, so it is a reward-lane change only, preserving the frozen temperatures and the incumbent scalar geometry. H002 is not actionable: no accepted polynomial and large node RMSE mean no data-derived knot is supported, so gradual delta_A is retained rather than edited.",
+  "role": "Designer"
+}

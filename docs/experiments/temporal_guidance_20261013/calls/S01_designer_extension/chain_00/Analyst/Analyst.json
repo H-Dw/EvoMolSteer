@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "claim": "The observed selection window is the score-clock interval [0.0, 0.5] with 50 recorded score times at 0.01 spacing; the learning window and curve support both span [0.0, 0.49], so the full observed support is the complete comparison window and no extrapolation beyond it is warranted.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Recorded affinities were removed and replaced by an equal score prior, so the supplied clock observation carries no decoded-affinity label; any coordinate contrast in this window is selection/score-clock evidence, not measured final-benefit evidence.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The coordinate representation is native model endpoint world coordinates, and the incumbent reward view is an endpoint pointcloud with a FLOWR endpoint VJP derivative path; the coordinate proxy is untyped, so no energy or chemical-interaction meaning is attached to it here.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "early same-clock historical forecasts weighted toward observed, smoothly approaching frozen static teachers by the end of the window",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "falsifier": "if the compiled teacher_blend table does not change the executed trace relative to the identity/M2 output, or if the realized blend departs from the registered smoothstep profile at any controlled score node, the hypothesis is not supported",
+      "id": "H001",
+      "observable": "teacher_blend b(t) evaluated at the 50 registered score times, combined with the endpoint pointcloud reward scalar",
+      "scope": "global over the observed score-clock window [0.0,0.49]; per-score-node, no extrapolation",
+      "statement": "A time-dependent coordinate contrast over the full observed window can be expressed as a smooth teacher-mixture reward R_t=(1-b(t))*R_static+b(t)*R_observed_forecast(t) on the registered score nodes, with b(t) a smoothstep parameter profile over [0.0,0.49] and dose_factors held at 1."
+    },
+    {
+      "direction": "staged blend differs from constant blend if temporal relevance matters",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "falsifier": "if staged and constant blends produce indistinguishable executed traces and reward scalars across the window, the temporal staging is not supported",
+      "id": "H002",
+      "observable": "difference in endpoint pointcloud reward scalar between the staged smoothstep blend and the constant 0.5 blend at matched score nodes",
+      "scope": "global over [0.0,0.49] at fixed dose_factors=1",
+      "statement": "The staged relevance of observed versus static teachers is a testable temporal contrast: a constant-blend control at the same dose isolates whether the time dependence, rather than the mere presence of both sources, carries the effect."
+    }
+  ],
+  "limitations": [
+    "No temporal_profiles_available; time-resolved coordinate profiles were not supplied, so no data-derived stage boundary or knot can be claimed.",
+    "The clock observation is a container summary of clocks metadata; unqueried numeric contents of the evidence tables (continuous_trends, endpoint_effects, regional_effects, survival_effects, turnover_accounting, branch_adjusted, joint_diagnostics) were not read and are not evidence here.",
+    "Recorded affinities were removed (equal score prior), so selection preference cannot be distinguished from descendant survival or measured final benefit in this input.",
+    "The coordinate proxy is untyped; no energy, strain, or chemical-interaction interpretation is asserted.",
+    "The registered temporal recipes are predeclared interventions, not discovered biological stages; the default phase knot is an experimental hypothesis only."
+  ],
+  "role": "Analyst"
+}

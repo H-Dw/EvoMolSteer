@@ -1,0 +1,199 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/5eb16615da830c904c366d45473ad336b7b90621fcbcdb0fb47af01243cc38ff.txt",
+        "content_sha256": "5eb16615da830c904c366d45473ad336b7b90621fcbcdb0fb47af01243cc38ff",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/efb16647662f681ff132044c9f44a56d40f15e6b44592783de1b541527b6e2bd.txt",
+        "content_sha256": "efb16647662f681ff132044c9f44a56d40f15e6b44592783de1b541527b6e2bd",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/177ef567567e5fff8465b0884f22ccc806aa4ff618434e356740fe246af92887.txt",
+        "content_sha256": "177ef567567e5fff8465b0884f22ccc806aa4ff618434e356740fe246af92887",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "S1_observed_to_static",
+                        "S2_constant_blend",
+                        "S3_static_to_observed_control"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "S1_observed_to_static",
+                      "S2_constant_blend",
+                      "S3_static_to_observed_control"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E00e41abde0319d86",
+                    "E03ad082bb04f4f9c",
+                    "E0857891f4effbfe1",
+                    "E1ba2a68ba5243c03",
+                    "E2e106e083189d150",
+                    "E598d52f84227fbcc",
+                    "E5cf1ecb7c628685b",
+                    "E5d1c4c6e5dbe0cb6",
+                    "E894225fb605458cb",
+                    "Eaa4bda02c9a2c3a1",
+                    "Eace79c1f0f54c9d1",
+                    "Ec589f2ee99a44490"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "enum": [
+                    "H001",
+                    "H002"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}
