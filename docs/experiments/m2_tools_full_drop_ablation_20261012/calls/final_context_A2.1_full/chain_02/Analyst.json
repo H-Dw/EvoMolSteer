@@ -1,0 +1,85 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts below are selection/geometry descriptors, not affinity benefits.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Continuous landmark coordinate features over the observed window are non-monotone: landmark_00_soft_mass shows 4 sign changes with a positive early rate (first_rate_z ~ +9.3) reversing to a negative late rate (last_rate_z ~ -10.0), and landmark_00_local_dy shows 6 sign changes with a strongly negative early rate (first_rate_z ~ -72.4) reversing to positive late (last_rate_z ~ +5.5). A constant rule is therefore not supported; a time-conditioned rule is favored, but no polynomial was accepted and extrapolation is disallowed.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Branch-adjusted raw-covariance contrasts at the global centroid are null: global_centroid_x/y/z have CIs spanning zero (p ~ 0.55-0.95, q ~ 0.69-0.97) with same-sign batch fractions near 0.36-0.50, so no signed favorable-versus-comparison centroid contrast is established.",
+      "evidence_ids": [
+        "branch_adjusted:0",
+        "branch_adjusted:1",
+        "branch_adjusted:2"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Shape covariance contrasts are the only branch-adjusted features with consistent sign: shape_yy is negative with CI entirely below zero (p ~ 0.048, q ~ 0.153) and same-sign batch fraction ~0.79, and shape_xx is negative with CI below zero (p ~ 0.096, q ~ 0.232, same-sign ~0.79). These are marginal geometric descriptors that survive multiplicity adjustment only weakly (q > 0.05).",
+      "evidence_ids": [
+        "branch_adjusted:4",
+        "branch_adjusted:3"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Ranking by point estimate alone would elevate the large-magnitude centroid and local-derivative features, but multiplicity-adjusted support (q values) and same-sign batch fractions reorder the priority toward the shape_xx/shape_yy contrasts; the centroid features are not credible despite their larger raw means.",
+      "evidence_ids": [
+        "branch_adjusted:0",
+        "branch_adjusted:4",
+        "branch_adjusted:3"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned sign reversal of the landmark contrast",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "falsifier": "No sign reversal in the observed-node contrast values, or a constant rule fitting the observed nodes within the reported node RMSE.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass and landmark_00_local_dy contrast values at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted endpoint world coordinates",
+      "statement": "A time-conditioned coordinate contrast on landmark_00_soft_mass and landmark_00_local_dy (early-window versus late-window sign) better describes the observed selection-node geometry than a constant contrast rule."
+    },
+    {
+      "direction": "negative shape_xx/shape_yy covariance contrast",
+      "evidence_ids": [
+        "branch_adjusted:4",
+        "branch_adjusted:3",
+        "branch_adjusted:0"
+      ],
+      "falsifier": "CI spanning zero or same-sign batch fraction near 0.5 for shape_xx/shape_yy under the same adjustment.",
+      "id": "H002",
+      "observable": "branch-adjusted raw covariance of shape_xx and shape_yy",
+      "scope": "14 independent batches, whole observed window",
+      "statement": "A signed shape-covariance contrast (shape_yy, shape_xx negative) is a more reproducible coordinate descriptor than global-centroid contrasts."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied; last-record and survival credit cannot be presented as final affinity benefit, and the immediate-versus-descendant comparison is unavailable.",
+    "Continuous-trend rows read are limited to landmark_00 features; other landmark and regional features were not inspected, so the non-monotonicity finding is not generalized beyond the read features.",
+    "All contrasts are coordinate/selection descriptors under the endpoint-VJP reward; they are not physical interaction energies or evidence of neural-module causation.",
+    "No temperature or executable-source change is proposed; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,24 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E2e106e083189d150",
+    "E03ad082bb04f4f9c",
+    "Ec3d5c7e8cb8584c5",
+    "E455d8ea90d2c10e1",
+    "Ed061d96cc23b359b",
+    "Eaa4bda02c9a2c3a1",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Applying a temporal_teacher_blend or temporal_region_index edit on unvalidated observed-node contrasts would displace surrounding coordinates via positive Gaussian attention weight without improving the primary affinity objective.",
+    "Treating the non-monotone landmark derivative as a spatial gradient or as an affinity benefit would mis-specify the reward; the temporal derivative is not a coordinate gradient and the contrasts are selection/geometry descriptors only.",
+    "Selecting a large-magnitude centroid or local-derivative feature by point estimate alone would be non-credible given null CIs and low same-sign batch fractions."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The registered time-conditioned alternatives (C008 temporal_region_index, C009-C011 temporal_teacher_blend) change regional attention or blend a validated observed-node coordinate teacher; they do not change teacher coordinates and are not velocity forces. Analyst's temporal evidence (E2e106e083189d150, E03ad082bb04f4f9c) shows non-monotone landmark contrasts with sign reversals, so a stationary constant rule is not supported and a time-conditioned rule is favored in principle. However, no polynomial was accepted and extrapolation is disallowed, and the temporal_region recipe requires a validated absolute contrast at observed score nodes; the delivered contrasts are selection/geometry descriptors under the endpoint-VJP reward, not affinity benefits. D4.1: Against the incumbent (teacher_neighbors=4, pointcloud_delta_A=1.0, static coordinate reward), the only branch-adjusted features with consistent sign are shape_xx/shape_yy (Ec3d5c7e8cb8584c5, E455d8ea90d2c10e1), and they survive multiplicity adjustment only weakly (q>0.05); centroid contrasts are null (Ed061d96cc23b359b). No offered choice has a defensible expected affinity advantage, and the objective is affinity-primary, so the evidence does not justify an edit. D4.2: Predicted failure of a temporal/attention edit: because the sign reversal is not tied to affinity and the contrast is unvalidated at score nodes, blending or re-weighting regional attention would displace surrounding coordinates (positive surrounding weight) without an affinity gain, risking unnecessary coordinate displacement and secondary strain while leaving the primary affinity objective unchanged. This prediction reinforces retaining the incumbent. Temperatures are immutable and no temperature edit is proposed.",
+  "role": "Designer"
+}

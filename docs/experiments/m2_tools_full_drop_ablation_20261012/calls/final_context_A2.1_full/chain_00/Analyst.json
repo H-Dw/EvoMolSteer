@@ -1,0 +1,83 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud with a detached FLOWR endpoint VJP, so coordinate contrasts are not physical interaction energies or affinity-head derivatives.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Continuous contrast functions over the observed window are non-monotone: landmark local-coordinate features show multiple sign changes (e.g. 6-10 sign changes) with large first-vs-last rate z-scores of opposite sign, and no polynomial fit is accepted, so a constant rule is not supported and any time-conditioned rule must stay within observed-node interpolation without extrapolation.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Joint selection-innovation diagnostics show a coherent, null-tested positive association between innovation and native alignment (q~2.2e-9, positive batch fraction 1.0) and a coherent negative association with observed child score gain (q~1.8e-7, positive batch fraction 0.0), indicating that selection-time innovation is coupled to native alignment but anti-coupled to immediate observed child score gain.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:0",
+        "joint_diagnostics:3",
+        "joint_diagnostics:4",
+        "joint_diagnostics:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Teacher-contrast coherence is high (whole-window mean ~0.81) and teacher control root ESS is ~1.30, so the supplied teacher contrast signal is internally coherent rather than a set of incompatible marginal descriptors; this supports treating joint coordinate patterns as the unit of evidence rather than isolated marginals.",
+      "evidence_ids": [
+        "joint_diagnostics:4",
+        "joint_diagnostics:5",
+        "joint_diagnostics:3"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned sign-following",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2"
+      ],
+      "falsifier": "No observed-node sign agreement above chance, or sign changes not reproducible across independent batches.",
+      "id": "H001",
+      "observable": "sign and magnitude of landmark local-coordinate contrast at observed score nodes",
+      "scope": "observed window [0.0,0.5], observed score nodes only",
+      "statement": "A time-conditioned coordinate contrast rule that follows the observed-node sign of the landmark local-coordinate contrast (rather than a constant rule) will better track the observed selection-node contrasts over the observed window."
+    },
+    {
+      "direction": "within-path change",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:2",
+        "joint_diagnostics:0"
+      ],
+      "falsifier": "Turnover accounting showing the association is explained by parent reweighting or reclassification rather than within-path increments.",
+      "id": "H002",
+      "observable": "innovation_native_alignment and observed_child_score_gain joint association",
+      "scope": "within-selector, batch as independent unit",
+      "statement": "Selection-time innovation that is coherent with native alignment but anti-coupled to immediate observed child score gain reflects a within-path change rather than a changing cohort composition."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied, so last-record or selection credit cannot be presented as final affinity benefit; the immediate-vs-descendant comparison is unavailable.",
+    "Continuous contrast curves are not absolute reward targets and no extrapolation is permitted; only observed-node interpolation is supported.",
+    "Joint diagnostics are descriptive within-selector associations with batch as the independent unit; they are not causal selection effects or atom velocities.",
+    "No temperature edit is permitted and none is proposed; the incumbent FLOWR endpoint, reference and integrator bindings are preserved."
+  ],
+  "role": "Analyst"
+}

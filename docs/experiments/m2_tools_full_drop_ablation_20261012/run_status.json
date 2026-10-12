@@ -2,7 +2,7 @@
   "active_chain": 5,
   "active_role": "Designer",
   "agent_interface": "evidence-tools-v1",
-  "api_calls": 656,
+  "api_calls": 683,
   "backend": "real_api",
   "chains": [],
   "code_commit": "3c4e54c24cf53cde8536936ef52201d34204b1e2",
@@ -590729,6 +590729,11 @@
         "sample_reuse_not_additional_observations": true,
         "scope": "all_unfinished_evaluations"
       }
+    },
+    {
+      "causal_claim_supported": false,
+      "classification": "SKIPPED_EXECUTION_ERROR",
+      "module": "A1.2"
     }
   ],
   "frozen_analyst_active": [
@@ -717903,7 +717908,7 @@
       "signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
     }
   },
-  "phase": "D-U",
+  "phase": "final_context",
   "preflight_passed": true,
   "prior_policy_amendment_sha256": "b181fb0921403d0edafd45808aca90a436ee6413399eb7c3cf89f90dc99ad96b",
   "prior_seed_mode": "indexed_batch",
@@ -805425,11 +805430,48 @@
       "skills_ablation_execution_abnormality_observed": true,
       "stage": "functional_review",
       "status": "SKIPPED_EXECUTION_ERROR"
+    },
+    {
+      "ablation_caused_the_error": "UNRESOLVED",
+      "active_before": [
+        "A1.1",
+        "A1.2",
+        "A2.1",
+        "A3.2",
+        "A4.1",
+        "A4.2",
+        "A4.3"
+      ],
+      "case": "final_context_A2.1_full",
+      "causal_claim_supported": false,
+      "chain": null,
+      "diagnostics": null,
+      "error": "Object of type Unset is not JSON serializable",
+      "error_type": "TypeError",
+      "instruction_removed": false,
+      "interpretation": "This condition failed execution; it does not establish that removing this instruction caused a Skill or performance failure.",
+      "module": "A2.1",
+      "original_outputs_preserved": true,
+      "performance_comparison_valid": false,
+      "phase": "final_context",
+      "role": "Reviewer",
+      "selected_active": [
+        "A1.1",
+        "A1.2",
+        "A2.1",
+        "A3.2",
+        "A4.1",
+        "A4.2",
+        "A4.3"
+      ],
+      "skills_ablation_execution_abnormality_observed": true,
+      "stage": "functional_review",
+      "status": "SKIPPED_EXECUTION_ERROR"
     }
   ],
   "stage_failures": [],
   "started_unix": 1791745980.6194208,
-  "status": "screening",
-  "task": "final_context_A1.1_drop",
-  "updated_unix": 1791809953.2116907
+  "status": "continuing_after_module_error",
+  "task": "A2.1",
+  "updated_unix": 1791810094.5128374
 }

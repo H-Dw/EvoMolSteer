@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:2",
+    "clocks",
+    "objective",
+    "branch_adjusted:0",
+    "branch_adjusted:1",
+    "branch_adjusted:2",
+    "branch_adjusted:3",
+    "branch_adjusted:4"
+  ],
+  "failure_modes": [
+    "Applying a temporal_teacher or temporal_region attention shift conditioned on unvalidated contrast changes would displace surrounding coordinates in regions with unstable contrast sign, without a demonstrated affinity benefit.",
+    "Because polynomial_accepted=false and extrapolation is disallowed, any time-conditioned rule would be applied beyond the observed score window where its sign behavior is unverified.",
+    "Treating the observed temporal derivative (rate z-scores) as a spatial coordinate gradient would misdirect the update; the registered recipes are coordinate rewards, not velocity forces.",
+    "Selecting an edit on branch-adjusted covariance contrasts would rely on effects that do not survive multiplicity adjustment (q>=0.153), risking a change with no defensible expected advantage."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The incumbent is a stationary coordinate target (reward_view=endpoint_pointcloud, teacher_score_beta=0, time_ramp_power=0.0, window [0.0,0.5]). The only registered time-conditioned alternatives are the temporal_teacher recipe (blend choices C009-C011) and the temporal_region recipe (C008); both are declared to reuse the same static detached teachers and to change only regional attention at observed score nodes, not teacher coordinates and not a velocity target. Analyst's temporal evidence (4 and 6 sign changes in landmark_00_soft_mass and landmark_00_local_dy, first/last rate z-scores of opposite sign) does support a non-constant rule in principle, but the same rows report polynomial_accepted=false and extrapolation disallowed, so the evidence is bounded to the observed window and gives no validated contrast function to condition on. D4.1: Weighing the proposal against the incumbent, the branch-adjusted coordinate contrasts are null after multiplicity adjustment (global_centroid_x/y/z q=0.72/0.69/0.97; shape_yy p=0.048 but q=0.153; shape_xx q=0.232), so no registered edit has a defensible expected advantage over the incumbent. The evidence changes the decision by removing the only candidate justification for a time-conditioned edit: the sign reversals are real but unvalidated as a contrast function, and the covariance contrasts that would license a coordinate change do not survive correction. Retaining the incumbent is therefore the affinity-first choice, since the objective is final predicted target affinity primary and no observed affinity outcome is available to score any coordinate hypothesis. D4.2: Predicted failure response for the nearest alternative (temporal_teacher blend, C009-C011): because the recipe reweights regional attention using unvalidated absolute contrast changes, the attention shift would displace surrounding coordinates in regions whose contrast sign is unstable, and with no accepted polynomial or extrapolation the shift would be applied outside the range where the sign changes were observed. That unnecessary displacement of surrounding coordinates is the concrete failure mode, and it is not offset by any demonstrated affinity benefit, so it argues against the edit rather than for it. No temperature edit is proposed; temperatures remain immutable task parameters.",
+  "role": "Designer"
+}

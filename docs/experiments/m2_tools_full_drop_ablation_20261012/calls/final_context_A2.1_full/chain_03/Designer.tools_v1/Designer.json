@@ -1,0 +1,29 @@
+{
+  "decision": "defer",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Premature temporal_teacher_blend or temporal_region_index edit locks in one phase of a sign-conflicting contrast, displacing surrounding landmark coordinates along an unstable direction and increasing strain without affinity benefit.",
+    "Selecting a pointcloud_delta_A dose (C001-C003) without affinity evidence changes reward scale but cannot be shown to improve the primary affinity objective.",
+    "Changing teacher_neighbors (C005-C007) alters the detached prior support without evidence that the current count is deficient.",
+    "Treating the observed coordinate contrast or its temporal derivative as a physical interaction energy or spatial gradient would misstate the reward semantics."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered temporal alternatives (C008 temporal_region_index, C009-C011 temporal_teacher_blend) are time-conditioned coordinate recipes that change regional attention at observed score nodes using the same static teachers and shared FLOWR endpoint; they do not change teacher coordinates and are not velocity forces. The Analyst evidence supports non-monotone, sign-changing contrast structure on landmark_00_soft_mass (4 sign changes, first_rate_z positive, last_rate_z negative) and landmark_00_local_dx (6 sign changes, first_rate_z negative, last_rate_z positive), so a constant rule is not supported and a time-conditioned rule is the only defensible direction. However, the local derivative features (local_dy, local_dz, local_cxx, local_cyy) show large-magnitude first/last rate z-scores with multiple sign changes and strong sign conflicts, i.e. unstable within-window rate structure rather than one coherent direction. D4.1: Compared with the supplied incumbent (teacher_neighbors=4, pointcloud_delta_A=1.0, static coordinate reward, no temporal blend), the offered edits are either dose changes (C001-C003 pointcloud_delta_A) or temporal/attention changes (C008-C011) or teacher-count changes (C005-C007). The evidence does not provide a defensible expected advantage for any single offered value: the observed support is [0.0,0.5] with no decoded terminal affinity labels, so no candidate can be shown to improve the primary affinity objective, and the sign-conflict structure means a fixed blend or region index could lock in the wrong phase. Retaining the incumbent is therefore preferred over an unsupported edit. D4.2: The concrete predicted failure of a premature temporal edit is unnecessary displacement of surrounding coordinates: applying a time-conditioned attention or blend while the local rate structure is sign-conflicting would push neighboring landmark coordinates along an unstable direction, increasing strain and risking validity loss without affinity benefit. Because the task is affinity-first and coordinate graph changes alone are not a failure mechanism, this predicted displacement is a reason to defer rather than to edit. No temperature edit is proposed; temperatures are immutable.",
+  "role": "Designer"
+}

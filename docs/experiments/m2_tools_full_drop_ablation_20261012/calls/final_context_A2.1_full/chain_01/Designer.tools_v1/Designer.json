@@ -1,0 +1,30 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:5",
+    "continuous:4",
+    "continuous:3",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "Time-conditioned blend (C009-C011) fitted to a non-monotone contrast with 4-6 sign changes would oscillate and unnecessarily displace surrounding landmark coordinates at adjacent observed nodes, with no demonstrated affinity gain.",
+    "Temporal region/teacher recipes (C008, C009-C011) alter teacher coordinates or regional attention rather than only dose, changing the shared learned support without evidence of reproducible observed-node sign.",
+    "Dose-only edits (C001-C003) and teacher-count edits (C005-C007) are not addressed by the supplied temporal evidence, so any expected advantage would be unsupported.",
+    "Treating the observed rate turnover as a velocity target would misread a coordinate contrast as a trajectory force; no such velocity target is adopted.",
+    "No decoded terminal affinity labels are available, so no edit can be justified as a final-affinity improvement from this evidence."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The offered time-conditioned alternatives are C008 (temporal_region_index), C009-C011 (temporal_teacher_blend) and C004 (region_index). Analyst's temporal evidence is non-monotone within the observed window: landmark_00_soft_mass shows 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dx shows 6 sign changes with 9 strong sign conflicts; polynomial fits are not accepted and extrapolation is disallowed. A time-conditioned recipe would therefore have to interpolate observed-node contrasts only, and the evidence does not establish that the observed sign pattern is reproducible or that a blend weight is defensible. The temporal_teacher recipe changes teacher coordinates/regional attention at observed score nodes (not merely dose), while the static incumbent keeps the shared learned support; per H002 the rate turnover is a coordinate contrast, not a velocity target, so no temporal derivative is treated as a spatial gradient. D4.1: Compared with the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, static teachers, no temporal blend), the evidence provides no defensible expected affinity advantage for any registered edit. C001-C003 change only the pointcloud dose scalar, which the evidence does not address; C005-C007 change teacher count, which the evidence does not address; C004/C008-C011 are the temporal/regional alternatives that the non-monotone, non-extrapolable evidence does not support. Because the objective is affinity-first and no decoded terminal affinity labels are supplied, the evidence does not change the decision away from the incumbent. D4.2: Opposing evidence predicts that a time-conditioned blend would displace surrounding coordinates unnecessarily: with 4-6 sign changes and strong sign conflicts, a blend fitted to one observed node would push neighboring landmark coordinates in the opposite direction at adjacent nodes, producing oscillatory displacement of surrounding coordinates without a demonstrated affinity benefit. That predicted failure mode, combined with the affinity-first priority, supports retaining the incumbent rather than editing. No temperature edit is proposed; temperatures remain the immutable fixed parameters.",
+  "role": "Designer"
+}
