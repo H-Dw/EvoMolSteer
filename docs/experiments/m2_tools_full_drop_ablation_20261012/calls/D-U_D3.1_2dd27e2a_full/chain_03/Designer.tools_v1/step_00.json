@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E598d52f84227fbcc",
+      "E1ba2a68ba5243c03"
+    ],
+    "failure_modes": [
+      "Selecting a dose edit (C001/C003) without evidence of a wrong direction or weak dose would add unnecessary coordinate displacement and noncore squared-displacement energy with no demonstrated affinity gain.",
+      "Selecting a schedule edit (C005/C006) would impose an early/late allocation not supported by the descriptive, non-extrapolable contrast curves, risking surrounding-coordinate displacement and strain.",
+      "Treating the observed-node contrast trends as validated temporal recipes or as spatial gradients would be an unsupported inference; they are descriptive diagnostics over the observed window only.",
+      "No decoded terminal affinity labels or final predicted affinity outcomes are available to this role, so no edit can be justified on affinity benefit."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The Analyst's temporal evidence is descriptive only. The continuous contrast curves are observed-node linear fits with polynomial_accepted false, extrapolation_allowed false, and relative node RMSE ~0.29-0.78 (F004), so they are not validated temporal recipes and cannot be compiled into a teacher-coordinate or regional-attention change. No registered temporal recipe is confirmed to express the non-monotone landmark soft-mass / local displacement contrast (H001 falsifier), and the opposing first/last rate z-values with multiple sign changes reject a single signed whole-window contrast (H002). The only offered choices are dose (native_rms_ratio C001-C003) and schedule (time_ramp_power C004-C006) parameters; neither changes teacher coordinates or regional attention, so no time-conditioned alternative is available to select. D3.1: Delivery diagnostics show mean_delivered_over_calibration ~0.330 with backtrack_fraction 0.0, cap_active_fraction 0.0 and zero_injection_fraction 0.0 across all observed nodes and batches, i.e. the incumbent dose is delivered cleanly with no clipping or backtracking and no evidence of a wrong direction or a weak dose. There is no evidence-based reason to move native_rms_ratio off the incumbent 0.33 (C002), and whole-reward rescaling canceled by normalization would not be an effective dose edit. D3.2: The incumbent time_ramp_power is 0.0 (C004), a fixed schedule over the full learned support [0.0,0.5]; the temporal evidence is descriptive and does not establish an early/late allocation advantage, so the fixed schedule is retained. D4.1: The incumbent is the supplied static endpoint-pointcloud program with native_rms_ratio 0.33 and time_ramp_power 0.0; the Analyst evidence provides no defensible expected advantage for any offered edit, so retaining the incumbent is the correct choice. D4.2: A concrete failure response to an unsupported dose or schedule edit would be unnecessary displacement of surrounding coordinates (noncore squared-displacement energy) and possible strain/clash, with no demonstrated affinity benefit; because the objective is affinity-first and no decoded terminal affinity outcome is supplied, this predicted failure further supports retaining the incumbent. Temperatures are immutable and are not edited.",
+    "role": "Designer"
+  }
+}

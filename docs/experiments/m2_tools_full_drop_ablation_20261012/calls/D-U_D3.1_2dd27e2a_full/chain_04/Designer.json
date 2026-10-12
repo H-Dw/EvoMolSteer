@@ -1,0 +1,24 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:2",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "Raising native_rms_ratio without evidence of under-delivery would displace surrounding coordinates (noncore squared displacement) and could trigger cap/backtracking, with no affinity benefit demonstrated.",
+    "Applying a time_ramp_power schedule would conflate target-coordinate motion (the observed rate sign reversal) with control strength, changing allocation over a support that is already uniformly covered.",
+    "Treating the observed-node rate-change contrast as a spatial gradient or as an affinity derivative would misread coordinate contrast evidence as reward benefit."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Analyst's temporal evidence is coordinate-contrast only: landmark-00 soft mass and local dy show large first/last rate z with sign reversal inside [0.0,0.5] while whole-window z stays small (F003, F004), and the fits are observed-node linear contrasts with extrapolation disallowed and polynomial fits rejected (F002). That supports a time-conditioned coordinate contrast in principle, but the registered choices offered here are dose (native_rms_ratio C001-C003) and schedule (time_ramp_power C004-C006) scalars, not a teacher-coordinate or regional-attention recipe; no registered choice changes teacher coordinates or regional attention, so D1.2's permitted time-conditioned alternative is not selectable. On dose (D3.1): delivery diagnostics show mean_delivered_over_calibration ~0.330 with backtrack_fraction 0.0, cap_active_fraction 0.0 and zero_injection_fraction 0.0 across all 50 controlled steps in every batch, i.e. the incumbent already delivers the requested dose with no clipping or backtracking, so there is no evidence of a weak dose to raise and no wrong-direction signature to correct; changing native_rms_ratio would be an unevidenced strength edit. On schedule (D3.2): the incumbent time_ramp_power is 0.0 (flat allocation) and the observed-node delivery is essentially uniform over the full learned support [0.0,0.5] with nonzero_steps 50 and post_window_nonzero 0; the temporal evidence concerns target-coordinate motion, not control strength, so conflating the two to justify a ramp is exactly what D3.2 forbids. D4.1: no supplied evidence provides a defensible expected affinity advantage for any offered edit, and the objective is affinity-primary with no observed affinity labels available (F005), so retaining the incumbent is the evidence-supported choice. D4.2: the concrete predicted failure of an unevidenced dose increase is unnecessary displacement of surrounding coordinates (noncore squared displacement) and possible severe-clash/backtrack activation, with no compensating affinity evidence; that prediction reinforces retaining. Temperatures are immutable and untouched.",
+  "role": "Designer"
+}

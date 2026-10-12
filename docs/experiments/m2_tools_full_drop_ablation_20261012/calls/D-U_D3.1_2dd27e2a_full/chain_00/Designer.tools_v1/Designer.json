@@ -1,0 +1,32 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "curve_support",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5",
+    "information_audit",
+    "lineage_support",
+    "objective"
+  ],
+  "failure_modes": [
+    "If a time-conditioned ramp (C005/C006) were applied, the weakly identified sign-changing landmark contrasts could push surrounding non-core coordinates away from their native positions, increasing noncore squared displacement without any demonstrated affinity gain.",
+    "If native_rms_ratio were raised (C003=0.5), the larger delivered injection could exceed the native predictive flow and displace surrounding coordinates, while the current trace shows no clipping or backtracking to absorb the excess.",
+    "If native_rms_ratio were lowered (C001=0.2), the reduced dose would under-deliver relative to the calibrated predictive flow, weakening the coordinate response without evidence that a weaker dose is preferable.",
+    "Any inference that the observed geometric teacher-proximity or survival enrichment implies final affinity benefit would be unsupported, since no decoded terminal affinity labels or current-study outcomes are supplied."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: the only registered time-conditioned alternatives are the time_ramp_power choices (C004=0.0, C005=1.0, C006=2.0), which are dose/schedule scalars, not teacher-coordinate or regional-attention edits; the incumbent already carries time_ramp_power=0.0, so C004 is the incumbent value and C005/C006 would only reallocate dose. Analyst's temporal evidence (F003, H001) shows the observed-node contrast functions are linear interpolations with extrapolation disallowed, 4-10 sign changes and 1-9 strong sign conflicts at relative node RMSE 0.29-0.78, so a time-conditioned rule is only weakly identified and cannot be shown to beat the stationary coordinate target; the temporal derivative is not a spatial gradient and is not a velocity force. D3.1/D3.2: delivery diagnostics show mean_delivered_over_calibration ~0.330 with backtrack_fraction 0.0, cap_active_fraction 0.0 and zero_injection_fraction 0.0 at every observed node, i.e. the delivered strength already equals the requested strength with no clipping or backtracking, so there is no evidence of a wrong direction or a weak dose to correct; the native_rms_ratio choices C001/C002/C003 would change delivered strength, but C002=0.33 is the incumbent value and no evidence supports a different ratio. D4.1/D4.2: the information audit (F004) states the geometric teacher-proximity metrics are not the full score-weighted reward or its FLOWR Jacobian and are not a causal affinity effect, and lineage support (F005) shows sparse ancestral coverage (349 nodes <3 ancestors, 531 <6) with survival credit explicitly not terminal affinity effects; with no decoded terminal affinity labels and an equal-score prior, no registered edit provides a defensible expected affinity advantage, and a time-ramp or dose change would risk unnecessary displacement of surrounding coordinates without affinity-first justification. Retaining the incumbent is therefore the supported choice.",
+  "role": "Designer"
+}

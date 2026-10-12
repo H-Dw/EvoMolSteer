@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting a dose edit (C001-C003) would change delivered strength without evidence of a weak or misdirected dose, risking unnecessary displacement of surrounding coordinates and added strain with no demonstrated affinity benefit.",
+    "Selecting a schedule edit (C004-C006) would reallocate dose over the window based on sign-changing, conflict-laden descriptive contrasts, conflating target motion with control strength and potentially degrading late-window delivery.",
+    "Treating the large first/last rate z-values of the coordinate contrasts as a validated monotone reward direction would misread a temporal derivative as a spatial gradient and could invert the intended control.",
+    "Assuming selection-node enrichment implies final affinity benefit is unsupported because no decoded terminal labels are supplied (H002)."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "D1.2: The registered alternatives are dose-only (C001-C003 native_rms_ratio) and schedule-only (C004-C006 time_ramp_power); none changes teacher coordinates or regional attention, so no time-conditioned teacher/attention recipe is offered and the stationary coordinate target stands. The inspected continuous trends are endpoint-coordinate contrasts with multiple sign changes and strong sign conflicts, and their whole-window z-values are small and mixed in sign, so a time-conditioned rule is descriptive only (H001) and a temporal derivative cannot be read as a spatial gradient. D3.1/D3.2: Delivery diagnostics show mean delivered/calibration ~0.33 with backtrack_fraction 0.0, cap_active_fraction 0.0 and zero_injection_fraction 0.0 at every observed node, i.e. the incumbent dose is delivered cleanly with no clipping or backtracking, and the first-order positive fraction is 1.0 across all 50 controlled steps in all eight batches. There is therefore no evidence of a wrong direction or of a weak dose that a registered dose edit would repair, and no temporal evidence supporting reallocation of dose across the learned support. D4.1/D4.2: No decoded terminal labels or outcome data are supplied, so no registered edit has a defensible expected affinity advantage over the incumbent; the affinity-first priority argues against an unsupported change. Retaining the incumbent avoids the predicted failure of unnecessary displacement of surrounding coordinates (noncore energy is squared displacement) that an unvalidated dose or ramp change would risk.",
+  "role": "Designer"
+}
