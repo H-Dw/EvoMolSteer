@@ -1,0 +1,73 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward is an endpoint pointcloud view over predicted endpoint world coordinates, so coordinate contrasts are selection/attention evidence rather than physical interaction energies.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The observed learning window is [0.0,0.5] with score nodes every 0.01 and curve support [0.0,0.49]; recorded affinities were removed and an equal score prior is used, so no absolute affinity target is available in the supplied evidence.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast features at landmark_00 show non-monotone behavior across the observed support: e.g. landmark_00_soft_mass has 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dx has 6 sign changes with 9 strong sign conflicts; a constant rule is not supported by these observed-node linear fits.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Several landmark_00 local derivative features (dy, dz, cxx, cyy) also show multiple sign changes and strong sign conflicts with no accepted polynomial and no extrapolation allowed, indicating that time-conditioned rather than constant contrast rules are better supported within the observed window only.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned contrast attention",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "A constant rule matches or exceeds the time-conditioned rule on observed-node fit fidelity without additional sign conflicts.",
+        "observable": "landmark_00 soft-mass and local-dx contrast sign and rate over observed score nodes",
+        "scope": "observed window [0.0,0.49] only",
+        "statement": "A time-conditioned contrast rule using validated observed-node interpolation over [0.0,0.49] will better track the sign-changing landmark_00 contrasts than a constant rule, without extrapolation beyond the observed support."
+      },
+      {
+        "direction": "joint-pattern prioritization",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E1ba2a68ba5243c03"
+        ],
+        "falsifier": "Joint diagnostics show no coupling and marginals remain independently informative.",
+        "observable": "joint diagnostics and covariance among landmark_00 features",
+        "scope": "supplied joint_diagnostics table",
+        "statement": "Isolated marginal landmark_00 descriptors may be redundant or coupled; joint coordinate patterns should be checked against supplied covariance/joint diagnostics before being treated as independent evidence."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or current-study outcome data are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+      "Selection enrichment versus absolute geometric descriptors cannot be separated without the population/label/observable binding tables, which were not read in this turn.",
+      "Uncertainty, multiplicity-adjusted support and coverage rankings were not retrieved, so no concrete priority decision differing from point estimates alone is asserted.",
+      "Turnover residual and parent-child increment contrasts were not read; within-path change versus cohort composition change remains unresolved.",
+      "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+    ],
+    "role": "Analyst"
+  }
+}

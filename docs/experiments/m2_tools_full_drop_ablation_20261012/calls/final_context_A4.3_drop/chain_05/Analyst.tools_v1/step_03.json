@@ -1,0 +1,75 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Endpoint-coordinate effects are dominated by shape (second-moment) descriptors rather than centroid translation: shape_yy shows the strongest integrated high-low contrast (z=-0.513, q=1.5e-5, positive_batch_fraction=0.0), with shape_xx (z=-0.495, q=8.1e-4) and shape_zz (z=-0.183, q=0.067) weaker but same-signed. These are signed favorable-versus-comparison coordinate contrasts at the observed endpoint nodes over the complete observed window, not absolute geometric descriptors.",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "Efd40af47235b6ecf"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Centroid translation contrasts are largely unsupported: global_centroid_x (z=-0.111, q=0.257) and global_centroid_z (z=-0.061, q=0.481) are null, while global_centroid_y is the only centroid component with a multiplicity-adjusted effect (z=-0.243, q=0.0136, positive_batch_fraction=0.214). This distinguishes selection enrichment of a specific axis from a general absolute geometric descriptor.",
+        "evidence_refs": [
+          "Ed9b75ded9192a9b0",
+          "Ee92b78bec6fdbbb4",
+          "E52fcd92a3390dbcf"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast functions over the observed support are non-monotone and unstable: landmark_00_soft_mass has 4 sign changes with first_rate_z=+9.27 and last_rate_z=-10.00, and landmark_00_local_dy has 6 sign changes with first_rate_z=-72.4 and last_rate_z=+5.5. All rows report polynomial_accepted=false and extrapolation_allowed=false, so a constant rule is not supported and only observed-node interpolation is admissible.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E03ad082bb04f4f9c",
+          "Eace79c1f0f54c9d1"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control; the observed endpoint contrasts are coordinate rewards, not physical interaction energies or affinity-head derivatives.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "favor time-conditioned registered temporal_region recipe over constant rule",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "E2e106e083189d150",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "No improvement in integrated shape contrast, or increased sign conflicts/rate instability, under the time-conditioned rule versus the constant rule.",
+        "observable": "shape_xx/shape_yy integrated endpoint contrast and continuous_trends sign_changes/rate_z",
+        "scope": "observed score window [0.0,0.5], predicted_endpoint_world_A features",
+        "statement": "Time-conditioned regional attention on the shape_yy/shape_xx second-moment contrasts will outperform a constant static rule, because the observed contrast functions change sign and rate across the window while no polynomial fit is accepted."
+      },
+      {
+        "direction": "rank shape_xx/shape_yy above global_centroid_x/z",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "Ed9b75ded9192a9b0",
+          "Ee92b78bec6fdbbb4"
+        ],
+        "falsifier": "Centroid components showing equal or larger adjusted effects than the shape components.",
+        "observable": "endpoint_effects high_low_integrated_z and q per feature",
+        "scope": "observed endpoint nodes, 14 independent batches",
+        "statement": "Prioritizing the shape second-moment contrasts over centroid translation will yield larger favorable endpoint contrast, since centroid components are mostly null after multiplicity adjustment."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or final-affinity outcome data were supplied, so last-record/endpoint credit cannot be presented as final affinity benefit; the immediate-selection versus descendant-survival comparison is unavailable.",
+      "No joint_diagnostics, turnover_accounting, increment_effects or lineage_support rows were read in this turn, so within-path change versus cohort-composition and joint-versus-marginal coupling questions remain unassessed.",
+      "Contrast curves are coordinate rewards over the observed support only; extrapolation is disallowed and no absolute reward target is established."
+    ],
+    "role": "Analyst"
+  }
+}

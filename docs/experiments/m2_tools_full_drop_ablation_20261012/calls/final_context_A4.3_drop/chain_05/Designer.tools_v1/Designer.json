@@ -1,0 +1,32 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "temporal_teacher_blend",
+    "value": 0.5
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:2",
+    "continuous:1",
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "endpoint_effects:5",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "Blend too high (C011) removes the static anchor and can displace surrounding coordinates along a non-monotone observed-node teacher whose contrast functions change sign and rate across the window.",
+    "The observed-node teacher is only admissible as interpolation over the observed support; any extrapolation beyond [0.0,0.5] is unsupported and could degrade the primary affinity objective.",
+    "No decoded terminal labels or final-affinity outcome data were supplied, so the expected advantage is inferred from coordinate contrasts and cannot be confirmed as final affinity benefit.",
+    "The shape second-moment contrasts are coordinate rewards, not physical interaction energies or affinity-head derivatives; treating them as such would be an unsupported interpretation."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": "C010"
+  },
+  "rationale": "D1.2: The registered temporal_teacher recipe (C009-C011) keeps the same static detached teachers and the same shared FLOWR endpoint; it changes only the blend weight between the static coordinate reward and the observed-node teacher reward, i.e. it is a dose on a coordinate reward, not a velocity target and not a spatial gradient of a temporal derivative. The observed contrast functions are non-monotone with sign changes and no accepted polynomial fit (E2e106e083189d150, E03ad082bb04f4f9c, Eace79c1f0f54c9d1), so a constant static rule is not supported over the observed support, while the time-conditioned alternative is admissible only as observed-node interpolation. D4.1: Against the incumbent (teacher_neighbors=4, static reward, pointcloud_delta_A=1.0), the defensible expected advantage is the time-conditioned blend rather than a stationary coordinate target, because the endpoint contrasts that carry the signal are the shape second-moment contrasts (E3114d60bf4cd5720, Ecbb36ef90768cba0, Efd40af47235b6ecf) and the centroid components are mostly null after multiplicity adjustment. C010 (temporal_teacher_blend=0.5) is chosen over C009 and C011 as the bounded midpoint: it retains half the incumbent static reward, so the shared learned support is preserved and the change is a dose, not a replacement of teacher coordinates or regional attention. D4.2: Predicted failure response: if the blend is pushed to 1.0 (C011), the static anchor is removed and the non-monotone observed-node teacher can drive unnecessary displacement of surrounding coordinates, since the observed contrast functions change sign and rate across the window and extrapolation is disallowed; the 0.5 blend bounds that displacement while keeping the affinity-first priority. No temperature edit is proposed; mixture_temperature and teacher_endpoint_temperature_A2 remain at their fixed values.",
+  "role": "Designer"
+}

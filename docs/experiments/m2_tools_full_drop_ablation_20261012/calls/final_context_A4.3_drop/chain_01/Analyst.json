@@ -1,0 +1,79 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-coordinate contrasts at the observed selection nodes are dominated by shape (second-moment) descriptors rather than centroid translation: shape_yy shows the strongest integrated high-low contrast with all batches same-sign, and shape_xx is similarly negative, whereas global_centroid_x and global_centroid_z are indistinguishable from zero.",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "global_centroid_y carries a smaller but multiplicity-surviving negative integrated contrast, so among translation coordinates only the y component shows a signed favorable-versus-comparison separation; this is a selection-enrichment contrast, not an absolute geometric descriptor.",
+      "evidence_ids": [
+        "endpoint_effects:1"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions over the complete observed window are non-monotone: landmark local features show multiple sign changes and strong sign conflicts, with first-rate and last-rate z of opposite sign, and no polynomial fit is accepted; the observed-node linear method is the only validated representation and extrapolation is disallowed.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control, so these coordinate contrasts are steering evidence and not themselves affinity outcomes.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned over constant",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "continuous:0"
+      ],
+      "falsifier": "A constant rule matching the time-conditioned rule's node-wise sign pattern across the observed window.",
+      "id": "H001",
+      "observable": "shape_xx, shape_yy integrated contrast",
+      "scope": "observed score window [0.0,0.5], predicted endpoint world coordinates",
+      "statement": "A time-conditioned contrast rule (rate-weighted, using observed-node interpolation) would prioritize shape_yy/shape_xx contrasts differently across the window than a constant whole-window rule, because their first and last rates differ in sign and magnitude."
+    },
+    {
+      "direction": "joint shape over marginal centroid",
+      "evidence_ids": [
+        "endpoint_effects:4",
+        "endpoint_effects:3",
+        "endpoint_effects:1"
+      ],
+      "falsifier": "Marginal centroid descriptors showing equal or stronger multiplicity-adjusted signed support than joint shape descriptors.",
+      "id": "H002",
+      "observable": "shape_xx/yy/zz versus global_centroid_x/y/z",
+      "scope": "observed selection nodes, predicted endpoint world coordinates",
+      "statement": "Joint shape (second-moment) coordinate patterns carry more coherent signed evidence than isolated marginal centroid descriptors, so coupling diagnostics should be consulted before treating centroid shifts as independent targets."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes were supplied, so last-record or survival credit cannot be presented as final affinity benefit; the immediate-selection versus descendant-credit comparison is unavailable.",
+    "No covariance, intact-conformation or mode diagnostics were read, so joint-versus-marginal coupling claims remain hypotheses rather than established findings.",
+    "No parent-child increment or turnover-residual evidence was read, so within-path change versus changing cohort composition cannot be distinguished here.",
+    "Contrast curves are coordinate rewards, not absolute reward targets or physical interaction energies, and no neural-module causation is implied."
+  ],
+  "role": "Analyst"
+}

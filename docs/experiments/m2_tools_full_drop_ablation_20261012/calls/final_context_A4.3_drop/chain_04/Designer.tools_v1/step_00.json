@@ -1,0 +1,34 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E894225fb605458cb",
+      "E1ba2a68ba5243c03",
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "Efd40af47235b6ecf",
+      "Ed9b75ded9192a9b0",
+      "Ee92b78bec6fdbbb4",
+      "E52fcd92a3390dbcf"
+    ],
+    "failure_modes": [
+      "Temporal-blend or temporal-region edit injects a sign-changing observed-node rate into the reward, causing unnecessary displacement of surrounding coordinates with no stable level target.",
+      "Endpoint-coordinate shape contrast is diagnostic only; treating it as an affinity benefit would violate the affinity-primary objective.",
+      "No decoded terminal affinity labels are supplied, so no registered choice can be shown to improve final predicted affinity.",
+      "Extrapolation beyond observed score nodes is disallowed, so any time-conditioned rule cannot be justified outside the observed window."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered time-conditioned alternatives (C008 temporal_region_index, C009-C011 temporal_teacher_blend) change regional attention at observed score nodes or blend the observed-node teacher into the reward; they do not change the static teacher coordinates themselves, and they are not dose-only. The delivered temporal evidence is a rate-change signal: local landmark contrast rates change sign within the observed window (first_rate_z large and negative, last_rate_z positive, multiple sign changes) with near-zero whole-window means, and polynomial fits are not accepted with extrapolation disallowed. That is a temporal derivative of the contrast, not a spatial coordinate gradient, and it is not a stable level target. D4.1: Against the incumbent (static teachers, teacher_neighbors=4, pointcloud_delta_A=1.0, no temporal blend), the only endpoint-coordinate evidence is a shape-dominated integrated contrast (shape_yy/shape_xx negative, aligned shape_zz) with weak/null centroid components. This is diagnostic endpoint-coordinate contrast, not decoded terminal affinity, and the declared objective is final predicted target affinity primary. No registered choice is an affinity-head or affinity-benefit edit, and the temporal choices would inject an unstable, sign-changing observed-node rate into the reward without any demonstrated affinity advantage. The evidence therefore does not provide a defensible expected advantage over the incumbent, so I retain rather than edit or defer. D4.2: Predicted failure of the temporal-blend edit: because the observed-node contrast rate flips sign inside the window, blending it (C009-C011) or re-weighting regional attention (C008) would drive unnecessary displacement of surrounding coordinates as the reward direction reverses, and the near-zero whole-window mean gives no stable restoring level; this is a coordinate-displacement failure, not a graph change, and it is not offset by any measured affinity gain. Affinity-first priority plus the absence of affinity labels keeps the incumbent.",
+    "role": "Designer"
+  }
+}

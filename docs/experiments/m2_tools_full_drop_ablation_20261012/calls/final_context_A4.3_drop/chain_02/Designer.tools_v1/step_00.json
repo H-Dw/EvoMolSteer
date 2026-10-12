@@ -1,0 +1,27 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "Ecbb36ef90768cba0",
+      "E3114d60bf4cd5720",
+      "Eaa4bda02c9a2c3a1",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "A temporal_teacher_blend or temporal_region_index edit would reweight attention at observed score nodes using non-monotone, sign-reversing landmark contrasts, displacing surrounding coordinates without validated affinity benefit.",
+      "A pointcloud_delta_A change (C001/C003) would alter the endpoint matching scale and dose without evidence that the current delta=1.0 is suboptimal, risking unnecessary coordinate displacement.",
+      "A teacher_neighbors change (C005/C007) would alter the detached nearest-k teacher set and prior geometry without supporting evidence, since the incumbent already uses k=4.",
+      "Interpreting the observed temporal derivative or sign reversals as a spatial gradient would misdirect the coordinate reward and is not supported by the supplied evidence."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The offered time-conditioned alternatives (C008 temporal_region_index, C009-C011 temporal_teacher_blend) change teacher coordinates/regional attention at observed score nodes, not merely dose; the static incumbent uses teacher_neighbors=4 with no temporal recipe. Analyst's temporal evidence (continuous:0, continuous:2) shows non-monotone landmark contrasts with sign reversals and no accepted polynomial, and extrapolation is disallowed, so a time-conditioned rule is not supported over the observed support; the observed-node sign reversals are coordinate rewards, not trajectory velocity forces, and a temporal derivative is not a spatial gradient. D4.1: Against the incumbent, the only defensible signed directions are the endpoint shape contrasts (endpoint_effects:4 shape_yy z=-0.51, q=1.5e-5, 0/14 positive; endpoint_effects:3 shape_xx z=-0.50, q=8.1e-4, 1/14 positive), but no registered choice edits shape contrast direction, and the offered choices are pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007) and temporal recipes (C008-C011). The incumbent already sits at pointcloud_delta_A=1.0 and teacher_neighbors=4, so C002 and C006 are no-ops; the remaining choices lack a defensible expected advantage under the affinity-first objective, and centroid contrasts (endpoint_effects:0-2) are weak/null. Retaining the incumbent is therefore the evidence-supported decision. D4.2: Predicted failure of a temporal/regional edit is unnecessary displacement of surrounding coordinates: the regional recipe adds positive surrounding Gaussian weight and the temporal recipe reweights attention at observed nodes, which would move neighboring coordinates without affinity-head evidence, while the objective is final predicted target affinity primary with validity and strain secondary. Coordinate graph change alone is not treated as a failure mechanism; the failure is unvalidated displacement under an unsupported temporal rule.",
+    "role": "Designer"
+  }
+}

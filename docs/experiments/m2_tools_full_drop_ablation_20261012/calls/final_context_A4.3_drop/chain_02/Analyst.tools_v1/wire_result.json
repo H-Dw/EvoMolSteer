@@ -1,0 +1,75 @@
+{
+  "findings": [
+    {
+      "claim": "Endpoint-integrated contrasts are strongest and most consistent for shape descriptors: shape_yy shows a negative high-low integrated contrast (z=-0.51, q=1.5e-5, 0/14 positive batches) and shape_xx is similarly negative (z=-0.50, q=8.1e-4, 1/14 positive). These are signed favorable-versus-comparison coordinate contrasts at the observed endpoint, not absolute geometric descriptors.",
+      "evidence_refs": [
+        "Ecbb36ef90768cba0",
+        "E3114d60bf4cd5720"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "Global centroid contrasts are weak and mostly null: centroid_x (z=-0.11, q=0.26) and centroid_z (z=-0.06, q=0.48) are not distinguishable from zero, while centroid_y is negative but modest (z=-0.24, q=0.014, 3/14 positive). Centroid position is therefore a poor priority relative to shape contrasts.",
+      "evidence_refs": [
+        "Ed9b75ded9192a9b0",
+        "E52fcd92a3390dbcf",
+        "Ee92b78bec6fdbbb4"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Continuous landmark contrasts are non-monotone across the observed window: landmark_00_soft_mass has 4 sign changes with first_rate_z=+9.27 and last_rate_z=-10.00, and landmark_00_local_dy has 6 sign changes with first_rate_z=-72.4 and last_rate_z=+5.5. No polynomial was accepted and extrapolation is disallowed, so a constant rule is not supported over the observed support.",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E03ad082bb04f4f9c"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "Several landmark local contrasts show strong sign conflicts (landmark_00_local_dx: 9 strong_sign_conflicts, 6 sign changes; landmark_00_local_dz: 7 conflicts, 10 sign changes), indicating unstable direction evidence within the observed window rather than a coherent marginal descriptor.",
+      "evidence_refs": [
+        "Eace79c1f0f54c9d1",
+        "E894225fb605458cb"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control; the observed endpoint contrasts above are coordinate rewards, not physical interaction energies or affinity-head derivatives.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned over constant",
+      "evidence_refs": [
+        "E2e106e083189d150",
+        "E03ad082bb04f4f9c"
+      ],
+      "falsifier": "A constant rule matching or exceeding the time-conditioned rule on held-out observed nodes, or accepted polynomial fit removing the sign changes.",
+      "observable": "landmark_00_soft_mass and landmark_00_local_dy observed-node contrasts",
+      "scope": "observed score window [0.0,0.5], no extrapolation",
+      "statement": "A time-conditioned contrast rule that follows the observed-node sign of landmark_00_soft_mass and landmark_00_local_dy will track the endpoint contrast better than a constant rule, because both features reverse rate sign within the observed window."
+    },
+    {
+      "direction": "negative (favorable-minus-comparison)",
+      "evidence_refs": [
+        "Ecbb36ef90768cba0",
+        "E3114d60bf4cd5720"
+      ],
+      "falsifier": "Batch-resampled sign reversal or q-value rising above the declared threshold.",
+      "observable": "endpoint high-low integrated z for shape_yy and shape_xx",
+      "scope": "endpoint-integrated observed window",
+      "statement": "Shape_yy and shape_xx negative endpoint contrasts are the most reliable signed coordinate directions for prioritization, given their multiplicity-adjusted significance and near-uniform negative batch fraction."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or current-study outcome data were supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "No covariance, intact-conformation or mode diagnostics were read, so coherent joint-pattern versus isolated-marginal coupling could not be assessed.",
+    "No parent-child increment or turnover residual evidence was read, so within-path change versus changing cohort composition is unresolved.",
+    "Continuous contrasts are coordinate rewards only; they are not absolute reward targets or physical interaction energies."
+  ],
+  "role": "Analyst"
+}
