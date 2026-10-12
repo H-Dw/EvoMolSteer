@@ -1,0 +1,26 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E598d52f84227fbcc",
+    "E5d1c4c6e5dbe0cb6",
+    "E2bb7fa55d7b62d47",
+    "E00e41abde0319d86",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Selecting a temporal_teacher_blend or temporal_region_index edit would alter only regional attention/dose while leaving teacher coordinates fixed; the observed-node contrast fits are score-clock evidence, so the predicted affinity response is unquantified and could displace surrounding coordinates without affinity gain.",
+    "Choosing a narrower or broader teacher_neighbors count (C006/C008) or a different pointcloud_delta_A (C001/C003) without a supplied dispersion/scale estimate risks over-concentrating on unstable marginal landmark modes or over-smoothing across competing directions, degrading joint-geometry coverage.",
+    "Treating the landmark local-derivative rate z-scores as a spatial gradient force would be a category error; the temporal derivative is not a coordinate gradient, and acting on it could push coordinates along an unsupported direction."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Analyst's temporal evidence (continuous:0-2) supports a time-conditioned contrast rule over a constant one, but the registered temporal options (C009/C010 temporal_region_index, C011-C013 temporal_teacher_blend) change regional attention or teacher mixture dose, not teacher coordinates, and the observed-node fits are coordinate/score-clock contrasts within [0.0,0.5] with extrapolation disallowed, not affinity benefit. The marginal landmark descriptors carry strong sign conflicts and high relative node RMSE (continuous:4,7,11), so no single absolute geometric target is defensible; H002 argues for coupled/joint treatment, which no offered choice implements. The incumbent already uses teacher_neighbors=4 with pointcloud_delta_A=1.0 A, and the offered distance/neighbor choices (C001-C003, C006-C008) are not tied to a supplied spatial-scale or dispersion estimate that would predict a directional affinity response. Under the affinity-first objective with no decoded terminal labels or outcome data, no registered edit shows a defensible expected advantage over the incumbent, so I retain it.",
+  "role": "Designer"
+}

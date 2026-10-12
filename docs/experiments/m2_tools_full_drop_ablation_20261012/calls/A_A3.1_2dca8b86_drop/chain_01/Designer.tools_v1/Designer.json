@@ -1,0 +1,28 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "endpoint_effects:4",
+    "endpoint_effects:3",
+    "continuous:0",
+    "continuous:2",
+    "endpoint_effects:1",
+    "clocks"
+  ],
+  "failure_modes": [
+    "Selecting C001/C003 (pointcloud_delta_A 0.5 or 2.0) would change only the robust-kernel curvature; the executed pointcloud scalar contains no shape_yy/shape_xx, pair-kernel, moment or geometry-block term, so the signed shape contrast that motivated H001 would not be directly expressed and surrounding coordinates could be displaced without a corresponding affinity benefit.",
+    "Selecting C005/C007 (teacher_neighbors 2 or 8) changes a teacher count, not a distance bandwidth; with only 4 incumbent teachers and no supplied teacher-mixture evidence, narrowing to 2 could drop modes and broadening to 8 could pull the endpoint toward competing directions, displacing surrounding coordinates while leaving the shape contrast unaddressed.",
+    "Selecting C009-C011 (temporal_teacher_blend) would mix an observed-node contrast into the static reward; because the continuous curves are non-monotone with strong sign conflicts, a blended temporal target could oscillate across observed score nodes and move coordinates in opposing directions at different times, and no held-out batch evidence is supplied to confirm it beats a constant rule (H001 falsifier untested).",
+    "Selecting C004/C008 (region_index or temporal_region_index) changes regional attention only; without supplied regional-effect evidence tying that region to the shape_yy/shape_xx contrast, the edit is a dose/attention change that does not implement the Analyst's signed direction and risks unnecessary displacement of surrounding coordinates.",
+    "Treating the endpoint coordinate contrast as a physical interaction energy or as evidence of neural-module causation would overstate the evidence; these are coordinate rewards at observed nodes, and no decoded terminal labels or final affinity outcomes are supplied."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Analyst's strongest signed, batch-consistent contrasts are on shape_yy (z=-0.513, q=1.5e-05, 0/14 positive batches) and shape_xx (z=-0.495, q=8.1e-04, 1/14 positive batches), with global_centroid_y modest (z=-0.243, q=0.0136, 3/14) and global_centroid_x/z null. These are selection-enrichment contrasts at observed nodes, not an absolute geometric target, and the continuous curves are non-monotone (landmark_00_soft_mass 4 sign changes, first_rate_z=+9.27 to last_rate_z=-10.00; landmark_00_local_dy 6 sign changes) with polynomial fits rejected and extrapolation disallowed. The registered choices offered are pointcloud_delta_A (C001-C003), region_index (C004), teacher_neighbors (C005-C007), temporal_region_index (C008) and temporal_teacher_blend (C009-C011). None of these is a shape_yy/shape_xx coordinate contrast: delta_A only reshapes the robust pointcloud kernel curvature, region_index selects a static regional attention field, teacher_neighbors changes the count of detached teachers, and the temporal options change regional attention or blend a validated observed-node contrast into the static reward. The incumbent already uses pointcloud_delta_A=1.0, teacher_neighbors=4, teacher_score_beta=0 and mixture_temperature=0.5, so C002 is the incumbent value and C001/C003 would alter kernel curvature without any supplied evidence that the shape_yy/shape_xx direction is expressed through that curvature. H001's falsifier requires a time-conditioned rule to improve the signed shape_yy contrast over a constant rule on held-out batches; no held-out outcome data are supplied, and the temporal_teacher/temporal_region recipes are registered as coordinate rewards over observed nodes, not as a demonstrated improvement of the shape contrast. H002's non-monotonicity argues against a constant rule but does not by itself select any offered parameter, and the continuous evidence is unstable (landmark_00_local_dx 9 strong sign conflicts, landmark_00_local_dz 7 conflicts), so averaging it into a single target is not defensible. With affinity primary and no supplied evidence that any offered edit improves final predicted affinity, retaining the incumbent is the defensible choice; deferring is equivalent in effect but retain records the incumbent explicitly. Temperatures remain immutable and no temperature edit is proposed.",
+  "role": "Designer"
+}

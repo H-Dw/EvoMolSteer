@@ -1,0 +1,70 @@
+{
+  "findings": [
+    {
+      "claim": "The supplied continuous contrast functions are observed-node linear fits over the full observed window [0.0,0.5] with extrapolation disallowed and no accepted polynomial; the landmark soft-mass and local-derivative features show large first-vs-last rate z-scores with multiple sign changes, so a constant (time-invariant) contrast rule is not supported and any time-conditioned rule must stay within the observed support.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Several landmark local-derivative features carry strong sign conflicts (e.g. 9-14 conflicting batches) and high relative node RMSE, indicating the marginal coordinate descriptors are unstable across batches and should not be averaged into a single absolute geometric target.",
+      "evidence_ids": [
+        "continuous:7",
+        "continuous:11",
+        "continuous:9",
+        "continuous:4"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control, and the learning window is [0.0,0.5] with recorded affinities removed and an equal score prior; therefore observed coordinate contrasts are selection/score-clock evidence, not absolute affinity benefit.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned rather than constant",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2"
+      ],
+      "falsifier": "a constant rule matches or exceeds the observed-node fit fidelity (relative node RMSE) of the time-conditioned rule across the window",
+      "id": "H001",
+      "observable": "observed-node contrast values of landmark soft-mass and local-derivative features across the observed score times",
+      "scope": "observed window [0.0,0.5], predicted_endpoint_world_A features",
+      "statement": "A time-conditioned contrast rule that follows the observed-node linear rate changes of landmark soft-mass and local-derivative features within [0.0,0.5] will track the observed contrast better than a constant rule, without extrapolation."
+    },
+    {
+      "direction": "joint rather than marginal",
+      "evidence_ids": [
+        "continuous:7",
+        "continuous:11",
+        "continuous:9"
+      ],
+      "falsifier": "a marginal descriptor with high sign conflicts still reproduces the observed contrast with low RMSE and consistent batch sign",
+      "id": "H002",
+      "observable": "strong_sign_conflicts and relative_node_RMSE per feature",
+      "scope": "landmark local-derivative features, 14 independent batches",
+      "statement": "Marginal landmark local-derivative descriptors with many strong sign conflicts are not reliable standalone coordinate targets and should be treated as coupled/joint patterns rather than isolated marginals."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied; last-record/selection credit cannot be presented as final affinity benefit.",
+    "Descendant survival/quality credit, turnover accounting, joint covariance/mode diagnostics and multiplicity-adjusted ranking tables were not read in this turn, so A1.2, A2.1, A3.2 and A4.2 comparisons remain unsupported here.",
+    "Contrast curves are coordinate/score-clock contrasts, not absolute reward targets or physical interaction energies; no neural-module causation is claimed.",
+    "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

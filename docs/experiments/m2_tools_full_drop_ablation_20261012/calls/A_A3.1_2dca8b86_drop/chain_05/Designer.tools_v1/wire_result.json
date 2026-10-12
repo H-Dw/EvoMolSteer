@@ -1,0 +1,30 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1",
+    "E52fcd92a3390dbcf",
+    "E3114d60bf4cd5720",
+    "Ecbb36ef90768cba0",
+    "Efd40af47235b6ecf",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E894225fb605458cb",
+    "E598d52f84227fbcc",
+    "E1ba2a68ba5243c03"
+  ],
+  "failure_modes": [
+    "Selecting C001/C002/C003 (pointcloud_delta_A) without an observed spatial scale would change the robust-kernel curvature and displace surrounding coordinates with no supported affinity benefit.",
+    "Selecting C005/C006/C007 (teacher_neighbors) treats neighbor count as a distance bandwidth and would alter mode coverage of the detached teacher mixture without dispersion evidence.",
+    "Selecting C008/C009/C010/C011 (temporal_region/temporal_teacher) would change teacher coordinates or regional attention using non-monotone, unvalidated contrast curves, risking a time-conditioned reward that does not track the observed-node contrast.",
+    "Any edit that treats the temporal derivative or a diagnostic moment/pair-kernel feature as an operative force would misstate the registered reward, which contains no such term."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.1/D1.2: H001 is a signed endpoint-coordinate contrast (negative high-low integrated z on global_centroid_y and shape_xx/yy/zz, q<0.05), and the registered endpoint pointcloud reward with detached nearest-k teachers is the only operative term that touches those coordinates; the incumbent already instantiates it at pointcloud_delta_A=1.0 with teacher_neighbors=4. H002's time-conditioned alternative is descriptive only: the continuous contrast functions are non-monotone (multiple sign changes, opposite-sign first/last rate z, no accepted polynomial, large relative node RMSE), so no validated time-conditioned teacher coordinate or regional attention change is executable, and the temporal_teacher/temporal_region choices would alter teacher coordinates or attention without validated fits. D2.1/D2.2: the offered distance choices C001/C002/C003 change only the robust-kernel bandwidth (0.5/1.0/2.0 A) and C005/C006/C007 change only the teacher count (2/4/8); the incumbent's 1.0 A and 4 neighbors are the declared defaults, and the supplied evidence gives no observed spatial scale or intact-teacher dispersion/joint-geometry statistic that would justify a narrower or broader neighborhood or a different curvature. D4.1/D4.2: no offered edit shows a defensible expected advantage over the incumbent, and the affinity-first objective plus the equal label prior means coordinate displacement alone is not evidence of benefit; a wrong bandwidth or neighbor count would displace surrounding coordinates without a supported affinity gain. Retaining the incumbent is therefore the evidence-supported choice.",
+  "role": "Designer"
+}

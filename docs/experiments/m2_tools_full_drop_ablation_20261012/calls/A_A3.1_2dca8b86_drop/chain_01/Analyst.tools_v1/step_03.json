@@ -1,0 +1,72 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Signed favorable-versus-comparison coordinate contrasts are strongest for shape descriptors rather than the global centroid: shape_yy shows a negative high-low integrated contrast (z=-0.513, q=1.5e-05, 0/14 positive batches) and shape_xx likewise negative (z=-0.495, q=8.1e-04, 1/14 positive batches), while global_centroid_x/z contrasts are null (q=0.257 and q=0.481). This is selection-enrichment evidence at observed nodes, not an absolute geometric target.",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "Ed9b75ded9192a9b0",
+          "Ee92b78bec6fdbbb4"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The global_centroid_y contrast is negative and survives multiplicity adjustment (z=-0.243, q=0.0136, 3/14 positive batches), but its score correlation is weak (about -0.10) and its last-minus-first delta is small, so it is a modest signed contrast rather than a dominant direction.",
+        "evidence_refs": [
+          "E52fcd92a3390dbcf"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Continuous contrast functions over the observed window are non-monotone: landmark_00_soft_mass has 4 sign changes with first_rate_z=+9.27 and last_rate_z=-10.00, and landmark_00_local_dy has 6 sign changes with first_rate_z=-72.4 and last_rate_z=+5.5. Polynomial fits are not accepted and extrapolation is disallowed, so a constant rule is not supported and only observed-node interpolation is defensible.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E03ad082bb04f4f9c"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Several local landmark features show strong sign conflicts (landmark_00_local_dx: 9 strong sign conflicts, 6 sign changes; landmark_00_local_dz: 7 conflicts, 10 sign changes), indicating unstable direction evidence that should not be averaged into a single target.",
+        "evidence_refs": [
+          "Eace79c1f0f54c9d1",
+          "E894225fb605458cb"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "decrease shape_yy and shape_xx relative to comparison population",
+        "evidence_refs": [
+          "Ecbb36ef90768cba0",
+          "E3114d60bf4cd5720",
+          "E2e106e083189d150"
+        ],
+        "falsifier": "If a time-conditioned rule does not improve the signed shape_yy contrast over a constant rule on held-out batches, the hypothesis fails.",
+        "observable": "signed high-low integrated contrast of shape_yy/shape_xx at observed score nodes",
+        "scope": "observed window [0.0,0.5], predicted endpoint world coordinates",
+        "statement": "A time-conditioned coordinate contrast on shape_yy (and secondarily shape_xx) at observed score nodes would express the signed favorable-versus-comparison direction better than a constant rule, because the endpoint contrast is negative and batch-consistent while the continuous curves are non-monotone."
+      },
+      {
+        "direction": "time-conditioned rather than constant",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "If a constant rule matches the observed-node interpolation within fit fidelity, the time-conditioning claim fails.",
+        "observable": "sign changes and first/last rate z of the continuous contrast functions",
+        "scope": "observed support only, no extrapolation",
+        "statement": "The non-monotone landmark_00_soft_mass and landmark_00_local_dy curves indicate that a constant contrast rule is misspecified and that any coordinate intervention should be conditioned on observed score time."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or final affinity outcomes are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+      "Turnover, increment, joint and survival tables were not read in this turn; within-path change versus cohort-composition explanations remain unassessed.",
+      "Contrast curves are coordinate rewards, not absolute reward targets or physical interaction energies.",
+      "No temperature or executable-source edits are proposed; temperatures are immutable task parameters."
+    ],
+    "role": "Analyst"
+  }
+}

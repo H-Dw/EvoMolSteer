@@ -1,0 +1,84 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal, so no observed affinity outcome is available to score coordinate hypotheses against.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Endpoint-coordinate effects are signed and heterogeneous: global_centroid_y and the shape_xx/shape_yy/shape_zz descriptors show negative high-low integrated contrasts with q-values below 0.05, while global_centroid_x and global_centroid_z are not distinguishable from zero. This is a signed favorable-versus-comparison contrast at the observed nodes, not an absolute geometric target.",
+      "evidence_ids": [
+        "endpoint_effects:1",
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5",
+        "endpoint_effects:0",
+        "endpoint_effects:2"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Continuous contrast functions over the complete observed window are non-monotone: the landmark local features show multiple sign changes (4-10) with large first-rate and last-rate z magnitudes of opposite sign, and no polynomial fit is accepted; relative node RMSE is large (0.29-0.78). A constant rule is therefore not supported by the observed-node evidence, and a time-conditioned rule would need validated fits that are not present.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The observed support is the learning window [0.0, 0.5] with 50 observed score times; curve support is reported as [0.0, 0.49]. Extrapolation is disallowed for the continuous trends, so any time-conditioned contrast must be restricted to this observed support.",
+      "evidence_ids": [
+        "clocks",
+        "continuous:0"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "decrease high-low contrast on global_centroid_y and shape_xx/shape_yy/shape_zz",
+      "evidence_ids": [
+        "endpoint_effects:1",
+        "endpoint_effects:3",
+        "endpoint_effects:4",
+        "endpoint_effects:5"
+      ],
+      "falsifier": "No change in the signed endpoint contrast for these features, or a change accompanied by a validity or strain violation, would falsify the hypothesis.",
+      "id": "H001",
+      "observable": "endpoint high-low integrated z for global_centroid_y and shape descriptors",
+      "scope": "observed score window [0.0, 0.5], predicted endpoint world coordinates",
+      "statement": "A signed coordinate contrast at the observed selection nodes, expressed through the registered endpoint pointcloud reward with detached nearest-k teachers, could shift the endpoint population along the negatively-signed centroid-y and shape axes without changing the chemical graph."
+    },
+    {
+      "direction": "time-conditioned rather than constant contrast weighting",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3"
+      ],
+      "falsifier": "A validated fit with accepted polynomial and low node RMSE that is monotone would remove the need for time conditioning.",
+      "id": "H002",
+      "observable": "sign changes and first/last rate z of landmark local features",
+      "scope": "observed score nodes only, no extrapolation",
+      "statement": "Because the continuous contrast functions change sign within the observed window, a time-conditioned regional attention recipe could track the observed-node contrast better than a constant rule; however, no validated fit is available, so this remains descriptive rather than an executable reward change."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal labels or final affinity outcomes are supplied, so last-record or survival credit cannot be presented as final affinity benefit.",
+    "The requested comparison of immediate selection evidence with descendant survival/quality credit, uncertainty-adjusted multiplicity ranking, joint-versus-marginal coupling diagnostics, and parent-child increment turnover accounting was not read in this turn; those tables remain available but unexamined here.",
+    "Continuous contrast curves are diagnostic coordinate contrasts, not absolute reward targets, and no temperature or executable reward edit is proposed."
+  ],
+  "role": "Analyst"
+}

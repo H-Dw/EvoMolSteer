@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "information_audit",
+    "continuous:0",
+    "continuous:2",
+    "continuous:1",
+    "curve_support",
+    "lineage_support",
+    "objective"
+  ],
+  "failure_modes": [
+    "An unsupported pointcloud_delta_A edit (C001/C002/C003) would change the curvature of the endpoint distance response without evidence that the new delta improves final predicted affinity, and could displace surrounding coordinates through the native endpoint VJP.",
+    "A teacher_neighbors edit (C005/C006/C007) treats neighbor count as a distance bandwidth; with 349 of 700 batch nodes having fewer than 3 ancestors and 531 fewer than 6 (Ed0d7945bdeeda8f1), narrower neighborhoods would leave many nodes with sparse or no teacher coverage, while broader neighborhoods mix competing directions without joint-geometry support.",
+    "A temporal_teacher_blend edit (C009/C010/C011) would shift regional attention using non-monotone coordinate contrasts whose marginal descriptors show strong sign conflicts; if the blend is mis-scaled it could move coordinates in opposing directions across the window without any observed affinity label to confirm benefit.",
+    "Any edit that changes effective reward parameters while the affinity head remains unavailable (no affinity-head derivative, no extra model forward) risks optimizing a coordinate proxy rather than the primary final predicted affinity objective."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Incumbent is D2_without_trajectory_static with pointcloud_delta_A=1.0, teacher_neighbors=4, static regional attention, no temporal blend. Analyst evidence supports only that continuous contrast features are non-monotone over the observed window (E2e106e083189d150, E03ad082bb04f4f9c) and that marginal local-derivative descriptors carry strong sign conflicts (Eace79c1f0f54c9d1), while the information audit states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian and its excess distance is nonnegative by construction (E2bb8390452ed517a). No observed affinity labels exist in the window (E0857891f4effbfe1), so no offered edit has a defensible expected affinity advantage. C001/C002/C003 change the pointcloud delta curvature without any supplied spatial-scale or uncertainty evidence tying a specific delta to affinity; C005/C006/C007 change teacher count, which is a count not a bandwidth, and no intact-teacher dispersion or joint-geometry evidence supports a narrower or broader neighborhood; C004/C008 change region index without regional-effect evidence read; C009/C010/C011 introduce a temporal teacher blend, but the temporal evidence is coordinate contrast at observed nodes, not a validated affinity benefit, and the temporal recipe changes only registered attention, not velocity. Retaining the incumbent preserves the shared learned support and fixed temperatures and avoids unnecessary displacement of surrounding coordinates predicted for an unsupported dose or neighborhood change.",
+  "role": "Designer"
+}

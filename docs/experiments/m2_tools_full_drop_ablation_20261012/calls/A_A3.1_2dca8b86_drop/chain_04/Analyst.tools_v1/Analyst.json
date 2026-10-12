@@ -1,0 +1,98 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is the endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and native FLOWR endpoint VJP, so no affinity-head derivative or extra model forward is available as evidence.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed window is the score-time grid 0.0-0.49 with learning window [0.0,0.5]; recorded affinities were removed and an equal score prior is used, so no observed affinity labels exist within the window and any affinity benefit claim would be unsupported.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The curve-support selection retained 24 features under a rule requiring absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05 and exclusion of a scale floor, with a fidelity rule of relative RMSE <= 0.35, quiet-node large-fit fraction <= 0.1 and zero strong sign conflicts; this is a selection-enrichment criterion, not an absolute geometric descriptor.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Continuous contrast features over the observed support are non-monotone: landmark_00_soft_mass shows 4 sign changes with first_rate_z positive and last_rate_z negative, and landmark_00_local_dy shows 6 sign changes with large opposing first/last rate z-values; no polynomial was accepted and extrapolation is disallowed, so a constant rule is not supported over a time-conditioned rule.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Several local-derivative features carry strong sign conflicts (e.g. landmark_00_local_dx with 9 strong sign conflicts and relative node RMSE 0.78), so their marginal descriptors are not coherent evidence of a single geometric direction.",
+      "evidence_ids": [
+        "continuous:1"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "The information audit reports 14 independent batches and states that the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, that nonnegative excess distance is by construction rather than a causal affinity effect, and that teacher score correlations are observational and not a validated affinity predictor.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F006",
+      "priority": 6
+    },
+    {
+      "claim": "Lineage support shows 14 complete survival batches, 700 total batch nodes, 349 nodes with fewer than 3 ancestors and 531 with fewer than 6, and terminal metadata at score time 0.99 / state time 1.0 with one future-resampling node per batch; multiple testing is BH over 400 survival field/measure tests and is explicitly not terminal affinity effects.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F007",
+      "priority": 7
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Time-conditioned rather than constant contrast weighting.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:2",
+        "curve_support"
+      ],
+      "falsifier": "A constant rule matching or exceeding the time-conditioned rule's node fit fidelity (relative RMSE and sign-conflict counts) across the observed support.",
+      "id": "H001",
+      "observable": "Sign and rate of the selected continuous contrast features at observed score nodes.",
+      "scope": "Observed window 0.0-0.49 only; no extrapolation.",
+      "statement": "A time-conditioned coordinate contrast rule (using validated observed-node interpolation of the non-monotone contrast features) would track the observed sign changes better than a constant contrast rule over the window."
+    },
+    {
+      "direction": "Prefer joint coherent patterns over isolated marginals.",
+      "evidence_ids": [
+        "continuous:1",
+        "continuous:0"
+      ],
+      "falsifier": "Marginal features showing zero strong sign conflicts and low relative RMSE while joint diagnostics show no coupling.",
+      "id": "H002",
+      "observable": "Strong sign-conflict counts and relative node RMSE of marginal features versus joint diagnostic metrics.",
+      "scope": "Observed support; diagnostic only.",
+      "statement": "Isolated marginal local-derivative descriptors are redundant or conflicting relative to coherent joint coordinate patterns, so joint diagnostics should be preferred over single-feature ranking."
+    }
+  ],
+  "limitations": [
+    "No observed affinity labels are present in the window (recorded affinities removed, equal score prior), so no final-affinity benefit can be claimed from these observations.",
+    "Terminal/last-record survival credit is not decoded terminal affinity benefit; the terminal affinity comparison is unavailable.",
+    "The geometric nearest-teacher audit is not the full score-weighted reward or its FLOWR Jacobian, and its nonnegative excess distance is by construction, not a causal affinity effect.",
+    "Teacher score correlations are observational and not a fitted or independently validated affinity predictor.",
+    "Continuous contrast curves are coordinate contrasts, not absolute reward targets, and extrapolation beyond the observed support is disallowed.",
+    "Turnover and increment accounting diagnostics were not read in this session; no within-path versus cohort-composition conclusion is asserted."
+  ],
+  "role": "Analyst"
+}

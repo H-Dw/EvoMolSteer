@@ -1,0 +1,68 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The supplied continuous contrast functions are observed-node linear fits over the full observed window [0.0,0.5] with extrapolation disallowed and no accepted polynomial; the landmark soft-mass and local-derivative features show large first-vs-last rate z-scores with multiple sign changes, so a constant (time-invariant) contrast rule is not supported and any time-conditioned rule must stay within the observed support.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Several landmark local-derivative features carry strong sign conflicts (e.g. 9-14 conflicting batches) and high relative node RMSE, indicating the marginal coordinate descriptors are unstable across batches and should not be averaged into a single absolute geometric target.",
+        "evidence_refs": [
+          "E5d1c4c6e5dbe0cb6",
+          "E2bb7fa55d7b62d47",
+          "E00e41abde0319d86",
+          "E598d52f84227fbcc"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control, and the learning window is [0.0,0.5] with recorded affinities removed and an equal score prior; therefore observed coordinate contrasts are selection/score-clock evidence, not absolute affinity benefit.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 3
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "time-conditioned rather than constant",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c"
+        ],
+        "falsifier": "a constant rule matches or exceeds the observed-node fit fidelity (relative node RMSE) of the time-conditioned rule across the window",
+        "observable": "observed-node contrast values of landmark soft-mass and local-derivative features across the observed score times",
+        "scope": "observed window [0.0,0.5], predicted_endpoint_world_A features",
+        "statement": "A time-conditioned contrast rule that follows the observed-node linear rate changes of landmark soft-mass and local-derivative features within [0.0,0.5] will track the observed contrast better than a constant rule, without extrapolation."
+      },
+      {
+        "direction": "joint rather than marginal",
+        "evidence_refs": [
+          "E5d1c4c6e5dbe0cb6",
+          "E2bb7fa55d7b62d47",
+          "E00e41abde0319d86"
+        ],
+        "falsifier": "a marginal descriptor with high sign conflicts still reproduces the observed contrast with low RMSE and consistent batch sign",
+        "observable": "strong_sign_conflicts and relative_node_RMSE per feature",
+        "scope": "landmark local-derivative features, 14 independent batches",
+        "statement": "Marginal landmark local-derivative descriptors with many strong sign conflicts are not reliable standalone coordinate targets and should be treated as coupled/joint patterns rather than isolated marginals."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal labels or final affinity outcomes are supplied; last-record/selection credit cannot be presented as final affinity benefit.",
+      "Descendant survival/quality credit, turnover accounting, joint covariance/mode diagnostics and multiplicity-adjusted ranking tables were not read in this turn, so A1.2, A2.1, A3.2 and A4.2 comparisons remain unsupported here.",
+      "Contrast curves are coordinate/score-clock contrasts, not absolute reward targets or physical interaction energies; no neural-module causation is claimed.",
+      "No temperature edit is proposed or permitted; temperatures are immutable task parameters."
+    ],
+    "role": "Analyst"
+  }
+}
