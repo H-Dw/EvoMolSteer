@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "clocks",
+    "objective",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "branch_adjusted:0",
+    "branch_adjusted:1",
+    "branch_adjusted:2",
+    "branch_adjusted:4"
+  ],
+  "failure_modes": [
+    "Selecting a temporal_teacher blend (C009-C011) on the soft_mass sign flip would apply a coordinate contrast that is non-monotone and weakly fit; if the contrast is not validated on held-out batches, the blend could displace surrounding coordinates without improving final predicted affinity, and the affinity-primary objective would be degraded while validity/strain are only secondary.",
+    "Selecting a narrower or broader teacher neighborhood (C005-C007) or a distance-curvature change (C001-C003) on the shape_yy point estimate would act on a diagnostic feature the executing pointcloud scalar does not contain; the expected failure is unnecessary displacement of surrounding coordinates with no affinity benefit, since the q=0.153 contrast does not survive multiplicity adjustment.",
+    "Any edit justified by the null centroid contrasts (C004, C008) would be an unsupported regional-attention change; the predicted failure is a no-effect or adverse shift in the endpoint-coordinate reward with no compensating affinity gain."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "The incumbent already sits at the registered defaults (pointcloud_delta_A=1.0, teacher_neighbors=4, static endpoint-pointcloud reward, no temporal blend), so every offered edit is a departure from the supplied incumbent rather than a restoration. H001 (time-conditioned soft_mass sign flip) is the only hypothesis with a plausible operative reward edit, but its supporting contrast is non-monotone with 4 sign changes and no accepted polynomial, and the local-derivative features that would carry the temporal signal have relative_node_RMSE 0.67-0.78 with strong sign conflicts; the registered temporal_teacher recipe blends a validated absolute contrast into regional attention, and the evidence does not establish that the soft_mass contrast is validated or that a blend would improve the affinity-primary objective. H002 (negative shape_yy coupling) rests on a single nominal p=0.048 contrast whose q=0.153 does not survive multiplicity adjustment, and the executing pointcloud scalar contains no pair-kernel, moment or joint-motif term, so shape_yy is a diagnostic feature rather than a force the formula contains; selecting a distance-curvature or neighbor-count edit on that basis would treat a diagnostic as an independent force. The branch-adjusted centroid contrasts are null (CIs spanning zero, q 0.69-0.97), giving no spatial-scale or regional-emphasis justification for C001-C004 or C005-C007, and no evidence supports a dose change (C009-C011) since dose is normalized against the native predictive update and the objective is affinity-primary. With no decoded terminal labels or independent survival/quality credit, no offered edit has a defensible expected advantage over the incumbent, so retaining the incumbent is the evidence-supported choice.",
+  "role": "Designer"
+}

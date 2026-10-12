@@ -1,0 +1,33 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "objective",
+    "clocks",
+    "curve_support",
+    "information_audit",
+    "lineage_support",
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5"
+  ],
+  "failure_modes": [
+    "Selecting C001/C002/C003 would change the pointcloud distance scale without a validated distance-response curvature, risking unnecessary displacement of surrounding coordinates and secondary strain while the affinity benefit is unmeasured.",
+    "Selecting C005/C006/C007 would alter teacher-neighbor count, which is not a distance bandwidth; with 349 nodes having fewer than 3 ancestors and 531 fewer than 6, narrower neighborhoods could reduce mode coverage and broader ones could mix competing directions without evidence of affinity gain.",
+    "Selecting C008/C009/C010/C011 would condition on a temporal contrast that the observed-node linear fits with extrapolation disallowed and polynomial acceptance false do not validate, and a temporal derivative must not be treated as a spatial gradient.",
+    "Treating the audit's nonnegative excess distance or observational teacher score correlations as a causal affinity effect would overstate the expected benefit of any edit."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "Objective is affinity-primary coordinate control with the endpoint pointcloud reward and native endpoint VJP (Eaa4bda02c9a2c3a1); observed support is the learning window [0.0,0.5] with 50 observed score times and 24 of 200 features selected under the curve-support rule (E0857891f4effbfe1, Ed4e7d28e7b0423e0). The incumbent already sits at pointcloud_delta_A=1.0 and teacher_neighbors=4, so the offered distance choices C001/C002/C003 and neighbor counts C005/C006/C007 would move away from the incumbent without evidence of advantage. The information audit states its metrics are not the full score-weighted reward or its FLOWR Jacobian and that nonnegative excess distance is by construction rather than a causal affinity effect (E2bb8390452ed517a), so no registered distance-response curvature or spatial-emphasis edit is defensible from the supplied spatial scales. Lineage support shows 14 complete-survival batches over 700 batch nodes with 349 nodes having fewer than 3 ancestors and 531 fewer than 6, and terminal metadata are a single future-resampling node per batch (Ed0d7945bdeeda8f1); this dispersion and joint-geometry evidence does not establish that narrower or broader teacher neighborhoods improve mode coverage, and neighbor count is not a distance bandwidth. The inspected continuous contrast features are observed-node linear fits with extrapolation disallowed and polynomial acceptance false, showing multiple sign changes and strong sign conflicts (E2e106e083189d150, Eace79c1f0f54c9d1, E03ad082bb04f4f9c, E894225fb605458cb, E598d52f84227fbcc, E1ba2a68ba5243c03), so H003's time-conditioned form is not validated and the temporal choices C008/C009/C010/C011 lack a validated absolute contrast to condition on. H001's selection-enrichment versus absolute-descriptor ambiguity and H002's unavailable immediate-versus-descendant comparison further argue against an operative reward edit. Temperatures are immutable and no temperature edit is proposed. Retaining the incumbent is the only evidence-supported action; the decision would change if a validated absolute geometric descriptor or decoded terminal labels showed a specific registered parameter improving final predicted affinity.",
+  "role": "Designer"
+}

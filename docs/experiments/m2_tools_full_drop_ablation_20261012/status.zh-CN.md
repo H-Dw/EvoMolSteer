@@ -2,7 +2,7 @@
 
 模型：真实 DeepSeek API / deepseek-flash。
 
-状态：continuing_after_module_error；已完成比较 4/17；跳过 2；已处理 6/17。
+状态：screening；已完成比较 4/17；跳过 2；已处理 6/17。
 
 |模块|功能验证|确认结论|是否精简|
 |---|---|---|---|

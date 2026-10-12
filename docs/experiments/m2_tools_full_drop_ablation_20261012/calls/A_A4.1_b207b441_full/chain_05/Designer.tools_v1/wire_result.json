@@ -1,0 +1,24 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E0857891f4effbfe1",
+    "E2e106e083189d150",
+    "Eace79c1f0f54c9d1",
+    "E03ad082bb04f4f9c",
+    "E1ba2a68ba5243c03",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Adopting a temporal blend (C009-C011) without a node-RMSE comparison could displace surrounding coordinates along a sign-reversing direction that the static rule does not contain, degrading affinity while only changing coordinate geometry.",
+    "Changing pointcloud_delta_A (C001-C003) without observed spatial-scale evidence could over- or under-weight the endpoint pointcloud reward, producing unnecessary coordinate displacement near the core radius.",
+    "Changing teacher_neighbors (C005-C007) without intact-teacher dispersion evidence could narrow or broaden mode coverage in a way that is not supported by the supplied teacher provenance.",
+    "Treating the non-monotone contrast or rate turnover as a spatial gradient would mis-specify the reward, since the registered formula uses the endpoint VJP and a detached matching convention, not a trajectory velocity force."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Analyst's temporal evidence (F003-F005) shows the landmark_00 contrasts are non-monotone with sign changes and large opposing first/last rate z-scores, and no polynomial fit is accepted with extrapolation disallowed. H001 (time-conditioned regional attention) and H002 (sign-reversing rate turnover) are therefore plausible, but the registered temporal choices C008-C011 change only a blend scalar or region index over the same static teachers; the observations do not quantify the blend value or show that a time-conditioned rule beats the static incumbent within the reported node RMSE, which is exactly H001's stated falsifier. The spatial choices C001-C003 (pointcloud_delta_A) and C005-C007 (teacher_neighbors) are not addressed by the read evidence: no intact-teacher dispersion, joint-geometry, or distance-scale rows were inspected, so no defensible expected advantage over the incumbent delta=1.0 A and k=4 can be claimed. C004 (region_index) is a static regional selection with no supporting regional_effects evidence. Under the affinity-first objective and the requirement that an edit be justified by a defensible expected advantage, retaining the incumbent is the supported action; the evidence would change this decision if a time-conditioned blend were shown to match or beat the static rule at observed nodes within the reported node RMSE, or if spatial-scale and teacher-dispersion rows supported a specific delta or neighbor count.",
+  "role": "Designer"
+}

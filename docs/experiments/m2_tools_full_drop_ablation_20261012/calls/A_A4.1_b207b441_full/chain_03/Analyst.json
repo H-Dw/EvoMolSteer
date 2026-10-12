@@ -1,0 +1,74 @@
+{
+  "findings": [
+    {
+      "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; recorded affinities are removed and the label prior is equal-score, so no observed affinity outcome is available to score coordinate hypotheses against.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Continuous contrast functions over the observed window are non-monotone: landmark local-coordinate features show multiple sign changes (e.g. 4-10 sign changes) with large first-vs-last rate z-scores of opposite sign, and no polynomial fit is accepted; a constant rule is therefore not supported and any time-conditioned rule must stay within observed-node interpolation, since extrapolation is disallowed.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Joint selection-innovation diagnostics show a coherent positive association of innovation with native alignment (q~2.2e-9, positive batch fraction 1.0) and high teacher-contrast coherence (~0.81), while observed child score gain is negative (q~1.8e-7, positive batch fraction 0.0); this indicates selection enrichment is coupled to alignment/coherence rather than to an absolute geometric descriptor or to observed child quality gain.",
+      "evidence_ids": [
+        "joint_diagnostics:1",
+        "joint_diagnostics:4",
+        "joint_diagnostics:2",
+        "joint_diagnostics:0",
+        "joint_diagnostics:3",
+        "joint_diagnostics:5"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned contrast aligned to observed-node sign changes",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "joint_diagnostics:1"
+      ],
+      "falsifier": "No improvement in observed-node contrast fidelity or alignment relative to a constant rule within the observed window.",
+      "id": "H001",
+      "observable": "landmark local-coordinate contrast at observed score nodes",
+      "scope": "observed window [0.0,0.5], predicted endpoint world-A features",
+      "statement": "A time-conditioned coordinate contrast that follows the observed-node sign structure of landmark local-coordinate features (rather than a constant contrast) would better track the observed selection-innovation alignment than a constant rule."
+    },
+    {
+      "direction": "joint coherent pattern over isolated marginals",
+      "evidence_ids": [
+        "joint_diagnostics:4",
+        "joint_diagnostics:3",
+        "joint_diagnostics:0"
+      ],
+      "falsifier": "Marginal-only descriptors match or exceed joint-pattern measures on the same diagnostics.",
+      "id": "H002",
+      "observable": "teacher-contrast coherence and innovation-native alignment",
+      "scope": "within-selector, batch as independent unit",
+      "statement": "Selection enrichment is driven by coherent joint coordinate patterns (alignment/coherence) rather than isolated marginal descriptors, so a joint-pattern-preserving coordinate reward should outperform marginal-only descriptors."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels or current-study outcome data are supplied; last-record/observed child score gain is not final affinity benefit and cannot be presented as such.",
+    "Continuous-trend and joint diagnostics are descriptive associations with batch as the independent unit; they are not causal selection effects, atom velocities, or physical interaction energies.",
+    "Temperatures are immutable task parameters and were not proposed for edit; no reward recipe change is asserted here.",
+    "Turnover/parent-child increment accounting and survival/last-record joint-head semantics were not read in this pass and remain unassessed."
+  ],
+  "role": "Analyst"
+}

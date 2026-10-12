@@ -1,0 +1,38 @@
+{
+  "decision": "edit",
+  "edit": {
+    "parameter": "temporal_teacher_blend",
+    "value": 0.5
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:4",
+    "continuous:5",
+    "joint_diagnostics:1",
+    "joint_diagnostics:4",
+    "joint_diagnostics:0",
+    "joint_diagnostics:3",
+    "joint_diagnostics:2",
+    "joint_diagnostics:5",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "If the observed-node contrast sign structure is batch-specific rather than general, the 0.5 blend could displace surrounding coordinates away from the static optimum without improving final predicted affinity; the static component limits but does not eliminate this.",
+    "A blend of 1.0 (C011) would be expected to over-fit the non-monotone observed contrast and lose the incumbent's static regularization, producing unnecessary displacement of surrounding coordinates.",
+    "Because no decoded terminal affinity labels or current-study outcomes are supplied, the expected affinity advantage of C010 over the incumbent cannot be verified numerically; the choice rests on the Analyst's descriptive temporal evidence and could fail to improve final predicted affinity.",
+    "If the observed-node contrast is dominated by a single landmark region, the blend may over-emphasize that region and under-cover other teacher modes, degrading joint-pattern coverage."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": "C010"
+  },
+  "rationale": "Analyst F002 shows the observed-window landmark local-coordinate contrast is non-monotone (multiple sign changes, opposite-sign first/last rate z, no accepted polynomial, extrapolation disallowed), so a stationary coordinate target is not supported and a time-conditioned alternative is the defensible direction (H001). Among the registered temporal options, C010 (temporal_teacher_blend=0.5) is a balanced blend of the static endpoint reward and the observed-teacher contrast reward: it changes only the registered scalar blend of teacher coordinates/attention at observed score nodes, keeps the same shared FLOWR endpoint and detached nearest-k teacher provenance, and does not introduce a velocity target or temperature edit. C009 (0.25) under-weights the observed-node structure that F002 identifies, while C011 (1.0) discards the static incumbent entirely and risks over-fitting the non-monotone observed contrast; 0.5 is the midpoint that preserves the incumbent's static component while adding the observed-node conditioning. H002 (joint coherent pattern over isolated marginals) is consistent with the joint diagnostics showing innovation coupled to alignment/coherence rather than isolated marginals, which the blend preserves because it operates on the same joint endpoint pointcloud. Affinity-first priority is respected: the edit is a coordinate reward blend only, with no affinity-head derivative, no extra model forward, and no temperature change.",
+  "role": "Designer"
+}

@@ -1,0 +1,106 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The declared objective is final predicted target affinity as primary, with validity and strain secondary and coordinate control only; the reward view is an endpoint pointcloud with a detached Hungarian endpoint mean-squared-distance and a FLOWR endpoint VJP derivative path, so no affinity-head derivative or extra model forward is available as evidence.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The observed window is the score-time grid 0.0 to 0.49 with learning window [0.0,0.5]; recorded affinities were removed and replaced by an equal score prior, so no observed affinity labels exist inside the supplied window and no terminal affinity outcome is available to this role.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Curve support is restricted: only 24 of 200 continuous features pass the selection rule (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05, scale floor excluded), and the fidelity rule requires relative RMSE <= 0.35, zero strong sign-conflict nodes and quiet-node large-fit fraction <= 0.1. This is a selected, multiplicity-filtered subset, not the full feature population.",
+        "evidence_refs": [
+          "Ed4e7d28e7b0423e0"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "The information audit reports 14 independent batches and explicitly states that its geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian, that nonnegative excess distance is by construction rather than a causal affinity effect, and that teacher score correlations are observational and not a validated affinity predictor.",
+        "evidence_refs": [
+          "E2bb8390452ed517a"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Lineage support shows 700 total batch nodes across 14 complete-survival batches, but 349 nodes have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch; ancestral coverage is therefore sparse for a large fraction of nodes, and the survival multiple-testing correction is jointly over 400 survival field/measure tests and is explicitly not terminal affinity effects.",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1"
+        ],
+        "priority": 5
+      },
+      {
+        "claim": "Terminal metadata for every batch records terminal_score_time 0.99 and terminal_state_time 1.0, outside the observed score window [0.0,0.49]; last-record or survival credit at the observed nodes therefore cannot be presented as final affinity benefit, and the decoded terminal comparison is unavailable in the supplied evidence.",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 6
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "Favorable-minus-comparison sign consistency across independent batches",
+        "evidence_refs": [
+          "Ed4e7d28e7b0423e0",
+          "E0857891f4effbfe1"
+        ],
+        "falsifier": "Sign of the contrast reverses or batch direction fraction falls below the selection threshold on held-out batches",
+        "observable": "Signed contrast value per supported feature at observed score nodes",
+        "scope": "Observed score window [0.0,0.49], 14 independent batches, 24 supported features",
+        "statement": "Signed favorable-versus-comparison coordinate contrasts at the observed selection nodes, restricted to the 24 curve-supported features, may carry directionally consistent information within the observed window; this is a selection-enrichment statement about the filtered subset and not an absolute geometric descriptor or a physical interaction energy."
+      },
+      {
+        "direction": "Disagreement reduces priority weight",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1",
+          "E2bb8390452ed517a"
+        ],
+        "falsifier": "Selection and survival credit signs agree for nearly all nodes with adequate ancestral coverage",
+        "observable": "Sign agreement between selection-node contrast and descendant survival credit per node",
+        "scope": "Nodes with at least 3 ancestors in the 14 complete-survival batches",
+        "statement": "Immediate selection evidence and later survival or quality credit may disagree in direction for a substantial fraction of nodes, and where they disagree the disagreement should down-weight the corresponding coordinate priority rather than be averaged into a single target."
+      },
+      {
+        "direction": "Time-conditioned rule reduces relative node RMSE versus constant rule",
+        "evidence_refs": [
+          "Ed4e7d28e7b0423e0",
+          "E0857891f4effbfe1"
+        ],
+        "falsifier": "Constant rule matches or beats the time-conditioned rule on relative node RMSE with zero strong sign conflicts",
+        "observable": "Contrast value as a function of observed score time",
+        "scope": "Observed score nodes only, no extrapolation",
+        "statement": "A time-conditioned contrast rule using validated fits or observed-node interpolation over the complete observed support may outperform a constant rule where the supplied continuous trends show sign changes or rate changes, without arbitrary time bins or extrapolation beyond [0.0,0.49]."
+      },
+      {
+        "direction": "Residual magnitude comparable to increment magnitude indicates composition change",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1",
+          "E2bb8390452ed517a"
+        ],
+        "falsifier": "Turnover residual is negligible relative to within-path increment contrasts across batches",
+        "observable": "Parent-child increment contrast and turnover residual per feature",
+        "scope": "14 independent batches, observed window",
+        "statement": "Population-contrast changes may reflect changing cohort composition rather than within-path change, so parent-child increment contrasts and their turnover residual should be treated as an accounting diagnostic and not as a causal selection effect or atom velocity."
+      }
+    ],
+    "limitations": [
+      "No observed affinity labels are present in the supplied window; recorded affinities were removed and replaced by an equal score prior, so no final affinity benefit can be estimated from these observations.",
+      "Terminal score and state times (0.99, 1.0) lie outside the observed window [0.0,0.49]; decoded terminal labels are unavailable and last-record credit is not final affinity benefit.",
+      "The information audit states its geometric comparison is not the full score-weighted reward or its FLOWR Jacobian, and that teacher score correlations are observational, not a validated affinity predictor.",
+      "Ancestral coverage is sparse: 349 of 700 nodes have fewer than 3 ancestors and 531 have fewer than 6, limiting descendant-credit comparisons.",
+      "Curve support covers only 24 of 200 features under a multiplicity-filtered selection rule; unsupported features are not evidence of absence.",
+      "No current study outcome data were supplied to this role, so no causal or predictive validation of any coordinate hypothesis is possible here."
+    ],
+    "role": "Analyst"
+  }
+}
