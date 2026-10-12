@@ -1,0 +1,23 @@
+{
+  "decision": "retain",
+  "edit_choice": null,
+  "evidence_refs": [
+    "E2bb8390452ed517a",
+    "Ed0d7945bdeeda8f1",
+    "E6ae9d3d135f54e79",
+    "Ed4e7d28e7b0423e0",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Temporal/attention blend (C009-C011) displaces surrounding coordinates via positive-weight Gaussian landmark attention without validated per-feature curve support, degrading the primary endpoint pointcloud contrast.",
+    "Dose-only edits (C001-C003) change pointcloud_delta_A without any evidence of affinity benefit; the executing scalar has no pair-kernel/moment term, so a dose change is not a validated affinity improvement.",
+    "Survival-side soft-mass enrichment is survivor-conditioned (14 complete-survival batches, thin ancestral coverage) and does not survive joint BH correction, so an edit justified by it may not transfer to final predicted affinity.",
+    "No decoded terminal affinity labels are supplied, so any edit's effect on the primary objective is unverifiable from the delivered evidence."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "D1.2: The registered time-conditioned alternatives (C008 temporal_region_index, C009/C010/C011 temporal_teacher_blend) change regional attention at observed score nodes via the validated absolute contrast; they do not change teacher coordinates (same static detached nearest-k teachers) and are not a velocity target. The stationary incumbent uses a constant rule. Analyst's temporal evidence is only partially read: curve_support shows just 24/200 features pass the selection rule and the fidelity audit is a container summary, so the per-feature sign/rate structure that would justify a time-conditioned attention shift is not established. D4.1: Against the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal blend), the offered edits are either dose-only (C001/C002/C003 pointcloud_delta_A) or attention/teacher-count changes (C004-C011). The only direction-priority evidence favoring a change is the selection-side geometric contrast (F001), which is a selection-side signal, not a validated affinity benefit; the survival-side soft-mass enrichment does not survive joint BH correction (q~0.12) and rests on 14 complete-survival batches with thin ancestral coverage (349/700 nodes <3 ancestors). No decoded terminal affinity labels exist, so no edit can be shown to improve the primary objective. Evidence therefore does not provide a defensible expected advantage over the incumbent, and retaining is the correct affinity-first choice. D4.2: Predicted failure of a temporal/attention edit (e.g. C009-C011): the blend would displace surrounding coordinates through the Gaussian landmark attention with positive surrounding weight, moving coordinates that the weak, inconsistent local marginals (local_dx/dy/dz near-zero, local_cxx/cyy negative) do not support, and could degrade the endpoint pointcloud contrast that is the primary objective. This predicted unnecessary displacement, combined with the absence of decoded terminal affinity evidence, keeps the design at the incumbent. Temperatures are immutable and no temperature edit is proposed.",
+  "role": "Designer"
+}

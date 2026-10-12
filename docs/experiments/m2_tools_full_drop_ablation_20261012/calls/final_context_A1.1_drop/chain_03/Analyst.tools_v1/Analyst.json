@@ -1,0 +1,76 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate selection evidence and descendant credit disagree in direction: the compressed-choice excess fixed-frame RMS is positive (whole-window mean ~0.081 A, CI95 ~[0.070,0.092]) while the chosen-teacher score correlation is only weakly positive (~0.10 compressed, ~0.064 full), so the selection advantage is a small geometric excess that does not translate into a strong affinity-credit signal.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The later-label calculation is terminal-credit mining (schema terminal-credit-mining-1.0) with terminal score time 0.99 and state time 1.0 per batch, and it is explicitly not a terminal affinity effect; multiple testing is BH over 400 survival field/measure tests.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Ancestral coverage is thin: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, with only 14 complete-survival batches and at most 2 teachers per batch, so survivor bias and sparse ancestry limit any last-record credit interpretation.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Curve-fidelity audit shows the selected 24 contrast curves are not cleanly fit: relative node RMSE ranges roughly 0.39-0.93 (all above the 0.35 rule), and several landmarks (e.g. landmark_16_occupancy5, landmark_15_occupancy5/softmin) carry 10-15 strong sign-conflict nodes, so sign changes and fit infidelity are widespread rather than isolated.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "Last-empirical-z and last-fit-z frequently disagree in sign across the audited curves (e.g. landmark_00_occupancy3, landmark_02_occupancy5, landmark_06_occupancy5), indicating the fitted contrast direction is not reliably reproduced at the last observed node.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "time-conditioned over constant",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "falsifier": "time-conditioned rule does not reduce relative node RMSE below the constant rule or increases strong sign-conflict nodes",
+      "id": "H001",
+      "observable": "relative node RMSE and strong_sign_conflict_nodes of the selected contrast curves under observed-node interpolation",
+      "scope": "observed score window [0.0,0.5] only; no extrapolation",
+      "statement": "A time-conditioned contrast rule (validated observed-node interpolation of the registered temporal_region/temporal_teacher contrast) would track the observed sign changes better than a constant rule, because the audited curves show sign flips and rate changes across the observed window."
+    },
+    {
+      "direction": "descriptive, not causal",
+      "evidence_ids": [
+        "information_audit",
+        "lineage_support"
+      ],
+      "falsifier": "decoded terminal affinity labels show the excess RMS tracks final affinity benefit",
+      "id": "H002",
+      "observable": "compressed_choice_excess_fixed_RMS_A versus chosen_teacher_score_correlation",
+      "scope": "14 independent batches, observed window",
+      "statement": "The positive compressed-choice excess RMS reflects a within-path geometric selection advantage rather than a final affinity benefit, because terminal affinity labels are unavailable and the chosen-teacher score correlation is weak."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied, so last-record credit cannot be presented as final affinity benefit; the immediate-selection versus descendant-quality comparison is unavailable.",
+    "Turnover/increment accounting and joint-diagnostic tables were not read in this budget; within-path change versus cohort-composition claims remain unsupported.",
+    "Curve fidelity audit is a container summary read via read_field; per-node empirical arrays were not retrieved, so no absolute reward target is asserted.",
+    "All contrast curves are coordinate rewards, not trajectory velocity forces or physical interaction energies."
+  ],
+  "role": "Analyst"
+}

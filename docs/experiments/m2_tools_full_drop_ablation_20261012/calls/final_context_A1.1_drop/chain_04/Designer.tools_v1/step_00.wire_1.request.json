@@ -1,0 +1,234 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/c20d35dbf9cea8e5eb36861176df3f4ecfee8360dfb352d4b3015865036d9eff.txt",
+        "content_sha256": "c20d35dbf9cea8e5eb36861176df3f4ecfee8360dfb352d4b3015865036d9eff",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/b73fca5c829f204cfe12681f682c0d93a1667dd9ac0bcdecff6b8a03018135b1.txt",
+        "content_sha256": "b73fca5c829f204cfe12681f682c0d93a1667dd9ac0bcdecff6b8a03018135b1",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/ffad416acb0c238e30a3beefb0b47171405872bc517709e997d621c68379acbb.txt",
+        "content_sha256": "ffad416acb0c238e30a3beefb0b47171405872bc517709e997d621c68379acbb",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "C001",
+                        "C002",
+                        "C003",
+                        "C004",
+                        "C005",
+                        "C006",
+                        "C007",
+                        "C008",
+                        "C009",
+                        "C010",
+                        "C011",
+                        "C012",
+                        "C013",
+                        "C014",
+                        "C015",
+                        "C016",
+                        "C017",
+                        "C018",
+                        "C019",
+                        "C020",
+                        "C021"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "C001",
+                      "C002",
+                      "C003",
+                      "C004",
+                      "C005",
+                      "C006",
+                      "C007",
+                      "C008",
+                      "C009",
+                      "C010",
+                      "C011",
+                      "C012",
+                      "C013",
+                      "C014",
+                      "C015",
+                      "C016",
+                      "C017",
+                      "C018",
+                      "C019",
+                      "C020",
+                      "C021"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E0857891f4effbfe1",
+                    "E12b8b74b4e20fc75",
+                    "E2bb8390452ed517a",
+                    "E5645243a13d0e087",
+                    "E5a13ce4f320192b7",
+                    "E6eca395904dbab13",
+                    "E71d25cdba9aba737",
+                    "Eaa4bda02c9a2c3a1",
+                    "Ecaf1c89898001196",
+                    "Ed0d7945bdeeda8f1",
+                    "Ed4e7d28e7b0423e0"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "enum": [
+                    "H001",
+                    "H002"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

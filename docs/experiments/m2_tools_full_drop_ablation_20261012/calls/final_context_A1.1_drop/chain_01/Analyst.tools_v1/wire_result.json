@@ -1,0 +1,87 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate selection evidence and descendant survival credit disagree in strength and multiplicity status: the compressed-choice excess fixed-RMS advantage is small but batch-consistent (whole-window mean ~0.081 A, CI95 ~[0.070,0.092]), while the strongest survival enrichment (landmark_00_soft_mass, effect_z ~0.37, positive_batch_fraction ~0.86) does not survive joint BH correction (q ~0.12). Direction priorities should therefore weight the selection-side geometric contrast over the survival-side soft-mass signal.",
+      "evidence_refs": [
+        "E2bb8390452ed517a",
+        "E6ae9d3d135f54e79"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The actual later-label calculation is terminal-credit mining over parent-debiased moment strata with terminal score time 0.99 and state time 1.0, i.e. last-record joint-head credit, not decoded terminal affinity. Ancestral coverage is thin: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, so survival credit is dominated by shallow-lineage nodes and cannot be presented as final affinity benefit.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Survivor bias is present and material: only 14 independent batches with complete survival are available, teachers_per_batch_max is 2, and the survival tests are BH-adjusted jointly over 400 field/measure tests. The apparent landmark_00_soft_mass enrichment is therefore a survivor-conditioned association, not an unbiased affinity effect.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "E6ae9d3d135f54e79"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The unavailable comparison is the decoded terminal-label contrast: no decoded terminal affinity labels are supplied, so last-record survival credit cannot be equated with final predicted affinity benefit. The selection-vs-survival disagreement is reported as a direction-priority input only, with the affinity comparison left unavailable.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1",
+        "E2bb8390452ed517a"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Marginal local descriptors at landmark_00 are individually weak and inconsistent: local_dx, local_dy, local_dz have near-zero effect_z with positive_batch_fraction near 0.36-0.43, and local_cxx/local_cyy are negative with q ~0.30. These isolated marginals do not support a coordinate direction on their own.",
+      "evidence_refs": [
+        "Ed342368429e1df01",
+        "Efc547c9b82803e69",
+        "E26eb4eab27c75f2a",
+        "E6b0c4dc6f1e15f12",
+        "E29af93fc643938fd"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "Curve support is restricted: only 24 of 200 continuous features pass the selection rule (|integrated z| >= 0.1, batch direction fraction >= 0.857, q < 0.05) with a fidelity rule of relative RMSE <= 0.35 and zero strong sign conflicts. The curve-fidelity audit is delivered as a container summary only, so per-feature sign changes and rate changes are not yet read.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E2bb8390452ed517a"
+      ],
+      "falsifier": "no increase in batch-consistent excess fixed-RMS contrast relative to the static rule, or a sign conflict in the fitted contrast curve",
+      "observable": "batch-consistent endpoint pointcloud contrast (compressed_choice_excess_fixed_RMS_A) across the 14 independent batches",
+      "scope": "observed score times within the learning window [0.0,0.5], native endpoint VJP, no extra model forward",
+      "statement": "A time-conditioned teacher-attention recipe that up-weights the observed-node contrast at later score times will produce a larger batch-consistent endpoint pointcloud contrast than the static constant rule, because the validated absolute contrast changes regional attention at observed score nodes."
+    },
+    {
+      "direction": "increase",
+      "evidence_refs": [
+        "E6ae9d3d135f54e79",
+        "Ed342368429e1df01",
+        "E6b0c4dc6f1e15f12"
+      ],
+      "falsifier": "joint pattern survival_enrichment_z not exceeding the best isolated marginal, or q remaining above the joint BH threshold",
+      "observable": "survival_enrichment_z for the joint pattern versus the best isolated marginal, with BH q reported",
+      "scope": "14 complete-survival batches, parent-debiased moment strata",
+      "statement": "A joint landmark_00 soft-mass plus local-shape coordinate pattern will carry more consistent survival credit than any isolated landmark_00 marginal descriptor, because the isolated marginals are individually weak and near-zero."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record survival credit cannot be presented as final affinity benefit and the selection-vs-survival affinity comparison is unavailable.",
+    "The curve-fidelity audit is delivered as a container summary only; per-feature sign changes, fit fidelity and rate changes across the full observed support were not read.",
+    "Survival and increment tests are BH-adjusted over large families (400 and 600 tests); most individual effects do not survive joint correction.",
+    "Ancestral coverage is thin (349/700 nodes with <3 ancestors, 531/700 with <6), so survival credit is dominated by shallow-lineage nodes.",
+    "No covariance, intact-conformation or mode diagnostics were read, so coherent joint coordinate patterns versus isolated marginals cannot be fully adjudicated.",
+    "No population-contrast versus parent-child increment turnover residual was read, so within-path change versus changing cohort composition is not resolved."
+  ],
+  "role": "Analyst"
+}

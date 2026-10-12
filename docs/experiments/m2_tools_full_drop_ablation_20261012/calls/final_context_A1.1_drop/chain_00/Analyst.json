@@ -1,0 +1,69 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate selection evidence and descendant credit disagree in kind: the compressed-choice excess fixed-frame RMS is small (whole-window mean ~0.081 A, CI95 ~0.070-0.092) and top-4 teacher overlap is only ~0.47, so the chosen teacher is not the geometric nearest teacher; the chosen-teacher score correlation is weak (~0.10 compressed, ~0.064 full). This is a selection/geometry diagnostic, not a final affinity benefit.",
+      "evidence_ids": [
+        "information_audit"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The actual later-label calculation is terminal credit mined at terminal_score_time 0.99 / terminal_state_time 1.0 with one future_resampling_node per batch, stored as parent-debiased moment strata and a compact credit table; it is not a decoded terminal affinity label. Ancestral coverage is thin: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, with at most 2 teachers per batch, so survivor bias is expected and last-record credit cannot be presented as final affinity benefit.",
+      "evidence_ids": [
+        "lineage_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The curve-fidelity audit shows the selected continuous contrast functions are not uniformly well fit: relative node RMSE ranges roughly 0.39-0.93, several features exceed the 0.35 fidelity rule, and strong sign-conflict node counts range 0-15 (e.g. landmark_16_occupancy5 has 15 conflicts and RMSE ~0.93). Legendre runtime extrapolation is disallowed for all audited features, so only observed-node interpolation is admissible.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate-only control; the supplied evidence tables are diagnostics (moment effects, pair kernels, turnover, survival) and the executing pointcloud scalar has no pair-kernel, moment, joint-motif or geometry-block term, so none of these diagnostics can be reported as an affinity effect.",
+      "evidence_ids": [
+        "objective",
+        "information_audit"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Time-conditioned attention shifts regional weighting toward landmarks whose contrast is validated and away from features with strong sign conflicts.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "falsifier": "No measurable difference in endpoint pointcloud distance or contrast trajectory between the time-conditioned and constant rules on the observed support.",
+      "id": "H001",
+      "observable": "Endpoint pointcloud distance and per-node contrast values at observed score times under the registered temporal_region recipe versus the static recipe.",
+      "scope": "Observed score window [0.0,0.5] only; no extrapolation beyond observed nodes.",
+      "statement": "A time-conditioned regional attention rule that reweights landmark attention using only validated observed-node contrast changes (no extrapolation, no arbitrary bins) will change the endpoint coordinate trajectory relative to the constant static rule, because the audited contrast curves show sign changes and rate changes across the observed window."
+    },
+    {
+      "direction": "Fidelity-filtered ranking demotes features with large RMSE or sign conflicts.",
+      "evidence_ids": [
+        "curve_support"
+      ],
+      "falsifier": "Fidelity-filtered and point-estimate rankings coincide.",
+      "id": "H002",
+      "observable": "Rank ordering of landmark/pair-kernel features by fidelity-adjusted support versus by raw point estimate.",
+      "scope": "The 24 audited curve features.",
+      "statement": "Restricting coordinate hypotheses to features that pass the curve-fidelity rule (relative RMSE <= 0.35, zero strong sign conflicts, quiet-node large-fit fraction <= 0.1) will produce a different priority ordering than ranking by point estimate alone, because several high-magnitude features fail fidelity."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record and survival credit cannot be interpreted as final affinity benefit, and the immediate-selection versus descendant-credit comparison remains unavailable.",
+    "The information audit explicitly states its metrics are not the full score-weighted reward or its FLOWR Jacobian, and that nonnegative excess distance is by construction rather than a causal affinity effect.",
+    "Turnover residual and increment contrasts were not read in this session; no within-path versus cohort-composition conclusion is asserted.",
+    "Curve-fidelity audit is a container summary read via read_field; per-feature full curves were not retrieved, so sign-change timing and rate-change locations are not characterized.",
+    "No temperature edit is proposed or permitted; all temperatures are immutable task parameters."
+  ],
+  "role": "Analyst"
+}

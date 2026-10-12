@@ -1,0 +1,72 @@
+{
+  "findings": [
+    {
+      "claim": "Immediate selection evidence and descendant survival/quality credit are not the same quantity: the information audit compares geometric nearest-teacher distance under sparse salient fields against Hungarian fixed-frame RMS with leave-one-batch exclusion, and explicitly states it is not the full score-weighted reward or its FLOWR Jacobian, and that nonnegative excess distance is by construction rather than a causal affinity effect.",
+      "evidence_refs": [
+        "E2bb8390452ed517a"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The actual later-label calculation is terminal-credit mining (schema terminal-credit-mining-1.0) with two parent-debiased moment strata and a compact credit table; terminal metadata show one future_resampling_node per batch at terminal_index 99 (terminal_score_time 0.99, terminal_state_time 1.0), so last-record credit is a survival/terminal construct, not a decoded terminal affinity label.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "Ancestral coverage is thin: of 700 total batch nodes, 349 have fewer than 3 ancestors and 531 have fewer than 6, with teachers_per_batch_max=2 and teacher_counts_per_node ranging roughly 17-28. This sparse ancestral coverage means survivor-biased credit cannot be treated as representative of the full candidate population.",
+      "evidence_refs": [
+        "Ed0d7945bdeeda8f1"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "The declared objective is final predicted target affinity primary with validity and strain secondary under coordinate control only, and the recorded affinities were removed with an equal score prior over the learning window [0.0,0.5]; therefore no decoded terminal affinity labels are available to convert last-record credit into final affinity benefit.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1",
+        "E0857891f4effbfe1"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "Curve support is restricted: only 24 of 200 continuous features pass the selection rule (absolute integrated z >= 0.1, batch direction fraction >= 0.857, q < 0.05, scale floor excluded), and the fidelity rule requires relative RMSE <= 0.35 with zero strong sign-conflict nodes. Any time-conditioned contrast rule must be confined to these validated curves.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Time-conditioned attention differs from constant attention on validated curves only.",
+      "evidence_refs": [
+        "Ed4e7d28e7b0423e0",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "No difference in regional attention between constant and time-conditioned rules on the validated curves, or the difference appears only on non-validated curves.",
+      "observable": "Per-node regional attention weight from the registered temporal_region recipe versus the static regional recipe at observed score times.",
+      "scope": "Observed score window [0.0,0.5]; validated curves only; no extrapolation.",
+      "statement": "A time-conditioned contrast rule restricted to the 24 validated curves will produce a different regional attention allocation than a constant rule over the observed score window, because the validated curves carry sign changes and rate changes that a constant rule cannot express."
+    },
+    {
+      "direction": "Low or negative agreement, motivating separate priority weights.",
+      "evidence_refs": [
+        "E2bb8390452ed517a",
+        "Ed0d7945bdeeda8f1"
+      ],
+      "falsifier": "Strong positive agreement between immediate selection evidence and descendant survival credit across batches.",
+      "observable": "Rank correlation between immediate selection excess distance and descendant survival credit across batches.",
+      "scope": "14 independent batches; within-batch nodes are correlated.",
+      "statement": "Disagreement between immediate selection evidence (nearest-teacher distance) and descendant survival credit should reweight direction priorities, because the two are computed on different semantics and the audit shows only weak chosen-teacher score correlation."
+    }
+  ],
+  "limitations": [
+    "No decoded terminal affinity labels are supplied; last-record/terminal credit cannot be presented as final affinity benefit, and the immediate-selection versus descendant-quality comparison remains unavailable at the affinity level.",
+    "The information audit is a geometric nearest-teacher comparison, not the full score-weighted reward or its FLOWR Jacobian; it cannot establish causal affinity effects.",
+    "Ancestral coverage is sparse (349 nodes <3 ancestors, 531 <6), so survivor bias is expected and survival effects are BH-adjusted over 400 field/measure tests, not terminal affinity effects.",
+    "Curve fidelity details are container-summary only; per-curve sign changes, rate changes and fit fidelity were not read in this turn.",
+    "No current study outcome data are available to either role, so no reward recipe can be validated against final affinity here."
+  ],
+  "role": "Analyst"
+}

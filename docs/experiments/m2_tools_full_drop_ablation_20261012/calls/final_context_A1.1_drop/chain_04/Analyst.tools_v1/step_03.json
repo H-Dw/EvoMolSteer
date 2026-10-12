@@ -1,0 +1,79 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Immediate selection evidence is not corroborated by descendant survival credit: the top-ranked survival_enrichment_z rows (sorted by q) are all null (effect_z near zero, CIs spanning zero, q~0.999, positive_batch_fraction 0.43-0.64), so no landmark coordinate shows a survival/quality advantage at the multiplicity-adjusted level.",
+        "evidence_refs": [
+          "E6eca395904dbab13",
+          "E12b8b74b4e20fc75",
+          "E5645243a13d0e087",
+          "E71d25cdba9aba737",
+          "E5a13ce4f320192b7",
+          "Ecaf1c89898001196"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The later-label calculation is terminal-credit mining over a 0.0-0.5 learning window with terminal score time 0.99 and state time 1.0, i.e. last-record joint-head credit outside the observed support; it is not a decoded terminal affinity label, so last-record credit cannot be presented as final affinity benefit.",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Ancestral coverage is thin and survivor bias is plausible: 349 of 700 batch nodes have fewer than 3 ancestors and 531 have fewer than 6, with only 14 complete-survival batches and at most 2 teachers per batch, so survival-conditioned credit is dominated by shallow lineages.",
+        "evidence_refs": [
+          "Ed0d7945bdeeda8f1"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "The immediate-selection audit itself is a geometric nearest-teacher comparison, not the score-weighted FLOWR reward or its Jacobian; its own limitations state the nonnegative excess distance is by construction and not a causal affinity effect, and teacher score correlations are observational, not a validated affinity predictor.",
+        "evidence_refs": [
+          "E2bb8390452ed517a"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Curve support is restricted to 24 selected features under a fidelity rule (relative RMSE <= 0.35, zero strong sign-conflict nodes, quiet-node large-fit fraction <= 0.1) and a selection rule (|integrated z| >= 0.1, batch direction fraction >= 0.857, q < 0.05); the fidelity audit contents are container-summarized and were not read numerically, so per-curve sign changes and rate changes remain unverified here.",
+        "evidence_refs": [
+          "Ed4e7d28e7b0423e0"
+        ],
+        "priority": 5
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "downweight selection-only coordinate priorities until survival credit is decoded",
+        "evidence_refs": [
+          "E6eca395904dbab13",
+          "E2bb8390452ed517a"
+        ],
+        "falsifier": "a landmark feature with q<0.05, |effect_z| materially above zero and positive_batch_fraction >= 0.857",
+        "observable": "survival_enrichment_z with batch direction fraction for the same landmark features",
+        "scope": "observed 0.0-0.5 window, 14 independent batches",
+        "statement": "If a landmark coordinate carried genuine descendant quality credit, its survival_enrichment_z would be nonzero with a consistent batch direction; the observed nulls indicate the immediate-selection signal and survival credit disagree, so direction priorities should not be set from point estimates of selection alone."
+      },
+      {
+        "direction": "descriptive only until per-curve fits are read",
+        "evidence_refs": [
+          "Ed4e7d28e7b0423e0",
+          "E0857891f4effbfe1"
+        ],
+        "falsifier": "all selected curves show zero sign changes and constant rate within fit tolerance",
+        "observable": "sign_changes, first/last rate z and relative_node_RMSE per selected feature",
+        "scope": "24 selected curve features over 0.0-0.5",
+        "statement": "A time-conditioned contrast rule could differ from a constant rule only where validated curve fits show sign changes or rate changes within the observed support; this cannot be asserted from the summarized fidelity audit."
+      }
+    ],
+    "limitations": [
+      "No decoded terminal affinity labels are supplied; last-record joint-head credit is not final affinity benefit and the immediate-selection vs final-affinity comparison is unavailable.",
+      "Survival and turnover tables are diagnostic accounting, not causal selection effects or atom velocities.",
+      "The curve_fidelity_audit container was not read numerically, so per-curve sign-change and rate-change comparisons are not established.",
+      "No current-study outcome data are available to this role; all statements are observational within the supplied 0.0-0.5 window."
+    ],
+    "role": "Analyst"
+  }
+}

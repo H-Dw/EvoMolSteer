@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "Eaa4bda02c9a2c3a1",
+      "E2bb8390452ed517a",
+      "Ed4e7d28e7b0423e0",
+      "Ed0d7945bdeeda8f1",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "Time-conditioned teacher/attention edits would be driven by contrast features that fail the curve-fidelity rule (relative RMSE up to ~0.93, strong sign conflicts up to 15), so regional attention or teacher coordinates could be reweighted on unreliable observed-node values.",
+      "Positive surrounding weight in the regional recipe can displace neighboring coordinates even where contrast is quiet or sign-conflicted, producing unnecessary coordinate movement without affinity benefit.",
+      "Dose-only edits (pointcloud_delta_A) have no supporting affinity evidence; the supplied diagnostics are not the score-weighted reward or its FLOWR Jacobian, so a dose change cannot be justified as an affinity improvement.",
+      "Last-record and survival credit cannot be read as final affinity benefit because ancestral coverage is thin (349/700 nodes with fewer than 3 ancestors) and no decoded terminal affinity labels are supplied."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered time-conditioned alternatives split into two kinds. temporal_teacher (C007-C009) changes teacher coordinates by blending the static endpoint reward with an observed-node teacher reward; temporal_region changes only regional attention at observed score nodes using validated absolute contrast changes. Both are coordinate rewards, not velocity forces, and neither is a spatial gradient of a temporal derivative. The Analyst's temporal evidence (curve_support fidelity audit) shows the audited contrast curves are not uniformly well fit: relative node RMSE spans roughly 0.39-0.93, several features exceed the 0.35 fidelity rule, strong sign-conflict counts reach 15, and Legendre extrapolation is disallowed for all audited features. That means the time-conditioned teacher/attention recipes would be driven by contrast functions that fail the fidelity rule on part of the observed support, so the expected advantage over the stationary coordinate target is not defensible. D4.1: Compared with the incumbent (pointcloud_delta_A=1.0, teacher_neighbors=4, no temporal blend), the offered edits are either dose-only (C001-C003 change pointcloud_delta_A) or teacher/attention changes (C004-C009). The dose choices are not supported by any affinity evidence: the information audit states its metrics are not the full score-weighted reward or its FLOWR Jacobian, and the executing pointcloud scalar has no pair-kernel, moment or geometry-block term, so no diagnostic can be reported as an affinity effect. The teacher/attention choices rest on contrast curves that fail fidelity. Under the affinity-first priority, no offered edit has a defensible expected advantage, so retaining the incumbent is the correct decision. D4.2: Predicted failure response if a time-conditioned teacher/attention edit were compiled: the low-fidelity and sign-conflicting contrast features would reweight regional attention or blend teacher coordinates on unreliable observed-node values, displacing surrounding coordinates unnecessarily (positive surrounding weight in the regional recipe means neighboring nodes move even where the contrast is quiet or sign-conflicted), while the primary affinity objective is not improved because no affinity evidence supports the change. That predicted unnecessary displacement of surrounding coordinates, combined with the absence of affinity benefit, is why the design retains the incumbent rather than selecting C004-C009. No temperature edit is proposed; temperatures are immutable.",
+    "role": "Designer"
+  }
+}
