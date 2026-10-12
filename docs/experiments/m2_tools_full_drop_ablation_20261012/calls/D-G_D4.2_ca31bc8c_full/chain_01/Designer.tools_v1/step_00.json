@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "retain",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "Ed4e7d28e7b0423e0",
+      "E2e106e083189d150",
+      "Eace79c1f0f54c9d1",
+      "E03ad082bb04f4f9c",
+      "E2bb8390452ed517a",
+      "Ed0d7945bdeeda8f1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "A temporal_teacher_blend edit (C009-C011) would apply a fixed blend to sign-reversing observed-node contrasts, displacing surrounding coordinates at score times where the contrast direction has flipped, without any validated affinity benefit.",
+      "A temporal_region_index edit (C008) would reweight regional attention using observational coordinate contrasts that the information audit explicitly says are not the score-weighted reward or its FLOWR Jacobian.",
+      "Treating last-record survival credit or terminal metadata as final affinity benefit would misattribute a non-affinity signal, since lineage support is sparse and multiple testing is not terminal affinity.",
+      "Extrapolating any time-conditioned rule beyond the observed window [0.0,0.5] is unsupported by the curve-support fidelity rule."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "D1.2: The registered time-conditioned alternatives are temporal_region_index (C008, changes regional attention at observed score nodes) and temporal_teacher_blend (C009-C011, changes teacher coordinates via (1-blend)*R_static + blend*R_observed_teacher(time)); the pointcloud_delta_A choices (C001-C003) and region_index (C004) and teacher_neighbors (C005-C007) are dose/static-teacher edits, not temporal. The Analyst's temporal evidence (continuous:0, continuous:1, continuous:2) shows sign changes and rate reversals with no accepted polynomial, and the curve-support rule retained only 24 features within the observed window [0.0,0.5] with no extrapolation allowed. That supports the direction of H001 in principle, but the evidence is coordinate-contrast evidence in predicted endpoint world coordinates, not affinity, and the information audit (E2bb8390452ed517a) states the geometric nearest-teacher comparison is not the full score-weighted reward or its FLOWR Jacobian and that teacher score correlations are observational, not a validated affinity predictor. D4.1: Compared with the incumbent (teacher_neighbors=4, pointcloud_delta_A=1.0, static program D2_without_trajectory_static, window [0.0,0.5]), no registered choice has a defensible expected affinity advantage: the temporal blends would move teacher coordinates using observational coordinate contrasts, and the dose choices only rescale an already-default delta. Since the objective is affinity-primary and no supplied evidence ties any offered edit to final predicted affinity, retaining the incumbent is the evidence-supported decision; the evidence changes the decision only by failing to clear the advantage bar, not by favoring a specific edit. D4.2: Predicted failure of a temporal_teacher_blend edit: blending toward observed-node teachers would displace surrounding coordinates beyond the observed window and beyond the validated contrast bound, because the curves reverse sign and no polynomial is accepted, so a fixed blend would apply a stale direction at later score times; this is a coordinate-displacement failure mechanism, and since coordinate graph changes alone are not a failure mechanism and affinity is primary, it does not justify an edit. H002's selection-vs-survival disagreement further argues against reordering priorities on survival credit, which lineage_support (Ed0d7945bdeeda8f1) shows is sparse and not terminal affinity.",
+    "role": "Designer"
+  }
+}
