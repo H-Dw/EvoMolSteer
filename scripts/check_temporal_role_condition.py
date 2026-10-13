@@ -79,7 +79,8 @@ def audit(repo, config, condition):
             'API_action_calls': sum(r['API_action_calls'] for r in rows),
             'rejected_then_repaired_finishes': sum(r['rejected_then_repaired_finishes'] for r in rows),
             'measurement': task['result']['measurement'], 'frozen_control_summary': collection['controls'],
-            'new_FLOWR_runs_for_same_signature': 0, 'remaining_queue_background': True, 'source_sha256': files,
+            'new_FLOWR_runs_for_same_signature': 0,
+            'remaining_queue_background': state['status'] in {'starting', 'running'}, 'source_sha256': files,
             'scope': 'Source delivery, compilation and matched existing result reuse; not proof of improved affinity'}
 
 
