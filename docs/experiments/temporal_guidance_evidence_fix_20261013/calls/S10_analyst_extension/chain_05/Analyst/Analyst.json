@@ -1,0 +1,102 @@
+{
+  "findings": [
+    {
+      "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are proxies, not affinity measurements.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The learning/control support is the score-clock window [0.0, 0.5] with 50 observed score nodes at 0.01 spacing; curve support is [0.0, 0.49], so no extrapolation beyond observed nodes is licensed.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "The landmark_00_soft_mass curve over [0.0, 0.49] rises from about -0.37 z early to a mid-window peak near +1.6 z around t=0.16, then declines to about -0.28 z at the last node, with 4 sign changes and polynomial_accepted=false; this is a changing contrast, not a stationary target.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 2
+    },
+    {
+      "claim": "Across all 20 landmark soft-mass trend rows the whole-window z is small (|z| < 0.65) and no polynomial is accepted, so no landmark soft-mass feature shows a stable monotone whole-window trend.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F004",
+      "priority": 2
+    },
+    {
+      "claim": "Strong sign conflicts are widespread (e.g. 17 for landmark_15_soft_mass, 14 for landmark_09_soft_mass, 11 for landmark_04_soft_mass), indicating batch-level disagreement rather than a reproducible regional direction.",
+      "evidence_ids": [
+        "continuous:150",
+        "continuous:90",
+        "continuous:40"
+      ],
+      "id": "F005",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "no directional claim; test staged relevance only",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:100"
+      ],
+      "falsifier": "a landmark soft-mass feature with polynomial_accepted=true and a stable same-sign whole-window z across independent batches",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass z-curve over observed score nodes, plus whole-window z and polynomial_accepted across landmarks",
+      "scope": "all 20 landmarks, full support [0.0, 0.49]",
+      "statement": "Landmark soft-mass coordinates show no reproducible whole-window monotone target; the observed landmark_00_soft_mass curve is non-monotone with an interior peak and sign reversal, so any staged reward should be tested as a smooth time-dependent relevance schedule rather than a fixed absolute coordinate target."
+    },
+    {
+      "direction": "retain gradual schedule; do not introduce a hard knot",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:100",
+        "continuous:110"
+      ],
+      "falsifier": "a landmark with consistent same-sign first and last rates and zero sign changes across batches",
+      "id": "H002",
+      "observable": "first_rate_z vs last_rate_z and sign_changes per landmark soft-mass feature",
+      "scope": "landmarks with large |first_rate_z| or |last_rate_z| and sign_changes >= 4",
+      "statement": "Early-window rate magnitudes are large and frequently reverse sign by the last node (landmark_00_soft_mass first_rate_z=+9.27, last_rate_z=-10.00), so an early-only or late-only teacher weighting is not supported by a stable slope; gradual change should be retained unless an independently stable knot is found."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are unavailable; only continuous curves and trend tables were inspected.",
+    "No decoded final affinity labels are present in the delivered evidence; selection/survival and coordinate contrasts are not final-benefit measurements.",
+    "Coordinate features are untyped predicted-endpoint world-coordinate proxies; no energy or chemical-interaction interpretation is made.",
+    "Only soft-mass features were read; local covariance and displacement features were not inspected in this turn."
+  ],
+  "role": "Analyst"
+}

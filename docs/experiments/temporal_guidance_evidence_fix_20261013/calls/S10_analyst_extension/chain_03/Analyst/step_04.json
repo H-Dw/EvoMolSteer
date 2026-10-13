@@ -1,0 +1,48 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The observed landmark_10_soft_mass curve over the full support [0.0,0.49] is non-monotone: it rises from about -0.38 z at t=0 to a peak near +1.03 z around t=0.05, then declines to about -0.37 z at t=0.49, with 4 sign changes and whole_window_z ~ 0.40. This is a changing local contrast, not a stationary directional target.",
+        "evidence_refs": [
+          "Ee9d172f45c064a2e"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The landmark_10_soft_mass curve has first_rate_z ~ +66.3 and last_rate_z ~ -11.6, i.e. opposite-signed endpoint rates, and polynomial fits are rejected (polynomial_accepted=false, relative_node_RMSE ~0.51) with extrapolation_allowed=false, so only the observed-node linear representation within the window is supported.",
+        "evidence_refs": [
+          "Ee9d172f45c064a2e"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the landmark_10_soft_mass contrast is a diagnostic of the endpoint pointcloud, not a direct affinity objective.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 3
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "test staged relevance (observed early -> static late) at fixed dose; do not reverse the affinity objective",
+        "evidence_refs": [
+          "Ee9d172f45c064a2e"
+        ],
+        "falsifier": "if the staged blend produces no reproducible change in the landmark_10_soft_mass contrast relative to the constant-blend control at matched score nodes, the staged-relevance hypothesis is not supported",
+        "observable": "landmark_10_soft_mass endpoint coordinate contrast at each observed score node",
+        "scope": "all seeds over the observed score window 0.0-0.49",
+        "statement": "Because the observed landmark_10_soft_mass curve changes sign and direction across the window rather than holding one direction, a smooth staged blend from early same-clock historical forecasts toward frozen static teachers (S1) should be tested at fixed dose, with the constant-blend control (S2) as the null."
+      }
+    ],
+    "limitations": [
+      "Stage profiles and temporal profiles are not available; only continuous curves and trend tables were queried.",
+      "Only landmark_10_soft_mass was read as an actual curve; other landmark features were inspected only via continuous_trends summaries.",
+      "No decoded final affinity labels are available in role input; selection/survival evidence is not treated as measured final benefit.",
+      "Coordinate contrasts are untyped geometric proxies and are not interpreted as energies or chemical interactions.",
+      "No absolute coordinate target or spatial gradient is inferred from the observed contrast curve."
+    ],
+    "role": "Analyst"
+  }
+}

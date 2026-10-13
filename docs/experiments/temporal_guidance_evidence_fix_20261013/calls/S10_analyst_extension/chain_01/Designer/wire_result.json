@@ -1,0 +1,22 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "E4bbe368c52deda38",
+    "Eace79c1f0f54c9d1",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Affinity response: if the staged schedule yields no reproducible improvement in final predicted target affinity versus the constant-blend control S2 across independent batches, the edit is not justified and the incumbent should be retained.",
+    "Coordinate response: if the landmark_00_local_dx contrast trajectory under S1 is indistinguishable from S2 across independent batches, the stage-dependent relevance hypothesis is falsified; the observed non-monotone excursions (6 sign changes, 9 strong sign conflicts) may be batch noise rather than a stage signal.",
+    "Strain/validity: the reward is coordinate-only, so improved coordinate contrast could accompany worsened strain or invalid geometry; strain and structural validity must be reported separately and could veto the edit.",
+    "Delivery/execution: if the compiled table does not actually change the executed trace (e.g., blend schedule not applied at the score nodes), the edit did not change execution and must not be credited.",
+    "Scope: only landmark_00_local_dx was inspected; no claim is made about the other 199 curve features, and no data-derived stage knot is supported since stage/temporal profiles are unavailable."
+  ],
+  "hypothesis_refs": [
+    "H001"
+  ],
+  "rationale": "H001 is the only hypothesis that warrants an offered operative change: it proposes testing a stage-dependent teacher-relevance schedule at fixed dose for the landmark_00_local_dx coordinate, motivated by the observed non-stationary contrast (early positive excursion, mid-window negative excursion, late return toward zero) read from the actual curve handle E4bbe368c52deda38 and its trend row Eace79c1f0f54c9d1. S1_observed_to_static is the registered recipe that matches this direction (early same-clock historical forecasts blending toward frozen static teachers) while preserving dose_factors=1, the frozen eta, and the immutable mixture/prior temperatures, neighbor count, score beta and model bindings. The score-clock window [0.0,0.49] and the affinity-primary objective are taken from E0857891f4effbfe1 and Eaa4bda02c9a2c3a1; the recipe's smoothstep phase is normalized over the observed score nodes with no extrapolation, so it matches every controlled score node exactly. H002 is a diagnostic caution, not a reward change, so it is not used to justify an edit.",
+  "role": "Designer"
+}

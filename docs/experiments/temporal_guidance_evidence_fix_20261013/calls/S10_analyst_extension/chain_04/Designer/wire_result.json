@@ -1,0 +1,24 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "Eef4385e476674774",
+    "Ee9d172f45c064a2e",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Affinity is the primary objective and is not measured here: coordinate soft-mass contrasts are proxies, so an S1 edit may change endpoint coordinates without improving decoded final affinity; no decoded affinity labels were available.",
+    "The observed soft-mass excursion is modest and whole-window near zero with no accepted polynomial; the smoothstep blend may not reproduce the mid-window peak, and the reward signal could be dominated by noise rather than a real temporal contrast.",
+    "Strain and structural validity are secondary and unverified: the reward edit could increase strain or produce invalid geometry even if coordinate contrast shifts as intended.",
+    "S1 and S2 differ only in the blend schedule; if the constant blend reproduces the observed contrast equally well, the staged relevance is not supported and the edit should be reverted to the incumbent.",
+    "No extrapolation beyond observed score nodes [0.0,0.49] is licensed; any injection outside the learning window would be unsupported."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H003"
+  ],
+  "rationale": "Analyst H001/H002 report non-stationary soft-mass contrasts (landmark_00 and landmark_10) over the observed score nodes [0.0,0.49]: early rise to a mid-window peak then late decline, whole-window level near zero, no accepted polynomial and frequent sign changes. H003 frames this as gradual stage-dependent teacher relevance rather than a discovered knot, with a constant blend as the control. The registered S1_observed_to_static recipe matches this shape: early same-clock historical forecasts smoothly approaching frozen static teachers, smoothstep over observed nodes, no extrapolation, dose normalized to mean one, delta and dose held at 1. This is a reward-route edit that preserves the incumbent backbone, checkpoint, native integrator, frozen temperatures, neighbor count and eta; only the registered blend schedule changes. S2 is the appropriate control but is not the primary hypothesis-driven choice; S3 is the opposite-relevance control. No data-derived knot is claimed since stage/temporal profiles are unavailable.",
+  "role": "Designer"
+}

@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "S1_observed_to_static",
+    "evidence_refs": [
+      "E4bbe368c52deda38",
+      "Eace79c1f0f54c9d1",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "Affinity: the S1 staged blend may not improve final predicted target affinity versus the S2 constant-blend control; if decoded final affinity is unobserved, no affinity benefit can be claimed and the edit must be judged only on the coordinate contrast profile.",
+      "Coordinate response: the landmark_00_local_dx sign-change pattern may not be reproducible across independent batches, in which case the stage-dependent relevance hypothesis (H001) is falsified and the edit should be reverted to the incumbent.",
+      "Strain/validity: the changed reward geometry could increase strain or produce invalid structures even if the coordinate contrast shifts as expected; strain and structural validity must be reported separately from affinity.",
+      "Schedule: because no independently stable profile localizes a single transition knot, any attempt to sharpen S1 into a data-derived knot would be unsupported (H002); the smoothstep, knot-free schedule must be preserved.",
+      "Dose: S1 must keep dose_factors=1 and the frozen eta; any realized-dose drift or per-seed flow-scale deviation would confound the reward-lane comparison and invalidate attribution to the temporal blend."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Analyst H001 reports that the landmark_00_local_dx endpoint-world coordinate contrast is non-monotone over the observed score window, rising to a positive peak near t~0.11, falling to a negative trough near t~0.19, and ending near zero, with opposite-sign first/last node rates (F002). H003/F003 add that no low-order polynomial is accepted (relative_node_RMSE 0.78) and there are 6 sign changes with 9 strong sign conflicts across 14 independent batches, so a single static endpoint target is not supported. H002 further argues any staged schedule should remain gradual with no data-derived knot. Among the offered reward-lane recipes, S1_observed_to_static is the only one that implements a smooth, knot-free, stage-dependent shift of teacher relevance (blend 1->0.5->0 over the observed nodes) at fixed dose (dose=[1,1,1], delta=[1,1,1]), matching H001's proposed test of early same-clock historical forecasts smoothly approaching frozen static teachers. S2_constant_blend is the constant-blend control and S3_static_to_observed_control is the opposite-relevance control; both are retained as comparators rather than the primary edit. The recipe is registered, uses the unchanged backbone/checkpoint/native integrator, and does not alter frozen temperatures, neighbor count, score beta, or base eta.",
+    "role": "Designer"
+  }
+}

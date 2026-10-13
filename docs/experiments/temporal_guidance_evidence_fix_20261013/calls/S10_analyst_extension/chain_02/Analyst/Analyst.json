@@ -1,0 +1,71 @@
+{
+  "findings": [
+    {
+      "claim": "The learning window and observed score clocks span [0.0, 0.49] with 50 observed score nodes; curve support is [0.0, 0.49] and no extrapolation is permitted.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are not themselves an affinity objective.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "For landmark_00_local_dx the observed curve is non-monotone: it rises to a positive peak near the middle of the window, then falls to a negative trough, then partially recovers, with 6 sign changes and 9 strong sign conflicts across 14 independent batches; the whole-window mean z is near zero (-0.18) and the quadratic fit is not accepted (relative node RMSE 0.78).",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 2
+    },
+    {
+      "claim": "The first-node rate z is strongly negative (-17.5) while the last-node rate z is strongly positive (+8.1) for landmark_00_local_dx, indicating the local slope changes sign across the window rather than a stationary trend.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 2
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "test staged relevance (S1 observed-to-static) against the constant-blend control S2 at fixed dose; do not assume a monotone coordinate target",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "if the staged schedule produces the same landmark_00_local_dx trajectory as the constant-blend control at matched dose, or if the sign reversal disappears under both, the stage-dependent relevance is not supported",
+      "id": "H001",
+      "observable": "landmark_00_local_dx predicted-endpoint world-coordinate contrast over observed score nodes",
+      "scope": "all seeds over the full observed support [0.0, 0.49]",
+      "statement": "A stage-dependent teacher relevance schedule (early same-clock historical forecasts blending toward frozen static teachers) is worth testing at fixed dose for this coordinate, because the observed landmark_00_local_dx contrast is non-stationary with a sign reversal across the window rather than a constant offset."
+    },
+    {
+      "direction": "retain gradual/observed profile; reject a constant-direction coordinate objective",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "if an independently stable profile shows a reproducible monotone trend with no strong sign conflicts, the non-monotone limitation would be overturned",
+      "id": "H002",
+      "observable": "sign-change count and strong-sign-conflict count of the landmark_00_local_dx contrast",
+      "scope": "all seeds over the full observed support",
+      "statement": "Because the landmark_00_local_dx curve has 6 sign changes and 9 strong sign conflicts across 14 independent batches with a near-zero whole-window mean, a single global monotone coordinate target is not supported; any reward should be evaluated against the observed non-monotone profile rather than a fixed endpoint direction."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are not available; only continuous curves were read, so no data-derived stage knot is supported.",
+    "Only one coordinate feature (landmark_00_local_dx) was read in detail; other landmark coordinates were not inspected and may behave differently.",
+    "Selection preference and survival are not measured final affinity; no decoded final-affinity labels were available, so no claim about descendant survival or final benefit is made.",
+    "The observed contrast curve does not define an absolute coordinate target or spatial gradient; no such target is asserted."
+  ],
+  "role": "Analyst"
+}

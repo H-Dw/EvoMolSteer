@@ -1,0 +1,92 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are therefore proxies, not the affinity objective itself.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The learning/control support is the score-clock window [0.0, 0.5] with 50 observed score nodes at 0.01 spacing; curve support is [0.0, 0.49], so no extrapolation beyond the observed nodes is licensed.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Across the 20 landmark soft-mass features, whole-window z magnitudes are small (largest |z| ~0.64 for landmark_00_soft_mass) while first/last rate z values are large and of opposite sign (e.g. landmark_00 first_rate_z ~ +9.3, last_rate_z ~ -10.0; landmark_10 first_rate_z ~ +66.3, last_rate_z ~ -11.6; landmark_11 first_rate_z ~ -66.3, last_rate_z ~ +10.8). This indicates changing local contrast/rate rather than a stationary whole-window level shift.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E88a1b6d50276da1e",
+          "Ebfdd229bdaca644c"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "No polynomial trend is accepted for any inspected soft-mass feature (polynomial_accepted=false, relative_node_RMSE ~0.29-0.70) and sign_changes range 4-8 with strong_sign_conflicts up to 11, so a single smooth monotone stage profile is not supported by these rows.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E65c5cdcb88f99c74",
+          "E57315f2f7083ab82",
+          "Ecaa47212cd4165ae"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Stage profiles and temporal profiles are reported unavailable, so no data-derived knot or stage boundary can be claimed from profiles; only the continuous curves and trend rows are available.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 2
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "rate contrast changes sign from positive early to negative late; whole-window level near zero",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E0857891f4effbfe1"
+        ],
+        "falsifier": "A re-read of the landmark_00_soft_mass curve showing no sign change in local rate, or a whole-window z comparable in magnitude to the rate z values.",
+        "observable": "landmark_00_soft_mass continuous curve over score nodes [0.0, 0.49]",
+        "scope": "global over observed score nodes; landmark_00 region",
+        "statement": "Landmark_00 soft-mass shows a signed early-positive to late-negative rate contrast over the observed score window, consistent with a time-dependent (not stationary) coordinate contrast at that landmark."
+      },
+      {
+        "direction": "opposite-sign early vs late rates at both landmarks",
+        "evidence_refs": [
+          "E88a1b6d50276da1e",
+          "Ebfdd229bdaca644c",
+          "E0857891f4effbfe1"
+        ],
+        "falsifier": "Curve reads showing first and last rate z of the same sign, or whole-window z dominating the rate z values.",
+        "observable": "landmark_10_soft_mass and landmark_11_soft_mass continuous curves over score nodes [0.0, 0.49]",
+        "scope": "global over observed score nodes; landmark_10 and landmark_11 regions",
+        "statement": "Landmark_10 and landmark_11 soft-mass show large opposite-sign first/last rate z values, indicating a changing contrast that a constant-blend teacher would not reproduce."
+      },
+      {
+        "direction": "gradual change in teacher relevance rather than a sharp knot",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E65c5cdcb88f99c74",
+          "Ecaa47212cd4165ae",
+          "E0857891f4effbfe1"
+        ],
+        "falsifier": "A reproducible knot supported by independently stable profiles, or evidence that a constant blend reproduces the observed contrast equally well.",
+        "observable": "soft-mass contrast curves across the full observed window",
+        "scope": "all 20 landmark soft-mass features",
+        "statement": "Because no polynomial is accepted and sign changes are frequent, a gradual stage-dependent teacher relevance (as in the registered S1 observed-to-static recipe) is a testable hypothesis rather than a discovered stage boundary; a constant blend (S2) is the appropriate control."
+      }
+    ],
+    "limitations": [
+      "Stage profiles and temporal profiles are unavailable; no data-derived stage boundary or knot can be asserted.",
+      "Trend rows are summaries; the underlying continuous curves were not individually read for every landmark, so per-landmark claims are limited to the cited rows.",
+      "Coordinate contrasts are proxies only; they do not establish affinity improvement, descendant survival, or any neural-module causation.",
+      "Selection preference and survival are not evidence of measured final benefit; no decoded final affinity labels were available in this input."
+    ],
+    "role": "Analyst"
+  }
+}

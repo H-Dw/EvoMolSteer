@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "claim": "The learning/control support is the score-clock window [0.0, 0.49] with 50 observed score nodes at 0.01 spacing; the objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only.",
+      "evidence_refs": [
+        "E0857891f4effbfe1",
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "For landmark_00_local_dx the observed endpoint-world coordinate contrast is non-monotone across the window: it rises to a positive peak near t~0.11, falls to a negative trough near t~0.19, partially recovers, and ends near zero (last_z ~0.18). The whole-window mean is near zero (whole_window_z ~ -0.18), so the net displacement over the window is small despite large internal excursions.",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "Eace79c1f0f54c9d1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "The landmark_00_local_dx trend is not well described by a low-degree polynomial (polynomial_accepted=false, relative_node_RMSE ~0.78) and shows 6 sign changes with 9 strong sign conflicts across 14 independent batches, so a single global monotone direction is not supported for this coordinate.",
+      "evidence_refs": [
+        "Eace79c1f0f54c9d1",
+        "E4bbe368c52deda38"
+      ],
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "test staged relevance (S1 observed-to-static) versus the constant-blend control (S2) at fixed dose; do not assume a monotone coordinate target",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "Eace79c1f0f54c9d1",
+        "E0857891f4effbfe1"
+      ],
+      "falsifier": "If the staged schedule produces no reproducible difference in the landmark_00_local_dx contrast trajectory versus the constant-blend control across independent batches, the stage-dependent relevance hypothesis is not supported.",
+      "observable": "landmark_00_local_dx endpoint-world coordinate contrast over the observed score nodes",
+      "scope": "all seeds over the observed score-clock window [0.0, 0.49]; fixed dose_factors=1",
+      "statement": "A stage-dependent teacher-relevance schedule (early same-clock historical forecasts blending toward frozen static teachers) is worth testing at fixed dose for the landmark_00_local_dx coordinate, because the observed contrast is strongly time-dependent (early positive excursion, mid-window negative excursion, late return toward zero) rather than stationary."
+    },
+    {
+      "direction": "retain the affinity objective; treat the sign change as a diagnostic only",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "falsifier": "If the contrast sign change is not reproducible across independent batches, it is noise rather than a stage diagnostic.",
+      "observable": "sign and magnitude of the landmark_00_local_dx contrast at early versus mid-window score nodes",
+      "scope": "all seeds over the observed window",
+      "statement": "The sign reversal in the landmark_00_local_dx contrast (positive early, negative mid-window) is a diagnostic of changing regional direction, not permission to reverse the affinity objective; the coordinate target should remain the final predicted target affinity."
+    }
+  ],
+  "limitations": [
+    "Only one coordinate feature (landmark_00_local_dx) was read in detail; the remaining 199 curve features were not individually inspected, so no claim is made about their temporal behavior.",
+    "Stage profiles and temporal profiles are unavailable; no data-derived stage knot is supported, so any phase knot remains an experimental hypothesis rather than a discovered stage.",
+    "The observed contrast is a coordinate proxy in predicted endpoint world coordinates; it does not by itself specify an absolute coordinate target, spatial gradient, or any energy/chemical-interaction interpretation.",
+    "Selection preference and survival are not established here as final affinity improvement; no decoded final affinity labels were observed."
+  ],
+  "role": "Analyst"
+}
