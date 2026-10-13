@@ -2,12 +2,80 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import html
 import json
 from pathlib import Path
 from typing import Any
 
 from .evaluate import _csv_write, _read_json
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _canonical_json_sha256(value: Any) -> str:
+    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def _functional_job_status(job: Path) -> tuple[bool, str]:
+    """Verify a functional audit is bound to this request and this answer receipt."""
+    answer_path, audit_path = job / "answer.json", job / "functional_audit.json"
+    binding_path, receipt_path = job / "controller_binding.json", job / "receipt.json"
+    if not answer_path.exists() or not audit_path.exists():
+        return False, "missing answer or functional audit"
+    if not binding_path.exists():
+        return False, "missing controller binding"
+    if not receipt_path.exists():
+        return False, "missing model-call receipt"
+    try:
+        audit = _read_json(audit_path)
+        binding = _read_json(binding_path)
+        receipt = _read_json(receipt_path)
+    except (OSError, json.JSONDecodeError):
+        return False, "unreadable audit, binding, or receipt"
+    request_hash = binding.get("request_sha256")
+    if not request_hash or audit.get("request_sha256") != request_hash:
+        return False, "functional audit request hash does not match controller binding"
+    try:
+        answer_hash = _canonical_json_sha256(_read_json(answer_path))
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return False, "current answer is unreadable or noncanonical"
+    if receipt.get("status") != "completed" or receipt.get("answer_sha256") != answer_hash:
+        return False, "receipt is incomplete or does not identify the current answer"
+    if not audit.get("clause_id") or audit.get("prompt_contains_active_clause") is not True:
+        return False, "functional audit does not verify the active clause"
+    if audit.get("application_claim_not_a_causal_improvement") is not True:
+        return False, "functional audit is missing its causal limitation"
+    return True, ""
+
+
+def _selection_metrics_complete(metrics: dict[str, Any]) -> bool:
+    expected = set(range(5, 51, 5))
+    rows = metrics.get("metrics", [])
+    try:
+        return bool(metrics.get("complete") is True and len(rows) == 10
+                    and {int(row.get("step", -1)) for row in rows} == expected
+                    and {int(step) for step in metrics.get("evaluated_steps", [])} == expected)
+    except (TypeError, ValueError):
+        return False
+
+
+def _selection_run_complete(folder: Path, metrics: dict[str, Any]) -> tuple[bool, list[str]]:
+    issues = []
+    if not _selection_metrics_complete(metrics):
+        issues.append("metrics do not contain ten unique expected cutoffs")
+    for step in range(5, 51, 5):
+        ok, reason = _functional_job_status(folder / "selectors" / f"t{step:03d}")
+        if not ok:
+            issues.append(f"t{step:03d}: {reason}")
+    return not issues, issues
 
 
 def _load_csv(path: Path) -> list[dict[str, str]]:
@@ -59,24 +127,24 @@ def _round_audit_status(study: Path, round_dir: Path) -> dict[str, Any]:
     source, frozen_round = _scientist_source(study, round_dir)
     functional = []
     for step in range(5, 51, 5):
-        path = round_dir / "selectors" / f"t{step:03d}" / "functional_audit.json"
+        job = round_dir / "selectors" / f"t{step:03d}"
+        path = job / "functional_audit.json"
         data = _read_json(path) if path.exists() else None
-        ok = bool(data and data.get("clause_id") and data.get("prompt_contains_active_clause") is True
-                  and data.get("application_claim_not_a_causal_improvement") is True)
-        functional.append({"role": "selector", "step": step, "path": path, "ok": ok, "data": data})
+        ok, reason = _functional_job_status(job)
+        functional.append({"role": "selector", "step": step, "path": path, "ok": ok, "reason": reason, "data": data})
     scientist_path = source / "scientist" / "functional_audit.json"
     scientist_data = _read_json(scientist_path) if scientist_path.exists() else None
-    scientist_ok = bool(scientist_data and scientist_data.get("clause_id")
-                        and scientist_data.get("prompt_contains_active_clause") is True
-                        and scientist_data.get("application_claim_not_a_causal_improvement") is True)
-    functional.append({"role": "scientist", "step": None, "path": scientist_path, "ok": scientist_ok, "data": scientist_data})
+    scientist_ok, scientist_reason = _functional_job_status(source / "scientist")
+    functional.append({"role": "scientist", "step": None, "path": scientist_path, "ok": scientist_ok, "reason": scientist_reason, "data": scientist_data})
     semantic_path = round_dir / "semantic_audit.json"
     semantic = _read_json(semantic_path) if semantic_path.exists() else None
     assessments = semantic.get("selector_assessments", []) if semantic else []
     semantic_ok = bool(semantic and semantic.get("passes") is True
                        and len(assessments) == 10
                        and {int(a.get("step", -1)) for a in assessments} == set(range(5, 51, 5))
-                       and all(a.get("evidence_truth") is True and a.get("clause_applied") is True for a in assessments))
+                       and all(a.get("evidence_truth") is True and a.get("clause_applied") is True for a in assessments)
+                       and semantic.get("scientist_evidence_truth") is True
+                       and semantic.get("scientist_clause_applied") is True)
     issues = [f"missing/invalid {x['role']} functional audit" + (f" at t{x['step']:03d}" if x["step"] is not None else "") for x in functional if not x["ok"]]
     if not semantic_ok:
         issues.append("missing or failed main-model xhigh evidence audit")
@@ -106,7 +174,7 @@ def _write_plot_curves(study: Path, curves: list[dict[str, Any]], heat: list[lis
                 ceilings = [r.get(f"ceiling_at_{k}") for r in usable]
                 if any(v is not None for v in ceilings):
                     ax.plot([int(str(r["round"])[1:]) for r in usable], [v if v is not None else float("nan") for v in ceilings], linestyle="--", color=color, alpha=.7, label=f"Oracle ceiling@{k}")
-        ax.set(xlabel="Scientist version / iteration round", ylabel="Macro top-30 coverage", ylim=(0, 1), title="Mean selector retrieval by complete round")
+        ax.set(xlabel="Optimizer round (R00–R25 Scientist; R26–R50 Selector)", ylabel="Macro top-30 coverage", ylim=(0, 1), title="Mean selector retrieval by complete round")
         ax.grid(alpha=.25)
         handles, labels = ax.get_legend_handles_labels()
         if handles: ax.legend(ncol=2, fontsize=8)
@@ -148,9 +216,21 @@ def report(study: str | Path) -> dict[str, Any]:
     version_manifests = []
     all_metrics = []
     audits = []
+    rejected_trials = []
     audit_status_by_round: dict[str, dict[str, Any]] = {}
     confirmation_dirs = sorted((study / "confirmations").glob("*") if (study / "confirmations").exists() else [])
     for round_dir in round_dirs:
+        rejected_root = round_dir / "rejected"
+        if rejected_root.exists():
+            for trial_dir in sorted((p for p in rejected_root.glob("T*") if p.is_dir()), key=lambda p: p.name):
+                manifest_path = trial_dir / "manifest.json"
+                manifest = _read_json(manifest_path) if manifest_path.exists() else {}
+                rejected_trials.append({"round": round_dir.name, "trial": trial_dir.name,
+                    "reason": manifest.get("reason", "archive manifest missing"),
+                    "manifest_sha256": _file_sha256(manifest_path) if manifest_path.exists() else None,
+                    "archived_file_count": len(manifest.get("files", [])),
+                    "contains_rejected_metrics": any(r.get("source") == "metrics.json" for r in manifest.get("files", [])),
+                    "manifest": manifest})
         try:
             audit_status_by_round[round_dir.name] = _round_audit_status(study, round_dir)
         except (OSError, json.JSONDecodeError, TypeError, ValueError):
@@ -213,9 +293,17 @@ def report(study: str | Path) -> dict[str, Any]:
             ceilings[(int(m["step"]), int(k))] = v
     curve_rows = []
     metrics_by_name = {name: m for name, m in all_metrics}
+    versions_by_name = {row["round"]: row.get("manifest") or {} for row in version_manifests}
     for name in expected_rounds:
         m = metrics_by_name.get(name)
-        row: dict[str, Any] = {"round": name, "complete": bool(m and name in complete_rounds)}
+        manifest = versions_by_name.get(name, {})
+        round_number = int(name[1:])
+        role = "scientist" if round_number <= 25 else "selector"
+        row: dict[str, Any] = {"round": name, "active_role": role,
+            "active_version": manifest.get(f"{role}_version"),
+            "scientist_version": manifest.get("scientist_version"),
+            "selector_version": manifest.get("selector_version"),
+            "complete": bool(m and name in complete_rounds)}
         macro = (m or {}).get("macro", {})
         if m and not macro and name in complete_rounds:
             mr = m.get("metrics", [])
@@ -226,6 +314,8 @@ def report(study: str | Path) -> dict[str, Any]:
             row[f"ceiling_at_{k}"] = sum(ceiling_values) / len(ceiling_values) if ceiling_values and name in complete_rounds else None
         curve_rows.append(row)
     _csv_write(study / "iteration_curves.csv", curve_rows)
+    _csv_write(study / "rejected_trials.csv", [{k: v for k, v in row.items() if k != "manifest"} for row in rejected_trials],
+               ["round", "trial", "reason", "manifest_sha256", "archived_file_count", "contains_rejected_metrics"])
     raw_rows = []
     for name, m in round_metrics:
         for m in m.get("metrics", []):
@@ -328,7 +418,8 @@ def report(study: str | Path) -> dict[str, Any]:
             mp = path / "metrics.json"
             if mp.exists():
                 cm = _read_json(mp); macro = _metric_macro(cm)
-                control_rows.append({"version_round": path.name, "condition": "structure_only", "repeat": 1, "source": str(path.relative_to(study)), "complete": cm.get("complete", False), **macro})
+                valid, issues = _selection_run_complete(path, cm)
+                control_rows.append({"version_round": path.name, "condition": "structure_only", "repeat": 1, "source": str(path.relative_to(study)), "complete": valid, "validation_issues": "; ".join(issues), **macro})
     confirmation_rows = []
     for label in dict.fromkeys(("R00", status_best or (best_round_name or ""))):
         if not label:
@@ -336,18 +427,23 @@ def report(study: str | Path) -> dict[str, Any]:
         source = study / "rounds" / label / "metrics.json"
         if source.exists():
             cm = _read_json(source); macro = _metric_macro(cm)
-            confirmation_rows.append({"version_round": label, "condition": "affinity_visible", "repeat": 1, "source": str(source.parent.relative_to(study)), "complete": cm.get("complete", False), **macro})
+            valid, issues = _selection_run_complete(source.parent, cm)
+            # The main repeat also needs its independent xhigh evidence audit.
+            valid = valid and audit_status_by_round.get(label, {}).get("semantic_complete", False)
+            confirmation_rows.append({"version_round": label, "condition": "affinity_visible", "repeat": 1, "source": str(source.parent.relative_to(study)), "complete": valid, "validation_issues": "; ".join(issues), **macro})
         control = study / "controls" / "structure_only" / label / "metrics.json"
         if control.exists():
             cm = _read_json(control); macro = _metric_macro(cm)
-            confirmation_rows.append({"version_round": label, "condition": "structure_only", "repeat": 1, "source": str(control.parent.relative_to(study)), "complete": cm.get("complete", False), **macro})
+            valid, issues = _selection_run_complete(control.parent, cm)
+            confirmation_rows.append({"version_round": label, "condition": "structure_only", "repeat": 1, "source": str(control.parent.relative_to(study)), "complete": valid, "validation_issues": "; ".join(issues), **macro})
         for condition in ("affinity_visible", "structure_only"):
             for repeat in (2, 3):
                 cp = study / "confirmations" / label / condition / f"repeat{repeat}" / "metrics.json"
                 if cp.exists():
                     cm = _read_json(cp); macro = _metric_macro(cm)
+                    valid, issues = _selection_run_complete(cp.parent, cm)
                     confirmation_rows.append({"version_round": label, "condition": condition, "repeat": repeat,
-                        "source": str(cp.parent.relative_to(study)), "complete": cm.get("complete", False), **macro})
+                        "source": str(cp.parent.relative_to(study)), "complete": valid, "validation_issues": "; ".join(issues), **macro})
     _csv_write(study / "structure_only_controls.csv", control_rows)
     _csv_write(study / "confirmation_repeats.csv", confirmation_rows)
     confirmation_groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
@@ -371,6 +467,8 @@ def report(study: str | Path) -> dict[str, Any]:
     control_md = ("| 版本 | C@1 | C@3 | C@5 | complete |\n|---|---:|---:|---:|---|\n" + control_md) if control_md else "（尚无结构专用控制结果。）"
     confirmation_md = "\n".join(f"| {r['version_round']} | {r['condition']} | {r['repeat']} | {r['coverage_at_1']:.3f} | {r['coverage_at_3']:.3f} | {r['coverage_at_5']:.3f} | {r['complete']} |" for r in confirmation_rows)
     confirmation_md = ("| 版本 | 条件 | repeat | C@1 | C@3 | C@5 | complete |\n|---|---|---:|---:|---:|---:|---|\n" + confirmation_md) if confirmation_md else "（尚无确认重复结果。）"
+    rejected_md = "\n".join(f"| {r['round']} | {r['trial']} | {_escape_md(r['reason'])} | {r['archived_file_count']} | {r['contains_rejected_metrics']} | `{r['manifest_sha256'] or 'missing'}` |" for r in rejected_trials)
+    rejected_md = ("| round | trial | rejection reason | archived files | rejected metrics archived | archive manifest SHA-256 |\n|---|---|---|---:|---:|---|\n" + rejected_md) if rejected_md else "（尚无归档拒绝轮次。）"
 
     # Describe iteration instructions and hypotheses only when provenance exists.
     teacher_text = []
@@ -412,7 +510,9 @@ def report(study: str | Path) -> dict[str, Any]:
                            "complete_for_selection": name in complete_rounds})
     for row in audit_rows:
         info = audit_status_by_round.get(row["round"], {})
-        row["audit_issue"] = "; ".join(info.get("issues", []))
+        functional_issues = [f"{item['role']} {item['reason']}" + (f" (t{item['step']:03d})" if item["step"] is not None else "")
+                             for item in info.get("functional", []) if not item.get("ok")]
+        row["audit_issue"] = "; ".join(info.get("issues", []) + functional_issues)
         row["semantic_failure"] = info.get("semantic_failure", "")
     audit_table = "\n".join(f"| {r['round']} | {r['scientist_source_round']} | {r['functional_audit']} | {r['semantic_audit']} | {r['complete_for_selection']} | {_escape_md(r['audit_issue'])} |" for r in audit_rows if r['round'] in {n for n, _ in all_metrics})
     audit_table = ("| round | Scientist output source | functional audits | xhigh evidence audit | eligible for best | audit gaps |\n|---|---|---:|---:|---:|---|\n" + audit_table) if audit_table else "（尚无主实验审计记录。）"
@@ -453,7 +553,11 @@ def report(study: str | Path) -> dict[str, Any]:
 
 {best_line}
 
-各 Scientist 版本的十个时间点宏平均见 `iteration_curves.csv`；每轮每时间点原始分数见 `iteration_scores.csv`。目标节点排名热图基于主实验最佳完整版本；空格表示该目标未进入所选五个分支。`best_round_target_summary.csv` 列出 TOP30 全部真实 node_id、batch、final slot、最终 readout 和十个时点排名。下表为该版本精确的 30×10 ancestry rank 矩阵。
+每个优化轮次的十个时间点宏平均见 `iteration_curves.csv`；R00–R25 优化 Scientist，R26–R50 冻结 Scientist 并优化 Selector。每轮每时间点原始分数见 `iteration_scores.csv`。目标节点排名热图基于主实验最佳完整版本；空格表示该目标未进入所选五个分支。`best_round_target_summary.csv` 列出 TOP30 全部真实 node_id、batch、final slot、最终 readout 和十个时点排名。下表为该版本精确的 30×10 ancestry rank 矩阵。
+
+已拒绝并归档的试验不会进入曲线、版本选择或指标平均；归档试验及其原因/清单哈希见 `rejected_trials.csv`：
+
+{rejected_md}
 
 {rank_table_md}
 
@@ -477,7 +581,7 @@ def report(study: str | Path) -> dict[str, Any]:
 
 ## 审计与局限
 
-报告保留选择器回答、匿名映射、oracle 池的 SHA-256 输入清单（见各轮 `metrics.json`），并汇总存在的角色审计文件。主轮次只有在所有十个 Selector 的 `functional_audit.json`、有效 Scientist functional audit（R26+ 指向冻结 Scientist 的来源轮次）和通过的 main-model xhigh `semantic_audit.json` 均存在时才可进入版本比较。审计覆盖情况：
+报告保留选择器回答、匿名映射、oracle 池的 SHA-256 输入清单（见各轮 `metrics.json`），并核对功能审计的 request hash 与 controller binding、当前 answer hash 与调用 receipt。主轮次只有在所有十个 Selector 的绑定有效 `functional_audit.json`、有效 Scientist functional audit（R26+ 指向冻结 Scientist 的来源轮次）和通过的 main-model xhigh `semantic_audit.json`（Scientist evidence-truth/application 两项及十个 Selector 时点均显式通过）均存在时才可进入版本比较。审计覆盖情况：
 
 {audit_table}
 
@@ -507,8 +611,8 @@ def report(study: str | Path) -> dict[str, Any]:
     (study / "report.html").write_text(html_doc, encoding="utf-8")
     result = {"status": "complete" if study_complete else "incomplete", "complete_rounds": complete_rounds, "expected_rounds": expected_rounds,
               "evaluated_steps": sorted(present), "best": best, "plots": plot_files,
-              "artifacts": ["report.md", "report.html", "iteration_curves.csv", "iteration_scores.csv", "private_interval_descriptions.csv", "best_round_target_summary.csv", "role_versions.csv", "role_call_receipts.csv", "structure_only_controls.csv", "confirmation_repeats.csv", "confirmation_summary.csv", *plot_files],
-              "audits_found": len(audits), "round_audit_status": {name: {"complete": info.get("complete"), "functional_complete": info.get("functional_complete"), "semantic_complete": info.get("semantic_complete"), "scientist_source_round": info.get("scientist_source_round")} for name, info in audit_status_by_round.items()}, "confirmation_directories": [p.name for p in confirmation_dirs],
+              "artifacts": ["report.md", "report.html", "iteration_curves.csv", "iteration_scores.csv", "rejected_trials.csv", "private_interval_descriptions.csv", "best_round_target_summary.csv", "role_versions.csv", "role_call_receipts.csv", "structure_only_controls.csv", "confirmation_repeats.csv", "confirmation_summary.csv", *plot_files],
+              "audits_found": len(audits), "round_audit_status": {name: {"complete": info.get("complete"), "functional_complete": info.get("functional_complete"), "semantic_complete": info.get("semantic_complete"), "scientist_source_round": info.get("scientist_source_round")} for name, info in audit_status_by_round.items()}, "rejected_trials": [{k: v for k, v in row.items() if k != "manifest"} for row in rejected_trials], "confirmation_directories": [p.name for p in confirmation_dirs],
               "confirmation_records": confirmation_rows, "confirmation_summary": confirmation_summary,
               "structure_only_control_records": control_rows,
               "scientist_descriptions": len(descriptions), "random_baseline_rows": len(random_baseline),

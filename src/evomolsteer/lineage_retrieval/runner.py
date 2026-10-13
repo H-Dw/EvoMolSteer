@@ -22,7 +22,7 @@ from typing import Any, Callable
 
 _FORBIDDEN_KEY = re.compile(r"(?:path|filepath|filename|directory|cwd|oracle|ground.?truth|final.?score|true.?score|fitness|mapping|private|raw.?id)", re.I)
 _FORBIDDEN_ORACLE_VALUE = re.compile(r"(?:oracle|ground.?truth|final|true).{0,20}(?:score|affinity|pic50)|(?:score|affinity|pic50).{0,20}(?:oracle|ground.?truth|final|true)", re.I)
-_PATH_VALUE = re.compile(r"(?:[A-Za-z]:\\|\\\\[^\\]+\\|(?:^|\s|[=:])(?:\.\.?[\\/])|/(?:[A-Za-z0-9_.-]+/){1,})")
+_PATH_VALUE = re.compile(r"(?:[A-Za-z]:\\|\\\\[^\\]+\\|(?:^|\s|[=:])(?:\.\.?[\\/])|(?:^|\s|[=:])/(?:[A-Za-z0-9_.-]+/){1,})")
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 _MAX_PACKET_BYTES = 300_000_000
 
@@ -94,8 +94,10 @@ def _scientist_interval_payload(source: dict[str, Any], interval: int) -> dict[s
     for donor in source.get("teacher", {}).get("donors", []):
         donors.append({'donor_id': donor.get('donor_id'),
             'observation_rows': [[compact(row.get(k)) for k in keys] for row in donor.get('observations', []) if low <= row.get('step', -1) <= high]})
+    from .summaries import summarize_scientist_interval
     return {'interval': interval, 'step_start': low, 'step_end': high,
         'observation_columns': keys, 'donors': donors,
+        'computed_observation_cards': summarize_scientist_interval(source, interval),
         'background': [row for row in source.get('background', []) if low <= row.get('step', -1) <= high],
         'geometry_semantics': 'Current/forecast cloud features have separate namespaces. All covariance components are in the fixed receptor frame; principal-axis sign changes alone are not rotation. *_planarity_fraction is smallest eigenvalue/sum, lower means thinner. Early slot clouds and raw graph labels are not formed physical molecules. These rounded observations support qualitative claims; original numeric precision stays in the frozen evidence package.'}
 
@@ -141,6 +143,7 @@ def _validate_packet(packet: Any, role: str) -> dict[str, Any]:
                 return [strip_affinity(v) for v in node]
             return node
         data = strip_affinity(data)
+        data['affinity_available'] = False
         cards = data.get("cards", [])
 
     def inspect(node: Any, where: str = "packet") -> None:
@@ -349,9 +352,15 @@ class _AppServer:
 
 
 async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any], schema: dict[str, Any], model: str, effort: str, timeout: float, broker: Any, events: list[dict[str, Any]], calls: list[dict[str, Any]], isolated_cwd: str, codex_home: str, attempt_dir: Path, journal: dict[str, list[Any]], scientist_source: dict[str, Any] | None = None) -> dict[str, Any]:
+    from .validation import validate_background_evidence, validate_hypothesis_specificity, validate_public_hypothesis
     server = _AppServer(timeout, isolated_cwd, codex_home)
     result: dict[str, Any] = {}
     scientist_fetched_interval: int | None = None
+    scientist_seen_donors: set[str] = set()
+    scientist_summary: dict[str, Any] | None = None
+    scientist_continuations = 0
+    scientist_turn_interval: int | None = None
+    scientist_turn_commit_count = 0
     try:
         await server.start()
         tools = [
@@ -362,7 +371,9 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
         scientist_bridge = "scientist" in role.lower() and scientist_source is not None and {"interval_descriptions", "hypotheses"}.issubset(_schema_fields(schema))
         if scientist_bridge:
             tools = [
-                {"type": "function", "name": "get_scientist_interval", "description": "Fetch exactly the next locked 5-step teacher interval and background quantiles through its endpoint.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}}, "required": ["interval"], "additionalProperties": False}},
+                {"type": "function", "name": "get_scientist_interval", "description": "Fetch the next window's compact manifest, all donor IDs, and exact cohort/background medians. Then fetch all 30 donor profiles in groups of at most five.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}}, "required": ["interval"], "additionalProperties": False}},
+                {"type": "function", "name": "get_scientist_donors", "description": "Read complete computational observation profiles for one to five donors in the currently unlocked window. All 30 profiles must be read before submitting.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}, "donor_ids": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "string"}}}, "required": ["interval", "donor_ids"], "additionalProperties": False}},
+                {"type": "function", "name": "get_scientist_details", "description": "Read extra raw feature observations, including covariance, at all six steps for one donor in this window; no future data.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}, "donor_id": {"type": "string"}, "features": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"type": "string"}}}, "required": ["interval", "donor_id", "features"], "additionalProperties": False}},
                 {"type": "function", "name": "submit_scientist_interval", "description": "Irrevocably submit exactly 30 descriptions and one hypothesis for the currently unlocked interval.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}, "descriptions": {"type": "array", "minItems": 30, "maxItems": 30, "items": schema['properties']['interval_descriptions']['items']}, "hypothesis": schema['properties']['hypotheses']['items']}, "required": ["interval", "descriptions", "hypothesis"], "additionalProperties": False}},
             ]
         # Empty MCP and disabled shell/skills are explicit. No runtime roots or cwd
@@ -371,7 +382,7 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
             tools = []
         model_schema = schema
         if scientist_bridge:
-            model_schema = {"type": "object", "properties": {"submitted": {"type": "boolean"}, "interval_count": {"type": "integer"}, "hypothesis_count": {"type": "integer"}, "applied_clauses": schema["properties"]["applied_clauses"]}, "required": ["submitted", "interval_count", "hypothesis_count", "applied_clauses"], "additionalProperties": False}
+            model_schema = {"type": "object", "properties": {"submitted": {"type": "boolean"}, "committed_interval": {"type": "integer", "minimum": 1, "maximum": 10}, "applied_clauses": schema["properties"]["applied_clauses"]}, "required": ["submitted", "committed_interval", "applied_clauses"], "additionalProperties": False}
         started = await server.request("thread/start", {
             "model": model, "ephemeral": True, "cwd": None, "runtimeWorkspaceRoots": [],
             "sandbox": "read-only", "approvalPolicy": "never", "dynamicTools": tools,
@@ -397,14 +408,28 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
             model_packet["available_interval"] = 1
             model_packet["max_allowed_step"] = 5
             model_packet["interval_count"] = 10
-            prompt += ('\nProgressive evidence protocol: call get_scientist_interval(1), interpret its observation_columns and rows, '
+            prompt += ('\nProgressive evidence protocol: this is a single-window turn. Work only on interval 1, and only on the '
+                'currently unlocked interval stated in the packet. Call get_scientist_interval(1) for its compact manifest and cohort medians, '
+                'then get_scientist_donors for all thirty IDs in six groups of five. Each small response contains full measured '
+                'start/mid/end values, signed directions, contact footprints and background positions. Use get_scientist_details '
+                'for extra covariance or other original features when needed. Only after all thirty profiles have been fetched '
                 'then submit_scientist_interval with all thirty model-authored descriptions and one qualitative hypothesis. '
-                'Only after acceptance fetch interval2, and so on through10. No later evidence is available beforehand. '
-                'The private evidence feature names refer to the column names. After all ten accepted submissions, '
-                'return ONLY the compact final acknowledgement with submitted=true, interval_count=10, hypothesis_count=10, '
-                'and applied_clauses. The client assembles the original full answer from your immutable submissions. '
+                'After submitting this interval, stop using tools and return a compact acknowledgement. The controller will start '
+                'a new turn on this same thread for the next interval. Never request another interval in this turn. '
+                'Private evidence feature names refer to literal column names. For this window, the manifest cohort_background contains exact numeric teacher/background medians; donor profiles are numeric-only observations. '
+                'Use them to check the language and copy at least two private background_evidence records, including start and end, '
+                'into each hypothesis. These private numerical facts are removed before Selectors receive the public hypothesis. '
+                'A denied submission leaves this interval locked; repair it from its own evidence before fetching the next. '
+                'Check accepted=true in the submit response. A denied submission leaves the same interval open for correction. '
+                'Return ONLY a compact acknowledgement with submitted=true, committed_interval=1, and applied_clauses. '
+                'The client assembles the original full answer from your immutable submissions. '
                 'Do not repeat the 300 paragraphs in the final response.')
-        user_content = prompt + "\n\nSANITIZED MEMORY PACKET (JSON):\n" + json.dumps(model_packet, ensure_ascii=False, sort_keys=True)
+        user_content = prompt + "\n\nSANITIZED MEMORY PACKET (JSON):\n" + json.dumps(model_packet, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+        if len(user_content) > 1_000_000:
+            raise ValueError('Model request exceeds the app-server character limit; split the evidence into auditable bounded calls before retrying')
+        if scientist_bridge:
+            scientist_turn_interval = len(journal["hypotheses"]) + 1
+            scientist_turn_commit_count = 0
         turn_start = await server.request("turn/start", {
             "threadId": thread_id, "model": model, "effort": effort, "outputSchema": model_schema,
             "input": [{"type": "text", "text": user_content}], "environments": [],
@@ -459,10 +484,79 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                     if model_schema.get("additionalProperties") is False and set(result) - _schema_fields(model_schema):
                         raise ValueError("final response contains undeclared fields")
                     if scientist_bridge:
+                        jsonschema.validate(result, model_schema)
+                        if scientist_turn_commit_count > 1:
+                            raise RuntimeError("Scientist turn committed more than one interval")
+                        if scientist_turn_commit_count == 1:
+                            acknowledged = {'committed_interval': scientist_turn_interval,
+                                            'model_acknowledgement': result}
+                            acknowledgement_path = attempt_dir / 'scientist_acknowledgements.jsonl'
+                            with acknowledgement_path.open('ab') as handle:
+                                handle.write(_json_bytes(acknowledged) + b'\n')
+                                handle.flush()
+                                os.fsync(handle.fileno())
+                            journal['applied_clauses'].extend({
+                                'clause_id': c['clause_id'],
+                                'evidence': f"Interval {scientist_turn_interval}: " + c['evidence']}
+                                for c in result['applied_clauses'])
                         if len(journal["interval_descriptions"]) != 300 or len(journal["hypotheses"]) != 10:
-                            raise ValueError("Scientist episode ended before all ten intervals were committed")
+                            expected = len(journal['hypotheses']) + 1
+                            if scientist_turn_commit_count == 1:
+                                if expected != scientist_turn_interval + 1:
+                                    raise RuntimeError("Scientist controller interval advanced unexpectedly")
+                                if result.get("submitted") is not True or result.get("committed_interval") != scientist_turn_interval:
+                                    events.append({'kind': 'scientist_acknowledgement_mismatch',
+                                        'actual_committed_interval': scientist_turn_interval,
+                                        'reported_submitted': result.get('submitted'),
+                                        'reported_interval': result.get('committed_interval')})
+                                events.append({'kind': 'scientist_window_turn_completed', 'interval': scientist_turn_interval,
+                                    'next_interval': expected, 'thread_id': thread_id})
+                                scientist_turn_interval = expected
+                                scientist_turn_commit_count = 0
+                                next_text = (f'Controller-directed Scientist turn for interval {expected} only. Earlier interval submissions are immutable. '
+                                    f'Use get_scientist_interval({expected}), then fetch all thirty donor profiles in groups of at most five, '
+                                    'write exactly thirty detailed descriptions and one hypothesis grounded only in this window and past observations, '
+                                    'and submit them. Stop tool use after that submission and return a compact acknowledgement. Do not request any later interval. '
+                                    'Repair denied submissions using this interval’s evidence. Include at least two verified private background_evidence records, '
+                                    'one at the interval start and one at its end. Return JSON with submitted=true, committed_interval='
+                                    f'{expected}, and applied_clauses.')
+                                turn_packet = dict(model_packet)
+                                turn_packet.update({'available_interval': expected, 'max_allowed_step': expected * 5,
+                                    'committed_interval_count': expected - 1})
+                                next_text += '\n\nSANITIZED MEMORY PACKET (JSON):\n' + json.dumps(turn_packet, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+                                restarted = await server.request('turn/start', {'threadId': thread_id, 'model': model,
+                                    'effort': effort, 'outputSchema': model_schema, 'environments': [],
+                                    'input': [{'type': 'text', 'text': next_text}]})
+                                turn_id = restarted.get('turn', {}).get('id')
+                                if not turn_id:
+                                    raise RuntimeError("app-server did not return the next Scientist turn id")
+                                start_time = time.monotonic()
+                                final_text = None
+                                continue
+                            scientist_continuations += 1
+                            if scientist_continuations > 20:
+                                raise ValueError("Scientist episode ended before the current interval was committed after twenty bounded continuations")
+                            events.append({'kind': 'scientist_premature_ack_rejected', 'committed': expected - 1,
+                                'next_allowed_interval': expected, 'continuation': scientist_continuations})
+                            retry_packet = dict(model_packet)
+                            retry_packet.update({'available_interval': expected, 'max_allowed_step': expected * 5,
+                                'committed_interval_count': expected - 1})
+                            retry_text = (f'Your acknowledgement is premature: interval {expected} has not been committed. Continue this same window turn for interval {expected} only. '
+                                'Earlier submissions are immutable. Read the current manifest and all thirty donor profiles, repair any denied source-value comparison, '
+                                'submit exactly this interval, then stop tool use and return the compact acknowledgement. Do not request a later interval.\n\n'
+                                'SANITIZED MEMORY PACKET (JSON):\n' + json.dumps(retry_packet, ensure_ascii=False, sort_keys=True, separators=(',', ':')))
+                            restarted = await server.request('turn/start', {'threadId': thread_id, 'model': model,
+                                'effort': effort, 'outputSchema': model_schema, 'environments': [],
+                                'input': [{'type': 'text', 'text': retry_text}]})
+                            turn_id = restarted.get('turn', {}).get('id')
+                            final_text = None
+                            continue
+                        if scientist_turn_commit_count != 1 or scientist_turn_interval != 10:
+                            raise ValueError("Scientist final acknowledgement is valid only after interval 10 is committed in its own turn")
+                        if result.get("submitted") is not True or result.get("committed_interval") != 10:
+                            raise ValueError("Scientist final acknowledgement must confirm interval 10")
                         result = {'interval_descriptions': journal['interval_descriptions'],
-                                  'hypotheses': journal['hypotheses'], 'applied_clauses': result['applied_clauses']}
+                                  'hypotheses': journal['hypotheses'], 'applied_clauses': journal['applied_clauses']}
                         jsonschema.validate(result, schema)
                     else:
                         jsonschema.validate(result, schema)
@@ -483,20 +577,59 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                 continue
             params = msg.get("params", {})
             name, args = params.get("tool"), params.get("arguments", {})
-            if scientist_bridge and name in {"get_scientist_interval", "submit_scientist_interval"}:
+            if scientist_bridge and name in {"get_scientist_interval", "get_scientist_donors", "get_scientist_details", "submit_scientist_interval"}:
                 expected = len(journal["hypotheses"]) + 1
                 interval = args.get("interval") if isinstance(args, dict) else None
-                if interval != expected:
+                if interval != expected or interval != scientist_turn_interval or scientist_turn_commit_count:
                     events.append({"kind": "scientist_interval_denied", "tool": name, "requested_interval": interval, "next_allowed_interval": expected, "max_allowed_step": (expected - 1) * 5})
-                    raise ValueError(f"interval {interval!r} denied; next allowed interval is {expected}")
+                    denial_reason = (f"Interval {interval!r} is unavailable in this turn. No data returned. The controller opens interval {expected} only in a new turn."
+                        if scientist_turn_commit_count else
+                        f"Interval {interval!r} is denied. No data returned. The previous submission has not been accepted; repair and submit interval {expected} before requesting another.")
+                    assert server.proc and server.proc.stdin
+                    response = {'id': msg['id'], 'result': {'contentItems': [{'type': 'inputText', 'text': json.dumps(
+                        {'accepted': False, 'next_allowed_interval': expected,
+                         'error': denial_reason})}], 'success': False}}
+                    server.proc.stdin.write(_json_bytes(response) + b'\n')
+                    await server.proc.stdin.drain()
+                    continue
                 low, high = (interval - 1) * 5, interval * 5
                 interval_boundary = {'role': 'scientist-interval', 'step': high, 'cards': []}
                 if name == "get_scientist_interval":
-                    value = _validate_broker_value(_scientist_interval_payload(scientist_source, interval), interval_boundary, name, args)
+                    from .summaries import summarize_scientist_interval
+                    scientist_summary = summarize_scientist_interval(scientist_source, interval)
+                    value = _validate_broker_value({'interval': interval, 'start_step': low, 'end_step': high,
+                        'donor_ids': [c['donor_id'] for c in scientist_summary['donors']],
+                        'cohort_background': scientist_summary['cohort_background'],
+                        'profiles_required_before_submission': 30,
+                        'next_action': 'Fetch all donor IDs via get_scientist_donors in groups of at most five. Additional original features via get_scientist_details.'},
+                        interval_boundary, name, args)
                     if interval != expected:
                         raise ValueError("interval is not currently unlocked")
                     calls.append({"tool": name, "interval": interval, "max_allowed_step": high})
                     events.append({"kind": "scientist_interval_fetch", "interval": interval, "max_allowed_step": high})
+                elif name == 'get_scientist_donors':
+                    ids = args.get('donor_ids', [])
+                    if scientist_fetched_interval != interval or scientist_summary is None:
+                        raise ValueError('Fetch this interval manifest before its donor profiles')
+                    profiles = {d['donor_id']: d for d in scientist_summary['donors']}
+                    if not isinstance(ids, list) or not 1 <= len(ids) <= 5 or len(set(ids)) != len(ids) or any(i not in profiles for i in ids):
+                        raise ValueError('Use one to five unique IDs from this interval manifest')
+                    value = _validate_broker_value({'interval': interval, 'donors': [profiles[i] for i in ids]}, interval_boundary, name, args)
+                    scientist_seen_donors.update(ids)
+                    calls.append({'tool': name, 'interval': interval, 'donor_ids': ids, 'max_allowed_step': high})
+                    events.append({'kind': 'scientist_profiles_fetch', 'interval': interval, 'donor_count': len(ids), 'covered': len(scientist_seen_donors)})
+                elif name == 'get_scientist_details':
+                    cid, keys = args.get('donor_id'), args.get('features', [])
+                    donor = next((d for d in scientist_source['teacher']['donors'] if d['donor_id'] == cid), None)
+                    if scientist_fetched_interval != interval or donor is None or not isinstance(keys, list) or not 1 <= len(keys) <= 12:
+                        raise ValueError('Use one current-window donor and one to twelve feature names after its manifest')
+                    states = donor['observations'][low:high + 1]
+                    if any(not isinstance(k, str) or not (k.startswith(('current_', 'forecast_', 'delta_')) or k == 'online_pic50') or
+                        any(k not in s for s in states) for k in keys):
+                        raise ValueError('Use original current/forecast/delta observation keys available in this window')
+                    value = _validate_broker_value({'interval': interval, 'donor_id': cid,
+                        'observations': [{'step': s['step'], **{k: s[k] for k in keys}} for s in states]}, interval_boundary, name, args)
+                    calls.append({'tool': name, 'interval': interval, 'donor_id': cid, 'features': keys, 'max_allowed_step': high})
                 else:
                     if scientist_fetched_interval != interval:
                         raise ValueError("fetch the currently unlocked interval before submitting it")
@@ -510,6 +643,8 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                     jsonschema.validate(args["hypothesis"], hyp_schema)
                     _validate_broker_value(args["hypothesis"], interval_boundary, name, args)
                     expected_donors = {row.get("donor_id") for row in scientist_source.get("teacher", {}).get("donors", [])}
+                    if scientist_seen_donors != expected_donors:
+                        raise ValueError('Read all thirty donor profiles before submitting this interval')
                     described_donors = [row.get("donor_id") for row in args["descriptions"]]
                     if len(expected_donors) != 30 or len(set(described_donors)) != 30 or set(described_donors) != expected_donors:
                         raise ValueError("each interval must describe each of the 30 teacher donors exactly once")
@@ -518,6 +653,24 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                     hypothesis = args["hypothesis"]
                     if (hypothesis.get("interval"), hypothesis.get("start_step"), hypothesis.get("end_step")) != (interval, (interval - 1) * 5, interval * 5):
                         raise ValueError("hypothesis interval bounds do not match the unlocked evidence window")
+                    try:
+                        from .donor_validation import validate_donor_descriptions
+                        validate_donor_descriptions(args["descriptions"], scientist_source, interval)
+                        validate_background_evidence(hypothesis, scientist_source)
+                        validate_public_hypothesis(hypothesis)
+                        validate_hypothesis_specificity(journal['hypotheses'] + [hypothesis])
+                    except ValueError as exc:
+                        # Source-value corrections are already visible within
+                        # this window. Keep the clock locked and let the same
+                        # episode repair its submission without a future fetch.
+                        calls.append({'tool': name, 'interval': interval, 'denied': str(exc)[:1500]})
+                        events.append({'kind': 'scientist_submission_correction', 'interval': interval, 'reason': str(exc)[:1500]})
+                        assert server.proc and server.proc.stdin
+                        response = {'id': msg['id'], 'result': {'contentItems': [{'type': 'inputText', 'text': json.dumps(
+                            {'accepted': False, 'next_allowed_interval': interval, 'error': str(exc)[:1500]})}], 'success': False}}
+                        server.proc.stdin.write(_json_bytes(response) + b'\n')
+                        await server.proc.stdin.drain()
+                        continue
                     # Append-only journal commit precedes unlocking subsequent evidence.
                     rows = {"interval": interval, "descriptions": args["descriptions"], "hypothesis": args["hypothesis"]}
                     journal_path = attempt_dir / "scientist_intervals.jsonl"
@@ -528,11 +681,18 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                         os.fsync(handle.fileno())
                     journal["interval_descriptions"].extend(args["descriptions"])
                     journal["hypotheses"].append(args["hypothesis"])
+                    scientist_turn_commit_count += 1
                     digest = _sha(_json_bytes(rows))
                     calls.append({"tool": name, "interval": interval, "description_count": 30, "payload_sha256": digest})
                     events.append({"kind": "scientist_interval_committed", "interval": interval, "max_allowed_step": interval * 5, "description_count": 30, "hypothesis_sha256": _sha(_json_bytes(args["hypothesis"])), "payload_sha256": digest})
-                    value = {"accepted": True, "committed_interval": interval, "next_allowed_interval": interval + 1 if interval < 10 else None, "max_allowed_step": interval * 5}
+                    value = {"accepted": True, "committed_interval": interval,
+                        "next_allowed_interval": interval + 1 if interval < 10 else None,
+                        "max_allowed_step": interval * 5,
+                        "turn_complete": True,
+                        "instruction": "Stop tool use now. Return the compact acknowledgement; the controller will open the next interval in a new turn."}
                     scientist_fetched_interval = None
+                    scientist_seen_donors.clear()
+                    scientist_summary = None
                 if name == "get_scientist_interval":
                     scientist_fetched_interval = interval
                 assert server.proc and server.proc.stdin
@@ -615,6 +775,11 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
         _atomic(directory / 'trusted_packet.json.gz', gzip.compress(packet_bytes, mtime=0))
     else:
         _atomic(directory / "packet.json", packet_bytes)
+    implementation_sha256: dict[str, str] = {}
+    for name in ("runner.py", "summaries.py", "validation.py", "donor_validation.py", "orchestrate.py"):
+        path = Path(__file__).with_name(name)
+        if path.is_file():
+            implementation_sha256[name] = _sha(path.read_bytes())
     started = time.time()
     events: list[dict[str, Any]] = []
     calls: list[dict[str, Any]] = []
@@ -649,7 +814,7 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
                 _atomic(attempt_dir / f"attempt-{attempt}.receipt.json", _json_bytes(attempt_receipt))
                 attempt_receipts.append(attempt_receipt)
                 if attempt == 3:
-                    failed_receipt = {"role": role, "requested_model": model, "model": model, "effort": effort, "status": "failed", "attempts": attempt_receipts, "tools": ["list_candidates", "get_candidate", "get_history"], "prompt_sha256": _sha(prompt_bytes), "packet_sha256": _sha(packet_bytes), "started_unix": started, "completed_unix": time.time()}
+                    failed_receipt = {"role": role, "requested_model": model, "model": model, "effort": effort, "status": "failed", "attempts": attempt_receipts, "implementation_sha256": implementation_sha256, "tools": ["list_candidates", "get_candidate", "get_history"], "prompt_sha256": _sha(prompt_bytes), "packet_sha256": _sha(packet_bytes), "started_unix": started, "completed_unix": time.time()}
                     _atomic(directory / "receipt.json", _json_bytes(failed_receipt))
                     raise
                 continue
@@ -663,7 +828,7 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
     _atomic(directory / "answer.json", answer_bytes)
     _atomic(directory / "events.jsonl", b"".join(_json_bytes(event) + b"\n" for event in events))
     worker_context = next((event for event in events if event.get("kind") == "worker_context"), {})
-    receipt = {"role": role, "requested_model": model, "model": worker_context.get("model", model), "model_provider": worker_context.get("model_provider"), "effort": worker_context.get("reasoning_effort", effort), "effective_tool_config": {"dynamic_tools": worker_context.get("dynamic_tools", []), "shell": False, "file_tools": False, "mcp_servers": [], "plugins": False, "browser": False, "image": False, "computer": False, "multi_agent": False, "working_directory": "empty temporary directory"}, "attempts": attempt_receipts, "calls": calls, "prompt_sha256": _sha(prompt_bytes), "packet_sha256": _sha(packet_bytes), "answer_sha256": _sha(answer_bytes), "event_count": len(events), "started_unix": started, "completed_unix": time.time(), "status": "completed"}
+    receipt = {"role": role, "requested_model": model, "model": worker_context.get("model", model), "model_provider": worker_context.get("model_provider"), "effort": worker_context.get("reasoning_effort", effort), "effective_tool_config": {"dynamic_tools": worker_context.get("dynamic_tools", []), "shell": False, "file_tools": False, "mcp_servers": [], "plugins": False, "browser": False, "image": False, "computer": False, "multi_agent": False, "working_directory": "empty temporary directory"}, "implementation_sha256": implementation_sha256, "attempts": attempt_receipts, "calls": calls, "prompt_sha256": _sha(prompt_bytes), "packet_sha256": _sha(packet_bytes), "answer_sha256": _sha(answer_bytes), "event_count": len(events), "started_unix": started, "completed_unix": time.time(), "status": "completed"}
     _atomic(directory / "receipt.json", _json_bytes(receipt))
     return answer
 

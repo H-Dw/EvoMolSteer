@@ -1,11 +1,25 @@
 from __future__ import annotations
 
 import json
+import hashlib
 
 import pytest
 
 from evomolsteer.lineage_retrieval.evaluate import coverage_at_k, evaluate_selection
 from evomolsteer.lineage_retrieval.report import report
+
+
+def write_functional_job(job, clause):
+    job.mkdir(parents=True, exist_ok=True)
+    answer_path = job / "answer.json"
+    answer_path.write_text(json.dumps({"answer": "accepted"}), encoding="utf-8")
+    answer_hash = hashlib.sha256(json.dumps({"answer": "accepted"}, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"), allow_nan=False).encode("utf-8")).hexdigest()
+    binding = {"request_sha256": f"request-{clause}"}
+    (job / "controller_binding.json").write_text(json.dumps(binding), encoding="utf-8")
+    (job / "functional_audit.json").write_text(json.dumps({"clause_id": clause, "request_sha256": binding["request_sha256"],
+        "prompt_contains_active_clause": True, "application_claim_not_a_causal_improvement": True}), encoding="utf-8")
+    (job / "receipt.json").write_text(json.dumps({"status": "completed", "answer_sha256": answer_hash}), encoding="utf-8")
 
 
 def fixture_pool():
@@ -133,14 +147,11 @@ def test_report_selects_round_by_macro_mean_and_requires_all_51(tmp_path):
             (round_dir / "scientist_frozen.json").write_text(json.dumps({"source_round": "R01"}), encoding="utf-8")
         for step in range(5, 51, 5):
             job = round_dir / "selectors" / f"t{step:03d}"
-            job.mkdir(parents=True)
-            (job / "functional_audit.json").write_text(json.dumps({"clause_id": "Q", "prompt_contains_active_clause": True,
-                "application_claim_not_a_causal_improvement": True}), encoding="utf-8")
+            write_functional_job(job, "Q")
         scientist_job = round_dir / "scientist"
-        scientist_job.mkdir(exist_ok=True)
-        (scientist_job / "functional_audit.json").write_text(json.dumps({"clause_id": "S", "prompt_contains_active_clause": True,
-            "application_claim_not_a_causal_improvement": True}), encoding="utf-8")
-        (round_dir / "semantic_audit.json").write_text(json.dumps({"passes": True, "scientist_assessment": "grounded",
+        write_functional_job(scientist_job, "S")
+        (round_dir / "semantic_audit.json").write_text(json.dumps({"passes": True, "scientist_evidence_truth": True,
+            "scientist_clause_applied": True, "scientist_assessment": "grounded",
             "instruction_effect_assessment": "observable", "failure_analysis": "none",
             "selector_assessments": [{"step": s, "evidence_truth": True, "clause_applied": True, "evidence": "checked",
                                       "correction_needed": "none"} for s in range(5, 51, 5)]}), encoding="utf-8")
@@ -149,7 +160,13 @@ def test_report_selects_round_by_macro_mean_and_requires_all_51(tmp_path):
                            for j in range(1, 31) for interval in range(1, 11)]
             scientist = round_dir / "scientist"
             scientist.mkdir(exist_ok=True)
-            (scientist / "answer.json").write_text(json.dumps({"interval_descriptions": descriptions}), encoding="utf-8")
+            scientist_answer = {"interval_descriptions": descriptions}
+            (scientist / "answer.json").write_text(json.dumps(scientist_answer), encoding="utf-8")
+            receipt_path = scientist / "receipt.json"
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            receipt["answer_sha256"] = hashlib.sha256(json.dumps(scientist_answer, ensure_ascii=False, sort_keys=True,
+                separators=(",", ":"), allow_nan=False).encode("utf-8")).hexdigest()
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
             (round_dir / "hypotheses.json").write_text(json.dumps([{"interval": q, "start_step": 5 * (q - 1), "end_step": 5 * q,
                 "hypothesis": f"hypothesis {q}", "minority_modes": "minority"} for q in range(1, 11)]), encoding="utf-8")
     oracle = study / "oracle"
@@ -200,13 +217,10 @@ def test_report_rejects_failed_xhigh_evidence_audit_even_when_metrics_are_comple
         for step in range(5, 51, 5):
             job = folder / "selectors" / f"t{step:03d}"
             job.mkdir(parents=True)
-            (job / "functional_audit.json").write_text(json.dumps({"clause_id": "Q", "prompt_contains_active_clause": True,
-                "application_claim_not_a_causal_improvement": True}), encoding="utf-8")
+            write_functional_job(job, "Q")
         scientist_job = folder / "scientist"
-        scientist_job.mkdir()
-        (scientist_job / "functional_audit.json").write_text(json.dumps({"clause_id": "S", "prompt_contains_active_clause": True,
-            "application_claim_not_a_causal_improvement": True}), encoding="utf-8")
-        semantic = {"passes": i != 50, "selector_assessments": [
+        write_functional_job(scientist_job, "S")
+        semantic = {"passes": i != 50, "scientist_evidence_truth": True, "scientist_clause_applied": True, "selector_assessments": [
             {"step": s, "evidence_truth": True, "clause_applied": True} for s in range(5, 51, 5)]}
         (folder / "semantic_audit.json").write_text(json.dumps(semantic), encoding="utf-8")
     result = report(study)

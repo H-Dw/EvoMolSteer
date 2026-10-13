@@ -75,10 +75,17 @@ SELECTOR_SCHEMA = schema_obj({
 })
 SCIENTIST_SCHEMA = schema_obj({
     'interval_descriptions': arr(schema_obj({'donor_id': TEXT, 'interval': INTEGER,
-        'text': TEXT, 'evidence': arr(schema_obj({'step': INTEGER, 'feature': TEXT, 'claim': TEXT}), 1)}), 300, 300),
+        'text': TEXT, 'evidence': arr(schema_obj({'step': INTEGER, 'feature': TEXT, 'claim': TEXT}), 1),
+        'measured_changes': arr(schema_obj({'feature': TEXT,
+            'start_value': {'type': ['number', 'null']}, 'mid_value': {'type': ['number', 'null']},
+            'end_value': {'type': ['number', 'null']},
+            'pattern': {'type': 'string', 'enum': ['increase', 'decrease', 'flat', 'mixed']}}), 4)}), 300, 300),
     'hypotheses': arr(schema_obj({'interval': INTEGER, 'start_step': INTEGER, 'end_step': INTEGER,
         'hypothesis': TEXT, 'support_conditions': arr(TEXT, 1), 'counter_conditions': arr(TEXT, 1),
-        'observable_cues': arr(TEXT, 2), 'minority_modes': TEXT}), 10, 10),
+        'observable_cues': arr(TEXT, 2), 'minority_modes': TEXT,
+        'background_evidence': arr(schema_obj({'feature': TEXT, 'step': INTEGER,
+            'teacher_median': {'type': ['number', 'null']}, 'background_median': {'type': ['number', 'null']},
+            'evidence': TEXT}), 2)}), 10, 10),
     'applied_clauses': arr(CLAUSE, 1),
 })
 REVISION_SCHEMA = schema_obj({'diagnosis': TEXT, 'mechanism': TEXT, 'skill_text': TEXT,
@@ -237,6 +244,8 @@ def clause_audit(answer, expected):
 
 
 def validate_scientist(answer, packet, active):
+    from .validation import validate_background_evidence, validate_hypothesis_specificity
+    from .donor_validation import validate_donor_descriptions
     donors = packet['teacher'].get('donors', [])
     by_id = {r['donor_id']: r for r in donors}
     expected = {(i, d) for i in range(1, 11) for d in by_id}
@@ -249,10 +258,13 @@ def validate_scientist(answer, packet, active):
         for e in r['evidence']:
             if not lo <= e['step'] <= hi or e['feature'] not in states[e['step']]:
                 raise ValueError('Scientist cites nonexistent or out-of-interval evidence')
+    for interval in range(1, 11):
+        validate_donor_descriptions([r for r in desc if r['interval'] == interval], packet, interval)
     hs = sorted(answer['hypotheses'], key=lambda h: h['interval'])
     if [h['interval'] for h in hs] != list(range(1, 11)):
         raise ValueError('Ten distinct hypotheses required')
     for h in hs:
+        validate_background_evidence(h, packet)
         if (h['start_step'], h['end_step']) != (5 * (h['interval'] - 1), 5 * h['interval']):
             raise ValueError('Hypothesis clock is incorrect')
         text = ' '.join([h['hypothesis'], h['minority_modes'], *h['support_conditions'],
@@ -262,6 +274,7 @@ def validate_scientist(answer, packet, active):
         for token in re.findall(r'\d+\.\d+', text):
             if float(token) not in {n / 100 for n in range(0, 51, 5)}:
                 raise ValueError('Public hypothesis contains an exact continuous measurement')
+    validate_hypothesis_specificity(hs)
     return clause_audit(answer, active)
 
 
@@ -287,7 +300,34 @@ def validate_selector(answer, packet, active):
                     'Each observations item must contain exactly ONE literal feature key; split joined / or ; feature names into separate items. '
                     'Put one corresponding observed value in direction_or_value. '
                     f'Available feature keys at this step: {keys}')
+            if 'observed_value' in e:
+                actual = states[e['step']][e['feature']]
+                reported = e['observed_value']
+                matches = actual is None and reported is None
+                if isinstance(actual, (int, float)) and not isinstance(actual, bool) and isinstance(reported, (int, float)):
+                    matches = np.isfinite(reported) and abs(actual - reported) <= 1e-6 + 1e-5 * abs(actual)
+                if not matches:
+                    raise ValueError(f"Observed value mismatch for {r['candidate_id']} step {e['step']} feature {e['feature']}: "
+                        f'reported={reported!r}, stored={actual!r}. Retrieve this candidate and its bounded history; copy this exact feature, not a neighboring summary column.')
     return clause_audit(answer, active)
+
+
+def selector_output_schema(packet):
+    """Constrain aliases and literal citations without selecting any seed."""
+    schema = copy.deepcopy(SELECTOR_SCHEMA)
+    item = schema['properties']['ranking']['items']['properties']
+    item['candidate_id'] = {**item['candidate_id'], 'enum': [c['candidate_id'] for c in packet['cards']]}
+    citation = item['observations']['items']['properties']
+    citation['feature'] = {**citation['feature'],
+        'enum': sorted({k for c in packet['cards'] for st in c['history'] for k, v in st.items()
+            if (k.startswith(('current_', 'forecast_', 'delta_')) or k == 'online_pic50')
+            and (v is None or isinstance(v, (int, float)) and not isinstance(v, bool))}),
+        'description': 'Exactly one literal feature key; put other features in separate observation items.'}
+    citation['step'] = {**citation['step'], 'minimum': 0, 'maximum': packet['step']}
+    citation['observed_value'] = {'type': ['number', 'null'],
+        'description': 'The actual scalar value for this exact feature and step, copied from the candidate or history broker. It is checked against stored data.'}
+    item['observations']['items']['required'].append('observed_value')
+    return schema
 
 
 def run_validated(study, job, role, prompt, packet, schema, validate, active, model=MODEL, effort='medium'):
@@ -297,7 +337,7 @@ def run_validated(study, job, role, prompt, packet, schema, validate, active, mo
     if binding_path.exists() and read(binding_path)['request_sha256'] != expected:
         raise ValueError(f'Resumed job inputs changed: {job}')
     write(binding_path, {'request_sha256': expected, 'model': model, 'effort': effort,
-        'clock': packet.get('step'), 'role': role})
+        'clock': packet.get('step'), 'role': role, 'schema_sha256': object_sha(schema)})
     if (job / 'answer.json').exists() and (job / 'functional_audit.json').exists():
         answer = read(job / 'answer.json')
         validate(answer, packet, active)
@@ -314,6 +354,11 @@ def run_validated(study, job, role, prompt, packet, schema, validate, active, mo
         elif (prior_dir / 'controller_rejection.json').exists():
             problems.append(read(prior_dir / 'controller_rejection.json')['error'])
     problems = list(dict.fromkeys(problems))
+    if role == 'scientist' and problems:
+        # Whole-episode validation may diagnose a later interval. Its numeric
+        # correction must not cross the fresh episode's initial time gate.
+        problems = ['Previous Scientist output failed source-value, clock, or interval-specificity validation. '
+            'Repair each currently unlocked window using its computed cards; later-window diagnostics are withheld until that window is available.']
     first_attempt = max(prior_attempts, default=0) + 1
     for attempt in range(first_attempt, first_attempt + 3):
         attempt_dir = job / 'attempts' / f'A{attempt:02d}'
@@ -330,9 +375,10 @@ def run_validated(study, job, role, prompt, packet, schema, validate, active, mo
                 shutil.copyfile(attempt_dir / 'receipt.json', job / 'receipt.json')
             return answer
         except Exception as exc:
-            problems.append(f'{type(exc).__name__}: {str(exc)[:3500]}')
-            write(attempt_dir / 'controller_rejection.json', {'error': problems[-1], 'attempt': attempt})
-            print(json.dumps({'job': str(job.relative_to(study)), 'attempt': attempt, 'rejected': problems[-1]}, ensure_ascii=False), flush=True)
+            diagnostic = f'{type(exc).__name__}: {str(exc)[:3500]}'
+            problems.append(diagnostic if role != 'scientist' else 'Previous Scientist output failed validation; use each unlocked interval\'s actual source cards and provide window-specific evidence. Later-window details are withheld.')
+            write(attempt_dir / 'controller_rejection.json', {'error': diagnostic, 'attempt': attempt})
+            print(json.dumps({'job': str(job.relative_to(study)), 'attempt': attempt, 'rejected': diagnostic}, ensure_ascii=False), flush=True)
     raise RuntimeError(f'No valid {role} result after 3 attempts: ' + problems[-1])
 
 
@@ -342,8 +388,23 @@ def run_scientist(study, round_dir, code):
     prompt = role_prompt(study, 'scientist', code,
         'Write in Chinese. interval_descriptions requires 300 records: each of 30 donor_id values and intervals1..10. '
         'Each paragraph should explain current-cloud and forecast changes, pocket focus and any reversal, using qualitative language. '
-        'Private evidence entries refer to actual donor observation feature keys and steps within that interval. '
-        'Ten public hypotheses each include observable cues and counterconditions; identifiers and exact continuous values are forbidden in public prose.')
+        'Describe the ACTUAL measured directions and contact footprints of this donor, including the current-versus-forecast difference. '
+        'Statements such as compare the data, changes are gradual, use the measured direction, or a reversal if observed do not describe an observation. '
+        'For each donor supply measured_changes for at least four distinct scalar feature keys, including current and forecast representations '
+        'and at least one pocket-distance or contact feature. Copy start, midpoint (floor mean step), and end values from its source profile. '
+        'Set pattern from all six states: increase when there is a positive change and no negative change; decrease when there is a negative change '
+        'and no positive change; flat when all differences are within 1e-6; mixed when both directions occur. Values are checked against this donor. '
+        'Use these private facts to write a concrete qualitative paragraph. Paths with different observed direction patterns or contact footprints '
+        'cannot all receive an identical generic paragraph. Paths with the same qualitative evolution may share wording; do not invent '
+        'a different mode solely to make the wording unique. '
+        'Private evidence entries refer to actual donor observation feature keys and steps within that interval. Cite at least three distinct '
+        'current feature types and three distinct forecast feature types, with both window endpoints covered separately in each representation. '
+        'For each hypothesis, provide at least two private background_evidence facts, one at the window start and one at its end. '
+        'Copy actual teacher_median and background_median from the computed observation cards; specify the feature and step. '
+        'Use their measured contrast or absence of contrast in the language, not merely a promise to compare backgrounds. '
+        'Ten public hypotheses each include concrete window-specific observable cues and counterconditions; identifiers and exact continuous values are forbidden in public prose. '
+        'The private numerical background_evidence is removed before hypotheses are sent to Selectors. '
+        'If successive windows truly share a pattern, describe the actual continuation and current contact/shape/location evidence; do not paste the same public bundle across windows.')
     recovery = read(round_dir / 'quality_retry.json') if (round_dir / 'quality_retry.json').exists() else {}
     if recovery.get('scientist'):
         prompt += '\n' + QUALITY_GUIDANCE['scientist']
@@ -372,7 +433,13 @@ def run_selectors(study, round_dir, code, hypotheses, workers=3, structural_only
         recovery = read(round_dir / 'quality_retry.json') if (round_dir / 'quality_retry.json').exists() else {}
         if step in recovery.get('selector_steps', []):
             prompt += '\n' + QUALITY_GUIDANCE['selector']
-        answer = run_validated(study, job, 'selector', prompt, packet, SELECTOR_SCHEMA,
+        # R00's existing bindings retain their original schema for a faithful
+        # resume. Later jobs have the same information with literal-key guards.
+        binding = read(job / 'controller_binding.json') if (job / 'controller_binding.json').exists() else None
+        legacy_r00 = round_dir == study / 'rounds' / 'R00' and binding and (
+            binding.get('schema_sha256', object_sha(SELECTOR_SCHEMA)) == object_sha(SELECTOR_SCHEMA))
+        schema = SELECTOR_SCHEMA if legacy_r00 else selector_output_schema(packet)
+        answer = run_validated(study, job, 'selector', prompt, packet, schema,
             validate_selector, meta['active_clause'])
         print(json.dumps({'round': round_dir.name, 'selector_step': step, 'valid': True,
                           'condition': 'structure_only' if structural_only else 'affinity_visible'}, ensure_ascii=False), flush=True)
@@ -402,7 +469,14 @@ def failure_packet(study, previous):
         step = result['step']
         oracle = read(study / 'oracle' / 'pools' / f't{step:03d}.json')
         pool = read(study / 'evidence' / 'pools' / f't{step:03d}.json')
-        features = {c['key']: c['now'] for c in pool['cards']}
+        by_key = {c['key']: c for c in pool['cards']}
+        features = {k: c['now'] for k, c in by_key.items()}
+        def window(key):
+            keys = [f'{p}_{s}' for p in ('current', 'forecast') for s in (
+                'radius_gyration_A', 'centroid_pocket_centroid_A', 'centroid_x_A', 'centroid_y_A', 'centroid_z_A',
+                'nearest_pocket_A', 'pocket_contacts_4A', 'contact_pairs_4A', 'planarity_fraction', 'residue_contact_footprint')]
+            return {'columns': ['step', *keys], 'rows': [[v['step'], *[v.get(k) for k in keys]]
+                for v in by_key[key]['history'] if step - 5 <= v['step'] <= step]}
         selected = result['ranking']
         chosen_keys = {r['key'] for r in selected}
         positive = [g for g in oracle['groups'] if g.get('targets')]
@@ -410,8 +484,10 @@ def failure_packet(study, previous):
         nodes.append({'step': step, 'coverage': {str(k): result[f'at_{k}']['coverage'] for k in (1, 3, 5)},
             'ceiling': result['ideal_weighted_coverage_ceiling'],
             'selected': [{'rank': r['rank'], 'target_count': r['target_count'],
-                          'observed_descendants': r.get('observed_descendants'), 'features': features[r['key']]} for r in selected],
-            'missed_observed_positive_modes': [{'target_count': len(g['targets']), 'features': features[g['key']]} for g in missed],
+                          'observed_descendants': r.get('observed_descendants'), 'features': features[r['key']],
+                          'within_interval': window(r['key'])} for r in selected],
+            'missed_observed_positive_modes': [{'target_count': len(g['targets']), 'features': features[g['key']],
+                                               'within_interval': window(g['key'])} for g in missed],
             'selector_answer': read(previous / 'selectors' / f't{step:03d}' / 'answer.json'),
             'functional_audit': read(previous / 'selectors' / f't{step:03d}' / 'functional_audit.json')})
     return {'macro': m['macro'], 'nodes': nodes,
@@ -505,11 +581,21 @@ def semantic_audit(study, folder, meta, enforce=True):
                 card = cards[mapping[row['candidate_id']]]
                 states = {v['step']: v for v in card['history']}
                 history_keys = sorted({e['feature'] for e in row['observations']})
-                claims.append({'rank': row['rank'], 'rationale': row['evidence'], 'counterevidence': row['counterevidence'],
+                claims.append({'candidate_id': row['candidate_id'], 'rank': row['rank'], 'rationale': row['evidence'], 'counterevidence': row['counterevidence'],
                     'observations': [{'claim': e, 'stored_value': states[e['step']][e['feature']]} for e in row['observations']],
                     'current_state': card['now'], 'history_columns': ['step', *history_keys],
                     'history_rows': [[s['step'], *[s.get(k) for k in history_keys]] for s in card['history']]})
-            nodes.append({'step': step, 'choices': claims, 'applied_clauses': answer['applied_clauses']})
+            from .runner import _candidate_summary
+            referenced = set(re.findall(r'C[0-9a-f]{12}', json.dumps(answer, ensure_ascii=False)))
+            if (job / 'receipt.json').exists():
+                referenced.update(c.get('args', {}).get('candidate_id') for c in read(job / 'receipt.json').get('calls', []))
+            inspected = [{'candidate_id': cid, 'now': cards[mapping[cid]]['now']} for cid in sorted(
+                cid for cid in referenced if cid in mapping)]
+            compared = _candidate_summary({'cards': inspected})
+            compared['all_candidates_included'] = False
+            compared['scope'] = 'Only explicitly named or queried competitors. This is an inspected subset, not the full available Selector population.'
+            nodes.append({'step': step, 'choices': claims, 'applied_clauses': answer['applied_clauses'],
+                'total_available_seed_groups': len(cards), 'compared_current_states': compared})
         scientist_source = folder
         if meta.get('scientist_outputs_frozen_from'):
             scientist_source = study / 'rounds' / meta['scientist_outputs_frozen_from']
@@ -519,12 +605,14 @@ def semantic_audit(study, folder, meta, enforce=True):
         descriptions = []
         for row in scientist['interval_descriptions']:
             keys = sorted({e['feature'] for e in row['evidence']} | {
+                e['feature'] for e in row.get('measured_changes', [])} | {
                 f'{prefix}_{suffix}' for prefix in ('current', 'forecast') for suffix in (
                     'radius_gyration_A', 'centroid_x_A', 'centroid_y_A', 'centroid_z_A',
                     'nearest_pocket_A', 'pocket_contacts_4A', 'contact_pairs_4A',
                     'planarity_fraction', 'residue_contact_footprint')})
             low, high = 5 * (row['interval'] - 1), 5 * row['interval']
-            descriptions.append({'interval': row['interval'], 'text': row['text'],
+            descriptions.append({'donor_id': row['donor_id'], 'interval': row['interval'], 'text': row['text'],
+                'measured_changes': row.get('measured_changes', []),
                 'facts': [{'claim': e, 'stored_value': teacher[row['donor_id']][e['step']][e['feature']]}
                           for e in row['evidence']], 'window_columns': ['step', *keys],
                 'window_rows': [[s, *[teacher[row['donor_id']][s].get(k) for k in keys]] for s in range(low, high + 1)]})
@@ -533,6 +621,7 @@ def semantic_audit(study, folder, meta, enforce=True):
         packet = {'role': 'main-agent', 'scientist_skill': scskill, 'scientist_workflow': scworkflow,
             'scientist_active_clause': scmeta['active_clause'], 'scientist_descriptions': descriptions,
             'scientist_clause_evidence': scientist['applied_clauses'], 'hypotheses': read(folder / 'hypotheses.json'),
+            'scientist_background_evidence': [{'interval': h['interval'], 'facts': h.get('background_evidence', [])} for h in scientist['hypotheses']],
             'same_time_population_quantiles': read(study / 'runtime' / 'population_summaries.json')[:51],
             'selector_skill': qskill, 'selector_workflow': qworkflow,
             'selector_active_clause': qmeta['active_clause'], 'selector_nodes': nodes,
@@ -548,11 +637,59 @@ def semantic_audit(study, folder, meta, enforce=True):
             'not hidden chain of thought. Return ten selector_assessments plus a Scientist assessment, actual unsupported claims '
             'and concrete failure analysis. passes=true only when the operative new instructions have observable grounded application '
             'and no material false claims require correction. Return schema JSON only; no external tools.')
-        answer = run_job(target, 'main-agent', prompt, packet, AUDIT_SCHEMA, model=MAIN_MODEL, effort='xhigh')
+        answer = run_audit_chunks(target, prompt, packet)
     write(folder / 'semantic_audit.json', answer)
     if enforce and not audit_passes(answer):
         raise ValueError('xhigh main-agent semantic/application audit requires a workflow correction; artifacts retained')
     return answer
+
+
+def run_audit_chunks(target, prompt, packet):
+    """Audit all 300 paragraphs with bounded, cached xhigh evidence slices."""
+    from .runner import run_job
+    def pair(first):
+        intervals = {first, first + 1}
+        steps = {5 * i for i in intervals}
+        part = copy.deepcopy(packet)
+        part['scientist_descriptions'] = [v for v in packet['scientist_descriptions'] if v['interval'] in intervals]
+        part['scientist_background_evidence'] = [v for v in packet.get('scientist_background_evidence', []) if v['interval'] in intervals]
+        part['selector_nodes'] = [v for v in packet['selector_nodes'] if v['step'] in steps]
+        part['same_time_population_quantiles'] = [v for v in packet['same_time_population_quantiles']
+            if 5 * (first - 1) <= v['step'] <= 5 * (first + 1)]
+        part['audit_slice'] = {'intervals': sorted(intervals), 'selector_steps': sorted(steps),
+            'all_hypotheses_provided_for_cross_interval_consistency': True}
+        schema = copy.deepcopy(AUDIT_SCHEMA)
+        schema['properties']['selector_assessments'] = arr(schema['properties']['selector_assessments']['items'], 2, 2)
+        request = prompt + ('\nThis evidence slice contains only two intervals and two Selector nodes. '
+            'Return exactly those two selector_assessments. Audit only the supplied factual observations; '
+            'all ten hypotheses are supplied to identify generic repetition, but do not claim unseen geometry. '
+            'A newest-clause condition outside this slice is not a failure if the supplied actions correctly respect its scope. '
+            'Do not require a conditional clause to create a pattern that the observations do not contain.')
+        binding = object_sha({'prompt': request, 'packet': part, 'schema': schema, 'model': MAIN_MODEL, 'effort': 'xhigh'})
+        job = target / 'chunks' / f'C{first:02d}_{first+1:02d}'
+        if (job / 'controller_binding.json').exists() and read(job / 'controller_binding.json')['request_sha256'] != binding:
+            raise ValueError('Existing semantic-audit slice inputs changed; preserve and review that slice before resuming')
+        write(job / 'controller_binding.json', {'request_sha256': binding, 'model': MAIN_MODEL, 'effort': 'xhigh'})
+        result = read(job / 'answer.json') if (job / 'answer.json').exists() else run_job(
+            job, 'main-agent', request, part, schema, model=MAIN_MODEL, effort='xhigh')
+        if {r['step'] for r in result['selector_assessments']} != steps:
+            raise ValueError('Main-agent audit returned nodes outside its evidence slice')
+        return first, result
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        futures = [pool.submit(pair, first) for first in (1, 3, 5, 7, 9)]
+        results = dict(f.result() for f in as_completed(futures))
+    ordered = [results[i] for i in sorted(results)]
+    result = {'passes': all(v['passes'] for v in ordered),
+        'scientist_evidence_truth': all(v['scientist_evidence_truth'] for v in ordered),
+        'scientist_clause_applied': all(v['scientist_clause_applied'] for v in ordered),
+        'selector_assessments': sorted([r for v in ordered for r in v['selector_assessments']], key=lambda r: r['step']),
+        'unsupported_claims': [r for v in ordered for r in v['unsupported_claims']]}
+    for key in ('scientist_assessment', 'instruction_effect_assessment', 'failure_analysis'):
+        result[key] = '\n\n'.join(f'Intervals {i}-{i+1}: {results[i][key]}' for i in sorted(results))
+    write(target / 'answer.json', result)
+    write(target / 'aggregation.json', {'method': 'Conjunction of five actual xhigh two-interval audits; no source claims generated by the aggregator',
+        'slice_response_sha256': {str(i): digest(target / 'chunks' / f'C{i:02d}_{i+1:02d}' / 'answer.json') for i in sorted(results)}})
+    return result
 
 
 def audit_passes(answer):
@@ -654,11 +791,13 @@ def run(study, repo, workspace, through=50, workers=3):
             elif number <= 25:
                 incumbent = read(study / 'rounds' / best_science / '_version.json')
                 scode, qcode = f'S{number:02d}', 'Q00'
+                state(phase='main_scientist_revision')
                 revise(study, folder, 'scientist', scode, incumbent['scientist_version'], study / 'rounds' / f'R{number-1:02d}')
             else:
                 frozen = read(study / 'rounds' / best_science / '_version.json')
                 incumbent = read(study / 'rounds' / best_total / '_version.json')
                 scode, qcode = frozen['scientist_version'], f'Q{number-25:02d}'
+                state(phase='main_selector_revision')
                 revise(study, folder, 'selector', qcode, incumbent['selector_version'], study / 'rounds' / f'R{number-1:02d}')
             meta = {'round': number, 'scientist_version': scode, 'selector_version': qcode,
                     'scientist_outputs_frozen_from': best_science if number > 25 else None,
@@ -666,14 +805,17 @@ def run(study, repo, workspace, through=50, workers=3):
             write(folder / '_version.json', meta)
             if not (folder / 'metrics.json').exists() or not read(folder / 'metrics.json').get('complete'):
                 if number <= 25:
+                    state(phase='scientist')
                     run_scientist(study, folder, scode)
                 else:
                     source = study / 'rounds' / best_science
                     shutil.copyfile(source / 'hypotheses.json', folder / 'hypotheses.json')
                     write(folder / 'scientist_frozen.json', {'source_round': best_science,
                         'source_hypotheses_sha256': digest(source / 'hypotheses.json'), 'scientist_version': scode})
+                state(phase='selectors')
                 run_selectors(study, folder, qcode, read(folder / 'hypotheses.json'), workers)
                 seal_metrics(study, folder, meta)
+            state(phase='main_evidence_audit')
             audit_and_repair(study, folder, meta, workers)
             m = read(folder / 'metrics.json')
             if number <= 25 and score_tuple(m) > score_tuple(read(study / 'rounds' / best_science / 'metrics.json')):
@@ -683,7 +825,9 @@ def run(study, repo, workspace, through=50, workers=3):
             git_sha = commit_versions(repo, study, folder.name)
             write(folder / 'git_version_receipt.json', {'commit': git_sha, 'scientist': scode, 'selector': qcode})
             state(phase='round_complete', best_round=best_total, best_scientist_round=best_science,
-                  completed_rounds=number + 1, last_macro=m['macro'])
+                  completed_rounds=number + 1, actual_completed_optimization_rounds=number,
+                  baseline_completed=True, scientist_optimization_rounds=min(number, 25),
+                  selector_optimization_rounds=max(0, number - 25), last_macro=m['macro'])
             report(study)
         if through < 50:
             state(status='partial', phase='requested_round_boundary')
@@ -719,7 +863,10 @@ def run(study, repo, workspace, through=50, workers=3):
             shutil.copyfile(source / 'SKILL.md', live / 'SKILL.md')
             shutil.copyfile(source / 'workflow.md', live / 'workflow.md')
         status.update(status='complete', phase='complete', complete=True, best_round=best_total,
-                      best_scientist_round=best_science, completed_rounds=51, updated_unix=time.time())
+                      best_scientist_round=best_science, completed_rounds=51,
+                      actual_completed_optimization_rounds=50, baseline_completed=True,
+                      scientist_optimization_rounds=25, selector_optimization_rounds=25,
+                      updated_unix=time.time())
         write(study / 'run_status.json', status)
         report(study)
         print(json.dumps({'status': 'complete', 'best_round': best_total}, ensure_ascii=False), flush=True)

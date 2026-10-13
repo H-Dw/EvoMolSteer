@@ -81,7 +81,7 @@ def test_scientist_packet_supports_actual_teacher_packet_with_full_trusted_horiz
 
 def test_scientist_interval_payload_never_returns_future_teacher_or_background_rows():
     source = {
-        "teacher": {"donors": [{"donor_id": "d1", "observations": [{"step": step, "feature": step} for step in range(51)]}]},
+        "teacher": {"donors": [{"donor_id": f"d{i}", "observations": [{"step": step, "feature": step} for step in range(51)]} for i in range(30)]},
         "background": [{"step": step, "quantiles": [step]} for step in range(51)],
     }
     first = _scientist_interval_payload(source, 1)
