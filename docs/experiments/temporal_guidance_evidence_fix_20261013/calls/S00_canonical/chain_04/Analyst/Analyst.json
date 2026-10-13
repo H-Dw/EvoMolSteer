@@ -1,0 +1,63 @@
+{
+  "findings": [
+    {
+      "claim": "The landmark_00_local_dx coordinate proxy is non-monotone over the full observed score window [0.0,0.49]: it rises to a positive peak near the middle of the window, then falls to a negative trough, then partially recovers toward the endpoint. The observed-node linear fit is not accepted (polynomial_accepted=false, relative_node_RMSE≈0.78), so a single global linear trend does not describe this feature.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The endpoint rates of landmark_00_local_dx have opposite signs across the window: first_rate_z is strongly negative and last_rate_z is positive, with 6 sign changes and 9 strong sign conflicts across 14 independent batches. This indicates the local time derivative of this coordinate proxy is not stationary and is batch-heterogeneous.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The whole-window mean of landmark_00_local_dx is near zero (whole_window_z≈-0.18), so the net displacement over the window is small relative to the within-window excursion; the contrast is a changing shape rather than a sustained offset.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The learning/score clock is the native observed score-node grid from 0.0 to 0.49 with recorded affinities removed and an equal score prior; curve support is [0.0,0.49] and no extrapolation is allowed.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "not specified by the evidence; the observed profile is non-monotone and the endpoint rates conflict in sign, so no single signed direction is justified",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "clocks"
+      ],
+      "falsifier": "the observed curve is flat within batch noise, or the sign-conflict count and sign-change count are not reproduced on held-out batches",
+      "id": "H001",
+      "observable": "landmark_00_local_dx (predicted endpoint world-A coordinate proxy)",
+      "scope": "global over the observed score window [0.0,0.49]; no extrapolation",
+      "statement": "A time-dependent reward contrast on landmark_00_local_dx is supported as an association: the coordinate proxy shows a mid-window positive excursion followed by a negative excursion and partial recovery, with non-stationary and sign-conflicting local rates."
+    }
+  ],
+  "limitations": [
+    "Only one coordinate proxy (landmark_00_local_dx) was read; the remaining 199 curve features were not inspected, so no cross-feature or spatial-gradient claim is made.",
+    "Stage profiles and temporal profiles are unavailable; only continuous curves are available.",
+    "The observed curve is a coordinate proxy in predicted endpoint world-A features; no energy, chemical-interaction, or neural-module interpretation is attached.",
+    "Selection preference and coordinate contrast are associations; they are not evidence of descendant survival or measured final affinity benefit.",
+    "No decoded final affinity labels are present in the supplied evidence; missing labels are unobserved, not failures or high-affinity evidence.",
+    "The non-monotone profile and sign conflicts mean a contrast or its time derivative does not by itself specify an absolute coordinate target or spatial gradient."
+  ],
+  "role": "Analyst"
+}

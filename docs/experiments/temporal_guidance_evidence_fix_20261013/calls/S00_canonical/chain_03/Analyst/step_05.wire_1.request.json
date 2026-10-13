@@ -1,0 +1,261 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/b80a39790bd398902f248d29722ab535133144028086d22e14c7413b2dbc563c.txt",
+        "content_sha256": "b80a39790bd398902f248d29722ab535133144028086d22e14c7413b2dbc563c",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/fde6ec2080f3f3a567bb7f329e1831881945d812df8c63bf29eddc1fb052b521.txt",
+        "content_sha256": "fde6ec2080f3f3a567bb7f329e1831881945d812df8c63bf29eddc1fb052b521",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0.txt",
+        "content_sha256": "3898e0b4759276dd6d78695360ee7e2e61583d89e835a7ffd532af6af3873dc0",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/0ab4db96baf1fb0e1708631bc0da7f609538d310cde9f17746f658b9c1150f28.txt",
+        "content_sha256": "0ab4db96baf1fb0e1708631bc0da7f609538d310cde9f17746f658b9c1150f28",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/f2040b64697eaba6a6d65d38ff0e66be34e6111d5b289d726c5001e0635634f1.txt",
+        "content_sha256": "f2040b64697eaba6a6d65d38ff0e66be34e6111d5b289d726c5001e0635634f1",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/6ea5c6a3e8fda33f2ab235eea92350f4579e78456eccb812fc583d86130cbc41.txt",
+        "content_sha256": "6ea5c6a3e8fda33f2ab235eea92350f4579e78456eccb812fc583d86130cbc41",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/6d74b96e08ffe93df24c5d0648f7f10e6912b6ceadf942eb7cb9c93a3b8e4348.txt",
+        "content_sha256": "6d74b96e08ffe93df24c5d0648f7f10e6912b6ceadf942eb7cb9c93a3b8e4348",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/ae2133e2986f2e260c1f5eaa7b69689503043a2400d2e60e7d47ff6004118e92.txt",
+        "content_sha256": "ae2133e2986f2e260c1f5eaa7b69689503043a2400d2e60e7d47ff6004118e92",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/06b244f67bfc0570d00e9128740e9a5b12a39d3450df710f72ffc828ae690dab.txt",
+        "content_sha256": "06b244f67bfc0570d00e9128740e9a5b12a39d3450df710f72ffc828ae690dab",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/462ac8a60ea6a0d2a6d11b06336c5dce7f90369bbbbccb839ce14c08fc6e55e6.txt",
+        "content_sha256": "462ac8a60ea6a0d2a6d11b06336c5dce7f90369bbbbccb839ce14c08fc6e55e6",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/8c2f9d0781d5cd5c38b49ea05b4d53af994b8691961cf74d2457f15e9bb1aa39.txt",
+        "content_sha256": "8c2f9d0781d5cd5c38b49ea05b4d53af994b8691961cf74d2457f15e9bb1aa39",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/df04cd73f8c241accef63ae169becc7106bd42b9eb75e9cf6397734284ce31af.txt",
+        "content_sha256": "df04cd73f8c241accef63ae169becc7106bd42b9eb75e9cf6397734284ce31af",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/9ecfbe834ccd70995d47c2e7491d32e26f929b07fb16007fb03828246d409ac6.txt",
+        "content_sha256": "9ecfbe834ccd70995d47c2e7491d32e26f929b07fb16007fb03828246d409ac6",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E0857891f4effbfe1",
+                          "E17a2625f3ccde2df",
+                          "E2e106e083189d150",
+                          "E342a60b38bb0a51b",
+                          "E36816785ddd4dc09",
+                          "E3b2ce8fd1ae3c7bc",
+                          "E57315f2f7083ab82",
+                          "E5dc651b941b4c9fd",
+                          "E65c5cdcb88f99c74",
+                          "E735f24e742723e38",
+                          "E76b26ba622888d46",
+                          "E7a4b1090068e0439",
+                          "E88a1b6d50276da1e",
+                          "E8d8c32b13334497b",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eae2d1a5138c82451",
+                          "Ebfdd229bdaca644c",
+                          "Ecaa47212cd4165ae",
+                          "Ecea6847a29085c95",
+                          "Ed6483d1bca6d6f77",
+                          "Ee9d172f45c064a2e",
+                          "Eef4385e476674774",
+                          "Efb15fb117b45eea6",
+                          "Eff027945cf60d210"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E0857891f4effbfe1",
+                          "E17a2625f3ccde2df",
+                          "E2e106e083189d150",
+                          "E342a60b38bb0a51b",
+                          "E36816785ddd4dc09",
+                          "E3b2ce8fd1ae3c7bc",
+                          "E57315f2f7083ab82",
+                          "E5dc651b941b4c9fd",
+                          "E65c5cdcb88f99c74",
+                          "E735f24e742723e38",
+                          "E76b26ba622888d46",
+                          "E7a4b1090068e0439",
+                          "E88a1b6d50276da1e",
+                          "E8d8c32b13334497b",
+                          "Eaa4bda02c9a2c3a1",
+                          "Eae2d1a5138c82451",
+                          "Ebfdd229bdaca644c",
+                          "Ecaa47212cd4165ae",
+                          "Ecea6847a29085c95",
+                          "Ed6483d1bca6d6f77",
+                          "Ee9d172f45c064a2e",
+                          "Eef4385e476674774",
+                          "Efb15fb117b45eea6",
+                          "Eff027945cf60d210"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "Ee9d172f45c064a2e",
+    "E88a1b6d50276da1e",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Affinity is primary but no decoded final affinity labels are present, so the expected affinity response is unverified; the edit is justified only by the coordinate contrast and could fail to improve final predicted affinity.",
+    "The whole-window z for landmark_10_soft_mass is small (~0.40) and no polynomial was accepted, so the rate reversal may be noise and the early-observed weighting may not track a real temporal contrast.",
+    "The coordinate proxies are untyped and carry no energy or interaction interpretation, so a coordinate response does not establish improved affinity, strain, or structural validity.",
+    "If the compiled table does not actually change the executed trace (blend schedule not bound), the edit is inert and must be reported as such rather than credited."
+  ],
+  "hypothesis_refs": [
+    "H001"
+  ],
+  "rationale": "H001 states the landmark_10_soft_mass coordinate proxy rises early then falls late over the observed window, with first_rate_z ~ +66.3 and last_rate_z ~ -11.6 and no accepted polynomial (continuous:100, curve/landmark_10_soft_mass). The clock metadata confirms the observed score nodes span [0.0,0.49] with recorded affinities removed and an equal score prior, so early-window observed-forecast relevance is the only temporal signal available. S1_observed_to_static is the registered reward-lane recipe whose smoothstep blend [1,0.5,0] weights early same-clock historical forecasts and relaxes to frozen static teachers, matching the early-rise/late-fall contrast; S2 is a constant blend that cannot track the reversal and S3 is the opposite control. Dose factors stay at 1 and delta is unchanged, so the scalar geometry is preserved.",
+  "role": "Designer"
+}

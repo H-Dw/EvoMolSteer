@@ -1,0 +1,25 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "Ee9d172f45c064a2e",
+    "Eef4385e476674774",
+    "E88a1b6d50276da1e",
+    "E2e106e083189d150",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Affinity is unobserved in this packet (recorded affinities removed, equal score prior), so any affinity improvement from S1 is unverified; the edit is justified by coordinate contrast evidence only, not by measured final benefit.",
+    "The cited contrasts are untyped coordinate proxies in predicted endpoint world A; a reward that tracks them may not translate into improved predicted affinity, and could trade affinity for coordinate shape.",
+    "No polynomial was accepted and extrapolation is disallowed, so the blend must be evaluated only on the observed score nodes; any use beyond [0.0,0.49] is unsupported.",
+    "If the landmark_10/landmark_00 soft_mass early-versus-late contrast is not reproducible across independent batches or reverses sign under the same score clock, H001/H002 fail and S1 should be reverted to the incumbent.",
+    "Strain and structural validity are secondary and not assessed here; a graph-changing effect of the reward must be checked separately, since coordinate similarity alone does not establish improved affinity."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "Analyst H001/H002 report reproducible rise-then-fall coordinate contrasts in landmark_10_soft_mass and landmark_00_soft_mass over the full observed score window [0.0,0.49] (14 independent batches, few strong sign conflicts, no accepted polynomial and no extrapolation). The contrast is a within-window temporal structure, so the reward should weight early same-clock observed forecasts more heavily and relax toward frozen static teachers later, which is exactly the registered S1_observed_to_static blend schedule (blend 1->0.5->0 over observed nodes, dose_factors=1, delta unchanged). This preserves the frozen eta, mixture temperature, neighbor count and delta_A, and stays inside the observed support. S2 (constant blend) would discard the observed temporal contrast, and S3 is the opposite-relevance control, so neither matches the cited evidence.",
+  "role": "Designer"
+}

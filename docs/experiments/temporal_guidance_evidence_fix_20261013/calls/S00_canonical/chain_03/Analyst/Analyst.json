@@ -1,0 +1,109 @@
+{
+  "findings": [
+    {
+      "claim": "Objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the coordinate representation is predicted endpoint world A features, so all curve values are untyped coordinate proxies rather than physical energies.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The learning/score window is the full observed support [0.0, 0.49] with 50 observed score nodes; recorded affinities were removed and an equal score prior applies, so decoded final affinity is unobserved in this packet.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Across the 20 landmark soft_mass curves, whole-window z magnitudes are small (|z| < 0.65) while first_rate_z and last_rate_z are frequently large and opposite in sign, indicating strong within-window rate contrasts rather than a stationary level target.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "landmark_10_soft_mass is the cleanest observed contrast: 14 independent batches, only 2 strong sign conflicts, relative node RMSE 0.51, and a curve that rises from about -0.38 z at t=0 to a mid-window plateau near +0.8 z before declining to about -0.37 z at t=0.49.",
+      "evidence_ids": [
+        "continuous:100",
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "landmark_00_soft_mass shows the same rise-then-fall shape with 14 independent batches, 1 strong sign conflict and relative node RMSE 0.29, rising from about -0.37 z at t=0 to a peak near +1.6 z around t=0.16 and returning to about -0.28 z at t=0.49.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F005",
+      "priority": 5
+    },
+    {
+      "claim": "No polynomial was accepted for any landmark soft_mass curve (polynomial_accepted false, extrapolation_allowed false), so the observed window cannot be extended beyond [0.0, 0.49] and no absolute coordinate target or spatial gradient is specified by these contrasts.",
+      "evidence_ids": [
+        "continuous:100",
+        "curve_support",
+        "continuous:0"
+      ],
+      "id": "F006",
+      "priority": 6
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase early-window contrast relative to late-window contrast, i.e. favor the rising phase over the declining phase",
+      "evidence_ids": [
+        "continuous:100",
+        "curve_support"
+      ],
+      "falsifier": "If the landmark_10_soft_mass curve shows no reproducible early-versus-late contrast across independent batches, or if the contrast reverses sign under the same score clock, the hypothesis fails.",
+      "id": "H001",
+      "observable": "landmark_10_soft_mass (predicted endpoint world A feature)",
+      "scope": "global over the observed score window [0.0, 0.49]; no extrapolation",
+      "statement": "A reward term that tracks the landmark_10_soft_mass coordinate contrast over the observed score window, rather than a fixed absolute level, is supported by the observed rise-then-fall profile with 14 independent batches and few sign conflicts."
+    },
+    {
+      "direction": "increase early-window contrast relative to late-window contrast, i.e. favor the rising phase over the declining phase",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "falsifier": "If the landmark_00_soft_mass curve shows no reproducible early-versus-late contrast across independent batches, or if the contrast reverses sign under the same score clock, the hypothesis fails.",
+      "id": "H002",
+      "observable": "landmark_00_soft_mass (predicted endpoint world A feature)",
+      "scope": "global over the observed score window [0.0, 0.49]; no extrapolation",
+      "statement": "A reward term that tracks the landmark_00_soft_mass coordinate contrast over the observed score window is supported by its rise-then-fall profile with 14 independent batches, 1 strong sign conflict and relative node RMSE 0.29."
+    }
+  ],
+  "limitations": [
+    "Decoded final affinity labels are absent from this packet; selection preference and coordinate contrasts are association evidence only and are not evidence of descendant survival or measured final benefit.",
+    "Stage profiles and temporal profiles are unavailable; only continuous curves over [0.0, 0.49] were read.",
+    "All features are untyped coordinate proxies in predicted endpoint world A; no energy or chemical-interaction interpretation is attached.",
+    "No absolute coordinate target or spatial gradient can be derived from these contrasts, and extrapolation beyond the observed window is disallowed.",
+    "Current study quality results are withheld from roles, so no claim about generated-molecule quality improvement is made."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,83 @@
+{
+  "findings": [
+    {
+      "claim": "The landmark_00_local_dx coordinate proxy is non-monotone over the full observed score window [0.0,0.49]: it rises to a positive peak near the middle of the window, then falls to a negative trough, then partially recovers, with 6 sign changes and 9 strong sign conflicts across 14 independent batches.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The endpoint rates of landmark_00_local_dx are strongly signed and opposite: first_rate_z is strongly negative and last_rate_z is strongly positive, so the late-window local slope is positive while the early-window slope is negative.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The whole-window mean of landmark_00_local_dx is near zero (whole_window_z small and negative), so the window-integrated level does not distinguish this coordinate; only the within-window contrast does.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "A degree-2 polynomial is not accepted for landmark_00_local_dx (polynomial_accepted false, relative_node_RMSE large, held-out batch MSE not improved by higher degree), so a stationary quadratic target is not supported by this curve.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "The learning window and observed score times are [0.0,0.5] with 50 observed score nodes at 0.01 spacing, and recorded affinities were removed with an equal score prior; label semantics are therefore not decoded affinity.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "reward the late-window positive local slope and the early-window negative slope as a contrast, not an absolute coordinate target",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "clocks"
+      ],
+      "falsifier": "If the compiled reward table leaves landmark_00_local_dx trace unchanged, or if the late-window rate sign does not remain positive under the registered recipe, the contrast hypothesis fails.",
+      "id": "H001",
+      "observable": "landmark_00_local_dx (predicted endpoint world-A local x-displacement proxy)",
+      "scope": "global over the observed score window [0.0,0.49]; no extrapolation beyond 0.49",
+      "statement": "A time-dependent reward contrast on landmark_00_local_dx, tracking the observed early-negative to late-positive rate reversal rather than a fixed level, is a supported coordinate candidate for the reward lane."
+    },
+    {
+      "direction": "contrast/derivative-based reward, not absolute coordinate targeting",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "If a stationary absolute target on landmark_00_local_dx reproduces the observed contrast without a time-varying term, this hypothesis is not needed.",
+      "id": "H002",
+      "observable": "landmark_00_local_dx whole-window level and node-wise contrast",
+      "scope": "global over [0.0,0.49]",
+      "statement": "Because the whole-window mean of landmark_00_local_dx is near zero and the polynomial fit is rejected, any reward edit should be expressed as a within-window contrast or its time derivative rather than a stationary absolute target on this coordinate."
+    }
+  ],
+  "limitations": [
+    "Only one curve (landmark_00_local_dx) was read; other landmark coordinates and soft_mass features were not inspected, so cross-coordinate consistency is unverified.",
+    "Stage profiles and temporal profiles are unavailable; no stage boundary or phase knot is supported by data.",
+    "The curve is a predicted endpoint world-A coordinate proxy; no physical energy, chemical interaction or neural-module interpretation is attached.",
+    "Selection preference is association only; no descendant survival or decoded final affinity evidence was delivered, and missing decoded labels are unobserved rather than failures.",
+    "No current study quality outcomes are available to the role, so no claim of measured final benefit is made."
+  ],
+  "role": "Analyst"
+}
