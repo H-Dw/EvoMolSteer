@@ -1,0 +1,62 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Middle emphasis with positive guidance throughout; same M2 reward",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6",
+    "parameter": "temporal_recipe",
+    "route": "dose",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "dose": [
+        0.5,
+        1.5,
+        0.5
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "W2_middle_peak"
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "curve_support",
+    "continuous:100",
+    "continuous:1",
+    "continuous:2",
+    "continuous:3",
+    "continuous:101",
+    "continuous:102",
+    "continuous:103"
+  ],
+  "failure_modes": [
+    "The mid-window emphasis schedule does not improve the primary final predicted affinity metric relative to the incumbent M2 dose, or degrades it.",
+    "The rise-then-fall soft-mass shape is not reproducible across independent batches (clone dependence / batch inconsistency), so the mid-window emphasis is not a stable target.",
+    "Realized-dose auditing shows the per-seed flow scales or safety caps prevent the intended mean-one normalized dose profile from being delivered, so the compiled table change does not actually alter the executed trace.",
+    "Secondary checks fail: structural validity or strain worsens even if affinity is unchanged, or the changed trajectory produces invalid chemistry.",
+    "The sign-change/strong-sign-conflict counts in the displacement curves are not reproducible in independent batches, removing the basis for rejecting a monotone-trend schedule."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": "W2_middle_peak"
+  },
+  "rationale": "H002 is the only hypothesis whose observed feature shape (soft-mass occupancy proxies rising then falling over the observed score window, cited via the landmark_00_soft_mass and landmark_10_soft_mass curve handles) points to a specific registered temporal intervention: W2_middle_peak, which concentrates the dose ratio budget mid-window (dose [0.5,1.5,0.5] at knots [0,0.5,1]) while preserving the M2 reward, delta and mixture. H001's displacement curves (landmark_00 and landmark_10 local_dx/dy/dz) show non-monotone, sign-changing trajectories with many strong sign conflicts, which rules out any monotone-trend assumption but does not by itself identify a dose direction; it is adopted only as the constraint that the schedule must not assume a single monotone coordinate trend and must keep total delivered displacement fixed, which W2_middle_peak satisfies via mean-one normalization. W1_early_soft and W3_early_strong_control are the opposite time-order controls and are not supported by the mid-window peak shape. This is a dose-route edit only; delta, temperatures, teacher settings and eta remain frozen, and no affinity benefit is claimed from coordinate proxies alone.",
+  "role": "Designer"
+}

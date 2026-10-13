@@ -1,0 +1,289 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/6dabde9c5b2676591e1cbbcfef302ae9c8ce97ef28896fb95a2c479f6412085a.txt",
+        "content_sha256": "6dabde9c5b2676591e1cbbcfef302ae9c8ce97ef28896fb95a2c479f6412085a",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/fd6d75d89d789181befd200ccb32abf88cea7e1e1f13a748747992a461e23cd9.txt",
+        "content_sha256": "fd6d75d89d789181befd200ccb32abf88cea7e1e1f13a748747992a461e23cd9",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/b5664750147a28801db3e01b387e4fbe7f4dd42a1ddd2763eb747d634441ee6b.txt",
+        "content_sha256": "b5664750147a28801db3e01b387e4fbe7f4dd42a1ddd2763eb747d634441ee6b",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/d590378d64c0d4ec2aef279beaa99439fd2875800d4e7a353c31109cdbd67764.txt",
+        "content_sha256": "d590378d64c0d4ec2aef279beaa99439fd2875800d4e7a353c31109cdbd67764",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v2",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_curves",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "W1_early_soft",
+                        "W2_middle_peak",
+                        "W3_early_strong_control"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "hypothesis_refs": {
+                          "minItems": 1
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "hypothesis_refs": {
+                            "contains": {
+                              "const": "H001"
+                            }
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "evidence_refs": {
+                            "contains": {
+                              "enum": [
+                                "E4bbe368c52deda38"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "hypothesis_refs": {
+                            "contains": {
+                              "const": "H002"
+                            }
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "evidence_refs": {
+                            "contains": {
+                              "enum": [
+                                "E11ca33646f5d0576"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "hypothesis_refs": {
+                            "contains": {
+                              "const": "H003"
+                            }
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "evidence_refs": {
+                            "contains": {
+                              "enum": [
+                                "Ee9d172f45c064a2e"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "W1_early_soft",
+                      "W2_middle_peak",
+                      "W3_early_strong_control"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E0857891f4effbfe1",
+                    "E11ca33646f5d0576",
+                    "E4aac9dffddd0d59f",
+                    "E4bbe368c52deda38",
+                    "E76b16d20b4486183",
+                    "Ec235909dc98c4c32",
+                    "Ed1f51b268d71e385",
+                    "Ee9d172f45c064a2e",
+                    "Eef4385e476674774"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "enum": [
+                    "H001",
+                    "H002",
+                    "H003"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9",
+    "parameter": "temporal_recipe",
+    "route": "dose",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "dose": [
+        0.35,
+        1,
+        1.65
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "W1_early_soft"
+  },
+  "evidence_ids": [
+    "continuous:1",
+    "curve_support",
+    "continuous:2",
+    "continuous:3",
+    "continuous:103",
+    "continuous:0",
+    "continuous:100",
+    "clocks"
+  ],
+  "failure_modes": [
+    "The early-window landmark_00_local_dx/dy contrast is statistically indistinguishable between W1_early_soft and M2 across independent batches, falsifying H001.",
+    "Late-window dz values_z and node-to-node rates are unchanged between W1_early_soft and M2 within batch uncertainty, falsifying H002.",
+    "Mid-window soft_mass values_z are statistically indistinguishable between the dose recipe and M2 across independent batches, falsifying H003.",
+    "No decoded final affinity, survival or last recorded joint-head score is available, so any dose schedule cannot be credited with a measured affinity benefit; the primary affinity response must be assessed separately from strain and structural validity.",
+    "All read features have polynomial_accepted=false and high relative_node_RMSE, so no smooth trend or extrapolation beyond the observed window is supported; the recipe's phase knots are experimental hypotheses, not discovered stage boundaries.",
+    "Only 8 of 200 catalogue curve features were read; the remaining landmark displacement, covariance and soft-mass curves are unqueried, not absent, so the adopted feature set may be incomplete."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "registered_choice": "W1_early_soft"
+  },
+  "rationale": "Adopt H001, H002 and H003, each backed by its delivered curve handles. The observed curves show non-monotone, sign-changing landmark_00_local_dx/dy displacement with the largest early-window excursions before t~0.15 (H001), late-window downward drift in landmark_00_local_dz and landmark_10_local_dz after positive early rates (H002), and early-rise/late-fall soft-mass at landmark_00 and landmark_10 (H003). All read features have polynomial_accepted=false, so these are observed-node descriptions over the score window [0.0,0.49] only. W1_early_soft is the registered dose recipe that lowers early dose (0.35) and raises late dose (1.65) with the same M2 reward, delta and blend, matching the observed early-excursion/late-drift structure; it is a testable hypothesis, not a discovered optimum. The dose lane preserves scalar geometry and only changes registered dose_factors, so no reward or curvature change is implied.",
+  "role": "Designer"
+}

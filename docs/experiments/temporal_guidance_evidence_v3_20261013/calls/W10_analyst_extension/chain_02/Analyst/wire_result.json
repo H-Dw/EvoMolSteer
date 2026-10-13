@@ -1,0 +1,106 @@
+{
+  "findings": [
+    {
+      "claim": "Across the full observed score window [0.0,0.49], the landmark_00 local displacement components show non-monotone, sign-changing trajectories: landmark_00_local_dx has 6 sign changes with 9 strong sign conflicts and a whole-window z of about -0.18, and landmark_00_local_dy has 6 sign changes with 4 strong sign conflicts and whole-window z about -0.30. Neither is a stationary target over the window.",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "E11ca33646f5d0576"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "landmark_00_local_dz and landmark_10_local_dz both show a late-window downward drift (last_rate_z about -2.4 and -7.5 respectively) after early positive rates (first_rate_z about +14.1 and +12.1), with 10 and 6 sign changes; the polynomial fits were not accepted, so these are observed-node descriptions, not extrapolable trends.",
+      "evidence_refs": [
+        "E4aac9dffddd0d59f",
+        "E76b16d20b4486183"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "landmark_00_soft_mass and landmark_10_soft_mass both rise early then decline late (first_rate_z about +9.3 and +66.3; last_rate_z about -10.0 and -11.6), with whole-window z about +0.64 and +0.40. The mass proxy is not a stationary quantity across the window.",
+      "evidence_refs": [
+        "Eef4385e476674774",
+        "Ee9d172f45c064a2e"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "landmark_10_local_dx and landmark_10_local_dy show early negative then late positive displacement (first_rate_z about -43.0 and -51.3; last_rate_z about +11.4 and -4.4), with 6-7 sign changes and 13 and 3 strong sign conflicts respectively. The landmark_10_dx profile has the highest strong-sign-conflict count among the read features, so its apparent time ordering is the least stable.",
+      "evidence_refs": [
+        "Ed1f51b268d71e385",
+        "Ec235909dc98c4c32"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "All eight read features have independent_batches=14 but polynomial_accepted=false and relative_node_RMSE between about 0.29 and 0.83, so no smooth low-degree trend is established; the observed curves are the only supported temporal evidence.",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "E11ca33646f5d0576",
+        "E4aac9dffddd0d59f",
+        "Eef4385e476674774",
+        "Ed1f51b268d71e385",
+        "Ec235909dc98c4c32",
+        "E76b16d20b4486183",
+        "Ee9d172f45c064a2e"
+      ],
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "curve_features": [
+        "landmark_00_local_dx",
+        "landmark_00_local_dy"
+      ],
+      "direction": "weaker early control",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "E11ca33646f5d0576"
+      ],
+      "falsifier": "Early-window landmark_00_local_dx/dy values_z are statistically indistinguishable between W1_early_soft and M2 across independent batches.",
+      "observable": "landmark_00_local_dx and landmark_00_local_dy values_z at observed score nodes in [0.0,0.15]",
+      "scope": "early observed score nodes only; no extrapolation",
+      "statement": "If the early-window coordinate contrast is real, then reducing guidance dose early (as in W1_early_soft) should change the early landmark_00_local_dx and landmark_00_local_dy displacement rates relative to the M2 baseline, because both features show their largest early-window excursions before t~0.15 and then reverse sign."
+    },
+    {
+      "curve_features": [
+        "landmark_00_local_dz",
+        "landmark_10_local_dz"
+      ],
+      "direction": "stronger late control",
+      "evidence_refs": [
+        "E4aac9dffddd0d59f",
+        "E76b16d20b4486183"
+      ],
+      "falsifier": "Late-window dz values_z and their node-to-node rates are unchanged between W1_early_soft and M2 within batch uncertainty.",
+      "observable": "landmark_00_local_dz and landmark_10_local_dz values_z at observed score nodes in [0.35,0.49]",
+      "scope": "late observed score nodes only; no extrapolation",
+      "statement": "If the late-window downward drift in landmark_00_local_dz and landmark_10_local_dz is a real temporal contrast, then increasing late dose (W1_early_soft) should alter the late-window dz rates relative to M2, since both features show negative last_rate_z after positive first_rate_z."
+    },
+    {
+      "curve_features": [
+        "landmark_00_soft_mass",
+        "landmark_10_soft_mass"
+      ],
+      "direction": "stronger mid control",
+      "evidence_refs": [
+        "Eef4385e476674774",
+        "Ee9d172f45c064a2e"
+      ],
+      "falsifier": "Mid-window soft_mass values_z are statistically indistinguishable between W2_middle_peak and M2 across independent batches.",
+      "observable": "landmark_00_soft_mass and landmark_10_soft_mass values_z at observed score nodes in [0.15,0.35]",
+      "scope": "mid observed score nodes only; no extrapolation",
+      "statement": "If the early-rise/late-fall soft-mass pattern is a real temporal contrast, then a middle-peak dose (W2_middle_peak) should change the mid-window soft-mass levels relative to M2, because both landmark_00_soft_mass and landmark_10_soft_mass peak near the middle of the observed window."
+    }
+  ],
+  "limitations": [
+    "Only 8 of 200 catalogue curve features were read; the remaining landmark displacement, covariance and soft-mass curves are unqueried, not absent.",
+    "No stage profiles or temporal profiles are available; all temporal statements rest on the continuous observed-node curves.",
+    "No decoded final affinity, survival or last recorded joint-head score is available in this role input, so selection preference cannot be converted into a measured benefit of any dose schedule.",
+    "All read features have polynomial_accepted=false and high relative_node_RMSE, so no smooth trend or extrapolation beyond [0.0,0.49] is supported.",
+    "The dose recipes W1/W2/W3 are registered hypotheses with normalized phase knots; the observed curves do not identify an optimal dose or a discovered stage boundary.",
+    "The coordinate features are untyped proxies; no energy or chemical-interaction interpretation is made."
+  ],
+  "role": "Analyst"
+}

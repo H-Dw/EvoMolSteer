@@ -1,0 +1,24 @@
+{
+  "decision": "edit",
+  "edit_choice": "W2_middle_peak",
+  "evidence_refs": [
+    "E4bbe368c52deda38",
+    "E11ca33646f5d0576",
+    "Ee9d172f45c064a2e",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Primary affinity (final predicted target affinity) shows no improvement over the tested incumbent M2 under W2_middle_peak, i.e. the mid-window dose emphasis does not change the primary metric relative to a flat schedule.",
+    "The mid-window emphasis is not realized in execution: per-seed realized dose deviates from the intended mean-one ratio budget (equal sum(dt*w) is only a ratio budget), so the compiled table change does not produce the intended trace change.",
+    "Strain or structural validity degrades (secondary criteria) even if affinity is unchanged, e.g. the stronger mid-window dose pushes endpoints into higher-strain or invalid geometries.",
+    "The observed non-monotone curves with multiple sign changes and strong sign conflicts across 14 independent batches are batch/clone artifacts rather than a reproducible timing contrast, so the W2 ordering is not distinguishable from W1/W3 or flat control.",
+    "The coordinate response is not causal for affinity: landmark_00_local_dx and landmark_10_soft_mass move as predicted but decoded final affinity is unchanged, showing the temporal association is not a guidance benefit."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H003"
+  ],
+  "rationale": "The Analyst handoff supplies three observed, source-bound temporal contrasts on the full observed score window [0.0,0.49] (clock handle E0857891f4effbfe1). H001 (landmark_00_local_dx, curve E4bbe368c52deda38) reports a mid-window positive excursion bracketed by negative excursions early and late, with the local rate flipping sign between first and last nodes. H003 (landmark_10_soft_mass, curve Ee9d172f45c064a2e) reports a rise from negative early to a positive plateau across roughly t~0.14-0.25 followed by a late decline, i.e. a mid-window occupancy emphasis. H002 (landmark_00_local_dy, curve E11ca33646f5d0576) reports an early-to-late sign reversal, which is a timing contrast but with the opposite ordering (stronger late). The registered dose lane preserves the scalar geometry (delta, teachers, mixture) and only changes registered dose_factors, so the offered recipes are the only admissible interventions. W2_middle_peak (dose [0.5,1.5,0.5] at knots [0,0.5,1], smoothstep, mean-one normalized over actual score nodes) is the registered choice whose shape matches the two mid-window-emphasis hypotheses (H001, H003) that the handoff actually supports; W1_early_soft and W3_early_strong_control emphasize the ends, which the handoff does not support as strongly. This is a dose-route edit only: reward view, delta, temperatures, teacher count and eta remain frozen, and no extrapolation beyond the observed score nodes is introduced. The handoff explicitly notes that a time derivative of a coordinate feature is not a spatial reward gradient and does not estimate an optimal dose, so this is a testable timing hypothesis, not a claimed affinity gain.",
+  "role": "Designer"
+}

@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "W2_middle_peak",
+    "evidence_refs": [
+      "Eef4385e476674774",
+      "Ee9d172f45c064a2e",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "The mid-window-weighted dose does not change the landmark_00_soft_mass mid-window elevation relative to the flat-dose control (H001 falsifier).",
+      "The landmark_10_soft_mass mid-window elevation is unchanged relative to the flat-dose control (H002 falsifier).",
+      "The primary final predicted affinity metric does not improve over the incumbent M2 baseline, even if the coordinate profiles shift as expected.",
+      "Validity or strain degrades (secondary metrics) despite any coordinate response.",
+      "The observed soft-mass mid-window shape is a non-polynomial, qualitative association (polynomial_accepted=false, substantial node RMSE) and does not generalize to a real guidance-timing benefit.",
+      "Only landmark_00 and landmark_10 soft-mass curves were read; the remaining catalogue features are unqueried, so the timing pattern may not hold molecule-wide."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "Both adopted hypotheses rest on delivered soft-mass curves: landmark_00_soft_mass (Eef4385e476674774) and landmark_10_soft_mass (Ee9d172f45c064a2e) each show a low-early, elevated-mid-window, declining-late profile over the observed score nodes [0.0,0.49] (clock handle E0857891f4effbfe1 confirms the observed score times and learning window). The registered dose recipe W2_middle_peak (dose [0.5,1.5,0.5] at knots [0,0.5,1], smoothstep, mean-one normalization, same M2 reward geometry, delta and blend unchanged) is the offered choice that shifts guidance weight toward the middle of the observed window while keeping positive guidance throughout, matching the qualitative mid-window emphasis seen in both landmarks. W1_early_soft and W3_early_strong_control redistribute weight away from the middle and are not supported by these profiles. This is a dose-lane timing hypothesis only; the observed soft-mass elevation is an association with the selection window, not a measured optimal dose or affinity benefit.",
+    "role": "Designer"
+  }
+}

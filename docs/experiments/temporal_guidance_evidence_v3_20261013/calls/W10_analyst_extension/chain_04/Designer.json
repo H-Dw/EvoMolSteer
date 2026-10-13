@@ -1,0 +1,59 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Middle emphasis with positive guidance throughout; same M2 reward",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6",
+    "parameter": "temporal_recipe",
+    "route": "dose",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "dose": [
+        0.5,
+        1.5,
+        0.5
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "W2_middle_peak"
+  },
+  "evidence_ids": [
+    "continuous:1",
+    "curve_support",
+    "continuous:2",
+    "continuous:100",
+    "clocks"
+  ],
+  "failure_modes": [
+    "The mid-window dose emphasis does not improve the primary final predicted affinity relative to the M2 incumbent.",
+    "The observed coordinate contrasts are untyped proxies; the dose schedule changes the trace but produces no measurable affinity or validity benefit.",
+    "Per-seed realized dose deviates from the intended ratio budget under RMS normalization, so the intended mid-window emphasis is not actually delivered.",
+    "Strain or structural validity degrades even if affinity is unchanged, since coordinate control is only secondary to affinity.",
+    "The non-monotone profiles are batch noise (14 dependent batches, clones dependent), so the mid-window contrast is not reproducible."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "registered_choice": "W2_middle_peak"
+  },
+  "rationale": "Adopting H001, H002 and H003, each backed by its delivered curve handle (landmark_00_local_dx E4bbe368c52deda38, landmark_00_local_dy E11ca33646f5d0576, landmark_10_soft_mass Ee9d172f45c064a2e). The observed profiles are non-monotone with sign reversals and large opposite-signed endpoint rates, and no polynomial trend is accepted, so a single whole-window mean is not a defensible schedule. The registered dose lane W2_middle_peak concentrates the ratio budget at the mid-window knot (dose [0.5,1.5,0.5]) while keeping delta and blend fixed and preserving the frozen eta and M2 reward, which is the offered recipe that matches the mid-window excursion seen in H001 and the late-window decline in H003. W1/W3 are the opposite time-order controls and are not selected by this evidence. The score clock E0857891f4effbfe1 confirms the controlled nodes span [0.0,0.49] with no extrapolation.",
+  "role": "Designer"
+}
