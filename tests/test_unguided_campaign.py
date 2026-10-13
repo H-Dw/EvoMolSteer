@@ -103,7 +103,7 @@ def test_native_unguided_unlock_only_removes_assertion_and_recording_calls():
     assert stripped==source.replace('    assert apply_guidance\n','',1)
     # Preserve the actual native selection condition; it evaluates False.
     assert 'apply_guidance\n' in changed
-    ext=SteerLearningExtension(SimpleNamespace(arms=('unguided',)),{})
+    ext=SteerLearningExtension(SimpleNamespace(arms=('unguided',),capture_bond_probabilities=False),{})
     ext.model=SimpleNamespace(_lineage=SimpleNamespace(arm='unguided'))
     assert ext.generation_kwargs()=={'apply_guidance':False}
     ext.model._lineage.arm='single'
