@@ -70,6 +70,9 @@ def test_archive_moves_only_allowlisted_current_outputs_and_preserves_inputs_and
         round_dir / "hypotheses.json": b"hypotheses",
         round_dir / "_version.json": b"version",
         round_dir / "semantic_audit.json": b"audit",
+        round_dir / "quality_retry.json": b"retry protocol",
+        round_dir / "target_ranks.csv": b"target ranks",
+        round_dir / "selected_branches.csv": b"selected branches",
         unlisted: b"do not archive arbitrary files",
     }
     for path, payload in contents.items():
@@ -84,6 +87,7 @@ def test_archive_moves_only_allowlisted_current_outputs_and_preserves_inputs_and
         "scientist/answer.json", "scientist/functional_audit.json", "scientist/controller_binding.json",
         "selectors/t005/answer.json", "selectors/t005/receipt.json", "selectors/t005/controller_binding.json",
         "metrics.json", "hypotheses.json", "_version.json", "semantic_audit.json",
+        "quality_retry.json", "target_ranks.csv", "selected_branches.csv",
     }
     assert set(records) == expected
     for rel, record in records.items():

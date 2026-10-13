@@ -68,6 +68,30 @@ def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _project_history_features(rows: Any, features: Any, affinity_available: bool) -> list[dict[str, Any]]:
+    """Project bounded history to an explicit set of literal scalar columns."""
+    if not isinstance(rows, list):
+        raise ValueError("history source must be a list of bounded observation rows")
+    if not isinstance(features, list) or not 1 <= len(features) <= 12:
+        raise ValueError("features must contain one to twelve literal keys")
+    if any(not isinstance(key, str) for key in features) or len(set(features)) != len(features):
+        raise ValueError("features must be unique literal string keys")
+    for key in features:
+        if key != "online_pic50" and not key.startswith(("current_", "forecast_", "delta_")):
+            raise ValueError(f"unsupported feature {key!r}")
+        if key == "online_pic50" and not affinity_available:
+            raise ValueError("online_pic50 is unavailable for this structure-only packet")
+    available = sorted({str(key) for row in rows if isinstance(row, dict) for key in row
+                        if key in {"step", "time", "online_pic50"} or
+                        str(key).startswith(("current_", "forecast_", "delta_"))})
+    unknown = [key for key in features if key not in available]
+    if unknown:
+        raise KeyError(json.dumps({"error": "unknown feature key", "unknown_features": unknown,
+                                   "available_features": available[:80]}, ensure_ascii=False))
+    columns = ["step", "time", *features]
+    return [{key: row[key] for key in columns if key in row} for row in rows]
+
+
 def _atomic(path: Path, data: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
@@ -361,12 +385,21 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
     scientist_continuations = 0
     scientist_turn_interval: int | None = None
     scientist_turn_commit_count = 0
+    semantic_correction_limit = 4
+    semantic_counts_path = job_dir / "scientist_semantic_corrections.json"
+    if semantic_counts_path.exists():
+        semantic_state = json.loads(semantic_counts_path.read_text(encoding="utf-8"))
+        semantic_corrections = semantic_state.get("counts", {})
+        semantic_last_reasons = semantic_state.get("last_reasons", {})
+    else:
+        semantic_corrections = {}
+        semantic_last_reasons = {}
     try:
         await server.start()
         tools = [
             {"type": "function", "name": "list_candidates", "description": "List anonymous candidates in the approved packet.", "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False}},
             {"type": "function", "name": "get_candidate", "description": "Retrieve full-precision CURRENT features for one anonymous candidate. Query relevant past ranges with get_history.", "inputSchema": {"type": "object", "properties": {"candidate_id": {"type": "string"}}, "required": ["candidate_id"], "additionalProperties": False}},
-            {"type": "function", "name": "get_history", "description": "Retrieve bounded, approved history for one anonymous candidate.", "inputSchema": {"type": "object", "properties": {"candidate_id": {"type": "string"}, "start_step": {"type": "integer", "minimum": 0}, "end_step": {"type": "integer", "minimum": 0}}, "required": ["candidate_id", "start_step", "end_step"], "additionalProperties": False}},
+            {"type": "function", "name": "get_history", "description": "Retrieve bounded, approved history for one anonymous candidate. Optionally select one to twelve literal feature keys; only step/time and those keys are returned.", "inputSchema": {"type": "object", "properties": {"candidate_id": {"type": "string"}, "start_step": {"type": "integer", "minimum": 0}, "end_step": {"type": "integer", "minimum": 0}, "features": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"type": "string"}}}, "required": ["candidate_id", "start_step", "end_step"], "additionalProperties": False}},
         ]
         scientist_bridge = "scientist" in role.lower() and scientist_source is not None and {"interval_descriptions", "hypotheses"}.issubset(_schema_fields(schema))
         if scientist_bridge:
@@ -374,6 +407,7 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                 {"type": "function", "name": "get_scientist_interval", "description": "Fetch the next window's compact manifest, all donor IDs, and exact cohort/background medians. Then fetch all 30 donor profiles in groups of at most five.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}}, "required": ["interval"], "additionalProperties": False}},
                 {"type": "function", "name": "get_scientist_donors", "description": "Read complete computational observation profiles for one to five donors in the currently unlocked window. All 30 profiles must be read before submitting.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}, "donor_ids": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "string"}}}, "required": ["interval", "donor_ids"], "additionalProperties": False}},
                 {"type": "function", "name": "get_scientist_details", "description": "Read extra raw feature observations, including covariance, at all six steps for one donor in this window; no future data.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}, "donor_id": {"type": "string"}, "features": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"type": "string"}}}, "required": ["interval", "donor_id", "features"], "additionalProperties": False}},
+                {"type": "function", "name": "get_scientist_feature_summary", "description": "Compute numeric teacher and same-time population summaries for one to twelve literal scalar feature keys in the currently unlocked window only. This does not replace reading all 30 core donor profiles before submission.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}, "features": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"type": "string"}}}, "required": ["interval", "features"], "additionalProperties": False}},
                 {"type": "function", "name": "submit_scientist_interval", "description": "Irrevocably submit exactly 30 descriptions and one hypothesis for the currently unlocked interval.", "inputSchema": {"type": "object", "properties": {"interval": {"type": "integer", "minimum": 1, "maximum": 10}, "descriptions": {"type": "array", "minItems": 30, "maxItems": 30, "items": schema['properties']['interval_descriptions']['items']}, "hypothesis": schema['properties']['hypotheses']['items']}, "required": ["interval", "descriptions", "hypothesis"], "additionalProperties": False}},
             ]
         # Empty MCP and disabled shell/skills are explicit. No runtime roots or cwd
@@ -421,6 +455,7 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                 'into each hypothesis. These private numerical facts are removed before Selectors receive the public hypothesis. '
                 'A denied submission leaves this interval locked; repair it from its own evidence before fetching the next. '
                 'Check accepted=true in the submit response. A denied submission leaves the same interval open for correction. '
+                '每条私人描述都用普通中文写成连贯、具体的自然语言；原始 feature key 和 pattern code 只放在结构化 metadata，不要抄进正文。若审计指出问题，只依据当前窗口和审计附带的事实修订，不得请求未来窗口。 '
                 'Return ONLY a compact acknowledgement with submitted=true, committed_interval=1, and applied_clauses. '
                 'The client assembles the original full answer from your immutable submissions. '
                 'Do not repeat the 300 paragraphs in the final response.')
@@ -533,6 +568,9 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                                 start_time = time.monotonic()
                                 final_text = None
                                 continue
+                            if int(semantic_corrections.get(str(expected), 0)) >= semantic_correction_limit:
+                                last_reason = str(semantic_last_reasons.get(str(expected), "No critic pass was recorded."))[:1000]
+                                raise ValueError(f"Scientist interval {expected} was not committed: the source-only critic correction limit ({semantic_correction_limit}) was reached. Last audit diagnosis: {last_reason}")
                             scientist_continuations += 1
                             if scientist_continuations > 20:
                                 raise ValueError("Scientist episode ended before the current interval was committed after twenty bounded continuations")
@@ -577,7 +615,8 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                 continue
             params = msg.get("params", {})
             name, args = params.get("tool"), params.get("arguments", {})
-            if scientist_bridge and name in {"get_scientist_interval", "get_scientist_donors", "get_scientist_details", "submit_scientist_interval"}:
+            response_success = True
+            if scientist_bridge and name in {"get_scientist_interval", "get_scientist_donors", "get_scientist_details", "get_scientist_feature_summary", "submit_scientist_interval"}:
                 expected = len(journal["hypotheses"]) + 1
                 interval = args.get("interval") if isinstance(args, dict) else None
                 if interval != expected or interval != scientist_turn_interval or scientist_turn_commit_count:
@@ -601,7 +640,8 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                         'donor_ids': [c['donor_id'] for c in scientist_summary['donors']],
                         'cohort_background': scientist_summary['cohort_background'],
                         'profiles_required_before_submission': 30,
-                        'next_action': 'Fetch all donor IDs via get_scientist_donors in groups of at most five. Additional original features via get_scientist_details.'},
+                        'geometry_semantics': 'Planarity_fraction is the smallest covariance eigenvalue divided by the eigenvalue sum; lower values indicate a thinner cloud. Asphericity is a size-scaled A^2 quantity (largest eigenvalue minus half the other two). Covariance components use the fixed receptor frame; principal-axis eigenvector signs are arbitrary, so a sign flip alone is not rotation. Raw graph labels do not establish chemical validity.',
+                        'next_action': 'Fetch all donor IDs via get_scientist_donors in groups of at most five. Use get_scientist_feature_summary only for additional numeric cohort/background questions; it does not replace reading all 30 donor profiles.'},
                         interval_boundary, name, args)
                     if interval != expected:
                         raise ValueError("interval is not currently unlocked")
@@ -630,7 +670,41 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                     value = _validate_broker_value({'interval': interval, 'donor_id': cid,
                         'observations': [{'step': s['step'], **{k: s[k] for k in keys}} for s in states]}, interval_boundary, name, args)
                     calls.append({'tool': name, 'interval': interval, 'donor_id': cid, 'features': keys, 'max_allowed_step': high})
+                elif name == 'get_scientist_feature_summary':
+                    if scientist_fetched_interval != interval or scientist_summary is None:
+                        value = {'accepted': False, 'error': 'Fetch the currently unlocked interval manifest first. No data returned.'}
+                        response_success = False
+                    else:
+                        try:
+                            from .feature_queries import scientist_feature_summary
+                            summary = scientist_feature_summary(scientist_source, interval, args.get('features'))
+                            value = _validate_broker_value({'accepted': True, **summary}, interval_boundary, name, args)
+                            calls.append({'tool': name, 'interval': interval, 'features': args.get('features'), 'max_allowed_step': high})
+                            events.append({'kind': 'scientist_feature_summary', 'interval': interval, 'features': args.get('features'), 'max_allowed_step': high})
+                        except (ValueError, TypeError, KeyError) as exc:
+                            # The error lists only literal numeric feature names present
+                            # in this unlocked window and reveals no observation values.
+                            allowed = sorted({key for donor in scientist_source['teacher']['donors']
+                                for row in donor['observations'][low:high + 1] for key, v in row.items()
+                                if isinstance(key, str) and key.startswith(('current_', 'forecast_', 'delta_'))
+                                and isinstance(v, (int, float)) and not isinstance(v, bool)})[:80]
+                            value = {'accepted': False, 'error': str(exc)[:1000], 'available_features': allowed,
+                                     'max_allowed_step': high, 'data_returned': False}
+                            response_success = False
+                            calls.append({'tool': name, 'interval': interval, 'denied': str(exc)[:1000]})
+                            events.append({'kind': 'scientist_feature_summary_denied', 'interval': interval, 'reason': str(exc)[:1000]})
                 else:
+                    if int(semantic_corrections.get(str(interval), 0)) >= semantic_correction_limit:
+                        last_reason = str(semantic_last_reasons.get(str(interval), "No critic pass was recorded."))[:1000]
+                        value = {'accepted': False, 'next_allowed_interval': interval,
+                            'error': f'Source-only critic correction limit ({semantic_correction_limit}) reached. This interval remains locked. Last audit diagnosis: {last_reason}',
+                            'data_returned': False, 'corrections_remaining': 0}
+                        response_success = False
+                        assert server.proc and server.proc.stdin
+                        response = {'id': msg['id'], 'result': {'contentItems': [{'type': 'inputText', 'text': json.dumps(value, ensure_ascii=False)}], 'success': False}}
+                        server.proc.stdin.write(_json_bytes(response) + b'\n')
+                        await server.proc.stdin.drain()
+                        continue
                     if scientist_fetched_interval != interval:
                         raise ValueError("fetch the currently unlocked interval before submitting it")
                     if set(args) != {"interval", "descriptions", "hypothesis"} or not isinstance(args["descriptions"], list) or len(args["descriptions"]) != 30:
@@ -671,8 +745,70 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                         server.proc.stdin.write(_json_bytes(response) + b'\n')
                         await server.proc.stdin.drain()
                         continue
+                    # Functionally valid submissions still require an independent
+                    # source-only semantic audit before any irreversible journal write.
+                    from .science_audit import _window_source, audit_scientist_submission
+                    critic_dir = attempt_dir / "science_audit"
+                    audit_result = await asyncio.to_thread(audit_scientist_submission,
+                        critic_dir, scientist_source, interval, args["descriptions"], hypothesis, prompt)
+                    clause_assessment = audit_result.get("clause_assessment", {}) if isinstance(audit_result, dict) else {}
+                    unsupported = audit_result.get("unsupported_claims", []) if isinstance(audit_result, dict) else []
+                    critic_pass = (isinstance(audit_result, dict) and audit_result.get("passes") is True
+                        and audit_result.get("evidence_truth") is True and audit_result.get("natural_language") is True
+                        and isinstance(clause_assessment, dict) and clause_assessment.get("respected") is True
+                        and audit_result.get("correction_needed") is False and isinstance(unsupported, list) and not unsupported)
+                    if not critic_pass:
+                        key = str(interval)
+                        semantic_corrections[key] = int(semantic_corrections.get(key, 0)) + 1
+                        reason_record = {'passes': audit_result.get('passes') if isinstance(audit_result, dict) else None,
+                            'evidence_truth': audit_result.get('evidence_truth') if isinstance(audit_result, dict) else None,
+                            'natural_language': audit_result.get('natural_language') if isinstance(audit_result, dict) else None,
+                            'clause_assessment': clause_assessment,
+                            'unsupported_claims': unsupported[:12] if isinstance(unsupported, list) else [],
+                            'correction_needed': audit_result.get('correction_needed') if isinstance(audit_result, dict) else None}
+                        reason_text = json.dumps(reason_record, ensure_ascii=False)[:2500]
+                        semantic_last_reasons[key] = reason_text
+                        _atomic(semantic_counts_path, _json_bytes({'limit_per_interval': semantic_correction_limit,
+                            'counts': semantic_corrections, 'last_reasons': semantic_last_reasons}))
+                        correction_facts, _ = _window_source(scientist_source, interval, args['descriptions'], hypothesis)
+                        correction_facts = {field: correction_facts[field] for field in (
+                            'scope', 'current_hypothesis', 'computed_source_summaries',
+                            'source_checked_background_quantiles', 'source_checked_hypothesis_evidence',
+                            'donor_descriptions')}
+                        correction_response = {'accepted': False, 'next_allowed_interval': interval,
+                            'semantic_audit': reason_record, 'current_window_facts': correction_facts,
+                            'correction_attempt': semantic_corrections[key],
+                            'corrections_remaining': max(0, semantic_correction_limit - semantic_corrections[key]),
+                            'instruction': '仅修订当前窗口。请用普通中文自然语言表达；原始 feature key 和 pattern code 仅属 metadata，不要写进正文。审核未通过前此窗口不会提交或解锁后续窗口。'}
+                        calls.append({'tool': name, 'interval': interval, 'semantic_audit_passed': False,
+                            'correction_attempt': semantic_corrections[key], 'audit_sha256': _sha(_json_bytes(audit_result))})
+                        events.append({'kind': 'scientist_semantic_audit_rejected', 'interval': interval,
+                            'correction_attempt': semantic_corrections[key], 'audit_sha256': _sha(_json_bytes(audit_result))})
+                        assert server.proc and server.proc.stdin
+                        response = {'id': msg['id'], 'result': {'contentItems': [{'type': 'inputText',
+                            'text': json.dumps(correction_response, ensure_ascii=False)}], 'success': False}}
+                        server.proc.stdin.write(_json_bytes(response) + b'\n')
+                        await server.proc.stdin.drain()
+                        continue
+                    # Bind the approval to this exact source, submitted window,
+                    # and operative prompt without exposing any of these hashes
+                    # or filesystem locations to the Scientist worker.
+                    audit_proof = {'model': 'gpt-6.1-sol', 'effort': 'xhigh',
+                        'audit_sha256': _sha(_json_bytes(audit_result)),
+                        'source_sha256': _sha(_json_bytes(scientist_source)),
+                        'submission_sha256': _sha(_json_bytes({'descriptions': args['descriptions'],
+                            'hypothesis': hypothesis})),
+                        'active_prompt_sha256': _sha(prompt.encode('utf-8')),
+                        'result': audit_result}
+                    proof_path = attempt_dir / 'scientist_audit_proofs.jsonl'
+                    proof_path.parent.mkdir(parents=True, exist_ok=True)
+                    with proof_path.open('ab') as handle:
+                        handle.write(_json_bytes({'interval': interval, **audit_proof}) + b'\n')
+                        handle.flush()
+                        os.fsync(handle.fileno())
                     # Append-only journal commit precedes unlocking subsequent evidence.
-                    rows = {"interval": interval, "descriptions": args["descriptions"], "hypothesis": args["hypothesis"]}
+                    rows = {"interval": interval, "descriptions": args["descriptions"], "hypothesis": args["hypothesis"],
+                            "critic_proof": audit_proof}
                     journal_path = attempt_dir / "scientist_intervals.jsonl"
                     journal_path.parent.mkdir(parents=True, exist_ok=True)
                     with journal_path.open("ab") as handle:
@@ -696,7 +832,7 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                 if name == "get_scientist_interval":
                     scientist_fetched_interval = interval
                 assert server.proc and server.proc.stdin
-                response = {"id": msg["id"], "result": {"contentItems": [{"type": "inputText", "text": json.dumps(value, ensure_ascii=False)}], "success": True}}
+                response = {"id": msg["id"], "result": {"contentItems": [{"type": "inputText", "text": json.dumps(value, ensure_ascii=False)}], "success": response_success}}
                 server.proc.stdin.write(_json_bytes(response) + b"\n")
                 await server.proc.stdin.drain()
                 continue
@@ -731,6 +867,32 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                     if not isinstance(lo, int) or not isinstance(hi, int) or lo < 0 or hi < lo or hi > packet["step"]:
                         raise ValueError("history range is outside approved cutoff")
                     value = [h for h in card.get("history", []) if lo <= h.get("step", -1) <= hi]
+            features = args.get("features")
+            if name == "get_history" and features is not None:
+                affinity_available = not (packet.get("hide_affinity") is True or packet.get("affinity_available") is False)
+                try:
+                    # Validate the trusted broker response before projection so
+                    # selecting columns cannot conceal a future row or unsafe value.
+                    value = _validate_broker_value(value, packet, name, args)
+                    value = _project_history_features(value, features, affinity_available)
+                except (ValueError, KeyError) as exc:
+                    available = sorted({str(key) for row in value if isinstance(row, dict) for key in row
+                        if key in {"step", "time", "online_pic50"} or
+                        str(key).startswith(("current_", "forecast_", "delta_"))})[:80]
+                    detail = str(exc)[:1000]
+                    try:
+                        parsed = json.loads(detail)
+                    except json.JSONDecodeError:
+                        parsed = {"error": detail}
+                    calls.append({"tool": name, "args": args, "denied": detail})
+                    events.append({"kind": "broker_request_denied", "tool": name, "reason": detail})
+                    response = {"id": msg["id"], "result": {"contentItems": [{"type": "inputText", "text": json.dumps({
+                        "accepted": False, **parsed,
+                        "available_features": parsed.get("available_features", available),
+                        "data_returned": False}, ensure_ascii=False)}], "success": False}}
+                    server.proc.stdin.write(_json_bytes(response) + b"\n")
+                    await server.proc.stdin.drain()
+                    continue
             value = _validate_broker_value(value, packet, name, args)
             calls.append({"tool": name, "args": args})
             assert server.proc and server.proc.stdin
@@ -776,7 +938,7 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
     else:
         _atomic(directory / "packet.json", packet_bytes)
     implementation_sha256: dict[str, str] = {}
-    for name in ("runner.py", "summaries.py", "validation.py", "donor_validation.py", "orchestrate.py"):
+    for name in ("runner.py", "summaries.py", "validation.py", "donor_validation.py", "feature_queries.py", "audit_packets.py", "science_audit.py", "orchestrate.py"):
         path = Path(__file__).with_name(name)
         if path.is_file():
             implementation_sha256[name] = _sha(path.read_bytes())

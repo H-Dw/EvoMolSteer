@@ -20,6 +20,9 @@ _ROUND_FILE_ALLOWLIST = {
     "hypotheses.json",
     "_version.json",
     "semantic_audit.json",
+    "quality_retry.json",
+    "target_ranks.csv",
+    "selected_branches.csv",
 }
 _CURRENT_JOB_FILE_ALLOWLIST = {
     "answer.json",

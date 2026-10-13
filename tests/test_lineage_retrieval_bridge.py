@@ -9,6 +9,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from evomolsteer.lineage_retrieval import runner
+from evomolsteer.lineage_retrieval import science_audit
 from evomolsteer.lineage_retrieval.orchestrate import SCIENTIST_SCHEMA
 
 
@@ -208,6 +209,14 @@ def _episode_actions(source, start_interval, end_interval, invalid_first=False, 
 def _run_fake(monkeypatch, source, first, continuation=None, tmp_path=None, premature_ack_first=False):
     server = _FakeServer(first, continuation, premature_ack_first)
     monkeypatch.setattr(runner, "_AppServer", lambda *args: server)
+    # These tests exercise broker/time-boundary behavior, not semantic review.
+    # The separate runner_critic tests cover the precommit gate with both
+    # passing and rejecting critics; never call a real model from this fixture.
+    monkeypatch.setattr(science_audit, "audit_scientist_submission", lambda *args, **kwargs: {
+        "passes": True, "evidence_truth": True, "natural_language": True,
+        "clause_assessment": {"respected": True, "assessment": "The submission follows the current-window clause."},
+        "unsupported_claims": [], "correction_needed": False,
+    })
     packet = {"role": "scientist", "available_interval": 1, "max_allowed_step": 5}
     journal = {"interval_descriptions": [], "hypotheses": [], "applied_clauses": []}
     events, calls = [], []
@@ -260,7 +269,8 @@ def test_fake_app_server_enforces_progressive_scientist_gate_and_continues_same_
     assert config["features"] == {"shell_tool": False, "multi_agent": False, "apps": False,
         "plugins": False, "browser_use": False, "computer_use": False, "skill_search": False}
     assert {tool["name"] for tool in server.thread_start_params["dynamicTools"]} == {
-        "get_scientist_interval", "get_scientist_donors", "get_scientist_details", "submit_scientist_interval"}
+        "get_scientist_interval", "get_scientist_donors", "get_scientist_details",
+        "get_scientist_feature_summary", "submit_scientist_interval"}
 
     responses = server.tool_responses
     invalid_public = next(resp for name, args, resp in responses

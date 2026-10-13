@@ -90,6 +90,12 @@ def test_teacher_comparison_uses_background_bands_and_full_precision():
     assert row["teacher_median"] == 24.5
     assert row["background_P25"] == 20.0
     assert row["background_median"] == 25.0
+    assert row["teacher_minus_background_P50"] == -0.5
+    assert row["teacher_vs_background_P50"] == "below"
+    assert row["relative_to_background_exact_direction"] == "below"
+    assert row["relative_to_background_near_equal"] is False
+    assert row["relative_to_background_tolerance"] == 1e-6
+    assert row["relative_to_background_is_statistical_significance"] is False
     assert row["background_P75"] == 30.0
     assert row["teacher_count_below_background_P25"] == 10
     assert row["teacher_count_inside_background_P25_P75"] == 11
@@ -101,6 +107,19 @@ def test_teacher_comparison_uses_background_bands_and_full_precision():
     assert card["residue_contact_footprints"]["current"] == {
         "start": ["R0"], "mid": ["R2"], "end": ["R5"]
     }
+
+
+def test_background_p50_equal_within_shared_numeric_tolerance():
+    source = make_source()
+    # At step 5 the donor median for this feature is 24.5.
+    for donor_index, donor in enumerate(source["teacher"]["donors"]):
+        donor["observations"][5]["current_radius_gyration_A"] = 10.0 + donor_index
+    source["background"][5]["quantiles_P25_P50_P75"]["current_radius_gyration_A"] = [20.0, 24.5 + 5e-7, 30.0]
+    row = next(r for r in summarize_scientist_interval(source, 1)["cohort_background"]
+               if r["step"] == 5 and r["feature"] == "current_radius_gyration_A")
+    assert row["teacher_minus_background_P50"] == pytest.approx(-5e-7)
+    assert row["teacher_vs_background_P50"] == "equal"
+    assert row["relative_to_background_near_equal"] is True
 
 
 def test_nulls_and_interval_bounds_are_handled():

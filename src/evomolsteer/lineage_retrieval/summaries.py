@@ -24,6 +24,7 @@ _FEATURES = (
 )
 _REPRESENTATIONS = ("current", "forecast")
 _TOL = 1e-6
+_BACKGROUND_COMPARISON_TOL = 1e-6
 
 
 def _finite_number(value: Any) -> float | None:
@@ -68,6 +69,23 @@ def _band(value: float | None, p25: float | None, p75: float | None) -> str | No
     if value > p75:
         return "above"
     return "inside"
+
+
+def _background_contrast(teacher: float | None, background: float | None) -> dict[str, Any]:
+    """Numeric P50 contrast; tolerance describes equality, not significance."""
+    delta = teacher - background if teacher is not None and background is not None else None
+    direction = None
+    if delta is not None:
+        direction = ("above" if delta > _BACKGROUND_COMPARISON_TOL else
+                     "below" if delta < -_BACKGROUND_COMPARISON_TOL else "equal")
+    return {
+        "teacher_minus_background_P50": delta,
+        "teacher_vs_background_P50": direction,
+        "relative_to_background_exact_direction": direction,
+        "relative_to_background_near_equal": abs(delta) <= _BACKGROUND_COMPARISON_TOL if delta is not None else None,
+        "relative_to_background_tolerance": _BACKGROUND_COMPARISON_TOL,
+        "relative_to_background_is_statistical_significance": False,
+    }
 
 
 def _direction(start: float | None, end: float | None) -> str | None:
@@ -187,6 +205,7 @@ def summarize_scientist_interval(source: Any, interval: int) -> dict[str, Any]:
                 key = f"{rep}_{feature}"
                 p25, p50, p75 = _quantiles(row, key)
                 values = [v for v in donor_values.get((step, key), []) if v is not None]
+                comparison = _background_contrast(float(np.median(values)) if values else None, p50)
                 cohort_background.append({
                     "step": step,
                     "feature": key,
@@ -199,6 +218,7 @@ def summarize_scientist_interval(source: Any, interval: int) -> dict[str, Any]:
                     if p25 is not None and p75 is not None else None,
                     "teacher_count_above_background_P75": sum(v > p75 for v in values) if p75 is not None else None,
                     "teacher_count_nonnull": len(values),
+                    **comparison,
                 })
 
     return {

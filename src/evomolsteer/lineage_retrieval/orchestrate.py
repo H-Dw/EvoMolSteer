@@ -108,12 +108,18 @@ QUALITY_GUIDANCE = {
         'a shared generation-clock effect from a teacher-specific pattern. Do not copy generic prose across windows instead of describing observed behavior. '
         'A minority mode needs observed examples; conditional possibilities alone do not establish one. Do not infer an attraction, formed molecule, polar-group '
         'orientation, hydrogen bond or improved energy from whole-cloud geometry or raw labels. Use qualitative language and exact single-key, step-span evidence. '
+        'Write ordinary Chinese prose: feature names, numeric values and increase/decrease/mixed codes belong in structured metadata, not the paragraph. '
+        'Read teacher_vs_background_P50 separately at every cited endpoint. Do not extrapolate an endpoint contrast to the whole window, '
+        'or call a tiny numerical difference a significant separation. Pocket-contact atoms and contact pairs do not establish new contacted residues. '
         'Ground the active policy clause in actual observations; if its proposed condition is absent, report the grounded absence rather than inventing a pattern.'),
     'selector': ('Factual quality correction: verify every selected seed and every supporting or opposing claim against its own exact current/past history. '
         'Cite ONE literal feature key and one observed value per observation item; cite both ends of any claimed change. '
         'Do not treat different anonymous IDs as evidence of different geometric modes. Compare actual shape, location, contact footprint and history, and '
         'describe differences in proportion to the observed size of the difference. Validate the newest policy clause by a concrete comparison of observed '
-        'competitors or a grounded finding that its conditional trigger is absent. Do not assert binding energy, hydrogen bonds, future survival or final quality. '
+        'competitors. Compute a window change from its matching start/end observations; delta_* fields are single-event changes. '
+        'Compare residue footprints as unordered sets, not list order. Lower planarity_fraction means thinner; shape_thickness_A measures absolute thickness. '
+        'Do not claim that a competitor lacks history when its history is available but has not been queried. '
+        'A grounded finding that a conditional trigger is absent is acceptable. Do not assert binding energy, hydrogen bonds, future survival or final quality. '
         'Use the full allowed population and the same hypothesis. This is factual review; no outcomes or retrieval-score feedback are available.'),
 }
 
@@ -424,7 +430,11 @@ def run_selectors(study, round_dir, code, hypotheses, workers=3, structural_only
         packet['hypothesis'] = next(h for h in hypotheses if h['end_step'] == step)
         packet['semantics'] = {'raw_current_cloud_is_not_finished_molecule': True,
             'forecast_is_intermediate_not_final': True, 'final_labels_available': False,
-            'history_ends_at_current_preselection_state': True, 'population_scope': 'All original batches, grouped visible-equivalent states'}
+            'history_ends_at_current_preselection_state': True, 'population_scope': 'All original batches, grouped visible-equivalent states',
+            'delta_fields': 'One steer event relative to the previous event; use matching endpoints for a five-event window change.',
+            'residue_footprints': 'Unordered sets. List order has no physical meaning.',
+            'planarity_fraction': 'Smallest covariance eigenvalue divided by their sum. Lower means relatively thinner.',
+            'shape_thickness_A': 'Absolute cloud thickness; compare alongside the relative planarity fraction.'}
         write(job / 'mapping.json', mapping)
         prompt = role_prompt(study, 'selector', code,
             f'Return step={step}. This is an independent selection from the FULL current population, not a continuation of earlier Selector decisions. '
@@ -565,6 +575,11 @@ def semantic_audit(study, folder, meta, enforce=True):
     from .runner import run_job
     recovery = read(folder / 'quality_retry.json') if (folder / 'quality_retry.json').exists() else {}
     target = folder / 'main_semantic_audit'
+    if recovery.get('protocol_revision'):
+        revision = recovery['protocol_revision']
+        if not re.fullmatch(r'[A-Za-z0-9_]+', revision):
+            raise ValueError('Invalid factual audit protocol revision')
+        target = target / revision
     if recovery:
         target = target / f"T{recovery['trial'] + 1:02d}"
     if (target / 'answer.json').exists():
@@ -575,27 +590,10 @@ def semantic_audit(study, folder, meta, enforce=True):
             job = folder / 'selectors' / f't{step:03d}'
             answer = read(job / 'answer.json')
             mapping = read(job / 'mapping.json')['anonymous_to_key']
-            cards = {c['key']: c for c in read(study / 'evidence' / 'pools' / f't{step:03d}.json')['cards']}
-            claims = []
-            for row in answer['ranking']:
-                card = cards[mapping[row['candidate_id']]]
-                states = {v['step']: v for v in card['history']}
-                history_keys = sorted({e['feature'] for e in row['observations']})
-                claims.append({'candidate_id': row['candidate_id'], 'rank': row['rank'], 'rationale': row['evidence'], 'counterevidence': row['counterevidence'],
-                    'observations': [{'claim': e, 'stored_value': states[e['step']][e['feature']]} for e in row['observations']],
-                    'current_state': card['now'], 'history_columns': ['step', *history_keys],
-                    'history_rows': [[s['step'], *[s.get(k) for k in history_keys]] for s in card['history']]})
-            from .runner import _candidate_summary
-            referenced = set(re.findall(r'C[0-9a-f]{12}', json.dumps(answer, ensure_ascii=False)))
-            if (job / 'receipt.json').exists():
-                referenced.update(c.get('args', {}).get('candidate_id') for c in read(job / 'receipt.json').get('calls', []))
-            inspected = [{'candidate_id': cid, 'now': cards[mapping[cid]]['now']} for cid in sorted(
-                cid for cid in referenced if cid in mapping)]
-            compared = _candidate_summary({'cards': inspected})
-            compared['all_candidates_included'] = False
-            compared['scope'] = 'Only explicitly named or queried competitors. This is an inspected subset, not the full available Selector population.'
-            nodes.append({'step': step, 'choices': claims, 'applied_clauses': answer['applied_clauses'],
-                'total_available_seed_groups': len(cards), 'compared_current_states': compared})
+            pool = read(study / 'evidence' / 'pools' / f't{step:03d}.json')
+            calls = read(job / 'receipt.json').get('calls', []) if (job / 'receipt.json').exists() else []
+            from .audit_packets import selector_audit_node
+            nodes.append(selector_audit_node(pool, mapping, answer, calls))
         scientist_source = folder
         if meta.get('scientist_outputs_frozen_from'):
             scientist_source = study / 'rounds' / meta['scientist_outputs_frozen_from']
@@ -633,6 +631,10 @@ def semantic_audit(study, folder, meta, enforce=True):
             'assessment that the condition is absent; do not force an untrue pattern. '
             'Current-cloud squeezing or raw bond labels do not establish formed molecules, energies, H-bonds or causal affinity effects. '
             'Principal-axis signs are arbitrary; planarity_fraction lower means thinner, and geometric contacts are distance proxies. '
+            'Residue footprints are unordered sets: different array order does not establish different residues. '
+            'A delta_* field is one-event change; evaluate interval claims using matching endpoint values. '
+            'The packet includes relevant histories for selected and explicitly named competitors and full-population scalar ranges. '
+            'Do not invent a false-source contradiction from an omitted feature. If necessary source evidence is absent, identify the missing field and step precisely. '
             'Do not penalize an unsuccessful retrieval solely because oracle coverage is low. Review evidence truth and action, '
             'not hidden chain of thought. Return ten selector_assessments plus a Scientist assessment, actual unsupported claims '
             'and concrete failure analysis. passes=true only when the operative new instructions have observable grounded application '
@@ -645,28 +647,43 @@ def semantic_audit(study, folder, meta, enforce=True):
 
 
 def run_audit_chunks(target, prompt, packet):
-    """Audit all 300 paragraphs with bounded, cached xhigh evidence slices."""
+    """Audit every interval, splitting large pairs before the transport limit."""
     from .runner import run_job
-    def pair(first):
-        intervals = {first, first + 1}
+    def project(intervals):
         steps = {5 * i for i in intervals}
         part = copy.deepcopy(packet)
         part['scientist_descriptions'] = [v for v in packet['scientist_descriptions'] if v['interval'] in intervals]
         part['scientist_background_evidence'] = [v for v in packet.get('scientist_background_evidence', []) if v['interval'] in intervals]
         part['selector_nodes'] = [v for v in packet['selector_nodes'] if v['step'] in steps]
         part['same_time_population_quantiles'] = [v for v in packet['same_time_population_quantiles']
-            if 5 * (first - 1) <= v['step'] <= 5 * (first + 1)]
+            if 5 * (min(intervals) - 1) <= v['step'] <= 5 * max(intervals)]
         part['audit_slice'] = {'intervals': sorted(intervals), 'selector_steps': sorted(steps),
             'all_hypotheses_provided_for_cross_interval_consistency': True}
         schema = copy.deepcopy(AUDIT_SCHEMA)
-        schema['properties']['selector_assessments'] = arr(schema['properties']['selector_assessments']['items'], 2, 2)
-        request = prompt + ('\nThis evidence slice contains only two intervals and two Selector nodes. '
-            'Return exactly those two selector_assessments. Audit only the supplied factual observations; '
+        schema['properties']['selector_assessments'] = arr(schema['properties']['selector_assessments']['items'], len(intervals), len(intervals))
+        request = prompt + (f'\nThis evidence slice contains intervals {sorted(intervals)} and Selector steps {sorted(steps)}. '
+            'Return exactly those selector_assessments. Audit only the supplied factual observations; '
             'all ten hypotheses are supplied to identify generic repetition, but do not claim unseen geometry. '
             'A newest-clause condition outside this slice is not a failure if the supplied actions correctly respect its scope. '
             'Do not require a conditional clause to create a pattern that the observations do not contain.')
+        return part, schema, request
+    groups = []
+    for first in (1, 3, 5, 7, 9):
+        pair = {first, first + 1}
+        part, schema, request = project(pair)
+        if len(json.dumps({'packet': part, 'schema': schema, 'prompt': request}, ensure_ascii=False, separators=(',', ':'))) > 850_000:
+            groups.extend(({first}, {first + 1}))
+        else:
+            groups.append(pair)
+    def audit_group(intervals):
+        part, schema, request = project(intervals)
+        steps = {5 * i for i in intervals}
+        serialized = json.dumps({'packet': part, 'schema': schema, 'prompt': request}, ensure_ascii=False, separators=(',', ':'))
+        if len(serialized) > 950_000:
+            raise ValueError(f'One interval audit still exceeds safe transport size: {sorted(intervals)}; preserve evidence instead of truncating it')
         binding = object_sha({'prompt': request, 'packet': part, 'schema': schema, 'model': MAIN_MODEL, 'effort': 'xhigh'})
-        job = target / 'chunks' / f'C{first:02d}_{first+1:02d}'
+        name = f'C{min(intervals):02d}_{max(intervals):02d}'
+        job = target / 'chunks' / name
         if (job / 'controller_binding.json').exists() and read(job / 'controller_binding.json')['request_sha256'] != binding:
             raise ValueError('Existing semantic-audit slice inputs changed; preserve and review that slice before resuming')
         write(job / 'controller_binding.json', {'request_sha256': binding, 'model': MAIN_MODEL, 'effort': 'xhigh'})
@@ -674,9 +691,9 @@ def run_audit_chunks(target, prompt, packet):
             job, 'main-agent', request, part, schema, model=MAIN_MODEL, effort='xhigh')
         if {r['step'] for r in result['selector_assessments']} != steps:
             raise ValueError('Main-agent audit returned nodes outside its evidence slice')
-        return first, result
+        return name, result
     with ThreadPoolExecutor(max_workers=3) as pool:
-        futures = [pool.submit(pair, first) for first in (1, 3, 5, 7, 9)]
+        futures = [pool.submit(audit_group, group) for group in groups]
         results = dict(f.result() for f in as_completed(futures))
     ordered = [results[i] for i in sorted(results)]
     result = {'passes': all(v['passes'] for v in ordered),
@@ -685,10 +702,11 @@ def run_audit_chunks(target, prompt, packet):
         'selector_assessments': sorted([r for v in ordered for r in v['selector_assessments']], key=lambda r: r['step']),
         'unsupported_claims': [r for v in ordered for r in v['unsupported_claims']]}
     for key in ('scientist_assessment', 'instruction_effect_assessment', 'failure_analysis'):
-        result[key] = '\n\n'.join(f'Intervals {i}-{i+1}: {results[i][key]}' for i in sorted(results))
+        result[key] = '\n\n'.join(f'{i}: {results[i][key]}' for i in sorted(results))
     write(target / 'answer.json', result)
-    write(target / 'aggregation.json', {'method': 'Conjunction of five actual xhigh two-interval audits; no source claims generated by the aggregator',
-        'slice_response_sha256': {str(i): digest(target / 'chunks' / f'C{i:02d}_{i+1:02d}' / 'answer.json') for i in sorted(results)}})
+    write(target / 'aggregation.json', {'method': 'Conjunction of actual xhigh source audits; large pairs split into individual intervals, no source claims generated by the aggregator',
+        'interval_groups': [sorted(group) for group in groups],
+        'slice_response_sha256': {i: digest(target / 'chunks' / i / 'answer.json') for i in sorted(results)}})
     return result
 
 
@@ -726,6 +744,9 @@ def audit_and_repair(study, folder, meta, workers):
         recovery = {**targets, 'trial': trial, 'archived_trial': archived.name,
             'audit_sha256': digest(archived / 'semantic_audit.json'),
             'kind': 'factual correction; nominal optimization policy and information boundary unchanged'}
+        for key in ('protocol_revision', 'manual_review', 'previous_protocol_trial'):
+            if key in previous:
+                recovery[key] = previous[key]
         write(folder / 'quality_retry.json', recovery)
         write(folder / '_version.json', meta)
         for role, code in [('scientist', meta['scientist_version']), ('selector', meta['selector_version'])]:
