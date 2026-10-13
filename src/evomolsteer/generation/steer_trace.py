@@ -116,6 +116,9 @@ class SteerLearningExtension:
         config['input_files']=self.input_files
         config['selection_scope']={'window':[self.opt.window_start,self.opt.window],'bounds':'inclusive score_time',
                                    'proposal_time':'one native step later; not silently truncated at the upper score bound'}
+        if tuple(self.cfg.arms)==('unguided',):
+            config['selection_mode']='unguided; native SMC disabled; no coordinate reward gradient'
+            config['selection_scope'].update(window_role='observation_only',actual_selection_window=None)
 
     def instrument(self,model,path):
         from .controller import instrument

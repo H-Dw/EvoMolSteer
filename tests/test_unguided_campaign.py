@@ -71,6 +71,10 @@ def test_reference_mismatch_fails_before_inference_or_target_claim(tmp_path,monk
     for changes in ({'samples':6},{'seed':43},{'window_end':.4},{'target_ids':('target_000/reference',)}):
         with pytest.raises(ValueError,match='differs|differ'):run_campaign(replace(baseline,**changes))
     assert len(calls)==2 and not Path(baseline.output_dataset).exists()
+    result=run_campaign(baseline)
+    assert result['status']=='complete' and len(calls)==4
+    assert read_json(Path(baseline.output_dataset)/'reference_comparison.json')['targets']==2
+    assert run_campaign(baseline)['status']=='complete' and len(calls)==4
     Path(baseline.checkpoint).write_bytes(b'different model')
     with pytest.raises(ValueError,match='Checkpoint differs'):run_campaign(baseline)
 
@@ -104,6 +108,10 @@ def test_native_unguided_unlock_only_removes_assertion_and_recording_calls():
     assert ext.generation_kwargs()=={'apply_guidance':False}
     ext.model._lineage.arm='single'
     assert ext.generation_kwargs()=={'apply_guidance':True}
+    ext.opt=SimpleNamespace(window_start=0.,window=.5)
+    config={};ext.amend_config(config)
+    assert config['selection_scope']['actual_selection_window'] is None
+    assert config['selection_scope']['window_role']=='observation_only'
 
 
 def test_unguided_entry_cannot_accidentally_launch_a_steer_arm(monkeypatch):

@@ -255,9 +255,9 @@ def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flus
           'generator_script':str(script),'first_job_config':asdict(inner),'targets':selected}
     if dry_run:return plan
     root.mkdir(parents=True,exist_ok=True)
-    if reference:atomic_json(root/'reference_comparison.json',reference)
     progress=TargetProgress(root,selected)
     journal=CampaignJournal(root,json.loads(json.dumps(asdict(cfg))),selected,progress,FORMAT)
+    if reference:atomic_json(root/'reference_comparison.json',reference)
     archive=TargetArchiveCoordinator(root,cfg,journal,progress)
     worker={'id':uuid.uuid4().hex,'pid':os.getpid(),'host':socket.gethostname()}
     stats={'identity':worker,'claimed':0,'finished':0,'errors':0,'skipped':0,'skipped_markers':{s:0 for s in ('running','finished','error')}}
