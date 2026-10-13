@@ -29,6 +29,8 @@
 
 `protocol.json` 保存输入定位、质量门槛、冻结数据摘要和特征定义；`oracle/ancestry.parquet` 保留全部编号及逐步分支映射。`oracle/` 只供主流程评分。
 
+`oracle/top30_interval_trace.csv` 提供 TOP30 ×十区间的 300 条起始、中段、结束 ancestry 对照；`oracle/top30_full_step_trace.csv` 提供 1,530 条逐步记录。原始数据用 `(batch, step, ancestor_slot)` 和带哈希的快照 locator 标识中间态，导出保留该真实标识。可运行 `scripts/export_ck2_interval_trace.py` 重新核对冻结源并导出；这些表不会发给 Scientist 或 Selector。
+
 `versions/` 的每版 SKILL、workflow、诊断、哈希由 Git 保存；`rounds/` 保存实际调用与主流程审计。`run_status.json` 表示执行状态，`report.md` / `report.html` 汇总可核验结果，`iteration_scores.csv` 和 `target_rank_heatmap.*` 展示迭代分数及 TOP30 ×十节点排名。
 
 事实检查未通过的输出保存在 `rounds/Rxx/rejected/Txx/` 和原始 attempts 中，纠错 prompt/workflow 在版本目录的 `repairs/` 留档；失败尝试不进入合格轮次曲线。报告核对请求绑定、回答收据与 Scientist/Selector 的事实审计，`rejected_trials.csv` 单独列出拒绝原因和归档哈希。
