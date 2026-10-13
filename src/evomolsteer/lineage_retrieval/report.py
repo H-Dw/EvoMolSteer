@@ -476,21 +476,34 @@ def report(study: str | Path) -> dict[str, Any]:
         for p in study.glob(pattern):
             try:
                 data = _read_json(p)
-                teacher_text.append({"file": str(p.relative_to(study)), "data": data})
+                rel = str(p.relative_to(study))
+                if isinstance(data, dict) and isinstance(data.get("donors"), list):
+                    summary = f"{len(data['donors'])} 匿名 teacher paths"
+                    if data["donors"] and isinstance(data["donors"][0], dict):
+                        counts = [len(d.get("observations", [])) for d in data["donors"] if isinstance(d, dict)]
+                        if counts:
+                            summary += f"，每条 {min(counts)}–{max(counts)} 个时间点"
+                elif "teacher_map" in p.name:
+                    summary = f"{len(data)} 个匿名 donor 到真实目标/批次/槽位的私有映射；仅供评估回连"
+                else:
+                    summary = "provenance metadata; 字段：" + ", ".join(sorted(map(str, data.keys()))[:12]) if isinstance(data, dict) else "provenance metadata"
+                teacher_text.append({"file": rel, "summary": summary})
             except (OSError, json.JSONDecodeError):
                 continue
     config_candidates = [study / "experiment.json", study / "config.json", study / "experiment_config.json"]
     config = next((_read_json(p) for p in config_candidates if p.exists()), {})
-    model = config.get("model", config.get("primary_model", status.get("subagent_model", "配置未记录")))
-    reasoning = config.get("reasoning", config.get("reasoning_effort", status.get("subagent_effort", "配置未记录")))
+    main_model = status.get("main_model", config.get("primary_model", "配置未记录"))
+    main_effort = status.get("main_effort", config.get("primary_reasoning_effort", "配置未记录"))
+    worker_model = status.get("subagent_model", config.get("model", "配置未记录"))
+    worker_effort = status.get("subagent_effort", config.get("reasoning", config.get("reasoning_effort", "配置未记录")))
     study_hypotheses = hypotheses
     config_hypotheses = config.get("qualitative_hypotheses", config.get("hypotheses", []))
     interval_lines = []
     if teacher_text:
         for item in teacher_text:
-            interval_lines.append(f"- `{item['file']}`：`{json.dumps(item['data'], ensure_ascii=False)[:1000]}`")
+            interval_lines.append(f"- `{item['file']}`：{item['summary']}")
     else:
-        interval_lines.append("- 教师来源或区间描述尚未写入 study；本报告不推测 300 次迭代的具体描述。")
+        interval_lines.append("- 教师来源或区间描述尚未写入 study；本报告不推测描述内容。")
     configured_hypotheses_md = "\n".join(f"- {h}" for h in config_hypotheses) if config_hypotheses else "- 配置中未记录定性假设。"
     actual_hypotheses_md = "\n".join(f"| {h.get('interval')} | {h.get('start_step')}–{h.get('end_step')} | {_escape_md(h.get('hypothesis'))} | {_escape_md(h.get('minority_modes'))} |" for h in study_hypotheses)
     actual_hypotheses_md = ("| 区间 | steps | 假设 | 少数模式 |\n|---:|---:|---|---|\n" + actual_hypotheses_md) if actual_hypotheses_md else "（最佳完整轮次没有可读假设文件。）"
@@ -533,8 +546,8 @@ def report(study: str | Path) -> dict[str, Any]:
 
 ## 实验配置与假设
 
-- 主模型：{model}
-- 推理强度：{reasoning}
+- Main 主模型/推理强度：{main_model} / {main_effort}
+- Scientist 与 Selector 模型/推理强度：{worker_model} / {worker_effort}
 - 定性假设：
 {configured_hypotheses_md}
 
@@ -544,9 +557,9 @@ def report(study: str | Path) -> dict[str, Any]:
 最佳完整版本的 300 条 Scientist 私有描述（donor ID 已映射回真实目标 ID，仅供事后分析；Scientist 输出来源轮次：{scientist_source_round or '未解析'}）：
 {private_description_md}
 
-## 迭代指导
+## 教师溯源与 Scientist 描述
 
-每 300 次迭代的教师指导描述仅从教师溯源文件摘录：
+最佳已接受 Scientist 输出若可用，包含 300 条私有描述，分别对应 30 个 teacher donors 和 10 个时间区间。真实 donor 映射和来源字段摘要：
 {chr(10).join(interval_lines)}
 
 ## 结果

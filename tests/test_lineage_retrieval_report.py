@@ -111,3 +111,28 @@ def test_report_surfaces_rejected_trials_without_scoring_them(tmp_path):
     assert "rejected_trials.csv" in result["artifacts"]
     text = (study / "report.md").read_text(encoding="utf-8")
     assert "R00" in text and "xhigh rejected generic Scientist descriptions" in text
+
+
+def test_report_labels_main_vs_worker_models_and_does_not_call_descriptions_iterations(tmp_path):
+    study = tmp_path / "study"
+    study.mkdir()
+    (study / "run_status.json").write_text(json.dumps({
+        "status": "repairing", "main_model": "gpt-6.1-sol", "main_effort": "xhigh",
+        "subagent_model": "gpt-6-luna", "subagent_effort": "medium"}), encoding="utf-8")
+    evidence = study / "evidence"
+    evidence.mkdir()
+    (evidence / "teacher.json").write_text(json.dumps({"donors": [
+        {"donor_id": "T01", "observations": [{"step": step} for step in range(51)]}]}), encoding="utf-8")
+    oracle = study / "oracle"
+    oracle.mkdir()
+    (oracle / "teacher_map.json").write_text(json.dumps({"T01": {"node_id": "n1", "batch": 0, "slot": 1}}), encoding="utf-8")
+
+    report(study)
+    text = (study / "report.md").read_text(encoding="utf-8")
+    assert "Main 主模型/推理强度：gpt-6.1-sol / xhigh" in text
+    assert "Scientist 与 Selector 模型/推理强度：gpt-6-luna / medium" in text
+    assert "300 条私有描述，分别对应 30 个 teacher donors 和 10 个时间区间" in text
+    assert "300 次优化迭代" not in text
+    assert "每 300 次迭代" not in text
+    assert '"node_id": "n1"' not in text
+    assert "1 个匿名 donor 到真实目标/批次/槽位的私有映射" in text
