@@ -1,0 +1,56 @@
+{
+  "pid": 32518,
+  "started_at": "2026-10-13T04:28:44.597729+00:00",
+  "commit": "59ae8aab7db076b24197cd94c855d9ea4909dd4a",
+  "runtime_checkout": "/opt/MolSteer/run_repositories/hiqbind_unguided_20261013_59ae8aab",
+  "ssh_port": 10104,
+  "dataset": "HiQBind same 297 targets as Steer",
+  "targets": 297,
+  "samples_per_target": 100,
+  "batch_size": 20,
+  "batches_per_target": 5,
+  "steps": 100,
+  "seed": 42,
+  "arms": [
+    "unguided"
+  ],
+  "gradient_guidance": false,
+  "particle_resampling": false,
+  "observation_window": [
+    0.0,
+    0.5
+  ],
+  "archive_every_targets": 10,
+  "remove_archived_targets": true,
+  "output_actual": "/opt/MolSteer/generated_datasets/hiqbind_unguided_learning_s100_b20_20261013",
+  "output_entry": "/root/private_data/MolSteer/flowr_root/experiments/hiqbind_unguided_learning",
+  "control": "/opt/MolSteer/run_controls/hiqbind_unguided_20261013",
+  "log": "/opt/MolSteer/run_controls/hiqbind_unguided_20261013/controller.log",
+  "command": [
+    "bash",
+    "/opt/MolSteer/run_repositories/hiqbind_unguided_20261013_59ae8aab/scripts/scnet_unguided_targets.sh"
+  ],
+  "reference_comparison": {
+    "format": "evomolsteer.paired_generation.v1",
+    "reference": "/opt/MolSteer/generated_datasets/hiqbind_steer_learning_s100_b20_w050",
+    "reference_state_sha256": "5ed6773051b79c894908b498481a3e84b2243eba388255f3fbb07c6e3e6ae5eb",
+    "target_catalog_sha256": "d5ccb8a09541e0ba3a705c07bd1cd2bae59c33df0b8a014cff53690a85129919",
+    "targets": 297,
+    "matched_settings": {
+      "samples": 100,
+      "batch_size": 20,
+      "steps": 100,
+      "seed": 42,
+      "window_start": 0.0,
+      "window_end": 0.5,
+      "storage_codec": "none",
+      "capture_bond_probabilities": false
+    },
+    "checkpoint_sha256": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0",
+    "reference_sampler_sha256": "beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426",
+    "current_sampler_sha256": "beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426",
+    "comparison": "same target inputs, candidate slots, seed, SDE settings and decoder policy; resampling disabled",
+    "randomness_note": "same initial priors/seeds; later paths are not identical after Steer consumes selection RNG"
+  },
+  "previous_preclaim_failure_preserved": true
+}
