@@ -1,0 +1,73 @@
+{
+  "findings": [
+    {
+      "claim": "The landmark_00_local_dx coordinate proxy is non-monotone over the full observed score window [0.0,0.49]: it rises to a positive peak near the middle of the window, then falls to a negative trough, then partially recovers, with 6 sign changes and 9 strong sign conflicts across 14 independent batches.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The endpoint rates of landmark_00_local_dx are strongly signed and opposite: first_rate_z is strongly negative and last_rate_z is strongly positive, so the late-window trend is increasing while the early-window trend is decreasing; the whole-window mean z is near zero, indicating a changing contrast rather than a stationary offset.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "A degree-2 polynomial fit to landmark_00_local_dx was not accepted (polynomial_accepted=false) and relative node RMSE is large, so a single smooth global polynomial does not describe this coordinate over the observed support.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The learning window and observed score times span [0.0,0.5] with 50 observed score nodes, and recorded affinities were removed with an equal score prior; selection preference is therefore association evidence only, not descendant survival or measured final affinity.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "non-monotone; early negative rate, late positive rate",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "A re-read of the same curve over the same support showing no sign change in the rate, or first_rate_z and last_rate_z of the same sign.",
+      "id": "H001",
+      "observable": "landmark_00_local_dx (predicted endpoint world-A local coordinate proxy)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_00_local_dx coordinate proxy shows a time-dependent contrast over the observed window: an early decreasing phase followed by a late increasing phase, with the whole-window mean near zero."
+    },
+    {
+      "direction": "use observed-node contrast, not a polynomial target",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "An accepted polynomial fit with small relative node RMSE and no strong sign conflicts.",
+      "id": "H002",
+      "observable": "landmark_00_local_dx node values and rate signs",
+      "scope": "global over the observed score window",
+      "statement": "Because the degree-2 polynomial is rejected and the curve has multiple sign changes, any reward shaping on this coordinate should be evaluated against the actual observed nodes rather than a fitted smooth global target."
+    }
+  ],
+  "limitations": [
+    "Only one coordinate proxy (landmark_00_local_dx) was read; other landmark coordinates were not queried, so cross-coordinate consistency is unverified.",
+    "Stage profiles and temporal profiles are unavailable; only continuous curves were accessible.",
+    "The curve is a coordinate proxy in predicted endpoint world-A; no energy or chemical-interaction interpretation is attached.",
+    "Selection preference is association evidence; descendant survival and decoded final affinity are unobserved here.",
+    "No absolute coordinate target or spatial gradient is specified by this contrast or its time derivative."
+  ],
+  "role": "Analyst"
+}

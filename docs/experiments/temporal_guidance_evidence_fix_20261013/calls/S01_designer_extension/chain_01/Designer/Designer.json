@@ -1,0 +1,25 @@
+{
+  "decision": "retain",
+  "edit": null,
+  "evidence_ids": [
+    "continuous:0",
+    "curve_support",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "Affinity response: no decoded final affinity labels are present (recorded affinities removed, equal score prior), so any affinity improvement from a recipe cannot be verified from this handoff; retention avoids claiming an unmeasured gain.",
+    "Strain/validity: unchanged by retention, but if a recipe were applied, gradient cancellation between the observed-forecast and static-teacher components could leave the scalar reward changed while the delivered coordinate response is unchanged; a scalar-value change alone would not prove changed injection.",
+    "Timing attribution: S1 vs S3 differ only in time order and S2 is a constant blend, so a benefit could be attributed to timing without a gradient-direction and delivered-dose check; the observed non-monotone curve with 4 sign changes and nonzero strong_sign_conflicts gives no basis to prefer one order.",
+    "Support: no polynomial was accepted and no stage/temporal profiles exist, so extrapolation beyond 0.0-0.49 or stage-boundary claims are unsupported."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": null
+  },
+  "rationale": "The delivered Analyst handoff describes landmark_00_soft_mass as a non-monotone fluctuating contrast (rise then fall, 4 sign changes, no accepted polynomial) with no stable whole-window displacement and nonzero cross-batch sign conflicts. The registered reward recipes S1/S2/S3 all encode a staged or constant relevance schedule over the observed window, i.e. a directional temporal hypothesis about when observed forecasts should dominate. The observed evidence supports no single signed direction and no accepted extrapolation, so none of the offered recipes is justified by the actual curve; the tested incumbent is retained. H001 and H002 are consistent with retention: they call for evaluating any recipe against the fluctuating contrast and for batch-consistency, neither of which the offered schedules establish.",
+  "role": "Designer"
+}

@@ -1,0 +1,98 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Across the full observed score window (0.0-0.49), no landmark soft_mass feature shows a stable whole-window displacement: every whole_window_z is small in magnitude (|z| < 0.65) and no polynomial is accepted, so the endpoint coordinate features are not stationary targets but fluctuating contrasts.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E342a60b38bb0a51b",
+          "E735f24e742723e38",
+          "Ecea6847a29085c95",
+          "E57315f2f7083ab82",
+          "E5dc651b941b4c9fd",
+          "Ecaa47212cd4165ae",
+          "E65c5cdcb88f99c74",
+          "E76b26ba622888d46",
+          "E3b2ce8fd1ae3c7bc",
+          "E88a1b6d50276da1e",
+          "Ebfdd229bdaca644c",
+          "Efb15fb117b45eea6",
+          "E36816785ddd4dc09",
+          "Eae2d1a5138c82451",
+          "E17a2625f3ccde2df",
+          "Ed6483d1bca6d6f77",
+          "E8d8c32b13334497b",
+          "E7a4b1090068e0439",
+          "Eff027945cf60d210"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Several landmarks show large-magnitude early-window rates that reverse sign by the late window (e.g. landmark_00 first_rate_z ~ +9.3 vs last_rate_z ~ -10.0; landmark_03 ~ -61.0 vs +12.7; landmark_11 ~ -66.3 vs +10.8; landmark_10 ~ +66.3 vs -11.6), indicating non-monotone temporal contrasts rather than a single sustained drift.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Ecea6847a29085c95",
+          "Ebfdd229bdaca644c",
+          "E88a1b6d50276da1e"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Sign-change counts are high (4-10) and strong_sign_conflicts are nonzero for nearly all landmarks, so the observed temporal contrasts are not consistent across independent batches; the 14 independent batches do not support a single signed direction.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E342a60b38bb0a51b",
+          "E735f24e742723e38",
+          "E3b2ce8fd1ae3c7bc",
+          "E17a2625f3ccde2df"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "The learning window and observed score times span 0.0-0.5 with 50 observed score nodes, and the label semantics are recorded affinities removed with an equal score prior; the coordinate features are predicted endpoint world coordinates, not decoded affinities.",
+        "evidence_refs": [
+          "E0857891f4effbfe1",
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "no single signed direction supported; treat as fluctuating contrast",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Ecea6847a29085c95",
+          "Ebfdd229bdaca644c",
+          "E88a1b6d50276da1e"
+        ],
+        "falsifier": "A recipe that produces a stable whole-window z with |z| substantially larger than the observed |z| < 0.65 and no sign reversal would contradict this.",
+        "observable": "landmark_*_soft_mass predicted endpoint world coordinate features",
+        "scope": "global over all 20 landmarks across the full observed window",
+        "statement": "If a temporal reward recipe is applied, it should be evaluated against the observed non-monotone soft_mass contrasts rather than assuming a monotone approach to a static coordinate target, because the observed first/last rate signs reverse within the window."
+      },
+      {
+        "direction": "require reduced cross-batch sign disagreement",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E342a60b38bb0a51b",
+          "E735f24e742723e38",
+          "E3b2ce8fd1ae3c7bc",
+          "E17a2625f3ccde2df"
+        ],
+        "falsifier": "A recipe that leaves strong_sign_conflicts and sign_changes unchanged while shifting the pooled mean would falsify the claim that batch-consistency is the relevant criterion.",
+        "observable": "strong_sign_conflicts and sign_changes per landmark",
+        "scope": "per-landmark across 14 independent batches",
+        "statement": "Because strong_sign_conflicts and sign_changes are nonzero for nearly all landmarks, any reward edit should be checked for batch-consistency; a recipe that improves only the pooled mean without reducing cross-batch sign disagreement is not supported by the observed evidence."
+      }
+    ],
+    "limitations": [
+      "Stage profiles and temporal profiles are not available; only continuous curve trend rows were read, so no stage-boundary or profile-based conclusion is supported.",
+      "No decoded final affinity labels are present (recorded affinities removed; equal score prior), so selection preference cannot be equated with descendant survival or measured final benefit.",
+      "The continuous_trends rows report predicted endpoint world coordinate features; no energy or chemical-interaction interpretation is attached to these untyped coordinate proxies.",
+      "Polynomial fits were not accepted for any landmark, so no extrapolation beyond the observed 0.0-0.49 window is supported."
+    ],
+    "role": "Analyst"
+  }
+}

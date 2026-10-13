@@ -1,0 +1,111 @@
+{
+  "findings": [
+    {
+      "claim": "The observed landmark_00_soft_mass curve over the full support 0.0-0.49 is non-monotone: it rises from about -0.37 z early, peaks near +1.64 z around t~0.16, then declines to about -0.28 z at the end, with 4 sign changes and no accepted polynomial.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Across the full observed score window (0.0-0.49), no landmark soft_mass feature shows a stable whole-window displacement: every whole_window_z is small in magnitude (|z| < 0.65) and no polynomial is accepted, so the endpoint coordinate features are not stationary targets but fluctuating contrasts.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "Several landmarks show large-magnitude early-window rates that reverse sign by the late window (e.g. landmark_00 first_rate_z ~ +9.3 vs last_rate_z ~ -10.0; landmark_03 ~ -61.0 vs +12.7; landmark_11 ~ -66.3 vs +10.8; landmark_10 ~ +66.3 vs -11.6), indicating non-monotone temporal contrasts rather than a single sustained drift.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:30",
+        "continuous:110",
+        "continuous:100"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Sign-change counts are high (4-10) and strong_sign_conflicts are nonzero for nearly all landmarks, so the observed temporal contrasts are not consistent across independent batches; the 14 independent batches do not support a single signed direction.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:10",
+        "continuous:20",
+        "continuous:90",
+        "continuous:150"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "The learning window and observed score times span 0.0-0.5 with 50 observed score nodes, and the label semantics are recorded affinities removed with an equal score prior; the coordinate features are predicted endpoint world coordinates, not decoded affinities.",
+      "evidence_ids": [
+        "clocks",
+        "objective"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "no single signed direction supported; treat as fluctuating contrast",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "falsifier": "A recipe that produces a stable whole-window z with |z| substantially larger than the observed |z| < 0.65 and no sign reversal would contradict this.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass predicted endpoint world coordinate feature",
+      "scope": "landmark_00 across the full observed window 0.0-0.49",
+      "statement": "If a temporal reward recipe is applied, it should be evaluated against the observed non-monotone landmark_00_soft_mass contrast rather than assuming a monotone approach to a static coordinate target, because the observed curve rises then falls within the window with 4 sign changes and no accepted polynomial."
+    },
+    {
+      "direction": "require reduced cross-batch sign disagreement",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:10",
+        "continuous:20",
+        "continuous:90",
+        "continuous:150"
+      ],
+      "falsifier": "A recipe that leaves strong_sign_conflicts and sign_changes unchanged while shifting the pooled mean would falsify the claim that batch-consistency is the relevant criterion.",
+      "id": "H002",
+      "observable": "strong_sign_conflicts and sign_changes per landmark",
+      "scope": "per-landmark across 14 independent batches",
+      "statement": "Because strong_sign_conflicts and sign_changes are nonzero for nearly all landmarks, any reward edit should be checked for batch-consistency; a recipe that improves only the pooled mean without reducing cross-batch sign disagreement is not supported by the observed evidence."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are not available; only continuous curve trend rows and one observed curve were read, so no stage-boundary or profile-based conclusion is supported.",
+    "No decoded final affinity labels are present (recorded affinities removed; equal score prior), so selection preference cannot be equated with descendant survival or measured final benefit.",
+    "The continuous_trends rows and the landmark_00_soft_mass curve report predicted endpoint world coordinate features; no energy or chemical-interaction interpretation is attached to these untyped coordinate proxies.",
+    "Polynomial fits were not accepted for any landmark, so no extrapolation beyond the observed 0.0-0.49 window is supported."
+  ],
+  "role": "Analyst"
+}
