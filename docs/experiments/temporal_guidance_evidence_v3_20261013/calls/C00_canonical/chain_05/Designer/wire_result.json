@@ -1,0 +1,26 @@
+{
+  "decision": "edit",
+  "edit_choice": "C1_robust_to_base",
+  "evidence_refs": [
+    "Eef4385e476674774",
+    "E4bbe368c52deda38",
+    "E11ca33646f5d0576",
+    "Ea70690a58768ddbb",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "The primary affinity metric does not improve: no decoded final affinity is available in this handoff, so the edit cannot be credited with an affinity gain and must be judged on the withheld quality measurements.",
+    "The early-window dx/dy negative excursion (H002) and the sustained negative landmark_01_local_dy (H003) remain at their observed levels under C1, with unchanged sign-change and strong-sign-conflict counts, indicating the early curvature contrast is not controllable by this coordinate reward.",
+    "The mid-window landmark_00_soft_mass excursion (H001) does not change under the registered schedule, or its whole-window mean and sign-change count are unchanged, indicating the observed contrast is not controllable.",
+    "All read curves have polynomial_accepted=false with relative_node_RMSE ~0.29-0.78 and 4-10 sign changes across 14 independent batches, so the observed contrasts may be batch noise rather than a reproducible temporal signal.",
+    "Strain or structural validity degrades: the changed trajectory may reduce validity or increase strain even if the coordinate contrast shifts, and these are reported separately from affinity.",
+    "Only 8 of 200 catalogue features were read; the remaining 192 features are unqueried and could carry conflicting temporal structure not represented in this decision."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H003"
+  ],
+  "rationale": "Adopt H001, H002 and H003 because each is backed by an actually delivered curve handle: landmark_00_soft_mass (Eef4385e476674774) shows a single broad mid-window positive excursion (rise from negative early values, plateau near t≈0.14-0.30, decay to slightly negative by t≈0.49, whole_window_z≈0.64, only 4 sign changes); landmark_00_local_dx (E4bbe368c52deda38) and landmark_00_local_dy (E11ca33646f5d0576) both show an early-window negative excursion (t≈0.02-0.09) that reverses sign by mid-window; landmark_01_local_dy (Ea70690a58768ddbb) is persistently negative over most of the window with only a late approach to zero. The registered choice C1_robust_to_base applies larger curvature (delta 0.5) early and relaxes to baseline (delta 1.0) later, with dose fixed at 1 and blend 0, so it is the offered recipe whose curvature timing matches the observed early-window contrasts (H002, H003) while leaving the mid-window plateau (H001) under baseline curvature. C2_constant_curvature would flatten the timing contrast and C3_base_to_robust_control inverts it, so C1 is the only registered option that tests the observed early-vs-late contrast. This is a coordinate-control hypothesis only: the score clock metadata (E0857891f4effbfe1) states recorded affinities were removed and an equal score prior is used, so no decoded affinity, survival or last recorded joint-head score is available and none of these contrasts is evidence of measured benefit.",
+  "role": "Designer"
+}

@@ -1,0 +1,106 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Across the observed score window [0.0,0.49], the eight read landmark-0/1 displacement and soft-mass curves are non-monotone: every one shows 4-10 sign changes and 1-10 strong sign conflicts, and no polynomial fit is accepted (polynomial_accepted=false for all eight).",
+        "evidence_refs": [
+          "E4bbe368c52deda38",
+          "E11ca33646f5d0576",
+          "E4aac9dffddd0d59f",
+          "Eef4385e476674774",
+          "E7c9adfd42bb602c0",
+          "Ea70690a58768ddbb",
+          "E7d9bf686348ccc58",
+          "E66d4fd62e479d868"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Whole-window means are small relative to the within-window excursions: landmark_00_local_dx whole_window_z=-0.184, landmark_00_local_dy=-0.301, landmark_00_local_dz=-0.024, landmark_01_local_dx=-0.218, landmark_01_local_dy=-0.499, landmark_01_local_dz=-0.013, landmark_01_soft_mass=-0.248, while landmark_00_soft_mass is the only one with a positive whole-window mean (+0.639).",
+        "evidence_refs": [
+          "E4bbe368c52deda38",
+          "E11ca33646f5d0576",
+          "E4aac9dffddd0d59f",
+          "Eef4385e476674774",
+          "E7c9adfd42bb602c0",
+          "Ea70690a58768ddbb",
+          "E7d9bf686348ccc58",
+          "E66d4fd62e479d868"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Endpoint rate contrasts are large and opposite in sign for several features: landmark_00_local_dx first_rate_z=-17.49 vs last_rate_z=+8.11; landmark_00_local_dy -72.37 vs +5.52; landmark_00_soft_mass +9.27 vs -10.00; landmark_01_local_dx +22.31 vs -12.17; landmark_01_local_dy -42.82 vs +5.00; landmark_01_local_dz -58.49 vs +8.83; landmark_01_soft_mass -25.98 vs +0.89. These are rate contrasts, not absolute coordinate targets.",
+        "evidence_refs": [
+          "E4bbe368c52deda38",
+          "E11ca33646f5d0576",
+          "Eef4385e476674774",
+          "E7c9adfd42bb602c0",
+          "Ea70690a58768ddbb",
+          "E7d9bf686348ccc58",
+          "E66d4fd62e479d868"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "landmark_00_soft_mass is the only read feature with a coherent mid-window rise and late decline (values_z rising to ~1.64 near t=0.16 and falling to ~-0.28 at t=0.49) and the lowest relative_node_RMSE (0.286) among the eight read curves, but it still has 4 sign changes and 1 strong sign conflict.",
+        "evidence_refs": [
+          "Eef4385e476674774"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "curve_features": [
+          "landmark_00_soft_mass"
+        ],
+        "direction": "early-window increase, late-window return toward baseline",
+        "evidence_refs": [
+          "Eef4385e476674774"
+        ],
+        "falsifier": "If the compiled schedule does not change the realized landmark_00_soft_mass trace relative to M2, or if the late-window decline is not reproduced, the hypothesis is not supported.",
+        "observable": "landmark_00_soft_mass (predicted endpoint world-A soft mass proxy)",
+        "scope": "global, observed score window [0.0,0.49]",
+        "statement": "The landmark_00_soft_mass coordinate shows a mid-window elevation followed by late-window relaxation over the observed support; a reward schedule that increases curvature (larger delta) early and returns toward baseline curvature late would test whether this temporal contrast is exploitable, without asserting an absolute target value."
+      },
+      {
+        "curve_features": [
+          "landmark_00_local_dx",
+          "landmark_00_local_dy"
+        ],
+        "direction": "early-window larger curvature, late-window smaller curvature",
+        "evidence_refs": [
+          "E4bbe368c52deda38",
+          "E11ca33646f5d0576"
+        ],
+        "falsifier": "If the realized landmark_00_local_dx/dy traces are unchanged from M2 under the compiled schedule, or if the sign of the endpoint rate contrast does not flip, the hypothesis is not supported.",
+        "observable": "landmark_00_local_dx and landmark_00_local_dy (predicted endpoint world-A displacement)",
+        "scope": "global, observed score window [0.0,0.49]",
+        "statement": "The landmark_00_local_dx and landmark_00_local_dy displacement coordinates show opposite-sign endpoint rate contrasts (early negative, late positive) with small whole-window means, indicating a transient rather than a stationary offset; a schedule that applies larger curvature early and smaller curvature late would test whether this transient contrast is controllable."
+      },
+      {
+        "curve_features": [
+          "landmark_01_local_dz"
+        ],
+        "direction": "early-window larger curvature, late-window smaller curvature",
+        "evidence_refs": [
+          "E7d9bf686348ccc58"
+        ],
+        "falsifier": "If the realized landmark_01_local_dz trace is unchanged from M2 under the compiled schedule, or if the endpoint rate contrast does not change sign, the hypothesis is not supported.",
+        "observable": "landmark_01_local_dz (predicted endpoint world-A displacement)",
+        "scope": "global, observed score window [0.0,0.49]",
+        "statement": "The landmark_01_local_dz coordinate shows a strong early negative rate contrast and a late positive rate contrast with a near-zero whole-window mean, consistent with a transient excursion; a schedule with larger curvature early and smaller curvature late would test whether this transient is controllable."
+      }
+    ],
+    "limitations": [
+      "Only landmark_00 and landmark_01 displacement and soft-mass curves were read; the remaining 192 catalogue features (including all local_cxx/cxy/cxz/cyy/cyz/czz components and landmarks 02-19) are unqueried, so no claim is made about them.",
+      "No stage profiles or temporal profiles are available; all statements are restricted to the continuous curves over the observed support [0.0,0.49] with extrapolation_allowed=false.",
+      "Selection preference and curve contrasts are associations, not measured descendant survival or final decoded affinity benefit; no current outcome data were supplied to this role.",
+      "The curves are untyped coordinate proxies; no energy or chemical-interaction interpretation is attached.",
+      "Endpoint rate contrasts (first_rate_z, last_rate_z) are time derivatives of the observed feature, not spatial reward gradients and not absolute coordinate targets."
+    ],
+    "role": "Analyst"
+  }
+}

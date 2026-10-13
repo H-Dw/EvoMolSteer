@@ -1,0 +1,162 @@
+{
+  "findings": [
+    {
+      "claim": "Across the observed score window [0.0,0.49], landmark_00_local_dx shows a non-monotone profile: it rises to a positive peak near t≈0.10-0.11, then falls to a negative trough near t≈0.19, and returns toward baseline by the end of the window. The whole-window mean is slightly negative (whole_window_z≈-0.18) and the polynomial fit was not accepted (relative_node_RMSE≈0.78, 6 sign changes, 9 strong sign conflicts), so the shape is a transient contrast rather than a stationary offset.",
+      "evidence_refs": [
+        "E4bbe368c52deda38"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "landmark_00_local_dy is dominated by an early negative excursion: values are strongly negative over roughly t≈0.01-0.13, then recover to near zero and stay mildly negative for the rest of the window. The whole-window mean is negative (whole_window_z≈-0.30) and the polynomial fit was not accepted (relative_node_RMSE≈0.67, 6 sign changes, 4 strong sign conflicts).",
+      "evidence_refs": [
+        "E11ca33646f5d0576"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "landmark_00_local_dz is near zero on average over the window (whole_window_z≈-0.02) but is non-monotone: it is positive in the early-middle portion and becomes negative in the later portion, with 10 sign changes and 7 strong sign conflicts; the polynomial fit was not accepted (relative_node_RMSE≈0.72).",
+      "evidence_refs": [
+        "E4aac9dffddd0d59f"
+      ],
+      "priority": 3
+    },
+    {
+      "claim": "landmark_00_soft_mass has a positive whole-window mean (whole_window_z≈0.64) and a smoother profile than the dx/dy/dz coordinates: it rises to a positive plateau around t≈0.14-0.30 and declines toward zero by the end of the window. The polynomial fit was not accepted (relative_node_RMSE≈0.29, 4 sign changes, 1 strong sign conflict).",
+      "evidence_refs": [
+        "Eef4385e476674774"
+      ],
+      "priority": 4
+    },
+    {
+      "claim": "landmark_01_local_dx is positive early (t≈0.0-0.10), then negative through the middle of the window (t≈0.13-0.25), and returns toward zero by the end; whole-window mean is slightly negative (whole_window_z≈-0.22) with 4 sign changes and 10 strong sign conflicts, and the polynomial fit was not accepted (relative_node_RMSE≈0.71).",
+      "evidence_refs": [
+        "E7c9adfd42bb602c0"
+      ],
+      "priority": 5
+    },
+    {
+      "claim": "landmark_01_local_dy is negative for most of the window (whole_window_z≈-0.50), with the most negative values in the early-to-middle portion and a partial recovery toward zero near the end; the polynomial fit was not accepted (relative_node_RMSE≈0.59, 4 sign changes, 4 strong sign conflicts).",
+      "evidence_refs": [
+        "Ea70690a58768ddbb"
+      ],
+      "priority": 6
+    },
+    {
+      "claim": "landmark_01_local_dz shows a pronounced early negative excursion (t≈0.0-0.10), a positive excursion in the middle (t≈0.13-0.20), and a return to near zero by the end; whole-window mean is near zero (whole_window_z≈-0.01) with 6 sign changes and 5 strong sign conflicts, and the polynomial fit was not accepted (relative_node_RMSE≈0.62).",
+      "evidence_refs": [
+        "E7d9bf686348ccc58"
+      ],
+      "priority": 7
+    },
+    {
+      "claim": "landmark_01_soft_mass is positive early (t≈0.0-0.12), negative in the middle (t≈0.15-0.40), and recovers toward zero by the end; whole-window mean is slightly negative (whole_window_z≈-0.25) with 4 sign changes and 9 strong sign conflicts, and the polynomial fit was not accepted (relative_node_RMSE≈0.62).",
+      "evidence_refs": [
+        "E66d4fd62e479d868"
+      ],
+      "priority": 8
+    }
+  ],
+  "hypotheses": [
+    {
+      "curve_features": [
+        "landmark_00_local_dx"
+      ],
+      "direction": "stronger curvature early, weaker later",
+      "evidence_refs": [
+        "E4bbe368c52deda38"
+      ],
+      "falsifier": "If the landmark_00_local_dx profile is flat or its sign pattern is not reproducible across independent batches, the proposed timing has no basis.",
+      "observable": "landmark_00_local_dx (predicted endpoint world A, z-scored)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_00_local_dx coordinate exhibits a transient positive-then-negative contrast over the observed window, peaking near t≈0.10 and troughing near t≈0.19. A reward schedule that applies stronger curvature (larger delta) during the early-to-middle portion of the window and weaker curvature later would test whether this transient contrast is a useful control signal, while a constant-curvature control would test whether the timing matters."
+    },
+    {
+      "curve_features": [
+        "landmark_00_local_dy"
+      ],
+      "direction": "stronger curvature early, weaker later",
+      "evidence_refs": [
+        "E11ca33646f5d0576"
+      ],
+      "falsifier": "If the landmark_00_local_dy early negative excursion is not reproducible across independent batches, the proposed timing has no basis.",
+      "observable": "landmark_00_local_dy (predicted endpoint world A, z-scored)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_00_local_dy coordinate is persistently negative over the early-to-middle portion of the window and recovers toward zero later. A reward schedule that applies stronger curvature during the early negative excursion and relaxes later would test whether this early contrast is a useful control signal."
+    },
+    {
+      "curve_features": [
+        "landmark_00_soft_mass"
+      ],
+      "direction": "stronger curvature in the middle, weaker at the edges",
+      "evidence_refs": [
+        "Eef4385e476674774"
+      ],
+      "falsifier": "If the landmark_00_soft_mass plateau is not reproducible across independent batches, the proposed timing has no basis.",
+      "observable": "landmark_00_soft_mass (predicted endpoint world A, z-scored)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_00_soft_mass coordinate has a positive whole-window mean with a plateau in the middle of the window. A reward schedule that applies stronger curvature during the plateau and weaker curvature at the edges would test whether this mass-like contrast is a useful control signal."
+    },
+    {
+      "curve_features": [
+        "landmark_01_local_dx"
+      ],
+      "direction": "stronger curvature early, weaker later",
+      "evidence_refs": [
+        "E7c9adfd42bb602c0"
+      ],
+      "falsifier": "If the landmark_01_local_dx early positive contrast is not reproducible across independent batches, the proposed timing has no basis.",
+      "observable": "landmark_01_local_dx (predicted endpoint world A, z-scored)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_01_local_dx coordinate is positive early, negative in the middle, and near zero late. A reward schedule that applies stronger curvature early and weaker curvature later would test whether this early positive contrast is a useful control signal."
+    },
+    {
+      "curve_features": [
+        "landmark_01_local_dy"
+      ],
+      "direction": "stronger curvature early-to-middle, weaker later",
+      "evidence_refs": [
+        "Ea70690a58768ddbb"
+      ],
+      "falsifier": "If the landmark_01_local_dy negative profile is not reproducible across independent batches, the proposed timing has no basis.",
+      "observable": "landmark_01_local_dy (predicted endpoint world A, z-scored)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_01_local_dy coordinate is persistently negative over most of the window with a partial late recovery. A reward schedule that applies stronger curvature during the early-to-middle negative portion and relaxes later would test whether this contrast is a useful control signal."
+    },
+    {
+      "curve_features": [
+        "landmark_01_local_dz"
+      ],
+      "direction": "stronger curvature early, weaker in the middle",
+      "evidence_refs": [
+        "E7d9bf686348ccc58"
+      ],
+      "falsifier": "If the landmark_01_local_dz early negative excursion is not reproducible across independent batches, the proposed timing has no basis.",
+      "observable": "landmark_01_local_dz (predicted endpoint world A, z-scored)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_01_local_dz coordinate shows an early negative excursion followed by a middle positive excursion. A reward schedule that applies stronger curvature during the early negative excursion and weaker curvature during the middle positive excursion would test whether this early contrast is a useful control signal."
+    },
+    {
+      "curve_features": [
+        "landmark_01_soft_mass"
+      ],
+      "direction": "stronger curvature early, weaker in the middle",
+      "evidence_refs": [
+        "E66d4fd62e479d868"
+      ],
+      "falsifier": "If the landmark_01_soft_mass early positive contrast is not reproducible across independent batches, the proposed timing has no basis.",
+      "observable": "landmark_01_soft_mass (predicted endpoint world A, z-scored)",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "The landmark_01_soft_mass coordinate is positive early and negative in the middle. A reward schedule that applies stronger curvature early and weaker curvature in the middle would test whether this early positive contrast is a useful control signal."
+    }
+  ],
+  "limitations": [
+    "Only landmark_00 and landmark_01 features were read; the remaining 18 landmarks (landmark_02 through landmark_19) were not observed and are not covered by these findings.",
+    "No stage profiles or temporal profiles are available; all evidence is from continuous curves over the observed score window [0.0,0.49].",
+    "Polynomial fits were not accepted for any of the eight observed features, so the reported shapes are descriptive of the observed nodes and are not extrapolated beyond the window.",
+    "The observed curves are selection-associated contrasts, not measured guidance effects; no current outcome or decoded-affinity labels are available in this role input.",
+    "The dx/dy/dz and soft_mass features are untyped coordinate proxies; no energy or chemical-interaction interpretation is attached.",
+    "Several features show many sign changes and strong sign conflicts across independent batches, so the temporal ordering of contrasts is uncertain."
+  ],
+  "role": "Analyst"
+}

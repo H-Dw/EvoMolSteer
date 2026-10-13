@@ -1,0 +1,407 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/9bbb1df2ff747a2f546bf2c028706a0619afb15cb4b875296b0698f8882431b8.txt",
+        "content_sha256": "9bbb1df2ff747a2f546bf2c028706a0619afb15cb4b875296b0698f8882431b8",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/31496dec7b09b3263b319bc0d822b02f0e47a2aab792dd717888d99072616e90.txt",
+        "content_sha256": "31496dec7b09b3263b319bc0d822b02f0e47a2aab792dd717888d99072616e90",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/e14467aa6c6b9b2aaf0e9a8259e02b89c8172f5e5c1c47a1d595958d4936d6be.txt",
+        "content_sha256": "e14467aa6c6b9b2aaf0e9a8259e02b89c8172f5e5c1c47a1d595958d4936d6be",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/6addf2f8abbb0aa0115ce6930a79cfb0cbf42fc70ea10b0c2685f3619d29892c.txt",
+        "content_sha256": "6addf2f8abbb0aa0115ce6930a79cfb0cbf42fc70ea10b0c2685f3619d29892c",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/90a3c6008faa761fcc00e0eabf3f09450370a3a5792ff69fdb73e28aac23a0e4.txt",
+        "content_sha256": "90a3c6008faa761fcc00e0eabf3f09450370a3a5792ff69fdb73e28aac23a0e4",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/2c12b0bb1e047d97e6c2e5ec2df25b70351c49ae33e05d08ce1db1c7f2db8835.txt",
+        "content_sha256": "2c12b0bb1e047d97e6c2e5ec2df25b70351c49ae33e05d08ce1db1c7f2db8835",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v2",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_curves",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E0857891f4effbfe1",
+                          "E11ca33646f5d0576",
+                          "E4aac9dffddd0d59f",
+                          "E4bbe368c52deda38",
+                          "E66d4fd62e479d868",
+                          "E7c9adfd42bb602c0",
+                          "E7d9bf686348ccc58",
+                          "Ea70690a58768ddbb",
+                          "Eef4385e476674774"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "curve_features": {
+                      "items": {
+                        "enum": [
+                          "landmark_00_local_cxx",
+                          "landmark_00_local_cxy",
+                          "landmark_00_local_cxz",
+                          "landmark_00_local_cyy",
+                          "landmark_00_local_cyz",
+                          "landmark_00_local_czz",
+                          "landmark_00_local_dx",
+                          "landmark_00_local_dy",
+                          "landmark_00_local_dz",
+                          "landmark_00_soft_mass",
+                          "landmark_01_local_cxx",
+                          "landmark_01_local_cxy",
+                          "landmark_01_local_cxz",
+                          "landmark_01_local_cyy",
+                          "landmark_01_local_cyz",
+                          "landmark_01_local_czz",
+                          "landmark_01_local_dx",
+                          "landmark_01_local_dy",
+                          "landmark_01_local_dz",
+                          "landmark_01_soft_mass",
+                          "landmark_02_local_cxx",
+                          "landmark_02_local_cxy",
+                          "landmark_02_local_cxz",
+                          "landmark_02_local_cyy",
+                          "landmark_02_local_cyz",
+                          "landmark_02_local_czz",
+                          "landmark_02_local_dx",
+                          "landmark_02_local_dy",
+                          "landmark_02_local_dz",
+                          "landmark_02_soft_mass",
+                          "landmark_03_local_cxx",
+                          "landmark_03_local_cxy",
+                          "landmark_03_local_cxz",
+                          "landmark_03_local_cyy",
+                          "landmark_03_local_cyz",
+                          "landmark_03_local_czz",
+                          "landmark_03_local_dx",
+                          "landmark_03_local_dy",
+                          "landmark_03_local_dz",
+                          "landmark_03_soft_mass",
+                          "landmark_04_local_cxx",
+                          "landmark_04_local_cxy",
+                          "landmark_04_local_cxz",
+                          "landmark_04_local_cyy",
+                          "landmark_04_local_cyz",
+                          "landmark_04_local_czz",
+                          "landmark_04_local_dx",
+                          "landmark_04_local_dy",
+                          "landmark_04_local_dz",
+                          "landmark_04_soft_mass",
+                          "landmark_05_local_cxx",
+                          "landmark_05_local_cxy",
+                          "landmark_05_local_cxz",
+                          "landmark_05_local_cyy",
+                          "landmark_05_local_cyz",
+                          "landmark_05_local_czz",
+                          "landmark_05_local_dx",
+                          "landmark_05_local_dy",
+                          "landmark_05_local_dz",
+                          "landmark_05_soft_mass",
+                          "landmark_06_local_cxx",
+                          "landmark_06_local_cxy",
+                          "landmark_06_local_cxz",
+                          "landmark_06_local_cyy",
+                          "landmark_06_local_cyz",
+                          "landmark_06_local_czz",
+                          "landmark_06_local_dx",
+                          "landmark_06_local_dy",
+                          "landmark_06_local_dz",
+                          "landmark_06_soft_mass",
+                          "landmark_07_local_cxx",
+                          "landmark_07_local_cxy",
+                          "landmark_07_local_cxz",
+                          "landmark_07_local_cyy",
+                          "landmark_07_local_cyz",
+                          "landmark_07_local_czz",
+                          "landmark_07_local_dx",
+                          "landmark_07_local_dy",
+                          "landmark_07_local_dz",
+                          "landmark_07_soft_mass",
+                          "landmark_08_local_cxx",
+                          "landmark_08_local_cxy",
+                          "landmark_08_local_cxz",
+                          "landmark_08_local_cyy",
+                          "landmark_08_local_cyz",
+                          "landmark_08_local_czz",
+                          "landmark_08_local_dx",
+                          "landmark_08_local_dy",
+                          "landmark_08_local_dz",
+                          "landmark_08_soft_mass",
+                          "landmark_09_local_cxx",
+                          "landmark_09_local_cxy",
+                          "landmark_09_local_cxz",
+                          "landmark_09_local_cyy",
+                          "landmark_09_local_cyz",
+                          "landmark_09_local_czz",
+                          "landmark_09_local_dx",
+                          "landmark_09_local_dy",
+                          "landmark_09_local_dz",
+                          "landmark_09_soft_mass",
+                          "landmark_10_local_cxx",
+                          "landmark_10_local_cxy",
+                          "landmark_10_local_cxz",
+                          "landmark_10_local_cyy",
+                          "landmark_10_local_cyz",
+                          "landmark_10_local_czz",
+                          "landmark_10_local_dx",
+                          "landmark_10_local_dy",
+                          "landmark_10_local_dz",
+                          "landmark_10_soft_mass",
+                          "landmark_11_local_cxx",
+                          "landmark_11_local_cxy",
+                          "landmark_11_local_cxz",
+                          "landmark_11_local_cyy",
+                          "landmark_11_local_cyz",
+                          "landmark_11_local_czz",
+                          "landmark_11_local_dx",
+                          "landmark_11_local_dy",
+                          "landmark_11_local_dz",
+                          "landmark_11_soft_mass",
+                          "landmark_12_local_cxx",
+                          "landmark_12_local_cxy",
+                          "landmark_12_local_cxz",
+                          "landmark_12_local_cyy",
+                          "landmark_12_local_cyz",
+                          "landmark_12_local_czz",
+                          "landmark_12_local_dx",
+                          "landmark_12_local_dy",
+                          "landmark_12_local_dz",
+                          "landmark_12_soft_mass",
+                          "landmark_13_local_cxx",
+                          "landmark_13_local_cxy",
+                          "landmark_13_local_cxz",
+                          "landmark_13_local_cyy",
+                          "landmark_13_local_cyz",
+                          "landmark_13_local_czz",
+                          "landmark_13_local_dx",
+                          "landmark_13_local_dy",
+                          "landmark_13_local_dz",
+                          "landmark_13_soft_mass",
+                          "landmark_14_local_cxx",
+                          "landmark_14_local_cxy",
+                          "landmark_14_local_cxz",
+                          "landmark_14_local_cyy",
+                          "landmark_14_local_cyz",
+                          "landmark_14_local_czz",
+                          "landmark_14_local_dx",
+                          "landmark_14_local_dy",
+                          "landmark_14_local_dz",
+                          "landmark_14_soft_mass",
+                          "landmark_15_local_cxx",
+                          "landmark_15_local_cxy",
+                          "landmark_15_local_cxz",
+                          "landmark_15_local_cyy",
+                          "landmark_15_local_cyz",
+                          "landmark_15_local_czz",
+                          "landmark_15_local_dx",
+                          "landmark_15_local_dy",
+                          "landmark_15_local_dz",
+                          "landmark_15_soft_mass",
+                          "landmark_16_local_cxx",
+                          "landmark_16_local_cxy",
+                          "landmark_16_local_cxz",
+                          "landmark_16_local_cyy",
+                          "landmark_16_local_cyz",
+                          "landmark_16_local_czz",
+                          "landmark_16_local_dx",
+                          "landmark_16_local_dy",
+                          "landmark_16_local_dz",
+                          "landmark_16_soft_mass",
+                          "landmark_17_local_cxx",
+                          "landmark_17_local_cxy",
+                          "landmark_17_local_cxz",
+                          "landmark_17_local_cyy",
+                          "landmark_17_local_cyz",
+                          "landmark_17_local_czz",
+                          "landmark_17_local_dx",
+                          "landmark_17_local_dy",
+                          "landmark_17_local_dz",
+                          "landmark_17_soft_mass",
+                          "landmark_18_local_cxx",
+                          "landmark_18_local_cxy",
+                          "landmark_18_local_cxz",
+                          "landmark_18_local_cyy",
+                          "landmark_18_local_cyz",
+                          "landmark_18_local_czz",
+                          "landmark_18_local_dx",
+                          "landmark_18_local_dy",
+                          "landmark_18_local_dz",
+                          "landmark_18_soft_mass",
+                          "landmark_19_local_cxx",
+                          "landmark_19_local_cxy",
+                          "landmark_19_local_cxz",
+                          "landmark_19_local_cyy",
+                          "landmark_19_local_cyz",
+                          "landmark_19_local_czz",
+                          "landmark_19_local_dx",
+                          "landmark_19_local_dy",
+                          "landmark_19_local_dz",
+                          "landmark_19_soft_mass"
+                        ]
+                      },
+                      "minItems": 1,
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E0857891f4effbfe1",
+                          "E11ca33646f5d0576",
+                          "E4aac9dffddd0d59f",
+                          "E4bbe368c52deda38",
+                          "E66d4fd62e479d868",
+                          "E7c9adfd42bb602c0",
+                          "E7d9bf686348ccc58",
+                          "Ea70690a58768ddbb",
+                          "Eef4385e476674774"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs",
+                    "curve_features"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

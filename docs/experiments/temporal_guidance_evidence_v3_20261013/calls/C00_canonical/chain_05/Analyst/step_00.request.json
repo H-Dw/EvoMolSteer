@@ -1,0 +1,64 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/9bbb1df2ff747a2f546bf2c028706a0619afb15cb4b875296b0698f8882431b8.txt",
+        "content_sha256": "9bbb1df2ff747a2f546bf2c028706a0619afb15cb4b875296b0698f8882431b8",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/98ba3ccfbc6ad2d47eed92398f6b9176475e68c1613e37761347645e6690c5e4.txt",
+        "content_sha256": "98ba3ccfbc6ad2d47eed92398f6b9176475e68c1613e37761347645e6690c5e4",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/598b6edf494a8b1e8aa9a4aa8a5714a27f335dce496106a6c830453770056753.txt",
+        "content_sha256": "598b6edf494a8b1e8aa9a4aa8a5714a27f335dce496106a6c830453770056753",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v2",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_curves",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

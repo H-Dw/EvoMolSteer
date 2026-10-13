@@ -1,0 +1,35 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "C1_robust_to_base",
+    "evidence_refs": [
+      "E4bbe368c52deda38",
+      "E11ca33646f5d0576",
+      "Eef4385e476674774",
+      "E7c9adfd42bb602c0",
+      "Ea70690a58768ddbb",
+      "E7d9bf686348ccc58",
+      "E66d4fd62e479d868",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "The primary endpoint affinity does not improve relative to the tested incumbent, or decoded final affinity is unobserved so no affinity benefit can be claimed.",
+      "The early-stronger/late-weaker curvature schedule produces no distinguishable coordinate response versus C2_constant_curvature, indicating the observed transient contrast is not a usable control signal.",
+      "The observed early-to-middle contrasts are not reproducible across independent batches (many sign changes and strong sign conflicts), so the schedule timing is not supported.",
+      "Strain or structural validity degrades even if coordinate control changes, since coordinate similarity alone does not establish improved affinity.",
+      "The compiled table does not actually change the executed trace (no realized change in delta_A over score nodes), so the edit is not credited."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002",
+      "H003",
+      "H004",
+      "H005",
+      "H006",
+      "H007"
+    ],
+    "rationale": "The observed curves for landmark_00 and landmark_01 (dx, dy, dz, soft_mass) all show transient, non-monotone contrasts concentrated in the early-to-middle portion of the observed score window [0.0,0.49], with recovery toward baseline late; polynomial fits were rejected and sign conflicts are numerous, so the timing is a hypothesis rather than a discovered stage. C1_robust_to_base applies larger delta (0.5 -> 0.75 -> 1.0) early and relaxes to baseline curvature later, matching the direction of the observed early-to-middle contrasts while keeping dose, teachers, temperatures and eta frozen. C2_constant_curvature is the timing control with the same discrete mean delta, and C3 is the opposite-timing control; C1 is the registered choice that tests whether the observed early contrast is a useful control signal. This is an empirical post-native reward-schedule edit, not an exact tilted-density sample, and no current outcome or decoded-affinity labels are available in this role input.",
+    "role": "Designer"
+  }
+}

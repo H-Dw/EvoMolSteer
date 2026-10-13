@@ -1,0 +1,75 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Across the full observed score window [0.0, 0.49], the landmark_00 local displacement components show non-monotone, sign-changing profiles: landmark_00_local_dx has 6 sign changes and 9 strong sign conflicts, landmark_00_local_dy has 6 sign changes and 4 strong sign conflicts, and landmark_00_local_dz has 10 sign changes and 7 strong sign conflicts. No accepted polynomial trend was fit for any of them (polynomial_accepted=false), so no stationary absolute target is established.",
+        "evidence_refs": [
+          "E4bbe368c52deda38",
+          "E11ca33646f5d0576",
+          "E4aac9dffddd0d59f"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "landmark_00_soft_mass is the only landmark_00 feature with a comparatively smooth profile (4 sign changes, 1 strong sign conflict, relative_node_RMSE 0.286) and a positive whole-window mean (whole_window_z 0.639), rising from negative early values to a positive mid-window plateau and declining toward the end.",
+        "evidence_refs": [
+          "Eef4385e476674774"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "landmark_10 local displacement components are likewise non-monotone over the same window: landmark_10_local_dx has 6 sign changes and 13 strong sign conflicts, landmark_10_local_dy has 7 sign changes and 3 strong sign conflicts, and landmark_10_local_dz has 6 sign changes and 8 strong sign conflicts; none has an accepted polynomial trend.",
+        "evidence_refs": [
+          "Ed1f51b268d71e385",
+          "Ec235909dc98c4c32",
+          "E76b16d20b4486183"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "landmark_10_soft_mass shows a positive whole-window mean (whole_window_z 0.395) with 4 sign changes and 2 strong sign conflicts, again without an accepted polynomial trend.",
+        "evidence_refs": [
+          "Ee9d172f45c064a2e"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "curve_features": [
+          "landmark_00_soft_mass"
+        ],
+        "direction": "increase",
+        "evidence_refs": [
+          "Eef4385e476674774"
+        ],
+        "falsifier": "If the landmark_00_soft_mass profile under the intervention does not shift toward higher values than the observed baseline over the same window, or if the primary affinity metric does not improve, the hypothesis fails.",
+        "observable": "landmark_00_soft_mass",
+        "scope": "global over the observed score window [0.0, 0.49]",
+        "statement": "The landmark_00 soft-mass coordinate is a candidate reward observable: its observed profile is smooth relative to the displacement components and has a positive whole-window mean, so a reward that favors larger landmark_00_soft_mass over the observed window is worth testing."
+      },
+      {
+        "curve_features": [
+          "landmark_10_soft_mass"
+        ],
+        "direction": "increase",
+        "evidence_refs": [
+          "Ee9d172f45c064a2e"
+        ],
+        "falsifier": "If the landmark_10_soft_mass profile under the intervention does not shift toward higher values than the observed baseline over the same window, or if the primary affinity metric does not improve, the hypothesis fails.",
+        "observable": "landmark_10_soft_mass",
+        "scope": "global over the observed score window [0.0, 0.49]",
+        "statement": "The landmark_10 soft-mass coordinate is a second candidate reward observable: it also has a positive whole-window mean with few sign changes, so a reward favoring larger landmark_10_soft_mass over the observed window is worth testing."
+      }
+    ],
+    "limitations": [
+      "Only landmark_00 and landmark_10 features were read; the remaining 180 catalogue curve features are unqueried, so no claim is made about them.",
+      "No stage or temporal profiles are available; all statements rest on the continuous curves over the observed score window [0.0, 0.49] only.",
+      "The observed curves are selection-window associations, not measured effects of any guidance intervention; no dose, temperature, or reward edit is justified by them alone.",
+      "The displacement components (local_dx/dy/dz) are non-monotone with many sign changes and no accepted polynomial trend, so no absolute coordinate target or spatial gradient can be inferred from them.",
+      "No decoded final affinity labels are present in this input, so no claim about descendant survival or final benefit is made."
+    ],
+    "role": "Analyst"
+  }
+}
