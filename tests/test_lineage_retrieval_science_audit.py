@@ -103,6 +103,7 @@ def test_source_only_critic_receives_six_states_and_source_checked_context(tmp_p
     call = calls[0]
     assert call["role"] == "main-agent"
     assert call["model"] == "gpt-6.1-sol" and call["effort"] == "xhigh"
+    assert call['kwargs']['timeout'] == 1200 and call['kwargs']['max_attempts'] == 1
     packet = call["packet"]
     assert packet["scope"]["allowed_steps"] == [15, 16, 17, 18, 19, 20]
     assert len(packet["donor_descriptions"]) == 30

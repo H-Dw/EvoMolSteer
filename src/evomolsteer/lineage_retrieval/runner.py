@@ -749,8 +749,18 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
                     # source-only semantic audit before any irreversible journal write.
                     from .science_audit import _window_source, audit_scientist_submission
                     critic_dir = attempt_dir / "science_audit"
-                    audit_result = await asyncio.to_thread(audit_scientist_submission,
-                        critic_dir, scientist_source, interval, args["descriptions"], hypothesis, prompt)
+                    # The critic's native worker enforces its own turn bound.
+                    # Its wall time is excluded from the Scientist worker's
+                    # interactive deadline, even when the audit raises/times out.
+                    critic_wait_started = time.monotonic()
+                    try:
+                        # Cancelling to_thread cannot stop its running function;
+                        # let that worker close its own app-server on timeout.
+                        audit_result = await asyncio.to_thread(
+                            audit_scientist_submission, critic_dir, scientist_source, interval,
+                            args["descriptions"], hypothesis, prompt)
+                    finally:
+                        start_time += max(0.0, time.monotonic() - critic_wait_started)
                     clause_assessment = audit_result.get("clause_assessment", {}) if isinstance(audit_result, dict) else {}
                     unsupported = audit_result.get("unsupported_claims", []) if isinstance(audit_result, dict) else []
                     critic_pass = (isinstance(audit_result, dict) and audit_result.get("passes") is True
@@ -904,7 +914,7 @@ async def _run_call(job_dir: Path, role: str, prompt: str, packet: dict[str, Any
     return result
 
 
-def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any], schema: dict[str, Any], model: str = "gpt-6-luna", effort: str = "medium", timeout: float = 1200, broker: Callable | None = None) -> dict[str, Any]:
+def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any], schema: dict[str, Any], model: str = "gpt-6-luna", effort: str = "medium", timeout: float = 1200, broker: Callable | None = None, max_attempts: int = 3) -> dict[str, Any]:
     """Run a fresh ephemeral Codex model job and persist its auditable artifacts.
 
     `broker(name, args, packet)` may provide trusted, separately-held candidate
@@ -915,6 +925,8 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
         raise ValueError("role and prompt are required")
     if effort not in {"low", "medium", "high", "xhigh", "max", "ultra"}:
         raise ValueError("unsupported reasoning effort")
+    if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or not 1 <= max_attempts <= 3:
+        raise ValueError('max_attempts must be an integer from one through three')
     if not isinstance(schema, dict) or schema.get("type") != "object":
         raise ValueError("schema must be an object JSON schema")
     _schema_fields(schema)
@@ -962,7 +974,7 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
         ]) + "\n"
         (clean_home / "config.toml").write_text(minimal_config, encoding="utf-8")
         answer = None
-        for attempt in range(1, 4):
+        for attempt in range(1, max_attempts + 1):
             attempt_events: list[dict[str, Any]] = []
             attempt_calls: list[dict[str, Any]] = []
             attempt_started = time.time()
@@ -975,8 +987,9 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
                 attempt_receipt = {"attempt": attempt, "requested_model": model, "model": model, "effort": effort, "status": "failed", "error": f"{type(exc).__name__}: {exc}", "calls": attempt_calls, "prompt_sha256": _sha(prompt_bytes), "packet_sha256": _sha(packet_bytes), "started_unix": attempt_started, "completed_unix": time.time()}
                 _atomic(attempt_dir / f"attempt-{attempt}.receipt.json", _json_bytes(attempt_receipt))
                 attempt_receipts.append(attempt_receipt)
-                if attempt == 3:
+                if attempt == max_attempts:
                     failed_receipt = {"role": role, "requested_model": model, "model": model, "effort": effort, "status": "failed", "attempts": attempt_receipts, "implementation_sha256": implementation_sha256, "tools": ["list_candidates", "get_candidate", "get_history"], "prompt_sha256": _sha(prompt_bytes), "packet_sha256": _sha(packet_bytes), "started_unix": started, "completed_unix": time.time()}
+                    failed_receipt.update(transport_attempt_limit=max_attempts, turn_timeout_seconds=timeout)
                     _atomic(directory / "receipt.json", _json_bytes(failed_receipt))
                     raise
                 continue
@@ -991,6 +1004,7 @@ def run_job(job_dir: str | Path, role: str, prompt: str, packet: dict[str, Any],
     _atomic(directory / "events.jsonl", b"".join(_json_bytes(event) + b"\n" for event in events))
     worker_context = next((event for event in events if event.get("kind") == "worker_context"), {})
     receipt = {"role": role, "requested_model": model, "model": worker_context.get("model", model), "model_provider": worker_context.get("model_provider"), "effort": worker_context.get("reasoning_effort", effort), "effective_tool_config": {"dynamic_tools": worker_context.get("dynamic_tools", []), "shell": False, "file_tools": False, "mcp_servers": [], "plugins": False, "browser": False, "image": False, "computer": False, "multi_agent": False, "working_directory": "empty temporary directory"}, "implementation_sha256": implementation_sha256, "attempts": attempt_receipts, "calls": calls, "prompt_sha256": _sha(prompt_bytes), "packet_sha256": _sha(packet_bytes), "answer_sha256": _sha(answer_bytes), "event_count": len(events), "started_unix": started, "completed_unix": time.time(), "status": "completed"}
+    receipt.update(transport_attempt_limit=max_attempts, turn_timeout_seconds=timeout)
     _atomic(directory / "receipt.json", _json_bytes(receipt))
     return answer
 

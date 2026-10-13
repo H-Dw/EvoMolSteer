@@ -270,7 +270,8 @@ def audit_scientist_submission(job_dir: str | Path, source: Mapping[str, Any], i
     request_record = {"source_sha256": source_sha, "submission_sha256": submission_sha,
         "science_audit_code_sha256": code_sha, "prompt_sha256": _sha(prompt.encode("utf-8")),
         "audit_prompt_sha256": _sha(AUDIT_PROMPT.encode("utf-8")), "packet_sha256": _sha(packet_bytes),
-        "schema_sha256": _json_sha(schema), "model": MODEL, "effort": EFFORT}
+        "schema_sha256": _json_sha(schema), "model": MODEL, "effort": EFFORT,
+        "turn_timeout_seconds": 1200, "transport_attempt_limit": 1}
     request_sha = _json_sha(request_record)
     audit_dir = Path(job_dir) / f"W{interval:02d}" / request_sha
     audit_dir.mkdir(parents=True, exist_ok=True)
@@ -304,7 +305,8 @@ def audit_scientist_submission(job_dir: str | Path, source: Mapping[str, Any], i
     worker = run_job
     if worker is None:
         from .runner import run_job as worker
-    result = worker(audit_dir / "call", "main-agent", auditor_prompt, payload, schema, model=MODEL, effort=EFFORT)
+    result = worker(audit_dir / "call", "main-agent", auditor_prompt, payload, schema,
+        model=MODEL, effort=EFFORT, timeout=1200, max_attempts=1)
     if not isinstance(result, dict) or not all(key in result for key in schema["required"]):
         raise ValueError("xhigh Scientist critic returned an incomplete audit object")
     _write_json(audit_dir / "answer.json", result)
