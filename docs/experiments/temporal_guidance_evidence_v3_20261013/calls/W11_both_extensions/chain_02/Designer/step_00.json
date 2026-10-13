@@ -1,0 +1,31 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "W1_early_soft",
+    "evidence_refs": [
+      "E4bbe368c52deda38",
+      "E11ca33646f5d0576",
+      "E4aac9dffddd0d59f",
+      "Eef4385e476674774",
+      "Ed1f51b268d71e385",
+      "Ec235909dc98c4c32",
+      "E76b16d20b4486183",
+      "Ee9d172f45c064a2e",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "Primary endpoint affinity does not improve over the incumbent M2 baseline despite verified dose delivery.",
+      "Realized dose trace does not match the requested W1_early_soft schedule (per-seed flow scale, caps or clash backtracking), so the test is inconclusive rather than negative.",
+      "Landmark_00/landmark_10 displacement sign-change counts and soft_mass plateau timing are unchanged relative to the incumbent, indicating the early-soft redistribution had no coordinate effect.",
+      "Validity or strain degrades (secondary metrics) even if affinity is unchanged.",
+      "Only landmark_00 and landmark_10 features were observed; the remaining 18 landmarks and all local_cxx/cxy/cxz/cyy/cyz/czz components are unqueried, so a whole-molecule coordinate claim is not supported.",
+      "Curves are bounded to observed support [0.0,0.49] with extrapolation disallowed; no claim beyond this window is licensed."
+    ],
+    "hypothesis_refs": [
+      "H001"
+    ],
+    "rationale": "Adopting H001: the delivered landmark_00 and landmark_10 displacement curves (dx/dy/dz) are non-monotone and sign-changing with no accepted low-degree polynomial, and the soft_mass curves rise to a mid-window plateau then decline, so the early portion of the observed window carries large, incoherent coordinate excursions rather than a stable target. The registered dose route W1_early_soft (dose [0.35,1,1.65] over knots [0,0.5,1], smoothstep, mean-one normalized, same M2 reward, delta and blend unchanged) reduces guidance weight early and redistributes the ratio budget later, which is the offered intervention that directly tests whether damping early guidance on these unstable early excursions improves the primary endpoint affinity while preserving the frozen temperatures, teacher matching and reward family. This is a dose-route edit only; no delta_A, temperature or reward-family change is made.",
+    "role": "Designer"
+  }
+}

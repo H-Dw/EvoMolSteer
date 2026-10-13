@@ -1,0 +1,505 @@
+{
+  "choices": {
+    "W1_early_soft": {
+      "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward",
+      "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+      "is_M2": false,
+      "normalization": "dose is normalized over actual score nodes to a mean of one",
+      "numerical_signature": "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9",
+      "parameter": "temporal_recipe",
+      "route": "dose",
+      "schedule": {
+        "blend": [
+          0,
+          0,
+          0
+        ],
+        "delta": [
+          1,
+          1,
+          1
+        ],
+        "dose": [
+          0.35,
+          1,
+          1.65
+        ],
+        "knots": [
+          0,
+          0.5,
+          1
+        ]
+      },
+      "value": "W1_early_soft"
+    },
+    "W2_middle_peak": {
+      "description": "Middle emphasis with positive guidance throughout; same M2 reward",
+      "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+      "is_M2": false,
+      "normalization": "dose is normalized over actual score nodes to a mean of one",
+      "numerical_signature": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6",
+      "parameter": "temporal_recipe",
+      "route": "dose",
+      "schedule": {
+        "blend": [
+          0,
+          0,
+          0
+        ],
+        "delta": [
+          1,
+          1,
+          1
+        ],
+        "dose": [
+          0.5,
+          1.5,
+          0.5
+        ],
+        "knots": [
+          0,
+          0.5,
+          1
+        ]
+      },
+      "value": "W2_middle_peak"
+    },
+    "W3_early_strong_control": {
+      "description": "Opposite time-order control; equal integral of RMS ratios",
+      "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+      "is_M2": false,
+      "normalization": "dose is normalized over actual score nodes to a mean of one",
+      "numerical_signature": "1f217373730e32c09f840ee4c9a966dac4113cea0d15e56beb73a68ff104334f",
+      "parameter": "temporal_recipe",
+      "route": "dose",
+      "schedule": {
+        "blend": [
+          0,
+          0,
+          0
+        ],
+        "delta": [
+          1,
+          1,
+          1
+        ],
+        "dose": [
+          1.65,
+          1,
+          0.35
+        ],
+        "knots": [
+          0,
+          0.5,
+          1
+        ]
+      },
+      "value": "W3_early_strong_control"
+    }
+  },
+  "finish_policy": "temporal-feature-curves-v3",
+  "handoff": {
+    "findings": [
+      {
+        "claim": "Across the observed score window [0.0,0.49], the two probed landmarks show no accepted polynomial trend: every read feature has polynomial_accepted=false and relative_node_RMSE between 0.29 and 0.83, so whole-window means are near zero (|whole_window_z| <= 0.64) while node-level excursions are large.",
+        "evidence_ids": [
+          "continuous:1",
+          "curve_support",
+          "continuous:2",
+          "continuous:3",
+          "continuous:0",
+          "continuous:101",
+          "continuous:102",
+          "continuous:103",
+          "continuous:100"
+        ],
+        "id": "F001",
+        "priority": 1
+      },
+      {
+        "claim": "The probed displacement coordinates are non-monotone within the window: sign_changes range from 4 to 10 and strong_sign_conflicts from 1 to 13 across the eight read features, so a single early-vs-late contrast does not describe the trajectory.",
+        "evidence_ids": [
+          "continuous:1",
+          "curve_support",
+          "continuous:2",
+          "continuous:3",
+          "continuous:0",
+          "continuous:101",
+          "continuous:102",
+          "continuous:103",
+          "continuous:100"
+        ],
+        "id": "F002",
+        "priority": 2
+      },
+      {
+        "claim": "Endpoint rate signs are not consistent between the start and end of the window for the same feature: e.g. landmark_00_local_dx has first_rate_z=-17.49 and last_rate_z=+8.11, landmark_00_local_dy has first_rate_z=-72.37 and last_rate_z=+5.52, and landmark_10_soft_mass has first_rate_z=+66.28 and last_rate_z=-11.56.",
+        "evidence_ids": [
+          "continuous:1",
+          "curve_support",
+          "continuous:2",
+          "continuous:100"
+        ],
+        "id": "F003",
+        "priority": 3
+      },
+      {
+        "claim": "The only probed feature with a comparatively coherent whole-window level is landmark_00_soft_mass (whole_window_z=+0.64, sign_changes=4, strong_sign_conflicts=1), but its polynomial is still not accepted and its node RMSE is 0.29, so this is a weak, not a confirmed, level shift.",
+        "evidence_ids": [
+          "continuous:0",
+          "curve_support"
+        ],
+        "id": "F004",
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "curve_features": [
+          "landmark_00_local_dx",
+          "landmark_00_local_dy",
+          "landmark_10_soft_mass"
+        ],
+        "direction": "Weaker early, stronger late (candidate W1_early_soft ordering), tested against W3_early_strong_control as the opposite-order control.",
+        "evidence_ids": [
+          "continuous:1",
+          "curve_support",
+          "continuous:2",
+          "continuous:100"
+        ],
+        "falsifier": "The late-window endpoint displacement contrast for the declared features does not increase relative to the flat-dose reference, or the early-window contrast collapses, or the primary final-affinity metric does not improve.",
+        "id": "H001",
+        "observable": "Per-node dose factor applied to the frozen M2 scalar reward, and the resulting per-node endpoint displacement z-scores for the declared features.",
+        "scope": "Observed score nodes only, [0.0,0.49]; no extrapolation beyond the observed support.",
+        "statement": "If the early portion of the observed window is where the probed landmark displacement rates are largest in magnitude and the late portion reverses sign, then a dose schedule that is weaker early and stronger late (relative to a flat schedule) should be tested against the same M2 reward geometry, with the expectation that the late-window endpoint displacement contrast is preserved or increased."
+      },
+      {
+        "curve_features": [
+          "landmark_00_soft_mass",
+          "landmark_00_local_dx",
+          "landmark_00_local_dz"
+        ],
+        "direction": "Middle emphasis (candidate W2_middle_peak), tested against the flat-dose reference.",
+        "evidence_ids": [
+          "continuous:0",
+          "curve_support",
+          "continuous:1",
+          "continuous:3"
+        ],
+        "falsifier": "The soft-mass level is not maintained, or the displacement sign-change counts increase without a corresponding primary-metric gain, or the primary final-affinity metric does not improve.",
+        "id": "H002",
+        "observable": "Per-node dose factor and the resulting landmark_00_soft_mass level plus landmark_00_local_dx/dz sign-change counts.",
+        "scope": "Observed score nodes only, [0.0,0.49].",
+        "statement": "If landmark_00_soft_mass shows a comparatively coherent positive whole-window level while the probed displacement coordinates are non-monotone, then a middle-emphasis dose schedule (W2_middle_peak) should be tested as an alternative to the early/late orderings, with the expectation that the soft-mass level is maintained while displacement sign reversals are not amplified."
+      }
+    ],
+    "limitations": [
+      "Only 8 of 200 catalogue curve features were read (landmarks 00 and 10 displacement and soft_mass); the remaining 192 features are unqueried, not absent.",
+      "No stage or temporal profiles are available; only continuous curves were used.",
+      "No decoded final affinity, survival, or last recorded joint-head scores are present in role input, so no claim about descendant benefit or optimal dose is made.",
+      "All read features have polynomial_accepted=false, so no smooth whole-window trend is asserted; the reported patterns are node-level and batch-dependent (independent_batches=14).",
+      "The registered dose recipes (W1/W2/W3) are hypotheses about timing, not measured guidance effects; the reward geometry is fixed in this lane."
+    ],
+    "role": "Analyst"
+  },
+  "initial_references": {
+    "references": {
+      "E0857891f4effbfe1": {
+        "file": "packet.json",
+        "kind": "metadata",
+        "pointer": "/clocks",
+        "source_id": "metadata/clocks",
+        "source_sha256": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95",
+        "table": null
+      },
+      "E11ca33646f5d0576": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_00_local_dy",
+        "source_id": "curve/landmark_00_local_dy",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      },
+      "E4aac9dffddd0d59f": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_00_local_dz",
+        "source_id": "curve/landmark_00_local_dz",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      },
+      "E4bbe368c52deda38": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_00_local_dx",
+        "source_id": "curve/landmark_00_local_dx",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      },
+      "E76b16d20b4486183": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_10_local_dz",
+        "source_id": "curve/landmark_10_local_dz",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      },
+      "Ec235909dc98c4c32": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_10_local_dy",
+        "source_id": "curve/landmark_10_local_dy",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      },
+      "Ed1f51b268d71e385": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_10_local_dx",
+        "source_id": "curve/landmark_10_local_dx",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      },
+      "Ee9d172f45c064a2e": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_10_soft_mass",
+        "source_id": "curve/landmark_10_soft_mass",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      },
+      "Eef4385e476674774": {
+        "file": "continuous_functions.json",
+        "kind": "curve",
+        "pointer": "/functions/landmark_00_soft_mass",
+        "source_id": "curve/landmark_00_soft_mass",
+        "source_sha256": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+        "table": null
+      }
+    },
+    "sources": {
+      "continuous_functions.json": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+      "index.json": "7c779de6e9ca48f63b88f13edc45180fa80303f4063e95edf5a72dbb1fa8ccf4",
+      "observable_definitions.json": "60729872cc6c5d5af1de407527ca5104200ec24e97cd1f3de15c6effbfb870c9",
+      "packet.json": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95"
+    }
+  },
+  "instruction_sha256": "f03c59434584a30b31f629dbaaed61b34f9f6ae3e06b3c8d5cdb37332483a115",
+  "interface_version": "evidence-tools-json-v2",
+  "max_context_bytes": 280000,
+  "max_format_repairs": 2,
+  "max_output_tokens": 8192,
+  "max_steps": 20,
+  "model": "deepseek-flash",
+  "role": "Designer",
+  "scientific_schema": true,
+  "sources": {
+    "continuous_functions.json": "b80ff12b9957b298f5afceb2b37641fb5efdc5b2ce036695b7d10e62c67e33f2",
+    "index.json": "7c779de6e9ca48f63b88f13edc45180fa80303f4063e95edf5a72dbb1fa8ccf4",
+    "observable_definitions.json": "60729872cc6c5d5af1de407527ca5104200ec24e97cd1f3de15c6effbfb870c9",
+    "packet.json": "726c99f983568e97a5c98ca49a65a8257993ea609b7a38ad5de53f86eeaf7d95"
+  },
+  "task": {
+    "baseline_signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd",
+    "curves_available": true,
+    "delta_policy": "Only registered curvature conditions may vary delta_A; all temperatures are frozen",
+    "evidence_delivery": {
+      "Analyst": "Declare curve_features for every hypothesis; read get_curve/get_curves, then cite a matching delivered handle for every declared feature. Summaries are not curves. Keep unsupported observations in findings/limitations, not actionable hypotheses.",
+      "Designer": "For each adopted hypothesis and each of its features, cite the actual inherited curve/profile handle. Only registered choices; retaining M2 is allowed.",
+      "policy": "temporal-feature-curves-v3"
+    },
+    "fixed_parameters": {
+      "mixture_temperature": 0.5,
+      "native_rms_ratio": 0.33,
+      "teacher_endpoint_temperature_A2": 4.0,
+      "teacher_neighbors": 4,
+      "teacher_score_beta": 0,
+      "time_ramp_power": 0.0
+    },
+    "hypotheses_are_not_observed_guidance_effects": true,
+    "hypothesis_temporal_sources": {
+      "H001": [
+        "curve/landmark_00_local_dx",
+        "curve/landmark_00_local_dy",
+        "curve/landmark_10_soft_mass"
+      ],
+      "H002": [
+        "curve/landmark_00_local_dx",
+        "curve/landmark_00_local_dz",
+        "curve/landmark_00_soft_mass"
+      ]
+    },
+    "incumbent": {
+      "coordinate_representation": "predicted_endpoint_world_A",
+      "derivative_path": "flowr_endpoint_vjp",
+      "dose_reference": "predictive_flow",
+      "pointcloud_delta_A": null,
+      "reward_view": "endpoint_pointcloud"
+    },
+    "learning_support": [
+      0.0,
+      0.5
+    ],
+    "no_current_outcomes_in_role_input": true,
+    "objective": "Final predicted target affinity primary; validity and strain secondary; coordinate control only",
+    "observed_score_times": [
+      0.0,
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2,
+      0.21,
+      0.22,
+      0.23,
+      0.24,
+      0.25,
+      0.26,
+      0.27,
+      0.28,
+      0.29,
+      0.3,
+      0.31,
+      0.32,
+      0.33,
+      0.34,
+      0.35,
+      0.36,
+      0.37,
+      0.38,
+      0.39,
+      0.4,
+      0.41,
+      0.42,
+      0.43,
+      0.44,
+      0.45,
+      0.46,
+      0.47,
+      0.48,
+      0.49
+    ],
+    "registered_choices": {
+      "W1_early_soft": {
+        "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward",
+        "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+        "is_M2": false,
+        "normalization": "dose is normalized over actual score nodes to a mean of one",
+        "numerical_signature": "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9",
+        "parameter": "temporal_recipe",
+        "route": "dose",
+        "schedule": {
+          "blend": [
+            0,
+            0,
+            0
+          ],
+          "delta": [
+            1,
+            1,
+            1
+          ],
+          "dose": [
+            0.35,
+            1,
+            1.65
+          ],
+          "knots": [
+            0,
+            0.5,
+            1
+          ]
+        },
+        "value": "W1_early_soft"
+      },
+      "W2_middle_peak": {
+        "description": "Middle emphasis with positive guidance throughout; same M2 reward",
+        "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+        "is_M2": false,
+        "normalization": "dose is normalized over actual score nodes to a mean of one",
+        "numerical_signature": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6",
+        "parameter": "temporal_recipe",
+        "route": "dose",
+        "schedule": {
+          "blend": [
+            0,
+            0,
+            0
+          ],
+          "delta": [
+            1,
+            1,
+            1
+          ],
+          "dose": [
+            0.5,
+            1.5,
+            0.5
+          ],
+          "knots": [
+            0,
+            0.5,
+            1
+          ]
+        },
+        "value": "W2_middle_peak"
+      },
+      "W3_early_strong_control": {
+        "description": "Opposite time-order control; equal integral of RMS ratios",
+        "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+        "is_M2": false,
+        "normalization": "dose is normalized over actual score nodes to a mean of one",
+        "numerical_signature": "1f217373730e32c09f840ee4c9a966dac4113cea0d15e56beb73a68ff104334f",
+        "parameter": "temporal_recipe",
+        "route": "dose",
+        "schedule": {
+          "blend": [
+            0,
+            0,
+            0
+          ],
+          "delta": [
+            1,
+            1,
+            1
+          ],
+          "dose": [
+            1.65,
+            1,
+            0.35
+          ],
+          "knots": [
+            0,
+            0.5,
+            1
+          ]
+        },
+        "value": "W3_early_strong_control"
+      }
+    },
+    "role": "Designer",
+    "route": "dose",
+    "stage_profiles_available": false,
+    "task_wording": "Assess time-dependent coordinate contrasts on the full supplied support.",
+    "task_wordings": [
+      "Compare temporal coordinate evidence across the complete observed selection window.",
+      "Assess time-dependent coordinate contrasts on the full supplied support."
+    ],
+    "temporal_profiles_available": false
+  }
+}

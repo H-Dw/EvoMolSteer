@@ -1,0 +1,86 @@
+{
+  "findings": [
+    {
+      "claim": "Across the full observed score window [0.0,0.49], the read landmark-00 and landmark-10 displacement and soft-mass curves show no accepted polynomial trend (polynomial_accepted=false for all eight), with multiple sign changes (4-10) and strong sign conflicts (1-13) per feature; whole-window z magnitudes are small (|z|<=0.64). This is consistent with oscillatory, batch-conflicted coordinate motion rather than a monotone drift, so no stable whole-window direction is established for these features.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "continuous:2",
+        "continuous:3",
+        "continuous:0",
+        "continuous:101",
+        "continuous:102",
+        "continuous:103",
+        "continuous:100"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Endpoint rate contrasts are large and opposite in sign between window ends for several features: landmark_00_local_dx first_rate_z=-17.49 vs last_rate_z=+8.11; landmark_00_local_dy first_rate_z=-72.37 vs last_rate_z=+5.52; landmark_10_local_dx first_rate_z=-42.98 vs last_rate_z=+11.39; landmark_10_soft_mass first_rate_z=+66.28 vs last_rate_z=-11.56. These are endpoint rate contrasts within the observed support, not absolute coordinate targets or spatial gradients.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "continuous:2",
+        "continuous:101",
+        "continuous:100"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "landmark_00_soft_mass is the only read feature with a positive whole-window mean (whole_window_z=+0.64) and the lowest relative node RMSE (0.286) among the eight read curves, but it still has 4 sign changes and 1 strong sign conflict, so its positive whole-window level is not a clean monotone trend.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "curve_features": [
+        "landmark_00_local_dx",
+        "landmark_10_local_dx"
+      ],
+      "direction": "weaker early, stronger late (test the registered early-soft dose recipe)",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "continuous:101"
+      ],
+      "falsifier": "If the early-soft recipe does not change the primary final-affinity metric relative to the incumbent, or if the per-node rate contrast is not reproducible across independent batches, the timing hypothesis is not supported.",
+      "id": "H001",
+      "observable": "Per-node endpoint rate z of landmark_00_local_dx and landmark_10_local_dx across observed score nodes 0.0-0.49",
+      "scope": "global over the observed score window; no extrapolation beyond 0.49",
+      "statement": "If the early portion of the observed window carries a distinct coordinate regime, then a dose schedule that reduces guidance weight at early score nodes and redistributes it to later nodes (as in the registered early-soft recipe) should be tested against the incumbent; the observed early-vs-late endpoint rate sign reversals in landmark_00_local_dx and landmark_10_local_dx are the temporal contrast motivating this test."
+    },
+    {
+      "curve_features": [
+        "landmark_00_soft_mass",
+        "landmark_10_soft_mass"
+      ],
+      "direction": "stronger mid-window (test the registered middle-peak dose recipe)",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:100"
+      ],
+      "falsifier": "If the middle-peak recipe does not change the primary final-affinity metric relative to the incumbent, or if the mid-window soft-mass peak is not reproducible across independent batches, the timing hypothesis is not supported.",
+      "id": "H002",
+      "observable": "Per-node soft-mass z of landmark_00_soft_mass and landmark_10_soft_mass across observed score nodes 0.0-0.49",
+      "scope": "global over the observed score window; no extrapolation beyond 0.49",
+      "statement": "If the middle of the observed window is where coordinate motion is most active, then a middle-emphasis dose schedule (registered middle-peak recipe) should be tested; the mid-window peaks in landmark_00_soft_mass and landmark_10_soft_mass values_z near nodes 0.14-0.21 are the temporal contrast motivating this test."
+    }
+  ],
+  "limitations": [
+    "Only 8 of 200 catalogue curve features were read (landmark_00 and landmark_10 displacement and soft-mass); the remaining 192 features are unqueried, not absent.",
+    "No stage profiles or temporal profiles are available; only continuous per-node curves were used.",
+    "All read curves have polynomial_accepted=false and multiple strong sign conflicts, so no stable whole-window monotone direction is established for any read feature.",
+    "Endpoint rate contrasts are within-window contrasts and do not specify an absolute coordinate target, spatial gradient, or optimal guidance dose.",
+    "Descendant final quality and decoded final affinity are not observed in this role input; selection preference is association only, not measured benefit.",
+    "The registered dose recipes (W1/W2/W3) are hypotheses about timing, not discovered stages; no knot stability analysis was performed."
+  ],
+  "role": "Analyst"
+}

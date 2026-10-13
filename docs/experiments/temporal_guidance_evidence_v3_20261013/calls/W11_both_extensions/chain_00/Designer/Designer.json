@@ -1,0 +1,62 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Middle emphasis with positive guidance throughout; same M2 reward",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6",
+    "parameter": "temporal_recipe",
+    "route": "dose",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "dose": [
+        0.5,
+        1.5,
+        0.5
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "W2_middle_peak"
+  },
+  "evidence_ids": [
+    "continuous:1",
+    "curve_support",
+    "continuous:2",
+    "continuous:3",
+    "continuous:0",
+    "continuous:101",
+    "continuous:102",
+    "continuous:103",
+    "continuous:100"
+  ],
+  "failure_modes": [
+    "The non-constant W2_middle_peak schedule produces the same realized total delivered displacement and the same endpoint affinity as the constant-dose reference, so the timing hypothesis is not supported.",
+    "Requested dose is not actually delivered (caps, clash backtracking or gradient cancellation), so realized-dose traces differ from the registered table and the comparison is uninterpretable.",
+    "Primary affinity does not improve or degrades relative to the constant-dose reference despite verified dose delivery.",
+    "Rare-path coverage or early compatible-path formation is lost under the middle-peak schedule even though the time-integrated ratio budget is preserved.",
+    "Strain or structural validity worsens (clashes, distorted geometry) under the non-constant schedule, reported separately from affinity.",
+    "The observed rise-then-fall shape is an artifact of the two read landmarks only; the remaining unqueried catalogue features do not share it, so the timing rationale does not generalize."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": "W2_middle_peak"
+  },
+  "rationale": "H001 is the only actionable hypothesis and it is supported by the delivered curves for all eight declared features: the landmark_00 and landmark_10 soft-mass profiles rise through the early-to-middle portion of the observed window and decline toward its end, while the local displacement components oscillate with multiple sign changes and no accepted low-degree polynomial. That non-monotone, non-stationary shape over the observed score nodes [0.0,0.49] makes a non-constant temporal dose worth testing against the constant-dose reference, exactly as H001 proposes. Among the registered dose recipes, W2_middle_peak (dose [0.5,1.5,0.5] over knots [0,0.5,1], smoothstep, mean-one normalized, same M2 reward, delta and blend unchanged) is the offered choice whose emphasis matches the observed rise-then-fall structure, concentrating guidance where the soft-mass coordinates are elevated and reducing it at the window edges. W1_early_soft and W3_early_strong_control are the opposite time-order controls and are not selected as the primary test. This is a dose-route edit only: the reward family, teachers, temperatures, delta and eta are preserved, and no spatial force is inferred from the time derivative of these curves.",
+  "role": "Designer"
+}

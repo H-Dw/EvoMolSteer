@@ -1,0 +1,63 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9",
+    "parameter": "temporal_recipe",
+    "route": "dose",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "dose": [
+        0.35,
+        1,
+        1.65
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "W1_early_soft"
+  },
+  "evidence_ids": [
+    "continuous:1",
+    "curve_support",
+    "continuous:2",
+    "continuous:3",
+    "continuous:0",
+    "continuous:101",
+    "continuous:102",
+    "continuous:103",
+    "continuous:100",
+    "clocks"
+  ],
+  "failure_modes": [
+    "Primary endpoint affinity does not improve over the incumbent M2 baseline despite verified dose delivery.",
+    "Realized dose trace does not match the requested W1_early_soft schedule (per-seed flow scale, caps or clash backtracking), so the test is inconclusive rather than negative.",
+    "Landmark_00/landmark_10 displacement sign-change counts and soft_mass plateau timing are unchanged relative to the incumbent, indicating the early-soft redistribution had no coordinate effect.",
+    "Validity or strain degrades (secondary metrics) even if affinity is unchanged.",
+    "Only landmark_00 and landmark_10 features were observed; the remaining 18 landmarks and all local_cxx/cxy/cxz/cyy/cyz/czz components are unqueried, so a whole-molecule coordinate claim is not supported.",
+    "Curves are bounded to observed support [0.0,0.49] with extrapolation disallowed; no claim beyond this window is licensed."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": "W1_early_soft"
+  },
+  "rationale": "Adopting H001: the delivered landmark_00 and landmark_10 displacement curves (dx/dy/dz) are non-monotone and sign-changing with no accepted low-degree polynomial, and the soft_mass curves rise to a mid-window plateau then decline, so the early portion of the observed window carries large, incoherent coordinate excursions rather than a stable target. The registered dose route W1_early_soft (dose [0.35,1,1.65] over knots [0,0.5,1], smoothstep, mean-one normalized, same M2 reward, delta and blend unchanged) reduces guidance weight early and redistributes the ratio budget later, which is the offered intervention that directly tests whether damping early guidance on these unstable early excursions improves the primary endpoint affinity while preserving the frozen temperatures, teacher matching and reward family. This is a dose-route edit only; no delta_A, temperature or reward-family change is made.",
+  "role": "Designer"
+}

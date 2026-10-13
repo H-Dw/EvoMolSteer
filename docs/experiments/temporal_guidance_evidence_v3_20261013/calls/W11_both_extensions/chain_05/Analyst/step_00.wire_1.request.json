@@ -1,0 +1,69 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/b0971630b1275fe46ac12298ab181bed7bc4a33581b2e7dda187d6618f0b5e0e.txt",
+        "content_sha256": "b0971630b1275fe46ac12298ab181bed7bc4a33581b2e7dda187d6618f0b5e0e",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/096be827e21f45bc244fc76994f0fe077bf354646eb4612b21a729046b753517.txt",
+        "content_sha256": "096be827e21f45bc244fc76994f0fe077bf354646eb4612b21a729046b753517",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/598b6edf494a8b1e8aa9a4aa8a5714a27f335dce496106a6c830453770056753.txt",
+        "content_sha256": "598b6edf494a8b1e8aa9a4aa8a5714a27f335dce496106a6c830453770056753",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/fe352e1ddc01a503f3e784f5e1f91694c2384eb1b7e47592233cd4fd887913a4.txt",
+        "content_sha256": "fe352e1ddc01a503f3e784f5e1f91694c2384eb1b7e47592233cd4fd887913a4",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v2",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_curves",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

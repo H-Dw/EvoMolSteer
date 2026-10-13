@@ -1,0 +1,27 @@
+{
+  "decision": "edit",
+  "edit_choice": "W2_middle_peak",
+  "evidence_refs": [
+    "E4bbe368c52deda38",
+    "E11ca33646f5d0576",
+    "E4aac9dffddd0d59f",
+    "Eef4385e476674774",
+    "Ed1f51b268d71e385",
+    "Ec235909dc98c4c32",
+    "E76b16d20b4486183",
+    "Ee9d172f45c064a2e"
+  ],
+  "failure_modes": [
+    "The non-constant W2_middle_peak schedule produces the same realized total delivered displacement and the same endpoint affinity as the constant-dose reference, so the timing hypothesis is not supported.",
+    "Requested dose is not actually delivered (caps, clash backtracking or gradient cancellation), so realized-dose traces differ from the registered table and the comparison is uninterpretable.",
+    "Primary affinity does not improve or degrades relative to the constant-dose reference despite verified dose delivery.",
+    "Rare-path coverage or early compatible-path formation is lost under the middle-peak schedule even though the time-integrated ratio budget is preserved.",
+    "Strain or structural validity worsens (clashes, distorted geometry) under the non-constant schedule, reported separately from affinity.",
+    "The observed rise-then-fall shape is an artifact of the two read landmarks only; the remaining unqueried catalogue features do not share it, so the timing rationale does not generalize."
+  ],
+  "hypothesis_refs": [
+    "H001"
+  ],
+  "rationale": "H001 is the only actionable hypothesis and it is supported by the delivered curves for all eight declared features: the landmark_00 and landmark_10 soft-mass profiles rise through the early-to-middle portion of the observed window and decline toward its end, while the local displacement components oscillate with multiple sign changes and no accepted low-degree polynomial. That non-monotone, non-stationary shape over the observed score nodes [0.0,0.49] makes a non-constant temporal dose worth testing against the constant-dose reference, exactly as H001 proposes. Among the registered dose recipes, W2_middle_peak (dose [0.5,1.5,0.5] over knots [0,0.5,1], smoothstep, mean-one normalized, same M2 reward, delta and blend unchanged) is the offered choice whose emphasis matches the observed rise-then-fall structure, concentrating guidance where the soft-mass coordinates are elevated and reducing it at the window edges. W1_early_soft and W3_early_strong_control are the opposite time-order controls and are not selected as the primary test. This is a dose-route edit only: the reward family, teachers, temperatures, delta and eta are preserved, and no spatial force is inferred from the time derivative of these curves.",
+  "role": "Designer"
+}

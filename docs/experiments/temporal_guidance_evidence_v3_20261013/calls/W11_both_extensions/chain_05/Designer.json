@@ -1,0 +1,56 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Middle emphasis with positive guidance throughout; same M2 reward",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6",
+    "parameter": "temporal_recipe",
+    "route": "dose",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "dose": [
+        0.5,
+        1.5,
+        0.5
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "W2_middle_peak"
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "curve_support",
+    "continuous:100",
+    "clocks"
+  ],
+  "failure_modes": [
+    "The soft-mass mid-window peak does not reproduce under an independent batch split, i.e. the peak is batch turnover rather than a temporal contrast.",
+    "The primary final predicted target affinity does not improve relative to the M2 incumbent despite verified W2_middle_peak dose delivery.",
+    "Requested dose differs from delivered dose in the trace (caps, clash backtracking or gradient cancellation), so the middle emphasis is never actually realized.",
+    "Validity or strain degrades relative to M2 even if affinity is unchanged.",
+    "Rare-path coverage collapses under the middle-peak schedule, indicating the early low-dose phase suppressed compatible early paths."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001"
+    ],
+    "registered_choice": "W2_middle_peak"
+  },
+  "rationale": "Adopt H001 only. The two soft-mass occupancy curves are the sole probed features with a coherent mid-window structure: landmark_00_soft_mass rises from about -0.37 z at t=0 to a peak near +1.6 z around t=0.15-0.20 and then declines to about -0.28 z at t=0.49, and landmark_10_soft_mass shows a similar early rise to about +1.0 z near t=0.05-0.20 with a late decline to about -0.37 z. Both are cited via their delivered curve handles. The displacement curves (F001/F002/F004) show no stable whole-window trend and many cross-batch sign conflicts, so they do not justify any directional dose edit and are not adopted. H001's mid-window emphasis maps directly onto the registered W2_middle_peak dose recipe (dose [0.5,1.5,0.5] over knots [0,0.5,1], smoothstep, mean-one normalization over actual score nodes, no extrapolation), which preserves the M2 reward family, teachers, mixture temperature and frozen eta and changes only the registered dose factor. H002's late-decline direction is not adopted: the same soft-mass curves also decline after the mid-window peak, but the late-window decline is confounded with the post-peak fall and with possible population turnover, and W1_early_soft would suppress guidance exactly where the observed occupancy is highest. The learning window [0.0,0.5] and observed score nodes match the recipe's normalization support, so no extrapolation is required.",
+  "role": "Designer"
+}

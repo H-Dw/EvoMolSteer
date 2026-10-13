@@ -1,0 +1,97 @@
+{
+  "findings": [
+    {
+      "claim": "Across the full observed score window [0.0,0.49], the two probed landmarks show no stable whole-window displacement trend: landmark_00_local_dx whole_window_z=-0.18, landmark_00_local_dy=-0.30, landmark_00_local_dz=-0.02, landmark_10_local_dx=-0.12, landmark_10_local_dy=+0.15, landmark_10_local_dz=+0.02. All are small relative to the per-node excursions, so no monotone coordinate drift is supported.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "continuous:2",
+        "continuous:3",
+        "continuous:101",
+        "continuous:102",
+        "continuous:103"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The displacement curves are non-monotone with multiple sign changes (landmark_00_local_dx 6, landmark_00_local_dy 6, landmark_00_local_dz 10, landmark_10_local_dx 6, landmark_10_local_dy 7, landmark_10_local_dz 6) and strong cross-batch sign conflicts (up to 13 for landmark_10_local_dx), so any single-direction temporal claim is contradicted by batch-level evidence.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "continuous:2",
+        "continuous:3",
+        "continuous:101",
+        "continuous:102",
+        "continuous:103"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The soft-mass occupancy proxies are the only probed features with a coherent mid-window rise and late decline: landmark_00_soft_mass rises from about -0.37 z at t=0 to a peak near +1.6 z around t=0.15-0.20 then falls to about -0.28 z at t=0.49 (whole_window_z=+0.64, 4 sign changes, 1 strong conflict); landmark_10_soft_mass shows a similar early rise to about +1.0 z near t=0.05-0.20 and late decline to about -0.37 z (whole_window_z=+0.40, 4 sign changes, 2 strong conflicts).",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:100"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "Endpoint rate signs are opposite at the two ends of the window for most probed features (e.g. landmark_00_local_dx first_rate_z=-17.5 vs last_rate_z=+8.1; landmark_10_soft_mass first_rate_z=+66.3 vs last_rate_z=-11.6), indicating the local direction of change reverses within the observed support rather than persisting.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "continuous:100",
+        "continuous:103"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "curve_features": [
+        "landmark_00_soft_mass",
+        "landmark_10_soft_mass"
+      ],
+      "direction": "weaker early, stronger mid-window",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:100"
+      ],
+      "falsifier": "Soft-mass mid-window peak fails to reproduce on an independent batch split, or the primary affinity metric does not improve relative to M2.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass and landmark_10_soft_mass z-profiles over observed score nodes 0.0-0.49",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "If the mid-window occupancy rise in landmark_00_soft_mass and landmark_10_soft_mass reflects a real temporal contrast rather than batch turnover, then a dose schedule that is relatively weaker early and stronger in the middle of the observed score window should be testable against the registered W2_middle_peak recipe, with the falsifier that the soft-mass mid-window peak does not reproduce under an independent batch split or that the primary affinity metric does not improve relative to M2."
+    },
+    {
+      "curve_features": [
+        "landmark_00_soft_mass",
+        "landmark_10_soft_mass"
+      ],
+      "direction": "weaker late",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support",
+        "continuous:100"
+      ],
+      "falsifier": "Late decline is attributable to population turnover, or the primary affinity metric does not improve relative to M2.",
+      "id": "H002",
+      "observable": "landmark_00_soft_mass and landmark_10_soft_mass z-profiles over observed score nodes 0.0-0.49",
+      "scope": "global over the observed score window [0.0,0.49]",
+      "statement": "If the late-window decline in landmark_00_soft_mass and landmark_10_soft_mass is a genuine temporal contrast, then a schedule that reduces guidance dose in the last third of the observed window should be testable against the registered W1_early_soft recipe, with the falsifier that the late decline is explained by population turnover or that the primary affinity metric does not improve relative to M2."
+    }
+  ],
+  "limitations": [
+    "Only 8 of 200 catalogue curve features were read; the remaining landmark displacement, covariance and soft-mass curves are unqueried and may contradict these findings.",
+    "Stage profiles and temporal profiles are unavailable, so no stage-boundary or knot discovery is supported.",
+    "No decoded final affinity or descendant survival labels are present in role input; selection preference is association only and is not evidence of measured final benefit.",
+    "The probed displacement curves have high relative node RMSE (0.64-0.83) and many strong cross-batch sign conflicts, so their per-node values are weak evidence.",
+    "The registered dose recipes W1/W2/W3 are hypotheses about timing, not discovered stages; no optimal guidance dose is estimated here."
+  ],
+  "role": "Analyst"
+}
