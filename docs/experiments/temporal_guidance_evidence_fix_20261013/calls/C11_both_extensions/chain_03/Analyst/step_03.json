@@ -1,0 +1,110 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the learning/score support is the observed score-node window [0.0,0.49] with 50 nodes and no extrapolation allowed.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1",
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Across all 20 landmark soft-mass features, no polynomial trend is accepted (polynomial_accepted=false for every row), relative node RMSE is large (0.50-0.99), and sign_changes range 4-10 with strong_sign_conflicts up to 17; whole-window z values are small (|z|<0.65). This indicates non-monotone, batch-conflicted coordinate contrast rather than a stable monotone drift.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E342a60b38bb0a51b",
+          "E735f24e742723e38",
+          "Ecea6847a29085c95",
+          "E57315f2f7083ab82",
+          "E5dc651b941b4c9fd",
+          "Ecaa47212cd4165ae",
+          "E65c5cdcb88f99c74",
+          "E76b26ba622888d46",
+          "E3b2ce8fd1ae3c7bc",
+          "E88a1b6d50276da1e",
+          "Ebfdd229bdaca644c",
+          "Efb15fb117b45eea6",
+          "E36816785ddd4dc09",
+          "Eae2d1a5138c82451",
+          "E17a2625f3ccde2df",
+          "Ed6483d1bca6d6f77",
+          "E8d8c32b13334497b",
+          "E7a4b1090068e0439",
+          "Eff027945cf60d210"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "landmark_10_soft_mass shows a reproducible within-window shape: values rise from about -0.38 z at t=0 to a peak near +1.0 z around t=0.19, then decline to about -0.37 z at t=0.49, with first_rate_z=+66.3 and last_rate_z=-11.6 and only 2 strong sign conflicts. This is a changing-contrast (rise-then-fall) profile, not a stationary target.",
+        "evidence_refs": [
+          "Ee9d172f45c064a2e",
+          "E88a1b6d50276da1e"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Several landmarks show opposite early-vs-late rate signs (e.g., landmark_01_soft_mass first_rate_z=-26.0, last_rate_z=+0.9; landmark_03_soft_mass first_rate_z=-61.0, last_rate_z=+12.7; landmark_11_soft_mass first_rate_z=-66.3, last_rate_z=+10.8), while others show the reverse (landmark_02_soft_mass +55.9 then +5.1; landmark_14_soft_mass +61.5 then +2.3). The sign of the early rate is not uniform across landmarks.",
+        "evidence_refs": [
+          "E342a60b38bb0a51b",
+          "Ecea6847a29085c95",
+          "Ebfdd229bdaca644c",
+          "E735f24e742723e38",
+          "Eae2d1a5138c82451"
+        ],
+        "priority": 4
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "larger delta (more robust response) early in the window, smaller delta later, matching the rise-then-fall contrast",
+        "evidence_refs": [
+          "Ee9d172f45c064a2e",
+          "E88a1b6d50276da1e"
+        ],
+        "falsifier": "If the landmark_10_soft_mass curve over [0.0,0.49] is flat or monotone under an independent batch split, or if the mid-window peak does not reproduce, the time-dependent delta hypothesis is not supported.",
+        "observable": "landmark_10_soft_mass z-scored endpoint-world feature over observed score nodes [0.0,0.49]",
+        "scope": "global over the observed score-node window; no extrapolation beyond [0.0,0.49]",
+        "statement": "The landmark_10_soft_mass coordinate contrast is time-dependent within the observed window: it rises to a mid-window maximum near t~0.19 and then falls, so a single constant curvature/delta applied uniformly over the window would not match the observed contrast shape."
+      },
+      {
+        "direction": "retain gradual smoothstep interpolation across the window rather than a sharp knot",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E342a60b38bb0a51b",
+          "E735f24e742723e38",
+          "Ecea6847a29085c95",
+          "E57315f2f7083ab82",
+          "E5dc651b941b4c9fd",
+          "Ecaa47212cd4165ae",
+          "E65c5cdcb88f99c74",
+          "E76b26ba622888d46",
+          "E3b2ce8fd1ae3c7bc",
+          "E88a1b6d50276da1e",
+          "Ebfdd229bdaca644c",
+          "Efb15fb117b45eea6",
+          "E36816785ddd4dc09",
+          "Eae2d1a5138c82451",
+          "E17a2625f3ccde2df",
+          "Ed6483d1bca6d6f77",
+          "E8d8c32b13334497b",
+          "E7a4b1090068e0439",
+          "Eff027945cf60d210"
+        ],
+        "falsifier": "If an independently stable profile with a reproducible knot is found in a held-out batch split, a sharp knot would be justified instead of a gradual schedule.",
+        "observable": "per-landmark soft-mass polynomial_accepted, sign_changes and strong_sign_conflicts over [0.0,0.49]",
+        "scope": "global over the observed score-node window",
+        "statement": "Because no landmark soft-mass trend is polynomial-accepted and sign_changes/strong_sign_conflicts are high, a smooth gradual curvature schedule is preferable to a sharp data-derived knot; a single default phase knot is an experimental hypothesis, not a discovered stage."
+      }
+    ],
+    "limitations": [
+      "Stage profiles and temporal profiles are not available; only continuous curves and trend/effect tables were read.",
+      "No decoded final affinity labels are present in role input; selection/survival evidence is not available as a measured final-benefit label.",
+      "The observed curves are z-scored endpoint-world coordinate proxies; no energy or chemical-interaction interpretation is made.",
+      "Contrast curves and their time derivatives do not by themselves specify an absolute coordinate target or spatial gradient; no absolute target is asserted here.",
+      "The registered recipes C1/C2/C3 are proposed interventions, not parameters learned from the observed slopes; no optimal parameter is claimed."
+    ],
+    "role": "Analyst"
+  }
+}

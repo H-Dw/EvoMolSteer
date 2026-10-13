@@ -1,0 +1,26 @@
+{
+  "decision": "edit",
+  "edit_choice": "C1_robust_to_base",
+  "evidence_refs": [
+    "Ee9d172f45c064a2e",
+    "E88a1b6d50276da1e",
+    "E66d4fd62e479d868",
+    "E342a60b38bb0a51b",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Affinity is not measured in role input: no decoded final affinity labels are present, so the expected affinity response of C1 cannot be verified here and must be judged downstream against the primary objective; a coordinate-contrast match alone does not establish improved affinity.",
+    "H001/H002 rest on z-scored endpoint-world coordinate proxies with no energy or chemical-interaction interpretation; the mid-window peak may not reproduce under an independent batch split, in which case the time-dependent delta justification fails.",
+    "The registered recipes are proposed interventions, not parameters learned from the observed slopes; C1's knot placement at 0.5 is a hypothesis, not a discovered stage boundary, and no optimal delta is claimed.",
+    "Gradient cancellation between the early robust term and the later baseline term could leave the delivered injection unchanged even though the scalar reward value changes; distinguishing this requires gradient-direction and realized-dose checks, not the scalar value alone.",
+    "If the compiled table for C1 does not actually change the executed trace (instruction-delivery/table-change check), the edit must be reported as ineffective rather than credited.",
+    "Structural validity and strain are secondary and unmeasured here; a curvature change that improves coordinate contrast could still degrade validity or strain, which must be assessed separately."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "H001 (cited with its inherited curve handle Ee9d172f45c064a2e for landmark_10_soft_mass, plus trend row E88a1b6d50276da1e) reports a reproducible rise-then-fall contrast within the observed score-node window [0.0,0.49]: peak near t~0.19, first_rate_z=+66.3, last_rate_z=-11.6, only 2 strong sign conflicts. H002 (curve handle E66d4fd62e479d868, trend row E342a60b38bb0a51b) reports the opposite early-window sign for landmark_01_soft_mass. Both are within the learning support [0.0,0.5] (E0857891f4effbfe1) and the objective is final predicted affinity primary (Eaa4bda02c9a2c3a1), so a time-varying curvature is the registered reward-route intervention that matches the observed non-stationary contrast. Among the offered reward-route recipes, C1_robust_to_base (delta 0.5 -> 0.75 -> 1.0 over knots [0,0.5,1], dose fixed at 1, blend 0) is the only one that places the more robust (larger-delta) response early and relaxes to baseline later, matching H001's direction; C2 is the constant-curvature control and C3 is the opposite timing control. Dose is held at 1 and teachers/temperatures are frozen, so this is a reward-lane curvature edit only.",
+  "role": "Designer"
+}

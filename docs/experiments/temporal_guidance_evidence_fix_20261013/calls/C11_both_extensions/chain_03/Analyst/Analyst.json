@@ -1,0 +1,92 @@
+{
+  "findings": [
+    {
+      "claim": "Objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the learning/score support is the observed score-node window [0.0,0.49] with 50 nodes and no extrapolation allowed.",
+      "evidence_ids": [
+        "objective",
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Across all 20 landmark soft-mass features, no polynomial trend is accepted (polynomial_accepted=false for every row), relative node RMSE is large (0.50-0.99), and sign_changes range 4-10 with strong_sign_conflicts up to 17; whole-window z values are small (|z|<0.65). This indicates non-monotone, batch-conflicted coordinate contrast rather than a stable monotone drift.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "landmark_10_soft_mass shows a reproducible within-window shape: values rise from about -0.38 z at t=0 to a peak near +1.0 z around t=0.19, then decline to about -0.37 z at t=0.49, with first_rate_z=+66.3 and last_rate_z=-11.6 and only 2 strong sign conflicts. This is a changing-contrast (rise-then-fall) profile, not a stationary target.",
+      "evidence_ids": [
+        "continuous:100",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "landmark_01_soft_mass shows a different within-window shape: it starts near +0.54 z at t=0, dips to about -0.89 z near t=0.05, then recovers to about +0.36 z at t=0.49, with first_rate_z=-26.0 and last_rate_z=+0.9 and 9 strong sign conflicts. The early rate sign is opposite to landmark_10_soft_mass.",
+      "evidence_ids": [
+        "continuous:10",
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "larger delta (more robust response) early in the window, smaller delta later, matching the rise-then-fall contrast",
+      "evidence_ids": [
+        "continuous:100",
+        "curve_support"
+      ],
+      "falsifier": "If the landmark_10_soft_mass curve over [0.0,0.49] is flat or monotone under an independent batch split, or if the mid-window peak does not reproduce, the time-dependent delta hypothesis is not supported.",
+      "id": "H001",
+      "observable": "landmark_10_soft_mass z-scored endpoint-world feature over observed score nodes [0.0,0.49]",
+      "scope": "global over the observed score-node window; no extrapolation beyond [0.0,0.49]",
+      "statement": "The landmark_10_soft_mass coordinate contrast is time-dependent within the observed window: it rises to a mid-window maximum near t~0.19 and then falls, so a single constant curvature/delta applied uniformly over the window would not match the observed contrast shape."
+    },
+    {
+      "direction": "opposite early-window curvature response for landmark_01_soft_mass relative to landmark_10_soft_mass",
+      "evidence_ids": [
+        "continuous:10",
+        "curve_support"
+      ],
+      "falsifier": "If landmark_01_soft_mass and landmark_10_soft_mass early-window rate signs agree under an independent batch split, the opposite-sign claim is not supported.",
+      "id": "H002",
+      "observable": "landmark_01_soft_mass z-scored endpoint-world feature over observed score nodes [0.0,0.49]",
+      "scope": "global over the observed score-node window; no extrapolation beyond [0.0,0.49]",
+      "statement": "The landmark_01_soft_mass coordinate contrast is also time-dependent but with an early dip and late recovery, so its early-window rate sign is opposite to landmark_10_soft_mass; a single uniform curvature schedule cannot match both landmarks' early-window behavior."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are not available; only continuous curves and trend/effect tables were read.",
+    "No decoded final affinity labels are present in role input; selection/survival evidence is not available as a measured final-benefit label.",
+    "The observed curves are z-scored endpoint-world coordinate proxies; no energy or chemical-interaction interpretation is made.",
+    "Contrast curves and their time derivatives do not by themselves specify an absolute coordinate target or spatial gradient; no absolute target is asserted here.",
+    "The registered recipes C1/C2/C3 are proposed interventions, not parameters learned from the observed slopes; no optimal parameter is claimed."
+  ],
+  "role": "Analyst"
+}

@@ -1,0 +1,83 @@
+{
+  "findings": [
+    {
+      "claim": "The observed landmark_00_soft_mass coordinate contrast over the full window (0.0-0.49) is non-monotone: it rises from about -0.37 z at t=0 to a peak near +1.64 z around t=0.16, then declines to about -0.28 z at t=0.49, with 4 sign changes in the observed-node linear rate and polynomial_accepted=false. This is a changing contrast, not a stationary target.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "Across all 20 landmark soft-mass features, whole-window mean z is small in magnitude (|whole_window_z| < ~0.65) while every feature shows multiple sign changes and strong_sign_conflicts, so the window does not support a single signed global direction.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:10",
+        "continuous:20",
+        "continuous:30",
+        "continuous:40",
+        "continuous:50",
+        "continuous:60",
+        "continuous:70",
+        "continuous:80",
+        "continuous:90",
+        "continuous:100",
+        "continuous:110",
+        "continuous:120",
+        "continuous:130",
+        "continuous:140",
+        "continuous:150",
+        "continuous:160",
+        "continuous:170",
+        "continuous:180",
+        "continuous:190"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; the coordinate features are predicted_endpoint_world_A_features, i.e. untyped coordinate proxies, not physical energies.",
+      "evidence_ids": [
+        "objective",
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "test earlier robust response to large residuals then baseline curvature, at fixed dose and fixed teachers",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "falsifier": "If C1_robust_to_base produces no change in the compiled delta table or no change in the realized trace relative to the constant-curvature control C2, the time-dependent curvature hypothesis is not supported.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass coordinate contrast (observed-node linear rate z) over the full observed score window",
+      "scope": "landmark_00_soft_mass, full learning support 0.0-0.49",
+      "statement": "A time-dependent curvature schedule (registered C1_robust_to_base: delta 0.5 -> 0.75 -> 1.0 over knots 0/0.5/1, dose fixed at 1, blend 0) is a candidate to test, because the observed landmark_00_soft_mass contrast is non-monotone with a mid-window peak and late-window decline, so a single constant curvature may not match the changing contrast."
+    },
+    {
+      "direction": "retain constant curvature as the reference; do not infer a data-derived knot from the near-zero whole-window mean",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "falsifier": "If C2 and C1 yield indistinguishable realized traces and quality, the time-dependent curvature edit is not justified.",
+      "id": "H002",
+      "observable": "landmark_00_soft_mass whole-window mean z and realized trace under C2",
+      "scope": "landmark_00_soft_mass, full learning support 0.0-0.49",
+      "statement": "The constant-curvature control C2 (delta 0.75 at all knots, dose 1, blend 0) is the appropriate baseline against which any time-dependent curvature claim must be compared, because the observed landmark_00_soft_mass whole-window mean z is small and the curve does not by itself establish a reproducible stage boundary."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are not available; only continuous curves and trend tables were read.",
+    "No decoded final affinity labels are present in role input; selection/survival and coordinate contrasts are not evidence of final affinity improvement.",
+    "Coordinate features are untyped predicted_endpoint_world_A proxies; no energy or chemical-interaction interpretation is made.",
+    "The observed rate sign changes are diagnostics of changing contrast, not permission to reverse the affinity objective or to define an absolute coordinate target."
+  ],
+  "role": "Analyst"
+}

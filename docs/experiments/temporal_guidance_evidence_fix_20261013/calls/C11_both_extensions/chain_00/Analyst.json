@@ -1,0 +1,93 @@
+{
+  "findings": [
+    {
+      "claim": "The learning window is the observed score-node support [0.0, 0.49] with 50 recorded score times; the curve support audit matches this window, so no extrapolation beyond 0.49 is licensed.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are therefore proxies, not affinity labels.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "For landmark_00_soft_mass the observed curve rises from about -0.37 z at t=0 to a mid-window plateau near +1.0 to +1.6 z around t=0.15-0.30, then declines to about -0.28 z at t=0.49; the first-node rate is positive (first_rate_z ~ +9.3) and the last-node rate is negative (last_rate_z ~ -10.0), i.e. a rise-then-fall shape with 4 sign changes and 1 strong sign conflict.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 2
+    },
+    {
+      "claim": "For landmark_07_soft_mass the observed curve is also non-monotone: it dips slightly negative near t=0.04-0.07, rises to a peak near +1.6 z around t=0.15-0.20, then decays toward about +0.44 z at t=0.49, with 4 sign changes and 9 strong sign conflicts.",
+      "evidence_ids": [
+        "continuous:70",
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 2
+    },
+    {
+      "claim": "Across the 20 soft-mass landmark trends, whole-window z magnitudes are small (|z| < ~0.64) and no polynomial is accepted (polynomial_accepted=false everywhere), with relative node RMSE ~0.29-0.70 and multiple sign changes; the strongest whole-window soft-mass trend is landmark_00 (z ~ +0.64), followed by landmark_07 (z ~ +0.48) and landmark_10 (z ~ +0.40).",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:70",
+        "continuous:100"
+      ],
+      "id": "F005",
+      "priority": 2
+    },
+    {
+      "claim": "Several soft-mass landmarks show large first-node rates that reverse by the last node (e.g. landmark_10 first_rate_z ~ +66.3 vs last_rate_z ~ -11.6; landmark_11 first_rate_z ~ -66.3 vs last_rate_z ~ +10.8; landmark_03 first_rate_z ~ -61.0 vs last_rate_z ~ +12.7), indicating early-window transient motion rather than a stable monotone drift.",
+      "evidence_ids": [
+        "continuous:100",
+        "continuous:110",
+        "continuous:30"
+      ],
+      "id": "F006",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "test earlier robust response to large residuals followed by baseline curvature (C1-style delta schedule) versus constant curvature (C2) at fixed dose and fixed teachers",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "falsifier": "If C1 and C2 produce indistinguishable landmark_00_soft_mass trajectory contrasts and endpoint affinity under the same seeds and dose, the stage-dependent curvature is not supported.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass predicted-endpoint world-coordinate z-contrast over observed score nodes 0.0-0.49",
+      "scope": "global reward geometry, all seeds, observed score nodes only",
+      "statement": "A stage-dependent geometric response scale (curvature schedule) applied to the endpoint point-cloud reward may be justified because the landmark_00_soft_mass coordinate contrast is non-monotone over the observed window: it rises early and falls late, so a single constant curvature may not match both phases."
+    },
+    {
+      "direction": "retain smooth interpolation (smoothstep over observed score nodes) rather than introducing a discovered stage boundary",
+      "evidence_ids": [
+        "continuous:70",
+        "curve_support",
+        "continuous:0",
+        "continuous:100"
+      ],
+      "falsifier": "If an independently stable profile shows a reproducible knot with consistent sign across batches, a hard stage boundary would be supported instead.",
+      "id": "H002",
+      "observable": "landmark_07_soft_mass and landmark_00_soft_mass z-contrasts over observed score nodes 0.0-0.49",
+      "scope": "all soft-mass landmarks, observed window",
+      "statement": "Because whole-window soft-mass trends are weak and non-polynomial with multiple sign changes, a smooth gradual curvature change is preferable to a hard data-derived knot; no reproducible knot is supported by the observed curves."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are not available; only continuous curves and summary tables were read.",
+    "No decoded final affinity labels are present in role input; coordinate contrasts are proxies and cannot establish final affinity improvement.",
+    "Selection/survival evidence was not queried in this pass; no claim about descendant survival or measured final benefit is made.",
+    "The soft-mass coordinate is an untyped geometric proxy; no energy or chemical-interaction interpretation is attached."
+  ],
+  "role": "Analyst"
+}

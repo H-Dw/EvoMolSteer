@@ -20,6 +20,14 @@
       "job": "roles_W11_both_extensions",
       "stopped_unix": 1791863597.7533484,
       "traceback": "Traceback (most recent call last):\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 150, in attempt\n    result = action()\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 234, in <lambda>\n    self.attempt('roles_' + condition['id'], lambda condition=condition: self.role_condition(condition['id']))\n                                                                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 203, in role_condition\n    selection = run_roles(self.repo, self.plan, condition, execute=True)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\temporal_guidance\\workflow.py\", line 265, in run_roles\n    response = run_agent(role, tools, text, role_task, folder / role,\n                         choices=choices if role == \"Designer\" else None, handoff=handoff,\n                         max_steps=config[\"max_steps\"], max_output_tokens=config[\"max_output_tokens\"],\n                         finish_validator=validator, finish_policy=FINISH_POLICY)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\agent_workflow\\engine.py\", line 95, in run_agent\n    action = caller(messages, schema, folder / f\"step_{step:02d}.json\", **kwargs)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\deepseek_api.py\", line 255, in call_json\n    raise LLMInterfaceError(diagnostics, output) from None\nevomolsteer.deepseek_api.LLMInterfaceError: LLM interface validation failed: {\"error_type\": \"JSONDecodeError\", \"line\": 1, \"column\": 3190, \"reason\": \"Expecting ',' delimiter\"}\n"
+    },
+    {
+      "error": "Action budget exhausted; no incumbent masquerading as a successful analysis",
+      "error_type": "WorkflowBudgetError",
+      "fallback_not_counted_as_success": true,
+      "job": "roles_C00_canonical",
+      "stopped_unix": 1791864324.7004628,
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 150, in attempt\n    result = action()\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 234, in <lambda>\n    self.attempt('roles_' + condition['id'], lambda condition=condition: self.role_condition(condition['id']))\n                                                                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 203, in role_condition\n    selection = run_roles(self.repo, self.plan, condition, execute=True)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\temporal_guidance\\workflow.py\", line 265, in run_roles\n    response = run_agent(role, tools, text, role_task, folder / role,\n                         choices=choices if role == \"Designer\" else None, handoff=handoff,\n                         max_steps=config[\"max_steps\"], max_output_tokens=config[\"max_output_tokens\"],\n                         finish_validator=validator, finish_policy=FINISH_POLICY)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\agent_workflow\\engine.py\", line 134, in run_agent\n    raise WorkflowBudgetError(\"Action budget exhausted; no incumbent masquerading as a successful analysis\")\nevomolsteer.agent_workflow.engine.WorkflowBudgetError: Action budget exhausted; no incumbent masquerading as a successful analysis\n"
     }
   ],
   "jobs": {
@@ -32832,7 +32840,25 @@
       "status": "complete"
     },
     "publish_phase_2": {
+      "completed_unix": 1791864140.838001,
+      "result": "9a56751b3dd18bd02ed735ecfc903846276b51a4",
       "started_unix": 1791864137.2886517,
+      "status": "complete"
+    },
+    "roles_C00_canonical": {
+      "failure": {
+        "error": "Action budget exhausted; no incumbent masquerading as a successful analysis",
+        "error_type": "WorkflowBudgetError",
+        "fallback_not_counted_as_success": true,
+        "job": "roles_C00_canonical",
+        "stopped_unix": 1791864324.7004628,
+        "traceback": "Traceback (most recent call last):\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 150, in attempt\n    result = action()\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 234, in <lambda>\n    self.attempt('roles_' + condition['id'], lambda condition=condition: self.role_condition(condition['id']))\n                                                                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 203, in role_condition\n    selection = run_roles(self.repo, self.plan, condition, execute=True)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\temporal_guidance\\workflow.py\", line 265, in run_roles\n    response = run_agent(role, tools, text, role_task, folder / role,\n                         choices=choices if role == \"Designer\" else None, handoff=handoff,\n                         max_steps=config[\"max_steps\"], max_output_tokens=config[\"max_output_tokens\"],\n                         finish_validator=validator, finish_policy=FINISH_POLICY)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\agent_workflow\\engine.py\", line 134, in run_agent\n    raise WorkflowBudgetError(\"Action budget exhausted; no incumbent masquerading as a successful analysis\")\nevomolsteer.agent_workflow.engine.WorkflowBudgetError: Action budget exhausted; no incumbent masquerading as a successful analysis\n"
+      },
+      "started_unix": 1791864141.0766482,
+      "status": "skipped_error"
+    },
+    "roles_C11_both_extensions": {
+      "started_unix": 1791864324.862684,
       "status": "running"
     },
     "roles_S00_canonical": {
@@ -34402,7 +34428,7 @@
     }
   },
   "model": "deepseek-flash",
-  "phase": 2,
+  "phase": 3,
   "program_results": {
     "1f217373730e32c09f840ee4c9a966dac4113cea0d15e56beb73a68ff104334f:gradient:temporal:indexed_batch:6376,6377,6378,6379:b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485": {
       "archive_sha256": "95e39a96d55f2daeb3ce258c5624917a229f212e2689e9fafcb59f36fc327886",
@@ -64419,6 +64445,6 @@
   },
   "started_unix": 1791863192.1876047,
   "status": "running",
-  "task": "publish_phase_2",
-  "updated_unix": 1791864137.2886572
+  "task": "roles_C11_both_extensions",
+  "updated_unix": 1791864324.8626912
 }

@@ -1,0 +1,58 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Earlier robust response to large residuals, then baseline curvature; not a tolerance radius",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "56119afc403de2b5f3f868bbeca88cfcba8053418534cb4d8a2e81ee72b8e449",
+    "parameter": "temporal_recipe",
+    "route": "reward",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        0.5,
+        0.75,
+        1
+      ],
+      "dose": [
+        1,
+        1,
+        1
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "C1_robust_to_base"
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "curve_support",
+    "clocks",
+    "objective"
+  ],
+  "failure_modes": [
+    "Affinity: no decoded final affinity labels are present in role input, so any affinity benefit is unverified; the edit must be judged on decoded final affinity in a later evaluation, not on the coordinate contrast alone.",
+    "Strain/validity: the curvature change alters the reward geometry and could push samples toward strained or invalid structures; strain and structural validity must be reported separately from affinity.",
+    "Delivery: if the compiled delta table or the realized trace is unchanged relative to C2, the edit did not change execution and must not be credited.",
+    "Attribution: if C1 and C2 yield indistinguishable realized traces and quality, the time-dependent curvature hypothesis is not supported and the incumbent should be retained.",
+    "Cancellation: component gradients could cancel under the changing delta schedule; a changing scalar reward value alone does not prove changed injection, so gradient-direction and delivered-dose checks are required.",
+    "Extrapolation: the schedule is normalized over observed score nodes with no extrapolation; any use beyond the learning support [0.0, 0.5] is invalid."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": "C1_robust_to_base"
+  },
+  "rationale": "H001 is the only offered hypothesis that maps the observed non-monotone landmark_00_soft_mass contrast (rise to a mid-window peak near t=0.16, then late-window decline, with multiple observed-node rate sign changes and polynomial_accepted=false) onto a registered reward-route intervention. C1_robust_to_base varies only delta_A (0.5 -> 0.75 -> 1.0 over knots 0/0.5/1) with dose fixed at 1 and blend 0, so it preserves the frozen temperatures, teacher set, neighbor count and eta while changing the curvature schedule on the same native FLOWR endpoint. C2_constant_curvature is the required constant-curvature control and C3_base_to_robust_control is the time-order control; both are retained as comparators rather than as the primary edit. The observed curve is a coordinate contrast proxy, not an affinity label, so this edit is a bounded, falsifiable test of timing, not a claim of improved affinity.",
+  "role": "Designer"
+}

@@ -1,0 +1,24 @@
+{
+  "decision": "edit",
+  "edit_choice": "C1_robust_to_base",
+  "evidence_refs": [
+    "Eef4385e476674774",
+    "E2e106e083189d150",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Compiled C1 schedule produces no change in realized per-node coordinate traces relative to C2, so the edit did not change execution and must be reported as ineffective.",
+    "Endpoint affinity does not improve relative to the constant-curvature control C2, so the stage-dependent hypothesis is not supported even if traces differ.",
+    "Gradient cancellation between the early robust and late baseline curvature components yields a near-zero combined endpoint VJP, indistinguishable from an unsuitable target without gradient-direction and delivered-dose checks.",
+    "A changing scalar reward value is mistaken for changed injection; realized-dose auditing is required because equal sum(dt*w) is only a ratio budget.",
+    "Coordinate trace differences are read as affinity benefit; no decoded final affinity labels are present, so selection preference and coordinate trends cannot be equated with measured final benefit.",
+    "Strain and structural validity are not separately verified; changed chemical graphs are permitted but coordinate similarity alone does not establish improved affinity."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "H001 proposes testing registered stage-dependent curvature at fixed dose_factors=1 because the landmark_00_soft_mass curve changes sign and slope within the observed window; H002 supplies the constant-curvature control (C2) against which any time-varying recipe must show a measurable trace difference. The delivered curve handle Eef4385e476674774 and its trend row E2e106e083189d150 show an oscillatory, non-monotone profile with opposing endpoint rate z-scores and no accepted polynomial, so a single constant delta may not match the early-versus-late contrast. C1_robust_to_base is the registered reward-route recipe that applies the larger delta early and relaxes toward baseline curvature later, matching the observed early-versus-late contrast while holding dose at 1 and teachers fixed. C2_constant_curvature is retained as the required control, and C3 is the opposite-timing control; the edit is justified only if C1 produces a realized per-node coordinate trace change distinct from C2. The objective remains final predicted target affinity primary with coordinate control only (Eaa4bda02c9a2c3a1), and the learning window and score clocks are 0.0-0.5 (E0857891f4effbfe1).",
+  "role": "Designer"
+}

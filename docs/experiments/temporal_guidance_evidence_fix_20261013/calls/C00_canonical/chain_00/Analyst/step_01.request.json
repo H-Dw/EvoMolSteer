@@ -1,0 +1,190 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/b80a39790bd398902f248d29722ab535133144028086d22e14c7413b2dbc563c.txt",
+        "content_sha256": "b80a39790bd398902f248d29722ab535133144028086d22e14c7413b2dbc563c",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/7825582ca430f4e2ad4d26d0ba4090ec8294e0845510cee1afd5bd7b0b1c0c88.txt",
+        "content_sha256": "7825582ca430f4e2ad4d26d0ba4090ec8294e0845510cee1afd5bd7b0b1c0c88",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/77e1d1e989ce9fa496d1243e599946760caa33a72f81d0cfd4080443c0861c75.txt",
+        "content_sha256": "77e1d1e989ce9fa496d1243e599946760caa33a72f81d0cfd4080443c0861c75",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/fd14ce6d4fbdb4e2c2a2e753dcc24297605002b0e02b253b9d538935f08d09d1.txt",
+        "content_sha256": "fd14ce6d4fbdb4e2c2a2e753dcc24297605002b0e02b253b9d538935f08d09d1",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E894225fb605458cb",
+                          "Eace79c1f0f54c9d1",
+                          "Ec589f2ee99a44490"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E894225fb605458cb",
+                          "Eace79c1f0f54c9d1",
+                          "Ec589f2ee99a44490"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

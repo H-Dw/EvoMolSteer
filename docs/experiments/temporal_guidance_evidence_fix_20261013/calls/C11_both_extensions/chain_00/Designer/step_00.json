@@ -1,0 +1,29 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "C1_robust_to_base",
+    "evidence_refs": [
+      "Eef4385e476674774",
+      "Ea49ff6bb5fa67ab5",
+      "E2e106e083189d150",
+      "E65c5cdcb88f99c74",
+      "E88a1b6d50276da1e",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "Affinity is the primary objective but no decoded final affinity labels are present in role input; coordinate contrasts are proxies, so an improvement in landmark_00_soft_mass contrast does not establish improved affinity. Affinity must be assessed first, with strain and structural validity reported separately.",
+      "Component-gradient cancellation: the delta schedule changes only the robust/base weighting of the same scalar reward, so a changed scalar value does not prove changed injection. Require gradient-direction and delivered-dose checks; if C1 and C2 give indistinguishable landmark_00_soft_mass trajectory contrasts and endpoint affinity under the same seeds and dose, the stage-dependent curvature is falsified.",
+      "The observed curve is non-monotone with 4 sign changes and 1 strong sign conflict, and whole-window soft-mass z magnitudes are small (|z| < ~0.64) with no accepted polynomial; the early-window transient may be noise rather than a stable phase, so the timing benefit may not replicate across seeds.",
+      "The default phase knot at 0.5 is an experimental hypothesis, not a discovered stage boundary; no independently stable profile supports a data-derived knot, and no extrapolation beyond the observed support [0.0, 0.49] is licensed.",
+      "Stage and temporal profiles are unavailable and selection/survival evidence was not queried, so no claim about descendant survival or measured final benefit is made."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "H001 is the executable hypothesis: the landmark_00_soft_mass endpoint coordinate contrast is non-monotone over the observed score-node support (rise early, fall late), so a single constant curvature cannot match both phases. C1_robust_to_base implements exactly that timing (delta 0.5 -> 0.75 -> 1.0 over knots 0/0.5/1, smoothstep, dose held at 1, teachers and temperatures frozen), i.e. earlier robust response to large residuals followed by baseline curvature. C2_constant_curvature is the matched discrete-mean control and C3_base_to_robust_control is the opposite-timing control, so the comparison is attributable to timing rather than to mean delta or dose. H002 supports the smoothstep interpolation over observed score nodes rather than a hard data-derived knot, consistent with the weak, non-polynomial, multi-sign-change soft-mass trends. The edit is confined to the reward route with dose_factors=1 and no temperature change, as the contract requires.",
+    "role": "Designer"
+  }
+}

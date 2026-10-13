@@ -1,0 +1,99 @@
+{
+  "findings": [
+    {
+      "claim": "The learning window and score clocks are [0.0, 0.5] with 50 observed score nodes at 0.01 spacing; curve support is [0.0, 0.49], so no extrapolation beyond the observed nodes is licensed.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are therefore proxies, not affinity labels.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "The observed landmark_00_local_dy curve over [0.0,0.49] is non-monotone: it dips to about -1.26 z near t=0.05, rises to about +0.24 z near t=0.18, and returns to about +0.13 z at t=0.49, with 6 sign changes and 4 strong sign conflicts across 14 independent batches.",
+      "evidence_ids": [
+        "continuous:2",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 2
+    },
+    {
+      "claim": "For landmark_00, the continuous-trend table reports no accepted polynomial for any of the ten features (polynomial_accepted=false throughout), with relative_node_RMSE from 0.29 to 0.87 and 4-10 sign changes per feature; the observed-node linear method is the only representation offered.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "id": "F004",
+      "priority": 2
+    },
+    {
+      "claim": "Whole-window z magnitudes for landmark_00 features are small (|z| <= 0.64), so no landmark_00 coordinate feature shows a dominant net displacement over the full window.",
+      "evidence_ids": [
+        "continuous:0",
+        "continuous:1",
+        "continuous:2",
+        "continuous:3",
+        "continuous:4",
+        "continuous:5",
+        "continuous:6",
+        "continuous:7",
+        "continuous:8",
+        "continuous:9"
+      ],
+      "id": "F005",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "test only; no preferred direction asserted from this contrast",
+      "evidence_ids": [
+        "continuous:2",
+        "curve_support"
+      ],
+      "falsifier": "If the per-node landmark_00_local_dy curve is stationary (no reproducible sign change across batches) or the registered recipes compile to identical tables, the time-dependent curvature hypothesis is not supported.",
+      "id": "H001",
+      "observable": "landmark_00_local_dy observed curve values_z across the 50 score nodes",
+      "scope": "landmark_00_local_dy, all 14 independent batches, learning window [0.0,0.5]",
+      "statement": "A time-dependent curvature schedule (registered C1_robust_to_base vs C2_constant_curvature vs C3_base_to_robust_control) may be testable at fixed dose and fixed teachers, because the observed landmark_00_local_dy curve changes direction within the window rather than following a single stationary trend."
+    },
+    {
+      "direction": "retain gradual change; do not introduce a discovered stage boundary",
+      "evidence_ids": [
+        "continuous:2",
+        "curve_support",
+        "continuous:0",
+        "continuous:1"
+      ],
+      "falsifier": "An independently stable profile with an accepted polynomial and consistent sign across batches would justify a knot.",
+      "id": "H002",
+      "observable": "polynomial_accepted, sign_changes and strong_sign_conflicts per landmark_00 feature, plus the observed landmark_00_local_dy curve",
+      "scope": "landmark_00 features, full observed window",
+      "statement": "A gradual (no-knot) schedule is preferable to a data-derived knot for landmark_00 features, because no accepted polynomial and no stable whole-window trend was found, so no reproducible knot location is supported."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are unavailable; only continuous curves and summary tables were delivered, so no stage-resolved claim is made.",
+    "Only landmark_00 features were read; the other 19 landmarks were not queried and no claim is made about them.",
+    "No decoded final affinity labels are present (label semantics: recorded affinities removed, equal score prior), so coordinate contrasts cannot be equated with affinity improvement.",
+    "The observed curve and continuous-trend rows are coordinate contrasts; they do not define an absolute coordinate target or spatial gradient, and no such target is asserted.",
+    "No dose or reward effect was measured here; the registered recipes are proposed interventions, not learned optima."
+  ],
+  "role": "Analyst"
+}
