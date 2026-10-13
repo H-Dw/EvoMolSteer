@@ -1,0 +1,30 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "defer",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E0857891f4effbfe1",
+      "E2e106e083189d150",
+      "E03ad082bb04f4f9c",
+      "E5d1c4c6e5dbe0cb6",
+      "Eef4385e476674774",
+      "E11ca33646f5d0576",
+      "E83f52c445b12958b"
+    ],
+    "failure_modes": [
+      "Affinity: no decoded final affinity labels were observed (recorded affinities removed, equal score prior), so any dose edit cannot be credited with improved predicted affinity; the primary objective remains unverified.",
+      "Strain/validity: dose redistribution changes the realized flow scale per seed; without realized-dose auditing, strain and structural validity could degrade even if coordinate contrasts shift.",
+      "Coordinate response: the cited contrasts are transient/oscillatory with whole-window z near zero, so a dose recipe may produce no net endpoint coordinate change, making the intervention untestable against these curves.",
+      "Extrapolation: all continuous_trends rows have extrapolation_allowed=false, so any effect claimed beyond [0.0,0.49] would be unsupported.",
+      "Delivery: only landmark_00 features were inspected; other landmarks remain unqueried rather than absent, so the temporal picture is incomplete."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002",
+      "H003"
+    ],
+    "rationale": "The Analyst's observed curves describe non-monotone, sign-changing coordinate contrasts: landmark_00_soft_mass rises early then falls late (H001), landmark_00_local_dy shows a transient early negative excursion that decays (H002), and landmark_00_local_cxy oscillates with near-zero whole-window mean (H003). None of these specifies a signed, sustained coordinate direction over the observed support [0.0,0.49], and all continuous_trends rows report polynomial_accepted=false and extrapolation_allowed=false. The registered dose recipes (W1/W2/W3) are time-order interventions on the ratio budget that presuppose a defensible early-vs-late emphasis; the evidence here is transient and oscillatory rather than a monotone early/late contrast, so no offered recipe is justified. Decoded affinity labels are unobserved (equal score prior), so no measured benefit supports a change. Retaining the tested incumbent is the warranted action; a dose study can be reconsidered if a stable, signed temporal profile is independently established.",
+    "role": "Designer"
+  }
+}

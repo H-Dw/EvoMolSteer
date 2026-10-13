@@ -1,0 +1,30 @@
+{
+  "decision": "defer",
+  "edit_choice": null,
+  "evidence_refs": [
+    "Eef4385e476674774",
+    "E11ca33646f5d0576",
+    "E83f52c445b12958b",
+    "Ec78ef81344164b0e",
+    "E2e106e083189d150",
+    "E03ad082bb04f4f9c",
+    "E5d1c4c6e5dbe0cb6",
+    "E1ba2a68ba5243c03",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Affinity: no decoded final affinity labels are present, so any dose edit cannot be shown to improve the primary objective; the observed rate contrasts are association only, not descendant survival or measured benefit.",
+    "Strain/validity: dose redistribution changes the realized flow scale per seed; without realized-dose auditing and safety-cap checks, a dose edit could increase strain or produce invalid structures even if coordinate contrast shifts.",
+    "Reward geometry: W1/W2/W3 preserve the same M2 scalar geometry and do not encode a feature-specific direction, so a dose change may alter timing without moving the intended coordinate response.",
+    "Extrapolation: no polynomial was accepted and extrapolation_allowed=false, so any control applied outside the observed [0.00,0.49] window is unsupported.",
+    "Unobserved features: only landmark_00 features were read; other landmarks remain unqueried rather than absent, so a global coordinate claim is not established."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002",
+    "H003",
+    "H004"
+  ],
+  "rationale": "The Analyst handoff documents genuine time-dependent rate contrasts on landmark_00 features (soft_mass, local_dy, local_cxy, local_cyy) over the observed score-node window [0.00,0.49], each with sign reversals and no accepted polynomial. However, these are changing contrasts, not stationary coordinate targets, and the handoff explicitly states the rate contrasts do not specify an absolute coordinate target or spatial gradient. The registered dose recipes (W1/W2/W3) redistribute the ratio budget across the window but preserve the same M2 scalar geometry and do not encode any feature-specific direction; nothing in the observed curves identifies which time-order of dose is warranted, and no decoded final affinity labels are present to justify a directional dose change. The dose lane also requires realized-dose auditing and per-seed flow-scale checks that are not yet established. Therefore no offered operative change is justified by the current evidence; the tested incumbent is retained pending a decoded-affinity or feature-direction signal.",
+  "role": "Designer"
+}
