@@ -145,13 +145,15 @@ def audit(root):
         if any(m['particles'] != cfg['batch_size'] or m['total_integration_steps'] != cfg['steps'] for m in batches):
             raise ValueError('Target particle/step scope differs: ' + identifier)
         for m in batches:
-            expected = set(m['selection_steps'])
+            expected = set() if cfg.get('arm','single')=='unguided' else set(m['selection_steps'])
             if m['window'] != [cfg['window_start'], cfg['window_end']] or m['state'] != 'complete':
                 raise ValueError('Incomplete or inconsistent scoring window: ' + identifier)
             event_name = next(k for k,v in docs.items() if v is m).replace('learning_manifest.json', 'events.json')
             es = docs[event_name]
             if len(es) != cfg['steps'] or {e['step'] for e in es if e['resampled']} != expected:
                 raise ValueError('Actual resampling schedule differs: ' + identifier)
+            if cfg.get('arm','single')=='unguided' and any(e['eliminated']!=0 or e['unique_roots_before']!=cfg['batch_size'] for e in es):
+                raise ValueError('Unguided event has eliminated particles or lost initial roots: '+identifier)
         for field, native in [('attempted_slots','slots'), ('built_slots','built'), ('unique_built_smiles','unique_built_smiles')]:
             if record['summary'][field] != summary[native]:
                 raise ValueError('Campaign summary differs from native records: ' + identifier)

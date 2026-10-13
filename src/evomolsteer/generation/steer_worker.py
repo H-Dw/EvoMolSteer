@@ -34,7 +34,10 @@ def main():
                 'torch':torch.__version__,'cuda':torch.version.cuda,'hip':torch.version.hip,
                 'device':torch.cuda.get_device_name(0),'evomolsteer_commit':commit,
                 'selection_steps':steps.tolist(),'score_times':grid[steps].tolist(),
-                'selection_window':[cfg.window_start,cfg.window_end],'gradient_guidance':False})
+                'selection_window':[cfg.window_start,cfg.window_end],'gradient_guidance':False,
+                'sampling_mode':'unguided' if tuple(cfg.arms)==('unguided',) else 'selective_smc',
+                'particle_resampling':any(a!='unguided' for a in cfg.arms),
+                'apply_selective_guidance':{a:a!='unguided' for a in cfg.arms}})
     from . import controller
     from .steer_trace import SteerLearningExtension
     sys.argv=['evomolsteer-steer','--root',cfg.output_dataset,'--checkpoint',cfg.checkpoint,

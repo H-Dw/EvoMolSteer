@@ -87,10 +87,20 @@ def _native_proof(root, state, row, record):
         raise ValueError('Unexpected reward gradient in Steer collection')
     if runtime.get('selection_window') != [cfg['window_start'], cfg['window_end']]:
         raise ValueError('Runtime selection window differs from request')
+    if cfg.get('arm','single')=='unguided':
+        if (manifest.get('sampling_mode')!='unguided' or manifest.get('particle_resampling') is not False
+            or runtime.get('sampling_mode')!='unguided' or runtime.get('particle_resampling') is not False
+            or runtime.get('apply_selective_guidance')!={'unguided':False}):
+            raise ValueError('Unguided collection enabled selection or lacks explicit mode evidence')
+        batches=verification.get('batches',[])
+        if (len(batches)!=cfg['samples']//cfg['batch_size'] or
+            any(b.get('arm')!='unguided' or b.get('resampling_events')!=0 for b in batches)):
+            raise ValueError('Unguided collection lacks all-step identity ancestry verification')
     return {'target_id': row['target_id'], 'source': location,
             'attempted_slots': summary['attempted_slots'], 'built_slots': summary['built_slots'],
             'checkpoint_sha256': manifest['checkpoint_sha256'], 'device': runtime['device'],
-            'torch': runtime.get('torch'), 'evomolsteer_commit': runtime.get('evomolsteer_commit')}
+            'torch': runtime.get('torch'), 'evomolsteer_commit': runtime.get('evomolsteer_commit'),
+            'arm':cfg.get('arm','single')}
 
 
 def check_campaign(dataset, *, controller_log=None, pid=None):
@@ -106,7 +116,7 @@ def check_campaign(dataset, *, controller_log=None, pid=None):
                 stat = Path(f'/proc/{pid}/stat').read_text()
                 alive = stat.rsplit(')', 1)[1].split()[0] != 'Z'
                 command = Path(f'/proc/{pid}/cmdline').read_bytes().replace(b'\0', b' ')
-                alive = alive and b'run_steer_targets.py' in command
+                alive = alive and any(name in command for name in (b'run_steer_targets.py',b'run_unguided_targets.py'))
         except (ProcessLookupError, FileNotFoundError):
             alive = False
         report['controller_pid'] = pid

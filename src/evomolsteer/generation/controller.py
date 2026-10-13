@@ -147,11 +147,11 @@ class Trace:
             atomic_json(self.path/'events.json',self.events)
             with gzip.open(self.path/'final_prediction.pt.gz','wb',compresslevel=3) as f: torch.save(cpu_tree(output),f)
 
-def instrument(model,path):
+def instrument(model,path,*,allow_unguided=False):
     path=Path(path);path.mkdir(parents=True,exist_ok=True)
     original_method=model._generate_selective
     source=textwrap.dedent(inspect.getsource(original_method))
-    changed=instrument_source(source)
+    changed=instrument_source(source,allow_unguided=allow_unguided)
     # No graph/fragment inpainting is used, so capture occurs immediately after time update.
     ns=dict(original_method.__func__.__globals__)
     original_guidance=ns['apply_selective_smc_guidance']

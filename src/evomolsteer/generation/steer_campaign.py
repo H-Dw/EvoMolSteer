@@ -41,6 +41,8 @@ class TargetCampaignConfig:
     protein_suffix:str='_pocket10.pdb'
     ligand_suffix:str='.sdf'
     campaign:str='single_w050'
+    arm:str='single'
+    reference_campaign:str|None=None
     samples:int=DEFAULT_STEER_SAMPLES
     batch_size:int=DEFAULT_STEER_BATCH_SIZE
     steps:int=100
@@ -62,6 +64,8 @@ class TargetCampaignConfig:
                     python_executable=str(Path(shutil.which(self.python_executable) or self.python_executable).expanduser().resolve()),
                     target_ids=tuple(self.target_ids))
         if cfg.target_manifest:cfg=replace(cfg,target_manifest=str(Path(cfg.target_manifest).resolve()))
+        if cfg.reference_campaign:cfg=replace(cfg,reference_campaign=str(Path(cfg.reference_campaign).resolve()))
+        if cfg.arm not in ('single','unguided'):raise ValueError('Campaign arm must be single or unguided')
         if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*',cfg.campaign):raise ValueError('One campaign directory name required')
         if cfg.expected_targets is not None and (type(cfg.expected_targets) is not int or cfg.expected_targets<1):
             raise ValueError('expected_targets must be a positive integer')
@@ -85,14 +89,14 @@ def _job_config(cfg,row,output,input_manifest):
     return SteerLearningConfig(flowr_root=cfg.flowr_root,checkpoint=cfg.checkpoint,
         input_dataset=cfg.input_dataset,output_dataset=str(output),input_manifest=str(input_manifest),
         python_executable=cfg.python_executable,campaign=cfg.campaign,samples=cfg.samples,batch_size=cfg.batch_size,
-        steps=cfg.steps,window_start=cfg.window_start,window_end=cfg.window_end,seed=cfg.seed,arms=('single',),
+        steps=cfg.steps,window_start=cfg.window_start,window_end=cfg.window_end,seed=cfg.seed,arms=(cfg.arm,),
         storage_codec=cfg.storage_codec,capture_bond_probabilities=cfg.capture_bond_probabilities)
 
 
 def _result(root,cfg,row=None):
     manifest=read_json(root/'learning_dataset_manifest.json')
     if manifest.get('state')!='complete':raise ValueError('Inner generation dataset is incomplete')
-    verify_dataset(root,cfg.campaign,arms=('single',),samples=cfg.samples)
+    verify_dataset(root,cfg.campaign,arms=(cfg.arm,),samples=cfg.samples)
     validate_input_bundle(root,{'campaign':cfg.campaign})
     if row:
         copied=read_json(root/'inputs/pocket_inputs.json')
@@ -102,7 +106,9 @@ def _result(root,cfg,row=None):
     rows=read_json(root/'results'/cfg.campaign/'final_records.json')
     if len(rows)!=cfg.samples:raise ValueError('Result collector omitted candidate slots')
     summary={'attempted_slots':len(rows),'built_slots':sum(bool(r['build_success']) for r in rows),
-             'failed_slots':sum(not r['build_success'] for r in rows),'objective':'target predicted affinity',
+             'failed_slots':sum(not r['build_success'] for r in rows),
+             'objective':'none; affinity evaluated only' if cfg.arm=='unguided' else 'target predicted affinity',
+             'sampling_mode':cfg.arm,'particle_resampling':cfg.arm!='unguided',
              'off_target_is_target_alias':bool(manifest['off_target_is_target_alias']),
              'unique_built_smiles':len({r.get('smiles') for r in rows if r['build_success'] and r.get('smiles')})}
     import math
@@ -236,9 +242,12 @@ def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flus
         raise ValueError('Invalid seed/storage policy')
     for path in (Path(cfg.checkpoint),Path(cfg.python_executable),Path(cfg.flowr_root)/'flowr/models/fm_pocket.py',Path(cfg.flowr_root)/'flowr/gen/generate_from_pdb_selective.py'):
         if not path.is_file():raise FileNotFoundError(path)
+    from .paired_generation import validate_reference_campaign
+    reference=validate_reference_campaign(cfg,selected)
     plan={'format':FORMAT,'catalog_targets':len(catalog),'selected_targets':len(selected),
           'samples_per_target':cfg.samples,'batch_size':cfg.batch_size,
-          'batches_per_target':cfg.samples//cfg.batch_size,'objective':'target predicted affinity','arms':['single'],
+          'batches_per_target':cfg.samples//cfg.batch_size,'objective':'none; affinity evaluated only' if cfg.arm=='unguided' else 'target predicted affinity','arms':[cfg.arm],
+          'particle_resampling':cfg.arm!='unguided','gradient_guidance':False,'reference_comparison':reference,
           'selection_window':[cfg.window_start,cfg.window_end],'integration_end':1.,'compress':cfg.compress,
           'archive_every_targets':cfg.archive_every,'remove_archived_targets':cfg.compress and cfg.remove_archived_targets,
           'generation_progress':str(root/'generation_progress'),'progress_format':PROGRESS_FORMAT,
@@ -246,6 +255,7 @@ def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flus
           'generator_script':str(script),'first_job_config':asdict(inner),'targets':selected}
     if dry_run:return plan
     root.mkdir(parents=True,exist_ok=True)
+    if reference:atomic_json(root/'reference_comparison.json',reference)
     progress=TargetProgress(root,selected)
     journal=CampaignJournal(root,json.loads(json.dumps(asdict(cfg))),selected,progress,FORMAT)
     archive=TargetArchiveCoordinator(root,cfg,journal,progress)
@@ -282,15 +292,17 @@ def run_campaign(config,*,dry_run=False,max_targets=None,retry_failed=False,flus
     return result
 
 
-def main(argv=None):
+def main(argv=None,*,required_arm=None,default_config=None):
     p=argparse.ArgumentParser(description='Single-target Steer collection; default tar.gz after every ten completed targets')
     profile=p.add_mutually_exclusive_group()
     profile.add_argument('--config',help='Explicit campaign config, replacing the dataset profile')
-    profile.add_argument('--dataset',choices=tuple(DATASET_CONFIGS),default=DEFAULT_DATASET,
+    profile.add_argument('--dataset',choices=tuple(DATASET_CONFIGS),default=None if default_config else DEFAULT_DATASET,
                          help=f'Prepared dataset profile (default {DEFAULT_DATASET})')
     p.add_argument('--flowr-root');p.add_argument('--checkpoint')
     p.add_argument('--input-dataset');p.add_argument('--output-dataset');p.add_argument('--python',dest='python_executable')
     p.add_argument('--target-manifest');p.add_argument('--expected-targets',type=int);p.add_argument('--campaign')
+    p.add_argument('--arm',choices=('single','unguided'))
+    p.add_argument('--reference-campaign',help='Require identical target inputs and inference budget to an existing campaign')
     p.add_argument('--samples',type=int,help=f'Candidate slots per target (default {DEFAULT_STEER_SAMPLES})')
     p.add_argument('--batch-size',type=int,help=f'Competing particles per batch (default {DEFAULT_STEER_BATCH_SIZE})')
     p.add_argument('--steps',type=int);p.add_argument('--seed',type=int)
@@ -303,10 +315,14 @@ def main(argv=None):
     p.add_argument('--retry-failed',action='store_true',help='Deprecated; never bypasses existing error markers')
     p.add_argument('--flush-archives',action='store_true')
     p.add_argument('--dry-run',action='store_true');a=p.parse_args(argv)
-    values=read_json(a.config) if a.config else load_dataset_profile(a.dataset)
+    config_path=a.config or (default_config if a.dataset is None else None)
+    values=read_json(config_path) if config_path else load_dataset_profile(a.dataset)
     run_keys={'config','dataset','dry_run','max_targets','retry_failed','flush_archives'}
     values.update({k:v for k,v in vars(a).items() if k not in run_keys and v is not None})
-    if not a.config:
+    if required_arm:
+        if values.get('arm',required_arm)!=required_arm:p.error('This entry requires arm='+required_arm)
+        values['arm']=required_arm
+    if not config_path:
         try:validate_profile_inputs(a.dataset,values)
         except FileNotFoundError as error:p.error(str(error))
     result=run_campaign(TargetCampaignConfig(**values),dry_run=a.dry_run,max_targets=a.max_targets,

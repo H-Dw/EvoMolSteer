@@ -2,7 +2,7 @@
 import ast
 
 
-def instrument_source(source: str) -> str:
+def instrument_source(source: str, *, allow_unguided: bool = False) -> str:
     """Require unique *contextual* sites; final corrector code is not a step.
 
     Both the integration loop and final prediction use ``torch.no_grad``;
@@ -38,6 +38,13 @@ def instrument_source(source: str) -> str:
         ),
     ]
     changed = source
+    if allow_unguided:
+        guard = "    assert apply_guidance\n"
+        if changed.count(guard) != 1:
+            raise RuntimeError('Unsupported FLOWR unguided entry: expected one selective-only assertion')
+        # Only unlock the native entry; the existing apply_guidance conditional
+        # remains intact, and the caller passes False for an unguided arm.
+        changed = changed.replace(guard, '', 1)
     for old, new in substitutions:
         if changed.count(old) != 1:
             raise RuntimeError("Unsupported FLOWR.ROOT selective loop; nonunique capture site: " + repr(old))

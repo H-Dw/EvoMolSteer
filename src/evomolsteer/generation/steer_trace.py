@@ -96,8 +96,11 @@ class SteerLearningExtension:
         self.model,self.opt,self.out=model,opt,Path(out)
 
     def describe(self):
-        return {'schema_version':'steer-selection-learning-1.0','sampling_mode':'selective_smc',
+        unguided=tuple(self.cfg.arms)==('unguided',)
+        return {'schema_version':'steer-selection-learning-1.0','sampling_mode':'unguided' if unguided else 'selective_smc',
                 'selection_window':[self.opt.window_start,self.opt.window],
+                'window_role':'observation_only' if unguided else 'selection',
+                'particle_resampling':not unguided,
                 'gradient_guidance':False,'post_window_particle_resampling':False,
                 'integration_end':1.0,'archive_container':'directory','storage_codec':self.cfg.storage_codec,
                 'probability_precision':'native source dtype','bond_probability_tensors':self.cfg.capture_bond_probabilities}
@@ -116,7 +119,12 @@ class SteerLearningExtension:
 
     def instrument(self,model,path):
         from .controller import instrument
-        return instrument(model,path)
+        return instrument(model,path,allow_unguided='unguided' in self.cfg.arms)
+
+    def generation_kwargs(self):
+        # In unguided mode the native SMC branch is never entered, rather than
+        # relying only on the historical identity-selection callback.
+        return {'apply_guidance':self.model._lineage.arm!='unguided'}
 
     def make_trace(self,*args,**kwargs):
         import torch

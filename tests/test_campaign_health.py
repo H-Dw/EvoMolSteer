@@ -41,6 +41,22 @@ def test_pending_does_not_claim_gpu_validation(tmp_path):
     assert result['status'] == 'pending' and not result['normal_target_verified']
 
 
+def test_unguided_health_requires_disabled_native_smc_and_verified_identity(tmp_path):
+    root,state,manifest,runtime=fixture(tmp_path)
+    state['config'].update(arm='unguided',batch_size=20)
+    save(root/'campaign_state.json',state)
+    assert check_campaign(root)['status']=='attention'
+    manifest.update(sampling_mode='unguided',particle_resampling=False)
+    manifest['verification']['batches']=[{'arm':'unguided','resampling_events':0} for _ in range(50)]
+    runtime.update(sampling_mode='unguided',particle_resampling=False,apply_selective_guidance={'unguided':False})
+    save(root/'targets/target/learning_dataset_manifest.json',manifest)
+    save(root/'targets/target/results/single_w050/runtime.json',runtime)
+    assert check_campaign(root)['status']=='normal'
+    manifest['verification']['batches'][0]['resampling_events']=1
+    save(root/'targets/target/learning_dataset_manifest.json',manifest)
+    assert check_campaign(root)['status']=='attention'
+
+
 def test_normal_requires_native_completion_and_gpu_provenance(tmp_path):
     root, _, _, _ = fixture(tmp_path)
     result = check_campaign(root)

@@ -59,8 +59,8 @@ class SteerLearningConfig:
             raise ValueError('A uint32 master seed is required')
         if not all(math.isfinite(t) for t in (cfg.window_start,cfg.window_end)) or not 0<=cfg.window_start<=cfg.window_end<1:
             raise ValueError('Selection bounds must satisfy 0 <= start <= end < 1')
-        if not cfg.arms or len(set(cfg.arms))!=len(cfg.arms) or set(cfg.arms)-{'single','joint','unguided'} or not set(cfg.arms)&{'single','joint'}:
-            raise ValueError('At least one Steer arm is required; allowed arms: single,joint,unguided')
+        if not cfg.arms or len(set(cfg.arms))!=len(cfg.arms) or set(cfg.arms)-{'single','joint','unguided'}:
+            raise ValueError('At least one arm is required; allowed arms: single,joint,unguided')
         if cfg.storage_codec not in ('none','gzip_shuffle') or type(cfg.capture_bond_probabilities) is not bool:
             raise ValueError('Invalid storage/probability capture policy')
         for relative in ('flowr/models/fm_pocket.py','flowr/gen/generate_from_pdb_selective.py'):
@@ -131,6 +131,19 @@ def verify_dataset(root,campaign,*,arms=None,samples=None):
             if not (batch/'COMPLETE.json').exists():
                 raise ValueError('Incomplete batch '+str(batch))
             result=verify_learning_batch(batch)
+            metadata=read_json(batch/'learning_manifest.json')['metadata']
+            if metadata.get('arm')!=arm:
+                raise ValueError('Batch mode differs from requested arm')
+            if arm=='unguided':
+                import numpy as np
+                from ..storage.trajectory import TrajectoryPackage
+                with TrajectoryPackage(batch/'lineage/trajectory.h5') as lineage:
+                    ids=lineage.read('selected_indices')
+                    if (np.any(lineage.read('resampled')) or
+                        not np.all(ids==np.arange(result['particles'])[None,:]) or
+                        not np.all(lineage.read('offspring_count')==1)):
+                        raise ValueError('Unguided inference resampled, reordered or duplicated particles')
+                result['resampling_events']=0
             rows=read_json(batch/'final_records.json')
             if len(rows)!=result['particles'] or {r['slot'] for r in rows}!=set(range(result['particles'])):
                 raise ValueError('Final records omitted or duplicated slots')
@@ -148,8 +161,10 @@ def launch(cfg,*,dry_run=False):
     folder=root/'results'/cfg.campaign
     request=folder/'generation_request.json'
     command=[cfg.python_executable,'-u','-m','evomolsteer.generation.steer_worker','--request',str(request)]
+    unguided=tuple(cfg.arms)==('unguided',)
     plan={'config':asdict(cfg),'command':command,'cwd':cfg.flowr_root,'input_roles':{k:str(v) for k,v in roles.items()},
-          'off_target_is_target_alias':duplicate,'mode':'selective_smc','gradient_guidance':False,
+          'off_target_is_target_alias':duplicate,'mode':'unguided' if unguided else 'selective_smc','gradient_guidance':False,
+          'particle_resampling':not unguided,'window_role':'observation_only' if unguided else 'selection',
           'continue_to_time':1.0,'archive_container':'directory','raw_trajectory_npz_created':False,
           'retained':'window candidates + full lineage + native terminal + scores/failures + input/provenance'}
     if root.exists() and any(root.iterdir()):
@@ -183,6 +198,8 @@ def launch(cfg,*,dry_run=False):
                   'checkpoint_sha256':digest(cfg.checkpoint),
                   'flowr_sampler_sha256':digest(Path(cfg.flowr_root)/'flowr/models/fm_pocket.py'),
                   'command':command,'archive_container':'directory','gradient_guidance':False,
+                  'sampling_mode':plan['mode'],'particle_resampling':plan['particle_resampling'],
+                  'window_role':plan['window_role'],
                   'selection_window':[cfg.window_start,cfg.window_end],
                   'restart_capability':'not a restart/RNG archive','window_definition':'inclusive scoring time',
                   'controller_sha256':digest(Path(__file__).with_name('controller.py')),
