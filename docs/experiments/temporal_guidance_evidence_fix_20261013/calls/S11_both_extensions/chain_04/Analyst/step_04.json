@@ -1,0 +1,107 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "The learning window is the score-clock interval [0.0, 0.5] with 50 observed score nodes at 0.01 spacing; the curve support audit reports [0.0, 0.49], so any temporal statement is bounded to this window and no extrapolation is licensed.",
+        "evidence_refs": [
+          "E0857891f4effbfe1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The task objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are therefore proxies, not affinity measurements.",
+        "evidence_refs": [
+          "Eaa4bda02c9a2c3a1"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "The observed landmark_00_local_dy curve over score nodes 0.0-0.49 is non-monotone: it starts near zero, dips to about -1.26 z around node 0.05, rises through a positive excursion near node 0.18, and ends near +0.13 z, with 6 sign changes and 4 strong sign conflicts and no accepted polynomial.",
+        "evidence_refs": [
+          "E11ca33646f5d0576"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "For landmark_00, the continuous-trend table reports no accepted polynomial for any of the ten local features (polynomial_accepted=false throughout), with relative_node_RMSE between roughly 0.29 and 0.87 and multiple sign changes (4 to 10) plus strong sign conflicts (1 to 14) per feature.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03",
+          "E5cf1ecb7c628685b",
+          "E5d1c4c6e5dbe0cb6",
+          "Ec589f2ee99a44490",
+          "E00e41abde0319d86"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Landmark_00 rate contrasts are large and sign-reversing between window ends: e.g. landmark_00_local_dy first_rate_z=-72.37 and last_rate_z=+5.52, landmark_00_local_cxy first_rate_z=+64.83 and last_rate_z=-19.67, landmark_00_local_dx first_rate_z=-17.49 and last_rate_z=+8.11, landmark_00_local_cyy first_rate_z=-36.49 and last_rate_z=+17.14. These are changing contrasts, not an absolute coordinate target.",
+        "evidence_refs": [
+          "E03ad082bb04f4f9c",
+          "E5d1c4c6e5dbe0cb6",
+          "Eace79c1f0f54c9d1",
+          "E1ba2a68ba5243c03"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Whole-window mean z for landmark_00 features is small relative to the endpoint rate z values (e.g. landmark_00_soft_mass whole_window_z=0.64, landmark_00_local_cxx whole_window_z=-0.58, landmark_00_local_cyy whole_window_z=-0.58, landmark_00_local_dy whole_window_z=-0.30), indicating the net displacement over the window is weak even where instantaneous rates are large.",
+        "evidence_refs": [
+          "E2e106e083189d150",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03",
+          "E11ca33646f5d0576"
+        ],
+        "priority": 3
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "test whether early-window observed-forecast relevance and late-window static relevance differ, without reversing the affinity objective",
+        "evidence_refs": [
+          "E11ca33646f5d0576",
+          "E03ad082bb04f4f9c",
+          "E5d1c4c6e5dbe0cb6",
+          "Eace79c1f0f54c9d1",
+          "E1ba2a68ba5243c03"
+        ],
+        "falsifier": "if the landmark_00_local_dy curve is statistically indistinguishable across early and late sub-windows at fixed dose, or if its sign-change count collapses under batch resampling, the stage-dependent relevance hypothesis is not supported",
+        "observable": "landmark_00_local_dy observed curve over score nodes 0.0-0.49, with landmark_00_local_dx/local_cxy/local_cyy as corroborating rate contrasts",
+        "scope": "landmark_00 region, all seeds in the supplied learning window",
+        "statement": "The observed landmark_00_local_dy curve changes direction within the window (early negative excursion, mid-window positive excursion, near-zero close) rather than following a single monotone trend, so a stage-dependent (time-varying) relevance of the endpoint teacher cloud is a plausible object of test at fixed dose, while a single fixed absolute coordinate target is not supported."
+      },
+      {
+        "direction": "prefer gradual change over a reproducible knot",
+        "evidence_refs": [
+          "E11ca33646f5d0576",
+          "E2e106e083189d150",
+          "Eace79c1f0f54c9d1",
+          "E03ad082bb04f4f9c",
+          "E894225fb605458cb",
+          "E5cf1ecb7c628685b",
+          "E5d1c4c6e5dbe0cb6",
+          "Ec589f2ee99a44490",
+          "E00e41abde0319d86",
+          "E598d52f84227fbcc",
+          "E1ba2a68ba5243c03"
+        ],
+        "falsifier": "an independently stable profile with a reproducible knot would contradict the gradual-change default",
+        "observable": "landmark_00_local_dy observed curve plus polynomial_accepted, relative_node_RMSE, sign_changes and strong_sign_conflicts for landmark_00 features",
+        "scope": "landmark_00, full observed window",
+        "statement": "Because the observed landmark_00_local_dy curve is non-monotone with 6 sign changes and no accepted polynomial, and the other landmark_00 features likewise show no accepted polynomial with strong sign conflicts, a smooth gradual blend (no data-derived knot) is the appropriate default rather than a sharp stage boundary."
+      }
+    ],
+    "limitations": [
+      "Stage profiles and temporal profiles are reported unavailable; only continuous curves and summary tables were inspected, so no stage-resolved claim is made.",
+      "Only landmark_00 features were read; other landmarks were not queried and remain unobserved rather than absent.",
+      "Coordinate contrasts are untyped geometric proxies; no energy, strain or chemical-interaction interpretation is attached to them.",
+      "Selection preference and survival are not evidence of final affinity improvement; no decoded final-affinity labels were available in this role input."
+    ],
+    "role": "Analyst"
+  }
+}

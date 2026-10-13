@@ -1,0 +1,23 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "Eef4385e476674774",
+    "E2e106e083189d150",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Affinity is primary: if decoded final affinity does not improve versus the constant-blend and time-order controls at matched realized dose, the staged relevance is not supported even if coordinate contrasts shift.",
+    "Gradient cancellation: the observed-forecast and static components may have opposing endpoint VJPs, so a changed scalar value alone does not prove changed injection; require gradient-direction and delivered-dose checks.",
+    "Dose leakage: reward-scalar multiplication is insufficient under RMS normalization, so realized per-seed dose must be audited to confirm dose_factors=1 was preserved.",
+    "Support violation: any injection beyond the observed score nodes [0.0,0.5] would be extrapolation and invalidates the comparison.",
+    "Validity/strain regression: coordinate similarity alone does not establish improved affinity; strain and structural validity must be reported separately and must not degrade."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "H001 reports a time-dependent contrast in landmark_00_soft_mass whose rate changes sign within the observed window (rise then decline), and H002 confirms no accepted polynomial and large relative node RMSE, so a smooth global trend is unsupported and any staged schedule must be treated as an experimental hypothesis rather than a data-derived knot. The registered reward-route recipe S1_observed_to_static matches this shape: early same-clock historical forecasts smoothly approaching frozen static teachers, with smoothstep interpolation over observed score nodes, no extrapolation, and dose normalized to mean one. This keeps the dose lane and all frozen temperatures/eta untouched, blends scalars on the same native FLOWR endpoint, and is directly contrasted against S2_constant_blend and S3_static_to_observed_control so any benefit is attributable to timing rather than to a changing scalar value.",
+  "role": "Designer"
+}

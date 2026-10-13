@@ -1,0 +1,66 @@
+{
+  "findings": [
+    {
+      "claim": "The learning window and observed score clocks span [0.0, 0.49] with 50 observed score nodes; curve support is [0.0, 0.49], so no extrapolation beyond the observed window is licensed.",
+      "evidence_refs": [
+        "E0857891f4effbfe1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are therefore not themselves the affinity objective.",
+      "evidence_refs": [
+        "Eaa4bda02c9a2c3a1"
+      ],
+      "priority": 1
+    },
+    {
+      "claim": "For landmark_00_local_dx the observed curve is non-monotone: it rises to a mid-window maximum near t~0.11, falls to a minimum near t~0.19, partially recovers, and ends near its starting level (whole-window z ~ -0.18). The trend table reports 6 sign changes and 9 strong sign conflicts, and the quadratic fit is not accepted (relative node RMSE ~0.78), so a single global linear or quadratic direction is not supported.",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "Eace79c1f0f54c9d1"
+      ],
+      "priority": 2
+    },
+    {
+      "claim": "The first-node and last-node rates for landmark_00_local_dx have opposite signs (first_rate_z ~ -17.5, last_rate_z ~ +8.1) with 14 independent batches, indicating a changing local direction rather than a stationary target across the window.",
+      "evidence_refs": [
+        "Eace79c1f0f54c9d1",
+        "E4bbe368c52deda38"
+      ],
+      "priority": 2
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "non-monotone: positive early, negative mid-window, weakly positive late",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "Eace79c1f0f54c9d1"
+      ],
+      "falsifier": "A re-read of the same curve on independent batches showing a monotone trend with no sign change, or an accepted low-RMSE polynomial fit with a single consistent sign of rate.",
+      "observable": "landmark_00_local_dx curve over the observed score nodes",
+      "scope": "global over the observed window [0.0, 0.49]; all seeds",
+      "statement": "Landmark_00_local_dx shows a reproducible early-window rise followed by a mid-window reversal and late-window partial recovery, so a stage-dependent (time-varying) coordinate contrast is a better description than a single fixed endpoint target for this coordinate."
+    },
+    {
+      "direction": "stage-dependent relevance rather than a fixed coordinate direction",
+      "evidence_refs": [
+        "E4bbe368c52deda38",
+        "Eace79c1f0f54c9d1"
+      ],
+      "falsifier": "Evidence that the early and late contrasts share the same sign and magnitude within batch noise, which would make a constant schedule sufficient.",
+      "observable": "landmark_00_local_dx curve and its first/last rate signs",
+      "scope": "global over the observed window; all seeds",
+      "statement": "Because the landmark_00_local_dx contrast changes sign within the window, a constant-blend or single-direction reward on this coordinate would average incompatible early and late contrasts; a staged relevance schedule is the appropriate candidate to test at fixed dose."
+    }
+  ],
+  "limitations": [
+    "Only one coordinate feature (landmark_00_local_dx) was read as an actual curve; the remaining 199 curve features were not inspected, so no claim is made about them.",
+    "Stage profiles and temporal profiles are unavailable; no data-derived knot or stage boundary is supported, and the registered knots remain experimental hypotheses rather than discovered stages.",
+    "The observed curve is a coordinate contrast in predicted endpoint world coordinates; it does not by itself specify an absolute coordinate target, spatial gradient, or any energy/chemical interpretation.",
+    "Selection preference and survival are not measured here; no descendant-survival or final-affinity-improvement claim is made from these coordinate curves.",
+    "Current study quality results are withheld; no performance or improvement claim is made."
+  ],
+  "role": "Analyst"
+}

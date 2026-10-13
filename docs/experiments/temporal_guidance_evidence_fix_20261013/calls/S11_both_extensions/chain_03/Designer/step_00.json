@@ -1,0 +1,26 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "S1_observed_to_static",
+    "evidence_refs": [
+      "Eef4385e476674774",
+      "E2e106e083189d150",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "Affinity: no decoded final affinity labels are available, so any improvement in predicted affinity from S1 cannot be confirmed from this delivery; selection/survival and coordinate contrasts are not affinity evidence.",
+      "Strain/validity: the staged blend changes only scalar reward weighting, but altered guidance could still push samples toward higher-strain or invalid geometries; strain and validity must be reported separately from the affinity readout.",
+      "Gradient cancellation: the observed-to-static blend mixes two scalar rewards whose gradients may oppose, so a changed scalar value does not prove changed injection; require gradient-direction and delivered-dose checks against the constant-blend control.",
+      "Timing attribution: a benefit must be attributable to timing, not merely to blending, so S1 must be compared against S2_constant_blend and the time-order control S3_static_to_observed_control at fixed dose.",
+      "Support: the schedule is normalized over observed score nodes only; any evaluation beyond [0.0,0.49] would be extrapolation and is not licensed.",
+      "Reproducibility: per-landmark temporal direction is not reproducible across batches (high strong_sign_conflicts and relative node RMSE), so the landmark_00_soft_mass shape may not generalize to other landmarks or seeds."
+    ],
+    "hypothesis_refs": [
+      "H001"
+    ],
+    "rationale": "H001 is the only hypothesis with a registered reward-route intervention, and its cited observed curve (curve/landmark_00_soft_mass, Eef4385e476674774) is delivered: the landmark_00_soft_mass contrast rises from about -0.37 z early to a peak near +1.64 z around node 0.16 and then declines to about -0.28 z at the last node, with 4 sign changes and no accepted polynomial (E2e106e083189d150). That non-stationary, rise-then-fall shape within the observed support [0.0,0.49] (E0857891f4effbfe1) is the temporal structure H001 proposes to exploit, so a staged teacher-relevance schedule is justified over the constant blend. S1_observed_to_static is selected because it is the registered recipe that matches H001's stated direction (early same-clock historical forecasts blending toward frozen static teachers) at fixed dose, with delta and dose held at 1 and no extrapolation beyond the observed score nodes. The objective remains final predicted target affinity primary with validity and strain secondary (Eaa4bda02c9a2c3a1); coordinate contrasts are proxies only, so this edit is a reward-shaping test, not an affinity claim. H002 is not selected: it concerns a delta_A curvature change, and the handoff itself states whole-window z values are small and sign conflicts high, so a global delta change is not yet justified.",
+    "role": "Designer"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "accepted": false,
+  "diagnostics": [
+    {
+      "code": "observed_curve_not_read",
+      "next_action": "Choose a relevant feature from curve_feature_names and call get_curve.",
+      "pointer": "/hypotheses",
+      "reason": "No get_curve/get_stage_profile observation was delivered. Existing continuous curves remain available when stage profiles are absent."
+    },
+    {
+      "code": "hypothesis_missing_curve",
+      "next_action": "Read the relevant curve and cite its handle, or remove the unsupported hypothesis.",
+      "pointer": "/hypotheses/0/evidence_refs",
+      "reason": "A temporal hypothesis must cite the observed curve/profile for its observable. Metadata, curve_support audit rows and continuous_trends summaries are insufficient."
+    },
+    {
+      "code": "hypothesis_missing_curve",
+      "next_action": "Read the relevant curve and cite its handle, or remove the unsupported hypothesis.",
+      "pointer": "/hypotheses/1/evidence_refs",
+      "reason": "A temporal hypothesis must cite the observed curve/profile for its observable. Metadata, curve_support audit rows and continuous_trends summaries are insufficient."
+    }
+  ],
+  "instruction": "The answer is valid JSON but scientific source delivery is incomplete. Use a registered tool to read missing evidence, then cite its actual handle in the relevant hypothesis/decision. Do not invent sources or claim a summary is a curve. If evidence does not support an edit, omit unsupported hypotheses or retain/defer.",
+  "policy": "temporal-observed-curves-v2",
+  "remaining_turns": 17
+}

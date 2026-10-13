@@ -1,0 +1,81 @@
+{
+  "findings": [
+    {
+      "claim": "The learning window and observed score clocks span [0.0, 0.49] with 50 evenly spaced score nodes; curve support equals the learning window, so no extrapolation is licensed.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The objective is final predicted target affinity primary, with validity and strain secondary and coordinate control only; coordinate contrasts are therefore proxies, not affinity labels.",
+      "evidence_ids": [
+        "objective"
+      ],
+      "id": "F002",
+      "priority": 1
+    },
+    {
+      "claim": "For landmark_00_soft_mass the observed curve is non-monotone: it rises from a negative early value to a positive mid-window plateau and then declines to a negative late value, with 4 sign changes and 1 strong sign conflict across 14 independent batches; the cubic polynomial is not accepted (relative node RMSE ~0.29).",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 2
+    },
+    {
+      "claim": "The landmark_00_local_dy observed curve starts near zero, drops to a negative trough in the first fifth of the window, partially recovers to a positive local peak near t~0.15-0.18, then drifts negative again before ending slightly positive; it has 6 sign changes and 4 strong sign conflicts across 14 independent batches, and the linear polynomial is not accepted.",
+      "evidence_ids": [
+        "continuous:2",
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 2
+    },
+    {
+      "claim": "Landmark_00 local coordinate features show large early-vs-late rate reversals (e.g. local_dy first_rate_z strongly negative, last_rate_z positive; local_cxy first_rate_z strongly positive, last_rate_z negative) but with many sign changes and strong sign conflicts, so the reversal is not a stable monotone trend.",
+      "evidence_ids": [
+        "continuous:2",
+        "continuous:7",
+        "continuous:1"
+      ],
+      "id": "F005",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "stage-dependent teacher relevance (early observed forecast, later static) rather than a fixed blend",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "falsifier": "If the soft_mass curve is flat or its early/late contrast does not reproduce across independent batches, the staged-relevance hypothesis is not supported.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass (predicted endpoint world-A feature, z-scored)",
+      "scope": "landmark_00, all seeds, observed score nodes 0.0-0.49",
+      "statement": "Landmark_00_soft_mass carries a time-dependent contrast: early score nodes sit below the window mean and late nodes also sit below it, while the mid-window plateau is above it. A staged reward that weights early same-clock historical forecasts and relaxes toward static teachers is consistent with this changing contrast."
+    },
+    {
+      "direction": "retain gradual change; do not reverse the affinity objective on the basis of a sign change",
+      "evidence_ids": [
+        "continuous:2",
+        "curve_support"
+      ],
+      "falsifier": "If a reproducible knot is supported by independently stable profiles, a staged boundary would be justified; otherwise keep gradual change.",
+      "id": "H002",
+      "observable": "landmark_00_local_dy (predicted endpoint world-A feature, z-scored)",
+      "scope": "landmark_00, all seeds, observed score nodes 0.0-0.49",
+      "statement": "The landmark_00_local_dy curve shows a sign-reversing, multi-extremum profile across the window, which is a diagnostic of changing regional direction rather than a stable absolute coordinate target; no absolute coordinate target should be inferred from this rate/contrast curve."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are not available; only continuous curves were read.",
+    "No decoded final affinity labels are present in role input; selection/survival evidence is not final-benefit evidence.",
+    "Coordinate features are untyped proxies; no energy or chemical-interaction interpretation is made.",
+    "Polynomial fits for landmark_00 features are not accepted, so no extrapolation beyond [0.0, 0.49] is licensed."
+  ],
+  "role": "Analyst"
+}

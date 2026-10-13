@@ -1,0 +1,27 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "edit",
+    "edit_choice": "S1_observed_to_static",
+    "evidence_refs": [
+      "E11ca33646f5d0576",
+      "E03ad082bb04f4f9c",
+      "E0857891f4effbfe1",
+      "Eaa4bda02c9a2c3a1"
+    ],
+    "failure_modes": [
+      "Affinity response is not established by this edit: coordinate contrasts are untyped geometric proxies and no decoded final-affinity labels were available, so an unchanged or worsened final predicted affinity would falsify the expected benefit.",
+      "Gradient cancellation between the observed-forecast and static components could leave the scalar reward changed while the delivered injection direction is unchanged; distinguishing this requires gradient-direction and realized-dose checks, since a changing scalar value alone does not prove changed injection.",
+      "The observed curve is non-monotone with 6 sign changes and strong sign conflicts and no accepted polynomial, so the smoothstep phase is a chosen hypothesis, not a discovered stage boundary; if the early/late sub-window contrast is not stable under batch resampling, the timing attribution fails.",
+      "Any benefit must be attributable to timing rather than to the blend itself; if S1 does not separate from S2_constant_blend and S3_static_to_observed_control under the same dose, the temporal claim is unsupported.",
+      "Support is bounded to score nodes [0.0,0.49]; extrapolation beyond the learning window is not licensed and would invalidate the schedule.",
+      "Only landmark_00 features were observed; other landmarks remain unqueried, so the design is not validated across the full coordinate set."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "H001 and H002 both rest on the actual observed landmark_00_local_dy curve (E11ca33646f5d0576) over the supplied score-clock support [0.0,0.49] (E0857891f4effbfe1): the curve is non-monotone with early negative excursion, mid-window positive excursion and near-zero close, and the continuous-trend row (E03ad082bb04f4f9c) reports no accepted polynomial with multiple sign changes and strong sign conflicts. That supports a time-varying relevance of the endpoint teacher cloud at fixed dose, and H002 argues for a smooth gradual blend rather than a data-derived knot. S1_observed_to_static is the registered reward-route recipe that expresses exactly this: early same-clock historical forecasts smoothly approaching frozen static teachers, smoothstep over observed score nodes, no extrapolation, dose normalized to mean one, delta and dose held at 1. S2_constant_blend and S3_static_to_observed_control are retained as the constant-blend and time-order controls for attribution, not as the primary edit. Objective remains final predicted target affinity primary with validity and strain secondary (Eaa4bda02c9a2c3a1); coordinate contrasts are proxies only.",
+    "role": "Designer"
+  }
+}

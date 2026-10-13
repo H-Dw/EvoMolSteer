@@ -1,0 +1,24 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "E4bbe368c52deda38",
+    "E0857891f4effbfe1",
+    "Eace79c1f0f54c9d1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Affinity is primary and is not measured here: no decoded final-affinity labels were observed, so an S1 benefit in the landmark_00_local_dx contrast does not establish improved affinity; affinity must be assessed first and separately from strain and structural validity.",
+    "Gradient cancellation: the observed-forecast and static teacher components can produce opposing endpoint-VJP directions, so a changed scalar reward value alone does not prove changed injection; require gradient-direction and delivered-dose (realized per-seed flow) checks.",
+    "Timing attribution failure: if S1 is statistically indistinguishable from S2_constant_blend and S3_static_to_observed_control on the same score nodes, the benefit is not attributable to timing and the stage-dependent relevance hypothesis is unsupported.",
+    "Support violation: any schedule evaluated outside the observed score-node support [0.0,0.49] or not matched to the exact observed score nodes is extrapolation and invalid.",
+    "Reproducibility failure: the sign-change/rate structure of landmark_00_local_dx must be reproducible across independent batches; if it is not, the non-stationarity premise for H001 fails.",
+    "Proxy misinterpretation: the contrast is a coordinate proxy, not an energy or chemical interaction, and must not be read as an absolute coordinate target or as evidence of a data-derived stage knot (stage/temporal profiles are unavailable)."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "H001 is the only hypothesis that warrants an offered operative change: the observed landmark_00_local_dx curve over the actual score-node support [0.0,0.49] is non-stationary (sign changes and rate reversals, quadratic not accepted), which is a legitimate reason to test a stage-dependent teacher-relevance schedule at fixed dose. S1_observed_to_static implements exactly that registered reward-route recipe (early same-clock historical forecasts blending smoothly toward frozen static teachers, smoothstep over observed score nodes, no extrapolation, dose normalized to mean one), so it is the offered choice that matches H001's direction. H002 explicitly forbids reversing the affinity objective or defining an absolute coordinate target from the contrast, so no delta/curvature change is selected and the affinity objective direction is retained. S2_constant_blend and S3_static_to_observed_control are the required controls, not the tested intervention. Dose policy, temperatures, neighbor count and base eta are held fixed per the contract.",
+  "role": "Designer"
+}

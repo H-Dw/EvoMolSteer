@@ -1,0 +1,23 @@
+{
+  "decision": "edit",
+  "edit_choice": "S1_observed_to_static",
+  "evidence_refs": [
+    "E4bbe368c52deda38",
+    "Eace79c1f0f54c9d1",
+    "E0857891f4effbfe1",
+    "Eaa4bda02c9a2c3a1"
+  ],
+  "failure_modes": [
+    "Gradient cancellation: the observed-forecast and static-teacher component gradients may oppose and cancel, yielding a near-zero net endpoint VJP despite a changing scalar reward; distinguish by checking gradient direction and delivered dose per seed/step, not the scalar value alone.",
+    "Timing not attributable: if S1 does not differ from S2 (constant blend) and S3 (time-order control) in gradient direction or mode coverage, the benefit is not attributable to timing and the edit should be reverted.",
+    "Unsupported extrapolation: the schedule is normalized over observed score nodes only; any use beyond [0.0,0.49] or a data-derived knot would be unsupported since stage/temporal profiles are unavailable and the registered knots remain experimental hypotheses.",
+    "Single-feature basis: only landmark_00_local_dx was read as an actual curve; the other 199 features are unqueried, so no claim is made that this schedule is appropriate for them.",
+    "Affinity not established: coordinate contrast change does not by itself establish improved final predicted affinity; affinity must be assessed first, with strain and structural validity reported separately, and no improvement claim is made here."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "H001/H002 describe a non-monotone landmark_00_local_dx contrast (early rise, mid-window reversal, late partial recovery; opposite first/last rate signs across 14 batches) on the observed curve handle E4bbe368c52deda38, with trend row Eace79c1f0f54c9d1 and clock support E0857891f4effbfe1 confirming the window [0.0,0.49] with no extrapolation. A single fixed endpoint target would average incompatible early and late contrasts, so a staged relevance schedule at fixed dose is the warranted change. S1_observed_to_static is selected because it weights early same-clock historical forecasts (blend 1 at t=0) and smoothly approaches frozen static teachers (blend 0 at t=1), matching the observed early-window signal while decaying to the incumbent static geometry late; dose and delta are held at 1, so the change is confined to the reward route and preserves the frozen temperatures and eta. S2 (constant blend) and S3 (opposite order) are retained as the required constant-blend and time-order controls rather than as the primary edit. Objective Eaa4bda02c9a2c3a1 confirms affinity is primary and coordinate control only, so this edit is a coordinate-relevance schedule, not an affinity claim.",
+  "role": "Designer"
+}

@@ -1,0 +1,196 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/ab448b1745f562d1ce3be1732834700c3316f6cf147f88cf7e1d02dbb6af092d.txt",
+        "content_sha256": "ab448b1745f562d1ce3be1732834700c3316f6cf147f88cf7e1d02dbb6af092d",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/18127f6d46509696f1318337e8e8e6c2fa1f5607d47ce89368a3c5608fba2f26.txt",
+        "content_sha256": "18127f6d46509696f1318337e8e8e6c2fa1f5607d47ce89368a3c5608fba2f26",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "const": "edit"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "enum": [
+                        "S1_observed_to_static",
+                        "S2_constant_blend",
+                        "S3_static_to_observed_control"
+                      ],
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "decision": {
+                      "enum": [
+                        "retain",
+                        "defer"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "edit_choice": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "decision": {
+                "enum": [
+                  "retain",
+                  "defer",
+                  "edit"
+                ]
+              },
+              "edit_choice": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "enum": [
+                      "S1_observed_to_static",
+                      "S2_constant_blend",
+                      "S3_static_to_observed_control"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "evidence_refs": {
+                "items": {
+                  "enum": [
+                    "E00e41abde0319d86",
+                    "E03ad082bb04f4f9c",
+                    "E0857891f4effbfe1",
+                    "E11ca33646f5d0576",
+                    "E1ba2a68ba5243c03",
+                    "E2e106e083189d150",
+                    "E598d52f84227fbcc",
+                    "E5cf1ecb7c628685b",
+                    "E5d1c4c6e5dbe0cb6",
+                    "E894225fb605458cb",
+                    "Eaa4bda02c9a2c3a1",
+                    "Eace79c1f0f54c9d1",
+                    "Ec589f2ee99a44490",
+                    "Eef4385e476674774"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "failure_modes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hypothesis_refs": {
+                "items": {
+                  "enum": [
+                    "H001",
+                    "H002"
+                  ],
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "role": {
+                "const": "Designer"
+              }
+            },
+            "required": [
+              "role",
+              "decision",
+              "edit_choice",
+              "evidence_refs",
+              "hypothesis_refs",
+              "rationale",
+              "failure_modes"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}
