@@ -1,0 +1,24 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "defer",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E4bbe368c52deda38",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "Affinity: no decoded final affinity or survival label is observed in this role input, so any dose edit could not be credited with an affinity gain; the primary objective is unverified.",
+      "Path coverage: if a recipe were applied, the non-monotone landmark_00_local_dx shape means early emphasis (W1/W3) could amplify the early positive excursion while the mid-window trough is under-controlled, or vice versa, without evidence that either improves final affinity.",
+      "Dose delivery: equal time-integrated RMS ratios across W1/W3 do not guarantee equal realized displacement; per-seed flow scale, gradient cancellation, caps and clash backtracking require trace auditing of requested vs delivered dose before any quality interpretation.",
+      "Sign instability: with 6 sign changes and 9 strong sign conflicts across 14 batches, a batch-dependent sign could make any fixed time-order recipe behave oppositely across seeds, so a null or reversed effect would not falsify the recipe cleanly.",
+      "Single-proxy scope: only landmark_00_local_dx was read; other landmarks and soft_mass features are unqueried, so cross-feature consistency of the reversal is unobserved and a different feature could contradict it."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "The delivered curve handle E4bbe368c52deda38 (landmark_00_local_dx over the observed score nodes) supports H001: the contrast is non-monotone with a mid-window reversal, and H002: endpoint rates have opposite signs with 6 sign changes and 9 strong sign conflicts across 14 independent batches, so no single temporal direction is established. The registered dose recipes W1/W2/W3 are time-order interventions that presuppose a directional timing benefit (early vs middle vs late emphasis). Because the observed proxy shows a reversal rather than a stable drift and batch-level sign agreement is weak, none of the offered recipes is justified by this evidence; the incumbent constant dose (dose_factors=1, M2 reward, frozen temperatures) is retained. This is a deferral, not a rejection of the dose lane: a batch-stable sign profile or a cross-feature consistent trend would justify revisiting a registered recipe.",
+    "role": "Designer"
+  }
+}

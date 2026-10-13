@@ -1,0 +1,205 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/00890d40803a00c50d6b470043831626a6ceb2774050101306e3832559f337ea.txt",
+        "content_sha256": "00890d40803a00c50d6b470043831626a6ceb2774050101306e3832559f337ea",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/758ce93125ae3d8a14e5bc003ba252c83c73b898ee8c631fdc2452bac6a24364.txt",
+        "content_sha256": "758ce93125ae3d8a14e5bc003ba252c83c73b898ee8c631fdc2452bac6a24364",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/27b5874883925a570ebd523ad24955ab56d013cceef966fb3f102c10c1205429.txt",
+        "content_sha256": "27b5874883925a570ebd523ad24955ab56d013cceef966fb3f102c10c1205429",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/7136197ff1ede76041f3302c1f3a6b36992ee825a4096fdc270ee774f8e9f144.txt",
+        "content_sha256": "7136197ff1ede76041f3302c1f3a6b36992ee825a4096fdc270ee774f8e9f144",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/3b246bd5274d39670a13fd73006e63f5d6fd03a75ed6698eb790d6683f3a7010.txt",
+        "content_sha256": "3b246bd5274d39670a13fd73006e63f5d6fd03a75ed6698eb790d6683f3a7010",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/dda686fcb570fbdc61ef515bea414b468744c0b288786c3501a05a52caef4e9c.txt",
+        "content_sha256": "dda686fcb570fbdc61ef515bea414b468744c0b288786c3501a05a52caef4e9c",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/31542e8a6daf24032b0b4e8bd500974cbdb0d317250aa9c5d80d811d74359c42.txt",
+        "content_sha256": "31542e8a6daf24032b0b4e8bd500974cbdb0d317250aa9c5d80d811d74359c42",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E894225fb605458cb",
+                          "Eace79c1f0f54c9d1",
+                          "Ec589f2ee99a44490"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E894225fb605458cb",
+                          "Eace79c1f0f54c9d1",
+                          "Ec589f2ee99a44490"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

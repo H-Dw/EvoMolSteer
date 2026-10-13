@@ -1,0 +1,22 @@
+{
+  "decision": "edit",
+  "edit_choice": "W2_middle_peak",
+  "evidence_refs": [
+    "E4bbe368c52deda38",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Affinity loss: final predicted target affinity does not improve or degrades relative to the constant-dose incumbent despite verified dose delivery.",
+    "Path-coverage loss: rare-path coverage or compatible early paths decrease under W2_middle_peak relative to the constant policy and the W3 time-order control.",
+    "Dose-delivery mismatch: realized per-seed dose deviates from the requested smoothstep schedule because of flow-magnitude scaling, gradient cancellation, caps or clash backtracking, so the intended mid-window emphasis is not actually delivered.",
+    "Batch-level inconsistency: H002's 6 sign changes and 9 strong sign conflicts across 14 independent batches mean the pooled mid-window positive contrast may not hold within individual batches, so the recipe could be misaligned for a substantial fraction of seeds.",
+    "Single-feature dependence: only landmark_00_local_dx was read; other landmark coordinate features are unobserved, so cross-feature consistency of the mid-window emphasis is untested.",
+    "No decoded final affinity or descendant survival labels were observed, so any apparent selection preference is association only and cannot be credited as final benefit."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "H001 states the landmark_00_local_dx coordinate contrast is time-varying within the observed window [0.0,0.49]: positive in the middle and negative near the edges, so a fixed-sign coordinate reward is misaligned at some times. The inherited curve handle E4bbe368c52deda38 (curve/landmark_00_local_dx) supports this, with the score-clock support E0857891f4effbfe1 fixing the window and forbidding extrapolation. Among the registered dose recipes, W2_middle_peak (dose [0.5,1.5,0.5] over knots [0,0.5,1]) is the only offered schedule that concentrates guidance in the middle of the window while keeping positive guidance throughout, matching the observed mid-window positive contrast. W1_early_soft and W3_early_strong_control emphasize the edges, where the observed contrast is negative, so they are misaligned with H001. The dose route preserves the M2 scalar geometry (delta, teachers, mixture) and only changes registered dose_factors, so the incumbent coordinate reward and frozen temperatures are retained. H002's uncertainty (6 sign changes, 9 strong sign conflicts across 14 batches) is a reason to test rather than to reject, and is captured in the failure modes.",
+  "role": "Designer"
+}

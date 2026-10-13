@@ -1,0 +1,66 @@
+{
+  "findings": [
+    {
+      "claim": "The landmark_00_local_dx coordinate proxy is non-monotone across the full observed window [0.0,0.49]: it rises to a positive peak near t≈0.10-0.11, reverses to a deep negative trough near t≈0.18-0.20, partially recovers, and ends near its starting level. The whole-window mean z is small (-0.18) while first_rate_z (-17.5) and last_rate_z (+8.1) are large and opposite in sign, so the net window change is small but the within-window contrast is large.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The quadratic polynomial fit is not accepted (polynomial_accepted=false, relative_node_RMSE≈0.78) and the curve shows 6 sign changes with 9 strong sign conflicts across 14 independent batches, so a single smooth global trend is not supported for this coordinate proxy; the observed node-level trajectory is the defensible evidence.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The learning/control support is [0.0,0.5] with 50 observed score nodes at 0.01 spacing, and the curve support audit matches this window; no extrapolation beyond the observed nodes is permitted.",
+      "evidence_ids": [
+        "clocks",
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase early positive excursion",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "No measurable increase in the early positive excursion of landmark_00_local_dx relative to the uniform-dose baseline, or a sign reversal of the early-region contrast.",
+      "id": "H001",
+      "observable": "landmark_00_local_dx curve values over the observed score nodes",
+      "scope": "regional, early window t≈0.0-0.15",
+      "statement": "If guidance dose is redistributed toward the early portion of the observed window (t≈0.0-0.15), the landmark_00_local_dx proxy should show a larger positive excursion in that region than under uniform dose, because the observed curve already peaks positively there before reversing."
+    },
+    {
+      "direction": "increase middle negative excursion",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "No measurable deepening of the middle negative excursion of landmark_00_local_dx relative to the uniform-dose baseline, or a sign reversal of the middle-region contrast.",
+      "id": "H002",
+      "observable": "landmark_00_local_dx curve values over the observed score nodes",
+      "scope": "regional, middle window t≈0.15-0.35",
+      "statement": "If guidance dose is redistributed toward the middle of the observed window (t≈0.15-0.35), the landmark_00_local_dx proxy should show a deeper negative excursion in that region, because the observed curve already troughs negatively there."
+    }
+  ],
+  "limitations": [
+    "Only one coordinate proxy (landmark_00_local_dx) was read; other landmark coordinates and soft_mass features were not queried, so the temporal picture is incomplete.",
+    "Stage profiles and temporal profiles are unavailable; only continuous curves are accessible.",
+    "The polynomial fit is rejected and the curve has multiple sign changes and strong sign conflicts, so no stable global trend or discovered stage boundary can be claimed.",
+    "Selection preference is association only; descendant survival and measured final affinity are not observed in this role input, so no claim about final benefit is made.",
+    "The registered dose recipes (W1/W2/W3) are proposed interventions, not optimal parameters learned from the observed slope."
+  ],
+  "role": "Analyst"
+}
