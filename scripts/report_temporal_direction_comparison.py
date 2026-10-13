@@ -228,6 +228,10 @@ def collect(repo, numerical_config, frozen_report, runners, output, plot=True):
     numerical = pd.DataFrame(rows).sort_values(["stage", "recipe"])
     roles = pd.DataFrame(role_rows)
     chains = pd.DataFrame(chain_rows)
+    eligible = Counter()
+    for condition in config["conditions"]:
+        for recipe in condition["recipes"]:
+            eligible[recipe] += int(roles.loc[roles.condition.eq(condition["id"]), "chains"].iloc[0])
     require(len(cohort_keys) == new_attempts, "Generated sample deduplication failed")
     report = {
         "schema_version": "temporal-direction-comparison-1.0",
@@ -241,6 +245,7 @@ def collect(repo, numerical_config, frozen_report, runners, output, plot=True):
         "complete_role_pairs": len(chain_rows), "complete_role_outputs": 2 * len(chain_rows),
         "majority_or_tiebreak_selected_programs": sorted(set(roles.selected)),
         "all_chain_recipe_counts": dict(sorted(Counter(chains.recipe).items())),
+        "eligible_chain_count_by_recipe": dict(sorted(eligible.items())),
         "teacher_library_audit": teacher_audit,
         "model": "deepseek-flash", "API_temperatures": sorted(api_temperatures),
         "master_seed": config["master_seed"], "steps": config["steps"],
