@@ -1,0 +1,22 @@
+{
+  "decision": "edit",
+  "edit_choice": "W2_middle_peak",
+  "evidence_refs": [
+    "E4bbe368c52deda38",
+    "E0857891f4effbfe1"
+  ],
+  "failure_modes": [
+    "Affinity loss: final predicted target affinity does not improve or degrades relative to the incumbent despite verified dose delivery, indicating the interior coordinate contrast is not affinity-relevant.",
+    "Path coverage loss: rare-path coverage or compatible early paths decrease under W2_middle_peak relative to the constant policy and the W3 time-order control.",
+    "Dose delivery failure: trace checks show requested dose_factors are not delivered (flow magnitude, gradient cancellation, caps, or clash backtracking), so any quality change cannot be attributed to the recipe.",
+    "Falsification of H001: a re-read of landmark_00_local_dx over the same support shows no sign reversal or a batch-stable monotone profile, removing the justification for interior emphasis.",
+    "Falsification of H002: endpoint z becomes comparable in magnitude to the interior excursion, so an endpoint-only reward would suffice and the interior-emphasis edit is unwarranted.",
+    "Structural validity: strain or validity metrics worsen independently of affinity, which would not be rescued by coordinate control alone."
+  ],
+  "hypothesis_refs": [
+    "H001",
+    "H002"
+  ],
+  "rationale": "H001 reports a non-monotone landmark_00_local_dx contrast on the observed support [0.0,0.49]: a positive excursion early (t≈0.05-0.13) and a negative excursion mid-window (t≈0.15-0.25), with the endpoint contrast near zero (H002). The registered dose route preserves the M2 scalar geometry (delta, teachers, mixture, frozen eta) and only changes dose_factors, so the coordinate target and reward family are unchanged. W2_middle_peak concentrates the ratio budget at the mid knot (dose [0.5,1.5,0.5]) where the observed interior excursion is largest, matching the hypothesis that the informative contrast is interior rather than at the endpoint. W1_early_soft and W3_early_strong_control shift budget toward the early/late knots and are the registered time-order controls; W3 in particular emphasizes the early window where the endpoint-only reward is least discriminative. Equal time-integrated ratios do not guarantee equal physical displacement, so realized-dose auditing is required before interpreting quality.",
+  "role": "Designer"
+}

@@ -1,0 +1,59 @@
+{
+  "decision": "edit",
+  "edit": {
+    "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward",
+    "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+    "is_M2": false,
+    "normalization": "dose is normalized over actual score nodes to a mean of one",
+    "numerical_signature": "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9",
+    "parameter": "temporal_recipe",
+    "route": "dose",
+    "schedule": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "dose": [
+        0.35,
+        1,
+        1.65
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "value": "W1_early_soft"
+  },
+  "evidence_ids": [
+    "continuous:0",
+    "curve_support",
+    "continuous:2",
+    "clocks"
+  ],
+  "failure_modes": [
+    "Affinity: final predicted target affinity does not improve or degrades relative to the incumbent despite verified dose delivery; coordinate contrast change without affinity benefit is not sufficient.",
+    "Path coverage: early compatible paths are lost or rare-path coverage drops under early emphasis, since concentrating dose early can starve later nodes.",
+    "Dose delivery: requested vs delivered dose diverges (flow magnitude, gradient cancellation, caps, clash backtracking), so the recipe is not actually executed as compiled; trace checks of requested and delivered dose must pass before interpreting quality.",
+    "Falsifier for H001: no change in first_rate_z/last_rate_z sign pattern for landmark_00_soft_mass, or a new strong sign conflict appears.",
+    "Falsifier for H002: first_rate_z magnitude for landmark_00_local_dy does not decrease, or whole_window_z grows beyond its current small value.",
+    "Structural validity and strain are secondary and must be reported separately; changed chemical graphs are permitted but coordinate similarity alone does not establish improved affinity.",
+    "Evidence limitation: no decoded final affinity or survival labels are present, and polynomial fits were not accepted, so trend shapes are descriptive and not extrapolatable."
+  ],
+  "parameter_origins": {
+    "hypothesis_ids": [
+      "H001",
+      "H002"
+    ],
+    "registered_choice": "W1_early_soft"
+  },
+  "rationale": "Analyst H001 (landmark_00_soft_mass) and H002 (landmark_00_local_dy) both localize the informative coordinate contrast to the early window: soft_mass rises from a negative early level to a positive mid-window plateau before reversing late, and local_dy shows a strongly negative early trough that recovers late. Both are non-monotone with no accepted polynomial, so the evidence supports early-window emphasis rather than a persistent offset or a late-window target. The dose route preserves the incumbent M2 scalar geometry (delta, teachers, mixture, frozen eta) and only changes registered dose_factors, so W1_early_soft (dose [0.35,1,1.65], smoothstep over observed score nodes, mean-one normalization, no extrapolation) is the offered recipe that concentrates control budget on the early compatible paths these hypotheses describe. W3_early_strong_control is the registered opposite time-order control and W2_middle_peak emphasizes the mid-window plateau, which the hypotheses do not target. This is a dose-ratio choice, not a claim of learned optimal parameters; equal time-integrated ratios do not guarantee equal physical displacement, so realized-dose auditing is required.",
+  "role": "Designer"
+}

@@ -1,0 +1,64 @@
+{
+  "findings": [
+    {
+      "claim": "The landmark_00_local_dx coordinate proxy is non-monotone over the full observed support [0.0,0.49]: it rises to a positive peak near the middle of the window, then falls to a negative trough, then partially recovers toward the endpoint. The whole-window mean z is slightly negative (-0.18), so the endpoint value is not representative of the window.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The observed-node linear trend for landmark_00_local_dx is strongly negative at the first node (first_rate_z=-17.49) and strongly positive at the last node (last_rate_z=8.11), with 6 sign changes and 9 strong sign conflicts across 14 independent batches. This is a changing contrast, not a stationary target, and the polynomial fit was not accepted (polynomial_accepted=false, relative_node_RMSE=0.78).",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The score clock is defined over observed score nodes 0.0 to 0.49 with learning window [0.0,0.5] and curve support [0.0,0.49]; recorded affinities were removed and an equal score prior applies, so no decoded final affinity label is available in this evidence.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F003",
+      "priority": 3
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "non-monotone; positive mid-window excursion followed by negative excursion and partial recovery",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "If a re-read of the same curve over the same support shows no sign change in the deviation from the window mean, or if the first/last rate z-scores do not retain opposite signs, the contrast claim fails.",
+      "id": "H001",
+      "observable": "landmark_00_local_dx (predicted endpoint world-A feature, z-scored)",
+      "scope": "global over observed score nodes [0.0,0.49]; no extrapolation",
+      "statement": "A time-dependent coordinate contrast exists for landmark_00_local_dx: the signed deviation from the window mean changes sign within the observed window, so any reward term keyed to this coordinate should be evaluated as a function of score node rather than as a single endpoint target."
+    },
+    {
+      "direction": "opposite-signed rates; no single absolute target implied",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "falsifier": "If an accepted polynomial or stable per-node profile shows a consistent single-signed trend with no strong sign conflicts, the no-stationary-target claim fails.",
+      "id": "H002",
+      "observable": "first_rate_z and last_rate_z of landmark_00_local_dx",
+      "scope": "observed score nodes [0.0,0.49]",
+      "statement": "Because the first-node and last-node rates have opposite signs and the polynomial fit is rejected, a stationary absolute coordinate target for landmark_00_local_dx is not supported by this evidence; only the changing contrast is supported."
+    }
+  ],
+  "limitations": [
+    "Only one coordinate feature (landmark_00_local_dx) was read; the remaining 199 curve features were not queried, so no cross-feature or regional comparison is claimed.",
+    "Stage profiles and temporal profiles are unavailable; no stage boundary or phase knot is inferred from this evidence.",
+    "No decoded final affinity labels are present (recorded affinities removed, equal score prior), so selection preference here is association only and is not evidence of descendant survival or measured final benefit.",
+    "The coordinate proxy is untyped; no energy or chemical-interaction interpretation is attached.",
+    "The polynomial representation was not accepted and relative_node_RMSE is high, so the curve is treated as observed-node evidence only, without extrapolation."
+  ],
+  "role": "Analyst"
+}

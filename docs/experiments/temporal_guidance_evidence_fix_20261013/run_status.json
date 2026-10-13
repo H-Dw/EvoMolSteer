@@ -4,7 +4,16 @@
   "completed_tasks": [],
   "controls_generated_again": false,
   "error_policy": "skip_each_failed_condition_and_continue",
-  "failures": [],
+  "failures": [
+    {
+      "error": "LLM interface validation failed: {\"error_type\": \"JSONDecodeError\", \"line\": 1, \"column\": 2037, \"reason\": \"Expecting ',' delimiter\"}",
+      "error_type": "LLMInterfaceError",
+      "fallback_not_counted_as_success": true,
+      "job": "roles_W10_analyst_extension",
+      "stopped_unix": 1791863398.076504,
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 150, in attempt\n    result = action()\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 234, in <lambda>\n    self.attempt('roles_' + condition['id'], lambda condition=condition: self.role_condition(condition['id']))\n                                                                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 203, in role_condition\n    selection = run_roles(self.repo, self.plan, condition, execute=True)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\temporal_guidance\\workflow.py\", line 265, in run_roles\n    response = run_agent(role, tools, text, role_task, folder / role,\n                         choices=choices if role == \"Designer\" else None, handoff=handoff,\n                         max_steps=config[\"max_steps\"], max_output_tokens=config[\"max_output_tokens\"],\n                         finish_validator=validator, finish_policy=FINISH_POLICY)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\agent_workflow\\engine.py\", line 95, in run_agent\n    action = caller(messages, schema, folder / f\"step_{step:02d}.json\", **kwargs)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\deepseek_api.py\", line 255, in call_json\n    raise LLMInterfaceError(diagnostics, output) from None\nevomolsteer.deepseek_api.LLMInterfaceError: LLM interface validation failed: {\"error_type\": \"JSONDecodeError\", \"line\": 1, \"column\": 2037, \"reason\": \"Expecting ',' delimiter\"}\n"
+    }
+  ],
   "jobs": {
     "control_C1_robust_to_base_screen": {
       "completed_unix": 1791838192.1289837,
@@ -32809,8 +32818,99 @@
       "status": "complete"
     },
     "roles_W00_canonical": {
+      "completed_unix": 1791863366.8052993,
+      "result": {
+        "measurement": {
+          "new_FLOWR_runs": 0,
+          "notice": "本次 Agent 输出未改变执行函数",
+          "reuse_M2": true
+        },
+        "selection": {
+          "counts": {
+            "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6": 1,
+            "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd": 4,
+            "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9": 1
+          },
+          "reuse_M2": true,
+          "rows": [
+            {
+              "chain": 0,
+              "decision": "edit",
+              "program": "docs/experiments/temporal_guidance_evidence_fix_20261013/calls/W00_canonical/chain_00/reward_program.json",
+              "recipe": "W1_early_soft",
+              "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+              "signature": "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9"
+            },
+            {
+              "chain": 1,
+              "decision": "defer",
+              "program": "docs/experiments/temporal_guidance_evidence_fix_20261013/calls/W00_canonical/chain_01/reward_program.json",
+              "recipe": "retain_M2",
+              "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+              "signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+            },
+            {
+              "chain": 2,
+              "decision": "defer",
+              "program": "docs/experiments/temporal_guidance_evidence_fix_20261013/calls/W00_canonical/chain_02/reward_program.json",
+              "recipe": "retain_M2",
+              "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+              "signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+            },
+            {
+              "chain": 3,
+              "decision": "defer",
+              "program": "docs/experiments/temporal_guidance_evidence_fix_20261013/calls/W00_canonical/chain_03/reward_program.json",
+              "recipe": "retain_M2",
+              "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+              "signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+            },
+            {
+              "chain": 4,
+              "decision": "defer",
+              "program": "docs/experiments/temporal_guidance_evidence_fix_20261013/calls/W00_canonical/chain_04/reward_program.json",
+              "recipe": "retain_M2",
+              "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+              "signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+            },
+            {
+              "chain": 5,
+              "decision": "edit",
+              "program": "docs/experiments/temporal_guidance_evidence_fix_20261013/calls/W00_canonical/chain_05/reward_program.json",
+              "recipe": "W2_middle_peak",
+              "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+              "signature": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6"
+            }
+          ],
+          "selected": {
+            "chain": 1,
+            "decision": "defer",
+            "program": "docs/experiments/temporal_guidance_evidence_fix_20261013/calls/W00_canonical/chain_01/reward_program.json",
+            "recipe": "retain_M2",
+            "reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+            "signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd"
+          },
+          "selection": "modal numerical program; M2 tie-break; no outcome selection"
+        }
+      },
       "started_unix": 1791863199.5361362,
+      "status": "complete"
+    },
+    "roles_W01_designer_extension": {
+      "started_unix": 1791863398.137296,
       "status": "running"
+    },
+    "roles_W10_analyst_extension": {
+      "failure": {
+        "error": "LLM interface validation failed: {\"error_type\": \"JSONDecodeError\", \"line\": 1, \"column\": 2037, \"reason\": \"Expecting ',' delimiter\"}",
+        "error_type": "LLMInterfaceError",
+        "fallback_not_counted_as_success": true,
+        "job": "roles_W10_analyst_extension",
+        "stopped_unix": 1791863398.076504,
+        "traceback": "Traceback (most recent call last):\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 150, in attempt\n    result = action()\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 234, in <lambda>\n    self.attempt('roles_' + condition['id'], lambda condition=condition: self.role_condition(condition['id']))\n                                                                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\scripts\\run_temporal_guidance_study.py\", line 203, in role_condition\n    selection = run_roles(self.repo, self.plan, condition, execute=True)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\temporal_guidance\\workflow.py\", line 265, in run_roles\n    response = run_agent(role, tools, text, role_task, folder / role,\n                         choices=choices if role == \"Designer\" else None, handoff=handoff,\n                         max_steps=config[\"max_steps\"], max_output_tokens=config[\"max_output_tokens\"],\n                         finish_validator=validator, finish_policy=FINISH_POLICY)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\agent_workflow\\engine.py\", line 95, in run_agent\n    action = caller(messages, schema, folder / f\"step_{step:02d}.json\", **kwargs)\n  File \"D:\\llm_controlled_generation\\EvoMolSteer\\src\\evomolsteer\\deepseek_api.py\", line 255, in call_json\n    raise LLMInterfaceError(diagnostics, output) from None\nevomolsteer.deepseek_api.LLMInterfaceError: LLM interface validation failed: {\"error_type\": \"JSONDecodeError\", \"line\": 1, \"column\": 2037, \"reason\": \"Expecting ',' delimiter\"}\n"
+      },
+      "started_unix": 1791863366.8634453,
+      "status": "skipped_error"
     }
   },
   "model": "deepseek-flash",
@@ -62831,6 +62931,6 @@
   },
   "started_unix": 1791863192.1876047,
   "status": "running",
-  "task": "roles_W00_canonical",
-  "updated_unix": 1791863199.5361388
+  "task": "roles_W01_designer_extension",
+  "updated_unix": 1791863398.137299
 }

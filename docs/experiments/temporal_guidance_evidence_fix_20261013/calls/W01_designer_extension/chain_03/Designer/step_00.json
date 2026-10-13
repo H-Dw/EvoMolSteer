@@ -1,0 +1,25 @@
+{
+  "action": "finish",
+  "result": {
+    "decision": "defer",
+    "edit_choice": null,
+    "evidence_refs": [
+      "E4bbe368c52deda38",
+      "E0857891f4effbfe1"
+    ],
+    "failure_modes": [
+      "Affinity loss: the deferred incumbent continues to apply uniform dose across the window; if the observed mid-window positive excursion reflects a productive transient that uniform dosing under-samples, final predicted target affinity may not improve and could regress relative to a correctly timed dose.",
+      "Path-coverage loss: because no dose change is made, rare-path coverage is unchanged; if the non-monotone contrast indicates that rare compatible paths are only reachable in a narrow sub-window, deferral leaves that coverage unrealized.",
+      "Single-feature overreach: any edit chosen here would rest on one untyped coordinate proxy (landmark_00_local_dx) out of 200 unqueried features; a dose recipe tuned to it could distort other coordinates and degrade structural validity or strain without any measured affinity benefit.",
+      "Label absence: with recorded affinities removed and an equal score prior, no decoded final affinity label exists, so neither the incumbent nor any edit can be validated for affinity improvement from this evidence; selection preference here is association only.",
+      "Dose-delivery mismatch: even if an edit were chosen, equal time-integrated ratios do not guarantee equal physical displacement, and per-seed flow scales, gradient cancellation, caps, and clash backtracking could cause requested and delivered dose to diverge; without trace checks of realized dose, quality interpretation would be unsupported.",
+      "Falsifier for the deferral: if a re-read of the same curve over the same support shows no sign change in the deviation from the window mean, or if first/last rate z-scores do not retain opposite signs, the contrast motivating any future dose edit fails and the deferral is confirmed as correct."
+    ],
+    "hypothesis_refs": [
+      "H001",
+      "H002"
+    ],
+    "rationale": "The Analyst handoff establishes a genuine time-dependent coordinate contrast for landmark_00_local_dx over the observed score nodes [0.0,0.49]: a non-monotone deviation from the window mean (H001) with opposite-signed first/last node rates and a rejected polynomial fit (H002), so no stationary absolute coordinate target is supported. This is a real temporal contrast, but it is a single untyped coordinate proxy with no decoded affinity labels (recorded affinities removed, equal score prior), and the handoff explicitly limits itself to one of 200 curve features with no stage or temporal profiles. The registered dose recipes (W1_early_soft, W2_middle_peak, W3_early_strong_control) are proposed interventions that redistribute the ratio budget across the window; none of them is derived from, or specifically matched to, the observed sign-changing contrast of this one coordinate. Choosing among them would require assuming that early, middle, or late emphasis is the correct response to a non-monotone contrast, which the evidence does not establish. Because the objective is final predicted target affinity primary with coordinate control only, and no affinity or path-coverage evidence is available to justify a dose redistribution, the tested incumbent (dose_factors=1, M2 reward) is retained rather than edited. This is a deferral of the dose decision pending multi-feature or affinity evidence, not a claim that the contrast is absent.",
+    "role": "Designer"
+  }
+}

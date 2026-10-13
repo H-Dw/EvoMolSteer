@@ -1,0 +1,239 @@
+{
+  "body": {
+    "max_tokens": 8192,
+    "messages": [
+      {
+        "content_relative_path": "inputs/b80a39790bd398902f248d29722ab535133144028086d22e14c7413b2dbc563c.txt",
+        "content_sha256": "b80a39790bd398902f248d29722ab535133144028086d22e14c7413b2dbc563c",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/758ce93125ae3d8a14e5bc003ba252c83c73b898ee8c631fdc2452bac6a24364.txt",
+        "content_sha256": "758ce93125ae3d8a14e5bc003ba252c83c73b898ee8c631fdc2452bac6a24364",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/77e1d1e989ce9fa496d1243e599946760caa33a72f81d0cfd4080443c0861c75.txt",
+        "content_sha256": "77e1d1e989ce9fa496d1243e599946760caa33a72f81d0cfd4080443c0861c75",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/fd14ce6d4fbdb4e2c2a2e753dcc24297605002b0e02b253b9d538935f08d09d1.txt",
+        "content_sha256": "fd14ce6d4fbdb4e2c2a2e753dcc24297605002b0e02b253b9d538935f08d09d1",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/ef0cf22673923713d3f6172951c8a16a1cdf81009d223fa6cc4ae1a78eea4591.txt",
+        "content_sha256": "ef0cf22673923713d3f6172951c8a16a1cdf81009d223fa6cc4ae1a78eea4591",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/ae728ab22d850d8f4649b5e5015d0a34db0e370f2906df736f37d74532c67b59.txt",
+        "content_sha256": "ae728ab22d850d8f4649b5e5015d0a34db0e370f2906df736f37d74532c67b59",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/8c2f9d0781d5cd5c38b49ea05b4d53af994b8691961cf74d2457f15e9bb1aa39.txt",
+        "content_sha256": "8c2f9d0781d5cd5c38b49ea05b4d53af994b8691961cf74d2457f15e9bb1aa39",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/f7f5be644c52b4777163fdccb882d4c48d06f0c985eda6d6dbc54ec3d4db99d3.txt",
+        "content_sha256": "f7f5be644c52b4777163fdccb882d4c48d06f0c985eda6d6dbc54ec3d4db99d3",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/90be409e3d747c4b687dcc80d13613f2e93feb1e2b67c4efdce254c308214b5b.txt",
+        "content_sha256": "90be409e3d747c4b687dcc80d13613f2e93feb1e2b67c4efdce254c308214b5b",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/71e1a0ef13ed72d52338f6c4f75e3c8a4ba12bf1a77aa8487ce287c411fd3ee0.txt",
+        "content_sha256": "71e1a0ef13ed72d52338f6c4f75e3c8a4ba12bf1a77aa8487ce287c411fd3ee0",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/f04d58957e372944d6dd35eff2c884b76e8e3ce4359d1d1ccabdf68400525629.txt",
+        "content_sha256": "f04d58957e372944d6dd35eff2c884b76e8e3ce4359d1d1ccabdf68400525629",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "inputs/79fd0fd4f26b55a882bdf91a10e4776d2e9f772ae8e6bb1028e9c48b741b7258.txt",
+        "content_sha256": "79fd0fd4f26b55a882bdf91a10e4776d2e9f772ae8e6bb1028e9c48b741b7258",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/3327c490b232f526eff2ab90764eeb40e231dd4ed26f5bf2bb0ed0555e95a18b.txt",
+        "content_sha256": "3327c490b232f526eff2ab90764eeb40e231dd4ed26f5bf2bb0ed0555e95a18b",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "evidence-tools-json-v1",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "tool"
+          },
+          "arguments": {
+            "type": "object"
+          },
+          "tool": {
+            "enum": [
+              "get_curve",
+              "get_evidence",
+              "query_evidence",
+              "read_definition",
+              "read_field",
+              "read_metadata"
+            ]
+          }
+        },
+        "required": [
+          "action",
+          "tool",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "finish"
+          },
+          "result": {
+            "additionalProperties": false,
+            "properties": {
+              "findings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "claim": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E11ca33646f5d0576",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E894225fb605458cb",
+                          "Eace79c1f0f54c9d1",
+                          "Ec589f2ee99a44490",
+                          "Eef4385e476674774"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "priority": {
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "claim",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hypotheses": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "direction": {
+                      "type": "string"
+                    },
+                    "evidence_refs": {
+                      "items": {
+                        "enum": [
+                          "E00e41abde0319d86",
+                          "E03ad082bb04f4f9c",
+                          "E0857891f4effbfe1",
+                          "E11ca33646f5d0576",
+                          "E1ba2a68ba5243c03",
+                          "E2e106e083189d150",
+                          "E598d52f84227fbcc",
+                          "E5cf1ecb7c628685b",
+                          "E5d1c4c6e5dbe0cb6",
+                          "E894225fb605458cb",
+                          "Eace79c1f0f54c9d1",
+                          "Ec589f2ee99a44490",
+                          "Eef4385e476674774"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "uniqueItems": true
+                    },
+                    "falsifier": {
+                      "type": "string"
+                    },
+                    "observable": {
+                      "type": "string"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "statement": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statement",
+                    "evidence_refs"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "role": {
+                "const": "Analyst"
+              }
+            },
+            "required": [
+              "role",
+              "findings",
+              "hypotheses",
+              "limitations"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "action",
+          "result"
+        ],
+        "type": "object"
+      }
+    ]
+  }
+}

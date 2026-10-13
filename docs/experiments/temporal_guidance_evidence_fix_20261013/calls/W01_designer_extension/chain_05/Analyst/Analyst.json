@@ -1,0 +1,80 @@
+{
+  "findings": [
+    {
+      "claim": "The landmark_00_soft_mass curve over the full observed support 0.0-0.49 rises from a negative early level (first_z ~ -0.37) to a positive mid-window plateau then declines back to negative late level (last_z ~ -0.28), with 4 sign changes and 1 strong sign conflict; whole-window level z is small (~0.64) and no polynomial was accepted (relative node RMSE ~0.29). This is a non-monotone, sign-reversing contrast, not a stationary target.",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The landmark_00_local_dy curve over 0.0-0.49 starts near zero (first_z ~ 0.09), drops to a strongly negative early trough (values_z near -1.3 around t~0.05), then recovers toward small positive late values (last_z ~ 0.13); it has 6 sign changes and 4 strong sign conflicts, whole-window level z is small (~-0.30), and no polynomial was accepted (relative node RMSE ~0.67). The contrast is dominated by early-window motion, not a persistent offset.",
+      "evidence_ids": [
+        "continuous:2",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "landmark_00_local_dx shows a strong negative early rate (first_rate_z ~ -17.5) reversing to positive late rate (last_rate_z ~ +8.1) with 6 sign changes and 9 strong sign conflicts; whole-window level z is near zero (~-0.18).",
+      "evidence_ids": [
+        "continuous:1"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "landmark_00_local_cxy has the largest early positive rate (first_rate_z ~ +64.8) reversing to negative late rate (last_rate_z ~ -19.7) with 9 sign changes and 14 strong sign conflicts, the most conflicted landmark_00 feature; whole-window level z is small (~0.10).",
+      "evidence_ids": [
+        "continuous:7"
+      ],
+      "id": "F004",
+      "priority": 4
+    },
+    {
+      "claim": "The score clock runs over observed_score_times 0.0-0.49 with learning_window [0.0,0.5] and curve_support [0.0,0.49]; label semantics are 'Recorded affinities removed; equal score prior', so these are selection-time coordinate contrasts, not decoded final affinity or survival outcomes.",
+      "evidence_ids": [
+        "clocks"
+      ],
+      "id": "F005",
+      "priority": 5
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase early-window rate, decrease late-window rate",
+      "evidence_ids": [
+        "continuous:0",
+        "curve_support"
+      ],
+      "falsifier": "No change in first_rate_z/last_rate_z sign pattern, or a new strong sign conflict appears at landmark_00 soft_mass.",
+      "id": "H001",
+      "observable": "landmark_00_soft_mass",
+      "scope": "landmark_00 local region, full observed window 0.0-0.49",
+      "statement": "If landmark_00_soft_mass is controlled toward its early-window positive rate and away from its late-window negative rate, the early-window contrast should be preserved while the late-window reversal is suppressed."
+    },
+    {
+      "direction": "reduce early negative rate magnitude",
+      "evidence_ids": [
+        "continuous:2",
+        "curve_support"
+      ],
+      "falsifier": "first_rate_z magnitude does not decrease, or whole_window_z grows beyond its current small value.",
+      "id": "H002",
+      "observable": "landmark_00_local_dy",
+      "scope": "landmark_00 local region, early window",
+      "statement": "If landmark_00_local_dy is controlled to reduce the magnitude of its early negative rate, the dominant early-window motion contrast should weaken without introducing a persistent whole-window offset."
+    }
+  ],
+  "limitations": [
+    "Stage profiles and temporal profiles are unavailable; only continuous curves and trend tables were read.",
+    "No decoded final affinity or survival labels are present; all evidence is selection-time coordinate contrast, not descendant survival or measured final benefit.",
+    "Polynomial fits were not accepted for landmark_00 features (relative node RMSE 0.29-0.87), so trend shapes are descriptive, not extrapolatable.",
+    "The supplied continuous functions do not specify an absolute coordinate target or spatial gradient; no target is inferred from the rate contrasts.",
+    "Only landmark_00 features were inspected in this turn."
+  ],
+  "role": "Analyst"
+}

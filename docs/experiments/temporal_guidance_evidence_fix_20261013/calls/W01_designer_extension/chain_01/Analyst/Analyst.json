@@ -1,0 +1,91 @@
+{
+  "findings": [
+    {
+      "claim": "The landmark_00_local_dx coordinate proxy is non-monotone over the full observed window [0.0,0.49]: it rises from near zero to a positive peak around t≈0.10-0.11, then falls to a negative trough around t≈0.18-0.20, and returns toward small positive values by t≈0.49.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F001",
+      "priority": 1
+    },
+    {
+      "claim": "The endpoint contrast is weak relative to within-window structure: whole-window z is -0.18 while first-rate z is -17.5 and last-rate z is +8.1, and the quadratic fit is not accepted (polynomial_accepted=false, relative_node_RMSE≈0.78).",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F002",
+      "priority": 2
+    },
+    {
+      "claim": "The curve shows 6 sign changes and 9 strong sign conflicts across 14 independent batches, so the local_dx direction is not stable across batches even though the aggregate shape is reproducible.",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F003",
+      "priority": 3
+    },
+    {
+      "claim": "The learning window and observed score times span [0.0,0.5] with 50 observed score nodes; curve support is [0.0,0.49], so any control must be confined to the observed nodes and must not extrapolate.",
+      "evidence_ids": [
+        "clocks",
+        "continuous:1",
+        "curve_support"
+      ],
+      "id": "F004",
+      "priority": 4
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "increase early dose weight relative to later nodes",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "clocks"
+      ],
+      "falsifier": "If the realized landmark_00_local_dx trajectory over t≈0.0-0.15 does not differ from the M2 baseline beyond batch noise, the early-emphasis hypothesis is not supported.",
+      "id": "H001",
+      "observable": "landmark_00_local_dx",
+      "scope": "early observed score nodes (t≈0.0-0.15)",
+      "statement": "A dose schedule that emphasizes early observed score nodes (e.g. W1_early_soft) would act on the rising phase of landmark_00_local_dx, where the coordinate proxy moves from near zero toward its positive peak near t≈0.10."
+    },
+    {
+      "direction": "increase middle dose weight relative to early and late nodes",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "clocks"
+      ],
+      "falsifier": "If the realized landmark_00_local_dx trajectory over t≈0.15-0.30 does not differ from the M2 baseline beyond batch noise, the middle-emphasis hypothesis is not supported.",
+      "id": "H002",
+      "observable": "landmark_00_local_dx",
+      "scope": "middle observed score nodes (t≈0.15-0.30)",
+      "statement": "A dose schedule that emphasizes middle observed score nodes (e.g. W2_middle_peak) would act near the negative trough of landmark_00_local_dx around t≈0.18-0.20, where the proxy is most negative."
+    },
+    {
+      "direction": "increase late dose weight relative to early nodes",
+      "evidence_ids": [
+        "continuous:1",
+        "curve_support",
+        "clocks"
+      ],
+      "falsifier": "If the realized landmark_00_local_dx trajectory over t≈0.35-0.49 does not differ from the M2 baseline beyond batch noise, the late-emphasis hypothesis is not supported.",
+      "id": "H003",
+      "observable": "landmark_00_local_dx",
+      "scope": "late observed score nodes (t≈0.35-0.49)",
+      "statement": "A late-emphasis schedule (e.g. W3_early_strong_control) would act on the recovery phase of landmark_00_local_dx toward small positive values near t≈0.40-0.49, where the proxy is near zero."
+    }
+  ],
+  "limitations": [
+    "Only one coordinate proxy (landmark_00_local_dx) was read; the remaining 199 curve features were not inspected, so no claim is made about their temporal behavior.",
+    "Stage profiles and temporal profiles are unavailable; all statements rest on continuous curves only.",
+    "The quadratic polynomial fit is not accepted and the curve has 6 sign changes and 9 strong sign conflicts, so the aggregate shape should not be treated as a stable per-batch direction.",
+    "The endpoint contrast (whole-window z=-0.18) is weak; the strong first/last rate z-values describe local slopes, not an absolute coordinate target or spatial gradient.",
+    "No decoded final affinity or survival outcome is available in this role input, so selection preference is not evidence of descendant survival or measured final benefit.",
+    "The coordinate proxy is untyped; no energy or chemical-interaction interpretation is attached."
+  ],
+  "role": "Analyst"
+}
