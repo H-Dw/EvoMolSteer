@@ -5,6 +5,7 @@ from pathlib import Path
 
 from evomolsteer.io import digest, read_json, write_json
 from evomolsteer.temporal_guidance.evidence import analyst_finish, designer_finish, temporal_sources
+from evomolsteer.temporal_guidance.evidence_protocol import PROTOCOL, TemporalEvidenceProtocol
 from evomolsteer.temporal_guidance.policy import program_signature
 from evomolsteer.temporal_guidance.workflow import TemporalEvidenceTools, compile_recipe, sources
 
@@ -28,13 +29,16 @@ def audit(repo, config, condition):
         provenance = read_json(folder / 'Analyst/references.json')
         tools.import_references(provenance)
         wire = read_json(folder / 'Analyst/wire_result.json')
-        if analyst_finish(wire, tools):
+        analyst_guard = TemporalEvidenceProtocol('Analyst').validate if plan.get('evidence_protocol') == PROTOCOL else analyst_finish
+        if analyst_guard(wire, tools):
             raise ValueError('Analyst scientific delivery audit failed')
         source_map = {f'H{i+1:03d}': sorted(temporal_sources(tools, h['evidence_refs']))
                       for i, h in enumerate(wire['hypotheses'])}
         tools.import_references(read_json(folder / 'Designer/references.json'))
         decision = read_json(folder / 'Designer/wire_result.json')
-        if designer_finish(decision, tools, source_map):
+        designer_guard = TemporalEvidenceProtocol('Designer', source_map).validate if plan.get('evidence_protocol') == PROTOCOL else \
+                         lambda r, t: designer_finish(r, t, source_map)
+        if designer_guard(decision, tools):
             raise ValueError('Designer scientific delivery audit failed')
         tools.verify_sources()
         api_calls, feedback = 0, 0

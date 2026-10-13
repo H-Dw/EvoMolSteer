@@ -101,3 +101,19 @@ def test_cross_version_reuse_excludes_failed_roles_and_checks_metric_hash(tmp_pa
     metric.write_text('batch,slot\n0,1\n')
     with pytest.raises(ValueError, match='archived numerical evidence'):
         study.import_completed_results(source)
+
+
+def test_reuse_only_prohibits_new_generation_before_remote_access(tmp_path):
+    import pytest
+    from evomolsteer.io import write_json
+    study = coordinator(tmp_path / 'study')
+    study.repo = tmp_path
+    study.config = {'reuse_only': True, 'prior_seed_mode': 'indexed_batch'}
+    study.state['program_results'] = {}
+    write_json(tmp_path / 'ref.json', {})
+    def no_network(*args, **kwargs):
+        raise AssertionError('Must not reach remote connection')
+    study.ssh = no_network
+    with pytest.raises(ValueError, match='prohibits new FLOWR'):
+        study.infer(tmp_path / 'program.json', 'signature', lane='temporal',
+                    reference_path=tmp_path / 'ref.json', batches=[0, 1])

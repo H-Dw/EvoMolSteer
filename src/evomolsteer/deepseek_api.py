@@ -26,8 +26,13 @@ class LLMInterfaceError(ValueError):
 def validation_diagnostics(error):
     """Report actionable format errors without dumping response instances."""
     if isinstance(error, json.JSONDecodeError):
-        return {"error_type": "JSONDecodeError", "line": error.lineno,
-                "column": error.colno, "reason": error.msg}
+        from evomolsteer.json_syntax import container_diagnostic
+        result = {"error_type": "JSONDecodeError", "line": error.lineno,
+                  "column": error.colno, "reason": error.msg, "character_offset": error.pos}
+        structure = container_diagnostic(error.doc)
+        if structure:
+            result["structure"] = structure
+        return result
     pointer = lambda path: "/" + "/".join(str(v).replace("~", "~0").replace("/", "~1") for v in path) if path else ""
     info = {"error_type": "ValidationError", "instance_pointer": pointer(error.absolute_path),
             "schema_pointer": pointer(error.absolute_schema_path), "validator": error.validator}
@@ -53,6 +58,9 @@ def validation_diagnostics(error):
                 allowed_values_location="supplied source-ID mapping and response_schema source-ID enums")
         else:
             info["allowed_value_or_values"] = values
+    elif error.validator in {"oneOf", "anyOf"}:
+        info["branch_count"] = len(error.validator_value)
+        info["reason"] = "Use one permitted action branch; see child diagnostics and supplied response_schema."
     else:
         info["constraint"] = error.validator_value
         if error.validator=="verbatim_quote":
@@ -112,11 +120,13 @@ def unused_path(output, template):
 def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
               transport=None, attempts=3, sleep=time.sleep, input_store=None, max_output_tokens=8192,
               response_validator=None, response_parser=None, format_policy=FORMAT_POLICY,
-              format_builder=None):
+              format_builder=None, max_format_repairs=1):
     if model != "deepseek-flash":
         raise ValueError("This study requires exactly deepseek-flash; no fallback")
     if attempts < 1:
         raise ValueError("A positive network attempt budget is required")
+    if isinstance(max_format_repairs, bool) or not isinstance(max_format_repairs, int) or not 0 <= max_format_repairs <= 2:
+        raise ValueError("At most two neutral format repairs are allowed")
     if isinstance(max_output_tokens,bool) or not isinstance(max_output_tokens,int) or not 512<=max_output_tokens<=65536:
         raise ValueError("Bounded positive output token budget required")
     output = Path(output)
@@ -193,7 +203,7 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
     endpoint = "https://api.deepseek.com/chat/completions"
     with httpx.Client(timeout=timeout, transport=transport, trust_env=True) as client:
         # Network retries do not consume the one neutral format repair.
-        for interface_attempt in range(2):
+        for interface_attempt in range(max_format_repairs + 1):
             for attempt in range(attempts):
                 try:
                     http_attempts += 1
@@ -248,12 +258,13 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
                 write_json(invalid_path.with_suffix(".receipt.json"), {
                     "provider": "DeepSeek", "returned_model": wire.get("model"),
                     "usage": wire.get("usage"), "provider_request_id": wire.get("id"),
+                    "finish_reason": choice.get("finish_reason"), "max_output_tokens": max_output_tokens,
                     "error_type": type(error).__name__, "diagnostics": diagnostics,
                     "format_policy": format_policy, "http_attempt": http_attempts,
                     "valid": False, "content_sha256": digest(invalid_path)})
-                if interface_attempt:
+                if interface_attempt == max_format_repairs:
                     raise LLMInterfaceError(diagnostics, output) from None
-                body = dict(body, messages=wire_messages + [
+                body = dict(body, messages=body['messages'] + [
                     {"role": "assistant", "content": content},
                     {"role": "user", "content": builder(schema, diagnostics)}])
                 repair_path = unused_path(output, ".repair_{index}.request.json")
@@ -276,6 +287,7 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
                 "interface_repairs": repairs,
                 "started_unix": started, "completed_unix": time.time(),
                 "thinking": "disabled", "backend": "real_api",
+                "finish_reason": choice.get("finish_reason"), "max_output_tokens": max_output_tokens,
             })
             return result
     raise RuntimeError("DeepSeek retry budget exhausted")

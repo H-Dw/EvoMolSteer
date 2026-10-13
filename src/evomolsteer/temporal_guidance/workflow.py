@@ -16,6 +16,7 @@ from ..agent_workflow.sources import EvidenceTools
 from ..io import digest, read_json, write_json
 from .policy import canonical_hash, make_policy, policy_is_identity, program_signature
 from .evidence import FINISH_POLICY, analyst_finish, designer_finish, temporal_sources
+from .evidence_protocol import PROTOCOL, INTERFACE, TemporalEvidenceProtocol
 
 EVIDENCE_FILES = ("packet.json", "index.json", "continuous_functions.json", "observable_definitions.json")
 
@@ -65,8 +66,11 @@ def sources(repo, config):
 
 class TemporalEvidenceTools(EvidenceTools):
     """Optional compact spline profiles; source-bound retrieval, no arbitrary code."""
-    def __init__(self, evidence_dir, profiles=None):
+    def __init__(self, evidence_dir, profiles=None, *, bulk_curves=False):
         super().__init__(evidence_dir)
+        if bulk_curves:
+            self.schemas["get_curves"] = obj({"features": {"type": "array", "minItems": 1,
+                "maxItems": 8, "uniqueItems": True, "items": {"enum": sorted(self.curves["functions"])}}})
         self.profile_path = Path(profiles).resolve() if profiles else None
         if self.profile_path:
             self.profiles = read_json(self.profile_path)
@@ -85,6 +89,9 @@ class TemporalEvidenceTools(EvidenceTools):
         data["profile_warning"] = "Stage profiles are optional. Existing continuous curves are independently available " \
                                   "through get_curve; a missing stage profile does not mean curves are absent."
         return data
+
+    def _get_curves(self, features):
+        return {"records": [self._get_curve(feature) for feature in features]}
 
     def _get_stage_profile(self, feature):
         pointer = "/functions/" + feature.replace("~", "~0").replace("/", "~1")
@@ -165,6 +172,9 @@ def _prompt_choices(config, catalogue):
 def prepare(repo, config):
     """Pure local request preparation; never calls a role, SSH or FLOWR."""
     repo = Path(repo).resolve()
+    protocol = config.get("evidence_protocol", FINISH_POLICY)
+    if protocol not in {FINISH_POLICY, PROTOCOL}:
+        raise ValueError("Unknown temporal evidence protocol")
     artifacts = sources(repo, config)
     out = inside(repo, config["output"])
     evidence = inside(repo, config["evidence"])
@@ -175,7 +185,13 @@ def prepare(repo, config):
                "execution_enabled": config["execution_enabled"], "conditions": {}}
     binding["code_sha256"]["evidence_delivery"] = digest(Path(__file__).with_name("evidence.py"))
     binding["code_sha256"]["agent_engine"] = digest(Path(__file__).parents[1] / "agent_workflow/engine.py")
-    binding["finish_policy"] = FINISH_POLICY
+    binding["finish_policy"] = protocol
+    if protocol == PROTOCOL:
+        binding["code_sha256"].update(
+            evidence_protocol=digest(Path(__file__).with_name("evidence_protocol.py")),
+            json_syntax=digest(Path(__file__).parents[1] / "json_syntax.py"),
+            API=digest(Path(__file__).parents[1] / "deepseek_api.py"),
+            contracts=digest(Path(__file__).parents[1] / "agent_workflow/contracts.py"))
     profiles = inside(repo, config["stage_profiles"]) if config.get("stage_profiles") else None
     if profiles:
         TemporalEvidenceTools(evidence, profiles)
@@ -198,7 +214,7 @@ def prepare(repo, config):
                   "temporal_profiles_available": profiles is not None,
                   "stage_profiles_available": profiles is not None,
                   "curves_available": bool(read_json(evidence / "continuous_functions.json")["functions"]),
-                  "evidence_delivery": {"policy": FINISH_POLICY,
+                  "evidence_delivery": {"policy": protocol,
                       "Analyst": "Read an actual get_curve/get_stage_profile observation before finish. "
                                  "Each temporal hypothesis cites its relevant curve handle; summaries alone are insufficient.",
                       "Designer": "For edit, cite an actual Analyst hypothesis and its inherited curve/profile handle. "
@@ -207,6 +223,13 @@ def prepare(repo, config):
                                     "Assess time-dependent coordinate contrasts on the full supplied support."],
                   "hypotheses_are_not_observed_guidance_effects": True,
                   "no_current_outcomes_in_role_input": True}
+        if protocol == PROTOCOL:
+            shared["evidence_delivery"].update(
+                Analyst="Declare curve_features for every hypothesis; read get_curve/get_curves, then cite "
+                        "a matching delivered handle for every declared feature. Summaries are not curves. "
+                        "Keep unsupported observations in findings/limitations, not actionable hypotheses.",
+                Designer="For each adopted hypothesis and each of its features, cite the actual inherited "
+                         "curve/profile handle. Only registered choices; retaining M2 is allowed.")
         skills = {}
         for role in ["Analyst", "Designer"]:
             text, receipts = render_instructions(repo, config, condition, role)
@@ -249,23 +272,31 @@ def run_roles(repo, config, condition_id, *, execute=False):
     task = read_json(out / "prompts" / condition_id / "task.json")
     profile = inside(repo, config["stage_profiles"]) if config.get("stage_profiles") else None
     rows = []
+    protocol = config.get("evidence_protocol", FINISH_POLICY)
     for chain in range(config["chains"]):
         folder = out / "calls" / condition_id / f"chain_{chain:02d}"
         handoff, references, analyst_curves, hypothesis_sources = None, None, [], {}
         for role in ["Analyst", "Designer"]:
-            tools = TemporalEvidenceTools(inside(repo, config["evidence"]), profile)
+            tools = TemporalEvidenceTools(inside(repo, config["evidence"]), profile, bulk_curves=protocol == PROTOCOL)
             if references is not None:
                 tools.import_references(references)
             text, receipt = render_instructions(repo, config, condition, role)
             role_task = {**task, "role": role, "task_wording": task["task_wordings"][int(chain >= config["chains"] // 2)]}
             if role == "Designer":
                 role_task["hypothesis_temporal_sources"] = hypothesis_sources
-            validator = analyst_finish if role == "Analyst" else \
-                        lambda result, tools: designer_finish(result, tools, hypothesis_sources)
+            protocol_kwargs = {}
+            if protocol == PROTOCOL:
+                delivery = TemporalEvidenceProtocol(role, hypothesis_sources)
+                validator = delivery.validate
+                protocol_kwargs = dict(schema_enricher=delivery.enrich_schema,
+                    evidence_availability=delivery.availability, interface_policy=INTERFACE, max_format_repairs=2)
+            else:
+                validator = analyst_finish if role == "Analyst" else \
+                            lambda result, tools: designer_finish(result, tools, hypothesis_sources)
             response = run_agent(role, tools, text, role_task, folder / role,
                                  choices=choices if role == "Designer" else None, handoff=handoff,
                                  max_steps=config["max_steps"], max_output_tokens=config["max_output_tokens"],
-                                 finish_validator=validator, finish_policy=FINISH_POLICY)
+                                 finish_validator=validator, finish_policy=protocol, **protocol_kwargs)
             if read_json(folder / role / "completed.json")["backend"] != "real_api":
                 raise ValueError("Temporal study requires real API receipts")
             write_json(folder / (role + ".json"), response)
@@ -288,7 +319,7 @@ def run_roles(repo, config, condition_id, *, execute=False):
             cited = set(response["evidence_ids"]) | {i for h in hypotheses for i in h["evidence_ids"]}
             if "curve_support" not in cited and not any(i.startswith("temporal_profile/") for i in cited):
                 raise ValueError("Temporal edit does not cite the curves/profile actually read")
-            if designer_finish(read_json(folder / "Designer/wire_result.json"), tools, hypothesis_sources):
+            if validator(read_json(folder / "Designer/wire_result.json"), tools):
                 raise ValueError("Compiled temporal edit lost its feature-specific hypothesis curve")
             program, reference = compile_recipe(repo, config, name)
         else:
@@ -303,7 +334,7 @@ def run_roles(repo, config, condition_id, *, execute=False):
             "hypothesis_temporal_sources": hypothesis_sources,
             "designer_temporal_sources_cited": sorted(temporal_sources(tools,
                 read_json(folder / "Designer/wire_result.json")["evidence_refs"])),
-            "finish_policy": FINISH_POLICY,
+            "finish_policy": protocol,
             "effective_recipe": name, "numerical_signature": signature,
             "output_changed_execution": signature != task["baseline_signature"],
             "gate": "Source delivery and compiler behavior only; scientific adequacy needs review and generated trace/quality checks",

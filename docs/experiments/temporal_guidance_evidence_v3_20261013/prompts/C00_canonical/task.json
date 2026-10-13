@@ -1,0 +1,189 @@
+{
+  "baseline_signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd",
+  "curves_available": true,
+  "delta_policy": "Only registered curvature conditions may vary delta_A; all temperatures are frozen",
+  "evidence_delivery": {
+    "Analyst": "Declare curve_features for every hypothesis; read get_curve/get_curves, then cite a matching delivered handle for every declared feature. Summaries are not curves. Keep unsupported observations in findings/limitations, not actionable hypotheses.",
+    "Designer": "For each adopted hypothesis and each of its features, cite the actual inherited curve/profile handle. Only registered choices; retaining M2 is allowed.",
+    "policy": "temporal-feature-curves-v3"
+  },
+  "fixed_parameters": {
+    "mixture_temperature": 0.5,
+    "native_rms_ratio": 0.33,
+    "teacher_endpoint_temperature_A2": 4.0,
+    "teacher_neighbors": 4,
+    "teacher_score_beta": 0,
+    "time_ramp_power": 0.0
+  },
+  "hypotheses_are_not_observed_guidance_effects": true,
+  "incumbent": {
+    "coordinate_representation": "predicted_endpoint_world_A",
+    "derivative_path": "flowr_endpoint_vjp",
+    "dose_reference": "predictive_flow",
+    "pointcloud_delta_A": null,
+    "reward_view": "endpoint_pointcloud"
+  },
+  "learning_support": [
+    0.0,
+    0.5
+  ],
+  "no_current_outcomes_in_role_input": true,
+  "objective": "Final predicted target affinity primary; validity and strain secondary; coordinate control only",
+  "observed_score_times": [
+    0.0,
+    0.01,
+    0.02,
+    0.03,
+    0.04,
+    0.05,
+    0.06,
+    0.07,
+    0.08,
+    0.09,
+    0.1,
+    0.11,
+    0.12,
+    0.13,
+    0.14,
+    0.15,
+    0.16,
+    0.17,
+    0.18,
+    0.19,
+    0.2,
+    0.21,
+    0.22,
+    0.23,
+    0.24,
+    0.25,
+    0.26,
+    0.27,
+    0.28,
+    0.29,
+    0.3,
+    0.31,
+    0.32,
+    0.33,
+    0.34,
+    0.35,
+    0.36,
+    0.37,
+    0.38,
+    0.39,
+    0.4,
+    0.41,
+    0.42,
+    0.43,
+    0.44,
+    0.45,
+    0.46,
+    0.47,
+    0.48,
+    0.49
+  ],
+  "registered_choices": {
+    "C1_robust_to_base": {
+      "description": "Earlier robust response to large residuals, then baseline curvature; not a tolerance radius",
+      "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+      "is_M2": false,
+      "normalization": "dose is normalized over actual score nodes to a mean of one",
+      "numerical_signature": "56119afc403de2b5f3f868bbeca88cfcba8053418534cb4d8a2e81ee72b8e449",
+      "parameter": "temporal_recipe",
+      "route": "reward",
+      "schedule": {
+        "blend": [
+          0,
+          0,
+          0
+        ],
+        "delta": [
+          0.5,
+          0.75,
+          1
+        ],
+        "dose": [
+          1,
+          1,
+          1
+        ],
+        "knots": [
+          0,
+          0.5,
+          1
+        ]
+      },
+      "value": "C1_robust_to_base"
+    },
+    "C2_constant_curvature": {
+      "description": "Constant curvature control with the same discrete mean delta; no temperature change",
+      "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+      "is_M2": false,
+      "normalization": "dose is normalized over actual score nodes to a mean of one",
+      "numerical_signature": "572c774209da886ab499880d361e6a1a69abe021b14f713160c638f203e4302d",
+      "parameter": "temporal_recipe",
+      "route": "reward",
+      "schedule": {
+        "blend": [
+          0,
+          0,
+          0
+        ],
+        "delta": [
+          0.75,
+          0.75,
+          0.75
+        ],
+        "dose": [
+          1,
+          1,
+          1
+        ],
+        "knots": [
+          0,
+          0.5,
+          1
+        ]
+      },
+      "value": "C2_constant_curvature"
+    },
+    "C3_base_to_robust_control": {
+      "description": "Opposite curvature timing at fixed dose and fixed teachers",
+      "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation",
+      "is_M2": false,
+      "normalization": "dose is normalized over actual score nodes to a mean of one",
+      "numerical_signature": "20b868bcf02bf9c70267006335cf2d4863af8c9970f300140a9913d98c59ed05",
+      "parameter": "temporal_recipe",
+      "route": "reward",
+      "schedule": {
+        "blend": [
+          0,
+          0,
+          0
+        ],
+        "delta": [
+          1,
+          0.75,
+          0.5
+        ],
+        "dose": [
+          1,
+          1,
+          1
+        ],
+        "knots": [
+          0,
+          0.5,
+          1
+        ]
+      },
+      "value": "C3_base_to_robust_control"
+    }
+  },
+  "route": "reward",
+  "stage_profiles_available": false,
+  "task_wordings": [
+    "Compare temporal coordinate evidence across the complete observed selection window.",
+    "Assess time-dependent coordinate contrasts on the full supplied support."
+  ],
+  "temporal_profiles_available": false
+}

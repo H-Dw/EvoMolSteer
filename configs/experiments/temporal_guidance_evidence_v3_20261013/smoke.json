@@ -1,0 +1,322 @@
+{
+  "base_program": "configs/experiments/steer_dependency_v1/D2_without_trajectory_static.json",
+  "base_skills": {
+    "Analyst": "skills/analyst/SKILL.md",
+    "Designer": "skills/designer/SKILL.md"
+  },
+  "batch_size": 50,
+  "chains": 1,
+  "conditions": [
+    {
+      "extensions": {
+        "Analyst": [],
+        "Designer": []
+      },
+      "id": "C00_canonical",
+      "phase": 3,
+      "recipes": [
+        "C1_robust_to_base",
+        "C2_constant_curvature",
+        "C3_base_to_robust_control"
+      ],
+      "route": "reward"
+    }
+  ],
+  "confirmation_batches": [
+    6376,
+    6377,
+    6378,
+    6379,
+    6380,
+    6381,
+    6382,
+    6383
+  ],
+  "contract": "docs/plans/temporal_guidance_20261013/contracts/temporal_contract.md",
+  "control_manifest": "docs/experiments/m2_tools_full_drop_ablation_20261012/shared_control_bank/manifest.json",
+  "delivery_skills": [
+    "skills/temporal-evidence-delivery-v3/SKILL.md"
+  ],
+  "enabled_conditions": [
+    "C00_canonical"
+  ],
+  "evaluation": {
+    "affinity_noninferiority_margin": 0.02,
+    "diagnostics": [
+      "requested_rms_A",
+      "injection_rms_A",
+      "cumulative_rms_A",
+      "cap_factor",
+      "gradient_norm",
+      "backtracking",
+      "teacher_mode_coverage",
+      "gradient_direction_change",
+      "window_state_compatibility"
+    ],
+    "elite_threshold": 8.258901977539063,
+    "historical_steer_comparison": "independent batches; unequal online budget; do not call it paired",
+    "paired_batch_bootstrap_seed": 42,
+    "primary": "all-attempt final predicted pIC50 plus score coverage and failures",
+    "quality_secondary": [
+      "valid_connected",
+      "pb_fast_pass",
+      "converged_MMFF_relief_per_heavy_median",
+      "converged_MMFF_relief_per_heavy_p90"
+    ],
+    "tails": [
+      "p95",
+      "p99",
+      "elite_valid_fraction_all_attempts"
+    ]
+  },
+  "evidence": "docs/experiments/compact_skills_verification_20261012/evidence",
+  "evidence_protocol": "temporal-feature-curves-v3",
+  "execution_enabled": true,
+  "historical_metrics": "docs/experiments/m2_tools_full_drop_ablation_20261012/evaluation_controls/historical_steer.metrics.parquet",
+  "master_seed": 42,
+  "max_output_tokens": 8192,
+  "max_steps": 20,
+  "mining_inputs": {
+    "max_knots": 2,
+    "method": "whole-window continuous spline; nested leave-one-batch-out; compact profiles only",
+    "minimum_nodes": 6,
+    "moments": "docs/experiments/ck2_affinity_geometry30_20261007/regional_mining_v1/batch_node_moments.parquet",
+    "prior": "docs/experiments/ck2_affinity_geometry30_20261007/regional_mining_v1/region_prior.json"
+  },
+  "output": "docs/experiments/temporal_guidance_evidence_v3_20261013/smoke",
+  "prior_seed_mode": "indexed_batch",
+  "recipes": {
+    "C1_robust_to_base": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        0.5,
+        0.75,
+        1
+      ],
+      "description": "Earlier robust response to large residuals, then baseline curvature; not a tolerance radius",
+      "dose": [
+        1,
+        1,
+        1
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "reward"
+    },
+    "C2_constant_curvature": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        0.75,
+        0.75,
+        0.75
+      ],
+      "description": "Constant curvature control with the same discrete mean delta; no temperature change",
+      "dose": [
+        1,
+        1,
+        1
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "reward"
+    },
+    "C3_base_to_robust_control": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        0.75,
+        0.5
+      ],
+      "description": "Opposite curvature timing at fixed dose and fixed teachers",
+      "dose": [
+        1,
+        1,
+        1
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "reward"
+    },
+    "S1_observed_to_static": {
+      "blend": [
+        1,
+        0.5,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "description": "Early same-clock historical forecasts, smoothly approach frozen static teachers",
+      "dose": [
+        1,
+        1,
+        1
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "reward"
+    },
+    "S2_constant_blend": {
+      "blend": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "description": "Constant blend control; same two sources without staged relevance",
+      "dose": [
+        1,
+        1,
+        1
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "reward"
+    },
+    "S3_static_to_observed_control": {
+      "blend": [
+        0,
+        0.5,
+        1
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "description": "Opposite temporal relevance control at fixed dose",
+      "dose": [
+        1,
+        1,
+        1
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "reward"
+    },
+    "W1_early_soft": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward",
+      "dose": [
+        0.35,
+        1,
+        1.65
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "dose"
+    },
+    "W2_middle_peak": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "description": "Middle emphasis with positive guidance throughout; same M2 reward",
+      "dose": [
+        0.5,
+        1.5,
+        0.5
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "dose"
+    },
+    "W3_early_strong_control": {
+      "blend": [
+        0,
+        0,
+        0
+      ],
+      "delta": [
+        1,
+        1,
+        1
+      ],
+      "description": "Opposite time-order control; equal integral of RMS ratios",
+      "dose": [
+        1.65,
+        1,
+        0.35
+      ],
+      "knots": [
+        0,
+        0.5,
+        1
+      ],
+      "route": "dose"
+    }
+  },
+  "schema_version": "temporal-study-plan-1.1",
+  "screen_batches": [
+    6376,
+    6377,
+    6378,
+    6379
+  ],
+  "source_sha256": {
+    "base_program": "91fd96a203e1d4138378fecb01e11d433cd6d9e7b8455da036a70c713c4999b6",
+    "static_reference": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+    "temporal_reference": "380b60616f830cddf5cc88480efc80e8dec691a0184b34475044ae18d4899acc"
+  },
+  "stage_profiles": null,
+  "static_reference": "configs/experiments/steer_dependency_v1/static.json.gz",
+  "steps": 100,
+  "temporal_reference": "docs/experiments/compact_skills_verification_20261012/evidence/temporal_reference.json.gz"
+}

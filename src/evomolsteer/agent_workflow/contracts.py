@@ -82,8 +82,12 @@ def action_schema(role, known, tools, choices=None, hypotheses=()):
                            "result": final_schema(role, known, choices, hypotheses)})]}
 
 
-def format_contract(schema, diagnostics=None):
-    contract = {"interface_version": POLICY, "json_schema": schema}
+def format_contract(schema, diagnostics=None, *, policy=POLICY):
+    contract = {"interface_version": policy, "json_schema": schema}
+    syntax_instruction = ''
+    if policy != POLICY:
+        contract['syntax_example_only'] = {'failure_modes': ['A first failure condition', 'A second failure condition']}
+        syntax_instruction = 'Close each array with ] and each object with }; failure_modes remains an array, even when empty. '
     if diagnostics is not None:
         contract["format_errors"] = diagnostics
     return ("Return exactly one JSON object matching this JSON schema, with no Markdown or prose. "
@@ -91,6 +95,7 @@ def format_contract(schema, diagnostics=None):
             "Citations are evidence_refs containing ONLY handles delivered in observations. "
             "Do not spell source IDs, add another role's fields, or reproduce numeric arrays. "
             "Optional scientific details remain optional. Unsupported findings may be omitted and limitations stated. "
+            + syntax_instruction +
             "If repairing, change only formatting/references supported by delivered evidence; never guess sources.\n"
             + canonical(contract))
 

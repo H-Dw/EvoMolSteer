@@ -83,8 +83,12 @@ class TemporalStudy(Study):
         bank = read_json(self.repo / self.plan['control_manifest'])
         if binding['control_manifest_sha256'] != digest(self.repo / self.plan['control_manifest']):
             raise ValueError('Cross-version reuse changed the RNG/control bank')
-        for name, sha in bank['generator_sources'].items():
-            if digest(self.repo / name) != sha:
+        drift = {name: {'frozen_sha256': sha, 'current_sha256': digest(self.repo / name)}
+                 for name, sha in bank['generator_sources'].items() if digest(self.repo / name) != sha}
+        if self.config.get('reuse_only') and not self.config.get('reuse_audit'):
+            raise ValueError('Reuse-only mode requires a pinned collection audit')
+        for name in drift:
+            if not self.config.get('reuse_only'):
                 raise ValueError('Changed frozen generator: ' + name)
         source_files = {}
         for result in previous['program_results'].values():
@@ -115,10 +119,26 @@ class TemporalStudy(Study):
         manifest = {'source_study': source.relative_to(self.repo).as_posix(),
                     'source_state_sha256': digest(source / 'run_status.json'),
                     'files': source_files, 'cohorts': len(previous['program_results']),
-                    'old_role_failures_reused': False, 'new_FLOWR_runs_for_identical_programs': 0}
+                    'old_role_failures_reused': False, 'new_FLOWR_runs_for_identical_programs': 0,
+                    'reuse_only': self.config.get('reuse_only', False), 'current_generator_drift': drift,
+                    'generation_provenance': 'Original pinned cohorts retain their original generator binding; '
+                                             'current source drift is permitted only when new inference is prohibited'}
         if self.config.get('reuse_audit'):
             manifest['reuse_audit_sha256'] = self.config['reuse_audit_sha256']
         write_json(self.study / 'reuse_manifest.json', manifest)
+
+    def infer(self, program_path, signature, arms='gradient', lane='screen', *, reference_path=None, batches=None):
+        if self.config.get('reuse_only'):
+            if reference_path is None or batches is None:
+                raise ValueError('Reuse-only temporal inference requires explicit reference and batches')
+            key = signature + ':' + arms + ':' + lane
+            mode = self.config.get('prior_seed_mode', 'legacy_stream')
+            if mode != 'legacy_stream':
+                key += ':' + mode
+            key += ':' + ','.join(map(str, batches)) + ':' + digest(reference_path)
+            if key not in self.state['program_results']:
+                raise ValueError('Reuse-only evidence recovery prohibits new FLOWR inference: ' + key)
+        return super().infer(program_path, signature, arms, lane, reference_path=reference_path, batches=batches)
 
     def remote_command(self, spec):
         c = self.config
@@ -210,7 +230,10 @@ class TemporalStudy(Study):
     def run(self):
         sources(self.repo, self.plan)
         bank = read_json(self.repo / self.plan['control_manifest'])
-        for name, sha in {**bank['files'], **bank['generator_sources']}.items():
+        checked = dict(bank['files'])
+        if not self.config.get('reuse_only'):
+            checked.update(bank['generator_sources'])
+        for name, sha in checked.items():
             if digest(self.repo / name) != sha:
                 raise ValueError('Frozen comparison input changed: ' + name)
         prepare(self.repo, self.plan)

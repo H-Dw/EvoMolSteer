@@ -35,7 +35,7 @@ def extract_result(role, result, tools, choices=None):
         for i, item in enumerate(result["hypotheses"]):
             legacy["hypotheses"].append({"id": f"H{i + 1:03d}", "statement": item["statement"],
                 "evidence_ids": tools.resolve(item["evidence_refs"]),
-                **{k: item[k] for k in ["observable", "direction", "scope", "falsifier"] if k in item}})
+                **{k: item[k] for k in ["observable", "direction", "scope", "falsifier", "curve_features"] if k in item}})
         return legacy
     edit = copy.deepcopy(choices[result["edit_choice"]]) if result["decision"] == "edit" else None
     return {"role": role, "decision": result["decision"], "edit": edit,
@@ -46,7 +46,8 @@ def extract_result(role, result, tools, choices=None):
 
 def run_agent(role, tools, instructions, task, output_dir, *, choices=None, handoff=None,
               max_steps=10, max_output_tokens=4096, max_context_bytes=280000,
-              caller=call_json, transport=None, finish_validator=None, finish_policy=None):
+              caller=call_json, transport=None, finish_validator=None, finish_policy=None,
+              schema_enricher=None, evidence_availability=None, interface_policy=POLICY, max_format_repairs=1):
     """Use JSON actions on stable Chat Completions, not fabricated native tool calls.
 
     The role can issue a single whitelisted operation per turn. Host execution
@@ -57,16 +58,20 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
         raise ValueError("Registered role and bounded step budget required")
     if (finish_validator is None) != (finish_policy is None):
         raise ValueError("A scientific finish validator requires a versioned policy binding")
+    if schema_enricher is not None and finish_policy is None:
+        raise ValueError("A scientific schema requires a versioned finish policy")
     folder = Path(output_dir)
     folder.mkdir(parents=True, exist_ok=True)
     before = tools.provenance()
-    binding = {"interface_version": POLICY, "role": role, "model": "deepseek-flash",
+    binding = {"interface_version": interface_policy, "role": role, "model": "deepseek-flash",
                "instruction_sha256": hashlib.sha256(instructions.encode()).hexdigest(),
                "sources": tools.files, "task": task, "choices": choices, "handoff": handoff,
                "initial_references": before, "max_steps": max_steps,
                "max_output_tokens": max_output_tokens, "max_context_bytes": max_context_bytes}
     if finish_policy is not None:
         binding["finish_policy"] = finish_policy
+    if schema_enricher is not None:
+        binding.update(scientific_schema=True, max_format_repairs=max_format_repairs)
     _persist(folder / "binding.json", binding)
     instructions_path = folder / "instructions.md"
     if instructions_path.exists() and instructions_path.read_text(encoding="utf-8") != instructions:
@@ -78,10 +83,20 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
     messages = [{"role": "system", "content": instructions}, {"role": "user", "content": canonical(initial)}]
     hypothesis_ids = [v["id"] for v in (handoff or {}).get("hypotheses", [])]
     signatures = set()
+    last_gaps, repeated_gaps, diagnostics = None, 0, []
     for step in range(max_steps):
         if len(canonical(messages).encode()) > max_context_bytes:
             raise WorkflowBudgetError("Context budget exhausted; no truncated evidence or synthetic success")
         schema = action_schema(role, tools.known, tools.schemas, choices, hypothesis_ids)
+        if schema_enricher is not None:
+            schema = schema_enricher(schema, tools, stalled=repeated_gaps >= 2, diagnostics=diagnostics)
+        current_messages = messages
+        if evidence_availability is not None:
+            current_messages = messages + [{"role": "user", "content": canonical({
+                "current_evidence_availability": evidence_availability(tools),
+                "repeated_unresolved_finishes": repeated_gaps,
+                "recovery_constraint": "After repeated unchanged evidence gaps, finish hypotheses must use "
+                    "observed features and matching handles. Read missing curves or omit unsupported hypotheses."})}]
 
         def semantic(action):
             if action["action"] == "tool":
@@ -89,10 +104,13 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
 
         kwargs = dict(input_store=folder / "inputs", max_output_tokens=max_output_tokens,
                       response_validator=semantic, response_parser=strict_json,
-                      format_policy=POLICY, format_builder=format_contract)
+                      format_policy=interface_policy,
+                      format_builder=lambda s, d=None: format_contract(s, d, policy=interface_policy))
+        if max_format_repairs != 1:
+            kwargs['max_format_repairs'] = max_format_repairs
         if transport is not None:
             kwargs["transport"] = transport
-        action = caller(messages, schema, folder / f"step_{step:02d}.json", **kwargs)
+        action = caller(current_messages, schema, folder / f"step_{step:02d}.json", **kwargs)
         # Even injected clients and cached responses must pass identical checks.
         validate(action, schema)
         semantic(action)
@@ -100,12 +118,17 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
             tools.verify_sources()
             diagnostics = finish_validator(action["result"], tools) if finish_validator else []
             if diagnostics:
+                gap_key = canonical({'diagnostics': diagnostics, 'known_refs': sorted(tools.known)})
+                repeated_gaps = repeated_gaps + 1 if gap_key == last_gaps else 1
+                last_gaps = gap_key
                 feedback = {"accepted": False, "policy": finish_policy, "diagnostics": diagnostics,
                             "remaining_turns": max_steps - step - 1,
                             "instruction": "The answer is valid JSON but scientific source delivery is incomplete. "
                             "Use a registered tool to read missing evidence, then cite its actual handle in the "
                             "relevant hypothesis/decision. Do not invent sources or claim a summary is a curve. "
                             "If evidence does not support an edit, omit unsupported hypotheses or retain/defer."}
+                if schema_enricher is not None:
+                    feedback['consecutive_unchanged_gaps'] = repeated_gaps
                 _persist(folder / f"step_{step:02d}.finish_rejected.json", feedback)
                 messages.extend([{"role": "assistant", "content": canonical(action)},
                                  {"role": "user", "content": canonical({"finish_feedback": feedback})}])
@@ -117,7 +140,7 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
             receipts = [read_json(folder / f"step_{i:02d}.receipt.json") for i in range(step + 1)
                         if (folder / f"step_{i:02d}.receipt.json").exists()]
             backend = "real_api" if len(receipts) == step + 1 and all(r.get("backend") == "real_api" for r in receipts) else "injected_client"
-            _persist(folder / "completed.json", {"interface_version": POLICY, "role": role, "steps": step + 1,
+            _persist(folder / "completed.json", {"interface_version": interface_policy, "role": role, "steps": step + 1,
                 "binding_sha256": digest(folder / "binding.json"), "response_sha256": digest(folder / f"{role}.json"),
                 "references_sha256": digest(folder / "references.json"), "backend": backend})
             return legacy
