@@ -1,8 +1,10 @@
 """Detached local API/analysis coordinator; serial remote FLOWR, skip failed cases."""
 import argparse
+import copy
 from pathlib import Path
 import shlex
 import time
+import traceback
 
 import numpy as np
 import pandas as pd
@@ -57,6 +59,66 @@ class TemporalStudy(Study):
             raise ValueError('Runner/plan output mismatch')
         self.state.setdefault('jobs', {})
         self.state.setdefault('failures', [])
+        if config.get('reuse_study'):
+            self.import_completed_results(repo / config['reuse_study'])
+
+    def import_completed_results(self, source):
+        """Reuse verified numerical cohorts, never failed roles or obsolete prompts."""
+        source = source.resolve()
+        if not source.is_relative_to(self.repo) or source == self.study:
+            raise ValueError('Reuse source must be a different study inside this repository')
+        previous = read_json(source / 'run_status.json')
+        if previous['status'] not in {'complete', 'complete_with_skipped_errors'}:
+            raise ValueError('Only a finished numerical study is eligible for cross-version reuse')
+        binding = read_json(source / 'binding.json')
+        if self.config.get('reuse_audit'):
+            audit = self.repo / self.config['reuse_audit']
+            if digest(audit) != self.config['reuse_audit_sha256']:
+                raise ValueError('Changed pinned numerical collection audit')
+            for name, sha in read_json(audit)['source_sha256'].items():
+                if digest(self.repo / name) != sha:
+                    raise ValueError('Changed archived numerical evidence: ' + name)
+        if binding['source_sha256'] != self.plan['source_sha256']:
+            raise ValueError('Cross-version reuse changed the frozen scientific sources')
+        bank = read_json(self.repo / self.plan['control_manifest'])
+        if binding['control_manifest_sha256'] != digest(self.repo / self.plan['control_manifest']):
+            raise ValueError('Cross-version reuse changed the RNG/control bank')
+        for name, sha in bank['generator_sources'].items():
+            if digest(self.repo / name) != sha:
+                raise ValueError('Changed frozen generator: ' + name)
+        source_files = {}
+        for result in previous['program_results'].values():
+            path = self.repo / result['outcomes']['gradient']['metrics']
+            frame = pd.read_csv(path)
+            batches = sorted(frame.batch.unique().tolist())
+            verify_attempts(frame, batches, self.plan['batch_size'])
+            verify_initial_states(result, bank['result'], batches)
+            audit_path = source / 'transport_records' / (result['name'] + '.execution_audit.json')
+            if not read_json(audit_path)['passed']:
+                raise ValueError('Reuse cohort failed the original execution audit')
+            source_files[path.relative_to(self.repo).as_posix()] = digest(path)
+            source_files[audit_path.relative_to(self.repo).as_posix()] = digest(audit_path)
+        for job, data in previous['jobs'].items():
+            if data['status'] != 'complete' or not job.startswith(('control_', 'generation_')):
+                continue
+            if job.startswith('control_'):
+                suffix = '_confirmation' if job.endswith('_confirmation') else '_screen'
+                recipe = job[len('control_'):-len(suffix)]
+                if recipe not in self.plan['recipes']:
+                    continue
+                program, _ = compile_recipe(self.repo, self.plan, recipe)
+                if data['result']['result']['effective_signature'] != program_signature(program):
+                    raise ValueError('Reused candidate numerical signature changed: ' + recipe)
+            self.state['jobs'].setdefault(job, copy.deepcopy(data))
+        for key, value in previous['program_results'].items():
+            self.state['program_results'].setdefault(key, copy.deepcopy(value))
+        manifest = {'source_study': source.relative_to(self.repo).as_posix(),
+                    'source_state_sha256': digest(source / 'run_status.json'),
+                    'files': source_files, 'cohorts': len(previous['program_results']),
+                    'old_role_failures_reused': False, 'new_FLOWR_runs_for_identical_programs': 0}
+        if self.config.get('reuse_audit'):
+            manifest['reuse_audit_sha256'] = self.config['reuse_audit_sha256']
+        write_json(self.study / 'reuse_manifest.json', manifest)
 
     def remote_command(self, spec):
         c = self.config
@@ -91,6 +153,7 @@ class TemporalStudy(Study):
             return result
         except Exception as error:
             failure = {'job': job, 'error_type': type(error).__name__, 'error': str(error),
+                       'traceback': traceback.format_exc(),
                        'stopped_unix': time.time(), 'fallback_not_counted_as_success': True}
             self.state['failures'].append(failure)
             self.state['jobs'][job].update(status='skipped_error', failure=failure)

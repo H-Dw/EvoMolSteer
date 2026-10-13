@@ -15,6 +15,7 @@ from ..agent_workflow.engine import run_agent
 from ..agent_workflow.sources import EvidenceTools
 from ..io import digest, read_json, write_json
 from .policy import canonical_hash, make_policy, policy_is_identity, program_signature
+from .evidence import FINISH_POLICY, analyst_finish, designer_finish, temporal_sources
 
 EVIDENCE_FILES = ("packet.json", "index.json", "continuous_functions.json", "observable_definitions.json")
 
@@ -79,7 +80,10 @@ class TemporalEvidenceTools(EvidenceTools):
     def catalogue(self):
         data = super().catalogue()
         data["temporal_profiles_available"] = self.profile_path is not None
-        data["profile_warning"] = "Unqueried is not unavailable. A missing profile is not evidence for a stage boundary."
+        data["stage_profiles_available"] = self.profile_path is not None
+        data["curves_available"] = bool(self.curves["functions"])
+        data["profile_warning"] = "Stage profiles are optional. Existing continuous curves are independently available " \
+                                  "through get_curve; a missing stage profile does not mean curves are absent."
         return data
 
     def _get_stage_profile(self, feature):
@@ -102,6 +106,7 @@ class TemporalEvidenceTools(EvidenceTools):
 def render_instructions(repo, config, condition, role):
     paths = [config["base_skills"][role], *condition["extensions"][role],
              config["contract"], "skills/agent-json-interface/SKILL.md"]
+    paths.extend(config.get("delivery_skills", []))
     return "\n\n".join(inside(repo, p).read_text(encoding="utf-8") for p in paths), {
         p: digest(inside(repo, p)) for p in paths}
 
@@ -147,6 +152,16 @@ def _catalogue(repo, config, condition):
     return result
 
 
+def _prompt_choices(config, catalogue):
+    """Compact registered intervention levels; full numeric tables stay host-side."""
+    return {name: {k: item[k] for k in
+            ["parameter", "value", "route", "description", "numerical_signature", "is_M2"]} |
+            {"schedule": {k: config["recipes"][name][k] for k in ["knots", "dose", "blend", "delta"]},
+             "normalization": "dose is normalized over actual score nodes to a mean of one",
+             "interpolation": "smoothstep; phase is normalized over observed score nodes; no extrapolation"}
+            for name, item in catalogue.items()}
+
+
 def prepare(repo, config):
     """Pure local request preparation; never calls a role, SSH or FLOWR."""
     repo = Path(repo).resolve()
@@ -158,6 +173,9 @@ def prepare(repo, config):
                "control_manifest_sha256": digest(inside(repo, config["control_manifest"])),
                "code_sha256": {"workflow": digest(__file__), "policy": digest(Path(__file__).with_name("policy.py"))},
                "execution_enabled": config["execution_enabled"], "conditions": {}}
+    binding["code_sha256"]["evidence_delivery"] = digest(Path(__file__).with_name("evidence.py"))
+    binding["code_sha256"]["agent_engine"] = digest(Path(__file__).parents[1] / "agent_workflow/engine.py")
+    binding["finish_policy"] = FINISH_POLICY
     profiles = inside(repo, config["stage_profiles"]) if config.get("stage_profiles") else None
     if profiles:
         TemporalEvidenceTools(evidence, profiles)
@@ -169,7 +187,7 @@ def prepare(repo, config):
         shared = {"objective": read_json(evidence / "packet.json")["objective"],
                   "learning_support": artifacts["static_reference"]["window"],
                   "observed_score_times": artifacts["static_reference"]["times"],
-                  "route": condition["route"], "registered_choices": catalogue,
+                  "route": condition["route"], "registered_choices": _prompt_choices(config, catalogue),
                   "fixed_parameters": {k: artifacts["base_program"][k] for k in
                                        ["mixture_temperature", "teacher_endpoint_temperature_A2", "teacher_neighbors",
                                         "teacher_score_beta", "native_rms_ratio", "time_ramp_power"]},
@@ -178,6 +196,13 @@ def prepare(repo, config):
                   "incumbent": {k: artifacts["base_program"].get(k) for k in
                                 ["reward_view", "derivative_path", "coordinate_representation", "pointcloud_delta_A", "dose_reference"]},
                   "temporal_profiles_available": profiles is not None,
+                  "stage_profiles_available": profiles is not None,
+                  "curves_available": bool(read_json(evidence / "continuous_functions.json")["functions"]),
+                  "evidence_delivery": {"policy": FINISH_POLICY,
+                      "Analyst": "Read an actual get_curve/get_stage_profile observation before finish. "
+                                 "Each temporal hypothesis cites its relevant curve handle; summaries alone are insufficient.",
+                      "Designer": "For edit, cite an actual Analyst hypothesis and its inherited curve/profile handle. "
+                                  "If the handoff does not justify a change, retain/defer."},
                   "task_wordings": ["Compare temporal coordinate evidence across the complete observed selection window.",
                                     "Assess time-dependent coordinate contrasts on the full supplied support."],
                   "hypotheses_are_not_observed_guidance_effects": True,
@@ -219,30 +244,38 @@ def run_roles(repo, config, condition_id, *, execute=False):
     repo = Path(repo).resolve()
     prepare(repo, config)
     condition = next(c for c in config["conditions"] if c["id"] == condition_id)
-    choices = _catalogue(repo, config, condition)
+    choices = _prompt_choices(config, _catalogue(repo, config, condition))
     out = inside(repo, config["output"])
     task = read_json(out / "prompts" / condition_id / "task.json")
     profile = inside(repo, config["stage_profiles"]) if config.get("stage_profiles") else None
     rows = []
     for chain in range(config["chains"]):
         folder = out / "calls" / condition_id / f"chain_{chain:02d}"
-        handoff, references, analyst_curves = None, None, []
+        handoff, references, analyst_curves, hypothesis_sources = None, None, [], {}
         for role in ["Analyst", "Designer"]:
             tools = TemporalEvidenceTools(inside(repo, config["evidence"]), profile)
             if references is not None:
                 tools.import_references(references)
             text, receipt = render_instructions(repo, config, condition, role)
             role_task = {**task, "role": role, "task_wording": task["task_wordings"][int(chain >= config["chains"] // 2)]}
+            if role == "Designer":
+                role_task["hypothesis_temporal_sources"] = hypothesis_sources
+            validator = analyst_finish if role == "Analyst" else \
+                        lambda result, tools: designer_finish(result, tools, hypothesis_sources)
             response = run_agent(role, tools, text, role_task, folder / role,
                                  choices=choices if role == "Designer" else None, handoff=handoff,
-                                 max_steps=config["max_steps"], max_output_tokens=config["max_output_tokens"])
+                                 max_steps=config["max_steps"], max_output_tokens=config["max_output_tokens"],
+                                 finish_validator=validator, finish_policy=FINISH_POLICY)
             if read_json(folder / role / "completed.json")["backend"] != "real_api":
                 raise ValueError("Temporal study requires real API receipts")
             write_json(folder / (role + ".json"), response)
             write_json(folder / (role + ".skills.json"), receipt)
             if role == "Analyst":
                 handoff, references = response, tools.provenance()
-                analyst_curves = [v["source_id"] for v in tools.delivered.values() if v["kind"] in {"curve", "stage_profile"}]
+                analyst_curves = sorted(temporal_sources(tools, tools.known))
+                wire = read_json(folder / role / "wire_result.json")
+                hypothesis_sources = {h["id"]: sorted(temporal_sources(tools, w["evidence_refs"]))
+                                      for h, w in zip(handoff["hypotheses"], wire["hypotheses"], strict=True)}
         edit = response.get("edit")
         if response["decision"] == "edit":
             name = edit["value"]
@@ -255,6 +288,8 @@ def run_roles(repo, config, condition_id, *, execute=False):
             cited = set(response["evidence_ids"]) | {i for h in hypotheses for i in h["evidence_ids"]}
             if "curve_support" not in cited and not any(i.startswith("temporal_profile/") for i in cited):
                 raise ValueError("Temporal edit does not cite the curves/profile actually read")
+            if designer_finish(read_json(folder / "Designer/wire_result.json"), tools, hypothesis_sources):
+                raise ValueError("Compiled temporal edit lost its feature-specific hypothesis curve")
             program, reference = compile_recipe(repo, config, name)
         else:
             name = "retain_M2"
@@ -265,6 +300,10 @@ def run_roles(repo, config, condition_id, *, execute=False):
         write_json(program_path, program)
         write_json(folder / "function_audit.json", {
             "analyst_temporal_sources_read": analyst_curves, "analyst_hypotheses": len(handoff.get("hypotheses", [])),
+            "hypothesis_temporal_sources": hypothesis_sources,
+            "designer_temporal_sources_cited": sorted(temporal_sources(tools,
+                read_json(folder / "Designer/wire_result.json")["evidence_refs"])),
+            "finish_policy": FINISH_POLICY,
             "effective_recipe": name, "numerical_signature": signature,
             "output_changed_execution": signature != task["baseline_signature"],
             "gate": "Source delivery and compiler behavior only; scientific adequacy needs review and generated trace/quality checks",

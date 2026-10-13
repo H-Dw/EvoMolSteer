@@ -7,7 +7,12 @@ if (-not $env:DEEPSEEK_API_KEY) {
 if (-not $env:DEEPSEEK_API_KEY) { throw 'DEEPSEEK_API_KEY is required' }
 if (-not $env:MOLSTEER_SCNET_PASSWORD) { throw 'MOLSTEER_SCNET_PASSWORD is required' }
 $env:PYTHONIOENCODING = 'utf-8'
-$taskLogDir = Join-Path $taskRepo 'test/temporal_guidance_transport/background'
+$taskRunner = Get-Content -LiteralPath (Join-Path $taskRepo $Config) -Raw | ConvertFrom-Json
+$taskLogRelative = if ($taskRunner.background_log_dir) { $taskRunner.background_log_dir } else { 'test/temporal_guidance_transport/background' }
+$taskLogDir = [IO.Path]::GetFullPath((Join-Path $taskRepo $taskLogRelative))
+if (-not $taskLogDir.StartsWith($taskRepo + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Background logs must stay inside the repository'
+}
 New-Item -ItemType Directory -Force $taskLogDir | Out-Null
 $taskPidPath = Join-Path $taskLogDir 'background.pid'
 if (Test-Path -LiteralPath $taskPidPath) {

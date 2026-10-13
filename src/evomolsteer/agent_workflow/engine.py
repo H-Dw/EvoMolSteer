@@ -46,7 +46,7 @@ def extract_result(role, result, tools, choices=None):
 
 def run_agent(role, tools, instructions, task, output_dir, *, choices=None, handoff=None,
               max_steps=10, max_output_tokens=4096, max_context_bytes=280000,
-              caller=call_json, transport=None):
+              caller=call_json, transport=None, finish_validator=None, finish_policy=None):
     """Use JSON actions on stable Chat Completions, not fabricated native tool calls.
 
     The role can issue a single whitelisted operation per turn. Host execution
@@ -55,6 +55,8 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
     """
     if role not in {"Analyst", "Designer"} or not 1 <= max_steps <= 30:
         raise ValueError("Registered role and bounded step budget required")
+    if (finish_validator is None) != (finish_policy is None):
+        raise ValueError("A scientific finish validator requires a versioned policy binding")
     folder = Path(output_dir)
     folder.mkdir(parents=True, exist_ok=True)
     before = tools.provenance()
@@ -63,6 +65,8 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
                "sources": tools.files, "task": task, "choices": choices, "handoff": handoff,
                "initial_references": before, "max_steps": max_steps,
                "max_output_tokens": max_output_tokens, "max_context_bytes": max_context_bytes}
+    if finish_policy is not None:
+        binding["finish_policy"] = finish_policy
     _persist(folder / "binding.json", binding)
     instructions_path = folder / "instructions.md"
     if instructions_path.exists() and instructions_path.read_text(encoding="utf-8") != instructions:
@@ -94,6 +98,18 @@ def run_agent(role, tools, instructions, task, output_dir, *, choices=None, hand
         semantic(action)
         if action["action"] == "finish":
             tools.verify_sources()
+            diagnostics = finish_validator(action["result"], tools) if finish_validator else []
+            if diagnostics:
+                feedback = {"accepted": False, "policy": finish_policy, "diagnostics": diagnostics,
+                            "remaining_turns": max_steps - step - 1,
+                            "instruction": "The answer is valid JSON but scientific source delivery is incomplete. "
+                            "Use a registered tool to read missing evidence, then cite its actual handle in the "
+                            "relevant hypothesis/decision. Do not invent sources or claim a summary is a curve. "
+                            "If evidence does not support an edit, omit unsupported hypotheses or retain/defer."}
+                _persist(folder / f"step_{step:02d}.finish_rejected.json", feedback)
+                messages.extend([{"role": "assistant", "content": canonical(action)},
+                                 {"role": "user", "content": canonical({"finish_feedback": feedback})}])
+                continue
             legacy = extract_result(role, action["result"], tools, choices)
             _persist(folder / "wire_result.json", action["result"])
             _persist(folder / f"{role}.json", legacy)
