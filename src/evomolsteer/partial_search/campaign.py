@@ -51,10 +51,11 @@ def prepare_round(repo,master,number,state):
         pilot_initial_batch=0 if number<20 else 1,include_unguided=False,allow_importance=13<=number<=18,
         remote_output=f"{master['remote_campaign']}/{label}",strategy=strategy)
     cfg['quantitative_decision']=number>=3
+    if number==4:cfg['required_selected_count']=len(read_json(repo/master['campaign_study']/'evidence.json')['terminal_coords_A'])-1
     feedback={'strategy':strategy,'scientific_intervention':instruction,'best_checkpoint':state.get('best'),
         'baseline':state.get('baseline'),'history':state.get('rounds',[]),
         'previous_small_pilot':'Three-point matching improved half-state loss but not final affinity; whole-cloud from zero improved mean in a small pilot, with wide uncertainty.',
-        'selection_objective':'Mean of top 5 qualified final predictions; separately report mean of all attempts, best valid score and failures',
+        'selection_objective':'Highest qualified final prediction; separately report top-five mean, mean of all attempts and failures',
         'target_reference_pic50':8.704806,'same_random_seed':42}
     if number>=19:
         if state['best_round']=='baseline':
@@ -110,13 +111,15 @@ def compact_output(generated,output):
 def update_state(state,label,metrics,master,commit):
     eligible=[m for m in metrics if m['top5_qualified_mean_pic50'] is not None]
     if not eligible:raise ValueError('No condition has five qualified final molecules')
-    best=max(eligible,key=lambda m:(m['top5_qualified_mean_pic50'],m['mean_all_pic50']))
-    reference=state['best']['top5_qualified_mean_pic50'];delta=best['top5_qualified_mean_pic50']-reference
+    metric=master.get('performance_metric','top5_qualified_mean_pic50')
+    best=max(eligible,key=lambda m:(m[metric],m['top5_qualified_mean_pic50'],m['mean_all_pic50']))
+    reference=state['best'][metric];delta=best[metric]-reference
     improved=delta>master['decline_tolerance_pic50'];declined=delta<-master['decline_tolerance_pic50']
     state['decline_streak']=state.get('decline_streak',0)+1 if declined else 0
     if improved:state.update(best=best,best_round=label,best_commit=commit,decline_streak=0)
     rollback=state['decline_streak']>=master['rollback_declines']
     entry={'round':label,'commit':commit,'best_this_round':best,'delta_tail_vs_best':delta,'improved':improved,
+        'performance_metric':metric,
         'declined':declined,'rollback_required':rollback,'restored_round':state['best_round'] if rollback else None,'conditions':metrics}
     state['rounds'].append(entry)
     if rollback:state['decline_streak']=0

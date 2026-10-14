@@ -108,12 +108,12 @@ def analyze(repo,cfg,feedback,caller=call_json):
         if not cfg.get('allow_importance',False) and any(w['relative_weight']!=1 for w in a['point_importance']):fail('Region-only intervention requires all relative weights exactly 1')
         if 'frozen_selection' in cfg and any(a[k]!=v for k,v in cfg['frozen_selection'].items()):fail('Confirmation cannot change the frozen Analyst selection')
         w=np.array([r['relative_weight'] for r in a['point_importance']],float);w=w/w.sum()
-        for previous in cfg.get('previous_selections',[]):
-            if a['atom_slots']==previous['atom_slots'] and np.allclose(w,previous['atom_weights'],atol=1e-10,rtol=0):
-                fail('Exploratory round must test a different evidence-grounded partial program; exact replay is reserved for confirmation')
+        if 'required_selected_count' in cfg and len(a['atom_slots'])!=cfg['required_selected_count']:
+            fail('This registered spatial-scope intervention requires exactly '+str(cfg['required_selected_count'])+' selected points')
     analyst=caller([{'role':'system','content':skill},{'role':'user','content':json.dumps({'task':'Choose an evidence-grounded partial terminal region, before seeing its intermediate ancestor.',
         'packet':packet,'feedback':feedback,'frozen_dose':cfg['dose'],'relative_weights_allowed':cfg.get('allow_importance',False),
         'frozen_selection':cfg.get('frozen_selection'),'already_tested_selections':cfg.get('previous_selections',[]),
+        'required_selected_count':cfg.get('required_selected_count'),
         'experiment_goal':'High-affinity valid final molecules approaching or exceeding the reference final score; intermediate matching is not the performance metric'},separators=(',',':'))}],
         schema,out/'Analyst.json',input_store=repo/cfg['campaign_study']/'inputs',max_output_tokens=5000,response_validator=validate,max_format_repairs=2)
     validate(analyst)
