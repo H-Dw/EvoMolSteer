@@ -1,0 +1,32 @@
+{
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "A union reward over the exact slot union of P081 and P009, with default unit weights, is expected to favor generated molecules whose regional geometry matches the higher-scoring remaining finals rather than the single teacher. Because the union covers 24 of 25 slots, the expected effect is a broad spatial constraint; the free complement is only 1 slot. This is an association-based expectation, not a causal claim, and the wide cluster95 intervals mean the effect is unresolved.",
+  "free_region_rationale": "The free region is the single teacher slot not covered by the union of P081 and P009. Because P081 already covers 20 of 25 slots and P009 adds 4 more, the free complement is only 1 slot; this is a narrow free region, so the selection constrains most of the spatial organization and leaves little room for alternatives. This is a deliberate tradeoff: the evidence for P081 and P009 is the strongest supplied, but the resulting constraint is broad and may suppress alternatives.",
+  "hypotheses": [
+    {
+      "advantage": "P081 has the strongest supplied incremental evidence: incremental_rank_correlation 0.2207 with cluster95 [0.0331, 0.3793], the only region whose interval lower bound is clearly positive, and it also has the highest exclude_teacher_batch_incremental_correlation (0.2299) and valid_rest_incremental_correlation (0.2221). Its nearest_rest_pic50_mean is 7.976 with min 7.531, so its nearby historical finals are relatively high-scoring, consistent with the intervention of separating higher-scoring remaining finals from lower-scoring near-matches. It is a 20-slot region leaving 5 teacher slots free, so it constrains a substantial spatial organization while retaining a free complement.",
+      "alternative": "The association could reflect overall pose or lineage-cluster structure rather than a specific regional geometry; final_affinity_rank_correlation is 0.533 but the incremental interval is wide and the region is large (20 slots), so it may simply preserve context rather than discriminate. The nearest_rest_pic50_min of 7.531 is not a low-scoring counterexample, so the region may not actually separate high from low near-matches.",
+      "evidence_id": "P081/geometry",
+      "falsifier": "If a matched selection using P081's exact slot union fails to raise qualified final affinity relative to the whole-cloud baseline, or if the incremental association disappears when overall-cloud similarity is removed, the advantage claim is falsified.",
+      "region_id": "P081"
+    },
+    {
+      "advantage": "P009 is the strongest small-region alternative: incremental_rank_correlation 0.1942 with cluster95 [0.0661, 0.3457], exclude_teacher_batch_incremental_correlation 0.2134 and valid_rest_incremental_correlation 0.1908, all positive and comparable to P081 while using only 4 slots. Its nearest_rest_pic50_mean is 8.003 with min 7.531, the highest nearby-final affinity among the small regions, directly matching the intervention's focus on higher-scoring remaining finals. Its small size leaves 21 teacher slots free, so it constrains little and preserves most alternatives.",
+      "alternative": "The small size means the region may fit perfectly yet constrain little useful structure; the high nearby-final affinity could be confounded by overall pose similarity, and the cluster95 interval is wide. The region's high_rest_error_median_A (1.029) and lower_rest_error_median_A (0.991) are both large, so its geometry is not tightly matched across the rest set.",
+      "evidence_id": "P009/geometry",
+      "falsifier": "If a matched selection using P009's exact slot union does not improve qualified final affinity over the whole-cloud baseline, or if its incremental association is explained by overall-cloud similarity, the advantage claim is falsified.",
+      "region_id": "P009"
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P009",
+    "chosen_region": "P081",
+    "tradeoff_reason": "P081 has the stronger incremental evidence (incremental_rank_correlation 0.2207, cluster95 [0.0331, 0.3793], exclude_teacher_batch 0.2299, valid_rest 0.2221) but is large (20 slots) and leaves only 5 teacher slots free. P009 has slightly weaker incremental evidence (0.1942, cluster95 [0.0661, 0.3457], exclude_teacher_batch 0.2134, valid_rest 0.1908) but is small (4 slots) and leaves 21 teacher slots free, preserving more alternatives. The tradeoff is between a broad, strongly associated constraint (P081) and a narrow, nearly as strongly associated constraint (P009). Selecting both yields a 24-slot union with only 1 free slot, which is a broad constraint; the evidence does not establish that their individual effects have been compared."
+  },
+  "region_ids": [
+    "P081",
+    "P009"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "The intervention asks for regional geometry that distinguishes higher-scoring remaining finals from lower-scoring near-matches, not similarity to the single teacher. P081 and P009 are the two regions with the strongest supplied incremental evidence: P081 has incremental_rank_correlation 0.2207 with cluster95 [0.0331, 0.3793] and the highest exclude_teacher_batch (0.2299) and valid_rest (0.2221) incremental correlations; P009 has incremental_rank_correlation 0.1942 with cluster95 [0.0661, 0.3457] and exclude_teacher_batch 0.2134. Both have relatively high nearest_rest_pic50_mean (7.976 and 8.003) and min (7.531), so their nearby historical finals are not low-scoring counterexamples. Selecting both produces ONE union reward, not two independent region experiments; their individual effects have not been compared. The union of P081 (20 slots) and P009 (4 slots) covers 24 slots, leaving 1 teacher slot free."
+}
