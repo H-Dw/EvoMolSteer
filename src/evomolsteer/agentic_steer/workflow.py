@@ -1,6 +1,7 @@
 """Local, evidence-bound DeepSeek decisions and compact direction archives."""
 import argparse
 import json
+import inspect
 from pathlib import Path
 
 import jsonschema
@@ -28,6 +29,7 @@ def schema(panel,cfg,phase,modules=None):
     node={'type':'string','enum':[c['node_id'] for c in panel['candidate_cards']]}
     fields=list(panel['candidate_cards'][0]['features'])
     sources=[c['source_id'] for c in panel['candidate_cards']]+[c['source_id'] for c in panel['discovery_contrasts']]+[c['source_id'] for c in panel['terminal_paths']]+['pocket_context','definitions','selection_code','feedback']
+    if 'actual_policy_code' in panel:sources.append('actual_policy_code')
     refs=arr({'type':'string','enum':sources},1,8)
     return obj({'hypotheses':arr(obj({'id':text,'observable':arr({'type':'string','enum':fields},1,6),
         'direction':text,'sources':refs,'reject_if':text}),0,6),
@@ -123,6 +125,13 @@ def decision(repo,cfg,condition,phase):
             packet['candidate_cards']=[{k:v for k,v in c.items() if k!='standardized_features'} for c in panel['candidate_cards']]
         packet['phase']=phase;packet['measured_feedback']=observations
         packet['previous_decision']=initial
+        if phase=='feedback':
+            packet['execution_definitions']={'features':'Every features/* field describes the endpoint forecast, not current coordinates. rate/* follows the selected parent between endpoint forecasts.',
+                'current_coordinates':'Only current_Rg_A describes current coordinates in the candidate card.',
+                'selection_code':'This function constructs the candidate PANEL. It is not the C0 budget-allocation policy.',
+                'actual_policy_code':'C0 initial uses current head only. B_diversity also uses standardized signed-rate fields. Compare the actual supplied code, not a guessed baseline.',
+                'historical_profiles':'Historical terminal-conditioned forecasts under SMC. They are hypotheses, not an established native-success probability.'}
+            packet['actual_policy_code']=inspect.getsource(numeric_initial)+'\n'+inspect.getsource(numeric_feedback)
         packet['budget']={'initial_directions':cfg['initial_directions'],'replicates_per_direction':cfg['initial_replicates'],
             'followup_trials':cfg['followup_trials'],'max_replicates':cfg['max_replicates']}
         packet['active_modules']=modules
