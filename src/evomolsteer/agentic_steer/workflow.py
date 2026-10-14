@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import jsonschema
+import httpx
 import numpy as np
 from scipy.stats import beta
 
@@ -22,7 +23,7 @@ def arr(item,minimum=0,maximum=24):
     return {'type':'array','items':item,'minItems':minimum,'maxItems':maximum}
 
 
-def schema(panel,cfg,phase):
+def schema(panel,cfg,phase,modules=None):
     text={'type':'string','maxLength':1400}
     node={'type':'string','enum':[c['node_id'] for c in panel['candidate_cards']]}
     fields=list(panel['candidate_cards'][0]['features'])
@@ -31,7 +32,7 @@ def schema(panel,cfg,phase):
     return obj({'hypotheses':arr(obj({'id':text,'observable':arr({'type':'string','enum':fields},1,6),
         'direction':text,'sources':refs,'reject_if':text}),0,6),
         'directions':arr(obj({'id':text,'node_id':node,'rationale':text}),cfg['initial_directions'] if phase=='initial' else 0,cfg['initial_directions'] if phase=='initial' else 0),
-        'audits':arr(obj({'module':{'type':'string','enum':cfg['modules']},'statement':text,'sources':refs,'action_consequence':text}),0,12),
+        'audits':arr(obj({'module':{'type':'string','enum':modules or ['inactive']},'statement':text,'sources':refs,'action_consequence':text}),0,12),
         'comparisons':arr(obj({'left':node,'right':node,'observable':text,'remaining_confounding':text,'distinguishing_outcome':text}),0,6),
         'updates':arr(obj({'node_id':node,'measured_basis':text,'next_test_reason':text}),0,8),
         'next_trials':arr(obj({'node_id':node,'replicate':{'type':'integer','minimum':0,'maximum':cfg['max_replicates']-1},'rationale':text}),cfg['followup_trials'] if phase=='feedback' else 0,cfg['followup_trials'] if phase=='feedback' else 0),
@@ -81,7 +82,7 @@ def numeric_feedback(panel,cfg,observations):
 def response_validator(panel,cfg,phase,modules,already):
     def validate(answer):
         def require(ok,message):
-            if not ok:raise jsonschema.ValidationError(message)
+            if not ok:raise jsonschema.ValidationError(message,validator='interface_semantics',validator_value=message,schema={})
         directions=answer['directions']
         require(len({x['node_id'] for x in directions})==len(directions),'Choose distinct initial nodes')
         require(len({h['id'] for h in answer['hypotheses']})==len(answer['hypotheses']),'Unique hypothesis IDs required')
@@ -96,7 +97,7 @@ def response_validator(panel,cfg,phase,modules,already):
             require(bool(answer['code_sources']),'Executable rule needs evidence citations')
             features={k:np.asarray([c['standardized_features'][k] for c in panel['candidate_cards']]) for k in panel['candidate_cards'][0]['standardized_features']}
             try:evaluate_rule(answer['code'],features)
-            except (ValueError,SyntaxError,TypeError) as error:raise jsonschema.ValidationError(str(error)) from error
+            except (ValueError,SyntaxError,TypeError) as error:raise jsonschema.ValidationError(str(error),validator='code_contract',validator_value=str(error),schema={}) from error
         else:require(answer['code']=='','Code is disabled in this condition')
     return validate
 
@@ -117,17 +118,30 @@ def decision(repo,cfg,condition,phase):
         # Compact but multiple outcome-conditioned historical paths. The full
         # blinded panel remains saved; no unrequested bank outcome is disclosed.
         packet=dict(panel)
-        paths=panel['terminal_paths'];packet['terminal_paths']=[p for label in ['elite','ordinary'] for p in [x for x in paths if x['stratum']==label][:6]]
+        paths=panel['terminal_paths'];packet['terminal_paths']=[p for label in ['elite','ordinary'] for p in [x for x in paths if x['stratum']==label][:4]]
+        if 'coding' not in modules:
+            packet['candidate_cards']=[{k:v for k,v in c.items() if k!='standardized_features'} for c in panel['candidate_cards']]
         packet['phase']=phase;packet['measured_feedback']=observations
         packet['previous_decision']=initial
         packet['budget']={'initial_directions':cfg['initial_directions'],'replicates_per_direction':cfg['initial_replicates'],
             'followup_trials':cfg['followup_trials'],'max_replicates':cfg['max_replicates']}
         packet['active_modules']=modules
         packet['output_instructions']='Return all schema keys, using empty arrays for unused optional scientific fields. Initial phase selects four distinct nodes and no next_trials; feedback phase has no directions and four unique unobserved next_trials. Cite only supplied source IDs. Code is empty unless coding is active. For coding use one def score(features): return expression, only np.abs/tanh/clip/sqrt/minimum/maximum/exp and registered standardized feature lookups. The host executes the rule ranking to choose next candidate priorities; use numerical measured feedback in updates.'
+        def compact(value):
+            if isinstance(value,float):return float(format(value,'.5g'))
+            if isinstance(value,dict):return {k:compact(v) for k,v in value.items()}
+            if isinstance(value,list):return [compact(v) for v in value]
+            return value
         messages=[{'role':'system','content':'You are an experimental acquisition analyst, not a binding oracle. Apply only active scientific Skills.\n\n'+'\n\n'.join(skills)},
-            {'role':'user','content':json.dumps(packet,ensure_ascii=False,separators=(',',':'))}]
-        answer=call_json(messages,schema(panel,cfg,phase),folder/(phase+'.json'),
-            input_store=study/'inputs',max_output_tokens=7000,response_validator=response_validator(panel,cfg,phase,modules,already),max_format_repairs=2)
+            {'role':'user','content':json.dumps(compact(packet),ensure_ascii=False,separators=(',',':'))}]
+        for network_attempt in range(2):
+            try:
+                answer=call_json(messages,schema(packet,cfg,phase,modules),folder/(phase+'.json'),
+                    input_store=study/'inputs',max_output_tokens=7000,response_validator=response_validator(panel,cfg,phase,modules,already),max_format_repairs=2)
+                break
+            except httpx.RemoteProtocolError:
+                write_json(folder/(phase+f'.transport_failure_{network_attempt}.json'),{'error':'RemoteProtocolError','valid_response':False})
+                if network_attempt:raise
     code_audit=None
     if level==6:
         features={k:np.asarray([c['standardized_features'][k] for c in panel['candidate_cards']]) for k in panel['candidate_cards'][0]['standardized_features']}

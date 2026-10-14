@@ -172,7 +172,7 @@ def run_job(path):
         output=model._generate(prior,pocket,steps=job['steps'],times=times,apply_guidance=False,
             strategy='linear',solver='euler',save_traj=False,coord_noise_level=job['coord_noise_level'])
         if suffix.executed!=list(range(step,job['steps'])):raise ValueError('Incomplete native suffix')
-        terminal={k:v.clone() for k,v in output.items() if torch.is_tensor(v) and k!='affinity'}
+        terminal={k:v.clone().to(device) for k,v in output.items() if torch.is_tensor(v) and k!='affinity'}
         terminal['coords']=(terminal['coords']-terminal['coords'].new_tensor(com)[None,None])/model.coord_scale
         for k in ['atomics','bonds','charges']:
             terminal[k]=torch.nn.functional.one_hot(terminal[k].argmax(-1),terminal[k].shape[-1]).float()
