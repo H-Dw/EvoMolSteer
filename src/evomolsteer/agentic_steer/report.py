@@ -13,7 +13,12 @@ from .workflow import summarize,numeric_feedback
 
 def report(repo,cfg):
     study=Path(repo)/cfg['study'];panel=read_json(study/'panel.json');rows=summarize(repo,cfg)
-    cards={x['node_id']:x for x in panel['candidate_cards']};bank=[read_json(p) for p in sorted((study/'trials').glob('N*.json'))]
+    cards={x['node_id']:x for x in panel['candidate_cards']};all_bank=[read_json(p) for p in sorted((study/'trials').glob('N*.json'))]
+    requested=set()
+    for condition in ['C0','B_diversity']+[f'C{i}' for i in range(1,7)]:
+        for phase in ['initial','feedback']:
+            requested.update(t['trial_id'] for t in read_json(study/'conditions'/condition/(phase+'.job.json'))['trials'])
+    bank=[x for x in all_bank if x['trial']['trial_id'] in requested]
     grouped=defaultdict(list)
     for result in bank:grouped[result['trial']['node_id']].append(result)
     nodes=[]
@@ -90,6 +95,15 @@ def report(repo,cfg):
         '初始回答出现过将端点forecast特征称为current特征、将面板构建代码当成预算策略的解释风险；反馈阶段额外提供了实际策略代码与表示定义。K6在执行前检查raw单位、注册字段、纯函数AST和数值扰动；raw API提议与实际执行排序分别保存。', '',
         '## 后续递增验证','',
         '先使用新的固定子流确认优先方向，并加入未被初始选中的方向作为实际对照；再做单模块完整/删除对比。获得命中后比较方向档案与全局top-k的保留差异，使用真实反馈/置乱反馈检验适应功能。最后才扩展到多个恢复时刻、完整树搜索和同预算Steer/BoN；本轮不能证明已超过原Steer。']
+    probe_file=study/'probes/scientific_contract_v2/response_check.json'
+    if probe_file.exists():
+        probe=read_json(probe_file)
+        lines+=['','## 小型纠正实验','',
+            f"补充完成状态/化学失败标签、真实策略代码、欧氏距离反例及确定性均值后，新的真实API检查四项误解全部纠正：{probe['omissions_counterexamples_correct']}。选择程序数值与top4排序均发生变化：{probe['numeric_scores_changed']} / {probe['ranking_changed']}。这证明输入和Skills修改得到响应，不能仅凭响应宣称质量改善。"]
+    refined=study/'refinement_v2/results.json'
+    if refined.exists():
+        result=read_json(refined)
+        lines += ['',f"修正程序依据先前12条C6观察，又请求4条续生成（其中{result['new_unique_trials']}条新独立子流，其余复用）。新增请求的全部pIC50均值为{result['mean_pic50']:.4f}、命中{result['elite_hits']}/4、基础结构合格{result['qualified']}/4。它是第二轮开发筛查，使用了更多先验反馈，不与原12次条件作同预算优劣声明。"]
     (study/'report.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     return numbers
 

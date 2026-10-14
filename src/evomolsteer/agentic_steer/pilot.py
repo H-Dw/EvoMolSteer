@@ -61,8 +61,11 @@ def remote_trials(client,repo,cfg,jobs,runtime,phase):
         (local/'trials').mkdir(exist_ok=True)
         for identity in requested:
             sftp.get(remote_output+'/'+identity+'.json',str(local/'trials'/(identity+'.json')))
-            try:sftp.get(remote_output+'/'+identity+'.sdf.gz',str(local/'trials'/(identity+'.sdf.gz')))
-            except FileNotFoundError:pass
+            for suffix in ['.sdf.gz','.failed_terminal.npz']:
+                remote=remote_output+'/'+identity+suffix
+                try:sftp.stat(remote)
+                except FileNotFoundError:continue
+                sftp.get(remote,str(local/'trials'/(identity+suffix)))
         sftp.get(remote_output+'/source_attestation.json',str(local/'transport'/(phase+'.source_attestation.json')))
     return len(missing)
 

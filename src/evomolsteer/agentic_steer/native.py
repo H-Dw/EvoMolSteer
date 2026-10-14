@@ -180,11 +180,26 @@ def run_job(path):
             scores=model._predict_affinity(terminal,terminal,pocket,[torch.full((1,),.9999,device=device)]*3)
         pic50=float(scores['affinity']['pic50'].reshape(-1)[0]);mol=model._generate_mols(output)[0]
         quality=molecule_quality(mol,pocket,com,model.coord_scale)
+        quality['failure_class']=('chemical_decode' if mol is None else
+            'chemical_invalid_or_disconnected' if not quality['valid_connected'] else
+            'severe_receptor_overlap' if not quality['qualified_structure'] else None)
+        failed_artifact=None
+        if mol is None:
+            # Failed chemistry still supplies a measured terminal coordinate
+            # control. Hard channels plus float32 coordinates are sufficient to
+            # reconstruct the undecodable output without dense trajectory data.
+            failed_artifact=out/(trial['trial_id']+'.failed_terminal.npz')
+            arrays={'coords_A':output['coords'][0].detach().cpu().numpy().astype(np.float32),
+                'mask':output['mask'][0].detach().cpu().numpy().astype(bool)}
+            for key in ['atomics','bonds','charges']:
+                arrays[key]=output[key][0].argmax(-1).detach().cpu().numpy().astype(np.uint8)
+            np.savez_compressed(failed_artifact,**arrays)
         if mol is not None:
             from rdkit import Chem
             text=Chem.MolToMolBlock(mol)+'\n$$$$\n'
             with gzip.open(out/(trial['trial_id']+'.sdf.gz'),'wt') as f:f.write(text)
-        result={'status':'complete','trial':trial,'pic50':pic50,**quality,
+        result={'status':'complete','execution_status':'complete','trial':trial,'pic50':pic50,**quality,
+            'failed_terminal_artifact':None if failed_artifact is None else {'name':failed_artifact.name,'sha256':digest(failed_artifact),'coordinates':'world Angstrom; categorical vocabulary from frozen checkpoint'},
             'elite_hit':bool(quality['qualified_structure'] and pic50>=job['threshold']),
             'suffix_steps':len(suffix.executed),'first_forecast_rms_A':difference,
             'first_head_difference':float(first['affinity']['pic50'].reshape(-1)[0])-trial['expected_joint_head'],
