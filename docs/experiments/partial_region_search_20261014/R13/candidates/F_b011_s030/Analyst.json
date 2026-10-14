@@ -1,0 +1,149 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "The deterministic tool should expand P080's exact slot union with default unit weights and evaluate the resulting union reward against the frozen dose and same random seed. The expected final response is a qualified final prediction at least as high as the current best qualified pic50 (8.1469) and closer to the target reference 8.7048, with the free slots 5,8,9,11,14 left unconstrained.",
+  "free_region_rationale": "The free complement of P080 is slots 5,8,9,11,14. These are the positions not covered by the P080 union, so they remain unconstrained by the selected region and can vary while the P080 spatial organization is held. This preserves a specified open part of the molecule rather than freezing the whole pose.",
+  "hypotheses": [
+    {
+      "advantage": "P080 is the strongest region available in the permitted enum. Its incremental_rank_correlation is 0.0835 with cluster95 [-0.0648, 0.2471], its final_affinity_rank_correlation is 0.4409, its exclude_teacher_batch_incremental_correlation is 0.0887 and its valid_rest_incremental_correlation is 0.0748, so the association is not explained away by teacher-batch or valid-rest sensitivity. Its 20-slot union spans the 17/21 rim plus the 0-4,6,7,10,12,13,15,16,18,19,20,22,23,24 core, leaving slots 5,8,9,11,14 free, so it constrains a broad but still partially open spatial organization.",
+      "alternative": "The association could reflect overall pose similarity or historical SMC dependence rather than useful spatial organization: P080's one_vs_rest_difference_A is -0.8427 and its rest_match_RMS_median_A is 0.8378, so the region is not unusually close to the historical rest cloud. Its incremental interval includes zero, and final head predictions are labels, not experimental affinities, so the positive point estimate remains uncertain.",
+      "evidence_id": "P080/geometry",
+      "falsifier": "If a matched final set with the P080 union held fixed but the free slots 5,8,9,11,14 varied shows no improvement in qualified final prediction over the equal-weight whole-cloud baseline, or if the P080 incremental interval shifts to include zero under a different lineage-cluster resampling, the region's advantage would be falsified.",
+      "region_id": "P080"
+    }
+  ],
+  "point_importance": [
+    {
+      "evidence_id": "point/0",
+      "relative_weight": 1.0,
+      "slot": 0
+    },
+    {
+      "evidence_id": "point/1",
+      "relative_weight": 1.0,
+      "slot": 1
+    },
+    {
+      "evidence_id": "point/2",
+      "relative_weight": 1.0,
+      "slot": 2
+    },
+    {
+      "evidence_id": "point/3",
+      "relative_weight": 1.0,
+      "slot": 3
+    },
+    {
+      "evidence_id": "point/4",
+      "relative_weight": 1.0,
+      "slot": 4
+    },
+    {
+      "evidence_id": "point/6",
+      "relative_weight": 1.0,
+      "slot": 6
+    },
+    {
+      "evidence_id": "point/7",
+      "relative_weight": 1.0,
+      "slot": 7
+    },
+    {
+      "evidence_id": "point/10",
+      "relative_weight": 1.0,
+      "slot": 10
+    },
+    {
+      "evidence_id": "point/12",
+      "relative_weight": 1.0,
+      "slot": 12
+    },
+    {
+      "evidence_id": "point/13",
+      "relative_weight": 1.0,
+      "slot": 13
+    },
+    {
+      "evidence_id": "point/15",
+      "relative_weight": 1.0,
+      "slot": 15
+    },
+    {
+      "evidence_id": "point/16",
+      "relative_weight": 1.0,
+      "slot": 16
+    },
+    {
+      "evidence_id": "point/17",
+      "relative_weight": 1.0,
+      "slot": 17
+    },
+    {
+      "evidence_id": "point/18",
+      "relative_weight": 1.0,
+      "slot": 18
+    },
+    {
+      "evidence_id": "point/19",
+      "relative_weight": 1.0,
+      "slot": 19
+    },
+    {
+      "evidence_id": "point/20",
+      "relative_weight": 1.0,
+      "slot": 20
+    },
+    {
+      "evidence_id": "point/21",
+      "relative_weight": 1.0,
+      "slot": 21
+    },
+    {
+      "evidence_id": "point/22",
+      "relative_weight": 1.0,
+      "slot": 22
+    },
+    {
+      "evidence_id": "point/23",
+      "relative_weight": 1.0,
+      "slot": 23
+    },
+    {
+      "evidence_id": "point/24",
+      "relative_weight": 1.0,
+      "slot": 24
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P076",
+    "chosen_region": "P080",
+    "tradeoff_reason": "P080 has incremental_rank_correlation 0.0835 with cluster95 [-0.0648, 0.2471], while P076 has incremental_rank_correlation 0.1337 with cluster95 [-0.0469, 0.2696]. P076's point estimate and interval lower bound are higher, but P076 is not available in the permitted enum, so P080 is the strongest permitted alternative. P080's final_affinity_rank_correlation (0.4409) is lower than P076's (0.5249), and P080's nearest_rest_pic50_mean (8.003) is slightly lower than P076's (8.020), so the tradeoff is between P080's availability and P076's stronger incremental and final-affinity association. I choose P080 because it is the strongest region available in the permitted enum, while noting that P076 would be preferred if it were permitted."
+  },
+  "region_ids": [
+    "P080"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "I select the single registered region P080 because it is the strongest region available in the permitted enum. Its incremental_rank_correlation is 0.0835 with cluster95 [-0.0648, 0.2471], its final_affinity_rank_correlation is 0.4409, its exclude_teacher_batch_incremental_correlation is 0.0887 and its valid_rest_incremental_correlation is 0.0748, so the association is not explained away by teacher-batch or valid-rest sensitivity. The deterministic tool expands P080's exact slot union; I do not copy or invent atom-slot lists. Selecting one region produces one union reward, not two independent region experiments.",
+  "weighted_points": []
+}
