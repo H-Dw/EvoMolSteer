@@ -11,11 +11,13 @@ from evomolsteer.io import write_json
 
 
 def benchmark(dataset,campaign,time,output):
+    from evomolsteer.continuous.batch_split import source_batches,split_batches
+    split=split_batches(source_batches(dataset,campaign))
     root=Path(dataset)/'results'/campaign
-    ref=[state(root,'single',i,time) for i in range(14)]
+    ref=[state(root,'single',i,time) for i in split['discovery']]
     y,ya,yb=[np.concatenate([r[k] for r in ref]) for k in range(3)]
     rows=[]
-    for batch in range(14,20):
+    for batch in split['validation']+split['heldout']:
         full=state(root,'single',batch,time);x,a,b=[v[:16] for v in full]
         shape,typed,bond,union=distances(x,a,b,y,ya,yb);nearest=shape.argmin(1);ids=np.arange(len(x))
         rows.append({'batch':batch,'n':len(x),'generated_to_reference_A':float(shape.min(1).mean()),
@@ -23,7 +25,8 @@ def benchmark(dataset,campaign,time,output):
                      'symmetric_shape_A':float((shape.min(1).mean()+shape.min(0).mean())/2),
                      'atom_mismatch_geometry_assignment':float(typed[ids,nearest].mean()),
                      'bonded_union_mismatch':float(union[ids,nearest].mean())})
-    result={'scope':'Historical SMC batches14-19, first16 slots per batch vs discovery batches0-13; after reward freeze; no tuning and no new generation',
+    result={'scope':'Observed-batch dynamic split, first16 slots per comparison batch; after reward freeze; no new generation',
+            'split':split,
             'time':time,'batch_results':rows,'means':{k:float(np.mean([r[k] for r in rows])) for k in rows[0] if k not in ['batch','n']},
             'interpretation':'High label mismatch under purely geometric atom correspondence is not, by itself, evidence of chemical invalidity or failure to match a stochastic intermediate distribution.'}
     write_json(output,result);return result

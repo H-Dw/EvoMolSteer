@@ -6,7 +6,7 @@ from ..io import digest
 def formula_registry(root):
     root=Path(root)
     sources=['affinity_geometry_reward.py','endpoint_reward.py','sparse_reward.py',
-             'persistent_reward.py','regional_point_reward.py','endpoint_guidance.py']
+             'persistent_reward.py','regional_point_reward.py','teacher_region_reward.py','endpoint_guidance.py']
     return {
         'schema_version':'coordinate-reward-capabilities-1.0',
         'purpose':'Execution definitions shared by every Designer condition, not preferred architectures.',
@@ -16,6 +16,12 @@ def formula_registry(root):
             'theta':'scalar parameters supplied in program registry',
             'rho_delta(q)':'delta^2 * (sqrt(1 + q/delta^2) - 1)'},
         'families':{
+            'endpoint_teacher_region':{
+                'source':'teacher_region_reward.py',
+                'correspondence':'Hungarian teacher-region-weighted distances and K nearest conditional teachers; no atom-type restriction.',
+                'prior':'Detached softmax(-regional_cost/T + beta*(s-mean(s)) + teacher_base_log_weight).',
+                'formula':'a_mi = sum_r w_r*max(1-||teacher_mi-landmark_r||^2/radius^2,0)^2; q_m = sum_i a_mi*||Y_i-T_m,assignment(i)||^2/sum_i a_mi. R=tau*logsumexp(log(pi_m)-rho_delta(q_m)/tau).',
+                'scope':'Zero outside-region endpoint loss; real FLOWR VJP may transmit coupled current-state motion.'},
             'endpoint_pointcloud':{
                 'source':'endpoint_reward.py + affinity_geometry_reward.py',
                 'correspondence':'Hungarian squared-distance assignment between detached Y_t and each teacher endpoint; choose K nearest by mean assignment cost C_m.',

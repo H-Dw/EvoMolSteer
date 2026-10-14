@@ -1,0 +1,119 @@
+{
+  "config": {
+    "agent": {
+      "allowed_radii_A": [
+        3.0,
+        4.0,
+        5.0
+      ],
+      "max_output_tokens": 6144,
+      "max_steps": 16,
+      "maximum_regions": 3,
+      "minimum_compared_regions": 3,
+      "minimum_curves": 3
+    },
+    "analysis": {
+      "bootstrap": 2000,
+      "minimum_batches": 4,
+      "minimum_observed_nodes": 6,
+      "radius_A": 4.0,
+      "seed": 42
+    },
+    "arm": "single",
+    "batch_size": 50,
+    "campaign": "main1000_w050",
+    "development_batches": [
+      6376,
+      6377,
+      6378,
+      6379,
+      6380,
+      6381,
+      6382,
+      6383
+    ],
+    "elite_selection": {
+      "deduplicate_smiles": true,
+      "top_k": 10
+    },
+    "evaluation": {
+      "elite_threshold_pic50": 8.258901977539063
+    },
+    "guidance_windows": [
+      [
+        0.0,
+        0.5
+      ],
+      [
+        0.1,
+        0.5
+      ]
+    ],
+    "learning_window": [
+      0.0,
+      0.5
+    ],
+    "master_seed": 42,
+    "split": {
+      "fractions": {
+        "discovery": 0.8,
+        "validation": 0.2
+      },
+      "seed": 42
+    },
+    "steps": 100,
+    "teacher_coordinates": "last_learning_endpoint_forecast_of_true_terminal_ancestor"
+  },
+  "formula": "M2 robust multimodal coordinate loss; local mode has zero outside-region endpoint loss",
+  "programs": [
+    {
+      "id": "terminal_topk_global_0_0.5",
+      "mode": "global",
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_global_0_0.5.json",
+      "program_sha256": "4cb4fe0604c85cb833e547204784b34f491db2fc27fbae5b038fa4f6633aea36",
+      "reference": "configs/experiments/m2_terminal_regions_20261014/programs/reference_0_0.5.json.gz",
+      "reference_sha256": "f16303ac01f21d00477c10b4432bbd7013b767263885f318426469fdcbe3c80c",
+      "window": [
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "id": "terminal_topk_local_0_0.5",
+      "mode": "local",
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_local_0_0.5.json",
+      "program_sha256": "4b49cf5bef536e3799457bfb08e76d05c90b5b1495b2ce39782b60e3fc5fe81d",
+      "reference": "configs/experiments/m2_terminal_regions_20261014/programs/reference_0_0.5.json.gz",
+      "reference_sha256": "f16303ac01f21d00477c10b4432bbd7013b767263885f318426469fdcbe3c80c",
+      "window": [
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "id": "terminal_topk_global_0.1_0.5",
+      "mode": "global",
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_global_0.1_0.5.json",
+      "program_sha256": "b730dbf050b1711ebb30b452b45fd51565a8824e152055baf5dba00ed96f034d",
+      "reference": "configs/experiments/m2_terminal_regions_20261014/programs/reference_0.1_0.5.json.gz",
+      "reference_sha256": "0cbb2e438294e0838cc8b617feedcaf9948303e61f975c11959ae6f6acea5fc1",
+      "window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "terminal_topk_local_0.1_0.5",
+      "mode": "local",
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_local_0.1_0.5.json",
+      "program_sha256": "290b5458034a38624284e5b481c09265e0e5ed3259bbb9bbfcb29006dc5b5202",
+      "reference": "configs/experiments/m2_terminal_regions_20261014/programs/reference_0.1_0.5.json.gz",
+      "reference_sha256": "0cbb2e438294e0838cc8b617feedcaf9948303e61f975c11959ae6f6acea5fc1",
+      "window": [
+        0.1,
+        0.5
+      ]
+    }
+  ],
+  "selection_sha256": "f56e331e697153ebe8d164a2e74b23dc4230da535487e44c035feb08fbbe2b28"
+}

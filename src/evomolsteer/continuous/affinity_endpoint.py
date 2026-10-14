@@ -36,10 +36,11 @@ def summarize(times,high,low,variance,correlation,features,seed=42):
     return scale,rows,functions
 
 
-def mine_endpoint(dataset,campaign,output,batches=range(14),window=(0.,.5),coordinate_library=None):
+def mine_endpoint(dataset,campaign,output,batches=None,window=(0.,.5),coordinate_library=None):
     root=Path(dataset);source=root/'results'/campaign;out=Path(output)
     if out.exists():raise FileExistsError(out)
-    batches=list(batches);cfg=read_json(source/'config.json')
+    from .batch_split import resolve_batches
+    batches=resolve_batches(root,campaign,batches);cfg=read_json(source/'config.json')
     from ..trajectory_source import pocket_input_path
     points,origin=landmarks(pocket_input_path(root,'target_protein'),pocket_input_path(root,'target_ligand'))
     features=names(points);nodes={};sources=[];representations=[]

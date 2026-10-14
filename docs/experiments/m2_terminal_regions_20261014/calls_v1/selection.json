@@ -1,0 +1,51 @@
+{
+  "actual_curves_read": [
+    "curve/future_partial_correlation/landmark_19_soft_mass",
+    "curve/future_partial_correlation/landmark_08_local_dz",
+    "curve/future_partial_correlation/landmark_00_cov_xy"
+  ],
+  "analyst_sha256": "7bd427b9108f014da9a5f32dfe737ef62eb4e9eff76ad93d5f591eb2ceafc5ad",
+  "candidate_regions": [
+    0,
+    8,
+    19
+  ],
+  "design": {
+    "confidence": "exploratory",
+    "decision": "local",
+    "failure_modes": [
+      "Affinity failure: a local teacher-guidance intervention that increases region-19 soft_mass does not improve observed final affinity relative to matched controls, or the future-partial-correlation effect reverses sign in a held-out split, refuting H001.",
+      "Non-stationarity failure: the region-19 soft_mass association is null before observed score time ~0.31 and swings between ~0.64 and ~-0.20 within the learned window, so the reward may push toward a target that is only valid in part of the window.",
+      "Replication failure: the effect is discovery-split only with q=0.199 and no delivered replication split, so the association may not survive correction or held-out evaluation.",
+      "Strain failure: matching terminal teacher geometry in region 19 may increase local strain; final strain and structural validity must be reported separately from affinity, and a strain increase without affinity gain refutes the benefit of matching.",
+      "Structural-validity failure: changed atom/bond graphs remain permitted, but coordinate similarity to teacher geometry alone does not establish improved affinity; a validity failure would refute the reward's benefit even if the local coordinate response is achieved.",
+      "Coupling failure: the real FLOWR endpoint Jacobian can couple the region-19 force to other current-state coordinates, so the local response may not remain local and may degrade unselected regions."
+    ],
+    "radius_A": 4.0,
+    "rationale": "Region 19 is the only defensible teacher-region target. Its future-partial-correlation candidate landmark_19_soft_mass is the strongest in the catalogue (effect +0.223, CI 0.104 to 0.344, p=0.0040, q=0.199, sign agreement 0.875 across 16 batches), and it is the only region with both a supported association and observed teacher occupancy at the offered radii (mean 1.0 teacher atoms inside at radius 4.0 across 9 supported teachers; 3.22 at radius 5.0). Region 8 has a comparable association (landmark_08_local_dz effect -0.264, q=0.112) but zero teacher spatial support at all delivered radii, so it cannot supply the compact teacher membership the reward requires; it is retained as a competing candidate rather than selected. Region 0 has strong elite_contrast (cov_yz +0.899) and non-zero teacher support, but its future-partial-correlation candidates are weak and uncorrected (cov_xy +0.150, q=0.441; soft_mass -0.218, q=0.640), and elite_contrast is a selection-label contrast that does not by itself establish measured final benefit. Radius 4.0 is chosen over 5.0 because it is the tightest offered radius at which region 19 is actually occupied by terminal-ranked teacher paths (9 supported teachers), keeping the teacher membership compact and the zero-weight background large; radius 5.0 would broaden the support without additional association evidence. The expected local response is that increasing region-19 soft_mass under the frozen teacher-region loss shifts the endpoint toward the terminal teacher geometry in that region, which should improve observed final affinity if H001 holds. This is an exploratory decision: all association evidence is discovery-split only, no replication split is delivered, q-values are not corrected across the full catalogue, and the region-19 curve is non-stationary with null values before observed score time ~0.31.",
+    "role": "Designer",
+    "selected_regions": [
+      {
+        "evidence_ids": [
+          "future_partial_correlation:discovery:landmark_19_soft_mass",
+          "curve_support",
+          "region_catalogue/19"
+        ],
+        "hypothesis_ids": [
+          "H001"
+        ],
+        "region_index": 19,
+        "weight": 1.0
+      }
+    ]
+  },
+  "designer_sha256": "08fe933b8e93843434cea28bc55e716c357199577db5627d2f2ac4d7dfe59e00",
+  "instruction_files": {
+    "skills/analyst/SKILL.md": "fe246e34ec3db2f2454a7828a85d47b3be580d9f13561d1696acaff596374d9e",
+    "skills/designer/SKILL.md": "902e02f555e8a6d642ddc6e21ef11532303a503753f6c9abb1041850756acf58",
+    "skills/terminal-region-analyst/SKILL.md": "ed207a72903bf91c539a9628b5035b8b6353aeaa52c828d4686d63fed5794fc7",
+    "skills/terminal-region-designer/SKILL.md": "dd9244cc691b148c685c9a5426fd530ddac6e6dfd8667b0d43e5c17cf9872ab3"
+  },
+  "no_synthetic_fallback": true,
+  "status": "selected"
+}

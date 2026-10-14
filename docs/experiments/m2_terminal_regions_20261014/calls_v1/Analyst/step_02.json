@@ -1,0 +1,98 @@
+{
+  "action": "finish",
+  "result": {
+    "findings": [
+      {
+        "claim": "Region 19 shows the strongest future-partial-correlation association with final affinity among the catalogue: soft_mass effect +0.223 (CI 0.104 to 0.344, p=0.0040, q=0.199, sign agreement 0.875, 16 batches), and local_dz effect -0.269 (CI -0.388 to -0.149, p=0.00084, q=0.112, sign agreement 0.8125).",
+        "evidence_refs": [
+          "E57ebac24b088a59f"
+        ],
+        "priority": 1
+      },
+      {
+        "claim": "Region 19 has the broadest teacher spatial support in the catalogue: at radius 4.0 mean 1.0 teacher atoms inside across 9 supported teachers, and at radius 5.0 mean 3.22 across 9 supported teachers, so the region is actually occupied by terminal-ranked teacher paths.",
+        "evidence_refs": [
+          "E57ebac24b088a59f"
+        ],
+        "priority": 2
+      },
+      {
+        "claim": "Region 8 shows a comparable future-partial-correlation pattern: local_dz effect -0.264 (CI -0.380 to -0.149, p=0.00067, q=0.112, sign agreement 0.8125) and soft_mass effect +0.242 (CI 0.084 to 0.392, p=0.0119, q=0.367), but its teacher spatial support is zero at all radii, so it is a competing candidate without observed teacher occupancy.",
+        "evidence_refs": [
+          "E104b70a75132bc52"
+        ],
+        "priority": 3
+      },
+      {
+        "claim": "Region 0 has the strongest elite_contrast candidate (cov_yz +0.899, CI 0.745 to 1.047, p=0.0025, sign agreement 1.0) and non-zero teacher support at radii 4.0 and 5.0, but its future-partial-correlation candidates are weaker and less consistent (cov_xy +0.150, q=0.441; soft_mass -0.218, q=0.640).",
+        "evidence_refs": [
+          "Edf7fbdd67a5500ee"
+        ],
+        "priority": 4
+      },
+      {
+        "claim": "Region 13 also has strong elite_contrast (cov_yz +0.890, CI 0.710 to 1.049, p=0.0035, sign agreement 1.0) with teacher support at radii 4.0 and 5.0, but its future-partial-correlation candidate cov_xy is only +0.173 (q=0.547), so the elite contrast is not matched by a strong future-affinity partial correlation.",
+        "evidence_refs": [
+          "Efb2244e78232291f"
+        ],
+        "priority": 5
+      },
+      {
+        "claim": "The observed curve for future_partial_correlation/landmark_19_soft_mass is non-stationary across the learned window: values are null until observed score time ~0.31, then rise to ~0.64, drop to ~-0.20, and settle near 0.06-0.13 by the end of the window, with rate_per_time showing large swings (e.g. -69.6, +31.7, -16.4).",
+        "evidence_refs": [
+          "E8ef5900911d70230"
+        ],
+        "priority": 6
+      },
+      {
+        "claim": "The coordinate representation is predicted endpoint world coordinates at actual ancestor score time, with learning window [0.0, 0.5] and terminal label time 1.0, so all curve evidence is within the learned window and terminal labels are only available through actual ancestry.",
+        "evidence_refs": [
+          "Eec4034d96ee2da96"
+        ],
+        "priority": 7
+      }
+    ],
+    "hypotheses": [
+      {
+        "direction": "positive for soft_mass; negative for local_dz",
+        "evidence_refs": [
+          "E57ebac24b088a59f",
+          "E8ef5900911d70230"
+        ],
+        "falsifier": "If a local teacher guidance intervention that increases region-19 soft_mass or decreases region-19 local_dz does not improve observed final affinity relative to matched controls, or if the future-partial-correlation effect reverses sign in a held-out split, the hypothesis fails.",
+        "observable": "future_partial_correlation/landmark_19_soft_mass",
+        "scope": "region 19, whole learned coordinate window [0.0, 0.5]",
+        "statement": "In region 19, higher soft_mass (more soft occupancy) is associated with better observed final affinity, and more negative local_dz (lower z displacement) is associated with better observed final affinity, based on future-partial-correlation effects controlling instantaneous score."
+      },
+      {
+        "direction": "negative for local_dz; positive for soft_mass",
+        "evidence_refs": [
+          "E104b70a75132bc52"
+        ],
+        "falsifier": "If region-8 local_dz or soft_mass effects do not replicate in a held-out split, or if teacher paths are found to occupy region 8 with the same association, the comparative claim fails.",
+        "observable": "future_partial_correlation/landmark_08_local_dz",
+        "scope": "region 8, whole learned coordinate window [0.0, 0.5]",
+        "statement": "In region 8, more negative local_dz and higher soft_mass are associated with better observed final affinity, but this region has no observed teacher occupancy, so it is a weaker guidance target than region 19."
+      },
+      {
+        "direction": "positive elite contrast, uncertain final-affinity direction",
+        "evidence_refs": [
+          "Edf7fbdd67a5500ee"
+        ],
+        "falsifier": "If a future-partial-correlation analysis of region-0 cov_yz shows a strong, consistent positive effect on final affinity, the limitation is removed.",
+        "observable": "elite_contrast/landmark_00_cov_yz",
+        "scope": "region 0, discovery split",
+        "statement": "Region 0 cov_yz elite contrast is a selection-label-associated geometric feature but is not by itself evidence of final-affinity benefit, because its future-partial-correlation candidates are weak and inconsistent."
+      }
+    ],
+    "limitations": [
+      "All association evidence is from the discovery split only; no replication split is delivered, so q-values are not corrected across the full catalogue and several candidates have q>0.4.",
+      "Elite_contrast candidates are selection-label contrasts and do not by themselves establish descendant survival or measured final benefit.",
+      "Region 19 curve evidence is non-stationary and has null values before observed score time ~0.31, so the association is not a stationary target across the whole window.",
+      "Teacher spatial support is reported only at radii 3.0, 4.0 and 5.0; regions with zero support at these radii may still be occupied at other radii not delivered.",
+      "The coordinate representation is untyped predicted endpoint world coordinates; no chemical-interaction or model-module interpretation is supported by the delivered evidence.",
+      "A time derivative or contrast is not a spatial gradient, and the delivered curves do not specify an absolute coordinate target."
+    ],
+    "role": "Analyst"
+  }
+}

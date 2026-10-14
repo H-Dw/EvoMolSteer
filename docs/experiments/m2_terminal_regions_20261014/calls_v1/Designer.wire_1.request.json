@@ -1,0 +1,136 @@
+{
+  "body": {
+    "max_tokens": 6144,
+    "messages": [
+      {
+        "content_relative_path": "inputs/0e77d9bb918dd44d3374207d3937fe6ae57acea586c6ec6d69c04f4db348305b.txt",
+        "content_sha256": "0e77d9bb918dd44d3374207d3937fe6ae57acea586c6ec6d69c04f4db348305b",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "inputs/9e74d2036ce4e395b2c99acbd913cf031ece4dab2a647d2c1ca4fcf33887a61b.txt",
+        "content_sha256": "9e74d2036ce4e395b2c99acbd913cf031ece4dab2a647d2c1ca4fcf33887a61b",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "inputs/55d425e5f9e1b4406d64489d285fa2ebc5307be422c0927336c9e42f5f102301.txt",
+        "content_sha256": "55d425e5f9e1b4406d64489d285fa2ebc5307be422c0927336c9e42f5f102301",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "terminal-region-designer-json-1.0",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "confidence": {
+        "enum": [
+          "exploratory",
+          "supported"
+        ]
+      },
+      "decision": {
+        "enum": [
+          "local",
+          "defer"
+        ]
+      },
+      "failure_modes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "radius_A": {
+        "enum": [
+          3.0,
+          4.0,
+          5.0
+        ],
+        "type": "number"
+      },
+      "rationale": {
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "selected_regions": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "evidence_ids": {
+              "items": {
+                "enum": [
+                  "curve_support",
+                  "future_partial_correlation:discovery:landmark_00_cov_xy",
+                  "future_partial_correlation:discovery:landmark_08_local_dz",
+                  "future_partial_correlation:discovery:landmark_19_soft_mass",
+                  "region_catalogue/0",
+                  "region_catalogue/19",
+                  "region_catalogue/8"
+                ]
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "hypothesis_ids": {
+              "items": {
+                "enum": [
+                  "H001",
+                  "H002",
+                  "H003"
+                ]
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "region_index": {
+              "enum": [
+                0,
+                8,
+                19
+              ],
+              "type": "integer"
+            },
+            "weight": {
+              "exclusiveMinimum": 0,
+              "maximum": 1,
+              "type": "number"
+            }
+          },
+          "required": [
+            "region_index",
+            "weight",
+            "hypothesis_ids",
+            "evidence_ids"
+          ],
+          "type": "object"
+        },
+        "maxItems": 3,
+        "type": "array"
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "selected_regions",
+      "radius_A",
+      "rationale",
+      "confidence",
+      "failure_modes"
+    ],
+    "type": "object"
+  }
+}

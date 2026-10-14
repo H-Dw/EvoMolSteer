@@ -51,8 +51,10 @@ def torch_geometry(x,points,origin):
                        torch.exp(-.5*((d-3)/1.).square()).mean(1),torch.exp(-.5*((d-5)/1.).square()).mean(1)],-1)
     parts.append(field.reshape(len(x),-1));return torch.cat(parts,1)
 
-def mine(dataset,campaign,output,batches=range(14),window=(0.,.5),teachers_per_batch=2):
+def mine(dataset,campaign,output,batches=None,window=(0.,.5),teachers_per_batch=2):
     root=Path(dataset);source=root/'results'/campaign;out=Path(output)
+    from .batch_split import resolve_batches
+    batches=resolve_batches(root,campaign,batches)
     if out.exists():raise FileExistsError(out)
     from ..trajectory_source import pocket_input_path
     cfg=read_json(source/'config.json');points,origin=landmarks(pocket_input_path(root,'target_protein'),pocket_input_path(root,'target_ligand'))

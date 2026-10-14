@@ -89,9 +89,13 @@ def qualified_peak(candidate, native, incumbent):
     return result
 
 
-def build_report(reports, config_dir, output, steer_metrics=None, donor_batches=range(14)):
+def build_report(reports, config_dir, output, steer_metrics=None, donor_batches=None):
     reports, config_dir, output = map(lambda p: Path(p).resolve(), (reports, config_dir, output))
     campaign = read_json(config_dir / 'campaign.json')
+    if donor_batches is None:
+        if 'discovery_batches' not in campaign:
+            raise ValueError('Report requires declared discovery batches; no implicit fixed donor set')
+        donor_batches=campaign['discovery_batches']
     if (campaign['maximum_rounds'] != 10 or campaign['rounds_completed'] != 10
             or [r['round'] for r in campaign['rounds']] != list(range(1, 11))
             or any(r['status'] != 'complete' for r in campaign['rounds'])):

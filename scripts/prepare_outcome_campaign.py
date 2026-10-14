@@ -22,7 +22,8 @@ def plan(kind, mode='mean', base='R26', branch='instantaneous', budget=2, tail_w
     out = DOC/'mining'/kind
     inputs = [str(ROOT/'data/raw/ck2_clk3_lineage_20261003/results/main1000_w050/config.json'),
               str(ROOT/'docs/experiments/guidance_vs_steer_20261007/steer_full1000/candidate_metrics.csv'), str(ROOT/REFERENCES[base])]
-    for batch in range(14):
+    batches=json.loads(gzip.decompress(Path(inputs[2]).read_bytes()))['discovery_batches']
+    for batch in batches:
         folder = ROOT/f'data/raw/ck2_clk3_lineage_20261003/results/main1000_w050'
         inputs += [str(folder/f'single/batch_{batch:03d}/trajectory.npz'), str(folder/f'frame_batch_{batch:03d}.json')]
     arguments = ['--dataset', str(ROOT/'data/raw/ck2_clk3_lineage_20261003'), '--campaign', 'main1000_w050',
@@ -76,7 +77,7 @@ if __name__ == '__main__':
             'development_batches': [131, 132], 'confirmation_batches': [133, 134, 135, 136],
             'priority': 'Decoded final predicted affinity first; validity and converged MMFF strain secondary',
             'primary': 'Paired all-slot affinity change and valid-affinity mean; report both',
-            'tail_threshold': 8.258901977539063, 'discovery_sources': list(range(14)),
+            'tail_threshold': 8.258901977539063, 'discovery_sources': json.loads(gzip.decompress((ROOT/REFERENCES[a.base]).read_bytes()))['discovery_batches'],
             'sequence': ['Matched state-boundary controls', 'Final label source', 'Matched ancestor geometry extension',
                          'Descendant distribution extension', 'One-axis calibration', 'Frozen independent confirmation'],
             'rollback': 'Keep R11/R26 controls; failed candidate does not overwrite retained parent',

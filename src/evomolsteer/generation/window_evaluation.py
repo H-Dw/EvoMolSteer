@@ -97,7 +97,9 @@ def validate_campaign(root):
     return cfg
 
 
-def evaluate(dataset,campaign,original,original_campaign,output,reference_batches=range(14),save_assignment_details=False):
+def evaluate(dataset,campaign,original,original_campaign,output,reference_batches=None,save_assignment_details=False):
+    from ..continuous.batch_split import resolve_batches
+    reference_batches=resolve_batches(original,original_campaign,reference_batches)
     root=Path(dataset)/'results'/campaign;original=Path(original)/'results'/original_campaign
     out=Path(output);out.mkdir(parents=True,exist_ok=True)
     cfg=validate_campaign(root);p=read_json(root/'reward_program.json');a,end=p['window']

@@ -44,7 +44,7 @@ def masked_curve_fit(times,curves,max_degree=3):
         'derivative_semantics':'temporal derivative of observed cohort contrasts, not a coordinate force'}
 
 
-def mine(dataset,campaign,incumbent_reference,output,batches=range(14),window=None,
+def mine(dataset,campaign,incumbent_reference,output,batches=None,window=None,
          hard_mix=0.,margin_fraction=.10,gap_weight=False,maximum_regions=4):
     root,out=Path(dataset).resolve(),Path(output).resolve()
     if out.exists():raise FileExistsError(out)
@@ -53,7 +53,8 @@ def mine(dataset,campaign,incumbent_reference,output,batches=range(14),window=No
     if support!=base['window']:raise ValueError('Incumbent and learned support must agree')
     source=root/'results'/campaign;cfg=read_json(source/'config.json')
     points,origin=np.asarray(base['landmarks_A']),np.asarray(base['origin_A'])
-    fields=base['features'];batch_ids=sorted(map(int,batches));moments=[];events=[];codes_all=[];sources=[];grid=None
+    from .batch_split import resolve_batches
+    fields=base['features'];batch_ids=resolve_batches(root,campaign,batches);moments=[];events=[];codes_all=[];sources=[];grid=None
     paths={int(p.parent.name.split('_')[1]):p for p in trajectory_paths(source) if p.parent.parent.name=='single'}
     if len(batch_ids)<3:raise ValueError('At least three independent batches required')
     for batch in batch_ids:

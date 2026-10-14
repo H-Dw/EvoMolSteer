@@ -12,7 +12,7 @@ from ..io import digest
 class DependencyExtension(FlowCompatibilityV2Extension):
     def configure(self, model, opt, out):
         if self.program['reward_view'] not in ('endpoint_structure_field', 'endpoint_static_hybrid',
-                'endpoint_regional_pointcloud', 'endpoint_temporal_pointcloud'):
+                'endpoint_regional_pointcloud', 'endpoint_temporal_pointcloud', 'endpoint_teacher_region'):
             return super().configure(model, opt, out)
         EndpointCoordinateExtension.configure(self, model, opt, out)
         self.previous_gradient = None
@@ -43,6 +43,11 @@ class DependencyExtension(FlowCompatibilityV2Extension):
             result.update(reference_origin='Frozen intact teachers with detached coordinate-region attention',
                 conditional_gradient='Endpoint coordinate matching with fixed anchor membership and positive surrounding weight',
                 empirical_temporal_attention='coordinate_region_node_salience' in self.program)
+        elif self.program['reward_view'] == 'endpoint_teacher_region':
+            result.update(reference_origin='Terminal-ranked true ancestors with Agent-selected teacher regions',
+                conditional_gradient='Teacher-region weights, assignments and priors detached; zero outside-region endpoint loss',
+                source_learning_window=self.reference.get('source_learning_window'),
+                regional_note='FLOWR VJP can still transmit coupled motion to other current-state coordinates')
         return result
 
 
