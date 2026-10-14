@@ -1,0 +1,70 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "If a controlled terminal run using only the P081/P053 union fails to improve qualified final affinity over the whole-cloud baseline (target_reference_pic50 8.7048), or if the incremental association of P081/P053 disappears when overall-cloud similarity is removed more aggressively, the spatial imitation proxy is falsified as useful. Concretely: a null or negative change in top-five qualified mean and mean of all attempts, or a failure to produce valid connected final molecules, would indicate the incremental association does not transfer to terminal affinity. Intermediate matching fidelity is not the performance metric.",
+  "region_ids": [
+    "P081",
+    "P053"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "The reward is a robust partial point-cloud imitation term defined only on the Analyst-selected union of P081 (20 slots, centers 16/18) and P053 (12 slots, center 12), evaluated against the verified real current-state ancestor at teacher clock 0.5 (ancestor_slot 37, terminal_slot 30, parent_copy_verified true, trajectory_sha256 8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270). The 20 selected slots are exactly the Analyst atom_slots; the 5 unselected slots (5, 8, 9, 11, 13) form the free complement and receive no direct reward. Weights are the Analyst normalized importance (uniform 0.05 over the 20 selected points), so the kernel scale and geometry-supported weighting are the only free parameters and are frozen for this region-selection test. The kernel is a robust (bounded-influence) point-cloud distance with pointcloud_delta_A 1.0, so each selected point contributes a saturating penalty rather than an unbounded quadratic pull; this implements the Analyst hypothesis as a spatial imitation proxy: nearby historical finals in P081/P053 are high-scoring (nearest_rest_pic50_mean 7.976 and 7.995), and the incremental rank correlations (0.2207 with cluster95 [0.0331,0.3793] for P081; 0.1824 with cluster95 [-0.0068,0.3244] for P053) are the evidence that organizing these regions is associated with higher final affinity. Teacher indices are not generated atom indices: the selected slots are assigned spatially to generated atoms, fixed during each derivative, and the teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian. Gradient ascent lowers distance error and increases the negative reward toward zero; the affinity head is not differentiated and no particle resampling is introduced. Native chemical graph transitions remain free. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates, so actual displacement and the unguided suffix are recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works.",
+  "teacher_time": 0.5
+}

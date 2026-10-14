@@ -1,0 +1,156 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "If the selected union is useful, the terminal run should produce valid, connected final molecules whose qualified final affinity approaches or exceeds the reference final score (target_reference_pic50 8.7048), with the top-five qualified mean and mean of all attempts at least not degraded relative to the whole-cloud baseline. Intermediate matching fidelity is not the performance metric. A null or negative result would indicate that the incremental association of P081/P053 does not transfer to terminal affinity.",
+  "free_region_rationale": "The free region is the complement of the P081 and P053 unions within the 25-slot historical lineage. P081 covers 20 slots and P053 covers 12 slots, so their union leaves a small but specified set of slots unconstrained, allowing the pose to reorganize in the remaining space while the selected regions provide the spatial organization. Because the union is large, the free complement is narrow; this is a deliberate tradeoff favoring a well-supported spatial constraint over a broad free region, and it means the selection constrains most of the pose rather than only a small part. Slot indices are historical lineage indices; new molecules are matched spatially, not by index identity.",
+  "hypotheses": [
+    {
+      "advantage": "P081 has the strongest incremental evidence among the supplied regions: incremental_rank_correlation 0.2207 with cluster95 [0.0331, 0.3793], the only interval whose lower bound is clearly above zero, and it is also top-ranked on the decision_summary highest_incremental list. Its valid_rest_incremental_correlation (0.2221) and exclude_teacher_batch_incremental_correlation (0.2299) are both positive, so the association is not an artifact of the excluded teacher batch or of the valid-rest subset. It also carries a high final_affinity_rank_correlation (0.5331) and a high nearest_rest_pic50_mean (7.976), i.e. nearby historical finals in this region are themselves high-scoring, which is supportive rather than contradictory. Its center slots (16, 18) sit at moderate burial (nearest_protein_A_mean 3.635, protein_atoms_within_6A_mean 24.8), consistent with a plausible untyped spatial role in organizing the pose rather than an extreme outlier geometry.",
+      "alternative": "The positive incremental signal could reflect overall pose/cloud similarity rather than region-specific organization, since the incremental residualization is only a rank-residual adjustment and the cluster95 interval, while excluding zero, is still wide (0.033-0.379). It could also be confounded by the fact that P081 is a 20-slot region with only 5 free teacher slots, so its apparent advantage may partly reflect a broad, well-matched complement rather than a specific spatial constraint.",
+      "evidence_id": "P081/geometry",
+      "falsifier": "If a controlled run using only P081's union fails to improve qualified final affinity over the whole-cloud baseline, or if its incremental association disappears when overall-cloud similarity is removed more aggressively, the proposed advantage would be falsified.",
+      "region_id": "P081"
+    },
+    {
+      "advantage": "P053 is a complementary 12-slot region with positive incremental evidence: incremental_rank_correlation 0.1824, cluster95 [-0.0068, 0.3244], valid_rest_incremental_correlation 0.1900 and exclude_teacher_batch_incremental_correlation 0.1912, all consistent in sign. It has the highest final_affinity_rank_correlation among the 12-slot regions (0.5233) and a high nearest_rest_pic50_mean (7.995), indicating that nearby historical finals in this region are high-scoring. Its center slot 12 is at moderate burial (nearest_protein_A_mean 3.594, protein_atoms_within_6A_mean 27.75), giving a plausible untyped spatial role distinct from P081's centers.",
+      "alternative": "P053's cluster95 interval includes zero at the lower bound, so its incremental association is weaker and less resolved than P081's; the positive point estimate could be driven by the same overall pose similarity that P081 captures, or by the excluded teacher batch, and its 12-slot size means it constrains less of the pose than P081.",
+      "evidence_id": "P053/geometry",
+      "falsifier": "If P053's union alone does not improve qualified final affinity relative to the whole-cloud baseline, or if its incremental association vanishes under a stricter removal of overall-cloud similarity, the proposed advantage would be falsified.",
+      "region_id": "P053"
+    }
+  ],
+  "point_importance": [
+    {
+      "evidence_id": "point/0",
+      "relative_weight": 1.0,
+      "slot": 0
+    },
+    {
+      "evidence_id": "point/1",
+      "relative_weight": 1.0,
+      "slot": 1
+    },
+    {
+      "evidence_id": "point/2",
+      "relative_weight": 1.0,
+      "slot": 2
+    },
+    {
+      "evidence_id": "point/3",
+      "relative_weight": 1.0,
+      "slot": 3
+    },
+    {
+      "evidence_id": "point/4",
+      "relative_weight": 1.0,
+      "slot": 4
+    },
+    {
+      "evidence_id": "point/6",
+      "relative_weight": 1.0,
+      "slot": 6
+    },
+    {
+      "evidence_id": "point/7",
+      "relative_weight": 1.0,
+      "slot": 7
+    },
+    {
+      "evidence_id": "point/10",
+      "relative_weight": 1.0,
+      "slot": 10
+    },
+    {
+      "evidence_id": "point/12",
+      "relative_weight": 1.0,
+      "slot": 12
+    },
+    {
+      "evidence_id": "point/14",
+      "relative_weight": 1.0,
+      "slot": 14
+    },
+    {
+      "evidence_id": "point/15",
+      "relative_weight": 1.0,
+      "slot": 15
+    },
+    {
+      "evidence_id": "point/16",
+      "relative_weight": 1.0,
+      "slot": 16
+    },
+    {
+      "evidence_id": "point/17",
+      "relative_weight": 1.0,
+      "slot": 17
+    },
+    {
+      "evidence_id": "point/18",
+      "relative_weight": 1.0,
+      "slot": 18
+    },
+    {
+      "evidence_id": "point/19",
+      "relative_weight": 1.0,
+      "slot": 19
+    },
+    {
+      "evidence_id": "point/20",
+      "relative_weight": 1.0,
+      "slot": 20
+    },
+    {
+      "evidence_id": "point/21",
+      "relative_weight": 1.0,
+      "slot": 21
+    },
+    {
+      "evidence_id": "point/22",
+      "relative_weight": 1.0,
+      "slot": 22
+    },
+    {
+      "evidence_id": "point/23",
+      "relative_weight": 1.0,
+      "slot": 23
+    },
+    {
+      "evidence_id": "point/24",
+      "relative_weight": 1.0,
+      "slot": 24
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P053",
+    "chosen_region": "P081",
+    "tradeoff_reason": "P081 has the stronger incremental evidence: incremental_rank_correlation 0.2207 with cluster95 [0.0331, 0.3793] (lower bound above zero), versus P053's 0.1824 with cluster95 [-0.0068, 0.3244] (lower bound includes zero). P081 also has higher final_affinity_rank_correlation (0.5331 vs 0.5233) and higher valid_rest_incremental_correlation (0.2221 vs 0.1900). P053 is retained as the second region because it is the strongest 12-slot region and its centers (slot 12) are spatially distinct from P081's (slots 16, 18), so the union adds coverage; the tradeoff is that P053's incremental interval is less resolved and its smaller size constrains less of the pose than P081."
+  },
+  "region_ids": [
+    "P081",
+    "P053"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "I selected P081 and P053 as a two-region union because they are the two supplied regions with the strongest and most internally consistent incremental evidence, and they occupy distinct spatial centers (P081 centers 16,18; P053 center 12) so the union covers a broader, still interpretable part of the pose while leaving the rest free. P081 is the only region whose incremental cluster95 lower bound is clearly above zero (0.0331) and it is top-ranked on the highest_incremental list; P053 is the strongest 12-slot region by final_affinity_rank_correlation (0.5233) with consistently positive incremental, valid-rest and excluded-batch correlations. Both also have high nearest_rest_pic50_mean (7.976 and 7.995), so nearby historical finals are high-scoring rather than counterexamples. I deliberately did not select the largest regions (P088, P090, P092) despite their high final_affinity_rank_correlation, because their incremental cluster95 intervals include zero and their free complement is only 1 slot, which would constrain nearly the whole pose and suppress alternatives; and I did not select P009, whose incremental evidence is positive but whose final_affinity_rank_correlation is slightly negative (-0.048), a tension that makes it a weaker choice. This is one union reward, not two independent region experiments; I have not compared their individual effects."
+}
