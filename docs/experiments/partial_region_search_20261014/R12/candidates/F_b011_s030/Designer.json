@@ -1,0 +1,71 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "endpoint_mix": 0.5,
+  "observable_falsifier": "The original observable that would falsify the proxy's usefulness is the final-affinity observable, not the intermediate matching loss. If a held-out batch shows the incremental association of the selected union (P081 and P053) with final affinity dropping to or below zero, or if the nearby-final affinity of the selected union falls into the low-affinity counterexample range while the free complement's stays high, the spatial imitation proxy is falsified. Likewise, if the half-cloud proxy's failure to exceed the full-cloud baseline on best_qualified_pic50 persists after this reward, the reward has not reproduced the observable it was designed to target.",
+  "region_ids": [
+    "P081",
+    "P053"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "The Analyst selected the union of P081 (20 slots) and P053 (12 slots), whose union is exactly the 20 slots [0,1,2,3,4,6,7,10,12,14,15,16,17,18,19,20,21,22,23,24], leaving slots 5, 8, 9, 11 and 13 free. I use exactly those Analyst-selected slots as the spatial assignment; no new region, background point, forecast, or substitute teacher is introduced. The reward is the robust partial point-cloud reward on this fixed spatial assignment, with the Analyst importance weights normalized to uniform 0.05 over the 20 selected slots (all relative_weight 1.0 in the Analyst point_importance list). The teacher clock is the configured 0.5, and the frozen dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0) is used unchanged. The actual teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian; gradient ascent lowers distance error and increases the negative reward toward zero. The affinity head is not differentiated and no particle resampling is introduced; native chemical graph transitions remain free. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates, so actual displacement and the unguided suffix are recorded. The registered transfer test uses one shared spatial assignment for the actual intermediate and actual final views on the same selected slots; the mixed loss uses the frozen component coefficient 0.5, and its derivative includes the half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term, with guidance windows and dose fixed and no extra generator forward or affinity inference. The selected points implement the Analyst hypothesis as a spatial imitation proxy: the union of P081 and P053 is the region whose incremental association with the final-affinity observable survived removal of overall-cloud similarity and the excluded teacher batch, while the free complement (slots 5, 8, 9, 11, 13) is the part of the pose the evidence does not support constraining. This is an association-based selection, not a causal claim; the wide cluster intervals mean the effect is unresolved, and final head predictions are labels rather than experimental affinities.",
+  "teacher_time": 0.5
+}

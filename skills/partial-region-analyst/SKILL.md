@@ -20,7 +20,7 @@ structure; a broad set can preserve context but suppress alternatives. Compare
 the evidence for both. Receptor distances describe untyped spatial context;
 do not infer hydrogen bonds, binding energy or rigidity without measurements.
 
-Return registered region IDs and their EXACT slot union. Each chosen region needs
+Select registered region IDs. The deterministic tool expands their exact slot union; do not copy or invent atom-slot lists outside the supplied response schema. Each chosen region needs
 an evidence ID, a proposed advantage, a competing explanation and a falsifier.
 Explain which region is free and why. Slot indices belong to the historical
 lineage; new molecules use spatial matching, never index identity.
@@ -37,4 +37,4 @@ teacher, dose or scoring. Keep an auditable evidence-to-selection explanation.
 Compare at least one different registered alternative numerically. Choose actual region IDs and declare the comparison basis and tradeoff. The deterministic tool computes exact signed differences; do not perform arithmetic or invent values. Higher nearby-final affinity supports a region; lower nearby-final affinity is a counterexample. Do not call a region strongest when another supplied region has stronger evidence. Raw high/low geometry can be confounded by overall pose; compare it with the provided conditional result. Geometry familiarity or a larger free complement alone cannot override contradictory evidence.
 
 
-Current research intervention: Use actual terminal feedback to reduce unnecessary points without losing the spatial constraints needed for high-affinity valid tails.
+Current research intervention: Identify which final observable a half-cloud proxy previously failed to reproduce. Choose points that have a testable route to reproducing it, not merely a low matching loss.
