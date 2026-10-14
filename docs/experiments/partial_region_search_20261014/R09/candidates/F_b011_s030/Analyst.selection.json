@@ -1,0 +1,32 @@
+{
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "If the supported context is real, holding the P081/P009 union while leaving slot 5 free should preserve or improve qualified final predictions relative to the unguided and full-cloud baselines, without the adverse-region penalty seen in the negative-evidence regions. This is an expectation from association evidence, not a measured causal effect.",
+  "free_region_rationale": "The union of P081 and P009 covers 20 + 4 = 24 of the 25 historical lineage slots, leaving slot 5 free. Slot 5 is the only point not in either region; it is left unconstrained so the spatial context is maintained while one point remains free for alternative placement. Slot indices are historical lineage identifiers; new molecules are matched spatially, not by index identity.",
+  "hypotheses": [
+    {
+      "advantage": "P081 has the strongest supplied incremental association (incremental_rank_correlation 0.2207, cluster95 [0.0331,0.3793], excluding the teacher batch 0.2299, valid-rest 0.2221) and a high final-affinity rank correlation (0.5331). Its 20-slot union leaves only 5 teacher slots free, so it supplies a broad supported spatial context rather than a narrow fit.",
+      "alternative": "The high incremental value could reflect overall pose-cloud similarity or lineage-cluster dependence rather than a region-specific effect; the cluster95 lower bound is only 0.0331 and the region is large (20 slots), so it may constrain little beyond general pose context.",
+      "evidence_id": "P081/geometry",
+      "falsifier": "A terminal run in which P081's union is held fixed but the free complement is varied, or a cluster-resampled estimate whose lower bound crosses zero, would remove support for P081 as a discriminating region.",
+      "region_id": "P081"
+    },
+    {
+      "advantage": "P009 is the second-strongest supplied incremental region (incremental_rank_correlation 0.1942, cluster95 [0.0661,0.3457], excluding the teacher batch 0.2134, valid-rest 0.1908) and its nearest-rest pic50 mean is 8.0029 with minimum 7.5308, i.e. nearby historical finals are high-affinity rather than low-scoring counterexamples.",
+      "alternative": "P009's final-affinity rank correlation is slightly negative (-0.0480), so its incremental signal may be a residual artifact of within-batch centering and overall-cloud removal rather than a stable affinity association; its 4-slot size also makes it a small, potentially overfit set.",
+      "evidence_id": "P009/geometry",
+      "falsifier": "If a cluster-resampled incremental interval for P009 includes zero, or if its nearest-rest counterexamples are found to be low-affinity after excluding overall pose similarity, the region should not be retained.",
+      "region_id": "P009"
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P009",
+    "chosen_region": "P081",
+    "tradeoff_reason": "P081 has the higher incremental_rank_correlation (0.2207 vs 0.1942) and higher final-affinity rank correlation (0.5331 vs -0.0480), but it is much larger (20 slots vs 4) and leaves only 5 free slots, whereas P009 leaves 21 free slots and has a higher nearest-rest pic50 mean (8.0029 vs 7.9756). Choosing P081 favors a broad supported context; choosing P009 favors a smaller, more permissive constraint. Both are retained because their union is evaluated as one reward, and their individual effects have not been compared."
+  },
+  "region_ids": [
+    "P081",
+    "P009"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "The intervention is to avoid a region with adverse conditional geometric association while keeping a supported spatial context. P081 and P009 are the two regions with the strongest supplied incremental evidence (highest incremental_rank_correlation and strongest interval lower bounds among the decision_summary lists), and both have positive excluding-teacher-batch and valid-rest incremental correlations. Their union is used as one combined reward, not as two independent region experiments. Regions with adverse conditional association, such as P006 (incremental -0.1838, cluster95 [-0.3622,-0.0208]), P007 (-0.1934, [-0.3307,-0.0450]), P031 (-0.2152, [-0.3990,-0.0390]) and P089 (-0.1304, [-0.2509,-0.0162]), are excluded because their intervals lie below zero. The selection is an association-based choice, not a causal claim, and the wide intervals mean the effect is unresolved rather than proven."
+}

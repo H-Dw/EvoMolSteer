@@ -1,0 +1,70 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "The proxy's usefulness is falsified if, in a terminal run with the P081/P009 union held fixed and slot 5 free, qualified final predictions do not preserve or improve relative to the unguided and full-cloud baselines, or if the negative-evidence regions' adverse penalty reappears. A cluster-resampled incremental interval for P081 or P009 whose lower bound crosses zero, or nearest-rest counterexamples for P009 found to be low-affinity after excluding overall pose similarity, would remove support for the selected regions. The original observable that decides this is the terminal qualified final affinity and the actual valid structures, not the training loss trajectory.",
+  "region_ids": [
+    "P081",
+    "P009"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "The reward is the robust point-cloud affinity between the generated molecule and the frozen teacher at clock 0.5 (candidate F_b011_s030, ancestor slot 37, batch 11, terminal_score 8.7048), restricted to the Analyst-selected union of P081 (20 slots) and P009 (4 slots). The union covers 24 of the 25 historical lineage slots; slot 5 is the only free point, matching the Analyst free_region_rationale. Weights are the Analyst point_importance values normalized to 0.05 each; no new region, background point, forecast, or teacher substitution is introduced. The selected points implement the Analyst hypothesis as a spatial imitation proxy: P081 supplies the broad supported pose context (incremental_rank_correlation 0.2207, cluster95 [0.0331,0.3793], excluding-teacher-batch 0.2299, valid-rest 0.2221, final-affinity rank correlation 0.5331) and P009 supplies the second-strongest incremental region (0.1942, cluster95 [0.0661,0.3457], excluding-teacher-batch 0.2134, valid-rest 0.1908) with high-affinity nearest-rest neighbors (nearest_rest_pic50_mean 8.0029, min 7.5308). The proxy is not an exact feature loss: it constrains the spatial arrangement of the selected points toward the teacher while leaving the native chemical graph transitions free and leaving slot 5 unconstrained. Teacher indices are not generated atom indices; generated atoms are matched to the selected points by spatial assignment, fixed during each derivative. The teacher-clock bridge uses the current-coordinate identity derivative plus the real FLOWR coordinate Jacobian; gradient ascent lowers distance error and increases the negative reward toward zero. The affinity head is not differentiated and no particle resampling is introduced. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates; actual displacement and the unguided suffix are recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works. The transfer record (terminal_to_half_RMS_A 1.9577, terminal_Rg_A 3.1080, half_Rg_A 1.5301) is noted as context, not as a target.",
+  "teacher_time": 0.5
+}
