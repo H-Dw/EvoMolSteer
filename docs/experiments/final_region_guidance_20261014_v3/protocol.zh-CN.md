@@ -51,3 +51,5 @@ Designer 声明实际教师、所采用的假设和槽位集合；编译器验�
 执行一致性检查覆盖：实际交付 Skills 哈希、证据引用、教师来源、原子集合、奖励正负方向、空间对应、有限差分、真实模型回传、时间窗、非零实际剂量和完整无引导后缀。自然语言的执行描述由编译后的程序生成，LLM 的科学解释不能覆盖数值程序。接口修订前出现的描述矛盾已保留为未执行的协议样例，不能混入正式生成条件。
 
 复用入口：`scripts/run_final_region_guidance.py --config configs/experiments/final_region_guidance_20261014_v3/config.json --action prepare|analyze`；推理入口 `scripts/generate_final_region_guidance.py --repo ... --config ... --flowr-root ...`。时间、区域尺度、候选预算和样本数量都在配置中，科学 Skills 不包含环境配置或目标残基硬编码。
+
+反馈分析入口：`scripts/evaluate_final_region_guidance.py --config configs/experiments/final_region_guidance_20261014_v3/config.json --generated data/generated/final_region_guidance_20261014_v3 --output docs/experiments/final_region_guidance_20261014_v3/evaluation`。该入口确定性计算配对终态差异、真实半程局部/全云匹配、假设可观察量响应，并拒绝指令哈希、程序或窗口不一致的结果。

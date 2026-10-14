@@ -6,6 +6,7 @@ from pathlib import Path
 
 import jsonschema
 import numpy as np
+import pandas as pd
 
 from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.deepseek_api import call_json
@@ -22,6 +23,14 @@ CONTROL_SEMANTICS={'optimization':'reward_ascent','distance_error':'decreases_to
     'reward_value':'increases_toward_zero','teacher_weights':'uniform_normalized',
     'generated_atom_correspondence':'spatial_assignment_not_teacher_slot_indices',
     'hypothesis_implementation':'spatial_imitation_proxy_not_exact_feature_loss'}
+
+
+def record_status(study,candidate,status):
+    path=Path(study)/'ranked_finals.parquet';table=pd.read_parquet(path)
+    found=table['candidate_id'].eq(candidate)
+    if found.sum()!=1:raise ValueError('Processing status requires one registered final')
+    table.loc[found,'processing_status']=status
+    table.to_parquet(path,compression=None,index=False)
 
 
 def validate_analyst(answer,packet):
@@ -106,6 +115,7 @@ def analyze(repo,cfg,rank,caller=call_json):
         max_output_tokens=4500,response_validator=lambda a:validate_analyst(a,packet),max_format_repairs=2)
     validate_analyst(analyst,packet)
     if analyst['decision']=='defer':
+        record_status(study,candidate,'analyst_deferred')
         write_json(out/'status.json',{'rank':rank,'decision':'deferred','no_synthetic_hypothesis':True});return []
     # Only now is the actual intermediate point cloud made available.
     teacher=trace_teacher(repo,cfg,packet)
@@ -149,6 +159,9 @@ def analyze(repo,cfg,rank,caller=call_json):
         'no_decision_override':True,'teacher_was_retrieved_after_analyst_freeze':True,
         'instruction_sha256':{'Analyst':hashlib.sha256(analyst_skill.encode()).hexdigest(),'Designer':hashlib.sha256(designer_skill.encode()).hexdigest(),
             'contract':hashlib.sha256(shared.encode()).hexdigest()}})
+    record_status(study,candidate,'compiled' if programs else 'designer_deferred')
+    write_json(out/'status.json',{'rank':rank,'candidate_id':candidate,'compiled_programs':len(programs),
+        'analyst_decision':analyst['decision'],'designer_decision':design['decision']})
     return programs
 
 
