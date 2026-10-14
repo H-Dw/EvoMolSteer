@@ -19,8 +19,14 @@ def collect(args):
     deadline=time.monotonic()+args.watch_seconds
     while True:
         client=paramiko.SSHClient();client.load_system_host_keys();client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(args.host,port=args.port,username=args.user,password=os.environ[args.password_env],
-            look_for_keys=False,allow_agent=False,timeout=25)
+        try:
+            client.connect(args.host,port=args.port,username=args.user,password=os.environ[args.password_env],
+                look_for_keys=False,allow_agent=False,timeout=25)
+        except (OSError,paramiko.SSHException) as error:
+            client.close()
+            state['last_network_error']={'type':type(error).__name__,'unix':time.time()};write_json(state_path,state)
+            if args.watch_seconds<=0 or time.monotonic()>=deadline:raise
+            time.sleep(30);continue
         try:
             with client.open_sftp() as sftp:
                 for job in plan['jobs']:
@@ -47,10 +53,24 @@ def collect(args):
                         try:sftp.get(args.work+'/'+name+suffix,str(study/'transport_records'/(name+suffix)))
                         except FileNotFoundError:pass
                     output=study/'evaluated'/name
-                    subprocess.run([sys.executable,str(repo/'scripts/evaluate_dependency_archive.py'),
-                        '--name',name,'--transport',str(transport),'--reports',str(study/'transport_records'),
-                        '--output',str(output),'--reference',str(repo/'configs/experiments/ck2_terminal_seed42_v1/local_reference.json.gz'),
-                        '--workers',str(args.workers)],cwd=repo,check=True)
+                    try:
+                        subprocess.run([sys.executable,str(repo/'scripts/evaluate_dependency_archive.py'),
+                            '--name',name,'--transport',str(transport),'--reports',str(study/'transport_records'),
+                            '--output',str(output),'--reference',str(repo/'configs/experiments/ck2_terminal_seed42_v1/local_reference.json.gz'),
+                            '--workers',str(args.workers)],cwd=repo,check=True)
+                        from evomolsteer.storage.generation_archive import restoration_destination
+                        view=read_json(restoration_destination(transport,name)/'results'/name/'EVALUATION_VIEW.json')
+                        bank=read_json(repo/'docs/experiments/m2_tools_full_drop_ablation_20261012/shared_control_bank/manifest.json')
+                        checks={}
+                        for item in view['batches']:
+                            key=item['batch_path'].replace('gradient_zero/','unguided/')
+                            checks[item['batch_path']]=item['initial_state_signature']==bank['result']['initial_state_signatures'][key]
+                        write_json(study/'transport_records'/(name+'.input_pairing.json'),{'passed':all(checks.values()),'checks':checks})
+                        if not all(checks.values()):raise ValueError('Generated inputs differ from the reused frozen control bank')
+                    except (subprocess.CalledProcessError,ValueError) as error:
+                        state['failed'][name]={'scope':'local_evaluation_or_input_verification','type':type(error).__name__,
+                            'reason':str(error),'remote_generation_status':remote['status']}
+                        write_json(state_path,state);continue
                     state['completed'][name]={'metrics':str(output/'candidate_metrics.csv'),'code_commit':remote['code_commit'],
                         'completed_unix':time.time(),'archive_sha256':remote['transport']['archive_sha256']}
                     write_json(state_path,state)
@@ -59,6 +79,10 @@ def collect(args):
                     with sftp.open(args.work+'/queue_status.json') as stream:queue=json.load(stream)
                     state['remote_queue']=queue
                 except FileNotFoundError:queue={}
+        except (OSError,paramiko.SSHException) as error:
+            state['last_network_error']={'type':type(error).__name__,'unix':time.time()};write_json(state_path,state)
+            if args.watch_seconds<=0 or time.monotonic()>=deadline:raise
+            time.sleep(30);continue
         finally:client.close()
         write_json(state_path,state)
         if any(n.startswith('M2REG_terminal_') for n in state['completed']):
