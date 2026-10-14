@@ -1,0 +1,69 @@
+{
+  "atom_slots": [
+    0,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    18,
+    20,
+    21,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "A repeat of the 20-slot union at the same dose and clock that fails to reproduce a best_qualified_pic50 above the full-cloud baseline, or an incremental cluster95 that crosses zero on a new resample, would falsify the claim that these added points carry useful geometry evidence. The original observable that would falsify the proxy's usefulness is the final affinity and actual valid structures: if reward ascent lowers the point-cloud distance error without improving final affinity or producing valid structures, the spatial imitation proxy is not useful.",
+  "region_ids": [
+    "P082"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "The Analyst selected the registered 20-slot region P082 (atom_slots 0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,18,20,21,23,24) as the closest allowed 20-slot alternative to the R13_0.1 checkpoint geometry, with the complementary slots left free. I implement exactly that selection: a single union robust point-cloud reward over these 20 slots, with uniform normalized weights 0.05 each, evaluated against the verified real current-state ancestor at teacher clock 0.5 (batch 11, step 50, terminal_score 8.7048, parent_copy_verified true). The reward is a spatial imitation proxy: each selected generated point is matched to the teacher-clock coordinates by spatial assignment, not by teacher slot index, and reward ascent lowers distance error toward the teacher and raises the negative reward toward zero. The actual teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian; the affinity head is not differentiated and no particle resampling is introduced, leaving native chemical graph transitions free. The frozen dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0) is applied unchanged. The registered transfer view supplies actual final coordinates on the same selected slots (terminal_to_half_RMS_A 2.4662, terminal_Rg_A 3.1524, half_Rg_A 1.5718); because the endpoint_mix is 0.0, the mixed two-clock loss is not activated and the transfer is deferred rather than converted into a second target. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates; actual displacement and the unguided suffix must be recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works. The Analyst's own evidence does not support a positive incremental claim for P082 (incremental_rank_correlation -0.1428, cluster95 [-0.2977, 0.0455] includes zero), so this activation is a faithful implementation of the declared selection, not an endorsement of a positive incremental effect.",
+  "teacher_time": 0.5
+}
