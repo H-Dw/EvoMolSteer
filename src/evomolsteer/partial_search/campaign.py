@@ -11,18 +11,28 @@ from .mining import match
 from .agents import STRATEGIES
 
 
-def prepare_controls(repo,master,label,n,batch,starts=None):
+def prepare_controls(repo,master,label,n,batch,starts=None,endpoint_mix=0.):
     repo=Path(repo);cfg=copy.deepcopy(master);cfg.update(study=f"{master['campaign_study']}/controls_{label}",
         pilot_samples=n,pilot_initial_batch=batch,include_unguided=True,remote_output=f"{master['remote_campaign']}/controls_{label}")
     base=repo/master['base_study']/'candidates'/master['candidate_id'];out=repo/cfg['study']/'candidates'/master['candidate_id']
     teacher=read_json(base/'teacher.json');write_json(out/'teacher.json',teacher);bindings=[]
+    if endpoint_mix:
+        packet=read_json(repo/master['campaign_study']/'evidence.json')
+        teacher.update(terminal_representation='terminal_world_A',terminal_coords_A=packet['terminal_coords_A'],
+            terminal_source_sha256=packet['source_sha256']['final_fields'])
+        write_json(out/'teacher.json',teacher)
+        cfg['endpoint_mix']=endpoint_mix
     old=read_json(base/'bindings.json')
     for item in old['programs']:
         p=read_json(repo/item['program'])
         if starts is not None and p['window'][0] not in starts:continue
         p['program_id']=f"baseline_{p['scope']}_{p['window'][0]:g}";p['atom_weights']=[1/len(p['atom_slots'])]*len(p['atom_slots'])
+        if endpoint_mix:p.update(family='actual_partial_two_clock',endpoint_mix=endpoint_mix,
+            teacher_sha256=digest(out/'teacher.json'),coordinate_evaluation='shared-assignment_half_bridge_and_generator_endpoint')
         path=out/'programs'/(p['program_id']+'.json');write_json(path,p)
-        bindings.append({'program':path.relative_to(repo).as_posix(),'sha256':digest(path),'operative_text':operative_text(p)})
+        description=operative_text(p)
+        if endpoint_mix:description+=' Additional registered actual-final transfer loss, same points and shared correspondence, endpoint mix '+str(endpoint_mix)
+        bindings.append({'program':path.relative_to(repo).as_posix(),'sha256':digest(path),'operative_text':description})
     write_json(out/'bindings.json',{'programs':bindings,'teacher':(out/'teacher.json').relative_to(repo).as_posix(),
         'baseline':'Frozen prior partial selection plus whole-cloud controls, no new agent selection'})
     path=repo/'configs/experiments/partial_region_search_20261014'/f'controls_{label}.json';write_json(path,cfg)
@@ -51,13 +61,15 @@ def prepare_round(repo,master,number,state):
         pilot_initial_batch=0 if number<20 else 1,include_unguided=False,allow_importance=13<=number<=18,
         remote_output=f"{master['remote_campaign']}/{label}",strategy=strategy)
     cfg['quantitative_decision']=number>=3
+    cfg['endpoint_mix']=.5 if number==12 else state.get('best',{}).get('endpoint_mix',0.) if number>=13 else 0.
+    cfg['require_untried_region']=13<=number<=18
     if number==4:cfg['required_selected_count']=len(read_json(repo/master['campaign_study']/'evidence.json')['terminal_coords_A'])-1
     feedback={'strategy':strategy,'scientific_intervention':instruction,'best_checkpoint':state.get('best'),
         'baseline':state.get('baseline'),'history':state.get('rounds',[]),
         'previous_small_pilot':'Three-point matching improved half-state loss but not final affinity; whole-cloud from zero improved mean in a small pilot, with wide uncertainty.',
         'selection_objective':'Highest qualified final prediction; separately report top-five mean, mean of all attempts and failures',
         'target_reference_pic50':8.704806,'same_random_seed':42}
-    if number>=19:
+    if number>=19 or number==12:
         if state['best_round']=='baseline':
             packet=read_json(repo/master['campaign_study']/'evidence.json');ids=state['best']['atom_slots']
             region=next(r['region_id'] for r in packet['regions'] if r['atom_slots']==ids)
@@ -66,7 +78,8 @@ def prepare_round(repo,master,number,state):
             a=read_json(repo/master['campaign_study']/state['best_round']/'candidates'/master['candidate_id']/'Analyst.json')
             frozen={k:a[k] for k in ['region_ids','atom_slots','point_importance']}
         cfg['frozen_selection']=frozen;cfg['allow_importance']=True
-        cfg['guidance_starts']=[state['best']['start']];feedback['frozen_selection']=frozen
+        if number>=19:cfg['guidance_starts']=[state['best']['start']]
+        feedback['frozen_selection']=frozen
     else:cfg['previous_selections']=state.get('seen_selections',[])
     feedback_path=out/'feedback_input.json';write_json(feedback_path,feedback)
     cfg_path=repo/'configs/experiments/partial_region_search_20261014'/f'{label}.json';write_json(cfg_path,cfg)
@@ -91,6 +104,7 @@ def condition_metrics(folder,top_k=5,teacher=None,terminal=None):
         'atom_weights':[] if p is None else p.get('atom_weights',[]),'actual_updates':len(expected),
         'cumulative_control_RMS_A':audit['mean_cumulative_control_rms_A'],'initial_sha256':audit['input_pairing']['initial_sha256'],
         'source_initial_slots':audit['input_pairing']['initial_slots']}
+    result['endpoint_mix']=0. if p is None else p.get('endpoint_mix',0.)
     if p is not None and teacher is not None:
         geometry=read_json(folder/'geometry.json');half=np.asarray(geometry['teacher_clock']['coords_A'])
         final=np.asarray(geometry['terminal']['coords_A']);target=np.asarray(teacher['coords_A'])[p['atom_slots']]

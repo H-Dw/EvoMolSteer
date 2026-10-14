@@ -147,7 +147,11 @@ def run(repo,cfg):
         prior=tensor_tree(init['prior'],n,b,device);pocket=tensor_tree(init['pocket_target'],n,b,device)
         pocket['complex']=[SimpleNamespace(com=c.cpu().numpy()) for c in com]
         torch.manual_seed(cfg['seed']);np.random.seed(cfg['seed']);random.seed(cfg['seed']);started=time.time()
-        control=Control(model,p,teacher,com,cfg['teacher_time']);model._half_guidance=control
+        control_type=Control
+        if p is not None and p['family']=='actual_partial_two_clock':
+            from evomolsteer.partial_search.two_clock import TwoClockControl
+            control_type=TwoClockControl
+        control=control_type(model,p,teacher,com,cfg['teacher_time']);model._half_guidance=control
         output=model._generate(prior,pocket,steps=cfg['steps'],times=[torch.zeros(n,device=device) for _ in range(3)],
             apply_guidance=False,strategy='linear',solver='euler',save_traj=False,coord_noise_level=.2)
         actual=[r['step'] for r in control.rows if r['active']];expected=[] if p is None else p['expected_active_steps']

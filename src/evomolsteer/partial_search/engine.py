@@ -181,8 +181,11 @@ def run(repo,master_path,stop_after):
             cfg['only_program_ids']=[p['program_id'] for p in programs];write_json(cfg_path,cfg)
             sha=commit(repo,master,f'experiment(partial-search): {label} {cfg["strategy"]} Analyst-bound partial reward')
             controls_key=f'batch{cfg["pilot_initial_batch"]}_n{cfg["pilot_samples"]}'
-            if number>=19 and controls_key not in state['controls']:
-                control_cfg,path=prepare_controls(repo,master,controls_key,cfg['pilot_samples'],cfg['pilot_initial_batch'],cfg['guidance_starts'])
+            if cfg.get('endpoint_mix',0):controls_key+='_joint'
+            if (number>=19 or cfg.get('endpoint_mix',0)) and controls_key not in state['controls']:
+                control_cfg,path=prepare_controls(repo,master,controls_key,cfg['pilot_samples'],cfg['pilot_initial_batch'],cfg['guidance_starts'],cfg.get('endpoint_mix',0))
+                if number<19:
+                    control_cfg['include_unguided']=False;write_json(path,control_cfg)
                 control_sha=commit(repo,master,f'experiment(partial-search): freeze {controls_key} confirmation controls')
                 control_folder=infer(repo,master,control_cfg,path,remote,control_sha);control_metrics=summarize(repo,master,control_folder)
                 write_json(study/('controls_'+controls_key)/'metrics.json',control_metrics)
@@ -215,7 +218,9 @@ def run(repo,master_path,stop_after):
                 entry={'round':label,'commit':sha,'confirmation':True,'controls':controls,'conditions':metrics,
                     'frozen_training_winner':state['best_round'],'no_validation_tuning':True,'reuse':reuse}
                 state['rounds'].append(entry)
-            entry['strategy']=cfg['strategy'];entry['skill_response_verified']=True;entry['new_numerical_programs']=len(novel)
+            entry['strategy']=cfg['strategy'];entry['skill_response_verified']=bool(novel);entry['new_numerical_programs']=len(novel)
+            entry['instruction_and_contract_validated']=True
+            if not novel:entry['no_new_execution_function']='This Agent output is numerically identical to an earlier reward; original results reused'
             write_json(study/label/'results.json',entry);state['next_round']=number+1;write_json(state_path,state)
             commit(repo,master,f'results(partial-search): {label} terminal feedback and rollback decision')
             emit('round_complete',round=label,best_round=state['best_round'],

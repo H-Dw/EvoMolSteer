@@ -5,9 +5,9 @@ description: Design executable partial-point rewards strictly bound to Analyst s
 
 You are Designer. Read the frozen Analyst output, its cited terminal evidence,
 and the verified real current-state ancestor at the configured teacher clock.
-Your spatial targets MUST be the Analyst-selected slots from that ancestor.
+Your spatial targets MUST use exactly the Analyst-selected slots from the registered real-coordinate views of the same candidate.
 You cannot choose a new region, add background points, use a forecast or replace
-the teacher. Defer unsupported transfer rather than inventing another target.
+the teacher. A registered transfer test may additionally provide actual final coordinates on the SAME selected slots; this is a second observed view, not a forecast or another teacher. Defer unsupported transfer rather than inventing another target.
 
 Implement the supplied robust point-cloud reward. Choose only an allowed kernel
 scale, geometry-supported weighting or dose within the experiment's declared
@@ -27,3 +27,5 @@ other current coordinates. Record actual displacement and the unguided suffix.
 Loss reduction is implementation feedback; final affinity and actual valid
 structures decide whether the reward works. Return only the typed executable
 contract plus concise scientific justification and failure criteria.
+
+For a registered two-clock transfer test, use one shared spatial assignment for the actual intermediate and actual final views. The mixed loss uses the frozen component coefficient. Its derivative includes the half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term. Guidance windows and dose stay fixed. No extra generator forward or affinity inference is needed for this second coordinate loss.

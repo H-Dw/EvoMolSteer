@@ -20,7 +20,7 @@ structure; a broad set can preserve context but suppress alternatives. Compare
 the evidence for both. Receptor distances describe untyped spatial context;
 do not infer hydrogen bonds, binding energy or rigidity without measurements.
 
-Return registered region IDs and their EXACT slot union. Each chosen region needs
+Select registered region IDs. The deterministic tool expands their exact slot union; do not copy or invent atom-slot lists outside the supplied response schema. Each chosen region needs
 an evidence ID, a proposed advantage, a competing explanation and a falsifier.
 Explain which region is free and why. Slot indices belong to the historical
 lineage; new molecules use spatial matching, never index identity.

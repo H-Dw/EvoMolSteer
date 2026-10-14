@@ -64,6 +64,8 @@ def compile_programs(cfg,analyst,designer,teacher,analyst_sha,designer_sha,teach
     if not np.allclose(designer['atom_weights'],expected,atol=1e-8,rtol=0):raise ValueError('Designer changed Analyst point importance')
     if teacher['representation']!='current_world_A' or teacher['time']!=cfg['teacher_time']:raise ValueError('Actual ancestor clock required')
     if designer['dose']!=cfg['dose'] or designer['teacher_time']!=cfg['teacher_time']:raise ValueError('Unregistered dose/clock intervention')
+    mix=cfg.get('endpoint_mix',0.)
+    if mix and designer.get('endpoint_mix')!=mix:raise ValueError('Designer detached from registered feature-transfer objective')
     semantics=copy.deepcopy(CONTROL_SEMANTICS);semantics['teacher_weights']='analyst_importance_normalized'
     if designer['control_semantics']!=semantics:raise ValueError('Reward sign or correspondence mismatch')
     if not all(0<=s<cfg['guidance_end']<=cfg['teacher_time']<1 for s in cfg['guidance_starts']):raise ValueError('Invalid dynamic guidance clocks')
@@ -79,12 +81,19 @@ def compile_programs(cfg,analyst,designer,teacher,analyst_sha,designer_sha,teach
             'graph_equality_gate':False,'coordinate_evaluation':'linear_bridge_to_actual_teacher_clock',
             'control_semantics':semantics,'formula':'weighted_negative_pseudo_Huber_matched_point_error'}
         HalfStateReward(p,teacher);programs.append(p)
+        if mix:
+            from .two_clock import TwoClockReward
+            p.update(family='actual_partial_two_clock',endpoint_mix=mix,
+                formula='same-point weighted sum of actual-half and actual-final robust matching',
+                coordinate_evaluation='shared-assignment_half_bridge_and_generator_endpoint')
+            TwoClockReward(p,teacher)
     return programs
 
 
 def signature(program):
     keys=['candidate_id','family','atom_slots','atom_weights','teacher_sha256','window','steps','dose','coordinate_evaluation']
     value={k:program[k] for k in keys}
+    if program.get('endpoint_mix',0):value['endpoint_mix']=program['endpoint_mix']
     return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
@@ -96,6 +105,9 @@ def analyze(repo,cfg,feedback,caller=call_json):
     ids=[r['region_id'] for r in packet['regions']];points=len(packet['terminal_coords_A'])
     selected_ids=ids
     if 'required_selected_count' in cfg:selected_ids=[r['region_id'] for r in packet['regions'] if len(r['atom_slots'])==cfg['required_selected_count']]
+    if cfg.get('require_untried_region',False):
+        seen={tuple(p['atom_slots']) for p in cfg.get('previous_selections',[])}
+        selected_ids=[r['region_id'] for r in packet['regions'] if tuple(r['atom_slots']) not in seen]
     properties={'role':{'const':'Analyst'},'candidate_id':{'const':cfg['candidate_id']},'region_ids':arr({'enum':ids},1,2),
         'atom_slots':arr({'type':'integer','minimum':0,'maximum':points-1},2,points-1),
         'hypotheses':arr(obj({'region_id':{'enum':ids},'evidence_id':{'type':'string'},'advantage':text,'alternative':text,'falsifier':text}),1,2),
@@ -106,11 +118,14 @@ def analyze(repo,cfg,feedback,caller=call_json):
             'tradeoff_reason':text})
     # The LLM selects region IDs. Slot expansion is a deterministic lookup, not another language task.
     properties.pop('atom_slots');properties.pop('point_importance')
-    properties['region_ids']=arr({'enum':selected_ids},1,1 if 'required_selected_count' in cfg else 2)
+    properties['region_ids']=arr({'enum':selected_ids},1,1 if 'required_selected_count' in cfg or cfg.get('require_untried_region',False) else 2)
     properties['hypotheses']['items']['properties']['region_id']={'enum':selected_ids}
     if cfg.get('allow_importance',False):
         properties['weighted_points']=arr(obj({'slot':{'type':'integer','minimum':0,'maximum':points-1},
             'relative_weight':{'type':'number','minimum':.1,'maximum':5},'evidence_id':{'type':'string'}}),0,points-1)
+    if 'frozen_selection' in cfg:
+        properties['region_ids']={'const':cfg['frozen_selection']['region_ids']}
+        if cfg.get('allow_importance',False):properties['weighted_points']={'const':[w for w in cfg['frozen_selection']['point_importance'] if w['relative_weight']!=1]}
     schema=obj(properties)
     def extract(raw):
         regions={r['region_id']:r for r in packet['regions']}
@@ -149,6 +164,10 @@ def analyze(repo,cfg,feedback,caller=call_json):
                 'free_slots_delta':a['free_teacher_slots']-b['free_teacher_slots']},'no_llm_arithmetic':True})
     # Teacher is supplied only after actual terminal decision is frozen.
     teacher=read_json(repo/cfg['base_study']/'candidates'/cfg['candidate_id']/'teacher.json');write_json(out/'teacher.json',teacher)
+    if cfg.get('endpoint_mix',0):
+        teacher.update(terminal_representation='terminal_world_A',terminal_coords_A=packet['terminal_coords_A'],
+            terminal_source_sha256=packet['source_sha256']['final_fields'])
+        write_json(out/'teacher.json',teacher)
     terminal=np.asarray(packet['terminal_coords_A']);half=np.asarray(teacher['coords_A']);slots=analyst['atom_slots']
     transfer={'selected_slots':slots,'terminal_to_half_RMS_A':float(np.sqrt(np.square(terminal[slots]-half[slots]).sum(1).mean())),
         'terminal_Rg_A':float(np.sqrt(np.square(terminal[slots]-terminal[slots].mean(0)).sum(1).mean())),
@@ -159,6 +178,8 @@ def analyze(repo,cfg,feedback,caller=call_json):
         'region_ids':{'const':analyst['region_ids']},'atom_slots':{'const':slots},'atom_weights':{'const':weights},
         'teacher_time':{'const':cfg['teacher_time']},'dose':{'const':cfg['dose']},'control_semantics':{'const':semantics},
         'scientific_rationale':{'type':'string','maxLength':5000},'observable_falsifier':text})
+    if cfg.get('endpoint_mix',0):
+        dschema['properties']['endpoint_mix']={'const':cfg['endpoint_mix']};dschema['required'].append('endpoint_mix')
     def validate_d(d):
         try:compile_programs(cfg,analyst,d,teacher,digest(out/'Analyst.json'),'pending',digest(out/'teacher.json'))
         except ValueError as e:fail(str(e))
@@ -166,6 +187,7 @@ def analyze(repo,cfg,feedback,caller=call_json):
         'selected_terminal_regions':[r for r in packet['regions'] if r['region_id'] in analyst['region_ids']],
         'actual_teacher':teacher,'transfer':transfer,'frozen_dose':cfg['dose'],'normalized_weights':weights,
         'required_control_semantics':semantics,'clock':{'starts':cfg['guidance_starts'],'end':cfg['guidance_end']},
+        'endpoint_mix':cfg.get('endpoint_mix',0),'reward_registry':('shared correspondence for BOTH actual half and actual final points on exactly the Analyst-selected slots; no extra model forward or affinity derivative' if cfg.get('endpoint_mix',0) else 'Actual half-state robust point matching'),
         'task':'Design the declared robust partial reward using exactly the Analyst selection. No autonomous region substitution.'},separators=(',',':'))}],
         dschema,out/'Designer.json',input_store=repo/cfg['campaign_study']/'inputs',max_output_tokens=4000,response_validator=validate_d,max_format_repairs=2)
     programs=compile_programs(cfg,analyst,design,teacher,digest(out/'Analyst.json'),digest(out/'Designer.json'),digest(out/'teacher.json'))
