@@ -1,0 +1,70 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "A terminal rollout in which the P081 ∪ P053 union fails to raise top-5 qualified final affinity above the full-cloud baseline (best observed baseline top5_qualified_mean_pic50 8.0650 at baseline_local_0.1), or in which the freed slots 5,8,9,11,13 carry the entire effect, would falsify the claimed advantage. If adding slots 1 and 14 to the P081 union lowers top-5 qualified final affinity or widens the interval without improving the lower bound, the P053 extension is not supported. The original observable that would falsify the proxy's usefulness is the final predicted affinity of valid generated molecules: intermediate matching is not the performance metric.",
+  "region_ids": [
+    "P081",
+    "P053"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "The reward is a robust partial point-cloud imitation term bound to the Analyst-selected union P081 ∪ P053 (slots 0,1,2,3,4,6,7,10,12,14,15,16,17,18,19,20,21,22,23,24), with uniform normalized weights 0.05 over the 20 selected slots. Targets are the verified real current-state ancestor at teacher clock 0.5 (batch 11, candidate F_b011_s030, ancestor_slot 37, parent_copy_verified true, trajectory_sha256 8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270). The selected slots are spatial assignments, not teacher generated-atom indices; the teacher-clock bridge uses the current-coordinate identity derivative plus the real FLOWR coordinate Jacobian. Reward ascent lowers distance error toward the teacher and raises the negative reward toward zero. The dose is the frozen intervention (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0); no kernel scale, geometry weighting, or dose is changed because region-selection parameters are frozen. The proxy operationalizes the Analyst hypothesis that the broad coherent core P081 (incremental_rank_correlation 0.2207, cluster95 [0.0331,0.3793], exclude_teacher_batch_incremental_correlation 0.2299, valid_rest_incremental_correlation 0.2221, final_affinity_rank_correlation 0.5331) with the two-slot P053 extension (slots 1 and 14) preserves surrounding spatial organization while leaving slots 5,8,9,11,13 free for reorganization. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates; actual displacement and the unguided suffix must be recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works.",
+  "teacher_time": 0.5
+}

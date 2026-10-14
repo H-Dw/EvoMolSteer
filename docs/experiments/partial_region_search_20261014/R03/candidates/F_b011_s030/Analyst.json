@@ -1,0 +1,156 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "If the broader coherent core is useful, terminal rollouts using the P081 ∪ P053 union should raise the mean of top-5 qualified final predictions above the full-cloud baseline (best observed baseline top5_qualified_mean_pic50 8.0650 at baseline_local_0.1) while keeping the freed slots 5,8,9,11,13 available for reorganization. Intermediate matching is not the performance metric; the metric is final predicted affinity of valid generated molecules.",
+  "free_region_rationale": "Slots 5,8,9,11,13 are left free. They are the complement of the P081 core and are not part of the P053 extension. Freeing them preserves the surrounding spatial organization of the broader coherent core while allowing the terminal rollout to reorganize that smaller region, which is the intended contrast with tiny-point overfitting. No claim is made that these slots are unimportant; they are simply the specified free part of the union.",
+  "hypotheses": [
+    {
+      "advantage": "Broad 20-slot coherent core with the strongest supplied incremental evidence: incremental_rank_correlation 0.2207, incremental_cluster95 [0.0331,0.3793] (lower bound above zero), exclude_teacher_batch_incremental_correlation 0.2299, valid_rest_incremental_correlation 0.2221, final_affinity_rank_correlation 0.5331, nearest_rest_pic50_mean 7.976 with min 7.531. It preserves surrounding spatial organization (teacher_Rg 3.108, protein_atoms_within_6A_mean 24.8) while freeing only slots 5,8,9,11,13, matching the context-preserving-core intervention rather than tiny-point overfitting.",
+      "alternative": "The association could reflect overall pose/cloud similarity or historical SMC dependence rather than useful spatial organization; the cluster interval is wide and the final head is a label, not an experimental affinity.",
+      "evidence_id": "P081/geometry",
+      "falsifier": "A terminal rollout in which the P081 union fails to raise top-5 qualified final affinity above the full-cloud baseline, or in which the freed slots 5,8,9,11,13 carry the entire effect, would falsify the claimed advantage.",
+      "region_id": "P081"
+    },
+    {
+      "advantage": "Second, partially independent 12-slot core: incremental_rank_correlation 0.1824, incremental_cluster95 [-0.0068,0.3244], exclude_teacher_batch_incremental_correlation 0.1912, valid_rest_incremental_correlation 0.1900, final_affinity_rank_correlation 0.5233, nearest_rest_pic50_mean 7.995 with min 7.531. Its union with P081 adds slots 1 and 14 while retaining the same free complement, so it tests whether the broader coherent core is robust to including two additional context slots.",
+      "alternative": "The P053 interval lower bound is slightly below zero, so its apparent incremental signal may be unresolved noise or shared with P081 rather than an independent contribution.",
+      "evidence_id": "P053/geometry",
+      "falsifier": "If adding slots 1 and 14 to the P081 union lowers top-5 qualified final affinity or widens the interval without improving the lower bound, the P053 extension is not supported.",
+      "region_id": "P053"
+    }
+  ],
+  "point_importance": [
+    {
+      "evidence_id": "point/0",
+      "relative_weight": 1.0,
+      "slot": 0
+    },
+    {
+      "evidence_id": "point/1",
+      "relative_weight": 1.0,
+      "slot": 1
+    },
+    {
+      "evidence_id": "point/2",
+      "relative_weight": 1.0,
+      "slot": 2
+    },
+    {
+      "evidence_id": "point/3",
+      "relative_weight": 1.0,
+      "slot": 3
+    },
+    {
+      "evidence_id": "point/4",
+      "relative_weight": 1.0,
+      "slot": 4
+    },
+    {
+      "evidence_id": "point/6",
+      "relative_weight": 1.0,
+      "slot": 6
+    },
+    {
+      "evidence_id": "point/7",
+      "relative_weight": 1.0,
+      "slot": 7
+    },
+    {
+      "evidence_id": "point/10",
+      "relative_weight": 1.0,
+      "slot": 10
+    },
+    {
+      "evidence_id": "point/12",
+      "relative_weight": 1.0,
+      "slot": 12
+    },
+    {
+      "evidence_id": "point/14",
+      "relative_weight": 1.0,
+      "slot": 14
+    },
+    {
+      "evidence_id": "point/15",
+      "relative_weight": 1.0,
+      "slot": 15
+    },
+    {
+      "evidence_id": "point/16",
+      "relative_weight": 1.0,
+      "slot": 16
+    },
+    {
+      "evidence_id": "point/17",
+      "relative_weight": 1.0,
+      "slot": 17
+    },
+    {
+      "evidence_id": "point/18",
+      "relative_weight": 1.0,
+      "slot": 18
+    },
+    {
+      "evidence_id": "point/19",
+      "relative_weight": 1.0,
+      "slot": 19
+    },
+    {
+      "evidence_id": "point/20",
+      "relative_weight": 1.0,
+      "slot": 20
+    },
+    {
+      "evidence_id": "point/21",
+      "relative_weight": 1.0,
+      "slot": 21
+    },
+    {
+      "evidence_id": "point/22",
+      "relative_weight": 1.0,
+      "slot": 22
+    },
+    {
+      "evidence_id": "point/23",
+      "relative_weight": 1.0,
+      "slot": 23
+    },
+    {
+      "evidence_id": "point/24",
+      "relative_weight": 1.0,
+      "slot": 24
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P053",
+    "chosen_region": "P081",
+    "tradeoff_reason": "P081 is numerically stronger than P053 on every supplied incremental metric: incremental_rank_correlation 0.2207 vs 0.1824, cluster95 lower bound 0.0331 vs -0.0068, exclude_teacher_batch_incremental_correlation 0.2299 vs 0.1912, valid_rest_incremental_correlation 0.2221 vs 0.1900, and final_affinity_rank_correlation 0.5331 vs 0.5233. P053 is retained only as a two-slot extension (slots 1 and 14) of the P081 core because its interval lower bound is below zero and its incremental evidence is weaker. The tradeoff is that the union is broader and may dilute the P081 signal, but it preserves more surrounding spatial organization and leaves the same smaller free region."
+  },
+  "region_ids": [
+    "P081",
+    "P053"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "Chosen union is P081 ∪ P053 = slots 0,1,2,3,4,6,7,10,12,14,15,16,17,18,19,20,21,22,23,24, leaving slots 5,8,9,11,13 free. P081 has the strongest supplied incremental evidence (incremental_rank_correlation 0.2207, cluster95 lower bound 0.0331, exclude-batch 0.2299, valid-rest 0.2221) and the highest final_affinity_rank_correlation among the broad cores (0.5331). P053 is the numerically compared alternative: incremental_rank_correlation 0.1824, cluster95 [-0.0068,0.3244], exclude-batch 0.1912, valid-rest 0.1900, final_affinity_rank_correlation 0.5233. P053 is weaker on every incremental metric and its interval lower bound is below zero, so it is included only as a two-slot extension (slots 1 and 14) of the P081 core, not as an independently stronger region. This is one union reward, not two independent region experiments; the individual effects of P081 and P053 have not been compared. The tiny-point alternative P093 (slots 4,15,22) has incremental_rank_correlation -0.0952 and cluster95 [-0.2736,0.1234], so it is not preferred."
+}

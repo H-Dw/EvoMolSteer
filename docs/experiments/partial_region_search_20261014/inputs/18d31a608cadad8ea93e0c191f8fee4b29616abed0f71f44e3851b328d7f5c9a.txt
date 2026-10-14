@@ -1,0 +1,49 @@
+{
+  "role": "Analyst",
+  "candidate_id": "F_b011_s030",
+  "region_ids": ["P081"],
+  "atom_slots": [0, 1, 2, 3, 4, 6, 7, 10, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+  "hypotheses": [
+    {
+      "region_id": "P081",
+      "evidence_id": "P081/geometry",
+      "advantage": "P081 is the only supplied region whose incremental cluster95 interval excludes zero on the positive side ([0.0331, 0.3793]) and whose incremental rank correlation is positive (0.2207). It also has the highest final_affinity_rank_correlation among supplied regions (0.5331) and the highest exclude_teacher_batch_incremental_correlation (0.2299). Its nearest_rest_pic50_mean is 7.9756, above the overall mean of 7.6473. The region is a 20-slot coherent core that leaves only slots 5, 8, 9, 11 free, matching the intervention's request for a broader coherent core with a smaller free region. The positive incremental association survives removal of overall-cloud similarity and teacher-batch exclusion, suggesting the region captures spatial organization associated with higher final affinity rather than mere pose familiarity.",
+      "alternative": "The positive incremental association could reflect a lineage-cluster artifact: the 20-slot core may simply be the common scaffold shared by high-scoring historical finals, and the incremental correlation may be driven by a few clusters rather than a generalizable spatial constraint. The wide interval [0.0331, 0.3793] is consistent with a small true effect. The nearest_rest_pic50_min of 7.5308 is a nearby low-scoring counterexample, showing that the region does not guarantee high affinity. The region's high final_affinity_rank_correlation (0.5331) is not adjusted for overall pose similarity, so it may be confounded by general shape complementarity.",
+      "falsifier": "If a new molecule matching P081's spatial pattern but with a different free-region composition fails to exceed the reference final score, or if the incremental correlation drops to zero when controlling for lineage cluster, the region's advantage would be falsified."
+    }
+  ],
+  "point_importance": [
+    {"slot": 0, "relative_weight": 1.0, "evidence_id": "point/0"},
+    {"slot": 1, "relative_weight": 1.0, "evidence_id": "point/1"},
+    {"slot": 2, "relative_weight": 1.0, "evidence_id": "point/2"},
+    {"slot": 3, "relative_weight": 1.0, "evidence_id": "point/3"},
+    {"slot": 4, "relative_weight": 1.0, "evidence_id": "point/4"},
+    {"slot": 6, "relative_weight": 1.0, "evidence_id": "point/6"},
+    {"slot": 7, "relative_weight": 1.0, "evidence_id": "point/7"},
+    {"slot": 10, "relative_weight": 1.0, "evidence_id": "point/10"},
+    {"slot": 12, "relative_weight": 1.0, "evidence_id": "point/12"},
+    {"slot": 14, "relative_weight": 1.0, "evidence_id": "point/14"},
+    {"slot": 15, "relative_weight": 1.0, "evidence_id": "point/15"},
+    {"slot": 16, "relative_weight": 1.0, "evidence_id": "point/16"},
+    {"slot": 17, "relative_weight": 1.0, "evidence_id": "point/17"},
+    {"slot": 18, "relative_weight": 1.0, "evidence_id": "point/18"},
+    {"slot": 19, "relative_weight": 1.0, "evidence_id": "point/19"},
+    {"slot": 20, "relative_weight": 1.0, "evidence_id": "point/20"},
+    {"slot": 21, "relative_weight": 1.0, "evidence_id": "point/21"},
+    {"slot": 22, "relative_weight": 1.0, "evidence_id": "point/22"},
+    {"slot": 23, "relative_weight": 1.0, "evidence_id": "point/23"},
+    {"slot": 24, "relative_weight": 1.0, "evidence_id": "point/24"}
+  ],
+  "selection_rationale": "P081 is selected because it is the only supplied region with a positive incremental cluster95 interval excluding zero, the highest final_affinity_rank_correlation (0.5331), and the highest exclude_teacher_batch_incremental_correlation (0.2299). Its 20-slot coherent core leaves only slots 5, 8, 9, 11 free, matching the intervention's request for a broader coherent core with a smaller free region. The alternative P088 has a higher final_affinity_rank_correlation (0.5693) but its incremental cluster95 interval includes zero ([-0.0650, 0.3314]) and its incremental rank correlation (0.1773) is lower than P081's, so P081 has stronger incremental evidence. The tiny-point alternative P093 has a negative incremental rank correlation (-0.0952) and a wide interval including zero, so it is not supported. The chosen-minus-alternative increments are: incremental_delta = 0.2207 - 0.1773 = 0.0434; nearby_affinity_delta = 7.9756 - 7.8747 = 0.1009; interval_lower_delta = 0.0331 - (-0.0650) = 0.0981; free_slots_delta = 5 - 1 = 4. These increments favor P081 on incremental evidence and interval lower bound, while P088 has a slightly higher raw final_affinity_rank_correlation and a higher nearby_rest_pic50_mean. The tradeoff is that P081 frees 4 more slots, preserving more spatial organization, which is the intervention's goal.",
+  "free_region_rationale": "The free region is slots 5, 8, 9, 11. These slots are not in P081's atom_slots and are the complement of the 20-slot core. They are left free to allow the model to explore alternative spatial arrangements in a smaller region while preserving the broader coherent core. This matches the intervention's request to free a smaller region while preserving surrounding spatial organization.",
+  "expected_final_response": "The expected final response is a set of valid molecules with high predicted affinity, approaching or exceeding the reference final score of 8.7048. The broader coherent core should preserve spatial organization associated with higher final affinity, while the smaller free region allows exploration. The mean of top 5 qualified final predictions should be at least as high as the baseline, and the mean of all attempts should not degrade. The half-state loss should improve, but final affinity is the performance metric.",
+  "quantitative_comparison": {
+    "chosen_region": "P081",
+    "alternative_region": "P088",
+    "incremental_delta": 0.0434,
+    "nearby_affinity_delta": 0.1009,
+    "interval_lower_delta": 0.0981,
+    "free_slots_delta": 4,
+    "tradeoff_reason": "P081 has stronger incremental evidence (positive interval excluding zero, higher incremental rank correlation) and frees 4 more slots, preserving more spatial organization. P088 has a slightly higher raw final_affinity_rank_correlation and a higher nearby_rest_pic50_mean, but its incremental interval includes zero, so its advantage is less certain. The intervention prioritizes a broader coherent core with a smaller free region, which P081 provides."
+  }
+}
