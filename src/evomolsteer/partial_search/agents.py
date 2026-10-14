@@ -53,10 +53,6 @@ def validate_analysis(answer,packet):
     if 'quantitative_comparison' in answer:
         c=answer['quantitative_comparison'];a=regions[c['chosen_region']];b=regions[c['alternative_region']]
         if c['chosen_region'] not in chosen or c['chosen_region']==c['alternative_region']:fail('Comparison must use a chosen region and a different actual alternative')
-        if c['declared_basis']=='incremental_advantage' and a['incremental_rank_correlation']<b['incremental_rank_correlation']:
-            fail('Declared incremental advantage reverses the supplied statistic')
-        if c['declared_basis']=='nearby_affinity_advantage' and a['nearest_rest_pic50_mean']<b['nearest_rest_pic50_mean']:
-            fail('Declared nearby-affinity advantage reverses actual counterexample scores')
 
 
 def compile_programs(cfg,analyst,designer,teacher,analyst_sha,designer_sha,teacher_sha):
@@ -105,7 +101,7 @@ def analyze(repo,cfg,feedback,caller=call_json):
         'selection_rationale':text,'free_region_rationale':text,'expected_final_response':text}
     if cfg.get('quantitative_decision',False):
         properties['quantitative_comparison']=obj({'chosen_region':{'enum':ids},'alternative_region':{'enum':ids},
-            'declared_basis':{'enum':['incremental_advantage','nearby_affinity_advantage','uncertainty_tradeoff','spatial_context_tradeoff']},'tradeoff_reason':text})
+            'tradeoff_reason':text})
     schema=obj(properties)
     def validate(a):
         validate_analysis(a,packet)
