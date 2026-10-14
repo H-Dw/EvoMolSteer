@@ -33,6 +33,3 @@ and quality. A reduced half-state loss alone cannot promote a selection policy.
 Observe the supplied single research intervention; do not silently change clock,
 teacher, dose or scoring. Keep an auditable evidence-to-selection explanation.
 
-
-
-Current research intervention: Use the nearest low-scoring final counterexamples to reject geometry that is shared with failures; explain the discriminating addition or omission.
