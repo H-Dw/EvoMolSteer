@@ -1,0 +1,69 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.046511627907,
+    0.06976744186,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907,
+    0.06976744186,
+    0.06976744186,
+    0.046511627907,
+    0.046511627907,
+    0.046511627907
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "If a matched selection using only P076's slots fails to beat the R13_0.1 checkpoint (best_qualified_pic50 8.378, top5 mean 8.119) on terminal final affinity (best_qualified_pic50, top5_qualified_mean_pic50, mean_all_pic50), or if the incremental association collapses when the overall-cloud similarity term is removed, then the region's apparent advantage is confounded and the spatial imitation proxy is not useful. The original observable that would falsify the proxy is the terminal final affinity of the generated structures under the frozen dose and seed 42: if the P076-restricted reward does not improve terminal final affinity over the R13_0.1 checkpoint, the selected sub-region is not a useful spatial imitation target. Because P076's incremental_cluster95 lower bound is negative (-0.0469) and its incremental interval includes zero, the association could reflect overall pose similarity or lineage composition rather than this sub-region; final head predictions are labels, not experimental affinities, so the coefficient is not a calibrated causal weight. The registered transfer view is a second observed view on the same selected slots, not a forecast or another teacher; if the transfer view is unsupported, defer rather than inventing another target.",
+  "region_ids": [
+    "P076"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "The reward is the registered robust point-cloud matching objective evaluated on the Analyst-selected P076 slots of the verified real current-state ancestor at teacher clock 0.5 (candidate F_b011_s030, batch 11, ancestor_slot 37, parent_copy_verified true, trajectory_sha256 8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270). Atom slots are the identity of atom slots along this recorded lineage only; they are not generated atom indices and carry no inter-molecule atom correspondence. The spatial assignment is fixed during each derivative: each selected slot is assigned to its own teacher-clock coordinate, and the robust kernel (pointcloud_delta_A 1.0) down-weights large residuals so that unmatched or outlier points do not dominate. The Analyst's P076 hypothesis is that the buried sub-region centered on slots 1, 19 and 20 (mean nearest-protein distance 3.67 A, 24.2 protein atoms within 6 A, teacher_Rg 3.16 A) carries the pose-relevant contact geometry, supported by final_affinity_rank_correlation 0.5249, nearest_rest_pic50_min 7.722 (highest among 20-slot regions), and positive exclude_teacher_batch_incremental_correlation 0.1389 and valid_rest_incremental_correlation 0.1418. The reward implements this as a spatial imitation proxy: it does not differentiate the affinity head and does not treat the correlation coefficient as a calibrated causal weight; it only asks the generated coordinates to imitate the observed teacher-clock geometry on those slots, with modest geometry-motivated relative weights (1.5 for the three center slots, 1.0 for the remaining selected slots), normalized to the supplied atom_weights. Gradient ascent lowers distance error and increases the negative reward toward zero. The actual teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian; native chemical graph transitions are left free and no particle resampling is introduced. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates, so actual displacement and the unguided suffix must be recorded. The frozen dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0) and seed 42 are unchanged. The registered two-clock transfer view (selected_slots identical to the P076 union, terminal_to_half_RMS_A 1.9976, half_Rg_A 1.5549, terminal_Rg_A 3.1598) is a second observed view on the SAME selected slots, not a forecast or another teacher; it uses one shared spatial assignment for the actual intermediate and actual final views, with the frozen component coefficient, and its derivative includes the half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term, with guidance windows and dose fixed and no extra generator forward or affinity inference. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works.",
+  "teacher_time": 0.5
+}
