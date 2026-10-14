@@ -94,6 +94,8 @@ def analyze(repo,cfg,feedback,caller=call_json):
     skill_path=repo/cfg['analyst_skill'];designer_path=repo/cfg['designer_skill']
     skill=skill_path.read_text(encoding='utf-8');dskill=designer_path.read_text(encoding='utf-8')
     ids=[r['region_id'] for r in packet['regions']];points=len(packet['terminal_coords_A'])
+    selected_ids=ids
+    if 'required_selected_count' in cfg:selected_ids=[r['region_id'] for r in packet['regions'] if len(r['atom_slots'])==cfg['required_selected_count']]
     properties={'role':{'const':'Analyst'},'candidate_id':{'const':cfg['candidate_id']},'region_ids':arr({'enum':ids},1,2),
         'atom_slots':arr({'type':'integer','minimum':0,'maximum':points-1},2,points-1),
         'hypotheses':arr(obj({'region_id':{'enum':ids},'evidence_id':{'type':'string'},'advantage':text,'alternative':text,'falsifier':text}),1,2),
@@ -102,7 +104,21 @@ def analyze(repo,cfg,feedback,caller=call_json):
     if cfg.get('quantitative_decision',False):
         properties['quantitative_comparison']=obj({'chosen_region':{'enum':ids},'alternative_region':{'enum':ids},
             'tradeoff_reason':text})
+    # The LLM selects region IDs. Slot expansion is a deterministic lookup, not another language task.
+    properties.pop('atom_slots');properties.pop('point_importance')
+    properties['region_ids']=arr({'enum':selected_ids},1,1 if 'required_selected_count' in cfg else 2)
+    properties['hypotheses']['items']['properties']['region_id']={'enum':selected_ids}
+    if cfg.get('allow_importance',False):
+        properties['weighted_points']=arr(obj({'slot':{'type':'integer','minimum':0,'maximum':points-1},
+            'relative_weight':{'type':'number','minimum':.1,'maximum':5},'evidence_id':{'type':'string'}}),0,points-1)
     schema=obj(properties)
+    def extract(raw):
+        regions={r['region_id']:r for r in packet['regions']}
+        a=dict(raw);slots=sorted({s for key in raw['region_ids'] for s in regions[key]['atom_slots']});a['atom_slots']=slots
+        chosen={w['slot']:w for w in raw.get('weighted_points',[])}
+        if len(chosen)!=len(raw.get('weighted_points',[])) or not set(chosen)<=set(slots):fail('Weighted points must be unique approved region members')
+        a['point_importance']=[chosen.get(s,{'slot':s,'relative_weight':1.,'evidence_id':f'point/{s}'}) for s in slots]
+        validate(a);return a
     def validate(a):
         validate_analysis(a,packet)
         if not cfg.get('allow_importance',False) and any(w['relative_weight']!=1 for w in a['point_importance']):fail('Region-only intervention requires all relative weights exactly 1')
@@ -110,12 +126,18 @@ def analyze(repo,cfg,feedback,caller=call_json):
         w=np.array([r['relative_weight'] for r in a['point_importance']],float);w=w/w.sum()
         if 'required_selected_count' in cfg and len(a['atom_slots'])!=cfg['required_selected_count']:
             fail('This registered spatial-scope intervention requires exactly '+str(cfg['required_selected_count'])+' selected points')
-    analyst=caller([{'role':'system','content':skill},{'role':'user','content':json.dumps({'task':'Choose an evidence-grounded partial terminal region, before seeing its intermediate ancestor.',
+    raw=caller([{'role':'system','content':skill},{'role':'user','content':json.dumps({'task':'Select registered region IDs. The deterministic tool expands their exact point union and default unit weights; do not return a manually copied atom_slots or point_importance list.',
         'packet':packet,'feedback':feedback,'frozen_dose':cfg['dose'],'relative_weights_allowed':cfg.get('allow_importance',False),
         'frozen_selection':cfg.get('frozen_selection'),'already_tested_selections':cfg.get('previous_selections',[]),
         'required_selected_count':cfg.get('required_selected_count'),
         'experiment_goal':'High-affinity valid final molecules approaching or exceeding the reference final score; intermediate matching is not the performance metric'},separators=(',',':'))}],
-        schema,out/'Analyst.json',input_store=repo/cfg['campaign_study']/'inputs',max_output_tokens=5000,response_validator=validate,max_format_repairs=2)
+        schema,out/'Analyst.selection.json',input_store=repo/cfg['campaign_study']/'inputs',max_output_tokens=5000,
+        response_validator=lambda a:extract(a),max_format_repairs=2)
+    analyst=extract(raw)
+    write_json(out/'Analyst.json',analyst)
+    write_json(out/'Analyst.extraction.json',{'raw_selection_sha256':digest(out/'Analyst.selection.json'),
+        'derived_slots':analyst['atom_slots'],'method':'Exact union of LLM-selected registered regions; unspecified point weights are 1',
+        'no_region_substitution':True})
     validate(analyst)
     if 'quantitative_comparison' in analyst:
         c=analyst['quantitative_comparison'];regions={r['region_id']:r for r in packet['regions']}
