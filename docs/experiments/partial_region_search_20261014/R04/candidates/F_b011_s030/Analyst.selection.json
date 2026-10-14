@@ -1,0 +1,24 @@
+{
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "A single union reward over the 24 slots of P088 with slot 15 free. The expected outcome is a test of whether near-complete spatial constraint plus one freed adverse-evidence point improves final qualified pIC50 relative to the full-cloud baseline; the result is not guaranteed and the wide interval means the association is unresolved.",
+  "free_region_rationale": "P088 covers slots 0-14 and 16-24, leaving slot 15 without direct loss. Slot 15 has incremental_rank_correlation -0.0835 and cluster95 [-0.2827, 0.0965], i.e. weak or adverse incremental evidence, so freeing it is consistent with the instruction to free the point with weakest or adverse incremental evidence. This is a leave-one-out experiment, not a claim that slot 15 is unimportant.",
+  "hypotheses": [
+    {
+      "advantage": "P088 is the near-complete 24-slot cloud that omits only slot 15, matching the leave-one-out intervention. Its incremental_rank_correlation (0.1773) and exclude_teacher_batch_incremental_correlation (0.1920) are positive, and its final_affinity_rank_correlation (0.5693) is the highest among the supplied near-complete regions. Its nearest_rest_pic50_mean (7.8747) is above the unguided mean (7.5679), so nearby historical finals are not adverse counterexamples.",
+      "alternative": "The apparent advantage could reflect overall pose similarity rather than region-specific organization: P088 has the largest teacher_Rg_A (3.553) and largest covariance eigenvalues, and its incremental_cluster95 [-0.0650, 0.3314] includes zero, so the positive association is unresolved. The high final_affinity_rank_correlation may also be confounded by the fact that P088 covers almost the whole cloud.",
+      "evidence_id": "P088/geometry",
+      "falsifier": "If a leave-one-out run freeing slot 15 under P088 fails to improve best_qualified_pic50 over the full-cloud baseline, or if the incremental association for P088 disappears after conditioning on overall-cloud similarity, the proposed advantage would be falsified.",
+      "region_id": "P088"
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P091",
+    "chosen_region": "P088",
+    "tradeoff_reason": "P088 has incremental_rank_correlation 0.1773 and final_affinity_rank_correlation 0.5693, while P091 has incremental_rank_correlation 0.0439 and final_affinity_rank_correlation 0.4989. P088 also has a higher nearest_rest_pic50_mean (7.8747 vs 8.0258 for P091, so P091 is actually higher on that metric), but P088's incremental association is stronger. The tradeoff is that P088's incremental_cluster95 includes zero, so the advantage is not resolved; P091's interval also includes zero. P088 is chosen because its incremental evidence is stronger, not because it is proven causal."
+  },
+  "region_ids": [
+    "P088"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "The intervention asks for a near-complete partial cloud with exactly one point freed. Among the supplied near-complete regions (P088-P092, each size 24 with free_teacher_slots 1), P088 has the strongest combination of positive incremental association (0.1773), positive batch-excluded association (0.1920), and the highest final_affinity_rank_correlation (0.5693). P089, P090, and P092 have negative or near-zero incremental associations, and P091 has a much weaker incremental association (0.0439) with a lower final_affinity_rank_correlation (0.4989). P088 therefore provides the best-supported near-complete constraint while leaving exactly one point free."
+}
