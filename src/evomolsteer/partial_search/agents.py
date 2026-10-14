@@ -53,11 +53,10 @@ def validate_analysis(answer,packet):
     if 'quantitative_comparison' in answer:
         c=answer['quantitative_comparison'];a=regions[c['chosen_region']];b=regions[c['alternative_region']]
         if c['chosen_region'] not in chosen or c['chosen_region']==c['alternative_region']:fail('Comparison must use a chosen region and a different actual alternative')
-        fields={'incremental_delta':'incremental_rank_correlation','nearby_affinity_delta':'nearest_rest_pic50_mean',
-            'interval_lower_delta':None,'free_slots_delta':'free_teacher_slots'}
-        for key,field in fields.items():
-            expected=(a['incremental_cluster95'][0]-b['incremental_cluster95'][0]) if field is None else a[field]-b[field]
-            if abs(c[key]-expected)>1e-6:fail(f'Numerical comparison {key} reverses or misquotes supplied evidence')
+        if c['declared_basis']=='incremental_advantage' and a['incremental_rank_correlation']<b['incremental_rank_correlation']:
+            fail('Declared incremental advantage reverses the supplied statistic')
+        if c['declared_basis']=='nearby_affinity_advantage' and a['nearest_rest_pic50_mean']<b['nearest_rest_pic50_mean']:
+            fail('Declared nearby-affinity advantage reverses actual counterexample scores')
 
 
 def compile_programs(cfg,analyst,designer,teacher,analyst_sha,designer_sha,teacher_sha):
@@ -106,8 +105,7 @@ def analyze(repo,cfg,feedback,caller=call_json):
         'selection_rationale':text,'free_region_rationale':text,'expected_final_response':text}
     if cfg.get('quantitative_decision',False):
         properties['quantitative_comparison']=obj({'chosen_region':{'enum':ids},'alternative_region':{'enum':ids},
-            'incremental_delta':{'type':'number'},'nearby_affinity_delta':{'type':'number'},'interval_lower_delta':{'type':'number'},
-            'free_slots_delta':{'type':'integer'},'tradeoff_reason':text})
+            'declared_basis':{'enum':['incremental_advantage','nearby_affinity_advantage','uncertainty_tradeoff','spatial_context_tradeoff']},'tradeoff_reason':text})
     schema=obj(properties)
     def validate(a):
         validate_analysis(a,packet)
@@ -123,6 +121,14 @@ def analyze(repo,cfg,feedback,caller=call_json):
         'experiment_goal':'High-affinity valid final molecules approaching or exceeding the reference final score; intermediate matching is not the performance metric'},separators=(',',':'))}],
         schema,out/'Analyst.json',input_store=repo/cfg['campaign_study']/'inputs',max_output_tokens=5000,response_validator=validate,max_format_repairs=2)
     validate(analyst)
+    if 'quantitative_comparison' in analyst:
+        c=analyst['quantitative_comparison'];regions={r['region_id']:r for r in packet['regions']}
+        a=regions[c['chosen_region']];b=regions[c['alternative_region']]
+        write_json(out/'quantitative_comparison.json',{'agent_declaration':c,
+            'deterministically_computed':{'incremental_delta':a['incremental_rank_correlation']-b['incremental_rank_correlation'],
+                'nearby_affinity_delta':a['nearest_rest_pic50_mean']-b['nearest_rest_pic50_mean'],
+                'interval_lower_delta':a['incremental_cluster95'][0]-b['incremental_cluster95'][0],
+                'free_slots_delta':a['free_teacher_slots']-b['free_teacher_slots']},'no_llm_arithmetic':True})
     # Teacher is supplied only after actual terminal decision is frozen.
     teacher=read_json(repo/cfg['base_study']/'candidates'/cfg['candidate_id']/'teacher.json');write_json(out/'teacher.json',teacher)
     terminal=np.asarray(packet['terminal_coords_A']);half=np.asarray(teacher['coords_A']);slots=analyst['atom_slots']
