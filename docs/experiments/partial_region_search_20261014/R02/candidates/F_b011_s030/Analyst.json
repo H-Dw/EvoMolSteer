@@ -1,0 +1,47 @@
+{
+  "atom_slots": [
+    5,
+    8,
+    11,
+    14
+  ],
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "If P015's geometry is associated with final affinity, the constrained four-slot subset should preserve or improve top-5 qualified mean pic50 relative to the unguided baseline (8.0084) and the previous local_0.1 result (8.0650), while mean_all_pic50 and best_qualified_pic50 are reported separately. Because the cluster95 interval is unresolved, I expect at most a small shift, not a proven improvement. A decline would indicate the geometry is not discriminating under this intervention.",
+  "free_region_rationale": "Slots 0,1,2,3,4,6,7,9,10,12,13,15,16,17,18,19,20,21,22,23,24 remain free. The free part preserves the rest of the terminal pose so that the four-slot constraint can organize local geometry without suppressing alternative placements elsewhere. This is a specified free part, not a claim that the free slots are unimportant.",
+  "hypotheses": [
+    {
+      "advantage": "P015 is a four-slot region whose final_affinity_rank_correlation is 0.5076, the highest among the four-slot regions, with incremental_rank_correlation 0.1290 and cluster95 [-0.1136, 0.3055]. Its nearest_rest_pic50_min is 6.7485 and nearest_rest_pic50_mean is 7.8346, so the nearest low-scoring counterexamples are not the lowest in the catalogue. Its high_rest_error_median_A (0.5229) is below its lower_rest_error_median_A (0.6920), meaning the geometry is closer to the high-scoring rest than to the low-scoring rest. This is the discriminating addition relative to the broad regions: a compact four-slot subset that is not shared with the nearest failures.",
+      "alternative": "The apparent advantage could be a size artifact: P015 has only 4 slots and free_teacher_slots 21, so its lower error and higher nearest-rest minimum may reflect a smaller, easier-to-match subset rather than a geometry associated with final affinity. The cluster95 interval includes zero, so the association is unresolved, not proven positive.",
+      "evidence_id": "P015/geometry",
+      "falsifier": "If a new terminal batch shows P015's nearest-rest pic50 minimum falling to the 6.39-6.75 range of the broad regions, or if its high_rest_error_median_A exceeds its lower_rest_error_median_A, the claim that P015 avoids failure-shared geometry would be falsified.",
+      "region_id": "P015"
+    }
+  ],
+  "point_importance": [
+    {
+      "evidence_id": "point/5",
+      "relative_weight": 1.0,
+      "slot": 5
+    },
+    {
+      "evidence_id": "point/8",
+      "relative_weight": 1.0,
+      "slot": 8
+    },
+    {
+      "evidence_id": "point/11",
+      "relative_weight": 1.0,
+      "slot": 11
+    },
+    {
+      "evidence_id": "point/14",
+      "relative_weight": 1.0,
+      "slot": 14
+    }
+  ],
+  "region_ids": [
+    "P015"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "The intervention asks to use nearest low-scoring final counterexamples to reject geometry shared with failures. The broad regions (P088-P092, size 24) and the 20-slot regions (P073-P087) have nearest_rest_pic50_min values of 6.7485-7.7453 and high_rest_error_median_A generally exceeding lower_rest_error_median_A, indicating their geometry is shared with low-scoring finals. P015 is a compact four-slot region with final_affinity_rank_correlation 0.5076, incremental_rank_correlation 0.1290, and high_rest_error_median_A 0.5229 < lower_rest_error_median_A 0.6920, indicating the four-slot geometry is closer to high-scoring rest than to low-scoring rest. Its cluster95 [-0.1136, 0.3055] is unresolved, not proven zero, so I do not claim a positive effect. I select only P015 because selecting two regions would produce one union reward, not two independent experiments, and the evidence for a second region is weaker. This differs from the already-tested [4,15,22] and [5,8,11,14,23] selections, so it is a different evidence-grounded partial program."
+}

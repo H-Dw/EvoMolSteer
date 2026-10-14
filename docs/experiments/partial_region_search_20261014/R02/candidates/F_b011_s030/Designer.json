@@ -1,0 +1,37 @@
+{
+  "atom_slots": [
+    5,
+    8,
+    11,
+    14
+  ],
+  "atom_weights": [
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "The proxy's usefulness is falsified if, under this frozen dose and the verified real ancestor, the P015 four-slot geometry does not discriminate: specifically if a new terminal batch shows P015's nearest_rest_pic50_min falling into the 6.39-6.75 range of the broad regions, or if its high_rest_error_median_A exceeds its lower_rest_error_median_A, or if the constrained run's top-5 qualified mean pic50 declines relative to the unguided baseline 8.0084 and the previous local_0.1 result 8.0650 while mean_all_pic50 and best_qualified_pic50 are reported separately. Because the cluster95 interval [-0.1136, 0.3055] includes zero, only a small shift is expected; a decline indicates the geometry is not discriminating under this intervention.",
+  "region_ids": [
+    "P015"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "Activate the Analyst-frozen P015 selection exactly: four generated spatial assignments to teacher-clock slots 5, 8, 11, 14 of the verified real ancestor F_b011_s030 at time 0.5 (batch 11, step 50, terminal_slot 30, parent_copy_verified true). These are spatial assignments, not teacher atom indices; the teacher-clock bridge uses the current-coordinate identity derivative plus the real FLOWR coordinate Jacobian, so gradient ascent lowers distance error and raises the negative reward toward zero. Weights are the Analyst importance normalized to uniform 0.25 over the four selected points; no background points, no forecast, no teacher substitution, and no region change are introduced. The reward is a robust point-cloud imitation proxy: it constrains only the local geometry of the four-slot subset (teacher_Rg 1.2537 A, nearest_protein_A_mean 3.5611 A, protein_atoms_within_6A_mean 19.5) while leaving the 21 free teacher slots and native chemical graph transitions unconstrained, so alternative placements elsewhere are not suppressed. The Analyst evidence is explicitly unresolved: final_affinity_rank_correlation 0.5076 with incremental_rank_correlation 0.1290 and cluster95 [-0.1136, 0.3055] including zero, so this is a bounded local test, not a proven positive effect. The discriminating feature is that P015's high_rest_error_median_A (0.5229) is below its lower_rest_error_median_A (0.6920) and its nearest_rest_pic50_min (6.7485) is above the broad-region range, i.e. the four-slot geometry is closer to high-scoring rest than to low-scoring rest. Dose is the frozen intervention: max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates; actual displacement and the unguided suffix must be recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works.",
+  "teacher_time": 0.5
+}

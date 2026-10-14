@@ -24,6 +24,8 @@ Return registered region IDs and their EXACT slot union. Each chosen region need
 an evidence ID, a proposed advantage, a competing explanation and a falsifier.
 Explain which region is free and why. Slot indices belong to the historical
 lineage; new molecules use spatial matching, never index identity.
+Selecting two regions produces ONE union reward, not two independent region
+experiments. Do not claim that their individual effects have been compared.
 
 Freeze hypotheses on final coordinates before reading their intermediate teacher.
 Use real terminal feedback to distinguish loss implementation, transfer fidelity
@@ -32,4 +34,5 @@ Observe the supplied single research intervention; do not silently change clock,
 teacher, dose or scoring. Keep an auditable evidence-to-selection explanation.
 
 
-Current research intervention: Prioritize positive incremental regional affinity association over raw whole-pose similarity; compare several spatial extents.
+
+Current research intervention: Use the nearest low-scoring final counterexamples to reject geometry that is shared with failures; explain the discriminating addition or omission.

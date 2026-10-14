@@ -1,0 +1,113 @@
+{
+  "body": {
+    "max_tokens": 4000,
+    "messages": [
+      {
+        "content_relative_path": "../../../inputs/c018e42589571b98f5c1f0a03d9ef375986c81480d4088eeb950165f731428ea.txt",
+        "content_sha256": "c018e42589571b98f5c1f0a03d9ef375986c81480d4088eeb950165f731428ea",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../../inputs/d599b9763fe4e783566cf988aa6247e9f059eafb741eaf745197243d56f3cf94.txt",
+        "content_sha256": "d599b9763fe4e783566cf988aa6247e9f059eafb741eaf745197243d56f3cf94",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../../inputs/5abb494d421ecf45426431ef2761fd6a9043c093e1034028d19eca5fe34aaef3.txt",
+        "content_sha256": "5abb494d421ecf45426431ef2761fd6a9043c093e1034028d19eca5fe34aaef3",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "atom_slots": {
+        "const": [
+          5,
+          8,
+          11,
+          14
+        ]
+      },
+      "atom_weights": {
+        "const": [
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      "candidate_id": {
+        "const": "F_b011_s030"
+      },
+      "control_semantics": {
+        "const": {
+          "distance_error": "decreases_toward_teacher",
+          "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+          "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+          "optimization": "reward_ascent",
+          "reward_value": "increases_toward_zero",
+          "teacher_weights": "analyst_importance_normalized"
+        }
+      },
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "dose": {
+        "const": {
+          "max_atom_step_A": 0.15,
+          "max_cumulative_rms_A": 6.0,
+          "native_rms_ratio": 0.33,
+          "pointcloud_delta_A": 1.0
+        }
+      },
+      "observable_falsifier": {
+        "maxLength": 2200,
+        "type": "string"
+      },
+      "region_ids": {
+        "const": [
+          "P015"
+        ]
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 5000,
+        "type": "string"
+      },
+      "teacher_time": {
+        "const": 0.5
+      }
+    },
+    "required": [
+      "role",
+      "candidate_id",
+      "decision",
+      "region_ids",
+      "atom_slots",
+      "atom_weights",
+      "teacher_time",
+      "dose",
+      "control_semantics",
+      "scientific_rationale",
+      "observable_falsifier"
+    ],
+    "type": "object"
+  }
+}
