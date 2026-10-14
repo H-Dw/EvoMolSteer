@@ -37,4 +37,4 @@ teacher, dose or scoring. Keep an auditable evidence-to-selection explanation.
 Compare at least one different registered alternative numerically. Choose actual region IDs and declare the comparison basis and tradeoff. The deterministic tool computes exact signed differences; do not perform arithmetic or invent values. Higher nearby-final affinity supports a region; lower nearby-final affinity is a counterexample. Do not call a region strongest when another supplied region has stronger evidence. Raw high/low geometry can be confounded by overall pose; compare it with the provided conditional result. Geometry familiarity or a larger free complement alone cannot override contradictory evidence.
 
 
-Current research intervention: Focus on regional geometry that distinguishes higher-scoring remaining finals from lower-scoring near-matches, not similarity to the one teacher alone.
+Current research intervention: Let lineage-cluster intervals and excluded-teacher-batch sensitivity change the selection, rather than quoting them as a disclaimer.
