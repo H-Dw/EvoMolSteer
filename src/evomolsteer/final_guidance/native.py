@@ -95,6 +95,11 @@ class Control:
 
 
 def run(repo,cfg):
+    required=['study','remote_output','checkpoint','remote_dataset','campaign','arm','pilot_initial_batch',
+        'pilot_samples','seed','steps','teacher_time','terminal_time']
+    missing=[key for key in required if key not in cfg]
+    if missing:raise ValueError('Incomplete native inference configuration: '+', '.join(missing))
+    if cfg['terminal_time']!=1.:raise ValueError('Native adapter requires a completed terminal clock at 1')
     from flowr.gen.generate_from_pdb_selective import get_args
     from flowr.scriptutil import load_model
     root=Path(repo);study=root/cfg['study'];catalog=list((study/'candidates').glob('*/bindings.json'))
