@@ -1,0 +1,25 @@
+{
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "If P009's union is the useful constraint, the terminal run should improve best_qualified_pic50 above the R13_0.1 checkpoint of 8.378 and top5_qualified_mean_pic50 above 8.119, with mean_all_pic50 above 7.683. If the association is only lineage-cluster or pose-cloud confounding, the run should stay at or below those values, which would falsify the selection.",
+  "free_region_rationale": "The free part is the complement of P009's 4-slot union, i.e. all slots except 3, 6, 17 and 21. These include the slots that the declined R01/R02 selections emphasized, and their nearby finals include the lowest-affinity counterexamples (nearest_rest_pic50_min 6.39-6.75). Leaving them free preserves the alternative geometry that the terminal feedback did not support constraining, while P009's union supplies the spatial organization with the strongest supplied association among the schema-available regions.",
+  "hypotheses": [
+    {
+      "advantage": "P009 is a registered region whose incremental association is positive and whose cluster interval excludes zero (incremental_rank_correlation 0.1942, cluster95 [0.0661, 0.3457]); its exclude_teacher_batch_incremental_correlation is 0.2134 and valid_rest_incremental_correlation is 0.1908, so the signal is not driven by a single teacher batch or by the candidate itself. Its nearest_rest_pic50_mean is 8.003 with min 7.531, so the nearby historical finals are not low-affinity counterexamples. The region is a 4-slot union centered on slot 17, leaving the rest of the molecule free, which preserves the alternative geometry that earlier rounds tested without terminal gain.",
+      "alternative": "The positive incremental association could reflect overall pose-cloud similarity rather than a specific spatial constraint: P009's one_vs_rest_difference_A is -0.9483 and its rest_match_RMS_median_A is 1.0032, so the region is not unusually close to the historical cloud. A competing explanation is that the association is a lineage-cluster artifact; the cluster95 lower bound of 0.0661 is only modestly above zero, so this remains unresolved rather than proven. P009's final_affinity_rank_correlation is -0.0480, which is not supportive of final affinity.",
+      "evidence_id": "P009/geometry",
+      "falsifier": "If a terminal run using P009's union produces best_qualified_pic50 at or below the R13_0.1 checkpoint (8.378) and top5_qualified_mean_pic50 at or below 8.119, the claimed advantage is contradicted. If the incremental association disappears when the free complement is also constrained, the region is not the useful spatial organization.",
+      "region_id": "P009"
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P024",
+    "chosen_region": "P009",
+    "tradeoff_reason": "P009 has incremental_rank_correlation 0.1942 with cluster95 [0.0661, 0.3457], while P024 has incremental_rank_correlation 0.1583 with cluster95 [0.0091, 0.3470]. P009 has the higher cluster lower bound (0.0661 vs 0.0091) and the higher incremental association, and its nearby finals are not low-affinity counterexamples (nearest_rest_pic50_mean 8.003, min 7.531). P024's advantage is a larger union (8 slots vs 4) that constrains more of the molecule; the tradeoff is that P024's cluster lower bound is only marginally above zero and its final_affinity_rank_correlation is 0.0190, so its evidence is less consistent. I choose P009 for the stronger and more consistent association, accepting the smaller constrained union."
+  },
+  "region_ids": [
+    "P009"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "The intervention asks to revisit a previously selected region using its actual terminal counterexamples and to remove or change a constraint whose expected response was contradicted. The previously selected small sets (slots 4,15,22 and 5,8,11,14,23) were tested in R01/R02 and declined, with delta_tail_vs_best of -0.0317 and -0.0573; their terminal counterexamples are the low-affinity nearby finals (nearest_rest_pic50_min 6.75 for P093, 6.39 for P014/P016/P018/P019). Among the registered regions available in the response schema, P009 has the strongest supplied evidence: incremental_rank_correlation 0.1942 with cluster95 [0.0661, 0.3457], the highest cluster lower bound among the schema-available regions, and nearest_rest_pic50_mean 8.003 with min 7.531, so the nearby historical finals are not counterexamples. I therefore select P009 alone, which changes the constraint from the contradicted small sets to the region with the strongest supported association among the schema-available IDs.",
+  "weighted_points": []
+}

@@ -1,0 +1,37 @@
+{
+  "atom_slots": [
+    3,
+    6,
+    17,
+    21
+  ],
+  "atom_weights": [
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "If a terminal run using P009's union produces best_qualified_pic50 at or below the R13_0.1 checkpoint (8.378) and top5_qualified_mean_pic50 at or below 8.119, the claimed advantage is contradicted. If the incremental association disappears when the free complement is also constrained, the region is not the useful spatial organization. The original observable that would falsify the proxy's usefulness is the terminal qualified affinity distribution: if constraining only slots 3, 6, 17 and 21 does not improve best_qualified_pic50 above 8.378 and top5_qualified_mean_pic50 above 8.119 with mean_all_pic50 above 7.683, then the P009 spatial imitation proxy is not useful, consistent with the Analyst's noted alternative that the association may be pose-cloud or lineage-cluster confounding rather than a specific spatial constraint.",
+  "region_ids": [
+    "P009"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "Activate the Analyst-selected region P009 exactly as frozen: atom_slots [3,6,17,21], uniform normalized weights [0.25,0.25,0.25,0.25], teacher clock 0.5, and the declared robust point-cloud dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0). The reward is the registered robust partial point-matching objective evaluated only on these four Analyst-selected slots against the verified real current-state ancestor at time 0.5 (batch 11, step 50, terminal_score 8.7048, parent_copy_verified true, trajectory_sha256 8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270). The four slots are a spatial assignment, not teacher atom indices; the teacher-clock bridge uses the current-coordinate identity derivative plus the real FLOWR coordinate Jacobian, so gradient ascent lowers distance error and raises the negative reward toward zero. No affinity head is differentiated and no particle resampling is introduced; native chemical graph transitions remain free. The Analyst hypothesis is that P009's 4-slot union centered on slot 17 is the useful spatial organization: its incremental association is positive with cluster95 [0.0661,0.3457], exclude_teacher_batch_incremental_correlation 0.2134 and valid_rest_incremental_correlation 0.1908, and its nearest_rest_pic50_mean 8.003 (min 7.531) means nearby historical finals are not low-affinity counterexamples. Implementing this as a spatial imitation proxy means the reward constrains only the relative geometry of slots 3, 6, 17 and 21 toward the real ancestor, leaving the complement free so the alternative geometry that earlier rounds tested is not over-constrained. The registered two-clock transfer view supplies actual final coordinates on the same selected slots; it is a second observed view, not a forecast or another teacher, and the shared spatial assignment is used for both the actual intermediate and actual final views with the frozen component coefficient, half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term, with guidance windows and dose fixed and no extra generator forward or affinity inference. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates; actual displacement and the unguided suffix must be recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works.",
+  "teacher_time": 0.5
+}
