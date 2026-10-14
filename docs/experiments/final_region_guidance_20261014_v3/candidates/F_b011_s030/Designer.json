@@ -1,0 +1,33 @@
+{
+  "atom_slots": [
+    4,
+    15,
+    22
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "uniform_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "falsifier": "Reject activation if any of the following holds on the exact active loss: (1) the compiled active teacher-point set is not exactly equal to the approved slots {4,15,22} or the teacher is not the real current_world_A at tau=0.5; (2) analytic and finite-difference derivatives disagree with frozen spatial assignment, or moving an active matched generated point away from its assigned teacher point does not lower R; (3) local mode shows nonzero direct point-cloud derivative on unmatched generated atoms, or whole-cloud mode fails to cover all active teacher points; (4) the real-generator pullback is absent or the identity term is dropped; (5) execution logs do not match the requested window (50/40/20 active updates for starts 0.0/0.1/0.3, end 0.5) or show zero realized dose; (6) the paired whole-cloud control differs in candidate, ancestor, reward family or dose settings, confounding scope with strength or exposure duration. Separately, the Analyst contrasts are falsified if, on a held-out final set with the same batch/root structure, the R00 soft_mass and cov_xz percentiles and the R19 soft_mass percentile are not above the 0.5 null, or if the same contrasts appear equally in low-ranked finals; matching improvement alone does not establish affinity improvement.",
+  "hypothesis_ids": [
+    "H1_R00_occupancy",
+    "H2_R00_axis_dispersion",
+    "H3_R19_occupancy"
+  ],
+  "reward_family": "actual_half_state_pointcloud",
+  "role": "Designer",
+  "scientific_rationale": "Activate the three supported Analyst hypotheses against the real current-state teacher at tau=0.5 (current_world_A, terminal_slot 30, batch 11, step 50, ancestor_slot 37, parent_copy_verified true). Bindings are declarative and unchanged: H1_R00_occupancy and H2_R00_axis_dispersion use region R00 slots [4,15]; H3_R19_occupancy uses region R19 slot [22]. The compiler derives the union of active teacher points and their target coordinates; no compiler ranking or slot substitution is permitted. Teacher slot identity is meaningful only along this recorded lineage and is not assumed to correspond to atoms of the new molecule; generated-atom correspondence is by spatial assignment against generated active atoms, frozen within each derivative. The registered M2-inspired robust point-cloud reward is R = -delta^2*(sqrt(1+q/delta^2)-1) with q = sum_j w_j ||z_pi(j)-y_tau,j||^2, uniform normalized teacher weights, and delta=1.0 A. Guidance ascends the negative reward: approaching teacher points lowers q and raises R toward zero. Local mode applies zero direct point-cloud loss to unmatched generated atoms, though the pulled-back current gradient through the real generator Jacobian may be dense; the identity term in dR/dx_t = a*dR/dz + b*J_f_theta^T*dR/dz is retained. The same-clock bridge z_tau|t = ((1-tau)/(1-t))*x_t + ((tau-t)/(1-t))*f_theta(x_t,t) is a one-forward linear-bridge approximation to the teacher clock, not an exact future rollout or SDE success probability; it avoids mislabeling a real intermediate teacher as a final endpoint. This is a spatial-imitation proxy for the reported terminal observables (soft_mass occupancy, cov_xz axis dispersion), not the same function as regional mass or covariance, and improved matching is not a guaranteed affinity improvement. Paired whole-cloud controls use all active teacher points with the same candidate, ancestor, reward family and dose; local and whole-cloud share frozen dose, robust curvature and per-atom limits, and realized gradient/displacement RMS will be recorded because fixed numeric weights do not guarantee identical realized dose after clipping. Starts 0.0/0.1/0.3 with end 0.5 on the 100-step linear grid give 50/40/20 active updates; delayed starts are a native prefix, not a restart from a historical intermediate state, and the suffix completes without guidance or SMC. No particle resampling, graph-equality acceptance, temperature fitting or affinity-head gradients are used.",
+  "teacher_time": 0.5
+}

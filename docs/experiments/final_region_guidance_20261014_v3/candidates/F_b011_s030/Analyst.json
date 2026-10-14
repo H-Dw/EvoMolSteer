@@ -1,0 +1,49 @@
+{
+  "candidate_id": "F_b011_s030",
+  "decision": "propose",
+  "hypotheses": [
+    {
+      "atom_slots": [
+        4,
+        15
+      ],
+      "claim_kind": "occupancy",
+      "competing_explanation": "The shift is small (0.57 SD) and the rest distribution is broad (SD 6.29e-4); it could reflect batch/root-dependent placement rather than a quality-relevant feature, and occupancy is an untyped compact-mass proxy, not a contact or energy measurement.",
+      "evidence_id": "F_b011_s030/R00/0",
+      "falsifier": "Reject if, on a held-out set of finals with the same batch/root structure, the R00 soft_mass percentile for top-ranked candidates is not above the 0.5 null or if the contrast disappears under valid-rest-only recomputation.",
+      "id": "H1_R00_occupancy",
+      "observable": "landmark_00_soft_mass",
+      "proposed_advantage": "This rank-1 final places slightly more compact mass in the R00 receptor-frame region (slots 4,15) than the rest population: candidate 0.001182 vs rest mean 0.000824, difference +0.000358, standardized difference 0.569, empirical percentile 0.762 over 999 rest candidates (960 valid-rest). If R00 occupancy is favorable, this modest excess is consistent with the candidate's top final rank.",
+      "region_id": "R00"
+    },
+    {
+      "atom_slots": [
+        4,
+        15
+      ],
+      "claim_kind": "axis_dispersion",
+      "competing_explanation": "A covariance entry measures dispersion along coordinate axes only; with only two supported atoms it cannot establish planarity, rigidity or a surface, and the effect is within about half an SD of a wide rest distribution (SD 0.0200).",
+      "evidence_id": "F_b011_s030/R00/8",
+      "falsifier": "Reject if the R00 cov_xz percentile is not reproducible in an independent final set or if the same contrast appears equally in low-ranked finals, indicating it is not rank-associated.",
+      "id": "H2_R00_axis_dispersion",
+      "observable": "landmark_00_cov_xz",
+      "proposed_advantage": "Within the same two-slot R00 support, this candidate's x-z coordinate dispersion is closer to zero than the rest mean (candidate -0.000692 vs rest -0.011533, difference +0.010841, standardized difference 0.541, percentile 0.764), i.e. the two supported atoms are less x-z correlated than typical finals.",
+      "region_id": "R00"
+    },
+    {
+      "atom_slots": [
+        22
+      ],
+      "claim_kind": "occupancy",
+      "competing_explanation": "Support is one atom, so all six covariance entries are identically zero and carry no dispersion information; the occupancy excess is under one SD and may be driven by shared batch/root placement rather than by final quality.",
+      "evidence_id": "F_b011_s030/R19/0",
+      "falsifier": "Reject if the R19 soft_mass percentile for this candidate is not above the 0.5 null in a held-out final set or if single-atom support regions show the same excess across ranks.",
+      "id": "H3_R19_occupancy",
+      "observable": "landmark_19_soft_mass",
+      "proposed_advantage": "The single-atom R19 region (slot 22) shows the largest occupancy contrast in this candidate: 0.000818 vs rest mean 0.000537, difference +0.000282, standardized difference 0.810, empirical percentile 0.832 over 999 rest (960 valid-rest), consistent with a locally denser placement at this receptor-frame landmark.",
+      "region_id": "R19"
+    }
+  ],
+  "rationale": "Rank-1 final (pic50_on_rescore 8.7048, valid_connected true, pb_fast_pass true, energy converged) compared against all 999 other finals (960 valid-rest) using terminal_world_A coordinates. Only R00 (slots 4,15), R13 (slots 8,11,14) and R19 (slot 22) have nonempty registered support; all other regions have empty support and undefined moments, so no hypothesis is filed there. R00 shows a modest positive occupancy shift (soft_mass +3.58e-4, percentile 0.762) with near-null coordinate offsets (|z|<=0.57) and a small cov_xz shift (+0.0108, percentile 0.764); R19 shows the largest occupancy contrast (soft_mass +2.82e-4, z=0.810, percentile 0.832) but zero dispersion on all six covariance entries because its support is a single atom. R13 is essentially at the rest mean (soft_mass z=-0.048) with mildly reduced y/z dispersion (cov_yy z=-0.897, cov_zz z=-0.506). These are descriptive one-to-rest contrasts, not causal or calibrated native-success claims; clones and shared roots make the rest dependent, and covariance entries are axis dispersions, not planarity, rigidity or binding energy.",
+  "role": "Analyst"
+}

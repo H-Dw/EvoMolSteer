@@ -1,0 +1,114 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/6c84b8b611c757175708a95f134a1ed373449e39c22cef07247dde7c078a35fc.txt",
+        "content_sha256": "6c84b8b611c757175708a95f134a1ed373449e39c22cef07247dde7c078a35fc",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/e21457813d1457f8b5745b247ea339547d9da6080e95f54c63332feffd2dfbcf.txt",
+        "content_sha256": "e21457813d1457f8b5745b247ea339547d9da6080e95f54c63332feffd2dfbcf",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/8c14d6cf703084b56c87ae7062551eb2785bf2fc077416c1431acd96df43f3b3.txt",
+        "content_sha256": "8c14d6cf703084b56c87ae7062551eb2785bf2fc077416c1431acd96df43f3b3",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "atom_slots": {
+        "items": {
+          "enum": [
+            4,
+            15,
+            22
+          ],
+          "type": "integer"
+        },
+        "maxItems": 3,
+        "minItems": 0,
+        "type": "array"
+      },
+      "candidate_id": {
+        "const": "F_b011_s030"
+      },
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "dose": {
+        "const": {
+          "max_atom_step_A": 0.15,
+          "max_cumulative_rms_A": 6.0,
+          "native_rms_ratio": 0.33,
+          "pointcloud_delta_A": 1.0
+        }
+      },
+      "expected_response": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "falsifier": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "hypothesis_ids": {
+        "items": {
+          "enum": [
+            "H1_R00_occupancy",
+            "H2_R00_axis_dispersion",
+            "H3_R19_occupancy"
+          ]
+        },
+        "maxItems": 3,
+        "minItems": 0,
+        "type": "array"
+      },
+      "reward_family": {
+        "const": "actual_half_state_pointcloud"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 8192,
+        "type": "string"
+      },
+      "teacher_time": {
+        "const": 0.5
+      }
+    },
+    "required": [
+      "role",
+      "candidate_id",
+      "decision",
+      "hypothesis_ids",
+      "atom_slots",
+      "reward_family",
+      "teacher_time",
+      "dose",
+      "scientific_rationale",
+      "expected_response",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

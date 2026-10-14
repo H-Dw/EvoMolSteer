@@ -1,0 +1,120 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/7931cf022e6e3848f0f29e2f8fb7c07191326343dac0968663797bd9d7c8f65f.txt",
+        "content_sha256": "7931cf022e6e3848f0f29e2f8fb7c07191326343dac0968663797bd9d7c8f65f",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/4b6c3d09629832ff2169ff21c7d1df8a2bec38b323352708b4a088e919937db6.txt",
+        "content_sha256": "4b6c3d09629832ff2169ff21c7d1df8a2bec38b323352708b4a088e919937db6",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/971ea6c4adb2e15868edec026a40ae2b37a93d46b64d932136baeeb7ee5865dd.txt",
+        "content_sha256": "971ea6c4adb2e15868edec026a40ae2b37a93d46b64d932136baeeb7ee5865dd",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "atom_slots": {
+        "items": {
+          "enum": [
+            4,
+            15,
+            22
+          ],
+          "type": "integer"
+        },
+        "maxItems": 3,
+        "minItems": 0,
+        "type": "array"
+      },
+      "candidate_id": {
+        "const": "F_b011_s030"
+      },
+      "control_semantics": {
+        "const": {
+          "distance_error": "decreases_toward_teacher",
+          "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+          "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+          "optimization": "reward_ascent",
+          "reward_value": "increases_toward_zero",
+          "teacher_weights": "uniform_normalized"
+        }
+      },
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "dose": {
+        "const": {
+          "max_atom_step_A": 0.15,
+          "max_cumulative_rms_A": 6.0,
+          "native_rms_ratio": 0.33,
+          "pointcloud_delta_A": 1.0
+        }
+      },
+      "falsifier": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "hypothesis_ids": {
+        "items": {
+          "enum": [
+            "H1_R00_occupancy",
+            "H2_R00_axis_dispersion",
+            "H3_R19_occupancy"
+          ]
+        },
+        "maxItems": 3,
+        "minItems": 0,
+        "type": "array"
+      },
+      "reward_family": {
+        "const": "actual_half_state_pointcloud"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 8192,
+        "type": "string"
+      },
+      "teacher_time": {
+        "const": 0.5
+      }
+    },
+    "required": [
+      "role",
+      "candidate_id",
+      "decision",
+      "hypothesis_ids",
+      "atom_slots",
+      "reward_family",
+      "teacher_time",
+      "dose",
+      "control_semantics",
+      "scientific_rationale",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
