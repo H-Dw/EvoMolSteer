@@ -1,0 +1,69 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    14,
+    15,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "If a new rollout using only P079's union fails to improve top-five qualified mean or mean-all pic50 relative to the R13_0.1 checkpoint, or if the incremental association disappears when the overall-cloud similarity is removed within the same batch, the region's advantage is not supported and the reward should be deferred. The original observable that would falsify the proxy's usefulness is the actual valid-structure and final-affinity outcome across seeds: if the constrained union does not yield improved qualified mean or mean-all pic50 while validity is maintained, the spatial imitation proxy is not useful even if the point-cloud loss decreases.",
+  "region_ids": [
+    "P079"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "The reward is the registered robust point-cloud matching objective over exactly the Analyst-selected P079 union: the 20 slots [0,1,2,3,4,6,7,10,12,13,14,15,17,18,19,20,21,22,23,24] of the verified real current-state ancestor at teacher clock 0.5 (batch 11, step 50, terminal_slot 30, parent_copy_verified true). Weights are the Analyst importance values normalized to a uniform 0.05 per selected slot; no background points, no new region, no forecast, and no substitute teacher are introduced. The selected points implement the Analyst hypothesis as a spatial imitation proxy: P079 is a 20-slot union with 5 free teacher slots, so the reward constrains a broad spatial envelope (teacher_Rg_A 3.029, covariance eigenvalue 3.788) while leaving the complement unconstrained, which is the mechanism by which several starting seeds can accommodate the constraint rather than being forced into one isolated pose. The reward is a proxy, not an exact feature loss: it matches spatial positions of the selected slots, not the affinity head, and no energy or typed-contact interpretation is made from coordinate proximity. Teacher indices are not generated atom indices; the correspondence is a spatial assignment fixed during each derivative, and the actual teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian. Gradient ascent lowers distance error and increases the negative reward toward zero. The affinity head is not differentiated and no particle resampling is introduced; native chemical graph transitions remain free. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates, so actual displacement and the unguided suffix are recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works. The registered two-clock transfer view supplies actual final coordinates on the same selected slots (terminal_to_half_RMS_A 2.038, half_Rg_A 1.489, terminal_Rg_A 3.029); it is a second observed view, not a forecast or another teacher, and the shared spatial assignment is used for both the actual intermediate and actual final views with the frozen component coefficient, half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term, with guidance windows and dose fixed and no extra generator forward or affinity inference. The Analyst's own caveats are preserved: the incremental_rank_correlation is -0.1168 with cluster95 [-0.2954, 0.1752] including zero, one_vs_rest_difference_A is -0.8158, and the negative association may reflect overall pose similarity or lineage structure rather than useful spatial organization; the association is not causal utility and final head predictions are labels, not experimental affinities.",
+  "teacher_time": 0.5
+}

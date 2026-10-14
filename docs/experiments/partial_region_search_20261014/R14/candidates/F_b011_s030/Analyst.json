@@ -1,0 +1,149 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    14,
+    15,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "A single union reward over P079's 20-slot union, with the 5 remaining teacher slots free. Expected effect: improved top-five qualified mean and mean-all pic50 relative to the R13_0.1 checkpoint, with validity maintained across seeds. The association is not causal utility; final head predictions are labels, not experimental affinities, and no energy or typed-contact interpretation is made from coordinate proximity.",
+  "free_region_rationale": "P079 leaves 5 teacher slots free (free_teacher_slots = 5), so the complement of the 20-slot union is unconstrained. This free complement is what allows several starting seeds to accommodate the constraint without forcing a single pose: the union specifies the spatial envelope that must be matched, while the free slots remain available for alternative placements. The free region is therefore the set of teacher slots not in P079's union, and it is left free because the evidence supports the union's spatial organization but does not support constraining the remaining slots.",
+  "hypotheses": [
+    {
+      "advantage": "P079 is a 20-slot union with 5 free teacher slots, so it constrains a broad spatial envelope while leaving a specified complement free. Its incremental_rank_correlation is -0.1168 with cluster95 [-0.2954, 0.1752], and its valid-rest incremental correlation (-0.1260) and exclude-teacher-batch incremental correlation (-0.1187) are consistent in sign and magnitude, so the association is not driven by a single batch or by the excluded teacher batch. Its final_affinity_rank_correlation is 0.2639 and its nearest_rest_pic50_mean is 8.000 with nearest_rest_pic50_min 7.531, so nearby historical finals are not low-scoring counterexamples. This is consistent with the intervention goal of a region that several starting seeds can accommodate rather than one isolated high score.",
+      "alternative": "The negative incremental association could reflect overall pose similarity or lineage structure rather than useful spatial organization: P079 has a large teacher_Rg_A (3.029) and a large covariance eigenvalue (3.788), so it spans a wide geometric envelope and may simply be easier to match. Its one_vs_rest_difference_A is -0.8158, meaning the candidate is closer to the rest cloud than to the one-vs-rest contrast, which is a competing explanation for the apparent association. The cluster95 interval includes zero, so the effect is unresolved in magnitude.",
+      "evidence_id": "P079/geometry",
+      "falsifier": "If a new rollout using only P079's union fails to improve top-five qualified mean or mean-all pic50 relative to the R13_0.1 checkpoint, or if the incremental association disappears when the overall-cloud similarity is removed within the same batch, the region's advantage is not supported.",
+      "region_id": "P079"
+    }
+  ],
+  "point_importance": [
+    {
+      "evidence_id": "point/0",
+      "relative_weight": 1.0,
+      "slot": 0
+    },
+    {
+      "evidence_id": "point/1",
+      "relative_weight": 1.0,
+      "slot": 1
+    },
+    {
+      "evidence_id": "point/2",
+      "relative_weight": 1.0,
+      "slot": 2
+    },
+    {
+      "evidence_id": "point/3",
+      "relative_weight": 1.0,
+      "slot": 3
+    },
+    {
+      "evidence_id": "point/4",
+      "relative_weight": 1.0,
+      "slot": 4
+    },
+    {
+      "evidence_id": "point/6",
+      "relative_weight": 1.0,
+      "slot": 6
+    },
+    {
+      "evidence_id": "point/7",
+      "relative_weight": 1.0,
+      "slot": 7
+    },
+    {
+      "evidence_id": "point/10",
+      "relative_weight": 1.0,
+      "slot": 10
+    },
+    {
+      "evidence_id": "point/12",
+      "relative_weight": 1.0,
+      "slot": 12
+    },
+    {
+      "evidence_id": "point/13",
+      "relative_weight": 1.0,
+      "slot": 13
+    },
+    {
+      "evidence_id": "point/14",
+      "relative_weight": 1.0,
+      "slot": 14
+    },
+    {
+      "evidence_id": "point/15",
+      "relative_weight": 1.0,
+      "slot": 15
+    },
+    {
+      "evidence_id": "point/17",
+      "relative_weight": 1.0,
+      "slot": 17
+    },
+    {
+      "evidence_id": "point/18",
+      "relative_weight": 1.0,
+      "slot": 18
+    },
+    {
+      "evidence_id": "point/19",
+      "relative_weight": 1.0,
+      "slot": 19
+    },
+    {
+      "evidence_id": "point/20",
+      "relative_weight": 1.0,
+      "slot": 20
+    },
+    {
+      "evidence_id": "point/21",
+      "relative_weight": 1.0,
+      "slot": 21
+    },
+    {
+      "evidence_id": "point/22",
+      "relative_weight": 1.0,
+      "slot": 22
+    },
+    {
+      "evidence_id": "point/23",
+      "relative_weight": 1.0,
+      "slot": 23
+    },
+    {
+      "evidence_id": "point/24",
+      "relative_weight": 1.0,
+      "slot": 24
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P009",
+    "chosen_region": "P079",
+    "tradeoff_reason": "P009 has a positive incremental_rank_correlation (0.1942) and a cluster95 interval that excludes zero ([0.0661, 0.3457]), which is stronger than P079's interval that includes zero. However, P009's final_affinity_rank_correlation is -0.0480, i.e. slightly negative, and its nearest_rest_pic50_mean is 8.003 with nearest_rest_pic50_min 7.531. P009 is a 4-slot region with 21 free teacher slots, so it constrains much less spatial structure than P079's 20-slot union. The tradeoff is that P079 constrains a broader envelope and may suppress alternatives, while P009 leaves more free but explains less useful spatial organization. Given the intervention's emphasis on a region several seeds can accommodate, P079's broader union with consistent valid-rest and exclude-teacher-batch correlations is preferred over P009's narrower, less consistent signal."
+  },
+  "region_ids": [
+    "P079"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "The intervention asks for a region that several starting seeds can accommodate, judged by observed validity and tail-versus-mean changes, not one isolated high score. Among the registered regions, P079 is a 20-slot union with 5 free teacher slots, so it constrains a broad spatial envelope while leaving a specified complement free. Its incremental_rank_correlation is -0.1168 with cluster95 [-0.2954, 0.1752], and its valid-rest and exclude-teacher-batch incremental correlations (-0.1260 and -0.1187) are consistent in sign and magnitude, so the signal is not driven by a single batch or by the excluded teacher batch. Its final_affinity_rank_correlation (0.2639) and nearest_rest_pic50_mean (8.000) indicate that nearby historical finals are not low-scoring counterexamples. This is a single union reward, not two independent region experiments.",
+  "weighted_points": []
+}
