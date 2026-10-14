@@ -1,0 +1,146 @@
+{
+  "body": {
+    "max_tokens": 4000,
+    "messages": [
+      {
+        "content_relative_path": "../../../inputs/c018e42589571b98f5c1f0a03d9ef375986c81480d4088eeb950165f731428ea.txt",
+        "content_sha256": "c018e42589571b98f5c1f0a03d9ef375986c81480d4088eeb950165f731428ea",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../../inputs/3e0d2544a3da7ef53e691561a8906c04120d2a80827fec3fda78c49268fb9ffd.txt",
+        "content_sha256": "3e0d2544a3da7ef53e691561a8906c04120d2a80827fec3fda78c49268fb9ffd",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../../inputs/da1101d09b2f642ead31b2935fd5b671b0a1eb0fa3114883c27da51baf58ef0c.txt",
+        "content_sha256": "da1101d09b2f642ead31b2935fd5b671b0a1eb0fa3114883c27da51baf58ef0c",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "atom_slots": {
+        "const": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          10,
+          12,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ]
+      },
+      "atom_weights": {
+        "const": [
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05,
+          0.05
+        ]
+      },
+      "candidate_id": {
+        "const": "F_b011_s030"
+      },
+      "control_semantics": {
+        "const": {
+          "distance_error": "decreases_toward_teacher",
+          "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+          "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+          "optimization": "reward_ascent",
+          "reward_value": "increases_toward_zero",
+          "teacher_weights": "analyst_importance_normalized"
+        }
+      },
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "dose": {
+        "const": {
+          "max_atom_step_A": 0.15,
+          "max_cumulative_rms_A": 6.0,
+          "native_rms_ratio": 0.33,
+          "pointcloud_delta_A": 1.0
+        }
+      },
+      "observable_falsifier": {
+        "maxLength": 2200,
+        "type": "string"
+      },
+      "region_ids": {
+        "const": [
+          "P081",
+          "P009"
+        ]
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 5000,
+        "type": "string"
+      },
+      "teacher_time": {
+        "const": 0.5
+      }
+    },
+    "required": [
+      "role",
+      "candidate_id",
+      "decision",
+      "region_ids",
+      "atom_slots",
+      "atom_weights",
+      "teacher_time",
+      "dose",
+      "control_semantics",
+      "scientific_rationale",
+      "observable_falsifier"
+    ],
+    "type": "object"
+  }
+}
