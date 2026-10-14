@@ -363,9 +363,15 @@ def run_validated(study, job, role, prompt, packet, schema, validate, active, mo
     if role == 'scientist' and problems:
         # Whole-episode validation may diagnose a later interval. Its numeric
         # correction must not cross the fresh episode's initial time gate.
-        problems = ['Previous Scientist output failed source-value, clock, or interval-specificity validation. '
-            'Repair each currently unlocked window using its computed cards; later-window diagnostics are withheld until that window is available.']
+        infrastructure = ('FileNotFoundError:', 'OSError:', 'PermissionError:', 'TimeoutError:', 'ConnectionError:')
+        if all(p.startswith(infrastructure) for p in problems):
+            problems = ['Previous attempts stopped because of an artifact I/O or transport failure. '
+                'Available evidence and information boundaries remain unchanged. Work only on the currently unlocked interval.']
+        else:
+            problems = ['Previous Scientist output failed source-value, clock, or interval-specificity validation. '
+                'Repair each currently unlocked window using its computed cards; later-window diagnostics are withheld until that window is available.']
     first_attempt = max(prior_attempts, default=0) + 1
+    controller_diagnostics = []
     for attempt in range(first_attempt, first_attempt + 3):
         attempt_dir = job / 'attempts' / f'A{attempt:02d}'
         try:
@@ -382,10 +388,20 @@ def run_validated(study, job, role, prompt, packet, schema, validate, active, mo
             return answer
         except Exception as exc:
             diagnostic = f'{type(exc).__name__}: {str(exc)[:3500]}'
-            problems.append(diagnostic if role != 'scientist' else 'Previous Scientist output failed validation; use each unlocked interval\'s actual source cards and provide window-specific evidence. Later-window details are withheld.')
+            controller_diagnostics.append(diagnostic)
+            if role != 'scientist':
+                problems.append(diagnostic)
+            elif isinstance(exc, (OSError, TimeoutError, ConnectionError)):
+                problems.append('Previous attempt stopped because of an artifact I/O or transport failure. '
+                    'Use only the currently unlocked interval; the available evidence and boundaries are unchanged.')
+            else:
+                problems.append('Previous Scientist output failed validation; use each unlocked interval\'s actual source cards and provide window-specific evidence. Later-window details are withheld.')
             write(attempt_dir / 'controller_rejection.json', {'error': diagnostic, 'attempt': attempt})
             print(json.dumps({'job': str(job.relative_to(study)), 'attempt': attempt, 'rejected': diagnostic}, ensure_ascii=False), flush=True)
-    raise RuntimeError(f'No valid {role} result after 3 attempts: ' + problems[-1])
+    # Worker feedback stays clock-sanitized. The privileged controller must
+    # retain the actual infrastructure exception rather than mislabel it as
+    # a Scientist source-validation failure.
+    raise RuntimeError(f'No valid {role} result after 3 attempts: ' + controller_diagnostics[-1])
 
 
 def run_scientist(study, round_dir, code):

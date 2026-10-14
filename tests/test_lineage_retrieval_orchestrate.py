@@ -137,3 +137,22 @@ def test_quality_retry_preserves_unaffected_outputs_and_never_forwards_the_audit
     assert o.audit_and_repair(study, folder, meta, 3)['passes']
     assert (folder / 'rejected' / 'T01' / 'selectors' / 't005' / 'answer.json').exists()
     assert (study / 'versions' / 'selector' / 'Q00' / 'repairs' / 'R00_T01' / 'workflow.md').exists()
+
+
+def test_controller_keeps_infrastructure_error_while_scientist_feedback_is_sanitized(tmp_path, monkeypatch):
+    from evomolsteer.lineage_retrieval import orchestrate as o, runner
+    study = tmp_path / 'study'
+    job = study / 'rounds' / 'R00' / 'scientist'
+    seen = []
+    diagnostic = 'Native event write failed at private W09 future source location'
+    def fail(_job, _role, prompt, *args, **kwargs):
+        seen.append(prompt)
+        raise FileNotFoundError(diagnostic)
+    monkeypatch.setattr(runner, 'run_job', fail)
+    with pytest.raises(RuntimeError, match='FileNotFoundError: Native event write failed'):
+        o.run_validated(study, job, 'scientist', 'Current window only; S.TEST.',
+            {'role': 'scientist'}, {'type': 'object', 'properties': {}}, lambda *args: {}, 'S.TEST')
+    assert len(seen) == 3
+    assert 'artifact I/O or transport failure' in seen[1]
+    assert all('W09' not in prompt and 'future source location' not in prompt for prompt in seen)
+    assert diagnostic in o.read(job / 'attempts' / 'A03' / 'controller_rejection.json')['error']

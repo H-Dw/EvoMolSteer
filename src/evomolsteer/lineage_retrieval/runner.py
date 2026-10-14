@@ -93,10 +93,19 @@ def _project_history_features(rows: Any, features: Any, affinity_available: bool
 
 
 def _atomic(path: Path, data: bytes) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
+    # Internal Windows I/O uses extended-length absolute paths. Keep the
+    # controller's public artifact locations unchanged and do not alter the
+    # machine-wide long-path setting.
+    target = path.absolute()
+    if os.name == 'nt':
+        name = str(target)
+        if not name.startswith('\\\\?\\'):
+            name = ('\\\\?\\UNC\\' + name[2:]) if name.startswith('\\\\') else ('\\\\?\\' + name)
+        target = Path(name)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    tmp = target.with_name(target.name + ".tmp")
     tmp.write_bytes(data)
-    os.replace(tmp, path)
+    os.replace(tmp, target)
 
 
 def _scientist_interval_payload(source: dict[str, Any], interval: int) -> dict[str, Any]:

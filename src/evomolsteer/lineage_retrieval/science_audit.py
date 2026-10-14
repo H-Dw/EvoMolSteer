@@ -273,7 +273,10 @@ def audit_scientist_submission(job_dir: str | Path, source: Mapping[str, Any], i
         "schema_sha256": _json_sha(schema), "model": MODEL, "effort": EFFORT,
         "turn_timeout_seconds": 1200, "transport_attempt_limit": 1}
     request_sha = _json_sha(request_record)
-    audit_dir = Path(job_dir) / f"W{interval:02d}" / request_sha
+    # The full SHA-256 remains in the binding. A short directory component
+    # prevents nested native-worker event/receipt filenames exceeding MAX_PATH.
+    # The exact binding check below fails closed on any prefix collision.
+    audit_dir = Path(job_dir) / f"W{interval:02d}" / request_sha[:16]
     audit_dir.mkdir(parents=True, exist_ok=True)
     binding_path = audit_dir / "controller_binding.json"
     if binding_path.exists():

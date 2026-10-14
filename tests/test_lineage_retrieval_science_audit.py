@@ -148,6 +148,9 @@ def test_same_submission_reuses_hash_bound_critic_and_detects_changed_binding(tm
     assert first == second
     assert len(calls) == 1
     binding = next((job / "W01").glob("*/controller_binding.json"))
+    assert len(binding.parent.name) == 16
+    record = json.loads(binding.read_text(encoding='utf-8'))
+    assert len(record['request_sha256']) == 64 and record['request_sha256'].startswith(binding.parent.name)
     changed = json.loads(binding.read_text(encoding="utf-8"))
     changed["source_sha256"] = "tampered"
     binding.write_text(json.dumps(changed), encoding="utf-8")
