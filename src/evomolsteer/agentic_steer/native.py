@@ -159,7 +159,7 @@ def run_job(path):
         init,state=cache[batch];device=torch.device('cuda')
         suffix=RestoredSuffix(state,slot,job['steps'],device);model._agentic_suffix=suffix
         pocket=slice_tree(init['pocket_target'],slot,len(init['target_com']),device)
-        com=np.asarray(init['target_com'][slot]);pocket['complex']=[SimpleNamespace(com=com)]
+        com=np.asarray(init['target_com'][slot]).reshape(3);pocket['complex']=[SimpleNamespace(com=com)]
         prior,current,cond,times=suffix.restore()
         with torch.no_grad():
             first=model._get_predictions(model(current,pocket,times,
