@@ -38,5 +38,3 @@ Compare at least one different registered alternative numerically. Choose actual
 
 
 Current research intervention: Use point-level incremental evidence to compare equal weights with supported importance weights; explain every weight through a delivered point evidence ID.
-
-This is a frozen-selection confirmation. Do not change the supplied frozen region or point importance.
