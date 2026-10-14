@@ -12,7 +12,7 @@ import time
 import paramiko
 
 from evomolsteer.io import read_json,write_json,digest
-from .agents import analyze,signature
+from .agents import analyze,signature,compile_programs,validate_analysis
 from .campaign import prepare_controls,prepare_round,condition_metrics,compact_output,update_state
 
 
@@ -167,7 +167,16 @@ def run(repo,master_path,stop_after):
             if cfg_path.exists():cfg=read_json(cfg_path);feedback=read_json(repo/cfg['study']/'feedback_input.json')
             else:cfg,cfg_path,feedback=prepare_round(repo,master,number,state)
             emit('agent_call',round=label,strategy=cfg['strategy'])
-            programs=analyze(repo,cfg,feedback)
+            candidate_folder=repo/cfg['study']/'candidates'/master['candidate_id']
+            if (candidate_folder/'bindings.json').exists():
+                # A completed real API request is immutable; do not rebuild its prompt after protocol improvements.
+                a=read_json(candidate_folder/'Analyst.json');d=read_json(candidate_folder/'Designer.json');t=read_json(candidate_folder/'teacher.json')
+                validate_analysis(a,read_json(study/'evidence.json'))
+                programs=compile_programs(cfg,a,d,t,digest(candidate_folder/'Analyst.json'),digest(candidate_folder/'Designer.json'),digest(candidate_folder/'teacher.json'))
+                binding=read_json(candidate_folder/'bindings.json')
+                if [read_json(repo/item['program']) for item in binding['programs']]!=programs:raise ValueError('Cached real decisions differ from current compiler')
+                emit('cached_real_api_validated',round=label)
+            else:programs=analyze(repo,cfg,feedback)
             if not programs:raise ValueError('Designer deferred; no invented replacement region')
             cfg['only_program_ids']=[p['program_id'] for p in programs];write_json(cfg_path,cfg)
             sha=commit(repo,master,f'experiment(partial-search): {label} {cfg["strategy"]} Analyst-bound partial reward')
