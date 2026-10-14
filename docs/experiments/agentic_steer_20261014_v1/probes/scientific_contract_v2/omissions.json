@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "claim_id": 0,
+      "evidence": "The supplied counterexample shows vectors [1.0,0.0] and [-1.0,0.0] have Euclidean distance 2.0, not 0.0; only after taking feature magnitudes first does the distance collapse to 0.0. Euclidean distance preserves sign and distinguishes opposite vectors.",
+      "selection_consequence": "Do not treat Euclidean distance as sign-erasing; the sign-erasure risk lies in preprocessing that takes magnitudes before distance, so verify the feature pipeline rather than the distance metric.",
+      "verdict": "refuted"
+    },
+    {
+      "claim_id": 1,
+      "evidence": "The execution_definition states: 'No worker exceptions in these records. Complete inference followed by decode failure is a chemical failure.' The measured summaries list chemical_decode_failures with infrastructure_failures 0 and execution_status complete, confirming decode failure is a chemical outcome failure, not a numerical job failure.",
+      "selection_consequence": "Score decode failures as chemical outcome failures in the objective; do not exclude them as infrastructure errors or treat them as missing data.",
+      "verdict": "refuted"
+    },
+    {
+      "claim_id": 2,
+      "evidence": "The feature_representation field states: 'features/* is endpoint forecast geometry; only current_Rg_A describes current coordinates.' The candidate features/shape_* table is therefore endpoint forecast geometry, not current coordinates.",
+      "selection_consequence": "Do not use shape_* features as current-state coordinates; use current_Rg_A for current geometry and treat shape_* as forecasts when constructing panels or scoring.",
+      "verdict": "refuted"
+    },
+    {
+      "claim_id": 3,
+      "evidence": "The initial_rule and feedback_rule are verbatim identical, so identical selection code alone does not demonstrate adaptation to feedback. The actual_allocation_code also uses only current joint_head_pic50 and standardized_features, with no terminal-label or feedback term.",
+      "selection_consequence": "Do not infer feedback adaptation from code identity; require an explicit feedback-dependent term or changed allocation before claiming the program adapted.",
+      "verdict": "refuted"
+    }
+  ]
+}

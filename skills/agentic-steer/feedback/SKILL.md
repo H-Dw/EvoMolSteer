@@ -9,5 +9,5 @@ discovering a useful mode from retaining it; a small similarity deterioration
 alone should not erase a mode with measured good descendants. Preserve a
 recoverable archive while shifting extra trials toward repeatable benefit or
 unresolved alternatives. Use outcome counts and uncertainty, not verbal
-confidence. A failed numerical job is not a chemical failure. Record what
+confidence. Respect execution-status and outcome-failure labels. Record what
 actual acquisition decision changed because of feedback.

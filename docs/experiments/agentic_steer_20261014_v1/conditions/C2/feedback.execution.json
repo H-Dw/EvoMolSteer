@@ -1,0 +1,209 @@
+{
+  "audits": [
+    {
+      "action_consequence": "Include N006 and N020 as directions so the signed-rate contrast is measured rather than collapsed by absolute-distance diversity.",
+      "module": "omissions",
+      "sources": [
+        "selection_code",
+        "definitions",
+        "candidate/N006",
+        "candidate/N020"
+      ],
+      "statement": "The baseline selection_code ranks only current head score and geometric diversity; it never uses signed rate features, so candidates with identical static shape but opposite signed drift (e.g., N006 vs N020) are not separated."
+    },
+    {
+      "action_consequence": "Use only observed_valid_terminal paths as evidence and keep unobserved candidates as untested rather than negative examples.",
+      "module": "omissions",
+      "sources": [
+        "definitions",
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/0/47",
+        "path/0/16",
+        "path/1/39"
+      ],
+      "statement": "future_label is withheld and terminal_paths are historical elite/ordinary ancestors; treating extinction or missing descendants as failure labels would bias selection, but the supplied definitions mark them as censored, not failed."
+    },
+    {
+      "action_consequence": "Select N000 and N014, which differ in centroid_z sign, to test whether centroid drift separates outcomes within the current panel.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/0/47",
+        "path/0/16",
+        "path/1/39",
+        "path/1/21"
+      ],
+      "statement": "Elite terminals share negative global_centroid_x and negative global_centroid_y with small |global_centroid_z|, while ordinary terminals show more variable centroid_z; this supports H3 but is confounded by ancestor identity."
+    }
+  ],
+  "code": "",
+  "code_sources": [],
+  "comparisons": [
+    {
+      "distinguishing_outcome": "If N006's large positive rate/shape_zz predicts higher measured pIC50 than N000 despite lower head score, H1 is supported over H4.",
+      "left": "N000",
+      "observable": "joint_head_pic50 and rate/shape_zz",
+      "remaining_confounding": "Different current_Rg_A (1.0498 vs 1.0228) and different landmark_05 occupancy5.",
+      "right": "N006"
+    },
+    {
+      "distinguishing_outcome": "If N014's larger |rate/shape_xy| tracks higher measured pIC50 than N020, signed-rate features carry information beyond static shape.",
+      "left": "N014",
+      "observable": "joint_head_pic50 and rate/shape_xy",
+      "remaining_confounding": "Both have low head scores but differ in shape_yy and pair_kernel_3.5.",
+      "right": "N020"
+    },
+    {
+      "distinguishing_outcome": "If N000's smaller |global_centroid_z| and higher shape_yy predict higher measured pIC50, H3 and H4 are jointly supported.",
+      "left": "N000",
+      "observable": "global_centroid_z and shape_yy",
+      "remaining_confounding": "Different forecast_Rg_A (3.5002 vs 3.5883).",
+      "right": "N014"
+    },
+    {
+      "distinguishing_outcome": "If N006's large signed rates predict higher measured pIC50 than N020's near-zero rates, H1 is supported.",
+      "left": "N006",
+      "observable": "rate/shape_xy and rate/shape_xz",
+      "remaining_confounding": "Different landmark_00 occupancy5 and pair_kernel_3.5.",
+      "right": "N020"
+    }
+  ],
+  "directions": [],
+  "hypotheses": [
+    {
+      "direction": "Signed rate features carry quality information that absolute-distance summaries lose: elite historical terminals show coordinated signed drift in shape_xy/shape_xz, while ordinary terminals show mixed or opposite signs at matched clocks.",
+      "id": "H1-signed-rate-vs-static-shape",
+      "observable": [
+        "rate/shape_xy",
+        "rate/shape_xz",
+        "rate/shape_yy",
+        "rate/shape_zz",
+        "shape_yy",
+        "shape_zz"
+      ],
+      "reject_if": "Signed rate contrasts between elite and ordinary ancestors are no larger than their absolute magnitudes or reverse sign across discovery batches.",
+      "sources": [
+        "discovery/0",
+        "discovery/2",
+        "discovery/3",
+        "discovery/4",
+        "discovery/7",
+        "discovery/9",
+        "definitions"
+      ]
+    },
+    {
+      "direction": "Elite outcomes retain high landmark_00 occupancy while landmark_05 and landmark_15 occupancy stay low but nonzero; large positive rate/landmark_05_occupancy5 or rate/landmark_15_occupancy5 marks trajectories that lose the anchor and score lower.",
+      "id": "H2-landmark-occupancy-gradient",
+      "observable": [
+        "landmark_00_occupancy5",
+        "landmark_05_occupancy5",
+        "landmark_15_occupancy5",
+        "rate/landmark_05_occupancy5",
+        "rate/landmark_15_occupancy5"
+      ],
+      "reject_if": "Elite and ordinary terminal profiles overlap in landmark_05/15 occupancy5 and their rates at matched clocks.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/0/47",
+        "path/0/16",
+        "path/1/39",
+        "path/1/21"
+      ]
+    },
+    {
+      "direction": "Elite trajectories drift toward negative global_centroid_x and negative global_centroid_y with small |global_centroid_z|, whereas large positive rate/global_centroid_y or rate/global_centroid_z indicates drift away from the productive pocket region.",
+      "id": "H3-signed-centroid-drift",
+      "observable": [
+        "global_centroid_x",
+        "global_centroid_y",
+        "global_centroid_z",
+        "rate/global_centroid_x",
+        "rate/global_centroid_y",
+        "rate/global_centroid_z"
+      ],
+      "reject_if": "Elite and ordinary terminal centroid coordinates and signed rates are indistinguishable at matched clocks.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/0/47",
+        "path/0/16",
+        "path/1/39",
+        "path/1/21"
+      ]
+    },
+    {
+      "direction": "The joint_head_pic50 forecast is driven mainly by current shape and landmark occupancy rather than by forecast_Rg_A, so candidates with similar forecast_Rg_A but different shape_yy/shape_zz will separate in measured pIC50.",
+      "id": "H4-head-vs-shape",
+      "observable": [
+        "shape_yy",
+        "shape_zz",
+        "pair_kernel_3.5",
+        "landmark_00_occupancy5"
+      ],
+      "reject_if": "Candidates matched on forecast_Rg_A but differing in shape_yy/shape_zz show no measured pIC50 separation.",
+      "sources": [
+        "candidate/N000",
+        "candidate/N006",
+        "candidate/N014",
+        "candidate/N020",
+        "definitions"
+      ]
+    }
+  ],
+  "next_trials": [
+    {
+      "node_id": "N000",
+      "rationale": "Measured qualified terminal feedback; highest head score with two converged replicates below threshold, so a third replicate tests head calibration.",
+      "replicate": 2
+    },
+    {
+      "node_id": "N006",
+      "rationale": "Measured qualified terminal feedback; signed-rate hypothesis predicted high affinity but both replicates are low, so a third replicate tests the reversal.",
+      "replicate": 2
+    },
+    {
+      "node_id": "N014",
+      "rationale": "Measured qualified terminal feedback; one valid low replicate and one not_decodable, so a third replicate tests whether the low head rank is correct.",
+      "replicate": 2
+    },
+    {
+      "node_id": "N020",
+      "rationale": "Measured qualified terminal feedback; one valid low replicate and one not_decodable, so a third replicate tests the near-zero signed-rate contrast.",
+      "replicate": 2
+    }
+  ],
+  "updates": [
+    {
+      "measured_basis": "Two converged replicates with pic50 7.9601 and 7.7726, both valid_connected and qualified_structure, elite_hit false.",
+      "next_test_reason": "Highest joint_head_pic50 (8.956) but measured below the 8.2589 threshold; remaining replicates test whether the head over-predicts this direction.",
+      "node_id": "N000"
+    },
+    {
+      "measured_basis": "Two converged replicates with pic50 7.4972 and 7.0471, both valid_connected and qualified_structure, elite_hit false; large positive rate/shape_zz did not translate into high measured affinity.",
+      "next_test_reason": "Signed-rate hypothesis H1 predicted higher affinity than N000; measured values are lower, so additional replicates test whether this is replicate noise or a genuine reversal.",
+      "node_id": "N006"
+    },
+    {
+      "measured_basis": "One converged valid replicate at pic50 7.363 and one not_decodable replicate (valid_connected false, qualified_structure false); elite_hit false.",
+      "next_test_reason": "Lowest head score among compact-shape candidates; the decodable replicate is low, so remaining replicates test whether the head correctly ranks this direction low.",
+      "node_id": "N014"
+    },
+    {
+      "measured_basis": "One converged valid replicate at pic50 7.3726 and one not_decodable replicate (valid_connected false, qualified_structure false); elite_hit false.",
+      "next_test_reason": "Near-zero signed rates; the valid replicate is low, so remaining replicates test the H1 contrast against N006's large signed rates.",
+      "node_id": "N020"
+    }
+  ]
+}

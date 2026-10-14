@@ -10,6 +10,9 @@ this task. Return one schema-conforming JSON decision. Cite only delivered IDs.
 Separate current states, endpoint forecasts and decoded terminal outcomes.
 Historical extinction is censored future quality, never an observed failure.
 Model affinity is a prediction. A missing energy is unknown, not zero energy.
+When execution status is complete, an undecodable or invalid molecule is a
+chemical outcome failure, not an infrastructure or numerical job failure.
+Use the host's explicit failure classification; do not relabel failed outcomes.
 Do not request a graph-equality gate, alter the generator, or manufacture a state.
 Continuation identity includes its actual state, time, self-conditioning and
 child random stream; repeated use of the same identity reuses one observation.

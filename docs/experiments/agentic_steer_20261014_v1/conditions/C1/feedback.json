@@ -1,0 +1,206 @@
+{
+  "audits": [
+    {
+      "action_consequence": "If H1 holds, prioritize directions with high current shape_yy/shape_zz and positive rate/shape_yy; if rejected, downweight shape features in follow-up selection.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21"
+      ],
+      "statement": "Elite terminal paths (path/0/37, path/0/7, path/2/12, path/3/25) end with shape_yy 6.3-7.6 and shape_zz 6.3-7.2, while the lowest observed terminal (path/1/21, 7.4404) ends with shape_yy ~5.9 and shape_zz ~6.28, supporting H1's shape-extent direction."
+    },
+    {
+      "action_consequence": "If H2 holds, avoid directions with large positive rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5; if rejected, treat landmark rates as uninformative.",
+      "module": "hypotheses",
+      "sources": [
+        "discovery/3",
+        "discovery/0"
+      ],
+      "statement": "Discovery contrast discovery/3 shows elite ancestors have lower landmark_05_occupancy5 and landmark_15_occupancy5 than ordinary ancestors, consistent with H2's local-occupancy direction."
+    },
+    {
+      "action_consequence": "If H3 holds, prefer directions near the elite centroid basin with modest rate/global_centroid_y; if rejected, drop centroid features from the ranking rule.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "discovery/0"
+      ],
+      "statement": "Elite terminal paths converge to global_centroid_x near -0.01 and near-zero centroid_y/z, while discovery/0 shows elite-ordinary signed rate contrast with large negative rate/global_centroid_y, supporting H3's centroid-drift direction."
+    },
+    {
+      "action_consequence": "If H4 holds, prefer compact-packing directions; if rejected, treat pair-kernel features as uninformative for follow-up.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/2/12",
+        "discovery/9"
+      ],
+      "statement": "Elite terminal paths retain pair_kernel_1.5 ~0.18-0.19 with pair_kernel_3.5 >= pair_kernel_5.0, while discovery/9 shows elite-ordinary signed rate contrast with negative rate/pair_kernel_3.5, supporting H4's compactness direction."
+    }
+  ],
+  "code": "",
+  "code_sources": [],
+  "comparisons": [
+    {
+      "distinguishing_outcome": "If N006 (large negative rate/shape_yy, positive rate/shape_zz) yields higher measured pIC50 than N000, H1's static-shape direction is weakened in favor of signed-rate effects.",
+      "left": "N000",
+      "observable": "rate/shape_yy and rate/shape_zz",
+      "remaining_confounding": "Both have similar current shape_yy (6.43 vs 6.08) but N006 has extreme signed shape rates; current joint_head_pic50 differs by only 0.06, so measured outcome differences may reflect noise rather than the rate contrast.",
+      "right": "N006"
+    },
+    {
+      "distinguishing_outcome": "If N013 (large positive landmark rates) yields lower measured pIC50 than N000, H2's prediction is supported; if not, H2 is rejected.",
+      "left": "N000",
+      "observable": "rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5",
+      "remaining_confounding": "N013 has higher current landmark_05_occupancy5 (0.00052 vs 0.00042) and different centroid; the rate contrast is confounded with static occupancy level.",
+      "right": "N013"
+    },
+    {
+      "distinguishing_outcome": "If N002 (less compact packing) yields lower measured pIC50 than N000, H4 is supported; if N002 matches or exceeds N000, H4 is rejected.",
+      "left": "N000",
+      "observable": "pair_kernel_1.5 and pair_kernel_7.0",
+      "remaining_confounding": "N002 also has higher current_Rg_A (1.108 vs 1.050) and different shape_yy (7.43 vs 6.43), so packing compactness is confounded with overall size and shape.",
+      "right": "N002"
+    },
+    {
+      "distinguishing_outcome": "If N006 (higher joint_head_pic50, extreme shape rates) yields higher measured pIC50 than N013 (extreme landmark rates), shape-rate effects dominate landmark-rate effects.",
+      "left": "N006",
+      "observable": "joint_head_pic50 and rate/shape_yy",
+      "remaining_confounding": "Both have large-magnitude signed rates but in different feature families; current joint_head_pic50 differs by 0.65, so outcome differences may reflect the model score rather than the rate mechanism.",
+      "right": "N013"
+    }
+  ],
+  "directions": [],
+  "hypotheses": [
+    {
+      "direction": "Higher predicted pIC50 tracks larger shape_yy/shape_zz (more extended, anisotropic current shape) and positive rate/shape_yy; elite terminal paths end with shape_yy near 6.3-7.6 and shape_zz near 6.3-7.2, while the lowest observed terminal (path/1/21, 7.4404) ends with shape_yy ~5.9 and shape_zz ~6.28.",
+      "id": "H1-global-shape",
+      "observable": [
+        "shape_yy",
+        "shape_zz",
+        "shape_xy",
+        "rate/shape_yy",
+        "rate/shape_zz"
+      ],
+      "reject_if": "If the four selected directions with the largest current shape_yy/shape_zz do not yield higher measured final pIC50 than the two with the smallest, or if measured pIC50 is flat across the shape_yy range 5.8-7.4, this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/0"
+      ]
+    },
+    {
+      "direction": "Higher predicted pIC50 tracks moderate landmark_00_occupancy5 (~0.66-0.73) with low landmark_05/15 occupancy5 (<=~0.001) and near-zero or negative rate/landmark_05_occupancy5; candidates with large positive rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5 (e.g. N013, N016) are predicted to be worse.",
+      "id": "H2-local-landmark-occupancy",
+      "observable": [
+        "landmark_00_occupancy5",
+        "landmark_05_occupancy5",
+        "landmark_15_occupancy5",
+        "rate/landmark_05_occupancy5",
+        "rate/landmark_15_occupancy5"
+      ],
+      "reject_if": "If directions with large positive rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5 (N013, N016) match or exceed measured pIC50 of directions with near-zero rates (N000, N001), this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/3"
+      ]
+    },
+    {
+      "direction": "Elite terminal paths converge to small negative global_centroid_x (~-0.01) and near-zero centroid_y/z, with modest signed rates; candidates whose current centroid is far from that basin (|centroid_x|>0.08) or whose rate/global_centroid_y is large in magnitude (|rate|>2) are predicted to be worse.",
+      "id": "H3-centroid-drift",
+      "observable": [
+        "global_centroid_x",
+        "global_centroid_y",
+        "global_centroid_z",
+        "rate/global_centroid_x",
+        "rate/global_centroid_y",
+        "rate/global_centroid_z"
+      ],
+      "reject_if": "If measured pIC50 is uncorrelated with distance of current centroid from the elite terminal basin, or if large |rate/global_centroid_y| directions (N009, N013, N016) are not worse than small-rate directions, this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/0"
+      ]
+    },
+    {
+      "direction": "Higher predicted pIC50 tracks pair_kernel_1.5 ~0.18-0.19 with pair_kernel_3.5 >= pair_kernel_5.0 (compact, locally dense packing); candidates with pair_kernel_1.5 <0.18 and pair_kernel_7.0 >0.21 (N002, N009, N014) are predicted to be worse.",
+      "id": "H4-pair-kernel-compactness",
+      "observable": [
+        "pair_kernel_1.5",
+        "pair_kernel_2.5",
+        "pair_kernel_3.5",
+        "pair_kernel_5.0",
+        "pair_kernel_7.0",
+        "rate/pair_kernel_3.5"
+      ],
+      "reject_if": "If directions with pair_kernel_1.5 <0.18 and pair_kernel_7.0 >0.21 (N002, N009, N014) match or exceed measured pIC50 of directions with pair_kernel_1.5 ~0.185-0.19, this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/9"
+      ]
+    }
+  ],
+  "next_trials": [
+    {
+      "node_id": "N000",
+      "rationale": "Measured qualified terminal feedback; highest measured mean (7.8664) among observed nodes, unobserved replicate.",
+      "replicate": 2
+    },
+    {
+      "node_id": "N000",
+      "rationale": "Measured qualified terminal feedback; highest measured mean (7.8664) among observed nodes, unobserved replicate.",
+      "replicate": 3
+    },
+    {
+      "node_id": "N002",
+      "rationale": "Measured qualified terminal feedback; second-highest measured mean (7.9123), unobserved replicate.",
+      "replicate": 2
+    },
+    {
+      "node_id": "N002",
+      "rationale": "Measured qualified terminal feedback; second-highest measured mean (7.9123), unobserved replicate.",
+      "replicate": 3
+    }
+  ],
+  "updates": [
+    {
+      "measured_basis": "Two measured replicates: pic50 7.9601 and 7.7726, both valid_connected and qualified_structure, elite_hit false; mean 7.8664.",
+      "next_test_reason": "Highest measured mean among observed nodes; remaining unobserved replicates 2 and 3 can test whether the high measured affinity persists.",
+      "node_id": "N000"
+    },
+    {
+      "measured_basis": "Two measured replicates: pic50 7.925 and 7.8995, both valid_connected and qualified_structure, elite_hit false; mean 7.9123.",
+      "next_test_reason": "Second-highest measured mean and consistent across replicates; remaining unobserved replicates 2 and 3 test stability of the high measured affinity.",
+      "node_id": "N002"
+    },
+    {
+      "measured_basis": "Two measured replicates: pic50 7.4972 and 7.0471, both valid_connected and qualified_structure, elite_hit false; mean 7.2722, with one replicate showing mmff_relief_per_heavy 16.483.",
+      "next_test_reason": "Lower measured mean than N000/N002 but one replicate has high strain; remaining unobserved replicates 2 and 3 test whether the low measured affinity is reproducible.",
+      "node_id": "N006"
+    },
+    {
+      "measured_basis": "Two measured replicates: pic50 7.0223 (valid_connected false, qualified_structure false, not_decodable) and 7.3771 (valid_connected true, qualified_structure true); mean 7.1997.",
+      "next_test_reason": "Lowest measured mean with one non-decodable replicate; remaining unobserved replicates 2 and 3 test whether the low measured affinity and structural failure recur.",
+      "node_id": "N013"
+    }
+  ]
+}

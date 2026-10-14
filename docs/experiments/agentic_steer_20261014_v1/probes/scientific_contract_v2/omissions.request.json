@@ -1,0 +1,77 @@
+{
+  "body": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/4245860edd05dcfa4ccde0c80d9a631a65712a8346026ea3a545536b5ef3389e.txt",
+        "content_sha256": "4245860edd05dcfa4ccde0c80d9a631a65712a8346026ea3a545536b5ef3389e",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/af8c574452d8adf7748a7d247e8ecbb75b7462f4fc6a2adeebe9e04a4742eba8.txt",
+        "content_sha256": "af8c574452d8adf7748a7d247e8ecbb75b7462f4fc6a2adeebe9e04a4742eba8",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "checks": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "claim_id": {
+              "enum": [
+                0,
+                1,
+                2,
+                3
+              ],
+              "type": "integer"
+            },
+            "evidence": {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            "selection_consequence": {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            "verdict": {
+              "enum": [
+                "supported",
+                "refuted",
+                "unknown"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "claim_id",
+            "verdict",
+            "evidence",
+            "selection_consequence"
+          ],
+          "type": "object"
+        },
+        "maxItems": 4,
+        "minItems": 4,
+        "type": "array"
+      }
+    },
+    "required": [
+      "checks"
+    ],
+    "type": "object"
+  }
+}

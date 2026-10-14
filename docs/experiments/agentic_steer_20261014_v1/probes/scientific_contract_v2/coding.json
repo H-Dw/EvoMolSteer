@@ -1,0 +1,13 @@
+{
+  "code": "def score(features):\n    shape_term = -np.abs(features['shape_yy'] - 6.6) - np.abs(features['shape_zz'] - 6.0)\n    pair_term = features['pair_kernel_2.5'] + features['pair_kernel_3.5'] - features['pair_kernel_7.0']\n    occ_pen = -np.tanh(features['landmark_05_occupancy5'] * 100.0) - np.tanh(features['landmark_15_occupancy5'] * 100.0)\n    rate_term = -0.5 * np.tanh(features['rate/landmark_05_softmin'] / 10.0) - 0.5 * np.tanh(features['rate/landmark_15_softmin'] / 10.0)\n    return shape_term + pair_term + occ_pen + rate_term\n",
+  "counterexample": "measured/N000: mean_pic50_all=7.744, qualified=2, chemical_decode_failures=1, execution_status=complete. The current rule's occ_term = tanh(landmark_05_occupancy5*1000)+tanh(landmark_15_occupancy5*1000) is near +2 for N000 (occupancy5 ~7.0e-4 and ~1.0e-3), yet N000's measured mean is below the 8.259 threshold and it carries a chemical decode failure. So the occupancy reward does not correspond to measured benefit.",
+  "decision": "revise",
+  "rationale": "Measured feedback shows the current rule's occupancy terms are not tracking the host's outcome summaries. The rule rewards high landmark_05/15 occupancy5 via tanh(occ*1000), but measured/N000 (mean pIC50 7.744, 2 qualified, 1 chemical decode failure) and measured/N013 (7.137, 2 qualified, 1 decode failure) sit below the 8.259 threshold while measured/N001 (7.046, 3 qualified, 0 failures) is the only fully valid measured node. The current rule's shape_term anchors shape_yy~6.6 and shape_zz~6.7, yet the candidate field shows shape_yy spanning ~5.8-7.4 and shape_zz ~5.0-6.6, so the anchor is not discriminating among the delivered candidates. The rate/landmark_05_softmin and rate/landmark_15_softmin terms are dominated by large negative rates (e.g. N013 rate/landmark_05_softmin -12.01, N016 -18.50), which the tanh saturates, collapsing the ranking signal. I revise to a smaller, unit-explicit rule that uses the raw shape and pair-kernel fields with measured spread, keeps a mild occupancy penalty for the saturated landmark_05/15 channels, and avoids saturating tanh on the rate channels. This is a ranking rule, not a binding-affinity claim.",
+  "sources": [
+    "current_rule",
+    "measured/N000",
+    "measured/N001",
+    "measured/N013",
+    "measured/N014"
+  ]
+}

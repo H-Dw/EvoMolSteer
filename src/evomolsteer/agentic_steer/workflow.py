@@ -2,6 +2,9 @@
 import argparse
 import json
 import inspect
+import hashlib
+import re
+import subprocess
 from pathlib import Path
 
 import jsonschema
@@ -18,6 +21,15 @@ from .rules import evaluate_rule
 def obj(properties,required=None):
     return {'type':'object','additionalProperties':False,'properties':properties,
             'required':list(properties) if required is None else required}
+
+
+def skill_text(repo,cfg,module):
+    relative=f'skills/agentic-steer/{module}/SKILL.md'
+    revision=cfg.get('skill_revision')
+    if revision:
+        if not re.fullmatch(r'[0-9a-f]{8,40}',revision):raise ValueError('Skill revision must be a commit SHA')
+        return subprocess.check_output(['git','show',revision+':'+relative],cwd=repo,text=True,encoding='utf-8')
+    return (Path(repo)/relative).read_text(encoding='utf-8')
 
 
 def arr(item,minimum=0,maximum=24):
@@ -115,8 +127,7 @@ def decision(repo,cfg,condition,phase):
         answer=numeric_initial(panel,cfg,condition=='B_diversity') if phase=='initial' else {
             **initial,'directions':[],'next_trials':numeric_feedback(panel,cfg,observations)}
     else:
-        skills_root=repo/'skills'/'agentic-steer'
-        skills=[(skills_root/'interface'/'SKILL.md').read_text(encoding='utf-8')]+[(skills_root/m/'SKILL.md').read_text(encoding='utf-8') for m in modules]
+        skills=[skill_text(repo,cfg,m) for m in ['interface']+modules]
         # Compact but multiple outcome-conditioned historical paths. The full
         # blinded panel remains saved; no unrequested bank outcome is disclosed.
         packet=dict(panel)
@@ -179,7 +190,7 @@ def decision(repo,cfg,condition,phase):
     trials=make_job(repo,cfg,requests,folder/(phase+'.job.json'))
     baseline=numeric_initial(panel,cfg)
     audit={'condition':condition,'phase':phase,'active_modules':modules,
-        'instruction_sha256':{m:digest(repo/'skills'/'agentic-steer'/m/'SKILL.md') for m in ['interface']+modules},
+        'instruction_sha256':{m:hashlib.sha256(skill_text(repo,cfg,m).encode()).hexdigest() for m in ['interface']+modules},
         'chosen_trials':[(j['node_id'],j['replicate']) for j in trials],
         'initial_differs_from_head_baseline':bool(initial is None and {d['node_id'] for d in answer['directions']}!={d['node_id'] for d in baseline['directions']}),
         'functional_outputs':{'hypotheses':len(answer['hypotheses']),'audits':len(answer['audits']),'comparisons':len(answer['comparisons']),'updates':len(answer['updates'])},

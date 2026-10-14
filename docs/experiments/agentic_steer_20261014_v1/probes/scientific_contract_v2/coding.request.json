@@ -1,0 +1,76 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/b52504ea3ad17fb3fe4bcd452bf45e6eb640e1a7263da82507cc24a036c3132b.txt",
+        "content_sha256": "b52504ea3ad17fb3fe4bcd452bf45e6eb640e1a7263da82507cc24a036c3132b",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/267c4f7de762fe5d0b14d9fe4d332f2493c9a4e258cd5ed43426eb1439f76f51.txt",
+        "content_sha256": "267c4f7de762fe5d0b14d9fe4d332f2493c9a4e258cd5ed43426eb1439f76f51",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "code": {
+        "maxLength": 4500,
+        "minLength": 1,
+        "type": "string"
+      },
+      "counterexample": {
+        "maxLength": 1600,
+        "type": "string"
+      },
+      "decision": {
+        "enum": [
+          "retain",
+          "revise"
+        ],
+        "type": "string"
+      },
+      "rationale": {
+        "maxLength": 1600,
+        "type": "string"
+      },
+      "sources": {
+        "items": {
+          "enum": [
+            "current_rule",
+            "definitions",
+            "feedback",
+            "measured/N000",
+            "measured/N001",
+            "measured/N013",
+            "measured/N014"
+          ],
+          "type": "string"
+        },
+        "maxItems": 8,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "decision",
+      "rationale",
+      "counterexample",
+      "code",
+      "sources"
+    ],
+    "type": "object"
+  }
+}
