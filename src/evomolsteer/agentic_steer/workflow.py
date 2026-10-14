@@ -36,7 +36,7 @@ def schema(panel,cfg,phase,modules=None):
         'comparisons':arr(obj({'left':node,'right':node,'observable':text,'remaining_confounding':text,'distinguishing_outcome':text}),0,6),
         'updates':arr(obj({'node_id':node,'measured_basis':text,'next_test_reason':text}),0,8),
         'next_trials':arr(obj({'node_id':node,'replicate':{'type':'integer','minimum':0,'maximum':cfg['max_replicates']-1},'rationale':text}),cfg['followup_trials'] if phase=='feedback' else 0,cfg['followup_trials'] if phase=='feedback' else 0),
-        'code':{'type':'string','maxLength':4500},'code_sources':arr({'type':'string','enum':sources},0,8)})
+        'code':{'type':'string','maxLength':4500,**({'minLength':1} if modules and 'coding' in modules else {})},'code_sources':arr({'type':'string','enum':sources},0,8)})
 
 
 def observed_trials(study,requests):
@@ -95,7 +95,7 @@ def response_validator(panel,cfg,phase,modules,already):
         if phase=='feedback' and 'feedback' in modules:require(bool(answer['updates']),'Active feedback skill requires measured updates')
         if 'coding' in modules:
             require(bool(answer['code_sources']),'Executable rule needs evidence citations')
-            features={k:np.asarray([c['standardized_features'][k] for c in panel['candidate_cards']]) for k in panel['candidate_cards'][0]['standardized_features']}
+            features={k:np.asarray([c['features'][k] for c in panel['candidate_cards']]) for k in panel['candidate_cards'][0]['features']}
             try:evaluate_rule(answer['code'],features)
             except (ValueError,SyntaxError,TypeError) as error:raise jsonschema.ValidationError(str(error),validator='code_contract',validator_value=str(error),schema={}) from error
         else:require(answer['code']=='','Code is disabled in this condition')
@@ -127,6 +127,8 @@ def decision(repo,cfg,condition,phase):
             'followup_trials':cfg['followup_trials'],'max_replicates':cfg['max_replicates']}
         packet['active_modules']=modules
         packet['output_instructions']='Return all schema keys, using empty arrays for unused optional scientific fields. Initial phase selects four distinct nodes and no next_trials; feedback phase has no directions and four unique unobserved next_trials. Cite only supplied source IDs. Code is empty unless coding is active. For coding use one def score(features): return expression, only np.abs/tanh/clip/sqrt/minimum/maximum/exp and registered standardized feature lookups. The host executes the rule ranking to choose next candidate priorities; use numerical measured feedback in updates.'
+        if 'coding' in modules:
+            packet['output_instructions']='Return all schema keys, using empty arrays for unused optional scientific fields. Initial phase selects four distinct nodes and no next_trials; feedback phase has no directions and four unique unobserved next_trials. Cite only supplied source IDs. Code is empty unless coding is active. For coding write def score(features) with at most eight local vector assignments and one return. Only np.abs/tanh/clip/sqrt/minimum/maximum/exp and registered raw feature lookups are allowed. The host supplies RAW features, not standardized values; numerical targets must use raw units. The host executes the rule ranking to choose next candidate priorities; use numerical measured feedback in updates.'
         def compact(value):
             if isinstance(value,float):return float(format(value,'.5g'))
             if isinstance(value,dict):return {k:compact(v) for k,v in value.items()}
@@ -144,7 +146,7 @@ def decision(repo,cfg,condition,phase):
                 if network_attempt:raise
     code_audit=None
     if level==6:
-        features={k:np.asarray([c['standardized_features'][k] for c in panel['candidate_cards']]) for k in panel['candidate_cards'][0]['standardized_features']}
+        features={k:np.asarray([c['features'][k] for c in panel['candidate_cards']]) for k in panel['candidate_cards'][0]['features']}
         scores,code_audit=evaluate_rule(answer['code'],features)
         order=np.argsort(-scores,kind='stable');ranked=[panel['candidate_cards'][int(i)]['node_id'] for i in order]
         if phase=='initial':
@@ -188,14 +190,20 @@ def summarize(repo,cfg):
         lo=0. if hits==0 else float(beta.ppf(.025,hits,n-hits+1));hi=1. if hits==n else float(beta.ppf(.975,hits+1,n-hits))
         qualified=[x['pic50'] for x in obs if x['qualified_structure']];energy=[x['mmff_relief_per_heavy'] for x in obs if x['mmff_relief_per_heavy'] is not None]
         rows.append({'condition':folder.name,'attempts':n,'elite_hits':hits,'hit_rate':hits/n,'hit_rate_95_CI':[lo,hi],
+            'interval_limit':'Naive binomial descriptive interval; adaptive mixture is not an IID policy-success estimator',
             'mean_pic50_all':float(np.mean([x['pic50'] for x in obs])),
             'best_qualified_pic50':max(qualified) if qualified else None,'qualified_rate':len(qualified)/n,
             'mean_mmff_relief_per_heavy':float(np.mean(energy)) if energy else None,
             'directions_observed':len({x['node_id'] for x in obs})})
         for node in sorted({x['node_id'] for x in obs}):
             vals=[x for x in obs if x['node_id']==node]
+            successes=sum(x['elite_hit'] for x in vals);count=len(vals)
+            node_ci=[0. if successes==0 else float(beta.ppf(.025,successes,count-successes+1)),
+                     1. if successes==count else float(beta.ppf(.975,successes+1,count-successes))]
             archives.append({'condition':folder.name,'node_id':node,'hypotheses':initial['hypotheses'],
                 'observations':vals,'evidence_scope':'Native stochastic suffix from one actual historical state; small n',
+                'node_elite_probability_estimate':successes/count,'node_binomial_95_CI':node_ci,
+                'interval_limit':'Development screen; optional stopping and selection require independent confirmatory replicates',
                 'retained':True,'next_trial_actions':[x for x in feedback['next_trials'] if x['node_id']==node]})
     write_json(study/'performance.json',rows);write_json(study/'direction_archives.json',archives)
     return rows

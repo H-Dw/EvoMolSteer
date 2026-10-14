@@ -1,0 +1,185 @@
+{
+  "audits": [
+    {
+      "action_consequence": "If H1 holds, prioritize directions with high current shape_yy/shape_zz and positive rate/shape_yy; if rejected, downweight shape features in follow-up selection.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21"
+      ],
+      "statement": "Elite terminal paths (path/0/37, path/0/7, path/2/12, path/3/25) end with shape_yy 6.3-7.6 and shape_zz 6.3-7.2, while the lowest observed terminal (path/1/21, 7.4404) ends with shape_yy ~5.9 and shape_zz ~6.28, supporting H1's shape-extent direction."
+    },
+    {
+      "action_consequence": "If H2 holds, avoid directions with large positive rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5; if rejected, treat landmark rates as uninformative.",
+      "module": "hypotheses",
+      "sources": [
+        "discovery/3",
+        "discovery/0"
+      ],
+      "statement": "Discovery contrast discovery/3 shows elite ancestors have lower landmark_05_occupancy5 and landmark_15_occupancy5 than ordinary ancestors, consistent with H2's local-occupancy direction."
+    },
+    {
+      "action_consequence": "If H3 holds, prefer directions near the elite centroid basin with modest rate/global_centroid_y; if rejected, drop centroid features from the ranking rule.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "discovery/0"
+      ],
+      "statement": "Elite terminal paths converge to global_centroid_x near -0.01 and near-zero centroid_y/z, while discovery/0 shows elite-ordinary signed rate contrast with large negative rate/global_centroid_y, supporting H3's centroid-drift direction."
+    },
+    {
+      "action_consequence": "If H4 holds, prefer compact-packing directions; if rejected, treat pair-kernel features as uninformative for follow-up.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/2/12",
+        "discovery/9"
+      ],
+      "statement": "Elite terminal paths retain pair_kernel_1.5 ~0.18-0.19 with pair_kernel_3.5 >= pair_kernel_5.0, while discovery/9 shows elite-ordinary signed rate contrast with negative rate/pair_kernel_3.5, supporting H4's compactness direction."
+    }
+  ],
+  "code": "",
+  "code_sources": [],
+  "comparisons": [
+    {
+      "distinguishing_outcome": "If N006 (large negative rate/shape_yy, positive rate/shape_zz) yields higher measured pIC50 than N000, H1's static-shape direction is weakened in favor of signed-rate effects.",
+      "left": "N000",
+      "observable": "rate/shape_yy and rate/shape_zz",
+      "remaining_confounding": "Both have similar current shape_yy (6.43 vs 6.08) but N006 has extreme signed shape rates; current joint_head_pic50 differs by only 0.06, so measured outcome differences may reflect noise rather than the rate contrast.",
+      "right": "N006"
+    },
+    {
+      "distinguishing_outcome": "If N013 (large positive landmark rates) yields lower measured pIC50 than N000, H2's prediction is supported; if not, H2 is rejected.",
+      "left": "N000",
+      "observable": "rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5",
+      "remaining_confounding": "N013 has higher current landmark_05_occupancy5 (0.00052 vs 0.00042) and different centroid; the rate contrast is confounded with static occupancy level.",
+      "right": "N013"
+    },
+    {
+      "distinguishing_outcome": "If N002 (less compact packing) yields lower measured pIC50 than N000, H4 is supported; if N002 matches or exceeds N000, H4 is rejected.",
+      "left": "N000",
+      "observable": "pair_kernel_1.5 and pair_kernel_7.0",
+      "remaining_confounding": "N002 also has higher current_Rg_A (1.108 vs 1.050) and different shape_yy (7.43 vs 6.43), so packing compactness is confounded with overall size and shape.",
+      "right": "N002"
+    },
+    {
+      "distinguishing_outcome": "If N006 (higher joint_head_pic50, extreme shape rates) yields higher measured pIC50 than N013 (extreme landmark rates), shape-rate effects dominate landmark-rate effects.",
+      "left": "N006",
+      "observable": "joint_head_pic50 and rate/shape_yy",
+      "remaining_confounding": "Both have large-magnitude signed rates but in different feature families; current joint_head_pic50 differs by 0.65, so outcome differences may reflect the model score rather than the rate mechanism.",
+      "right": "N013"
+    }
+  ],
+  "directions": [
+    {
+      "id": "D1",
+      "node_id": "N000",
+      "rationale": "Highest current joint_head_pic50 (8.956) with shape_yy 6.43 and shape_zz 5.77, near the elite terminal shape basin; tests H1 and H3 with a high-score, moderate-centroid state."
+    },
+    {
+      "id": "D2",
+      "node_id": "N006",
+      "rationale": "Second-highest joint_head_pic50 (9.0205) but with the largest negative rate/shape_yy (-10.36) and positive rate/shape_zz (13.07); discriminates H1 by testing whether large signed shape rates override static shape."
+    },
+    {
+      "id": "D3",
+      "node_id": "N013",
+      "rationale": "Large positive rate/landmark_05_occupancy5 (0.0167) and rate/landmark_15_occupancy5 (0.0272) with moderate joint_head_pic50 (8.376); directly tests H2's prediction that large positive landmark rates are worse."
+    },
+    {
+      "id": "D4",
+      "node_id": "N002",
+      "rationale": "Lowest joint_head_pic50 (7.902) with pair_kernel_1.5 0.172 and pair_kernel_7.0 0.223, the least compact packing; tests H4 and provides a low-score contrast to D1."
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Higher predicted pIC50 tracks larger shape_yy/shape_zz (more extended, anisotropic current shape) and positive rate/shape_yy; elite terminal paths end with shape_yy near 6.4-7.6 and shape_zz near 6.3-7.2, while the lowest observed terminal (path/1/21, 7.4404) ends with shape_yy ~5.9 and shape_zz ~6.28.",
+      "id": "H1-global-shape",
+      "observable": [
+        "shape_yy",
+        "shape_zz",
+        "shape_xy",
+        "rate/shape_yy",
+        "rate/shape_zz"
+      ],
+      "reject_if": "If the four selected directions with the largest current shape_yy/shape_zz do not yield higher measured final pIC50 than the two with the smallest, or if measured pIC50 is flat across the shape_yy range 5.8-7.4, this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/0"
+      ]
+    },
+    {
+      "direction": "Higher predicted pIC50 tracks moderate landmark_00_occupancy5 (~0.66-0.73) with low landmark_05/15 occupancy5 (<=~0.001) and near-zero or negative rate/landmark_05_occupancy5; candidates with large positive rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5 (e.g. N013, N016) are predicted to be worse.",
+      "id": "H2-local-landmark-occupancy",
+      "observable": [
+        "landmark_00_occupancy5",
+        "landmark_05_occupancy5",
+        "landmark_15_occupancy5",
+        "rate/landmark_05_occupancy5",
+        "rate/landmark_15_occupancy5"
+      ],
+      "reject_if": "If directions with large positive rate/landmark_05_occupancy5 and rate/landmark_15_occupancy5 (N013, N016) match or exceed measured pIC50 of directions with near-zero rates (N000, N001), this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/3"
+      ]
+    },
+    {
+      "direction": "Elite terminal paths converge to small negative global_centroid_x (~-0.01) and near-zero centroid_y/z, with modest signed rates; candidates whose current centroid is far from that basin (|centroid_x|>0.08) or whose rate/global_centroid_y is large in magnitude (|rate|>2) are predicted to be worse.",
+      "id": "H3-centroid-drift",
+      "observable": [
+        "global_centroid_x",
+        "global_centroid_y",
+        "global_centroid_z",
+        "rate/global_centroid_x",
+        "rate/global_centroid_y",
+        "rate/global_centroid_z"
+      ],
+      "reject_if": "If measured pIC50 is uncorrelated with distance of current centroid from the elite terminal basin, or if large |rate/global_centroid_y| directions (N009, N013, N016) are not worse than small-rate directions, this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/0"
+      ]
+    },
+    {
+      "direction": "Higher predicted pIC50 tracks pair_kernel_1.5 ~0.18-0.19 with pair_kernel_3.5 >= pair_kernel_5.0 (compact, locally dense packing); candidates with pair_kernel_1.5 <0.18 and pair_kernel_7.0 >0.21 (N002, N009, N014) are predicted to be worse.",
+      "id": "H4-pair-kernel-compactness",
+      "observable": [
+        "pair_kernel_1.5",
+        "pair_kernel_2.5",
+        "pair_kernel_3.5",
+        "pair_kernel_5.0",
+        "pair_kernel_7.0",
+        "rate/pair_kernel_3.5"
+      ],
+      "reject_if": "If directions with pair_kernel_1.5 <0.18 and pair_kernel_7.0 >0.21 (N002, N009, N014) match or exceed measured pIC50 of directions with pair_kernel_1.5 ~0.185-0.19, this hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "discovery/9"
+      ]
+    }
+  ],
+  "next_trials": [],
+  "updates": []
+}

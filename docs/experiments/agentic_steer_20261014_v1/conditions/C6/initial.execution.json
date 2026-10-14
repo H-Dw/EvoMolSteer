@@ -1,0 +1,223 @@
+{
+  "audits": [
+    {
+      "action_consequence": "The four selected directions deliberately include two sign-matched candidates (N002, N013) and two sign-mismatched candidates (N000, N014) so that the omitted signed-rate signal is tested by measured terminal outcomes rather than by another intermediate head reading.",
+      "module": "omissions",
+      "sources": [
+        "selection_code",
+        "discovery/0",
+        "discovery/3",
+        "discovery/7",
+        "discovery/9"
+      ],
+      "statement": "The supplied selection_code ranks candidates by current head score and then adds geometric diversity, but it never uses the signed rate fields (rate/landmark_05_softmin, rate/landmark_15_softmin, rate/shape_yy, rate/shape_zz) that the discovery signed_rate_contrast shows separate elites from ordinary ancestors. An absolute-distance summary of the same fields would lose the sign and therefore cannot recover this separation."
+    },
+    {
+      "action_consequence": "No candidate is down-weighted for a withheld label; the four directions are chosen on current observables and on the measured elite terminal paths only.",
+      "module": "omissions",
+      "sources": [
+        "definitions",
+        "candidate/N000",
+        "candidate/N002",
+        "candidate/N013",
+        "candidate/N014"
+      ],
+      "statement": "The definitions state that no observed descendant is unknown and that censoring is never a failed final affinity label, yet the panel's future_label field is 'unknown; deliberately withheld' for every candidate. Treating those withheld labels as failures would bias selection toward candidates that merely look like the elite terminal profiles."
+    },
+    {
+      "action_consequence": "H4 is framed as a geometric-tightening hypothesis with an explicit rejection condition, and no direction is justified by an asserted hydrogen bond.",
+      "module": "structure-context",
+      "sources": [
+        "pocket_context",
+        "candidate/N002",
+        "candidate/N013"
+      ],
+      "statement": "The pocket_context entries for landmarks 0, 5 and 15 are geometric anchors (CG1 VAL A 53, O GLY A 48, CB GLU A 52) and explicitly do not establish a hydrogen bond or a binding-energy contribution. The elevated landmark_05/15 occupancy5 in N002 and N013 is therefore a proximity proxy, not evidence of a specific interaction."
+    },
+    {
+      "action_consequence": "Each direction is run with two independent replicates so that the terminal pIC50 comparison is made on measured native continuations, not on a single descendant.",
+      "module": "discriminating-experiments",
+      "sources": [
+        "candidate/N002",
+        "candidate/N013",
+        "candidate/N000",
+        "candidate/N014"
+      ],
+      "statement": "N002 and N013 are matched on the local observables (landmark_05/15 occupancy5 and softmin rates) but differ on global centroid and forecast_Rg_A (3.83 vs 3.54), while N000 and N014 are matched on the landmark_00_occupancy5 band but differ on shape_yy (6.43 vs 6.25) and on the pair-kernel rate signs. This gives two matched pairs that separate the local from the global explanation."
+    },
+    {
+      "action_consequence": "No direction is retained or dropped on the basis of feedback; the archive of elite terminal profiles is preserved as the reference for the first feedback update.",
+      "module": "feedback",
+      "sources": [
+        "feedback",
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25"
+      ],
+      "statement": "measured_feedback is empty in this initial phase, so no earlier hypothesis has been supported or contradicted yet. The elite terminal paths (path/0/37, path/0/7, path/2/12, path/3/25) are historical observations, not feedback on the current panel."
+    },
+    {
+      "action_consequence": "The host ranks the next candidate priorities with this rule; the rule ranks experiments and is not a binding affinity prediction.",
+      "module": "coding",
+      "sources": [
+        "discovery/0",
+        "discovery/3",
+        "discovery/7",
+        "discovery/9",
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25"
+      ],
+      "statement": "The coding module is active, so a bounded pure score(features) rule is supplied that uses raw-unit fields cited by the discovery signed_rate_contrast and the elite terminal profiles, with no imports, no randomness and at most eight local assignments."
+    }
+  ],
+  "code": "def score(features):\n    shape_term = -np.abs(features['shape_yy'] - 6.6) - np.abs(features['shape_zz'] - 6.7)\n    rate_term = -np.tanh(features['rate/landmark_05_softmin']) - np.tanh(features['rate/landmark_15_softmin'])\n    occ_term = np.tanh(features['landmark_05_occupancy5'] * 1000.0) + np.tanh(features['landmark_15_occupancy5'] * 1000.0)\n    return shape_term + rate_term + occ_term\n",
+  "code_sources": [
+    "discovery/0",
+    "discovery/3",
+    "discovery/7",
+    "discovery/9",
+    "path/0/37",
+    "path/0/7",
+    "path/2/12",
+    "path/3/25"
+  ],
+  "comparisons": [
+    {
+      "distinguishing_outcome": "If N002 and N013 give similar terminal pIC50 despite the global difference, H4 (local tightening) is supported; if they separate along forecast_Rg_A, H1 (global shape) is supported instead.",
+      "left": "N002",
+      "observable": "landmark_05_occupancy5, landmark_15_occupancy5, rate/landmark_05_softmin, rate/landmark_15_softmin",
+      "remaining_confounding": "global_centroid_x/z and forecast_Rg_A differ (3.83 vs 3.54), so a difference in terminal pIC50 could reflect global extension rather than local tightening.",
+      "right": "N013"
+    },
+    {
+      "distinguishing_outcome": "If the candidate with the more elite-like shape_yy (N000, 6.43) outperforms N014 (6.25) while the pair-kernel rate signs are opposite, H1 is supported over H2; if the rate-sign match dominates, H2 is supported.",
+      "left": "N000",
+      "observable": "shape_yy, shape_zz, rate/pair_kernel_2.5, rate/pair_kernel_3.5",
+      "remaining_confounding": "Both sit in the landmark_00_occupancy5 band, so the comparison isolates shape and pair-kernel rate signs but cannot separate them from each other.",
+      "right": "N014"
+    },
+    {
+      "distinguishing_outcome": "A large N002-over-N000 terminal pIC50 gap is consistent with both H1 and H4; a null result rejects both as sufficient selectors.",
+      "left": "N002",
+      "observable": "shape_yy, shape_zz, landmark_05_occupancy5, landmark_15_occupancy5",
+      "remaining_confounding": "N002 and N000 differ on both global shape and local occupancy, so this pair cannot attribute a difference to one explanation alone.",
+      "right": "N000"
+    },
+    {
+      "distinguishing_outcome": "If N013 outperforms N014 in terminal pIC50, the sign-matched rate pattern (H2) is supported; if not, H2 is rejected for this panel.",
+      "left": "N013",
+      "observable": "rate/landmark_05_softmin, rate/landmark_15_softmin, rate/shape_yy, rate/shape_zz",
+      "remaining_confounding": "N013 and N014 differ on global centroid and on forecast_Rg_A (3.54 vs 3.59), which are close but not identical.",
+      "right": "N014"
+    }
+  ],
+  "directions": [
+    {
+      "id": "code-0",
+      "node_id": "N013",
+      "rationale": "Audited executable acquisition score"
+    },
+    {
+      "id": "code-1",
+      "node_id": "N001",
+      "rationale": "Audited executable acquisition score"
+    },
+    {
+      "id": "code-2",
+      "node_id": "N000",
+      "rationale": "Audited executable acquisition score"
+    },
+    {
+      "id": "code-3",
+      "node_id": "N014",
+      "rationale": "Audited executable acquisition score"
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Elite terminal paths (path/0/37, path/0/7, path/2/12, path/3/25) end with shape_yy near 6.3-6.9 and shape_zz near 6.3-7.2 while shape_xx stays near 0.04-0.06, i.e. a flattened, extended cross-section rather than a compact sphere. Candidates whose current shape_yy/shape_zz are already in that band (N002, N003, N004, N005, N006, N007, N008, N009, N010, N011, N012, N013, N015, N016, N017, N018, N019, N020, N021, N022, N023) should retain or improve final pIC50, whereas candidates with shape_yy below ~6.0 (N000, N001, N014) are predicted to be the weaker tail.",
+      "id": "H1-global-compaction-shape",
+      "observable": [
+        "shape_yy",
+        "shape_zz",
+        "shape_xx",
+        "pair_kernel_2.5",
+        "pair_kernel_3.5",
+        "pair_kernel_5.0"
+      ],
+      "reject_if": "If the four selected directions include a low-shape_yy candidate (N000, N001 or N014) and its measured terminal pIC50 exceeds the high-shape_yy candidates by more than the observed elite spread (~0.3 pIC50), the global-shape explanation is contradicted.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/0/47",
+        "path/0/16",
+        "path/1/39",
+        "path/1/21"
+      ]
+    },
+    {
+      "direction": "The discovery signed_rate_contrast for discovery/0, discovery/3, discovery/7 and discovery/9 shows elites with negative rate/landmark_05_softmin and rate/landmark_15_softmin (softmin decreasing, i.e. landmark occupancy tightening) together with positive rate/shape_yy and rate/shape_zz. Candidates whose current signed rates match that sign pattern (N001, N002, N013, N016, N017, N021) are predicted to be the better continuation parents; candidates with the opposite sign on those rate fields (N000, N003, N004, N005, N006, N007, N008, N009, N010, N011, N012, N014, N015, N018, N019, N020, N022, N023) are predicted weaker.",
+      "id": "H2-signed-rate-not-magnitude",
+      "observable": [
+        "rate/landmark_05_softmin",
+        "rate/landmark_15_softmin",
+        "rate/landmark_00_softmin",
+        "rate/global_centroid_y",
+        "rate/shape_yy",
+        "rate/shape_zz"
+      ],
+      "reject_if": "If the sign-matched candidates (N001, N002, N013, N016, N017, N021) do not separate from the sign-mismatched set in measured terminal pIC50, the signed-rate hypothesis is rejected; an absolute-distance summary of the same fields would not distinguish these sets, so a null result also rejects the claim that sign carries the signal.",
+      "sources": [
+        "discovery/0",
+        "discovery/3",
+        "discovery/7",
+        "discovery/9",
+        "definitions"
+      ]
+    },
+    {
+      "direction": "Elite terminal paths converge to landmark_00_occupancy5 in a narrow band around 0.66-0.73 with landmark_00_softmin near 4.5-4.7. Candidates currently inside that band (N000, N001, N002, N003, N004, N005, N006, N007, N008, N009, N010, N011, N012, N013, N014, N015, N016, N017, N018, N019, N020, N021, N022, N023) are near the elite attractor; candidates outside it (none in this panel) would be the test. Because the panel is nearly saturated on this field, this hypothesis predicts weak discrimination and should be treated as a background constraint rather than a selector.",
+      "id": "H3-landmark-00-occupancy5-band",
+      "observable": [
+        "landmark_00_occupancy5",
+        "landmark_00_softmin",
+        "landmark_00_occupancy3"
+      ],
+      "reject_if": "If measured terminal pIC50 varies strongly across candidates that all sit inside the 0.66-0.73 occupancy5 band, the band is not a sufficient condition and the hypothesis is rejected as a selector.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "pocket_context"
+      ]
+    },
+    {
+      "direction": "Elite terminal paths show landmark_05_occupancy5 and landmark_15_occupancy5 rising from ~1e-4 to ~1e-3 over the window while softmin falls from ~9.5 to ~9.2, i.e. slow local tightening at the GLY48 and GLU52 anchors. Candidates whose current landmark_05_occupancy5 and landmark_15_occupancy5 are already elevated (N001, N002, N013, N016, N017) are predicted to be further along this local trajectory than candidates still at ~1e-6 or below (N000, N003, N004, N005, N006, N007, N008, N009, N010, N011, N012, N014, N015, N018, N019, N020, N021, N022, N023).",
+      "id": "H4-local-landmark-05-15-tightening",
+      "observable": [
+        "landmark_05_occupancy5",
+        "landmark_15_occupancy5",
+        "landmark_05_softmin",
+        "landmark_15_softmin",
+        "rate/landmark_05_occupancy5",
+        "rate/landmark_15_occupancy5"
+      ],
+      "reject_if": "If the elevated-occupancy candidates (N001, N002, N013, N016, N017) do not outperform the low-occupancy set in measured terminal pIC50, the local-tightening explanation is rejected; note that atom-name proximity alone does not establish a hydrogen bond, so a null result also rejects the geometric-proxy reading.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "pocket_context"
+      ]
+    }
+  ],
+  "next_trials": [],
+  "updates": []
+}

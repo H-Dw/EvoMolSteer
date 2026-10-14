@@ -54,3 +54,21 @@ def test_executable_rule_is_active_and_cannot_escape():
     assert scores[1]>scores[0] and audit['perturbation_response']['a']>0
     for code in ["def score(features):\n    return __import__('os')", "def score(features):\n    return np.load('a')", "def score(features):\n    return features['x']", "def score(features):\n    return features['a'] * 0"]:
         with pytest.raises(ValueError):evaluate_rule(code,{'a':np.array([0.,1.])})
+
+
+def test_local_assignments_have_no_side_effects():
+    features={'a':np.array([0.,1.])}
+    result,_=evaluate_rule("def score(features):\n    v = np.tanh(features['a'])\n    return v",features)
+    assert np.allclose(result,np.tanh(features['a']))
+    for code in ["def score(features):\n    features = np.tanh(features['a'])\n    return features", "def score(features):\n    return np.clip(features['a'],0,1,out=features['a'])", "def score(features):\n    a = v\n    v = features['a']\n    return a"]:
+        with pytest.raises(ValueError):evaluate_rule(code,features)
+
+
+def test_semantic_errors_are_serializable_for_neutral_repair():
+    from evomolsteer.agentic_steer.workflow import response_validator
+    from evomolsteer.deepseek_api import validation_diagnostics
+    import json,jsonschema
+    validator=response_validator({}, {'modules':['hypotheses']}, 'initial',['hypotheses'],[])
+    with pytest.raises(jsonschema.ValidationError) as caught:
+        validator({'directions':[],'hypotheses':[],'next_trials':[],'audits':[]})
+    assert 'interface_semantics' in json.dumps(validation_diagnostics(caught.value))

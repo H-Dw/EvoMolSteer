@@ -9,8 +9,8 @@ import numpy as np
 
 
 FUNCTIONS={'abs','tanh','clip','sqrt','minimum','maximum','exp'}
-NODES=(ast.Module,ast.FunctionDef,ast.arguments,ast.arg,ast.Return,ast.Expr,
-       ast.Load,ast.Name,ast.Constant,ast.Subscript,ast.BinOp,ast.UnaryOp,
+NODES=(ast.Module,ast.FunctionDef,ast.arguments,ast.arg,ast.Return,ast.Assign,
+       ast.Load,ast.Store,ast.Name,ast.Constant,ast.Subscript,ast.BinOp,ast.UnaryOp,
        ast.Add,ast.Sub,ast.Mult,ast.Div,ast.Pow,ast.USub,ast.UAdd,
        ast.Call,ast.Attribute,ast.keyword)
 
@@ -22,11 +22,18 @@ def compile_rule(source,fields):
     if fn.name!='score' or fn.decorator_list or fn.returns or fn.type_comment:raise ValueError('Unsupported function declaration')
     if len(fn.args.args)!=1 or fn.args.args[0].arg!='features' or fn.args.args[0].annotation or fn.args.defaults or fn.args.kwonlyargs or fn.args.vararg or fn.args.kwarg or fn.args.posonlyargs:
         raise ValueError('Required signature: score(features)')
-    if len(fn.body)!=1 or not isinstance(fn.body[0],ast.Return):raise ValueError('Use a single vectorized return expression')
+    if not 1<=len(fn.body)<=9 or not isinstance(fn.body[-1],ast.Return):raise ValueError('Use at most eight vector assignments and one return')
+    locals=set()
+    for statement in fn.body[:-1]:
+        if not isinstance(statement,ast.Assign) or len(statement.targets)!=1 or not isinstance(statement.targets[0],ast.Name):raise ValueError('Only local vector assignments are allowed')
+        name=statement.targets[0].id
+        if name in {'np','features'} or name.startswith('_') or name in locals:raise ValueError('Reserved or repeated local name')
+        if any(isinstance(n,ast.Name) and n.id not in {'np','features'}|locals for n in ast.walk(statement.value)):raise ValueError('Local used before definition')
+        locals.add(name)
     used=set()
     for node in ast.walk(tree):
         if not isinstance(node,NODES):raise ValueError('Unsupported rule syntax: '+type(node).__name__)
-        if isinstance(node,ast.Name) and node.id not in {'features','np'}:raise ValueError('Unregistered name')
+        if isinstance(node,ast.Name) and node.id not in {'features','np'}|locals:raise ValueError('Unregistered name')
         if isinstance(node,ast.Constant) and not isinstance(node.value,(int,float,str)):raise ValueError('Unsupported constant')
         if isinstance(node,ast.Constant) and isinstance(node.value,str) and node.value not in fields:raise ValueError('Unregistered feature')
         if isinstance(node,ast.Subscript):

@@ -3,8 +3,10 @@ name: agentic-steer-coding
 description: Write a bounded deterministic acquisition rule from observed coordinate evidence and test its effects.
 ---
 
-Write one short pure score(features) function using the provided standardized
-coordinate field catalogue and restricted operations. The host supplies NumPy;
+Write one short pure score(features) function using the provided coordinate
+field catalogue, explicit raw units and restricted operations. Normalize within
+the expression when needed; do not apply raw-unit targets to standardized data.
+Use at most eight local vector assignments followed by one return. The host supplies NumPy;
 do not import modules, access files, use random values or inspect objects.
 Relate used fields to cited contrasts or measured feedback. Return one score
 per candidate and explain the observable response it is intended to produce.

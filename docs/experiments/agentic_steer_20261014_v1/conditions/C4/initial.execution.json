@@ -1,0 +1,189 @@
+{
+  "audits": [
+    {
+      "action_consequence": "Directions D3 and D1 explicitly include candidates with extreme signed rate/global_centroid_y and rate/landmark_05_occupancy5 so the signed-change hypothesis is tested rather than averaged away.",
+      "module": "omissions",
+      "sources": [
+        "selection_code",
+        "path/0/37",
+        "path/1/21",
+        "definitions"
+      ],
+      "statement": "The baseline selection_code sorts current head score and then adds geometric diversity, but never uses the signed rate/* fields that distinguish elite from ordinary terminal paths (e.g. rate/global_centroid_y, rate/landmark_05_occupancy5). Absolute-distance diversity therefore discards the signed regional-change signal present in the supplied rate features."
+    },
+    {
+      "action_consequence": "Hypotheses H2 and H4 are framed as geometric-proximity predictions and are tested by continuation outcomes rather than treated as established interactions.",
+      "module": "structure-context",
+      "sources": [
+        "pocket_context",
+        "definitions"
+      ],
+      "statement": "Pocket anchors landmark_00 (VAL A53 CG1), landmark_05 (GLY A48 O) and landmark_15 (GLU A52 CB) are geometric positions only; the supplied data do not establish hydrogen bonds or binding-energy contributions, and atom identities are uncertain. Occupancy and softmin are proximity proxies, not chemical interaction evidence."
+    },
+    {
+      "action_consequence": "Directions D1, D2 and D4 span the shape_yy and pair_kernel range so H1 and H4 can be rejected or supported by terminal pIC50.",
+      "module": "hypotheses",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "path/0/16"
+      ],
+      "statement": "Elite terminal paths (path/0/37, path/0/7, path/2/12, path/3/25) share terminal shape_yy ~6.3-6.9 and nonzero landmark_05/15 occupancy5, while ordinary path/1/21 and path/0/16 end more compact with lower occupancy5. This supports distinct global-shape and local-space hypotheses that can be separated by signed rate contrasts."
+    },
+    {
+      "action_consequence": "Each direction is run with two replicates so a single lucky descendant is not treated as a stable success probability.",
+      "module": "discriminating-experiments",
+      "sources": [
+        "path/0/37",
+        "path/1/21",
+        "candidate/N002",
+        "candidate/N006",
+        "candidate/N001",
+        "candidate/N011"
+      ],
+      "statement": "The four directions contrast high vs low forecast_Rg_A (N002 vs N006), high vs low signed rate/global_centroid_y (N001 vs N011), and high vs low shape_yy (N002/N015 vs N011), matching nuisance global geometry where possible. Terminal pIC50 at or above 8.2589 for the low-shape_yy/low-occupancy arm would reject H1 and H2."
+    }
+  ],
+  "code": "",
+  "code_sources": [],
+  "comparisons": [
+    {
+      "distinguishing_outcome": "If N002 (high shape_yy, low head) reaches terminal pIC50 >= 8.2589 while N006 (low shape_yy, high head) does not, H1 global-shape is supported over head-score ranking.",
+      "left": "N002",
+      "observable": "shape_yy and forecast_Rg_A",
+      "remaining_confounding": "Both share similar current_Rg_A (~1.05-1.11) but differ in joint_head_pic50 (7.90 vs 9.02), so head score and shape are confounded.",
+      "right": "N006"
+    },
+    {
+      "distinguishing_outcome": "If N001 exceeds threshold and N011 does not, H2/H3 signed-drift and occupancy hypotheses are supported; the reverse rejects them.",
+      "left": "N001",
+      "observable": "rate/global_centroid_y and landmark_05/15 occupancy5",
+      "remaining_confounding": "N001 has higher landmark occupancy5 but also more negative rate/global_centroid_y; the two signed features are correlated in this panel.",
+      "right": "N011"
+    },
+    {
+      "distinguishing_outcome": "If N002 reaches threshold while N011 does not, H1/H4 mid-range pair-kernel and high shape_yy are supported; if both fail, the shape hypothesis is weakened.",
+      "left": "N002",
+      "observable": "shape_yy and pair_kernel_2.5",
+      "remaining_confounding": "N002 has higher forecast_Rg_A (3.83 vs 3.45) and lower head score, so extension and head score co-vary.",
+      "right": "N011"
+    },
+    {
+      "distinguishing_outcome": "If N006 reaches threshold and N011 does not, head score dominates shape; if both reach threshold, low shape_yy is not disqualifying and H1 is rejected.",
+      "left": "N006",
+      "observable": "joint_head_pic50 and shape_yy",
+      "remaining_confounding": "Both have low shape_yy but N006 has much higher head score (9.02 vs 8.58) and lower forecast_Rg_A.",
+      "right": "N011"
+    }
+  ],
+  "directions": [
+    {
+      "id": "D1",
+      "node_id": "N002",
+      "rationale": "Highest forecast_Rg_A (3.8313) and lowest joint_head_pic50 (7.9023) among candidates; tests whether large predicted extension with low head score still yields elite terminal pIC50, discriminating H1 from H4."
+    },
+    {
+      "id": "D2",
+      "node_id": "N006",
+      "rationale": "Highest joint_head_pic50 (9.0205) with low forecast_Rg_A (3.4065); tests whether the head score alone predicts elite outcome or whether global compaction (H1) dominates."
+    },
+    {
+      "id": "D3",
+      "node_id": "N001",
+      "rationale": "Strongly negative rate/global_centroid_y (-2.0982) and high landmark_05/15 occupancy5; directly tests H2 and H3 signed-drift predictions against the elite terminal-path pattern."
+    },
+    {
+      "id": "D4",
+      "node_id": "N011",
+      "rationale": "Low shape_yy (6.0988) and low pair_kernel_2.5 (0.28465) with moderate head score; provides a low-shape_yy contrast to N002/N015 for H1 and H4 rejection tests."
+    }
+  ],
+  "hypotheses": [
+    {
+      "direction": "Elite terminal paths (path/0/37, path/0/7, path/2/12, path/3/25) end with shape_yy near 6.3-6.9 and shape_zz near 6.3-7.2, while ordinary path/1/21 ends near shape_yy 5.9 and path/0/16 near 5.3. Higher terminal shape_yy/shape_zz (more extended, less compact global shape) should associate with higher final pIC50.",
+      "id": "H1-global-compaction",
+      "observable": [
+        "shape_yy",
+        "shape_zz",
+        "pair_kernel_3.5",
+        "pair_kernel_5.0",
+        "rate/shape_yy",
+        "rate/shape_zz"
+      ],
+      "reject_if": "If a continuation from a high-shape_yy candidate (e.g. N002, N015) yields terminal pIC50 below the 8.2589 threshold while a low-shape_yy candidate (e.g. N006, N011) exceeds it, the global-shape hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/0/16",
+        "path/1/21"
+      ]
+    },
+    {
+      "direction": "Elite terminal paths retain small but nonzero landmark_05/15 occupancy5 (1e-4 to 1e-3) and softmin near 9.2-9.6, whereas ordinary path/1/21 collapses to occupancy5 ~6e-5 and softmin ~10.0. Higher landmark_05/15 occupancy5 and lower softmin should associate with higher final pIC50.",
+      "id": "H2-landmark05-15-occupancy",
+      "observable": [
+        "landmark_05_occupancy5",
+        "landmark_15_occupancy5",
+        "landmark_05_softmin",
+        "landmark_15_softmin",
+        "rate/landmark_05_occupancy5",
+        "rate/landmark_15_occupancy5"
+      ],
+      "reject_if": "If candidates with near-zero landmark_05/15 occupancy5 (N003, N005, N007, N018) produce terminal pIC50 at or above the threshold while high-occupancy candidates (N000, N001, N009) fall below, the landmark-occupancy hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21",
+        "path/0/16"
+      ]
+    },
+    {
+      "direction": "Elite terminal paths show signed centroid drift toward negative x and small y/z by t=0.5 (path/0/37: x -0.018, y -0.064; path/0/7: x -0.005, y -0.038), while ordinary path/1/21 drifts to y +0.018. Signed rate/global_centroid_y should be negative for elite-like trajectories.",
+      "id": "H3-signed-centroid-drift",
+      "observable": [
+        "rate/global_centroid_x",
+        "rate/global_centroid_y",
+        "rate/global_centroid_z",
+        "global_centroid_x",
+        "global_centroid_y",
+        "global_centroid_z"
+      ],
+      "reject_if": "If candidates with strongly negative rate/global_centroid_y (N001, N019, N022) do not exceed the threshold while candidates with positive rate/global_centroid_y (N004, N007, N013) do, the signed-drift hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21"
+      ]
+    },
+    {
+      "direction": "Elite terminal paths converge to pair_kernel_2.5 ~0.26-0.27 and pair_kernel_3.5 ~0.25-0.29, whereas ordinary path/1/21 sits at pair_kernel_2.5 ~0.278 with pair_kernel_3.5 ~0.282. Mid-range pair_kernel_2.5/3.5 with modest negative rate should associate with higher final pIC50.",
+      "id": "H4-pair-kernel-midrange",
+      "observable": [
+        "pair_kernel_2.5",
+        "pair_kernel_3.5",
+        "pair_kernel_5.0",
+        "rate/pair_kernel_2.5",
+        "rate/pair_kernel_3.5"
+      ],
+      "reject_if": "If candidates with pair_kernel_2.5 above 0.28 (N006, N007, N011, N023) yield terminal pIC50 at or above threshold while those near 0.26 (N002, N014, N016) fall below, the pair-kernel hypothesis is rejected.",
+      "sources": [
+        "path/0/37",
+        "path/0/7",
+        "path/2/12",
+        "path/3/25",
+        "path/1/21"
+      ]
+    }
+  ],
+  "next_trials": [],
+  "updates": []
+}
