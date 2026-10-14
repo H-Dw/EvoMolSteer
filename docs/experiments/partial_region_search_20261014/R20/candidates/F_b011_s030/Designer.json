@@ -1,0 +1,69 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "If the frozen P080 union were re-run and its top-five qualified mean or best qualified pic50 fell to the unguided level while P081's union stayed above it, the P080 association would be contradicted. The original observable that would falsify the proxy's usefulness is the qualified final prediction: the frozen R13_0.1 checkpoint showed top5_qualified_mean_pic50 8.1194 and best_qualified_pic50 8.3780 on the untouched initial batch, and the R19 confirmation on 50 molecules gave top5_qualified_mean_pic50 8.1206 and best_qualified_pic50 8.3781, so a terminal qualified final prediction near the reference target of 8.7048 with top-five qualified mean, mean of all attempts and failure count reported separately would support the reward, while a drop to the unguided level would falsify it. Intermediate matching is not the performance metric.",
+  "region_ids": [
+    "P080"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "Frozen-selection confirmation of P080. The Analyst returned only P080 with unit point importance and an empty weighted_points list, which the deterministic tool expands to the exact 20-slot union [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]; the free complement is slots 5,8,9,11,14. I use exactly those slots and normalize the Analyst's unit importance to 0.05 each, so the reward is the robust point-cloud distance on the selected spatial assignment, not on teacher slot indices. The teacher clock is the verified real current-state ancestor at time 0.5 (step 50, terminal_score 8.7048, parent_copy_verified true, trajectory_sha256 8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270), with active_slots covering all 25 slots and ancestor_slot 37. The registered transfer view supplies actual final coordinates on the SAME selected slots (terminal_to_half_RMS_A 1.9787, terminal_Rg_A 3.1048, half_Rg_A 1.5230); this is a second observed view, not a forecast or another teacher, and I use one shared spatial assignment for the intermediate and final views. The mixed loss uses the frozen component coefficient with endpoint_mix 0.0; its derivative includes the half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term, with guidance windows and dose fixed and no extra generator forward or affinity inference for the second coordinate loss. The actual teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian. Gradient ascent lowers distance error and increases the negative reward toward zero; I do not differentiate the affinity head and introduce no particle resampling, leaving native chemical graph transitions free. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates; I record actual displacement and the unguided suffix. The selected points implement the Analyst hypothesis as a spatial imitation proxy: the 20 P080 slots carry the spatial organization associated with higher nearby-final affinity (final_affinity_rank_correlation 0.4409, nearest_rest_pic50_mean 8.0028, nearest_rest_pic50_min 7.5308), while the five free slots preserve the alternative geometry of the historical lineage. The evidence is mixed rather than decisive: P080 incremental_rank_correlation is 0.0835 with cluster95 [-0.0648, 0.2471], so the interval includes zero and is unresolved, not proven zero; one_vs_rest_difference_A is -0.8427 and rest_match_RMS_median_A is 0.8378, weakening a pure pose-familiarity account without removing it. P081 has stronger supplied associations (incremental 0.2207, cluster95 [0.0331, 0.3793], final_affinity 0.5331) but a different 20-slot union, and the frozen-selection confirmation forbids swapping it in. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works.",
+  "teacher_time": 0.5
+}

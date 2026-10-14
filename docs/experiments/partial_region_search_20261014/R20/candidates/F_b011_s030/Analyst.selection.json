@@ -1,0 +1,25 @@
+{
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "The deterministic tool should expand P080 to its exact 20-slot union with unit weights and evaluate the frozen dose. The expected terminal feedback is a qualified final prediction near the reference target of 8.7048, with top-five qualified mean, mean of all attempts and failure count reported separately. Intermediate matching is not the performance metric; the frozen R13_0.1 checkpoint already showed top5_qualified_mean_pic50 8.1194 and best_qualified_pic50 8.3780 on the untouched initial batch, and the R19 confirmation on 50 molecules gave top5_qualified_mean_pic50 8.1206 and best_qualified_pic50 8.3781, so the frozen selection is supported but not proven causal.",
+  "free_region_rationale": "The free complement is slots 5, 8, 9, 11, 14, which are the five teacher slots outside the P080 union. Leaving them free preserves the alternative geometry that the historical lineage used in those positions while the 20 selected slots carry the spatial organization associated with higher nearby-final affinity. This is a specified free part, not an absence of constraint.",
+  "hypotheses": [
+    {
+      "advantage": "P080 is the frozen selection and the only region whose union matches the frozen 20-slot set; its incremental_rank_correlation is 0.0835 with cluster95 [-0.0648, 0.2471], and its final_affinity_rank_correlation is 0.4409, so it carries a positive but unresolved association with nearby-final affinity while leaving slots 5, 8, 9, 11, 14 free.",
+      "alternative": "P081 has a stronger incremental association (0.2207, cluster95 [0.0331, 0.3793]) and higher final_affinity_rank_correlation (0.5331), but its union is a different 20-slot set; the frozen-selection confirmation forbids swapping it in, and its advantage is not evidence that P080 is inert.",
+      "evidence_id": "P080/geometry",
+      "falsifier": "If the frozen P080 union were re-run and its top-five qualified mean or best qualified pic50 fell to the unguided level while P081's union stayed above it, the P080 association would be contradicted.",
+      "region_id": "P080"
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P081",
+    "chosen_region": "P080",
+    "tradeoff_reason": "P081 has the stronger supplied evidence: incremental_rank_correlation 0.2207 versus P080's 0.0835, cluster95 [0.0331, 0.3793] versus [-0.0648, 0.2471], and final_affinity_rank_correlation 0.5331 versus 0.4409. P080 is chosen only because it is the frozen selection and the intervention forbids changing it; the tradeoff is that the frozen choice is the weaker of the two by these associations, so the confirmation tests P080 rather than the numerically stronger P081."
+  },
+  "region_ids": [
+    "P080"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "This is a frozen-selection confirmation: the supplied frozen region is P080 with unit point weights, and the intervention explicitly says not to change the frozen region or point importance. I therefore return only P080 and an empty weighted_points list, which the deterministic tool expands to the exact 20-slot union. The evidence is mixed rather than decisive: P080's incremental_rank_correlation is 0.0835 with cluster95 [-0.0648, 0.2471], so the interval includes zero and is unresolved, not proven zero; its final_affinity_rank_correlation is 0.4409 and its nearest_rest_pic50_mean is 8.0028 with nearest_rest_pic50_min 7.5308, so nearby historical finals are not low-scoring counterexamples. The competing explanation is overall pose similarity: P080's one_vs_rest_difference_A is -0.8427 and its rest_match_RMS_median_A is 0.8378, so the region is not unusually close to the rest cloud, which weakens a pure pose-familiarity account but does not remove it.",
+  "weighted_points": []
+}
