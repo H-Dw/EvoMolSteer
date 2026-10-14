@@ -38,6 +38,15 @@ STRATEGIES=[
 def fail(message):raise jsonschema.ValidationError(message,validator='partial_binding',validator_value=message,schema={})
 
 
+def execution_contract(cfg):
+    mix=cfg.get('endpoint_mix',0.)
+    return {'reward_family':'actual_partial_two_clock' if mix else 'actual_half_state_pointcloud',
+        'coordinate_views':['actual_half','actual_final'] if mix else ['actual_half'],
+        'endpoint_mix':mix,'correspondence':'distinct_spatial_assignment_frozen_within_each_derivative',
+        'guidance_starts':cfg['guidance_starts'],'guidance_end':cfg['guidance_end'],
+        'smc':False,'affinity_head_gradient':False}
+
+
 def validate_analysis(answer,packet):
     regions={r['region_id']:r for r in packet['regions']}
     if answer['candidate_id']!=packet['candidate']['candidate_id']:fail('Candidate mismatch')
@@ -65,7 +74,8 @@ def compile_programs(cfg,analyst,designer,teacher,analyst_sha,designer_sha,teach
     if teacher['representation']!='current_world_A' or teacher['time']!=cfg['teacher_time']:raise ValueError('Actual ancestor clock required')
     if designer['dose']!=cfg['dose'] or designer['teacher_time']!=cfg['teacher_time']:raise ValueError('Unregistered dose/clock intervention')
     mix=cfg.get('endpoint_mix',0.)
-    if mix and designer.get('endpoint_mix')!=mix:raise ValueError('Designer detached from registered feature-transfer objective')
+    if designer.get('endpoint_mix',mix)!=mix:raise ValueError('Designer detached from registered feature-transfer objective')
+    if designer.get('execution_contract',execution_contract(cfg))!=execution_contract(cfg):raise ValueError('Designer described an inactive execution mode')
     semantics=copy.deepcopy(CONTROL_SEMANTICS);semantics['teacher_weights']='analyst_importance_normalized'
     if designer['control_semantics']!=semantics:raise ValueError('Reward sign or correspondence mismatch')
     if not all(0<=s<cfg['guidance_end']<=cfg['teacher_time']<1 for s in cfg['guidance_starts']):raise ValueError('Invalid dynamic guidance clocks')
@@ -129,35 +139,46 @@ def analyze(repo,cfg,feedback,caller=call_json):
     schema=obj(properties)
     def extract(raw):
         regions={r['region_id']:r for r in packet['regions']}
-        a=dict(raw);slots=sorted({s for key in raw['region_ids'] for s in regions[key]['atom_slots']});a['atom_slots']=slots
+        a=copy.deepcopy(raw);slots=sorted({s for key in raw['region_ids'] for s in regions[key]['atom_slots']});a['atom_slots']=slots
+        if cfg.get('quantitative_decision',False):
+            c=a['quantitative_comparison'];c['alternative_catalogue_eligible']=c['alternative_region'] in selected_ids
         chosen={w['slot']:w for w in raw.get('weighted_points',[])}
         if len(chosen)!=len(raw.get('weighted_points',[])) or not set(chosen)<=set(slots):fail('Weighted points must be unique approved region members')
         a['point_importance']=[chosen.get(s,{'slot':s,'relative_weight':1.,'evidence_id':f'point/{s}'}) for s in slots]
         validate(a);return a
     def validate(a):
         validate_analysis(a,packet)
+        if cfg.get('quantitative_decision',False):
+            c=a['quantitative_comparison']
+            if c['alternative_catalogue_eligible']!=(c['alternative_region'] in selected_ids):
+                fail('Alternative eligibility conflicts with the explicit allowed_region_ids catalogue')
         if not cfg.get('allow_importance',False) and any(w['relative_weight']!=1 for w in a['point_importance']):fail('Region-only intervention requires all relative weights exactly 1')
         if 'frozen_selection' in cfg and any(a[k]!=v for k,v in cfg['frozen_selection'].items()):fail('Confirmation cannot change the frozen Analyst selection')
         w=np.array([r['relative_weight'] for r in a['point_importance']],float);w=w/w.sum()
         if 'required_selected_count' in cfg and len(a['atom_slots'])!=cfg['required_selected_count']:
             fail('This registered spatial-scope intervention requires exactly '+str(cfg['required_selected_count'])+' selected points')
     raw=caller([{'role':'system','content':skill},{'role':'user','content':json.dumps({'task':'Select registered region IDs. The deterministic tool expands their exact point union and default unit weights; do not return a manually copied atom_slots or point_importance list.',
-        'packet':packet,'feedback':feedback,'frozen_dose':cfg['dose'],'relative_weights_allowed':cfg.get('allow_importance',False),
+        'packet':{**packet,'regions':[{**r,'catalogue_eligible':r['region_id'] in selected_ids} for r in packet['regions']]},
+        'feedback':feedback,'frozen_dose':cfg['dose'],'relative_weights_allowed':cfg.get('allow_importance',False),
+        'decision_context':{'allowed_region_ids':selected_ids,'frozen_replay':bool(cfg.get('frozen_selection')),
+            'eligibility_definition':'Catalogue eligibility before any frozen-replay constraint. A frozen replay preserves the checkpoint, not a claim of evidence-optimal selection.'},
         'frozen_selection':cfg.get('frozen_selection'),'already_tested_selections':cfg.get('previous_selections',[]),
         'required_selected_count':cfg.get('required_selected_count'),
-        'experiment_goal':'High-affinity valid final molecules approaching or exceeding the reference final score; intermediate matching is not the performance metric'},separators=(',',':'))}],
+        'experiment_goal':'High-affinity valid final molecules approaching or exceeding the reference final score; intermediate matching is not the performance metric'},separators=(',',':'),sort_keys=True)}],
         schema,out/'Analyst.selection.json',input_store=repo/cfg['campaign_study']/'inputs',max_output_tokens=5000,
         response_validator=lambda a:extract(a),max_format_repairs=2)
     analyst=extract(raw)
     write_json(out/'Analyst.json',analyst)
     write_json(out/'Analyst.extraction.json',{'raw_selection_sha256':digest(out/'Analyst.selection.json'),
         'derived_slots':analyst['atom_slots'],'method':'Exact union of LLM-selected registered regions; unspecified point weights are 1',
+        'derived_comparison_eligibility':analyst.get('quantitative_comparison',{}).get('alternative_catalogue_eligible'),
         'no_region_substitution':True})
     validate(analyst)
     if 'quantitative_comparison' in analyst:
         c=analyst['quantitative_comparison'];regions={r['region_id']:r for r in packet['regions']}
         a=regions[c['chosen_region']];b=regions[c['alternative_region']]
         write_json(out/'quantitative_comparison.json',{'agent_declaration':c,
+            'alternative_catalogue_eligible':c['alternative_region'] in selected_ids,
             'deterministically_computed':{'incremental_delta':a['incremental_rank_correlation']-b['incremental_rank_correlation'],
                 'nearby_affinity_delta':a['nearest_rest_pic50_mean']-b['nearest_rest_pic50_mean'],
                 'interval_lower_delta':a['incremental_cluster95'][0]-b['incremental_cluster95'][0],
@@ -177,9 +198,8 @@ def analyze(repo,cfg,feedback,caller=call_json):
     dschema=obj({'role':{'const':'Designer'},'candidate_id':{'const':cfg['candidate_id']},'decision':{'enum':['activate','defer']},
         'region_ids':{'const':analyst['region_ids']},'atom_slots':{'const':slots},'atom_weights':{'const':weights},
         'teacher_time':{'const':cfg['teacher_time']},'dose':{'const':cfg['dose']},'control_semantics':{'const':semantics},
-        'scientific_rationale':{'type':'string','maxLength':5000},'observable_falsifier':text})
-    if cfg.get('endpoint_mix',0):
-        dschema['properties']['endpoint_mix']={'const':cfg['endpoint_mix']};dschema['required'].append('endpoint_mix')
+        'scientific_rationale':{'type':'string','maxLength':5000},'observable_falsifier':text,
+        'endpoint_mix':{'const':cfg.get('endpoint_mix',0.)},'execution_contract':{'const':execution_contract(cfg)}})
     def validate_d(d):
         try:compile_programs(cfg,analyst,d,teacher,digest(out/'Analyst.json'),'pending',digest(out/'teacher.json'))
         except ValueError as e:fail(str(e))
@@ -187,8 +207,8 @@ def analyze(repo,cfg,feedback,caller=call_json):
         'selected_terminal_regions':[r for r in packet['regions'] if r['region_id'] in analyst['region_ids']],
         'actual_teacher':teacher,'transfer':transfer,'frozen_dose':cfg['dose'],'normalized_weights':weights,
         'required_control_semantics':semantics,'clock':{'starts':cfg['guidance_starts'],'end':cfg['guidance_end']},
-        'endpoint_mix':cfg.get('endpoint_mix',0),'reward_registry':('shared correspondence for BOTH actual half and actual final points on exactly the Analyst-selected slots; no extra model forward or affinity derivative' if cfg.get('endpoint_mix',0) else 'Actual half-state robust point matching'),
-        'task':'Design the declared robust partial reward using exactly the Analyst selection. No autonomous region substitution.'},separators=(',',':'))}],
+        'endpoint_mix':cfg.get('endpoint_mix',0),'execution_contract':execution_contract(cfg),'reward_registry':('shared correspondence for BOTH actual half and actual final points on exactly the Analyst-selected slots; no extra model forward or affinity derivative' if cfg.get('endpoint_mix',0) else 'Actual half-state robust point matching ONLY; there is no final-view loss or mixture'),
+        'task':'Design the declared robust partial reward using exactly the Analyst selection. No autonomous region substitution. Describe only enabled execution_contract views; conditional Skills descriptions of inactive modes must not be presented as active.'},separators=(',',':'),sort_keys=True)}],
         dschema,out/'Designer.json',input_store=repo/cfg['campaign_study']/'inputs',max_output_tokens=4000,response_validator=validate_d,max_format_repairs=2)
     programs=compile_programs(cfg,analyst,design,teacher,digest(out/'Analyst.json'),digest(out/'Designer.json'),digest(out/'teacher.json'))
     bindings=[]

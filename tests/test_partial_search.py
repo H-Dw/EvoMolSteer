@@ -3,7 +3,8 @@ import numpy as np
 import pytest
 import torch
 from evomolsteer.partial_search.mining import regional_sets,residual_ranks,correlation,cluster_interval
-from evomolsteer.partial_search.agents import compile_programs,signature
+from evomolsteer.partial_search.agents import compile_programs,signature,execution_contract,analyze
+from evomolsteer.io import read_json,write_json
 from evomolsteer.final_guidance.workflow import CONTROL_SEMANTICS
 from evomolsteer.final_guidance.reward import HalfStateReward
 
@@ -64,3 +65,61 @@ def test_numerical_signature_ignores_narrative_but_tracks_executed_weights():
     other=copy.deepcopy(p);other['program_id']='R99';other['analyst_sha256']='different'
     assert signature(p)==signature(other)
     other['atom_weights']=[.5,.5];assert signature(p)!=signature(other)
+
+
+def test_designer_cannot_describe_inactive_view_or_mixture():
+    teacher,analyst,design,cfg=example();design['endpoint_mix']=0.
+    design['execution_contract']=execution_contract(cfg)
+    assert design['execution_contract']['coordinate_views']==['actual_half']
+    reference=compile_programs(cfg,analyst,design,teacher,'a','d','t')
+    changed=copy.deepcopy(design);changed['endpoint_mix']=.5
+    with pytest.raises(ValueError,match='feature-transfer'):compile_programs(cfg,analyst,changed,teacher,'a','d','t')
+    changed=copy.deepcopy(design);changed['execution_contract']['coordinate_views'].append('actual_final')
+    with pytest.raises(ValueError,match='inactive'):compile_programs(cfg,analyst,changed,teacher,'a','d','t')
+    legacy=copy.deepcopy(design);legacy.pop('endpoint_mix');legacy.pop('execution_contract')
+    assert [signature(p) for p in reference]==[signature(p) for p in compile_programs(cfg,analyst,legacy,teacher,'a','d','t')]
+
+
+def test_role_handoff_is_canonical_and_does_not_mutate_raw_api_answer(tmp_path):
+    teacher,_,design,cfg=example()
+    cfg.update(study='round',campaign_study='campaign',base_study='base',candidate_id='F1',
+        analyst_skill='a.md',designer_skill='d.md',quantitative_decision=True)
+    for name in ('a.md','d.md'):(tmp_path/name).write_text('Frozen test instructions',encoding='utf-8')
+    regions=[{'region_id':key,'atom_slots':slots,'evidence_id':key+'/geometry',
+        'incremental_rank_correlation':.2,'nearest_rest_pic50_mean':8.,'incremental_cluster95':[-.1,.3],
+        'free_teacher_slots':1} for key,slots in [('P001',[0,1]),('P002',[1,2])]]
+    write_json(tmp_path/'campaign/evidence.json',{'candidate':{'candidate_id':'F1'},'regions':regions,
+        'terminal_coords_A':teacher['coords_A']})
+    write_json(tmp_path/'base/candidates/F1/teacher.json',teacher)
+    raw={'role':'Analyst','candidate_id':'F1','region_ids':['P001'],
+        'hypotheses':[{'region_id':'P001','evidence_id':'P001/geometry','advantage':'spatial hypothesis',
+            'alternative':'shared geometry','falsifier':'no paired terminal improvement'}],
+        'quantitative_comparison':{'chosen_region':'P001','alternative_region':'P002','tradeoff_reason':'test'},
+        'selection_rationale':'test','free_region_rationale':'one free point','expected_final_response':'test'}
+    design.update(role='Designer',atom_weights=[.5,.5],scientific_rationale='Bound region',
+        observable_falsifier='No paired improvement',endpoint_mix=0.,execution_contract=execution_contract(cfg))
+    requests=[]
+    def caller(messages,schema,output,**kwargs):
+        answer=copy.deepcopy(raw if schema['properties']['role']['const']=='Analyst' else design)
+        # Real API response key order need not equal sorted order when cached JSON is read.
+        if len(requests)>=2:answer=dict(reversed(list(answer.items())))
+        before=copy.deepcopy(answer);kwargs['response_validator'](answer)
+        assert answer==before
+        requests.append(messages[1]['content']);write_json(output,answer);return answer
+    first=analyze(tmp_path,cfg,{},caller=caller);second=analyze(tmp_path,cfg,{},caller=caller)
+    assert requests[:2]==requests[2:]
+    assert [signature(p) for p in first]==[signature(p) for p in second]
+    folder=tmp_path/'round/candidates/F1'
+    assert 'alternative_catalogue_eligible' not in read_json(folder/'Analyst.selection.json')['quantitative_comparison']
+    assert read_json(folder/'Analyst.json')['quantitative_comparison']['alternative_catalogue_eligible'] is True
+
+
+def test_completed_campaign_does_not_connect_or_overwrite_active_skills(tmp_path,monkeypatch):
+    from evomolsteer.partial_search import engine
+    master={'campaign_study':'campaign','max_rounds':20}
+    state={'next_round':21,'best_round':'R13','rounds':[{}]*20}
+    write_json(tmp_path/'config.json',master);write_json(tmp_path/'campaign/state.json',state)
+    write_json(tmp_path/'campaign/COMPLETE.json',{'rounds':20})
+    def denied():raise AssertionError('Completed campaign must not reconnect')
+    monkeypatch.setattr(engine,'Remote',denied)
+    assert engine.run(tmp_path,tmp_path/'config.json',20)==state

@@ -147,6 +147,11 @@ def activate(repo,master,state):
 
 def run(repo,master_path,stop_after):
     repo=Path(repo).resolve();master=read_json(master_path);study=repo/master['campaign_study'];state_path=study/'state.json'
+    if state_path.exists() and (study/'COMPLETE.json').exists():
+        completed=read_json(state_path)
+        if completed['next_round']>master['max_rounds']:
+            emit('campaign_already_complete',rounds=len(completed['rounds']),best_round=completed['best_round'])
+            return completed
     remote=Remote()
     try:
         if state_path.exists():state=read_json(state_path)

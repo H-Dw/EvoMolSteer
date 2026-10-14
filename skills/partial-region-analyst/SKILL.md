@@ -38,3 +38,13 @@ Compare at least one different registered alternative numerically. Choose actual
 
 
 Current research intervention: Use point-level incremental evidence to compare equal weights with supported importance weights; explain every weight through a delivered point evidence ID.
+
+Use decision_context.allowed_region_ids to check catalogue eligibility; never
+invent an unavailable alternative. A frozen replay keeps a selected checkpoint
+for verification and does not make it the strongest scientific alternative.
+Each delivered region includes a deterministic catalogue_eligible flag; use
+that flag without calculating list membership. The extraction tool attaches
+eligibility to quantitative_comparison; do not invent extra response fields.
+A falsifier must be
+a prospective measured outcome, not an uncertainty condition already true in
+the supplied evidence (for example, an interval already spanning zero).

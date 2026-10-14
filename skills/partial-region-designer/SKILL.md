@@ -28,4 +28,13 @@ Loss reduction is implementation feedback; final affinity and actual valid
 structures decide whether the reward works. Return only the typed executable
 contract plus concise scientific justification and failure criteria.
 
-For a registered two-clock transfer test, use one shared spatial assignment for the actual intermediate and actual final views. The mixed loss uses the frozen component coefficient. Its derivative includes the half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term. Guidance windows and dose stay fixed. No extra generator forward or affinity inference is needed for this second coordinate loss.
+The runtime execution_contract is authoritative. Return it exactly and describe
+only its enabled coordinate_views. If endpoint_mix is zero, the reward has ONLY
+the actual intermediate teacher and no final-view loss; do not describe any
+mixed loss as active. This does not restrict native chemical graph changes.
+
+Only when execution_contract explicitly enables both coordinate views and a
+positive endpoint_mix, use the registered two-clock transfer test with one shared
+spatial assignment. Its frozen mixed loss adds the final-view generator-Jacobian
+term to the half-view identity and generator-Jacobian terms. Guidance windows and
+dose stay fixed. No extra generator forward or affinity inference is needed.
