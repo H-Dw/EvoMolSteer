@@ -24,6 +24,9 @@ class HalfStateReward:
         if program['scope']=='full' and self.slots!=teacher['active_slots']:raise ValueError('Whole-cloud control omitted active points')
         if program['scope']=='local' and len(self.slots)>=len(teacher['active_slots']):raise ValueError('Local mode must be a proper subset')
         self.target=np.asarray(teacher['coords_A'],float)[self.slots]
+        weights=np.asarray(program.get('atom_weights',[1.]*len(self.slots)),float)
+        if weights.shape!=(len(self.slots),) or not np.isfinite(weights).all() or (weights<=0).any():raise ValueError('Invalid analyst-bound teacher weights')
+        self.weights=weights/weights.sum()
         self.delta=float(program['dose']['pointcloud_delta_A'])
         if not np.isfinite(self.target).all() or not np.isfinite(self.delta) or self.delta<=0:raise ValueError('Invalid teacher geometry or curvature')
     def assignment(self,z,mask):
@@ -31,14 +34,15 @@ class HalfStateReward:
         for cloud,valid in zip(z.detach().cpu().numpy(),mask.detach().cpu().numpy()):
             ids=np.flatnonzero(valid)
             if len(ids)<len(self.target):raise ValueError('Too few active generated atoms for distinct spatial matching')
-            distance=np.square(cloud[ids,None]-self.target[None]).sum(-1)
+            distance=np.square(cloud[ids,None]-self.target[None]).sum(-1)*self.weights[None]
             rows,cols=linear_sum_assignment(distance)
             choices.append(ids[rows[np.argsort(cols)]])
         return torch.as_tensor(np.asarray(choices),device=z.device,dtype=torch.long)
     def value(self,z,mask,assignment=None):
         indices=self.assignment(z,mask) if assignment is None else assignment
         matched=z.gather(1,indices[...,None].expand(-1,-1,3));target=z.new_tensor(self.target)
-        q=(matched-target[None]).square().sum(-1).mean(1)
+        squared=(matched-target[None]).square().sum(-1)
+        q=squared.mean(1) if 'atom_weights' not in self.program else (squared*z.new_tensor(self.weights)).sum(1)
         value=-self.delta**2*(torch.sqrt(1+q/self.delta**2)-1)
         direct=torch.zeros_like(mask,dtype=torch.bool);direct.scatter_(1,indices,True)
         return value,{'assignment':indices,'direct_mask':direct,'matched_rms_A':q.sqrt()}

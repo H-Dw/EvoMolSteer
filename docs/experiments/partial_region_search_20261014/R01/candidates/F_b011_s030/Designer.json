@@ -1,0 +1,40 @@
+{
+  "atom_slots": [
+    5,
+    8,
+    11,
+    14,
+    23
+  ],
+  "atom_weights": [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "If, after freezing this selection and dose, the top-5 qualified final predictions do not improve over the whole-pose baseline, or if the P015/P017 incremental association disappears when overall-cloud similarity and lineage/batch effects are removed, the proposed regional advantage is not supported. If P015 and P017 give discordant terminal feedback under the same frozen dose and seed, the spatial-extent comparison is not supported. If the reward drives the selected slots toward the teacher while final affinity fails to approach or exceed the reference 8.704806327819824, or if valid connected molecules are lost, the spatial imitation proxy is not useful. A null or negative terminal result would indicate the regional association is unresolved or not transferable under the frozen dose and seed.",
+  "region_ids": [
+    "P015",
+    "P017"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "Activate the frozen Analyst selection without substitution. The reward is a robust partial point-cloud imitation proxy over the Analyst-selected spatial slots 5,8,11,14,23, with equal normalized weights 0.2 each, evaluated against the verified real current-state ancestor at teacher clock 0.5 (candidate F_b011_s030, batch 11, ancestor_slot 37, terminal_slot 30, terminal_score 8.704806327819824, parent_copy_verified true). The selected slots are the union of P015 (5,8,11,14) and P017 (8,11,14,23); P015 and P017 are adjacent 4-slot extents sharing 8,11,14, so the union tests the Analyst hypothesis that positive incremental regional affinity association, not raw whole-pose similarity, is the useful spatial constraint. The free complement (slots 0,1,2,3,4,6,7,9,10,12,13,15,16,17,18,19,20,21,22,24) remains unconstrained, so the reward specifies localized spatial organization rather than a whole-pose template. Generated atom correspondence is a spatial assignment, not teacher slot indices; teacher indices are not generated atom indices. The teacher-clock bridge includes the current-coordinate identity derivative and the real FLOWR coordinate Jacobian. Gradient ascent lowers distance error and increases the negative reward toward zero. The affinity head is not differentiated and no particle resampling is introduced; native chemical graph transitions remain free. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates, so actual displacement and the unguided suffix must be recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works. The frozen dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0) is applied unchanged. Because the P015 and P017 cluster95 intervals include zero, this is an unresolved association to be tested by terminal feedback, not a proven causal effect.",
+  "teacher_time": 0.5
+}

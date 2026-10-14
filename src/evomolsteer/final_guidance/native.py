@@ -106,7 +106,10 @@ def run(repo,cfg):
             p=read_json(root/item['program'])
             if digest(teacher_path)!=p['teacher_sha256']:raise ValueError('Teacher altered')
             entries.append((p,teacher,item['operative_text']))
-    if not entries:raise ValueError('No approved programs; cannot invent local teacher slots')
+    if 'only_program_ids' in cfg:
+        requested=set(cfg['only_program_ids']);entries=[entry for entry in entries if entry[0]['program_id'] in requested]
+        if {e[0]['program_id'] for e in entries}!=requested:raise ValueError('Unregistered requested program')
+    if not entries and not cfg.get('include_unguided',True):raise ValueError('No approved programs; cannot invent local teacher slots')
     remote=Path(cfg['remote_output']);remote.mkdir(parents=True,exist_ok=True)
     original_argv=sys.argv;sys.argv=['final-guidance','--arch','pocket','--pocket_type','holo','--gpus','1','--num_workers','0',
         '--batch_cost',str(cfg['pilot_samples']),'--sample_n_molecules_per_target',str(cfg['pilot_samples']),
@@ -127,11 +130,12 @@ def run(repo,cfg):
     if not 1<=n<=b:raise ValueError('Unsupported pilot sample count')
     com=torch.as_tensor(np.asarray(init['target_com'][:n]).reshape(n,3),device=device,dtype=torch.float32)
     source_audit={'upstream_native_sha256':hashlib.sha256(source.encode()).hexdigest(),'instrumented_sha256':hashlib.sha256(changed.encode()).hexdigest(),
+        'control_adapter_sha256':digest(__file__),'reward_adapter_sha256':digest(Path(__file__).with_name('reward.py')),
         'checkpoint_sha256':digest(cfg['checkpoint']),'initial_sha256':digest(initial),'initial_slots':list(range(n)),
         'seed':cfg['seed'],'native_graph_transitions':True,'smc':False,'affinity_head_gradient':False,'additional_per_step_affinity_calls':0,
         'model_derivative':'Actual FLOWR autograd VJP plus bridge identity term','bridge':'One-forward linear teacher-clock approximation, not exact SDE lookahead'}
     write_json(remote/'source_audit.json',source_audit);(remote/'instrumented_native.py').write_text(changed)
-    conditions=[(None,None,'Unselected random-prior from-zero native control')]+entries
+    conditions=([(None,None,'Unselected random-prior from-zero native control')] if cfg.get('include_unguided',True) else [])+entries
     for p,teacher,text in conditions:
         name='unguided' if p is None else p['program_id'];out=remote/name;out.mkdir(exist_ok=True)
         if (out/'COMPLETE.json').exists():continue
