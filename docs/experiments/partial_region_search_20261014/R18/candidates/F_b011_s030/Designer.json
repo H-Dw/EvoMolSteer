@@ -1,0 +1,69 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "If a future run with the same clock and dose shows P077's incremental association at or below zero, or if the terminal improvement disappears when the P077 region union is replaced by a different registered region, the selection should be dropped. Additionally, if the robust partial reward fails to reduce the point-matching distance error toward the verified real teacher coordinates, or if final affinity and actual valid structures do not improve relative to the unguided suffix, the proxy's usefulness is falsified.",
+  "region_ids": [
+    "P077"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "Activate the Analyst's frozen P077 selection as a robust partial point-cloud reward at the configured teacher clock (time 0.5, step 50, batch 11, candidate F_b011_s030). The reward is bound to exactly the Analyst-selected slots [0,1,2,3,4,6,7,10,12,13,14,15,16,17,18,19,20,21,22,24] from the registered real-coordinate view P077/geometry; no new region, background point, forecast, or substitute teacher is introduced. The selected slots are the union that produced the only distinct real executable change with improved terminal feedback (R13_0.1, best_qualified_pic50 8.378, delta +0.231 vs prior best), so the spatial assignment implements the Analyst hypothesis as a spatial imitation proxy: the constrained slots pull the generated pose toward the verified real current-state ancestor coordinates at the teacher clock, while the free complement (slot 5) remains unconstrained and native chemical graph transitions stay free. Weights are the Analyst's normalized unit importance (0.05 each over 20 slots), matching the declared analyst_importance_normalized semantics. The dose is the frozen intervention (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0); no kernel scale, geometry-supported weighting, or dose is altered. Optimization is reward ascent: the robust point-matching distance error decreases toward the teacher and the negative reward increases toward zero. The actual teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian; the affinity head is not differentiated and no particle resampling is introduced. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates, so actual displacement and the unguided suffix must be recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works. The Analyst's incremental association is positive (0.0834) but its cluster95 interval includes zero ([-0.0654, 0.2422]), so the evidence is unresolved rather than proven; activation is justified because P077 is the only registered region whose selection rule has already produced a distinct executable change with improved terminal feedback, not because the association is established.",
+  "teacher_time": 0.5
+}

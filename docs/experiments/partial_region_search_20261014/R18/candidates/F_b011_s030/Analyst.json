@@ -1,0 +1,149 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    24
+  ],
+  "candidate_id": "F_b011_s030",
+  "expected_final_response": "A single union reward over P077's exact slot union with default unit weights, matching the R13_0.1 configuration that produced the best terminal feedback (best_qualified_pic50 8.378, top5 mean 8.119, mean all 7.683).",
+  "free_region_rationale": "The free complement is the single slot not in P077's union, slot 5, which is left unconstrained. This preserves the part of the pose not implicated by the improved R13 selection while still allowing the constrained region to organize the rest of the molecule.",
+  "hypotheses": [
+    {
+      "advantage": "P077 is the registered region whose atom_slots [0,1,2,3,4,6,7,10,12,13,14,15,16,17,18,19,20,21,22,24] match the R13_0.1 selection that produced the only distinct real executable change with improved terminal feedback (best_qualified_pic50 8.378, delta +0.231 vs prior best). Its incremental_rank_correlation is 0.0834 with cluster95 [-0.0654, 0.2422], and its final_affinity_rank_correlation is 0.4526, so the association is positive but the interval includes zero and is therefore unresolved rather than proven.",
+      "alternative": "The improvement in R13 may reflect the clock/dose (start 0.1, 40 updates) rather than the region union, and P077's wide interval means the association could be zero; the region is large (20 slots, free_teacher_slots 5) and may preserve context rather than constrain useful alternatives.",
+      "evidence_id": "P077/geometry",
+      "falsifier": "If a future run with the same clock and dose shows P077's incremental association at or below zero, or if the terminal improvement disappears when the region union is replaced by a different registered region, the selection should be dropped.",
+      "region_id": "P077"
+    }
+  ],
+  "point_importance": [
+    {
+      "evidence_id": "point/0",
+      "relative_weight": 1.0,
+      "slot": 0
+    },
+    {
+      "evidence_id": "point/1",
+      "relative_weight": 1.0,
+      "slot": 1
+    },
+    {
+      "evidence_id": "point/2",
+      "relative_weight": 1.0,
+      "slot": 2
+    },
+    {
+      "evidence_id": "point/3",
+      "relative_weight": 1.0,
+      "slot": 3
+    },
+    {
+      "evidence_id": "point/4",
+      "relative_weight": 1.0,
+      "slot": 4
+    },
+    {
+      "evidence_id": "point/6",
+      "relative_weight": 1.0,
+      "slot": 6
+    },
+    {
+      "evidence_id": "point/7",
+      "relative_weight": 1.0,
+      "slot": 7
+    },
+    {
+      "evidence_id": "point/10",
+      "relative_weight": 1.0,
+      "slot": 10
+    },
+    {
+      "evidence_id": "point/12",
+      "relative_weight": 1.0,
+      "slot": 12
+    },
+    {
+      "evidence_id": "point/13",
+      "relative_weight": 1.0,
+      "slot": 13
+    },
+    {
+      "evidence_id": "point/14",
+      "relative_weight": 1.0,
+      "slot": 14
+    },
+    {
+      "evidence_id": "point/15",
+      "relative_weight": 1.0,
+      "slot": 15
+    },
+    {
+      "evidence_id": "point/16",
+      "relative_weight": 1.0,
+      "slot": 16
+    },
+    {
+      "evidence_id": "point/17",
+      "relative_weight": 1.0,
+      "slot": 17
+    },
+    {
+      "evidence_id": "point/18",
+      "relative_weight": 1.0,
+      "slot": 18
+    },
+    {
+      "evidence_id": "point/19",
+      "relative_weight": 1.0,
+      "slot": 19
+    },
+    {
+      "evidence_id": "point/20",
+      "relative_weight": 1.0,
+      "slot": 20
+    },
+    {
+      "evidence_id": "point/21",
+      "relative_weight": 1.0,
+      "slot": 21
+    },
+    {
+      "evidence_id": "point/22",
+      "relative_weight": 1.0,
+      "slot": 22
+    },
+    {
+      "evidence_id": "point/24",
+      "relative_weight": 1.0,
+      "slot": 24
+    }
+  ],
+  "quantitative_comparison": {
+    "alternative_region": "P009",
+    "chosen_region": "P077",
+    "tradeoff_reason": "P009 has a positive incremental association (0.1942) with a cluster95 interval excluding zero ([0.0661, 0.3457]), but its final_affinity_rank_correlation is negative (-0.0480) and its nearest_rest_pic50_mean is 8.003, whereas P077 has a higher final_affinity_rank_correlation (0.4526) and a higher nearest_rest_pic50_mean (7.991). P009's negative final-affinity correlation is a counterexample to using it as a final-affinity teacher, so P077 is preferred despite P009's narrower interval."
+  },
+  "region_ids": [
+    "P077"
+  ],
+  "role": "Analyst",
+  "selection_rationale": "The intervention asks to combine only region-selection rules that produced distinct real executable changes and improved terminal feedback. The only round that improved terminal feedback was R13 (best_qualified_pic50 8.378, delta +0.231 vs prior best), and its selected slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] correspond exactly to the union of P077's atom_slots. P077 is therefore the registered region whose selection rule has already produced a distinct executable change and improved terminal feedback. Its incremental association is positive (0.0834) but its cluster95 interval includes zero, so the evidence is unresolved rather than proven; the selection is retained because it is the only rule with real terminal improvement, not because the association is established.",
+  "weighted_points": []
+}
