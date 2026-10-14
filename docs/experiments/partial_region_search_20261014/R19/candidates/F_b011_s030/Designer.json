@@ -1,0 +1,69 @@
+{
+  "atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "atom_weights": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "candidate_id": "F_b011_s030",
+  "control_semantics": {
+    "distance_error": "decreases_toward_teacher",
+    "generated_atom_correspondence": "spatial_assignment_not_teacher_slot_indices",
+    "hypothesis_implementation": "spatial_imitation_proxy_not_exact_feature_loss",
+    "optimization": "reward_ascent",
+    "reward_value": "increases_toward_zero",
+    "teacher_weights": "analyst_importance_normalized"
+  },
+  "decision": "activate",
+  "dose": {
+    "max_atom_step_A": 0.15,
+    "max_cumulative_rms_A": 6.0,
+    "native_rms_ratio": 0.33,
+    "pointcloud_delta_A": 1.0
+  },
+  "observable_falsifier": "A matched-random confirmation in which the P080 union fails to reproduce the R13_0.1 advantage over the full-cloud baseline, or in which its incremental cluster95 lower bound falls below zero on the confirmation set, would falsify the proxy's usefulness. Concretely, report best_qualified_pic50, top5_qualified_mean_pic50, mean_all_pic50 and n_qualified against the full-cloud baseline; if the P080 advantage does not reproduce, or if the incremental cluster95 interval still crosses zero with no positive shift, the spatial imitation proxy is not supported. The competing explanation that the positive association reflects overall pose similarity or historical SMC dependence rather than useful spatial organization is not dismissed by the current evidence.",
+  "region_ids": [
+    "P080"
+  ],
+  "role": "Designer",
+  "scientific_rationale": "Frozen-selection confirmation of P080. The Analyst selected exactly the P080 union (slots 0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24) with unit point weights, and the R13_0.1 checkpoint using that union is the best terminal feedback in the history (best_qualified_pic50 8.378, top5_qualified_mean 8.119, mean_all 7.683, n_qualified 24/24). I therefore keep the region and unit weights unchanged and normalize them to 0.05 each over the 20 selected slots; no new region, background point, forecast, or teacher substitution is introduced. The reward is the declared robust partial point-cloud matching at the configured teacher clock t=0.5, using the verified real current-state ancestor (parent_copy_verified true, representation current_world_A, trajectory_sha256 8c77671640ec3a4b6edee10d65c6f4da0e11a276f61b13cf7d426304371c5270). The selected slots implement the Analyst hypothesis as a spatial imitation proxy: the P080 union is the part of the historical lineage that the frozen selection constrains, while slots 5, 8, 9, 11 and 14 remain free so new molecules can vary there under spatial matching rather than index identity. Teacher indices are not generated atom indices; the spatial assignment is fixed during each derivative, and the actual teacher-clock bridge includes both the current-coordinate identity derivative and the real FLOWR coordinate Jacobian. Gradient ascent lowers distance error and increases the negative reward toward zero. The affinity head is not differentiated and no particle resampling is introduced; native chemical graph transitions remain free. Local direct loss excludes unmatched points, but model-mediated forces can reach other current coordinates, so actual displacement and the unguided suffix must be recorded. Loss reduction is implementation feedback only; final affinity and actual valid structures decide whether the reward works. The registered two-clock transfer test uses one shared spatial assignment for the actual intermediate and actual final views, with the frozen component coefficient, half-view identity and generator-Jacobian terms plus the final-view generator-Jacobian term, fixed guidance windows and dose, and no extra generator forward or affinity inference. The association is supportive, not causal: P080 incremental_rank_correlation is 0.0835 with cluster95 [-0.065, 0.247], which crosses zero, and final_affinity_rank_correlation is 0.441; nearest_rest_pic50_mean 8.003 and nearest_rest_pic50_min 7.531 are actual counterexamples not clearly below the candidate.",
+  "teacher_time": 0.5
+}
