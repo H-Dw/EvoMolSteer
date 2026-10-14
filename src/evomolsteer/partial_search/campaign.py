@@ -50,6 +50,7 @@ def prepare_round(repo,master,number,state):
         pilot_samples=master['screen_samples'] if number<19 else master['confirmation_samples'],
         pilot_initial_batch=0 if number<20 else 1,include_unguided=False,allow_importance=13<=number<=18,
         remote_output=f"{master['remote_campaign']}/{label}",strategy=strategy)
+    cfg['quantitative_decision']=number>=3
     feedback={'strategy':strategy,'scientific_intervention':instruction,'best_checkpoint':state.get('best'),
         'baseline':state.get('baseline'),'history':state.get('rounds',[]),
         'previous_small_pilot':'Three-point matching improved half-state loss but not final affinity; whole-cloud from zero improved mean in a small pilot, with wide uncertainty.',

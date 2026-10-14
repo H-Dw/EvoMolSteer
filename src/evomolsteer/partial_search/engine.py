@@ -218,7 +218,10 @@ def run(repo,master_path,stop_after):
             entry['strategy']=cfg['strategy'];entry['skill_response_verified']=True;entry['new_numerical_programs']=len(novel)
             write_json(study/label/'results.json',entry);state['next_round']=number+1;write_json(state_path,state)
             commit(repo,master,f'results(partial-search): {label} terminal feedback and rollback decision')
-            emit('round_complete',**entry)
+            emit('round_complete',round=label,best_round=state['best_round'],
+                selected_points=len(programs[0]['atom_slots']),rollback=entry.get('rollback_required',False),
+                scores=[{'start':m['start'],'top5':m['top5_qualified_mean_pic50'],'best_valid':m['best_qualified_pic50'],
+                    'mean_all':m['mean_all_pic50'],'qualified':m['n_qualified'],'above_reference':m['n_above_reference']} for m in metrics])
         if state['next_round']>master['max_rounds']:
             # Publish the empirically best training policy, not the final exploratory failure.
             if state['best_round']!='baseline':

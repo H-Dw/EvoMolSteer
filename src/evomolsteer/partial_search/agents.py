@@ -50,6 +50,14 @@ def validate_analysis(answer,packet):
         if h['evidence_id']!=regions[h['region_id']]['evidence_id']:fail('Unknown or wrong-region evidence')
     weights=answer['point_importance']
     if [w['slot'] for w in weights]!=slots or any(w['evidence_id']!=f"point/{w['slot']}" for w in weights):fail('Point importance must bind every approved slot in order')
+    if 'quantitative_comparison' in answer:
+        c=answer['quantitative_comparison'];a=regions[c['chosen_region']];b=regions[c['alternative_region']]
+        if c['chosen_region'] not in chosen or c['chosen_region']==c['alternative_region']:fail('Comparison must use a chosen region and a different actual alternative')
+        fields={'incremental_delta':'incremental_rank_correlation','nearby_affinity_delta':'nearest_rest_pic50_mean',
+            'interval_lower_delta':None,'free_slots_delta':'free_teacher_slots'}
+        for key,field in fields.items():
+            expected=(a['incremental_cluster95'][0]-b['incremental_cluster95'][0]) if field is None else a[field]-b[field]
+            if abs(c[key]-expected)>1e-6:fail(f'Numerical comparison {key} reverses or misquotes supplied evidence')
 
 
 def compile_programs(cfg,analyst,designer,teacher,analyst_sha,designer_sha,teacher_sha):
@@ -91,11 +99,16 @@ def analyze(repo,cfg,feedback,caller=call_json):
     skill_path=repo/cfg['analyst_skill'];designer_path=repo/cfg['designer_skill']
     skill=skill_path.read_text(encoding='utf-8');dskill=designer_path.read_text(encoding='utf-8')
     ids=[r['region_id'] for r in packet['regions']];points=len(packet['terminal_coords_A'])
-    schema=obj({'role':{'const':'Analyst'},'candidate_id':{'const':cfg['candidate_id']},'region_ids':arr({'enum':ids},1,2),
+    properties={'role':{'const':'Analyst'},'candidate_id':{'const':cfg['candidate_id']},'region_ids':arr({'enum':ids},1,2),
         'atom_slots':arr({'type':'integer','minimum':0,'maximum':points-1},2,points-1),
         'hypotheses':arr(obj({'region_id':{'enum':ids},'evidence_id':{'type':'string'},'advantage':text,'alternative':text,'falsifier':text}),1,2),
         'point_importance':arr(obj({'slot':{'type':'integer'},'relative_weight':{'type':'number','minimum':.1,'maximum':5},'evidence_id':{'type':'string'}}),2,points-1),
-        'selection_rationale':text,'free_region_rationale':text,'expected_final_response':text})
+        'selection_rationale':text,'free_region_rationale':text,'expected_final_response':text}
+    if cfg.get('quantitative_decision',False):
+        properties['quantitative_comparison']=obj({'chosen_region':{'enum':ids},'alternative_region':{'enum':ids},
+            'incremental_delta':{'type':'number'},'nearby_affinity_delta':{'type':'number'},'interval_lower_delta':{'type':'number'},
+            'free_slots_delta':{'type':'integer'},'tradeoff_reason':text})
+    schema=obj(properties)
     def validate(a):
         validate_analysis(a,packet)
         if not cfg.get('allow_importance',False) and any(w['relative_weight']!=1 for w in a['point_importance']):fail('Region-only intervention requires all relative weights exactly 1')
