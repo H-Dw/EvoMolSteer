@@ -33,3 +33,7 @@ High element retention is not a ceiling on affinity improvement. An untested dos
 may be explored under an explicit hypothesis; previous outcomes at that exact dose
 are not required. Separate lack of outcome certainty from missing indispensable
 input evidence. Prefer a small discriminating experiment over circular deferral.
+
+Read parameter_semantics and actual_parent_factor_value. A detached assignment
+cost changes correspondence, not a differentiable gradient weight. Distinguish
+the current parent from contextual controllers with other labels or doses.

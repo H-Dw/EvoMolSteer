@@ -36,3 +36,8 @@ Choose a defensible legal variant and an observable falsifier; do not require it
 outcome to have been measured already. Defer for missing necessary chemical input,
 an invalid derivative/support, or a numerically ineffective operator. Element
 retention alone is not the objective: assess final affinity and coordinate quality.
+
+Copy parent_factor_value from the current implementation facts and chosen_factor_value
+from your selected variant. Read parameter_semantics before explaining the mechanism.
+A detached assignment coefficient changes matched indices, not the direct type
+gradient coefficient. Never substitute the type-mixture weight for that parameter.

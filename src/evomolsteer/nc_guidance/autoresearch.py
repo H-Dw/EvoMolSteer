@@ -26,6 +26,29 @@ from .workflow import numerical_signature
 
 NATIVE_DEFAULTS={'coord_noise_level':.2,'cat_noise_level':1.,'cat_noise_euler_guard':False,
                  'use_sde_simulation':True,'final_corr_pred':True}
+PARAMETER_SEMANTICS={
+    'assignment_type_cost':'Coefficient in DETACHED Hungarian assignment cost (A^2 per log-probability). Changes matched indices; NOT a type-gradient coefficient and has no derivative through the discrete assignment.',
+    'dose.native_rms_ratio':'Requested coordinate RMS dose relative to predictive native-flow increment, before clipping. Not a mixture weight.',
+    'weights':'Relative normalized gradient mixture; total physical dose remains separately fixed.',
+    'weights.pair':'Adds a local endpoint pair-distance gradient to the mixture; does not freeze the graph.',
+    'type_ramp':'Within-window scaling of type/orientation contributions, not guidance after the window.',
+    'native_options.cat_noise_level':'Categorical transition noise during native generation, including suffix. Does not overwrite or freeze labels.',
+    'native_options.final_corr_pred':'Select final predicted output versus last integrated current. Changes terminal output protocol, not control window.',
+    'geometry_mode':'Aggregate versus per-point robust geometry changes relative spatial gradients.',
+    'assignment_endpoint_fraction':'Mixture of half/endpoint spatial costs for the detached correspondence.',
+    'type_confidence_weighting':'Continuously multiply normalized type contribution by detached desired-probability deficit; optimizer weighting, no graph restriction.',
+    'patch':'Analyst-local teacher/support/label hypothesis; scalar controller settings stay fixed.',
+    'calibration':'Frozen numerical program; no new reward or new source-score promise.'}
+
+
+def factor_value(p,factor):
+    if factor=='calibration':return None
+    if factor=='patch':return p['patch_id']
+    value=p
+    for key in factor.split('.'):
+        if key not in value:return 'none' if factor=='type_confidence_weighting' else 0.
+        value=value[key]
+    return value
 
 
 def set_path(value,path,new):
@@ -166,6 +189,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
         'parent_generated_scores':{'mean':parent_scores['mean_all_pic50'],'best_qualified':parent_scores['best_qualified_pic50'],
             'meaning':'Measured active generated reference, not the source teacher score'},
         'current_parent_program_id':parent['program_id'],'comparator_history':parent_history,
+        'parameter_semantics':PARAMETER_SEMANTICS[task['factor']],'actual_parent_factor_value':factor_value(parent,task['factor']),
         'instruction':'Select a local hypothesis, separate realization from value and identify one falsifiable consequence. Compare to the selected parent; other controllers are contextual counterexamples, not this operating point.'})}],
         obj({'role':{'const':'Analyst'},'patch_id':{'enum':query['patch_ids']},
              'hypothesis':short,'evidence_and_counterexample':short,'expected_response':short,'falsifier':short}),
@@ -178,14 +202,20 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
         if answer['enabled_terms']!=expected:
             raise jsonschema.ValidationError('enabled_terms must equal positive-weight executed terms',
                 validator='enum',validator_value=expected,instance=answer['enabled_terms'])
+        wanted=factor_value(options[answer['variant_id']],task['factor'])
+        if answer['chosen_factor_value']!=wanted:
+            raise jsonschema.ValidationError('Chosen factor value differs from executable variant',validator='const',validator_value=wanted,instance=answer['chosen_factor_value'])
     designer=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'analyst':analyst,'selected_patch':patch,'experiment':task,'allowed_variants':options,
         'parent_generated_scores':{'mean':parent_scores['mean_all_pic50'],'best_qualified':parent_scores['best_qualified_pic50']},
         'current_parent_program_id':parent['program_id'],'comparator_history':parent_history,'fixed_parent_dose':parent['dose'],
+        'parameter_semantics':PARAMETER_SEMANTICS[task['factor']],'actual_parent_factor_value':factor_value(parent,task['factor']),
         'instruction':'This is an authorized prospective experiment to improve final affinity. Choose one legal untested variant using a falsifiable hypothesis; lack of previous outcomes at that exact value is the reason to experiment, not a reason to defer. Defer for missing necessary chemistry, mathematical invalidity or a demonstrated ineffective operator. Source layout_score is NOT a generated score forecast; zero-weight terms are inactive. Compare only to the declared parent, not a different recent round. Explain direction, dose and expected measurable response.'})}],
         obj({'role':{'const':'Designer'},'patch_id':{'const':patch['patch_id']},'decision':{'enum':['activate','defer'] if options else ['defer']},
              'variant_id':{'enum':list(options) or ['UNSUPPORTED']},
              'enabled_terms':{'type':'array','items':{'enum':['half','endpoint','type','orientation','role','pair']},'uniqueItems':True},
+             'parent_factor_value':{'const':factor_value(parent,task['factor'])},
+             'chosen_factor_value':{'enum':[factor_value(p,task['factor']) for p in options.values()] or ['UNSUPPORTED']},
              'source_score_is_generation_forecast':{'const':False},
              'scientific_rationale':short,'expected_execution_change':short,'falsifier':short}),
         folder/'Designer.json',input_store=repo/master['campaign_study']/'inputs',max_output_tokens=2500,max_format_repairs=2,response_validator=validate_d)
@@ -304,6 +334,13 @@ def run(repo,master_path,stop_after=20):
             parent=copy.deepcopy(state['best_program'])
             if number>=19:parent=copy.deepcopy(state['tail_program'])
             if task.get('parent')=='best_typed' and state.get('best_typed'):parent=copy.deepcopy(state['best_typed']['program'])
+            if task.get('parent') in ('formed_counterfactual','saturated_native'):
+                counter=task['parent']=='formed_counterfactual'
+                eligible=[r for r in state['rounds'] if r.get('program',{}).get('weights',{}).get('type',0)>0
+                    and bool(r['program'].get('counterfactual_labels'))==counter and r.get('realization',{}).get('joint_formation',0)>0]
+                if not eligible:raise ValueError('Diagnostic parent needs observed formation, not an unrealized high score')
+                chosen=max(eligible,key=lambda r:(r['realization']['joint_formation'],r['metrics']['best_qualified_pic50']))
+                parent=copy.deepcopy(chosen['program'])
             if task.get('patches')=='parent':task['patches']=[parent['patch_id']]
             if task.get('values')=='dose_neighbors':task['values']=[max(.05,parent['dose']['native_rms_ratio']*.5),min(2.,parent['dose']['native_rms_ratio']*1.5)]
             if task['factor']=='patch':task['values']=[None]
