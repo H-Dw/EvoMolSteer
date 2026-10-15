@@ -1,0 +1,56 @@
+{
+  "controlled_atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "parent/outcomes"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "pointwise"
+  ],
+  "evidence_bundle_hash": "d32cb48de3dbcadfc484f5ab05df12e452850ba576990bc85eddf197a91cbe87",
+  "evidence_refs": [
+    "parent/response",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/regional_trajectories"
+  ],
+  "executed_operator": "pointwise",
+  "falsifier": "If, under matched priors, random streams, checkpoint and native protocol, assignment_element_cost=0.5 leaves assignment_switch_fraction and matched-point identity statistically indistinguishable from the cost=0.0 parent while point_rms_A and injected_rms_A_mean are unchanged, the correspondence-bias hypothesis is falsified. A terminal score change without a measured assignment or displacement change would not support the mechanism and would leave the formation link unmeasured. Improved similarity, role retention, or lower loss alone cannot establish affinity improvement; affinity is evaluated first and structural and energy side effects are reported using the frozen definitions.",
+  "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+  "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "parameter_changes": [
+    {
+      "new": 0.5,
+      "parent": 0.0,
+      "path": "assignment_element_cost"
+    }
+  ],
+  "parameter_source": "Parent program S0_REFERENCE_REPLAY, region F_b011_s030__reference, operator pointwise, representation bridge, window [0.1,0.5], steps 100, teacher_time 0.5, controller unit_rms, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, band_multiplier 1.0, assignment_element_cost 0.0. The single changed parameter is assignment_element_cost, parent value 0.0, new value 0.5 (variant V01, action A3ec7c623e4b7). Unit: dimensionless detached correspondence cost coefficient in the assignment cost matrix; it is not a direct elemental force and does not alter the pseudo-Huber curvature scale or the native RMS ratio. Expected measurable effect: a change in assignment_switch_fraction and in per-step matched-point identity relative to the cost=0.0 parent, with point_rms_A and injected_rms_A_mean read out under the same unit_rms controller and dose. No change in atom_clip_fraction is expected because the dose caps are untouched. The evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]; the bridge target is evaluated at teacher_time 0.5, matching the observable's time.",
+  "predicted_control_response": "At assignment_element_cost=0.5, under matched saved random priors, random streams, checkpoint and native protocol, the expected execution response is a measurable change in assignment_switch_fraction and in the per-step matched-point identity relative to the measured parent at cost 0.0 (assignment_switch_fraction mean 0.00203, max 0.01667, last 0.0). point_rms_A and injected_rms_A_mean are read out under the same unit_rms controller and dose; the parent values are point_rms_A mean 0.16918 A (first 0.40217, last 0.03942) and injected_rms_A_mean 0.03011 A. atom_clip_fraction and cumulative_clip_fraction are expected to remain 0.0 because the dose caps are untouched. The response is conditional on the current model call and saved conditioning; it is not differentiation through all future random steps, and no native-completion check is required for this correspondence-only hypothesis.",
+  "role": "Designer",
+  "scientific_rationale": "The parent pointwise operator builds its local Hungarian correspondence from a purely geometric cost (assignment_element_cost=0.0), so a matched generated atom can be paired to a teacher ligand point of a different element. The registered factor assignment_element_cost adds a detached element-likelihood term to that cost matrix; it changes which generated atom receives the pseudo-Huber pull, not the pull's curvature or the native dose. V01 sets this coefficient to 0.5, a single-factor change from the parent value 0.0 with all other registered factors (operator, controller, dose.native_rms_ratio, dose.pointcloud_delta_A, band_multiplier, representation, window, steps, teacher_time) held at parent values and chemical graphs left free. This is a conditional correspondence hypothesis: it does not assert that element identity is a hydrogen-bond role, that any element channel carries interaction energy, or that the cost term is a direct elemental force. The parent response supplies the measured baseline for the same program and region: 40 active and 40 nonzero updates, assignment_switch_fraction mean 0.00203 (max 0.01667, last 0.0), atom_clip_fraction and cumulative_clip_fraction 0.0 throughout, point_rms_A mean 0.16918 A falling from 0.40217 to 0.03942, injected_rms_A_mean 0.03011 A, current_gradient_rms_mean 0.00503. The regional trajectory fits are historical Steer ancestors and are not measurements of the current gradient-guided parent run; they are cited only as descriptive complete-window curves and are not read as spatial gradients or as from-zero treatment effects. The parent terminal record (n=24, n_scored=24, n_qualified=22, n_above_target=0, mean_all_pic50 7.82749, best_qualified_pic50 8.43402, hit_fraction 0.04167, tau 8.13505, U_tau 0.01246) is a suffix absolute score level and is not a from-zero treatment effect or a forecast for new samples; any terminal benefit of the cost change is a separate, currently unmeasured link.",
+  "variant_id": "V01"
+}

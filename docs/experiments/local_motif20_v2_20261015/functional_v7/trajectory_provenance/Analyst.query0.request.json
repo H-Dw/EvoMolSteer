@@ -1,0 +1,75 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/5ea5dfc262b3fdd3b4bdaa5306e41058b48200bc41a0ddf3a16c5fcb50d5f321.txt",
+        "content_sha256": "5ea5dfc262b3fdd3b4bdaa5306e41058b48200bc41a0ddf3a16c5fcb50d5f321",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/798def7f77648b0c183b397f1d37e35217c36a1c8c9b9d66a95d2fd9e2f3864d.txt",
+        "content_sha256": "798def7f77648b0c183b397f1d37e35217c36a1c8c9b9d66a95d2fd9e2f3864d",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}

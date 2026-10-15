@@ -1,0 +1,14 @@
+{
+  "action": "query",
+  "question": "For region F_b011_s030__reference, what do the historical Steer-origin trajectory curves (regional_trajectories) report for this region, and how do they compare with the supplied measured current-controller response for program S0_REFERENCE_REPLAY (control_response)? Specifically: (1) do the historical curves describe the same producing process as the current gradient-guided parent, or a different teacher ancestry, so that current-controller motion cannot be inferred from them; (2) does the measured current response show any clipping (atom_clip_fraction, cumulative_clip_fraction both 0.0) or dose saturation (dose_gain_mean 1.0) that would confound attributing an effect to insufficient strength or noise; and (3) does the indexed failure history contain any prior attempt at a single-factor change to this region's program (operator, dose.native_rms_ratio, dose.pointcloud_delta_A, representation, window_start, time_schedule, controller, assignment_element_cost) whose outcome would discriminate between competing explanations for the current terminal result (mean_all_pic50 7.827, best_qualified_pic50 8.434, n_above_target 0)? Report only measured records with matching region, roles, representation, window, and numerical program; flag any link that is unmeasured.",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "regional_trajectories"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "control_response"
+    }
+  ]
+}

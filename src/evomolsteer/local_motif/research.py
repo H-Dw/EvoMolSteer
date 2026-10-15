@@ -116,7 +116,7 @@ def parents(state):
     choices=[state['best']]
     # A measured failed branch can be a diagnostic parent without promotion.
     measured=[r for r in state['rounds'] if r.get('stage')=='from_zero' and r.get('program')]
-    if measured and not measured[-1].get('rollback'):choices.append(measured[-1])
+    if measured and not (measured[-1].get('rollback') or measured[-1].get('effective_rollback')):choices.append(measured[-1])
     choices.append(state['reference'])
     return {r['program']['program_id']:{'program':r['program'],'metrics':r.get('metrics'),'response':r.get('response'),
         'status':'active' if r is state['best'] else 'reference_or_diagnostic'} for r in choices}
@@ -199,7 +199,9 @@ def run(repo,master_path,stop_after=20,prepare_only=False,functional_only=False)
                 'S0_generation_attempts':48,'new_attempts':48,'confirmed_best':None}
             write_json(sp,state)
         for number in range(state['next_round'],min(20,stop_after)+1):
-            label=f'R{number:02d}';folder=study/label;stage='suffix' if number<=2 else 'from_zero' if number<19 else 'confirmation'
+            label=f'R{number:02d}'+m.get('round_label_suffix','');folder=study/label;stage='suffix' if number<=2 else 'from_zero' if number<19 else 'confirmation'
+            m['_seen_numeric_programs']=[identity(r['program'],templates[r['program']['template_id']]) for r in
+                [state['reference']]+state['rounds'] if r.get('program') and r.get('stage','from_zero')!='suffix']
             parent_options=parents(state);frozen=copy.deepcopy(state['frozen_confirmation_program']) if number>=19 and 'frozen_confirmation_program' in state else None
             if number==19 and frozen is None:
                 frozen=copy.deepcopy(state['best']['program']);state['frozen_confirmation_program']=frozen;write_json(sp,state)
@@ -218,6 +220,7 @@ def run(repo,master_path,stop_after=20,prepare_only=False,functional_only=False)
                 write_json(folder/'decision.json',{'Analyst':a,'Designer':d,'interface_status':status,
                     'decision_record':'Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.'})
             entry={'round':label,'stage':stage,'status':status['status'],'factor':a['factor'],'region':a['region_id'],
+                'effective_iteration':number,
                 'parent':a['parent_program_id'],'new_attempts':0,'rollback':False}
             if p:
                 t=templates[p['template_id']];p['program_id']=label;entry.update(program=p,operator=p['operator'])

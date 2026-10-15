@@ -63,10 +63,13 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     factor_enum=sorted({f for entry in parents.values() for f in entry['legal_factors']})
     if constraint.get('factors'):factor_enum=[f for f in factor_enum if f in constraint['factors']]
     operator_enum=constraint.get('operators',list(OPERATORS))
+    from .actions import novel_actions
+    actions=novel_actions(parents,regions,templates,master,constraint) if stage=='from_zero' else []
+    if stage=='from_zero' and not actions:raise ValueError('No untested legal actions remain; do not silently repeat a known program')
     bundle={'evidence':{'report/O-intervention':evidence['O_evidence'],'report/limits':evidence['limits'],
         'parent/response':feedback.get('parent_response'), 'parent/outcomes':feedback.get('parent_outcomes')},
         'learning_window':master['learning_window'],'stage':stage,'implemented_operators':OPERATOR_DEFINITIONS,
-        'contrast_kind':'local_potential_vs_unguided_same_restored_state' if stage=='suffix' else 'single_factor_vs_selected_parent',
+        'contrast_kind':'local_potential_vs_unguided_same_restored_state_then_free_graphs' if stage=='suffix' else 'from_zero_same_prior_and_rng_single_factor_free_graphs',
         'trajectory_provenance':'Historical Steer ancestors and contemporary states only. These curves do not measure the current gradient-guided parent run.',
         'operator_implementation':inspect.getsource(MotifReward.evaluate),
         'matching_contract':'Hungarian maps generated atom points to teacher ligand points, NOT to pocket sites. For pocket_distance, every matched local ligand point is compared to every supplied pocket site. It is geometric, not a role-minimum field or an N-only force.',
@@ -78,6 +81,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     messages=[{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
         'catalog':catalog,'parents':parents,'feedback':feedback,'available_tools':TOOLS,'shared_initial_evidence':bundle,
         'research_stage':stage,'fixed_confirmation':fixed,'current_module_question':constraint,'budget':{'max_tool_rounds':3,'max_calls_each':2},
+        'untested_action_counts':{f:sum(a['factor']==f for a in actions) for f in factor_enum},
         'task':'You are in the tool-planning phase. Return a brief tool question, not the final scientific handoff. Query at least one registered tool for support/counterevidence, then finish. The listed geometry calculators ARE implemented and tested; they do not require a binding-energy calculator. Missing previous terminal benefit is a reason for a prospective experiment, not a capability gap. New operators outside this registry require capability_gap. One principal intervention per from-zero experiment.'},ensure_ascii=False)}]
     queried=set();query_count=0
     for turn in range(3):
@@ -87,7 +91,12 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         observations={}
         for request in q['requests']:
             rid=request['region_id'];tool=request['tool'];queried.add(rid);card=evidence['cards'][rid]
-            if tool in ('conditional_layout','regional_context'):value=card[tool if tool=='conditional_layout' else 'context']
+            if tool in ('conditional_layout','regional_context'):
+                value=copy.deepcopy(card[tool if tool=='conditional_layout' else 'context'])
+                if 'untyped_spatial_contrast' in value:
+                    c=value['untyped_spatial_contrast']
+                    if 'rank' in c:c['standardized_contrast_norm']=c.pop('rank')
+                    c['interpretation']='Descriptive contrast magnitude, not an ordinal rank, probability or significance statistic.'
             elif tool=='regional_trajectories':value={'origin':'historical_steer_not_current_guidance',
                 'domain':evidence['trajectory']['domain'],'limits':evidence['trajectory']['limits'],
                 'fits':evidence['trajectory']['fits'].get(rid,{'status':'missing_trajectory'})}
@@ -109,11 +118,22 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         'observable_definition':{'enum':list(OPERATOR_DEFINITIONS.values())},
         'evidence_time_domain':{'const':master['learning_window']},
         'evidence_refs':{**refs,'minItems':1},'counterevidence_refs':refs,'claim_class':{'enum':['inferred','proposed']},
-        'conditioning':text,'contrast_definition':text,'scientific_hypothesis':text,
+        'conditioning':text,'contrast_definition':{'const':
+            'Same complete historical starting states and paired new suffix random streams, local potential versus no potential, then native completion; chemical graphs remain free.' if stage=='suffix' else
+            'From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.'},'scientific_hypothesis':text,
         'predicted_execution_response':text,'predicted_terminal_response':text,'falsifier':text,
         'source_layout_implies_generated_benefit':{'const':False},'temporal_slope_is_spatial_gradient':{'const':False}})
+    available=[a for a in actions if a['region_id'] in queried]
+    if stage=='from_zero':
+        if not available:raise ValueError('Queried regions have no untested action; query an available registered region')
+        schema['properties']['action_id']={'enum':[a['action_id'] for a in available]};schema['required'].append('action_id')
     def validate_a(a):
         references(a,bundle,a['region_id'])
+        if stage=='from_zero':
+            action=next(x for x in available if x['action_id']==a['action_id'])
+            required={k:action[k] for k in ['parent_program_id','region_id','factor','observable_id']}
+            actual={k:a[k] for k in required}
+            if actual!=required:raise jsonschema.ValidationError('Action fields differ from its registered executable action',validator='const',validator_value=required,instance=actual)
         if a['observable_definition']!=OPERATOR_DEFINITIONS[a['observable_id']]:
             raise jsonschema.ValidationError('Observable definition differs from registered operator',validator='const',validator_value=OPERATOR_DEFINITIONS[a['observable_id']],instance=a['observable_definition'])
         if fixed is not None and a['observable_id']!=fixed['operator']:
@@ -129,6 +149,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         if stage=='from_zero' and a['factor']=='region' and a['region_id']==parent['region_id']:
             raise jsonschema.ValidationError('Changing a region to itself is a numerical no-op; choose an actual registered intervention',validator='numerical_noop',validator_value='different region or a different factor')
     payload={'stage':stage,'parents':parents,'feedback':feedback,'shared_complete_evidence_bundle':bundle,
+        'untested_executable_actions':[{k:v for k,v in a.items() if k!='options'} for a in available],
         'fixed_confirmation':fixed,'task':'Return one conditional coordinate hypothesis with explicit counterevidence, executable observable and a discriminating test. All listed coordinate calculators are implemented; an unproved head benefit does not make geometry unavailable. Do not demand a physical interaction energy to test a geometric hypothesis. Use source IDs. For a region-only change keep the parent operator. The evidence clock domain is the complete learning_window, distinct from the control window. Source scores are not outcome forecasts.'}
     analysis_messages=[{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]
     a=call_json(analysis_messages,
@@ -152,7 +173,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         p=bind_region(copy.deepcopy(parent),r,t);p['operator']=a['observable_id']
         options={'V00':validate_program(p,t,master['learning_window'])}
     elif fixed is not None:options={'V00':copy.deepcopy(fixed)}
-    else:options=variants(parent,a,r,t,master)
+    else:options=copy.deepcopy(next(x for x in available if x['action_id']==a['action_id'])['options'])
     if not options:return None,a,None,{'status':'capability_gap','reason':'No supported numeric variant','query_count':query_count}
     dschema=obj({'role':{'const':'Designer'},'decision':{'enum':['execute','defer']},'hypothesis_id':{'const':a['hypothesis_id']},
         'evidence_bundle_hash':{'const':bundle_hash},'variant_id':{'enum':list(options)},

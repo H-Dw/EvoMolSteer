@@ -1,0 +1,101 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/5ea5dfc262b3fdd3b4bdaa5306e41058b48200bc41a0ddf3a16c5fcb50d5f321.txt",
+        "content_sha256": "5ea5dfc262b3fdd3b4bdaa5306e41058b48200bc41a0ddf3a16c5fcb50d5f321",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/798def7f77648b0c183b397f1d37e35217c36a1c8c9b9d66a95d2fd9e2f3864d.txt",
+        "content_sha256": "798def7f77648b0c183b397f1d37e35217c36a1c8c9b9d66a95d2fd9e2f3864d",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/cfdbdce9f3095fe8073e30919984f4839d7350018382c003ee3e4bf4a185931e.txt",
+        "content_sha256": "cfdbdce9f3095fe8073e30919984f4839d7350018382c003ee3e4bf4a185931e",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/99282d28326c37f87f09163134728b7aa0e886bc528483dcd8b1a399744fc771.txt",
+        "content_sha256": "99282d28326c37f87f09163134728b7aa0e886bc528483dcd8b1a399744fc771",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/4193f12ea6caa4ae5aa2165c2ab867c16418bd5ba578e66003215ed479b0eb3c.txt",
+        "content_sha256": "4193f12ea6caa4ae5aa2165c2ab867c16418bd5ba578e66003215ed479b0eb3c",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/6cfa829c55b54e67aa0c21651f2bfe02bf447e125cd82ea360fc625e4e22bdfa.txt",
+        "content_sha256": "6cfa829c55b54e67aa0c21651f2bfe02bf447e125cd82ea360fc625e4e22bdfa",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/b95ebc334c984e82b83fbc843c28a21ebe436d5dce931333d1f1024555ca96d2.txt",
+        "content_sha256": "b95ebc334c984e82b83fbc843c28a21ebe436d5dce931333d1f1024555ca96d2",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}

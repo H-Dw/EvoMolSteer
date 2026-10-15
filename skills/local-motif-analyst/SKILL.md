@@ -35,6 +35,8 @@ Use only controller records whose region, roles, representation, window, and num
 
 Select one hypothesis and one principal intervention. Compare at least two plausible explanations and specify which observable result would distinguish them. Unknown performance is a reason for a bounded experiment, not by itself a reason to defer; missing indispensable state, chemistry or a valid operator is a reason to request a tool or capability.
 
+For discovery, choose from the supplied untested executable actions. Repeating the same numerical function on identical inputs provides no new experiment; use a known function only for an explicitly requested replication or confirmation.
+
 Report the parent program, evidence references, expected execution response, expected terminal response and a falsifier. Label claims as measured, inferred, or proposed. A source teacher score is not a forecast for new samples, and a successful intermediate match is not the primary outcome.
 
 Use the caller's bounded query/observation loop and return only the supplied structured contract. Provide concise decision grounds, not an internal reasoning transcript. Designer receives the same evidence bundle and must be able to locate every cited measurement independently.

@@ -1,0 +1,37 @@
+{
+  "action_id": "A3ec7c623e4b7",
+  "claim_class": "proposed",
+  "conditioning": "Parent S0_REFERENCE_REPLAY, region F_b011_s030__reference, operator pointwise, representation bridge, window [0.1,0.5], steps 100, teacher_time 0.5, controller unit_rms, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, band_multiplier 1.0, assignment_element_cost 0.0. Single-factor change: assignment_element_cost 0.0 -> 0.5 (action A3ec7c623e4b7, variant V01). All other registered factors held at parent values; chemical graphs remain free. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5].",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "parent/outcomes"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/regional_trajectories"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "assignment_element_cost",
+  "falsifier": "If, under matched priors, random streams, checkpoint and native protocol, assignment_element_cost=0.5 leaves assignment_switch_fraction and matched-point identity statistically indistinguishable from the cost=0.0 parent while point_rms_A and injected_rms_A_mean are unchanged, the correspondence-bias hypothesis is falsified. A terminal score change without a measured assignment or displacement change would not support the mechanism and would leave the formation link unmeasured.",
+  "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured parent response at cost 0.0: 40 active and 40 nonzero updates, assignment_switch_fraction mean 0.00203 (max 0.01667, last 0.0), atom_clip_fraction and cumulative_clip_fraction 0.0 throughout, point_rms_A mean 0.16918 A falling from 0.40217 to 0.03942, injected_rms_A_mean 0.03011 A, current_gradient_rms_mean 0.00503. At cost 0.5 the expected execution response is a measurable change in assignment_switch_fraction and in the per-step matched-point identity, with point_rms_A and injected_rms_A_mean read out under the same unit_rms controller and dose. No change in atom_clip_fraction is expected because the dose caps are untouched.",
+  "predicted_terminal_response": "Unmeasured. The parent terminal record (n=24, n_scored=24, n_qualified=22, n_above_target=0, mean_all_pic50 7.82749, best_qualified_pic50 8.43402, hit_fraction 0.04167, tau 8.13505, U_tau 0.01246) is a suffix absolute score level and is not a from-zero treatment effect or a forecast for new samples. Any terminal benefit of the cost change is a separate, currently unmeasured link.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "The parent's Hungarian correspondence is purely geometric (assignment_element_cost=0.0), so matched generated atoms can be assigned to teacher ligand points of a different element. Raising the detached correspondence cost to 0.5 should bias the local assignment toward element-consistent matches, changing which generated atoms receive the pointwise pseudo-Huber pull and thereby the local displacement field. This is a conditional correspondence hypothesis, not a claim that element identity is a hydrogen-bond role or that any element channel carries interaction energy.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

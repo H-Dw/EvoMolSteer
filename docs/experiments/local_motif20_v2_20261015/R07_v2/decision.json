@@ -1,0 +1,100 @@
+{
+  "Analyst": {
+    "action_id": "A3f0284e698d0",
+    "claim_class": "proposed",
+    "conditioning": "Parent S0_REFERENCE_REPLAY: region F_b011_s030__reference, operator pointwise, representation bridge, window [0.1,0.5], controller unit_rms, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, assignment_element_cost 0.0, steps 100, teacher_time 0.5. Only dose.pointcloud_delta_A is changed (1.0 -> 0.5); region, operator, representation, window, controller, native_rms_ratio, element cost and native protocol are held fixed. Contrast is from t=0 with matched saved random priors, random streams, checkpoint and native protocol; chemical graphs remain free. Parent measured response: 40 active/nonzero updates, mean injected RMS 0.0301 A, mean point_rms_A 0.1692 A, mean target_error 0.1692 A, zero atom and cumulative clipping, mean assignment-switch fraction 0.0020. Parent terminal pool: n=24 scored, n_qualified=22, best_qualified_pic50 8.4340, mean_all_pic50 7.8275, hit_fraction 0.0417, U_tau 0.01246, tau 8.1350, n_above_target 0. Historical F_b011_s030__reference rounds show dose.native_rms_ratio 0.33/0.66/0.99 giving mean 7.6301/7.7836/7.8264 and best 8.1220/8.4339/8.3908, i.e. a non-monotone descriptive pattern in which the parent's 0.66 setting is not the top mean; this is teacher-ancestry evidence, not a current-parent treatment effect.",
+    "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+    "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__reference/history"
+    ],
+    "evidence_time_domain": [
+      0.0,
+      0.5
+    ],
+    "factor": "dose.pointcloud_delta_A",
+    "falsifier": "The hypothesis is falsified if, with dose.pointcloud_delta_A 0.5 and all other parent settings fixed, the measured execution response is indistinguishable from the parent (injected RMS, point_rms_A and target_error within the paired descriptive spread) and the terminal pool shows no change in best_qualified_pic50, mean_all_pic50, hit_fraction or U_tau relative to the parent. It is also falsified if the intervention produces atom or cumulative clipping, or an assignment-switch fraction far above the parent mean 0.0020, indicating the change acted through the assignment rather than through the curvature scale.",
+    "hypothesis_id": "H_Fb011s030_pointwise_delta0p5_local_curvature",
+    "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "observable_id": "pointwise",
+    "parent_program_id": "S0_REFERENCE_REPLAY",
+    "predicted_execution_response": "Measured current-program response only, no terminal-affinity gradient. With dose.pointcloud_delta_A 0.5 and all else fixed, expect the same 40 active updates and zero atom/cumulative clipping, a changed distribution of per-step injected RMS relative to the parent mean 0.0301 A (direction not asserted), and a changed mean point_rms_A relative to the parent 0.1692 A. Assignment-switch fraction should remain near the parent mean 0.0020 because the Hungarian cost and assignment_element_cost are unchanged. If the competing explanation holds, injected RMS, point_rms_A and target_error will be indistinguishable from the parent within the paired descriptive spread.",
+    "predicted_terminal_response": "Not a forecast. The parent terminal pool is n=24 scored, n_qualified=22, best_qualified_pic50 8.4340, mean_all_pic50 7.8275, hit_fraction 0.0417, U_tau 0.01246, n_above_target 0. The intervention is judged on the same frozen tail utility primary with the affinity mean guard; any change in best_qualified_pic50, mean_all_pic50, hit_fraction or U_tau is to be measured, not predicted. A successful intermediate geometry match is not the primary outcome, and the source layout score is not a generated-score forecast.",
+    "region_id": "F_b011_s030__reference",
+    "role": "Analyst",
+    "scientific_hypothesis": "The pointwise pseudo-Huber curvature scale dose.pointcloud_delta_A is the only free parameter of the parent's local pointwise observable that has not been varied in the current campaign, and it controls how strongly the robust loss penalizes matched-point displacements beyond the small-displacement quadratic regime. At the parent value 1.0 A the mean matched-point displacement is small (mean point_rms_A 0.1692 A, mean target_error 0.1692 A), so the loss is effectively quadratic over the observed range and the parent's local support is driven almost entirely by the Hungarian-matched point distances. Lowering the scale to 0.5 A makes the loss more nearly linear in displacement for the same matched points, which should redistribute the per-step coordinate update across the local support rather than concentrating it on the largest matched-point residuals, without changing the assignment rule, the region, the native RMS ratio, or the graph. The competing explanation is that the parent's local pointwise response is already saturated by the native RMS ratio and the assignment, so changing only the curvature scale should leave the measured injected RMS, point_rms_A and terminal pool essentially unchanged.",
+    "source_layout_implies_generated_benefit": false,
+    "status": "hypothesis",
+    "suffix_absolute_scores_establish_from_zero_benefit": false,
+    "temporal_slope_is_spatial_gradient": false,
+    "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+  },
+  "Designer": {
+    "controlled_atom_slots": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      10,
+      12,
+      13,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "decision": "execute",
+    "direct_type_force": false,
+    "enabled_terms": [
+      "pointwise"
+    ],
+    "evidence_bundle_hash": "1514cf4248b3205a1e3e24d73bacd2a01b07203d18cbb4cfd70f656ca7588738",
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__reference/history"
+    ],
+    "executed_operator": "pointwise",
+    "falsifier": "The hypothesis is falsified if, with dose.pointcloud_delta_A 0.5 and all other parent settings fixed, the measured execution response is indistinguishable from the parent (injected RMS, point_rms_A and target_error within the paired descriptive spread) and the terminal pool shows no change in best_qualified_pic50, mean_all_pic50, hit_fraction or U_tau relative to the parent. It is also falsified if the intervention produces atom or cumulative clipping, or an assignment-switch fraction far above the parent mean 0.0020, indicating the change acted through the assignment rather than through the curvature scale.",
+    "hypothesis_id": "H_Fb011s030_pointwise_delta0p5_local_curvature",
+    "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "parameter_changes": [
+      {
+        "new": 0.5,
+        "parent": 1.0,
+        "path": "dose.pointcloud_delta_A"
+      }
+    ],
+    "parameter_source": "Parent S0_REFERENCE_REPLAY: region F_b011_s030__reference, operator pointwise, representation bridge, window [0.1,0.5], controller unit_rms, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, assignment_element_cost 0.0, steps 100, teacher_time 0.5. Only dose.pointcloud_delta_A is changed (1.0 -> 0.5); region, operator, representation, window, controller, native_rms_ratio, element cost and native protocol are held fixed. dose.pointcloud_delta_A is the pointwise pseudo-Huber spatial curvature scale in Angstrom and does not change the native RMS ratio; assignment_element_cost is a detached correspondence cost, not a direct elemental force.",
+    "predicted_control_response": "Measured current-program response only, no terminal-affinity gradient. With dose.pointcloud_delta_A 0.5 and all else fixed, expect the same 40 active updates and zero atom/cumulative clipping, a changed distribution of per-step injected RMS relative to the parent mean 0.0301 A (direction not asserted), and a changed mean point_rms_A relative to the parent 0.1692 A. Assignment-switch fraction should remain near the parent mean 0.0020 because the Hungarian cost and assignment_element_cost are unchanged. If the competing explanation holds, injected RMS, point_rms_A and target_error will be indistinguishable from the parent within the paired descriptive spread.",
+    "role": "Designer",
+    "scientific_rationale": "The parent pointwise operator is the implemented pseudo-Huber robust per-point distance to Hungarian-matched teacher coordinates, with dose.pointcloud_delta_A as its spatial curvature scale. In the parent program the matched-point displacement is small (mean point_rms_A 0.1692 A, mean target_error 0.1692 A) relative to the parent scale 1.0 A, so the robust loss is effectively quadratic over the observed range and the local support is driven almost entirely by matched-point distances. Lowering the scale to 0.5 A makes the loss more nearly linear in displacement for the same matched points, redistributing the per-step coordinate update across the local support rather than concentrating it on the largest matched-point residuals, while leaving the assignment rule, region, representation, window, controller, native RMS ratio and graph free. The competing explanation is that the parent response is already saturated by the native RMS ratio and the assignment, so changing only the curvature scale leaves injected RMS, point_rms_A and the terminal pool essentially unchanged. This is a single-factor from-zero contrast with matched saved priors, random streams, checkpoint and native protocol; historical suffix score levels are teacher-ancestry evidence and are not from-zero treatment effects.",
+    "variant_id": "V00"
+  },
+  "decision_record": "Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.",
+  "interface_status": {
+    "query_count": 4,
+    "status": "execute"
+  }
+}
