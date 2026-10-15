@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L109"
+  ],
+  "question": "For patch L109, test a stronger physical control dose (native_rms_ratio 0.99 vs 1.32) after prior clipping and terminal quality. Prior R02 at 0.66 gave mean_pic50 7.784, best 8.434, mean_vs_unguided 0.216, with joint_formation 0.208, joint_at_integration 0.917, retention_after_formation 1.0, final_prediction_changed_typed_fraction 0.0, boundary_N 0.884, boundary_C 0.955, mean_assignment_switch 0.0020, mean_control_A 0.0301, 40 active steps. R01 calibration gave mean_pic50 7.683, best 8.378, mean_vs_unguided 0.115, joint_formation 0.25, joint_at_integration 0.958, retention 1.0, boundary_N 0.948, boundary_C 0.943, mean_control_A 0.0149. I need native retention evidence to see whether a stronger dose preserves the native suffix and terminal quality, and whether the low joint_formation (0.21-0.25) reflects clipping rather than insufficient dose. Falsifier: if native retention and terminal quality do not improve at 0.99/1.32 relative to 0.66, the stronger dose is not supported. Smallest discriminating test: compare native retention and terminal output at 0.99 vs 1.32 on L109.",
+  "tool": "native_retention_evidence"
+}

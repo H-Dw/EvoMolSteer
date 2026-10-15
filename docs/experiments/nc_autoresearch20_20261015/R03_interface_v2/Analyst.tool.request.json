@@ -1,0 +1,61 @@
+{
+  "body": {
+    "max_tokens": 1000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/5d4a9f6f5f4f2ed1ddac4bce0d1f9b1f0c00b7248be27e51d4673f8d53e097b3.txt",
+        "content_sha256": "5d4a9f6f5f4f2ed1ddac4bce0d1f9b1f0c00b7248be27e51d4673f8d53e097b3",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/24b56149ac2c78d19d89ee62d9ebc182b70f98989424e7f357bc3ed6b27bc13e.txt",
+        "content_sha256": "24b56149ac2c78d19d89ee62d9ebc182b70f98989424e7f357bc3ed6b27bc13e",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "patch_ids": {
+        "items": {
+          "enum": [
+            "L109"
+          ]
+        },
+        "maxItems": 3,
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "question": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "tool": {
+        "enum": [
+          "joint_layout_contrasts",
+          "local_role_context",
+          "native_retention_evidence",
+          "window_lineage_features"
+        ]
+      }
+    },
+    "required": [
+      "tool",
+      "patch_ids",
+      "question"
+    ],
+    "type": "object"
+  }
+}
