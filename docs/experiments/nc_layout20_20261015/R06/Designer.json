@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 1.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.4,
+      "half": 0.3,
+      "orientation": 0.15,
+      "type": 0.3
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "Run the frozen L036 patch with the frozen contract and controls and compare terminal affinity, failures, local N/C response and geometry against the R13_reference incumbent. The hypothesis is falsified if best_qualified_pic50 does not exceed the incumbent 8.378 while local_NC_identity_accuracy at slots 8 and 22 stays at or below the unguided 0.9375, or if aromatic_N_role_fraction at slot 22 drops below the unguided 0.7917, or if any round must be rolled back as in R02 and R04. A further falsifier is that the legal counterfactual layout (best_legal_score 8.912224) continues to match or exceed the native layout (8.704859) after regeneration and relaxation, which would show the native N placement is not preferred. If no supported patch meets the intervention, defer without inventing evidence.",
+  "patch_id": "L036",
+  "role": "Designer",
+  "scientific_rationale": "Activating the registered L036 local N/C patch on node single_b011_final_030 (template F_b011_s030_native) with the supplied execution contract unchanged. Direct geometry support is the frozen local subset atom_slots [6,8,13,22]; context neighbors 6 and 13 are directly constrained by the enabled geometry terms, and only points outside atom_slots lack direct geometry loss. Typed sites are slot 8 (C) and slot 22 (N); only typed_slots carry the type loss, so with type weight 0.3 the N/C identity at slots 8 and 22 is a measured outcome, not an operation enforced by the geometry-only reward. The enabled orientation term (weight 0.15) uses the single supported anchor A:VAL:116:N with outward vector [0.132,-0.224,0.966] and teacher_match_strength 0.9511 at slot 22, together with both local heavy-atom neighbors 6 and 13; this is a directional donor-geometry proxy, not a hydrogen-bond energy. The generated N decoder channel is treated as generic N until final chemical-role checks; the source distinction between eligible pyridine-type aromatic N and excluded pyrrole [nH]/amide N is preserved, and the role term, if enabled, would only softly prefer the selected N's neutral-charge and mapped aromatic-neighbor decoder probabilities without freezing the graph. Geometry uses distinct spatial assignments frozen within a derivative, never generated atom indices copied from the teacher. Gradients act only on current coordinates through real coordinate and atomic-decoder Jacobians; affinity is not differentiated, discrete labels are not overridden, the new graph is not fixed, and no SMC is introduced. Component normalization is part of the optimizer, not a single global potential with constant mixture weights. Expected observable changes: the endpoint and half terms should pull the selected local coordinates toward the frozen native/half geometry within the dose limits (max_atom_step 0.15 A, max_cumulative_rms 6.0 A, native_rms_ratio 0.33), the orientation term should bias the slot-22 N outward vector toward the A:VAL:116:N donor direction, and the type term should raise decoder N/C log probabilities at slots 8 and 22. Final affinity is primary; validity, failure, strain and actual local N/C response must be reported. The prior R01-R05 history on this patch (local_geometry, add_decoder_NC, stronger_decoder_NC, r13_counterfactual) never exceeded the R13_reference incumbent 8.378, and R02/R04 were rolled back, so this is activated only as a conditional local probe, not as a demonstrated affinity gain."
+}
