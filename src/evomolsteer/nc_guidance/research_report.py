@@ -12,6 +12,7 @@ from evomolsteer.partial_search.report import api_audit
 def report(repo,master):
     repo=Path(repo);study=repo/master['campaign_study'];state=read_json(study/'state.json');out=study/'summary'
     rows=[];deliveries=[];best_sample=None;attempts=0
+    protocol_effects=[]
     for entry in state['rounds']:
         label=entry['round'];folder=repo/entry.get('study',master['campaign_study']+'/'+label)
         cfg_path=repo/master['config_dir']/(label+'.json')
@@ -49,8 +50,18 @@ def report(repo,master):
                 'mean_type_half_cosine':float(np.mean([r['gradient_cosine_type_half'] for r in active if 'gradient_cosine_type_half' in r])) if any('gradient_cosine_type_half' in r for r in active) else None,
                 'mean_atom_clip_fraction':float(np.mean([r.get('atom_clip_fraction',0) for r in active])),
                 'rollback':entry['rollback'],'inference_commit':entry['inference_commit']})
+            if entry['factor'].startswith('native_options.'):
+                parent_id=read_json(folder/'proposal.json')['parent']['program_id']
+                old=next((r for r in state['rounds'] if r.get('program',{}).get('program_id')==parent_id),None)
+                if old and old.get('controls'):
+                    protocol_effects.append({'round':label,'parent':old['round'],
+                        'guided_mean_change':m['mean_all_pic50']-old['metrics']['mean_all_pic50'],
+                        'unguided_mean_change':entry['controls']['unguided']['mean_all_pic50']-old['controls']['unguided']['mean_all_pic50'],
+                        'change_in_guidance_advantage':entry['paired']['unguided']['mean_pic50_difference']-old['paired']['unguided']['mean_pic50_difference'],
+                        'interpretation':'Descriptive same-input-pool interaction; not search-adjusted causal confirmation'})
         deliveries.append(item)
     table=write_table(out/'detailed_rounds.csv',rows);write_json(out/'delivery_checks.json',deliveries)
+    write_json(out/'native_protocol_interactions.json',protocol_effects)
     actual=list((repo/master['generated_root']).glob('*/*/records.json'))
     write_json(out/'result.json',{'completed_decisions':len(state['rounds']),'best_activity_round':state['best_round'],
         'best_tail_round':state.get('tail_round'),'best_sample':best_sample,'generated_condition_attempts':sum(len(read_json(p)) for p in actual),
