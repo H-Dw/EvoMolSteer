@@ -1,0 +1,16 @@
+{
+  "chosen_factor_value": "linear_deficit",
+  "decision": "activate",
+  "enabled_terms": [
+    "half",
+    "type"
+  ],
+  "expected_execution_change": "Under linear_deficit the normalized type term is scaled by the detached desired-probability deficit, so as target probabilities saturate the type contribution shrinks. The measurable response is a reduction in the opposing type/half gradient cosine from R04's -0.242 toward zero or positive and a smaller type_gradient_rms, with the half term and coordinate-space local compatibility remaining dominant. Final affinity is the primary objective; high element retention is not a ceiling. The outcome at this exact dose is unknown and must be measured.",
+  "falsifier": "Run L109 with linear_deficit at the R04 dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0) and compare measured generated-parent affinity and the type/half gradient cosine against the R04 parent (mean 7.7985, best 8.1324; cosine -0.242). The hypothesis is falsified if the type/half gradient cosine does not move toward zero/positive or if final affinity does not improve over the R04 parent. This tests generation outcome, not immutable patch metadata.",
+  "parent_factor_value": "none",
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "V00 is the only legal variant and is the registered linear_deficit weighting at the R04 dose (half 0.7, type 0.3, orientation 0, endpoint 0, pair 0), so enabled terms are half and type. The parent R04 counterexample is the reason to test: desired type probabilities saturated near .9975/.9971 while the normalized type share stayed at 0.3 and the type/half gradient cosine was -0.242, indicating a persistent opposing type gradient rather than a layout failure. Multiplying the normalized type contribution by the detached desired-probability deficit is a pure optimizer reweighting: it does not restrict the chemical graph, does not change the assignment coefficient, and does not differentiate affinity. Slot 22's donor anchor (A:VAL:116:N, strength 0.9511) is a generic N-decoder context, not established pyridine chemistry, and slot 12's best donor strength is ~1.5e-6, so no chemical identity is claimed. The dose is unchanged from the declared parent, isolating the weighting operator; the source layout_score 8.704859 is not a generated-score forecast.",
+  "source_score_is_generation_forecast": false,
+  "variant_id": "V00"
+}

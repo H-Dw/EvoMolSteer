@@ -320,6 +320,9 @@ def controls(repo,master,cfg,p,teacher,remote,state,source):
     if native==NATIVE_DEFAULTS and n in (24,50) and batch==0:
         return {'unguided':repo/'data/generated/partial_region_search_20261014'/('controls_screen/unguided' if n==24 else 'controls_batch0_n50/unguided'),
                 'R13':repo/'data/generated/partial_region_search_20261014'/('R13/R13_0.1' if n==24 else 'R19/R19_0.1')}
+    if native==NATIVE_DEFAULTS and n==50 and batch==2:
+        root=repo/master['prior_generated_root']/'controls_b2_n50'
+        if (root/'COMPLETE.json').exists():return {'unguided':root/'unguided','R13':root/'R13_0.1'}
     key=hashlib.sha256(json.dumps({'native':native,'n':n,'batch':batch,'source':source},sort_keys=True).encode()).hexdigest()[:12]
     label='controls_'+key;out=repo/master['generated_root']/label
     if not (out/'COMPLETE.json').exists():
@@ -332,6 +335,20 @@ def controls(repo,master,cfg,p,teacher,remote,state,source):
         sha=commit(repo,master,'control(nc-research): freeze matched native protocol '+label)
         out=infer(repo,master,cc,path,remote,sha)
     return {'unguided':out/'unguided','R13':out/'R13'}
+
+
+def frozen_activity_control(repo,master,cfg,remote,state,source,templates):
+    active=copy.deepcopy(state['best_program']);teacher=templates[active['template_id']]
+    key=execution_identity(active,teacher,cfg,source)[:12];label='active_reference_'+key
+    result=repo/master['generated_root']/label
+    if not (result/'COMPLETE.json').exists():
+        cc=copy.deepcopy(cfg);cc.update(study=master['campaign_study']+'/'+label,round_id=label,
+            native_options=active['native_options'],remote_output=master['remote_campaign']+'/'+label,only_program_ids=['active_reference'])
+        active['program_id']='active_reference';bind(repo,cc,active,teacher)
+        path=repo/master['config_dir']/(label+'.json');write_json(path,cc)
+        sha=commit(repo,master,'control(nc-research): freeze activity reference without new proposal '+label)
+        result=infer(repo,master,cc,path,remote,sha)
+    return result/'active_reference'
 
 
 def summarise(repo,master,state):
@@ -428,6 +445,8 @@ def run(repo,master_path,stop_after=20):
                     result=output/label;state['cache'][key]=result.relative_to(repo).as_posix()
                 scores=condition_metrics(result);obs=realization(result,p,teacher)
                 control_paths=controls(repo,master,cfg,p,teacher,remote,state,source)
+                if number>=19 and master.get('confirm_activity_reference',False):
+                    control_paths['active_reference']=frozen_activity_control(repo,master,cfg,remote,state,source,templates)
                 comparisons={k:paired_comparison(result,f,label+' vs '+k) for k,f in control_paths.items()}
                 control_metrics={k:condition_metrics(f) for k,f in control_paths.items()}
                 score=scores['best_qualified_pic50'] or -1e20;delta=score-state['best']['best_qualified_pic50']
@@ -437,7 +456,8 @@ def run(repo,master_path,stop_after=20):
                         state.update(tail_score=score,tail_program=copy.deepcopy(p),tail_round=label)
                     # Protect affinity distribution while pursuing a high-quality tail.
                     viable=scores['mean_all_pic50']>=state['best']['mean_all_pic50']-master['mean_regression_tolerance']
-                    if delta>master['decline_tolerance'] and viable:
+                    tie_gain=abs(delta)<=master['decline_tolerance'] and scores['mean_all_pic50']>state['best']['mean_all_pic50']+master.get('tie_mean_improvement',1e10)
+                    if (delta>master['decline_tolerance'] or tie_gain) and viable:
                         state.update(best_program=p,best=scores,best_round=label,declines=0)
                     else:state['declines']=state['declines']+1 if delta < -master['decline_tolerance'] else 0
                     if p['weights']['type']>0 and (not state['best_typed'] or score>state['best_typed']['score']):state['best_typed']={'program':p,'score':score}

@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L109"
+  ],
+  "question": "For L109 (F_b011_s030_native, 20 points, targets C12 and N22, source_score 8.704859, counterfactual=false), I need the local role/neighborhood context to test continuous confidence-deficit weighting (linear_deficit) while keeping the chemical graph free. Specifically: what are the supported roles and joint label compensation at C12 and N22, and are there actual counterexamples where a high conditional layout head score coexists with opposing geometry cosine (as in R04: desired probabilities ~.9975 but constant normalized type share .3 and geometry cosine -.242)? I want to distinguish whether the type channel is a generic N decoder channel rather than pyridine chemistry, and whether coordinate-space local compatibility supports a confidence-deficit weight. Note: R10/R11/R14 on L109 used type weight 0.0 with half=1.0 and achieved mean_pic50 7.70-7.83 (best 8.43), so the type channel was not the driver there; the proposed linear_deficit weighting is untested at this patch and its affinity outcome is unknown. Region discovery is fixed during frozen calibration.",
+  "tool": "local_role_context"
+}

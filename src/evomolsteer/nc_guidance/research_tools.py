@@ -14,7 +14,7 @@ def reward_response_probe(folder):
         x=[r[key] for r in active if isinstance(r.get(key),(int,float))]
         if x:values[key]={'first':x[0],'last':x[-1],'mean':float(np.mean(x))}
     return {'actual_program_id':audit['program']['program_id'],'actual_dose':audit['program']['dose'],
-        'enabled_terms':{k:v for k,v in audit['program']['weights'].items() if v>0},'observed_scalars':values,
+        'enabled_terms':{k:v for k,v in audit['program'].get('weights',{'half':1.}).items() if v>0},'observed_scalars':values,
         'meaning':'Measured fixed-parent response; no new forward or affinity derivative'}
 
 
