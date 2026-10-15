@@ -4,7 +4,8 @@ import pandas as pd
 from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.storage.trajectory import TrajectoryPackage
 from evomolsteer.continuous.elite_path_credit import terminal_ancestors
-from evomolsteer.nc_guidance.window_features import unique_state_controls,fit_window
+from evomolsteer.nc_guidance.window_features import fit_window
+from .state_controls import full_state_controls
 
 
 def field(clouds,centers,width=1.5):
@@ -30,7 +31,7 @@ def build(repo,master,regions,templates,output_name='trajectory_evidence.json',c
             for step,t in enumerate(times):
                 if not master['learning_window'][0]-2e-6<=t<=master['learning_window'][1]+2e-6:continue
                 x=tr.read('current_coords',step)*scale+com;a=tr.read('current_atomics',step)
-                parent=int(anc[step,teacher['terminal_slot']]);control=unique_state_controls(x,a,parent)
+                parent=int(anc[step,teacher['terminal_slot']]);control=full_state_controls(tr,step,x,a,parent)
                 for r in group:
                     centers=np.asarray(teacher['terminal_coords_A'])[r['atom_slots']]
                     values=field(x,centers)

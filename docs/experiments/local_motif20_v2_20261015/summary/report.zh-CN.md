@@ -13,7 +13,8 @@
 |R09_v2|from_zero/region|completed|7.522814313570659|8.027835845947266|0.0|23/24|False|
 |R10_v2|from_zero/dose.native_rms_ratio|completed|7.551495869954427|8.027851104736328|0.0|24/24|True|
 |R11_v2|from_zero/region|completed|7.6281831463178|8.12820816040039|0.0|24/24|False|
+|R12_v2|from_zero/operator|completed|7.430088977018992|8.027891159057617|0.0|24/24|True|
 
-当前活动最佳：S0_REFERENCE_REPLAY；已完成11/20个研究决定。目标8.704806。所有分数为模型预测。
+当前活动最佳：S0_REFERENCE_REPLAY；已完成12/20个研究决定。目标8.704806。所有分数为模型预测。
 
 S0接口/API测试与冻结控制重放另计成本；后缀诊断不能代替从头生成。确认使用冻结程序，新池结果不参与调参。

@@ -166,3 +166,13 @@ def test_novelty_actions_exclude_seen_numeric_programs():
     assert len(aa)==1 and len(aa[0]['options'])==2
     master['_seen_numeric_programs']=[identity(q,t) for q in aa[0]['options'].values()]
     assert novel_actions(parents,{'R':r},{'T':t},master)==[]
+
+
+def test_full_state_clone_keys_preserve_equal_coordinates_with_different_bonds():
+    from evomolsteer.local_motif.state_controls import full_state_controls
+    class Trajectory:
+        def read(self,key,step):
+            if key=='current_charges':return np.zeros((3,2))
+            return np.array([[[0,1],[1,0]],[[0,2],[2,0]],[[0,1],[1,0]]])
+    result=full_state_controls(Trajectory(),0,np.zeros((3,2,3)),np.zeros((3,2)),0)
+    assert result.tolist()==[1]

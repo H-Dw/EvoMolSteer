@@ -140,12 +140,12 @@ def parents(state):
 def suffix_identity(repo,m,p,t,stream):
     from evomolsteer.storage.trajectory import TrajectoryPackage
     from evomolsteer.continuous.elite_path_credit import terminal_ancestors
-    from evomolsteer.nc_guidance.window_features import unique_state_controls
+    from .state_controls import full_state_controls
     step=m['suffix_step'];batch=t['batch'];base=repo/m['raw_dataset']/'results'/m['campaign']/m['arm']/f'batch_{batch:03d}'
     path=repo/m['compact_dataset']/'results'/m['campaign']/m['arm']/f'batch_{batch:03d}'/'trajectory.h5'
     with TrajectoryPackage(path) as tr:
         anc=terminal_ancestors(tr.read('selected_indices').astype(int));focal=int(anc[step,t['terminal_slot']])
-        xyz=tr.read('current_coords',step);a=tr.read('current_atomics',step);controls=unique_state_controls(xyz,a,focal)
+        xyz=tr.read('current_coords',step);a=tr.read('current_atomics',step);controls=full_state_controls(tr,step,xyz,a,focal)
         # Different observed contexts selected before new terminal outcomes.
         distance=np.square(xyz[controls].mean(1)-xyz[focal].mean(0)).sum(1)
         ranked=controls[np.argsort(distance,kind='stable')];slots=[focal,int(ranked[0]),int(ranked[-1])]
