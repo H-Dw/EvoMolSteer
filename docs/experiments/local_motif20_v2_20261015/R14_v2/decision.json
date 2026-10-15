@@ -1,0 +1,88 @@
+{
+  "Analyst": {
+    "action_id": "A0b57357a4f3e",
+    "claim_class": "proposed",
+    "conditioning": "Parent R13_v2 (region F_b011_s030__N22, operator pointwise, representation bridge, window [0.1,0.5], dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, controller unit_rms, assignment_element_cost 0.0). Contrast is from t=0 with matched saved random priors, random streams, checkpoint and native protocol; only the operator is changed. Region support is the six-slot N22 set (indices 0,3,6,13,17,22) with the parent's pocket_sites and orientation_triplets. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. R13_v2 measured response: 40 active/nonzero updates, no clipping, mean injected RMS ~0.0298 A, mean point_rms_A ~0.0757 A, mean target_error ~0.0757 A, assignment_switch_fraction mean ~1.8e-4. R13_v2 terminal metrics: n=24, n_qualified=24, mean_all_pic50 7.5364, best_qualified_pic50 8.1268, U_tau 0.0, hit_fraction 0.0, tau 8.1350. Parent S0_REFERENCE_REPLAY terminal metrics: mean_all_pic50 7.8275, best_qualified_pic50 8.4340, U_tau 0.01246, hit_fraction 0.0417, n_qualified 22.",
+    "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+    "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "F_b011_s030__N22/regional_trajectories"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__N22/control_response",
+      "F_b011_s030__N22/regional_context",
+      "F_b011_s030__N22/history",
+      "parent/outcomes"
+    ],
+    "evidence_time_domain": [
+      0.0,
+      0.5
+    ],
+    "factor": "operator",
+    "falsifier": "The hypothesis is falsified if, under the banded operator on the same N22 support and dose, the from-zero paired terminal affinity distribution is not distinguishable from the parent pointwise run (no measurable change in mean_all_pic50, best_qualified_pic50, U_tau or hit_fraction beyond the paired uncertainty), or if formation/retention collapses (near-zero active updates, large assignment switching, or clipping) so that the banded observable is not actually formed and retained. It is also falsified if the banded run's measured formation/retention statistics match the parent but the terminal affinity is worse in a way attributable to the band rather than to noise.",
+    "hypothesis_id": "H_N22_region_pointwise_fromzero",
+    "observable_definition": "Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.",
+    "observable_id": "point_band",
+    "parent_program_id": "R13_v2",
+    "predicted_execution_response": "Under the banded operator on the same N22 support, expect active/nonzero updates comparable to the parent (near 40), no atom clipping, injected RMS near the parent's ~0.0298 A, and point_rms_A / target_error that are bounded by the band rather than driven to the parent's ~0.0757 A mean. Assignment switch fraction should remain small. If the band is too wide, the observable becomes nearly flat and updates shrink; if too narrow, excess is large and the run behaves closer to the parent pointwise curvature.",
+    "predicted_terminal_response": "Terminal affinity is not forecast from the source layout score. The measured comparison is the from-zero paired terminal distribution of the banded run versus the parent pointwise run on the same prior, RNG, checkpoint and native protocol. A plausible outcome is a terminal mean_all_pic50 and best_qualified_pic50 in the neighborhood of the parent's 7.5364 / 8.1268, with U_tau and hit_fraction reported as measured; any improvement or degradation must be read from the paired from-zero comparison, not from historical suffix levels.",
+    "region_id": "F_b011_s030__N22",
+    "role": "Analyst",
+    "scientific_hypothesis": "Within the N22 local support, the parent pointwise robust per-point distance to observed teacher coordinates is not the only geometric observable that can be formed and retained. Replacing it with a banded local point-distance observable (point_band) on the same six-slot support, same pocket_sites, same bridge representation and same dose should still form and retain a local geometric match to the teacher coordinates, but with a different terminal affinity profile than the parent pointwise run. The two competing explanations are: (i) the parent pointwise curvature is the operative geometric channel and any banded variant will degrade terminal affinity; (ii) the parent pointwise curvature is not uniquely required, and a banded tolerance around the same local target coordinates can preserve formation/retention while changing terminal affinity. The discriminating observable is the paired from-zero terminal affinity distribution and the measured formation/retention statistics under the banded operator versus the parent pointwise run.",
+    "source_layout_implies_generated_benefit": false,
+    "status": "hypothesis",
+    "suffix_absolute_scores_establish_from_zero_benefit": false,
+    "temporal_slope_is_spatial_gradient": false,
+    "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+  },
+  "Designer": {
+    "controlled_atom_slots": [
+      0,
+      3,
+      6,
+      13,
+      17,
+      22
+    ],
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "F_b011_s030__N22/regional_trajectories"
+    ],
+    "decision": "execute",
+    "direct_type_force": false,
+    "enabled_terms": [
+      "point_band"
+    ],
+    "evidence_bundle_hash": "766e6066f0e205b08f2ee14ee0368cec2bf5831eae2f0272e6c32b431bd6f2b8",
+    "evidence_refs": [
+      "F_b011_s030__N22/control_response",
+      "F_b011_s030__N22/regional_context",
+      "F_b011_s030__N22/history",
+      "parent/outcomes"
+    ],
+    "executed_operator": "point_band",
+    "falsifier": "Execution-level: the banded observable is not actually formed and retained if the run shows near-zero active/nonzero updates, large assignment switching, or clipping, or if measured point_rms_A/target_error are not bounded by the band. Terminal: the hypothesis is falsified if the from-zero paired terminal affinity distribution of the banded run is not distinguishable from parent R13_v2 (no measurable change in mean_all_pic50, best_qualified_pic50, U_tau or hit_fraction beyond paired uncertainty), or if formation/retention matches the parent but terminal affinity is worse in a way attributable to the band rather than to noise. Affinity is evaluated first; structural and energy side effects are reported using the frozen definitions.",
+    "hypothesis_id": "H_N22_region_pointwise_fromzero",
+    "operator_definition": "Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.",
+    "parameter_changes": [
+      {
+        "new": "point_band",
+        "parent": "pointwise",
+        "path": "operator"
+      }
+    ],
+    "parameter_source": "V00 differs from parent R13_v2 only at path operator (pointwise -> point_band). All other fields are inherited verbatim from the parent program: atom_slots [0,3,6,13,17,22]; pocket_sites and orientation_triplets as supplied; representation bridge; scope local; window [0.1,0.5]; teacher_time 0.5; steps 100; controller unit_rms; coordinate_updates_only true; affinity_head_gradient false; assignment_element_cost 0.0; band_multiplier 1.0; base_band_A 0.3478160934503709; dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}; native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}; expected_active_steps 10..49. band_multiplier is held at the parent value so the band width is not changed together with the operator; the band basis is the supplied proposed calibration.",
+    "predicted_control_response": "Under point_band on the same N22 support and dose, expect active/nonzero updates comparable to the parent's 40, no atom clipping, injected RMS near the parent's ~0.0298 A mean, and point_rms_A / target_error bounded by the band rather than driven to the parent's ~0.0757 A mean. Assignment switch fraction should remain small (parent mean ~1.8e-4). If the band is too wide the observable flattens and updates shrink; if too narrow the run behaves closer to the parent pointwise curvature. These are expectations to be measured, not established outcomes.",
+    "role": "Designer",
+    "scientific_rationale": "Single-factor from-zero contrast on the same N22 six-slot support, same pocket_sites, same bridge representation, same dose, same saved prior/RNG/checkpoint/native protocol as parent R13_v2; only the operator changes pointwise -> point_band. The parent pointwise observable is a robust per-point distance to observed teacher coordinates; point_band replaces it with squared excess outside a calibrated tolerance band, so the two hypotheses (parent curvature uniquely required vs. banded tolerance sufficient for formation/retention) are discriminated by the paired from-zero terminal affinity distribution plus measured formation/retention statistics. The band basis (quarter source local covalent-length median, base_band_A 0.3478160934503709) is a proposed calibration, not a proven success tolerance; band_multiplier stays at the parent value 1.0 so the band is not co-varied with the operator change. Historical suffix levels and source layout score are not from-zero treatment effects and are not used to forecast terminal affinity.",
+    "variant_id": "V00"
+  },
+  "decision_record": "Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.",
+  "interface_status": {
+    "query_count": 4,
+    "status": "execute"
+  }
+}

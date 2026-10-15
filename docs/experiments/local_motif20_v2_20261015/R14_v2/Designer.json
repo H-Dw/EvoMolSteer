@@ -1,0 +1,43 @@
+{
+  "controlled_atom_slots": [
+    0,
+    3,
+    6,
+    13,
+    17,
+    22
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__N22/regional_trajectories"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "point_band"
+  ],
+  "evidence_bundle_hash": "766e6066f0e205b08f2ee14ee0368cec2bf5831eae2f0272e6c32b431bd6f2b8",
+  "evidence_refs": [
+    "F_b011_s030__N22/control_response",
+    "F_b011_s030__N22/regional_context",
+    "F_b011_s030__N22/history",
+    "parent/outcomes"
+  ],
+  "executed_operator": "point_band",
+  "falsifier": "Execution-level: the banded observable is not actually formed and retained if the run shows near-zero active/nonzero updates, large assignment switching, or clipping, or if measured point_rms_A/target_error are not bounded by the band. Terminal: the hypothesis is falsified if the from-zero paired terminal affinity distribution of the banded run is not distinguishable from parent R13_v2 (no measurable change in mean_all_pic50, best_qualified_pic50, U_tau or hit_fraction beyond paired uncertainty), or if formation/retention matches the parent but terminal affinity is worse in a way attributable to the band rather than to noise. Affinity is evaluated first; structural and energy side effects are reported using the frozen definitions.",
+  "hypothesis_id": "H_N22_region_pointwise_fromzero",
+  "operator_definition": "Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.",
+  "parameter_changes": [
+    {
+      "new": "point_band",
+      "parent": "pointwise",
+      "path": "operator"
+    }
+  ],
+  "parameter_source": "V00 differs from parent R13_v2 only at path operator (pointwise -> point_band). All other fields are inherited verbatim from the parent program: atom_slots [0,3,6,13,17,22]; pocket_sites and orientation_triplets as supplied; representation bridge; scope local; window [0.1,0.5]; teacher_time 0.5; steps 100; controller unit_rms; coordinate_updates_only true; affinity_head_gradient false; assignment_element_cost 0.0; band_multiplier 1.0; base_band_A 0.3478160934503709; dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}; native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}; expected_active_steps 10..49. band_multiplier is held at the parent value so the band width is not changed together with the operator; the band basis is the supplied proposed calibration.",
+  "predicted_control_response": "Under point_band on the same N22 support and dose, expect active/nonzero updates comparable to the parent's 40, no atom clipping, injected RMS near the parent's ~0.0298 A mean, and point_rms_A / target_error bounded by the band rather than driven to the parent's ~0.0757 A mean. Assignment switch fraction should remain small (parent mean ~1.8e-4). If the band is too wide the observable flattens and updates shrink; if too narrow the run behaves closer to the parent pointwise curvature. These are expectations to be measured, not established outcomes.",
+  "role": "Designer",
+  "scientific_rationale": "Single-factor from-zero contrast on the same N22 six-slot support, same pocket_sites, same bridge representation, same dose, same saved prior/RNG/checkpoint/native protocol as parent R13_v2; only the operator changes pointwise -> point_band. The parent pointwise observable is a robust per-point distance to observed teacher coordinates; point_band replaces it with squared excess outside a calibrated tolerance band, so the two hypotheses (parent curvature uniquely required vs. banded tolerance sufficient for formation/retention) are discriminated by the paired from-zero terminal affinity distribution plus measured formation/retention statistics. The band basis (quarter source local covalent-length median, base_band_A 0.3478160934503709) is a proposed calibration, not a proven success tolerance; band_multiplier stays at the parent value 1.0 so the band is not co-varied with the operator change. Historical suffix levels and source layout score are not from-zero treatment effects and are not used to forecast terminal affinity.",
+  "variant_id": "V00"
+}
