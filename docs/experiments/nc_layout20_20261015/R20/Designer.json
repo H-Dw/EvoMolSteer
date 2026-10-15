@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 1.0,
+      "orientation": 0.0,
+      "type": 0.0
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "On the new initial pool, if the frozen L109 replay fails to reproduce the historical local response, specifically if local_NC_identity_accuracy at typed slots 12 and 22 falls materially below the historical 0.9791666666666666 while cumulative_control_RMS_A and final_local_geometry_rms_A remain comparable, then the claim that this frozen patch reliably realizes the declared C-at-12 / N-at-22 local layout is not supported. Separately, if best_qualified_pic50 does not exceed the unguided control on the same pool (historical comparison 8.378183364868164 versus 8.027975082397461), the affinity value of this layout is not supported. These are two distinct checks: failure to form the requested local layout does not by itself refute the affinity value of a layout that was never formed. Raw derivative RMS, weighted mixture-input RMS and physical displacement are not conflated; with type weight 0.0 the weighted mixture-input RMS is 0.0 and no type displacement is injected. Limitation: the frozen contract carries type weight 0.0, so identity preservation is an outcome to measure rather than an operation enforced by the reward, and the best legal counterfactual targets have not been regenerated or relaxed; reduced imitation loss would not be success. No calibrated physical atom energy or experimentally validated binding gain is claimed, and no additional affinity predictor is fitted.",
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "Activating the frozen L109 replay exactly as registered. Only the half term carries positive weight (1.0); endpoint, orientation and type weights are 0.0, so no orientation term and no type term are enabled and none is described. Direct geometry loss applies to the 20 declared atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24], a proper local subset; the context neighbors of the typed sites (slot 22 neighbors [6,13]; slot 12 neighbors [18,21]) are inside this set and are directly constrained by the enabled geometry term, not free background. Only points outside atom_slots lack direct geometry loss. The typed sites are slot 12 (desired C) and slot 22 (desired N); because type weight is 0.0, direct_type_slots is empty and no N/C identity is directly enforced by the reward. The generated N decoder channel is treated as generic N until final chemical-role checks; the source distinction between eligible pyridine-type N and excluded pyrrole/amide identities is preserved as a label-eligibility statement, not as an enforced chemistry. The single anchor at slot 22 uses donor A:VAL:116:N with both local heavy-atom neighbors [6,13] present; this is a donor-facing geometry proxy, not a hydrogen-bond energy. The default mode updates current coordinates through real coordinate and atomic-decoder Jacobians; because atomic_logit_strength is not positive, no additional local decoder-logit gradient step is applied and categorical predictions are not directly rewritten. Raw term derivative RMS is not the applied dose; with type weight 0.0 the weighted mixture-input RMS is 0.0 and no type displacement is injected, so any identity change at slots 12/22 is not attributable to a type-gradient dose. Expected observable changes: the half-window geometry term should pull the selected local subset toward the registered half coordinates within the declared dose and clocks, with cumulative control RMS and final local geometry RMS reported; local N/C identity at slots 12 and 22 is an outcome to measure, not an operation enforced by this geometry-only reward. Final affinity is primary; validity, failure, strain and actual local N/C response must be reported. This is a frozen replay of the training winner on a new initial pool, not a re-tuned region hypothesis, and no teacher substitution, added background points or alternate region is introduced."
+}
