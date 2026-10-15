@@ -1,0 +1,37 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Parent S0_REFERENCE_REPLAY, region F_b011_s030__reference, operator pointwise, representation bridge, window [0.1,0.5], dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, assignment_element_cost 0.0, controller unit_rms, 40 active updates. The only legal single-factor change is region_id to F_b011_s030__NC; operator, dose, representation, window and controller are held fixed. Evidence clock domain is the full learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. Historical Steer ancestor curves in F_b011_s030__NC/history describe teacher ancestry, not the current gradient-guided parent run.",
+  "contrast_definition": "Same-restored-state, single-factor region swap: S0_REFERENCE_REPLAY evaluated on F_b011_s030__NC versus the same program on F_b011_s030__reference. Both use operator pointwise and identical dose/representation/window. This is a from-zero region contrast, not a suffix comparison; suffix absolute scores are not compared with from-zero pools.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__NC/history"
+  ],
+  "evidence_refs": [
+    "parent/outcomes",
+    "parent/response",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__NC/history"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "If the NC-region pointwise run produces point_rms_A and target_error_mean trajectories statistically indistinguishable from the reference-region run at matched active-update counts, and its terminal qualified-affinity distribution overlaps the parent outcome within the paired uncertainty, the region-swap hypothesis is not supported.",
+  "hypothesis_id": "H_NC_region_pointwise_vs_reference",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured current-program response only: nonzero coordinate updates with point_rms_A and target_error_mean trajectories that differ from the reference-region run at matched active-update counts; no claim of a terminal-affinity gradient.",
+  "predicted_terminal_response": "A shift in mean_all_pic50, best_qualified_pic50, n_qualified and U_tau relative to the reference-region parent outcome (mean_all_pic50 7.827488899230957, best_qualified_pic50 8.4340238571167, n_qualified 22, U_tau 0.01245729128519694). Direction is not asserted; the source layout score is not a forecast for newly generated samples.",
+  "region_id": "F_b011_s030__NC",
+  "role": "Analyst",
+  "scientific_hypothesis": "Holding the pointwise operator and dose fixed, restricting the local support to the F_b011_s030__NC region changes the realized local point-RMS trajectory and the terminal qualified-affinity distribution relative to the reference region. The mechanism is a change in which local teacher coordinates are matched and how the robust per-point loss is distributed, not a change in chemical-role or interaction-energy assumptions.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
