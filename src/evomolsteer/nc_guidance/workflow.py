@@ -106,7 +106,7 @@ def analyze(repo,cfg,feedback):
         return None
     path=target/'programs'/(p['program_id']+'.json');write_json(path,p)
     write_json(target/'bindings.json',{'programs':[{'program':path.relative_to(repo).as_posix(),'sha256':digest(path),
-        'operative_text':f"LOCAL {patch['patch_id']}; ONLY slots {p['atom_slots']}; typed {list(zip(p['typed_slots'],p['typed_elements']))}; weights {p['weights']}; coordinates-only VJP; window {p['window']}; no affinity gradient or SMC"}],
+        'operative_text':f"LOCAL {patch['patch_id']}; ONLY slots {p['atom_slots']}; typed {list(zip(p['typed_slots'],p['typed_elements']))}; weights {p['weights']}; coordinate VJP; selected decoder-logit gradient strength {p['atomic_logit_strength']}; window {p['window']}; no affinity gradient or SMC"}],
         'teacher':(target/'teacher.json').relative_to(repo).as_posix(),
         'instruction_sha256':{r:hashlib.sha256(s.encode()).hexdigest() for r,s in skills.items()},
         'analyst_patch_sha256':digest(folder/'selection.json'),'designer_bound_to_analyst':True})

@@ -31,8 +31,8 @@ PLANS=[
 ('r13_context_joint_swap','Keep the same R13 geometry and dose; swap only the measured N/C targets at the two compared sites.'),
 ('r13_context_stronger_NC','Keep R13 geometry and the paired swapped sites; increase the local type-gradient share.'),
 ('r13_context_chemical_role','Keep the two-site swap and R13 context; add a selected-N neutral/aromatic decoder preference.'),
-('later_start','Freeze the best local patch and test a later start; complete the same native suffix.'),
-('earlier_start','Freeze the best local patch and test guidance from the initial state.'),
+('later_start','Freeze the R13 context and paired N/C swap from the controlled comparison; test a later start and complete the native suffix.'),
+('earlier_start','Freeze the R13 context and paired N/C swap from the controlled comparison; test guidance from the initial state.'),
 ('local_categorical_gradient','Keep R13 geometry and the paired local swap; additionally ascend the type reward only on the two selected decoder logits before native categorical flow. No affinity gradient or discrete override.'),
 ('confirmation','Freeze the training winner on more matched inputs; do not reinterpret confirmation as selection.'),
 ('heldout_initial_pool','Freeze the training winner on a new initial pool; do not tune using its outcome.')]
