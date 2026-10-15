@@ -91,6 +91,10 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         'regions_with_untested_executable_actions':sorted(action_regions),
         'task':'You are in the tool-planning phase. First query evidence for a catalog region that has an untested executable action, then optionally query other regions for counterevidence, then finish. The first-call region enum excludes exhausted regions; pick one of the actually available IDs. Return a brief tool question, not the final scientific handoff. The listed geometry calculators ARE implemented and tested; they do not require a binding-energy calculator. Missing previous terminal benefit is a reason for a prospective experiment, not a capability gap. New operators outside this registry require capability_gap. One principal intervention per from-zero experiment.'},ensure_ascii=False)}]
     queried=set();query_count=0
+    if fixed is not None:
+        messages[-1]['content']=json.dumps({'catalog':catalog,'parents':parents,'shared_initial_evidence':bundle,
+            'fixed_confirmation':fixed,'available_tools':TOOLS,'budget':{'max_tool_rounds':3,'max_calls_each':2},
+            'task':'Document a frozen confirmation. Query at least one registered evidence tool, then finish. Preserve this exact numerical program; no new action or untested variant is required. This is a replication on the configured input pool, not reward redesign.'},ensure_ascii=False)
     for turn in range(3):
         current_query_schema=copy.deepcopy(query_schema)
         if stage=='from_zero' and not queried.intersection(action_regions):
@@ -144,6 +148,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         'source_layout_implies_generated_benefit':{'const':False},'temporal_slope_is_spatial_gradient':{'const':False}})
     schema['properties']['relationship_to_previous_failed_interventions']=text
     schema['required'].append('relationship_to_previous_failed_interventions')
+    if fixed is not None:schema['properties']['factor']={'const':'frozen_confirmation'}
     available=[a for a in actions if a['region_id'] in queried]
     if stage=='from_zero':
         if not available:raise ValueError('Queried regions have no untested action; query an available registered region')
@@ -174,6 +179,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     payload={'stage':stage,'parents':parents,'feedback':feedback,'shared_complete_evidence_bundle':bundle,
         'untested_executable_actions':[{k:v for k,v in a.items() if k!='options'} for a in available],
         'fixed_confirmation':fixed,'task':'Return one conditional coordinate hypothesis with explicit counterevidence, executable observable and a discriminating test. All listed coordinate calculators are implemented; an unproved head benefit does not make geometry unavailable. Do not demand a physical interaction energy to test a geometric hypothesis. Use source IDs. For a region-only change keep the parent operator. The evidence clock domain is the complete learning_window, distinct from the control window. Source scores are not outcome forecasts.'}
+    if fixed is not None:payload['task']='Document the frozen confirmation hypothesis and remaining counterevidence. Preserve the exact frozen function and support; do not propose any redesign. The test is native completion on the configured larger/new prior pool. Uncertainty is a reason to confirm, not an interface capability gap.'
     analysis_messages=[{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]
     a=call_json(analysis_messages,
         schema,folder/'Analyst.json',input_store=store,max_output_tokens=3500,max_format_repairs=2,response_validator=validate_a)
@@ -225,6 +231,10 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
             'matching':'Detached element likelihood cost for assignment, not an elemental force.',
             'representation':'bridge uses actual intermediate teacher; endpoint uses observed terminal coordinates.'},
         'task':'Choose one executable variant bound to Analyst. Your executed_operator/enabled_terms/controlled_atom_slots are authoritative and prose must describe that same function. Inactive pocket-distance, type or orientation terms cannot be claimed as direct forces. No type, affinity or categorical-logit gradient. Give an execution-level falsifier and terminal consequence. A new hypothesis does not require already demonstrated benefit.'},ensure_ascii=False)}]
+    if fixed is not None:
+        contents=json.loads(design_messages[-1]['content']);contents['fixed_confirmation']=True
+        contents['task']='Execute the single frozen confirmation variant, retaining the exact numerical function. Empty parameter_changes is correct and required for replication, not a discovery no-op. Explain actual matching, geometry, dose and remaining uncertainty. No redesign, new terms, direct type force or affinity gradient.'
+        design_messages[-1]['content']=json.dumps(contents,ensure_ascii=False)
     d=call_json(design_messages,dschema,folder/'Designer.json',input_store=store,max_output_tokens=3000,max_format_repairs=2,response_validator=validate_d)
     accepted_path=folder/'Designer.json'
     audit_schema=obj({'consistent':{'type':'boolean'},'issues':{'type':'array','maxItems':3,'items':obj({

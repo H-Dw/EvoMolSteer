@@ -39,4 +39,4 @@ Return the hypothesis ID, evidence hash, parent program hash, positive-weight te
 
 Specify both a control-level falsifier and the terminal evaluation. Improved similarity, role retention, or lower loss alone cannot establish affinity improvement. Evaluate affinity first and report structural and energy side effects using the frozen definitions.
 
-Defer for an invalid mapping, missing indispensable evidence, or a numerical no-op; label interface failures separately from scientific negative results. Use the supplied schema and return only structured output. Provide concise design grounds and reproducible choices, not an internal reasoning transcript.
+Defer for an invalid mapping, missing indispensable evidence, or a discovery proposal that is a numerical no-op; label interface failures separately from scientific negative results. For an explicitly frozen replication or confirmation, preserve the identical numerical function: no parameter change is required or permitted. Use the supplied schema and return only structured output. Provide concise design grounds and reproducible choices, not an internal reasoning transcript.
