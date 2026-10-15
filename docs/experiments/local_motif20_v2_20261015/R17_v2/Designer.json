@@ -1,0 +1,40 @@
+{
+  "controlled_atom_slots": [
+    6,
+    13,
+    22
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "campaign/experiment_families"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "pointwise"
+  ],
+  "evidence_bundle_hash": "4bba6a4ddd9a63259ebde367151c21273ed1b24fb2fce5daae2ccd8ad4e0b5af",
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "campaign/experiment_families",
+    "F_b011_s030__NC/conditional_layout"
+  ],
+  "executed_operator": "pointwise",
+  "falsifier": "Falsified if, with all other registered factors and the saved random priors/streams/checkpoint/native protocol held fixed, the V01 run shows assignment_switch_fraction and point_rms_A statistically indistinguishable from the R16_v2 parent response while injected_rms_A_mean and requested_rms_A_mean also match the parent, i.e. the assignment-cost change produces no measurable change in which local atoms are updated. A second falsifier is a measured change in injected_rms_A_mean or requested_rms_A_mean comparable to the assignment effect, which would indicate a dose effect rather than a correspondence effect. Terminal consequence: the V01 pool is scored on the same 24-candidate contract as the parent (n=24, n_scored=24, n_qualified=24, mean_all_pic50 7.629772384961446, best_qualified_pic50 8.127753257751465, U_tau 0.0, hit_fraction 0.0, n_above_target 0, tau 8.135048866271973); no directional terminal gain is claimed, and the source layout score (native_score 8.704859) is not a forecast for new samples.",
+  "hypothesis_id": "F_b011_s030__NC__assignment_element_cost_V01",
+  "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "parameter_changes": [
+    {
+      "new": 0.2,
+      "parent": 0.5,
+      "path": "assignment_element_cost"
+    }
+  ],
+  "parameter_source": "Parent R16_v2 registered configuration: assignment_element_cost 0.5, controller unit_rms, dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, window [0.1,0.5], steps 100, teacher_time 0.5, representation bridge, scope local, atom_slots [6,13,22], orientation_triplets [[22,6,13]]. V01 changes only assignment_element_cost to 0.2; the value is a calibration choice for the detached correspondence cost, not a proven optimum, and the parent value 0.5 is the reference.",
+  "predicted_control_response": "Measured current-program response only; no terminal-affinity gradient. Relative to the R16_v2 parent response (active_updates 40, nonzero_updates 40, assignment_switch_fraction mean 0.003917378970445731, current_gradient_rms_mean mean 0.004416682029841468, injected_rms_A_mean mean 0.02967930110171437, point_rms_A mean 0.053560657799243926, target_error_mean mean 0.053560657799243926), V01 is expected to show a changed assignment_switch_fraction and a changed distribution of which slots receive updates, with injected_rms_A_mean and requested_rms_A_mean remaining near parent values because dose is unchanged. If assignment_switch_fraction and point_rms_A are indistinguishable from the parent, the assignment-cost channel is not the operative mechanism at this coefficient.",
+  "role": "Designer",
+  "scientific_rationale": "Single registered change: assignment_element_cost 0.5 -> 0.2 on the NC-region pointwise program R16_v2, all other factors, saved priors, random streams, checkpoint and native protocol held fixed. The implemented operator uses a detached element-likelihood cost inside the Hungarian assignment; changing that coefficient changes which generated atoms are matched to teacher slots [6,13,22], i.e. which local support receives the robust per-point distance. It is not a direct elemental force and not a dose change: pointcloud_delta_A (1.0) and native_rms_ratio (0.66) are unchanged, so any difference in injected_rms_A_mean or requested_rms_A_mean would indicate a dose-like effect rather than the correspondence channel. The NC conditional_layout record (10 measured layouts, native_score 8.704859, n_identifiable_interactions 0) is used only as fixed-geometry conditioning context for the region, not as a generated-outcome forecast. The regional_trajectories record is historical_steer_not_current_guidance and is not used to attribute current parent behavior. Prior from-zero rollbacks (R04, R08_v2, R10_v2, R12_v2, R14_v2) changed region, target_schedule, dose.native_rms_ratio, and operator (point_band); none changed assignment_element_cost, and R15_v2 (assignment_element_cost on the reference region) is a different region, so this proposal tests the assignment-cost channel within NC rather than repeating a failed region or operator change.",
+  "variant_id": "V01"
+}

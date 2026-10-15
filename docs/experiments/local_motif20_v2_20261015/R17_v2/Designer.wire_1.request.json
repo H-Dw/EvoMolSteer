@@ -1,0 +1,164 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/f0570d228d0cbfe376ff4a4c3b0c505b4ad5359a5c324de19a06bd814ee46062.txt",
+        "content_sha256": "f0570d228d0cbfe376ff4a4c3b0c505b4ad5359a5c324de19a06bd814ee46062",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/cc60650f1771864698af15f489b6c6023028d1267e88c174935aad5d5b3010ae.txt",
+        "content_sha256": "cc60650f1771864698af15f489b6c6023028d1267e88c174935aad5d5b3010ae",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/75f82a6cf065be88d5891ae77eeae25b54016d68b5e85f1f3fff119f72d63b16.txt",
+        "content_sha256": "75f82a6cf065be88d5891ae77eeae25b54016d68b5e85f1f3fff119f72d63b16",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "controlled_atom_slots": {
+        "const": [
+          6,
+          13,
+          22
+        ]
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "campaign/experiment_families",
+            "F_b011_s030__NC/conditional_layout",
+            "F_b011_s030__NC/regional_trajectories"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "decision": {
+        "enum": [
+          "execute",
+          "defer"
+        ]
+      },
+      "direct_type_force": {
+        "const": false
+      },
+      "enabled_terms": {
+        "const": [
+          "pointwise"
+        ]
+      },
+      "evidence_bundle_hash": {
+        "const": "4bba6a4ddd9a63259ebde367151c21273ed1b24fb2fce5daae2ccd8ad4e0b5af"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "campaign/experiment_families",
+            "F_b011_s030__NC/conditional_layout",
+            "F_b011_s030__NC/regional_trajectories"
+          ]
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "executed_operator": {
+        "const": "pointwise"
+      },
+      "falsifier": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "hypothesis_id": {
+        "const": "F_b011_s030__NC__assignment_element_cost_V01"
+      },
+      "operator_definition": {
+        "const": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption."
+      },
+      "parameter_changes": {
+        "enum": [
+          [
+            {
+              "new": 0.2,
+              "parent": 0.5,
+              "path": "assignment_element_cost"
+            }
+          ],
+          [
+            {
+              "new": 1.0,
+              "parent": 0.5,
+              "path": "assignment_element_cost"
+            }
+          ]
+        ]
+      },
+      "parameter_source": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "predicted_control_response": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "variant_id": {
+        "enum": [
+          "V01",
+          "V02"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "hypothesis_id",
+      "evidence_bundle_hash",
+      "variant_id",
+      "executed_operator",
+      "enabled_terms",
+      "operator_definition",
+      "controlled_atom_slots",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_rationale",
+      "parameter_source",
+      "predicted_control_response",
+      "falsifier",
+      "direct_type_force",
+      "parameter_changes"
+    ],
+    "type": "object"
+  }
+}

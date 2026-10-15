@@ -1,0 +1,40 @@
+{
+  "action_id": "Aa4c6432222c9",
+  "claim_class": "proposed",
+  "conditioning": "Parent R16_v2 is the NC-region pointwise program (atom_slots [6,13,22], orientation_triplets [[22,6,13]], assignment_element_cost 0.5, controller unit_rms, dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, window [0.1,0.5], steps 100, teacher_time 0.5, representation bridge, scope local). The single changed factor is assignment_element_cost 0.5 -> 0.2 (V01). All other registered factors, saved random priors, random streams, checkpoint and native protocol are held fixed. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. The NC conditional_layout record is a fixed-geometry legal-layout enumeration (10 measured layouts, native_score 8.704859, native_minus_alternate_mean 0.07634588888888949, n_identifiable_interactions 0) and is used only as conditioning context for the NC region, not as a generated-outcome forecast. The regional_trajectories record is historical_steer_not_current_guidance and is not used to attribute the current parent's behavior.",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "campaign/experiment_families"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "campaign/experiment_families",
+    "F_b011_s030__NC/conditional_layout",
+    "F_b011_s030__NC/regional_trajectories"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "assignment_element_cost",
+  "falsifier": "The hypothesis is falsified if, with all other registered factors and the saved random priors/streams/checkpoint/native protocol held fixed, the V01 run shows assignment_switch_fraction and point_rms_A statistically indistinguishable from the R16_v2 parent response while injected_rms_A_mean and requested_rms_A_mean also match the parent, i.e. the assignment-cost change produces no measurable change in which local atoms are updated. A second falsifier is a measured change in injected_rms_A_mean or requested_rms_A_mean comparable to the assignment effect, which would indicate the observed difference is a dose effect rather than a correspondence effect.",
+  "hypothesis_id": "F_b011_s030__NC__assignment_element_cost_V01",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "R16_v2",
+  "predicted_execution_response": "Measured current-program response only, no terminal-affinity gradient. Relative to the R16_v2 parent response (active_updates 40, nonzero_updates 40, assignment_switch_fraction mean 0.003917378970445731, current_gradient_rms_mean mean 0.004416682029841468, injected_rms_A_mean mean 0.02967930110171437, point_rms_A mean 0.053560657799243926, target_error_mean mean 0.053560657799243926), the V01 run is expected to show a changed assignment_switch_fraction and a changed distribution of which slots receive updates, with injected_rms_A_mean and requested_rms_A_mean remaining near the parent values because dose is unchanged. If assignment_switch_fraction and point_rms_A are indistinguishable from the parent, the assignment-cost channel is not the operative mechanism at this coefficient.",
+  "predicted_terminal_response": "Not forecast. The parent R16_v2 from-zero pool has n=24, n_scored=24, n_qualified=24, mean_all_pic50 7.629772384961446, best_qualified_pic50 8.127753257751465, U_tau 0.0, hit_fraction 0.0, n_above_target 0, tau 8.135048866271973. The V01 terminal pool is expected to be scored on the same 24-candidate contract; no directional terminal gain is claimed, and the source layout score (native_score 8.704859) is not a forecast for new samples.",
+  "region_id": "F_b011_s030__NC",
+  "relationship_to_previous_failed_interventions": "Prior from-zero rollbacks R04, R08_v2, R10_v2, R12_v2, R14_v2 were region, target_schedule, dose.native_rms_ratio, operator (point_band) and operator (point_band) changes respectively; none of them changed assignment_element_cost. The campaign/experiment_families record shows pointwise fixed-schedule trials with n_lower_tail_than_reference 8 of 9 across 6 different regions, and point_band trials with n_lower_tail_than_reference 2 of 2; these are heterogeneous interventions on a reused prior pool, not independent replicates, so they do not establish a universal operator effect. R15_v2 (assignment_element_cost 0.5 on the reference region) is the only prior assignment_element_cost trial and it is a different region, so it does not isolate the coefficient. This proposal therefore tests the assignment-cost channel within the NC region rather than repeating a failed region or operator change.",
+  "role": "Analyst",
+  "scientific_hypothesis": "In the NC region, lowering the detached correspondence cost coefficient (assignment_element_cost 0.5 -> 0.2) changes which generated atoms are matched to the three teacher slots [6,13,22], so the pointwise robust per-point distance is applied to a different local support. The proposed mechanism is a correspondence/assignment change, not a stronger spatial force: the pointwise pseudo-Huber curvature (pointcloud_delta_A 1.0) and the native RMS ratio (0.66) are unchanged, so any measured difference in injected_rms_A_mean, assignment_switch_fraction, or point_rms_A is attributable to the assignment rule rather than to dose. This is a conditional geometric hypothesis about which local atoms receive the coordinate update; it does not assert a chemical-role or interaction-energy rule.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
