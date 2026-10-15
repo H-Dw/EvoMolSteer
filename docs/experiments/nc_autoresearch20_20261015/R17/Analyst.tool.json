@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L109"
+  ],
+  "question": "Refine the actual dose (native_rms_ratio) around the active best for patch L109. All prior L109 rounds (R10 weights, R11 pointwise geometry, R14 pair, R15 type_confidence) were run at the same actual dose native_rms_ratio=0.66, max_atom_step_A=0.15, max_cumulative_rms_A=6.0, pointcloud_delta_A=1.0; the best mean_pic50 so far is R11 at 7.827 (best 8.434), with R10/R14/R15 clustered near 7.70-7.73. The proposed values 0.33 and 0.99 bracket this active best, so I need the measured dose-response for L109 to see whether moving native_rms_ratio away from 0.66 improves mean_pic50 and quality (joint_formation, retention_after_formation, boundary probabilities) or degrades it. Requesting the reward_response_probe for L109 to obtain the actual measured response at candidate native_rms_ratio values, so I can pick the smallest discriminating dose step rather than guessing. Falsifier: if the probe shows mean_pic50 at 0.33 and 0.99 both at or below the 0.66 baseline with no quality gain, the dose is already near-optimal and I should not move it. Missing evidence: no L109 run has yet varied native_rms_ratio, so no direct dose-response exists in history.",
+  "tool": "reward_response_probe"
+}
