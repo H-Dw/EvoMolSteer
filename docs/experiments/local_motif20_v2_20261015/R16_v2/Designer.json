@@ -1,0 +1,75 @@
+{
+  "controlled_atom_slots": [
+    6,
+    13,
+    22
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "campaign/experiment_families",
+    "F_b011_s030__NC/experiment_families",
+    "parent/outcomes"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "pointwise"
+  ],
+  "evidence_bundle_hash": "2ae00d32a069dc42b0ef596a5616b764ffd722c0b73b476f76bfbbde8f88fda8",
+  "evidence_refs": [
+    "F_b011_s030__NC/conditional_layout",
+    "F_b011_s030__NC/regional_context",
+    "F_b011_s030__NC/regional_trajectories",
+    "parent/response",
+    "parent/outcomes",
+    "campaign/experiment_families",
+    "F_b011_s030__NC/experiment_families"
+  ],
+  "executed_operator": "pointwise",
+  "falsifier": "Control-level falsifier: if the NC-region run under R15_v2 produces terminal tail utility and best_qualified_pic50 statistically indistinguishable from the parent reference run at matched saved priors, random streams, checkpoint, and native protocol, or if the pointwise term fails to form the intended local geometry (boundary attainment below the parent reference), the hypothesis that the NC support is a discriminating region for this operator is not supported. A source-layout score advantage alone would not rescue it. Terminal consequence: the from-zero terminal tail (U_tau, best_qualified_pic50, hit_fraction) for the NC region under R15_v2 is unmeasured; the prior NC from-zero trial (R03) used a different parent program and reported U_tau 0.0, best_qualified_pic50 8.128, mean_all_pic50 7.663, so it does not forecast this run. Affinity is evaluated first, with structural and energy side effects reported using the frozen definitions.",
+  "hypothesis_id": "F_b011_s030__NC__region_pointwise_V00",
+  "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "parameter_changes": [
+    {
+      "new": "F_b011_s030__NC",
+      "parent": "F_b011_s030__reference",
+      "path": "region_id"
+    },
+    {
+      "new": [
+        6,
+        13,
+        22
+      ],
+      "parent": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        10,
+        12,
+        13,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "path": "atom_slots"
+    }
+  ],
+  "parameter_source": "All parameters inherited from parent R15_v2 except region_id and atom_slots. Parent values: assignment_element_cost 0.5, operator pointwise, controller unit_rms, representation bridge, window [0.1,0.5], dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}, band_multiplier 1.0, gradient_floor_multiplier 1.0, steps 100, teacher_time 0.5, scope local, smc false, coordinate_updates_only true, affinity_head_gradient false, native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}. base_band_A changes only as a consequence of the region's own calibration: 0.34907500557366816 (reference) -> 0.34160586005577465 (NC, quarter source local covalent-length median; proposed calibration, not a proven success tolerance). orientation_triplets [[0,3,7],[1,16,18],[2,3,21]] -> [[22,6,13]]; orientation is not an enabled term, so this is inert metadata and no orientation force is claimed.",
+  "predicted_control_response": "Measured current-program response only. The pointwise term should remain active with nonzero updates and no atom or cumulative clipping: parent shows atom_clip_fraction and cumulative_clip_fraction 0.0, dose_gain_mean 1.0, nonzero_updates 40 of 40 active updates. Because the NC support is a different local point set, expect a different assignment_switch_fraction and target_error trajectory than the parent reference run; the parent reference run reports mean point_rms_A 0.269 and mean target_error 0.269 over 40 active updates, with assignment_switch_fraction mean 0.0167. No terminal-affinity gradient is implied by this response.",
+  "role": "Designer",
+  "scientific_rationale": "Single-factor region change on parent R15_v2: operator pointwise, controller unit_rms, representation bridge, window [0.1,0.5], dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, assignment_element_cost 0.5, fixed target_schedule, constant time_schedule. Only region_id and atom_slots change: reference slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] -> NC support [6,13,22] (source N22 aromatic acceptor, degree 2, plus neighbors 6 and 13). The conditional_layout record shows the source N22 site is not uniquely optimal: single legal N exchanges at fixed geometry span delta_score -0.441 (to N8) to +0.207 (to N12), native_minus_alternate_mean +0.076 over 10 measured layouts. This is a fixed-geometry label counterfactual, not a generated-outcome effect, so it motivates a bounded from-zero test of whether the NC support yields a different terminal tail than the reference support under the identical parent program. The pointwise term is the smallest implemented operator that can test this: it changes which local teacher coordinates the robust per-point term pulls toward without changing operator, dose, or controller. No type, affinity, or categorical-logit gradient is introduced; matching remains a detached Hungarian correspondence cost, not a direct elemental force.",
+  "variant_id": "V00"
+}

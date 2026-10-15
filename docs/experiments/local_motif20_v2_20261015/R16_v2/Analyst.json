@@ -1,0 +1,44 @@
+{
+  "action_id": "A1742952b31cb",
+  "claim_class": "proposed",
+  "conditioning": "Single-factor region change on the R15_v2 parent (assignment_element_cost=0.5, operator=pointwise, controller=unit_rms, representation=bridge, window [0.1,0.5], dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, fixed target_schedule, constant time_schedule). Region F_b011_s030__NC selects the source N22 site (atom_index 22, aromatic acceptor N, degree 2) with its local support atoms 6 and 13; the parent reference region uses the same operator and dose. Contrast is from t=0 with matched saved priors, random streams, checkpoint and native protocol; chemical graphs remain free. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5].",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "campaign/experiment_families",
+    "F_b011_s030__NC/experiment_families",
+    "parent/outcomes"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__NC/conditional_layout",
+    "F_b011_s030__NC/regional_context",
+    "F_b011_s030__NC/regional_trajectories",
+    "parent/outcomes",
+    "parent/response",
+    "campaign/experiment_families",
+    "F_b011_s030__NC/experiment_families"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "If the NC-region run under R15_v2 produces terminal tail utility and best_qualified_pic50 statistically indistinguishable from the parent reference run at matched priors and streams, or if the pointwise term fails to form the intended local geometry (boundary attainment below the parent reference), the hypothesis that the NC support is a discriminating region for this operator is not supported. A source-layout score advantage alone would not rescue it.",
+  "hypothesis_id": "F_b011_s030__NC__region_pointwise_V00",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "R15_v2",
+  "predicted_execution_response": "Measured current-program response only: the pointwise term should remain active with nonzero updates and no atom or cumulative clipping (parent shows atom_clip_fraction and cumulative_clip_fraction 0.0, dose_gain_mean 1.0). Because the NC support is a different local point set, expect a different assignment_switch_fraction and target_error trajectory than the parent reference run; the parent reference run reports mean point_rms_A 0.269 and mean target_error 0.269 over 40 active updates. No terminal-affinity gradient is implied by this response.",
+  "predicted_terminal_response": "Unmeasured. The from-zero terminal tail (U_tau, best_qualified_pic50, hit_fraction) for the NC region under R15_v2 is not established by the source layout score, by the historical suffix comparisons, or by the parent reference outcomes (U_tau 0.0189, best_qualified_pic50 8.589, hit_fraction 0.042, n_above_target 0). The prior NC from-zero trial (R03) used a different parent program and reported U_tau 0.0, best_qualified_pic50 8.128, mean_all_pic50 7.663, so it does not forecast this run.",
+  "region_id": "F_b011_s030__NC",
+  "relationship_to_previous_failed_interventions": "Prior region and operator changes on this prior pool were heterogeneous and mostly lower-tail than the reference (pointwise region trials R03, R04, R09_v2, R11_v2, R13_v2; point_band R12_v2, R14_v2; local_moments R05; pocket_distance R07; historical_path R08_v2), and R04, R08_v2, R10_v2, R12_v2, R14_v2 were rolled back. Those are not independent replicates or isolated operator effects. This proposal keeps the parent operator (pointwise) and changes only the region to the untested NC support, which is the registered untested executable action A1742952b31cb; it does not repeat a previously executed numerical function on identical inputs.",
+  "role": "Analyst",
+  "scientific_hypothesis": "Re-targeting the pointwise local Hungarian assignment to the F_b011_s030__NC support (source N22 plus neighbors 6 and 13) changes which local teacher coordinates the robust per-point term pulls toward, without changing operator, dose or controller. The conditional_layout record shows the source N22 site is not uniquely optimal: single legal N exchanges at the same fixed geometry span delta_score from -0.441 (to N8) to +0.207 (to N12), and native_minus_alternate_mean is +0.076 over 10 measured layouts. This is a fixed-geometry label counterfactual, not a generated-outcome effect, so it motivates a bounded from-zero test of whether the NC support yields a different terminal tail than the reference support under the identical parent program.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
