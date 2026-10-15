@@ -1,0 +1,68 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/7bfcd79b45911a6e66798c05ed6bcbfde417d4a50a226039fedda4d032368f63.txt",
+        "content_sha256": "7bfcd79b45911a6e66798c05ed6bcbfde417d4a50a226039fedda4d032368f63",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/04e9b7ede4a62a953cffb98017c851a32d98302552cb81fae43160c42c06b5c8.txt",
+        "content_sha256": "04e9b7ede4a62a953cffb98017c851a32d98302552cb81fae43160c42c06b5c8",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "evidence_and_counterexample": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "expected_response": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "falsifier": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "hypothesis": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "patch_id": {
+        "enum": [
+          "L109"
+        ]
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "hypothesis",
+      "evidence_and_counterexample",
+      "expected_response",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
