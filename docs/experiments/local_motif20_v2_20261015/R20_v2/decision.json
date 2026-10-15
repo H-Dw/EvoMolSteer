@@ -1,0 +1,96 @@
+{
+  "Analyst": {
+    "claim_class": "proposed",
+    "conditioning": "Frozen program R15_v2 on region F_b011_s030__reference: pointwise operator, unit_rms controller, bridge representation, window [0.1,0.5], teacher_time 0.5, assignment_element_cost 0.5, dose native_rms_ratio 0.66 and pointcloud_delta_A 1.0, 20 local atom slots, 6 supplied pocket sites. The frozen function and support are preserved unchanged; no redesign is proposed. The confirmation test is native completion on the configured larger/new prior pool.",
+    "contrast_definition": "Frozen numerical guidance versus no guidance with matched saved priors, random streams, checkpoint and native protocol on the configured larger/new pool. Both remain pocket-conditioned; chemical graphs are free. This is not a numerical intervention versus the frozen parent.",
+    "contrast_kind": "frozen_program_vs_matched_unguided_pool",
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "campaign/experiment_families"
+    ],
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__reference/control_response",
+      "F_b011_s030__reference/experiment_families"
+    ],
+    "evidence_time_domain": [
+      0.0,
+      0.5
+    ],
+    "factor": "frozen_confirmation",
+    "falsifier": "The hypothesis is falsified if, on the configured larger/new pool with matched priors, random streams, checkpoint and native protocol, the frozen program fails to retain its measured execution response (for example near-zero nonzero updates or clipping) or does not meet the frozen tail utility primary with the affinity mean guard relative to the matched unguided pool.",
+    "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+    "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "observable_id": "pointwise",
+    "parent_program_id": "R15_v2",
+    "predicted_execution_response": "Measured parent response is the reference: 40 active and 40 nonzero updates, mean injected RMS about 0.0299 A, mean point RMS about 0.269 A, zero atom and cumulative clipping, assignment-switch fraction mean about 0.0167, and mean current-gradient RMS about 0.0078. On the larger/new pool the same frozen program is expected to produce a comparable nonzero-update and dose profile; this is a measured current-program response, not a terminal-affinity gradient.",
+    "predicted_terminal_response": "On the configured larger/new pool the frozen program is expected to remain at or above the matched unguided pool on the frozen tail utility primary with the affinity mean guard. The existing 24-sample parent outcome (U_tau 0.0189, best qualified pIC50 8.589, mean all pIC50 7.842, hit fraction 0.042, 0 above target) is a prior-pool measurement and is not a forecast for new samples.",
+    "region_id": "F_b011_s030__reference",
+    "relationship_to_previous_failed_interventions": "Prior rollbacks (R04, R08_v2, R10_v2, R12_v2, R14_v2, R17_v2) were heterogeneous interventions on a reused prior pool, not independent replicates or isolated operator effects. The frozen confirmation keeps the exact R15_v2 function and support and changes only the evaluation pool, so it does not repeat those numerical interventions; the cross-condition families remain counterevidence for universal operator or region effects rather than for this frozen-program confirmation.",
+    "role": "Analyst",
+    "scientific_hypothesis": "The frozen pointwise local-assignment guidance, run to native completion on the configured larger/new prior pool, retains its measured execution response and yields terminal affinity at least as good as the matched unguided pool, without requiring any change to the frozen function or support.",
+    "source_layout_implies_generated_benefit": false,
+    "status": "hypothesis",
+    "suffix_absolute_scores_establish_from_zero_benefit": false,
+    "temporal_slope_is_spatial_gradient": false,
+    "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+  },
+  "Designer": {
+    "controlled_atom_slots": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      10,
+      12,
+      13,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "campaign/experiment_families"
+    ],
+    "decision": "execute",
+    "direct_type_force": false,
+    "enabled_terms": [
+      "pointwise"
+    ],
+    "evidence_bundle_hash": "d61a63f1ca5ece06fca8c2375dc39be2f25f12a73d82149a3b2d57d0bdb5bcde",
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__reference/control_response",
+      "F_b011_s030__reference/experiment_families"
+    ],
+    "executed_operator": "pointwise",
+    "falsifier": "The hypothesis is falsified if, on the configured larger/new pool with matched priors, random streams, checkpoint and native protocol, the frozen program fails to retain its measured execution response (for example near-zero nonzero updates or clipping) or does not meet the frozen tail utility primary with the affinity mean guard relative to the matched unguided pool.",
+    "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+    "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "parameter_changes": [],
+    "parameter_source": "All parameters are inherited unchanged from parent program R15_v2: operator pointwise; controller unit_rms; representation bridge; window [0.1, 0.5]; teacher_time 0.5; assignment_element_cost 0.5; dose native_rms_ratio 0.66 and pointcloud_delta_A 1.0; band_multiplier 1.0; base_band_A 0.34907500557366816; 20 local atom slots; 6 supplied pocket sites; steps 100; native_options cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true. No parameter is changed, added, or retuned. The only change relative to the parent measurement is the evaluation pool, which is an evaluation setting rather than a numerical function change.",
+    "predicted_control_response": "On the larger/new pool the same frozen program is expected to produce a comparable nonzero-update and dose profile to the measured parent response: 40 active and 40 nonzero updates, mean injected RMS about 0.0299 A, mean point RMS about 0.269 A, zero atom and cumulative clipping, assignment-switch fraction mean about 0.0167, and mean current-gradient RMS about 0.0078. This is a measured current-program response, not a terminal-affinity gradient. The hypothesis is falsified if, on the configured larger/new pool with matched priors, random streams, checkpoint and native protocol, the frozen program fails to retain its measured execution response (for example near-zero nonzero updates or clipping) or does not meet the frozen tail utility primary with the affinity mean guard relative to the matched unguided pool.",
+    "role": "Designer",
+    "scientific_rationale": "Frozen confirmation of R15_v2 on region F_b011_s030__reference. The hypothesis is a replication, not a redesign: the exact numerical function and support are preserved, so parameter_changes is empty by requirement. The pointwise operator is implemented and derivative-tested: local Hungarian assignment maps generated atom points to observed teacher ligand points (not pocket sites), and the robust per-point distance to those teacher coordinates is the reward, in Angstrom, with no chemical-role or energy assumption. The parent response is measured, not inferred: 40 active and 40 nonzero updates, mean injected RMS about 0.0299 A, mean point RMS about 0.269 A, zero atom and cumulative clipping, assignment-switch fraction mean about 0.0167, and mean current-gradient RMS about 0.0078. This is a measured current-program response, not a terminal-affinity gradient. The existing 24-sample parent outcome (U_tau 0.0189, best qualified pIC50 8.589, mean all pIC50 7.842, hit fraction 0.042, 0 above target) is a prior-pool measurement and is not a forecast for new samples. The confirmation test is native completion on the configured larger/new prior pool against a matched unguided pool with matched saved priors, random streams, checkpoint and native protocol; both remain pocket-conditioned and chemical graphs remain free. Prior rollbacks (R04, R08_v2, R10_v2, R12_v2, R14_v2, R17_v2) were heterogeneous interventions on a reused prior pool, not independent replicates or isolated operator effects, so they are counterevidence for universal operator or region effects rather than for this frozen-program confirmation.",
+    "variant_id": "V00"
+  },
+  "decision_record": "Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.",
+  "interface_status": {
+    "query_count": 2,
+    "status": "execute"
+  }
+}
