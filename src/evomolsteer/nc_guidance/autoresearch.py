@@ -40,6 +40,8 @@ PARAMETER_SEMANTICS={
     'type_confidence_weighting':'Continuously multiply normalized type contribution by detached desired-probability deficit; optimizer weighting, no graph restriction.',
     'patch':'Analyst-local teacher/support/label hypothesis; scalar controller settings stay fixed.',
     'calibration':'Frozen numerical program; no new reward or new source-score promise.'}
+TOOLS=['joint_layout_contrasts','local_role_context','native_retention_evidence','window_lineage_features',
+       'reward_response_probe','matched_counterexamples']
 
 
 def factor_value(p,factor):
@@ -194,14 +196,21 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     short={'type':'string','maxLength':6000,'description':'Keep the explanation concise; refer to evidence rather than repeating every field.'}
     query=call_json([{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
         'task':task,'available_patches':brief,'history':compact_history(state),
-        'tools':['joint_layout_contrasts','local_role_context','native_retention_evidence','window_lineage_features'],
+        'tools':TOOLS,
         'instruction':'Request one registered tool and at most three patch IDs. This is a real deterministic tool lookup.'})}],
-        obj({'tool':{'enum':['joint_layout_contrasts','local_role_context','native_retention_evidence','window_lineage_features']},
+        obj({'tool':{'enum':TOOLS},
              'patch_ids':{'type':'array','items':{'enum':[p['patch_id'] for p in allowed]},'minItems':1,'maxItems':3,'uniqueItems':True},
              'question':short}),folder/'Analyst.tool.json',input_store=repo/master['campaign_study']/'inputs',max_output_tokens=1000,max_format_repairs=2)
     tool_rows=[p for p in allowed if p['patch_id'] in query['patch_ids']]
     tool_result={'tool':query['tool'],'source_hash':digest(repo/master['campaign_study']/'evidence.json'),
         'rows':tool_rows,'limits':evidence['limits'],'context':evidence['context']}
+    from .research_tools import reward_response_probe
+    parent_entry=next((r for r in reversed(state['rounds']) if r.get('program',{}).get('program_id')==parent['program_id']),None)
+    response_folder=repo/(parent_entry['result_folder'] if parent_entry else master['initial_results'])
+    tool_result['measured_parent_response']=reward_response_probe(response_folder)
+    if task['factor']=='patch' or query['tool']=='matched_counterexamples':
+        history=compact_history(state)
+        tool_result['queried_patch_generated_feedback']=[r for r in history if r['patch'] in query['patch_ids']]
     quality_nodes={p['node_id'] for p in tool_rows}|{templates[parent['template_id']]['evidence_origin']}
     tool_result['source_quality']={k:v for k,v in evidence.get('source_quality',{}).items() if k in quality_nodes}
     if query['tool']=='native_retention_evidence':

@@ -2,6 +2,20 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from evomolsteer.io import read_json
+
+
+def reward_response_probe(folder):
+    audit=read_json(Path(folder)/'guidance_audit.json');active=[r for r in audit['steps'] if r['active']]
+    fields=sorted({k for row in active for k,v in row.items() if isinstance(v,(int,float)) and
+        ('rms' in k.lower() or 'cosine' in k or 'clip_fraction' in k or k.startswith('target_'))})
+    values={}
+    for key in fields:
+        x=[r[key] for r in active if isinstance(r.get(key),(int,float))]
+        if x:values[key]={'first':x[0],'last':x[-1],'mean':float(np.mean(x))}
+    return {'actual_program_id':audit['program']['program_id'],'actual_dose':audit['program']['dose'],
+        'enabled_terms':{k:v for k,v in audit['program']['weights'].items() if v>0},'observed_scalars':values,
+        'meaning':'Measured fixed-parent response; no new forward or affinity derivative'}
 
 
 def joint_layout_contrasts(source,patches):
