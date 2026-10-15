@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 0.85,
+      "orientation": 0.0,
+      "type": 0.15
+    },
+    "window": [
+      0.0,
+      0.5
+    ]
+  },
+  "observable_falsifier": "Run the frozen R13 context with the paired swap from the initial state and measure terminal best_qualified_pic50 against the R13_reference 8.378002166748047 and the target 8.704806. If local_NC_identity_accuracy stays near the observed 0.08333333333333333 while best_qualified_pic50 does not exceed the reference, the guidance hypothesis is not supported at this patch. If identity accuracy rises but terminal affinity does not improve, the layout's affinity value remains untested rather than refuted. Two checks are distinct: whether the control formed Analyst's requested local layout, and whether molecules realizing that layout improved terminal affinity; failure of the first does not refute the value of a layout that was never formed. Report final affinity as primary, with validity, failure, strain and actual local N/C response. Do not conflate raw derivative RMS, weighted mixture-input RMS and physical displacement. Limitation: the native-minus-alternate mean is only 0.07634588888888949 over 10 scored layouts, best legal counterfactual targets have not been regenerated or relaxed, and no calibrated physical atom energy or experimentally validated binding gain is available.",
+  "patch_id": "L110",
+  "role": "Designer",
+  "scientific_rationale": "Activating L110 exactly as registered: the frozen R13 proper-subset context (20 atom_slots, half weight 0.85, unit_rms balance) plus the paired two-site N/C relocation on typed_slots 12 and 22 (type weight 0.15, full_ce, window [0.0,0.5], endpoint and orientation disabled). Enabled terms only: (1) the half/geometry term directly constrains the 20 selected context atom_slots; these are context neighbors, not free background, and points outside atom_slots receive no direct geometry loss though model-mediated gradients may still reach them. (2) The type term reads selected decoder N/C log probabilities at slots 12 and 22 only; with type weight 0.15 it is a soft local preference, not a graph freeze, and no other slot has a type loss. The intervention is a joint swap: slot 12 native C -> desired N (N_minus_C = +0.30675144444444413, best_donor A:ASP:175:N at 1.5479965639393328e-06) and slot 22 native N -> desired C (N_minus_C = +0.07634588888888949, best_donor A:VAL:116:N at 0.951096646394086); the compensating C site is part of the declared intervention, not an independent preference. Both sites are neutral degree-two pyridine-type aromatic N / aromatic CH, with pyrrole [nH] and amide N excluded, so the eligible chemistry is a single exchange class; the generated N decoder channel is treated as generic N until final chemical-role checks. The finite N-minus-C contrasts are conditional associations with compensating labels elsewhere, not independent atom energies, and the donor-facing match at slot 12 is a chemical-role geometry proxy only. No orientation term is enabled, so no donor/neighbor orientation energy is claimed; no affinity differentiation, no new-graph fixing, no SMC. The default mode updates current coordinates through real coordinate and atomic-decoder Jacobians; since the execution contract declares no positive atomic_logit_strength, no additional local decoder-logit gradient step is applied. Prior R13/R14/R15/R16 runs of this patch realized local_NC_identity_accuracy 0.08333333333333333, 0.0625, 0.08333333333333333 and 0.08333333333333333, so the controller may again fail to form the requested local identities; that would be a realization failure, not evidence against the affinity value of the unrealized layout. The native-minus-alternate mean here is only 0.07634588888888949 over 10 scored layouts, the smallest spread among supplied candidates, so no TOP-group-specific significance is claimed."
+}
