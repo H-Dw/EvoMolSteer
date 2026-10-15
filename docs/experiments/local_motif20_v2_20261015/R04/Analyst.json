@@ -1,0 +1,36 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Same chemical graph and same restored parent state S0_REFERENCE_REPLAY; region-only change from the parent's 20-slot region to the G17 support [2,3,6,17,21,22] with the parent operator pointwise, parent dose (native_rms_ratio 0.66, pointcloud_delta_A 1.0, max_atom_step_A 0.15, max_cumulative_rms_A 6.0), parent window [0.1,0.5], parent controller unit_rms, and parent native_options. The pointwise operator uses the local Hungarian assignment to observed teacher coordinates and the parent band is not used by pointwise; the G17 same-root controls (n=40, n=36 for N_acceptor) are dependent, not independent molecular repeats, and no same-graph controls exist (n_same_graph=0).",
+  "contrast_definition": "Single-factor region contrast against the selected parent S0_REFERENCE_REPLAY: identical program except region_id, which changes from F_b011_s030__reference to F_b011_s030__G17. The parent's measured from-zero pool is n=24, mean_all_pic50 7.827488899230957, best_qualified_pic50 8.4340238571167, n_qualified 22, hit_fraction 0.041666666666666664, U_tau 0.01245729128519694 at tau 8.135048866271973. The only completed region change in the current campaign is R03 (F_b011_s030__NC, pointwise), which is a different region and therefore is not the matched contrast for this hypothesis.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__G17/regional_context",
+    "F_b011_s030__G06/history",
+    "parent/outcomes",
+    "parent/response"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "The hypothesis is falsified as a region effect if, under the matched parent program with only region_id changed to F_b011_s030__G17, the from-zero pool shows no change in U_tau or best_qualified_pic50 beyond the parent's own pool variation, or if the measured execution response statistics (active_updates, nonzero_updates, assignment_switch_fraction, point_rms_A trajectory, injected_rms_A_mean) are indistinguishable from the parent S0_REFERENCE_REPLAY response. A second falsifier: if the G17 pointwise target_error at the boundary is not lower than the parent's boundary target_error_mean 0.4021669328212738, the proposed local support is not being realized by the intervention. A third falsifier: if the G17 same-root control distances already bracket the candidate distances (the supplied q25_q75 intervals for the six sites), the candidate's apparent regional distinctiveness is within dependent-control variation and the region contrast is not supported.",
+  "hypothesis_id": "H_NC_pocket_distance_band_vs_reference",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured current-program response only, no terminal-affinity gradient: with the parent dose and controller, expect active_updates and nonzero_updates comparable to the parent's 40/40, assignment_switch_fraction near the parent mean 0.0020299146477228557, atom_clip_fraction and cumulative_clip_fraction at 0.0, and point_rms_A decreasing from a first-step value near the parent 0.4021669328212738 toward a last-step value near the parent 0.03942186385393143. Because the G17 support is only 6 slots versus the parent's 20, the local Hungarian assignment is over fewer points and the pointwise error is averaged over 6 matched points; the injected_rms_A_mean should remain near the parent 0.03010709644295275 if the dose path is unchanged. Any deviation of these response statistics from the parent is itself the first discriminating measurement.",
+  "predicted_terminal_response": "Unmeasured and not forecast. The parent pool is n=24 with mean_all_pic50 7.827488899230957, best_qualified_pic50 8.4340238571167, n_qualified 22, hit_fraction 0.041666666666666664, U_tau 0.01245729128519694, and n_above_target 0 against tau 8.135048866271973 and target best 8.704806. The G17 regional context is source terminal chemistry only; its field association is not a proven contact or energy, and the source layout score is not a generated score forecast. The R03 region change (F_b011_s030__NC, pointwise) produced mean_all_pic50 7.662644545237224, best_qualified_pic50 8.127753257751465, n_qualified 24, hit_fraction 0.0, U_tau 0.0, which is a different region and does not predict the G17 outcome.",
+  "region_id": "F_b011_s030__G17",
+  "role": "Analyst",
+  "scientific_hypothesis": "On the same chemical graph and restored parent state, restricting the pointwise coordinate intervention to the G17 local support [2,3,6,17,21,22] will change the terminal from-zero pool relative to the parent pool. The G17 regional context shows the candidate's local point centroid at [23.36428465942542, -31.13391996671756, 12.600626135865847] with principal spreads [0.005602736255428172, 0.43455741247234303, 0.7812520131353592] A, and the untyped spatial contrast ranks the focal descriptor at rank 1.9966012408679175 with bulk-adjusted delta [0.012361181008301081, 0.005589155327801132, -0.013136290416934815, -0.15614251431035175] against 40 same-root controls. This is a geometric, role-conditioned local-support proposal; it is not an interaction energy, not a hydrogen-bond claim, and not a forecast that the source layout score transfers to generated samples.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
