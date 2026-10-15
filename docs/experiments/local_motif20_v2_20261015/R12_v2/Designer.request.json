@@ -1,0 +1,155 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/f0570d228d0cbfe376ff4a4c3b0c505b4ad5359a5c324de19a06bd814ee46062.txt",
+        "content_sha256": "f0570d228d0cbfe376ff4a4c3b0c505b4ad5359a5c324de19a06bd814ee46062",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/e5c692464446d8ac800b1f6a360b011b238a56557977d02e57c49e31a75c9408.txt",
+        "content_sha256": "e5c692464446d8ac800b1f6a360b011b238a56557977d02e57c49e31a75c9408",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "controlled_atom_slots": {
+        "const": [
+          1,
+          6,
+          13,
+          16,
+          19,
+          22
+        ]
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__NO/regional_context",
+            "F_b011_s030__NO/regional_trajectories",
+            "F_b011_s030__NO/control_response",
+            "F_b011_s030__NO/history"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "decision": {
+        "enum": [
+          "execute",
+          "defer"
+        ]
+      },
+      "direct_type_force": {
+        "const": false
+      },
+      "enabled_terms": {
+        "const": [
+          "point_band"
+        ]
+      },
+      "evidence_bundle_hash": {
+        "const": "a26068d4f3905227c7db9fc29f94476fec1053662c6316c05075549107b2de74"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__NO/regional_context",
+            "F_b011_s030__NO/regional_trajectories",
+            "F_b011_s030__NO/control_response",
+            "F_b011_s030__NO/history"
+          ]
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "executed_operator": {
+        "const": "point_band"
+      },
+      "falsifier": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "hypothesis_id": {
+        "const": "H_NO_region_pointwise_from_zero"
+      },
+      "operator_definition": {
+        "const": "Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule."
+      },
+      "parameter_changes": {
+        "enum": [
+          [
+            {
+              "new": "point_band",
+              "parent": "pointwise",
+              "path": "operator"
+            }
+          ]
+        ]
+      },
+      "parameter_source": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "predicted_control_response": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "variant_id": {
+        "enum": [
+          "V00"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "hypothesis_id",
+      "evidence_bundle_hash",
+      "variant_id",
+      "executed_operator",
+      "enabled_terms",
+      "operator_definition",
+      "controlled_atom_slots",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_rationale",
+      "parameter_source",
+      "predicted_control_response",
+      "falsifier",
+      "direct_type_force",
+      "parameter_changes"
+    ],
+    "type": "object"
+  }
+}

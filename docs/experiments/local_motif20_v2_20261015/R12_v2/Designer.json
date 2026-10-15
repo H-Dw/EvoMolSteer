@@ -1,0 +1,44 @@
+{
+  "controlled_atom_slots": [
+    1,
+    6,
+    13,
+    16,
+    19,
+    22
+  ],
+  "counterevidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "parent/outcomes",
+    "F_b011_s030__NO/regional_trajectories"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "point_band"
+  ],
+  "evidence_bundle_hash": "a26068d4f3905227c7db9fc29f94476fec1053662c6316c05075549107b2de74",
+  "evidence_refs": [
+    "F_b011_s030__NO/control_response",
+    "F_b011_s030__NO/regional_context",
+    "F_b011_s030__NO/history",
+    "report/limits"
+  ],
+  "executed_operator": "point_band",
+  "falsifier": "If the point_band arm reproduces R11_v2's terminal metrics within the paired descriptive uncertainty (U_tau 0.0, n_qualified 24, mean_all_pic50 7.6281831463178) while its measured point_rms_A and target_error_mean plateau at the band value, then the band-limited objective adds no terminal information over pointwise on this region and the hypothesis is rejected. A band plateau without any terminal change is the specific falsifying pattern.",
+  "hypothesis_id": "H_NO_region_pointwise_from_zero",
+  "operator_definition": "Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.",
+  "parameter_changes": [
+    {
+      "new": "point_band",
+      "parent": "pointwise",
+      "path": "operator"
+    }
+  ],
+  "parameter_source": "V00 differs from parent R11_v2 only at path operator: parent 'pointwise' -> new 'point_band'. All other fields are inherited unchanged from the parent program: atom_slots [1,6,13,16,19,22], controller unit_rms, dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}, representation bridge, scope local, steps 100, teacher_time 0.5, window [0.1,0.5], band_multiplier 1.0, base_band_A 0.32668022810262165, assignment_element_cost 0.0, affinity_head_gradient false, coordinate_updates_only true, native_options unchanged. The band is read from the existing base_band_A field, so no new tolerance parameter is introduced.",
+  "predicted_control_response": "Measured current-program response only; no terminal-affinity gradient is claimed. Expect active_updates and nonzero_updates comparable to parent R11_v2 (40/40) with no atom or cumulative clipping, since dose and controller are unchanged. Expect point_rms_A and target_error_mean to fall to a nonzero plateau set by base_band_A rather than continuing toward zero as in the parent (parent point_rms_A last 0.03407653048634529, target_error_mean last 0.03407653048634529), and current_gradient_rms_mean to decay faster once points enter the band. Assignment_switch_fraction should remain near zero as in R11_v2.",
+  "role": "Designer",
+  "scientific_rationale": "Single-factor operator swap on the same NO-region support, dose, controller, representation, target_schedule and window as parent R11_v2. The implemented point_band branch computes distance=delta.norm(dim=-1), excess=(distance-band).clamp_min(0), value=-(excess**2).mean(1), so once a matched local point is inside band=band_multiplier*base_band_A=1.0*0.32668022810262165 A the squared-excess term and its coordinate gradient are exactly zero, whereas the parent pointwise pseudo-Huber pull keeps contracting toward exact teacher coordinates. This is a coordinate-only intervention: assignment_element_cost stays 0.0, affinity_head_gradient stays false, and no type, affinity or categorical-logit gradient is introduced. The band value is a proposed calibration (quarter source local covalent-length median), not a proven success tolerance, and the hypothesis is a proposed coordinate effect, not an established affinity rule.",
+  "variant_id": "V00"
+}

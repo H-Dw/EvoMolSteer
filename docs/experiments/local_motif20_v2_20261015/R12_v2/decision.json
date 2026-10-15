@@ -1,0 +1,90 @@
+{
+  "Analyst": {
+    "action_id": "Aba0a0a2bf49b",
+    "claim_class": "proposed",
+    "conditioning": "Parent R11_v2 (region F_b011_s030__NO, pointwise, unit_rms, native_rms_ratio 0.66, window [0.1,0.5], steps 100, teacher_time 0.5, bridge representation, free graph). Single-factor change: operator pointwise -> point_band, keeping region, slots [1,6,13,16,19,22], dose, controller, representation, target_schedule fixed, and base_band_A 0.32668022810262165 as the proposed tolerance. Contrast is from t=0 with matched saved random priors, random streams, checkpoint and native protocol. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5].",
+    "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+    "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+    "counterevidence_refs": [
+      "report/O-intervention",
+      "report/limits",
+      "parent/outcomes",
+      "F_b011_s030__NO/regional_trajectories"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__NO/control_response",
+      "F_b011_s030__NO/regional_context",
+      "F_b011_s030__NO/history",
+      "report/limits"
+    ],
+    "evidence_time_domain": [
+      0.0,
+      0.5
+    ],
+    "factor": "operator",
+    "falsifier": "If the point_band arm reproduces R11_v2's terminal metrics within the paired descriptive uncertainty (U_tau 0.0, n_qualified 24, mean_all_pic50 7.6281831463178) while its measured point_rms_A and target_error_mean plateau at the band value, then the band-limited objective adds no terminal information over pointwise on this region and the hypothesis is rejected. A band plateau without any terminal change is the specific falsifying pattern.",
+    "hypothesis_id": "H_NO_region_pointwise_from_zero",
+    "observable_definition": "Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.",
+    "observable_id": "point_band",
+    "parent_program_id": "R11_v2",
+    "predicted_execution_response": "Measured current-program response only; no terminal-affinity gradient. Expect active_updates and nonzero_updates comparable to R11_v2 (40/40) with no atom or cumulative clipping, since dose and controller are unchanged. Expect point_rms_A and target_error_mean to fall to a nonzero plateau set by base_band_A rather than continuing toward zero, and current_gradient_rms_mean to decay faster once points enter the band. Assignment_switch_fraction should remain near zero as in R11_v2.",
+    "predicted_terminal_response": "Proposed, not measured: terminal mean_all_pic50 and best_qualified_pic50 for the point_band arm relative to R11_v2 (mean_all_pic50 7.6281831463178, best_qualified_pic50 8.12820816040039, U_tau 0.0, n_qualified 24). Direction is not asserted; the discriminating quantity is whether the band-limited arm changes U_tau or the qualified count at fixed region and dose.",
+    "region_id": "F_b011_s030__NO",
+    "role": "Analyst",
+    "scientific_hypothesis": "Replacing the unbounded pointwise pseudo-Huber pull with a band-limited squared-excess objective on the same NO-region support will change the local displacement distribution: matched local points will be driven to within the calibrated tolerance band rather than continuing to contract toward exact teacher coordinates. Because the band removes residual inward force once a point is inside tolerance, the retained local geometry should be less over-contracted at the terminal state, and the terminal affinity mean guard may improve relative to R11_v2 without changing the region or dose.",
+    "source_layout_implies_generated_benefit": false,
+    "status": "hypothesis",
+    "suffix_absolute_scores_establish_from_zero_benefit": false,
+    "temporal_slope_is_spatial_gradient": false,
+    "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+  },
+  "Designer": {
+    "controlled_atom_slots": [
+      1,
+      6,
+      13,
+      16,
+      19,
+      22
+    ],
+    "counterevidence_refs": [
+      "report/O-intervention",
+      "report/limits",
+      "parent/outcomes",
+      "F_b011_s030__NO/regional_trajectories"
+    ],
+    "decision": "execute",
+    "direct_type_force": false,
+    "enabled_terms": [
+      "point_band"
+    ],
+    "evidence_bundle_hash": "a26068d4f3905227c7db9fc29f94476fec1053662c6316c05075549107b2de74",
+    "evidence_refs": [
+      "F_b011_s030__NO/control_response",
+      "F_b011_s030__NO/regional_context",
+      "F_b011_s030__NO/history",
+      "report/limits"
+    ],
+    "executed_operator": "point_band",
+    "falsifier": "If the point_band arm reproduces R11_v2's terminal metrics within the paired descriptive uncertainty (U_tau 0.0, n_qualified 24, mean_all_pic50 7.6281831463178) while its measured point_rms_A and target_error_mean plateau at the band value, then the band-limited objective adds no terminal information over pointwise on this region and the hypothesis is rejected. A band plateau without any terminal change is the specific falsifying pattern.",
+    "hypothesis_id": "H_NO_region_pointwise_from_zero",
+    "operator_definition": "Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.",
+    "parameter_changes": [
+      {
+        "new": "point_band",
+        "parent": "pointwise",
+        "path": "operator"
+      }
+    ],
+    "parameter_source": "V00 differs from parent R11_v2 only at path operator: parent 'pointwise' -> new 'point_band'. All other fields are inherited unchanged from the parent program: atom_slots [1,6,13,16,19,22], controller unit_rms, dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}, representation bridge, scope local, steps 100, teacher_time 0.5, window [0.1,0.5], band_multiplier 1.0, base_band_A 0.32668022810262165, assignment_element_cost 0.0, affinity_head_gradient false, coordinate_updates_only true, native_options unchanged. The band is read from the existing base_band_A field, so no new tolerance parameter is introduced.",
+    "predicted_control_response": "Measured current-program response only; no terminal-affinity gradient is claimed. Expect active_updates and nonzero_updates comparable to parent R11_v2 (40/40) with no atom or cumulative clipping, since dose and controller are unchanged. Expect point_rms_A and target_error_mean to fall to a nonzero plateau set by base_band_A rather than continuing toward zero as in the parent (parent point_rms_A last 0.03407653048634529, target_error_mean last 0.03407653048634529), and current_gradient_rms_mean to decay faster once points enter the band. Assignment_switch_fraction should remain near zero as in R11_v2.",
+    "role": "Designer",
+    "scientific_rationale": "Single-factor operator swap on the same NO-region support, dose, controller, representation, target_schedule and window as parent R11_v2. The implemented point_band branch computes distance=delta.norm(dim=-1), excess=(distance-band).clamp_min(0), value=-(excess**2).mean(1), so once a matched local point is inside band=band_multiplier*base_band_A=1.0*0.32668022810262165 A the squared-excess term and its coordinate gradient are exactly zero, whereas the parent pointwise pseudo-Huber pull keeps contracting toward exact teacher coordinates. This is a coordinate-only intervention: assignment_element_cost stays 0.0, affinity_head_gradient stays false, and no type, affinity or categorical-logit gradient is introduced. The band value is a proposed calibration (quarter source local covalent-length median), not a proven success tolerance, and the hypothesis is a proposed coordinate effect, not an established affinity rule.",
+    "variant_id": "V00"
+  },
+  "decision_record": "Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.",
+  "interface_status": {
+    "query_count": 4,
+    "status": "execute"
+  }
+}
