@@ -55,7 +55,10 @@ def prepare(repo,m):
         t=attach(repo,m,t)
         for r in e['regions']:
             profile=t[r['template_id']]['historical_path']
-            e['cards'][r['region_id']]['historical_path']={k:v for k,v in profile.items() if k not in ('anchor_A','coefficients_A_per_t_power')}
+            local_profile={k:v for k,v in profile.items() if k not in ('anchor_A','coefficients_A_per_t_power')}
+            local_profile['anchor_A']=np.asarray(profile['anchor_A'])[r['atom_slots']].tolist()
+            local_profile['coefficients_A_per_t_power']=np.asarray(profile['coefficients_A_per_t_power'])[:,r['atom_slots']].tolist()
+            e['cards'][r['region_id']]['historical_path']=local_profile
     write_json(study/'shared_evidence_manifest.json',{'evidence_sha256':digest(study/'evidence.json'),
         'trajectory_sha256':digest(study/'trajectory_evidence.json'),'input_code_version':local(repo,['git','rev-parse','HEAD']),
         'corrected_full_state_clone_controls':True,'tool_names':list(e['cards'][next(iter(e['cards']))])})

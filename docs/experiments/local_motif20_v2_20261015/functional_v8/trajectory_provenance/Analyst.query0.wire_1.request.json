@@ -1,0 +1,82 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/70f63feff40dbf4902fa0ddcac3760e8c89d383cde5168791ee3da36789ba734.txt",
+        "content_sha256": "70f63feff40dbf4902fa0ddcac3760e8c89d383cde5168791ee3da36789ba734",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/e82f4d87c80e669b442f8580969c8bde753a829781c9ef1828618567d75fcaf9.txt",
+        "content_sha256": "e82f4d87c80e669b442f8580969c8bde753a829781c9ef1828618567d75fcaf9",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/5f206c658988840f3000ceb8bf1bcce32e7e1b734ede07de9dd4c9444ed1d16c.txt",
+        "content_sha256": "5f206c658988840f3000ceb8bf1bcce32e7e1b734ede07de9dd4c9444ed1d16c",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "historical_path",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}

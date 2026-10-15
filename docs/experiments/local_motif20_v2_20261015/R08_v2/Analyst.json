@@ -1,0 +1,37 @@
+{
+  "action_id": "A24f371910400",
+  "claim_class": "proposed",
+  "conditioning": "From-zero, same saved prior, RNG, checkpoint and native protocol as S0_REFERENCE_REPLAY; single factor target_schedule changed from fixed (teacher_time=0.5) to historical_path with lookahead_fraction default 0.2 over learning_window [0.0,0.5]. Region F_b011_s030__reference, operator pointwise, dose unchanged (native_rms_ratio 0.66, pointcloud_delta_A 1.0), assignment_element_cost 0.0, band_multiplier 1.0. Historical path is a retrospective single-path degree-2 fit (fit_rms_A 0.252, interleaved_prediction_rms_A 0.193) over 51 times; it is a moving-horizon target, not a future-success probability and not a spatial reward gradient.",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/historical_path",
+    "F_b011_s030__reference/control_response",
+    "parent/response",
+    "parent/outcomes"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "target_schedule",
+  "falsifier": "The hypothesis is falsified if, under the matched from-zero protocol, the historical_path variant yields U_tau not lower than the parent's 0.01246 and best_qualified_pic50 not above 8.434, or if its pointwise target_error_mean trajectory is indistinguishable from the parent's within the reported statistics, indicating the moving horizon did not change the effective local coordinate field. It is also falsified if the changed target increases atom_clip_fraction or cumulative_clip_fraction above the parent's 0.0, showing the intervention is dose-limited rather than target-limited.",
+  "hypothesis_id": "H_Fb011s030_pointwise_historical_path_lookahead",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured current-program response only; no terminal-affinity gradient. Expect active_updates and nonzero_updates comparable to the parent (40/40) since dose and controller are unchanged, but a different target_error_mean trajectory: early target_error_mean should be lower than the parent's first value (0.402) because h(t) advances the clock, while late target_error_mean may not converge to the parent's last value (0.039) because the horizon keeps moving. injected_rms_A_mean and native_observed_rms_A_mean should remain in the parent's range (~0.030 and ~0.058) unless the changed target alters the robust-loss curvature.",
+  "predicted_terminal_response": "Unknown and not forecast from source scores. The parent from-zero pool gives U_tau 0.01246, best_qualified_pic50 8.434, mean_all_pic50 7.827, hit_fraction 0.0417, n_qualified 22/24, n_above_target 0. The historical-path variant is expected to be evaluated on the same 24-candidate from-zero pool; a terminal benefit would require U_tau below the parent and best_qualified_pic50 above 8.434, but no such benefit is established by the historical path fit or by any suffix score.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "Replacing the fixed terminal teacher target with the fitted historical-path moving-horizon target (h(t)=min(0.5, t+0.2*0.5)) changes the pointwise robust per-point distance field so that early states are pulled toward intermediate fitted coordinates rather than one fixed later cloud. Two plausible explanations are contrasted: (a) the moving horizon reduces early target_error and injected displacement, letting the parent controller retain a native-like local layout longer, which could improve terminal affinity; (b) the historical path is a single retrospective fit whose intermediate coordinates are not a valid teacher for new priors, so the changed target merely perturbs the trajectory without terminal benefit. The discriminating observable is the measured pointwise target_error_mean and point_rms_A trajectory plus the terminal U_tau and best_qualified_pic50 relative to the parent.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

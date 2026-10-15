@@ -75,7 +75,8 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         'trajectory_provenance':'Historical Steer ancestors and contemporary states only. These curves do not measure the current gradient-guided parent run.',
         'operator_implementation':inspect.getsource(MotifReward.evaluate),
         'matching_contract':'Hungarian maps generated atom points to teacher ligand points, NOT to pocket sites. For pocket_distance, every matched local ligand point is compared to every supplied pocket site. It is geometric, not a role-minimum field or an N-only force.',
-        'target_contract':'bridge uses actual teacher-time coordinates; endpoint uses actual terminal coordinates. Terminal source N/O roles select a region but do not force generated N/O identities.'}
+        'target_contract':'Fixed bridge uses actual teacher-time coordinates; endpoint uses actual terminal coordinates. historical_path bridge instead uses h(t)=min(teacher_time,t+lookahead_fraction*learning_width) with fitted historical coordinates at exactly h(t). It changes horizon AND target as one strategy. Terminal source N/O roles select a region but do not force generated N/O identities.',
+        'target_clock_implementation':inspect.getsource(MotifReward.target_clock)}
     bundle['generation_contract']='Generated chemical graphs remain free. Matching initial input and native protocol does not mean matching or freezing the final graph.'
     bundle['parameter_path_semantics']=FACTOR_SEMANTICS
     query_schema=obj({'action':{'enum':['query','finish']},'requests':{'type':'array','maxItems':2,'items':obj({

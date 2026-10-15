@@ -1,0 +1,14 @@
+{
+  "action": "query",
+  "question": "For region F_b011_s030__reference, what does the historical Steer trajectory record show (clock domain, fitted-coordinate fit error, and path shape) for the historical_path moving-lookahead target, and how does that compare with the supplied measured current-controller response of S0_REFERENCE_REPLAY (40 active/nonzero updates, mean injected RMS ~0.0301 A, mean native observed RMS ~0.0583 A, mean target_error ~0.169 A, zero clipping, assignment_switch_fraction mean ~0.002)? Specifically: (1) does the historical path's fitted coordinates and clock domain support a bridge-representation target h(t)=min(teacher_time, t+lookahead_fraction*width) with teacher_time=0.5 and window [0.1,0.5]; (2) is the historical Steer origin a distinct producing process from the current gradient-guided parent, so that its curves cannot be used to infer current-controller motion; and (3) what is the measured fit error of the historical path targets at the supplied slots, to judge whether a single-factor target_schedule change (fixed vs historical_path) is a discriminating prospective experiment rather than a replication of the same numerical function on identical inputs?",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "regional_trajectories"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "historical_path"
+    }
+  ]
+}

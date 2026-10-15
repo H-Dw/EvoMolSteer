@@ -1,0 +1,14 @@
+{
+  "action": "finish",
+  "question": "For region F_b011_s030__reference, the historical Steer trajectory record (origin: historical_steer_not_current_guidance; domain [0.0,0.5]; retrospective pocket-fixed fields; no cross-molecule atom-slot correspondence) and the historical_path record (degree 2, domain [0.0,0.5], horizon 0.5, n_times 51, fit_rms_A 0.2522, interleaved_prediction_rms_A 0.1927, retrospective single-path coordinate approximation with no affinity model or independent-path validation) are now inspected. These confirm: (1) the historical path's clock domain [0.0,0.5] and horizon 0.5 are compatible with a bridge-representation target h(t)=min(teacher_time, t+lookahead_fraction*width) at teacher_time=0.5 and window [0.1,0.5]; (2) the historical Steer origin is a distinct producing process from the current gradient-guided parent S0_REFERENCE_REPLAY, so its curves cannot be used to infer current-controller motion; and (3) the historical path target fit error is measured (fit_rms_A 0.2522, interleaved_prediction_rms_A 0.1927), which is larger than the current parent's mean target_error ~0.169 A, so a single-factor target_schedule change (fixed vs historical_path) is a discriminating prospective experiment rather than a replication of the same numerical function on identical inputs. No further tool round is needed; the registered evidence supports the planned single-factor target_schedule experiment.",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "regional_trajectories"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "historical_path"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "action_id": "A24f371910400",
+  "claim_class": "proposed",
+  "conditioning": "Region F_b011_s030__reference, local scope, bridge representation, 20-slot local support, window [0.1,0.5], learning_window [0.0,0.5]. Parent S0_REFERENCE_REPLAY uses target_schedule=fixed at teacher_time=0.5 with operator=pointwise, controller=unit_rms, dose.native_rms_ratio=0.66, dose.pointcloud_delta_A=1.0, assignment_element_cost=0.0. The single registered change is target_schedule: fixed -> historical_path (action A24f371910400, variant V00), which per the target_clock_implementation sets h(t)=min(0.5, t+lookahead_fraction*0.5) and replaces the fixed terminal target cloud with fitted historical_path coordinates at h(t). This changes horizon AND target coordinates as one strategy; it is not an isolated clock effect. All other factors held at parent values.",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "parent/response"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/regional_trajectories",
+    "F_b011_s030__reference/historical_path",
+    "parent/response",
+    "parent/outcomes"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "target_schedule",
+  "falsifier": "The hypothesis is falsified as a formable/retained coordinate intervention if, under matched priors, RNG, checkpoint and native protocol, the historical_path run shows no measurable difference from S0_REFERENCE_REPLAY in point_rms_A or target_error trajectory (e.g. identical values within numerical tolerance), or if the moving-horizon target cannot be formed (target_clock raises or h(t)<=t), or if native completion does not retain the changed local geometry. A separate falsifier for any affinity claim: no terminal-affinity improvement attributable to the retained change.",
+  "hypothesis_id": "F_b011_s030__reference__target_schedule_historical_path_pointwise",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured execution response expected: nonzero active updates comparable to the parent's 40; point_rms_A and target_error_mean will differ from the parent's first/last/mean values (0.4022/0.0394/0.1692 A) because the target cloud is now time-varying rather than fixed at teacher_time=0.5; injected_rms_A_mean should remain near the parent's 0.0301 A if dose.native_rms_ratio=0.66 and controller=unit_rms are unchanged; assignment_switch_fraction and clip fractions should be reported and compared to the parent's mean 0.0020 and zero clip.",
+  "predicted_terminal_response": "Unmeasured. No terminal-affinity gradient is available for this intervention; parent_outcomes (n=24, mean_all_pic50=7.8275, best_qualified_pic50=8.4340, hit_fraction=0.0417, U_tau=0.0125) are suffix absolute scores and are not a from-zero treatment effect or a forecast for new samples. Terminal benefit of historical_path is not predicted here.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "Replacing the fixed terminal teacher cloud with a moving-horizon historical-path target (h(t)=min(0.5, t+lookahead_fraction*0.5)) will change the measured pointwise target_error and point_rms_A trajectory of the current guided parent relative to S0_REFERENCE_REPLAY, because the parent's measured target_error_mean falls from 0.4022 to 0.0394 A over 40 active updates while its injected_rms_A_mean stays near 0.0301 A and native_observed_rms_A_mean near 0.0583 A. The historical_path fit (degree 2, fit_rms_A=0.2522, interleaved_prediction_rms_A=0.1927 over 51 times) is a retrospective single-path coordinate approximation, so this hypothesis concerns whether the moving-horizon target is formable and retained, not whether it improves terminal affinity.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
