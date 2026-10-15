@@ -26,11 +26,15 @@ def run(repo,master,source_round):
         'source_API_references':{role:(src/(role+'.json')).relative_to(repo).as_posix() for role in ('Analyst','Designer')},
         'new_LLM_calls':0,'new_reward_proposals':0,'purpose':'Save actual last typed assignment and half-state categorical identities; no parameter search'})
     sha=commit(repo,master,'diagnostic(nc-layout): replay frozen '+source_round+' with boundary identity telemetry')
-    remote=Remote()
-    try:
-        output=repo/master['generated_root']/label
-        if not (output/'COMPLETE.json').exists():output=infer(repo,master,cfg,cfgpath,remote,sha)
-    finally:remote.close()
+    output=repo/master['generated_root']/label
+    if not (output/'COMPLETE.json').exists():
+        write_json(folder/'pending_inference.json',{'inference_commit':sha})
+        remote=Remote()
+        try:output=infer(repo,master,cfg,cfgpath,remote,sha)
+        finally:remote.close()
+    else:
+        previous=folder/'identity_report.json'
+        sha=read_json(previous if previous.exists() else folder/'pending_inference.json')['inference_commit']
     output=output/p['program_id'];old=repo/master['generated_root']/source_round/p['program_id']
     audit=read_json(output/'guidance_audit.json');geometry=read_json(output/'geometry.json')
     original=read_json(old/'geometry.json');a=np.asarray(geometry['terminal']['atomic_indices'])
@@ -42,10 +46,16 @@ def run(repo,master,source_round):
         match=h[:,j]==wanted[j];after=final[:,j]==wanted[j]
         groups.append({'teacher_slot':slot,'desired_element':element,'n':len(h),
             'correct_in_actual_boundary_state':int(match.sum()),'correct_at_final_same_generated_slot':int(after.sum()),
-            'boundary_correct_then_lost':int((match&~after).sum()),'boundary_wrong_then_correct':int((~match&after).sum())})
+            'boundary_correct_then_lost':int((match&~after).sum()),'boundary_wrong_then_correct':int((~match&after).sum()),
+            'retention_among_boundary_correct':float(after[match].mean()) if match.any() else None})
+    joint_half=(h==wanted).all(1);joint_final=(final==wanted).all(1)
+    old_source=read_json(old.parent/'source_audit.json');new_source=read_json(output.parent/'source_audit.json')
+    same_inputs={k:old_source[k]==new_source[k] for k in ['initial_sha256','checkpoint_sha256','upstream_native_sha256','instrumented_sha256']}
     oldrecords=read_json(old/'records.json');newrecords=read_json(output/'records.json')
     result={'source_round':source_round,'diagnostic_only':True,'extra_attempts':len(h),'independent_new_seeds':False,
-        'native_integrator_hparams':read_json(output.parent/'source_audit.json')['native_integrator_hparams'],
+        'native_integrator_hparams':new_source['native_integrator_hparams'],'input_model_and_native_source_matches':same_inputs,
+        'joint_layout':{'n':len(h),'correct_at_boundary':int(joint_half.sum()),'correct_at_final_same_slots':int(joint_final.sum()),
+            'correct_at_boundary_then_lost':int((joint_half&~joint_final).sum())},
         'same_program_bytes':digest(program)==digest(oldprogram),'inference_commit':sha,
         'terminal_coordinate_max_abs_difference_A':float(np.abs(np.asarray(geometry['terminal']['coords_A'])-np.asarray(original['terminal']['coords_A'])).max()),
         'pic50_max_abs_difference':float(max(abs(o['pic50']-n['pic50']) for o,n in zip(oldrecords,newrecords))),
