@@ -151,6 +151,9 @@ def run(repo,cfg):
         if p is not None and p['family']=='actual_partial_two_clock':
             from evomolsteer.partial_search.two_clock import TwoClockControl
             control_type=TwoClockControl
+        if p is not None and p['family']=='local_nc_layout':
+            from evomolsteer.nc_guidance.reward import NCControl
+            control_type=NCControl
         control=control_type(model,p,teacher,com,cfg['teacher_time']);model._half_guidance=control
         output=model._generate(prior,pocket,steps=cfg['steps'],times=[torch.zeros(n,device=device) for _ in range(3)],
             apply_guidance=False,strategy='linear',solver='euler',save_traj=False,coord_noise_level=.2)
@@ -171,7 +174,8 @@ def run(repo,cfg):
             if mol is not None:
                 with gzip.open(out/f'{slot:03d}.sdf.gz','wt') as f:f.write(Chem.MolToMolBlock(mol)+'\n$$$$\n')
         write_json(out/'geometry.json',{'teacher_clock':control.teacher_snapshot,'terminal':{
-            'time':cfg['terminal_time'],'representation':'terminal_world_A','coords_A':output['coords'].tolist(),'mask':output['mask'].bool().tolist()}})
+            'time':cfg['terminal_time'],'representation':'terminal_world_A','coords_A':output['coords'].tolist(),'mask':output['mask'].bool().tolist(),
+            **({'atomic_indices':output['atomics'].argmax(-1).cpu().tolist()} if p is not None and p['family']=='local_nc_layout' else {})}})
         write_json(out/'records.json',records);write_json(out/'guidance_audit.json',{'program':p,'operative_text':text,'steps':control.rows,
             'actual_active_steps':actual,'actual_steps':len(control.rows),'mean_cumulative_control_rms_A':float(control.total.mean()),
             'no_smc':True,'no_affinity_head_gradient':True,'real_generator_vjp':p is not None,'input_pairing':source_audit})

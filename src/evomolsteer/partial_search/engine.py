@@ -112,7 +112,7 @@ def infer(repo,master,cfg,cfg_path,remote,sha):
             raise RuntimeError('Inference worker stopped before completion: '+log)
         if time.time()-started>3600:raise RuntimeError('Inference exceeded one hour; investigate instead of advancing')
         time.sleep(10)
-    local_output=repo/'data/generated/partial_region_search_20261014'/Path(cfg['remote_output']).name
+    local_output=repo/master.get('generated_root','data/generated/partial_region_search_20261014')/Path(cfg['remote_output']).name
     remote.download_tree(cfg['remote_output'],local_output)
     # Preserve complete structures locally; remote retains compact scores, coordinates and audits for reuse.
     for path in local_output.rglob('*.sdf.gz'):
