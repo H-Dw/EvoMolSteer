@@ -1,0 +1,103 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/4129ae39b989b3d25ed39eae9da922195d84643ed1830294dc2fed0f638f87d0.txt",
+        "content_sha256": "4129ae39b989b3d25ed39eae9da922195d84643ed1830294dc2fed0f638f87d0",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/7367ff5851de6936e88b4ad3c27939133b30b6fbaaef71e71714bb8e52651e32.txt",
+        "content_sha256": "7367ff5851de6936e88b4ad3c27939133b30b6fbaaef71e71714bb8e52651e32",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/9698e96bc88193a7a65e141f5471f2d3eb46669d0c7a5b32c7de10eac8513533.txt",
+        "content_sha256": "9698e96bc88193a7a65e141f5471f2d3eb46669d0c7a5b32c7de10eac8513533",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/a35b2bcee757830455ddd6bbd84d487d9ca371e6270a468f3073c4f279a9ee9d.txt",
+        "content_sha256": "a35b2bcee757830455ddd6bbd84d487d9ca371e6270a468f3073c4f279a9ee9d",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/cdc985a9c35099ab10bbec0b7e8ee05d4fe3d08e08f08238a79ef7555de86eb8.txt",
+        "content_sha256": "cdc985a9c35099ab10bbec0b7e8ee05d4fe3d08e08f08238a79ef7555de86eb8",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "execution_contract": {
+        "const": {
+          "anchor_distance_A": 3.0,
+          "anchor_width_A": 0.4,
+          "assignment_endpoint_fraction": 1.0,
+          "assignment_type_cost": 0.0,
+          "dose": {
+            "max_atom_step_A": 0.15,
+            "max_cumulative_rms_A": 6.0,
+            "native_rms_ratio": 0.33,
+            "pointcloud_delta_A": 1.0
+          },
+          "gradient_balance": "unit_rms",
+          "type_mode": "full_ce",
+          "type_ramp": false,
+          "weights": {
+            "endpoint": 0.4,
+            "half": 0.3,
+            "orientation": 0.0,
+            "type": 0.3
+          },
+          "window": [
+            0.1,
+            0.5
+          ]
+        }
+      },
+      "observable_falsifier": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "patch_id": {
+        "const": "L008"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 2800,
+        "type": "string"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "execution_contract",
+      "scientific_rationale",
+      "observable_falsifier"
+    ],
+    "type": "object"
+  }
+}
