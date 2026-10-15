@@ -1,0 +1,16 @@
+{
+  "chosen_factor_value": null,
+  "decision": "activate",
+  "enabled_terms": [
+    "half",
+    "type"
+  ],
+  "expected_execution_change": "Under V00, the parent R05 run should leave the N@12/C@22 layout unrealized: target_N_probability stays near 0.0163 and target_C_probability near 0.0437, with type_gradient_rms near 0.238 and gradient_cosine_type_half near -0.167. Endpoint patch RMS should remain near 0.89 A mean with zero atom and cumulative clipping. Because the type term is not aligned with the half term at this operating point, the relative mixture weights steer direction but the actual dose is separately calibrated by max_atom_step_A and max_cumulative_rms_A; scaling all weights would cancel under normalization, so no such scaling is proposed. The expected measurable response is a generated-parent score distribution consistent with the measured mean 7.678 and best_qualified 8.500, not the source teacher score 8.912224.",
+  "falsifier": "A measured generated-parent outcome at the same R05 operating point in which the N@12/C@22 layout is realized (target_N_probability and target_C_probability both materially above their current means of 0.0163 and 0.0437) while the type and half terms remain as configured would falsify the claim that the current frozen program does not realize the layout. The smallest next discriminating test is to compare the measured generated-parent scores (mean 7.678, best_qualified 8.500) against the source teacher score 8.912224 on the same fixed region, without re-designing the numerical program and without claiming independent discovery; this tests reproduction versus the source input rather than rechecking immutable patch metadata.",
+  "parent_factor_value": null,
+  "patch_id": "L110",
+  "role": "Designer",
+  "scientific_rationale": "The Analyst's frozen-calibration hypothesis is that the R05 operating point (half=0.7, type=0.3, max_atom_step 0.15 A, cumulative RMS 6.0 A, native_rms_ratio 0.66) does not realize the N@12/C@22 exchange layout. The measured parent response supports this: target_N_probability mean 0.0163, target_C_probability mean 0.0437, type_gradient_rms mean 0.238, and gradient_cosine_type_half mean -0.167, indicating the type term weakly opposes the half term rather than reinforcing it. V00 is the only legal variant and is the exact frozen program already measured; it is therefore the correct prospective test of the Analyst's claim, not a re-design. The enabled terms are the positive-weight terms half (0.7) and type (0.3); orientation, endpoint, pair, and role weights are zero and inactive. The source layout_score 8.912224 is a teacher score for the source input and is not a forecast for generated samples; the measured generated-parent scores (mean 7.678, best_qualified 8.500) are the relevant generated references. No affinity derivative is introduced, no particle resampling is used, and no geometric matching is claimed to prove binding.",
+  "source_score_is_generation_forecast": false,
+  "variant_id": "V00"
+}
