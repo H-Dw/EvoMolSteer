@@ -88,8 +88,12 @@ def infer(repo,master,cfg,cfg_path,remote,sha):
     # This workspace belongs exclusively to this sequential campaign. It has no raw trajectories/checkpoints.
     cleanup=f"from pathlib import Path; import shutil; p=Path({runtime!r}).resolve(); root=Path({root!r}).resolve(); assert p.parent==root and p.name=='runtime'; shutil.rmtree(p) if p.exists() else None; p.mkdir(parents=True)"
     archive_paths=['src','scripts/generate_final_region_guidance.py',relative,cfg['study']]
-    shell='\n'.join(['set -eu',f'cd {shlex.quote(REMOTE_REPO)}',
-        f'git -c http.proxy=http://127.0.0.1:{remote.proxy_port} fetch --quiet origin main',
+    # Retry only the idempotent fetch, before removing a runtime or dispatching a
+    # worker. Retrying a whole dispatch could accidentally start two workers.
+    fetch='\n'.join(['task_fetch_ok=0','for task_fetch_attempt in 1 2 3 4','do',
+        f'if timeout 25s git -c http.version=HTTP/1.1 -c http.proxy=http://127.0.0.1:{remote.proxy_port} fetch --quiet origin main',
+        'then','task_fetch_ok=1','break','fi','sleep 2','done','test "$task_fetch_ok" = 1'])
+    shell='\n'.join(['set -eu',f'cd {shlex.quote(REMOTE_REPO)}',fetch,
         'git merge --ff-only --quiet origin/main',f'git cat-file -e {sha}^{{commit}}',
         'python -c '+shlex.quote(cleanup),
         f'git archive {sha} '+' '.join(shlex.quote(p) for p in archive_paths)+f' | tar -x -C {shlex.quote(runtime)}',
