@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 from evomolsteer.io import read_json,write_json,write_table,digest
-from .evaluation import score_records,energy
+from .evaluation import score_records,energy,paired
 from .reward import MotifReward
 from .semantic_contract import identity
 
@@ -69,6 +69,8 @@ def build(repo,config):
             if (folder/'geometry.json').exists():diagnostics.extend(dict(condition=label,**r) for r in elemental_diagnostics(folder,p,t))
         metric_rows.append(row);return row
     reference=state['reference'];rp=reference['program'];templates=read_json(study/'templates.json')
+    programs.append({'condition':'S0_REFERENCE_REPLAY','numerical_signature':identity(rp,templates[rp['template_id']]),'program':rp})
+    counterparts=[('S0_REFERENCE_REPLAY',rp,templates[rp['template_id']],repo/reference['result_folder'])]
     add('S0_REFERENCE_REPLAY',repo/reference['result_folder'],rp,templates[rp['template_id']],iteration=0)
     add('UNGUIDED_b0_n24',repo/m['generated_root']/'S0_REFERENCE_REPLAY/unguided',stage='control')
     for r in state['rounds']:
@@ -90,6 +92,7 @@ def build(repo,config):
         programs.append({'condition':label,'numerical_signature':identity(p,t),'program':p})
         if r.get('result_folder'):
             add(label,repo/r['result_folder'],p,t,r['stage'],r.get('effective_iteration'))
+            if r['stage']=='from_zero':counterparts.append((label,p,t,repo/r['result_folder']))
         for j,trial in enumerate(r.get('trials',[])):
             add(label+'_stream'+str(j),repo/trial['result_folder'],p,t,'suffix',r.get('effective_iteration'))
     # Controls are fixed artifacts, with the same failure denominator as guided.
@@ -105,6 +108,16 @@ def build(repo,config):
         q=read_json(path);quality.append({'condition':path.name.split('.posebusters')[0],**{k:q[k] for k in ['n_attempts','n_evaluated','n_pass_all']}})
     write_table(out/'posebusters_conditions.csv',quality)
     write_json(out/'scientific_decisions.json',decisions);write_json(out/'agent_delivery.json',bindings);write_json(out/'executable_programs.json',programs)
+    matching_effects=[]
+    for label,p,t,folder in counterparts:
+        if not p.get('assignment_element_cost'):continue
+        q=copy.deepcopy(p);q['assignment_element_cost']=0.
+        for other,op,ot,ofolder in counterparts:
+            if op.get('assignment_element_cost') or identity(q,t)!=identity(op,ot):continue
+            matching_effects.append({'condition':label,'zero_cost_counterpart':other,'cost':p['assignment_element_cost'],
+                'n_support':len(p['atom_slots']),'paired':paired(folder,ofolder,tau),
+                'limits':'Retrospective fixed-pool numerical counterpart; not independent validation or a search-adjusted causal test.'})
+    write_json(out/'matching_cost_counterparts.json',matching_effects)
     actual=[]
     for path in (repo/m['generated_root']).glob('*/*/records.json'):
         actual.append({'path':path.relative_to(repo).as_posix(),'n':len(read_json(path)),'sha256':digest(path)})
@@ -158,6 +171,11 @@ def build(repo,config):
         lines+=['','## 附：PoseBusters dock诊断','', '|条件|总尝试|可评估|全部检查通过|','|---|---:|---:|---:|']
         lines+=[f"|{q['condition']}|{q['n_attempts']}|{q['n_evaluated']}|{q['n_pass_all']}|" for q in quality]
         lines+=['','以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。']
+    if matching_effects:
+        lines+=['','## 附：匹配代价的数值对应对照','', '|条件|代价0对照|支持数|元素匹配代价|平均分差|尾部产出差|', '|---|---|---:|---:|---:|---:|']
+        for c in matching_effects:
+            lines.append(f"|{c['condition']}|{c['zero_cost_counterpart']}|{c['n_support']}|{c['cost']}|{c['paired']['mean_difference']:.6f}|{c['paired']['U_difference']:.6f}|")
+        lines+=['','对照必须通过去除匹配代价后的数值签名、初态及原生协议检查；区间保存在matching_cost_counterparts.json。它们仍来自反复使用的调参池，不能作为独立证实。']
     lines+=['','![实际从头生成指标](summary/search_metrics.png)','', '图中的最大值来自不同的小样本池；原始Steer水平线是目标参考，不是等预算显著性比较。']
     (study/'interpretation.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     return value
