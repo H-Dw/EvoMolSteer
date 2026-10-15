@@ -1,0 +1,163 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/f0570d228d0cbfe376ff4a4c3b0c505b4ad5359a5c324de19a06bd814ee46062.txt",
+        "content_sha256": "f0570d228d0cbfe376ff4a4c3b0c505b4ad5359a5c324de19a06bd814ee46062",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/96e67d7c44324402f7e31d3a086fb07e22e904bfb8fec632857ac6e670bc25dd.txt",
+        "content_sha256": "96e67d7c44324402f7e31d3a086fb07e22e904bfb8fec632857ac6e670bc25dd",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/9508ed2730e4bfec218baa01b1dd75cf9fc2d968606ac552b6611b2f2d5263ee.txt",
+        "content_sha256": "9508ed2730e4bfec218baa01b1dd75cf9fc2d968606ac552b6611b2f2d5263ee",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "controlled_atom_slots": {
+        "const": [
+          1,
+          16,
+          18,
+          19
+        ]
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__O/regional_context",
+            "F_b011_s030__NO/regional_trajectories"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "decision": {
+        "enum": [
+          "execute",
+          "defer"
+        ]
+      },
+      "direct_type_force": {
+        "const": false
+      },
+      "enabled_terms": {
+        "const": [
+          "pointwise"
+        ]
+      },
+      "evidence_bundle_hash": {
+        "const": "ffcf13bcae26084bae26343dc10effac34fecbaaf570c4276b6b87f4a912833d"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__O/regional_context",
+            "F_b011_s030__NO/regional_trajectories"
+          ]
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "executed_operator": {
+        "const": "pointwise"
+      },
+      "falsifier": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "hypothesis_id": {
+        "const": "H_O_region_pointwise_dose_ratio_033_from_zero"
+      },
+      "operator_definition": {
+        "const": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption."
+      },
+      "parameter_changes": {
+        "enum": [
+          [
+            {
+              "new": 0.33,
+              "parent": 0.66,
+              "path": "dose.native_rms_ratio"
+            }
+          ],
+          [
+            {
+              "new": 0.99,
+              "parent": 0.66,
+              "path": "dose.native_rms_ratio"
+            }
+          ]
+        ]
+      },
+      "parameter_source": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "predicted_control_response": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "variant_id": {
+        "enum": [
+          "V00",
+          "V01"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "hypothesis_id",
+      "evidence_bundle_hash",
+      "variant_id",
+      "executed_operator",
+      "enabled_terms",
+      "operator_definition",
+      "controlled_atom_slots",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_rationale",
+      "parameter_source",
+      "predicted_control_response",
+      "falsifier",
+      "direct_type_force",
+      "parameter_changes"
+    ],
+    "type": "object"
+  }
+}

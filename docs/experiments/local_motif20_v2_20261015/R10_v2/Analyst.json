@@ -1,0 +1,37 @@
+{
+  "action_id": "A21db3da6ac3e",
+  "claim_class": "proposed",
+  "conditioning": "Same saved prior, RNG streams, checkpoint, native protocol, region F_b011_s030__O, operator pointwise, representation bridge, window [0.1,0.5], steps 100, teacher_time 0.5, controller unit_rms, assignment_element_cost 0.0, dose.pointcloud_delta_A 1.0, band_multiplier 1.0. Only dose.native_rms_ratio changes from 0.66 (R09_v2) to 0.33. Chemical graphs remain free. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5].",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "F_b011_s030__NO/regional_trajectories"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__O/regional_context",
+    "report/O-intervention"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "dose.native_rms_ratio",
+  "falsifier": "The hypothesis is falsified if the native_rms_ratio 0.33 run shows no measurable reduction in injected_rms_A_mean and point_rms_A_mean relative to R09_v2, or if the terminal response is indistinguishable from R09_v2 on the frozen tail utility and affinity guard. It is also falsified if the reduced-dose run produces atom clipping or assignment switching that was absent in R09_v2, indicating the dose change did not act as a clean single-factor intervention.",
+  "hypothesis_id": "H_O_region_pointwise_dose_ratio_033_from_zero",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "R09_v2",
+  "predicted_execution_response": "With native_rms_ratio 0.33, the measured injected_rms_A_mean and requested_rms_A_mean should be approximately half of the R09_v2 values (R09_v2 mean injected_rms_A 0.0295 A, mean requested_rms_A 0.0295 A), with point_rms_A_mean reduced from 0.0516 A and target_error_mean reduced from 0.0516 A. active_updates and nonzero_updates should remain 40 if the window and schedule are unchanged. No atom clipping is expected (R09_v2 atom_clip_fraction and cumulative_clip_fraction were 0.0).",
+  "predicted_terminal_response": "If over-dosing is the limiting factor, the reduced-dose O-region pointwise run should show a terminal response distinguishable from R09_v2 on the frozen tail utility and affinity guard, with mean_all_pic50 and best_qualified_pic50 moving toward or above the S0_REFERENCE_REPLAY parent values (mean_all_pic50 7.8275, best_qualified_pic50 8.4340). If the O-region pointwise geometry is not the limiting factor, the terminal response should remain at or below R09_v2 levels (mean_all_pic50 7.5228, best_qualified_pic50 8.0278, U_tau 0.0, hit_fraction 0.0). This is a proposed expectation, not a forecast; source layout scores are not generated-score forecasts.",
+  "region_id": "F_b011_s030__O",
+  "role": "Analyst",
+  "scientific_hypothesis": "The O-region pointwise intervention at native_rms_ratio 0.66 (R09_v2) produced a measured execution response with mean injected_rms_A 0.0295 A and mean point_rms_A 0.0516 A, but its terminal metrics (mean_all_pic50 7.5228, best_qualified_pic50 8.0278, U_tau 0.0, hit_fraction 0.0) did not exceed the S0_REFERENCE_REPLAY parent (mean_all_pic50 7.8275, best_qualified_pic50 8.4340, U_tau 0.01246, hit_fraction 0.04167). A plausible explanation is that the O-region pointwise displacement is over-dosed relative to the local support, so the retained geometry is not the geometry that would improve terminal affinity. Reducing dose.native_rms_ratio to 0.33 is proposed to test whether a smaller local displacement in the same O region yields a different terminal response. This is a geometric dose hypothesis, not a claim of a physical interaction energy or a proven O reward.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

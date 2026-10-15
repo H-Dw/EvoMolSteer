@@ -1,0 +1,40 @@
+{
+  "controlled_atom_slots": [
+    1,
+    16,
+    18,
+    19
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "F_b011_s030__NO/regional_trajectories"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "pointwise"
+  ],
+  "evidence_bundle_hash": "ffcf13bcae26084bae26343dc10effac34fecbaaf570c4276b6b87f4a912833d",
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__O/regional_context",
+    "report/O-intervention"
+  ],
+  "executed_operator": "pointwise",
+  "falsifier": "Execution-level falsifier: the hypothesis is falsified if the native_rms_ratio 0.33 run shows no measurable reduction in injected_rms_A_mean and point_rms_A_mean relative to R09_v2, or if the terminal response is indistinguishable from R09_v2 on the frozen tail utility and affinity guard. It is also falsified if the reduced-dose run produces atom clipping or assignment switching that was absent in R09_v2, indicating the dose change did not act as a clean single-factor intervention. Terminal consequence: if over-dosing is the limiting factor, the reduced-dose run should move mean_all_pic50 and best_qualified_pic50 toward or above the S0_REFERENCE_REPLAY parent values (7.8275, 8.4340); if the O-region pointwise geometry is not the limiting factor, the terminal response should remain at or below R09_v2 levels (7.5228, 8.0278, U_tau 0.0, hit_fraction 0.0). Improved similarity, role retention, or lower loss alone cannot establish affinity improvement; affinity is evaluated first with structural and energy side effects reported under frozen definitions.",
+  "hypothesis_id": "H_O_region_pointwise_dose_ratio_033_from_zero",
+  "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "parameter_changes": [
+    {
+      "new": 0.33,
+      "parent": 0.66,
+      "path": "dose.native_rms_ratio"
+    }
+  ],
+  "parameter_source": "Parent program R09_v2 supplies all parameters except the single changed path. Changed: dose.native_rms_ratio, parent 0.66, new 0.33 (unitless ratio to native predictive step RMS). Unchanged and inherited from parent: operator pointwise, controller unit_rms, representation bridge, scope local, window [0.1,0.5], steps 100, teacher_time 0.5, target_schedule fixed, base_band_A 0.31779858597860394, band_multiplier 1.0, orientation_band 0.05, orientation_triplets [[1,16,18]], assignment_element_cost 0.0, dose.pointcloud_delta_A 1.0, dose.max_atom_step_A 0.15, dose.max_cumulative_rms_A 6.0, gradient_floor_multiplier 1.0, native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}, smc false, coordinate_updates_only true, affinity_head_gradient false, expected_active_steps 10..49. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5].",
+  "predicted_control_response": "With native_rms_ratio 0.33, measured injected_rms_A_mean and requested_rms_A_mean should be approximately half of the R09_v2 values (R09_v2 mean injected_rms_A 0.0295 A, mean requested_rms_A 0.0295 A), with point_rms_A_mean and target_error_mean reduced from 0.0516 A. active_updates and nonzero_updates should remain 40 if the window and schedule are unchanged. No atom clipping is expected (R09_v2 atom_clip_fraction and cumulative_clip_fraction were 0.0). This is a proposed expectation, not a forecast.",
+  "role": "Designer",
+  "scientific_rationale": "Analyst hypothesis H_O_region_pointwise_dose_ratio_033_from_zero is bound to the implemented pointwise operator on region F_b011_s030__O (slots [1,16,18,19], native elements C,O,C,O). The parent R09_v2 measured a real execution response (mean injected_rms_A 0.0295 A, mean point_rms_A 0.0516 A, active_updates 40, zero clipping) but its terminal metrics (mean_all_pic50 7.5228, best_qualified_pic50 8.0278, U_tau 0.0, hit_fraction 0.0) did not exceed the S0_REFERENCE_REPLAY parent (mean_all_pic50 7.8275, best_qualified_pic50 8.4340, U_tau 0.01246, hit_fraction 0.04167). The proposed single-factor change is dose.native_rms_ratio 0.66 -> 0.33, which per parameter_path_semantics scales physical displacement RMS relative to the native predictive step without changing robust-loss curvature. This is a geometric dose hypothesis, not a claim of a physical interaction energy or a proven O reward; report/O-intervention records that O-only carboxyl torsion interventions were not significant and that source layout scores are not generated-score forecasts. The operator is the smallest implemented term that can test the hypothesis; no pocket-distance, orientation, pair-distance, local_moments, type, affinity-head, or categorical-logit term is enabled.",
+  "variant_id": "V00"
+}
