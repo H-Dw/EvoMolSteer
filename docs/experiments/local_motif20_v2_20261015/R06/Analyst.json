@@ -1,0 +1,36 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Same candidate F_b011_s030, same region F_b011_s030__reference, same representation bridge, same window [0.1,0.5], same dose (native_rms_ratio 0.66, pointcloud_delta_A 1.0, max_atom_step_A 0.15, max_cumulative_rms_A 6.0), same controller unit_rms, same atom_slots and orientation_triplets, same pocket_sites. Only the operator differs: pointwise (parent S0_REFERENCE_REPLAY) versus local_moments (R05). Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. Historical Steer ancestor curves in F_b011_s030__NC/regional_trajectories describe teacher ancestry, not the current guided parent.",
+  "contrast_definition": "Single-factor operator swap against the selected parent S0_REFERENCE_REPLAY at fixed region, representation, dose, controller, window and slots. Parent pointwise measured response: 40 active/40 nonzero updates, mean point_rms_A 0.16917911237105726, mean target_error 0.16917911237105726, mean assignment_switch_fraction 0.0020299146477228557, zero atom and cumulative clipping. R05 local_moments measured response: 40 active/40 nonzero updates, mean point_rms_A 0.32879848033189774, mean target_error 0.059460436925292015, mean assignment_switch_fraction 0.012873932325209562, zero clipping. Parent terminal pool: n=24, n_qualified=22, mean_all_pic50 7.827488899230957, best_qualified_pic50 8.4340238571167, U_tau 0.01245729128519694, hit_fraction 0.041666666666666664. R05 terminal pool: n=24, n_qualified=24, mean_all_pic50 7.681791722774506, best_qualified_pic50 8.049042701721191, U_tau 0.0, hit_fraction 0.0.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__NC/regional_trajectories"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "operator",
+  "falsifier": "The hypothesis that the operator swap is the discriminating cause is falsified if, at matched region, representation, dose, controller, window and slots, the local_moments run does not reproduce the target_error reduction relative to pointwise, or if the terminal pool difference disappears when assignment_switch_fraction is matched. The claim that local_moments improves terminal affinity is falsified by the already-measured R05 pool being no better than the parent on mean_all_pic50, best_qualified_pic50, U_tau and hit_fraction.",
+  "hypothesis_id": "F_b011_s030__reference__local_moments_vs_pointwise",
+  "observable_definition": "Implemented and derivative-tested: squared local centroid displacement plus Frobenius covariance mismatch divided by source covariance trace (both A squared). Targets collective local shape, without individual-point-distance force; no elemental force or band parameter.",
+  "observable_id": "local_moments",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "If the operator is the active cause, R05 should continue to show lower mean target_error and higher mean point_rms_A than the parent at matched dose, with assignment_switch_fraction elevated relative to the parent. If correspondence churn is the cause, the target_error advantage should shrink or vanish when assignment_switch_fraction is held near the parent level.",
+  "predicted_terminal_response": "No terminal benefit is forecast. The measured R05 pool is worse than the parent on mean_all_pic50 (7.6818 vs 7.8275), best_qualified_pic50 (8.0490 vs 8.4340), U_tau (0.0 vs 0.0125) and hit_fraction (0.0 vs 0.0417), with n_qualified 24 vs 22. A successful intermediate geometry match is not the primary outcome, and the source layout score is not a generated-score forecast.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "Replacing the per-point Hungarian pointwise distance with a collective local-shape observable (centroid displacement plus covariance mismatch) changes the geometry the controller can form: it lowers the mean target_error (0.0595 vs 0.1692) while raising mean point_rms_A (0.3288 vs 0.1692), i.e. it trades individual-point proximity for collective local shape. The competing explanation is that the observed terminal difference is not attributable to the operator at all but to the higher assignment_switch_fraction (0.0129 vs 0.0020) and the resulting correspondence churn, which would make the operator label incidental. A third explanation is that neither geometry difference propagates to terminal affinity, so the terminal pool difference is sampling noise in a 24-molecule pool.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
