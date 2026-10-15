@@ -16,5 +16,6 @@
 |R12|type_ramp|designer_deferred|None|None|None/None|None|False|
 |R13|patch|completed|7.7245555718739825|8.129748344421387|22/24|0.1566564440727234|False|
 |R14|weights.pair|completed|7.724187870820363|8.124134063720703|22/24|0.156288743019104|True|
+|R15|type_confidence_weighting|completed|7.730355262756348|8.123395919799805|22/24|0.1624561349550883|False|
 
-活动最佳：R02；目标8.704806。全部为预测分数。确认结果与预算/谱系不同的历史Steer分开解释。
+活动最佳：R11；目标8.704806。全部为预测分数。确认结果与预算/谱系不同的历史Steer分开解释。
