@@ -5,14 +5,38 @@ import hashlib
 import json
 import numpy as np
 import pandas as pd
+from scipy.optimize import linear_sum_assignment
 from evomolsteer.io import read_json,write_json,write_table,digest
 from evomolsteer.partial_search.report import api_audit
+
+
+def final_tracked_roles(folder,program,audit):
+    from rdkit import Chem
+    geometry=read_json(folder/'geometry.json');xyz=np.asarray(geometry['terminal']['coords_A'])
+    boundary=next(r for r in audit['steps'] if 'boundary_typed_generated_slots' in r)
+    ids=np.asarray(boundary['boundary_typed_generated_slots']);rows=[];records=read_json(folder/'records.json')
+    for sample,x in enumerate(xyz):
+        if not records[sample]['valid_connected']:continue
+        path=folder/f'{sample:03d}.sdf.gz'
+        if not path.exists():continue
+        with gzip.open(path,'rt') as f:mol=Chem.MolFromMolBlock(f.read().split('$$$$')[0],sanitize=True,removeHs=False)
+        if mol is None or mol.GetNumAtoms()!=len(x):continue
+        coordinates=mol.GetConformer().GetPositions();cost=((x[:,None]-coordinates[None])**2).sum(-1)
+        rr,cc=linear_sum_assignment(cost)
+        if np.sqrt(cost[rr,cc].max())>.01:continue
+        lookup=dict(zip(rr,cc))
+        for j,element in enumerate(program['typed_elements']):
+            if element!='N':continue
+            atom=mol.GetAtomWithIdx(int(lookup[ids[sample,j]]))
+            rows.append({'sample':sample,'teacher_slot':program['typed_slots'][j],'actual_N':atom.GetSymbol()=='N',
+                'pyridine_role_proxy':atom.GetSymbol()=='N' and atom.GetIsAromatic() and atom.GetFormalCharge()==0 and atom.GetDegree()==2 and atom.GetTotalNumHs()==0})
+    return rows
 
 
 def report(repo,master):
     repo=Path(repo);study=repo/master['campaign_study'];state=read_json(study/'state.json');out=study/'summary'
     rows=[];deliveries=[];best_sample=None;attempts=0
-    protocol_effects=[]
+    protocol_effects=[];role_rows=[]
     for entry in state['rounds']:
         label=entry['round'];folder=repo/entry.get('study',master['campaign_study']+'/'+label)
         cfg_path=repo/master['config_dir']/(label+'.json')
@@ -34,6 +58,8 @@ def report(repo,master):
             attempts+=entry.get('additional_attempts',0)
             expected=sorted(k for k,w in p['weights'].items() if w>0)
             masks=read_json(data/'geometry.json')['teacher_clock']['mask']
+            roles=final_tracked_roles(data,p,a)
+            role_rows.extend([{'round':label,**r} for r in roles])
             item.update(executed_terms=expected,positive_term_binding=designer.get('enabled_terms',expected)==expected,
                         proper_subset=len(p['atom_slots'])<min(sum(m) for m in masks),actual_steps=a['actual_steps'],actual_active_steps=a['actual_active_steps'],
                         real_generator_vjp=a['real_generator_vjp'],no_smc=a['no_smc'],no_affinity_gradient=a['no_affinity_head_gradient'])
@@ -50,6 +76,8 @@ def report(repo,master):
                 'mean_type_half_cosine':float(np.mean([r['gradient_cosine_type_half'] for r in active if 'gradient_cosine_type_half' in r])) if any('gradient_cosine_type_half' in r for r in active) else None,
                 'mean_atom_clip_fraction':float(np.mean([r.get('atom_clip_fraction',0) for r in active])),
                 'rollback':entry['rollback'],'inference_commit':entry['inference_commit']})
+            rows[-1].update(final_tracked_N_role_coverage=len(roles),
+                final_tracked_N_role_fraction=float(np.mean([r['pyridine_role_proxy'] for r in roles])) if roles else None)
             if entry['factor'].startswith('native_options.'):
                 parent_id=read_json(folder/'proposal.json')['parent']['program_id']
                 old=next((r for r in state['rounds'] if r.get('program',{}).get('program_id')==parent_id),None)
@@ -62,6 +90,7 @@ def report(repo,master):
         deliveries.append(item)
     table=write_table(out/'detailed_rounds.csv',rows);write_json(out/'delivery_checks.json',deliveries)
     write_json(out/'native_protocol_interactions.json',protocol_effects)
+    pd.DataFrame(role_rows).to_parquet(out/'final_tracked_role_checks.parquet',index=False,compression=None)
     actual=list((repo/master['generated_root']).glob('*/*/records.json'))
     write_json(out/'result.json',{'completed_decisions':len(state['rounds']),'best_activity_round':state['best_round'],
         'best_tail_round':state.get('tail_round'),'best_sample':best_sample,'generated_condition_attempts':sum(len(read_json(p)) for p in actual),
