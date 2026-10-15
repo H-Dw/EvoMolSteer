@@ -1,0 +1,9 @@
+{
+  "patch_ids": [
+    "L109",
+    "A12",
+    "A08"
+  ],
+  "question": "Reduce local geometric context while preserving native labels (C12, N22), chemical-role neighbors, and free surrounding adaptation. Compare L109 (20 pts), A12 (12 pts), A08 (8 pts) — all share template F_b011_s030_native and source_score 8.704859, so the only varying factor is the number of local points retained. I need local_role_context to check which patch keeps the C12/N22 native labels and their chemical-role neighbors intact as the point count shrinks, since N count or donor proximity alone is insufficient and a generic N decoder channel does not establish pyridine chemistry. Falsifier: if the smallest patch (A08) drops the C12/N22 role neighbors or loses native label support, then context reduction is not label-preserving and A12 or L109 is the better choice. Smallest discriminating test: query local_role_context on these three patches and compare supported roles and neighbor composition at each point count.",
+  "tool": "local_role_context"
+}
