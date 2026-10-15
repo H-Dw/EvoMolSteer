@@ -1,0 +1,40 @@
+{
+  "action_id": "A1e0a5f8591cd",
+  "claim_class": "proposed",
+  "conditioning": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; single factor change is region only, keeping the parent operator pointwise, representation bridge, window [0.1,0.5], dose and controller unchanged. Region F_b011_s030__N22 selects the native N22 site (atom_index 22, aromatic N, acceptor, degree 2) as the local support anchor; the support list also includes aromatic carbons 0,3,6,13 and donor N17. Pocket fields and distances are source terminal chemistry associations, not proven contacts or energies. Historical trajectory fits are retrospective pocket-fixed fields over the complete learning window and do not measure the current gradient-guided parent.",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__N22/conditional_layout"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__N22/regional_context",
+    "F_b011_s030__N22/conditional_layout",
+    "F_b011_s030__N22/regional_trajectories",
+    "F_b011_s030__N22/control_response",
+    "parent/response",
+    "parent/outcomes"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "If the N22-region pointwise run yields terminal metrics no better than the parent (U_tau <= 0.01246 and best_qualified_pic50 <= 8.434) while execution response shows the expected nonzero updates and assignment changes, the hypothesis that N22 re-anchoring improves terminal affinity is falsified. If execution response shows zero active updates or no assignment change, the region change did not form the intended observable and the test is uninformative rather than supportive.",
+  "hypothesis_id": "H_N22_region_pointwise_fromzero",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "The pointwise operator will produce nonzero active updates with local assignment switches and per-point RMS comparable to the parent response (parent mean point_rms_A 0.169, injected_rms_A_mean 0.0301, active_updates 40). Because only the region changes, the assignment cost and dose are unchanged; expect assignment_switch_fraction and target_error to differ from the parent in the N22 support, with no atom clipping (parent atom_clip_fraction 0.0).",
+  "predicted_terminal_response": "Terminal affinity is not forecast from the source layout score. The test will report U_tau, best_qualified_pic50, hit_fraction and mean_all_pic50 for the N22 region and compare them with the parent outcomes (U_tau 0.01246, best_qualified_pic50 8.434, hit_fraction 0.0417, mean_all_pic50 7.827). Any improvement is a measured from-zero effect, not a guarantee.",
+  "region_id": "F_b011_s030__N22",
+  "role": "Analyst",
+  "scientific_hypothesis": "Re-anchoring the local pointwise support to the native N22 region (F_b011_s030__N22) rather than the reference region will change the local Hungarian assignment and per-point distance trajectory in a measurable way, and may improve terminal affinity relative to the parent, because the N22 site is the native terminal N position and the regional context shows candidate distances to pocket O/N acceptors that differ from same-root controls. This is a geometric hypothesis only; it does not assert an interaction energy, a hydrogen-bond role, or that the source layout score forecasts generated outcomes.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

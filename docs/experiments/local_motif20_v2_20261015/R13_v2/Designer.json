@@ -1,0 +1,78 @@
+{
+  "controlled_atom_slots": [
+    0,
+    3,
+    6,
+    13,
+    17,
+    22
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__N22/conditional_layout"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "pointwise"
+  ],
+  "evidence_bundle_hash": "82a6b85cd9de54bce2d113c7d5d888696c319e8447f2c861afe6435cc77b1346",
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__N22/regional_context",
+    "F_b011_s030__N22/conditional_layout",
+    "F_b011_s030__N22/regional_trajectories",
+    "F_b011_s030__N22/control_response"
+  ],
+  "executed_operator": "pointwise",
+  "falsifier": "Control-level falsifier: if the N22-region pointwise run shows zero active updates or no assignment change relative to the parent, the region change did not form the intended observable and the test is uninformative rather than supportive. Terminal falsifier: if the N22-region run yields terminal metrics no better than the parent (U_tau <= 0.01245729128519694 and best_qualified_pic50 <= 8.4340238571167) while execution response shows the expected nonzero updates and assignment changes, the hypothesis that N22 re-anchoring improves terminal affinity is falsified. Improved similarity, role retention, or lower loss alone cannot establish affinity improvement; affinity is evaluated first and structural and energy side effects are reported using the frozen definitions.",
+  "hypothesis_id": "H_N22_region_pointwise_fromzero",
+  "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "parameter_changes": [
+    {
+      "new": "F_b011_s030__N22",
+      "parent": "F_b011_s030__reference",
+      "path": "region_id"
+    },
+    {
+      "new": [
+        0,
+        3,
+        6,
+        13,
+        17,
+        22
+      ],
+      "parent": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6,
+        7,
+        10,
+        12,
+        13,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "path": "atom_slots"
+    }
+  ],
+  "parameter_source": "Parent program S0_REFERENCE_REPLAY supplies operator pointwise, representation bridge, scope local, steps 100, teacher_time 0.5, window [0.1,0.5], controller unit_rms, coordinate_updates_only true, dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}, gradient_floor_multiplier 1.0, assignment_element_cost 0.0, band_multiplier 1.0, orientation_band 0.05, native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}, expected_active_steps 10-49. Variant V00 changes exactly two paths: region_id F_b011_s030__reference -> F_b011_s030__N22, and atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] -> [0,3,6,13,17,22]. base_band_A changes only as a consequence of the region's proposed calibration (0.34907500557366816 -> 0.3478160934503709, quarter source local covalent-length median), not as an independent dose change. No new operator, no affinity-head gradient, no categorical-logit control, no particle resampling, no per-step affinity inference.",
+  "predicted_control_response": "Because only the region changes, the pointwise operator should remain active with nonzero updates and no atom clipping (parent atom_clip_fraction mean 0.0). Expect assignment_switch_fraction and target_error to differ from the parent in the N22 support, with point_rms_A and injected_rms_A_mean of comparable order to the parent response (parent point_rms_A mean 0.16917911237105726, injected_rms_A_mean mean 0.03010709644295275, active_updates 40, nonzero_updates 40). The parent response is a measured current-program response and is not a terminal-affinity gradient. Terminal affinity is not forecast from the source layout score; the test will report U_tau, best_qualified_pic50, hit_fraction and mean_all_pic50 for the N22 region against parent outcomes (U_tau 0.01245729128519694, best_qualified_pic50 8.4340238571167, hit_fraction 0.041666666666666664, mean_all_pic50 7.827488899230957, n 24). Any improvement is a measured from-zero effect, not a guarantee.",
+  "role": "Designer",
+  "scientific_rationale": "Single-factor from-zero contrast: only region_id and atom_slots change relative to parent S0_REFERENCE_REPLAY; operator stays pointwise, representation stays bridge, window [0.1,0.5], dose, controller unit_rms, assignment_element_cost 0.0, band_multiplier 1.0, orientation_band 0.05, native_options and steps 100 are unchanged. The N22 region selects native N22 (atom_index 22, aromatic N, acceptor, degree 2) plus aromatic carbons 0,3,6,13 and donor N17 as the local support anchor; the Hungarian assignment maps generated points to teacher ligand points, not to pocket sites, so no role or energy is asserted. Regional context shows candidate distances to pocket O/N acceptors that differ from same-root controls, and conditional_layout reports native_score 8.704859 with native_minus_alternate_mean 0.07634588888888949 over 10 measured layouts, but n_identifiable_interactions is 0 and the layout is a fixed-geometry source input, not a generated-outcome forecast. Historical trajectory fits are retrospective pocket-fixed fields over the complete learning window and do not measure the current gradient-guided parent; temporal slopes are not spatial gradients. The hypothesis is geometric only: re-anchoring the local pointwise support to the N22 region should change the local Hungarian assignment and per-point distance trajectory, and may improve terminal affinity relative to the parent.",
+  "variant_id": "V00"
+}
