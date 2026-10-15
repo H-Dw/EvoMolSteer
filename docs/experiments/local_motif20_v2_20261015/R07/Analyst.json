@@ -1,0 +1,35 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Same restored parent S0_REFERENCE_REPLAY, same region F_b011_s030__reference, same window [0.1,0.5], same dose (native_rms_ratio 0.66, pointcloud_delta_A 1.0, max_atom_step_A 0.15, max_cumulative_rms_A 6.0), same native_options. Only the operator changes from pointwise to pocket_distance. The reference history records the parent program's own prior rounds on this region; those are historical selection curves describing teacher ancestry, not the current guided parent, and are used only to motivate the observable.",
+  "contrast_definition": "Single-factor contrast: S0_REFERENCE_REPLAY with operator=pointwise on region F_b011_s030__reference (R05/R06 from-zero: mean_all_pic50 7.681791722774506, best_qualified_pic50 8.049042701721191, U_tau 0.0, hit_fraction 0.0, n_qualified 24) versus the same parent and region with operator=pocket_distance. The suffix R01 pocket_distance run on the reference region is a same-restored-state mechanistic comparison only and its absolute suffix scores are not comparable to from-zero pools.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "parent/outcomes"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/history",
+    "parent/response"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "operator",
+  "falsifier": "The hypothesis is falsified if, under the same parent, region, window, and dose, operator=pocket_distance yields (a) zero or near-zero nonzero_updates, or (b) final attainment below the pointwise R05/R06 value of 0.0 while native_element_fraction does not increase, or (c) point_rms_A exceeding the pointwise run by more than the band tolerance with no compensating retention gain. A result indistinguishable from pointwise on all measured execution and terminal observables would also falsify the claim that the reference region's pocket-site structure is captured by pocket_distance.",
+  "hypothesis_id": "H_reference_pocket_distance_band_multiplier_retention",
+  "observable_definition": "Implemented and derivative-tested: local selected-point distances to fixed pocket sites, compared with source distances within a proposed tolerance. Uses provided coordinates, NOT an interaction energy or established H bond.",
+  "observable_id": "pocket_distance",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "With operator=pocket_distance on F_b011_s030__reference, the measured current-program response should show nonzero active_updates and nonzero_updates comparable to the pointwise R05/R06 runs, with target_error decreasing over the window and point_rms_A not exceeding the pointwise run by more than the band tolerance. The pocket-distance excess error should be driven by the local support's proximity to the supplied pocket sites.",
+  "predicted_terminal_response": "Terminal response is unmeasured for this contrast. If the geometric hypothesis is correct, the pocket_distance run should show final attainment and native_element_fraction at least as high as the pointwise R05/R06 run (final attainment 0.0, native_element_fraction 0.84375) without reducing n_qualified below 24. No terminal affinity improvement is predicted or claimed; source layout scores are not forecasts for generated samples.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "On region F_b011_s030__reference, the parent program's own history shows that pointwise and local_moments operators both fail to reach the target (U_tau 0.0, hit_fraction 0.0, n_above_target 0) while the reference region retains high native_element_fraction at final (0.84375 for local_moments, 0.9 for the suffix pointwise runs). The reference region contains the six supplied pocket sites (A:VAL:116:N, A:ASP:175:N, A:LYS:68:NZ, A:GLU:114:O, A:VAL:116:O, A:HIS:160:NE2). A pocket_distance observable on the same local support should therefore produce a different execution response than pointwise, because it explicitly compares matched local ligand points to those fixed pocket coordinates within a tolerance band rather than to teacher coordinates alone. This is a geometric hypothesis about coordinate intervention, not a claim of interaction energy or of terminal affinity benefit.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
