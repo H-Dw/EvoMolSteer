@@ -1,0 +1,14 @@
+{
+  "action": "query",
+  "question": "Frozen confirmation of program R15_v2 (candidate F_b011_s030, region F_b011_s030__reference, operator pointwise, controller unit_rms, representation bridge, window [0.1,0.5], teacher_time 0.5, assignment_element_cost 0.5, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0). I am not redesigning reward and will preserve this exact numerical program. I need to document the measured parent-controller response and the matched experiment-family context for this configuration. Specifically: (1) from control_response, the measured current-program response statistics for R15_v2 (active/nonzero updates, injected vs native observed/predictive/random RMS, point RMS, target error, assignment-switch and clip fractions) so I can state the observed execution response without attributing a terminal-affinity gradient; (2) from experiment_families, the pointwise/fixed trials on F_b011_s030__reference and the R15_v2 assignment_element_cost trial, with their mean_delta_vs_reference, tail_delta_vs_reference, boundary/final attainment, mean_point_rms_A and native_element_fraction, so I can report the conditional contrast (frozen program vs matched unguided pool) and note that these are heterogeneous interventions on a reused prior pool, not independent replicates. I will treat source layout score as not a generated-score forecast, keep geometry and native elemental identity separate, and mark any unmeasured link (formation, retention, terminal-affinity benefit) as unmeasured.",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "control_response"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "experiment_families"
+    }
+  ]
+}

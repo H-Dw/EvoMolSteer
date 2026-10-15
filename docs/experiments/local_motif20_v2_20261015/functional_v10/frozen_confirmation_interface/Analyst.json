@@ -1,0 +1,38 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Frozen R15_v2 program on region F_b011_s030__reference: pointwise operator, unit_rms controller, bridge representation, window [0.1,0.5], teacher_time 0.5, assignment_element_cost 0.5, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, band_multiplier 1.0, 20 atom slots, 6 pocket sites, coordinate_updates_only true, affinity_head_gradient false. Confirmation is native completion on the configured larger/new prior pool; the matched unguided pool shares saved priors, random streams, checkpoint and native protocol.",
+  "contrast_definition": "Frozen numerical guidance versus no guidance with matched saved priors, random streams, checkpoint and native protocol on the configured larger/new pool. Both remain pocket-conditioned; chemical graphs are free. This is not a numerical intervention versus the frozen parent.",
+  "contrast_kind": "frozen_program_vs_matched_unguided_pool",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "campaign/experiment_families"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/experiment_families"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "frozen_confirmation",
+  "falsifier": "The hypothesis is falsified for this confirmation if, on the matched larger/new pool, the frozen program's execution response departs from the measured signature (for example clipping becomes nonzero, dose_gain_mean departs from 1.0, or updates become zero) or if the terminal tail-utility difference versus the matched unguided pool is not distinguishable from zero. Either outcome is a measured result and does not license redesign of the frozen function or support.",
+  "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "R15_v2",
+  "predicted_execution_response": "Expect the frozen program to reproduce its measured response signature: 40 active and 40 nonzero updates, injected_rms_A_mean near 0.0299 A, atom_clip_fraction and cumulative_clip_fraction at 0.0, dose_gain_mean 1.0, and assignment_switch_fraction in the low single-digit percent range (mean 0.0167). Any deviation in these quantities on the new pool is itself a measured result, not evidence of a capability gap.",
+  "predicted_terminal_response": "Terminal response is unmeasured for this confirmation. The parent R15_v2 pool gives U_tau 0.0189, best_qualified_pic50 8.5888, mean_all_pic50 7.8421, hit_fraction 0.0417, n_above_target 0, n_qualified 23 of 24 scored; these are parent-pool outcomes and are not a forecast for the new pool. The confirmation reports the matched-pool terminal difference without asserting a positive effect.",
+  "region_id": "F_b011_s030__reference",
+  "relationship_to_previous_failed_interventions": "Prior rounds are heterogeneous interventions on a reused prior pool, not independent replicates or isolated operator effects. The pointwise family shows 10 of 11 conditions with lower tail than reference, and point_band, pocket_distance and local_moments each show lower tail in their recorded conditions; R15_v2 assignment_element_cost is the one pointwise condition with a positive tail delta (+0.00645) and mean delta (+0.01457) versus reference. The historical_path target_schedule trial (R08_v2) also shows lower tail. These are descriptive same-restored-state comparisons and do not establish a universal operator effect; the frozen confirmation tests the same numerical function on a new matched pool rather than repeating it on identical inputs.",
+  "role": "Analyst",
+  "scientific_hypothesis": "The frozen pointwise local-assignment guidance is a coordinate-only intervention whose measured current-program response is a bounded, non-clipping displacement field (injected_rms_A_mean 0.0299 A, atom_clip_fraction 0.0, cumulative_clip_fraction 0.0, dose_gain_mean 1.0, 40/40 nonzero updates). The confirmation question is whether this same frozen function, run on the larger/new prior pool against a matched unguided pool, retains its measured execution response and yields a terminal tail-utility difference; formation of the local observable is a mechanism check, not terminal success.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

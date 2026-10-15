@@ -1,0 +1,38 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Frozen R15_v2 program on region F_b011_s030__reference: pointwise operator, unit_rms controller, bridge representation, window [0.1,0.5], teacher_time 0.5, assignment_element_cost 0.5, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, 20 atom slots, 6 supplied pocket sites. Measured parent response: 40 active/nonzero updates, no atom or cumulative clipping, mean injected RMS ~0.0299 A, mean point RMS ~0.269 A, mean target error ~0.269 A. Parent outcomes: n=24, U_tau 0.01891, best_qualified_pic50 8.5888, mean_all_pic50 7.8421, hit_fraction 0.0417, n_above_target 0, tau 8.1350. The confirmation test is native completion on the configured larger/new prior pool; uncertainty is a reason to confirm, not a capability gap.",
+  "contrast_definition": "Frozen numerical guidance versus no guidance with matched saved priors, random streams, checkpoint and native protocol on the configured larger/new pool. Both remain pocket-conditioned; chemical graphs are free. This is not a numerical intervention versus the frozen parent.",
+  "contrast_kind": "frozen_program_vs_matched_unguided_pool",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "campaign/experiment_families"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/experiment_families"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "frozen_confirmation",
+  "falsifier": "The hypothesis is falsified if, on the matched larger/new prior pool, the frozen program shows a materially worse frozen tail utility (U_tau) or a materially lower mean_all_pic50 than the matched unguided pool, or if the measured execution response departs from the recorded regime (e.g., clipping appears, active updates collapse, or injected RMS departs substantially from ~0.030 A) in a way that indicates the frozen function no longer forms the intended local observable.",
+  "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "R15_v2",
+  "predicted_execution_response": "Measured current-program response is expected to remain comparable to the recorded parent response: ~40 active/nonzero updates, no atom or cumulative clipping, mean injected RMS near 0.030 A, and mean point RMS near 0.27 A, with assignment-switch fraction staying small (recorded mean ~0.017). This is a measured-response expectation, not a terminal-affinity gradient.",
+  "predicted_terminal_response": "On the configured larger/new prior pool, the frozen program is expected to preserve the recorded tail-utility level (U_tau ~0.019) and best_qualified_pic50 near 8.59 without a material drop in mean_all_pic50 (~7.84) relative to the matched unguided pool. No claim is made that any sample exceeds the target (recorded n_above_target = 0).",
+  "region_id": "F_b011_s030__reference",
+  "relationship_to_previous_failed_interventions": "Prior rollbacks (R04, R08_v2, R10_v2, R12_v2, R14_v2, R17_v2) and the heterogeneous experiment families are not independent replicates and do not isolate a single operator effect; they are recorded on a reused prior pool and cannot be aggregated into a causal operator claim. The frozen confirmation is a distinct comparison (frozen guidance vs matched unguided pool on a larger/new prior pool), not a repeat of those numerical interventions on identical inputs.",
+  "role": "Analyst",
+  "scientific_hypothesis": "The frozen pointwise local-motif guidance (R15_v2, region F_b011_s030__reference) will retain its measured formation behavior on the larger/new prior pool and, on native completion, will not degrade the frozen tail utility relative to the matched unguided pool. Formation is treated as a mechanism, not as terminal success; the primary outcome is the frozen tail utility with the affinity mean as guard.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

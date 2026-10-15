@@ -1,8 +1,8 @@
 # 局部 motif auto-research v2：最终证据报告
 
-已完成 14/20 个有效研究条件；另有 8 个相同函数提案复用已有结果，未重复生成。
-原始 Steer 最优预测 pIC50 为 **8.704806**。本轮新生成从头条件（含S0参考重放及冻结确认）中的最高基本合格分数为 **8.434024**（S0_REFERENCE_REPLAY）；新探索程序最高为 **8.272830**（R04）。
-活动保留程序为 **S0_REFERENCE_REPLAY**。冻结确认是否通过：**否/尚未通过**。所有亲和力均为同一模型的预测，不能表述为实验结合亲和力。
+已完成 18/20 个有效研究条件；另有 8 个相同函数提案复用已有结果，未重复生成。
+原始 Steer 最优预测 pIC50 为 **8.704806**。本轮新生成从头条件（含S0参考重放及冻结确认）中的最高基本合格分数为 **8.588829**（R15_v2）；新探索程序最高为 **8.588829**（R15_v2）。
+活动保留程序为 **R15_v2**。冻结确认是否通过：**否/尚未通过**。所有亲和力均为同一模型的预测，不能表述为实验结合亲和力。
 
 ## 1. 真实完成的条件
 
@@ -22,6 +22,10 @@
 |12|R12_v2|from_zero|operator|6|7.430089|8.027891|0.000000|24/24|True|
 |13|R13_v2|from_zero|region|6|7.536414|8.126762|0.000000|24/24|False|
 |14|R14_v2|from_zero|operator|6|7.490150|8.027524|0.000000|24/24|True|
+|15|R15_v2|from_zero|assignment_element_cost|20|7.842058|8.588829|0.018908|23/24|False|
+|16|R16_v2|from_zero|region|3|7.629772|8.127753|0.000000|24/24|False|
+|17|R17_v2|from_zero|assignment_element_cost|3|7.662745|8.127753|0.000000|24/24|True|
+|18|R18_v2|from_zero|region|4|7.505463|8.027836|0.000000|23/24|False|
 
 前两轮从同一历史状态续生成，仅用于机制诊断；其绝对分数不能与从头生成的效应比较。原始 R06、R08–R14 的重复提案及提交均保留，重编号映射见 `novelty_budget_revision.json`。
 
@@ -49,6 +53,10 @@
 |R12_v2|24|7.430089|8.027891|0.000000|24/24|0.5461|0.9870|
 |R13_v2|24|7.536414|8.126762|0.000000|24/24|0.5672|1.3484|
 |R14_v2|24|7.490150|8.027524|0.000000|24/24|0.5513|0.8749|
+|R15_v2|24|7.842058|8.588829|0.018908|23/24|0.5516|1.8671|
+|R16_v2|24|7.629772|8.127753|0.000000|24/24|0.5846|1.2095|
+|R17_v2|24|7.662745|8.127753|0.000000|24/24|0.5846|1.2092|
+|R18_v2|24|7.505463|8.027836|0.000000|23/24|0.5678|1.7845|
 |REUSED_UNGUIDED_b0_n50|50|7.487535|8.027975|0.000000|49/50|0.5550|1.6791|
 
 MMFF值采用固定重原子先优化H，再释放全分子的两阶段差值；是局部松弛代理，不是结合能。基本合格仅指可解码、连接、最小蛋白距离≥0.8Å。PoseBusters若另有结果单独保存，不悄悄加入晋升gate。
@@ -275,14 +283,82 @@ Single-factor from-zero contrast on the same N22 six-slot support, same pocket_s
 
 实际变化：`[{'new': 'point_band', 'parent': 'pointwise', 'path': 'operator'}]`。结果与配对区间见本轮results.json；回滚：True。
 
+## 轮次 15（R15_v2）的实际选择
+
+父程序：`S0_REFERENCE_REPLAY`；因素：`assignment_element_cost`；区域：`F_b011_s030__reference`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+The parent's Hungarian correspondence is purely geometric (assignment_element_cost=0.0), so matched local points can be assigned to teacher points of the wrong element identity. Raising the detached correspondence cost to 0.5 should shift the local assignment toward element-consistent teacher points, changing which local coordinates the pointwise pseudo-Huber term pulls. This is a correspondence-mechanism hypothesis, not an elemental force: the cost is detached and does not add a direct elemental gradient. It is distinct from the region-only and operator-only families already tried, which left the correspondence rule unchanged.
+
+Designer映射：
+
+The parent program S0_REFERENCE_REPLAY runs the implemented pointwise operator with assignment_element_cost=0.0, so its local Hungarian correspondence is purely geometric and can match a generated local point to a teacher point of a different element identity. The implemented evaluate() subtracts p['assignment_element_cost']*probabilities[b,ids][:,self.labels] from the squared-distance cost before linear_sum_assignment, so raising this coefficient changes which teacher point each generated local point is pulled toward. This is a correspondence-mechanism hypothesis: the cost is detached (computed under torch.no_grad() from detached logits) and enters only the assignment, not the differentiable value, so it adds no direct elemental force and no affinity-head or categorical-logit gradient. It is distinct from the region-only and operator-only families in campaign/experiment_families, all of which left assignment_element_cost at 0.0. The selected region F_b011_s030__reference is a frozen broad proper-subset coordinate reference (20 of 25 atoms) with a proposed quarter-covalent-length band that is not a proven success tolerance; the source layout score 8.704859 is not a generated-score forecast.
+
+实际变化：`[{'new': 0.5, 'parent': 0.0, 'path': 'assignment_element_cost'}]`。结果与配对区间见本轮results.json；回滚：False。
+
+## 轮次 16（R16_v2）的实际选择
+
+父程序：`R15_v2`；因素：`region`；区域：`F_b011_s030__NC`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+Re-targeting the pointwise local Hungarian assignment to the F_b011_s030__NC support (source N22 plus neighbors 6 and 13) changes which local teacher coordinates the robust per-point term pulls toward, without changing operator, dose or controller. The conditional_layout record shows the source N22 site is not uniquely optimal: single legal N exchanges at the same fixed geometry span delta_score from -0.441 (to N8) to +0.207 (to N12), and native_minus_alternate_mean is +0.076 over 10 measured layouts. This is a fixed-geometry label counterfactual, not a generated-outcome effect, so it motivates a bounded from-zero test of whether the NC support yields a different terminal tail than the reference support under the identical parent program.
+
+Designer映射：
+
+Single-factor region change on parent R15_v2: operator pointwise, controller unit_rms, representation bridge, window [0.1,0.5], dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, assignment_element_cost 0.5, fixed target_schedule, constant time_schedule. Only region_id and atom_slots change: reference slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] -> NC support [6,13,22] (source N22 aromatic acceptor, degree 2, plus neighbors 6 and 13). The conditional_layout record shows the source N22 site is not uniquely optimal: single legal N exchanges at fixed geometry span delta_score -0.441 (to N8) to +0.207 (to N12), native_minus_alternate_mean +0.076 over 10 measured layouts. This is a fixed-geometry label counterfactual, not a generated-outcome effect, so it motivates a bounded from-zero test of whether the NC support yields a different terminal tail than the reference support under the identical parent program. The pointwise term is the smallest implemented operator that can test this: it changes which local teacher coordinates the robust per-point term pulls toward without changing operator, dose, or controller. No type, affinity, or categorical-logit gradient is introduced; matching remains a detached Hungarian correspondence cost, not a direct elemental force.
+
+实际变化：`[{'new': 'F_b011_s030__NC', 'parent': 'F_b011_s030__reference', 'path': 'region_id'}, {'new': [6, 13, 22], 'parent': [0, 1, 2, 3, 4, 6, 7, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 'path': 'atom_slots'}]`。结果与配对区间见本轮results.json；回滚：False。
+
+## 轮次 17（R17_v2）的实际选择
+
+父程序：`R16_v2`；因素：`assignment_element_cost`；区域：`F_b011_s030__NC`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+In the NC region, lowering the detached correspondence cost coefficient (assignment_element_cost 0.5 -> 0.2) changes which generated atoms are matched to the three teacher slots [6,13,22], so the pointwise robust per-point distance is applied to a different local support. The proposed mechanism is a correspondence/assignment change, not a stronger spatial force: the pointwise pseudo-Huber curvature (pointcloud_delta_A 1.0) and the native RMS ratio (0.66) are unchanged, so any measured difference in injected_rms_A_mean, assignment_switch_fraction, or point_rms_A is attributable to the assignment rule rather than to dose. This is a conditional geometric hypothesis about which local atoms receive the coordinate update; it does not assert a chemical-role or interaction-energy rule.
+
+Designer映射：
+
+Single registered change: assignment_element_cost 0.5 -> 0.2 on the NC-region pointwise program R16_v2, all other factors, saved priors, random streams, checkpoint and native protocol held fixed. The implemented operator uses a detached element-likelihood cost inside the Hungarian assignment; changing that coefficient changes which generated atoms are matched to teacher slots [6,13,22], i.e. which local support receives the robust per-point distance. It is not a direct elemental force and not a dose change: pointcloud_delta_A (1.0) and native_rms_ratio (0.66) are unchanged, so any difference in injected_rms_A_mean or requested_rms_A_mean would indicate a dose-like effect rather than the correspondence channel. The NC conditional_layout record (10 measured layouts, native_score 8.704859, n_identifiable_interactions 0) is used only as fixed-geometry conditioning context for the region, not as a generated-outcome forecast. The regional_trajectories record is historical_steer_not_current_guidance and is not used to attribute current parent behavior. Prior from-zero rollbacks (R04, R08_v2, R10_v2, R12_v2, R14_v2) changed region, target_schedule, dose.native_rms_ratio, and operator (point_band); none changed assignment_element_cost, and R15_v2 (assignment_element_cost on the reference region) is a different region, so this proposal tests the assignment-cost channel within NC rather than repeating a failed region or operator change.
+
+实际变化：`[{'new': 0.2, 'parent': 0.5, 'path': 'assignment_element_cost'}]`。结果与配对区间见本轮results.json；回滚：True。
+
+## 轮次 18（R18_v2）的实际选择
+
+父程序：`R15_v2`；因素：`region`；区域：`F_b011_s030__O`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+Holding the R15_v2 program fixed and changing only the local region to F_b011_s030__O will change the pointwise local-assignment geometry response and the terminal tail utility relative to the same-prior reference replay. Two plausible explanations are contrasted: (a) the O-region support changes which local teacher coordinates are matched and thereby the realized local displacement, versus (b) the effect is a generic consequence of any region change on the reused prior pool, independent of the O-region support. The discriminating observable is the paired from-zero tail utility U_tau and mean_all_pic50 of the O-region run against S0_REFERENCE_REPLAY under matched priors and streams, together with the measured point_rms_A and target_error_mean trajectory.
+
+Designer映射：
+
+Single registered change versus parent R15_v2: region_id F_b011_s030__reference -> F_b011_s030__O, with atom_slots narrowed to the O-region support [1,16,18,19] (C,O,C,O per F_b011_s030__NO/regional_context support). Operator, controller (unit_rms), dose, window [0.1,0.5], steps 100, teacher_time 0.5, representation bridge, and free chemical graphs are unchanged. The pointwise operator is the smallest implemented term that tests the hypothesis: it matches generated points to teacher ligand coordinates by local Hungarian assignment and applies a robust per-point distance, so changing the region changes which teacher coordinates are matched and the realized local displacement. No type, affinity, orientation, or categorical-logit gradient is enabled; assignment_element_cost remains a detached correspondence cost, not a direct elemental force. The discriminating observable is the paired from-zero tail utility U_tau and mean_all_pic50 of the O-region run against S0_REFERENCE_REPLAY under matched saved priors, streams, checkpoint and native protocol, together with measured point_rms_A and target_error_mean. Source layout score 8.704859 (F_b011_s030__O/conditional_layout) is a fixed-geometry legal-layout input, not a generated-score forecast or coordinate-intervention effect. Prior region changes on this reused prior pool were heterogeneous and mostly lower-tail than reference (campaign/experiment_families: pointwise/fixed, 10 conditions, 6 regions, 9 lower tail), so they do not establish a universal region effect; the O-region change is a distinct condition whose informativeness rests on the conditional difference in local support.
+
+实际变化：`[{'new': 'F_b011_s030__O', 'parent': 'F_b011_s030__reference', 'path': 'region_id'}, {'new': [1, 16, 18, 19], 'parent': [0, 1, 2, 3, 4, 6, 7, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 'path': 'atom_slots'}]`。结果与配对区间见本轮results.json；回滚：False。
+
 ## 附：PoseBusters dock诊断
 
 |条件|总尝试|可评估|全部检查通过|
 |---|---:|---:|---:|
+|R15_v2|24|23|23|
 |S0_REFERENCE_REPLAY|24|22|22|
 |UNGUIDED_b0_n24|24|24|24|
 
 以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。
+
+## 附：匹配代价的数值对应对照
+
+|条件|代价0对照|支持数|元素匹配代价|平均分差|尾部产出差|
+|---|---|---:|---:|---:|---:|
+|R15_v2|S0_REFERENCE_REPLAY|20|0.5|0.014569|0.006450|
+|R16_v2|R03|3|0.5|-0.032872|0.000000|
+|R17_v2|R03|3|0.2|0.000100|0.000000|
+|R18_v2|R09_v2|4|0.5|-0.017351|0.000000|
+
+对照必须通过去除匹配代价后的数值签名、初态及原生协议检查；区间保存在matching_cost_counterparts.json。它们仍来自反复使用的调参池，不能作为独立证实。
 
 ![实际从头生成指标](summary/search_metrics.png)
 

@@ -1071,5 +1071,365 @@
     "source_round": "R14_v2",
     "stage": "from_zero",
     "status": "completed"
+  },
+  {
+    "designer_rationale": "The parent program S0_REFERENCE_REPLAY runs the implemented pointwise operator with assignment_element_cost=0.0, so its local Hungarian correspondence is purely geometric and can match a generated local point to a teacher point of a different element identity. The implemented evaluate() subtracts p['assignment_element_cost']*probabilities[b,ids][:,self.labels] from the squared-distance cost before linear_sum_assignment, so raising this coefficient changes which teacher point each generated local point is pulled toward. This is a correspondence-mechanism hypothesis: the cost is detached (computed under torch.no_grad() from detached logits) and enters only the assignment, not the differentiable value, so it adds no direct elemental force and no affinity-head or categorical-logit gradient. It is distinct from the region-only and operator-only families in campaign/experiment_families, all of which left assignment_element_cost at 0.0. The selected region F_b011_s030__reference is a frozen broad proper-subset coordinate reference (20 of 25 atoms) with a proposed quarter-covalent-length band that is not a proven success tolerance; the source layout score 8.704859 is not a generated-score forecast.",
+    "effective_iteration": 15,
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__reference/control_response",
+      "F_b011_s030__reference/conditional_layout",
+      "F_b011_s030__reference/regional_context",
+      "campaign/experiment_families"
+    ],
+    "execution_prediction": "Measured current-program response only. Expect assignment_switch_fraction to rise above the parent mean 0.00203 (parent max 0.01667) as the element-cost term changes the linear_sum_assignment solution, with nonzero_updates remaining near 40 and atom_clip_fraction and cumulative_clip_fraction staying at 0.0. Expect injected_rms_A_mean to remain near the parent 0.0301 A and point_rms_A to fall from the parent first-step 0.402 A toward the parent last-step 0.0394 A, since the dose and controller are unchanged. No terminal-affinity gradient is implied.",
+    "factor": "assignment_element_cost",
+    "falsifier": "The hypothesis is falsified if, at matched priors and streams, assignment_element_cost=0.5 leaves assignment_switch_fraction at or below the parent mean 0.00203 and leaves point_rms_A and target_error_mean trajectories indistinguishable from the parent, or if it changes them but the frozen tail utility U_tau does not improve relative to the parent 0.01246 while mean_all_pic50 degrades below 7.8275. A response that only moves geometry without any tail change would show the correspondence channel is not the limiting mechanism.",
+    "hypothesis": "The parent's Hungarian correspondence is purely geometric (assignment_element_cost=0.0), so matched local points can be assigned to teacher points of the wrong element identity. Raising the detached correspondence cost to 0.5 should shift the local assignment toward element-consistent teacher points, changing which local coordinates the pointwise pseudo-Huber term pulls. This is a correspondence-mechanism hypothesis, not an elemental force: the cost is detached and does not add a direct elemental gradient. It is distinct from the region-only and operator-only families already tried, which left the correspondence rule unchanged.",
+    "inference_commit": "dbbac1158f891eeb550c74c31259b25be29bfc34",
+    "metrics": {
+      "U_tau": 0.01890750726064046,
+      "best_qualified_pic50": 8.588829040527344,
+      "hit_fraction": 0.041666666666666664,
+      "mean_all_pic50": 7.842058102289836,
+      "n": 24,
+      "n_above_target": 0,
+      "n_qualified": 23,
+      "n_scored": 24,
+      "tau": 8.135048866271973
+    },
+    "new_attempts": 24,
+    "operator": "pointwise",
+    "paired": {
+      "historical_R13": {
+        "U95": [
+          -0.030369162559509277,
+          0.05672252178192139
+        ],
+        "U_difference": 0.00878445307413737,
+        "mean95": [
+          -0.003202477097511291,
+          0.34497100412845594
+        ],
+        "mean_difference": 0.15944270292917886,
+        "n_pairs": 24,
+        "protocol_metadata_complete": false,
+        "scope": "Initial/checkpoint/upstream/seed matched; legacy native-option metadata incomplete. Numerical paired summary only, not independently established guidance-only effect."
+      },
+      "unguided": {
+        "U95": [
+          0.0,
+          0.05672252178192139
+        ],
+        "U_difference": 0.01890750726064046,
+        "mean95": [
+          0.1176856314142545,
+          0.4475652943054835
+        ],
+        "mean_difference": 0.27415897448857623,
+        "n_pairs": 24,
+        "protocol_metadata_complete": true,
+        "scope": "Descriptive paired pool; not search-adjusted and not target generalization."
+      }
+    },
+    "parameter_changes": [
+      {
+        "new": 0.5,
+        "parent": 0.0,
+        "path": "assignment_element_cost"
+      }
+    ],
+    "parent": "S0_REFERENCE_REPLAY",
+    "region": "F_b011_s030__reference",
+    "rollback": false,
+    "source_round": "R15_v2",
+    "stage": "from_zero",
+    "status": "completed"
+  },
+  {
+    "designer_rationale": "Single-factor region change on parent R15_v2: operator pointwise, controller unit_rms, representation bridge, window [0.1,0.5], dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, assignment_element_cost 0.5, fixed target_schedule, constant time_schedule. Only region_id and atom_slots change: reference slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] -> NC support [6,13,22] (source N22 aromatic acceptor, degree 2, plus neighbors 6 and 13). The conditional_layout record shows the source N22 site is not uniquely optimal: single legal N exchanges at fixed geometry span delta_score -0.441 (to N8) to +0.207 (to N12), native_minus_alternate_mean +0.076 over 10 measured layouts. This is a fixed-geometry label counterfactual, not a generated-outcome effect, so it motivates a bounded from-zero test of whether the NC support yields a different terminal tail than the reference support under the identical parent program. The pointwise term is the smallest implemented operator that can test this: it changes which local teacher coordinates the robust per-point term pulls toward without changing operator, dose, or controller. No type, affinity, or categorical-logit gradient is introduced; matching remains a detached Hungarian correspondence cost, not a direct elemental force.",
+    "effective_iteration": 16,
+    "evidence_refs": [
+      "F_b011_s030__NC/conditional_layout",
+      "F_b011_s030__NC/regional_context",
+      "F_b011_s030__NC/regional_trajectories",
+      "parent/outcomes",
+      "parent/response",
+      "campaign/experiment_families",
+      "F_b011_s030__NC/experiment_families"
+    ],
+    "execution_prediction": "Measured current-program response only: the pointwise term should remain active with nonzero updates and no atom or cumulative clipping (parent shows atom_clip_fraction and cumulative_clip_fraction 0.0, dose_gain_mean 1.0). Because the NC support is a different local point set, expect a different assignment_switch_fraction and target_error trajectory than the parent reference run; the parent reference run reports mean point_rms_A 0.269 and mean target_error 0.269 over 40 active updates. No terminal-affinity gradient is implied by this response.",
+    "factor": "region",
+    "falsifier": "If the NC-region run under R15_v2 produces terminal tail utility and best_qualified_pic50 statistically indistinguishable from the parent reference run at matched priors and streams, or if the pointwise term fails to form the intended local geometry (boundary attainment below the parent reference), the hypothesis that the NC support is a discriminating region for this operator is not supported. A source-layout score advantage alone would not rescue it.",
+    "hypothesis": "Re-targeting the pointwise local Hungarian assignment to the F_b011_s030__NC support (source N22 plus neighbors 6 and 13) changes which local teacher coordinates the robust per-point term pulls toward, without changing operator, dose or controller. The conditional_layout record shows the source N22 site is not uniquely optimal: single legal N exchanges at the same fixed geometry span delta_score from -0.441 (to N8) to +0.207 (to N12), and native_minus_alternate_mean is +0.076 over 10 measured layouts. This is a fixed-geometry label counterfactual, not a generated-outcome effect, so it motivates a bounded from-zero test of whether the NC support yields a different terminal tail than the reference support under the identical parent program.",
+    "inference_commit": "f9f8368a17c1dacbc31ec0556e2b391edee29ff2",
+    "metrics": {
+      "U_tau": 0.0,
+      "best_qualified_pic50": 8.127753257751465,
+      "hit_fraction": 0.0,
+      "mean_all_pic50": 7.629772384961446,
+      "n": 24,
+      "n_above_target": 0,
+      "n_qualified": 24,
+      "n_scored": 24,
+      "tau": 8.135048866271973
+    },
+    "new_attempts": 24,
+    "operator": "pointwise",
+    "paired": {
+      "historical_R13": {
+        "U95": [
+          -0.030369162559509277,
+          0.0
+        ],
+        "U_difference": -0.010123054186503092,
+        "mean95": [
+          -0.18831860025723773,
+          0.06731091787417727
+        ],
+        "mean_difference": -0.05284301439921061,
+        "n_pairs": 24,
+        "protocol_metadata_complete": false,
+        "scope": "Initial/checkpoint/upstream/seed matched; legacy native-option metadata incomplete. Numerical paired summary only, not independently established guidance-only effect."
+      },
+      "unguided": {
+        "U95": [
+          0.0,
+          0.0
+        ],
+        "U_difference": 0.0,
+        "mean95": [
+          -0.05025664766629537,
+          0.16700836271047578
+        ],
+        "mean_difference": 0.06187325716018677,
+        "n_pairs": 24,
+        "protocol_metadata_complete": true,
+        "scope": "Descriptive paired pool; not search-adjusted and not target generalization."
+      }
+    },
+    "parameter_changes": [
+      {
+        "new": "F_b011_s030__NC",
+        "parent": "F_b011_s030__reference",
+        "path": "region_id"
+      },
+      {
+        "new": [
+          6,
+          13,
+          22
+        ],
+        "parent": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          10,
+          12,
+          13,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "path": "atom_slots"
+      }
+    ],
+    "parent": "R15_v2",
+    "region": "F_b011_s030__NC",
+    "rollback": false,
+    "source_round": "R16_v2",
+    "stage": "from_zero",
+    "status": "completed"
+  },
+  {
+    "designer_rationale": "Single registered change: assignment_element_cost 0.5 -> 0.2 on the NC-region pointwise program R16_v2, all other factors, saved priors, random streams, checkpoint and native protocol held fixed. The implemented operator uses a detached element-likelihood cost inside the Hungarian assignment; changing that coefficient changes which generated atoms are matched to teacher slots [6,13,22], i.e. which local support receives the robust per-point distance. It is not a direct elemental force and not a dose change: pointcloud_delta_A (1.0) and native_rms_ratio (0.66) are unchanged, so any difference in injected_rms_A_mean or requested_rms_A_mean would indicate a dose-like effect rather than the correspondence channel. The NC conditional_layout record (10 measured layouts, native_score 8.704859, n_identifiable_interactions 0) is used only as fixed-geometry conditioning context for the region, not as a generated-outcome forecast. The regional_trajectories record is historical_steer_not_current_guidance and is not used to attribute current parent behavior. Prior from-zero rollbacks (R04, R08_v2, R10_v2, R12_v2, R14_v2) changed region, target_schedule, dose.native_rms_ratio, and operator (point_band); none changed assignment_element_cost, and R15_v2 (assignment_element_cost on the reference region) is a different region, so this proposal tests the assignment-cost channel within NC rather than repeating a failed region or operator change.",
+    "effective_iteration": 17,
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "campaign/experiment_families",
+      "F_b011_s030__NC/conditional_layout",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "execution_prediction": "Measured current-program response only, no terminal-affinity gradient. Relative to the R16_v2 parent response (active_updates 40, nonzero_updates 40, assignment_switch_fraction mean 0.003917378970445731, current_gradient_rms_mean mean 0.004416682029841468, injected_rms_A_mean mean 0.02967930110171437, point_rms_A mean 0.053560657799243926, target_error_mean mean 0.053560657799243926), the V01 run is expected to show a changed assignment_switch_fraction and a changed distribution of which slots receive updates, with injected_rms_A_mean and requested_rms_A_mean remaining near the parent values because dose is unchanged. If assignment_switch_fraction and point_rms_A are indistinguishable from the parent, the assignment-cost channel is not the operative mechanism at this coefficient.",
+    "factor": "assignment_element_cost",
+    "falsifier": "The hypothesis is falsified if, with all other registered factors and the saved random priors/streams/checkpoint/native protocol held fixed, the V01 run shows assignment_switch_fraction and point_rms_A statistically indistinguishable from the R16_v2 parent response while injected_rms_A_mean and requested_rms_A_mean also match the parent, i.e. the assignment-cost change produces no measurable change in which local atoms are updated. A second falsifier is a measured change in injected_rms_A_mean or requested_rms_A_mean comparable to the assignment effect, which would indicate the observed difference is a dose effect rather than a correspondence effect.",
+    "hypothesis": "In the NC region, lowering the detached correspondence cost coefficient (assignment_element_cost 0.5 -> 0.2) changes which generated atoms are matched to the three teacher slots [6,13,22], so the pointwise robust per-point distance is applied to a different local support. The proposed mechanism is a correspondence/assignment change, not a stronger spatial force: the pointwise pseudo-Huber curvature (pointcloud_delta_A 1.0) and the native RMS ratio (0.66) are unchanged, so any measured difference in injected_rms_A_mean, assignment_switch_fraction, or point_rms_A is attributable to the assignment rule rather than to dose. This is a conditional geometric hypothesis about which local atoms receive the coordinate update; it does not assert a chemical-role or interaction-energy rule.",
+    "inference_commit": "8d8649f406d80b9b5c5351cee22b7d0e97bb54cf",
+    "metrics": {
+      "U_tau": 0.0,
+      "best_qualified_pic50": 8.127753257751465,
+      "hit_fraction": 0.0,
+      "mean_all_pic50": 7.662744879722595,
+      "n": 24,
+      "n_above_target": 0,
+      "n_qualified": 24,
+      "n_scored": 24,
+      "tau": 8.135048866271973
+    },
+    "new_attempts": 24,
+    "operator": "pointwise",
+    "paired": {
+      "historical_R13": {
+        "U95": [
+          -0.030369162559509277,
+          0.0
+        ],
+        "U_difference": -0.010123054186503092,
+        "mean95": [
+          -0.1406404917438825,
+          0.08745493590831756
+        ],
+        "mean_difference": -0.019870519638061523,
+        "n_pairs": 24,
+        "protocol_metadata_complete": false,
+        "scope": "Initial/checkpoint/upstream/seed matched; legacy native-option metadata incomplete. Numerical paired summary only, not independently established guidance-only effect."
+      },
+      "unguided": {
+        "U95": [
+          0.0,
+          0.0
+        ],
+        "U_difference": 0.0,
+        "mean95": [
+          0.017763289312521618,
+          0.1825091948111852
+        ],
+        "mean_difference": 0.09484575192133586,
+        "n_pairs": 24,
+        "protocol_metadata_complete": true,
+        "scope": "Descriptive paired pool; not search-adjusted and not target generalization."
+      }
+    },
+    "parameter_changes": [
+      {
+        "new": 0.2,
+        "parent": 0.5,
+        "path": "assignment_element_cost"
+      }
+    ],
+    "parent": "R16_v2",
+    "region": "F_b011_s030__NC",
+    "rollback": true,
+    "source_round": "R17_v2",
+    "stage": "from_zero",
+    "status": "completed"
+  },
+  {
+    "designer_rationale": "Single registered change versus parent R15_v2: region_id F_b011_s030__reference -> F_b011_s030__O, with atom_slots narrowed to the O-region support [1,16,18,19] (C,O,C,O per F_b011_s030__NO/regional_context support). Operator, controller (unit_rms), dose, window [0.1,0.5], steps 100, teacher_time 0.5, representation bridge, and free chemical graphs are unchanged. The pointwise operator is the smallest implemented term that tests the hypothesis: it matches generated points to teacher ligand coordinates by local Hungarian assignment and applies a robust per-point distance, so changing the region changes which teacher coordinates are matched and the realized local displacement. No type, affinity, orientation, or categorical-logit gradient is enabled; assignment_element_cost remains a detached correspondence cost, not a direct elemental force. The discriminating observable is the paired from-zero tail utility U_tau and mean_all_pic50 of the O-region run against S0_REFERENCE_REPLAY under matched saved priors, streams, checkpoint and native protocol, together with measured point_rms_A and target_error_mean. Source layout score 8.704859 (F_b011_s030__O/conditional_layout) is a fixed-geometry legal-layout input, not a generated-score forecast or coordinate-intervention effect. Prior region changes on this reused prior pool were heterogeneous and mostly lower-tail than reference (campaign/experiment_families: pointwise/fixed, 10 conditions, 6 regions, 9 lower tail), so they do not establish a universal region effect; the O-region change is a distinct condition whose informativeness rests on the conditional difference in local support.",
+    "effective_iteration": 18,
+    "evidence_refs": [
+      "parent/outcomes",
+      "parent/response",
+      "campaign/experiment_families",
+      "F_b011_s030__O/conditional_layout",
+      "report/O-intervention"
+    ],
+    "execution_prediction": "Measured current-program response only: expect nonzero_updates and active_updates comparable to the parent (40 active, 40 nonzero over the window), with assignment_switch_fraction, current_gradient_rms_mean, injected_rms_A_mean, point_rms_A and target_error_mean reported per step. No terminal-affinity gradient is implied by these statistics.",
+    "factor": "region",
+    "falsifier": "The hypothesis is falsified if, under matched priors, streams, checkpoint and native protocol, the O-region run shows no paired change in U_tau or mean_all_pic50 versus S0_REFERENCE_REPLAY beyond the descriptive paired-pool spread, or if the observed change is reproduced equally by a non-O region change on the same prior pool, which would support explanation (b) over (a).",
+    "hypothesis": "Holding the R15_v2 program fixed and changing only the local region to F_b011_s030__O will change the pointwise local-assignment geometry response and the terminal tail utility relative to the same-prior reference replay. Two plausible explanations are contrasted: (a) the O-region support changes which local teacher coordinates are matched and thereby the realized local displacement, versus (b) the effect is a generic consequence of any region change on the reused prior pool, independent of the O-region support. The discriminating observable is the paired from-zero tail utility U_tau and mean_all_pic50 of the O-region run against S0_REFERENCE_REPLAY under matched priors and streams, together with the measured point_rms_A and target_error_mean trajectory.",
+    "inference_commit": "bb5e4011112a2ed97d400942cc5cd6efb7e2732f",
+    "metrics": {
+      "U_tau": 0.0,
+      "best_qualified_pic50": 8.027835845947266,
+      "hit_fraction": 0.0,
+      "mean_all_pic50": 7.505463480949402,
+      "n": 24,
+      "n_above_target": 0,
+      "n_qualified": 23,
+      "n_scored": 24,
+      "tau": 8.135048866271973
+    },
+    "new_attempts": 24,
+    "operator": "pointwise",
+    "paired": {
+      "historical_R13": {
+        "U95": [
+          -0.030369162559509277,
+          0.0
+        ],
+        "U_difference": -0.010123054186503092,
+        "mean95": [
+          -0.3860876197616259,
+          -0.0008352523048719728
+        ],
+        "mean_difference": -0.17715191841125488,
+        "n_pairs": 24,
+        "protocol_metadata_complete": false,
+        "scope": "Initial/checkpoint/upstream/seed matched; legacy native-option metadata incomplete. Numerical paired summary only, not independently established guidance-only effect."
+      },
+      "unguided": {
+        "U95": [
+          0.0,
+          0.0
+        ],
+        "U_difference": 0.0,
+        "mean95": [
+          -0.21241954515377678,
+          0.05500145057837156
+        ],
+        "mean_difference": -0.062435646851857506,
+        "n_pairs": 24,
+        "protocol_metadata_complete": true,
+        "scope": "Descriptive paired pool; not search-adjusted and not target generalization."
+      }
+    },
+    "parameter_changes": [
+      {
+        "new": "F_b011_s030__O",
+        "parent": "F_b011_s030__reference",
+        "path": "region_id"
+      },
+      {
+        "new": [
+          1,
+          16,
+          18,
+          19
+        ],
+        "parent": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          10,
+          12,
+          13,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "path": "atom_slots"
+      }
+    ],
+    "parent": "R15_v2",
+    "region": "F_b011_s030__O",
+    "rollback": false,
+    "source_round": "R18_v2",
+    "stage": "from_zero",
+    "status": "completed"
   }
 ]

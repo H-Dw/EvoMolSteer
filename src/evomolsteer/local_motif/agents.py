@@ -80,6 +80,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         'target_contract':'Fixed bridge uses actual teacher-time coordinates; endpoint uses actual terminal coordinates. historical_path bridge instead uses h(t)=min(teacher_time,t+lookahead_fraction*learning_width) with fitted historical coordinates at exactly h(t). It changes horizon AND target as one strategy. Terminal source N/O roles select a region but do not force generated N/O identities.',
         'target_clock_implementation':inspect.getsource(MotifReward.target_clock)}
     bundle['generation_contract']='Generated chemical graphs remain free. Matching initial input and native protocol does not mean matching or freezing the final graph.'
+    if fixed is not None:bundle['contrast_kind']='frozen_program_vs_matched_unguided_pool'
     bundle['parameter_path_semantics']=FACTOR_SEMANTICS
     query_schema=obj({'action':{'enum':['query','finish']},'requests':{'type':'array','maxItems':2,'items':obj({
         'tool':{'enum':TOOLS},'region_id':{'enum':list(regions)}})},'question':{'type':'string','maxLength':6000}})
@@ -148,7 +149,9 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         'source_layout_implies_generated_benefit':{'const':False},'temporal_slope_is_spatial_gradient':{'const':False}})
     schema['properties']['relationship_to_previous_failed_interventions']=text
     schema['required'].append('relationship_to_previous_failed_interventions')
-    if fixed is not None:schema['properties']['factor']={'const':'frozen_confirmation'}
+    if fixed is not None:
+        schema['properties']['factor']={'const':'frozen_confirmation'}
+        schema['properties']['contrast_definition']={'const':'Frozen numerical guidance versus no guidance with matched saved priors, random streams, checkpoint and native protocol on the configured larger/new pool. Both remain pocket-conditioned; chemical graphs are free. This is not a numerical intervention versus the frozen parent.'}
     available=[a for a in actions if a['region_id'] in queried]
     if stage=='from_zero':
         if not available:raise ValueError('Queried regions have no untested action; query an available registered region')
