@@ -97,3 +97,20 @@ def test_numeric_identity_excludes_cap_metadata_but_tracks_actual_target_labels(
     assert numerical_signature(p,t)==numerical_signature(other,t)
     other['typed_elements']=['C','N']
     assert numerical_signature(p,t)!=numerical_signature(other,t)
+
+
+def test_local_decoder_logit_ascent_changes_only_typed_predictions():
+    class Model:
+        coord_scale=1.;integrator=SimpleNamespace(use_cosine_scheduler=False)
+        def __call__(self,curr,pocket,times,**kw):
+            x=curr['coords'];column=torch.tensor([0.,0.,0.,-1.,1.],dtype=x.dtype)
+            return {'coords':x+.05,'atomics':x[...,0,None]*column,'affinity':{'pic50':x.sum((1,2))}}
+        def _get_predictions(self,out):return {'coords':out['coords'],'atomics':out['atomics'].softmax(-1)},None
+    p,t=example();p.update(atomic_logit_strength=8.,logit_max_shift=4.)
+    control=NCControl(Model(),p,t,torch.zeros((1,3),dtype=torch.double))
+    curr={'coords':torch.tensor([t['coords_A']],dtype=torch.double),'mask':torch.ones((1,6),dtype=torch.bool)}
+    original=control.model(curr,{},[])['atomics'];changed=control.forward(curr,{},[torch.tensor([.1])]*3,None,None,None,10,.01)['atomics']
+    touched=(changed-original).abs().sum(-1)>0
+    assert touched.sum()==2 and control.extra['unmatched_logit_change_max']==0
+    assert control.extra['typed_probability_after_logit_step']>control.extra['typed_correct_probability']
+    assert (changed-original).abs().max()<=4. and torch.equal(curr['coords'],torch.tensor([t['coords_A']],dtype=torch.double))

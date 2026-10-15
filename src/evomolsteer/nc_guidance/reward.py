@@ -96,6 +96,18 @@ class NCControl(Control):
             pred,_=self.model._get_predictions(out);endpoint=pred['coords']*self.model.coord_scale+self.com[:,None]
             current=x*self.model.coord_scale+self.com[:,None];z=bridge(current,endpoint,self.t,self.reward.teacher['time'])
             terms,detail=self.reward.terms(z,endpoint,out['atomics'],curr['mask'].bool(),decoder=out);parts=[];summary={}
+            logit_delta=None
+            if self.program.get('atomic_logit_strength',0)>0:
+                gl=torch.autograd.grad(terms['type'].sum(),out['atomics'],retain_graph=True)[0]
+                typed_ids=detail['assignment'][:,self.reward.ti]
+                typed_mask=torch.zeros_like(curr['mask'],dtype=torch.bool);typed_mask.scatter_(1,typed_ids,True)
+                outside=gl.masked_fill(typed_mask[...,None],0).abs().max()
+                if float(outside)>1e-10:raise ValueError('Atomic logit guidance escaped selected N/C sites')
+                logit_delta=(self.program['atomic_logit_strength']*gl).clamp(-self.program['logit_max_shift'],self.program['logit_max_shift']).detach()
+                after=(out['atomics'].detach()+logit_delta).softmax(-1)
+                indices=typed_ids[...,None].expand(-1,-1,after.shape[-1]);labels=torch.as_tensor(self.reward.labels,device=x.device)[None,:,None].expand(len(x),-1,1)
+                summary.update(local_logit_guidance=True,logit_shift_max=float(logit_delta.abs().max()),
+                    unmatched_logit_change_max=float(outside),typed_probability_after_logit_step=float(after.gather(1,indices).gather(2,labels).mean()))
             active=[(k,w) for k,w in self.program['weights'].items() if w>0]
             for index,(name,weight) in enumerate(active):
                 gx=torch.autograd.grad(terms[name].sum(),x,retain_graph=True)[0]
@@ -110,7 +122,8 @@ class NCControl(Control):
                 parts.append(component)
             gradient=sum(parts);gz=torch.autograd.grad(terms['half'].sum(),z,allow_unused=True)[0]
         if not torch.isfinite(gradient).all():raise ValueError('Nonfinite coordinate pullback')
-        # Only coordinates are updated. Atomic probabilities enter via the genuine decoder Jacobian.
+        # Coordinate pullback is always used; an explicit optional local logit step
+        # changes decoder predictions before the native categorical integrator.
         self.extra={**summary,'selected_local_points':len(self.reward.slots),'typed_local_points':len(self.reward.typed),
             'typed_correct_probability':float(detail['typed_correct_probability'].detach().mean()),
             'endpoint_patch_rms_A':float(detail['final_rms_A'].detach().mean()),'half_patch_rms_A':float(detail['half_rms_A'].detach().mean()),
@@ -118,7 +131,9 @@ class NCControl(Control):
             'affinity_vjp':False,'extra_model_forwards':0}
         value=sum(self.program['weights'].get(k,0)*v for k,v in terms.items())
         self.cached=(gradient.detach(),pred['coords'].detach(),self.dt,detail['direct_mask'].detach(),value.detach(),gz.detach())
-        return {k:({a:b.detach() if torch.is_tensor(b) else b for a,b in v.items()} if isinstance(v,dict) else v.detach() if torch.is_tensor(v) else v) for k,v in out.items()}
+        detached={k:({a:b.detach() if torch.is_tensor(b) else b for a,b in v.items()} if isinstance(v,dict) else v.detach() if torch.is_tensor(v) else v) for k,v in out.items()}
+        if logit_delta is not None:detached['atomics']=detached['atomics']+logit_delta
+        return detached
     def after(self,curr,i):
         enabled=self.cached is not None;curr=super().after(curr,i)
         if enabled:self.rows[-1].update(self.extra)

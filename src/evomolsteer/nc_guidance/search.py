@@ -33,7 +33,7 @@ PLANS=[
 ('r13_context_chemical_role','Keep the two-site swap and R13 context; add a selected-N neutral/aromatic decoder preference.'),
 ('later_start','Freeze the best local patch and test a later start; complete the same native suffix.'),
 ('earlier_start','Freeze the best local patch and test guidance from the initial state.'),
-('dose_response','Freeze the best local patch and test a larger physical coordinate dose.'),
+('local_categorical_gradient','Keep R13 geometry and the paired local swap; additionally ascend the type reward only on the two selected decoder logits before native categorical flow. No affinity gradient or discrete override.'),
 ('confirmation','Freeze the training winner on more matched inputs; do not reinterpret confirmation as selection.'),
 ('heldout_initial_pool','Freeze the training winner on a new initial pool; do not tune using its outcome.')]
 
@@ -93,7 +93,7 @@ def prepare_round(repo,master,number,state):
         if number==15:base['weights']['role']=.15
     if number==16:base['window'][0]=.3
     if number==17:base['window'][0]=0.
-    if number==18:base['dose']['native_rms_ratio']=.5
+    if number==18:base.update(atomic_logit_strength=8.,logit_max_shift=4.)
     if number>=19:
         if state['best_round']=='R13_reference':
             # No local proposal improved R13: confirm the strongest local candidate explicitly, without promoting it.

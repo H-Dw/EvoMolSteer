@@ -16,6 +16,8 @@ def numerical_signature(program,teacher=None):
     excluded={'program_id','analyst_sha256','designer_sha256','source_round','patch_id','template_id',
         'candidate_id','teacher_sha256','counterfactual_labels','schema_version','max_local_points'}
     value={k:v for k,v in program.items() if k not in excluded}
+    if not program.get('atomic_logit_strength',0):
+        value.pop('atomic_logit_strength',None);value.pop('logit_max_shift',None)
     if not program['weights']['orientation']:value.pop('anchors',None)
     if not program['weights']['type']:
         for key in ('type_mode','type_site_weights','type_ramp'):value.pop(key,None)
@@ -40,7 +42,9 @@ def compile_program(cfg,patch,teacher,analyst,designer,teacher_sha,analyst_sha,d
         'window':contract['window'],'expected_active_steps':active_updates(cfg['steps'],*contract['window']),
         **{k:contract[k] for k in ['weights','dose','type_mode','gradient_balance','assignment_endpoint_fraction',
             'assignment_type_cost','type_ramp','anchor_distance_A','anchor_width_A']},
-        'background_loss_weight':0,'smc':False,'affinity_head_gradient':False,'coordinate_updates_only':True,
+        'background_loss_weight':0,'smc':False,'affinity_head_gradient':False,
+        'atomic_logit_strength':contract.get('atomic_logit_strength',0.),'logit_max_shift':contract.get('logit_max_shift',4.),
+        'coordinate_updates_only':not bool(contract.get('atomic_logit_strength',0)),
         'analyst_sha256':analyst_sha,'designer_sha256':designer_sha,'counterfactual_labels':teacher['counterfactual_labels']}
     if cfg.get('contrast_weighting',False):
         import numpy as np
@@ -83,7 +87,8 @@ def analyze(repo,cfg,feedback):
     target=folder/'candidates'/teacher['candidate_id'];target.mkdir(parents=True,exist_ok=True);write_json(target/'teacher.json',teacher)
     write_json(folder/'selection.json',patch)
     schema=obj({'role':{'const':'Designer'},'patch_id':{'const':patch['patch_id']},'decision':{'enum':['activate','defer']},
-        'execution_contract':{'const':cfg['execution_contract']},'scientific_rationale':text,'observable_falsifier':text})
+        'execution_contract':{'const':cfg['execution_contract']},
+        'scientific_rationale':{'type':'string','maxLength':6000,'description':'Concise evidence-to-term reasoning. Do not repeat the full point list or execution contract.'},'observable_falsifier':text})
     selected={'half_coords_A':[teacher['coords_A'][s] for s in patch['atom_slots']],
         'final_coords_A':[teacher['terminal_coords_A'][s] for s in patch['atom_slots']],
         'slots':patch['atom_slots'],'counterfactual_labels':teacher['counterfactual_labels'],'teacher_time':teacher['time']}

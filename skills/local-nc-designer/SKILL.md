@@ -16,9 +16,13 @@ not an observed continuation state or a promised score for new molecules.
 
 Geometry uses distinct spatial assignments frozen within a derivative, never
 generated atom indices copied from the teacher. Type reward reads selected
-decoder N/C log probabilities. Gradients act ONLY on current coordinates,
-through real coordinate and atomic-decoder Jacobians. Do not differentiate
-affinity, override discrete labels, fix the new graph, or introduce SMC.
+decoder N/C log probabilities. The default mode updates current coordinates
+through real coordinate and atomic-decoder Jacobians. Only when the execution
+contract has positive atomic_logit_strength, additionally apply its registered
+LOCAL decoder-logit gradient step at selected typed sites before native
+categorical integration. This tilts probabilities, never directly rewrites
+current discrete labels. Do not differentiate affinity, fix the new graph,
+or introduce SMC.
 
 Only describe terms with positive enabled weights. An enabled orientation needs
 the measured donor and both local heavy-atom neighbors; it is not a hydrogen-bond

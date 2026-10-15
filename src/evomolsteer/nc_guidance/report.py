@@ -57,6 +57,7 @@ def report(repo,cfg):
             'geometry_points':len(p['atom_slots']),'typed_points':len(p['typed_slots']),'target_N':','.join(str(s) for s,e in zip(p['typed_slots'],p['typed_elements']) if e=='N'),
             'target_C':','.join(str(s) for s,e in zip(p['typed_slots'],p['typed_elements']) if e=='C'),
             'start':p['window'][0],'end':p['window'][1],'n':metrics['n'],'n_qualified':metrics['n_qualified'],
+            'atomic_logit_strength':p.get('atomic_logit_strength',0.),
             'mean_pic50':metrics['mean_all_pic50'],'max_qualified_pic50':metrics['best_qualified_pic50'],
             'delta_mean_R13':metrics['mean_all_pic50']-controls['R13_reference']['mean_all_pic50'],
             'delta_mean_unguided':metrics['mean_all_pic50']-controls['unguided']['mean_all_pic50'],
@@ -75,6 +76,9 @@ def report(repo,cfg):
             'type_term_enabled':p['weights']['type']>0,'active_terms':positive,
             'observed_type_gradient_max':max(s.get('type_gradient_rms',0.) for s in audit['steps']),
             'observed_type_mixture_input_max':max(s.get('type_mixture_input_rms',0.) for s in audit['steps']),
+            'local_logit_guidance_enabled':p.get('atomic_logit_strength',0.)>0,
+            'observed_logit_shift_max':max(s.get('logit_shift_max',0.) for s in audit['steps']),
+            'unmatched_logit_change_max':max(s.get('unmatched_logit_change_max',0.) for s in audit['steps']),
             'duplicate_numeric_operator_in_same_pool':duplicate,'no_smc':audit['no_smc'],
             'no_affinity_gradient':audit['no_affinity_head_gradient'],'original_teacher_parent_copy_verified':teacher['parent_copy_verified'],
             'scientific_prose_status':'Hypotheses can still contain factual mistakes; operative fields and deterministic target maps are authoritative'})
@@ -98,11 +102,12 @@ def report(repo,cfg):
     text='# R13局部N/C引导：逐轮结果\n\n'
     text+=f"已完成{len(state['rounds'])}轮决策，其中{len(rows)}轮生成或复用，暂缓{deferred}；活动最佳为{state['best_round']}。参考终态pIC50为8.704806；是否已有基本结构合格分子超过该值：{result['target_reached']}。所有评分为模型预测。\n\n"
     text+='|轮次|策略|几何点/类型点|最高合格pIC50|全部均值|均值差vsR13|N正确率|C正确率|合格/尝试|回滚|\n|---|---|---|---:|---:|---:|---:|---:|---|---|\n'
+    def fmt(value,precision=6):return 'NA' if value is None else f'{value:.{precision}f}'
     for r in rows:
-        text+=f"|{r['round']}|{r['strategy']}|{r['geometry_points']}/{r['typed_points']}|{r['max_qualified_pic50']:.6f}|{r['mean_pic50']:.6f}|{r['delta_mean_R13']:+.6f}|{r['N_accuracy']:.3f}|{r['C_accuracy']:.3f}|{r['n_qualified']}/{r['n']}|{r['rollback']}|\n"
+        text+=f"|{r['round']}|{r['strategy']}|{r['geometry_points']}/{r['typed_points']}|{fmt(r['max_qualified_pic50'])}|{fmt(r['mean_pic50'])}|{fmt(r['delta_mean_R13'])}|{fmt(r['N_accuracy'],3)}|{fmt(r['C_accuracy'],3)}|{r['n_qualified']}/{r['n']}|{r['rollback']}|\n"
     text+='\n先测试至多10点的稀疏区域，再前瞻加入保留R13原20/25点几何上下文、仅比较2个N/C位置的对照。所有分支均不使用全25点损失。后续推理完整完成至t=1，引导窗口由程序指定且不超过.5。\n\n'
     text+='Analyst读取有限合法布局、成对N/C补偿、化学角色、方向性几何和真实终态反馈，选择注册局部区域；Designer必须返回与该区域绑定的执行契约。程序产生N/C标签和空间分配，不依赖自然语言手工抄写原子列表。训练目标主指标为最高基本结构合格pIC50，均值、失败和应变分别报告。\n\n'
-    text+='局部损失包括真实半程桥/端点几何的负pseudo-Huber误差、选定位点的N/C解码log概率，可选方向性供体代理及局部中性电荷/芳香邻接概率。各项通过真实模型对当前坐标的Jacobian回传，按RMS作混合与位移限幅。未对affinity head求导、没有SMC、没有手动重写元素或固定全图。局部直接损失不等于模型Jacobian对其它坐标的影响必为零。\n\n'
+    text+='局部损失包括真实半程桥/端点几何的负pseudo-Huber误差、选定位点的N/C解码log概率，可选方向性供体代理及局部中性电荷/芳香邻接概率。各项通过真实模型对当前坐标的Jacobian回传，按RMS作混合与位移限幅。R18另行标记为混合控制：增加仅作用于两个选中位置的解码logit奖励梯度步，再由原生类别积分器采样；它与纯坐标控制分开评价。未对affinity head求导、没有SMC、没有手动改写离散元素或固定全图。局部直接损失不等于模型Jacobian对其它坐标的影响必为零。\n\n'
     text+='N/C正确率按终态受体坐标系的一对一几何匹配计算，并分开报告N与C；另存2.5Å局部核密度及最近N距离，避免只依赖一个离散匹配率。原始元素与期望元素已经显式分离；芳香N角色通过实际生成SDF检查，不把通用N概率当作已形成吡啶N或氢键。\n\n'
     duplicates=[r['round'] for r in rows if r['duplicate_of']]
     if duplicates:text+=f"数值等价的研究调用：{duplicates}。R07仅改变了点数上限元数据，实际与R04相同并曾重复生成；重复结果不能当作新增证据。签名已去除这类非计算字段。\n\n"
