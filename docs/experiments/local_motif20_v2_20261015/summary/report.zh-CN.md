@@ -9,7 +9,8 @@
 |R05|from_zero/operator|completed|7.681791722774506|8.049042701721191|0.0|24/24|False|
 |R07|from_zero/operator|completed|7.548984189828237|8.028063774108887|0.0|22/24|False|
 |R07_v2|from_zero/dose.pointcloud_delta_A|completed|7.8189964691797895|8.168766021728516|0.001404881477355957|21/24|False|
+|R08_v2|from_zero/target_schedule|completed|7.6721987922986346|8.132326126098633|0.0|24/24|True|
 
-当前活动最佳：S0_REFERENCE_REPLAY；已完成7/20个研究决定。目标8.704806。所有分数为模型预测。
+当前活动最佳：S0_REFERENCE_REPLAY；已完成8/20个研究决定。目标8.704806。所有分数为模型预测。
 
 S0接口/API测试与冻结控制重放另计成本；后缀诊断不能代替从头生成。确认使用冻结程序，新池结果不参与调参。
