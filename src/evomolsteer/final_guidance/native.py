@@ -259,7 +259,9 @@ def run(repo,cfg):
             'qualified':sum(r['qualified_structure'] for r in records),'seconds':time.time()-started,'active_updates':len(actual),
             'nonzero_updates':sum(r['nonzero_molecules']>0 for r in control.rows)}
         write_json(out/'COMPLETE.json',summary);print(summary,flush=True)
-    write_json(remote/'COMPLETE.json',{'conditions':len(conditions),'samples_per_condition':n,'paired_initial_prior':True,'full_inference_steps':cfg['steps']})
+    write_json(remote/'COMPLETE.json',{'conditions':len(conditions),'samples_per_condition':n,'paired_initial_prior':True,
+        'full_inference_steps':cfg['steps'] if not cfg.get('resume') else None,'integration_grid_steps':cfg['steps'],
+        'executed_steps_per_sample':cfg['steps']-cfg.get('resume',{}).get('step',0),'resume_start_step':cfg.get('resume',{}).get('step',0)})
 
 
 def main():

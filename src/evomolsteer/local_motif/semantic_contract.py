@@ -13,7 +13,7 @@ def identity(p,t):
     value={k:p[k] for k in ['operator','representation','window','steps','controller','assignment_element_cost','native_options']}
     value['target']=r.target.tolist();value['labels']=r.labels if p['assignment_element_cost'] else None
     value['dose']={k:v for k,v in p['dose'].items() if k!='pointcloud_delta_A' or p['operator']=='pointwise'}
-    if p['operator']!='pointwise':value['band_A']=p['base_band_A']*p['band_multiplier']
+    if p['operator'] in ('point_band','pocket_distance','pair_distance'):value['band_A']=p['base_band_A']*p['band_multiplier']
     if p['operator']=='orientation':value.update(triplets=p['orientation_triplets'],orientation_band=p['orientation_band'])
     if p['operator']=='pocket_distance':value['pocket_sites']=p['pocket_sites']
     if p['controller']=='bounded':value['gradient_floor_multiplier']=p['gradient_floor_multiplier']
@@ -68,7 +68,7 @@ def variants(parent,analysis,region,teacher,master):
         if q['operator']!=analysis['observable_id']:continue
         try:validate_program(q,teacher,master['learning_window'])
         except ValueError:continue
-        if factor=='band_multiplier' and q['operator']=='pointwise':continue
+        if factor=='band_multiplier' and q['operator'] in ('pointwise','orientation'):continue
         if factor=='curvature' and q['operator']!='pointwise':continue
         if factor=='gradient_floor' and q['controller']!='bounded':continue
         result['V%02d'%n]=q

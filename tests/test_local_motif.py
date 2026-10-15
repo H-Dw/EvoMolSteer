@@ -78,6 +78,8 @@ def test_inactive_parameters_do_not_create_fake_new_pointwise_functions():
     p,t=inputs();p['operator']='pointwise';q=copy.deepcopy(p);q['band_multiplier']=3.
     assert identity(p,t)==identity(q,t)
     q['dose']['native_rms_ratio']=.7;assert identity(p,t)!=identity(q,t)
+    p['operator']='orientation';q=copy.deepcopy(p);q['band_multiplier']=3.
+    assert identity(p,t)==identity(q,t)
 
 
 def test_legal_exchange_interaction_keeps_fixed_N_count():
