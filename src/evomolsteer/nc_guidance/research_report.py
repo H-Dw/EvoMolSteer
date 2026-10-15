@@ -7,7 +7,25 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import linear_sum_assignment
 from evomolsteer.io import read_json,write_json,write_table,digest
-from evomolsteer.partial_search.report import api_audit
+from evomolsteer.partial_search.report import api_audit,paired_comparison
+
+
+def confirmation_paths(repo,master,cfg):
+    """Resolve frozen references from their recorded input identities, never rank."""
+    batch=cfg['pilot_initial_batch'];n=cfg['pilot_samples']
+    if n!=50 or batch not in (0,2):raise ValueError('Unsupported confirmation input pool')
+    root=repo/'data/generated/partial_region_search_20261014'
+    paths=({'unguided':root/'controls_batch0_n50/unguided','R13':root/'R19/R19_0.1'}
+           if batch==0 else {'unguided':repo/master['prior_generated_root']/'controls_b2_n50/unguided',
+                            'R13':repo/master['prior_generated_root']/'controls_b2_n50/R13_0.1'})
+    matches=[]
+    for path in (repo/master['config_dir']).glob('active_reference_*.json'):
+        reference=read_json(path)
+        if (reference['pilot_initial_batch'],reference['pilot_samples'],reference['seed'])==(batch,n,cfg['seed']):
+            matches.append(repo/master['generated_root']/path.stem/'active_reference')
+    if len(matches)!=1:raise ValueError('Ambiguous frozen activity reference')
+    paths['active_reference']=matches[0]
+    return paths
 
 
 def final_tracked_roles(folder,program,audit):
@@ -36,7 +54,7 @@ def final_tracked_roles(folder,program,audit):
 def report(repo,master):
     repo=Path(repo);study=repo/master['campaign_study'];state=read_json(study/'state.json');out=study/'summary'
     rows=[];deliveries=[];best_sample=None;attempts=0
-    protocol_effects=[];role_rows=[]
+    protocol_effects=[];role_rows=[];confirmation_rows=[];confirmation_pairs=[]
     for entry in state['rounds']:
         label=entry['round'];folder=repo/entry.get('study',master['campaign_study']+'/'+label)
         cfg_path=repo/master['config_dir']/(label+'.json')
@@ -87,9 +105,24 @@ def report(repo,master):
                         'unguided_mean_change':entry['controls']['unguided']['mean_all_pic50']-old['controls']['unguided']['mean_all_pic50'],
                         'change_in_guidance_advantage':entry['paired']['unguided']['mean_pic50_difference']-old['paired']['unguided']['mean_pic50_difference'],
                         'interpretation':'Descriptive same-input-pool interaction; not search-adjusted causal confirmation'})
+            if entry.get('confirmation'):
+                cfg=read_json(cfg_path);paths=confirmation_paths(repo,master,cfg)
+                for name,metric in {'tail_R05':m,**entry['controls']}.items():
+                    confirmation_rows.append({'round':label,'batch':cfg['pilot_initial_batch'],'condition':name,
+                        'n':metric['n'],'mean':metric['mean_all_pic50'],'max_qualified':metric['best_qualified_pic50'],
+                        'qualified':metric['n_qualified'],'strain_median':metric['median_mmff_relief_per_heavy']})
+                reference=paths['active_reference'];reference_records=read_json(reference/'records.json')
+                candidate=max((r for r in reference_records if r['qualified_structure']),key=lambda r:r['pic50'],default=None)
+                if candidate and (best_sample is None or candidate['pic50']>best_sample['pic50']):
+                    best_sample={'round':label+'_frozen_R11_reference','source_folder':reference.relative_to(repo).as_posix(),**candidate}
+                confirmation_pairs.extend({'round':label,**v} for v in entry['paired'].values())
+                for name in ('unguided','R13'):
+                    confirmation_pairs.append({'round':label,**paired_comparison(reference,paths[name],'frozen_R11 vs '+name)})
         deliveries.append(item)
     table=write_table(out/'detailed_rounds.csv',rows);write_json(out/'delivery_checks.json',deliveries)
     write_json(out/'native_protocol_interactions.json',protocol_effects)
+    write_table(out/'confirmation_conditions.csv',confirmation_rows)
+    write_json(out/'confirmation_paired.json',confirmation_pairs)
     pd.DataFrame(role_rows).to_parquet(out/'final_tracked_role_checks.parquet',index=False,compression=None)
     actual=list((repo/master['generated_root']).glob('*/*/records.json'))
     write_json(out/'result.json',{'completed_decisions':len(state['rounds']),'best_activity_round':state['best_round'],
