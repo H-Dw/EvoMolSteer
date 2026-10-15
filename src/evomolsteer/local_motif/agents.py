@@ -31,9 +31,24 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     if fixed is not None:
         regions={fixed['region_id']:regions[fixed['region_id']]}
         catalog=[r for r in catalog if r['region_id']==fixed['region_id']]
+    if stage=='suffix':
+        used={r.get('region') for r in feedback.get('history',[]) if r.get('stage')=='suffix'}
+        regions={k:v for k,v in regions.items() if k not in used}
+        catalog=[r for r in catalog if r['region_id'] in regions]
+    parents=copy.deepcopy(parents)
+    for entry in parents.values():
+        p=entry['program'];legal=set(FACTORS)
+        if p['operator'] in ('pointwise','orientation'):legal.discard('band_multiplier')
+        if p['operator']!='pointwise':legal.discard('curvature')
+        if p['controller']!='bounded':legal.discard('gradient_floor')
+        if set(regions)=={p['region_id']}:legal.discard('region')
+        entry['legal_factors']=sorted(legal)
+    factor_enum=sorted({f for entry in parents.values() for f in entry['legal_factors']})
     bundle={'evidence':{'report/O-intervention':evidence['O_evidence'],'report/limits':evidence['limits'],
         'parent/response':feedback.get('parent_response'), 'parent/outcomes':feedback.get('parent_outcomes')},
-        'learning_window':master['learning_window'],'stage':stage,'implemented_operators':OPERATOR_DEFINITIONS}
+        'learning_window':master['learning_window'],'stage':stage,'implemented_operators':OPERATOR_DEFINITIONS,
+        'contrast_kind':'local_potential_vs_unguided_same_restored_state' if stage=='suffix' else 'single_factor_vs_selected_parent',
+        'trajectory_provenance':'Historical Steer ancestors and contemporary states only. These curves do not measure the current gradient-guided parent run.'}
     query_schema=obj({'action':{'enum':['query','finish']},'requests':{'type':'array','maxItems':2,'items':obj({
         'tool':{'enum':TOOLS},'region_id':{'enum':list(regions)}})},'question':{'type':'string','maxLength':6000}})
     messages=[{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
@@ -49,7 +64,9 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         for request in q['requests']:
             rid=request['region_id'];tool=request['tool'];queried.add(rid);card=evidence['cards'][rid]
             if tool in ('conditional_layout','regional_context'):value=card[tool if tool=='conditional_layout' else 'context']
-            elif tool=='regional_trajectories':value=evidence['trajectory']['fits'].get(rid,{'status':'missing_trajectory'})
+            elif tool=='regional_trajectories':value={'origin':'historical_steer_not_current_guidance',
+                'domain':evidence['trajectory']['domain'],'limits':evidence['trajectory']['limits'],
+                'fits':evidence['trajectory']['fits'].get(rid,{'status':'missing_trajectory'})}
             elif tool=='control_response':
                 value={'matching_parents':{pid:entry for pid,entry in parents.items() if entry['program']['region_id']==rid},
                     'active_incumbent_context':feedback.get('parent_response'),
@@ -61,7 +78,9 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     text={'type':'string','maxLength':3000};refs={'type':'array','items':{'enum':list(bundle['evidence'])},'uniqueItems':True}
     schema=obj({'role':{'const':'Analyst'},'status':{'enum':['hypothesis','capability_gap','scientific_defer']},
         'hypothesis_id':{'type':'string','maxLength':120},'parent_program_id':{'enum':list(parents)},
-        'region_id':{'enum':sorted(queried)},'factor':{'enum':FACTORS},'observable_id':{'enum':list(OPERATORS)},
+        'region_id':{'enum':sorted(queried)},'factor':{'enum':['local_intervention'] if stage=='suffix' else factor_enum},'observable_id':{'enum':list(OPERATORS)},
+        'contrast_kind':{'const':bundle['contrast_kind']},
+        'trajectory_evidence_origin':{'const':'historical_steer_not_current_guidance'},
         'observable_definition':{'enum':list(OPERATOR_DEFINITIONS.values())},
         'evidence_time_domain':{'const':master['learning_window']},
         'evidence_refs':{**refs,'minItems':1},'counterevidence_refs':refs,'claim_class':{'enum':['inferred','proposed']},
@@ -75,6 +94,9 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         if fixed is not None and a['observable_id']!=fixed['operator']:
             raise jsonschema.ValidationError('Frozen confirmation cannot redesign the operator',validator='const',validator_value=fixed['operator'],instance=a['observable_id'])
         parent=parents[a['parent_program_id']]['program']
+        if stage=='from_zero' and a['factor'] not in parents[a['parent_program_id']]['legal_factors']:
+            raise jsonschema.ValidationError('Factor has no active numerical consumer in selected parent',validator='enum',
+                validator_value=parents[a['parent_program_id']]['legal_factors'],instance=a['factor'])
         if stage=='from_zero' and a['factor']!='region' and a['region_id']!=parent['region_id']:
             raise jsonschema.ValidationError('Only the region intervention may change support or teacher',validator='region_binding',validator_value=parent['region_id'])
         if a['factor']!='operator' and a['observable_id']!=parent['operator'] and stage=='from_zero':

@@ -25,6 +25,8 @@ Do not silently expand to the whole molecule. A disconnected local support is ac
 
 Read the supplied full-window trajectory evidence and measured parent-controller response. Declare whether each quantity refers to current state, a bridge to a later state, or an endpoint prediction. Temporal derivatives describe trajectories; they are not spatial reward gradients.
 
+Attribute each trajectory to its actual producing process. Historical selection curves describe teacher ancestry, not the current guided parent. A restored-state potential versus no intervention is a different comparison from changing one parameter of a parent controller; state the actual comparison before attributing an effect.
+
 Separate three questions: can the intervention form the observable, does native completion retain it, and does the retained change improve terminal affinity? If one link is unmeasured, mark it unmeasured. An unrealized intended layout cannot explain a score gain as successful layout transfer.
 
 Use only controller records whose region, roles, representation, window, and numerical program match the claim. Query the indexed failure history, not only recent rounds. Inspect conflicts, matching changes, dose and clipping before attributing failure to insufficient strength or noise.

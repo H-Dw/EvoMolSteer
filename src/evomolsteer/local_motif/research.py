@@ -90,7 +90,9 @@ def observations(repo,m,folder,p,t,label,tau):
 def feedback(repo,state,evidence):
     best=state['best'];history=[]
     for r in state['rounds']:
-        history.append({k:r.get(k) for k in ['round','stage','factor','status','region','operator','metrics','local_outcomes','rollback','parent']})
+        item={k:r.get(k) for k in ['round','stage','factor','status','region','operator','metrics','local_outcomes','rollback','parent']}
+        if r.get('trials'):item['suffix_evidence']=[{k:trial[k] for k in ['paired','response','local_outcomes']} for trial in r['trials']]
+        history.append(item)
     return {'parent_outcomes':best['metrics'],'parent_response':best.get('response'),'history':history,
         'objective':'Frozen tail utility primary, affinity mean guard; target best 8.704806. Formation is a mechanism, not terminal success.',
         'discovery_gaps':['Static N/C exchanges were not realized by old coordinate guidance.','O fields have explanatory but not established intervention value.'],
@@ -254,7 +256,10 @@ def functional_tests(repo,m,e,t,base):
     # Real API fixtures, not simulated responses. Their generation budget is zero.
     candidates=[('conditional_NC',lambda r:r['candidate_id']=='F_b004_s027' and r['region_id'].endswith('__NC')),
                 ('O_negative_intervention',lambda r:r['region_id'].endswith('__O') and 'O' in r['native_elements']),
-                ('normalization_saturation',lambda r:r['region_id']==base['region_id'])]
+                ('normalization_saturation',lambda r:r['region_id']==base['region_id']),
+                ('trajectory_provenance',lambda r:r['region_id']==base['region_id'])]
+    if m.get('functional_case_subset'):candidates=[x for x in candidates if x[0] in m['functional_case_subset']]
+    else:candidates=candidates[:3]
     for name,predicate in candidates:
         region=next((r for r in e['regions'] if predicate(r)),e['regions'][0]);ee=copy.deepcopy(e)
         ee['regions']=[region];ee['catalog']=[c for c in e['catalog'] if c['region_id']==region['region_id']]
@@ -262,6 +267,9 @@ def functional_tests(repo,m,e,t,base):
         fb={'parent_response':{'actual_enabled_terms':['pointwise'],'direct_orientation_force':False,'direct_type_force':False},
             'parent_outcomes':None,'history':[],'functional_case':name,
             'task':'Validate source distinctions and evidence-to-function handoff; no generation in this fixture.'}
+        if name=='trajectory_provenance':
+            actual=read_json(study/'state.json')['reference'];fb.update(parent_response=actual['response'],parent_outcomes=actual['metrics'],
+                task='Query regional_trajectories and compare its historical Steer origin against the supplied measured current-controller response. Propose one actual numerical change; do not infer current-controller motion from teacher trajectories.')
         p,a,d,info=ask(repo,m,study/('functional_v'+str(m.get('interface_revision',1)))/name,ee,t,{pp['program_id']:{'program':pp}},fb,stage='from_zero')
         checks.append({'case':name,'decision':info,'Analyst_status':a['status'],'Designer_present':d is not None,
             'selected_region':a['region_id'],'new_generation_attempts':0,'source_refs_validated':True,

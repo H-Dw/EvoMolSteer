@@ -1,0 +1,35 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Parent REFERENCE_V2, region F_b011_s030__reference, operator pointwise, representation bridge, controller unit_rms, dose unchanged (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0), steps 100, coordinate_updates_only true, smc false, affinity_head_gradient false, band_multiplier 1.0, orientation_band 0.05, gradient_floor_multiplier 1.0, assignment_element_cost 0.0. Only window_start is changed, from 0.1 to 0.0; window end stays 0.5. Evidence clock domain is the complete learning_window [0.0,0.5], which is distinct from the control window [0.1,0.5]. The measured current-controller response (parent/response, program S0_REFERENCE_REPLAY, 40 active and 40 nonzero updates) is the only admissible motion evidence for the current parent; the regional_trajectories fits are historical Steer ancestry and are not current guidance.",
+  "contrast_definition": "Single-factor contrast against the selected parent REFERENCE_V2: identical program except window_start 0.0 instead of 0.1. The comparison is the measured current-controller response of the parent (parent/response, matching program and region in F_b011_s030__reference/control_response) versus the same controller with the earlier window start. This is not a comparison of the historical Steer ancestor curves against the current parent, and it is not a restored-state-versus-no-intervention comparison.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "parent/outcomes"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/regional_trajectories"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "window_start",
+  "falsifier": "The hypothesis is falsified if, with window_start 0.0 and all other factors held at the parent values, the measured execution response shows no increase in active/nonzero updates and no increase in early-window point_rms_A or gradient RMS relative to the parent, or if the change is explained entirely by dose saturation (injected_rms_A at cap with nonzero cumulative_clip_fraction) rather than by the earlier window. It is also falsified as a beneficial intervention if the retained early-window pointwise change does not survive native completion or does not improve terminal affinity in a matched comparison; those links are currently unmeasured.",
+  "hypothesis_id": "F_b011_s030__reference__window_start_0p1_to_0p0",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "REFERENCE_V2",
+  "predicted_execution_response": "Relative to the measured parent response, the earlier window start is expected to increase the number of active/nonzero updates above 40 and to raise the early-window point_rms_A and raw/current gradient RMS relative to the parent's first-step values, while per-step injected_rms_A stays near the parent's ~0.030 A mean and atom_clip_fraction and cumulative_clip_fraction remain at 0.0. Assignment_switch_fraction is expected to stay small (parent mean 0.00203, max 0.01667). If the dose caps bind instead, injected_rms_A will saturate and cumulative_clip_fraction will become nonzero, which would indicate the earlier start is dose-limited rather than gradient-limited.",
+  "predicted_terminal_response": "Unmeasured. No terminal-affinity benefit is asserted. The parent terminal outcomes (n=24, mean_all_pic50 7.8275, best_qualified_pic50 8.4340, tau 8.1350, hit_fraction 0.04167, n_above_target 0) are the parent's own measured outcomes and are not a forecast for the modified window. A successful early-window pointwise match is an intermediate observable, not the primary outcome.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "Starting the local pointwise window at 0.0 rather than 0.1 lets the unit_rms controller act during the earliest part of the trajectory, where the parent's measured point_rms_A is largest (first 0.4022 A, mean 0.1692 A, last 0.0394 A) and the raw/current gradient RMS is largest (first 0.01071, mean 0.00503, last 0.00172). The proposed mechanism is that the early high-error, high-gradient regime is where a bounded local pointwise correction can still be expressed within the per-atom and cumulative dose caps, whereas by the parent's window start the target error has already largely collapsed. This is a conditional geometric hypothesis about when the observable is applied, not a claim that the historical Steer signed_dx/dy/dz ancestor slopes are a spatial reward gradient, and not a claim that source layout score forecasts generated affinity.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

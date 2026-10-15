@@ -1,0 +1,37 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Local support is the aromatic N at atom_index 22 (element N, aromatic, acceptor, degree 2) plus the two aromatic carbons at atom_index 6 and 13 that define its ring context; the pocket sites are the six supplied fixed coordinates (A:VAL:116:N idx178, A:ASP:175:N idx254, A:LYS:68:NZ idx107, A:GLU:114:O idx162, A:VAL:116:O idx181, A:HIS:160:NE2 idx210). Matching rule: local Hungarian assignment of the selected support atoms to the selected pocket sites, units A, tolerance band to be calibrated from the source distances (candidate N22-to-site distances 2.96-5.04 A for the N_acceptor role rows). Target direction: reduce the assigned N22-to-pocket-site distance toward the source value, not toward zero. This is a geometric coordinate hypothesis only; no chemical-role or interaction-energy claim is made.",
+  "contrast_definition": "Same restored parent state (S0_REFERENCE_REPLAY, region F_b011_s030__NC, window [0.1,0.5], steps 100, representation bridge, operator pointwise) with the local pocket_distance potential applied to the N22 support versus the same restored state with no local intervention. This is a local-potential-vs-unguided comparison at the same restored state, not a parameter change of the parent controller and not a comparison against historical Steer ancestors.",
+  "contrast_kind": "local_potential_vs_unguided_same_restored_state",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__NC/control_response"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__NC/regional_context",
+    "F_b011_s030__NO/conditional_layout",
+    "F_b011_s030__NO/regional_trajectories",
+    "parent/response",
+    "parent/outcomes"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "local_intervention",
+  "falsifier": "The hypothesis is falsified if, at matched restored state and matched window, the local pocket_distance intervention on the N22 support leaves the assigned N22-to-idx178 and N22-to-idx181 distances statistically indistinguishable from the unguided parent (no shift toward 2.96 A and 3.23 A), or if the shift appears only with atom_clip_fraction or cumulative_clip_fraction above the parent's 0.0, or if assignment_switch_fraction exceeds the parent mean 0.0020, indicating the effect is a matching change rather than a retained local geometry. A terminal affinity change without the retained local geometry would not support this hypothesis.",
+  "hypothesis_id": "F_b011_s030__NC_pocket_distance_N22_anchor_vs_unguided",
+  "observable_definition": "Implemented and derivative-tested: local selected-point distances to fixed pocket sites, compared with source distances within a proposed tolerance. Uses provided coordinates, NOT an interaction energy or established H bond.",
+  "observable_id": "pocket_distance",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured current-program response for S0_REFERENCE_REPLAY is 40 active and 40 nonzero updates with mean injected_rms_A 0.0301 and mean point_rms_A 0.169; the local pocket_distance potential is expected to add nonzero local updates on the N22 support with a comparable injected_rms_A order and no atom_clip_fraction or cumulative_clip_fraction growth above the parent's 0.0. The discriminating execution observable is the assigned N22-to-idx178 and N22-to-idx181 distances moving toward the source values (2.96 A and 3.23 A) relative to the unguided parent, with assignment_switch_fraction not exceeding the parent mean 0.0020.",
+  "predicted_terminal_response": "If the local potential forms and retains the source-like N22 geometry, the terminal state should show reduced assigned N22-to-pocket-site distance error relative to the unguided parent; terminal affinity is not predicted from this geometry alone. Parent terminal outcomes are U_tau 0.01246, best_qualified_pic50 8.434, mean_all_pic50 7.827, n_above_target 0, n_qualified 22 of 24 scored; any terminal affinity change is unmeasured by this hypothesis and must be scored separately.",
+  "region_id": "F_b011_s030__NC",
+  "role": "Analyst",
+  "scientific_hypothesis": "The source terminal layout F_b011_s030__NC places the aromatic N at atom_index 22 at 2.96 A from A:VAL:116:N (idx178) and 3.23 A from A:VAL:116:O (idx181), while same-root controls sit at mean 3.28 A and 3.17 A respectively; the candidate is at or below the control interquartile band for these two sites. A local pocket_distance potential on the N22 support should therefore pull the guided trajectory toward the source N22-to-pocket-site distances and retain that geometry to the terminal state, whereas the unguided parent does not. The competing explanation is that the observed source distances are a terminal-chemistry association of the source layout only and carry no coordinate-intervention value, in which case the local potential will not move the assigned distances beyond the unguided parent.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
