@@ -1,0 +1,108 @@
+{
+  "schema_version": "evomolsteer.research_plan.v2.proposed",
+  "document_kind": "non_executable_workflow_specification",
+  "implementation_status": "planned_not_implemented",
+  "execution_enabled": false,
+  "new_generation_budget_authorized": null,
+  "prior_campaign_complete": "nc_autoresearch20_20261015",
+  "source_audit_commit": "9bfdf9ef77b90d222692cd0ea6de816752d87f40",
+  "api": {
+    "backend": "real_api",
+    "model": "deepseek-flash",
+    "temperature": 0,
+    "thinking": "disabled",
+    "model_or_temperature_ablation": false,
+    "credentials": "environment_only"
+  },
+  "roles": {
+    "Analyst": "skills/local-motif-analyst/SKILL.md",
+    "Designer": "skills/local-motif-designer/SKILL.md",
+    "share_complete_referenced_evidence": true,
+    "require_evidence_bundle_hash": true,
+    "claim_classes": ["measured", "inferred", "proposed"],
+    "max_tool_rounds_proposed": 3,
+    "max_readonly_calls_per_round_proposed": 2,
+    "on_unimplemented_operator": "capability_gap",
+    "free_form_code_execution": false
+  },
+  "objective": {
+    "terminal_score": "frozen_FLOWR_affinity_head_pic50",
+    "aspirational_best_score": 8.7048063278,
+    "screen_threshold": "freeze_original_steer_basic_qualified_pic50_q90_before_new_outcomes",
+    "primary_screen_metric": "mean_over_all_attempts_of_qualified_positive_score_excess_above_threshold",
+    "report_also": ["qualified_threshold_hit_rate", "all_scored_mean", "score_coverage", "all_failures", "best_qualified_score", "two_stage_mmff_distribution", "best_sample_quality"],
+    "mean_regression_tolerance_proposed": 0.03,
+    "max_score_alone_can_promote": false
+  },
+  "state_and_clocks": {
+    "learning_window": "evidence_manifest.learning_window",
+    "initial_control_window": "frozen_parent.guidance_window",
+    "control_window_must_be_within_learning_window": true,
+    "teacher_time": "referenced_state.actual_time",
+    "analysis": "continuous_full_selection_window_no_independent_time_bins",
+    "complete_to_terminal_time": 1.0,
+    "suffix_guidance": false,
+    "historical_state_restore_requires": ["prior", "current", "conditioning", "times", "mask", "vocabulary", "pocket_identity", "model_identity", "native_protocol"],
+    "continuation_rng": "paired_new_child_stream_unless_exact_historical_rng_is_available"
+  },
+  "scientific_constraints": {
+    "coordinate_updates_only": true,
+    "affinity_head_gradient": false,
+    "per_step_affinity_inference": false,
+    "smc": false,
+    "graph_change_gate": false,
+    "new_neural_reward_fit": false,
+    "whole_ligand_direct_loss": false,
+    "direct_support_counts_orientation_neighbors": true,
+    "new_original_dynamics_require_matched_controls": true
+  },
+  "proposed_tools": [
+    "evidence_registry", "conditional_layout", "regional_context",
+    "regional_trajectories", "control_response", "suffix_probe",
+    "hypothesis_ledger", "semantic_contract"
+  ],
+  "stages": [
+    {"id": "S0", "purpose": "correct_evidence_and_verify_agent_contract", "generation": false},
+    {"id": "S1", "purpose": "measure_local_coordinate_controllability", "generation": "bounded_response_probes_if_authorized"},
+    {"id": "S2", "purpose": "test_formation_retention_and_terminal_value", "generation": "paired_native_suffixes_if_authorized"},
+    {"id": "S3", "purpose": "from_zero_single_intervention_screen", "generation": "new_numerically_distinct_programs_only_if_authorized"},
+    {"id": "S4", "purpose": "frozen_new_initial_pool_confirmation", "generation": "if_authorized_and_prior_stages_supported"},
+    {"id": "S5", "purpose": "conditional_timing_or_multimode_extension", "generation": "only_after_component_validation_and_authorization"}
+  ],
+  "sample_recommendations_not_job_queue": {
+    "suffix_hypotheses_max": 2,
+    "states_per_hypothesis": 3,
+    "suffix_streams_per_state": 2,
+    "paired_arms": 2,
+    "suffix_completions_total_if_all_used": 24,
+    "screen_attempts_per_program": 24,
+    "frozen_candidates_max": 2,
+    "initial_confirmation_attempts_per_program": 50,
+    "expansion": "power_uncertainty_and_authorized_budget_decide_not_automatic"
+  },
+  "comparison": {
+    "root_seed": 42,
+    "pair_by": ["initial_state_hash", "sample_id", "random_stream", "native_protocol_hash", "checkpoint_hash"],
+    "reuse_existing_controls": "only_if_numerical_generation_and_evaluation_identity_match",
+    "numerically_equivalent_programs": "share_results_and_report_no_function_change",
+    "original_steer": "reuse_frozen_results_and_report_budget_and_lineage_dependence",
+    "holdout_outcomes_may_tune_current_candidate": false,
+    "separate_active_best_from_confirmed_best": true
+  },
+  "rollback": {
+    "consecutive_declines": 2,
+    "criterion": "predeclared_paired_tail_decrease_beyond_numeric_tolerance_or_mean_loss_beyond_tolerance",
+    "uncertainty": "label_unresolved_when_evidence_is_insufficient",
+    "restore": ["scientific_reward", "scientific_parameters", "scientific_skills"],
+    "retain": ["correctness_fixes", "audit_code", "failure_evidence", "decision_records"]
+  },
+  "storage": {
+    "working_feature_caches": 1,
+    "repeated_label_tables": "uncompressed_parquet_float64",
+    "large_input_references": "path_and_content_hash",
+    "full_jacobian_storage": false,
+    "per_atom_per_time_full_site_expansion": "diagnostic_opt_in_only",
+    "protect": ["original_steer", "frozen_controls", "model_checkpoints", "decision_history"],
+    "remote_cleanup": "derived_files_only_after_local_download_hash_and_report_verification"
+  }
+}
