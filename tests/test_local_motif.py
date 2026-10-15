@@ -96,3 +96,39 @@ def test_grouped_restore_preserves_conditioning_and_strict_suffix_clocks():
     assert torch.equal(current['coords'],state['current']['coords'][[2,0]]) and cond['coords'].shape[0]==2
     x.before(30,current,times);x.after(30,current,[torch.full((2,),.31)]*3)
     with pytest.raises(ValueError):x.before(32,current,times)
+
+
+def test_branch_cache_tracks_active_math_without_invalidating_unrelated_new_operators():
+    from evomolsteer.local_motif.semantic_contract import selected_branch_signature
+    a="def f(operator,x):\n    if operator=='a':\n        v=x*x\n    else:\n        v=-x\n    return v\n"
+    b="def f(operator,x):\n    if operator=='a':\n        v=x*x\n    elif operator=='b':\n        v=3*x\n    else:\n        v=-x\n    return v\n"
+    assert selected_branch_signature(a,'a')==selected_branch_signature(b,'a')
+    assert selected_branch_signature(a,'a')!=selected_branch_signature(a.replace('x*x','x*x*x'),'a')
+
+
+def test_explicit_parameter_paths_separate_physical_dose_from_curvature():
+    from evomolsteer.local_motif.semantic_contract import variants
+    p,t=inputs();p.update(operator='pointwise',region_id='R',template_id='T')
+    r={k:p[k] for k in ['region_id','template_id','atom_slots','pocket_sites','orientation_triplets','base_band_A']}
+    m={'learning_window':[0,.5],'allowed_starts':[0,.1,.3]}
+    c=variants(p,{'factor':'dose.pointcloud_delta_A','observable_id':'pointwise'},r,t,m)
+    assert any(q['dose']['pointcloud_delta_A']!=p['dose']['pointcloud_delta_A'] for q in c.values())
+    assert all(q['dose']['native_rms_ratio']==p['dose']['native_rms_ratio'] for q in c.values())
+    d=variants(p,{'factor':'dose.native_rms_ratio','observable_id':'pointwise'},r,t,m)
+    assert all(q['dose']['pointcloud_delta_A']==p['dose']['pointcloud_delta_A'] for q in d.values())
+
+
+def test_temporal_gain_changes_actual_step_after_normalization():
+    class Model:
+        coord_scale=1.;integrator=SimpleNamespace(use_cosine_scheduler=False)
+        def __call__(self,curr,pocket,times,**kw):
+            x=curr['coords'];return {'coords':x+.4,'atomics':x[...,0,None].expand(-1,-1,5)}
+        def _get_predictions(self,out):return {'coords':out['coords']},None
+    p,t=inputs();p['dose'].update(max_atom_step_A=10.,max_cumulative_rms_A=100.)
+    curr={'coords':torch.tensor([t['coords_A']],dtype=torch.double),'mask':torch.ones((1,6),dtype=torch.bool)}
+    rms=[]
+    for schedule in ['constant','early']:
+        q=copy.deepcopy(p);q['time_schedule']=schedule;c=MotifControl(Model(),q,t,torch.zeros((1,3),dtype=torch.double))
+        c.forward(curr,{},[torch.tensor([.1],dtype=torch.double)]*3,None,None,None,10,.01);c.after(curr,10)
+        rms.append(c.rows[-1]['injected_rms_A_mean'])
+    assert rms[1]/rms[0]==pytest.approx(1.4875)

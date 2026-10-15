@@ -1,0 +1,49 @@
+{
+  "controlled_atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__reference/regional_trajectories"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "pointwise"
+  ],
+  "evidence_bundle_hash": "53b948f075761476709e3ed3c3f9f98147449b11c4afb5d7224612391bd5b49f",
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__reference/control_response"
+  ],
+  "executed_operator": "pointwise",
+  "falsifier": "The hypothesis is falsified if, under pointcloud_delta_A 0.5 with all other fields held at parent values, injected_rms_A_mean and the point_rms_A trajectory are indistinguishable from the parent's measured values (parent/response), i.e. the pointwise term is already near-quadratic over the observed residual range. It is also falsified if the edit materially changes assignment_switch_fraction or the clip fractions, which would indicate the change acted through matching or dose caps rather than through the pointwise dose scale. A numerical no-op or interface failure is labeled separately from a scientific negative result.",
+  "hypothesis_id": "F_b011_s030__reference__pointwise_band_halved",
+  "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "parameter_source": "Parent program S0_REFERENCE_REPLAY, region F_b011_s030__reference, representation bridge, operator pointwise, controller unit_rms, window [0.1,0.5], steps 100, expected_active_steps 10-49, teacher_time 0.5. The only changed parameter is dose.pointcloud_delta_A: parent value 1.0 -> 0.5, unitless robust-loss scale in A. All other fields are held at parent values: base_band_A 0.34907500557366816, band_multiplier 1.0, atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24], orientation_triplets [[0,3,7],[1,16,18],[2,3,21]], orientation_band 0.05, assignment_element_cost 0.0, gradient_floor_multiplier 1.0, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}. Variant V00 is selected because it preserves the parent native_rms_ratio 0.66 and changes only the pointwise dose scale, keeping one principal experimental change; V01 additionally changes native_rms_ratio to 0.99 and would confound the dose edit with a native-dynamics change.",
+  "predicted_control_response": "Under pointcloud_delta_A 0.5 with all other fields at parent values, injected_rms_A_mean shifts away from the parent measured 0.0301 A and point_rms_A decays faster in the early active steps relative to the parent trajectory (first 0.402 A, last 0.039 A, mean 0.169 A). assignment_switch_fraction and atom_clip_fraction/cumulative_clip_fraction remain near parent values (mean 0.0020, 0.0, 0.0) because the Hungarian assignment rule and dose caps are unchanged. The response is conditional on the current model call and saved conditioning; it is not differentiation through all future random steps.",
+  "role": "Designer",
+  "scientific_rationale": "The Analyst hypothesis is a single-factor dose edit on the implemented pointwise operator: pointcloud_delta_A 1.0 -> 0.5, with base_band_A, band_multiplier, atom_slots, orientation_triplets, native_options, expected_active_steps, max_atom_step_A 0.15, max_cumulative_rms_A 6.0 and native_rms_ratio 0.66 held at parent values. The pointwise term is the robust pseudo-Huber form value = -d^2*(sqrt(1+q/d^2)-1) with q = |delta|^2; halving d makes the loss more sharply quadratic near matched teacher points, so the same Hungarian assignment should yield a larger per-step injected RMS and faster early decay of point_rms_A. The competing explanation is that the term is already near-quadratic over the observed residual range, in which case injected_rms_A_mean and the point_rms_A trajectory are indistinguishable from the parent. The parent baseline to compare against is measured current-program response (parent/response): active_updates 40, nonzero_updates 40, injected_rms_A_mean 0.0301 A, point_rms_A mean 0.169 A, target_error_mean 0.169 A, assignment_switch_fraction mean 0.0020, atom_clip_fraction 0.0, cumulative_clip_fraction 0.0. The historical Steer ancestor curves (F_b011_s030__reference/regional_trajectories) are pocket-fixed retrospective fields over the complete learning_window [0.0,0.5] and are explicitly not current guidance; they are not used to predict the current parent's motion. No terminal-affinity benefit is predicted from this geometric edit; the source layout score is not a generated-score forecast (report/limits).",
+  "variant_id": "V00"
+}

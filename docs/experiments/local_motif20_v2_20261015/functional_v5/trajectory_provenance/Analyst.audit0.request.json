@@ -1,0 +1,72 @@
+{
+  "body": {
+    "max_tokens": 2000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/ed8dd9c032db907e4f721ff4ddf443dd193d12efc0bd7e7f808d0e69d8fdeb53.txt",
+        "content_sha256": "ed8dd9c032db907e4f721ff4ddf443dd193d12efc0bd7e7f808d0e69d8fdeb53",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/37add93f482f314286ec8044990b4e53e35bda56e0804fc32bef52c1e4f963cb.txt",
+        "content_sha256": "37add93f482f314286ec8044990b4e53e35bda56e0804fc32bef52c1e4f963cb",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "consistent": {
+        "type": "boolean"
+      },
+      "issues": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "contradiction": {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            "field": {
+              "enum": [
+                "conditioning",
+                "contrast_definition",
+                "scientific_hypothesis",
+                "predicted_execution_response",
+                "predicted_terminal_response",
+                "falsifier"
+              ]
+            },
+            "quote": {
+              "maxLength": 800,
+              "type": "string"
+            }
+          },
+          "required": [
+            "field",
+            "quote",
+            "contradiction"
+          ],
+          "type": "object"
+        },
+        "maxItems": 3,
+        "type": "array"
+      }
+    },
+    "required": [
+      "consistent",
+      "issues"
+    ],
+    "type": "object"
+  }
+}

@@ -11,6 +11,7 @@ def load_history(repo,prior_study):
         rows.append({'campaign':prior_study,'round':r['round'],'factor':r['factor'],'status':r['status'],
             'candidate':p.get('candidate_id'),'region':p.get('atom_slots'),'operator':p.get('geometry_mode'),
             'weights':p.get('weights'),'dose':p.get('dose'),'mean':m.get('mean_all_pic50'),'best':m.get('best_qualified_pic50'),
+            'n':m.get('n'),'native_options':p.get('native_options'),'window':p.get('window'),'initial_sha256':m.get('initial_sha256'),
             'realization':r.get('realization'),'rollback':r.get('rollback',False)})
     return rows
 

@@ -15,8 +15,8 @@ def field(clouds,centers,width=1.5):
     return np.column_stack([mass.mean((1,2)),displacement])
 
 
-def build(repo,master,regions,templates):
-    out=repo/master['campaign_study'];path=out/'trajectory_evidence.json'
+def build(repo,master,regions,templates,output_name='trajectory_evidence.json',curves_name='regional_curves.parquet'):
+    out=repo/master['campaign_study'];path=out/output_name
     if path.exists():return read_json(path)
     root=repo/master['compact_dataset']/'results'/master['campaign'];scale=read_json(root/'config.json')['coord_scale']
     rows=[];fits={};sources={}
@@ -38,7 +38,7 @@ def build(repo,master,regions,templates):
                         rows.append({'region_id':r['region_id'],'time':float(t),'observable':name,'ancestor':float(values[parent,j]),
                             'control_mean':float(values[control,j].mean()) if len(control) else None,
                             'contrast':float(values[parent,j]-values[control,j].mean()) if len(control) else None,'n_controls':len(control)})
-    frame=pd.DataFrame(rows);frame.to_parquet(out/'regional_curves.parquet',compression=None,index=False)
+    frame=pd.DataFrame(rows);frame.to_parquet(out/curves_name,compression=None,index=False)
     for (rid,name),g in frame.groupby(['region_id','observable']):
         if len(g)>=4 and g.contrast.notna().all():
             fits.setdefault(rid,{})[name]={'ancestor_fit':fit_window(g.time,g.ancestor),'contrast_fit':fit_window(g.time,g.contrast)}

@@ -29,10 +29,14 @@ def score_records(records,tau):
         'n_above_target':int((qualified&(scores>=8.7048063278)).sum()),'tau':tau}
 
 
-def paired(a,b,tau):
+def paired(a,b,tau,allow_legacy_metadata=False):
     aa=read_json(a/'guidance_audit.json')['input_pairing'];bb=read_json(b/'guidance_audit.json')['input_pairing']
-    for k in ['initial_sha256','initial_slots','seed','resolved_native_options']:
+    for k in ['initial_sha256','initial_slots','seed','checkpoint_sha256','upstream_native_sha256']:
         if aa[k]!=bb[k]:raise ValueError('Unpaired comparison: '+k)
+    protocol_verified='resolved_native_options' in aa and 'resolved_native_options' in bb
+    if protocol_verified:
+        if aa['resolved_native_options']!=bb['resolved_native_options']:raise ValueError('Different native numerical protocols')
+    elif not allow_legacy_metadata:raise ValueError('Legacy native protocol metadata needs explicit limited-comparison mode')
     if aa.get('resume')!=bb.get('resume'):raise ValueError('Continuation identity mismatch')
     ar=read_json(a/'records.json');br=read_json(b/'records.json')
     def vectors(rows):
@@ -42,7 +46,9 @@ def paired(a,b,tau):
     return {'n_pairs':len(ar),'mean_difference':float((ax-bx).mean()),'U_difference':float((au-bu).mean()),
         'mean95':np.quantile((ax-bx)[ids].mean(1),[.025,.975]).tolist(),
         'U95':np.quantile((au-bu)[ids].mean(1),[.025,.975]).tolist(),
-        'scope':'Descriptive paired pool; not search-adjusted and not target generalization.'}
+        'protocol_metadata_complete':protocol_verified,
+        'scope':('Descriptive paired pool; not search-adjusted and not target generalization.' if protocol_verified else
+            'Initial/checkpoint/upstream/seed matched; legacy native-option metadata incomplete. Numerical paired summary only, not independently established guidance-only effect.')}
 
 
 def local_outcomes(folder,p,t,output):

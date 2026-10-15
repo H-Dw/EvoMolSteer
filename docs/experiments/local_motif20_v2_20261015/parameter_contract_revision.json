@@ -1,0 +1,29 @@
+{
+  "functional_case": "functional_v6/trajectory_provenance",
+  "generation_count_unchanged_by_interface_tests": true,
+  "new_capabilities": [
+    "untyped spatial-contrast regions (33)",
+    "local centroid/covariance potential",
+    "positive early/late whole-window dose schedules"
+  ],
+  "reason": "The generic dose label was confused with pseudo-Huber curvature. Both now use exact JSON parameter paths, and Designer returns a deterministically validated parameter_changes array. Semantic auditors use a separate short factual-verification prompt to avoid conflicting role instructions.",
+  "revision": 6,
+  "sequential_module_tests": {
+    "R04": {
+      "factors": [
+        "region"
+      ],
+      "reason": "R03 smaller N/C-only support improved mean over unguided but lost the high-affinity tail versus broader reference. Test untyped, bulk-adjusted scaffold spatial contrasts using the same operator and dose.",
+      "region_family": "spatial_contrast"
+    },
+    "R05": {
+      "factors": [
+        "operator"
+      ],
+      "operators": [
+        "local_moments"
+      ],
+      "reason": "After the region experiment, separately test collective centroid/covariance geometry in place of individual point imitation, keeping parent support, dose and window fixed."
+    }
+  }
+}

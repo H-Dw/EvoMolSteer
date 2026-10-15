@@ -100,7 +100,7 @@ def infer(repo,master,cfg,cfg_path,remote,sha):
         f'mkdir -p {shlex.quote(cfg["remote_output"])}',
         f'export LD_LIBRARY_PATH={shlex.quote(LIBRARIES)}',
         f'export PYTHONPATH={shlex.quote(runtime+"/src:"+DEPENDENCIES)}',
-        f'nohup {REMOTE_PYTHON} -u {runtime}/scripts/generate_final_region_guidance.py --repo {runtime} --config {runtime}/{relative} --flowr-root /root/private_data/MolSteer/flowr_root > {cfg["remote_output"]}/worker.log 2>&1 < /dev/null &',
+        f'nohup {REMOTE_PYTHON} -u {runtime}/scripts/generate_final_region_guidance.py --repo {runtime} --config {runtime}/{relative} --flowr-root {shlex.quote(master.get("flowr_root","/root/private_data/MolSteer/flowr_root"))} > {cfg["remote_output"]}/worker.log 2>&1 < /dev/null &',
         f'echo $! > {cfg["remote_output"]}/worker.pid',f'cat {cfg["remote_output"]}/worker.pid'])
     pid=int(remote.command(shell).splitlines()[-1]);emit('remote_inference_started',round=cfg.get('round_id','controls'),pid=pid,n=cfg['pilot_samples'])
     seen=set();started=time.time()
@@ -130,6 +130,8 @@ def infer(repo,master,cfg,cfg_path,remote,sha):
     if master.get('remote_keep_reports_only',False):
         if not master.get('verify_download_hashes',False):raise ValueError('Structure cleanup requires verified hashes')
         for path in local_output.rglob('geometry.json'):
+            rel=path.relative_to(local_output).as_posix();remote.sftp.remove(cfg['remote_output']+'/'+rel)
+        for path in local_output.rglob('categorical_states.npz'):
             rel=path.relative_to(local_output).as_posix();remote.sftp.remove(cfg['remote_output']+'/'+rel)
     return local_output
 

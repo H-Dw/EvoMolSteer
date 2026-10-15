@@ -6,7 +6,7 @@ from evomolsteer.final_guidance.native import Control
 from evomolsteer.final_guidance.reward import bridge
 
 
-OPERATORS=('pointwise','point_band','pocket_distance','orientation','pair_distance')
+OPERATORS=('pointwise','point_band','pocket_distance','orientation','pair_distance','local_moments')
 
 
 class MotifReward:
@@ -61,6 +61,15 @@ class MotifReward:
             desired=(target[pair[0]]-target[pair[1]]).norm(dim=-1)
             excess=((d-desired).abs()-band).clamp_min(0)
             value=-(excess**2).mean(1);error=excess.mean(1)
+        elif operator=='local_moments':
+            mean=points.mean(1);desired_mean=target.mean(0)
+            centered=points-mean[:,None];q=target-desired_mean
+            covariance=torch.einsum('bni,bnj->bij',centered,centered)/len(self.slots)
+            desired_cov=q.T@q/len(self.slots)
+            location=(mean-desired_mean).square().sum(-1)
+            shape=(covariance-desired_cov).square().sum((1,2))/desired_cov.trace().clamp_min(1e-8)
+            combined=location+p.get('moment_shape_weight',1.)*shape
+            error=combined.sqrt();value=-combined
         else:
             errors=[]
             for center,a,b in p['orientation_triplets']:
@@ -100,12 +109,18 @@ class MotifControl(Control):
         if self.first_gradient_norm is None:self.first_gradient_norm=norm.detach().clamp_min(1e-10)
         floor=self.first_gradient_norm*self.program['gradient_floor_multiplier']
         self.dose_gain=(norm/torch.sqrt(norm.square()+floor.square())).detach() if self.program['controller']=='bounded' else torch.ones_like(norm)
+        u=(self.t+self.dt*.5-self.program['window'][0])/(self.program['window'][1]-self.program['window'][0])
+        schedule=self.program.get('time_schedule','constant')
+        if schedule not in ('constant','early','late'):raise ValueError('Unknown temporal dose schedule')
+        schedule_gain=1.5-u if schedule=='early' else .5+u if schedule=='late' else 1.
+        self.dose_gain=self.dose_gain*schedule_gain
         previous=getattr(self,'previous_assignment',None)
         self.extra={'operator':self.program['operator'],'target_error_mean':float(detail['target_error'].detach().mean()),
             'point_rms_A':float(detail['point_rms_A'].detach().mean()),'dose_gain_mean':float(self.dose_gain.mean()),
             'calibrated_gradient_floor_mean':float(floor.mean()),'raw_gradient_rms_mean':float(norm.mean()),
             'assignment_switch_fraction':None if previous is None else float((previous!=detail['assignment']).float().mean()),
             'direct_support_count':len(self.reward.slots),'affinity_vjp':False,'extra_model_forwards':0}
+        self.extra['time_schedule_gain']=schedule_gain
         self.previous_assignment=detail['assignment'].detach().clone()
         if abs(self.t+self.dt-self.program['window'][1])<2e-6:
             self.extra['boundary_generated_slots']=detail['assignment'].detach().cpu().tolist()

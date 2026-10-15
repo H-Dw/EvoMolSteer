@@ -1,0 +1,38 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Parent S0_REFERENCE_REPLAY, region F_b011_s030__reference, operator pointwise, representation bridge, window [0.1,0.5], controller unit_rms, coordinate_updates_only true, assignment_element_cost 0.0, band_multiplier 1.0, gradient_floor_multiplier 1.0, native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, atom_slots and pocket_sites as listed. Only dose.pointcloud_delta_A is changed; all other legal factors held at parent values. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5].",
+  "contrast_definition": "Single-factor contrast against the selected parent S0_REFERENCE_REPLAY: same program, region, operator, representation, window, controller, assignment cost, band multiplier, gradient floor, native_rms_ratio and step/cumulative dose limits; only dose.pointcloud_delta_A differs. This is a conditional head-score response comparison, not a claim that a legal label swap or a source layout score establishes a beneficial coordinate intervention.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "parent/outcomes",
+    "F_b011_s030__reference/regional_trajectories"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/history",
+    "F_b011_s030__reference/regional_trajectories"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "dose.pointcloud_delta_A",
+  "falsifier": "The hypothesis is falsified if, at matched active updates and matched native_rms_ratio 0.66, changing dose.pointcloud_delta_A away from 1.0 A produces no monotone or reproducible change in mean point_rms_A or mean target_error_mean, or if the change is accompanied by nonzero atom_clip_fraction or cumulative_clip_fraction, or if the direction of change is opposite to the stated prediction. It is also falsified if the observed change in point_rms_A or target_error_mean cannot be separated from the historical Steer ancestor curves in F_b011_s030__reference/regional_trajectories, which are descriptive complete-window curves whose time points and cloned ancestors are not independent repetitions and which do not measure the current gradient-guided parent run.",
+  "hypothesis_id": "F_b011_s030__reference__pointcloud_delta_A__local_curvature",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "At matched active updates and matched native_rms_ratio 0.66, decreasing dose.pointcloud_delta_A below 1.0 A is expected to lower mean point_rms_A and mean target_error_mean relative to the parent response, with atom_clip_fraction and cumulative_clip_fraction remaining at 0.0 and assignment_switch_fraction remaining near the parent mean 0.00203. Increasing dose.pointcloud_delta_A above 1.0 A is expected to raise mean point_rms_A and mean target_error_mean. The parent measured response is the reference: active_updates 40, nonzero_updates 40, point_rms_A mean 0.1692 A, target_error_mean mean 0.1692 A, injected_rms_A_mean 0.0301 A, native_observed_rms_A_mean 0.0583 A.",
+  "predicted_terminal_response": "Unmeasured. No terminal-affinity gradient is available for this factor, and the parent outcomes (n 24, n_scored 24, n_qualified 22, n_above_target 0, mean_all_pic50 7.8275, best_qualified_pic50 8.4340, tau 8.1350, U_tau 0.01246, hit_fraction 0.04167) are source scores for the parent program, not forecasts for new samples under a changed pointcloud_delta_A. A successful intermediate point_rms_A or target_error_mean match is not the primary outcome.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "The pointwise pseudo-Huber curvature scale dose.pointcloud_delta_A controls how strongly the local Hungarian-matched per-point distance to observed teacher coordinates is penalized. At the parent value 1.0 A the measured current-program response shows target_error_mean falling from 0.4022 to 0.0394 A and point_rms_A from 0.4022 to 0.0394 A over 40 active updates, with zero atom_clip_fraction and zero cumulative_clip_fraction, so the parent is not clipping. A smaller pointcloud_delta_A should make the robust loss more quadratic near the target and therefore reduce the residual point_rms_A and target_error_mean at matched active updates, while a larger value should make it more linear and leave a larger residual. This is a geometric observable hypothesis; it does not assert a chemical-role or interaction-energy mechanism.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

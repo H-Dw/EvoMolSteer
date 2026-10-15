@@ -1,0 +1,85 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/ed8dd9c032db907e4f721ff4ddf443dd193d12efc0bd7e7f808d0e69d8fdeb53.txt",
+        "content_sha256": "ed8dd9c032db907e4f721ff4ddf443dd193d12efc0bd7e7f808d0e69d8fdeb53",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/08d1688ec66ef90fc573a8ff75e5fbc37e087792df5c27572991c14f80055221.txt",
+        "content_sha256": "08d1688ec66ef90fc573a8ff75e5fbc37e087792df5c27572991c14f80055221",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/9340c3a878e4beba037665efa418d97ec97e8ed246c2abbabcd8824e5667072a.txt",
+        "content_sha256": "9340c3a878e4beba037665efa418d97ec97e8ed246c2abbabcd8824e5667072a",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/e5247a95000bb10b2de30137457f16ebf11e52c04dc12f38b3ce38cb2008cda8.txt",
+        "content_sha256": "e5247a95000bb10b2de30137457f16ebf11e52c04dc12f38b3ce38cb2008cda8",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}

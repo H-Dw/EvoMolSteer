@@ -1,0 +1,20 @@
+{
+  "consistent": false,
+  "issues": [
+    {
+      "contradiction": "The actual compiled program does not hold all other fields at parent values and does not change pointcloud_delta_A. In actual_compiled_program.dose, pointcloud_delta_A is 1.0 (parent value, not 0.5) and native_rms_ratio is 0.33 (not the claimed parent value 0.66). Thus the prose claims a single-factor dose edit on pointcloud_delta_A while the compiled program instead changes native_rms_ratio and leaves pointcloud_delta_A unchanged.",
+      "field": "parameter_source",
+      "quote": "The only changed parameter is dose.pointcloud_delta_A: parent value 1.0 -> 0.5, unitless robust-loss scale in A. All other fields are held at parent values: base_band_A 0.34907500557366816, band_multiplier 1.0, atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24], orientation_triplets [[0,3,7],[1,16,18],[2,3,21]], orientation_band 0.05, assignment_element_cost 0.0, gradient_floor_multiplier 1.0, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}."
+    },
+    {
+      "contradiction": "The predicted response is conditioned on pointcloud_delta_A 0.5, but the actual compiled program has dose.pointcloud_delta_A = 1.0. The stated dose condition does not match the executed program, so the predicted response is not a prediction for the compiled operator configuration.",
+      "field": "predicted_control_response",
+      "quote": "Under pointcloud_delta_A 0.5 with all other fields at parent values, injected_rms_A_mean shifts away from the parent measured 0.0301 A and point_rms_A decays faster in the early active steps relative to the parent trajectory (first 0.402 A, last 0.039 A, mean 0.169 A)."
+    },
+    {
+      "contradiction": "The falsifier is defined under pointcloud_delta_A 0.5 with all other fields held at parent values, but the actual compiled program uses pointcloud_delta_A 1.0 and native_rms_ratio 0.33. The falsification condition therefore does not correspond to the executed program.",
+      "field": "falsifier",
+      "quote": "The hypothesis is falsified if, under pointcloud_delta_A 0.5 with all other fields held at parent values, injected_rms_A_mean and the point_rms_A trajectory are indistinguishable from the parent's measured values (parent/response), i.e. the pointwise term is already near-quadratic over the observed residual range."
+    }
+  ]
+}

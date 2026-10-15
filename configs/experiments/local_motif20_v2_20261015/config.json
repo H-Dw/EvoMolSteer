@@ -16,13 +16,16 @@
   "config_dir": "configs/experiments/local_motif20_v2_20261015",
   "confirmation_samples": 50,
   "designer_skill": "skills/local-motif-designer/SKILL.md",
+  "enable_geometric_discovery": true,
+  "flowr_root": "/root/private_data/MolSteer/flowr_root",
   "functional_case_subset": [
     "trajectory_provenance"
   ],
   "generated_root": "data/generated/local_motif20_v2_20261015",
+  "geometric_radius_bond_multiple": 2.0,
   "initial_program": "configs/experiments/nc_autoresearch20_20261015/active_best.json",
   "initial_results": "data/generated/nc_autoresearch20_20261015/R11/R11",
-  "interface_revision": 4,
+  "interface_revision": 6,
   "layout_report": "D:/llm_controlled_generation/outputs/ck2_top10_spatial_motif_mining_20261014",
   "learning_window": [
     0.0,
@@ -39,6 +42,24 @@
   "remote_dataset": "/root/private_data/MolSteer/flowr_root/experiments/ck2_clk3_lineage_20261003",
   "remote_keep_reports_only": true,
   "rollback_declines": 2,
+  "round_modules": {
+    "R04": {
+      "factors": [
+        "region"
+      ],
+      "reason": "R03 smaller N/C-only support improved mean over unguided but lost the high-affinity tail versus broader reference. Test untyped, bulk-adjusted scaffold spatial contrasts using the same operator and dose.",
+      "region_family": "spatial_contrast"
+    },
+    "R05": {
+      "factors": [
+        "operator"
+      ],
+      "operators": [
+        "local_moments"
+      ],
+      "reason": "After the region experiment, separately test collective centroid/covariance geometry in place of individual point imitation, keeping parent support, dose and window fixed."
+    }
+  },
   "screen_samples": 24,
   "seed": 42,
   "steps": 100,

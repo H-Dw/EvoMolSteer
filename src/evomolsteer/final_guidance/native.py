@@ -117,6 +117,7 @@ class Control:
             self.teacher_snapshot={'time':self.capture_time,'representation':'current_world_A',
                 'coords_A':(curr['coords']*self.model.coord_scale+self.com[:,None]).detach().cpu().tolist(),
                 'mask':curr['mask'].detach().cpu().bool().tolist()}
+            self.teacher_categories={k:curr[k].argmax(-1).detach().cpu().numpy().astype(np.uint8) for k in ['atomics','bonds','charges'] if k in curr}
         self.rows.append(row);return curr
 
 
@@ -255,6 +256,10 @@ def run(repo,cfg):
         write_json(out/'records.json',records);write_json(out/'guidance_audit.json',{'program':p,'operative_text':text,'steps':control.rows,
             'actual_active_steps':actual,'actual_steps':len(control.rows),'mean_cumulative_control_rms_A':float(control.total.mean()),
             'no_smc':True,'no_affinity_head_gradient':True,'real_generator_vjp':p is not None,'input_pairing':source_audit})
+        if cfg.get('save_categorical_states',False) or (p is not None and p['family']=='local_motif_v2'):
+            graph_arrays={'terminal_'+k:output[k].argmax(-1).cpu().numpy().astype(np.uint8) for k in ['atomics','bonds','charges']}
+            graph_arrays.update({'boundary_'+k:v for k,v in getattr(control,'teacher_categories',{}).items()})
+            np.savez_compressed(out/'categorical_states.npz',**graph_arrays)
         summary={'condition':name,'n':n,'mean_pic50_all':float(scores.mean()),'best_pic50':float(scores.max()),
             'qualified':sum(r['qualified_structure'] for r in records),'seconds':time.time()-started,'active_updates':len(actual),
             'nonzero_updates':sum(r['nonzero_molecules']>0 for r in control.rows)}

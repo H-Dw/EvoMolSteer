@@ -13,7 +13,7 @@ from evomolsteer.nc_guidance.autoresearch import NATIVE_DEFAULTS
 from .evidence_registry import build
 from .regional_trajectories import build as trajectories
 from .agents import ask
-from .semantic_contract import bind_region,validate_program,identity
+from .semantic_contract import bind_region,validate_program,identity,numerical_code_identity
 from .control_response import summarize as response
 from .evaluation import original_reference,score_records,paired,local_outcomes,energy
 
@@ -40,7 +40,16 @@ def base_program(repo,m,evidence,templates):
 def prepare(repo,m):
     study=repo/m['campaign_study'];study.mkdir(parents=True,exist_ok=True)
     e,t=build(repo,m)
+    from .hypothesis_ledger import load_history
+    e['history']=load_history(repo,Path(m['prior_study']))
+    write_json(study/'history_index_v2.json',e['history'])
     e['trajectory']=trajectories(repo,m,e['regions'],t)
+    if m.get('enable_geometric_discovery'):
+        from .geometric_regions import extend
+        e,extra=extend(repo,m,e,t)
+        if extra:
+            more=trajectories(repo,m,extra,t,'geometric_trajectory_evidence_v1.json','geometric_curves_v1.parquet')
+            e['trajectory']['fits'].update(more['fits'])
     write_json(study/'shared_evidence_manifest.json',{'evidence_sha256':digest(study/'evidence.json'),
         'trajectory_sha256':digest(study/'trajectory_evidence.json'),'input_code_version':local(repo,['git','rev-parse','HEAD']),
         'corrected_full_state_clone_controls':True,'tool_names':list(e['cards'][next(iter(e['cards']))])})
@@ -59,6 +68,7 @@ def bind(repo,m,p,t,label,batch=0,n=24,seed=42,resume=None,include_unguided=Fals
     cfg={'study':study,'round_id':label,'remote_output':m['remote_campaign']+'/'+label,'checkpoint':m['checkpoint'],
         'remote_dataset':m['remote_dataset'],'campaign':m['campaign'],'arm':m['arm'],'pilot_initial_batch':batch,'pilot_samples':n,
         'seed':seed,'steps':m['steps'],'teacher_time':t['time'],'terminal_time':1.,'include_unguided':include_unguided,
+        'save_categorical_states':True,
         'only_program_ids':[label],'native_options':p['native_options']}
     if resume:cfg['resume']=resume
     path=repo/m['config_dir']/(label+'.json');write_json(path,cfg)
@@ -92,6 +102,9 @@ def feedback(repo,state,evidence):
     for r in state['rounds']:
         item={k:r.get(k) for k in ['round','stage','factor','status','region','operator','metrics','local_outcomes','rollback','parent']}
         if r.get('trials'):item['suffix_evidence']=[{k:trial[k] for k in ['paired','response','local_outcomes']} for trial in r['trials']]
+        if r.get('stage')=='suffix':
+            item.pop('metrics',None)
+            item['scope']='Mechanistic same-restored-state comparisons only. Do not compare absolute suffix affinity with from-zero pools.'
         history.append(item)
     return {'parent_outcomes':best['metrics'],'parent_response':best.get('response'),'history':history,
         'objective':'Frozen tail utility primary, affinity mean guard; target best 8.704806. Formation is a mechanism, not terminal success.',
@@ -128,7 +141,7 @@ def suffix_identity(repo,m,p,t,stream):
 def controls(repo,m,p,t,label,batch,n,remote):
     if batch==0 and n in (24,50):
         root=repo/'data/generated/partial_region_search_20261014'
-        return {'unguided':root/('controls_screen/unguided' if n==24 else 'controls_batch0_n50/unguided'),
+        return {'unguided':repo/m['generated_root']/'S0_REFERENCE_REPLAY/unguided' if n==24 else root/'controls_batch0_n50/unguided',
             'historical_R13':root/('R13/R13_0.1' if n==24 else 'R19/R19_0.1')}
     out=repo/m['generated_root']/('controls_b%d_n%d'%(batch,n))
     if not (out/'COMPLETE.json').exists():
@@ -163,6 +176,12 @@ def run(repo,master_path,stop_after=20,prepare_only=False,functional_only=False)
     if not (study/'functional_checks.json').exists():functional_tests(repo,m,e,templates,base)
     remote=Remote()
     try:
+        roots=[m['checkpoint'], '/root/private_data/MolSteer/flowr_root/flowr/models/fm_pocket.py',
+            '/root/private_data/MolSteer/flowr_root/flowr/models/integrator.py']
+        runtime=json.loads(remote.command("python - <<'PY'\nimport json,hashlib\nfrom pathlib import Path\npaths="+repr(roots)+"\nprint(json.dumps({p:hashlib.file_digest(Path(p).open('rb'),'sha256').hexdigest() for p in paths}))\nPY"))
+        runtime_path=study/'upstream_runtime_identity.json'
+        if runtime_path.exists() and read_json(runtime_path)!=runtime:raise ValueError('Upstream model/code changed during frozen campaign')
+        write_json(runtime_path,runtime)
         if sp.exists():state=read_json(sp)
         else:
             t=templates[base['template_id']]
@@ -186,12 +205,18 @@ def run(repo,master_path,stop_after=20,prepare_only=False,functional_only=False)
                 frozen=copy.deepcopy(state['best']['program']);state['frozen_confirmation_program']=frozen;write_json(sp,state)
             if frozen:
                 parent_options={frozen['program_id']:{'program':frozen,'metrics':state['best']['metrics'],'status':'frozen_confirmation'}}
-            write_json(folder/'proposal.json',{'stage':stage,'parents':parent_options,'feedback':feedback(repo,state,e),
-                'authorized_max_rounds':20,'objective_frozen_before_results':state['original_steer']})
-            emit('role_calls',round=label,stage=stage,incumbent=state['best']['program']['program_id'])
-            p,a,d,status=ask(repo,m,folder,e,templates,parent_options,feedback(repo,state,e),stage,frozen)
-            write_json(folder/'decision.json',{'Analyst':a,'Designer':d,'interface_status':status,
-                'decision_record':'Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.'})
+            if not (folder/'proposal.json').exists():
+                write_json(folder/'proposal.json',{'stage':stage,'parents':parent_options,'feedback':feedback(repo,state,e),
+                    'authorized_max_rounds':20,'objective_frozen_before_results':state['original_steer']})
+            if (folder/'decision.json').exists() and (folder/'selected_program.json').exists():
+                saved=read_json(folder/'decision.json');a=saved['Analyst'];d=saved['Designer'];status=saved['interface_status']
+                p=read_json(folder/'selected_program.json')
+                emit('immutable_decision_reused',round=label)
+            else:
+                emit('role_calls',round=label,stage=stage,incumbent=state['best']['program']['program_id'])
+                p,a,d,status=ask(repo,m,folder,e,templates,parent_options,feedback(repo,state,e),stage,frozen)
+                write_json(folder/'decision.json',{'Analyst':a,'Designer':d,'interface_status':status,
+                    'decision_record':'Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.'})
             entry={'round':label,'stage':stage,'status':status['status'],'factor':a['factor'],'region':a['region_id'],
                 'parent':a['parent_program_id'],'new_attempts':0,'rollback':False}
             if p:
@@ -211,7 +236,10 @@ def run(repo,master_path,stop_after=20,prepare_only=False,functional_only=False)
                 else:
                     n=m['screen_samples'] if number<19 else m['confirmation_samples'];batch=0 if number<20 else m['validation_batch']
                     key=hashlib.sha256(json.dumps({'program':identity(p,t),'batch':batch,'n':n,'seed':m['seed'],
-                        'implementation':{str(path):digest(repo/path) for path in ['src/evomolsteer/local_motif/reward.py','src/evomolsteer/final_guidance/native.py']}},sort_keys=True).encode()).hexdigest()
+                        'implementation':numerical_code_identity(p),
+                        'upstream_runtime':runtime,
+                        'initial_sha256':digest(repo/m['raw_dataset']/'results'/m['campaign']/m['arm']/f'batch_{batch:03d}'/'initial_state.pt.gz'),
+                        'checkpoint_sha256':read_json(repo/state['reference']['result_folder']/'guidance_audit.json')['input_pairing']['checkpoint_sha256']},sort_keys=True).encode()).hexdigest()
                     reused=key in state['cache']
                     if reused:
                         result=repo/state['cache'][key];sha=read_json(result.parent.parent/'COMPLETE.json').get('commit','cached') if (result.parent.parent/'COMPLETE.json').exists() else 'cached'
@@ -220,7 +248,7 @@ def run(repo,master_path,stop_after=20,prepare_only=False,functional_only=False)
                         state['cache'][key]=result.relative_to(repo).as_posix()
                     obs=observations(repo,m,result,p,t,label,tau)
                     ctr=controls(repo,m,p,t,label,batch,n,remote)
-                    comps={k:paired(result,v,tau) for k,v in ctr.items()}
+                    comps={k:paired(result,v,tau,allow_legacy_metadata=True) for k,v in ctr.items()}
                     best=state['best'];metric=obs['metrics'];mean_delta=metric['mean_all_pic50']-best['metrics']['mean_all_pic50'];gain=metric['U_tau']-best['metrics']['U_tau']
                     improves=gain>m['numeric_tolerance'] and mean_delta>=-m['mean_regression_tolerance']
                     decline=gain < -m['numeric_tolerance'] or mean_delta < -m['mean_regression_tolerance']
@@ -268,7 +296,7 @@ def functional_tests(repo,m,e,t,base):
             'parent_outcomes':None,'history':[],'functional_case':name,
             'task':'Validate source distinctions and evidence-to-function handoff; no generation in this fixture.'}
         if name=='trajectory_provenance':
-            actual=read_json(study/'state.json')['reference'];fb.update(parent_response=actual['response'],parent_outcomes=actual['metrics'],
+            actual=read_json(study/'state.json')['reference'];pp=copy.deepcopy(actual['program']);fb.update(parent_response=actual['response'],parent_outcomes=actual['metrics'],
                 task='Query regional_trajectories and compare its historical Steer origin against the supplied measured current-controller response. Propose one actual numerical change; do not infer current-controller motion from teacher trajectories.')
         p,a,d,info=ask(repo,m,study/('functional_v'+str(m.get('interface_revision',1)))/name,ee,t,{pp['program_id']:{'program':pp}},fb,stage='from_zero')
         checks.append({'case':name,'decision':info,'Analyst_status':a['status'],'Designer_present':d is not None,
