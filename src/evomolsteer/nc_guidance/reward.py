@@ -129,6 +129,8 @@ class NCControl(Control):
             'endpoint_patch_rms_A':float(detail['final_rms_A'].detach().mean()),'half_patch_rms_A':float(detail['half_rms_A'].detach().mean()),
             'direct_endpoint_support_count':int(detail['direct_mask'].sum(1).max()),'atomic_output_in_coordinate_vjp':self.program['weights']['type']>0,
             'affinity_vjp':False,'extra_model_forwards':0}
+        if abs(self.t+self.dt-self.program['window'][1])<2e-6:
+            self.extra['boundary_typed_generated_slots']=detail['assignment'][:,self.reward.ti].detach().cpu().tolist()
         value=sum(self.program['weights'].get(k,0)*v for k,v in terms.items())
         self.cached=(gradient.detach(),pred['coords'].detach(),self.dt,detail['direct_mask'].detach(),value.detach(),gz.detach())
         detached={k:({a:b.detach() if torch.is_tensor(b) else b for a,b in v.items()} if isinstance(v,dict) else v.detach() if torch.is_tensor(v) else v) for k,v in out.items()}
@@ -136,5 +138,12 @@ class NCControl(Control):
         return detached
     def after(self,curr,i):
         enabled=self.cached is not None;curr=super().after(curr,i)
-        if enabled:self.rows[-1].update(self.extra)
+        if enabled:
+            self.rows[-1].update(self.extra)
+            ids=self.extra.get('boundary_typed_generated_slots')
+            if ids is not None:
+                index=torch.as_tensor(ids,device=curr['coords'].device)
+                self.rows[-1]['boundary_current_atomic_indices']=curr['atomics'].argmax(-1).gather(1,index).detach().cpu().tolist()
+        if self.teacher_snapshot is not None and self.capture_time is not None and abs(self.t+self.dt-self.capture_time)<2e-6:
+            self.teacher_snapshot['atomic_indices']=curr['atomics'].argmax(-1).detach().cpu().tolist()
         return curr
