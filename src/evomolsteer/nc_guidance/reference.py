@@ -29,16 +29,17 @@ def run(repo,cfg):
         'pocket_source':'Common target pocket from the first original initial state; sample equality checked in that state'}
     key=hashlib.sha256(json.dumps(provenance,sort_keys=True).encode()).hexdigest()
     cache=repo/'data/analysis_cache'/Path(cfg['campaign_study']).name/'steer_quality.parquet';meta=cache.with_suffix('.json')
-    if cache.exists() and meta.exists() and read_json(meta)['input_signature']==key:
+    if cache.exists() and meta.exists() and read_json(meta)['input_signature']==key and read_json(meta).get('cache_sha256')==digest(cache):
         table=pd.read_parquet(cache)
     else:
         with gzip.open(initial,'rb') as f:init=torch.load(f,map_location='cpu',weights_only=False)
-        pocket=init['pocket_target'];com=init['target_com'].reshape(-1,3)
+        pocket=init['pocket_target'];com=torch.as_tensor(init['target_com']).reshape(-1,3)
+        pocket={**pocket,'coords':torch.as_tensor(pocket['coords']),'mask':torch.as_tensor(pocket['mask'])}
         if not torch.allclose(com,com[0:1].expand_as(com)) or not torch.allclose(pocket['coords'],pocket['coords'][0:1].expand_as(pocket['coords'])):
             raise ValueError('Target pocket differs within the original initial batch')
         local={'coords':pocket['coords'][0:1],'mask':pocket['mask'][0:1]};scale=float(init['coord_scale'])
         scores={r['node_id']:r for r in read_json(root/'final_records.json') if r['arm']==cfg['arm']}
-        if len(files)*50!=len(scores):raise ValueError('Expected complete original batches; inspect missing SDF files')
+        if len(files)*init['prior']['coords'].shape[0]!=len(scores):raise ValueError('Expected complete original batches; inspect missing SDF files')
         RDLogger.DisableLog('rdApp.warning');rows=[];seen=set()
         for path in files:
             molecules={}
@@ -55,7 +56,7 @@ def run(repo,cfg):
             print('historical_quality_batch',batch,flush=True)
         if seen!=set(scores):raise ValueError('Historical attempt coverage changed')
         table=pd.DataFrame(rows);cache.parent.mkdir(parents=True,exist_ok=True)
-        table.to_parquet(cache,index=False,compression=None);write_json(meta,{'input_signature':key,'provenance':provenance})
+        table.to_parquet(cache,index=False,compression=None);write_json(meta,{'input_signature':key,'cache_sha256':digest(cache),'provenance':provenance})
     score=pd.to_numeric(table.pic50,errors='coerce');valid=table.qualified_structure&score.notna()
     result={'n_attempts':len(table),'n_scored':int(score.notna().sum()),'n_basic_qualified':int(valid.sum()),
         'mean_all_pic50':float(score.mean()),'best_basic_qualified_pic50':float(score[valid].max()),
