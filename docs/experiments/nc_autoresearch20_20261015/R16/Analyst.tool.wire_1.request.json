@@ -1,0 +1,71 @@
+{
+  "body": {
+    "max_tokens": 1000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/7bfcd79b45911a6e66798c05ed6bcbfde417d4a50a226039fedda4d032368f63.txt",
+        "content_sha256": "7bfcd79b45911a6e66798c05ed6bcbfde417d4a50a226039fedda4d032368f63",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/265fdfd665163a9b57a04e5123020610942453f3eec17418cb0b994e70beebb6.txt",
+        "content_sha256": "265fdfd665163a9b57a04e5123020610942453f3eec17418cb0b994e70beebb6",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/e996277f977b9714b9030cb7754029501277a7382d02dfdc71bb81abbe01e381.txt",
+        "content_sha256": "e996277f977b9714b9030cb7754029501277a7382d02dfdc71bb81abbe01e381",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "patch_ids": {
+        "items": {
+          "enum": [
+            "Q004_20",
+            "Q017_20",
+            "Q007_20"
+          ]
+        },
+        "maxItems": 3,
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "question": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "tool": {
+        "enum": [
+          "joint_layout_contrasts",
+          "local_role_context",
+          "native_retention_evidence",
+          "window_lineage_features",
+          "reward_response_probe",
+          "matched_counterexamples"
+        ]
+      }
+    },
+    "required": [
+      "tool",
+      "patch_ids",
+      "question"
+    ],
+    "type": "object"
+  }
+}

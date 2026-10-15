@@ -1,0 +1,9 @@
+{
+  "patch_ids": [
+    "Q004_20",
+    "Q017_20",
+    "Q007_20"
+  ],
+  "question": "Compare the three measured native high-quality teacher local hypotheses (Q004_20, Q017_20, Q007_20) under identical scalar controller settings, using joint layout contrasts to identify which patch's native target layout (N/C slot pairing and neighborhood compatibility) is most discriminating for a lineage-aware guidance hypothesis. All three are native (counterfactual=false), in_original_TOP10, 20 points, with source scores 8.626, 8.584, 8.354 respectively; Q004_20 pairs N@6/C@8, Q017_20 pairs N@8/C@20, Q007_20 pairs C@8/N@12. The prior R09 test of Q004_20 under cat_noise_level=1.0 with half=1.0 weights produced mean_pic50 7.474 (mean_vs_unguided -0.094) and was rolled back, with joint_formation only 0.125 and retention_after_formation 1.0 — so the layout was largely unrealized and its affinity value was not tested. I want the joint layout contrast to show which of these native layouts has the strongest supported local role/neighborhood compatibility, so I can pick the smallest discriminating next test rather than rechecking immutable patch metadata. Falsifier: if the joint layout contrast shows no separation in supported role/neighborhood compatibility among the three patches, the patch choice is not discriminating and I should instead vary a scalar controller. Region discovery is fixed during this frozen calibration.",
+  "tool": "joint_layout_contrasts"
+}
