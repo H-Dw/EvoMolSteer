@@ -1,0 +1,36 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Same chemical graph and same region F_b011_s030__reference, same parent S0_REFERENCE_REPLAY, same dose (native_rms_ratio 0.66, pointcloud_delta_A 1.0), same window [0.1,0.5], same representation bridge, same controller unit_rms, same band_multiplier 1.0. Only the operator is varied: parent pointwise versus pocket_distance. The parent response is a measured current-program response with no terminal-affinity gradient; the historical Steer curves in F_b011_s030__reference/history describe teacher ancestry, not the current guided parent. The evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window.",
+  "contrast_definition": "Single-factor contrast: parent S0_REFERENCE_REPLAY (operator pointwise) versus the same program with operator pocket_distance. The parent's measured response (active_updates 40, nonzero_updates 40, mean point_rms_A 0.169, mean target_error 0.169) is the reference; the R07 record in F_b011_s030__reference/control_response is the matching-program pocket_distance response (mean point_rms_A 0.313, mean target_error 0.0027, atom_clip_fraction mean 0.0045). These are mechanistic same-restored-state comparisons only; absolute suffix affinity is not compared with from-zero pools.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/history"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "operator",
+  "falsifier": "If switching to pocket_distance produces no measurable reduction in target_error relative to the parent pointwise mean of 0.169, or if it increases atom_clip_fraction above the parent's measured level or assignment_switch_fraction above the parent's measured level, the hypothesis that the pocket_distance operator improves the local observable is falsified. If terminal affinity metrics change without a corresponding change in the pocket_distance observable, the causal link between the observable and terminal benefit is falsified.",
+  "hypothesis_id": "H_reference_pocket_distance_operator_retention",
+  "observable_definition": "Implemented and derivative-tested: local selected-point distances to fixed pocket sites, compared with source distances within a proposed tolerance. Uses provided coordinates, NOT an interaction energy or established H bond.",
+  "observable_id": "pocket_distance",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured current-program response only: with operator pocket_distance, expect target_error near the R07 mean of 0.0027, atom_clip_fraction at or below the R07 mean of 0.0045, and assignment_switch_fraction at or below the R07 mean of 0.0032. No terminal-affinity gradient is implied.",
+  "predicted_terminal_response": "Not forecast. The parent outcomes (mean_all_pic50 7.827, best_qualified_pic50 8.434, U_tau 0.0125, n_qualified 22 of 24) are the reference; switching to pocket_distance is not asserted to improve terminal affinity. Any terminal claim would require a separate measured comparison.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "For the local support F_b011_s030__reference, switching the operator from pointwise to pocket_distance will reduce the local target_error (mean 0.0027 in R07 versus 0.169 for the parent) while keeping atom_clip_fraction and assignment_switch_fraction at or below the parent's measured levels, because pocket_distance compares matched local points to fixed pocket sites within a tolerance rather than penalizing every point displacement. The competing explanation is that the reduced target_error reflects only the different error definition of pocket_distance and does not correspond to a retained geometric change that improves terminal affinity.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
