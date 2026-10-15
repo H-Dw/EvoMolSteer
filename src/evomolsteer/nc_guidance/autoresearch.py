@@ -114,6 +114,8 @@ def variants(parent,task,patch,teacher,master):
 
 def compact_history(state):
     return [{'round':r['round'],'factor':r['factor'],'patch':r.get('patch'),'chosen_value':r.get('chosen_value'),
+             'actual_dose':r.get('program',{}).get('dose'),'actual_weights':r.get('program',{}).get('weights'),
+             'actual_native_options':r.get('program',{}).get('native_options'),
              'mean_pic50':r.get('metrics',{}).get('mean_all_pic50'),'best_pic50':r.get('metrics',{}).get('best_qualified_pic50'),
              'mean_vs_unguided':r.get('mean_vs_unguided'),'realization':r.get('realization'),
              'rollback':r.get('rollback',False),'status':r['status']} for r in state['rounds'][-8:]]
@@ -127,6 +129,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
             'targets':list(zip(p['typed_slots'],p['typed_elements'])),'source_score':p['layout_score'],
             'counterfactual':p['counterfactual_labels']} for p in allowed]
     skills={r:(repo/master[r.lower()+'_skill']).read_text(encoding='utf-8') for r in ('Analyst','Designer')}
+    parent_scores=next((r['metrics'] for r in reversed(state['rounds']) if r.get('program',{}).get('program_id')==parent['program_id']),state['best'])
     for role,text in skills.items():(folder/(role+'.SKILL.md')).write_text(text,encoding='utf-8')
     short={'type':'string','maxLength':6000,'description':'Keep the explanation concise; refer to evidence rather than repeating every field.'}
     query=call_json([{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
@@ -139,7 +142,11 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     tool_rows=[p for p in allowed if p['patch_id'] in query['patch_ids']]
     tool_result={'tool':query['tool'],'source_hash':digest(repo/master['campaign_study']/'evidence.json'),
         'rows':tool_rows,'limits':evidence['limits'],'context':evidence['context']}
-    if query['tool']=='native_retention_evidence':tool_result['retention_prior']=evidence['retention_prior']
+    if query['tool']=='native_retention_evidence':
+        matches=any(p['typed_slots']==[12,22] and p['typed_elements']==['N','C'] for p in tool_rows)
+        tool_result['retention_prior_applicability']={'prior_hypothesis':'L110: N at 12 and C at 22',
+            'matches_requested_labels':matches,'do_not_transfer_to_native_C12_N22':True}
+        if matches:tool_result['retention_prior']=evidence['retention_prior']
     from .research_tools import joint_layout_contrasts,local_role_context
     if query['tool']=='joint_layout_contrasts':tool_result['actual_layout_table']=joint_layout_contrasts(master['layout_report'],tool_rows)
     if query['tool']=='local_role_context':tool_result['chemical_context']=local_role_context(master['layout_report'],tool_rows)
@@ -152,7 +159,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     analyst=call_json([{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
         'task':task,'allowed_patches':brief,'tool_request':query,'actual_tool_result':tool_result,
         'parent':{'patch':parent['patch_id'],'weights':parent['weights'],'dose':parent['dose'],'native':parent['native_options']},
-        'parent_generated_scores':{'mean':state['best']['mean_all_pic50'],'best_qualified':state['best']['best_qualified_pic50'],
+        'parent_generated_scores':{'mean':parent_scores['mean_all_pic50'],'best_qualified':parent_scores['best_qualified_pic50'],
             'meaning':'Measured active generated reference, not the source teacher score'},
         'history':compact_history(state),'instruction':'Select a local hypothesis, separate realization from value and identify one falsifiable consequence.'})}],
         obj({'role':{'const':'Analyst'},'patch_id':{'enum':[p['patch_id'] for p in allowed]},
@@ -168,7 +175,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
                 validator='enum',validator_value=expected,instance=answer['enabled_terms'])
     designer=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'analyst':analyst,'selected_patch':patch,'experiment':task,'allowed_variants':options,
-        'parent_generated_scores':{'mean':state['best']['mean_all_pic50'],'best_qualified':state['best']['best_qualified_pic50']},
+        'parent_generated_scores':{'mean':parent_scores['mean_all_pic50'],'best_qualified':parent_scores['best_qualified_pic50']},
         'history':compact_history(state),'instruction':'This is an authorized prospective experiment to improve final affinity. Choose one legal untested variant using a falsifiable hypothesis; lack of previous outcomes at that exact value is the reason to experiment, not a reason to defer. Defer for missing necessary chemistry, mathematical invalidity or a demonstrated ineffective operator. Source layout_score is NOT a generated score forecast; zero-weight terms are inactive. Explain direction, dose and expected measurable response.'})}],
         obj({'role':{'const':'Designer'},'patch_id':{'const':patch['patch_id']},'decision':{'enum':['activate','defer'] if options else ['defer']},
              'variant_id':{'enum':list(options) or ['UNSUPPORTED']},
@@ -276,6 +283,10 @@ def run(repo,master_path,stop_after=20):
         old=condition_metrics(repo/master['initial_results'])
         state={'next_round':1,'rounds':[],'initial_program':base,'best_program':base,'best':old,'best_round':'historical_R13',
                'declines':0,'cache':{},'best_typed':None}
+    if 'tail_program' not in state:
+        tail=max([r for r in state['rounds'] if r.get('metrics')],key=lambda r:r['metrics']['best_qualified_pic50'],default=None)
+        state.update(tail_program=copy.deepcopy(tail['program'] if tail else base),tail_round=tail['round'] if tail else 'historical_R13',
+                     tail_score=tail['metrics']['best_qualified_pic50'] if tail else state['best']['best_qualified_pic50'])
     remote=Remote()
     try:
         # Remote files are read once before cache decisions; no inference here.
@@ -285,6 +296,7 @@ def run(repo,master_path,stop_after=20):
         for number in range(state['next_round'],min(stop_after,master['max_rounds'])+1):
             task=copy.deepcopy(master['tasks'][number-1]);label=f'R{number:02d}'
             parent=copy.deepcopy(state['best_program'])
+            if number>=19:parent=copy.deepcopy(state['tail_program'])
             if task.get('parent')=='best_typed' and state.get('best_typed'):parent=copy.deepcopy(state['best_typed']['program'])
             if task.get('patches')=='parent':task['patches']=[parent['patch_id']]
             if task.get('values')=='dose_neighbors':task['values']=[max(.05,parent['dose']['native_rms_ratio']*.5),min(2.,parent['dose']['native_rms_ratio']*1.5)]
@@ -328,6 +340,8 @@ def run(repo,master_path,stop_after=20):
                 score=scores['best_qualified_pic50'] or -1e20;delta=score-state['best']['best_qualified_pic50']
                 rollback=False;confirmation=number>=19
                 if not confirmation:
+                    if score>state['tail_score']:
+                        state.update(tail_score=score,tail_program=copy.deepcopy(p),tail_round=label)
                     # Protect affinity distribution while pursuing a high-quality tail.
                     viable=scores['mean_all_pic50']>=state['best']['mean_all_pic50']-master['mean_regression_tolerance']
                     if delta>master['decline_tolerance'] and viable:

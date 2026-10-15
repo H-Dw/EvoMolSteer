@@ -1,0 +1,99 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/e1a77c1380998227ec1771a0b2c6048e086869b09427a8f7ffeaa569e452b933.txt",
+        "content_sha256": "e1a77c1380998227ec1771a0b2c6048e086869b09427a8f7ffeaa569e452b933",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/583201bc49a71ea90f95d2c31377a0375572f12739765143134b35e9f7a5bf2f.txt",
+        "content_sha256": "583201bc49a71ea90f95d2c31377a0375572f12739765143134b35e9f7a5bf2f",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/dd44f23694d2fc9545c7fab6a88afbe313b2d8b89e0a403db35465bd18090bf7.txt",
+        "content_sha256": "dd44f23694d2fc9545c7fab6a88afbe313b2d8b89e0a403db35465bd18090bf7",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "enabled_terms": {
+        "items": {
+          "enum": [
+            "half",
+            "endpoint",
+            "type",
+            "orientation",
+            "role",
+            "pair"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "expected_execution_change": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "falsifier": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "patch_id": {
+        "const": "L109"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "source_score_is_generation_forecast": {
+        "const": false
+      },
+      "variant_id": {
+        "enum": [
+          "V00",
+          "V01"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "variant_id",
+      "enabled_terms",
+      "source_score_is_generation_forecast",
+      "scientific_rationale",
+      "expected_execution_change",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

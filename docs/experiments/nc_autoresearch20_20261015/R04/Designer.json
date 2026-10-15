@@ -1,0 +1,14 @@
+{
+  "decision": "activate",
+  "enabled_terms": [
+    "half",
+    "type"
+  ],
+  "expected_execution_change": "At the already-tested native_rms_ratio=0.99, V01 raises the type weight from 0.0 to 0.3 and lowers half from 1.0 to 0.7, so the typed-slot term contributes a larger share of the unit-RMS-balanced gradient during the active window [0.1,0.5]. If the type weight acts on formation, joint_formation should rise above the R03 baseline 0.2083 and mean_pic50 above 7.8264, with retention_after_formation and typed-fraction change reported as quality side effects. If the type term only reweights an already-saturated retention channel, both joint_formation and mean_pic50 should stay flat.",
+  "falsifier": "The mixture hypothesis is falsified if at native_rms_ratio=0.99 the V01 half=0.7/type=0.3 run does not raise joint_formation above the R03 baseline 0.2083 and does not raise mean_pic50 above 7.8264, i.e., the type weight leaves the formation stage unchanged. This tests the generation outcome rather than rechecking immutable patch metadata.",
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "L109's native N/C boundary support is genuine local chemistry: slot 22 is a native aromatic degree-two pyridine-type N (native_acceptor true, native_donor false, neighbors 6/13) with a real coordinate-space anchor to A:VAL:116:N at teacher_match_strength 0.951, and slot 12 is native C->C with only a negligible 1.5e-6 donor contact. Retention_after_formation is 1.0 with zero typed-fraction change across R01-R03, so the low joint_formation (0.25/0.208/0.208) is a formation deficit, not a retention deficit. The R01-R03 monotone mean_pic50 rise (7.683, 7.784, 7.826) was driven only by dose.native_rms_ratio with weights fixed at half=1.0/type=0.0, so the type channel has never been exercised. V01 (half=0.7/type=0.3) is the smallest discriminating mixture that shifts relative weight toward the typed-slot term while keeping the half term dominant, so it can act on the formation stage without collapsing the geometric path. V00 (half=0.95/type=0.05) is a weaker perturbation and less likely to move joint_formation above the R03 baseline. The source layout_score 8.7049 is a source-input score, not a forecast; the parent generated mean is 7.7836 (best_qualified 8.4339).",
+  "source_score_is_generation_forecast": false,
+  "variant_id": "V01"
+}
