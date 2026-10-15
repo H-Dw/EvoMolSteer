@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L109"
+  ],
+  "question": "Does patch L109 have an active within-window type-timing component? The requested factor is type_ramp (values [true]), i.e. change only within-window type timing. Prior L109 records show type weight 0.3 (R04) and type weight 0.0 (R10, R11), with final_prediction_changed_typed_fraction = 0.0 in every L109 realization, and joint_formation only 0.25 with retention_after_formation = 1.0. I need the window lineage features to determine whether any type-timing term is actually active in this window; if none is active, the type_ramp intervention is numerically equivalent to no change and should be deferred rather than run. Falsifier: if lineage features show a nonzero, active type-timing component within the window, then the equivalence claim fails and a discriminating type_ramp test is warranted. Smallest next test: inspect the L109 window lineage type-timing feature values; if all are zero/inactive, defer; if nonzero, run the single type_ramp=true intervention on L109 and compare generated-parent mean_pic50 against the R11 pointwise baseline (7.827).",
+  "tool": "window_lineage_features"
+}
