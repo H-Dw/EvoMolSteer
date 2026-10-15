@@ -27,8 +27,15 @@ def fit_window(t,y):
     return results
 
 
-def build(repo,master):
-    repo=Path(repo);study=repo/master['campaign_study'];out=study/'window_trends.json'
+def unique_state_controls(xyz,atom,parent):
+    """Exclude the complete focal state, including its other cloned indices."""
+    state=np.concatenate([np.asarray(xyz).reshape(len(xyz),-1),np.asarray(atom).reshape(len(xyz),-1)],axis=1)
+    _,representatives,inverse=np.unique(state,axis=0,return_index=True,return_inverse=True)
+    return representatives[inverse[representatives]!=inverse[parent]]
+
+
+def build(repo,master,output_name='window_trends.json',curves_name='analysis/window_curves.parquet'):
+    repo=Path(repo);study=repo/master['campaign_study'];out=study/output_name
     if out.exists():return read_json(out)
     templates=read_json(repo/master['prior_study']/'templates.json');seen=set();rows=[];fits=[];sources={}
     root=repo/master['compact_dataset']/'results'/master['campaign']
@@ -45,8 +52,8 @@ def build(repo,master):
                 if t<master['learning_window'][0]-2e-6 or t>master['learning_window'][1]+2e-6:continue
                 xyz=tr.read('current_coords',step)*scale+com;atom=tr.read('current_atomics',step);parent=int(anc[step,slot])
                 # Exact repeated states counted once in the descriptive comparison.
-                unique=np.unique(xyz.reshape(len(xyz),-1),axis=0,return_index=True)[1]
-                control=unique[unique!=parent]
+                control=unique_state_controls(xyz,atom,parent)
+                if not len(control):continue
                 distances=np.linalg.norm(xyz[:,:,None]-centers[None,None],axis=-1)
                 mass=np.exp(-.5*(distances/.8)**2)*(atom==teacher['atom_vocabulary']['N'])[:,:,None]
                 n_mass=mass.sum(1).mean(1)
@@ -62,8 +69,10 @@ def build(repo,master):
     for (key,observable),g in frame.groupby(['candidate_id','observable']):
         fits.append({'candidate_id':key,'observable':observable,'n_clocks':len(g),
                      'contrast_fits':fit_window(g.time,g.contrast)})
-    target=study/'analysis/window_curves.parquet';target.parent.mkdir(parents=True,exist_ok=True);frame.to_parquet(target,index=False,compression=None)
+    target=study/curves_name;target.parent.mkdir(parents=True,exist_ok=True);frame.to_parquet(target,index=False,compression=None)
     value={'domain':master['learning_window'],'sources':sources,'curves_sha256':digest(target),'fits':fits,
+        'analysis_code_sha256':digest(__file__),
+        'control_identity':'Unique coordinate-plus-category states, excluding all copies of the focal ancestor',
         'limits':['Candidate-conditioned retrospective comparison; no causal or generalizable high-affinity marker',
             'Contemporary controls do not have terminal failure labels','No sub-window significance bins',
             'Intermediate elements are native categorical states, not certified chemical roles']}

@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 import torch
 from evomolsteer.nc_guidance.autoresearch import validate_program,execution_identity,NATIVE_DEFAULTS
-from evomolsteer.nc_guidance.window_features import fit_window
+from evomolsteer.nc_guidance.window_features import fit_window,unique_state_controls
 from evomolsteer.nc_guidance.reward import NCReward
 from test_nc_guidance import example
 from evomolsteer.final_guidance.native import instrument_coord_telemetry
@@ -53,6 +53,27 @@ def test_whole_window_fit_reports_signed_rate_without_time_point_pvalues():
     fits=fit_window(t,y);assert fits[1]['rmse']<1e-12
     assert np.allclose(fits[1]['coefficients_ascending'],[2,3,-2])
     assert fits[1]['p_value'] is None and fits[1]['domain']==[0.,.6]
+
+
+def test_unique_controls_exclude_all_focal_clones_but_keep_other_chemistry():
+    xyz=np.zeros((4,2,3));xyz[3]=1
+    atom=np.array([[1,1],[1,1],[1,2],[1,1]])
+    control=unique_state_controls(xyz,atom,parent=1)
+    assert set(control)=={2,3}
+
+
+@pytest.mark.parametrize('mode',['aggregate','pointwise'])
+def test_fixed_assignment_geometry_gradient_matches_finite_difference(mode):
+    p,t=resolved();p['geometry_mode']=mode
+    z=torch.tensor([t['coords_A']],dtype=torch.double)+.12
+    z.requires_grad_(True);mask=torch.ones((1,6),dtype=torch.bool)
+    logits=torch.zeros((1,6,5),dtype=torch.double);reward=NCReward(p,t)
+    ids=reward.assignment(z,z,logits,mask)
+    def value(x):return reward.terms(x,x,logits,mask,assignment=ids)[0]['half'].sum()
+    direction=torch.linspace(-.7,.8,z.numel(),dtype=z.dtype).reshape_as(z)
+    analytic=(torch.autograd.grad(value(z),z)[0]*direction).sum()
+    eps=1e-6;numeric=(value(z.detach()+eps*direction)-value(z.detach()-eps*direction))/(2*eps)
+    assert torch.allclose(analytic,numeric,atol=1e-9,rtol=1e-6)
 
 
 def test_noise_observer_preserves_output_and_rng_consumption():
