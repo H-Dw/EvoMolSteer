@@ -74,3 +74,23 @@ def test_noise_observer_preserves_output_and_rng_consumption():
     torch.manual_seed(42);b=observed['coord_step'](model,x,y,mask,times,.01);rb=torch.get_rng_state()
     assert torch.equal(a,b) and torch.equal(ra,rb)
     assert set(model._guidance_components)=={'predictive','score_drift','random'}
+
+
+def test_type_confidence_weighting_relaxes_saturated_coordinate_pressure():
+    from types import SimpleNamespace
+    from evomolsteer.nc_guidance.reward import NCControl
+    class Model:
+        coord_scale=1.;integrator=SimpleNamespace(use_cosine_scheduler=False)
+        def __call__(self,curr,pocket,times,**kw):
+            x=curr['coords'];bias=torch.zeros((1,6,5),dtype=x.dtype);bias[0,0,4]=8;bias[0,3,3]=8
+            column=x.new_tensor([0.,0.,0.,-1.,1.])
+            return {'coords':x+.05,'atomics':bias+x[...,0,None]*column*.01}
+        def _get_predictions(self,out):return {'coords':out['coords']},None
+    p,t=resolved();curr={'coords':torch.tensor([t['coords_A']],dtype=torch.double),'mask':torch.ones((1,6),dtype=torch.bool)}
+    values=[]
+    for mode in ('none','linear_deficit'):
+        q=copy.deepcopy(p);q['type_confidence_weighting']=mode
+        c=NCControl(Model(),q,t,torch.zeros((1,3),dtype=torch.double))
+        c.forward(curr,{},[torch.tensor([.1])]*3,None,None,None,10,.01)
+        values.append(c.extra['type_mixture_input_rms'])
+    assert 0<values[1]<values[0]/100

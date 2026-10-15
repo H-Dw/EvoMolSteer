@@ -18,6 +18,7 @@ def numerical_signature(program,teacher=None):
     value={k:v for k,v in program.items() if k not in excluded}
     if not program.get('atomic_logit_strength',0):
         value.pop('atomic_logit_strength',None);value.pop('logit_max_shift',None)
+    if program.get('type_confidence_weighting','none')=='none' or not program['weights']['type']:value.pop('type_confidence_weighting',None)
     if not program['weights']['orientation']:value.pop('anchors',None)
     if not program['weights']['type']:
         for key in ('type_mode','type_site_weights','type_ramp'):value.pop(key,None)

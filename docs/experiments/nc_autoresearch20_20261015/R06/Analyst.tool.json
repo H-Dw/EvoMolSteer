@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L110"
+  ],
+  "question": "Does chemical-aware matching stabilize the selected local identities at L110? L110 is a counterfactual fixed-geometry patch (source_score 8.912, targets [12,N] and [22,C]) whose affinity value has not been tested. R05 already ran L110 with the R04 weights (half 0.7, type 0.3) and native_rms_ratio 0.66, yielding mean_pic50 7.678 and best 8.500, but its realization shows joint_at_integration 0.0, joint_final_same_slots 0.0, joint_formation 0.0, boundary_N_probability 0.005 and boundary_C_probability 0.095, with retention_after_formation null. So the selected local identities were not stabilized in that run: the joint layout never formed and the boundary roles collapsed, even though mean_assignment_switch stayed low (0.0021). I need local role context for L110 to check whether the N at 12 and C at 22 have supported chemical roles and local compatibility, or whether the failure is a role/geometry mismatch rather than insufficient matching strength. Falsifier: if local role context shows the N/C targets are chemically compatible and the R05 collapse is instead attributable to the matching operator, then a chemical-aware matching variant should restore joint formation; if the roles are unsupported or geometrically incompatible, matching cannot stabilize them. Smallest discriminating test: rerun L110 at the same dose with chemical-aware matching enabled and compare joint_formation and boundary probabilities against the R05 record.",
+  "tool": "local_role_context"
+}

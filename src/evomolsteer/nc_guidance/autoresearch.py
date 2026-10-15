@@ -45,6 +45,7 @@ def validate_program(p,teacher,learning_window):
     if set(p['weights'])-{'half','endpoint','type','orientation','role','pair'}:raise ValueError('Unknown reward term')
     if any(not np.isfinite(v) or v<0 for v in p['weights'].values()) or not sum(p['weights'].values()):raise ValueError('Invalid mixture')
     if p.get('geometry_mode') not in ('aggregate','pointwise'):raise ValueError('Unknown geometry shape')
+    if p.get('type_confidence_weighting','none') not in ('none','linear_deficit'):raise ValueError('Unknown type optimizer weighting')
     p['expected_active_steps']=active_updates(p['steps'],*p['window'])
     if not p['expected_active_steps']:raise ValueError('Empty control grid')
     NCReward(p,teacher)
@@ -130,6 +131,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
             'counterfactual':p['counterfactual_labels']} for p in allowed]
     skills={r:(repo/master[r.lower()+'_skill']).read_text(encoding='utf-8') for r in ('Analyst','Designer')}
     parent_scores=next((r['metrics'] for r in reversed(state['rounds']) if r.get('program',{}).get('program_id')==parent['program_id']),state['best'])
+    parent_history=[r for r in compact_history(state) if any(q.get('program',{}).get('program_id')==parent['program_id'] and q['round']==r['round'] for q in state['rounds'])]
     for role,text in skills.items():(folder/(role+'.SKILL.md')).write_text(text,encoding='utf-8')
     short={'type':'string','maxLength':6000,'description':'Keep the explanation concise; refer to evidence rather than repeating every field.'}
     query=call_json([{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
@@ -146,7 +148,9 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
         matches=any(p['typed_slots']==[12,22] and p['typed_elements']==['N','C'] for p in tool_rows)
         tool_result['retention_prior_applicability']={'prior_hypothesis':'L110: N at 12 and C at 22',
             'matches_requested_labels':matches,'do_not_transfer_to_native_C12_N22':True}
-        if matches:tool_result['retention_prior']=evidence['retention_prior']
+        if matches:
+            tool_result['different_controller_counterexample']={'prior':evidence['retention_prior'],
+                'control_difference':'Legacy mixed categorical controller, strength 8, dose .33; not the current coordinate-only parent'}
     from .research_tools import joint_layout_contrasts,local_role_context
     if query['tool']=='joint_layout_contrasts':tool_result['actual_layout_table']=joint_layout_contrasts(master['layout_report'],tool_rows)
     if query['tool']=='local_role_context':tool_result['chemical_context']=local_role_context(master['layout_report'],tool_rows)
@@ -161,8 +165,9 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
         'parent':{'patch':parent['patch_id'],'weights':parent['weights'],'dose':parent['dose'],'native':parent['native_options']},
         'parent_generated_scores':{'mean':parent_scores['mean_all_pic50'],'best_qualified':parent_scores['best_qualified_pic50'],
             'meaning':'Measured active generated reference, not the source teacher score'},
-        'history':compact_history(state),'instruction':'Select a local hypothesis, separate realization from value and identify one falsifiable consequence.'})}],
-        obj({'role':{'const':'Analyst'},'patch_id':{'enum':[p['patch_id'] for p in allowed]},
+        'current_parent_program_id':parent['program_id'],'comparator_history':parent_history,
+        'instruction':'Select a local hypothesis, separate realization from value and identify one falsifiable consequence. Compare to the selected parent; other controllers are contextual counterexamples, not this operating point.'})}],
+        obj({'role':{'const':'Analyst'},'patch_id':{'enum':query['patch_ids']},
              'hypothesis':short,'evidence_and_counterexample':short,'expected_response':short,'falsifier':short}),
         folder/'Analyst.json',input_store=repo/master['campaign_study']/'inputs',max_output_tokens=2500,max_format_repairs=2)
     patch=next(p for p in allowed if p['patch_id']==analyst['patch_id']);teacher=templates[patch['template_id']]
@@ -176,7 +181,8 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     designer=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'analyst':analyst,'selected_patch':patch,'experiment':task,'allowed_variants':options,
         'parent_generated_scores':{'mean':parent_scores['mean_all_pic50'],'best_qualified':parent_scores['best_qualified_pic50']},
-        'history':compact_history(state),'instruction':'This is an authorized prospective experiment to improve final affinity. Choose one legal untested variant using a falsifiable hypothesis; lack of previous outcomes at that exact value is the reason to experiment, not a reason to defer. Defer for missing necessary chemistry, mathematical invalidity or a demonstrated ineffective operator. Source layout_score is NOT a generated score forecast; zero-weight terms are inactive. Explain direction, dose and expected measurable response.'})}],
+        'current_parent_program_id':parent['program_id'],'comparator_history':parent_history,'fixed_parent_dose':parent['dose'],
+        'instruction':'This is an authorized prospective experiment to improve final affinity. Choose one legal untested variant using a falsifiable hypothesis; lack of previous outcomes at that exact value is the reason to experiment, not a reason to defer. Defer for missing necessary chemistry, mathematical invalidity or a demonstrated ineffective operator. Source layout_score is NOT a generated score forecast; zero-weight terms are inactive. Compare only to the declared parent, not a different recent round. Explain direction, dose and expected measurable response.'})}],
         obj({'role':{'const':'Designer'},'patch_id':{'const':patch['patch_id']},'decision':{'enum':['activate','defer'] if options else ['defer']},
              'variant_id':{'enum':list(options) or ['UNSUPPORTED']},
              'enabled_terms':{'type':'array','items':{'enum':['half','endpoint','type','orientation','role','pair']},'uniqueItems':True},
@@ -311,7 +317,7 @@ def run(repo,master_path,stop_after=20):
             if revision:cfg['study']+='_interface_v'+str(revision)
             folder=repo/cfg['study'];path=repo/master['config_dir']/(label+'.json')
             write_json(folder/'proposal.json',{'task':task,'parent':parent,'history':compact_history(state),'max_rounds':master['max_rounds']})
-            emit('research_role_calls',round=label,factor=task['factor'],parent=state['best_round'])
+            emit('research_role_calls',round=label,factor=task['factor'],active_incumbent=state['best_round'],actual_parent_program=parent['program_id'])
             p,teacher,patch,d=ask(repo,master,cfg,task,parent,evidence,templates,state)
             if p is None:
                 entry={'round':label,'factor':task['factor'],'status':'designer_deferred','patch':patch['patch_id']}

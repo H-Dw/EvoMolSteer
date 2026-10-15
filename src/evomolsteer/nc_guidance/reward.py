@@ -134,6 +134,9 @@ class NCControl(Control):
                 ramp=1.
                 if name in ('type','orientation') and self.program.get('type_ramp',False):
                     start,end=self.program['window'];ramp=.1+.9*(self.t-start)/(end-start)
+                if name=='type' and self.program.get('type_confidence_weighting','none')=='linear_deficit':
+                    deficit=(1-detail['typed_correct_probability'].detach()).clamp(0,1)
+                    ramp=ramp*deficit[:,None,None]
                 component=weight*ramp*(gx/norm.clamp_min(1e-10)[:,None,None] if self.program['gradient_balance']=='unit_rms' else gx)
                 component_rms=((component.square()*curr['mask'][...,None]).sum((1,2))/curr['mask'].sum(1)).sqrt()
                 summary[name+'_mixture_input_rms']=float(component_rms.detach().mean())
