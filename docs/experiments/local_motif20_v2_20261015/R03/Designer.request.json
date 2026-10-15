@@ -1,0 +1,136 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/11f5740a0f4fcade96cd03e84c3311261edd731f691cb6e723ad0a74ad741afb.txt",
+        "content_sha256": "11f5740a0f4fcade96cd03e84c3311261edd731f691cb6e723ad0a74ad741afb",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/71486d280924f6d6b7f20b1e49165e337ba4d045c3dd9ed4dbfb3ed0528dbe92.txt",
+        "content_sha256": "71486d280924f6d6b7f20b1e49165e337ba4d045c3dd9ed4dbfb3ed0528dbe92",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "controlled_atom_slots": {
+        "const": [
+          6,
+          13,
+          22
+        ]
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__NC/regional_trajectories",
+            "F_b011_s030__reference/control_response"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "decision": {
+        "enum": [
+          "execute",
+          "defer"
+        ]
+      },
+      "direct_type_force": {
+        "const": false
+      },
+      "enabled_terms": {
+        "const": [
+          "pointwise"
+        ]
+      },
+      "evidence_bundle_hash": {
+        "const": "33f78ee5c36c692b743e8a4071aa59c0b44b76ec90c68dba546d1589a9dea6d2"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__NC/regional_trajectories",
+            "F_b011_s030__reference/control_response"
+          ]
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "executed_operator": {
+        "const": "pointwise"
+      },
+      "falsifier": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "hypothesis_id": {
+        "const": "H_NC_pocket_distance_band_vs_reference"
+      },
+      "operator_definition": {
+        "const": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption."
+      },
+      "parameter_source": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "predicted_control_response": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "variant_id": {
+        "enum": [
+          "V00"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "hypothesis_id",
+      "evidence_bundle_hash",
+      "variant_id",
+      "executed_operator",
+      "enabled_terms",
+      "operator_definition",
+      "controlled_atom_slots",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_rationale",
+      "parameter_source",
+      "predicted_control_response",
+      "falsifier",
+      "direct_type_force"
+    ],
+    "type": "object"
+  }
+}

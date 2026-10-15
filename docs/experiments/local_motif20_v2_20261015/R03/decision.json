@@ -1,0 +1,76 @@
+{
+  "Analyst": {
+    "claim_class": "proposed",
+    "conditioning": "Parent S0_REFERENCE_REPLAY, region F_b011_s030__reference, operator pointwise, representation bridge, window [0.1,0.5], controller unit_rms, dose native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0. The proposed intervention keeps the parent operator (pointwise) and changes only the region to F_b011_s030__NC, so the comparison is a single-factor region swap against the matched parent control response. The NC regional trajectory fits are retrospective pocket-fixed fields over the complete learning window [0.0,0.5] and are not the current gradient-guided parent run; they are used only to motivate the local support, not as a spatial reward gradient.",
+    "contrast_definition": "Same parent program and same operator (pointwise), region F_b011_s030__NC versus region F_b011_s030__reference. The matched control is the S0_REFERENCE_REPLAY response recorded under F_b011_s030__reference/control_response (40 active updates, 40 nonzero, mean point_rms_A 0.169, mean target_error 0.169, no clipping, assignment_switch_fraction mean 0.0020). The NC arm is the R02 local_intervention record under F_b011_s030__NC (n=6, mean_all_pic50 8.018, best_qualified_pic50 8.265, U_tau 0.0430, hit_fraction 0.333, n_qualified 4). These are descriptive pools, not search-adjusted and not target generalization.",
+    "contrast_kind": "single_factor_vs_selected_parent",
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__reference/control_response",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "evidence_time_domain": [
+      0.0,
+      0.5
+    ],
+    "factor": "region",
+    "falsifier": "The hypothesis is falsified if, under the NC region with the parent pointwise operator and matched dose/controller, the measured execution response shows no localized nonzero updates in the NC support, or shows atom clipping or assignment_switch_fraction above the parent mean 0.0020, or if the terminal pool does not differ from the matched parent control pool in the direction of the observed R02 NC record (mean_all_pic50 8.018, best_qualified_pic50 8.265, U_tau 0.0430) beyond the descriptive paired intervals already reported. A result in which the NC arm matches the reference arm within those intervals, or in which the NC regional trajectory contrast rates (signed_dx_A -0.141, signed_dz_A -0.410, spatial_mass +0.0069) are not reproduced as an execution response, would also falsify the claim that the region swap is the operative factor.",
+    "hypothesis_id": "H_NC_pocket_distance_band_vs_reference",
+    "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "observable_id": "pointwise",
+    "parent_program_id": "S0_REFERENCE_REPLAY",
+    "predicted_execution_response": "Under the NC region with the parent pointwise operator, expect the measured current-program response to show nonzero coordinate updates concentrated in the NC local support, with injected_rms_A_mean and requested_rms_A_mean at or below the parent reference levels (parent mean injected_rms_A 0.0301, mean requested_rms_A 0.0301), no atom clipping (parent atom_clip_fraction 0.0), and assignment_switch_fraction not exceeding the parent mean 0.0020. Expect point_rms_A to fall from the parent first-step 0.402 toward the parent last-step 0.039 range, and target_error_mean to fall from 0.402 toward 0.039. This is a predicted execution response, not a terminal-affinity gradient.",
+    "predicted_terminal_response": "Conditional on the execution response above, expect the NC arm terminal pool to remain in the neighborhood of the observed R02 NC record (n=6, mean_all_pic50 8.018, best_qualified_pic50 8.265, U_tau 0.0430, hit_fraction 0.333, n_qualified 4) and to be compared against the matched parent control pool (n=24, mean_all_pic50 7.827, best_qualified_pic50 8.434, U_tau 0.0125, hit_fraction 0.042, n_qualified 22). The target best is 8.704806; the parent has n_above_target 0. This is a proposed conditional expectation, not a forecast for new samples, and the source layout score is not a generated-score forecast.",
+    "region_id": "F_b011_s030__NC",
+    "role": "Analyst",
+    "scientific_hypothesis": "Restricting the local pointwise coordinate intervention to the NC region (F_b011_s030__NC) rather than the reference region changes the retained local geometry and the terminal affinity distribution relative to the matched parent control. The NC regional trajectory fits show a signed_dx_A contrast net rate of -0.141 A per window versus an ancestor net rate of -0.388 A, and a signed_dz_A contrast net rate of -0.410 A versus ancestor -0.761 A, i.e. the NC contrast field moves less in x and z than the ancestor field; spatial_mass contrast net rate is +0.0069 versus ancestor +0.0754. The hypothesis is that this smaller, region-localized displacement is the actionable observable, and that the NC arm's observed terminal pool (mean_all_pic50 8.018, best_qualified_pic50 8.265, U_tau 0.0430) is a conditional response to that region change rather than to a change in operator, dose, or controller.",
+    "source_layout_implies_generated_benefit": false,
+    "status": "hypothesis",
+    "temporal_slope_is_spatial_gradient": false,
+    "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+  },
+  "Designer": {
+    "controlled_atom_slots": [
+      6,
+      13,
+      22
+    ],
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "decision": "execute",
+    "direct_type_force": false,
+    "enabled_terms": [
+      "pointwise"
+    ],
+    "evidence_bundle_hash": "33f78ee5c36c692b743e8a4071aa59c0b44b76ec90c68dba546d1589a9dea6d2",
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__reference/control_response",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "executed_operator": "pointwise",
+    "falsifier": "Execution-level: the hypothesis is falsified if, under the NC region with the parent pointwise operator and matched dose/controller, the measured current-program response shows no localized nonzero updates in the NC support, or shows atom_clip_fraction above 0.0, or assignment_switch_fraction above the parent mean 0.0020, or injected_rms_A_mean/requested_rms_A_mean above the parent reference mean 0.0301 A. Terminal consequence: conditional on a valid execution response, the NC arm terminal pool is compared against the matched parent control pool (n=24, mean_all_pic50 7.827, best_qualified_pic50 8.434, U_tau 0.0125, hit_fraction 0.042, n_qualified 22); if the NC arm matches the reference arm within the descriptive paired intervals already reported, or if the NC regional trajectory contrast rates (signed_dx_A -0.141, signed_dz_A -0.410, spatial_mass +0.0069) are not reproduced as an execution response, the claim that the region swap is the operative factor is falsified. Improved similarity or lower loss alone cannot establish affinity improvement; affinity is evaluated first with structural and energy side effects reported using the frozen definitions.",
+    "hypothesis_id": "H_NC_pocket_distance_band_vs_reference",
+    "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "parameter_source": "All parameters are inherited verbatim from the parent program S0_REFERENCE_REPLAY as recorded in parent/response and F_b011_s030__reference/control_response: controller unit_rms, dose {native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, pointcloud_delta_A 1.0}, representation bridge, scope local, steps 100, teacher_time 0.5, window [0.1,0.5], expected_active_steps 10-49, band_multiplier 1.0, gradient_floor_multiplier 1.0, assignment_element_cost 0.0, affinity_head_gradient false, coordinate_updates_only true, native_options unchanged. The only changed parameter is region_id (F_b011_s030__reference to F_b011_s030__NC) with its associated atom_slots [6,13,22], base_band_A 0.34160586005577465, orientation_triplets [[22,6,13]], and pocket_sites. No new operator, dose, or controller calibration is introduced.",
+    "predicted_control_response": "Under the NC region with the parent pointwise operator and matched dose/controller, expect nonzero coordinate updates concentrated in the NC local support, with injected_rms_A_mean and requested_rms_A_mean at or below the parent reference means (0.0301 A), atom_clip_fraction 0.0, and assignment_switch_fraction not exceeding the parent mean 0.0020. Expect point_rms_A and target_error_mean to fall from the parent first-step 0.402 A toward the parent last-step 0.039 A range. This is a predicted execution response, not a terminal-affinity gradient.",
+    "role": "Designer",
+    "scientific_rationale": "Single-factor region swap against the matched parent S0_REFERENCE_REPLAY: operator (pointwise), representation (bridge), controller (unit_rms), dose (native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0), window [0.1,0.5], and teacher_time 0.5 are held fixed; only region_id changes from F_b011_s030__reference to F_b011_s030__NC, with controlled_atom_slots [6,13,22] and orientation_triplets [[22,6,13]]. The NC regional trajectory fits are retrospective pocket-fixed fields over [0.0,0.5] and are used only to motivate the local support, not as a spatial reward gradient; their temporal slopes are not interpreted as spatial gradients. The pointwise operator is the smallest implemented operator that can test the region-localization claim; no band, orientation, or pocket-distance term is enabled, so no direct type or geometric force is claimed.",
+    "variant_id": "V00"
+  },
+  "decision_record": "Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.",
+  "interface_status": {
+    "query_count": 4,
+    "status": "execute"
+  }
+}

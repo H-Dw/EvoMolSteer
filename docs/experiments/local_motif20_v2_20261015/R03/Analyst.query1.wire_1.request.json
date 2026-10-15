@@ -1,0 +1,150 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/ed8dd9c032db907e4f721ff4ddf443dd193d12efc0bd7e7f808d0e69d8fdeb53.txt",
+        "content_sha256": "ed8dd9c032db907e4f721ff4ddf443dd193d12efc0bd7e7f808d0e69d8fdeb53",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/1786adccdefb00c4ca1e82401bfe77dd9b90cc9bd01c6c03beca80987bf34bd6.txt",
+        "content_sha256": "1786adccdefb00c4ca1e82401bfe77dd9b90cc9bd01c6c03beca80987bf34bd6",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/13c5173999c30ee162a87cef0e4edbe9fbe3e5d052f35fe92564aad7d0a8d1c1.txt",
+        "content_sha256": "13c5173999c30ee162a87cef0e4edbe9fbe3e5d052f35fe92564aad7d0a8d1c1",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/f79a2deb3fffd3f870f914c3ce1139af27c47d668594a627e1245269f07d3a18.txt",
+        "content_sha256": "f79a2deb3fffd3f870f914c3ce1139af27c47d668594a627e1245269f07d3a18",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/d479c72520490061ac8467a673691c1cdb5f93bead2f4b93957ff1bcc92beaa6.txt",
+        "content_sha256": "d479c72520490061ac8467a673691c1cdb5f93bead2f4b93957ff1bcc92beaa6",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b003_s025__N2",
+                "F_b003_s025__N24",
+                "F_b003_s025__NC",
+                "F_b003_s025__O",
+                "F_b003_s025__NO",
+                "F_b004_s027__N6",
+                "F_b004_s027__N23",
+                "F_b004_s027__NC",
+                "F_b004_s027__O",
+                "F_b004_s027__NO",
+                "F_b007_s026__N12",
+                "F_b007_s026__N23",
+                "F_b007_s026__NC",
+                "F_b007_s026__O",
+                "F_b007_s026__NO",
+                "F_b009_s001__N12",
+                "F_b009_s001__N15",
+                "F_b009_s001__N20",
+                "F_b009_s001__N23",
+                "F_b009_s001__NC",
+                "F_b009_s001__O",
+                "F_b009_s001__NO",
+                "F_b011_s000__N6",
+                "F_b011_s000__N10",
+                "F_b011_s000__N15",
+                "F_b011_s000__N22",
+                "F_b011_s000__NC",
+                "F_b011_s000__O",
+                "F_b011_s000__NO",
+                "F_b011_s030__N22",
+                "F_b011_s030__NC",
+                "F_b011_s030__O",
+                "F_b011_s030__NO",
+                "F_b011_s030__reference",
+                "F_b011_s040__N7",
+                "F_b011_s040__N15",
+                "F_b011_s040__NC",
+                "F_b011_s040__O",
+                "F_b011_s040__NO",
+                "F_b011_s043__N15",
+                "F_b011_s043__N22",
+                "F_b011_s043__NC",
+                "F_b011_s043__O",
+                "F_b011_s043__NO",
+                "F_b013_s014__N3",
+                "F_b013_s014__N8",
+                "F_b013_s014__N20",
+                "F_b013_s014__NC",
+                "F_b013_s014__O",
+                "F_b013_s014__NO",
+                "F_b017_s021__N0",
+                "F_b017_s021__N8",
+                "F_b017_s021__N16",
+                "F_b017_s021__NC",
+                "F_b017_s021__O",
+                "F_b017_s021__NO",
+                "F_b017_s043__N20",
+                "F_b017_s043__NC",
+                "F_b017_s043__O",
+                "F_b017_s043__NO"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}
