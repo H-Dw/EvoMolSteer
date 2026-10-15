@@ -1,0 +1,68 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/e1aaf9656f1e8c063c00dc3a095082bee86db36b57324868c0c4eec5d590113c.txt",
+        "content_sha256": "e1aaf9656f1e8c063c00dc3a095082bee86db36b57324868c0c4eec5d590113c",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/f1601d0bd17c1eb0a11b610deff7c352c64bf4e60c0d4ecbd46581e75245679d.txt",
+        "content_sha256": "f1601d0bd17c1eb0a11b610deff7c352c64bf4e60c0d4ecbd46581e75245679d",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "comparison_and_counterexample": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "evidence_id": {
+        "type": "string"
+      },
+      "expected_NC_and_geometry_response": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "falsifier": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "hypothesis": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "patch_id": {
+        "enum": [
+          "L110"
+        ]
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "evidence_id",
+      "hypothesis",
+      "comparison_and_counterexample",
+      "expected_NC_and_geometry_response",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

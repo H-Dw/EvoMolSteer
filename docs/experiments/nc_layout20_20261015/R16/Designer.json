@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 0.85,
+      "orientation": 0.0,
+      "type": 0.15
+    },
+    "window": [
+      0.3,
+      0.5
+    ]
+  },
+  "observable_falsifier": "Falsified if, with the R13 context and paired N/C swap frozen and the window started at 0.3, the run fails to exceed the R13_reference incumbent best_qualified_pic50 of 8.3780 while local_NC_identity_accuracy at slots 12 and 22 does not improve over the R13 joint-swap value of 0.0833, or if the measured weighted mixture-input RMS and injected displacement show no local N/C response at those two sites. A further falsifier is observing N at slot 12 with slot 22 still N, indicating the joint swap was not realized and the fixed-count layout was not tested. If no supported patch meets the intervention, defer without inventing evidence.",
+  "patch_id": "L110",
+  "role": "Designer",
+  "scientific_rationale": "Activating the registered L110 reward exactly as supplied: the frozen R13 proper-subset geometry context (20 atom_slots, weight 0.05 each) plus the paired two-site N/C relocation on node single_b011_final_030, with the only new degree of freedom being the later window start (0.3 vs 0.1). Enabled terms are half (0.85) and type (0.15); endpoint and orientation are zero and are not described. Direct geometry support is the 20 listed atom_slots; only slots 12 and 22 carry type loss. Slot 12 is native C with desired_element N (C -> N) and slot 22 is native N with desired_element C (N -> C), a fixed-count joint exchange, not an N addition leaving the former N untouched. The exchange_class is the neutral degree-two pyridine-type aromatic N / aromatic CH class; pyrrole [nH] and amide N are excluded, so the source analysis did not mix those roles. The generated N decoder channel is treated as generic N until final chemical-role checks; the role term is not enabled, so no neutral-charge or aromatic-neighbor decoder preference is asserted. The finite N-minus-C contrasts (slot 12 +0.306751 with best_donor A:ASP:175:N at strength 1.55e-06; slot 22 +0.076346 with best_donor A:VAL:116:N at strength 0.9511) are conditional associations with compensating labels elsewhere, not independent atom energies or transferable high-affinity rules. The measured alternative layout scores higher than native (8.912224 vs 8.704859), so the native layout is not called the best legal layout, and the counterfactual targets have not been regenerated or relaxed, so they are not observed successful paths. Default mode updates current coordinates through real coordinate and atomic-decoder Jacobians; no affinity differentiation, no graph freezing, no SMC, and no teacher substitution. Context neighbors receive direct geometry loss and are not free background; only points outside atom_slots lack direct geometry loss. Component normalization is part of the optimizer, not a single global potential with constant mixture weights."
+}
