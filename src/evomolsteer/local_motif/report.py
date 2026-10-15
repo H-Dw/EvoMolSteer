@@ -102,6 +102,9 @@ def build(repo,config):
     oldug=repo/'data/generated/partial_region_search_20261014/controls_batch0_n50/unguided'
     if (oldug/'records.json').exists():add('REUSED_UNGUIDED_b0_n50',oldug,stage='control_legacy_metadata')
     write_table(out/'conditions.csv',metric_rows);write_table(out/'elemental_diagnostics.parquet',diagnostics)
+    element_summary=pd.DataFrame(diagnostics).groupby(['condition','stage','source_element'],as_index=False)[
+        ['geometry_matched_identity_fraction','boundary_controlled_slot_identity_fraction','point_rms_A']].mean()
+    element_summary.to_csv(out/'elemental_summary.csv',index=False)
     figures(metric_rows,state['original_steer']['best'],out)
     quality=[]
     for path in sorted((out/'quality').glob('*.posebusters.json')):
@@ -178,6 +181,23 @@ def build(repo,config):
         lines+=['','对照必须通过去除匹配代价后的数值签名、初态及原生协议检查；区间保存在matching_cost_counterparts.json。它们仍来自反复使用的调参池，不能作为独立证实。']
     lines+=['','![实际从头生成指标](summary/search_metrics.png)','', '图中的最大值来自不同的小样本池；原始Steer水平线是目标参考，不是等预算显著性比较。']
     (study/'interpretation.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+    if any(r['round']=='R15_v2' for r in state['rounds']):
+        r15=next(r for r in state['rounds'] if r['round']=='R15_v2')
+        note=['# 本轮关键发现与证据边界','',
+            '本文件中的轮次均属于 local_motif20_v2_20261015，不能与历史R26、其它campaign的R11混用。',
+            '', '1. **局部身份形成不等于亲和力受益。** R03的终态N几何匹配率95.8%，跟踪边界实际控制槽位的终态N率100%；但最高基本合格pIC50仅8.127753。R16_v2也形成了N，仍无高分尾部。不能把所有失败都解释为没有生成N。',
+            '', '2. **更准确地贴合固定点云并不是当前首要缺口。** 参考S0边界点云RMS约0.039Å，R15_v2约0.129Å；后者终态预测亲和力反而更高。时变历史路径拟合与目标带各有真实数值作用，但没有提高本轮尾部。单条成功祖先路径不一定适合其它随机起点。',
+            '', '3. **点云对应规则确实是一个可干预模块。** R15_v2只加入0.5的脱离梯度的元素匹配代价，几何支持、pseudo-Huber奖励、rho、窗口及原生协议保持不变。其训练池平均分比S0高0.014569、U高0.006450，但两项配对区间均跨0。相对同池无引导平均高0.274159，仍是反复使用过的调参池证据。',
+            '', '4. **收益具有支持背景依赖。** 同一匹配代价用于3点N/C区域（R16）或4点O区域（R18）没有复制较宽20/25点支持的收益。它提示其它骨架/邻域共同参与适配；不能推出20点是最小充分区域，也不能推出元素代价对所有区域有效。当前只做了少数条件组合。',
+            '', '5. **记录显示Skills输入有所响应，但尚未证明Agent具有独立性能贡献。** 加入可追溯的跨实验家族反证后，功能测试明确引用已有失败；下一次真实探索R15转向匹配规则并产生数值及生成差异。提示词、输入知识和选择同时改变，且没有等预算确定性选择器对照，不能将改善完全归因于LLM或某句Skills。',
+            '', '6. **探索覆盖仍然有限。** 注册库有多个教师和六类算子，但实际从头探索主要围绕F_b011_s030；未执行的算子、其它起点/教师、bounded控制不能写成已经失败。Agent仍有对最高分教师的锚定。拟合残差、几何关联与原子角色都不足以替代真实终态干预。',
+            '', '## 当前保留函数的数学含义','',
+            '对局部教师点q及其观测元素e，π=argmin Σj[||z_h[πj]−qj||²−c log softmax(ℓθ)[πj,e_j]]。匹配在无梯度分支中计算，当前最佳c=0.5。之后只求R=−(1/K)Σj δ²(√(1+||z_h[πj]−qj||²/δ²)−1)的真实模型坐标VJP。',
+            '', 'R15_v2的K=20，小于25个生成槽位；δ=1Å、rho=0.66、逐原子步上限0.15Å、累计RMS上限6Å，窗口[0.1,0.5]，100个积分步。π只改变被匹配的几何对应，不直接对logits或元素求导；化学图自由变化。后半程原生完成至1，最终分数另行统一评估。',
+            '', '这些值是此次比较中冻结的研究配置，不是从源分子证明的通用常数。学习和引导范围来自配置；源码还存在注册算子的校准默认值，若迁移目标需重新登记、验证，不能把旧分子的原子槽位移到新目标。',
+            '', f"最终活动程序：{best}；相对无引导的冻结确认通过：{bool(state.get('confirmed_best'))}。是否达到原始Steer最高预测分数：{value['target_reached_in_from_zero']}。具体确认均值、尾部、区间和结构质量以主报告及结果JSON为准。",
+            '', '原始Steer最优候选的旧PoseBusters记录在internal_energy项失败；复用记录保留。旧H放置包含的应变不能直接与新MMFF两阶段值比较。已有同算法两阶段重原子松弛/原子代理：源F约5.8923，R15训练最高分样本约0.9566。亲和力仍是本研究的首要目标，该结构改善不能替代达到8.704806的要求。']
+        (study/'scientific_readout.zh-CN.md').write_text('\n'.join(note)+'\n',encoding='utf-8')
     return value
 
 
