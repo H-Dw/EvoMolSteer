@@ -154,6 +154,12 @@ def prepare(repo,cfg):
                 'r13_context':True,'geometry_context_points':len(support),'local_NC_points':len(typed),
                 'joint_layout_compensation':t['counterfactual_labels'],
                 'claim':'Preserve the historical R13 proper-subset geometric context; compare N/C labels only on the measured two-site relocation, with no full-cloud loss'})
+    for patch in regions:
+        labels=dict(zip(patch['typed_slots'],patch['typed_elements']))
+        patch['N_targets']=[s for s,e in labels.items() if e=='N'];patch['C_targets']=[s for s,e in labels.items() if e=='C']
+        patch['site_evidence']=[{**s,'desired_element':labels[s['slot']],
+            'native_to_desired':s['native_element']+' -> '+labels[s['slot']]} for s in patch['site_evidence']]
+        patch['label_interpretation']='N_targets/C_targets and desired_element define this reward. native_element describes only the source molecule and may be the opposite label in a counterfactual.'
     write_json(out/'templates.json',templates)
     packet={'schema':'local-nc-evidence-2-role-metadata','patches':regions,'candidate_summaries':summaries,
         'support_definition':'ALL atom_slots, including context neighbors, receive direct geometry loss when a geometry term is enabled; only typed_slots receive type loss',

@@ -14,7 +14,7 @@ from .reward import NCReward
 
 def numerical_signature(program,teacher=None):
     excluded={'program_id','analyst_sha256','designer_sha256','source_round','patch_id','template_id',
-        'candidate_id','teacher_sha256','counterfactual_labels','schema_version'}
+        'candidate_id','teacher_sha256','counterfactual_labels','schema_version','max_local_points'}
     value={k:v for k,v in program.items() if k not in excluded}
     if not program['weights']['orientation']:value.pop('anchors',None)
     if not program['weights']['type']:
