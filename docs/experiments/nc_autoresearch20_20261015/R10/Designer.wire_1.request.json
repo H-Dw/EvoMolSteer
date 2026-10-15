@@ -1,0 +1,127 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/bef9849ec9412c1b237c08876d8569b2b0df89f17534f1d45ab037079d4c0737.txt",
+        "content_sha256": "bef9849ec9412c1b237c08876d8569b2b0df89f17534f1d45ab037079d4c0737",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/fdd48f7a4fa97b5d2d88c836eced50839a821b376a4d84afe77c35348ddf8ee2.txt",
+        "content_sha256": "fdd48f7a4fa97b5d2d88c836eced50839a821b376a4d84afe77c35348ddf8ee2",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/b3c232578165b6fb3e38cded5c11c93f6c3785f3bf9661e173fa3592e64ce306.txt",
+        "content_sha256": "b3c232578165b6fb3e38cded5c11c93f6c3785f3bf9661e173fa3592e64ce306",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "chosen_factor_value": {
+        "enum": [
+          {
+            "endpoint": 0.15,
+            "half": 0.85,
+            "orientation": 0,
+            "pair": 0,
+            "type": 0
+          },
+          {
+            "endpoint": 0.4,
+            "half": 0.6,
+            "orientation": 0,
+            "pair": 0,
+            "type": 0
+          }
+        ]
+      },
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "enabled_terms": {
+        "items": {
+          "enum": [
+            "half",
+            "endpoint",
+            "type",
+            "orientation",
+            "role",
+            "pair"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "expected_execution_change": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "falsifier": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "parent_factor_value": {
+        "const": {
+          "endpoint": 0.0,
+          "half": 1.0,
+          "orientation": 0.0,
+          "type": 0.0
+        }
+      },
+      "patch_id": {
+        "const": "L109"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "source_score_is_generation_forecast": {
+        "const": false
+      },
+      "variant_id": {
+        "enum": [
+          "V00",
+          "V01"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "variant_id",
+      "enabled_terms",
+      "parent_factor_value",
+      "chosen_factor_value",
+      "source_score_is_generation_forecast",
+      "scientific_rationale",
+      "expected_execution_change",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

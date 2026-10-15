@@ -1,0 +1,206 @@
+{
+  "learning_window": [
+    0.0,
+    0.5
+  ],
+  "parameter_consumers": {
+    "assignment_type_cost": "NCReward.assignment",
+    "dose": "Control.after",
+    "geometry_mode": "NCReward.terms",
+    "native_options": "native.run",
+    "weights": "NCControl.forward",
+    "window": "NCReward.active"
+  },
+  "patch": "L109",
+  "program": {
+    "affinity_head_gradient": false,
+    "analyst_sha256": "eb463a40042cd33783752d1a449de39071549a1dc30233d940c17560910bc2b6",
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "anchors": [
+      {
+        "donor": {
+          "coords_A": [
+            23.21,
+            -27.476,
+            7.3
+          ],
+          "donor_id": "A:VAL:116:N",
+          "outward": [
+            0.13170910071094116,
+            -0.2235312711432448,
+            0.9657569485181043
+          ],
+          "residue": "A:VAL:116"
+        },
+        "neighbor_slots": [
+          6,
+          13
+        ],
+        "slot": 22,
+        "teacher_match_strength": 0.951096646394086
+      }
+    ],
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "atom_slots": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      10,
+      12,
+      13,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "background_loss_weight": 0,
+    "candidate_id": "F_b011_s030",
+    "coordinate_updates_only": true,
+    "counterfactual_labels": false,
+    "designer_sha256": "1cd542174187ecdd0cacb2bfd0be4ae8fd11dcd59fb2e939f25e0f05944aafbd",
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.66,
+      "pointcloud_delta_A": 1.0
+    },
+    "expected_active_steps": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49
+    ],
+    "family": "local_nc_layout",
+    "geometry_mode": "aggregate",
+    "gradient_balance": "unit_rms",
+    "max_local_points": 20,
+    "native_options": {
+      "cat_noise_euler_guard": false,
+      "cat_noise_level": 1.0,
+      "coord_noise_level": 0.2,
+      "final_corr_pred": true,
+      "use_sde_simulation": true
+    },
+    "patch_id": "L109",
+    "program_id": "R10",
+    "schema_version": "local-nc-1",
+    "scope": "local",
+    "smc": false,
+    "steps": 100,
+    "teacher_representation": "current_world_A",
+    "teacher_sha256": "8664d46a83e7d7b488983e5583e2fcac248f6d270e0d210669f18a7369ce2b81",
+    "teacher_time": 0.5,
+    "template_id": "F_b011_s030_native",
+    "terminal_time": 1.0,
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "typed_elements": [
+      "C",
+      "N"
+    ],
+    "typed_slots": [
+      12,
+      22
+    ],
+    "weights": {
+      "endpoint": 0.15,
+      "half": 0.85,
+      "orientation": 0,
+      "pair": 0,
+      "type": 0
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "runtime": {
+    "arm": "single",
+    "campaign": "main1000_w050",
+    "campaign_study": "docs/experiments/nc_autoresearch20_20261015",
+    "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
+    "include_unguided": false,
+    "native_options": {
+      "cat_noise_euler_guard": false,
+      "cat_noise_level": 1.0,
+      "coord_noise_level": 0.2,
+      "final_corr_pred": true,
+      "use_sde_simulation": true
+    },
+    "only_program_ids": [
+      "R10"
+    ],
+    "pilot_initial_batch": 0,
+    "pilot_samples": 24,
+    "remote_dataset": "/root/private_data/MolSteer/flowr_root/experiments/ck2_clk3_lineage_20261003",
+    "remote_output": "/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_nc_autoresearch20_20261015/R10",
+    "round_id": "R10",
+    "seed": 42,
+    "steps": 100,
+    "study": "docs/experiments/nc_autoresearch20_20261015/R10",
+    "teacher_time": 0.5,
+    "terminal_time": 1.0
+  },
+  "single_changed_factor": "weights",
+  "source": {
+    "local": {
+      "src\\evomolsteer\\final_guidance\\native.py": "a5f15631db780fba0b466a09356363fd12cb43e43b78c906e9534fa0d6251874",
+      "src\\evomolsteer\\nc_guidance\\reward.py": "2940a930b4caa4b6f183a2fc8194d455bfa4cc7d723b4c5708d2bb6670144992"
+    },
+    "remote": {
+      "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0",
+      "/root/private_data/MolSteer/flowr_root/experiments/ck2_clk3_lineage_20261003/results/main1000_w050/single/batch_000/initial_state.pt.gz": "48efab078f2ce7ec6970967473bbca669838c3ec732cb929e58a41a33432d1b4",
+      "/root/private_data/MolSteer/flowr_root/experiments/ck2_clk3_lineage_20261003/results/main1000_w050/single/batch_002/initial_state.pt.gz": "06ef381da7096f37bcc87b604ef657a04f23332d49008d677dbab09bc7a91d5b",
+      "/root/private_data/MolSteer/flowr_root/flowr/models/fm_pocket.py": "beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426",
+      "/root/private_data/MolSteer/flowr_root/flowr/models/integrator.py": "e9abd83167f708da4712db2ac49ab24ac44a39c59c46a54c20789c7873c58000"
+    }
+  }
+}

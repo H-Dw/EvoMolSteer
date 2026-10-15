@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L109"
+  ],
+  "question": "For patch L109 (native template F_b011_s030_native, targets C12/N22, source_score 8.70, not in original TOP10), I want to test final-geometry compatibility via a real endpoint VJP while retaining a local half-state target. The two candidate weight settings are (endpoint 0.15, half 0.85) and (endpoint 0.4, half 0.6), both with orientation/pair/type = 0. Prior L109 history used endpoint=0 with half=1.0 (R02 native_rms_ratio 0.66: mean_pic50 7.784, best 8.434, joint_formation 0.208, retention 1.0; R03 ratio 0.99: mean 7.826, best 8.391, joint_formation 0.208, retention 1.0) and endpoint=0 with half=0.7/type=0.3 (R04: mean 7.799, best 8.132, joint_formation 0.25, retention 1.0, rolled back). So endpoint weight has never been nonzero on L109, and the half-state target has never been paired with an endpoint VJP term. Please return the joint layout contrast evidence for L109 under these two weight settings: how the endpoint term interacts with the half-state target in coordinate space, whether the C12/N22 joint layout is preserved or degraded, and any actual counterexamples where the endpoint VJP conflicts with the local half-state geometry. I need this to choose between the two settings and to define a falsifier: if the endpoint term does not change the measured joint layout or final affinity relative to the endpoint=0 baseline, the hypothesis that endpoint VJP improves final-geometry compatibility is falsified.",
+  "tool": "joint_layout_contrasts"
+}

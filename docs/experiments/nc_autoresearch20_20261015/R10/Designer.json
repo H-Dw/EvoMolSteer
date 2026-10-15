@@ -1,0 +1,27 @@
+{
+  "chosen_factor_value": {
+    "endpoint": 0.15,
+    "half": 0.85,
+    "orientation": 0,
+    "pair": 0,
+    "type": 0
+  },
+  "decision": "activate",
+  "enabled_terms": [
+    "endpoint",
+    "half"
+  ],
+  "expected_execution_change": "With endpoint=0.15 and half=0.85 at the fixed parent dose, the normalized coordinate-gradient mixture shifts a fraction of the pointwise force from the local half-state target to the endpoint VJP term. This should alter the actual coordinate updates during the active window [0.1,0.5] (expected_active_steps 10-49), which can change the formed C12/N22 joint layout and the terminal prediction. The measurable readouts are the same realization metrics used for R02: joint_formation, retention_after_formation, joint_final_same_slots, final_prediction_changed_typed_fraction, plus mean/best pic50. Because native noise and the final prediction can erase a formed layout, an unchanged or degraded joint layout with no affinity gain would indicate the endpoint term is not the lever; if V00 shows a measurable improvement over the endpoint=0.0 baseline, V01 (endpoint 0.4/half 0.6) is the next discriminating test.",
+  "falsifier": "The hypothesis that the endpoint VJP term improves final-geometry compatibility on L109 is falsified if, at endpoint 0.15/half 0.85 with the parent dose and native options, the measured joint layout (joint_formation, joint_final_same_slots, final_prediction_changed_typed_fraction) and final affinity (mean/best pic50) are unchanged relative to the endpoint=0.0/half=1.0 baseline (mean 7.7836, best 8.4339, joint_formation 0.2083, retention 1.0). A secondary falsifier: if the endpoint term degrades the C12/N22 joint layout (lower joint_formation or retention) without any affinity gain, the endpoint VJP conflicts with the local half-state geometry and should be rejected. These tests concern measured execution and terminal outputs, not immutable patch metadata or static input labels.",
+  "parent_factor_value": {
+    "endpoint": 0.0,
+    "half": 1.0,
+    "orientation": 0.0,
+    "type": 0.0
+  },
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "L109 is a native template (F_b011_s030_native) with typed slots C12/N22, one anchor at slot 22 (A:VAL:116:N, teacher_match_strength 0.9511), and no endpoint-VJP term has ever been active on it: the parent R02 ran endpoint=0.0/half=1.0 with orientation/pair/type=0. The Analyst's untested question is whether a nonzero endpoint VJP term, mixed against a retained local half-state target, changes final-geometry compatibility without degrading the C12/N22 joint layout. The parameter_semantics state these are relative normalized gradient-mixture weights with total physical dose fixed separately, so changing endpoint 0.0->0.15 and half 1.0->0.85 reallocates the direction of the coordinate gradient while the parent dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0) and native options are held fixed. V00 is the smallest discriminating step away from the parent, so any measured change is more attributable to the endpoint term than under V01 (endpoint 0.4/half 0.6). Orientation/pair/type remain zero and are therefore inactive; the anchor is inactive because orientation weight is zero. The source layout_score 8.704859 is fixed-coordinate legal-isomer metadata, not a generated score forecast, and the parent generated scores (mean 7.7836, best 8.4339, joint_formation 0.2083, retention 1.0) are the measured active reference. No affinity-head gradient is introduced and no particle resampling is used; the operator is a legal normalized gradient mixture on the declared learned/control clocks.",
+  "source_score_is_generation_forecast": false,
+  "variant_id": "V00"
+}
