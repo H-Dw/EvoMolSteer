@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 1.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.4,
+      "half": 0.3,
+      "orientation": 0.0,
+      "type": 0.3
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "Prospective falsifier under frozen controls and frozen selection: if the joint local swap does not raise qualified final pIC50 above the R13 reference best_qualified_pic50 8.378002166748047, or if local_NC_identity_accuracy does not exceed the unguided 0.9375 and approach the R13 reference 0.9792, or if final_local_geometry_rms_A does not improve relative to the unguided 0.5790, then the claim that this measured best-legal N/C placement transfers to the R13 teacher is falsified. A further falsifier: a confirmation in which compensating C site 22 is left as native N while N is added at 12 without the joint swap, if that different hypothesis matches or exceeds the joint-swap result, shows the declared joint local swap is not the supported intervention. If no supported patch meets the intervention under these frozen controls, defer without inventing evidence.",
+  "patch_id": "L093",
+  "role": "Designer",
+  "scientific_rationale": "Activating the registered reward on Analyst's frozen local patch L093 (node single_b011_final_030, template F_b011_s030_best_legal). Enabled terms only: endpoint (0.4), half (0.3), type (0.3); orientation weight is 0.0 and is not described or applied. Direct geometry support is the proper local subset atom_slots [8,12,18,21,22]; context neighbors 18 and 21 are directly constrained by the enabled geometry terms and are not free background. Only points outside atom_slots lack direct geometry loss; model-mediated gradients may still reach them. Direct type support is typed_slots [8,12,22] with typed_elements [C,N,C]; only typed_slots carry type loss. Geometry uses distinct spatial assignments frozen within a derivative, never teacher atom indices. Type reward reads the selected decoder N/C log probabilities; gradients act only on current coordinates through real coordinate and atomic-decoder Jacobians. Affinity is not differentiated, discrete labels are not overridden, the new graph is not fixed, and no SMC is introduced. The patch encodes a joint local N/C relocation: N supported at slot 12 (N-minus-C contrast +0.307, donor-facing ASP:175:N match 1.5e-6), C preferred at slot 8 (contrast -0.414, very weak ARG:47:N match 5.6e-12), and compensating C at slot 22 (native aromatic degree-two N, VAL:116:N match 0.951), keeping local N count fixed. Exchange class is neutral degree-two pyridine-type aromatic N / aromatic CH; pyrrole [nH] and amide N are excluded, and the generated N decoder channel is treated as generic N until final chemical-role checks. The role term is not enabled, so no neutral-charge/aromatic-neighbor preference is asserted. Terminal N/C labels are not asserted to be chemical identities at the noisy intermediate time; counterfactual layouts are scored label hypotheses on fixed coordinates, not an observed continuation state or a promised score for new molecules. Expected observable changes: endpoint and half terms should move the selected coordinates toward the frozen final/half teacher geometry, reducing final_local_geometry_rms_A relative to unguided 0.5790; the type term should raise local_NC_identity_accuracy above unguided 0.9375 toward the R13 reference 0.9792 by favoring C at 8, N at 12, C at 22. Success is judged by actual terminal affinity, failures, local N/C response and geometry; reduced imitation loss is not success."
+}

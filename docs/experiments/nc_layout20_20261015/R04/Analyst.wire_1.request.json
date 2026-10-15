@@ -1,0 +1,75 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/2fe54162a74af038a3f86fc9bc96b97beff7fcf991a3e042a9d8dbcd3b4bf2df.txt",
+        "content_sha256": "2fe54162a74af038a3f86fc9bc96b97beff7fcf991a3e042a9d8dbcd3b4bf2df",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/2df4457715c4bfa9abba87af9de6ac5c6f4655654ef4422be280896fe61188ad.txt",
+        "content_sha256": "2df4457715c4bfa9abba87af9de6ac5c6f4655654ef4422be280896fe61188ad",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/f6954ad21a2e1f8038150cde0015162c440225e2dfd110e9fef8554758782a67.txt",
+        "content_sha256": "f6954ad21a2e1f8038150cde0015162c440225e2dfd110e9fef8554758782a67",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "comparison_and_counterexample": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "evidence_id": {
+        "type": "string"
+      },
+      "expected_NC_and_geometry_response": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "falsifier": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "hypothesis": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "patch_id": {
+        "enum": [
+          "L093",
+          "L094"
+        ]
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "evidence_id",
+      "hypothesis",
+      "comparison_and_counterexample",
+      "expected_NC_and_geometry_response",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
