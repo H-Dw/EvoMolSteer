@@ -45,6 +45,7 @@ def run(repo,master,source_round):
             'boundary_correct_then_lost':int((match&~after).sum()),'boundary_wrong_then_correct':int((~match&after).sum())})
     oldrecords=read_json(old/'records.json');newrecords=read_json(output/'records.json')
     result={'source_round':source_round,'diagnostic_only':True,'extra_attempts':len(h),'independent_new_seeds':False,
+        'native_integrator_hparams':read_json(output.parent/'source_audit.json')['native_integrator_hparams'],
         'same_program_bytes':digest(program)==digest(oldprogram),'inference_commit':sha,
         'terminal_coordinate_max_abs_difference_A':float(np.abs(np.asarray(geometry['terminal']['coords_A'])-np.asarray(original['terminal']['coords_A'])).max()),
         'pic50_max_abs_difference':float(max(abs(o['pic50']-n['pic50']) for o,n in zip(oldrecords,newrecords))),

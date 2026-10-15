@@ -138,6 +138,7 @@ def run(repo,cfg):
         'control_adapter_sha256':digest(__file__),'reward_adapter_sha256':digest(Path(__file__).with_name('reward.py')),
         'checkpoint_sha256':digest(cfg['checkpoint']),'initial_sha256':digest(initial),'initial_slots':list(range(n)),
         'seed':cfg['seed'],'native_graph_transitions':True,'smc':False,'affinity_head_gradient':False,'additional_per_step_affinity_calls':0,
+        'native_integrator_hparams':model.integrator.hparams,
         'model_derivative':'Actual FLOWR autograd VJP plus bridge identity term','bridge':'One-forward linear teacher-clock approximation, not exact SDE lookahead'}
     if any(entry[0]['family']=='local_nc_layout' for entry in entries):
         source_audit['nc_extension_sha256']=digest(Path(__file__).parent.parent/'nc_guidance/reward.py')
