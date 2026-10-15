@@ -1,0 +1,119 @@
+{
+  "Analyst": {
+    "action_id": "A7999a49b2bfa",
+    "claim_class": "proposed",
+    "conditioning": "From-zero, same saved prior, RNG, checkpoint and native protocol as S0_REFERENCE_REPLAY; single factor change is region_id from F_b011_s030__reference to F_b011_s030__NO, keeping the parent pointwise operator, dose, window [0.1,0.5] and 100 steps. Region NO is defined by the source terminal N/O role selection at node single_b011_final_030; the generated graph stays free and generated atom identities are not forced to N or O. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. Regional_context distances are source terminal geometry associations, not proven contacts or interaction energies; same-root controls (n=40) are dependent and there is no same-graph control (n_same_graph=0). Regional_trajectories are retrospective historical-steer pocket-fixed fields, not the current gradient-guided parent run, and their temporal slopes are not spatial reward gradients.",
+    "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+    "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+    "counterevidence_refs": [
+      "report/O-intervention",
+      "report/limits"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__NO/regional_context",
+      "F_b011_s030__NO/regional_trajectories",
+      "parent/response",
+      "parent/outcomes"
+    ],
+    "evidence_time_domain": [
+      0.0,
+      0.5
+    ],
+    "factor": "region",
+    "falsifier": "If the NO-region run under matched prior, RNG, checkpoint and native protocol yields terminal U_tau, best_qualified_pic50, mean_all_pic50 and hit_fraction indistinguishable from the parent reference-region outcome within the paired uncertainty, the region-support hypothesis is not supported. A measured execution response with no terminal separation, or terminal separation accompanied by no measurable change in the NO-support pointwise error, would also falsify the proposed mechanism.",
+    "hypothesis_id": "H_NO_region_pointwise_from_zero",
+    "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "observable_id": "pointwise",
+    "parent_program_id": "S0_REFERENCE_REPLAY",
+    "predicted_execution_response": "Measured current-program response only: nonzero coordinate updates on the NO support with assignment switches and point_rms_A comparable in magnitude to the parent response (parent mean point_rms_A 0.169, injected_rms_A_mean 0.0301, no atom or cumulative clipping). No terminal-affinity gradient is implied by this response.",
+    "predicted_terminal_response": "Proposed, not measured: the from-zero terminal utility and affinity guard for the NO-region run will differ from the parent reference-region outcome (parent U_tau 0.01246, best_qualified_pic50 8.434, mean_all_pic50 7.827, hit_fraction 0.0417, n=24). Direction is not asserted; the parent best_qualified_pic50 is not a forecast for new samples.",
+    "region_id": "F_b011_s030__NO",
+    "role": "Analyst",
+    "scientific_hypothesis": "Selecting the NO region (terminal N/O role sites) as the local support for the unchanged pointwise operator will change the from-zero terminal outcome relative to the reference region, because the NO support concentrates the matched local point-distance objective on the terminal N/O role positions rather than the reference support. This is a geometric-support hypothesis only: it does not assert that generated atoms acquire N/O identity, that the listed pocket sites are contacts or hydrogen bonds, or that any source layout score forecasts a generated score.",
+    "source_layout_implies_generated_benefit": false,
+    "status": "hypothesis",
+    "suffix_absolute_scores_establish_from_zero_benefit": false,
+    "temporal_slope_is_spatial_gradient": false,
+    "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+  },
+  "Designer": {
+    "controlled_atom_slots": [
+      1,
+      6,
+      13,
+      16,
+      19,
+      22
+    ],
+    "counterevidence_refs": [
+      "report/O-intervention",
+      "report/limits"
+    ],
+    "decision": "execute",
+    "direct_type_force": false,
+    "enabled_terms": [
+      "pointwise"
+    ],
+    "evidence_bundle_hash": "763b93cf2092aed5ff55b4dddc9ec8a9e3d955c9f76bd096eba4a1f65ac40546",
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__NO/regional_context",
+      "F_b011_s030__NO/regional_trajectories"
+    ],
+    "executed_operator": "pointwise",
+    "falsifier": "Execution-level: if the NO-region run under matched saved prior, RNG, checkpoint and native protocol yields terminal U_tau, best_qualified_pic50, mean_all_pic50 and hit_fraction indistinguishable from the parent reference-region outcome within the paired uncertainty, the region-support hypothesis is not supported. A measured execution response with no terminal separation, or terminal separation accompanied by no measurable change in the NO-support pointwise error, would also falsify the proposed mechanism. Terminal consequence: affinity is evaluated first; structural and energy side effects are reported using the frozen definitions. Improved similarity, role retention, or lower loss alone cannot establish affinity improvement.",
+    "hypothesis_id": "H_NO_region_pointwise_from_zero",
+    "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "parameter_changes": [
+      {
+        "new": "F_b011_s030__NO",
+        "parent": "F_b011_s030__reference",
+        "path": "region_id"
+      },
+      {
+        "new": [
+          1,
+          6,
+          13,
+          16,
+          19,
+          22
+        ],
+        "parent": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          10,
+          12,
+          13,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "path": "atom_slots"
+      }
+    ],
+    "parameter_source": "Parent S0_REFERENCE_REPLAY supplies operator=pointwise, controller=unit_rms, dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}, band_multiplier 1.0, gradient_floor_multiplier 1.0, window [0.1,0.5], steps 100, representation bridge, teacher_time 0.5, native_options {cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true}. V00 changes only region_id (F_b011_s030__reference -> F_b011_s030__NO) and atom_slots (parent 20-slot set -> [1,6,13,16,19,22]); base_band_A is the NO support value 0.32668022810262165, a proposed calibration (quarter source local covalent-length median), not a proven success tolerance. No new operator, no dose change, no target_schedule change.",
+    "predicted_control_response": "Measured current-program response only: nonzero coordinate updates on the NO support with assignment switches and point_rms_A comparable in magnitude to the parent response (parent mean point_rms_A 0.169, injected_rms_A_mean 0.0301, no atom or cumulative clipping). No terminal-affinity gradient is implied by this response.",
+    "role": "Designer",
+    "scientific_rationale": "Single-factor region-support test: keep the parent pointwise operator, dose, window [0.1,0.5], 100 steps, bridge representation, teacher_time 0.5, and native protocol; change only region_id from F_b011_s030__reference to F_b011_s030__NO and the corresponding atom_slots from the parent 20-slot set to the 6-slot NO support [1,6,13,16,19,22]. The NO support is the source terminal N/O role selection at node single_b011_final_030; generated graphs stay free and generated atom identities are not forced to N or O. This is a geometric-support hypothesis only. Regional_context distances are source terminal geometry associations, not proven contacts or interaction energies; same-root controls (n=40) are dependent and n_same_graph=0. Regional_trajectories are retrospective historical-steer pocket-fixed fields, not the current gradient-guided parent run, and their temporal slopes are not spatial reward gradients. The parent measured response (mean point_rms_A 0.169, injected_rms_A_mean 0.0301, no atom or cumulative clipping) is the reference for the expected execution response; no terminal-affinity gradient is implied.",
+    "variant_id": "V00"
+  },
+  "decision_record": "Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.",
+  "interface_status": {
+    "query_count": 4,
+    "status": "execute"
+  }
+}
