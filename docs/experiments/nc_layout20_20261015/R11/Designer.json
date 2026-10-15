@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 1.0,
+      "orientation": 0.0,
+      "type": 0.0
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "Prospective falsifier: if the restored R13 proper-subset geometry with type weight zero does not reproduce the R13 reference within the frozen dose (cumulative_control_RMS near 0.5975, final_local_geometry_rms near 0.5070, local_NC_identity_accuracy near 0.9792, max_type_gradient_rms 0.0), or if its best_qualified_pic50 falls below the R13 reference 8.3780 while the unguided control remains at 8.0279, then the native reproduction claim fails and no added N/C term should be interpreted on this patch. A second falsifier: if enabling any N/C type term on slots 12 and 22 raises terminal affinity above 8.3780 only by degrading local_NC_identity_accuracy below the R13 reference 0.9792 or by reducing n_qualified below 24, the N/C term is not supported as an affinity-improving intervention. If no supported patch meets the intervention, defer without inventing evidence.",
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "Activating the frozen R13 proper-subset geometry replay on L109 with type weight zero. Only the half term is enabled (weight 1.0); endpoint, orientation and type weights are zero, so no orientation term, no endpoint term and no N/C type loss are described or applied. Direct geometry loss acts on the 20 atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]; context neighbors 6 and 13 are inside this set and are directly constrained by the enabled geometry term, not free background. Only points outside atom_slots lack direct geometry loss. The single anchor A:VAL:116:N (outward [0.1317,-0.2235,0.9658], teacher_match_strength 0.9511) with neighbor_slots [6,13] supplies the measured donor and both local heavy-atom neighbors for the enabled geometry term; this is a local geometric constraint, not a hydrogen-bond energy. direct_type_slots is empty: with type weight zero, no N/C identity is directly enforced, and identity preservation at slots 12 and 22 is an outcome to measure, not an operation of this reward. The declared labels N_targets=[22], C_targets=[12] are proposed final N/C labels on fixed coordinates; native_element is the source identity and here matches the desired label at both sites (slot 22 N->N, slot 12 C->C), so this is a native-label reproduction, not a joint N/C relocation. Terminal N/C labels are not asserted to be chemical identities at a noisy intermediate time. The generated N decoder channel is treated as generic N until final chemical-role checks; the source distinction between eligible pyridine-type N and excluded pyrrole/amide identities is preserved via the shared exchange_class, and no role term is enabled, so no neutral-charge or aromatic-neighbor decoder preference is applied. Gradients act only on current coordinates through real coordinate and atomic-decoder Jacobians; affinity is not differentiated, discrete labels are not overridden, the new graph is not fixed, and no SMC is introduced. Geometry uses distinct spatial assignments frozen within a derivative, never generated atom indices copied from the teacher. Component normalization is part of the optimizer, not a single global potential with constant mixture weights. Expected observable changes from the enabled half term: cumulative_control_RMS near the R13 reference 0.5975 and final_local_geometry_rms near 0.5070, with local_NC_identity_accuracy near 0.9792 and max_type_gradient_rms 0.0. Final affinity is primary; validity, failure, strain and actual local N/C response must be reported. The declared intervention is a single change (restore R13 proper-subset geometry, no type term) with frozen controls; the patch and enabled parameters are intentionally retained, which is a frozen replay, not a new region hypothesis."
+}
