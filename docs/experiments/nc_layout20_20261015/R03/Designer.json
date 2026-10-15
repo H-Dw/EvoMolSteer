@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 0.6,
+      "orientation": 0.0,
+      "type": 0.4
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "The intervention is falsified if, with patch L036 frozen and type share 0.40, best_qualified_pic50 does not exceed the R02 value 8.027887 and the R01 value 8.027784, or if mean_all_pic50 does not exceed the R02 7.638700, or if local_NC_identity_accuracy falls below the R01 0.9583 without a compensating terminal-affinity gain. It is also falsified if the larger type share produces no measurable change in max_type_gradient_rms relative to R02's 0.03026, or if any qualified terminal score fails to approach the frozen incumbent R13_reference best_qualified_pic50 8.378002. If no supported patch meets the intervention, defer without inventing evidence.",
+  "patch_id": "L036",
+  "role": "Designer",
+  "scientific_rationale": "Activating the registered reward on frozen patch L036 with the single declared change: type-gradient share raised from 0.15 to 0.40, same four atom_slots [6,8,13,22] and same two typed_slots [8,22]. Enabled terms only: half weight 0.6 and type weight 0.4; endpoint and orientation weights are 0.0 and are not described. Direct geometry support is the proper local subset atom_slots [6,8,13,22]; context neighbors 6 and 13 are directly constrained by the enabled geometry term, while points outside atom_slots receive no direct geometry loss and only model-mediated response. Type loss applies only to typed_slots [8,22]; with type weight 0.4 the N/C identity is directly enforced only at those two slots. Slot 22 is the supported N destination near donor A:VAL:116:N (teacher_match_strength 0.951, native N, N_minus_C +0.0763); slot 8 is the supported C site near A:ARG:47:N (native C, N_minus_C -0.4136). The generated N decoder channel is treated as generic N until final chemical-role checks; the exchange_class excludes pyrrole [nH] and amide N, so no pyridine/pyrrole/amide mixing is claimed. Geometry uses distinct spatial assignments frozen within a derivative, never generated atom indices copied from the teacher. Gradients act only on current coordinates through real coordinate and atomic-decoder Jacobians; affinity is not differentiated, discrete labels are not overridden, the new graph is not fixed, and no SMC is introduced. Component normalization is part of the optimizer, not a single global potential with constant mixture weights. Expected observable changes: raising the type share should increase max_type_gradient_rms above the R02 value 0.03026 and move local_NC_identity_accuracy away from R02 0.9792 and R01 0.9583; final_local_geometry_rms is expected near the R01/R02 range 0.542-0.551 and cumulative_control_RMS near 0.593-0.597. Terminal readout is primary: best_qualified_pic50, mean_all_pic50, top5_qualified_mean_pic50, n_qualified, and failures; reduced imitation loss is not success. The prior R01/R02 results on this same patch contradict any claim that this patch already improves terminal affinity, and the best legal counterfactual targets are scored label hypotheses on fixed coordinates, not observed successful paths."
+}
