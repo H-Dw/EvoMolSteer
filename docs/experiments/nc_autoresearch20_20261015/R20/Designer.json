@@ -1,0 +1,16 @@
+{
+  "chosen_factor_value": null,
+  "decision": "activate",
+  "enabled_terms": [
+    "half",
+    "type"
+  ],
+  "expected_execution_change": "Running V00 on the new 50-input initial pool with region discovery fixed and no tuning should produce measurable generated-parent scores comparable to the R19 L110 record and the R05 measured generated reference. The observable quantities are the measured generated-parent affinity scores (mean and best_qualified) and, separately, the per-slot type probabilities and half-patch RMS trajectory. Because the type term is active at slots 12 and 22, the expected execution change is a shift in the type logits at those matched indices relative to an untyped run; because the half term is active, the expected execution change is a change in the local layout coordinate trajectory within the declared dose budget. The dose parameters bound how far coordinates may move per step and cumulatively, so any observed change must be read against those limits. No claim is made that the source layout_score predicts these generated outcomes.",
+  "falsifier": "If the frozen V00 run on the new 50-input pool yields measured generated-parent scores inconsistent with the R19 L110 record (mean_pic50 7.6243, best_pic50 8.5005, mean_vs_unguided 0.1368) and the R05 measured generated reference (mean 7.678365687529246, best_qualified 8.500456809997559) beyond the stated comparison, the reproduction claim fails. Separately, if native_retention_evidence continues to show no measured retention or formation record for L110 (retention_after_formation null, joint_formation 0.0), then any affinity numbers cannot be attributed to native-suffix retention and the claim must be limited to measured generated-parent scores. These falsifiers concern measured execution and terminal outputs, not whether a static input file changes its original labels or source score.",
+  "parent_factor_value": null,
+  "patch_id": "L110",
+  "role": "Designer",
+  "scientific_rationale": "V00 is the frozen R05 program (weights half 0.7 / type 0.3, dose native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, pointcloud_delta_A 1.0) applied to the L110 typed slots 12 (C->N) and 22 (N->C). Only half and type carry positive weight; orientation, endpoint, pair and role are zero and therefore inactive, so no anchor geometry is claimed. The half term supplies the aggregate local layout direction and the type term supplies the per-slot element logit pressure at the two typed slots; the dose parameters set the actual step size and cumulative budget rather than the direction. The L110 layout_score 8.912224 is a teacher-side source-input score and is not a forecast for generated samples; the measured generated-parent reference for R05 is mean 7.678365687529246, best_qualified 8.500456809997559. No native-suffix retention record exists for L110 (retention_after_formation null, joint_formation 0.0), so the R19 affinity numbers (mean_pic50 7.6243, best_pic50 8.5005, mean_vs_unguided 0.1368) cannot be attributed to native-suffix retention. The L110 N12/C22 prior must not be transferred to native C12/N22. No calibrated physical atom energy, hydrogen-bond term, or successful intermediate counterfactual state is established.",
+  "source_score_is_generation_forecast": false,
+  "variant_id": "V00"
+}

@@ -1,0 +1,102 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/bef9849ec9412c1b237c08876d8569b2b0df89f17534f1d45ab037079d4c0737.txt",
+        "content_sha256": "bef9849ec9412c1b237c08876d8569b2b0df89f17534f1d45ab037079d4c0737",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/870bab42898b33ac500e0588ace8f3cd4e96f3c6f27ca5d5f92c5c8c09b7ffa4.txt",
+        "content_sha256": "870bab42898b33ac500e0588ace8f3cd4e96f3c6f27ca5d5f92c5c8c09b7ffa4",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "chosen_factor_value": {
+        "enum": [
+          null
+        ]
+      },
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "enabled_terms": {
+        "items": {
+          "enum": [
+            "half",
+            "endpoint",
+            "type",
+            "orientation",
+            "role",
+            "pair"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "expected_execution_change": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "falsifier": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "parent_factor_value": {
+        "const": null
+      },
+      "patch_id": {
+        "const": "L110"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "description": "Keep the explanation concise; refer to evidence rather than repeating every field.",
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "source_score_is_generation_forecast": {
+        "const": false
+      },
+      "variant_id": {
+        "enum": [
+          "V00"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "variant_id",
+      "enabled_terms",
+      "parent_factor_value",
+      "chosen_factor_value",
+      "source_score_is_generation_forecast",
+      "scientific_rationale",
+      "expected_execution_change",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
