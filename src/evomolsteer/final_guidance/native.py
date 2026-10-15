@@ -39,6 +39,9 @@ def instrument(source):
     if len(sites)!=1:raise ValueError('Ambiguous first native forward')
     loop.body[sites[0]]=ast.parse('out = self._half_guidance.forward(curr, pocket_data, times, cond, pocket_equis, pocket_invs, i, step_size)').body[0]
     loop.body.extend(ast.parse('curr = self._half_guidance.after(curr, i)').body)
+    # Capture the true integrator endpoint independently of final_corr_pred.
+    position=fn.body.index(next(n for n in fn.body if loop in ast.walk(n)))
+    fn.body.insert(position+1,ast.parse('if isinstance(curr,dict):\n    self._half_guidance.integration_snapshot = {k: v.detach().clone() for k,v in curr.items() if torch.is_tensor(v)}').body[0])
     ast.fix_missing_locations(tree);return ast.unparse(tree)+'\n'
 
 
@@ -76,9 +79,11 @@ class Control:
             gnorm=rms(gradient);requested=self.program['dose']['native_rms_ratio']*rms(flow)
             shift=gradient*(requested/gnorm.clamp_min(1e-20))[:,None,None]*weight
             norms=shift.norm(dim=-1)*self.model.coord_scale;cap=self.program['dose']['max_atom_step_A']
+            atom_clip=(norms>cap)&mask
             shift*=torch.minimum(torch.ones_like(norms),cap/norms.clamp_min(1e-20))[...,None]
             displacement=rms(shift)*self.model.coord_scale
             remaining=(self.program['dose']['max_cumulative_rms_A']-self.total).clamp_min(0)
+            cumulative_clip=displacement>remaining
             shift*=torch.minimum(torch.ones_like(displacement),remaining/displacement.clamp_min(1e-20))[:,None,None]
             displacement=rms(shift)*self.model.coord_scale;self.total+=displacement
             curr=dict(curr,coords=curr['coords']+shift)
@@ -86,6 +91,10 @@ class Control:
                 current_gradient_rms_mean=float(gnorm.mean()),direct_unmatched_gradient_max=float(gz.masked_fill(direct[...,None],0).abs().max()),
                 current_unmatched_gradient_max=float(gradient.masked_fill(direct[...,None],0).abs().max()),reward_mean=float(value.mean()),
                 matched_fraction_mean=float(direct.float().mean()),production_forward_calls=1)
+            row.update(requested_rms_A_mean=float((requested*self.model.coord_scale).mean()),
+                atom_clip_fraction=float(atom_clip.sum()/mask.sum()),cumulative_clip_fraction=float(cumulative_clip.float().mean()),
+                predictive_flow_rms_A_mean=float((rms(flow)*self.model.coord_scale).mean()),
+                native_observed_rms_A_mean=float((rms(curr['coords']-shift-self.before)*self.model.coord_scale).mean()))
         if self.capture_time is not None and abs(self.t+self.dt-self.capture_time)<2e-6:
             if self.teacher_snapshot is not None:raise ValueError('Teacher-clock snapshot repeated')
             self.teacher_snapshot={'time':self.capture_time,'representation':'current_world_A',
@@ -124,7 +133,13 @@ def run(repo,cfg):
     finally:sys.argv=original_argv
     args.seed=cfg['seed'];torch.set_float32_matmul_precision('high');model=load_model(args)[0].to('cuda').eval();model.requires_grad_(False)
     if model.sc_recycle_steps!=1 or model.inpainting_mode or model.graph_inpainting or model.integrator.use_cosine_scheduler:raise ValueError('Unsupported native linear bridge configuration')
-    model.integrator.use_sde_simulation=True;model.integrator.coord_noise_level=.2
+    native=cfg.get('native_options',{})
+    allowed={'coord_noise_level','cat_noise_level','cat_noise_euler_guard','final_corr_pred','use_sde_simulation'}
+    if set(native)-allowed:raise ValueError('Unknown native options: '+str(set(native)-allowed))
+    model.integrator.use_sde_simulation=native.get('use_sde_simulation',True)
+    model.integrator.coord_noise_level=float(native.get('coord_noise_level',.2))
+    if 'cat_noise_level' in native:model.integrator.cat_noise_level=float(native['cat_noise_level'])
+    if 'cat_noise_euler_guard' in native:model.integrator.cat_noise_euler_guard=bool(native['cat_noise_euler_guard'])
     source=textwrap.dedent(inspect.getsource(model._generate));changed=instrument(source);namespace=dict(model._generate.__func__.__globals__)
     def forbidden(*args,**kwargs):raise RuntimeError('Unexpected SMC inside gradient pilot')
     namespace['apply_smc_guidance']=forbidden
@@ -139,6 +154,8 @@ def run(repo,cfg):
         'checkpoint_sha256':digest(cfg['checkpoint']),'initial_sha256':digest(initial),'initial_slots':list(range(n)),
         'seed':cfg['seed'],'native_graph_transitions':True,'smc':False,'affinity_head_gradient':False,'additional_per_step_affinity_calls':0,
         'native_integrator_hparams':model.integrator.hparams,
+        'native_integrator_sha256':digest(inspect.getsourcefile(type(model.integrator))),
+        'resolved_native_options':{**native,'final_corr_pred':native.get('final_corr_pred',True)},
         'model_derivative':'Actual FLOWR autograd VJP plus bridge identity term','bridge':'One-forward linear teacher-clock approximation, not exact SDE lookahead'}
     if any(entry[0]['family']=='local_nc_layout' for entry in entries):
         source_audit['nc_extension_sha256']=digest(Path(__file__).parent.parent/'nc_guidance/reward.py')
@@ -159,7 +176,8 @@ def run(repo,cfg):
             control_type=NCControl
         control=control_type(model,p,teacher,com,cfg['teacher_time']);model._half_guidance=control
         output=model._generate(prior,pocket,steps=cfg['steps'],times=[torch.zeros(n,device=device) for _ in range(3)],
-            apply_guidance=False,strategy='linear',solver='euler',save_traj=False,coord_noise_level=.2)
+            apply_guidance=False,strategy='linear',solver='euler',save_traj=False,
+            coord_noise_level=model.integrator.coord_noise_level,final_corr_pred=native.get('final_corr_pred',True))
         actual=[r['step'] for r in control.rows if r['active']];expected=[] if p is None else p['expected_active_steps']
         if actual!=expected or len(control.rows)!=cfg['steps']:raise ValueError('Actual active windows differ from compiled decision')
         if p is not None and not any(r['nonzero_molecules'] for r in control.rows):raise ValueError('Guidance did not inject any displacement')
@@ -176,9 +194,13 @@ def run(repo,cfg):
             records.append({'slot':slot,'pic50':float(scores[slot]),**q})
             if mol is not None:
                 with gzip.open(out/f'{slot:03d}.sdf.gz','wt') as f:f.write(Chem.MolToMolBlock(mol)+'\n$$$$\n')
-        write_json(out/'geometry.json',{'teacher_clock':control.teacher_snapshot,'terminal':{
+        integration=control.integration_snapshot
+        integration_summary={'time':1.,'representation':'integration_current_world_A',
+            'coords_A':(integration['coords']*model.coord_scale+com[:,None]).cpu().tolist(),
+            'atomic_indices':integration['atomics'].argmax(-1).cpu().tolist()}
+        write_json(out/'geometry.json',{'teacher_clock':control.teacher_snapshot,'integration_current':integration_summary,'terminal':{
             'time':cfg['terminal_time'],'representation':'terminal_world_A','coords_A':output['coords'].tolist(),'mask':output['mask'].bool().tolist(),
-            **({'atomic_indices':output['atomics'].argmax(-1).cpu().tolist()} if p is not None and p['family']=='local_nc_layout' else {})}})
+            'atomic_indices':output['atomics'].argmax(-1).cpu().tolist()}})
         write_json(out/'records.json',records);write_json(out/'guidance_audit.json',{'program':p,'operative_text':text,'steps':control.rows,
             'actual_active_steps':actual,'actual_steps':len(control.rows),'mean_cumulative_control_rms_A':float(control.total.mean()),
             'no_smc':True,'no_affinity_head_gradient':True,'real_generator_vjp':p is not None,'input_pairing':source_audit})

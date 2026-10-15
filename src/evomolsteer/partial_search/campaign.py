@@ -92,7 +92,8 @@ def condition_metrics(folder,top_k=5,teacher=None,terminal=None):
     finite=np.isfinite(score);good=score[qualified&finite];top=np.sort(good)[-top_k:]
     energy=[r['mmff_relief_per_heavy'] for r in rows if r['mmff_relief_per_heavy'] is not None]
     p=audit['program'];expected=[] if p is None else p['expected_active_steps']
-    if audit['actual_active_steps']!=expected or audit['actual_steps']!=100 or not audit['no_smc'] or not audit['no_affinity_head_gradient']:
+    planned=100 if p is None else p.get('steps',100)
+    if audit['actual_active_steps']!=expected or audit['actual_steps']!=planned or not audit['no_smc'] or not audit['no_affinity_head_gradient']:
         raise ValueError('Control execution does not match the fixed inference contract')
     nonzero=sum(r['nonzero_molecules']>0 for r in audit['steps'])
     if nonzero!=len(expected):raise ValueError('Declared active updates did not all deliver a dose')

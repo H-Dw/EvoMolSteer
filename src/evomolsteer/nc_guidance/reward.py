@@ -12,6 +12,8 @@ def normalize(v):return v/v.norm(dim=-1,keepdim=True).clamp_min(1e-8)
 class NCReward:
     def __init__(self,p,teacher):
         self.program=p;self.teacher=teacher;self.slots=list(p['atom_slots']);self.typed=list(p['typed_slots'])
+        if p.get('teacher_time',teacher['time'])!=teacher['time']:raise ValueError('Teacher clock mismatch')
+        if not 0<=p['window'][0]<p['window'][1]<=teacher['time']<1:raise ValueError('Guidance outside learned teacher window')
         if p['family']!='local_nc_layout' or p['scope']!='local':raise ValueError('Local NC family required')
         if len(set(self.slots))!=len(self.slots) or not 2<=len(self.slots)<=p['max_local_points']<len(teacher['coords_A']):raise ValueError('Reward must use a bounded proper local subset')
         if not set(self.typed)<=set(self.slots) or len(self.typed)!=len(p['typed_elements']):raise ValueError('Typed sites escaped Analyst region')
@@ -39,9 +41,12 @@ class NCReward:
     def terms(self,z,y,logits,mask,assignment=None,decoder=None):
         p=self.program;ids=self.assignment(z,y,logits,mask) if assignment is None else assignment
         idx=ids[...,None].expand(-1,-1,3);mh=z.gather(1,idx);mf=y.gather(1,idx)
-        half_q=(mh-z.new_tensor(self.half)).square().sum(-1).mean(1)
-        final_q=(mf-y.new_tensor(self.final)).square().sum(-1).mean(1)
+        half_per=(mh-z.new_tensor(self.half)).square().sum(-1)
+        final_per=(mf-y.new_tensor(self.final)).square().sum(-1)
+        half_q=half_per.mean(1);final_q=final_per.mean(1)
         delta=p['dose']['pointcloud_delta_A'];robust=lambda q:-delta**2*(torch.sqrt(1+q/delta**2)-1)
+        if p.get('geometry_mode','aggregate')=='pointwise':half_value=robust(half_per).mean(1);final_value=robust(final_per).mean(1)
+        else:half_value=robust(half_q);final_value=robust(final_q)
         chosen_logits=logits.gather(1,ids[...,None].expand(-1,-1,logits.shape[-1]))[:,self.ti]
         target=torch.as_tensor(self.labels,device=z.device)[None,:,None].expand(len(z),-1,1)
         if p['type_mode']=='cn_conditional':
@@ -72,11 +77,18 @@ class NCReward:
                 generated_i=ids[:,self.local[slot]]
                 components.append(chargelog[batch,generated_i,zero])
                 for j in self.teacher.get('local_adjacency',{}).get(str(slot),[]):
-                    if j in self.local:components.append(bondlog[batch,generated_i,ids[:,self.local[j]],4])
+                    if j in self.local:components.append(bondlog[batch,generated_i,ids[:,self.local[j]],self.teacher.get('bond_vocabulary',{'aromatic':4})['aromatic']])
             if components:role=torch.stack(components,1).mean(1)
         direct=torch.zeros_like(mask,dtype=torch.bool);direct.scatter_(1,ids,True)
-        return {'half':robust(half_q),'endpoint':robust(final_q),'type':typing,'orientation':orientation,'role':role}, {
+        pair=y.sum((1,2))*0
+        if p['weights'].get('pair',0)>0:
+            pairs=torch.triu_indices(len(self.slots),len(self.slots),offset=1,device=y.device)
+            d=(mf[:,pairs[0]]-mf[:,pairs[1]]).norm(dim=-1)
+            ref=y.new_tensor(self.final);target_d=(ref[pairs[0]]-ref[pairs[1]]).norm(dim=-1)
+            pair=robust((d-target_d).square()).mean(1)
+        return {'half':half_value,'endpoint':final_value,'type':typing,'orientation':orientation,'role':role,'pair':pair}, {
             'assignment':ids,'direct_mask':direct,'half_rms_A':half_q.sqrt(),'final_rms_A':final_q.sqrt(),
+            'typed_probabilities':chosen_logits.softmax(-1).gather(2,target).squeeze(-1),
             'typed_correct_probability':chosen_logits.softmax(-1).gather(2,target).squeeze(-1).mean(1)}
 
 
@@ -95,7 +107,13 @@ class NCControl(Control):
                     if torch.is_tensor(value) and value.requires_grad:value.register_hook(denied)
             pred,_=self.model._get_predictions(out);endpoint=pred['coords']*self.model.coord_scale+self.com[:,None]
             current=x*self.model.coord_scale+self.com[:,None];z=bridge(current,endpoint,self.t,self.reward.teacher['time'])
-            terms,detail=self.reward.terms(z,endpoint,out['atomics'],curr['mask'].bool(),decoder=out);parts=[];summary={}
+            terms,detail=self.reward.terms(z,endpoint,out['atomics'],curr['mask'].bool(),decoder=out);parts=[];summary={};derivatives={}
+            previous=getattr(self,'previous_assignment',None)
+            summary['assignment_switch_fraction']=None if previous is None else float((previous!=detail['assignment']).float().mean())
+            self.previous_assignment=detail['assignment'].detach().clone()
+            for element in ('N','C'):
+                columns=[j for j,e in enumerate(self.program['typed_elements']) if e==element]
+                summary['target_'+element+'_probability']=float(detail['typed_probabilities'][:,columns].detach().mean())
             logit_delta=None
             if self.program.get('atomic_logit_strength',0)>0:
                 gl=torch.autograd.grad(terms['type'].sum(),out['atomics'],retain_graph=True)[0]
@@ -120,6 +138,12 @@ class NCControl(Control):
                 component_rms=((component.square()*curr['mask'][...,None]).sum((1,2))/curr['mask'].sum(1)).sqrt()
                 summary[name+'_mixture_input_rms']=float(component_rms.detach().mean())
                 parts.append(component)
+                derivatives[name]=gx.detach()
+            keys=list(derivatives)
+            for a in range(len(keys)):
+                for b in range(a):
+                    ga=derivatives[keys[a]].flatten(1);gb=derivatives[keys[b]].flatten(1)
+                    summary['gradient_cosine_'+keys[a]+'_'+keys[b]]=float(((ga*gb).sum(1)/(ga.norm(dim=1)*gb.norm(dim=1)).clamp_min(1e-20)).mean())
             gradient=sum(parts);gz=torch.autograd.grad(terms['half'].sum(),z,allow_unused=True)[0]
         if not torch.isfinite(gradient).all():raise ValueError('Nonfinite coordinate pullback')
         # Coordinate pullback is always used; an explicit optional local logit step
