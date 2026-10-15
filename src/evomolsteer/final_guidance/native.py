@@ -139,6 +139,8 @@ def run(repo,cfg):
         'checkpoint_sha256':digest(cfg['checkpoint']),'initial_sha256':digest(initial),'initial_slots':list(range(n)),
         'seed':cfg['seed'],'native_graph_transitions':True,'smc':False,'affinity_head_gradient':False,'additional_per_step_affinity_calls':0,
         'model_derivative':'Actual FLOWR autograd VJP plus bridge identity term','bridge':'One-forward linear teacher-clock approximation, not exact SDE lookahead'}
+    if any(entry[0]['family']=='local_nc_layout' for entry in entries):
+        source_audit['nc_extension_sha256']=digest(Path(__file__).parent.parent/'nc_guidance/reward.py')
     write_json(remote/'source_audit.json',source_audit);(remote/'instrumented_native.py').write_text(changed)
     conditions=([(None,None,'Unselected random-prior from-zero native control')] if cfg.get('include_unguided',True) else [])+entries
     for p,teacher,text in conditions:

@@ -26,11 +26,11 @@ PLANS=[
 ('disconnected_N_anchors','Test multiple favorable N sites in a possibly disconnected region, retaining only required local context.'),
 ('conditional_CN','Hold the best local patch and compare C/N-conditional decoder odds with full-vocabulary likelihood.'),
 ('site_contrast_weighting','Hold the patch; test bounded relative site importance from finite layout contrast magnitude.'),
-('type_aware_correspondence','Hold the patch and weights; test a small detached type cost in the spatial assignment.'),
-('late_type_ramp','Hold the patch and dose; increase type/orientation share gradually across the declared guidance window.'),
-('local_chemical_role','Test selected-N neutral-charge and aromatic-neighbor decoder terms; keep chemistry free elsewhere and measure actual final N roles.'),
-('endpoint_transfer','Test greater local endpoint-geometry share without adding background atoms.'),
-('local_context','Reconsider the support-versus-freedom tradeoff inside the strict local point cap.'),
+('r13_context_calibration','Restore the historical R13 proper-subset geometry without any type term; verify its native reproduction before interpreting added N/C terms.'),
+('r13_context_native','Restore the exact historical R13 proper-subset geometry; apply the original local N/C labels on only the two compared sites.'),
+('r13_context_joint_swap','Keep the same R13 geometry and dose; swap only the measured N/C targets at the two compared sites.'),
+('r13_context_stronger_NC','Keep R13 geometry and the paired swapped sites; increase the local type-gradient share.'),
+('r13_context_chemical_role','Keep the two-site swap and R13 context; add a selected-N neutral/aromatic decoder preference.'),
 ('later_start','Freeze the best local patch and test a later start; complete the same native suffix.'),
 ('earlier_start','Freeze the best local patch and test guidance from the initial state.'),
 ('dose_response','Freeze the best local patch and test a larger physical coordinate dose.'),
@@ -83,10 +83,14 @@ def prepare_round(repo,master,number,state):
     if number==9:base['type_mode']='cn_conditional'
     if number==10:cfg['contrast_weighting']=True
     if number==11:base['assignment_type_cost']=.2
-    if number==12:base['type_ramp']=True
-    if number==13:base['weights']['role']=.15
-    if number==14:base['weights']={'half':.1,'endpoint':.5,'type':.4,'orientation':0.}
-    if number==15:cfg['exclude_patches']=[e['patch_id'] for e in state['rounds'] if not e.get('confirmation')]
+    if 11<=number<=18:
+        cfg.pop('frozen_patch',None);cfg.pop('exclude_patches',None)
+        cfg.update(r13_context_only=True,template_kind='native' if number<=12 else 'counterfactual',
+            candidate_node=master['r13_node_id'],max_local_points=20,contrast_weighting=False)
+        cfg['execution_contract']=default_contract(master);base=cfg['execution_contract']
+        alpha=0. if number==11 else .4 if number==14 else .15
+        base.update(weights={'half':1-alpha,'endpoint':0.,'type':alpha,'orientation':0.},assignment_endpoint_fraction=0.)
+        if number==15:base['weights']['role']=.15
     if number==16:base['window'][0]=.3
     if number==17:base['window'][0]=0.
     if number==18:base['dose']['native_rms_ratio']=.5
@@ -96,6 +100,8 @@ def prepare_round(repo,master,number,state):
             cfg['confirmation_of_nonwinning_local']=True
         cfg['frozen_patch']=state['best_nc_patch'];cfg['execution_contract']=copy.deepcopy(state['best_nc_contract'])
         cfg['contrast_weighting']=state.get('best_nc_contrast_weighting',False)
+        bestpatch=next(p for p in read_json(study/'evidence.json')['patches'] if p['patch_id']==cfg['frozen_patch'])
+        cfg['allow_r13_context']=bool(bestpatch.get('r13_context'))
     core=study/('core_skills' if master.get('skill_revision',1)==1 else f"core_skills_v{master['skill_revision']}")
     for role,key in [('analyst','analyst_skill'),('designer','designer_skill')]:
         saved=core/role/'SKILL.md'
@@ -154,11 +160,12 @@ def metrics(folder,master,program,teacher,repo=Path('.')):
         templates=read_json(Path(repo)/master['campaign_study']/'templates.json')
         actual_teacher=templates[audit['program']['template_id']]
         if numerical_signature(audit['program'],actual_teacher)!=numerical_signature(program,teacher):raise ValueError('Executed numeric decision differs')
-        if max(r.get('direct_endpoint_support_count',0) for r in rows)>master['max_local_points']:raise ValueError('Whole-cloud support')
+        if max(r.get('direct_endpoint_support_count',0) for r in rows)>program['max_local_points']:raise ValueError('Support exceeds declared local cap')
         if max(r.get('direct_unmatched_gradient_max',0) for r in rows)!=0:raise ValueError('Direct loss escaped selected local support')
     result.update(local_NC_identity_accuracy=float(np.mean(types)) if types else None,identity_coverage=len(types),
         aromatic_N_role_fraction=float(np.mean(n_roles)) if n_roles else None,chemical_role_coverage=len(n_roles),
-        final_local_geometry_rms_A=float(np.mean(distances)),max_type_gradient_rms=max(r.get('type_gradient_rms',0.) for r in rows))
+        final_local_geometry_rms_A=float(np.mean(distances)),max_type_gradient_rms=max(r.get('type_gradient_rms',0.) for r in rows),
+        max_type_mixture_input_rms=max(r.get('type_mixture_input_rms',0.) for r in rows))
     return result
 
 
@@ -212,7 +219,14 @@ def run(repo,config,stop_after=20):
             sha=commit(repo,master,f"experiment(nc-layout): {label} {cfg['strategy']} local Analyst-bound reward")
             if key in state['cache']:result_folder=repo/state['cache'][key];reused=True
             else:
-                generated=infer(repo,master,cfg,path,remote,sha);result_folder=generated/label;reused=False
+                generated=repo/master['generated_root']/label
+                if (generated/'COMPLETE.json').exists():
+                    recovery=read_json(folder/'recovery.json') if (folder/'recovery.json').exists() else read_json(folder/'pending_inference.json')
+                    sha=recovery['inference_commit'];emit('completed_inference_recovered',round=label,commit=sha)
+                else:
+                    write_json(folder/'pending_inference.json',{'inference_commit':sha,'program_sha256':digest(repo/read_json(bp)['programs'][0]['program'])})
+                    generated=infer(repo,master,cfg,path,remote,sha)
+                result_folder=generated/label;reused=False
                 compact_output(generated,folder/'transport.json.gz');state['cache'][key]=result_folder.relative_to(repo).as_posix()
             m=metrics(result_folder,master,p,teacher,repo);controls=baseline_controls(repo,master,cfg['pilot_initial_batch'],cfg['pilot_samples'],remote)
             control_scores={name:condition_metrics(f) for name,f in controls.items()}

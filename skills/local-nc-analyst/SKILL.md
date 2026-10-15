@@ -41,3 +41,7 @@ selection during confirmations. Compare actual terminal affinity, failures,
 local N/C response and geometry; reduced imitation loss is not success. Give
 a prospective falsifier. If no supported patch meets the intervention, defer
 without inventing evidence. Output the provided JSON contract only.
+
+Raw term derivative RMS is not its applied dose. Increasing a mixture coefficient
+does not by itself increase the raw derivative. Inspect weighted mixture-input
+RMS and actual injected displacement separately from final identity response.

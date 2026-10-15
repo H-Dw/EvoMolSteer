@@ -98,7 +98,7 @@ def prepare(repo,cfg):
                 if ncount==0:continue
                 for ccount in (1,2):
                     typed=sorted(rankedN[:ncount]+carbon[:ccount]);support=sorted(set(typed)|{j for i in rankedN[:ncount] for j in adj[i]})
-                    if not 2<=len(support)<=cfg['max_local_points'] or len(support)>=len(x):continue
+                    if not 2<=len(support)<=cfg.get('max_sparse_points',cfg['max_local_points']) or len(support)>=len(x):continue
                     rid=f'L{len(regions):03d}';chosenN=rankedN[:ncount]
                     # Bind distinct donor RESIDUES, not duplicate contacts to one residue.
                     residues=sorted({d['residue'] for d in donors});cost=np.zeros((len(chosenN),len(residues)))
@@ -128,13 +128,32 @@ def prepare(repo,cfg):
         formerN={i for i in t['eligible_sites'] if t['native_elements'][i]=='N'}
         compensation=sorted(formerN-set(t['desired_N_sites']))
         typed=sorted(set(original['typed_slots'])|set(compensation));support=sorted(set(original['atom_slots'])|set(compensation))
-        if not compensation or len(support)>cfg['max_local_points'] or (original['template_id'],tuple(typed)) in seen:continue
+        if not compensation or len(support)>cfg.get('max_sparse_points',cfg['max_local_points']) or (original['template_id'],tuple(typed)) in seen:continue
         seen.add((original['template_id'],tuple(typed)));rid=f'L{len(regions):03d}'
         regions.append({**original,'patch_id':rid,'evidence_id':rid+'/finite_layout','typed_slots':typed,'atom_slots':support,
             'typed_elements':['N' if i in t['desired_N_sites'] else 'C' for i in typed],
             'site_evidence':[contexts[original['node_id']][i] for i in typed],
             'joint_layout_compensation':True,'compensating_C_slots':compensation,
             'claim':'Joint N relocation and C replacement within the selected local sites, not global N-count forcing'})
+    if cfg.get('r13_context_comparison',False):
+        support=read_json(repo/cfg['r13_analyst_path'])['atom_slots'];node=cfg['r13_node_id']
+        choices=[(key,t) for key,t in templates.items() if t['evidence_origin']==node]
+        native=next(t for key,t in choices if not t['counterfactual_labels']);other=next(t for key,t in choices if t['counterfactual_labels'])
+        typed=sorted(set(native['desired_N_sites'])^set(other['desired_N_sites']))
+        if not set(typed)<=set(support) or len(support)>=len(native['coords_A']):raise ValueError('R13 context must remain a proper subset containing compared sites')
+        for key,t in choices:
+            rid=f'L{len(regions):03d}';desired=set(t['desired_N_sites']);anchors=[]
+            for prior in regions:
+                if prior['template_id']==key:
+                    for anchor in prior['anchors']:
+                        if anchor['slot'] in typed and anchor not in anchors:anchors.append(anchor)
+            regions.append({'patch_id':rid,'evidence_id':rid+'/finite_layout','template_id':key,'node_id':node,
+                'typed_slots':typed,'typed_elements':['N' if i in desired else 'C' for i in typed],
+                'atom_slots':support,'anchors':anchors,'layout_score':t['layout_score'],'native_score':native['layout_score'],
+                'counterfactual_labels':t['counterfactual_labels'],'site_evidence':[contexts[node][i] for i in typed],
+                'r13_context':True,'geometry_context_points':len(support),'local_NC_points':len(typed),
+                'joint_layout_compensation':t['counterfactual_labels'],
+                'claim':'Preserve the historical R13 proper-subset geometric context; compare N/C labels only on the measured two-site relocation, with no full-cloud loss'})
     write_json(out/'templates.json',templates)
     packet={'schema':'local-nc-evidence-2-role-metadata','patches':regions,'candidate_summaries':summaries,
         'support_definition':'ALL atom_slots, including context neighbors, receive direct geometry loss when a geometry term is enabled; only typed_slots receive type loss',

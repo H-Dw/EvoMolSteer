@@ -104,7 +104,10 @@ class NCControl(Control):
                 ramp=1.
                 if name in ('type','orientation') and self.program.get('type_ramp',False):
                     start,end=self.program['window'];ramp=.1+.9*(self.t-start)/(end-start)
-                parts.append(weight*ramp*(gx/norm.clamp_min(1e-10)[:,None,None] if self.program['gradient_balance']=='unit_rms' else gx))
+                component=weight*ramp*(gx/norm.clamp_min(1e-10)[:,None,None] if self.program['gradient_balance']=='unit_rms' else gx)
+                component_rms=((component.square()*curr['mask'][...,None]).sum((1,2))/curr['mask'].sum(1)).sqrt()
+                summary[name+'_mixture_input_rms']=float(component_rms.detach().mean())
+                parts.append(component)
             gradient=sum(parts);gz=torch.autograd.grad(terms['half'].sum(),z,allow_unused=True)[0]
         if not torch.isfinite(gradient).all():raise ValueError('Nonfinite coordinate pullback')
         # Only coordinates are updated. Atomic probabilities enter via the genuine decoder Jacobian.

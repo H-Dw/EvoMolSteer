@@ -51,6 +51,9 @@ def compile_program(cfg,patch,teacher,analyst,designer,teacher_sha,analyst_sha,d
 def analyze(repo,cfg,feedback):
     repo=Path(repo);study=repo/cfg['campaign_study'];packet=read_json(study/'evidence.json')
     patches=packet['patches'];allowed=patches
+    if cfg.get('r13_context_only',False):allowed=[p for p in allowed if p.get('r13_context',False)]
+    elif not cfg.get('allow_r13_context',False):allowed=[p for p in allowed if not p.get('r13_context',False)]
+    allowed=[p for p in allowed if len(p['atom_slots'])<=cfg['max_local_points']]
     if cfg.get('template_filter'):allowed=[p for p in allowed if cfg['template_filter'](p)]
     # All serializable eligibility constraints are explicit runtime metadata.
     if cfg.get('template_kind'):allowed=[p for p in allowed if p['counterfactual_labels']==(cfg['template_kind']=='counterfactual')]
