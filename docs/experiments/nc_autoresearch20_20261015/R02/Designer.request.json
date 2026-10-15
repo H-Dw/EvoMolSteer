@@ -1,0 +1,90 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/bb4d6fc9e0eea1b7b1b8fa6b1612c752d12e26429ec38e52d468ec8afbb00a96.txt",
+        "content_sha256": "bb4d6fc9e0eea1b7b1b8fa6b1612c752d12e26429ec38e52d468ec8afbb00a96",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/bed397face9557ee2a2dd4b3341e133c4e2f95125ecad004aecd4b16fd1173b5.txt",
+        "content_sha256": "bed397face9557ee2a2dd4b3341e133c4e2f95125ecad004aecd4b16fd1173b5",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "enabled_terms": {
+        "items": {
+          "enum": [
+            "half",
+            "endpoint",
+            "type",
+            "orientation",
+            "role",
+            "pair"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "expected_execution_change": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "falsifier": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "patch_id": {
+        "const": "L109"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "source_score_is_generation_forecast": {
+        "const": false
+      },
+      "variant_id": {
+        "enum": [
+          "V00",
+          "V01"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "variant_id",
+      "enabled_terms",
+      "source_score_is_generation_forecast",
+      "scientific_rationale",
+      "expected_execution_change",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

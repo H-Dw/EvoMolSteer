@@ -1,0 +1,60 @@
+{
+  "body": {
+    "max_tokens": 1000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/b3ef25416cb0aabc9f0c55797f213d9f6fd09501dced45994d73097797a577e2.txt",
+        "content_sha256": "b3ef25416cb0aabc9f0c55797f213d9f6fd09501dced45994d73097797a577e2",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/dae4ee7bcd61528a4314e61fc0b4e6635cac0222b87c9ab04f261fdab8ba1451.txt",
+        "content_sha256": "dae4ee7bcd61528a4314e61fc0b4e6635cac0222b87c9ab04f261fdab8ba1451",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "patch_ids": {
+        "items": {
+          "enum": [
+            "L109"
+          ]
+        },
+        "maxItems": 3,
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "question": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "tool": {
+        "enum": [
+          "joint_layout_contrasts",
+          "local_role_context",
+          "native_retention_evidence",
+          "window_lineage_features"
+        ]
+      }
+    },
+    "required": [
+      "tool",
+      "patch_ids",
+      "question"
+    ],
+    "type": "object"
+  }
+}
