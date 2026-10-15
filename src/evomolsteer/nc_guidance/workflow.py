@@ -94,7 +94,11 @@ def analyze(repo,cfg,feedback):
         'task':'Bind the Analyst local N/C targets to enabled registered terms. Never add other points.'},sort_keys=True,separators=(',',':'))}],
         schema,folder/'Designer.json',input_store=study/'inputs',max_output_tokens=3500,max_format_repairs=2)
     p=compile_program(cfg,patch,teacher,analyst,designer,digest(target/'teacher.json'),digest(folder/'Analyst.json'),digest(folder/'Designer.json'))
-    if p is None:raise ValueError('Designer deferred the supported local experiment')
+    if p is None:
+        write_json(folder/'deferred.json',{'decision':'defer','patch_id':patch['patch_id'],
+            'instruction_sha256':{r:hashlib.sha256(s.encode()).hexdigest() for r,s in skills.items()},
+            'additional_generation_attempts':0})
+        return None
     path=target/'programs'/(p['program_id']+'.json');write_json(path,p)
     write_json(target/'bindings.json',{'programs':[{'program':path.relative_to(repo).as_posix(),'sha256':digest(path),
         'operative_text':f"LOCAL {patch['patch_id']}; ONLY slots {p['atom_slots']}; typed {list(zip(p['typed_slots'],p['typed_elements']))}; weights {p['weights']}; coordinates-only VJP; window {p['window']}; no affinity gradient or SMC"}],

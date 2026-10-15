@@ -5,7 +5,7 @@ import pytest
 import torch
 
 from evomolsteer.nc_guidance.reward import NCReward,NCControl
-from evomolsteer.nc_guidance.workflow import compile_program
+from evomolsteer.nc_guidance.workflow import compile_program,numerical_signature
 
 
 def example():
@@ -90,3 +90,10 @@ def test_local_role_loss_touches_only_mapped_charge_and_neighbor_bond_logits():
     gb,gc=torch.autograd.grad(terms['role'].sum(),(bonds,charges));ids=detail['assignment'][0]
     assert gc[0,ids[0]].abs().max()>0 and gb[0,ids[0],ids[1]].abs().max()>0
     assert gc[0,ids[3]].abs().max()==0 and gb[0,ids[3]].abs().max()==0
+
+
+def test_numeric_identity_excludes_cap_metadata_but_tracks_actual_target_labels():
+    p,t=example();other=copy.deepcopy(p);other['max_local_points']=5
+    assert numerical_signature(p,t)==numerical_signature(other,t)
+    other['typed_elements']=['C','N']
+    assert numerical_signature(p,t)!=numerical_signature(other,t)

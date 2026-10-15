@@ -211,9 +211,18 @@ def run(repo,config,stop_after=20):
         for number in range(state['next_round'],min(stop_after,master['max_rounds'])+1):
             cfg,path=prepare_round(repo,master,number,state);label=cfg['round_id'];folder=repo/cfg['study'];feedback=read_json(folder/'feedback.json')
             emit('real_agent_call',round=label,strategy=cfg['strategy'])
-            if (folder/'selection.json').exists() and list((folder/'candidates').glob('*/bindings.json')):
+            if (folder/'Designer.json').exists() and read_json(folder/'Designer.json')['decision']=='defer':p=None
+            elif (folder/'selection.json').exists() and list((folder/'candidates').glob('*/bindings.json')):
                 bp=next((folder/'candidates').glob('*/bindings.json'));b=read_json(bp);p=read_json(repo/b['programs'][0]['program'])
             else:p=analyze(repo,cfg,feedback)
+            if p is None:
+                patch=read_json(folder/'selection.json')
+                entry={'round':label,'strategy':cfg['strategy'],'patch_id':patch['patch_id'],'status':'designer_deferred',
+                    'contract':cfg['execution_contract'],'metrics':None,'confirmation':False,'rollback':False,
+                    'additional_generation_attempts':0,'incumbent_after':state['best_round']}
+                state['rounds'].append(entry);state['next_round']=number+1;write_json(folder/'results.json',entry);write_json(sp,state)
+                commit(repo,master,f'results(nc-layout): {label} honor Designer defer; no inference')
+                emit('round_deferred',round=label,patch=patch['patch_id']);continue
             bp=next((folder/'candidates').glob('*/bindings.json'));teacher=read_json(repo/read_json(bp)['teacher'])
             key=f"{cfg['pilot_initial_batch']}:{cfg['pilot_samples']}:"+numerical_signature(p,teacher)
             sha=commit(repo,master,f"experiment(nc-layout): {label} {cfg['strategy']} local Analyst-bound reward")
@@ -262,7 +271,7 @@ def run(repo,config,stop_after=20):
         if state['next_round']>master['max_rounds']:
             write_json(study/'COMPLETE.json',{'rounds':len(state['rounds']),'best_round':state['best_round'],'best':state['best'],
                 'best_local_round':state['best_nc_round'],'final_confirmation':state['rounds'][-1],
-                'target_reached':any(r['metrics']['n_above_reference']>0 for r in state['rounds'])})
+                'target_reached':any(r.get('metrics') and r['metrics']['n_above_reference']>0 for r in state['rounds'])})
             commit(repo,master,'results(nc-layout): complete 20-round local NC search')
         return state
     finally:remote.close()
