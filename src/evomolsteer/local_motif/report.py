@@ -73,11 +73,29 @@ def build(repo,config):
     counterparts=[('S0_REFERENCE_REPLAY',rp,templates[rp['template_id']],repo/reference['result_folder'])]
     add('S0_REFERENCE_REPLAY',repo/reference['result_folder'],rp,templates[rp['template_id']],iteration=0)
     add('UNGUIDED_b0_n24',repo/m['generated_root']/'S0_REFERENCE_REPLAY/unguided',stage='control')
+    original=read_json(study/'original_steer_reference.json')
+    original_top=max((r for r in original['records'] if r['qualified_structure'] and r['pic50'] is not None),key=lambda r:r['pic50'])
+    old_energy_path=repo/m['prior_study']/'energy_assay_probe.json'
+    old_energy_rows=read_json(old_energy_path) if old_energy_path.exists() else []
+    original_energy=next((r for r in old_energy_rows if r['case']==f"Steer_b{original_top['batch']}_{original_top['slot']}"),None)
+    metric_rows.append({'condition':'ORIGINAL_STEER_REUSED','stage':'historical_control',
+        **score_records(original['records'],tau),'energy_coverage':None,'median_heavy_relaxation_per_atom':None,
+        'p90_heavy_relaxation_per_atom':None,'highest_affinity_energy':original_energy.get('heavy_relaxation_relief_after_H') if original_energy else None})
+    quality_sources={};old_quality=[]
+    for path in (repo/m['raw_dataset']/'results'/m['campaign']/m['arm']).glob('batch_*/quality_records.json'):
+        quality_sources[path.relative_to(repo).as_posix()]=digest(path);old_quality.extend(read_json(path))
+    write_json(out/'original_quality_reused.json',{'n_original_attempts':original['n'],'n_legacy_quality_records':len(old_quality),
+        'n_legacy_posebusters_pass':sum(r.get('posebusters_valid') is True for r in old_quality),
+        'best_candidate_quality':next((r for r in old_quality if r['node_id']==f"{m['arm']}_b{original_top['batch']:03d}_final_{original_top['slot']:03d}"),None),
+        'two_stage_best_energy':original_energy,
+        'sources':quality_sources,'two_stage_energy_source':{'path':str(old_energy_path.relative_to(repo)),'sha256':digest(old_energy_path)} if old_energy_path.exists() else None,
+        'limits':'Frozen old quality results reused. Old PB configuration/implementation differs from the current dock diagnostics; no new energy calculation over all original molecules.'})
     for r in state['rounds']:
         label=r['round'];folder=study/label;decision=read_json(folder/'decision.json') if (folder/'decision.json').exists() else {}
         a=decision.get('Analyst',{});d=decision.get('Designer') or {}
         decisions.append({'effective_iteration':r.get('effective_iteration'),'source_round':label,'stage':r['stage'],'status':r['status'],
             'parent':r.get('parent'),'factor':r.get('factor'),'region':r.get('region'),'operator':r.get('operator'),
+            'actual_intervention':'local_potential_vs_none' if r['stage']=='suffix' else r.get('factor'),
             'hypothesis':a.get('scientific_hypothesis'),'execution_prediction':a.get('predicted_execution_response'),
             'falsifier':a.get('falsifier'),'designer_rationale':d.get('scientific_rationale'),
             'parameter_changes':d.get('parameter_changes'),'evidence_refs':a.get('evidence_refs'),
@@ -108,7 +126,7 @@ def build(repo,config):
     figures(metric_rows,state['original_steer']['best'],out)
     quality=[]
     for path in sorted((out/'quality').glob('*.posebusters.json')):
-        q=read_json(path);quality.append({'condition':path.name.split('.posebusters')[0],**{k:q[k] for k in ['n_attempts','n_evaluated','n_pass_all']}})
+        q=read_json(path);quality.append({'condition':path.name.split('.posebusters')[0],**{k:q[k] for k in ['n_attempts','n_evaluated','n_pass_all','n_unresolved']}})
     write_table(out/'posebusters_conditions.csv',quality)
     write_json(out/'scientific_decisions.json',decisions);write_json(out/'agent_delivery.json',bindings);write_json(out/'executable_programs.json',programs)
     matching_effects=[]
@@ -144,7 +162,8 @@ def build(repo,config):
         '|---:|---|---|---|---:|---:|---:|---:|---|---|']
     for r in state['rounds']:
         mm=r.get('metrics',{});p=r.get('program',{});rb=r.get('rollback') or r.get('effective_rollback',False)
-        lines.append(f"|{r.get('effective_iteration')}|{r['round']}|{r['stage']}|{r.get('factor')}|{len(p.get('atom_slots',[]))}|{mm.get('mean_all_pic50',float('nan')):.6f}|{mm.get('best_qualified_pic50',float('nan')) or float('nan'):.6f}|{mm.get('U_tau',float('nan')):.6f}|{mm.get('n_qualified')}/{mm.get('n')}|{rb}|")
+        actual_factor='local_potential_vs_none' if r['stage']=='suffix' else r.get('factor')
+        lines.append(f"|{r.get('effective_iteration')}|{r['round']}|{r['stage']}|{actual_factor}|{len(p.get('atom_slots',[]))}|{mm.get('mean_all_pic50',float('nan')):.6f}|{mm.get('best_qualified_pic50',float('nan')) or float('nan'):.6f}|{mm.get('U_tau',float('nan')):.6f}|{mm.get('n_qualified')}/{mm.get('n')}|{rb}|")
     lines+=['','前两轮从同一历史状态续生成，仅用于机制诊断；其绝对分数不能与从头生成的效应比较。原始 R06、R08–R14 的重复提案及提交均保留，重编号映射见 `novelty_budget_revision.json`。',
         '', '## 2. 对照、统计和质量','',f'冻结阈值 τ={tau:.9f}，来自原始基本合格 Steer 分数的90%分位。Uτ=每次尝试中基本合格分子的 max(pIC50−τ,0) 的平均值，失败贡献0。晋升同时要求U增加超过数值容差且均值损失不超过配置容忍。最高分不单独决定晋升。',
         '', '|条件|n|均值|最高合格|Uτ|基本合格|MMFF重原子松弛/原子中位数|p90|', '|---|---:|---:|---:|---:|---|---:|---:|']
@@ -166,14 +185,14 @@ def build(repo,config):
         '', '本轮代码和结果提交可逐轮回溯；新结构下载后逐文件校验，再删除远端派生结构。原始Steer与模型checkpoint保留。新增API功能验证、相同程序提案以及修复接口的失败调用均单列，不伪装成新生成收益。']
     for d in decisions:
         lines+=['',f"## 轮次 {d['effective_iteration']}（{d['source_round']}）的实际选择",'',
-            f"父程序：`{d['parent']}`；因素：`{d['factor']}`；区域：`{d['region']}`。",'',
+            f"父程序：`{d['parent']}`；实际对照：`{d['actual_intervention']}`；原始提案factor：`{d['factor']}`；区域：`{d['region']}`。",'',
             'Analyst假设（保留原文，属于待验证解释）：','',d['hypothesis'] or '未提出可执行假设。','',
             'Designer映射：','',d['designer_rationale'] or '未执行。','',
             f"实际变化：`{d['parameter_changes']}`。结果与配对区间见本轮results.json；回滚：{d['rollback']}。"]
     if quality:
-        lines+=['','## 附：PoseBusters dock诊断','', '|条件|总尝试|可评估|全部检查通过|','|---|---:|---:|---:|']
-        lines+=[f"|{q['condition']}|{q['n_attempts']}|{q['n_evaluated']}|{q['n_pass_all']}|" for q in quality]
-        lines+=['','以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。']
+        lines+=['','## 附：PoseBusters dock诊断','', '|条件|总尝试|可评估|全部检查通过|存在未解决检查|','|---|---:|---:|---:|---:|']
+        lines+=[f"|{q['condition']}|{q['n_attempts']}|{q['n_evaluated']}|{q['n_pass_all']}|{q['n_unresolved']}|" for q in quality]
+        lines+=['','以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。内部能量集合生成失败等缺失检查标记为未解决，不计入全部通过。缓存序列化修正记录和原v1文件均保留。原始Steer的旧质量记录另外复用，不混作相同版本检查。']
     if matching_effects:
         lines+=['','## 附：匹配代价的数值对应对照','', '|条件|代价0对照|支持数|元素匹配代价|平均分差|尾部产出差|', '|---|---|---:|---:|---:|---:|']
         for c in matching_effects:

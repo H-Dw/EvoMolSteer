@@ -186,3 +186,10 @@ def test_family_memory_separates_suffix_and_keeps_intervention_sources():
     r=family_evidence(s);assert len(r['families'])==1
     family=r['families'][0];assert family['n_conditions']==1 and family['n_lower_tail_than_reference']==1
     assert family['trials'][0]['source']=='R1/results.json'
+
+
+def test_quality_missing_binary_results_are_unknown_not_passed():
+    from evomolsteer.local_motif.quality import binary_checks
+    values=binary_checks({'a':True,'b':np.bool_(True),'c':1.,'d':float('nan'),'e':0})
+    assert values=={'a':True,'b':True,'c':True,'d':None,'e':False}
+    assert not all(v is True for v in values.values())

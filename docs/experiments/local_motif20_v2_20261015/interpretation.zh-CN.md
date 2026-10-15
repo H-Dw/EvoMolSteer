@@ -1,15 +1,15 @@
 # 局部 motif auto-research v2：最终证据报告
 
-已完成 18/20 个有效研究条件；另有 8 个相同函数提案复用已有结果，未重复生成。
-原始 Steer 最优预测 pIC50 为 **8.704806**。本轮新生成从头条件（含S0参考重放及冻结确认）中的最高基本合格分数为 **8.588829**（R15_v2）；新探索程序最高为 **8.588829**（R15_v2）。
+已完成 20/20 个有效研究条件；另有 8 个相同函数提案复用已有结果，未重复生成。
+原始 Steer 最优预测 pIC50 为 **8.704806**。本轮新生成从头条件（含S0参考重放及冻结确认）中的最高基本合格分数为 **8.590141**（R19_v2）；新探索程序最高为 **8.588829**（R15_v2）。
 活动保留程序为 **R15_v2**。冻结确认是否通过：**否/尚未通过**。所有亲和力均为同一模型的预测，不能表述为实验结合亲和力。
 
 ## 1. 真实完成的条件
 
 |有效轮|原始记录标识|阶段|单项改变|支持点数|平均 pIC50|最高合格|Uτ|合格/尝试|回滚|
 |---:|---|---|---|---:|---:|---:|---:|---|---|
-|1|R01|suffix|band_multiplier|20|8.112375|8.218711|0.026946|6/6|False|
-|2|R02|suffix|local_intervention|3|8.017984|8.265260|0.042997|4/6|False|
+|1|R01|suffix|local_potential_vs_none|20|8.112375|8.218711|0.026946|6/6|False|
+|2|R02|suffix|local_potential_vs_none|3|8.017984|8.265260|0.042997|4/6|False|
 |3|R03|from_zero|region|3|7.662645|8.127753|0.000000|24/24|False|
 |4|R04|from_zero|region|6|7.658509|8.272830|0.005741|23/24|True|
 |5|R05|from_zero|operator|20|7.681792|8.049043|0.000000|24/24|False|
@@ -26,6 +26,8 @@
 |16|R16_v2|from_zero|region|3|7.629772|8.127753|0.000000|24/24|False|
 |17|R17_v2|from_zero|assignment_element_cost|3|7.662745|8.127753|0.000000|24/24|True|
 |18|R18_v2|from_zero|region|4|7.505463|8.027836|0.000000|23/24|False|
+|19|R19_v2|confirmation|frozen_confirmation|20|7.710798|8.590141|0.009102|48/50|False|
+|20|R20_v2|confirmation|frozen_confirmation|20|7.493848|8.148374|0.000407|45/50|False|
 
 前两轮从同一历史状态续生成，仅用于机制诊断；其绝对分数不能与从头生成的效应比较。原始 R06、R08–R14 的重复提案及提交均保留，重编号映射见 `novelty_budget_revision.json`。
 
@@ -37,6 +39,7 @@
 |---|---:|---:|---:|---:|---|---:|---:|
 |S0_REFERENCE_REPLAY|24|7.827489|8.434024|0.012457|22/24|0.5602|0.6989|
 |UNGUIDED_b0_n24|24|7.567899|8.027933|0.000000|24/24|0.5627|2.1091|
+|ORIGINAL_STEER_REUSED|1000|7.651480|8.704806|0.011360|961/1000|nan|nan|
 |R01_stream0|3|8.059208|8.202852|0.022601|3/3|0.5491|2.3029|
 |R01_stream1|3|8.165542|8.218711|0.031292|3/3|0.6015|0.6718|
 |R02_stream0|3|8.154422|8.265260|0.043404|2/3|1.5056|2.3771|
@@ -57,6 +60,9 @@
 |R16_v2|24|7.629772|8.127753|0.000000|24/24|0.5846|1.2095|
 |R17_v2|24|7.662745|8.127753|0.000000|24/24|0.5846|1.2092|
 |R18_v2|24|7.505463|8.027836|0.000000|23/24|0.5678|1.7845|
+|R19_v2|50|7.710798|8.590141|0.009102|48/50|0.5634|1.0594|
+|R20_v2|50|7.493848|8.148374|0.000407|45/50|0.6178|1.4994|
+|controls_b4_n50|50|7.414555|8.139275|0.000085|49/50|0.5438|2.3950|
 |REUSED_UNGUIDED_b0_n50|50|7.487535|8.027975|0.000000|49/50|0.5550|1.6791|
 
 MMFF值采用固定重原子先优化H，再释放全分子的两阶段差值；是局部松弛代理，不是结合能。基本合格仅指可解码、连接、最小蛋白距离≥0.8Å。PoseBusters若另有结果单独保存，不悄悄加入晋升gate。
@@ -89,7 +95,7 @@ Designer读取同一不可变证据包、Analyst区域与可执行observable、�
 
 ## 轮次 1（R01）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`band_multiplier`；区域：`F_b011_s030__reference`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`local_potential_vs_none`；原始提案factor：`band_multiplier`；区域：`F_b011_s030__reference`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -103,7 +109,7 @@ The Analyst hypothesis is bound to the implemented pocket_distance operator on t
 
 ## 轮次 2（R02）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`local_intervention`；区域：`F_b011_s030__NC`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`local_potential_vs_none`；原始提案factor：`local_intervention`；区域：`F_b011_s030__NC`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -117,7 +123,7 @@ V00 binds the Analyst hypothesis to the single implemented operator pocket_dista
 
 ## 轮次 3（R03）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__NC`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`region`；原始提案factor：`region`；区域：`F_b011_s030__NC`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -131,7 +137,7 @@ Single-factor region swap against the matched parent S0_REFERENCE_REPLAY: operat
 
 ## 轮次 4（R04）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__G17`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`region`；原始提案factor：`region`；区域：`F_b011_s030__G17`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -145,7 +151,7 @@ Single-factor region contrast against the selected parent S0_REFERENCE_REPLAY: i
 
 ## 轮次 5（R05）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`operator`；区域：`F_b011_s030__reference`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`operator`；原始提案factor：`operator`；区域：`F_b011_s030__reference`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -159,7 +165,7 @@ Single-factor operator swap against selected parent S0_REFERENCE_REPLAY at the s
 
 ## 轮次 6（R07）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`operator`；区域：`F_b011_s030__reference`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`operator`；原始提案factor：`operator`；区域：`F_b011_s030__reference`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -173,7 +179,7 @@ Single-factor contrast on the same restored parent S0_REFERENCE_REPLAY, region F
 
 ## 轮次 7（R07_v2）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`dose.pointcloud_delta_A`；区域：`F_b011_s030__reference`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`dose.pointcloud_delta_A`；原始提案factor：`dose.pointcloud_delta_A`；区域：`F_b011_s030__reference`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -187,7 +193,7 @@ The parent pointwise operator is the implemented pseudo-Huber robust per-point d
 
 ## 轮次 8（R08_v2）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`target_schedule`；区域：`F_b011_s030__reference`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`target_schedule`；原始提案factor：`target_schedule`；区域：`F_b011_s030__reference`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -201,7 +207,7 @@ Single registered factor: target_schedule fixed -> historical_path, with all oth
 
 ## 轮次 9（R09_v2）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__O`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`region`；原始提案factor：`region`；区域：`F_b011_s030__O`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -215,7 +221,7 @@ Single-factor from-zero contrast: only region_id changes (F_b011_s030__reference
 
 ## 轮次 10（R10_v2）的实际选择
 
-父程序：`R09_v2`；因素：`dose.native_rms_ratio`；区域：`F_b011_s030__O`。
+父程序：`R09_v2`；实际对照：`dose.native_rms_ratio`；原始提案factor：`dose.native_rms_ratio`；区域：`F_b011_s030__O`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -229,7 +235,7 @@ Analyst hypothesis H_O_region_pointwise_dose_ratio_033_from_zero is bound to the
 
 ## 轮次 11（R11_v2）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__NO`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`region`；原始提案factor：`region`；区域：`F_b011_s030__NO`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -243,7 +249,7 @@ Single-factor region-support test: keep the parent pointwise operator, dose, win
 
 ## 轮次 12（R12_v2）的实际选择
 
-父程序：`R11_v2`；因素：`operator`；区域：`F_b011_s030__NO`。
+父程序：`R11_v2`；实际对照：`operator`；原始提案factor：`operator`；区域：`F_b011_s030__NO`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -257,7 +263,7 @@ Single-factor operator swap on the same NO-region support, dose, controller, rep
 
 ## 轮次 13（R13_v2）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__N22`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`region`；原始提案factor：`region`；区域：`F_b011_s030__N22`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -271,7 +277,7 @@ Single-factor from-zero contrast: only region_id and atom_slots change relative 
 
 ## 轮次 14（R14_v2）的实际选择
 
-父程序：`R13_v2`；因素：`operator`；区域：`F_b011_s030__N22`。
+父程序：`R13_v2`；实际对照：`operator`；原始提案factor：`operator`；区域：`F_b011_s030__N22`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -285,7 +291,7 @@ Single-factor from-zero contrast on the same N22 six-slot support, same pocket_s
 
 ## 轮次 15（R15_v2）的实际选择
 
-父程序：`S0_REFERENCE_REPLAY`；因素：`assignment_element_cost`；区域：`F_b011_s030__reference`。
+父程序：`S0_REFERENCE_REPLAY`；实际对照：`assignment_element_cost`；原始提案factor：`assignment_element_cost`；区域：`F_b011_s030__reference`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -299,7 +305,7 @@ The parent program S0_REFERENCE_REPLAY runs the implemented pointwise operator w
 
 ## 轮次 16（R16_v2）的实际选择
 
-父程序：`R15_v2`；因素：`region`；区域：`F_b011_s030__NC`。
+父程序：`R15_v2`；实际对照：`region`；原始提案factor：`region`；区域：`F_b011_s030__NC`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -313,7 +319,7 @@ Single-factor region change on parent R15_v2: operator pointwise, controller uni
 
 ## 轮次 17（R17_v2）的实际选择
 
-父程序：`R16_v2`；因素：`assignment_element_cost`；区域：`F_b011_s030__NC`。
+父程序：`R16_v2`；实际对照：`assignment_element_cost`；原始提案factor：`assignment_element_cost`；区域：`F_b011_s030__NC`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -327,7 +333,7 @@ Single registered change: assignment_element_cost 0.5 -> 0.2 on the NC-region po
 
 ## 轮次 18（R18_v2）的实际选择
 
-父程序：`R15_v2`；因素：`region`；区域：`F_b011_s030__O`。
+父程序：`R15_v2`；实际对照：`region`；原始提案factor：`region`；区域：`F_b011_s030__O`。
 
 Analyst假设（保留原文，属于待验证解释）：
 
@@ -339,15 +345,46 @@ Single registered change versus parent R15_v2: region_id F_b011_s030__reference 
 
 实际变化：`[{'new': 'F_b011_s030__O', 'parent': 'F_b011_s030__reference', 'path': 'region_id'}, {'new': [1, 16, 18, 19], 'parent': [0, 1, 2, 3, 4, 6, 7, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 'path': 'atom_slots'}]`。结果与配对区间见本轮results.json；回滚：False。
 
+## 轮次 19（R19_v2）的实际选择
+
+父程序：`R15_v2`；实际对照：`frozen_confirmation`；原始提案factor：`frozen_confirmation`；区域：`F_b011_s030__reference`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+The frozen pointwise local-motif guidance (R15_v2, region F_b011_s030__reference) will retain its measured formation behavior on the larger/new prior pool and, on native completion, will not degrade the frozen tail utility relative to the matched unguided pool. Formation is treated as a mechanism, not as terminal success; the primary outcome is the frozen tail utility with the affinity mean as guard.
+
+Designer映射：
+
+Frozen confirmation of R15_v2 on region F_b011_s030__reference. The active term is the implemented pointwise operator: local Hungarian assignment maps generated atom points to observed teacher ligand coordinates, and the reward is a robust per-point distance in Angstrom. No chemical-role or energy assumption is introduced, and no direct elemental force or affinity-head gradient is used. The comparison is frozen numerical guidance versus no guidance with matched saved priors, random streams, checkpoint and native protocol on the configured larger/new pool; both arms remain pocket-conditioned and chemical graphs remain free. Formation is treated as a mechanism, not terminal success; the primary outcome is the frozen tail utility with the affinity mean as guard. Recorded parent response (40 active/nonzero updates, no atom or cumulative clipping, mean injected RMS ~0.0299 A, mean point RMS ~0.269 A, mean assignment-switch fraction ~0.017) is a measured current-program response, not a terminal-affinity gradient. Recorded parent outcomes (n=24, U_tau 0.01891, best_qualified_pic50 8.5888, mean_all_pic50 7.8421, hit_fraction 0.0417, n_above_target 0, tau 8.1350) are the frozen reference level to be confirmed, not a forecast of generated benefit. Prior rollbacks and heterogeneous experiment families are recorded on a reused prior pool and are not independent replicates or isolated operator effects; they cannot be aggregated into a causal operator claim.
+
+实际变化：`[]`。结果与配对区间见本轮results.json；回滚：False。
+
+## 轮次 20（R20_v2）的实际选择
+
+父程序：`R15_v2`；实际对照：`frozen_confirmation`；原始提案factor：`frozen_confirmation`；区域：`F_b011_s030__reference`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+The frozen pointwise local-assignment guidance, run to native completion on the configured larger/new prior pool, retains its measured execution response and yields terminal affinity at least as good as the matched unguided pool, without requiring any change to the frozen function or support.
+
+Designer映射：
+
+Frozen confirmation of R15_v2 on region F_b011_s030__reference. The hypothesis is a replication, not a redesign: the exact numerical function and support are preserved, so parameter_changes is empty by requirement. The pointwise operator is implemented and derivative-tested: local Hungarian assignment maps generated atom points to observed teacher ligand points (not pocket sites), and the robust per-point distance to those teacher coordinates is the reward, in Angstrom, with no chemical-role or energy assumption. The parent response is measured, not inferred: 40 active and 40 nonzero updates, mean injected RMS about 0.0299 A, mean point RMS about 0.269 A, zero atom and cumulative clipping, assignment-switch fraction mean about 0.0167, and mean current-gradient RMS about 0.0078. This is a measured current-program response, not a terminal-affinity gradient. The existing 24-sample parent outcome (U_tau 0.0189, best qualified pIC50 8.589, mean all pIC50 7.842, hit fraction 0.042, 0 above target) is a prior-pool measurement and is not a forecast for new samples. The confirmation test is native completion on the configured larger/new prior pool against a matched unguided pool with matched saved priors, random streams, checkpoint and native protocol; both remain pocket-conditioned and chemical graphs remain free. Prior rollbacks (R04, R08_v2, R10_v2, R12_v2, R14_v2, R17_v2) were heterogeneous interventions on a reused prior pool, not independent replicates or isolated operator effects, so they are counterevidence for universal operator or region effects rather than for this frozen-program confirmation.
+
+实际变化：`[]`。结果与配对区间见本轮results.json；回滚：False。
+
 ## 附：PoseBusters dock诊断
 
-|条件|总尝试|可评估|全部检查通过|
-|---|---:|---:|---:|
-|R15_v2|24|23|23|
-|S0_REFERENCE_REPLAY|24|22|22|
-|UNGUIDED_b0_n24|24|24|24|
+|条件|总尝试|可评估|全部检查通过|存在未解决检查|
+|---|---:|---:|---:|---:|
+|R15_v2|24|23|23|0|
+|R19_v2|50|48|48|0|
+|R20_v2|50|45|44|1|
+|S0_REFERENCE_REPLAY|24|22|22|0|
+|UNGUIDED_b0_n24|24|24|24|0|
+|UNGUIDED_b4_n50|50|49|47|2|
 
-以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。
+以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。内部能量集合生成失败等缺失检查标记为未解决，不计入全部通过。缓存序列化修正记录和原v1文件均保留。原始Steer的旧质量记录另外复用，不混作相同版本检查。
 
 ## 附：匹配代价的数值对应对照
 

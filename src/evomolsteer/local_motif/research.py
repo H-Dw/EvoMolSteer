@@ -173,6 +173,8 @@ def summary(repo,m,state):
     study=repo/m['campaign_study'];rows=[]
     for r in state['rounds']:
         x={k:r.get(k) for k in ['round','stage','factor','status','region','operator','parent','rollback','commit','new_attempts']}
+        x['raw_proposal_factor']=x['factor']
+        if r['stage']=='suffix':x['factor']='local_potential_vs_none'
         x.update(r.get('metrics',{}));rows.append(x)
     write_table(study/'summary/rounds.csv',rows)
     body='|轮次|阶段/改动|状态|均值|最高合格|尾部产出U|合格/尝试|回滚|\n|---|---|---|---:|---:|---:|---|---|\n'
