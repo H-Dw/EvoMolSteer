@@ -23,3 +23,7 @@ state that region discovery is fixed. Use the given output contract and cite the
 actual tool evidence. Extra context points receive direct geometry loss; identify
 what remains free. Disclose missing evidence instead of inventing atom energies,
 hydrogen bonds or successful intermediate counterfactual states.
+
+Teacher layout scores describe the source input, not a forecast for new samples.
+Use measured generated-parent scores to assess reproduction. A falsifier should
+test control or generation outcomes rather than rechecking immutable patch metadata.

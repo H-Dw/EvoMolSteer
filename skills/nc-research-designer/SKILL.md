@@ -24,3 +24,9 @@ introduce particle resampling. Do not claim geometric matching proves binding.
 State a falsifier linking the selected parameter to actual injection/formation or
 retention and then terminal affinity, with quality side effects reported. Formal
 contract compliance is not scientific success. Return only the requested JSON.
+
+List enabled_terms as the sorted positive-weight terms of your chosen variant.
+An available anchor is inactive when orientation weight is zero. Teacher layout
+scores are not expected generated scores; use actual generated-parent metrics.
+Falsifiers must concern measured execution or terminal outputs, not whether a
+static input file changes its original labels or source score.

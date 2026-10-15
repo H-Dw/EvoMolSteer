@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 
 import numpy as np
+import jsonschema
 from scipy.optimize import linear_sum_assignment
 
 from evomolsteer.io import read_json, write_json, write_table, digest
@@ -151,18 +152,30 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     analyst=call_json([{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
         'task':task,'allowed_patches':brief,'tool_request':query,'actual_tool_result':tool_result,
         'parent':{'patch':parent['patch_id'],'weights':parent['weights'],'dose':parent['dose'],'native':parent['native_options']},
+        'parent_generated_scores':{'mean':state['best']['mean_all_pic50'],'best_qualified':state['best']['best_qualified_pic50'],
+            'meaning':'Measured active generated reference, not the source teacher score'},
         'history':compact_history(state),'instruction':'Select a local hypothesis, separate realization from value and identify one falsifiable consequence.'})}],
         obj({'role':{'const':'Analyst'},'patch_id':{'enum':[p['patch_id'] for p in allowed]},
              'hypothesis':short,'evidence_and_counterexample':short,'expected_response':short,'falsifier':short}),
         folder/'Analyst.json',input_store=repo/master['campaign_study']/'inputs',max_output_tokens=2500,max_format_repairs=2)
     patch=next(p for p in allowed if p['patch_id']==analyst['patch_id']);teacher=templates[patch['template_id']]
     options=variants(parent,task,patch,teacher,master)
+    def validate_d(answer):
+        if answer['decision']=='defer':return
+        expected=sorted(k for k,v in options[answer['variant_id']]['weights'].items() if v>0)
+        if answer['enabled_terms']!=expected:
+            raise jsonschema.ValidationError('enabled_terms must equal positive-weight executed terms',
+                validator='enum',validator_value=expected,instance=answer['enabled_terms'])
     designer=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'analyst':analyst,'selected_patch':patch,'experiment':task,'allowed_variants':options,
-        'history':compact_history(state),'instruction':'Choose one registered numeric variant for the single intervention. Bind Analyst patch. Explain changed direction/dose and measured response; defer if unsupported.'})}],
+        'parent_generated_scores':{'mean':state['best']['mean_all_pic50'],'best_qualified':state['best']['best_qualified_pic50']},
+        'history':compact_history(state),'instruction':'Choose one registered numeric variant for the single intervention. Bind Analyst patch. Source layout_score is NOT a generated score forecast; an anchor with zero orientation weight is inactive. Explain changed direction/dose and measured response; defer if unsupported.'})}],
         obj({'role':{'const':'Designer'},'patch_id':{'const':patch['patch_id']},'decision':{'enum':['activate','defer'] if options else ['defer']},
-             'variant_id':{'enum':list(options) or ['UNSUPPORTED']},'scientific_rationale':short,'expected_execution_change':short,'falsifier':short}),
-        folder/'Designer.json',input_store=repo/master['campaign_study']/'inputs',max_output_tokens=2500,max_format_repairs=2)
+             'variant_id':{'enum':list(options) or ['UNSUPPORTED']},
+             'enabled_terms':{'type':'array','items':{'enum':['half','endpoint','type','orientation','role','pair']},'uniqueItems':True},
+             'source_score_is_generation_forecast':{'const':False},
+             'scientific_rationale':short,'expected_execution_change':short,'falsifier':short}),
+        folder/'Designer.json',input_store=repo/master['campaign_study']/'inputs',max_output_tokens=2500,max_format_repairs=2,response_validator=validate_d)
     delivery={r:api_audit(folder,r,hashlib.sha256(skills[r].encode()).hexdigest()) for r in skills}
     if not all(v['receipt_and_file_hashes_match'] and v['input_file_hashes_match'] and v['skill_delivered_exactly'] for v in delivery.values()):raise ValueError('Role delivery failed')
     write_json(folder/'delivery.json',{'roles':delivery,'allowed_patches':len(allowed),'designer_variants':len(options),'tool':query['tool']})
