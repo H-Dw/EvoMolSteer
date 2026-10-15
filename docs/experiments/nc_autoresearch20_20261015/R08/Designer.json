@@ -1,0 +1,16 @@
+{
+  "chosen_factor_value": 0.0,
+  "decision": "activate",
+  "enabled_terms": [
+    "half",
+    "type"
+  ],
+  "expected_execution_change": "At cat_noise_level 0.0 with the same dose and weights, the categorical transition noise is removed from the native generation suffix, so the realized categorical trajectory should be less perturbed at the typed slots. The measurable response is in the realization metrics: joint_formation, joint_at_integration, joint_final_same_slots, retention_after_formation, boundary_N_probability, boundary_C_probability, mean_assignment_switch and mean_control_A, compared against the R07 parent values (joint_formation 0.167, retention_after_formation 0.25, boundary_N 0.289, boundary_C 0.971, mean_assignment_switch 0.00737, mean_control_A 0.0301). Terminal affinity is compared as mean_pic50 and mean_vs_unguided against R07 (7.573 and -0.101). Because the coordinate clock and graph freedom are unchanged, any change in these quantities is attributable to the categorical noise level rather than to a frozen graph or a changed dose.",
+  "falsifier": "If at cat_noise_level 0.0 the joint_formation and retention_after_formation remain at or below the R07 levels (0.167 and 0.25) while boundary_N_probability stays low, then noise-free categorical rates do not rescue the N slot and the hypothesis is rejected. This tests the measured generation outcome and terminal affinity, not immutable patch metadata or static input labels.",
+  "parent_factor_value": 0.25,
+  "patch_id": "L110",
+  "role": "Designer",
+  "scientific_rationale": "The Analyst-selected local patch L110 is bound to the registered variant V00, which is the only allowed variant and matches the parent implementation facts except for the single factor native_options.cat_noise_level, lowered from 0.25 to 0.0. Parameter semantics state categorical transition noise affects the native generation suffix and does not overwrite or freeze labels, so removing it is a legal, non-freezing operator on the categorical clock while the coordinate clock (coordinate_updates_only, native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, pointcloud_delta_A 1.0) is unchanged. The enabled terms are the positive-weight terms of V00: half 0.7 and type 0.3; endpoint, orientation, pair and role are zero and therefore inactive, so no anchor or orientation control is claimed. The target typed slots are 12 (native C -> desired N) and 22 (native N -> desired C); the R07 realization record shows boundary_N_probability 0.289 versus boundary_C_probability 0.971, consistent with the N slot not being realized, but this is a realization observation, not an affinity result. The counterfactual labels are fixed-geometry legal isomer inputs, not regenerated molecules or independent samples, and no calibrated physical atom energy or validated binding gain is claimed. The source layout_score 8.912224 is not a generated-score forecast; the parent generated scores are mean 7.573 and best_qualified 8.064. The primary objective remains final affinity, with element retention reported as a quality side effect rather than a ceiling.",
+  "source_score_is_generation_forecast": false,
+  "variant_id": "V00"
+}

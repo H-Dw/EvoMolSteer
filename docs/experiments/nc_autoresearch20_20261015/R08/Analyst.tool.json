@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L110"
+  ],
+  "question": "For patch L110 (counterfactual template F_b011_s030_best_legal, targets N12/C22), test whether setting cat_noise_level to 0.0 can raise noise-free categorical rates without freezing the chemical graph. Prior L110 rounds show the graph is not frozen: R05 at cat_noise_level 1.0 gave joint_formation 0.0 with boundary_N 0.005 and boundary_C 0.095, and R06 with assignment_type_cost 0.5 gave joint_formation 0.083, retention_after_formation 0.5, boundary_N 0.204. R07 at cat_noise_level 0.25 was rolled back with joint_formation 0.167, retention_after_formation 0.25, boundary_N 0.289, boundary_C 0.971, mean_pic50 7.573 (mean_vs_unguided -0.101). I need the native retention evidence for L110 to see whether lowering categorical noise to 0.0 preserves the native suffix and improves final affinity, or whether the low boundary_N probability indicates the N target is not being realized. Falsifier: if at cat_noise_level 0.0 the joint_formation and retention_after_formation remain at or below the R07 levels while boundary_N stays low, then noise-free categorical rates do not rescue the N slot and the hypothesis is rejected. Smallest next discriminating test: run L110 at cat_noise_level 0.0 with the same dose (native_rms_ratio 0.66) and weights (half 0.7, type 0.3) and compare joint_formation, retention_after_formation, boundary_N, and mean_pic50 against R07.",
+  "tool": "native_retention_evidence"
+}
