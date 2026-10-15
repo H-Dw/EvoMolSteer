@@ -12,6 +12,7 @@ from pathlib import Path
 
 import numpy as np
 import jsonschema
+import pandas as pd
 from scipy.optimize import linear_sum_assignment
 
 from evomolsteer.io import read_json, write_json, write_table, digest
@@ -97,6 +98,31 @@ def prepare(repo,master):
             selected.add(s)
         patches.append({**copy.deepcopy(source),'patch_id':f'A{count:02d}','evidence_id':f'A{count:02d}/local_context',
                         'atom_slots':sorted(selected),'claim':'Nested local chemical-role context; measured source geometry, new support hypothesis'})
+        swapped=next(p for p in patches if p['patch_id']=='L110')
+        patches.append({**copy.deepcopy(swapped),'patch_id':f'S{count:02d}','evidence_id':f'S{count:02d}/local_context','atom_slots':sorted(selected)})
+    members=pd.read_csv(Path(master['layout_report'])/'reference_inputs/inputs/frozen_membership.csv')
+    quality_nodes=set(members.loc[members.top10,'node_id'])
+    atoms=pd.read_csv(Path(master['layout_report'])/'all_atoms.csv.gz')
+    native_sources=[p for p in patches if p['node_id'] in quality_nodes and not p['counterfactual_labels'] and len(p['typed_slots'])==2]
+    nodes=sorted({p['node_id'] for p in native_sources},key=lambda node:max(p['native_score'] for p in native_sources if p['node_id']==node),reverse=True)[:3]
+    for node in nodes:
+        choices=[p for p in native_sources if p['node_id']==node]
+        src=min(choices,key=lambda p:(-len(p['anchors']),len(p['atom_slots']),p['patch_id']))
+        t=templates[src['template_id']];coords=np.asarray(t['terminal_coords_A']);g=atoms[atoms.node_id.eq(node)]
+        oxygen=g.loc[g.element.eq('O'),'atom_index'].astype(int).tolist()
+        required=set(src['atom_slots'])|set(oxygen)
+        centers=coords[sorted(set(src['typed_slots'])|set(oxygen))]
+        distances=np.linalg.norm(coords[:,None]-centers[None],axis=-1).min(1)
+        for count in (8,12,16,20):
+            if len(required)>count or count>=len(coords):continue
+            support=set(required)
+            for s in np.argsort(distances,kind='stable'):
+                if len(support)>=count:break
+                support.add(int(s))
+            rid=f'Q{t["batch"]:03d}_{count:02d}'
+            patches.append({**copy.deepcopy(src),'patch_id':rid,'evidence_id':rid+'/observed_quality_context',
+                'atom_slots':sorted(support),'O_context_slots':oxygen,
+                'claim':'Observed Quality/Top10 native teacher; local N/C and O spatial context, proper subset, no whole-graph constraint'})
     for t in templates.values():t['bond_vocabulary']={'aromatic':4}
     write_json(study/'templates.json',templates)
     # Do not put large candidate/history tables in every prompt.
@@ -104,13 +130,22 @@ def prepare(repo,master):
     for p in patches:
         compact.append({k:p[k] for k in ('patch_id','template_id','node_id','atom_slots','typed_slots','typed_elements',
             'anchors','layout_score','native_score','counterfactual_labels','site_evidence')})
+        compact[-1]['O_context_slots']=p.get('O_context_slots',[])
+        compact[-1]['in_original_TOP10']=p['node_id'] in quality_nodes
     evidence={'patches':compact,'candidate_summaries':packet['candidate_summaries'],
         'source_sha256':packet['source_sha256'],'limits':packet['report_limits'],
         'context':{'O_fields_heldout_increment':'Supported score explanation; local O intervention not established',
             'F_reference_membership':'User-specified extra teacher; not original Quality67/Top10',
             'counterfactual_C':'Compensating replacement, not independent negative N energy'},
         'retention_prior':read_json(old/'R18_identity_replay/identity_report.json')}
-    write_json(study/'evidence.json',evidence)
+    if (study/'energy_probe_reproducible.json').exists():
+        requests=read_json(study/'energy_probe_inputs.json');results=read_json(study/'energy_probe_reproducible.json')['cases']
+        evidence['source_quality']={q['node_id']:r for q,r in zip(requests,results) if q.get('node_id')}
+    prior_path=study/'evidence.json'
+    if prior_path.exists():
+        version=study/'evidence_versions'/(digest(prior_path)+'.json');version.parent.mkdir(exist_ok=True)
+        if not version.exists():version.write_bytes(prior_path.read_bytes())
+    write_json(prior_path,evidence)
     return evidence,templates
 
 
@@ -151,7 +186,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     if not allowed:raise ValueError('No actual patch choices')
     brief=[{'patch_id':p['patch_id'],'template_id':p['template_id'],'n_points':len(p['atom_slots']),
             'targets':list(zip(p['typed_slots'],p['typed_elements'])),'source_score':p['layout_score'],
-            'counterfactual':p['counterfactual_labels']} for p in allowed]
+            'counterfactual':p['counterfactual_labels'],'in_original_TOP10':p.get('in_original_TOP10',False)} for p in allowed]
     skills={r:(repo/master[r.lower()+'_skill']).read_text(encoding='utf-8') for r in ('Analyst','Designer')}
     parent_scores=next((r['metrics'] for r in reversed(state['rounds']) if r.get('program',{}).get('program_id')==parent['program_id']),state['best'])
     parent_history=[r for r in compact_history(state) if any(q.get('program',{}).get('program_id')==parent['program_id'] and q['round']==r['round'] for q in state['rounds'])]
@@ -167,6 +202,8 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     tool_rows=[p for p in allowed if p['patch_id'] in query['patch_ids']]
     tool_result={'tool':query['tool'],'source_hash':digest(repo/master['campaign_study']/'evidence.json'),
         'rows':tool_rows,'limits':evidence['limits'],'context':evidence['context']}
+    quality_nodes={p['node_id'] for p in tool_rows}|{templates[parent['template_id']]['evidence_origin']}
+    tool_result['source_quality']={k:v for k,v in evidence.get('source_quality',{}).items() if k in quality_nodes}
     if query['tool']=='native_retention_evidence':
         matches=any(p['typed_slots']==[12,22] and p['typed_elements']==['N','C'] for p in tool_rows)
         tool_result['retention_prior_applicability']={'prior_hypothesis':'L110: N at 12 and C at 22',
@@ -342,6 +379,10 @@ def run(repo,master_path,stop_after=20):
                 chosen=max(eligible,key=lambda r:(r['realization']['joint_formation'],r['metrics']['best_qualified_pic50']))
                 parent=copy.deepcopy(chosen['program'])
             if task.get('patches')=='parent':task['patches']=[parent['patch_id']]
+            if task.get('patches')=='quality_matched':
+                task['patches']=[p['patch_id'] for p in evidence['patches'] if p['patch_id'].startswith('Q') and len(p['atom_slots'])==len(parent['atom_slots'])]
+            if task.get('patches')=='nested_parent':
+                task['patches']=[p['patch_id'] for p in evidence['patches'] if p['template_id']==parent['template_id'] and len(p['atom_slots']) in (8,12,16,20)]
             if task.get('values')=='dose_neighbors':task['values']=[max(.05,parent['dose']['native_rms_ratio']*.5),min(2.,parent['dose']['native_rms_ratio']*1.5)]
             if task['factor']=='patch':task['values']=[None]
             n=master['screen_samples'] if number<19 else master['confirmation_samples']

@@ -1,0 +1,9 @@
+{
+  "patch_ids": [
+    "Q004_20",
+    "Q017_20",
+    "Q007_20"
+  ],
+  "question": "Test the observed Quality/Top10 teacher patches with matched local support size (20 points) and N/C plus O spatial context. All three are native (counterfactual=false) and in_original_TOP10, so their source_score (Q004_20 8.626, Q017_20 8.584, Q007_20 8.354) describes the source input layout, not a forecast for generated samples. I need local role/neighborhood evidence to check whether the N/C target slots sit in compatible chemical environments and whether O context supports the two-stage heavy relaxation. Falsifier: if local role context shows the N/C assignments are unsupported or the O neighborhood is incompatible, the patch is not a valid discriminating test. Smallest next test: compare generated-parent scores for the best-supported patch against its source_score to assess reproduction, keeping the scalar controller fixed.",
+  "tool": "local_role_context"
+}
