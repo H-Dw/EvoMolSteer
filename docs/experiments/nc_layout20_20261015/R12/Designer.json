@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 0.85,
+      "orientation": 0.0,
+      "type": 0.15
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "If restoring the exact historical R13 proper-subset geometry with the original two-site labels (slot 12 C, slot 22 N) yields local_NC_identity_accuracy at slots 12 and 22 below the R13 reference 0.9792, or final_local_geometry_rms_A materially above the R13 reference 0.5070, or best_qualified_pic50 below the R13 reference 8.3780, then the label-preserving replay hypothesis is falsified. A further falsifier: if the measured alternative legal layouts that score higher than the native layout (e.g. 8.912224 for single_b011_final_030) are regenerated and relaxed and do not reproduce their higher scores, then the claim that the native layout is not the best legal layout would be contradicted. If no supported patch meets the intervention, defer without inventing evidence.",
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "Activating the registered reward exactly as supplied: the historical R13 proper-subset geometry over the 20 atom_slots (0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24) with the original two-site N/C labels, slot 12 C and slot 22 N. Only enabled terms are described. The half term (weight 0.85) is the sole enabled geometry term: it constrains the 20 selected atom_slots, including context neighbors, directly toward the frozen half_coords_A at teacher_time 0.5; points outside atom_slots receive no direct geometry loss and are only model-mediated. The orientation term is disabled (weight 0.0), so no donor/neighbor orientation constraint is applied and the A:VAL:116:N anchor is not used as an orientation energy. The endpoint term is disabled (weight 0.0). The type term (weight 0.15, full_ce, no ramp) applies only to typed_slots 12 and 22, reading the decoder N/C log probabilities; with the labels C at slot 12 and N at slot 22 this is a label-preserving replay, so identity preservation is an outcome to measure, not an operation enforced by geometry. Gradients act only on current coordinates through real coordinate and atomic-decoder Jacobians; affinity is not differentiated, discrete labels are not overridden, the new graph is not fixed, and no SMC is introduced. The generated N decoder channel is treated as generic N until final chemical-role checks; the source distinction between eligible pyridine-type aromatic N and excluded pyrrole/amide identities is preserved, and no role term is enabled. Expected observable changes: local geometry RMS at the 20 selected slots should approach the R13 reference final_local_geometry_rms_A 0.5070 under the frozen dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0, window [0.1,0.5]); local N/C identity accuracy at slots 12 and 22 should remain high near the R13 reference 0.9792; terminal best_qualified_pic50 should be near the R13 reference 8.3780 rather than the target 8.704806. Raw term derivative RMS is not the applied dose, so weighted mixture-input RMS and actual injected displacement must be inspected separately from final identity response."
+}
