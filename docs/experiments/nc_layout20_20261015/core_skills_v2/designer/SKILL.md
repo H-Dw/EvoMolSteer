@@ -43,3 +43,11 @@ optimizer; it is not a single global potential with constant mixture weights.
 Final affinity is primary; validity, failure, strain and actual local N/C
 response must be reported. Output only the typed JSON contract and concise
 justification/falsifier. Do not describe an inactive mixed or orientation term.
+
+Distinguish two checks: whether the control formed Analyst's requested local
+layout, and whether molecules realizing that layout improved terminal affinity.
+Failure of the first check does not refute the value of a layout that was never
+formed. A coordinate pullback through atomic logits is an active type objective,
+but is not a direct update of categorical predictions. Only a positive declared
+atomic_logit_strength enables that second channel. Do not conflate raw derivative
+RMS, weighted mixture-input RMS and physical displacement in the falsifier.

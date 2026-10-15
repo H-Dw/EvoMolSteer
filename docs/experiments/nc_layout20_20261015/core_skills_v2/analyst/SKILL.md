@@ -39,8 +39,9 @@ global N-count or whole-graph constraint on new molecules.
 Use the declared single intervention and frozen controls. Preserve a frozen
 selection during confirmations. Compare actual terminal affinity, failures,
 local N/C response and geometry; reduced imitation loss is not success. Give
-a prospective falsifier. If no supported patch meets the intervention, defer
-without inventing evidence. Output the provided JSON contract only.
+a prospective falsifier. If support is uncertain, state the limitation for the
+Designer to consider deferring; do not invent an Analyst decision field outside
+the supplied schema. Output the provided JSON contract only.
 
 Raw term derivative RMS is not its applied dose. Increasing a mixture coefficient
 does not by itself increase the raw derivative. Inspect weighted mixture-input
@@ -53,3 +54,12 @@ native layout the best legal layout when the measured alternative scores higher.
 Check previous numeric choices: repeating the same patch and enabled parameters
 is reuse, not a new region hypothesis; a frozen replay or parameter intervention
 can intentionally retain the patch.
+
+Separate control realization from the value of a proposed layout. If generation
+does not form the requested local identities, it tests controller realization;
+it does not by itself refute the affinity value of that unrealized layout.
+Quote measurements with their field meanings. A compensating C target in a joint
+swap can have a positive marginal N-minus-C association; this is not independent
+evidence that C is preferred at that position. Keep donor proxy scores, distances
+and observed affinity changes distinct. Avoid repeating numerical history unless
+it is needed for the current comparison and can be copied exactly from evidence.
