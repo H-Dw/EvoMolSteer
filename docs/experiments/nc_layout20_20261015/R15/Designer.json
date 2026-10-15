@@ -1,0 +1,33 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 0.85,
+      "orientation": 0.0,
+      "role": 0.15,
+      "type": 0.15
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "If the L110 joint swap with the added selected-N neutral/aromatic decoder preference does not raise qualified final pIC50 above the R13_reference incumbent 8.378002166748047 while local_NC_identity_accuracy at slots 12 and 22 stays at or below the observed 0.08333333333333333 and aromatic_N_role_fraction stays at 0.0, the hypothesis that the selected-N neutral/aromatic decoder preference adds affinity beyond the R13 context is falsified. A further falsifier is that the weighted mixture-input RMS and actual injected displacement at the role term remain at or below the observed max_type_mixture_input_rms 0.15000000596046448 and max_type_gradient_rms 0.31292635202407837, showing the added preference did not reach the typed sites. If the measured alternative layout continues to score above the native layout, the claim that the native layout is preferred is falsified. If no supported patch meets the intervention, defer without inventing evidence.",
+  "patch_id": "L110",
+  "role": "Designer",
+  "scientific_rationale": "Activating the registered L110 local intervention exactly as supplied: the two-site joint swap (slot 12 desired N, native C; slot 22 desired C, native N) with the frozen R13 proper-subset context, plus the added selected-N neutral/aromatic decoder preference. Enabled terms only: half weight 0.85, type weight 0.15, role weight 0.15; endpoint and orientation are zero and are not described. Direct geometry support is the 20 atom_slots (0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24); these are the frozen R13 context and are directly constrained by the enabled geometry term, not free background. Only typed_slots 12 and 22 carry type loss; with type weight 0.15 the N/C identity at these two sites is directly enforced as a soft categorical preference, and the role term at weight 0.15 adds a local soft preference on the selected N's neutral-charge and mapped aromatic-neighbor decoder probabilities. The role term is a local preference, not graph freezing, and cannot by itself certify pyridine chemistry. The source distinction is preserved: eligible pyridine-type aromatic N versus aromatic CH, with pyrrole [nH] and amide N excluded; the generated N decoder channel is treated as generic N until final chemical-role checks. Geometry uses distinct spatial assignments frozen within a derivative, never generated atom indices copied from the teacher. Default mode updates current coordinates through real coordinate and atomic-decoder Jacobians; no positive atomic_logit_strength is present, so no additional local decoder-logit gradient step is applied. Affinity is not differentiated, the new graph is not fixed, and no SMC is introduced. Component normalization is part of the optimizer, not a single global potential with constant mixture weights. Expected observable changes: a small local displacement within the dose cap (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0) at the two typed sites and their context neighbors, a joint swap at slots 12 and 22 with the compensating C site at slot 22 inspected, and a measurable shift in the selected N's neutral/aromatic decoder probabilities. Raw term derivative RMS is not its applied dose; weighted mixture-input RMS and actual injected displacement must be inspected separately from final identity response. Final affinity is primary; validity, failure, strain and actual local N/C response must be reported. Reduced imitation loss is not success."
+}
