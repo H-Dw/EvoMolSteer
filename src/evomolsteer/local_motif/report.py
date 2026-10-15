@@ -12,6 +12,22 @@ from .reward import MotifReward
 from .semantic_contract import identity
 
 
+def figures(rows,target,out):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    points=sorted([r for r in rows if r.get('effective_iteration') is not None and r['stage']!='suffix'],key=lambda r:r['effective_iteration'])
+    x=[r['effective_iteration'] for r in points];fig,axes=plt.subplots(1,2,figsize=(11,4),layout='constrained')
+    axes[0].plot(x,[r['mean_all_pic50'] for r in points],'o-',label='Mean, all scored attempts')
+    axes[0].plot(x,[r['best_qualified_pic50'] for r in points],'s-',label='Best basic-qualified')
+    axes[0].axhline(target,color='black',ls='--',label='Historical Steer best (n=1000)')
+    axes[0].set(ylabel='Predicted pIC50',xlabel='Effective research iteration (0 = reference replay)')
+    axes[0].legend(fontsize=8);axes[1].plot(x,[r['U_tau'] for r in points],'o-',color='tab:green')
+    axes[1].set(ylabel='Tail utility per attempt',xlabel='Effective research iteration')
+    for ax in axes:ax.grid(alpha=.2)
+    fig.savefig(out/'search_metrics.png',dpi=180);fig.savefig(out/'search_metrics.svg');plt.close(fig)
+
+
 def elemental_diagnostics(folder,p,t):
     """Geometry-only matching; also follow the actual boundary-controlled slots."""
     geometry=read_json(folder/'geometry.json');audit=read_json(folder/'guidance_audit.json');rows=[]
@@ -83,6 +99,11 @@ def build(repo,config):
     oldug=repo/'data/generated/partial_region_search_20261014/controls_batch0_n50/unguided'
     if (oldug/'records.json').exists():add('REUSED_UNGUIDED_b0_n50',oldug,stage='control_legacy_metadata')
     write_table(out/'conditions.csv',metric_rows);write_table(out/'elemental_diagnostics.parquet',diagnostics)
+    figures(metric_rows,state['original_steer']['best'],out)
+    quality=[]
+    for path in sorted((out/'quality').glob('*.posebusters.json')):
+        q=read_json(path);quality.append({'condition':path.name.split('.posebusters')[0],**{k:q[k] for k in ['n_attempts','n_evaluated','n_pass_all']}})
+    write_table(out/'posebusters_conditions.csv',quality)
     write_json(out/'scientific_decisions.json',decisions);write_json(out/'agent_delivery.json',bindings);write_json(out/'executable_programs.json',programs)
     actual=[]
     for path in (repo/m['generated_root']).glob('*/*/records.json'):
@@ -133,6 +154,11 @@ def build(repo,config):
             'Analyst假设（保留原文，属于待验证解释）：','',d['hypothesis'] or '未提出可执行假设。','',
             'Designer映射：','',d['designer_rationale'] or '未执行。','',
             f"实际变化：`{d['parameter_changes']}`。结果与配对区间见本轮results.json；回滚：{d['rollback']}。"]
+    if quality:
+        lines+=['','## 附：PoseBusters dock诊断','', '|条件|总尝试|可评估|全部检查通过|','|---|---:|---:|---:|']
+        lines+=[f"|{q['condition']}|{q['n_attempts']}|{q['n_evaluated']}|{q['n_pass_all']}|" for q in quality]
+        lines+=['','以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。']
+    lines+=['','![实际从头生成指标](summary/search_metrics.png)','', '图中的最大值来自不同的小样本池；原始Steer水平线是目标参考，不是等预算显著性比较。']
     (study/'interpretation.zh-CN.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     return value
 
