@@ -1,0 +1,112 @@
+{
+  "Analyst": {
+    "claim_class": "proposed",
+    "conditioning": "Same parent program S0_REFERENCE_REPLAY, same operator pointwise, same dose (native_rms_ratio 0.66, pointcloud_delta_A 1.0), same window [0.1,0.5], same representation bridge, same 24-molecule from-zero pool. Only the region changes: F_b011_s030__NC (R03/R11/R12) versus F_b011_s030__reference (parent S0_REFERENCE_REPLAY). The NC regional trajectory fits are retrospective pocket-fixed fields from historical Steer ancestors, not the current gradient-guided parent; they are descriptive complete-window curves whose time points and cloned ancestors are not independent repetitions.",
+    "contrast_definition": "Single-factor region swap at fixed operator/dose/window/representation: NC region pointwise (R03: mean_all_pic50 7.662644545237224, best_qualified_pic50 8.127753257751465, U_tau 0.0, hit_fraction 0.0, n_qualified 24) versus reference-region parent (parent/outcomes: mean_all_pic50 7.827488899230957, best_qualified_pic50 8.4340238571167, U_tau 0.01245729128519694, hit_fraction 0.041666666666666664, n_qualified 22). Both are from-zero pools; no suffix absolute score is used.",
+    "contrast_kind": "single_factor_vs_selected_parent",
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention"
+    ],
+    "evidence_refs": [
+      "parent/outcomes",
+      "parent/response",
+      "F_b011_s030__reference/history",
+      "F_b011_s030__NC/regional_trajectories"
+    ],
+    "evidence_time_domain": [
+      0.0,
+      0.5
+    ],
+    "factor": "region",
+    "falsifier": "If a controlled NC-region pointwise run at the same dose/window/representation produces terminal metrics statistically indistinguishable from the reference-region parent (e.g., overlapping paired U intervals on the same 24-molecule pool) and shows no measurable change in point_rms_A or target_error_mean relative to parent/response, the region-specific hypothesis is falsified. A second falsifier: if the NC support produces nonzero_updates near zero (as in R02_stream1), the region is not an active coordinate intervention under pointwise.",
+    "hypothesis_id": "H_NC_region_pointwise_vs_reference_parent",
+    "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "observable_id": "pointwise",
+    "parent_program_id": "S0_REFERENCE_REPLAY",
+    "predicted_execution_response": "Under the NC region with pointwise operator, the measured current-program response should show nonzero_updates and active_updates comparable to the parent's 40 active/40 nonzero updates, with point_rms_A and target_error_mean in the same order as the parent/response statistics (parent point_rms_A mean 0.16917911237105726, target_error_mean mean 0.16917911237105726). If the NC support is effectively inactive, nonzero_updates will be near zero as seen in R02_stream1 (nonzero_updates 0), which would falsify the claim that the NC region is an active coordinate intervention under this operator.",
+    "predicted_terminal_response": "Terminal from-zero metrics for the NC region are expected to differ from the parent reference-region outcomes; the observed NC pointwise run R03 gave mean_all_pic50 7.662644545237224 and best_qualified_pic50 8.127753257751465 versus parent 7.827488899230957 and 8.4340238571167. This is a proposed directional expectation only; source layout scores are not outcome forecasts, and the NC regional trajectory curves do not establish terminal benefit.",
+    "region_id": "F_b011_s030__NC",
+    "role": "Analyst",
+    "scientific_hypothesis": "At fixed pointwise operator, dose, window and representation, the NC region's local support (atoms [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]) yields a different terminal outcome distribution than the reference region's support, because the two supports condition different local point-distance targets. The NC regional trajectory evidence shows the historical ancestor signed_dx_A net rate -0.3881624772657203 and signed_dz_A net rate -0.7612985954467124 over [0.0,0.5], while the contrast fits are much smaller (signed_dx_A -0.1405687808305488, signed_dz_A -0.40988478619567825); this is a descriptive historical-steer contrast, not a spatial reward gradient and not a forecast for the current parent.",
+    "source_layout_implies_generated_benefit": false,
+    "status": "hypothesis",
+    "suffix_absolute_scores_establish_from_zero_benefit": false,
+    "temporal_slope_is_spatial_gradient": false,
+    "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+  },
+  "Designer": {
+    "controlled_atom_slots": [
+      6,
+      13,
+      22
+    ],
+    "counterevidence_refs": [
+      "report/limits",
+      "report/O-intervention"
+    ],
+    "decision": "execute",
+    "direct_type_force": false,
+    "enabled_terms": [
+      "pointwise"
+    ],
+    "evidence_bundle_hash": "ec6cf2aa8d81266e3f075d8af5a444dcee153033156b5bf91ee86d6dc708751f",
+    "evidence_refs": [
+      "parent/response",
+      "parent/outcomes",
+      "F_b011_s030__NC/regional_trajectories",
+      "F_b011_s030__reference/history"
+    ],
+    "executed_operator": "pointwise",
+    "falsifier": "Control-level falsifier: if a controlled NC-region pointwise run at the same dose/window/representation produces nonzero_updates near zero (as in R02_stream1, nonzero_updates 0) and no measurable change in point_rms_A or target_error_mean relative to parent/response, the NC region is not an active coordinate intervention under pointwise and the region-specific hypothesis is falsified. Terminal falsifier: if the same run produces terminal metrics statistically indistinguishable from the reference-region parent (e.g., overlapping paired U intervals on the same 24-molecule pool), the region-specific hypothesis is falsified. Improved similarity, role retention, or lower loss alone cannot establish affinity improvement; affinity is evaluated first and structural and energy side effects are reported using the frozen definitions.",
+    "hypothesis_id": "H_NC_region_pointwise_vs_reference_parent",
+    "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+    "parameter_changes": [
+      {
+        "new": "F_b011_s030__NC",
+        "parent": "F_b011_s030__reference",
+        "path": "region_id"
+      },
+      {
+        "new": [
+          6,
+          13,
+          22
+        ],
+        "parent": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          10,
+          12,
+          13,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "path": "atom_slots"
+      }
+    ],
+    "parameter_source": "Parent program S0_REFERENCE_REPLAY supplies all parameters except region_id and atom_slots. Dose: native_rms_ratio 0.66, pointcloud_delta_A 1.0, max_atom_step_A 0.15, max_cumulative_rms_A 6.0. Controller: unit_rms. Representation: bridge. Window: [0.1,0.5]. Steps: 100. Teacher time: 0.5. Native options: cat_noise_euler_guard false, cat_noise_level 1.0, coord_noise_level 0.2, final_corr_pred true, use_sde_simulation true. Band: base_band_A 0.34160586005577465, band_multiplier 1.0. Orientation triplets [[22,6,13]] are present but orientation is not an enabled term and contributes no direct force. The only parameter changes are region_id (F_b011_s030__reference to F_b011_s030__NC) and atom_slots (reference support to [6,13,22]).",
+    "predicted_control_response": "Under the NC region with pointwise operator, the measured current-program response should show nonzero_updates and active_updates comparable to the parent's 40 active/40 nonzero updates, with point_rms_A and target_error_mean in the same order as the parent/response statistics (parent point_rms_A mean 0.16917911237105726, target_error_mean mean 0.16917911237105726). If the NC support is effectively inactive, nonzero_updates will be near zero as seen in R02_stream1 (nonzero_updates 0), which would falsify the claim that the NC region is an active coordinate intervention under this operator.",
+    "role": "Designer",
+    "scientific_rationale": "Single-factor region swap at fixed operator (pointwise), dose (native_rms_ratio 0.66, pointcloud_delta_A 1.0), window [0.1,0.5], representation (bridge), and 24-molecule from-zero pool. Only region_id and atom_slots change: reference support [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] versus NC support [6,13,22]. The pointwise operator is the smallest implemented operator that tests the hypothesis: it applies a robust per-point distance to observed teacher coordinates on the matched local support, with no chemical-role or energy assumption. The NC regional trajectory fits are retrospective pocket-fixed fields from historical Steer ancestors, not the current gradient-guided parent; their signed_dx_A and signed_dz_A net rates are descriptive historical-steer contrasts, not spatial reward gradients and not forecasts for the current parent. Source layout scores are not outcome forecasts. The hypothesis is falsifiable at the control level (nonzero_updates near zero would show the NC support is not an active coordinate intervention under pointwise) and at the terminal level (paired U intervals on the same 24-molecule pool).",
+    "variant_id": "V00"
+  },
+  "decision_record": "Evidence, chosen hypothesis, executable mapping and falsifiers; no private reasoning transcript.",
+  "interface_status": {
+    "query_count": 4,
+    "status": "execute"
+  }
+}
