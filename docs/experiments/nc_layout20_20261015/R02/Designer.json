@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 0.85,
+      "orientation": 0.0,
+      "type": 0.15
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "If, under the frozen L036 patch with the modest decoder N/C coordinate-gradient target, the typed sites do not retain their native N/C identities (local N/C identity accuracy materially below the incumbent 0.979) or the best qualified terminal pIC50 fails to exceed the incumbent 8.378 while geometry RMS degrades beyond the incumbent 0.507 A, the hypothesis that this patch supports the intervention is falsified and the patch should be deferred rather than expanded.",
+  "patch_id": "L036",
+  "role": "Designer",
+  "scientific_rationale": "Activating the frozen L036 patch (node single_b011_final_030, template F_b011_s030_native) with the registered contract unchanged. Enabled terms are only half (0.85) and type (0.15); endpoint and orientation weights are zero and are not described. Direct local support is the proper local subset of four atom slots [6,8,13,22] with typed slots 8 (native C) and 22 (native N); no background points are added and no other region is chosen. The half term acts on the actual intermediate geometry at teacher_time 0.5, pulling the four current coordinates toward the supplied half_coords_A through real coordinate Jacobians. The type term reads the selected decoder N/C log probabilities at the typed slots and supplies a modest N/C target through coordinate gradients only; it does not override discrete labels, fix the new graph, differentiate affinity, or introduce SMC. The single anchor A:VAL:116:N (outward vector, distance 3.0 A, width 0.4 A) is used only as the measured donor for the enabled orientation geometry; because the orientation weight is zero, no orientation energy is asserted and the anchor is not claimed to be a hydrogen-bond energy. The two typed sites are conditional associations within one fixed geometry, not independent atom energies: slot 22 native N with N_minus_C +0.0763 and slot 8 native C with N_minus_C -0.4136. The N donor-facing match at slot 22 is a chemical-role geometry proxy only and does not distinguish pyridine N from pyrrole [nH] or amide N. Terminal N/C labels are not asserted to be chemical identities at a noisy intermediate time. Counterfactual layouts provide scored label hypotheses on fixed coordinates, not an observed continuation state or a promised score for new molecules. Gradients act only on current coordinates through real coordinate and atomic-decoder Jacobians. Component normalization is part of the optimizer, not a single global potential with constant mixture weights. Expected observable changes: the typed sites should retain native identities with local N/C identity accuracy near the incumbent 0.979 and geometry RMS near 0.507 A, while untyped orientation neighbors slots 6 and 13 remain free and may move under model-mediated gradients. Final affinity is primary; validity, failure, strain and actual local N/C response must be reported."
+}
