@@ -1,0 +1,36 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Single-factor region swap at fixed parent program S0_REFERENCE_REPLAY: operator pointwise, representation bridge, window [0.1,0.5], dose native_rms_ratio 0.66, pointcloud_delta_A 1.0, controller unit_rms, coordinate_updates_only true, assignment_element_cost 0.0, band_multiplier 1.0. Only the region_id changes (F_b011_s030__reference -> F_b011_s030__NC), which changes the matched local support (atom_slots 20 -> 3) and the pocket_sites list. The evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. The NC regional trajectory fits are retrospective pocket-fixed fields from historical Steer ancestors, not the current gradient-guided parent run, and their temporal slopes are not spatial reward gradients.",
+  "contrast_definition": "Same parent program S0_REFERENCE_REPLAY, same operator (pointwise), same representation (bridge), same dose and window; the only changed factor is region_id. Reference arm: region F_b011_s030__reference, 20 atom_slots, 6 pocket_sites, measured parent outcomes n=24, n_scored=24, n_qualified=22, mean_all_pic50=7.827488899230957, best_qualified_pic50=8.4340238571167, U_tau=0.01245729128519694, hit_fraction=0.041666666666666664, n_above_target=0, tau=8.135048866271973. NC arm: region F_b011_s030__NC, 3 atom_slots, 6 pocket_sites, measured outcomes n=24, n_scored=24, n_qualified=24, mean_all_pic50=7.662644545237224, best_qualified_pic50=8.127753257751465, U_tau=0.0, hit_fraction=0.0, n_above_target=0. Both arms are from-zero pools; suffix absolute scores from R01/R02 are not comparable to these from-zero pools.",
+  "contrast_kind": "single_factor_vs_selected_parent",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention"
+  ],
+  "evidence_refs": [
+    "parent/outcomes",
+    "parent/response",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__NC/regional_trajectories"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "The hypothesis is falsified if, under the identical parent program and dose, the NC-region arm and the reference-region arm produce indistinguishable terminal from-zero pool distributions on the primary frozen-tail utility (U_tau) and the affinity mean guard, i.e. if the region swap does not change U_tau or mean_all_pic50 beyond the measured paired variability. A second falsifier: if the NC arm's execution response shows the same mean point_rms_A and target_error_mean as the reference arm despite the 20-slot to 3-slot support reduction, the assumed support-size effect on the observable is not supported.",
+  "hypothesis_id": "H_NC_region_pointwise_vs_reference_parent",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Both arms execute the same parent program with 40 active and 40 nonzero coordinate updates over the configured window. The NC arm's smaller support (3 slots) is expected to produce a smaller mean point_rms_A and smaller target_error_mean than the reference arm's 20-slot support, because fewer matched points contribute to the robust per-point loss. No atom clipping or cumulative clipping is expected in either arm (measured atom_clip_fraction and cumulative_clip_fraction are 0.0 in the parent response). Assignment switching is expected to remain near zero in the NC arm.",
+  "predicted_terminal_response": "Terminal from-zero pool metrics for the NC arm are predicted to differ from the reference arm's measured values (mean_all_pic50=7.827488899230957, best_qualified_pic50=8.4340238571167, U_tau=0.01245729128519694, hit_fraction=0.041666666666666664, n_qualified=22). The direction of the difference is not established by the supplied evidence; the measured NC-arm values already on record (mean_all_pic50=7.662644545237224, best_qualified_pic50=8.127753257751465, U_tau=0.0, hit_fraction=0.0, n_qualified=24) are treated as the observed outcome of this contrast, not as a forecast for new samples.",
+  "region_id": "F_b011_s030__NC",
+  "role": "Analyst",
+  "scientific_hypothesis": "Restricting the pointwise local support from the 20-slot reference region to the 3-slot NC region (atom_slots [6,13,22], orientation_triplets [[22,6,13]]) changes the terminal affinity distribution of the from-zero pool relative to the reference-region parent. The NC arm is a smaller, more localized coordinate intervention; the hypothesis is that the smaller support yields a different (not necessarily higher) terminal best-qualified pic50 and U_tau than the reference arm under the otherwise identical parent program. This is a conditional coordinate-intervention hypothesis, not a claim that the NC region encodes a chemical role or an interaction energy.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
