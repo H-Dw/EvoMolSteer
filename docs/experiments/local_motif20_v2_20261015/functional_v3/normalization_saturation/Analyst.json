@@ -1,0 +1,35 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Region F_b011_s030__reference, atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]; parent program REFERENCE_V2 (local_motif_v2, operator pointwise, representation bridge, window [0.1,0.5], controller unit_rms, band_multiplier 1.0, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, coordinate_updates_only true, affinity_head_gradient false). The factor varied is dose.native_rms_ratio, from the parent value 0.66 to 0.33, holding region, operator, representation, window, controller and band_multiplier fixed. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. Same-root controls (n=40) are dependent, not independent molecular repeats; same-graph controls n=0.",
+  "contrast_definition": "Conditional contrast within the same chemical graph and same region, varying only dose.native_rms_ratio: parent REFERENCE_V2 at native_rms_ratio 0.66 versus the same program at native_rms_ratio 0.33. The history records both arms for candidate F_b011_s030: R02 (native_rms_ratio 0.66, operator aggregate, best 8.434, mean 7.784, joint_formation 0.208, mean_control_A 0.0301, retention_after_formation 1.0) and R17 (native_rms_ratio 0.33, operator pointwise, best 8.122, mean 7.630, joint_formation 0.208, mean_control_A 0.0149, retention_after_formation 0.8). R01 (native_rms_ratio 0.33, operator aggregate, best 8.378, mean 7.683, joint_formation 0.25, mean_control_A 0.0149, retention_after_formation 1.0) provides a second 0.33 arm. These are intermediate scores, not terminal outcomes, and the arms differ in operator, so the dose contrast is confounded.",
+  "counterevidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "F_b011_s030__reference/history"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/regional_context",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/regional_trajectories",
+    "F_b011_s030__reference/history",
+    "report/limits"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "dose",
+  "falsifier": "The hypothesis is falsified if, under the matched parent program and region with only dose.native_rms_ratio changed from 0.66 to 0.33, the pointwise term is enabled but the local pointwise distances to the observed teacher coordinates are not preserved (joint_formation falls below the recorded 0.208-0.25 range) or the terminal affinity outcome does not improve relative to the 0.66 arm. A second falsifier: if the recorded mean_control_A difference between the two arms is attributable to the operator difference (aggregate in R01/R02 versus pointwise in R17) rather than to the dose, the dose contrast is not discriminating.",
+  "hypothesis_id": "F_b011_s030__reference__dose_native_rms_ratio_0p33",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "REFERENCE_V2",
+  "predicted_execution_response": "With the parent operator pointwise and region unchanged, the pointwise term should be enabled and produce a nonzero local gradient on the selected atoms toward the observed teacher coordinates; the recorded parent response shows actual_enabled_terms ['pointwise'] with direct_orientation_force false and direct_type_force false, so no orientation or type force is expected. Expected active steps remain the recorded 10-49 window. At native_rms_ratio 0.33 the recorded mean_control_A is ~0.0149 A versus ~0.0301 A at 0.66, and recorded joint_formation is 0.208-0.25 in both arms.",
+  "predicted_terminal_response": "Unmeasured. No terminal affinity outcome for this dose intervention exists in the supplied bundle; parent_outcomes is null and the history records only intermediate best/mean scores (R01 best 8.378, mean 7.683; R02 best 8.434, mean 7.784; R17 best 8.122, mean 7.630) that are not forecasts for new samples. Retention_after_formation is recorded as 1.0 in R01 and R02 but 0.8 in R17, so retention at the lower dose is not established.",
+  "region_id": "F_b011_s030__reference",
+  "role": "Analyst",
+  "scientific_hypothesis": "Within region F_b011_s030__reference, lowering dose.native_rms_ratio from 0.66 to 0.33 while keeping the parent pointwise operator, region, representation, window, controller and band_multiplier fixed should reduce the mean per-point control displacement (mean_control_A) from the recorded ~0.030 A toward the recorded ~0.015 A, without changing the local pointwise observable definition. The incremental information over the parent dose is whether the smaller native_rms_ratio preserves the same local pointwise distances to the observed teacher coordinates while reducing the control displacement, which is a testable dose hypothesis. This is a geometric hypothesis only; the supplied coordinates are not an interaction energy and no hydrogen-bond role is asserted.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "temporal_slope_is_spatial_gradient": false
+}

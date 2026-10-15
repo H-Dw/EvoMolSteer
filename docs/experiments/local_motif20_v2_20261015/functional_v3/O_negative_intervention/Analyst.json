@@ -1,0 +1,34 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Region F_b003_s025__O, parent program REFERENCE_V2 (family local_motif_v2, scope local, operator pointwise, representation bridge, window [0.1,0.5], controller unit_rms, band_multiplier 1.0, dose max_atom_step_A 0.15 / max_cumulative_rms_A 6.0 / native_rms_ratio 0.66 / pointcloud_delta_A 1.0, steps 100, coordinate_updates_only true, smc false, affinity_head_gradient false). Region-only change keeps the parent operator pointwise. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window. The O_acceptor field at pocket_index 254 (A:ASP:175:N) is a source terminal-chemistry field association, not a proven contact or interaction energy; recorded terminal roles are not asserted at noisy intermediate states.",
+  "contrast_definition": "Same-graph control: single_b003_final_031 (n=1). Same-root controls: 47 nodes single_b003_final_000..049 excluding 018, 025, 044 (n=47). These controls are dependent and distinct; finite layouts, atoms, clones and time points are not independent molecular repeats. The candidate O_acceptor distance to A:ASP:175:N is 3.044977741469674 A versus same-graph mean 3.04710347356612 A (n=1) and same-root mean 3.0225156786787264 A with q25-q75 [2.9473172428046723, 3.0177671518186857] A (n=47). The candidate sits above the same-root interquartile band, so the descriptive contrast is a small outward displacement relative to same-root controls, not a demonstrated favorable contact.",
+  "counterevidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "F_b003_s025__O/control_response"
+  ],
+  "evidence_refs": [
+    "F_b003_s025__O/regional_context",
+    "F_b003_s025__O/regional_trajectories",
+    "F_b003_s025__O/history",
+    "parent/response"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "The hypothesis is falsified if, under the matched parent program and region with the pointwise observable, the candidate's local per-point distance to observed teacher coordinates does not separate from the same-root control distribution or if joint_formation/retention_after_formation is zero, indicating the observable neither forms nor is retained.",
+  "hypothesis_id": "F_b003_s025__O_pointwise_ASP175N_O_acceptor",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "REFERENCE_V2",
+  "predicted_execution_response": "With the parent pointwise operator and region-only change, the local Hungarian-assigned per-point distance to observed teacher coordinates should decrease toward the teacher layout within the proposed tolerance; the parent response record shows actual_enabled_terms [pointwise] with direct_orientation_force false and direct_type_force false, so no orientation or type force is expected. History rounds R01-R20 for F_b011_s030 show joint_formation 0.0-0.25 and retention_after_formation 0.0-1.0, so formation of a local observable is expected to be partial and must be read from the returned realization fields rather than assumed.",
+  "predicted_terminal_response": "Unmeasured. No terminal outcome for this region-only pointwise intervention is present in the supplied bundle; parent_outcomes is null and the history entries are source-campaign records for other candidates/regions. Source layout scores are not forecasts for new samples, and a successful intermediate match is not the primary outcome.",
+  "region_id": "F_b003_s025__O",
+  "role": "Analyst",
+  "scientific_hypothesis": "Holding the parent program and region fixed, a local pointwise coordinate intervention on the region's O_acceptor-bearing point toward the observed teacher coordinates near pocket site A:ASP:175:N (pocket_index 254) will form and retain the local pointwise observable, and the retained change will be associated with a terminal affinity change distinguishable from the same-root control distribution. Competing explanation: the observed candidate-versus-control distance difference is a same-root lineage/geometry artifact rather than a role-conditioned local effect, in which case a matched same-root contrast with the same pointwise observable will show no separation.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "temporal_slope_is_spatial_gradient": false
+}

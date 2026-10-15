@@ -1,0 +1,36 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Region F_b004_s027__NC, atom_slots [0,1,2,3,4,5,6,8,9,10,11,15,16,17,18,19,20,21,23,24] as used in the R09 patch record; parent operator pointwise (REFERENCE_V2, representation bridge, window [0.1,0.5], controller unit_rms, dose native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0). Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window. Source layout scores are fixed-geometry legal label layouts on dependent finite inputs, not generated outcomes or coordinate-intervention effects.",
+  "contrast_definition": "Same chemical graph and same region, region-only change: keep the parent pointwise operator and REFERENCE_V2 program, and compare the F_b004_s027__NC region against the F_b011_s030 region under the matched dose (native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0). This is a region contrast, not a chemical-role, lineage, or population contrast. The conditional_layout native-minus-alternate mean (0.7241) and single-exchange deltas are fixed-geometry label counterfactuals and are kept separate from any generated-outcome claim.",
+  "counterevidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "F_b004_s027__NC/control_response",
+    "F_b004_s027__NC/history"
+  ],
+  "evidence_refs": [
+    "F_b004_s027__NC/conditional_layout",
+    "F_b004_s027__NC/regional_context",
+    "F_b004_s027__NC/regional_trajectories",
+    "F_b004_s027__NC/history",
+    "report/limits"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "The hypothesis is falsified if, at the matched dose, the region-only pointwise intervention fails to form the observable (joint_formation and joint_final_same_slots at or near 0) or fails to retain it (retention_after_formation well below 1.0), or if a matched-dose comparison shows the F_b004_s027__NC region is not distinguishable from the F_b011_s030 region on the pointwise observable. A terminal-affinity claim would additionally require a measured generated terminal outcome, which is currently absent.",
+  "hypothesis_id": "F_b004_s027__NC_region_pointwise_retention_test",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "REFERENCE_V2",
+  "predicted_execution_response": "If the region-only pointwise intervention is executed at the matched dose, expect measurable formation of the local assignment (nonzero joint_formation and joint_final_same_slots) with mean_control_A near the recorded ~0.030 A scale, and retention_after_formation at or near 1.0 as in the R09 patch record. This is an execution prediction for the observable, not a terminal-affinity forecast.",
+  "predicted_terminal_response": "Unmeasured. No generated terminal outcome for this region-only pointwise intervention is present in the supplied bundle; parent_outcomes is null and control_response has no matching parent record. The source layout score (native_score 8.625935) and the R09 best (8.048334) are source/round records, not forecasts for new samples.",
+  "region_id": "F_b004_s027__NC",
+  "role": "Analyst",
+  "scientific_hypothesis": "Under the matched parent program and dose, the F_b004_s027__NC region can form the pointwise observable (local Hungarian assignment to observed teacher coordinates) and native completion retains it, but the retained change is not established to improve terminal affinity. The regional_trajectories contrast_fit slopes (signed_dx_A net_rate 0.2757, signed_dy_A 0.0967, signed_dz_A 0.1558, spatial_mass 0.0103) are descriptive complete-window trajectory curves, not spatial reward gradients, and cloned ancestors and time points are not independent molecular repeats.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "temporal_slope_is_spatial_gradient": false
+}

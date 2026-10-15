@@ -1,0 +1,91 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715.txt",
+        "content_sha256": "808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/eb334e333afde3e351c40c28630527b238fd87647b29054e2f680ec22ba5cf67.txt",
+        "content_sha256": "eb334e333afde3e351c40c28630527b238fd87647b29054e2f680ec22ba5cf67",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/eec6ca51cf4f7052e4fb2c6cfaa3bd751a5525a8bc4418ecdd12b020689ba615.txt",
+        "content_sha256": "eec6ca51cf4f7052e4fb2c6cfaa3bd751a5525a8bc4418ecdd12b020689ba615",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/8c138bb1b28b36f30b619a63bb067facb076f448fdee969b7e63150bb66dd243.txt",
+        "content_sha256": "8c138bb1b28b36f30b619a63bb067facb076f448fdee969b7e63150bb66dd243",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/401e6cd1f043a7a6dc73d637e8503c4e78100f263131142b25b29541cdf9cc03.txt",
+        "content_sha256": "401e6cd1f043a7a6dc73d637e8503c4e78100f263131142b25b29541cdf9cc03",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b003_s025__O"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}

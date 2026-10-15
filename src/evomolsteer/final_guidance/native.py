@@ -91,6 +91,9 @@ class Control:
             flow=predictive_flow_increment(self.before,endpoint,self.t,dt,self.model.integrator.use_cosine_scheduler)
             rms=lambda a:((a.square()*weight).sum((1,2))/mask.sum(1)).sqrt()
             gnorm=rms(gradient);requested=self.program['dose']['native_rms_ratio']*rms(flow)
+            # New controllers may attenuate the dose. Legacy behavior is exact
+            # when this attribute is absent; no additional random/model calls.
+            if hasattr(self,'dose_gain'):requested=requested*self.dose_gain
             shift=gradient*(requested/gnorm.clamp_min(1e-20))[:,None,None]*weight
             norms=shift.norm(dim=-1)*self.model.coord_scale;cap=self.program['dose']['max_atom_step_A']
             atom_clip=(norms>cap)&mask
@@ -158,7 +161,12 @@ def run(repo,cfg):
     model.integrator.coord_noise_level=float(native.get('coord_noise_level',.2))
     if 'cat_noise_level' in native:model.integrator.cat_noise_level=float(native['cat_noise_level'])
     if 'cat_noise_euler_guard' in native:model.integrator.cat_noise_euler_guard=bool(native['cat_noise_euler_guard'])
-    source=textwrap.dedent(inspect.getsource(model._generate));changed=instrument(source);namespace=dict(model._generate.__func__.__globals__)
+    source=textwrap.dedent(inspect.getsource(model._generate))
+    if cfg.get('resume'):
+        from evomolsteer.agentic_steer.native import instrument_native
+        changed=instrument(instrument_native(source))
+    else:changed=instrument(source)
+    namespace=dict(model._generate.__func__.__globals__)
     coord_source=textwrap.dedent(inspect.getsource(model.integrator.coord_step))
     coord_changed=instrument_coord_telemetry(coord_source);coord_namespace=dict(model.integrator.coord_step.__func__.__globals__)
     exec(compile(coord_changed,'guidance_coord_telemetry.py','exec'),coord_namespace)
@@ -170,7 +178,9 @@ def run(repo,cfg):
     with gzip.open(initial,'rb') as f:init=torch.load(f,map_location='cpu',weights_only=False)
     b=len(init['prior']['coords']);n=cfg['pilot_samples'];device=torch.device('cuda')
     if not 1<=n<=b:raise ValueError('Unsupported pilot sample count')
-    com=torch.as_tensor(np.asarray(init['target_com'][:n]).reshape(n,3),device=device,dtype=torch.float32)
+    selected_indices=cfg.get('resume',{}).get('slots',list(range(n)))
+    if len(selected_indices)!=n:raise ValueError('Continuation sample count differs from slots')
+    com=torch.as_tensor(np.asarray(init['target_com'])[selected_indices].reshape(n,3),device=device,dtype=torch.float32)
     source_audit={'upstream_native_sha256':hashlib.sha256(source.encode()).hexdigest(),'instrumented_sha256':hashlib.sha256(changed.encode()).hexdigest(),
         'control_adapter_sha256':digest(__file__),'reward_adapter_sha256':digest(Path(__file__).with_name('reward.py')),
         'checkpoint_sha256':digest(cfg['checkpoint']),'initial_sha256':digest(initial),'initial_slots':list(range(n)),
@@ -182,12 +192,26 @@ def run(repo,cfg):
         'model_derivative':'Actual FLOWR autograd VJP plus bridge identity term','bridge':'One-forward linear teacher-clock approximation, not exact SDE lookahead'}
     if any(entry[0]['family']=='local_nc_layout' for entry in entries):
         source_audit['nc_extension_sha256']=digest(Path(__file__).parent.parent/'nc_guidance/reward.py')
+    if any(entry[0]['family']=='local_motif_v2' for entry in entries):
+        source_audit['motif_extension_sha256']=digest(Path(__file__).parent.parent/'local_motif/reward.py')
+    restart=None
+    if cfg.get('resume'):
+        from evomolsteer.local_motif.suffix_probe import GroupedSuffix,select_tree
+        restart_path=initial.parent/('restart_step_%03d.pt.gz'%cfg['resume']['step'])
+        if digest(restart_path)!=cfg['resume']['restart_sha256']:raise ValueError('Restart state altered')
+        with gzip.open(restart_path,'rb') as f:restart=torch.load(f,map_location='cpu',weights_only=False)
+        source_audit.update(resume=cfg['resume'],initial_slots=selected_indices,
+            continuation_identity='Saved complete state with newly seeded paired suffix stream, not historical RNG replay')
     write_json(remote/'source_audit.json',source_audit);(remote/'instrumented_native.py').write_text(changed)
     conditions=([(None,None,'Unselected random-prior from-zero native control')] if cfg.get('include_unguided',True) else [])+entries
     for p,teacher,text in conditions:
         name='unguided' if p is None else p['program_id'];out=remote/name;out.mkdir(exist_ok=True)
         if (out/'COMPLETE.json').exists():continue
         prior=tensor_tree(init['prior'],n,b,device);pocket=tensor_tree(init['pocket_target'],n,b,device)
+        if restart is not None:
+            prior=select_tree(init['prior'],selected_indices,b,device)
+            pocket=select_tree(init['pocket_target'],selected_indices,b,device)
+            model._agentic_suffix=GroupedSuffix(restart,selected_indices,cfg['steps'],device)
         pocket['complex']=[SimpleNamespace(com=c.cpu().numpy()) for c in com]
         torch.manual_seed(cfg['seed']);np.random.seed(cfg['seed']);random.seed(cfg['seed']);started=time.time()
         control_type=Control
@@ -197,13 +221,17 @@ def run(repo,cfg):
         if p is not None and p['family']=='local_nc_layout':
             from evomolsteer.nc_guidance.reward import NCControl
             control_type=NCControl
+        if p is not None and p['family']=='local_motif_v2':
+            from evomolsteer.local_motif.reward import MotifControl
+            control_type=MotifControl
         control=control_type(model,p,teacher,com,cfg['teacher_time']);model._half_guidance=control
         output=model._generate(prior,pocket,steps=cfg['steps'],times=[torch.zeros(n,device=device) for _ in range(3)],
             apply_guidance=False,strategy='linear',solver='euler',save_traj=False,
             coord_noise_level=model.integrator.coord_noise_level,final_corr_pred=native.get('final_corr_pred',True))
-        actual=[r['step'] for r in control.rows if r['active']];expected=[] if p is None else p['expected_active_steps']
-        if actual!=expected or len(control.rows)!=cfg['steps']:raise ValueError('Actual active windows differ from compiled decision')
-        if p is not None and not any(r['nonzero_molecules'] for r in control.rows):raise ValueError('Guidance did not inject any displacement')
+        start_step=cfg.get('resume',{}).get('step',0)
+        actual=[r['step'] for r in control.rows if r['active']];expected=[] if p is None else [s for s in p['expected_active_steps'] if s>=start_step]
+        if actual!=expected or len(control.rows)!=cfg['steps']-start_step:raise ValueError('Actual active windows differ from compiled decision')
+        if p is not None and p['family']!='local_motif_v2' and not any(r['nonzero_molecules'] for r in control.rows):raise ValueError('Guidance did not inject any displacement')
         if control.teacher_snapshot is None:raise ValueError('Actual teacher-clock state was not captured')
         final={k:v.to(device) for k,v in output.items() if torch.is_tensor(v) and k!='affinity'}
         final['coords']=(final['coords']-com[:,None])/model.coord_scale

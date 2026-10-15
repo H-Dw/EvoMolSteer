@@ -1,0 +1,39 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Region F_b003_s025__O, atom_slots [5,7,11,14] (O5 acceptor, C7 aromatic, C11, O14 donor/acceptor), orientation_triplets [[11,5,7]]. Parent REFERENCE_V2: local scope, pointwise operator, bridge representation, window [0.1,0.5], dose max_atom_step_A 0.15 / max_cumulative_rms_A 6.0 / native_rms_ratio 0.66 / pointcloud_delta_A 1.0, 100 steps, coordinate_updates_only true, controller unit_rms, band_multiplier 1.0, assignment_element_cost 0.0, orientation_band 0.05, gradient_floor_multiplier 1.0. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window. Pocket sites are fixed supplied coordinates; distances are geometric, not interaction energies. Same-root (n=47) and same-graph (n=1) controls are dependent and distinct; time points and cloned ancestors are not independent molecular repeats.",
+  "contrast_definition": "Conditional contrast within the same chemical graph and same root: candidate single_b003_final_025 versus same-graph control single_b003_final_031 and the 47 same-root controls, restricted to the O-region local support. Candidate-to-site distances for the O_acceptor role are 3.045 A (A:ASP:175:N, idx 254), 3.271 A (A:LYS:68:NZ, idx 107), 4.105 A (A:ASP:175:OD1, idx 260), 4.378 A (A:ASP:175:OD2, idx 261), 4.677 A (A:TRP:176:N, idx 262), 4.682 A (A:GLU:81:OE2, idx 116). Same-root means are 3.023, 3.112, 4.168, 4.275, 4.772, 4.882 A respectively; the candidate is at or inside the same-root mean at every listed site, with the largest inward offset at A:GLU:81:OE2 (0.200 A) and A:LYS:68:NZ (0.159 A). This is a descriptive population contrast, not a matched-role causal contrast.",
+  "counterevidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "parent/response",
+    "F_b003_s025__O/regional_context",
+    "F_b003_s025__O/regional_trajectories",
+    "F_b003_s025__O/history"
+  ],
+  "evidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "parent/response",
+    "F_b003_s025__O/regional_context",
+    "F_b003_s025__O/control_response",
+    "F_b003_s025__O/regional_trajectories",
+    "F_b003_s025__O/history"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "The hypothesis is falsified if, under the parent program with only the region changed, the local pointwise distance observable at A:ASP:175:OD1 and A:LYS:68:NZ does not decrease relative to the same-root control distribution, or if the same-root distance offsets are reproduced by a global-shape-only observable with no residual region-specific component. A further falsifier is a measured terminal response that is unchanged or worse while the local observable moves, which would show the retained geometric change does not carry terminal value.",
+  "hypothesis_id": "F_b003_s025__O_pocket_distance_ASP175_OD1_band",
+  "observable_id": "pointwise",
+  "parent_program_id": "REFERENCE_V2",
+  "predicted_execution_response": "With the parent pointwise operator and dose unchanged, the region-restricted intervention should move the O-region atoms toward the supplied pocket sites and reduce the local pointwise distance observable at A:ASP:175:OD1 (idx 260) and A:LYS:68:NZ (idx 107) relative to the same-root mean, while leaving the non-region atoms and the global shape term approximately unchanged. Formation is expected to be partial: history shows joint_formation 0.083-0.25 and retention_after_formation 0.0-1.0 across rounds, so a nonzero but sub-unity formed fraction is the expected execution response, not full realization.",
+  "predicted_terminal_response": "Unmeasured. No terminal outcome for this region-only intervention exists in the supplied bundle (parent_outcomes null; current_campaign empty). The source report gives Top10_mean_prediction_increment -0.00067 with significant_carboxyl_intervention false and drop_O_R2 0.2473, so no terminal benefit is forecast; a terminal gain is neither predicted nor excluded.",
+  "region_id": "F_b003_s025__O",
+  "role": "Analyst",
+  "scientific_hypothesis": "Holding the parent program fixed and changing only the region (keeping the pointwise operator), the O-region local support can be driven to a tighter, role-conditioned pointwise distance profile at the ASP:175 carboxylate/lysine cluster, and this retained geometric change is the candidate observable that a later terminal-affinity test would need to credit. Competing explanation: the observed candidate-vs-control distance offsets are inherited from the same-root terminal population and carry no incremental information beyond global shape, so a region-only intervention would reproduce the same profile without any region-specific effect.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "temporal_slope_is_spatial_gradient": false
+}

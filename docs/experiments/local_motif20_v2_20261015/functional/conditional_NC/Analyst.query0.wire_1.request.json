@@ -1,0 +1,81 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715.txt",
+        "content_sha256": "808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/4a04adf7698a1e081ace0a1a553b1c9918287588ea3f9f1db915ccbbd6227366.txt",
+        "content_sha256": "4a04adf7698a1e081ace0a1a553b1c9918287588ea3f9f1db915ccbbd6227366",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/e6699af3fa7e6a150711e044b5775f32ca928f51a70cc278e790a7b80bc09a32.txt",
+        "content_sha256": "e6699af3fa7e6a150711e044b5775f32ca928f51a70cc278e790a7b80bc09a32",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 1200,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b004_s027__NC"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}

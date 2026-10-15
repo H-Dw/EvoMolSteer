@@ -1,0 +1,126 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/cd0ce879567c95c964192c47eb36ecc08dc0369a7705db5588dcd70914776321.txt",
+        "content_sha256": "cd0ce879567c95c964192c47eb36ecc08dc0369a7705db5588dcd70914776321",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/79f8e2742b1d7cb7d36edf49679111a41990055c7f05ce818258af51d147cc14.txt",
+        "content_sha256": "79f8e2742b1d7cb7d36edf49679111a41990055c7f05ce818258af51d147cc14",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/cdb5373ea8e6b89f1d17302d3b087c956982100c054f594a3c3eb50d9e75e687.txt",
+        "content_sha256": "cdb5373ea8e6b89f1d17302d3b087c956982100c054f594a3c3eb50d9e75e687",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b004_s027__NC/conditional_layout",
+            "F_b004_s027__NC/regional_context",
+            "F_b004_s027__NC/regional_trajectories",
+            "F_b004_s027__NC/control_response",
+            "F_b004_s027__NC/history"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "decision": {
+        "enum": [
+          "execute",
+          "defer"
+        ]
+      },
+      "direct_type_force": {
+        "const": false
+      },
+      "evidence_bundle_hash": {
+        "const": "1a690fdf28e02a416195145fb5f846e02e1a24b27e1c602159ba6cd0e012fd08"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b004_s027__NC/conditional_layout",
+            "F_b004_s027__NC/regional_context",
+            "F_b004_s027__NC/regional_trajectories",
+            "F_b004_s027__NC/control_response",
+            "F_b004_s027__NC/history"
+          ]
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "falsifier": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "hypothesis_id": {
+        "const": "F_b004_s027__NC_pointwise_region_retention_test"
+      },
+      "parameter_source": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "predicted_control_response": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "variant_id": {
+        "enum": [
+          "V00"
+        ]
+      }
+    },
+    "required": [
+      "role",
+      "decision",
+      "hypothesis_id",
+      "evidence_bundle_hash",
+      "variant_id",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_rationale",
+      "parameter_source",
+      "predicted_control_response",
+      "falsifier",
+      "direct_type_force"
+    ],
+    "type": "object"
+  }
+}

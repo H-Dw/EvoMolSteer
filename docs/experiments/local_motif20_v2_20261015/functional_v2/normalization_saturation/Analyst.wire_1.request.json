@@ -1,0 +1,181 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715.txt",
+        "content_sha256": "808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/323e6f2906f5f0acf67389788ce5bf1fe5144b31afd157685278b5458d247c5b.txt",
+        "content_sha256": "323e6f2906f5f0acf67389788ce5bf1fe5144b31afd157685278b5458d247c5b",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/18d17bda19fbb4ca15af88a84fa6fb26eda1eb29032c17429842bad93a44ad8a.txt",
+        "content_sha256": "18d17bda19fbb4ca15af88a84fa6fb26eda1eb29032c17429842bad93a44ad8a",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "claim_class": {
+        "enum": [
+          "inferred",
+          "proposed"
+        ]
+      },
+      "conditioning": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "contrast_definition": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__reference/regional_context",
+            "F_b011_s030__reference/control_response",
+            "F_b011_s030__reference/regional_trajectories",
+            "F_b011_s030__reference/history"
+          ]
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "report/O-intervention",
+            "report/limits",
+            "parent/response",
+            "parent/outcomes",
+            "F_b011_s030__reference/regional_context",
+            "F_b011_s030__reference/control_response",
+            "F_b011_s030__reference/regional_trajectories",
+            "F_b011_s030__reference/history"
+          ]
+        },
+        "minItems": 1,
+        "type": "array",
+        "uniqueItems": true
+      },
+      "evidence_time_domain": {
+        "const": [
+          0.0,
+          0.5
+        ]
+      },
+      "factor": {
+        "enum": [
+          "region",
+          "operator",
+          "dose",
+          "band_multiplier",
+          "controller",
+          "matching",
+          "representation",
+          "window_start",
+          "gradient_floor",
+          "curvature"
+        ]
+      },
+      "falsifier": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "hypothesis_id": {
+        "maxLength": 120,
+        "type": "string"
+      },
+      "observable_id": {
+        "enum": [
+          "pointwise",
+          "point_band",
+          "pocket_distance",
+          "orientation",
+          "pair_distance"
+        ]
+      },
+      "parent_program_id": {
+        "enum": [
+          "REFERENCE_V2"
+        ]
+      },
+      "predicted_execution_response": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "predicted_terminal_response": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "region_id": {
+        "enum": [
+          "F_b011_s030__reference"
+        ]
+      },
+      "role": {
+        "const": "Analyst"
+      },
+      "scientific_hypothesis": {
+        "maxLength": 3000,
+        "type": "string"
+      },
+      "source_layout_implies_generated_benefit": {
+        "const": false
+      },
+      "status": {
+        "enum": [
+          "hypothesis",
+          "capability_gap",
+          "scientific_defer"
+        ]
+      },
+      "temporal_slope_is_spatial_gradient": {
+        "const": false
+      }
+    },
+    "required": [
+      "role",
+      "status",
+      "hypothesis_id",
+      "parent_program_id",
+      "region_id",
+      "factor",
+      "observable_id",
+      "evidence_time_domain",
+      "evidence_refs",
+      "counterevidence_refs",
+      "claim_class",
+      "conditioning",
+      "contrast_definition",
+      "scientific_hypothesis",
+      "predicted_execution_response",
+      "predicted_terminal_response",
+      "falsifier",
+      "source_layout_implies_generated_benefit",
+      "temporal_slope_is_spatial_gradient"
+    ],
+    "type": "object"
+  }
+}

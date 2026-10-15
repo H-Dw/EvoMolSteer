@@ -1,0 +1,36 @@
+{
+  "claim_class": "proposed",
+  "conditioning": "Region F_b004_s027__NC, atom_slots [4,6,8,15,19,23], native N sites 6 and 23, window [0.1,0.5] within learning_window [0.0,0.5]. Parent REFERENCE_V2 uses operator pointwise, representation bridge, controller unit_rms, band_multiplier 1.0, dose native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, coordinate_updates_only true, smc false, affinity_head_gradient false. Parent response record shows actual_enabled_terms ['pointwise'] with direct_orientation_force false and direct_type_force false, so any orientation or type claim is out of scope for this parent.",
+  "contrast_definition": "Same chemical graph and same region, comparing the native N placement at slots 6 and 23 against the exhaustive fixed-geometry legal single and double exchanges recorded in F_b004_s027__NC/conditional_layout. This is a conditional label/layout contrast on a finite dependent source set, not a coordinate intervention effect and not a generated outcome.",
+  "counterevidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "F_b004_s027__NC/conditional_layout",
+    "F_b004_s027__NC/history"
+  ],
+  "evidence_refs": [
+    "F_b004_s027__NC/conditional_layout",
+    "F_b004_s027__NC/regional_context",
+    "F_b004_s027__NC/regional_trajectories",
+    "F_b004_s027__NC/control_response",
+    "F_b004_s027__NC/history",
+    "report/limits"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "The hypothesis is falsified if, under the unchanged parent pointwise operator with region as the only factor, the local placement at slots 6 and 23 fails to form or fails to be retained at the end of the window, or if the measured local pointwise distance to the observed teacher coordinates is not distinguishable from the alternate legal layouts. A further falsifier for any value claim: if a retained native-like placement is achieved but terminal affinity does not improve relative to the same-graph control single_b004_final_037, then retention does not imply terminal benefit.",
+  "hypothesis_id": "F_b004_s027__NC_pointwise_region_retention_test",
+  "observable_id": "pointwise",
+  "parent_program_id": "REFERENCE_V2",
+  "predicted_execution_response": "With factor region and operator pointwise unchanged, the parent pointwise term should remain the only enabled term. Expected execution response is a measurable local pointwise distance to the observed teacher coordinates for slots [4,6,8,15,19,23], with assignment switches and boundary probabilities reported as in the history records. No direct orientation or type force is expected because parent/response and F_b004_s027__NC/control_response both record direct_orientation_force false and direct_type_force false.",
+  "predicted_terminal_response": "Unmeasured. This bundle contains no generated terminal outcome for this region-only intervention, and parent/outcomes is null. The source native_score 8.625935 and the layout differences are source layout quantities, not terminal predictions. Any terminal benefit claim would be proposed, not measured.",
+  "region_id": "F_b004_s027__NC",
+  "role": "Analyst",
+  "scientific_hypothesis": "Within region F_b004_s027__NC, the native N placement at slots 6 and 23 is the highest-scoring legal layout among the 28 measured layouts (native_score 8.625935, native_minus_alternate_mean 0.7241045074074082, all 12 single exchanges negative). The proposed test is whether the parent pointwise operator, unchanged, can form and retain that native local placement when the region is the only factor varied. Formation and retention are separate from terminal value: the source layout score is not a forecast for generated samples, and no measured link in this bundle connects a retained local placement to improved terminal affinity.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "temporal_slope_is_spatial_gradient": false
+}

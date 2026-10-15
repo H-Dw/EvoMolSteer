@@ -118,9 +118,19 @@ def infer(repo,master,cfg,cfg_path,remote,sha):
         time.sleep(10)
     local_output=repo/master.get('generated_root','data/generated/partial_region_search_20261014')/Path(cfg['remote_output']).name
     remote.download_tree(cfg['remote_output'],local_output)
+    if master.get('verify_download_hashes',False):
+        command="python - <<'PY'\nimport hashlib,json\nfrom pathlib import Path\np=Path("+repr(cfg['remote_output'])+")\nprint(json.dumps({str(f.relative_to(p)):hashlib.file_digest(f.open('rb'),'sha256').hexdigest() for f in p.rglob('*') if f.is_file()}))\nPY"
+        expected=json.loads(remote.command(command))
+        mismatches=[name for name,sha in expected.items() if not (local_output/name).is_file() or digest(local_output/name)!=sha]
+        if mismatches:raise ValueError('Remote download checksum mismatch: '+str(mismatches[:5]))
+        write_json(local_output/'download_verified.json',{'files':len(expected),'sha256':expected,'remote':cfg['remote_output']})
     # Preserve complete structures locally; remote retains compact scores, coordinates and audits for reuse.
     for path in local_output.rglob('*.sdf.gz'):
         rel=path.relative_to(local_output).as_posix();remote.sftp.remove(cfg['remote_output']+'/'+rel)
+    if master.get('remote_keep_reports_only',False):
+        if not master.get('verify_download_hashes',False):raise ValueError('Structure cleanup requires verified hashes')
+        for path in local_output.rglob('geometry.json'):
+            rel=path.relative_to(local_output).as_posix();remote.sftp.remove(cfg['remote_output']+'/'+rel)
     return local_output
 
 

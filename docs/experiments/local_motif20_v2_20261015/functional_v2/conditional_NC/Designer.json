@@ -1,0 +1,27 @@
+{
+  "counterevidence_refs": [
+    "report/O-intervention",
+    "report/limits",
+    "parent/outcomes",
+    "F_b004_s027__NC/conditional_layout",
+    "F_b004_s027__NC/history"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "evidence_bundle_hash": "1a690fdf28e02a416195145fb5f846e02e1a24b27e1c602159ba6cd0e012fd08",
+  "evidence_refs": [
+    "F_b004_s027__NC/conditional_layout",
+    "F_b004_s027__NC/regional_context",
+    "F_b004_s027__NC/regional_trajectories",
+    "F_b004_s027__NC/control_response",
+    "F_b004_s027__NC/history",
+    "parent/response"
+  ],
+  "falsifier": "Execution-level falsifier: under the unchanged parent pointwise operator with region as the only factor, the local placement at slots 6 and 23 fails to form, or forms but is not retained at the end of the window, or the measured local pointwise distance to the observed teacher coordinates is not distinguishable from the alternate legal layouts recorded in F_b004_s027__NC/conditional_layout. Terminal consequence: if a retained native-like placement is achieved but terminal affinity does not improve relative to the same-graph control single_b004_final_037, then retention does not imply terminal benefit. Improved similarity, role retention, or lower loss alone cannot establish affinity improvement; affinity is evaluated first and structural and energy side effects are reported using the frozen definitions.",
+  "hypothesis_id": "F_b004_s027__NC_pointwise_region_retention_test",
+  "parameter_source": "All parameters are copied from the parent REFERENCE_V2 program and the V00 numeric variant; none are newly invented. dose.native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, pointcloud_delta_A 1.0, controller unit_rms, band_multiplier 1.0, assignment_element_cost 0.0, orientation_band 0.05, gradient_floor_multiplier 1.0, steps 100, coordinate_updates_only true, smc false, affinity_head_gradient false, native_options coord_noise_level 0.2, cat_noise_level 1.0, cat_noise_euler_guard false, use_sde_simulation true, final_corr_pred true. window [0.1,0.5] and learning_window [0.0,0.5] are read from the supplied configuration, not embedded in the skill. teacher_time 0.5 matches the bridge clock. base_band_A 0.3367003566701019 is the proposed quarter source local covalent-length median and is not a proven success tolerance. The region atom_slots [4,6,8,15,19,23], native N sites 6 and 23, pocket_sites, and orientation_triplets are taken from the supplied region and parent records.",
+  "predicted_control_response": "With factor region and operator pointwise unchanged, the parent pointwise term should remain the only enabled term, consistent with parent/response and F_b004_s027__NC/control_response recording actual_enabled_terms ['pointwise'] with direct_orientation_force false and direct_type_force false. Expected execution response is a measurable local pointwise distance to the observed teacher coordinates for slots [4,6,8,15,19,23], with assignment switches and boundary probabilities reported as in the history records. Formation and retention are read separately: joint_formation and retention_after_formation at the end of the window. No direct orientation or type force is expected. The response is conditional on the current model call and saved conditioning; it is not differentiation through all future random steps. A native-completion check is required because the hypothesis depends on persistence beyond the control window.",
+  "role": "Designer",
+  "scientific_rationale": "V00 is the parent REFERENCE_V2 program unchanged: operator pointwise, representation bridge, controller unit_rms, band_multiplier 1.0, dose native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, coordinate_updates_only true, smc false, affinity_head_gradient false, window [0.1,0.5] inside learning_window [0.0,0.5], teacher_time 0.5. The only factor varied relative to the parent is region: the region is restricted to atom_slots [4,6,8,15,19,23] with native N sites 6 and 23. This is the smallest implemented operator that can test the Analyst hypothesis, because the hypothesis is about whether the unchanged pointwise term can form and retain the native local placement when region is the only factor varied. No new operator, no type force, no orientation force, and no affinity-head gradient is introduced. The pointwise operator is bound to the same state representation and time as its observable: it is a local Hungarian assignment with robust per-point distance to observed teacher coordinates in A, evaluated at the bridge clock with teacher_time 0.5. The source layout contrast in F_b004_s027__NC/conditional_layout is a conditional label/layout contrast on a finite dependent source set, not a coordinate intervention effect and not a generated outcome; native_score 8.625935 and native_minus_alternate_mean 0.7241045074074082 are source layout quantities. The regional_trajectories fits are descriptive complete-window curves on cloned ancestors and are not independent repetitions, so they are not used as a gradient or as a terminal forecast. The history records show that pointwise runs in this campaign have produced joint_formation and retention_after_formation values, which supports that the requested formation/retention readout is measurable at execution level. No measured link in this bundle connects a retained local placement to improved terminal affinity, so any terminal benefit claim remains proposed and unmeasured.",
+  "variant_id": "V00"
+}

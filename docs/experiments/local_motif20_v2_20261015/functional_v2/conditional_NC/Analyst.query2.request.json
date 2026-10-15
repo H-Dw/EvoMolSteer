@@ -1,0 +1,95 @@
+{
+  "body": {
+    "max_tokens": 1200,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715.txt",
+        "content_sha256": "808c1d0aebeaa7c3a6d7a8bd6e0710fb2d7e0345549979e99ca81d674ce95715",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/0092d4acda273f55171e7d955a98e310f387906f8a08273a397ab5832211d851.txt",
+        "content_sha256": "0092d4acda273f55171e7d955a98e310f387906f8a08273a397ab5832211d851",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/a7e1ded6094830f775afa9bebb8c0fc621b4448fe425682d99cd7c923c02ee0a.txt",
+        "content_sha256": "a7e1ded6094830f775afa9bebb8c0fc621b4448fe425682d99cd7c923c02ee0a",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/9aa65a02534119e88862bba4013aff4772756fd5fcca4e3652a33aebdcd56274.txt",
+        "content_sha256": "9aa65a02534119e88862bba4013aff4772756fd5fcca4e3652a33aebdcd56274",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/6c780c6b4d17e3c1665432e9fb0f44240ca2fddb5b4af9fc31bcf68448c512ae.txt",
+        "content_sha256": "6c780c6b4d17e3c1665432e9fb0f44240ca2fddb5b4af9fc31bcf68448c512ae",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/22ed9faac35f22380bfc4ca51836388151be3d1508fea88d9740a94d1ed10e6f.txt",
+        "content_sha256": "22ed9faac35f22380bfc4ca51836388151be3d1508fea88d9740a94d1ed10e6f",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "query",
+          "finish"
+        ]
+      },
+      "question": {
+        "maxLength": 6000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b004_s027__NC"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "conditional_layout",
+                "regional_context",
+                "regional_trajectories",
+                "control_response",
+                "history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "type": "array"
+      }
+    },
+    "required": [
+      "action",
+      "requests",
+      "question"
+    ],
+    "type": "object"
+  }
+}

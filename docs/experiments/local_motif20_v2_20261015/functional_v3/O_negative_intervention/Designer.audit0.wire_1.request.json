@@ -1,0 +1,76 @@
+{
+  "body": {
+    "max_tokens": 1800,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/cd0ce879567c95c964192c47eb36ecc08dc0369a7705db5588dcd70914776321.txt",
+        "content_sha256": "cd0ce879567c95c964192c47eb36ecc08dc0369a7705db5588dcd70914776321",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/5efa553de85da3cce388d19ce5157c221bffa8c9a6b0e755ccd5ef1d05b82bad.txt",
+        "content_sha256": "5efa553de85da3cce388d19ce5157c221bffa8c9a6b0e755ccd5ef1d05b82bad",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/a6b479574a891be6352afb30564ed7d4b960099544492fd074a4c86cc5fdf4c2.txt",
+        "content_sha256": "a6b479574a891be6352afb30564ed7d4b960099544492fd074a4c86cc5fdf4c2",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "consistent": {
+        "type": "boolean"
+      },
+      "issues": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "contradiction": {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            "field": {
+              "enum": [
+                "scientific_rationale",
+                "parameter_source",
+                "predicted_control_response",
+                "falsifier"
+              ]
+            },
+            "quote": {
+              "maxLength": 800,
+              "type": "string"
+            }
+          },
+          "required": [
+            "field",
+            "quote",
+            "contradiction"
+          ],
+          "type": "object"
+        },
+        "maxItems": 3,
+        "type": "array"
+      }
+    },
+    "required": [
+      "consistent",
+      "issues"
+    ],
+    "type": "object"
+  }
+}
