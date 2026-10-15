@@ -1,0 +1,87 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/42df9085674a2ae1dcded0834ebb7480c118d8c3c012354a9ae0079fb0fa2f3e.txt",
+        "content_sha256": "42df9085674a2ae1dcded0834ebb7480c118d8c3c012354a9ae0079fb0fa2f3e",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/9cc48654d3a8bf540be4861dac902919489bb18277da4c55924f8b9e3dec49b2.txt",
+        "content_sha256": "9cc48654d3a8bf540be4861dac902919489bb18277da4c55924f8b9e3dec49b2",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "execution_contract": {
+        "const": {
+          "anchor_distance_A": 3.0,
+          "anchor_width_A": 0.4,
+          "assignment_endpoint_fraction": 1.0,
+          "assignment_type_cost": 0.0,
+          "dose": {
+            "max_atom_step_A": 0.15,
+            "max_cumulative_rms_A": 6.0,
+            "native_rms_ratio": 0.33,
+            "pointcloud_delta_A": 1.0
+          },
+          "gradient_balance": "unit_rms",
+          "type_mode": "full_ce",
+          "type_ramp": false,
+          "weights": {
+            "endpoint": 0.4,
+            "half": 0.3,
+            "orientation": 0.0,
+            "type": 0.3
+          },
+          "window": [
+            0.1,
+            0.5
+          ]
+        }
+      },
+      "observable_falsifier": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "patch_id": {
+        "const": "L093"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 2800,
+        "type": "string"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "execution_contract",
+      "scientific_rationale",
+      "observable_falsifier"
+    ],
+    "type": "object"
+  }
+}
