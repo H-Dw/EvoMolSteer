@@ -28,7 +28,7 @@ PLANS=[
 ('site_contrast_weighting','Hold the patch; test bounded relative site importance from finite layout contrast magnitude.'),
 ('type_aware_correspondence','Hold the patch and weights; test a small detached type cost in the spatial assignment.'),
 ('late_type_ramp','Hold the patch and dose; increase type/orientation share gradually across the declared guidance window.'),
-('raw_gradient_combination','Hold the terms; compare raw derivative mixing with component-RMS balancing.'),
+('local_chemical_role','Test selected-N neutral-charge and aromatic-neighbor decoder terms; keep chemistry free elsewhere and measure actual final N roles.'),
 ('endpoint_transfer','Test greater local endpoint-geometry share without adding background atoms.'),
 ('local_context','Reconsider the support-versus-freedom tradeoff inside the strict local point cap.'),
 ('later_start','Freeze the best local patch and test a later start; complete the same native suffix.'),
@@ -68,7 +68,7 @@ def prepare_round(repo,master,number,state):
     if number in (2,3):
         cfg['frozen_patch']=state['rounds'][0]['patch_id'];cfg['execution_contract']=copy.deepcopy(state['rounds'][0]['contract']);base=cfg['execution_contract']
         alpha=.15 if number==2 else .4;base['weights']={'half':1-alpha,'endpoint':0.,'type':alpha,'orientation':0.}
-    if number==4:cfg.update(candidate_node=master['r13_node_id'],template_kind='counterfactual');cfg['execution_contract']=default_contract(master)
+    if number==4:cfg.update(candidate_node=master['r13_node_id'],template_kind='counterfactual',require_compensation=True);cfg['execution_contract']=default_contract(master)
     if number==5:
         packet=read_json(study/'evidence.json');candidates=[c for c in packet['candidate_summaries'] if c['node_id']!=master['r13_node_id']]
         cfg.update(candidate_node=max(candidates,key=lambda c:c['native_score'])['node_id'],template_kind='native');cfg['execution_contract']=default_contract(master)
@@ -84,7 +84,7 @@ def prepare_round(repo,master,number,state):
     if number==10:cfg['contrast_weighting']=True
     if number==11:base['assignment_type_cost']=.2
     if number==12:base['type_ramp']=True
-    if number==13:base['gradient_balance']='raw_sum'
+    if number==13:base['weights']['role']=.15
     if number==14:base['weights']={'half':.1,'endpoint':.5,'type':.4,'orientation':0.}
     if number==15:cfg['exclude_patches']=[e['patch_id'] for e in state['rounds'] if not e.get('confirmation')]
     if number==16:base['window'][0]=.3
@@ -96,7 +96,7 @@ def prepare_round(repo,master,number,state):
             cfg['confirmation_of_nonwinning_local']=True
         cfg['frozen_patch']=state['best_nc_patch'];cfg['execution_contract']=copy.deepcopy(state['best_nc_contract'])
         cfg['contrast_weighting']=state.get('best_nc_contrast_weighting',False)
-    core=study/'core_skills'
+    core=study/('core_skills' if master.get('skill_revision',1)==1 else f"core_skills_v{master['skill_revision']}")
     for role,key in [('analyst','analyst_skill'),('designer','designer_skill')]:
         saved=core/role/'SKILL.md'
         if not saved.exists():saved.parent.mkdir(parents=True,exist_ok=True);saved.write_bytes((repo/master[key]).read_bytes())
@@ -125,23 +125,39 @@ def atomic_indices(folder,geometry,vocab):
     return result
 
 
-def metrics(folder,master,program,teacher):
+def metrics(folder,master,program,teacher,repo=Path('.')):
     # Generic final metrics also verify the actual control window, nonzero steps and native suffix.
     result=condition_metrics(folder);geometry=read_json(folder/'geometry.json');xyz=np.asarray(geometry['terminal']['coords_A'])
     ids=atomic_indices(folder,geometry,teacher['atom_vocabulary']);target=np.asarray(teacher['terminal_coords_A'])[program['atom_slots']]
-    types=[];distances=[]
+    types=[];distances=[];n_roles=[]
     local_map={s:i for i,s in enumerate(program['atom_slots'])};ti=[local_map[s] for s in program['typed_slots']]
     desired=np.asarray([teacher['atom_vocabulary'][e] for e in program['typed_elements']])
-    for x,a in zip(xyz,ids):
+    for sample,(x,a) in enumerate(zip(xyz,ids)):
         cost=np.square(x[:,None]-target[None]).sum(-1);rr,cc=linear_sum_assignment(cost);assignment=rr[np.argsort(cc)]
         distances.append(float(np.sqrt(cost[assignment,np.arange(len(target))].mean())))
         if (a>=0).all():types.append(float((a[assignment[ti]]==desired).mean()))
+        import gzip
+        from rdkit import Chem
+        sdf=folder/f'{sample:03d}.sdf.gz'
+        if sdf.exists():
+            with gzip.open(sdf,'rt') as stream:mol=Chem.MolFromMolBlock(stream.read().split('$$$$')[0],sanitize=True,removeHs=False)
+            if mol is not None and mol.GetNumAtoms()==len(x):
+                coords=mol.GetConformer().GetPositions();rr,cc=linear_sum_assignment(np.square(x[:,None]-coords[None]).sum(-1))
+                original_to_sdf=dict(zip(rr,cc));flags=[]
+                for local,element in zip(ti,program['typed_elements']):
+                    if element!='N':continue
+                    atom=mol.GetAtomWithIdx(int(original_to_sdf[assignment[local]]))
+                    flags.append(atom.GetSymbol()=='N' and atom.GetIsAromatic() and atom.GetFormalCharge()==0 and atom.GetDegree()==2 and atom.GetTotalNumHs()==0)
+                if flags:n_roles.append(float(np.mean(flags)))
     audit=read_json(folder/'guidance_audit.json');rows=audit['steps']
     if audit['program'] and audit['program']['family']=='local_nc_layout':
-        if audit['program']!=program:raise ValueError('Executed numeric decision differs')
+        templates=read_json(Path(repo)/master['campaign_study']/'templates.json')
+        actual_teacher=templates[audit['program']['template_id']]
+        if numerical_signature(audit['program'],actual_teacher)!=numerical_signature(program,teacher):raise ValueError('Executed numeric decision differs')
         if max(r.get('direct_endpoint_support_count',0) for r in rows)>master['max_local_points']:raise ValueError('Whole-cloud support')
         if max(r.get('direct_unmatched_gradient_max',0) for r in rows)!=0:raise ValueError('Direct loss escaped selected local support')
     result.update(local_NC_identity_accuracy=float(np.mean(types)) if types else None,identity_coverage=len(types),
+        aromatic_N_role_fraction=float(np.mean(n_roles)) if n_roles else None,chemical_role_coverage=len(n_roles),
         final_local_geometry_rms_A=float(np.mean(distances)),max_type_gradient_rms=max(r.get('type_gradient_rms',0.) for r in rows))
     return result
 
@@ -178,6 +194,13 @@ def run(repo,config,stop_after=20):
             state={'next_round':1,'best_round':'R13_reference','best':condition_metrics(baseline['R13_reference']),
                 'rounds':[],'cache':{},'decline_streak':0,'best_nc_score':-1e30,'rollback_commits':[]}
             write_json(sp,state)
+        # Reindex any older metadata-sensitive keys without regenerating numeric duplicates.
+        templates=read_json(study/'templates.json');cache={}
+        for source in state['cache'].values():
+            folder=repo/source;a=read_json(folder/'guidance_audit.json');p=a['program']
+            batch=next((r.get('initial_batch',0) for r in state['rounds'] if r['round']==folder.name),0)
+            key=f"{batch}:{len(read_json(folder/'records.json'))}:"+numerical_signature(p,templates[p['template_id']]);cache[key]=source
+        state['cache']=cache
         for number in range(state['next_round'],min(stop_after,master['max_rounds'])+1):
             cfg,path=prepare_round(repo,master,number,state);label=cfg['round_id'];folder=repo/cfg['study'];feedback=read_json(folder/'feedback.json')
             emit('real_agent_call',round=label,strategy=cfg['strategy'])
@@ -185,15 +208,15 @@ def run(repo,config,stop_after=20):
                 bp=next((folder/'candidates').glob('*/bindings.json'));b=read_json(bp);p=read_json(repo/b['programs'][0]['program'])
             else:p=analyze(repo,cfg,feedback)
             bp=next((folder/'candidates').glob('*/bindings.json'));teacher=read_json(repo/read_json(bp)['teacher'])
-            key=f"{cfg['pilot_initial_batch']}:{cfg['pilot_samples']}:"+numerical_signature(p)
+            key=f"{cfg['pilot_initial_batch']}:{cfg['pilot_samples']}:"+numerical_signature(p,teacher)
             sha=commit(repo,master,f"experiment(nc-layout): {label} {cfg['strategy']} local Analyst-bound reward")
             if key in state['cache']:result_folder=repo/state['cache'][key];reused=True
             else:
                 generated=infer(repo,master,cfg,path,remote,sha);result_folder=generated/label;reused=False
                 compact_output(generated,folder/'transport.json.gz');state['cache'][key]=result_folder.relative_to(repo).as_posix()
-            m=metrics(result_folder,master,p,teacher);controls=baseline_controls(repo,master,cfg['pilot_initial_batch'],cfg['pilot_samples'],remote)
+            m=metrics(result_folder,master,p,teacher,repo);controls=baseline_controls(repo,master,cfg['pilot_initial_batch'],cfg['pilot_samples'],remote)
             control_scores={name:condition_metrics(f) for name,f in controls.items()}
-            matched={name:metrics(f,master,p,teacher) for name,f in controls.items()}
+            matched={name:metrics(f,master,p,teacher,repo) for name,f in controls.items()}
             if any(v['initial_sha256']!=m['initial_sha256'] or v['source_initial_slots']!=m['source_initial_slots'] for v in control_scores.values()):raise ValueError('Unpaired input control')
             patch=read_json(folder/'selection.json');score=m['best_qualified_pic50'] if m['best_qualified_pic50'] is not None else -1e30;rollback=False;confirmation=number>=19
             if not confirmation:
@@ -209,7 +232,7 @@ def run(repo,config,stop_after=20):
                 rollback=state['decline_streak']>=2
                 if rollback:state['decline_streak']=0
             entry={'round':label,'strategy':cfg['strategy'],'patch_id':p['patch_id'],'template_id':p['template_id'],
-                'contract':cfg['execution_contract'],'metrics':m,'controls':control_scores,'local_response_controls':matched,
+                'contract':cfg['execution_contract'],'metrics':m,'controls':control_scores,'local_response_controls':matched,'initial_batch':cfg['pilot_initial_batch'],
                 'reused_numeric_program':reused,'confirmation':confirmation,'inference_commit':sha,'rollback':rollback,
                 'incumbent_after':state['best_round'],'selected_points':len(p['atom_slots']),'typed_sites':len(p['typed_slots'])}
             state['rounds'].append(entry);state['next_round']=number+1;write_json(folder/'results.json',entry);write_json(sp,state)

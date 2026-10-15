@@ -72,6 +72,9 @@ def prepare(repo,cfg):
                 vector=np.asarray(d['coords_A'])-x[i];distance=np.linalg.norm(vector);u=unit(vector)
                 strength[si,di]=np.exp(-.5*((distance-3.)/.4)**2)*max(ray@u,0)**2*max(-u@np.asarray(d['outward']),0)**2
         site_context={i:{**occupancy[i],'native_element':a.iloc[i].element,'coords_A':x[i].tolist(),
+            'native_aromatic':bool(a.iloc[i].aromatic),'native_acceptor':bool(a.iloc[i].acceptor),
+            'native_donor':bool(a.iloc[i].donor),'native_degree':int(a.iloc[i].degree),'native_formal_charge':int(a.iloc[i].formal_charge),
+            'exchange_class':'neutral degree-two pyridine-type aromatic N / aromatic CH; pyrrole [nH] and amide N excluded',
             'neighbors':adj[i],'best_donor':donors[int(np.argmax(strength[j]))]['donor_id'],
             'best_donor_strength':float(strength[j].max())} for j,i in enumerate(eligible)}
         # Native and best measured legal layouts remain distinct observed/counterfactual views.
@@ -83,8 +86,10 @@ def prepare(repo,cfg):
             seen.add(tuple(nitrogen));tid=key+'_'+label
             teacher={**anc,'terminal_representation':'terminal_world_A','terminal_coords_A':x.tolist(),
                 'atom_vocabulary':read_json(repo/cfg['dataset']/'results'/cfg['campaign']/'config.json')['atom_vocabulary'],
+                'charge_vocabulary':read_json(repo/cfg['dataset']/'results'/cfg['campaign']/'config.json')['charge_vocabulary'],
                 'native_elements':a.element.tolist(),'desired_N_sites':nitrogen,'eligible_sites':eligible,
-                'counterfactual_labels':not bool(row.is_original),'template_id':tid,'donors':donors,
+                'local_adjacency':{str(i):adj[i] for i in eligible},
+                'counterfactual_labels':not bool(row.is_original),'template_id':tid,
                 'layout_score':float(row.pic50_target),'evidence_origin':name,'source_kind':'fixed-geometry legal layout score; not a new generation'}
             templates[tid]=teacher
             rankedN=sorted(nitrogen,key=lambda i:(site_context[i]['best_donor_strength'],occupancy[i]['N_minus_C']),reverse=True)
@@ -114,8 +119,25 @@ def prepare(repo,cfg):
         summaries.append({'node_id':name,'native_score':float(native.pic50_target),'best_legal_score':float(table.pic50_target.max()),
             'n_layouts_scored':len(table),'native_minus_alternate_mean':float(native.pic50_target-table.loc[~table.is_original,'pic50_target'].mean()),
             'site_context':list(site_context.values())})
+    # Append joint-swap patches without renumbering any previously frozen local ID.
+    contexts={c['node_id']:{s['slot']:s for s in c['site_context']} for c in summaries}
+    seen={(p['template_id'],tuple(p['typed_slots'])) for p in regions}
+    for original in list(regions):
+        t=templates[original['template_id']]
+        if not t['counterfactual_labels']:continue
+        formerN={i for i in t['eligible_sites'] if t['native_elements'][i]=='N'}
+        compensation=sorted(formerN-set(t['desired_N_sites']))
+        typed=sorted(set(original['typed_slots'])|set(compensation));support=sorted(set(original['atom_slots'])|set(compensation))
+        if not compensation or len(support)>cfg['max_local_points'] or (original['template_id'],tuple(typed)) in seen:continue
+        seen.add((original['template_id'],tuple(typed)));rid=f'L{len(regions):03d}'
+        regions.append({**original,'patch_id':rid,'evidence_id':rid+'/finite_layout','typed_slots':typed,'atom_slots':support,
+            'typed_elements':['N' if i in t['desired_N_sites'] else 'C' for i in typed],
+            'site_evidence':[contexts[original['node_id']][i] for i in typed],
+            'joint_layout_compensation':True,'compensating_C_slots':compensation,
+            'claim':'Joint N relocation and C replacement within the selected local sites, not global N-count forcing'})
     write_json(out/'templates.json',templates)
-    packet={'schema':'local-nc-evidence-1','patches':regions,'candidate_summaries':summaries,
+    packet={'schema':'local-nc-evidence-2-role-metadata','patches':regions,'candidate_summaries':summaries,
+        'support_definition':'ALL atom_slots, including context neighbors, receive direct geometry loss when a geometry term is enabled; only typed_slots receive type loss',
         'max_local_points':cfg['max_local_points'],'teacher_clock':cfg['teacher_time'],
         'report_limits':['Fixed-coordinate legal isomer inputs are not regenerated molecules or independent samples',
             'N matching is not a sufficient or necessary high-affinity rule; N--N spacing is not universally supported',

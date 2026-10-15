@@ -24,6 +24,14 @@ Only describe terms with positive enabled weights. An enabled orientation needs
 the measured donor and both local heavy-atom neighbors; it is not a hydrogen-bond
 energy. All direct loss support, including context, must remain a proper local
 subset. Distinguish direct local support from global model-mediated response.
+Every selected context neighbor is directly constrained by enabled geometry
+terms. Only typed_slots have a type loss; with zero type weight no N/C identity
+is directly enforced. Preserve the source distinction between eligible pyridine
+N and excluded pyrrole/amide identities, while treating the generated N decoder
+channel as generic N until final chemical-role checks.
+If the role term is enabled, it encourages only the selected N's neutral-charge
+and mapped aromatic-neighbor decoder probabilities. This is a local soft
+preference, not graph freezing, and cannot by itself certify pyridine chemistry.
 
 Explain observable changes expected from each enabled term. Respect declared
 gradient balancing, dose and clocks. Component normalization is part of the

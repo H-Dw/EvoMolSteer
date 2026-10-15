@@ -24,6 +24,17 @@ expands N/C targets and any neighboring context required for an orientation.
 Patches may be disconnected. Do not expand to the whole cloud or constrain an
 unmeasured background. The fixed local point cap includes orientation neighbors.
 Name what remains free; model-mediated gradients can still affect those atoms.
+Context neighbors listed in atom_slots receive direct geometry loss; they are
+NOT free background. Only points outside atom_slots lack direct geometry loss.
+The site exchange_class and native role flags identify the eligible chemistry;
+do not say the source analysis mixed pyridine N with pyrrole or amide N.
+If type weight is zero, identity preservation is an outcome to measure, not an
+operation enforced by the geometry-only reward.
+For a counterfactual N relocation, inspect the compensating C sites. Adding N
+at a favorable destination while leaving the former N untouched is a different
+hypothesis from the scored fixed-count layout. Prefer a supported joint local
+swap when that distinction is the declared intervention. Do not impose a
+global N-count or whole-graph constraint on new molecules.
 
 Use the declared single intervention and frozen controls. Preserve a frozen
 selection during confirmations. Compare actual terminal affinity, failures,

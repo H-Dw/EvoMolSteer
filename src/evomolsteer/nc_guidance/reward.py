@@ -21,6 +21,7 @@ class NCReward:
         self.labels=[teacher['atom_vocabulary'][e] for e in p['typed_elements']]
         if len(p['anchors']) and not all(set([a['slot']]+a['neighbor_slots'])<=set(self.slots) for a in p['anchors']):raise ValueError('Orientation support outside local patch')
         if p['weights']['orientation']>0 and not p['anchors']:raise ValueError('Unsupported orientation claim')
+        if p['weights'].get('role',0)>0 and 'charge_vocabulary' not in teacher:raise ValueError('Chemical-role decoder vocabulary missing')
     def active(self,t,dt):
         a,b=self.program['window'];return t>=a-2e-6 and t+dt<=b+2e-6 and dt>0
     def assignment(self,z,y,logits,mask):
@@ -35,7 +36,7 @@ class NCReward:
                 for j,label in zip(self.ti,self.labels):cost[:,j]-=cost_weight*logp[b,ids,label]
                 rows,cols=linear_sum_assignment(cost);result.append(ids[rows[np.argsort(cols)]])
         return torch.as_tensor(np.asarray(result),device=z.device,dtype=torch.long)
-    def terms(self,z,y,logits,mask,assignment=None):
+    def terms(self,z,y,logits,mask,assignment=None,decoder=None):
         p=self.program;ids=self.assignment(z,y,logits,mask) if assignment is None else assignment
         idx=ids[...,None].expand(-1,-1,3);mh=z.gather(1,idx);mf=y.gather(1,idx)
         half_q=(mh-z.new_tensor(self.half)).square().sum(-1).mean(1)
@@ -61,8 +62,20 @@ class NCReward:
             prob=logits.softmax(-1).gather(1,ids[:,i,None,None].expand(-1,1,logits.shape[-1]))[:,0,self.teacher['atom_vocabulary']['N']]
             values.append(radial*facing*prob)
         orientation=torch.stack(values,1).mean(1) if values else y.sum((1,2))*0
+        role=y.sum((1,2))*0
+        if p['weights'].get('role',0)>0:
+            if decoder is None:raise ValueError('Chemical-role term requires native bond/charge decoder outputs')
+            bondlog=decoder['bonds'].log_softmax(-1);chargelog=decoder['charges'].log_softmax(-1);components=[]
+            zero=self.teacher['charge_vocabulary']['0'];batch=torch.arange(len(y),device=y.device)
+            for slot,element in zip(self.typed,p['typed_elements']):
+                if element!='N':continue
+                generated_i=ids[:,self.local[slot]]
+                components.append(chargelog[batch,generated_i,zero])
+                for j in self.teacher.get('local_adjacency',{}).get(str(slot),[]):
+                    if j in self.local:components.append(bondlog[batch,generated_i,ids[:,self.local[j]],4])
+            if components:role=torch.stack(components,1).mean(1)
         direct=torch.zeros_like(mask,dtype=torch.bool);direct.scatter_(1,ids,True)
-        return {'half':robust(half_q),'endpoint':robust(final_q),'type':typing,'orientation':orientation}, {
+        return {'half':robust(half_q),'endpoint':robust(final_q),'type':typing,'orientation':orientation,'role':role}, {
             'assignment':ids,'direct_mask':direct,'half_rms_A':half_q.sqrt(),'final_rms_A':final_q.sqrt(),
             'typed_correct_probability':chosen_logits.softmax(-1).gather(2,target).squeeze(-1).mean(1)}
 
@@ -82,7 +95,7 @@ class NCControl(Control):
                     if torch.is_tensor(value) and value.requires_grad:value.register_hook(denied)
             pred,_=self.model._get_predictions(out);endpoint=pred['coords']*self.model.coord_scale+self.com[:,None]
             current=x*self.model.coord_scale+self.com[:,None];z=bridge(current,endpoint,self.t,self.reward.teacher['time'])
-            terms,detail=self.reward.terms(z,endpoint,out['atomics'],curr['mask'].bool());parts=[];summary={}
+            terms,detail=self.reward.terms(z,endpoint,out['atomics'],curr['mask'].bool(),decoder=out);parts=[];summary={}
             active=[(k,w) for k,w in self.program['weights'].items() if w>0]
             for index,(name,weight) in enumerate(active):
                 gx=torch.autograd.grad(terms[name].sum(),x,retain_graph=True)[0]
@@ -100,7 +113,7 @@ class NCControl(Control):
             'endpoint_patch_rms_A':float(detail['final_rms_A'].detach().mean()),'half_patch_rms_A':float(detail['half_rms_A'].detach().mean()),
             'direct_endpoint_support_count':int(detail['direct_mask'].sum(1).max()),'atomic_output_in_coordinate_vjp':self.program['weights']['type']>0,
             'affinity_vjp':False,'extra_model_forwards':0}
-        value=sum(self.program['weights'][k]*v for k,v in terms.items())
+        value=sum(self.program['weights'].get(k,0)*v for k,v in terms.items())
         self.cached=(gradient.detach(),pred['coords'].detach(),self.dt,detail['direct_mask'].detach(),value.detach(),gz.detach())
         return {k:({a:b.detach() if torch.is_tensor(b) else b for a,b in v.items()} if isinstance(v,dict) else v.detach() if torch.is_tensor(v) else v) for k,v in out.items()}
     def after(self,curr,i):

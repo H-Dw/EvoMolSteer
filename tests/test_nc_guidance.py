@@ -25,7 +25,7 @@ def example():
 def test_nc_loss_has_exact_zero_direct_gradient_outside_local_coordinates_and_logits():
     p,t=example();r=NCReward(p,t);z=torch.tensor([t['coords_A']],dtype=torch.double,requires_grad=True)
     y=(z.detach()+.05).requires_grad_(True);logits=torch.zeros((1,6,5),dtype=torch.double,requires_grad=True);mask=torch.ones((1,6),dtype=torch.bool)
-    terms,info=r.terms(z,y,logits,mask);value=sum(p['weights'][k]*v for k,v in terms.items())
+    terms,info=r.terms(z,y,logits,mask);value=sum(p['weights'].get(k,0)*v for k,v in terms.items())
     gz,gy,gl=torch.autograd.grad(value.sum(),(z,y,logits));unmatched=~info['direct_mask']
     assert gz[unmatched].abs().max()==0 and gy[unmatched].abs().max()==0 and gl[unmatched].abs().max()==0
     assert gl.abs().max()>0 and info['direct_mask'].sum()==4
@@ -79,3 +79,14 @@ def test_designer_cannot_detach_patch_or_change_enabled_terms():
     assert compile_program(cfg,patch,t,a,d,'t','a','d')['atom_slots']==p['atom_slots']
     d['patch_id']='L2'
     with pytest.raises(ValueError,match='detached'):compile_program(cfg,patch,t,a,d,'t','a','d')
+
+
+def test_local_role_loss_touches_only_mapped_charge_and_neighbor_bond_logits():
+    p,t=example();p['weights']['role']=.15;t.update(charge_vocabulary={'0':1},local_adjacency={'0':[1,2]})
+    r=NCReward(p,t);z=torch.tensor([t['coords_A']],dtype=torch.double);mask=torch.ones((1,6),dtype=torch.bool)
+    logits=torch.zeros((1,6,5),dtype=torch.double);bonds=torch.randn((1,6,6,5),dtype=torch.double,requires_grad=True)
+    charges=torch.randn((1,6,3),dtype=torch.double,requires_grad=True)
+    terms,detail=r.terms(z,z,logits,mask,decoder={'bonds':bonds,'charges':charges})
+    gb,gc=torch.autograd.grad(terms['role'].sum(),(bonds,charges));ids=detail['assignment'][0]
+    assert gc[0,ids[0]].abs().max()>0 and gb[0,ids[0],ids[1]].abs().max()>0
+    assert gc[0,ids[3]].abs().max()==0 and gb[0,ids[3]].abs().max()==0

@@ -12,9 +12,19 @@ from evomolsteer.final_guidance.reward import active_updates
 from .reward import NCReward
 
 
-def numerical_signature(program):
-    excluded={'program_id','analyst_sha256','designer_sha256','source_round'}
-    return hashlib.sha256(json.dumps({k:v for k,v in program.items() if k not in excluded},sort_keys=True,separators=(',',':')).encode()).hexdigest()
+def numerical_signature(program,teacher=None):
+    excluded={'program_id','analyst_sha256','designer_sha256','source_round','patch_id','template_id',
+        'candidate_id','teacher_sha256','counterfactual_labels','schema_version'}
+    value={k:v for k,v in program.items() if k not in excluded}
+    if not program['weights']['orientation']:value.pop('anchors',None)
+    if not program['weights']['type']:
+        for key in ('type_mode','type_site_weights','type_ramp'):value.pop(key,None)
+    if sum(v>0 for v in program['weights'].values())==1:value.pop('gradient_balance',None)
+    if teacher is not None:
+        value['half_targets']=[teacher['coords_A'][s] for s in program['atom_slots']]
+        value['final_targets']=[teacher['terminal_coords_A'][s] for s in program['atom_slots']]
+        value['NC_vocabulary']={e:teacher['atom_vocabulary'][e] for e in ('N','C')}
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
 def compile_program(cfg,patch,teacher,analyst,designer,teacher_sha,analyst_sha,designer_sha):
@@ -47,6 +57,7 @@ def analyze(repo,cfg,feedback):
     if cfg.get('candidate_node'):allowed=[p for p in allowed if p['node_id']==cfg['candidate_node']]
     if cfg.get('minimum_N',0):allowed=[p for p in allowed if p['typed_elements'].count('N')>=cfg['minimum_N']]
     if cfg.get('minimum_C',0):allowed=[p for p in allowed if p['typed_elements'].count('C')>=cfg['minimum_C']]
+    if cfg.get('require_compensation'):allowed=[p for p in allowed if p.get('joint_layout_compensation',False)]
     if cfg['execution_contract']['weights']['orientation']>0:allowed=[p for p in allowed if p['anchors']]
     if cfg.get('frozen_patch'):allowed=[p for p in allowed if p['patch_id']==cfg['frozen_patch']]
     if cfg.get('exclude_patches'):allowed=[p for p in allowed if p['patch_id'] not in cfg['exclude_patches']]
@@ -61,7 +72,8 @@ def analyze(repo,cfg,feedback):
         if a['evidence_id']!=patch['evidence_id']:raise jsonschema.ValidationError('Unknown patch evidence',validator='evidence_binding',validator_value=patch['evidence_id'])
     analyst=call_json([{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
         'intervention':cfg['intervention'],'patches':allowed,'candidate_summaries':packet['candidate_summaries'],
-        'report_limits':packet['report_limits'],'feedback':feedback,'frozen_patch':cfg.get('frozen_patch'),
+        'report_limits':packet['report_limits'],'support_definition':packet.get('support_definition'),
+        'feedback':feedback,'frozen_patch':cfg.get('frozen_patch'),
         'frozen_parameters':cfg['execution_contract'],'task':'Select one supported local N/C patch; do not copy slot lists.'},sort_keys=True,separators=(',',':'))}],
         schema,folder/'Analyst.json',input_store=study/'inputs',max_output_tokens=3500,response_validator=validate_a,max_format_repairs=2)
     patch=next(p for p in allowed if p['patch_id']==analyst['patch_id']);templates=read_json(study/'templates.json');teacher=templates[patch['template_id']]
@@ -74,6 +86,8 @@ def analyze(repo,cfg,feedback):
         'slots':patch['atom_slots'],'counterfactual_labels':teacher['counterfactual_labels'],'teacher_time':teacher['time']}
     designer=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'analyst':analyst,'patch':patch,'selected_teacher':selected,'execution_contract':cfg['execution_contract'],
+        'direct_geometry_slots':patch['atom_slots'] if cfg['execution_contract']['weights']['half']+cfg['execution_contract']['weights']['endpoint']>0 else [],
+        'direct_type_slots':patch['typed_slots'] if cfg['execution_contract']['weights']['type']>0 else [],
         'task':'Bind the Analyst local N/C targets to enabled registered terms. Never add other points.'},sort_keys=True,separators=(',',':'))}],
         schema,folder/'Designer.json',input_store=study/'inputs',max_output_tokens=3500,max_format_repairs=2)
     p=compile_program(cfg,patch,teacher,analyst,designer,digest(target/'teacher.json'),digest(folder/'Analyst.json'),digest(folder/'Designer.json'))
