@@ -25,6 +25,8 @@ A target-band controller should reduce force when the target is attained. Its re
 
 Bind each target to the same state representation and time as its observable. A bridge evaluated at a later clock uses a target at that clock; a current-state trajectory target uses current time. Read learning and control windows from supplied configuration rather than embedding them in the skill.
 
+For a registered historical-path strategy, bind the bridge horizon to the fitted coordinates at that same horizon. Disclose both changes, fit residuals, and absence of differentiation through later native steps. Do not describe this as an isolated dose change or an exact historical replay.
+
 Use the supplied comparison identity. A new local potential versus an unguided restored state does not isolate a band-width change against a different parent operator. Historical teacher curves are not measurements of the current controller's response.
 
 Use the implemented true-generator coordinate VJP. State that it is conditional on the current model call and saved conditioning, not differentiation through all future random steps. Require a native-completion check when the hypothesis depends on persistence beyond control.

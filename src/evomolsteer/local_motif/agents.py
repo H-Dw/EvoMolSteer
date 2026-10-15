@@ -11,14 +11,15 @@ from evomolsteer.partial_search.report import api_audit
 from .reward import OPERATORS,MotifReward
 from .semantic_contract import references,variants,validate_program
 
-FACTORS=['region','operator','dose.native_rms_ratio','band_multiplier','controller','assignment_element_cost','representation','window_start','gradient_floor_multiplier','dose.pointcloud_delta_A','orientation_band','moment_shape_weight','time_schedule']
+FACTORS=['region','operator','dose.native_rms_ratio','band_multiplier','controller','assignment_element_cost','representation','window_start','gradient_floor_multiplier','dose.pointcloud_delta_A','orientation_band','moment_shape_weight','time_schedule','target_schedule']
 FACTOR_SEMANTICS={'dose.native_rms_ratio':'Physical displacement RMS ratio to native predictive step; does not change robust-loss curvature.',
     'dose.pointcloud_delta_A':'Pointwise pseudo-Huber spatial curvature scale in Angstrom; does not change native RMS ratio.',
     'assignment_element_cost':'Detached correspondence cost coefficient, not a direct elemental force.',
     'band_multiplier':'Target tolerance multiplier for point_band/pocket_distance/pair_distance only.',
     'gradient_floor_multiplier':'Bounded-controller attenuation calibration, not an active unit-RMS parameter.',
     'time_schedule':'Post-normalization positive dose schedule across the configured window, u=mid-step normalized progress: early 1.5-u, late .5+u, constant 1. Mean multiplier 1; actual flow-weighted displacement and clipping can differ and must be measured.'}
-TOOLS=['conditional_layout','regional_context','regional_trajectories','control_response','history']
+FACTOR_SEMANTICS['target_schedule']='Fixed teacher horizon versus a historical-path moving lookahead horizon. Changes BOTH target time and corresponding fitted target coordinates as one strategy; not an isolated clock or polynomial effect. No extra model calls. Not a future-success probability estimate.'
+TOOLS=['conditional_layout','regional_context','regional_trajectories','historical_path','control_response','history']
 OPERATOR_DEFINITIONS={
     'pointwise':'Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.',
     'point_band':'Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.',
@@ -59,6 +60,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         if p['operator']!='orientation':legal.discard('orientation_band')
         if p['operator']!='local_moments':legal.discard('moment_shape_weight')
         if set(regions)=={p['region_id']}:legal.discard('region')
+        if not master.get('enable_path_targets') or p['representation']!='bridge':legal.discard('target_schedule')
         entry['legal_factors']=sorted(legal)
     factor_enum=sorted({f for entry in parents.values() for f in entry['legal_factors']})
     if constraint.get('factors'):factor_enum=[f for f in factor_enum if f in constraint['factors']]
@@ -100,6 +102,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
             elif tool=='regional_trajectories':value={'origin':'historical_steer_not_current_guidance',
                 'domain':evidence['trajectory']['domain'],'limits':evidence['trajectory']['limits'],
                 'fits':evidence['trajectory']['fits'].get(rid,{'status':'missing_trajectory'})}
+            elif tool=='historical_path':value=card.get('historical_path',{'status':'unavailable'})
             elif tool=='control_response':
                 value={'matching_parents':{pid:entry for pid,entry in parents.items() if entry['program']['region_id']==rid},
                     'active_incumbent_context':feedback.get('parent_response'),
@@ -183,7 +186,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
         'scientific_rationale':text,'parameter_source':text,'predicted_control_response':text,'falsifier':text,
         'direct_type_force':{'const':False}})
     def changes(q):
-        return [{'path':key,'parent':parent.get(key),'new':q.get(key)} for key in ['region_id','template_id','atom_slots','operator','representation','window','controller','assignment_element_cost','band_multiplier','gradient_floor_multiplier','orientation_band','moment_shape_weight','time_schedule'] if parent.get(key)!=q.get(key)]+[
+        return [{'path':key,'parent':parent.get(key),'new':q.get(key)} for key in ['region_id','template_id','atom_slots','operator','representation','window','controller','assignment_element_cost','band_multiplier','gradient_floor_multiplier','orientation_band','moment_shape_weight','time_schedule','target_schedule'] if parent.get(key)!=q.get(key)]+[
             {'path':'dose.'+key,'parent':parent['dose'][key],'new':q['dose'][key]} for key in parent['dose'] if parent['dose'][key]!=q['dose'][key]]
     diffs={v:changes(q) for v,q in options.items()}
     dschema['properties']['parameter_changes']={'enum':list(diffs.values())};dschema['required'].append('parameter_changes')

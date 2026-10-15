@@ -38,6 +38,9 @@ def identity(p,t):
     value={k:p[k] for k in ['operator','representation','window','steps','controller','assignment_element_cost','native_options']}
     value['target']=r.target.tolist();value['labels']=r.labels if p['assignment_element_cost'] else None
     value['time_schedule']=p.get('time_schedule','constant')
+    value['target_schedule']=p.get('target_schedule','fixed')
+    if value['target_schedule']=='historical_path':
+        value['path']=t['historical_path'];value['lookahead_fraction']=p.get('lookahead_fraction',.2)
     value['dose']={k:v for k,v in p['dose'].items() if k!='pointcloud_delta_A' or p['operator']=='pointwise'}
     if p['operator'] in ('point_band','pocket_distance','pair_distance'):value['band_A']=p['base_band_A']*p['band_multiplier']
     if p['operator']=='orientation':value.update(triplets=p['orientation_triplets'],orientation_band=p['orientation_band'])
@@ -66,6 +69,9 @@ def validate_program(p,t,window):
     if not window[0]<=p['window'][0]<p['window'][1]<=window[1]:raise ValueError('Control outside learned window')
     if not .025<=p['dose']['native_rms_ratio']<=2:raise ValueError('Unregistered dose')
     if not 0<p['band_multiplier']<=4 or p['assignment_element_cost']<0:raise ValueError('Invalid geometry scale')
+    if p.get('target_schedule','fixed')=='historical_path':
+        if p['representation']!='bridge' or 'historical_path' not in t:raise ValueError('Missing compatible path target')
+        if not 0<p.get('lookahead_fraction',.2)<=1:raise ValueError('Invalid path lookahead fraction')
     p['expected_active_steps']=active_updates(p['steps'],*p['window']);MotifReward(p,t)
     return p
 
@@ -84,6 +90,7 @@ def variants(parent,analysis,region,teacher,master):
         'orientation_band':[max(.005,parent['orientation_band']*.5),min(.9,parent['orientation_band']*1.5)],
         'moment_shape_weight':[.25,.5,1.,2.,4.],
         'time_schedule':[s for s in ('constant','early','late') if s!=parent.get('time_schedule','constant')]
+        ,'target_schedule':[s for s in ('fixed','historical_path') if s!=parent.get('target_schedule','fixed')]
     }[factor]
     result={}
     for n,v in enumerate(values):

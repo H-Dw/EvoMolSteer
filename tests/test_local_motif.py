@@ -132,3 +132,37 @@ def test_temporal_gain_changes_actual_step_after_normalization():
         c.forward(curr,{},[torch.tensor([.1],dtype=torch.double)]*3,None,None,None,10,.01);c.after(curr,10)
         rms.append(c.rows[-1]['injected_rms_A_mean'])
     assert rms[1]/rms[0]==pytest.approx(1.4875)
+
+
+def test_path_target_fit_recovers_curves_and_enforces_clock_domain():
+    from evomolsteer.local_motif.path_targets import fit_path,target_at
+    times=np.linspace(0,.5,51);anchor=np.arange(18).reshape(6,3)/10
+    points=anchor+(times[:,None,None]-.5)*2+(times[:,None,None]-.5)**2*3
+    profile=fit_path(times,points,anchor,.5,[0,.5])
+    assert profile['fit_rms_A']<1e-12
+    assert np.allclose(target_at(profile,.2,[0,2]),points[20,[0,2]])
+    assert np.allclose(target_at(profile,.5,[0,2]),anchor[[0,2]])
+    with pytest.raises(ValueError):target_at(profile,.6,[0,2])
+
+
+def test_moving_target_and_bridge_horizon_are_consistent():
+    from evomolsteer.local_motif.path_targets import fit_path
+    p,t=inputs();anchor=np.array(t['coords_A']);times=np.linspace(0,.5,51)
+    t['historical_path']=fit_path(times,anchor+(times[:,None,None]-.5)*2,anchor,.5,[0,.5])
+    p['target_schedule']='historical_path';r=MotifReward(p,t)
+    assert r.target_clock(.1)==pytest.approx(.2)
+    assert np.allclose(r.target,anchor[p['atom_slots']]-.6)
+    assert r.target_clock(.49)==pytest.approx(.5)
+    assert np.allclose(r.target,anchor[p['atom_slots']])
+
+
+def test_novelty_actions_exclude_seen_numeric_programs():
+    from evomolsteer.local_motif.actions import novel_actions
+    p,t=inputs();p.update(operator='pointwise',region_id='R',template_id='T')
+    r={k:p[k] for k in ['region_id','template_id','atom_slots','pocket_sites','orientation_triplets','base_band_A']}
+    master={'learning_window':[0,.5],'allowed_starts':[0,.1,.3]}
+    parents={'P':{'program':p,'legal_factors':['dose.native_rms_ratio']}}
+    aa=novel_actions(parents,{'R':r},{'T':t},master)
+    assert len(aa)==1 and len(aa[0]['options'])==2
+    master['_seen_numeric_programs']=[identity(q,t) for q in aa[0]['options'].values()]
+    assert novel_actions(parents,{'R':r},{'T':t},master)==[]

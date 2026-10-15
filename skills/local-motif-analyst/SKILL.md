@@ -25,6 +25,8 @@ Do not silently expand to the whole molecule. A disconnected local support is ac
 
 Read the supplied full-window trajectory evidence and measured parent-controller response. Declare whether each quantity refers to current state, a bridge to a later state, or an endpoint prediction. Temporal derivatives describe trajectories; they are not spatial reward gradients.
 
+When historical-path targets are available, inspect their fit error and clock domain. A moving-horizon target tests a different path-control strategy from pulling every early state toward one fixed later cloud. It does not estimate the chance of future success, and a single successful historical path need not suit every new prior.
+
 Attribute each trajectory to its actual producing process. Historical selection curves describe teacher ancestry, not the current guided parent. A restored-state potential versus no intervention is a different comparison from changing one parameter of a parent controller; state the actual comparison before attributing an effect.
 
 Separate three questions: can the intervention form the observable, does native completion retain it, and does the retained change improve terminal affinity? If one link is unmeasured, mark it unmeasured. An unrealized intended layout cannot explain a score gain as successful layout transfer.

@@ -28,6 +28,17 @@ class MotifReward:
     def active(self,t,dt):
         a,b=self.program['window'];return t>=a-2e-6 and t+dt<=b+2e-6 and dt>0
 
+    def target_clock(self,t):
+        schedule=self.program.get('target_schedule','fixed')
+        if schedule=='fixed':return self.teacher['time']
+        if schedule!='historical_path' or self.program['representation']!='bridge':raise ValueError('Path target requires bridge representation')
+        from .path_targets import target_at
+        profile=self.teacher['historical_path'];width=profile['domain'][1]-profile['domain'][0]
+        h=min(self.teacher['time'],t+self.program.get('lookahead_fraction',.2)*width)
+        if h<=t:raise ValueError('Path lookahead must advance clock')
+        self.target=target_at(profile,h,self.slots)
+        return h
+
     def evaluate(self,z,logits,mask,assignment=None):
         p=self.program;target=z.new_tensor(self.target)
         if assignment is None:
@@ -101,7 +112,8 @@ class MotifControl(Control):
                     if torch.is_tensor(v) and v.requires_grad:v.register_hook(denied)
             pred,_=self.model._get_predictions(out)
             current=x*self.model.coord_scale+self.com[:,None];endpoint=pred['coords']*self.model.coord_scale+self.com[:,None]
-            z=bridge(current,endpoint,self.t,self.reward.teacher['time']) if self.program['representation']=='bridge' else endpoint
+            target_clock=self.reward.target_clock(self.t)
+            z=bridge(current,endpoint,self.t,target_clock) if self.program['representation']=='bridge' else endpoint
             value,detail=self.reward.evaluate(z,out['atomics'],curr['mask'].bool())
             gx,gz=torch.autograd.grad(value.sum(),(x,z))
         if not torch.isfinite(gx).all() or not torch.isfinite(value).all():raise ValueError('Nonfinite true FLOWR gradient')
@@ -121,6 +133,7 @@ class MotifControl(Control):
             'assignment_switch_fraction':None if previous is None else float((previous!=detail['assignment']).float().mean()),
             'direct_support_count':len(self.reward.slots),'affinity_vjp':False,'extra_model_forwards':0}
         self.extra['time_schedule_gain']=schedule_gain
+        self.extra['actual_target_clock']=target_clock
         self.previous_assignment=detail['assignment'].detach().clone()
         if abs(self.t+self.dt-self.program['window'][1])<2e-6:
             self.extra['boundary_generated_slots']=detail['assignment'].detach().cpu().tolist()

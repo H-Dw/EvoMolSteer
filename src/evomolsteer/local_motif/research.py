@@ -50,6 +50,12 @@ def prepare(repo,m):
         if extra:
             more=trajectories(repo,m,extra,t,'geometric_trajectory_evidence_v1.json','geometric_curves_v1.parquet')
             e['trajectory']['fits'].update(more['fits'])
+    if m.get('enable_path_targets'):
+        from .path_targets import attach
+        t=attach(repo,m,t)
+        for r in e['regions']:
+            profile=t[r['template_id']]['historical_path']
+            e['cards'][r['region_id']]['historical_path']={k:v for k,v in profile.items() if k not in ('anchor_A','coefficients_A_per_t_power')}
     write_json(study/'shared_evidence_manifest.json',{'evidence_sha256':digest(study/'evidence.json'),
         'trajectory_sha256':digest(study/'trajectory_evidence.json'),'input_code_version':local(repo,['git','rev-parse','HEAD']),
         'corrected_full_state_clone_controls':True,'tool_names':list(e['cards'][next(iter(e['cards']))])})
@@ -107,7 +113,7 @@ def feedback(repo,state,evidence):
             item['scope']='Mechanistic same-restored-state comparisons only. Do not compare absolute suffix affinity with from-zero pools.'
         history.append(item)
     return {'parent_outcomes':best['metrics'],'parent_response':best.get('response'),'history':history,
-        'objective':'Frozen tail utility primary, affinity mean guard; target best 8.704806. Formation is a mechanism, not terminal success.',
+            'objective':'Frozen tail utility primary, affinity mean guard; target best 8.704806. Formation is a mechanism, not terminal success.',
         'discovery_gaps':['Static N/C exchanges were not realized by old coordinate guidance.','O fields have explanatory but not established intervention value.'],
         'previous_rollbacks':[r['round'] for r in state['rounds'] if r.get('rollback')]}
 

@@ -56,7 +56,8 @@ def local_outcomes(folder,p,t,output):
     from .reward import MotifReward
     g=read_json(folder/'geometry.json');rows=[]
     for state_name,state in [('boundary',g['teacher_clock']),('final',g['terminal'])]:
-        q=copy.deepcopy(p);q['representation']='bridge' if state_name=='boundary' else 'endpoint';reward=MotifReward(q,t)
+        q=copy.deepcopy(p);q['target_schedule']='fixed';q['assignment_element_cost']=0.
+        q['representation']='bridge' if state_name=='boundary' else 'endpoint';reward=MotifReward(q,t)
         xyz=torch.as_tensor(state['coords_A'],dtype=torch.double);mask=torch.as_tensor(state['mask'] if 'mask' in state else g['terminal']['mask'])
         atom=np.asarray(state['atomic_indices']);logits=torch.nn.functional.one_hot(torch.as_tensor(atom),max(t['atom_vocabulary'].values())+1).double()
         value,detail=reward.evaluate(xyz,logits,mask)
@@ -72,6 +73,7 @@ def local_outcomes(folder,p,t,output):
         result[s]={'mean_error':float(part.error.mean()),'mean_point_rms_A':float(part.point_rms_A.mean()),
             'native_element_fraction':float(part.native_element_fraction.mean()),'attainment':float(part.geometric_attainment.mean())}
     result['limits']='Geometry and native elemental identity are separate. Final evaluation uses terminal teacher targets; not a claim of certified intermediate chemical roles.'
+    result['correspondence']='Geometry-only posthoc Hungarian; no type-cost reward correspondence is used to assess elemental accuracy.'
     return result
 
 
