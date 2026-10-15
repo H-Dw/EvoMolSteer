@@ -1,6 +1,7 @@
 """Report actual programs and paired generation outcomes, independently of prose."""
 from pathlib import Path
 import gzip
+import hashlib
 import json
 import numpy as np
 import pandas as pd
@@ -18,7 +19,7 @@ def report(repo,master):
         checks={}
         for role in ('Analyst','Designer'):
             skill=folder/(role+'.SKILL.md')
-            if skill.exists():checks[role]=api_audit(folder,role,digest(skill))
+            if skill.exists():checks[role]=api_audit(folder,role,hashlib.sha256(skill.read_text(encoding='utf-8').encode()).hexdigest())
         selected=read_json(folder/'selection.json')
         designer=read_json(folder/'Designer.json')
         item={'round':label,'api':checks,'declared_patch':designer['patch_id'],'selected_patch':selected['patch_id'],
@@ -31,8 +32,9 @@ def report(repo,master):
                 best_sample={'round':label,'source_folder':entry['result_folder'],**candidate}
             attempts+=entry.get('additional_attempts',0)
             expected=sorted(k for k,w in p['weights'].items() if w>0)
+            masks=read_json(data/'geometry.json')['teacher_clock']['mask']
             item.update(executed_terms=expected,positive_term_binding=designer.get('enabled_terms',expected)==expected,
-                        proper_subset=len(p['atom_slots'])<25,actual_steps=a['actual_steps'],actual_active_steps=a['actual_active_steps'],
+                        proper_subset=len(p['atom_slots'])<min(sum(m) for m in masks),actual_steps=a['actual_steps'],actual_active_steps=a['actual_active_steps'],
                         real_generator_vjp=a['real_generator_vjp'],no_smc=a['no_smc'],no_affinity_gradient=a['no_affinity_head_gradient'])
             rows.append({'round':label,'factor':entry['factor'],'status':entry['status'],'parent':read_json(folder/'proposal.json')['parent']['program_id'],
                 'patch':p['patch_id'],'n':m['n'],'qualified':m['n_qualified'],'mean':m['mean_all_pic50'],'max_qualified':m['best_qualified_pic50'],
