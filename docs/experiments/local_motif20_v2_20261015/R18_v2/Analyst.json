@@ -1,0 +1,40 @@
+{
+  "action_id": "A97a94ff599fb",
+  "claim_class": "proposed",
+  "conditioning": "Parent R15_v2 (assignment_element_cost=0.5, pointwise, unit_rms, fixed target_schedule, window [0.1,0.5], steps 100, teacher_time 0.5) is replayed from t=0 with matched saved random priors, random streams, checkpoint and native protocol; the single registered change is region_id from F_b011_s030__reference to F_b011_s030__O. Chemical graphs remain free. The evidence clock domain is the full learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. Source terminal chemistry in F_b011_s030__O/conditional_layout is a fixed-geometry legal-layout input (10 measured layouts, native_score 8.704859, native_minus_alternate_mean 0.0763, 0 identifiable interactions), not an atom energy, generated outcome, or coordinate-intervention effect.",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "campaign/experiment_families",
+    "F_b011_s030__NO/regional_context"
+  ],
+  "evidence_refs": [
+    "parent/outcomes",
+    "parent/response",
+    "campaign/experiment_families",
+    "F_b011_s030__O/conditional_layout",
+    "report/O-intervention"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "region",
+  "falsifier": "The hypothesis is falsified if, under matched priors, streams, checkpoint and native protocol, the O-region run shows no paired change in U_tau or mean_all_pic50 versus S0_REFERENCE_REPLAY beyond the descriptive paired-pool spread, or if the observed change is reproduced equally by a non-O region change on the same prior pool, which would support explanation (b) over (a).",
+  "hypothesis_id": "F_b011_s030__O__region_pointwise_V01",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "R15_v2",
+  "predicted_execution_response": "Measured current-program response only: expect nonzero_updates and active_updates comparable to the parent (40 active, 40 nonzero over the window), with assignment_switch_fraction, current_gradient_rms_mean, injected_rms_A_mean, point_rms_A and target_error_mean reported per step. No terminal-affinity gradient is implied by these statistics.",
+  "predicted_terminal_response": "Not a forecast. The O-region from-zero run is expected to yield a measurable paired difference in U_tau and mean_all_pic50 versus S0_REFERENCE_REPLAY; the sign and magnitude are unmeasured. Source layout score 8.704859 is not a generated-score forecast, and the O-only carboxyl torsion intervention was not significant (report/O-intervention: significant_carboxyl_intervention=false, family_adjusted_p=0.02532, Top10_mean_prediction_increment=-0.00067).",
+  "region_id": "F_b011_s030__O",
+  "relationship_to_previous_failed_interventions": "Prior region changes on this prior pool were heterogeneous and mostly lower-tail than reference (campaign/experiment_families: pointwise/fixed, 10 conditions, 6 different regions, 9 lower tail than reference), and R04, R08_v2, R10_v2, R12_v2, R14_v2, R17_v2 were rolled back. Those are not independent replicates or isolated operator effects, so they do not establish a universal region effect; the O-region change is a distinct condition whose informativeness rests on the conditional difference in local support, not on repetition of the same numerical function.",
+  "role": "Analyst",
+  "scientific_hypothesis": "Holding the R15_v2 program fixed and changing only the local region to F_b011_s030__O will change the pointwise local-assignment geometry response and the terminal tail utility relative to the same-prior reference replay. Two plausible explanations are contrasted: (a) the O-region support changes which local teacher coordinates are matched and thereby the realized local displacement, versus (b) the effect is a generic consequence of any region change on the reused prior pool, independent of the O-region support. The discriminating observable is the paired from-zero tail utility U_tau and mean_all_pic50 of the O-region run against S0_REFERENCE_REPLAY under matched priors and streams, together with the measured point_rms_A and target_error_mean trajectory.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}
