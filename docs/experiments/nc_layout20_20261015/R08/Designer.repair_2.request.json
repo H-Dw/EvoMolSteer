@@ -1,0 +1,113 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/77dc45b098dd6feb9e4cda3f179990fcf9acbf5d2a6a826588e0801df5399b0f.txt",
+        "content_sha256": "77dc45b098dd6feb9e4cda3f179990fcf9acbf5d2a6a826588e0801df5399b0f",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/58fd63b8ca3c45ad3af0b145201a33722852791ed0cac4f1431b8c3e3460079f.txt",
+        "content_sha256": "58fd63b8ca3c45ad3af0b145201a33722852791ed0cac4f1431b8c3e3460079f",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/3af4d8a6d1170c69e28dfc48ff1b88fc0ec6da609a839bad915803d1a60ca488.txt",
+        "content_sha256": "3af4d8a6d1170c69e28dfc48ff1b88fc0ec6da609a839bad915803d1a60ca488",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/30c755291e56dd6272873a0a4ee67cb2af5da28b46a91b3f3dab04896200ebc4.txt",
+        "content_sha256": "30c755291e56dd6272873a0a4ee67cb2af5da28b46a91b3f3dab04896200ebc4",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/18b8475e6938f7ef8a1eb5902d4a8430d966c07d0395e829aa795adeb2335644.txt",
+        "content_sha256": "18b8475e6938f7ef8a1eb5902d4a8430d966c07d0395e829aa795adeb2335644",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/43538f25f1c95fe60c2c8a708bdc31936d8d106a2cde204d3a0f02ab6ba95c4e.txt",
+        "content_sha256": "43538f25f1c95fe60c2c8a708bdc31936d8d106a2cde204d3a0f02ab6ba95c4e",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/18b8475e6938f7ef8a1eb5902d4a8430d966c07d0395e829aa795adeb2335644.txt",
+        "content_sha256": "18b8475e6938f7ef8a1eb5902d4a8430d966c07d0395e829aa795adeb2335644",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "execution_contract": {
+        "const": {
+          "anchor_distance_A": 3.0,
+          "anchor_width_A": 0.4,
+          "assignment_endpoint_fraction": 1.0,
+          "assignment_type_cost": 0.0,
+          "dose": {
+            "max_atom_step_A": 0.15,
+            "max_cumulative_rms_A": 6.0,
+            "native_rms_ratio": 0.33,
+            "pointcloud_delta_A": 1.0
+          },
+          "gradient_balance": "unit_rms",
+          "type_mode": "full_ce",
+          "type_ramp": false,
+          "weights": {
+            "endpoint": 0.4,
+            "half": 0.3,
+            "orientation": 0.0,
+            "type": 0.3
+          },
+          "window": [
+            0.1,
+            0.5
+          ]
+        }
+      },
+      "observable_falsifier": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "patch_id": {
+        "const": "L070"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "maxLength": 2800,
+        "type": "string"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "execution_contract",
+      "scientific_rationale",
+      "observable_falsifier"
+    ],
+    "type": "object"
+  }
+}

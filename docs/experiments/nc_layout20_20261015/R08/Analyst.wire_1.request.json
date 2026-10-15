@@ -1,0 +1,124 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/be1f200783f8afb469c048ba43a2ebeb9afd5056cd96735f81df4fed7ec40854.txt",
+        "content_sha256": "be1f200783f8afb469c048ba43a2ebeb9afd5056cd96735f81df4fed7ec40854",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/9b78d56f2ef1473509e4ac99330a9a9a8c65e5673feb216ba0e46575ba7b7581.txt",
+        "content_sha256": "9b78d56f2ef1473509e4ac99330a9a9a8c65e5673feb216ba0e46575ba7b7581",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/4595d51b68bfe4416383bfb7aa13d6fcbe138056ae1d293e55d1f59801c02f43.txt",
+        "content_sha256": "4595d51b68bfe4416383bfb7aa13d6fcbe138056ae1d293e55d1f59801c02f43",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "comparison_and_counterexample": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "evidence_id": {
+        "type": "string"
+      },
+      "expected_NC_and_geometry_response": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "falsifier": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "hypothesis": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "patch_id": {
+        "enum": [
+          "L002",
+          "L003",
+          "L006",
+          "L007",
+          "L010",
+          "L011",
+          "L014",
+          "L015",
+          "L018",
+          "L019",
+          "L022",
+          "L023",
+          "L026",
+          "L027",
+          "L030",
+          "L031",
+          "L034",
+          "L035",
+          "L042",
+          "L043",
+          "L046",
+          "L047",
+          "L050",
+          "L051",
+          "L054",
+          "L055",
+          "L058",
+          "L059",
+          "L060",
+          "L061",
+          "L064",
+          "L065",
+          "L066",
+          "L067",
+          "L070",
+          "L071",
+          "L072",
+          "L079",
+          "L080",
+          "L083",
+          "L084",
+          "L087",
+          "L088",
+          "L091",
+          "L092",
+          "L097",
+          "L098",
+          "L101",
+          "L102",
+          "L105",
+          "L106"
+        ]
+      },
+      "role": {
+        "const": "Analyst"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "evidence_id",
+      "hypothesis",
+      "comparison_and_counterexample",
+      "expected_NC_and_geometry_response",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
