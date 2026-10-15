@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 1.0,
+      "orientation": 0.0,
+      "type": 0.0
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "If the local L036 patch with geometry alone fails to reach or exceed the frozen incumbent's qualified terminal affinity (best_qualified_pic50 8.378002, target_pic50 8.704806) while the broad R13 cloud does reach it, or if the local N/C response at slots 8 and 22 reverses under the frozen geometry, then the claim that this local N/C-evidence patch is sufficient to replace the broad R13 cloud is falsified. A further falsifier is any confirmation run in which the frozen selection changes or in which terminal affinity improves without a corresponding local N/C and geometry response, which would indicate the measured effect is not attributable to the declared local patch. The strongest measured counterexample is the same node's alternative layout evidence: single_b011_final_000 has native_minus_alternate_mean 1.1755 and best_legal_score 8.371298, while single_b011_final_030 has native_minus_alternate_mean 0.0763 and best_legal_score 8.912224, showing that native-minus-alternate mean and best legal score can move in opposite directions, so reduced imitation loss or a higher legal score is not success. These are fixed-coordinate legal isomer inputs, not regenerated molecules or independent samples, and the best legal counterfactual targets have not been regenerated or relaxed; no claim is made that any alternative layout is an observed successful path.",
+  "patch_id": "L036",
+  "role": "Designer",
+  "scientific_rationale": "Activating the registered contract unchanged for patch L036, the Analyst-selected local N/C-evidence patch from single_b011_final_030 (native_score 8.704859, layout_score 8.704859, n_layouts_scored 10, native_minus_alternate_mean 0.0763). The only enabled term is the half-time geometry term (weight 1.0) over window [0.1,0.5]; endpoint, type and orientation weights are zero, so no type reward, no orientation term and no endpoint term is described or active. This matches the declared intervention: local N/C-evidence patch, geometry alone, to measure the effect of replacing the broad R13 cloud. The patch is the fixed local subset atom_slots [6,8,13,22] with typed_slots [8,22] (slot 8 native C, N_minus_C -0.4136, best donor A:ARG:47:N; slot 22 native N, N_minus_C +0.0763, best donor A:VAL:116:N, teacher_match_strength 0.9511) and orientation neighbors 6 and 13. The selected teacher supplies half_coords_A and final_coords_A for exactly slots [6,8,13,22] at teacher_time 0.5; the half term pulls current coordinates toward the half-time geometry on those four slots only. All direct loss support, including context, remains this proper local subset; atoms outside the patch are not constrained by this selection and no background points are added. Geometry uses distinct spatial assignments frozen within a derivative, never generated atom indices copied from the teacher. Gradients act only on current coordinates through real coordinate Jacobians; affinity is not differentiated, discrete labels are not overridden, the new graph is not fixed, and no SMC is introduced. Terminal N/C labels are not asserted to be chemical identities at a noisy intermediate time; the N preference at slot 22 is a donor-facing geometry proxy against A:VAL:116:N and does not distinguish pyridine N from pyrrole [nH] or amide N, and the C preference at slot 8 is a conditional association with compensating labels elsewhere, not an independent atom energy. Counterfactual layouts are scored label hypotheses on fixed coordinates, not an observed continuation state or a promised score for new molecules. Expected observable changes: under the frozen geometry, slot 22 retains N character and slot 8 retains C character, while orientation neighbors 6 and 13 move under model-mediated gradients within the declared dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.33, pointcloud_delta_A 1.0) and unit_rms balancing. Final affinity is primary; validity, failure, strain and actual local N/C response must be reported against the frozen incumbent (best_qualified_pic50 8.378002, mean_all_pic50 7.682615, n_above_reference 0, target_pic50 8.704806). Reduced imitation loss alone is not success."
+}
