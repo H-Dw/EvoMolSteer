@@ -1,0 +1,7 @@
+{
+  "patch_ids": [
+    "L109"
+  ],
+  "question": "Test intermediate versus terminal assignment balance (endpoint fraction 0.25 vs 0.5) on L109 without adding points. Prior L109 evidence: R10 endpoint=0.15/half=0.85 gave mean_pic50 7.697, best 8.123, joint_formation 0.25, retention 1.0; R11 endpoint=0.0/half=1.0 gave mean 7.827, best 8.434, joint_formation 0.25, retention 1.0; R15 type=0.3 with half=0.7 gave mean 7.730. So terminal-heavy weighting (endpoint 0) outperformed the intermediate endpoint=0.15 case, but the endpoint fraction has never been tested at 0.25 or 0.5. Request joint_layout_contrasts to compare the two candidate endpoint fractions against the existing endpoint=0.0 and endpoint=0.15 records, checking whether raising the terminal endpoint weight changes joint_formation, joint_at_integration, retention_after_formation, and mean/best pic50. Falsifier: if endpoint=0.25 and 0.5 both fail to exceed the endpoint=0.0 mean_pic50 (7.827) and best_pic50 (8.434) while joint_formation stays at 0.25 and retention at 1.0, the intermediate/terminal balance hypothesis is unsupported and the terminal-heavy setting should be retained. Smallest discriminating test: run L109 at endpoint=0.25 and endpoint=0.5 with all other weights and dose fixed at the R11 configuration (half=1.0, orientation=0, pair=0, type=0; max_atom_step 0.15, native_rms_ratio 0.66), then compare mean/best pic50 and joint_formation against the R11 endpoint=0.0 baseline.",
+  "tool": "joint_layout_contrasts"
+}

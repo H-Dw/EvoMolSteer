@@ -1,0 +1,15 @@
+{
+  "chosen_factor_value": 0.25,
+  "decision": "activate",
+  "enabled_terms": [
+    "half"
+  ],
+  "expected_execution_change": "With endpoint=0.25 and half=1.0, the detached correspondence cost is split so that 25% is evaluated at the terminal endpoint and 75% at the intermediate half-mixture, versus 0% terminal and 100% half in the parent. This should alter the pointwise spatial forces during the active window [0.1, 0.5] and therefore the generated coordinates and terminal affinity metrics, while the point set, typed slots, dose, and other weights remain fixed. The measurable response is mean_pic50 and best_qualified pic50 compared with the R11 baseline (7.827 / 8.434), with joint_formation, joint_at_integration, and retention_after_formation checked for side effects.",
+  "falsifier": "If endpoint=0.25 fails to exceed the R11 endpoint=0.0 mean_pic50 (7.827) and best_qualified pic50 (8.434) while joint_formation remains at or above 0.25 and retention_after_formation remains 1.0, the intermediate/terminal balance hypothesis is unsupported and the terminal-heavy endpoint=0.0 setting should be retained. This tests measured generation outcomes at the new endpoint fraction rather than rechecking immutable patch metadata.",
+  "parent_factor_value": 0.0,
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "The parent R11 operating point on L109 uses assignment_endpoint_fraction=0.0 with half=1.0, so the detached correspondence cost is paid entirely at the intermediate half-mixture and the terminal endpoint term is inactive. The parameter_semantics define this factor as the mixture of half/endpoint spatial costs for the detached correspondence, so raising it to 0.25 shifts a quarter of that cost to the terminal endpoint while keeping the same 20-point set, typed slots 12=C and 22=N, orientation=0, pair=0, type=0, and the R11 dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0). This is a legal, untested value in the allowed variant V00 and does not add points, switch teachers, or claim control from a disabled term. The supplied layout table is a fixed-geometry legal-isomer table with native_score 8.704859 and is not a generated-molecule or affinity result, so it cannot forecast the outcome; the measured parent response (mean_pic50 7.827, best 8.434, joint_formation 0.25, retention_after_formation 1.0, joint_at_integration 0.958) is the only declared comparator. The hypothesis is that terminal-endpoint weighting improves final affinity relative to the terminal-heavy endpoint=0.0 baseline without degrading joint_formation or retention.",
+  "source_score_is_generation_forecast": false,
+  "variant_id": "V00"
+}
