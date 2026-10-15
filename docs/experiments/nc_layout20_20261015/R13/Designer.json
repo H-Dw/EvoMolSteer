@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 0.85,
+      "orientation": 0.0,
+      "type": 0.15
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "If the joint swap at slots 12 and 22 under the frozen R13 geometry and dose, with only the N/C targets exchanged, fails to raise qualified final pIC50 above the incumbent 8.3780 (toward 8.704806) while local_NC_identity_accuracy at the two typed sites does not exceed the R12 context-only value of 0.8333, the claim that this measured two-site N/C relocation is a supported local intervention is falsified. A further falsifier is a confirmation run in which destination slot 12 does not retain the desired N label, or compensating slot 22 does not retain the desired C label, or the measured alternative layout's advantage over the native layout does not reproduce; in that case defer rather than inventing evidence, since the best legal counterfactual target has not been regenerated or relaxed and is not an observed successful path.",
+  "patch_id": "L110",
+  "role": "Designer",
+  "scientific_rationale": "Enabled terms only: half weight 0.85 (window [0.1,0.5]) and type weight 0.15 (full_ce). Endpoint and orientation weights are zero, so no endpoint, orientation, or anchor term is described or applied. Direct geometry support is the frozen R13 proper subset of 20 atom_slots (0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24); points outside atom_slots receive no direct geometry loss but may still move via model-mediated gradients. Direct type support is only typed_slots 12 and 22; the 20 context atom_slots receive geometry loss and no type loss. The intervention is the declared joint within-class swap on fixed coordinates: slot 12 native C -> desired N (N_targets=[12]) and slot 22 native N -> desired C (C_targets=[22]). Both sites share the neutral degree-two pyridine-type aromatic N / aromatic CH exchange_class, with pyrrole [nH] and amide N excluded; the generated N decoder channel is treated as generic N until final chemical-role checks. The type term reads selected decoder N/C log probabilities at slots 12 and 22 and tilts those probabilities; it does not rewrite current discrete labels, freeze the graph, or differentiate affinity. Because atomic_logit_strength is not positive in the supplied contract, no additional local decoder-logit gradient step is applied; the default mode updates current coordinates through real coordinate and atomic-decoder Jacobians. The finite-layout evidence is a fixed-geometry, fixed-count isomer contrast (best legal layout_score 8.912224 vs native_score 8.704859, native_minus_alternate_mean 0.0763 over 10 scored layouts), so N-minus-C values are conditional associations with compensating labels elsewhere, not independent atom energies; the alternative layout is not an observed successful path and its target has not been regenerated or relaxed. Expected observables: local_NC_identity_accuracy at slots 12 and 22, aromatic_N_role_fraction, final_local_geometry_rms, cumulative_control_RMS, weighted mixture-input RMS and actual injected displacement reported separately from raw term derivative RMS, and terminal best_qualified_pic50 compared against incumbent 8.3780 and target 8.704806. Reduced imitation loss is not success."
+}

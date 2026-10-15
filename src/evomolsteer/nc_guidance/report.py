@@ -1,12 +1,13 @@
 """Small, deterministic final-layout and delivery audits; no new model fitting."""
 import argparse
+import hashlib
 from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.optimize import linear_sum_assignment
 
 from evomolsteer.io import read_json,write_json,write_table,digest
-from evomolsteer.partial_search.report import api_audit
+from evomolsteer.partial_search.report import api_audit,paired_comparison
 from .workflow import numerical_signature
 from .search import atomic_indices
 
@@ -34,9 +35,15 @@ def local_observations(folder,program,teacher):
 
 def report(repo,cfg):
     repo=Path(repo);study=repo/cfg['campaign_study'];state=read_json(study/'state.json');out=study/'summary'
-    rows=[];delivery=[];observations=[];seen={};steps=[];deferred=[]
+    rows=[];delivery=[];observations=[];seen={};steps=[];deferred=[];deferred_delivery=[];paired=[]
     for entry in state['rounds']:
-        if entry.get('status')=='designer_deferred':deferred.append(entry['round']);continue
+        if entry.get('status')=='designer_deferred':
+            label=entry['round'];deferred.append(label);folder=study/label
+            config=read_json(repo/cfg['config_dir']/(label+'.json'))
+            info={'instruction_sha256':{role:hashlib.sha256((repo/config[role.lower()+'_skill']).read_text(encoding='utf-8').encode()).hexdigest() for role in ('Analyst','Designer')}}
+            deferred_delivery.append({'round':label,'additional_generation_attempts':0,
+                'api':{role:api_audit(folder,role,info['instruction_sha256'][role]) for role in ('Analyst','Designer')}})
+            continue
         label=entry['round'];folder=study/label;config=read_json(repo/cfg['config_dir']/(label+'.json'))
         bp=next((folder/'candidates').glob('*/bindings.json'));bindings=read_json(bp)
         p=read_json(repo/bindings['programs'][0]['program']);teacher=read_json(repo/bindings['teacher'])
@@ -47,6 +54,13 @@ def report(repo,cfg):
             paths=[repo/path for path in state['cache'].values() if (repo/path/'guidance_audit.json').exists()]
             generated=next(path for path in paths if numerical_signature(read_json(path/'guidance_audit.json')['program'],teacher)==numerical_signature(p,teacher))
         audit=read_json(generated/'guidance_audit.json');metrics=entry['metrics'];controls=entry['controls']
+        if config['pilot_initial_batch']==0:
+            control_paths={'R13_reference':repo/'data/generated/partial_region_search_20261014'/('R13/R13_0.1' if metrics['n']==24 else 'R19/R19_0.1'),
+                'unguided':repo/'data/generated/partial_region_search_20261014'/('controls_screen/unguided' if metrics['n']==24 else 'controls_batch0_n50/unguided')}
+        else:
+            base=repo/cfg['generated_root']/f"controls_b{config['pilot_initial_batch']}_n{metrics['n']}"
+            control_paths={'R13_reference':base/'R13_0.1','unguided':base/'unguided'}
+        for name,path in control_paths.items():paired.append({'round':label,**paired_comparison(generated,path,label+' vs '+name)})
         local=local_observations(generated,p,teacher)
         for row in local:observations.append({'round':label,**row})
         typed=pd.DataFrame(local)
@@ -86,12 +100,13 @@ def report(repo,cfg):
             if s['active']:steps.append({'round':label,**s})
     table=write_table(out/'rounds.csv',rows);write_table(out/'local_site_observations.parquet',observations)
     write_table(out/'active_step_diagnostics.parquet',steps);write_json(out/'delivery_audit.json',delivery)
+    write_json(out/'deferred_delivery_audit.json',deferred_delivery);write_json(out/'paired_comparisons.json',paired)
     result={'completed_rounds':len(state['rounds']),'generated_or_reused_rounds':len(rows),'deferred_rounds':deferred,'incumbent':state['best_round'],'best':state['best'],
         'best_local_round':state.get('best_nc_round'),'reference_pic50':8.704806,
         'target_reached':any(r['above_8p704806']>0 for r in rows),
         'numeric_duplicate_rounds':[r['round'] for r in rows if r['duplicate_of']],
         'all_direct_rewards_are_proper_subsets':all(a['all_cloud_excluded'] for a in delivery),
-        'all_API_deliveries_verified':all(all(v.get(k,False) for k in ('receipt_and_file_hashes_match','input_file_hashes_match','skill_delivered_exactly')) for a in delivery for v in a['api'].values()),
+        'all_API_deliveries_verified':all(all(v.get(k,False) for k in ('receipt_and_file_hashes_match','input_file_hashes_match','skill_delivered_exactly')) for a in delivery+deferred_delivery for v in a['api'].values()),
         'confirmation_results':[r for r in rows if r['confirmation']],
         'limits':['Final pIC50 is a model prediction','Qualified means basic chemical validity, connectedness and absence of severe receptor overlap, not full PoseBusters',
             'Training maxima are selected over many trials','Counterfactual targets were scored on fixed coordinates, not generated or relaxed',
