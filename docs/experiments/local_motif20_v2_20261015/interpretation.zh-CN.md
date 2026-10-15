@@ -1,7 +1,7 @@
 # 局部 motif auto-research v2：最终证据报告
 
-已完成 8/20 个有效研究条件；另有 8 个相同函数提案复用已有结果，未重复生成。
-原始 Steer 最优预测 pIC50 为 **8.704806**。本轮新生成从头条件中的最高基本合格分数为 **8.434024**（S0_REFERENCE_REPLAY）。
+已完成 14/20 个有效研究条件；另有 8 个相同函数提案复用已有结果，未重复生成。
+原始 Steer 最优预测 pIC50 为 **8.704806**。本轮新生成从头条件（含S0参考重放及冻结确认）中的最高基本合格分数为 **8.434024**（S0_REFERENCE_REPLAY）；新探索程序最高为 **8.272830**（R04）。
 活动保留程序为 **S0_REFERENCE_REPLAY**。冻结确认是否通过：**否/尚未通过**。所有亲和力均为同一模型的预测，不能表述为实验结合亲和力。
 
 ## 1. 真实完成的条件
@@ -16,6 +16,12 @@
 |6|R07|from_zero|operator|20|7.548984|8.028064|0.000000|22/24|True|
 |7|R07_v2|from_zero|dose.pointcloud_delta_A|20|7.818996|8.168766|0.001405|21/24|False|
 |8|R08_v2|from_zero|target_schedule|20|7.672199|8.132326|0.000000|24/24|True|
+|9|R09_v2|from_zero|region|4|7.522814|8.027836|0.000000|23/24|False|
+|10|R10_v2|from_zero|dose.native_rms_ratio|4|7.551496|8.027851|0.000000|24/24|True|
+|11|R11_v2|from_zero|region|6|7.628183|8.128208|0.000000|24/24|False|
+|12|R12_v2|from_zero|operator|6|7.430089|8.027891|0.000000|24/24|True|
+|13|R13_v2|from_zero|region|6|7.536414|8.126762|0.000000|24/24|False|
+|14|R14_v2|from_zero|operator|6|7.490150|8.027524|0.000000|24/24|True|
 
 前两轮从同一历史状态续生成，仅用于机制诊断；其绝对分数不能与从头生成的效应比较。原始 R06、R08–R14 的重复提案及提交均保留，重编号映射见 `novelty_budget_revision.json`。
 
@@ -37,6 +43,12 @@
 |R07|24|7.548984|8.028064|0.000000|22/24|0.5614|1.3114|
 |R07_v2|24|7.818996|8.168766|0.001405|21/24|0.5388|0.6829|
 |R08_v2|24|7.672199|8.132326|0.000000|24/24|0.5150|0.7674|
+|R09_v2|24|7.522814|8.027836|0.000000|23/24|0.5678|1.7845|
+|R10_v2|24|7.551496|8.027851|0.000000|24/24|0.6022|1.3836|
+|R11_v2|24|7.628183|8.128208|0.000000|24/24|0.5860|1.4771|
+|R12_v2|24|7.430089|8.027891|0.000000|24/24|0.5461|0.9870|
+|R13_v2|24|7.536414|8.126762|0.000000|24/24|0.5672|1.3484|
+|R14_v2|24|7.490150|8.027524|0.000000|24/24|0.5513|0.8749|
 |REUSED_UNGUIDED_b0_n50|50|7.487535|8.027975|0.000000|49/50|0.5550|1.6791|
 
 MMFF值采用固定重原子先优化H，再释放全分子的两阶段差值；是局部松弛代理，不是结合能。基本合格仅指可解码、连接、最小蛋白距离≥0.8Å。PoseBusters若另有结果单独保存，不悄悄加入晋升gate。
@@ -53,7 +65,7 @@ Designer读取同一不可变证据包、Analyst区域与可执行observable、�
 
 ## 4. 奖励与真实坐标梯度
 
-固定桥接：z_h=((1−h)/(1−t))x_t+((h−t)/(1−t))yθ(x_t,t,p)。点式奖励为局部Hungarian匹配后的负pseudo-Huber距离均值。其它逐项测试的算子包含坐标目标带、口袋距离带、邻接方向、局部成对距离、质心与协方差匹配。原子标签可用于脱离梯度的匹配代价，不直接求类别梯度。
+固定桥接：z_h=((1−h)/(1−t))x_t+((h−t)/(1−t))yθ(x_t,t,p)。点式奖励为局部Hungarian匹配后的负pseudo-Huber距离均值。其它注册算子包含坐标目标带、口袋距离带、邻接方向、局部成对距离、质心与协方差匹配；实际执行的算子以逐轮程序为准。原子标签可用于脱离梯度的匹配代价，不直接求类别梯度。
 
 历史路径策略：q̂(u)=q_h+b₁(u−h)+b₂(u−h)²，使用整个学习窗口真实祖先坐标拟合且锚定q_h；h(t)=min(h,t+η×学习窗口宽度)，桥接状态与目标同时使用h(t)。这是一个新的时变目标策略，不是精确后续随机路径导数或成功概率模型。
 
@@ -178,3 +190,100 @@ Designer映射：
 Single registered factor: target_schedule fixed -> historical_path, with all other parent fields (operator pointwise, controller unit_rms, dose native_rms_ratio 0.66 and pointcloud_delta_A 1.0, assignment_element_cost 0.0, band_multiplier 1.0, window [0.1,0.5], teacher_time 0.5, representation bridge, scope local, coordinate_updates_only) unchanged. The pointwise operator is the smallest implemented term that can test the hypothesis: it is a robust per-point distance to observed teacher coordinates under local Hungarian assignment, with no chemical-role or energy assumption, so the only active change is which coordinates the target clock selects. The historical_path target uses h(t)=min(teacher_time, t+lookahead_fraction*learning_width) with fitted degree-2 coordinates at exactly h(t); this changes horizon and target together as one strategy, not an isolated clock or polynomial effect. The historical path is a retrospective single-path fit (fit_rms_A 0.252, interleaved_prediction_rms_A 0.193 over 51 times) and is not a future-success probability, not a spatial reward gradient, and not an independent-path-validated teacher. Two explanations remain open: (a) the moving horizon reduces early target_error and injected displacement, letting the parent controller retain a native-like local layout longer; (b) the fitted intermediate coordinates are not a valid teacher for new priors, so the changed target merely perturbs the trajectory. The discriminating observables are the measured pointwise target_error_mean and point_rms_A trajectory plus terminal U_tau and best_qualified_pic50 relative to the parent. No terminal-affinity gradient is claimed; the pointwise term is a coordinate reward only, and generated chemical graphs remain free.
 
 实际变化：`[{'new': 'historical_path', 'parent': None, 'path': 'target_schedule'}]`。结果与配对区间见本轮results.json；回滚：True。
+
+## 轮次 9（R09_v2）的实际选择
+
+父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__O`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+Changing only the region from F_b011_s030__reference to F_b011_s030__O while keeping the parent pointwise operator will produce a measurable, region-specific change in the local pointwise target error and point_rms_A over the complete learning window [0.0,0.5], because the O region selects a different local support (atoms 1,16,18,19) and a different set of pocket-site distances than the reference region. This is a geometric hypothesis about local coordinate observables, not a claim that O fields carry established actionable reward: report/O-intervention shows carboxyl O-only torsion interventions were not significant (family_adjusted_p=0.02532, significant_carboxyl_intervention=false) and drop_O_R2=0.2473 with heldout_full_R2=0.3435, so any terminal benefit remains unproven.
+
+Designer映射：
+
+Single-factor from-zero contrast: only region_id changes (F_b011_s030__reference -> F_b011_s030__O) and atom_slots changes to the four-atom O support [1,16,18,19]; operator stays pointwise, dose, controller, native_options, steps, window and teacher_time are inherited unchanged from S0_REFERENCE_REPLAY. F_b011_s030__O/regional_context supplies the local support (atoms 1,16,18,19; elements C,O,C,O) and the six pocket sites with source distances; these are direct support for the local direction, not a proven contact or energy. The hypothesis is geometric: a different local support and different pocket-site distance set should change the local pointwise target_error and point_rms_A trajectory over [0.0,0.5]. No affinity claim is made: report/O-intervention shows carboxyl O-only torsion interventions were not significant (family_adjusted_p=0.02532, significant_carboxyl_intervention=false; drop_O_R2=0.2473, heldout_full_R2=0.3435), and report/limits states source layout score is not a generated score forecast and no universal Top10 motif survived full feature correction. F_b011_s030__NO/conditional_layout reports n_identifiable_interactions=0 over 10 measured layouts, so no signed interaction is claimed. F_b011_s030__NO/history is cited only as prior same-candidate rounds, not as evidence for this region.
+
+实际变化：`[{'new': 'F_b011_s030__O', 'parent': 'F_b011_s030__reference', 'path': 'region_id'}, {'new': [1, 16, 18, 19], 'parent': [0, 1, 2, 3, 4, 6, 7, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 'path': 'atom_slots'}]`。结果与配对区间见本轮results.json；回滚：False。
+
+## 轮次 10（R10_v2）的实际选择
+
+父程序：`R09_v2`；因素：`dose.native_rms_ratio`；区域：`F_b011_s030__O`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+The O-region pointwise intervention at native_rms_ratio 0.66 (R09_v2) produced a measured execution response with mean injected_rms_A 0.0295 A and mean point_rms_A 0.0516 A, but its terminal metrics (mean_all_pic50 7.5228, best_qualified_pic50 8.0278, U_tau 0.0, hit_fraction 0.0) did not exceed the S0_REFERENCE_REPLAY parent (mean_all_pic50 7.8275, best_qualified_pic50 8.4340, U_tau 0.01246, hit_fraction 0.04167). A plausible explanation is that the O-region pointwise displacement is over-dosed relative to the local support, so the retained geometry is not the geometry that would improve terminal affinity. Reducing dose.native_rms_ratio to 0.33 is proposed to test whether a smaller local displacement in the same O region yields a different terminal response. This is a geometric dose hypothesis, not a claim of a physical interaction energy or a proven O reward.
+
+Designer映射：
+
+Analyst hypothesis H_O_region_pointwise_dose_ratio_033_from_zero is bound to the implemented pointwise operator on region F_b011_s030__O (slots [1,16,18,19], native elements C,O,C,O). The parent R09_v2 measured a real execution response (mean injected_rms_A 0.0295 A, mean point_rms_A 0.0516 A, active_updates 40, zero clipping) but its terminal metrics (mean_all_pic50 7.5228, best_qualified_pic50 8.0278, U_tau 0.0, hit_fraction 0.0) did not exceed the S0_REFERENCE_REPLAY parent (mean_all_pic50 7.8275, best_qualified_pic50 8.4340, U_tau 0.01246, hit_fraction 0.04167). The proposed single-factor change is dose.native_rms_ratio 0.66 -> 0.33, which per parameter_path_semantics scales physical displacement RMS relative to the native predictive step without changing robust-loss curvature. This is a geometric dose hypothesis, not a claim of a physical interaction energy or a proven O reward; report/O-intervention records that O-only carboxyl torsion interventions were not significant and that source layout scores are not generated-score forecasts. The operator is the smallest implemented term that can test the hypothesis; no pocket-distance, orientation, pair-distance, local_moments, type, affinity-head, or categorical-logit term is enabled.
+
+实际变化：`[{'new': 0.33, 'parent': 0.66, 'path': 'dose.native_rms_ratio'}]`。结果与配对区间见本轮results.json；回滚：True。
+
+## 轮次 11（R11_v2）的实际选择
+
+父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__NO`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+Selecting the NO region (terminal N/O role sites) as the local support for the unchanged pointwise operator will change the from-zero terminal outcome relative to the reference region, because the NO support concentrates the matched local point-distance objective on the terminal N/O role positions rather than the reference support. This is a geometric-support hypothesis only: it does not assert that generated atoms acquire N/O identity, that the listed pocket sites are contacts or hydrogen bonds, or that any source layout score forecasts a generated score.
+
+Designer映射：
+
+Single-factor region-support test: keep the parent pointwise operator, dose, window [0.1,0.5], 100 steps, bridge representation, teacher_time 0.5, and native protocol; change only region_id from F_b011_s030__reference to F_b011_s030__NO and the corresponding atom_slots from the parent 20-slot set to the 6-slot NO support [1,6,13,16,19,22]. The NO support is the source terminal N/O role selection at node single_b011_final_030; generated graphs stay free and generated atom identities are not forced to N or O. This is a geometric-support hypothesis only. Regional_context distances are source terminal geometry associations, not proven contacts or interaction energies; same-root controls (n=40) are dependent and n_same_graph=0. Regional_trajectories are retrospective historical-steer pocket-fixed fields, not the current gradient-guided parent run, and their temporal slopes are not spatial reward gradients. The parent measured response (mean point_rms_A 0.169, injected_rms_A_mean 0.0301, no atom or cumulative clipping) is the reference for the expected execution response; no terminal-affinity gradient is implied.
+
+实际变化：`[{'new': 'F_b011_s030__NO', 'parent': 'F_b011_s030__reference', 'path': 'region_id'}, {'new': [1, 6, 13, 16, 19, 22], 'parent': [0, 1, 2, 3, 4, 6, 7, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 'path': 'atom_slots'}]`。结果与配对区间见本轮results.json；回滚：False。
+
+## 轮次 12（R12_v2）的实际选择
+
+父程序：`R11_v2`；因素：`operator`；区域：`F_b011_s030__NO`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+Replacing the unbounded pointwise pseudo-Huber pull with a band-limited squared-excess objective on the same NO-region support will change the local displacement distribution: matched local points will be driven to within the calibrated tolerance band rather than continuing to contract toward exact teacher coordinates. Because the band removes residual inward force once a point is inside tolerance, the retained local geometry should be less over-contracted at the terminal state, and the terminal affinity mean guard may improve relative to R11_v2 without changing the region or dose.
+
+Designer映射：
+
+Single-factor operator swap on the same NO-region support, dose, controller, representation, target_schedule and window as parent R11_v2. The implemented point_band branch computes distance=delta.norm(dim=-1), excess=(distance-band).clamp_min(0), value=-(excess**2).mean(1), so once a matched local point is inside band=band_multiplier*base_band_A=1.0*0.32668022810262165 A the squared-excess term and its coordinate gradient are exactly zero, whereas the parent pointwise pseudo-Huber pull keeps contracting toward exact teacher coordinates. This is a coordinate-only intervention: assignment_element_cost stays 0.0, affinity_head_gradient stays false, and no type, affinity or categorical-logit gradient is introduced. The band value is a proposed calibration (quarter source local covalent-length median), not a proven success tolerance, and the hypothesis is a proposed coordinate effect, not an established affinity rule.
+
+实际变化：`[{'new': 'point_band', 'parent': 'pointwise', 'path': 'operator'}]`。结果与配对区间见本轮results.json；回滚：True。
+
+## 轮次 13（R13_v2）的实际选择
+
+父程序：`S0_REFERENCE_REPLAY`；因素：`region`；区域：`F_b011_s030__N22`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+Re-anchoring the local pointwise support to the native N22 region (F_b011_s030__N22) rather than the reference region will change the local Hungarian assignment and per-point distance trajectory in a measurable way, and may improve terminal affinity relative to the parent, because the N22 site is the native terminal N position and the regional context shows candidate distances to pocket O/N acceptors that differ from same-root controls. This is a geometric hypothesis only; it does not assert an interaction energy, a hydrogen-bond role, or that the source layout score forecasts generated outcomes.
+
+Designer映射：
+
+Single-factor from-zero contrast: only region_id and atom_slots change relative to parent S0_REFERENCE_REPLAY; operator stays pointwise, representation stays bridge, window [0.1,0.5], dose, controller unit_rms, assignment_element_cost 0.0, band_multiplier 1.0, orientation_band 0.05, native_options and steps 100 are unchanged. The N22 region selects native N22 (atom_index 22, aromatic N, acceptor, degree 2) plus aromatic carbons 0,3,6,13 and donor N17 as the local support anchor; the Hungarian assignment maps generated points to teacher ligand points, not to pocket sites, so no role or energy is asserted. Regional context shows candidate distances to pocket O/N acceptors that differ from same-root controls, and conditional_layout reports native_score 8.704859 with native_minus_alternate_mean 0.07634588888888949 over 10 measured layouts, but n_identifiable_interactions is 0 and the layout is a fixed-geometry source input, not a generated-outcome forecast. Historical trajectory fits are retrospective pocket-fixed fields over the complete learning window and do not measure the current gradient-guided parent; temporal slopes are not spatial gradients. The hypothesis is geometric only: re-anchoring the local pointwise support to the N22 region should change the local Hungarian assignment and per-point distance trajectory, and may improve terminal affinity relative to the parent.
+
+实际变化：`[{'new': 'F_b011_s030__N22', 'parent': 'F_b011_s030__reference', 'path': 'region_id'}, {'new': [0, 3, 6, 13, 17, 22], 'parent': [0, 1, 2, 3, 4, 6, 7, 10, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 'path': 'atom_slots'}]`。结果与配对区间见本轮results.json；回滚：False。
+
+## 轮次 14（R14_v2）的实际选择
+
+父程序：`R13_v2`；因素：`operator`；区域：`F_b011_s030__N22`。
+
+Analyst假设（保留原文，属于待验证解释）：
+
+Within the N22 local support, the parent pointwise robust per-point distance to observed teacher coordinates is not the only geometric observable that can be formed and retained. Replacing it with a banded local point-distance observable (point_band) on the same six-slot support, same pocket_sites, same bridge representation and same dose should still form and retain a local geometric match to the teacher coordinates, but with a different terminal affinity profile than the parent pointwise run. The two competing explanations are: (i) the parent pointwise curvature is the operative geometric channel and any banded variant will degrade terminal affinity; (ii) the parent pointwise curvature is not uniquely required, and a banded tolerance around the same local target coordinates can preserve formation/retention while changing terminal affinity. The discriminating observable is the paired from-zero terminal affinity distribution and the measured formation/retention statistics under the banded operator versus the parent pointwise run.
+
+Designer映射：
+
+Single-factor from-zero contrast on the same N22 six-slot support, same pocket_sites, same bridge representation, same dose, same saved prior/RNG/checkpoint/native protocol as parent R13_v2; only the operator changes pointwise -> point_band. The parent pointwise observable is a robust per-point distance to observed teacher coordinates; point_band replaces it with squared excess outside a calibrated tolerance band, so the two hypotheses (parent curvature uniquely required vs. banded tolerance sufficient for formation/retention) are discriminated by the paired from-zero terminal affinity distribution plus measured formation/retention statistics. The band basis (quarter source local covalent-length median, base_band_A 0.3478160934503709) is a proposed calibration, not a proven success tolerance; band_multiplier stays at the parent value 1.0 so the band is not co-varied with the operator change. Historical suffix levels and source layout score are not from-zero treatment effects and are not used to forecast terminal affinity.
+
+实际变化：`[{'new': 'point_band', 'parent': 'pointwise', 'path': 'operator'}]`。结果与配对区间见本轮results.json；回滚：True。
+
+## 附：PoseBusters dock诊断
+
+|条件|总尝试|可评估|全部检查通过|
+|---|---:|---:|---:|
+|S0_REFERENCE_REPLAY|24|22|22|
+|UNGUIDED_b0_n24|24|24|24|
+
+以上采用同一蛋白、标准dock检查，无参考化学图限制。失败与不可解码均保留在总尝试分母中。
+
+![实际从头生成指标](summary/search_metrics.png)
+
+图中的最大值来自不同的小样本池；原始Steer水平线是目标参考，不是等预算显著性比较。

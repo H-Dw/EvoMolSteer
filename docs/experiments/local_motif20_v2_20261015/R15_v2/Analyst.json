@@ -1,0 +1,42 @@
+{
+  "action_id": "A3ec7c623e4b7",
+  "claim_class": "proposed",
+  "conditioning": "Parent S0_REFERENCE_REPLAY, region F_b011_s030__reference, operator pointwise, representation bridge, controller unit_rms, window [0.1,0.5], steps 100, teacher_time 0.5, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, band_multiplier 1.0. Single-factor change: assignment_element_cost 0.0 -> 0.5 (V01). All other program fields, saved priors, random streams and checkpoint held fixed. Evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5].",
+  "contrast_definition": "From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.",
+  "contrast_kind": "from_zero_same_prior_and_rng_single_factor_free_graphs",
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__reference/regional_trajectories",
+    "campaign/experiment_families"
+  ],
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/conditional_layout",
+    "F_b011_s030__reference/regional_context",
+    "campaign/experiment_families"
+  ],
+  "evidence_time_domain": [
+    0.0,
+    0.5
+  ],
+  "factor": "assignment_element_cost",
+  "falsifier": "The hypothesis is falsified if, at matched priors and streams, assignment_element_cost=0.5 leaves assignment_switch_fraction at or below the parent mean 0.00203 and leaves point_rms_A and target_error_mean trajectories indistinguishable from the parent, or if it changes them but the frozen tail utility U_tau does not improve relative to the parent 0.01246 while mean_all_pic50 degrades below 7.8275. A response that only moves geometry without any tail change would show the correspondence channel is not the limiting mechanism.",
+  "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+  "observable_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "observable_id": "pointwise",
+  "parent_program_id": "S0_REFERENCE_REPLAY",
+  "predicted_execution_response": "Measured current-program response only. Expect assignment_switch_fraction to rise above the parent mean 0.00203 (parent max 0.01667) as the element-cost term changes the linear_sum_assignment solution, with nonzero_updates remaining near 40 and atom_clip_fraction and cumulative_clip_fraction staying at 0.0. Expect injected_rms_A_mean to remain near the parent 0.0301 A and point_rms_A to fall from the parent first-step 0.402 A toward the parent last-step 0.0394 A, since the dose and controller are unchanged. No terminal-affinity gradient is implied.",
+  "predicted_terminal_response": "Unmeasured. The parent from-zero pool gives U_tau 0.01246, mean_all_pic50 7.8275, best_qualified_pic50 8.4340, hit_fraction 0.0417, n_qualified 22/24, n_above_target 0 against tau 8.1350 and target best 8.704806. Whether the changed correspondence improves the frozen tail utility is not forecast here; the source layout score 8.704859 is not a generated-score forecast.",
+  "region_id": "F_b011_s030__reference",
+  "relationship_to_previous_failed_interventions": "Prior from-zero rounds changed region (R03, R04, R09_v2, R11_v2, R13_v2), operator (R05, R07, R12_v2, R14_v2), dose.pointcloud_delta_A (R07_v2), dose.native_rms_ratio (R10_v2) and target_schedule (R08_v2); R04, R08_v2, R10_v2, R12_v2 and R14_v2 were rolled back. All of those left the correspondence rule at assignment_element_cost=0.0. The campaign family evidence is heterogeneous interventions on a reused prior pool, not independent replicates, so it does not establish a universal operator or region effect. This action instead tests the correspondence mechanism itself, which none of the prior rounds varied.",
+  "role": "Analyst",
+  "scientific_hypothesis": "The parent's Hungarian correspondence is purely geometric (assignment_element_cost=0.0), so matched local points can be assigned to teacher points of the wrong element identity. Raising the detached correspondence cost to 0.5 should shift the local assignment toward element-consistent teacher points, changing which local coordinates the pointwise pseudo-Huber term pulls. This is a correspondence-mechanism hypothesis, not an elemental force: the cost is detached and does not add a direct elemental gradient. It is distinct from the region-only and operator-only families already tried, which left the correspondence rule unchanged.",
+  "source_layout_implies_generated_benefit": false,
+  "status": "hypothesis",
+  "suffix_absolute_scores_establish_from_zero_benefit": false,
+  "temporal_slope_is_spatial_gradient": false,
+  "trajectory_evidence_origin": "historical_steer_not_current_guidance"
+}

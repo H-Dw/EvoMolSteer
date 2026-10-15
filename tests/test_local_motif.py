@@ -176,3 +176,13 @@ def test_full_state_clone_keys_preserve_equal_coordinates_with_different_bonds()
             return np.array([[[0,1],[1,0]],[[0,2],[2,0]],[[0,1],[1,0]]])
     result=full_state_controls(Trajectory(),0,np.zeros((3,2,3)),np.zeros((3,2)),0)
     assert result.tolist()==[1]
+
+
+def test_family_memory_separates_suffix_and_keeps_intervention_sources():
+    from evomolsteer.local_motif.experiment_memory import family_evidence
+    p,t=inputs();s={'reference':{'program':dict(p,program_id='S0'),'metrics':{'mean_all_pic50':8.,'U_tau':.1}},'rounds':[]}
+    for stage in ('suffix','from_zero'):
+        s['rounds'].append({'stage':stage,'program':p,'metrics':{'n':24,'mean_all_pic50':7.9,'U_tau':0.},'round':'R1','factor':'operator','region':'X'})
+    r=family_evidence(s);assert len(r['families'])==1
+    family=r['families'][0];assert family['n_conditions']==1 and family['n_lower_tail_than_reference']==1
+    assert family['trials'][0]['source']=='R1/results.json'

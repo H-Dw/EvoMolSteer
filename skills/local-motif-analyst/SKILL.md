@@ -39,6 +39,8 @@ Select one hypothesis and one principal intervention. Compare at least two plaus
 
 For discovery, choose from the supplied untested executable actions. Repeating the same numerical function on identical inputs provides no new experiment; use a known function only for an explicitly requested replication or confirmation.
 
+Use the cross-condition experiment-family evidence when supplied. A new region alone does not resolve failures of the same control mechanism. Explain the conditional difference that makes a repeated family informative, or choose a competing mechanism such as response, timing, representation or correspondence. Distinguish heterogeneous failed interventions from independent replicates; do not infer a universal operator effect from them.
+
 Report the parent program, evidence references, expected execution response, expected terminal response and a falsifier. Label claims as measured, inferred, or proposed. A source teacher score is not a forecast for new samples, and a successful intermediate match is not the primary outcome.
 
 Use the caller's bounded query/observation loop and return only the supplied structured contract. Provide concise decision grounds, not an internal reasoning transcript. Designer receives the same evidence bundle and must be able to locate every cited measurement independently.

@@ -113,6 +113,7 @@ def observations(repo,m,folder,p,t,label,tau):
 
 
 def feedback(repo,state,evidence):
+    from .experiment_memory import family_evidence
     best=state['best'];history=[]
     for r in state['rounds']:
         item={k:r.get(k) for k in ['round','stage','factor','status','region','operator','metrics','local_outcomes','rollback','parent']}
@@ -122,6 +123,7 @@ def feedback(repo,state,evidence):
             item['scope']='Mechanistic same-restored-state comparisons only. Do not compare absolute suffix affinity with from-zero pools.'
         history.append(item)
     return {'parent_outcomes':best['metrics'],'parent_response':best.get('response'),'history':history,
+        'cross_condition_counterevidence':family_evidence(state),
             'objective':'Frozen tail utility primary, affinity mean guard; target best 8.704806. Formation is a mechanism, not terminal success.',
         'discovery_gaps':['Static N/C exchanges were not realized by old coordinate guidance.','O fields have explanatory but not established intervention value.'],
         'previous_rollbacks':[r['round'] for r in state['rounds'] if r.get('rollback')]}
@@ -304,6 +306,7 @@ def functional_tests(repo,m,e,t,base):
                 ('O_negative_intervention',lambda r:r['region_id'].endswith('__O') and 'O' in r['native_elements']),
                 ('normalization_saturation',lambda r:r['region_id']==base['region_id']),
                 ('trajectory_provenance',lambda r:r['region_id']==base['region_id'])]
+    candidates.append(('cross_family_counterevidence',lambda r:r['region_id']==base['region_id']))
     if m.get('functional_case_subset'):candidates=[x for x in candidates if x[0] in m['functional_case_subset']]
     else:candidates=candidates[:3]
     for name,predicate in candidates:
@@ -316,6 +319,11 @@ def functional_tests(repo,m,e,t,base):
         if name=='trajectory_provenance':
             actual=read_json(study/'state.json')['reference'];pp=copy.deepcopy(actual['program']);fb.update(parent_response=actual['response'],parent_outcomes=actual['metrics'],
                 task='Query regional_trajectories and compare its historical Steer origin against the supplied measured current-controller response. Propose one actual numerical change; do not infer current-controller motion from teacher trajectories.')
+        if name=='cross_family_counterevidence':
+            actual=read_json(study/'state.json');ee=copy.deepcopy(e);pp=copy.deepcopy(actual['reference']['program'])
+            m['_seen_numeric_programs']=[identity(x['program'],t[x['program']['template_id']]) for x in [actual['reference']]+actual['rounds'] if x.get('program') and x.get('stage','from_zero')!='suffix']
+            fb=feedback(repo,actual,e)
+            fb['task']='Inspect the actual cross-condition counterevidence. Choose an untested mechanism that distinguishes the repeated geometry-imitation failures, and explain its relationship to those failures. This is a zero-generation functional response check, not proof of efficacy.'
         p,a,d,info=ask(repo,m,study/('functional_v'+str(m.get('interface_revision',1)))/name,ee,t,{pp['program_id']:{'program':pp}},fb,stage='from_zero')
         checks.append({'case':name,'decision':info,'Analyst_status':a['status'],'Designer_present':d is not None,
             'selected_region':a['region_id'],'new_generation_attempts':0,'source_refs_validated':True,

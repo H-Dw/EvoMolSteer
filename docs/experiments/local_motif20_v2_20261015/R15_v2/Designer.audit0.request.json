@@ -1,0 +1,70 @@
+{
+  "body": {
+    "max_tokens": 1800,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/5bb993fcfff3ba82c8d161919c40626a24c4875be2ebbf7c7c75475b6ed87838.txt",
+        "content_sha256": "5bb993fcfff3ba82c8d161919c40626a24c4875be2ebbf7c7c75475b6ed87838",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/c6045294c0214df25f54db881509a4e1b7cde9a1843f454b28c3c25647975472.txt",
+        "content_sha256": "c6045294c0214df25f54db881509a4e1b7cde9a1843f454b28c3c25647975472",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "consistent": {
+        "type": "boolean"
+      },
+      "issues": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "contradiction": {
+              "maxLength": 1200,
+              "type": "string"
+            },
+            "field": {
+              "enum": [
+                "scientific_rationale",
+                "parameter_source",
+                "predicted_control_response",
+                "falsifier"
+              ]
+            },
+            "quote": {
+              "maxLength": 800,
+              "type": "string"
+            }
+          },
+          "required": [
+            "field",
+            "quote",
+            "contradiction"
+          ],
+          "type": "object"
+        },
+        "maxItems": 3,
+        "type": "array"
+      }
+    },
+    "required": [
+      "consistent",
+      "issues"
+    ],
+    "type": "object"
+  }
+}

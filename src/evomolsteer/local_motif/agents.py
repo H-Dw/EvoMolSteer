@@ -19,7 +19,7 @@ FACTOR_SEMANTICS={'dose.native_rms_ratio':'Physical displacement RMS ratio to na
     'gradient_floor_multiplier':'Bounded-controller attenuation calibration, not an active unit-RMS parameter.',
     'time_schedule':'Post-normalization positive dose schedule across the configured window, u=mid-step normalized progress: early 1.5-u, late .5+u, constant 1. Mean multiplier 1; actual flow-weighted displacement and clipping can differ and must be measured.'}
 FACTOR_SEMANTICS['target_schedule']='Fixed teacher horizon versus a historical-path moving lookahead horizon. Changes BOTH target time and corresponding fitted target coordinates as one strategy; not an isolated clock or polynomial effect. No extra model calls. Not a future-success probability estimate.'
-TOOLS=['conditional_layout','regional_context','regional_trajectories','historical_path','control_response','history']
+TOOLS=['conditional_layout','regional_context','regional_trajectories','historical_path','control_response','history','experiment_families']
 OPERATOR_DEFINITIONS={
     'pointwise':'Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.',
     'point_band':'Implemented and derivative-tested: squared excess of local point distance outside a calibrated spatial tolerance. A coordinate intervention to be tested, not a proven affinity rule.',
@@ -70,7 +70,8 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     if stage=='from_zero' and not actions:raise ValueError('No untested legal actions remain; do not silently repeat a known program')
     action_regions={a['region_id'] for a in actions}
     bundle={'evidence':{'report/O-intervention':evidence['O_evidence'],'report/limits':evidence['limits'],
-        'parent/response':feedback.get('parent_response'), 'parent/outcomes':feedback.get('parent_outcomes')},
+        'parent/response':feedback.get('parent_response'), 'parent/outcomes':feedback.get('parent_outcomes'),
+        'campaign/experiment_families':feedback.get('cross_condition_counterevidence',{'status':'no_current_trials'})},
         'learning_window':master['learning_window'],'stage':stage,'implemented_operators':OPERATOR_DEFINITIONS,
         'contrast_kind':'local_potential_vs_unguided_same_restored_state_then_free_graphs' if stage=='suffix' else 'from_zero_same_prior_and_rng_single_factor_free_graphs',
         'trajectory_provenance':'Historical Steer ancestors and contemporary states only. These curves do not measure the current gradient-guided parent run.',
@@ -117,6 +118,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
                 'domain':evidence['trajectory']['domain'],'limits':evidence['trajectory']['limits'],
                 'fits':evidence['trajectory']['fits'].get(rid,{'status':'missing_trajectory'})}
             elif tool=='historical_path':value=card.get('historical_path',{'status':'unavailable'})
+            elif tool=='experiment_families':value=feedback.get('cross_condition_counterevidence',{'status':'no_current_trials'})
             elif tool=='control_response':
                 value={'matching_parents':{pid:entry for pid,entry in parents.items() if entry['program']['region_id']==rid},
                     'active_incumbent_context':feedback.get('parent_response'),
@@ -140,12 +142,16 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
             'From t=0 with matched saved random priors, random streams, checkpoint and native protocol; one registered intervention versus its parent. Chemical graphs remain free; historical suffix score levels are not from-zero treatment effects.'},'scientific_hypothesis':text,
         'predicted_execution_response':text,'predicted_terminal_response':text,'falsifier':text,
         'source_layout_implies_generated_benefit':{'const':False},'temporal_slope_is_spatial_gradient':{'const':False}})
+    schema['properties']['relationship_to_previous_failed_interventions']=text
+    schema['required'].append('relationship_to_previous_failed_interventions')
     available=[a for a in actions if a['region_id'] in queried]
     if stage=='from_zero':
         if not available:raise ValueError('Queried regions have no untested action; query an available registered region')
         schema['properties']['action_id']={'enum':[a['action_id'] for a in available]};schema['required'].append('action_id')
     def validate_a(a):
         references(a,bundle,a['region_id'])
+        if bundle['evidence']['campaign/experiment_families'].get('families') and 'campaign/experiment_families' not in a['evidence_refs']+a['counterevidence_refs']:
+            raise jsonschema.ValidationError('Cite the supplied actual experiment-family counterevidence when choosing the next intervention',validator='const',validator_value='campaign/experiment_families',instance=a['counterevidence_refs'])
         if stage=='from_zero':
             action=next(x for x in available if x['action_id']==a['action_id'])
             required={k:action[k] for k in ['parent_program_id','region_id','factor','observable_id']}

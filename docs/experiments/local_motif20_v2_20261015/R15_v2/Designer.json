@@ -1,0 +1,60 @@
+{
+  "controlled_atom_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    10,
+    12,
+    13,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24
+  ],
+  "counterevidence_refs": [
+    "report/limits",
+    "report/O-intervention",
+    "F_b011_s030__reference/regional_trajectories",
+    "campaign/experiment_families"
+  ],
+  "decision": "execute",
+  "direct_type_force": false,
+  "enabled_terms": [
+    "pointwise"
+  ],
+  "evidence_bundle_hash": "19cbd0131ccd6f72af5daeb31dc4dadce797f936730e3a6d56b6611646a38822",
+  "evidence_refs": [
+    "parent/response",
+    "parent/outcomes",
+    "F_b011_s030__reference/control_response",
+    "F_b011_s030__reference/conditional_layout",
+    "F_b011_s030__reference/regional_context",
+    "campaign/experiment_families"
+  ],
+  "executed_operator": "pointwise",
+  "falsifier": "The hypothesis is falsified if, at matched priors and streams, assignment_element_cost=0.5 leaves assignment_switch_fraction at or below the parent mean 0.00203 and leaves point_rms_A and target_error_mean trajectories indistinguishable from the parent, or if it changes them but the frozen tail utility U_tau does not improve relative to the parent 0.01246 while mean_all_pic50 degrades below 7.8275. A response that only moves geometry without any tail change would show the correspondence channel is not the limiting mechanism.",
+  "hypothesis_id": "F_b011_s030__reference__assignment_element_cost_V01",
+  "operator_definition": "Implemented and derivative-tested: local Hungarian assignment, robust per-point distance to observed teacher coordinates. Units A; no chemical-role or energy assumption.",
+  "parameter_changes": [
+    {
+      "new": 0.5,
+      "parent": 0.0,
+      "path": "assignment_element_cost"
+    }
+  ],
+  "parameter_source": "Single-factor change from the parent program S0_REFERENCE_REPLAY: assignment_element_cost 0.0 -> 0.5 (variant V01). All other fields are held at parent values: operator pointwise, controller unit_rms, representation bridge, scope local, window [0.1,0.5], steps 100, teacher_time 0.5, dose.native_rms_ratio 0.66, dose.pointcloud_delta_A 1.0, band_multiplier 1.0, gradient_floor_multiplier 1.0, atom_slots and orientation_triplets unchanged, native_options unchanged, saved priors, random streams and checkpoint fixed. The evidence clock domain is the complete learning_window [0.0,0.5], distinct from the control window [0.1,0.5]. The parameter semantics entry states assignment_element_cost is a detached correspondence cost coefficient, not a direct elemental force.",
+  "predicted_control_response": "Measured current-program response only, at matched priors and streams. Expect assignment_switch_fraction to rise above the parent mean 0.00203 (parent max 0.01667) as the element-cost term changes the linear_sum_assignment solution, with nonzero_updates remaining near 40 and atom_clip_fraction and cumulative_clip_fraction staying at 0.0. Expect injected_rms_A_mean to remain near the parent 0.0301 A and point_rms_A to fall from the parent first-step 0.402 A toward the parent last-step 0.0394 A, since the dose and controller are unchanged. No terminal-affinity gradient is implied.",
+  "role": "Designer",
+  "scientific_rationale": "The parent program S0_REFERENCE_REPLAY runs the implemented pointwise operator with assignment_element_cost=0.0, so its local Hungarian correspondence is purely geometric and can match a generated local point to a teacher point of a different element identity. The implemented evaluate() subtracts p['assignment_element_cost']*probabilities[b,ids][:,self.labels] from the squared-distance cost before linear_sum_assignment, so raising this coefficient changes which teacher point each generated local point is pulled toward. This is a correspondence-mechanism hypothesis: the cost is detached (computed under torch.no_grad() from detached logits) and enters only the assignment, not the differentiable value, so it adds no direct elemental force and no affinity-head or categorical-logit gradient. It is distinct from the region-only and operator-only families in campaign/experiment_families, all of which left assignment_element_cost at 0.0. The selected region F_b011_s030__reference is a frozen broad proper-subset coordinate reference (20 of 25 atoms) with a proposed quarter-covalent-length band that is not a proven success tolerance; the source layout score 8.704859 is not a generated-score forecast.",
+  "variant_id": "V01"
+}
