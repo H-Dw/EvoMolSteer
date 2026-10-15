@@ -93,13 +93,14 @@ def build(repo,config):
     write_json(out/'cost_and_provenance.json',costs);write_json(out/'source_hashes.json',sources)
     compare=[r for r in metric_rows if r['stage'] in ('from_zero','confirmation')]
     peak=max(compare,key=lambda r:r['best_qualified_pic50'] or -np.inf,default={})
+    exploration=max((r for r in compare if r['condition']!='S0_REFERENCE_REPLAY' and r['stage']=='from_zero'),key=lambda r:r['best_qualified_pic50'] or -np.inf,default={})
     target=state['original_steer']['best'];best=state['best']['program']['program_id']
-    value={'target':target,'highest_new_from_zero_condition':peak,'active_program':best,'confirmed_best':state.get('confirmed_best'),
+    value={'target':target,'highest_new_from_zero_condition_including_replay':peak,'highest_exploration_condition':exploration,'active_program':best,'confirmed_best':state.get('confirmed_best'),
         'target_reached_in_from_zero':any(r['n_above_target']>0 for r in compare),'costs':costs}
     write_json(out/'conclusions.json',value)
     lines=['# 局部 motif auto-research v2：最终证据报告','',
         f"已完成 {len(state['rounds'])}/20 个有效研究条件；另有 {costs['duplicate_zero_generation_proposals']} 个相同函数提案复用已有结果，未重复生成。",
-        f"原始 Steer 最优预测 pIC50 为 **{target:.6f}**。本轮新生成从头条件中的最高基本合格分数为 **{peak.get('best_qualified_pic50',float('nan')):.6f}**（{peak.get('condition')}）。",
+        f"原始 Steer 最优预测 pIC50 为 **{target:.6f}**。本轮新生成从头条件（含S0参考重放及冻结确认）中的最高基本合格分数为 **{peak.get('best_qualified_pic50',float('nan')):.6f}**（{peak.get('condition')}）；新探索程序最高为 **{exploration.get('best_qualified_pic50',float('nan')):.6f}**（{exploration.get('condition')}）。",
         f"活动保留程序为 **{best}**。冻结确认是否通过：**{'是' if state.get('confirmed_best') else '否/尚未通过'}**。所有亲和力均为同一模型的预测，不能表述为实验结合亲和力。",'',
         '## 1. 真实完成的条件','',
         '|有效轮|原始记录标识|阶段|单项改变|支持点数|平均 pIC50|最高合格|Uτ|合格/尝试|回滚|',
@@ -119,7 +120,7 @@ def build(repo,config):
         '', 'Designer读取同一不可变证据包、Analyst区域与可执行observable、父程序、确切数值选项、实际算子源码及父响应，只能编译Analyst绑定的支持与单项变化。确定性校验约束证据ID、区域、时间、有效参数路径、数值去重。两角色使用真实 deepseek-flash API、温度0，调用与审阅副本都有请求哈希和响应receipt。',
         '', '接入正确不等于科学推断正确：自由文本仍可能混淆历史Steer、旧guidance实验与当前父程序，或把匹配变化归因过强。报告以实际程序、数据及执行记录为准；保留语义审阅和逐轮解释修正，不能声称已证明LLM优于确定性搜索。',
         '', '## 4. 奖励与真实坐标梯度','',
-        '固定桥接：z_h=((1−h)/(1−t))x_t+((h−t)/(1−t))yθ(x_t,t,p)。点式奖励为局部Hungarian匹配后的负pseudo-Huber距离均值。其它逐项测试的算子包含坐标目标带、口袋距离带、邻接方向、局部成对距离、质心与协方差匹配。原子标签可用于脱离梯度的匹配代价，不直接求类别梯度。',
+        '固定桥接：z_h=((1−h)/(1−t))x_t+((h−t)/(1−t))yθ(x_t,t,p)。点式奖励为局部Hungarian匹配后的负pseudo-Huber距离均值。其它注册算子包含坐标目标带、口袋距离带、邻接方向、局部成对距离、质心与协方差匹配；实际执行的算子以逐轮程序为准。原子标签可用于脱离梯度的匹配代价，不直接求类别梯度。',
         '', '历史路径策略：q̂(u)=q_h+b₁(u−h)+b₂(u−h)²，使用整个学习窗口真实祖先坐标拟合且锚定q_h；h(t)=min(h,t+η×学习窗口宽度)，桥接状态与目标同时使用h(t)。这是一个新的时变目标策略，不是精确后续随机路径导数或成功概率模型。',
         '', '每步只使用当前FLOWR前向的真实坐标VJP；不对affinity head求导，不额外调用head，不做SMC。注入强度相对于原生预测步RMS，并记录逐原子/累计裁剪、匹配切换及实际位移。引导止于配置窗口，剩余推理原生完成到t=1，化学图自由变化。',
         '', '所有逐轮可复现选择依据、启用参数和否证条件见 `scientific_decisions.json`，程序见 `executable_programs.json`；这是可审核决策记录，不是内部思维链转录。',

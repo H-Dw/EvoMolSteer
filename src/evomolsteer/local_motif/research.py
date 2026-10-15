@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 import numpy as np
 from evomolsteer.io import read_json,write_json,digest,write_table
@@ -24,7 +25,12 @@ def commit(repo,m,message):
         'skills/local-motif-designer','tests/test_local_motif.py','.gitattributes']
     local(repo,['git','add','--',*paths])
     if local(repo,['git','diff','--cached','--name-only']):local(repo,['git','commit','-m',message])
-    local(repo,['git','-c','http.proxy=http://127.0.0.1:7897','push','origin','main'])
+    for attempt in range(4):
+        try:
+            local(repo,['git','-c','http.proxy=http://127.0.0.1:7897','push','origin','main']);break
+        except RuntimeError:
+            if attempt==3:raise
+            emit('idempotent_push_retry',attempt=attempt+1);time.sleep(2**(attempt+1))
     sha=local(repo,['git','rev-parse','HEAD']);emit('commit_pushed',commit=sha,message=message);return sha
 
 
