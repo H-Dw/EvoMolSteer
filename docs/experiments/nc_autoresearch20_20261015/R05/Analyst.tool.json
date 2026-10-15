@@ -1,0 +1,8 @@
+{
+  "patch_ids": [
+    "L109",
+    "L110"
+  ],
+  "question": "Compare the native layout L109 (targets C@12, N@22) against the compensating relocation L110 (N@12, C@22) at the identical 20-point geometric support, to test whether swapping the N/C identities at these two slots changes joint layout compatibility and downstream affinity. L109 is the observed native patch (counterfactual=false, source_score 8.704859); L110 is a fixed-geometry counterfactual label layout (counterfactual=true, source_score 8.912224) whose affinity value has not been tested. The prior L109 rounds (R01-R04) varied native_rms_ratio and weights but never changed the label layout, so they do not constitute a control for this relocation. I want the joint layout contrast to determine whether the N/C swap is locally compatible at this support or whether the native assignment is preferred, and to identify any actual counterexamples. Falsifier: if the joint layout contrast shows the L110 swap is not locally compatible (or is indistinguishable from L109), then the relocation hypothesis is rejected and the native L109 layout should be retained. Smallest discriminating test: run the joint layout contrast on L109 vs L110 at this fixed support and compare joint compatibility; if L110 is favored, the next step would be a single generation at the frozen calibration dose to measure generated-parent affinity, since the L110 source_score is only a teacher layout score for the source input and not a forecast.",
+  "tool": "joint_layout_contrasts"
+}
