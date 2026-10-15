@@ -1,0 +1,32 @@
+{
+  "decision": "activate",
+  "execution_contract": {
+    "anchor_distance_A": 3.0,
+    "anchor_width_A": 0.4,
+    "assignment_endpoint_fraction": 0.0,
+    "assignment_type_cost": 0.0,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.33,
+      "pointcloud_delta_A": 1.0
+    },
+    "gradient_balance": "unit_rms",
+    "type_mode": "full_ce",
+    "type_ramp": false,
+    "weights": {
+      "endpoint": 0.0,
+      "half": 1.0,
+      "orientation": 0.0,
+      "type": 0.0
+    },
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "observable_falsifier": "Under the frozen L109 replay on matched inputs, if the joint swap does not form the requested local identities (N at slot 22, C at slot 12) at a local_NC_identity_accuracy comparable to the historical R11/R12 values (0.854/0.833), or if terminal best_qualified_pic50 and mean_all_pic50 do not exceed the frozen R13_reference (8.378002166748047 and 7.682615399360657) and the unguided control (8.027933120727539 and 7.567899127801259) while n_qualified stays at 24, then the affinity value of this unrealized layout is not supported. If the compensating C site at slot 12 is not jointly relabeled, the run tests a different hypothesis and does not refute the scored fixed-count layout. Two checks are kept distinct: whether the control formed Analyst's requested local layout, and whether molecules realizing that layout improved terminal affinity; failure of the first does not refute the value of a layout that was never formed. Raw derivative RMS, weighted mixture-input RMS and physical displacement are not conflated. Support is uncertain because the best legal counterfactual target has not been regenerated or relaxed, the finite N-minus-C contrasts are conditional associations with compensating labels elsewhere rather than independent atom energies, and the donor proxy is a chemical-role geometry proxy rather than a measured binding gain.",
+  "patch_id": "L109",
+  "role": "Designer",
+  "scientific_rationale": "Activating the frozen L109 replay exactly as registered. Enabled terms: only the half-weight geometry term (weights.half=1.0) over the 20 direct_geometry_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]; endpoint, orientation and type weights are all 0.0, so no orientation term and no type loss are active. direct_type_slots is empty: with type weight 0.0 no N/C identity is directly enforced, and identity preservation is an outcome to measure, not an operation applied. The typed sites are slots 12 (desired C) and 22 (desired N); the orientation neighbors for slot 22 are slots 6 and 13, but since orientation weight is 0.0 that term is inactive and is not described as contributing. All 20 atom_slots receive direct geometry loss, including the context neighbors; only points outside atom_slots lack direct geometry loss, and model-mediated gradients can still reach those background atoms. The declared direction is the joint local swap: N at slot 22 and compensating C at slot 12; adding N at slot 22 while leaving the former N untouched is a different hypothesis and is not what this patch scores. Eligible chemistry is the pyridine-type aromatic N / aromatic CH pair; pyrrole [nH] and amide N are excluded, and the generated N decoder channel is treated as generic N until final chemical-role checks. The donor-facing slot 22 carries the strong donor proxy (A:VAL:116:N, strength 0.951) and positive finite N-minus-C contrast (+0.0763); slot 12 has negligible donor proxy (A:ASP:175:N, 1.55e-06) and positive contrast (+0.3068), so C there is a compensating partner in the joint swap rather than independent evidence for C. This is a conditional association with compensating labels elsewhere, not an independent atom energy, and the best legal counterfactual target has not been regenerated or relaxed. The patch is a proper local subset of the R13 context; no background points are added and no teacher is substituted. Raw term derivative RMS is not the applied dose; weighted mixture-input RMS and actual injected displacement are distinct from physical displacement and from the final identity response. Component normalization is part of the optimizer, not a single global potential with constant mixture weights. Affinity is not differentiated, the new graph is not fixed, and no SMC is introduced. Historical R11/R12 show this context can realize the requested identities (local_NC_identity_accuracy 0.854 and 0.833), so realization is plausible but not guaranteed."
+}

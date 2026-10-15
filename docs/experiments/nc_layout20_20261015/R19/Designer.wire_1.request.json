@@ -1,0 +1,94 @@
+{
+  "body": {
+    "max_tokens": 3500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/7bbe5b39f4fe9073b40409866097a6191e465ddf0b1533067e7dc1062a9f7034.txt",
+        "content_sha256": "7bbe5b39f4fe9073b40409866097a6191e465ddf0b1533067e7dc1062a9f7034",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/775ccd024d6b05b9f8346f2a5a15ff5f1dde8e344ee37e5eba11861c5dd5c854.txt",
+        "content_sha256": "775ccd024d6b05b9f8346f2a5a15ff5f1dde8e344ee37e5eba11861c5dd5c854",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/16bb676e7ea2dd12680149c2d3519a2370b1c46680c422e96be7cf3c410333b3.txt",
+        "content_sha256": "16bb676e7ea2dd12680149c2d3519a2370b1c46680c422e96be7cf3c410333b3",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "decision": {
+        "enum": [
+          "activate",
+          "defer"
+        ]
+      },
+      "execution_contract": {
+        "const": {
+          "anchor_distance_A": 3.0,
+          "anchor_width_A": 0.4,
+          "assignment_endpoint_fraction": 0.0,
+          "assignment_type_cost": 0.0,
+          "dose": {
+            "max_atom_step_A": 0.15,
+            "max_cumulative_rms_A": 6.0,
+            "native_rms_ratio": 0.33,
+            "pointcloud_delta_A": 1.0
+          },
+          "gradient_balance": "unit_rms",
+          "type_mode": "full_ce",
+          "type_ramp": false,
+          "weights": {
+            "endpoint": 0.0,
+            "half": 1.0,
+            "orientation": 0.0,
+            "type": 0.0
+          },
+          "window": [
+            0.1,
+            0.5
+          ]
+        }
+      },
+      "observable_falsifier": {
+        "maxLength": 2800,
+        "type": "string"
+      },
+      "patch_id": {
+        "const": "L109"
+      },
+      "role": {
+        "const": "Designer"
+      },
+      "scientific_rationale": {
+        "description": "Concise evidence-to-term reasoning. Do not repeat the full point list or execution contract.",
+        "maxLength": 6000,
+        "type": "string"
+      }
+    },
+    "required": [
+      "role",
+      "patch_id",
+      "decision",
+      "execution_contract",
+      "scientific_rationale",
+      "observable_falsifier"
+    ],
+    "type": "object"
+  }
+}
