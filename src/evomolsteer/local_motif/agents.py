@@ -68,6 +68,7 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     from .actions import novel_actions
     actions=novel_actions(parents,regions,templates,master,constraint) if stage=='from_zero' else []
     if stage=='from_zero' and not actions:raise ValueError('No untested legal actions remain; do not silently repeat a known program')
+    action_regions={a['region_id'] for a in actions}
     bundle={'evidence':{'report/O-intervention':evidence['O_evidence'],'report/limits':evidence['limits'],
         'parent/response':feedback.get('parent_response'), 'parent/outcomes':feedback.get('parent_outcomes')},
         'learning_window':master['learning_window'],'stage':stage,'implemented_operators':OPERATOR_DEFINITIONS,
@@ -82,13 +83,25 @@ def ask(repo,master,folder,evidence,templates,parents,feedback,stage='from_zero'
     query_schema=obj({'action':{'enum':['query','finish']},'requests':{'type':'array','maxItems':2,'items':obj({
         'tool':{'enum':TOOLS},'region_id':{'enum':list(regions)}})},'question':{'type':'string','maxLength':6000}})
     messages=[{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
-        'catalog':catalog,'parents':parents,'feedback':feedback,'available_tools':TOOLS,'shared_initial_evidence':bundle,
+        'catalog':[r for r in catalog if stage!='from_zero' or r['region_id'] in action_regions],
+        'parents':parents,'feedback':feedback,'available_tools':TOOLS,'shared_initial_evidence':bundle,
         'research_stage':stage,'fixed_confirmation':fixed,'current_module_question':constraint,'budget':{'max_tool_rounds':3,'max_calls_each':2},
         'untested_action_counts':{f:sum(a['factor']==f for a in actions) for f in factor_enum},
-        'task':'You are in the tool-planning phase. Return a brief tool question, not the final scientific handoff. Query at least one registered tool for support/counterevidence, then finish. The listed geometry calculators ARE implemented and tested; they do not require a binding-energy calculator. Missing previous terminal benefit is a reason for a prospective experiment, not a capability gap. New operators outside this registry require capability_gap. One principal intervention per from-zero experiment.'},ensure_ascii=False)}]
+        'regions_with_untested_executable_actions':sorted(action_regions),
+        'task':'You are in the tool-planning phase. First query evidence for a catalog region that has an untested executable action, then optionally query other regions for counterevidence, then finish. The first-call region enum excludes exhausted regions; pick one of the actually available IDs. Return a brief tool question, not the final scientific handoff. The listed geometry calculators ARE implemented and tested; they do not require a binding-energy calculator. Missing previous terminal benefit is a reason for a prospective experiment, not a capability gap. New operators outside this registry require capability_gap. One principal intervention per from-zero experiment.'},ensure_ascii=False)}]
     queried=set();query_count=0
     for turn in range(3):
-        q=call_json(messages,query_schema,folder/f'Analyst.query{turn}.json',input_store=store,max_output_tokens=1200,max_format_repairs=2)
+        current_query_schema=copy.deepcopy(query_schema)
+        if stage=='from_zero' and not queried.intersection(action_regions):
+            current_query_schema['properties']['action']={'const':'query'}
+            current_query_schema['properties']['requests']['minItems']=1
+            current_query_schema['properties']['requests']['items']['properties']['region_id']={'enum':sorted(action_regions)}
+        def validate_query(q):
+            if q['action']=='finish' and (not queried or (stage=='from_zero' and not queried.intersection(action_regions))):
+                raise jsonschema.ValidationError('Before finishing, query evidence for a region with an untested executable action',validator='enum',validator_value=sorted(action_regions),instance=sorted(queried))
+            if turn==2 and stage=='from_zero' and not queried.intersection(action_regions) and not any(r['region_id'] in action_regions for r in q['requests']):
+                raise jsonschema.ValidationError('The final tool round must include a region with an untested action; previously queried regions are exhausted',validator='enum',validator_value=sorted(action_regions),instance=q['requests'])
+        q=call_json(messages,current_query_schema,folder/f'Analyst.query{turn}.json',input_store=store,max_output_tokens=1200,max_format_repairs=2,response_validator=validate_query)
         if q['action']=='finish' and queried:break
         if not q['requests']:raise ValueError('A query needs actual registered tools')
         observations={}
