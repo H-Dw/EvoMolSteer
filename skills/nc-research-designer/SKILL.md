@@ -30,3 +30,9 @@ An available anchor is inactive when orientation weight is zero. Teacher layout
 scores are not expected generated scores; use actual generated-parent metrics.
 Falsifiers must concern measured execution or terminal outputs, not whether a
 static input file changes its original labels or source score.
+
+Prospective optimization intentionally tests values with unknown performance.
+Choose a defensible legal variant and an observable falsifier; do not require its
+outcome to have been measured already. Defer for missing necessary chemical input,
+an invalid derivative/support, or a numerically ineffective operator. Element
+retention alone is not the objective: assess final affinity and coordinate quality.

@@ -128,7 +128,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
             'counterfactual':p['counterfactual_labels']} for p in allowed]
     skills={r:(repo/master[r.lower()+'_skill']).read_text(encoding='utf-8') for r in ('Analyst','Designer')}
     for role,text in skills.items():(folder/(role+'.SKILL.md')).write_text(text,encoding='utf-8')
-    short={'type':'string','maxLength':1800}
+    short={'type':'string','maxLength':6000,'description':'Keep the explanation concise; refer to evidence rather than repeating every field.'}
     query=call_json([{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
         'task':task,'available_patches':brief,'history':compact_history(state),
         'tools':['joint_layout_contrasts','local_role_context','native_retention_evidence','window_lineage_features'],
@@ -169,7 +169,7 @@ def ask(repo,master,cfg,task,parent,evidence,templates,state):
     designer=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'analyst':analyst,'selected_patch':patch,'experiment':task,'allowed_variants':options,
         'parent_generated_scores':{'mean':state['best']['mean_all_pic50'],'best_qualified':state['best']['best_qualified_pic50']},
-        'history':compact_history(state),'instruction':'Choose one registered numeric variant for the single intervention. Bind Analyst patch. Source layout_score is NOT a generated score forecast; an anchor with zero orientation weight is inactive. Explain changed direction/dose and measured response; defer if unsupported.'})}],
+        'history':compact_history(state),'instruction':'This is an authorized prospective experiment to improve final affinity. Choose one legal untested variant using a falsifiable hypothesis; lack of previous outcomes at that exact value is the reason to experiment, not a reason to defer. Defer for missing necessary chemistry, mathematical invalidity or a demonstrated ineffective operator. Source layout_score is NOT a generated score forecast; zero-weight terms are inactive. Explain direction, dose and expected measurable response.'})}],
         obj({'role':{'const':'Designer'},'patch_id':{'const':patch['patch_id']},'decision':{'enum':['activate','defer'] if options else ['defer']},
              'variant_id':{'enum':list(options) or ['UNSUPPORTED']},
              'enabled_terms':{'type':'array','items':{'enum':['half','endpoint','type','orientation','role','pair']},'uniqueItems':True},
@@ -295,6 +295,8 @@ def run(repo,master_path,stop_after=20):
                 'checkpoint':master['checkpoint'],'remote_dataset':master['remote_dataset'],'campaign':master['campaign'],'arm':master['arm'],
                 'pilot_initial_batch':master['validation_batch'] if number==20 else 0,'pilot_samples':n,'seed':master['seed'],
                 'steps':master['steps'],'teacher_time':master['teacher_time'],'terminal_time':1.,'include_unguided':False,'only_program_ids':[label]}
+            revision=master.get('interface_revisions',{}).get(label)
+            if revision:cfg['study']+='_interface_v'+str(revision)
             folder=repo/cfg['study'];path=repo/master['config_dir']/(label+'.json')
             write_json(folder/'proposal.json',{'task':task,'parent':parent,'history':compact_history(state),'max_rounds':master['max_rounds']})
             emit('research_role_calls',round=label,factor=task['factor'],parent=state['best_round'])
@@ -343,9 +345,11 @@ def run(repo,master_path,stop_after=20):
                     'confirmation':confirmation,'result_folder':result.relative_to(repo).as_posix(),
                     'incumbent_after':state['best_round'],'additional_attempts':0 if reused else n}
             write_json(folder/'results.json',entry);state['rounds'].append(entry);state['next_round']=number+1
+            entry['study']=cfg['study']
             write_json(sp,state);write_json(repo/master['config_dir']/'active_best.json',state['best_program']);summarise(repo,master,state)
             commit(repo,master,f'results(nc-research): {label} {entry["status"]}; incumbent {state["best_round"]}')
             emit('research_round_complete',round=label,status=entry['status'],metrics=entry.get('metrics'),realization=entry.get('realization'),rollback=entry.get('rollback'))
+            if (study/'STOP_AFTER_CURRENT').exists():return state
         if state['next_round']>master['max_rounds']:
             write_json(study/'COMPLETE.json',{'rounds':len(state['rounds']),'best_round':state['best_round'],
                 'best':state['best'],'target_reached':any(r.get('metrics',{}).get('n_above_reference',0)>0 for r in state['rounds'])})

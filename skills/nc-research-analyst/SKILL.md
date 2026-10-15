@@ -27,3 +27,9 @@ hydrogen bonds or successful intermediate counterfactual states.
 Teacher layout scores describe the source input, not a forecast for new samples.
 Use measured generated-parent scores to assess reproduction. A falsifier should
 test control or generation outcomes rather than rechecking immutable patch metadata.
+
+This is prospective research with final affinity as the primary objective.
+High element retention is not a ceiling on affinity improvement. An untested dose
+may be explored under an explicit hypothesis; previous outcomes at that exact dose
+are not required. Separate lack of outcome certainty from missing indispensable
+input evidence. Prefer a small discriminating experiment over circular deferral.

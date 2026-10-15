@@ -6,6 +6,7 @@ from evomolsteer.nc_guidance.autoresearch import validate_program,execution_iden
 from evomolsteer.nc_guidance.window_features import fit_window
 from evomolsteer.nc_guidance.reward import NCReward
 from test_nc_guidance import example
+from evomolsteer.final_guidance.native import instrument_coord_telemetry
 
 
 def resolved():
@@ -52,3 +53,24 @@ def test_whole_window_fit_reports_signed_rate_without_time_point_pvalues():
     fits=fit_window(t,y);assert fits[1]['rmse']<1e-12
     assert np.allclose(fits[1]['coefficients_ascending'],[2,3,-2])
     assert fits[1]['p_value'] is None and fits[1]['domain']==[0.,.6]
+
+
+def test_noise_observer_preserves_output_and_rng_consumption():
+    source='''def coord_step(self, curr_coords, pred_coords, mask, times, step_size):
+    coord_velocity=(pred_coords-curr_coords)/(1-times[:,None,None])
+    gt=1/(times[0]+.01)
+    score=(times[:,None,None]*coord_velocity-curr_coords)/(1-times[:,None,None]+1e-6)
+    eps=torch.randn(curr_coords.shape)
+    std_eps=torch.sqrt(2*gt*self.coord_noise_level)
+    coords=curr_coords+(coord_velocity+gt*score)*step_size+eps*std_eps*step_size
+    return coords*mask[...,None]
+'''
+    from types import SimpleNamespace
+    original={'torch':torch};observed={'torch':torch}
+    exec(source,original);exec(instrument_coord_telemetry(source),observed)
+    model=SimpleNamespace(use_sde_simulation=True,coord_strategy='continuous',coord_noise_level=.2)
+    x=torch.ones((2,6,3));y=x*.8;mask=torch.ones((2,6));times=torch.tensor([.3,.3])
+    torch.manual_seed(42);a=original['coord_step'](model,x,y,mask,times,.01);ra=torch.get_rng_state()
+    torch.manual_seed(42);b=observed['coord_step'](model,x,y,mask,times,.01);rb=torch.get_rng_state()
+    assert torch.equal(a,b) and torch.equal(ra,rb)
+    assert set(model._guidance_components)=={'predictive','score_drift','random'}

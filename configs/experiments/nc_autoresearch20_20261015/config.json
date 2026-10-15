@@ -1,248 +1,252 @@
 {
-  "campaign_study": "docs/experiments/nc_autoresearch20_20261015",
-  "config_dir": "configs/experiments/nc_autoresearch20_20261015",
-  "prior_study": "docs/experiments/nc_layout20_20261015",
-  "generated_root": "data/generated/nc_autoresearch20_20261015",
-  "remote_campaign": "/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_nc_autoresearch20_20261015",
-  "remote_dataset": "/root/private_data/MolSteer/flowr_root/experiments/ck2_clk3_lineage_20261003",
-  "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
-  "campaign": "main1000_w050",
+  "analyst_skill": "skills/nc-research-analyst/SKILL.md",
   "arm": "single",
+  "campaign": "main1000_w050",
+  "campaign_study": "docs/experiments/nc_autoresearch20_20261015",
+  "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
   "compact_dataset": "data/optimized/main1000_w050/analysis_inputs_v2",
-  "layout_report": "D:/llm_controlled_generation/outputs/ck2_top10_spatial_motif_mining_20261014",
+  "config_dir": "configs/experiments/nc_autoresearch20_20261015",
+  "confirmation_samples": 50,
+  "decision_rule": "Screen: improve best-qualified >.01 and mean loss <=.03 vs incumbent; promotion requires held-out confirmation. Two declines restore active best. Diagnostic branches explicitly frozen and not promoted merely for realization.",
+  "decline_tolerance": 0.01,
+  "designer_skill": "skills/nc-research-designer/SKILL.md",
+  "generated_root": "data/generated/nc_autoresearch20_20261015",
   "initial_program": "docs/experiments/nc_layout20_20261015/R11/candidates/F_b011_s030/programs/R11.json",
   "initial_results": "data/generated/partial_region_search_20261014/R13/R13_0.1",
-  "analyst_skill": "skills/nc-research-analyst/SKILL.md",
-  "designer_skill": "skills/nc-research-designer/SKILL.md",
-  "steps": 100,
+  "interface_revisions": {
+    "R02": 2,
+    "R03": 2
+  },
+  "layout_report": "D:/llm_controlled_generation/outputs/ck2_top10_spatial_motif_mining_20261014",
   "learning_window": [
     0.0,
     0.5
   ],
-  "teacher_time": 0.5,
   "max_local_points": 20,
   "max_rounds": 20,
-  "seed": 42,
-  "screen_samples": 24,
-  "confirmation_samples": 50,
-  "validation_batch": 2,
-  "decline_tolerance": 0.01,
-  "rollback_declines": 2,
   "mean_regression_tolerance": 0.03,
+  "prior_study": "docs/experiments/nc_layout20_20261015",
+  "remote_campaign": "/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_nc_autoresearch20_20261015",
+  "remote_dataset": "/root/private_data/MolSteer/flowr_root/experiments/ck2_clk3_lineage_20261003",
+  "rollback_declines": 2,
+  "screen_samples": 24,
+  "seed": 42,
+  "steps": 100,
+  "target_pic50": 8.704806,
   "tasks": [
     {
       "factor": "calibration",
-      "values": [
-        null
-      ],
-      "question": "Frozen geometric reproduction with observational boundary telemetry; verify behavior before causal interpretation.",
       "patches": [
         "L109"
+      ],
+      "question": "Frozen geometric reproduction with observational boundary telemetry; verify behavior before causal interpretation.",
+      "values": [
+        null
       ]
     },
     {
       "factor": "dose.native_rms_ratio",
+      "patches": "parent",
+      "question": "Actual dose sensitivity: choose a lower or higher dose based on measured response, not mixture coefficient.",
       "values": [
         0.165,
         0.66
-      ],
-      "question": "Actual dose sensitivity: choose a lower or higher dose based on measured response, not mixture coefficient.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "dose.native_rms_ratio",
+      "patches": "parent",
+      "question": "Test a stronger physical control dose after examining prior clipping and terminal quality.",
       "values": [
         0.99,
         1.32
-      ],
-      "question": "Test a stronger physical control dose after examining prior clipping and terminal quality.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "weights",
-      "values": [
-        {
-          "half": 0.95,
-          "endpoint": 0,
-          "type": 0.05,
-          "orientation": 0,
-          "pair": 0
-        },
-        {
-          "half": 0.7,
-          "endpoint": 0,
-          "type": 0.3,
-          "orientation": 0,
-          "pair": 0
-        }
-      ],
-      "question": "One mixture intervention: can native N/C support improve the active geometric path?",
       "patches": [
         "L109"
+      ],
+      "question": "One mixture intervention: can native N/C support improve the active geometric path?",
+      "values": [
+        {
+          "endpoint": 0,
+          "half": 0.95,
+          "orientation": 0,
+          "pair": 0,
+          "type": 0.05
+        },
+        {
+          "endpoint": 0,
+          "half": 0.7,
+          "orientation": 0,
+          "pair": 0,
+          "type": 0.3
+        }
       ]
     },
     {
       "factor": "patch",
-      "values": [
-        null
-      ],
-      "question": "Compare original versus compensating N/C relocation at the identical geometric support.",
+      "parent": "best_typed",
       "patches": [
         "L109",
         "L110"
       ],
-      "parent": "best_typed"
+      "question": "Compare original versus compensating N/C relocation at the identical geometric support.",
+      "values": [
+        null
+      ]
     },
     {
       "factor": "assignment_type_cost",
+      "parent": "best_typed",
+      "patches": "parent",
+      "question": "Does chemical-aware matching stabilize the selected local identities?",
       "values": [
         0.1,
         0.5,
         1.0
-      ],
-      "question": "Does chemical-aware matching stabilize the selected local identities?",
-      "patches": "parent",
-      "parent": "best_typed"
+      ]
     },
     {
       "factor": "native_options.cat_noise_level",
+      "parent": "best_typed",
+      "patches": "parent",
+      "question": "Measure native retention under reduced categorical noise; require matched unguided controls.",
       "values": [
         0.25,
         0.5
-      ],
-      "question": "Measure native retention under reduced categorical noise; require matched unguided controls.",
-      "patches": "parent",
-      "parent": "best_typed"
+      ]
     },
     {
       "factor": "native_options.cat_noise_level",
+      "parent": "best_typed",
+      "patches": "parent",
+      "question": "Test noise-free categorical rates without freezing the chemical graph.",
       "values": [
         0.0
-      ],
-      "question": "Test noise-free categorical rates without freezing the chemical graph.",
-      "patches": "parent",
-      "parent": "best_typed"
+      ]
     },
     {
       "factor": "native_options.final_corr_pred",
+      "patches": "parent",
+      "question": "Separate the last native prediction from integrated terminal current.",
       "values": [
         false
-      ],
-      "question": "Separate the last native prediction from integrated terminal current.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "weights",
+      "patches": "parent",
+      "question": "Test final-geometry compatibility through real endpoint VJP while retaining a local half-state target.",
       "values": [
         {
-          "half": 0.85,
           "endpoint": 0.15,
-          "type": 0,
+          "half": 0.85,
           "orientation": 0,
-          "pair": 0
+          "pair": 0,
+          "type": 0
         },
         {
-          "half": 0.6,
           "endpoint": 0.4,
-          "type": 0,
+          "half": 0.6,
           "orientation": 0,
-          "pair": 0
+          "pair": 0,
+          "type": 0
         }
-      ],
-      "question": "Test final-geometry compatibility through real endpoint VJP while retaining a local half-state target.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "geometry_mode",
+      "patches": "parent",
+      "question": "Does pointwise curvature improve local compatibility and change measured spatial forces?",
       "values": [
         "pointwise"
-      ],
-      "question": "Does pointwise curvature improve local compatibility and change measured spatial forces?",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "type_ramp",
+      "patches": "parent",
+      "question": "Change only within-window type timing; if no type component is active, identify numerical equivalence and defer.",
       "values": [
         true
-      ],
-      "question": "Change only within-window type timing; if no type component is active, identify numerical equivalence and defer.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "patch",
-      "values": [
-        null
-      ],
-      "question": "Reduce local geometric context while preserving native labels, chemical-role neighbors, and free surrounding adaptation.",
       "patches": [
         "L109",
         "A08",
         "A12",
         "A16"
+      ],
+      "question": "Reduce local geometric context while preserving native labels, chemical-role neighbors, and free surrounding adaptation.",
+      "values": [
+        null
       ]
     },
     {
       "factor": "weights.pair",
+      "patches": "parent",
+      "question": "Test a local endpoint pair-distance compatibility term; no full-graph constraint.",
       "values": [
         0.05,
         0.2
-      ],
-      "question": "Test a local endpoint pair-distance compatibility term; no full-graph constraint.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "weights.orientation",
+      "patches": "parent",
+      "question": "Test supported donor-facing geometry; absence of measured anchors requires deferral.",
       "values": [
         0.05,
         0.15
-      ],
-      "question": "Test supported donor-facing geometry; absence of measured anchors requires deferral.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "patch",
-      "values": [
-        null
-      ],
-      "question": "Compare a measured alternative native high-quality teacher local hypothesis, retaining all scalar controller settings.",
       "patches": [
         "L008",
         "L036",
         "A12"
+      ],
+      "question": "Compare a measured alternative native high-quality teacher local hypothesis, retaining all scalar controller settings.",
+      "values": [
+        null
       ]
     },
     {
       "factor": "dose.native_rms_ratio",
-      "values": "dose_neighbors",
+      "patches": "parent",
       "question": "Refine actual dose around the active best based on measured response and quality.",
-      "patches": "parent"
+      "values": "dose_neighbors"
     },
     {
       "factor": "assignment_endpoint_fraction",
+      "patches": "parent",
+      "question": "Test intermediate versus terminal assignment balance without adding points.",
       "values": [
         0.25,
         0.5
-      ],
-      "question": "Test intermediate versus terminal assignment balance without adding points.",
-      "patches": "parent"
+      ]
     },
     {
       "factor": "calibration",
-      "values": [
-        null
-      ],
+      "patches": "parent",
       "question": "Freeze training winner on 50 inputs; no numerical re-design and no claim of independent discovery.",
-      "patches": "parent"
+      "values": [
+        null
+      ]
     },
     {
       "factor": "calibration",
+      "patches": "parent",
+      "question": "Freeze the same winner on a new 50-input initial pool; no tuning on this result.",
       "values": [
         null
-      ],
-      "question": "Freeze the same winner on a new 50-input initial pool; no tuning on this result.",
-      "patches": "parent"
+      ]
     }
   ],
-  "target_pic50": 8.704806,
-  "decision_rule": "Screen: improve best-qualified >.01 and mean loss <=.03 vs incumbent; promotion requires held-out confirmation. Two declines restore active best. Diagnostic branches explicitly frozen and not promoted merely for realization."
+  "teacher_time": 0.5,
+  "validation_batch": 2
 }

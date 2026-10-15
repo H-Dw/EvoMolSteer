@@ -45,6 +45,17 @@ def instrument(source):
     ast.fix_missing_locations(tree);return ast.unparse(tree)+'\n'
 
 
+def instrument_coord_telemetry(source):
+    """Observe existing random draws and drift; never draw additional noise."""
+    tree=ast.parse(source);fn=tree.body[0]
+    last=next(i for i,n in enumerate(fn.body) if isinstance(n,ast.Return))
+    code="""self._guidance_components = {}
+if self.use_sde_simulation and self.coord_strategy != 'velocity-sample':
+    self._guidance_components = {'predictive':coord_velocity*step_size, 'score_drift':gt*score*step_size, 'random':eps*std_eps*step_size}
+"""
+    fn.body[last:last]=ast.parse(code).body;ast.fix_missing_locations(tree);return ast.unparse(tree)+'\n'
+
+
 class Control:
     def __init__(self,model,program,teacher,com,capture_time=None):
         self.model=model;self.program=program;self.reward=HalfStateReward(program,teacher) if program else None
@@ -72,6 +83,9 @@ class Control:
         return {k:({a:b.detach() if torch.is_tensor(b) else b for a,b in v.items()} if isinstance(v,dict) else v.detach() if torch.is_tensor(v) else v) for k,v in out.items()}
     def after(self,curr,i):
         row={'step':i,'time':self.t,'active':self.cached is not None,'nonzero_molecules':0,'injected_rms_A_mean':0.}
+        for name,value in getattr(self.model.integrator,'_guidance_components',{}).items():
+            mask=curr['mask'].bool();rr=((value.square()*mask[...,None]).sum((1,2))/mask.sum(1)).sqrt()
+            row['native_'+name+'_rms_A_mean']=float((rr*self.model.coord_scale).mean())
         if self.cached is not None:
             gradient,endpoint,dt,direct,value,gz=self.cached;mask=curr['mask'].bool();weight=mask[...,None]
             flow=predictive_flow_increment(self.before,endpoint,self.t,dt,self.model.integrator.use_cosine_scheduler)
@@ -119,6 +133,10 @@ def run(repo,cfg):
             if digest(root/item['program'])!=item['sha256']:raise ValueError('Compiled program altered')
             p=read_json(root/item['program'])
             if digest(teacher_path)!=p['teacher_sha256']:raise ValueError('Teacher altered')
+            if p.get('teacher_time',teacher['time'])!=teacher['time'] or cfg['teacher_time']!=teacher['time']:
+                raise ValueError('Runtime capture and learned teacher clocks differ')
+            if 'native_options' in p and p['native_options']!=cfg.get('native_options'):
+                raise ValueError('Compiled native parameters differ from runtime')
             entries.append((p,teacher,item['operative_text']))
     if 'only_program_ids' in cfg:
         requested=set(cfg['only_program_ids']);entries=[entry for entry in entries if entry[0]['program_id'] in requested]
@@ -141,6 +159,10 @@ def run(repo,cfg):
     if 'cat_noise_level' in native:model.integrator.cat_noise_level=float(native['cat_noise_level'])
     if 'cat_noise_euler_guard' in native:model.integrator.cat_noise_euler_guard=bool(native['cat_noise_euler_guard'])
     source=textwrap.dedent(inspect.getsource(model._generate));changed=instrument(source);namespace=dict(model._generate.__func__.__globals__)
+    coord_source=textwrap.dedent(inspect.getsource(model.integrator.coord_step))
+    coord_changed=instrument_coord_telemetry(coord_source);coord_namespace=dict(model.integrator.coord_step.__func__.__globals__)
+    exec(compile(coord_changed,'guidance_coord_telemetry.py','exec'),coord_namespace)
+    model.integrator.coord_step=types.MethodType(coord_namespace['coord_step'],model.integrator)
     def forbidden(*args,**kwargs):raise RuntimeError('Unexpected SMC inside gradient pilot')
     namespace['apply_smc_guidance']=forbidden
     exec(compile(changed,'final_teacher_native.py','exec'),namespace);model._generate=types.MethodType(namespace['_generate'],model)
@@ -155,6 +177,7 @@ def run(repo,cfg):
         'seed':cfg['seed'],'native_graph_transitions':True,'smc':False,'affinity_head_gradient':False,'additional_per_step_affinity_calls':0,
         'native_integrator_hparams':model.integrator.hparams,
         'native_integrator_sha256':digest(inspect.getsourcefile(type(model.integrator))),
+        'coord_telemetry_sha256':hashlib.sha256(coord_changed.encode()).hexdigest(),
         'resolved_native_options':{**native,'final_corr_pred':native.get('final_corr_pred',True)},
         'model_derivative':'Actual FLOWR autograd VJP plus bridge identity term','bridge':'One-forward linear teacher-clock approximation, not exact SDE lookahead'}
     if any(entry[0]['family']=='local_nc_layout' for entry in entries):
