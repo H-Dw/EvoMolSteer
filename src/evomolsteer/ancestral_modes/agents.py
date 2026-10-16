@@ -93,9 +93,17 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     bundle['contract']['response_routing']='Response routing uses sparse per-mode coordinate VJPs of this surrogate, from the same generator forward. Gap-normalized local controllability is NOT future affinity. Nearest geometry, surrogate controllability and final outcome are separate hypotheses. Two probe times are configurable fractions of the control window; no extra generator/affinity forwards.'
     bundle['contract']['surrogate_units']='Geometry distance losses and sigma-scaled type/charge fields have A^2 units. Orientation and standardized feature log-ratios are dimensionless; relative chemical coefficients then carry compensating A^-2 units. These are optimization surrogates, not physical energies. Kernel mass is dimensionless; signed displacement components are A.'
     tools=['ancestor','selection_trend','controller_response','failure_history']
+    if any(len(a['region_ids'])>1 for a in actions):tools.append('mode_comparison')
     if modules:tools.append('chemical_context')
     def query(tool,rid):
         r=byregion[rid];mode=bank['modes'][r['template_id']]
+        if tool=='mode_comparison':
+            ids=sorted({v for a in actions if rid in a['region_ids'] for v in a['region_ids']})
+            rows=[]
+            for other in ids:
+                ancestry=query('ancestor',other)
+                rows.append(ancestry|{'region_id':other,'terminal_local_coords_A':np.asarray(bank['modes'][byregion[other]['template_id']]['terminal_coords_A'])[byregion[other]['atom_slots']].tolist()})
+            return {'actual_mode_sources':rows,'limit':'Different successful local solutions are kept separate. Terminal scores are retrospective, not online route scores.'}
         if tool=='ancestor':
             path=mode['path'];indices=sorted(set([0,len(path['times'])//4,len(path['times'])//2,len(path['times'])-1]))
             return {'candidate':mode['candidate_id'],'root_id':mode['root_id'],'source':mode['trajectory_sha256'],
