@@ -1,0 +1,80 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/1596f970ee485d0edd4208d17c8156ebdc5af3c6e6488094062afc3cb5732033.txt",
+        "content_sha256": "1596f970ee485d0edd4208d17c8156ebdc5af3c6e6488094062afc3cb5732033",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/9cd43bf006e056092f261878b1c4f84905451d2979380c20e5dad712ffeb3fc5.txt",
+        "content_sha256": "9cd43bf006e056092f261878b1c4f84905451d2979380c20e5dad712ffeb3fc5",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/14fbee77b006028aed4247dbdd199d369bdb950ee1aaa9717686fe476f65968e.txt",
+        "content_sha256": "14fbee77b006028aed4247dbdd199d369bdb950ee1aaa9717686fe476f65968e",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/f7dd186a4893efa89f4f0ce3c98d10d818f344008780af4efa5ee8639bdb9da1.txt",
+        "content_sha256": "f7dd186a4893efa89f4f0ce3c98d10d818f344008780af4efa5ee8639bdb9da1",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/d543f54a8e6144bebfd04d97cbf7a734aef3164ee811d1e6a5d23ccf5cc3c3f3.txt",
+        "content_sha256": "d543f54a8e6144bebfd04d97cbf7a734aef3164ee811d1e6a5d23ccf5cc3c3f3",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__v3_NC_local15",
+                "F_b011_s030__v3_NC_local22"
+              ]
+            },
+            "tool": {
+              "const": "chemical_context"
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}
