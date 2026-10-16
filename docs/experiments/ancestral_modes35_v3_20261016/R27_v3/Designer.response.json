@@ -1,0 +1,19 @@
+{
+  "design_grounds": "R15_v3 的 typed 分项已激活但占总梯度比例仅 0.0191、与总梯度余弦 0.1254，且 gradient_native_observed_cosine_mean 为 -0.4467，说明全通道软类型场被 C 主导、方向与原生观测长期相反；该 20 点支持终态元素为 15C/3N/2O，O 仅 2 个目标点，而 conditional_layout_evidence 显示 native N 位点 22 的合法换位中 6/9 为负 delta_score（to_N:8 为 -0.44098、to_N:21 为 -0.27833），表明 N 位置本身携带可区分的条件评分信号。因此把软类型空间场限制到 NC 两通道是一个可区分的局部表示干预，用于判断 R15_v3 的 typed 收益是否来自 N/C 骨架布局而非 O 通道；该假设不主张 N 概率等于受体/供体角色，也不主张 NC 限制必然提高亲和力。",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/chemical_context",
+    "F_b011_s030__reference/selection_trend",
+    "parents/R15_v3/component_response",
+    "parents/R15_v3/element_layout",
+    "parents/R15_v3/outcomes",
+    "parents/R15_v3/response",
+    "source/feature_revision",
+    "source/limits",
+    "source/prior_campaign"
+  ],
+  "falsifier": "若 G006/A006 的 typed 分项占总梯度比例不高于 R15_v3 实测 0.019086749713169412，或终态 tracked N 召回率不高于 R15_v3 的 0.6266666666666667，或 NC 限制后终态基本合格 pIC50 与 U_tau 均不优于 R15_v3 冻结值（best_qualified_pic50 8.590482711791992, U_tau 0.00910867691040039），则该假设被否证；若 NC 限制只改变通道标签而不改变任何可操作字段（站点、角色、方向、支持），则不得宣称已实现药化区域选择。",
+  "hypothesis_group": "G006",
+  "option_id": "A006",
+  "parent_program_id": "R15_v3"
+}
