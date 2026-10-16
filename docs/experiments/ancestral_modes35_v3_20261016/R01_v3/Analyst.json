@@ -1,0 +1,32 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。元素与角色分别记录：selected_terminal_elements 为终态追溯角色，不是早期已存在该角色的证据；source/limits 明确 'Terminal roles select support; they are not asserted in early states.' 元素/电荷预测概率保留原始 float16 量化。",
+  "clock_and_representation": "数据时钟：current_clock_times [0.0, 0.11999999731779099, 0.25, 0.5]，domain [0.0,0.5]。教师时刻：teacher_time=0.5。评估时刻：学习窗口 [0.0,0.5]。表示：observable=current_state，teacher=actual_ancestor_at_same_current_time；不得与 selected_teacher_endpoint_A（same-forward teacher predicted endpoint world A）互换。",
+  "counterevidence_refs": [
+    "F_b011_s030__reference/failure_history",
+    "source/prior_campaign",
+    "source/limits",
+    "parent/outcomes"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "F_b011_s030__reference/selection_trend",
+    "F_b011_s030__reference/failure_history",
+    "parent/outcomes",
+    "parent/response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "falsifier": "否证条件：等预算下 current 与 fixed 时钟的 point_rms_A、assignment_switch_fraction、终态基本合格 pIC50 尾部均无可区分差异；或 current 时钟下 point_rms_A 下降但 n_above_target 仍为 0 且 best_qualified_pic50 不高于 8.590141296386719。",
+  "formation_retention_value_test": "形成-保持-价值测试：形成（终态元素为 10C/3N/2O 等，selected_terminal_elements 已记录）不等于价值（parent/outcomes 显示 n_above_target=0、best_qualified_pic50=8.590141296386719、hit_fraction=0.02）。需检验 current 时钟匹配是否在保持几何对应的同时改变终态基本合格 pIC50 尾部，而非仅改变 point_rms_A。",
+  "group_id": "G000",
+  "observable_change": "预期 observable 变化：在 current 时钟下，被匹配 20 槽位的 point_rms_A 应继续下降且 assignment_switch_fraction 不升高；若改为 fixed 时钟，同刻实际祖先与预测桥接目标之间的差异应体现在 point_rms_A 与 target_error_mean 的分离上。否证结果：若 current 与 fixed 在等预算下 point_rms_A、assignment_switch_fraction 及终态基本合格 pIC50 尾部无差异，则时钟/表示选择不是可区分因素。",
+  "observable_contract": {
+    "observable": "current_state",
+    "teacher": "actual_ancestor_at_same_current_time"
+  },
+  "relationship_to_failed_families": "相关失败家族：source/prior_campaign 记录局部身份形成不等于亲和力受益（R03 终态 N 几何匹配率 95.8% 但最高基本合格 pIC50 仅 8.127753；R16_v2 也形成 N 仍无高分尾部）；更准确贴合固定点云不是首要缺口（S0 边界点云 RMS 约 0.039Å，R15_v2 约 0.129Å，后者终态预测亲和力反而更高）；收益具有支持背景依赖（同一匹配代价用于 3 点 N/C 区域或 4 点 O 区域未复制较宽 20/25 点支持的收益）。F_b011_s030__reference/failure_history 的 current 为空，previous_campaign 为上述异质干预，非独立重复。",
+  "scientific_hypothesis": "主假设：在 F_b011_s030__reference 的 20 点局部支持上，将 current_state 与同刻实际祖先匹配（clock_policy=current）比 fixed（预测桥接到学习末端）更能解释终态成功，因为该支持在 [0.0,0.5] 内确有同刻实际祖先坐标，且 R19_v2 的几何对应在收敛而非方向错误。竞争解释：当前缺口是剂量不足或归一化抵消，而非时钟/表示选择。已核实 R19_v2 的 dose_gain_mean 恒为 1.0、atom_clip_fraction 与 cumulative_clip_fraction 均为 0，point_rms_A 从 0.433 降至 0.183，assignment_switch_fraction 均值 0.016，故剂量不足解释缺乏支持。",
+  "support_reason": "支持理由：F_b011_s030__reference/ancestor 返回 selected_support 20 槽位在 current_clock_times 四个时刻均有实际祖先坐标，且 selected_ancestor_coords_A 与 selected_teacher_endpoint_A 分列，支持 current 与 endpoint 表示可区分。F_b011_s030__reference/selection_trend 给出 background_mean、expected_selection_shift、native_shift 与 realized_selection_shift 的逐时刻行，支持在 [0.0,0.5] 内比较选择期望变化与随机复制变化。F_b011_s030__reference/controller_response 的 parent_response 显示 dose_gain_mean=1.0、atom_clip_fraction=0、cumulative_clip_fraction=0，point_rms_A 由 0.433 降至 0.183，支持排除剂量不足解释。"
+}

@@ -1,0 +1,13 @@
+{
+  "purpose": "在交接前选择能区分竞争解释的证据。当前候选组 G000 将 current_state 与同刻实际祖先匹配（clock_policy=current），支持 20 点、元素匹配代价 0.5、几何-only 奖励。需要先核实：(1) 该 20 点支持是否确实随选择富集、其终态角色是否只是追溯而非早期已存在；(2) 当前程序 R19_v2 的实际控制响应是否显示真实剂量不足/归一化抵消，还是函数方向问题。因此查询 ancestor 以核对同刻实际祖先与终态角色证据，查询 controller_response 以读取 R19_v2 的 parent 控制响应统计（point_rms、dose_gain、clip 分数、assignment_switch），从而区分“方向不对”与“剂量不足”。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "ancestor"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "controller_response"
+    }
+  ]
+}
