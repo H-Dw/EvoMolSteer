@@ -1,0 +1,34 @@
+{
+  "actual_dose_expectation": "实际剂量沿用 parent 的冻结配置：window [0.1,0.5]、learning_window [0.0,0.5]、steps=100、expected_active_steps 10..49（40 个活跃步）、max_atom_step_A 0.15、max_cumulative_rms_A 6.0、native_rms_ratio 0.66、dose_schedule=constant、schedule_normalization=1.0、dose_gain_mean 期望恒为 1.0。parent R15_V3_COMPATIBLE 的实测响应给出参照量级：injected_rms_A_mean 约 0.02996、requested_rms_A_mean 约 0.02996、actual_cumulative_step_rms_A 约 1.196、actual_max_step_rms_A 约 0.0308、atom_clip_fraction 与 cumulative_clip_fraction 均为 0。本组把支持从 20 槽缩到 3 槽，请求位移只施加在这 3 个槽位及其方向三元组上，故预期被控槽位的实际位移与 parent 同量级，但受影响原子数减少；累计预算按实际时间/积分增量定义，不把累计 RMS 当作端点位移。预期可观测变化限于该 3 槽支持在窗口末端的 tracked 局部几何与方向三元组相对同刻实际祖先的偏差下降，且 boundary 与 terminal 的 tracked 元素布局在该支持上保持（terminal_tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 不因缩小支持而系统性下降）。不预期 mean_all_pic50 或 best_qualified_pic50 必然上升；若上升，需与同池无引导对照配对比较后才可归因。目标达到时允许平滑减力，近零梯度不被放大为完整步长；不确定性因子只由已观测可靠性定义，不使用 LLM 文字置信度充当成功概率。",
+  "derivative_path": "导数源与 parent 相同：assignment_element_cost=0.5 的匹配在无梯度分支中计算，只改变被匹配的几何对应 π，不对 logits、元素标签或离散转移率求导；随后只对真实模型坐标叶节点求 R=−(1/K)Σj δ²(√(1+||z_h[πj]−qj||²/δ²)−1) 的 VJP，K 为支持点数（本组 K=3），δ=pointcloud_delta_A=1.0。sensing=detached，故路由/感知不携带梯度；routing=single，无模式路由 VJP，routing_VJPs 期望为 0。typed_weight=0.0 与 charge_weight=0.0 意味着 typed 与 charge 通道不产生坐标梯度，本组不声称完整混合势的精确导数，也不声称元素、电荷或化学图识别参与梯度。affinity_head_gradient=false、smc=false、coordinate_updates_only=true，不加入 affinity-head 导数、不加入每步额外 affinity 推理、不编辑 logits 或离散转移率。图可自由变化，图变化后重新完成和评分，不沿用修改前的预测作结果。",
+  "design_grounds": "Analyst 的 G000 假设把引导限制在 interface15 的 3 槽局部支持 atom_slots [4,14,15] 与方向三元组 [15,4,14]，终态角色为两个芳香 C（4、14，非供体非受体）加一个芳香 N 供体（15，形式电荷 0）。ancestor 工具在同一 region 上返回 selected_support [4,14,15]、actual_ancestor_slots [31,49,17,37] 以及 selected_ancestor_coords_A 与 selected_teacher_endpoint_A 的逐时刻坐标，说明该支持在真实祖先中确有可追踪对应，且窗口内单调收敛；这是本组唯一主假设的绑定来源。interface16 的 selection_trend 显示 focal 与 background_mean 分离但 realized_selection_shift 量级约 1e-3、native_shift 约 1e-2，二者不可区分，且其 chemical_context 为 O 受体加 C、orientation_triplets 为空，缺少方向三元组，故只作反例，不并入支持。parent R15_V3_COMPATIBLE 的 program 已冻结 clock_policy=fixed、teacher_time=0.5、window [0.1,0.5]、learning_window [0.0,0.5]、dose_schedule=constant、routing=single、sensing=detached、typed_weight=0.0、charge_weight=0.0、affinity_head_gradient=false、smc=false、coordinate_updates_only=true、steps=100、target_band_A=0.34907500557366816、field_sigma_A=1.5、dose {max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0}、assignment_element_cost 0.5、advantage_cap 20.0、mode_memory_t 0.05、lookahead_fraction 0.2、schedule_normalization 1.0、switch_margin_A 0.15、density_scale_floor [0.03,0.1,0.1,0.1]、expected_active_steps 10..49。A000 的 authoritative_program_delta 只把 mode_specs 从 20 槽 reference 支持替换为 interface15 的 3 槽支持，其余字段逐字保持，因此本组是单一机制改动，可与同池无引导对照及 R15_V3_COMPATIBLE 的 20 槽结果配对比较。source/prior_campaign 记录局部身份形成不等于亲和力受益、更准确贴合固定点云不是首要缺口、元素匹配代价收益具有支持背景依赖且 3 点 N/C 区域未复制较宽支持的收益，故本组把该 3 点支持作为独立候选重新检验，不主张亲和力提升。source/limits 与 interface15/chemical_context 的 limits 明确：终态角色是终态观测而非早期身份，最近极性原子不构成氢键或能量贡献，故不假设盐桥、氢键、质子化或互变异构。",
+  "evidence_refs": [
+    "F_b011_s030__v3_interface15/ancestor",
+    "F_b011_s030__v3_interface15/chemical_context",
+    "F_b011_s030__v3_interface16/selection_trend",
+    "F_b011_s030__v3_interface16/chemical_context",
+    "campaign/history",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "parents/R15_v3/outcomes",
+    "parents/R15_v3/response",
+    "parents/R15_v3/element_layout",
+    "parents/R15_v3/component_response",
+    "source/prior_campaign",
+    "source/limits",
+    "source/feature_revision",
+    "source/measured_path_preferences"
+  ],
+  "execution_changes": [
+    "mode_specs"
+  ],
+  "falsifier": "若该 3 槽支持在窗口末端未形成可追踪的局部几何/方向布局，或形成后在无引导后缀中不保持，或与同池无引导对照相比终态亲和力与结构质量无改善甚至变差，则本局部支持假设被否证。若 interface16 的选择趋势显示该局部特征的选择期望变化量级（realized_selection_shift 约 1e-3）与原生漂移（native_shift 约 1e-2）不可区分，则不能把该支持的成功归因于选择富集。若分项 VJP 非零但该 3 槽支持在窗口末端未形成实际几何/元素布局，则不得把激活确认当作形成或收益证据。若 R15_V3_COMPATIBLE 的 best_qualified_pic50 8.590141 与 R02_v3 的 8.699415 所显示的形成与价值分离在本组重现，即更贴合固定点云而尾部不升，则本组不以贴合度替代终态收益，该假设按上述条件被否证。",
+  "hypothesis_group": "G000",
+  "operative_terms": "唯一改动为 mode_specs：before 为 template_id F_b011_s030_native、region_id F_b011_s030__reference、atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]、orientation_triplets [[0,3,7],[1,16,18],[2,3,21]]、pocket_sites 六点（A:VAL:116:N 178、A:ASP:175:N 254、A:LYS:68:NZ 107、A:GLU:114:O 162、A:VAL:116:O 181、A:HIS:160:NE2 210）；after 为 template_id F_b011_s030_native、region_id F_b011_s030__v3_interface15、atom_slots [4,14,15]、orientation_triplets [[15,4,14]]、pocket_sites 四点（A:VAL:53:CG1 56、A:MET:163:CE 226、A:HIS:160:CE1 209、A:HIS:160:NE2 210）。支持并集即 {4,14,15}，方向/官能团所需邻居已计入：full_adjacency 给出 4:[10,15,24]、14:[11,15,23]、15:[4,14]，三元组 [15,4,14] 覆盖 N 供体与其两个芳香 C 邻居的方向关系。不新增点、不换教师、不添加项、不引入同图 gate、不做多模式路由。教师与时钟沿用 parent：observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end，clock_policy=fixed，teacher_time=0.5，当前态对应实际同刻祖先、预测端点对应教师端点预测，二者表示不可互换。dose_schedule=constant、schedule_normalization=1.0，故时间调度不改变请求位移幅度；dose 上限与逐原子步上限沿用 parent。typed_weight=0.0、charge_weight=0.0，故本组不激活 E1/E2 分项，只保留 E0 匹配与真实坐标 VJP。",
+  "option_id": "A000",
+  "parent_program_id": "R15_V3_COMPATIBLE"
+}

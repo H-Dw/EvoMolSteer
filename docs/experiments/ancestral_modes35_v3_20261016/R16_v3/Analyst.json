@@ -1,0 +1,35 @@
+{
+  "active_chemistry_modules": [
+    "C1"
+  ],
+  "chemical_assumptions": "仅使用 C1 已返回的终态角色：atom 4 与 14 为芳香 C、非供体非受体；atom 15 为芳香 N、供体、形式电荷 0。pocket_sites 中 A:HIS:160:NE2 与 A:MET:163:CE、A:VAL:53:CG1 为最近邻，但工具明确声明最近极性原子不构成氢键或能量贡献，故不假设盐桥、氢键、质子化或互变异构。元素/电荷标签为终态观测，不是早期实际身份。",
+  "clock_and_representation": "时钟为 fixed：observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end。表示使用实际当前世界坐标与同前向教师预测端点世界坐标，二者不可互换。学习窗口 [0.0,0.5]，引导窗口 [0.1,0.5]，教师时刻 0.5。早期身份不确定，逐点相似度可能只反映初态。",
+  "component_response_interpretation": "R15_V3_COMPATIBLE 的 component_response 显示 typed 组件在 weight 0.5 下 measured_probe_steps 3、max_coordinate_gradient_rms 0.000541、mean_fraction_of_total_gradient 0.0191、mean_cosine_with_total_gradient 0.1254，说明该分项已激活但占总梯度比例很小；R02_v3 的 typed 与 charge 权重均为 0，未测量。因此本组不把分项梯度非零当作形成或收益证据，只作为激活确认。R15_v3 的 element_layout 显示 terminal tracked N 召回 0.627、NC 平衡召回 0.799，高于 R02_v3 的 0.547/0.737，但 best_qualified_pic50 更低，进一步支持形成与价值分离。",
+  "counterevidence_refs": [
+    "F_b011_s030__v3_interface16/selection_trend",
+    "F_b011_s030__v3_interface16/chemical_context",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/element_layout",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__v3_interface15/ancestor",
+    "F_b011_s030__v3_interface15/chemical_context",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "campaign/history"
+  ],
+  "falsifier": "若该 3 槽支持在窗口末端未形成可追踪的局部几何/方向布局，或形成后在无引导后缀中不保持，或与同池无引导对照相比终态亲和力与结构质量无改善甚至变差，则本局部支持假设被否证。若 interface16 的选择趋势显示该局部特征的选择期望变化量级（realized_selection_shift 约 1e-3）与原生漂移（native_shift 约 1e-2）不可区分，则不能把该支持的成功归因于选择富集。",
+  "formation_retention_value_test": "形成：读取该 3 槽支持在窗口末端的实际几何/元素布局，而非仅看分项 VJP 非零。保持：比较同一 tracked 支持在 boundary 与无引导后缀 terminal 的布局，零裁剪与恒定剂量不作为保持证据。价值：终态亲和力与结构质量需与匹配对照比较；R15_V3_COMPATIBLE 的 best_qualified_pic50 8.590141 与 R02_v3 的 8.699415 说明更贴合固定点云不等于更高尾部，故本组不以贴合度替代终态收益。",
+  "group_id": "G000",
+  "observable_change": "预期可观测变化限于：该 3 槽支持在窗口末端的 tracked 局部几何与方向三元组相对同刻实际祖先的偏差下降；boundary 与 terminal 的 tracked 元素布局在该支持上保持（terminal_tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 不因缩小支持而系统性下降）。不预期 mean_all_pic50 或 best_qualified_pic50 必然上升；若上升，需与同池无引导对照配对比较后才可归因。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "与 source/prior_campaign 记录的失败家族一致：局部身份形成不等于亲和力受益；更准确贴合固定点云不是首要缺口；元素匹配代价的收益具有支持背景依赖，3 点 N/C 区域未复制较宽支持的收益。本组正是把该 3 点支持作为独立候选重新检验，而非默认 20 槽路径适合所有 seed。与 R10/R11 的路由失败区分：本组不做多模式路由，只做单一局部支持。",
+  "scientific_hypothesis": "在 F_b011_s030__v3_interface15 的 3 槽局部支持（atom_slots [4,14,15]，终态角色为两个芳香 C 加一个芳香 N 供体，orientation_triplet [15,4,14]）上，以 fixed 时钟、predictive_bridge_to_learning_end 对 actual_ancestor_at_learning_end 的局部几何桥接作为唯一主假设：该支持在真实祖先中确有可追踪的对应（actual_ancestor_slots [31,49,17,37]，selected_ancestor_coords_A 与 selected_teacher_endpoint_A 在窗口内单调收敛），因此把引导限制在这 3 个槽位及其方向三元组，比 20 槽全支持更可能在不破坏其余骨架自由度的前提下，把终态 N 供体方向布局推向该局部参考。该假设只主张局部几何/方向可控性，不主张亲和力提升，也不主张 N 的受体/供体角色在早期已存在。",
+  "support_reason": "选择 G000 而非 G001/G005/G006/G010/G011，是因为只有 interface15 同时具备：真实祖先轨迹（ancestor 工具返回 selected_support [4,14,15] 与 actual_ancestor_slots）、终态化学角色（两个芳香 C 加一个芳香 N 供体）、方向三元组 [15,4,14]，以及 C1 模块要求的界面角色与互补性输入。interface16 的 selection_trend 显示 focal 与 background_mean 在窗口内分离但 realized_selection_shift 量级远小于 native_shift，且其化学上下文为 O 受体加 C，缺少方向三元组，故作为反例而非主假设。"
+}
