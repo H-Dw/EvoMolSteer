@@ -112,6 +112,9 @@ class Control:
                 atom_clip_fraction=float(atom_clip.sum()/mask.sum()),cumulative_clip_fraction=float(cumulative_clip.float().mean()),
                 predictive_flow_rms_A_mean=float((rms(flow)*self.model.coord_scale).mean()),
                 native_observed_rms_A_mean=float((rms(curr['coords']-shift-self.before)*self.model.coord_scale).mean()))
+            if self.program.get('family')=='ancestral_modes_v3':
+                row.update(injected_rms_A_per_seed=displacement.cpu().tolist(),
+                    requested_rms_A_per_seed=(requested*self.model.coord_scale).cpu().tolist())
         if self.capture_time is not None and abs(self.t+self.dt-self.capture_time)<2e-6:
             if self.teacher_snapshot is not None:raise ValueError('Teacher-clock snapshot repeated')
             self.teacher_snapshot={'time':self.capture_time,'representation':'current_world_A',
@@ -225,6 +228,9 @@ def run(repo,cfg):
         if p is not None and p['family']=='local_motif_v2':
             from evomolsteer.local_motif.reward import MotifControl
             control_type=MotifControl
+        if p is not None and p['family']=='ancestral_modes_v3':
+            from evomolsteer.ancestral_modes.reward import AncestorControl
+            control_type=AncestorControl
         control=control_type(model,p,teacher,com,cfg['teacher_time']);model._half_guidance=control
         output=model._generate(prior,pocket,steps=cfg['steps'],times=[torch.zeros(n,device=device) for _ in range(3)],
             apply_guidance=False,strategy='linear',solver='euler',save_traj=False,
@@ -232,7 +238,7 @@ def run(repo,cfg):
         start_step=cfg.get('resume',{}).get('step',0)
         actual=[r['step'] for r in control.rows if r['active']];expected=[] if p is None else [s for s in p['expected_active_steps'] if s>=start_step]
         if actual!=expected or len(control.rows)!=cfg['steps']-start_step:raise ValueError('Actual active windows differ from compiled decision')
-        if p is not None and p['family']!='local_motif_v2' and not any(r['nonzero_molecules'] for r in control.rows):raise ValueError('Guidance did not inject any displacement')
+        if p is not None and p['family'] not in ('local_motif_v2','ancestral_modes_v3') and not any(r['nonzero_molecules'] for r in control.rows):raise ValueError('Guidance did not inject any displacement')
         if control.teacher_snapshot is None:raise ValueError('Actual teacher-clock state was not captured')
         final={k:v.to(device) for k,v in output.items() if torch.is_tensor(v) and k!='affinity'}
         final['coords']=(final['coords']-com[:,None])/model.coord_scale

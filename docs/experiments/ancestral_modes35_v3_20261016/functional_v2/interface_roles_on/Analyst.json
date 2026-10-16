@@ -1,0 +1,29 @@
+{
+  "active_chemistry_modules": [
+    "C1"
+  ],
+  "chemical_assumptions": "Terminal roles are terminal observations only: slots 4 and 14 are aromatic carbons (non-donor, non-acceptor), slot 15 is an aromatic N that is a donor and not an acceptor, all with formal charge 0. The pocket sites listed (VAL:53 CG1, MET:163 CE, HIS:160 CE1/NE2) are nearest polar/contact atoms; the returned evidence explicitly states that nearest polar pocket atoms do not establish H bonds or energetic contributions, and the conditional layout test found zero identifiable signed interactions with native-minus-alternate mean only 0.076. The band 0.35 A is an uncalibrated exploratory geometric band, not an interaction energy. No protonation or tautomer state is asserted for HIS:160.",
+  "clock_and_representation": "Clock policy is fixed. The observable is the predictive bridge to the learning end, and the teacher is the actual ancestor at the learning end (t=0.5). The ancestor tool returned both the actual current world coordinates and the same-forward teacher predicted endpoint coordinates for the selected slots; these two representations must not be exchanged, and early-state identity remains uncertain. The learning window is [0.0,0.5] with teacher_time 0.5, and the reward is computed on real model-coordinate VJP with the detached assignment branch.",
+  "counterevidence_refs": [
+    "F_b011_s030__v3_interface19/chemical_context",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__v3_interface15/ancestor",
+    "F_b011_s030__v3_interface15/chemical_context",
+    "parent/response",
+    "parent/outcomes"
+  ],
+  "falsifier": "The hypothesis is falsified if, with the same support and dose, the three-slot predictive-bridge reward fails to reduce point_rms_A below the parent trajectory, or if it reaches the band but the terminal-affinity distribution does not improve over the parent (no increase in best_qualified_pic50 or in the qualified tail). A second falsifier is a matched control on the two-slot O region (interface19) producing the same or larger effect, which would show the effect is not specific to this aromatic C/C/N support.",
+  "formation_retention_value_test": "Formation is tested by whether the three-slot support reaches the endpoint band (base_band_A 0.35) at t=0.5 while the terminal N donor role is retained. Value is tested separately: reaching the band is a necessary condition only, and the parent evidence shows that forming the N geometry did not by itself produce a high-scoring tail (best_qualified_pic50 8.590, n_above_target 0, hit_fraction 0.02). So a positive result requires both band attainment and a terminal-affinity improvement over the parent, and band attainment alone must not be reported as value.",
+  "group_id": "G000",
+  "observable_change": "Under the fixed clock, the observable is the predictive bridge from the current state to the learning-end teacher, i.e. the per-slot distance between the model coordinates at the current forward time and the actual ancestor at learning end (t=0.5). The expected change is a decrease in point_rms_A for the three selected slots relative to the parent R19_v2 trajectory, where point_rms_A fell from 0.433 to 0.183 with no atom clipping and constant dose gain. The measured quantity is the post-RMS actual displacement of the matched slots, not a terminal-affinity gradient.",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "relationship_to_failed_families": "This differs from the prior local_motif20_v2 failures in that it does not assume that forming the N is sufficient: the prior campaign showed 95.8% terminal N geometric match with best_qualified_pic50 only 8.127753, and R16_v2 formed N without a high-scoring tail. It also does not assume that tighter point-cloud fitting is the main gap, since the prior campaign found a looser RMS (0.129 A) scoring higher than a tighter one (0.039 A). The parent R19_v2 response shows the current program is still moving geometry without clipping, so this hypothesis targets the residual local gap rather than re-asserting N formation.",
+  "scientific_hypothesis": "The terminal-success signal at F_b011_s030 is carried by the three-slot aromatic C/C/N interface (slots 4,14,15) whose terminal N is a donor and whose orientation triplet [15,4,14] fixes a directional polar contact toward the HIS:160 NE2/CE1 and MET:163 CE pocket region. The actual ancestor at t=0.5 already sits within roughly 0.9-1.0 A of the same-forward teacher endpoint for these three slots, so the local geometry is close but not yet at the endpoint; a pointwise predictive-bridge reward on this support should continue to close that residual gap. This is a geometry-only hypothesis: the detached element-assignment cost (c=0.5) only changes which slots are matched, it does not directly differentiate logits or element identity, so no claim is made that the reward itself creates the N.",
+  "support_reason": "G000 is chosen because its support is the only queried region with a directional orientation triplet ([15,4,14]) and a donor N, giving a chemically grounded local support with the needed direction neighbors included. The ancestor evidence shows the actual ancestor at t=0.5 is already close to the teacher endpoint for these slots, so the residual is small and measurable. The competing queried region interface19 has only two slots, no orientation triplet, and its O site is a donor/acceptor pair without a directional constraint, making it a weaker discriminator. The counterevidence is that the conditional layout test found no identifiable signed interactions and only a marginal native-minus-alternate mean, so the support is not proven to be the causal carrier of terminal success."
+}

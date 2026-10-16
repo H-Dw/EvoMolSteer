@@ -1,0 +1,91 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/9d81d13ed83a4ea057ea700682632fabbbd8d08d9f3ce434b3eff65b3555ced2.txt",
+        "content_sha256": "9d81d13ed83a4ea057ea700682632fabbbd8d08d9f3ce434b3eff65b3555ced2",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/a400c06fcf2f75e97b21f2949902a31e20062c125985be883167508de76b0757.txt",
+        "content_sha256": "a400c06fcf2f75e97b21f2949902a31e20062c125985be883167508de76b0757",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__v3_interface15/ancestor",
+            "F_b011_s030__v3_interface15/controller_response",
+            "F_b011_s030__v3_interface22/selection_trend",
+            "campaign/history",
+            "parent/outcomes",
+            "parent/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "operative_terms": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A000"
+        ]
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

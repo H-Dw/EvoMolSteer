@@ -1,0 +1,149 @@
+{
+  "body": {
+    "max_tokens": 5500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/bcd96a3fe4cf07291c2fba521e75d98814e2e3186d95af37fc1fbcafc354b58e.txt",
+        "content_sha256": "bcd96a3fe4cf07291c2fba521e75d98814e2e3186d95af37fc1fbcafc354b58e",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/748ba3c99155911f29fd8a28229f25fb1a3e82353627ec67c3fdab3751997ad9.txt",
+        "content_sha256": "748ba3c99155911f29fd8a28229f25fb1a3e82353627ec67c3fdab3751997ad9",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/fe4428eaf1d5260a751bf1daf97a21eb5b13259e7b8af31a7bb92c42fb40fcb4.txt",
+        "content_sha256": "fe4428eaf1d5260a751bf1daf97a21eb5b13259e7b8af31a7bb92c42fb40fcb4",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/f6b466c8ba6efae03683f365c377614589eb2af22f2104b44a8cf5ac7e4d5898.txt",
+        "content_sha256": "f6b466c8ba6efae03683f365c377614589eb2af22f2104b44a8cf5ac7e4d5898",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/2b832cd8a3357f4a7482aa3accf02ec3c5b9de8746508bcd28432d46dbba9df2.txt",
+        "content_sha256": "2b832cd8a3357f4a7482aa3accf02ec3c5b9de8746508bcd28432d46dbba9df2",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/f6b466c8ba6efae03683f365c377614589eb2af22f2104b44a8cf5ac7e4d5898.txt",
+        "content_sha256": "f6b466c8ba6efae03683f365c377614589eb2af22f2104b44a8cf5ac7e4d5898",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/afb1ccf6cb3f24a5a2a0ee0ffae1b757e6bbc4049520f5dfe3bbbe146658b19b.txt",
+        "content_sha256": "afb1ccf6cb3f24a5a2a0ee0ffae1b757e6bbc4049520f5dfe3bbbe146658b19b",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "active_chemistry_modules": {
+        "const": []
+      },
+      "chemical_assumptions": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "clock_and_representation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "campaign/history",
+            "parent/outcomes",
+            "parent/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "campaign/history",
+            "parent/outcomes",
+            "parent/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "formation_retention_value_test": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "group_id": {
+        "enum": [
+          "G000"
+        ]
+      },
+      "observable_change": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "relationship_to_failed_families": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "scientific_hypothesis": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "support_reason": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "group_id",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_hypothesis",
+      "observable_change",
+      "formation_retention_value_test",
+      "falsifier",
+      "active_chemistry_modules",
+      "chemical_assumptions",
+      "clock_and_representation",
+      "relationship_to_failed_families",
+      "support_reason"
+    ],
+    "type": "object"
+  }
+}

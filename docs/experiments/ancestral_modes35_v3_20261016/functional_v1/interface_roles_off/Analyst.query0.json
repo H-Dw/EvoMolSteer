@@ -1,0 +1,13 @@
+{
+  "purpose": "在提交单一主干预前，先用真实工具区分候选局部支持。当前证据边界：R15_v2 的 20/25 点宽支持收益未在 3 点 N/C（R16）或 4 点 O（R18）区域复制，说明收益依赖骨架/邻域背景；R03 终态 N 几何匹配率高但最高合格 pIC50 仅 8.127753，R16_v2 也形成 N 仍无高分尾部，故“未生成 N”不是唯一失败解释。parent/outcomes 显示 n=50、n_qualified=48、n_above_target=0、best_qualified_pic50=8.590141296386719、U_tau=0.009101848602294921，尾部仍缺。parent/response（R19_v2，40 步全部非零）显示 point_rms_A 从 0.4334 降到 0.1831，但 native_random_rms_A 从 0.0328 降到 0.0151、native_score_drift_rms_A 从 0.0086 升到 0.0221，说明几何贴合在改善而原生随机/漂移分量在变化，不能把下降一律当作剂量不足。因此先查询两个候选区域的实际祖先与选择趋势，比较同刻局部形状、口袋相对位置与角色可靠性，再决定选哪个 support/mode 组作为唯一主干预；不虚构计算结果，不把终态角色当作早期已存在证据。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__v3_interface15",
+      "tool": "ancestor"
+    },
+    {
+      "region_id": "F_b011_s030__v3_interface22",
+      "tool": "selection_trend"
+    }
+  ]
+}

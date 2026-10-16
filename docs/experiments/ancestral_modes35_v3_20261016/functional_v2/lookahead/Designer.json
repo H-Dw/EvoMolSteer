@@ -1,0 +1,17 @@
+{
+  "actual_dose_expectation": "预期实际位移与 parent 同量级：requested_rms_A_mean 约 0.0300Å、injected_rms_A_mean 约 0.0300Å、dose_gain_mean 恒为 1.0、atom_clip_fraction 与 cumulative_clip_fraction 保持 0，因为 dose、schedule_normalization 与窗口均未改动。可观测差异应出现在被匹配的几何对应 π 上：assignment_switch_fraction 的均值/首末值相对 R19_v2 的 0.0163/0.0360→0.0140 发生方向性改变，point_rms_A 的下降轨迹形状改变（当前 0.4334→0.1831），native_score_drift_rms_A_mean 相对当前 0.0163 改变。形成-保持-价值三段分开：形成段看 20 槽位在 lookahead 时刻是否仍与 selected_ancestor_coords_A 的 t=0.5 构象保持局部形状；保持段看后半程原生完成至 1 后该局部形状是否保留（native_observed_rms_A_mean 当前 0.0573、native_predictive_rms_A_mean 当前 0.0454）；价值段看终态 pIC50 尾部（parent/outcomes 当前 n_above_target=0、best_qualified_pic50=8.5901、hit_fraction=0.02），该尾部不由本干预直接求导。",
+  "derivative_path": "仅对当前调用求模型坐标 VJP：R 对 z_h[πj] 求导，π 在无梯度分支中固定，故不产生对 logits、元素概率或化学图的导数。affinity_head_gradient=false，无 affinity-head 导数、无每步额外 affinity 推理、无 SMC、无 logits/离散转移率编辑。sensing=detached 表示状态相关权重未求导，因此只声称条件路由梯度，不声称完整混合势的精确导数。clock_policy 由 fixed 改为 lookahead 只改变教师时刻与对应几何对应 π，不改变导数路径类型；前瞻/端点奖励包含相应模型导数，同刻 h=t 的当前坐标奖励不通过端点预测。模型 VJP 仅对当前调用有效，不是对全部未来随机生成求导。",
+  "design_grounds": "G000 是唯一允许区域，其 observable_contract 为 predictive_bridge_to_lookahead / actual_ancestor_at_same_lookahead_time；ancestor 证据同时返回 selected_support 的 20 个槽位在 t=0.5 的实际祖先坐标与同前瞻教师端点预测，正是该契约所需的同刻对照。controller_response 显示 R19_v2 的 40 步更新全部非零、atom_clip_fraction 与 cumulative_clip_fraction 恒为 0、dose_gain_mean 恒为 1.0，point_rms_A 从 0.4334 降到 0.1831，说明实际位移已送达目标带附近，故把“剂量不足/归一化抵消”与“表示/时间映射”区分开。A000/A001/A002 在 20 点支持、assignment_element_cost=0.5、δ=1Å、rho=0.66、逐原子步上限 0.15Å、累计 RMS 上限 6Å、窗口 [0.1,0.5]、100 步、coordinate_updates_only、affinity_head_gradient=false、typed_weight=0.0、charge_weight=0.0 上完全一致，仅 lookahead_fraction 取 0.1/0.2/0.4，构成单变量区分。选 A001（lookahead_fraction=0.2）作为该单变量序列的中点：它保持与 parent 相同的 0.2 数值，从而把差异完全归因于 clock_policy 由 fixed 改为 lookahead，而不是同时改变前瞻幅度；A000/A002 作为同组的方向性对照，用于检验 lookahead_fraction 单调性。不新增点、不换教师、不添加项，支持并集仍为 20 槽位。",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "parent/response",
+    "parent/outcomes",
+    "source/limits",
+    "source/prior_campaign"
+  ],
+  "falsifier": "否证条件一：若 A000/A001/A002 三个 lookahead_fraction 下 assignment_switch_fraction 与 point_rms_A 轨迹与 R19_v2 在测量噪声内无差异，则“表示/时间映射是当前缺口”被否证。否证条件二：若轨迹有差异但终态 n_above_target 与 best_qualified_pic50 尾部不随 lookahead_fraction 单调或非单调地改变，则“该表示改变能转化为终态收益”被否证。否证条件三：若收益只在反复使用过的调参池出现而配对区间跨 0（source/prior_campaign 第 3 条），则不能作为确认。相似度、角色概率或 loss 改善不能代替最终质量；接口错误与科学负结果分开登记。",
+  "hypothesis_group": "G000",
+  "operative_terms": "被控量：selected_support 的 20 个槽位坐标 z_h[πj]，π 由 π=argmin Σj[||z_h[πj]−qj||²−c log softmax(ℓθ)[πj,e_j]] 在无梯度分支中计算，c=0.5。奖励为 pseudo-Huber R=−(1/K)Σj δ²(√(1+||z_h[πj]−qj||²/δ²)−1)，K=20，δ=1Å。教师 q 由 clock_policy=lookahead 决定：对齐 actual_ancestor_at_same_lookahead_time，而非 R19_v2 的 actual_ancestor_at_learning_end。时间调度为 constant，schedule_normalization=1.0，dose_schedule 不变，故时间调度作用于归一化后的请求位移，不改变总请求预算。逐项声明：raw reward 系数由 pseudo-Huber 给出，方向混合为单模式 single，空间尺度 δ=1Å，实际位移受 max_atom_step_A=0.15 与 max_cumulative_rms_A=6.0 约束，累计预算与 parent 相同。元素/电荷仅用于无梯度匹配代价，typed_weight=0.0、charge_weight=0.0，不进入坐标 VJP。",
+  "option_id": "A001"
+}

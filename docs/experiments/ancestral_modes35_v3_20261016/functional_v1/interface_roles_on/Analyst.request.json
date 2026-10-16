@@ -1,0 +1,159 @@
+{
+  "body": {
+    "max_tokens": 5500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/bb7669076e6ef259ba808dd031ff6039ec07932de9c5b93e8114a851f3f12a77.txt",
+        "content_sha256": "bb7669076e6ef259ba808dd031ff6039ec07932de9c5b93e8114a851f3f12a77",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/377a3b50f3e897cb53ddd01ae8931f2fc560a31df312f002d8a8d21d6c828fd1.txt",
+        "content_sha256": "377a3b50f3e897cb53ddd01ae8931f2fc560a31df312f002d8a8d21d6c828fd1",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/00996d6f51977d62773599176c048f053ee56e5811d7efbd546431604deea645.txt",
+        "content_sha256": "00996d6f51977d62773599176c048f053ee56e5811d7efbd546431604deea645",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/b1372bd208df1624ae88bb79306b51d733df23d36c914b81fd5b6ae7ea18c15a.txt",
+        "content_sha256": "b1372bd208df1624ae88bb79306b51d733df23d36c914b81fd5b6ae7ea18c15a",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/dc5ea2996982e2b8deb6b2fc174a2ae8235cd44fc44ed4d04f17f60066e7259d.txt",
+        "content_sha256": "dc5ea2996982e2b8deb6b2fc174a2ae8235cd44fc44ed4d04f17f60066e7259d",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/70cb9a0d6838df4b1cf6bdf9b11496404866e0201d636003ee7ed3ad380738e2.txt",
+        "content_sha256": "70cb9a0d6838df4b1cf6bdf9b11496404866e0201d636003ee7ed3ad380738e2",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/9c60c473239d1bb356a181ff04fbeab8a9e5d55559daf6cbb458e64b9584371a.txt",
+        "content_sha256": "9c60c473239d1bb356a181ff04fbeab8a9e5d55559daf6cbb458e64b9584371a",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "active_chemistry_modules": {
+        "const": [
+          "C1"
+        ]
+      },
+      "chemical_assumptions": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "clock_and_representation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__v3_interface15/ancestor",
+            "F_b011_s030__v3_interface15/selection_trend",
+            "F_b011_s030__v3_interface22/chemical_context",
+            "F_b011_s030__v3_interface22/failure_history",
+            "campaign/history",
+            "parent/outcomes",
+            "parent/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__v3_interface15/ancestor",
+            "F_b011_s030__v3_interface15/selection_trend",
+            "F_b011_s030__v3_interface22/chemical_context",
+            "F_b011_s030__v3_interface22/failure_history",
+            "campaign/history",
+            "parent/outcomes",
+            "parent/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "formation_retention_value_test": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "group_id": {
+        "enum": [
+          "G000",
+          "G001",
+          "G002",
+          "G003",
+          "G004"
+        ]
+      },
+      "observable_change": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "relationship_to_failed_families": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "scientific_hypothesis": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "support_reason": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "group_id",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_hypothesis",
+      "observable_change",
+      "formation_retention_value_test",
+      "falsifier",
+      "active_chemistry_modules",
+      "chemical_assumptions",
+      "clock_and_representation",
+      "relationship_to_failed_families",
+      "support_reason"
+    ],
+    "type": "object"
+  }
+}

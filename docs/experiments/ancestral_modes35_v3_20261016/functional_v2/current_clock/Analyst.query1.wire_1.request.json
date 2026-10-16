@@ -1,0 +1,84 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/bcd96a3fe4cf07291c2fba521e75d98814e2e3186d95af37fc1fbcafc354b58e.txt",
+        "content_sha256": "bcd96a3fe4cf07291c2fba521e75d98814e2e3186d95af37fc1fbcafc354b58e",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/37019b16487935af6ec81b7b8276745e71387c4dc9ae43794d470e39647c2494.txt",
+        "content_sha256": "37019b16487935af6ec81b7b8276745e71387c4dc9ae43794d470e39647c2494",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/181ec3d7393ac893dafcfb44abf41333f1984a20999e0b01f919e5c6c66fe7f4.txt",
+        "content_sha256": "181ec3d7393ac893dafcfb44abf41333f1984a20999e0b01f919e5c6c66fe7f4",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/f6b466c8ba6efae03683f365c377614589eb2af22f2104b44a8cf5ac7e4d5898.txt",
+        "content_sha256": "f6b466c8ba6efae03683f365c377614589eb2af22f2104b44a8cf5ac7e4d5898",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/c6ed85fb59d0fc66f40e1cf2a0019a26063bf2c1fb4070b1f15b1e86512897da.txt",
+        "content_sha256": "c6ed85fb59d0fc66f40e1cf2a0019a26063bf2c1fb4070b1f15b1e86512897da",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "ancestor",
+                "selection_trend",
+                "controller_response",
+                "failure_history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

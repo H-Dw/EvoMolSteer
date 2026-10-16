@@ -1,0 +1,9 @@
+{
+  "purpose": "已获得两个候选区域的真实工具结果。F_b011_s030__v3_interface15 的 ancestor 返回：selected_support [4,14,15]，selected_terminal_elements [C,C,N]，source_terminal_rescore 8.704859，actual_ancestor_slots [31,49,17,37]，current_clock_times [0.0,0.12,0.25,0.5]，并给出同刻实际祖先坐标与同 forward 教师端点预测坐标（表示分别为 actual current world A 与 same-forward teacher predicted endpoint world A）；limits 明确当前与端点目标不可互换、早期身份不确定。F_b011_s030__v3_interface22 的 selection_trend 返回：n_times 51，domain [0.0,0.5]，focal 拟合系数为 [1,0,0,0] 且 rmse 约 8.26e-16，background_mean 与 native_shift 有非零系数与 rmse，expected_selection_shift 系数很小（rmse 约 2.4e-4 至 4.3e-3），realized_selection_shift 在代表行中量级约 1e-4 至 1e-2，unique_controls 在 28 至 49 之间；limits 说明这是单条成功路径对唯一完整状态同时代样本的描述性比较，不是独立时间重复或终态失败标签。这些结果支持：interface15 有可追溯的 3 点 C/C/N 局部支持与同刻祖先/端点表示，interface22 的选择趋势中期望选择位移远小于背景与原生位移，且其支持为 3 点 [6,13,22]。结合 parent/outcomes（n=50、n_qualified=48、n_above_target=0、best_qualified_pic50=8.590141296386719、U_tau=0.009101848602294921）与 parent/response（R19_v2 40 步全非零；point_rms_A 0.4334→0.1831；native_random_rms_A 0.0328→0.0151；native_score_drift_rms_A 0.0086→0.0221），当前尾部缺口不能仅归因于几何未贴合或未生成 N。因此下一步只请求一个区分性证据：对 interface15 做 controller_response，读取该局部支持在当前控制器下的真实响应，以区分“函数方向不对”“真实剂量不足/归一化抵消”“目标无法形成”“后缀未保持”与“形成但终态无收益”，再据此选定唯一主干预组。不虚构未返回的数值，不把终态角色当作早期已存在证据。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__v3_interface15",
+      "tool": "controller_response"
+    }
+  ]
+}

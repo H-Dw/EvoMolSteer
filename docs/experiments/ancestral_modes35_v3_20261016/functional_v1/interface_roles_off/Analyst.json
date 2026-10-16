@@ -1,0 +1,23 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "仅使用工具返回的元素标签 C/C/N 与口袋位点坐标（A:VAL:53:CG1、A:MET:163:CE、A:HIS:160:CE1、A:HIS:160:NE2），不推断质子化、互变异构、部分电荷或受体/供体角色。终态元素角色用于追溯位置，不作为早期已存在该角色的证据。未启用化学模块，故不引入界面角色、N/C 环境、官能团协同、电荷微态或溶剂竞争假设。",
+  "clock_and_representation": "数据时钟 domain [0.0,0.5]，current_clock_times [0.0,0.12,0.25,0.5]；教师时刻 teacher_time=0.5，学习窗口 [0.1,0.5]，评估为终态统一评分。表示分为 actual current world A 与 same-forward teacher predicted endpoint world A，二者不可互换。控制器响应来自 R19_v2 的 40 步非零更新，属于当前程序响应测量，不是终态亲和力梯度。",
+  "counterevidence_refs": [
+    "F_b011_s030__v3_interface22/selection_trend",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__v3_interface15/ancestor",
+    "F_b011_s030__v3_interface15/controller_response",
+    "parent/outcomes",
+    "parent/response"
+  ],
+  "falsifier": "若在 G000/A000 下终态 n_above_target 仍为 0 且 best_qualified_pic50 不高于 parent/outcomes 的 8.590141296386719，同时 point_rms_A 已降至与 parent/response 相当或更低，则否证“该 3 点 C/C/N 局部模式在当前控制器下可产生尾部收益”的假设；若 point_rms_A 未下降或 assignment_switch_fraction 异常升高，则说明是剂量/对应规则问题而非模式本身。",
+  "formation_retention_value_test": "形成测试：终态 selected_terminal_elements 是否仍为 C/C/N 且 selected_support [4,14,15] 的局部几何匹配保持。保持测试：后半程原生完成至 1 后，该局部支持是否未被原生漂移破坏（对照 native_score_drift_rms_A_mean 与 native_random_rms_A_mean）。价值测试：终态 n_above_target 是否大于 0、best_qualified_pic50 是否超过 tau=8.135048866271973 并接近 source_terminal_rescore 8.704859。三者分开报告，不以形成或保持替代价值。",
+  "group_id": "G000",
+  "observable_change": "在 G000 的数值选项 A000 下，预期可观测：point_rms_A 与 target_error_mean 继续下降或保持低值；assignment_switch_fraction 与 native_score_drift_rms_A_mean 的变化被记录；终态评估的 n_above_target、best_qualified_pic50、U_tau 与 hit_fraction 作为主要读出。若尾部仍无改善，则支持“局部几何贴合已足够但亲和力收益不来自该 3 点模式”的解释。",
+  "relationship_to_failed_families": "与 R03（终态 N 几何匹配率 95.8% 但最高合格 pIC50 仅 8.127753）和 R16_v2（形成 N 仍无高分尾部）同属“局部身份形成不等于亲和力受益”家族；与 R15_v2 的 20/25 点宽支持收益未在 3 点 N/C（R16）或 4 点 O（R18）复制一致，提示收益依赖骨架/邻域背景。本组选择 3 点支持正是为了在该失败家族内做区分，而非重复宽支持。",
+  "scientific_hypothesis": "在 F_b011_s030__v3_interface15 的 3 点局部支持 [4,14,15]（终态元素 C/C/N，source_terminal_rescore 8.704859）上，当前 R19_v2 控制器的真实响应已使 point_rms_A 从 0.4334 降至 0.1831，但 parent/outcomes 仍为 n_above_target=0、best_qualified_pic50=8.590141296386719、U_tau=0.009101848602294921。假设该局部支持在当前控制器下已获得足够的几何贴合剂量，尾部缺口不是“函数方向不对”或“真实剂量不足/归一化抵消”，而是该 3 点 C/C/N 局部模式单独不足以产生终态亲和力收益；需要在该组内选择数值选项以检验该局部模式在保持同刻局部形状与口袋相对位置的前提下是否仍无尾部收益。",
+  "support_reason": "选择 G000 因其 region F_b011_s030__v3_interface15 是本次实际查询过 ancestor 与 controller_response 的区域，具有可追溯的 3 点局部支持 [4,14,15]、终态元素 C/C/N、同刻祖先与端点表示，以及当前控制器真实响应统计。G000 的 support_sizes 为 [3]，与 R16 的 3 点 N/C 失败家族可比，且其数值选项 A000 保持 assignment_element_cost=0.5、coordinate_updates_only=true、affinity_head_gradient=false、window [0.1,0.5] 等冻结配置，便于 Designer 在组内直接绑定函数。未选 G004（interface22）因其 selection_trend 显示 expected_selection_shift 量级远小于 background_mean 与 native_shift，且该区域未做 controller_response，区分力较弱。"
+}

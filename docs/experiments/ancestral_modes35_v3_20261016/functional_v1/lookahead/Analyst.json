@@ -1,0 +1,23 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块，故不作界面角色、N/C 环境、官能团协同、电荷微态或溶剂竞争的化学断言。仅记录：selected_terminal_elements 含 N/O，但这是终态角色，不是早期已存在该角色的证据；元素/电荷预测概率保留原始 float16 量化（source/limits）。不把 N 概率当作受体概率，也不把终态化学角色当作早期身份。",
+  "clock_and_representation": "数据时钟：current_clock_times=[0.0,0.11999999731779099,0.25,0.5]，domain=[0.0,0.5]，learning_window=[0.0,0.5]，teacher_time=0.5，window=[0.1,0.5]，clock_policy=lookahead，lookahead_fraction=0.2。表示：ancestor 返回两种表示——actual current world A（selected_ancestor_coords_A）与 same-forward teacher predicted endpoint world A（selected_teacher_endpoint_A），二者不可互换；当前态对同时刻实际祖先、端点预测对同时刻教师预测。槽位映射：selected_support 为 20 槽位，actual_ancestor_slots=[31,49,17,37] 与之不重合。",
+  "counterevidence_refs": [
+    "source/prior_campaign",
+    "source/limits",
+    "parent/outcomes"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "parent/outcomes",
+    "parent/response"
+  ],
+  "falsifier": "否证条件：若在该模式下 point_rms_A 与 target_error_mean 不再下降（或反向上升），则“几何贴合在改善”不成立；若 dose_gain_mean 偏离 1.0 或 atom_clip_fraction/cumulative_clip_fraction 变为非零，则“剂量未被裁剪或归一化抵消”不成立；若 native_score_drift_rms_A_mean 与 assignment_switch_fraction 显著劣化，则后缀未保持；若终态 n_above_target 仍为 0 且 best_qualified_pic50 不高于 8.590141296386719，则本模式对亲和力收益无贡献。",
+  "formation_retention_value_test": "形成/保持/收益三分测试：形成——终态是否出现与 selected_terminal_elements 一致的 N/O 局部身份（注意 R03 曾达 95.8% 终态 N 几何匹配率但最高基本合格 pIC50 仅 8.127753，故形成不等于收益）；保持——后半程原生完成至 1 后，native_score_drift_rms_A_mean 与 assignment_switch_fraction 是否不劣化，即后缀是否保持；收益——终态评分是否超过 tau=8.135048866271973 并出现 n_above_target>0。当前 parent/outcomes 显示 n_above_target=0，故收益项未通过，需与形成/保持项分开报告。",
+  "group_id": "G000",
+  "observable_change": "预期可观测变化：在允许区域内，point_rms_A 与 target_error_mean 继续下降（当前 first=0.433、last=0.183）；injected_rms_A_mean 与 requested_rms_A_mean 保持在约 0.030 Å 量级且 dose_gain_mean 保持 1.0；native_score_drift_rms_A_mean 与 assignment_switch_fraction 作为后缀/分配稳定性观测，当前分别由 0.0086 升至 0.0221、均值 0.0163，若该模式有效应不劣化。终态亲和力观测以 parent/outcomes 为准：best_qualified_pic50=8.590、n_above_target=0、hit_fraction=0.02、mean_all_pic50=7.711、U_tau=0.0091。",
+  "relationship_to_failed_families": "与已记录失败家族的关系：source/prior_campaign 记录 R03 终态 N 几何匹配率 95.8% 但最高基本合格 pIC50 仅 8.127753，R16_v2 也形成 N 仍无高分尾部，说明“局部身份形成不等于亲和力受益”；R15_v2 相对无引导冻结确认通过为 False、未达原始 Steer 最高预测分数，且其训练池平均分提升的配对区间跨 0；同一匹配代价用于 3 点 N/C 区域（R16）或 4 点 O 区域（R18）未复制较宽 20/25 点支持的收益，提示收益具有支持背景依赖。本假设不声称 20 点是最小充分区域，也不声称元素代价对所有区域有效。",
+  "scientific_hypothesis": "在允许区域 F_b011_s030__reference 上，单一局部模式（20 槽位支持集 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，lookahead_fraction=0.2 的同向前瞻预测端点桥接）是当前最可区分的候选：它把当前世界坐标拉向同一 forward 在 t=0.5 的教师预测端点，而不是拉向终态化学角色。ancestor 返回的 selected_ancestor_coords_A 显示早期祖先点云高度聚集（约 23.5,-31.9,13.5），selected_teacher_endpoint_A 在 t=0.5 已明显展开（如槽位 1 约 22.5,-34.5,14.0），两者是不同表示、不可互换；actual_ancestor_slots=[31,49,17,37] 与 selected_support 不重合，说明终态元素角色（含 N/O）不能当作早期已存在身份。controller_response 显示当前程序 R19_v2 的 dose_gain_mean=1.0、time_schedule_gain=1.0、atom_clip_fraction=0.0、cumulative_clip_fraction=0.0，point_rms_A 由 0.433 降至 0.183、target_error_mean 同值下降，说明几何目标误差确实在减小且剂量未被裁剪或归一化抵消；因此本轮更支持“几何贴合在改善但终态亲和力无收益”，而非“函数方向不对”或“剂量不足”。",
+  "support_reason": "支持理由：ancestor 与 controller_response 均为本轮实际查询返回的区域证据。ancestor 提供真实祖先节点与同向前瞻教师端点，支持“当前态与端点预测是不同表示、终态角色非早期身份”的局部支持界定；controller_response 提供当前程序 R19_v2 的实际控制响应，显示剂量未被裁剪/归一化抵消且几何目标误差在减小，从而把失败定位在“形成但终态无收益”而非“函数方向不对”或“剂量不足”。parent/outcomes 与 parent/response 提供终态与响应数值。Designer 仅可在 G000 内选择数值选项（A000/A001/A002，lookahead_fraction 分别为 0.1/0.2/0.4）。"
+}

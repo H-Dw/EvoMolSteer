@@ -1,0 +1,89 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/bb7669076e6ef259ba808dd031ff6039ec07932de9c5b93e8114a851f3f12a77.txt",
+        "content_sha256": "bb7669076e6ef259ba808dd031ff6039ec07932de9c5b93e8114a851f3f12a77",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/377a3b50f3e897cb53ddd01ae8931f2fc560a31df312f002d8a8d21d6c828fd1.txt",
+        "content_sha256": "377a3b50f3e897cb53ddd01ae8931f2fc560a31df312f002d8a8d21d6c828fd1",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/00996d6f51977d62773599176c048f053ee56e5811d7efbd546431604deea645.txt",
+        "content_sha256": "00996d6f51977d62773599176c048f053ee56e5811d7efbd546431604deea645",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/b1372bd208df1624ae88bb79306b51d733df23d36c914b81fd5b6ae7ea18c15a.txt",
+        "content_sha256": "b1372bd208df1624ae88bb79306b51d733df23d36c914b81fd5b6ae7ea18c15a",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/3bfa0ade1f8891c6877c0ecbf5466d8bb5b9bbc58e4d07f521e2daac1e56fb63.txt",
+        "content_sha256": "3bfa0ade1f8891c6877c0ecbf5466d8bb5b9bbc58e4d07f521e2daac1e56fb63",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__v3_interface15",
+                "F_b011_s030__v3_interface16",
+                "F_b011_s030__v3_interface17",
+                "F_b011_s030__v3_interface19",
+                "F_b011_s030__v3_interface22"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "ancestor",
+                "selection_trend",
+                "controller_response",
+                "failure_history",
+                "chemical_context"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

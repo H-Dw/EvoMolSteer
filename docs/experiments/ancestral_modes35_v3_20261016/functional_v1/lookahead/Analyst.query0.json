@@ -1,0 +1,13 @@
+{
+  "purpose": "在提出局部支持/模式假设组之前，先获取可区分的真实证据。计划：(1) 用 ancestor 查询 F_b011_s030__reference 的真实祖先节点，核对前瞻时刻的实际祖先状态与终态角色，避免把终态化学角色当作早期已存在身份；(2) 用 controller_response 读取当前程序 R19_v2 在允许区域上的实际控制响应，区分“函数方向不对”“剂量不足/归一化抵消”“后缀未保持”与“形成但终态无收益”。selection_trend 与 failure_history 暂不查询，因为本轮只允许一个区域且已有 parent/outcomes 与 source/prior_campaign 的失败家族摘要，先以祖先状态与控制器响应两项区分性最强的证据为准。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "ancestor"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "controller_response"
+    }
+  ]
+}

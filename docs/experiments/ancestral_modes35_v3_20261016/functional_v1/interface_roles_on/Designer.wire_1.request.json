@@ -1,0 +1,98 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/9d81d13ed83a4ea057ea700682632fabbbd8d08d9f3ce434b3eff65b3555ced2.txt",
+        "content_sha256": "9d81d13ed83a4ea057ea700682632fabbbd8d08d9f3ce434b3eff65b3555ced2",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/f04a484d7913d1e425613b7c2c5b22029d0f9b9ca1a14b920a644a65a7a0fb13.txt",
+        "content_sha256": "f04a484d7913d1e425613b7c2c5b22029d0f9b9ca1a14b920a644a65a7a0fb13",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/dc9c3734bdb79bd2f15ed76fe8c909868027911bb0b8e8b96e06dab0b91315ed.txt",
+        "content_sha256": "dc9c3734bdb79bd2f15ed76fe8c909868027911bb0b8e8b96e06dab0b91315ed",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__v3_interface15/ancestor",
+            "F_b011_s030__v3_interface15/selection_trend",
+            "F_b011_s030__v3_interface22/chemical_context",
+            "F_b011_s030__v3_interface22/failure_history",
+            "campaign/history",
+            "parent/outcomes",
+            "parent/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "operative_terms": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A000"
+        ]
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

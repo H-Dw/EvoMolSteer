@@ -1,0 +1,30 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "No chemistry module is enabled, so no interface-role, N/C-environment, functional-group, charge-microstate, or solvent assumption is used. Terminal element labels (C,C,C,C,C,C,C,C,C,C,N,O,N,C,O,C,C,N,C,C) are recorded only as terminal roles that select support; they are not asserted as early-state identities, and the detached element assignment is not a direct type force. Element/charge prediction probabilities retain original float16 quantization.",
+  "clock_and_representation": "Clock policy is current: the observable is the current state and the teacher is the actual ancestor at the same current time, with current_clock_times [0.0, 0.12, 0.25, 0.5]. Representations are actual current world A and same-forward teacher predicted endpoint world A; current versus endpoint targets must not be exchanged, and early identity remains uncertain. The learning window is [0.0,0.5] and the proposal beyond the learning window is excluded.",
+  "counterevidence_refs": [
+    "F_b011_s030__reference/selection_trend",
+    "parent/outcomes",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "F_b011_s030__reference/selection_trend",
+    "parent/outcomes",
+    "parent/response",
+    "source/prior_campaign"
+  ],
+  "falsifier": "The hypothesis is falsified if, under the same current-clock pointwise program with the same 20-slot support, the current-state point RMS to the actual same-time ancestor does not decrease, or if the selection trend shows the focal local geometry is not preserved (expected_selection_shift comparable to or larger than native_shift), or if a same-size or simpler control support reproduces the same observable change without the ancestor-matched correspondence.",
+  "formation_retention_value_test": "Formation is tested by whether the 20-slot current-state geometry moves toward the same-clock ancestor coordinates; retention is tested by whether that local geometry is preserved rather than enriched, since the selection trend shows expected_selection_shift coefficients near zero (e.g. ~8.6e-5 to 3.6e-4) and native_shift small, while the focal term is exactly 1.0. Value is not asserted: parent/outcomes show best_qualified_pic50 8.5901, n_above_target 0, hit_fraction 0.02, so local geometry formation is not evidence of terminal affinity benefit.",
+  "group_id": "G000",
+  "observable_change": "Under the current-clock pointwise program, the observable is the current-state coordinate of the 20 selected slots relative to the actual same-time ancestor; the measured controller response shows point_rms_A decreasing from 0.4334 to 0.1831 (mean 0.2760) with nonzero updates in all 40 active steps and no atom or cumulative clipping, so the expected observable change is a reduction of current-state-to-ancestor point RMS within the learning window [0.0,0.5].",
+  "observable_contract": {
+    "observable": "current_state",
+    "teacher": "actual_ancestor_at_same_current_time"
+  },
+  "relationship_to_failed_families": "This is not a claim that local identity formation yields affinity benefit: prior campaign evidence records that terminal N geometry matching did not produce high pIC50 tails, and that tighter fitting to a fixed point cloud was not the primary gap. The parent program R19_v2 measured response shows real coordinate updates but no terminal-affinity gradient, and parent/outcomes show no candidates above target, so this hypothesis addresses the local-geometry module only and does not reuse the failed affinity interpretation.",
+  "scientific_hypothesis": "For region F_b011_s030__reference, the 20-slot local support (slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]) matched to the actual same-clock ancestor is a genuine success-correlated local pattern rather than an initial-state artifact: the focal coordinate tracks the same-time ancestor (focal coefficients [1.0,0,0,0], rmse ~8.3e-16), while the native generation shift is small and the expected-selection shift is near zero, so the local geometry is preserved by selection rather than enriched by it. The hypothesis is that this preserved local geometry, not terminal element identity, is the stage-compatible guidance target for this region.",
+  "support_reason": "The support is the 20-slot set [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] with orientation triplets [[0,3,7],[1,16,18],[2,3,21]] and six pocket sites, chosen because the queried ancestor evidence binds these slots to the actual same-clock ancestor and the selection trend shows the focal local geometry is preserved. The support is strictly local and the direct-support union remains local; fewer than all points is only a necessary condition, and each retained point has a measured or mechanistic role in the current-clock correspondence."
+}

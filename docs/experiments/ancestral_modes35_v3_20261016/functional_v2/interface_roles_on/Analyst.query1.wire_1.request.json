@@ -1,0 +1,83 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/bb7669076e6ef259ba808dd031ff6039ec07932de9c5b93e8114a851f3f12a77.txt",
+        "content_sha256": "bb7669076e6ef259ba808dd031ff6039ec07932de9c5b93e8114a851f3f12a77",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/93ff74a1324e85aaacb860226bd0764279dbb8c49fc9c8917c6c46ce0bdd51df.txt",
+        "content_sha256": "93ff74a1324e85aaacb860226bd0764279dbb8c49fc9c8917c6c46ce0bdd51df",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/b23f3fd4e5a5db5e6226c0ffc20dbcb61587a941cbdb2b50623ddb84ee3de521.txt",
+        "content_sha256": "b23f3fd4e5a5db5e6226c0ffc20dbcb61587a941cbdb2b50623ddb84ee3de521",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/c62436b7a4e4a925e8ab106a71feb21b96a038ea890d75275ce81cda01045543.txt",
+        "content_sha256": "c62436b7a4e4a925e8ab106a71feb21b96a038ea890d75275ce81cda01045543",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/c4ba2217d9a90159af122e312df4d98eb83bbe648d00a343ea0793c29f6846bd.txt",
+        "content_sha256": "c4ba2217d9a90159af122e312df4d98eb83bbe648d00a343ea0793c29f6846bd",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__v3_interface15",
+                "F_b011_s030__v3_interface16",
+                "F_b011_s030__v3_interface17",
+                "F_b011_s030__v3_interface19",
+                "F_b011_s030__v3_interface22"
+              ]
+            },
+            "tool": {
+              "const": "chemical_context"
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}
