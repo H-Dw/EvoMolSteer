@@ -8,6 +8,19 @@ from evomolsteer.local_motif.state_controls import full_state_controls
 from .bank import lookup
 
 
+def calibration_summary(profile,floors):
+    rows=[r for r in profile['rows'] if r['unique_controls']>0];times=np.array([r['time'] for r in rows])
+    mu=np.asarray([r['focal'] for r in rows]);bg=np.asarray([r['background_mean'] for r in rows])
+    sd=np.maximum(np.asarray([r['background_sd'] for r in rows]),floors)
+    strength=np.sqrt(np.square((mu-bg)/sd).mean(1));gain=strength/np.sqrt(1+strength**2)
+    ids=[0,len(times)//2,-1];coef=np.polynomial.polynomial.polyfit(times,strength,2)
+    return {'representation':profile.get('feature_representation','current'),'density_scale_floor':floors,
+        'contrast_min':float(strength.min()),'contrast_max':float(strength.max()),
+        'gain_first_mid_last':gain[ids].tolist(),'times_first_mid_last':times[ids].tolist(),
+        'full_window_contrast_coefficients':coef.tolist(),'derivative_coefficients':(coef[1:]*[1,2]).tolist(),
+        'meaning':'Standardized descriptive separation; neither calibrated future-success probability nor significance confidence.'}
+
+
 def evidence(repo,m,bank,region):
     path=repo/m['campaign_study']/'regional_forecast_evidence_v1'/(region['region_id']+'.json')
     if path.exists():return read_json(path)
@@ -51,3 +64,20 @@ def evidence(repo,m,bank,region):
             'Prediction enrichment is weighted by subsequent proposal selection; it is NOT proposal geometry enrichment or native physical motion.',
             'No extra model inference and no calibrated future-success probability.']}
     write_json(path,result);return result
+
+
+def main():
+    import argparse
+    from pathlib import Path
+    from .bank import regional_evidence
+    parser=argparse.ArgumentParser();parser.add_argument('--repo',default='.');parser.add_argument('--config',required=True)
+    parser.add_argument('--region',required=True);parser.add_argument('--representation',choices=['current','endpoint_prediction'],required=True);parser.add_argument('--output',required=True)
+    parser.add_argument('--density-floor',type=float,nargs=4,help='Four feature scales; defaults to the frozen reference program, not a new fitted value.')
+    args=parser.parse_args();repo=Path(args.repo).resolve();m=read_json(args.config);root=repo/m['campaign_study'];bank=read_json(root/'bank.json')
+    region=next(r for r in read_json(root/'regions.json') if r['region_id']==args.region)
+    profile=(evidence if args.representation=='endpoint_prediction' else regional_evidence)(repo,m,bank,region)
+    floors=args.density_floor or read_json(root/'state.json')['reference']['program']['density_scale_floor']
+    write_json(Path(args.output),{'region_id':args.region,'profile':profile,'calibration':calibration_summary(profile,floors)})
+
+
+if __name__=='__main__':main()
