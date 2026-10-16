@@ -66,7 +66,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'support_sizes':[len(s['atom_slots']) for s in p['mode_specs']],
             'numerical_options':[{'option_id':v['action_id'],'program':v['program']} for v in values]})
     allowed_regions=sorted({rid for a in actions for rid in a['region_ids']});byregion={r['region_id']:r for r in regions}
-    history=[{k:r.get(k) for k in ('round','phase','parent','metrics','response','rollback','status')} for r in state.get('rounds',[])]
+    history=[{k:r.get(k) for k in ('round','phase','parent','metrics','response','local_outcomes','rollback','status')} for r in state.get('rounds',[])]
     bundle={'evidence':{'campaign/history':history,'source/prior_campaign':state.get('prior_campaign_evidence'),
         'parent/outcomes':state['best'].get('metrics'),
         'parent/response':state['best'].get('response'),'source/limits':bank['limits']},

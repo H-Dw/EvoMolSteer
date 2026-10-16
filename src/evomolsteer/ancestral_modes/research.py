@@ -16,7 +16,7 @@ from .agents import ask
 
 def commit(repo,m,message):
     paths=[m['campaign_study'],m['config_dir'],'src/evomolsteer/ancestral_modes','src/evomolsteer/final_guidance/native.py',
-        'scripts/run_ancestral_modes_research.py','skills/ancestral-mode-analyst','skills/ancestral-mode-designer',
+        'scripts/run_ancestral_modes_research.py','scripts/analyze_ancestral_outcomes.py','skills/ancestral-mode-analyst','skills/ancestral-mode-designer',
         'tests/test_ancestral_modes.py','.gitattributes']
     local(repo,['git','add','--',*paths])
     if local(repo,['git','diff','--cached','--name-only']):local(repo,['git','commit','-m',message])
@@ -219,10 +219,13 @@ def run(repo,path,stop_after=35,prepare_only=False,functional_only=False,smoke_o
                 allrows+=read_json(result/'records.json');outputs.append(result);commits.append(sha)
                 cleanup_runtime(remote,m)
             metrics=score_records(allrows,state['original']['tau']);energies=[energy(o,folder/(o.parent.name+'_energy.json')) for o in outputs]
+            from .outcomes import analyze
+            outcomes=[analyze(o,bank,folder/('outcomes_'+o.parent.name)) for o in outputs]
             obs_response=response(outputs[0]);best=state['best'];gain=metrics['U_tau']-best['metrics']['U_tau'];mean=metrics['mean_all_pic50']-best['metrics']['mean_all_pic50']
             improves=gain>m['numeric_tolerance'] and mean>=-m['mean_regression_tolerance'];declines=gain < -m['numeric_tolerance'] or mean < -m['mean_regression_tolerance']
             entry={'round':label,'stage':stage,'phase':phase,'parent':parent,'program':q,'numeric_identity':nid,
                 'metrics':metrics,'response':obs_response,'energy_summaries':[{k:v for k,v in e.items() if k!='rows'} for e in energies],
+                'local_outcomes':[{k:v for k,v in o.items() if k not in ('full_window_error_fits','sources')} for o in outcomes],
                 'paired_unguided':paired_summaries,'result_folders':[o.relative_to(repo).as_posix() for o in outputs],
                 'result_folder':outputs[0].relative_to(repo).as_posix(),'status':'completed' if new else 'reused',
                 'new_attempts':new,'commit':commits[-1],'rollback':False,'delta_U_vs_incumbent':gain,'delta_mean_vs_incumbent':mean,'delivery':delivery}
