@@ -1,0 +1,84 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/c95c76bd9a4c2b4ff236914b01215acfc7039390fbb8fd5053ead4fba195a808.txt",
+        "content_sha256": "c95c76bd9a4c2b4ff236914b01215acfc7039390fbb8fd5053ead4fba195a808",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/5e099ed9ba935a61fe9bc05084561099f7641eef5796c41e8d22c9ff88917808.txt",
+        "content_sha256": "5e099ed9ba935a61fe9bc05084561099f7641eef5796c41e8d22c9ff88917808",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/0112395975b43d1680f3ed952396860052888415b3cbcebfb642ff7f7d90f64e.txt",
+        "content_sha256": "0112395975b43d1680f3ed952396860052888415b3cbcebfb642ff7f7d90f64e",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/87f2760a265518abc9ccc20d6536c4d80a2f6eacda3966106841bcdb36773d34.txt",
+        "content_sha256": "87f2760a265518abc9ccc20d6536c4d80a2f6eacda3966106841bcdb36773d34",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/c6ed85fb59d0fc66f40e1cf2a0019a26063bf2c1fb4070b1f15b1e86512897da.txt",
+        "content_sha256": "c6ed85fb59d0fc66f40e1cf2a0019a26063bf2c1fb4070b1f15b1e86512897da",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "ancestor",
+                "selection_trend",
+                "controller_response",
+                "failure_history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

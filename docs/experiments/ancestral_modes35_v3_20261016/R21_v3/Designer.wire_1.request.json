@@ -1,0 +1,133 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589.txt",
+        "content_sha256": "9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/86e9b107fa087bca0f47a280ef73cd031e448593e4953e6fdd865c76e6c5f812.txt",
+        "content_sha256": "86e9b107fa087bca0f47a280ef73cd031e448593e4953e6fdd865c76e6c5f812",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/6134b73d2580ccffe3f467c699e86556d4edd349865941219ecc496025672dba.txt",
+        "content_sha256": "6134b73d2580ccffe3f467c699e86556d4edd349865941219ecc496025672dba",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "oneOf": [
+      {
+        "properties": {
+          "execution_changes": {
+            "const": [
+              "operator"
+            ]
+          },
+          "option_id": {
+            "const": "A001"
+          }
+        }
+      }
+    ],
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/chemical_context",
+            "F_b011_s030__v3_interface15/chemical_context",
+            "F_b011_s030__v3_interface15/controller_response",
+            "campaign/history",
+            "parents/R02_v3/component_response",
+            "parents/R02_v3/element_layout",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "parents/R16_v3/component_response",
+            "parents/R16_v3/element_layout",
+            "parents/R16_v3/outcomes",
+            "parents/R16_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "execution_changes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G001"
+      },
+      "operative_terms": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A001"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R02_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "execution_changes",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

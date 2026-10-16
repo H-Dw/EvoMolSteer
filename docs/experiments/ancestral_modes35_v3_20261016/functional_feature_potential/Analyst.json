@@ -1,0 +1,35 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 中出现的 N/O 仅作为终态元素标签用于追溯位置，不构成早期已存在该化学角色的证据；element fraction 不是已验证的氢键或官能团角色；不推断氮的受体/供体、微态或氢键因果。",
+  "clock_and_representation": "使用 R02_v3 的 endpoint_prediction 时钟：observable=predicted_endpoint，teacher=teacher_predicted_endpoint_at_same_forward_time。selection_trend 的 endpoint_forecast_evidence 明确其 matching 与坐标均使用同一前向时刻的端点预测，且 prediction selection shifts 不描述 proposal 几何。ancestor 工具同时返回 actual current world A 与 same-forward teacher predicted endpoint world A，两者不得互换；早期身份仍不确定。",
+  "component_response_interpretation": "parents/R02_v3/component_response 显示 checks 全部通过（configured_active_steps、completed_to_terminal、no_smc、no_affinity_gradient、no_extra_generator_forwards、no_extra_affinity_forwards、actual_clocks、single_local_support、post_normalization_schedule 均为 true），active_steps=40、nonzero_steps=40、routing_VJPs=0、mode_switches=0。typed 与 charge 组件的 enabled_weight 均为 0.0，measured_probe_steps=0，因此本次不涉及类型/电荷分项。R02_v3 的 response 中 gradient_native_observed_cosine_mean 从 -0.027731 降到 -0.550041、gradient_native_predictive_cosine_mean 从 -0.032558 降到 -0.451842，说明控制项已激活且方向随窗口变化；但梯度非零只证明激活，不证明形成或保持。R02_v3 的 point_rms_A 从 0.636022 升到 0.752175，target_error_mean 从 0.636022 升到 0.752175，说明在 endpoint_prediction 时钟下移动目标误差上升，这与 fixed 时钟下 R15_v3 的 0.433394→0.175474 下降方向相反，属于时钟表示差异，不是空间奖励梯度。",
+  "counterevidence_refs": [
+    "F_b011_s030__reference/failure_history",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/selection_trend",
+    "F_b011_s030__reference/controller_response",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "campaign/history"
+  ],
+  "falsifier": "若在 R02_v3 的 endpoint_prediction 时钟下把 assignment_element_cost 从 0.5 改为 0.0 后，best_qualified_pic50 不再接近 8.699415（例如回落到 R15_V3_COMPATIBLE 的 8.590141 量级或更低），且 terminal_tracked_NC_joint_fraction 与 terminal_tracked_terminal_element_fraction 相对 R02_v3 的 0.864444 与 0.873 无实质变化，则说明该尾部分支依赖元素匹配代价而非纯几何支持，主假设被否证。若 U_tau 反而显著高于 0.011287 且 n_qualified 低于 48，同样构成否证。",
+  "formation_retention_value_test": "形成：比较边界（boundary）与终态（terminal）在同一 tracked 支持上的实际几何/元素布局，使用 R02_v3 element_layout 中已返回的 boundary_tracked_NC_joint_fraction 0.466667 与 terminal_tracked_NC_joint_fraction 0.864444 作为该分支自身的形成基线。保持：比较同一支持的窗口末端与无引导后缀终态布局，使用 terminal_tracked_terminal_element_fraction 0.873 与 terminal_geometry_matched_terminal_element_fraction 0.838 作为保持基线。价值：终态亲和力与质量使用 best_qualified_pic50 8.699415、mean_all_pic50 7.618682、n_qualified 48 与 tau 8.135049 判定。三者分开报告，不以形成替代保持，也不以保持替代终态收益。",
+  "group_id": "G001",
+  "observable_change": "在 R02_v3 的 endpoint_prediction 时钟下，预期可观测变化为：(a) 训练池 best_qualified_pic50 相对 R02_v3 的 8.699415 的位移方向与幅度；(b) U_tau 相对 R02_v3 的 0.011287 的位移；(c) 终态 tracked 对应下 terminal_tracked_NC_joint_fraction（R02_v3 为 0.864444）与 terminal_tracked_terminal_element_fraction（R02_v3 为 0.873）的变化；(d) 边界 tracked 对应下 boundary_tracked_NC_joint_fraction（R02_v3 为 0.466667）的变化。这些量均为工具已返回的实测字段，不引入新推断。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "relationship_to_failed_families": "R15_V3_COMPATIBLE 的 fixed 时钟（observable=predictive_bridge_to_learning_end，teacher=actual_ancestor_at_learning_end）在 R15_v3 达到 best_qualified_pic50 8.590482、U_tau 0.009109，但未达到原始 Steer 最优 8.704806。R02_v3 的 endpoint_prediction 时钟在 R02_v3 达到 8.699415，是当前最接近目标的尾部分支。failure_history 中 R05_v3、R06_v3、R20_v3 均以 R02_v3 为 parent 且 rollback=true，说明在 R02_v3 基础上改动 dose_schedule、attainment_response、orientation 均未复制该尾部；R10_v3、R11_v3、R12_v3 的 routing 改动同样 rollback=true。因此本次不重复这些已失败方向，只改动 assignment_element_cost。",
+  "scientific_hypothesis": "在唯一允许区域 F_b011_s030__reference 内，R02_v3 的 endpoint_prediction 时钟（观测=predicted_endpoint，教师=同前向时刻的 teacher_predicted_endpoint）是当前唯一接近原始 Steer 最优的尾部分支：best_qualified_pic50 8.699415，距 8.704806 约 0.005，而 R15_V3_COMPATIBLE 为 8.590141。ancestor 工具给出该区域 source_terminal_rescore 8.704859，与原始 Steer 最优几乎相同，说明该区域确实含有一条接近目标的实际祖先路径。selection_trend 的 endpoint_forecast_evidence 显示 focal 特征在窗口内从约 0.773 单调升到约 0.927（occupancy 分量），而 background_mean 同期约 0.697→0.920，即预测端点局部占据在窗口内持续富集；同时 expected_selection_prediction_shift 的幅值（约 1e-3 量级）远小于 realized_selection_prediction_shift（约 1e-2 量级），说明实际选择位移大于期望位移，属于选择富集而非仅初态差异。因此主假设是：在 R02_v3 的 endpoint_prediction 表示下，保持 20 点局部支持与 constant 剂量，仅把 assignment_element_cost 从 0.5 改为 0.0（即去掉脱离梯度的元素匹配代价，纯几何对应），可检验该尾部分支是否依赖元素匹配代价，而不是依赖几何支持本身。",
+  "support_reason": "支持为 F_b011_s030__reference 的 20 点局部支持 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，与 R02_v3 的 mode_specs 一致。该支持是正权重项的直接支持并集，保持局部；orientation_triplets [[0,3,7],[1,16,18],[2,3,21]] 仅区分三元组槽位。ancestor 工具返回的 actual_ancestor_slots [31,49,17,37] 与 selected_ancestor_coords_A 用于核对实际祖先节点，不用于断言早期化学角色。"
+}

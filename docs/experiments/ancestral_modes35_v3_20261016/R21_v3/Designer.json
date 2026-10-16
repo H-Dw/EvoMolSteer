@@ -1,0 +1,26 @@
+{
+  "actual_dose_expectation": "Per-step requested RMS is expected to remain near the R02_v3 measured level (requested_rms_A_mean 0.029771593725308777, injected_rms_A_mean 0.029771593818441033, actual_max_step_rms_A 0.030726323276758193, actual_cumulative_step_rms_A 1.1908637746050954) because dose, window, and schedule are held fixed; the observable swap changes the direction of the requested displacement, not its magnitude. Formation and retention are read from the actual boundary and terminal geometry/element layout of the same tracked 20-slot support, not from nonzero component VJPs. Value is read from terminal affinity and quality against the R02_v3 branch's own tail (best_qualified_pic50 8.69941520690918, mean_all_pic50 7.618682155609131, U_tau 0.011287326812744141) rather than the incumbent mean.",
+  "derivative_path": "Gradients are taken only through the real generator coordinate leaf nodes; the matching/assignment branch remains detached (sensing detached) and no logits or discrete transition rates are edited. The pocket_distance reward is differentiated with respect to current coordinates under the endpoint_prediction clock, so the endpoint-prediction model VJP applies only to the current call and is not a derivative over all future stochastic generations. No affinity-head gradient, no SMC, no extra generator forwards, and no extra affinity forwards are introduced. Routing stays single with zero routing VJPs and zero mode switches, so no state-dependent routing derivative is claimed.",
+  "design_grounds": "Analyst G001 binds the R02_v3 endpoint_prediction clock on the frozen 20-slot F_b011_s030__reference support (n_points 20 of n_total 25, orientation triplets [[0,3,7],[1,16,18],[2,3,21]], native N site at slot 22) and swaps only the registered local observable to pocket_distance. Support, dose, window, native protocol, routing=single, sensing=detached, typed_weight 0.0, charge_weight 0.0, smc false, affinity_head_gradient false are unchanged, so any terminal layout or affinity change is attributable to the observable swap and not to support size or dose. The 3-slot interface15 support is rejected as the comparator because it is chemically poorer (two aromatic C and one donor N, no O) and its R16_v3 branch already measured a lower tail (best_qualified_pic50 8.086981773376465, mean_all_pic50 7.462898168563843) than the R02_v3 20-slot branch (best_qualified_pic50 8.69941520690918, mean_all_pic50 7.618682155609131, U_tau 0.011287326812744141). Terminal roles (donor N at 15, acceptor O at 16, donor N at 17, acceptor/donor O at 19, acceptor aromatic N at 22) are retrospective layout comparators only; nearest polar pocket atoms do not establish H bonds or energetic contributions.",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/chemical_context",
+    "F_b011_s030__v3_interface15/chemical_context",
+    "F_b011_s030__v3_interface15/controller_response",
+    "parents/R02_v3/component_response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R16_v3/outcomes",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "execution_changes": [
+    "operator"
+  ],
+  "falsifier": "Falsified if, with support, dose, window, and native protocol held fixed, the pocket_distance observable under the endpoint_prediction clock produces no terminal layout change on the tracked 20-slot support and no terminal affinity or quality change relative to the R02_v3 branch's own measured tail. A further falsifier is a measured terminal outcome indistinguishable from the R16_v3 3-slot interface15 result (best_qualified_pic50 8.086981773376465, mean_all_pic50 7.462898168563843), which would indicate the observable swap is not the discriminating factor.",
+  "hypothesis_group": "G001",
+  "operative_terms": "Observable is the predicted endpoint; teacher is the teacher predicted endpoint at the same forward time (clock_policy endpoint_prediction, teacher_time 0.5, type_target predicted). The pocket_distance operator replaces the pointwise geometry reward with a pocket-relative distance term evaluated on the same 20-slot support against the registered pocket_sites (A:VAL:116:N, A:ASP:175:N, A:LYS:68:NZ, A:GLU:114:O, A:VAL:116:O, A:HIS:160:NE2). Dose is unchanged: max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0, dose_schedule constant, schedule_normalization 1.0, window [0.1,0.5], learning_window [0.0,0.5], steps 100, expected_active_steps 10-49. No typed or charge coordinate term is enabled, so no typed or charge gradient is claimed.",
+  "option_id": "A001",
+  "parent_program_id": "R02_v3"
+}
