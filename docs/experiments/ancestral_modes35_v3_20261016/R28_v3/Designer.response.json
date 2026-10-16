@@ -1,0 +1,19 @@
+{
+  "design_grounds": "在 F_b011_s030__reference 的 20 点支持上，唯一改动是把 typed_spatial_field 的 type_target 从 predicted 改为 terminal，其余 R27_v3 配置（typed_weight=0.5、typed_channels=NC、field_sigma_A=0.75、sensing=full、clock_policy=fixed、window[0.1,0.5]、constant 剂量）保持不变，因此该对照只检验身份场目标时刻映射这一单一数学变化。R27_v3 的 component_response 显示 typed 分量已激活（enabled_weight=0.5、max_coordinate_gradient_rms≈5.42e-4、mean_fraction_of_total_gradient≈0.017、mean_cosine_with_total_gradient≈0.10、checks.passed=true），说明控制项有可测坐标响应，但其在归一化总梯度中占比与夹角都很小，故本设计不预设总方向会明显改变，必须读取分项/总梯度比例与夹角后再判断布局是否形成。支持集为 25 个生成槽位的真子集，含终态 3 个 N 与 2 个 O 及其必要邻域（如 slot 22 芳香受体 N 与相邻 C 6、13；slot 15 带 H 芳香 N 与相邻 C 4、14），满足 C1/C2 对方向邻居的要求；终态角色标签只是终态观测，不是早期已存在该角色的证据，也不把 N 概率当作受体概率或推断氢键/微态。ancestor 证据中 current_clock_times 的实际祖先坐标与 selected_teacher_endpoint_A 是不同表示，不可互换；selection_trend 的 focal/background/native_shift 为描述性分离，不是校准的未来成功概率。source/prior_campaign 记录局部身份形成不等于亲和力受益（R03 终态 N 几何匹配率 95.8% 但最高基本合格 pIC50 仅 8.127753；R16_v2 也形成 N 仍无高分尾部），且收益具有支持背景依赖，故本设计把形成与终态价值分开评估，不把形成 N 布局当作成功。",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/chemical_context",
+    "F_b011_s030__reference/selection_trend",
+    "parents/R27_v3/outcomes",
+    "parents/R27_v3/element_layout",
+    "parents/R27_v3/component_response",
+    "parents/R27_v3/response",
+    "source/feature_revision",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "falsifier": "若 type_target=terminal 相对 predicted 在该 20 点支持上未改变 tracked N 布局（N 召回/精确率与 NC_balanced_recall 无方向性差异），或改变了布局但终态 best_qualified_pic50/U_tau 未优于 R27_v3 基线（best_qualified_pic50 8.588970184326172、U_tau 0.009078426361083984），或引导形成的布局在无引导后缀中丢失，或 typed 分量在归一化总梯度中的占比与夹角显示总方向未明显改变，则该假设被否证。",
+  "hypothesis_group": "G000",
+  "option_id": "A000",
+  "parent_program_id": "R27_v3"
+}
