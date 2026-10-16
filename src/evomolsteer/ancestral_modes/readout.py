@@ -91,6 +91,32 @@ def figures(output, state, original, guided, unguided):
     fig.savefig(output / 'performance.svg', metadata={'Date': None}); plt.close(fig)
 
 
+def markdown(output, summary, state):
+    fmt = lambda x: '未测' if x is None else f'{x:.4f}'
+    text = '# v3 最终结果\n\n'
+    text += f"完成 {len(state['rounds'])} 个条件：33 个开发条件及两个冻结确认池。确认严格复用冻结奖励，没有依据确认结果重新调参。\n\n"
+    text += '| 条件 | 尝试数 | 全部尝试平均 pIC50 | 基本合格最高 pIC50 | 高尾部效用 Uτ | 当前 PB 全通过 | MMFF 中位数 |\n'
+    text += '|---|---:|---:|---:|---:|---:|---:|\n'
+    for r in summary['comparisons']:
+        text += (f"|{r['condition']}|{r['n']}|{fmt(r['mean_all_pic50'])}|{fmt(r['best_qualified_pic50'])}|"
+                 f"{r['U_tau']:.6f}|{r['PB_pass_all']}/{r['n']}|{fmt(r['energy_median'])}|\n")
+    c = summary['combined_paired']
+    text += (f"\n合并确认的配对平均差：**{c['mean_difference']:.4f} pIC50**，按八个初态批次 bootstrap 的 95% 区间 "
+             f"[{c['mean95'][0]:.4f}, {c['mean95'][1]:.4f}]。Uτ 差 {c['U_difference']:.6f}，区间 "
+             f"[{c['U95'][0]:.6f}, {c['U95'][1]:.6f}]。预定双池确认通过：**{summary['confirmation_passed']}**。\n")
+    text += '\n'
+    for pool in summary['pools']:
+        text += f"- {pool['round']}：平均差 {pool['mean_difference']:.4f}，Uτ 差 {pool['U_difference']:.6f}，预定标准通过={pool['passes']}。\n"
+    text += (f"\n本轮新增终态尝试共 {summary['total_new_terminal_attempts']}，包含开发、匹配控制、冻结确认和冒烟/续生成诊断；"
+             "原始 Steer 与继承参考只复用，没有重新生成。所有新增生成完整到 t=1；控制结束后走原生后缀。\n\n"
+             "PB 为同一当前 dock 检查；未解决不算通过。MMFF 为先松弛氢、再松弛全结构的局部能量下降/重原子，单位 kcal/mol/重原子，非结合能。"
+             "失败、评分覆盖、基本合格条件均保留；详见 comparison.csv。\n\n"
+             "开发极值存在重复搜索偏差，Steer 的 1000 个谱系样本与确认的 400 个样本预算不同；"
+             "固定 seed=42 的已知靶点/教师实验不是跨靶点泛化证据。历史基线保持不变。\n\n"
+             "![开发与冻结确认对比](performance.png)\n\n[逐轮科学解读与奖励公式](../scientific_readout.zh-CN.md)\n")
+    (output / 'results.zh-CN.md').write_text(text, encoding='utf-8')
+
+
 def analyze(repo, config, output):
     repo = Path(repo).resolve(); m = read_json(config); study = repo / m['campaign_study']
     state = read_json(study / 'state.json'); output = Path(output); output.mkdir(parents=True, exist_ok=True)
@@ -164,10 +190,16 @@ def analyze(repo, config, output):
                        'native_rms_ratio': p['dose']['native_rms_ratio'], 'dose_schedule': p['dose_schedule'],
                        'numeric_identity': c['numeric_identity'], 'inference_commit': c['commit']})
     # Root manifests count conditions, including smoke/suffix and newly required controls.
-    generated = []; attempted = 0
+    generated = []; attempted = 0; verified_files = 0
     for manifest in sorted((repo / m['generated_root']).glob('*/COMPLETE.json')):
         c = read(manifest)
         generated.append({'folder': manifest.parent.name, 'manifest': c})
+        delivery = read(manifest.parent / 'download_verified.json')
+        for name, sha in delivery['sha256'].items():
+            path = (manifest.parent / name).resolve()
+            if not path.is_relative_to(manifest.parent.resolve()) or digest(path) != sha:
+                raise ValueError('Delivered structure/state checksum changed: ' + name)
+            verified_files += 1
         for folder in manifest.parent.iterdir():
             if folder.is_dir() and (folder / 'records.json').exists():
                 attempted += len(read(folder / 'records.json'))
@@ -175,6 +207,8 @@ def analyze(repo, config, output):
                'combined_paired': batch_bootstrap(group_a, group_b, tau, m['seed']),
                'confirmation_passed': state['confirmed'], 'frozen_selection': state['frozen_selection'],
                'original_target_pic50': original['best'], 'total_new_terminal_attempts': attempted,
+               'local_delivery': {'verified_roots': len(generated), 'verified_files': verified_files,
+                                  'all_downloaded_source_hashes_match': True},
                'generated_manifests': generated, 'sources': sources,
                'limits': ['33 conditions repeatedly reuse one development initial pool; its best score is search-biased.',
                           'Confirmation uses eight fresh guided terminal pools but known historical Steer priors and one seed.',
@@ -187,6 +221,7 @@ def analyze(repo, config, output):
     pd.DataFrame(rounds).to_csv(output / 'rounds.csv', index=False)
     pd.DataFrame(execution_rows).to_csv(output / 'paired_batches.csv', index=False)
     figures(output, state, original, all_a, all_b)
+    markdown(output, summary, state)
     return summary
 
 
