@@ -115,6 +115,12 @@ class Control:
             if self.program.get('family')=='ancestral_modes_v3':
                 row.update(injected_rms_A_per_seed=displacement.cpu().tolist(),
                     requested_rms_A_per_seed=(requested*self.model.coord_scale).cpu().tolist())
+                cosine=lambda a,b:((a*b*weight).sum((1,2))/(a.square()*weight).sum((1,2)).sqrt().clamp_min(1e-20)/(b.square()*weight).sum((1,2)).sqrt().clamp_min(1e-20))
+                forecast=cosine(gradient,flow);observed=cosine(gradient,curr['coords']-shift-self.before)
+                row.update(gradient_native_predictive_cosine_per_seed=forecast.cpu().tolist(),
+                    gradient_native_observed_cosine_per_seed=observed.cpu().tolist(),
+                    gradient_native_predictive_cosine_mean=float(forecast.mean()),
+                    gradient_native_observed_cosine_mean=float(observed.mean()))
         if self.capture_time is not None and abs(self.t+self.dt-self.capture_time)<2e-6:
             if self.teacher_snapshot is not None:raise ValueError('Teacher-clock snapshot repeated')
             self.teacher_snapshot={'time':self.capture_time,'representation':'current_world_A',

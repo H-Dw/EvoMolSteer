@@ -56,6 +56,10 @@ def execute(repo,m,p,bank,label,remote,batch=0,n=50,include_unguided=False,only_
         if not pending.exists():raise ValueError('Completed output lacks pinned dispatch')
         return target,read_json(pending)['commit']
     sha=commit(repo,m,'experiment(ancestral-v3): '+label+' freeze local intervention')
+    if pending.exists():
+        previous=read_json(pending)
+        if previous.get('commit')!=sha:
+            write_json(pending.with_name('dispatch_attempt_'+previous['commit'][:12]+'.json'),previous)
     write_json(pending,{'commit':sha,'config_sha256':digest(path),'numeric_identity':numerical_identity(p,bank)})
     return infer(repo,m,cfg,path,remote,sha),sha
 
@@ -269,5 +273,16 @@ def run(repo,path,stop_after=35,prepare_only=False,functional_only=False,smoke_o
 def main():
     p=argparse.ArgumentParser();p.add_argument('--repo',default='.');p.add_argument('--config',required=True);p.add_argument('--stop-after',type=int,default=35)
     p.add_argument('--prepare-only',action='store_true');p.add_argument('--functional-only',action='store_true');p.add_argument('--smoke-only',action='store_true')
-    a=p.parse_args();state=run(a.repo,a.config,a.stop_after,a.prepare_only,a.functional_only,a.smoke_only)
+    a=p.parse_args()
+    for attempt in range(4):
+        try:
+            state=run(a.repo,a.config,a.stop_after,a.prepare_only,a.functional_only,a.smoke_only);break
+        except RuntimeError as error:
+            text=str(error)
+            # This signature comes from set -e's fetch phase, BEFORE runtime removal or nohup.
+            # Other remote/model/API failures are never blindly replayed.
+            before_dispatch=text.startswith('Remote command exited 1: fatal: unable to access')
+            if not before_dispatch or attempt==3:raise
+            emit('predispatch_fetch_retry',attempt=attempt+1,action='fresh SSH/reverse-proxy; immutable decisions reused')
+            time.sleep(min(45,10*(attempt+1)))
     emit('campaign_return',next_round=state.get('next_round'),status=state.get('functional',state.get('smoke','returned')))
