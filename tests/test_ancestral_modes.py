@@ -232,3 +232,16 @@ def test_balanced_element_field_full_coordinate_finite_difference():
         return AncestorReward(p,b).evaluate(z,z+.1*z.square(),logits,logits,mask,.3,torch.tensor([0]),[torch.tensor([[0,1]])])[0].sum()
     g=torch.autograd.grad(f(x),x)[0];a=x.detach().clone();c=a.clone();a[0,1,0]+=1e-6;c[0,1,0]-=1e-6
     assert float(g[0,1,0])==pytest.approx(float((f(a)-f(c))/2e-6),abs=1e-6)
+
+
+def test_joint_support_comes_from_roles_and_remains_a_proper_bounded_subset():
+    from evomolsteer.ancestral_modes.bank import joint_supports
+    p,b=fixture();m=b['modes']['A'];m.update(candidate_id='synthetic',terminal_score=8.,full_adjacency={str(i):[] for i in range(5)},
+        terminal_roles=[{'atom_index':i,'element':e,'acceptor':e in ('N','O')} for i,e in enumerate(m['native_elements'])])
+    a=copy.deepcopy(p['mode_specs'][0]);a.update(family='NC_layout',region_id='nc')
+    a['pocket_sites'][0]['id']='synthetic_site'
+    o=copy.deepcopy(a);o.update(family='functional_group',region_id='oxygen',atom_slots=[2,4])
+    proposal=joint_supports(b,[a,o],'A',4)
+    assert len(proposal)==1 and proposal[0]['atom_slots']==[0,1,2,4]
+    assert proposal[0]['source_regions']==['nc','oxygen']
+    assert not joint_supports(b,[a,o],'A',3)

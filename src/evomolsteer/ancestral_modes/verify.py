@@ -35,6 +35,10 @@ def observe(folder,output=None):
         'mode_switches':sum(r.get('mode_switches',0) for r in active),'active_steps':len(active),
         'nonzero_steps':sum(max(r.get('injected_rms_A_per_seed',[0]))>0 for r in active),
         'components':component,
+        'matching_support_sizes':[len(s['atom_slots']) for s in p['mode_specs']],
+        'differentiated_teacher_support_sizes':[len({i for trip in s['orientation_triplets'] for i in trip})
+            if p['operator']=='orientation' and not(p['typed_weight'] or p['charge_weight']) else len(s['atom_slots']) for s in p['mode_specs']],
+        'direct_mask_semantics':'Legacy direct mask is declared matching support, an upper bound. Pure orientation differentiates only triplet slots. Real generator VJP may affect other student atoms.',
         'limits':'Confirms instruction-to-function execution and measured response, not causal scientific benefit of a prompt module.'}
     if output:write_json(Path(output),result)
     if not result['passed']:raise ValueError('Controller execution differs from binding: '+str(checks))
