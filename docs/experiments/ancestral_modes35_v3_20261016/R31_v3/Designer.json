@@ -1,0 +1,96 @@
+{
+  "actual_dose_expectation": {
+    "actual_budget_depends_on_student_trajectory": true,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.66
+    },
+    "post_RMS_gains": [
+      "temporal_schedule"
+    ],
+    "schedule": "constant",
+    "schedule_normalization": 1.0
+  },
+  "api_response_path": "Designer.response.json",
+  "api_response_sha256": "d2935cafd45af54f5d1a54bb8f5b31220c838167956b687caa76eba8c1a7f8e5",
+  "binding_origin": "deterministic compiler from validated option_id; rationale/falsifier from real API",
+  "derivative_path": {
+    "affinity_derivative": false,
+    "coordinate_paths": [
+      "direct_current_coordinates",
+      "live_generator_endpoint_coordinate_VJP"
+    ],
+    "extra_affinity_forward": false,
+    "matching_and_routing": "stop_gradient"
+  },
+  "design_grounds": "在 F_b011_s030 的 7 点联合锚点支持 [1,6,13,16,18,19,22] 上，用 fixed 时钟的 pointwise 几何桥接（教师为 learning_end 实际祖先）替代 20 点 reference 支持：ancestor 工具确认该 7 点支持在真实谱系中形成并保持（current 与 endpoint 两表示均返回，selected_terminal_elements 为 C,C,C,O,C,O,N），selection_trend 显示该区域 focal 特征随选择富集（expected 与 realized_selection_shift 在 t=0.1–0.5 同号且量级一致），而 reference 区域已有 30 轮失败家族且 controller_response 显示 20 点支持下 unmatched_input_gradient_rms_fraction_mean 约 0.339，说明并非全部点受直接约束。这是待检验的局部可控性代理，不是成功概率；更准确贴合固定点云并非当前首要缺口，局部身份形成也不等于亲和力受益。",
+  "evidence_refs": [
+    "F_b011_s030__joint_c59bd02516/ancestor",
+    "F_b011_s030__joint_c59bd02516/selection_trend",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "F_b011_s030__reference/failure_history",
+    "F_b011_s030__reference/controller_response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "execution_changes": [
+    "advantage_evidence_gain",
+    "mode_specs"
+  ],
+  "falsifier": "若该 7 点支持在窗口末端未形成预期几何/元素布局，或形成但在无引导后缀中不保持，或保持但终态基本合格 pIC50 不优于匹配对照（同池无引导或 20 点 reference 对照），则本假设被否证；若 selection_trend 的 realized_selection_shift 与 expected_selection_shift 在更多时刻反号，也削弱该局部量随选择富集的解释。",
+  "hypothesis_group": "G001",
+  "operative_terms": {
+    "actual_terms": [
+      "registered_pointwise"
+    ],
+    "assignment_element_cost": 0.5,
+    "attainment_response": false,
+    "clock_policy": "fixed",
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.66,
+      "pointcloud_delta_A": 1.0
+    },
+    "dose_schedule": "constant",
+    "learning_window": [
+      0.0,
+      0.5
+    ],
+    "modes": [
+      {
+        "atom_slots": [
+          1,
+          6,
+          13,
+          16,
+          18,
+          19,
+          22
+        ],
+        "template_id": "F_b011_s030_native"
+      }
+    ],
+    "native_options": {
+      "cat_noise_euler_guard": false,
+      "cat_noise_level": 1.0,
+      "coord_noise_level": 0.2,
+      "final_corr_pred": true,
+      "use_sde_simulation": true
+    },
+    "operator": "pointwise",
+    "operator_formula": "R_geo = mean[-delta^2 * (sqrt(1+distance^2/delta^2)-1)]",
+    "routing": "single",
+    "schedule_normalization": 1.0,
+    "steps": 100,
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "option_id": "A007",
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "primary_operator": "pointwise"
+}

@@ -1,0 +1,349 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 为 C,C,C,O,C,O,N 仅作为终态化学角色的追溯位置，不是早期已存在该角色的证据；不推断氮受体/供体、微态、氢键或亲和力因果。元素/电荷预测概率保留原始 float16 量化。",
+    "clock_and_representation": "时钟策略 fixed；observable 为 predictive_bridge_to_learning_end，教师为 actual_ancestor_at_learning_end。数据时钟、教师时刻、评估时刻、学习/控制范围与槽位映射按程序声明：window [0.1,0.5]，learning_window [0.0,0.5]，steps 100。current 与 endpoint 两表示不得互换；早期身份仍不确定。",
+    "component_response_interpretation": "controller_response 显示 R02_v3 与 R30_v3 的 typed/charge 组件 enabled_weight 均为 0.0、measured_probe_steps 为 0，即未启用类型/电荷项；因此本假设仍是几何-only 的 pointwise 奖励，detached 元素分配不是直接类型力。R02_v3 的 gradient_native_observed_cosine_mean 从 -0.028 降至 -0.550（均值 -0.281），说明控制项已激活且方向与原生漂移存在夹角；但梯度非零只证明控制项已激活，不证明形成、保持或终态收益。R30_v3 的 unmatched_input_gradient_rms_fraction_mean 约 0.339 提示归一化后总方向可能被未匹配输入稀释，需读分项/总梯度比例与夹角。",
+    "counterevidence_refs": [
+      "F_b011_s030__reference/failure_history",
+      "F_b011_s030__reference/controller_response",
+      "source/prior_campaign",
+      "source/limits"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__joint_c59bd02516/ancestor",
+      "F_b011_s030__joint_c59bd02516/selection_trend",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "parents/R15_V3_COMPATIBLE/response"
+    ],
+    "falsifier": "若该 7 点支持在窗口末端未形成预期几何/元素布局，或形成但在无引导后缀中不保持，或保持但终态基本合格 pIC50 不优于匹配对照（同池无引导或 20 点 reference 对照），则本假设被否证。若 selection_trend 的 realized_selection_shift 与 expected_selection_shift 在更多时刻反号，也削弱该局部量随选择富集的解释。",
+    "formation_retention_value_test": "形成：读取窗口末端该 7 点支持的实际几何/元素布局（boundary 与 terminal 的 tracked 对应），确认布局形成。保持：比较同一支持在窗口末端与无引导后缀终态（unguided suffix）的布局，确认后缀保持；零裁剪或恒定剂量不能作为保持证据。价值：终态基本合格 pIC50 与匹配对照比较，判断是否带来终态收益；形成、保持、终态收益是三个不同命题，不得相互替代。",
+    "group_id": "G001",
+    "observable_change": "在 fixed 时钟下，观测窗口 [0.1,0.5] 内该 7 点支持的局部几何误差（point_rms_A / target_error_mean）应下降，且窗口末端该支持的几何/元素布局应比同池无引导后缀更接近终态成功模式；同时 predictive_flow_rms_A_mean 与 injected_rms_A_mean 应保持非零（控制项已激活）。这些是形成与保持的观测，不是亲和力因果。",
+    "observable_contract": {
+      "observable": "predictive_bridge_to_learning_end",
+      "teacher": "actual_ancestor_at_learning_end"
+    },
+    "parent_program_id": "R15_V3_COMPATIBLE",
+    "primary_operator": "pointwise",
+    "relationship_to_failed_families": "reference 区域 30 轮失败家族显示：20 点支持下的失败并非单一原因——R02_v3 有近目标尾部（best_qualified_pic50 8.699415）但均值未提升；R30_v3 删除元素匹配代价后 U_tau 归零、无高分尾部；R16/R17/R18 的窄支持（interface/NC/group）未复制较宽支持的收益。本假设不重复这些失败：它改变的是支持区域（7 点联合锚点）而非仅调剂量或删模块，且该区域有真实祖先与选择富集证据。但需注意：更准确地贴合固定点云并非当前首要缺口（prior_campaign），且局部身份形成不等于亲和力受益。",
+    "scientific_hypothesis": "在 F_b011_s030 的 7 点联合锚点支持 [1,6,13,16,18,19,22] 上，用固定时钟（fixed）的 pointwise 几何桥接（predictive_bridge_to_learning_end，教师为 learning_end 的实际祖先）比 20 点 reference 支持更能把局部几何/元素布局推向终态成功模式。理由：ancestor 工具返回该 7 点支持在真实谱系中确实存在并保持——current 与 endpoint 两表示均返回，selected_terminal_elements 为 C,C,C,O,C,O,N，selected_ancestor_coords_A 与 selected_teacher_endpoint_A 各 4 个时刻均给出；selection_trend 显示该区域 focal 特征随选择富集（focal_feature_range [0.339,0.173,0.110,0.148]，expected_selection_shift 与 realized_selection_shift 在 t=0.1–0.5 同号且量级一致），说明该局部量确实随选择富集，而非仅由同计数点敏感性推断。这是一个待检验的局部可控性代理，不是后续成功概率。",
+    "support_reason": "选择 G001（7 点联合锚点，parent R15_V3_COMPATIBLE）而非 G000（20 点 reference）：ancestor 工具确认该 7 点支持在真实谱系中形成并保持，selection_trend 确认其随选择富集；而 reference 区域已有 30 轮失败家族，且 controller_response 显示 20 点支持下 unmatched_input_gradient_rms_fraction_mean 约 0.339（约 34% 梯度落在未匹配输入上），说明 20 点支持并非全部点都受直接约束。7 点支持是严格局部支持，每个点有机制或测量用途；非连续区域联合需说明增量关系。少于全部点只是必要条件，不是充分条件。"
+  },
+  "Designer": {
+    "actual_dose_expectation": {
+      "actual_budget_depends_on_student_trajectory": true,
+      "dose": {
+        "max_atom_step_A": 0.15,
+        "max_cumulative_rms_A": 6.0,
+        "native_rms_ratio": 0.66
+      },
+      "post_RMS_gains": [
+        "temporal_schedule"
+      ],
+      "schedule": "constant",
+      "schedule_normalization": 1.0
+    },
+    "api_response_path": "Designer.response.json",
+    "api_response_sha256": "d2935cafd45af54f5d1a54bb8f5b31220c838167956b687caa76eba8c1a7f8e5",
+    "binding_origin": "deterministic compiler from validated option_id; rationale/falsifier from real API",
+    "derivative_path": {
+      "affinity_derivative": false,
+      "coordinate_paths": [
+        "direct_current_coordinates",
+        "live_generator_endpoint_coordinate_VJP"
+      ],
+      "extra_affinity_forward": false,
+      "matching_and_routing": "stop_gradient"
+    },
+    "design_grounds": "在 F_b011_s030 的 7 点联合锚点支持 [1,6,13,16,18,19,22] 上，用 fixed 时钟的 pointwise 几何桥接（教师为 learning_end 实际祖先）替代 20 点 reference 支持：ancestor 工具确认该 7 点支持在真实谱系中形成并保持（current 与 endpoint 两表示均返回，selected_terminal_elements 为 C,C,C,O,C,O,N），selection_trend 显示该区域 focal 特征随选择富集（expected 与 realized_selection_shift 在 t=0.1–0.5 同号且量级一致），而 reference 区域已有 30 轮失败家族且 controller_response 显示 20 点支持下 unmatched_input_gradient_rms_fraction_mean 约 0.339，说明并非全部点受直接约束。这是待检验的局部可控性代理，不是成功概率；更准确贴合固定点云并非当前首要缺口，局部身份形成也不等于亲和力受益。",
+    "evidence_refs": [
+      "F_b011_s030__joint_c59bd02516/ancestor",
+      "F_b011_s030__joint_c59bd02516/selection_trend",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "parents/R15_V3_COMPATIBLE/response",
+      "F_b011_s030__reference/failure_history",
+      "F_b011_s030__reference/controller_response",
+      "source/prior_campaign",
+      "source/limits"
+    ],
+    "execution_changes": [
+      "advantage_evidence_gain",
+      "mode_specs"
+    ],
+    "falsifier": "若该 7 点支持在窗口末端未形成预期几何/元素布局，或形成但在无引导后缀中不保持，或保持但终态基本合格 pIC50 不优于匹配对照（同池无引导或 20 点 reference 对照），则本假设被否证；若 selection_trend 的 realized_selection_shift 与 expected_selection_shift 在更多时刻反号，也削弱该局部量随选择富集的解释。",
+    "hypothesis_group": "G001",
+    "operative_terms": {
+      "actual_terms": [
+        "registered_pointwise"
+      ],
+      "assignment_element_cost": 0.5,
+      "attainment_response": false,
+      "clock_policy": "fixed",
+      "dose": {
+        "max_atom_step_A": 0.15,
+        "max_cumulative_rms_A": 6.0,
+        "native_rms_ratio": 0.66,
+        "pointcloud_delta_A": 1.0
+      },
+      "dose_schedule": "constant",
+      "learning_window": [
+        0.0,
+        0.5
+      ],
+      "modes": [
+        {
+          "atom_slots": [
+            1,
+            6,
+            13,
+            16,
+            18,
+            19,
+            22
+          ],
+          "template_id": "F_b011_s030_native"
+        }
+      ],
+      "native_options": {
+        "cat_noise_euler_guard": false,
+        "cat_noise_level": 1.0,
+        "coord_noise_level": 0.2,
+        "final_corr_pred": true,
+        "use_sde_simulation": true
+      },
+      "operator": "pointwise",
+      "operator_formula": "R_geo = mean[-delta^2 * (sqrt(1+distance^2/delta^2)-1)]",
+      "routing": "single",
+      "schedule_normalization": 1.0,
+      "steps": 100,
+      "window": [
+        0.1,
+        0.5
+      ]
+    },
+    "option_id": "A007",
+    "parent_program_id": "R15_V3_COMPATIBLE",
+    "primary_operator": "pointwise"
+  },
+  "action": {
+    "action_id": "A007",
+    "authoritative_program_delta": {
+      "advantage_evidence_gain": {
+        "after": false,
+        "before": null
+      },
+      "mode_specs": {
+        "after": [
+          {
+            "atom_slots": [
+              1,
+              6,
+              13,
+              16,
+              18,
+              19,
+              22
+            ],
+            "orientation_triplets": [
+              [
+                1,
+                16,
+                18
+              ],
+              [
+                22,
+                6,
+                13
+              ]
+            ],
+            "pocket_sites": [
+              {
+                "coords_A": [
+                  23.21,
+                  -27.476,
+                  7.3
+                ],
+                "id": "A:VAL:116:N",
+                "index": 178
+              },
+              {
+                "coords_A": [
+                  22.233,
+                  -25.251,
+                  8.683
+                ],
+                "id": "A:VAL:116:O",
+                "index": 181
+              },
+              {
+                "coords_A": [
+                  26.593,
+                  -28.799,
+                  11.227
+                ],
+                "id": "A:VAL:66:CG2",
+                "index": 91
+              },
+              {
+                "coords_A": [
+                  21.98,
+                  -26.813,
+                  6.892
+                ],
+                "id": "A:VAL:116:CA",
+                "index": 179
+              },
+              {
+                "coords_A": [
+                  19.337,
+                  -35.926,
+                  13.829
+                ],
+                "id": "A:ASP:175:N",
+                "index": 254
+              },
+              {
+                "coords_A": [
+                  23.316,
+                  -37.398,
+                  16.753
+                ],
+                "id": "A:LYS:68:NZ",
+                "index": 107
+              },
+              {
+                "coords_A": [
+                  25.469,
+                  -36.302,
+                  16.481
+                ],
+                "id": "A:LYS:68:CD",
+                "index": 105
+              },
+              {
+                "coords_A": [
+                  19.516,
+                  -36.666,
+                  15.087
+                ],
+                "id": "A:ASP:175:CA",
+                "index": 255
+              }
+            ],
+            "region_id": "F_b011_s030__joint_c59bd02516",
+            "template_id": "F_b011_s030_native"
+          }
+        ],
+        "before": [
+          {
+            "atom_slots": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              6,
+              7,
+              10,
+              12,
+              13,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            "orientation_triplets": [
+              [
+                0,
+                3,
+                7
+              ],
+              [
+                1,
+                16,
+                18
+              ],
+              [
+                2,
+                3,
+                21
+              ]
+            ],
+            "pocket_sites": [
+              {
+                "coords_A": [
+                  23.21,
+                  -27.476,
+                  7.3
+                ],
+                "id": "A:VAL:116:N",
+                "index": 178
+              },
+              {
+                "coords_A": [
+                  19.337,
+                  -35.926,
+                  13.829
+                ],
+                "id": "A:ASP:175:N",
+                "index": 254
+              },
+              {
+                "coords_A": [
+                  23.316,
+                  -37.398,
+                  16.753
+                ],
+                "id": "A:LYS:68:NZ",
+                "index": 107
+              },
+              {
+                "coords_A": [
+                  24.859,
+                  -30.931,
+                  7.741
+                ],
+                "id": "A:GLU:114:O",
+                "index": 162
+              },
+              {
+                "coords_A": [
+                  22.233,
+                  -25.251,
+                  8.683
+                ],
+                "id": "A:VAL:116:O",
+                "index": 181
+              },
+              {
+                "coords_A": [
+                  19.017,
+                  -29.752,
+                  17.959
+                ],
+                "id": "A:HIS:160:NE2",
+                "index": 210
+              }
+            ],
+            "region_id": "F_b011_s030__reference",
+            "template_id": "F_b011_s030_native"
+          }
+        ]
+      }
+    },
+    "numeric_identity": "f56668bc908c8e5594a0f430a9fcdb68606140419d86cf6c7cac94097f71dcc5",
+    "parent_id": "R15_V3_COMPATIBLE",
+    "phase": "adaptive_revisit",
+    "reason": "Local joint-anchor geometry package motivated by isolated-anchor failures and same-count point sensitivity; not proven synergy or a chemical graph constraint",
+    "region_ids": [
+      "F_b011_s030__joint_c59bd02516"
+    ]
+  }
+}
