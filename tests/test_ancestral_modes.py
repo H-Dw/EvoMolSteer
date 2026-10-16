@@ -217,6 +217,11 @@ def test_designer_scalar_options_cannot_escape_analyst_clock_or_type_channels():
     p,b=fixture();a={'parent_id':'parent','region_ids':['region'],'phase':'probe','program':p};q=copy.deepcopy(a)
     q['program']['clock_policy']='endpoint_prediction'
     assert scientific_group_key(a)!=scientific_group_key(q)
+    q=copy.deepcopy(a);q['program']['dose']['native_rms_ratio']=1.2
+    assert scientific_group_key(a)==scientific_group_key(q)
+    a['program']['typed_weight']=q['program']['typed_weight']=1.
+    q['program']['typed_channels']='NC'
+    assert scientific_group_key(a)!=scientific_group_key(q)
 
 
 def test_balanced_element_field_full_coordinate_finite_difference():
@@ -227,8 +232,3 @@ def test_balanced_element_field_full_coordinate_finite_difference():
         return AncestorReward(p,b).evaluate(z,z+.1*z.square(),logits,logits,mask,.3,torch.tensor([0]),[torch.tensor([[0,1]])])[0].sum()
     g=torch.autograd.grad(f(x),x)[0];a=x.detach().clone();c=a.clone();a[0,1,0]+=1e-6;c[0,1,0]-=1e-6
     assert float(g[0,1,0])==pytest.approx(float((f(a)-f(c))/2e-6),abs=1e-6)
-    q=copy.deepcopy(a);q['program']['dose']['native_rms_ratio']=1.2
-    assert scientific_group_key(a)==scientific_group_key(q)
-    a['program']['typed_weight']=q['program']['typed_weight']=1.
-    q['program']['typed_channels']='NC'
-    assert scientific_group_key(a)!=scientific_group_key(q)
