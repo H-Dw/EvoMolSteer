@@ -1,0 +1,71 @@
+{
+  "schema_version": "ancestral-modes-research-plan.v3",
+  "artifact_kind": "non_executable_research_specification",
+  "status": "planned_not_run",
+  "execution_authorized_by_this_artifact": false,
+  "audited_commit": "15dd02fdc6561e19180ef1563baa85d8d1f0831c",
+  "research_parent": "local_motif20_v2_20261015/R15_v2",
+  "research_parent_independently_confirmed": false,
+  "replace_historical_baseline": false,
+  "source_learning_window": [0.0, 0.5],
+  "runtime_windows": "loaded_from_validated_run_configuration",
+  "source_reference_target_pic50": 8.704806327819824,
+  "source_reference_tail_threshold_pic50": 8.135048866271973,
+  "sampling_seed": 42,
+  "api": {"mode": "real_api", "model": "deepseek-flash", "temperature": 0},
+  "scope": {
+    "coordinate_updates_only": true,
+    "generation_head_sensing": ["coordinates", "elements", "charges", "validated_local_bond_context"],
+    "affinity_head_gradient": false,
+    "extra_per_step_affinity_calls": 0,
+    "smc": false,
+    "native_suffix_to_terminal": true,
+    "chemical_graph_identity_gate": false,
+    "all_positive_terms_support_union_must_be_proper_local_subset": true,
+    "new_neural_reward_training": false
+  },
+  "clock_policies_to_implement": [
+    "actual_current_same_time_ancestor",
+    "endpoint_prediction_same_time_teacher_prediction",
+    "predictive_bridge_same_horizon_actual_ancestor",
+    "bounded_state_compatible_phase"
+  ],
+  "dose_policy_to_implement": {
+    "time_dependence_applied_after_gradient_normalization": true,
+    "compare_budget_matched_schedules_first": true,
+    "state_response_requires_observed_attainment_or_reliability": true,
+    "common_reward_scale_is_not_actual_dose": true
+  },
+  "mode_policy_to_implement": {
+    "source": "distinct_terminal_success_modes_with_observed_controls",
+    "initial_routing": "one_persistent_primary_mode_per_seed",
+    "later_candidate": "mixture_of_local_potentials_without_averaging_teacher_coordinates",
+    "routing_derivative_policy_must_be_declared": true,
+    "llm_verbal_confidence_is_not_selection_probability": true
+  },
+  "chemistry_modules": [
+    {"id": "C1", "name": "interface_roles", "default_knowledge_level": "L2"},
+    {"id": "C2", "name": "N_C_local_environment", "default_knowledge_level": "L2"},
+    {"id": "C3", "name": "functional_group_coherence", "default_knowledge_level": "L3"},
+    {"id": "C4", "name": "charge_and_microstates", "default_knowledge_level": "L4"},
+    {"id": "C5", "name": "solvation_and_competing_networks", "default_knowledge_level": "L5"}
+  ],
+  "knowledge_activation": "explicit_module_allowlist_per_condition_not_implicit_level_cumulative",
+  "last_optional_module": "C5 remains evidence-only unless prerequisites and one separately registered intervention justify using an available exploration slot; it does not displace frozen confirmations",
+  "tool_names_in_contract": "proposed_names_require_implemented_registry_bindings",
+  "budget_proposal": {
+    "effective_condition_slots": 20,
+    "small_paired_response_initial_inputs": 8,
+    "screen_from_zero_samples_per_distinct_program": 50,
+    "confirmation_pool_max_proposed_samples": 400,
+    "confirmation_pools": 2,
+    "confirmation_budget_requires_power_and_execution_scope_check": true,
+    "duplicates_interface_repairs_not_effective_generation_rounds": true,
+    "rollback_after_consecutive_terminal_declines": 2
+  },
+  "matrix": "experiment_matrix.csv",
+  "analyst_skill_draft": "skills/ancestral-mode-analyst/SKILL.md",
+  "designer_skill_draft": "skills/ancestral-mode-designer/SKILL.md",
+  "contracts": "contracts.zh-CN.md",
+  "sources": "sources.json"
+}
