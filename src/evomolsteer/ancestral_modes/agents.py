@@ -57,10 +57,15 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         key=json.dumps([a['parent_id'],a['region_ids'],a['phase']])
         groups.setdefault(key,[]).append(a)
     groups={f'G{i:03d}':v for i,v in enumerate(groups.values())}
+    parent_ids={a['parent_id'] for a in actions};parents={}
+    for entry in [state['reference'],state['best'],*state.get('rounds',[])]:
+        if entry.get('program',{}).get('program_id') in parent_ids:
+            parents[entry['program']['program_id']]={k:entry.get(k) for k in ('program','metrics','response','local_outcomes')}
     catalog=[]
     for gid,values in groups.items():
         a=values[0];p=a['program']
         catalog.append({'group_id':gid,'parent':a['parent_id'],'region_ids':a['region_ids'],'reason':a['reason'],
+            'parent_metrics':parents[a['parent_id']]['metrics'],
             'mode_ids':[s['template_id'] for s in p['mode_specs']],'clock_policy':p['clock_policy'],
             'operator':p['operator'],'observable_contract':CLOCKS[p['clock_policy']],
             'support_sizes':[len(s['atom_slots']) for s in p['mode_specs']],
@@ -68,8 +73,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     allowed_regions=sorted({rid for a in actions for rid in a['region_ids']});byregion={r['region_id']:r for r in regions}
     history=[{k:r.get(k) for k in ('round','phase','parent','metrics','response','local_outcomes','rollback','status')} for r in state.get('rounds',[])]
     bundle={'evidence':{'campaign/history':history,'source/prior_campaign':state.get('prior_campaign_evidence'),
-        'parent/outcomes':state['best'].get('metrics'),
-        'parent/response':state['best'].get('response'),'source/limits':bank['limits']},
+        'source/limits':bank['limits']},
         'phase':phase,'enabled_chemistry_modules':modules,'catalog':catalog,'learning_window':m['learning_window'],
         'contract':{'no_affinity_derivative':True,'no_smc':True,'scope':'coordinate only; graph free',
             'teacher_roles':'Terminal source roles are not early-state actual identities.',
@@ -77,8 +81,14 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'dose':'Post-RMS actual displacement; common reward scaling can cancel.',
             'router':'One active local mode per seed, state compatibility is detached, no full-cloud union.',
             'budget_normalization':'Calibrated to frozen reference drift, actual budgets can differ and are measured.'}}
+    for pid,v in parents.items():
+        bundle['evidence']['parents/'+pid+'/outcomes']={'parent_program_id':pid,'metrics':v['metrics'],'local_outcomes':v.get('local_outcomes')}
+        bundle['evidence']['parents/'+pid+'/response']={'parent_program_id':pid,'response':v['response'],'program':v['program']}
+    correction=repo/m['campaign_study']/'feature_definition_correction.json'
+    if correction.exists():bundle['evidence']['source/feature_revision']=read_json(correction)
     bundle['contract']['clock_definitions']=CLOCKS
     bundle['contract']['registered_active_forces']='pointwise/pair/band/pocket/orientation/selection operator as program says; typed/charge only when positive weights. Detached element assignment is not direct type force. A polar-selected support with pointwise reward is still geometry-only.'
+    bundle['contract']['surrogate_units']='Geometry distance losses and sigma-scaled type/charge fields have A^2 units. Orientation and standardized feature log-ratios are dimensionless; relative chemical coefficients then carry compensating A^-2 units. These are optimization surrogates, not physical energies. Kernel mass is dimensionless; signed displacement components are A.'
     tools=['ancestor','selection_trend','controller_response','failure_history']
     if modules:tools.append('chemical_context')
     def query(tool,rid):
@@ -109,8 +119,10 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if tool=='selection_trend':
             e=regional_evidence(repo,m,bank,r)
             return {k:v for k,v in e.items() if k!='rows'}|{'n_times':len(e['rows']),
-                'representative_rows':e['rows'][::max(1,len(e['rows'])//5)],'full_curve_reference':str((repo/m['campaign_study']/'regional_evidence'/(rid+'.json')).relative_to(repo))}
-        if tool=='controller_response':return {'parent_response':state['best'].get('response'),'actual_program':state['best']['program']}
+                'representative_rows':e['rows'][::max(1,len(e['rows'])//5)],'full_curve_reference':str((repo/m['campaign_study']/'regional_evidence_v2'/(rid+'.json')).relative_to(repo))}
+        if tool=='controller_response':
+            ids={a['parent_id'] for a in actions if rid in a['region_ids']}
+            return {'candidate_parent_records':{pid:parents[pid] for pid in ids},'rule':'Bind the SELECTED action parent, never substitute incumbent measurements.'}
         if tool=='failure_history':return {'current':history,'previous_campaign':state.get('prior_campaign_evidence')}
         raise ValueError('Unknown tool')
     messages=[{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
@@ -135,7 +147,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     text={'type':'string','minLength':1,'maxLength':4000}
     eligible={gid:group for gid,group in groups.items() if any(rid+'/chemical_context' in bundle['evidence'] for rid in group[0]['region_ids'])} if modules else groups
     if not eligible:raise ValueError('No group has its own chemical evidence; query phase must be repaired')
-    schema=obj({'group_id':{'enum':list(eligible)},'evidence_refs':refs,'counterevidence_refs':refs,
+    schema=obj({'group_id':{'enum':list(eligible)},'parent_program_id':{'enum':sorted(parent_ids)},'evidence_refs':refs,'counterevidence_refs':refs,
         'scientific_hypothesis':text,'observable_change':text,'formation_retention_value_test':text,'falsifier':text,
         'active_chemistry_modules':{'const':modules},'chemical_assumptions':text,'clock_and_representation':text,
         'relationship_to_failed_families':text,'support_reason':text,
@@ -143,6 +155,9 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'teacher':{'enum':sorted({c['teacher'] for c in CLOCKS.values()})}})})
     def validate_a(a):
         group=groups[a['group_id']]
+        if a['parent_program_id']!=group[0]['parent_id'] or 'parents/'+a['parent_program_id']+'/outcomes' not in a['evidence_refs']:
+            import jsonschema
+            raise jsonschema.ValidationError('Chosen group must bind and cite its ACTUAL parent outcomes',validator='parent_binding',validator_value=group[0]['parent_id'],instance=a['parent_program_id'])
         if not any(ref.split('/')[0] in group[0]['region_ids'] for ref in a['evidence_refs']):
             import jsonschema
             raise jsonschema.ValidationError('Chosen group must cite a queried local source',validator='support_binding',validator_value=group[0]['region_ids'],instance=a['evidence_refs'])
@@ -170,6 +185,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     else:analyst_file=folder/'Analyst.json'
     selected=groups[a['group_id']];write_json(folder/'evidence_bundle.json',bundle)
     designer_schema=obj({'option_id':{'enum':[x['action_id'] for x in selected]},'hypothesis_group':{'const':a['group_id']},
+        'parent_program_id':{'const':a['parent_program_id']},
         'evidence_refs':refs,'design_grounds':text,'operative_terms':text,'derivative_path':text,'actual_dose_expectation':text,'falsifier':text})
     d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'Analyst':a,'shared_evidence':bundle['evidence'],'allowed_numerical_options':selected,

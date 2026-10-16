@@ -1,0 +1,66 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/e0144f4158b3343012d43358641e251f74ca019315aaa6aa31f4e49f8fb9e2a0.txt",
+        "content_sha256": "e0144f4158b3343012d43358641e251f74ca019315aaa6aa31f4e49f8fb9e2a0",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/5b1c7685f54cf5ee5bdd6df21dc19d499765c688d92198c0630b86f416a202ac.txt",
+        "content_sha256": "5b1c7685f54cf5ee5bdd6df21dc19d499765c688d92198c0630b86f416a202ac",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "violations": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "clock_confusion",
+                "unsupported_active_force",
+                "source_or_comparator_confusion",
+                "unmeasured_result_claim"
+              ]
+            },
+            "explanation": {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            "quote": {
+              "maxLength": 1500,
+              "type": "string"
+            }
+          },
+          "required": [
+            "quote",
+            "code",
+            "explanation"
+          ],
+          "type": "object"
+        },
+        "maxItems": 5,
+        "type": "array"
+      }
+    },
+    "required": [
+      "violations"
+    ],
+    "type": "object"
+  }
+}

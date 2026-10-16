@@ -1,0 +1,30 @@
+{
+  "active_chemistry_modules": [
+    "C1"
+  ],
+  "chemical_assumptions": "C1 interface-role reading only. Terminal roles from chemical_context: slot 4 C aromatic, non-donor, non-acceptor, formal charge 0; slot 14 C aromatic, non-donor, non-acceptor, formal charge 0; slot 15 N aromatic, donor, non-acceptor, formal charge 0. Pocket sites are VAL:53:CG1, MET:163:CE, HIS:160:CE1, HIS:160:NE2. The site_distance_matrix_A is 3.67-5.03 A. These are terminal observations; nearest polar pocket atoms do not establish H bonds or energetic contributions, and the band is an uncalibrated exploratory geometric band, not an interaction energy. No charge weight is applied (charge_weight 0.0), so this remains a geometry-only pointwise reward on a polar-selected support.",
+  "clock_and_representation": "clock_policy fixed; observable predictive_bridge_to_learning_end; teacher actual_ancestor_at_learning_end. The ancestor tool returns actual current world A at clock times [0.0, 0.12, 0.25, 0.5] and same-forward teacher predicted endpoint world A; current versus endpoint targets must not be exchanged, and early identity remains uncertain. Learning window [0.1, 0.5], teacher_time 0.5, steps 100, target_band_A 0.34907500557366816.",
+  "counterevidence_refs": [
+    "F_b011_s030__v3_interface16/chemical_context",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__v3_interface15/ancestor",
+    "F_b011_s030__v3_interface15/chemical_context",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response"
+  ],
+  "falsifier": "The hypothesis is falsified if, with the same parent program and numerical option A000, the interface15 local predictive-bridge residual does not decrease relative to the parent, or if the qualified tail (best_qualified_pic50 / hit_fraction) does not improve beyond the parent R15_V3_COMPATIBLE values. It is also falsified if the learning-end ancestor for the selected seeds does not place slots [4,14,15] near the interface15 pocket sites, i.e. the support is not actually occupied at the teacher time.",
+  "formation_retention_value_test": "Formation: check whether the learning-end ancestor for the selected seeds actually places slots [4,14,15] within the interface15 band (base_band_A 0.35) of the listed pocket sites, using the ancestor tool's selected_ancestor_coords_A at the 0.5 clock time. Retention/value: compare the parent R15_V3_COMPATIBLE outcome distribution (best_qualified_pic50 8.590141, mean_all_pic50 7.710798, hit_fraction 0.02, n_qualified 48/50) against the same distribution under this single local mode; a value claim requires the qualified tail to move, not just the local residual.",
+  "group_id": "G000",
+  "observable_change": "Under the fixed clock, the observable is the predictive bridge to the learning end: the model's predicted endpoint for slots [4,14,15] is compared to the actual ancestor at the learning end (teacher_time 0.5). Expected change is a reduction of the local predictive-bridge residual on this 3-slot support and its orientation triplet, with the rest of the cloud free. No affinity-head gradient is used; coordinate-only updates.",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "The prior campaign readout records that local identity formation (e.g. terminal N geometry match) did not by itself produce affinity benefit, and that tighter fixed-point-cloud fit was not the primary gap. It also records that the same element-matching cost did not replicate benefit on a 3-point N/C region or a 4-point O region, indicating support-background dependence. This hypothesis therefore does not claim that forming the interface15 geometry yields affinity; it is a single local mode on the parent, to be judged by the qualified tail, and it explicitly does not reuse the failed-family claim that N formation equals success.",
+  "scientific_hypothesis": "For seeds whose learning-end ancestor places slots [4,14,15] near the interface15 pocket (VAL:53:CG1, MET:163:CE, HIS:160:CE1, HIS:160:NE2), a fixed-clock predictive-bridge-to-learning-end pointwise pull on this 3-slot support with orientation triplet [15,4,14] is a compatible local mode. The terminal roles (slot 4 C aromatic non-donor/non-acceptor, slot 14 C aromatic, slot 15 N aromatic donor) are terminal observations only; the hypothesis is that the local geometry plus the bonded direction neighbor set is the discriminating feature, not a verified H-bond. This is one principal intervention on the parent R15_V3_COMPATIBLE program, not a guarantee of improvement.",
+  "support_reason": "G000 is chosen because its support [4,14,15] is the region for which actual regional evidence was queried: ancestor returns selected_support [4,14,15] with actual_ancestor_slots [31,49,17,37] and same-forward teacher endpoint coordinates, and chemical_context returns terminal roles, pocket sites, orientation triplet [15,4,14], and site_distance_matrix_A. G001 (interface16) was also queried but its chemical_context shows a different role profile (slot 1 C non-aromatic non-donor/non-acceptor, slot 16 O acceptor non-donor, no orientation triplet) and pocket sites ASP:175/PHE:113, so it is retained as counterevidence rather than the selected group. Designer chooses the numerical option inside G000 only (A000)."
+}

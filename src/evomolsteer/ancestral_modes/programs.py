@@ -39,6 +39,7 @@ def implementation_identity():
 
 def validate(p,teacher):
     AncestorReward(p,teacher)
+    if p['operator']=='selection_advantage' and p['assignment_element_cost']!=0:raise ValueError('Learned feature definition requires geometry-only correspondence')
     if p['dose_schedule'] not in ('constant','early','late','bell'):raise ValueError('Invalid dose schedule')
     for k in ('native_rms_ratio','max_atom_step_A','max_cumulative_rms_A'):
         if not 0<p['dose'][k]<=20:raise ValueError('Nonphysical/unsupported dose')
@@ -111,7 +112,10 @@ def actions(repo,m,bank,regions,state,number):
             from .bank import regional_evidence
             for s in p['mode_specs']:
                 rr=next(r for r in regions if r['region_id']==s['region_id']);ev=regional_evidence(repo,m,bank,rr)
-                s['selection_profile']={'times':[r['time'] for r in ev['rows']],**{k:[r[k] for r in ev['rows']] for k in ('focal','background_mean','background_sd')}}
+                valid=[r for r in ev['rows'] if r['unique_controls']>0]
+                if len(valid)<3 or valid[0]['time']>p['learning_window'][0]+2e-6 or valid[-1]['time']<p['learning_window'][1]-2e-6:return
+                s['selection_profile']={'schema_version':2,'feature_centers_A':ev['feature_centers_A'],
+                    'times':[r['time'] for r in valid],**{k:[r[k] for r in valid] for k in ('focal','background_mean','background_sd')}}
         normalize_schedule(p,state['dose_reference_steps'])
         try:validate(p,bank)
         except ValueError:return
@@ -171,7 +175,7 @@ def actions(repo,m,bank,regions,state,number):
         elif phase in ('orientation','pocket_field','pair_geometry'):
             op={'orientation':'orientation','pocket_field':'pocket_distance','pair_geometry':'pair_distance'}[phase]
             add(parent,{'operator':op},'Change registered local observable keeping support/dose fixed')
-        elif phase=='selection_advantage':add(parent,{'operator':'selection_advantage'},'Explicit low-dimensional success/background local feature ratio; descriptive historical support')
+        elif phase=='selection_advantage':add(parent,{'operator':'selection_advantage','assignment_element_cost':0.,'field_sigma_A':m['field_sigma_A']},'Explicit fixed-space success/background feature ratio with its calibrated field width and required geometry-only correspondence; one complete objective package')
         elif phase=='density_scale' and p['operator']=='selection_advantage':
             for f in (.5,2.):add(parent,{'density_scale_floor':(np.asarray(p['density_scale_floor'])*f).tolist()},'Calibrate uncertainty floor, not a claimed success probability')
         elif phase=='selection_phase' and p['operator']=='selection_advantage':

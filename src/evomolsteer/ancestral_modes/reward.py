@@ -88,9 +88,10 @@ class AncestorReward:
                 values.append((1-(v*qq).sum(-1)).square().mean(1))
             value=-torch.stack(values,1).mean(1)
         else:
-            kernel=torch.exp(-d.square().sum(-1)/(2*p['field_sigma_A']**2))
-            phi=torch.cat([kernel.mean(1)[:,None],(kernel[...,None]*d).mean(1)],1)
             profile=s['selection_profile'];times=np.asarray(profile['times'])
+            feature_delta=points-z.new_tensor(profile['feature_centers_A'])
+            kernel=torch.exp(-feature_delta.square().sum(-1)/(2*p['field_sigma_A']**2))
+            phi=torch.cat([kernel.mean(1)[:,None],(kernel[...,None]*feature_delta).mean(1)],1)
             def at(key):return z.new_tensor([np.interp(h,times,np.asarray(profile[key])[:,j]) for j in range(4)])
             mu=at('focal');bg=at('background_mean');sd=at('background_sd').clamp_min(z.new_tensor(p['density_scale_floor']))
             # Low-dimensional explicit density ratio, not a trained predictor or calibrated probability.

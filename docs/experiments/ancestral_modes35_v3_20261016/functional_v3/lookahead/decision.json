@@ -1,0 +1,65 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 中 N/O 仅作为终态元素标签记录，不视为早期已存在的 H-bond/官能团角色。元素、形式电荷、部分电荷、质子化和互变异构分别记录；本分析不使用元素概率作为受体概率。source/limits 明确：Terminal roles select support; they are not asserted in early states；Element/charge prediction probabilities retain original float16 quantization。",
+    "clock_and_representation": "数据时钟：domain [0.0, 0.5]，learning_window [0.0, 0.5]，teacher_time 0.5。教师时刻：actual_ancestor_at_same_lookahead_time。评估时刻：终态统一评估。学习/控制范围：window [0.1, 0.5]，expected_active_steps 10-49，steps 100。槽位映射：selected_support [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，共 20 点，小于 25 个生成槽位。ancestor 返回的 representations 为 actual current world A 与 same-forward teacher predicted endpoint world A，两者不可互换。selection_trend 的 selection_clock_note 说明权重来自 score_time，应用于 state_time 的 proposal，超出 learning window 的 proposal 被排除。",
+    "counterevidence_refs": [
+      "campaign/history",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "source/limits",
+      "source/prior_campaign"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/selection_trend",
+      "F_b011_s030__reference/controller_response",
+      "campaign/history",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "parents/R15_V3_COMPATIBLE/response",
+      "source/feature_revision"
+    ],
+    "falsifier": "若在 A000/A001/A002 中改变 lookahead_fraction 后，gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的负值幅度不随 lookahead 时刻系统性变化，或 injected_rms_A_mean 与 dose_gain_mean 发生显著变化（提示剂量或归一化抵消而非方向问题），则主假设被否证。若 best_qualified_pic50 超过 tau=8.135048866271973 且 hit_fraction 提高，则说明反向余弦并非价值瓶颈，主假设的因果解释被否证。",
+    "formation_retention_value_test": "形成测试：在 A000/A001/A002 三个 lookahead_fraction 下，检查所选 20 点支持的终态几何匹配率（terminal_geometry_matched_terminal_element_fraction）与 terminal_tracked_NC_joint_fraction 是否保持或提高。保持测试：检查 terminal_tracked_source_charge_fraction 与 terminal_tracked_terminal_element_fraction 是否不下降。价值测试：检查 best_qualified_pic50 是否超过 tau=8.135048866271973，且 hit_fraction 是否提高。注意：campaign/history 显示 R01/R02/R03 的 n_above_target 均为 0，best_qualified_pic50 分别为 8.270/8.699/8.271，均未超过 tau；parent R15_V3_COMPATIBLE 的 best_qualified_pic50 为 8.590，同样未超过 tau。因此价值测试的否证条件是：若改变 lookahead_fraction 后 best_qualified_pic50 仍不超过 tau 且 hit_fraction 不提高，则价值未实现。",
+    "group_id": "G000",
+    "observable_change": "在相同 parent R15_V3_COMPATIBLE 与相同 20 点支持下，若假设成立，改变 lookahead_fraction（A000=0.1、A001=0.2、A002=0.4）应使 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的负值幅度随 lookahead 时刻变化而系统性改变；同时 point_rms_A 与 target_error_mean 的轨迹应随 lookahead 时刻移动，而 injected_rms_A_mean 与 dose_gain_mean 保持约 0.030 与 1.0 不变。若假设不成立（即反向源于剂量或归一化抵消），则改变 lookahead_fraction 不应改变余弦符号与幅度趋势。",
+    "observable_contract": {
+      "observable": "predictive_bridge_to_lookahead",
+      "teacher": "actual_ancestor_at_same_lookahead_time"
+    },
+    "parent_program_id": "R15_V3_COMPATIBLE",
+    "relationship_to_failed_families": "campaign/history 中 R01_v3（current_clock）、R02_v3（endpoint_clock，rollback=true）、R03_v3（lookahead）均以 R15_V3_COMPATIBLE 为 parent，n_above_target 均为 0，best_qualified_pic50 分别为 8.270/8.699/8.271，均未超过 tau=8.135048866271973。R02_v3 与 R03_v3 的 gradient_native_observed_cosine_mean 分别为 -0.281 与 -0.448，提示反向余弦在 endpoint_clock 与 lookahead 两种时钟下均出现。source/prior_campaign 记录：局部身份形成不等于亲和力受益；更准确地贴合固定点云并不是当前首要缺口；收益具有支持背景依赖。本假设与这些失败家族一致：反向余弦是方向问题而非剂量问题，且该 20 点支持的选择富集证据不足。",
+    "scientific_hypothesis": "在 F_b011_s030__reference 的 20 点局部支持上，lookahead 桥接（predictive_bridge_to_lookahead，teacher=actual_ancestor_at_same_lookahead_time）与原生观测流方向系统性相反，而非剂量不足。证据：R02_v3 的 gradient_native_observed_cosine 从 -0.028 降到 -0.550（均值 -0.281），R03_v3 从 -0.172 降到 -0.564（均值 -0.448）；同时 injected_rms_A_mean 在 R01/R02/R03 分别约 0.0301/0.0298/0.0301，dose_gain_mean 恒为 1.0，说明注入剂量未变而方向余弦持续为负。ancestor 返回显示所选 20 点在 t=0.0 时实际祖先坐标高度聚集（约 23.6, -31.9, 13.5），而同一 forward 的教师端点预测（t=0.5）已移动到约 22.8, -30.5, 13.5，位移方向与负余弦一致。selection_trend 显示 focal 特征在窗口内单调漂移（第 1 分量 0.199→0.781），但 expected_selection_shift 量级仅 1e-4~1e-3，realized_selection_shift 同样极小，说明该局部量随选择富集很弱，早期相似度主要反映初态而非选择压力。因此主假设是：该 seed 状态下 lookahead 时刻映射/表示与原生观测流不兼容，导致桥接方向反向；这不是剂量不足，也不是终态无收益。",
+    "support_reason": "选择 G000 的理由：catalog 中 G000 的 region_ids 为 [F_b011_s030__reference]，mode_ids 为 [F_b011_s030_native]，clock_policy 为 lookahead，observable_contract 为 predictive_bridge_to_lookahead / actual_ancestor_at_same_lookahead_time，support_sizes 为 [20]，与已查询的 ancestor、selection_trend、controller_response 证据直接对应。G000 提供三个数值选项 A000（lookahead_fraction=0.1）、A001（lookahead_fraction=0.2）、A002（lookahead_fraction=0.4），其余参数（advantage_cap=20.0、assignment_element_cost=0.5、charge_weight=0.0、dose、window、steps、mode_specs）一致，因此可在同一支持与同一 parent 下区分 lookahead 时刻映射是否为反向余弦的来源。Designer 仅需在 G000 内选择数值选项。"
+  },
+  "Designer": {
+    "actual_dose_expectation": "先读 parent 的实际剂量：parents/R15_V3_COMPATIBLE/response 显示 injected_rms_A_mean 约 0.02996，dose_gain_mean 恒为 1.0，time_schedule_gain 恒为 1.0，requested_rms_A_mean 约 0.02996，raw_gradient_rms_mean 约 0.00797，无裁剪（atom_clip_fraction 与 cumulative_clip_fraction 均为 0）。A001 保持 dose_schedule=constant、schedule_normalization=1.0、dose 参数（max_atom_step_A=0.15、max_cumulative_rms_A=6.0、native_rms_ratio=0.66、pointcloud_delta_A=1.0）与 parent 一致，因此预期 injected_rms_A_mean 与 dose_gain_mean 保持约 0.030 与 1.0 不变。共同乘 reward 的正系数可被梯度归一化抵消；时间调度作用于归一化后的请求位移。逐项声明 raw reward 系数、方向混合、空间尺度、实际位移和累计预算。目标达到时允许平滑减力；近零梯度不应被放大为完整步长。不确定性因子由已观测可靠性定义，不使用 LLM 文字置信度充当成功概率。先匹配时间调度的总请求预算，再单独比较更大总量。",
+    "derivative_path": "坐标控制：operator=pointwise，coordinate_updates_only=true，affinity_head_gradient=false，smc=false。教师与被控量时钟：当前态对应实际同刻祖先，预测端点对应教师端点预测，前瞻桥接对应相同前瞻时刻的真实祖先；同刻 h=t 的当前坐标奖励不通过端点预测，前瞻/端点奖励才包含相应模型导数。模型 VJP 仅对当前调用有效，不是对全部未来随机生成求导。匹配在无梯度分支中计算（sensing=detached），仅对匹配后的坐标求真实模型坐标 VJP；不对 logits 或元素求导，不加入 logits/离散转移率编辑。硬类别/化学图识别仅用于无梯度路由。图变化后重新完成和评分，不沿用修改前的预测作结果。",
+    "design_grounds": "Analyst 的 G000 假设：在 F_b011_s030__reference 的 20 点局部支持上，lookahead 桥接方向与原生观测流系统性相反，而非剂量不足。证据：campaign/history 中 R02_v3（endpoint_clock）gradient_native_observed_cosine_mean 从 -0.028 降到 -0.550（均值 -0.281），R03_v3（lookahead）从 -0.172 降到 -0.564（均值 -0.448）；同时 injected_rms_A_mean 在 R01/R02/R03 分别约 0.0301/0.0298/0.0301，dose_gain_mean 恒为 1.0，说明注入剂量未变而方向余弦持续为负。F_b011_s030__reference/ancestor 显示所选 20 点在 t=0.0 时实际祖先坐标高度聚集（约 23.6, -31.9, 13.5），而同一 forward 的教师端点预测（t=0.5）已移动到约 22.8, -30.5, 13.5，位移方向与负余弦一致。selection_trend 显示 focal 特征在窗口内单调漂移（第 1 分量 0.199→0.781），但 expected_selection_shift 量级仅 1e-4~1e-3，realized_selection_shift 同样极小，说明该局部量随选择富集很弱。因此选择 G000 内 A001（lookahead_fraction=0.2），与 parent R15_V3_COMPATIBLE 的既有 lookahead_fraction=0.2 一致，作为同支持、同 parent 下的基准点，用于与 A000（0.1）和 A002（0.4）比较 lookahead 时刻映射是否为反向余弦来源。仅选择数值选项，不改变点、模式来源或添加项。",
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "F_b011_s030__reference/selection_trend",
+      "campaign/history",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "parents/R15_V3_COMPATIBLE/response",
+      "source/feature_revision",
+      "source/limits",
+      "source/prior_campaign"
+    ],
+    "falsifier": "若在 A000/A001/A002 中改变 lookahead_fraction 后，gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的负值幅度不随 lookahead 时刻系统性变化，或 injected_rms_A_mean 与 dose_gain_mean 发生显著变化（提示剂量或归一化抵消而非方向问题），则主假设被否证。若 best_qualified_pic50 超过 tau=8.135048866271973 且 hit_fraction 提高，则说明反向余弦并非价值瓶颈，主假设的因果解释被否证。形成测试：在 A000/A001/A002 三个 lookahead_fraction 下，检查所选 20 点支持的终态几何匹配率（terminal_geometry_matched_terminal_element_fraction）与 terminal_tracked_NC_joint_fraction 是否保持或提高。保持测试：检查 terminal_tracked_source_charge_fraction 与 terminal_tracked_terminal_element_fraction 是否不下降。价值测试：检查 best_qualified_pic50 是否超过 tau=8.135048866271973，且 hit_fraction 是否提高。注意：campaign/history 显示 R01/R02/R03 的 n_above_target 均为 0，best_qualified_pic50 分别为 8.270/8.699/8.271，均未超过 tau；parent R15_V3_COMPATIBLE 的 best_qualified_pic50 为 8.590，同样未超过 tau。因此价值测试的否证条件是：若改变 lookahead_fraction 后 best_qualified_pic50 仍不超过 tau 且 hit_fraction 不提高，则价值未实现。接口错误与科学负结果分开；数值相同的函数复用既有结果，冻结确认不引入新设计。",
+    "hypothesis_group": "G000",
+    "operative_terms": "有效项：G000 的 predictive_bridge_to_lookahead，teacher=actual_ancestor_at_same_lookahead_time，observable_contract 为 predictive_bridge_to_lookahead / actual_ancestor_at_same_lookahead_time。支持：selected_support [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，共 20 点，小于 25 个生成槽位。模式：F_b011_s030_native，region F_b011_s030__reference。时钟：domain [0.0, 0.5]，learning_window [0.0, 0.5]，teacher_time 0.5，window [0.1, 0.5]，expected_active_steps 10-49，steps 100。路由：single，sensing=detached，scope=local，无 SMC，无 affinity-head 梯度，仅坐标更新。数值选项：lookahead_fraction=0.2（A001），advantage_cap=20.0，assignment_element_cost=0.5，charge_weight=0.0，dose 与 window 与 parent 一致。未启用任何化学模块；selected_terminal_elements 中 N/O 仅作为终态元素标签记录，不视为早期已存在的 H-bond/官能团角色。",
+    "option_id": "A001",
+    "parent_program_id": "R15_V3_COMPATIBLE"
+  },
+  "action": {
+    "action_id": "A001",
+    "numeric_identity": "b09811b370aca51b9616f80db45a8f1ea73dca438a36ed22f830b0db64efe79f",
+    "parent_id": "R15_V3_COMPATIBLE",
+    "phase": "lookahead",
+    "reason": "Same-horizon predictive bridge and actual ancestor; configured phase advance",
+    "region_ids": [
+      "F_b011_s030__reference"
+    ]
+  }
+}

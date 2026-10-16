@@ -99,12 +99,13 @@ def prepare(repo,m):
 
 def regional_evidence(repo,m,bank,region):
     """Selection acts on proposal states; exclude updates beyond learned state time."""
-    out=repo/m['campaign_study']/'regional_evidence';path=out/(region['region_id']+'.json')
+    out=repo/m['campaign_study']/'regional_evidence_v2';path=out/(region['region_id']+'.json')
     if path.exists():return read_json(path)
     mode=bank['modes'][region['template_id']];slots=region['atom_slots'];base=repo/m['compact_dataset']/'results'/m['campaign']
     source=base/m['arm']/f"batch_{mode['batch']:03d}"/'trajectory.h5'
     com=np.asarray(read_json(base/f"frame_batch_{mode['batch']:03d}.json")['target_com']).reshape(-1,1,3)
     scale=read_json(base/'config.json')['coord_scale'];rows=[]
+    centers=np.asarray(mode['terminal_coords_A'])[slots]
     with TrajectoryPackage(source) as tr:
         times=tr.read('score_time')[:,0];state_times=tr.read('state_time');anc=terminal_ancestors(tr.read('selected_indices').astype(int))
         for step,t in enumerate(times):
@@ -115,12 +116,12 @@ def regional_evidence(repo,m,bank,region):
                 selected=[]
                 for cloud in clouds:
                     rr,cc=linear_sum_assignment(np.square(cloud[:,None]-target).sum(-1));selected.append(cloud[rr[np.argsort(cc)]])
-                z=np.asarray(selected);delta=z-target;kernel=np.exp(-np.square(delta).sum(-1)/(2*m['field_sigma_A']**2))
+                z=np.asarray(selected);delta=z-centers;kernel=np.exp(-np.square(delta).sum(-1)/(2*m['field_sigma_A']**2))
                 return np.column_stack([kernel.mean(1),(kernel[...,None]*delta).mean(1)])
             phi=observable(x);back=phi[unique]
             row={'time':float(t),'state_time':float(state_times[step]),'focal':phi[parent].tolist(),
-                 'background_mean':back.mean(0).tolist() if len(back) else [0.]*4,
-                 'background_sd':back.std(0).tolist() if len(back) else [0.]*4,'unique_controls':len(unique)}
+                 'background_mean':back.mean(0).tolist() if len(back) else [None]*4,
+                 'background_sd':back.std(0).tolist() if len(back) else [None]*4,'unique_controls':len(unique)}
             if state_times[step]<=m['learning_window'][1]+2e-6 and tr.read('resampled',step):
                 proposal=tr.read('proposal_coords',step)*scale+com;v=observable(proposal);w=tr.read('selection_probability',step).astype(float);w/=w.sum()
                 row.update(native_shift=(v.mean(0)-phi.mean(0)).tolist(),expected_selection_shift=(w@v-v.mean(0)).tolist(),
@@ -128,12 +129,14 @@ def regional_evidence(repo,m,bank,region):
             rows.append(row)
     frame=pd.DataFrame(rows);curves={}
     for key in ('focal','background_mean','expected_selection_shift','native_shift'):
-        valid=[r for r in rows if key in r]
+        valid=[r for r in rows if key in r and all(v is not None for v in r[key])]
         if len(valid)<3:continue
         tt=np.asarray([r['time'] for r in valid]);yy=np.asarray([r[key] for r in valid]);coef=np.polynomial.polynomial.polyfit(tt,yy,2)
         curves[key]={'coefficients':coef.tolist(),'derivative_coefficients':(coef[1:]*np.arange(1,3)[:,None]).tolist(),
             'rmse':np.sqrt(np.square(np.polynomial.polynomial.polyval(tt,coef).T-yy).mean(0)).tolist()}
-    result={'region_id':region['region_id'],'source_sha256':digest(source),'domain':m['learning_window'],'rows':rows,'full_window_fits':curves,
+    result={'schema_version':2,'region_id':region['region_id'],'source_sha256':digest(source),'domain':m['learning_window'],'rows':rows,'full_window_fits':curves,
+        'feature_centers_A':centers.tolist(),'feature_definition':'Kernel occupancy and signed kernel-weighted displacement to FIXED terminal local points; current-time teacher coordinates used ONLY for local correspondence.',
+        'focal_feature_range':np.ptp(np.asarray([r['focal'] for r in rows]),axis=0).tolist(),
         'units':['dimensionless','A','A','A'],'selection_clock_note':'Weights from score_time; applied proposal at state_time. Proposal beyond learning window excluded.',
         'limits':'Descriptive single-success path against unique complete-state contemporaries; not independent time repeats or terminal failure labels.'}
     write_json(path,result);return result

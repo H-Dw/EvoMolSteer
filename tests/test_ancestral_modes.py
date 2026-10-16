@@ -136,3 +136,19 @@ def test_attained_geometry_does_not_suppress_unmet_chemical_field():
     p['typed_weight']=2.
     gain=attainment_gain(p,error,comp)
     assert gain[0]>.9 and gain[1]==0
+
+
+def test_fixed_space_advantage_uses_non_self_centered_feature_and_correct_gradient():
+    p,b=fixture();p.update(operator='selection_advantage',clock_policy='current',assignment_element_cost=0.)
+    centers=np.asarray(b['modes']['A']['terminal_coords_A'])[:2]
+    profile={'times':[.2,.6],'feature_centers_A':centers.tolist(),'focal':[[.5,-.1,0.,.1]]*2,
+        'background_mean':[[.4,.1,.1,0.]]*2,'background_sd':[[.2,.5,.5,.5]]*2}
+    p['mode_specs'][0]['selection_profile']=profile
+    x=torch.tensor([[[.3,.1,.2],[1.2,.3,.1],[2.,1.,0.],[3.,0.,1.],[4.,0.,0.]]],dtype=torch.double,requires_grad=True)
+    mask=torch.ones(1,5,dtype=torch.bool);logits=torch.zeros(1,5,3,dtype=torch.double)
+    def f(z):return AncestorReward(p,b).evaluate(z,z,logits,logits,mask,.3,torch.tensor([0]),[torch.tensor([[0,1]])])[0].sum()
+    g=torch.autograd.grad(f(x),x)[0];a=x.detach().clone();c=a.clone();a[0,0,0]+=1e-6;c[0,0,0]-=1e-6
+    assert float(g[0,0,0])==pytest.approx(float((f(a)-f(c))/2e-6),abs=1e-7)
+    historical=np.asarray(b['modes']['A']['path']['coords_A'][0])[:2]
+    mass=np.exp(-np.square(historical-centers).sum(-1)/(2*p['field_sigma_A']**2)).mean()
+    assert mass<.9  # It is not identically one merely because this is the focal path.

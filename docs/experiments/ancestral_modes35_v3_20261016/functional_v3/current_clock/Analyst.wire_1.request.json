@@ -1,0 +1,195 @@
+{
+  "body": {
+    "max_tokens": 5500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/a45a866574f9f641e09d83145a34ef71d449ec3a60aae1e68af29bdf6c153f85.txt",
+        "content_sha256": "a45a866574f9f641e09d83145a34ef71d449ec3a60aae1e68af29bdf6c153f85",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/917b5680cc0943709792fbe7c8eef64c3bfd874201855e246c649015a6459120.txt",
+        "content_sha256": "917b5680cc0943709792fbe7c8eef64c3bfd874201855e246c649015a6459120",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/4d4640e79e87c5fd11f57baf2fb507d9f08092b8d36397634f573f4d694d50ac.txt",
+        "content_sha256": "4d4640e79e87c5fd11f57baf2fb507d9f08092b8d36397634f573f4d694d50ac",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/1b36616ef642d7eca614981533f6e9ad1577182c09310a177e377e4785d9671a.txt",
+        "content_sha256": "1b36616ef642d7eca614981533f6e9ad1577182c09310a177e377e4785d9671a",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/ae2492614e9dfbab32ee0d9e7b1ec6ab85968f331ba593bfd91e986a9c227a08.txt",
+        "content_sha256": "ae2492614e9dfbab32ee0d9e7b1ec6ab85968f331ba593bfd91e986a9c227a08",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/57f9c185ca41dab2f3bb7c3ed49066c7b857ec3a40003b92eebde41656602c15.txt",
+        "content_sha256": "57f9c185ca41dab2f3bb7c3ed49066c7b857ec3a40003b92eebde41656602c15",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/aea2f28d0b2bfb4be11760d41ff185634f33b5fedd3b6aee88ec41f28aabc1e9.txt",
+        "content_sha256": "aea2f28d0b2bfb4be11760d41ff185634f33b5fedd3b6aee88ec41f28aabc1e9",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/e067dcb83358fbd8d8c48cff8b25b2eb7f09843efc0fcb26757eb122312f3079.txt",
+        "content_sha256": "e067dcb83358fbd8d8c48cff8b25b2eb7f09843efc0fcb26757eb122312f3079",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "active_chemistry_modules": {
+        "const": []
+      },
+      "chemical_assumptions": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "clock_and_representation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "F_b011_s030__reference/failure_history",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "F_b011_s030__reference/failure_history",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "formation_retention_value_test": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "group_id": {
+        "enum": [
+          "G000"
+        ]
+      },
+      "observable_change": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "observable_contract": {
+        "additionalProperties": false,
+        "properties": {
+          "observable": {
+            "enum": [
+              "current_state",
+              "predicted_endpoint",
+              "predictive_bridge_to_decaying_lookahead",
+              "predictive_bridge_to_learning_end",
+              "predictive_bridge_to_lookahead"
+            ]
+          },
+          "teacher": {
+            "enum": [
+              "actual_ancestor_at_learning_end",
+              "actual_ancestor_at_same_current_time",
+              "actual_ancestor_at_same_lookahead_time",
+              "teacher_predicted_endpoint_at_same_forward_time"
+            ]
+          }
+        },
+        "required": [
+          "observable",
+          "teacher"
+        ],
+        "type": "object"
+      },
+      "parent_program_id": {
+        "enum": [
+          "R15_V3_COMPATIBLE"
+        ]
+      },
+      "relationship_to_failed_families": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "scientific_hypothesis": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "support_reason": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "group_id",
+      "parent_program_id",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_hypothesis",
+      "observable_change",
+      "formation_retention_value_test",
+      "falsifier",
+      "active_chemistry_modules",
+      "chemical_assumptions",
+      "clock_and_representation",
+      "relationship_to_failed_families",
+      "support_reason",
+      "observable_contract"
+    ],
+    "type": "object"
+  }
+}

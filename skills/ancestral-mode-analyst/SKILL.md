@@ -37,6 +37,8 @@ description: Analyze successful molecular terminal outcomes and their actual anc
 
 读取全部相关失败家族和 parent 控制响应。区分“函数方向不对”“真实剂量不足/归一化抵消”“目标无法形成”“后缀未保持”和“形成但终态无收益”。不要看到下降就一律加强权重。
 
+存在多个 parent 时，先核对所选 action 的 parent_program_id，再引用该 parent 的评分和响应。当前 incumbent 的数据不能代替另一条高分或失败分支的数据。
+
 优先选择能区分竞争解释的小实验。按 [交接契约](../../docs/plans/ancestral_modes_autoresearch_v3_20261016/contracts.zh-CN.md) 返回证据 ID、局部支持、模式/教师表示、目标时刻规则、可改 observable、化学前提、设计允许范围和否证条件。Designer 必须能从这些字段直接绑定函数，而非重新猜测分析结论。
 
 只输出调用者 schema 允许的结构；引用必须来自实际工具结果。保留可复现的证据与选择理由，不输出内部推理记录。契约错误是接口问题，不能冒充该科学模块的性能结论。

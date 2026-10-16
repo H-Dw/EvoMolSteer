@@ -127,8 +127,9 @@ def functional(repo,m,bank,regions,state):
     folder=repo/m['campaign_study']/('functional_v'+str(m['functional_revision']));path=folder/'COMPLETE.json'
     if path.exists():return read_json(path)
     checks=[]
+    fixture_state=copy.deepcopy(state);fixture_state['rounds']=[];fixture_state['best']=copy.deepcopy(state['reference']);fixture_state.pop('tail_candidate',None)
     for number,name,modules in [(1,'current_clock',[]),(3,'lookahead',[]),(16,'interface_roles_on',['C1']),(16,'interface_roles_off',[])]:
-        choices=actions(repo,m,bank,regions,state,number)
+        choices=actions(repo,m,bank,regions,fixture_state,number)
         if not choices:raise ValueError('No functional actions for '+name)
         p,a,d=ask(repo,m,folder/name,bank,regions,state,choices,PHASES[number],modules)
         checks.append({'case':name,'real_api':True,'active_modules':d['active_modules'],'numeric_identity':numerical_identity(p,bank),

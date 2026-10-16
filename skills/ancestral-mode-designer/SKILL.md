@@ -9,6 +9,8 @@ description: Bind an Analyst's local ancestral-mode hypothesis to stage-consiste
 
 每个非零项绑定 Analyst 的 observable、模式、支持、角色条件和来源。不得私换教师、添加点、用元素目标代替未实现的化学角色，或绕过 Analyst 的点云分析。方向/官能团所需邻居计入支持；多个项或模式的支持并集也保持严格局部。缺少必要邻域时请求 Analyst 修订。
 
+核对 hypothesis、action 和实际响应记录的 parent_program_id；不同 parent 的参数和结果不能混用。
+
 区分固定原子序号、同一路径槽位、跨分子的动态对应和对称等价点。图可自由变化，依据新预测重新识别可用角色；不加入同图 gate。
 
 ## D2. 明确教师与被控量的时钟
