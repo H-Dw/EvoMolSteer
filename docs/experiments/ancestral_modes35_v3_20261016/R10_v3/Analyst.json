@@ -1,0 +1,31 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。终态元素标签（selected_terminal_elements）仅用于选择支持槽位，不构成早期状态已存在该化学角色的证据；元素分数不是已验证的氢键或官能团角色。",
+  "clock_and_representation": "时钟固定：observable=predictive_bridge_to_learning_end，teacher=actual_ancestor_at_learning_end。祖先坐标来自 actual current world A，教师端点来自 same-forward teacher predicted endpoint world A，两者不得互换。选择趋势使用 score_time 权重作用于 state_time 的 proposal，超出学习窗口的 proposal 被排除。",
+  "counterevidence_refs": [
+    "source/prior_campaign",
+    "source/limits",
+    "source/measured_path_preferences",
+    "campaign/history"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b003_s025__v3_countmatched_reference/ancestor",
+    "F_b017_s043__v3_countmatched_reference/selection_trend",
+    "F_b011_s030__reference/controller_response",
+    "parents/R09_v3/outcomes",
+    "parents/R09_v3/response"
+  ],
+  "falsifier": "若把 seed 重新路由到 F_b011_s030 后，池均值与最佳基本合格 pIC50 不高于 R09_v3 的 7.5705 / 8.5901，或模式间差异在配对比较中消失，则“模式本身驱动终态收益”被否证。若终态元素/几何匹配率变化但亲和力不变，则支持“局部身份形成不等于亲和力受益”。",
+  "formation_retention_value_test": "形成测试：终态跟踪槽位的元素/几何匹配率（terminal_tracked_terminal_element_fraction、terminal_tracked_NC_joint_fraction）是否随模式不同而不同。保持测试：在窗口 [0.1,0.5] 内模式是否保持（mode_switches=0）。价值测试：终态预测亲和力是否随模式分配改变，且该改变不能由 point_rms_A 单独解释。",
+  "group_id": "G000",
+  "observable_change": "在固定时钟（predictive_bridge_to_learning_end，教师为 actual_ancestor_at_learning_end）下，比较各模式终态预测 pIC50 的均值与最佳基本合格值，以及 U_tau；同时记录 point_rms_A 与 target_error_mean 的窗口内变化，用于区分“更贴合点云”与“终态收益”两个不同命题。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R09_v3",
+  "relationship_to_failed_families": "先前 campaign 显示局部身份形成（终态 N 几何匹配率高）不等于亲和力受益，且更贴合固定点云不是首要缺口；本假设不重复“生成 N 即成功”的解释，而是检验模式分配是否改变终态预测亲和力。",
+  "scientific_hypothesis": "在 R09_v3 的 compatible 路由下，每个 seed 按最低局部所需空间位移自选一个 20 槽局部模式（F_b011_s030 / F_b017_s043 / F_b003_s025），该选择只使用同刻局部形状与固定终态局部参考的兼容性，不估计未来亲和力。主假设：三模式共存（mode_entropy_nats=1.098）时，F_b011_s030 模式在 R09_v3 中给出最高均值（7.742）与最高最佳分（8.590），而 F_b017_s043 最低（7.407）；若该差异由模式本身而非同池分配噪声驱动，则把更多 seed 路由到 F_b011_s030 应提高池均值与尾部。",
+  "support_reason": "支持来自实际查询的区域证据：F_b011_s030 与 F_b003_s025 的祖先轨迹（各 20 槽，current_clock_times 0/0.12/0.25/0.5）以及 F_b017_s043 的选择趋势（focal 特征随窗口单调上升，expected_selection_shift 量级约 1e-4，远小于 native_shift 约 1e-2）。R09_v3 的 per_mode_outcomes 给出三模式均值 7.742 / 7.562 / 7.407 与最佳 8.590 / 8.141 / 8.054。反证：同池模式关联不建立因果模式价值，且 source/limits 指出有限历史路径不是校准的延续概率。"
+}

@@ -1,0 +1,20 @@
+{
+  "actual_dose_expectation": "先读 parent 的实际剂量：R09_v3 的 injected_rms_A_mean 约 0.0299 Å，requested_rms_A_mean 约 0.0299 Å，actual_max_step_rms_A 约 0.0307 Å，actual_cumulative_step_rms_A 约 1.196 Å，dose_gain_mean=1.0，atom_clip_fraction=0，cumulative_clip_fraction=0。共同乘 reward 的正系数可被梯度归一化抵消，因此时间调度作用于归一化后的请求位移；本变体 dose_schedule=constant，不改变总请求预算。预期 A000 的数值与 R09_v3 相同（numeric_identity 6f3c2aea…），即池均值 7.5705、最佳基本合格 8.5901、U_tau 0.00922、hit_fraction 0.04、n_qualified 50。目标达到时允许平滑减力；近零梯度不应被放大为完整步长。不确定性因子由已观测可靠性定义，不使用 LLM 文字置信度充当成功概率。",
+  "derivative_path": "导数源为当前模型坐标的真实 VJP：匹配在无梯度分支中计算（assignment_element_cost=0.5 只改变被匹配的几何对应，不对 logits 或元素求导），随后只对当前坐标叶节点求 pseudo-Huber 型局部点云奖励的梯度。sensing=detached，状态相关权重未求导，因此只声称条件路由梯度，不声称完整混合势的精确导数。affinity_head_gradient=false，typed_weight=0.0，charge_weight=0.0，不加入 logits/离散转移率编辑。图可自由变化，依据新预测重新识别可用角色；图变化后重新完成和评分，不沿用修改前的预测作结果。",
+  "design_grounds": "Analyst 假设：在 R09_v3 的 compatible 路由下，每个 seed 按最低局部所需空间位移自选一个 20 槽局部模式，该选择只使用同刻局部形状与固定终态局部参考的兼容性，不估计未来亲和力。R09_v3 的 per_mode_outcomes 给出三模式均值 7.742 / 7.562 / 7.407 与最佳 8.590 / 8.141 / 8.054，mode_entropy_nats=1.098，mode_switches=0，池均值 7.5705、最佳基本合格 8.5901。A000 是唯一在数值上与 R09_v3 完全一致的可执行变体（numeric_identity 6f3c2aea…），即 compatible 路由本身，不新增点、模式或项，因此它是检验“模式本身驱动终态收益”这一命题的最小对照：若把更多 seed 路由到 F_b011_s030 后池均值与最佳基本合格 pIC50 不高于 7.5705 / 8.5901，或模式间差异在配对比较中消失，则假设被否证。A001 引入 response 路由（两次同向坐标 VJP 探针、response_refresh_fraction=0.5、response_gap_floor=0.01），会改变路由分数与刷新记忆，属于与 A000 不同的机制，不能作为本假设的干净对照。证据边界：source/limits 指出有限历史路径不是校准的延续概率，终态角色只用于选择支持槽位，元素/电荷概率保留 float16 量化；source/prior_campaign 指出同池模式关联不建立因果模式价值，且局部身份形成不等于亲和力受益。因此本设计只声明条件路由下的模式分配比较，不声称完整混合势的精确导数，也不把元素分数当作已验证的氢键或官能团角色。",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b003_s025__v3_countmatched_reference/ancestor",
+    "F_b017_s043__v3_countmatched_reference/selection_trend",
+    "F_b011_s030__reference/controller_response",
+    "parents/R09_v3/outcomes",
+    "parents/R09_v3/response",
+    "source/limits",
+    "source/prior_campaign"
+  ],
+  "falsifier": "若把 seed 重新路由到 F_b011_s030 后，池均值与最佳基本合格 pIC50 不高于 R09_v3 的 7.5705 / 8.5901，或模式间差异在配对比较中消失，则“模式本身驱动终态收益”被否证。若终态元素/几何匹配率变化但亲和力不变，则支持“局部身份形成不等于亲和力受益”。接口错误与科学负结果分开；数值相同的函数复用既有结果，冻结确认不引入新设计。",
+  "hypothesis_group": "G000",
+  "operative_terms": "有效项：R09_v3 的三个 20 槽局部模式 F_b011_s030_native、F_b017_s043_native、F_b003_s025_native，支持并集为各模式 atom_slots 的并集，均严格局部；方向/官能团所需邻居计入支持。时钟固定：observable=predictive_bridge_to_learning_end，teacher=actual_ancestor_at_learning_end，祖先坐标来自 actual current world A，教师端点来自 same-forward teacher predicted endpoint world A，两者不得互换。窗口 [0.1,0.5]，teacher_time=0.5，lookahead_fraction=0.2，clock_policy=fixed，dose_schedule=constant，schedule_normalization=1.0。路由：compatible，每个 seed 按最低局部所需空间位移自选模式，不使用未来亲和力估计；mode_memory_t=0.05，switch_margin_A=0.15，mode_switches=0。剂量：max_atom_step_A=0.15，max_cumulative_rms_A=6.0，native_rms_ratio=0.66，pointcloud_delta_A=1.0，field_sigma_A=1.5，assignment_element_cost=0.5，typed_weight=0.0，charge_weight=0.0。无 SMC、无 affinity-head 导数、无每步额外 affinity 推理；仅坐标更新。",
+  "option_id": "A000",
+  "parent_program_id": "R09_v3"
+}

@@ -1,0 +1,99 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589.txt",
+        "content_sha256": "9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/548e99229974480949bed6350299340f3afeb8fa039a370b906d0e91762b118c.txt",
+        "content_sha256": "548e99229974480949bed6350299340f3afeb8fa039a370b906d0e91762b118c",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b003_s025__v3_countmatched_reference/ancestor",
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "F_b017_s043__v3_countmatched_reference/selection_trend",
+            "campaign/history",
+            "parents/R09_v3/outcomes",
+            "parents/R09_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "operative_terms": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A000",
+          "A001"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R09_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
