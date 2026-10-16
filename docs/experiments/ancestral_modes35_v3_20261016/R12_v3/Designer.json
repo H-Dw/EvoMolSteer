@@ -1,0 +1,27 @@
+{
+  "actual_dose_expectation": "时间调度与剂量沿用 R11_v3：constant 调度、max_atom_step_A=0.15、max_cumulative_rms_A=6.0、native_rms_ratio=0.66、pointcloud_delta_A=1.0、窗口 [0.1,0.5]、100 积分步、expected_active_steps 10–49。预期实际位移与 R11 同量级（actual_cumulative_step_rms_A 约 1.199225238710642，actual_max_step_rms_A 约 0.030736761055886744），dose_gain_mean=1.0、cumulative_clip_fraction=0.0。预期模式占用从 R11 的 {F_b003_s025_native:32, F_b011_s030_native:6, F_b017_s043_native:12} 向 R09 的近似均衡（16/17/17）移动，mode_switches 与 assignment_switch_fraction 相对 R10（mean 0.9 / 0.0329）下降；F_b011_s030_native 的 n 上升且 mean_pic50 保持在 R09 观测的 7.7421996733721565 附近；池 mean_all_pic50 相对 R11 的 7.470114917755127 上升。形成/保持/价值分开检验：形成看 terminal_tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 是否维持 R11 的 0.8900000000000001 / 0.9159722222222223；保持看 boundary_tracked_actual_ancestor_element_fraction 与 boundary_posthoc_local_rms_A 是否不劣于 R11 的 0.27899999999999997 / 0.12850516292127956；价值看 best_qualified_pic50 与 hit_fraction 是否超过 R11 的 8.1411714553833 / 0.02。三者不得互相替代。",
+  "derivative_path": "仅对当前调用有效的真实模型坐标 VJP：每个模式一次稀疏真实坐标 VJP，用于可控性探针；路由分数停止梯度，状态相关权重未求导，因此只声称条件路由梯度，不声称完整混合势的精确导数。E0 匹配、E1 停梯度概率空间场、E2 概率/空间共同坐标 VJP 分开；元素、电荷与必要键信息取自当前已存在的生成 head，形式电荷分通道，不冒充部分电荷、pKa 或相互作用自由能。无 affinity-head 导数、无 SMC、无每步额外 affinity 推理、无 logits/离散转移率编辑。",
+  "design_grounds": "绑定 Analyst 的 G000 假设与 parent R11_v3：R10/R11 均以最近距离兼容性分配模式，池均值 7.49661036491394 / 7.470114917755127 低于 R09 混合池 7.57050313949585，且 R11 中 F_b017_s043_native 的 mean_pic50 降至 7.118507424990336（parents/R11_v3/outcomes）。A000 只把路由量从最近几何距离换成同一 forward 的稀疏真实坐标 VJP 可控性探针，支持槽位、模式来源、教师时刻、窗口、剂量与记忆全部沿用 R11_v3，不新增点、不新增项、不换教师。三个模式的支持仍为各自 20 槽严格局部并集（F_b011_s030__reference/mode_comparison 给出 selected_support 与 actual_ancestor_slots），不联合非连续区域。该可控性只是待检验的局部代理，不是成功概率，也不解释为亲和力。",
+  "evidence_refs": [
+    "F_b011_s030__reference/mode_comparison",
+    "F_b011_s030__reference/controller_response",
+    "F_b003_s025__v3_countmatched_reference/selection_trend",
+    "F_b017_s043__v3_countmatched_reference/failure_history",
+    "campaign/history",
+    "parents/R11_v3/outcomes",
+    "parents/R11_v3/response",
+    "source/limits",
+    "source/measured_path_preferences",
+    "source/prior_campaign"
+  ],
+  "execution_changes": [
+    "response_gap_floor",
+    "response_refresh_fraction",
+    "routing"
+  ],
+  "falsifier": "若在相同支持、相同记忆与相同剂量下，改用稀疏真实坐标 VJP 可控性路由后，模式占用仍集中在 F_b003_s025_native（n≥30）且池 mean_all_pic50 不高于 R11 的 7.470114917755127、best_qualified_pic50 不高于 8.1411714553833，则“最近距离兼容性不是正确路由量”这一解释被削弱；若 dose_gain_mean 偏离 1.0 或 cumulative_clip_fraction 非 0，则观测到的变化不能归因于路由量本身。相似度、角色概率或 loss 改善不能代替最终质量；接口错误与科学负结果分开登记。",
+  "hypothesis_group": "G000",
+  "operative_terms": "模式选择量改为同一 forward 的稀疏真实坐标 VJP 可控性：对每个候选模式在其 20 槽支持上做一次真实模型坐标 VJP 探针，得到局部可控性分数，用于 seed 的模式分配；兼容性/路由分数在 detached 分支计算，不进入 logits 或元素梯度。routing 由 persistent 改为 persistent_response，response_refresh_fraction=0.5，response_gap_floor=0.01；刷新之外复用缓存的路由响应，不新增生成或 affinity forward。dose_gain_mean 保持 1.0、cumulative_clip_fraction 保持 0.0，以排除归一化抵消。",
+  "option_id": "A000",
+  "parent_program_id": "R11_v3"
+}

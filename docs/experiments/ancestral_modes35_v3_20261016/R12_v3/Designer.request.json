@@ -1,0 +1,121 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589.txt",
+        "content_sha256": "9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/51b594a1cddc94d47eaaa020fe334e5af4c3f4f58980fa65b6e475d2559b8075.txt",
+        "content_sha256": "51b594a1cddc94d47eaaa020fe334e5af4c3f4f58980fa65b6e475d2559b8075",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "oneOf": [
+      {
+        "properties": {
+          "execution_changes": {
+            "const": [
+              "response_gap_floor",
+              "response_refresh_fraction",
+              "routing"
+            ]
+          },
+          "option_id": {
+            "const": "A000"
+          }
+        }
+      }
+    ],
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b003_s025__v3_countmatched_reference/selection_trend",
+            "F_b011_s030__reference/controller_response",
+            "F_b011_s030__reference/mode_comparison",
+            "F_b017_s043__v3_countmatched_reference/failure_history",
+            "campaign/history",
+            "parents/R11_v3/outcomes",
+            "parents/R11_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "execution_changes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "operative_terms": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A000"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R11_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "execution_changes",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
