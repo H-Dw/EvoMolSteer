@@ -44,6 +44,46 @@ def batch_bootstrap(a_groups, b_groups, tau, seed):
             'scope': 'Paired batch bootstrap, seed fixed; not target/prior holdout or adjusted development comparison.'}
 
 
+def figures(output, state, original, guided, unguided):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), constrained_layout=True)
+    discovery = [r for r in state['rounds'] if r['stage'] == 'discovery']
+    axes[0].scatter([r['metrics']['mean_all_pic50'] for r in discovery],
+                    [r['metrics']['best_qualified_pic50'] for r in discovery],
+                    s=27, color='#5677a2', alpha=.75, label='Development (33 x same n=50)')
+    for name in ('R02_v3', 'R13_v3', 'R33_v3'):
+        r = next(c for c in discovery if c['round'] == name)
+        axes[0].annotate(name[:3], (r['metrics']['mean_all_pic50'], r['metrics']['best_qualified_pic50']),
+                         xytext=(5, 5), textcoords='offset points', fontsize=8)
+    for rows, name, color in [(guided, 'Frozen guidance n=400', '#b23b45'),
+                               (unguided, 'Matched unguided n=400', '#3e8a67')]:
+        s = score_records(rows, original['tau'])
+        axes[0].scatter(s['mean_all_pic50'], s['best_qualified_pic50'], color=color,
+                        marker='D', s=55, label=name, zorder=5)
+    axes[0].axhline(original['best'], color='black', lw=1, ls='--', label='Original Steer max (n=1000)')
+    axes[0].set(xlabel='Mean predicted pIC50 (all attempts)', ylabel='Best basic-qualified predicted pIC50',
+                title='A. Discovery and frozen outcomes')
+    axes[0].legend(fontsize=7, loc='lower right')
+    for rows, label, color in [(original['records'], 'Original Steer (1000 attempts)', '#555555'),
+                                (guided, 'Frozen guidance (400 attempts)', '#b23b45'),
+                                (unguided, 'Matched unguided (400 attempts)', '#3e8a67')]:
+        x = np.sort([r['pic50'] for r in rows if r['qualified_structure'] and r['pic50'] is not None])
+        # Survival denominator includes failures; this is yield per attempt, not a
+        # renormalized conditional CDF that hides missing/invalid structures.
+        y = (len(x) - np.arange(len(x))) / len(rows)
+        axes[1].step(x, y, where='pre', color=color, label=label)
+    axes[1].axvline(original['tau'], color='#999999', ls=':', lw=1)
+    axes[1].set(xlabel='Predicted pIC50 threshold', ylabel='Basic-qualified yield per attempt above threshold',
+                xlim=(7.8, original['best'] + .1), ylim=(0, .35), title='B. High-affinity yield (descriptive)')
+    axes[1].legend(fontsize=7, loc='upper right')
+    for ax in axes:
+        ax.spines[['top', 'right']].set_visible(False); ax.grid(alpha=.12)
+    fig.savefig(output / 'performance.png', dpi=180)
+    fig.savefig(output / 'performance.svg', metadata={'Date': None}); plt.close(fig)
+
+
 def analyze(repo, config, output):
     repo = Path(repo).resolve(); m = read_json(config); study = repo / m['campaign_study']
     state = read_json(study / 'state.json'); output = Path(output); output.mkdir(parents=True, exist_ok=True)
@@ -126,6 +166,7 @@ def analyze(repo, config, output):
     pd.DataFrame(comparisons).to_csv(output / 'comparison.csv', index=False)
     pd.DataFrame(rounds).to_csv(output / 'rounds.csv', index=False)
     pd.DataFrame(execution_rows).to_csv(output / 'paired_batches.csv', index=False)
+    figures(output, state, original, all_a, all_b)
     return summary
 
 
