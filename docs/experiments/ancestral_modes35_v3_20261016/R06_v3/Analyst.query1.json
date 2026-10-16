@@ -1,0 +1,9 @@
+{
+  "purpose": "已获得 selection_trend 与 controller_response 的真实结果，足以完成交接前的区分。selection_trend 显示：20点固定终态局部点的 focal 特征在窗口内单调上升（如 representative_rows 中 focal[0] 从 0.250 升至 0.491），而 expected_selection_shift 量级约 1e-4 至 1e-3，远小于 focal 变化；realized_selection_shift 同样在 1e-4 量级且符号不一致。这说明该20点支持随选择富集的主要是初态/背景漂移，而非选择期望的显著富集，因此不能把该局部支持当作已被选择验证的成功模式。controller_response 显示：R02_v3（endpoint_prediction, constant）与 R15_V3_COMPATIBLE（fixed, constant）在相同20点支持、相同 mode 下终态均值几乎相同（7.619 vs 7.711），但 R02 的 best_qualified_pic50 更高（8.699 vs 8.590），而 R15 的 U_tau 更低（0.0091 vs 0.0113）；R05_v3（early dose schedule）终态均值最低（7.663）且 U_tau=0，best 仅 8.079。三者均未达到 tau=8.135 的尾部要求（n_above_target=0）。这区分出：当前缺口不是“函数方向不对”（R02 与 R15 方向一致且都产生合格候选），也不是“真实剂量不足”（R05 的 early schedule 反而更差），而是“形成但终态无收益”——几何目标达成（terminal_tracked_terminal_element_fraction 0.87–0.93）但亲和力尾部未提升。因此下一项区分实验应针对 attainment_response（几何目标达成后衰减实际位移），而非继续加强权重或改变时钟。无需再查询 ancestor 或 failure_history：ancestor 的逐点相似度可能只反映初态，且 selection_trend 已给出更稳健的局部统计；failure_history 的失败家族已由 source/prior_campaign 的 scientific_readout 覆盖（局部身份形成不等于亲和力受益）。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "selection_trend"
+    }
+  ]
+}

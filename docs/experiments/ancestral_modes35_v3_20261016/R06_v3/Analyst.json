@@ -1,0 +1,29 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块，因此不引入界面角色、N/C 环境、官能团协同、电荷微态或溶剂竞争假设。元素分数与电荷分数仅作为几何/元素软代理记录，不当作已验证的 H-bond 或受体角色。终态化学角色只用于追溯位置，不作为早期已存在该角色的证据。",
+  "clock_and_representation": "选择 G001 的 endpoint_prediction 时钟：observable 为 predicted_endpoint，teacher 为 teacher_predicted_endpoint_at_same_forward_time。该表示与 R02_v3 的实际配置一致（clock_policy=endpoint_prediction），并与 selection_trend 的 selection_clock_note 一致：权重来自 score_time，应用于 state_time，学习窗口外不应用。不采用 fixed 时钟（G000）或 early 剂量（G002），因为 controller_response 显示 R02_v3 与 R15_V3_COMPATIBLE 终态均值接近而 R02 尾部更高，R05_v3 的 early 剂量反而最低。",
+  "counterevidence_refs": [
+    "parents/R05_v3/outcomes",
+    "parents/R05_v3/response",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "source/prior_campaign"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/controller_response",
+    "F_b011_s030__reference/selection_trend",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response"
+  ],
+  "falsifier": "否证条件：若在 R02_v3 表示上加入 attainment_response=true 后，best_qualified_pic50 不高于 R02_v3 的 8.699 且 n_above_target 仍为 0，同时 terminal_tracked_terminal_element_fraction 低于 R02_v3 的 0.873，则本假设被否证，说明缺口不在达成后位移衰减，而在支持区域或 mode 本身。若 best_qualified_pic50 上升但 mean_all_pic50 下降超过 R02_v3 的 7.619，则说明收益仅来自尾部抽样而非系统性改善，同样构成部分否证。",
+  "formation_retention_value_test": "形成-保持-价值分离测试：形成（formation）用 terminal_tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 衡量，R02_v3 已分别达到 0.873 与 0.864；保持（retention）用 boundary_tracked_terminal_element_fraction 与 boundary_posthoc_local_rms_A 衡量，R02_v3 为 0.473 与 0.308；价值（value）用 best_qualified_pic50 与 n_above_target 衡量，R02_v3 为 8.699 与 0。若 attainment_response 有效，应看到形成与保持指标不劣化而价值指标改善；若形成指标下降而价值不改善，则说明衰减过早，属于“后缀未保持”而非“形成但终态无收益”。",
+  "group_id": "G001",
+  "observable_change": "预期可观测变化：在相同20点支持与相同 mode 下，终态 tracked_terminal_element_fraction 与 terminal_geometry_matched_terminal_element_fraction 保持或略降（几何身份已形成），而 best_qualified_pic50 相对 R02_v3 的 8.699 上升或至少不下降；mean_all_pic50 相对 R02_v3 的 7.619 不下降；U_tau 相对 R02_v3 的 0.0113 不上升。若 attainment_response 只是把实际位移整体缩小，则 actual_cumulative_step_rms_A 应低于 R02_v3 的 1.191，而 point_rms_A 终值不应比 R02_v3 的 0.752 更差。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "relationship_to_failed_families": "与已记录的失败家族关系：source/prior_campaign 记录“局部身份形成不等于亲和力受益”，R03 终态 N 几何匹配率 95.8% 但最高基本合格 pIC50 仅 8.128；本假设正是针对该失败模式，即形成已达成而价值未提升。R05_v3 的 early 剂量调度（dose_gain 从 1.491 降到 0.514）终态均值最低（7.663）且 U_tau=0，说明“真实剂量不足/归一化抵消”不是主因，因此不选择 G002。R15_V3_COMPATIBLE 的 fixed 时钟终态均值最高（7.711）但 best 仅 8.590，说明时钟表示本身不是唯一缺口。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 的20点局部支持上，R02_v3（endpoint_prediction 时钟、constant 剂量、attainment_response=false）与 R15_V3_COMPATIBLE（fixed 时钟、constant 剂量）在相同 mode 下终态均值几乎相同（7.619 vs 7.711），但 R02 的 best_qualified_pic50 更高（8.699 vs 8.590），说明当前缺口不是时钟表示方向错误，而是几何目标达成后仍继续施加实际位移，导致终态无亲和力收益。主假设：在 R02_v3 的 endpoint_prediction 表示上加入 attainment_response=true（几何目标达成后衰减实际位移），可在不改变时钟、支持、mode 与剂量上限的前提下，把已形成的局部几何身份转化为更高的合格尾部，而不是继续加强权重。",
+  "support_reason": "选择 G001 的理由：controller_response 显示 R02_v3 与 R15_V3_COMPATIBLE 在相同20点支持、相同 mode 下终态均值几乎相同（7.619 vs 7.711），但 R02 的 best_qualified_pic50 更高（8.699 vs 8.590），且 R02 的 U_tau 更高（0.0113 vs 0.0091），说明 R02 表示下尾部更好而整体略低，适合作为 attainment_response 的基线。selection_trend 显示 focal 特征在窗口内单调上升（representative_rows 中 focal[0] 从 0.250 升至 0.491），而 expected_selection_shift 量级仅 1e-4 至 1e-3，说明该20点支持随选择富集的主要是初态/背景漂移，不能把该局部支持当作已被选择验证的成功模式，因此不应继续加强权重，而应测试达成后衰减。G001 的 numerical option A001 保持 R02_v3 的 endpoint_prediction 时钟、constant 剂量、20点支持与 mode 不变，仅将 attainment_response 设为 true，是能区分“函数方向不对”与“形成但终态无收益”的最小干预。"
+}
