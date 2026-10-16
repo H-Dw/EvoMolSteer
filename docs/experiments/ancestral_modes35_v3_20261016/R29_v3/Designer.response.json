@@ -1,0 +1,17 @@
+{
+  "design_grounds": "R02_v3 的几何点式项是唯一实际执行的分量（typed/charge enabled_weight=0.0、measured_probe_steps=0），其端点预测时钟下 point_rms_A 从 0.636 升到 0.752、gradient_native_observed_cosine 从 -0.028 降到 -0.550，说明该尾部由几何曲率响应而非剂量或化学通道控制；A002 只把 pseudo-Huber 稳健尺度 delta 从 1.0 降到 0.5，保持同一 20 点局部支持、同一端点预测教师、同一 constant 调度与剂量上限，因此可在不改变实际请求位移预算的前提下检验曲率是否为该近目标尾部的可控维度。",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "F_b011_s030__reference/selection_trend",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/component_response",
+    "parents/R02_v3/element_layout",
+    "source/feature_revision"
+  ],
+  "falsifier": "若 A002 的 point_rms_A 轨迹、injected_rms_A_mean 与 predictive_flow_rms_A_mean 在测量噪声内与 R02_v3 的 delta=1.0 无区分，或曲率确有响应但终态 best_qualified_pic50 未超过 8.69941520690918 且 mean_all_pic50 未改善，或 n_qualified 显著低于 48，则曲率不是该尾部分支的可控维度。",
+  "hypothesis_group": "G001",
+  "option_id": "A002",
+  "parent_program_id": "R02_v3"
+}
