@@ -36,7 +36,7 @@ class AncestorReward:
         a,b=p['learning_window'];g0,g1=p['window']
         if not 0<=a<=g0<g1<=b<1:raise ValueError('Invalid learning/control domain')
         if p['smc'] or p['affinity_head_gradient'] or not p['coordinate_updates_only']:raise ValueError('Unsupported intervention')
-        if p['routing'] not in ('single','static','compatible','persistent','soft'):raise ValueError('Unknown seed routing')
+        if p['routing'] not in ('single','static','compatible','persistent','response','persistent_response','soft'):raise ValueError('Unknown seed routing')
         if p['routing']=='soft':raise ValueError('Soft multi-mode support unions need a separate validated adapter')
         if p['sensing'] not in ('detached','full') or p['typed_channels'] not in ('all','NC','NO') or p['type_target'] not in ('predicted','terminal'):raise ValueError('Unknown chemical sensing semantics')
         if p['clock_policy'] not in ('fixed','current','endpoint_prediction','lookahead','decaying_lookahead'):raise ValueError('Invalid clock')
@@ -48,7 +48,7 @@ class AncestorReward:
             for trip in s['orientation_triplets']:
                 if not set(trip)<=set(k):raise ValueError('Direction neighbors escaped declared support')
         if not 0<p['dose']['pointcloud_delta_A'] or p['field_sigma_A']<=0:raise ValueError('Invalid spatial scale')
-        self.previous=None;self.last_switch=None
+        self.previous=None;self.last_switch=None;self.response_scores=None;self.response_time=None
 
     def active(self,t,dt):return dt>0 and t>=self.p['window'][0]-2e-6 and t+dt<=self.p['window'][1]+2e-6
 
@@ -124,13 +124,38 @@ class AncestorReward:
         direct=torch.zeros_like(mask);direct.scatter_(1,assignment,True)
         return value,{'assignment':assignment,'direct_mask':direct,'error':error,'clock':h,'typed':typed,'charge':charge_term,'base':base_value,'z':z}
 
-    def evaluate(self,current,endpoint,atom_logits,charge_logits,mask,t,forced_mode=None,assignments=None):
+    def evaluate(self,current,endpoint,atom_logits,charge_logits,mask,t,forced_mode=None,assignments=None,derivative_input=None):
         results=[self.evaluate_mode(current,endpoint,atom_logits,charge_logits,mask,t,k,
             None if assignments is None else assignments[k]) for k in range(len(self.specs))]
         errors=torch.stack([d['error'].detach() for _,d in results],1);n=len(current)
+        routing_vjps=0;response_refresh=False
+        response_route=self.p['routing'] in ('response','persistent_response')
+        if response_route and forced_mode is None:
+            if derivative_input is None:raise ValueError('Response routing needs the real generation coordinate leaf')
+            interval=self.p.get('response_refresh_fraction',.5)*(self.p['window'][1]-self.p['window'][0])
+            response_refresh=self.response_time is None or t-self.response_time>=interval-2e-6
+            if response_refresh:
+                scores=[]
+                for value,_ in results:
+                    g=torch.autograd.grad(value.sum(),derivative_input,retain_graph=True)[0].detach()
+                    count=mask.sum(1).clamp_min(1)
+                    rms=((g.square()*mask[...,None]).sum((1,2))/count).sqrt()
+                    # First-order fractional surrogate-gap reduction per unit RMS coordinate motion.
+                    # This is controllability of this reward, NOT future affinity/success probability.
+                    gap=(-value.detach()).clamp_min(self.p.get('response_gap_floor',.01))
+                    if self.p['operator']=='selection_advantage':gap=(self.p['advantage_cap']-value.detach()).clamp_min(self.p.get('response_gap_floor',.01))
+                    scores.append(count*rms/gap);routing_vjps+=1
+                self.response_scores=torch.stack(scores,1);self.response_time=t
         if forced_mode is not None:choice=forced_mode
         elif self.p['routing']=='single':choice=torch.zeros(n,device=current.device,dtype=torch.long)
         elif self.p['routing']=='static':choice=torch.arange(n,device=current.device)%len(self.specs)
+        elif response_route:
+            best=self.response_scores.argmax(1);choice=best
+            if self.p['routing']=='persistent_response' and self.previous is not None:
+                old=self.response_scores.gather(1,self.previous[:,None]).flatten();new=self.response_scores.gather(1,best[:,None]).flatten()
+                gain=(new-old)/old.abs().clamp_min(1e-8)
+                switch=(gain>self.p.get('response_switch_fraction',.2))&(t-self.last_switch>=self.p['mode_memory_t'])
+                choice=torch.where(switch,best,self.previous)
         else:
             best=errors.argmin(1);choice=best
             if self.p['routing']=='persistent' and self.previous is not None:
@@ -147,6 +172,8 @@ class AncestorReward:
         direct=torch.stack([results[int(choice[i])][1]['direct_mask'][i] for i in range(n)])
         error=errors.gather(1,choice[:,None]).flatten()
         return values,{'direct_mask':direct,'error':error,'mode':choice,'switches':switches,
+            'routing_VJPs':routing_vjps,'response_refresh':response_refresh,
+            'response_scores':None if self.response_scores is None else self.response_scores.cpu().tolist(),
             'selected_components':{name:torch.stack([d[name] for _,d in results],1).gather(1,choice[:,None]).flatten() for name in ('base','typed','charge')},
             'all_assignments':[d['assignment'] for _,d in results],'assignments_selected':[v.detach().cpu().tolist() for v in selected],
             'clocks':[d['clock'] for _,d in results],'typed_mean':float(torch.stack([d['typed'].detach() for _,d in results]).mean()),
@@ -168,7 +195,7 @@ class AncestorControl(Control):
                     v.register_hook(denied)
             pred,_=self.model._get_predictions(out);current=x*self.model.coord_scale+self.com[:,None]
             endpoint=pred['coords']*self.model.coord_scale+self.com[:,None]
-            value,detail=self.reward.evaluate(current,endpoint,out['atomics'],out['charges'],curr['mask'].bool(),self.t)
+            value,detail=self.reward.evaluate(current,endpoint,out['atomics'],out['charges'],curr['mask'].bool(),self.t,derivative_input=x)
             probes={};active=self.program['expected_active_steps'];probe_steps={active[0],active[len(active)//2],active[-1]}
             if i in probe_steps:
                 for name,key in [('typed','typed_weight'),('charge','charge_weight')]:
@@ -181,6 +208,8 @@ class AncestorControl(Control):
         if self.program['attainment_response']:gain*=attainment_gain(self.program,error,detail['selected_components'])
         self.dose_gain=gain.detach()
         self.extra={'clock_policy':self.program['clock_policy'],'actual_target_clocks':detail['clocks'],
+            'routing_VJPs':detail['routing_VJPs'],'routing_response_refresh':detail['response_refresh'],
+            'routing_response_scores':detail['response_scores'],
             'mode_indices':detail['mode'].cpu().tolist(),'mode_switches':int(detail['switches'].sum()),
             'target_error_per_seed_A':error.cpu().tolist(),'dose_gain_per_seed':self.dose_gain.cpu().tolist(),
             'direct_support_per_seed':detail['direct_mask'].sum(1).cpu().tolist(),

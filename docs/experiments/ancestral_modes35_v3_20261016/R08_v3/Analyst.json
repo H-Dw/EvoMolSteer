@@ -1,0 +1,30 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 仅作为终态元素标签用于支持选择，不构成早期实际身份或 H-bond/官能团角色的证据；source/limits 明确 element/charge 预测概率保留原始 float16 量化，且终态角色不是早期状态已存在的证据。",
+  "clock_and_representation": "G000 使用 clock_policy=fixed，observable=predictive_bridge_to_learning_end，teacher=actual_ancestor_at_learning_end；窗口[0.1,0.5]，teacher_time=0.5，type_target=predicted，sensing=detached，coordinate_updates_only=true。ancestor 工具返回的 current_clock_times=[0.0,0.12,0.25,0.5] 与 selected_ancestor_coords_A 为实际当前世界坐标，selected_teacher_endpoint_A 为同向前教师预测端点世界坐标，两者不可互换。selection_trend 的 feature_definition 说明特征为固定终态局部点的核占据与带符号核加权位移，当前时刻教师坐标仅用于局部对应。",
+  "counterevidence_refs": [
+    "F_b011_s030__reference/failure_history",
+    "campaign/history",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/selection_trend",
+    "F_b011_s030__reference/controller_response",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response"
+  ],
+  "falsifier": "若在 G000 内改变 native_rms_ratio（0.33/0.99/1.32）后，injected_rms_A_mean 与 actual_cumulative_step_rms_A 未随剂量尺度单调变化，或终态局部 RMS 与 best_qualified_pic50 尾部均无同向变化，则“总物理剂量不足/归一化抵消”这一解释被否证，应转向“函数方向不对”或“目标无法形成”。",
+  "formation_retention_value_test": "形成-保持-价值三段分离：形成用 terminal_tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction（R15_V3_COMPATIBLE 的 local_outcomes 为 null，需以 G000 新轮次实测为准）；保持用 boundary_tracked_terminal_element_fraction 与 boundary_posthoc_local_rms_A；价值用 best_qualified_pic50 与 mean_all_pic50。三者必须分别报告，不能以形成率替代价值。",
+  "group_id": "G000",
+  "observable_change": "在 F_b011_s030__reference 上，比较 G000 三个数值选项（A000 native_rms_ratio=0.33、A001=0.99、A002=1.32）的 controller_response 与 local_outcomes：预期可观测到 injected_rms_A_mean、actual_cumulative_step_rms_A、actual_max_step_rms_A 随 native_rms_ratio 单调变化；同时观察 terminal_posthoc_local_rms_A、terminal_tracked_terminal_element_fraction、terminal_tracked_NC_joint_fraction 与 best_qualified_pic50/mean_all_pic50 是否同向。若剂量不足，则较高 native_rms_ratio 应同时提高终态局部贴合与尾部；若方向错误，则这些量随剂量变化但尾部不改善。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "campaign/history 中 R01_v3（current_clock）、R03_v3（lookahead）、R04_v3（decaying_lookahead）、R05_v3（dose_schedule）、R06_v3（attainment）、R07_v3（window_start）均未产生 n_above_target>0，且 R02_v3（endpoint_clock）与 R07_v3 已回滚。source/prior_campaign 记录“局部身份形成不等于亲和力受益”“更准确地贴合固定点云并不是当前首要缺口”。G000 不重复这些已测的时钟/窗口/调度变化，只改变总物理剂量尺度，以区分剂量不足与方向错误。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 的 20 点局部支持上，R15_V3_COMPATIBLE 的 fixed-clock 预测桥接（predictive_bridge_to_learning_end，教师为 actual_ancestor_at_learning_end）在窗口[0.1,0.5]内已把局部几何拉向学习末端祖先，但 native_rms_ratio=0.66 使总物理剂量被原生噪声部分抵消：controller_response 显示 injected_rms_A_mean≈0.02996 而 native_observed_rms_A_mean≈0.05730，dose_gain_mean 恒为 1.0，说明请求剂量未被放大。假设：在保持同一局部支持、同一 fixed clock、同一窗口与同一 assignment_element_cost=0.5 的前提下，仅改变总物理剂量尺度（native_rms_ratio 0.33/0.99/1.32），可区分“真实剂量不足/归一化抵消”与“函数方向不对”。若剂量尺度是限制因素，则提高 native_rms_ratio 应使终态局部 RMS 与终态预测亲和力尾部同向改善；若方向错误，则剂量变化只改变位移幅度而不改变尾部。",
+  "support_reason": "选择 G000 因其 parent 为 R15_V3_COMPATIBLE，且其三个数值选项 A000/A001/A002 仅改变 dose.native_rms_ratio（0.33/0.99/1.32），其余字段（支持槽位、窗口、时钟、assignment_element_cost、dose_schedule、expected_active_steps）与已查询的 R15_V3_COMPATIBLE 程序一致。controller_response 显示 R15_V3_COMPATIBLE 的 dose_gain_mean 恒为 1.0 且 injected_rms_A_mean 低于 native_observed_rms_A_mean，提示剂量尺度是可干预且未被归一化放大的模块。"
+}

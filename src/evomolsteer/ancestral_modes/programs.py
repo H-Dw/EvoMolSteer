@@ -21,6 +21,9 @@ def numerical_identity(p,teacher):
     if p['operator']=='orientation':v['triplets']=[s['orientation_triplets'] for s in p['mode_specs']]
     if p['operator']=='pocket_distance':v['sites']=[s['pocket_sites'] for s in p['mode_specs']]
     if p['routing']=='persistent':v.update(mode_memory_t=p['mode_memory_t'],switch_margin_A=p['switch_margin_A'])
+    if p['routing'] in ('response','persistent_response'):
+        v.update(response_refresh_fraction=p.get('response_refresh_fraction',.5),response_gap_floor=p.get('response_gap_floor',.01))
+        if p['routing']=='persistent_response':v.update(mode_memory_t=p['mode_memory_t'],response_switch_fraction=p.get('response_switch_fraction',.2))
     if p['typed_weight'] or p['charge_weight']:
         for k in ('typed_weight','charge_weight','sensing','field_sigma_A'):v[k]=p[k]
     if p['typed_weight']:
@@ -148,10 +151,14 @@ def actions(repo,m,bank,regions,state,number):
                         if candidates:modes.append(spec(candidates[0]))
                     if len(modes)>1:add(parent,{'routing':'static'},'Multiple observed terminal modes with identical support count and static seed assignment',modes=modes)
             elif len(p['mode_specs'])>1:
-                if phase=='compatible_routing':add(parent,{'routing':'compatible'},'Each seed selects lowest local required spatial displacement')
-                elif phase=='persistent_routing':add(parent,{'routing':'persistent'},'Per-seed compatibility plus bounded switch memory')
+                if phase=='compatible_routing':
+                    add(parent,{'routing':'compatible'},'Each seed selects lowest local required spatial displacement; not a future-quality estimate')
+                    add(parent,{'routing':'response','response_refresh_fraction':.5,'response_gap_floor':.01},'Two same-forward coordinate VJP probes select maximal fractional surrogate progress per RMS displacement; not future success probability')
+                elif phase=='persistent_routing':
+                    response=p['routing'] in ('response','persistent_response')
+                    add(parent,{'routing':'persistent_response' if response else 'persistent','response_switch_fraction':.2},'Per-seed compatibility or measured response plus bounded switch memory')
                 else:
-                    for f in (.05,.15,.3):add(parent,{'mode_memory_t':width*f,'routing':'persistent'},'Memory measured in configured generation time')
+                    for f in (.05,.15,.3):add(parent,{'mode_memory_t':width*f,'routing':'persistent_response' if p['routing']=='persistent_response' else 'persistent'},'Memory measured in configured generation time')
         elif phase in ('typed_field','charge_field'):
             key='typed_weight' if phase=='typed_field' else 'charge_weight'
             for w in (.5,2.,8.):add(parent,{key:w},'Local soft probability field; no direct categorical editing or affinity derivative')
