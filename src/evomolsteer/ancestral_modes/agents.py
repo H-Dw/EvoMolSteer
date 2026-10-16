@@ -60,7 +60,16 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     parent_ids={a['parent_id'] for a in actions};parents={}
     for entry in [state['reference'],state['best'],*state.get('rounds',[])]:
         if entry.get('program',{}).get('program_id') in parent_ids:
-            parents[entry['program']['program_id']]={k:entry.get(k) for k in ('program','metrics','response','local_outcomes')}
+            parents[entry['program']['program_id']]={k:entry.get(k) for k in ('program','metrics','response','local_outcomes','result_folder')}
+    for pid,record in parents.items():
+        if not record.get('result_folder'):continue
+        result=repo/record['result_folder'];audit=read_json(result/'guidance_audit.json')
+        if audit.get('program',{}).get('family')!='ancestral_modes_v3':continue
+        from .layout import analyze as layout_analysis
+        from .verify import observe
+        destination=repo/m['campaign_study']/pid/'delivered_measurements'
+        record['element_layout']=layout_analysis(result,bank,destination/'element_layout')
+        record['execution_response']=observe(result,destination/'execution_observation.json')
     for action in actions:action['authoritative_program_delta']=program_delta(parents[action['parent_id']]['program'],action['program'])
     catalog=[]
     for gid,values in groups.items():
@@ -85,6 +94,9 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     for pid,v in parents.items():
         bundle['evidence']['parents/'+pid+'/outcomes']={'parent_program_id':pid,'metrics':v['metrics'],'local_outcomes':v.get('local_outcomes')}
         bundle['evidence']['parents/'+pid+'/response']={'parent_program_id':pid,'response':v['response'],'program':v['program']}
+        if 'element_layout' in v:
+            bundle['evidence']['parents/'+pid+'/element_layout']={'parent_program_id':pid,**v['element_layout']}
+            bundle['evidence']['parents/'+pid+'/component_response']={'parent_program_id':pid,**v['execution_response']}
     correction=repo/m['campaign_study']/'feature_definition_correction.json'
     if correction.exists():bundle['evidence']['source/feature_revision']=read_json(correction)
     routing_evidence=repo/m['campaign_study']/'paired_path_preferences_R02.json'

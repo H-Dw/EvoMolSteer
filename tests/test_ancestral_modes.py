@@ -191,3 +191,10 @@ def test_authoritative_delta_distinguishes_route_change_from_metadata():
     from evomolsteer.ancestral_modes.programs import program_delta
     p,b=fixture();q=copy.deepcopy(p);q.update(program_id='new',routing='compatible',analyst_sha256='new')
     assert program_delta(p,q)=={'routing':{'before':'single','after':'compatible'}}
+
+
+def test_class_balanced_layout_detects_majority_element_shortcut():
+    from evomolsteer.ancestral_modes.layout import class_scores
+    s=class_scores([0,0,0,0,1],[0,0,0,0,0],{'C':0,'N':1,'O':2})
+    assert s['C_recall']==1 and s['N_recall']==0 and s['NC_balanced_recall']==.5
+    assert s['N_precision'] is None and s['O_recall'] is None
