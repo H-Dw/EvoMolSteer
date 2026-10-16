@@ -175,6 +175,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         'scientific_hypothesis':text,'observable_change':text,'formation_retention_value_test':text,'falsifier':text,
         'active_chemistry_modules':{'const':modules},'chemical_assumptions':text,'clock_and_representation':text,
         'relationship_to_failed_families':text,'support_reason':text,
+        'component_response_interpretation':text,
         'observable_contract':obj({'observable':{'enum':sorted({c['observable'] for c in CLOCKS.values()})},
             'teacher':{'enum':sorted({c['teacher'] for c in CLOCKS.values()})}})})
     def validate_a(a):
@@ -188,6 +189,12 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if modules and not any(rid+'/chemical_context' in a['evidence_refs'] for rid in group[0]['region_ids']):
             import jsonschema
             raise jsonschema.ValidationError('Selected support needs its OWN chemical context citation',validator='chemical_support_binding',validator_value=group[0]['region_ids'],instance=a['evidence_refs'])
+        parent=parents[a['parent_program_id']]
+        if 'execution_response' in parent and (parent['program']['typed_weight'] or parent['program']['charge_weight']):
+            required=['parents/'+a['parent_program_id']+'/'+key for key in ('component_response','element_layout')]
+            if not set(required)<=set(a['evidence_refs']):
+                import jsonschema
+                raise jsonschema.ValidationError('A chemical parent needs its OWN measured component and class-balanced layout evidence',validator='measured_chemical_parent',validator_value=required,instance=a['evidence_refs'])
         expected=CLOCKS[group[0]['program']['clock_policy']]
         if a['observable_contract']!=expected:
             import jsonschema
