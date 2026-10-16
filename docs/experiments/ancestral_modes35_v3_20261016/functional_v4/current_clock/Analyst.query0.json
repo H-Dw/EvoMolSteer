@@ -1,0 +1,13 @@
+{
+  "purpose": "在交接前先取真实证据：用 ancestor 核对 F_b011_s030__reference 在当前时钟的实际祖先与终态角色/几何，用 controller_response 读取该 parent 程序的实际响应统计，以区分“函数方向不对”“剂量不足/归一化抵消”“后缀未保持”与“形成但终态无收益”。当前 campaign 内 R01_v3(current_clock) 与 R02_v3(endpoint_clock) 的 U_tau 与尾部差异、以及 R09_v3 多模式池中 F_b011_s030_native 的均值优势，都只是同池描述性关联，不能当作路由规则或成功概率；R10_v3 的 compatible_routing 反而使均值下降且出现 mode_switches，需要真实响应数据判断是路由方向问题还是剂量/归一化抵消。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "ancestor"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "controller_response"
+    }
+  ]
+}

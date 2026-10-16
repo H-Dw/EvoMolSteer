@@ -1,0 +1,24 @@
+{
+  "authoritative_program_delta": {
+    "routing": {
+      "after": "compatible",
+      "before": "static"
+    }
+  },
+  "numerical_result_unchanged": true,
+  "original_preserved": true,
+  "review": {
+    "violations": [
+      {
+        "code": "unmeasured_result_claim",
+        "explanation": "The authoritative contract states the parent executed static routing and the candidate executed compatible routing: \"R09 executed STATIC routing. Candidate R10 executed COMPATIBLE routing. Different route operators are not numerically identical, although other parameters are unchanged.\" The response claims A000 is \"唯一在数值上与 R09_v3 完全一致的可执行变体\" and predicts identical pool mean/best/U_tau/hit_fraction/n_qualified, which contradicts the supplied contract's explicit statement that the route operators differ and are not numerically identical.",
+        "quote": "预期 A000 的数值与 R09_v3 相同（numeric_identity 6f3c2aea…），即池均值 7.5705、最佳基本合格 8.5901、U_tau 0.00922、hit_fraction 0.04、n_qualified 50。"
+      },
+      {
+        "code": "source_or_comparator_confusion",
+        "explanation": "The response treats A000 as numerically identical to R09_v3 and as \"compatible 路由本身\", but the authoritative delta shows routing changed from static to compatible, and the clarification says the two are not numerically identical. This misstates the comparator relationship between parent and candidate.",
+        "quote": "A000 是唯一在数值上与 R09_v3 完全一致的可执行变体（numeric_identity 6f3c2aea…），即 compatible 路由本身，不新增点、模式或项"
+      }
+    ]
+  }
+}

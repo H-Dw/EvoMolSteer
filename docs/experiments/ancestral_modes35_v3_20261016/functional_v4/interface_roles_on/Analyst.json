@@ -1,0 +1,32 @@
+{
+  "active_chemistry_modules": [
+    "C1"
+  ],
+  "chemical_assumptions": "终态角色为观测标签：槽位 15 为 N 供体（donor=true, acceptor=false, aromatic=true），槽位 4 与 14 为芳香 C（donor=false, acceptor=false）。HIS160:NE2 与 HIS160:CE1 为最近极性/芳香口袋位点，但最近极性原子不构成已验证氢键或能量贡献；site_distance_matrix_A 显示槽位 15 到 HIS160:NE2 距离约 4.03 Å、到 HIS160:CE1 约 4.39 Å，属几何邻近而非已证相互作用。conditional_layout_evidence 的 n_identifiable_interactions 为 0，故不主张可识别的相互作用能。",
+  "clock_and_representation": "时钟策略为 fixed，observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end。祖先证据同时给出 actual current world A 与 same-forward teacher predicted endpoint world A 两种表示，二者不得互换；早期身份仍不确定，终态角色仅用于选择支持，不主张早期已存在该角色。",
+  "counterevidence_refs": [
+    "F_b011_s030__v3_interface16/selection_trend",
+    "F_b011_s030__v3_interface16/chemical_context",
+    "source/limits",
+    "source/prior_campaign"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__v3_interface15/ancestor",
+    "F_b011_s030__v3_interface15/chemical_context",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "campaign/history"
+  ],
+  "falsifier": "若在固定时钟下该 3 点预测桥接误差不下降，或方向三元组 [15,4,14] 夹角显著恶化，或终态该局部支持不再保持 C/C/N 与 N 供体朝向，则本假设被否证。若局部几何改善但终态基本合格 pIC50 尾部相对对照无改善，则说明该局部支持的形成/保持与亲和力收益分离，本假设的“价值”部分被否证。",
+  "formation_retention_value_test": "形成测试：终态该 3 槽位元素/角色是否仍为 C/C/N 且 N 保持供体朝向（方向三元组夹角在容差内）。保持测试：控制窗口结束后该局部几何是否保持在教师端点附近而非回弹。价值测试：与同池无引导或 interface16 支持对照相比，终态基本合格 pIC50 尾部是否改善；注意 R15_V3_COMPATIBLE 的 best_qualified_pic50 为 8.590141296386719、mean_all_pic50 为 7.71079755783081、n_above_target 为 0，因此价值测试必须报告尾部而非仅均值。",
+  "group_id": "G000",
+  "observable_change": "在固定时钟下，被选 3 槽位的预测桥接误差（predictive_bridge_to_learning_end）应随控制窗口下降，且方向三元组 [15,4,14] 的夹角与 N 供体朝向应保持或改善；同时该局部支持的实际位移应沿祖先路径方向（槽位 4 向 +y/+z、槽位 14 向 +y/+z）而非随机漂移。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "R10_v3 compatible_routing 在把 F_b011 占用压到 4/50 后整体回退（mean_all_pic50 7.49661036491394，best_qualified_pic50 8.079984664916992，n_above_target 0），说明模式价值与路由兼容性是不同命题；本假设不依赖池内模式关联，而依赖 interface15 的真实祖先收敛证据。R02_v3 endpoint_clock 与 R03_v3 lookahead 等轮次显示时钟/表示改变会改变结果，故本假设固定时钟并明确 observable/teacher 配对。source/prior_campaign 记录局部身份形成不等于亲和力受益，故价值测试必须报告尾部而非仅形成率。",
+  "scientific_hypothesis": "在 F_b011_s030 谱系中，interface15 的 3 点支持（槽位 4/14/15，终态元素 C/C/N，其中 15 为供体 N、4 与 14 为芳香 C）在真实祖先路径上随选择向教师端点单调收敛：槽位 4 由 t=0 的 [23.73,-32.19,13.90] 移至 t=0.5 的 [23.32,-30.97,14.35]，教师端点 [22.85,-29.71,15.14]；槽位 14 由 [21.84,-31.57,14.11] 移至 [23.27,-30.52,15.35]，教师端点 [22.72,-28.77,17.14]。该局部支持同时具备可检验的界面角色前提：终态 N 供体与 HIS160:NE2（[19.02,-29.75,17.96]）及 HIS160:CE1 相邻，芳香 C 与 MET163:CE、VAL53:CG1 构成疏水/芳香相对布局，方向三元组 [15,4,14] 给出 N 供体朝向。因此假设：以 interface15 为局部支持、固定时钟的 predictive_bridge_to_learning_end 目标，能在保持该 3 点方向关系的前提下把新 seed 的局部几何推向该成功祖先的收敛方向，从而在终态形成/保持该 N 供体-芳香界面。",
+  "support_reason": "选择 G000（interface15）而非 G001（interface16）：interface15 的祖先证据显示 3 点支持在真实谱系中随选择单调向教师端点收敛，且具备可检验的界面角色前提（N 供体 + 芳香 C + HIS160/MET163/VAL53 邻近布局 + 方向三元组 [15,4,14]）。interface16 的选择趋势显示 focal 与 background_mean 在 t≥0.1 后几乎重合，expected_selection_shift 量级仅 1e-4 至 1e-3，远小于 native_shift 约 1e-2，提示该 2 点支持随选择富集很弱；其化学上下文亦无方向三元组。故 G000 是更有区分度的局部支持假设。"
+}

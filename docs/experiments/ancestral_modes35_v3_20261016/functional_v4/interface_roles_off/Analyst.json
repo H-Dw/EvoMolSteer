@@ -1,0 +1,29 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "仅使用元素/几何软代理：终态元素 C/C/N 与方向三元组 [15,4,14] 作为局部形状约束，不声称已形成特定氢键或官能团角色。未启用化学模块，因此不引入界面角色、N/C 环境、官能团协同、电荷微态或溶剂竞争假设。",
+  "clock_and_representation": "使用固定时钟：observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end。祖先证据来自 F_b011_s030__v3_interface15/ancestor，表示包含 actual current world A 与 same-forward teacher predicted endpoint world A，两者不可互换。选择趋势证据来自 F_b011_s030__v3_interface16/selection_trend，其 focal 特征为固定终态局部点的核占据与带符号位移，当前时刻教师坐标仅用于局部对应。",
+  "counterevidence_refs": [
+    "campaign/history",
+    "source/prior_campaign",
+    "source/limits",
+    "source/measured_path_preferences"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__v3_interface15/ancestor",
+    "F_b011_s030__v3_interface16/selection_trend",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response"
+  ],
+  "falsifier": "若三点支持在固定时钟下局部 RMS 下降但 best_qualified_pic50 不高于 R15_V3_COMPATIBLE 的 8.590141296386719，或三点支持相对 20 点支持无局部误差优势，则本假设被否证。若 F_b011_s030__v3_interface16 的选择趋势显示更小支持（2 点）已能解释同等或更好的选择富集，则三点支持的必要性被削弱。",
+  "formation_retention_value_test": "形成测试：三点支持是否在 t=0.5 前使槽位 4、14、15 的局部几何误差低于同预算 20 点支持。保留测试：终态 pIC50 尾部（best_qualified_pic50）是否不低于 R15_V3_COMPATIBLE 的 8.590141296386719，且 hit_fraction 不下降。两者必须分开报告，不能以几何改善替代亲和力收益。",
+  "group_id": "G000",
+  "observable_change": "在固定时钟下，predictive_bridge_to_learning_end 的局部点云 RMS 应下降；同时 selected_support 三点相对教师端点的位移应减小，而 20 点全云 RMS 不必同步下降。若三点支持有效，终态几何匹配率与终态元素匹配率应不低于 R15_V3_COMPATIBLE 的对应值。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "campaign/history 显示 R01–R10 中多种时钟与剂量方案均未超过 R15_V3_COMPATIBLE 的 best_qualified_pic50 8.590141296386719，且 R10 的 compatible_routing 反而使 mean_all_pic50 降至 7.49661036491394。source/prior_campaign 指出局部身份形成不等于亲和力受益，且更贴合固定点云并非首要缺口。本假设因此不主张三点支持必然提高亲和力，只主张它是可区分的局部形成模式，需与保留测试分开检验。",
+  "scientific_hypothesis": "在 F_b011_s030 谱系中，终态成功候选的局部界面由槽位 4、14、15 三点构成，其终态元素为 C/C/N，且带方向三元组 [15,4,14]；该三点支持在真实祖先中从 t=0 到 t=0.5 单调向同一教师端点收敛（selected_ancestor_coords_A 与 selected_teacher_endpoint_A 逐时刻接近），说明这是一个随选择富集的局部几何模式，而非仅由初态相似度造成的假象。因此对同谱系新 seed，若其当前局部形状与这三点兼容，则用该三点支持做局部坐标引导应比 20 点全云支持更可能保留成功模式。",
+  "support_reason": "选择 G000 是因为其支持为 F_b011_s030__v3_interface15 的 3 槽位 [4,14,15]，与已查询的祖先证据直接对应，且包含方向三元组 [15,4,14]，可检验方向约束是否随选择富集。G001–G004 的支持为 2–3 槽位但无方向三元组或对应不同界面，未查询其祖先证据，因此不作为主假设。"
+}

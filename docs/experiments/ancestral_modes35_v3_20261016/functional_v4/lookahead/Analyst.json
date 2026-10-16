@@ -1,0 +1,33 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 中的 N/O 仅为终态角色，不作为早期已存在该角色的证据；元素分数不是已验证的氢键或官能团角色。不引入文献常见基团作为强制目标。",
+  "clock_and_representation": "数据时钟：state_time 与 score_time 分离，selection_trend 的权重来自 score_time 而应用于 state_time 的 proposal，学习窗口外排除。教师时刻：teacher_time=0.5。评估时刻：终态统一评估。表示：ancestor 返回 actual current world A 与 same-forward teacher predicted endpoint world A，二者不可互换。lookahead 契约使用 predictive_bridge_to_lookahead 对 actual_ancestor_at_same_lookahead_time。",
+  "counterevidence_refs": [
+    "source/prior_campaign",
+    "source/limits",
+    "source/measured_path_preferences",
+    "source/feature_revision",
+    "campaign/history"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/selection_trend",
+    "F_b011_s030__reference/controller_response",
+    "F_b011_s030__reference/failure_history",
+    "campaign/history",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response"
+  ],
+  "falsifier": "若在相同 20 槽位支持与相同 dose 下，lookahead_fraction 改变后 predictive_bridge_to_lookahead 局部 RMS 未下降，或终态 best_qualified_pic50 不高于 R03_v3 的 8.2713 且 mean_all_pic50 不高于 7.5571，则该假设被否证。若终态形成指标下降而亲和力上升，则说明形成与保留分离，不能据此支持本假设。",
+  "formation_retention_value_test": "形成测试：终态 tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 是否保持（R03_v3 分别为 0.921 与 0.920）。保留测试：终态 best_qualified_pic50 是否超过 R03_v3 的 8.2713 且 mean_all_pic50 不低于 7.5571。二者必须分开报告，因为 prior_campaign 已记录局部身份形成不等于亲和力受益。",
+  "group_id": "G000",
+  "observable_change": "在相同 20 槽位支持、相同 pointwise 算子、相同 dose 与窗口下，仅改变 clock_policy 为 lookahead 并调整 lookahead_fraction，预期可观测变化为：predictive_bridge_to_lookahead 与 actual_ancestor_at_same_lookahead_time 的局部 RMS 下降；gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的负值幅度变化；终态 best_qualified_pic50 与 mean_all_pic50 相对 R03_v3（best 8.2713，mean 7.5571）出现可测差异。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_lookahead",
+    "teacher": "actual_ancestor_at_same_lookahead_time"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "R02_v3 endpoint_clock 有最高 best_qualified_pic50 8.6994 但 rollback=true 且 mean_all_pic50 7.6187 低于 R01_v3 的 7.6393；R03_v3 lookahead 的 mean_all_pic50 7.5571 最低。R05_v3 dose_schedule 与 R06_v3 attainment 的 U_tau 为 0.0 与 0.0012，属真实剂量/归一化抵消而非函数方向错误。R10_v3 compatible_routing 的 mode_switches 均值 0.9 且 mean_all_pic50 降至 7.4966，说明路由切换本身未带来收益。本假设不重复这些失败模式，只改时钟而不改支持、算子与 dose。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 的 20 槽位局部支持上，lookahead 时钟（预测桥接到同前瞻时刻实际祖先）比 current 时钟更贴合该 seed 的实际祖先轨迹，因为 selection_trend 显示 focal 与 background_mean 的整窗差异主要落在第 4 分量（signed kernel-weighted displacement），而 expected_selection_shift 量级约 1e-4 远小于 focal 变化，说明该局部量随选择富集的主要成分是原生漂移而非选择期望变化；因此把目标时刻前移（lookahead_fraction 从 0.2 降到 0.1）应使被匹配的几何对应更接近同刻实际祖先，从而在保持 20 点局部支持不变的前提下改变终态尾部。",
+  "support_reason": "支持来自实际查询的 F_b011_s030__reference/ancestor（selected_support 20 槽位，current_clock_times [0.0,0.12,0.25,0.5]，source_terminal_rescore 8.704859）与 F_b011_s030__reference/selection_trend（focal 与 background_mean 整窗拟合及导数系数，expected_selection_shift 量级约 1e-4）。controller_response 绑定 R15_V3_COMPATIBLE 的 program 与 metrics（U_tau 0.0091，best 8.5901，mean 7.7108）。failure_history 提供 R01_v3 至 R10_v3 的相位对照。"
+}

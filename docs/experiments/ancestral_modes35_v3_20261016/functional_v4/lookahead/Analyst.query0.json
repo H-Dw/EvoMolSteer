@@ -1,0 +1,13 @@
+{
+  "purpose": "在交接前先取真实证据以区分竞争解释。当前 phase=lookahead，catalog 只注册了 F_b011_s030__reference 的 lookahead 桥接（A000/A001/A002 仅改 lookahead_fraction 0.1/0.2/0.4），且 R03_v3 已实测 lookahead 相位（U_tau=0.00694，best_qualified_pic50=8.2713，mean_all_pic50=7.5571，n_qualified=49），其梯度-原生观测余弦为负（mean -0.448），与 R01_v3 current 相位（U_tau=0.00559，best 8.2698，mean 7.6393）和 R02_v3 endpoint 相位（U_tau=0.01129，best 8.6994，mean 7.6187，rollback=true）形成可比较的时钟对照。需要先确认：(1) 该 region 的实际祖先节点与同刻教师预测是否可用，以支撑 lookahead 桥接的 observable 契约；(2) 该 region 在历史选择中是否随选择富集，以判断局部量是否真的与终态成功相关，而非仅反映初态。这两项分别对应 ancestor 与 selection_trend，且都在允许的 region 内，不虚构计算。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "ancestor"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "selection_trend"
+    }
+  ]
+}

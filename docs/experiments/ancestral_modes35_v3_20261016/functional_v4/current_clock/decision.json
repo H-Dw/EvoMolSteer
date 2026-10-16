@@ -1,0 +1,70 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块，因此不引入界面角色、N/C 环境、官能团协同、电荷微态或溶剂竞争假设。selected_terminal_elements 与 source_terminal_rescore 仅用于追溯位置与终态角色，不作为早期已存在该角色的证据；元素分数不是已验证的 H-bond/官能团角色。",
+    "clock_and_representation": "数据时钟为 [0.0, 0.5]，当前时钟采样点 [0.0, 0.12, 0.25, 0.5]。observable 为 current_state（实际当前世界坐标，单位 Å），teacher 为 actual_ancestor_at_same_current_time（同前向时刻的真实祖先世界坐标，单位 Å）。两者必须同刻比较，不得与 selected_teacher_endpoint_A（同前向教师端点预测）互换。selected_support 为 20 个槽位，小于 25 个生成槽位；槽位身份与几何-only posthoc 身份分开记录。",
+    "counterevidence_refs": [
+      "campaign/history",
+      "source/prior_campaign",
+      "source/limits",
+      "source/measured_path_preferences"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "parents/R15_V3_COMPATIBLE/response",
+      "parents/R15_V3_COMPATIBLE/outcomes"
+    ],
+    "falsifier": "若在 current_state 对 actual_ancestor_at_same_current_time 契约下，选中支持槽位的局部 RMS 不下降，或下降伴随 atom_clip_fraction/cumulative_clip_fraction 显著上升，或 assignment_switch_fraction 大幅升高导致对应关系不稳定，则该局部几何贴合假设被否证。若几何贴合改善但终态 pIC50 尾部与 hit_fraction 无任何改善，则“几何贴合带来亲和力收益”这一更强命题被否证（但较弱的几何贴合命题仍可成立）。",
+    "formation_retention_value_test": "形成测试：在 current_state 对 actual_ancestor_at_same_current_time 契约下，检查选中支持槽位的局部 RMS 是否下降且无裁剪。保持测试：检查 assignment_switch_fraction 是否维持在低水平、mode_switches 是否为 0。价值测试：把该几何贴合与终态 pIC50 分开评估——若几何贴合改善但 best_qualified_pic50 与 hit_fraction 未改善，则说明“形成但终态无收益”，不能把几何贴合当作亲和力收益的证据。",
+    "group_id": "G000",
+    "observable_change": "在 F_b011_s030__reference 上，以 current_state 对 actual_ancestor_at_same_current_time 为 observable/teacher 契约时，预期可观测变化是：选中支持槽位 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] 的当前态与同刻实际祖先坐标的局部 RMS 下降，且不伴随 atom_clip_fraction 或 cumulative_clip_fraction 上升；同时 assignment_switch_fraction 保持在观测到的低水平（R15_V3_COMPATIBLE 响应均值 0.0163）。该变化是几何/表示层面的，不是终态亲和力梯度，也不保证 pIC50 尾部改善。",
+    "observable_contract": {
+      "observable": "current_state",
+      "teacher": "actual_ancestor_at_same_current_time"
+    },
+    "parent_program_id": "R15_V3_COMPATIBLE",
+    "relationship_to_failed_families": "与 source/prior_campaign 记录的失败家族关系：局部身份形成不等于亲和力受益（R03 终态 N 几何匹配率高但最高基本合格 pIC50 仅 8.127753）；更准确贴合固定点云不是当前首要缺口（R15_v2 点云 RMS 约 0.129Å 反而终态预测亲和力更高）；收益具有支持背景依赖（同一匹配代价用于 3 点 N/C 或 4 点 O 区域未复制较宽 20/25 点支持的收益）。本轮 current_clock 假设与这些失败家族一致地区分了“几何贴合”与“终态亲和力收益”，不声称已解决尾部问题。",
+    "scientific_hypothesis": "在 F_b011_s030__reference 上，把当前时钟的实际祖先（同前向时刻的真实世界坐标）作为局部几何目标，比把同前向教师端点预测当作目标更贴合该 seed 的实际轨迹；该局部贴合在 R15_V3_COMPATIBLE 的坐标-only、detached 匹配、pointwise 奖励下确实发生（point_rms 由 0.4334 降至 0.1831，target_error 同幅下降，dose_gain_mean=1.0，无 atom/cumulative clip），因此“函数方向不对”“剂量不足/归一化抵消”“后缀未保持”不是本轮几何贴合失败的主因。但几何贴合与终态亲和力收益是两个不同命题：R01_v3(current_clock) 与 R02_v3(endpoint_clock) 的 U_tau 与尾部差异、R09_v3 多模式池中 F_b011_s030_native 的均值优势、R10_v3 compatible_routing 的均值下降与 mode_switches，均为同池描述性关联，不能替代真实终态干预，也不能当作路由规则或成功概率。",
+    "support_reason": "选择 G000 的理由：其 observable_contract 为 current_state 对 actual_ancestor_at_same_current_time，与已查询的 F_b011_s030__reference/ancestor 返回的 current_clock_times 与 selected_ancestor_coords_A 直接对应；controller_response 返回的 R15_V3_COMPATIBLE 实际响应（point_rms 0.4334→0.1831、dose_gain_mean=1.0、无裁剪）支持该契约下几何贴合确实发生。支持集为 20 个槽位，每个槽位有机制或测量用途（局部几何目标），非连续区域未联合，正权重项的直接支持并集保持局部。"
+  },
+  "Designer": {
+    "actual_dose_expectation": "With clock_policy current and all dose parameters unchanged, the expected actual displacement is the same order as the parent measured response: injected_rms_A_mean about 0.0300 A, requested_rms_A_mean about 0.0300 A, actual_max_step_rms_A about 0.0309 A, actual_cumulative_step_rms_A about 1.20 A, dose_gain_mean 1.0, time_schedule_gain 1.0, with atom_clip_fraction and cumulative_clip_fraction at 0.0. Expected geometric response on the selected support: point_rms_A / target_error_mean falling from about 0.4334 to about 0.1831, assignment_switch_fraction staying low (parent mean 0.0163), mode_switches 0. Terminal affinity is expected to remain in the observed band (best_qualified_pic50 near 8.27, hit_fraction near 0.06, mean_all_pic50 near 7.64) and is not expected to improve from this change alone. Cumulative dose is the sum of per-step RMS, not endpoint displacement; moving-target error is policy-relative, not fixed-space physical velocity.",
+    "derivative_path": "Gradients flow only through the real model coordinate leaf nodes of the current state; the matching/assignment branch is detached (sensing=detached), so no gradient is taken through logits, element channels, or discrete transitions. affinity_head_gradient is false and no per-step affinity inference is added. Because clock_policy is current, the reward compares current coordinates to the same-clock actual ancestor, so no endpoint-prediction Jacobian is required for this term; the endpoint-prediction derivative path is not invoked. Element, charge, and necessary bond information come from the existing generation head only as non-differentiable routing/identity bookkeeping; formal charge is not treated as partial charge, pKa, or interaction free energy. Hard category/chemical-graph identification is used only for gradient-free routing. State-dependent weights are not differentiated, so only conditional routing gradients are claimed, not exact derivatives of a full mixed potential. No logits or discrete transition-rate edits are introduced.",
+    "design_grounds": "Analyst G000 binds observable=current_state to teacher=actual_ancestor_at_same_current_time on F_b011_s030__reference, with selected_support of 20 slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] and current_clock_times [0.0,0.12,0.25,0.5]. The only registered executable variant consistent with this contract is A000, whose authoritative_program_delta is clock_policy fixed->current; no points, mode sources, or terms are added. Parent R15_V3_COMPATIBLE response already shows the same-clock geometric fit occurring under coordinate-only, detached matching, pointwise reward: point_rms_A 0.4334->0.1831, target_error_mean same magnitude, dose_gain_mean=1.0, atom_clip_fraction and cumulative_clip_fraction both 0.0, assignment_switch_fraction mean 0.0163, mode_switches 0.0. This supports the weaker geometric-fit claim only. The stronger claim that geometric fit yields terminal affinity gain is not supported: R01_v3 (current_clock) best_qualified_pic50 8.2698, hit_fraction 0.06, mean_all_pic50 7.6393; R02_v3 (endpoint_clock) best_qualified_pic50 8.6994, hit_fraction 0.02, mean_all_pic50 7.6187; R09_v3 multi-mode pool shows F_b011_s030_native mean 7.7422 vs F_b003_s025_native 7.5615 and F_b017_s043_native 7.4073; R10_v3 compatible_routing shows mean_all_pic50 7.4966 with mode_switches mean 0.9. These are within-pool descriptive associations, not causal mode value or routing rules. source/prior_campaign records that local identity formation is not affinity benefit (R03 terminal N geometry match high but best qualified pIC50 only 8.127753) and that tighter fixed-point-cloud fit is not the primary gap (R15_v2 point-cloud RMS ~0.129A yet higher terminal predicted affinity). source/limits and source/measured_path_preferences are descriptive only. No chemistry modules are active, so no interface-role, N/C environment, functional-group, charge-microstate, or solvent assumptions are introduced; selected_terminal_elements and source_terminal_rescore are traceability only.",
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "parents/R15_V3_COMPATIBLE/response",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "campaign/history",
+      "source/prior_campaign",
+      "source/limits",
+      "source/measured_path_preferences"
+    ],
+    "execution_changes": [
+      "clock_policy"
+    ],
+    "falsifier": "The local geometric-fit hypothesis is falsified if, under current_state vs actual_ancestor_at_same_current_time with clock_policy current and all other parameters unchanged, the selected-support local RMS does not decrease, or the decrease is accompanied by a marked rise in atom_clip_fraction or cumulative_clip_fraction, or assignment_switch_fraction rises substantially and destabilizes the correspondence. The stronger claim that geometric fit yields terminal affinity benefit is falsified if geometric fit improves while best_qualified_pic50, hit_fraction, and the pIC50 tail show no improvement; in that case the weaker geometric-fit claim may still hold. Interface errors are recorded separately from scientific negative results; numerically identical functions reuse existing results and frozen confirmation introduces no new design.",
+    "hypothesis_group": "G000",
+    "operative_terms": "Single mode F_b011_s030_native, scope local, operator pointwise, sensing detached, routing single, no SMC, no affinity-head gradient, coordinate_updates_only true. Support is the 20 selected slots; orientation_triplets [[0,3,7],[1,16,18],[2,3,21]] and pocket_sites are carried unchanged from the parent program. Reward is the pointwise local geometric term on the selected support; assignment_element_cost 0.5, charge_weight 0.0, typed_weight 0.0, typed_channels all, field_sigma_A 1.5, target_band_A 0.34907500557366816, switch_margin_A 0.15, mode_memory_t 0.05, lookahead_fraction 0.2. Dose block unchanged: max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0, density_scale_floor [0.03,0.1,0.1,0.1], advantage_cap 20.0, schedule_normalization 1.0, dose_schedule constant, learning_window [0.0,0.5], steps 100, expected_active_steps 10..49. The only operative change is clock_policy fixed->current, so the teacher is the actual ancestor at the same forward clock rather than the same-forward teacher endpoint prediction. Current-state coordinates and same-clock actual-ancestor coordinates are compared at identical times; selected_teacher_endpoint_A is not substituted. Slot identity is tracked separately from geometry-only posthoc identity.",
+    "option_id": "A000",
+    "parent_program_id": "R15_V3_COMPATIBLE"
+  },
+  "action": {
+    "action_id": "A000",
+    "authoritative_program_delta": {
+      "clock_policy": {
+        "after": "current",
+        "before": "fixed"
+      }
+    },
+    "numeric_identity": "57880ae35dca4f9dc7a9f4651f0251943b4df2cf2f4748ae819d5826e422a431",
+    "parent_id": "R15_V3_COMPATIBLE",
+    "phase": "current_clock",
+    "reason": "Current state matched to actual ancestor at the same clock; not an endpoint Jacobian claim",
+    "region_ids": [
+      "F_b011_s030__reference"
+    ]
+  }
+}

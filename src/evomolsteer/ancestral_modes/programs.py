@@ -88,7 +88,7 @@ def base(repo,m,bank,regions):
 
 
 PHASES={1:'current_clock',2:'endpoint_clock',3:'lookahead',4:'decaying_lookahead',5:'dose_schedule',6:'attainment',
-    7:'window_start',8:'dose_scale',9:'mode_diversity',10:'compatible_routing',11:'persistent_routing',12:'routing_memory',
+    7:'window_start',8:'dose_scale',9:'mode_diversity',10:'compatible_routing',11:'persistent_routing',12:'response_routing',
     13:'typed_field',14:'typed_vjp',15:'field_width',16:'interface_support',17:'NC_support',18:'group_support',
     19:'size_matched_support',20:'orientation',21:'pocket_field',22:'pair_geometry',23:'charge_field',
     24:'selection_advantage',25:'density_scale',26:'selection_phase',27:'typed_channels',28:'type_reference',
@@ -158,7 +158,7 @@ def actions(repo,m,bank,regions,state,number):
         elif phase=='dose_scale':
             for f in (.5,1.5,2.):
                 d=copy.deepcopy(p['dose']);d['native_rms_ratio']*=f;add(parent,{'dose':d},'Change total physical dose separately from time allocation')
-        elif phase in ('mode_diversity','compatible_routing','persistent_routing','routing_memory'):
+        elif phase in ('mode_diversity','compatible_routing','persistent_routing','routing_memory','response_routing'):
             if phase=='mode_diversity':
                 focal=p['mode_specs'][0];others=[k for k in all_modes if k!=focal['template_id'] and bank['modes'][k]['root_id']!=bank['modes'][focal['template_id']]['root_id']]
                 for offset in (0,2,4):
@@ -174,6 +174,10 @@ def actions(repo,m,bank,regions,state,number):
                 elif phase=='persistent_routing':
                     response=p['routing'] in ('response','persistent_response')
                     add(parent,{'routing':'persistent_response' if response else 'persistent','response_switch_fraction':.2},'Per-seed compatibility or measured response plus bounded switch memory')
+                elif phase=='response_routing':
+                    add(parent,{'routing':'persistent_response' if p['routing']=='persistent' else 'response',
+                        'response_refresh_fraction':.5,'response_gap_floor':.01,'response_switch_fraction':.2},
+                        'Replace nearest-distance compatibility with sparse same-forward real coordinate controllability probes; preserve support and existing memory')
                 else:
                     for f in (.05,.15,.3):add(parent,{'mode_memory_t':width*f,'routing':'persistent_response' if p['routing']=='persistent_response' else 'persistent'},'Memory measured in configured generation time')
         elif phase in ('typed_field','charge_field'):
