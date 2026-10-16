@@ -1,0 +1,13 @@
+{
+  "purpose": "补齐区分性证据后再交接。已取 F_b011_s030__reference 的实际祖先与选择趋势：固定时钟下 20 点支持在 t=0.0 的 focal 与 background_mean 差异很小（focal [0.25035858693614055, 0.10856869298716579, -0.15158089062720637, -0.04081670793015645] 对 background_mean [0.2351496368632726, 0.132255947653619, -0.10855571876932561, -0.01731568309652819]），说明早期逐点相似度可能只反映初态，不能当作早期已存在终态化学角色的证据；expected_selection_shift 量级约 1e-5 到 1e-4，远小于 native_shift 约 1e-2，提示该局部量随选择的富集很弱，原生生成变化与选择期望变化必须分开报告。现在需要 controller_response 与 failure_history 来判定：R02_v3 的近目标尾部（best_qualified_pic50 8.69941520690918，n_above_target 0）是否来自端点预测时钟的可控性差异，还是来自已记录的失败家族（如 R16_v3/R17_v3/R18_v3 的 U_tau 0.0 与 hit_fraction 0.0）。这两项用于在 G000/G001（固定时钟，element cost 0.0/0.2/1.0）与 G002/G003（端点预测时钟，element cost 0.0/0.2/1.0）之间选择主假设，并给出否证条件。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "controller_response"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "failure_history"
+    }
+  ]
+}

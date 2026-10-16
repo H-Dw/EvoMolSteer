@@ -1,0 +1,90 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/0ad6394674ddc58a9fee1c97b76f181f18cb5a2867a6b07d1b9794c8ca83faed.txt",
+        "content_sha256": "0ad6394674ddc58a9fee1c97b76f181f18cb5a2867a6b07d1b9794c8ca83faed",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/f8dc031b0da6d53bc8a5649a52ccb7c568c6a21c798d007f54b9a72f20e33a40.txt",
+        "content_sha256": "f8dc031b0da6d53bc8a5649a52ccb7c568c6a21c798d007f54b9a72f20e33a40",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/88e3e16764882564ad79b9d84a4f6cd53bab9728b1c794f2918204dd98353aaa.txt",
+        "content_sha256": "88e3e16764882564ad79b9d84a4f6cd53bab9728b1c794f2918204dd98353aaa",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "design_grounds": {
+        "description": "One concise scientific reason; do not repeat canonical program/derivative/dose objects.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "F_b011_s030__reference/failure_history",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R02_v3/component_response",
+            "parents/R02_v3/element_layout",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "description": "One concise measurable negative outcome.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G002"
+      },
+      "option_id": {
+        "enum": [
+          "A003"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R02_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
