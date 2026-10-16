@@ -1,0 +1,201 @@
+{
+  "body": {
+    "max_tokens": 5500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/47ee120680ac929de0627d1884840d4ee4d4120d04dacda6c229cf1ddc46146f.txt",
+        "content_sha256": "47ee120680ac929de0627d1884840d4ee4d4120d04dacda6c229cf1ddc46146f",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/43acdc0baf8ef8ec35fb51edf08a90f561e37fb153bc85dd23f6d28e945521e0.txt",
+        "content_sha256": "43acdc0baf8ef8ec35fb51edf08a90f561e37fb153bc85dd23f6d28e945521e0",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/5093c6a9ac9e4866195a366d0ccd2d61a79a3bf83916aeea0628084ea70d8632.txt",
+        "content_sha256": "5093c6a9ac9e4866195a366d0ccd2d61a79a3bf83916aeea0628084ea70d8632",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/43d3fdd401572b8714e92ef25eafb76507d3b01b80a1b5b7fdfc09928319d29e.txt",
+        "content_sha256": "43d3fdd401572b8714e92ef25eafb76507d3b01b80a1b5b7fdfc09928319d29e",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/28acd6748ab35a4e70c1bf650f1df769287596bb45db9232f9d981bb9b027a55.txt",
+        "content_sha256": "28acd6748ab35a4e70c1bf650f1df769287596bb45db9232f9d981bb9b027a55",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/b85c2e0628c3b0ad308987de6253996398d2022d2b10646dd487ca2e6e26f36b.txt",
+        "content_sha256": "b85c2e0628c3b0ad308987de6253996398d2022d2b10646dd487ca2e6e26f36b",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/d35a8ad7e4ec19646337d0fb4e5f55d1709ef51b2b1d7578937c27c8d20b36d5.txt",
+        "content_sha256": "d35a8ad7e4ec19646337d0fb4e5f55d1709ef51b2b1d7578937c27c8d20b36d5",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "active_chemistry_modules": {
+        "const": []
+      },
+      "chemical_assumptions": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "clock_and_representation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "component_response_interpretation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "F_b011_s030__reference/failure_history",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R14_v3/component_response",
+            "parents/R14_v3/element_layout",
+            "parents/R14_v3/outcomes",
+            "parents/R14_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "F_b011_s030__reference/failure_history",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R14_v3/component_response",
+            "parents/R14_v3/element_layout",
+            "parents/R14_v3/outcomes",
+            "parents/R14_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "formation_retention_value_test": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "group_id": {
+        "enum": [
+          "G000"
+        ]
+      },
+      "observable_change": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "observable_contract": {
+        "additionalProperties": false,
+        "properties": {
+          "observable": {
+            "enum": [
+              "current_state",
+              "predicted_endpoint",
+              "predictive_bridge_to_decaying_lookahead",
+              "predictive_bridge_to_learning_end",
+              "predictive_bridge_to_lookahead"
+            ]
+          },
+          "teacher": {
+            "enum": [
+              "actual_ancestor_at_learning_end",
+              "actual_ancestor_at_same_current_time",
+              "actual_ancestor_at_same_lookahead_time",
+              "teacher_predicted_endpoint_at_same_forward_time"
+            ]
+          }
+        },
+        "required": [
+          "observable",
+          "teacher"
+        ],
+        "type": "object"
+      },
+      "parent_program_id": {
+        "enum": [
+          "R14_v3"
+        ]
+      },
+      "relationship_to_failed_families": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "scientific_hypothesis": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "support_reason": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "group_id",
+      "parent_program_id",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_hypothesis",
+      "observable_change",
+      "formation_retention_value_test",
+      "falsifier",
+      "active_chemistry_modules",
+      "chemical_assumptions",
+      "clock_and_representation",
+      "relationship_to_failed_families",
+      "support_reason",
+      "component_response_interpretation",
+      "observable_contract"
+    ],
+    "type": "object"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 与 element_layout 中的元素标签仅作为回顾性布局比较器，不当作早期实际化学角色；不推断氮受体/供体、微态、氢键或亲和力因果。元素分数不是已验证的官能团角色。",
+    "clock_and_representation": "clock_policy 为 fixed，observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end。ancestor 证据给出 current_clock_times [0.0, 0.11999999731779099, 0.25, 0.5] 与 selected_teacher_endpoint_A，二者表示不同（actual current world A 与 same-forward teacher predicted endpoint world A），不得互换。selection_trend 的权重来自 score_time、应用于 state_time，超出学习窗口的 proposal 已排除。",
+    "component_response_interpretation": "R14_v3 component_response 显示 typed 分项已激活：enabled_weight 0.5、measured_probe_steps 3、max_coordinate_gradient_rms 0.005166572984308004、mean_fraction_of_total_gradient 0.1115282155883809、mean_cosine_with_total_gradient 0.22657762566270928；charge 权重为 0.0 且未测量。这确认指令到函数的执行与分项响应，不证明提示模块的因果科学收益，也不证明归一化后总方向显著改变。field_sigma_A 组需读取分项/总梯度比例与夹角，而非仅看非零。",
+    "counterevidence_refs": [
+      "F_b011_s030__reference/failure_history",
+      "campaign/history",
+      "source/prior_campaign",
+      "source/limits"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "F_b011_s030__reference/selection_trend",
+      "parents/R14_v3/component_response",
+      "parents/R14_v3/element_layout",
+      "parents/R14_v3/outcomes",
+      "parents/R14_v3/response"
+    ],
+    "falsifier": "若 field_sigma_A 在 0.75/1.5/3.0 之间改变后，boundary 与 terminal 的 tracked 局部布局、归一化后总梯度方向以及终态预测亲和力均无超出同池对照的差异，则“宽度是可干预的局部响应参数”在本支持上被否证。若形成或保持出现差异但终态收益无差异，则否证的是“宽度变化带来终态收益”，而非“宽度可干预”。",
+    "formation_retention_value_test": "形成：比较 boundary 时刻同一 tracked 支持的几何/元素布局，而非仅看分项梯度非零。保持：比较同一支持的 boundary 与 terminal 布局，并对照无引导后缀终态。终态收益：使用 terminal 预测亲和力与匹配对照，不把形成或保持当作收益。R14_v3 的 boundary→terminal 变化（tracked 元素分数 0.501→0.9159999999999999，posthoc 局部 RMS 0.15166694277558213→0.7683784325621436）是当前基线，field_sigma_A 组需在相同三段上分别读取。",
+    "group_id": "G000",
+    "observable_change": "可改 observable 为 boundary 与 terminal 的 tracked 对应局部布局（boundary_tracked_terminal_element_fraction、terminal_tracked_terminal_element_fraction、boundary_posthoc_local_rms_A、terminal_posthoc_local_rms_A）以及归一化后总坐标梯度方向（current_gradient_rms_mean 与分项/总梯度夹角）。R14_v3 已测：boundary_tracked_terminal_element_fraction 0.501、terminal_tracked_terminal_element_fraction 0.9159999999999999、boundary_posthoc_local_rms_A 0.15166694277558213、terminal_posthoc_local_rms_A 0.7683784325621436。field_sigma_A 变化预期改变这些量的分布，但不保证方向或幅度单调。",
+    "observable_contract": {
+      "observable": "predictive_bridge_to_learning_end",
+      "teacher": "actual_ancestor_at_learning_end"
+    },
+    "parent_program_id": "R14_v3",
+    "relationship_to_failed_families": "R02_v3、R04_v3、R06_v3、R08_v3、R10_v3、R12_v3 均为 rollback=true，覆盖 endpoint_clock、decaying_lookahead、attainment、dose_scale、compatible_routing、response_routing 家族；R05_v3 为 dose_schedule 且 U_tau=0.0。这些失败家族涉及时刻、剂量、路由与达成，而非 field_sigma_A 宽度本身，因此本组不重复其干预维度。R09_v3 多模式池显示 F_b011_s030 在 17 个样本上 mean_pic50 7.7421996733721565，高于同池 F_b003_s025 的 7.561512917280197 与 F_b017_s043 的 7.407267991234274，但这是池内关联，不建立因果模式价值。",
+    "scientific_hypothesis": "在 F_b011_s030__reference 的 20 槽局部支持上，仅改变空间响应宽度 field_sigma_A（0.75 / 1.5 / 3.0），其余冻结，会改变同一局部支持内被匹配几何对应的空间权重分布，从而改变归一化后总坐标梯度方向与终态局部布局，而不改变支持集合、时刻规则或化学图自由度。该假设不主张 field_sigma_A 变化必然提高终态亲和力；它只主张宽度是可干预的局部响应参数，其效果需由形成、保持与终态收益三段分别检验。",
+    "support_reason": "支持为 F_b011_s030__reference 的 20 个槽 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，与 R14_v3 mode_specs 的 atom_slots 一致，且是已查询区域证据的同一支持。少于全部点只是必要条件；每个点由该区域的实际祖先/教师对应与 selection_trend 的 focal 特征定义支撑。不主张 20 点是最小充分区域。"
+  },
+  "Designer": {
+    "actual_dose_expectation": "The requested per-step displacement budget is unchanged from R14_v3: injected_rms_A_mean about 0.02996, actual_max_step_rms_A about 0.03082, actual_cumulative_step_rms_A about 1.1984, with dose_gain_mean 1.0 and no clipping. field_sigma_A 0.75 narrows the spatial kernel, concentrating weight nearer the matched local points; field_sigma_A 3.0 broadens it, spreading weight over the same support. Because the common positive reward coefficient is normalized by the gradient, the expected effect is a change in the direction and distribution of the normalized total coordinate gradient and in the tracked local layout, not a guaranteed change in displacement magnitude. Formation is read at the boundary on the same tracked support, retention by comparing boundary and terminal layouts on that support against the unguided suffix terminal, and terminal benefit by terminal predicted affinity against matched controls.",
+    "derivative_path": "Gradients remain the real model coordinate VJP of the same pseudo-Huber local reward on the same matched correspondence, with the matching computed in the no-gradient branch as in R14_v3. field_sigma_A enters only through the spatial weighting of that reward, so the derivative path is unchanged in kind: coordinate leaf nodes only, no affinity-head gradient, no SMC, no extra generator or affinity forwards, no logits or discrete transition-rate edits. The typed component remains the measured typed channel (enabled_weight 0.5) and charge remains disabled (weight 0.0, unmeasured); no full mixed-potential exact derivative is claimed. Routing is single, so no state-dependent routing gradient is claimed.",
+    "design_grounds": "Analyst G000 binds the local ancestral-mode hypothesis to the same 20-slot support [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] used by R14_v3 mode_specs, with the same region F_b011_s030__reference and the same fixed clock (clock_policy=fixed, observable predictive_bridge_to_learning_end, teacher actual_ancestor_at_learning_end). The only permitted numerical change is field_sigma_A, from the parent value 1.5 to 0.75 (A000) or 3.0 (A001); A000 is selected here. No points, mode sources, terms, teacher, window, dose, routing or chemistry modules are altered. R14_v3 is the selected action parent per the controller_response rule; its measured baseline is boundary_tracked_terminal_element_fraction 0.501, terminal_tracked_terminal_element_fraction 0.9159999999999999, boundary_posthoc_local_rms_A 0.15166694277558213, terminal_posthoc_local_rms_A 0.7683784325621436, mean_all_pic50 7.7104982566833495, best_qualified_pic50 8.590675354003906, U_tau 0.009112529754638672. The typed component is active (enabled_weight 0.5, measured_probe_steps 3, max_coordinate_gradient_rms 0.005166572984308004, mean_fraction_of_total_gradient 0.1115282155883809, mean_cosine_with_total_gradient 0.22657762566270928) while charge weight is 0.0 and unmeasured; this confirms instruction-to-function execution, not causal scientific benefit. The hypothesis is only that field_sigma_A is an intervenable local response parameter whose effect must be read separately on formation, retention and terminal benefit; it does not claim that width change raises terminal affinity.",
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "F_b011_s030__reference/selection_trend",
+      "parents/R14_v3/component_response",
+      "parents/R14_v3/element_layout",
+      "parents/R14_v3/outcomes",
+      "parents/R14_v3/response",
+      "source/limits"
+    ],
+    "execution_changes": [
+      "field_sigma_A"
+    ],
+    "falsifier": "If field_sigma_A at 0.75 versus 3.0 (against the R14_v3 baseline 1.5) produces no difference beyond same-pool controls in boundary and terminal tracked local layout, in the normalized total coordinate gradient direction, and in terminal predicted affinity, then the claim that width is an intervenable local response parameter on this support is falsified. If formation or retention differs but terminal benefit does not, then only the claim that width change yields terminal benefit is falsified, not the claim that width is intervenable.",
+    "hypothesis_group": "G000",
+    "operative_terms": "The operative term is the spatial response width field_sigma_A inside the existing pointwise local guidance on the fixed 20-slot support. All other terms are frozen at R14_v3 values: assignment_element_cost 0.5, typed_weight 0.5, typed_channels all, charge_weight 0.0, dose pointcloud_delta_A 1.0, native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, dose_schedule constant, schedule_normalization 1.0, window [0.1,0.5], learning_window [0.0,0.5], teacher_time 0.5, steps 100, expected_active_steps 10-49, routing single, scope local, sensing full, smc false, affinity_head_gradient false, coordinate_updates_only true. Changing field_sigma_A changes only the kernel width that distributes spatial weight over the same matched local support; it does not change the support set, the time rule, the chemical-graph degrees of freedom, or the element/charge channels. Element labels from selected_terminal_elements and element_layout remain retrospective layout comparators only, not asserted early chemical roles.",
+    "option_id": "A000",
+    "parent_program_id": "R14_v3"
+  },
+  "action": {
+    "action_id": "A000",
+    "authoritative_program_delta": {
+      "field_sigma_A": {
+        "after": 0.75,
+        "before": 1.5
+      }
+    },
+    "numeric_identity": "658e3220bec5789f0651632ef7ee8d583c51d925f0af1b16756d01baccf11de1",
+    "parent_id": "R14_v3",
+    "phase": "field_width",
+    "reason": "Change spatial response width alone",
+    "region_ids": [
+      "F_b011_s030__reference"
+    ]
+  }
+}
