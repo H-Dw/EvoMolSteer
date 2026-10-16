@@ -245,3 +245,12 @@ def test_joint_support_comes_from_roles_and_remains_a_proper_bounded_subset():
     assert len(proposal)==1 and proposal[0]['atom_slots']==[0,1,2,4]
     assert proposal[0]['source_regions']==['nc','oxygen']
     assert not joint_supports(b,[a,o],'A',3)
+
+
+def test_executable_view_omits_inherited_inactive_parameters():
+    from evomolsteer.ancestral_modes.programs import executable_view
+    p,b=fixture();p.update(operator='pair_distance',typed_weight=0.,charge_weight=0.)
+    v=executable_view(p)
+    assert 'pointcloud_delta_A' not in v['dose'] and 'mode_memory_t' not in v and 'typed_channels' not in v
+    assert v['actual_terms']==['registered_pair_distance']
+    assert numerical_identity(p,b)==numerical_identity(copy.deepcopy(p),b)

@@ -27,13 +27,14 @@ def scientific_group_key(action):
     p=action['program'];chemical=bool(p['typed_weight'] or p['charge_weight'])
     semantics={k:p[k] for k in ('clock_policy','operator','routing','attainment_response')}
     semantics.update(typed_enabled=bool(p['typed_weight']),charge_enabled=bool(p['charge_weight']))
+    semantics['element_aware_matching']=bool(p['assignment_element_cost'])
     if chemical:semantics['sensing']=p['sensing']
     if p['typed_weight']:
         semantics.update(typed_channels=p['typed_channels'],type_target=p['type_target'],type_balance=p.get('type_balance','none'))
     return json.dumps([action['parent_id'],action['region_ids'],action['phase'],semantics],sort_keys=True)
 
 
-def numerical_identity(p,teacher):
+def numerical_payload(p,teacher):
     keys=['clock_policy','window','learning_window','steps','operator','dose','assignment_element_cost','routing','native_options']
     v={k:copy.deepcopy(p[k]) for k in keys}
     if p['operator']!='pointwise':v['dose'].pop('pointcloud_delta_A',None)
@@ -59,7 +60,36 @@ def numerical_identity(p,teacher):
         v['advantage_evidence_gain']=p.get('advantage_evidence_gain',False)
         if p.get('advantage_evidence_gain'):v['advantage_evidence_scale']=p.get('advantage_evidence_scale',1.)
         v['profiles']=[s['selection_profile'] for s in p['mode_specs']]
-    return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    return v
+
+
+def numerical_identity(p,teacher):
+    return hashlib.sha256(json.dumps(numerical_payload(p,teacher),sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+
+def executable_view(p):
+    """Same active-parameter registry as identity; omit inherited inactive fields."""
+    placeholder={'modes':{s['template_id']:{'trajectory_sha256':'bound_source'} for s in p['mode_specs']}}
+    view=numerical_payload(p,placeholder)
+    for mode in view['modes']:mode.pop('trajectory_sha256')
+    if 'profiles' in view:
+        view['profiles']=[{'feature_representation':s.get('feature_representation','current'),'domain':[s['times'][0],s['times'][-1]],
+            'feature_dim':4,'full_data_sha256':hashlib.sha256(json.dumps(s,sort_keys=True).encode()).hexdigest()} for s in view['profiles']]
+    view['program_id']=p.get('program_id');view['operator_formula']={
+        'pointwise':'R_geo = mean[-delta^2 * (sqrt(1+distance^2/delta^2)-1)]',
+        'point_band':'R_geo = -mean[max(distance-band,0)^2]',
+        'pair_distance':'R_geo = -mean[max(abs(student_pair_distance-teacher_pair_distance)-band,0)^2]',
+        'pocket_distance':'R_geo = -mean[max(abs(student_site_distance-teacher_site_distance)-band,0)^2]',
+        'orientation':'R_geo = -mean[(1-cos(student_neighbor_vector,teacher_neighbor_vector))^2] over declared triplets only',
+        'selection_advantage':'R_geo = clip(mean[-0.5*((phi-mu_focal)/sd)^2+0.5*((phi-mu_background)/sd)^2],-cap,cap); phi = kernel occupancy and signed dx/dy/dz to fixed terminal centers. NO pointwise/pseudo-Huber term.'}[p['operator']]
+    view['actual_terms']=['registered_'+p['operator']]+(['typed_spatial_field'] if p['typed_weight'] else [])+(['charge_spatial_field'] if p['charge_weight'] else [])
+    if p.get('advantage_evidence_gain',False):view['dose_response_formula']='After gradient RMS normalization multiply displacement by s/sqrt(s^2+evidence_scale^2), where s=RMS((mu_focal-mu_background)/sd); dose is NOT the parent constant full displacement.'
+    return view
+
+
+def canonical_description(p):
+    view=executable_view(p);view.pop('program_id',None)
+    return json.dumps(view,ensure_ascii=False,sort_keys=True,separators=(',',':'))
 
 
 def implementation_identity():

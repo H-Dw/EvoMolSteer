@@ -8,7 +8,7 @@ from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.deepseek_api import call_json
 from evomolsteer.agentic_steer.workflow import obj
 from .bank import regional_evidence
-from .programs import validate,numerical_identity,program_delta,scientific_group_key
+from .programs import validate,numerical_identity,program_delta,scientific_group_key,executable_view,canonical_description
 
 
 MODULES={'interface_support':['C1'],'NC_support':['C1','C2'],'group_support':['C1','C2','C3'],
@@ -24,6 +24,11 @@ CLOCKS={'fixed':{'observable':'predictive_bridge_to_learning_end','teacher':'act
 
 def factual_review(repo,m,folder,role,answer,contract):
     """A bounded source-consistency review, never a numerical reward redesign."""
+    contract=copy.deepcopy(contract)
+    if 'execution' in contract:contract['execution']=executable_view(contract['execution'])
+    if 'evidence' in contract:
+        cited=set(answer.get('evidence_refs',[]))|set(answer.get('counterevidence_refs',[]))
+        contract['evidence']={k:v for k,v in contract['evidence'].items() if k in cited and k not in ('campaign/history','source/prior_campaign')}
     schema=obj({'violations':{'type':'array','maxItems':5,'items':obj({'quote':{'type':'string','maxLength':1500},
         'code':{'enum':['clock_confusion','unsupported_active_force','source_or_comparator_confusion','unmeasured_result_claim']},
         'explanation':{'type':'string','maxLength':1600}})}})
@@ -79,7 +84,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'mode_ids':[s['template_id'] for s in p['mode_specs']],'clock_policy':p['clock_policy'],
             'operator':p['operator'],'observable_contract':CLOCKS[p['clock_policy']],
             'support_sizes':[len(s['atom_slots']) for s in p['mode_specs']],
-            'numerical_options':[{'option_id':v['action_id'],'program':v['program'],'authoritative_program_delta':v['authoritative_program_delta']} for v in values]})
+            'numerical_options':[{'option_id':v['action_id'],'program':executable_view(v['program']),'authoritative_program_delta':v['authoritative_program_delta']} for v in values]})
     allowed_regions=sorted({rid for a in actions for rid in a['region_ids']});byregion={r['region_id']:r for r in regions}
     history=[{k:r.get(k) for k in ('round','phase','parent','metrics','response','local_outcomes','rollback','status')} for r in state.get('rounds',[])]
     bundle={'evidence':{'campaign/history':history,'source/prior_campaign':state.get('prior_campaign_evidence'),
@@ -98,7 +103,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         'uncertainty':'Development maximum is search biased; final frozen new-pool confirmation and quality diagnostics are separate.'}
     for pid,v in parents.items():
         bundle['evidence']['parents/'+pid+'/outcomes']={'parent_program_id':pid,'metrics':v['metrics'],'local_outcomes':v.get('local_outcomes')}
-        bundle['evidence']['parents/'+pid+'/response']={'parent_program_id':pid,'response':v['response'],'program':v['program']}
+        bundle['evidence']['parents/'+pid+'/response']={'parent_program_id':pid,'response':v['response'],'program':executable_view(v['program'])}
         if 'element_layout' in v:
             bundle['evidence']['parents/'+pid+'/element_layout']={'parent_program_id':pid,**v['element_layout']}
             bundle['evidence']['parents/'+pid+'/component_response']={'parent_program_id':pid,**v['execution_response']}
@@ -160,7 +165,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             return result
         if tool=='controller_response':
             ids={a['parent_id'] for a in actions if rid in a['region_ids']}
-            return {'candidate_parent_records':{pid:parents[pid] for pid in ids},'rule':'Bind the SELECTED action parent, never substitute incumbent measurements.'}
+            return {'candidate_parent_records':{pid:{**parents[pid],'program':executable_view(parents[pid]['program'])} for pid in ids},'rule':'Bind the SELECTED action parent, never substitute incumbent measurements.'}
         if tool=='failure_history':return {'current':history,'previous_campaign':state.get('prior_campaign_evidence')}
         raise ValueError('Unknown tool')
     messages=[{'role':'system','content':skills['Analyst']},{'role':'user','content':json.dumps({
@@ -186,6 +191,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     eligible={gid:group for gid,group in groups.items() if any(rid+'/chemical_context' in bundle['evidence'] for rid in group[0]['region_ids'])} if modules else groups
     if not eligible:raise ValueError('No group has its own chemical evidence; query phase must be repaired')
     schema=obj({'group_id':{'enum':list(eligible)},'parent_program_id':{'enum':sorted(parent_ids)},'evidence_refs':refs,'counterevidence_refs':refs,
+        'primary_operator':{'enum':sorted({g[0]['program']['operator'] for g in eligible.values()})},
         'scientific_hypothesis':text,'observable_change':text,'formation_retention_value_test':text,'falsifier':text,
         'active_chemistry_modules':{'const':modules},'chemical_assumptions':text,'clock_and_representation':text,
         'relationship_to_failed_families':text,'support_reason':text,
@@ -194,6 +200,9 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'teacher':{'enum':sorted({c['teacher'] for c in CLOCKS.values()})}})})
     def validate_a(a):
         group=groups[a['group_id']]
+        if a['primary_operator']!=group[0]['program']['operator']:
+            import jsonschema
+            raise jsonschema.ValidationError('Hypothesis primary operator must be the selected registered mechanism',validator='operator_binding',validator_value=group[0]['program']['operator'],instance=a['primary_operator'])
         if a['parent_program_id']!=group[0]['parent_id'] or 'parents/'+a['parent_program_id']+'/outcomes' not in a['evidence_refs']:
             import jsonschema
             raise jsonschema.ValidationError('Chosen group must bind and cite its ACTUAL parent outcomes',validator='parent_binding',validator_value=group[0]['parent_id'],instance=a['parent_program_id'])
@@ -216,6 +225,8 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     messages.append({'role':'user','content':json.dumps({'evidence_mapping':bundle['evidence'],'response_task':'Return the scientific Analyst handoff using a group whose actual regional evidence you queried. Designer will choose the numerical option inside that group only.'},ensure_ascii=False)})
     a=call_json(messages,schema,folder/'Analyst.json',input_store=repo/m['campaign_study']/'inputs',response_validator=validate_a,max_output_tokens=5500)
     review=factual_review(repo,m,folder,'Analyst',a,{'execution':groups[a['group_id']][0]['program'],
+        'authoritative_program_delta':groups[a['group_id']][0]['authoritative_program_delta'],
+        'actual_parent_execution':executable_view(parents[a['parent_program_id']]['program']),
         'clock':CLOCKS[groups[a['group_id']][0]['program']['clock_policy']], 'source_contract':bundle['contract'],
         'evidence':bundle['evidence']})
     if review['violations']:
@@ -229,21 +240,24 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if final_review['violations']:raise ValueError('Analyst remains factually inconsistent after bounded correction')
     else:analyst_file=folder/'Analyst.json'
     selected=groups[a['group_id']];write_json(folder/'evidence_bundle.json',bundle)
+    visible_options=[{**v,'program':executable_view(v['program'])} for v in selected]
     designer_schema=obj({'option_id':{'enum':[x['action_id'] for x in selected]},'hypothesis_group':{'const':a['group_id']},
+        'primary_operator':{'const':a['primary_operator']},
         'parent_program_id':{'const':a['parent_program_id']},
         'execution_changes':{'type':'array','items':{'type':'string'}},
-        'evidence_refs':refs,'design_grounds':text,'operative_terms':text,'derivative_path':text,'actual_dose_expectation':text,'falsifier':text})
-    designer_schema['oneOf']=[{'properties':{'option_id':{'const':v['action_id']},'execution_changes':{'const':sorted(v['authoritative_program_delta'])}}} for v in selected]
+        'evidence_refs':refs,'design_grounds':text,'operative_terms':{'type':'string'},'derivative_path':text,'actual_dose_expectation':text,'falsifier':text})
+    designer_schema['oneOf']=[{'properties':{'option_id':{'const':v['action_id']},'execution_changes':{'const':sorted(v['authoritative_program_delta'])},
+        'operative_terms':{'const':canonical_description(v['program'])}}} for v in selected]
     d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
-        'Analyst':a,'shared_evidence':bundle['evidence'],'allowed_numerical_options':selected,
-        'task':'Choose one executable numerical variant implementing this Analyst support/mode hypothesis. Do not alter points, mode sources or add terms. Explain operative derivative and actual dose, with a testable negative result. Registry is bounded; choosing parameters is not unrestricted code synthesis.'},ensure_ascii=False)}],
+        'Analyst':a,'shared_evidence':bundle['evidence'],'allowed_numerical_options':visible_options,
+        'task':'Choose one executable numerical variant implementing this Analyst support/mode hypothesis. Do not alter points, mode sources or add terms. operative_terms is the exact schema-constant canonical active-program description for the chosen option: copy it, never infer terms from inherited inactive fields. Explain operative derivative and actual dose, with a testable negative result. Registry is bounded; choosing parameters is not unrestricted code synthesis.'},ensure_ascii=False)}],
         designer_schema,folder/'Designer.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=5000)
     action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank)
     d_review=factual_review(repo,m,folder,'Designer',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
         'source_contract':bundle['contract'],'Analyst':a})
     if d_review['violations']:
         d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
-            'Analyst':a,'allowed_options':selected,'authoritative_clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
+            'Analyst':a,'allowed_options':visible_options,'authoritative_clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
             'previous_response':d,'neutral_factual_diagnostics':d_review,'task':'Correct factual contradictions; keep this schema and Analyst-bound hypothesis.'},ensure_ascii=False)}],
             designer_schema,folder/'Designer.corrected.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=5000)
         action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank);designer_file=folder/'Designer.corrected.json'
