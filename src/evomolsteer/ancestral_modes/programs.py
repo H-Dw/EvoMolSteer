@@ -140,7 +140,9 @@ def actions(repo,m,bank,regions,state,number):
         for family in ('typed_vjp','field_width'):
             candidates=[r for r in prior if r.get('phase')==family]
             if candidates:parents.append(candidates[-1])
-    seen={r['numeric_identity'] for r in state['rounds'] if r.get('numeric_identity') and r.get('stage')=='discovery'}
+    # Canonicalize optional inactive defaults under the current identity schema;
+    # preserve historical stored identities as dispatch provenance, not a no-op loophole.
+    seen={numerical_identity(r['program'],bank) for r in state['rounds'] if r.get('program') and r.get('stage')=='discovery'}
     seen.add(numerical_identity(state['reference']['program'],bank));result=[];seen_options=set()
     all_modes=sorted(bank['modes'],key=lambda k:bank['modes'][k]['terminal_score'],reverse=True)
     def add(parent,changes,reason,region=None,modes=None):
