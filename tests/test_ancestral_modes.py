@@ -152,3 +152,36 @@ def test_fixed_space_advantage_uses_non_self_centered_feature_and_correct_gradie
     historical=np.asarray(b['modes']['A']['path']['coords_A'][0])[:2]
     mass=np.exp(-np.square(historical-centers).sum(-1)/(2*p['field_sigma_A']**2)).mean()
     assert mass<.9  # It is not identically one merely because this is the focal path.
+
+
+def test_response_router_uses_real_leaf_and_can_prefer_farther_controllable_mode():
+    p,b=fixture();p.update(routing='response',assignment_element_cost=0.)
+    other=copy.deepcopy(b['modes']['A']);b['modes']['B']=other
+    s=copy.deepcopy(p['mode_specs'][0]);s.update(template_id='B',region_id='B__local');p['mode_specs'].append(s)
+    r=AncestorReward(p,b)
+    x=torch.ones(1,5,3,dtype=torch.double,requires_grad=True);mask=torch.ones(1,5,dtype=torch.bool)
+    logits=torch.zeros(1,5,3,dtype=torch.double)
+    def synthetic(current,endpoint,atom_logits,charge_logits,mask,t,index,assignment=None):
+        # Mode 1 is farther but its real coordinate response is much larger.
+        value=-(.1 if index==0 else 2.)*x[:,0,0].square()
+        error=x.new_tensor([.1 if index==0 else 2.])
+        return value,{'error':error,'assignment':torch.tensor([[0,1]]),'direct_mask':torch.tensor([[True,True,False,False,False]]),
+            'clock':t,'base':value,'typed':value*0,'charge':value*0}
+    # Different offsets make the local response/gap ratios different at this point.
+    original=synthetic
+    def mode(*args,**kwargs):
+        value,d=original(*args,**kwargs)
+        if args[6]==0:value=value-1.;d['base']=value
+        return value,d
+    r.evaluate_mode=mode
+    with pytest.raises(ValueError):r.evaluate(x,x,logits,logits,mask,.3)
+    value,d=r.evaluate(x,x,logits,logits,mask,.3,derivative_input=x)
+    assert d['mode'].tolist()==[1] and d['routing_VJPs']==2
+    assert torch.autograd.grad(value.sum(),x)[0].abs().sum()>0
+
+
+def test_response_parameters_only_enter_active_numerical_identity():
+    p,b=fixture();q=copy.deepcopy(p);q['response_refresh_fraction']=.1
+    assert numerical_identity(p,b)==numerical_identity(q,b)
+    p['routing']=q['routing']='response'
+    assert numerical_identity(p,b)!=numerical_identity(q,b)

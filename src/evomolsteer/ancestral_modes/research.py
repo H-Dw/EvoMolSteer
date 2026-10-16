@@ -192,8 +192,14 @@ def run(repo,path,stop_after=35,prepare_only=False,functional_only=False,smoke_o
         suffix_probe(repo,m,bank,p,remote)
         for number in range(state['next_round'],min(m['max_rounds'],stop_after)+1):
             label=f'R{number:02d}_v3';folder=study/label;phase=PHASES[number];stage='confirmation' if number>=34 else 'discovery'
-            if number==34 and 'frozen' not in state:state['frozen']=copy.deepcopy(state['best']['program']);write_json(sp,state)
-            if stage=='confirmation':q=copy.deepcopy(state['frozen']);parent=state['best']['program']['program_id'];delivery={'frozen':True,'no_redesign':True}
+            if number==34 and 'frozen' not in state:
+                selected=state.get('tail_candidate',state['best']) if m.get('confirmation_selection')=='highest_qualified_terminal_score' else state['best']
+                state['frozen']=copy.deepcopy(selected['program'])
+                state['frozen_selection']={'policy':m.get('confirmation_selection','guarded_mean_and_tail_utility'),
+                    'program_id':selected['program']['program_id'],'guarded_incumbent':state['best']['program']['program_id'],
+                    'reason':'Confirm the target-discovery branch separately; this does not promote it or change the guarded mean criterion.'}
+                write_json(sp,state)
+            if stage=='confirmation':q=copy.deepcopy(state['frozen']);parent=state['frozen']['program_id'];delivery={'frozen':True,'no_redesign':True,'selection':state.get('frozen_selection')}
             elif (folder/'selected_program.json').exists():
                 q=read_json(folder/'selected_program.json');d=read_json(folder/'decision.json');parent=d['action']['parent_id'];delivery=read_json(folder/'delivery.json')
             else:
@@ -264,8 +270,9 @@ def run(repo,path,stop_after=35,prepare_only=False,functional_only=False,smoke_o
             completed={'conditions':len(state['rounds']),'research_best':state['best']['program']['program_id'],'confirmed':state['confirmed'],
                 'target_reached':any(r['metrics']['n_above_target'] for r in state['rounds']),'original_steer_best':state['original']['best']}
             write_json(sp,state);write_json(study/'COMPLETE.json',completed)
-            write_json(study/'execution_recommendation.json',{'historical_baseline_changed':False,'research_candidate':state['best']['program'],
-                'confirmed_against_native':state['confirmed'],'note':'Target/quality/compute comparisons remain separately reported.'})
+            write_json(study/'execution_recommendation.json',{'historical_baseline_changed':False,'guarded_research_candidate':state['best']['program'],
+                'frozen_confirmation_candidate':state['frozen'],'frozen_selection':state.get('frozen_selection'),
+                'confirmed_against_native':state['confirmed'],'note':'Confirmation applies ONLY to the frozen candidate. Target/quality/compute comparisons remain separately reported.'})
             commit(repo,m,'results(ancestral-v3): complete thirty-five sequential conditions')
         return state
     finally:remote.close()

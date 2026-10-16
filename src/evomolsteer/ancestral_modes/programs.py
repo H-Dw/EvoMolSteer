@@ -42,6 +42,9 @@ def implementation_identity():
 
 def validate(p,teacher):
     AncestorReward(p,teacher)
+    if p['routing'] in ('response','persistent_response'):
+        if not 0<p.get('response_refresh_fraction',.5)<=1 or p.get('response_gap_floor',.01)<=0:raise ValueError('Invalid response routing scale')
+        if p.get('response_switch_fraction',.2)<0:raise ValueError('Invalid response routing switch margin')
     if p['operator']=='selection_advantage' and p['assignment_element_cost']!=0:raise ValueError('Learned feature definition requires geometry-only correspondence')
     if p['dose_schedule'] not in ('constant','early','late','bell'):raise ValueError('Invalid dose schedule')
     for k in ('native_rms_ratio','max_atom_step_A','max_cumulative_rms_A'):

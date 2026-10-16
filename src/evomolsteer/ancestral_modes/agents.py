@@ -86,8 +86,11 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         bundle['evidence']['parents/'+pid+'/response']={'parent_program_id':pid,'response':v['response'],'program':v['program']}
     correction=repo/m['campaign_study']/'feature_definition_correction.json'
     if correction.exists():bundle['evidence']['source/feature_revision']=read_json(correction)
+    routing_evidence=repo/m['campaign_study']/'paired_path_preferences_R02.json'
+    if routing_evidence.exists():bundle['evidence']['source/measured_path_preferences']=read_json(routing_evidence)
     bundle['contract']['clock_definitions']=CLOCKS
     bundle['contract']['registered_active_forces']='pointwise/pair/band/pocket/orientation/selection operator as program says; typed/charge only when positive weights. Detached element assignment is not direct type force. A polar-selected support with pointwise reward is still geometry-only.'
+    bundle['contract']['response_routing']='Response routing uses sparse per-mode coordinate VJPs of this surrogate, from the same generator forward. Gap-normalized local controllability is NOT future affinity. Nearest geometry, surrogate controllability and final outcome are separate hypotheses. Two probe times are configurable fractions of the control window; no extra generator/affinity forwards.'
     bundle['contract']['surrogate_units']='Geometry distance losses and sigma-scaled type/charge fields have A^2 units. Orientation and standardized feature log-ratios are dimensionless; relative chemical coefficients then carry compensating A^-2 units. These are optimization surrogates, not physical energies. Kernel mass is dimensionless; signed displacement components are A.'
     tools=['ancestor','selection_trend','controller_response','failure_history']
     if modules:tools.append('chemical_context')
