@@ -267,7 +267,10 @@ def run(repo,cfg):
             'atomic_indices':output['atomics'].argmax(-1).cpu().tolist()}})
         write_json(out/'records.json',records);write_json(out/'guidance_audit.json',{'program':p,'operative_text':text,'steps':control.rows,
             'actual_active_steps':actual,'actual_steps':len(control.rows),'mean_cumulative_control_rms_A':float(control.total.mean()),
-            'no_smc':True,'no_affinity_head_gradient':True,'real_generator_vjp':p is not None,'input_pairing':source_audit})
+            'no_smc':True,'no_affinity_head_gradient':True,
+            'real_generator_vjp':p is not None and (p['family']!='ancestral_modes_v3' or any(r.get('derivative_scope')=='live_generation_coordinate_VJP' for r in control.rows)),
+            'actual_derivative_scopes':sorted({r['derivative_scope'] for r in control.rows if r.get('derivative_scope')}),
+            'input_pairing':source_audit})
         if cfg.get('save_categorical_states',False) or (p is not None and p['family']=='local_motif_v2'):
             graph_arrays={'terminal_'+k:output[k].argmax(-1).cpu().numpy().astype(np.uint8) for k in ['atomics','bonds','charges']}
             graph_arrays.update({'boundary_'+k:v for k,v in getattr(control,'teacher_categories',{}).items()})
