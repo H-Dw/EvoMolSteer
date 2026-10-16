@@ -8,7 +8,7 @@ from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.deepseek_api import call_json
 from evomolsteer.agentic_steer.workflow import obj
 from .bank import regional_evidence
-from .programs import validate,numerical_identity,program_delta,scientific_group_key,executable_view,canonical_description
+from .programs import validate,numerical_identity,program_delta,scientific_group_key,executable_view,compile_designer_response
 
 
 MODULES={'interface_support':['C1'],'NC_support':['C1','C2'],'group_support':['C1','C2','C3'],
@@ -28,7 +28,7 @@ def factual_review(repo,m,folder,role,answer,contract):
     if 'execution' in contract:contract['execution']=executable_view(contract['execution'])
     if 'evidence' in contract:
         cited=set(answer.get('evidence_refs',[]))|set(answer.get('counterevidence_refs',[]))
-        contract['evidence']={k:v for k,v in contract['evidence'].items() if k in cited and k not in ('campaign/history','source/prior_campaign')}
+        contract['evidence']={k:v for k,v in contract['evidence'].items() if k in cited and k not in ('campaign/history','source/prior_campaign') and not k.endswith('/failure_history')}
     schema=obj({'violations':{'type':'array','maxItems':5,'items':obj({'quote':{'type':'string','maxLength':1500},
         'code':{'enum':['clock_confusion','unsupported_active_force','source_or_comparator_confusion','unmeasured_result_claim']},
         'explanation':{'type':'string','maxLength':1600}})}})
@@ -86,7 +86,14 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'support_sizes':[len(s['atom_slots']) for s in p['mode_specs']],
             'numerical_options':[{'option_id':v['action_id'],'program':executable_view(v['program']),'authoritative_program_delta':v['authoritative_program_delta']} for v in values]})
     allowed_regions=sorted({rid for a in actions for rid in a['region_ids']});byregion={r['region_id']:r for r in regions}
-    history=[{k:r.get(k) for k in ('round','phase','parent','metrics','response','local_outcomes','rollback','status')} for r in state.get('rounds',[])]
+    history=[]
+    for r in state.get('rounds',[]):
+        brief={k:r.get(k) for k in ('round','phase','parent','metrics','rollback','status')}
+        response=r.get('response',{});statistics=response.get('statistics',{})
+        brief['response_summary']={k:statistics[k] for k in ('dose_gain_mean','predictive_flow_rms_A_mean','injected_rms_A_mean','gradient_native_observed_cosine_mean','assignment_switch_fraction') if k in statistics}
+        brief['execution_updates']={k:response.get(k) for k in ('active_updates','nonzero_updates')}
+        brief['full_results_reference']=m['campaign_study']+'/'+r['round']+'/results.json'
+        history.append(brief)
     bundle={'evidence':{'campaign/history':history,'source/prior_campaign':state.get('prior_campaign_evidence'),
         'source/limits':bank['limits']},
         'phase':phase,'enabled_chemistry_modules':modules,'catalog':catalog,'learning_window':m['learning_window'],
@@ -222,7 +229,8 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if a['observable_contract']!=expected:
             import jsonschema
             raise jsonschema.ValidationError('Selected observable and teacher representation disagree',validator='clock_binding',validator_value=expected,instance=a['observable_contract'])
-    messages.append({'role':'user','content':json.dumps({'evidence_mapping':bundle['evidence'],'response_task':'Return the scientific Analyst handoff using a group whose actual regional evidence you queried. Designer will choose the numerical option inside that group only.'},ensure_ascii=False)})
+    messages.append({'role':'user','content':json.dumps({'valid_evidence_reference_ids':sorted(bundle['evidence']),
+        'response_task':'Use the evidence ALREADY delivered in this conversation; it is not duplicated here. Return the scientific Analyst handoff using a group whose actual regional evidence you queried. State the primary registered operator. Designer chooses numerical variants inside that semantic group only.'},ensure_ascii=False)})
     a=call_json(messages,schema,folder/'Analyst.json',input_store=repo/m['campaign_study']/'inputs',response_validator=validate_a,max_output_tokens=5500)
     review=factual_review(repo,m,folder,'Analyst',a,{'execution':groups[a['group_id']][0]['program'],
         'authoritative_program_delta':groups[a['group_id']][0]['authoritative_program_delta'],
@@ -241,25 +249,26 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     else:analyst_file=folder/'Analyst.json'
     selected=groups[a['group_id']];write_json(folder/'evidence_bundle.json',bundle)
     visible_options=[{**v,'program':executable_view(v['program'])} for v in selected]
+    cited=set(a['evidence_refs'])|set(a['counterevidence_refs'])|{'source/limits','source/feature_revision'}
+    designer_evidence={k:v for k,v in bundle['evidence'].items() if k in cited}
     designer_schema=obj({'option_id':{'enum':[x['action_id'] for x in selected]},'hypothesis_group':{'const':a['group_id']},
-        'primary_operator':{'const':a['primary_operator']},
         'parent_program_id':{'const':a['parent_program_id']},
-        'execution_changes':{'type':'array','items':{'type':'string'}},
-        'evidence_refs':refs,'design_grounds':text,'operative_terms':{'type':'string'},'derivative_path':text,'actual_dose_expectation':text,'falsifier':text})
-    designer_schema['oneOf']=[{'properties':{'option_id':{'const':v['action_id']},'execution_changes':{'const':sorted(v['authoritative_program_delta'])},
-        'operative_terms':{'const':canonical_description(v['program'])}}} for v in selected]
+        'evidence_refs':refs,'design_grounds':{'type':'string','minLength':1,'description':'One concise scientific reason; do not repeat canonical program/derivative/dose objects.'},
+        'falsifier':{'type':'string','minLength':1,'description':'One concise measurable negative outcome.'}})
     d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
-        'Analyst':a,'shared_evidence':bundle['evidence'],'allowed_numerical_options':visible_options,
-        'task':'Choose one executable numerical variant implementing this Analyst support/mode hypothesis. Do not alter points, mode sources or add terms. operative_terms is the exact schema-constant canonical active-program description for the chosen option: copy it, never infer terms from inherited inactive fields. Explain operative derivative and actual dose, with a testable negative result. Registry is bounded; choosing parameters is not unrestricted code synthesis.'},ensure_ascii=False)}],
-        designer_schema,folder/'Designer.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=5000)
+        'Analyst':a,'shared_evidence':designer_evidence,'allowed_numerical_options':visible_options,
+        'task':'Return ONLY the six schema fields: selected option_id, fixed hypothesis_group, fixed parent_program_id, evidence_refs, one concise design_grounds paragraph and one measurable falsifier. The deterministic compiler generates formulas, derivative paths, parameter changes and actual-dose descriptors from your selected ID; DO NOT output or rewrite these computed fields. Registry is bounded; choosing parameters is not unrestricted code synthesis.'},ensure_ascii=False)}],
+        designer_schema,folder/'Designer.response.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=3000)
+    api_file=folder/'Designer.response.json';d=compile_designer_response(d,options[d['option_id']],api_file);write_json(folder/'Designer.json',d)
     action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank)
     d_review=factual_review(repo,m,folder,'Designer',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
         'source_contract':bundle['contract'],'Analyst':a})
     if d_review['violations']:
         d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
             'Analyst':a,'allowed_options':visible_options,'authoritative_clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
-            'previous_response':d,'neutral_factual_diagnostics':d_review,'task':'Correct factual contradictions; keep this schema and Analyst-bound hypothesis.'},ensure_ascii=False)}],
-            designer_schema,folder/'Designer.corrected.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=5000)
+            'previous_response':{k:d[k] for k in designer_schema['properties']},'neutral_factual_diagnostics':d_review,'task':'Correct factual contradictions; return only the six raw schema fields and keep the Analyst-bound hypothesis.'},ensure_ascii=False)}],
+            designer_schema,folder/'Designer.corrected.response.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=3000)
+        api_file=folder/'Designer.corrected.response.json';d=compile_designer_response(d,options[d['option_id']],api_file);write_json(folder/'Designer.corrected.json',d)
         action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank);designer_file=folder/'Designer.corrected.json'
         final_review=factual_review(repo,m,folder,'Designer.corrected',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
             'source_contract':bundle['contract'],'Analyst':a})
@@ -269,6 +278,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     p.update(analyst_sha256=digest(analyst_file),designer_sha256=digest(designer_file),evidence_bundle_sha256=digest(folder/'evidence_bundle.json'))
     delivery={'model':'deepseek-flash','real_api':True,'temperature':0,'active_modules':modules,
         'analyst_response_path':analyst_file.name,'designer_response_path':designer_file.name,
+        'designer_api_response_path':api_file.name,'designer_api_response_sha256':digest(api_file),
         'skill_sha256':{r:hashlib.sha256(v.encode()).hexdigest() for r,v in skills.items()},
         'query_request_sha256':receipts,'analyst_sha256':p['analyst_sha256'],'designer_sha256':p['designer_sha256'],
         'bound_region_ids':action['region_ids'],'numeric_identity':numerical_identity(p,bank),

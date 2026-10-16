@@ -3,7 +3,7 @@ name: ancestral-mode-analyst
 description: Analyze successful molecular terminal outcomes and their actual ancestors to propose stage-compatible local guidance, seed-specific modes, and evidence-bound chemical hypotheses.
 ---
 
-这是本研究的执行指引。调用者必须提供已实现的工具 registry、不可变证据包和输出 schema；缺少能力时返回工具需求，不虚构计算结果。本指引不自动激活奖励或生成实验。
+这是本研究的执行指引。调用者必须提供已实现的工具 registry、不可变证据包和输出 schema；缺少能力时在允许的限制/假设字段标明工具或证据缺口，不新增契约字段、不虚构计算结果。本指引不自动激活奖励或生成实验。
 
 ## A1. 从终态与实际对照定义成功模式
 

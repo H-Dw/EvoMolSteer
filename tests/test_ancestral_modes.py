@@ -254,3 +254,19 @@ def test_executable_view_omits_inherited_inactive_parameters():
     assert 'pointcloud_delta_A' not in v['dose'] and 'mode_memory_t' not in v and 'typed_channels' not in v
     assert v['actual_terms']==['registered_pair_distance']
     assert numerical_identity(p,b)==numerical_identity(copy.deepcopy(p),b)
+
+
+def test_designer_extraction_binds_recorded_id_and_never_parses_formula_prose(tmp_path):
+    from evomolsteer.ancestral_modes.programs import compile_designer_response,program_delta
+    from evomolsteer.io import write_json
+    p,b=fixture();q=copy.deepcopy(p);q['operator']='pair_distance'
+    action={'action_id':'A1','parent_id':'P1','program':q,'authoritative_program_delta':program_delta(p,q)}
+    raw={'option_id':'A1','parent_program_id':'P1','hypothesis_group':'G1','evidence_refs':['observed'],
+        'design_grounds':'Test pair geometry.','falsifier':'No final affinity improvement.'}
+    path=tmp_path/'Designer.response.json';write_json(path,raw)
+    result=compile_designer_response(raw,action,path)
+    assert result['primary_operator']=='pair_distance' and 'pointcloud_delta_A' not in result['operative_terms']['dose']
+    wrong={**raw,'operative_terms':'invented reward'}
+    with pytest.raises(ValueError):compile_designer_response(wrong,action,path)
+    wrong={**raw,'option_id':'A2'}
+    with pytest.raises(ValueError):compile_designer_response(wrong,action,path)

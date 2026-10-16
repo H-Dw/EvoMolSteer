@@ -11,6 +11,8 @@ description: Bind an Analyst's local ancestral-mode hypothesis to stage-consiste
 
 核对 hypothesis、action 和实际响应记录的 parent_program_id；不同 parent 的参数和结果不能混用。
 
+有效算子与参数以调用者的 operative-only 视图为准。未列入有效项的继承参数不参与本轮计算。API 只返回 schema 要求的选项 ID、交接标识、证据引用、简洁科学理由及否证条件；公式、导数路径、改动字段和剂量由确定性编译器根据选项生成，不在自由文字中重写或新增这些返回字段。
+
 区分固定原子序号、同一路径槽位、跨分子的动态对应和对称等价点。图可自由变化，依据新预测重新识别可用角色；不加入同图 gate。
 
 ## D2. 明确教师与被控量的时钟

@@ -1,0 +1,22 @@
+{
+  "design_grounds": "R02_v3 的 endpoint_prediction 时钟在 F_b011_s030__reference 同一 20 点支持上给出比 current 表示更强的标准化 focal/background 对比（gain_first_mid_last 0.767→0.289→0.394 对 0.349→0.005→0.119），且 expected_selection_prediction_shift 在 t=0.1–0.3 非零；A001 把该表示与 selection_advantage 算子绑定，用表示匹配的固定空间 focal/background 对比替代 pointwise 目标，检验 R02_v3 已观测到的 best_qualified_pic50 8.6994 尾部是否可重复，而非仅由开发池搜索偏差造成。R02_v3 自身 rollback=true、U_tau 0.0113 高于 R15_V3_COMPATIBLE 的 0.0091，且 n_above_target=0；R05_v3/R06_v3/R20_v3/R21_v3/R22_v3/R23_v3 以 R02_v3 为 parent 均未复制尾部，说明单纯改变剂量、达成、取向、口袋、配对几何或电荷场不足，因此本轮只检验 endpoint_prediction 表示本身是否携带可区分的尾部信息。",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/selection_trend",
+    "F_b011_s030__reference/controller_response",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "source/feature_revision",
+    "F_b011_s030__reference/failure_history",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "falsifier": "若在相同 20 点支持与相同预算下，endpoint_prediction 表示的窗口末端 focal/background 标准化对比不高于 current 表示，或 predicted_endpoint 与同刻教师端点预测的局部位移不随选择富集，或终态基本合格 pIC50 尾部不优于匹配对照且 n_above_target 仍为 0，则该假设被否证。",
+  "hypothesis_group": "G001",
+  "option_id": "A001",
+  "parent_program_id": "R02_v3"
+}

@@ -4,7 +4,7 @@ import hashlib
 import json
 import inspect
 import numpy as np
-from evomolsteer.io import read_json
+from evomolsteer.io import read_json,digest
 from evomolsteer.final_guidance.reward import active_updates
 from .reward import AncestorReward,temporal_gain,horizon
 
@@ -90,6 +90,35 @@ def executable_view(p):
 def canonical_description(p):
     view=executable_view(p);view.pop('program_id',None)
     return json.dumps(view,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+
+
+def derivative_binding(p):
+    paths=[] if p['clock_policy']=='endpoint_prediction' else ['direct_current_coordinates']
+    if p['clock_policy']!='current':paths.append('live_generator_endpoint_coordinate_VJP')
+    if p['typed_weight'] or p['charge_weight']:
+        paths.append('live_generator_endpoint_coordinate_VJP')
+        if p['sensing']=='full':paths.append('live_generation_probability_head_coordinate_VJP')
+    return {'coordinate_paths':sorted(set(paths)),'matching_and_routing':'stop_gradient','affinity_derivative':False,'extra_affinity_forward':False}
+
+
+def dose_binding(p):
+    gains=['temporal_schedule']
+    if p['attainment_response']:gains.append('attainment_response')
+    if p.get('advantage_evidence_gain',False):gains.append('historical_standardized_contrast')
+    return {'post_RMS_gains':gains,'dose':{k:v for k,v in p['dose'].items() if k!='pointcloud_delta_A'},
+        'schedule':p['dose_schedule'],'schedule_normalization':p['schedule_normalization'],'actual_budget_depends_on_student_trajectory':True}
+
+
+def compile_designer_response(raw,action,api_path):
+    expected={'option_id','hypothesis_group','parent_program_id','evidence_refs','design_grounds','falsifier'}
+    if set(raw)!=expected or raw['option_id']!=action['action_id'] or raw['parent_program_id']!=action['parent_id']:
+        raise ValueError('Raw Designer response escaped the option/parent contract')
+    if read_json(api_path)!=raw:raise ValueError('Designer response differs from recorded real API output')
+    p=action['program']
+    return {**raw,'primary_operator':p['operator'],'execution_changes':sorted(action['authoritative_program_delta']),
+        'operative_terms':json.loads(canonical_description(p)),'derivative_path':derivative_binding(p),'actual_dose_expectation':dose_binding(p),
+        'api_response_path':api_path.name,'api_response_sha256':digest(api_path),
+        'binding_origin':'deterministic compiler from validated option_id; rationale/falsifier from real API'}
 
 
 def implementation_identity():
@@ -278,6 +307,7 @@ def actions(repo,m,bank,regions,state,number):
                 add(parent,changes,'Single-module deletion or return to simpler measured mechanism')
             for cost in (.1,.8):add(parent,{'assignment_element_cost':cost},'Revisit correspondence in changed scientific context')
             if phase in ('adaptive_revisit','deterministic_selector'):
+                add(parent,{'dose_schedule':'late'},'Revisit late allocation after earlier-dose branch failed; calibrated reference budget, actual trajectory budget reported separately')
                 for factor in (.95,1.05):
                     dose=copy.deepcopy(p['dose']);dose['native_rms_ratio']*=factor
                     add(parent,{'dose':dose},'Small physical-dose perturbation of a measured branch; distinguish fragile tail response from a large mechanism change')

@@ -1,0 +1,148 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589.txt",
+        "content_sha256": "9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/49c4581aa5a91625d3f3290015deb5956eedb8203f516f6c4e3068dbff569722.txt",
+        "content_sha256": "49c4581aa5a91625d3f3290015deb5956eedb8203f516f6c4e3068dbff569722",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/6b080904979154619a3e9fbb53a0f2ff2ab166b2ccdedc96a26b6f92ec53ac76.txt",
+        "content_sha256": "6b080904979154619a3e9fbb53a0f2ff2ab166b2ccdedc96a26b6f92ec53ac76",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/c1fe6f840932fc8daefad2bc6f707568b82d41521f6743aa662c8be56c7db949.txt",
+        "content_sha256": "c1fe6f840932fc8daefad2bc6f707568b82d41521f6743aa662c8be56c7db949",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/f2b704502f8e7f2804de21b9f80c6a861fa4629ad7268bbb00fd2b51e4ce3a63.txt",
+        "content_sha256": "f2b704502f8e7f2804de21b9f80c6a861fa4629ad7268bbb00fd2b51e4ce3a63",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "oneOf": [
+      {
+        "properties": {
+          "execution_changes": {
+            "const": [
+              "advantage_evidence_gain",
+              "advantage_evidence_scale",
+              "assignment_element_cost",
+              "mode_specs",
+              "operator"
+            ]
+          },
+          "operative_terms": {
+            "const": "{\"actual_terms\":[\"registered_selection_advantage\"],\"advantage_cap\":20.0,\"advantage_evidence_gain\":true,\"advantage_evidence_scale\":1.0,\"assignment_element_cost\":0.0,\"attainment_response\":false,\"clock_policy\":\"endpoint_prediction\",\"density_scale_floor\":[0.03,0.1,0.1,0.1],\"dose\":{\"max_atom_step_A\":0.15,\"max_cumulative_rms_A\":6.0,\"native_rms_ratio\":0.66},\"dose_response_formula\":\"After gradient RMS normalization multiply displacement by s/sqrt(s^2+evidence_scale^2), where s=RMS((mu_focal-mu_background)/sd); dose is NOT the parent constant full displacement.\",\"dose_schedule\":\"constant\",\"field_sigma_A\":1.5,\"learning_window\":[0.0,0.5],\"modes\":[{\"atom_slots\":[0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24],\"template_id\":\"F_b011_s030_native\"}],\"native_options\":{\"cat_noise_euler_guard\":false,\"cat_noise_level\":1.0,\"coord_noise_level\":0.2,\"final_corr_pred\":true,\"use_sde_simulation\":true},\"operator\":\"selection_advantage\",\"operator_formula\":\"R_geo = clip(mean[-0.5*((phi-mu_focal)/sd)^2+0.5*((phi-mu_background)/sd)^2],-cap,cap); phi = kernel occupancy and signed dx/dy/dz to fixed terminal centers. NO pointwise/pseudo-Huber term.\",\"profiles\":[{\"domain\":[0.0,0.5],\"feature_dim\":4,\"feature_representation\":\"endpoint_prediction\",\"full_data_sha256\":\"de462755361e0e387625176a9cf8108234fa34f08e725e9efdf8caa60c341722\"}],\"routing\":\"single\",\"schedule_normalization\":1.0,\"steps\":100,\"window\":[0.1,0.5]}"
+          },
+          "option_id": {
+            "const": "A001"
+          }
+        }
+      }
+    ],
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "F_b011_s030__reference/failure_history",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R02_v3/component_response",
+            "parents/R02_v3/element_layout",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "execution_changes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G001"
+      },
+      "operative_terms": {
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A001"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R02_v3"
+      },
+      "primary_operator": {
+        "const": "selection_advantage"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "primary_operator",
+      "parent_program_id",
+      "execution_changes",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
