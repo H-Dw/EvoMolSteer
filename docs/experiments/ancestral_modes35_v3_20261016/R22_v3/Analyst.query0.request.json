@@ -1,0 +1,70 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/95e7cc837afecfaa014e39e2da0744d7bbf14b4c256a0422a2104d0824108915.txt",
+        "content_sha256": "95e7cc837afecfaa014e39e2da0744d7bbf14b4c256a0422a2104d0824108915",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/7aab9e01ca105926df08020454287264a8c5e88d8a171908a0099dfed4a6131b.txt",
+        "content_sha256": "7aab9e01ca105926df08020454287264a8c5e88d8a171908a0099dfed4a6131b",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference",
+                "F_b011_s030__v3_group16"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "ancestor",
+                "selection_trend",
+                "controller_response",
+                "failure_history",
+                "chemical_context"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

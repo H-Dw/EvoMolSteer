@@ -1,0 +1,38 @@
+{
+  "active_chemistry_modules": [
+    "C3"
+  ],
+  "chemical_assumptions": "仅使用 C3 官能团与附着几何模块。F_b011_s030__reference 的终态角色显示一个中性羧基（原子 1、16、19，formal_charge_sum 0，hydrogen_microstate_verified false），以及芳香碳/氮与一个芳香受体氮（原子 22）。这些是终态观测标签，不是早期状态的实际身份；不推断氢键、微态或能量贡献。20点支持包含羧基作用原子及其邻域，满足 C3 对基团作用原子与附着方向需要邻域支持的要求；单原子点不足以定义芳香平面或基团取向。",
+  "clock_and_representation": "时钟为 endpoint_prediction：可观测为 predicted_endpoint，教师为 teacher_predicted_endpoint_at_same_forward_time。表示使用同前向时刻的教师预测端点世界坐标，与 R02_v3 的 clock_policy 一致；不得与 current_state 或 actual_ancestor_at_same_current_time 互换。F_b011_s030__reference/ancestor 提供 current_clock_times [0.0, 0.11999999731779099, 0.25, 0.5] 下的实际祖先坐标与同前向教师预测端点坐标，两者表示不同，早期身份仍不确定。",
+  "component_response_interpretation": "parents/R02_v3/component_response 显示 checks 全部通过，typed 与 charge 组件 enabled_weight 均为 0.0，measured_probe_steps 为 0，因此本轮不激活类型或电荷项；matching_support_sizes 与 differentiated_teacher_support_sizes 均为 [20]。parents/R02_v3/response 显示 active_updates 40、nonzero_updates 40、atom_clip_fraction 与 cumulative_clip_fraction 均为 0.0，说明控制项已激活且无裁剪；但梯度非零只证明控制项激活，不证明几何/元素形成或后缀保持。",
+  "counterevidence_refs": [
+    "parents/R18_v3/outcomes",
+    "parents/R18_v3/element_layout",
+    "parents/R18_v3/component_response",
+    "F_b011_s030__v3_group16/chemical_context",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/selection_trend",
+    "F_b011_s030__reference/chemical_context",
+    "campaign/history"
+  ],
+  "falsifier": "若在相同支持、剂量、窗口与 endpoint_prediction 时钟下，pair_distance 算子产生的 boundary/terminal 局部几何与 tracked 布局指标与 R02_v3 的 pointwise 基线在测量噪声内无差异，或终态亲和力尾部（best_qualified_pic50）明显低于 8.69941520690918 且无新的近目标候选，则该假设被否证：R02_v3 的近目标尾部不依赖逐点匹配，算子替换不构成区分实验。",
+  "formation_retention_value_test": "形成：比较同一20点支持在控制窗口末端（boundary）的实际几何布局，读取 boundary_posthoc_local_rms_A 与 boundary_tracked_NC_joint_fraction，对照 R02_v3 的 0.307966895442264 与 0.4666666666666666。保持：比较同一 tracked 支持在无引导后缀后的终态布局，读取 terminal_posthoc_local_rms_A 与 terminal_tracked_NC_joint_fraction，对照 R02_v3 的 0.7679998371490568 与 0.8644444444444445。价值：终态亲和力与结构质量按统一评估读取，与 R02_v3 的 best_qualified_pic50 8.69941520690918 及 mean_all_pic50 7.618682155609131 比较；零裁剪或恒定剂量不作为后缀保持证据。",
+  "group_id": "G001",
+  "observable_change": "在相同20点支持与相同 endpoint_prediction 时钟下，pair_distance 算子将把奖励从逐点位移改为成对距离偏差；预期可观测变化是 boundary/terminal 的 posthoc_local_rms_A 与 tracked_NC_joint_fraction 的相对模式改变，以及 target_error_mean 轨迹形状改变。R02_v3 的 boundary_posthoc_local_rms_A 为 0.307966895442264、terminal_posthoc_local_rms_A 为 0.7679998371490568，可作为对照基线；不预期也不声称 pIC50 必然提高。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "relationship_to_failed_families": "R18_v3 在4点 F_b011_s030__v3_group16 支持上形成率高（terminal_tracked_NC_joint_fraction 1.0，terminal_geometry_matched_terminal_element_fraction 0.975）但无尾部（best_qualified_pic50 8.04043960571289，hit_fraction 0.0），说明局部身份形成不等于亲和力受益，与 source/prior_campaign 中“局部身份形成不等于亲和力受益”一致。R16_v3、R17_v3 的窄支持同样无尾部。本假设不重复窄支持路线，而是在已产生近目标尾部的 R02_v3 宽20点支持上做算子替换，以区分尾部是否依赖逐点匹配。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 的20点支持上，把 R02_v3 的 endpoint_prediction 时钟（预测端点对同前向时刻教师预测端点）替换为 pair_distance 算子，同时保持支持、剂量、窗口与原生协议不变，会改变局部成对距离的匹配几何，从而在保持近目标尾部（R02_v3 best_qualified_pic50 8.69941520690918，接近原 Steer 8.704806327819824）的同时，检验该尾部是否依赖点对点(pointwise)匹配而非成对距离约束。该假设只声明算子替换对局部几何可观测量的影响，不声明亲和力因果。",
+  "support_reason": "选择 F_b011_s030__reference 的20点支持，因为它是唯一在 campaign/history 中产生近目标尾部（R02_v3 best_qualified_pic50 8.69941520690918）的支持，且其终态化学上下文包含可识别的羧基与芳香受体氮，满足 C3 对基团作用原子与邻域支持的要求。20点支持是全部25槽位的真子集，保留不受直接约束的自由度；不声称20点是最小充分区域。"
+}
