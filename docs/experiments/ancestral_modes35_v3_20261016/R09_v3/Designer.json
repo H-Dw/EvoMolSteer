@@ -1,0 +1,25 @@
+{
+  "actual_dose_expectation": "预期实际剂量与 parent 同量级：每步请求 RMS 约 0.030 Å（parent 实测 requested_rms_A_mean 0.0298–0.0301），单原子步上限 0.15 Å，累计 RMS 上限 6.0 Å，40 个有效更新步，累计实际步 RMS 约 1.2 Å。相对 parent 的差异应体现在分组而非总量：不同 seed 被分配到不同模板后，其支持集内 kernel occupancy 与 signed displacement 的分布出现分组差异，而非全部向 F_b011_s030 的单一支持集收敛。目标达到时允许平滑减力，近零梯度不被放大为完整步长；不确定性因子由已观测可靠性定义，不使用 LLM 文字置信度充当成功概率。先匹配时间调度的总请求预算，再单独比较更大总量。",
+  "derivative_path": "导数源与 parent 相同：只对真实模型坐标叶节点求 VJP，每模式每步一次坐标 VJP；元素、电荷与必要键信息取自当前已存在的生成 head，分开 E0 匹配、E1 停梯度概率空间场与 E2 概率/空间共同坐标 VJP。形式电荷分通道，不冒充部分电荷、pKa 或相互作用自由能。硬类别/化学图识别仅用于无梯度路由（static 分配），不进入梯度；路由分数停止梯度，状态相关权重未求导时只声称条件路由梯度，不声称完整混合势的精确导数。模型 VJP 仅对当前调用有效，不是对全部未来随机生成求导。沿用契约：坐标控制、无 SMC、无 affinity-head 导数、无每步额外 affinity 推理，不加入 logits/离散转移率编辑。图变化后重新完成和评分，不沿用修改前的预测作结果。",
+  "design_grounds": "A002 是注册表中唯一与 G002 假设匹配的数值选项：parent 为 R15_V3_COMPATIBLE，phase 为 mode_diversity，region_ids 恰为三个 count-matched 区域（F_b011_s030__reference、F_b017_s043__v3_countmatched_reference、F_b003_s025__v3_countmatched_reference），numeric_identity 3d4eb1b626820a9dac0c99df7ea108282708d287f0efd6064ee20ab6f8770ebb。相对 parent 的唯一数值改动是 routing 由 single 改为 static，并把 mode_specs 从单一 F_b011_s030_native 扩展为三个模板（F_b011_s030_native、F_b017_s043_native、F_b003_s025_native），每个模板的 atom_slots 与 Analyst 给出的 selected_support 逐槽一致（20 槽），orientation_triplets 与 pocket_sites 取自各自 mode_comparison 记录。其余字段（clock_policy=fixed、teacher_time=0.5、type_target=predicted、window=[0.1,0.5]、learning_window=[0.0,0.5]、dose、dose_schedule=constant、steps=100、sensing=detached、smc=false、affinity_head_gradient=false、coordinate_updates_only=true、typed_weight=0.0、charge_weight=0.0、assignment_element_cost=0.5）与 parent 完全一致，未新增点、未新增项、未改教师时刻。证据边界：三个模板的终态重打分（8.704859、8.33511、8.295019）是回顾性数值，不是在线路由分数；campaign/history 中 R01–R08 全部 mode_occupancy 为 F_b011_s030_native 50/50，说明此前从未实际执行过多模式静态分配，因此本选项检验的是“不同 seed 自选不同局部模式是否可区分”，而非“任一模式必然提高亲和力”。source/prior_campaign 已记录局部身份形成不等于亲和力受益、收益具有支持背景依赖，故本设计不重复“贴合固定点云即提高亲和力”的失败解释。",
+  "evidence_refs": [
+    "F_b017_s043__v3_countmatched_reference/ancestor",
+    "F_b017_s043__v3_countmatched_reference/mode_comparison",
+    "F_b003_s025__v3_countmatched_reference/mode_comparison",
+    "F_b003_s025__v3_countmatched_reference/selection_trend",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "campaign/history",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "source/prior_campaign",
+    "source/limits",
+    "source/measured_path_preferences",
+    "source/feature_revision"
+  ],
+  "falsifier": "若在固定时钟下，不同 seed 被分配到不同模式后，其支持集内局部差异分布与全部使用 F_b011_s030 单一模式时无区分，或模式分配与终态预测亲和力分布无关联，则 G002 的模式多样性假设被否证。形成测试（被分配支持集内是否出现与终态局部模式一致的几何）、保持测试（学习窗口结束后原生完成阶段是否保持该局部几何）、价值测试（不同模式分配下的终态预测亲和力分布）三者分开报告，不相互替代；相似度、角色概率或 loss 改善不能代替最终质量。接口错误与科学负结果分开；数值相同的函数复用既有结果，冻结确认不引入新设计。",
+  "hypothesis_group": "G002",
+  "operative_terms": "有效项：三个局部模式模板，各自绑定 Analyst 的 observable（predictive_bridge_to_learning_end）、模式（F_b011_s030_native / F_b017_s043_native / F_b003_s025_native）、支持（20 槽 atom_slots，逐槽等于对应 selected_support）、角色条件（元素/几何软代理，未启用化学模块）与来源（region_id 与 template_id）。支持并集保持严格局部：每个 seed 只在其被分配模板的 20 槽支持内计算，不跨模板合并坐标，不相容模板作为分开的势，不先平均坐标。时钟：fixed，当前态为实际同刻祖先（actual current world A），端点目标为同向前教师预测端点世界坐标（same-forward teacher predicted endpoint world A），二者不互换。路由：static，按 seed 状态兼容性静态分配一个模板，路由分数只衡量局部代理可控性，不解释为大梯度或小距离即高亲和力。时间调度：constant，作用于归一化后的请求位移；共同乘 reward 的正系数可被梯度归一化抵消，故只声明实际位移。逐项声明：raw reward 系数沿用 parent，方向混合为各模板自身的 orientation_triplets，空间尺度为 field_sigma_A=1.5 与 pointcloud_delta_A=1.0，实际位移受 max_atom_step_A=0.15 与 max_cumulative_rms_A=6.0 约束，累计预算与 parent 同量级（parent 实测 actual_cumulative_step_rms_A 约 1.19–1.77）。",
+  "option_id": "A002",
+  "parent_program_id": "R15_V3_COMPATIBLE"
+}

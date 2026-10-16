@@ -1,0 +1,106 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589.txt",
+        "content_sha256": "9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/d6be5c0b44cf4638a91e062be2432ab7fe0a3878da8657908140d54ee6b5a46a.txt",
+        "content_sha256": "d6be5c0b44cf4638a91e062be2432ab7fe0a3878da8657908140d54ee6b5a46a",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/949124e53eb36f6c602d07e3e1d28c2d8ae13d87c5fb5b61b3fd7ae5fd89fb22.txt",
+        "content_sha256": "949124e53eb36f6c602d07e3e1d28c2d8ae13d87c5fb5b61b3fd7ae5fd89fb22",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b003_s025__v3_countmatched_reference/mode_comparison",
+            "F_b003_s025__v3_countmatched_reference/selection_trend",
+            "F_b017_s043__v3_countmatched_reference/ancestor",
+            "F_b017_s043__v3_countmatched_reference/mode_comparison",
+            "campaign/history",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G002"
+      },
+      "operative_terms": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A002"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R15_V3_COMPATIBLE"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
