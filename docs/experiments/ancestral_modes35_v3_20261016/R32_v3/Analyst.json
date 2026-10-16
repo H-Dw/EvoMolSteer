@@ -1,0 +1,35 @@
+{
+  "active_chemistry_modules": [
+    "C1",
+    "C2"
+  ],
+  "chemical_assumptions": "仅使用已查询的 F_b011_s030__reference 终态角色：槽位 22 为芳香受体 N（无 H），槽位 15 为带 H 的芳香 N（供体），槽位 17 为酰胺型 N（供体），槽位 16/19 为 O（16 为受体，19 兼具供体/受体）。这些是终态观测标签，不是早期状态已存在该角色的证据。conditional_layout_evidence 显示 native N 位点 22 相对 9 个单点换位的平均优势仅 0.076，且 n_identifiable_interactions=0，因此不把“槽位 22 必须为 N”当作已证实的化学要求；也不把 N 概率当作受体概率，不推断氢键、微态或能量贡献。最近极性口袋原子（A:VAL:116:N、A:ASP:175:N、A:LYS:68:NZ、A:GLU:114:O、A:VAL:116:O、A:HIS:160:NE2）仅作几何参考，不构成作用位点断言。",
+  "clock_and_representation": "时钟固定（clock_policy=fixed），可观测为 predictive_bridge_to_learning_end，教师为 actual_ancestor_at_learning_end；学习窗口 [0.0,0.5]，控制窗口 [0.1,0.5]，100 积分步，dose_schedule=constant，schedule_normalization=1.0。表示：20 点局部支持，pointcloud_delta_A=1.0，field_sigma_A=0.75，typed_channels=NC，type_target=predicted，type_balance=none，assignment_element_cost=0.5，routing=single，单一模式 F_b011_s030_native。typed 权重为唯一被标定的量；几何项、剂量、时钟、窗口与原生选项保持不变。",
+  "component_response_interpretation": "R27_v3 的 component_response 通过全部执行检查（configured_active_steps、completed_to_terminal、no_smc、no_affinity_gradient、no_extra_generator_forwards、no_extra_affinity_forwards、actual_clocks、single_local_support、post_normalization_schedule、typed_component_measured 均为 true），routing_VJPs=0，mode_switches=0，active_steps=40，nonzero_steps=40。typed 分量：enabled_weight=0.5，measured_probe_steps=3，max_coordinate_gradient_rms=0.0005418715300038457，mean_fraction_of_total_gradient=0.0169678092301668，mean_cosine_with_total_gradient=0.10047801025522252。charge 分量权重为 0，未测量。解释：typed 项确实激活并有坐标响应，但占总梯度比例很小，因此“激活”不等于“归一化总方向显著改变”；原始分项梯度非零也不能证明总方向改变。atom_clip_fraction 与 cumulative_clip_fraction 全程为 0，说明未发生裁剪，但这不构成后缀保持证据。",
+  "counterevidence_refs": [
+    "source/prior_campaign",
+    "source/limits",
+    "campaign/history"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/chemical_context",
+    "F_b011_s030__reference/controller_response",
+    "parents/R27_v3/component_response",
+    "parents/R27_v3/element_layout",
+    "parents/R27_v3/response",
+    "parents/R27_v3/outcomes"
+  ],
+  "falsifier": "若提高 typed_weight 后：(a) typed 分量占总梯度比例与余弦确实改变，但 tracked N 召回与终态 N 布局无变化，则“权重不足”解释被否证，缺口在表示或目标而非剂量；(b) N 布局在 boundary 形成但在无引导后缀丢失，则问题属于后缀保持而非形成；(c) N 布局形成且保持但终态亲和力与基本合格率不优于 R27_v3 及同池无引导对照，则 N 布局形成不是该分支尾部受限的原因；(d) 若提高权重只放大与原生方向相反的项（gradient_native_observed_cosine 均值 -0.447 进一步变负）且终态布局更差，则该项方向本身不适配。",
+  "formation_retention_value_test": "形成：比较同一 20 点支持在控制窗口末端（boundary）的实际几何与元素布局，读取 tracked 与 geometry_matched 两套对应下的 N/C/O 精确率-召回率，而非总匹配率。保持：比较同一 tracked 支持在无引导后缀后的终态布局与 boundary 布局，确认 N 布局是否在原生后缀中保留。价值：终态亲和力与基本合格率用统一评估，并与同池无引导对照及 R27_v3 自身（best_qualified_pic50 8.588970184326172，mean_all_pic50 7.692537126541137，U_tau 0.009078426361083984）比较。梯度非零只证明激活，不证明形成或保持。",
+  "group_id": "G000",
+  "observable_change": "预期可测变化：(1) typed 分量坐标梯度 RMS 与占总梯度比例上升（当前 1.7%），typed 与总梯度余弦改变；(2) 边界与终态 tracked N 召回相对 R27_v3 的 0.34/0.627 上升，C 召回不应同步下降；(3) 终态 tracked NC 联合比例相对 0.919 的变化；(4) 终态 posthoc 局部 RMS 相对 0.766 Å 的变化。以上均为坐标/元素布局与分量响应量，不是亲和力。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R27_v3",
+  "primary_operator": "pointwise",
+  "relationship_to_failed_families": "与 R16_v3（interface_support）、R17_v3（NC_support）、R18_v3（group_support）同属“把 gradient_native_observed_cosine 推向 0 或正”的家族，三者均未产生尾部收益（best_qualified_pic50 分别 8.086981773376465、8.127787590026855、8.04043960571289，hit_fraction 0.0）。本组不重复该家族的目标：不追求余弦符号，而是直接标定 typed 分量在总梯度中的占比，并读取 N 布局形成/保持。与 R02_v3 近目标尾部分支（best_qualified_pic50 8.69941520690918）的关系是待检验的：若该分支同样缺少 N 布局，则本组可区分“N 布局缺失”与“剂量不足”两种解释；若该分支已有 N 布局，则本组不解释其尾部。",
+  "scientific_hypothesis": "在冻结的 20 点 F_b011_s030__reference 支持上，R27_v3 的 typed NC 空间场权重 0.5 相对几何项过小：typed 分量坐标梯度 RMS 最大仅 5.42e-4，占总梯度约 1.7%，与总梯度余弦约 0.10，因此该通道虽已激活但几乎不改变归一化总方向。终态 tracked 布局显示 C 召回 0.977、O 召回 0.98，而 N 召回仅 0.627（geometry 对应 0.473），即形成的是 C 主导骨架而非参考的 N 布局。假设：把 typed_weight 提高到使 typed 分量占总梯度约 0.25–0.5（G000 目录中 A000/A001 的处方值），可在同一 20 点支持、同一几何/剂量/时钟下让 N 位置获得可测的坐标响应，从而检验“N 布局缺失”是否为该分支尾部受限的可干预原因。这是对参考路径的一阶权重标定，不是亲和力梯度，也不断言提高权重必然提高终态亲和力。",
+  "support_reason": "支持为冻结的 20 点 proper-subset（n_total=25），是 R27_v3 实际使用的匹配支持与差异化教师支持（matching_support_sizes=[20]，differentiated_teacher_support_sizes=[20]）。选择该支持而非更小点云，是因为它同时包含 3 个 N 与 2 个 O 及其邻接环境（full_adjacency 给出 22 邻接 6、13；15 邻接 4、14；17 邻接 6），足以识别 N 位置关系；少于全部点只是必要条件，每个点仍需有机制或测量用途。不把 20 点当作最小充分区域，也不把该支持的成功外推到其它骨架或起点。"
+}

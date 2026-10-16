@@ -1,0 +1,17 @@
+{
+  "design_grounds": "R27_v3 的 typed NC 空间场虽已激活（enabled_weight 0.5，measured_probe_steps 3），但实测坐标梯度 RMS 最大仅 5.42e-4、占总梯度约 1.7%、与总梯度余弦约 0.10，而终态 tracked 布局显示 C 召回 0.977、O 召回 0.98 却 N 召回仅 0.627（geometry 对应 0.473），即形成的是 C 主导骨架而非参考的 N 布局；A000 在冻结的同一 20 点支持、同一几何项、剂量、时钟、窗口与原生选项下，仅按参考路径实测分量占比把 typed_weight 标定到约占总梯度 0.25 的目标，从而在同一条件下检验“N 布局缺失”是否为该分支尾部受限的可干预原因，而非重复 R16/R17/R18 追求余弦符号的家族目标。",
+  "evidence_refs": [
+    "F_b011_s030__reference/chemical_context",
+    "F_b011_s030__reference/controller_response",
+    "parents/R27_v3/component_response",
+    "parents/R27_v3/element_layout",
+    "parents/R27_v3/outcomes",
+    "parents/R27_v3/response",
+    "campaign/history",
+    "source/limits"
+  ],
+  "falsifier": "若 A000 下 typed 分量占总梯度比例与余弦确实改变，但 boundary 与终态 tracked N 召回相对 R27_v3 的 0.34/0.627 无上升、终态 tracked NC 联合比例与 posthoc 局部 RMS 相对 0.919/0.766 Å 无变化，则“typed 权重不足”解释被否证，缺口在表示或目标而非剂量。",
+  "hypothesis_group": "G000",
+  "option_id": "A000",
+  "parent_program_id": "R27_v3"
+}

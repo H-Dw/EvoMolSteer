@@ -81,6 +81,37 @@ def highest_current_pb(repo,config,protein,output,max_candidates=20):
     write_json(output,result);return result
 
 
+def all_current_pb(repo,config,protein,output):
+    from importlib.metadata import version
+    from posebusters import PoseBusters
+    from evomolsteer.local_motif.quality import binary_checks
+    repo=Path(repo);m=read_json(config);protein=Path(protein);output=Path(output)
+    base=repo/m['raw_dataset']/'results'/m['campaign']/m['arm']
+    sources={f.relative_to(repo).as_posix():digest(f) for d in sorted(base.glob('batch_*')) for f in [d/'final_records.json',d/'molecules_all_built.sdf']}
+    provenance={'sources':sources,'protein_sha256':digest(protein),'version':version('posebusters'),'config':'dock'}
+    if output.exists():
+        old=read_json(output)
+        if old['provenance']!=provenance:raise ValueError('Original PB assay or source changed')
+        return old
+    pb=PoseBusters(config='dock',max_workers=0);rows=[]
+    for d in sorted(base.glob('batch_*')):
+        molecules={v.GetProp('node_id'):v for v in Chem.SDMolSupplier(str(d/'molecules_all_built.sdf'),sanitize=False,removeHs=False) if v is not None}
+        for r in read_json(d/'final_records.json'):
+            row={'node_id':r['node_id'],'batch':r['batch'],'slot':r['slot'],'pic50':r['pic50_on_rescore'],'status':'not_decodable','passes_all':False}
+            if r['node_id'] in molecules:
+                try:
+                    tests=binary_checks(pb.bust(molecules[r['node_id']],mol_cond=protein,full_report=False).iloc[0].to_dict())
+                    row.update(tests=tests,status='evaluated',passes_all=bool(tests and all(v is True for v in tests.values())))
+                except Exception as exc:row.update(status='error',error_type=type(exc).__name__)
+            rows.append(row)
+    passing=[r for r in rows if r['passes_all']]
+    result={'provenance':provenance,'n_attempts':len(rows),'n_evaluated':sum(r['status']=='evaluated' for r in rows),
+        'n_pass_all':len(passing),'n_unresolved':sum(r['status']=='evaluated' and any(v is None for v in r['tests'].values()) for r in rows),
+        'best_passing_pic50':max((r['pic50'] for r in passing),default=None),'rows':rows,
+        'scope':'Same installed PB dock assay and receptor as generated outcomes; old legacy PB remains separately preserved. No new molecules or affinity inference.'}
+    write_json(output,result);return result
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--repo',default='.');p.add_argument('--config',required=True);p.add_argument('--output',required=True)
     a=p.parse_args();r=evaluate(Path(a.repo).resolve(),a.config,a.output);print({k:r[k] for k in ('n','n_qualified','energy_coverage','median_heavy_relief_after_H_per_atom','legacy_PB_pass')})

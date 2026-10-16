@@ -1,0 +1,81 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/0ad6394674ddc58a9fee1c97b76f181f18cb5a2867a6b07d1b9794c8ca83faed.txt",
+        "content_sha256": "0ad6394674ddc58a9fee1c97b76f181f18cb5a2867a6b07d1b9794c8ca83faed",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/6002243a8bb1e777896a63d5f24f18e10cad695ee847a666a563708323128710.txt",
+        "content_sha256": "6002243a8bb1e777896a63d5f24f18e10cad695ee847a666a563708323128710",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "design_grounds": {
+        "description": "One concise scientific reason; do not repeat canonical program/derivative/dose objects.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/chemical_context",
+            "F_b011_s030__reference/controller_response",
+            "campaign/history",
+            "parents/R27_v3/component_response",
+            "parents/R27_v3/element_layout",
+            "parents/R27_v3/outcomes",
+            "parents/R27_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "description": "One concise measurable negative outcome.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "option_id": {
+        "enum": [
+          "A000",
+          "A001"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R27_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

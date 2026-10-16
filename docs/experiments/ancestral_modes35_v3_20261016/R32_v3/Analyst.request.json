@@ -1,0 +1,206 @@
+{
+  "body": {
+    "max_tokens": 5500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/dff87cb91338d39b0126fc78dcaa74095021ae5f2ae2daa20d6e34cfe7335fe0.txt",
+        "content_sha256": "dff87cb91338d39b0126fc78dcaa74095021ae5f2ae2daa20d6e34cfe7335fe0",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/69f08be2f2f39ca5d6521adfbda58fef872e8ef4f9c99347b426ca6aa5602d04.txt",
+        "content_sha256": "69f08be2f2f39ca5d6521adfbda58fef872e8ef4f9c99347b426ca6aa5602d04",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/1691e155bb4e88182b3be09da26399a81b5ab2fd8129fb946498f1a42d9dfc7e.txt",
+        "content_sha256": "1691e155bb4e88182b3be09da26399a81b5ab2fd8129fb946498f1a42d9dfc7e",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/b21138370e5f8041475e3f93d0e7685feb73006f3c4313ede386229b056a218e.txt",
+        "content_sha256": "b21138370e5f8041475e3f93d0e7685feb73006f3c4313ede386229b056a218e",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/50f3001533e3ad974e492d4211c26fb3a2f5456fe15d209a933a06d3858e9450.txt",
+        "content_sha256": "50f3001533e3ad974e492d4211c26fb3a2f5456fe15d209a933a06d3858e9450",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/e11027f78310f8f2c75c8bd36052dc97a38cd66c99630e874a47954edd953a92.txt",
+        "content_sha256": "e11027f78310f8f2c75c8bd36052dc97a38cd66c99630e874a47954edd953a92",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/210f1be80197916677dadf75f63bf5ef55ddef1fc1c165f776779101abe34b0d.txt",
+        "content_sha256": "210f1be80197916677dadf75f63bf5ef55ddef1fc1c165f776779101abe34b0d",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "active_chemistry_modules": {
+        "const": [
+          "C1",
+          "C2"
+        ]
+      },
+      "chemical_assumptions": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "clock_and_representation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "component_response_interpretation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/chemical_context",
+            "F_b011_s030__reference/controller_response",
+            "campaign/history",
+            "parents/R27_v3/component_response",
+            "parents/R27_v3/element_layout",
+            "parents/R27_v3/outcomes",
+            "parents/R27_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/chemical_context",
+            "F_b011_s030__reference/controller_response",
+            "campaign/history",
+            "parents/R27_v3/component_response",
+            "parents/R27_v3/element_layout",
+            "parents/R27_v3/outcomes",
+            "parents/R27_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "formation_retention_value_test": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "group_id": {
+        "enum": [
+          "G000"
+        ]
+      },
+      "observable_change": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "observable_contract": {
+        "additionalProperties": false,
+        "properties": {
+          "observable": {
+            "enum": [
+              "current_state",
+              "predicted_endpoint",
+              "predictive_bridge_to_decaying_lookahead",
+              "predictive_bridge_to_learning_end",
+              "predictive_bridge_to_lookahead"
+            ]
+          },
+          "teacher": {
+            "enum": [
+              "actual_ancestor_at_learning_end",
+              "actual_ancestor_at_same_current_time",
+              "actual_ancestor_at_same_lookahead_time",
+              "teacher_predicted_endpoint_at_same_forward_time"
+            ]
+          }
+        },
+        "required": [
+          "observable",
+          "teacher"
+        ],
+        "type": "object"
+      },
+      "parent_program_id": {
+        "enum": [
+          "R27_v3"
+        ]
+      },
+      "primary_operator": {
+        "enum": [
+          "pointwise"
+        ]
+      },
+      "relationship_to_failed_families": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "scientific_hypothesis": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "support_reason": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "group_id",
+      "parent_program_id",
+      "evidence_refs",
+      "counterevidence_refs",
+      "primary_operator",
+      "scientific_hypothesis",
+      "observable_change",
+      "formation_retention_value_test",
+      "falsifier",
+      "active_chemistry_modules",
+      "chemical_assumptions",
+      "clock_and_representation",
+      "relationship_to_failed_families",
+      "support_reason",
+      "component_response_interpretation",
+      "observable_contract"
+    ],
+    "type": "object"
+  }
+}
