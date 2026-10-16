@@ -1,0 +1,29 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块，故不作官能团、质子化或互变异构假设。selected_terminal_elements 含 N/O，但 ancestor 工具返回的 selected_ancestor_coords_A 仅为坐标，未提供早期已验证的 N/O 角色；按 source/limits，终态角色只用于选择支持，不构成早期状态已存在该角色的证据。元素分数不等于已验证的氢键或官能团角色。",
+  "clock_and_representation": "parent R15_V3_COMPATIBLE 使用 clock_policy=fixed、teacher_time=0.5、type_target=predicted、window=[0.1,0.5]、lookahead_fraction=0.2。ancestor 工具返回两种不同表示：actual current world A（current_clock_times 0.0/0.12/0.25/0.5）与 same-forward teacher predicted endpoint world A（selected_teacher_endpoint_A），二者不得互换。本组将 observable 设为 predictive_bridge_to_decaying_lookahead、teacher 设为 actual_ancestor_at_same_lookahead_time，即在同一前瞻时刻与同刻实际祖先比较，而非与端点预测或当前态比较。",
+  "counterevidence_refs": [
+    "campaign/history",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "campaign/history",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response"
+  ],
+  "falsifier": "若 decaying_lookahead 下 gradient_native_observed_cosine_mean 仍显著为负（不高于 R02_v3 的 -0.281 量级），且 n_above_target 仍为 0、best_qualified_pic50 仍不超过 tau=8.135048866271973，则方向性解释被否证，应转向支持区域选择或表示映射问题，而非继续加强权重。",
+  "formation_retention_value_test": "形成/保持/价值三段分开检验：形成——终态 tracked_terminal_element_fraction 与 tracked_NC_joint_fraction 是否仍达到 parent 量级（R01_v3 分别为 0.927 与 0.929）；保持——终态 tracked_source_charge_fraction 是否仍接近 1（R01_v3 为 0.995）；价值——n_above_target 是否由 0 变为非 0，或 best_qualified_pic50 是否超过 tau=8.135048866271973。三者必须分别报告，不得用形成或保持替代价值结论。",
+  "group_id": "G000",
+  "observable_change": "在 decaying_lookahead 下，预期可观测变化为 gradient_native_observed_cosine_mean 由负值向 0 或正值移动（对照 R02_v3 均值 -0.281、R03_v3 均值 -0.448），同时 point_rms_A 与 target_error_mean 仍应保持有限（对照 parent 的 point_rms_A 首 0.433 → 末 0.183、target_error_mean 均值 0.276），且 n_above_target 与 best_qualified_pic50 相对 tau=8.135048866271973 出现可测变化。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_decaying_lookahead",
+    "teacher": "actual_ancestor_at_same_lookahead_time"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "R01_v3（current_clock）、R02_v3（endpoint_clock，已 rollback）、R03_v3（lookahead）均以 parent R15_V3_COMPATIBLE 为父，n_above_target 均为 0，best_qualified_pic50 分别为 8.270、8.699、8.271，均未超过 tau=8.135048866271973 的尾部要求。R02_v3 与 R03_v3 的梯度-原生观测余弦为负，是本组方向性假设的直接反证来源；本组不重复这三条已执行时钟，而是检验 decaying_lookahead 这一未执行时钟。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 的 20 点局部支持（槽位 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]）上，parent R15_V3_COMPATIBLE 的 pointwise 几何奖励方向与原生观测流方向系统性相反：R02_v3 的 gradient_native_observed_cosine 均值 -0.281（首 -0.028 → 末 -0.550），R03_v3 均值 -0.448（首 -0.172 → 末 -0.564），而 dose_gain_mean 恒为 1.0、atom_clip_fraction 与 cumulative_clip_fraction 恒为 0.0，说明并非真实剂量不足或被归一化抵消。因此主假设是：把时钟策略由 fixed 改为 decaying_lookahead（保持同一 20 点支持、同一 pointwise 算子、同一 dose 与窗口），使目标由同前瞻时刻实际祖先驱动，可改变梯度与原生观测流的方向对齐，从而在终态 pIC50 尾部产生可测差异。",
+  "support_reason": "支持集沿用 parent 的 20 点局部支持，与 ancestor 工具返回的 selected_support 完全一致，且小于 25 个生成槽位，保持局部性。选择该支持是因为它是 parent 实际使用并被 controller_response 绑定的支持，而非新造区域；本组只改变时钟策略，不扩大支持、不引入全云并集、不改变 pointwise 算子与 dose 配置。"
+}

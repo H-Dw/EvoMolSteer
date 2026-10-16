@@ -1,0 +1,13 @@
+{
+  "purpose": "在提交支持/模式假设组前，先查询真实工具以区分竞争解释：R01/R02/R03 与 parent R15_V3_COMPATIBLE 的终态 pIC50 尾部均未超过 tau=8.135，且 R02 的 gradient_native_observed_cosine 从 -0.028 降到 -0.550（均值 -0.281），提示当前梯度方向与原生观测流方向系统性相反，而非剂量不足。需要 (1) 用 ancestor 核对同刻实际祖先与端点预测的表示/时刻映射，确认局部支持槽位 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] 在早期状态是否已有终态角色（终态角色不能当作早期身份证据）；(2) 用 controller_response 读取 parent R15_V3_COMPATIBLE 的实测响应，区分“函数方向不对”与“真实剂量不足/归一化抵消”。selection_trend 与 failure_history 暂不请求，避免在未确认方向问题前扩大支持或重复已用过的调参池证据。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "ancestor"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "controller_response"
+    }
+  ]
+}
