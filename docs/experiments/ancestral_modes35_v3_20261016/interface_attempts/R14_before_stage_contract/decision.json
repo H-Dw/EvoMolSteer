@@ -1,0 +1,73 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块。元素标签仅作为类型布局比较量，不推断氮的受体/供体角色、质子化或互变异构微态、氢键或亲和力因果。element_layout 的 limits 明确：碳主导的总匹配率不等于 N 布局准确率；源终态标签只是边界处的回溯比较量，不是早期实际化学角色。",
+    "clock_and_representation": "数据时钟为 fixed，学习窗口 [0.0, 0.5]，教师时刻 0.5。observable 为 predictive_bridge_to_learning_end，教师表示为 actual_ancestor_at_learning_end。ancestor 返回同时给出 actual current world A 与 same-forward teacher predicted endpoint world A 两套表示，并提示 current 与 endpoint 目标不可互换、早期身份仍不确定；因此不得用终态元素角色回填早期身份。",
+    "component_response_interpretation": "component_response 记录 typed 分量 enabled_weight=0.5、measured_probe_steps=3、max_coordinate_gradient_rms=0.004154008813202381，说明该分量确有坐标导数响应；charge 分量 enabled_weight=0.0、measured_probe_steps=0，未启用。controller_response 显示 atom_clip_fraction 与 cumulative_clip_fraction 全为 0、dose_gain_mean 恒为 1.0，说明剂量未被裁剪或归一化抵消；但 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 均为负（均值约 -0.44496341794729233 与 -0.28340772800147535），提示该局部响应方向与原生观测/预测方向不一致，属于待检验的可控性代理而非成功概率。",
+    "counterevidence_refs": [
+      "parents/R13_v3/outcomes",
+      "parents/R13_v3/element_layout",
+      "source/prior_campaign",
+      "source/limits"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "parents/R13_v3/component_response",
+      "parents/R13_v3/element_layout",
+      "parents/R13_v3/outcomes",
+      "parents/R13_v3/response"
+    ],
+    "falsifier": "若在相同 20 槽支持与 fixed 时钟下 typed 坐标导数探针无响应，或响应存在但 tracked N recall 不随选择富集，或布局形成后终态仍无收益（best_qualified_pic50 不提高且 n_above_target 仍为 0），则该假设被否证。",
+    "formation_retention_value_test": "形成测试：typed 分量在支持槽位上产生可测坐标导数（component_response 记录 enabled_weight=0.5、measured_probe_steps=3、max_coordinate_gradient_rms=0.004154008813202381）。保持测试：原生后缀完成后 atom_clip_fraction 与 cumulative_clip_fraction 全为 0、dose_gain_mean 恒为 1.0。价值测试：终态 best_qualified_pic50 与 n_above_target 是否相对同池对照提高；R13_v3 实测 best_qualified_pic50=8.183473587036133、n_above_target=0，故价值尚未达成。",
+    "group_id": "G000",
+    "observable_change": "预期可观测变化为：typed 通道坐标导数探针在支持槽位上保持非零响应；boundary 与 terminal 的 tracked N recall/precision 随选择富集而变化；atom_clip_fraction 与 cumulative_clip_fraction 保持为 0，dose_gain_mean 保持为 1.0，说明剂量未被裁剪或归一化抵消。",
+    "observable_contract": {
+      "observable": "predictive_bridge_to_learning_end",
+      "teacher": "actual_ancestor_at_learning_end"
+    },
+    "parent_program_id": "R13_v3",
+    "relationship_to_failed_families": "R13_v3 属于 typed_field 家族，其 typed 分量确有坐标响应且无裁剪，但 best_qualified_pic50 仅 8.183473587036133、n_above_target=0，说明布局形成不等于亲和力受益。R10_v3 与 R11_v3 的 compatible_routing/persistent_routing 在引入模式切换后 mean_all_pic50 下降（7.49661036491394、7.470114917755127），提示路由切换未带来收益。source/prior_campaign 记录局部身份形成不等于亲和力受益，且更准确贴合固定点云并非首要缺口。",
+    "scientific_hypothesis": "在 F_b011_s030__reference 的 20 槽局部支持上，以 fixed 时钟、predictive_bridge_to_learning_end 对 actual_ancestor_at_learning_end 的表示，通过 typed 通道坐标 VJP 引导，可在不改变几何支持与原生协议的前提下改变局部类型布局；该布局变化是待检验的局部可控性代理，不是后续成功概率。",
+    "support_reason": "支持为 F_b011_s030__reference 的 20 个槽位 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，与 R13_v3 的 mode_specs 一致。该支持是严格局部子集，少于全部生成槽位；每个槽位由终态元素布局与几何对应共同选择，但终态角色不作为早期身份证据。"
+  },
+  "Designer": {
+    "actual_dose_expectation": "预期 requested_rms_A_mean 与 injected_rms_A_mean 仍约 0.0299 Å，actual_max_step_rms_A 约 0.0307 Å，actual_cumulative_step_rms_A 约 1.196 Å，atom_clip_fraction 与 cumulative_clip_fraction 保持 0，dose_gain_mean 保持 1.0，说明剂量未被裁剪或归一化抵消。与 R13_v3 的差异应体现在 typed 通道坐标导数探针的响应幅值与方向，而非请求位移总量；若 sensing=full 使梯度方向与原生观测/预测方向的一致性改变，应记录 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的前后值。",
+    "derivative_path": "E0 匹配仍在无梯度分支中计算，只改变被匹配的几何对应，不对 logits 或元素直接求导。E1 为停梯度的概率空间场。E2 在 sensing=full 下对 typed 通道的概率与空间坐标共同求 VJP：真实坐标叶节点为当前生成坐标，每模式每步一次 VJP，刷新时刻与 R13_v3 的 active steps 一致，不新增生成或 affinity forward，不引入 affinity-head 导数，不编辑 logits 或离散转移率。路由为 single，无模式切换，因此不涉及路由停止梯度或状态相关权重的额外求导声明。",
+    "design_grounds": "Analyst 的局部假设绑定在 F_b011_s030__reference 的 20 槽支持 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] 上，与 R13_v3 的 mode_specs 一致；该支持是严格局部子集，终态元素布局只用于选择支持，不作为早期身份证据。R13_v3 的 typed 分量确有坐标导数响应（enabled_weight=0.5、measured_probe_steps=3、max_coordinate_gradient_rms=0.004154008813202381），charge 分量未启用（enabled_weight=0.0、measured_probe_steps=0），且 atom_clip_fraction 与 cumulative_clip_fraction 全为 0、dose_gain_mean 恒为 1.0，说明剂量未被裁剪或归一化抵消。但 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 均为负（约 -0.44496341794729233 与 -0.28340772800147535），提示该局部响应方向与原生观测/预测方向不一致；R13_v3 终态 best_qualified_pic50=8.183473587036133、n_above_target=0，价值尚未达成。source/prior_campaign 记录局部身份形成不等于亲和力受益，且更准确贴合固定点云并非首要缺口。因此本变体只做单一数值改动：把 sensing 由 detached 改为 full，使 typed 通道的坐标 VJP 通过生成概率与坐标共同求导，其余点、模式来源、支持、时钟、窗口、剂量与原生协议保持不变。",
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "parents/R13_v3/component_response",
+      "parents/R13_v3/element_layout",
+      "parents/R13_v3/outcomes",
+      "parents/R13_v3/response",
+      "source/limits",
+      "source/prior_campaign"
+    ],
+    "execution_changes": [
+      "sensing"
+    ],
+    "falsifier": "若在相同 20 槽支持与 fixed 时钟下，sensing=full 后 typed 坐标导数探针无响应，或响应存在但 tracked N recall/precision 不随选择富集而变化，或布局形成后终态仍无收益（best_qualified_pic50 不高于 R13_v3 的 8.183473587036133 且 n_above_target 仍为 0），则该假设被否证。接口错误与科学负结果分开记录；数值相同的函数复用既有结果。",
+    "hypothesis_group": "G000",
+    "operative_terms": "沿用 R13_v3 的固定时钟（clock_policy=fixed）、学习窗口 [0.0, 0.5]、教师时刻 0.5、observable=predictive_bridge_to_learning_end、教师表示 actual_ancestor_at_learning_end、operator=pointwise、scope=local、routing=single、typed_channels=all、typed_weight=0.5、charge_weight=0.0、assignment_element_cost=0.5、field_sigma_A=1.5、target_band_A=0.34907500557366816、window [0.1, 0.5]、steps=100、expected_active_steps 10..49、dose_schedule=constant、schedule_normalization=1.0、dose.max_atom_step_A=0.15、dose.max_cumulative_rms_A=6.0、dose.native_rms_ratio=0.66、dose.pointcloud_delta_A=1.0、advantage_cap=20.0、affinity_head_gradient=false、coordinate_updates_only=true、smc=false、attainment_response=false。唯一改动是 sensing 由 detached 变为 full；不新增点、不新增模式来源、不新增项、不改变支持并集。",
+    "option_id": "A000",
+    "parent_program_id": "R13_v3"
+  },
+  "action": {
+    "action_id": "A000",
+    "authoritative_program_delta": {
+      "sensing": {
+        "after": "full",
+        "before": "detached"
+      }
+    },
+    "numeric_identity": "1ffac431d7db6456c9e3bf7ccd4e5d3e3e13c33f0165dac03ba6543aefc598a1",
+    "parent_id": "R13_v3",
+    "phase": "typed_vjp",
+    "reason": "Differentiate the same type field through generation probabilities and coordinates",
+    "region_ids": [
+      "F_b011_s030__reference"
+    ]
+  }
+}

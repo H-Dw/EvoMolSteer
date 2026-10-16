@@ -1,0 +1,32 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。元素标签仅作为类型布局比较量，不推断氮的受体/供体角色、质子化或互变异构微态、氢键或亲和力因果。element_layout 的 limits 明确：碳主导的总匹配率不等于 N 布局准确率；源终态标签只是边界处的回溯比较量，不是早期实际化学角色。",
+  "clock_and_representation": "数据时钟为 fixed，学习窗口 [0.0, 0.5]，教师时刻 0.5。observable 为 predictive_bridge_to_learning_end，教师表示为 actual_ancestor_at_learning_end。ancestor 返回同时给出 actual current world A 与 same-forward teacher predicted endpoint world A 两套表示，并提示 current 与 endpoint 目标不可互换、早期身份仍不确定；因此不得用终态元素角色回填早期身份。",
+  "component_response_interpretation": "component_response 记录 typed 分量 enabled_weight=0.5、measured_probe_steps=3、max_coordinate_gradient_rms=0.004154008813202381，说明该分量确有坐标导数响应；charge 分量 enabled_weight=0.0、measured_probe_steps=0，未启用。controller_response 显示 atom_clip_fraction 与 cumulative_clip_fraction 全为 0、dose_gain_mean 恒为 1.0，说明剂量未被裁剪或归一化抵消；但 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 均为负（均值约 -0.44496341794729233 与 -0.28340772800147535），提示该局部响应方向与原生观测/预测方向不一致，属于待检验的可控性代理而非成功概率。",
+  "counterevidence_refs": [
+    "parents/R13_v3/outcomes",
+    "parents/R13_v3/element_layout",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "parents/R13_v3/component_response",
+    "parents/R13_v3/element_layout",
+    "parents/R13_v3/outcomes",
+    "parents/R13_v3/response"
+  ],
+  "falsifier": "若在相同 20 槽支持与 fixed 时钟下 typed 坐标导数探针无响应，或响应存在但 tracked N recall 不随选择富集，或布局形成后终态仍无收益（best_qualified_pic50 不提高且 n_above_target 仍为 0），则该假设被否证。",
+  "formation_retention_value_test": "形成测试：typed 分量在支持槽位上产生可测坐标导数（component_response 记录 enabled_weight=0.5、measured_probe_steps=3、max_coordinate_gradient_rms=0.004154008813202381）。保持测试：原生后缀完成后 atom_clip_fraction 与 cumulative_clip_fraction 全为 0、dose_gain_mean 恒为 1.0。价值测试：终态 best_qualified_pic50 与 n_above_target 是否相对同池对照提高；R13_v3 实测 best_qualified_pic50=8.183473587036133、n_above_target=0，故价值尚未达成。",
+  "group_id": "G000",
+  "observable_change": "预期可观测变化为：typed 通道坐标导数探针在支持槽位上保持非零响应；boundary 与 terminal 的 tracked N recall/precision 随选择富集而变化；atom_clip_fraction 与 cumulative_clip_fraction 保持为 0，dose_gain_mean 保持为 1.0，说明剂量未被裁剪或归一化抵消。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R13_v3",
+  "relationship_to_failed_families": "R13_v3 属于 typed_field 家族，其 typed 分量确有坐标响应且无裁剪，但 best_qualified_pic50 仅 8.183473587036133、n_above_target=0，说明布局形成不等于亲和力受益。R10_v3 与 R11_v3 的 compatible_routing/persistent_routing 在引入模式切换后 mean_all_pic50 下降（7.49661036491394、7.470114917755127），提示路由切换未带来收益。source/prior_campaign 记录局部身份形成不等于亲和力受益，且更准确贴合固定点云并非首要缺口。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 的 20 槽局部支持上，以 fixed 时钟、predictive_bridge_to_learning_end 对 actual_ancestor_at_learning_end 的表示，通过 typed 通道坐标 VJP 引导，可在不改变几何支持与原生协议的前提下改变局部类型布局；该布局变化是待检验的局部可控性代理，不是后续成功概率。",
+  "support_reason": "支持为 F_b011_s030__reference 的 20 个槽位 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，与 R13_v3 的 mode_specs 一致。该支持是严格局部子集，少于全部生成槽位；每个槽位由终态元素布局与几何对应共同选择，但终态角色不作为早期身份证据。"
+}

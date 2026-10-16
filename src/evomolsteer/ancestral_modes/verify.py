@@ -25,7 +25,9 @@ def observe(folder,output=None):
     for name in ('typed','charge'):
         rows=[r for r in active if name+'_gradient_rms_per_seed' in r]
         component[name]={'enabled_weight':p[name+'_weight'],'measured_probe_steps':len(rows),
-            'max_coordinate_gradient_rms':max((max(r[name+'_gradient_rms_per_seed']) for r in rows),default=None)}
+            'max_coordinate_gradient_rms':max((max(r[name+'_gradient_rms_per_seed']) for r in rows),default=None),
+            'mean_fraction_of_total_gradient':float(np.mean([v for r in rows for v in r[name+'_gradient_fraction_of_total']])) if rows else None,
+            'mean_cosine_with_total_gradient':float(np.mean([v for r in rows for v in r[name+'_gradient_cosine_with_total']])) if rows else None}
         if p[name+'_weight']>0:checks[name+'_component_measured']=len(rows)>0
     result={'source_sha256':digest(folder/'guidance_audit.json'),'program_id':p['program_id'],
         'checks':checks,'passed':all(checks.values()),'routing_VJPs':sum(r.get('routing_VJPs',0) for r in active),
