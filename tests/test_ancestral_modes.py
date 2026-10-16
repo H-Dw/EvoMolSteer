@@ -126,3 +126,13 @@ def test_amide_and_carboxylate_are_distinct_local_groups():
     edges[1]['j']=3
     value=groups_from_graph(roles,edges)[0]
     assert value['group']=='carboxylate' and value['formal_charge_sum']==-1
+
+
+def test_attained_geometry_does_not_suppress_unmet_chemical_field():
+    from evomolsteer.ancestral_modes.reward import attainment_gain
+    p,b=fixture();error=torch.zeros(2)
+    comp={'typed':torch.tensor([-1.,0.]),'charge':torch.zeros(2)}
+    assert torch.all(attainment_gain(p,error,comp)==0)
+    p['typed_weight']=2.
+    gain=attainment_gain(p,error,comp)
+    assert gain[0]>.9 and gain[1]==0

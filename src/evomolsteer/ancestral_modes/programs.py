@@ -32,8 +32,9 @@ def numerical_identity(p,teacher):
 
 
 def implementation_identity():
-    from .reward import AncestorControl
-    return hashlib.sha256(('\n'.join(inspect.getsource(x) for x in (AncestorReward,AncestorControl,temporal_gain,horizon))).encode()).hexdigest()
+    from .reward import AncestorControl,attainment_gain
+    from .bank import lookup
+    return hashlib.sha256(('\n'.join(inspect.getsource(x) for x in (AncestorReward,AncestorControl,temporal_gain,horizon,attainment_gain,lookup))).encode()).hexdigest()
 
 
 def validate(p,teacher):

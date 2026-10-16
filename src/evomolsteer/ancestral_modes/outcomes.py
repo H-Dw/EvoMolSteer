@@ -40,6 +40,8 @@ def analyze(folder,bank,output):
             row[name+'_posthoc_local_rms_A']=float(np.sqrt(np.square(xyz[ids]-desired).sum(-1).mean()))
             row[name+'_geometry_matched_terminal_element_fraction']=float((atomic[ids]==labels).mean())
             row[name+'_tracked_terminal_element_fraction']=float((atomic[followed]==labels).mean())
+            nc=np.isin(labels,[m['atom_vocabulary']['N'],m['atom_vocabulary']['C']])
+            if nc.any():row[name+'_tracked_NC_joint_fraction']=float((atomic[followed][nc]==labels[nc]).mean())
             if name=='boundary':
                 nearest=int(np.abs(np.asarray(m['path']['times'])-p['learning_window'][1]).argmin())
                 actual=np.asarray(m['path']['current_atomics'][nearest])[slots]
@@ -51,11 +53,12 @@ def analyze(folder,bank,output):
         rows.append(row)
         if len(times)>=3:
             coef=np.polynomial.polynomial.polyfit(times,errors[:,i],2)
-            curves.append({'slot':i,'observable':'distance_to_current_policy_target','domain':p['window'],
+            curves.append({'slot':i,'observable':'distance_to_current_policy_target','domain':[float(times.min()),float(times.max())],
+                'control_window':p['window'],
                 'coefficients_A_per_time_power':coef.tolist(),'derivative_coefficients':(coef[1:]*[1,2]).tolist(),
                 'rmse_A':float(np.sqrt(np.square(np.polynomial.polynomial.polyval(times,coef)-errors[:,i]).mean()))})
     table=pd.DataFrame(rows);table.to_parquet(output/'per_seed.parquet',compression=None,index=False)
-    numeric=table.select_dtypes(include=[np.number]);counts=np.asarray(list(mode_counts.values()))/n
+    numeric=table.drop(columns=['slot']).select_dtypes(include=[np.number]);counts=np.asarray(list(mode_counts.values()))/n
     by_mode=[]
     for mode,g in table.groupby('mode_id'):
         by_mode.append({'mode_id':mode,'n':len(g),'mean_pic50':float(g.pic50.mean()),'best_pic50':float(g.pic50.max()),

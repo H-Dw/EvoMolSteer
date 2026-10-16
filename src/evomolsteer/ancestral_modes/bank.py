@@ -21,7 +21,9 @@ def lookup(mode, time, field='coords_A'):
 
 def prepare(repo,m):
     out=repo/m['campaign_study'];out.mkdir(parents=True,exist_ok=True)
-    if (out/'bank.json').exists():return read_json(out/'bank.json'),read_json(out/'regions.json')
+    if (out/'bank.json').exists():
+        if digest(out/'bank.json')!=read_json(out/'bank_manifest.json')['bank_sha256']:raise ValueError('Frozen ancestor bank altered')
+        return read_json(out/'bank.json'),read_json(out/'regions.json')
     old=repo/m['prior_study'];templates=read_json(old/'templates.json');regions=read_json(old/'evidence.json')['regions']
     report=Path(m['layout_report']);atoms=pd.read_csv(report/'all_atoms.csv.gz')
     pocket=pd.read_csv(report/'reference_inputs/inputs/pocket_atoms.csv')

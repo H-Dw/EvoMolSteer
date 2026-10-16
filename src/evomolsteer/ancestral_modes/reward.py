@@ -23,6 +23,13 @@ def horizon(p,t):
     return min(b,t+delta)
 
 
+def attainment_gain(p,error,components):
+    residual=error.square()
+    for name,key in [('typed','typed_weight'),('charge','charge_weight')]:
+        residual=residual+p[key]*(-components[name].detach()).clamp_min(0)
+    return (residual/(residual+p['target_band_A']**2)).sqrt()
+
+
 class AncestorReward:
     def __init__(self,p,teacher):
         self.p=p;self.teacher=teacher;self.modes=teacher['modes'];self.specs=p['mode_specs']
@@ -31,6 +38,7 @@ class AncestorReward:
         if p['smc'] or p['affinity_head_gradient'] or not p['coordinate_updates_only']:raise ValueError('Unsupported intervention')
         if p['routing'] not in ('single','static','compatible','persistent','soft'):raise ValueError('Unknown seed routing')
         if p['routing']=='soft':raise ValueError('Soft multi-mode support unions need a separate validated adapter')
+        if p['sensing'] not in ('detached','full') or p['typed_channels'] not in ('all','NC','NO') or p['type_target'] not in ('predicted','terminal'):raise ValueError('Unknown chemical sensing semantics')
         if p['clock_policy'] not in ('fixed','current','endpoint_prediction','lookahead','decaying_lookahead'):raise ValueError('Invalid clock')
         if p['operator'] not in ('pointwise','point_band','pair_distance','pocket_distance','orientation','selection_advantage'):raise ValueError('Invalid operator')
         for s in self.specs:
@@ -111,9 +119,9 @@ class AncestorReward:
                 gotp=torch.stack([cp[...,g].sum(-1) for g in groups],-1);wantp=torch.stack([targets[...,g].sum(-1) for g in groups],-1)
                 got=torch.einsum('bij,bie->bje',kern,gotp)/len(slots);want=tkern.T@wantp/len(slots)
                 charge_term=-(got-want).square().sum((1,2))*sigma*sigma
-        value=value+p['typed_weight']*typed+p['charge_weight']*charge_term
+        base_value=value;value=value+p['typed_weight']*typed+p['charge_weight']*charge_term
         direct=torch.zeros_like(mask);direct.scatter_(1,assignment,True)
-        return value,{'assignment':assignment,'direct_mask':direct,'error':error,'clock':h,'typed':typed,'charge':charge_term,'z':z}
+        return value,{'assignment':assignment,'direct_mask':direct,'error':error,'clock':h,'typed':typed,'charge':charge_term,'base':base_value,'z':z}
 
     def evaluate(self,current,endpoint,atom_logits,charge_logits,mask,t,forced_mode=None,assignments=None):
         results=[self.evaluate_mode(current,endpoint,atom_logits,charge_logits,mask,t,k,
@@ -138,6 +146,7 @@ class AncestorReward:
         direct=torch.stack([results[int(choice[i])][1]['direct_mask'][i] for i in range(n)])
         error=errors.gather(1,choice[:,None]).flatten()
         return values,{'direct_mask':direct,'error':error,'mode':choice,'switches':switches,
+            'selected_components':{name:torch.stack([d[name] for _,d in results],1).gather(1,choice[:,None]).flatten() for name in ('base','typed','charge')},
             'all_assignments':[d['assignment'] for _,d in results],'assignments_selected':[v.detach().cpu().tolist() for v in selected],
             'clocks':[d['clock'] for _,d in results],'typed_mean':float(torch.stack([d['typed'].detach() for _,d in results]).mean()),
             'charge_mean':float(torch.stack([d['charge'].detach() for _,d in results]).mean())}
@@ -159,10 +168,16 @@ class AncestorControl(Control):
             pred,_=self.model._get_predictions(out);current=x*self.model.coord_scale+self.com[:,None]
             endpoint=pred['coords']*self.model.coord_scale+self.com[:,None]
             value,detail=self.reward.evaluate(current,endpoint,out['atomics'],out['charges'],curr['mask'].bool(),self.t)
+            probes={};active=self.program['expected_active_steps'];probe_steps={active[0],active[len(active)//2],active[-1]}
+            if i in probe_steps:
+                for name,key in [('typed','typed_weight'),('charge','charge_weight')]:
+                    if self.program[key]>0:
+                        component=detail['selected_components'][name]*self.program[key]
+                        probes[name]=torch.autograd.grad(component.sum(),x,retain_graph=True)[0].detach()
             gradient=torch.autograd.grad(value.sum(),x)[0]
         if not torch.isfinite(gradient).all():raise ValueError('Nonfinite ancestral coordinate gradient')
         error=detail['error'];gain=torch.ones_like(error)*temporal_gain(self.program,self.t,self.dt)
-        if self.program['attainment_response']:gain*=error/torch.sqrt(error.square()+self.program['target_band_A']**2)
+        if self.program['attainment_response']:gain*=attainment_gain(self.program,error,detail['selected_components'])
         self.dose_gain=gain.detach()
         self.extra={'clock_policy':self.program['clock_policy'],'actual_target_clocks':detail['clocks'],
             'mode_indices':detail['mode'].cpu().tolist(),'mode_switches':int(detail['switches'].sum()),
@@ -176,6 +191,13 @@ class AncestorControl(Control):
         self.previous_assignments=[list(v) for v in new]
         self.extra.update(point_rms_A=float(error.mean()),target_error_mean=float(error.mean()),
             dose_gain_mean=float(self.dose_gain.mean()),assignment_switch_fraction=switches)
+        for name,g in probes.items():
+            mask=curr['mask'].bool();den=mask.sum(1).clamp_min(1)
+            norm=lambda a:((a.square()*mask[...,None]).sum((1,2))/den).sqrt()
+            self.extra[name+'_gradient_rms_per_seed']=norm(g).cpu().tolist()
+            self.extra[name+'_gradient_fraction_of_total']=(norm(g)/norm(gradient.detach()).clamp_min(1e-12)).cpu().tolist()
+            self.extra[name+'_gradient_cosine_with_total']=((g*gradient.detach()).sum((1,2))/(g.square().sum((1,2))*gradient.detach().square().sum((1,2))).sqrt().clamp_min(1e-12)).cpu().tolist()
+        self.extra['additional_generation_forwards']=0;self.extra['diagnostic_component_VJPs']=len(probes)
         # gz is used only for direct-support telemetry in the legacy integrator adapter.
         self.cached=(gradient.detach(),pred['coords'].detach(),self.dt,detail['direct_mask'],value.detach(),torch.zeros_like(gradient))
         return {k:({a:b.detach() if torch.is_tensor(b) else b for a,b in v.items()} if isinstance(v,dict) else v.detach() if torch.is_tensor(v) else v) for k,v in out.items()}
