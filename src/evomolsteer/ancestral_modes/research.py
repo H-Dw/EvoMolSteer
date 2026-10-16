@@ -102,9 +102,19 @@ def smoke(repo,m,bank,p,remote):
     return result
 
 
-def control(repo,m,p,bank,batch,n,remote):
+def control(repo,m,p,bank,batch,n,remote,alternative=None):
     label=f'UNGUIDED_b{batch:02d}_n{n}'
     folder=repo/m['generated_root']/label/'unguided'
+    if not (folder/'COMPLETE.json').exists() and alternative is not None and (alternative/'COMPLETE.json').exists():
+        audit=read_json(alternative/'guidance_audit.json');pairing=audit['input_pairing']
+        if audit['program'] is not None or not audit['no_smc'] or audit['actual_steps']!=m['steps'] or pairing['seed']!=m['seed'] or pairing['initial_slots']!=list(range(n)) or pairing['resolved_native_options']!=p['native_options']:
+            raise ValueError('Combined-batch unguided control differs from requested native protocol')
+        if not (alternative.parent/'download_verified.json').exists():raise ValueError('Combined-batch download has not been verified')
+        if len(read_json(alternative/'records.json'))!=n:raise ValueError('Combined-batch control count differs from requested population')
+        write_json(repo/m['campaign_study']/'controls_reuse'/(label+'.json'),{'source':alternative.relative_to(repo).as_posix(),
+            'records_sha256':digest(alternative/'records.json'),'audit_sha256':digest(alternative/'guidance_audit.json'),
+            'reason':'Reuse the unguided condition already executed with the same loaded model and paired priors; no second inference.'})
+        return alternative
     if not (folder/'COMPLETE.json').exists():execute(repo,m,p,bank,label,remote,batch,n,True,True)
     return folder
 
@@ -217,15 +227,18 @@ def run(repo,path,stop_after=35,prepare_only=False,functional_only=False,smoke_o
                 else:q,action,delivery=ask(repo,m,folder,bank,regions,state,choices,phase.split('_unsupported')[0]);parent=action['parent_id']
             q['program_id']=label;nid=numerical_identity(q,bank);write_json(folder/'selected_program.json',q)
             pools=[0] if stage=='discovery' else m['confirmation_pools'][number-34]
-            outputs=[];allrows=[];paired_summaries=[];commits=[];new=0
+            outputs=[];allrows=[];paired_summaries=[];commits=[];new=0;unguided_outputs=[]
             for batch in pools:
                 name=label if stage=='discovery' else label+f'_b{batch:02d}'
                 key=json.dumps([nid,batch,m['screen_samples'],m['seed'],implementation_identity()])
                 if key in state['cache']:result=repo/state['cache'][key];sha='reused'
                 else:
-                    target,sha=execute(repo,m,q,bank,name,remote,batch,m['screen_samples']);result=target/name;new+=m['screen_samples']
+                    known_control=repo/m['generated_root']/f'UNGUIDED_b{batch:02d}_n{m["screen_samples"]}'/'unguided/COMPLETE.json'
+                    combined=stage=='confirmation' and not known_control.exists()
+                    target,sha=execute(repo,m,q,bank,name,remote,batch,m['screen_samples'],include_unguided=combined);result=target/name;new+=m['screen_samples']
                     state['cache'][key]=result.relative_to(repo).as_posix();write_json(sp,state)
-                ug=control(repo,m,q,bank,batch,m['screen_samples'],remote)
+                ug=control(repo,m,q,bank,batch,m['screen_samples'],remote,alternative=result.parent/'unguided')
+                unguided_outputs.append(ug)
                 paired_summaries.append(paired(result,ug,state['original']['tau']))
                 allrows+=read_json(result/'records.json');outputs.append(result);commits.append(sha)
                 cleanup_runtime(remote,m)
@@ -238,6 +251,7 @@ def run(repo,path,stop_after=35,prepare_only=False,functional_only=False,smoke_o
                 'metrics':metrics,'response':obs_response,'energy_summaries':[{k:v for k,v in e.items() if k!='rows'} for e in energies],
                 'local_outcomes':[{k:v for k,v in o.items() if k not in ('full_window_error_fits','sources')} for o in outcomes],
                 'paired_unguided':paired_summaries,'result_folders':[o.relative_to(repo).as_posix() for o in outputs],
+                'unguided_result_folders':[o.relative_to(repo).as_posix() for o in unguided_outputs],
                 'result_folder':outputs[0].relative_to(repo).as_posix(),'status':'completed' if new else 'reused',
                 'new_attempts':new,'commit':commits[-1],'rollback':False,'delta_U_vs_incumbent':gain,'delta_mean_vs_incumbent':mean,'delivery':delivery}
             if stage=='discovery':
@@ -251,7 +265,7 @@ def run(repo,path,stop_after=35,prepare_only=False,functional_only=False,smoke_o
             else:
                 # Pool aggregate uses actual paired outcomes, no pooling of bootstrap intervals.
                 ugrows=[]
-                for batch in pools:ugrows+=read_json(repo/m['generated_root']/f'UNGUIDED_b{batch:02d}_n{m["screen_samples"]}'/'unguided/records.json')
+                for path in unguided_outputs:ugrows+=read_json(path/'records.json')
                 rng=np.random.default_rng(m['seed']);ax=np.array([r['pic50'] for r in allrows]);bx=np.array([r['pic50'] for r in ugrows])
                 qa=np.array([r['qualified_structure'] for r in allrows]);qb=np.array([r['qualified_structure'] for r in ugrows]);tau=state['original']['tau']
                 du=np.where(qa,np.maximum(ax-tau,0),0)-np.where(qb,np.maximum(bx-tau,0),0)
