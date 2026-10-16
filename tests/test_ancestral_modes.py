@@ -270,3 +270,12 @@ def test_designer_extraction_binds_recorded_id_and_never_parses_formula_prose(tm
     with pytest.raises(ValueError):compile_designer_response(wrong,action,path)
     wrong={**raw,'option_id':'A2'}
     with pytest.raises(ValueError):compile_designer_response(wrong,action,path)
+
+
+def test_relative_field_calibration_uses_recorded_ratios_and_bounds(tmp_path):
+    from evomolsteer.ancestral_modes.calibration import field_options
+    from evomolsteer.io import write_json
+    f=tmp_path/'audit.json';write_json(f,{'program':{'typed_weight':.5},'steps':[{'typed_gradient_fraction_of_total':[.02,.03,.04,0.]}]})
+    values=field_options(f,[.3],[.05,4.])
+    assert values[0]['observed_reference_median_ratio']==.03 and values[0]['new_weight']==4.
+    assert values[0]['measured_probe_values']==3

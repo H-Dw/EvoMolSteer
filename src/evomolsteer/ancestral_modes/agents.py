@@ -12,6 +12,7 @@ from .programs import validate,numerical_identity,program_delta,scientific_group
 
 
 MODULES={'interface_support':['C1'],'NC_support':['C1','C2'],'group_support':['C1','C2','C3'],
+    'field_response_calibration':['C1','C2'],
     'orientation':['C1','C3'],'pocket_field':['C1'],'pair_geometry':['C3'],'charge_field':['C1','C3','C4'],
     'typed_channels':['C1','C2'],'type_reference':['C1','C2']}
 

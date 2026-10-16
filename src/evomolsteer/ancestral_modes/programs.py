@@ -167,7 +167,7 @@ PHASES={1:'current_clock',2:'endpoint_clock',3:'lookahead',4:'decaying_lookahead
     13:'typed_field',14:'typed_vjp',15:'field_width',16:'interface_support',17:'NC_support',18:'group_support',
     19:'size_matched_support',20:'orientation',21:'pocket_field',22:'pair_geometry',23:'charge_field',
     24:'selection_advantage',25:'density_scale',26:'selection_phase',27:'typed_channels',28:'type_reference',
-    29:'curvature',30:'matching_cost',31:'adaptive_revisit',32:'module_deletion',33:'deterministic_selector',
+    29:'curvature',30:'matching_cost',31:'adaptive_revisit',32:'field_response_calibration',33:'deterministic_selector',
     34:'confirmation_A',35:'confirmation_B'}
 
 
@@ -191,7 +191,7 @@ def actions(repo,m,bank,regions,state,number):
     prior=[r for r in state['rounds'] if r.get('program') and r.get('stage')=='discovery']
     if prior and not prior[-1].get('rollback'):parents.append(prior[-1])
     prerequisites={10:'mode_diversity',11:'compatible_routing',12:'persistent_routing',14:'typed_field',15:'typed_vjp',
-        21:'interface_support',22:'group_support',23:'group_support',25:'selection_advantage',26:'selection_advantage',27:'typed_field',28:'typed_field'}
+        21:'interface_support',22:'group_support',23:'group_support',25:'selection_advantage',26:'selection_advantage',27:'typed_field',28:'typed_field',32:'typed_channels'}
     if number in prerequisites:
         candidates=[r for r in prior if r.get('phase')==prerequisites[number]]
         if candidates:parents.append(candidates[-1])
@@ -302,13 +302,18 @@ def actions(repo,m,bank,regions,state,number):
                 d=copy.deepcopy(p['dose']);d['pointcloud_delta_A']*=f;add(parent,{'dose':d},'Change geometric robust response curvature separately from actual dose')
         elif phase=='matching_cost':
             for cost in (0.,.2,1.):add(parent,{'assignment_element_cost':cost},'Detached element-aware correspondence only')
+        elif phase=='field_response_calibration' and p['typed_weight']>0:
+            from .calibration import field_options
+            for calibration in field_options(repo/parent['result_folder']/'guidance_audit.json',m['field_response_targets'],m['field_weight_bounds']):
+                add(parent,{'typed_weight':calibration['new_weight'],'calibration_provenance':calibration},
+                    'Calibrate the relative type-field coefficient using measured coordinate VJP contribution, keeping geometry/dose/clock fixed; predicted reference ratio is not guaranteed on the new path')
         elif phase in ('module_deletion','adaptive_revisit','deterministic_selector'):
             for changes in ({'clock_policy':'fixed'},{'dose_schedule':'constant'},{'typed_weight':0.},{'charge_weight':0.},{'routing':'single'},{'attainment_response':False}):
                 add(parent,changes,'Single-module deletion or return to simpler measured mechanism')
             for cost in (.1,.8):add(parent,{'assignment_element_cost':cost},'Revisit correspondence in changed scientific context')
             if phase in ('adaptive_revisit','deterministic_selector'):
                 add(parent,{'dose_schedule':'late'},'Revisit late allocation after earlier-dose branch failed; calibrated reference budget, actual trajectory budget reported separately')
-                for factor in (.95,1.05):
+                for factor in (.99,1.01,.95,1.05):
                     dose=copy.deepcopy(p['dose']);dose['native_rms_ratio']*=factor
                     add(parent,{'dose':dose},'Small physical-dose perturbation of a measured branch; distinguish fragile tail response from a large mechanism change')
                 from .bank import joint_supports
