@@ -19,7 +19,14 @@ def quality_summary(energy_rows, pb_rows, n):
             'PB_pass_all': sum(bool(r.get('passes_all')) for r in pb_rows),
             'PB_unresolved': sum(r.get('status') == 'evaluated' and
                                  any(v is None for v in r.get('tests', {}).values()) for r in pb_rows),
-            'PB_best_pic50': max(passing, default=None)}
+            'PB_best_pic50': max(passing, default=None),
+            'PB_mean_pic50': float(np.mean(passing)) if passing else None}
+
+
+def metrics(records, tau):
+    result = score_records(records, tau)
+    valid = [r['pic50'] for r in records if r['qualified_structure'] and r['pic50'] is not None]
+    return {**result, 'mean_basic_qualified_pic50': float(np.mean(valid)) if valid else None}
 
 
 def batch_bootstrap(a_groups, b_groups, tau, seed):
@@ -96,12 +103,25 @@ def analyze(repo, config, output):
     original = original_reference(repo, m); tau = original['tau']; comparisons = []
     oq = read(study / 'original_same_assay_quality/summary.json')
     opb = read(study / 'original_same_assay_quality/current_posebusters.json')
-    comparisons.append({'condition': 'original_Steer', **score_records(original['records'], tau),
+    comparisons.append({'condition': 'original_Steer', **metrics(original['records'], tau),
                         'energy_coverage': oq['energy_coverage'], 'energy_converged': oq['converged'],
                         'energy_median': oq['median_heavy_relief_after_H_per_atom'],
                         'energy_p90': oq['p90_heavy_relief_after_H_per_atom'],
                         **{k: opb[v] for k, v in [('PB_evaluated', 'n_evaluated'), ('PB_pass_all', 'n_pass_all'),
-                                                 ('PB_unresolved', 'n_unresolved'), ('PB_best_pic50', 'best_passing_pic50')]}})
+                                                 ('PB_unresolved', 'n_unresolved'), ('PB_best_pic50', 'best_passing_pic50')]},
+                        'PB_mean_pic50': float(np.mean([r['pic50'] for r in opb['rows'] if r['passes_all']]))})
+    reference = state['reference']
+    re = read(study / 'REFERENCE_REUSED/energy.json')
+    rp = read(study / 'REFERENCE_REUSED/posebusters.json')
+    comparisons.append({'condition': 'R15_compatible_reused_development50',
+                        **metrics(read(repo / reference['result_folder'] / 'records.json'), tau),
+                        **quality_summary(re['rows'], rp['rows'], reference['metrics']['n'])})
+    discovery_tail = next(r for r in state['rounds'] if r['round'] == state['frozen_selection']['program_id'])
+    te = read(study / discovery_tail['round'] / (discovery_tail['round'] + '_energy.json'))
+    tp = read(study / discovery_tail['round'] / 'posebusters.json')
+    comparisons.append({'condition': discovery_tail['round'] + '__selected_development50',
+                        **metrics(read(repo / discovery_tail['result_folder'] / 'records.json'), tau),
+                        **quality_summary(te['rows'], tp['rows'], discovery_tail['metrics']['n'])})
     all_a = []; all_b = []; group_a = []; group_b = []; pools = []; execution_rows = []
     quality_root = study / 'current_terminal_quality'
     for condition in state['rounds']:
@@ -123,7 +143,7 @@ def analyze(repo, config, output):
         all_a += pa; all_b += pb
         for arm, records in [('guidance', pa), ('unguided', pb)]:
             comparisons.append({'condition': condition['round'] + '__' + arm,
-                                **score_records(records, tau), **quality_summary(er[arm], pr[arm], len(records))})
+                                **metrics(records, tau), **quality_summary(er[arm], pr[arm], len(records))})
         pools.append({'round': condition['round'], **condition['confirmation']})
     for arm, records in [('guidance', all_a), ('unguided', all_b)]:
         erows = []; prows = []
@@ -131,7 +151,7 @@ def analyze(repo, config, output):
             tag = r['batch'] + '__' + arm
             erows += read(quality_root / (tag + '.energy.json'))['rows']
             prows += read(quality_root / (tag + '.posebusters.json'))['rows']
-        comparisons.append({'condition': 'frozen_400__' + arm, **score_records(records, tau),
+        comparisons.append({'condition': 'frozen_400__' + arm, **metrics(records, tau),
                             **quality_summary(erows, prows, len(records))})
     rounds = []
     for c in state['rounds']:
