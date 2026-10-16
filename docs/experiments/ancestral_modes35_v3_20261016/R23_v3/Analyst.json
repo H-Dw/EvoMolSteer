@@ -1,0 +1,39 @@
+{
+  "active_chemistry_modules": [
+    "C1",
+    "C3",
+    "C4"
+  ],
+  "chemical_assumptions": "Terminal roles are retrospective observations, not early-state identities: the reference support carries a neutral carboxyl-like group (atoms 1/16/19, formal_charge_sum 0, hydrogen_microstate_verified false), one aromatic C at 18, donor N at 15 and 17, acceptor/aromatic N at 22, and acceptor O at 16 and 19. No protonation or tautomer state is verified, so the charge channel is treated as a soft positive/negative/neutral marginal proxy, not a discrete microstate assignment. Pocket sites A:ASP:175:N, A:LYS:68:NZ, A:GLU:114:O, A:VAL:116:N/O and A:HIS:160:NE2 are nearest polar atoms only; no H-bond, salt bridge or energetic contribution is asserted. The fixed-geometry layout evidence reports n_identifiable_interactions 0, so no atom-level interaction energy is claimed.",
+  "clock_and_representation": "Endpoint-prediction clock as in R02_v3: observable is the predicted endpoint, teacher is the teacher-predicted endpoint at the same forward time. The ancestor tool returns, for the same support, actual current-world coordinates at times 0.0/0.12/0.25/0.5 and the same-forward teacher predicted endpoint; these two representations must not be exchanged. Learning window [0.1,0.5], 100 steps, 40 active updates, coordinate-only updates, graph free, no affinity-head gradient, no SMC.",
+  "component_response_interpretation": "For R02_v3 the typed and charge components were both disabled (enabled_weight 0.0, measured_probe_steps 0), so the reported gradient statistics are the geometry-only response; the checks confirm configured active steps, completion to terminal, no SMC, no affinity gradient, no extra generator or affinity forwards, actual clocks, single local support and post-normalization schedule. The charge channel in this group is therefore a new component whose activation must be read from its own coordinate-gradient RMS, its fraction of the total gradient and its cosine with the total gradient before any formation or value claim. Nonzero component gradient establishes activation only; formation uses the actual boundary/terminal layout of the tracked support, and value uses terminal affinity/quality against the matched R02_v3 control.",
+  "counterevidence_refs": [
+    "F_b011_s030__v3_group16/chemical_context",
+    "parents/R18_v3/outcomes",
+    "parents/R18_v3/element_layout",
+    "parents/R22_v3/outcomes",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/chemical_context",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "campaign/history"
+  ],
+  "falsifier": "If the charge channel is active (nonzero coordinate-gradient RMS, non-negligible fraction of the total gradient) but terminal_tracked_source_charge_fraction and the tail best_qualified_pic50 do not move beyond the R02_v3 values, the local charge-complementarity hypothesis is falsified for this support. If the charge term is active but the normalized total direction is unchanged (component/total fraction and cosine near zero), the intervention is dose/normalization-cancelled rather than a chemistry result. If the tail moves but the same-size or simpler control also moves, the effect is not attributable to the charge channel.",
+  "formation_retention_value_test": "Formation: compare boundary and terminal tracked layout of the same 20-slot support after the unguided suffix, using terminal_tracked_source_charge_fraction and terminal_tracked_NC_joint_fraction against the R02_v3 boundary/terminal pair. Retention: the same tracked support must keep the charge/layout state from window end to terminal with no guidance; zero clipping and constant dose during control are not retention evidence. Value: terminal affinity/quality of the charge-channel run versus the matched R02_v3 control, read as best_qualified_pic50 and U_tau, not as the surrogate loss.",
+  "group_id": "G001",
+  "observable_change": "Read the same measured quantities already reported for R02_v3: terminal_tracked_source_charge_fraction, terminal_tracked_NC_joint_fraction, terminal_geometry_matched_terminal_element_fraction, boundary vs terminal posthoc local RMS, and the per-mode best_qualified_pic50 / U_tau. A charge-channel effect would show as a change in terminal_tracked_source_charge_fraction and in the tail (best_qualified_pic50) relative to the R02_v3 values, with the geometry fractions and dose statistics otherwise comparable. Component activation is read from the charge component's coordinate-gradient RMS, its fraction of the total gradient and its cosine with the total gradient; nonzero raw component gradient alone is only activation, not formation.",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "relationship_to_failed_families": "R15_V3_COMPATIBLE (fixed clock, pointwise, 20 slots) reached best_qualified_pic50 8.590141 with U_tau 0.009102; R02_v3 (endpoint clock, same support) reached 8.699415 with U_tau 0.011287, the measured near-target tail. R22_v3 (endpoint clock, pair_distance, same 20 slots) fell to 7.496469 with U_tau 0.0, and R18_v3 (4-slot group16, pointwise) reached only 8.040440 with U_tau 0.0, so the narrow 4-slot support did not reproduce the wide-support behaviour. The prior campaign readout records that local identity formation (terminal N geometry match) did not by itself give affinity benefit, and that the same element-matching cost did not replicate on 3-point N/C or 4-point O regions. This group therefore keeps the wide 20-slot support and the endpoint clock, and changes only the charge channel.",
+  "scientific_hypothesis": "On the frozen 20-slot reference support of F_b011_s030, the endpoint-prediction clock (R02_v3) is the branch that produced the measured near-target tail (best_qualified_pic50 8.699415, U_tau 0.011287). Adding a soft charge-probability channel to that same local support, with the same detached assignment, same window [0.1,0.5], same dose and same coordinate-only scope, tests whether a local microstate/charge-compatibility term on the terminal-observed neutral carboxyl-like group (atoms 1/16/19) and the polar N/O neighbours (15, 17, 22) shifts the tail further toward the original Steer best (8.704806) without changing the geometry-only matching rule. The hypothesis is that the tail is limited by local polar/charge complementarity at the carboxyl/N/O cluster rather than by point-cloud geometry, which is already close (boundary posthoc local RMS 0.308 A, terminal 0.768 A).",
+  "support_reason": "The 20-slot reference support is the only support in this catalog with a measured near-target tail (R02_v3) and with queried ancestor coordinates plus terminal roles. It is a proper subset (20 of 25) of the frozen reference, includes the carboxyl-like group (1/16/19) and the polar N/O neighbours (15/16/17/19/22), and keeps the three orientation triplets. The 4-slot group16 support is smaller but its parent R18_v3 has U_tau 0.0 and no tail, and its terminal roles overlap the same carboxyl group, so it is used as counterevidence rather than as the intervention support."
+}

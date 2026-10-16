@@ -1,0 +1,28 @@
+{
+  "actual_dose_expectation": "Expected active steps 10-49 (40 active updates), constant schedule, dose_gain 1.0, requested RMS near the R02_v3 level (injected_rms_A_mean about 0.0298, actual_cumulative_step_rms_A about 1.19, actual_max_step_rms_A about 0.0307), zero clipping. The charge term is expected to be active (nonzero coordinate-gradient RMS, non-negligible fraction of the total gradient) but the normalized total direction may be partly cancelled if the charge gradient is small relative to the geometry gradient; that outcome is registered as dose/normalization cancellation, not as a chemistry result. Formation is read from the actual boundary/terminal tracked layout of the same 20-slot support (terminal_tracked_source_charge_fraction, terminal_tracked_NC_joint_fraction) against the R02_v3 boundary/terminal pair; value is read as best_qualified_pic50 and U_tau against the matched R02_v3 control, not as the surrogate loss.",
+  "derivative_path": "Coordinate-only VJP through the same generator head as R02_v3. The charge channel contributes its own coordinate gradient on the same support; the total direction is the sum of the geometry term and the charge term before normalization. The assignment remains detached (no gradient through the matching step), so the charge term does not differentiate the assignment. No affinity-head derivative, no extra generator or affinity forward, no per-step affinity inference. Because the state-dependent charge weight is not differentiated, only conditional routing/weighting gradients are claimed, not an exact derivative of a fully mixed potential. Element, charge and necessary bond information come from the existing generation head; hard category/graph identification is used only for gradient-free routing.",
+  "design_grounds": "Analyst G001 keeps the frozen 20-slot F_b011_s030__reference support, the endpoint-prediction clock and the detached assignment of R02_v3, and changes only the charge channel. R02_v3 is the only catalog branch with a measured near-target tail (best_qualified_pic50 8.699415, U_tau 0.011287) on this support, and its component_response records typed and charge both disabled (enabled_weight 0.0, measured_probe_steps 0), so the reported gradient statistics are geometry-only and the charge channel is a genuinely new component. The 4-slot group16 support (R18_v3, best_qualified_pic50 8.040440, U_tau 0.0) and the pair_distance variant (R22_v3, 8.126729, U_tau 0.0) are counterevidence, not the intervention support. A003 is the smallest registered dose (charge_weight 0.5) that activates the channel while leaving the geometry-only matching rule, window [0.1,0.5], dose and coordinate-only scope untouched; larger registered doses (A004 2.0, A005 8.0) are reserved for a separate comparison if A003 is dose-cancelled. Terminal roles (neutral carboxyl-like group 1/16/19, donor N 15/17, acceptor/aromatic N 22, acceptor O 16/19) are retrospective observations only; no microstate is verified, so the channel is a soft positive/negative/neutral marginal proxy, not a discrete assignment.",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/chemical_context",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "parents/R18_v3/outcomes",
+    "parents/R18_v3/element_layout",
+    "parents/R22_v3/outcomes",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "campaign/history",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "execution_changes": [
+    "charge_weight"
+  ],
+  "falsifier": "If the charge channel is active (nonzero coordinate-gradient RMS, non-negligible fraction of the total gradient) but terminal_tracked_source_charge_fraction and the tail best_qualified_pic50 do not move beyond the R02_v3 values (8.699415, U_tau 0.011287), the local charge-complementarity hypothesis is falsified for this support. If the charge term is active but the normalized total direction is unchanged (component/total fraction and cosine near zero), the intervention is dose/normalization-cancelled rather than a chemistry result. If the tail moves but the same-size or simpler control also moves, the effect is not attributable to the charge channel. Similarity, role probability or loss improvement does not substitute for final quality.",
+  "hypothesis_group": "G001",
+  "operative_terms": "Single added term: charge_weight 0.5 multiplying a soft charge-probability channel on the same 20-slot local support, with the same detached assignment, same window [0.1,0.5], same dose (max_atom_step_A 0.15, max_cumulative_rms_A 6.0, native_rms_ratio 0.66, pointcloud_delta_A 1.0), same constant schedule and same coordinate-only updates. No points added, no mode source changed, no teacher exchanged, no affinity-head gradient, no SMC, no logits or discrete transition-rate editing. The charge term is a soft marginal proxy over positive/negative/neutral; formal charge is a separate channel and is not asserted as partial charge, pKa or interaction free energy. Activation is read from the charge component's coordinate-gradient RMS, its fraction of the total gradient and its cosine with the total gradient; nonzero raw component gradient alone is activation, not formation.",
+  "option_id": "A003",
+  "parent_program_id": "R02_v3"
+}

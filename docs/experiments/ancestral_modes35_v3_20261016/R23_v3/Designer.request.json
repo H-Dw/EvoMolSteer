@@ -1,0 +1,156 @@
+{
+  "body": {
+    "max_tokens": 5000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589.txt",
+        "content_sha256": "9b09df61651ef1ba474a82d69295278eff8af92036e7e783362822d8ec926589",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/ec6f39b5e3924715b11662a17c549861f55d9b5490bc81456b1cfb901e3ae5f4.txt",
+        "content_sha256": "ec6f39b5e3924715b11662a17c549861f55d9b5490bc81456b1cfb901e3ae5f4",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "oneOf": [
+      {
+        "properties": {
+          "execution_changes": {
+            "const": [
+              "charge_weight"
+            ]
+          },
+          "option_id": {
+            "const": "A003"
+          }
+        }
+      },
+      {
+        "properties": {
+          "execution_changes": {
+            "const": [
+              "charge_weight"
+            ]
+          },
+          "option_id": {
+            "const": "A004"
+          }
+        }
+      },
+      {
+        "properties": {
+          "execution_changes": {
+            "const": [
+              "charge_weight"
+            ]
+          },
+          "option_id": {
+            "const": "A005"
+          }
+        }
+      }
+    ],
+    "properties": {
+      "actual_dose_expectation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "derivative_path": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "design_grounds": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/chemical_context",
+            "F_b011_s030__v3_group16/chemical_context",
+            "campaign/history",
+            "parents/R02_v3/component_response",
+            "parents/R02_v3/element_layout",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "parents/R18_v3/component_response",
+            "parents/R18_v3/element_layout",
+            "parents/R18_v3/outcomes",
+            "parents/R18_v3/response",
+            "parents/R22_v3/component_response",
+            "parents/R22_v3/element_layout",
+            "parents/R22_v3/outcomes",
+            "parents/R22_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "execution_changes": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G001"
+      },
+      "operative_terms": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "option_id": {
+        "enum": [
+          "A003",
+          "A004",
+          "A005"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R02_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "execution_changes",
+      "evidence_refs",
+      "design_grounds",
+      "operative_terms",
+      "derivative_path",
+      "actual_dose_expectation",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
