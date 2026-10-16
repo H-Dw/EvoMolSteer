@@ -1,0 +1,70 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块。元素与电荷仅作为软代理记录：selected_terminal_elements 含 N/O，但终态角色不能回填为早期已存在的角色；早期逐点相似度主要反映初态。",
+    "clock_and_representation": "时钟为 fixed，observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end。祖先证据显示早期实际祖先在 0.0–0.25 已收敛到约 (23.5,-31.9,13.5)，而教师端点预测在 0.5 才展开到约 (22.8,-30.5,13.5) 并带更大离散；当前态与端点目标不得互换。",
+    "counterevidence_refs": [
+      "parents/R02_v3/response",
+      "parents/R02_v3/outcomes",
+      "source/prior_campaign",
+      "source/limits"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "parents/R15_V3_COMPATIBLE/response",
+      "parents/R15_V3_COMPATIBLE/outcomes"
+    ],
+    "falsifier": "否证条件：若 typed_weight 提高到 0.5 后 gradient_native_predictive_cosine_mean 仍为负且 best_qualified_pic50 与 hit_fraction 无变化，则否证该方向假设，指向目标无法形成或后缀未保持，而非剂量不足。",
+    "formation_retention_value_test": "形成/保持/价值三分测试：形成——终态 tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 是否维持或提高；保持——后缀阶段是否保持已形成的局部几何与元素对应；价值——best_qualified_pic50 与 hit_fraction 是否相对 R15_V3_COMPATIBLE 基线改善。三者分别报告，不相互替代。",
+    "group_id": "G000",
+    "observable_change": "预期可观测变化：controller_response 中 gradient_native_predictive_cosine_mean 与 gradient_native_observed_cosine_mean 相对 R15_V3_COMPATIBLE 基线（R19_v2 记录）由负值向零或正值移动；同时 assignment_switch_fraction 与 atom_clip_fraction 保持低水平，dose_gain_mean 保持 1.0，说明变化来自类型场方向而非剂量裁剪或归一化抵消。",
+    "observable_contract": {
+      "observable": "predictive_bridge_to_learning_end",
+      "teacher": "actual_ancestor_at_learning_end"
+    },
+    "parent_program_id": "R15_V3_COMPATIBLE",
+    "relationship_to_failed_families": "与 R02_v3（endpoint_prediction）及 R03/R04（lookahead/decaying_lookahead）失败家族的关系：这些轮次 dose_gain_mean 为 1.0、atom_clip_fraction 为 0，说明不是剂量不足；其 gradient_native_observed_cosine_mean 为负（R02_v3 均值 -0.2807，末值 -0.5500），属于函数方向不对。本轮假设直接针对该方向问题，而非重复加强权重。",
+    "scientific_hypothesis": "在固定时钟、20 点局部支持、pointwise 几何奖励与剂量配置不变的前提下，把 typed_weight 从 0 提高到 0.5（G000/A000）会改变局部类型场方向，使当前梯度与原生预测流的余弦由负向正抬升，并在终态 pIC50 尾部产生可测差异。该假设只主张方向性可控性代理，不主张后续成功概率。",
+    "support_reason": "支持理由：R15_V3_COMPATIBLE 与 R02_v3 的 dose_gain_mean 均为 1.0、atom_clip_fraction 与 cumulative_clip_fraction 为 0，排除剂量裁剪与归一化抵消；R02_v3 的 gradient_native_observed_cosine_mean 为 -0.2807、gradient_native_predictive_cosine_mean 为 -0.2298，表明当前梯度方向与原生流系统性相反。祖先证据确认早期身份不确定，支持在固定时钟下用局部类型场方向作为可干预模块。"
+  },
+  "Designer": {
+    "actual_dose_expectation": "Dose configuration is unchanged, so requested_rms_A_mean should stay near the parent value (~0.02996 A) with dose_gain_mean=1.0, atom_clip_fraction=0.0 and cumulative_clip_fraction=0.0; the change is expected in direction, not magnitude. Expected observable: gradient_native_predictive_cosine_mean and gradient_native_observed_cosine_mean move from the negative parent/R02_v3 baseline toward zero or positive, while assignment_switch_fraction stays low (parent mean ~0.0163) and mode_switches remain 0. Formation/retention/value are reported separately: terminal_tracked_terminal_element_fraction and terminal_tracked_NC_joint_fraction for formation, suffix-stage retention of local geometry and element correspondence, and best_qualified_pic50 / hit_fraction for value, each against the R15_V3_COMPATIBLE baseline (best_qualified_pic50 8.590141296386719, hit_fraction 0.02, mean_all_pic50 7.71079755783081).",
+    "derivative_path": "Gradients are taken only through the real model coordinates of the current state; the type field enters as a soft probability-space term whose VJP is added to the pointwise geometric reward VJP, and the matching assignment remains in the detached branch (sensing=detached) so it does not itself receive gradients. The current-state reward at h=t does not require endpoint prediction; only the predictive/endpoint component carries the corresponding model derivative, and that VJP is valid only for the current call, not for all future stochastic generations. Element and charge information is read from the existing generation head as a soft proxy; formal charge is a separate channel and is not asserted as partial charge, pKa or interaction free energy. Hard categorical/chemical-graph identification is used only for gradient-free routing.",
+    "design_grounds": "Analyst G000 binds one local ancestral-mode hypothesis to the F_b011_s030__reference region with the fixed 20-slot support [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24] and the same pocket sites, orientation triplets and mode source as parent R15_V3_COMPATIBLE; no points, modes or terms are added. The parent program is fixed-clock (clock_policy=fixed, teacher_time=0.5, type_target=predicted, learning_window [0.0,0.5], window [0.1,0.5], operator=pointwise, scope=local, routing=single, sensing=detached, smc=false, affinity_head_gradient=false, coordinate_updates_only=true). The only authoritative delta is typed_weight 0.0 -> 0.5, the smallest registered step in the bounded option set (A000=0.5, A001=2.0, A002=8.0), chosen so the type-field direction change is tested before any larger dose. The failed families R02_v3 (endpoint_prediction) and R03/R04 (lookahead/decaying_lookahead) show dose_gain_mean=1.0 and atom_clip_fraction=0.0 with gradient_native_observed_cosine_mean=-0.2807 (last -0.5500) and gradient_native_predictive_cosine_mean=-0.2298 (last -0.4518), i.e. a direction problem rather than a dose deficit; R15_V3_COMPATIBLE likewise has dose_gain_mean=1.0 and atom_clip_fraction=0.0. The ancestor record confirms early identity is uncertain (actual ancestor already near (23.5,-31.9,13.5) by 0.0-0.25 while the teacher endpoint prediction only unfolds at 0.5), so the current state and endpoint target are not interchangeable and the local type field is the intended intervention module.",
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "parents/R02_v3/response",
+      "parents/R02_v3/outcomes",
+      "parents/R15_V3_COMPATIBLE/response",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "source/prior_campaign",
+      "source/limits"
+    ],
+    "execution_changes": [
+      "typed_weight"
+    ],
+    "falsifier": "If typed_weight=0.5 leaves gradient_native_predictive_cosine_mean negative and produces no change in best_qualified_pic50 or hit_fraction relative to R15_V3_COMPATIBLE, the direction hypothesis is falsified, pointing to failure of target formation or of suffix retention rather than insufficient dose. A separate negative result is registered if the cosine moves but terminal_tracked_terminal_element_fraction / terminal_tracked_NC_joint_fraction or the value metrics do not, which would indicate the type-field direction change is not the operative cause of terminal quality.",
+    "hypothesis_group": "G000",
+    "operative_terms": "Single operative term: the local soft type/probability field contribution scaled by typed_weight, applied on the same 20-slot support with typed_channels=all and type_target=predicted. All other terms are unchanged from R15_V3_COMPATIBLE: assignment_element_cost=0.5 (detached matching branch), charge_weight=0.0, field_sigma_A=1.5, pointcloud_delta_A=1.0, native_rms_ratio=0.66, max_atom_step_A=0.15, max_cumulative_rms_A=6.0, dose_schedule=constant, schedule_normalization=1.0, advantage_cap=20.0, density_scale_floor [0.03,0.1,0.1,0.1], steps=100, expected_active_steps 10-49, mode_memory_t=0.05, switch_margin_A=0.15, target_band_A=0.34907500557366816. No categorical editing, no logits/discrete transition-rate edits, no SMC, no affinity-head derivative, no extra per-step affinity inference.",
+    "option_id": "A000",
+    "parent_program_id": "R15_V3_COMPATIBLE"
+  },
+  "action": {
+    "action_id": "A000",
+    "authoritative_program_delta": {
+      "typed_weight": {
+        "after": 0.5,
+        "before": 0.0
+      }
+    },
+    "numeric_identity": "752d78e646a5788ad8ef01d40ee7b8114a1fb21354788324f52b85004f5648a5",
+    "parent_id": "R15_V3_COMPATIBLE",
+    "phase": "typed_field",
+    "reason": "Local soft probability field; no direct categorical editing or affinity derivative",
+    "region_ids": [
+      "F_b011_s030__reference"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。元素与电荷仅作为软代理记录：selected_terminal_elements 含 N/O，但终态角色不能回填为早期已存在的角色；早期逐点相似度主要反映初态。",
+  "clock_and_representation": "时钟为 fixed，observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end。祖先证据显示早期实际祖先在 0.0–0.25 已收敛到约 (23.5,-31.9,13.5)，而教师端点预测在 0.5 才展开到约 (22.8,-30.5,13.5) 并带更大离散；当前态与端点目标不得互换。",
+  "counterevidence_refs": [
+    "parents/R02_v3/response",
+    "parents/R02_v3/outcomes",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "parents/R15_V3_COMPATIBLE/response",
+    "parents/R15_V3_COMPATIBLE/outcomes"
+  ],
+  "falsifier": "否证条件：若 typed_weight 提高到 0.5 后 gradient_native_predictive_cosine_mean 仍为负且 best_qualified_pic50 与 hit_fraction 无变化，则否证该方向假设，指向目标无法形成或后缀未保持，而非剂量不足。",
+  "formation_retention_value_test": "形成/保持/价值三分测试：形成——终态 tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 是否维持或提高；保持——后缀阶段是否保持已形成的局部几何与元素对应；价值——best_qualified_pic50 与 hit_fraction 是否相对 R15_V3_COMPATIBLE 基线改善。三者分别报告，不相互替代。",
+  "group_id": "G000",
+  "observable_change": "预期可观测变化：controller_response 中 gradient_native_predictive_cosine_mean 与 gradient_native_observed_cosine_mean 相对 R15_V3_COMPATIBLE 基线（R19_v2 记录）由负值向零或正值移动；同时 assignment_switch_fraction 与 atom_clip_fraction 保持低水平，dose_gain_mean 保持 1.0，说明变化来自类型场方向而非剂量裁剪或归一化抵消。",
+  "observable_contract": {
+    "observable": "predictive_bridge_to_learning_end",
+    "teacher": "actual_ancestor_at_learning_end"
+  },
+  "parent_program_id": "R15_V3_COMPATIBLE",
+  "relationship_to_failed_families": "与 R02_v3（endpoint_prediction）及 R03/R04（lookahead/decaying_lookahead）失败家族的关系：这些轮次 dose_gain_mean 为 1.0、atom_clip_fraction 为 0，说明不是剂量不足；其 gradient_native_observed_cosine_mean 为负（R02_v3 均值 -0.2807，末值 -0.5500），属于函数方向不对。本轮假设直接针对该方向问题，而非重复加强权重。",
+  "scientific_hypothesis": "在固定时钟、20 点局部支持、pointwise 几何奖励与剂量配置不变的前提下，把 typed_weight 从 0 提高到 0.5（G000/A000）会改变局部类型场方向，使当前梯度与原生预测流的余弦由负向正抬升，并在终态 pIC50 尾部产生可测差异。该假设只主张方向性可控性代理，不主张后续成功概率。",
+  "support_reason": "支持理由：R15_V3_COMPATIBLE 与 R02_v3 的 dose_gain_mean 均为 1.0、atom_clip_fraction 与 cumulative_clip_fraction 为 0，排除剂量裁剪与归一化抵消；R02_v3 的 gradient_native_observed_cosine_mean 为 -0.2807、gradient_native_predictive_cosine_mean 为 -0.2298，表明当前梯度方向与原生流系统性相反。祖先证据确认早期身份不确定，支持在固定时钟下用局部类型场方向作为可干预模块。"
+}

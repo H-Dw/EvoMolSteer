@@ -1,0 +1,13 @@
+{
+  "purpose": "在 typed_field 阶段、仅允许区域 F_b011_s030__reference 下，已核对真实谱系祖先（current_clock_times 0.0/0.12/0.25/0.5 的实际祖先坐标与同前向教师端点预测）以及 R15_V3_COMPATIBLE 与 R02_v3 的实际控制响应。祖先证据显示：早期实际祖先槽位在 0.0–0.25 已高度收敛到约 (23.5,-31.9,13.5) 附近，而教师端点预测在 0.5 才展开到约 (22.8,-30.5,13.5) 并带更大离散；因此终态元素角色（selected_terminal_elements 含 N/O）不能回填为早期已存在的角色，早期逐点相似度主要反映初态。控制响应证据显示：R15_V3_COMPATIBLE 与 R02_v3 的 dose_gain_mean 均为 1.0、atom_clip_fraction 为 0、cumulative_clip_fraction 为 0，说明当前剂量未被裁剪或归一化抵消；但 R02_v3 的 gradient_native_observed_cosine_mean 为 -0.2807（末值 -0.5500）、gradient_native_predictive_cosine_mean 为 -0.2298（末值 -0.4518），即当前梯度方向与原生观测/预测流方向系统性相反，属于“函数方向不对”而非“真实剂量不足”。R15_V3_COMPATIBLE 的 assignment_switch_fraction 均值 0.0163、R02_v3 为 0.0322，均较低，说明脱离梯度的元素匹配对应在窗口内基本稳定，不是主要噪声源。据此，本轮唯一主假设为：在固定时钟、20 点局部支持、pointwise 几何奖励不变的前提下，把 typed_weight 从 0 提高到 0.5（A000）会改变局部类型场方向，使梯度与原生预测流余弦由负转正或显著抬升，从而在终态 pIC50 尾部产生可测差异；若 typed_weight 提高后余弦仍为负且尾部无变化，则否证该方向假设，指向目标无法形成或后缀未保持。为避免在未核对祖先时刻前把池内模式关联当作因果，本轮不再请求 selection_trend 与 failure_history。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "ancestor"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "controller_response"
+    }
+  ]
+}
