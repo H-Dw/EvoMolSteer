@@ -1,0 +1,208 @@
+{
+  "body": {
+    "max_tokens": 5500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/478560a2b1aa3ea10dc08ade7c35151e86eeb77587c5a653750414e182f3229e.txt",
+        "content_sha256": "478560a2b1aa3ea10dc08ade7c35151e86eeb77587c5a653750414e182f3229e",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/d37fbd284b8f29ac02ee710fd0856ebe0ef4bdce3a486f1e9687f8b8261f72e0.txt",
+        "content_sha256": "d37fbd284b8f29ac02ee710fd0856ebe0ef4bdce3a486f1e9687f8b8261f72e0",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/66ebaeab4271413e1cc98930b708c9dda7a94b601d6afc7b7704e3374c936320.txt",
+        "content_sha256": "66ebaeab4271413e1cc98930b708c9dda7a94b601d6afc7b7704e3374c936320",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/1b36616ef642d7eca614981533f6e9ad1577182c09310a177e377e4785d9671a.txt",
+        "content_sha256": "1b36616ef642d7eca614981533f6e9ad1577182c09310a177e377e4785d9671a",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/ff5c37849aa6ec79764ffd043f98275e103c35e0e2fbcf83fb6e579ddfb9cfaa.txt",
+        "content_sha256": "ff5c37849aa6ec79764ffd043f98275e103c35e0e2fbcf83fb6e579ddfb9cfaa",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/51597cd4c81dc064b9df0fe4f7ef807c8832e3e5999f60725bf63a3741f09849.txt",
+        "content_sha256": "51597cd4c81dc064b9df0fe4f7ef807c8832e3e5999f60725bf63a3741f09849",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/866b73ff006136d25b49ac7f434e0357ae02f86108b91053882ac7a68563a6a5.txt",
+        "content_sha256": "866b73ff006136d25b49ac7f434e0357ae02f86108b91053882ac7a68563a6a5",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "active_chemistry_modules": {
+        "const": [
+          "C1",
+          "C3"
+        ]
+      },
+      "chemical_assumptions": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "clock_and_representation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "component_response_interpretation": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "counterevidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/chemical_context",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R02_v3/component_response",
+            "parents/R02_v3/element_layout",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/chemical_context",
+            "F_b011_s030__reference/selection_trend",
+            "campaign/history",
+            "parents/R02_v3/component_response",
+            "parents/R02_v3/element_layout",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "parents/R15_V3_COMPATIBLE/outcomes",
+            "parents/R15_V3_COMPATIBLE/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "formation_retention_value_test": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "group_id": {
+        "enum": [
+          "G000",
+          "G001"
+        ]
+      },
+      "observable_change": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "observable_contract": {
+        "additionalProperties": false,
+        "properties": {
+          "observable": {
+            "enum": [
+              "current_state",
+              "predicted_endpoint",
+              "predictive_bridge_to_decaying_lookahead",
+              "predictive_bridge_to_learning_end",
+              "predictive_bridge_to_lookahead"
+            ]
+          },
+          "teacher": {
+            "enum": [
+              "actual_ancestor_at_learning_end",
+              "actual_ancestor_at_same_current_time",
+              "actual_ancestor_at_same_lookahead_time",
+              "teacher_predicted_endpoint_at_same_forward_time"
+            ]
+          }
+        },
+        "required": [
+          "observable",
+          "teacher"
+        ],
+        "type": "object"
+      },
+      "parent_program_id": {
+        "enum": [
+          "R02_v3",
+          "R15_V3_COMPATIBLE"
+        ]
+      },
+      "relationship_to_failed_families": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "scientific_hypothesis": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "support_reason": {
+        "maxLength": 4000,
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "group_id",
+      "parent_program_id",
+      "evidence_refs",
+      "counterevidence_refs",
+      "scientific_hypothesis",
+      "observable_change",
+      "formation_retention_value_test",
+      "falsifier",
+      "active_chemistry_modules",
+      "chemical_assumptions",
+      "clock_and_representation",
+      "relationship_to_failed_families",
+      "support_reason",
+      "component_response_interpretation",
+      "observable_contract"
+    ],
+    "type": "object"
+  }
+}

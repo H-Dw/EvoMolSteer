@@ -1,0 +1,73 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/478560a2b1aa3ea10dc08ade7c35151e86eeb77587c5a653750414e182f3229e.txt",
+        "content_sha256": "478560a2b1aa3ea10dc08ade7c35151e86eeb77587c5a653750414e182f3229e",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/d37fbd284b8f29ac02ee710fd0856ebe0ef4bdce3a486f1e9687f8b8261f72e0.txt",
+        "content_sha256": "d37fbd284b8f29ac02ee710fd0856ebe0ef4bdce3a486f1e9687f8b8261f72e0",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/66ebaeab4271413e1cc98930b708c9dda7a94b601d6afc7b7704e3374c936320.txt",
+        "content_sha256": "66ebaeab4271413e1cc98930b708c9dda7a94b601d6afc7b7704e3374c936320",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/1b36616ef642d7eca614981533f6e9ad1577182c09310a177e377e4785d9671a.txt",
+        "content_sha256": "1b36616ef642d7eca614981533f6e9ad1577182c09310a177e377e4785d9671a",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "const": "chemical_context"
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

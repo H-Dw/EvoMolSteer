@@ -1,0 +1,42 @@
+{
+  "active_chemistry_modules": [
+    "C1",
+    "C3"
+  ],
+  "chemical_assumptions": "仅使用工具返回的终态化学标签作为追溯位置，不作为早期已存在该角色的证据。C1：口袋站点为 A:VAL:116:N、A:ASP:175:N、A:LYS:68:NZ、A:GLU:114:O、A:VAL:116:O、A:HIS:160:NE2；site_distance_matrix_A 给出各支持点到这些站点的距离，最近极性原子不构成 H 键或能量贡献的证据，盐桥/氢键重叠证据需去重，不奖励接触条数。C3：终态官能团仅识别出 neutral_carboxyl_group（原子 1,16,19，formal_charge_sum 0，hydrogen_microstate_verified=false），因此羧基微态未验证；orientation_triplets [[0,3,7],[1,16,18],[2,3,21]] 提供芳香平面/基团取向所需的邻域支持，单原子点不足。conditional_layout_evidence 的 single_exchanges 是固定几何合法布局的条件评分响应，不是坐标干预效应，也不支持把 N 概率当作受体概率。",
+  "clock_and_representation": "数据时钟：state_time 与 score_time 分离，selection_clock_note 说明权重来自 score_time、施加于 state_time，学习窗口外不施加。教师时刻：teacher_time=0.5，学习窗口 [0.1,0.5]，steps=100。评估时刻：终态统一评估，tau=8.135048866271973。本组采用 endpoint_prediction：observable 为 predicted_endpoint，teacher 为 teacher_predicted_endpoint_at_same_forward_time，与 R15_V3_COMPATIBLE 的 fixed 时钟（predictive_bridge_to_learning_end 对 actual_ancestor_at_learning_end）不同，二者不得互换。表示：ancestor 返回 actual current world A 与 same-forward teacher predicted endpoint world A 两套坐标，selected_ancestor_coords_A 为真实谱系祖先节点（actual_ancestor_slots [31,49,17,37]），selected_teacher_endpoint_A 为同前向教师预测端点；selection_trend 的 feature_definition 说明核占据与有符号核加权位移指向固定终态局部点，当前时刻教师坐标仅用于局部对应。槽位映射：支持为 25 槽中的 20 点 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，tracked 槽位身份与仅几何对应的 posthoc 身份分开报告。",
+  "component_response_interpretation": "R02_v3 的 component_response 显示 checks 全部通过（configured_active_steps、completed_to_terminal、no_smc、no_affinity_gradient、no_extra_generator_forwards、no_extra_affinity_forwards、actual_clocks、single_local_support、post_normalization_schedule），active_steps 40、nonzero_steps 40、routing_VJPs 0、mode_switches 0；typed 与 charge 组件 enabled_weight 均为 0.0、measured_probe_steps 0，因此本组不宣称类型/电荷项已激活或有效。R02_v3 的 current_gradient_rms_mean 非零（mean 0.00650646606227383）只证明控制项已激活，不证明几何/元素形成。R02_v3 的 gradient_native_observed_cosine_mean mean -0.2806749078910798、gradient_native_predictive_cosine_mean mean -0.22980241058394313 表明归一化后总方向与原生方向存在可测夹角；R15_V3_COMPATIBLE 的对应值为 -0.4466907937079668 与 -0.2855065777897835，两者是不同 parent 的实测响应，不得混用。R02_v3 的 atom_clip_fraction 与 cumulative_clip_fraction 全为 0，dose_gain_mean 恒为 1.0，因此零裁剪与恒定剂量不能作为后缀保持证据；保持判断使用 boundary 与 terminal 的同支持布局比较。",
+  "counterevidence_refs": [
+    "source/prior_campaign",
+    "source/limits",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "campaign/history",
+    "F_b011_s030__reference/selection_trend"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/selection_trend",
+    "F_b011_s030__reference/chemical_context",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "campaign/history",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "falsifier": "若在相同支持、剂量、窗口与 50-seed 池下，endpoint_prediction 时钟的终态 qualified 尾部与 best_qualified_pic50 不优于同池无引导对照，且 boundary→terminal 的 tracked 布局保持与 R02_v3 已测值无可区分差异，则该时钟改变对终态收益的假设被否证。若 gradient_native_predictive_cosine_mean 与 gradient_native_observed_cosine_mean 的符号/量级显示归一化后总方向未明显改变，则“表示改变带来可区分控制响应”的次级主张也被否证。",
+  "formation_retention_value_test": "形成：看实际窗口末端（boundary）的几何/元素布局，用 tracked 与 geometry_matched 两套对应分别报告，不用元素分数替代已验证的 H 键/官能团角色。保持：比较同一 tracked 支持的 boundary 与无引导后缀后的 terminal 布局（R02_v3 已返回 boundary_tracked_terminal_element_fraction 0.473 对 terminal_tracked_terminal_element_fraction 0.873）。价值：终态用 tau=8.135048866271973 下的 qualified pIC50 与 best_qualified_pic50，并与同池无引导及 R15_V3_COMPATIBLE 对照；R02_v3 的 best_qualified_pic50 8.69941520690918 与 R15_V3_COMPATIBLE 的 8.590141296386719 是两条不同 parent 的实测值，不得互相替代。",
+  "group_id": "G001",
+  "observable_change": "可改 observable 为 predicted_endpoint（同前向时刻教师预测端点），替代 R15_V3_COMPATIBLE 的 predictive_bridge_to_learning_end。预期可读变化：point_rms_A 与 target_error_mean 的窗口轨迹、current_gradient_rms_mean、以及 gradient_native_predictive_cosine_mean 相对 R02_v3 的取值；同时读取 boundary/terminal 的 tracked 与 geometry_matched 元素分数、boundary_posthoc_local_rms_A 与 terminal_posthoc_local_rms_A。R02_v3 已返回该时钟下的实测值（point_rms_A mean 0.6859、target_error_mean mean 0.6859、gradient_native_predictive_cosine_mean mean -0.2298、terminal_tracked_terminal_element_fraction 0.873、terminal_geometry_matched_terminal_element_fraction 0.838），可作为同池对照基线。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "relationship_to_failed_families": "source/prior_campaign 记录：局部身份形成不等于亲和力受益（R03 终态 N 几何匹配率 95.8% 但最高基本合格 pIC50 仅 8.127753；R16_v2 也形成 N 仍无高分尾部）；更准确贴合固定点云不是首要缺口（S0 边界点云 RMS 约 0.039Å 对 R15_v2 约 0.129Å，后者终态预测亲和力反而更高）；元素匹配代价收益具有支持背景依赖（3 点 N/C 区域 R16 或 4 点 O 区域 R18 未复制较宽 20/25 点支持的收益）。本组不重复“形成即受益”的解释，也不把 20 点当作最小充分区域。campaign/history 中 R16_v3（interface_support，support_count 3）、R17_v3（NC_support，support_count 3）、R18_v3（group_support，support_count 4）均未复制宽支持收益，且 R17_v3、R18_v3 的 gradient_native_observed_cosine_mean 接近 0（-0.0256、0.0012），提示窄支持与总方向不一致；R10_v3/R11_v3/R12_v3 的 compatible/persistent/response routing 均 rollback 且均值低于 R09_v3。本组因此保持 20 点支持不变，只改时钟表示。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 的 20 点局部支持上，把时钟从 R15_V3_COMPATIBLE 的 fixed（predictive_bridge_to_learning_end 对 actual_ancestor_at_learning_end）改为 endpoint_prediction（predicted_endpoint 对 teacher_predicted_endpoint_at_same_forward_time），并保持支持、剂量、窗口、算子族与原生协议不变，会改变该局部量的可微响应方向，从而在相同 50-seed 池上产生与 R02_v3 不同的终态尾部。该假设只主张表示/时间映射改变可改变局部控制响应，不主张更贴近教师即更高亲和力。",
+  "support_reason": "支持为 F_b011_s030__reference 的 20 点 [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，是 25 槽的 proper subset，claim 为 inherited 冻结宽子集坐标参考，base_band_A 0.34907500557366816（band_basis 明确为提议校准、非已证成功容差）。选择该支持而非更小点云的理由：R16_v3/R17_v3/R18_v3 的 3–4 点支持未复制收益，且其梯度与原生方向余弦接近 0；R19_v3 的 20 点 size_matched_support 与 R15_v3 同为 20 点，说明收益差异不能仅由点数解释。支持保留 orientation_triplets 所需的邻域（芳香平面/基团取向需邻域支持），并覆盖 neutral_carboxyl_group 原子 1,16,19 及其邻接（full_adjacency 中 1:[16,18,19]）。所有正权重项的直接支持并集保持局部；未纳入的槽位 5,8,9,11,14 保留为不受直接约束的自由度，同时承认模型 VJP 可有间接影响。"
+}
