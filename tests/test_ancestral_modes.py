@@ -185,3 +185,9 @@ def test_response_parameters_only_enter_active_numerical_identity():
     assert numerical_identity(p,b)==numerical_identity(q,b)
     p['routing']=q['routing']='response'
     assert numerical_identity(p,b)!=numerical_identity(q,b)
+
+
+def test_authoritative_delta_distinguishes_route_change_from_metadata():
+    from evomolsteer.ancestral_modes.programs import program_delta
+    p,b=fixture();q=copy.deepcopy(p);q.update(program_id='new',routing='compatible',analyst_sha256='new')
+    assert program_delta(p,q)=={'routing':{'before':'single','after':'compatible'}}

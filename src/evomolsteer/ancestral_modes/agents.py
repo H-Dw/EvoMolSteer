@@ -8,7 +8,7 @@ from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.deepseek_api import call_json
 from evomolsteer.agentic_steer.workflow import obj
 from .bank import regional_evidence
-from .programs import validate,numerical_identity
+from .programs import validate,numerical_identity,program_delta
 
 
 MODULES={'interface_support':['C1'],'NC_support':['C1','C2'],'group_support':['C1','C2','C3'],
@@ -61,6 +61,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     for entry in [state['reference'],state['best'],*state.get('rounds',[])]:
         if entry.get('program',{}).get('program_id') in parent_ids:
             parents[entry['program']['program_id']]={k:entry.get(k) for k in ('program','metrics','response','local_outcomes')}
+    for action in actions:action['authoritative_program_delta']=program_delta(parents[action['parent_id']]['program'],action['program'])
     catalog=[]
     for gid,values in groups.items():
         a=values[0];p=a['program']
@@ -69,7 +70,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'mode_ids':[s['template_id'] for s in p['mode_specs']],'clock_policy':p['clock_policy'],
             'operator':p['operator'],'observable_contract':CLOCKS[p['clock_policy']],
             'support_sizes':[len(s['atom_slots']) for s in p['mode_specs']],
-            'numerical_options':[{'option_id':v['action_id'],'program':v['program']} for v in values]})
+            'numerical_options':[{'option_id':v['action_id'],'program':v['program'],'authoritative_program_delta':v['authoritative_program_delta']} for v in values]})
     allowed_regions=sorted({rid for a in actions for rid in a['region_ids']});byregion={r['region_id']:r for r in regions}
     history=[{k:r.get(k) for k in ('round','phase','parent','metrics','response','local_outcomes','rollback','status')} for r in state.get('rounds',[])]
     bundle={'evidence':{'campaign/history':history,'source/prior_campaign':state.get('prior_campaign_evidence'),
@@ -197,21 +198,23 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     selected=groups[a['group_id']];write_json(folder/'evidence_bundle.json',bundle)
     designer_schema=obj({'option_id':{'enum':[x['action_id'] for x in selected]},'hypothesis_group':{'const':a['group_id']},
         'parent_program_id':{'const':a['parent_program_id']},
+        'execution_changes':{'type':'array','items':{'type':'string'}},
         'evidence_refs':refs,'design_grounds':text,'operative_terms':text,'derivative_path':text,'actual_dose_expectation':text,'falsifier':text})
+    designer_schema['oneOf']=[{'properties':{'option_id':{'const':v['action_id']},'execution_changes':{'const':sorted(v['authoritative_program_delta'])}}} for v in selected]
     d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'Analyst':a,'shared_evidence':bundle['evidence'],'allowed_numerical_options':selected,
         'task':'Choose one executable numerical variant implementing this Analyst support/mode hypothesis. Do not alter points, mode sources or add terms. Explain operative derivative and actual dose, with a testable negative result. Registry is bounded; choosing parameters is not unrestricted code synthesis.'},ensure_ascii=False)}],
         designer_schema,folder/'Designer.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=5000)
     action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank)
-    d_review=factual_review(repo,m,folder,'Designer',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],
+    d_review=factual_review(repo,m,folder,'Designer',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
         'source_contract':bundle['contract'],'Analyst':a})
     if d_review['violations']:
         d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
-            'Analyst':a,'allowed_options':selected,'authoritative_clock':CLOCKS[p['clock_policy']],
+            'Analyst':a,'allowed_options':selected,'authoritative_clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
             'previous_response':d,'neutral_factual_diagnostics':d_review,'task':'Correct factual contradictions; keep this schema and Analyst-bound hypothesis.'},ensure_ascii=False)}],
             designer_schema,folder/'Designer.corrected.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=5000)
         action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank);designer_file=folder/'Designer.corrected.json'
-        final_review=factual_review(repo,m,folder,'Designer.corrected',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],
+        final_review=factual_review(repo,m,folder,'Designer.corrected',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
             'source_contract':bundle['contract'],'Analyst':a})
         if final_review['violations']:raise ValueError('Designer remains factually inconsistent after bounded correction')
     else:designer_file=folder/'Designer.json'

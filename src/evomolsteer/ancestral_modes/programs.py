@@ -9,6 +9,20 @@ from evomolsteer.final_guidance.reward import active_updates
 from .reward import AncestorReward,temporal_gain,horizon
 
 
+def program_delta(parent,candidate):
+    """Executable declarations, with large source payloads represented by hashes."""
+    ignored={'program_id','expected_active_steps','analyst_sha256','designer_sha256','evidence_bundle_sha256','teacher_sha256'}
+    changed={}
+    for k in sorted((set(parent)|set(candidate))-ignored):
+        a=parent.get(k);b=candidate.get(k)
+        if a==b:continue
+        def compact(value):
+            raw=json.dumps(value,sort_keys=True,separators=(',',':'))
+            return value if len(raw)<2000 else {'sha256':hashlib.sha256(raw.encode()).hexdigest(),'bytes':len(raw.encode())}
+        changed[k]={'before':compact(a),'after':compact(b)}
+    return changed
+
+
 def numerical_identity(p,teacher):
     keys=['clock_policy','window','learning_window','steps','operator','dose','assignment_element_cost','routing','native_options']
     v={k:copy.deepcopy(p[k]) for k in keys}
