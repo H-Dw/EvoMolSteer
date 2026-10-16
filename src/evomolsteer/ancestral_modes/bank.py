@@ -1,5 +1,6 @@
 """Actual ancestor/prediction lookup, chemical supports, and full-window evidence."""
 import copy
+import hashlib
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -8,6 +9,28 @@ from evomolsteer.io import read_json, write_json, digest
 from evomolsteer.storage.trajectory import TrajectoryPackage
 from evomolsteer.continuous.elite_path_credit import terminal_ancestors
 from evomolsteer.local_motif.state_controls import full_state_controls
+
+
+def joint_supports(bank,regions,template_id,max_points):
+    """Data-indexed heteroaromatic anchor plus O-group; no target-specific slots."""
+    mode=bank['modes'][template_id];roles={r['atom_index']:r for r in mode['terminal_roles']}
+    local=[r for r in regions if r['template_id']==template_id]
+    nitrogen=[r for r in local if r.get('family')=='NC_layout' and any(roles[i]['element']=='N' and roles[i]['acceptor'] for i in r['atom_slots'])]
+    oxygen=[r for r in local if r.get('family')=='functional_group']
+    result=[];seen=set()
+    for a in nitrogen:
+        for b in oxygen:
+            slots=sorted(set(a['atom_slots'])|set(b['atom_slots']))
+            if not 2<=len(slots)<=max_points or len(slots)>=len(mode['coords_A']) or tuple(slots) in seen:continue
+            seen.add(tuple(slots));sources=sorted([a['region_id'],b['region_id']]);name=hashlib.sha256('|'.join(sources).encode()).hexdigest()[:10]
+            adjacency={int(k):v for k,v in mode['full_adjacency'].items()};sites={s['id']:s for r in (a,b) for s in r['pocket_sites']}
+            result.append({'region_id':mode['candidate_id']+'__joint_'+name,'template_id':template_id,'candidate_id':mode['candidate_id'],
+                'atom_slots':slots,'family':'joint_anchor_hypothesis','source_regions':sources,
+                'claim':'Joint observed heteroaromatic acceptor neighborhood and O-bearing group; complementarity is a hypothesis, not measured synergy.',
+                'source_score':mode['terminal_score'],'pocket_sites':list(sites.values()),
+                'orientation_triplets':[[i,*adjacency[i][:2]] for i in slots if len(adjacency[i])>=2 and set(adjacency[i][:2])<=set(slots)],
+                'base_band_A':.35,'scale_source':'Exploratory geometric scale, not binding energy'})
+    return result
 
 
 def lookup(mode, time, field='coords_A'):

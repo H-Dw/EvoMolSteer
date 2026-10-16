@@ -132,7 +132,7 @@ def actions(repo,m,bank,regions,state,number):
     prior=[r for r in state['rounds'] if r.get('program') and r.get('stage')=='discovery']
     if prior and not prior[-1].get('rollback'):parents.append(prior[-1])
     prerequisites={10:'mode_diversity',11:'compatible_routing',12:'persistent_routing',14:'typed_field',15:'typed_vjp',
-        25:'selection_advantage',26:'selection_advantage',27:'typed_field',28:'typed_field'}
+        21:'interface_support',22:'group_support',23:'group_support',25:'selection_advantage',26:'selection_advantage',27:'typed_field',28:'typed_field'}
     if number in prerequisites:
         candidates=[r for r in prior if r.get('phase')==prerequisites[number]]
         if candidates:parents.append(candidates[-1])
@@ -247,4 +247,13 @@ def actions(repo,m,bank,regions,state,number):
             for changes in ({'clock_policy':'fixed'},{'dose_schedule':'constant'},{'typed_weight':0.},{'charge_weight':0.},{'routing':'single'},{'attainment_response':False}):
                 add(parent,changes,'Single-module deletion or return to simpler measured mechanism')
             for cost in (.1,.8):add(parent,{'assignment_element_cost':cost},'Revisit correspondence in changed scientific context')
+            if phase in ('adaptive_revisit','deterministic_selector'):
+                for factor in (.95,1.05):
+                    dose=copy.deepcopy(p['dose']);dose['native_rms_ratio']*=factor
+                    add(parent,{'dose':dose},'Small physical-dose perturbation of a measured branch; distinguish fragile tail response from a large mechanism change')
+                from .bank import joint_supports
+                for r in joint_supports(bank,regions,p['mode_specs'][0]['template_id'],m['max_new_local_points']):
+                    if not any(v['region_id']==r['region_id'] for v in regions):regions.append(r)
+                    add(parent,{'operator':'pointwise','typed_weight':0.,'charge_weight':0.,'attainment_response':False,'advantage_evidence_gain':False},
+                        'Local joint-anchor geometry package motivated by isolated-anchor failures and same-count point sensitivity; not proven synergy or a chemical graph constraint',region=r)
     return result
