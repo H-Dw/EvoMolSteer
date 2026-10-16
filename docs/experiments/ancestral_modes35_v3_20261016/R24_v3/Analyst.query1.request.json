@@ -1,0 +1,78 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/c95c76bd9a4c2b4ff236914b01215acfc7039390fbb8fd5053ead4fba195a808.txt",
+        "content_sha256": "c95c76bd9a4c2b4ff236914b01215acfc7039390fbb8fd5053ead4fba195a808",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/76f9aad05c327699786f2e7ad3e5a0ae6808592fc0b284b62ed25f99933c506c.txt",
+        "content_sha256": "76f9aad05c327699786f2e7ad3e5a0ae6808592fc0b284b62ed25f99933c506c",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/ccf16576554d1e88382fbd979d2327e35798fd52569eb22e3d80c70323adfcd9.txt",
+        "content_sha256": "ccf16576554d1e88382fbd979d2327e35798fd52569eb22e3d80c70323adfcd9",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/476efe9d654acada6dddf1272b136e6fa7489e3edca2e9a2a0c4684731a9aff4.txt",
+        "content_sha256": "476efe9d654acada6dddf1272b136e6fa7489e3edca2e9a2a0c4684731a9aff4",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "ancestor",
+                "selection_trend",
+                "controller_response",
+                "failure_history"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

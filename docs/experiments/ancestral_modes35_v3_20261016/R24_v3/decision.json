@@ -1,0 +1,200 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 与 element_layout 中的元素计数只是几何对应下的布局比较量，不是已验证的氢键、官能团角色、质子化或互变异构状态；N/O 的受体/供体身份不作断言。",
+    "clock_and_representation": "G001 使用 endpoint_prediction：observable 为同一前向时刻的 predicted_endpoint，teacher 为 teacher_predicted_endpoint_at_same_forward_time。R02_v3 的 program 记录 clock_policy=endpoint_prediction；R15_V3_COMPATIBLE 为 fixed，其 observable 是 predictive_bridge_to_learning_end、teacher 是 actual_ancestor_at_learning_end。ancestor 工具返回的 selected_ancestor_coords_A 是 actual current world A，selected_teacher_endpoint_A 是 same-forward teacher predicted endpoint world A，两者不得互换。",
+    "component_response_interpretation": "parents/R02_v3/component_response 显示 checks 全部通过、active_steps=40、nonzero_steps=40、routing_VJPs=0、mode_switches=0，typed 与 charge 的 enabled_weight 均为 0.0 且 measured_probe_steps=0，因此本组不涉及类型/电荷分项。非零 VJP 只证明控制项已激活，不证明几何或元素布局形成；形成需读 boundary 实际布局，保持需比较同一支持的窗口末端与无引导后缀终态。",
+    "counterevidence_refs": [
+      "F_b011_s030__reference/failure_history",
+      "parents/R15_V3_COMPATIBLE/outcomes",
+      "parents/R15_V3_COMPATIBLE/response",
+      "source/prior_campaign",
+      "source/limits",
+      "source/measured_path_preferences"
+    ],
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "F_b011_s030__reference/selection_trend",
+      "parents/R02_v3/outcomes",
+      "parents/R02_v3/response",
+      "parents/R02_v3/element_layout",
+      "parents/R02_v3/component_response",
+      "source/feature_revision"
+    ],
+    "falsifier": "若在 endpoint_prediction 时钟下，同一 20 点支持的 boundary 几何/元素布局与 R02_v3 已观测读数无可区分变化，或 gradient_native_predictive_cosine_mean 与 gradient_native_observed_cosine_mean 的差异不能复现，则该表示/对应规则假设被否证。若终态布局形成但亲和力尾部不改善，则只否证价值主张，不否证形成主张。",
+    "formation_retention_value_test": "形成：在控制窗口末端读取同一 tracked 支持的实际几何/元素布局（boundary 状态），而不是只看分项梯度非零。保持：比较同一支持的窗口末端与无引导后缀终态布局，R02_v3 的 terminal tracked NC 联合 0.8644444444444445 与 terminal geometry-matched 元素分数 0.838 可作为该分支的终态读数。价值：终态亲和力与匹配对照另行评估；R02_v3 的 best_qualified_pic50 8.69941520690918 是开发池搜索偏置下的最大值，n_above_target 为 0，不能当作已确认的尾部改善。",
+    "group_id": "G001",
+    "observable_change": "预期可读的 observable 变化限于：同一 20 点支持上的 boundary/terminal 几何匹配元素分数、tracked NC 联合分数、posthoc 局部 RMS，以及 controller_response 中 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的符号/量级。R02_v3 已返回 boundary tracked NC 联合 0.4666666666666666、terminal tracked NC 联合 0.8644444444444445、terminal geometry-matched 元素分数 0.838；R15_V3_COMPATIBLE 的对应 local_outcomes 为 null，因此两者不可直接逐项比较。selection_trend 的 endpoint_forecast_evidence 与 current 表示是不同 observable，不得互换。",
+    "observable_contract": {
+      "observable": "predicted_endpoint",
+      "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+    },
+    "parent_program_id": "R02_v3",
+    "relationship_to_failed_families": "failure_history 显示该区域已有多条失败/回滚家族：R16_v3（3 点 interface_support，best 8.086981773376465）、R17_v3（NC_support，best 8.127787590026855）、R18_v3（group_support，best 8.04043960571289）、R19_v3（size_matched_support，best 8.158737182617188）、R20_v3（orientation，best 8.108270645141602）、R21_v3（pocket_field，best 8.184579849243164）、R22_v3（pair_geometry，best 8.126729011535645）、R23_v3（charge_field，best 8.179692268371582），均未超过 R02_v3 的 8.69941520690918。这些是不同干预，不是独立重复；本假设不声称已排除这些家族，只把表示/对应规则作为可区分的下一步。",
+    "scientific_hypothesis": "在允许区域 F_b011_s030__reference 的同一 20 点局部支持上，把时钟从 R15_V3_COMPATIBLE 的 fixed（预测桥接到学习窗口末端、对照学习末端实际祖先）改为 endpoint_prediction（同一前向时刻的教师预测端点），并保留 assignment_element_cost=0.5 的脱离梯度元素匹配代价，会改变被匹配的几何对应，从而在 R02_v3 已观测到的近目标尾部分支（best_qualified_pic50 8.69941520690918，n_above_target 0）附近产生可区分的局部几何/元素布局变化。该假设只主张表示与对应规则的可干预性，不主张亲和力提升，也不把 R02_v3 的开发池极值当作整体改善。",
+    "support_reason": "选择 G001 而非 G000，是因为 R02_v3 的 program 记录 clock_policy=endpoint_prediction，且其近目标尾部分支（best_qualified_pic50 8.69941520690918）是在该时钟下测得的；G001 的 observable_contract 与该父程序一致。G000 绑定 R15_V3_COMPATIBLE 的 fixed 时钟，其 local_outcomes 为 null，无法提供同刻局部布局读数。source/feature_revision 记录 R02_v3 真实 Analyst 发现 regional_evidence_v2 与 endpoint_prediction 表示，支持把表示差异作为可干预模块。"
+  },
+  "Designer": {
+    "actual_dose_expectation": "Dose is read from the parent's measured response, not assumed: R02_v3 reported injected_rms_A_mean 0.029771593818441033, requested_rms_A_mean 0.029771593725308777, actual_cumulative_step_rms_A 1.1908637746050954, actual_max_step_rms_A 0.030726323276758193, dose_gain_mean 1.0, atom_clip_fraction 0.0, cumulative_clip_fraction 0.0, active_updates 40, nonzero_updates 40. The time schedule acts on the normalized requested displacement; the constant schedule with schedule_normalization 1.0 keeps the per-step request near 0.030 A. Because the correspondence rule changes which geometry is matched, the expected readable change is in the boundary/terminal geometry-matched element fractions, tracked NC joint fractions, posthoc local RMS, and in the sign/magnitude of gradient_native_observed_cosine_mean and gradient_native_predictive_cosine_mean (parent values: observed mean -0.2806749078910798, predictive mean -0.22980241058394313). Nonzero VJP only shows the control term is active; it does not show layout formation. Formation is read at the window-end boundary layout on the same tracked support, retention by comparing that boundary layout with the unguided suffix terminal layout, and value by terminal affinity evaluated separately. R02_v3's best_qualified_pic50 8.69941520690918 is a development-pool maximum with n_above_target 0 and is not treated as a confirmed tail improvement.",
+    "derivative_path": "Only real model coordinate VJPs are taken. The correspondence (geometry-only, assignment_element_cost 0.0) is computed in the detached branch and does not differentiate logits or elements; the advantage/selection weights are state-dependent and are not differentiated, so the claim is conditional routing/weighting gradient, not an exact derivative of a fully mixed potential. The differentiated teacher support is the same 20-point support (differentiated_teacher_support_sizes [20] in the parent audit), and the real generator VJP may affect other student atoms beyond the declared matching support. No affinity-head gradient, no SMC, no per-step extra affinity inference, and no logits/discrete-transition-rate editing are introduced. The endpoint_prediction clock means the current state corresponds to the actual same-time ancestor and the target corresponds to the teacher predicted endpoint at the same forward time; the ancestor tool's selected_ancestor_coords_A (actual current world A) and selected_teacher_endpoint_A (same-forward teacher predicted endpoint world A) are not exchanged.",
+    "design_grounds": "G001 binds the Analyst's endpoint_prediction clock to the R02_v3 parent program, whose recorded clock_policy is endpoint_prediction and whose near-target tail branch (best_qualified_pic50 8.69941520690918, n_above_target 0) was measured under that clock. The only registered executable variant is A001, which keeps the same 20-point local support (atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]) and the same region F_b011_s030__reference, and changes only the correspondence/selection objective: operator pointwise -> selection_advantage, assignment_element_cost 0.5 -> 0.0, plus advantage_evidence_gain=true and advantage_evidence_scale=1.0, with mode_specs carrying the representation-matched selection_profile (feature_representation endpoint_prediction, focal/background_mean/background_sd over the same 51 times and the same 20 feature centers). No points, mode sources, teachers or terms are added. R02_v3's component_response confirms the parent ran with typed_weight 0.0 and charge_weight 0.0, routing_VJPs 0, mode_switches 0, so this variant does not introduce typed/charge sub-terms. The parent's element_layout and local_outcomes give the boundary/terminal comparators (boundary tracked NC joint 0.4666666666666666, terminal tracked NC joint 0.8644444444444445, terminal geometry-matched element fraction 0.838) against which the new correspondence rule is read. R15_V3_COMPATIBLE is the fixed-clock incumbent and its local_outcomes are null, so it cannot supply same-time local layout readings; it is not used as a substitute.",
+    "evidence_refs": [
+      "F_b011_s030__reference/ancestor",
+      "F_b011_s030__reference/controller_response",
+      "F_b011_s030__reference/selection_trend",
+      "parents/R02_v3/outcomes",
+      "parents/R02_v3/response",
+      "parents/R02_v3/element_layout",
+      "parents/R02_v3/component_response",
+      "source/feature_revision"
+    ],
+    "execution_changes": [
+      "advantage_evidence_gain",
+      "advantage_evidence_scale",
+      "assignment_element_cost",
+      "mode_specs",
+      "operator"
+    ],
+    "falsifier": "If under the endpoint_prediction clock with the selection_advantage correspondence the same 20-point support shows no distinguishable change in boundary geometry/element layout relative to the R02_v3 readings (boundary tracked NC joint 0.4666666666666666, boundary geometry-matched element fraction 0.4590000000000001), or if the difference between gradient_native_predictive_cosine_mean and gradient_native_observed_cosine_mean cannot be reproduced, then the representation/correspondence-rule hypothesis is falsified. If the terminal layout forms but the affinity tail does not improve, only the value claim is falsified, not the formation claim. Interface errors are recorded separately from scientific negative results, and numerically identical functions reuse existing results rather than introducing new design.",
+    "hypothesis_group": "G001",
+    "operative_terms": "The operative objective is the registered selection_advantage operator on the same 20-point support: a fixed-space focal/background standardized contrast built from the endpoint_prediction selection_profile (focal, background_mean, background_sd at the 51 registered times), with advantage_evidence_gain=true and advantage_evidence_scale=1.0, and assignment_element_cost set to 0.0 so the detached element-matching cost no longer enters the correspondence. The correspondence is geometry-only; the chemical graph remains free to change. The reward remains a coordinate-space objective: the pseudo-Huber point-cloud term with pointcloud_delta_A 1.0, native_rms_ratio 0.66, max_atom_step_A 0.15, max_cumulative_rms_A 6.0, window [0.1,0.5], 100 steps, expected_active_steps 10..49, dose_schedule constant, schedule_normalization 1.0, advantage_cap 20.0, field_sigma_A 1.5, mode_memory_t 0.05, lookahead_fraction 0.2, learning_window [0.0,0.5], teacher_time 0.5, type_target predicted, typed_weight 0.0, charge_weight 0.0, sensing detached, routing single, scope local, smc false, affinity_head_gradient false, coordinate_updates_only true. The selection_profile is a descriptive standardized contrast, not a calibrated success probability, and the focal/background profiles are representation-matched to endpoint_prediction; current-representation profiles are a different observable and are not interchanged.",
+    "option_id": "A001",
+    "parent_program_id": "R02_v3"
+  },
+  "action": {
+    "action_id": "A001",
+    "authoritative_program_delta": {
+      "advantage_evidence_gain": {
+        "after": true,
+        "before": null
+      },
+      "advantage_evidence_scale": {
+        "after": 1.0,
+        "before": null
+      },
+      "assignment_element_cost": {
+        "after": 0.0,
+        "before": 0.5
+      },
+      "mode_specs": {
+        "after": {
+          "bytes": 15661,
+          "sha256": "055ea0bd2e7f3f56496660b69300f3df7e36a915c26ea33ace073ac14a578c3d"
+        },
+        "before": [
+          {
+            "atom_slots": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              6,
+              7,
+              10,
+              12,
+              13,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            "orientation_triplets": [
+              [
+                0,
+                3,
+                7
+              ],
+              [
+                1,
+                16,
+                18
+              ],
+              [
+                2,
+                3,
+                21
+              ]
+            ],
+            "pocket_sites": [
+              {
+                "coords_A": [
+                  23.21,
+                  -27.476,
+                  7.3
+                ],
+                "id": "A:VAL:116:N",
+                "index": 178
+              },
+              {
+                "coords_A": [
+                  19.337,
+                  -35.926,
+                  13.829
+                ],
+                "id": "A:ASP:175:N",
+                "index": 254
+              },
+              {
+                "coords_A": [
+                  23.316,
+                  -37.398,
+                  16.753
+                ],
+                "id": "A:LYS:68:NZ",
+                "index": 107
+              },
+              {
+                "coords_A": [
+                  24.859,
+                  -30.931,
+                  7.741
+                ],
+                "id": "A:GLU:114:O",
+                "index": 162
+              },
+              {
+                "coords_A": [
+                  22.233,
+                  -25.251,
+                  8.683
+                ],
+                "id": "A:VAL:116:O",
+                "index": 181
+              },
+              {
+                "coords_A": [
+                  19.017,
+                  -29.752,
+                  17.959
+                ],
+                "id": "A:HIS:160:NE2",
+                "index": 210
+              }
+            ],
+            "region_id": "F_b011_s030__reference",
+            "template_id": "F_b011_s030_native"
+          }
+        ]
+      },
+      "operator": {
+        "after": "selection_advantage",
+        "before": "pointwise"
+      }
+    },
+    "numeric_identity": "aaa8c85efc05c6c461b658d0606ea2f9174a9bf7dfb4327f5a8b234634df3158",
+    "parent_id": "R02_v3",
+    "phase": "selection_advantage",
+    "reason": "Explicit fixed-space focal/background ratio with representation-matched profiles, geometry-only correspondence, analysis-calibrated width and post-RMS standardized-contrast attenuation; one complete geometry objective package, not an affinity probability",
+    "region_ids": [
+      "F_b011_s030__reference"
+    ]
+  }
+}

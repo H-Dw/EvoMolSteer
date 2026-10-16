@@ -1,0 +1,36 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。selected_terminal_elements 与 element_layout 中的元素计数只是几何对应下的布局比较量，不是已验证的氢键、官能团角色、质子化或互变异构状态；N/O 的受体/供体身份不作断言。",
+  "clock_and_representation": "G001 使用 endpoint_prediction：observable 为同一前向时刻的 predicted_endpoint，teacher 为 teacher_predicted_endpoint_at_same_forward_time。R02_v3 的 program 记录 clock_policy=endpoint_prediction；R15_V3_COMPATIBLE 为 fixed，其 observable 是 predictive_bridge_to_learning_end、teacher 是 actual_ancestor_at_learning_end。ancestor 工具返回的 selected_ancestor_coords_A 是 actual current world A，selected_teacher_endpoint_A 是 same-forward teacher predicted endpoint world A，两者不得互换。",
+  "component_response_interpretation": "parents/R02_v3/component_response 显示 checks 全部通过、active_steps=40、nonzero_steps=40、routing_VJPs=0、mode_switches=0，typed 与 charge 的 enabled_weight 均为 0.0 且 measured_probe_steps=0，因此本组不涉及类型/电荷分项。非零 VJP 只证明控制项已激活，不证明几何或元素布局形成；形成需读 boundary 实际布局，保持需比较同一支持的窗口末端与无引导后缀终态。",
+  "counterevidence_refs": [
+    "F_b011_s030__reference/failure_history",
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "source/prior_campaign",
+    "source/limits",
+    "source/measured_path_preferences"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "F_b011_s030__reference/selection_trend",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "parents/R02_v3/element_layout",
+    "parents/R02_v3/component_response",
+    "source/feature_revision"
+  ],
+  "falsifier": "若在 endpoint_prediction 时钟下，同一 20 点支持的 boundary 几何/元素布局与 R02_v3 已观测读数无可区分变化，或 gradient_native_predictive_cosine_mean 与 gradient_native_observed_cosine_mean 的差异不能复现，则该表示/对应规则假设被否证。若终态布局形成但亲和力尾部不改善，则只否证价值主张，不否证形成主张。",
+  "formation_retention_value_test": "形成：在控制窗口末端读取同一 tracked 支持的实际几何/元素布局（boundary 状态），而不是只看分项梯度非零。保持：比较同一支持的窗口末端与无引导后缀终态布局，R02_v3 的 terminal tracked NC 联合 0.8644444444444445 与 terminal geometry-matched 元素分数 0.838 可作为该分支的终态读数。价值：终态亲和力与匹配对照另行评估；R02_v3 的 best_qualified_pic50 8.69941520690918 是开发池搜索偏置下的最大值，n_above_target 为 0，不能当作已确认的尾部改善。",
+  "group_id": "G001",
+  "observable_change": "预期可读的 observable 变化限于：同一 20 点支持上的 boundary/terminal 几何匹配元素分数、tracked NC 联合分数、posthoc 局部 RMS，以及 controller_response 中 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的符号/量级。R02_v3 已返回 boundary tracked NC 联合 0.4666666666666666、terminal tracked NC 联合 0.8644444444444445、terminal geometry-matched 元素分数 0.838；R15_V3_COMPATIBLE 的对应 local_outcomes 为 null，因此两者不可直接逐项比较。selection_trend 的 endpoint_forecast_evidence 与 current 表示是不同 observable，不得互换。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "relationship_to_failed_families": "failure_history 显示该区域已有多条失败/回滚家族：R16_v3（3 点 interface_support，best 8.086981773376465）、R17_v3（NC_support，best 8.127787590026855）、R18_v3（group_support，best 8.04043960571289）、R19_v3（size_matched_support，best 8.158737182617188）、R20_v3（orientation，best 8.108270645141602）、R21_v3（pocket_field，best 8.184579849243164）、R22_v3（pair_geometry，best 8.126729011535645）、R23_v3（charge_field，best 8.179692268371582），均未超过 R02_v3 的 8.69941520690918。这些是不同干预，不是独立重复；本假设不声称已排除这些家族，只把表示/对应规则作为可区分的下一步。",
+  "scientific_hypothesis": "在允许区域 F_b011_s030__reference 的同一 20 点局部支持上，把时钟从 R15_V3_COMPATIBLE 的 fixed（预测桥接到学习窗口末端、对照学习末端实际祖先）改为 endpoint_prediction（同一前向时刻的教师预测端点），并保留 assignment_element_cost=0.5 的脱离梯度元素匹配代价，会改变被匹配的几何对应，从而在 R02_v3 已观测到的近目标尾部分支（best_qualified_pic50 8.69941520690918，n_above_target 0）附近产生可区分的局部几何/元素布局变化。该假设只主张表示与对应规则的可干预性，不主张亲和力提升，也不把 R02_v3 的开发池极值当作整体改善。",
+  "support_reason": "选择 G001 而非 G000，是因为 R02_v3 的 program 记录 clock_policy=endpoint_prediction，且其近目标尾部分支（best_qualified_pic50 8.69941520690918）是在该时钟下测得的；G001 的 observable_contract 与该父程序一致。G000 绑定 R15_V3_COMPATIBLE 的 fixed 时钟，其 local_outcomes 为 null，无法提供同刻局部布局读数。source/feature_revision 记录 R02_v3 真实 Analyst 发现 regional_evidence_v2 与 endpoint_prediction 表示，支持把表示差异作为可干预模块。"
+}
