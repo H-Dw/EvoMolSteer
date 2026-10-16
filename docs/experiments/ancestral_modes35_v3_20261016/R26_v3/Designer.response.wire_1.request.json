@@ -1,0 +1,86 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/0ad6394674ddc58a9fee1c97b76f181f18cb5a2867a6b07d1b9794c8ca83faed.txt",
+        "content_sha256": "0ad6394674ddc58a9fee1c97b76f181f18cb5a2867a6b07d1b9794c8ca83faed",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/da63b98278795d0882a53d6715e32c281ed9b365c1dd76e42c23ca2078b037ca.txt",
+        "content_sha256": "da63b98278795d0882a53d6715e32c281ed9b365c1dd76e42c23ca2078b037ca",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/648342c359afec6fff821b9e7f733f82d54dbe610a5275530df2b0dbcf7ad849.txt",
+        "content_sha256": "648342c359afec6fff821b9e7f733f82d54dbe610a5275530df2b0dbcf7ad849",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "design_grounds": {
+        "description": "One concise scientific reason; do not repeat canonical program/derivative/dose objects.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__reference/ancestor",
+            "F_b011_s030__reference/controller_response",
+            "campaign/history",
+            "parents/R24_v3/component_response",
+            "parents/R24_v3/element_layout",
+            "parents/R24_v3/outcomes",
+            "parents/R24_v3/response",
+            "source/feature_revision",
+            "source/limits",
+            "source/measured_path_preferences",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "description": "One concise measurable negative outcome.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "option_id": {
+        "enum": [
+          "A000"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R24_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

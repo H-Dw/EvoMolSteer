@@ -1,0 +1,20 @@
+{
+  "design_grounds": "R24_v3 在 endpoint_prediction 表示下已把同一 20 槽支持从边界 tracked 元素匹配 0.442 推到终态 0.829，但最高基本合格 pIC50 仅 8.216，且归一化总方向与原生观测方向余弦均值 -0.262、dose_gain_mean 被 s/sqrt(s^2+evidence_scale^2) 压到 0.538；source/feature_revision 显示 current 与 endpoint_prediction 是整窗系数不同的两个 observable（current [0.0946,-0.6172,1.2507] 对 endpoint_prediction [1.1214,-2.9200,4.0081]），因此把同一 selection_advantage 的时钟改为 current、教师改为同刻实际祖先，是在不新增化学模块、不改支持、不改剂量上限的前提下检验“表示改变是否改变归一化总方向与尾部”的单一自由度；typed/charge 组件 enabled_weight 均为 0，故本轮不声称任何类型或电荷力响应。",
+  "evidence_refs": [
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/controller_response",
+    "parents/R24_v3/outcomes",
+    "parents/R24_v3/element_layout",
+    "parents/R24_v3/component_response",
+    "parents/R24_v3/response",
+    "source/feature_revision",
+    "source/limits",
+    "source/prior_campaign",
+    "campaign/history",
+    "source/measured_path_preferences"
+  ],
+  "falsifier": "若在相同 20 槽支持、相同 dose 上限（max_atom_step_A 0.15、max_cumulative_rms_A 6.0、native_rms_ratio 0.66）与相同窗口 [0.1,0.5] 下，gradient_native_observed_cosine_mean 与 R24_v3 的 -0.262 无实质差异且 dose_gain_mean 仍约 0.54，并且终态 tracked 元素匹配率与最高基本合格 pIC50 均未超出 R24_v3 的 0.829 / 8.216，则 current 表示相对 endpoint_prediction 表示无区分价值，本假设被否证；若仅元素布局变化而 pIC50 尾部不变，则本假设的尾部部分被否证。",
+  "hypothesis_group": "G000",
+  "option_id": "A000",
+  "parent_program_id": "R24_v3"
+}
