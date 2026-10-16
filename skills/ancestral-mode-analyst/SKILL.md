@@ -47,4 +47,6 @@ description: Analyze successful molecular terminal outcomes and their actual anc
 
 优先选择能区分竞争解释的小实验。按 [交接契约](../../docs/plans/ancestral_modes_autoresearch_v3_20261016/contracts.zh-CN.md) 返回证据 ID、局部支持、模式/教师表示、目标时刻规则、可改 observable、化学前提、设计允许范围和否证条件。Designer 必须能从这些字段直接绑定函数，而非重新猜测分析结论。
 
+以调用者明确的目标选择探索方向。若目标是发现极高亲和力候选，平均表现守卫与尾部探索分开：不能仅因均值较低就忽略已有近目标尾部分支，也不能把一个开发池极值当作整体改善。引用该分支自身反馈，用小幅、可区分的干预检验其可重复性。
+
 只输出调用者 schema 允许的结构；引用必须来自实际工具结果。保留可复现的证据与选择理由，不输出内部推理记录。契约错误是接口问题，不能冒充该科学模块的性能结论。

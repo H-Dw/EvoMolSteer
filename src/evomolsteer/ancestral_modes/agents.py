@@ -91,6 +91,11 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             'dose':'Post-RMS actual displacement; common reward scaling can cancel.',
             'router':'One active local mode per seed, state compatibility is detached, no full-cloud union.',
             'budget_normalization':'Calibrated to frozen reference drift, actual budgets can differ and are measured.'}}
+    bundle['objective']={'primary':'Discover a basic-qualified terminal candidate approaching or exceeding the original Steer best predicted affinity.',
+        'original_steer_best':state['original']['best'],'tail_candidate_program':state.get('tail_candidate',state['reference'])['program']['program_id'],
+        'tail_candidate_metrics':state.get('tail_candidate',state['reference'])['metrics'],
+        'separate_criterion':'Guarded mean/U_tau incumbent promotion remains fixed. That guard does not ban experiments around a measured near-target tail branch. Do not replace the requested tail-discovery goal with maximizing mean alone.',
+        'uncertainty':'Development maximum is search biased; final frozen new-pool confirmation and quality diagnostics are separate.'}
     for pid,v in parents.items():
         bundle['evidence']['parents/'+pid+'/outcomes']={'parent_program_id':pid,'metrics':v['metrics'],'local_outcomes':v.get('local_outcomes')}
         bundle['evidence']['parents/'+pid+'/response']={'parent_program_id':pid,'response':v['response'],'program':v['program']}

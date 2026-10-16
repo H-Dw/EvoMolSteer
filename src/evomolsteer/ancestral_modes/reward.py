@@ -39,6 +39,7 @@ class AncestorReward:
         if p['routing'] not in ('single','static','compatible','persistent','response','persistent_response','soft'):raise ValueError('Unknown seed routing')
         if p['routing']=='soft':raise ValueError('Soft multi-mode support unions need a separate validated adapter')
         if p['sensing'] not in ('detached','full') or p['typed_channels'] not in ('all','NC','NO') or p['type_target'] not in ('predicted','terminal'):raise ValueError('Unknown chemical sensing semantics')
+        if p.get('type_balance','none') not in ('none','target_mass'):raise ValueError('Unknown elemental field normalization')
         if p['clock_policy'] not in ('fixed','current','endpoint_prediction','lookahead','decaying_lookahead'):raise ValueError('Invalid clock')
         if p['operator'] not in ('pointwise','point_band','pair_distance','pocket_distance','orientation','selection_advantage'):raise ValueError('Invalid operator')
         for s in self.specs:
@@ -116,7 +117,11 @@ class AncestorReward:
                 if p['typed_channels']!='all':
                     ids=[m['atom_vocabulary'][e] for e in p['typed_channels']];probs=probs[...,ids];targets=targets[...,ids]
                 got=torch.einsum('bij,bie->bje',kern,probs)/len(slots);want=tkern.T@targets/len(slots)
-                typed=-(got-want).square().sum((1,2))*sigma*sigma
+                residual=got-want
+                if p.get('type_balance','none')=='target_mass':
+                    scale=want.mean(0).clamp_min(p.get('type_mass_floor',.05)).detach()
+                    residual=residual/scale
+                typed=-residual.square().sum((1,2))*sigma*sigma
             if p['charge_weight']:
                 cp=charge_logits.softmax(-1).gather(1,assignment[...,None].expand(-1,-1,charge_logits.shape[-1]))
                 if p['sensing']=='detached':cp=cp.detach()

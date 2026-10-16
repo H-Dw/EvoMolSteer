@@ -29,7 +29,7 @@ def scientific_group_key(action):
     semantics.update(typed_enabled=bool(p['typed_weight']),charge_enabled=bool(p['charge_weight']))
     if chemical:semantics['sensing']=p['sensing']
     if p['typed_weight']:
-        semantics.update(typed_channels=p['typed_channels'],type_target=p['type_target'])
+        semantics.update(typed_channels=p['typed_channels'],type_target=p['type_target'],type_balance=p.get('type_balance','none'))
     return json.dumps([action['parent_id'],action['region_ids'],action['phase'],semantics],sort_keys=True)
 
 
@@ -52,6 +52,8 @@ def numerical_identity(p,teacher):
         for k in ('typed_weight','charge_weight','sensing','field_sigma_A'):v[k]=p[k]
     if p['typed_weight']:
         for k in ('typed_channels','type_target'):v[k]=p[k]
+        v['type_balance']=p.get('type_balance','none')
+        if p.get('type_balance')=='target_mass':v['type_mass_floor']=p.get('type_mass_floor',.05)
     if p['operator']=='selection_advantage':
         v.update(field_sigma_A=p['field_sigma_A'],density_scale_floor=p['density_scale_floor'],advantage_cap=p['advantage_cap'])
         v['advantage_evidence_gain']=p.get('advantage_evidence_gain',False)
@@ -77,6 +79,7 @@ def validate(p,teacher):
     for k in ('native_rms_ratio','max_atom_step_A','max_cumulative_rms_A'):
         if not 0<p['dose'][k]<=20:raise ValueError('Nonphysical/unsupported dose')
     if p['typed_weight']<0 or p['charge_weight']<0:raise ValueError('Negative chemical field weight')
+    if p.get('type_balance')=='target_mass' and not 0<p.get('type_mass_floor',.05)<=1:raise ValueError('Invalid class-mass floor')
     p['expected_active_steps']=active_updates(p['steps'],*p['window'])
     return p
 
@@ -133,6 +136,10 @@ def actions(repo,m,bank,regions,state,number):
     if number in prerequisites:
         candidates=[r for r in prior if r.get('phase')==prerequisites[number]]
         if candidates:parents.append(candidates[-1])
+    if number==27:
+        for family in ('typed_vjp','field_width'):
+            candidates=[r for r in prior if r.get('phase')==family]
+            if candidates:parents.append(candidates[-1])
     seen={r['numeric_identity'] for r in state['rounds'] if r.get('numeric_identity') and r.get('stage')=='discovery'}
     seen.add(numerical_identity(state['reference']['program'],bank));result=[];seen_options=set()
     all_modes=sorted(bank['modes'],key=lambda k:bank['modes'][k]['terminal_score'],reverse=True)
@@ -227,6 +234,7 @@ def actions(repo,m,bank,regions,state,number):
             for policy in ('current','lookahead'):add(parent,{'clock_policy':policy},'Separate current-state and forward local-feature advantage')
         elif phase=='typed_channels' and p['typed_weight']:
             for channels in ('NC','NO'):add(parent,{'typed_channels':channels},'Restrict soft typed fields to selected elemental channels, not universal acceptor roles')
+            add(parent,{'type_balance':'target_mass','type_mass_floor':.05},'Normalize each elemental spatial field by bounded teacher field mass; a separate class-balance alternative against majority-element domination, without changing channels')
         elif phase=='type_reference' and p['typed_weight']:add(parent,{'type_target':'terminal'},'Contrast retrospective terminal identity field with same-time predicted identity field')
         elif phase=='curvature':
             for f in (.5,2.):
