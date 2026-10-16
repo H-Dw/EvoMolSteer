@@ -236,6 +236,13 @@ class AncestorControl(Control):
         self.previous_assignments=[list(v) for v in new]
         self.extra.update(point_rms_A=float(error.mean()),target_error_mean=float(error.mean()),
             dose_gain_mean=float(self.dose_gain.mean()),assignment_switch_fraction=switches)
+        matching=detail['direct_mask'];valid=curr['mask'].bool()
+        total_gradient_energy=(gradient.detach().square()*valid[...,None]).sum((1,2))
+        outside=(gradient.detach().square()*(valid&~matching)[...,None]).sum((1,2))
+        outside_fraction=(outside/total_gradient_energy.clamp_min(1e-20)).sqrt()
+        self.extra.update(unmatched_input_gradient_rms_fraction_per_seed=outside_fraction.cpu().tolist(),
+            unmatched_input_gradient_rms_fraction_mean=float(outside_fraction.mean()),
+            unmatched_input_gradient_definition='Input-coordinate norm outside declared matching support / total input-coordinate norm; model coupling, not an attention or affinity attribution.')
         if self.program['operator']=='selection_advantage':
             raw=detail['raw_advantage'].detach()
             self.extra.update(advantage_raw_mean=float(raw.mean()),advantage_raw_max=float(raw.max()),advantage_raw_min=float(raw.min()),
