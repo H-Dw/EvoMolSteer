@@ -1,0 +1,13 @@
+{
+  "purpose": "已取得 controller_response 与 failure_history 的真实返回。R02_v3（endpoint_prediction 时钟）在 R02 轮 rollback=true，但其 best_qualified_pic50=8.69941520690918 高于 R15_V3_COMPATIBLE 的 8.590141296386719；同时 R02_v3 的 gradient_native_observed_cosine_mean 从 -0.0277 降到 -0.5500（mean -0.2807），gradient_native_predictive_cosine_mean 从 -0.0326 降到 -0.4518（mean -0.2298），而 R15_V3_COMPATIBLE 的响应记录中不含这两项余弦统计。R02_v3 的 target_error_mean 从 0.6360 升到 0.7522（mean 0.6859），R15_V3_COMPATIBLE 的 target_error_mean 从 0.4334 降到 0.1831（mean 0.2760）。failure_history 显示 R01/R03/R04 均 rollback=false 且尾部更低（best 8.2698/8.2713/8.2716），只有 R02_v3 出现 rollback=true 且尾部最高。为区分“时钟表示（endpoint_prediction 对同时刻教师预测）导致方向性差异”与“单轮波动/剂量调度差异”，需要再取 selection_trend 读取该区域已注册候选的跨轮选择趋势，并取 ancestor 读取该区域真实祖先节点以核对时钟时刻与表示。所有引用仅来自本 bundle 已返回的工具结果，不虚构计算。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "selection_trend"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "ancestor"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "purpose": "在剂量调度阶段，先取真实工具证据以区分竞争解释：R02_v3（endpoint_prediction 时钟）在 R02 轮出现 rollback=true，但其 best_qualified_pic50=8.69941520690918 高于 R15_V3_COMPATIBLE 的 8.590141296386719，而 R01/R03/R04（fixed/lookahead/decaying_lookahead）均未 rollback 且尾部更低。需要判断该差异是时钟表示（endpoint_prediction 对同时刻教师预测）还是剂量调度（early/late/bell）造成的，以及是否只是单轮波动。因此请求 controller_response 读取 R02_v3 与 R15_V3_COMPATIBLE 的实际控制响应统计（含 gradient_native_observed_cosine_mean 与 target_error 轨迹），并请求 failure_history 读取该区域已注册的失败家族，确认是否存在“函数方向不对/剂量不足/后缀未保持”等已记录模式，避免把下降一律归因于加强权重。所有引用仅来自本 bundle 已给出的工具结果，不虚构计算。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "controller_response"
+    },
+    {
+      "region_id": "F_b011_s030__reference",
+      "tool": "failure_history"
+    }
+  ]
+}

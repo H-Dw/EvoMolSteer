@@ -1,0 +1,32 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块，因此不引入界面角色、N/C 环境、官能团协同、电荷微态或溶剂竞争假设。selected_terminal_elements 与 selected_terminal_elements 中的 N/O 仅作为终态元素标签用于支持选择，不作为早期已存在该角色的证据；元素分数不是已验证的氢键或官能团角色。",
+  "clock_and_representation": "数据时钟：selection_trend 的 selection_clock_note 说明权重来自 score_time、应用于 state_time 的 proposal，超出学习窗的 proposal 被排除；domain 为 [0.0, 0.5]，n_times=51。教师时刻：R02_v3 的 clock_policy=endpoint_prediction，observable_contract 为 predicted_endpoint 对 teacher_predicted_endpoint_at_same_forward_time；R15_V3_COMPATIBLE 的 clock_policy=fixed，observable_contract 为 predictive_bridge_to_learning_end 对 actual_ancestor_at_learning_end。评估时刻：终态评分与 local_outcomes 在终态统一评估。学习/控制范围：learning_window [0.0, 0.5]，window [0.1, 0.5]，expected_active_steps 10–49。槽位映射：mode_specs 的 atom_slots [0,1,2,3,4,6,7,10,12,13,15,16,17,18,19,20,21,22,23,24]，orientation_triplets [[0,3,7],[1,16,18],[2,3,21]]。ancestor 工具返回 current_clock_times [0.0, 0.11999999731779099, 0.25, 0.5] 与 representations [actual current world A, same-forward teacher predicted endpoint world A]，并明确 current 与 endpoint 目标不得互换、早期身份不确定。",
+  "counterevidence_refs": [
+    "parents/R15_V3_COMPATIBLE/outcomes",
+    "parents/R15_V3_COMPATIBLE/response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__reference/controller_response",
+    "F_b011_s030__reference/failure_history",
+    "F_b011_s030__reference/ancestor",
+    "F_b011_s030__reference/selection_trend",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "campaign/history"
+  ],
+  "falsifier": "否证条件：若在 G001 内所选数值选项下，gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的轨迹与 R15_V3_COMPATIBLE 的 fixed 时钟记录无可区分差异，或 target_error_mean 轨迹与 R02_v3 已记录的 0.6360→0.7522 不可比，或 best_qualified_pic50 不高于 R15_V3_COMPATIBLE 的 8.590141296386719 且 mean_all_pic50 低于 7.71079755783081，则本假设的“endpoint_prediction 表示差异带来尾部收益”不成立。",
+  "formation_retention_value_test": "形成/保持/价值三分测试：形成——检查终态 tracked_terminal_element_fraction 与 terminal_tracked_NC_joint_fraction 是否达到 R02_v3 已记录的 0.873 / 0.8644444444444445 量级；保持——检查 boundary_tracked_terminal_element_fraction 与 boundary_tracked_NC_joint_fraction 是否维持 R02_v3 已记录的 0.473 / 0.4666666666666666 量级；价值——检查 best_qualified_pic50 是否超过 R15_V3_COMPATIBLE 的 8.590141296386719 且 mean_all_pic50 是否不低于 R15_V3_COMPATIBLE 的 7.71079755783081。若形成与保持达标但价值不达标，则支持“形成但终态无收益”而非“未形成”。",
+  "group_id": "G001",
+  "observable_change": "在 G001 内选择数值选项后，预期可观测变化为：gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 的轨迹形状（首末值与均值）相对 R15_V3_COMPATIBLE 的 fixed 时钟记录出现可区分的差异；target_error_mean 轨迹（首末值与均值）与 R02_v3 已记录的 0.6360→0.7522（mean 0.6859）可比；best_qualified_pic50 与 mean_all_pic50 相对 R15_V3_COMPATIBLE 的 8.590141296386719 / 7.71079755783081 出现可测差异。所有数值以工具实际返回为准，不在此推断具体数值。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "relationship_to_failed_families": "failure_history 显示 R01_v3（current_clock）、R03_v3（lookahead）、R04_v3（decaying_lookahead）均 rollback=false 且 best_qualified_pic50 分别为 8.26976490020752、8.271347999572754、8.271586418151855，均低于 R02_v3 的 8.69941520690918；只有 R02_v3（endpoint_clock）rollback=true 且尾部最高。source/prior_campaign 记录“局部身份形成不等于亲和力受益”“更准确地贴合固定点云并不是当前首要缺口”“收益具有支持背景依赖”，因此本假设不把失败一律归因于未生成 N，也不把贴合固定点云当作首要缺口，而是区分表示/时刻映射差异与剂量差异。",
+  "scientific_hypothesis": "在 F_b011_s030__reference 区域，R02_v3 的 endpoint_prediction 时钟（对同时刻教师预测端点）相对 R15_V3_COMPATIBLE 的 fixed 时钟（对学习窗末端实际祖先）产生方向性不同的局部引导：R02_v3 的 gradient_native_observed_cosine_mean 由 -0.0277 降至 -0.5500（mean -0.2807），gradient_native_predictive_cosine_mean 由 -0.0326 降至 -0.4518（mean -0.2298），而 R15_V3_COMPATIBLE 的响应记录不含这两项余弦统计。该方向性差异伴随 R02_v3 的 best_qualified_pic50=8.69941520690918 高于 R15_V3_COMPATIBLE 的 8.590141296386719，但 R02_v3 的 target_error_mean 由 0.6360 升至 0.7522（mean 0.6859），R15_V3_COMPATIBLE 的 target_error_mean 由 0.4334 降至 0.1831（mean 0.2760）。因此假设：在相同 20 点支持与相同剂量上限下，endpoint_prediction 时钟改变的是被匹配的表示时刻，而非支持集合或剂量；其尾部收益与移动目标误差上升并存，属于表示/时刻映射差异而非单纯剂量不足。",
+  "support_reason": "选择 G001（parent=R02_v3）而非 G000（parent=R15_V3_COMPATIBLE）的理由：R02_v3 的 best_qualified_pic50=8.69941520690918 高于 R15_V3_COMPATIBLE 的 8.590141296386719，且 R02_v3 是唯一在 failure_history 中 rollback=true 的轮次；R02_v3 的响应记录包含 gradient_native_observed_cosine_mean 与 gradient_native_predictive_cosine_mean 两项方向性统计，而 R15_V3_COMPATIBLE 的响应记录不含这两项，构成可区分的表示差异。支持集合为 20 点（support_count=20.0），与 G000 相同，因此该比较不混淆支持大小。反证：R02_v3 的 mean_all_pic50=7.618682155609131 低于 R15_V3_COMPATIBLE 的 7.71079755783081，且 R02_v3 的 target_error_mean 上升（0.6360→0.7522）而 R15_V3_COMPATIBLE 下降（0.4334→0.1831），说明尾部收益并非整体均值收益，且移动目标误差上升。source/limits 提示历史选择路径有限、终态角色不构成早期状态断言、元素/电荷预测概率保留 float16 量化，故本假设仅作为待检验的表示差异假设，不作为已证结论。"
+}
