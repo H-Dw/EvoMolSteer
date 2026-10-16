@@ -53,6 +53,34 @@ def evaluate(repo,config,output):
     write_json(target,result);return result
 
 
+def highest_current_pb(repo,config,protein,output,max_candidates=20):
+    """Score-ordered quality audit; stop at first pass without new molecules."""
+    from importlib.metadata import version
+    from posebusters import PoseBusters
+    from evomolsteer.local_motif.quality import binary_checks
+    repo=Path(repo);m=read_json(config);protein=Path(protein);output=Path(output)
+    if output.exists():return read_json(output)
+    base=repo/m['raw_dataset']/'results'/m['campaign']/m['arm'];candidates=[]
+    for folder in sorted(base.glob('batch_*')):
+        for r in read_json(folder/'final_records.json'):
+            if r['build_success'] and r['connected'] and (r.get('min_protein_distance_A') or 0)>=.8:candidates.append(r)
+    candidates.sort(key=lambda r:(-r['pic50_on_rescore'],r['batch'],r['slot']))
+    pb=PoseBusters(config='dock',max_workers=0);molecules={};rows=[]
+    for r in candidates[:max_candidates]:
+        batch=r['batch']
+        if batch not in molecules:
+            source=base/f'batch_{batch:03d}'/'molecules_all_built.sdf'
+            molecules[batch]={v.GetProp('node_id'):v for v in Chem.SDMolSupplier(str(source),sanitize=False,removeHs=False) if v is not None}
+        tests=binary_checks(pb.bust(molecules[batch][r['node_id']],mol_cond=protein,full_report=False).iloc[0].to_dict())
+        row={'node_id':r['node_id'],'pic50':r['pic50_on_rescore'],'tests':tests,'passes_all':bool(tests and all(v is True for v in tests.values()))};rows.append(row)
+        if row['passes_all']:break
+    found=bool(rows and rows[-1]['passes_all'])
+    result={'tool':'PoseBusters','version':version('posebusters'),'config':'dock','protein_sha256':digest(protein),
+        'n_evaluated':len(rows),'best_passing_pic50':rows[-1]['pic50'] if found else None,'best_passing_node':rows[-1]['node_id'] if found else None,
+        'rows':rows,'highest_passing_identified':found,'meaning':'All higher-scoring basic-qualified original candidates were tested with this same current PB assay; no affinity inference or regeneration.'}
+    write_json(output,result);return result
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--repo',default='.');p.add_argument('--config',required=True);p.add_argument('--output',required=True)
     a=p.parse_args();r=evaluate(Path(a.repo).resolve(),a.config,a.output);print({k:r[k] for k in ('n','n_qualified','energy_coverage','median_heavy_relief_after_H_per_atom','legacy_PB_pass')})
