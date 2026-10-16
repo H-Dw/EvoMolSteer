@@ -1,0 +1,160 @@
+{
+  "schema_version": "affinity-tail-checkpoint-registry-1.0",
+  "status": "PLANNED_ACTIVATION_NONE",
+  "base_code": "f0afe253ebcd10e29ffef42cde99eb7e36234db8",
+  "definition": "Experimental checkpoint means effective code+reward+references+native protocol+input identity, not newly trained model weights.",
+  "shared_model": {
+    "name": "flowr_root_v2.ckpt",
+    "sha256": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0"
+  },
+  "sources": "evidence_snapshot.json",
+  "checkpoints": [
+    {
+      "id": "historical_R26",
+      "campaign": "ck2_affinity_geometry30_20261007",
+      "tag": "BEST-HISTORICAL-R26-20261007",
+      "tag_commit": "9a6f80a0b3a3922395cc7d777f6ab2dfdad440c7",
+      "configuration_source": "docs/experiments/flowcompat_scale1000_20261009/completed_20261009_1836/controls_snapshot/inference_config/reward_program.json",
+      "configuration_lookup_status": "located retained R26_native scale inference program; verify source dependencies before activation",
+      "evidence": "historical_scale_report",
+      "use": "historical reference; matched baseline only after exact input/native protocol audit",
+      "scale_inference_commit": "006212f32ebd5070fa168ab319139ea429875fea"
+    },
+    {
+      "id": "flowcompat_R11",
+      "campaign": "flowcompat30_20261009",
+      "tag": "BEST-FLOWCOMPAT-R11-20261009",
+      "tag_commit": "f9ba00461497e1b5f52e21cf07bd3c2b598bb887",
+      "confirmation_tag": "CONFIRMED-FLOWCOMPAT-R11-20261009",
+      "confirmation_tag_commit": "78d65ec37b90bbd93ff86e7d4f95a78d001d03cc",
+      "scale_inference_commit": "006212f32ebd5070fa168ab319139ea429875fea",
+      "evidence": "historical_scale_report",
+      "use": "historical multi-teacher control reference; not ancestral v3 R11 or NC R11"
+    },
+    {
+      "id": "I3_original_ligand_geometry",
+      "campaign": "steer_dependency_20261009/luna_suite",
+      "evidence": "I3_I4_static_M2_audit",
+      "use": "candidate local reference mode; old instruction ablation confounded by function/dose differences",
+      "independent_confirmation": "not established by n100 screen"
+    },
+    {
+      "id": "I4_original_ligand_contact",
+      "campaign": "steer_dependency_20261009/luna_suite",
+      "evidence": "I3_I4_static_M2_audit",
+      "use": "conditional pocket/local-role hypothesis; contact-count reward not automatically beneficial"
+    },
+    {
+      "id": "frozen_M2",
+      "campaign": "steer_dependency_20261009 and m2_tools_full_drop_ablation_20261012",
+      "program_path": "configs/experiments/steer_dependency_v1/D2_without_trajectory_static.json",
+      "reference_path": "configs/experiments/steer_dependency_v1/static.json.gz",
+      "numerical_signature": "c62e296818e05c479dc68bee5d34f24ef0871cab3bc3e6204f442a9b6dfe40cd",
+      "program_sha256": "91fd96a203e1d4138378fecb01e11d433cd6d9e7b8455da036a70c713c4999b6",
+      "reference_sha256": "b6e61ec5cb8b528e3696fcb73982a83af8bc67f5be04fe427ad1c580c5baa485",
+      "mixture_temperature": 0.5,
+      "temporal_teacher_blend": null,
+      "actual_pointcloud_delta_A": 1.0,
+      "teacher_neighbors": 4,
+      "teacher_endpoint_temperature_A2": 4.0,
+      "teacher_score_beta": 0,
+      "native_rms_ratio": 0.33,
+      "control_window": [
+        0.0,
+        0.5
+      ],
+      "teacher_representation": "fixed late-learning predicted endpoints, not true terminal molecules",
+      "evidence": "M2_executable_recipes",
+      "use": "protected numerical baseline; full-cloud reference only; success archive includes M2_b6238_s043",
+      "focal_success": {
+        "sample_id": "M2_b6238_s043",
+        "cohort": "DSF_c62e296818e0_b6232_controls_indexed_batch",
+        "batch": 6238,
+        "slot": 43,
+        "raw_pic50": 8.881637573242188,
+        "valid_connected": true,
+        "PB_fast_pass": true,
+        "legacy_MMFF_relief_per_heavy": 0.6805677530758555,
+        "energy_protocol": "legacy record; not asserted equal to new two-stage assay",
+        "canonical_smiles": "Cc1c(C(N)=O)nc2c3ccccc3n3c(=O)c4cnccc4c1c23",
+        "inference_commit": "ce85fde5c5efc30d81c322ed2bc288a6023109d9",
+        "standardized_score_audited": false,
+        "early_trajectory_recoverability": "pending"
+      }
+    },
+    {
+      "id": "temporal_mix_M2_relative",
+      "campaign": "m2_tools_full_drop_ablation_20261012",
+      "numerical_signature": "ab41341eeb9b52bacac60af419cf96810790098b59bb821a5c7fb4f776099085",
+      "temporal_teacher_blend": 0.5,
+      "mixture_temperature": 0.5,
+      "evidence": "M2_executable_recipes",
+      "use": "negative/unresolved temporal-mixture evidence; no temperature ablation"
+    },
+    {
+      "id": "dynamic_contrast_R05",
+      "campaign": "dynamic_contrast10_20261008",
+      "evidence": "dynamic_contrast_report",
+      "use": "high-tail examples and failed mean optimization; relabel future success with observed final outcomes"
+    },
+    {
+      "id": "partial_region_R13",
+      "campaign": "partial_region_search_20261014",
+      "commit": "02daf208f58d2c98187a3e86bcf87f4d9041533e",
+      "evidence": "partial_region_state",
+      "use": "partial-support lineage, not equivalent to any later R13"
+    },
+    {
+      "id": "NC_R11_pointwise",
+      "campaign": "nc_autoresearch20_20261015",
+      "inference_commit": "78d31a914fed35b491ebe9faeaeea2223e8dd807",
+      "evidence": "NC_report",
+      "use": "partial pointwise geometry and measured-dose reference; not a proven N/C formation mechanism"
+    },
+    {
+      "id": "local_motif_R15_v2",
+      "campaign": "local_motif20_v2_20261015",
+      "inference_commit": "dbbac1158f891eeb550c74c31259b25be29bfc34",
+      "B50_evaluation": "R19_v2",
+      "support": 20,
+      "source_atoms": 25,
+      "native_rms_ratio": 0.66,
+      "assignment_element_cost": 0.5,
+      "control_window": [
+        0.1,
+        0.5
+      ],
+      "representation": "bridge to actual teacher state at t=0.5",
+      "evidence": "v2_execution_recommendation",
+      "independent_confirmation": "failed/not a validated M2 replacement"
+    },
+    {
+      "id": "ancestral_R02_v3",
+      "campaign": "ancestral_modes35_v3_20261016",
+      "inference_commit": "46218d7950f7c8ebfb379986135e7712337fe1e7",
+      "tag": "ancestral-v3-R02-8p6994-unconfirmed-20261016",
+      "support": 20,
+      "source_atoms": 25,
+      "native_rms_ratio": 0.66,
+      "assignment_element_cost": 0.5,
+      "control_window": [
+        0.1,
+        0.5
+      ],
+      "representation": "same-forward teacher endpoint predictions",
+      "development_max_qualified": 8.69941520690918,
+      "confirmation_max_qualified": 8.36818218231,
+      "evidence": "v3_mechanism_report",
+      "exact_replay": "50 native scores identical; max error zero",
+      "independent_confirmation": "did not reproduce high-tail discovery; representation-sensitive development gain",
+      "use": "tail research branch and diagnostic; not active validated incumbent"
+    }
+  ],
+  "activation_required": [
+    "Verify exact native/source/runtime and sampling options.",
+    "Verify local structure, initial-state and reference hashes.",
+    "Separate tag/report commit from actual inference commit.",
+    "Verify scoring and quality protocol; do not reuse across incompatible inputs.",
+    "Do not promote a development maximum to independent confirmation."
+  ]
+}
