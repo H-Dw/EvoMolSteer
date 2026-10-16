@@ -58,6 +58,8 @@ def analyze(repo, config, output):
                       if v is not None and v.GetProp('node_id') == source_record['node_id'])
     Chem.SanitizeMol(source_mol)
     protein_file = repo/'data/reference_terminal/original/inputs/3PE1_protein_aligned.pdb'; protein = []
+    for path in (protein_file,original/'molecules_all_built.sdf',Path(__file__).resolve()):
+        sources[path.relative_to(repo).as_posix()]=digest(path)
     for line in protein_file.read_text().splitlines():
         if line[:6].strip() not in ('ATOM', 'HETATM') or line[76:78].strip() == 'H': continue
         name = ':'.join([line[21],line[17:20].strip(),line[22:26].strip(),line[12:16].strip()])
@@ -67,15 +69,18 @@ def analyze(repo, config, output):
     write_json(output/'best_seed_chemistry.json', chemistry)
     geometries = {k:read(v/'geometry.json') for k,v in folders.items()}
     support = p['mode_specs'][0]['atom_slots']; geometry = {}
+    boundary_time=float(p.get('teacher_time',p['learning_window'][1]))
     for name,g in geometries.items():
+        if not np.isclose(g['teacher_clock']['time'],boundary_time,atol=2e-6):raise ValueError('Different captured boundary clocks')
         geometry[name] = {}
-        for key,time,target in [('teacher_clock',.5,lookup(mode,.5)[support]), ('terminal',1.,np.asarray(mode['terminal_coords_A'])[support])]:
+        for key,target in [('teacher_clock',lookup(mode,boundary_time)[support]), ('terminal',np.asarray(mode['terminal_coords_A'])[support])]:
             x = np.asarray(g[key]['coords_A'])[slot]; cost=((x[:,None]-target[None])**2).sum(-1)
             a,b = linear_sum_assignment(cost)
             geometry[name][key+'_common_geometry_only_rms_A'] = float(np.sqrt(cost[a,b].mean()))
     for key in ('teacher_clock','integration_current','terminal'):
         d=np.asarray(geometries['R02'][key]['coords_A'])[slot]-np.asarray(geometries['R15'][key]['coords_A'])[slot]
         geometry['R02_vs_R15_'+key+'_native_order_rms_A'] = float(np.sqrt((d*d).sum(-1).mean()))
+    for d in folders.values():sources[(d/'categorical_states.npz').relative_to(repo).as_posix()]=digest(d/'categorical_states.npz')
     a=np.load(folders['R02']/'categorical_states.npz');b=np.load(folders['R15']/'categorical_states.npz')
     edge_diff=np.argwhere(np.triu(a['terminal_bonds'][slot]!=b['terminal_bonds'][slot],k=1));pairs=[]
     for i,j in edge_diff:
@@ -86,6 +91,9 @@ def analyze(repo, config, output):
                  'raw_atomic_labels_equal':bool(np.array_equal(a['terminal_atomics'][slot],b['terminal_atomics'][slot])),
                  'raw_charge_labels_equal':bool(np.array_equal(a['terminal_charges'][slot],b['terminal_charges'][slot])),
                  'changed_undirected_edges':pairs}
+    graph_audit['native_to_sdf_coordinate_max_error_A']={name:float(np.max(np.abs(
+        np.asarray(geometries[name]['terminal']['coords_A'])[slot]-molecules[name].GetConformer().GetPositions())))
+        for name in ('R02','R15')}
     paired_rows=[];pair_stats={}
     for other in ('R15','unguided'):
         d=np.array([x['pic50']-y['pic50'] for x,y in zip(records['R02'],records[other])])
@@ -128,22 +136,70 @@ def analyze(repo, config, output):
              'scope':'Arithmetic cohort decomposition, not a matched causal comparison of old M2 and v3.'}
     old24=read(repo/'data/generated/local_motif20_v2_20261015/R15_v2/R15_v2/records.json')
     x=np.array([r['pic50'] for r in old24]);y=np.array([r['pic50'] for r in records['R15']])
-    sample_size={'old_B24_mean':float(x.mean()),'B50_first24_mean':float(y[:24].mean()),'B50_last26_mean':float(y[24:].mean()),
-                 'B50_all_mean':float(y.mean()),'same_priors_but_execution_shape_gap':float(y[:24].mean()-x.mean()),
-                 'additional_slots_composition_gap':float(y.mean()-y[:24].mean()),
+    small_n=len(old24)
+    sample_size={'old_B24_mean':float(x.mean()),'B50_first24_mean':float(y[:small_n].mean()),'B50_last26_mean':float(y[small_n:].mean()),
+                 'B50_all_mean':float(y.mean()),'same_priors_but_execution_shape_gap':float(y[:small_n].mean()-x.mean()),
+                 'additional_slots_composition_gap':float(y.mean()-y[:small_n].mean()),
                  'scope':'Changing batch shape changes subsequent random-number consumption; first24 are not the identical inference paths.'}
-    frontier=[]
+    dev_scores=np.array([r['pic50'] for r in records['R02']])
+    mean_path={'R15_B24':float(x.mean()),'R15_B50':float(y.mean()),'R02_B50':float(dev_scores.mean()),
+               'R02_frozen400':float(vmean),'B24_to_B50_difference':float(y.mean()-x.mean()),
+               'R15_to_R02_same_B50_difference':float(dev_scores.mean()-y.mean()),
+               'R02_development_to_frozen_difference':float(vmean-dev_scores.mean())}
+    replay_path=study/'mechanism_followup/exact_replay.json';replay_audit=None
+    if replay_path.exists():
+        replay=read(replay_path);folder=repo/replay['result_folder'];z=np.load(folder/'categorical_states.npz')
+        replay_audit={'scores_bitwise_equal':replay['scores_bitwise_equal'],'max_abs_score_difference':replay['max_abs_score_difference'],
+                      'n':replay['n'],'new_optimization_rounds':0,
+                      'geometry_json_bytes_equal':(folders['R02']/'geometry.json').read_bytes()==(folder/'geometry.json').read_bytes(),
+                      'all_categorical_arrays_equal':all(np.array_equal(a[k],z[k]) for k in a.files)}
+    ref_atoms=a['terminal_atomics'][slot];ref_bonds=a['terminal_bonds'][slot]
+    frontier=[];family=[]
     for r in state['rounds']:
         if r['stage']!='discovery':continue
         a=r['metrics'];dominated=any(c['stage']=='discovery' and c['metrics']['mean_all_pic50']>=a['mean_all_pic50'] and
             c['metrics']['best_qualified_pic50']>=a['best_qualified_pic50'] and
             (c['metrics']['mean_all_pic50']>a['mean_all_pic50'] or c['metrics']['best_qualified_pic50']>a['best_qualified_pic50']) for c in state['rounds'])
         frontier.append({'round':r['round'],'mean':a['mean_all_pic50'],'maximum':a['best_qualified_pic50'],'pareto_nondominated':not dominated})
+        d=repo/r['result_folder'];best=max((v for v in read(d/'records.json') if v['qualified_structure']),key=lambda v:v['pic50'])
+        if best['smiles']==top['smiles']:
+            index=best['slot'];raw=np.load(d/'categorical_states.npz');pos=np.array(read(d/'geometry.json')['terminal']['coords_A'])[index]
+            ref=np.array(geometries['R02']['terminal']['coords_A'])[slot]
+            family.append({'round':r['round'],'best_slot':index,'pic50':best['pic50'],'support':len(r['program']['mode_specs'][0]['atom_slots']),
+                'raw_atom_mismatches':int((raw['terminal_atomics'][index]!=ref_atoms).sum()),
+                'raw_undirected_bond_mismatches':int(np.triu(raw['terminal_bonds'][index]!=ref_bonds,1).sum()),
+                'native_order_coordinate_rms_A':float(np.sqrt(((pos-ref)**2).sum(1).mean()))})
     pd.DataFrame(frontier).to_csv(output/'development_frontier.csv',index=False)
+    pd.DataFrame(family).to_csv(output/'best_graph_family.csv',index=False)
+    scoring_path=study/'mechanism_followup/score_probe_results.json';attribution=None
+    if scoring_path.exists():
+        if not all(graph_audit[k] for k in ('canonical_graph_equal','raw_atomic_labels_equal','raw_charge_labels_equal')):
+            raise ValueError('This interpretation requires equivalent graph representations, not distinct chemical graphs')
+        if any(r['sanitized_bond']!='AROMATIC' for r in pairs) or max(graph_audit['native_to_sdf_coordinate_max_error_A'].values())>.001:
+            raise ValueError('Kekule representation or native-to-molecule mapping not established')
+        scores=read(scoring_path);manifest=read(study/'mechanism_followup/score_input_manifest.json')
+        v={r['variant']:r for r in scores['rows']}
+        errors={k:float(np.max(np.abs(np.array(v[name]['all_scores'])-manifest['sources'][k]['expected_scores'])))
+                for k,name in [('A','A_coords_A_bonds'),('B','B_coords_B_bonds')]}
+        if max(errors.values())>manifest['tolerance_pic50']:raise ValueError('Terminal score reconstruction failed')
+        aa=v['A_coords_A_bonds']['focal_pic50'];bb=v['B_coords_B_bonds']['focal_pic50']
+        ab=v['A_coords_B_bonds']['focal_pic50'];ba=v['B_coords_A_bonds']['focal_pic50']
+        attribution={'variants':{k:r['focal_pic50'] for k,r in v.items()},'native_reconstruction_max_errors':errors,
+            'total_R02_minus_R15':aa-bb,'coordinate_effect_at_R02_bonds':aa-ba,'coordinate_effect_at_R15_bonds':ab-bb,
+            'coordinate_shapley_effect':.5*((aa-ba)+(ab-bb)),
+            'bond_representation_effect_at_R02_coords':aa-ab,'bond_representation_effect_at_R15_coords':ba-bb,
+            'bond_representation_shapley_effect':.5*((aa-ab)+(ba-bb)),
+            'scope':'Exact two-factor head-input decomposition on equivalent canonical graphs. This is not a binding-free-energy or experimental affinity attribution.',
+            'additional_generation':False,'not_a_new_optimization_best':True}
+        assert abs(attribution['coordinate_shapley_effect']+attribution['bond_representation_shapley_effect']-(aa-bb))<1e-10
     report={'best_record':top,'source_record':{k:source_record[k] for k in ('node_id','pic50_on_rescore','smiles')},
         'geometry':geometry,'graph_representation':graph_audit,'paired_development':pair_stats,
         'best_graph_occurrence':occurrences,'frozen_correlations_descriptive':correlations,
         'old_M2_vs_current':history,'sample_size_decomposition':sample_size,'v2_conditions':historical,
+        'mean_comparison_path':mean_path,'exact_replay':replay_audit,
+        'focal_local_metrics':pd.read_parquet(study/focal_round/('outcomes_'+focal_round)/'per_seed.parquet').query('slot == @slot').to_dict('records')[0],
+        'development_score_quantiles':{name:np.quantile([r['pic50'] for r in rs],[.1,.5,.9,.95,1]).tolist() for name,rs in records.items()},
+        'terminal_score_factorial_attribution':attribution,
         'confirmation_initials':hashes,'development_initial':read(folders['R02']/'guidance_audit.json')['input_pairing'],
         'sources':sources,'limits':['No mechanistic affinity attribution from contacts alone.',
             'Same canonical graph can have different raw Kekule inputs; see factorial real-head scoring.',

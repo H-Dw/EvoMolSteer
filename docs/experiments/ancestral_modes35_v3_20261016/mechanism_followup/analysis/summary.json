@@ -595,6 +595,60 @@
     "smc": false,
     "upstream_native_sha256": "6b37d051ca7bf0b6a60d9ad3aac469799d39b69d0f1086643cbe19c8a7a1ddbc"
   },
+  "development_score_quantiles": {
+    "R02": [
+      7.082980108261109,
+      7.686356544494629,
+      8.009958267211914,
+      8.021206474304199,
+      8.69941520690918
+    ],
+    "R15": [
+      7.239101076126099,
+      7.7966389656066895,
+      8.019629287719727,
+      8.03576488494873,
+      8.590141296386719
+    ],
+    "unguided": [
+      6.84464054107666,
+      7.618662357330322,
+      8.006969261169434,
+      8.020682239532471,
+      8.128202438354492
+    ]
+  },
+  "exact_replay": {
+    "all_categorical_arrays_equal": true,
+    "geometry_json_bytes_equal": true,
+    "max_abs_score_difference": 0.0,
+    "n": 50,
+    "new_optimization_rounds": 0,
+    "scores_bitwise_equal": true
+  },
+  "focal_local_metrics": {
+    "actual_cumulative_step_rms_A": 1.1626026518642902,
+    "actual_max_step_rms_A": 0.030509568750858307,
+    "boundary_geometry_matched_terminal_element_fraction": 0.4,
+    "boundary_posthoc_local_rms_A": 0.28333633029188016,
+    "boundary_tracked_NC_joint_fraction": 0.3333333333333333,
+    "boundary_tracked_actual_ancestor_element_fraction": 0.4,
+    "boundary_tracked_source_charge_fraction": 0.3,
+    "boundary_tracked_terminal_element_fraction": 0.4,
+    "initial_target_error_A": 0.8877131342887878,
+    "last_target_error_A": 0.6462205648422241,
+    "mode_id": "F_b011_s030_native",
+    "mode_switches": 0,
+    "pic50": 8.69941520690918,
+    "qualified": true,
+    "slot": 6,
+    "support_count": 20,
+    "terminal_geometry_matched_terminal_element_fraction": 0.8,
+    "terminal_posthoc_local_rms_A": 0.9762884817418941,
+    "terminal_tracked_NC_joint_fraction": 0.7777777777777778,
+    "terminal_tracked_source_charge_fraction": 1.0,
+    "terminal_tracked_terminal_element_fraction": 0.8
+  },
   "frozen_correlations_descriptive": {
     "actual_cumulative_step_rms_A": {
       "paired_gain": -0.1340605253782836,
@@ -684,6 +738,10 @@
         "sanitized_bond": "AROMATIC"
       }
     ],
+    "native_to_sdf_coordinate_max_error_A": {
+      "R02": 4.9237060547824285e-05,
+      "R15": 4.9023437501460876e-05
+    },
     "raw_atomic_labels_equal": true,
     "raw_charge_labels_equal": true
   },
@@ -693,6 +751,15 @@
     "Development frontier is search-biased and descriptive; no unconditional mean/maximum conflict theorem follows.",
     "Original 35-condition search is unchanged; exact replay is a separate repeatability diagnostic."
   ],
+  "mean_comparison_path": {
+    "B24_to_B50_difference": -0.13126054445902557,
+    "R02_B50": 7.618682155609131,
+    "R02_development_to_frozen_difference": 0.009602690935134994,
+    "R02_frozen400": 7.628284846544266,
+    "R15_B24": 7.842058102289836,
+    "R15_B50": 7.71079755783081,
+    "R15_to_R02_same_B50_difference": -0.09211540222167969
+  },
   "old_M2_vs_current": {
     "M2_final400_mean": 7.704748822450638,
     "M2_gain": 0.20966732859611525,
@@ -740,9 +807,47 @@
     "smiles": "Nc1ncc2cc3c4ccccc4[nH]c3c3cc(C(=O)O)ccc3c1-2"
   },
   "sources": {
+    "data/generated/ancestral_modes35_v3_20261016/R01_v3/R01_v3/records.json": "ece1989dad74adb72771ed7f411b36b2818a7d715fa0b891bea4a1a5dbe5d5bd",
+    "data/generated/ancestral_modes35_v3_20261016/R02_v3/R02_v3/categorical_states.npz": "a9bff11412a3e5c9d4cefb26bf1fab7608d0eb3e9e5c9e23c3f918547784aa1f",
     "data/generated/ancestral_modes35_v3_20261016/R02_v3/R02_v3/geometry.json": "ce2e9ded117469b42b4661ef346b024e74a857e706ae2cf8a4c9802322fd58ea",
     "data/generated/ancestral_modes35_v3_20261016/R02_v3/R02_v3/guidance_audit.json": "c4a416918267c82935db2c8e5170cd99108a412a8e7e6f00758ada7f1157bf61",
     "data/generated/ancestral_modes35_v3_20261016/R02_v3/R02_v3/records.json": "15efdd7fc6713cfad8851faaffee5e17be695213d7636f3afed20ffd4958194e",
+    "data/generated/ancestral_modes35_v3_20261016/R03_v3/R03_v3/records.json": "b0ca59b45a6c01010c384a1281c34bc47effc7aeff12f14fd7957668c6930fd1",
+    "data/generated/ancestral_modes35_v3_20261016/R04_v3/R04_v3/records.json": "c3e6b2919f75a9447eb01d597205896be473cde77e6b175ad66bd585eac568e4",
+    "data/generated/ancestral_modes35_v3_20261016/R05_v3/R05_v3/records.json": "8eb1b28192e21475c5a10ec08c90052c97949dd359c5f8ec9b095350b1540eba",
+    "data/generated/ancestral_modes35_v3_20261016/R06_v3/R06_v3/records.json": "08da6fac1cd23a130b1fb3077d71c04d8b68b0009a7d7f707f0af9534a64fb17",
+    "data/generated/ancestral_modes35_v3_20261016/R07_v3/R07_v3/records.json": "42d7606107179c4a44c42a4c50e331d4f99ff1ab15cabfeb3fd75bd0b963101c",
+    "data/generated/ancestral_modes35_v3_20261016/R08_v3/R08_v3/records.json": "1c66f08b4eb1927a21c42aa33f31517af72878d815a41cc930c4a22b431029d9",
+    "data/generated/ancestral_modes35_v3_20261016/R09_v3/R09_v3/geometry.json": "dcfd14512879883649cc58dc46d0e737801dace3f65690a1e10470455932b512",
+    "data/generated/ancestral_modes35_v3_20261016/R09_v3/R09_v3/records.json": "88f8c4b8f79a2234d30d224d2a3f46785ae1b1c2e7dfbaa40b8fedbc97a81865",
+    "data/generated/ancestral_modes35_v3_20261016/R10_v3/R10_v3/records.json": "72af14da43ea4d180d199eeae3f4324e574a43370cf77ecb23b093f107cca653",
+    "data/generated/ancestral_modes35_v3_20261016/R11_v3/R11_v3/records.json": "e128a43ea144314df7465f64919728812f1e8e1c2b61c3531ce2ad0b3df7e040",
+    "data/generated/ancestral_modes35_v3_20261016/R12_v3/R12_v3/records.json": "5d4f46958f2b53599466fb38b7a4458f2a2de44689d6b4abefe6f2ac9ce43bb0",
+    "data/generated/ancestral_modes35_v3_20261016/R13_v3/R13_v3/records.json": "a3457e02237102ce212162078f91021e7f6430022e6660414a12e5d9e4b3c191",
+    "data/generated/ancestral_modes35_v3_20261016/R14_v3/R14_v3/geometry.json": "98e0f1f9044d67a59d63dd3f4c473b4e02dbfc15f8f8234aa9fb76684bbf8670",
+    "data/generated/ancestral_modes35_v3_20261016/R14_v3/R14_v3/records.json": "fd2c5152759bb49615d9da4db4a172f1254a17fa8e70c71dbd6e8f5fafc98fe4",
+    "data/generated/ancestral_modes35_v3_20261016/R15_v3/R15_v3/geometry.json": "a353c23040c3a38000f29c5be235c28d246f19122dd2ef205c30e172446a403d",
+    "data/generated/ancestral_modes35_v3_20261016/R15_v3/R15_v3/records.json": "de3f9db32cfc296e1074d35c4c1e9d3047eec9c05470177778e20ef8f6391181",
+    "data/generated/ancestral_modes35_v3_20261016/R16_v3/R16_v3/records.json": "25ce751a730ff9b773903cee232b23b83c7f57256715400a323268a4ce732aa5",
+    "data/generated/ancestral_modes35_v3_20261016/R17_v3/R17_v3/records.json": "0231bea8b9f62d9acddc9d7f5c9dabd0e94188b66513c855bcc18ed534867afa",
+    "data/generated/ancestral_modes35_v3_20261016/R18_v3/R18_v3/records.json": "d14e8a55917b3b1b9447e6ff50daa9d500f2a4700d09d14818a0e5415c3fc358",
+    "data/generated/ancestral_modes35_v3_20261016/R19_v3/R19_v3/records.json": "8cefa6df0e3cb0489a9d618821847234996ae430812a6c6fd966b678348014e3",
+    "data/generated/ancestral_modes35_v3_20261016/R20_v3/R20_v3/records.json": "ed294a66b15b690292904a2740c357280f1e6fb664c5ce78ec1ab9c6348b1b38",
+    "data/generated/ancestral_modes35_v3_20261016/R21_v3/R21_v3/records.json": "83584ff87fa1e3af127d559af2b3ec5e1be849374dff11a8c8fa11c692fcd0e7",
+    "data/generated/ancestral_modes35_v3_20261016/R22_v3/R22_v3/records.json": "cedee192dfb3a5fbff320f481f677a88f3a3ab2224cf413c0fb08675c4db6680",
+    "data/generated/ancestral_modes35_v3_20261016/R23_v3/R23_v3/records.json": "079f41e43395f2e73a9fe346723cc74f1698437c7605af694062ce549d39811a",
+    "data/generated/ancestral_modes35_v3_20261016/R24_v3/R24_v3/records.json": "e6a51f3219075e7ef9f25c24e7448e26fc6fcb1e9c6e7def24a623e15cc977fe",
+    "data/generated/ancestral_modes35_v3_20261016/R25_v3/R25_v3/records.json": "4cd35a799bf405b1790037da01133b8a124015ad2b66895284133384e6760754",
+    "data/generated/ancestral_modes35_v3_20261016/R26_v3/R26_v3/records.json": "1d8170aa2fc44f459410632468c824e2f4633b6e66d9e305401ee08e57ad506d",
+    "data/generated/ancestral_modes35_v3_20261016/R27_v3/R27_v3/geometry.json": "be0455af15b7cd36d60745f0f8601f0e1a84cb57855044692ae5e3d9c102a047",
+    "data/generated/ancestral_modes35_v3_20261016/R27_v3/R27_v3/records.json": "6c6ccb7adc22c1da74f2dae8f61423d84a894f461f5048949459e2028b1bb4ea",
+    "data/generated/ancestral_modes35_v3_20261016/R28_v3/R28_v3/records.json": "b745475ca028360556556c39aac0d88ef476823602dc04fbf821f30f7313cd6d",
+    "data/generated/ancestral_modes35_v3_20261016/R29_v3/R29_v3/records.json": "c170e6a9053d5f2f101ecea943cc8fb2735572e7589b9b4d663bae01b9ef1148",
+    "data/generated/ancestral_modes35_v3_20261016/R30_v3/R30_v3/records.json": "83ab1f238ee7eb82ccb77ebb08e9845def70a7e63d1e806f7498815cb8cd161a",
+    "data/generated/ancestral_modes35_v3_20261016/R31_v3/R31_v3/records.json": "6a5634a064386036e309a8130c2b2da1777b10e87ba77a349dbd9ea437f1a95b",
+    "data/generated/ancestral_modes35_v3_20261016/R32_v3/R32_v3/records.json": "30ef71ef190795708df6dfeba10cf101ca3ce5bc3e6a80c5e29038551b84c534",
+    "data/generated/ancestral_modes35_v3_20261016/R33_v3/R33_v3/geometry.json": "fc36b175da707b4da1d0bb2fde9afba4891e40c0793cf5708a94872ed5a5c274",
+    "data/generated/ancestral_modes35_v3_20261016/R33_v3/R33_v3/records.json": "f6fa3b57ffc578ceaa12164b691f7ce7536fe0ba28431ce526899c77ad21dd34",
     "data/generated/ancestral_modes35_v3_20261016/R34_v3_b05/R34_v3_b05/guidance_audit.json": "93c5c51b47edc70a9e705e740de279d5a8dd58e6140c1546eebc90e204a39350",
     "data/generated/ancestral_modes35_v3_20261016/R34_v3_b05/R34_v3_b05/records.json": "680c644a26a215d80c6740fea499dd5928b6e5264949aad9bceaedc166881d9e",
     "data/generated/ancestral_modes35_v3_20261016/R34_v3_b05/unguided/records.json": "8476971d6748ca9066ca56292c8407b99b9c7b4a502ad00e098e374809d4c98c",
@@ -767,19 +872,49 @@
     "data/generated/ancestral_modes35_v3_20261016/R35_v3_b18/R35_v3_b18/guidance_audit.json": "47d2d637ea9e19591a304d97fb2c50c28b95c8f2799548cfa1f827f11c2bc792",
     "data/generated/ancestral_modes35_v3_20261016/R35_v3_b18/R35_v3_b18/records.json": "d342fd330594362bd0169d8ef3542e0ba1835bf4350da928d09668aaec1f0a1a",
     "data/generated/ancestral_modes35_v3_20261016/R35_v3_b18/unguided/records.json": "a48e0774dae1d8e1bcaf8623dcb19d8a825e33657dd14a2bad9b525c98a643ff",
+    "data/generated/ancestral_modes35_v3_20261016/UNGUIDED_b00_n50/unguided/categorical_states.npz": "234be3bdcba7198504149a57308b4c6bbf3519e6d0e4713f558e66232f7f0dc5",
     "data/generated/ancestral_modes35_v3_20261016/UNGUIDED_b00_n50/unguided/geometry.json": "86c0544904ec008957d1743e077556092488f417a2261b056a703e0792949413",
     "data/generated/ancestral_modes35_v3_20261016/UNGUIDED_b00_n50/unguided/records.json": "17b83d1705d4bbfef92b46667d1bc5363d9400ddfd2f8f9ecf0418508c91324c",
     "data/generated/local_motif20_v2_20261015/R15_v2/R15_v2/records.json": "18a716c838a0b187ecdcd446d1ace731b2f9cd39b4c32a69b6e81bdc587deeb5",
+    "data/generated/local_motif20_v2_20261015/R19_v2/R19_v2/categorical_states.npz": "5c1e07ec6c1540702b7a90e98c288034e4955e5b7aada137e1e9b7bf1502fb53",
     "data/generated/local_motif20_v2_20261015/R19_v2/R19_v2/geometry.json": "e364e436c2de0e2a8c0985d999479884e3f7ddc0df249de34da906adf6bf44e0",
     "data/generated/local_motif20_v2_20261015/R19_v2/R19_v2/records.json": "77c601d18b4b163c7fde5865e6db13183ec9c159132d0b527896383c1c9ccb33",
     "data/raw/ck2_clk3_lineage_20261003/results/main1000_w050/single/batch_011/final_records.json": "4e78a877348e842058080ce64f6d1f654c37568f6a6d5018fdc4dd018f82c0f9",
+    "data/raw/ck2_clk3_lineage_20261003/results/main1000_w050/single/batch_011/molecules_all_built.sdf": "35893858768128f011a55d103d29738b316aaa09ab9ce1400074bf936804d633",
+    "data/reference_terminal/original/inputs/3PE1_protein_aligned.pdb": "c49c33266f210062fbc8c74abc3ac4f5b9dd741034750d93a98be3e8b6cdcff0",
     "docs/experiments/ancestral_modes35_v3_20261016/R02_v3/candidates/registered/teacher.json": "5cc31f14fbbdb8fc0be40f9481c8c2de06b1d757f8b7cc50d80e11a813f54e1d",
     "docs/experiments/ancestral_modes35_v3_20261016/R02_v3/selected_program.json": "68d10dc03e79263d47b28e5da786db304b11a0bb9ccb268cddc46453a538cc92",
+    "docs/experiments/ancestral_modes35_v3_20261016/mechanism_followup/exact_replay.json": "54b1d08a7d60b4c40a3f1547aad8a1bd1776b1ed5ea72ac10447c80656f3af80",
+    "docs/experiments/ancestral_modes35_v3_20261016/mechanism_followup/score_input_manifest.json": "e1d27b67d015fa07b3421d5527c3dd4e1a2d4b34a025d4733ea70bb911f1d660",
+    "docs/experiments/ancestral_modes35_v3_20261016/mechanism_followup/score_probe_results.json": "79d9fbb9ad52cb93733202a99b46e46a92bc8d761ded9b664d6c8645661e6958",
     "docs/experiments/ancestral_modes35_v3_20261016/state.json": "de0655dd29f5658a8d0f317043200bbb99fe76ad1e7ed728b41513188d401735",
     "docs/experiments/local_motif20_v2_20261015/R15_v2/results.json": "559b6cc8d622030b68b16355656b4c60584f65908339747c6f1d8073860fed39",
     "docs/experiments/local_motif20_v2_20261015/R19_v2/results.json": "ef9a27c215b328817486b03f89d7e98c9d68a362a098d9400eb4c3e7f8387502",
     "docs/experiments/local_motif20_v2_20261015/R20_v2/results.json": "70a7213d6b19e397419bd8129af6fdfd402262e5c62ace6a5cba3ad04a6275b5",
-    "docs/experiments/m2_tools_full_drop_ablation_20261012/final_quality.json": "3abefaf9926d24bf0c65e78999aaba8e20f1eccae2590b5c81bb60bdc097b1db"
+    "docs/experiments/m2_tools_full_drop_ablation_20261012/final_quality.json": "3abefaf9926d24bf0c65e78999aaba8e20f1eccae2590b5c81bb60bdc097b1db",
+    "src/evomolsteer/ancestral_modes/mechanisms.py": "541444e99b6d898e16c90206138754bd75087f63cf1e223fc3106251464396dd"
+  },
+  "terminal_score_factorial_attribution": {
+    "additional_generation": false,
+    "bond_representation_effect_at_R02_coords": 0.12047386169433594,
+    "bond_representation_effect_at_R15_coords": 0.12037277221679688,
+    "bond_representation_shapley_effect": 0.1204233169555664,
+    "coordinate_effect_at_R02_bonds": -0.011098861694335938,
+    "coordinate_effect_at_R15_bonds": -0.011199951171875,
+    "coordinate_shapley_effect": -0.011149406433105469,
+    "native_reconstruction_max_errors": {
+      "A": 0.0,
+      "B": 0.0
+    },
+    "not_a_new_optimization_best": true,
+    "scope": "Exact two-factor head-input decomposition on equivalent canonical graphs. This is not a binding-free-energy or experimental affinity attribution.",
+    "total_R02_minus_R15": 0.10927391052246094,
+    "variants": {
+      "A_coords_A_bonds": 8.69941520690918,
+      "A_coords_B_bonds": 8.578941345214844,
+      "B_coords_A_bonds": 8.710514068603516,
+      "B_coords_B_bonds": 8.590141296386719
+    }
   },
   "v2_conditions": [
     {

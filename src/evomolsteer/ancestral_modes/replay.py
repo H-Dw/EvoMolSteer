@@ -14,6 +14,7 @@ def run(repo, config, source_round):
     original_state = (study / 'state.json').read_bytes()
     source = study / source_round
     p = read_json(source / 'selected_program.json')
+    source_config = read_json(repo/master['config_dir']/(source_round+'.json'))
     bank = read_json(source / 'candidates/registered/teacher.json')
     source_results = repo / master['generated_root'] / source_round / source_round
     pairing = read_json(source_results / 'guidance_audit.json')['input_pairing']
@@ -34,7 +35,7 @@ def run(repo, config, source_round):
     remote = Remote()
     try:
         result, sha = execute(repo, child, p, bank, 'D01_' + source_round + '_EXACT_REPLAY', remote,
-                              batch=0, n=master['screen_samples'], include_unguided=False)
+                              batch=source_config['pilot_initial_batch'], n=master['screen_samples'], include_unguided=False)
         target = result / ('D01_' + source_round + '_EXACT_REPLAY')
         comparison = paired(target, source_results, master.get('tau', read_json(study / 'state.json')['original']['tau']))
         a = read_json(source_results / 'records.json'); b = read_json(target / 'records.json')
