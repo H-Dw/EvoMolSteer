@@ -47,6 +47,9 @@ class AncestorReward:
             if p['operator']=='orientation' and not s['orientation_triplets']:raise ValueError('Missing orientation support')
             for trip in s['orientation_triplets']:
                 if not set(trip)<=set(k):raise ValueError('Direction neighbors escaped declared support')
+            if p['operator']=='selection_advantage':
+                expected='endpoint_prediction' if p['clock_policy']=='endpoint_prediction' else 'current'
+                if s['selection_profile'].get('feature_representation','current')!=expected:raise ValueError('Advantage profile and live coordinate representation disagree')
         if not 0<p['dose']['pointcloud_delta_A'] or p['field_sigma_A']<=0:raise ValueError('Invalid spatial scale')
         self.previous=None;self.last_switch=None;self.response_scores=None;self.response_time=None
 
@@ -69,7 +72,7 @@ class AncestorReward:
                 rr,cc=linear_sum_assignment(cost);assignments.append(ids[rr[np.argsort(cc)]])
             assignment=torch.as_tensor(np.asarray(assignments),device=z.device,dtype=torch.long)
         points=z.gather(1,assignment[...,None].expand(-1,-1,3));d=points-q;distance=d.norm(dim=-1);error=distance.square().mean(1).sqrt()
-        delta=p['dose']['pointcloud_delta_A'];band=p['target_band_A'];operator=p['operator']
+        delta=p['dose']['pointcloud_delta_A'];band=p['target_band_A'];operator=p['operator'];evidence_gain=z.new_ones(len(z));raw_advantage=z.new_zeros(len(z))
         if operator=='pointwise':value=(-(delta**2)*(torch.sqrt(1+distance.square()/delta**2)-1)).mean(1)
         elif operator=='point_band':value=-(distance-band).clamp_min(0).square().mean(1)
         elif operator=='pair_distance':
@@ -94,8 +97,11 @@ class AncestorReward:
             phi=torch.cat([kernel.mean(1)[:,None],(kernel[...,None]*feature_delta).mean(1)],1)
             def at(key):return z.new_tensor([np.interp(h,times,np.asarray(profile[key])[:,j]) for j in range(4)])
             mu=at('focal');bg=at('background_mean');sd=at('background_sd').clamp_min(z.new_tensor(p['density_scale_floor']))
+            contrast=((mu-bg)/sd).square().mean().sqrt()
+            evidence_gain=(contrast/(contrast.square()+p.get('advantage_evidence_scale',1.)**2).sqrt()).expand(len(z))
             # Low-dimensional explicit density ratio, not a trained predictor or calibrated probability.
-            value=(-.5*((phi-mu)/sd).square()+.5*((phi-bg)/sd).square()).mean(1).clamp(-p['advantage_cap'],p['advantage_cap'])
+            raw_advantage=(-.5*((phi-mu)/sd).square()+.5*((phi-bg)/sd).square()).mean(1)
+            value=raw_advantage.clamp(-p['advantage_cap'],p['advantage_cap'])
         typed=z.new_zeros(len(z));charge_term=z.new_zeros(len(z));sigma=p['field_sigma_A']
         # Chemical fields refer to ENDPOINT geometry/probabilities, separate from raw/bridge terms.
         if p['typed_weight'] or p['charge_weight']:
@@ -122,7 +128,7 @@ class AncestorReward:
                 charge_term=-(got-want).square().sum((1,2))*sigma*sigma
         base_value=value;value=value+p['typed_weight']*typed+p['charge_weight']*charge_term
         direct=torch.zeros_like(mask);direct.scatter_(1,assignment,True)
-        return value,{'assignment':assignment,'direct_mask':direct,'error':error,'clock':h,'typed':typed,'charge':charge_term,'base':base_value,'z':z}
+        return value,{'assignment':assignment,'direct_mask':direct,'error':error,'clock':h,'typed':typed,'charge':charge_term,'base':base_value,'z':z,'evidence_gain':evidence_gain,'raw_advantage':raw_advantage}
 
     def evaluate(self,current,endpoint,atom_logits,charge_logits,mask,t,forced_mode=None,assignments=None,derivative_input=None):
         results=[self.evaluate_mode(current,endpoint,atom_logits,charge_logits,mask,t,k,
@@ -172,6 +178,8 @@ class AncestorReward:
         direct=torch.stack([results[int(choice[i])][1]['direct_mask'][i] for i in range(n)])
         error=errors.gather(1,choice[:,None]).flatten()
         return values,{'direct_mask':direct,'error':error,'mode':choice,'switches':switches,
+            'evidence_gain':torch.stack([d.get('evidence_gain',torch.ones(n,device=current.device)) for _,d in results],1).gather(1,choice[:,None]).flatten(),
+            'raw_advantage':torch.stack([d.get('raw_advantage',torch.zeros(n,device=current.device)) for _,d in results],1).gather(1,choice[:,None]).flatten(),
             'routing_VJPs':routing_vjps,'response_refresh':response_refresh,
             'response_scores':None if self.response_scores is None else self.response_scores.cpu().tolist(),
             'selected_components':{name:torch.stack([d[name] for _,d in results],1).gather(1,choice[:,None]).flatten() for name in ('base','typed','charge')},
@@ -206,12 +214,14 @@ class AncestorControl(Control):
         if not torch.isfinite(gradient).all():raise ValueError('Nonfinite ancestral coordinate gradient')
         error=detail['error'];gain=torch.ones_like(error)*temporal_gain(self.program,self.t,self.dt)
         if self.program['attainment_response']:gain*=attainment_gain(self.program,error,detail['selected_components'])
+        if self.program.get('advantage_evidence_gain',False):gain*=detail['evidence_gain']
         self.dose_gain=gain.detach()
         self.extra={'clock_policy':self.program['clock_policy'],'actual_target_clocks':detail['clocks'],
             'routing_VJPs':detail['routing_VJPs'],'routing_response_refresh':detail['response_refresh'],
             'routing_response_scores':detail['response_scores'],
             'mode_indices':detail['mode'].cpu().tolist(),'mode_switches':int(detail['switches'].sum()),
             'target_error_per_seed_A':error.cpu().tolist(),'dose_gain_per_seed':self.dose_gain.cpu().tolist(),
+            'historical_contrast_gain_per_seed':detail['evidence_gain'].cpu().tolist(),
             'direct_support_per_seed':detail['direct_mask'].sum(1).cpu().tolist(),
             'typed_value_mean':detail['typed_mean'],'charge_value_mean':detail['charge_mean'],
             'actual_local_assignments':detail['assignments_selected'],'affinity_vjp':False,'additional_affinity_calls':0,
@@ -221,6 +231,10 @@ class AncestorControl(Control):
         self.previous_assignments=[list(v) for v in new]
         self.extra.update(point_rms_A=float(error.mean()),target_error_mean=float(error.mean()),
             dose_gain_mean=float(self.dose_gain.mean()),assignment_switch_fraction=switches)
+        if self.program['operator']=='selection_advantage':
+            raw=detail['raw_advantage'].detach()
+            self.extra.update(advantage_raw_mean=float(raw.mean()),advantage_raw_max=float(raw.max()),advantage_raw_min=float(raw.min()),
+                advantage_saturated_fraction=float((raw.abs()>=self.program['advantage_cap']).float().mean()))
         for name,g in probes.items():
             mask=curr['mask'].bool();den=mask.sum(1).clamp_min(1)
             norm=lambda a:((a.square()*mask[...,None]).sum((1,2))/den).sqrt()

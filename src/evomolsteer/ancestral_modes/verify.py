@@ -17,7 +17,8 @@ def observe(folder,output=None):
         'single_local_support':all(all(int(k)==len(p['mode_specs'][int(m)]['atom_slots']) for k,m in zip(r['direct_support_per_seed'],r['mode_indices'])) for r in active)}
     if p['routing']=='static':checks['static_assignment']=all(r['mode_indices']==[i%len(p['mode_specs']) for i in range(len(r['mode_indices']))] for r in active)
     if not p['attainment_response']:
-        checks['post_normalization_schedule']=all(np.allclose(r['dose_gain_per_seed'],temporal_gain(p,r['time'],1/p['steps']),atol=2e-6) for r in active)
+        checks['post_normalization_schedule']=all(np.allclose(r['dose_gain_per_seed'],temporal_gain(p,r['time'],1/p['steps'])*
+            (np.asarray(r['historical_contrast_gain_per_seed']) if p.get('advantage_evidence_gain',False) else 1.),atol=2e-6) for r in active)
     if p['routing'] in ('response','persistent_response'):
         checks['actual_routing_probes']=sum(r.get('routing_VJPs',0) for r in active)>=len(p['mode_specs'])
         checks['response_scores_delivered']=all(r.get('routing_response_scores') is not None for r in active)

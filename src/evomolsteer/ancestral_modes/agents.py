@@ -8,7 +8,7 @@ from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.deepseek_api import call_json
 from evomolsteer.agentic_steer.workflow import obj
 from .bank import regional_evidence
-from .programs import validate,numerical_identity,program_delta
+from .programs import validate,numerical_identity,program_delta,scientific_group_key
 
 
 MODULES={'interface_support':['C1'],'NC_support':['C1','C2'],'group_support':['C1','C2','C3'],
@@ -54,7 +54,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     for r,s in skills.items():(folder/(r+'.SKILL.md')).write_bytes(s.encode('utf-8'))
     groups={};options={a['action_id']:a for a in actions}
     for a in actions:
-        key=json.dumps([a['parent_id'],a['region_ids'],a['phase']])
+        key=scientific_group_key(a)
         groups.setdefault(key,[]).append(a)
     groups={f'G{i:03d}':v for i,v in enumerate(groups.values())}
     parent_ids={a['parent_id'] for a in actions};parents={}
@@ -143,8 +143,15 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
                 'limits':'Chemical labels are terminal observations; nearest polar pocket atoms do not establish H bonds or energetic contributions.'}
         if tool=='selection_trend':
             e=regional_evidence(repo,m,bank,r)
-            return {k:v for k,v in e.items() if k!='rows'}|{'n_times':len(e['rows']),
+            result={k:v for k,v in e.items() if k!='rows'}|{'n_times':len(e['rows']),
                 'representative_rows':e['rows'][::max(1,len(e['rows'])//5)],'full_curve_reference':str((repo/m['campaign_study']/'regional_evidence_v2'/(rid+'.json')).relative_to(repo))}
+            if any(a['program']['operator']=='selection_advantage' for a in actions):
+                from .forecast_evidence import evidence as forecast_evidence
+                f=forecast_evidence(repo,m,bank,r)
+                result['endpoint_forecast_evidence']={k:v for k,v in f.items() if k!='rows'}|{'n_times':len(f['rows']),
+                    'representative_rows':f['rows'][::max(1,len(f['rows'])//5)]}
+                result['representation_contract']='Use actual-current profiles for current/bridge observables and forecast profiles for endpoint_prediction; prediction selection shifts do not describe proposal geometry.'
+            return result
         if tool=='controller_response':
             ids={a['parent_id'] for a in actions if rid in a['region_ids']}
             return {'candidate_parent_records':{pid:parents[pid] for pid in ids},'rule':'Bind the SELECTED action parent, never substitute incumbent measurements.'}

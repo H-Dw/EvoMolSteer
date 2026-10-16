@@ -198,3 +198,27 @@ def test_class_balanced_layout_detects_majority_element_shortcut():
     s=class_scores([0,0,0,0,1],[0,0,0,0,0],{'C':0,'N':1,'O':2})
     assert s['C_recall']==1 and s['N_recall']==0 and s['NC_balanced_recall']==.5
     assert s['N_precision'] is None and s['O_recall'] is None
+
+
+def test_advantage_rejects_forecast_current_mismatch_and_zero_contrast_has_zero_dose_gain():
+    p,b=fixture();p.update(operator='selection_advantage',clock_policy='endpoint_prediction',assignment_element_cost=0.,advantage_evidence_gain=True)
+    profile={'times':[.2,.6],'feature_centers_A':b['modes']['A']['terminal_coords_A'][:2],
+        'focal':[[.5,0.,0.,0.]]*2,'background_mean':[[.5,0.,0.,0.]]*2,'background_sd':[[.2,.5,.5,.5]]*2}
+    p['mode_specs'][0]['selection_profile']=profile
+    with pytest.raises(ValueError,match='representation'):AncestorReward(p,b)
+    profile['feature_representation']='endpoint_prediction'
+    r=AncestorReward(p,b);x=torch.randn(1,5,3,dtype=torch.double,requires_grad=True);logits=torch.zeros_like(x)
+    value,d=r.evaluate(x,x,logits,logits,torch.ones(1,5,dtype=torch.bool),.3)
+    assert torch.all(d['evidence_gain']==0) and torch.all(value==0)
+
+
+def test_designer_scalar_options_cannot_escape_analyst_clock_or_type_channels():
+    from evomolsteer.ancestral_modes.programs import scientific_group_key
+    p,b=fixture();a={'parent_id':'parent','region_ids':['region'],'phase':'probe','program':p};q=copy.deepcopy(a)
+    q['program']['clock_policy']='endpoint_prediction'
+    assert scientific_group_key(a)!=scientific_group_key(q)
+    q=copy.deepcopy(a);q['program']['dose']['native_rms_ratio']=1.2
+    assert scientific_group_key(a)==scientific_group_key(q)
+    a['program']['typed_weight']=q['program']['typed_weight']=1.
+    q['program']['typed_channels']='NC'
+    assert scientific_group_key(a)!=scientific_group_key(q)

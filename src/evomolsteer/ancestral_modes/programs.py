@@ -23,6 +23,16 @@ def program_delta(parent,candidate):
     return changed
 
 
+def scientific_group_key(action):
+    p=action['program'];chemical=bool(p['typed_weight'] or p['charge_weight'])
+    semantics={k:p[k] for k in ('clock_policy','operator','routing','attainment_response')}
+    semantics.update(typed_enabled=bool(p['typed_weight']),charge_enabled=bool(p['charge_weight']))
+    if chemical:semantics['sensing']=p['sensing']
+    if p['typed_weight']:
+        semantics.update(typed_channels=p['typed_channels'],type_target=p['type_target'])
+    return json.dumps([action['parent_id'],action['region_ids'],action['phase'],semantics],sort_keys=True)
+
+
 def numerical_identity(p,teacher):
     keys=['clock_policy','window','learning_window','steps','operator','dose','assignment_element_cost','routing','native_options']
     v={k:copy.deepcopy(p[k]) for k in keys}
@@ -44,6 +54,8 @@ def numerical_identity(p,teacher):
         for k in ('typed_channels','type_target'):v[k]=p[k]
     if p['operator']=='selection_advantage':
         v.update(field_sigma_A=p['field_sigma_A'],density_scale_floor=p['density_scale_floor'],advantage_cap=p['advantage_cap'])
+        v['advantage_evidence_gain']=p.get('advantage_evidence_gain',False)
+        if p.get('advantage_evidence_gain'):v['advantage_evidence_scale']=p.get('advantage_evidence_scale',1.)
         v['profiles']=[s['selection_profile'] for s in p['mode_specs']]
     return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
@@ -60,6 +72,7 @@ def validate(p,teacher):
         if not 0<p.get('response_refresh_fraction',.5)<=1 or p.get('response_gap_floor',.01)<=0:raise ValueError('Invalid response routing scale')
         if p.get('response_switch_fraction',.2)<0:raise ValueError('Invalid response routing switch margin')
     if p['operator']=='selection_advantage' and p['assignment_element_cost']!=0:raise ValueError('Learned feature definition requires geometry-only correspondence')
+    if p.get('advantage_evidence_gain',False) and (p['operator']!='selection_advantage' or p.get('advantage_evidence_scale',1.)<=0):raise ValueError('Invalid feature-evidence dose calibration')
     if p['dose_schedule'] not in ('constant','early','late','bell'):raise ValueError('Invalid dose schedule')
     for k in ('native_rms_ratio','max_atom_step_A','max_cumulative_rms_A'):
         if not 0<p['dose'][k]<=20:raise ValueError('Nonphysical/unsupported dose')
@@ -130,11 +143,13 @@ def actions(repo,m,bank,regions,state,number):
         if p['routing']=='single':p['mode_specs']=p['mode_specs'][:1]
         if p['operator']=='selection_advantage':
             from .bank import regional_evidence
+            from .forecast_evidence import evidence as forecast_evidence
             for s in p['mode_specs']:
-                rr=next(r for r in regions if r['region_id']==s['region_id']);ev=regional_evidence(repo,m,bank,rr)
+                rr=next(r for r in regions if r['region_id']==s['region_id']);ev=(forecast_evidence if p['clock_policy']=='endpoint_prediction' else regional_evidence)(repo,m,bank,rr)
                 valid=[r for r in ev['rows'] if r['unique_controls']>0]
                 if len(valid)<3 or valid[0]['time']>p['learning_window'][0]+2e-6 or valid[-1]['time']<p['learning_window'][1]-2e-6:return
                 s['selection_profile']={'schema_version':2,'feature_centers_A':ev['feature_centers_A'],
+                    'feature_representation':'endpoint_prediction' if p['clock_policy']=='endpoint_prediction' else 'current',
                     'times':[r['time'] for r in valid],**{k:[r[k] for r in valid] for k in ('focal','background_mean','background_sd')}}
         normalize_schedule(p,state['dose_reference_steps'])
         try:validate(p,bank)
@@ -203,7 +218,9 @@ def actions(repo,m,bank,regions,state,number):
         elif phase in ('orientation','pocket_field','pair_geometry'):
             op={'orientation':'orientation','pocket_field':'pocket_distance','pair_geometry':'pair_distance'}[phase]
             add(parent,{'operator':op},'Change registered local observable keeping support/dose fixed')
-        elif phase=='selection_advantage':add(parent,{'operator':'selection_advantage','assignment_element_cost':0.,'field_sigma_A':m['field_sigma_A']},'Explicit fixed-space success/background feature ratio with its calibrated field width and required geometry-only correspondence; one complete objective package')
+        elif phase=='selection_advantage':add(parent,{'operator':'selection_advantage','assignment_element_cost':0.,'field_sigma_A':m['field_sigma_A'],
+            'typed_weight':0.,'charge_weight':0.,'attainment_response':False,'advantage_evidence_gain':True,'advantage_evidence_scale':1.},
+            'Explicit fixed-space focal/background ratio with representation-matched profiles, geometry-only correspondence, analysis-calibrated width and post-RMS standardized-contrast attenuation; one complete geometry objective package, not an affinity probability')
         elif phase=='density_scale' and p['operator']=='selection_advantage':
             for f in (.5,2.):add(parent,{'density_scale_floor':(np.asarray(p['density_scale_floor'])*f).tolist()},'Calibrate uncertainty floor, not a claimed success probability')
         elif phase=='selection_phase' and p['operator']=='selection_advantage':
