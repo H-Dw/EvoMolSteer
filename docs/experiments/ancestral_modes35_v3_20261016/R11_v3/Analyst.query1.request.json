@@ -1,0 +1,81 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../inputs/001f82da4625f4e4f55a3cfef0f38b5df2a2380652f7b01a25e9c6bf0240d207.txt",
+        "content_sha256": "001f82da4625f4e4f55a3cfef0f38b5df2a2380652f7b01a25e9c6bf0240d207",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../inputs/be1586f2caac506574ae631c0a58102f5047b7cb7a9556b2c57aa31e7960c501.txt",
+        "content_sha256": "be1586f2caac506574ae631c0a58102f5047b7cb7a9556b2c57aa31e7960c501",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../inputs/2914e49169b9bf2f73c15fc6060c072a84f03d68c8ba69de7aa6da4d14a5fd5f.txt",
+        "content_sha256": "2914e49169b9bf2f73c15fc6060c072a84f03d68c8ba69de7aa6da4d14a5fd5f",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../inputs/07cd02627f68ffbcfe64ba26de11d333dd6c3295078b40105da8ee85724ca553.txt",
+        "content_sha256": "07cd02627f68ffbcfe64ba26de11d333dd6c3295078b40105da8ee85724ca553",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b003_s025__v3_countmatched_reference",
+                "F_b011_s030__reference",
+                "F_b017_s043__v3_countmatched_reference"
+              ]
+            },
+            "tool": {
+              "enum": [
+                "ancestor",
+                "selection_trend",
+                "controller_response",
+                "failure_history",
+                "mode_comparison"
+              ]
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

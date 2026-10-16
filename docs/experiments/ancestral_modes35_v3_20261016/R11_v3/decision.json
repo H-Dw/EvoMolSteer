@@ -1,0 +1,63 @@
+{
+  "Analyst": {
+    "active_chemistry_modules": [],
+    "chemical_assumptions": "未启用任何化学模块，因此不引入界面角色、N/C 环境、官能团协同、电荷微态或溶剂竞争假设。selected_terminal_elements 与 terminal_tracked_source_charge_fraction 仅作为终态角色选择支持的依据，不作为早期状态已存在该角色的证据；元素分数不是已验证的氢键或官能团角色。",
+    "clock_and_representation": "时钟与表示：本组使用 clock_policy=fixed，observable 为 predictive_bridge_to_learning_end，teacher 为 actual_ancestor_at_learning_end。F_b011_s030__reference/ancestor 返回的是 actual current world A 与 same-forward teacher predicted endpoint world A 两种表示，current_clock_times=[0.0,0.12,0.25,0.5]，二者不可互换；早期身份仍不确定。R10_v3 的 response 为当前程序实测响应，不含终态亲和力梯度。",
+    "counterevidence_refs": [
+      "campaign/history",
+      "parents/R10_v3/outcomes",
+      "source/limits",
+      "source/prior_campaign"
+    ],
+    "evidence_refs": [
+      "F_b003_s025__v3_countmatched_reference/controller_response",
+      "F_b011_s030__reference/ancestor",
+      "campaign/history",
+      "parents/R10_v3/outcomes",
+      "parents/R10_v3/response"
+    ],
+    "falsifier": "否证条件：若在仅改变路由分配或切换记忆、其余数值选项与 R10_v3 相同的条件下，F_b011_s030 占用份额回升且 mode_switches 下降，但 mean_all_pic50 与 n_qualified 仍不回升（或继续下降），则本假设被否证，损失应归因于 F_b011_s030 支持本身在当前 seed 状态下不兼容，而非路由分配。另一否证条件：若 F_b003_s025 在自身占用内的 mean_pic50 随占用增加而显著下降，则支持不兼容解释成立。",
+    "formation_retention_value_test": "形成/保持/价值三分测试：形成层面，R10_v3 终态 terminal_tracked_NC_joint_fraction=0.9125、terminal_tracked_terminal_element_fraction=0.8750，与 R09_v3 的 0.9325/0.8910 接近，说明局部身份形成并未随路由改变而崩塌；保持层面，R10_v3 boundary_tracked_NC_joint_fraction=0.4844、boundary_tracked_terminal_element_fraction=0.4750，与 R09_v3 的 0.5181/0.4990 同量级，说明边界保持也未明显恶化；价值层面，R10_v3 mean_all_pic50=7.4966、n_qualified=46、U_tau=0.0，低于 R09_v3 的 7.5705、50、0.00922。因此本假设针对的是价值层损失，而非形成或保持层失败。",
+    "group_id": "G000",
+    "observable_change": "预期可观测变化：在保持 R10_v3 其余数值选项不变的前提下，仅改变路由分配（例如降低 F_b003_s025 的过度集中、恢复 F_b011_s030 的占用份额，或关闭/减弱 mode_memory_t 的切换记忆），应观察到 F_b011_s030 占用份额回升、mode_switches 均值下降，并伴随 mean_all_pic50 与 n_qualified 向 R09_v3 水平（7.5705、50）回升；若路由改变后 F_b011_s030 占用回升但 mean_all_pic50 与 n_qualified 不回升，则说明损失并非来自占用压缩。",
+    "observable_contract": {
+      "observable": "predictive_bridge_to_learning_end",
+      "teacher": "actual_ancestor_at_learning_end"
+    },
+    "parent_program_id": "R10_v3",
+    "relationship_to_failed_families": "与失败家族的关系：source/prior_campaign 记录局部身份形成不等于亲和力受益（R03 终态 N 几何匹配率高但最高基本合格 pIC50 仅 8.127753），且更贴合固定点云并非首要缺口；本假设不重复这些失败解释，而是把 R10_v3 的价值层损失定位到路由分配与切换记忆，而非局部身份形成。source/limits 提示历史路径有限、终态角色不构成早期状态断言、元素/电荷概率保留 float16 量化，因此本假设不把 mode 占用内的关联当作因果 mode 价值。",
+    "scientific_hypothesis": "主假设：R10_v3 相对 R09_v3 的损失主要来自 compatible 路由的分配与切换记忆，而不是三个 mode 的局部支持本身失效。R09_v3 三 mode 均衡占用（17/17/16，mode_entropy_nats=1.0982）时 n_qualified=50、mean_all_pic50=7.5705、U_tau=0.00922；R10_v3 把 F_b003_s025 占用推到 30、F_b011_s030 压到 4（mode_entropy_nats=0.8732），同时 mode_switches 均值 0.9、最大 4，n_qualified 降到 46、mean_all_pic50 降到 7.4966、U_tau=0.0。若损失由支持不兼容造成，则被大量分配的 F_b003_s025 应在自身占用内也表现更差；但 R10_v3 中 F_b003_s025 的 30 个样本 mean_pic50=7.5624、qualified=28，与 R09_v3 中该 mode 的 16 个样本 mean_pic50=7.5615、qualified=16 基本一致，说明该 mode 的局部支持并未在自身占用内退化。因此可检验的替代解释是：损失集中在被路由压缩的 F_b011_s030（R10_v3 仅 4 个样本，mean_pic50=7.4681、qualified=3，而 R09_v3 中该 mode 17 个样本 mean_pic50=7.7422、best_pic50=8.5901），以及切换记忆引入的额外扰动。",
+    "support_reason": "支持理由：R10_v3 与 R09_v3 的对比显示，路由改变伴随占用从 17/17/16 变为 4/30/16、mode_entropy_nats 从 1.0982 降到 0.8732、mode_switches 从 0 升到均值 0.9，同时 mean_all_pic50 从 7.5705 降到 7.4966、n_qualified 从 50 降到 46、U_tau 从 0.00922 降到 0.0；而 F_b003_s025 在自身占用内的 mean_pic50 在 R09_v3（7.5615）与 R10_v3（7.5624）基本一致，说明该 mode 支持未退化。被压缩的 F_b011_s030 在 R10_v3 仅 4 个样本且 mean_pic50=7.4681，低于其在 R09_v3 的 7.7422，指向占用压缩与切换记忆是更可能的损失来源。"
+  },
+  "Designer": {
+    "actual_dose_expectation": "先读 parent 实际剂量：R10_v3 injected_rms_A_mean=0.02988、requested_rms_A_mean=0.02988、actual_cumulative_step_rms_A=1.19507、actual_max_step_rms_A=0.03064、dose_gain_mean=1.0、atom_clip_fraction 均值 4e-05、cumulative_clip_fraction=0.0。dose 配置不变（max_atom_step_A=0.15、max_cumulative_rms_A=6.0、native_rms_ratio=0.66、pointcloud_delta_A=1.0），dose_schedule=constant，schedule_normalization=1.0，故时间调度作用于归一化后的请求位移，总请求预算与 R10_v3 匹配；共同乘 reward 的正系数可被梯度归一化抵消，本设计不依赖该系数。预期可观测变化：F_b011_s030 占用份额回升、mode_switches 均值下降（R10_v3 均值 0.9、max 4），并伴随 mean_all_pic50 与 n_qualified 向 R09_v3 水平（7.5705、50）回升。目标达到时允许平滑减力；近零梯度不放大为完整步长。不确定性因子由已观测可靠性定义，不使用 LLM 文字置信度充当成功概率。先匹配时间调度的总请求预算，再单独比较更大总量。",
+    "derivative_path": "教师与被控量时钟：clock_policy=fixed，observable=predictive_bridge_to_learning_end，teacher=actual_ancestor_at_learning_end，teacher_time=0.5，window=[0.1,0.5]，learning_window=[0.0,0.5]，lookahead_fraction=0.2，type_target=predicted。F_b011_s030__reference/ancestor 返回 actual current world A 与 same-forward teacher predicted endpoint world A 两种表示，current_clock_times=[0.0,0.12,0.25,0.5]，二者不可互换，早期身份仍不确定。同刻 h=t 的当前坐标奖励不通过端点预测；前瞻/端点奖励才包含相应模型导数。模型 VJP 仅对当前调用有效，不是对全部未来随机生成求导。导数源：仅真实模型坐标叶节点的 VJP，每模式一次 VJP，刷新时刻按 expected_active_steps=[10..49] 的 40 个 active updates；刷新之外复用缓存的路由响应，不新增生成或 affinity forward。E0 匹配在无梯度分支中计算（assignment_element_cost=0.5），E1 停梯度概率空间场，E2 概率/空间共同坐标 VJP；typed_weight=0.0 故 E1/E2 的 typed 通道不参与。",
+    "design_grounds": "Analyst G000 假设：R10_v3 相对 R09_v3 的价值层损失（mean_all_pic50 7.4966 vs 7.5705、n_qualified 46 vs 50、U_tau 0.0 vs 0.00922）主要来自 compatible 路由的分配与切换记忆，而非三个 mode 的局部支持本身失效。证据：R10_v3 占用 30/16/4、mode_entropy_nats=0.8732、mode_switches 均值 0.9（max 4）；F_b003_s025 在自身占用内 mean_pic50 7.5624（R09_v3 7.5615）基本不变，说明该 mode 支持未退化；被压缩的 F_b011_s030 仅 4 样本、mean_pic50 7.4681（R09_v3 17 样本 7.7422）。形成/保持层未崩塌（terminal_tracked_NC_joint_fraction 0.9125 vs 0.9325；boundary 0.4844 vs 0.5181），故定位在价值层。allowed_numerical_options 仅注册 A000（parent R10_v3，phase persistent_routing，routing=persistent，response_switch_fraction=0.2），其余数值选项与 R10_v3 逐项一致（dose、window、teacher_time、mode_specs、typed_weight=0.0、charge_weight=0.0、affinity_head_gradient=false、smc=false、sensing=detached、coordinate_updates_only=true）。不新增点、不换教师、不改 mode 来源、不加项。source/limits 提示 mode 占用内关联不构成因果 mode 价值，故本设计只声称路由分配/切换记忆这一可干预量，不声称 mode 亲和力因果。source/prior_campaign 提示局部身份形成不等于亲和力受益，与本假设的价值层定位一致。",
+    "evidence_refs": [
+      "F_b003_s025__v3_countmatched_reference/controller_response",
+      "F_b011_s030__reference/ancestor",
+      "campaign/history",
+      "parents/R10_v3/outcomes",
+      "parents/R10_v3/response",
+      "source/limits",
+      "source/prior_campaign"
+    ],
+    "falsifier": "否证条件一：在仅改变路由分配或切换记忆、其余数值选项与 R10_v3 相同的条件下，F_b011_s030 占用份额回升且 mode_switches 下降，但 mean_all_pic50 与 n_qualified 仍不回升（或继续下降），则本假设被否证，损失应归因于 F_b011_s030 支持本身在当前 seed 状态下不兼容，而非路由分配。否证条件二：若 F_b003_s025 在自身占用内的 mean_pic50 随占用增加而显著下降，则支持不兼容解释成立。接口错误与科学负结果分开；数值相同的函数复用既有结果，冻结确认不引入新设计。",
+    "hypothesis_group": "G000",
+    "operative_terms": "唯一改动：routing 由 compatible 改为 persistent，并引入 response_switch_fraction=0.2 作为切换记忆的响应阈值；mode_memory_t=0.05 保持 R10_v3 值。每个 seed 使用自己的兼容性与模式记忆，不相容教师保持为分开的势，不先平均坐标。路由分数只衡量局部代理的可控性，不解释为大梯度或小距离即高亲和力。sensing=detached：路由/状态相关权重未求导，因此只声称条件路由梯度，不声称完整混合势的精确导数。typed_weight=0.0、charge_weight=0.0，故不引入元素/电荷通道导数；元素、电荷与必要键信息取自当前已存在的生成 head，形式电荷分通道，不冒充部分电荷、pKa 或相互作用自由能。硬类别/化学图识别仅用于无梯度路由。沿用坐标控制、无 SMC、无 affinity-head 导数、无每步额外 affinity 推理的契约；不加入 logits/离散转移率编辑。图变化后重新完成和评分，不沿用修改前的预测作结果。",
+    "option_id": "A000",
+    "parent_program_id": "R10_v3"
+  },
+  "action": {
+    "action_id": "A000",
+    "numeric_identity": "bdff7c4644924d0c5e9871ab8c1fb2fafcdf51fbf7ae5a04125c909baac03658",
+    "parent_id": "R10_v3",
+    "phase": "persistent_routing",
+    "reason": "Per-seed compatibility or measured response plus bounded switch memory",
+    "region_ids": [
+      "F_b011_s030__reference",
+      "F_b017_s043__v3_countmatched_reference",
+      "F_b003_s025__v3_countmatched_reference"
+    ]
+  }
+}
