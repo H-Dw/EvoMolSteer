@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shlex
+import shutil
 import time
 
 import paramiko
@@ -12,6 +13,19 @@ from evomolsteer.io import read_json, digest, safe_extract
 from evomolsteer.storage.transactions import atomic_json
 from evomolsteer.elite_alignment.common import validate_protocol, read_result
 from evomolsteer.elite_alignment.report import report
+
+
+def retire_absent_receipts(local, present, token):
+    """A retried remote job may be pending while a local old failure still exists."""
+    local=Path(local).resolve();present=set(present)
+    for receipt in list((local/'methods').glob('*/*/result.json')):
+        relative=receipt.relative_to(local).as_posix()
+        if relative in present:continue
+        source=receipt.parent.resolve();target=local/'retired_snapshots'/token/source.relative_to(local)
+        if not source.is_relative_to(local) or not target.resolve().is_relative_to(local):
+            raise ValueError('Snapshot retirement escaped local dataset')
+        target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.move(str(source),str(target))
 
 
 def main():
@@ -36,7 +50,8 @@ items+=[p/n for n in ['queue_status.json','worker_state.json','deployment.json',
 t=p/'transport';t.mkdir(exist_ok=True);out=t/{('collection_'+token+'.tar.gz')!r}
 with tarfile.open(out,'w:gz') as archive:
  for f in items:archive.add(f,arcname=f.relative_to(p).as_posix(),recursive=False)
-print(json.dumps({{'file':str(out),'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'files':len(items),'bytes':out.stat().st_size}}))
+print(json.dumps({{'file':str(out),'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'files':len(items),'bytes':out.stat().st_size,
+ 'receipt_paths':[f.relative_to(p).as_posix() for f in items if f.name=='result.json']}}))
 """
     try:
         _,out,err=c.exec_command('python -c '+shlex.quote(script),timeout=120)
@@ -46,7 +61,9 @@ print(json.dumps({{'file':str(out),'sha256':hashlib.sha256(out.read_bytes()).hex
         archive.parent.mkdir(parents=True,exist_ok=True)
         sftp=c.open_sftp();sftp.get(snapshot['file'],str(archive))
         if digest(archive)!=snapshot['sha256']:raise ValueError('Downloaded snapshot checksum differs')
-        local=repo/'data/generated'/cfg['name'];safe_extract(archive,local,expected_sha256=snapshot['sha256'])
+        local=repo/'data/generated'/cfg['name']
+        retire_absent_receipts(local,snapshot['receipt_paths'],token)
+        safe_extract(archive,local,expected_sha256=snapshot['sha256'])
         counts={};proof=[]
         for condition in cfg['conditions']:
             records=[read_result(local,cfg,condition,x) for x in cfg['attempts']]

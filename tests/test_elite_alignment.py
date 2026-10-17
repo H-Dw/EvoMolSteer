@@ -146,3 +146,15 @@ def test_posebusters_old_api_and_optional_failure(monkeypatch):
     monkeypatch.setitem(sys.modules,'posebusters',SimpleNamespace(PoseBusters=BrokenAPI))
     instance,error=make_posebusters()
     assert instance is None and 'optional tool unavailable' in error
+
+
+def test_collection_does_not_count_stale_retried_failure(tmp_path):
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('elite_collector',ROOT/'scripts/collect_elite_initial_alignment.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    old=tmp_path/'methods/M2/A/result.json';old.parent.mkdir(parents=True)
+    old.write_text('{"status":"failed"}')
+    keep=tmp_path/'methods/unguided/B/result.json';keep.parent.mkdir(parents=True);keep.write_text('{}')
+    module.retire_absent_receipts(tmp_path,['methods/unguided/B/result.json'],'snapshot2')
+    assert not old.exists() and keep.exists()
+    assert (tmp_path/'retired_snapshots/snapshot2/methods/M2/A/result.json').exists()
