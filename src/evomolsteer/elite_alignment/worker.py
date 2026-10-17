@@ -22,6 +22,16 @@ from evomolsteer.storage.transactions import atomic_json
 from .common import validate_protocol, validate_condition, ordered_attempts, read_result, result_path, binding, failure
 
 
+def make_posebusters():
+    """Optional quality analysis cannot abort an inference condition."""
+    try:
+        from posebusters import PoseBusters
+        parameters = inspect.signature(PoseBusters).parameters
+        return PoseBusters(config='dock', **({'max_workers': 0} if 'max_workers' in parameters else {})), None
+    except Exception as error:
+        return None, type(error).__name__ + ': ' + str(error)
+
+
 def run(repo, config_path, work, condition_id, pilot=False):
     repo, work = Path(repo).resolve(), Path(work).resolve()
     config = read_json(config_path); validate_protocol(config)
@@ -74,12 +84,8 @@ def run(repo, config_path, work, condition_id, pilot=False):
     from subprocess import check_output
     provenance['commit'] = os.environ.get('EVOMOLSTEER_RUNTIME_COMMIT') or check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
     atomic_json(work / 'methods' / condition_id / 'source_audit.json', provenance)
-    try:
-        from posebusters import PoseBusters
-        from evomolsteer.local_motif.quality import binary_checks
-        pb = PoseBusters(config='dock', max_workers=0)
-    except ImportError:
-        pb = None
+    from evomolsteer.local_motif.quality import binary_checks
+    pb, pb_initialization_error = make_posebusters()
     cache = {}; baseline_verified = (work / 'native_zero_equivalence.json').exists()
     for attempt in ordered_attempts(config['attempts']):
         if pilot and attempt['rank'] not in (1,50,100,200): continue
@@ -162,6 +168,7 @@ def run(repo, config_path, work, condition_id, pilot=False):
             molecules = model._generate_mols(output); mol = molecules[0]
             quality = molecule_quality(mol, pocket, com[0].cpu().numpy(), model.coord_scale)
             quality['pb_status'] = 'not_decodable' if mol is None else 'unavailable'
+            if pb_initialization_error is not None: quality['pb_error'] = pb_initialization_error
             if mol is not None and pb is not None:
                 try:
                     checks = binary_checks(pb.bust(mol, mol_cond=Path(config['protein']), full_report=False).iloc[0].to_dict())

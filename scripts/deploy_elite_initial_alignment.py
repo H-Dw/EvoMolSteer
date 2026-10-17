@@ -31,6 +31,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--repo', default='.', type=Path); p.add_argument('--config', required=True, type=Path)
     p.add_argument('--proxy-port', type=int, default=7897)
+    p.add_argument('--retry-failed', action='store_true')
     p.add_argument('--host', default='ksai.scnet.cn'); p.add_argument('--port', type=int, default=50496)
     a = p.parse_args(); repo = a.repo.resolve(); cfg = read_json(a.config)
     password = os.environ['MOLSTEER_SCNET_PASSWORD']
@@ -104,6 +105,7 @@ a.unlink()
                'EVOMOLSTEER_RUNTIME_COMMIT': sha, 'PYTHONUNBUFFERED':'1', 'OMP_NUM_THREADS':'4', 'MKL_NUM_THREADS':'4'}
         args = [PYTHON,'-u',runtime+'/scripts/run_elite_initial_alignment_queue.py','--repo',runtime,
                 '--config',runtime+'/'+rel,'--work',work,'--resume']
+        if a.retry_failed: args.append('--retry-failed')
         dry = 'env '+' '.join(k+'='+shlex.quote(v) for k,v in env.items())+' '+' '.join(shlex.quote(x) for x in args+['--dry-run'])
         print(command(dry),flush=True)
         launch = f"""import os,subprocess,json

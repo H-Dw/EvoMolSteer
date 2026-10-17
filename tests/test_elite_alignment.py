@@ -132,3 +132,17 @@ def test_empty_report_preserves_planned_counts_and_failure_coverage(tmp_path):
     row=next(x for x in summary['metrics'] if x['cohort']=='top05' and x['condition']=='unguided')
     assert row['n_planned']==50 and row['n_failed']==1 and row['n_pending']==49
     assert row['score_coverage']==0 and row['mean_pic50'] is None
+
+
+def test_posebusters_old_api_and_optional_failure(monkeypatch):
+    from evomolsteer.elite_alignment.worker import make_posebusters
+    class OldAPI:
+        def __init__(self,config): self.config=config
+    monkeypatch.setitem(sys.modules,'posebusters',SimpleNamespace(PoseBusters=OldAPI))
+    instance,error=make_posebusters()
+    assert instance.config=='dock' and error is None
+    class BrokenAPI:
+        def __init__(self,config):raise RuntimeError('optional tool unavailable')
+    monkeypatch.setitem(sys.modules,'posebusters',SimpleNamespace(PoseBusters=BrokenAPI))
+    instance,error=make_posebusters()
+    assert instance is None and 'optional tool unavailable' in error
