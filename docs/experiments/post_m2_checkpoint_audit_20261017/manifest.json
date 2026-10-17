@@ -1,0 +1,2685 @@
+{
+  "schema_version": "post-m2-checkpoint-cases-1.0",
+  "tail_threshold": 8.258901977539063,
+  "comparison_tolerance": 1e-06,
+  "limits": [
+    "Observed point differences are not automatic superiority tests.",
+    "Historical M2 3000 and Steer 1000 are different initial pools and online budgets.",
+    "M2_400 and M2_200 share frozen input pools with matched temporal/Top10 candidates per original execution audits.",
+    "Basic qualified local records use a stricter definition than valid_connected; they have no same-pool M2 comparison.",
+    "All cases use the common raw-score threshold; old tau=8.13504886627 hit fractions are not reused.",
+    "Expanded temporal cohorts contain their screen and must not be summed as independent evidence.",
+    "Post-hoc score encoding swaps and legal fixed-geometry label substitutions are not generated candidates.",
+    "No new head scoring, API calls or generation.",
+    "S2 constant blend screen and old ab413 constant .5 blend share identical per-attempt outputs on the same 200 inputs; do not count them as independent improvements."
+  ],
+  "cases": [
+    {
+      "id": "M2_400",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6376_controls_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "batches": [
+        6376,
+        6377,
+        6378,
+        6379,
+        6380,
+        6381,
+        6382,
+        6383
+      ],
+      "checkpoint": "c62e296818e0",
+      "stage": "fixed_regression_pool"
+    },
+    {
+      "id": "M2_200",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6376_controls_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "batches": [
+        6376,
+        6377,
+        6378,
+        6379
+      ],
+      "checkpoint": "c62e296818e0",
+      "stage": "fixed_regression_pool"
+    },
+    {
+      "id": "M2_historical3000",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6100_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6200_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6232_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6248_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6264_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6328_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6344_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6360_controls_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "checkpoint": "c62e296818e0",
+      "stage": "historical_pooled"
+    },
+    {
+      "id": "M2_first1000",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6100_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6200_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6232_controls_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "checkpoint": "c62e296818e0",
+      "stage": "retrospective_execution_prefix"
+    },
+    {
+      "id": "historical_Steer",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/evaluation_controls/historical_steer.metrics.parquet"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "stage": "unpaired_historical_1000"
+    },
+    {
+      "id": "unguided_400",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6376_controls_indexed_batch.unguided.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "stage": "fixed_regression_pool"
+    },
+    {
+      "id": "C1_robust_to_base",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_56119afc403d_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen",
+      "checkpoint": "56119afc403de2b5f3f868bbeca88cfcba8053418534cb4d8a2e81ee72b8e449",
+      "commits": [
+        "1081aee7668dcdd13767161a49f5514d0be431f4"
+      ],
+      "description": "Earlier robust response to large residuals, then baseline curvature; not a tolerance radius"
+    },
+    {
+      "id": "C2_constant_curvature",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_572c774209da_b6376_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_572c774209da_b6380_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_400",
+      "stage": "screen_plus_extension",
+      "checkpoint": "572c774209da886ab499880d361e6a1a69abe021b14f713160c638f203e4302d",
+      "commits": [
+        "bd35e209183c01ec72d9748287ab3fff1a4a7ece",
+        "6663f2c1a36d3b8a9fc3c2c68e16fd6ebc1f1e55"
+      ],
+      "description": "Constant curvature control with the same discrete mean delta; no temperature change"
+    },
+    {
+      "id": "C2_constant_curvature_screen",
+      "group": "matched_temporal_screen_overlap",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_572c774209da_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen_subset_of_expanded",
+      "checkpoint": "572c774209da886ab499880d361e6a1a69abe021b14f713160c638f203e4302d",
+      "commits": [
+        "bd35e209183c01ec72d9748287ab3fff1a4a7ece"
+      ],
+      "description": "Constant curvature control with the same discrete mean delta; no temperature change"
+    },
+    {
+      "id": "C3_base_to_robust_control",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_20b868bcf02b_b6376_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_20b868bcf02b_b6380_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_400",
+      "stage": "screen_plus_extension",
+      "checkpoint": "20b868bcf02bf9c70267006335cf2d4863af8c9970f300140a9913d98c59ed05",
+      "commits": [
+        "f656ea7b5c53b5065b88de6e37ac02f9ba313e50",
+        "55ec551c6544c03ff4457f421f05a49a81d617b3"
+      ],
+      "description": "Opposite curvature timing at fixed dose and fixed teachers"
+    },
+    {
+      "id": "C3_base_to_robust_control_screen",
+      "group": "matched_temporal_screen_overlap",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_20b868bcf02b_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen_subset_of_expanded",
+      "checkpoint": "20b868bcf02bf9c70267006335cf2d4863af8c9970f300140a9913d98c59ed05",
+      "commits": [
+        "f656ea7b5c53b5065b88de6e37ac02f9ba313e50"
+      ],
+      "description": "Opposite curvature timing at fixed dose and fixed teachers"
+    },
+    {
+      "id": "S1_observed_to_static",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_4edf30248b26_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen",
+      "checkpoint": "4edf30248b26808ab4ba2125dee68edc2974e4105706ce3c8463912fc7512c8d",
+      "commits": [
+        "07d255cfe84d46f60fc989b90592480a7c7f5c4a"
+      ],
+      "description": "Early same-clock historical forecasts, smoothly approach frozen static teachers"
+    },
+    {
+      "id": "S2_constant_blend",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_287e3b494ad5_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen",
+      "checkpoint": "287e3b494ad5e79305bd017d25adf6fee37f8e50ac669b8f2845e3cbbfe7e53e",
+      "commits": [
+        "4353a4dcb2ec8c497795daf9b8eaebcd3e86a1b5"
+      ],
+      "description": "Constant blend control; same two sources without staged relevance"
+    },
+    {
+      "id": "S3_static_to_observed_control",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_3255dfbc980c_b6376_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_3255dfbc980c_b6380_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_400",
+      "stage": "screen_plus_extension",
+      "checkpoint": "3255dfbc980c5b320c7e5dc8e43a7d2b3c22a23043d0740c7082c1ee8631db0d",
+      "commits": [
+        "a5f14fd41d7193452a5ee140870234b2efea3f5f",
+        "a3c8685c9935a3e8811d277e19c79b4ce92e4047"
+      ],
+      "description": "Opposite temporal relevance control at fixed dose"
+    },
+    {
+      "id": "S3_static_to_observed_control_screen",
+      "group": "matched_temporal_screen_overlap",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_3255dfbc980c_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen_subset_of_expanded",
+      "checkpoint": "3255dfbc980c5b320c7e5dc8e43a7d2b3c22a23043d0740c7082c1ee8631db0d",
+      "commits": [
+        "a5f14fd41d7193452a5ee140870234b2efea3f5f"
+      ],
+      "description": "Opposite temporal relevance control at fixed dose"
+    },
+    {
+      "id": "W1_early_soft",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_e8a8ad052151_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen",
+      "checkpoint": "e8a8ad0521515a880cdff1522fda45b43f0793bf67165636250602d783e1fdf9",
+      "commits": [
+        "5f7a5ec3d97a8be4cb64eb76538b693fff82b8d4"
+      ],
+      "description": "Early soft control; redistribute ratio budget to later nodes; same M2 reward"
+    },
+    {
+      "id": "W2_middle_peak",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_8436ed3bddc2_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen",
+      "checkpoint": "8436ed3bddc2607423207f672e1cded291cb419675900152d77dcdd7a83409a6",
+      "commits": [
+        "d74969cdd5d829d0024621d3054a723c1d5a044e"
+      ],
+      "description": "Middle emphasis with positive guidance throughout; same M2 reward"
+    },
+    {
+      "id": "W3_early_strong_control",
+      "group": "matched_temporal",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/temporal_guidance_20261013/transport_records/DSF_1f217373730e_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_200",
+      "stage": "screen",
+      "checkpoint": "1f217373730e32c09f840ee4c9a966dac4113cea0d15e56beb73a68ff104334f",
+      "commits": [
+        "2be38b93ed9e0dce39c31228f848bdbaa09e7188"
+      ],
+      "description": "Opposite time-order control; equal integral of RMS ratios"
+    },
+    {
+      "id": "M2REG_terminal_topk_global_0_0p5",
+      "group": "matched_terminal_top10",
+      "format": "summary_csv",
+      "files": [
+        "docs/experiments/m2_terminal_regions_20261014/comparison/performance.csv"
+      ],
+      "filters": {
+        "condition": "M2REG_terminal_topk_global_0_0p5"
+      },
+      "columns": {
+        "n": "n",
+        "mean": "mean_pic50",
+        "best": "best_valid_pic50",
+        "tail_rate": "elite_valid_rate"
+      },
+      "full_score_coverage_verified": true,
+      "matched_M2": "M2_400",
+      "qualification": "valid_connected",
+      "stage": "development_400",
+      "commits": [
+        "e4549af1a9600bd56b916627df346adebadc042b"
+      ],
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_global_0_0.5.json"
+    },
+    {
+      "id": "M2REG_terminal_topk_global_0p1_0p5",
+      "group": "matched_terminal_top10",
+      "format": "summary_csv",
+      "files": [
+        "docs/experiments/m2_terminal_regions_20261014/comparison/performance.csv"
+      ],
+      "filters": {
+        "condition": "M2REG_terminal_topk_global_0p1_0p5"
+      },
+      "columns": {
+        "n": "n",
+        "mean": "mean_pic50",
+        "best": "best_valid_pic50",
+        "tail_rate": "elite_valid_rate"
+      },
+      "full_score_coverage_verified": true,
+      "matched_M2": "M2_400",
+      "qualification": "valid_connected",
+      "stage": "development_400",
+      "commits": [
+        "e4549af1a9600bd56b916627df346adebadc042b"
+      ],
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_global_0.1_0.5.json"
+    },
+    {
+      "id": "M2REG_terminal_topk_local_0_0p5",
+      "group": "matched_terminal_top10",
+      "format": "summary_csv",
+      "files": [
+        "docs/experiments/m2_terminal_regions_20261014/comparison/performance.csv"
+      ],
+      "filters": {
+        "condition": "M2REG_terminal_topk_local_0_0p5"
+      },
+      "columns": {
+        "n": "n",
+        "mean": "mean_pic50",
+        "best": "best_valid_pic50",
+        "tail_rate": "elite_valid_rate"
+      },
+      "full_score_coverage_verified": true,
+      "matched_M2": "M2_400",
+      "qualification": "valid_connected",
+      "stage": "development_400",
+      "commits": [
+        "e4549af1a9600bd56b916627df346adebadc042b"
+      ],
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_local_0_0.5.json"
+    },
+    {
+      "id": "M2REG_terminal_topk_local_0p1_0p5",
+      "group": "matched_terminal_top10",
+      "format": "summary_csv",
+      "files": [
+        "docs/experiments/m2_terminal_regions_20261014/comparison/performance.csv"
+      ],
+      "filters": {
+        "condition": "M2REG_terminal_topk_local_0p1_0p5"
+      },
+      "columns": {
+        "n": "n",
+        "mean": "mean_pic50",
+        "best": "best_valid_pic50",
+        "tail_rate": "elite_valid_rate"
+      },
+      "full_score_coverage_verified": true,
+      "matched_M2": "M2_400",
+      "qualification": "valid_connected",
+      "stage": "development_400",
+      "commits": [
+        "e4549af1a9600bd56b916627df346adebadc042b"
+      ],
+      "program": "configs/experiments/m2_terminal_regions_20261014/programs/terminal_topk_local_0.1_0.5.json"
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R01",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R01/R01/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "d5c3ab6d8e4e32edd52802e758603f2413e9cc1a"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R02",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R02/R02/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "32c6608d3e3f6a6eb572ef24b9af63c90a880f18"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R03",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R03/R03/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "1bb0dbb0e39979a3ab563b21c38c059a5a2e03d5"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R04",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R04/R04/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "624cfd527b3e680080b187f1192616a8dd776a5a"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R05",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R05/R05/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "488839d48c2dd812466366a8399eb761cfeeb365"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R06",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R06/R06/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "af8519b0a4599e6f2cdea332245e69c3be932980"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R07",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R07/R07/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "22cb93be3d31ce81adfbad642105eb9e7cc0844d"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R08",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R08/R08/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "16ad6c0b843c9592c5077a659d40f2ff5963f701"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R09",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R09/R09/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "9a91a6650808cac77a2ca05ce4f1a2ed7cffcd38"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R10",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R10/R10/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "2e2186014f1c8ce17967b296ba2e2476c926392b"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R11",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R11/R11/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "78d31a914fed35b491ebe9faeaeea2223e8dd807"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R13",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R13/R13/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "772934070dd7a674a5bbc04780cfbcff9d44da20"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R14",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R14/R14/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "b74e5cbb1cf4447ebf20011719a1c6885dbe7700"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R15",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R15/R15/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "92d7adeab39911a78f29aa72c2a15516af1d6428"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R16",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R16/R16/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "d6f026e3d3ed8ece527f18fdd554a49621e37493"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R17",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R17/R17/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "d6ad2cafe231f25cd5fdef04968b566d3ed8a132"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R18",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R18/R18/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "43c7f825ae215e7673b0945df304877fefb8d4b4"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R19",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R19/R19/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "confirmation",
+      "commits": [
+        "d6c608b3a4dc328d221a14da14af005f564d92dd"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R20",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/R20/R20/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "confirmation",
+      "commits": [
+        "fe4ee2784cb59a07789d3da721aabac80b2a31bb"
+      ],
+      "operator": null,
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R03",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R03/R03/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "db957ac6aa27265f7fcf7675830d6d82d661d805"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R04",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R04/R04/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "f74fa30db1ecabbab0d316799f54dcd73a8db039"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R05",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R05/R05/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "12c992dfcaec49d5d49ccb8d8aedb5617a0bbd55"
+      ],
+      "operator": "local_moments",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R07",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R07/R07/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "65320469088cc6b95da70325c35efc90e2e8f6e7"
+      ],
+      "operator": "pocket_distance",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R07_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R07_v2/R07_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "c9b9cf38093d17dedce7ff6ad1d5ea9f1f9676e8"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R08_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R08_v2/R08_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "a70ec3afe9ac6e83035a1d1837905873b8e54868"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R09_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R09_v2/R09_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "98a28e989fabc4a7623abd6fc45aeef87739bef3"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R10_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R10_v2/R10_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "f6e884ad9175b7adea724a5a1b46b12783bd5605"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R11_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R11_v2/R11_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "89a2e06f62bf3624f7de7a46362fec1b88069545"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R12_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R12_v2/R12_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "294d937a7b5e6eb962d89b5817cdbd2c7f5fb748"
+      ],
+      "operator": "point_band",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R13_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R13_v2/R13_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "6ac25776e2ba3609065db7ef387f70353c0dab2c"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R14_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R14_v2/R14_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "bb6facb31e4acccea266dd19b5d06005843b3aef"
+      ],
+      "operator": "point_band",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R15_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R15_v2/R15_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "dbbac1158f891eeb550c74c31259b25be29bfc34"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R16_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R16_v2/R16_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "f9f8368a17c1dacbc31ec0556e2b391edee29ff2"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R17_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R17_v2/R17_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "8d8649f406d80b9b5c5351cee22b7d0e97bb54cf"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R18_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R18_v2/R18_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "from_zero",
+      "commits": [
+        "bb5e4011112a2ed97d400942cc5cd6efb7e2732f"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R19_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R19_v2/R19_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "confirmation",
+      "commits": [
+        "c9982df9848fa069d7370487f1420e43f8a68444"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "local_motif20_v2_20261015/R20_v2",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/local_motif20_v2_20261015/R20_v2/R20_v2/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "confirmation",
+      "commits": [
+        "20a33ec71c7380fdf5f6979f49912e95e96f3f7c"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R01_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R01_v3/R01_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "d02e8a720f8bb21ccfed59acc173ad32b1ce6dd1"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R02_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R02_v3/R02_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "46218d7950f7c8ebfb379986135e7712337fe1e7"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R03_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R03_v3/R03_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "34ea625006fc7b08879014885e3b8c1593506a53"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R04_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R04_v3/R04_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "ef90a21ab4399c95cabfaf554999cf39a440a022"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R05_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R05_v3/R05_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "c79b4ed8b00fb1c9d141934109107a6eeebd715e"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R06_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R06_v3/R06_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "eaa3642ed335ba29c2cec0ad0d6aa6395fa42834"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R07_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R07_v3/R07_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "0330a99f8fd809cf08c007e5e913b6d5fab0e9c9"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R08_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R08_v3/R08_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "772eab0d6a6390cfd9ea4a11cccfc9da8eab4c15"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R09_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R09_v3/R09_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "0559ba23a5387b39b317678416a0268024e112cc"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R10_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R10_v3/R10_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "793bcd65513d07c9cd4b617f179aef4ff6a8b88e"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R11_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R11_v3/R11_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "84022957c9266d1ca5003938e89372ed42559730"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R12_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R12_v3/R12_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "2c39a5eac1a3b4913c6325c0ed53f6159d1e65d7"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R13_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R13_v3/R13_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "75c51181179309c555fa260508678444d05756d7"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R14_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R14_v3/R14_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "1c10a81e13303731498c24ab9a74296cfdd9e3c4"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R15_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R15_v3/R15_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "f934b0c47df471e9c0c99a57f12394597f94459a"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R16_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R16_v3/R16_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "d423a96cea3f7959ee016b3478bd0f98e80ccd05"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R17_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R17_v3/R17_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "6c45b8356f1aafa7b3b8843ff878a5888cf7c7f3"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R18_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R18_v3/R18_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "d6871a38207644cd9b19b39b47a219deafc2952a"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R19_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R19_v3/R19_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "029f1429ce734a8412e9d941b6fc9e854854bece"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R20_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R20_v3/R20_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "45c5fdb77600c5164fcb47d68764732cca4dc552"
+      ],
+      "operator": "orientation",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R21_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R21_v3/R21_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "84e60c4e1c2467a2d3df8671e207da3424de5054"
+      ],
+      "operator": "pocket_distance",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R22_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R22_v3/R22_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "e1a6406cbd4f6b7e2117969a0314b7919b57c28b"
+      ],
+      "operator": "pair_distance",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R23_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R23_v3/R23_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "206287bca212dd9b87014ae13f09efcb7f0ce0ce"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R24_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R24_v3/R24_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "31766a4db05a640ee35544dd8627336329dd396b"
+      ],
+      "operator": "selection_advantage",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R25_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R25_v3/R25_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "95be15ad9449c4bc46c1d6db4b869fd48d2d10ae"
+      ],
+      "operator": "selection_advantage",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R26_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R26_v3/R26_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "3aaaf3c296381ba627ce009ddbd3f91055db67ba"
+      ],
+      "operator": "selection_advantage",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R27_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R27_v3/R27_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "fc2190c67ca5d9cc3aa2ae176d6207c34e5475a7"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R28_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R28_v3/R28_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "e4f2aaa5ecb9bafa5c61b21b5c668ea05473bae7"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R29_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R29_v3/R29_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "f36741a856de159116e45575c938afb5b69838c3"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R30_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R30_v3/R30_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "fba345721beb52788592709f44142ed5a0a9d835"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R31_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R31_v3/R31_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "a10a2bfb99d1c8a0cc1b36639a0ebdaa359a8753"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R32_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R32_v3/R32_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "49178f008ee3639fc35b9d0bb8d7a21674e7a8d6"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R33_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R33_v3/R33_v3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "discovery",
+      "commits": [
+        "44dccabe66ca015003aaf467612a3edd41a75788"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R34_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b05/R34_v3_b05/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b06/R34_v3_b06/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b08/R34_v3_b08/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b10/R34_v3_b10/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "confirmation",
+      "commits": [
+        "8ffe844cee17210005baebd20df5161156925ae9"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R35_v3",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b12/R35_v3_b12/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b14/R35_v3_b14/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b16/R35_v3_b16/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b18/R35_v3_b18/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "confirmation",
+      "commits": [
+        "a4e29caf23c843345cbd19c8b3a03d987b989d62"
+      ],
+      "operator": "pointwise",
+      "control_window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "id": "M2_matched_legacy_blend2600",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6100_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6200_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6232_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6248_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6264_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6328_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6344_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6360_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6376_controls_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "batches": [
+        6100,
+        6101,
+        6102,
+        6103,
+        6200,
+        6201,
+        6202,
+        6203,
+        6204,
+        6205,
+        6206,
+        6207,
+        6232,
+        6233,
+        6234,
+        6235,
+        6236,
+        6237,
+        6238,
+        6239,
+        6248,
+        6249,
+        6250,
+        6251,
+        6252,
+        6253,
+        6254,
+        6255,
+        6328,
+        6329,
+        6330,
+        6331,
+        6332,
+        6333,
+        6334,
+        6335,
+        6360,
+        6361,
+        6362,
+        6363,
+        6364,
+        6365,
+        6366,
+        6367,
+        6376,
+        6377,
+        6378,
+        6379,
+        6380,
+        6381,
+        6382,
+        6383
+      ],
+      "stage": "matched_legacy_blend_2600"
+    },
+    {
+      "id": "legacy_blend_0p5_pooled2600",
+      "group": "matched_shared_ablation",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6100_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6200_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6232_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6248_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6328_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6360_g_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_matched_legacy_blend2600",
+      "stage": "pooled_seven_disjoint_cohorts",
+      "checkpoint": "ab41341eeb9b",
+      "description": "Fixed scalar blend .5; S2 shared screen is an observed replay, not independent evidence"
+    },
+    {
+      "id": "legacy_blend_0p5_fixed400",
+      "group": "matched_shared_ablation",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_400",
+      "stage": "fixed_regression_pool",
+      "checkpoint": "ab41341eeb9b52bacac60af419cf96810790098b59bb821a5c7fb4f776099085",
+      "commits": [
+        "6b72efa5d5f5b099e41f675b998c7c760152aa8a"
+      ],
+      "description": "Constant static/observed teacher reward blend .5; same numerical direction as S2",
+      "program": "docs/experiments/m2_tools_full_drop_ablation_20261012/programs/ab41341eeb9b52bacac60af419cf96810790098b59bb821a5c7fb4f776099085.json"
+    },
+    {
+      "id": "legacy_blend_0p25_fixed400",
+      "group": "matched_shared_ablation",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_6d42e0d667e4_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_400",
+      "stage": "fixed_regression_pool",
+      "checkpoint": "6d42e0d667e4a642f83cc5672dcbdef92dc144e93502c4fa8427cb09dff74cf1",
+      "commits": [
+        "317ac8bbe963cbf139ecf7d683551fdbbd5f1ca4"
+      ],
+      "description": "Constant static/observed teacher reward blend .25; default mixture temperature unchanged",
+      "program": "docs/experiments/m2_tools_full_drop_ablation_20261012/programs/6d42e0d667e4a642f83cc5672dcbdef92dc144e93502c4fa8427cb09dff74cf1.json"
+    },
+    {
+      "id": "legacy_linear_dose_decay_fixed400",
+      "group": "matched_shared_ablation",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_aa26106a518f_b6376_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_400",
+      "stage": "fixed_regression_pool",
+      "checkpoint": "aa26106a518fdde2575c25176e3009ee6fc1edb0c6f6f353030d3b91e66e81b6",
+      "commits": [
+        "0f452b8ff2d27c94342d249c4854dbaf4e22b8cf"
+      ],
+      "description": "Frozen static teacher reward, time_ramp_power=1; lower mean but higher observed Best",
+      "program": "docs/experiments/m2_tools_full_drop_ablation_20261012/programs/aa26106a518fdde2575c25176e3009ee6fc1edb0c6f6f353030d3b91e66e81b6.json"
+    },
+    {
+      "id": "M2_legacy_blend_b6248",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6100_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6200_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6232_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6248_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6264_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6328_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6344_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6360_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6376_controls_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "batches": [
+        6248,
+        6249,
+        6250,
+        6251,
+        6252,
+        6253,
+        6254,
+        6255
+      ],
+      "stage": "subset_of_legacy_2600"
+    },
+    {
+      "id": "legacy_blend_0p5_b6248",
+      "group": "matched_shared_ablation_overlap",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6248_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_legacy_blend_b6248",
+      "stage": "subset_of_legacy_2600",
+      "checkpoint": "ab41341eeb9b"
+    },
+    {
+      "id": "M2_legacy_blend_b6360",
+      "group": "reference",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6100_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6200_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6232_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6248_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6264_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6328_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6344_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6360_controls_indexed_batch.gradient.metrics.csv",
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_c62e296818e0_b6376_controls_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "batches": [
+        6360,
+        6361,
+        6362,
+        6363,
+        6364,
+        6365,
+        6366,
+        6367
+      ],
+      "stage": "subset_of_legacy_2600"
+    },
+    {
+      "id": "legacy_blend_0p5_b6360",
+      "group": "matched_shared_ablation_overlap",
+      "format": "metrics_csv",
+      "files": [
+        "docs/experiments/m2_tools_full_drop_ablation_20261012/transport_records/DSF_ab41341eeb9b_b6360_g_indexed_batch.gradient.metrics.csv"
+      ],
+      "score_column": "pic50_on_rescore",
+      "quality_column": "valid_connected",
+      "qualification": "valid_connected",
+      "matched_M2": "M2_legacy_blend_b6360",
+      "stage": "subset_of_legacy_2600",
+      "checkpoint": "ab41341eeb9b"
+    },
+    {
+      "id": "partial_region_search_20261014/R01",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R01/R01_0/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "f51f834319ddc0ec33640e3cba953c28854fd89b"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R02",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R02/R02_0.3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "a7522dd73f9c07cf929ed0eea6c2da33517ad86a"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R03",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R03/R03_0/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "4f6940e750e676646a87cb548ac4fad2d7359a41"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R04",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R04/R04_0/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "189de07878bb1a29ce1c3899b2558e7a5f2aaaa0"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R12",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R12/R12_0.3/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "da81383b4a24bd4e99aba6228d88e41f90b66cd6"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R13",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R13/R13_0.1/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "02daf208f58d2c98187a3e86bcf87f4d9041533e"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R14",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R14/R14_0/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "cf422467da4bd5ea031cab80aed0370dc87a38e0"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R15",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R15/R15_0.1/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "e29fc8893db643d81cae2fe19e7a11427b0c5646"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R16",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R16/R16_0/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "c8d3bf3e3d8146f9e3f8493532236a1eb1923123"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R17",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R17/R17_0/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "b02c91b17126bdeb3fbedc12a1cdad03d2b3750d"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R18",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R18/R18_0/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "00c499a888ea8761b7a8fa664634173bb50953f3"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R19",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R19/R19_0.1/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "71a90cc5933f8f6ffa1d5861b11731e50efe17cf"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "partial_region_search_20261014/R20",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/partial_region_search_20261014/R20/R20_0.1/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "4d587f8b5081d22dfbb0dae26511c2aec175996e"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R01",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R01/R01/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "6986d69e018b448c27e983fc19430dc59a008d83"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R02",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R02/R02/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "fe78d9a4961aaf099cbd074543cb595f281b7ad8"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R03",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R03/R03/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "6e5e8d2b35e06c1cf320579e947b720436b2af35"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R04",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R04/R04/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "bd218dfd5ea75a9308e88ad911b0854b58b99e32"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R05",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R05/R05/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "3bebd09b35486f91cb7b352b08491958bdedc6a7"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R06",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R06/R06/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "748d7e11f81f4c726882577d798b8ca0dc5aaeb8"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R07",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R07/R07/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "2bdc32acb87d38f5d59c45288a04eed77709f322"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R08",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R08/R08/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "7b6094b27a399dc62a4c1bc51ef19efcd6df0cc4"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R09",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R09/R09/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "24fdcb620518077dc5b9586b7b94c5548b0052ce"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R11",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R11/R11/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "58a16152ff9581c32df5a22c5b42e95540cf6dea"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R12",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R12/R12/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "c5f9055a15e69ead8314639cf2355a13ab96de88"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R13",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R13/R13/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "524f221846fbafe7d716102e6c489a6f099fd2a3"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R14",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R14/R14/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "aec41842a917ee57cd572fc6de4c445f125f7d13"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R15",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R15/R15/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "5a7f63c113ffc45729c2cd287b09a0526e6706f3"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R16",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R16/R16/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "a51b07be7e2b642c8e0b4e0e1b6f0890ec3b94ff"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R17",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R17/R17/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "ae28e8a73b3b7827f92d3a2d850dfd7b3bfea476"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R18",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R18/R18/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "a679bfd43d0560a9c95c235c2ac596dbcf02be2b"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R19",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R19/R19/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "9b6ae27b7ca994b2ead488b0408e7806fe062d05"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_layout20_20261015/R20",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_layout20_20261015/R20/R20/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "commits": [
+        "a51e888c3c0c668b7a13d4a0eef16ae7796e44de"
+      ],
+      "stage_note": "selected within-round window; adaptive development selection"
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R11_new_batch_b50",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/active_reference_776197cb537d/active_reference/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "stage_note": "Frozen R11 program, batch-size/repeated-pool versus new-input confirmation explicitly separated"
+    },
+    {
+      "id": "nc_autoresearch20_20261015/R11_development_b50",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/nc_autoresearch20_20261015/active_reference_b1720871fe2f/active_reference/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "stage_note": "Frozen R11 program, batch-size/repeated-pool versus new-input confirmation explicitly separated"
+    },
+    {
+      "id": "ancestral_modes35_v3_20261016/R02_confirm400",
+      "group": "unpaired_local_research",
+      "format": "records_json",
+      "files": [
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b05/R34_v3_b05/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b06/R34_v3_b06/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b08/R34_v3_b08/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R34_v3_b10/R34_v3_b10/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b12/R35_v3_b12/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b14/R35_v3_b14/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b16/R35_v3_b16/records.json",
+        "data/generated/ancestral_modes35_v3_20261016/R35_v3_b18/R35_v3_b18/records.json"
+      ],
+      "score_column": "pic50",
+      "quality_column": "qualified_structure",
+      "qualification": "basic_structure_including_severe_clash_check",
+      "stage": "development",
+      "stage_note": "Combined two disjoint 200-sample confirmation blocks; not a new numerical program"
+    }
+  ]
+}
