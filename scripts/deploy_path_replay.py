@@ -43,6 +43,7 @@ def main():
     p.add_argument('action',choices=['deploy','status','collect'])
     p.add_argument('--repo',type=Path,default=Path('.'));p.add_argument('--config',type=Path,required=True)
     p.add_argument('--proxy-port',type=int,default=7897);p.add_argument('--retry-failed',action='store_true')
+    p.add_argument('--no-start',action='store_true',help='Stage the pushed runtime without launching a queue (diagnostic repairs).')
     a=p.parse_args();repo=a.repo.resolve();cfg=read_json(a.config);validate(cfg)
     sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
     rel=a.config.resolve().relative_to(repo).as_posix();work=cfg['remote_work'];runtime=work+'/runtime'
@@ -116,6 +117,8 @@ for name,sha in {cfg['flowr_files']!r}.items(): assert hashlib.sha256((flowr/nam
 (p/'deployment.json').write_text(json.dumps({{'commit':{sha!r},'archive_sha256':{archive_sha!r},'protocol_sha256':{cfg['protocol_sha256']!r},'flowr_commit':{cfg['flowr_commit']!r}}},indent=2))
 """
         command(c,'python -c '+shlex.quote(code))
+        if a.no_start:
+            print(json.dumps({'staged':True,'commit':sha,'runtime':runtime,'started':False}),flush=True);return
         if a.retry_failed: args.append('--retry-failed')
         code=f"""from pathlib import Path
 import subprocess,os,json
