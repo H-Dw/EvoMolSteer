@@ -48,7 +48,9 @@ def run(repo,cfg,work,batch=0):
     with np.load(root/'trajectory.npz') as z:
         expected={'coords':torch.from_numpy(z['proposal_coords'][0]),
                   **{k:torch.from_numpy(z['proposal_'+k][0]).long() for k in ('atomics','charges','bonds')}}
-    result={'batch':batch,'torch':torch.__version__,'unix':time.time()}
+    flags={k:p.requires_grad for k,p in model.named_parameters()}
+    result={'batch':batch,'torch':torch.__version__,'unix':time.time(),
+            'native_grad_flags':{'true':sum(flags.values()),'false_names':[k for k,v in flags.items() if not v]}}
     with torch.no_grad():
         torch.set_rng_state(restart['rng']['torch_cpu']);torch.cuda.set_rng_state_all(restart['rng']['torch_cuda'])
         direct=model.integrator.step(move(curr),move(endpoint),prior,times,dt)
@@ -81,11 +83,20 @@ def run(repo,cfg,work,batch=0):
         original_rows=[(i,a['root_slot']) for i,a in enumerate(group) if a['batch']==batch]
         result['packed_shared_group_vs_original_rows']={k:float(torch.stack([
             (pred_p[k][i]-p1[k][j]).abs().max() for i,j in original_rows]).max()) for k in ('coords','atomics','charges','bonds')}
+        result['packed_input_vs_original_rows']={}
+        for kind,got,expected in [('current',packed,curr),('pocket',pp,pocket),('cond',cond_p,cond)]:
+            for key in expected:
+                if torch.is_tensor(expected[key]) and expected[key].ndim and expected[key].shape[0]==50:
+                    result['packed_input_vs_original_rows'][kind+'.'+key]=max(float((got[key][i].float()-expected[key][j].float()).abs().max()) for i,j in original_rows)
         result['precision_and_grad_modes']={}
         for precision,grad in [('high',True),('highest',False),('highest',True),('medium',False)]:
             torch.set_float32_matmul_precision(precision);model.requires_grad_(grad)
             value=predict(model,curr,pocket,times,cond,encode(model,pocket))
             result['precision_and_grad_modes'][precision+'_parameters_grad_'+str(grad)]=compare(value,move(endpoint))
+            if precision=='high' and grad:
+                packed_value=predict(model,packed,pp,[torch.zeros(50,device='cuda')]*3,cond_p,encode(model,pp))
+                result['packed_all_true_vs_original_rows']={k:float(torch.stack([
+                    (packed_value[k][i]-value[k][j]).abs().max() for i,j in original_rows]).max()) for k in ('coords','atomics','charges','bonds')}
         result['backend']={'device':torch.cuda.get_device_name(0),'threads':torch.get_num_threads(),
                            'hip':torch.version.hip,'allow_tf32':torch.backends.cuda.matmul.allow_tf32}
     path=Path(work)/'diagnostics'/f'batch_{batch:03d}_primitive_and_model.json';atomic_json(path,result)
