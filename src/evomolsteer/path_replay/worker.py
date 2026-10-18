@@ -19,7 +19,7 @@ import torch
 from evomolsteer.io import digest,read_json
 from evomolsteer.storage.transactions import atomic_json
 from .common import validate,condition_program,groups_for,batch_path,binding,read_batch,fail_batch
-from .native import InitialPool,HistoricalObserver,final_equivalence,instrument_replay
+from .native import InitialPool,HistoricalObserver,final_equivalence,instrument_replay,scoring_context
 from .tape import ReplayRandom
 
 
@@ -149,7 +149,9 @@ def run(repo,config_path,work,condition_id,only_group=None):
             if program and not any(r['nonzero_molecules'] for r in control.rows): raise ValueError('Guidance injected no displacement')
             if observer is not None:
                 audit=observer.summary();atomic_json(folder/'trajectory_equivalence.json',audit)
-            heartbeat(phase='scoring',group=group['index'],step=100);scores=score(model,output,pocket,com)
+            heartbeat(phase='scoring',group=group['index'],step=100)
+            with scoring_context(model,pool.scoring_encoding(model,rows,work)) as scoring_audit:
+                scores=score(model,output,pocket,com)
             arrays={'terminal_coords_A':output['coords'].numpy().astype(np.float32),
                     'mask':output['mask'].numpy().astype(bool),'half_coords_A':np.asarray(control.teacher_snapshot['coords_A'],dtype=np.float32)}
             arrays.update({k:output[k].argmax(-1).numpy().astype(np.uint8) for k in ('atomics','bonds','charges')})
@@ -188,6 +190,7 @@ def run(repo,config_path,work,condition_id,only_group=None):
             files=['states.npz','guidance.json.gz','terminal.sdf.gz']+(['equivalence.json','trajectory_equivalence.json'] if equivalence is not None else [])
             receipt={'status':'complete','binding':binding(cfg,c,group),'condition':c['id'],'group':group['index'],
                      'records':records,'active_steps':active,'seconds':time.time()-started,'finished_unix':time.time(),
+                     'scoring_context':scoring_audit,'weights_unchanged':True,'parameter_gradients_accumulated':False,
                      'artifacts':{k:digest(folder/k) for k in files}}
             atomic_json(folder/'COMPLETE.json',receipt)
             print({'condition':c['id'],'group':group['index'],'n':50,'mean_pic50':float(scores.mean()),

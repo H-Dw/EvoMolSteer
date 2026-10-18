@@ -77,6 +77,24 @@ def test_pocket_context_is_encoded_on_original_B50_then_gathered_and_cached():
     pool.encoding(model,attempts,device='cpu');assert calls==[50]
 
 
+def test_terminal_score_context_uses_final_seat_root_map_and_restores_native_method(tmp_path):
+    from types import SimpleNamespace
+    from evomolsteer.path_replay.native import InitialPool,scoring_context
+    pool=InitialPool({});xyz=torch.arange(50*5*3,dtype=torch.float32).reshape(50,5,3)
+    pocket={'coords':xyz,'mask':torch.ones(50,5),'atom_names':torch.zeros(50,5,dtype=torch.long),
+            'charges':torch.ones(50,5,3),'bonds':torch.ones(50,5,5,3),'res_names':torch.zeros(50,5,dtype=torch.long)}
+    pool.cache[0]={'pocket_target':pocket};roots=np.roll(np.arange(50),7)
+    (tmp_path/'tapes').mkdir();np.savez(tmp_path/'tapes/batch_000.npz',roots=roots)
+    def encode(coords,*args,**kw): return coords[...,None].expand(-1,-1,-1,4),coords.sum(-1)[...,None]
+    model=SimpleNamespace(gen=SimpleNamespace(get_pocket_encoding=encode),self_condition=True)
+    attempts=[{'batch':0,'final_slot':i,'root_slot':int(roots[i])} for i in range(50)]
+    context=pool.scoring_encoding(model,attempts,tmp_path,'cpu')
+    assert torch.equal(context[0][0,...,0],xyz[roots[0]])
+    with scoring_context(model,context) as audit:
+        for _ in range(2): assert model.gen.get_pocket_encoding(xyz) is context
+    assert model.gen.get_pocket_encoding is encode and audit['encoding_calls']==2
+
+
 def test_scoring_rejects_broadcasted_coordinate_axes_before_model_call():
     from evomolsteer.path_replay.worker import score
     with pytest.raises(ValueError,match='broadcast dimension'):

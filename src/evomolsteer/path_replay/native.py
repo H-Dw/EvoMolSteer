@@ -1,6 +1,7 @@
 """Native-loop hooks, exact saved priors and historical trajectory checks."""
 import ast
 import copy
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -47,7 +48,7 @@ def join_trees(values):
 
 
 class InitialPool:
-    def __init__(self,config): self.config=config;self.cache={};self.encoding_cache={}
+    def __init__(self,config): self.config=config;self.cache={};self.encoding_cache={};self.score_cache={}
     def load(self,attempts,device='cuda'):
         priors=[];pockets=[];coms=[];scale=None
         for a in attempts:
@@ -91,6 +92,45 @@ class InitialPool:
             if ref.stride(-1)==0 and value.shape[-1]>1: value=value[...,:1].contiguous().expand_as(value)
             first.append(value)
         return tuple(first),tuple(v.contiguous() for v in packed)
+
+    def scoring_encoding(self,model,attempts,work,device='cuda'):
+        """Match original terminal rescoring context; only pocket tensors are used.
+
+        The original scorer re-encoded each source's final B50 pocket group.
+        Its final seat -> root map is known from genealogy; no historical final
+        ligand or affinity score is fed to the scorer or generation model.
+        """
+        for b in {a['batch'] for a in attempts}:
+            if b in self.score_cache: continue
+            with np.load(Path(work)/'tapes'/f'batch_{b:03d}.npz') as z: roots=torch.as_tensor(z['roots'].copy().astype(np.int64),device=device)
+            pocket={k:v.to(device)[roots] if torch.is_tensor(v) and v.ndim and v.shape[0]==50 else v
+                    for k,v in self.cache[b]['pocket_target'].items()}
+            with torch.no_grad():
+                self.score_cache[b]=model.gen.get_pocket_encoding(pocket['coords'],pocket['atom_names'],
+                    pocket_atom_charges=pocket['charges'].argmax(-1),pocket_bond_types=pocket['bonds'].argmax(-1),
+                    pocket_res_types=pocket['res_names'],pocket_atom_mask=pocket['mask'])
+        result=[];example=self.score_cache[attempts[0]['batch']]
+        for k,ref in enumerate(example):
+            value=torch.cat([self.score_cache[a['batch']][k][a['final_slot']:a['final_slot']+1] for a in attempts],0)
+            if ref.stride(-1)==0 and value.shape[-1]>1: value=value[...,:1].contiguous().expand_as(value)
+            result.append(value)
+        return tuple(result)
+
+
+@contextmanager
+def scoring_context(model,context):
+    """Supply the same precomputed pocket encoding to the native scorer's calls."""
+    original=model.gen.get_pocket_encoding;audit={'encoding_calls':0,'historical_ligands_used':False}
+    def cached(*args,**kwargs):
+        audit['encoding_calls']+=1
+        coords=args[0] if args else kwargs.get('pocket_coords')
+        if coords is None or len(coords)!=50: raise ValueError('Scoring context is not B50')
+        return context
+    model.gen.get_pocket_encoding=cached
+    try: yield audit
+    finally: model.gen.get_pocket_encoding=original
+    expected=2 if model.self_condition else 1
+    if audit['encoding_calls']!=expected: raise ValueError('Unexpected native terminal scoring call count')
 
 
 class HistoricalObserver:

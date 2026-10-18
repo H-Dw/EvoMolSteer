@@ -11,7 +11,7 @@ from evomolsteer.io import digest
 
 def collect(cfg,work,output):
     work=Path(work);members=[]
-    for name in ('methods','tapes','analysis','logs'):
+    for name in ('methods','tapes','analysis','logs','diagnostics'):
         root=work/name
         if root.exists(): members += [p for p in root.rglob('*') if p.is_file() and not p.is_symlink()]
     members += [p for p in work.glob('*.json') if p.is_file() and not p.is_symlink()]
