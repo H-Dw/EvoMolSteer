@@ -107,14 +107,17 @@ with tarfile.open(archive) as t:
  t.extractall(runtime,filter='data')
 archive.unlink()
 flowr=p/'flowr_runtime';flowr.mkdir(exist_ok=True)
-proc=subprocess.Popen(['git','-C',{cfg['flowr_repository']!r},'archive','--format=tar',{cfg['flowr_commit']!r}],stdout=subprocess.PIPE)
-with tarfile.open(fileobj=proc.stdout,mode='r|') as t:
- for m in t:
-  assert (flowr/m.name).resolve().is_relative_to(flowr.resolve()) and (m.isfile() or m.isdir())
-  t.extract(m,flowr,filter='data')
-assert proc.wait()==0
+old=json.loads((p/'deployment.json').read_text()) if (p/'deployment.json').exists() else {{}}
+reuse=old.get('flowr_commit')=={cfg['flowr_commit']!r} and all((flowr/name).is_file() and hashlib.sha256((flowr/name).read_bytes()).hexdigest()==sha for name,sha in {cfg['flowr_files']!r}.items())
+if not reuse:
+ proc=subprocess.Popen(['git','-C',{cfg['flowr_repository']!r},'archive','--format=tar',{cfg['flowr_commit']!r}],stdout=subprocess.PIPE)
+ with tarfile.open(fileobj=proc.stdout,mode='r|') as t:
+  for m in t:
+   assert (flowr/m.name).resolve().is_relative_to(flowr.resolve()) and (m.isfile() or m.isdir())
+   t.extract(m,flowr,filter='data')
+ assert proc.wait()==0
 for name,sha in {cfg['flowr_files']!r}.items(): assert hashlib.sha256((flowr/name).read_bytes()).hexdigest()==sha,name
-(p/'deployment.json').write_text(json.dumps({{'commit':{sha!r},'archive_sha256':{archive_sha!r},'protocol_sha256':{cfg['protocol_sha256']!r},'flowr_commit':{cfg['flowr_commit']!r}}},indent=2))
+(p/'deployment.json').write_text(json.dumps({{'commit':{sha!r},'archive_sha256':{archive_sha!r},'protocol_sha256':{cfg['protocol_sha256']!r},'flowr_commit':{cfg['flowr_commit']!r},'unchanged_flowr_runtime_reused':reuse}},indent=2))
 """
         command(c,'python -c '+shlex.quote(code))
         if a.no_start:
