@@ -40,7 +40,7 @@ def join_trees(values):
 
 
 class InitialPool:
-    def __init__(self,config): self.config=config;self.cache={}
+    def __init__(self,config): self.config=config;self.cache={};self.encoding_cache={}
     def load(self,attempts,device='cuda'):
         priors=[];pockets=[];coms=[];scale=None
         for a in attempts:
@@ -58,6 +58,32 @@ class InitialPool:
         com=torch.as_tensor(np.asarray(coms),device=device,dtype=torch.float32)
         pocket['complex']=[SimpleNamespace(com=v.cpu().numpy()) for v in com]
         return prior,pocket,com,scale
+
+    def encoding(self,model,attempts,device='cuda'):
+        """Recreate the original constant B50 pocket context before gathering roots.
+
+        SMC copied these tensors; it did not re-encode the regrouped pocket.
+        Preserve the initial zero-stride expansion and its contiguous layout
+        after the original first selection, without performing any selection.
+        """
+        def move(value):
+            if torch.is_tensor(value): return value.to(device)
+            if isinstance(value,dict): return {k:move(v) for k,v in value.items()}
+            return value
+        for b in {a['batch'] for a in attempts}:
+            if b in self.encoding_cache: continue
+            pocket=move(self.cache[b]['pocket_target'])
+            with torch.no_grad():
+                self.encoding_cache[b]=model.gen.get_pocket_encoding(pocket['coords'],pocket['atom_names'],
+                    pocket_atom_charges=pocket['charges'].argmax(-1),pocket_bond_types=pocket['bonds'].argmax(-1),
+                    pocket_res_types=pocket['res_names'],pocket_atom_mask=pocket['mask'])
+        packed=tuple(torch.cat([self.encoding_cache[a['batch']][k][a['root_slot']:a['root_slot']+1] for a in attempts],0) for k in (0,1))
+        first=[]
+        example=self.encoding_cache[attempts[0]['batch']]
+        for value,ref in zip(packed,example):
+            if ref.stride(-1)==0 and value.shape[-1]>1: value=value[...,:1].contiguous().expand_as(value)
+            first.append(value)
+        return tuple(first),tuple(v.contiguous() for v in packed)
 
 
 class HistoricalObserver:

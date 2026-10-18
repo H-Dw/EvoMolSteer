@@ -88,6 +88,12 @@ def run(repo,cfg,work,batch=0):
             for key in expected:
                 if torch.is_tensor(expected[key]) and expected[key].ndim and expected[key].shape[0]==50:
                     result['packed_input_vs_original_rows'][kind+'.'+key]=max(float((got[key][i].float()-expected[key][j].float()).abs().max()) for i,j in original_rows)
+        cached,after_selection=pool.encoding(model,group)
+        cached_value=predict(model,packed,pp,[torch.zeros(50,device='cuda')]*3,cond_p,cached)
+        result['source_cached_context_vs_original_rows']={k:float(torch.stack([
+            (cached_value[k][i]-p1[k][j]).abs().max() for i,j in original_rows]).max()) for k in ('coords','atomics','charges','bonds')}
+        result['packed_encoder_vs_source_cached']={str(k):float(torch.stack([
+            (encode(model,pp)[k][i]-enc[k][j]).abs().max() for i,j in original_rows]).max()) for k in (0,1)}
         result['precision_and_grad_modes']={}
         for precision,grad in [('high',True),('highest',False),('highest',True),('medium',False)]:
             torch.set_float32_matmul_precision(precision);model.requires_grad_(grad)
