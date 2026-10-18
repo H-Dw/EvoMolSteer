@@ -106,6 +106,7 @@ def run(repo,config_path,work,condition_id,only_group=None):
         'batch_size':50,'torch':torch.__version__,'no_smc':True,'affinity_head_gradient':False,
         'initial_inputs':'exact saved prior / pocket / COM; no new priors',
         'random_inputs':'per-step original pre-selection ancestor-slot primitive draws',
+        'pocket_context':'encode original full B50 before gathering root contexts; inherit the original first-selection tensor layout; never re-encode the regrouped pockets',
         'weight_policy':'preserve native parameter autograd flags; no optimizer; verify parameter versions and absence of accumulated weight gradients',
         'parameters_requiring_grad':sum(p.requires_grad for p in model.parameters()),
         'code_commit':os.environ.get('EVOMOLSTEER_RUNTIME_COMMIT')})
@@ -124,6 +125,7 @@ def run(repo,config_path,work,condition_id,only_group=None):
         try:
             prior,pocket,com,scale=pool.load(rows)
             if abs(scale-model.coord_scale)>1e-12: raise ValueError('Saved initial/model coordinate scale mismatch')
+            model._path_pocket_context=pool.encoding(model,rows)
             replay=ReplayRandom(cfg,work,rows);model._path_random=replay
             audit_cfg=dict(cfg,_coord_scale=scale)
             observer=HistoricalObserver(audit_cfg,work,rows) if program is None else None
@@ -196,7 +198,7 @@ def run(repo,config_path,work,condition_id,only_group=None):
             if program is None or isinstance(error,torch.cuda.OutOfMemoryError) or any(s in str(error).lower() for s in ('device-side assert','illegal memory','hip error')):
                 raise
         finally:
-            model._path_observer=None;model._path_random=None;model._half_guidance=None
+            model._path_observer=None;model._path_random=None;model._half_guidance=None;model._path_pocket_context=None
             torch.cuda.empty_cache()
     heartbeat(phase='complete')
 

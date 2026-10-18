@@ -54,6 +54,29 @@ def test_saved_singleton_com_axis_is_flattened_without_changing_values():
     assert prior['coords'].shape==(50,25,3) and pocket['complex'][0].com.shape==(3,)
 
 
+def test_pocket_context_is_encoded_on_original_B50_then_gathered_and_cached():
+    from types import SimpleNamespace
+    from evomolsteer.path_replay.native import InitialPool
+    pool=InitialPool({'remote_dataset':'unused','sources':{'0':{'relative':'unused'}}})
+    xyz=torch.arange(50*5*3,dtype=torch.float32).reshape(50,5,3)
+    pocket={'coords':xyz,'mask':torch.ones(50,5),'atom_names':torch.zeros(50,5,dtype=torch.long),
+            'charges':torch.ones(50,5,3),'bonds':torch.ones(50,5,5,3),'res_names':torch.zeros(50,5,dtype=torch.long)}
+    pool.cache[0]={'pocket_target':pocket};calls=[]
+    def encode(coords,*args,**kwargs):
+        calls.append(len(coords))
+        equi=(coords-coords.mean()).unsqueeze(-1).expand(-1,-1,-1,4)
+        return equi,coords.sum(-1)[...,None]
+    model=SimpleNamespace(gen=SimpleNamespace(get_pocket_encoding=encode))
+    attempts=[{'batch':0,'root_slot':i%3} for i in range(50)]
+    initial,after=pool.encoding(model,attempts,device='cpu')
+    assert calls==[50]
+    assert initial[0].stride(-1)==0 and after[0].is_contiguous()
+    for i,a in enumerate(attempts):
+        expected=(xyz[a['root_slot']]-xyz.mean()).unsqueeze(-1).expand(-1,-1,4)
+        assert torch.equal(initial[0][i],expected) and torch.equal(after[0][i],expected)
+    pool.encoding(model,attempts,device='cpu');assert calls==[50]
+
+
 def test_scoring_rejects_broadcasted_coordinate_axes_before_model_call():
     from evomolsteer.path_replay.worker import score
     with pytest.raises(ValueError,match='broadcast dimension'):

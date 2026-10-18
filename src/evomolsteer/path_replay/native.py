@@ -19,8 +19,15 @@ def instrument_replay(source):
            and n.iter.args and isinstance(n.iter.args[0],ast.Name) and n.iter.args[0].id=='step_sizes']
     if len(loops)!=1: raise ValueError('Ambiguous historical flow loop')
     loop=loops[0]
+    sites=[n for n in ast.walk(fn) if isinstance(n,ast.Assign) and len(n.targets)==1
+           and isinstance(n.targets[0],ast.Tuple)
+           and [e.id if isinstance(e,ast.Name) else '' for e in n.targets[0].elts]==['pocket_equis','pocket_invs']
+           and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Attribute) and n.value.func.attr=='get_pocket_encoding']
+    if len(sites)!=1: raise ValueError('Ambiguous native pocket-context initialization')
+    sites[0].value=ast.parse('self._path_pocket_context[0]',mode='eval').body
     loop.body[:0]=ast.parse('self._path_random.begin_step(i)').body
     loop.body += ast.parse('self._path_random.end_step()\nself._path_observer(i, curr, predicted)').body
+    loop.body += ast.parse('if i == 0:\n    pocket_equis, pocket_invs = self._path_pocket_context[1]').body
     ast.fix_missing_locations(tree);return ast.unparse(tree)+'\n'
 
 

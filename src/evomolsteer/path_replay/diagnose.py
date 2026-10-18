@@ -79,7 +79,8 @@ def run(repo,cfg,work,batch=0):
         by_id={a['id']:a for a in cfg['attempts']};group=[by_id[k] for k in cfg['groups'][0]['ids']]
         pool=InitialPool(cfg);packed,pp,_,_=pool.load(group)
         cond_p={'coords':packed['coords'],'atomics':torch.zeros_like(packed['atomics']),'bonds':torch.zeros_like(packed['bonds'])}
-        pred_p=predict(model,packed,pp,[torch.zeros(50,device='cuda')]*3,cond_p,encode(model,pp))
+        enc_p=encode(model,pp)
+        pred_p=predict(model,packed,pp,[torch.zeros(50,device='cuda')]*3,cond_p,enc_p)
         original_rows=[(i,a['root_slot']) for i,a in enumerate(group) if a['batch']==batch]
         result['packed_shared_group_vs_original_rows']={k:float(torch.stack([
             (pred_p[k][i]-p1[k][j]).abs().max() for i,j in original_rows]).max()) for k in ('coords','atomics','charges','bonds')}
@@ -93,7 +94,7 @@ def run(repo,cfg,work,batch=0):
         result['source_cached_context_vs_original_rows']={k:float(torch.stack([
             (cached_value[k][i]-p1[k][j]).abs().max() for i,j in original_rows]).max()) for k in ('coords','atomics','charges','bonds')}
         result['packed_encoder_vs_source_cached']={str(k):float(torch.stack([
-            (encode(model,pp)[k][i]-enc[k][j]).abs().max() for i,j in original_rows]).max()) for k in (0,1)}
+            (enc_p[k][i]-enc[k][j]).abs().max() for i,j in original_rows]).max()) for k in (0,1)}
         result['precision_and_grad_modes']={}
         for precision,grad in [('high',True),('highest',False),('highest',True),('medium',False)]:
             torch.set_float32_matmul_precision(precision);model.requires_grad_(grad)
