@@ -49,7 +49,9 @@ class InitialPool:
             saved=self.cache[b];root=a['root_slot']
             priors.append(slice_tree(saved['prior'],root,50,device))
             pockets.append(slice_tree(saved['pocket_target'],root,50,device))
-            coms.append(np.asarray(saved['target_com'])[root])
+            # The recorder stored COM as [B,1,3]; controllers and scoring need
+            # [B,3]. Keep values exact while preventing an extra broadcast axis.
+            coms.append(np.asarray(saved['target_com'])[root].reshape(3))
             if scale is not None and scale!=saved['coord_scale']: raise ValueError('Coordinate scale differs by source')
             scale=saved['coord_scale']
         prior=join_trees(priors);pocket=join_trees(pockets)

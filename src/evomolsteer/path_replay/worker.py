@@ -72,6 +72,8 @@ def make_control(model,condition,program,teacher,com):
 
 
 def score(model,output,pocket,com):
+    if output['coords'].shape!=(50,25,3) or com.shape!=(50,3):
+        raise ValueError('Terminal coordinates / COM have an unexpected broadcast dimension')
     final={k:v.to('cuda') for k,v in output.items() if torch.is_tensor(v) and k!='affinity'}
     final['coords']=(final['coords']-com[:,None])/model.coord_scale
     for k in ('atomics','bonds','charges'):
@@ -129,6 +131,8 @@ def run(repo,config_path,work,condition_id,only_group=None):
             if active!=expected or len(control.rows)!=100 or len(replay.records)!=100:
                 raise ValueError('Guidance window or historical random coverage differs')
             if program and not any(r['nonzero_molecules'] for r in control.rows): raise ValueError('Guidance injected no displacement')
+            if observer is not None:
+                audit=observer.summary();atomic_json(folder/'trajectory_equivalence.json',audit)
             heartbeat(phase='scoring',group=group['index'],step=100);scores=score(model,output,pocket,com)
             arrays={'terminal_coords_A':output['coords'].numpy().astype(np.float32),
                     'mask':output['mask'].numpy().astype(bool),'half_coords_A':np.asarray(control.teacher_snapshot['coords_A'],dtype=np.float32)}
@@ -165,7 +169,7 @@ def run(repo,config_path,work,condition_id,only_group=None):
                     if mol is not None:
                         mol.SetProp('_Name',a['id']);f.write(Chem.MolToMolBlock(mol)+'\n> <path_id>\n'+a['id']+'\n\n> <pic50>\n'+str(float(scores[slot]))+'\n\n$$$$\n')
             if len(records)!=50: raise ValueError('Decoder returned fewer than B50 molecules')
-            files=['states.npz','guidance.json.gz','terminal.sdf.gz']+(['equivalence.json'] if equivalence is not None else [])
+            files=['states.npz','guidance.json.gz','terminal.sdf.gz']+(['equivalence.json','trajectory_equivalence.json'] if equivalence is not None else [])
             receipt={'status':'complete','binding':binding(cfg,c,group),'condition':c['id'],'group':group['index'],
                      'records':records,'active_steps':active,'seconds':time.time()-started,'finished_unix':time.time(),
                      'artifacts':{k:digest(folder/k) for k in files}}

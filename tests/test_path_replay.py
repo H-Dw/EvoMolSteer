@@ -41,6 +41,25 @@ def test_protocol_has_b50_common_top200_and_all_1000_paths():
     assert all(len(g['ids'])==50 for g in c['groups'])
 
 
+def test_saved_singleton_com_axis_is_flattened_without_changing_values():
+    from evomolsteer.path_replay.native import InitialPool
+    c={'remote_dataset':'unused','sources':{'0':{'relative':'unused'}}}
+    pool=InitialPool(c)
+    xyz=torch.arange(50*25*3,dtype=torch.float32).reshape(50,25,3)
+    centers=np.arange(150,dtype=np.float32).reshape(50,1,3)
+    pool.cache[0]={'prior':{'coords':xyz},'pocket_target':{'coords':xyz},'target_com':centers,'coord_scale':1.}
+    rows=[{'batch':0,'root_slot':49-i} for i in range(50)]
+    prior,pocket,com,scale=pool.load(rows,device='cpu')
+    assert com.shape==(50,3) and torch.equal(com,torch.from_numpy(centers[::-1].copy().reshape(50,3)))
+    assert prior['coords'].shape==(50,25,3) and pocket['complex'][0].com.shape==(3,)
+
+
+def test_scoring_rejects_broadcasted_coordinate_axes_before_model_call():
+    from evomolsteer.path_replay.worker import score
+    with pytest.raises(ValueError,match='broadcast dimension'):
+        score(None,{'coords':torch.zeros(50,25,3)},None,torch.zeros(50,1,3))
+
+
 def test_protocol_rejects_smaller_batch_even_with_recomputed_hash():
     c=config();c['batch_size']=24;c['protocol_sha256']=identity({k:v for k,v in c.items() if k!='protocol_sha256'})
     with pytest.raises(ValueError): validate(c)
