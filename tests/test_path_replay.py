@@ -60,6 +60,27 @@ def test_scoring_rejects_broadcasted_coordinate_axes_before_model_call():
         score(None,{'coords':torch.zeros(50,25,3)},None,torch.zeros(50,1,3))
 
 
+def test_model_loading_preserves_native_autograd_flags(tmp_path,monkeypatch):
+    import sys
+    import types
+    from evomolsteer.path_replay.worker import load_model
+    class Model(torch.nn.Module):
+        def __init__(self):
+            super().__init__();self.a=torch.nn.Parameter(torch.ones(1));self.b=torch.nn.Parameter(torch.ones(1),requires_grad=False)
+            self.integrator=types.SimpleNamespace(use_cosine_scheduler=False)
+            self.inpainting_mode=False;self.graph_inpainting=False;self.sc_recycle_steps=1
+        def to(self,*args,**kw): return self
+    model=Model()
+    entry=types.ModuleType('flowr.gen.generate_from_pdb_selective');entry.get_args=lambda:types.SimpleNamespace()
+    loader=types.ModuleType('flowr.scriptutil');loader.load_model=lambda args:[model]
+    monkeypatch.setitem(sys.modules,'flowr.gen.generate_from_pdb_selective',entry)
+    monkeypatch.setitem(sys.modules,'flowr.scriptutil',loader)
+    cfg=config();cfg['flowr_root']=str(tmp_path)
+    loaded=load_model(cfg,tmp_path)
+    assert loaded.a.requires_grad and not loaded.b.requires_grad
+    assert not loaded.training
+
+
 def test_protocol_rejects_smaller_batch_even_with_recomputed_hash():
     c=config();c['batch_size']=24;c['protocol_sha256']=identity({k:v for k,v in c.items() if k!='protocol_sha256'})
     with pytest.raises(ValueError): validate(c)

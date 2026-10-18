@@ -34,7 +34,12 @@ def load_model(config,work):
     try: args=get_args()
     finally: sys.argv=argv
     args.seed=config['master_seed'];torch.set_float32_matmul_precision('high')
-    model=load(args)[0].to('cuda').eval();model.requires_grad_(False)
+    # Preserve the original parameter autograd flags. Globally setting them to
+    # False changes native inference numerics on this runtime even under
+    # no_grad(): the resulting tiny prediction changes can flip discrete draws.
+    # Coordinate VJPs use autograd.grad(inputs=x); no optimizer or weight update
+    # is ever performed. Versions and .grad are checked after every batch.
+    model=load(args)[0].to('cuda').eval()
     if getattr(model,'sc_recycle_steps',1)!=1 or model.inpainting_mode or model.graph_inpainting or model.integrator.use_cosine_scheduler:
         raise ValueError('Historical native model configuration is unsupported')
     for k,v in config['native_options'].items():
@@ -89,13 +94,20 @@ def run(repo,config_path,work,condition_id,only_group=None):
     c=next(c for c in cfg['conditions'] if c['id']==condition_id)
     if c.get('alias_of'): raise ValueError('Aliased condition must not launch another GPU worker')
     def heartbeat(**kw): atomic_json(work/'worker_state.json',{'condition':c['id'],'pid':os.getpid(),'unix':time.time(),**kw})
+    previous_error=work/'worker_error.json'
+    if previous_error.exists():
+        saved=read_json(previous_error)
+        atomic_json(work/'diagnostics/worker_errors'/f"{time.time_ns()}.json",saved);previous_error.unlink()
     heartbeat(phase='loading');program,teacher=condition_program(repo,c)
     model=load_model(cfg,work);source=attach(model);pool=InitialPool(cfg)
+    parameter_versions=tuple(p._version for p in model.parameters())
     atomic_json(work/'methods'/c['id']/'source_audit.json',{
         **source,'condition':c,'protocol_sha256':cfg['protocol_sha256'],'flowr_commit':cfg['flowr_commit'],
         'batch_size':50,'torch':torch.__version__,'no_smc':True,'affinity_head_gradient':False,
         'initial_inputs':'exact saved prior / pocket / COM; no new priors',
         'random_inputs':'per-step original pre-selection ancestor-slot primitive draws',
+        'weight_policy':'preserve native parameter autograd flags; no optimizer; verify parameter versions and absence of accumulated weight gradients',
+        'parameters_requiring_grad':sum(p.requires_grad for p in model.parameters()),
         'code_commit':os.environ.get('EVOMOLSTEER_RUNTIME_COMMIT')})
     from evomolsteer.elite_alignment.worker import make_posebusters
     from evomolsteer.agentic_steer.native import molecule_quality,slice_tree
@@ -126,6 +138,8 @@ def run(repo,config_path,work,condition_id,only_group=None):
                 output=model._generate(prior,pocket,steps=100,times=[torch.zeros(50,device='cuda') for _ in range(3)],
                     apply_guidance=False,strategy='linear',solver='euler',save_traj=False,
                     coord_noise_level=cfg['native_options']['coord_noise_level'],final_corr_pred=True)
+            if tuple(p._version for p in model.parameters())!=parameter_versions or any(p.grad is not None for p in model.parameters()):
+                raise RuntimeError('Inference mutated weights or accumulated parameter gradients')
             expected=[] if program is None else [i for i in range(100) if i/100>=program['window'][0]-1e-6 and (i+1)/100<=program['window'][1]+1e-6]
             active=[r['step'] for r in control.rows if r['active']]
             if active!=expected or len(control.rows)!=100 or len(replay.records)!=100:
