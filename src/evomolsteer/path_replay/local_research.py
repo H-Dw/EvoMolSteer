@@ -93,6 +93,45 @@ def reuse(cfg,m,c,work):
         atomic_json(dest,adopted)
 
 
+def reuse_current(repo,cfg,m,c,work):
+    """Reuse only a checked, identical control from this GPU/runtime family."""
+    source=c['reuse_current_from'];other_cfg,other,_=load(repo,Path(repo)/source['manifest'])
+    oldc=next(v for v in other['conditions'] if v['id']==source['condition'])
+    if other_cfg['protocol_sha256']!=cfg['protocol_sha256'] or other.get('comparison_scope')!=m.get('comparison_scope'):
+        raise ValueError('Current-control protocol/scope differs')
+    for key in ('kind','window','program_sha256','reference_sha256'):
+        if c.get(key)!=oldc.get(key):raise ValueError('Current-control scientific identity differs: '+key)
+    if other['saved_tensor_policy']!=m['saved_tensor_policy']:raise ValueError('Current-control activation policy differs')
+    source_work=Path(other['remote_work'])
+    import torch
+    audit=read_json(source_work/'methods'/oldc['id']/'source_audit.json')
+    if (audit['device_name']!=torch.cuda.get_device_name(0) or audit['torch']!=torch.__version__ or audit['hip']!=torch.version.hip):
+        raise ValueError('Current-control device/library identity differs')
+    # Ignore pure orchestration/analysis additions; require identical numerical
+    # control, replay, model adapter and integrator instrumentation source bytes.
+    for name in ('path_replay/worker.py','path_replay/native.py','path_replay/tape.py','ancestral_modes/reward.py',
+                 'ancestral_modes/bank.py','final_guidance/native.py','final_guidance/reward.py'):
+        if digest(source_work/'runtime/src/evomolsteer'/name)!=digest(Path(repo)/'src/evomolsteer'/name):
+            raise ValueError('Current-control numerical implementation differs: '+name)
+    for g in groups_for(cfg,c):
+        if g not in groups_for(cfg,oldc):raise ValueError('Current-control group not present in source')
+        r=read_batch(source_work,cfg,oldc,g)
+        if not r or r['status']!='complete':raise ValueError('Current control is incomplete')
+        if read_batch(work,cfg,c,g) is not None:continue
+        old=batch_path(source_work,oldc,g);dest=batch_path(work,c,g);dest.parent.mkdir(parents=True,exist_ok=True)
+        for name,sha in r['artifacts'].items():
+            target=dest.parent/name
+            if not target.resolve().is_relative_to(dest.parent.resolve()):raise ValueError('Unsafe current-control artifact')
+            shutil.copy2(old.parent/name,target)
+            if digest(target)!=sha:raise ValueError('Current-control checksum changed')
+        adopted=copy.deepcopy(r);adopted.update(condition=c['id'],binding=binding(cfg,c,g),
+            reused_current_from={'receipt':str(old),'sha256':digest(old),'binding':r['binding'],'checked_device':audit['device_name']})
+        for row in adopted['records']:row['condition']=c['id']
+        atomic_json(dest,adopted)
+    (Path(work)/'methods'/c['id']).mkdir(parents=True,exist_ok=True)
+    atomic_json(Path(work)/'methods'/c['id']/'source_audit.json',dict(audit,condition=c,reused_current_from=source))
+
+
 def analyze(repo,cfg,m,work):
     from .analysis import distribution,paired_cluster,write_csv
     datasets={};performance=[];pairs=[];responses=[];local_rows=[]
@@ -157,7 +196,9 @@ def run(repo,path,work):
             attach_verified_tapes(cfg,m,work);atomic_json(work/'historical_zero_gate.json',gate)
             for c in m['conditions']:
                 state.update(status='running',current=c['id'],conditions=status(cfg,m,work));atomic_json(work/'queue_status.json',state)
-                if c.get('reuse_from'):
+                if c.get('reuse_current_from'):
+                    reuse_current(repo,cfg,m,c,work)
+                elif c.get('reuse_from'):
                     reuse(cfg,m,c,work)
                 else:
                     for g in groups_for(cfg,c):

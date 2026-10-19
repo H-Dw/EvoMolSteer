@@ -92,3 +92,31 @@ def test_diagnostic_scope_never_reuses_cross_device_reference_or_hides_failed_ex
     m['native_zero_repeat_sources']={'0':'source'};arrays.clear();write_json(path,{'native_vs_offload_zero_state_arrays':arrays})
     m['diagnostic_evidence']['sha256']=digest(path);save()
     with pytest.raises(ValueError,match='repeatability'):load(REPO,tmp_path/'m.json')
+
+
+def test_same_runtime_reuse_checks_device_numerical_source_and_receipts(tmp_path,monkeypatch):
+    import shutil,torch
+    from evomolsteer.path_replay.local_research import reuse_current
+    cfg=read_json(BASE);oldc={'id':'zero','kind':'unguided','n':50,'window':None,'group_indices':[0]}
+    base=tmp_path/'previous';work=tmp_path/'next';g=cfg['groups'][0]
+    m={'schema_version':'local-feature-path-research-1','batch_size':50,'saved_tensor_policy':'saved_tensors_cpu_exact',
+       'base_config':BASE.relative_to(REPO).as_posix(),'base_config_sha256':digest(BASE),'base_protocol_sha256':cfg['protocol_sha256'],
+       'base_work':cfg['remote_work'],'remote_work':str(base),'conditions':[oldc]}
+    m['research_sha256']=identity(m);source=tmp_path/'source.json';write_json(source,m)
+    receipt=batch_path(base,oldc,g);receipt.parent.mkdir(parents=True);artifact=receipt.parent/'states.npz';artifact.write_bytes(b'exact states')
+    write_json(receipt,{'binding':binding(cfg,oldc,g),'status':'complete','records':[{'id':x,'pic50':8.} for x in g['ids']],
+        'artifacts':{'states.npz':digest(artifact)}})
+    write_json(receipt.parent.parent/'source_audit.json',{'device_name':'fixtureGPU','torch':torch.__version__,'hip':torch.version.hip})
+    for name in ('path_replay/worker.py','path_replay/native.py','path_replay/tape.py','ancestral_modes/reward.py',
+                 'ancestral_modes/bank.py','final_guidance/native.py','final_guidance/reward.py'):
+        target=base/'runtime/src/evomolsteer'/name;target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(REPO/'src/evomolsteer'/name,target)
+    c=dict(oldc,id='zero_new',reuse_current_from={'manifest':str(source),'condition':'zero'})
+    monkeypatch.setattr(torch.cuda,'get_device_name',lambda i:'fixtureGPU')
+    reuse_current(REPO,cfg,m,c,work)
+    assert read_batch(work,cfg,c,g)['reused_current_from']['sha256']==digest(receipt)
+    monkeypatch.setattr(torch.cuda,'get_device_name',lambda i:'otherGPU')
+    with pytest.raises(ValueError,match='device/library'):reuse_current(REPO,cfg,m,c,work)
+    monkeypatch.setattr(torch.cuda,'get_device_name',lambda i:'fixtureGPU')
+    (base/'runtime/src/evomolsteer/path_replay/worker.py').write_text('changed arithmetic')
+    with pytest.raises(ValueError,match='numerical implementation'):reuse_current(REPO,cfg,m,c,work)

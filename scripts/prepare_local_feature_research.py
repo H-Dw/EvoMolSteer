@@ -27,10 +27,15 @@ def prepare(repo,master_path,round_id,operators):
         records.extend(receipt['records'])
         with gzip.open(repo/m['local_base_work']/f'methods/ancestor_R02_v3/group_{gi:03d}/guidance.json.gz','rt') as f:
             steps.extend(s for s in json.load(f)['steps'] if s['active'])
-    response={'active_updates':len(steps),'nonzero_updates':sum(s['nonzero_molecules'] for s in steps),
+    response={'active_updates':len(steps),'nonzero_updates':sum(s['nonzero_molecules']>0 for s in steps),
+              'nonzero_seed_updates':sum(s['nonzero_molecules'] for s in steps),
               'statistics':{k:float(np.mean([s[k] for s in steps if k in s])) for k in
                 ('injected_rms_A_mean','predictive_flow_rms_A_mean','assignment_switch_fraction') if any(k in s for s in steps)}}
     entry={'program':parent,'metrics':distribution(records,len(records),cfg['tail_threshold']),'response':response}
+    if m.get('parent_feedback'):
+        from evomolsteer.ancestral_modes.replay_feedback import entry as feedback_entry
+        entry=feedback_entry(repo,m['parent_feedback'],parent)
+        write_json(repo/m['campaign_study']/round_id/'parent_feedback.json',entry)
     state={'reference':entry,'best':entry,'rounds':[],
            'original':{'best':max(a['historical_pic50'] for a in cfg['attempts'])},
            'prior_campaign_evidence':m.get('prior_campaign_evidence')}
@@ -50,7 +55,12 @@ def prepare(repo,master_path,round_id,operators):
     from evomolsteer.ancestral_modes.agents import ask
     p,action,delivery=ask(repo,m,folder/'agents',bank,regions,state,actions,'local_support',modules_override=[])
     from evomolsteer.ancestral_modes.research import payload
-    teacher_path=folder/'teacher.json';write_json(teacher_path,payload(bank,p))
+    teacher=payload(bank,p)
+    if read_json(repo/reference['reference'])==teacher:
+        teacher_path=repo/reference['reference']
+    else:
+        teacher_path=repo/m['campaign_study']/'teachers'/(identity(teacher)+'.json')
+        if not teacher_path.exists():write_json(teacher_path,teacher)
     p['teacher_sha256']=digest(teacher_path)
     # Record real decision provenance separately from the compiler's binding.
     p['local_feature_binding']['decision_provenance']={'analyst_sha256':p['analyst_sha256'],
@@ -62,6 +72,11 @@ def prepare(repo,master_path,round_id,operators):
     baseline=copy.deepcopy(reference);baseline.update(id='R02_reference',n=zero['n'],group_indices=m['group_indices'],reuse_from='ancestor_R02_v3')
     if not m.get('reuse_parent',True):
         baseline.pop('reuse_from');baseline.update(role='frozen_current_reference',frozen_source_condition='ancestor_R02_v3')
+    if m.get('reuse_current_controls'):
+        shared=m['reuse_current_controls'];baseline.pop('reuse_from',None)
+        zero['reuse_current_from']={'manifest':shared['manifest'],'condition':'zero_replay'}
+        baseline.update(role='frozen_current_reference',frozen_source_condition='ancestor_R02_v3',
+            reuse_current_from={'manifest':shared['manifest'],'condition':'R02_reference'})
     candidate={'id':round_id,'kind':'native_local','n':zero['n'],'group_indices':m['group_indices'],'window':p['window'],
         'program':program_path.relative_to(repo).as_posix(),'program_sha256':digest(program_path),
         'reference':teacher_path.relative_to(repo).as_posix(),'reference_sha256':digest(teacher_path)}

@@ -64,6 +64,18 @@ for name in ('queue.pid','worker.pid'):
         for c in m['conditions']:
             for key in ('program','reference'):
                 if key in c:paths.append(c[key])
+        todo=[c['reuse_current_from']['manifest'] for c in m['conditions'] if c.get('reuse_current_from')]
+        seen=set()
+        while todo:
+            relative=todo.pop()
+            if relative in seen:continue
+            seen.add(relative);paths.append(relative)
+            _,source,_=load(repo,repo/relative);paths.append(source['base_config'])
+            if source.get('diagnostic_evidence'):paths.append(source['diagnostic_evidence']['path'])
+            for c in source['conditions']:
+                for key in ('program','reference'):
+                    if key in c:paths.append(c[key])
+                if c.get('reuse_current_from'):todo.append(c['reuse_current_from']['manifest'])
         archive=subprocess.check_output(['git','archive','--format=tar',sha,*sorted(set(paths))],cwd=repo)
         archive_sha=hashlib.sha256(archive).hexdigest()
         with client.open_sftp() as s:s.putfo(io.BytesIO(archive),work+'/runtime.tar')
