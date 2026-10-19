@@ -1,0 +1,83 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/f5fbe6ef448458eec154edd4f24e73ff45b8f4e328460f2a352c9efacd4b0112.txt",
+        "content_sha256": "f5fbe6ef448458eec154edd4f24e73ff45b8f4e328460f2a352c9efacd4b0112",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/7b7492459d78fd3333ab31a6978f32175a7383a521ab33db11641ed8ac2f51fa.txt",
+        "content_sha256": "7b7492459d78fd3333ab31a6978f32175a7383a521ab33db11641ed8ac2f51fa",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/3a7c9d23015527bc41f5a3853f5719777747d50755cdd785bc25fb0053f75b1b.txt",
+        "content_sha256": "3a7c9d23015527bc41f5a3853f5719777747d50755cdd785bc25fb0053f75b1b",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/2fa242bc81699b26712de444ffce2a836efaebb4331910b3ca3638551656903d.txt",
+        "content_sha256": "2fa242bc81699b26712de444ffce2a836efaebb4331910b3ca3638551656903d",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/cde10120b0b6b2cc4eec0d95c557e1e654e5da66a6e5217a64279aba1aaab72a.txt",
+        "content_sha256": "cde10120b0b6b2cc4eec0d95c557e1e654e5da66a6e5217a64279aba1aaab72a",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/de1cadfbf4f70b542f22bb47df47a79ed7d30265852299651fb3371379b1ec01.txt",
+        "content_sha256": "de1cadfbf4f70b542f22bb47df47a79ed7d30265852299651fb3371379b1ec01",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__local_32e00570ab5a"
+              ]
+            },
+            "tool": {
+              "const": "local_support_evidence"
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

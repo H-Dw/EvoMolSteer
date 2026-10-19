@@ -1,0 +1,13 @@
+{
+  "purpose": "已取得该区域的 local_support_evidence 与 selection_trend。关键读数：终态对照中 pair_error_A 的 other_minus_high=0.197（95% 区间 [0.067,0.324]）、pocket_error_A=0.041（[0.011,0.075]）、point_error_A=0.103（[0.034,0.168]）均为正，即高质量终态更接近教师；但 beyond_global_error_A 区间跨零（[-0.045,0.174]），说明该局部对比尚未超出整体相似度。selection_trend 中 expected_selection_shift 量级约 1e-5 至 1e-4，远小于 native_shift（约 1e-3 至 1e-2），即选择富集几乎全部来自原生生成变化，而非选择期望变化。父程序 pointwise 在 B50 上 best 8.2865、high_score 3/50，低于同运行时 zero_replay 的 8.6260、13/50，且 controller_response 显示 gradient_native_observed_cosine_mean=-0.148、unmatched_input_gradient_rms_fraction_mean=0.667、atom_clip_fraction=0，说明控制项已激活但归一化后总方向与原生流不一致，且大部分注入落在非匹配输入梯度上。因此下一步应查询 controller_response 以区分“方向不对”与“剂量/归一化抵消”，并查询 failure_history 以核对是否存在后缀未保持或形成但终态无收益的失败家族。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__local_32e00570ab5a",
+      "tool": "controller_response"
+    },
+    {
+      "region_id": "F_b011_s030__local_32e00570ab5a",
+      "tool": "failure_history"
+    }
+  ]
+}
