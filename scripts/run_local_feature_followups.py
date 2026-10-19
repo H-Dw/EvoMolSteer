@@ -147,11 +147,12 @@ def run(repo,master_path,first_manifest,poll,label_suffix=''):
                     'calibration':{'reference_direct_rms_A':target,'parent_direct_rms_A':observed,'target_over_parent':factor},
                     'dose_coverage':'Condition on nonzero seed updates. Report coverage separately; do not mistake a smaller active fraction for weaker per-active-seed displacement.',
                     'warning':'Clipping and input-coordinate VJP coupling mean a multiplier need not change actual local displacement proportionally. Returning the parent function is allowed and reused.'}
-            path=repo/master['config_dir']/(label+'.master.json');write_json(path,m)
+            path=repo/master['config_dir']/(label+'.master.json')
             next_path=repo/master['config_dir']/(label+'.json')
             existing_launch=study/label/'launch_receipt.json'
             resumed=next_path.exists() and existing_launch.exists()
             if not resumed:
+                write_json(path,m)
                 state.update(status='local_api',current=label);write_json(state_path,state)
                 args=['scripts/prepare_local_feature_research.py','--repo','.', '--master',str(path),'--round',label]
                 for op in operators:args+=['--operator',op]
