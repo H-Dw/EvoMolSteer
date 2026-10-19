@@ -143,6 +143,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     bundle['contract']['measurement_stages']='Nonzero component VJP establishes activation only. The last live endpoint gap is before that control update. Track actual reward-matched slots separately from observational half-state matches. Compare actual half geometry to the actual half teacher, terminal geometry to the actual terminal teacher. Fixed-slot suffix tracking and terminal-rematched spatial presence are distinct: slot migration or chemical graph changes alone do not prove loss of a spatial motif. Zero clipping/constant dose are NOT retention evidence. Nonzero component VJP does not establish a changed normalized total direction; inspect fractions/cosines. Final value uses terminal affinity/quality and matched controls.'
     bundle['contract']['feature_profile']='Online feature moments are linearly interpolated saved rows. Whole-window quadratic fits and derivatives are diagnostic, not the online control curve. Post-RMS historical contrast attenuation measures standardized descriptive separation, not calibrated reliability or future success.'
     bundle['contract']['surrogate_units']='Geometry distance losses and sigma-scaled type/charge fields have A^2 units. Orientation and standardized feature log-ratios are dimensionless; relative chemical coefficients then carry compensating A^-2 units. These are optimization surrogates, not physical energies. Kernel mass is dimensionless; signed displacement components are A.'
+    bundle['contract']['dose_inference']='Nonzero gradients and zero clipping establish activation, not that dose is appropriate. A native-flow cosine is not an affinity-gradient cosine. Do not causally exclude over-strength or reference mismatch without the corresponding intervention. Fixed nominal dose parameters do not guarantee equal realized displacement or activation coverage across operators.'
     tools=['ancestor','selection_trend','controller_response','failure_history']
     if m.get('local_support_registry'):tools.append('local_support_evidence')
     if any(len(a['region_ids'])>1 for a in actions):tools.append('mode_comparison')
@@ -156,6 +157,9 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
             result=read_json(repo/m['local_support_registry']/r['local_support_evidence'])
             if result['region_id']!=rid:raise ValueError('Measured evidence belongs to a different local support')
             return {'region':r,'measured_evidence':result,
+                'measurement_definitions':{'terminal_contrast':'Observed real terminal structures versus the teacher real terminal_coords_A, with geometry-only Hungarian matching. NOT a measured contrast against intermediate predicted endpoints.',
+                    'teacher_trends':'A single teacher trajectory, separated into actual-current and predicted-endpoint representations; not cohort enrichment.',
+                    'transfer_to_control':'Using these actual-final associations in a time-dependent endpoint reward is a hypothesis. Runtime correspondence may additionally use the declared detached element cost; do not call the measurement and runtime definitions identical.'},
                 'active_operator_contract':'Only the selected registered operator is active. Role labels select regions; geometric operators do not supply chemical-role forces.'}
         if tool=='mode_comparison':
             ids=sorted({v for a in actions if rid in a['region_ids'] for v in a['region_ids']})
