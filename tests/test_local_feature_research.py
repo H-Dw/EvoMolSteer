@@ -120,3 +120,15 @@ def test_same_runtime_reuse_checks_device_numerical_source_and_receipts(tmp_path
     monkeypatch.setattr(torch.cuda,'get_device_name',lambda i:'fixtureGPU')
     (base/'runtime/src/evomolsteer/path_replay/worker.py').write_text('changed arithmetic')
     with pytest.raises(ValueError,match='numerical implementation'):reuse_current(REPO,cfg,m,c,work)
+
+
+def test_followup_dose_choices_use_measured_displacements_and_keep_tail_gains(monkeypatch):
+    monkeypatch.syspath_prepend(str(REPO/'scripts'))
+    from run_local_feature_followups import calibrated_factors,declined
+    factor,options=calibrated_factors(.04,.08)
+    assert factor==.5 and options==[.5,2**-.5,1.]
+    with pytest.raises(ValueError):calibrated_factors(None,.1)
+    with pytest.raises(ValueError):calibrated_factors(.1,float('nan'))
+    assert declined({'best_valid':8.1,'mean':7.2},{'best_valid':8.2,'mean':7.4})
+    assert not declined({'best_valid':8.3,'mean':7.2},{'best_valid':8.2,'mean':7.4})
+    assert declined({'best_valid':None,'mean':7.4},{'best_valid':8.2,'mean':7.4})

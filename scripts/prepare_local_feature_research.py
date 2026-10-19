@@ -42,13 +42,17 @@ def prepare(repo,master_path,round_id,operators):
     actions=[]
     for r in regions:
         for operator in operators:
-            p=compile_program(parent,r,bank,registry['policy'],operator)
-            p['program_id']=round_id
-            # The first support experiment deliberately freezes the parent's
-            # dose, time mapping and curvature. Later factors get separate runs.
-            actions.append({'action_id':f'option_{len(actions):03d}','parent_id':parent_id,
-                'region_ids':[r['region_id']],'phase':'local_support','reason':'Measured local support/observable; no full-cloud substitution',
-                'program':p,'numeric_identity':numerical_identity(p,bank),'authoritative_program_delta':program_delta(parent,p)})
+            for multiplier in m.get('dose_scale_multipliers',[1.]):
+                p=compile_program(parent,r,bank,registry['policy'],operator)
+                p['program_id']=round_id
+                if multiplier<=0:raise ValueError('Positive dose multiplier required')
+                p['dose']['native_rms_ratio']*=multiplier
+                # Default is a support-only intervention. Dose calibration is
+                # a separate stage with explicitly delivered numerical options.
+                actions.append({'action_id':f'option_{len(actions):03d}','parent_id':parent_id,
+                    'region_ids':[r['region_id']],'phase':m.get('research_phase','local_support'),
+                    'reason':'Measured local support/observable; no full-cloud substitution',
+                    'program':p,'numeric_identity':numerical_identity(p,bank),'authoritative_program_delta':program_delta(parent,p)})
     if not actions:raise ValueError('No compatible local actions')
     folder=repo/m['campaign_study']/round_id
     write_json(folder/'allowed_actions.json',actions)
