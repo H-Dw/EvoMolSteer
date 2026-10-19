@@ -1,0 +1,31 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。终态角色仅用于选区：5 个槽位在终态均为芳香碳、非供体非受体、形式电荷 0；这些标签不构成早期状态已存在该角色的证据，也不启用任何类型/电荷力。本轮为纯几何坐标算子，不声称化学力已激活。",
+  "clock_and_representation": "observable 为 predicted_endpoint，教师为 teacher_predicted_endpoint_at_same_forward_time；窗口 [0.1, 0.5]，学习窗口 [0.0, 0.5]，100 步，剂量 constant、schedule_normalization 1.0、native_rms_ratio 0.66、max_atom_step_A 0.15、max_cumulative_rms_A 6.0。终态化学角色用于追溯位置，不是早期已存在该角色的证据；半程诊断对半程教师，终态诊断对终态教师，不混用时刻。",
+  "component_response_interpretation": "parent 的梯度非零只证明控制项已激活：active_updates 40、nonzero_seed_updates 2000、active_seed_update_fraction 1.0、atom_clip_fraction 0、cumulative_clip_fraction 0。但 gradient_native_observed_cosine_mean -0.149 表明注入方向与原生梯度相反，unmatched_input_gradient_rms_fraction_mean 0.667 表明大部分输入梯度来自未匹配耦合而非教师点。因此“已激活”不等于“方向正确”或“终态有收益”。本轮 pair_distance 需重新读取分项/总梯度比例与夹角，确认归一化后总方向确实改变，而非仅分项非零。",
+  "controlled_feature": "pair_error_A",
+  "counterevidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/failure_history",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "F_b011_s030__local_32e00570ab5a/controller_response",
+    "parents/L01b_local_support/outcomes",
+    "parents/L01b_local_support/response"
+  ],
+  "falsifier": "若在相同窗口、剂量、教师时钟与固定支持下，pair_distance 的窗口末端 pair_error_A 未低于 parent 同窗口末端值，或形成后无引导后缀终态未保持该局部点对距离，或终态高分计数与尾部未超过同运行时 zero_replay（13/50，best 8.626）与 parent（3/50，best 8.287），则本假设被否证。若 pair_error_A 下降但终态亲和力无改善，则说明局部距离富集只是伴随现象而非可控收益来源。",
+  "formation_retention_value_test": "形成：在控制窗口末端读取同一支持的 pair_error_A 是否低于 parent 同窗口末端值，并确认注入 RMS 非零且未被裁剪（parent 的 atom_clip_fraction 与 cumulative_clip_fraction 均为 0，但零裁剪本身不构成保持证据）。保持：比较同一支持在无引导后缀终态与有引导后缀终态的 pair_error_A，并同时报告固定槽位追踪与终态空间模式重识别（parent 的 terminal_tracked_pair_error_A 0.119 A 与 terminal_rematched_pair_error_A 0.129 A 接近，suffix_tracking_residual_A 0.623 A，suffix_tracked_displacement_A 3.775 A）。价值：以终态亲和力/质量与同运行时 zero_replay、R02_reference 及 parent 对照比较，读取高分计数与尾部，而非仅均值。",
+  "group_id": "G000",
+  "observable_change": "受控量从 point_error_A 改为 pair_error_A：奖励直接作用于所选 5 个槽位之间的内部点对距离与同时刻教师端点预测的点对距离之差（band 0.348 A）。预期窗口内 pair_error_A 相对 parent 的逐点奖励下降；point_error_A、pocket_error_A 与 signed_dx/dy/dz 仅作为诊断背景，不作为单独启用的力。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "L01b_local_support",
+  "primary_operator": "pair_distance",
+  "relationship_to_failed_families": "parent L01b_local_support 属于逐点位置奖励家族：其注入方向与原生梯度余弦 -0.149，未匹配输入梯度 RMS 占比 0.667，高分 3/50（0.06），best 8.287，低于同运行时 zero_replay 的 13/50（0.26）与 best 8.626，也低于 R02_reference 的 best 8.326。该家族失败模式是“函数方向不对/剂量被归一化抵消”，而非剂量不足：注入 RMS 非零（direct_injected_rms_A_mean 0.047，outside 0.022），零裁剪，但未转化为终态收益。本轮改为 pair_distance，直接作用于已观测富集的局部内部距离，而非逐点位置。",
+  "scientific_hypothesis": "在固定支持 F_b011_s030__local_32e00570ab5a（槽位 5,8,9,11,14；5/25 点，20%）上，终态高质量组相对其他有效终态更接近教师端点预测的局部点对距离：pair_error_A 的 other_minus_high = 0.197 A，cluster_interval_95 [0.067, 0.324] 不跨零；pocket_error_A 为 0.041 A，区间 [0.011, 0.075] 也不跨零；而超出整体相似度的局部形状 beyond_global_error_A 为 0.065 A，区间 [-0.045, 0.174] 跨零。因此本轮主假设是：该支持上的局部内部距离（pair_distance）是随终态质量富集的量，而逐点位置奖励只是代理。parent L01b 使用 pointwise 时注入方向与原生梯度余弦为 -0.149，未匹配输入梯度 RMS 占比 0.667，且高分 3/50（0.06）低于同运行时 zero_replay 的 13/50（0.26），best 8.287 低于 8.626，说明逐点位置奖励未带来终态收益。将注册算子改为 pair_distance 后，预期在相同窗口、剂量和教师时钟下，局部点对距离误差下降，并检验其是否伴随终态亲和力尾部改善。",
+  "support_reason": "支持为 F_b011_s030__local_32e00570ab5a 的 5 个槽位（5/25，20%，在允许 2–8 点范围内），由 bond_neighborhood 深度 2、中心 8 提出。每个点均有用途：5,8,9,11,14 共同定义内部点对距离与方向三元组 [5,8,9]、[8,5,11]、[11,8,14]；口袋位点 A:LEU:45:O/C/CB 与 A:HIS:160:CE1 提供相对口袋位置诊断。该区域自身测量显示 pair_error_A 与 pocket_error_A 的 95% 区间不跨零，而 beyond_global_error_A 跨零，故选择 pair_distance 作为主算子，pocket_distance 作为同组备选。未沿用父程序点数作为目标，也未扩大到全云。"
+}

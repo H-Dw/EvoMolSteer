@@ -1,0 +1,139 @@
+{
+  "actual_dose_expectation": {
+    "actual_budget_depends_on_student_trajectory": true,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.66
+    },
+    "post_RMS_gains": [
+      "temporal_schedule"
+    ],
+    "schedule": "constant",
+    "schedule_normalization": 1.0
+  },
+  "api_response_path": "Designer.response.json",
+  "api_response_sha256": "dbade80552edfc02eff47af14509466acfc8aaaa830d83c468bd8e0c45bb2960",
+  "binding_origin": "deterministic compiler from validated option_id; rationale/falsifier from real API",
+  "derivative_path": {
+    "affinity_derivative": false,
+    "coordinate_paths": [
+      "live_generator_endpoint_coordinate_VJP"
+    ],
+    "extra_affinity_forward": false,
+    "matching_and_routing": "stop_gradient"
+  },
+  "design_grounds": "在固定支持 F_b011_s030__local_32e00570ab5a（槽位 5,8,9,11,14；5/25 点，20%，在允许 2–8 点内）上，终态对比显示 pair_error_A 的 other_minus_high=0.197 A、95% 区间 [0.067,0.324] 不跨零，pocket_error_A 亦不跨零，而 beyond_global_error_A 跨零，故局部内部距离是随终态质量富集的量。parent L01b 的逐点奖励虽已激活（active_updates 40、nonzero_seed_updates 2000、零裁剪），但注入方向与原生梯度余弦 -0.149、未匹配输入梯度 RMS 占比 0.667，且高分 3/50、best 8.287 低于同运行时 zero_replay 的 13/50、best 8.626，说明失败在方向而非剂量。因此仅将注册算子由 pointwise 换为 pair_distance，保持同一支持、窗口 [0.1,0.5]、教师时钟 endpoint_prediction 与剂量不变，作为单一机制对照；化学角色仅用于选区，不启用任何类型/电荷力。",
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "F_b011_s030__local_32e00570ab5a/controller_response",
+    "parents/L01b_local_support/outcomes",
+    "parents/L01b_local_support/response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "execution_changes": [
+    "local_feature_binding",
+    "operator",
+    "target_band_A"
+  ],
+  "falsifier": "若在相同窗口、剂量、教师时钟与固定支持下，pair_distance 的窗口末端 pair_error_A 未低于 parent 同窗口末端值，或无引导后缀终态未保持该局部点对距离，或终态高分计数与尾部未超过同运行时 zero_replay（13/50，best 8.626）与 parent（3/50，best 8.287），则本假设被否证。",
+  "hypothesis_group": "G000",
+  "operative_terms": {
+    "actual_terms": [
+      "registered_pair_distance"
+    ],
+    "assignment_element_cost": 0.5,
+    "attainment_response": false,
+    "clock_policy": "endpoint_prediction",
+    "controlled_feature": "pair_error_A",
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.66
+    },
+    "dose_schedule": "constant",
+    "learning_window": [
+      0.0,
+      0.5
+    ],
+    "local_feature_binding": {
+      "active_terms": [
+        "registered_pair_distance"
+      ],
+      "atom_slots": [
+        5,
+        8,
+        9,
+        11,
+        14
+      ],
+      "chemical_role_used_for_selection_only": true,
+      "clock_policy": "endpoint_prediction",
+      "direct_type_force": false,
+      "evidence": "evidence/F_b011_s030__local_32e00570ab5a.json",
+      "locality": {
+        "allowed_max_points": 8,
+        "allowed_min_points": 2,
+        "fraction": 0.2,
+        "n_points": 5,
+        "n_total": 25
+      },
+      "operator": "pair_distance",
+      "origin": "deterministic_feature_compilation; not a new Analyst/Designer decision",
+      "region_id": "F_b011_s030__local_32e00570ab5a"
+    },
+    "local_support_policy": {
+      "band_bond_fraction": 0.25,
+      "graph_depths": [
+        1,
+        2
+      ],
+      "interface_fractions": [
+        0.08,
+        0.12,
+        0.2,
+        0.28
+      ],
+      "max_fraction": 0.32,
+      "min_points": 2,
+      "pocket_sites": 4,
+      "spatial_radius_bond_multiples": [
+        1.15,
+        1.65
+      ]
+    },
+    "modes": [
+      {
+        "atom_slots": [
+          5,
+          8,
+          9,
+          11,
+          14
+        ],
+        "template_id": "F_b011_s030_native"
+      }
+    ],
+    "native_options": {
+      "cat_noise_euler_guard": false,
+      "cat_noise_level": 1.0,
+      "coord_noise_level": 0.2,
+      "final_corr_pred": true,
+      "use_sde_simulation": true
+    },
+    "operator": "pair_distance",
+    "operator_formula": "R_geo = -mean[max(abs(student_pair_distance-teacher_pair_distance)-band,0)^2]",
+    "routing": "single",
+    "schedule_normalization": 1.0,
+    "steps": 100,
+    "target_band_A": 0.34828844929415836,
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "option_id": "option_000",
+  "parent_program_id": "L01b_local_support",
+  "primary_operator": "pair_distance"
+}

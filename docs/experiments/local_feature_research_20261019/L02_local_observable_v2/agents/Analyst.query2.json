@@ -1,0 +1,9 @@
+{
+  "purpose": "在交接前，再查询一次该区域的局部支持证据，以确认所选支持（槽位 5、8、9、11、14，共 5 个点，占 20%）的局部距离、内部形状和口袋相对距离是否足以区分终态收益。已返回的证据显示：pair_error_A 的 cluster_interval_95 为 [0.067, 0.324]，pocket_error_A 为 [0.011, 0.075]，point_error_A 为 [0.034, 0.168]，而 beyond_global_error_A 为 [-0.045, 0.174]（跨零）；这说明 pair 和 pocket 距离在高质量终态中确实更近，但超出整体相似度的局部形状效应尚未被证实。同时，parent L01b 的逐点位置奖励产生了 3 个高分（0.06），低于 zero_replay 的 13 个（0.26），best 也更低（8.287 对 8.626），且 gradient_native_observed_cosine 为 -0.149，unmatched_input_gradient_rms_fraction 为 0.667，说明注入方向与原生梯度相反，且大部分输入梯度来自未匹配耦合。因此，需要再次读取该区域自身的局部支持证据，确认 pair/pocket 距离的富集是否独立于整体相似度，再决定是否把 operator 从 pointwise 换成 pair_distance 或 pocket_distance。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__local_32e00570ab5a",
+      "tool": "local_support_evidence"
+    }
+  ]
+}

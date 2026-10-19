@@ -1,0 +1,82 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/8f7294db622b133fb803cbd0697d25943dcec2841bc352102043453b61729a41.txt",
+        "content_sha256": "8f7294db622b133fb803cbd0697d25943dcec2841bc352102043453b61729a41",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/5d3de0e27249e4da81df7af17f8528678bc0d61caa01718bd6a68ee2f53d563c.txt",
+        "content_sha256": "5d3de0e27249e4da81df7af17f8528678bc0d61caa01718bd6a68ee2f53d563c",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/d576b3796e978b20d5abdde3c0cbc0fdea005f808b5019e804aeab86a21a86aa.txt",
+        "content_sha256": "d576b3796e978b20d5abdde3c0cbc0fdea005f808b5019e804aeab86a21a86aa",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "design_grounds": {
+        "description": "One concise scientific reason; do not repeat canonical program/derivative/dose objects.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__local_32e00570ab5a/controller_response",
+            "F_b011_s030__local_32e00570ab5a/failure_history",
+            "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+            "parents/L01b_local_support/outcomes",
+            "parents/L01b_local_support/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "description": "One concise measurable negative outcome.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "option_id": {
+        "enum": [
+          "option_000"
+        ]
+      },
+      "parent_program_id": {
+        "const": "L01b_local_support"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

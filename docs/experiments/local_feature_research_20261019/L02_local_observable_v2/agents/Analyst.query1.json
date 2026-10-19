@@ -1,0 +1,9 @@
+{
+  "purpose": "在交接前，再查询一次该 parent 的控制器响应，以区分两种解释：(a) 逐点位置奖励的注入方向与原生梯度方向相反（cosine -0.149），且大部分输入梯度来自未匹配耦合（0.667），因此该奖励可能只是方向错误或剂量被归一化抵消；(b) 局部几何（pair/pocket 距离）才是随选择富集的量。已返回的局部支持证据显示：pair_error_A 的 cluster_interval_95 为 [0.067, 0.324]，pocket_error_A 为 [0.011, 0.075]，point_error_A 为 [0.034, 0.168]，beyond_global_error_A 为 [-0.045, 0.174]（跨零）；这说明 pair 和 pocket 距离在高质量终态中确实更近，而超出整体相似度的局部效应区间跨零，因此不能声称局部形状本身已富集。同时，parent 的 3 个高分（0.06）低于 zero_replay 的 13 个（0.26），best 也更低（8.287 对 8.626），所以逐点位置奖励没有带来终态收益。需要读取 controller_response，确认注入方向与原生梯度的夹角、分项/总梯度比例，以及是否存在剂量归一化抵消，再决定是否把 operator 换成 pair_distance 或 pocket_distance。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__local_32e00570ab5a",
+      "tool": "controller_response"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "design_grounds": "在固定支持 F_b011_s030__local_32e00570ab5a（槽位 5,8,9,11,14；5/25 点，20%，在允许 2–8 点内）上，终态对比显示 pair_error_A 的 other_minus_high=0.197 A、95% 区间 [0.067,0.324] 不跨零，pocket_error_A 亦不跨零，而 beyond_global_error_A 跨零，故局部内部距离是随终态质量富集的量。parent L01b 的逐点奖励虽已激活（active_updates 40、nonzero_seed_updates 2000、零裁剪），但注入方向与原生梯度余弦 -0.149、未匹配输入梯度 RMS 占比 0.667，且高分 3/50、best 8.287 低于同运行时 zero_replay 的 13/50、best 8.626，说明失败在方向而非剂量。因此仅将注册算子由 pointwise 换为 pair_distance，保持同一支持、窗口 [0.1,0.5]、教师时钟 endpoint_prediction 与剂量不变，作为单一机制对照；化学角色仅用于选区，不启用任何类型/电荷力。",
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "F_b011_s030__local_32e00570ab5a/controller_response",
+    "parents/L01b_local_support/outcomes",
+    "parents/L01b_local_support/response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "falsifier": "若在相同窗口、剂量、教师时钟与固定支持下，pair_distance 的窗口末端 pair_error_A 未低于 parent 同窗口末端值，或无引导后缀终态未保持该局部点对距离，或终态高分计数与尾部未超过同运行时 zero_replay（13/50，best 8.626）与 parent（3/50，best 8.287），则本假设被否证。",
+  "hypothesis_group": "G000",
+  "option_id": "option_000",
+  "parent_program_id": "L01b_local_support"
+}
