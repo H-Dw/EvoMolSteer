@@ -183,3 +183,16 @@ def test_sparse_activation_is_not_mistaken_for_weaker_active_seed_dose():
     assert dense['direct_injected_rms_A_mean']==2*sparse['direct_injected_rms_A_mean']
     assert dense['direct_injected_rms_A_nonzero_mean']==sparse['direct_injected_rms_A_nonzero_mean']
     assert control_summary([{'nonzero_molecules':0,'direct_injected_rms_A_mean':0}],50)['direct_injected_rms_A_nonzero_mean'] is None
+
+
+def test_queue_import_window_is_starting_instead_of_failed_status_read(tmp_path,monkeypatch):
+    monkeypatch.syspath_prepend(str(REPO/'scripts'))
+    from run_local_feature_followups import queue_snapshot
+    work=tmp_path/'work';work.mkdir();proc=tmp_path/'proc';(proc/'42').mkdir(parents=True)
+    (work/'queue.pid').write_text('42')
+    (proc/'42/cmdline').write_bytes(b'python\0-m\0evomolsteer.path_replay.local_research\0run\0')
+    assert queue_snapshot(work,proc)['status']=='starting'
+    write_json(work/'queue_status.json',{'status':'running'})
+    assert queue_snapshot(work,proc)['status']=='running'
+    (work/'queue_status.json').unlink();(proc/'42/cmdline').unlink()
+    assert queue_snapshot(work,proc)['status']=='failed_to_start'

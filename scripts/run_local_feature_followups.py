@@ -8,6 +8,7 @@ Credentials live only in inherited process environment.
 import argparse
 import copy
 import json
+import inspect
 import math
 from pathlib import Path
 import shlex
@@ -28,17 +29,40 @@ def invoke(repo,args,log):
     return p.stdout
 
 
+def queue_snapshot(work,proc_root='/proc'):
+    from pathlib import Path
+    import json
+    folder=Path(work);status=folder/'queue_status.json'
+    if status.exists():return json.loads(status.read_text())
+    pid=folder/'queue.pid';active=False
+    if pid.exists():
+        command=Path(proc_root)/pid.read_text().strip()/'cmdline'
+        active=command.exists() and b'evomolsteer.path_replay.local_research' in command.read_bytes()
+    log=folder/'queue.log'
+    return {'status':'starting' if active else 'failed_to_start','pid':pid.read_text().strip() if pid.exists() else None,
+            'detail':'Queue imports may precede its first atomic status file.','log_tail':log.read_text()[-1200:] if log.exists() else None}
+
+
 def wait_collect(repo,manifest_path,study,poll):
     m=read_json(manifest_path);work=m['remote_work']
+    started=time.monotonic();network_errors=0
     while True:
-        c=connect()
         try:
-            code=f"from pathlib import Path;print((Path({work!r})/'queue_status.json').read_text())"
-            state=json.loads(command(c,'python -c '+shlex.quote(code)))
-        finally:c.close()
+            c=connect()
+            try:
+                code=inspect.getsource(queue_snapshot)+'\nimport json\nprint(json.dumps(queue_snapshot('+repr(work)+')))'
+                state=json.loads(command(c,'python -c '+shlex.quote(code)))
+            finally:c.close()
+            network_errors=0
+        except (OSError,RuntimeError) as error:
+            network_errors+=1
+            if network_errors>=5:raise
+            write_json(study/'network_retry.json',{'attempt':network_errors,'error':str(error),'unix':time.time()})
+            time.sleep(poll);continue
         write_json(study/'remote_observation.json',state)
         if state['status'] in ('complete','complete_with_errors'):break
-        if state['status']=='blocked':raise RuntimeError('Remote shared validation blocked; no automatic bypass')
+        if state['status'] in ('blocked','failed_to_start'):raise RuntimeError('Remote startup/shared validation failed; see remote_observation.json')
+        if state['status']=='starting' and time.monotonic()-started>300:raise RuntimeError('Queue startup exceeded 300 seconds')
         time.sleep(poll)
     invoke(repo,['scripts/deploy_local_feature_research.py','collect','--repo','.', '--manifest',str(manifest_path)],study/'collect.log')
     local=repo/'data/generated'/m['name']
@@ -124,25 +148,36 @@ def run(repo,master_path,first_manifest,poll,label_suffix=''):
                     'dose_coverage':'Condition on nonzero seed updates. Report coverage separately; do not mistake a smaller active fraction for weaker per-active-seed displacement.',
                     'warning':'Clipping and input-coordinate VJP coupling mean a multiplier need not change actual local displacement proportionally. Returning the parent function is allowed and reused.'}
             path=repo/master['config_dir']/(label+'.master.json');write_json(path,m)
-            state.update(status='local_api',current=label);write_json(state_path,state)
-            args=['scripts/prepare_local_feature_research.py','--repo','.', '--master',str(path),'--round',label]
-            for op in operators:args+=['--operator',op]
-            try:invoke(repo,args,study/(label+'.api.log'))
-            except Exception:
-                state['followups'].append({'label':label,'status':'skipped_interface_error','error':traceback.format_exc(),
-                    'scientific_conclusion':'No inference; interface failure is not a negative generation result.'})
-                write_json(state_path,state);continue
-            next_path=repo/master['config_dir']/(label+'.json');new=read_json(next_path)
+            next_path=repo/master['config_dir']/(label+'.json')
+            existing_launch=study/label/'launch_receipt.json'
+            resumed=next_path.exists() and existing_launch.exists()
+            if not resumed:
+                state.update(status='local_api',current=label);write_json(state_path,state)
+                args=['scripts/prepare_local_feature_research.py','--repo','.', '--master',str(path),'--round',label]
+                for op in operators:args+=['--operator',op]
+                try:invoke(repo,args,study/(label+'.api.log'))
+                except Exception:
+                    state['followups'].append({'label':label,'status':'skipped_interface_error','error':traceback.format_exc(),
+                        'scientific_conclusion':'No inference; interface failure is not a negative generation result.'})
+                    write_json(state_path,state);continue
+            new=read_json(next_path)
             candidate=next(c for c in new['conditions'] if c['kind']!='unguided' and c.get('role')!='frozen_current_reference')
             p=read_json(repo/candidate['program'])
+            if resumed:
+                from evomolsteer.path_replay.local_research import load
+                load(repo,next_path)
+                delivered=read_json(study/label/'agents/delivery.json')
+                a=read_json(study/label/'agents'/delivered['analyst_response_path'])
+                if a['parent_program_id']!=parent_program['program_id']:raise ValueError('Existing launch belongs to a different Analyst parent')
             same=numerical_identity(p,bank)==numerical_identity(parent_program,bank)
             row={'label':label,'parent':parent['id'],'manifest':next_path.relative_to(repo).as_posix(),'reused_parent_function':same,
-                 'program_id':p['program_id'],'operator':p['operator'],'slots':p['mode_specs'][0]['atom_slots'],'dose':p['dose']}
+                 'program_id':p['program_id'],'operator':p['operator'],'slots':p['mode_specs'][0]['atom_slots'],'dose':p['dose'],'resumed_existing_launch':resumed}
             if same:
                 row['reason']='Agent returned the same executable numerical function; no duplicate inference.'
                 state['followups'].append(row);git_record(repo,m,label,study/(label+'.push.log'));break
-            git_record(repo,m,label,study/(label+'.push.log'))
-            invoke(repo,['scripts/deploy_local_feature_research.py','deploy','--repo','.', '--manifest',str(next_path)],study/(label+'.deploy.log'))
+            if not resumed:
+                git_record(repo,m,label,study/(label+'.push.log'))
+                invoke(repo,['scripts/deploy_local_feature_research.py','deploy','--repo','.', '--manifest',str(next_path)],study/(label+'.deploy.log'))
             state.update(status='remote_inference',current=label);write_json(state_path,state)
             next_current,next_local,next_result=wait_collect(repo,next_path,study,poll)
             counts={r['id']:r for r in next_result['status']}
