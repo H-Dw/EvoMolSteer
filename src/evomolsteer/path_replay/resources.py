@@ -43,7 +43,9 @@ def replay_processes():
         try:
             args=(p/'cmdline').read_bytes().decode(errors='replace').split('\x00')
             # Inspect argv tokens, avoiding false positives from SSH bash code.
-            if any(a.startswith(('evomolsteer.path_replay','evomolsteer.elite_alignment')) for a in args):
+            matches=[i for i,a in enumerate(args) if a.startswith(('evomolsteer.path_replay','evomolsteer.elite_alignment'))]
+            active=any(args[i].endswith('.worker') or (i+1<len(args) and args[i+1]=='run') for i in matches)
+            if active:
                 rows.append({'pid':int(p.name),'argv':args})
         except OSError: pass
     return rows

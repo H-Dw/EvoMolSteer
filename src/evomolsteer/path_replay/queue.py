@@ -69,7 +69,8 @@ def run_condition(repo,config_path,cfg,c,work,extension_manifest=None):
             for g in pending(work,cfg,c): fail_batch(work,cfg,c,g,error,status='skipped_condition_error',phase='condition_worker')
 
 
-def zero_gate(work,cfg):
+def zero_gate(work,cfg,publish=True):
+    work=Path(work)
     c=next(c for c in cfg['conditions'] if c['id']=='unguided');reports=[]
     for g in groups_for(cfg,c):
         r=read_batch(work,cfg,c,g)
@@ -82,7 +83,8 @@ def zero_gate(work,cfg):
          'max_terminal_coordinate_error_A':max(r['terminal_max_coordinate_error_A'] for r in reports),
          'max_pic50_error':max(r['terminal_max_pic50_error'] for r in reports),
          'discrete_states_equal':True,'bitwise_coordinates':all(r['max_coordinate_error_A']==0 and r['terminal_max_coordinate_error_A']==0 for r in reports)}
-    atomic_json(work/'zero_replay_gate.json',out);return out
+    if publish: atomic_json(work/'zero_replay_gate.json',out)
+    return out
 
 
 def verify(repo,cfg,work):

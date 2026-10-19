@@ -61,6 +61,18 @@ def test_smi_uses_actual_memory_fraction_not_compute_utilization_or_other_device
     with pytest.raises(ValueError):parse_vram({'card0':{'GPU use (%)':'0'}})
 
 
+def test_inherited_zero_gate_accepts_string_path_without_mutating_base(tmp_path,monkeypatch):
+    from evomolsteer.path_replay import queue
+    cfg=read_json(BASE);c=next(c for c in cfg['conditions'] if c['id']=='unguided')
+    for group in cfg['groups'][:4]:
+        file=batch_path(tmp_path,c,group).parent/'equivalence.json'
+        atomic_json(file,{'passed':True,'max_coordinate_error_A':0.,'terminal_max_coordinate_error_A':0.,'terminal_max_pic50_error':1e-6})
+    monkeypatch.setattr(queue,'read_batch',lambda *args:{'status':'complete'})
+    result=queue.zero_gate(str(tmp_path),cfg,publish=False)
+    assert result['passed'] and result['n']==200
+    assert not (tmp_path/'zero_replay_gate.json').exists()
+
+
 def test_offload_preserves_full_batch_outputs_repeated_vjps_rng_and_parameter_flags():
     torch.manual_seed(42);x0=torch.randn(50,25,3,dtype=torch.double);w=torch.nn.Parameter(torch.randn(3,7,dtype=torch.double))
     outputs=[];rng=torch.get_rng_state().clone()

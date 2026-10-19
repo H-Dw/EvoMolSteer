@@ -172,7 +172,7 @@ def run(repo,manifest_path,work):
         try:
             validate(cfg);condition_program(repo,c);verify_source(cfg)
             if digest(cfg['checkpoint'])!=cfg['checkpoint_sha256']: raise ValueError('Model checkpoint changed')
-            gate=zero_gate(ext['base_work'],cfg);atomic_json(work/'inherited_zero_replay_gate.json',gate)
+            gate=zero_gate(ext['base_work'],cfg,publish=False);atomic_json(work/'inherited_zero_replay_gate.json',gate)
             attach_verified_tapes(cfg,ext,work);reuse=reuse_completed(cfg,ext,work)
             atomic_json(work/'extension.json',ext)
             resources=resource_gate(work,ext['gpu_memory_threshold_percent']);atomic_json(work/'prelaunch_resources.json',resources)
