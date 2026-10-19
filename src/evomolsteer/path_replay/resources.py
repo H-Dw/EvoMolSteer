@@ -51,12 +51,29 @@ def replay_processes():
     return rows
 
 
+def host_memory_available(meminfo=Path('/proc/meminfo'),v2=Path('/sys/fs/cgroup'),v1=Path('/sys/fs/cgroup/memory')):
+    available=None
+    for line in meminfo.read_text().splitlines():
+        if line.startswith('MemAvailable:'):available=int(line.split()[1])*1024
+    result={'host_available_bytes':available,'cgroup_limit_bytes':None,'cgroup_used_bytes':None}
+    for root,limit_key,used_key in ((v2,'memory.max','memory.current'),(v1,'memory.limit_in_bytes','memory.usage_in_bytes')):
+        limit_file=root/limit_key;used_file=root/used_key
+        if not limit_file.exists() or not used_file.exists():continue
+        limit=limit_file.read_text().strip()
+        if limit=='max':continue
+        limit=int(limit);used=int(used_file.read_text())
+        if limit>2**60:continue  # cgroup v1's unlimited sentinel
+        result.update(cgroup_limit_bytes=limit,cgroup_used_bytes=used)
+        available=min(available,max(0,limit-used)) if available is not None else None
+        break
+    result['available_bytes']=available;return result
+
+
 def resource_gate(work,threshold=10.):
     memory=visible_gpu_memory();processes=replay_processes()
-    available=None
-    for line in Path('/proc/meminfo').read_text().splitlines():
-        if line.startswith('MemAvailable:'): available=int(line.split()[1])*1024
+    host=host_memory_available();available=host['available_bytes']
     result={'memory':memory,'replay_processes':processes,'available_host_bytes':available,
+            'host_memory':host,
             'disk_free_bytes':shutil.disk_usage(work).free,'threshold_percent':threshold}
     result['passed']=memory['percent']<threshold and not processes and available is not None and available>=96*1024**3 and result['disk_free_bytes']>=256*1024**2
     return result

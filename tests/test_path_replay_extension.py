@@ -73,6 +73,17 @@ def test_inherited_zero_gate_accepts_string_path_without_mutating_base(tmp_path,
     assert not (tmp_path/'zero_replay_gate.json').exists()
 
 
+@pytest.mark.parametrize('version',[1,2])
+def test_offload_preflight_respects_container_memory_limit_not_host_total(tmp_path,version):
+    from evomolsteer.path_replay.resources import host_memory_available
+    info=tmp_path/'meminfo';info.write_text('MemAvailable: 999999999 kB\n')
+    v1=tmp_path/'v1';v2=tmp_path/'v2';root=v1 if version==1 else v2;root.mkdir()
+    (root/('memory.limit_in_bytes' if version==1 else 'memory.max')).write_text(str(120*1024**3))
+    (root/('memory.usage_in_bytes' if version==1 else 'memory.current')).write_text(str(80*1024**3))
+    result=host_memory_available(info,v2,v1)
+    assert result['available_bytes']==40*1024**3 and result['cgroup_limit_bytes']==120*1024**3
+
+
 def test_offload_preserves_full_batch_outputs_repeated_vjps_rng_and_parameter_flags():
     torch.manual_seed(42);x0=torch.randn(50,25,3,dtype=torch.double);w=torch.nn.Parameter(torch.randn(3,7,dtype=torch.double))
     outputs=[];rng=torch.get_rng_state().clone()
