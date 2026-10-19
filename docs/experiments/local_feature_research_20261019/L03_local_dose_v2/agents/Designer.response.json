@@ -1,0 +1,15 @@
+{
+  "design_grounds": "保留同一 5 点支持、同一 registered_pair_distance 算子与 endpoint_prediction 时钟，仅降低名义剂量（native_rms_ratio 0.66→0.3695），以区分 L02 的“形成有半程证据但终态无收益”是剂量过强还是方向问题：L02 已显示激活成立（direct_injected_rms 0.030 对 outside 0.0095、零裁剪）且半程 pair_error 0.121 优于 zero_replay 观测半程 0.212，但终态 best 8.273、high 1/50 低于 zero_replay 的 8.626、13/50，且 gradient_native_observed_cosine_mean=-0.045 近乎正交；在方向未变的前提下先匹配更小总请求预算，可检验较小实际位移是否改善保持与终态价值，而不宣称已排除剂量或方向解释。",
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/controller_response",
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "parents/L02_local_observable_v2/outcomes",
+    "parents/L02_local_observable_v2/response",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "falsifier": "若在相同支持、相同算子、相同时钟下，窗口末端 pair_error_A 未相对窗口起点下降（形成失败），或窗口末端下降但无引导后缀终态 tracked_pair_error_A 回升至不低于 L02 的 0.180（保持失败），或形成与保持均成立但终态 best_valid 与 high_score_count 相对 zero_replay（8.626，13/50）与 L02（8.273，1/50）无改善，则本假设被否证。",
+  "hypothesis_group": "G000",
+  "option_id": "option_000",
+  "parent_program_id": "L02_local_observable_v2"
+}

@@ -1,0 +1,13 @@
+{
+  "purpose": "在交接前，先查询所选区域 F_b011_s030__local_32e00570ab5a 的局部支持证据，以确认该 5 点支持（槽位 5、8、9、11、14）的局部距离、内部形状和口袋相对距离是否超出整体相似度；同时查询该 parent 的控制器响应，以区分“函数方向不对”与“真实剂量不足/归一化抵消”。当前配对诊断显示：L02 的 best 为 8.273，低于 zero_replay 的 8.626，且 high_score 仅 1/50，而 zero_replay 为 13/50；L02 的 gradient_native_observed_cosine_mean 为 -0.045，direct_injected_rms 为 0.030，outside 为 0.0095，说明局部注入确实激活，但方向与原生流近乎正交。因此，需要先读取该区域自身的局部测量和 parent 控制响应，再决定是否保留 pair_distance 主假设，或将其降级为辅助诊断。",
+  "requests": [
+    {
+      "region_id": "F_b011_s030__local_32e00570ab5a",
+      "tool": "local_support_evidence"
+    },
+    {
+      "region_id": "F_b011_s030__local_32e00570ab5a",
+      "tool": "controller_response"
+    }
+  ]
+}

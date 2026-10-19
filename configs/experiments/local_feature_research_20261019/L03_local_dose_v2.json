@@ -1,0 +1,161 @@
+{
+  "base_config": "configs/experiments/path_replay_b50_20261018/config.json",
+  "base_config_sha256": "958e7c2803af661f9e0f9a3a4d45a4edfa27090c58772dd596990b5625ec828e",
+  "base_protocol_sha256": "9f719f3e40baeb5d813df03045928e93efa0b5b39f47a1ec12364673d2e5e21b",
+  "base_work": "/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_path_replay_b50_20261018",
+  "batch_size": 50,
+  "batch_timeout_seconds": 7200,
+  "comparison_scope": "current_runtime_paired_diagnostic",
+  "conditions": [
+    {
+      "group_indices": [
+        0
+      ],
+      "id": "zero_replay",
+      "kind": "unguided",
+      "n": 50,
+      "reuse_current_from": {
+        "condition": "zero_replay",
+        "manifest": "configs/experiments/local_feature_research_20261019/L01c_runtime_paired.json"
+      },
+      "window": null
+    },
+    {
+      "frozen_source_condition": "ancestor_R02_v3",
+      "group_indices": [
+        0
+      ],
+      "historical_commit": "46218d7950f7",
+      "id": "R02_reference",
+      "kind": "native_local",
+      "n": 50,
+      "program": "docs/experiments/ancestral_modes35_v3_20261016/R02_v3/candidates/registered/programs/R02_v3.json",
+      "program_sha256": "473e26ac593207eb2aa4f0b0eac3a362e6353ed1f38f529d426169ffb176d31f",
+      "reference": "docs/experiments/ancestral_modes35_v3_20261016/R02_v3/candidates/registered/teacher.json",
+      "reference_sha256": "5cc31f14fbbdb8fc0be40f9481c8c2de06b1d757f8b7cc50d80e11a813f54e1d",
+      "reuse_current_from": {
+        "condition": "R02_reference",
+        "manifest": "configs/experiments/local_feature_research_20261019/L01c_runtime_paired.json"
+      },
+      "role": "frozen_current_reference",
+      "window": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "group_indices": [
+        0
+      ],
+      "id": "L03_local_dose_v2",
+      "kind": "native_local",
+      "n": 50,
+      "program": "docs/experiments/local_feature_research_20261019/L03_local_dose_v2/program.json",
+      "program_sha256": "ebbf83385a1e645eacdb55636796c840112d9735e4feb5da8d82973772d2b1e3",
+      "reference": "docs/experiments/ancestral_modes35_v3_20261016/R02_v3/candidates/registered/teacher.json",
+      "reference_sha256": "5cc31f14fbbdb8fc0be40f9481c8c2de06b1d757f8b7cc50d80e11a813f54e1d",
+      "window": [
+        0.1,
+        0.5
+      ]
+    }
+  ],
+  "diagnostic_evidence": {
+    "path": "docs/experiments/local_feature_research_20261019/runtime_precision_diagnostic.json",
+    "sha256": "256704c64328a87ebe0f2719744c831b4558b9e48e86c4f7b7d6824e912e3eb4"
+  },
+  "name": "local_feature_research_20261019/L03_local_dose_v2",
+  "native_zero_repeat_sources": {
+    "0": "/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_local_feature_research_20261019/native_zero_diagnostic/methods/unguided/group_000/states.npz"
+  },
+  "parent_condition_id": "R02_reference",
+  "remote_work": "/root/private_data/MolSteer/flowr_root/experiments/evomolsteer_local_feature_research_20261019/L03_local_dose_v2",
+  "research_sha256": "e7d3b1f3d79ba781e7e6af9e45c170b5a6a5bf08f921b1409e20c5c466c7e9f2",
+  "saved_tensor_policy": "saved_tensors_cpu_exact",
+  "schema_version": "local-feature-path-research-1",
+  "scientific_scope": {
+    "changed": {
+      "dose": {
+        "after": {
+          "max_atom_step_A": 0.15,
+          "max_cumulative_rms_A": 6.0,
+          "native_rms_ratio": 0.3694995070851178,
+          "pointcloud_delta_A": 1.0
+        },
+        "before": {
+          "max_atom_step_A": 0.15,
+          "max_cumulative_rms_A": 6.0,
+          "native_rms_ratio": 0.66,
+          "pointcloud_delta_A": 1.0
+        }
+      },
+      "local_feature_binding": {
+        "after": {
+          "active_terms": [
+            "registered_pair_distance"
+          ],
+          "atom_slots": [
+            5,
+            8,
+            9,
+            11,
+            14
+          ],
+          "chemical_role_used_for_selection_only": true,
+          "clock_policy": "endpoint_prediction",
+          "decision_provenance": {
+            "analyst_sha256": "665bf1bc3d3329840aa4284bccc15e018b17f26c590d71176661d7b62282159c",
+            "delivery": "docs/experiments/local_feature_research_20261019/L03_local_dose_v2/agents/delivery.json",
+            "designer_sha256": "e015202c4e91c80b1b70ca6370b06d246aa7d4a712b3872955e9e76a3be8418b"
+          },
+          "direct_type_force": false,
+          "evidence": "evidence/F_b011_s030__local_32e00570ab5a.json",
+          "locality": {
+            "allowed_max_points": 8,
+            "allowed_min_points": 2,
+            "fraction": 0.2,
+            "n_points": 5,
+            "n_total": 25
+          },
+          "operator": "pair_distance",
+          "origin": "deterministic_feature_compilation; not a new Analyst/Designer decision",
+          "region_id": "F_b011_s030__local_32e00570ab5a"
+        },
+        "before": {
+          "active_terms": [
+            "registered_pair_distance"
+          ],
+          "atom_slots": [
+            5,
+            8,
+            9,
+            11,
+            14
+          ],
+          "chemical_role_used_for_selection_only": true,
+          "clock_policy": "endpoint_prediction",
+          "decision_provenance": {
+            "analyst_sha256": "dcf9c7ecea5a6382fbf0e32811abbc076f6f1a724178b31892089dcd16c663e6",
+            "delivery": "docs/experiments/local_feature_research_20261019/L02_local_observable_v2/agents/delivery.json",
+            "designer_sha256": "05eccf167c59d16a69d81a71a32ca15e0b348cbc0bf50f2f0e37fea88b6555d6"
+          },
+          "direct_type_force": false,
+          "evidence": "evidence/F_b011_s030__local_32e00570ab5a.json",
+          "locality": {
+            "allowed_max_points": 8,
+            "allowed_min_points": 2,
+            "fraction": 0.2,
+            "n_points": 5,
+            "n_total": 25
+          },
+          "operator": "pair_distance",
+          "origin": "deterministic_feature_compilation; not a new Analyst/Designer decision",
+          "region_id": "F_b011_s030__local_32e00570ab5a"
+        }
+      }
+    },
+    "decision_chain": "real DeepSeek Analyst -> Designer option -> deterministic compiler -> validated local feature binding",
+    "registry_identity": "640e12157c2c74daee8743b22a137f0b9ffb74c146eb2007c797e99f5f08f84b",
+    "source": "true historical initial tensors and ancestry-mapped primitive random inputs"
+  }
+}

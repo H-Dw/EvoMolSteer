@@ -1,0 +1,84 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/251077af750c13738f71463c50964066a06371557b40abb5d9cce2b05d5b515d.txt",
+        "content_sha256": "251077af750c13738f71463c50964066a06371557b40abb5d9cce2b05d5b515d",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/8db4708c056b4260501d0ae8a2fda3b0230eec374fa3da174316377ac7214ddb.txt",
+        "content_sha256": "8db4708c056b4260501d0ae8a2fda3b0230eec374fa3da174316377ac7214ddb",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/6c469983ba898f90ba75cb56040b4fc13d30cafb1205bec67f8fb6e646996306.txt",
+        "content_sha256": "6c469983ba898f90ba75cb56040b4fc13d30cafb1205bec67f8fb6e646996306",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "design_grounds": {
+        "description": "One concise scientific reason; do not repeat canonical program/derivative/dose objects.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__local_32e00570ab5a/controller_response",
+            "F_b011_s030__local_32e00570ab5a/failure_history",
+            "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+            "parents/L02_local_observable_v2/outcomes",
+            "parents/L02_local_observable_v2/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "description": "One concise measurable negative outcome.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G000"
+      },
+      "option_id": {
+        "enum": [
+          "option_000",
+          "option_001",
+          "option_002"
+        ]
+      },
+      "parent_program_id": {
+        "const": "L02_local_observable_v2"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

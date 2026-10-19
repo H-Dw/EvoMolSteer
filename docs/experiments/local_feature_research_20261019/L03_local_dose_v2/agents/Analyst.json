@@ -1,0 +1,31 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。终态角色（5 个原子均为芳香 C，非供体非受体，形式电荷 0）仅用于选区，不声称已启用化学力；active_terms 仅为 registered_pair_distance，direct_type_force=false。元素/电荷预测概率保留原始 float16 量化，未用于决策。",
+  "clock_and_representation": "clock_policy=endpoint_prediction：observable 为 predicted_endpoint，teacher 为 teacher_predicted_endpoint_at_same_forward_time。学习窗口 [0.0,0.5]，控制窗口 [0.1,0.5]，100 步，constant 剂量，schedule_normalization=1.0，target_band_A=0.34828844929415836。半程诊断对实际半程教师，终态诊断对实际终态教师；终态不与半程教师比较。教师趋势为单条谱系诊断拟合，不是群体富集，也不是空间梯度。",
+  "component_response_interpretation": "非零分项梯度只证明控制项已激活：direct_injected_rms_A_mean=0.030、direct_injected_rms_A_nonzero_mean=0.054、outside_injected_rms_A_mean=0.0095、atom_clip_fraction=0、cumulative_clip_fraction=0。但 gradient_native_observed_cosine_mean=-0.045 表明注入方向与原生流近乎正交，且 injected_rms_A_mean=0.016 对 predictive_flow_rms_A_mean=0.045，归一化后总方向是否明显改变尚未确认。unmatched_input_gradient_rms_fraction_mean=0.289 反映生成器耦合，不是额外教师点。因此当前不能判定“剂量不足”或“方向不对”中的哪一个，需由本轮形成/保持/价值三段测试区分；零裁剪与恒定剂量不构成后缀保持证据。",
+  "controlled_feature": "pair_error_A",
+  "counterevidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/failure_history",
+    "source/prior_campaign",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "F_b011_s030__local_32e00570ab5a/controller_response",
+    "parents/L02_local_observable_v2/outcomes",
+    "parents/L02_local_observable_v2/response"
+  ],
+  "falsifier": "若在相同支持、相同算子、相同时钟下，窗口末端 pair_error_A 未下降（形成失败），或窗口末端下降但无引导后缀终态 tracked_pair_error_A 回升至不低于 L02 的 0.180（保持失败），或形成与保持均成立但终态 best_valid 与 high_score_count 相对 zero_replay 无改善（形成但终态无收益），则本假设被否证。另：若 gradient_native_observed_cosine_mean 持续接近零或为负（当前 -0.045）且归一化后总方向未改变，则“函数方向不对”解释优先于“剂量不足”。",
+  "formation_retention_value_test": "形成：窗口末端实际几何的 pair_error_A 相对窗口起点下降，且 direct_injected_rms_A_mean 保持非零（当前 0.030 对 outside 0.0095，激活已成立）。保持：同一固定槽位支持在无引导后缀终态的 tracked_pair_error_A 不回升（当前 0.180，rematched 0.193，suffix_tracking_residual 0.537）。价值：终态 best_valid/high_score_count 相对 zero_replay 与 L02 的配对差异。三者分开报告，不得互相替代；离教师更近、梯度更易降低局部损失、终态亲和力更高是三个不同命题。",
+  "group_id": "G000",
+  "observable_change": "预期 controlled_feature=pair_error_A 在窗口 [0.1,0.5] 内下降，且窗口末端与无引导后缀终态的 tracked_pair_error_A 低于当前 L02 的 0.180；辅助诊断（非单独激活力）为 pocket_error_A 与 point_error_A 同向下降。终态收益以 best_valid 与 high_score_count 相对 zero_replay（best 8.626，high 13/50）与 L02（best 8.273，high 1/50）的配对比较读取。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "L02_local_observable_v2",
+  "primary_operator": "pair_distance",
+  "relationship_to_failed_families": "failure_history 的 current 为空，previous_campaign 仅重复同一配对诊断，未提供额外失败家族标签。已观测的失败模式是：L02 激活成立（direct_injected_rms 0.030 对 outside 0.0095，零裁剪）且半程 pair_error 0.121 优于 zero_replay 观测半程 0.212，但终态 best 8.273、high 1/50 明显低于 zero_replay 的 8.626、13/50，且 gradient_native_observed_cosine_mean=-0.045。这属于“形成有半程证据、终态无收益/方向与原生流近乎正交”，不是“目标无法形成”，也不是“后缀未保持”的已证结论（tracked 0.180 与 rematched 0.193 接近，槽位漂移本身不能证明空间模式丢失）。",
+  "scientific_hypothesis": "在区域 F_b011_s030__local_32e00570ab5a（槽位 5、8、9、11、14，5/25 点，0.2 覆盖）上，终态高质量组相对其他终态在 pair_error_A 上更接近教师终态（other_minus_high=0.197，95% CI [0.067,0.324]），pocket_error_A（0.041，CI [0.011,0.075]）与 point_error_A（0.103，CI [0.034,0.168]）同向，而 beyond_global_error_A 的 CI 跨零（[-0.045,0.174]），说明该局部支持携带超出整体相似度的终态几何信息。假设：以 endpoint_prediction 时钟、registered_pair_distance 为唯一激活算子，在该 5 点支持上约束预测端点对距离，可在学习窗口内形成并保持该局部形状，并在终态带来亲和力收益。这是待检验的表示转移：终态关联被迁移为在线预测端点约束，分析与推理的对应规则不完全相同（运行时还使用声明的 detached element cost）。",
+  "support_reason": "5 点支持（5、8、9、11、14）来自 bond_neighborhood 深度 2、中心 8，覆盖 0.2（允许 2–8 点，0.32 上限），未沿用父程序点数，也未把上限当目标。每个点均有用途：5、8、9 构成 orientation_triplet [5,8,9]，8、5、11 与 11、8、14 定义局部形状与连接环境；口袋相对位置由 4 个口袋位点（A:LEU:45:O/C/CB、A:HIS:160:CE1）约束。该区域自身测量显示 pair/pocket/point 三项终态富集 CI 均不跨零，而 beyond_global 跨零，支持“局部对比超出整体相似度”。较小支持不自动更优：本轮未生成更小或等点数几何对照，故不声称更小更好。"
+}
