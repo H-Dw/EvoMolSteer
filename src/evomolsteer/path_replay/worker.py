@@ -89,9 +89,15 @@ def score(model,output,pocket,com):
     return scores
 
 
-def run(repo,config_path,work,condition_id,only_group=None):
+def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=None):
     repo=Path(repo).resolve();work=Path(work).resolve();cfg=read_json(config_path);validate(cfg)
     c=next(c for c in cfg['conditions'] if c['id']==condition_id)
+    extension=None
+    if extension_manifest is not None:
+        from .extension import validate_extension
+        extension=read_json(extension_manifest);validate_extension(cfg,extension)
+        if c['id']!=extension['condition']['id']: raise ValueError('Worker condition differs from extension')
+        c=extension['condition']
     if c.get('alias_of'): raise ValueError('Aliased condition must not launch another GPU worker')
     def heartbeat(**kw): atomic_json(work/'worker_state.json',{'condition':c['id'],'pid':os.getpid(),'unix':time.time(),**kw})
     previous_error=work/'worker_error.json'
@@ -109,6 +115,8 @@ def run(repo,config_path,work,condition_id,only_group=None):
         'pocket_context':'encode original full B50 before gathering root contexts; inherit the original first-selection tensor layout; never re-encode the regrouped pockets',
         'weight_policy':'preserve native parameter autograd flags; no optimizer; verify parameter versions and absence of accumulated weight gradients',
         'parameters_requiring_grad':sum(p.requires_grad for p in model.parameters()),
+        'extension_sha256':extension['extension_sha256'] if extension else None,
+        'saved_tensor_policy':extension['saved_tensor_policy'] if extension else 'native_device',
         'code_commit':os.environ.get('EVOMOLSTEER_RUNTIME_COMMIT')})
     from evomolsteer.elite_alignment.worker import make_posebusters
     from evomolsteer.agentic_steer.native import molecule_quality,slice_tree
@@ -134,6 +142,10 @@ def run(repo,config_path,work,condition_id,only_group=None):
             forward=control.forward
             def observed(curr,pocket_data,times,cond,equis,invs,i,dt):
                 if i%10==0: heartbeat(phase='inference',group=group['index'],step=i)
+                if extension is not None:
+                    from .memory import saved_tensor_context
+                    with saved_tensor_context(extension['saved_tensor_policy']):
+                        return forward(curr,pocket_data,times,cond,equis,invs,i,dt)
                 return forward(curr,pocket_data,times,cond,equis,invs,i,dt)
             control.forward=observed;model._half_guidance=control
             with replay.activate():
@@ -209,8 +221,8 @@ def run(repo,config_path,work,condition_id,only_group=None):
 def main():
     p=argparse.ArgumentParser()
     for k in ('repo','config','work','condition'): p.add_argument('--'+k,required=True)
-    p.add_argument('--group',type=int);a=p.parse_args()
-    try: run(a.repo,a.config,a.work,a.condition,a.group)
+    p.add_argument('--group',type=int);p.add_argument('--extension-manifest');a=p.parse_args()
+    try: run(a.repo,a.config,a.work,a.condition,a.group,a.extension_manifest)
     except Exception:
         atomic_json(Path(a.work)/'worker_error.json',{'condition':a.condition,'error':traceback.format_exc(),'unix':time.time()});raise
 

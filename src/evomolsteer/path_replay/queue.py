@@ -31,7 +31,7 @@ def summary(work,cfg):
     return rows
 
 
-def run_condition(repo,config_path,cfg,c,work):
+def run_condition(repo,config_path,cfg,c,work,extension_manifest=None):
     state=work/'worker_state.json'
     for restart in range(cfg['max_worker_restarts']+1):
         if not pending(work,cfg,c): return
@@ -39,6 +39,7 @@ def run_condition(repo,config_path,cfg,c,work):
         if state.exists(): state.unlink()
         args=[sys.executable,'-u','-m','evomolsteer.path_replay.worker','--repo',str(repo),'--config',str(config_path),
               '--work',str(work),'--condition',c['id']]
+        if extension_manifest is not None: args+=['--extension-manifest',str(extension_manifest)]
         logpath=work/'logs'/(c['id']+'.worker.log');logpath.parent.mkdir(parents=True,exist_ok=True)
         active=None;started=time.monotonic();batch_started=started;timed_out=False
         with logpath.open('a',encoding='utf-8') as log:
