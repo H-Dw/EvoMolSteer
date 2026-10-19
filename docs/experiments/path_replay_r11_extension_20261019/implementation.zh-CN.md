@@ -15,7 +15,7 @@
 
 通过 `torch.autograd.graph.save_on_cpu(pin_memory=False)` 将反向传播保存的张量临时放入主机内存。保持完整B50 forward、float32和原生parameter autograd flags；不降低批量，不使用近似梯度、重算、半精度或修改奖励。原始No guidance的200条精确回放校验仍作为共享门槛。
 
-该存储策略的局部验证包括B50张量的重复VJP、RNG不变、参数标志不变、真实冻结R11控制器在测试模型上的输出与缓存梯度逐元素一致。42项本地测试通过。真实FLOWR B50是否可运行及耗时仍需以新任务的实际产出确认，不能把测试模型一致性当成全模型验证结果。
+该存储策略的局部验证包括B50张量的重复VJP、RNG不变、参数标志不变、真实冻结R11控制器在测试模型上的输出与缓存梯度逐元素一致。43项本地测试通过。真实FLOWR B50是否可运行及耗时仍需以新任务的实际产出确认，不能把测试模型一致性当成全模型验证结果。
 
 首次部署在GPU推理开始前发现继承校验接口的路径类型错误，已在提交`bd106a78`中修复，并新增只读继承校验测试；原结果不被改写。当前后台runtime固定在该提交。后续检查还发现主机内存容量与容器限额不同：容器为120 GiB，因此补充cgroup v1/v2内存余量检查，供之后的新启动使用，不覆盖正在运行的runtime。
 
@@ -28,3 +28,12 @@
 启动前再次检查GPU 0显存严格低于10%、无其它历史回放进程、内存及磁盘余量。队列使用独立互斥锁、每批完成收据和逐批异常隔离。保存派发凭据后不重复启动。内存卸载增加传输开销，因此独立扩展将每批超时设为7200秒；这只影响容错等待，不影响科学执行参数。
 
 统计分别报告整体1000与原Steer前5%、10%、20%的路径子集。原Steer、R02、R15具备完整1000条；No guidance和M2仅200条，配对交集和整体对照明确区分。报告评分覆盖、有效结构、应变覆盖及均值、中位数、P90/P95/P99、最高值和高分富集。
+
+本地收集后可重算，不依赖本地存在远端绝对路径：
+
+```powershell
+$env:PYTHONPATH=(Resolve-Path src).Path
+.venv/Scripts/python.exe -m evomolsteer.path_replay.extension analyze --repo . --manifest configs/experiments/path_replay_r11_extension_20261019/extension.json --work data/generated/path_replay_r11_extension_20261019 --base-work data/generated/path_replay_b50_20261018
+```
+
+两套输入中的批次仍接受原协议绑定和产物校验，不根据文件名直接接受控制结果。

@@ -105,16 +105,20 @@ def status(cfg,ext,work):
         'pending':50*sum(r is None for r in receipts),'extension_sha256':ext['extension_sha256']}
 
 
-def analyze(repo,cfg,ext,work,bootstrap=True):
+def analyze(repo,cfg,ext,work,bootstrap=True,base_work=None):
     from .analysis import distribution,paired_cluster,write_csv
     from .common import groups_for
     work=Path(work);out=work/'analysis';out.mkdir(parents=True,exist_ok=True)
+    base_work=Path(base_work) if base_work is not None else Path(ext['base_work'])
+    if not base_work.exists():
+        local=Path(repo)/'data/generated'/cfg['name']
+        if local.exists():base_work=local
     attempts={a['id']:a for a in cfg['attempts']};datasets={};planned={}
     for c in cfg['conditions']:
         override=c['id']=='NC_R11';source=ext['condition'] if override else next((x for x in cfg['conditions'] if x['id']==c.get('alias_of')),c)
         records=[]
         for g in groups_for(cfg,source):
-            r=read_batch(work if override else ext['base_work'],cfg,source,g)
+            r=read_batch(work if override else base_work,cfg,source,g)
             if r:
                 records += [dict(attempts[v['id']],**{k:x for k,x in v.items() if k not in attempts[v['id']]}) for v in r['records']]
         datasets[c['id']]=records;planned[c['id']]=1000 if override else c['n']
@@ -144,6 +148,7 @@ def analyze(repo,cfg,ext,work,bootstrap=True):
     write_csv(out/'performance.csv',performance);write_csv(out/'paired.csv',paired)
     result={'extension_sha256':ext['extension_sha256'],'base_protocol_sha256':cfg['protocol_sha256'],
         'performance':performance,'paired':paired,'status':status(cfg,ext,work),
+        'analysis_sources':{'extension_work':str(work),'base_work':str(base_work)},
         'interpretation':'Retrospectively conditioned historical paths. Unguided and M2 have only top200; all1000 comparisons to them cover their intersection only.'}
     atomic_json(out/'summary.json',result)
     lines=['# N/C R11 历史路径回放扩展','',
@@ -193,12 +198,12 @@ def run(repo,manifest_path,work):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['prepare','run','status','analyze','collect'])
     p.add_argument('--repo',type=Path,default=Path('.'));p.add_argument('--manifest',type=Path,required=True)
-    p.add_argument('--base-config',type=Path);p.add_argument('--work',type=Path);p.add_argument('--output');a=p.parse_args()
+    p.add_argument('--base-config',type=Path);p.add_argument('--work',type=Path);p.add_argument('--base-work',type=Path);p.add_argument('--output');a=p.parse_args()
     if a.action=='prepare':print(json.dumps(prepare(a.repo,a.base_config,a.manifest),indent=2));return
     cfg,ext,base=load(a.repo,a.manifest);work=a.work or Path(ext['remote_work'])
     if a.action=='run':result=run(a.repo,a.manifest,work)
     elif a.action=='analyze':
-        result=analyze(a.repo,cfg,ext,work);result={'status':result['status'],'analysis':str(work/'analysis')}
+        result=analyze(a.repo,cfg,ext,work,base_work=a.base_work);result={'status':result['status'],'analysis':str(work/'analysis')}
     elif a.action=='collect':
         from .collection import collect
         if a.output is None:p.error('collect requires --output')

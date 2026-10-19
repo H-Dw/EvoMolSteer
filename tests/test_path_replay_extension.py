@@ -121,3 +121,15 @@ def test_frozen_r11_control_matches_with_offload_for_full_b50():
     for a,b in zip(results[0][1],results[1][1]):
         assert torch.equal(a,b) if torch.is_tensor(a) else a==b
     assert model.w.requires_grad and model.w.grad is None
+
+
+def test_collected_extension_can_analyze_against_local_checksummed_controls(tmp_path,monkeypatch):
+    from evomolsteer.path_replay import extension
+    cfg,ext=example(tmp_path);calls=[];base=tmp_path/'controls';work=tmp_path/'extension'
+    def missing(folder,*args):calls.append(Path(folder));return None
+    monkeypatch.setattr(extension,'read_batch',missing)
+    result=extension.analyze(tmp_path,cfg,ext,work,bootstrap=False,base_work=base)
+    assert base in calls and Path(ext['base_work']) not in calls
+    assert result['analysis_sources']['base_work']==str(base)
+    overall=next(r for r in result['paired'] if r['reference']=='M2' and r['cohort']=='all1000')
+    assert not overall['full_cohort_comparator'] and overall['reference_planned']==200
