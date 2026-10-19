@@ -62,10 +62,12 @@ def git_record(repo,master,label,log):
     if p.returncode:raise RuntimeError('Push failed; no remote launch from unpushed code')
 
 
-def calibrated_factors(target,observed):
+def calibrated_factors(target,observed,bounds=(.1,2.)):
     if not target or not observed or not math.isfinite(target+observed) or min(target,observed)<=0:
         raise ValueError('Finite measured positive support doses required')
-    factor=min(2.,max(.1,target/observed))
+    lower,upper=bounds
+    if not 0<lower<=1<=upper:raise ValueError('Dose factor bounds must include the parent')
+    factor=min(upper,max(lower,target/observed))
     return factor,sorted({1.,factor,math.sqrt(factor)})
 
 
@@ -74,18 +76,22 @@ def declined(outcome,parent,tolerance=.03):
     return parent['best_valid'] is not None and outcome['best_valid']<parent['best_valid']-tolerance and outcome['mean']<parent['mean']-tolerance
 
 
-def run(repo,master_path,first_manifest,poll):
+def run(repo,master_path,first_manifest,poll,label_suffix=''):
     repo=Path(repo).resolve();master=read_json(master_path);study=repo/master['campaign_study'];bank=read_json(repo/master['teacher_bank'])
     state={'status':'waiting_for_first_pilot','followups':[],'max_followups':2,'poll_seconds':poll}
-    state_path=study/'followup_state.json';write_json(state_path,state)
+    state_path=study/'followup_state.json'
+    if state_path.exists():write_json(study/'followup_history'/f'{time.time_ns()}.json',read_json(state_path))
+    state['label_suffix']=label_suffix;write_json(state_path,state)
     current_path=Path(first_manifest).resolve();declines=0
     try:
         current,local,result=wait_collect(repo,current_path,study,poll)
         original_controls=current_path.relative_to(repo).as_posix()
         parent=next(c for c in current['conditions'] if c['kind']!='unguided' and c.get('role')!='frozen_current_reference')
         initial={r['condition']:r for r in result['performance']}
-        declines=int(declined(initial[parent['id']],initial['R02_reference']))
+        tolerance=master.get('rollback_tolerance_pic50',.03)
+        declines=int(declined(initial[parent['id']],initial['R02_reference'],tolerance))
         for phase,label in [('observable','L02_local_observable'),('dose','L03_local_dose')]:
+            label+=label_suffix
             completed={r['id']:r for r in result['status']}
             if any(completed[c['id']]['complete']!=c['n'] for c in current['conditions']):
                 raise RuntimeError('Pilot contains failed/incomplete data; no speculative next API call')
@@ -109,12 +115,13 @@ def run(repo,master_path,first_manifest,poll):
             else:
                 operators=[parent_program['operator']]
                 responses={r['condition']:r for r in result['responses']}
-                target=responses['R02_reference'].get('direct_injected_rms_A_mean')
-                observed=responses[parent['id']].get('direct_injected_rms_A_mean')
-                factor,m['dose_scale_multipliers']=calibrated_factors(target,observed)
+                target=responses['R02_reference'].get('direct_injected_rms_A_nonzero_mean',responses['R02_reference'].get('direct_injected_rms_A_mean'))
+                observed=responses[parent['id']].get('direct_injected_rms_A_nonzero_mean',responses[parent['id']].get('direct_injected_rms_A_mean'))
+                factor,m['dose_scale_multipliers']=calibrated_factors(target,observed,master['dose_factor_bounds'])
                 m['experiment_contract']={'primary_intervention':'post-RMS requested displacement strength only',
                     'frozen':'selected support, operator, teacher, clock, window, schedule and input paths',
                     'calibration':{'reference_direct_rms_A':target,'parent_direct_rms_A':observed,'target_over_parent':factor},
+                    'dose_coverage':'Condition on nonzero seed updates. Report coverage separately; do not mistake a smaller active fraction for weaker per-active-seed displacement.',
                     'warning':'Clipping and input-coordinate VJP coupling mean a multiplier need not change actual local displacement proportionally. Returning the parent function is allowed and reused.'}
             path=repo/master['config_dir']/(label+'.master.json');write_json(path,m)
             state.update(status='local_api',current=label);write_json(state_path,state)
@@ -145,7 +152,7 @@ def run(repo,master_path,first_manifest,poll):
             current,local,result=next_current,next_local,next_result
             outcome=next(r for r in result['performance'] if r['condition']==candidate['id'])
             old=metrics[parent['id']]
-            worse=declined(outcome,old)
+            worse=declined(outcome,old,tolerance)
             declines=declines+1 if worse else 0
             row.update(performance=outcome,paired=result['paired'],consecutive_declines=declines)
             state['followups'].append(row);write_json(state_path,state)
@@ -161,9 +168,11 @@ def run(repo,master_path,first_manifest,poll):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--repo',type=Path,default=Path('.'))
     p.add_argument('--master',type=Path,required=True);p.add_argument('--first-manifest',type=Path,required=True)
-    p.add_argument('--poll-seconds',type=int,default=60);a=p.parse_args()
+    p.add_argument('--poll-seconds',type=int,default=60);p.add_argument('--label-suffix',default='');a=p.parse_args()
     if a.poll_seconds<20:raise ValueError('Avoid tight remote polling')
-    run(a.repo,a.master,a.first_manifest,a.poll_seconds)
+    import re
+    if not re.fullmatch(r'[A-Za-z0-9_-]*',a.label_suffix):raise ValueError('Use a safe retry suffix')
+    run(a.repo,a.master,a.first_manifest,a.poll_seconds,a.label_suffix)
 
 
 if __name__=='__main__':main()

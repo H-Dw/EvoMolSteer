@@ -35,7 +35,7 @@ def main():
     for axis in (ax,bx):
         axis.set_xlabel('x (Å)');axis.set_ylabel('y (Å)');axis.set_zlabel('z (Å)');axis.view_init(25,-65)
         axis.legend(fontsize=7,loc='upper left')
-    context=np.concatenate([xyz,np.asarray([s['coords_A'] for s in spec['pocket_sites']])])
+    context=np.concatenate([xyz,np.asarray([s['coords_A'] for s in spec['pocket_sites']]).reshape(-1,3)])
     ax.set_box_aspect(np.maximum(np.ptp(context,axis=0),.1))
     bx.set_box_aspect(np.maximum(np.ptp(values[keep][:,slots].reshape(-1,3),axis=0),.1))
     fig.suptitle('Reference points are local; student correspondence is recomputed during inference',fontsize=11)

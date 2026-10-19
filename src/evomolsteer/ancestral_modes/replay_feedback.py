@@ -33,6 +33,10 @@ def entry(repo,source,program):
           'atom_clip_fraction','point_rms_A','unmatched_input_gradient_rms_fraction_mean')
     statistics={k:float(np.mean([s[k] for s in steps if k in s and s[k] is not None]))
                 for k in keys if any(k in s and s[k] is not None for s in steps)}
+    from evomolsteer.path_replay.local_research import control_summary
+    control_stats=control_summary(steps,c['n']//len(groups_for(cfg,c)))
+    control_stats['nonzero_seed_updates']=control_stats.pop('nonzero_updates')
+    statistics.update(control_stats)
     snapshots=[{k:s[k] for k in ('step','point_rms_A','injected_rms_A_mean','atom_clip_fraction') if k in s}
                for s in steps[::max(1,len(steps)//5)]]
     shape={k:float(np.mean([r[k] for r in geometry if r.get(k) is not None]))

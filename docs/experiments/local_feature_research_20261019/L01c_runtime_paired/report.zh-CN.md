@@ -50,4 +50,4 @@ local_5points：last_forward_point_gap_A=0.317180 Å, terminal_tracked_point_err
 
 只形成几何模式而未提高最终pIC50，不能宣称奖励有效。少量开发池极值提高仍需要独立输入池复核。
 
-原始评分、失败、结构与逐步控制记录留在对应结果目录。分析实现指纹：`{"analysis": "8b279069e43aaa3a128f2c87cbc3f7c2e05419447f375dcfd96fc15d04d1c98a", "local_features": "edaa69efed076dfdbe78597232a4696cf28572d46ae82099c51827d40f2b386b"}`。
+原始评分、失败、结构与逐步控制记录留在对应结果目录。分析实现指纹：`{"analysis": "d13ade28ef09af9e9efbfda003065a435870982fbb95e0a6e7fa10640da820e8", "local_features": "edaa69efed076dfdbe78597232a4696cf28572d46ae82099c51827d40f2b386b"}`。

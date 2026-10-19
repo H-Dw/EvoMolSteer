@@ -160,3 +160,26 @@ def test_followup_dose_choices_use_measured_displacements_and_keep_tail_gains(mo
     assert declined({'best_valid':8.1,'mean':7.2},{'best_valid':8.2,'mean':7.4})
     assert not declined({'best_valid':8.3,'mean':7.2},{'best_valid':8.2,'mean':7.4})
     assert declined({'best_valid':None,'mean':7.4},{'best_valid':8.2,'mean':7.4})
+
+
+def test_parent_evidence_resolves_tool_payload_without_requiring_duplicate_alias():
+    from evomolsteer.ancestral_modes.agents import has_parent_evidence
+    data={'region/controller_response':{'candidate_parent_records':{'P':{'program':{'program_id':'P'},
+          'metrics':{'mean':7.4},'response':{'active_updates':40}}}}}
+    refs=['region/controller_response']
+    assert has_parent_evidence(data,refs,'P','outcomes')
+    assert has_parent_evidence(data,refs,'P','response')
+    assert not has_parent_evidence(data,refs,'other','response')
+    assert not has_parent_evidence({},['parents/P/outcomes'],'P','outcomes')
+    data['region/controller_response']['candidate_parent_records']['P']['program']['program_id']='other'
+    assert not has_parent_evidence(data,refs,'P','outcomes')
+
+
+def test_sparse_activation_is_not_mistaken_for_weaker_active_seed_dose():
+    from evomolsteer.path_replay.local_research import control_summary
+    dense=control_summary([{'nonzero_molecules':50,'direct_injected_rms_A_mean':.03}],50)
+    sparse=control_summary([{'nonzero_molecules':25,'direct_injected_rms_A_mean':.015}],50)
+    assert dense['active_seed_update_fraction']==1 and sparse['active_seed_update_fraction']==.5
+    assert dense['direct_injected_rms_A_mean']==2*sparse['direct_injected_rms_A_mean']
+    assert dense['direct_injected_rms_A_nonzero_mean']==sparse['direct_injected_rms_A_nonzero_mean']
+    assert control_summary([{'nonzero_molecules':0,'direct_injected_rms_A_mean':0}],50)['direct_injected_rms_A_nonzero_mean'] is None

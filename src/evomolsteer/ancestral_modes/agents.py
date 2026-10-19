@@ -23,6 +23,20 @@ CLOCKS={'fixed':{'observable':'predictive_bridge_to_learning_end','teacher':'act
     'decaying_lookahead':{'observable':'predictive_bridge_to_decaying_lookahead','teacher':'actual_ancestor_at_same_lookahead_time'}}
 
 
+def has_parent_evidence(evidence,refs,parent,kind):
+    """Resolve delivered equivalent sources, not a preferred citation spelling."""
+    canonical='parents/'+parent+'/'+kind
+    direct=evidence.get(canonical,{})
+    field='metrics' if kind=='outcomes' else 'response'
+    if canonical in refs and direct.get('parent_program_id')==parent and direct.get(field) is not None:return True
+    for ref in refs:
+        value=evidence.get(ref,{})
+        record=value.get('candidate_parent_records',{}).get(parent) if isinstance(value,dict) else None
+        if record and record.get('program',{}).get('program_id')==parent:
+            if record.get(field) is not None:return True
+    return False
+
+
 def factual_review(repo,m,folder,role,answer,contract):
     """A bounded source-consistency review, never a numerical reward redesign."""
     contract=copy.deepcopy(contract)
@@ -240,10 +254,10 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if a['primary_operator']!=group[0]['program']['operator']:
             import jsonschema
             raise jsonschema.ValidationError('Hypothesis primary operator must be the selected registered mechanism',validator='operator_binding',validator_value=group[0]['program']['operator'],instance=a['primary_operator'])
-        if a['parent_program_id']!=group[0]['parent_id'] or 'parents/'+a['parent_program_id']+'/outcomes' not in a['evidence_refs']:
+        if a['parent_program_id']!=group[0]['parent_id'] or not has_parent_evidence(bundle['evidence'],a['evidence_refs'],a['parent_program_id'],'outcomes'):
             import jsonschema
             raise jsonschema.ValidationError('Chosen group must bind and cite its ACTUAL parent outcomes',validator='parent_binding',validator_value=group[0]['parent_id'],instance=a['parent_program_id'])
-        if m.get('parent_feedback') and 'parents/'+a['parent_program_id']+'/response' not in a['evidence_refs']:
+        if m.get('parent_feedback') and not has_parent_evidence(bundle['evidence'],a['evidence_refs'],a['parent_program_id'],'response'):
             import jsonschema
             raise jsonschema.ValidationError('A feedback-driven hypothesis must cite the delivered ACTUAL parent control response',
                 validator='parent_response_binding',validator_value=a['parent_program_id'],instance=a['evidence_refs'])
@@ -297,10 +311,11 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         'falsifier':{'type':'string','minLength':1,'description':'One concise measurable negative outcome.'}})
     def validate_d(d):
         if not m.get('strict_feature_handoff'):return
-        required={'parents/'+a['parent_program_id']+'/outcomes'}|{
+        required={
             rid+'/local_support_evidence' for rid in selected[0]['region_ids'] if 'local_support_evidence' in byregion[rid]}
-        if m.get('parent_feedback'):required.add('parents/'+a['parent_program_id']+'/response')
-        if not required<=set(d['evidence_refs']):
+        has_outcomes=has_parent_evidence(designer_evidence,d['evidence_refs'],a['parent_program_id'],'outcomes')
+        has_response=not m.get('parent_feedback') or has_parent_evidence(designer_evidence,d['evidence_refs'],a['parent_program_id'],'response')
+        if not required<=set(d['evidence_refs']) or not has_outcomes or not has_response:
             import jsonschema
             raise jsonschema.ValidationError('Designer must cite the selected local support and actual parent evidence delivered by Analyst',
                 validator='designer_feature_evidence_binding',validator_value=sorted(required),instance=d['evidence_refs'])

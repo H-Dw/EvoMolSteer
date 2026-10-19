@@ -231,7 +231,8 @@ def test_evidence_cache_binds_support_window_and_geometry_parameters(tmp_path):
 
 
 @pytest.mark.parametrize('strict',[False,True])
-def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_support(tmp_path, monkeypatch,strict):
+@pytest.mark.parametrize('alias',[False,True])
+def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_support(tmp_path, monkeypatch,strict,alias):
     """Transport/schema test only; no claim about actual LLM reasoning or quality."""
     import evomolsteer.ancestral_modes.agents as agents
     from evomolsteer.ancestral_modes.programs import program_delta, numerical_identity
@@ -271,11 +272,13 @@ def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_suppo
             if strict:
                 response.update(controlled_feature='pair_error_A')
                 response['evidence_refs'].append('parents/R02_test/response')
+            if alias:response['evidence_refs']=[region['region_id']+'/local_support_evidence',region['region_id']+'/controller_response']
         else:
             response = {'option_id': 'A0', 'hypothesis_group': 'G000', 'parent_program_id': 'R02_test',
                         'evidence_refs': [region['region_id'] + '/local_support_evidence'],
                         'design_grounds': 'fixture binding only', 'falsifier': 'fixture falsifier'}
             if strict:response['evidence_refs']+=['parents/R02_test/outcomes','parents/R02_test/response']
+            if alias:response['evidence_refs']=[region['region_id']+'/local_support_evidence',region['region_id']+'/controller_response']
         import jsonschema
         jsonschema.validate(response, schema)
         if kwargs.get('response_validator'):
