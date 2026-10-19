@@ -49,6 +49,8 @@ description: Analyze successful molecular terminal outcomes and their actual anc
 
 梯度非零只证明控制项已激活；形成要看实际窗口末端的几何/元素布局，保持要比较同一支持的窗口末端与无引导后缀终态。零裁剪或恒定剂量不能证明后缀保持。原始分项梯度非零也不能证明归一化后的总方向明显改变，需读分项/总梯度比例与夹角。
 
+追踪奖励真实匹配的生成槽位，与按半程几何重新匹配的观察性支持分开。半程与终态分别使用相应时刻的教师；终态不要与半程教师比较。固定槽位追踪和终态空间模式重识别同时报告：不同原子形成了相同局部模式时，不能仅凭槽位漂移或化学图变化宣称优势区域丢失。
+
 存在多个 parent 时，先核对所选 action 的 parent_program_id，再引用该 parent 的评分和响应。当前 incumbent 的数据不能代替另一条高分或失败分支的数据。
 
 优先选择能区分竞争解释的小实验。按 [交接契约](../../docs/plans/ancestral_modes_autoresearch_v3_20261016/contracts.zh-CN.md) 返回证据 ID、局部支持、模式/教师表示、目标时刻规则、可改 observable、化学前提、设计允许范围和否证条件。Designer 必须能从这些字段直接绑定函数，而非重新猜测分析结论。

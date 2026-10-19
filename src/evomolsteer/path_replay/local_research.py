@@ -134,7 +134,7 @@ def reuse_current(repo,cfg,m,c,work):
 
 def analyze(repo,cfg,m,work):
     from .analysis import distribution,paired_cluster,write_csv
-    datasets={};performance=[];pairs=[];responses=[];local_rows=[]
+    datasets={};performance=[];pairs=[];responses=[];local_rows=[];controlled_rows=[]
     local_conditions=[c for c in m['conditions'] if c['kind']!='unguided' and not c.get('reuse_from') and c.get('role')!='frozen_current_reference']
     feature_program,feature_teacher=condition_program(repo,local_conditions[0]) if local_conditions else (None,None)
     for c in m['conditions']:
@@ -153,6 +153,16 @@ def analyze(repo,cfg,m,work):
                 import gzip,numpy as np
                 with gzip.open(batch_path(work,c,g).parent/'guidance.json.gz','rt') as f:audit=json.load(f)
                 active=[s for s in audit['steps'] if s['active']]
+                if c in local_conditions and active and active[-1].get('actual_local_assignments') is not None:
+                    program,teacher=condition_program(repo,c)
+                    with np.load(batch_path(work,c,g).parent/'states.npz') as states:
+                        tracked=measure(states['half_coords_A'],states['terminal_coords_A'],states['mask'],teacher,program,
+                            assignments=active[-1]['actual_local_assignments'])
+                    for i,(rec,v) in enumerate(zip(r['records'],tracked)):
+                        controlled_rows.append({'condition':c['id'],'group':g['index'],'id':rec['id'],'pic50':rec['pic50'],
+                            'operator':program['operator'],'last_control_forward_time':active[-1]['step']/program['steps'],
+                            'last_forward_point_gap_A':active[-1]['target_error_per_seed_A'][i],
+                            'last_forward_reward_mean':active[-1]['reward_mean'],**v})
                 values={}
                 for key in ('injected_rms_A_mean','direct_support_count_mean','direct_support_fraction_mean',
                             'direct_injected_rms_A_mean','outside_injected_rms_A_mean','gradient_norm_mean'):
@@ -172,7 +182,9 @@ def analyze(repo,cfg,m,work):
     out=Path(work)/'analysis';out.mkdir(parents=True,exist_ok=True)
     write_csv(out/'performance.csv',performance);write_csv(out/'paired.csv',pairs);write_csv(out/'response.csv',responses)
     write_csv(out/'local_formation_retention.csv',local_rows)
+    write_csv(out/'active_support_formation_retention.csv',controlled_rows)
     result={'research_sha256':m['research_sha256'],'status':status(cfg,m,work),
+            'analysis_code_sha256':{'analysis':digest(__file__),'local_features':digest(Path(__file__).with_name('local_features.py'))},
             'performance':performance,'paired':pairs,'responses':responses,
             'comparison_scope':m.get('comparison_scope','strict_historical_replay'),
             'interpretation':'Historical initial tensors and primitive random inputs are aligned. A current-runtime diagnostic is NOT a passed exact historical replay. Fresh same-runtime controls are mandatory in that scope. Small selected pilots are not unbiased N1000 or cross-target results.'}

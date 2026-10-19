@@ -71,6 +71,34 @@ def test_formation_retention_keeps_half_slots_instead_of_hiding_suffix_changes()
     assert rows[0]['half_point_error_A']==0
     assert rows[0]['terminal_tracked_point_error_A']==10
     assert rows[0]['terminal_tracked_pair_error_A']==0
+    assert rows[0]['assignment_source']=='observational_actual_half_geometry'
+
+
+def test_stage_tracking_uses_final_teacher_and_does_not_count_expected_motion_as_loss():
+    import numpy as np
+    from evomolsteer.path_replay.local_features import measure
+    half=np.array([[[0.,0,0],[1,0,0],[9,0,0],[10,0,0]]]);final=half.copy();final[:,:,0]+=4
+    mode={'coords_A':half[0].tolist(),'terminal_coords_A':final[0].tolist(),
+          'path':{'times':[0.,.5],'coords_A':[half[0].tolist(),half[0].tolist()]}}
+    p={'teacher_time':.5,'mode_specs':[{'template_id':'A','atom_slots':[0,1],'pocket_sites':[]}]}
+    r=measure(half,final,np.ones((1,4),bool),{'modes':{'A':mode}},p,assignments=[[0,1]])[0]
+    assert r['assignment_source']=='live_reward_last_control_forward'
+    assert r['half_point_error_A']==0 and r['terminal_tracked_point_error_A']==0
+    assert r['suffix_tracked_displacement_A']==4 and r['suffix_tracking_residual_A']==0
+    with pytest.raises(ValueError,match='assignment'):
+        measure(half,final,np.ones((1,4),bool),{'modes':{'A':mode}},p,assignments=[[0,0]])
+
+
+def test_spatial_presence_can_survive_a_swap_of_tracked_slots():
+    import numpy as np
+    from evomolsteer.path_replay.local_features import measure
+    half=np.array([[[0.,0,0],[1,0,0],[9,0,0],[10,0,0]]]);final=half[:,[2,3,0,1]].copy()
+    mode={'coords_A':half[0].tolist(),'terminal_coords_A':half[0].tolist(),
+          'path':{'times':[0.,.5],'coords_A':[half[0].tolist(),half[0].tolist()]}}
+    p={'teacher_time':.5,'mode_specs':[{'template_id':'A','atom_slots':[0,1],'pocket_sites':[]}]}
+    r=measure(half,final,np.ones((1,4),bool),{'modes':{'A':mode}},p,assignments=[[0,1]])[0]
+    assert r['terminal_tracked_point_error_A']==9
+    assert r['terminal_rematched_point_error_A']==0
 
 
 def test_diagnostic_scope_never_reuses_cross_device_reference_or_hides_failed_exactness(tmp_path):
