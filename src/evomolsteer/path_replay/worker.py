@@ -113,11 +113,18 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
         saved=read_json(previous_error)
         atomic_json(work/'diagnostics/worker_errors'/f"{time.time_ns()}.json",saved);previous_error.unlink()
     heartbeat(phase='loading');program,teacher=condition_program(repo,c)
+    saved_policy=(research or extension or {}).get('saved_tensor_policy','native_device')
+    if research is not None and program is None:
+        saved_policy='native_device'  # No backward graph exists in the zero control.
     model=load_model(cfg,work);source=attach(model);pool=InitialPool(cfg)
     parameter_versions=tuple(p._version for p in model.parameters())
     atomic_json(work/'methods'/c['id']/'source_audit.json',{
         **source,'condition':c,'protocol_sha256':cfg['protocol_sha256'],'flowr_commit':cfg['flowr_commit'],
         'batch_size':50,'torch':torch.__version__,'no_smc':True,'affinity_head_gradient':False,
+        'device_name':torch.cuda.get_device_name(0),'hip':torch.version.hip,
+        'device_architecture':getattr(torch.cuda.get_device_properties(0),'gcnArchName',None),
+        'float32_matmul_precision':torch.get_float32_matmul_precision(),
+        'deterministic_algorithms':torch.are_deterministic_algorithms_enabled(),
         'initial_inputs':'exact saved prior / pocket / COM; no new priors',
         'random_inputs':'per-step original pre-selection ancestor-slot primitive draws',
         'pocket_context':'encode original full B50 before gathering root contexts; inherit the original first-selection tensor layout; never re-encode the regrouped pockets',
@@ -125,7 +132,7 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
         'parameters_requiring_grad':sum(p.requires_grad for p in model.parameters()),
         'extension_sha256':extension['extension_sha256'] if extension else None,
         'research_sha256':research['research_sha256'] if research else None,
-        'saved_tensor_policy':(research or extension or {}).get('saved_tensor_policy','native_device'),
+        'saved_tensor_policy':saved_policy,
         'code_commit':os.environ.get('EVOMOLSTEER_RUNTIME_COMMIT')})
     from evomolsteer.elite_alignment.worker import make_posebusters
     from evomolsteer.agentic_steer.native import molecule_quality,slice_tree
@@ -151,9 +158,9 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
             forward=control.forward
             def observed(curr,pocket_data,times,cond,equis,invs,i,dt):
                 if i%10==0: heartbeat(phase='inference',group=group['index'],step=i)
-                if extension is not None or research is not None:
+                if saved_policy!='native_device':
                     from .memory import saved_tensor_context
-                    with saved_tensor_context((research or extension)['saved_tensor_policy']):
+                    with saved_tensor_context(saved_policy):
                         return forward(curr,pocket_data,times,cond,equis,invs,i,dt)
                 return forward(curr,pocket_data,times,cond,equis,invs,i,dt)
             control.forward=observed;model._half_guidance=control
