@@ -78,6 +78,12 @@ def condition_program(repo, condition):
 
 
 def groups_for(config, condition):
+    if 'group_indices' in condition:
+        indices=condition['group_indices']
+        if len(set(indices))!=len(indices) or condition['n']!=50*len(indices):
+            raise ValueError('Research condition has inconsistent B50 group selection')
+        by_index={g['index']:g for g in config['groups']}
+        return [by_index[i] for i in indices]
     return config['groups'][:condition['n']//config['batch_size']]
 
 

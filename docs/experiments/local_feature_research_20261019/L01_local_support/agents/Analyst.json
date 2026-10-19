@@ -1,0 +1,30 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。终态角色（槽位 5、8、9、11、14 均为芳香 C，非供体/非受体，形式电荷 0）仅用于选区，不声称已启用类型或电荷力；当前 pointwise 算子仍是纯几何。元素、形式电荷、部分电荷、质子化与互变异构分别记录，本交接不引入类型力。",
+  "clock_and_representation": "时钟为 endpoint_prediction：observable 为 predicted_endpoint，teacher 为 teacher_predicted_endpoint_at_same_forward_time。学习窗口 [0.0,0.5]，控制窗口 [0.1,0.5]，100 步，constant 剂量，schedule_normalization 1.0，max_atom_step 0.15 A，max_cumulative_rms 6.0 A，native_rms_ratio 0.66。终态化学角色用于追溯位置，不是早期已存在该角色的证据。",
+  "component_response_interpretation": "R02_v3 的 response 显示 active_updates 40、nonzero_updates 2000、injected_rms_A_mean 0.0299、predictive_flow_rms_A_mean 0.0453、assignment_switch_fraction 0.0443。这些只证明控制项已激活，不证明 G002 支持上的几何形成或终态收益。分项/总梯度比例与夹角需在 Designer 绑定后读取；非零原始分项梯度不建立归一化总方向显著改变。",
+  "counterevidence_refs": [
+    "F_b011_s030__local_51112d312c94/local_support_evidence",
+    "F_b011_s030__local_76ec9188773a/local_support_evidence",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "F_b011_s030__local_8d820f848732/local_support_evidence",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response"
+  ],
+  "falsifier": "若在控制窗口末端 G002 支持的 pair_distance 相对同刻教师预测端点没有下降，或下降幅度不大于 G000 的 3 原子支持，则“增量槽位 9、14 通过区域内部距离承载优势”的假设被否证。若形成但无引导后缀末端布局不保持，则否证保持性。若形成且保持但该分支终态评分不高于 R02_v3 已观测中位数/尾部对照，则否证终态价值主张。任一否证都不自动支持加强权重。",
+  "formation_retention_value_test": "形成：读取控制窗口末端 G002 支持 [5,8,9,11,14] 的实际几何（pair 距离与相对 LEU45/HIS160 口袋位点的距离），与同刻教师预测端点比较，而非只看 VJP 非零。保持：比较同一被跟踪支持在无引导后缀末端的布局与无引导对照终态布局。终态价值：读取该分支自身终态评分与 strain，并与 R02_v3 已观测分布（best 8.326，mean 7.727，p99 8.289）及原始 Steer best 8.705 对照；不把开发池极值当作整体改善。",
+  "group_id": "G002",
+  "observable_change": "预期在控制窗口 [0.1,0.5] 内，G002 支持上的 pair_distance 与 pocket_distance 代理误差相对同刻教师预测端点下降，且 pair 项下降幅度大于 G000 的 3 原子支持；逐点位置误差可能不优于 G000。教师趋势拟合（endpoint_prediction，n_times=51）显示 G002 的 error_to_actual_final_A 拟合 RMSE 0.065、mean_speed 5.32 A/t，G000 为 0.079、5.04 A/t，仅作诊断，不替代在线教师预测。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "primary_operator": "pointwise",
+  "relationship_to_failed_families": "R02_v3 使用 20 槽全云模式，已观测 best 8.326、mean 7.727、high_score_fraction 0.02，接近但未超过原始 Steer best 8.705。本交接不重复全云模式，而是检验局部支持是否能在同一算子下提供可区分的局部对比。G001（[8,11,14]）与 G003（[2,12,17,21]）作为对照：G001 的 pair_error_A 区间 [-0.087,0.146] 跨 0、pocket_error_A 区间 [-0.019,0.028] 跨 0，G003 的 pair_error_A 正向但 beyond_global 区间跨 0；这些对照用于区分“局部对比是否特定于 G002 的 5 原子支持”。",
+  "scientific_hypothesis": "在 R02_v3 的 endpoint_prediction 时钟下，把已注册的 pointwise 几何算子限制到 G002 的 5 原子支持 [5,8,9,11,14]（LEU45/HIS160 界面，n=5/25，fraction 0.20），比 G000 的 3 原子支持 [5,8,11] 更能承载局部形状与口袋相对位置的可控性。依据：G002 的 pair_error_A 高分组更近（other_minus_high=0.197，95% 区间 [0.067,0.324] 不含 0），而 G000 的 pair_error_A 区间 [-0.136,0.076] 跨 0；两者 pocket_error_A 均正向（G002 0.041 [0.011,0.075]，G000 0.030 [0.007,0.053]），point_error_A 均正向（G002 0.103，G000 0.129）。因此 G002 的增量槽位 9、14 主要贡献的是区域内部距离（pair）而非逐点位置，这与 G000 以逐点误差为主的模式不同。该假设是探索性局部对比，不是亲和力因果效应，也不是未来成功概率。",
+  "support_reason": "选择 G002 的 5 原子支持 [5,8,9,11,14]：槽位 5、8、11 与 G000 共享，槽位 9、14 是 G002 相对 G000 的增量邻居，用于定义区域内部距离与方向（orientation_triplets [[5,8,9],[8,5,11],[11,8,14]]）。每个点都有测量用途：5、8、11 定义 G000 已测的逐点/口袋对比，9、14 提供 pair 距离增量。支持大小 5/25（fraction 0.20）在允许范围 [2,8] 内，且小于全云 20 槽。不声称更小自动更好；G000 的 3 原子支持作为等算子较小对照。"
+}

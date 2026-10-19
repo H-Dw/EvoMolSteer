@@ -8,7 +8,7 @@ from evomolsteer.io import read_json,write_json,digest
 from evomolsteer.deepseek_api import call_json
 from evomolsteer.agentic_steer.workflow import obj
 from .bank import regional_evidence
-from .programs import validate,numerical_identity,program_delta,scientific_group_key,executable_view,compile_designer_response
+from .programs import validate,numerical_identity,program_delta,scientific_group_key,executable_view,compile_designer_response,controlled_feature
 
 
 MODULES={'interface_support':['C1'],'NC_support':['C1','C2'],'group_support':['C1','C2','C3'],
@@ -109,6 +109,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         'tail_candidate_metrics':state.get('tail_candidate',state['reference'])['metrics'],
         'separate_criterion':'Guarded mean/U_tau incumbent promotion remains fixed. That guard does not ban experiments around a measured near-target tail branch. Do not replace the requested tail-discovery goal with maximizing mean alone.',
         'uncertainty':'Development maximum is search biased; final frozen new-pool confirmation and quality diagnostics are separate.'}
+    if m.get('experiment_contract'):bundle['contract']['current_experiment']=m['experiment_contract']
     for pid,v in parents.items():
         bundle['evidence']['parents/'+pid+'/outcomes']={'parent_program_id':pid,'metrics':v['metrics'],'local_outcomes':v.get('local_outcomes')}
         bundle['evidence']['parents/'+pid+'/response']={'parent_program_id':pid,'response':v['response'],'program':executable_view(v['program'])}
@@ -226,8 +227,16 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         'component_response_interpretation':text,
         'observable_contract':obj({'observable':{'enum':sorted({c['observable'] for c in CLOCKS.values()})},
             'teacher':{'enum':sorted({c['teacher'] for c in CLOCKS.values()})}})})
+    if m.get('strict_feature_handoff'):
+        schema['properties']['controlled_feature']={'enum':sorted({controlled_feature(g[0]['program']) for g in eligible.values()}),
+            'description':'The actual active geometric reward observable. Other measured features are diagnostic/background; do not describe them as separately activated forces.'}
+        schema['required'].append('controlled_feature')
     def validate_a(a):
         group=groups[a['group_id']]
+        if m.get('strict_feature_handoff') and a['controlled_feature']!=controlled_feature(group[0]['program']):
+            import jsonschema
+            raise jsonschema.ValidationError('Analyst observable is not implemented by the selected operator',validator='active_feature_binding',
+                validator_value=controlled_feature(group[0]['program']),instance=a['controlled_feature'])
         if a['primary_operator']!=group[0]['program']['operator']:
             import jsonschema
             raise jsonschema.ValidationError('Hypothesis primary operator must be the selected registered mechanism',validator='operator_binding',validator_value=group[0]['program']['operator'],instance=a['primary_operator'])

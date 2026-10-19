@@ -67,6 +67,12 @@ def numerical_identity(p,teacher):
     return hashlib.sha256(json.dumps(numerical_payload(p,teacher),sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
+def controlled_feature(p):
+    return {'pointwise':'point_error_A','point_band':'point_error_outside_band_A',
+            'pair_distance':'pair_error_A','pocket_distance':'pocket_error_A',
+            'orientation':'neighbor_vector_direction','selection_advantage':'signed_kernel_feature_log_ratio'}[p['operator']]
+
+
 def executable_view(p):
     """Same active-parameter registry as identity; omit inherited inactive fields."""
     placeholder={'modes':{s['template_id']:{'trajectory_sha256':'bound_source'} for s in p['mode_specs']}}
@@ -82,6 +88,7 @@ def executable_view(p):
         'pocket_distance':'R_geo = -mean[max(abs(student_site_distance-teacher_site_distance)-band,0)^2]',
         'orientation':'R_geo = -mean[(1-cos(student_neighbor_vector,teacher_neighbor_vector))^2] over declared triplets only',
         'selection_advantage':'R_geo = clip(mean[-0.5*((phi-mu_focal)/sd)^2+0.5*((phi-mu_background)/sd)^2],-cap,cap); phi = kernel occupancy and signed dx/dy/dz to fixed terminal centers. NO pointwise/pseudo-Huber term.'}[p['operator']]
+    view['controlled_feature']=controlled_feature(p)
     view['actual_terms']=['registered_'+p['operator']]+(['typed_spatial_field'] if p['typed_weight'] else [])+(['charge_spatial_field'] if p['charge_weight'] else [])
     if p.get('local_feature_binding') is not None:view['local_feature_binding']=copy.deepcopy(p['local_feature_binding'])
     if p.get('local_support_policy') is not None:view['local_support_policy']=copy.deepcopy(p['local_support_policy'])

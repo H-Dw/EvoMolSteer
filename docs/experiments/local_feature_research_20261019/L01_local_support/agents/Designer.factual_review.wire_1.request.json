@@ -1,0 +1,72 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/e0144f4158b3343012d43358641e251f74ca019315aaa6aa31f4e49f8fb9e2a0.txt",
+        "content_sha256": "e0144f4158b3343012d43358641e251f74ca019315aaa6aa31f4e49f8fb9e2a0",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/3820d2bb98b705efa2b7ad9b91f15a1b8ad9c32ddbddc4bf1e32f50ae7551480.txt",
+        "content_sha256": "3820d2bb98b705efa2b7ad9b91f15a1b8ad9c32ddbddc4bf1e32f50ae7551480",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/172e1efa0caa3b8344484af22166e2d332e687f7b0c6470bff81a0a50bebba96.txt",
+        "content_sha256": "172e1efa0caa3b8344484af22166e2d332e687f7b0c6470bff81a0a50bebba96",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "violations": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "clock_confusion",
+                "unsupported_active_force",
+                "source_or_comparator_confusion",
+                "unmeasured_result_claim"
+              ]
+            },
+            "explanation": {
+              "maxLength": 1600,
+              "type": "string"
+            },
+            "quote": {
+              "maxLength": 1500,
+              "type": "string"
+            }
+          },
+          "required": [
+            "quote",
+            "code",
+            "explanation"
+          ],
+          "type": "object"
+        },
+        "maxItems": 5,
+        "type": "array"
+      }
+    },
+    "required": [
+      "violations"
+    ],
+    "type": "object"
+  }
+}

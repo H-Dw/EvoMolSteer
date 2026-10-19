@@ -11,6 +11,8 @@ description: Bind an Analyst's local ancestral-mode hypothesis to stage-consiste
 
 每个非零项绑定 Analyst 的 observable、模式、支持、角色条件和来源。不得私换教师、添加点、用元素目标代替未实现的化学角色，或绕过 Analyst 的点云分析。方向/官能团所需邻居计入支持；多个项或模式的支持并集也保持严格局部。缺少必要邻域时请求 Analyst 修订。
 
+核对 `controlled_feature` 与实际算子。区域元数据中存在方向三元组或口袋位点，不代表相应奖励已经生效；未启用的元数据只能解释选区背景。若 Analyst 的主张需要另一算子，应在允许的选项中明确选择该算子，不能用文字宣布新增奖励项。
+
 核对 hypothesis、action 和实际响应记录的 parent_program_id；不同 parent 的参数和结果不能混用。
 
 有效算子与参数以调用者的 operative-only 视图为准。未列入有效项的继承参数不参与本轮计算。API 只返回 schema 要求的选项 ID、交接标识、证据引用、简洁科学理由及否证条件；公式、导数路径、改动字段和剂量由确定性编译器根据选项生成，不在自由文字中重写或新增这些返回字段。

@@ -89,9 +89,17 @@ def score(model,output,pocket,com):
     return scores
 
 
-def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=None):
+def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=None,research_manifest=None):
     repo=Path(repo).resolve();work=Path(work).resolve();cfg=read_json(config_path);validate(cfg)
-    c=next(c for c in cfg['conditions'] if c['id']==condition_id)
+    if extension_manifest is not None and research_manifest is not None:
+        raise ValueError('Choose one independent overlay, never mutate the frozen base')
+    research=None
+    if research_manifest is not None:
+        from .local_research import load
+        _,research,base=load(repo,research_manifest)
+        if base.resolve()!=Path(config_path).resolve():raise ValueError('Research base config differs')
+        c=next(c for c in research['conditions'] if c['id']==condition_id)
+    else:c=next(c for c in cfg['conditions'] if c['id']==condition_id)
     extension=None
     if extension_manifest is not None:
         from .extension import validate_extension
@@ -116,7 +124,8 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
         'weight_policy':'preserve native parameter autograd flags; no optimizer; verify parameter versions and absence of accumulated weight gradients',
         'parameters_requiring_grad':sum(p.requires_grad for p in model.parameters()),
         'extension_sha256':extension['extension_sha256'] if extension else None,
-        'saved_tensor_policy':extension['saved_tensor_policy'] if extension else 'native_device',
+        'research_sha256':research['research_sha256'] if research else None,
+        'saved_tensor_policy':(research or extension or {}).get('saved_tensor_policy','native_device'),
         'code_commit':os.environ.get('EVOMOLSTEER_RUNTIME_COMMIT')})
     from evomolsteer.elite_alignment.worker import make_posebusters
     from evomolsteer.agentic_steer.native import molecule_quality,slice_tree
@@ -142,9 +151,9 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
             forward=control.forward
             def observed(curr,pocket_data,times,cond,equis,invs,i,dt):
                 if i%10==0: heartbeat(phase='inference',group=group['index'],step=i)
-                if extension is not None:
+                if extension is not None or research is not None:
                     from .memory import saved_tensor_context
-                    with saved_tensor_context(extension['saved_tensor_policy']):
+                    with saved_tensor_context((research or extension)['saved_tensor_policy']):
                         return forward(curr,pocket_data,times,cond,equis,invs,i,dt)
                 return forward(curr,pocket_data,times,cond,equis,invs,i,dt)
             control.forward=observed;model._half_guidance=control
@@ -221,8 +230,8 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
 def main():
     p=argparse.ArgumentParser()
     for k in ('repo','config','work','condition'): p.add_argument('--'+k,required=True)
-    p.add_argument('--group',type=int);p.add_argument('--extension-manifest');a=p.parse_args()
-    try: run(a.repo,a.config,a.work,a.condition,a.group,a.extension_manifest)
+    p.add_argument('--group',type=int);p.add_argument('--extension-manifest');p.add_argument('--research-manifest');a=p.parse_args()
+    try: run(a.repo,a.config,a.work,a.condition,a.group,a.extension_manifest,a.research_manifest)
     except Exception:
         atomic_json(Path(a.work)/'worker_error.json',{'condition':a.condition,'error':traceback.format_exc(),'unix':time.time()});raise
 

@@ -21,7 +21,9 @@ from deploy_elite_initial_alignment import LIBRARIES,PYTHON,REMOTE_REPO,DEPENDEN
 
 def connect():
     c=paramiko.SSHClient();c.load_system_host_keys();c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    c.connect('ksai.scnet.cn',port=50496,username='root',password=os.environ['MOLSTEER_SCNET_PASSWORD'],
+    c.connect(os.environ.get('MOLSTEER_SSH_HOST','ksai.scnet.cn'),
+              port=int(os.environ.get('MOLSTEER_SSH_PORT','50496')),
+              username=os.environ.get('MOLSTEER_SSH_USER','root'),password=os.environ['MOLSTEER_SCNET_PASSWORD'],
               timeout=25,auth_timeout=25,look_for_keys=False,allow_agent=False)
     c.get_transport().set_keepalive(30);return c
 

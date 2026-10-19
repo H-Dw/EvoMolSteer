@@ -1,0 +1,88 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/44dab556b1d76d7137f376a88e09a64e335b93dcd532a2bc04b6f6546be21d78.txt",
+        "content_sha256": "44dab556b1d76d7137f376a88e09a64e335b93dcd532a2bc04b6f6546be21d78",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/e8d116a281449fe681b7daf4d88710531adcb9156311ed70289f8a3111c1f4d4.txt",
+        "content_sha256": "e8d116a281449fe681b7daf4d88710531adcb9156311ed70289f8a3111c1f4d4",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/19f4f7c952c578d3be3af5a7f64e5b70f6a07aadddf0fbcca18640fd1e9b3825.txt",
+        "content_sha256": "19f4f7c952c578d3be3af5a7f64e5b70f6a07aadddf0fbcca18640fd1e9b3825",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/764e41c3439dc2084f263a78308bd0a3be95edab116c945ea7f4d2434c1d913b.txt",
+        "content_sha256": "764e41c3439dc2084f263a78308bd0a3be95edab116c945ea7f4d2434c1d913b",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/9d52018b09bd44f7f92d7fddb9793409f97364c1dbcfd7ae710d15b330e3c6e8.txt",
+        "content_sha256": "9d52018b09bd44f7f92d7fddb9793409f97364c1dbcfd7ae710d15b330e3c6e8",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/0f07f1190f82c17ca19ab66e641e82e1db05f6f9d2e3c539a9c579e23a27dd2d.txt",
+        "content_sha256": "0f07f1190f82c17ca19ab66e641e82e1db05f6f9d2e3c539a9c579e23a27dd2d",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__local_1af1ee074fd1",
+                "F_b011_s030__local_32e00570ab5a",
+                "F_b011_s030__local_51112d312c94",
+                "F_b011_s030__local_76ec9188773a",
+                "F_b011_s030__local_8d820f848732",
+                "F_b011_s030__local_d6cd77a4c765"
+              ]
+            },
+            "tool": {
+              "const": "local_support_evidence"
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

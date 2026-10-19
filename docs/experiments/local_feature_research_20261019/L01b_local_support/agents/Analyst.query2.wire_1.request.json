@@ -1,0 +1,94 @@
+{
+  "body": {
+    "max_tokens": 2500,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/9d72b3021b05ce4f68a319b8383217d114ee1530a3b642127f4fc463b3014e48.txt",
+        "content_sha256": "9d72b3021b05ce4f68a319b8383217d114ee1530a3b642127f4fc463b3014e48",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/3154158cbf29bf7617b50a0283b369a4fea589e2cd7c14517d9efac58a7cc648.txt",
+        "content_sha256": "3154158cbf29bf7617b50a0283b369a4fea589e2cd7c14517d9efac58a7cc648",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/1e3518969de7d35703d7b208f6668b7240ca83d2ce5d669f939ce29a9b32b8d2.txt",
+        "content_sha256": "1e3518969de7d35703d7b208f6668b7240ca83d2ce5d669f939ce29a9b32b8d2",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/764e41c3439dc2084f263a78308bd0a3be95edab116c945ea7f4d2434c1d913b.txt",
+        "content_sha256": "764e41c3439dc2084f263a78308bd0a3be95edab116c945ea7f4d2434c1d913b",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/9daec73668b3e4d0c10051e628627ffddbe20d00a7a25a4eb4114afd73bc0af5.txt",
+        "content_sha256": "9daec73668b3e4d0c10051e628627ffddbe20d00a7a25a4eb4114afd73bc0af5",
+        "role": "assistant"
+      },
+      {
+        "content_relative_path": "../../inputs/59cf755c806b7bc179ea6f820da584e790a36aefcc61ad2882b4d7f553970a8b.txt",
+        "content_sha256": "59cf755c806b7bc179ea6f820da584e790a36aefcc61ad2882b4d7f553970a8b",
+        "role": "user"
+      },
+      {
+        "content_relative_path": "../../inputs/ddeec27f33eb49cf033902c44a65e2550e0cb8f866134b6fc2da3bf70b740c0a.txt",
+        "content_sha256": "ddeec27f33eb49cf033902c44a65e2550e0cb8f866134b6fc2da3bf70b740c0a",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "format_policy": "json-interface-v4",
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "purpose": {
+        "maxLength": 2000,
+        "type": "string"
+      },
+      "requests": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "region_id": {
+              "enum": [
+                "F_b011_s030__local_1af1ee074fd1",
+                "F_b011_s030__local_32e00570ab5a",
+                "F_b011_s030__local_51112d312c94",
+                "F_b011_s030__local_76ec9188773a",
+                "F_b011_s030__local_8d820f848732",
+                "F_b011_s030__local_d6cd77a4c765"
+              ]
+            },
+            "tool": {
+              "const": "local_support_evidence"
+            }
+          },
+          "required": [
+            "tool",
+            "region_id"
+          ],
+          "type": "object"
+        },
+        "maxItems": 2,
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "requests",
+      "purpose"
+    ],
+    "type": "object"
+  }
+}

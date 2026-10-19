@@ -1,0 +1,33 @@
+{
+  "active_chemistry_modules": [],
+  "chemical_assumptions": "未启用任何化学模块。终态角色（5/8/9/11/14 均为芳香碳，非供体/受体，形式电荷 0）仅用于选区，不声称已启用类型或电荷力。逐点几何算子不提供化学角色力；元素/电荷概率保留原始 float16 量化。",
+  "clock_and_representation": "时钟策略为 endpoint_prediction：可观察量为 predicted_endpoint，教师为同时刻 teacher_predicted_endpoint_at_same_forward_time。学习窗口 [0.0,0.5]，控制窗口 [0.1,0.5]，100 步。教师趋势拟合为单条记录谱系的诊断量，不是群体富集或空间梯度，也不替代在线教师预测。",
+  "component_response_interpretation": "父程序 R02_v3 响应显示 active_updates=40、nonzero_updates=2000、injected_rms_A_mean=0.0299、predictive_flow_rms_A_mean=0.0453、assignment_switch_fraction=0.0443，说明逐点控制项已激活。但非零分量梯度只证明激活，不证明形成或保持；需读取窗口末端实际几何布局与无引导后缀终态。原始分项梯度非零也不证明归一化后总方向明显改变。",
+  "controlled_feature": "point_error_A",
+  "counterevidence_refs": [
+    "F_b011_s030__local_51112d312c94/local_support_evidence",
+    "F_b011_s030__local_76ec9188773a/local_support_evidence",
+    "F_b011_s030__local_d6cd77a4c765/local_support_evidence",
+    "source/limits"
+  ],
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "F_b011_s030__local_8d820f848732/local_support_evidence",
+    "F_b011_s030__local_1af1ee074fd1/local_support_evidence",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response"
+  ],
+  "falsifier": "若在相同剂量、窗口和时钟下，G002 的 5 点支持在窗口末端未形成更接近教师预测端点的布局，或形成但在无引导后缀后未保持，或终态尾部质量不优于配对无引导回放与冻结 R02 20 点对照，则本假设被否证。若 G000 的 3 点支持在同大小或更简单对照下表现相当或更好，则“5 点超集优于 3 点”这一具体主张被否证。",
+  "formation_retention_value_test": "形成：读取窗口末端 [0.5] 这 5 个槽位的实际坐标与教师预测端点的逐点误差，确认是否下降。保持：比较同一 5 点支持在无引导后缀后的终态布局与无引导对照的终态布局。价值：比较该分支终态亲和力/质量与配对历史无引导回放及冻结 R02 20 点奖励对照，重点看近目标尾部（best 8.326 附近）是否可重复，而非仅看均值。",
+  "group_id": "G002",
+  "observable_change": "预期在控制窗口 [0.1,0.5] 内，所选 5 个槽位相对同时刻教师端点预测的逐点误差下降；窗口末端这 5 个槽位的实际几何布局应更接近教师预测端点。该变化是逐点位置量，不是配对距离或口袋距离奖励。",
+  "observable_contract": {
+    "observable": "predicted_endpoint",
+    "teacher": "teacher_predicted_endpoint_at_same_forward_time"
+  },
+  "parent_program_id": "R02_v3",
+  "primary_operator": "pointwise",
+  "relationship_to_failed_families": "父程序 R02_v3 使用 20 点全云逐点奖励，50 个计划中仅 1 个高分（best 8.326，mean 7.727），低于原始 Steer best 8.705。本组不改变算子方向或剂量，只缩小支持，以区分“全云奖励稀释局部信号”与“局部信号本身不足”两种解释。G001（[8,11,14]）与 G003（[2,12,17,21]）为未运行的小支持提案，不是已有对照实验。",
+  "scientific_hypothesis": "在冻结的 R02_v3 逐点算子、剂量、窗口和端点预测时钟下，将奖励支持限制在 5 个原子的 LEU45/HIS160 界面区域 [5,8,9,11,14]（G002），比 20 点全云奖励或更小的 3 点支持更能提高近目标尾部分支的终态质量。理由：该区域在实测终态对比中，逐点误差（point_error_A other_minus_high=0.1027，区间 [0.0340,0.1676]）和配对误差（pair_error_A other_minus_high=0.1972，区间 [0.0674,0.3236]）均显示高质量终态更接近，且配对误差区间不含 0；其 5 点支持是 G000 的超集，并额外包含槽位 9 和 14，从而保留内部形状自由度。",
+  "support_reason": "选择 G002 的 5 点支持 [5,8,9,11,14]：每个点都有用途——5、8、9、11 构成 LEU45/HIS160 界面的芳香环局部形状（orientation_triplets [5,8,9]、[8,5,11]），14 连接该环环境并保留内部距离自由度。该区域在实测终态对比中配对误差区间不含 0，且逐点误差区间不含 0；相比 G000 的 3 点，它保留更多内部形状但仍在允许的 2–8 点范围内（fraction 0.2）。G005 的 7 点区域口袋位点不同（VAL116/ASP175/LYS68/GLU114），其逐点误差区间下界接近 0（0.00056），证据较弱。"
+}

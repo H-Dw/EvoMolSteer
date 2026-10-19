@@ -1,0 +1,140 @@
+{
+  "actual_dose_expectation": {
+    "actual_budget_depends_on_student_trajectory": true,
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.66
+    },
+    "post_RMS_gains": [
+      "temporal_schedule"
+    ],
+    "schedule": "constant",
+    "schedule_normalization": 1.0
+  },
+  "api_response_path": "Designer.response.json",
+  "api_response_sha256": "e58254352b7ba39d514875cb7849888b62beec5353f27a7ac806136724d6144c",
+  "binding_origin": "deterministic compiler from validated option_id; rationale/falsifier from real API",
+  "derivative_path": {
+    "affinity_derivative": false,
+    "coordinate_paths": [
+      "live_generator_endpoint_coordinate_VJP"
+    ],
+    "extra_affinity_forward": false,
+    "matching_and_routing": "stop_gradient"
+  },
+  "design_grounds": "option_002 将冻结的 R02_v3 逐点算子、剂量、窗口 [0.1,0.5] 和端点预测时钟原样保留，只把奖励支持从 20 点全云缩小到 5 点 LEU45/HIS160 界面区域 [5,8,9,11,14]（fraction 0.2，在 2–8 点允许范围内），从而检验“全云奖励稀释局部信号”这一解释；该区域在实测终态对比中逐点误差与配对误差区间均不含 0，且是 G000 三点支持的超集并额外保留槽位 9、14 的内部形状自由度。所有 5 个槽位均为芳香碳、形式电荷 0，仅用于选区，未启用任何化学角色力；教师仍为同时刻在线端点预测，不替换为拟合趋势。",
+  "evidence_refs": [
+    "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+    "F_b011_s030__local_8d820f848732/local_support_evidence",
+    "F_b011_s030__local_1af1ee074fd1/local_support_evidence",
+    "parents/R02_v3/outcomes",
+    "parents/R02_v3/response",
+    "source/limits"
+  ],
+  "execution_changes": [
+    "advantage_evidence_gain",
+    "local_feature_binding",
+    "local_support_policy",
+    "mode_specs"
+  ],
+  "falsifier": "若在相同剂量、窗口和时钟下，该 5 点支持在窗口末端 [0.5] 未形成更接近同时刻教师预测端点的布局，或形成后在无引导后缀终态未保持，或终态尾部质量（best 8.326 附近）不优于配对无引导回放与冻结 R02 20 点对照，则本假设被否证。",
+  "hypothesis_group": "G002",
+  "operative_terms": {
+    "actual_terms": [
+      "registered_pointwise"
+    ],
+    "assignment_element_cost": 0.5,
+    "attainment_response": false,
+    "clock_policy": "endpoint_prediction",
+    "controlled_feature": "point_error_A",
+    "dose": {
+      "max_atom_step_A": 0.15,
+      "max_cumulative_rms_A": 6.0,
+      "native_rms_ratio": 0.66,
+      "pointcloud_delta_A": 1.0
+    },
+    "dose_schedule": "constant",
+    "learning_window": [
+      0.0,
+      0.5
+    ],
+    "local_feature_binding": {
+      "active_terms": [
+        "registered_pointwise"
+      ],
+      "atom_slots": [
+        5,
+        8,
+        9,
+        11,
+        14
+      ],
+      "chemical_role_used_for_selection_only": true,
+      "clock_policy": "endpoint_prediction",
+      "direct_type_force": false,
+      "evidence": "evidence/F_b011_s030__local_32e00570ab5a.json",
+      "locality": {
+        "allowed_max_points": 8,
+        "allowed_min_points": 2,
+        "fraction": 0.2,
+        "n_points": 5,
+        "n_total": 25
+      },
+      "operator": "pointwise",
+      "origin": "deterministic_feature_compilation; not a new Analyst/Designer decision",
+      "region_id": "F_b011_s030__local_32e00570ab5a"
+    },
+    "local_support_policy": {
+      "band_bond_fraction": 0.25,
+      "graph_depths": [
+        1,
+        2
+      ],
+      "interface_fractions": [
+        0.08,
+        0.12,
+        0.2,
+        0.28
+      ],
+      "max_fraction": 0.32,
+      "min_points": 2,
+      "pocket_sites": 4,
+      "spatial_radius_bond_multiples": [
+        1.15,
+        1.65
+      ]
+    },
+    "modes": [
+      {
+        "atom_slots": [
+          5,
+          8,
+          9,
+          11,
+          14
+        ],
+        "template_id": "F_b011_s030_native"
+      }
+    ],
+    "native_options": {
+      "cat_noise_euler_guard": false,
+      "cat_noise_level": 1.0,
+      "coord_noise_level": 0.2,
+      "final_corr_pred": true,
+      "use_sde_simulation": true
+    },
+    "operator": "pointwise",
+    "operator_formula": "R_geo = mean[-delta^2 * (sqrt(1+distance^2/delta^2)-1)]",
+    "routing": "single",
+    "schedule_normalization": 1.0,
+    "steps": 100,
+    "window": [
+      0.1,
+      0.5
+    ]
+  },
+  "option_id": "option_002",
+  "parent_program_id": "R02_v3",
+  "primary_operator": "pointwise"
+}

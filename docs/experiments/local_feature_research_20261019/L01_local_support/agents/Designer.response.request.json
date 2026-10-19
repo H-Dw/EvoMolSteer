@@ -1,0 +1,78 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/11669d1422bae523c17eef9e6f1c29b1734e45dfb4b10aa8a54af6d9cd540dd9.txt",
+        "content_sha256": "11669d1422bae523c17eef9e6f1c29b1734e45dfb4b10aa8a54af6d9cd540dd9",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/11caf0e27fd124ebf5cdfd8ee28ecba5792448a807fd66347429868204feee48.txt",
+        "content_sha256": "11caf0e27fd124ebf5cdfd8ee28ecba5792448a807fd66347429868204feee48",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "design_grounds": {
+        "description": "One concise scientific reason; do not repeat canonical program/derivative/dose objects.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+            "F_b011_s030__local_51112d312c94/local_support_evidence",
+            "F_b011_s030__local_76ec9188773a/local_support_evidence",
+            "F_b011_s030__local_8d820f848732/local_support_evidence",
+            "campaign/history",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "description": "One concise measurable negative outcome.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G002"
+      },
+      "option_id": {
+        "enum": [
+          "option_002"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R02_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}

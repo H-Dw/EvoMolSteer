@@ -1,0 +1,80 @@
+{
+  "body": {
+    "max_tokens": 3000,
+    "messages": [
+      {
+        "content_relative_path": "../../inputs/da460aa3f810f744baf27a2ca4ac1fad8adab9d4b6cf6e27531ecaf3b067e9b9.txt",
+        "content_sha256": "da460aa3f810f744baf27a2ca4ac1fad8adab9d4b6cf6e27531ecaf3b067e9b9",
+        "role": "system"
+      },
+      {
+        "content_relative_path": "../../inputs/e57004368c7451dc644081a6f29f2c1331f979466f11c70717f5ba380705448c.txt",
+        "content_sha256": "e57004368c7451dc644081a6f29f2c1331f979466f11c70717f5ba380705448c",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "design_grounds": {
+        "description": "One concise scientific reason; do not repeat canonical program/derivative/dose objects.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "enum": [
+            "F_b011_s030__local_1af1ee074fd1/local_support_evidence",
+            "F_b011_s030__local_32e00570ab5a/local_support_evidence",
+            "F_b011_s030__local_51112d312c94/local_support_evidence",
+            "F_b011_s030__local_76ec9188773a/local_support_evidence",
+            "F_b011_s030__local_8d820f848732/local_support_evidence",
+            "F_b011_s030__local_d6cd77a4c765/local_support_evidence",
+            "campaign/history",
+            "parents/R02_v3/outcomes",
+            "parents/R02_v3/response",
+            "source/limits",
+            "source/prior_campaign"
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "falsifier": {
+        "description": "One concise measurable negative outcome.",
+        "minLength": 1,
+        "type": "string"
+      },
+      "hypothesis_group": {
+        "const": "G002"
+      },
+      "option_id": {
+        "enum": [
+          "option_002"
+        ]
+      },
+      "parent_program_id": {
+        "const": "R02_v3"
+      }
+    },
+    "required": [
+      "option_id",
+      "hypothesis_group",
+      "parent_program_id",
+      "evidence_refs",
+      "design_grounds",
+      "falsifier"
+    ],
+    "type": "object"
+  }
+}
