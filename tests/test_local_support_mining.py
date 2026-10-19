@@ -230,7 +230,8 @@ def test_evidence_cache_binds_support_window_and_geometry_parameters(tmp_path):
     assert len({a, b, c, d}) == 4
 
 
-def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_support(tmp_path, monkeypatch):
+@pytest.mark.parametrize('strict',[False,True])
+def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_support(tmp_path, monkeypatch,strict):
     """Transport/schema test only; no claim about actual LLM reasoning or quality."""
     import evomolsteer.ancestral_modes.agents as agents
     from evomolsteer.ancestral_modes.programs import program_delta, numerical_identity
@@ -251,6 +252,7 @@ def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_suppo
               'analyst_skill': 'skills/ancestral-mode-analyst/SKILL.md',
               'designer_skill': 'skills/ancestral-mode-designer/SKILL.md',
               'local_support_registry': str(tmp_path), 'local_support_policy': policy()}
+    if strict:master.update(strict_feature_handoff=True,parent_feedback={'fixture_transport_only':True})
     calls = []
 
     def fake_call(messages, schema, output, **kwargs):
@@ -266,13 +268,20 @@ def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_suppo
                 evidence_refs=[region['region_id'] + '/local_support_evidence', 'parents/R02_test/outcomes'],
                 counterevidence_refs=['source/limits'], active_chemistry_modules=[],
                 observable_contract=agents.CLOCKS['endpoint_prediction'])
+            if strict:
+                response.update(controlled_feature='pair_error_A')
+                response['evidence_refs'].append('parents/R02_test/response')
         else:
             response = {'option_id': 'A0', 'hypothesis_group': 'G000', 'parent_program_id': 'R02_test',
                         'evidence_refs': [region['region_id'] + '/local_support_evidence'],
                         'design_grounds': 'fixture binding only', 'falsifier': 'fixture falsifier'}
+            if strict:response['evidence_refs']+=['parents/R02_test/outcomes','parents/R02_test/response']
         import jsonschema
         jsonschema.validate(response, schema)
         if kwargs.get('response_validator'):
+            if strict and output.name=='Designer.response.json':
+                with pytest.raises(jsonschema.ValidationError,match='actual parent evidence'):
+                    kwargs['response_validator'](dict(response,evidence_refs=[region['region_id']+'/local_support_evidence']))
             kwargs['response_validator'](response)
         write_json(output, response)
         write_json(output.with_suffix('.request.json'), {'fixture_transport_only': True})
@@ -289,3 +298,4 @@ def test_simulated_api_transport_delivers_local_evidence_and_compiles_same_suppo
     designer = next(c for c in calls if c[0] == 'Designer.response.json')
     delivered = json.loads(designer[1][1]['content'])
     assert region['region_id'] + '/local_support_evidence' in delivered['shared_evidence']
+    assert set(designer[2]['properties']['evidence_refs']['items']['enum'])==set(delivered['shared_evidence'])

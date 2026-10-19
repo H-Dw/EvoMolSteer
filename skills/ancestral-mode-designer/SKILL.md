@@ -13,6 +13,8 @@ description: Bind an Analyst's local ancestral-mode hypothesis to stage-consiste
 
 核对 `controlled_feature` 与实际算子。区域元数据中存在方向三元组或口袋位点，不代表相应奖励已经生效；未启用的元数据只能解释选区背景。若 Analyst 的主张需要另一算子，应在允许的选项中明确选择该算子，不能用文字宣布新增奖励项。
 
+引用实际交付给Designer的区域证据与父程序结果。有真实推理反馈时，也引用该父程序的控制响应，说明位移、形成/保持及终态结果如何影响本次选择；只重复教师优势统计不足以说明反馈已经进入设计。
+
 核对 hypothesis、action 和实际响应记录的 parent_program_id；不同 parent 的参数和结果不能混用。
 
 有效算子与参数以调用者的 operative-only 视图为准。未列入有效项的继承参数不参与本轮计算。API 只返回 schema 要求的选项 ID、交接标识、证据引用、简洁科学理由及否证条件；公式、导数路径、改动字段和剂量由确定性编译器根据选项生成，不在自由文字中重写或新增这些返回字段。

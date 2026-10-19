@@ -243,6 +243,10 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if a['parent_program_id']!=group[0]['parent_id'] or 'parents/'+a['parent_program_id']+'/outcomes' not in a['evidence_refs']:
             import jsonschema
             raise jsonschema.ValidationError('Chosen group must bind and cite its ACTUAL parent outcomes',validator='parent_binding',validator_value=group[0]['parent_id'],instance=a['parent_program_id'])
+        if m.get('parent_feedback') and 'parents/'+a['parent_program_id']+'/response' not in a['evidence_refs']:
+            import jsonschema
+            raise jsonschema.ValidationError('A feedback-driven hypothesis must cite the delivered ACTUAL parent control response',
+                validator='parent_response_binding',validator_value=a['parent_program_id'],instance=a['evidence_refs'])
         if not any(ref.split('/')[0] in group[0]['region_ids'] for ref in a['evidence_refs']):
             import jsonschema
             raise jsonschema.ValidationError('Chosen group must cite a queried local source',validator='support_binding',validator_value=group[0]['region_ids'],instance=a['evidence_refs'])
@@ -286,14 +290,24 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     visible_options=[{**v,'program':executable_view(v['program'])} for v in selected]
     cited=set(a['evidence_refs'])|set(a['counterevidence_refs'])|{'source/limits','source/feature_revision'}
     designer_evidence={k:v for k,v in bundle['evidence'].items() if k in cited}
+    designer_refs={'type':'array','minItems':1,'items':{'enum':sorted(designer_evidence)}}
     designer_schema=obj({'option_id':{'enum':[x['action_id'] for x in selected]},'hypothesis_group':{'const':a['group_id']},
         'parent_program_id':{'const':a['parent_program_id']},
-        'evidence_refs':refs,'design_grounds':{'type':'string','minLength':1,'description':'One concise scientific reason; do not repeat canonical program/derivative/dose objects.'},
+        'evidence_refs':designer_refs,'design_grounds':{'type':'string','minLength':1,'description':'One concise scientific reason; do not repeat canonical program/derivative/dose objects.'},
         'falsifier':{'type':'string','minLength':1,'description':'One concise measurable negative outcome.'}})
+    def validate_d(d):
+        if not m.get('strict_feature_handoff'):return
+        required={'parents/'+a['parent_program_id']+'/outcomes'}|{
+            rid+'/local_support_evidence' for rid in selected[0]['region_ids'] if 'local_support_evidence' in byregion[rid]}
+        if m.get('parent_feedback'):required.add('parents/'+a['parent_program_id']+'/response')
+        if not required<=set(d['evidence_refs']):
+            import jsonschema
+            raise jsonschema.ValidationError('Designer must cite the selected local support and actual parent evidence delivered by Analyst',
+                validator='designer_feature_evidence_binding',validator_value=sorted(required),instance=d['evidence_refs'])
     d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
         'Analyst':a,'shared_evidence':designer_evidence,'allowed_numerical_options':visible_options,
         'task':'Return ONLY the six schema fields: selected option_id, fixed hypothesis_group, fixed parent_program_id, evidence_refs, one concise design_grounds paragraph and one measurable falsifier. The deterministic compiler generates formulas, derivative paths, parameter changes and actual-dose descriptors from your selected ID; DO NOT output or rewrite these computed fields. Registry is bounded; choosing parameters is not unrestricted code synthesis.'},ensure_ascii=False)}],
-        designer_schema,folder/'Designer.response.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=3000)
+        designer_schema,folder/'Designer.response.json',input_store=repo/m['campaign_study']/'inputs',response_validator=validate_d,max_output_tokens=3000)
     api_file=folder/'Designer.response.json';d=compile_designer_response(d,options[d['option_id']],api_file);write_json(folder/'Designer.json',d)
     action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank)
     d_review=factual_review(repo,m,folder,'Designer',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
@@ -302,7 +316,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         d=call_json([{'role':'system','content':skills['Designer']},{'role':'user','content':json.dumps({
             'Analyst':a,'allowed_options':visible_options,'authoritative_clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
             'previous_response':{k:d[k] for k in designer_schema['properties']},'neutral_factual_diagnostics':d_review,'task':'Correct factual contradictions; return only the six raw schema fields and keep the Analyst-bound hypothesis.'},ensure_ascii=False)}],
-            designer_schema,folder/'Designer.corrected.response.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=3000)
+            designer_schema,folder/'Designer.corrected.response.json',input_store=repo/m['campaign_study']/'inputs',response_validator=validate_d,max_output_tokens=3000)
         api_file=folder/'Designer.corrected.response.json';d=compile_designer_response(d,options[d['option_id']],api_file);write_json(folder/'Designer.corrected.json',d)
         action=options[d['option_id']];p=copy.deepcopy(action['program']);validate(p,bank);designer_file=folder/'Designer.corrected.json'
         final_review=factual_review(repo,m,folder,'Designer.corrected',d,{'execution':p,'clock':CLOCKS[p['clock_policy']],'authoritative_program_delta':action['authoritative_program_delta'],
