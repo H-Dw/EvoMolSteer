@@ -60,6 +60,8 @@ def prepare(repo,master_path,round_id,operators):
     validate(p,read_json(teacher_path))
     zero={'id':'zero_replay','kind':'unguided','n':50*len(m['group_indices']),'window':None,'group_indices':m['group_indices']}
     baseline=copy.deepcopy(reference);baseline.update(id='R02_reference',n=zero['n'],group_indices=m['group_indices'],reuse_from='ancestor_R02_v3')
+    if not m.get('reuse_parent',True):
+        baseline.pop('reuse_from');baseline.update(role='frozen_current_reference',frozen_source_condition='ancestor_R02_v3')
     candidate={'id':round_id,'kind':'native_local','n':zero['n'],'group_indices':m['group_indices'],'window':p['window'],
         'program':program_path.relative_to(repo).as_posix(),'program_sha256':digest(program_path),
         'reference':teacher_path.relative_to(repo).as_posix(),'reference_sha256':digest(teacher_path)}
@@ -71,6 +73,8 @@ def prepare(repo,master_path,round_id,operators):
         'scientific_scope':{'source':'true historical initial tensors and ancestry-mapped primitive random inputs',
             'changed':program_delta(parent,p),'registry_identity':registry['identity'],
             'decision_chain':'real DeepSeek Analyst -> Designer option -> deterministic compiler -> validated local feature binding'}}
+    for key in ('comparison_scope','diagnostic_evidence','native_zero_repeat_sources'):
+        if key in m:manifest[key]=m[key]
     manifest['research_sha256']=identity(manifest)
     output=repo/m['config_dir']/(round_id+'.json');write_json(output,manifest)
     from evomolsteer.path_replay.local_research import load

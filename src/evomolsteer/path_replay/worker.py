@@ -189,7 +189,9 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
                 equivalence={**observer.summary(),**final_equivalence(cfg,rows,output,scores)}
                 equivalence['passed']=equivalence['passed'] and equivalence['max_coordinate_error_A']<=cfg['coordinate_tolerance_A'] and not any(equivalence['categorical_differences'].values())
                 atomic_json(folder/'equivalence.json',equivalence)
-                if not equivalence['passed']: raise ValueError('Zero-guidance historical path replay failed; see equivalence.json')
+                diagnostic=research is not None and research.get('comparison_scope')=='current_runtime_paired_diagnostic'
+                if not equivalence['passed'] and not diagnostic:
+                    raise ValueError('Zero-guidance historical path replay failed; see equivalence.json')
             guidance={'steps':control.rows,'active_steps':active,'cumulative_rms_A':control.total.detach().cpu().tolist(),
                       'no_smc':True,'affinity_head_gradient':False,'random_steps':replay.records,
                       'path_bindings':[{k:a[k] for k in ('id','batch','final_slot','root_slot','path_sha256')} for a in rows]}
@@ -219,6 +221,8 @@ def run(repo,config_path,work,condition_id,only_group=None,extension_manifest=No
             receipt={'status':'complete','binding':binding(cfg,c,group),'condition':c['id'],'group':group['index'],
                      'records':records,'active_steps':active,'seconds':time.time()-started,'finished_unix':time.time(),
                      'scoring_context':scoring_audit,'weights_unchanged':True,'parameter_gradients_accumulated':False,
+                     'comparison_scope':research.get('comparison_scope','strict_historical_replay') if research else 'strict_historical_replay',
+                     'historical_equivalence_passed':equivalence['passed'] if equivalence is not None else None,
                      'artifacts':{k:digest(folder/k) for k in files}}
             atomic_json(folder/'COMPLETE.json',receipt)
             print({'condition':c['id'],'group':group['index'],'n':50,'mean_pic50':float(scores.mean()),

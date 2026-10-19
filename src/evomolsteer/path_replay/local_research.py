@@ -30,6 +30,18 @@ def load(repo,path):
         raise ValueError('Expected exact B50 activation-offload protocol')
     if m['remote_work']==m['base_work'] or m['base_work']!=cfg['remote_work']:
         raise ValueError('Research must not overwrite historical results')
+    scope=m.get('comparison_scope','strict_historical_replay')
+    if scope not in ('strict_historical_replay','current_runtime_paired_diagnostic'):
+        raise ValueError('Unknown comparison scope')
+    if scope=='current_runtime_paired_diagnostic':
+        evidence=m['diagnostic_evidence']
+        if digest(repo/evidence['path'])!=evidence['sha256']:raise ValueError('Runtime diagnostic evidence changed')
+        arrays=read_json(repo/evidence['path'])['native_vs_offload_zero_state_arrays']
+        if set(arrays)!={'terminal_coords_A','half_coords_A','mask','atomics','bonds','charges'} or not all(v['equal'] is True for v in arrays.values()):
+            raise ValueError('Current runtime repeatability has not been established')
+        if any(c.get('reuse_from') for c in m['conditions']):raise ValueError('Cross-device diagnostic must recompute every control')
+        if not {str(g['index']) for g in groups_for(cfg,m['conditions'][0])}<=set(m['native_zero_repeat_sources']):
+            raise ValueError('Every diagnostic group needs its own repeatability source')
     ids=[c['id'] for c in m['conditions']]
     if len(ids)!=len(set(ids)) or m['conditions'][0]['kind']!='unguided':raise ValueError('Unique conditions, zero replay first')
     for c in m['conditions']:
@@ -38,7 +50,12 @@ def load(repo,path):
         if program is not None:
             from evomolsteer.ancestral_modes.programs import validate as validate_program
             validate_program(program,teacher)
-            if not c.get('reuse_from') and 'local_feature_binding' not in program:
+            frozen=c.get('role')=='frozen_current_reference'
+            if frozen:
+                original=next(v for v in cfg['conditions'] if v['id']==c['frozen_source_condition'])
+                for key in ('kind','program','reference','program_sha256','reference_sha256','window'):
+                    if c.get(key)!=original.get(key):raise ValueError('Current reference changed frozen execution: '+key)
+            if not c.get('reuse_from') and not frozen and 'local_feature_binding' not in program:
                 raise ValueError('New local reward lacks an executable feature binding')
     return cfg,m,base
 
@@ -79,7 +96,7 @@ def reuse(cfg,m,c,work):
 def analyze(repo,cfg,m,work):
     from .analysis import distribution,paired_cluster,write_csv
     datasets={};performance=[];pairs=[];responses=[];local_rows=[]
-    local_conditions=[c for c in m['conditions'] if c['kind']!='unguided' and not c.get('reuse_from')]
+    local_conditions=[c for c in m['conditions'] if c['kind']!='unguided' and not c.get('reuse_from') and c.get('role')!='frozen_current_reference']
     feature_program,feature_teacher=condition_program(repo,local_conditions[0]) if local_conditions else (None,None)
     for c in m['conditions']:
         records=[]
@@ -118,7 +135,8 @@ def analyze(repo,cfg,m,work):
     write_csv(out/'local_formation_retention.csv',local_rows)
     result={'research_sha256':m['research_sha256'],'status':status(cfg,m,work),
             'performance':performance,'paired':pairs,'responses':responses,
-            'interpretation':'Paired historical success paths; a small selected pilot is not an unbiased N1000 or cross-target result.'}
+            'comparison_scope':m.get('comparison_scope','strict_historical_replay'),
+            'interpretation':'Historical initial tensors and primitive random inputs are aligned. A current-runtime diagnostic is NOT a passed exact historical replay. Fresh same-runtime controls are mandatory in that scope. Small selected pilots are not unbiased N1000 or cross-target results.'}
     atomic_json(out/'summary.json',result);return result
 
 
@@ -162,7 +180,18 @@ def run(repo,path,work):
                 if c['kind']=='unguided':
                     for g in groups_for(cfg,c):
                         r=read_batch(work,cfg,c,g)
-                        if not r or r['status']!='complete' or not read_json(batch_path(work,c,g).parent/'equivalence.json')['passed']:
+                        complete=r is not None and r['status']=='complete'
+                        q=read_json(batch_path(work,c,g).parent/'equivalence.json') if complete else {}
+                        if m.get('comparison_scope')=='current_runtime_paired_diagnostic' and complete:
+                            import numpy as np
+                            source=Path(m['native_zero_repeat_sources'][str(g['index'])])
+                            equality={}
+                            with np.load(source) as old,np.load(batch_path(work,c,g).parent/'states.npz') as new:
+                                for key in old.files:equality[key]=bool(np.array_equal(old[key],new[key]))
+                            atomic_json(work/'current_runtime_repeatability.json',{'passed':all(equality.values()),'arrays':equality,
+                                'source':str(source),'source_sha256':digest(source),'historical_equivalence_passed':q.get('passed',False)})
+                            if not all(equality.values()):raise ValueError('Current-runtime baseline is not repeatable; diagnostics blocked')
+                        elif not complete or not q.get('passed'):
                             raise ValueError('Current runtime zero-guidance exact replay failed; guidance blocked')
                 analyze(repo,cfg,m,work)
             rows=status(cfg,m,work);state.update(status='complete_with_errors' if any(r['failed'] or r['skipped_condition_error'] for r in rows) else 'complete',

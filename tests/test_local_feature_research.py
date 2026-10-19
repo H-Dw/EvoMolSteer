@@ -71,3 +71,24 @@ def test_formation_retention_keeps_half_slots_instead_of_hiding_suffix_changes()
     assert rows[0]['half_point_error_A']==0
     assert rows[0]['terminal_tracked_point_error_A']==10
     assert rows[0]['terminal_tracked_pair_error_A']==0
+
+
+def test_diagnostic_scope_never_reuses_cross_device_reference_or_hides_failed_exactness(tmp_path):
+    cfg=read_json(BASE);c={'id':'zero','kind':'unguided','n':50,'window':None,'group_indices':[0]}
+    path=tmp_path/'proof.json';arrays={k:{'equal':True} for k in ('terminal_coords_A','half_coords_A','mask','atomics','bonds','charges')}
+    write_json(path,{'native_vs_offload_zero_state_arrays':arrays})
+    m={'schema_version':'local-feature-path-research-1','batch_size':50,'saved_tensor_policy':'saved_tensors_cpu_exact',
+       'base_config':BASE.relative_to(REPO).as_posix(),'base_config_sha256':digest(BASE),'base_protocol_sha256':cfg['protocol_sha256'],
+       'base_work':cfg['remote_work'],'remote_work':cfg['remote_work']+'_diagnostic','conditions':[c],
+       'comparison_scope':'current_runtime_paired_diagnostic','diagnostic_evidence':{'path':str(path),'sha256':digest(path)},
+       'native_zero_repeat_sources':{'0':'/independent/same-runtime/batch0/states.npz'}}
+    def save():
+        m['research_sha256']=identity({k:v for k,v in m.items() if k!='research_sha256'});write_json(tmp_path/'m.json',m)
+    save();assert load(REPO,tmp_path/'m.json')[1]['comparison_scope']=='current_runtime_paired_diagnostic'
+    c['reuse_from']='unguided';save()
+    with pytest.raises(ValueError,match='recompute every control'):load(REPO,tmp_path/'m.json')
+    c.pop('reuse_from');m['native_zero_repeat_sources']={};save()
+    with pytest.raises(ValueError,match='repeatability source'):load(REPO,tmp_path/'m.json')
+    m['native_zero_repeat_sources']={'0':'source'};arrays.clear();write_json(path,{'native_vs_offload_zero_state_arrays':arrays})
+    m['diagnostic_evidence']['sha256']=digest(path);save()
+    with pytest.raises(ValueError,match='repeatability'):load(REPO,tmp_path/'m.json')

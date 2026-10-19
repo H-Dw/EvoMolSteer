@@ -60,6 +60,7 @@ for name in ('queue.pid','worker.pid'):
             'git merge --ff-only origin/main',f'test "$(git rev-parse HEAD)" = {sha}'])
         command(client,pull)
         paths=['src',rel,m['base_config']]
+        if m.get('diagnostic_evidence'):paths.append(m['diagnostic_evidence']['path'])
         for c in m['conditions']:
             for key in ('program','reference'):
                 if key in c:paths.append(c[key])
