@@ -104,6 +104,14 @@ class Control:
             shift*=torch.minimum(torch.ones_like(displacement),remaining/displacement.clamp_min(1e-20))[:,None,None]
             displacement=rms(shift)*self.model.coord_scale;self.total+=displacement
             curr=dict(curr,coords=curr['coords']+shift)
+            # Diagnose force concentration when supports shrink; do not change legacy dose.
+            local_mask=direct.bool()&mask;outside_mask=mask&~local_mask
+            local_rms=((shift.square()*local_mask[...,None]).sum((1,2))/local_mask.sum(1).clamp_min(1)).sqrt()
+            outside_rms=((shift.square()*outside_mask[...,None]).sum((1,2))/outside_mask.sum(1).clamp_min(1)).sqrt()
+            row.update(direct_support_count_mean=float(local_mask.sum(1).float().mean()),
+                direct_support_fraction_mean=float((local_mask.sum(1)/mask.sum(1).clamp_min(1)).mean()),
+                direct_injected_rms_A_mean=float((local_rms*self.model.coord_scale).mean()),
+                outside_injected_rms_A_mean=float((outside_rms*self.model.coord_scale).mean()))
             row.update(nonzero_molecules=int((displacement>1e-9).sum()),injected_rms_A_mean=float(displacement.mean()),
                 current_gradient_rms_mean=float(gnorm.mean()),direct_unmatched_gradient_max=float(gz.masked_fill(direct[...,None],0).abs().max()),
                 current_unmatched_gradient_max=float(gradient.masked_fill(direct[...,None],0).abs().max()),reward_mean=float(value.mean()),

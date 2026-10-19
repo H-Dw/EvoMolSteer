@@ -7,6 +7,8 @@ description: Bind an Analyst's local ancestral-mode hypothesis to stage-consiste
 
 ## D1. 严格绑定局部假设
 
+区域规模来自 Analyst 选中的实际槽位和覆盖策略，不填充到固定点数。逐项核对 `local_feature_binding`、实际 `mode_specs`、教师表示及有效算子；只有描述而没有对应生效项的特征，登记为背景证据，不声称推理已使用。需要方向或距离的假设不能默认为逐点模仿已经实现。使用确定性编译器绑定支持并校验，区域或覆盖超限时返回修订，不静默裁剪或退回宽父区域。
+
 每个非零项绑定 Analyst 的 observable、模式、支持、角色条件和来源。不得私换教师、添加点、用元素目标代替未实现的化学角色，或绕过 Analyst 的点云分析。方向/官能团所需邻居计入支持；多个项或模式的支持并集也保持严格局部。缺少必要邻域时请求 Analyst 修订。
 
 核对 hypothesis、action 和实际响应记录的 parent_program_id；不同 parent 的参数和结果不能混用。

@@ -22,10 +22,14 @@ def calibration_summary(profile,floors):
 
 
 def evidence(repo,m,bank,region):
-    path=repo/m['campaign_study']/'regional_forecast_evidence_v1'/(region['region_id']+'.json')
-    if path.exists():return read_json(path)
     mode=bank['modes'][region['template_id']];slots=region['atom_slots'];base=repo/m['compact_dataset']/'results'/m['campaign']
     source=base/m['arm']/f"batch_{mode['batch']:03d}"/'trajectory.h5'
+    from .evidence_cache import cache_path
+    path,cache_key=cache_path(repo,m,mode,region,source,'endpoint_prediction',__file__)
+    if path.exists():
+        cached=read_json(path)
+        if cached.get('cache_key')!=cache_key:raise ValueError('Forecast evidence cache binding changed')
+        return cached
     com=np.asarray(read_json(base/f"frame_batch_{mode['batch']:03d}.json")['target_com']).reshape(-1,1,3)
     scale=read_json(base/'config.json')['coord_scale'];centers=np.asarray(mode['terminal_coords_A'])[slots];rows=[]
     with TrajectoryPackage(source) as tr:
@@ -55,7 +59,8 @@ def evidence(repo,m,bank,region):
         tt=np.asarray([r['time'] for r in valid]);yy=np.asarray([r[key] for r in valid]);c=np.polynomial.polynomial.polyfit(tt,yy,2)
         fits[key]={'coefficients':c.tolist(),'derivative_coefficients':(c[1:]*np.arange(1,3)[:,None]).tolist(),
             'rmse':np.sqrt(np.square(np.polynomial.polynomial.polyval(tt,c).T-yy).mean(0)).tolist()}
-    result={'schema_version':1,'feature_representation':'endpoint_prediction','region_id':region['region_id'],
+    result={'schema_version':2,'cache_key':cache_key,'cache_reference':path.relative_to(repo).as_posix(),
+        'feature_representation':'endpoint_prediction','region_id':region['region_id'],
         'source_sha256':digest(source),'domain':m['learning_window'],'feature_centers_A':centers.tolist(),
         'rows':rows,'full_window_fits':fits,'focal_feature_range':np.ptp(np.asarray([r['focal'] for r in rows]),axis=0).tolist(),
         'feature_definition':'Kernel occupancy and signed displacement to fixed terminal centers; matching and coordinates both use the endpoint prediction made at this same forward time.',

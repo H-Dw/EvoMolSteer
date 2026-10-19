@@ -46,7 +46,8 @@ def prepare(repo,m):
     out=repo/m['campaign_study'];out.mkdir(parents=True,exist_ok=True)
     if (out/'bank.json').exists():
         if digest(out/'bank.json')!=read_json(out/'bank_manifest.json')['bank_sha256']:raise ValueError('Frozen ancestor bank altered')
-        return read_json(out/'bank.json'),read_json(out/'regions.json')
+        bank=read_json(out/'bank.json');regions=read_json(out/'regions.json')
+        return bank,attach_local_registry(repo,m,bank,regions)
     old=repo/m['prior_study'];templates=read_json(old/'templates.json');regions=read_json(old/'evidence.json')['regions']
     report=Path(m['layout_report']);atoms=pd.read_csv(report/'all_atoms.csv.gz')
     pocket=pd.read_csv(report/'reference_inputs/inputs/pocket_atoms.csv')
@@ -117,15 +118,35 @@ def prepare(repo,m):
     write_json(out/'bank.json',value);write_json(out/'regions.json',regions)
     write_json(out/'bank_manifest.json',{'modes':len(bank),'regions':len(regions),'bank_sha256':digest(out/'bank.json'),
         'source_trajectories':{k:v['trajectory_sha256'] for k,v in bank.items()},'root_ids':sorted({v['root_id'] for v in bank.values()})})
-    return value,regions
+    return value,attach_local_registry(repo,m,value,regions)
+
+
+def attach_local_registry(repo,m,bank,regions):
+    """Opt-in measured small supports; inherited regions remain explicit controls."""
+    if not m.get('local_support_registry'):return regions
+    from .support_mining import load_registry
+    manifest,local=load_registry(repo/m['local_support_registry'],bank)
+    if m.get('local_support_policy')!=manifest['policy']:
+        raise ValueError('Research policy differs from the measured local support policy')
+    by_id={r['region_id']:r for r in regions}
+    for r in local:
+        if r['shortlisted']:
+            if r['region_id'] in by_id and by_id[r['region_id']]!=r:
+                raise ValueError('Local support region ID collides with a different definition')
+            by_id[r['region_id']]=r
+    return list(by_id.values())
 
 
 def regional_evidence(repo,m,bank,region):
     """Selection acts on proposal states; exclude updates beyond learned state time."""
-    out=repo/m['campaign_study']/'regional_evidence_v2';path=out/(region['region_id']+'.json')
-    if path.exists():return read_json(path)
     mode=bank['modes'][region['template_id']];slots=region['atom_slots'];base=repo/m['compact_dataset']/'results'/m['campaign']
     source=base/m['arm']/f"batch_{mode['batch']:03d}"/'trajectory.h5'
+    from .evidence_cache import cache_path
+    path,cache_key=cache_path(repo,m,mode,region,source,'current',__file__)
+    if path.exists():
+        cached=read_json(path)
+        if cached.get('cache_key')!=cache_key:raise ValueError('Regional evidence cache binding changed')
+        return cached
     com=np.asarray(read_json(base/f"frame_batch_{mode['batch']:03d}.json")['target_com']).reshape(-1,1,3)
     scale=read_json(base/'config.json')['coord_scale'];rows=[]
     centers=np.asarray(mode['terminal_coords_A'])[slots]
@@ -157,7 +178,8 @@ def regional_evidence(repo,m,bank,region):
         tt=np.asarray([r['time'] for r in valid]);yy=np.asarray([r[key] for r in valid]);coef=np.polynomial.polynomial.polyfit(tt,yy,2)
         curves[key]={'coefficients':coef.tolist(),'derivative_coefficients':(coef[1:]*np.arange(1,3)[:,None]).tolist(),
             'rmse':np.sqrt(np.square(np.polynomial.polynomial.polyval(tt,coef).T-yy).mean(0)).tolist()}
-    result={'schema_version':2,'region_id':region['region_id'],'source_sha256':digest(source),'domain':m['learning_window'],'rows':rows,'full_window_fits':curves,
+    result={'schema_version':3,'cache_key':cache_key,'cache_reference':path.relative_to(repo).as_posix(),
+        'region_id':region['region_id'],'source_sha256':digest(source),'domain':m['learning_window'],'rows':rows,'full_window_fits':curves,
         'feature_centers_A':centers.tolist(),'feature_definition':'Kernel occupancy and signed kernel-weighted displacement to FIXED terminal local points; current-time teacher coordinates used ONLY for local correspondence.',
         'focal_feature_range':np.ptp(np.asarray([r['focal'] for r in rows]),axis=0).tolist(),
         'units':['dimensionless','A','A','A'],'selection_clock_note':'Weights from score_time; applied proposal at state_time. Proposal beyond learning window excluded.',

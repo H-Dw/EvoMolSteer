@@ -85,8 +85,9 @@ def prepare_round(repo,master,number,state):
     if number==11:base['assignment_type_cost']=.2
     if 11<=number<=18:
         cfg.pop('frozen_patch',None);cfg.pop('exclude_patches',None)
+        context_slots=read_json(repo/master['r13_analyst_path'])['atom_slots']
         cfg.update(r13_context_only=True,template_kind='native' if number<=12 else 'counterfactual',
-            candidate_node=master['r13_node_id'],max_local_points=20,contrast_weighting=False)
+            candidate_node=master['r13_node_id'],max_local_points=len(context_slots),contrast_weighting=False)
         cfg['execution_contract']=default_contract(master);base=cfg['execution_contract']
         alpha=0. if number==11 else .4 if number==14 else .15
         base.update(weights={'half':1-alpha,'endpoint':0.,'type':alpha,'orientation':0.},assignment_endpoint_fraction=0.)

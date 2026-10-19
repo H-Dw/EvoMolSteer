@@ -45,6 +45,9 @@ class AncestorReward:
         for s in self.specs:
             m=self.modes[s['template_id']];k=s['atom_slots']
             if not 2<=len(set(k))==len(k)<len(m['coords_A']):raise ValueError('Proper unique local support required')
+            if p.get('local_support_policy') is not None:
+                from evomolsteer.local_support import validate_slots
+                validate_slots(k,len(m['coords_A']),p['local_support_policy'])
             if p['operator']=='orientation' and not s['orientation_triplets']:raise ValueError('Missing orientation support')
             for trip in s['orientation_triplets']:
                 if not set(trip)<=set(k):raise ValueError('Direction neighbors escaped declared support')
@@ -69,6 +72,7 @@ class AncestorReward:
             assignments=[]
             for cloud,valid,probs in zip(z.detach().cpu().numpy(),mask.cpu().numpy(),logp.detach().cpu().numpy()):
                 ids=np.flatnonzero(valid);cost=np.square(cloud[ids,None]-target).sum(-1)
+                if len(ids)<=len(slots):raise ValueError('Local support must leave some generated atoms outside direct matching')
                 cost-=p['assignment_element_cost']*probs[ids][:,labels]
                 rr,cc=linear_sum_assignment(cost);assignments.append(ids[rr[np.argsort(cc)]])
             assignment=torch.as_tensor(np.asarray(assignments),device=z.device,dtype=torch.long)

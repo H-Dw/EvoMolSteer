@@ -88,19 +88,24 @@ def prepare(repo,master):
     study=repo/master['campaign_study'];study.mkdir(parents=True,exist_ok=True)
     old=repo/master['prior_study'];packet=read_json(old/'evidence.json');templates=read_json(old/'templates.json')
     patches=copy.deepcopy(packet['patches'])
-    source=next(p for p in patches if p['patch_id']=='L109')
+    source_program=read_json(repo/master['initial_program'])
+    source=next(p for p in patches if p['patch_id']==source_program['patch_id'])
     xyz=np.asarray(templates[source['template_id']]['terminal_coords_A'])
     essentials=set(source['typed_slots'])
     for s in source['typed_slots']:essentials.update(templates[source['template_id']]['local_adjacency'].get(str(s),[]))
     distances=np.linalg.norm(xyz[:,None]-xyz[source['typed_slots']][None],axis=-1).min(1)
-    for count in (8,12,16):
+    from evomolsteer.local_support import candidate_sizes
+    support_policy=master.get('local_support_policy',{'max_points':master['max_local_points']})
+    for count in candidate_sizes(len(xyz),len(essentials),support_policy):
+        if count>len(source['atom_slots']):continue
         selected=set(essentials)
         for s in sorted(source['atom_slots'],key=lambda s:(distances[s],s)):
             if len(selected)>=count:break
             selected.add(s)
         patches.append({**copy.deepcopy(source),'patch_id':f'A{count:02d}','evidence_id':f'A{count:02d}/local_context',
                         'atom_slots':sorted(selected),'claim':'Nested local chemical-role context; measured source geometry, new support hypothesis'})
-        swapped=next(p for p in patches if p['patch_id']=='L110')
+        swapped=max((p for p in packet['patches'] if p['node_id']==source['node_id']
+            and p['counterfactual_labels'] and set(p['typed_slots'])==set(source['typed_slots'])),key=lambda p:p['layout_score'])
         patches.append({**copy.deepcopy(swapped),'patch_id':f'S{count:02d}','evidence_id':f'S{count:02d}/local_context','atom_slots':sorted(selected)})
     members=pd.read_csv(Path(master['layout_report'])/'reference_inputs/inputs/frozen_membership.csv')
     quality_nodes=set(members.loc[members.top10,'node_id'])
@@ -115,7 +120,7 @@ def prepare(repo,master):
         required=set(src['atom_slots'])|set(oxygen)
         centers=coords[sorted(set(src['typed_slots'])|set(oxygen))]
         distances=np.linalg.norm(coords[:,None]-centers[None],axis=-1).min(1)
-        for count in (8,12,16,20):
+        for count in candidate_sizes(len(coords),len(required),support_policy):
             if len(required)>count or count>=len(coords):continue
             support=set(required)
             for s in np.argsort(distances,kind='stable'):
@@ -408,7 +413,9 @@ def run(repo,master_path,stop_after=20):
             if task.get('patches')=='quality_matched':
                 task['patches']=[p['patch_id'] for p in evidence['patches'] if p['patch_id'].startswith('Q') and len(p['atom_slots'])==len(parent['atom_slots'])]
             if task.get('patches')=='nested_parent':
-                task['patches']=[p['patch_id'] for p in evidence['patches'] if p['template_id']==parent['template_id'] and len(p['atom_slots']) in (8,12,16,20)]
+                from evomolsteer.local_support import nested_patches
+                task['patches']=nested_patches(evidence['patches'],parent,master.get('nested_support_policy'),
+                    {k:len(t['coords_A']) for k,t in templates.items()})
             if task.get('values')=='dose_neighbors':task['values']=[max(.05,parent['dose']['native_rms_ratio']*.5),min(2.,parent['dose']['native_rms_ratio']*1.5)]
             if task['factor']=='patch':task['values']=[None]
             n=master['screen_samples'] if number<19 else master['confirmation_samples']

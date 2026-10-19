@@ -83,6 +83,8 @@ def executable_view(p):
         'orientation':'R_geo = -mean[(1-cos(student_neighbor_vector,teacher_neighbor_vector))^2] over declared triplets only',
         'selection_advantage':'R_geo = clip(mean[-0.5*((phi-mu_focal)/sd)^2+0.5*((phi-mu_background)/sd)^2],-cap,cap); phi = kernel occupancy and signed dx/dy/dz to fixed terminal centers. NO pointwise/pseudo-Huber term.'}[p['operator']]
     view['actual_terms']=['registered_'+p['operator']]+(['typed_spatial_field'] if p['typed_weight'] else [])+(['charge_spatial_field'] if p['charge_weight'] else [])
+    if p.get('local_feature_binding') is not None:view['local_feature_binding']=copy.deepcopy(p['local_feature_binding'])
+    if p.get('local_support_policy') is not None:view['local_support_policy']=copy.deepcopy(p['local_support_policy'])
     if p.get('advantage_evidence_gain',False):view['dose_response_formula']='After gradient RMS normalization multiply displacement by s/sqrt(s^2+evidence_scale^2), where s=RMS((mu_focal-mu_background)/sd); dose is NOT the parent constant full displacement.'
     return view
 
@@ -129,6 +131,12 @@ def implementation_identity():
 
 def validate(p,teacher):
     AncestorReward(p,teacher)
+    if p.get('local_feature_binding') is not None:
+        binding=p['local_feature_binding'];s=p['mode_specs'][0]
+        if (len(p['mode_specs'])!=1 or binding['region_id']!=s['region_id'] or binding['atom_slots']!=s['atom_slots']
+                or binding['operator']!=p['operator'] or binding['clock_policy']!=p['clock_policy']
+                or binding['active_terms']!=executable_view(p)['actual_terms']):
+            raise ValueError('Local feature binding differs from the actual support/clock/force')
     if p['routing'] in ('response','persistent_response'):
         if not 0<p.get('response_refresh_fraction',.5)<=1 or p.get('response_gap_floor',.01)<=0:raise ValueError('Invalid response routing scale')
         if p.get('response_switch_fraction',.2)<0:raise ValueError('Invalid response routing switch margin')
@@ -208,7 +216,15 @@ def actions(repo,m,bank,regions,state,number):
         p=copy.deepcopy(parent['program']);p.update(copy.deepcopy(changes))
         if region:p['mode_specs']=[spec(region)];p['routing']='single'
         if modes:p['mode_specs']=modes
+        if m.get('local_support_policy') is not None:p['local_support_policy']=copy.deepcopy(m['local_support_policy'])
         if p['routing']=='single':p['mode_specs']=p['mode_specs'][:1]
+        p.pop('local_feature_binding',None)
+        if p.get('local_support_policy') and len(p['mode_specs'])==1:
+            from .support_mining import feature_binding
+            bound=region or next((r for r in regions if r['region_id']==p['mode_specs'][0]['region_id']),None)
+            if bound is None:return
+            try:p['local_feature_binding']=feature_binding(p,bound,bank,p['local_support_policy'])
+            except ValueError:return
         if p['operator']=='selection_advantage':
             from .bank import regional_evidence
             from .forecast_evidence import evidence as forecast_evidence
@@ -281,6 +297,7 @@ def actions(repo,m,bank,regions,state,number):
                 ids=np.argsort(sign*np.square(x-center).sum(-1),kind='stable')[:k].tolist()
                 r=copy.deepcopy(next(r for r in regions if r['region_id']==p['mode_specs'][0]['region_id']))
                 r.update(region_id=r['region_id']+'_sizecontrol'+str(int(sign)),atom_slots=sorted(ids),family='size_matched_geometry',orientation_triplets=[])
+                for key in ('local_support_evidence','locality','shortlisted','shortlist_basis'):r.pop(key,None)
                 if not any(v['region_id']==r['region_id'] for v in regions):regions.append(r)
                 add(parent,{},'Same-size geometric support comparator; not a chemical-role hypothesis',region=r)
         elif phase in ('orientation','pocket_field','pair_geometry'):
@@ -321,4 +338,16 @@ def actions(repo,m,bank,regions,state,number):
                     if not any(v['region_id']==r['region_id'] for v in regions):regions.append(r)
                     add(parent,{'operator':'pointwise','typed_weight':0.,'charge_weight':0.,'attainment_response':False,'advantage_evidence_gain':False},
                         'Local joint-anchor geometry package motivated by isolated-anchor failures and same-count point sensitivity; not proven synergy or a chemical graph constraint',region=r)
+    if m.get('local_support_registry') and phase in m.get('local_support_phases',[]):
+        from .support_mining import compile_program
+        for parent in parents:
+            for region in regions:
+                if not region.get('shortlisted') or region['family']!='mined_local_support':continue
+                if region['template_id']!=parent['program']['mode_specs'][0]['template_id']:continue
+                for operator in m['local_support_operators']:
+                    try:
+                        candidate=compile_program(parent['program'],region,bank,m['local_support_policy'],operator)
+                    except ValueError:
+                        continue
+                    add(parent,candidate,'Measured variable-size local support; operator bound to the selected coordinate observable',region=region)
     return result

@@ -121,15 +121,27 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     if routing_evidence.exists():bundle['evidence']['source/measured_path_preferences']=read_json(routing_evidence)
     bundle['contract']['clock_definitions']=CLOCKS
     bundle['contract']['registered_active_forces']='pointwise/pair/band/pocket/orientation/selection operator as program says; typed/charge only when positive weights. Detached element assignment is not direct type force. A polar-selected support with pointwise reward is still geometry-only.'
+    if m.get('local_support_registry'):
+        bundle['contract']['local_support_selection']={'policy':m['local_support_policy'],
+            'rule':'Atom count is an upper bound from molecule coverage, never a target. Query and cite the selected region local_support_evidence; compare local contrast beyond whole-cloud similarity. Teacher trends are not cohort enrichment. Explain why every included neighbor is needed; broad historical support is a baseline, not an automatically inherited hypothesis.'}
     bundle['contract']['response_routing']='Response routing uses sparse per-mode coordinate VJPs of this surrogate, from the same generator forward. Gap-normalized local controllability is NOT future affinity. Nearest geometry, surrogate controllability and final outcome are separate hypotheses. Two probe times are configurable fractions of the control window; no extra generator/affinity forwards.'
     bundle['contract']['measurement_stages']='Nonzero component VJP establishes activation only, not geometric/elemental formation. Formation uses actual boundary geometry/layout. Retention compares boundary and terminal layout of the same tracked support after the unguided suffix. Zero clipping and constant dose during control are NOT suffix-retention evidence. Nonzero raw component gradient does not establish a significant change in the normalized total direction: inspect component/total fraction and cosine. Final value uses terminal affinity/quality and matched controls.'
     bundle['contract']['feature_profile']='Online feature moments are linearly interpolated saved rows. Whole-window quadratic fits and derivatives are diagnostic, not the online control curve. Post-RMS historical contrast attenuation measures standardized descriptive separation, not calibrated reliability or future success.'
     bundle['contract']['surrogate_units']='Geometry distance losses and sigma-scaled type/charge fields have A^2 units. Orientation and standardized feature log-ratios are dimensionless; relative chemical coefficients then carry compensating A^-2 units. These are optimization surrogates, not physical energies. Kernel mass is dimensionless; signed displacement components are A.'
     tools=['ancestor','selection_trend','controller_response','failure_history']
+    if m.get('local_support_registry'):tools.append('local_support_evidence')
     if any(len(a['region_ids'])>1 for a in actions):tools.append('mode_comparison')
     if modules:tools.append('chemical_context')
     def query(tool,rid):
         r=byregion[rid];mode=bank['modes'][r['template_id']]
+        if tool=='local_support_evidence':
+            if 'local_support_evidence' not in r:
+                return {'region_id':rid,'status':'historical_reference_only','evidence':None,
+                    'limits':'No newly mined local support evidence; do not infer it from the teacher score.'}
+            result=read_json(repo/m['local_support_registry']/r['local_support_evidence'])
+            if result['region_id']!=rid:raise ValueError('Measured evidence belongs to a different local support')
+            return {'region':r,'measured_evidence':result,
+                'active_operator_contract':'Only the selected registered operator is active. Role labels select regions; geometric operators do not supply chemical-role forces.'}
         if tool=='mode_comparison':
             ids=sorted({v for a in actions if rid in a['region_ids'] for v in a['region_ids']})
             rows=[]
@@ -163,7 +175,7 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if tool=='selection_trend':
             e=regional_evidence(repo,m,bank,r)
             result={k:v for k,v in e.items() if k!='rows'}|{'n_times':len(e['rows']),
-                'representative_rows':e['rows'][::max(1,len(e['rows'])//5)],'full_curve_reference':str((repo/m['campaign_study']/'regional_evidence_v2'/(rid+'.json')).relative_to(repo))}
+                'representative_rows':e['rows'][::max(1,len(e['rows'])//5)],'full_curve_reference':e['cache_reference']}
             if any(a['program']['operator']=='selection_advantage' for a in actions):
                 from .forecast_evidence import evidence as forecast_evidence
                 f=forecast_evidence(repo,m,bank,r)
@@ -182,11 +194,15 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     query_schema=obj({'requests':{'type':'array','minItems':1,'maxItems':2,'items':obj({'tool':{'enum':tools},'region_id':{'enum':allowed_regions}})},
         'purpose':{'type':'string','maxLength':2000}})
     receipts=[]
-    for turn in range(2):
+    query_turns=3 if m.get('local_support_registry') else 2
+    for turn in range(query_turns):
         qs=copy.deepcopy(query_schema)
         if turn==1 and modules:
             # One additional explicit local chemistry query makes final region evidence bindable.
             qs['properties']['requests']['items']['properties']['tool']={'const':'chemical_context'}
+        if m.get('local_support_registry') and turn==query_turns-1:
+            # Guaranteed measured support delivery without displacing the chemistry query.
+            qs['properties']['requests']['items']['properties']['tool']={'const':'local_support_evidence'}
         ans=call_json(messages,qs,folder/f'Analyst.query{turn}.json',input_store=repo/m['campaign_study']/'inputs',max_output_tokens=2500)
         got={}
         for request in ans['requests']:
@@ -197,6 +213,10 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
     refs={'type':'array','minItems':1,'items':{'enum':sorted(bundle['evidence'])}}
     text={'type':'string','minLength':1,'maxLength':4000}
     eligible={gid:group for gid,group in groups.items() if any(rid+'/chemical_context' in bundle['evidence'] for rid in group[0]['region_ids'])} if modules else groups
+    if m.get('local_support_registry'):
+        eligible={gid:group for gid,group in eligible.items() if all(
+            'local_support_evidence' not in byregion[rid] or rid+'/local_support_evidence' in bundle['evidence']
+            for rid in group[0]['region_ids'])}
     if not eligible:raise ValueError('No group has its own chemical evidence; query phase must be repaired')
     schema=obj({'group_id':{'enum':list(eligible)},'parent_program_id':{'enum':sorted(parent_ids)},'evidence_refs':refs,'counterevidence_refs':refs,
         'primary_operator':{'enum':sorted({g[0]['program']['operator'] for g in eligible.values()})},
@@ -217,6 +237,11 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
         if not any(ref.split('/')[0] in group[0]['region_ids'] for ref in a['evidence_refs']):
             import jsonschema
             raise jsonschema.ValidationError('Chosen group must cite a queried local source',validator='support_binding',validator_value=group[0]['region_ids'],instance=a['evidence_refs'])
+        if m.get('local_support_registry'):
+            required=[rid+'/local_support_evidence' for rid in group[0]['region_ids'] if 'local_support_evidence' in byregion[rid]]
+            if not set(required)<=set(a['evidence_refs']):
+                import jsonschema
+                raise jsonschema.ValidationError('Selected local support must cite its measured mining evidence',validator='local_support_evidence_binding',validator_value=required,instance=a['evidence_refs'])
         if modules and not any(rid+'/chemical_context' in a['evidence_refs'] for rid in group[0]['region_ids']):
             import jsonschema
             raise jsonschema.ValidationError('Selected support needs its OWN chemical context citation',validator='chemical_support_binding',validator_value=group[0]['region_ids'],instance=a['evidence_refs'])
