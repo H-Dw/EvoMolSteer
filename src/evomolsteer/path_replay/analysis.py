@@ -14,9 +14,15 @@ def distribution(records,planned,threshold):
     scores=np.array([r['pic50'] for r in good],dtype=float)
     valid=[r['pic50'] for r in good if r.get('valid_connected')]
     pb=[r['pic50'] for r in good if r.get('pb_pass')]
+    pb_evaluated=[r for r in good if r.get('pb_status')=='evaluated' or isinstance(r.get('pb_pass'),bool)]
     energy=[r['mmff_relief_per_heavy'] for r in good if r.get('mmff_relief_per_heavy') is not None and np.isfinite(r['mmff_relief_per_heavy'])]
     out={'n_planned':planned,'n_records':len(records),'n_scored':len(good),'score_coverage':len(good)/planned,
          'valid_count':len(valid),'pb_pass_count':len(pb),'energy_count':len(energy),
+         'pb_evaluated_count':len(pb_evaluated),
+         'pb_pass_rate_evaluated':len(pb)/len(pb_evaluated) if pb_evaluated else None,
+         'pb_pass_fraction_of_planned':len(pb)/planned if pb_evaluated else None,
+         'high_score_valid_count':sum(v>=threshold for v in valid),
+         'high_score_pb_count':sum(v>=threshold for v in pb) if pb_evaluated else None,
          'best_valid':max(valid) if valid else None,'best_pb':max(pb) if pb else None,
          'strain_median':float(np.median(energy)) if energy else None,
          'strain_p90':float(np.quantile(energy,.9)) if energy else None,

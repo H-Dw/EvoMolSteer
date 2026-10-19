@@ -213,6 +213,17 @@ def test_distribution_reports_failure_coverage_without_zero_imputation():
     assert out['best_pb'] is None
 
 
+def test_distribution_distinguishes_missing_quality_labels_from_tested_failures():
+    missing=distribution([{'pic50':8.5,'valid_connected':True}],1,8.2)
+    failed=distribution([{'pic50':8.5,'valid_connected':True,'pb_status':'evaluated','pb_pass':False}],1,8.2)
+    passed=distribution([{'pic50':8.5,'valid_connected':True,'pb_status':'evaluated','pb_pass':True}],1,8.2)
+    assert missing['pb_evaluated_count']==0 and missing['pb_pass_rate_evaluated'] is None
+    assert missing['high_score_pb_count'] is None and missing['high_score_valid_count']==1
+    assert failed['pb_evaluated_count']==1 and failed['pb_pass_rate_evaluated']==0
+    assert failed['high_score_pb_count']==0
+    assert passed['pb_pass_fraction_of_planned']==1 and passed['high_score_pb_count']==1
+
+
 def test_compact_snapshot_roundtrip(tmp_path):
     work=tmp_path/'work';(work/'methods').mkdir(parents=True)
     (work/'methods'/'example.txt').write_bytes(b'molecule result')
