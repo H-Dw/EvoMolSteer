@@ -1,0 +1,70 @@
+{
+  "body": {
+    "max_tokens": 2200,
+    "messages": [
+      {
+        "content": "---\nname: ancestral-mode-designer\ndescription: Bind an Analyst's local ancestral-mode hypothesis to stage-consistent differentiable guidance with measured dose, typed spatial observables, and reproducible native-completion tests.\n---\n\n这是本研究的执行指引。只能调用工作流实际注册的算子、控制器和 schema；本文件不证明新算子已实现。使用 [交接契约](../../docs/plans/ancestral_modes_autoresearch_v3_20261016/contracts.zh-CN.md)，读取 Analyst 引用的同一证据包与 parent 程序。\n\n## D1. 严格绑定局部假设\n\n区域规模来自 Analyst 选中的实际槽位和覆盖策略，不填充到固定点数。逐项核对 `local_feature_binding`、实际 `mode_specs`、教师表示及有效算子；只有描述而没有对应生效项的特征，登记为背景证据，不声称推理已使用。需要方向或距离的假设不能默认为逐点模仿已经实现。使用确定性编译器绑定支持并校验，区域或覆盖超限时返回修订，不静默裁剪或退回宽父区域。\n\n每个非零项绑定 Analyst 的 observable、模式、支持、角色条件和来源。不得私换教师、添加点、用元素目标代替未实现的化学角色，或绕过 Analyst 的点云分析。方向/官能团所需邻居计入支持；多个项或模式的支持并集也保持严格局部。缺少必要邻域时请求 Analyst 修订。\n\n核对 `controlled_feature` 与实际算子。区域元数据中存在方向三元组或口袋位点，不代表相应奖励已经生效；未启用的元数据只能解释选区背景。若 Analyst 的主张需要另一算子，应在允许的选项中明确选择该算子，不能用文字宣布新增奖励项。\n\n引用实际交付给Designer的区域证据与父程序结果。有真实推理反馈时，也引用该父程序的控制响应，说明位移、形成/保持及终态结果如何影响本次选择；只重复教师优势统计不足以说明反馈已经进入设计。\n\n独立核对工具的区间判读；即使 Analyst 宣称局部模式有额外信息，超出整体相似度的对照区间跨零时也只能作为待证假设，不能把该宣称升级为已证实的设计依据。\n\n核对 hypothesis、action 和实际响应记录的 parent_program_id；不同 parent 的参数和结果不能混用。\n\n有效算子与参数以调用者的 operative-only 视图为准。未列入有效项的继承参数不参与本轮计算。API 只返回 schema 要求的选项 ID、交接标识、证据引用、简洁科学理由及否证条件；公式、导数路径、改动字段和剂量由确定性编译器根据选项生成，不在自由文字中重写或新增这些返回字段。\n\n区分固定原子序号、同一路径槽位、跨分子的动态对应和对称等价点。图可自由变化，依据新预测重新识别可用角色；不加入同图 gate。\n\n## D2. 明确教师与被控量的时钟\n\n当前态对应实际同刻祖先，预测端点对应教师端点预测；前瞻桥接对应相同前瞻时刻的真实祖先。声明各时刻、表示、插值/拟合与适用域。范围来自配置，不在函数里硬编码。\n\n同刻 h=t 的当前坐标奖励不需要通过端点预测；前瞻/端点奖励才包含相应模型导数。模型 VJP 仅对当前调用有效，不是对全部未来随机生成求导。阶段适配不能通过选择更容易的教师时刻降低 loss 却放弃终态目标。\n\n## D3. 将时间和状态权重落实为实际位移\n\n先读 parent 的实际剂量、梯度范数、裁剪、匹配切换及原生响应。共同乘 reward 的正系数可被梯度归一化抵消；时间调度作用于归一化后的请求位移，或使用明确保留幅度的响应。逐项声明 raw reward 系数、方向混合、空间尺度、实际位移和累计预算。\n\n梯度非零、零裁剪或与原生flow的余弦不能排除剂量过强，也不是亲和力梯度方向的证明。更换算子时区分相同的名义强度与实际位移/激活覆盖；没有相应干预时，不宣称已经排除剂量或对应规则等替代解释。\n\n目标达到时允许平滑减力；近零梯度不应被放大为完整步长。不确定性因子由已观测可靠性定义，不使用 LLM 文字置信度充当成功概率。先匹配时间调度的总请求预算，再单独比较更大总量；按实际时间/积分增量定义调度。\n\n## D4. 控制模式与化学导数路径\n\n每个 seed 使用自己的兼容性与模式记忆。保持不相容教师为分开的势，不能先平均坐标。声明路由是否停止梯度；状态相关权重未求导时只声称条件路由梯度，不声称完整混合势的精确导数。\n\n使用响应路由时，明确真实坐标叶节点、每模式 VJP 次数、刷新时刻、损失缺口尺度和切换记忆。路由分数只衡量局部代理的可控性，必须记录实际终态反馈；不把大梯度或小距离自动解释为高亲和力。刷新之外复用缓存的路由响应，不新增生成或 affinity forward。\n\n元素、电荷和必要键信息取自当前已存在的生成 head。分开 E0 匹配、E1 停梯度概率空间场和 E2 概率/空间共同坐标 VJP。形式电荷分通道，不冒充部分电荷、pKa 或相互作用自由能。硬类别/化学图识别仅用于无梯度路由，除非有另行验证的软代理。\n\n沿用坐标控制、无 SMC、无 affinity-head 导数及无每步额外 affinity 推理的契约；不能偷偷加入 logits/离散转移率编辑。图变化后重新完成和评分，不沿用修改前的预测作结果。\n\n## D5. 给出可验证程序和失败条件\n\n输出证据/Analyst/parent 哈希、有效项、支持并集、时钟/路由/调度、导数源、数值改动及前后值。一个主要机制一项对照；多个数学变化一起发生时如实登记。\n\n先做条件固定的有限差分与正负/零剂量响应，再评估原生后缀的形成、保持、最终亲和力和结构代价。相似度、角色概率或 loss 改善不能代替最终质量。接口错误与科学负结果分开；数值相同的函数复用既有结果，冻结确认不引入新设计。\n\n保持诊断使用实际奖励匹配记录，并核对教师时刻。固定槽位追踪与终态空间模式重识别分开解释；槽位迁移不自动意味着功能区域丢失，不能据此加入同图或固定原子身份gate。\n\n返回调用者 schema 内的结构化结果与简洁、可复现的设计依据，不返回内部推理记录。\n",
+        "role": "system"
+      },
+      {
+        "content": "{\"task\": \"Review the incremental-information claim in the prior response against these actual measurements. This is a narrowly scoped interface/evidence-reading audit, not a request to design or dispatch a reward. Assess information beyond the whole-cloud comparator and observed guidance value separately. If a claim is unsupported, copy one short exact excerpt into unsupported_quote and select the feature that tests that excerpt. Keep assessment concise (preferably under 1200 characters). Return only this audit schema; full-generation handoff fields are outside this task.\", \"evidence\": {\"region_id\": \"F_b011_s030__local_32e00570ab5a\", \"terminal_contrast\": {\"bootstrap_unit\": \"source_batch\", \"clusters\": 19, \"features\": {\"beyond_global_error_A\": {\"cluster_interval_95\": [-0.04497267513557983, 0.1742635843763302], \"other_minus_high\": 0.06512469562332067}, \"pair_error_A\": {\"cluster_interval_95\": [0.06735323312943921, 0.3235984417922243], \"other_minus_high\": 0.19724928770252786}, \"pocket_error_A\": {\"cluster_interval_95\": [0.010993890699487478, 0.07453311302816042], \"other_minus_high\": 0.041472475744126214}, \"point_error_A\": {\"cluster_interval_95\": [0.03399343707720708, 0.1675653486650863], \"other_minus_high\": 0.10272577534853289}, \"signed_dx_A\": {\"cluster_interval_95\": [0.010440581917017288, 0.06626699526970349], \"other_minus_high\": 0.03443244907639106}, \"signed_dy_A\": {\"cluster_interval_95\": [-0.21893816080071207, 0.03688708344358363], \"other_minus_high\": -0.08200381560219319}, \"signed_dz_A\": {\"cluster_interval_95\": [-0.065051723382824, 0.1050175253083061], \"other_minus_high\": 0.02867835224980661}}, \"high_clusters\": 12, \"high_roots\": 12, \"limits\": \"Root-balanced descriptive association in observed valid finals. Intervals are unadjusted exploratory intervals, not causal effects, independent targets or calibrated success probability\", \"n_high\": 60, \"n_other\": 860, \"other_clusters\": 19, \"other_roots\": 22, \"positive_effect_meaning\": \"For error features, positive means high-quality finals are closer; signed axes have no universal preferred sign\", \"roots\": 22, \"valid_bootstrap_repeats\": 300}}, \"deterministic_contrast_reading\": {\"features\": {\"beyond_global_error_A\": {\"interval_status\": \"includes_zero\", \"positive_error_contrast_supported\": false}, \"pair_error_A\": {\"interval_status\": \"positive\", \"positive_error_contrast_supported\": true}, \"pocket_error_A\": {\"interval_status\": \"positive\", \"positive_error_contrast_supported\": true}, \"point_error_A\": {\"interval_status\": \"positive\", \"positive_error_contrast_supported\": true}, \"signed_dx_A\": {\"interval_status\": \"positive\", \"positive_error_contrast_supported\": false}, \"signed_dy_A\": {\"interval_status\": \"includes_zero\", \"positive_error_contrast_supported\": false}, \"signed_dz_A\": {\"interval_status\": \"includes_zero\", \"positive_error_contrast_supported\": false}}, \"positive_beyond_global_contrast_supported\": false, \"beyond_global_claim\": \"Positive increment beyond global similarity is not established by the supplied interval.\", \"limits\": \"Local positive intervals cannot replace the beyond-global interval. None of these intervals establishes final affinity gain under guidance.\"}, \"prior_role_response\": {\"scientific_hypothesis\": \"在区域 F_b011_s030__local_32e00570ab5a（槽位 5、8、9、11、14，5/25 点，0.2 覆盖）上，终态高质量组相对其他终态在 pair_error_A 上更接近教师终态（other_minus_high=0.197，95% CI [0.067,0.324]），pocket_error_A（0.041，CI [0.011,0.075]）与 point_error_A（0.103，CI [0.034,0.168]）同向，而 beyond_global_error_A 的 CI 跨零（[-0.045,0.174]），说明该局部支持携带超出整体相似度的终态几何信息。假设：以 endpoint_prediction 时钟、registered_pair_distance 为唯一激活算子，在该 5 点支持上约束预测端点对距离，可在学习窗口内形成并保持该局部形状，并在终态带来亲和力收益。这是待检验的表示转移：终态关联被迁移为在线预测端点约束，分析与推理的对应规则不完全相同（运行时还使用声明的 detached element cost）。\", \"support_reason\": \"5 点支持（5、8、9、11、14）来自 bond_neighborhood 深度 2、中心 8，覆盖 0.2（允许 2–8 点，0.32 上限），未沿用父程序点数，也未把上限当目标。每个点均有用途：5、8、9 构成 orientation_triplet [5,8,9]，8、5、11 与 11、8、14 定义局部形状与连接环境；口袋相对位置由 4 个口袋位点（A:LEU:45:O/C/CB、A:HIS:160:CE1）约束。该区域自身测量显示 pair/pocket/point 三项终态富集 CI 均不跨零，而 beyond_global 跨零，支持“局部对比超出整体相似度”。较小支持不自动更优：本轮未生成更小或等点数几何对照，故不声称更小更好。\"}, \"actual_outcome\": {\"comparison_scope\": \"current_runtime_paired_diagnostic\", \"performance\": [{\"best\": 8.625953674316406, \"best_pb\": 8.625953674316406, \"best_valid\": 8.625953674316406, \"condition\": \"zero_replay\", \"energy_count\": 48, \"high_score_count\": 13, \"high_score_fraction_of_planned\": 0.26, \"high_score_pb_count\": 13, \"high_score_valid_count\": 13, \"mean\": 8.172211875915528, \"median\": 8.135002613067627, \"n_planned\": 50, \"n_records\": 50, \"n_scored\": 50, \"p90\": 8.342232799530029, \"p95\": 8.365427446365356, \"p99\": 8.52569951057434, \"pb_evaluated_count\": 48, \"pb_pass_count\": 47, \"pb_pass_fraction_of_planned\": 0.94, \"pb_pass_rate_evaluated\": 0.9791666666666666, \"score_coverage\": 1.0, \"strain_median\": 0.6959767688019602, \"strain_p90\": 1.0378346162009948, \"valid_count\": 48}, {\"best\": 8.326153755187988, \"best_pb\": 8.326153755187988, \"best_valid\": 8.326153755187988, \"condition\": \"R02_reference\", \"energy_count\": 47, \"high_score_count\": 1, \"high_score_fraction_of_planned\": 0.02, \"high_score_pb_count\": 1, \"high_score_valid_count\": 1, \"mean\": 7.743585052490235, \"median\": 7.920019149780273, \"n_planned\": 50, \"n_records\": 50, \"n_scored\": 50, \"p90\": 8.119039821624757, \"p95\": 8.154546022415161, \"p99\": 8.288715982437134, \"pb_evaluated_count\": 47, \"pb_pass_count\": 47, \"pb_pass_fraction_of_planned\": 0.94, \"pb_pass_rate_evaluated\": 1.0, \"score_coverage\": 1.0, \"strain_median\": 0.7894881444872552, \"strain_p90\": 0.947094893951868, \"valid_count\": 47}, {\"best\": 8.286545753479004, \"best_pb\": 8.286545753479004, \"best_valid\": 8.286545753479004, \"condition\": \"local_5points\", \"energy_count\": 49, \"high_score_count\": 3, \"high_score_fraction_of_planned\": 0.06, \"high_score_pb_count\": 3, \"high_score_valid_count\": 3, \"mean\": 7.4202257251739505, \"median\": 7.581180572509766, \"n_planned\": 50, \"n_records\": 50, \"n_scored\": 50, \"p90\": 8.07712230682373, \"p95\": 8.2388756275177, \"p99\": 8.28597237586975, \"pb_evaluated_count\": 49, \"pb_pass_count\": 49, \"pb_pass_fraction_of_planned\": 0.98, \"pb_pass_rate_evaluated\": 1.0, \"score_coverage\": 1.0, \"strain_median\": 0.7152008723251376, \"strain_p90\": 0.9556456111455434, \"valid_count\": 49}, {\"best\": 8.27347183227539, \"best_pb\": 8.27347183227539, \"best_valid\": 8.27347183227539, \"condition\": \"L02_local_observable_v2\", \"energy_count\": 47, \"high_score_count\": 1, \"high_score_fraction_of_planned\": 0.02, \"high_score_pb_count\": 1, \"high_score_valid_count\": 1, \"mean\": 7.811585330963135, \"median\": 7.9044671058654785, \"n_planned\": 50, \"n_records\": 50, \"n_scored\": 50, \"p90\": 8.072307205200195, \"p95\": 8.108668565750122, \"p99\": 8.219952383041381, \"pb_evaluated_count\": 47, \"pb_pass_count\": 47, \"pb_pass_fraction_of_planned\": 0.94, \"pb_pass_rate_evaluated\": 1.0, \"score_coverage\": 1.0, \"strain_median\": 0.784256915371059, \"strain_p90\": 0.8953359154844127, \"valid_count\": 47}, {\"best\": 8.268434524536133, \"best_pb\": 8.268434524536133, \"best_valid\": 8.268434524536133, \"condition\": \"L03_local_dose_v2\", \"energy_count\": 47, \"high_score_count\": 2, \"high_score_fraction_of_planned\": 0.04, \"high_score_pb_count\": 2, \"high_score_valid_count\": 2, \"mean\": 7.4904587364196775, \"median\": 7.5057373046875, \"n_planned\": 50, \"n_records\": 50, \"n_scored\": 50, \"p90\": 8.05414047241211, \"p95\": 8.069278955459595, \"p99\": 8.266774206161498, \"pb_evaluated_count\": 47, \"pb_pass_count\": 47, \"pb_pass_fraction_of_planned\": 0.94, \"pb_pass_rate_evaluated\": 1.0, \"score_coverage\": 1.0, \"strain_median\": 0.7056252289012866, \"strain_p90\": 1.1118571768393517, \"valid_count\": 47}, {\"best\": 8.62588882446289, \"best_pb\": null, \"best_valid\": 8.62588882446289, \"condition\": \"matched_original_steer\", \"energy_count\": 0, \"high_score_count\": 13, \"high_score_fraction_of_planned\": 0.26, \"high_score_pb_count\": null, \"high_score_valid_count\": 13, \"mean\": 8.17220458984375, \"median\": 8.13497018814087, \"n_planned\": 50, \"n_records\": 50, \"n_scored\": 50, \"p90\": 8.3422194480896, \"p95\": 8.365504026412964, \"p99\": 8.525717372894286, \"pb_evaluated_count\": 0, \"pb_pass_count\": 0, \"pb_pass_fraction_of_planned\": null, \"pb_pass_rate_evaluated\": null, \"score_coverage\": 1.0, \"strain_median\": null, \"strain_p90\": null, \"valid_count\": 48}], \"limits\": \"Reused controls are counted once. All current conditions share the same selected historical paths. This is not a random-start generalization test or a passed cross-GPU exact replay.\"}, \"analyst_review\": {\"increment_status\": \"not_established\", \"guidance_gain_established\": false, \"unsupported_quote\": \"说明该局部支持携带超出整体相似度的终态几何信息\", \"evidence_feature\": \"beyond_global_error_A\", \"assessment\": \"超出整体相似度的增量未被证实：beyond_global_error_A 的 other_minus_high=0.065，95% CI [-0.045,0.174] 跨零，deterministic_contrast_reading 明确 positive_beyond_global_contrast_supported=false。pair/pocket/point 的正区间只支持局部误差对照，不能替代超出整体相似度的增量。引导收益同样未建立：local_5points 均值 7.42、high_score 3/50，低于 zero_replay（8.17，13/50）与 R02_reference（7.74，1/50）；且所有条件共享同一批历史路径，非随机起点泛化检验。终态关联迁移为在线端点约束仍是待检验的表示转移。\", \"next_discriminating_test\": \"在相同 5 点支持上，用同点数几何对照与整体相似度匹配对照，比较 beyond_global_error_A 的配对区间是否排除零；同时比较 local_5points 与 zero_replay 在同一路径上的窗口末端布局保持及终态亲和力，以区分局部增量与引导收益。\"}}",
+        "role": "user"
+      }
+    ],
+    "model": "deepseek-flash",
+    "response_format": {
+      "type": "json_object"
+    },
+    "temperature": 0,
+    "thinking": {
+      "type": "disabled"
+    }
+  },
+  "provider": "DeepSeek",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "assessment": {
+        "maxLength": 4000,
+        "type": "string"
+      },
+      "evidence_feature": {
+        "enum": [
+          "beyond_global_error_A",
+          "pair_error_A",
+          "pocket_error_A",
+          "point_error_A",
+          "signed_dx_A",
+          "signed_dy_A",
+          "signed_dz_A"
+        ]
+      },
+      "guidance_gain_established": {
+        "type": "boolean"
+      },
+      "increment_status": {
+        "enum": [
+          "positive_descriptive_increment",
+          "not_established"
+        ]
+      },
+      "next_discriminating_test": {
+        "maxLength": 1800,
+        "type": "string"
+      },
+      "unsupported_quote": {
+        "maxLength": 1800,
+        "type": "string"
+      }
+    },
+    "required": [
+      "increment_status",
+      "guidance_gain_established",
+      "unsupported_quote",
+      "evidence_feature",
+      "assessment",
+      "next_discriminating_test"
+    ],
+    "type": "object"
+  }
+}

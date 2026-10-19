@@ -156,7 +156,9 @@ def ask(repo,m,folder,bank,regions,state,actions,phase,modules_override=None):
                     'limits':'No newly mined local support evidence; do not infer it from the teacher score.'}
             result=read_json(repo/m['local_support_registry']/r['local_support_evidence'])
             if result['region_id']!=rid:raise ValueError('Measured evidence belongs to a different local support')
+            from .evidence_interpretation import contrast_reading
             return {'region':r,'measured_evidence':result,
+                'deterministic_contrast_reading':contrast_reading(result),
                 'measurement_definitions':{'terminal_contrast':'Observed real terminal structures versus the teacher real terminal_coords_A, with geometry-only Hungarian matching. NOT a measured contrast against intermediate predicted endpoints.',
                     'teacher_trends':'A single teacher trajectory, separated into actual-current and predicted-endpoint representations; not cohort enrichment.',
                     'transfer_to_control':'Using these actual-final associations in a time-dependent endpoint reward is a hypothesis. Runtime correspondence may additionally use the declared detached element cost; do not call the measurement and runtime definitions identical.'},
