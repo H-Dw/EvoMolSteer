@@ -120,11 +120,13 @@ def unused_path(output, template):
 def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
               transport=None, attempts=3, sleep=time.sleep, input_store=None, max_output_tokens=8192,
               response_validator=None, response_parser=None, format_policy=FORMAT_POLICY,
-              format_builder=None, max_format_repairs=1):
+              format_builder=None, max_format_repairs=1, thinking=False, reasoning_effort="high"):
     if model != "deepseek-flash":
         raise ValueError("This study requires exactly deepseek-flash; no fallback")
     if attempts < 1:
         raise ValueError("A positive network attempt budget is required")
+    if type(thinking) is not bool or reasoning_effort not in {"low", "high", "max"}:
+        raise ValueError("Explicit thinking flag and supported reasoning effort required")
     if isinstance(max_format_repairs, bool) or not isinstance(max_format_repairs, int) or not 0 <= max_format_repairs <= 2:
         raise ValueError("At most two neutral format repairs are allowed")
     if isinstance(max_output_tokens,bool) or not isinstance(max_output_tokens,int) or not 512<=max_output_tokens<=65536:
@@ -135,6 +137,9 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
     body = {"model": model, "messages": messages,
             "thinking": {"type": "disabled"}, "temperature": 0,
             "max_tokens": max_output_tokens, "response_format": {"type": "json_object"}}
+    if thinking:
+        body.update(thinking={"type": "enabled"}, reasoning_effort=reasoning_effort)
+        body.pop("temperature")
     def store_request(body, path, *, policy=None):
         stored_body = dict(body)
         if input_store is not None:
@@ -286,7 +291,9 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
                 "provider_request_id": wire.get("id"), "attempts": http_attempts,
                 "interface_repairs": repairs,
                 "started_unix": started, "completed_unix": time.time(),
-                "thinking": "disabled", "backend": "real_api",
+                "thinking": "enabled" if thinking else "disabled", "backend": "real_api",
+                "reasoning_effort": reasoning_effort if thinking else None,
+                "system_fingerprint": wire.get("system_fingerprint"),
                 "finish_reason": choice.get("finish_reason"), "max_output_tokens": max_output_tokens,
             })
             return result
