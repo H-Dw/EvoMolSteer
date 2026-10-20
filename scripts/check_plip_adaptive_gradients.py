@@ -37,25 +37,27 @@ def check(root):
             pred, _ = model._get_predictions(output)
             value, _, ids, _ = reward.loss(x * scale + com, pred["coords"] * scale + com,
                                          output, current["mask"].bool(), assignment)
-            return -value.sum(), ids
+            return -value, ids
 
         x = current["coords"].detach().clone().requires_grad_(True)
         value, assignment = objective(x)
-        grad = torch.autograd.grad(value, x)[0].detach()
+        grad = torch.autograd.grad(value.sum(), x)[0].detach()
         # Use two largest components in different molecules to avoid cancellation.
         for slot in [0, 1]:
             flat = int(grad[slot].abs().argmax())
             atom, axis = divmod(flat, 3)
             analytical = float(grad[slot, atom, axis])
             differences = []
-            for epsilon in [.01, .003, .001]:
+            for epsilon in [.03, .01, .003, .001]:
                 positive, negative = x.detach().clone(), x.detach().clone()
                 positive[slot, atom, axis] += epsilon
                 negative[slot, atom, axis] -= epsilon
                 with torch.no_grad():
                     p, _ = objective(positive, assignment)
                     n, _ = objective(negative, assignment)
-                numerical = float((p - n) / (2 * epsilon))
+                # Subtract only the perturbed molecule's reward. Subtracting two
+                # batch sums loses the tiny response in unrelated molecules' loss.
+                numerical = float((p[slot].double() - n[slot].double()) / (2 * epsilon))
                 relative = abs(numerical - analytical) / max(abs(analytical), 1e-5)
                 differences.append({"epsilon_native": epsilon, "numerical": numerical, "relative_error": relative})
             passed = abs(analytical) > 1e-6 and min(d["relative_error"] for d in differences) < .03
