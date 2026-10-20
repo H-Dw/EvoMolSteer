@@ -48,6 +48,14 @@ def draw_molecule(sdf, node_id, path):
     return False
 
 
+def draw_smiles(smiles, path):
+    from rdkit import Chem
+    from rdkit.Chem import Draw
+    molecule = Chem.MolFromSmiles(smiles)
+    if molecule is not None:
+        Draw.MolToFile(molecule, str(path), size=(450, 330))
+
+
 def report(root, version):
     analyze(root, version)
     folder = root / "analysis" / version
@@ -110,6 +118,26 @@ def report(root, version):
                     "teacher_complex": str(Path(teacher["profile_path"]).parent / "complex.pdb"),
                     "best_complex": str(root / winner["branch"] / "profiles" / f"slot_{slot:03d}" / "complex.pdb"),
                     "terminal_local_features": node(root, winner["branch"], 100, slot)}
+            comparisons = []
+            original_chain = next(c for c in histories
+                                  if any(h["branch"] == winner["branch"] and h["record"]["node_id"] == winner["record"]["node_id"]
+                                         for h in c["history"]))
+            initial = original_chain["history"][0]
+            draw_molecule(root / initial["branch"] / "molecules_all_built.sdf",
+                          initial["record"]["node_id"], case_dir / "r0.svg")
+            comparisons.append({"arm": "same_root_r0", "record": initial["record"], "image": "r0.svg",
+                                "quality": metrics(root, initial["branch"], slot, teacher),
+                                "complex": str(root / initial["branch"] / "profiles" / f"slot_{slot:03d}" / "complex.pdb")})
+            from evomolsteer.adaptive_schedule.quality import metrics_folder
+            for arm in ["unguided", "steer"]:
+                records = [r for r in read(root / "baselines" / f"{teacher['target']}__{arm}.json") if eligible(r)]
+                if records:
+                    chosen = max(records, key=lambda r: r["pic50_on_rescore"])
+                    draw_smiles(chosen["smiles"], case_dir / f"{arm}.svg")
+                    profile = Path(read(root / "config.json")["history"]) / "baseline_profiles_graph_v2" / teacher["target"] / arm / chosen["node_id"]
+                    comparisons.append({"arm": f"historical_{arm}_best", "record": chosen, "image": f"{arm}.svg",
+                                        "quality": metrics_folder(profile, teacher), "complex": str(profile / "complex.pdb")})
+            case["comparisons"] = comparisons
             write(case_dir / "case.json", case)
             cases.append(case)
     write_csv(folder / "teacher_effects.csv", cohort)
@@ -152,10 +180,13 @@ def report(root, version):
     cards = []
     for case in cases:
         tid = html.escape(case["teacher_id"])
+        examples = "".join(f"<figure><img src='cases/{tid}/{x['image']}'>"
+                           f"<figcaption>{x['arm']}: {html.escape(str(x['record'].get('pic50_on_rescore')))}</figcaption></figure>"
+                           for x in case["comparisons"])
         cards.append(f"<section><h2>{tid}</h2><p>Teacher {case['teacher_score']:.4f}; "
                      f"best {case['best_record']['pic50_on_rescore']:.4f}</p>"
                      f"<img src='cases/{tid}/teacher.svg'><img src='cases/{tid}/best.svg'>"
-                     f"<p>Schedule ticks: {html.escape(str(case['ticks']))}</p></section>")
+                     f"<p>Schedule ticks: {html.escape(str(case['ticks']))}</p>{examples}</section>")
     page = "<!doctype html><meta charset='utf-8'><title>PLIP schedule report</title><style>body{font-family:sans-serif;max-width:1200px;margin:30px auto}img{max-width:100%}section img{width:45%}section{border-top:1px solid #ddd}</style>"
     page += f"<h1>PLIP schedule optimization — {version}</h1><p>Per-root best-of-search; same development seeds. Predictive affinity, not measured binding. Teacher-level associations are exploratory.</p>"
     page += "<img src='optimization_curves.svg'>" + "".join(cards)
