@@ -18,4 +18,8 @@ if [[ "${1:-}" == "check-gradients" ]]; then
     shift
     exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B "$TASK_REPO/scripts/check_plip_adaptive_gradients.py" "$@"
 fi
+if [[ "${1:-}" == "adjust-input-budget" ]]; then
+    shift
+    exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B "$TASK_REPO/scripts/adjust_plip_prompt_budget.py" "$@"
+fi
 exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B -m evomolsteer.adaptive_schedule.cli "$@"
