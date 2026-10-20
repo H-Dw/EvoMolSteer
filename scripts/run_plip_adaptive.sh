@@ -8,7 +8,7 @@ export PYTHONPATH="$TASK_REPO/src:/opt/MolSteer/generated_datasets/plip_guidance
 export OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONUNBUFFERED=1
 if [[ "${1:-}" == "background" ]]; then
     shift
-    exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B -m evomolsteer.adaptive_schedule.background "$@"
+    exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B "$TASK_REPO/scripts/run_plip_adaptive_background.py" "$@"
 fi
 if [[ "${1:-}" == "report" ]]; then
     shift
