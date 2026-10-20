@@ -14,4 +14,8 @@ if [[ "${1:-}" == "report" ]]; then
     shift
     exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B "$TASK_REPO/scripts/analyze_plip_adaptive.py" "$@"
 fi
+if [[ "${1:-}" == "check-gradients" ]]; then
+    shift
+    exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B "$TASK_REPO/scripts/check_plip_adaptive_gradients.py" "$@"
+fi
 exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B -m evomolsteer.adaptive_schedule.cli "$@"
