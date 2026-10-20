@@ -27,7 +27,7 @@ from evomolsteer.generation.rng import rng_state, set_rng
 def tree(value, fn):
     if torch.is_tensor(value):
         return fn(value)
-    if isinstance(value, dict):
+    if isinstance(value, dict) or hasattr(value, "items"):
         return {k: tree(v, fn) for k, v in value.items()}
     if isinstance(value, list):
         return [tree(v, fn) for v in value]
@@ -54,7 +54,7 @@ def tensor_digest(value):
             v = v.detach().cpu().numpy()
         if isinstance(v, np.ndarray):
             return [str(v.dtype), list(v.shape), hashlib.sha256(v.tobytes()).hexdigest()]
-        if isinstance(v, dict):
+        if isinstance(v, dict) or hasattr(v, "items"):
             return {k: norm(x) for k, x in v.items()}
         if isinstance(v, (list, tuple)):
             return [norm(x) for x in v]
