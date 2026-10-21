@@ -28,6 +28,8 @@ def main():
         result = validate(a.root)
     elif a.command == 'run':
         try:
+            from evomolsteer.adaptive_schedule.environment import record_environment
+            record_environment(a.root, read(a.root/'config.json'))
             result = group_run.run(a.root, a.version)
         except Exception as exc:
             import traceback
@@ -38,6 +40,8 @@ def main():
     elif a.command == 'launch':
         from launch_plip_adaptive import check_api, idle_locks
         group_run.assert_prepared(a.root)
+        from evomolsteer.adaptive_schedule.environment import record_environment
+        record_environment(a.root, read(a.root/'config.json'))
         if not (a.root/'ACCEPTANCE_COMPLETE.json').exists():
             raise RuntimeError('Native acceptance is incomplete')
         with idle_locks(a.root):
