@@ -56,6 +56,25 @@ def assert_prepared(root):
     return c
 
 
+def adopt_unstarted_runtime(root, reason):
+    """Preflight-only repairs may rebind code, never an experiment with formal data."""
+    from .runner import lock
+    root = Path(root)
+    if not reason or len(reason.strip()) < 20:
+        raise ValueError('A concrete repair reason is required')
+    with lock(root):
+        if any((root/'shared_r0').glob('**/manifest.json')) or any((root/'versions').glob('**/binding.json')):
+            raise ValueError('Formal data exists: preflight-only adoption is forbidden')
+        previous = read(root/'PREPARED.json')
+        if previous['config_sha256'] != sha(root/'config.json') or previous['teachers_sha256'] != sha(root/'teachers.json'):
+            raise ValueError('Cannot adopt changed scientific configuration')
+        operation = root/'operations'/f'preflight_repair_{time.time_ns()}.json'
+        updated = dict(previous, source_fingerprint=source_fingerprint(), commit=commit())
+        write(operation, {'reason': reason, 'previous': previous, 'updated': updated, 'formal_sampling_started': False})
+        write(root/'PREPARED.json', updated)
+        return {'operation': str(operation), 'requires_fresh_acceptance': True}
+
+
 def initialize_cpu():
     os.environ['OMP_NUM_THREADS'] = '1'
     os.environ['OPENBLAS_NUM_THREADS'] = '1'

@@ -52,3 +52,12 @@ def test_checkpoint_rejects_different_random_streams():
     b=dict(a,rng_sha256='b')
     with pytest.raises(ValueError,match='streams'):
         mix_checkpoint(a,b,[None]*100)
+
+
+def test_native_tensordict_uses_keys_not_row_iteration():
+    torch=pytest.importorskip('torch');pytest.importorskip('h5py')
+    td=pytest.importorskip('tensordict')
+    from evomolsteer.adaptive_schedule.wave_native import join
+    value=td.TensorDict({'score':torch.arange(20)},batch_size=[20])
+    result=join([value,value],[20,20],[3,8])
+    assert result['score'].tolist()==[3,8]

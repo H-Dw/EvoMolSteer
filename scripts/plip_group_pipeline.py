@@ -11,15 +11,18 @@ def main():
     from evomolsteer.adaptive_schedule.group_protocol import GROUP_ROOT
     from evomolsteer.adaptive_schedule.io import read, write, repository, commit
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command', choices=['prepare', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
+    p.add_argument('command', choices=['prepare', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
     p.add_argument('--root', type=Path, default=Path(GROUP_ROOT))
     p.add_argument('--source-root', type=Path)
     p.add_argument('--version', default='v1')
+    p.add_argument('--reason')
     a = p.parse_args()
     from evomolsteer.adaptive_schedule import group_run
     if a.command == 'prepare':
         if not a.source_root: p.error('--source-root is required')
         result = group_run.prepare(a.root, a.source_root)
+    elif a.command == 'adopt-unstarted-runtime':
+        result = group_run.adopt_unstarted_runtime(a.root, a.reason)
     elif a.command == 'validate':
         from evomolsteer.adaptive_schedule.group_validation import validate
         result = validate(a.root)

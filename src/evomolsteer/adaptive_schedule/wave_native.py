@@ -39,7 +39,7 @@ def join(values, sizes, indices):
             raise ValueError('Non-row tensor differs in mixed-parent recovery')
         return first.clone()
     if isinstance(first, dict) or hasattr(first, 'items'):
-        return {k: join([v[k] for v in values], sizes, indices) for k in first}
+        return {k: join([v[k] for v in values], sizes, indices) for k in first.keys()}
     if isinstance(first, (list, tuple)):
         if all(len(v) == size for v, size in zip(values, sizes)):
             return type(first)(copy.deepcopy(v[i]) for v, i in zip(values, indices))
