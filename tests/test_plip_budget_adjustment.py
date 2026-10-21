@@ -48,3 +48,11 @@ def test_partial_update_can_resume_without_overwriting_unrelated_changes(tmp_pat
     write(tmp_path / "config.json", edited)
     with pytest.raises(ValueError, match="concurrent"):
         module.apply_budget(tmp_path, revision="test")
+
+
+def test_prepared_hash_is_migrated_in_the_same_journal(tmp_path):
+    setup(tmp_path)
+    write(tmp_path / "PREPARED.json", {"config_sha256": sha(tmp_path / "config.json"), "teachers_sha256": "frozen"})
+    result = module.apply_budget(tmp_path, revision="test")
+    assert read(tmp_path / "PREPARED.json") == {"config_sha256": sha(tmp_path / "config.json"), "teachers_sha256": "frozen"}
+    assert any(x["path"] == "PREPARED.json" for x in read(Path(result["operation"]) / "journal.json")["updates"])

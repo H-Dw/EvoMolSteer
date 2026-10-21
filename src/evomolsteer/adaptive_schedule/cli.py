@@ -57,8 +57,11 @@ def main():
         result = {"compacted_batches": completed}
     else:
         result = read(args.root / "status.json") if (args.root / "status.json").exists() else {"phase": "not_started"}
-        result["completed_batches"] = {
-            v: len(list((args.root / "versions" / v).glob("*/batch_*/COMPLETE.json"))) for v in ["v1", "v2"]}
+        if (args.root / "PREPARED.json").exists():
+            from .cohort import progress
+            config = read(args.root / "config.json")
+            templates = read(args.root / "teachers.json")
+            result["cohorts"] = {v: progress(args.root, v, config, templates) for v in config["versions"]}
     print(json.dumps(result, ensure_ascii=False, default=str))
 
 

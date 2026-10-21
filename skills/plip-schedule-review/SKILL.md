@@ -1,6 +1,6 @@
 ---
 name: plip-schedule-review
-description: Review a completed ten-teacher FLOWR scheduling cohort, audit all candidate-round decisions, and revise the scheduling skill using trace evidence before an identical-start rerun.
+description: Review a completed explicitly selected FLOWR scheduling cohort, audit all candidate-round decisions, and revise the scheduling skill using trace evidence before an identical-start rerun.
 ---
 
 Review only after the V1 cohort has finished or a concrete technical failure needs diagnosis. Scientific skill changes are frozen within a cohort. Technical fixes require local tests, a local Git commit, GitHub push, and deployment of that exact commit; do not edit remote research code.
@@ -21,5 +21,7 @@ Revise only rules with observed supporting cases and explicit counterexamples. K
 V2 retains all immutable experiment settings and starts from the same R0. Reset each candidate's optimization history. Do not transplant a lookup table of V1 teacher/slot-specific winning schedules. Commit the revised skill and review coverage manifest locally before pushing and remote deployment. Record both the skill hash and runtime hash.
 
 Compare paired per-chain changes, teacher-equal Mean/Best/Top10, recovery/exceedance, chemistry quality, and compute/token budgets. This cohort is development data for the skill; do not infer held-out or cross-target generalization. Complete V2 reporting when both cohorts and the review are finished.
+
+Read the actual frozen teacher selection and counts; never assume ten teachers or 10,000 decisions. The current study selects 5nn4 original ranks 1, 3, 4, 5: four teachers, 400 chains and 4,000 decisions per version. Teacher origins form two shared lineages, and all teachers reuse the same 100 initial slots. Distinguish the fixed R10 unselected-proposal Mean from the per-chain best-of-search Mean, which rises by selection. Retain failed trials in fixed-round summaries. The excluded 5ost cohort has a lower historical Steer Best than Unguided Best; this is a deliberate development-set choice, not evidence of corrupted data or proof that an Unguided baseline is invalid.
 
 In TOP1 storage mode, review every trial through its preserved prompts, numerical node/step analyses, quality XML/JSON and failure records. Only each chain's incumbent trajectory plus the shared immutable R0 are physically retained. Validate retention journals and snapshot checksums; do not claim to inspect deleted raw tensors. Confirm proposals use the retained incumbent as parent and use discarded trials only as evidence. No task heartbeat is currently configured; do not create one without a new user request.

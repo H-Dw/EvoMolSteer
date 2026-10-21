@@ -4,7 +4,7 @@ from pathlib import Path
 
 import torch
 
-from evomolsteer.adaptive_schedule.io import DEFAULT_ROOT, read, write
+from evomolsteer.adaptive_schedule.io import DEFAULT_ROOT, read, write, source_fingerprint
 from evomolsteer.adaptive_schedule.flowr import load_model, load_pt, device, tensor_digest
 from evomolsteer.adaptive_schedule.vendor.reward import LocalReward, displacement
 from evomolsteer.generation.rng import rng_state, set_rng
@@ -88,6 +88,7 @@ def check(root):
     evidence.append({"pseudo_huber_max_error": float((derivative - fd).abs().max()),
                      "passed": torch.allclose(derivative, fd, atol=1e-8, rtol=1e-7)})
     result = {"passed": all(r["passed"] for r in evidence), "checks": evidence,
+              "source_fingerprint": source_fingerprint(),
               "additional_candidates": 0, "matching_frozen_for_derivative_test": True}
     write(root / "validation/gradient_checks.json", result)
     if not result["passed"]:

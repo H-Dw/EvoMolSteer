@@ -1,12 +1,12 @@
-# PLIP局部梯度引导：LLM幅度调度与逐链 TOP1 保留
+# 5nn4 Top1/3/4/5：LLM幅度调度与逐链 TOP1 保留
 
 目标服务器固定为 `ssh -p 10104 root@ksai.scnet.cn`。密钥从服务器工作进程环境变量
 `DEEPSEEK_API_KEY`读取；SSH密码不写入文件。10399端口不用于本实验。
 
 ## 冻结的科学协议
 
-- 教师为已有5nn4_SC2_A_1017、5ost_AEZ_A_915的各Top5，读取原PLIP实验teachers.json并核对node ID。
-- 每教师100条独立起点，原五个20槽位批次，种子42、100045、200048、300051、400054。
+- 当前教师仅为5nn4_SC2_A_1017原排名Top1、Top3、Top4、Top5，读取原PLIP实验teachers.json并按原排名与node ID双重核对；不重新编号。
+- 每教师100条候选链，原五个20槽位批次，种子42、100045、200048、300051、400054。四位教师共享这100个原始起点，不能将400条教师条件链称为400个独立随机起点。
 - 固定FLOWR_ROOT原checkpoint、设备/精度、100步原生SDE、离散转移、蛋白及原子数。
 - 固定Endpoint坐标奖励：PLIP核心的pseudo-Huber，delta=1，1 Angstrom无量纲化；
   每步几何Hungarian映射，停止匹配梯度，不进行配体刚体对齐。
@@ -19,24 +19,37 @@
 - 每个候选独立优化，R0后10轮；达到教师分数后继续。每条链保留历史最优结构和全部轮次的分析记录。
 - 历史Unguided/Steer不重采样，不设零引导实验组；不使用旧“互作恢复增加5个百分点”门槛。
 
-## 教师数量核验（2026-10-21）
+## 本次筛选及可解释范围（2026-10-21修订）
 
-设计和程序均为每个 target 的 Top5，共10位教师，每位100条链。远端旧实验
-`plip_guidance_5nn4_5ost_s42_20261020/teachers.json` 中也包含全部10位教师。
-当前恢复的旧快照中，5nn4有Top1–Top5的运行目录，5ost仅有Top1–Top3的运行目录；
-这是旧快照的完成进度，并非将教师范围改为Top3。
+原始计划和教师归档均为两target各Top5，共10位。本次按用户明确要求缩为下列四位，
+与旧快照中5ost仅运行到Top3无关。保留原始十教师归档和历史实验，不覆盖或删除。
 
-| Target | Top1 → Top5 的原 Steer node ID |
-|---|---|
-| 5nn4_SC2_A_1017 | single_b002_final_005、single_b004_final_009、single_b002_final_007、single_b001_final_000、single_b001_final_014 |
-| 5ost_AEZ_A_915 | single_b000_final_016、single_b000_final_015、single_b000_final_000、single_b001_final_002、single_b001_final_006 |
+| 原排名 | 原Steer node ID | pIC50 | 原始batch/root_slot | 同初态Unguided | 差值S−U |
+|---:|---|---:|---|---:|---:|
+| Top1 | single_b002_final_005 | 7.837829 | 2/18 | 2.577009 | +5.260819 |
+| Top3 | single_b002_final_007 | 7.344669 | 2/18 | 2.577009 | +4.767660 |
+| Top4 | single_b001_final_000 | 6.464015 | 1/15 | 3.220562 | +3.243453 |
+| Top5 | single_b001_final_014 | 6.139006 | 1/15 | 3.220562 | +2.918444 |
+
+统一使用`pic50_on_rescore`。初态配对按谱系root_slot而非终态slot；Top1/3同源、Top4/5同源，
+四位教师只有两个来源初态。每位教师的新实验仍覆盖全部五批100个起点，不仅生成其来源槽位。
+
+筛选理由：
+
+- 排除5nn4 Top2：Steer 7.412205、同初态Unguided 7.234692，差值仅+0.177514且canonical SMILES相同；本次优先研究差距更大的教师。
+- 暂不纳入5ost：历史Steer Best为6.389903，低于Unguided Best 6.493207。本次资源集中于同时具有显著Mean优势和更高历史Best的5nn4。
+- 5ost的Mean仍有优势，上述Best差异不证明数据异常，也不使Unguided基线失效。此筛选是已观察结果后的开发集选择，不能作为Steer普遍优越或方法跨target泛化的证据。
+- 同起点的差值仅作描述；Steer重采样后随机流和后续路径不同，不当作完全匹配噪声的因果估计。四位教师的同源性须在报告中披露。
+
+代码将选择写入`config.json`和`teacher_selection.json`，保存原教师归档哈希、排除清单及实际工作量。
+空互作模板、缺失教师、重复条目、node ID替换或排名不匹配均报错，不自动换入其他教师。
 
 ## 完整checkpoint及逐链 TOP1
 
 保存0、0.1、…、0.9、1的完整恢复状态、最终输出和每步噪声/漂移/引导记录。
 checkpoint包含current、self-conditioning、prior引用、蛋白编码引用、times、积分器状态、
 完整Python/NumPy/Torch CPU/GPU RNG、坐标变换、来源哈希。附属head文件保存原始预测与endpoint。
-每轮计算期间保存完整数据，轮末按下述规则整理。每条链在可构建、连通且具有有限
+每轮计算期间保存完整数据，轮末在下一轮Agent设计前按下述规则整理；不能在评价或最佳快照完成前直接删除。每条链在可构建、连通且具有有限
 `pic50_on_rescore` 的结果中保留最高分；并列保留较早结果。尚无合格分子时保留R0恢复状态，
 报告失败，不将其算作有效候选。TOP1是逐链选择：每位教师最终仍有100个槽位，而非仅留1个。
 
@@ -74,8 +87,10 @@ RNG抽样，不复制旧离散输出。连续Gaussian噪声直接记录，不能
 
 ## 两个完整技能版本
 
-R0共1000轨迹，V1最多10000后缀，统一GPT复盘后V2最多10000后缀，总计最多21000终态结果。
-独立起点仍每版本1000；迭代分支不是额外独立样本。
+四位教师×五批×20槽位：每版本20个teacher/batch、400条教师条件链。
+R0共400轨迹，V1最多4000次后缀更新，统一GPT复盘后V2最多4000次后缀更新，总计最多8400个计入科学分析的终态结果。
+V1最多4400条R0及轮次结果记录、4000次独立Agent决策；V2复用400条R0。
+原始起点跨教师共享；迭代分支不是额外独立样本。重启验收及严格20槽位上下文回退有额外计算，单列成本，不计作额外科学候选。
 V1全部完成后生成每50条决策一个审阅分片，保留全部prompt、证据、结果及引用。
 GPT按分片审阅并记录覆盖，修订skill后本地测试/提交/push，远端拉取指定commit再运行V2。
 V2复用相同R0并清空候选记忆，不直接移植V1的teacher/slot最优调度表。
@@ -86,7 +101,7 @@ V2复用相同R0并清空候选记忆，不直接移植V1的teacher/slot最优�
 统一入口 `python -m evomolsteer.adaptive_schedule.cli`：
 prepare、validate、run --skill-version v1|v2 --resume、profile、compact、status、review-pack、analyze。
 远端shell入口 `scripts/run_plip_adaptive.sh`，传入background启动监督进程。
-新协议结果根目录 `/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_5ost_s42_20261021/`。
+新协议结果根目录 `/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021/`。
 旧V1原结果目录和部署目录在当前容器中缺失；不能将新协议运行冒充旧V1续跑。
 必须显式prepare并对新代码重新validate。background在缺少PREPARED时直接拒绝启动。
 
@@ -94,10 +109,14 @@ prepare、validate、run --skill-version v1|v2 --resume、profile、compact、st
 成功决策和分析不可覆盖；终态先落盘，经评价与最佳快照校验后才删除旧结构；三次恢复失败后报告异常。
 不修改已有批次大小或精度以绕过OOM。
 
-报告每教师100条链的Mean、Best、Top10、分位数、教师恢复/超越率、首次达到轮次、
+主要系统输出报告每教师100条链跨轮TOP1的Mean，并报告Best、Top10、分位数、教师恢复/超越率、首次达到轮次、
 原始/SMILES去重/PoseBusters通过分层、配对R0及V2-V1差异、五批探索性bootstrap、
 PLIP恢复/新互作、局部几何和类型/电荷、唯一性、耗时和LLM用量。
 不足10个有效结果的Top10记为空，不减少Top10定义。共享历史基线不重复计数。
+另保留每个固定轮次未做跨轮择优的分布，完整R10单独报告Mean、Best、Top10及其相对历史基线的差值。
+跨轮TOP1的Mean具有选择性单调改善，不能据此单独宣称单次采样分布改善；V1/V2按相同搜索预算比较。
+仅完成部分链时，逐轮报告实际完成数，不将旧结果前向填充为未执行轮次；未满100条的R10不标记为完整。
+教师互作数量、教师pIC50与难度的关联仅有四个教师且两条来源谱系，只作描述，不进行强统计推断。
 
 远端作业可脱离SSH独立运行。2026-10-21依用户要求删除了本线程定时任务`plip`，
 不自动检查状态或唤醒GPT复盘；后续由显式调用推进。V2仍须完成真实全量复盘后才能启动。

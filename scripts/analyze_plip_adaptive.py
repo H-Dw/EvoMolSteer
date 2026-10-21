@@ -73,6 +73,8 @@ def report(root, version):
             continue
         base = index[(tid, "r0", False)]
         best = index[(tid, version + "_best_per_root", False)]
+        config = read(root / "config.json")
+        fixed = index.get((tid, version + f"_fixed_r{config['rounds']:02d}", False))
         row = {"teacher_id": tid, "target": teacher["target"], "teacher_pic50": teacher["source_record"]["pic50_on_rescore"],
                "teacher_interactions": len(teacher["interactions"]), "core_coverage": teacher["core_coverage"],
                "r0_mean": base["mean"], "initial_teacher_gap": teacher["source_record"]["pic50_on_rescore"] - base["mean"]
@@ -80,26 +82,33 @@ def report(root, version):
                "recovered_fraction": best["teacher_recovered_fraction_all_attempts"]}
         for metric in ["mean", "best", "top10_mean"]:
             row[metric] = best[metric]
+            row[f"fixed_r{config['rounds']:02d}_{metric}"] = fixed[metric] if fixed else None
             for baseline in ["r0", "unguided", "steer"]:
                 previous = index[(tid, baseline, False)][metric]
                 row[f"{metric}_delta_{baseline}"] = best[metric] - previous if best[metric] is not None and previous is not None else None
+                row[f"fixed_r{config['rounds']:02d}_{metric}_delta_{baseline}"] = (
+                    fixed[metric] - previous if fixed and fixed[metric] is not None and previous is not None else None)
             row[f"{metric}_delta_teacher"] = best[metric] - row["teacher_pic50"] if best[metric] is not None else None
         selected = [next(h for h in c["history"] if h["id"] == c["best_id"]) for c in histories]
         row.update(diverse_smiles([h["record"] for h in selected]))
         cohort.append(row)
-        for round_no in range(11):
+        for round_no in range(config["rounds"] + 1):
             values, hits = [], 0
-            for c in histories:
+            round_chains = [c for c in histories if len(c["history"]) > round_no]
+            if not round_chains:
+                continue
+            for c in round_chains:
                 attempts = [h for h in c["history"][:round_no + 1] if eligible(h["record"])]
                 if attempts:
                     value = max(h["record"]["pic50_on_rescore"] for h in attempts)
                     values.append(value)
                     hits += value >= row["teacher_pic50"]
-            curves.append({"teacher_id": tid, "round": round_no, "chains": len(histories),
+            curves.append({"teacher_id": tid, "round": round_no, "chains": len(round_chains),
+                           "complete_round": len(round_chains) == config["batches"] * config["batch_size"],
                            "mean_best_so_far": float(np.mean(values)) if values else None,
                            "best_so_far": max(values) if values else None,
                            "top10_best_so_far": float(np.mean(sorted(values)[-10:])) if len(values) >= 10 else None,
-                           "teacher_recovery_fraction": hits / len(histories)})
+                           "teacher_recovery_fraction": hits / len(round_chains)})
         for c in histories:
             for h in c["history"]:
                 branch_ids.add(h["branch"])
@@ -190,7 +199,7 @@ def report(root, version):
                      f"<img src='cases/{tid}/teacher.svg'><img src='cases/{tid}/best.svg'>"
                      f"<p>Schedule ticks: {html.escape(str(case['ticks']))}</p>{examples}</section>")
     page = "<!doctype html><meta charset='utf-8'><title>PLIP schedule report</title><style>body{font-family:sans-serif;max-width:1200px;margin:30px auto}img{max-width:100%}section img{width:45%}section{border-top:1px solid #ddd}</style>"
-    page += f"<h1>PLIP schedule optimization — {version}</h1><p>Per-root best-of-search; same development seeds. Predictive affinity, not measured binding. Teacher-level associations are exploratory.</p>"
+    page += f"<h1>PLIP schedule optimization — {version}</h1><p>Primary system output: per-chain best-of-search Mean. Complete fixed-round R10 distributions are reported separately to distinguish proposal quality from selection gains. Four selected teachers from one target; shared seeds and teacher-origin lineages. Predictive affinity, not measured binding. Teacher associations are descriptive only.</p>"
     page += "<img src='optimization_curves.svg'>" + "".join(cards)
     (folder / "report.html").write_text(page, encoding="utf-8")
     return {"report": str(folder / "report.html"), "teachers": len(cohort), "costs": costs}

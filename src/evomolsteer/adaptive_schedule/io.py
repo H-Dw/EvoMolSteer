@@ -6,10 +6,10 @@ import os
 import subprocess
 from pathlib import Path
 
-DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_5ost_s42_20261021")
+DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021")
 HISTORY = Path("/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020")
 SEEDS = [42, 100045, 200048, 300051, 400054]
-TARGETS = ["5nn4_SC2_A_1017", "5ost_AEZ_A_915"]
+TARGETS = ["5nn4_SC2_A_1017"]
 
 
 def read(path):
@@ -79,10 +79,12 @@ def commit():
 
 
 def defaults():
+    from .cohort import TEACHERS
     return {
-        "schema": "plip-adaptive-schedule-top1-v2", "ssh": {"host": "ksai.scnet.cn", "port": 10104, "user": "root"},
+        "schema": "plip-adaptive-schedule-5nn4-r1345-v3", "ssh": {"host": "ksai.scnet.cn", "port": 10104, "user": "root"},
         "history": str(HISTORY), "flowr": "/root/private_data/MolSteer/flowr_root",
-        "targets": TARGETS, "seeds": SEEDS, "batch_size": 20, "batches": 5, "steps": 100,
+        "targets": list(TARGETS), "teacher_selection": [dict(t) for t in TEACHERS],
+        "seeds": list(SEEDS), "batch_size": 20, "batches": 5, "steps": 100,
         "features": "C", "mode": "endpoint", "initial_ticks": [5] * 8, "rounds": 10,
         "window_steps": [10, 90], "max_atom_step_A": .025, "tick_bounds": [0, 10],
         "llm": {"model": "deepseek-flash", "key_env": "DEEPSEEK_API_KEY", "thinking": True,
@@ -93,7 +95,12 @@ def defaults():
         "selection": "valid_connected_finite_pic50; retain incumbent on ties",
         "paired_history_slots": False,
         "retention": {"mode": "top1_per_chain", "restart_parent": "incumbent_only",
-                      "preserve_shared_r0": True, "profile_before_prune": True},
+                      "preserve_shared_r0": True, "profile_before_prune": True,
+                      "cleanup_boundary": "after_round_commit_profile_and_verified_snapshot"},
+        "reporting": {"primary": "best_per_chain_mean_pic50", "fixed_round": 10,
+                      "unselected_comparison": "fixed_round_mean_pic50",
+                      "search_output": "best_per_chain", "shared_baseline_targets": list(TARGETS),
+                      "scope": "four selected development teachers from one target; two teacher-origin lineages"},
     }
 
 

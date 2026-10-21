@@ -1,4 +1,4 @@
-"""Root-level tail statistics and exhaustive, sharded prompt-review indices."""
+"""Fixed-round and best-of-search distributions with exhaustive prompt-review indices."""
 import csv
 import math
 from pathlib import Path
@@ -41,7 +41,7 @@ def write_csv(path, rows):
 
 def analyze(root, version):
     root = Path(root)
-    summaries, trials, paired, chains_flat = [], [], [], []
+    summaries, trials, paired, chains_flat, round_summaries = [], [], [], [], []
     for teacher in read(root / "teachers.json"):
         histories = []
         for p in sorted((root / "versions" / version / teacher["teacher_id"]).glob("batch_*/histories.json")):
@@ -63,6 +63,21 @@ def analyze(root, version):
         latest = [enriched(c["history"][-1], c["slot"]) for c in histories]
         initial = [enriched(c["history"][0], c["slot"]) for c in histories]
         arms = {"r0": initial, version + "_best_per_root": selected, version + "_latest": latest}
+        # Keep unselected proposals separate from the monotone best-of-search curve.
+        # Partial batches never masquerade as a complete fixed-budget result.
+        config = read(root / "config.json")
+        expected = config["batches"] * config["batch_size"]
+        for round_no in range(config["rounds"] + 1):
+            rows = [c["history"][round_no]["record"] for c in histories if len(c["history"]) > round_no]
+            if rows:
+                for dedup in [False, True]:
+                    round_summaries.append({"teacher_id": teacher["teacher_id"], "target": teacher["target"],
+                        "round": round_no, "deduplicated": dedup, "expected_attempts": expected,
+                        "complete_round": len(rows) == expected, **distribution(rows, score, dedup)})
+        final_rows = [enriched(c["history"][config["rounds"]], c["slot"]) for c in histories
+                      if len(c["history"]) > config["rounds"]]
+        if len(final_rows) == expected:
+            arms[version + f"_fixed_r{config['rounds']:02d}"] = final_rows
         for arm in ["steer", "unguided"]:
             arms[arm] = read(root / "baselines" / f"{teacher['target']}__{arm}.json")
             for record in arms[arm]:
@@ -116,6 +131,7 @@ def analyze(root, version):
                        "quantiles": np.quantile(deltas, [0, .1, .25, .5, .75, .9, 1]).tolist() if deltas else []})
     folder = root / "analysis" / version
     write(folder / "summary.json", summaries)
+    write_csv(folder / "fixed_round_distributions.csv", round_summaries)
     write(folder / "paired_r0.json", paired)
     write_csv(folder / "chains.csv", chains_flat)
     write_csv(folder / "all_trials.csv", trials)
@@ -146,7 +162,8 @@ def analyze(root, version):
                 comparison.append({"teacher_id": key[0], "batch": key[1], "slot": key[2], "delta_v2_v1": d})
         write_csv(folder / "paired_v2_v1.csv", comparison)
     lines = [f"# PLIP幅度调度：{version}", "",
-             "每条链只作为一个独立起点；Best/Top10基于每教师最多100条链的历史最优。历史基线共享，不重复计入独立样本。",
+             "主要系统输出指标为每条链TOP1构成的Mean，同时报告Best和Top10；完整固定轮次R10的Mean用于区分实际生成分布与跨轮择优收益。",
+             "fixed_round_distributions.csv保留每轮未做跨轮择优的结果。latest在未完成时可能混合轮次，不作为完整R10。历史基线及跨教师共享初态不重复计作独立样本。",
              "缺失与结构失败保留；Top10有效分子不足10个时为空。多轮搜索不代表等计算预算优势。", "",
              "|教师|条件|有效数|Mean|Best|Top10均值|", "|---|---|---:|---:|---:|---:|"]
     fmt = lambda x: "NA" if x is None else f"{x:.4f}"

@@ -8,28 +8,33 @@ import traceback
 from pathlib import Path
 
 from .io import (read, write, sha, value_sha, defaults, source_fingerprint, repository,
-                 commit, better, eligible, TARGETS, SEEDS)
+                 commit, better, eligible)
 from .contracts import earliest
+from .cohort import select_templates, counts, progress
 
 
 def prepare(root):
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
     config = defaults()
+    # Reject an existing cohort before touching its baseline copies or teacher list.
+    if (root / "config.json").exists() and read(root / "config.json") != config:
+        raise ValueError("Do not change a frozen experiment config; use a new cohort directory")
+    if (root / "PREPARED.json").exists():
+        assert_prepared(root)
+        return {"root": str(root), **counts(config, read(root / "teachers.json")), "already_prepared": True}
     history = Path(config["history"])
-    templates = read(history / "teachers.json")
-    if len(templates) != 10 or any(not t["core_atoms"] for t in templates):
-        raise ValueError("Exactly ten original, nonempty teacher templates are required")
-    from .vendor.common import TEACHER_IDS, BASELINE_DATASETS, campaign, protein
-    refs = {}
-    for target in TARGETS:
-        observed = [t["source_record"]["node_id"] for t in sorted(templates, key=lambda t: t["rank"]) if t["target"] == target]
-        if observed != TEACHER_IDS[target]:
-            raise ValueError("Frozen teacher ranking differs")
-        for b in range(5):
+    archive = read(history / "teachers.json")
+    templates = select_templates(archive, config["teacher_selection"])
+    if sorted({t["target"] for t in templates}) != sorted(config["targets"]):
+        raise ValueError("Selected targets disagree with the frozen config")
+    from .vendor.common import BASELINE_DATASETS, campaign, protein
+    refs, baseline_rows = {}, {}
+    for target in config["targets"]:
+        for b in range(config["batches"]):
             p = history / "initials" / target / f"batch_{b:03d}.pt.gz"
             meta = read(p.with_suffix(".json"))
-            if sha(p) != meta["state_file_sha256"] or meta["seed"] != SEEDS[b]:
+            if sha(p) != meta["state_file_sha256"] or meta["seed"] != config["seeds"][b]:
                 raise ValueError("Historical prior provenance failed")
             refs[str(p)] = sha(p)
         refs[str(protein(target))] = sha(protein(target))
@@ -42,7 +47,7 @@ def prepare(root):
                 source = campaign(arm, target) / ("single" if arm == "steer" else "unguided") / "final_records.json"
             if not source.exists():
                 rows = []
-                for b in range(5):
+                for b in range(config["batches"]):
                     from .vendor.common import batch_folder
                     p = batch_folder(arm, target, b) / "final_records.json"
                     rows.extend(read(p))
@@ -50,29 +55,45 @@ def prepare(root):
             else:
                 rows = read(source)
                 refs[str(source)] = sha(source)
-            if len(rows) != 100:
+            if len(rows) != config["batches"] * config["batch_size"]:
                 raise ValueError("Historical target must retain exactly 100 attempts")
-            write(root / "baselines" / f"{target}__{arm}.json", rows)
+            baseline_rows[f"{target}__{arm}.json"] = rows
     for t in templates:
         for key in ["sdf", "protein"]:
             refs[t[key]] = sha(t[key])
     refs[str(history / "teachers.json")] = sha(history / "teachers.json")
-    if (root / "config.json").exists() and read(root / "config.json") != config:
-        raise ValueError("Do not change a frozen experiment config")
+    for name, rows in baseline_rows.items():
+        write(root / "baselines" / name, rows)
     write(root / "config.json", config)
     write(root / "teachers.json", templates)
     write(root / "historical_references.json", refs)
+    write(root / "teacher_selection.json", {
+        "selected": config["teacher_selection"], "source_catalog": str(history / "teachers.json"),
+        "source_catalog_sha256": refs[str(history / "teachers.json")],
+        "excluded": [{"target": t["target"], "rank": t["rank"], "teacher_id": t["teacher_id"],
+                      "node_id": t["source_record"]["node_id"]} for t in archive if t not in templates],
+        "scope": config["reporting"]["scope"], "counts": counts(config, templates)})
     write(root / "PREPARED.json", {"commit": commit(), "source_fingerprint": source_fingerprint(),
-                                 "teacher_count": 10, "initial_batches": 10,
+                                 **counts(config, templates),
+                                 "config_sha256": sha(root / "config.json"),
+                                 "teachers_sha256": sha(root / "teachers.json"),
                                  "api_key_present": bool(os.environ.get("DEEPSEEK_API_KEY"))})
-    return {"root": str(root), "teachers": 10, "chains_per_version": 1000}
+    return {"root": str(root), **counts(config, templates)}
 
 
 def assert_prepared(root):
+    root = Path(root)
     p = read(root / "PREPARED.json")
     if p["source_fingerprint"] != source_fingerprint():
         raise ValueError("Code changed since preparation; prepare and validate exact deployed commit")
-    return read(root / "config.json")
+    config = read(root / "config.json")
+    for key, name in [("config_sha256", "config.json"), ("teachers_sha256", "teachers.json")]:
+        if p.get(key) and p[key] != sha(root / name):
+            raise ValueError("Prepared cohort file changed: " + name)
+    templates = read(root / "teachers.json")
+    if select_templates(templates, config["teacher_selection"]) != templates:
+        raise ValueError("Prepared cohort contains unexpected or reordered teachers")
+    return config
 
 
 def bind_version(root, version, skill):
@@ -266,7 +287,7 @@ def run_batch(model, root, config, template, batch, version, skill, fast):
         write(root / "status.json", {"phase": "running", "version": version,
               "teacher": template["teacher_id"], "batch": batch, "round": round_no,
               "time": time.time(), "histories": str(path.relative_to(root))})
-    write(parent_folder / "COMPLETE.json", {"chains": 20, "rounds": 10})
+    write(parent_folder / "COMPLETE.json", {"chains": config["batch_size"], "rounds": config["rounds"]})
 
 
 @contextlib.contextmanager
@@ -286,13 +307,17 @@ def run(root, version, skill=None, teacher_id=None, batch_index=None):
     validation = read(root / "VALIDATED.json")
     if validation["source_fingerprint"] != source_fingerprint() or not validation["restart_pass"]:
         raise ValueError("Exact deployed source has not passed live restart validation")
+    gradient = read(root / "validation/gradient_checks.json")
+    if not gradient.get("passed") or gradient.get("source_fingerprint") != source_fingerprint():
+        raise ValueError("Exact deployed source has not passed saved-state gradient checks")
     if version == "v2" and not (root / "versions/v1/COMPLETE.json").exists():
         raise ValueError("V2 requires a complete V1 cohort and main-agent review")
     if version == "v2" and not (root / "versions/v2/review_approval.json").exists():
         raise ValueError("V2 requires the committed main-agent review coverage and skill revision")
     skill = skill or repository() / "skills/plip-schedule-optimizer/SKILL.md"
     frozen_skill = bind_version(root, version, skill)
-    templates = read(root / "teachers.json")
+    all_templates = read(root / "teachers.json")
+    templates = all_templates
     if teacher_id:
         templates = [t for t in templates if t["teacher_id"] == teacher_id]
         if not templates:
@@ -301,9 +326,12 @@ def run(root, version, skill=None, teacher_id=None, batch_index=None):
     import torch
     failures = []
     with lock(root):
+        state = progress(root, version, config, all_templates)
+        if state["invalid"] or state["unexpected"]:
+            raise ValueError("Cohort completion markers are inconsistent: " + str(state))
         model, loaded_target = None, None
         for template in templates:
-            for batch in ([batch_index] if batch_index is not None else range(5)):
+            for batch in ([batch_index] if batch_index is not None else range(config["batches"])):
                 folder = root / "versions" / version / template["teacher_id"] / f"batch_{batch:03d}"
                 if (folder / "COMPLETE.json").exists():
                     continue
@@ -326,13 +354,16 @@ def run(root, version, skill=None, teacher_id=None, batch_index=None):
                             failures.append(error)
                         else:
                             time.sleep([30, 120][attempt])
-        completed = list((root / "versions" / version).glob("*/batch_*/COMPLETE.json"))
+        state = progress(root, version, config, all_templates)
         phase = "review_ready" if version == "v1" else "complete"
-        if len(completed) == 50 and not failures:
-            write(root / "versions" / version / "COMPLETE.json", {"chains": 1000, "rounds": 10})
+        if state["complete"] and not failures:
+            write(root / "versions" / version / "COMPLETE.json", {
+                "chains": state["chains_per_version"], "rounds": config["rounds"],
+                "teachers": state["teacher_count"], "batches": state["teacher_batches"],
+                "decisions": state["decisions_per_version"], "teachers_sha256": sha(root / "teachers.json")})
             write(root / "status.json", {"phase": phase, "version": version, "time": time.time()})
         else:
             write(root / "status.json", {"phase": "attention" if failures else "partial", "version": version,
-                  "completed_batches": len(completed), "errors": failures, "time": time.time()})
+                  "cohort_progress": state, "errors": failures, "time": time.time()})
         if failures:
             raise RuntimeError("Cohort has failed batches; see status.json; successful branches preserved")

@@ -4,9 +4,9 @@
 DeepSeek 密钥由远端环境变量 `DEEPSEEK_API_KEY` 读取，不写入仓库。
 
 结果根目录：
-`/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_5ost_s42_20261021`
+`/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021`
 
-这是逐链TOP1协议的新目录，不是原V1结果的恢复。2026-10-21核验时原V1结果目录及
+这是5nn4原Top1/3/4/5四教师、逐链TOP1协议的新目录，不是原V1结果的恢复。2026-10-21核验时原V1结果目录及
 原部署目录在当前容器中均不存在；当前`/opt/MolSteer`为较早快照，不能据此推断实验已完整完成。
 不要重新prepare旧目录或用旧VALIDATED标记启动新代码。
 
@@ -30,25 +30,34 @@ bash scripts/run_plip_adaptive.sh report --skill-version v1
 bash scripts/run_plip_adaptive.sh compact --skill-version v1
 ```
 
-`background` 由独立 session 启动并将输出重定向至结果目录日志，SSH 断开后继续。
+`background`是监督进程入口；远端后台启动时使用下面的命令脱离SSH并保留日志（在固定checkout目录执行）：
+
+```bash
+ROOT=/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021
+nohup setsid bash scripts/run_plip_adaptive.sh background --skill-version v1 > "$ROOT/supervisor_v1.log" 2>&1 < /dev/null &
+```
+
+先完成prepare；可手动validate及check-gradients，或由background在首次启动时依次执行。两项均通过后才允许开始Agent轮次。密钥须由启动进程环境继承，禁止放入命令行或日志。
 它要求已有PREPARED，不自动创建新实验。变更采样代码后必须显式准备新协议并重新验证。
 不要同时启动两个 supervisor 或 GPU worker。锁文件存在不等于进程仍在运行；
 检查 `workers.json` 中的进程和最近进度后再恢复。
 
-`VALIDATED.json` 确认两个 target 的逐节点重启和批内隔离检查。
+`VALIDATED.json` 确认所选5nn4 target的逐节点重启和批内隔离检查。
 `validation/gradient_checks.json` 确认预测头有限差分、坐标单位和 RNG 隔离。
 `status.json` 表示采样状态，`quality_status.json` 表示 PLIP/PoseBusters 队列状态。
 `versions/v1/COMPLETE.json` 只表示采样完成；`FINALIZED_v1.json` 才表示最终评价扫描与报告结束。
 评价失败保留失败记录，不补抽分子。
 
 每个 teacher/batch 的 `histories.json` 为20条候选链；每条完整链有 R0 加10轮记录。
-完整 V1 应有50个批次、1000条链、10000次独立 LLM 决策。
+完整V1应有20个teacher/batch、400条教师条件链、4000次独立LLM决策。
+每个批次必须有20条完整R0–R10历史及轮末清理提交标记；陌生教师目录或仅有COMPLETE文件不能凑足完成数。
 完整前缀按哈希引用共享，不重复保存；随机流、self-conditioning 和积分器状态均在恢复快照内。
 
 ## 每轮清理与恢复
 
-- 教师固定每target Top5，共10位；当前旧快照中5ost只出现Top1–Top3运行文件是执行进度，
-  不是教师配置。prepare严格核对十位教师的node ID和排名，不允许悄悄缩为Top3。
+- 当前仅使用5nn4原Top1/3/4/5，保留原排名及teacher ID。prepare从十教师历史归档选择这四位，
+  严格核对node ID、原排名和PLIP核心，不需要为被排除教师重新采样或准备模板。
+- `PREPARED.json`绑定config和teachers哈希；新选择不能覆盖旧实验。`teacher_selection.json`保存来源、纳入与排除清单及工作量。
 - 新配置`retention.mode=top1_per_chain`。20个槽位各自选择历史最高有效pIC50，
   每教师仍为100条链。R0作为跨版本共用参考单独保留；V1/V2分别保留自身各链TOP1。
 - 每轮提交历史后，GPU worker同步等待本轮质量评价，随后建立并校验自包含最佳快照，
@@ -82,8 +91,10 @@ bash scripts/run_plip_adaptive.sh compact --skill-version v1
    新技能 SHA256、Git commit 和修改理由。文件必须对应真实完成的审阅。
 7. 使用新技能启动 `background --skill-version v2`，复用原 R0，清空 V2 候选记忆。
 
-V2 结束后比较 Mean、Best、Top10、恢复率、质量和成本，分析教师 PLIP 数量、核心覆盖率、
-教师 pIC50 与改善难度的关系。结果限定于这两个 target、十个教师和同一组开发种子。
+V2结束后比较TOP1系统输出及固定R10生成分布的Mean、Best、Top10、恢复率、质量和成本；
+`fixed_round_distributions.csv`保存全部轮次的未跨轮择优统计，部分完成状态不填充未执行轮次。
+分析教师PLIP数量、核心覆盖率、教师pIC50与改善难度的关系时明确仅有四位教师、两个来源谱系。
+结果限定于这一个target、四个经筛选教师和同一组开发种子，历史100个Unguided/Steer不重复计数。
 
 ## 定时任务已删除
 

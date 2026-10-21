@@ -26,6 +26,13 @@ def apply_budget(root, new_limit=131072, revision=None):
         # Use the actual atomic writer, including platform-specific line endings.
         write(operation / "proposed_config.json", changed)
         new_hash = sha(operation / "proposed_config.json")
+        prepared = root / "PREPARED.json"
+        if prepared.exists() and "config_sha256" in read(prepared):
+            old = read(prepared)
+            if old["config_sha256"] != sha(config_path):
+                raise ValueError("Prepared config checksum does not match before budget adjustment")
+            updates.append({"path": "PREPARED.json", "before": old,
+                            "after": dict(old, config_sha256=new_hash)})
         for binding in sorted((root / "versions").glob("*/binding.json")):
             old = read(binding)
             if old["config_sha256"] != sha(config_path):

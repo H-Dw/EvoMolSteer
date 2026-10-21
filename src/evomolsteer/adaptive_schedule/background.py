@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-from .io import DEFAULT_ROOT, write, read, commit, repository
+from .io import DEFAULT_ROOT, write, read, commit, repository, source_fingerprint
 
 
 def main():
@@ -30,6 +30,12 @@ def main():
         if not (root / "VALIDATED.json").exists():
             write(root / "status.json", {"phase": "validating", "time": time.time()})
             subprocess.run(base + ["validate"], check=True)
+        gradient_path = root / "validation/gradient_checks.json"
+        gradient = read(gradient_path) if gradient_path.exists() else {}
+        if not gradient.get("passed") or gradient.get("source_fingerprint") != source_fingerprint():
+            write(root / "status.json", {"phase": "checking_gradients", "time": time.time()})
+            subprocess.run([sys.executable, "-B", str(repository() / "scripts/check_plip_adaptive_gradients.py"),
+                            "--root", str(root)], check=True)
         command = base + ["run", "--skill-version", opt.skill_version, "--resume"]
         if opt.skill:
             command += ["--skill", str(opt.skill)]
