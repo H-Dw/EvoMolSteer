@@ -161,6 +161,8 @@ class PopulationTools:
             raise ValueError('Exactly 100 unique candidate identities are required')
         self.digest = value_sha(self.data)
         self.selectors = ['incumbent', 'latest'] + list(self.data['round_ids'])
+        node_sets = [set(t['nodes']) for c in self.data['chains'] for t in c['trials']]
+        available_steps = sorted(int(s) for s in set.intersection(*node_sets))
         selector = {"enum": self.selectors}
         subset = {"type": "array", "items": {"enum": ids}, "uniqueItems": True, "maxItems": 20}
         def schema(props, required):
@@ -169,7 +171,7 @@ class PopulationTools:
             'population_summary': ("Mean, Best, Top10, quantiles and validity over all 100 attempts.", schema({'selection': selector}, ['selection'])),
             'paired_comparison': ("Paired B-A changes and validity conversions; failures remain counted.", schema({'a': selector, 'b': selector}, ['a', 'b'])),
             'geometry_diagnostics': ("Core coordinate errors in the fixed protein frame, computed from saved correspondences.",
-                schema({'selection': selector, 'step': {'enum': list(CHECKPOINT_STEPS)}, 'state': {'enum': ['current', 'endpoint']}, 'candidate_ids': subset}, ['selection', 'step', 'state'])),
+                schema({'selection': selector, 'step': {'enum': available_steps}, 'state': {'enum': ['current', 'endpoint']}, 'candidate_ids': subset}, ['selection', 'step', 'state'])),
             'interval_diagnostics': ("Effective displacement, clipping and matching instability by guidance interval.", schema({'selection': selector}, ['selection'])),
             'subgroup_response': ("Paired response in score quartiles fixed from A, including missing-score counts.", schema({'a': selector, 'b': selector}, ['a', 'b'])),
             'candidate_history': ("All recorded trials and hypotheses for up to 20 identified candidates.", schema({'candidate_ids': dict(subset, minItems=1)}, ['candidate_ids'])),

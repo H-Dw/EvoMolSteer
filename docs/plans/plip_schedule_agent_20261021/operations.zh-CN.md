@@ -2,6 +2,13 @@
 
 ## 2026-10-22最新状态：群体分析、默认4假设，正式实验暂停
 
+最新要求已改为4个私有组内Agent并行，每组100候选、提2个假设，再由第5个汇总Agent从8个中选4个排序。
+新入口`scripts/plip_group_council.py --manifest <四组证据清单> --output <独立分析目录>`只执行分析，不启动GPU。
+保存独立reflection.md/json、供后轮读取的published_memory.json及全量MASTER_REVIEW_INPUTS.json；后者不是审阅批准。
+`teacher_pipeline.run_teacher_pipeline`提供单GPU所有者、两教师就绪队列和LLM/CPU重叠调度，质量与TOP1发布完成后才允许下一轮。
+它要求显式注入经过验收的原生推理和清理适配器；当前尚未接入正式100H混合父状态执行器，不可用旧20槽位runner代替。
+当前正式实验和定时任务仍暂停。早先单会话4假设实测只作历史证据，不代表已经运行4+1新流程。
+
 当前教师仅原Top1/Top2。下文r123三教师部署段落属于历史记录，不能据此恢复旧三教师任务。
 最新决策/预算见[group_hypotheses.zh-CN.md](group_hypotheses.zh-CN.md)：每教师100候选一起进行Agent分析，每假设共用四区间幅度。
 容量按8→4→3→2测量；8×100已OOM，4×100两教师均完成100步，默认4，不再测3/2。

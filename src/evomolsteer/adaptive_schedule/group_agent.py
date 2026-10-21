@@ -95,13 +95,19 @@ def verified_double_directions(group_history, anchor):
 
 
 def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
-                    group_history=None, skill=None, caller=call_json, max_tool_turns=4):
+                    group_history=None, skill=None, caller=call_json, max_tool_turns=4,
+                    published_reflections=None):
     if hypotheses not in {8, 4, 3, 2} or not 1 <= max_tool_turns <= 6:
         raise ValueError('Unsupported hypothesis count or tool-turn budget')
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     anchor = validate_ticks(list(anchor))
     group_history = group_history or []
+    published_reflections = published_reflections or []
+    for memory in published_reflections:
+        if (memory['teacher_id'] != data['teacher']['teacher_id']
+                or memory['published_after_round'] >= data['observed_round']):
+            raise ValueError('Only already-published earlier-round reflection is visible to a group analyst')
     tools = PopulationTools(data, output/'tools')
     skill = Path(skill or repository()/'skills/plip-population-optimizer/SKILL.md')
     instructions = skill.read_text(encoding='utf-8')
@@ -110,11 +116,14 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
                tools.call('paired_comparison', {'a': 'latest', 'b': 'incumbent'})]
     evidence = {x['evidence_id'] for x in initial}
     common = {'teacher_id': data['teacher']['teacher_id'], 'population_sha256': tools.digest,
+        'group_id': data.get('group_id'),
         'teacher_pic50': data['teacher']['source_record']['pic50_on_rescore'],
         'core_atoms': len(data['teacher']['core_atoms']), 'candidates': 100,
         'observed_round': data['observed_round'], 'hypotheses_required': hypotheses,
         'common_anchor_ticks': anchor, 'verified_double_tick_directions': double,
-        'group_history': group_history, 'intervals': description(), 'tools': tools.catalog(),
+        'group_history': group_history, 'published_reflections': published_reflections,
+        'visibility': 'This group only, its own history and earlier published reflections; no sibling current-round data',
+        'intervals': description(), 'tools': tools.catalog(),
         'evidence': initial, 'reward_frozen': True, 'max_tool_turns': max_tool_turns,
         'parent_policy': 'All hypotheses use the same pre-round per-candidate incumbent snapshot; all 100 identities retained',
         'objective_priority': ['unselected_100_candidate_mean_pic50', 'best_pic50'],
@@ -160,6 +169,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
                 'teacher_id': common['teacher_id'], 'observed_round': data['observed_round'],
                 'common_anchor_ticks': anchor, 'population_diagnosis': response['population_diagnosis'],
                 'memory_update': response['memory_update'], 'parents': parents, 'jobs': jobs,
+                'group_id': data.get('group_id'),
                 'candidate_attempts_if_executed': 100*hypotheses, 'llm_turns': turn+1,
                 'planning_only': True, 'gpu_executed': False,
                 'execution_requires': 'validated 100-slot mixed-parent recovery, frozen RNG/wave mapping, quality-before-prune transaction'}

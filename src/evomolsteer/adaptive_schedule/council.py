@@ -1,0 +1,228 @@
+"""Four private population analysts, then one separately audited synthesis session.
+
+Isolation is enforced by constructing independent data/tool scopes before any
+request. No analyst receives the council input, sibling outputs or filesystem tools.
+"""
+import concurrent.futures
+import copy
+import threading
+import time
+from pathlib import Path
+
+import jsonschema
+
+from evomolsteer.deepseek_api import call_json
+from .group_agent import plan_population
+from .group_tools import PopulationTools, score_summary, paired
+from .contracts import validate_ticks
+from .io import canonical, read, write, value_sha, sha, repository
+
+
+class BoundedCaller:
+    """Share this instance across teachers: at most four simultaneous HTTP calls."""
+    def __init__(self, caller=call_json, concurrency=4):
+        if concurrency != 4:
+            raise ValueError('The four-analyst protocol has a global HTTP limit of four')
+        self.caller = caller
+        self.semaphore = threading.BoundedSemaphore(concurrency)
+
+    def __call__(self, *args, **kwargs):
+        with self.semaphore:
+            return self.caller(*args, **kwargs)
+
+
+def private_group(spec, expected_teacher, observed_round):
+    """Whitelist the evidence surface; do not expose sibling metadata in prompts/tools."""
+    if spec['group_id'] not in {'G1', 'G2', 'G3', 'G4'}:
+        raise ValueError('Four explicit group IDs G1..G4 are required')
+    data = copy.deepcopy(spec['data'])
+    if data['teacher']['teacher_id'] != expected_teacher or data['observed_round'] != observed_round:
+        raise ValueError('All group results must belong to one teacher and the same completed round')
+    if data.get('group_id', spec['group_id']) != spec['group_id']:
+        raise ValueError('Wrong evidence group identity')
+    data = {k: data[k] for k in ['teacher', 'observed_round', 'round_ids', 'chains']}
+    data['group_id'] = spec['group_id']
+    tools = PopulationTools(data, Path('.'))  # validate complete unique candidate identities without writing
+    ticks = validate_ticks(list(spec['anchor_ticks']))
+    if any(tools.trial(c, 'latest')['ticks'] != ticks for c in data['chains']):
+        raise ValueError('One group must have one shared schedule over all its 100 latest results')
+    return data
+
+
+def synthesis_schema(proposal_ids, evidence_ids):
+    text = {'type': 'string', 'minLength': 1}
+    rationale = {'type': 'object', 'additionalProperties': False,
+        'properties': {'proposal_id': {'enum': proposal_ids}, 'mean_reason': text, 'best_reason': text,
+                       'risk_and_uncertainty': text,
+                       'evidence_ids': {'type': 'array', 'minItems': 1, 'uniqueItems': True,
+                                        'items': {'enum': evidence_ids}}},
+        'required': ['proposal_id', 'mean_reason', 'best_reason', 'risk_and_uncertainty', 'evidence_ids']}
+    props = {'comparison': text, 'failure_directions': text, 'public_memory': dict(text, maxLength=6000),
+        'ranked_proposal_ids': {'type': 'array', 'minItems': len(proposal_ids), 'maxItems': len(proposal_ids),
+                                'uniqueItems': True, 'items': {'enum': proposal_ids}},
+        'selected': {'type': 'array', 'minItems': 4, 'maxItems': 4, 'items': rationale}}
+    return {'type': 'object', 'additionalProperties': False, 'properties': props, 'required': list(props)}
+
+
+def validate_synthesis(result, proposals):
+    ranked = result['ranked_proposal_ids']
+    selected = [x['proposal_id'] for x in result['selected']]
+    if len(ranked) != len(proposals) or set(ranked) != set(proposals):
+        raise ValueError('Rank every supplied proposal exactly once')
+    if len(selected) != 4 or len(set(selected)) != 4:
+        raise ValueError('Select four different proposals')
+    if any(p not in proposals for p in selected):
+        raise ValueError('A synthesizer may select only analyst proposals')
+    if selected != sorted(selected, key=ranked.index):
+        raise ValueError('Selected proposals must preserve the priority ranking')
+    if len({tuple(proposals[p]['ticks']) for p in selected}) != 4:
+        raise ValueError('Selected shared schedules must be distinct; do not spend duplicate 100-candidate groups')
+
+
+def analyze_four_groups(specs, output, config, *, published_reflections=None,
+                        caller=None, analyst_skill=None, synthesis_skill=None):
+    """No GPU execution. Fail closed if any analyst fails; preserve all successes."""
+    output = Path(output)
+    if len(specs) != 4 or [s['group_id'] for s in specs] != ['G1', 'G2', 'G3', 'G4']:
+        raise ValueError('Provide four ordered group inputs G1..G4')
+    teacher = specs[0]['data']['teacher']['teacher_id']
+    round_no = specs[0]['data']['observed_round']
+    private = [private_group(s, teacher, round_no) for s in specs]
+    identities = [[c['candidate_id'] for c in d['chains']] for d in private]
+    if any(ids != identities[0] for ids in identities[1:]):
+        raise ValueError('Group comparisons require the same ordered 100 original candidate identities')
+    published_reflections = copy.deepcopy(published_reflections or [])
+    for memory in published_reflections:
+        if memory['teacher_id'] != teacher or memory['published_after_round'] >= round_no:
+            raise ValueError('Same-round or future synthesis cannot leak into isolated analysts')
+    analyst_skill = Path(analyst_skill or repository()/'skills/plip-group-analyst/SKILL.md')
+    synthesis_skill = Path(synthesis_skill or repository()/'skills/plip-group-synthesizer/SKILL.md')
+    binding = {'schema': 'plip-four-plus-one-v1', 'teacher_id': teacher, 'observed_round': round_no,
+        'private_population_hashes': {s['group_id']: value_sha(d) for s, d in zip(specs, private)},
+        'anchors': [s['anchor_ticks'] for s in specs],
+        'group_history_hashes': [value_sha(s.get('group_history', [])) for s in specs],
+        'published_reflections_sha256': value_sha(published_reflections),
+        'analyst_skill_sha256': sha(analyst_skill), 'synthesis_skill_sha256': sha(synthesis_skill),
+        'llm': config['llm'], 'analyst_sessions': 4, 'proposals_per_analyst': 2, 'selected_proposals': 4}
+    output.mkdir(parents=True, exist_ok=True)
+    if (output/'binding.json').exists() and read(output/'binding.json') != binding:
+        raise ValueError('Do not overwrite a council with changed private inputs, history, skills or configuration')
+    if (output/'COMPLETE.json').exists():
+        completed = read(output/'COMPLETE.json')
+        if (completed['selection_sha256'] != sha(output/'selection.json')
+                or completed['review_inputs_sha256'] != sha(output/'MASTER_REVIEW_INPUTS.json')):
+            raise ValueError('Completed council checksums changed')
+        for name, digest in read(output/'MASTER_REVIEW_INPUTS.json')['files_sha256'].items():
+            path = (output/name).resolve()
+            if not path.is_relative_to(output.resolve()) or sha(path) != digest:
+                raise ValueError('Completed council evidence changed')
+        return read(output/'selection.json')
+    write(output/'binding.json', binding)
+    caller = caller if isinstance(caller, BoundedCaller) else BoundedCaller(caller) if caller else BoundedCaller()
+    reports, timings, failures = {}, {}, {}
+    def worker(spec, data):
+        started = time.time()
+        report = plan_population(data, output/'analysts'/spec['group_id'], config,
+            hypotheses=2, anchor=spec['anchor_ticks'], group_history=spec.get('group_history', []),
+            published_reflections=published_reflections, skill=analyst_skill, caller=caller)
+        return report, {'start': started, 'end': time.time()}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        futures = {pool.submit(worker, spec, data): spec['group_id'] for spec, data in zip(specs, private)}
+        for future in concurrent.futures.as_completed(futures):
+            gid = futures[future]
+            try:
+                reports[gid], timings[gid] = future.result()
+            except Exception as exc:
+                # Error type/message only: API layer already excludes credentials.
+                failures[gid] = {'error_type': type(exc).__name__, 'message': str(exc)}
+    write(output/'analyst_timing.json', timings)
+    if failures:
+        write(output/'analyst_failures.json', failures)
+        raise RuntimeError('An isolated analyst failed; synthesis was not run; completed requests are retained')
+    evidence, proposals, groups = {}, {}, []
+    group_records = []
+    for spec, data in zip(specs, private):
+        gid = spec['group_id']
+        report = reports[gid]
+        tools = PopulationTools(data, output/'analysts'/gid/'tools')
+        records = tools.records('latest')
+        group_records.append(records)
+        report_id = gid+':analysis'
+        evidence[report_id] = {'population_diagnosis': report['population_diagnosis'],
+                              'memory_update': report['memory_update'], 'observed_results': score_summary(records)}
+        groups.append({'group_id': gid, 'anchor_ticks': spec['anchor_ticks'], 'report_evidence_id': report_id,
+                       'observed_results': score_summary(records),
+                       'local_proposal_ids': [gid+':'+j['id'] for j in report['jobs']]})
+        for j in report['jobs']:
+            key = gid+':'+j['id']
+            proposals[key] = {k: j[k] for k in ['ticks', 'direction', 'exploration_degree', 'hypothesis',
+                'expected_mean_effect', 'expected_best_effect', 'falsifier', 'evidence_ids']}
+            proposals[key]['group_id'] = gid
+            for eid in j['evidence_ids']:
+                f = output/'analysts'/gid/'tools'/(eid.removeprefix('tool:')+'.json')
+                value = read(f)
+                if value['evidence_id'] != eid:
+                    raise ValueError('Analyst cited a mismatched tool record')
+                evidence[gid+':'+eid] = value
+            proposals[key]['evidence_ids'] = [gid+':'+e for e in j['evidence_ids']]
+    if len({tuple(p['ticks']) for p in proposals.values()}) < 4:
+        write(output/'insufficient_distinct_proposals.json', proposals)
+        raise ValueError('Fewer than four distinct schedules; keep private proposals, do not invent extra hypotheses')
+    for a in range(4):
+        for b in range(a+1, 4):
+            evidence[f'paired:G{a+1}:G{b+1}'] = paired(group_records[a], group_records[b])
+    payload = {'teacher_id': teacher, 'observed_round': round_no, 'groups': groups, 'proposals': proposals,
+        'evidence': evidence, 'earlier_published_reflections': published_reflections,
+        'priority': ['mean_pic50', 'best_pic50'], 'next_group_count': 4, 'candidates_per_group': 100,
+        'parent_policy': 'Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.'}
+    messages = [{'role': 'system', 'content': synthesis_skill.read_text(encoding='utf-8')},
+                {'role': 'user', 'content': canonical(payload)}]
+    schema = synthesis_schema(list(proposals), list(evidence))
+    size = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
+    if size > config['llm']['input_hard_tokens']:
+        raise ValueError('Synthesis evidence exceeds the explicit input budget; evidence preserved without silent truncation')
+    def validate(result):
+        jsonschema.validate(result, schema)
+        try:
+            validate_synthesis(result, proposals)
+        except ValueError as exc:
+            raise jsonschema.ValidationError(str(exc)) from exc
+    write(output/'synthesis.evidence.json', payload)
+    result = caller(messages, schema, output/'synthesis.json', model=config['llm']['model'],
+        timeout=config['llm']['timeout'], attempts=config['llm']['attempts'],
+        max_output_tokens=config['llm']['max_output_tokens'], thinking=config['llm']['thinking'],
+        reasoning_effort=config['llm']['reasoning_effort'], input_store=output/'synthesis_inputs', response_validator=validate)
+    validate(result)
+    # A separate publication document is the only cross-group memory fed back later.
+    write(output/'reflection.json', result)
+    memory = {'teacher_id': teacher, 'published_after_round': round_no,
+              'text': result['public_memory'], 'source_reflection_sha256': sha(output/'reflection.json')}
+    write(output/'published_memory.json', memory)
+    markdown = [f'# {teacher} / round {round_no}: synthesis', '', result['comparison'], '',
+                '## Failed directions and uncertainty', '', result['failure_directions'], '',
+                '## Ranked selections', '']
+    for rank, selection in enumerate(result['selected'], 1):
+        p = proposals[selection['proposal_id']]
+        markdown.extend([f"{rank}. {selection['proposal_id']} — amplitudes {[x/10 for x in p['ticks']]}",
+                         f"   Mean: {selection['mean_reason']} Best: {selection['best_reason']}",
+                         f"   Uncertainty: {selection['risk_and_uncertainty']}", ''])
+    markdown.extend(['## Memory for later rounds', '', result['public_memory'], ''])
+    temp = output/'reflection.md.tmp'
+    temp.write_text('\n'.join(markdown), encoding='utf-8')
+    temp.replace(output/'reflection.md')
+    selection = {'schema': 'plip-council-selection-v1', 'teacher_id': teacher, 'observed_round': round_no,
+        'candidates_per_group': 100, 'logical_llm_sessions': 5,
+        'jobs': [{'priority': i+1, 'source_proposal_id': row['proposal_id'],
+                  'ticks': proposals[row['proposal_id']]['ticks']} for i, row in enumerate(result['selected'])],
+        'parent_policy': payload['parent_policy'], 'published_memory_sha256': sha(output/'published_memory.json'),
+        'binding_sha256': sha(output/'binding.json'), 'formal_gpu_executed': False}
+    write(output/'selection.json', selection)
+    # Master GPT can enumerate every actual prompt, receipt, tool and reflection;
+    # this index is evidence for review, never a fabricated review approval.
+    inventory = {p.relative_to(output).as_posix(): sha(p) for p in sorted(output.rglob('*'))
+                 if p.is_file() and p.name not in {'MASTER_REVIEW_INPUTS.json', 'COMPLETE.json'}}
+    write(output/'MASTER_REVIEW_INPUTS.json', {'teacher_id': teacher, 'observed_round': round_no,
+        'groups': 4, 'proposals': 8, 'selected': 4, 'files_sha256': inventory, 'reviewed_by_master': False})
+    write(output/'COMPLETE.json', {'selection_sha256': sha(output/'selection.json'),
+        'review_inputs_sha256': sha(output/'MASTER_REVIEW_INPUTS.json'), 'time': time.time()})
+    return selection
