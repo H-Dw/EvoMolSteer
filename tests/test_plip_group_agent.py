@@ -87,6 +87,11 @@ def test_one_teacher_session_requests_tools_then_proposes_four_shared_schedules(
         return response
     result = plan_population(population(), tmp_path, defaults(), caller=caller)
     assert len(calls) == 2  # no per-candidate API calls
+    contract = json.loads(calls[0][1]['content'])['action_contract']
+    assert contract['max_changed_intervals'] == 2
+    assert contract['default_max_absolute_tick_change'] == 1
+    assert contract['tick_to_amplitude'] == .1
+    assert contract['ids_in_order'] == ['H1', 'H2', 'H3', 'H4']
     assert len(result['jobs']) == 4 and result['candidate_attempts_if_executed'] == 400
     assert result['planning_only'] and not result['gpu_executed']
     assert len(result['parents']) == 100

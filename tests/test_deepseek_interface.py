@@ -34,6 +34,30 @@ def test_wrong_provider_model_cannot_be_a_valid_role_call(tmp_path, monkeypatch)
     assert path.with_suffix(".model_mismatch_1.json").exists()
 
 
+def test_bare_application_validation_error_is_recorded_and_repaired(tmp_path, monkeypatch):
+    import jsonschema
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only-key")
+    schema = {"type": "object", "properties": {"ticks": {"type": "array"}}, "required": ["ticks"]}
+    requests = []
+    def handler(request):
+        body = json.loads(request.content); requests.append(body)
+        if len(requests) == 1:
+            return response('{"ticks":[8,8,8,8]}')
+        diagnostics = json.loads(body['messages'][-1]['content'].split('\n', 1)[1])['validation_errors']
+        assert diagnostics['validator'] == 'application_contract'
+        assert diagnostics['reason'] == 'Change at most two intervals relative to the common anchor'
+        return response('{"ticks":[6,5,5,5]}')
+    def validate(result):
+        if sum(t != 5 for t in result['ticks']) > 2:
+            raise jsonschema.ValidationError('Change at most two intervals relative to the common anchor')
+    path = tmp_path/'group.json'
+    assert call_json([], schema, path, transport=httpx.MockTransport(handler),
+                     response_validator=validate) == {'ticks': [6,5,5,5]}
+    invalid = read_json(path.with_suffix('.attempt_1.invalid.receipt.json'))
+    assert invalid['valid'] is False and invalid['diagnostics']['validator'] == 'application_contract'
+    assert len(requests) == 2
+
+
 def test_historical_extra_field_has_specific_neutral_repair(tmp_path, monkeypatch):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only-key")
     original = HISTORICAL.read_text(encoding="utf-8")

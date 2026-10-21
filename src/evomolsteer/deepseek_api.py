@@ -35,7 +35,14 @@ def validation_diagnostics(error):
         return result
     pointer = lambda path: "/" + "/".join(str(v).replace("~", "~0").replace("/", "~1") for v in path) if path else ""
     info = {"error_type": "ValidationError", "instance_pointer": pointer(error.absolute_path),
-            "schema_pointer": pointer(error.absolute_schema_path), "validator": error.validator}
+            "schema_pointer": pointer(error.absolute_schema_path),
+            "validator": error.validator if isinstance(error.validator, str) else "application_contract"}
+    # Application validators may raise ValidationError(message) without schema
+    # metadata. jsonschema uses an opaque Unset sentinel for those attributes.
+    # Preserve the actionable reason rather than trying to serialize that object.
+    if not isinstance(error.validator, str):
+        info["reason"] = str(error.message)[:2000]
+        return info
     if error.validator in {"additionalProperties", "required"}:
         info["allowed_properties"] = sorted(error.schema.get("properties", {}))
         if error.validator == "additionalProperties":
