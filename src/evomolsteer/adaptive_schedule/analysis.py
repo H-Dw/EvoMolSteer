@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 
 from .io import read, write, eligible, sha
+from .comparisons import validity_transitions, shared_batch_bootstrap
 
 
 def distribution(records, teacher_score, deduplicate=False):
@@ -114,6 +115,10 @@ def analyze(root, version):
                    "teacher_interactions": len(teacher["interactions"]),
                    "teacher_core_coverage": len(teacher["core_atoms"]) / len(teacher["coords_A"])}
             row["delta_r0"] = row["best"] - row["r0"] if row["best_eligible"] and row["r0_eligible"] else None
+            final = chain["history"][config["rounds"]]["record"] if len(chain["history"]) > config["rounds"] else None
+            row["fixed_final"] = final.get("pic50_on_rescore") if final else None
+            row["fixed_final_eligible"] = eligible(final) if final else None
+            row["fixed_final_delta_r0"] = row["fixed_final"] - row["r0"] if row["fixed_final_eligible"] and row["r0_eligible"] else None
             chains_flat.append(row)
             for item in chain["history"]:
                 trials.append({"teacher_id": teacher["teacher_id"], "slot": chain["slot"],
@@ -125,6 +130,8 @@ def analyze(root, version):
                                "improved_incumbent": item.get("improved_incumbent")})
         deltas = [r["delta_r0"] for r in chains_flat if r["teacher_id"] == teacher["teacher_id"] and r["delta_r0"] is not None]
         paired.append({"teacher_id": teacher["teacher_id"], "pairs": len(deltas),
+                       "validity_transitions_r0_to_selected": validity_transitions(initial, selected),
+                       "validity_transitions_r0_to_fixed_final": validity_transitions(initial, final_rows) if len(final_rows) == expected else None,
                        "mean_delta": float(np.mean(deltas)) if deltas else None,
                        "median_delta": float(np.median(deltas)) if deltas else None,
                        "win_fraction": float(np.mean(np.array(deltas) > 0)) if deltas else None,
@@ -149,6 +156,20 @@ def analyze(root, version):
         bootstrap.append({"teacher": teacher["teacher_id"], "paired_seed_batches": len(batch_means),
                           "exploratory_mean_delta_ci": ci})
     write(folder / "batch_bootstrap.json", bootstrap)
+    teacher_ids = [t["teacher_id"] for t in read(root / "teachers.json")]
+    write(folder / "shared_batch_bootstrap.json", [shared_batch_bootstrap(chains_flat, teacher_ids, key)
+          for key in ["delta_r0", "fixed_final_delta_r0"]])
+    aggregate = []
+    for arm in sorted({r["arm"] for r in summaries}):
+        group = [r for r in summaries if r["arm"] == arm and not r["deduplicated"]]
+        if len(group) != len(teacher_ids):
+            continue
+        aggregate.append({"arm": arm, "teacher_count": len(group),
+            "shared_baseline": arm in ["steer", "unguided"],
+            "complete_100_slots_each": all(r["attempts"] == 100 for r in group),
+            **{key: float(np.mean([r[key] for r in group])) if all(r[key] is not None for r in group) else None
+               for key in ["mean", "best", "top10_mean"]}})
+    write(folder / "teacher_equal_summary.json", aggregate)
     comparison = []
     other = root / "analysis/v1/chains.csv"
     if version == "v2" and other.exists():
@@ -159,8 +180,15 @@ def analyze(root, version):
             if key in old:
                 previous = old[key]
                 d = row["best"] - float(previous["best"]) if row["best_eligible"] and previous["best_eligible"] == "True" else None
-                comparison.append({"teacher_id": key[0], "batch": key[1], "slot": key[2], "delta_v2_v1": d})
+                old_valid, new_valid = previous["best_eligible"] == "True", row["best_eligible"]
+                fixed_valid = previous.get("fixed_final_eligible") == "True" and row["fixed_final_eligible"]
+                comparison.append({"teacher_id": key[0], "batch": key[1], "slot": key[2], "delta_v2_v1": d,
+                    "v1_eligible": old_valid, "v2_eligible": new_valid,
+                    "invalid_to_valid": not old_valid and new_valid, "valid_to_invalid": old_valid and not new_valid,
+                    "fixed_final_delta_v2_v1": row["fixed_final"] - float(previous["fixed_final"]) if fixed_valid else None})
         write_csv(folder / "paired_v2_v1.csv", comparison)
+        write(folder / "paired_v2_v1_bootstrap.json", [shared_batch_bootstrap(comparison, teacher_ids, key)
+              for key in ["delta_v2_v1", "fixed_final_delta_v2_v1"]])
     lines = [f"# PLIP幅度调度：{version}", "",
              "主要系统输出指标为每条链TOP1构成的Mean，同时报告Best和Top10；完整固定轮次R10的Mean用于区分实际生成分布与跨轮择优收益。",
              "fixed_round_distributions.csv保留每轮未做跨轮择优的结果。latest在未完成时可能混合轮次，不作为完整R10。历史基线及跨教师共享初态不重复计作独立样本。",

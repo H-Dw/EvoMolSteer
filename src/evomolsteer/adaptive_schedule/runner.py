@@ -318,11 +318,10 @@ def run(root, version, skill=None, teacher_id=None, batch_index=None):
     gradient = read(root / "validation/gradient_checks.json")
     if not gradient.get("passed") or gradient.get("source_fingerprint") != source_fingerprint():
         raise ValueError("Exact deployed source has not passed saved-state gradient checks")
-    if version == "v2" and not (root / "versions/v1/COMPLETE.json").exists():
-        raise ValueError("V2 requires a complete V1 cohort and main-agent review")
-    if version == "v2" and not (root / "versions/v2/review_approval.json").exists():
-        raise ValueError("V2 requires the committed main-agent review coverage and skill revision")
     skill = skill or repository() / "skills/plip-schedule-optimizer/SKILL.md"
+    if version == "v2":
+        from .review_gate import validate_review
+        validate_review(root, config, skill)
     frozen_skill = bind_version(root, version, skill)
     all_templates = read(root / "teachers.json")
     templates = all_templates

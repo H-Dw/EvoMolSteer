@@ -1,7 +1,22 @@
 # 5nn4 Top1/2/3：四区间幅度调度，Mean优先、Best次之
 
-目标服务器固定为 `ssh -p 10104 root@ksai.scnet.cn`。密钥从服务器工作进程环境变量
-`DEEPSEEK_API_KEY`读取；SSH密码不写入文件。10399端口不用于本实验。
+目标服务器改为 `ssh -p 11762 root@ssh.zzai.scnet.cn`。密钥从服务器工作进程环境变量
+`DEEPSEEK_API_KEY`读取；SSH密码不写入文件。旧10104仅用于取得原权重和安全停止旧任务，10399不用于本项目。
+
+## 11762完整重跑与交接
+
+用户选择在新服务器从原始初态完整开展R0、V1、V2，旧服务器调度结果不混入新实验。
+工作区仍为`/opt/MolSteer`，FLOWR实际目录为`/opt/MolSteer/flowr_root`。
+新服务器的历史基线、教师及蛋白文件存在，五批初态文件哈希和种子均已核验；API密钥可被子进程继承。
+原生采样器哈希与历史相同。现有v2.2权重不同，必须补齐原v2权重，SHA256严格等于
+`f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0`；缺失或不符时不启动。
+本地原权重缓存与该哈希完全一致，可安全上传；传输后再次校验并原子发布。
+
+新部署使用固定Git提交和新服务器独立结果目录。先运行`background --preflight-only`，
+通过环境、全部恢复及梯度验收并生成`PREFLIGHT_COMPLETE.json`后，核对旧任务PID/启动参数/进程组，
+安全停止旧任务、保存交接记录，再启动正式V1。旧结果保留，不迁移旧优化历史或旧R0。
+`deployment_environment.json`记录新服务器地址、主机、GPU、Python/Torch/HIP和依赖版本、模型与采样器哈希。
+历史初态内嵌路径只作来源信息；执行使用当前配置和已核验的原始张量，不改写历史文件。
 
 ## 冻结的科学协议
 
@@ -122,7 +137,7 @@ V2复用相同R0并清空候选记忆，不直接移植V1的teacher/slot最优�
 ## 运行与交付
 
 统一入口 `python -m evomolsteer.adaptive_schedule.cli`：
-prepare、validate、run --skill-version v1|v2 --resume、profile、compact、status、review-pack、analyze。
+prepare、validate、run --skill-version v1|v2 --resume、profile、compact、status、review-pack、review-check、analyze。
 远端shell入口 `scripts/run_plip_adaptive.sh`，传入background启动监督进程。
 新协议结果根目录 `/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021/`。
 最早十教师V1的原结果目录和部署目录在当前容器中缺失；后来启动的四教师V1已停止并保留现有数据。
@@ -142,8 +157,11 @@ PLIP恢复/新互作、局部几何和类型/电荷、唯一性、耗时和LLM�
 仅完成部分链时，逐轮报告实际完成数，不将旧结果前向填充为未执行轮次；未满100条的R10不标记为完整。
 教师互作数量、教师pIC50与难度的关联仅有三个教师且两条来源谱系，只作描述，不进行强统计推断。
 
-远端作业可脱离SSH独立运行。2026-10-21依用户要求删除了本线程定时任务`plip`，
-不自动检查状态或唤醒GPT复盘；后续由显式调用推进。V2仍须完成真实全量复盘后才能启动。
+远端作业可脱离SSH独立运行。此前定时任务已删除，本次依新指令恢复附着本线程的定时推进：
+初始每2小时，按真实耗时调整至1–6小时；巡检11762上的新实验，健康无变化时安静。
+V1完成后按审阅覆盖记录逐片推进，提交改进技能并核验后启动V2；V2交付完整报告后删除定时任务。
+V2必须通过`review-check`：核对全部3000条决策、实际prompt证据哈希、每条审阅意见及证据引用、
+全部分片、复盘文档和技能的Git提交内容，以及V1完成/质量清理状态；不接受仅存在的批准文件。
 存储优化不能替代持久化备份；当前`/opt`结果曾随容器回退而缺失，重新开展长任务前应确定持久化保存位置。
 完整checkpoint重启、RNG隔离、调度边界、原生路径、位移上限、失败恢复和统计口径必须验收。
 

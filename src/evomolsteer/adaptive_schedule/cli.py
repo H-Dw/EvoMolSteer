@@ -11,11 +11,13 @@ def main():
     subs = p.add_subparsers(dest="command", required=True)
     for name in ["prepare", "validate", "status"]:
         subs.add_parser(name)
-    for name in ["run", "analyze", "review-pack", "profile", "compact"]:
+    for name in ["run", "analyze", "review-pack", "review-check", "profile", "compact"]:
         s = subs.add_parser(name)
         s.add_argument("--skill-version", choices=["v1", "v2"], default="v1")
         if name == "profile":
             s.add_argument("--watch", action="store_true")
+        if name == "review-check":
+            s.add_argument("--skill", type=Path)
         if name == "run":
             s.add_argument("--skill", type=Path)
             s.add_argument("--teacher")
@@ -37,6 +39,12 @@ def main():
     elif args.command == "review-pack":
         from .analysis import review_pack
         result = review_pack(args.root, args.skill_version)
+    elif args.command == "review-check":
+        from .runner import assert_prepared
+        from .io import repository
+        from .review_gate import validate_review
+        result = validate_review(args.root, assert_prepared(args.root),
+                                 args.skill or repository() / "skills/plip-schedule-optimizer/SKILL.md")
     elif args.command == "profile":
         from .quality import profile
         result = profile(args.root, args.skill_version, args.watch)

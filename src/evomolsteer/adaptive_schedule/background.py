@@ -14,6 +14,7 @@ def main():
     p.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     p.add_argument("--skill-version", choices=["v1", "v2"], default="v1")
     p.add_argument("--skill", type=Path)
+    p.add_argument("--preflight-only", action="store_true")
     opt = p.parse_args()
     root = opt.root
     if not (root / "PREPARED.json").exists():
@@ -23,9 +24,14 @@ def main():
     import fcntl
     with (root / "supervisor.lock").open("a") as lock:
         fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        from .runner import assert_prepared
+        from .environment import record_environment
+        config = assert_prepared(root)
+        environment = record_environment(root, config)
         write(root / "launch.json", {"pid": os.getpid(), "start_time": time.time(), "commit": commit(),
                                     "repository": str(repository()), "version": opt.skill_version,
-                                    "ssh_port": 10104, "api_key_present": True})
+                                    "ssh": config["ssh"], "hostname": environment["hostname"],
+                                    "ssh_port": config["ssh"]["port"], "api_key_present": True})
         base = [sys.executable, "-B", "-m", "evomolsteer.adaptive_schedule.cli", "--root", str(root)]
         if not (root / "VALIDATED.json").exists():
             write(root / "status.json", {"phase": "validating", "time": time.time()})
@@ -36,6 +42,11 @@ def main():
             write(root / "status.json", {"phase": "checking_gradients", "time": time.time()})
             subprocess.run([sys.executable, "-B", str(repository() / "scripts/check_plip_adaptive_gradients.py"),
                             "--root", str(root)], check=True)
+        if opt.preflight_only:
+            write(root / "PREFLIGHT_COMPLETE.json", {"commit": commit(), "source_fingerprint": source_fingerprint(),
+                  "environment": environment, "time": time.time(), "scientific_worker_started": False})
+            write(root / "status.json", {"phase": "ready_for_handoff", "time": time.time()})
+            return
         command = base + ["run", "--skill-version", opt.skill_version, "--resume"]
         if opt.skill:
             command += ["--skill", str(opt.skill)]

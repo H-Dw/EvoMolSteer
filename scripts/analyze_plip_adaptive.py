@@ -152,6 +152,46 @@ def report(root, version):
             write(case_dir / "case.json", case)
             cases.append(case)
     write_csv(folder / "teacher_effects.csv", cohort)
+    # Predeclare examples beyond the maximum. Failed raw structures may have been
+    # pruned; their saved numerical features and quality evidence remain available.
+    case_selections = []
+    for teacher in teachers:
+        histories = []
+        for p in sorted((root / "versions" / version / teacher["teacher_id"]).glob("batch_*/histories.json")):
+            histories.extend(read(p))
+        winners = [(c, next(h for h in c["history"] if h["id"] == c["best_id"])) for c in histories]
+        valid = [(c, h) for c, h in winners if eligible(h["record"])]
+        improving = sorted([(c, h) for c, h in valid if eligible(c["history"][0]["record"])
+                            and h["record"]["pic50_on_rescore"] > c["history"][0]["record"]["pic50_on_rescore"]],
+                           key=lambda x: x[1]["record"]["pic50_on_rescore"] - x[0]["history"][0]["record"]["pic50_on_rescore"])
+        chosen = []
+        if valid:
+            chosen.append(("highest_score", *max(valid, key=lambda x: x[1]["record"]["pic50_on_rescore"])))
+        if improving:
+            chosen.append(("median_positive_improvement", *improving[(len(improving)-1)//2]))
+        failures = []
+        for c in histories:
+            for h in c["history"][1:]:
+                q = metrics(root, h["branch"], c["slot"], teacher)
+                if not eligible(h["record"]) or q.get("posebusters_pass") is False or q.get("severe_clash"):
+                    failures.append((c, h))
+        if failures:
+            chosen.append(("failure_or_quality_conflict", *failures[0]))
+        elif histories:
+            worst = min([(c, h) for c, h in valid if eligible(c["history"][0]["record"])],
+                        key=lambda x: x[1]["record"]["pic50_on_rescore"] - x[0]["history"][0]["record"]["pic50_on_rescore"], default=None)
+            if worst:
+                chosen.append(("smallest_gain_no_failure_observed", *worst))
+        for role, chain, item in chosen:
+            case_selections.append({"teacher_id": teacher["teacher_id"], "role": role,
+                "batch": item["record"]["batch"], "slot": chain["slot"], "round": item["id"],
+                "record": item["record"], "r0": chain["history"][0]["record"], "ticks": item["ticks"],
+                "raw_retained_as_top1": item["id"] == chain["best_id"],
+                "branch": item["branch"], "quality": metrics(root, item["branch"], chain["slot"], teacher),
+                "terminal_features": node(root, item["branch"], 100, chain["slot"]),
+                "history": [{"id": h["id"], "ticks": h["ticks"], "record": h["record"],
+                             "proposal": h.get("proposal")} for h in chain["history"]]})
+    write(folder / "case_selection.json", case_selections)
     write_csv(folder / "optimization_curves.csv", curves)
     associations = {}
     for group in ["all"] + sorted({r["target"] for r in cohort}):

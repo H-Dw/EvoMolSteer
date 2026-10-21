@@ -6,8 +6,8 @@ from pathlib import Path
 
 ROOT = Path(os.environ.get('PLIP_GUIDANCE_ROOT', '/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020'))
 HIST = Path('/opt/MolSteer/generated_datasets/analysis_hiqbind_examples_20261020/examples')
-FLOWR = Path('/root/private_data/MolSteer/flowr_root')
-REPO = Path('/root/private_data/MolSteer/EvoMolSteer')
+FLOWR = Path('/opt/MolSteer/flowr_root')
+REPO = Path(__file__).resolve().parents[4]
 CHECKPOINT = FLOWR/'checkpoints/flowr_root_v2.ckpt'
 EXPECTED_CHECKPOINT = 'f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0'
 EXPECTED_SAMPLER = 'beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426'

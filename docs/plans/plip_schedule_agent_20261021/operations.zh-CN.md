@@ -1,14 +1,15 @@
 # 后台运行与主 Agent 接续
 
-目标服务器固定为 `root@ksai.scnet.cn:10104`。凭据仅使用本线程已提供的信息；
+当前唯一实验服务器为 `root@ssh.zzai.scnet.cn:11762`。凭据仅使用本线程已提供的信息；
 DeepSeek 密钥由远端环境变量 `DEEPSEEK_API_KEY` 读取，不写入仓库。
+旧10104服务器仅用于原权重取得与安全停止旧任务；其结果不得计入新机实验。
 
 结果根目录：
 `/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021`
 
-这是5nn4原Top1/2/3三教师、逐链TOP1协议的新目录，不是原V1结果的恢复。2026-10-21核验时原V1结果目录及
-原部署目录在当前容器中均不存在；当前`/opt/MolSteer`为较早快照，不能据此推断实验已完整完成。
-不要重新prepare旧目录或用旧VALIDATED标记启动新代码。
+这是11762新机的完整重跑，使用5nn4原Top1/2/3三教师、逐链TOP1协议，保持相同目录名称。
+新机核验时该目录及旧部署不存在；历史基线、教师及初态存在。不要将同名目录与旧机进度混淆，
+也不要复用旧机VALIDATED或优化历史。FLOWR位于`/opt/MolSteer/flowr_root`。
 
 Git 分支：`codex/plip-adaptive-schedule`。
 远端每次使用 `/opt/MolSteer/runtimes/` 下的固定 commit checkout，保留运行中的旧 checkout。
@@ -22,10 +23,12 @@ Git 分支：`codex/plip-adaptive-schedule`。
 bash scripts/run_plip_adaptive.sh prepare
 bash scripts/run_plip_adaptive.sh validate
 bash scripts/run_plip_adaptive.sh check-gradients
+bash scripts/run_plip_adaptive.sh background --skill-version v1 --preflight-only
 bash scripts/run_plip_adaptive.sh background --skill-version v1
 bash scripts/run_plip_adaptive.sh status
 bash scripts/run_plip_adaptive.sh analyze --skill-version v1
 bash scripts/run_plip_adaptive.sh review-pack --skill-version v1
+bash scripts/run_plip_adaptive.sh review-check --skill-version v2
 bash scripts/run_plip_adaptive.sh report --skill-version v1
 bash scripts/run_plip_adaptive.sh compact --skill-version v1
 ```
@@ -91,16 +94,31 @@ nohup setsid bash scripts/run_plip_adaptive.sh background --skill-version v1 > "
    新技能 SHA256、Git commit 和修改理由。文件必须对应真实完成的审阅。
 7. 使用新技能启动 `background --skill-version v2`，复用原 R0，清空 V2 候选记忆。
 
+严格批准文件使用schema=1。字段为`manifest_sha256`、`finalized_sha256`、`v1_binding_sha256`、
+`review_commit`（部署的40位commit）、`skill_path`（仓库相对路径）、`skill_sha256`、
+`review_document`、`review_document_sha256`及`coverage`。
+coverage每项包含原manifest的`path`与`sha256`，以及已提交的仓库相对`review_file`和`review_sha256`。
+每份review_file是JSON，包含`shard_sha256`和`decisions`；每条decision必须有原`teacher/batch/slot/id`、
+非空实质性`assessment`及实际prompt中的`evidence_ids`，不得以自动填充套话冒充主Agent审阅。
+审阅文档、逐片review文件和改进skill先在本地提交并推送；远端固定到该commit后，才写入包含该commit的批准文件。
+批准文件自身保存在结果目录，不写入凭据。`review-check`验证Git中与磁盘上的内容一致，
+每次V2运行也强制执行同一校验；缺少全量完成状态、重复/遗漏决策或哈希变化均拒绝启动。
+
+新增统计文件`teacher_equal_summary.json`和`shared_batch_bootstrap.json`按教师等权并同步重采样共享五批；
+配对表记录有效性转换及固定R10差异。`case_selection.json`保留最高分、改善幅度中位数及失败/质量冲突案例。
+已清理失败轨迹仅展示其分析文档和保存的局部特征，不声称保留了原始完整结构。
+
 V2结束后比较TOP1系统输出及固定R10生成分布的Mean、Best、Top10、恢复率、质量和成本；
 `fixed_round_distributions.csv`保存全部轮次的未跨轮择优统计，部分完成状态不填充未执行轮次。
 分析教师PLIP数量、核心覆盖率、教师pIC50与改善难度的关系时明确仅有三位教师、两个来源谱系。
 结果限定于这一个target、三个经筛选教师和同一组开发种子，历史100个Unguided/Steer不重复计数。
 
-## 定时任务已删除
+## 恢复定时推进
 
-2026-10-21按用户要求删除ID为`plip`的定时任务。不自动巡检，不自动唤醒主Agent；
-统一复盘和V2启动需要后续显式执行，但覆盖台账和review approval要求保持不变。
-本次用户已指定开展5nn4三教师四区间V1探索；通过原生重启与梯度验收后由后台流程进入迭代。V2仍等待真实全量复盘，不自动跳过审阅。
+用户最新指令授权恢复附着本线程的定时任务，默认每2小时，按耗时调整至1–6小时。
+巡检只连接11762，读取全部批次完成数、错误是否已恢复、进程身份、质量状态和磁盘增长。
+健康无实质变化时安静；V1复盘就绪后按完整覆盖台账推进技能修订及V2启动。
+V2报告交付后删除任务。不能跳过真实全量审阅或在轮次中更改冻结技能。
 
 代码异常在本地修复、提交并推送后再部署。成功分支和成功 API 调用复用；
 请求、响应、失败记录不得被不同输入覆盖。预检分析保留，验证成功后清理其临时结构载荷。

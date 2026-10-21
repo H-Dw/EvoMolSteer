@@ -14,8 +14,11 @@ if __name__ == "__main__":
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     parser.add_argument("--skill-version", choices=["v1", "v2"], default="v1")
     parser.add_argument("--skill", type=Path)
+    parser.add_argument("--preflight-only", action="store_true")
     options = parser.parse_args()
     main()
+    if options.preflight_only:
+        raise SystemExit(0)
     # Histories can advance between a watcher scan and its completion check.
     # A final, non-watching drain ensures the last committed round is profiled.
     profile(options.root, options.skill_version, watch=False)

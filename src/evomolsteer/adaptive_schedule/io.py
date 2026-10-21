@@ -82,8 +82,9 @@ def defaults():
     from .cohort import TEACHERS
     from .grid import INITIAL_TICKS, CHECKPOINT_STEPS, CONTROL_NODES, description
     return {
-        "schema": "plip-adaptive-schedule-5nn4-r123-i4-v4", "ssh": {"host": "ksai.scnet.cn", "port": 10104, "user": "root"},
-        "history": str(HISTORY), "flowr": "/root/private_data/MolSteer/flowr_root",
+        "schema": "plip-adaptive-schedule-5nn4-r123-i4-11762-v5",
+        "ssh": {"host": "ssh.zzai.scnet.cn", "port": 11762, "user": "root"},
+        "history": str(HISTORY), "flowr": "/opt/MolSteer/flowr_root",
         "targets": list(TARGETS), "teacher_selection": [dict(t) for t in TEACHERS],
         "seeds": list(SEEDS), "batch_size": 20, "batches": 5, "steps": 100,
         "features": "C", "mode": "endpoint", "initial_ticks": list(INITIAL_TICKS), "rounds": 10,
