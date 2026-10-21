@@ -28,8 +28,10 @@ def evaluate_quality(folder, template, pool):
         if read(folder/'QUALITY_COMPLETE.json')['records_sha256'] != sha(folder/'quality_records.json'):
             raise ValueError('Quality records changed')
         return read(folder/'quality_records.json')
-    molecules = {int(m.GetProp('slot')): m for m in Chem.SDMolSupplier(
-        str(folder/'molecules_all_built.sdf'), removeHs=True) if m is not None and m.HasProp('slot')}
+    sdf = folder/'molecules_all_built.sdf'
+    molecules = ({int(m.GetProp('slot')): m for m in Chem.SDMolSupplier(
+        str(sdf), removeHs=True) if m is not None and m.HasProp('slot')}
+        if sdf.exists() and sdf.stat().st_size else {})
     tasks = []
     for i, r in enumerate(records):
         out = folder/'profiles'/f'slot_{i:03d}'
@@ -133,8 +135,9 @@ def materialize_snapshot(parent, wave, folder, best, winners):
     write(folder/'steps.json', [merged_doc(steps_a[s], steps_b.get(s), s) for s in range(100)])
     mols = []
     for source in [parent, wave]:
-        mols.append({int(m.GetProp('slot')): m for m in Chem.SDMolSupplier(str(source/'molecules_all_built.sdf'), removeHs=False)
-                     if m is not None and m.HasProp('slot')})
+        sdf = source/'molecules_all_built.sdf'
+        mols.append({int(m.GetProp('slot')): m for m in Chem.SDMolSupplier(str(sdf), removeHs=False)
+                     if m is not None and m.HasProp('slot')} if sdf.exists() and sdf.stat().st_size else {})
     writer = Chem.SDWriter(str(folder/'molecules_all_built.sdf'))
     try:
         for i, winner in enumerate(winners):

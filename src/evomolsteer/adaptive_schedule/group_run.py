@@ -161,6 +161,11 @@ def run(root, version):
     from .teacher_pipeline import run_teacher_pipeline
     root = Path(root)
     config = assert_prepared(root)
+    if version not in config['versions']:
+        raise ValueError('Version outside authorized budget')
+    if version != 'v1':
+        from .group_review import review_check
+        review_check(root, version)
     acceptance = read(root/'ACCEPTANCE_COMPLETE.json')
     if acceptance['source_fingerprint'] != source_fingerprint() or acceptance['config_sha256'] != sha(root/'config.json'):
         raise ValueError('Acceptance does not cover this runtime/config')
