@@ -52,11 +52,13 @@ def step_allowances(history, parent_id):
     return allowances
 
 
-def validate_action(action, history, evidence_ids):
+def validate_action(action, history, evidence_ids, parent_ids=None):
     by_id = {x["id"]: x for x in history}
     parent = by_id.get(action["parent_id"])
     if parent is None:
         error("Parent is not in this candidate's immutable history")
+    if parent_ids is not None and action["parent_id"] not in parent_ids:
+        error("Only the retained incumbent is restartable; use past trials as documentary evidence")
     try:
         new = validate_ticks(action["ticks"])
         earliest(parent["ticks"], new)
@@ -78,10 +80,10 @@ def validate_action(action, history, evidence_ids):
     return earliest(parent["ticks"], new)
 
 
-def schema(history, evidence_ids):
+def schema(history, evidence_ids, parent_ids=None):
     string = {"type": "string", "minLength": 1}
     props = {
-        "parent_id": {"enum": [x["id"] for x in history]},
+        "parent_id": {"enum": parent_ids if parent_ids is not None else [x["id"] for x in history]},
         "ticks": {"type": "array", "minItems": 8, "maxItems": 8,
                   "items": {"type": "integer", "minimum": 0, "maximum": 10}},
         "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": True, "items": {"enum": evidence_ids}},

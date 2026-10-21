@@ -1,32 +1,28 @@
 """Independent CPU profiling queue; never imports the FLOWR sampler or its RNG."""
 import concurrent.futures
+import multiprocessing
 import time
 from pathlib import Path
 
 from .io import read, write
 
 
-def tasks(root, version):
+def selected_tasks(root, selections):
     from rdkit import Chem
-    teachers = {t["teacher_id"]: t for t in read(root / "teachers.json")}
     seen, wanted = set(), []
-    for p in sorted((root / "versions" / version).glob("*/batch_*/histories.json")):
-        template = teachers[p.parents[1].name]
-        for chain in read(p):
-            for h in chain["history"]:
-                slot = chain["slot"]
-                key = (h["branch"], slot)
-                if key in seen:
-                    continue
-                seen.add(key)
-                out = root / h["branch"] / "profiles" / f"slot_{slot:03d}"
-                if (out / "complete.json").exists() or (out / "failure.json").exists():
-                    continue
-                r = h["record"]
-                if not r.get("build_success"):
-                    write(out / "failure.json", {"reason": "builder_failed", "node_id": r["node_id"]})
-                    continue
-                wanted.append((h["branch"], slot, template, out, r["node_id"]))
+    for template, slot, h in selections:
+        key = (h["branch"], slot)
+        if key in seen:
+            continue
+        seen.add(key)
+        out = root / h["branch"] / "profiles" / f"slot_{slot:03d}"
+        if (out / "complete.json").exists() or (out / "failure.json").exists():
+            continue
+        r = h["record"]
+        if not r.get("build_success"):
+            write(out / "failure.json", {"reason": "builder_failed", "node_id": r["node_id"]})
+            continue
+        wanted.append((h["branch"], slot, template, out, r["node_id"]))
     # Read each generated SDF once per scan.
     by_branch = {}
     for relative, slot, template, out, node_id in wanted:
@@ -43,6 +39,29 @@ def tasks(root, version):
         yield {"molblock": block, "protein": template["protein"], "node_id": node_id, "out": str(out)}
 
 
+def tasks(root, version):
+    teachers = {t["teacher_id"]: t for t in read(root / "teachers.json")}
+    selections = ((teachers[p.parents[1].name], c["slot"], h)
+                  for p in sorted((root / "versions" / version).glob("*/batch_*/histories.json"))
+                  for c in read(p) for h in c["history"])
+    yield from selected_tasks(root, selections)
+
+
+def profile_chains(root, template, chains):
+    """Synchronous quality barrier: the worker cannot prune a pending profile input."""
+    import importlib.util
+    selections = [(template, c["slot"], h) for c in chains for h in c["history"]]
+    pending = list(selected_tasks(root, selections))
+    if not pending:
+        return
+    for module in ["plip", "posebusters", "openbabel"]:
+        if importlib.util.find_spec(module) is None:
+            raise RuntimeError("Quality dependency missing; retaining unprofiled structures: " + module)
+    # The caller owns a loaded GPU model: do not fork its CUDA/HIP/thread state.
+    with concurrent.futures.ProcessPoolExecutor(max_workers=2, mp_context=multiprocessing.get_context("spawn")) as pool:
+        list(pool.map(profile_one, pending, chunksize=1))
+
+
 def profile_one(task):
     from .vendor.profiling import profile_task
     try:
@@ -55,6 +74,19 @@ def profile_one(task):
 
 def profile(root, version, watch=False):
     root = Path(root)
+    from .retention import enabled
+    import contextlib
+    from .runner import lock
+    retention = enabled(read(root / "config.json"))
+    if watch and retention:
+        raise ValueError("TOP1 mode profiles synchronously before pruning; do not start a quality watcher")
+    # Standalone profiling cannot race the retention-owning GPU worker.
+    guard = lock(root) if retention else contextlib.nullcontext()
+    with guard:
+        return _profile(root, version, watch)
+
+
+def _profile(root, version, watch):
     count = 0
     with concurrent.futures.ProcessPoolExecutor(max_workers=2) as pool:
         while True:

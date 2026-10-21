@@ -12,6 +12,9 @@ def node(root, branch, step, slot, cache=None):
     if key in cache:
         return cache[key]
     folder = Path(root) / branch
+    manifest = read(folder / "manifest.json")
+    if manifest.get("payload_branch"):
+        return node(root, manifest["payload_branch"], step, slot, cache)
     nodes = read(folder / "nodes.json")
     if str(step) in nodes:
         row = nodes[str(step)]
@@ -28,6 +31,8 @@ def node(root, branch, step, slot, cache=None):
 def step_rows(root, branch, slot):
     folder = Path(root) / branch
     manifest = read(folder / "manifest.json")
+    if manifest.get("payload_branch"):
+        return step_rows(root, manifest["payload_branch"], slot)
     prefix = []
     if manifest["start_step"]:
         prefix = [r for r in step_rows(root, manifest["parents"][slot], slot) if r["step"] < manifest["start_step"]]
@@ -36,7 +41,7 @@ def step_rows(root, branch, slot):
     return prefix + suffix
 
 
-def packet(root, template, slot, history, best_id):
+def packet(root, template, slot, history, best_id, incumbent_only=False):
     ids, evidence, trajectories = [], {}, {}
     best = next(x for x in history if x["id"] == best_id)
     detailed_ids = {history[-1]["id"], best_id}
@@ -76,7 +81,11 @@ def packet(root, template, slot, history, best_id):
         "latest_id": history[-1]["id"], "evidence": evidence, "trajectories": trajectories,
         "step_diagnostics": diagnostics,
         "allowed_double_tick_directions_by_parent": {
-            x["id"]: step_allowances(history, x["id"]) for x in history},
+            x["id"]: step_allowances(history, x["id"]) for x in history
+            if not incumbent_only or x["id"] == best_id},
+        "restartable_parent_ids": [best_id] if incumbent_only else [x["id"] for x in history],
+        "history_storage": "All trial analyses survive; only the incumbent has a retained restart trajectory"
+                           if incumbent_only else "All branches retained",
         "time_convention": "FLOWR t=0 prior/noise -> t=1 molecule; 100 steps; guidance only steps10..89",
         "affinity_note": "Intermediate head_at_t is diagnostic, not calibrated final pic50_on_rescore",
     }
@@ -108,12 +117,14 @@ def compact(data):
             item["clipped_steps"] = sum(r["clip_factor"] < 1 for r in group)
             intervals.append(item)
         result["step_diagnostics"][key] = intervals
-    result["diagnostic_compression"] = "interval mean/min/max; all raw steps retained in immutable external artifacts"
+    result["diagnostic_compression"] = "interval mean/min/max; all numerical step-analysis documents retained, including pruned trials"
     return result
 
 
 def propose(root, config, template, slot, history, best_id, skill, output, caller=call_json):
-    data, ids = packet(root, template, slot, history, best_id)
+    incumbent_only = config.get("retention", {}).get("mode") == "top1_per_chain"
+    parent_ids = [best_id] if incumbent_only else None
+    data, ids = packet(root, template, slot, history, best_id, incumbent_only)
     data = compact(data)
     instructions = Path(skill).read_text(encoding="utf-8")
     messages = [{"role": "system", "content": instructions},
@@ -130,10 +141,10 @@ def propose(root, config, template, slot, history, best_id, skill, output, calle
            "hard_tokens": limit, "expanded_above_soft": estimated > config["llm"]["input_soft_tokens"],
            "evidence_sha256": value_sha(data)})
     action = caller(
-        messages, schema(history, ids), output, model=config["llm"]["model"],
+        messages, schema(history, ids, parent_ids), output, model=config["llm"]["model"],
         timeout=config["llm"]["timeout"], attempts=config["llm"]["attempts"],
         input_store=Path(root) / "llm_inputs", max_output_tokens=config["llm"]["max_output_tokens"],
-        response_validator=lambda a: validate_action(a, history, ids),
+        response_validator=lambda a: validate_action(a, history, ids, parent_ids),
         thinking=config["llm"]["thinking"], reasoning_effort=config["llm"]["reasoning_effort"])
-    validate_action(action, history, ids)
+    validate_action(action, history, ids, parent_ids)
     return action

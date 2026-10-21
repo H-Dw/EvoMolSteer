@@ -85,4 +85,10 @@ def validate(root):
               "targets": results, "zero_guidance_groups": 0,
               "historical_slot_pairing": False}
     write(root / "VALIDATED.json", report)
+    from .retention import enabled, prune_payload
+    if enabled(config):
+        for p in sorted((root / "validation").glob("*/*/COMPLETE.json")):
+            prune_payload(root, p.parent.relative_to(root), "validation")
+        write(root / "validation/RETENTION_COMPLETE.json", {
+            "raw_validation_payloads_removed_after_pass": True, "shared_r0_preserved": True})
     return report

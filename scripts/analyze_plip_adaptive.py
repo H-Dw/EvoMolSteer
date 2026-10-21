@@ -13,6 +13,7 @@ from evomolsteer.adaptive_schedule.io import read, write, eligible, DEFAULT_ROOT
 from evomolsteer.adaptive_schedule.analysis import analyze, write_csv
 from evomolsteer.adaptive_schedule.agent import node
 from evomolsteer.adaptive_schedule.quality import metrics
+from evomolsteer.adaptive_schedule.retention import artifact_folder
 
 
 def correlation(rows, x, y):
@@ -110,13 +111,14 @@ def report(root, version):
             case_dir = folder / "cases" / tid
             case_dir.mkdir(parents=True, exist_ok=True)
             draw_molecule(teacher["sdf"], None, case_dir / "teacher.svg")
-            draw_molecule(root / winner["branch"] / "molecules_all_built.sdf", winner["record"]["node_id"], case_dir / "best.svg")
             slot = winner["record"]["slot"]
+            retained = artifact_folder(root, version, tid, winner["record"]["batch"], winner["branch"], slot)
+            draw_molecule(retained / "molecules_all_built.sdf", winner["record"]["node_id"], case_dir / "best.svg")
             q = metrics(root, winner["branch"], slot, teacher)
             case = {"teacher_id": tid, "teacher_score": row["teacher_pic50"], "best_record": winner["record"],
                     "ticks": winner["ticks"], "quality": q,
                     "teacher_complex": str(Path(teacher["profile_path"]).parent / "complex.pdb"),
-                    "best_complex": str(root / winner["branch"] / "profiles" / f"slot_{slot:03d}" / "complex.pdb"),
+                    "best_complex": str(retained / "profiles" / f"slot_{slot:03d}" / "complex.pdb"),
                     "terminal_local_features": node(root, winner["branch"], 100, slot)}
             comparisons = []
             original_chain = next(c for c in histories

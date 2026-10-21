@@ -193,6 +193,9 @@ def run_batch(model, root, config, template, batch, version, skill, fast):
     path = parent_folder / "histories.json"
     chains = read(path) if path.exists() else initial_history(relative, rows)
     write(path, chains)
+    from .retention import enabled, compact_batch, restart_refs
+    if enabled(config):
+        compact_batch(root, config, template, batch, version, chains)
     for round_no in range(1, config["rounds"] + 1):
         if all(len(c["history"]) > round_no for c in chains):
             continue
@@ -218,6 +221,10 @@ def run_batch(model, root, config, template, batch, version, skill, fast):
         starts = [earliest(p["ticks"], a["ticks"]) for p, a in zip(parents, actions)]
         schedules = [a["ticks"] for a in actions]
         parent_refs = [p["branch"] for p in parents]
+        if enabled(config):
+            if any(a["parent_id"] != c["best_id"] for a, c in zip(actions, chains)):
+                raise ValueError("A pruned historical branch cannot be selected as restart parent")
+            parent_refs = restart_refs(root, version, template["teacher_id"], batch, chains)
         cache = {}
         use_fast = fast
         if use_fast:
@@ -254,6 +261,8 @@ def run_batch(model, root, config, template, batch, version, skill, fast):
                 chain["best_id"] = item["id"]
         write(path, chains)
         write(call_folder / "COMPLETE.json", {"chains": 20, "round": round_no, "fast_batch": use_fast})
+        if enabled(config):
+            compact_batch(root, config, template, batch, version, chains)
         write(root / "status.json", {"phase": "running", "version": version,
               "teacher": template["teacher_id"], "batch": batch, "round": round_no,
               "time": time.time(), "histories": str(path.relative_to(root))})

@@ -4,7 +4,11 @@
 DeepSeek 密钥由远端环境变量 `DEEPSEEK_API_KEY` 读取，不写入仓库。
 
 结果根目录：
-`/opt/MolSteer/generated_datasets/plip_schedule_agent_5nn4_5ost_s42_20261021`
+`/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_5ost_s42_20261021`
+
+这是逐链TOP1协议的新目录，不是原V1结果的恢复。2026-10-21核验时原V1结果目录及
+原部署目录在当前容器中均不存在；当前`/opt/MolSteer`为较早快照，不能据此推断实验已完整完成。
+不要重新prepare旧目录或用旧VALIDATED标记启动新代码。
 
 Git 分支：`codex/plip-adaptive-schedule`。
 远端每次使用 `/opt/MolSteer/runtimes/` 下的固定 commit checkout，保留运行中的旧 checkout。
@@ -23,9 +27,11 @@ bash scripts/run_plip_adaptive.sh status
 bash scripts/run_plip_adaptive.sh analyze --skill-version v1
 bash scripts/run_plip_adaptive.sh review-pack --skill-version v1
 bash scripts/run_plip_adaptive.sh report --skill-version v1
+bash scripts/run_plip_adaptive.sh compact --skill-version v1
 ```
 
 `background` 由独立 session 启动并将输出重定向至结果目录日志，SSH 断开后继续。
+它要求已有PREPARED，不自动创建新实验。变更采样代码后必须显式准备新协议并重新验证。
 不要同时启动两个 supervisor 或 GPU worker。锁文件存在不等于进程仍在运行；
 检查 `workers.json` 中的进程和最近进度后再恢复。
 
@@ -39,11 +45,33 @@ bash scripts/run_plip_adaptive.sh report --skill-version v1
 完整 V1 应有50个批次、1000条链、10000次独立 LLM 决策。
 完整前缀按哈希引用共享，不重复保存；随机流、self-conditioning 和积分器状态均在恢复快照内。
 
+## 每轮清理与恢复
+
+- 教师固定每target Top5，共10位；当前旧快照中5ost只出现Top1–Top3运行文件是执行进度，
+  不是教师配置。prepare严格核对十位教师的node ID和排名，不允许悄悄缩为Top3。
+- 新配置`retention.mode=top1_per_chain`。20个槽位各自选择历史最高有效pIC50，
+  每教师仍为100条链。R0作为跨版本共用参考单独保留；V1/V2分别保留自身各链TOP1。
+- 每轮提交历史后，GPU worker同步等待本轮质量评价，随后建立并校验自包含最佳快照，
+  原子发布`versions/<version>/<teacher>/batch_###/retention.json`后清理旧结构。
+- `retained/<version>/<teacher>/batch_###/best_<hash>/`保存当前TOP1的结构与恢复状态。
+  `COMPLETE.json`列出全部载荷哈希；任一文件缺失/损坏时停止，不继续删除原始数据。
+- `PRUNED.json`保留每份被删载荷的名称、大小和哈希。各轮的历史、节点摘要、逐步诊断、
+  全部prompt/响应、PLIP XML、互作JSON、质量失败和错误日志保留。报告从最佳快照定位分子文件。
+- `compact`用于在独占worker锁下补完已提交轮次的清理；它不会生成新分子。
+  不允许独立`profile --watch`与TOP1 worker并行，以免质量评价读取正在删除的结构。
+- 断电发生在快照发布前时原数据仍在；发生在删除期间时按索引和删除日志幂等继续。
+  Agent只能以TOP1为恢复父节点，已删失败分支通过分析文档参与回溯。
+- 合并快照要求所有原生上下文与RNG相容，否则保留逐槽完整20分子上下文。
+  保留上下文不是增加独立样本。空间峰值包含当前轮、旧最佳、新最佳及共享R0。
+- 独立profile和报告只读取尚未完成的评价；已清理分支的分析应已完成或有明确失败记录。
+  若质量依赖缺失则停止清理，避免丢失待评价输入。
+
 ## V1 完成后的统一复盘
 
 1. 读取 review skill、冻结的 optimizer skill、全量指标与 `review/v1/manifest.json`。
 2. 按 manifest 分片逐一分析，记录已审阅分片及 SHA256。每条决策均关联实际 prompt 证据。
-   先对重复固定输入去重，再审阅每轮差异；异常案例回读原始请求、校验错误及完整节点数据。
+   先对重复固定输入去重，再审阅每轮差异；异常案例回读原始请求、校验错误及节点分析。
+   已清理分支仅有分析文档与删除清单，不得声称检查了其原始张量。
 3. 比较几何响应与亲和力响应、裁剪和实际引导量、不同区间/方向、有效性及失败假设。
    不将10轮分支视为额外独立候选，不只挑选成功案例。
 4. 生成通用技能修改及适用边界，不建立 teacher/slot 对应的最优调度表。
@@ -57,14 +85,16 @@ bash scripts/run_plip_adaptive.sh report --skill-version v1
 V2 结束后比较 Mean、Best、Top10、恢复率、质量和成本，分析教师 PLIP 数量、核心覆盖率、
 教师 pIC50 与改善难度的关系。结果限定于这两个 target、十个教师和同一组开发种子。
 
-## 自动接续
+## 定时任务已删除
 
-本线程 heartbeat 名称为“PLIP 调度实验与技能迭代”，ID `plip`，初始间隔2小时。
-健康且无可操作变化时保持安静；根据实测耗时调整至1–6小时。
-统一复盘可分多次唤醒推进，覆盖台账持续保存。V2 报告交付后暂停 heartbeat。
+2026-10-21按用户要求删除ID为`plip`的定时任务。不自动巡检，不自动唤醒主Agent；
+统一复盘和V2启动需要后续显式执行，但覆盖台账和review approval要求保持不变。
+本次代码优化不自动重新启动分子生成。
 
 代码异常在本地修复、提交并推送后再部署。成功分支和成功 API 调用复用；
-请求、响应、失败记录不得被不同输入覆盖。已失败的早期预检目录保留用于审计。
+请求、响应、失败记录不得被不同输入覆盖。预检分析保留，验证成功后清理其临时结构载荷。
+`/opt`不是持久化备份。本次优化降低增量存储，不能恢复缺失的旧V1结果，
+也不能防止容器回退丢失数据；长任务应另行落实结果持久化和可恢复备份。
 
 ## 输入容量调整
 

@@ -11,7 +11,7 @@ def main():
     subs = p.add_subparsers(dest="command", required=True)
     for name in ["prepare", "validate", "status"]:
         subs.add_parser(name)
-    for name in ["run", "analyze", "review-pack", "profile"]:
+    for name in ["run", "analyze", "review-pack", "profile", "compact"]:
         s = subs.add_parser(name)
         s.add_argument("--skill-version", choices=["v1", "v2"], default="v1")
         if name == "profile":
@@ -40,6 +40,21 @@ def main():
     elif args.command == "profile":
         from .quality import profile
         result = profile(args.root, args.skill_version, args.watch)
+    elif args.command == "compact":
+        from .runner import assert_prepared, lock
+        from .retention import compact_batch, enabled
+        config = assert_prepared(args.root)
+        if not enabled(config):
+            raise ValueError("This cohort was not prepared with TOP1 retention")
+        teachers = {t["teacher_id"]: t for t in read(args.root / "teachers.json")}
+        completed = []
+        with lock(args.root):
+            for path in sorted((args.root / "versions" / args.skill_version).glob("*/batch_*/histories.json")):
+                template = teachers[path.parents[1].name]
+                compact_batch(args.root, config, template, int(path.parent.name.split("_")[1]),
+                              args.skill_version, read(path))
+                completed.append(str(path.relative_to(args.root)))
+        result = {"compacted_batches": completed}
     else:
         result = read(args.root / "status.json") if (args.root / "status.json").exists() else {"phase": "not_started"}
         result["completed_batches"] = {

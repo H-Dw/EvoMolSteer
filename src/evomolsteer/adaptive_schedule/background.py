@@ -16,7 +16,8 @@ def main():
     p.add_argument("--skill", type=Path)
     opt = p.parse_args()
     root = opt.root
-    root.mkdir(parents=True, exist_ok=True)
+    if not (root / "PREPARED.json").exists():
+        raise RuntimeError("Prepared experiment missing. Explicitly prepare a new named cohort; never recreate a lost V1 implicitly")
     if not os.environ.get("DEEPSEEK_API_KEY"):
         raise RuntimeError("DEEPSEEK_API_KEY missing from supervisor environment")
     import fcntl
@@ -26,22 +27,23 @@ def main():
                                     "repository": str(repository()), "version": opt.skill_version,
                                     "ssh_port": 10104, "api_key_present": True})
         base = [sys.executable, "-B", "-m", "evomolsteer.adaptive_schedule.cli", "--root", str(root)]
-        if not (root / "PREPARED.json").exists():
-            subprocess.run(base + ["prepare"], check=True)
         if not (root / "VALIDATED.json").exists():
             write(root / "status.json", {"phase": "validating", "time": time.time()})
             subprocess.run(base + ["validate"], check=True)
         command = base + ["run", "--skill-version", opt.skill_version, "--resume"]
         if opt.skill:
             command += ["--skill", str(opt.skill)]
-        quality = subprocess.Popen(base + ["profile", "--skill-version", opt.skill_version, "--watch"])
+        from .retention import enabled
+        quality = None if enabled(read(root / "config.json")) else subprocess.Popen(
+            base + ["profile", "--skill-version", opt.skill_version, "--watch"])
         worker = subprocess.Popen(command)
-        write(root / "workers.json", {"gpu_pid": worker.pid, "quality_pid": quality.pid, "time": time.time()})
+        write(root / "workers.json", {"gpu_pid": worker.pid, "quality_pid": quality.pid if quality else None,
+                                      "quality_mode": "watcher" if quality else "synchronous_before_prune", "time": time.time()})
         exit_code = worker.wait()
         if exit_code:
             old = read(root / "status.json") if (root / "status.json").exists() else {}
             write(root / "status.json", {**old, "phase": "attention", "worker_exit_code": exit_code, "time": time.time()})
-        quality_exit = quality.wait()
+        quality_exit = quality.wait() if quality else 0
         subprocess.run(base + ["analyze", "--skill-version", opt.skill_version], check=True)
         subprocess.run(base + ["review-pack", "--skill-version", opt.skill_version], check=True)
         write(root / f"supervisor_{opt.skill_version}_exit.json",

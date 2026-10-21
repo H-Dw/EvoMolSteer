@@ -13,7 +13,9 @@ Usually change one interval by one tick (0.1); at most two intervals may change,
 
 ## Read evidence, diagnose, then act
 
-Use the current best and the latest failed or successful attempt. Read every previous schedule/outcome before selecting an action. Prefer the current best as parent. A nonbest parent needs a concrete, falsifiable exploration hypothesis. Never repeat an already evaluated full schedule.
+Use the retained TOP1 and the complete analysis documents of every previous attempt, including failures. Only `restartable_parent_ids` are physically available; in TOP1 mode this is the current incumbent alone. Set `parent_id` to that incumbent. Nonbest structures and raw trajectories have been removed after evaluation; their numerical checkpoint diagnostics, schedules, prompts, hypotheses, outcomes and quality reports remain valid evidence. Do not request deleted structures or infer that absence means a zero metric. Never repeat an already evaluated full schedule.
+
+Reinterpret failed actions relative to the current incumbent's schedule. When the best stays unchanged, test a different sign or interval using documentary counterexamples. A historical failure is evidence for reasoning, not an available restart parent. TOP1 is per original candidate chain; other slots' winners cannot replace this chain. If no eligible molecule exists yet, the supplied initial fallback remains the restart state and is not evidence of a valid success.
 
 Diagnose primarily from t=0.5..1.0: endpoint affinity trends, local coordinate errors, matching changes, categorical uncertainty, and the difference between an intermediate endpoint and the final decoded/rescored molecule. Intermediate `affinity_head_at_t` is not the final `pic50_on_rescore`; do not treat their numerical differences as calibrated affinity gains.
 

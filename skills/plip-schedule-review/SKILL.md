@@ -20,4 +20,6 @@ Revise only rules with observed supporting cases and explicit counterexamples. K
 
 V2 retains all immutable experiment settings and starts from the same R0. Reset each candidate's optimization history. Do not transplant a lookup table of V1 teacher/slot-specific winning schedules. Commit the revised skill and review coverage manifest locally before pushing and remote deployment. Record both the skill hash and runtime hash.
 
-Compare paired per-chain changes, teacher-equal Mean/Best/Top10, recovery/exceedance, chemistry quality, and compute/token budgets. This cohort is development data for the skill; do not infer held-out or cross-target generalization. Complete V2 reporting and stop the task heartbeat.
+Compare paired per-chain changes, teacher-equal Mean/Best/Top10, recovery/exceedance, chemistry quality, and compute/token budgets. This cohort is development data for the skill; do not infer held-out or cross-target generalization. Complete V2 reporting when both cohorts and the review are finished.
+
+In TOP1 storage mode, review every trial through its preserved prompts, numerical node/step analyses, quality XML/JSON and failure records. Only each chain's incumbent trajectory plus the shared immutable R0 are physically retained. Validate retention journals and snapshot checksums; do not claim to inspect deleted raw tensors. Confirm proposals use the retained incumbent as parent and use discarded trials only as evidence. No task heartbeat is currently configured; do not create one without a new user request.

@@ -6,7 +6,7 @@ import os
 import subprocess
 from pathlib import Path
 
-DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_5nn4_5ost_s42_20261021")
+DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_5ost_s42_20261021")
 HISTORY = Path("/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020")
 SEEDS = [42, 100045, 200048, 300051, 400054]
 TARGETS = ["5nn4_SC2_A_1017", "5ost_AEZ_A_915"]
@@ -34,8 +34,21 @@ def write(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(json.dumps(clean(value), ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    with tmp.open("w", encoding="utf-8") as f:
+        f.write(json.dumps(clean(value), ensure_ascii=False, indent=2, allow_nan=False) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
     os.replace(tmp, path)
+    sync_directory(path.parent)
+
+
+def sync_directory(path):
+    if os.name == "posix":
+        fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
 
 
 def sha(path):
@@ -67,18 +80,20 @@ def commit():
 
 def defaults():
     return {
-        "schema": "plip-adaptive-schedule-v1", "ssh": {"host": "ksai.scnet.cn", "port": 10104, "user": "root"},
+        "schema": "plip-adaptive-schedule-top1-v2", "ssh": {"host": "ksai.scnet.cn", "port": 10104, "user": "root"},
         "history": str(HISTORY), "flowr": "/root/private_data/MolSteer/flowr_root",
         "targets": TARGETS, "seeds": SEEDS, "batch_size": 20, "batches": 5, "steps": 100,
         "features": "C", "mode": "endpoint", "initial_ticks": [5] * 8, "rounds": 10,
         "window_steps": [10, 90], "max_atom_step_A": .025, "tick_bounds": [0, 10],
         "llm": {"model": "deepseek-flash", "key_env": "DEEPSEEK_API_KEY", "thinking": True,
                 "reasoning_effort": "high", "max_output_tokens": 16384, "input_soft_tokens": 32768,
-                "input_hard_tokens": 65536, "concurrency": 4, "timeout": 300, "attempts": 3},
+                "input_hard_tokens": 131072, "concurrency": 4, "timeout": 300, "attempts": 3},
         "versions": ["v1", "v2"], "max_recoveries": 3,
         "evaluation": {"plip": "3.0.1", "posebusters": "dock", "clash_A": 1.2},
         "selection": "valid_connected_finite_pic50; retain incumbent on ties",
         "paired_history_slots": False,
+        "retention": {"mode": "top1_per_chain", "restart_parent": "incumbent_only",
+                      "preserve_shared_r0": True, "profile_before_prune": True},
     }
 
 
