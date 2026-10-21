@@ -50,6 +50,7 @@ def test_four_private_analysts_overlap_then_one_synthesis_selects_four(tmp_path)
                 finished.add(gid)
         else:
             assert finished == {'G1', 'G2', 'G3', 'G4'}
+            assert kwargs['max_output_tokens'] == 32768
             ids = list(payload['proposals'])
             selected = ids[::2]
             response = {'comparison': 'compare all four', 'failure_directions': 'test',

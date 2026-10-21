@@ -128,13 +128,17 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
             raise ValueError('Same-round or future synthesis cannot leak into isolated analysts')
     analyst_skill = Path(analyst_skill or repository()/'skills/plip-group-analyst/SKILL.md')
     synthesis_skill = Path(synthesis_skill or repository()/'skills/plip-group-synthesizer/SKILL.md')
+    synthesis_output_limit = config.get('council', {}).get('max_output_tokens', 32768)
+    if type(synthesis_output_limit) is not int or not 16384 <= synthesis_output_limit <= 32768:
+        raise ValueError('Synthesis output budget must be an explicit integer within 16K..32K')
     binding = {'schema': 'plip-four-plus-one-v1', 'teacher_id': teacher, 'observed_round': round_no,
         'private_population_hashes': {s['group_id']: value_sha(d) for s, d in zip(specs, private)},
         'anchors': [s['anchor_ticks'] for s in specs],
         'group_history_hashes': [value_sha(s.get('group_history', [])) for s in specs],
         'published_reflections_sha256': value_sha(published_reflections),
         'analyst_skill_sha256': sha(analyst_skill), 'synthesis_skill_sha256': sha(synthesis_skill),
-        'llm': config['llm'], 'analyst_sessions': 4, 'proposals_per_analyst': 2, 'selected_proposals': 4}
+        'llm': config['llm'], 'synthesis_max_output_tokens': synthesis_output_limit,
+        'analyst_sessions': 4, 'proposals_per_analyst': 2, 'selected_proposals': 4}
     output.mkdir(parents=True, exist_ok=True)
     if (output/'binding.json').exists() and read(output/'binding.json') != binding:
         raise ValueError('Do not overwrite a council with changed private inputs, history, skills or configuration')
@@ -235,7 +239,7 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
             raise jsonschema.ValidationError(str(exc)) from exc
     result = caller(messages, schema, output/'synthesis.json', model=config['llm']['model'],
         timeout=config['llm']['timeout'], attempts=config['llm']['attempts'],
-        max_output_tokens=config['llm']['max_output_tokens'], thinking=config['llm']['thinking'],
+        max_output_tokens=synthesis_output_limit, thinking=config['llm']['thinking'],
         reasoning_effort=config['llm']['reasoning_effort'], input_store=output/'synthesis_inputs', response_validator=validate)
     validate(result)
     # A separate publication document is the only cross-group memory fed back later.

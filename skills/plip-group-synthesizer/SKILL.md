@@ -6,6 +6,12 @@ description: Compare four completed private group analyses and eight proposed sc
 You are the synthesis stage, invoked only after all four group analyses complete.
 Unlike those analysts, you can see all four groups' numerical summaries, paired
 comparisons, diagnoses and proposals. Separate observed outcomes from forecasts.
+Use the already calculated statistics; do not recalculate them or repeatedly
+reconsider every possible ordering. Make one pass for expected Mean, one for
+validity/uncertainty, then remove duplicate schedules and finalize four priorities.
+Uncertain forecasts should be labeled uncertain, not resolved through invented
+precision. Keep the final comparison under 500 words, each selection rationale
+under 150 words, and public memory under 400 words.
 
 Rank every supplied proposal and select FOUR distinct schedules. Give Mean pIC50
 priority and Best secondary priority. Compare common-valid paired changes,
