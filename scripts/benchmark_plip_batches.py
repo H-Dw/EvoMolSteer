@@ -12,7 +12,6 @@ import gc
 import json
 import os
 from pathlib import Path
-import shutil
 import statistics
 import threading
 import time
@@ -27,7 +26,7 @@ def join_blocks(values, torch):
         if not all(torch.equal(first, v) for v in values[1:]):
             raise ValueError("Non-batch tensor differs")
         return first.clone()
-    if isinstance(first, dict):
+    if isinstance(first, dict) or hasattr(first, 'items'):
         return {k: join_blocks([v[k] for v in values], torch) for k in first}
     if isinstance(first, list) and len(first) == 20:
         return [x for v in values for x in v]

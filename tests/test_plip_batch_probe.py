@@ -29,3 +29,13 @@ def test_batch_join_preserves_each_original_slot_and_rejects_changed_metadata():
     second['static'] = 'different'
     with pytest.raises(ValueError, match='metadata'):
         probe.join_blocks([first, second], torch)
+
+
+def test_tensordict_prior_is_joined_as_a_mapping():
+    torch = pytest.importorskip('torch')
+    tensordict = pytest.importorskip('tensordict')
+    a = tensordict.TensorDict({'coords': torch.zeros(20, 10, 3)}, batch_size=[20])
+    b = tensordict.TensorDict({'coords': torch.ones(20, 10, 3)}, batch_size=[20])
+    result = probe.join_blocks([a, b], torch)
+    assert result['coords'].shape == (40, 10, 3)
+    assert result['coords'][20:].sum() == 600
