@@ -33,12 +33,17 @@ bash scripts/run_plip_adaptive.sh report --skill-version v1
 bash scripts/run_plip_adaptive.sh compact --skill-version v1
 ```
 
-`background`是监督进程入口；远端后台启动时使用下面的命令脱离SSH并保留日志（在固定checkout目录执行）：
+`background`是监督进程入口；正式后台运行使用经过连接检查的启动器（在已配置API和代理环境的交互式shell、固定checkout目录执行）：
 
 ```bash
-ROOT=/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021
-nohup setsid bash scripts/run_plip_adaptive.sh background --skill-version v1 > "$ROOT/supervisor_v1.log" 2>&1 < /dev/null &
+RUN_ROOT=/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021
+/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python scripts/launch_plip_adaptive.py --root "$RUN_ROOT" --skill-version v1
 ```
+
+启动器先验证带认证的DeepSeek连接，检查运行锁，再脱离SSH；完整继承父进程环境（包括大小写代理变量），不序列化环境值。
+连接不通时不启动worker；连接检查成功仅代表当时API可达，仍须核对实际决策及轮次提交。
+每次启动在operations下保存独立请求、PID和此前控制/错误记录的压缩归档，日志追加而非覆盖。
+非交互式shell可能跳过用户环境配置；不能只传递API密钥而漏掉代理。不得输出shell配置文件或代理凭据。
 
 先完成prepare；可手动validate及check-gradients，或由background在首次启动时依次执行。两项均通过后才允许开始Agent轮次。密钥须由启动进程环境继承，禁止放入命令行或日志。
 它要求已有PREPARED，不自动创建新实验。变更采样代码后必须显式准备新协议并重新验证。
@@ -182,3 +187,16 @@ V2报告交付后删除任务。不能跳过真实全量审阅或在轮次中更
 - 正式V1已在新机后台启动，初始监督PID2629，记录`formal_launch_request.json`；实际后续进程以`launch.json`和`workers.json`为准。
   R0及10轮优化使用新机原生过程，V2等待真实全量复盘与严格审阅校验。
 - 定时任务已恢复，ID为`plip-11762`，每2小时检查并按实际耗时调整至1–6小时；只在可操作变化时通知，V2报告交付后删除。
+
+## 2026-10-22首次巡检：连接环境修复
+
+- 实际检查15个预期batch：Top1五批共100条R0已提交；Top2/Top3尚未开始，已提交优化轮次为0。
+  Top1的R1多批次均出现DeepSeek网络重试耗尽；`status.json`虽然显示running，不代表有效推进。
+- `/proc`核验原监督2629与worker2664都有API密钥但均无代理变量。交互式环境继承既有代理后，
+  带认证的模型列表请求返回200；相同环境禁用代理则连接失败。诊断不输出密钥、代理值或异常正文。
+- 已核对进程组2629并停止监督与worker，确认两者退出。已有R0、请求及错误保持原位，
+  诊断保存在`operations/network_failure_20261022/inspection.json`。
+- 新增`scripts/launch_plip_adaptive.py`，在启动前测试认证连接并完整继承环境；失败时拒绝启动。
+  续跑前归档旧控制文件与错误摘要，避免原重试编号再次使用时丢失旧失败记录。
+- 本次仅修改启动器、测试和运行文档，采样源码指纹、冻结配置、教师、技能、初态与R0不变。
+  新提交需经本地测试和GitHub推送后在远端固定检出，核对源码指纹后通过启动器续跑。
