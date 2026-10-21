@@ -171,8 +171,8 @@ def test_delete_scope_cannot_escape_batch(tmp_path):
         checked_path(tmp_path, "versions/v1", "branches")
 
 
-@pytest.mark.parametrize("different_rng", [False, True])
-def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_path, different_rng):
+@pytest.mark.parametrize("different_rng,empty_r0", [(False, False), (True, False), (False, True)])
+def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_path, different_rng, empty_r0):
     torch = pytest.importorskip("torch")
     h5py = pytest.importorskip("h5py")
     import numpy as np
@@ -214,6 +214,13 @@ def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_
 
     native_files(r0, 0, 1)
     native_files(r1, 10, 2)
+    if empty_r0:
+        # No decoded R0 molecule: preserve its restart state for unsuccessful slots.
+        (tmp_path / r0 / "molecules_all_built.sdf").write_bytes(b"")
+        for c in chains:
+            c["history"][0]["record"].update(build_success=False, pic50_on_rescore=None)
+            if c["slot"] % 2:
+                c["history"][1]["record"].update(build_success=False, pic50_on_rescore=None)
     expected = {step: [resolve_checkpoint(tmp_path, h["branch"], step) for h in winners(chains)]
                 for step in range(0, 101, 10)}
     index = run_compact(tmp_path, chains, builder=None)
@@ -227,6 +234,8 @@ def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_
             else:
                 assert tensor_digest(restored) == tensor_digest(compose(states))
     packed = tmp_path / index["snapshot"]
+    if empty_r0:
+        assert len([m for m in Chem.SDMolSupplier(str(packed / "molecules_all_built.sdf")) if m]) == 10
     with h5py.File(packed / "trace.h5", "r") as f:
         assert np.all(f["native_epsilon"][:10] == 1)
         assert np.all(f["native_epsilon"][10:, ::2] == 2)
@@ -243,6 +252,8 @@ def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_
         c["history"].append({"id": "r02", "branch": r2, "parent_id": c["best_id"],
                               "ticks": [6, 6]+[5]*6,
                               "record": record(7 if c["slot"] == 0 else 3, c["slot"])})
+        if empty_r0 and c["slot"] % 2:
+            c["history"][-1]["record"].update(build_success=False, pic50_on_rescore=None)
         if c["slot"] == 0:
             c["best_id"] = "r02"
     second = run_compact(tmp_path, chains, builder=None)

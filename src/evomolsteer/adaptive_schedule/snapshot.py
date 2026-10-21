@@ -138,9 +138,10 @@ def materialize(root, relative, state_sources, payload_sources, best, template, 
     write(folder / "final_records.json", [h["record"] for h in best])
     molecules = {}
     for source in set(payload_sources):
+        sdf = root / source / "molecules_all_built.sdf"
         molecules[source] = {int(m.GetProp("slot")): m for m in
-                             Chem.SDMolSupplier(str(root / source / "molecules_all_built.sdf"), removeHs=False)
-                             if m is not None and m.HasProp("slot")} if (root / source / "molecules_all_built.sdf").exists() else {}
+                             Chem.SDMolSupplier(str(sdf), removeHs=False)
+                             if m is not None and m.HasProp("slot")} if sdf.exists() and sdf.stat().st_size else {}
     writer = Chem.SDWriter(str(folder / "molecules_all_built.sdf"))
     try:
         for slot, source in enumerate(payload_sources):
