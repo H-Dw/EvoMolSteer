@@ -22,6 +22,9 @@ def test_report_separates_unselected_search_and_shared_baselines(tmp_path):
     write(wave/'quality_records.json',sum([records(4+g/10) for g in range(4)],[]))
     best=[{'record':r,'source_id':'r01:G4','nodes':{}} for r in records(4.3)]
     write(root/'versions/v1/t/incumbents/r01/best.json',best)
+    missing = root/'versions/v1/t/bootstrap/saved_attempts/old/turn_01.attempt_1.invalid.txt'
+    missing.parent.mkdir(parents=True, exist_ok=True)
+    missing.write_text('{"invalid":true}', encoding='utf-8')
     result=module.analyze(root)
     assert result['populations']==6
     rows=read(root/'reports/populations.json')
@@ -30,3 +33,6 @@ def test_report_separates_unselected_search_and_shared_baselines(tmp_path):
     assert winner['source_group']=='G4' and abs(winner['mean_minus_R0']-1.3)<1e-8
     baseline=read(root/'reports/historical_baselines.json')
     assert len(baseline)==2 and all(x['shared_historical_population'] for x in baseline)
+    incomplete_costs=read(root/'reports/llm_missing_receipts.json')
+    assert len(incomplete_costs)==1 and incomplete_costs[0]['path']==missing.relative_to(root).as_posix()
+    assert 'unknown cost' in (root/'reports/report.md').read_text(encoding='utf-8')

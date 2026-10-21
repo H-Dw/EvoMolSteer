@@ -118,6 +118,10 @@ def analyze(root):
         if receipt.get('usage'):
             usage[key]={'path':str(p.relative_to(root)), 'usage':receipt['usage'],
                         'finish_reason':receipt.get('finish_reason'), 'model':receipt.get('model')}
+    unreceipted = [{'path': p.relative_to(root).as_posix(), 'sha256': sha(p),
+                   'reason': 'Failed response survives, but token usage receipt is absent; cost is unknown.'}
+                  for pattern in ['*.invalid.txt', '*.incomplete_*.txt']
+                  for p in (root/'versions').rglob(pattern) if not p.with_suffix('.receipt.json').exists()]
     comparisons=[]
     for (version,teacher,r,label), records in collections.items():
         n=int(version[1:]);previous=collections.get((f'v{n-1}',teacher,r,label))
@@ -136,6 +140,7 @@ def analyze(root):
     out=root/'reports';out.mkdir(exist_ok=True)
     for name,value in [('populations',rows),('teacher_equal',equal),('shared_batch_bootstrap',bootstrap),
                        ('successive_versions',comparisons),('cases',cases),('gpu_cost',costs),('llm_usage',usage),
+                       ('llm_missing_receipts',unreceipted),
                        ('historical_baselines',baseline_rows),('historical_quality_references',quality_refs)]:
         write(out/(name+'.json'),value)
     plain=[{k:v for k,v in x.items() if not isinstance(v,(dict,list))} for x in rows]
@@ -147,6 +152,7 @@ def analyze(root):
           'Shared starts/baselines are not independent samples. Five-batch bootstrap is exploratory.',
           'Teacher-feature associations are descriptive with only two development teachers; no generalization or causal claim.',
           'Raw structures of discarded trials are deleted; their documentary analyses remain available.','',
+          f'LLM responses missing token receipts: {len(unreceipted)}. Recorded usage excludes their unknown cost.' if unreceipted else 'No retained failed responses are missing token receipts.', '',
           '| Version | Round | Collection | Equal-weight Mean | Best | Top10 | Mean vs R0 | Mean vs Steer |',
           '|---|---:|---|---:|---:|---:|---:|---:|']
     for x in equal:
