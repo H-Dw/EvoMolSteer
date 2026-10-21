@@ -125,7 +125,8 @@ V2复用相同R0并清空候选记忆，不直接移植V1的teacher/slot最优�
 prepare、validate、run --skill-version v1|v2 --resume、profile、compact、status、review-pack、analyze。
 远端shell入口 `scripts/run_plip_adaptive.sh`，传入background启动监督进程。
 新协议结果根目录 `/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021/`。
-旧V1原结果目录和部署目录在当前容器中缺失；不能将新协议运行冒充旧V1续跑。
+最早十教师V1的原结果目录和部署目录在当前容器中缺失；后来启动的四教师V1已停止并保留现有数据。
+本次三教师四区间协议使用新目录，不将任一旧协议运行冒充本次V1续跑。
 必须显式prepare并对新代码重新validate。background在缺少PREPARED时直接拒绝启动。
 
 每轮代码/技能修改必须本地提交，推送GitHub后远端运行固定commit，不能在线改远端科学代码。
