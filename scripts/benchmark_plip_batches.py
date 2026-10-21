@@ -27,7 +27,7 @@ def join_blocks(values, torch):
             raise ValueError("Non-batch tensor differs")
         return first.clone()
     if isinstance(first, dict) or hasattr(first, 'items'):
-        return {k: join_blocks([v[k] for v in values], torch) for k in first}
+        return {k: join_blocks([v[k] for v in values], torch) for k in first.keys()}
     if isinstance(first, list) and len(first) == 20:
         return [x for v in values for x in v]
     if any(v != first for v in values[1:]):

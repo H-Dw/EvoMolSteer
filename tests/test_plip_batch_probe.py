@@ -39,3 +39,16 @@ def test_tensordict_prior_is_joined_as_a_mapping():
     result = probe.join_blocks([a, b], torch)
     assert result['coords'].shape == (40, 10, 3)
     assert result['coords'][20:].sum() == 600
+
+
+def test_mapping_may_iterate_rows_instead_of_keys_without_torch():
+    from types import SimpleNamespace
+    class RowMapping:
+        def keys(self): return ['label']
+        def items(self): return [('label', 'same')]
+        def __getitem__(self, key):
+            assert key == 'label'
+            return 'same'
+        def __iter__(self):
+            raise AssertionError('TensorDict iteration yields rows, not keys')
+    assert probe.join_blocks([RowMapping(), RowMapping()], SimpleNamespace(is_tensor=lambda v: False)) == {'label': 'same'}
