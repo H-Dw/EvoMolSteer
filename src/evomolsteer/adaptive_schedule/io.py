@@ -6,7 +6,7 @@ import os
 import subprocess
 from pathlib import Path
 
-DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021")
+DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r12_i4_s42_20261022")
 HISTORY = Path("/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020")
 SEEDS = [42, 100045, 200048, 300051, 400054]
 TARGETS = ["5nn4_SC2_A_1017"]
@@ -82,7 +82,7 @@ def defaults():
     from .cohort import TEACHERS
     from .grid import INITIAL_TICKS, CHECKPOINT_STEPS, CONTROL_NODES, description
     return {
-        "schema": "plip-adaptive-schedule-5nn4-r123-i4-11762-v5",
+        "schema": "plip-adaptive-schedule-5nn4-r12-i4-11762-v6",
         "ssh": {"host": "ssh.zzai.scnet.cn", "port": 11762, "user": "root"},
         "history": str(HISTORY), "flowr": "/opt/MolSteer/flowr_root",
         "targets": list(TARGETS), "teacher_selection": [dict(t) for t in TEACHERS],
@@ -108,7 +108,7 @@ def defaults():
                       "unselected_comparison": "fixed_round_mean_pic50",
                       "search_output": "best_per_chain", "shared_baseline_targets": list(TARGETS),
                       "secondary": "best_pic50",
-                      "scope": "three selected development teachers from one target; two teacher-origin lineages"},
+                      "scope": "two selected development teachers from one target; two teacher-origin lineages"},
     }
 
 

@@ -5,8 +5,7 @@ from .io import read, value_sha
 TARGET = "5nn4_SC2_A_1017"
 TEACHERS = [
     {"target": TARGET, "rank": rank, "teacher_id": f"{TARGET}__top{rank}", "node_id": node}
-    for rank, node in [(1, "single_b002_final_005"), (2, "single_b004_final_009"),
-                       (3, "single_b002_final_007")]
+    for rank, node in [(1, "single_b002_final_005"), (2, "single_b004_final_009")]
 ]
 
 

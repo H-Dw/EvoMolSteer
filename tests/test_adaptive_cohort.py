@@ -17,11 +17,11 @@ def test_original_ranks_are_kept_and_unselected_empty_templates_do_not_block():
     archive = active[::-1] + [{"teacher_id": "excluded", "target": "5ost_AEZ_A_915",
                               "rank": 1, "core_atoms": []}]
     assert select_templates(archive, TEACHERS) == active
-    assert [t["rank"] for t in active] == [1, 2, 3]
-    assert "r123_i4" in str(DEFAULT_ROOT)
-    assert counts(defaults(), active) == {"teacher_count": 3, "target_count": 1,
-        "initial_batches": 5, "teacher_batches": 15, "chains_per_version": 300,
-        "decisions_per_version": 3000, "r0_results": 300, "maximum_results_all_versions": 6300}
+    assert [t["rank"] for t in active] == [1, 2]
+    assert "r12_i4" in str(DEFAULT_ROOT)
+    assert counts(defaults(), active) == {"teacher_count": 2, "target_count": 1,
+        "initial_batches": 5, "teacher_batches": 10, "chains_per_version": 200,
+        "decisions_per_version": 2000, "r0_results": 200, "maximum_results_all_versions": 4200}
 
 
 @pytest.mark.parametrize("problem", ["missing", "duplicate", "wrong_node", "renumber", "empty"])
@@ -51,20 +51,20 @@ def completed_batch(root, teacher, batch, rounds=10):
     return folder
 
 
-def test_fifteen_actual_batches_complete_the_three_teacher_cohort(tmp_path):
+def test_ten_actual_batches_complete_the_two_teacher_cohort(tmp_path):
     active = templates()
     for t in active:
         for b in range(5):
             completed_batch(tmp_path, t["teacher_id"], b)
     state = progress(tmp_path, "v1", defaults(), active)
-    assert state["complete"] and state["completed_batches"] == 15
+    assert state["complete"] and state["completed_batches"] == 10
     folder = tmp_path / "versions/v1" / active[-1]["teacher_id"] / "batch_004"
     (folder / "COMPLETE.json").unlink()
     assert not progress(tmp_path, "v1", defaults(), active)["complete"]
     completed_batch(tmp_path, "5ost_AEZ_A_915__top1", 0)
     state = progress(tmp_path, "v1", defaults(), active)
     assert not state["complete"] and len(state["unexpected"]) == 1
-    assert state["completed_batches"] == 14
+    assert state["completed_batches"] == 9
 
 
 def test_marker_without_ten_rounds_or_finished_retention_is_not_completion(tmp_path):
@@ -119,7 +119,7 @@ def test_prepare_filters_source_catalog_and_hash_binds_selected_scope(tmp_path, 
     monkeypatch.setattr(common, "protein", lambda target: history / "protein.pdb")
     root = tmp_path / "new"
     result = prepare(root)
-    assert result["teacher_count"] == 3 and result["chains_per_version"] == 300
+    assert result["teacher_count"] == 2 and result["chains_per_version"] == 200
     assert read(root / "teachers.json") == active
     assert len(list((root / "baselines").glob("*.json"))) == 2
     assert read(root / "teacher_selection.json")["excluded"][0]["teacher_id"] == "excluded"

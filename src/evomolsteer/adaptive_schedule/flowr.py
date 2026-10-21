@@ -271,6 +271,9 @@ class Control:
         self.start_step = resume["step"] if resume else 0
         self.reward = LocalReward(template, "C", "endpoint")
         self.schedules = torch.tensor([expanded(x) for x in schedules], device="cuda")
+        self.batch_size = len(schedules)
+        if initial["prior"]["coords"].shape[0] != self.batch_size:
+            raise ValueError("Schedule and initial-state batch sizes disagree")
         self.com = initial["target_com"].to("cuda").float()
         self.rows, self.nodes = [], {}
         self.trace = h5py.File(self.folder / "trace.h5", "w")
@@ -349,7 +352,7 @@ class Control:
             raise ValueError("Nonfinite reward/gradient")
         lam = self.schedules[:, step, None, None]
         self.delta, factor = displacement(gradient, dt, lam, self.model.coord_scale, curr["mask"])
-        switches = (torch.zeros(20, device="cuda") if self.last_assignment is None
+        switches = (torch.zeros(self.batch_size, device="cuda") if self.last_assignment is None
                     else (assignment != self.last_assignment).float().mean(1))
         self.last_assignment = assignment.detach()
         self.velocity = (pred["coords"].detach() - self.before) / (1 - times[0][:, None, None])
@@ -379,9 +382,9 @@ class Control:
                     {"prediction": pred, "raw_head": out, "assignment": assignment,
                      "gradient_world": g, "rng_before": self.entry_rng, "rng_after": rng_state()})
             ids = assignment[:, self.reward.core_columns]
-            batch = torch.arange(20, device="cuda")[:, None]
+            batch = torch.arange(self.batch_size, device="cuda")[:, None]
             self.nodes[str(step)] = {
-                "step": step, "affinity_head_at_t": pred["affinity"]["pic50"].reshape(20).tolist(),
+                "step": step, "affinity_head_at_t": pred["affinity"]["pic50"].reshape(self.batch_size).tolist(),
                 "local_loss": value.detach().tolist(), "assignment": assignment.tolist(),
                 "local_endpoint_A": endpoint[batch, ids].detach().tolist(),
                 "local_current_A": current[batch, ids].detach().tolist(),
