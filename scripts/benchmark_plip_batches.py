@@ -53,12 +53,13 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source-root', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
-    p.add_argument('--sizes', type=int, nargs='+', default=[20, 40, 60, 80, 100])
+    p.add_argument('--sizes', type=int, nargs='+', default=[100, 80, 60, 40, 20])
     p.add_argument('--repeats', type=int, default=2)
     p.add_argument('--device-sysfs', type=Path, default=Path('/sys/class/drm/renderD133/device'))
     args = p.parse_args()
     if args.repeats < 1 or any(b not in range(20, 101, 20) for b in args.sizes):
         p.error('Use positive repeats and batch sizes 20,40,60,80,100')
+    args.sizes = sorted(set(args.sizes), reverse=True)
     if args.output.exists():
         p.error('Output must be a new directory; preserve all prior probes')
     import fcntl
@@ -86,7 +87,8 @@ def main():
             'teacher_ids': [t['teacher_id'] for t in teachers], 'sizes': args.sizes, 'repeats': args.repeats,
             'torch': torch.__version__, 'hip': torch.version.hip, 'device': torch.cuda.get_device_name(0),
             'device_total_GiB': torch.cuda.get_device_properties(0).total_memory / 2**30,
-            'rng_policy': 'diagnostic dense batch uses batch-zero entry RNG; not a scientific replacement',
+            'rng_policy': 'diagnostic dense batch uses batch-zero entry RNG; changed final states accepted by user; record settings explicitly',
+            'search_policy': 'descending; stop at first size passed by both teachers; no final equality gate',
             'timing': 'native encoding + 100 full steps + gradients + trace/checkpoints + final rescore; excludes PLIP/LLM',
             'sysfs_device': str(args.device_sysfs.resolve())})
         model = load_model(config, teachers[0]['target'], args.output)
@@ -174,9 +176,13 @@ def main():
             return row
 
         # Absorb kernel initialization without counting it as a measured repeat.
-        warm = run_case(teachers[0], 20, -1, True)
+        warm = run_case(teachers[0], args.sizes[0], -1, True)
         write(args.output / 'warmup.json', warm)
+        selected = None
         for size in args.sizes:
+            if size == args.sizes[0] and warm['status'] != 'ok':
+                continue
+            passed = True
             for template in teachers:
                 for repeat in range(args.repeats):
                     row = run_case(template, size, repeat)
@@ -185,13 +191,17 @@ def main():
                     write(args.output / 'summary.json', median_cases(rows))
                     print(json.dumps(row), flush=True)
                     if row['status'] != 'ok':
+                        passed = False
                         break
                 if row['status'] != 'ok':
                     break
-            if row['status'] != 'ok':
+            if passed:
+                selected = size
                 break
         write(args.output / 'COMPLETE.json', {'measured_cases': len(rows), 'time': time.time(),
-               'all_requested_cases_passed': len(rows)==len(args.sizes)*2*args.repeats and all(r['status']=='ok' for r in rows)})
+               'selected_batch_size': selected, 'both_teachers_passed': selected is not None,
+               'search_stopped_at_first_common_success': True, 'final_equality_required': False,
+               'unneeded_smaller_sizes': [s for s in args.sizes if selected is not None and s < selected]})
 
 
 if __name__ == '__main__':
