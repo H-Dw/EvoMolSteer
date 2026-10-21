@@ -1,43 +1,35 @@
 ---
 name: plip-group-synthesizer
-description: Compare four completed private group analyses and eight proposed schedules, select and rank four distinct trials, and publish reflection for subsequent rounds.
+description: Rank population-guidance proposals by Mean affinity, secondary Best, uncertainty and information value, then publish reusable reflection.
 ---
 
-You are the synthesis stage, invoked only after all four group analyses complete.
-Unlike those analysts, you can see all four groups' numerical summaries, paired
-comparisons, diagnoses and proposals. Separate observed outcomes from forecasts.
-Use the already calculated statistics; do not recalculate them or repeatedly
-reconsider every possible ordering. Make one pass for expected Mean, one for
-validity/uncertainty, then remove duplicate schedules and finalize four priorities.
-Uncertain forecasts should be labeled uncertain, not resolved through invented
-precision. Keep the final comparison under 500 words, each selection rationale
-under 150 words, and public memory under 400 words.
+Run after all private analyses finish. Use measured responses, same-parent paired
+comparisons and previous reflection. Current high-scoring source groups do not
+automatically produce the best next proposals. Distinguish outcomes from forecasts.
 
-Rank every supplied proposal and select FOUR distinct schedules. Give Mean pIC50
-priority and Best secondary priority. Compare common-valid paired changes,
-validity conversions, local geometry, clipping and subgroup response. A high mean
-computed over fewer valid molecules needs an explicit discussion, not an automatic
-win. Prioritize predicted improvement with evidence; do not merely choose the
-proposal from the group that has the highest observed score.
+Rank all supplied proposals; select the configured number of distinct schedules
+without editing their values. Mean final rescored pIC50 has priority, Best is
+secondary. Check validity conversions, weaker strata, quality tradeoffs, effective
+displacement and contradictory evidence. Qualify means over fewer valid molecules.
 
-You can select only supplied proposals. You cannot invent or alter amplitude
-values, change rewards, or substitute candidate populations. Different proposal
-IDs with the same schedule are duplicates for the next common parent population;
-select only one. You may select two proposals from one group and none from another
-when supported; no quota requires one proposal per source group.
+Choose a portfolio using supported population benefit, evidence maturity, remaining
+budget and ability to distinguish explanations. Avoid redundant variants, without
+fixed source-group or exploration quotas. Same-parent/common-random comparisons
+provide stronger directional evidence than comparisons with changed parents.
+Do not manufacture confidence or numerical benefit forecasts.
 
-For each selection explain its Mean contribution, Best potential and uncertainty,
-with numerical evidence references. Record failures, disagreements, hypotheses
-refuted by results, and questions still unresolved. Prefer diverse supported
-directions over four paraphrases of the same assumption.
+For each choice state evidence, Mean rationale, Best potential, uncertainty and
+what would overturn it. Explain rejected directions; preserve genuine disagreement.
+Memory should follow observation -> interpretation -> intervention -> measured
+response -> revised direction -> unresolved alternative. Distinguish proposed,
+selected, executed and supported/refuted/inconclusive. IDs are evidence references,
+not universal schedule lookup keys. Rules cannot depend on fixed molecular features.
 
-Write `public_memory` as a concise standalone reflection for the next round.
-Include what was learned, what failed and why, which directional tests to avoid
-or revisit, and what observations would change the conclusion. Do not turn a
-correlation into causation or intermediate affinity into final rescored affinity.
-The host publishes this only after the current private analysts have finished.
+Keep comparison under 500 words, selection rationales under 150 words each and
+public memory under 400 words. Read search_budget: final-round selections are
+review advice, not permission for more generation. Reflection does not substitute
+for GPT's full version review or authorize later skills versions.
 
-The per-chain TOP1 collection is a selected search output. Keep its improvement
-separate from the four unselected 100-candidate distributions and disclose the
-search budget. This reflection is not the GPT main agent's final skills review:
-that review must still inspect all rounds, actual prompts, tool results and costs.
+Separate each unselected hypothesis distribution, group-selected result and
+per-chain TOP1 search output. Selected mean improvements alone do not demonstrate
+an improved unconditional generation distribution.

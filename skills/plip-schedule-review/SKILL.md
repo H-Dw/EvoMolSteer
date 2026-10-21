@@ -1,35 +1,61 @@
 ---
 name: plip-schedule-review
-description: Review a completed FLOWR scheduling cohort, cover every private group analysis, synthesis and sampled hypothesis, and revise general skills using trace evidence before an identical-start rerun.
+description: Review every completed population-guidance decision and actual evidence, revise general skills and authorize an equal-budget rerun after verified coverage.
 ---
 
-Review only after the V1 cohort has finished or a concrete technical failure needs diagnosis. Scientific skill changes are frozen within a cohort. Technical fixes require local tests, a local Git commit, GitHub push, and deployment of that exact commit; do not edit remote research code.
+Read frozen config and review manifest for server, counts and budget; these facts
+do not belong in optimizer rules. Skills are frozen within each version. Technical
+fixes require local tests, commit, push and exact deployment with a compatibility
+assessment. Never silently change scientific protocol or remote source.
 
-Read the cohort review manifest and every sharded decision record. For the four-plus-one protocol, cover all four private group sessions and the subsequent synthesis separately. Include all tool turns, all eight proposed hypotheses, four ranked selections, and the actual sampled outcomes. Shared prompt prefixes may be read once; preserve coverage of unique inputs, actions, outcomes, and cited evidence. Record reviewed shard IDs, counterexamples, and unresolved cases. Fetch complete raw prompts for contradictory, missing-evidence, repeated-action, or failure cases. Do not claim full review from an aggregate report alone.
+## Full decision review
 
-Validate privacy before assessing scientific decisions: each analyst's actual inputs and registered tool evidence must belong only to its own 100-candidate group, its inherited group history, and reflections published in earlier rounds. Current sibling data belongs only to the synthesizer. Check that published reflection documents were available to the next round, not leaked back into the same round. The synthesis agent's reflection is evidence for GPT review, never a substitute for that review or permission to launch V2.
+Cover every bootstrap, private analysis, synthesis, proposal, sampled outcome,
+tool turn and failure. Read duplicate prompt prefixes once but cover every unique
+input and evidence hash. Save substantive per-session assessments, proposal IDs,
+evidence citations, counterexamples and unresolved cases. Inspect raw requests for
+contradictions, missing evidence and repetitions. Aggregates or boilerplate are
+not full review; an automatically emitted evidence index is not approval.
 
-Check whether agents:
+Reconstruct observable decisions: evidence -> interpretation/alternative -> action
+-> anticipated subgroup response/falsifier -> measured response -> next revision.
+Use saved concise rationales and tools; do not infer unrecorded internal thoughts.
+Assess whether new outcomes changed actions, control actually changed under
+clipping, benefits broadened and trial priorities reflected remaining budget.
+Separate diagnostic error, ineffective control, heterogeneous response, proxy
+mismatch, parent selection and technical failure. An unsupported rationale is not
+validated by success; a negative outcome can be a useful discriminating experiment.
 
-- noticed previous failures and tested a different direction;
-- distinguished intermediate head estimates from terminal rescores;
-- confused lower coordinate loss with better affinity;
-- considered clipping saturation, matching instability, and native-drift competition;
-- used supplied evidence and respected the trust region;
-- had enough relevant context without redundant tensors and logs.
+Check privacy/publication timing, head versus terminal/rescore, geometry versus
+affinity, analysis source versus restart parent, proposed versus executed. Prefer
+same-parent common-random comparisons; changed parents confound cross-round
+attribution. Include weak strata, common-valid pairs, quality and validity loss.
 
-Revise only rules with observed supporting cases and explicit counterexamples. Keep entries as condition, evidence IDs, suggested experiment, and falsifier. Add or deprecate entries instead of rewriting away failure history. GEPA, Reflexion and ACE motivate this trace-based context evolution; this is not an implementation of their complete algorithms or a model-weight update.
+## General revisions
 
-V2 retains all immutable experiment settings and starts from the same R0. Reset all group/candidate optimization histories and cross-group reflection memory. Do not transplant a lookup table of V1 teacher/slot-specific winning schedules. Commit the revised analyst/synthesizer skills and review coverage manifest locally before pushing and remote deployment. Record both skill hashes and the runtime hash.
+Write each rule as condition -> evidence -> candidate direction/diagnostic trial
+-> falsifier/stop condition. Keep case IDs/examples in review archives, not runtime
+skills. Require observed support and counterexamples or explicit limitations.
+Single successes support tentative cues, not universal mandates. Preserve prior
+rules and deprecation reasons in review history.
 
-Compare paired per-chain changes, teacher-equal Mean/Best/Top10, recovery/exceedance, chemistry quality, and compute/token budgets. This cohort is development data for the skill; do not infer held-out or cross-target generalization. Complete V2 reporting when both cohorts and the review are finished.
+No target names, teacher ranks, fixed atom features/counts or teacher/slot winning
+schedule tables. Read controls from config. Prompt choices using relative response,
+intervention effectiveness, uncertainty and budget, not fixed answers.
+Test identity invariance, validity-loss/saturation/proxy-conflict counterexamples,
+budget awareness and citations. Offline replay checks decision behavior only;
+it cannot establish affinity of an unexecuted schedule.
 
-Read the actual frozen teacher selection and counts. The current study selects 5nn4 original ranks 1 and 2: two teachers sharing 100 original initial slots. Each teacher runs four hypotheses of 100 candidates per round, for ten rounds: 8,000 optimization outcomes per version, 80 private analyst sessions and 20 synthesis sessions, plus explicitly recorded bootstrap/repair/tool requests. Each private analyst proposes two schedules. The synthesizer ranks eight suggestions and selects four distinct schedules; the final-round suggestions do not authorize an eleventh sampling round. Do not equate HTTP receipts with logical session counts, or reclassify repeated starts as independent samples.
+## Transition gate
 
-The only controls are four amplitudes at inclusive steps 10..25,26..50,51..75,76..90. Verify checkpoint restart contracts for the frozen physical batch and RNG policy; the user accepts different stochastic finals across changed batch sizes. The objective is unselected 100-candidate Mean first, Best second. Distinguish each hypothesis distribution, the selected group-Mean winner, and per-chain best-of-search output; neither kind of selection alone proves distribution improvement. Inspect weaker-score subgroups, valid counts, common-valid paired changes and failures. Top2 remains intentionally included despite its smaller historical Steer–Unguided gap. Development-set selection does not imply cross-target generalization.
+Review expected sessions from configured counts, not legacy per-slot counts. Bind
+all review shards, actual prompt evidence, outcomes, report, both skill hashes and
+exact committed deployment. Empty approval, automatic reviewed flags or aggregates
+cannot authorize a new version. Commit reviews/skills locally, push, deploy, then
+approve the next equal-budget version. Reuse original R0 and clear all search and
+reflection histories. Repeat only up to the configured version budget.
 
-In TOP1 storage mode, review every trial through its preserved prompts, numerical node/step analyses, quality XML/JSON and failure records. Only each chain's incumbent trajectory plus the shared immutable R0 are physically retained. Validate retention journals and snapshot checksums; do not claim to inspect deleted raw tensors. Confirm proposals use the retained incumbent as parent and use discarded trials only as evidence.
-
-The only current server is ssh.zzai.scnet.cn:11762. The old 10104 run is excluded and handoff is complete. Formal sampling and the heartbeat are currently paused by the user; do not resume them during implementation validation. After explicit resumption, inspect at 20 minutes initially and adapt to measured progress. Stay quiet on unchanged healthy state. Delete the heartbeat after the full V2 report is delivered.
-
-Before V2, the review-check gate must support the active protocol, not the legacy per-slot decision count. Each committed review covers teacher, round, group, session role, proposal IDs, a substantive assessment and actual prompt evidence IDs. Reconcile all MASTER_REVIEW_INPUTS indexes with the frozen cohort and sampled-result manifest. Bind all shard, prompt, report, both skill hashes and exact deployed Git commit. An empty approval file, automatic reviewed=true flag, or aggregate-only report is insufficient. The current four-plus-one module emits an evidence index, not a completed strict V2 approval adapter; refuse V2 until that adapter and full real coverage are verified.
+Compare unselected Mean first, Best/Top10 second, TOP1 output, quality, directional
+calibration and cost. Shared starts are not independent. Generic writing is not
+proof of cross-target generalization; these remain development comparisons.
+Deleted tensors cannot be claimed inspected; use retained analyses honestly.

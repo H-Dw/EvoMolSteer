@@ -12,6 +12,7 @@ from .contracts import validate_ticks, earliest
 from .group_tools import PopulationTools
 from .io import canonical, read, write, value_sha, repository
 from .grid import description
+from .group_protocol import input_limit, budget_context
 
 
 def capacity_count(path, expected_teachers):
@@ -29,7 +30,7 @@ def capacity_count(path, expected_teachers):
     return n
 
 
-def response_schema(tools, count, evidence_ids, final_only=False):
+def response_schema(tools, count, evidence_ids, final_only=False, decision_audit=False):
     text = {'type': 'string', 'minLength': 1}
     hypothesis = {'type': 'object', 'additionalProperties': False,
         'properties': {'id': {'type': 'string', 'pattern': '^H[1-8]$'},
@@ -44,6 +45,10 @@ def response_schema(tools, count, evidence_ids, final_only=False):
         'properties': {'kind': {'const': 'hypotheses'}, 'population_diagnosis': text, 'memory_update': text,
             'hypotheses': {'type': 'array', 'minItems': count, 'maxItems': count, 'items': hypothesis}},
         'required': ['kind', 'population_diagnosis', 'memory_update', 'hypotheses']}
+    if decision_audit:
+        for key in ['diagnostic_alternative', 'expected_subgroup_response', 'revision_from_previous_result']:
+            hypothesis['properties'][key] = text
+            hypothesis['required'].append(key)
     if final_only:
         return final
     calls = [{'type': 'object', 'additionalProperties': False,
@@ -120,6 +125,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
         'teacher_pic50': data['teacher']['source_record']['pic50_on_rescore'],
         'core_atoms': len(data['teacher']['core_atoms']), 'candidates': 100,
         'observed_round': data['observed_round'], 'hypotheses_required': hypotheses,
+        'search_budget': budget_context(config, data['observed_round']),
         'common_anchor_ticks': anchor, 'verified_double_tick_directions': double,
         'group_history': group_history, 'published_reflections': published_reflections,
         'visibility': 'This group only, its own history and earlier published reflections; no sibling current-round data',
@@ -135,9 +141,10 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
         raise ValueError('Do not reuse an LLM session after its input, skill or config changed')
     write(output/'binding.json', binding)
     for turn in range(max_tool_turns+1):
-        schema = response_schema(tools, hypotheses, evidence, final_only=turn == max_tool_turns)
+        schema = response_schema(tools, hypotheses, evidence, final_only=turn == max_tool_turns,
+                                 decision_audit=config.get('council', {}).get('decision_audit', False))
         estimated_bytes = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
-        limit = config['llm']['input_hard_tokens']
+        limit = input_limit(config)
         if estimated_bytes > limit:
             raise ValueError(f'Group input/schema exceeds conservative byte budget: {estimated_bytes}>{limit}; request fewer detailed candidates')
         def validate(message):

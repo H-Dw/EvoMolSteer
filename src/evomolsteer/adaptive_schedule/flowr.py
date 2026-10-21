@@ -213,7 +213,9 @@ def instrument(model, provenance):
     integrator.coord_step = types.MethodType(coord_namespace["coord_step"], integrator)
 
     def draw(this, name, *args, **kwargs):
-        sample = getattr(torch, name)(*args, **kwargs)
+        observer = this._adaptive_observer
+        sample = (observer.random_streams.normal(name, *args, **kwargs)
+                  if hasattr(observer, "random_streams") else getattr(torch, name)(*args, **kwargs))
         this._adaptive_observer.noise_samples.append(sample.detach().clone())
         return sample
     integrator._adaptive_randn = types.MethodType(draw, integrator)
@@ -225,6 +227,16 @@ def instrument(model, provenance):
     cat_source = cat_source.replace(token,
         "    self._adaptive_observer.categories.append((step_probs.detach().clone(), samples.detach().clone()))\n"
         + token)
+    native_draw = "torch.distributions.Categorical(step_probs).sample()"
+    if cat_source.count(native_draw) != 1:
+        raise ValueError("Native categorical random draw changed")
+    cat_source = cat_source.replace(native_draw, "self._adaptive_categorical(step_probs)")
+    def categorical(this, probabilities):
+        observer = this._adaptive_observer
+        if hasattr(observer, "random_streams"):
+            return observer.random_streams.categorical(probabilities)
+        return torch.distributions.Categorical(probabilities).sample()
+    integrator._adaptive_categorical = types.MethodType(categorical, integrator)
     cat_namespace = dict(cat.__func__.__globals__)
     exec(compile(cat_source, "adaptive_native_category.py", "exec"), cat_namespace)
     integrator._uniform_sample_step = types.MethodType(cat_namespace["_uniform_sample_step"], integrator)

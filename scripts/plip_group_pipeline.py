@@ -1,0 +1,65 @@
+"""Formal four-hypothesis workflow. Launch inherits API/proxy environment without serializing values."""
+import argparse
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+
+def main():
+    from evomolsteer.adaptive_schedule.group_protocol import GROUP_ROOT
+    from evomolsteer.adaptive_schedule.io import read, write, repository, commit
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('command', choices=['prepare', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
+    p.add_argument('--root', type=Path, default=Path(GROUP_ROOT))
+    p.add_argument('--source-root', type=Path)
+    p.add_argument('--version', default='v1')
+    a = p.parse_args()
+    from evomolsteer.adaptive_schedule import group_run
+    if a.command == 'prepare':
+        if not a.source_root: p.error('--source-root is required')
+        result = group_run.prepare(a.root, a.source_root)
+    elif a.command == 'validate':
+        from evomolsteer.adaptive_schedule.group_validation import validate
+        result = validate(a.root)
+    elif a.command == 'run':
+        try:
+            result = group_run.run(a.root, a.version)
+        except Exception as exc:
+            import traceback
+            failure = {'type': type(exc).__name__, 'message': str(exc), 'traceback': traceback.format_exc(), 'time': time.time()}
+            write(a.root/'operations'/f'failure_{time.time_ns()}.json', failure)
+            write(a.root/'status.json', {'phase': 'attention', 'version': a.version, 'error_type': type(exc).__name__})
+            raise
+    elif a.command == 'launch':
+        from launch_plip_adaptive import check_api, idle_locks
+        group_run.assert_prepared(a.root)
+        if not (a.root/'ACCEPTANCE_COMPLETE.json').exists():
+            raise RuntimeError('Native acceptance is incomplete')
+        with idle_locks(a.root):
+            api = check_api()
+            if a.version != 'v1':
+                from evomolsteer.adaptive_schedule.group_review import review_check
+                review_check(a.root, a.version)
+            command = [sys.executable, '-u', str(Path(__file__).resolve()), 'run', '--root', str(a.root), '--version', a.version]
+            request = {'commit': commit(), 'command': command, 'api_check': api, 'time': time.time(), 'environment': 'full inherited; values omitted'}
+            write(a.root/'operations'/f'launch_{time.time_ns()}.json', request)
+        with (a.root/f'worker_{a.version}.log').open('ab') as log:
+            process = subprocess.Popen(command, cwd=repository(), env=os.environ.copy(), stdin=subprocess.DEVNULL,
+                                       stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        result = {**request, 'pid': process.pid, 'version': a.version}
+        write(a.root/'launch.json', result)
+    elif a.command == 'status':
+        result = {'status': read(a.root/'status.json') if (a.root/'status.json').exists() else {'phase': 'prepared'},
+                  'versions': {f'v{i}': (a.root/f'FINALIZED_v{i}.json').exists() for i in range(1, 21)}}
+    elif a.command == 'report':
+        result = group_run.report(a.root, a.version)
+    else:
+        from evomolsteer.adaptive_schedule.group_review import review_check, review_pack
+        result = (review_check if a.command == 'review-check' else review_pack)(a.root, a.version)
+    print(result)
+
+
+if __name__ == '__main__':
+    main()

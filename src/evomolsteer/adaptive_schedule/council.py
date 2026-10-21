@@ -16,6 +16,7 @@ from .group_agent import plan_population
 from .group_tools import PopulationTools, score_summary, paired
 from .contracts import validate_ticks
 from .io import canonical, read, write, value_sha, sha, repository
+from .group_protocol import input_limit, budget_context
 
 
 class BoundedCaller:
@@ -129,8 +130,8 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
     analyst_skill = Path(analyst_skill or repository()/'skills/plip-group-analyst/SKILL.md')
     synthesis_skill = Path(synthesis_skill or repository()/'skills/plip-group-synthesizer/SKILL.md')
     synthesis_output_limit = config.get('council', {}).get('max_output_tokens', 32768)
-    if type(synthesis_output_limit) is not int or not 16384 <= synthesis_output_limit <= 32768:
-        raise ValueError('Synthesis output budget must be an explicit integer within 16K..32K')
+    if type(synthesis_output_limit) is not int or not 16384 <= synthesis_output_limit <= 65536:
+        raise ValueError('Synthesis output budget must be an explicit integer within 16K..64K')
     binding = {'schema': 'plip-four-plus-one-v1', 'teacher_id': teacher, 'observed_round': round_no,
         'private_population_hashes': {s['group_id']: value_sha(d) for s, d in zip(specs, private)},
         'anchors': [s['anchor_ticks'] for s in specs],
@@ -193,6 +194,9 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
             proposals[key] = {k: j[k] for k in ['ticks', 'direction', 'exploration_degree', 'hypothesis',
                 'expected_mean_effect', 'expected_best_effect', 'falsifier', 'evidence_ids']}
             proposals[key]['group_id'] = gid
+            for field in ['diagnostic_alternative', 'expected_subgroup_response', 'revision_from_previous_result']:
+                if field in j:
+                    proposals[key][field] = j[field]
             for eid in j['evidence_ids']:
                 f = output/'analysts'/gid/'tools'/(eid.removeprefix('tool:')+'.json')
                 value = read(f)
@@ -218,6 +222,7 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
         proposal['evidence_ids'] = [aliases[eid] for eid in proposal['evidence_ids']]
     write(output/'synthesis.full_evidence.json', full_evidence)
     payload = {'teacher_id': teacher, 'observed_round': round_no, 'groups': groups, 'proposals': proposals,
+        'search_budget': budget_context(config, round_no),
         'evidence': evidence, 'earlier_published_reflections': published_reflections,
         'evidence_projection': 'All referenced tools and candidate/trial entries retained; candidate file/SMILES metadata omitted; diagnostics displayed to 6 decimals. Full precision sources archived by ID/hash.',
         'priority': ['mean_pic50', 'best_pic50'], 'next_group_count': 4, 'candidates_per_group': 100,
@@ -227,9 +232,9 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
     schema = synthesis_schema(list(proposals), list(evidence))
     size = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
     write(output/'synthesis.evidence.json', payload)
-    write(output/'synthesis.budget.json', {'conservative_bytes': size, 'limit': config['llm']['input_hard_tokens'],
+    write(output/'synthesis.budget.json', {'conservative_bytes': size, 'limit': input_limit(config),
         'source_bytes': len(canonical(full_evidence).encode('utf-8')), 'projected_bytes': len(canonical(evidence).encode('utf-8'))})
-    if size > config['llm']['input_hard_tokens']:
+    if size > input_limit(config):
         raise ValueError('Synthesis evidence exceeds the explicit input budget; evidence preserved without silent truncation')
     def validate(result):
         jsonschema.validate(result, schema)
@@ -262,7 +267,8 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
     selection = {'schema': 'plip-council-selection-v1', 'teacher_id': teacher, 'observed_round': round_no,
         'candidates_per_group': 100, 'logical_llm_sessions': 5,
         'jobs': [{'priority': i+1, 'source_proposal_id': row['proposal_id'],
-                  'ticks': proposals[row['proposal_id']]['ticks']} for i, row in enumerate(result['selected'])],
+                  'ticks': proposals[row['proposal_id']]['ticks'],
+                  'proposal': proposals[row['proposal_id']]} for i, row in enumerate(result['selected'])],
         'parent_policy': payload['parent_policy'], 'published_memory_sha256': sha(output/'published_memory.json'),
         'binding_sha256': sha(output/'binding.json'), 'formal_gpu_executed': False}
     write(output/'selection.json', selection)
