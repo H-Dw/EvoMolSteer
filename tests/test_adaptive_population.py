@@ -91,6 +91,7 @@ def test_runner_advances_full_population_before_next_agent_round(tmp_path, monke
     from evomolsteer.adaptive_schedule import runner
     from evomolsteer.adaptive_schedule.io import value_sha
     config = defaults()
+    config["execution"]["scheduler"] = "serial"
     config["rounds"] = 2
     teacher = {"teacher_id": "5nn4_SC2_A_1017__top1", "target": "5nn4_SC2_A_1017",
                "source_record": {"pic50_on_rescore": 7.8}}

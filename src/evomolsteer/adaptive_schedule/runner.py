@@ -1,5 +1,4 @@
 """Durable per-slot histories, shared-prefix branches and bounded background execution."""
-import concurrent.futures
 import contextlib
 import os
 import shutil
@@ -207,9 +206,8 @@ def initial_history(relative, rows):
     }]} for i, row in enumerate(rows)]
 
 
-def run_batch(model, root, config, template, batch, version, skill, fast, through_round=None, population=None):
+def run_batch(model, root, config, template, batch, version, skill, fast, through_round=None, population=None, proposals=None):
     from .flowr import compose
-    from .agent import propose
     relative, rows = r0(model, config, root, template, batch)
     parent_folder = root / "versions" / version / template["teacher_id"] / f"batch_{batch:03d}"
     parent_folder.mkdir(parents=True, exist_ok=True)
@@ -229,20 +227,16 @@ def run_batch(model, root, config, template, batch, version, skill, fast, throug
             raise ValueError("Agent proposals require frozen evidence for all 100 chains in this round")
         call_folder = parent_folder / f"round_{round_no:02d}"
         call_folder.mkdir(exist_ok=True)
-        actions = [None] * 20
-        with concurrent.futures.ThreadPoolExecutor(max_workers=config["llm"]["concurrency"]) as executor:
-            tasks = {executor.submit(propose, root, config, template, c["slot"], c["history"], c["best_id"],
-                                     skill, call_folder / f"slot_{c['slot']:03d}.json", population=population): c["slot"] for c in chains}
-            failures = []
-            for future in concurrent.futures.as_completed(tasks):
-                slot = tasks[future]
-                try:
-                    actions[slot] = future.result()
-                except Exception:
-                    failures.append({"slot": slot, "traceback": traceback.format_exc()})
-            if failures:
-                write(call_folder / "errors.json", failures)
-                raise RuntimeError(f"LLM proposal failure in {len(failures)} slots; successful calls retained")
+        from .prefetch import ProposalPool, collect
+        if proposals is not None:
+            actions = collect(proposals, chains, population, call_folder)
+        else:
+            pool = ProposalPool(config["llm"]["concurrency"])
+            try:
+                bundle = pool.submit(root, config, template, chains, skill, call_folder, population)
+                actions = collect(bundle, chains, population, call_folder)
+            finally:
+                pool.close()
         parents = [next(h for h in c["history"] if h["id"] == a["parent_id"]) for c, a in zip(chains, actions)]
         starts = [earliest(p["ticks"], a["ticks"]) for p, a in zip(parents, actions)]
         schedules = [a["ticks"] for a in actions]
@@ -337,46 +331,50 @@ def run(root, version, skill=None, teacher_id=None, batch_index=None):
         if state["invalid"] or state["unexpected"]:
             raise ValueError("Cohort completion markers are inconsistent: " + str(state))
         model, loaded_target = None, None
-        for template in templates:
-            folders = [root / "versions" / version / template["teacher_id"] / f"batch_{b:03d}"
-                       for b in range(config["batches"])]
-            if all((f / "COMPLETE.json").exists() for f in folders):
-                continue
-            if loaded_target != template["target"]:
-                if model is not None:
-                    del model
-                    torch.cuda.empty_cache()
-                model = load_model(config, template["target"], root)
-                loaded_target = template["target"]
-            # R0 for all 100 chains, then R1 for all 100, etc. Every action in
-            # a round observes the same frozen population, including on resume.
-            for round_no in range(config["rounds"] + 1):
-                population = round_context(root, config, template, version, round_no) if round_no else None
-                round_failed = False
-                for batch, folder in enumerate(folders):
-                    path = folder / "histories.json"
-                    if round_no > 0 and path.exists() and all(len(c["history"]) > round_no for c in read(path)):
-                        continue
-                    for attempt in range(config["max_recoveries"]):
-                        try:
-                            write(root / "status.json", {"phase": "running", "version": version,
-                                "operation": "preparing_r0_population" if round_no == 0 else "optimizing_round",
-                                "teacher": template["teacher_id"], "batch": batch, "round": round_no,
-                                "time": time.time()})
-                            run_batch(model, root, config, template, batch, version, frozen_skill,
-                                      validation["fast_batch_pass"], round_no, population)
-                            break
-                        except Exception:
-                            error = {"teacher": template["teacher_id"], "batch": batch, "round": round_no,
-                                     "attempt": attempt + 1, "traceback": traceback.format_exc(), "time": time.time()}
-                            write(folder / f"round_{round_no:02d}" / f"error_{attempt+1:02d}.json", error)
-                            if attempt == config["max_recoveries"] - 1:
-                                failures.append(error)
-                                round_failed = True
-                            else:
-                                time.sleep([30, 120][attempt])
-                if round_failed:
-                    break
+        if config.get("execution", {}).get("scheduler") == "interleaved_prefetch":
+            from .prefetch import interleaved_run
+            failures = interleaved_run(root, config, templates, version, frozen_skill, validation["fast_batch_pass"])
+        else:
+            for template in templates:
+                folders = [root / "versions" / version / template["teacher_id"] / f"batch_{b:03d}"
+                           for b in range(config["batches"])]
+                if all((f / "COMPLETE.json").exists() for f in folders):
+                    continue
+                if loaded_target != template["target"]:
+                    if model is not None:
+                        del model
+                        torch.cuda.empty_cache()
+                    model = load_model(config, template["target"], root)
+                    loaded_target = template["target"]
+                # R0 for all 100 chains, then R1 for all 100, etc. Every action in
+                # a round observes the same frozen population, including on resume.
+                for round_no in range(config["rounds"] + 1):
+                    population = round_context(root, config, template, version, round_no) if round_no else None
+                    round_failed = False
+                    for batch, folder in enumerate(folders):
+                        path = folder / "histories.json"
+                        if round_no > 0 and path.exists() and all(len(c["history"]) > round_no for c in read(path)):
+                            continue
+                        for attempt in range(config["max_recoveries"]):
+                            try:
+                                write(root / "status.json", {"phase": "running", "version": version,
+                                    "operation": "preparing_r0_population" if round_no == 0 else "optimizing_round",
+                                    "teacher": template["teacher_id"], "batch": batch, "round": round_no,
+                                    "time": time.time()})
+                                run_batch(model, root, config, template, batch, version, frozen_skill,
+                                          validation["fast_batch_pass"], round_no, population)
+                                break
+                            except Exception:
+                                error = {"teacher": template["teacher_id"], "batch": batch, "round": round_no,
+                                         "attempt": attempt + 1, "traceback": traceback.format_exc(), "time": time.time()}
+                                write(folder / f"round_{round_no:02d}" / f"error_{attempt+1:02d}.json", error)
+                                if attempt == config["max_recoveries"] - 1:
+                                    failures.append(error)
+                                    round_failed = True
+                                else:
+                                    time.sleep([30, 120][attempt])
+                    if round_failed:
+                        break
         state = progress(root, version, config, all_templates)
         phase = "review_ready" if version == "v1" else "complete"
         if state["complete"] and not failures:

@@ -87,6 +87,8 @@ def defaults():
         "history": str(HISTORY), "flowr": "/opt/MolSteer/flowr_root",
         "targets": list(TARGETS), "teacher_selection": [dict(t) for t in TEACHERS],
         "seeds": list(SEEDS), "batch_size": 20, "batches": 5, "steps": 100,
+        "execution": {"scheduler": "interleaved_prefetch", "proposal_lookahead_batches": 2,
+                      "gpu_owners": 1, "native_batch_size": 20},
         "features": "C", "mode": "endpoint", "initial_ticks": list(INITIAL_TICKS), "rounds": 10,
         "window_steps_inclusive": [10, 90], "control_nodes": [s/100 for s in CONTROL_NODES],
         "control_intervals": description(), "checkpoint_steps": list(CHECKPOINT_STEPS),
