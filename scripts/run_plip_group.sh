@@ -11,4 +11,8 @@ if [[ "${1:-}" == "test" ]]; then
     cd "$TASK_REPO"
     exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B -m pytest "$@"
 fi
+if [[ "${1:-}" == "analyze" ]]; then
+    shift
+    exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B "$TASK_REPO/scripts/report_plip_council.py" "$@"
+fi
 exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -B "$TASK_REPO/scripts/plip_group_pipeline.py" "$@"

@@ -14,6 +14,7 @@ Python命令入口为 `scripts/plip_group_pipeline.py`；默认root为plan中的
 3. `launch --version v1`：验收通过后，认证网络预检成功才脱离SSH。完整继承API/代理，不记录值。
 4. `status`：结合真实进程、pipeline.json、质量状态及日志判断，不能只凭running。
 5. `report --version vN` / `review-pack --version vN`：重建阶段报告或审阅分片，不新增采样。
+6. `analyze`：综合所有已运行版本，输出逐假设/整组择优/TOP1的Mean、Best、Top10、质量、历史基线差异、版本配对、共享批次bootstrap、案例和计算/token成本。
 
 工作进程持有worker.lock；两个教师单GPU、CPU/LLM交错。实际部署以launch.json、workers.json及版本deployment.json为准。
 失败写operations/failure_*.json并标记attention。成功采样/请求/质量缓存复用；不得覆盖失败证据。
