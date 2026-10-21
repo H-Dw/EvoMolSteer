@@ -89,3 +89,11 @@ V1两教师各5轮共4000条优化结果、质量评价及清理均已完成；`
 完整证据包在远端`operations/v1_review_evidence.tar.gz`，SHA256为`c5b73ec77fe001d4b162cce2929c28d58dea79104bcfb19db9e77566dc7405f1`。本地`.cache/v1_review_evidence/`已解压，`.cache/read_council_review.py`可显示分片；Windows使用Python UTF-8模式，避免Unicode错误。实际文件及消息哈希必须继续核验。第二位教师从manifest顺序索引26开始，不重复第一位教师已保存的审阅。
 
 当前尚未修改运行skills、批准或启动V2。完成全量52会话及通用技能修订后，再按上文执行提交、推送、固定commit部署、真实review_approval和review-check。保持20分钟自动续接；等待复盘是正常阶段，不是需要重新启动worker的故障。
+
+## V1全量复盘完成与V2技能修订（后续记录）
+
+已完成52/52会话，核对172个请求文件、204个去重消息哈希；coverage_000至010共11片，前十片各5条、末片2条。先前26条实质意见保留，coverage_005已补齐。以最新版progress和完整review.zh-CN.md为准，不再从索引26继续。
+
+本次仅修改通用analyst/synthesizer skills及审阅文档。主要修正B−A方向、实际数组/区间对应、选择性incumbent与固定组的区别、集中Mean收益、互逆动作响应、有效位移与评分分层诊断，以及公共记忆核查。没有修改奖励、科学源码、R0、输入预算、并发或清理策略。
+
+按上文完成本地测试/提交/推送、固定版本部署、全量review-check后才启动V2。实际批准和启动提交/PID记录于远端versions/v2/review_approval.json、deployment.json、根目录launch.json与operations；本地审阅文件里的pending_deployment_gate是提交时状态，不应覆盖后续真实启动记录。V2继续复用新服务器共享R0并清空搜索历史，5轮后再次全量复盘，预算仍为V1–V20。
