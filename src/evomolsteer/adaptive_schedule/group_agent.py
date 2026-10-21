@@ -146,7 +146,8 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
         write(output/f'turn_{turn:02d}.budget.json', {'conservative_bytes': estimated_bytes, 'limit': limit})
         if response['kind'] == 'hypotheses':
             parents = [{"candidate_id": c['candidate_id'], 'parent_id': c['incumbent_id'],
-                        'source_branch': tools.trial(c, 'incumbent').get('source_branch'),
+                        'source_branch': c.get('restart_branch', tools.trial(c, 'incumbent').get('source_branch')),
+                        'restartable_at_export': c.get('restartable', False),
                         'source_slot': c.get('slot'), 'source_batch': c.get('batch'),
                         'parent_ticks': tools.trial(c, 'incumbent')['ticks']} for c in data['chains']]
             jobs = []

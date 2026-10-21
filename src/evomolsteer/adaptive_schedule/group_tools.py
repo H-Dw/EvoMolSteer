@@ -133,7 +133,14 @@ def export_legacy_population(root, teacher_id, version, observed_round, output):
                     "source_branch": h['branch'],
                     "nodes": {str(s): diagnostic(h['branch'], c['slot'], s) for s in CHECKPOINT_STEPS},
                     "intervals": interval_summary(diagnostic(h['branch'], c['slot']))})
+            index_path = root/'versions'/version/teacher_id/f'batch_{batch:03d}'/'retention.json'
+            retained = document(index_path) if index_path.exists() else None
+            restart_branch = (retained['restart_refs'][c['slot']] if retained and retained['best_ids'][c['slot']] == best['id']
+                              else best['branch'])
+            restart_folder = root/restart_branch
+            restartable = all((restart_folder/f'checkpoint_{s:03d}.pt.gz').exists() for s in [10, 26, 51, 76])
             chains.append({"candidate_id": f'b{batch:03d}:s{c["slot"]:03d}', "batch": batch, "slot": c['slot'],
+                           "restart_branch": restart_branch, "restartable": restartable,
                            "incumbent_id": best['id'], "latest_id": history[-1]['id'], "trials": trials})
     result = {"schema": 'plip-population-evidence-v1', "teacher": template,
               "observed_round": observed_round, "version": version, "chains": chains,

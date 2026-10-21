@@ -1,0 +1,1861 @@
+{
+  "schema": "plip-group-hypotheses-v1",
+  "population_sha256": "4b6888ab87841bd25a343d900e35ccd4d0dfea24b627282339e0fcc7bb0e5202",
+  "common_sha256": "33006ad497fcbf2bd4b66c6fbef1b40b44bebc603be4b07e32aa14d157e5204b",
+  "skill_sha256": "ad671725ba08e9127da3f3d84be9b6e7f0a238bdd88d198401760780acf2e8a5",
+  "llm": {
+    "model": "deepseek-flash",
+    "key_env": "DEEPSEEK_API_KEY",
+    "thinking": true,
+    "reasoning_effort": "high",
+    "max_output_tokens": 16384,
+    "input_soft_tokens": 32768,
+    "input_hard_tokens": 131072,
+    "concurrency": 4,
+    "timeout": 300,
+    "attempts": 3
+  },
+  "teacher_id": "5nn4_SC2_A_1017__top1",
+  "observed_round": 4,
+  "common_anchor_ticks": [
+    5,
+    5,
+    5,
+    5
+  ],
+  "population_diagnosis": "Across r00-r04 the 100-candidate population is effectively frozen: means 4.1295/4.1547/4.1405/4.1962/4.1476 against the incumbent snapshot 4.19627, medians 3.48-3.54, q90 ~6.66-6.78, top10_mean 7.242-7.248, max pinned at ~7.7080 in every round, 100/100 valid and 0 failed attempts (tool:8680d811...). The paired latest-vs-incumbent comparison is degenerate rather than informative: all 100 common-valid, delta mean +9.4e-5 (incumbent minus latest) with q90 1.9e-4 and win rate 0.42 (tool:7710cd0c...), and the frozen-quartile subgroup split shows the same ~1e-4 scale in Q1-Q4 with no quartile gaining (tool:58aa6fb6...). This rules out a strong subgroup-specific compromise and rules out the clipping/matching explanation: clip_factor is 1.0 and clipped_fraction is 0.0 in every interval except a single 0.0008 in the 26-50 window (tool:aea9c3ef..., tool:2f3e73db...). The remaining explanation is the first one: guidance displacement is orders of magnitude too small to correct the mismatch. Mean inside_rms_A is only 0.00092 A (10-25), 0.00047 A (26-50), 0.00019 A (51-75) and 0.00028 A (76-90), i.e. total steering well under 0.002 A, while late-state geometry at step 25 shows core-atom RMS 0.662 A mean (median 0.645, q90 1.074, max 1.563 A) versus the fixed protein frame (tool:323ac8af...). Mismatch therefore persists essentially uncorrected into the late checkpoints, and the cumulative loss grows monotonically (0.173 -> 0.200 -> 0.234 -> 0.279 -> 0.316) while gradient_drift_cosine turns increasingly negative (mean -0.020 early, -0.082 mid, -0.148 and -0.134 late), consistent with guidance that is too weak early to be productive and later mildly discordant with the native gradient. Search budget for this planning round: 4 hypotheses x 100 unselected candidates = 400 new attempts, all on the same pre-round incumbent snapshot; this is separate from and adds to the 5 already-logged rounds (r00-r04, 500 attempts) and must not be conflated with per-chain TOP1 selection across rounds.",
+  "memory_update": "For this teacher (5nn4_SC2_A_1017__top1, teacher_pic50 7.8378, anchor ticks [5,5,5,5]): recorded direction to avoid repeating - nominal amplitude changes near the current scale are nearly inert because effective guidance displacement is ~1e-3 A and no clipping occurs, so further small tweaks that do not raise inside_rms_A out of the 1e-3 A regime should be treated as low-information. The 0.42 win rate and per-quartile ~1e-4 deficits say the last round is a tie, not a genuine degradation, so the incumbent is retained as the shared parent. Open questions for the next evidence request: does raising interval 0 alone (10-25) produce the largest inside_rms_A gain and does that gain map to Q3/Q4 rescored pIC50; does weakening the late interval (76-90) reduce the increasingly negative gradient_drift_cosine without giving back Best; and is there any interval whose amplitude increase is absorbed by matching (assignment_switch_fraction) rather than converted into core-atom displacement. Maximum Best has been 7.7080 in every round versus teacher 7.8378, so Best potential remains an untested axis rather than a saturated one.",
+  "parents": [
+    {
+      "candidate_id": "b000:s000",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r03",
+      "source_slot": 0,
+      "source_batch": 0,
+      "parent_ticks": [
+        4,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s001",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r02",
+      "source_slot": 1,
+      "source_batch": 0,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s002",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r04",
+      "source_slot": 2,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        6,
+        4,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b000:s003",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/r0",
+      "source_slot": 3,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s004",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/r0",
+      "source_slot": 4,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s005",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r02",
+      "source_slot": 5,
+      "source_batch": 0,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s006",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r04",
+      "source_slot": 6,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        2
+      ]
+    },
+    {
+      "candidate_id": "b000:s007",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r03",
+      "source_slot": 7,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        4,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s008",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r04",
+      "source_slot": 8,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        5,
+        2,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s009",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r02",
+      "source_slot": 9,
+      "source_batch": 0,
+      "parent_ticks": [
+        6,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s010",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r03",
+      "source_slot": 10,
+      "source_batch": 0,
+      "parent_ticks": [
+        6,
+        6,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b000:s011",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r04",
+      "source_slot": 11,
+      "source_batch": 0,
+      "parent_ticks": [
+        8,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s012",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/r0",
+      "source_slot": 12,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s013",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r04",
+      "source_slot": 13,
+      "source_batch": 0,
+      "parent_ticks": [
+        6,
+        6,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s014",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r03",
+      "source_slot": 14,
+      "source_batch": 0,
+      "parent_ticks": [
+        6,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s015",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r04",
+      "source_slot": 15,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        3,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s016",
+      "parent_id": "r01",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r01",
+      "source_slot": 16,
+      "source_batch": 0,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b000:s017",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/r0",
+      "source_slot": 17,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s018",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/r0",
+      "source_slot": 18,
+      "source_batch": 0,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b000:s019",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_000/v1_r02",
+      "source_slot": 19,
+      "source_batch": 0,
+      "parent_ticks": [
+        3,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s000",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r03",
+      "source_slot": 0,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s001",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r02",
+      "source_slot": 1,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        6,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s002",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 2,
+      "source_batch": 1,
+      "parent_ticks": [
+        7,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s003",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 3,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s004",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 4,
+      "source_batch": 1,
+      "parent_ticks": [
+        4,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s005",
+      "parent_id": "r01",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r01",
+      "source_slot": 5,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s006",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 6,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        6,
+        4,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b001:s007",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 7,
+      "source_batch": 1,
+      "parent_ticks": [
+        4,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b001:s008",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 8,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s009",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 9,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s010",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r02",
+      "source_slot": 10,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        5,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s011",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r03",
+      "source_slot": 11,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s012",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 12,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        5,
+        6,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b001:s013",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/r0",
+      "source_slot": 13,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s014",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r03",
+      "source_slot": 14,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s015",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/r0",
+      "source_slot": 15,
+      "source_batch": 1,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s016",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 16,
+      "source_batch": 1,
+      "parent_ticks": [
+        7,
+        6,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b001:s017",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 17,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        6,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b001:s018",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r04",
+      "source_slot": 18,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        5,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b001:s019",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_001/v1_r02",
+      "source_slot": 19,
+      "source_batch": 1,
+      "parent_ticks": [
+        6,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s000",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 0,
+      "source_batch": 2,
+      "parent_ticks": [
+        8,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s001",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 1,
+      "source_batch": 2,
+      "parent_ticks": [
+        4,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s002",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 2,
+      "source_batch": 2,
+      "parent_ticks": [
+        5,
+        6,
+        4,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b002:s003",
+      "parent_id": "r01",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r01",
+      "source_slot": 3,
+      "source_batch": 2,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b002:s004",
+      "parent_id": "r01",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r01",
+      "source_slot": 4,
+      "source_batch": 2,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s005",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 5,
+      "source_batch": 2,
+      "parent_ticks": [
+        4,
+        6,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b002:s006",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 6,
+      "source_batch": 2,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b002:s007",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 7,
+      "source_batch": 2,
+      "parent_ticks": [
+        7,
+        6,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s008",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 8,
+      "source_batch": 2,
+      "parent_ticks": [
+        4,
+        6,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s009",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 9,
+      "source_batch": 2,
+      "parent_ticks": [
+        8,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s010",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 10,
+      "source_batch": 2,
+      "parent_ticks": [
+        5,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s011",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 11,
+      "source_batch": 2,
+      "parent_ticks": [
+        5,
+        4,
+        4,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b002:s012",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 12,
+      "source_batch": 2,
+      "parent_ticks": [
+        5,
+        6,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b002:s013",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r03",
+      "source_slot": 13,
+      "source_batch": 2,
+      "parent_ticks": [
+        6,
+        5,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s014",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 14,
+      "source_batch": 2,
+      "parent_ticks": [
+        5,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s015",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r02",
+      "source_slot": 15,
+      "source_batch": 2,
+      "parent_ticks": [
+        4,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s016",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 16,
+      "source_batch": 2,
+      "parent_ticks": [
+        6,
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b002:s017",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 17,
+      "source_batch": 2,
+      "parent_ticks": [
+        6,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b002:s018",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 18,
+      "source_batch": 2,
+      "parent_ticks": [
+        7,
+        5,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b002:s019",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_002/v1_r04",
+      "source_slot": 19,
+      "source_batch": 2,
+      "parent_ticks": [
+        6,
+        6,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s000",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 0,
+      "source_batch": 3,
+      "parent_ticks": [
+        6,
+        6,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s001",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 1,
+      "source_batch": 3,
+      "parent_ticks": [
+        3,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s002",
+      "parent_id": "r01",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r01",
+      "source_slot": 2,
+      "source_batch": 3,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s003",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/r0",
+      "source_slot": 3,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s004",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 4,
+      "source_batch": 3,
+      "parent_ticks": [
+        6,
+        5,
+        4,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b003:s005",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 5,
+      "source_batch": 3,
+      "parent_ticks": [
+        7,
+        5,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b003:s006",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 6,
+      "source_batch": 3,
+      "parent_ticks": [
+        4,
+        6,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s007",
+      "parent_id": "r01",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r01",
+      "source_slot": 7,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s008",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r03",
+      "source_slot": 8,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        4,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s009",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 9,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        5,
+        4,
+        3
+      ]
+    },
+    {
+      "candidate_id": "b003:s010",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 10,
+      "source_batch": 3,
+      "parent_ticks": [
+        4,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s011",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r02",
+      "source_slot": 11,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        5,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s012",
+      "parent_id": "r02",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r02",
+      "source_slot": 12,
+      "source_batch": 3,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s013",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 13,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        7,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s014",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 14,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        4,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b003:s015",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 15,
+      "source_batch": 3,
+      "parent_ticks": [
+        6,
+        7,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s016",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 16,
+      "source_batch": 3,
+      "parent_ticks": [
+        7,
+        5,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b003:s017",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/r0",
+      "source_slot": 17,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b003:s018",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 18,
+      "source_batch": 3,
+      "parent_ticks": [
+        5,
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "candidate_id": "b003:s019",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_003/v1_r04",
+      "source_slot": 19,
+      "source_batch": 3,
+      "parent_ticks": [
+        7,
+        7,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s000",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 0,
+      "source_batch": 4,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        1
+      ]
+    },
+    {
+      "candidate_id": "b004:s001",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r03",
+      "source_slot": 1,
+      "source_batch": 4,
+      "parent_ticks": [
+        5,
+        3,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s002",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 2,
+      "source_batch": 4,
+      "parent_ticks": [
+        7,
+        6,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s003",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 3,
+      "source_batch": 4,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b004:s004",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 4,
+      "source_batch": 4,
+      "parent_ticks": [
+        6,
+        3,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s005",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 5,
+      "source_batch": 4,
+      "parent_ticks": [
+        2,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s006",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/r0",
+      "source_slot": 6,
+      "source_batch": 4,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s007",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 7,
+      "source_batch": 4,
+      "parent_ticks": [
+        4,
+        5,
+        6,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s008",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r03",
+      "source_slot": 8,
+      "source_batch": 4,
+      "parent_ticks": [
+        6,
+        6,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b004:s009",
+      "parent_id": "r00",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/r0",
+      "source_slot": 9,
+      "source_batch": 4,
+      "parent_ticks": [
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s010",
+      "parent_id": "r01",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r01",
+      "source_slot": 10,
+      "source_batch": 4,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s011",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r03",
+      "source_slot": 11,
+      "source_batch": 4,
+      "parent_ticks": [
+        4,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s012",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 12,
+      "source_batch": 4,
+      "parent_ticks": [
+        3,
+        6,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s013",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 13,
+      "source_batch": 4,
+      "parent_ticks": [
+        8,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s014",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r03",
+      "source_slot": 14,
+      "source_batch": 4,
+      "parent_ticks": [
+        5,
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s015",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 15,
+      "source_batch": 4,
+      "parent_ticks": [
+        4,
+        6,
+        5,
+        6
+      ]
+    },
+    {
+      "candidate_id": "b004:s016",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 16,
+      "source_batch": 4,
+      "parent_ticks": [
+        8,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s017",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 17,
+      "source_batch": 4,
+      "parent_ticks": [
+        6,
+        7,
+        5,
+        5
+      ]
+    },
+    {
+      "candidate_id": "b004:s018",
+      "parent_id": "r03",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r03",
+      "source_slot": 18,
+      "source_batch": 4,
+      "parent_ticks": [
+        6,
+        5,
+        5,
+        4
+      ]
+    },
+    {
+      "candidate_id": "b004:s019",
+      "parent_id": "r04",
+      "source_branch": "branches/5nn4_SC2_A_1017__top1/batch_004/v1_r04",
+      "source_slot": 19,
+      "source_batch": 4,
+      "parent_ticks": [
+        5,
+        8,
+        5,
+        4
+      ]
+    }
+  ],
+  "jobs": [
+    {
+      "id": "H1",
+      "ticks": [
+        6,
+        5,
+        5,
+        5
+      ],
+      "direction": "Modestly increase only the early interval 0 (steps 10-25) by one tick, leaving intervals 1-3 at anchor.",
+      "exploration_degree": "low: one interval, one tick, escalation of the currently weakest effective-displacement window",
+      "hypothesis": "Interval 0 currently produces only 0.00092 A mean inside displacement, the largest of the four intervals but still ~400x smaller than the 0.662 A mean core-atom mismatch, and the 10-25 window still has the most matching activity (assignment_switch_fraction mean 0.074, q90 0.156 in both latest and incumbent). Raising interval 0 alone should convert early into genuine core-atom movement instead of assignment churn, giving the late intervals a better starting geometry without importing the late gradient conflict seen at 51-90.",
+      "expected_mean_effect": "Small positive shift in the 100-candidate mean (incumbent 4.19627): expectation is a modest gain concentrated where the mismatch is largest, plausibly in the mid/upper score quartiles Q3-Q4 that tolerate larger core displacement, while Q1 low scorers are expected to be roughly unchanged; the ~1e-4 tie seen last round is the base rate to beat, so any real effect must exceed that by an order of magnitude.",
+      "expected_best_effect": "Best has been pinned at 7.7078-7.7080 for five rounds and is unlikely to break from a one-tick early change; the plausible outcome is Best unchanged with top10_mean (7.242-7.248) drifting up slightly, i.e. the upper tail thickens rather than a new maximum appearing.",
+      "falsifier": "Falsified if interval_diagnostics shows interval 0 inside_rms_A still below ~0.002 A mean (i.e. no meaningful displacement gain over 0.00092 A), or if the unselected-100 mean is not above 4.19627 while win_rate_common_valid stays near 0.4 and no quartile in subgroup_response gains.",
+      "evidence_ids": [
+        "tool:aea9c3ef0458fd936a0eff29af768f6efa3ef9ede55b4c98b2e5709f140c5305",
+        "tool:323ac8afc6f88d90fafd57d623ad62f38eb6226645031a192622921b1bfa67c6",
+        "tool:8680d811029e0f46322b1b34320586016cfa82641df5ebc76c66b8ba42f3512a"
+      ],
+      "candidates": 100,
+      "ticks_for_all_candidates": [
+        6,
+        5,
+        5,
+        5
+      ],
+      "earliest_common_restart": 10,
+      "per_candidate_restart_steps": [
+        10,
+        100,
+        10,
+        10,
+        10,
+        100,
+        10,
+        10,
+        10,
+        26,
+        26,
+        10,
+        10,
+        26,
+        26,
+        10,
+        76,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        26,
+        10,
+        10,
+        10,
+        10,
+        100,
+        10,
+        10,
+        51,
+        51,
+        10,
+        100,
+        10,
+        10,
+        26,
+        51,
+        26,
+        10,
+        10,
+        10,
+        10,
+        100,
+        10,
+        76,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        51,
+        10,
+        10,
+        26,
+        51,
+        10,
+        26,
+        26,
+        10,
+        100,
+        10,
+        51,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        100,
+        10,
+        10,
+        26,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        26,
+        10,
+        10,
+        10,
+        26,
+        10,
+        100,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        26,
+        76,
+        10
+      ],
+      "parent_population_sha256": "4b41220f58f476a4425f08328114e5a5667cb3e7c2bb169886d98f3c6e9c60a0"
+    },
+    {
+      "id": "H2",
+      "ticks": [
+        5,
+        6,
+        5,
+        5
+      ],
+      "direction": "Modestly increase only the mid interval 1 (steps 26-50) by one tick, leaving the early and late intervals at anchor.",
+      "exploration_degree": "low: one interval, one tick, applied to the window with the steepest loss growth",
+      "hypothesis": "The 26-50 window is where cumulative loss first climbs sharply (0.200 -> 0.234) and where gradient_drift_cosine goes clearly negative (mean -0.082, q10 -0.289) while inside displacement has already collapsed to 0.00047 A mean. If the early interval 0 is not the binding constraint, then supporting the mid window is what carries the still-large 0.66 A mismatch toward the binding pose: one extra tick there should raise interval-1 displacement and reduce the late loss escalation that currently runs to 0.316.",
+      "expected_mean_effect": "Expect a small positive mean contribution, possibly larger than an interval-0 change if the score is set in the mid-to-late stage; predicted improvement should show in the middle quartiles (Q2-Q3) where partial poses can still be rescued, with Q1 largely unchanged.",
+      "expected_best_effect": "Low probability of a new maximum; the more likely signature is unchanged max near 7.7080 with a slight rise in q90 (currently 6.7824) reflecting a few chains converting to better poses.",
+      "falsifier": "Falsified if interval_diagnostics shows interval 1 inside_rms_A not rising above ~0.001 A mean, if assignment_switch_fraction in 26-50 rises without a matching displacement gain (churn instead of movement), or if the unselected-100 mean fails to exceed 4.19627.",
+      "evidence_ids": [
+        "tool:aea9c3ef0458fd936a0eff29af768f6efa3ef9ede55b4c98b2e5709f140c5305",
+        "tool:2f3e73db2616886a53facd08186e9a70c1b70b60d305385e448776d4fb3ea674",
+        "tool:7710cd0c4f00ba97b17682820f8cb0e3c90d3cd8763eff7045d138e1b1457e17"
+      ],
+      "candidates": 100,
+      "ticks_for_all_candidates": [
+        5,
+        6,
+        5,
+        5
+      ],
+      "earliest_common_restart": 10,
+      "per_candidate_restart_steps": [
+        10,
+        10,
+        51,
+        26,
+        26,
+        10,
+        26,
+        26,
+        26,
+        10,
+        10,
+        10,
+        26,
+        10,
+        10,
+        26,
+        10,
+        26,
+        26,
+        10,
+        26,
+        51,
+        10,
+        10,
+        10,
+        26,
+        51,
+        10,
+        10,
+        26,
+        26,
+        10,
+        10,
+        26,
+        10,
+        26,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        51,
+        26,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        26,
+        26,
+        76,
+        10,
+        26,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        26,
+        10,
+        10,
+        10,
+        100,
+        26,
+        26,
+        10,
+        26,
+        10,
+        26,
+        26,
+        10,
+        10,
+        26,
+        51,
+        10,
+        26,
+        26,
+        10,
+        26,
+        10,
+        10,
+        26,
+        10,
+        10,
+        26,
+        10,
+        10,
+        10,
+        10,
+        26,
+        10,
+        10,
+        10,
+        10,
+        26
+      ],
+      "parent_population_sha256": "4b41220f58f476a4425f08328114e5a5667cb3e7c2bb169886d98f3c6e9c60a0"
+    },
+    {
+      "id": "H3",
+      "ticks": [
+        5,
+        5,
+        6,
+        5
+      ],
+      "direction": "Increase only interval 2 (steps 51-75) by one tick, testing whether the late-middle window is the best place to spend guidance.",
+      "exploration_degree": "low-moderate: one interval, one tick, but in the window with the smallest effective displacement and the most negative gradient drift",
+      "hypothesis": "Interval 2 has the lowest mean inside displacement (0.00019 A) and the most negative gradient_drift_cosine (mean -0.148, q10 -0.458) of any window, and it is the only window with any clipping at all (clipped_fraction 0.0008, min clip_factor 0.988). If the late state is where the pose is actually decided for high-affinity chains, a one-tick increase here should both raise displacement and test whether the negative drift is a symptom of under-guidance or of inherent conflict; if the latter, this hypothesis should degrade rather than help, which is informative either way.",
+      "expected_mean_effect": "Most uncertain of the four: if late guidance is under-powered the mean rises modestly with gains in Q3-Q4; if the negative cosine indicates genuine discord, the mean stays flat or slips within the ~1e-4 tie band already observed.",
+      "expected_best_effect": "This is the hypothesis most likely to move the upper tail, since late-window influence acts on already-formed poses; predicted Best either exceeds 7.7080 modestly or is unchanged, but top10_mean is the more likely mover.",
+      "falsifier": "Falsified as a positive direction if clipped_fraction in 51-75 rises materially above 0.0008 while inside_rms_A stays near 0.0002 A, or if gradient_drift_cosine becomes more negative and the unselected-100 mean falls below 4.19627 with Q3/Q4 losing in subgroup_response.",
+      "evidence_ids": [
+        "tool:aea9c3ef0458fd936a0eff29af768f6efa3ef9ede55b4c98b2e5709f140c5305",
+        "tool:323ac8afc6f88d90fafd57d623ad62f38eb6226645031a192622921b1bfa67c6",
+        "tool:58aa6fb6860ea6db6375c4347831dc189c3ec5ab0ddf446f91df0a178edc3d6c"
+      ],
+      "candidates": 100,
+      "ticks_for_all_candidates": [
+        5,
+        5,
+        6,
+        5
+      ],
+      "earliest_common_restart": 10,
+      "per_candidate_restart_steps": [
+        10,
+        10,
+        26,
+        51,
+        51,
+        10,
+        51,
+        26,
+        51,
+        10,
+        10,
+        10,
+        51,
+        10,
+        10,
+        26,
+        10,
+        51,
+        51,
+        10,
+        26,
+        26,
+        10,
+        10,
+        10,
+        26,
+        26,
+        10,
+        10,
+        26,
+        100,
+        10,
+        10,
+        51,
+        10,
+        51,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        26,
+        51,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        51,
+        26,
+        26,
+        10,
+        51,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        51,
+        10,
+        10,
+        10,
+        26,
+        26,
+        51,
+        10,
+        100,
+        10,
+        26,
+        26,
+        10,
+        10,
+        51,
+        26,
+        10,
+        51,
+        26,
+        10,
+        51,
+        10,
+        10,
+        51,
+        10,
+        10,
+        51,
+        10,
+        10,
+        10,
+        10,
+        51,
+        10,
+        10,
+        10,
+        10,
+        26
+      ],
+      "parent_population_sha256": "4b41220f58f476a4425f08328114e5a5667cb3e7c2bb169886d98f3c6e9c60a0"
+    },
+    {
+      "id": "H4",
+      "ticks": [
+        5,
+        5,
+        5,
+        4
+      ],
+      "direction": "Contrasting direction: weaken only the late interval 3 (steps 76-90) by one tick, leaving all earlier intervals at anchor.",
+      "exploration_degree": "low: one interval, one tick, in the opposite (negative) direction to H1-H3",
+      "hypothesis": "Late guidance is a plausible net negative: interval 3 delivers only 0.00028 A mean displacement while cumulative loss peaks at 0.316 and gradient_drift_cosine stays clearly negative (-0.134), and the 91-99 window that follows with zero guidance (inside_rms 0.0) does not rescue the score. If late guidance contributes drift rather than useful movement, removing one tick should hold or improve the mean by letting the native gradient act at the end, and it also tests the 'good local geometry, worse affinity' explanation separately from under-guidance.",
+      "expected_mean_effect": "Predicted small positive or neutral mean change with the gain concentrated in Q1-Q2 (weakly scoring chains that late guidance may be pushing off-target), while upper quartiles stay flat; a negative result here is strong evidence that the late window is genuinely under-powered rather than harmful.",
+      "expected_best_effect": "Best expected essentially unchanged (7.7078-7.7080); if anything a slightly lower max, so this hypothesis trades a little tail for a broader mean and is deliberately the conservative-affinity probe.",
+      "falsifier": "Falsified if the unselected-100 mean drops below 4.19627 with no quartile gaining, or if interval_diagnostics shows interval 3 inside_rms_A rising instead of falling (meaning the tick reduction did not actually reduce effective late displacement).",
+      "evidence_ids": [
+        "tool:aea9c3ef0458fd936a0eff29af768f6efa3ef9ede55b4c98b2e5709f140c5305",
+        "tool:2f3e73db2616886a53facd08186e9a70c1b70b60d305385e448776d4fb3ea674",
+        "tool:8680d811029e0f46322b1b34320586016cfa82641df5ebc76c66b8ba42f3512a"
+      ],
+      "candidates": 100,
+      "ticks_for_all_candidates": [
+        5,
+        5,
+        5,
+        4
+      ],
+      "earliest_common_restart": 10,
+      "per_candidate_restart_steps": [
+        10,
+        10,
+        26,
+        76,
+        76,
+        10,
+        76,
+        26,
+        51,
+        10,
+        10,
+        10,
+        76,
+        10,
+        10,
+        26,
+        10,
+        76,
+        76,
+        10,
+        26,
+        26,
+        10,
+        10,
+        10,
+        26,
+        26,
+        10,
+        10,
+        26,
+        51,
+        10,
+        10,
+        76,
+        10,
+        76,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        26,
+        100,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        51,
+        26,
+        26,
+        10,
+        51,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        76,
+        10,
+        10,
+        10,
+        26,
+        26,
+        51,
+        10,
+        51,
+        10,
+        26,
+        26,
+        10,
+        10,
+        76,
+        26,
+        10,
+        76,
+        26,
+        10,
+        76,
+        10,
+        10,
+        76,
+        10,
+        10,
+        76,
+        10,
+        10,
+        10,
+        10,
+        51,
+        10,
+        10,
+        10,
+        10,
+        26
+      ],
+      "parent_population_sha256": "4b41220f58f476a4425f08328114e5a5667cb3e7c2bb169886d98f3c6e9c60a0"
+    }
+  ],
+  "candidate_attempts_if_executed": 400,
+  "llm_turns": 2,
+  "planning_only": true,
+  "gpu_executed": false,
+  "execution_requires": "validated 100-slot mixed-parent recovery, frozen RNG/wave mapping, quality-before-prune transaction"
+}

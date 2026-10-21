@@ -6,7 +6,7 @@ import jsonschema
 import pytest
 
 from evomolsteer.adaptive_schedule.group_tools import (
-    distribution, score_summary, paired, local_geometry, interval_summary, PopulationTools)
+    distribution, score_summary, paired, local_geometry, interval_summary, PopulationTools, export_legacy_population)
 from evomolsteer.adaptive_schedule.group_agent import (
     plan_population, capacity_count, validate_hypotheses, verified_double_directions)
 from evomolsteer.adaptive_schedule.io import defaults, read, write
@@ -140,3 +140,27 @@ def test_input_change_cannot_reuse_an_existing_group_session(tmp_path):
     data['chains'][0]['trials'][0]['record']['pic50_on_rescore'] = 8
     with pytest.raises(ValueError, match='Do not reuse'):
         plan_population(data, tmp_path, defaults(), caller=caller)
+
+
+def test_export_uses_retained_restart_sources_and_rejects_incomplete_population(tmp_path):
+    root = tmp_path/'source'
+    t = population()['teacher']
+    write(root/'teachers.json', [t])
+    for b in range(5):
+        branch = f'branches/b{b}'
+        write(root/branch/'manifest.json', {'schedules': [[5]*4]*20, 'parents': [None]*20, 'start_step': 0})
+        write(root/branch/'nodes.json', {str(s): {'step': s, 'local_endpoint_A': [[[1, 0, 0]]]*20} for s in CHECKPOINT_STEPS})
+        write(root/branch/'steps.json', [{'step': s, 'clip_factor': [1]*20} for s in range(100)])
+        folder = root/'versions/v1/t'/f'batch_{b:03d}'
+        write(folder/'histories.json', [{'slot': i, 'best_id': 'r00', 'history': [
+            {'id': 'r00', 'branch': branch, 'ticks': [5]*4, 'record': record(4)}]} for i in range(20)])
+        retained = f'retained/b{b}'
+        write(folder/'retention.json', {'best_ids': ['r00']*20, 'restart_refs': [retained]*20})
+        (root/retained).mkdir(parents=True)
+        for s in [10, 26, 51, 76]:
+            (root/retained/f'checkpoint_{s:03d}.pt.gz').write_bytes(b'placeholder; existence-only export')
+    data = export_legacy_population(root, 't', 'v1', 0, tmp_path/'population.json')
+    assert len(data['chains']) == 100
+    assert all(c['restartable'] and c['restart_branch'].startswith('retained/') for c in data['chains'])
+    with pytest.raises(ValueError, match='completed'):
+        export_legacy_population(root, 't', 'v1', 1, tmp_path/'incomplete.json')
