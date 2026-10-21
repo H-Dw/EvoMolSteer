@@ -7,7 +7,7 @@ import pytest
 
 from test_plip_group_agent import population, hypotheses
 from evomolsteer.adaptive_schedule.council import (
-    analyze_four_groups, private_group, validate_synthesis, BoundedCaller)
+    analyze_four_groups, private_group, validate_synthesis, BoundedCaller, compact_evidence)
 from evomolsteer.adaptive_schedule.io import defaults, read
 from evomolsteer.adaptive_schedule.group_tools import PopulationTools
 
@@ -55,7 +55,8 @@ def test_four_private_analysts_overlap_then_one_synthesis_selects_four(tmp_path)
             response = {'comparison': 'compare all four', 'failure_directions': 'test',
                 'public_memory': 'published after private analysis', 'ranked_proposal_ids': ids,
                 'selected': [{'proposal_id': p, 'mean_reason': 'mean', 'best_reason': 'best',
-                    'risk_and_uncertainty': 'test', 'evidence_ids': [p.split(':')[0]+':analysis']} for p in selected]}
+                    'risk_and_uncertainty': 'test', 'evidence_ids': [next(k for k, v in payload['evidence'].items()
+                        if v['source_id'] == p.split(':')[0]+':analysis')]} for p in selected]}
         kwargs['response_validator'](response)
         with lock:
             calls.append(str(output))
@@ -161,3 +162,17 @@ def test_global_http_limit_is_shared_between_teachers():
         for future in futures:
             future.result()
     assert peak == 4
+
+
+def test_synthesis_projection_retains_every_failure_and_trial_without_mutating_sources():
+    source = {'tool': 'candidate_history', 'result': [{'candidate_id': 'c0', 'trials': [
+        {'id': 'r00', 'ticks': [5]*4, 'record': {'pic50_on_rescore': 4.123456789,
+            'build_success': True, 'connected': True, 'smiles': 'CC', 'failure_reason': ''}},
+        {'id': 'r01', 'ticks': [4, 5, 5, 5], 'record': {'pic50_on_rescore': None,
+            'build_success': False, 'connected': False, 'failure_reason': 'invalid'}}]}]}
+    result = compact_evidence(source)
+    assert len(result['result'][0]['trials']) == 2
+    assert result['result'][0]['trials'][1]['record']['failure_reason'] == 'invalid'
+    assert result['result'][0]['trials'][0]['record']['pic50_on_rescore'] == 4.123457
+    assert source['result'][0]['trials'][0]['record']['smiles'] == 'CC'
+    assert 'smiles' not in result['result'][0]['trials'][0]['record']

@@ -79,6 +79,32 @@ def validate_synthesis(result, proposals):
         raise ValueError('Selected shared schedules must be distinct; do not spend duplicate 100-candidate groups')
 
 
+def compact_evidence(value):
+    """Projection for synthesis only; immutable full tool records remain on disk.
+
+    Every candidate/trial is retained. Strip molecule file/SMILES metadata from
+    candidate histories, not failures or scores. Display numeric diagnostics to
+    six decimals; source evidence IDs and hashes bind the original precision.
+    """
+    result = copy.deepcopy(value)
+    if result.get('tool') == 'candidate_history':
+        for chain in result['result']:
+            for trial in chain['trials']:
+                record = trial.get('record', {})
+                trial['record'] = {k: v for k, v in record.items() if k in {
+                    'pic50_on_rescore', 'build_success', 'connected', 'failure_reason',
+                    'posebusters_pass', 'severe_clash', 'plip_recovery', 'local_rms_A'}}
+    def rounded(x):
+        if isinstance(x, float):
+            return round(x, 6)
+        if isinstance(x, list):
+            return [rounded(v) for v in x]
+        if isinstance(x, dict):
+            return {k: rounded(v) for k, v in x.items()}
+        return x
+    return rounded(result)
+
+
 def analyze_four_groups(specs, output, config, *, published_reflections=None,
                         caller=None, analyst_skill=None, synthesis_skill=None):
     """No GPU execution. Fail closed if any analyst fails; preserve all successes."""
@@ -171,14 +197,29 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
     for a in range(4):
         for b in range(a+1, 4):
             evidence[f'paired:G{a+1}:G{b+1}'] = paired(group_records[a], group_records[b])
+    # Short aliases remove repeated 64-character hashes from schemas and every
+    # proposal citation; each alias still links to the complete source evidence.
+    aliases = {eid: f'E{i+1:03d}' for i, eid in enumerate(evidence)}
+    full_evidence = evidence
+    evidence = {aliases[eid]: {'source_id': eid, 'source_sha256': value_sha(value),
+                              'value': compact_evidence(value)} for eid, value in full_evidence.items()}
+    for group in groups:
+        group['report_evidence_id'] = aliases[group['report_evidence_id']]
+    for proposal in proposals.values():
+        proposal['evidence_ids'] = [aliases[eid] for eid in proposal['evidence_ids']]
+    write(output/'synthesis.full_evidence.json', full_evidence)
     payload = {'teacher_id': teacher, 'observed_round': round_no, 'groups': groups, 'proposals': proposals,
         'evidence': evidence, 'earlier_published_reflections': published_reflections,
+        'evidence_projection': 'All referenced tools and candidate/trial entries retained; candidate file/SMILES metadata omitted; diagnostics displayed to 6 decimals. Full precision sources archived by ID/hash.',
         'priority': ['mean_pic50', 'best_pic50'], 'next_group_count': 4, 'candidates_per_group': 100,
         'parent_policy': 'Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.'}
     messages = [{'role': 'system', 'content': synthesis_skill.read_text(encoding='utf-8')},
                 {'role': 'user', 'content': canonical(payload)}]
     schema = synthesis_schema(list(proposals), list(evidence))
     size = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
+    write(output/'synthesis.evidence.json', payload)
+    write(output/'synthesis.budget.json', {'conservative_bytes': size, 'limit': config['llm']['input_hard_tokens'],
+        'source_bytes': len(canonical(full_evidence).encode('utf-8')), 'projected_bytes': len(canonical(evidence).encode('utf-8'))})
     if size > config['llm']['input_hard_tokens']:
         raise ValueError('Synthesis evidence exceeds the explicit input budget; evidence preserved without silent truncation')
     def validate(result):
@@ -187,7 +228,6 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
             validate_synthesis(result, proposals)
         except ValueError as exc:
             raise jsonschema.ValidationError(str(exc)) from exc
-    write(output/'synthesis.evidence.json', payload)
     result = caller(messages, schema, output/'synthesis.json', model=config['llm']['model'],
         timeout=config['llm']['timeout'], attempts=config['llm']['attempts'],
         max_output_tokens=config['llm']['max_output_tokens'], thinking=config['llm']['thinking'],
