@@ -5,8 +5,8 @@
 
 ## 准备和运行
 
-先本地测试提交推送，再远端检出固定commit。设置PYTHONPATH为该部署目录/src、OMP_NUM_THREADS=4。
-命令入口为 `scripts/plip_group_pipeline.py`；默认root为plan中的新council结果目录。
+先本地测试提交推送，再远端检出固定commit。统一通过 `bash scripts/run_plip_group.sh` 启动：它继承原DTK、LD_LIBRARY_PATH和已审计的依赖覆盖目录，包含h5py与PLIP，不另换科学环境。
+Python命令入口为 `scripts/plip_group_pipeline.py`；默认root为plan中的新council结果目录。
 
 1. `prepare --source-root /opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021`
    仅从旧根引用历史配置、模板、基线及初态，不导入旧R0/优化结果。新根只能prepare一次。
