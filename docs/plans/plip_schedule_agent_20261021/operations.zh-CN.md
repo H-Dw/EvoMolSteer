@@ -79,3 +79,13 @@ Agent提出了超过单轮允许变动的调度；本应触发有界纠正，但
 - 第一份失败响应未能写出token收据，其成本未知。综合报告通过`llm_missing_receipts.json`标注这类缺失；记录到的usage不代表完整费用，不能补造缺失收据。
 - 续跑已确认两教师bootstrap各完成2次成功API请求，四个假设通过校验；Top1进入R1物理batch400推理，Top2在就绪队列等待GPU。不能据此宣称整轮已提交或V1完成。
 - 综合分析脚本另部署于`/opt/MolSteer/runtimes/plip_council_b799f467`（提交`b799f467aed38c89f3c35d09a03defe35e4d9c1a`）；仅新增未知成本标注及文档，不改变运行中的6e86c456推理进程。
+
+## V1完成与分片复盘进度（2026-10-22）
+
+V1两教师各5轮共4000条优化结果、质量评价及清理均已完成；`FINALIZED_v1.json`存在，PID162635正常退出，状态为`awaiting_master_review`。已使用b799f467版本执行综合analyze；不要再次运行prepare、重采样V1或将旧bootstrap错误视为未恢复故障。
+
+首批GPT审阅覆盖26/52会话，全部属于第一位教师（bootstrap、R1–R5私有与汇总）；第二位教师26会话待审阅。逐条实质意见、证据绑定、报告快照和续接索引在`docs/experiments/plip_council_20261022/v1_review/`，先读`progress.json`与`review.zh-CN.md`。`coverage_005.json`目前仅含一条，后续应保留该条并补齐源分片剩余会话。不能把自动生成的来源索引当成实质审阅，也不能只检查覆盖文件存在。
+
+完整证据包在远端`operations/v1_review_evidence.tar.gz`，SHA256为`c5b73ec77fe001d4b162cce2929c28d58dea79104bcfb19db9e77566dc7405f1`。本地`.cache/v1_review_evidence/`已解压，`.cache/read_council_review.py`可显示分片；Windows使用Python UTF-8模式，避免Unicode错误。实际文件及消息哈希必须继续核验。第二位教师从manifest顺序索引26开始，不重复第一位教师已保存的审阅。
+
+当前尚未修改运行skills、批准或启动V2。完成全量52会话及通用技能修订后，再按上文执行提交、推送、固定commit部署、真实review_approval和review-check。保持20分钟自动续接；等待复盘是正常阶段，不是需要重新启动worker的故障。

@@ -1,0 +1,175 @@
+{
+  "sessions": [
+    {
+      "id": "v1/5nn4_SC2_A_1017__top1/r04/synthesis",
+      "evidence_sha256": "9d698713b8bd8e13436e1df65d909d44b07b82661bce3ead12f720be069bed2b",
+      "assessment": "R4 synthesis correctly reports same-wave G2-G1 -0.001086 and G3-G1 -0.000037, and chooses an early extension, a matched third-window pair and a terminal decrement. It incorrectly calls [6,5,6,5] and [6,5,5,5] new schedules although they were sampled earlier, repeats the strongest-terminal-opposition error, and propagates arbitrary 0.03 gates. R5 selected Means are 4.151162, 4.162170, 4.162146 and 4.188957.",
+      "decision_update": "Maintain a schedule-and-parent evidence ledger so the council distinguishes a new tick vector, replay, new parent exposure and a new same-wave contrast. Preserve the useful matched pair but rank expected Mean and diagnostic value separately, without rejecting finite Mean benefits simply because they are concentrated.",
+      "counterexample_or_limitation": "R5 G2 versus G3 differs only in the third tick and has a mean gap of about 0.000024, while the early extension is the worst selected Mean. The G1-G4 contrast differs in two ticks, so the larger 0.037795 gap cannot isolate a single interval. No single observed failure proves a universal timing optimum.",
+      "evidence_files": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/selection.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis.wire_1.request.json"
+      ],
+      "actual_requests": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "cef06a24f4707e76bc52814a71c915fc404d837fdad80be1a5e07f7d86a8488b": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis_inputs/cef06a24f4707e76bc52814a71c915fc404d837fdad80be1a5e07f7d86a8488b.txt",
+          "role": "system"
+        },
+        "811b086dc756ebb628f0a54dce8be47cb88e9f7c871293dfd0eb7f00bf6f71e4": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis_inputs/811b086dc756ebb628f0a54dce8be47cb88e9f7c871293dfd0eb7f00bf6f71e4.txt",
+          "role": "user"
+        },
+        "71d07818cf104b5ea4b7e275e6de8fdd2e63a7be714827559c808e09ee99d29f": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_04/council/synthesis_inputs/71d07818cf104b5ea4b7e275e6de8fdd2e63a7be714827559c808e09ee99d29f.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v1/5nn4_SC2_A_1017__top1/r05/G1",
+      "evidence_sha256": "f0b608cadf46168d202fa342a957da86687be5a6c7ed30e2cda2a0ed690bac2b",
+      "assessment": "R5 G1 produces an initially schema-invalid response with extra fields, then a compliant repair retaining essentially the same reasoning. It correctly reads incumbent-minus-latest +0.063647, but says one candidate explains the entire gap although max 3.49683 contributes only 0.034968 to a 100-member mean. It claims -0.037765 is the only negative lineage change despite other negatives, and calls the terminal window globally untested although prior public rounds include terminal edits. Its revert and terminal-increment suggestions are review-only.",
+      "decision_update": "Compute an influential candidate contribution as delta divided by paired count before claiming dominance or total explanation; consult the actual lineage/public history ledger. Preserve all schema failures and repaired requests. Record the observed deterioration without replacing Mean by a median gate or declaring noise/saturation from one failed extension.",
+      "counterexample_or_limitation": "The latest Mean falls while Top10 rises to 7.29361, a concrete Mean-tail tradeoff contradicting total tail immobility. The proposed [7,6,6,5] and [8,6,6,6] have no subsequent sampled outcome; the executor correctly stops after R5.",
+      "evidence_files": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/tools/9b301c9e2699aaa4565fe0058b171369977c2e1e14470e81f126001292a3fbbf.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/tools/d338042a08f901d57ba835dee8a5391216148215c6ee3dcd56a6b520d7a6ccba.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_1.invalid.receipt.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_1.invalid.txt",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.repair_1.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.wire_1.request.json"
+      ],
+      "actual_requests": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.repair_1.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/llm_inputs/767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf.txt",
+          "role": "system"
+        },
+        "5056f16cd1c4bf3002f218fdd9ba70eae55a628e8726e744debb4140544648a4": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/llm_inputs/5056f16cd1c4bf3002f218fdd9ba70eae55a628e8726e744debb4140544648a4.txt",
+          "role": "user"
+        },
+        "1f2b0865556464118d3ceb90df7d4dcfc3a629a5e3ece884a2f72f637d286fe1": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/llm_inputs/1f2b0865556464118d3ceb90df7d4dcfc3a629a5e3ece884a2f72f637d286fe1.txt",
+          "role": "user"
+        },
+        "16cb30cf571501adfa647c78fa2bf4c065af15c7239ca42345ea476899b6791c": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/llm_inputs/16cb30cf571501adfa647c78fa2bf4c065af15c7239ca42345ea476899b6791c.txt",
+          "role": "assistant"
+        },
+        "c88b3e6a7f4316aa9e6234784619d915ca1a7980eea0d13bee3a7e61cbd45d46": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/llm_inputs/c88b3e6a7f4316aa9e6234784619d915ca1a7980eea0d13bee3a7e61cbd45d46.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v1/5nn4_SC2_A_1017__top1/r05/G2",
+      "evidence_sha256": "c403d0f9294340ee9bfc884896ff51abc1c2bc0dac884829c8b0c7e31f815e3f",
+      "assessment": "R5 G2 correctly reports latest Mean 4.162170 versus incumbent 4.214809 and notes that the 0.052639 advantage is concentrated. It requests no new diagnostics, proposes [6,6,6,5] and [6,5,6,4] only for review, and repeatedly labels the allowed control as mostly inert using inherited memory rather than candidate-level mechanics. Its claim of an affinity ceiling and generic noise bounds remains unsupported.",
+      "decision_update": "Retain the clear budget boundary and comparator orientation. When proposing a mid/terminal diagnostic after a null, specify the missing mechanistic evidence and how it could distinguish proxy mismatch, discrete branching and inadequate actuation. Do not promote unchanged Best over five rounds into a ceiling or erase valid tail contributions from Mean.",
+      "counterexample_or_limitation": "The close R5 G2/G3 same-wave scores constrain the local third-window increment at this context, but neither of this session's proposals is executed. Absence of validity conversions is an observed result, not proof that quality carries no risk in future schedules.",
+      "evidence_files": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/tools/617e08dbce44a3a85e6be6c18cc06c5575fa73e265cca9c88777a15015f901c9.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/tools/78c644098a23bc39434ac07033a881e005b62841a6bdb5de04e07dee408da70c.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/turn_00.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/turn_00.wire_1.request.json"
+      ],
+      "actual_requests": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/turn_00.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/llm_inputs/767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf.txt",
+          "role": "system"
+        },
+        "c601d499ddb9ffe92e5835e527e4aa1667c9dbb5af94542cba348604fc4defa4": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/llm_inputs/c601d499ddb9ffe92e5835e527e4aa1667c9dbb5af94542cba348604fc4defa4.txt",
+          "role": "user"
+        },
+        "82b259e4858cb0a607e2c16018dd9ca718f2edb3202e9cf5560a2298e6a8f9f5": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/llm_inputs/82b259e4858cb0a607e2c16018dd9ca718f2edb3202e9cf5560a2298e6a8f9f5.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v1/5nn4_SC2_A_1017__top1/r05/G3",
+      "evidence_sha256": "d360f5f7b1d897ccf81355e61ce27df46640b1f0741aca8a89f7ed1dc79174c7",
+      "assessment": "R5 G3 offers a useful symmetric terminal bracket [6,5,5,6] and [6,5,5,4], but misreads the approximately +0.0289 increase then -0.0278 reversal on lowering early guidance as evidence against a dose direction. It states one candidate carries the whole 0.052663 incumbent gap although max 2.39982 contributes only 0.023998. New median +0.005 and Mean +0.03 gates are invented, and the claim that exact contrasts never exceed 0.011 ignores earlier public evidence.",
+      "decision_update": "Interpret reversal tests relative to the sign of the action: an upward response followed by a downward response may be directionally consistent, while changed parents still limit attribution. Preserve symmetric local contrasts, calculate influence fractions, and retain objective-aligned Mean without fabricated thresholds.",
+      "counterexample_or_limitation": "The observed lineage does not establish a globally monotone early-window response; other schedules fail, and the source changes are not all same-parent experiments. Both terminal proposals remain unexecuted, so a bracket cannot be called diagnostic replication or an estimated slope yet.",
+      "evidence_files": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/tools/102298ea4c0469ea277f50c1009157925b9b4ea9e61d17b32131baba786e9ff8.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/tools/6bed54d0feafa9c15f6c9bfcefb847a515b080cb81d6222a712dc8e6e732ea81.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/turn_00.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/turn_00.wire_1.request.json"
+      ],
+      "actual_requests": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/turn_00.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/llm_inputs/767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf.txt",
+          "role": "system"
+        },
+        "ba9b7fa390d97a52a0916f700f12fb1cf0afb282b9de287249ea24e7b1188e95": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/llm_inputs/ba9b7fa390d97a52a0916f700f12fb1cf0afb282b9de287249ea24e7b1188e95.txt",
+          "role": "user"
+        },
+        "45baec4e59ba6d1f9c3f30edba2754a7dcfcd004507e438bff19fddada6a56d0": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G3/llm_inputs/45baec4e59ba6d1f9c3f30edba2754a7dcfcd004507e438bff19fddada6a56d0.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v1/5nn4_SC2_A_1017__top1/r05/G4",
+      "evidence_sha256": "cddf3a58f7855a65809e5405f0534d6cc0ae6a485597ae55740e07b6f7187644",
+      "assessment": "R5 G4 reports the correct population means and small own-lineage terminal change (+0.00002949), but again treats incumbent-minus-latest +0.025852 as conflicting with latest being lower. The tool definition fully reconciles them. It proposes [6,6,6,4] and [7,7,6,4] as review-only directions, while calling paired median/q90 noise rather than distribution summaries.",
+      "decision_update": "Require the arithmetic comparator check even after previous reflections claimed the sign issue resolved. For a small local terminal response, limit the conclusion to this comparison and report missing matched geometry, rather than asserting affinity-inert control. Use signed effects, not an empirically uncalibrated noise label.",
+      "counterexample_or_limitation": "The same lineage changed very little across the terminal decrement, but its 0.025852 deficit to selected incumbents is a different question. Neither suggested next schedule was sampled, and cross-round selected-parent effects remain a limitation.",
+      "evidence_files": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/tools/43b8fc14549f55a1e0436b488964d011b4211e096656eb3bcc471da4893e05db.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/tools/9132e94987f2e2397d086c837a4d66f422ade764afbdb8d18705c0a284389c85.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/turn_00.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/turn_00.wire_1.request.json"
+      ],
+      "actual_requests": [
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/turn_00.request.json",
+        "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/turn_00.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/llm_inputs/767f22f6142159ecc4475992c330c3b3868153e5e341d2f32418fa02d4cd8aaf.txt",
+          "role": "system"
+        },
+        "9541097b79e0d7dc02ac4dc0558bd0331376cb2d265d01e0fb216c6be10bc647": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/llm_inputs/9541097b79e0d7dc02ac4dc0558bd0331376cb2d265d01e0fb216c6be10bc647.txt",
+          "role": "user"
+        },
+        "dcba4ef6cd220ec740e5ab2c72e417324fd1171082d77962f0e82fa1cbde0344": {
+          "path": "versions/v1/5nn4_SC2_A_1017__top1/round_05/council/analysts/G4/llm_inputs/dcba4ef6cd220ec740e5ab2c72e417324fd1171082d77962f0e82fa1cbde0344.txt",
+          "role": "user"
+        }
+      }
+    }
+  ]
+}
