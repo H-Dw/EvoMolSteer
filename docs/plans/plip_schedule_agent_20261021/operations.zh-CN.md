@@ -8,6 +8,10 @@
 `teacher_pipeline.run_teacher_pipeline`提供单GPU所有者、两教师就绪队列和LLM/CPU重叠调度，质量与TOP1发布完成后才允许下一轮。
 它要求显式注入经过验收的原生推理和清理适配器；当前尚未接入正式100H混合父状态执行器，不可用旧20槽位runner代替。
 当前正式实验和定时任务仍暂停。早先单会话4假设实测只作历史证据，不代表已经运行4+1新流程。
+最新真实4+1验证现已完成：固定代码`1bb51aba`，目录`operations/council_validation_1bb51aba`。
+其中四组实际API输入归属核验通过，汇总八选四成功；12次成功请求及另1次失败请求均保留。
+汇总32K输出预算独立于组内16K，输入仍限制128 KiB。诊断反思存在已标注的科学措辞误读，不能导入正式历史。
+完整记录见[council_validation_20261022/README.zh-CN.md](council_validation_20261022/README.zh-CN.md)。
 
 当前教师仅原Top1/Top2。下文r123三教师部署段落属于历史记录，不能据此恢复旧三教师任务。
 最新决策/预算见[group_hypotheses.zh-CN.md](group_hypotheses.zh-CN.md)：每教师100候选一起进行Agent分析，每假设共用四区间幅度。

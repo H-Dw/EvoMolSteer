@@ -1,0 +1,81 @@
+{
+  "comparison": "Observed, not forecast: all four groups enter round 0 untested. Incumbent and latest are identical in every group, so paired common-valid deltas are exactly 0.0 with 100/100 valid, zero conversions and 0.0 win rate (E003, E012, E022, E028); all four score-quartile responses are 0 (E009, E022). Group levels are 3.8384/3.8858/3.9657/4.0288 mean, medians 3.4381-3.5077, top10 6.1636-7.0396, best 7.1106-7.5584 (E002, E011, E023, E027). Cross-group paired differences are small and noisy: means -0.190 to +0.143, win rates 0.47-0.55, individual deltas spanning about +-4.5 (E035-E040), so paired SE is near 0.3 and G3's highest observed mean is not evidence for G3's schedule. Validity/uncertainty: clipping is inactive everywhere (clip_factor 1.0, clipped_fraction 0.0 except one 0.0004 event; E004, E013, E020, E029), max guided displacement <=0.0041 A, native ratios 0.0-0.030, so no proposal can win by relieving saturation, and any validity conversion or clip rise would itself signal over-driving. Residual geometry never converges: final core RMS 0.675/0.765/0.787/0.735 A (E006, E015, E021, E033), leaving both an early and a late lever. The early lever is not reproducible in magnitude: identical 5-tick interval 0 gave step-25 RMS 0.592 A in G3 (E018) but 2.678 A in G4 (E031) from the same ~3.2 A start. Duplicates and selection: G1:H1 and G3:H1 are the same schedule [5,5,5,5]; only G3:H1 is selectable. Four distinct directions are chosen: uniform mid-restore [5,5,5,5], late consolidation [5,6,5,6], early acquisition [6,4,5,5], mid-run strengthening [4,5,6,5]. All are one-tick changes and pairwise distinguishable on the interval 0/1/2/3 axes; [4,5,6,5] differs from [5,5,5,5] in two intervals, so its mid effect is partly confounded. G2:H2 (two changes, opposite mid direction), G4:H1 (paraphrase of the early assumption) and G2:H1 (most aggressive early push on the group already strongest early) rank below and are not selected.",
+  "failure_directions": "No direction has yet failed in-round: incumbent and latest are byte-identical in all four groups, all paired deltas are exactly 0.0 with 100/100 common-valid and no conversions (E003, E012, E022, E028), and every quartile response is 0 (E009, E022). The eight proposals are therefore forward probes, not re-tests. Hypotheses already tempered or refuted by the data: (a) 'guidance strength or validity is the binding constraint' - clip_factor is 1.0 and clipped_fraction 0.0 in every interval, max atom guidance <=0.0041 A, so no gain can be attributed to relieving clipping or converting invalid candidates (E004, E013, E020, E029); (b) 'more early ticks reliably tighten early geometry' - at an identical 5-tick interval 0, step-25 core RMS was 0.592 A in G3 but 2.678 A in G4 from the same ~3.2 A start (E018, E031), so early-tick yield is population-dependent; (c) 'the group with the highest observed mean has the best schedule' - cross-group paired means span -0.190 to +0.143 at win rates 0.47-0.55 with deltas near +-4.5, indistinguishable from noise (E035-E040); (d) per-candidate drift as a score proxy - G3's c085 drifts most yet scores 3.80 among higher scorers (E025). Disagreement to keep live: G1 treats interval 2 (51-75) as under-guided and readable because correspondence is stable (switch 0.0156) with clipping 0 (E004), while G2 treats the same window as misaligned and futile (drift cosine -0.171, ratio 0.00160) and proposes withdrawing a tick (E013); the chosen [4,5,6,5] and the unselected [6,5,4,6] test opposite directions. Unresolved: whether late interval-3 ticks consolidate or are wasted given few effective updates; whether interval 0 acquisition or interval 1 maintenance dominates (G3:H1 vs G3:H2); and whether any checkpoint RMS change propagates to rescored pIC50 - no within-round measurement links intermediate geometry or affinity to final rescored affinity, so all such links remain hypotheses, not causation.",
+  "public_memory": "Round 0 is an untested baseline, not a trial. Across four groups (400 candidates total, 100 per group, one trial each, ticks 4-6 over steps 10-90) incumbent and latest are identical, so every paired delta is exactly 0.0 with 100/100 common-valid, no validity conversions and win rate 0.0 (E003, E012, E022, E028); all quartile responses are 0 (E009). No schedule has failed yet - the proposals are forecasts. The per-chain TOP1 teacher (7.8378) is a selected search output from a limited budget and must be judged only against other selected TOP1s, never against the mean of the four unselected 100-candidate distributions (3.84-4.03). Learned: distributions are left-skewed and scaffold-dominated (sugar polyols 5.1-7.2 vs aromatic carboxylates 2.6-4.6 in G1), medians 3.44-3.51 against best 7.11-7.56. Guidance is near-inert: clip_factor 1.0 and clipped_fraction 0.0 everywhere, max atom displacement <=0.0041 A, native ratios 0.0-0.030. Future gains must not be credited to clipping relief or validity conversion; a first appearance of either would warn that the tick increase was too aggressive. Treat with suspicion: (1) 'more early ticks reliably tighten geometry' - identical 5-tick interval 0 gave step-25 core RMS 0.592 A in G3 but 2.678 A in G4 from the same ~3.2 A start (E018, E031); (2) 'highest observed group mean implies the best schedule' - cross-group paired means span only -0.190 to +0.143 at win rates 0.47-0.55, i.e. noise; (3) per-candidate drift as a score proxy (G3: c085 drifts most yet scores 3.80); (4) equating checkpoint RMS with rescored pIC50 - no within-round measurement links them. Unresolved: whether interval 2 is under-guided (G1) or futilely over-guided (G2); whether interval 3 ticks consolidate or are wasted; whether interval 0 acquisition or interval 1 maintenance dominates. What would change the conclusion: a nonzero common-valid paired Mean with validity still 100/100, especially a Mean gain above ~0.2 (about 2 SE at n=100); any first-time clipped_fraction >0; or step-25/step-90 RMS moving in the direction a proposal predicts. This reflection is not the final skills review.",
+  "ranked_proposal_ids": [
+    "G3:H1",
+    "G4:H2",
+    "G3:H2",
+    "G1:H2",
+    "G1:H1",
+    "G2:H2",
+    "G4:H1",
+    "G2:H1"
+  ],
+  "selected": [
+    {
+      "proposal_id": "G3:H1",
+      "mean_reason": "Restores interval 1 from 4 to 5, the only interval in any group whose endpoint geometry regressed (RMS 0.592->0.678 A, q90 1.007->1.197, drift cosine -0.066; E018, E019), while lifting interval 0 from 4 to 5 in the window with the highest guidance participation (ratio 0.0061, 0.00075 A) and mildest drift (E004). Forecast Mean +0.05 to +0.20 over the 3.966/4.029 baselines; uncertain, since no paired signal exists yet (E003, E023).",
+      "best_reason": "Near-neutral for Best, roughly 7.21-7.44, because interval-1 maintenance aids mid-pack poses rather than the ceiling (top10 7.040, max 7.2135; E017, E023).",
+      "risk_and_uncertainty": "Schedule-identical to G1:H1, so not selectable twice. Early/mid tick yield failed to replicate across groups (G3 0.592 A vs G4 2.678 A at 5 ticks in interval 0; E031), and any geometry-to-score link remains a hypothesis.",
+      "evidence_ids": [
+        "E001",
+        "E004",
+        "E017",
+        "E018",
+        "E019",
+        "E020",
+        "E023",
+        "E024"
+      ]
+    },
+    {
+      "proposal_id": "G4:H2",
+      "mean_reason": "Adds one tick to interval 3, where loss is highest (0.271), drift cosine is -0.096, guidance participation rebounds to 0.0032 while clip stays 1.0 and inside_rms <=0.0007 A (E029); final core RMS is still 0.735 A mean with q90 1.166 (E033), corroborated by 0.793 A in G1 and 0.765 A in G2 (E006, E015). Forecast +0.01 to +0.10, concentrated in low/mid quartiles; uncertain.",
+      "best_reason": "Targets persistent high-error members (1.75/1.70/1.69 A for c082, c062, c087), so Best could reach 7.2-7.4 versus 7.1106 and top10 6.164 (E033, E034); the strongest Best potential of the four selections, though unverified.",
+      "risk_and_uncertainty": "Late windows receive few effective updates and the drift may be gradient-conflict limited rather than under-guided - G2 proposes withdrawing a mid tick instead (E013). Only interpretable if step-90 RMS and paired Mean both move (E026, E032).",
+      "evidence_ids": [
+        "E006",
+        "E013",
+        "E015",
+        "E026",
+        "E029",
+        "E032",
+        "E033",
+        "E034"
+      ]
+    },
+    {
+      "proposal_id": "G3:H2",
+      "mean_reason": "Raises interval 0 to 6 ticks, the window with the highest guidance participation (ratio 0.0088, 0.00107 A) and the largest absolute error (3.198 A at step 10, 0.592 A at step 25; E024, E018); paired against [5,5,5,5] on the same population it resolves acquisition-versus-maintenance. Forecast Mean +0.05 to +0.20, with wider uncertainty; clipping stays 0.0 (E020).",
+      "best_reason": "Modest tail upside of +0.05 to +0.15 above 7.2135 if early tightening compounds for the strong tail (top10 7.040; E023); explicitly a tail bet, not a mean bet.",
+      "risk_and_uncertainty": "The same 5-tick interval 0 yielded 0.592 A in G3 but 2.678 A in G4 (E031), so early-tick yield is population-dependent, and a 6th tick may over-constrain before the pose is formed (E025).",
+      "evidence_ids": [
+        "E017",
+        "E018",
+        "E020",
+        "E021",
+        "E023",
+        "E024",
+        "E025",
+        "E031"
+      ]
+    },
+    {
+      "proposal_id": "G1:H2",
+      "mean_reason": "Adds one tick to interval 2, where matching is most stable (switch fraction 0.0156, median 0.0) and clip is 0, so added displacement lands on a settled correspondence; RMS bottoms at 0.675 A at step 51 then regrows to 0.753 and 0.793 A by steps 76 and 91 (E005, E008, E006). Forecast +0.02 to +0.15, weaker than the early arms and uncertain.",
+      "best_reason": "If a late-mid correction rescues a near-ceiling sugar polyol (c010 7.214, c013 7.057), Best could gain +0.05 to +0.30; a Best-only gain would localize the benefit to the top decile (6.823; E002).",
+      "risk_and_uncertainty": "Contested direction: G2 reads the same window as misaligned (drift -0.171, ratio 0.00160) and proposes withdrawing a tick (E013). Interval 0 also sits at 4, below both anchors, so the contrast with [5,5,5,5] is two-factor and its mid effect is partly confounded (E001).",
+      "evidence_ids": [
+        "E001",
+        "E002",
+        "E004",
+        "E005",
+        "E006",
+        "E008",
+        "E009",
+        "E013"
+      ]
+    }
+  ]
+}
