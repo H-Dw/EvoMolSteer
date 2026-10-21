@@ -199,7 +199,7 @@ def report(root, version):
                      f"<img src='cases/{tid}/teacher.svg'><img src='cases/{tid}/best.svg'>"
                      f"<p>Schedule ticks: {html.escape(str(case['ticks']))}</p>{examples}</section>")
     page = "<!doctype html><meta charset='utf-8'><title>PLIP schedule report</title><style>body{font-family:sans-serif;max-width:1200px;margin:30px auto}img{max-width:100%}section img{width:45%}section{border-top:1px solid #ddd}</style>"
-    page += f"<h1>PLIP schedule optimization — {version}</h1><p>Primary system output: per-chain best-of-search Mean. Complete fixed-round R10 distributions are reported separately to distinguish proposal quality from selection gains. Four selected teachers from one target; shared seeds and teacher-origin lineages. Predictive affinity, not measured binding. Teacher associations are descriptive only.</p>"
+    page += f"<h1>PLIP schedule optimization — {version}</h1><p>Objective: Mean first, Best second. Primary system output: per-chain best-of-search Mean. Complete fixed-round R10 distributions are reported separately to distinguish proposal quality from selection gains. Three selected teachers from one target; shared seeds and teacher-origin lineages. Four amplitude intervals; all five batches advance together. Predictive affinity, not measured binding. Teacher associations are descriptive only.</p>"
     page += "<img src='optimization_curves.svg'>" + "".join(cards)
     (folder / "report.html").write_text(page, encoding="utf-8")
     return {"report": str(folder / "report.html"), "teachers": len(cohort), "costs": costs}

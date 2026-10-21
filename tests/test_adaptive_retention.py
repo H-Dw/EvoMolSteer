@@ -4,6 +4,7 @@ from pathlib import Path
 import jsonschema
 import pytest
 
+from evomolsteer.adaptive_schedule.grid import CHECKPOINT_STEPS
 from evomolsteer.adaptive_schedule.io import defaults, read, write, sha, value_sha
 from evomolsteer.adaptive_schedule.contracts import schema, validate_action
 from evomolsteer.adaptive_schedule.retention import (
@@ -22,11 +23,11 @@ def record(score, slot):
 def source(root, name, parent=None, start=0):
     ref = f"branches/{TID}/batch_000/{name}"
     p = root / ref
-    write(p / "manifest.json", {"parents": [parent] * 20, "start_step": start, "schedules": [[5]*8]*20})
+    write(p / "manifest.json", {"parents": [parent] * 20, "start_step": start, "schedules": [[5]*4]*20})
     write(p / "COMPLETE.json", {"attempts": 20})
     write(p / "nodes.json", {str(t): {"step": t, "local_loss": [t/100]*20,
                                        "local_endpoint_A": [[[1, 2, 3]]]*20}
-                             for t in range(start, 101, 10)})
+                             for t in [t for t in CHECKPOINT_STEPS if t >= start]})
     write(p / "steps.json", [{"step": t, "clip_factor": [1.]*20, "loss": [1.]*20}
                              for t in range(start, 100)])
     for name in ["terminal.pt.gz", "trace.h5", "molecules_all_built.sdf"]:
@@ -45,8 +46,8 @@ def make_chains(root):
     r1 = source(root, "v1_r01", r0, 10)
     chains = []
     for slot in range(20):
-        h0 = {"id": "r00", "branch": r0, "ticks": [5]*8, "record": record(5, slot), "parent_id": None}
-        h1 = {"id": "r01", "branch": r1, "ticks": [6]+[5]*7,
+        h0 = {"id": "r00", "branch": r0, "ticks": [5]*4, "record": record(5, slot), "parent_id": None}
+        h1 = {"id": "r01", "branch": r1, "ticks": [6]+[5]*3,
               "record": record(6 if slot % 2 == 0 else 4, slot), "parent_id": "r00"}
         chains.append({"slot": slot, "best_id": "r01" if slot % 2 == 0 else "r00", "history": [h0, h1]})
     return chains
@@ -57,9 +58,9 @@ def fake_builder(root, relative, sources, payloads, best, template, batch):
     folder = root / relative
     write(folder / "manifest.json", {"parents": [None]*20, "start_step": 0, "schedules": [h["ticks"] for h in best]})
     write(folder / "nodes.json", {str(t): {"step": t, "local_loss": [t/100]*20,
-                                           "local_endpoint_A": [[[1, 2, 3]]]*20} for t in range(0, 101, 10)})
+                                           "local_endpoint_A": [[[1, 2, 3]]]*20} for t in CHECKPOINT_STEPS})
     write(folder / "steps.json", [{"step": t, "clip_factor": [1.]*20, "loss": [1.]*20} for t in range(100)])
-    for step in range(0, 101, 10):
+    for step in CHECKPOINT_STEPS:
         (folder / f"checkpoint_{step:03d}.pt.gz").write_bytes(b"restartable all slots")
     (folder / "molecules_all_built.sdf").write_bytes(b"20 retained winners")
     identity = [{"id": h["id"], "branch": h["branch"], "slot": i} for i, h in enumerate(best)]
@@ -109,7 +110,7 @@ def test_quality_and_snapshot_verification_precede_every_deletion(tmp_path):
     write(old / "profiles/slot_003/failure.json", {"error": "bad pose"})
     def damaged(*args):
         fake_builder(*args)
-        (args[0] / args[1] / "checkpoint_040.pt.gz").write_bytes(b"corruption")
+        (args[0] / args[1] / "checkpoint_026.pt.gz").write_bytes(b"corruption")
     with pytest.raises(ValueError, match="checksum"):
         run_compact(tmp_path, chains, damaged)
     assert (old / "trace.h5").exists()
@@ -135,7 +136,7 @@ def test_next_improvement_replaces_old_snapshot_but_keeps_its_documents(tmp_path
     r2 = source(tmp_path, "v1_r02", first["snapshot"], 20)
     for c in chains:
         c["history"].append({"id": "r02", "branch": r2, "parent_id": c["best_id"],
-                              "ticks": [6, 6]+[5]*6, "record": record(7, c["slot"])})
+                              "ticks": [6, 6]+[5]*2, "record": record(7, c["slot"])})
         c["best_id"] = "r02"
     second = run_compact(tmp_path, chains)
     assert first["snapshot"] != second["snapshot"]
@@ -157,8 +158,8 @@ def test_invalid_scores_ties_and_cross_chain_selection_do_not_change_winner(tmp_
 
 
 def test_nonbest_parent_rejected_even_though_documentary_history_remains():
-    history = [{"id": "r00", "ticks": [5]*8}, {"id": "r01", "ticks": [6]+[5]*7}]
-    action = {"parent_id": "r00", "ticks": [4]+[5]*7, "evidence_ids": ["r00:t050"]}
+    history = [{"id": "r00", "ticks": [5]*4}, {"id": "r01", "ticks": [6]+[5]*3}]
+    action = {"parent_id": "r00", "ticks": [4]+[5]*3, "evidence_ids": ["r00:t050"]}
     with pytest.raises(jsonschema.ValidationError, match="incumbent"):
         validate_action(action, history, ["r00:t050"], ["r01"])
     assert schema(history, ["r00:t050"], ["r01"])["properties"]["parent_id"]["enum"] == ["r01"]
@@ -187,7 +188,7 @@ def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_
     def native_files(ref, start, value):
         p = tmp_path / ref
         coords = torch.full((20, 2, 3), float(value))
-        for step in range(start, 101, 10):
+        for step in [t for t in CHECKPOINT_STEPS if t >= start]:
             state = {"step": step, "context_sha256": "same-context", "rng_sha256": tensor_digest(rng),
                      "integrator": {"guard_warned": False}, "times": [torch.full((20,), step/100)]*3,
                      "rng": rng, "current": {"coords": coords + step}, "cond": {"coords": coords},
@@ -222,7 +223,7 @@ def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_
             if c["slot"] % 2:
                 c["history"][1]["record"].update(build_success=False, pic50_on_rescore=None)
     expected = {step: [resolve_checkpoint(tmp_path, h["branch"], step) for h in winners(chains)]
-                for step in range(0, 101, 10)}
+                for step in CHECKPOINT_STEPS}
     index = run_compact(tmp_path, chains, builder=None)
     verify_snapshot(tmp_path, index["snapshot"])
     assert not (tmp_path / r1 / "terminal.pt.gz").exists()
@@ -250,7 +251,7 @@ def test_real_tensor_snapshot_preserves_every_checkpoint_and_noise_after_gc(tmp_
     native_files(r2, 20, 3)
     for c in chains:
         c["history"].append({"id": "r02", "branch": r2, "parent_id": c["best_id"],
-                              "ticks": [6, 6]+[5]*6,
+                              "ticks": [6, 6]+[5]*2,
                               "record": record(7 if c["slot"] == 0 else 3, c["slot"])})
         if empty_r0 and c["slot"] % 2:
             c["history"][-1]["record"].update(build_success=False, pic50_on_rescore=None)

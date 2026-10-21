@@ -11,6 +11,8 @@ from .io import (read, write, sha, value_sha, defaults, source_fingerprint, repo
                  commit, better, eligible)
 from .contracts import earliest
 from .cohort import select_templates, counts, progress
+from .grid import INITIAL_TICKS
+from .population import round_context
 
 
 def prepare(root):
@@ -193,19 +195,19 @@ def branch(model, config, root, template, batch, relative, schedules, parents, s
 
 def r0(model, config, root, template, batch):
     relative = f"branches/{template['teacher_id']}/batch_{batch:03d}/r0"
-    rows = branch(model, config, root, template, batch, relative, [[5] * 8 for _ in range(20)],
+    rows = branch(model, config, root, template, batch, relative, [list(INITIAL_TICKS) for _ in range(20)],
                   [None] * 20, 0)
     return relative, rows
 
 
 def initial_history(relative, rows):
     return [{"slot": i, "best_id": "r00", "history": [{
-        "id": "r00", "branch": relative, "ticks": [5] * 8, "record": row,
+        "id": "r00", "branch": relative, "ticks": list(INITIAL_TICKS), "record": row,
         "parent_id": None, "improved_parent": False, "improved_incumbent": False
     }]} for i, row in enumerate(rows)]
 
 
-def run_batch(model, root, config, template, batch, version, skill, fast):
+def run_batch(model, root, config, template, batch, version, skill, fast, through_round=None, population=None):
     from .flowr import compose
     from .agent import propose
     relative, rows = r0(model, config, root, template, batch)
@@ -217,17 +219,20 @@ def run_batch(model, root, config, template, batch, version, skill, fast):
     from .retention import enabled, compact_batch, restart_refs
     if enabled(config):
         compact_batch(root, config, template, batch, version, chains)
-    for round_no in range(1, config["rounds"] + 1):
+    limit = config["rounds"] if through_round is None else through_round
+    for round_no in range(1, limit + 1):
         if all(len(c["history"]) > round_no for c in chains):
             continue
         if any(len(c["history"]) != round_no for c in chains):
             raise ValueError("Incomplete round commit; histories must advance atomically")
+        if population is None or population["decision_round"] != round_no or population["teacher_id"] != template["teacher_id"]:
+            raise ValueError("Agent proposals require frozen evidence for all 100 chains in this round")
         call_folder = parent_folder / f"round_{round_no:02d}"
         call_folder.mkdir(exist_ok=True)
         actions = [None] * 20
         with concurrent.futures.ThreadPoolExecutor(max_workers=config["llm"]["concurrency"]) as executor:
             tasks = {executor.submit(propose, root, config, template, c["slot"], c["history"], c["best_id"],
-                                     skill, call_folder / f"slot_{c['slot']:03d}.json"): c["slot"] for c in chains}
+                                     skill, call_folder / f"slot_{c['slot']:03d}.json", population=population): c["slot"] for c in chains}
             failures = []
             for future in concurrent.futures.as_completed(tasks):
                 slot = tasks[future]
@@ -287,7 +292,8 @@ def run_batch(model, root, config, template, batch, version, skill, fast):
         write(root / "status.json", {"phase": "running", "version": version,
               "teacher": template["teacher_id"], "batch": batch, "round": round_no,
               "time": time.time(), "histories": str(path.relative_to(root))})
-    write(parent_folder / "COMPLETE.json", {"chains": config["batch_size"], "rounds": config["rounds"]})
+    if all(len(c["history"]) == config["rounds"] + 1 for c in chains):
+        write(parent_folder / "COMPLETE.json", {"chains": config["batch_size"], "rounds": config["rounds"]})
 
 
 @contextlib.contextmanager
@@ -302,6 +308,8 @@ def lock(root):
 def run(root, version, skill=None, teacher_id=None, batch_index=None):
     root = Path(root)
     config = assert_prepared(root)
+    if batch_index is not None:
+        raise ValueError("Mean-first optimization advances all five batches together; select a teacher, not one batch")
     if not os.environ.get(config["llm"]["key_env"]):
         raise RuntimeError("DEEPSEEK_API_KEY is missing from the background worker environment")
     validation = read(root / "VALIDATED.json")
@@ -331,29 +339,45 @@ def run(root, version, skill=None, teacher_id=None, batch_index=None):
             raise ValueError("Cohort completion markers are inconsistent: " + str(state))
         model, loaded_target = None, None
         for template in templates:
-            for batch in ([batch_index] if batch_index is not None else range(config["batches"])):
-                folder = root / "versions" / version / template["teacher_id"] / f"batch_{batch:03d}"
-                if (folder / "COMPLETE.json").exists():
-                    continue
-                if loaded_target != template["target"]:
-                    if model is not None:
-                        del model
-                        torch.cuda.empty_cache()
-                    model = load_model(config, template["target"], root)
-                    loaded_target = template["target"]
-                for attempt in range(config["max_recoveries"]):
-                    try:
-                        run_batch(model, root, config, template, batch, version, frozen_skill,
-                                  validation["fast_batch_pass"])
-                        break
-                    except Exception:
-                        error = {"teacher": template["teacher_id"], "batch": batch,
-                                 "attempt": attempt + 1, "traceback": traceback.format_exc(), "time": time.time()}
-                        write(folder / f"error_{attempt+1:02d}.json", error)
-                        if attempt == config["max_recoveries"] - 1:
-                            failures.append(error)
-                        else:
-                            time.sleep([30, 120][attempt])
+            folders = [root / "versions" / version / template["teacher_id"] / f"batch_{b:03d}"
+                       for b in range(config["batches"])]
+            if all((f / "COMPLETE.json").exists() for f in folders):
+                continue
+            if loaded_target != template["target"]:
+                if model is not None:
+                    del model
+                    torch.cuda.empty_cache()
+                model = load_model(config, template["target"], root)
+                loaded_target = template["target"]
+            # R0 for all 100 chains, then R1 for all 100, etc. Every action in
+            # a round observes the same frozen population, including on resume.
+            for round_no in range(config["rounds"] + 1):
+                population = round_context(root, config, template, version, round_no) if round_no else None
+                round_failed = False
+                for batch, folder in enumerate(folders):
+                    path = folder / "histories.json"
+                    if round_no > 0 and path.exists() and all(len(c["history"]) > round_no for c in read(path)):
+                        continue
+                    for attempt in range(config["max_recoveries"]):
+                        try:
+                            write(root / "status.json", {"phase": "running", "version": version,
+                                "operation": "preparing_r0_population" if round_no == 0 else "optimizing_round",
+                                "teacher": template["teacher_id"], "batch": batch, "round": round_no,
+                                "time": time.time()})
+                            run_batch(model, root, config, template, batch, version, frozen_skill,
+                                      validation["fast_batch_pass"], round_no, population)
+                            break
+                        except Exception:
+                            error = {"teacher": template["teacher_id"], "batch": batch, "round": round_no,
+                                     "attempt": attempt + 1, "traceback": traceback.format_exc(), "time": time.time()}
+                            write(folder / f"round_{round_no:02d}" / f"error_{attempt+1:02d}.json", error)
+                            if attempt == config["max_recoveries"] - 1:
+                                failures.append(error)
+                                round_failed = True
+                            else:
+                                time.sleep([30, 120][attempt])
+                if round_failed:
+                    break
         state = progress(root, version, config, all_templates)
         phase = "review_ready" if version == "v1" else "complete"
         if state["complete"] and not failures:

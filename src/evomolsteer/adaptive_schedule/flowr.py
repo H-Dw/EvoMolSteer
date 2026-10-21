@@ -19,6 +19,7 @@ import torch
 
 from .io import read, write, sha, value_sha, SEEDS
 from .contracts import expanded
+from .grid import CHECKPOINT_STEPS, HEAD_STEPS
 from .vendor.reward import LocalReward, displacement
 from .vendor.common import EXPECTED_CHECKPOINT, EXPECTED_SAMPLER, campaign, protein, HIST
 from evomolsteer.generation.rng import rng_state, set_rng
@@ -305,7 +306,7 @@ class Control:
         return curr, cond, times, et, it, eo, io
 
     def checkpoint(self, step, curr, cond, times):
-        if step % 10:
+        if step not in CHECKPOINT_STEPS:
             return
         state = {"schema": 1, "step": step, "current": curr, "cond": cond, "times": times,
                  "rng": rng_state(), "context_sha256": self.context_sha,
@@ -373,7 +374,7 @@ class Control:
             "current_bonds": curr["bonds"].argmax(-1), "mask": curr["mask"],
         }.items():
             self.store(key, step, v)
-        if step % 10 == 0:
+        if step in HEAD_STEPS:
             save_pt(self.folder / f"head_{step:03d}.pt.gz",
                     {"prediction": pred, "raw_head": out, "assignment": assignment,
                      "gradient_world": g, "rng_before": self.entry_rng, "rng_after": rng_state()})

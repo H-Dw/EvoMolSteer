@@ -3,6 +3,7 @@ from pathlib import Path
 
 from .io import read, write, source_fingerprint
 from .runner import assert_prepared, r0, branch, resolve_checkpoint
+from .grid import CHECKPOINT_STEPS, INITIAL_TICKS
 
 
 def equal_tree(a, b):
@@ -38,9 +39,9 @@ def validate(root):
         terminal = load_pt(root / ref / "terminal.pt.gz")
         terminal_rng = load_pt(root / ref / "rng_terminal.pt.gz")
         checks = []
-        for step in range(0, 101, 10):
+        for step in CHECKPOINT_STEPS:
             out = f"validation/{template['teacher_id']}/resume_{step:03d}"
-            records = branch(model, config, root, template, 0, out, [[5] * 8 for _ in range(20)],
+            records = branch(model, config, root, template, 0, out, [list(INITIAL_TICKS) for _ in range(20)],
                              [ref] * 20, step, resolve_checkpoint(root, ref, step))
             exact = equal_tree(terminal, load_pt(root / out / "terminal.pt.gz"))
             rng_exact = tensor_digest(terminal_rng) == tensor_digest(load_pt(root / out / "rng_terminal.pt.gz"))
@@ -55,24 +56,24 @@ def validate(root):
         # Two distinct branch histories, then mixed-row restart vs one full-prefix reference.
         changed_refs = []
         for slot in range(2):
-            schedules = [[5] * 8 for _ in range(20)]
-            schedules[slot][2] = 4 if slot == 0 else 6
+            schedules = [list(INITIAL_TICKS) for _ in range(20)]
+            schedules[slot][1] = 4 if slot == 0 else 6
             out = f"validation/{template['teacher_id']}/change_slot_{slot}"
-            branch(model, config, root, template, 0, out, schedules, [ref] * 20, 30,
-                   resolve_checkpoint(root, ref, 30))
+            branch(model, config, root, template, 0, out, schedules, [ref] * 20, 26,
+                   resolve_checkpoint(root, ref, 26))
             changed_refs.append(out)
         altered = load_pt(root / changed_refs[0] / "terminal.pt.gz")
         isolated = equal_tree(select(terminal, list(range(1, 20))), select(altered, list(range(1, 20))))
-        schedules = [[5] * 8 for _ in range(20)]
-        schedules[0][2], schedules[1][2] = 4, 6
+        schedules = [list(INITIAL_TICKS) for _ in range(20)]
+        schedules[0][1], schedules[1][1] = 4, 6
         full = f"validation/{template['teacher_id']}/combined_full"
-        branch(model, config, root, template, 0, full, schedules, [ref] * 20, 30,
-               resolve_checkpoint(root, ref, 30))
+        branch(model, config, root, template, 0, full, schedules, [ref] * 20, 26,
+               resolve_checkpoint(root, ref, 26))
         parent_refs = [changed_refs[0], changed_refs[1]] + [ref] * 18
         mixed = f"validation/{template['teacher_id']}/combined_resume"
         try:
-            state = compose([resolve_checkpoint(root, x, 50) for x in parent_refs])
-            branch(model, config, root, template, 0, mixed, schedules, parent_refs, 50, state)
+            state = compose([resolve_checkpoint(root, x, 51) for x in parent_refs])
+            branch(model, config, root, template, 0, mixed, schedules, parent_refs, 51, state)
             combined_exact = equal_tree(load_pt(root / full / "terminal.pt.gz"), load_pt(root / mixed / "terminal.pt.gz"))
         except ValueError:
             combined_exact = False

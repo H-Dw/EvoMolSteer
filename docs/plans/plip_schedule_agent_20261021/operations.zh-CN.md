@@ -4,9 +4,9 @@
 DeepSeek 密钥由远端环境变量 `DEEPSEEK_API_KEY` 读取，不写入仓库。
 
 结果根目录：
-`/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021`
+`/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021`
 
-这是5nn4原Top1/3/4/5四教师、逐链TOP1协议的新目录，不是原V1结果的恢复。2026-10-21核验时原V1结果目录及
+这是5nn4原Top1/2/3三教师、逐链TOP1协议的新目录，不是原V1结果的恢复。2026-10-21核验时原V1结果目录及
 原部署目录在当前容器中均不存在；当前`/opt/MolSteer`为较早快照，不能据此推断实验已完整完成。
 不要重新prepare旧目录或用旧VALIDATED标记启动新代码。
 
@@ -33,7 +33,7 @@ bash scripts/run_plip_adaptive.sh compact --skill-version v1
 `background`是监督进程入口；远端后台启动时使用下面的命令脱离SSH并保留日志（在固定checkout目录执行）：
 
 ```bash
-ROOT=/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021
+ROOT=/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021
 nohup setsid bash scripts/run_plip_adaptive.sh background --skill-version v1 > "$ROOT/supervisor_v1.log" 2>&1 < /dev/null &
 ```
 
@@ -49,13 +49,13 @@ nohup setsid bash scripts/run_plip_adaptive.sh background --skill-version v1 > "
 评价失败保留失败记录，不补抽分子。
 
 每个 teacher/batch 的 `histories.json` 为20条候选链；每条完整链有 R0 加10轮记录。
-完整V1应有20个teacher/batch、400条教师条件链、4000次独立LLM决策。
+完整V1应有15个teacher/batch、300条教师条件链、3000次独立LLM决策。
 每个批次必须有20条完整R0–R10历史及轮末清理提交标记；陌生教师目录或仅有COMPLETE文件不能凑足完成数。
 完整前缀按哈希引用共享，不重复保存；随机流、self-conditioning 和积分器状态均在恢复快照内。
 
 ## 每轮清理与恢复
 
-- 当前仅使用5nn4原Top1/3/4/5，保留原排名及teacher ID。prepare从十教师历史归档选择这四位，
+- 当前仅使用5nn4原Top1/2/3，保留原排名及teacher ID。prepare从十教师历史归档选择这三位，
   严格核对node ID、原排名和PLIP核心，不需要为被排除教师重新采样或准备模板。
 - `PREPARED.json`绑定config和teachers哈希；新选择不能覆盖旧实验。`teacher_selection.json`保存来源、纳入与排除清单及工作量。
 - 新配置`retention.mode=top1_per_chain`。20个槽位各自选择历史最高有效pIC50，
@@ -93,14 +93,14 @@ nohup setsid bash scripts/run_plip_adaptive.sh background --skill-version v1 > "
 
 V2结束后比较TOP1系统输出及固定R10生成分布的Mean、Best、Top10、恢复率、质量和成本；
 `fixed_round_distributions.csv`保存全部轮次的未跨轮择优统计，部分完成状态不填充未执行轮次。
-分析教师PLIP数量、核心覆盖率、教师pIC50与改善难度的关系时明确仅有四位教师、两个来源谱系。
-结果限定于这一个target、四个经筛选教师和同一组开发种子，历史100个Unguided/Steer不重复计数。
+分析教师PLIP数量、核心覆盖率、教师pIC50与改善难度的关系时明确仅有三位教师、两个来源谱系。
+结果限定于这一个target、三个经筛选教师和同一组开发种子，历史100个Unguided/Steer不重复计数。
 
 ## 定时任务已删除
 
 2026-10-21按用户要求删除ID为`plip`的定时任务。不自动巡检，不自动唤醒主Agent；
 统一复盘和V2启动需要后续显式执行，但覆盖台账和review approval要求保持不变。
-本次用户已指定开展5nn4四教师V1探索；通过原生重启与梯度验收后由后台流程进入迭代。V2仍等待真实全量复盘，不自动跳过审阅。
+本次用户已指定开展5nn4三教师四区间V1探索；通过原生重启与梯度验收后由后台流程进入迭代。V2仍等待真实全量复盘，不自动跳过审阅。
 
 代码异常在本地修复、提交并推送后再部署。成功分支和成功 API 调用复用；
 请求、响应、失败记录不得被不同输入覆盖。预检分析保留，验证成功后清理其临时结构载荷。
@@ -117,11 +117,20 @@ V2结束后比较TOP1系统输出及固定R10生成分布的Mean、Best、Top10�
 更新输入上限及配置哈希。成功请求继续复用，不因调整容量重新采样。
 运行中的 config.json 是调整后的权威配置；不要重新调用 prepare 覆盖它。
 
-## 本次四教师部署记录
+## 已停止的旧四教师部署记录
 
 - 科学代码提交：`1d178b7b87101223cecbdc0f82749b113a688113`，已本地提交并推送GitHub。
 - 固定运行目录：`/opt/MolSteer/runtimes/plip_schedule_1d178b7b`。
 - 本地相关测试34通过、3因环境依赖跳过；远端相同测试37通过，包含真实Torch/RDKit恢复与清理。
-- 已在新结果根目录完成prepare：4教师、5套共享初始批次、20个teacher/batch、每版本400条链与4000次Agent决策。
-- 已提交独立session后台V1启动；启动请求在`launch_request.json`，实际进程与验收进度以`launch.json`、`status.json`和`validation/progress.json`为准。
+- 旧结果根目录为`/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021`；原4教师、400链的配置已经被最新要求替代。
+- 变更时旧Top1 batch0已提交R3；已终止经过PID与启动参数核验的旧进程组1187，已有结果和请求未删除。旧目录`operations/superseded_top123_four_intervals.json`保存停止原因和此前状态，状态标记为superseded。
 - 启动后台进程不代表验收或科学实验已完成。监督进程先做完整原生重启验收和保存状态的梯度检查，全部通过才开始Agent决策；不重建定时任务。
+
+## 当前三教师四区间协议
+
+- 只运行5nn4原Top1/2/3，每教师100条链。四幅度依次对应10..25、26..50、51..75、76..90步，含两端，共81次有指导更新；总积分100步不变。
+- 完整恢复节点为0、10、25、26、50、51、75、76、90、91、100。最早修改区间从10/26/51/76入口恢复，后续全部重新推理。
+- Agent优先提升教师100条链的Mean，Best其次。仍逐链独立设计；先生成全部五批R0，再将五批按轮推进。
+- 每轮`round_contexts/round_XX.json`保存完整上一轮的总体统计及来源哈希；同轮所有批次用同一份证据。恢复时只截取此前历史验证上下文，避免混入本轮已完成批次。
+- 禁止只运行单批次来代替100条链的Mean目标；可用`--teacher`选择完整教师，`--batch`会被拒绝。
+- 本协议不得复用旧80步R0或八维调度历史；V1/V2仅在新协议内部共享R0。失败、结构清理、全部文档保留及本地提交后部署规则不变。

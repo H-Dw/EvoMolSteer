@@ -2,11 +2,12 @@
 import math
 
 import jsonschema
+from .grid import INTERVALS
 
 
 def validate_ticks(ticks):
-    if not isinstance(ticks, list) or len(ticks) != 8:
-        raise ValueError("Exactly eight interval amplitudes are required")
+    if not isinstance(ticks, list) or len(ticks) != len(INTERVALS):
+        raise ValueError("Exactly four interval amplitudes are required")
     if any(type(x) is not int or not 0 <= x <= 10 for x in ticks):
         raise ValueError("Amplitude ticks must be integers in [0,10]; tick 5 means lambda=0.5")
     return ticks
@@ -14,7 +15,10 @@ def validate_ticks(ticks):
 
 def expanded(ticks):
     validate_ticks(ticks)
-    return [0.] * 10 + [v / 10 for v in ticks for _ in range(10)] + [0.] * 10
+    values = [0.] * 100
+    for value, (start, end) in zip(ticks, INTERVALS):
+        values[start:end + 1] = [value / 10] * (end - start + 1)
+    return values
 
 
 def earliest(old, new):
@@ -23,7 +27,7 @@ def earliest(old, new):
     changed = [i for i, (a, b) in enumerate(zip(old, new)) if a != b]
     if not changed:
         raise ValueError("No-op or duplicate schedule is not an experiment")
-    return 10 * (min(changed) + 1)
+    return INTERVALS[min(changed)][0]
 
 
 def error(message):
@@ -35,7 +39,7 @@ def step_allowances(history, parent_id):
     by_id = {x["id"]: x for x in history}
     allowances = {}
     p = by_id[parent_id]
-    for interval in range(8):
+    for interval in range(len(INTERVALS)):
         signs = []
         node = p
         for _ in range(2):
@@ -84,10 +88,11 @@ def schema(history, evidence_ids, parent_ids=None):
     string = {"type": "string", "minLength": 1}
     props = {
         "parent_id": {"enum": parent_ids if parent_ids is not None else [x["id"] for x in history]},
-        "ticks": {"type": "array", "minItems": 8, "maxItems": 8,
+        "ticks": {"type": "array", "minItems": len(INTERVALS), "maxItems": len(INTERVALS),
                   "items": {"type": "integer", "minimum": 0, "maximum": 10}},
         "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": True, "items": {"enum": evidence_ids}},
         "diagnosis": string, "hypothesis": string, "expected_change": string,
+        "expected_mean_effect": string, "expected_best_effect": string,
         "falsifier": string, "memory_update": string,
     }
     return {"type": "object", "properties": props, "required": list(props), "additionalProperties": False}

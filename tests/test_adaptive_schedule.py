@@ -4,30 +4,33 @@ import httpx
 import jsonschema
 import pytest
 
-from evomolsteer.adaptive_schedule.contracts import expanded, earliest, validate_action, step_allowances
+from evomolsteer.adaptive_schedule.contracts import expanded, earliest, validate_action, step_allowances, schema
 from evomolsteer.adaptive_schedule.io import eligible, better
 from evomolsteer.adaptive_schedule.analysis import distribution
 from evomolsteer.deepseek_api import call_json
 
 
 def history():
-    return [{"id": "r00", "ticks": [5] * 8, "parent_id": None}]
+    return [{"id": "r00", "ticks": [5] * 4, "parent_id": None}]
 
 
 def action(ticks=None):
-    return {"parent_id": "r00", "ticks": ticks or [6] + [5] * 7, "evidence_ids": ["r00:t080"],
+    return {"parent_id": "r00", "ticks": ticks or [6] + [5] * 3, "evidence_ids": ["r00:t075"],
             "diagnosis": "late drift", "hypothesis": "test earlier strength", "expected_change": "lower local loss",
+            "expected_mean_effect": "Seek an equal-weight contribution to the population mean",
+            "expected_best_effect": "Secondary and uncertain",
             "falsifier": "loss increases", "memory_update": "No earlier trials"}
 
 
 def test_window_has_exact_native_steps_and_interval_edges():
-    values = expanded(list(range(8)))
-    assert len(values) == 100 and values[:10] == [0.] * 10 and values[90:] == [0.] * 10
-    assert values[10:20] == [0.] * 10 and values[80:90] == [.7] * 10
-    assert earliest([5] * 8, [5, 5, 4, 5, 5, 5, 5, 5]) == 30
+    values = expanded([1, 2, 3, 4])
+    assert len(values) == 100 and values[:10] == [0.] * 10 and values[91:] == [0.] * 9
+    assert values[10:26] == [.1] * 16 and values[26:51] == [.2] * 25
+    assert values[51:76] == [.3] * 25 and values[76:91] == [.4] * 15
+    assert earliest([5] * 4, [5, 5, 4, 5]) == 51
 
 
-@pytest.mark.parametrize("ticks", [[5.0] * 8, [True] * 8, [11] * 8, [5] * 7, [-1] * 8])
+@pytest.mark.parametrize("ticks", [[5.0] * 4, [True] * 4, [11] * 4, [5] * 3, [-1] * 4, [5] * 8])
 def test_invalid_amplitudes_cannot_enter_native_runtime(ticks):
     with pytest.raises(ValueError):
         expanded(ticks)
@@ -35,28 +38,33 @@ def test_invalid_amplitudes_cannot_enter_native_runtime(ticks):
 
 def test_evidence_and_duplicate_and_trust_region_are_enforced():
     h = history()
-    assert validate_action(action(), h, ["r00:t080"]) == 10
+    jsonschema.validate(action(), schema(h, ["r00:t075"]))
+    missing_priority = action()
+    missing_priority.pop("expected_mean_effect")
     with pytest.raises(jsonschema.ValidationError):
-        validate_action(action([5] * 8), h, ["r00:t080"])
+        jsonschema.validate(missing_priority, schema(h, ["r00:t075"]))
+    assert validate_action(action(), h, ["r00:t075"]) == 10
     with pytest.raises(jsonschema.ValidationError):
-        validate_action(action([7] + [5] * 7), h, ["r00:t080"])
+        validate_action(action([5] * 4), h, ["r00:t075"])
+    with pytest.raises(jsonschema.ValidationError):
+        validate_action(action([7] + [5] * 3), h, ["r00:t075"])
     with pytest.raises(jsonschema.ValidationError):
         validate_action(action(), h, ["different"])
     with pytest.raises(jsonschema.ValidationError):
-        validate_action(action([6, 6, 6, 5, 5, 5, 5, 5]), h, ["r00:t080"])
+        validate_action(action([6, 6, 6, 5]), h, ["r00:t075"])
 
 
 def test_acceleration_requires_actual_improving_parent_lineage():
     h = history() + [
-        {"id": "r01", "ticks": [6] + [5] * 7, "parent_id": "r00", "improved_parent": True},
-        {"id": "r02", "ticks": [7] + [5] * 7, "parent_id": "r01", "improved_parent": True},
+        {"id": "r01", "ticks": [6] + [5] * 3, "parent_id": "r00", "improved_parent": True},
+        {"id": "r02", "ticks": [7] + [5] * 3, "parent_id": "r01", "improved_parent": True},
     ]
     assert step_allowances(h, "r02") == {0: 1}
-    a = dict(action([9] + [5] * 7), parent_id="r02")
-    assert validate_action(a, h, ["r00:t080"]) == 10
+    a = dict(action([9] + [5] * 3), parent_id="r02")
+    assert validate_action(a, h, ["r00:t075"]) == 10
     h[-1]["improved_parent"] = False
     with pytest.raises(jsonschema.ValidationError):
-        validate_action(a, h, ["r00:t080"])
+        validate_action(a, h, ["r00:t075"])
 
 
 def record(score, smiles="C"):

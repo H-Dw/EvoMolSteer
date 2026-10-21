@@ -4,6 +4,7 @@ from pathlib import Path
 from evomolsteer.deepseek_api import call_json
 from .contracts import schema, validate_action, step_allowances
 from .io import read, write, canonical, value_sha
+from .grid import CHECKPOINT_STEPS, DIAGNOSTIC_INTERVALS, description
 
 
 def node(root, branch, step, slot, cache=None):
@@ -41,7 +42,7 @@ def step_rows(root, branch, slot):
     return prefix + suffix
 
 
-def packet(root, template, slot, history, best_id, incumbent_only=False):
+def packet(root, template, slot, history, best_id, incumbent_only=False, population=None):
     ids, evidence, trajectories = [], {}, {}
     best = next(x for x in history if x["id"] == best_id)
     detailed_ids = {history[-1]["id"], best_id}
@@ -54,9 +55,11 @@ def packet(root, template, slot, history, best_id, incumbent_only=False):
             "improved_parent": item.get("improved_parent"), "improved_incumbent": item.get("improved_incumbent"),
             "hypothesis": item.get("proposal", {}).get("hypothesis"),
             "expected_change": item.get("proposal", {}).get("expected_change"),
+            "expected_mean_effect": item.get("proposal", {}).get("expected_mean_effect"),
+            "expected_best_effect": item.get("proposal", {}).get("expected_best_effect"),
             "memory_update": item.get("proposal", {}).get("memory_update")}
         curves = []
-        for step in range(0, 101, 10):
+        for step in CHECKPOINT_STEPS:
             n = node(root, item["branch"], step, slot, cache)
             key = item["id"] + f":t{step:03d}"
             ids.append(key)
@@ -86,9 +89,16 @@ def packet(root, template, slot, history, best_id, incumbent_only=False):
         "restartable_parent_ids": [best_id] if incumbent_only else [x["id"] for x in history],
         "history_storage": "All trial analyses survive; only the incumbent has a retained restart trajectory"
                            if incumbent_only else "All branches retained",
-        "time_convention": "FLOWR t=0 prior/noise -> t=1 molecule; 100 steps; guidance only steps10..89",
+        "time_convention": "FLOWR t=0 prior/noise -> t=1 molecule; 100 steps; guidance steps10..90 inclusive. Checkpoint k is before update k.",
+        "controllable_intervals": description(),
+        "objective_priority": ["teacher_100_chain_mean_pic50", "teacher_100_chain_best_pic50"],
         "affinity_note": "Intermediate head_at_t is diagnostic, not calibrated final pic50_on_rescore",
     }
+    if population is not None:
+        key = f"population:before_r{len(history):02d}"
+        ids.append(key)
+        evidence[key] = population
+        data["population_evidence_id"] = key
     return data, ids
 
 
@@ -104,11 +114,11 @@ def compact(data):
     result = copy.deepcopy(data)
     for key, rows in result["step_diagnostics"].items():
         intervals = []
-        for start in range(0, 100, 10):
-            group = [r for r in rows if start <= r["step"] < start + 10]
+        for start, end in DIAGNOSTIC_INTERVALS:
+            group = [r for r in rows if start <= r["step"] <= end]
             if not group:
                 continue
-            item = {"start_step": start, "count": len(group)}
+            item = {"start_step": start, "end_step_inclusive": end, "count": len(group)}
             for metric in ["loss", "clip_factor", "assignment_switch_fraction", "gradient_drift_cosine",
                            "max_atom_guidance_A", "inside_rms_A", "outside_rms_A", "guidance_native_ratio"]:
                 values = [r[metric] for r in group if r.get(metric) is not None]
@@ -121,10 +131,10 @@ def compact(data):
     return result
 
 
-def propose(root, config, template, slot, history, best_id, skill, output, caller=call_json):
+def propose(root, config, template, slot, history, best_id, skill, output, caller=call_json, population=None):
     incumbent_only = config.get("retention", {}).get("mode") == "top1_per_chain"
     parent_ids = [best_id] if incumbent_only else None
-    data, ids = packet(root, template, slot, history, best_id, incumbent_only)
+    data, ids = packet(root, template, slot, history, best_id, incumbent_only, population)
     data = compact(data)
     instructions = Path(skill).read_text(encoding="utf-8")
     messages = [{"role": "system", "content": instructions},

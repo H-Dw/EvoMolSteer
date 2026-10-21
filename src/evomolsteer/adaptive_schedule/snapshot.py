@@ -5,6 +5,7 @@ import shutil
 
 from .io import read, write, sha, value_sha
 from .retention import checked_path
+from .grid import CHECKPOINT_STEPS, HEAD_STEPS
 
 
 def payload_branch(root, relative):
@@ -51,10 +52,10 @@ def materialize(root, relative, state_sources, payload_sources, best, template, 
                 "start_step": 0, "parents": [None] * 20,
                 "schedules": [h["ticks"] for h in best], "retained_incumbents": True}
     write(folder / "manifest.json", manifest)
-    # First inspect all eleven boundaries. If any context differs, preserve full
+    # Inspect every diagnostic boundary and exact interval entry. If any context differs, preserve full
     # native batch contexts per slot instead of silently forcing a mixed batch.
     mixed = True
-    for step in range(0, 101, 10):
+    for step in CHECKPOINT_STEPS:
         cache = {}
         states = [resolve_checkpoint(root, s, step, cache) for s in state_sources]
         try:
@@ -75,7 +76,7 @@ def materialize(root, relative, state_sources, payload_sources, best, template, 
         for slot, ref in enumerate(restart_refs):
             write(root / ref / "manifest.json", dict(read(root / state_sources[slot] / "manifest.json"),
                   payload_branch=relative, parents=[None] * 20, start_step=0))
-        for step in range(0, 101, 10):
+        for step in CHECKPOINT_STEPS:
             cache = {}
             for slot, ref in enumerate(restart_refs):
                 state = resolve_checkpoint(root, state_sources[slot], step, cache)
@@ -89,7 +90,7 @@ def materialize(root, relative, state_sources, payload_sources, best, template, 
             return value["_retained_slots"][slot]
         return tree(value, lambda t: t[slot:slot+1].clone() if t.ndim and t.shape[0] == 20 else t.clone())
 
-    for step in range(0, 100, 10):
+    for step in HEAD_STEPS:
         cache, values = {}, []
         for slot, source in enumerate(payload_sources):
             p = payload_source(root, source, step, f"head_{step:03d}.pt.gz", slot)
@@ -121,7 +122,7 @@ def materialize(root, relative, state_sources, payload_sources, best, template, 
                                             chunks=(1, 1) + data.shape[2:], compression="gzip", compression_opts=1)
                     dest[key][start:end, slot] = data[start:end, slot]
     nodes = {}
-    for step in range(0, 101, 10):
+    for step in CHECKPOINT_STEPS:
         rows = [node(root, h["branch"], step, i) for i, h in enumerate(best)]
         keys = set().union(*(r.keys() for r in rows)) - {"step"}
         nodes[str(step)] = {"step": step, **{k: [r.get(k) for r in rows] for k in keys}}

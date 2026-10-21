@@ -6,7 +6,7 @@ import os
 import subprocess
 from pathlib import Path
 
-DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r1345_s42_20261021")
+DEFAULT_ROOT = Path("/opt/MolSteer/generated_datasets/plip_schedule_agent_top1_5nn4_r123_i4_s42_20261021")
 HISTORY = Path("/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020")
 SEEDS = [42, 100045, 200048, 300051, 400054]
 TARGETS = ["5nn4_SC2_A_1017"]
@@ -80,13 +80,19 @@ def commit():
 
 def defaults():
     from .cohort import TEACHERS
+    from .grid import INITIAL_TICKS, CHECKPOINT_STEPS, CONTROL_NODES, description
     return {
-        "schema": "plip-adaptive-schedule-5nn4-r1345-v3", "ssh": {"host": "ksai.scnet.cn", "port": 10104, "user": "root"},
+        "schema": "plip-adaptive-schedule-5nn4-r123-i4-v4", "ssh": {"host": "ksai.scnet.cn", "port": 10104, "user": "root"},
         "history": str(HISTORY), "flowr": "/root/private_data/MolSteer/flowr_root",
         "targets": list(TARGETS), "teacher_selection": [dict(t) for t in TEACHERS],
         "seeds": list(SEEDS), "batch_size": 20, "batches": 5, "steps": 100,
-        "features": "C", "mode": "endpoint", "initial_ticks": [5] * 8, "rounds": 10,
-        "window_steps": [10, 90], "max_atom_step_A": .025, "tick_bounds": [0, 10],
+        "features": "C", "mode": "endpoint", "initial_ticks": list(INITIAL_TICKS), "rounds": 10,
+        "window_steps_inclusive": [10, 90], "control_nodes": [s/100 for s in CONTROL_NODES],
+        "control_intervals": description(), "checkpoint_steps": list(CHECKPOINT_STEPS),
+        "max_atom_step_A": .025, "tick_bounds": [0, 10],
+        "agent_objective": {"priority": ["mean_pic50", "best_pic50"], "scope": "teacher_100_chains",
+                            "policy": "independent_chain_schedules", "round_barrier": "all_five_batches",
+                            "validity": "report eligible counts; never improve mean by dropping failed slots"},
         "llm": {"model": "deepseek-flash", "key_env": "DEEPSEEK_API_KEY", "thinking": True,
                 "reasoning_effort": "high", "max_output_tokens": 16384, "input_soft_tokens": 32768,
                 "input_hard_tokens": 131072, "concurrency": 4, "timeout": 300, "attempts": 3},
@@ -100,7 +106,8 @@ def defaults():
         "reporting": {"primary": "best_per_chain_mean_pic50", "fixed_round": 10,
                       "unselected_comparison": "fixed_round_mean_pic50",
                       "search_output": "best_per_chain", "shared_baseline_targets": list(TARGETS),
-                      "scope": "four selected development teachers from one target; two teacher-origin lineages"},
+                      "secondary": "best_pic50",
+                      "scope": "three selected development teachers from one target; two teacher-origin lineages"},
     }
 
 
