@@ -55,9 +55,15 @@ def main():
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--sizes', type=int, nargs='+', default=[100, 80, 60, 40, 20])
     p.add_argument('--repeats', type=int, default=2)
+    p.add_argument('--hypotheses-per-wave', type=int, nargs='+',
+                   help='Probe shared-model waves of H hypotheses, each with the same 100 initial candidates')
     p.add_argument('--device-sysfs', type=Path, default=Path('/sys/class/drm/renderD133/device'))
     args = p.parse_args()
-    if args.repeats < 1 or any(b not in range(20, 101, 20) for b in args.sizes):
+    if args.hypotheses_per_wave is not None:
+        if any(type(h) is not int or not 1 <= h <= 8 for h in args.hypotheses_per_wave):
+            p.error('Hypothesis waves must contain 1..8 hypotheses')
+        args.sizes = [100*h for h in args.hypotheses_per_wave]
+    if args.repeats < 1 or (args.hypotheses_per_wave is None and any(b not in range(20, 101, 20) for b in args.sizes)):
         p.error('Use positive repeats and batch sizes 20,40,60,80,100')
     args.sizes = sorted(set(args.sizes), reverse=True)
     if args.output.exists():
@@ -85,6 +91,8 @@ def main():
             'diagnostic_only': True, 'source_root': str(args.source_root), 'commit': commit(),
             'source_fingerprint': source_fingerprint(), 'config_sha256': sha(args.source_root / 'config.json'),
             'teacher_ids': [t['teacher_id'] for t in teachers], 'sizes': args.sizes, 'repeats': args.repeats,
+            'hypotheses_per_wave': args.hypotheses_per_wave,
+            'candidates_per_hypothesis': 100 if args.hypotheses_per_wave else None,
             'torch': torch.__version__, 'hip': torch.version.hip, 'device': torch.cuda.get_device_name(0),
             'device_total_GiB': torch.cuda.get_device_properties(0).total_memory / 2**30,
             'rng_policy': 'diagnostic dense batch uses batch-zero entry RNG; changed final states accepted by user; record settings explicitly',
@@ -100,7 +108,8 @@ def main():
             folder.mkdir()
             initial = dict(initials[0])
             for key in ['prior', 'pocket_target', 'pocket_off', 'target_com']:
-                initial[key] = join_blocks([s[key] for s in initials[:size // 20]], torch)
+                blocks = [initials[i % 5] for i in range(size // 20)]
+                initial[key] = join_blocks([s[key] for s in blocks], torch)
             prior, pt, po = (device(initial[k]) for k in ['prior', 'pocket_target', 'pocket_off'])
             for pocket in [pt, po]:
                 pocket['complex'] = [SimpleNamespace(com=x.numpy()) for x in initial['target_com']]
@@ -120,12 +129,18 @@ def main():
 
             watcher = threading.Thread(target=monitor, daemon=True)
             watcher.start()
-            control = Control(model, template, initial, [[5]*4 for _ in range(size)], folder, folder / 'context.pt.gz')
+            # Eight distinct local perturbations cover every interval and sign.
+            # These capacity schedules are NOT LLM proposals or scientific results.
+            probes = [[5 + (direction if j == interval else 0) for j in range(4)]
+                      for interval in range(4) for direction in [-1, 1]]
+            schedules = [probes[i // 100] for i in range(size)] if args.hypotheses_per_wave else [[5]*4 for _ in range(size)]
+            control = Control(model, template, initial, schedules, folder, folder / 'context.pt.gz')
             model._adaptive = control
             set_rng(initial['rng'])
             torch.cuda.synchronize()
             started = time.perf_counter()
-            row = {'teacher': template['teacher_id'], 'batch_size': size, 'repeat': repeat, 'warmup': warmup}
+            row = {'teacher': template['teacher_id'], 'batch_size': size, 'repeat': repeat, 'warmup': warmup,
+                   'hypotheses_in_wave': size//100 if args.hypotheses_per_wave else 1}
             try:
                 output = model._generate_selective(prior=prior, pocket_data_target=pt, pocket_data_untarget=po,
                     steps=100, times=[torch.zeros(size, device='cuda') for _ in range(3)],
@@ -177,6 +192,10 @@ def main():
 
         # Absorb kernel initialization without counting it as a measured repeat.
         warm = run_case(teachers[0], args.sizes[0], -1, True)
+        if warm['status'] != 'ok':
+            # Failed tensors must be released before trying the next smaller wave.
+            gc.collect()
+            torch.cuda.empty_cache()
         write(args.output / 'warmup.json', warm)
         selected = None
         for size in args.sizes:
@@ -191,6 +210,8 @@ def main():
                     write(args.output / 'summary.json', median_cases(rows))
                     print(json.dumps(row), flush=True)
                     if row['status'] != 'ok':
+                        gc.collect()
+                        torch.cuda.empty_cache()
                         passed = False
                         break
                 if row['status'] != 'ok':
@@ -200,6 +221,7 @@ def main():
                 break
         write(args.output / 'COMPLETE.json', {'measured_cases': len(rows), 'time': time.time(),
                'selected_batch_size': selected, 'both_teachers_passed': selected is not None,
+               'selected_hypotheses_per_wave': selected//100 if selected and args.hypotheses_per_wave else None,
                'search_stopped_at_first_common_success': True, 'final_equality_required': False,
                'unneeded_smaller_sizes': [s for s in args.sizes if selected is not None and s < selected]})
 
