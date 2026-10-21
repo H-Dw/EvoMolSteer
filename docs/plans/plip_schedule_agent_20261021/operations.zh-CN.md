@@ -97,3 +97,15 @@ V1两教师各5轮共4000条优化结果、质量评价及清理均已完成；`
 本次仅修改通用analyst/synthesizer skills及审阅文档。主要修正B−A方向、实际数组/区间对应、选择性incumbent与固定组的区别、集中Mean收益、互逆动作响应、有效位移与评分分层诊断，以及公共记忆核查。没有修改奖励、科学源码、R0、输入预算、并发或清理策略。
 
 按上文完成本地测试/提交/推送、固定版本部署、全量review-check后才启动V2。实际批准和启动提交/PID记录于远端versions/v2/review_approval.json、deployment.json、根目录launch.json与operations；本地审阅文件里的pending_deployment_gate是提交时状态，不应覆盖后续真实启动记录。V2继续复用新服务器共享R0并清空搜索历史，5轮后再次全量复盘，预算仍为V1–V20。
+
+## V2实际启动（2026-10-22）
+
+- 审阅/技能提交`530de8fc4b1b06c56b46a7875aab64928f81cc45`已推送GitHub，远端GitHub API核对同一提交后以已校验bundle部署到`/opt/MolSteer/runtimes/plip_council_530de8fc`。
+- 本地相关测试22通过、1因缺torch跳过；远端同范围23项全部通过。严格review-check返回`approved=True, previous=v1, next=v2, sessions=52`。
+- V2工作PID`340996`，启动时间`1792620740.3930507`。认证预检HTTP200，实际进程API/代理变量存在；只核验存在性，不记录值。
+- 已核验V2绑定使用新技能，与V1共用相同R0；冻结配置、科学源码及保存的V1/R0完成与分数文件哈希未变。两教师bootstrap的优化历史均为空，初始R0证据单独提供。
+- 首次真实推进：两教师bootstrap已完成合法提案，Top1处于R1 generating，Top2处于R1 ready；无新error记录。此状态不代表R1已完成。
+- 部署、真实批准、绑定及测试证据见`docs/experiments/plip_council_20261022/v2_deployment/`；远端操作目录为`operations/v2_review_deployment_530de8fc/`。远端master_review_progress_v1已更新为approved_and_v2_started。
+- 首次部署核验脚本把bootstrap的优化历史误期望为一条，实际应为空（R0由独立summary提供）；检查已纠正并记录，没有修改科学数据或重启实验。
+- `plip-11762`已改为巡检V2，仍每20分钟。首次完整版本耗时可参考V1约42.5分钟，但新工具调用及API时延可能改变总耗时。V2结束后审阅其新52会话，不能复用V1的覆盖批准V3。
+- 本段及部署快照属于后续文档提交，不更换运行中的530de8fc，不因文档更新中断正常推理。
