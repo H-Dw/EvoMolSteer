@@ -77,3 +77,5 @@ Agent提出了超过单轮允许变动的调度；本应触发有界纠正，但
 - 原bootstrap全部输入/响应/工具证据归档在原目录的`saved_attempts/bootstrap_interface_repair_1792615405866108125/`；后续review-pack会纳入同一bootstrap逻辑会话，不能忽略失败尝试。
 - 续跑初始PID162635，完整继承API及代理。后续以launch/workers及实际完成标记为准，保持20分钟巡检直至完整轮次稳定。
 - 第一份失败响应未能写出token收据，其成本未知。综合报告通过`llm_missing_receipts.json`标注这类缺失；记录到的usage不代表完整费用，不能补造缺失收据。
+- 续跑已确认两教师bootstrap各完成2次成功API请求，四个假设通过校验；Top1进入R1物理batch400推理，Top2在就绪队列等待GPU。不能据此宣称整轮已提交或V1完成。
+- 综合分析脚本另部署于`/opt/MolSteer/runtimes/plip_council_b799f467`（提交`b799f467aed38c89f3c35d09a03defe35e4d9c1a`）；仅新增未知成本标注及文档，不改变运行中的6e86c456推理进程。
