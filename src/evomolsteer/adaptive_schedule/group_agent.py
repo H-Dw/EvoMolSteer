@@ -1,0 +1,171 @@
+"""One teacher-level LLM session with deterministic tools and multiple hypotheses.
+
+Application-level JSON tool calls reuse the audited DeepSeek transport, request
+deduplication and receipts. This planner does not launch or resume GPU sampling.
+"""
+from pathlib import Path
+
+import jsonschema
+
+from evomolsteer.deepseek_api import call_json
+from .contracts import validate_ticks, earliest
+from .group_tools import PopulationTools
+from .io import canonical, read, write, value_sha, repository
+from .grid import description
+
+
+def capacity_count(path, expected_teachers):
+    folder = Path(path)
+    complete, manifest = read(folder/'COMPLETE.json'), read(folder/'manifest.json')
+    n = complete.get('selected_hypotheses_per_wave')
+    if n not in {8, 4, 3, 2} or not complete.get('both_teachers_passed'):
+        raise ValueError('No measured common hypothesis capacity')
+    if set(manifest['teacher_ids']) != set(expected_teachers):
+        raise ValueError('Capacity evidence belongs to a different teacher cohort')
+    rows = [r for r in read(folder/'results.json') if r['batch_size'] == n*100]
+    if (set(r['teacher'] for r in rows) != set(expected_teachers)
+            or any(r['status'] != 'ok' or r['attempts'] != n*100 for r in rows)):
+        raise ValueError('Incomplete two-teacher capacity evidence')
+    return n
+
+
+def response_schema(tools, count, evidence_ids, final_only=False):
+    text = {'type': 'string', 'minLength': 1}
+    hypothesis = {'type': 'object', 'additionalProperties': False,
+        'properties': {'id': {'type': 'string', 'pattern': '^H[1-8]$'},
+            'ticks': {'type': 'array', 'minItems': 4, 'maxItems': 4,
+                      'items': {'type': 'integer', 'minimum': 0, 'maximum': 10}},
+            'direction': text, 'exploration_degree': text, 'hypothesis': text,
+            'expected_mean_effect': text, 'expected_best_effect': text, 'falsifier': text,
+            'evidence_ids': {'type': 'array', 'minItems': 1, 'uniqueItems': True, 'items': {'enum': sorted(evidence_ids)}}},
+        'required': ['id', 'ticks', 'direction', 'exploration_degree', 'hypothesis',
+                     'expected_mean_effect', 'expected_best_effect', 'falsifier', 'evidence_ids']}
+    final = {'type': 'object', 'additionalProperties': False,
+        'properties': {'kind': {'const': 'hypotheses'}, 'population_diagnosis': text, 'memory_update': text,
+            'hypotheses': {'type': 'array', 'minItems': count, 'maxItems': count, 'items': hypothesis}},
+        'required': ['kind', 'population_diagnosis', 'memory_update', 'hypotheses']}
+    if final_only:
+        return final
+    calls = [{'type': 'object', 'additionalProperties': False,
+              'properties': {'name': {'const': name}, 'arguments': schema},
+              'required': ['name', 'arguments']} for name, (_, schema) in tools.registry.items()]
+    return {'oneOf': [final, {'type': 'object', 'additionalProperties': False,
+        'properties': {'kind': {'const': 'tools'}, 'reason': text,
+                      'calls': {'type': 'array', 'minItems': 1, 'maxItems': 4, 'items': {'oneOf': calls}}},
+        'required': ['kind', 'reason', 'calls']}]}
+
+
+def validate_hypotheses(message, anchor, count, evidence_ids, double_directions=None):
+    validate_ticks(anchor)
+    double_directions = double_directions or {}
+    hypotheses = message['hypotheses']
+    if len(hypotheses) != count or [h['id'] for h in hypotheses] != [f'H{i+1}' for i in range(count)]:
+        raise ValueError('Ordered, unique hypothesis IDs and the configured count are required')
+    seen = set()
+    for h in hypotheses:
+        ticks = validate_ticks(h['ticks'])
+        earliest(anchor, ticks)
+        if tuple(ticks) in seen:
+            raise ValueError('Duplicate schedules do not create independent hypotheses')
+        seen.add(tuple(ticks))
+        delta = [(i, b-a) for i, (a, b) in enumerate(zip(anchor, ticks)) if a != b]
+        if len(delta) > 2:
+            raise ValueError('Change at most two intervals relative to the common anchor')
+        for i, d in delta:
+            if abs(d) > 2 or (abs(d) == 2 and double_directions.get(i) != (1 if d > 0 else -1)):
+                raise ValueError('One tick by default; two require verified consecutive group-mean improvement')
+        if not h['evidence_ids'] or not set(h['evidence_ids']).issubset(evidence_ids):
+            raise ValueError('Each hypothesis must cite numerical evidence actually supplied')
+
+
+def verified_double_directions(group_history, anchor):
+    """Two successive complete, common-valid-mean improving anchor edits; no LLM self-certification."""
+    if len(group_history) < 3 or group_history[-1]['ticks'] != anchor:
+        return {}
+    out = {}
+    recent = group_history[-3:]
+    for i in range(4):
+        changes = [recent[j+1]['ticks'][i]-recent[j]['ticks'][i] for j in range(2)]
+        if (all(changes) and changes[0]*changes[1] > 0 and all(
+            x.get('attempts') == 100 and x.get('paired_common_valid', 0) > 0
+            and x.get('paired_mean_delta', 0) > 0 and x.get('validity_delta', -1) >= 0
+            for x in recent[1:])):
+            out[i] = 1 if changes[0] > 0 else -1
+    return out
+
+
+def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
+                    group_history=None, skill=None, caller=call_json, max_tool_turns=4):
+    if hypotheses not in {8, 4, 3, 2} or not 1 <= max_tool_turns <= 6:
+        raise ValueError('Unsupported hypothesis count or tool-turn budget')
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    anchor = validate_ticks(list(anchor))
+    group_history = group_history or []
+    tools = PopulationTools(data, output/'tools')
+    skill = Path(skill or repository()/'skills/plip-population-optimizer/SKILL.md')
+    instructions = skill.read_text(encoding='utf-8')
+    double = verified_double_directions(group_history, anchor)
+    initial = [tools.call('history_summary', {}),
+               tools.call('paired_comparison', {'a': 'latest', 'b': 'incumbent'})]
+    evidence = {x['evidence_id'] for x in initial}
+    common = {'teacher_id': data['teacher']['teacher_id'], 'population_sha256': tools.digest,
+        'teacher_pic50': data['teacher']['source_record']['pic50_on_rescore'],
+        'core_atoms': len(data['teacher']['core_atoms']), 'candidates': 100,
+        'observed_round': data['observed_round'], 'hypotheses_required': hypotheses,
+        'common_anchor_ticks': anchor, 'verified_double_tick_directions': double,
+        'group_history': group_history, 'intervals': description(), 'tools': tools.catalog(),
+        'evidence': initial, 'reward_frozen': True, 'max_tool_turns': max_tool_turns,
+        'parent_policy': 'All hypotheses use the same pre-round per-candidate incumbent snapshot; all 100 identities retained',
+        'objective_priority': ['unselected_100_candidate_mean_pic50', 'best_pic50'],
+        'protocol': 'Application-level registered JSON tools; request kind=tools or return kind=hypotheses'}
+    messages = [{'role': 'system', 'content': instructions}, {'role': 'user', 'content': canonical(common)}]
+    binding = {'population_sha256': tools.digest, 'common_sha256': value_sha(common),
+               'skill_sha256': value_sha(instructions), 'llm': config['llm']}
+    if (output/'binding.json').exists() and read(output/'binding.json') != binding:
+        raise ValueError('Do not reuse an LLM session after its input, skill or config changed')
+    write(output/'binding.json', binding)
+    for turn in range(max_tool_turns+1):
+        schema = response_schema(tools, hypotheses, evidence, final_only=turn == max_tool_turns)
+        estimated_bytes = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
+        limit = config['llm']['input_hard_tokens']
+        if estimated_bytes > limit:
+            raise ValueError(f'Group input/schema exceeds conservative byte budget: {estimated_bytes}>{limit}; request fewer detailed candidates')
+        def validate(message):
+            jsonschema.validate(message, schema)
+            if message['kind'] == 'hypotheses':
+                try:
+                    validate_hypotheses(message, anchor, hypotheses, evidence, double)
+                except ValueError as exc:
+                    raise jsonschema.ValidationError(str(exc)) from exc
+        response = caller(messages, schema, output/f'turn_{turn:02d}.json',
+            model=config['llm']['model'], timeout=config['llm']['timeout'], attempts=config['llm']['attempts'],
+            max_output_tokens=config['llm']['max_output_tokens'], input_store=output/'llm_inputs',
+            thinking=config['llm']['thinking'], reasoning_effort=config['llm']['reasoning_effort'], response_validator=validate)
+        validate(response)
+        write(output/f'turn_{turn:02d}.budget.json', {'conservative_bytes': estimated_bytes, 'limit': limit})
+        if response['kind'] == 'hypotheses':
+            parents = [{"candidate_id": c['candidate_id'], 'parent_id': c['incumbent_id'],
+                        'source_branch': tools.trial(c, 'incumbent').get('source_branch'),
+                        'source_slot': c.get('slot'), 'source_batch': c.get('batch'),
+                        'parent_ticks': tools.trial(c, 'incumbent')['ticks']} for c in data['chains']]
+            jobs = []
+            for h in response['hypotheses']:
+                starts = [earliest(p['parent_ticks'], h['ticks']) if p['parent_ticks'] != h['ticks'] else 100 for p in parents]
+                jobs.append({**h, 'candidates': 100, 'ticks_for_all_candidates': h['ticks'],
+                             'earliest_common_restart': min(starts), 'per_candidate_restart_steps': starts,
+                             'parent_population_sha256': value_sha(parents)})
+            result = {'schema': 'plip-group-hypotheses-v1', **binding,
+                'teacher_id': common['teacher_id'], 'observed_round': data['observed_round'],
+                'common_anchor_ticks': anchor, 'population_diagnosis': response['population_diagnosis'],
+                'memory_update': response['memory_update'], 'parents': parents, 'jobs': jobs,
+                'candidate_attempts_if_executed': 100*hypotheses, 'llm_turns': turn+1,
+                'planning_only': True, 'gpu_executed': False,
+                'execution_requires': 'validated 100-slot mixed-parent recovery, frozen RNG/wave mapping, quality-before-prune transaction'}
+            write(output/'hypotheses.json', result)
+            return result
+        results = [tools.call(c['name'], c['arguments']) for c in response['calls']]
+        evidence.update(r['evidence_id'] for r in results)
+        messages = messages + [{'role': 'assistant', 'content': canonical(response)},
+                               {'role': 'user', 'content': canonical({'tool_results': results})}]
+    raise AssertionError('The last permitted turn must provide hypotheses')
