@@ -87,6 +87,11 @@ def compact_evidence(value):
     six decimals; source evidence IDs and hashes bind the original precision.
     """
     result = copy.deepcopy(value)
+    if result.get('tool') == 'geometry_diagnostics':
+        # These identical prose/metadata fields repeat for every example;
+        # correspondence is already stated once on the enclosing tool result.
+        for candidate in result['result'].get('largest_error_candidates', []):
+            candidate.pop('alignment', None)
     if result.get('tool') == 'candidate_history':
         for chain in result['result']:
             for trial in chain['trials']:
