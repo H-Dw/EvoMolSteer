@@ -81,7 +81,7 @@ def test_new_objective_and_counts_reach_actual_prompt_and_registered_tools(tmp_p
         assert payload['continuous_objectives']['thresholds'] is None
         e=payload['evidence'][0]['evidence_id'];h=hypotheses(2,e)
         for item in h['hypotheses']:
-            item.update(reference_ticks=[5]*4,experiment_purpose='direction_probe',
+            item.update(reference_ticks=[5]*4,experiment_purpose='direction_probe',search_mode='local',scale_reason='initial moderate probe',
                 expected_condition_effect='test measured error direction',expected_functional_effect='test teacher gap',
                 diagnostic_alternative='weak delivered control',expected_subgroup_response='unknown',revision_from_previous_result='unresolved')
         h['hypotheses'][0]['ticks']=[3,5,5,5];h['hypotheses'][1]['ticks']=[7,5,5,5]

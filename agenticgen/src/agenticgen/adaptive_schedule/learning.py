@@ -85,13 +85,15 @@ def executed_schedules(data, memories):
     return list(result.values())
 
 
-def validate_controller_hypotheses(message, anchor, count, evidence_ids, large, executed):
+def validate_controller_hypotheses(message, anchor, count, evidence_ids, large, executed, policy=None):
+    from .search_policy import policy as defaults, validate_probe_quota
+    policy = policy or defaults()
     hs = message['hypotheses']
     if len(hs) != count or [h['id'] for h in hs] != [f'H{i+1}' for i in range(count)]:
         raise ValueError('Ordered hypothesis IDs required')
     seen = {tuple(x['ticks']) for x in executed}
     for h in hs:
-        ticks = validate_ticks(h['ticks'])
+        ticks = validate_ticks(h['ticks'], int(policy['upper_amplitude']*10))
         if not any(ticks):
             raise ValueError('An all-zero guidance experiment is outside this protocol')
         if tuple(ticks) in seen:
@@ -100,13 +102,23 @@ def validate_controller_hypotheses(message, anchor, count, evidence_ids, large, 
         changes = [(i, b-a) for i, (a, b) in enumerate(zip(anchor, ticks)) if a != b]
         if not 1 <= len(changes) <= 2:
             raise ValueError('Change one or two intervals from the explicit anchor')
-        for i, d in changes:
-            if abs(d) > 3 or (abs(d) == 3 and large.get(i) != (1 if d > 0 else -1)):
-                raise ValueError('Step 0.1 or 0.2; 0.3 requires two verified comparable improving edges')
+        mode = h.get('search_mode', 'local')
+        if mode not in {'local', 'range_probe'}:
+            raise ValueError('Unknown search mode')
+        if mode == 'range_probe':
+            if policy['upper_amplitude'] <= 1 or not h.get('scale_reason', '').strip():
+                raise ValueError('Range probe requires expanded authorization and scale rationale')
+        else:
+            for i, d in changes:
+                if abs(d) > 3 or (abs(d) == 3 and large.get(i) != (1 if d > 0 else -1)):
+                    raise ValueError('Step 0.1 or 0.2; 0.3 requires two verified comparable improving edges')
         if h['reference_ticks'] != anchor:
             raise ValueError('Proposal reference_ticks must match its actual action anchor; cite other causal comparisons separately')
         if not set(h['evidence_ids']) <= evidence_ids:
             raise ValueError('Unknown evidence citation')
+    # Bootstrap directly selects four. Private two-proposal lists can each offer
+    # a probe, but must also supply a local alternative for the council quota.
+    validate_probe_quota(hs, active=policy)
 
 
 def belief_view(memories):

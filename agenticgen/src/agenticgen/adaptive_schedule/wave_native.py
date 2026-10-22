@@ -188,7 +188,8 @@ def execute_wave(model, config, template, schedules, folder, context_path, paren
     terminal = folder/'terminal.pt.gz'
     if not terminal.exists():
         resume = expand_resume(load_pt(parent/f'checkpoint_{start_step:03d}.pt.gz'), groups) if parent else None
-        control = WaveControl(model, template, initial, schedules, folder, context_path, resume)
+        from .search_policy import upper_tick
+        control = WaveControl(model, template, initial, schedules, folder, context_path, resume, tick_upper=upper_tick(config))
         model._adaptive = control
         set_rng(initial['rng'])
         torch.cuda.reset_peak_memory_stats()

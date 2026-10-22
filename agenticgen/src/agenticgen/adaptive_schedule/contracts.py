@@ -5,16 +5,18 @@ import jsonschema
 from .grid import INTERVALS
 
 
-def validate_ticks(ticks):
+def validate_ticks(ticks, upper=10):
     if not isinstance(ticks, list) or len(ticks) != len(INTERVALS):
         raise ValueError("Exactly four interval amplitudes are required")
-    if any(type(x) is not int or not 0 <= x <= 10 for x in ticks):
-        raise ValueError("Amplitude ticks must be integers in [0,10]; tick 5 means lambda=0.5")
+    if type(upper) is not int or upper < 10:
+        raise ValueError('Invalid authorized tick bound')
+    if any(type(x) is not int or not 0 <= x <= upper for x in ticks):
+        raise ValueError(f"Amplitude ticks must be integers in [0,{upper}]; tick 5 always means lambda=0.5")
     return ticks
 
 
-def expanded(ticks):
-    validate_ticks(ticks)
+def expanded(ticks, upper=10):
+    validate_ticks(ticks, upper)
     values = [0.] * 100
     for value, (start, end) in zip(ticks, INTERVALS):
         values[start:end + 1] = [value / 10] * (end - start + 1)

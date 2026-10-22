@@ -6,8 +6,8 @@ GROUP_ROOT = host_config()["result_root"]
 
 def configuration():
     c = defaults()
-    c.update(schema='agenticgen-core1hop-fixedstart-v1', rounds=5, versions=[f'v{i}' for i in range(6, 21)],
-             population_size=25, slots_per_seed=5, batch_size=25, batches=1, physical_batch_size=100, hypotheses=4, total_result_budget=15050)
+    c.update(schema='agenticgen-core1hop-fixedstart-v2', rounds=5, versions=[f'v{i}' for i in range(6, 26)],
+             population_size=25, slots_per_seed=5, batch_size=25, batches=1, physical_batch_size=100, hypotheses=4, total_result_budget=20050)
     c['controller'] = {'protocol': 'conditional_learning_v1', 'region': 'core_plus_one_hop',
         'restart_policy': 'shared_r0_before_step10', 'initial_step_ticks': 2, 'max_step_ticks': 3,
         'max_changed_intervals': 2, 'dynamic_memory': 'teacher_version_isolated'}
@@ -26,6 +26,15 @@ def configuration():
     c['reporting'].update(primary='unselected_condition_rmsd_A', secondary='mean_affinity_absolute_gap',
         top10_percent_count=3, legacy_top10_count=10, fixed_round=5)
     c['retention']['restart_parent'] = 'shared_r0_step10'
+    c['condition_comparison'] = {'ranking_tolerance_A': .02, 'sensitivity_A': [.01,.05],
+        'frame': 'protein_fixed', 'ligand_fit_for_primary': False,
+        'aggregation': 'mean_of_per_candidate_local_rmsd', 'terminal_state_required': True,
+        'band': 'anchored_to_pool_minimum', 'chemical_pose': 'separate_exact_subgraph_diagnostic'}
+    c['search_policy'] = {'earliest_expansion_version': 11, 'fine_resolution': .1,
+        'range_levels': '1,5,10,15,20,...', 'max_levels_per_version': 1,
+        'initial_upper': 1, 'coarse_default': 'upper/10', 'max_executed_range_probes': 1}
+    c['rollback'] = {'consecutive_regressions': 2, 'comparison': 'adjacent_completed_versions',
+        'pool': 'completed_new_protocol_versions', 'history_preserved': True}
     return c
 
 def input_limit(config):

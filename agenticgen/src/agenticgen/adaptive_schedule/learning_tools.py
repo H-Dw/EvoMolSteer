@@ -51,6 +51,7 @@ def calculate(tools, name, args):
                 'contribution_to_condition_mean_delta':(bx['rms_A']-ax['rms_A'])/len(ar),
                 'contribution_to_common_valid_mean': delta/common if delta is not None else None})
         return {'A': a, 'B': b, 'direction': 'B minus A', 'A_summary': score_summary(ar),
+                'ranking_comparison':_ranking_comparison(ac,bc),
                 'A_condition_function':ac,'B_condition_function':bc,
                 'B_summary': score_summary(br), 'paired': paired(ar,br), 'identities': rows,
                 'A_intervals': tools.calculate('interval_diagnostics', {'selection':a}),
@@ -70,3 +71,11 @@ def calculate(tools, name, args):
         return {'step':args['step'], 'state':args['state'], 'unit':'angstrom', 'regions':out,
                 'caution':'Geometry is a proxy; verify final quality and affinity separately.'}
     raise ValueError('Unknown learning observation')
+
+
+def _ranking_comparison(a,b):
+    from .selection import adjacent
+    def row(value):
+        return {'condition':value['condition_rmsd_A_all_attempts']['mean'],
+                'functional_gap':value['mean_affinity_absolute_gap']}
+    return dict(adjacent(row(a),row(b)), note='Pairwise diagnostic only. Final shared-schedule choice uses a band anchored to the entire tested pool minimum. Not an equivalence/noise assertion.')

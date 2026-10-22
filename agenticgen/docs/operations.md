@@ -77,4 +77,20 @@ knowledge but the same static teacher profile and shared R0.
 Root running status is insufficient: inspect both teachers, each wave's sampling,
 quality, council, retention and cleanup markers, real processes and recent errors.
 Old failures are historical if corresponding later completion markers prove recovery.
-Healthy unchanged states are quiet. V20 delivery ends the automation.
+Healthy unchanged states are quiet. V25 delivery ends the automation.
+
+## Frozen continuous-RMSD protocol and range/rollback gates
+
+The authorized matrix is V6–V25, 1000 optimization records per version plus 50 shared R0 records (maximum 20050). The primary ranking band is 0.02 A, with offline 0.01/0.05 A sensitivity. It never modifies rewards or displacements.
+
+For the existing prepared root with R0 but no scientific version binding, use `agenticgen stage-protocol --reason <concrete rationale>` from the tested fixed commit. It creates an append-only protocol directory and active pointer; original preparation, configuration, acceptance and R0 remain intact. It refuses changes to the sampled R0 settings. Run `validate` against the staged protocol; its new acceptance receipt is written inside the protocol directory. Do not overwrite original root provenance. Until native acceptance and real V5 review pass, `launch` is forbidden.
+
+Each version freezes `versions/vN/search_policy.json` with upper_amplitude, coarse_probe_scale, fine_resolution, max_range_probes and max_changed_intervals. Missing V6 policy defaults to U=1, s=0.2, q=0.1. Later versions require the preceding frozen policy. V6–V10 reject U>1. From V11 a reviewed increase follows 1→5→10→15… at most one level per version; prepare the explicit JSON before approval. Policy is bound to the version and every LLM prompt.
+
+`review_approval.json` additionally binds `search_policy_sha256` (canonical value hash) and `condition_comparison_sha256`. Expansions require range_expansion with substantive boundary_response, delivered_movement_and_clipping, unresolved_hypothesis plus a committed document/document_sha256. The existing full 52-session evidence gate remains mandatory.
+
+Reports record primary and sensitivity-band representatives, excluding R0 and selected per-chain archives. `analyze` writes version_decisions.json, but this is advice, not scientific approval. The launch gate recomputes advice from immutable finalized reports. After two adjacent regressions approval must bind rollback.restored_version, restored_binding_sha256, source_binding_sha256, and a committed code_compatibility_document/code_compatibility_sha256. Current skills and range policy must match the historical-best binding exactly. Code fixes need an explicit compatibility assessment. Preserve commit history; make a new restoration commit. New version memory starts empty.
+
+Expanded probes have at most one selected range_probe and at most two edited intervals; other proposals follow local evidence-based step limits. Tenth-grid resolution never changes. The native tensor schedule validates the same approved bound; maximum displacement remains 0.025 A. Quality evaluation checks chemical pose mappings and records N/A when a predefined subgraph has no legal match. All documentary diagnostics remain after pruning.
+
+At present remote deployment must be confirmed by an actual receipt. A local test or a prepared command is not evidence of server execution.

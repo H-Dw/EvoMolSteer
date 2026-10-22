@@ -12,6 +12,8 @@ from .group_protocol import configuration, GROUP_ROOT
 from .grid import CHECKPOINT_STEPS
 from .group_tools import score_summary, paired, interval_summary
 from .contracts import earliest
+from .protocol_state import load_config, config_path, prepared_path, acceptance_path
+from .search_policy import effective_config
 from agenticgen.runtime.paths import skill
 
 SKILLS = {'analyst': 'agenticgen/src/agenticgen/resources/skills/plip-group-analyst/SKILL.md',
@@ -23,7 +25,7 @@ def prepare(root, source):
     c = configuration()
     if (root/'PREPARED.json').exists():
         assert_prepared(root)
-        return read(root/'PREPARED.json')
+        return read(prepared_path(root))
     if root.exists() and any(root.iterdir()):
         raise ValueError('Use an empty new result directory')
     teachers = [t for t in read(source/'teachers.json') if t['rank'] in (1, 2)]
@@ -51,11 +53,14 @@ def prepare(root, source):
 
 
 def assert_prepared(root):
-    p, c = read(root/'PREPARED.json'), read(root/'config.json')
-    if p['config_sha256'] != sha(root/'config.json') or p['teachers_sha256'] != sha(root/'teachers.json'):
+    p, c = read(prepared_path(root)), load_config(root)
+    if p['config_sha256'] != sha(config_path(root)) or p['teachers_sha256'] != sha(root/'teachers.json'):
         raise ValueError('Frozen experiment configuration changed')
     if p['source_fingerprint'] != source_fingerprint():
         raise ValueError('Runtime changed; explicit tested deployment adoption required')
+    for teacher, digest in p.get('shared_r0_sha256',{}).items():
+        if sha(root/'shared_r0'/teacher/'COMPLETE.json') != digest:
+            raise ValueError('Shared R0 changed after protocol migration')
     return c
 
 
@@ -159,6 +164,7 @@ def bind(root, version):
         review_check(root, version)
     base = root/'versions'/version
     base.mkdir(parents=True, exist_ok=True)
+    active = effective_config(root, version, c, freeze=True)
     skills = {}
     for role, relative in SKILLS.items():
         source = skill('plip-group-'+role)
@@ -168,7 +174,9 @@ def bind(root, version):
         if not dest.exists():
             shutil.copyfile(source, dest)
         skills[role] = str(dest)
-    binding = {'config_sha256': sha(root/'config.json'), 'source_fingerprint': source_fingerprint(),
+    binding = {'config_sha256': sha(config_path(root)), 'source_fingerprint': source_fingerprint(),
+               'search_policy_sha256':value_sha(active['active_search_policy']),
+               'condition_comparison_sha256':value_sha(c.get('condition_comparison',{})),
                'skill_hashes': {role: sha(p) for role, p in skills.items()},
                'shared_r0': {p.parent.name: sha(p) for p in (root/'shared_r0').glob('*/COMPLETE.json')}}
     if (base/'binding.json').exists() and read(base/'binding.json') != binding:
@@ -188,6 +196,8 @@ def run(root, version):
     from .council import analyze_four_groups, BoundedCaller
     from .teacher_pipeline import run_teacher_pipeline
     root = Path(root)
+    if (root/f'FINALIZED_{version}.json').exists():
+        raise ValueError('Version already finalized; do not repeat sampling or rewrite completion')
     config = assert_prepared(root)
     population = config['population_size']
     if version not in config['versions']:
@@ -195,9 +205,10 @@ def run(root, version):
     if version != 'v1':
         from .group_review import review_check
         review_check(root, version)
-    acceptance = read(root/'ACCEPTANCE_COMPLETE.json')
-    if acceptance['source_fingerprint'] != source_fingerprint() or acceptance['config_sha256'] != sha(root/'config.json'):
+    acceptance = read(acceptance_path(root))
+    if acceptance['source_fingerprint'] != source_fingerprint() or acceptance['config_sha256'] != sha(config_path(root)):
         raise ValueError('Acceptance does not cover this runtime/config')
+    config = effective_config(root, version, config)
     templates = {t['teacher_id']: t for t in read(root/'teachers.json')}
     with lock(root):
         write(root/'workers.json', {'pid': os.getpid(), 'version': version, 'commit': commit(), 'started': time.time()})
@@ -235,7 +246,7 @@ def run(root, version):
                 parent_best = read(parent/'best.json')
                 schedules = [j['ticks'] for j in job['jobs'] for _ in range(population)]
                 if len(schedules) != population*4 or len({tuple(j['ticks']) for j in job['jobs']}) != 4:
-                    raise ValueError('Four different hundred-row hypotheses required')
+                    raise ValueError(f'Four different {population}-candidate hypotheses required')
                 start = 10
                 wave = tb/f'round_{round_no:02d}'/'wave'
                 write(wave.parent/'job.json', job)
@@ -321,10 +332,10 @@ def run(root, version):
 
 
 def report(root, version):
-    if read(root/'config.json').get('controller',{}).get('protocol') == 'conditional_learning_v1':
+    if load_config(root).get('controller',{}).get('protocol') == 'conditional_learning_v1':
         from agenticgen.condition_reporting import version_report
         return version_report(root,version)
-    config = read(root/'config.json'); base = root/'versions'/version
+    config = load_config(root); base = root/'versions'/version
     population = config['population_size']
     rows = []
     for template in read(root/'teachers.json'):

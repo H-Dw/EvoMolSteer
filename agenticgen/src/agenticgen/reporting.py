@@ -30,7 +30,8 @@ def chemistry(records):
 
 
 def analyze(root):
-    config, templates = read(root/'config.json'), read(root/'teachers.json')
+    from .adaptive_schedule.protocol_state import load_config
+    config, templates = load_config(root), read(root/'teachers.json')
     if config.get('controller',{}).get('protocol') == 'conditional_learning_v1':
         from .condition_reporting import analyze as condition_analyze
         return condition_analyze(root)

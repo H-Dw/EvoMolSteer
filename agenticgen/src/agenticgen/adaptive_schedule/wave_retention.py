@@ -44,10 +44,57 @@ def evaluate_quality(folder, template, pool):
                           'node_id': r['node_id'], 'out': str(out)})
     list(pool.map(quality_task, tasks, chunksize=1))
     enriched = [{**r, **metrics_folder(folder/'profiles'/f'slot_{i:03d}', template)} for i, r in enumerate(records)]
+    diagnostics = chemical_diagnostics(folder,template,molecules,len(records))
+    for i,record in enumerate(enriched): record['chemical_pose']=diagnostics[i]
     write(folder/'quality_records.json', enriched)
     write(folder/'QUALITY_COMPLETE.json', {'attempts': len(records), 'records_sha256': sha(folder/'quality_records.json'),
                                           'time': time.time()})
     return enriched
+
+
+def chemical_diagnostics(folder,template,molecules,count):
+    """Diagnostic only: retain protein-frame coordinates and check graph/index provenance."""
+    import numpy as np
+    from rdkit import Chem
+    from .geometry import audit_molecule_state, chemical_pose
+    from .flowr import load_pt
+    if sha(template['sdf']) != template['source_sdf_sha256']:
+        raise ValueError('Teacher SDF changed before pose diagnostic')
+    teacher=next((m for m in Chem.SDMolSupplier(template['sdf'],removeHs=True) if m is not None),None)
+    if teacher is None: raise ValueError('Teacher SDF is not readable')
+    native_to_sdf=template['native_to_sdf']
+    if sorted(native_to_sdf)!=list(range(len(template['coords_A']))):
+        raise ValueError('Teacher SDF/native mapping incomplete')
+    for native,sdf in enumerate(native_to_sdf):
+        precise=np.asarray(template['coords_A'][native])
+        if np.linalg.norm(np.asarray(teacher.GetConformer().GetAtomPosition(sdf))-precise)>.001:
+            raise ValueError('Teacher template and SDF coordinate frame mismatch')
+        teacher.GetConformer().SetAtomPosition(sdf,precise)
+    output=load_pt(folder/'terminal.pt.gz')
+    atom_names={v:k for k,v in template['atom_vocabulary'].items()}
+    charge_names={v:k for k,v in template['charge_vocabulary'].items()}
+    bond_names={v:k for k,v in template['bond_vocabulary'].items()}
+    protein_digest=sha(template['protein'])
+    results=[]
+    for slot in range(count):
+        if slot not in molecules:
+            results.append({'status':'not_available','reason':'No valid decoded SDF'});continue
+        atomic=output['atomics'][slot].argmax(-1).numpy()
+        active=[i for i,v in enumerate(output['mask'][slot]) if bool(v) and atom_names[int(atomic[i])] not in {'<PAD>','H'}]
+        coordinates=output['coords'][slot].numpy()[active]
+        elements=[atom_names[int(atomic[i])] for i in active]
+        charges=[int(charge_names[int(output['charges'][slot,i].argmax(-1))]) for i in active]
+        bonds=output['bonds'][slot].argmax(-1).numpy()[np.ix_(active,active)]
+        mol=Chem.Mol(molecules[slot])
+        mapping=audit_molecule_state(mol,coordinates,elements,charges,bonds,bond_names)
+        for sdf,native in enumerate(mapping):mol.GetConformer().SetAtomPosition(sdf,coordinates[native])
+        result=chemical_pose(mol,teacher,[native_to_sdf[i] for i in template['core_atoms']])
+        result.update(sdf_to_active_native=[active[i] for i in mapping],
+            prepared_protein_sha256=protein_digest,teacher_sdf_sha256=template['source_sdf_sha256'],
+            frame_transform='identity_same_prepared_protein',coordinate_source='native_terminal_full_precision')
+        results.append(result)
+    write(folder/'chemical_pose_diagnostics.json',results)
+    return results
 
 
 def verify_snapshot(folder):

@@ -19,7 +19,7 @@ def record(score, valid=True):
 
 def population():
     steps = [{'step': s, 'loss': 1., 'clip_factor': .5, 'max_atom_guidance_A': .025} for s in range(100)]
-    nodes = {str(s): {'local_endpoint_A': [[1., 0., 0.]], 'local_current_A': [[2., 0., 0.]]} for s in CHECKPOINT_STEPS}
+    nodes = {str(s): {'local_endpoint_A': [[1., 0., 0.]], 'local_current_A': [[2., 0., 0.]], 'state_kind': 'actual_terminal' if s == 100 else 'intermediate'} for s in CHECKPOINT_STEPS}
     return {'teacher': {'teacher_id': 't', 'source_record': {'pic50_on_rescore': 7.8},
                         'coords_A': [[0., 0., 0.]], 'core_atoms': [0]},
         'observed_round': 1, 'round_ids': ['r00', 'r01'],

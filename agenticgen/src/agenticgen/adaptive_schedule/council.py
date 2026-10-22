@@ -19,6 +19,7 @@ from .contracts import validate_ticks
 from .io import canonical, read, write, value_sha, sha, repository
 from .learning import enabled, learning_schema, validate_memory
 from .group_protocol import input_limit, budget_context
+from .search_policy import upper_tick, for_config, validate_probe_quota
 
 
 class BoundedCaller:
@@ -34,7 +35,7 @@ class BoundedCaller:
             return self.caller(*args, **kwargs)
 
 
-def private_group(spec, expected_teacher, observed_round):
+def private_group(spec, expected_teacher, observed_round, tick_upper=10):
     """Whitelist the evidence surface; do not expose sibling metadata in prompts/tools."""
     if spec['group_id'] not in {'G1', 'G2', 'G3', 'G4'}:
         raise ValueError('Four explicit group IDs G1..G4 are required')
@@ -47,7 +48,7 @@ def private_group(spec, expected_teacher, observed_round):
         'version', 'controller_protocol', 'private_learning_history'] if k in data}
     data['group_id'] = spec['group_id']
     tools = PopulationTools(data, Path('.'))  # validate complete unique candidate identities without writing
-    ticks = validate_ticks(list(spec['anchor_ticks']))
+    ticks = validate_ticks(list(spec['anchor_ticks']), tick_upper)
     if any(tools.trial(c, 'latest')['ticks'] != ticks for c in data['chains']):
         raise ValueError('One group must have one shared schedule over all its latest results')
     return data
@@ -73,7 +74,7 @@ def synthesis_schema(proposal_ids, evidence_ids, controller=False):
     return {'type': 'object', 'additionalProperties': False, 'properties': props, 'required': list(props)}
 
 
-def validate_synthesis(result, proposals, already_executed=()):
+def validate_synthesis(result, proposals, already_executed=(), policy=None):
     ranked = result['ranked_proposal_ids']
     selected = [x['proposal_id'] for x in result['selected']]
     if len(ranked) != len(proposals) or set(ranked) != set(proposals):
@@ -89,6 +90,7 @@ def validate_synthesis(result, proposals, already_executed=()):
     cached = {tuple(t) for t in already_executed}
     if any(tuple(proposals[p]['ticks']) in cached for p in selected):
         raise ValueError('Selected schedule already executed; use cached evidence and choose an unexecuted supplied proposal')
+    validate_probe_quota(proposals, selected, policy)
 
 
 def compact_evidence(value):
@@ -130,7 +132,7 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
         raise ValueError('Provide four ordered group inputs G1..G4')
     teacher = specs[0]['data']['teacher']['teacher_id']
     round_no = specs[0]['data']['observed_round']
-    private = [private_group(s, teacher, round_no) for s in specs]
+    private = [private_group(s, teacher, round_no, upper_tick(config)) for s in specs]
     population = len(private[0]['chains'])
     identities = [[c['candidate_id'] for c in d['chains']] for d in private]
     if any(ids != identities[0] for ids in identities[1:]):
@@ -213,7 +215,7 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
             proposals[key] = {k: j[k] for k in ['ticks', 'direction', 'exploration_degree', 'hypothesis',
                 'expected_mean_effect', 'expected_best_effect', 'falsifier', 'evidence_ids']}
             proposals[key]['group_id'] = gid
-            for field in ['diagnostic_alternative', 'expected_subgroup_response', 'revision_from_previous_result', 'reference_ticks', 'experiment_purpose', 'expected_condition_effect', 'expected_functional_effect']:
+            for field in ['diagnostic_alternative', 'expected_subgroup_response', 'revision_from_previous_result', 'reference_ticks', 'experiment_purpose', 'expected_condition_effect', 'expected_functional_effect', 'search_mode', 'scale_reason']:
                 if field in j:
                     proposals[key][field] = j[field]
             for eid in j['evidence_ids']:
@@ -247,6 +249,8 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
         'priority': config.get('agent_objective',{}).get('priority',['mean_pic50','best_pic50']), 'next_group_count': 4, 'candidates_per_group': population,
         'parent_policy': 'Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.'}
     if control:
+        payload['search_policy'] = for_config(config)
+        payload['condition_comparison'] = config.get('condition_comparison', {})
         payload.update(version=private[0]['version'], parent_policy='Fixed new R0 before update 10 for every schedule; no incumbent restart.')
         from .learning import executed_schedules
         executed = {tuple(row['ticks']) for d in private for row in executed_schedules(d, published_reflections)}
@@ -267,7 +271,7 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
     def validate(result):
         jsonschema.validate(result, schema)
         try:
-            validate_synthesis(result, proposals, payload.get('already_executed_schedules', []))
+            validate_synthesis(result, proposals, payload.get('already_executed_schedules', []), for_config(config))
         except ValueError as exc:
             raise jsonschema.ValidationError(str(exc)) from exc
     result = caller(messages, schema, output/'synthesis.json', model=config['llm']['model'],

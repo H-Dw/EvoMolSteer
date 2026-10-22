@@ -4,6 +4,7 @@ import concurrent.futures
 import multiprocessing
 import time
 from .io import read, write, sha, source_fingerprint, commit
+from .protocol_state import config_path, acceptance_path, protocol_dir
 
 
 def validate(root):
@@ -78,11 +79,11 @@ def validate(root):
         from .gradient_validation import check
         gradient=check(root)
         write(probe/'results.json',results)
-        result={'source_fingerprint':source_fingerprint(),'config_sha256':sha(root/'config.json'),
+        result={'source_fingerprint':source_fingerprint(),'config_sha256':sha(config_path(root)),
             'teachers':len(results),'recovery_checks':len(results),'results_sha256':sha(probe/'results.json'),
-            'gradient_checks_sha256':sha(root/'validation/gradient_checks.json'),
+            'gradient_checks_sha256':sha(protocol_dir(root)/'validation/gradient_checks.json'),
             'fixed_start':10,'common_randomness':True,'different_hypothesis_schedules':True,
             'affinity_vjp':False,'time':time.time()}
         if not gradient['passed']:raise ValueError('Gradient acceptance incomplete')
-        write(root/'ACCEPTANCE_COMPLETE.json',result)
+        write(acceptance_path(root),result)
         return result

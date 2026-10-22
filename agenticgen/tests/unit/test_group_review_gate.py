@@ -19,7 +19,7 @@ def reviewed_transition(tmp_path, monkeypatch):
     for relative in gate.SKILLS.values():
         path = repo / relative; path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('Synthetic test skill, not an experimental approval.\n', encoding='utf-8')
-    c=configuration(); c['versions']=['v1','v2']; c.pop('previous_protocol_root',None)
+    c=configuration(); c['schema']='legacy-review-fixture'; c['versions']=['v1','v2']; c.pop('previous_protocol_root',None)
     write(root / 'config.json', c)
     sessions, coverage = [], []
     for teacher in ['teacher_a', 'teacher_b']:
@@ -99,7 +99,7 @@ def test_twentieth_version_is_the_last_authorized_transition(reviewed_transition
 def test_new_protocol_requires_binding_new_preparation_and_acceptance(reviewed_transition):
     _,old,_,approval=reviewed_transition
     new=old.parent/'new_protocol';new.mkdir()
-    config=configuration();config.update(versions=['v2','v3'],previous_protocol_root=str(old))
+    config=configuration();config.update(schema='legacy-review-fixture',versions=['v2','v3'],previous_protocol_root=str(old))
     write(new/'config.json',config)
     write(new/'PREPARED.json',{'new_protocol':True})
     write(new/'ACCEPTANCE_COMPLETE.json',{'new_native_checks':True})

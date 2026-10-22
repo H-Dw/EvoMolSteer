@@ -13,6 +13,7 @@ import shutil
 import time
 
 from agenticgen.adaptive_schedule.io import read, write, sha, value_sha, source_fingerprint, repository, commit
+from agenticgen.adaptive_schedule.protocol_state import load_config, config_path, prepared_path, acceptance_path
 
 
 @contextlib.contextmanager
@@ -35,6 +36,8 @@ def process_alive(pid):
 
 def protected_inventory(root, base):
     paths = [root / n for n in ('config.json', 'teachers.json', 'PREPARED.json', 'ACCEPTANCE_COMPLETE.json')]
+    paths += [p for p in (root/'protocols').rglob('*') if p.is_file()]
+    if (root/'ACTIVE_PROTOCOL.json').exists(): paths.append(root/'ACTIVE_PROTOCOL.json')
     paths += list(root.glob('FINALIZED_*.json'))
     for pattern in ('*/COMPLETE.json', '*/best.json', '*/quality_records.json'):
         paths += list((root / 'shared_r0').glob(pattern))
@@ -56,16 +59,19 @@ def validate_wave_quality(config, wave):
 
 
 def check(root, version):
-    config = read(root / 'config.json')
+    config = load_config(root)
     if version not in config['versions'] or (root / f'FINALIZED_{version}.json').exists():
         raise ValueError('Only an unfinished authorized version can be recovered')
     if process_alive(read(root / 'workers.json')['pid']):
         raise ValueError('Worker is still alive; let the other teacher finish')
     base = root / 'versions' / version
     binding = read(base / 'binding.json')
-    for frozen in (read(root / 'PREPARED.json'), read(root / 'ACCEPTANCE_COMPLETE.json'), binding):
-        if frozen['source_fingerprint'] != source_fingerprint() or frozen['config_sha256'] != sha(root / 'config.json'):
+    for frozen in (read(prepared_path(root)), read(acceptance_path(root)), binding):
+        if frozen['source_fingerprint'] != source_fingerprint() or frozen['config_sha256'] != sha(config_path(root)):
             raise ValueError('Frozen source/config differs; this tool cannot adopt code changes')
+    from agenticgen.adaptive_schedule.search_policy import load_version_policy
+    if config.get('search_policy') and binding.get('search_policy_sha256') != value_sha(load_version_policy(root,version)):
+        raise ValueError('Version search policy changed')
     for role, name in [('analyst', 'plip-group-analyst'), ('synthesizer', 'plip-group-synthesizer')]:
         if not (sha(base / f'{role}_SKILL.md') == binding['skill_hashes'][role]
                 == sha(repository() / 'agenticgen/src/agenticgen/resources/skills' / name / 'SKILL.md')):

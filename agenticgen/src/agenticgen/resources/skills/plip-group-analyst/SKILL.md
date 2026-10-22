@@ -11,6 +11,13 @@ without hard thresholds or hidden weighted scores. Improved affinity alone does 
 establish reconstruction; improved geometry with worse functional agreement needs
 a conflict diagnosis. Do not invent noise, median or responder-fraction gates.
 
+Use the supplied condition ranking tolerance only to prioritize tested schedules:
+anchor a band at the lowest group mean RMSD in the complete visible pool, then
+prefer teacher-affinity agreement inside that band. Preserve raw differences.
+The tolerance does not make coordinates equivalent, identify measurement noise or
+change the reward. Primary RMSD is protein-frame, actual-terminal geometry with
+no ligand fit; chemically valid pose/shape diagnostics answer different questions.
+
 Read teacher_condition and task_knowledge. Separate directly rewarded coordinates
 from indirectly influenced chemistry, charge, bonding and affinity. Use
 condition_quality/region_response for condition absorption and response_edge for
@@ -36,6 +43,17 @@ effects or resolve a conflict that can still change a remaining action. Start wi
 the configured moderate step; enlarge only when verified evidence permits, shrink
 near a reversal/peak, and explain why a new background justifies revisiting a
 previously negative direction. These are heuristics, not convergence guarantees.
+
+Read range upper bound, coarse exploration scale and fine resolution separately.
+An expanded range permits one executed range probe, not coarsening every action.
+Keep local refinement on the fine grid. A range probe must give its actual jump,
+why this scale can resolve uncertainty, expected condition and functional response,
+and a falsifier. Other proposals remain within the local-step contract. Inspect
+delivered displacement and clipping before interpreting a larger nominal amplitude.
+If two rounds give no best-condition progress or repeatedly negative responses,
+change direction, scale, interval, comparison background or the diagnostic question.
+Explain the changed decision; rewriting the same claim is not learning. Preserve
+the counterexample in task memory and state when it would or would not transfer.
 
 Query execution_history before proposing. Cache hits are prior observations, not
 new independent trials. Return legal new arrays, each with its actual reference,

@@ -276,13 +276,13 @@ def compose(states, slots=None):
 
 
 class Control:
-    def __init__(self, model, template, initial, schedules, folder, context_path, resume=None):
+    def __init__(self, model, template, initial, schedules, folder, context_path, resume=None, tick_upper=10):
         self.model, self.template, self.initial = model, template, initial
         self.folder, self.context_path = Path(folder), Path(context_path)
         self.resume = resume
         self.start_step = resume["step"] if resume else 0
         self.reward = LocalReward(template, "C", "endpoint")
-        self.schedules = torch.tensor([expanded(x) for x in schedules], device="cuda")
+        self.schedules = torch.tensor([expanded(x, tick_upper) for x in schedules], device="cuda")
         self.batch_size = len(schedules)
         if initial["prior"]["coords"].shape[0] != self.batch_size:
             raise ValueError("Schedule and initial-state batch sizes disagree")

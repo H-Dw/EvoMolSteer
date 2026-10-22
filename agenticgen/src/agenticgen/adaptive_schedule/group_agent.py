@@ -16,6 +16,7 @@ from .learning import (enabled, learning_schema, verified_large_steps, validate_
                        executed_schedules, validate_controller_hypotheses)
 from .grid import description
 from .group_protocol import input_limit, budget_context
+from .search_policy import for_config, upper_tick
 
 
 def capacity_count(path, expected_teachers):
@@ -33,12 +34,12 @@ def capacity_count(path, expected_teachers):
     return n
 
 
-def response_schema(tools, count, evidence_ids, final_only=False, decision_audit=False, controller=False):
+def response_schema(tools, count, evidence_ids, final_only=False, decision_audit=False, controller=False, tick_upper=10):
     text = {'type': 'string', 'minLength': 1}
     hypothesis = {'type': 'object', 'additionalProperties': False,
         'properties': {'id': {'type': 'string', 'pattern': '^H[1-8]$'},
             'ticks': {'type': 'array', 'minItems': 4, 'maxItems': 4,
-                      'items': {'type': 'integer', 'minimum': 0, 'maximum': 10}},
+                      'items': {'type': 'integer', 'minimum': 0, 'maximum': tick_upper}},
             'direction': text, 'exploration_degree': text, 'hypothesis': text,
             'expected_mean_effect': text, 'expected_best_effect': text, 'falsifier': text,
             'evidence_ids': {'type': 'array', 'minItems': 1, 'uniqueItems': True, 'items': {'enum': sorted(evidence_ids)}}},
@@ -59,7 +60,9 @@ def response_schema(tools, count, evidence_ids, final_only=False, decision_audit
         hypothesis['properties']['experiment_purpose'] = {'enum': ['direction_probe','exploit','bracket_peak','interaction_probe','conflict_diagnosis']}
         hypothesis['properties']['expected_condition_effect'] = text
         hypothesis['properties']['expected_functional_effect'] = text
-        hypothesis['required'] += ['reference_ticks','experiment_purpose','expected_condition_effect','expected_functional_effect']
+        hypothesis['properties']['search_mode'] = {'enum': ['local','range_probe']}
+        hypothesis['properties']['scale_reason'] = text
+        hypothesis['required'] += ['reference_ticks','experiment_purpose','expected_condition_effect','expected_functional_effect','search_mode','scale_reason']
     if final_only:
         return final
     calls = [{'type': 'object', 'additionalProperties': False,
@@ -118,7 +121,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     population = len(data['chains'])
-    anchor = validate_ticks(list(anchor))
+    anchor = validate_ticks(list(anchor), upper_tick(config))
     group_history = group_history or []
     published_reflections = published_reflections or []
     for memory in published_reflections:
@@ -168,6 +171,10 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
         common['action_contract'].update(default_max_absolute_tick_change=2,
             double_tick_rule='Two ticks allowed by default; three only in verified_large_step_directions.',
             no_executed_schedule=True, initial_step_ticks=2)
+        common['action_contract'].update(tick_bounds_inclusive=[0,upper_tick(config)],
+            search_policy=for_config(config),
+            range_probe_rule='Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.')
+        common['condition_comparison'] = config.get('condition_comparison', {})
     messages = [{'role': 'system', 'content': instructions}, {'role': 'user', 'content': canonical(common)}]
     binding = {'population_sha256': tools.digest, 'common_sha256': value_sha(common),
                'skill_sha256': value_sha(instructions), 'llm': config['llm']}
@@ -176,7 +183,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
     write(output/'binding.json', binding)
     for turn in range(max_tool_turns+1):
         schema = response_schema(tools, hypotheses, evidence, final_only=turn == max_tool_turns,
-                                 decision_audit=config.get('council', {}).get('decision_audit', False), controller=control)
+                                 decision_audit=config.get('council', {}).get('decision_audit', False), controller=control, tick_upper=upper_tick(config))
         estimated_bytes = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
         limit = input_limit(config)
         if estimated_bytes > limit:
@@ -186,7 +193,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
             if message['kind'] == 'hypotheses':
                 try:
                     if control:
-                        validate_controller_hypotheses(message, anchor, hypotheses, evidence, large, executed)
+                        validate_controller_hypotheses(message, anchor, hypotheses, evidence, large, executed, for_config(config))
                     else:
                         validate_hypotheses(message, anchor, hypotheses, evidence, double)
                 except ValueError as exc:

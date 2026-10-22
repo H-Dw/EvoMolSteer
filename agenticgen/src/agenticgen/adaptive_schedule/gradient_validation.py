@@ -11,7 +11,8 @@ from agenticgen.runtime.rng import rng_state, set_rng
 
 
 def check(root):
-    config = read(root / "config.json")
+    from .protocol_state import load_config
+    config = load_config(root)
     evidence = []
     for teacher in read(root / "teachers.json"):
         model = load_model(config, teacher["target"], root)
@@ -90,7 +91,8 @@ def check(root):
     result = {"passed": all(r["passed"] for r in evidence), "checks": evidence,
               "source_fingerprint": source_fingerprint(),
               "additional_candidates": 0, "matching_frozen_for_derivative_test": True}
-    write(root / "validation/gradient_checks.json", result)
+    from .protocol_state import protocol_dir
+    write(protocol_dir(root) / "validation/gradient_checks.json", result)
     if not result["passed"]:
         raise RuntimeError("Gradient check failed; inspect validation/gradient_checks.json")
     return result

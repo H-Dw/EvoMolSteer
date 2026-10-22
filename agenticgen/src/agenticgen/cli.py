@@ -11,13 +11,14 @@ def main():
     from agenticgen.adaptive_schedule.group_protocol import GROUP_ROOT
     from agenticgen.adaptive_schedule.io import read, write, repository, commit
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command', choices=['doctor', 'analyze', 'prepare', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
+    p.add_argument('command', choices=['doctor', 'analyze', 'prepare', 'stage-protocol', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
     p.add_argument('--root', type=Path, default=Path(GROUP_ROOT))
     p.add_argument('--source-root', type=Path)
     p.add_argument('--version', default='v6')
     p.add_argument('--reason')
     a = p.parse_args()
     from agenticgen.adaptive_schedule import group_run
+    from agenticgen.adaptive_schedule.protocol_state import load_config, acceptance_path
     if a.command == 'doctor':
         from agenticgen.runtime.paths import host_config, skill
         import agenticgen
@@ -31,13 +32,16 @@ def main():
         result = group_run.prepare(a.root, a.source_root)
     elif a.command == 'adopt-unstarted-runtime':
         result = group_run.adopt_unstarted_runtime(a.root, a.reason)
+    elif a.command == 'stage-protocol':
+        from agenticgen.adaptive_schedule.protocol_state import stage_protocol
+        result = stage_protocol(a.root, a.reason)
     elif a.command == 'validate':
         from agenticgen.adaptive_schedule.group_validation import validate
         result = validate(a.root)
     elif a.command == 'run':
         try:
             from agenticgen.adaptive_schedule.environment import record_environment
-            record_environment(a.root, read(a.root/'config.json'))
+            record_environment(a.root, load_config(a.root))
             result = group_run.run(a.root, a.version)
         except Exception as exc:
             import traceback
@@ -47,10 +51,12 @@ def main():
             raise
     elif a.command == 'launch':
         from agenticgen.runtime.launch import check_api, idle_locks
+        if (a.root/f'FINALIZED_{a.version}.json').exists():
+            raise ValueError('Version already finalized; no duplicate launch')
         group_run.assert_prepared(a.root)
         from agenticgen.adaptive_schedule.environment import record_environment
-        record_environment(a.root, read(a.root/'config.json'))
-        if not (a.root/'ACCEPTANCE_COMPLETE.json').exists():
+        record_environment(a.root, load_config(a.root))
+        if not acceptance_path(a.root).exists():
             raise RuntimeError('Native acceptance is incomplete')
         with idle_locks(a.root):
             api = check_api()
@@ -67,7 +73,7 @@ def main():
         write(a.root/'launch.json', result)
     elif a.command == 'status':
         result = {'status': read(a.root/'status.json') if (a.root/'status.json').exists() else {'phase': 'prepared'},
-                  'versions': {f'v{i}': (a.root/f'FINALIZED_v{i}.json').exists() for i in range(1, 21)}}
+                  'versions': {v: (a.root/f'FINALIZED_{v}.json').exists() for v in load_config(a.root)['versions']}}
     elif a.command == 'report':
         result = group_run.report(a.root, a.version)
     else:

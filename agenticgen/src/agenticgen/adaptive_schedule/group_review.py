@@ -3,11 +3,12 @@ from pathlib import Path
 import subprocess
 from .io import read, write, sha, repository, commit, value_sha
 from .group_run import SKILLS
+from .protocol_state import load_config, config_path, prepared_path, acceptance_path
 
 
 def review_pack(root, version):
     root = Path(root); base = root/'versions'/version
-    c = read(root/'config.json')
+    c = load_config(root)
     items = []
     for teacher in read(root/'teachers.json'):
         name = teacher['teacher_id']; tb = base/name
@@ -38,7 +39,7 @@ def review_pack(root, version):
         write(path, {'sessions': items[i:i+5]})
         shards.append({'path': path.relative_to(root).as_posix(), 'sha256': sha(path),
                        'session_ids': [x['id'] for x in items[i:i+5]]})
-    manifest = {'version': version, 'config_sha256': sha(root/'config.json'),
+    manifest = {'version': version, 'config_sha256': sha(config_path(root)),
                 'binding_sha256': sha(base/'binding.json'), 'expected_sessions': expected,
                 'expected_sampled_results': len(read(root/'teachers.json'))*c['rounds']*4*c.get('population_size',100),
                 'shards': shards, 'requires_human_agent_review': True}
@@ -61,7 +62,7 @@ def committed_file(path, digest, revision):
 
 
 def review_check(root, next_version):
-    root = Path(root); config = read(root/'config.json')
+    root = Path(root); config = load_config(root)
     if next_version not in config['versions'] or next_version == 'v1':
         raise ValueError('Invalid reviewed-version transition')
     previous = f'v{int(next_version[1:])-1}'
@@ -74,13 +75,15 @@ def review_check(root, next_version):
               'finalized_sha256': sha(finalized), 'manifest_sha256': sha(manifest_path), 'review_commit': commit()}
     if previous_root.resolve() != root.resolve():
         checks.update(previous_protocol_root=str(previous_root),
-            new_prepared_sha256=sha(root/'PREPARED.json'),
-            new_acceptance_sha256=sha(root/'ACCEPTANCE_COMPLETE.json'),
+            new_prepared_sha256=sha(prepared_path(root)),
+            new_acceptance_sha256=sha(acceptance_path(root)),
             objective_priority=config['agent_objective']['priority'])
     if any(approval.get(k) != v for k, v in checks.items()):
         raise ValueError('Review approval does not bind actual previous results and deployed commit')
     if read(finalized)['review_manifest_sha256'] != sha(manifest_path):
         raise ValueError('Finalized review manifest changed')
+    if manifest.get('binding_sha256') and manifest['binding_sha256'] != sha(previous_root/'versions'/previous/'binding.json'):
+        raise ValueError('Previous version binding changed after review manifest')
     for role, path in SKILLS.items():
         committed_file(path, approval['skill_sha256'][role], commit())
     committed_file(approval['review_document'], approval['review_document_sha256'], commit())
@@ -114,4 +117,7 @@ def review_check(root, next_version):
             actual[identifier] = row
     if set(actual) != set(expected) or len(actual) != manifest['expected_sessions']:
         raise ValueError('Review coverage incomplete')
+    if config.get('schema') == 'agenticgen-core1hop-fixedstart-v2':
+        from .version_gate import check_control_gate
+        check_control_gate(root,next_version,approval)
     return {'approved': True, 'previous': previous, 'next': next_version, 'sessions': len(actual)}

@@ -9,6 +9,12 @@ Best beyond the teacher is a bonus. Read counts and budget from input. Compare
 continuous errors and tradeoffs, without hard gates or hidden weighted scores.
 Neither an affinity increase alone nor a geometry decrease alone proves success.
 
+Use the configured tolerance as a ranking band anchored to the entire visible
+tested pool minimum. Inside that band prioritize absolute mean-affinity teacher
+gap, then raw condition error and Best. Report the full precision tradeoff; this
+is neither an acceptance cutoff nor an estimate of noise. Do not chain pairwise
+ties. Primary coordinates use the protein frame without ligand-only alignment.
+
 All private analysts have now finished. Compare their predictions with measured
 arrays and evidence. Check A/B identities and signed differences. Positive B−A
 affinity is not necessarily improved teacher agreement. Lower geometric error
@@ -28,6 +34,16 @@ they answer an important question. Untested controls are unknown, not optimal.
 A repeated failed direction in a new background requires a new prediction and
 a reason that the previous falsification may not transfer. Do not impose fixed
 exploration quotas or conceal tradeoffs behind a single score.
+
+The explicit action contract overrides this heuristic freedom: after an approved
+range expansion select at most one range probe; all other choices are local.
+Range upper, coarse default and fine grid are independent. Select a large probe
+only when its hypothesis addresses a real uncertainty about control transmission
+or conditional response. If two rounds stagnate or move negatively, require a
+different direction/scale/interval/background or a discriminating question, not
+another verbal restatement. Keep supported local exploitation when it still has
+information value. Store teacher-specific observations and counterexamples only
+in this task's memory; reset them in the next version.
 
 Check prior executed arrays and duplicate current proposals. Never invent
 replacement arrays or edit analyst numbers. If too few legal distinct proposals
