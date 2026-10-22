@@ -2,7 +2,7 @@
 
 Read [plan.zh-CN.md](plan.zh-CN.md) first. It is the active scientific protocol.
 The former mean-first 100-candidate council is historical only. The current
-automation remains PAUSED until native acceptance and full V5 review authorize V6.
+automation remains PAUSED until native acceptance and the explicit human-authorized V6 transition are verified.
 
 ## Source and environment
 
@@ -37,14 +37,16 @@ Result root:
    step-10 restarts, common randomness, four schedules in batch100, gradient finite
    differences, units and displacement cap. Diagnostic probes are not scientific
    comparison groups. They retain documentary records and are structurally pruned.
-4. Complete substantive review of all 52 V5 logical sessions from the previous
-   protocol, including every actual unique request, tool, proposal and failure.
-   Preserve committed review document, individual coverage shards and source hashes.
-5. Write a real V6 review approval only after all evidence is reviewed. It binds
-   previous version/root, FINALIZED and manifest hashes, committed document/coverage,
-   installed generic skills, exact deployment commit, new PREPARED and ACCEPTANCE
-   hashes and the new objective priority. `agenticgen review-check --version v6`
-   must pass. A file's existence is not approval.
+4. V5 review was terminated by the human on 2026-10-23. Preserve its results and
+   evidence; do not manufacture full coverage. The committed instruction is
+   `docs/authorizations/20261023_v6_start.json`.
+5. Write a V6 transition record in `review_approval.json` with
+   `mode=user_authorized_protocol_start`, `review_completed=false`, empty coverage,
+   authorization_document and its SHA256. Bind the V5 FINALIZED/manifest, exact
+   commit and skills, new PREPARED/ACCEPTANCE, objective and policy hashes as usual.
+   `review-check --version v6` must report approved with zero reviewed sessions.
+   This one-time V5→V6 transition does not waive native validation or any later
+   version's complete 52-session review.
 6. `agenticgen launch --version v6`: API preflight, inherited environment, detached
    process. Verify command identity, worker/pipeline and real completed artifacts.
    Then resume the updated automation at 40-minute intervals.
@@ -83,7 +85,7 @@ Healthy unchanged states are quiet. V25 delivery ends the automation.
 
 The authorized matrix is V6–V25, 1000 optimization records per version plus 50 shared R0 records (maximum 20050). The primary ranking band is 0.02 A, with offline 0.01/0.05 A sensitivity. It never modifies rewards or displacements.
 
-For the existing prepared root with R0 but no scientific version binding, use `agenticgen stage-protocol --reason <concrete rationale>` from the tested fixed commit. It creates an append-only protocol directory and active pointer; original preparation, configuration, acceptance and R0 remain intact. It refuses changes to the sampled R0 settings. Run `validate` against the staged protocol; its new acceptance receipt is written inside the protocol directory. Do not overwrite original root provenance. Until native acceptance and real V5 review pass, `launch` is forbidden.
+For the existing prepared root with R0 but no scientific version binding, use `agenticgen stage-protocol --reason <concrete rationale>` from the tested fixed commit. It creates an append-only protocol directory and active pointer; original preparation, configuration, acceptance and R0 remain intact. It refuses changes to the sampled R0 settings. Run `validate` against the staged protocol; its new acceptance receipt is written inside the protocol directory. Do not overwrite original root provenance. Until native acceptance and the scoped user-authorized transition pass, `launch` is forbidden.
 
 Each version freezes `versions/vN/search_policy.json` with upper_amplitude, coarse_probe_scale, fine_resolution, max_range_probes and max_changed_intervals. Missing V6 policy defaults to U=1, s=0.2, q=0.1. Later versions require the preceding frozen policy. V6–V10 reject U>1. From V11 a reviewed increase follows 1→5→10→15… at most one level per version; prepare the explicit JSON before approval. Policy is bound to the version and every LLM prompt.
 

@@ -61,6 +61,32 @@ def committed_file(path, digest, revision):
     return full
 
 
+def user_authorized_protocol_start(root, next_version, previous_root, config, approval):
+    """One explicit human-authorized V5→V6 transition; never a reviewed-session claim."""
+    if (next_version != 'v6' or config['versions'][0] != 'v6'
+            or config.get('transition_from_version') != 'v5'
+            or previous_root.resolve() == root.resolve()):
+        raise ValueError('User-authorized protocol start is limited to external V5 to V6')
+    path = approval.get('authorization_document')
+    if path != 'agenticgen/docs/authorizations/20261023_v6_start.json':
+        raise ValueError('Explicit committed user instruction is required')
+    document = committed_file(path, approval['authorization_document_sha256'], commit())
+    authorization = read(document)
+    expected = {'previous_version': 'v5', 'next_version': 'v6',
+                'instruction': '终止V5的分析，后续需要进行新实验',
+                'v5_review_required': False, 'native_acceptance_required': True,
+                'subsequent_full_review_required': True}
+    if any(authorization.get(k) != v for k, v in expected.items()):
+        raise ValueError('Authorization scope does not match the recorded human instruction')
+    if approval.get('coverage') or approval.get('review_completed') is not False:
+        raise ValueError('Skipped V5 review must not be represented as completed coverage')
+    from .version_gate import check_control_gate
+    check_control_gate(root, next_version, approval)
+    return {'approved': True, 'previous': 'v5', 'next': 'v6', 'sessions': 0,
+            'review_completed': False, 'mode': 'user_authorized_protocol_start',
+            'authorization_sha256': sha(document)}
+
+
 def review_check(root, next_version):
     root = Path(root); config = load_config(root)
     if next_version not in config['versions'] or next_version == 'v1':
@@ -86,6 +112,8 @@ def review_check(root, next_version):
         raise ValueError('Previous version binding changed after review manifest')
     for role, path in SKILLS.items():
         committed_file(path, approval['skill_sha256'][role], commit())
+    if approval.get('mode') == 'user_authorized_protocol_start':
+        return user_authorized_protocol_start(root, next_version, previous_root, config, approval)
     committed_file(approval['review_document'], approval['review_document_sha256'], commit())
     expected, actual = {}, {}
     for shard in manifest['shards']:
