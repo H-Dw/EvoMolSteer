@@ -1,0 +1,5880 @@
+{
+  "binding": {
+    "initial_jobs_sha256": "38acec72d9432df4ec389b9d9255c1049718cab59b56c28042d97c86ed7b37e6",
+    "rounds": 5,
+    "teachers": [
+      "5nn4_SC2_A_1017__top1",
+      "5nn4_SC2_A_1017__top2"
+    ],
+    "gpu_owners": 1,
+    "global_llm_concurrency": 4
+  },
+  "teachers": {
+    "5nn4_SC2_A_1017__top1": {
+      "round": 5,
+      "phase": "complete",
+      "job": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top1",
+        "observed_round": 4,
+        "candidates_per_group": 100,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G1:H1",
+            "ticks": [
+              5,
+              5,
+              5,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                5,
+                5,
+                5
+              ],
+              "direction": "Index2 +1 from anchor [5,5,4,5]; indices 0,1,3 unchanged.",
+              "exploration_degree": "Consolidation/restoration; repeat of known r00 fixed array.",
+              "hypothesis": "Restoring index2 from 4 to 5 recovers the r00 fixed-array Mean 4.172401 versus the current anchor 4.164848, an observed difference of +0.007553.",
+              "expected_mean_effect": "Positive versus anchor, approximately +0.0075 if the fixed-array value transfers; this is a repeat of known r00, not an independent sample.",
+              "expected_best_effect": "Little or no Best gain; r00 Best 7.708125 is close to the latest fixed-array Best.",
+              "falsifier": "Mean at or below the current anchor 4.164848 would contradict index2 restoration as a positive Mean lever under the current draw.",
+              "evidence_ids": [
+                "E002"
+              ],
+              "group_id": "G1",
+              "diagnostic_alternative": "If no gain appears, the r04 recovery was not driven mainly by index2 and the index2 effect is context-specific rather than a stable Mean lever.",
+              "expected_subgroup_response": "No subgroup tool run. If executed, improvement should concentrate in candidates whose score fell when index2 was reduced from 5 to 4; identity is unknown.",
+              "revision_from_previous_result": "Previous tests explored index2 lower and index3 offsets. This consolidates on the one known positive fixed-array restoration to r00 while explicitly labeling it a repeat, not a novel array."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G4:H2",
+            "ticks": [
+              5,
+              4,
+              4,
+              4
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                4,
+                4,
+                4
+              ],
+              "direction": "index2 -1 (5->4); 1 changed interval, -1, inside inclusive bounds [0,10]",
+              "exploration_degree": "high — first test of index2 on the minus side; low expected Mean, kept for its diagnostic value",
+              "hypothesis": "index2 has only been measured on the plus side at the center (-0.0075) and near-null at two other parents, so index2=5 is not established as a peak. A minus move is the cheapest remaining chance at the group's first positive one-tick Mean edit.",
+              "expected_mean_effect": "Small: -0.005 to +0.005 versus anchor 4.164839; no expectation of beating r00 or the incumbent.",
+              "expected_best_effect": "Flat; tick edits have not moved Best in this group.",
+              "falsifier": "Mean <= anchor by more than ~0.005 with no upper-quartile candidate improving: then index2=5 is a local peak, the axis is flat, and only the index1/index3 interaction remains worth attention.",
+              "evidence_ids": [
+                "E014",
+                "E015"
+              ],
+              "group_id": "G4",
+              "diagnostic_alternative": "Alternative reading: index2 edits are null in every context (as at [6,5,5,5] and [6,4,5,5]); then the asymmetric one-point result is not a slope and the axis should be left at 5.",
+              "expected_subgroup_response": "If anything moves, it should be a handful of score-sensitive candidates; a uniform shift would contradict the concentrated pattern seen in all prior arms.",
+              "revision_from_previous_result": "Prior rounds placed lower-direction probes on index3 and index2; index3-1 is now confirmed near-null (+0.000038 at the current anchor), so the untested minus probe moves to index2."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G2:H2",
+            "ticks": [
+              6,
+              5,
+              4,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                5,
+                4,
+                5
+              ],
+              "direction": "Two changes from anchor [5,4,4,5]: index0 5->6 (+1) and index1 4->5 (+1); index2=4, index3=5 unchanged.",
+              "exploration_degree": "Two-component conditional contrast, exploratory additivity check against H1.",
+              "hypothesis": "The index1=5 gain and the index0=6 penalty are roughly additive, so combining them should land between the two single-tick effects and below H1.",
+              "expected_mean_effect": "Slightly negative to near zero relative to anchor 4.164788 (predict ~4.158-4.166), reflecting index0=6 history of -0.008 to -0.010 plus index1=5 of +0.006 to +0.008 (tool:0689cb51..., tool:0d6c4c93...).",
+              "expected_best_effect": "Neutral to slightly negative versus r04 Best 7.707979; no expectation of a Best gain from this combination.",
+              "falsifier": "If H2 Mean is approximately equal to or above H1, index0=6 is not a penalty once index1=5 and my additive single-tick reading is wrong; if H2 ~ H1 - 0.008, additivity is supported.",
+              "evidence_ids": [
+                "E006",
+                "E004",
+                "E007"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "If H2 matches H1, the two edits are not separable by Mean and the index0 'optimum at 5' claim is context-bound; if H2 is clearly worse than both, the two edits interfere rather than add.",
+              "expected_subgroup_response": "By r04 quartiles: losses in the upper quartiles would indicate the index0 edit harms exactly the high scorers that carried the last gain; flat response across quartiles would indicate neither component acts on score level.",
+              "revision_from_previous_result": "Replaces prior conditional index3/index2 arms with an index0 x index1 additivity test that speaks directly to the last verified step (index0 6->5 worth +0.009288) and to the twice-repeated index1 signal; [6,5,4,5] is unsampled in my group's fixed arrays ([6,5,5,5], [6,4,5,5], [6,4,4,5], [6,5,6,5])."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G3:H2",
+            "ticks": [
+              6,
+              5,
+              5,
+              4
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                5,
+                5,
+                4
+              ],
+              "direction": "Two-index move from anchor [5,5,6,4]: index0 +1, index2 -1 (one tick each, no double-tick interval).",
+              "exploration_degree": "low-medium: index0 direction is measured but at a different index2 context",
+              "hypothesis": "If index2=6 is the dominant penalty and the index0=6 cost is context-dependent (-0.0028 at [*,5,6,4] but -0.0103 at r00), then [6,5,5,4] should recover most of the index2 gain while paying only a small index0 cost, and should not show the Q2/Q3 concentration that made [6,5,5,5]-family arrays lose.",
+              "expected_mean_effect": "Slight positive versus anchor, order 0.000 to +0.005, plausibly just below r00 4.172401; a clear loss would put index0=6 penalties back at the r00-scale -0.010.",
+              "expected_best_effect": "None expected; Best around 7.708, with the main risk being a small drop if the index0-sensitive candidates also carry the Q2 loss.",
+              "falsifier": "Mean below 4.162 with losses clustering in the same r00-quartile Q2/Q3 candidates that lost on [6,5,5,5] would show index0=6 is harmful regardless of index2, closing that direction.",
+              "evidence_ids": [
+                "E012",
+                "E011",
+                "E009"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "If H2 beats H1, index1=5 is a sharper constraint than index0; if both sit near r00, the last unresolved question is whether any fixed vector can exceed r00 at all.",
+              "expected_subgroup_response": "Losses, if any, in the r00 Q2/Q3 candidates that drove the -0.027979 Q2 mean of the r00->anchor comparison; near-zero elsewhere.",
+              "revision_from_previous_result": "Uses the newly measured -0.002809 index0 effect at the current anchor instead of the older -0.010255 figure from r00, so the index0 estimate is context-adjusted rather than copied from a different array."
+            }
+          }
+        ],
+        "parent_policy": "Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.",
+        "published_memory_sha256": "4c3c03a68a04bd92cbe38f202f2b9b50dd40044adcce60e28eaab8d9cd457783",
+        "binding_sha256": "a8c1ead091315e0c1bfce73383a3c393d47d1f5e01ba14e9b5ad8b879a354c65",
+        "formal_gpu_executed": false
+      },
+      "artifacts": {
+        "wave": "/opt/MolSteer/generated_datasets/plip_schedule_council_5nn4_r12_h4_b100_crn_s42_20261022/versions/v4/5nn4_SC2_A_1017__top1/round_05/wave",
+        "parent": "/opt/MolSteer/generated_datasets/plip_schedule_council_5nn4_r12_h4_b100_crn_s42_20261022/versions/v4/5nn4_SC2_A_1017__top1/incumbents/r04",
+        "job": {
+          "schema": "plip-council-selection-v1",
+          "teacher_id": "5nn4_SC2_A_1017__top1",
+          "observed_round": 4,
+          "candidates_per_group": 100,
+          "logical_llm_sessions": 5,
+          "jobs": [
+            {
+              "priority": 1,
+              "source_proposal_id": "G1:H1",
+              "ticks": [
+                5,
+                5,
+                5,
+                5
+              ],
+              "proposal": {
+                "ticks": [
+                  5,
+                  5,
+                  5,
+                  5
+                ],
+                "direction": "Index2 +1 from anchor [5,5,4,5]; indices 0,1,3 unchanged.",
+                "exploration_degree": "Consolidation/restoration; repeat of known r00 fixed array.",
+                "hypothesis": "Restoring index2 from 4 to 5 recovers the r00 fixed-array Mean 4.172401 versus the current anchor 4.164848, an observed difference of +0.007553.",
+                "expected_mean_effect": "Positive versus anchor, approximately +0.0075 if the fixed-array value transfers; this is a repeat of known r00, not an independent sample.",
+                "expected_best_effect": "Little or no Best gain; r00 Best 7.708125 is close to the latest fixed-array Best.",
+                "falsifier": "Mean at or below the current anchor 4.164848 would contradict index2 restoration as a positive Mean lever under the current draw.",
+                "evidence_ids": [
+                  "E002"
+                ],
+                "group_id": "G1",
+                "diagnostic_alternative": "If no gain appears, the r04 recovery was not driven mainly by index2 and the index2 effect is context-specific rather than a stable Mean lever.",
+                "expected_subgroup_response": "No subgroup tool run. If executed, improvement should concentrate in candidates whose score fell when index2 was reduced from 5 to 4; identity is unknown.",
+                "revision_from_previous_result": "Previous tests explored index2 lower and index3 offsets. This consolidates on the one known positive fixed-array restoration to r00 while explicitly labeling it a repeat, not a novel array."
+              }
+            },
+            {
+              "priority": 2,
+              "source_proposal_id": "G4:H2",
+              "ticks": [
+                5,
+                4,
+                4,
+                4
+              ],
+              "proposal": {
+                "ticks": [
+                  5,
+                  4,
+                  4,
+                  4
+                ],
+                "direction": "index2 -1 (5->4); 1 changed interval, -1, inside inclusive bounds [0,10]",
+                "exploration_degree": "high — first test of index2 on the minus side; low expected Mean, kept for its diagnostic value",
+                "hypothesis": "index2 has only been measured on the plus side at the center (-0.0075) and near-null at two other parents, so index2=5 is not established as a peak. A minus move is the cheapest remaining chance at the group's first positive one-tick Mean edit.",
+                "expected_mean_effect": "Small: -0.005 to +0.005 versus anchor 4.164839; no expectation of beating r00 or the incumbent.",
+                "expected_best_effect": "Flat; tick edits have not moved Best in this group.",
+                "falsifier": "Mean <= anchor by more than ~0.005 with no upper-quartile candidate improving: then index2=5 is a local peak, the axis is flat, and only the index1/index3 interaction remains worth attention.",
+                "evidence_ids": [
+                  "E014",
+                  "E015"
+                ],
+                "group_id": "G4",
+                "diagnostic_alternative": "Alternative reading: index2 edits are null in every context (as at [6,5,5,5] and [6,4,5,5]); then the asymmetric one-point result is not a slope and the axis should be left at 5.",
+                "expected_subgroup_response": "If anything moves, it should be a handful of score-sensitive candidates; a uniform shift would contradict the concentrated pattern seen in all prior arms.",
+                "revision_from_previous_result": "Prior rounds placed lower-direction probes on index3 and index2; index3-1 is now confirmed near-null (+0.000038 at the current anchor), so the untested minus probe moves to index2."
+              }
+            },
+            {
+              "priority": 3,
+              "source_proposal_id": "G2:H2",
+              "ticks": [
+                6,
+                5,
+                4,
+                5
+              ],
+              "proposal": {
+                "ticks": [
+                  6,
+                  5,
+                  4,
+                  5
+                ],
+                "direction": "Two changes from anchor [5,4,4,5]: index0 5->6 (+1) and index1 4->5 (+1); index2=4, index3=5 unchanged.",
+                "exploration_degree": "Two-component conditional contrast, exploratory additivity check against H1.",
+                "hypothesis": "The index1=5 gain and the index0=6 penalty are roughly additive, so combining them should land between the two single-tick effects and below H1.",
+                "expected_mean_effect": "Slightly negative to near zero relative to anchor 4.164788 (predict ~4.158-4.166), reflecting index0=6 history of -0.008 to -0.010 plus index1=5 of +0.006 to +0.008 (tool:0689cb51..., tool:0d6c4c93...).",
+                "expected_best_effect": "Neutral to slightly negative versus r04 Best 7.707979; no expectation of a Best gain from this combination.",
+                "falsifier": "If H2 Mean is approximately equal to or above H1, index0=6 is not a penalty once index1=5 and my additive single-tick reading is wrong; if H2 ~ H1 - 0.008, additivity is supported.",
+                "evidence_ids": [
+                  "E006",
+                  "E004",
+                  "E007"
+                ],
+                "group_id": "G2",
+                "diagnostic_alternative": "If H2 matches H1, the two edits are not separable by Mean and the index0 'optimum at 5' claim is context-bound; if H2 is clearly worse than both, the two edits interfere rather than add.",
+                "expected_subgroup_response": "By r04 quartiles: losses in the upper quartiles would indicate the index0 edit harms exactly the high scorers that carried the last gain; flat response across quartiles would indicate neither component acts on score level.",
+                "revision_from_previous_result": "Replaces prior conditional index3/index2 arms with an index0 x index1 additivity test that speaks directly to the last verified step (index0 6->5 worth +0.009288) and to the twice-repeated index1 signal; [6,5,4,5] is unsampled in my group's fixed arrays ([6,5,5,5], [6,4,5,5], [6,4,4,5], [6,5,6,5])."
+              }
+            },
+            {
+              "priority": 4,
+              "source_proposal_id": "G3:H2",
+              "ticks": [
+                6,
+                5,
+                5,
+                4
+              ],
+              "proposal": {
+                "ticks": [
+                  6,
+                  5,
+                  5,
+                  4
+                ],
+                "direction": "Two-index move from anchor [5,5,6,4]: index0 +1, index2 -1 (one tick each, no double-tick interval).",
+                "exploration_degree": "low-medium: index0 direction is measured but at a different index2 context",
+                "hypothesis": "If index2=6 is the dominant penalty and the index0=6 cost is context-dependent (-0.0028 at [*,5,6,4] but -0.0103 at r00), then [6,5,5,4] should recover most of the index2 gain while paying only a small index0 cost, and should not show the Q2/Q3 concentration that made [6,5,5,5]-family arrays lose.",
+                "expected_mean_effect": "Slight positive versus anchor, order 0.000 to +0.005, plausibly just below r00 4.172401; a clear loss would put index0=6 penalties back at the r00-scale -0.010.",
+                "expected_best_effect": "None expected; Best around 7.708, with the main risk being a small drop if the index0-sensitive candidates also carry the Q2 loss.",
+                "falsifier": "Mean below 4.162 with losses clustering in the same r00-quartile Q2/Q3 candidates that lost on [6,5,5,5] would show index0=6 is harmful regardless of index2, closing that direction.",
+                "evidence_ids": [
+                  "E012",
+                  "E011",
+                  "E009"
+                ],
+                "group_id": "G3",
+                "diagnostic_alternative": "If H2 beats H1, index1=5 is a sharper constraint than index0; if both sit near r00, the last unresolved question is whether any fixed vector can exceed r00 at all.",
+                "expected_subgroup_response": "Losses, if any, in the r00 Q2/Q3 candidates that drove the -0.027979 Q2 mean of the r00->anchor comparison; near-zero elsewhere.",
+                "revision_from_previous_result": "Uses the newly measured -0.002809 index0 effect at the current anchor instead of the older -0.010255 figure from r00, so the index0 estimate is context-adjusted rather than copied from a different array."
+              }
+            }
+          ],
+          "parent_policy": "Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.",
+          "published_memory_sha256": "4c3c03a68a04bd92cbe38f202f2b9b50dd40044adcce60e28eaab8d9cd457783",
+          "binding_sha256": "a8c1ead091315e0c1bfce73383a3c393d47d1f5e01ba14e9b5ad8b879a354c65",
+          "formal_gpu_executed": false
+        },
+        "schedules": [
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            5,
+            4,
+            4,
+            4
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            4,
+            5
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ],
+          [
+            6,
+            5,
+            5,
+            4
+          ]
+        ]
+      },
+      "last_commit": {
+        "round": 5,
+        "snapshot": "/opt/MolSteer/generated_datasets/plip_schedule_council_5nn4_r12_h4_b100_crn_s42_20261022/versions/v4/5nn4_SC2_A_1017__top1/incumbents/r05",
+        "snapshot_sha256": "5455341ddf461b27fa132fb6166e3297f2d14c76d71870df94f161225b8517ac",
+        "quality_complete": true,
+        "retention_complete": true,
+        "improved": 20
+      },
+      "last_selection": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top1",
+        "observed_round": 5,
+        "candidates_per_group": 100,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G3:H1",
+            "ticks": [
+              5,
+              5,
+              4,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                5,
+                4,
+                5
+              ],
+              "direction": "From common_anchor_ticks [6,5,4,5]: index0 6→5 (−1); indices1=5,2=4,3=5 unchanged. One changed interval.",
+              "exploration_degree": "review-only transfer/reversal test; one-index edit; not independent of earlier [5,5,4,5] execution.",
+              "hypothesis": "Reversing the last action's index0 increase from 6 to 5, while keeping index1=5,index2=4,index3=5, should recover part of the r05 Mean loss if index0=6 is the harmful component at this context. This is a known array from earlier public reflection, so it is a transfer test, not new independent evidence.",
+              "expected_mean_effect": "If the earlier public fixed-array Mean ~4.164848 transfers, +0.0027 vs r05 4.162099; otherwise indistinguishable. Review-only; not executed.",
+              "expected_best_effect": "No material Best gain expected; Best should remain near the 7.708 plateau, with possible small candidate-specific changes. A large Best increase is not predicted.",
+              "falsifier": "Mean ≤4.162099, or failure to approach the earlier ~4.1648 fixed-array Mean, would indicate the index0 reversal/transfer is not stable and the last-action loss was not a simple index0 penalty.",
+              "evidence_ids": [
+                "E008",
+                "E009"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "If [5,5,4,5] recovers ~4.1648, support conditional index0=6 harm; if it stays near r05, support a round/restoration artifact or a different interaction. The latest→incumbent +0.017802 is a selected TOP1 gap, not a fixed-array comparator, so it cannot confirm this array.",
+              "expected_subgroup_response": "Not measured for r04→r05. Prior one-tick responses were concentrated; expect any Mean change to come from a few candidates rather than a uniform quartile shift. Do not infer subgroup identity from the selected TOP1 max.",
+              "revision_from_previous_result": "Prior public reflection expected index1 +1 at index2=4 to gain +0.004 to +0.008; executed [5,5,4,5] was near null (+0.00006 vs r04), refuting that expectation. This proposal does not repeat that claim; it tests index0 reversal instead."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G2:H1",
+            "ticks": [
+              5,
+              5,
+              4,
+              4
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                5,
+                4,
+                4
+              ],
+              "direction": "From anchor [5,4,4,4]: deltas [0,+1,0,0] (index1 4->5); single-index edit, within 0-10, no double tick.",
+              "exploration_degree": "review-only; local single-coordinate test; unexecuted",
+              "hypothesis": "At the current anchor, raising only index1 to 5 may recover part of the higher earlier [5,5,5,5] Mean, but prior index1+1 tests were near null, so this is a low-confidence lever test.",
+              "expected_mean_effect": "Small positive or null versus anchor [5,4,4,4]; not expected to be large given near-null prior index1+1 responses.",
+              "expected_best_effect": "Neutral; Best may change little and is not expected to exceed the incumbent 7.708155.",
+              "falsifier": "Paired Mean versus anchor <=0, or a materially lower Best, would show index1=5 is not a useful Mean lever at this context.",
+              "evidence_ids": [
+                "E005",
+                "E006"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "A null Mean would make index1 locally flat and discourage further index1-only edits; a positive Mean would justify testing combined [5,5,5,4].",
+              "expected_subgroup_response": "Any gain should be concentrated in a few score-sensitive candidates; no broad quartile shift is required or predicted.",
+              "revision_from_previous_result": "Earlier index1+1 at index2=4,index3=5 was only about +0.00006, refuting the prior +0.004 to +0.008 expectation; this proposal keeps the same lever but lowers the expectation and moves index3 to 4."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G2:H2",
+            "ticks": [
+              5,
+              4,
+              3,
+              4
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                4,
+                3,
+                4
+              ],
+              "direction": "From anchor [5,4,4,4]: deltas [0,0,-1,0] (index2 4->3); single-index edit, within 0-10, no double tick.",
+              "exploration_degree": "review-only; local single-coordinate diagnostic; unexecuted",
+              "hypothesis": "The first index2-minus at the current anchor tests whether index2=4 is a local peak; because index2+1 at this anchor was effectively null, the coordinate may be flat in both directions.",
+              "expected_mean_effect": "Near zero versus anchor; a positive result would indicate lowering index2 helps, while a negative result would indicate index2=4 is slightly favorable.",
+              "expected_best_effect": "Neutral; no reason to expect a Best gain above 7.708155.",
+              "falsifier": "A paired Mean clearly away from zero in either direction would show index2 is not flat at the anchor; the sign would determine the next edit.",
+              "evidence_ids": [
+                "E005",
+                "E006"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "If null, index2 is locally insensitive and should not receive further budget; if positive, test index2=3; if negative, keep index2=4.",
+              "expected_subgroup_response": "Any response is likely concentrated in a few candidates rather than a broad quartile shift.",
+              "revision_from_previous_result": "Earlier index2+1 at the anchor was effectively null, so this opposite-direction test distinguishes a flat coordinate from a small slope; it is not a replay."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G3:H2",
+            "ticks": [
+              5,
+              5,
+              3,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                5,
+                3,
+                5
+              ],
+              "direction": "From common_anchor_ticks [6,5,4,5]: index0 6→5 (−1) and index2 4→3 (−1); index1=5,index3=5 unchanged. Two changed intervals.",
+              "exploration_degree": "review-only two-index conditional test; novel vs known arrays; no double-tick.",
+              "hypothesis": "With index0 reversed to 5 and index1=5,index3=5, lowering index2 from 4 to 3 tests whether index2=4 is a local peak or whether index2 has no Mean effect at this context. If index0=5 carries and index2 decrease is null, H2 should be close to H1; if index2=3 adds a gain, it suggests index2=4 was still too high.",
+              "expected_mean_effect": "Approximately H1 if index2 4→3 is null; small positive vs r05 only if index0 reversal carries. Not expected to exceed r00's historical 4.172401 without new evidence. Review-only.",
+              "expected_best_effect": "No material Best gain predicted; monitor for a candidate-specific upside outlier, but do not claim it from the selected TOP1 max.",
+              "falsifier": "Mean ≤4.162099 or H2 materially below H1 would indicate index2 4→3 is harmful at this context; H2 ≈ H1 would indicate index2 is null in this range.",
+              "evidence_ids": [
+                "E008",
+                "E009"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "If H2 ≈ H1, the earlier index2− null at [6,4,5,5]→[6,4,4,5] extends to index0=5. If H2 > H1, index2=4 was not a local peak; if H2 < H1, lowering index2 is harmful. The selected TOP1 gap (+0.017802) is not a fixed-array B-A and cannot decide this.",
+              "expected_subgroup_response": "No subgroup measurement. If prior concentration holds, the difference may be driven by a few candidates; do not infer a quartile-wide response.",
+              "revision_from_previous_result": "Earlier index2− from 5 to 4 at [6,4,5,5] was null (-0.0000188) in public reflection. This proposal moves further to 3 and changes index0 to 5, so it is a conditional extension, not a repeat of the null."
+            }
+          }
+        ],
+        "parent_policy": "Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.",
+        "published_memory_sha256": "7e4b96fdbc02fce3f52b431a62fe09e364d0cc3e5474e1f12b91164ca6fbd3c2",
+        "binding_sha256": "b4032809e0ca1b08e33b79f3ee64e752741743bf6c68fa973bb62ccd57d44379",
+        "formal_gpu_executed": false
+      }
+    },
+    "5nn4_SC2_A_1017__top2": {
+      "round": 5,
+      "phase": "complete",
+      "job": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top2",
+        "observed_round": 4,
+        "candidates_per_group": 100,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G2:H1",
+            "ticks": [
+              6,
+              6,
+              7,
+              6
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                6,
+                7,
+                6
+              ],
+              "direction": "index 2 raised by one tick, 6->7; deltas versus common_anchor_ticks [6,6,6,6] are [0,0,+1,0]. One changed interval, within inclusive bounds [0,10], single-tick step so no verified_double_tick_directions entry is needed.",
+              "exploration_degree": "local single-index up-probe one step from the plateau anchor; no other interval moves",
+              "hypothesis": "If index 2's positive 5->6 response (about +0.0032 measured at [6,6,dot,5]) is a continuing slope rather than saturation at 6, then [6,6,7,6] should exceed the r04 [6,6,6,6] Mean of 4.126765.",
+              "expected_mean_effect": "Small; a small positive increment or about 0 to -0.003 relative to r04 [6,6,6,6] 4.126765. Direction and smallness stated from the measured +0.0032 index-2 step, not from a noise band.",
+              "expected_best_effect": "No expected change; Best is tied in the 7.7884-7.7886 range across rounds 2-4 and this one-tick late-window edit has no measured Best effect.",
+              "falsifier": "A paired r04->new Mean at or below -0.01, or a null paired with no delivery change, would indicate index 2 = 6 is at or past its optimum and end up-scaling of late windows in this context.",
+              "evidence_ids": [
+                "E005",
+                "E006"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "A null at [6,6,7,6] would show that the small index-2 increment was bound to the index-3 = 5 context, which decides whether late-window tuning is worth any further budget.",
+              "expected_subgroup_response": "Identity and subgroup profile unknown: no subgroup_response for index-2 increments was supplied. At most expect concentration in a few candidates (as with prior small late-window steps) rather than a broad shift.",
+              "revision_from_previous_result": "Revises the round-3 expectation that late windows are near-flat plateaus: that is now verified at index 3 (null at [6,6,6,dot]), so index 3 escalation is dropped and the same plateau question is moved to index 2, its only positive neighbor."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G2:H2",
+            "ticks": [
+              6,
+              7,
+              6,
+              6
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                7,
+                6,
+                6
+              ],
+              "direction": "index 1 raised by one tick, 6->7; deltas versus common_anchor_ticks [6,6,6,6] are [0,+1,0,0]. One changed interval, within inclusive bounds [0,10], single-tick step so no verified_double_tick_directions entry is needed.",
+              "exploration_degree": "local single-index up-probe one step from the plateau anchor, companion to H1 and disjoint in the interval it edits",
+              "hypothesis": "Index 1 has only ever been moved between 4 and 6, where 6 beat 4 and 5->6 gave about +0.0033. If its peak lies above 6, [6,7,6,6] should exceed the r04 [6,6,6,6] Mean of 4.126765; if 6 is its peak, the probe should land at or slightly below that Mean.",
+              "expected_mean_effect": "Small and probably non-positive: about 0 to -0.005 versus r04 4.126765, given the diminishing index-1 slope (about +0.019 for 4->6 combined, +0.0033 for the 5->6 half).",
+              "expected_best_effect": "No expected change; Best has been flat 7.7884-7.7886 over rounds 2-4 and this is a one-index single-tick edit.",
+              "falsifier": "A paired Mean gain of +0.005 or more versus r04 would show index 1 still has slope at 7 and that a higher-index-1 region deserves the remaining effort; a loss of about -0.01 or worse confirms a peak at 6 in this context.",
+              "evidence_ids": [
+                "E005",
+                "E006"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "Compared with H1, a null or negative here separates a genuine index-1 peak at 6 from a general late-window plateau, since both probes sit on the same anchor and share the same retained identities.",
+              "expected_subgroup_response": "Identity unknown; no subgroup evidence supplied for index-1 steps. Expect any effect to sit in a few upper-quartile candidates rather than across the population, as in earlier concentrated responses.",
+              "revision_from_previous_result": "Carries forward the unresolved round-3 question of whether index 1 turns over above 6 instead of re-testing the already measured [6,6,6,5] versus [6,6,6,6] pair, and drops the index-0 escalation that the measured -0.063475 at index 0 = 7 discouraged."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G4:H1",
+            "ticks": [
+              6,
+              5,
+              7,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                5,
+                7,
+                5
+              ],
+              "direction": "index1 +1 (4->5) and index2 +1 (6->7) from anchor [6,4,6,5]; no other changes",
+              "exploration_degree": "supported two-component local step, not a broad search",
+              "hypothesis": "At index0=6 and index3=5, raising index1 from 4 to 5 captures the supported positive index1 slope, while raising index2 from 6 to 7 tests whether the late high-side index2 step adds small Mean.",
+              "expected_mean_effect": "Expected above anchor 4.107803 and near or slightly above H2's expected ~4.1235; small and uncertain. Comparator: anchor and H2.",
+              "expected_best_effect": "Best likely unchanged or only slightly changed; prior extreme gains were concentrated, so no large Best gain is expected. Comparator: anchor r04 max 7.788428.",
+              "falsifier": "If H1 is not above H2 in paired Mean, index2 6->7 is not supported; if H1 and H2 both fail to beat anchor, the index1 4->5 step is not a lever at this parent.",
+              "evidence_ids": [
+                "E011",
+                "E012"
+              ],
+              "group_id": "G4",
+              "diagnostic_alternative": "If H1 fails to exceed H2, interpret H1 as showing index2 high side is inert; then the supported path is H2 plus possible index2 reversal, not further index2 escalation.",
+              "expected_subgroup_response": "If prior concentration persists, H1's increment over H2 should appear mainly in upper quartiles; a broad shift would weaken the concentration explanation. Quartiles would be defined by comparator H2.",
+              "revision_from_previous_result": "r03->r04 raised only index0 5->6 for +0.059084, so keep index0=6 and avoid 7. Prior [6,5,6,5] and [6,6,6,5] favor an index1 step; H1 adds the untested index2 6->7 to seek marginal Mean."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G3:H2",
+            "ticks": [
+              6,
+              6,
+              4,
+              4
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                6,
+                4,
+                4
+              ],
+              "direction": "Anchor [6,6,4,5]; deltas [0,0,0,-1]; decrease index3 5->4 only; bounds 0-10; one changed interval; no double tick.",
+              "exploration_degree": "local one-index low-side probe (1 tick)",
+              "hypothesis": "At anchor [6,6,4,5], index3=4 tests the untested low side of the late window. Prior high-side index3 5->6 was null/slightly negative at another context, so the low side could be neutral or weakly positive; this distinguishes an inert late window from a weak direction.",
+              "expected_mean_effect": "Comparator current r04 Mean 4.123637. Expect near-neutral, with a small possible gain if index3=5 is a local maximum and 4 is slightly better; any effect likely concentrated. No supported large Mean change.",
+              "expected_best_effect": "Best 7.788484 likely unchanged; a Best increase would indicate one top candidate benefits from index3 low, not a broad Mean effect.",
+              "falsifier": "If H2 Mean is indistinguishable from the anchor and subgroup shows no concentration, index3 remains inert; if H2 is clearly below the anchor, index3=5 is preferred over the low side.",
+              "evidence_ids": [
+                "E008",
+                "E009"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "If H2 is null, the late window has no active low-side lever at this anchor; if positive, a low-side direction deserves follow-up only in a second context.",
+              "expected_subgroup_response": "If active, likely one or two upper-quartile candidates; if inert, uniform near-zero. Prior index3 high-side concentration was weak, so do not overgeneralize.",
+              "revision_from_previous_result": "Previous reflection said index3 nulls persisted but were untested at [6,6,6,5]; this tests the low side at the current anchor [6,6,4,5], not a repeat of the high-side probe."
+            }
+          }
+        ],
+        "parent_policy": "Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.",
+        "published_memory_sha256": "9172c14fd23a895fecb5b77e5c0bea34af67c270a05680294da481d307f968e5",
+        "binding_sha256": "548565e789b3a11f17b1f509d73d3410a4f22ca95a28c2c0e148febb3b55d1e7",
+        "formal_gpu_executed": false
+      },
+      "artifacts": {
+        "wave": "/opt/MolSteer/generated_datasets/plip_schedule_council_5nn4_r12_h4_b100_crn_s42_20261022/versions/v4/5nn4_SC2_A_1017__top2/round_05/wave",
+        "parent": "/opt/MolSteer/generated_datasets/plip_schedule_council_5nn4_r12_h4_b100_crn_s42_20261022/versions/v4/5nn4_SC2_A_1017__top2/incumbents/r04",
+        "job": {
+          "schema": "plip-council-selection-v1",
+          "teacher_id": "5nn4_SC2_A_1017__top2",
+          "observed_round": 4,
+          "candidates_per_group": 100,
+          "logical_llm_sessions": 5,
+          "jobs": [
+            {
+              "priority": 1,
+              "source_proposal_id": "G2:H1",
+              "ticks": [
+                6,
+                6,
+                7,
+                6
+              ],
+              "proposal": {
+                "ticks": [
+                  6,
+                  6,
+                  7,
+                  6
+                ],
+                "direction": "index 2 raised by one tick, 6->7; deltas versus common_anchor_ticks [6,6,6,6] are [0,0,+1,0]. One changed interval, within inclusive bounds [0,10], single-tick step so no verified_double_tick_directions entry is needed.",
+                "exploration_degree": "local single-index up-probe one step from the plateau anchor; no other interval moves",
+                "hypothesis": "If index 2's positive 5->6 response (about +0.0032 measured at [6,6,dot,5]) is a continuing slope rather than saturation at 6, then [6,6,7,6] should exceed the r04 [6,6,6,6] Mean of 4.126765.",
+                "expected_mean_effect": "Small; a small positive increment or about 0 to -0.003 relative to r04 [6,6,6,6] 4.126765. Direction and smallness stated from the measured +0.0032 index-2 step, not from a noise band.",
+                "expected_best_effect": "No expected change; Best is tied in the 7.7884-7.7886 range across rounds 2-4 and this one-tick late-window edit has no measured Best effect.",
+                "falsifier": "A paired r04->new Mean at or below -0.01, or a null paired with no delivery change, would indicate index 2 = 6 is at or past its optimum and end up-scaling of late windows in this context.",
+                "evidence_ids": [
+                  "E005",
+                  "E006"
+                ],
+                "group_id": "G2",
+                "diagnostic_alternative": "A null at [6,6,7,6] would show that the small index-2 increment was bound to the index-3 = 5 context, which decides whether late-window tuning is worth any further budget.",
+                "expected_subgroup_response": "Identity and subgroup profile unknown: no subgroup_response for index-2 increments was supplied. At most expect concentration in a few candidates (as with prior small late-window steps) rather than a broad shift.",
+                "revision_from_previous_result": "Revises the round-3 expectation that late windows are near-flat plateaus: that is now verified at index 3 (null at [6,6,6,dot]), so index 3 escalation is dropped and the same plateau question is moved to index 2, its only positive neighbor."
+              }
+            },
+            {
+              "priority": 2,
+              "source_proposal_id": "G2:H2",
+              "ticks": [
+                6,
+                7,
+                6,
+                6
+              ],
+              "proposal": {
+                "ticks": [
+                  6,
+                  7,
+                  6,
+                  6
+                ],
+                "direction": "index 1 raised by one tick, 6->7; deltas versus common_anchor_ticks [6,6,6,6] are [0,+1,0,0]. One changed interval, within inclusive bounds [0,10], single-tick step so no verified_double_tick_directions entry is needed.",
+                "exploration_degree": "local single-index up-probe one step from the plateau anchor, companion to H1 and disjoint in the interval it edits",
+                "hypothesis": "Index 1 has only ever been moved between 4 and 6, where 6 beat 4 and 5->6 gave about +0.0033. If its peak lies above 6, [6,7,6,6] should exceed the r04 [6,6,6,6] Mean of 4.126765; if 6 is its peak, the probe should land at or slightly below that Mean.",
+                "expected_mean_effect": "Small and probably non-positive: about 0 to -0.005 versus r04 4.126765, given the diminishing index-1 slope (about +0.019 for 4->6 combined, +0.0033 for the 5->6 half).",
+                "expected_best_effect": "No expected change; Best has been flat 7.7884-7.7886 over rounds 2-4 and this is a one-index single-tick edit.",
+                "falsifier": "A paired Mean gain of +0.005 or more versus r04 would show index 1 still has slope at 7 and that a higher-index-1 region deserves the remaining effort; a loss of about -0.01 or worse confirms a peak at 6 in this context.",
+                "evidence_ids": [
+                  "E005",
+                  "E006"
+                ],
+                "group_id": "G2",
+                "diagnostic_alternative": "Compared with H1, a null or negative here separates a genuine index-1 peak at 6 from a general late-window plateau, since both probes sit on the same anchor and share the same retained identities.",
+                "expected_subgroup_response": "Identity unknown; no subgroup evidence supplied for index-1 steps. Expect any effect to sit in a few upper-quartile candidates rather than across the population, as in earlier concentrated responses.",
+                "revision_from_previous_result": "Carries forward the unresolved round-3 question of whether index 1 turns over above 6 instead of re-testing the already measured [6,6,6,5] versus [6,6,6,6] pair, and drops the index-0 escalation that the measured -0.063475 at index 0 = 7 discouraged."
+              }
+            },
+            {
+              "priority": 3,
+              "source_proposal_id": "G4:H1",
+              "ticks": [
+                6,
+                5,
+                7,
+                5
+              ],
+              "proposal": {
+                "ticks": [
+                  6,
+                  5,
+                  7,
+                  5
+                ],
+                "direction": "index1 +1 (4->5) and index2 +1 (6->7) from anchor [6,4,6,5]; no other changes",
+                "exploration_degree": "supported two-component local step, not a broad search",
+                "hypothesis": "At index0=6 and index3=5, raising index1 from 4 to 5 captures the supported positive index1 slope, while raising index2 from 6 to 7 tests whether the late high-side index2 step adds small Mean.",
+                "expected_mean_effect": "Expected above anchor 4.107803 and near or slightly above H2's expected ~4.1235; small and uncertain. Comparator: anchor and H2.",
+                "expected_best_effect": "Best likely unchanged or only slightly changed; prior extreme gains were concentrated, so no large Best gain is expected. Comparator: anchor r04 max 7.788428.",
+                "falsifier": "If H1 is not above H2 in paired Mean, index2 6->7 is not supported; if H1 and H2 both fail to beat anchor, the index1 4->5 step is not a lever at this parent.",
+                "evidence_ids": [
+                  "E011",
+                  "E012"
+                ],
+                "group_id": "G4",
+                "diagnostic_alternative": "If H1 fails to exceed H2, interpret H1 as showing index2 high side is inert; then the supported path is H2 plus possible index2 reversal, not further index2 escalation.",
+                "expected_subgroup_response": "If prior concentration persists, H1's increment over H2 should appear mainly in upper quartiles; a broad shift would weaken the concentration explanation. Quartiles would be defined by comparator H2.",
+                "revision_from_previous_result": "r03->r04 raised only index0 5->6 for +0.059084, so keep index0=6 and avoid 7. Prior [6,5,6,5] and [6,6,6,5] favor an index1 step; H1 adds the untested index2 6->7 to seek marginal Mean."
+              }
+            },
+            {
+              "priority": 4,
+              "source_proposal_id": "G3:H2",
+              "ticks": [
+                6,
+                6,
+                4,
+                4
+              ],
+              "proposal": {
+                "ticks": [
+                  6,
+                  6,
+                  4,
+                  4
+                ],
+                "direction": "Anchor [6,6,4,5]; deltas [0,0,0,-1]; decrease index3 5->4 only; bounds 0-10; one changed interval; no double tick.",
+                "exploration_degree": "local one-index low-side probe (1 tick)",
+                "hypothesis": "At anchor [6,6,4,5], index3=4 tests the untested low side of the late window. Prior high-side index3 5->6 was null/slightly negative at another context, so the low side could be neutral or weakly positive; this distinguishes an inert late window from a weak direction.",
+                "expected_mean_effect": "Comparator current r04 Mean 4.123637. Expect near-neutral, with a small possible gain if index3=5 is a local maximum and 4 is slightly better; any effect likely concentrated. No supported large Mean change.",
+                "expected_best_effect": "Best 7.788484 likely unchanged; a Best increase would indicate one top candidate benefits from index3 low, not a broad Mean effect.",
+                "falsifier": "If H2 Mean is indistinguishable from the anchor and subgroup shows no concentration, index3 remains inert; if H2 is clearly below the anchor, index3=5 is preferred over the low side.",
+                "evidence_ids": [
+                  "E008",
+                  "E009"
+                ],
+                "group_id": "G3",
+                "diagnostic_alternative": "If H2 is null, the late window has no active low-side lever at this anchor; if positive, a low-side direction deserves follow-up only in a second context.",
+                "expected_subgroup_response": "If active, likely one or two upper-quartile candidates; if inert, uniform near-zero. Prior index3 high-side concentration was weak, so do not overgeneralize.",
+                "revision_from_previous_result": "Previous reflection said index3 nulls persisted but were untested at [6,6,6,5]; this tests the low side at the current anchor [6,6,4,5], not a repeat of the high-side probe."
+              }
+            }
+          ],
+          "parent_policy": "Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.",
+          "published_memory_sha256": "9172c14fd23a895fecb5b77e5c0bea34af67c270a05680294da481d307f968e5",
+          "binding_sha256": "548565e789b3a11f17b1f509d73d3410a4f22ca95a28c2c0e148febb3b55d1e7",
+          "formal_gpu_executed": false
+        },
+        "schedules": [
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            6,
+            7,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            7,
+            6,
+            6
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            5,
+            7,
+            5
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ],
+          [
+            6,
+            6,
+            4,
+            4
+          ]
+        ]
+      },
+      "last_commit": {
+        "round": 5,
+        "snapshot": "/opt/MolSteer/generated_datasets/plip_schedule_council_5nn4_r12_h4_b100_crn_s42_20261022/versions/v4/5nn4_SC2_A_1017__top2/incumbents/r05",
+        "snapshot_sha256": "5d0d9973cbb5867308829cd6a9096f3114fa5eec4498faa3b3a3209961d673fa",
+        "quality_complete": true,
+        "retention_complete": true,
+        "improved": 19
+      },
+      "last_selection": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top2",
+        "observed_round": 5,
+        "candidates_per_group": 100,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G1:H2",
+            "ticks": [
+              6,
+              6,
+              6,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                6,
+                6,
+                5
+              ],
+              "direction": "Index2 7->6 (delta -1) and index3 6->5 (delta -1); indices 0,1 unchanged. Two changed intervals; all ticks within [0,10].",
+              "exploration_degree": "Two-interval local restoration; exact array was measured earlier, so review-only and not independent replication.",
+              "hypothesis": "Restores the historical best schedule [6,6,6,5] (round3 Mean 4.126817822) against current r05 [6,6,7,6] (4.126754885). The unresolved contrast is whether the earlier tiny lead is stable when both late components are restored; expected Mean gain about +6e-05, not close to incumbent.",
+              "expected_mean_effect": "Tiny positive versus r05, about +6.3e-05 based on round3 absolute Mean; below incumbent 4.164994. Repeat array means no independent validation.",
+              "expected_best_effect": "Near flat versus 7.788625717; any Best change is uncertain and is not the Mean effect.",
+              "falsifier": "If Mean([6,6,6,5]) does not exceed r05 or H1, the historical ordering is not stable; if it exceeds by >0.001, late-window restoration is a real but small lever.",
+              "evidence_ids": [
+                "E002",
+                "E003"
+              ],
+              "group_id": "G1",
+              "diagnostic_alternative": "Compared with H1, this isolates index2 7->6 at fixed index3=5: H2>H1 supports index2 restoration; H2 approximately equal H1 says both late components are inert.",
+              "expected_subgroup_response": "Unknown; any restoration gain is presumed concentrated in upper-quartile candidates because late-window edits were previously tiny and concentrated. No broad shift established.",
+              "revision_from_previous_result": "After r05's near-null, the earlier selected index2=7 escalation is not retained; instead re-test the exact earlier best as a review-only comparator."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G3:H1",
+            "ticks": [
+              6,
+              6,
+              7,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                6,
+                7,
+                5
+              ],
+              "direction": "Review-only, not executed. Anchor [6,5,7,5]; delta [0,+1,0,0]; index 1 5->6; one changed interval; within [0,10] and default one-tick limit; no double-tick permission needed.",
+              "exploration_degree": "low; single-interval one-tick local test; review-only",
+              "hypothesis": "At the current anchor, raising index 1 from 5 to 6 should recover the small positive index-1 slope seen in earlier public reflections, while leaving index 2 at 7. This tests whether the last joint r04->r05 gain was mainly index-1 restoration.",
+              "expected_mean_effect": "Small positive versus r05 4.123514 if index-1 5->6 continues its prior positive slope; near-flat if index 1 is already at a plateau. Comparator is r05, not the selected incumbent 4.164994.",
+              "expected_best_effect": "Likely flat to small positive; do not infer Best from the paired max +0.745867.",
+              "falsifier": "If H1 Mean is at or below r05 4.123514, or if subgroup response shows no positive shift, then index-1=5 is not improved by 6 at this anchor.",
+              "evidence_ids": [
+                "E007",
+                "E008"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "If H1 is flat, the last joint gain was not an index-1 5->6 effect; it may be index-2 6->7 or a joint/context effect, making H2's high-side contrast more important.",
+              "expected_subgroup_response": "Not measured. If a subgroup call were available, check whether any H1 gain is concentrated in upper score quartiles rather than uniform; identity unknown.",
+              "revision_from_previous_result": "Earlier reflection left index-1=6 small-positive and index-1=7 near-null; this is a review-only one-tick test at the current index-1=5 anchor, not a replay of [6,6,6,5]."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G3:H2",
+            "ticks": [
+              6,
+              6,
+              8,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                6,
+                8,
+                5
+              ],
+              "direction": "Review-only, not executed. Anchor [6,5,7,5]; delta [0,+1,+1,0]; indices 1 and 2 each +1; two changed intervals; within [0,10] and default one-tick limit; no double-tick permission needed.",
+              "exploration_degree": "low-medium; two-interval one-tick escalation with a built-in H1 contrast; review-only",
+              "hypothesis": "Combines the H1 index-1 5->6 move with index-2 7->8. Comparing H2-H1 isolates index-2 7->8 at index-1=6; this tests whether the index-2 high side still contributes or turns over.",
+              "expected_mean_effect": "At least near H1 if index-1 5->6 contributes; index-2 7->8 is the added uncertainty. Below H1 if index-2 high side turns over. Comparator is H1 [6,6,7,5], with r05 4.123514 as anchor reference.",
+              "expected_best_effect": "Flat to small positive if index-2 high side helps; downside if 7 is already a local peak. Best is separate from the paired individual max.",
+              "falsifier": "If H2-H1 is clearly negative, index-2 7->8 is harmful and 7 is favored at index-1=6; if H2-H1 is flat, index-2 high side is inert and H1 is the simpler candidate.",
+              "evidence_ids": [
+                "E007",
+                "E008"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "If H2 is worse than H1, retain index-2=7 or reverse to 6 rather than escalate; if H2 is better, the high side remains open but a separate index-2-only anchor is needed to avoid joint attribution.",
+              "expected_subgroup_response": "Not measured. H2-H1 should be checked for concentration in score quartiles and contributor identity before interpreting it as a general slope.",
+              "revision_from_previous_result": "Earlier reflection left index-2 6->7 unresolved at the new anchor; this proposes a novel H1/H2 contrast (7 vs 8 at index-1=6) instead of replaying an exact known array."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G2:H1",
+            "ticks": [
+              6,
+              7,
+              7,
+              6
+            ],
+            "proposal": {
+              "ticks": [
+                6,
+                7,
+                7,
+                6
+              ],
+              "direction": "From common anchor [6,7,6,6], change only index2 6->7; diffs [0,0,+1,0], one changed interval.",
+              "exploration_degree": "Low-to-moderate; one-tick marginal escalation on a prior small positive index2 slope.",
+              "hypothesis": "At [6,7,6,6], index2 6->7 retains the small positive conditional slope previously seen for index2 5->6, giving a small Mean gain.",
+              "expected_mean_effect": "Small positive vs anchor [6,7,6,6] Mean 4.126628; comparator r04 [6,6,6,6] 4.126765 and r05 4.126628. A large gain is not expected.",
+              "expected_best_effect": "May preserve or slightly raise Best above r05 max 7.788453; no large Best change expected because r04/r05 maxima are nearly equal.",
+              "falsifier": "Mean <= 4.126628 or no delivered change at index2 would refute transfer of the prior positive index2 slope to this anchor.",
+              "evidence_ids": [
+                "E005"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "If H1 positive and H2 negative, index2=6 is a local peak; if both nonnegative, index2 is a plateau; if H1 negative, high-side turnover.",
+              "expected_subgroup_response": "No current-anchor subgroup statistic. Prior index2 5->6 was small positive but the quartile pattern is not established; any H1 gain should not be assumed broad.",
+              "revision_from_previous_result": "Prior round4 selected [6,6,7,6], but this group's round5 verified array was [6,7,6,6]; index2 high side at the new anchor is untested here, so use +1 rather than repeat known arrays."
+            }
+          }
+        ],
+        "parent_policy": "Selected schedules apply to the same next committed teacher TOP1 population. Analyst source branches are evidence, not restart permission.",
+        "published_memory_sha256": "958742098c271b5bd216e241bf6448a7817a0053c28b216adfb4fb56b2cc9423",
+        "binding_sha256": "7e8afc9ebf6e2f25acd2ea8461a190b2a7fdd54ad2dcae00aa82cf63dcfa1dcd",
+        "formal_gpu_executed": false
+      }
+    }
+  },
+  "events": [
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 1,
+      "time": 1792656441.2927618
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 1,
+      "time": 1792656619.0533793
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 1,
+      "time": 1792656619.0630033
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 1,
+      "time": 1792656812.2947636
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 1,
+      "time": 1792656941.9605072
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 2,
+      "time": 1792656941.9692776
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 2,
+      "time": 1792657118.4465659
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 1,
+      "time": 1792657118.4535432
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 2,
+      "time": 1792657118.4791086
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 2,
+      "time": 1792657311.9488409
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 2,
+      "time": 1792657455.855461
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 3,
+      "time": 1792657455.863302
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 3,
+      "time": 1792657634.450924
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 2,
+      "time": 1792657634.4575286
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 3,
+      "time": 1792657634.4883018
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 3,
+      "time": 1792657830.2867057
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 3,
+      "time": 1792657917.6795664
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 4,
+      "time": 1792657917.6872272
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 4,
+      "time": 1792658121.1721017
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 3,
+      "time": 1792658150.6101463
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 4,
+      "time": 1792658150.6182873
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 4,
+      "time": 1792658352.2728784
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 4,
+      "time": 1792658453.1141825
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 5,
+      "time": 1792658453.1227462
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 5,
+      "time": 1792658661.6979635
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 4,
+      "time": 1792658702.5761032
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 5,
+      "time": 1792658702.584882
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 5,
+      "time": 1792658907.7910037
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 5,
+      "time": 1792659065.004852
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 5,
+      "time": 1792659232.9942243
+    }
+  ],
+  "last_gpu_teacher": "5nn4_SC2_A_1017__top2"
+}

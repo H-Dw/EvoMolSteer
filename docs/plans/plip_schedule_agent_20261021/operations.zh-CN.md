@@ -163,3 +163,13 @@ V3逐链TOP1 Mean为Top1 4.179882、Top2 4.165585，相对V2仅+0.000089/+0.0006
 2eff057f7809d897f373ea2feb6bac0405f078cd已提交推送并固定部署于/opt/MolSteer/runtimes/plip_council_2eff057f。本地22通过、1因无torch跳过；远端23项全通过，严格review-check验证V3全部52会话，真实approval后启动V4，PID843641。源指纹、配置、R0及V1–V3绑定/完成哈希未改变，不覆盖PREPARED/ACCEPTANCE。
 
 初次状态Top1 R1 generating、Top2 R1 ready；各bootstrap两份成功收据、合法四提案，优化历史及公开反思为空。进程命令身份、API代理继承已核验，无新error。证据在docs/experiments/plip_council_20261022/v4_deployment及远端operations/v4_review_deployment_2eff057f。master_review_progress_v3已批准并启动，不再从索引26续接或重做V3复盘。保持20分钟巡检；文档后续提交不更换运行中的2eff057f。
+
+## V4完成与Top1部分复盘（后续记录）
+
+V4两教师各五轮共4000条优化结果、全部质量、汇总、保留和清理均完成，FINALIZED_v4存在，原worker843641正常退出，状态awaiting_master_review。没有新增分析失败，不重启旧worker或重跑V4。使用原2eff057f执行analyze，十个GPU波次30.20分钟、完整48.07分钟；V4无已知缺失usage，V1历史未知费用仍保留。
+
+本批GPT完成Top1的26/52会话实质复盘，绑定74个实际请求与86个去重消息哈希、36个格式约束，无额外修复诊断。逐条coverage和结果快照在docs/experiments/plip_council_20261022/v4_review。Top2另26会话尚待，从manifest索引26继续；coverage_005目前仅一条，补齐时保留。936个来源文件已缓存并核对，.cache/read_v4_review.py使用UTF-8读取，不重复下载或以哈希检查代替实质审阅。
+
+Top1表现出实际同波证据纠正预测、去重、末轮撤回旧R0分数可转移假设等改进，同时仍有配对方向、区间/统计量、集中贡献、动作空间及上下文归因问题。对原始工具再次检查后已纠正复盘自身的区间最大值误判和两个不同数组混淆。须结合Top2反例后再决定技能修订。
+
+V4相对V3逐链TOP1 Mean变化为Top1 +0.0000351、Top2 −0.0005725，R5整组选优Mean均略低，不能宣称技能有效。当前未修订技能、未写V5批准、未启动V5。本次只提交文档和远端进度元数据，不更换2eff057f科学部署。保持20分钟自动续接，完成52条及严格门槛后再推进V5。
