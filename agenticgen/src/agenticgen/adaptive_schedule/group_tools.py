@@ -168,7 +168,7 @@ class PopulationTools:
         def schema(props, required):
             return {"type": "object", "properties": props, "required": required, "additionalProperties": False}
         self.registry = {
-            'population_summary': ("Mean, Best, Top10, quantiles and validity over all 100 attempts.", schema({'selection': selector}, ['selection'])),
+            'population_summary': ("Mean, Best, Top10, quantiles and validity over all configured attempts.", schema({'selection': selector}, ['selection'])),
             'paired_comparison': ("Paired B-A changes and validity conversions; failures remain counted.", schema({'a': selector, 'b': selector}, ['a', 'b'])),
             'geometry_diagnostics': ("Core coordinate errors in the fixed protein frame, computed from saved correspondences.",
                 schema({'selection': selector, 'step': {'enum': available_steps}, 'state': {'enum': ['current', 'endpoint']}, 'candidate_ids': subset}, ['selection', 'step', 'state'])),

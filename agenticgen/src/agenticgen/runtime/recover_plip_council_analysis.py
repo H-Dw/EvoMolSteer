@@ -45,6 +45,16 @@ def protected_inventory(root, base):
     return {p.relative_to(root).as_posix(): sha(p) for p in paths}
 
 
+def validate_wave_quality(config, wave):
+    attempts=config.get('population_size',100)*config.get('hypotheses',4)
+    quality=read(wave/'QUALITY_COMPLETE.json')
+    if quality['attempts']!=attempts or sha(wave/'quality_records.json')!=quality['records_sha256']:
+        raise ValueError('All configured hypothesis attempts must have completed quality evaluation')
+    if len(read(wave/'final_records.json'))!=attempts or len(read(wave/'quality_records.json'))!=attempts:
+        raise ValueError('Candidate count changed')
+    return attempts
+
+
 def check(root, version):
     config = read(root / 'config.json')
     if version not in config['versions'] or (root / f'FINALIZED_{version}.json').exists():
@@ -93,11 +103,7 @@ def check(root, version):
         for name in ('SAMPLING_COMPLETE.json', 'EVALUATION_COMPLETE.json', 'COMPLETE.json'):
             if not (wave / name).is_file():
                 raise ValueError('Sampling/evaluation must already be complete')
-        quality = read(wave / 'QUALITY_COMPLETE.json')
-        if quality['attempts'] != 400 or sha(wave / 'quality_records.json') != quality['records_sha256']:
-            raise ValueError('Four hundred evaluated attempts are required')
-        if len(read(wave / 'final_records.json')) != 400:
-            raise ValueError('Candidate count changed')
+        validate_wave_quality(config,wave)
         failures = read(council / 'analyst_failures.json')
         if not failures or not set(failures) <= {'G1', 'G2', 'G3', 'G4'}:
             raise ValueError('Missing isolated failure evidence')
