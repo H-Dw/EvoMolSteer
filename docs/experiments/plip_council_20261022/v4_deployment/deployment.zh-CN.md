@@ -1,0 +1,17 @@
+# V4正式启动
+
+V3全部52会话实质审阅、163请求与190去重消息哈希核验完成。技能与复盘提交2eff057f7809d897f373ea2feb6bac0405f078cd已推送GitHub，远端核验GitHub提交身份后，通过校验的bundle建立固定运行目录：
+
+`/opt/MolSteer/runtimes/plip_council_2eff057f`
+
+仅两份通用技能修订，科学源码指纹与PREPARED一致，原配置、共享R0及V1–V3的完成文件和绑定哈希前后相同。本地22测试通过、1因缺torch跳过；远端23项全部通过。真实review_approval绑定V3的FINALIZED、manifest、11片coverage、复盘文档、新技能和部署commit；review-check核验52会话通过。
+
+启动PID843641，时间1792656350.4948792；后续以launch/workers为准。认证预检HTTP200，进程完整继承API与代理，凭据未保存。启动核验确认同一R0、配置、科学源码及新技能哈希；两教师bootstrap优化历史和公开反思均为空，各100候选，各2份成功API收据，已保存合法四提案。
+
+首次实际状态：Top1 R1 generating，Top2 R1 ready；尚未观察到整轮完成，不能把bootstrap完成当成R1完成。三个旧failure记录均早于本次启动，属于已恢复历史；无新错误。磁盘空闲1,292,184,313,856字节，独立nvidia-smi不可用，不给出未测量的GPU占用。
+
+远端操作目录：operations/v4_review_deployment_2eff057f。master_review_progress_v3已更新approved_and_v4_started。本地v3_review/progress中的pending_deployment_gate为提交前快照，本部署记录为后续状态，不应再次审批或启动。
+
+V4仍两教师各5轮、四假设batch400，共4000优化记录；原TOP1保留和清理策略、所有分析留存不变。初期20分钟巡检，按实际轮次耗时调整。V4结束需全新52会话实质复盘才能批准V5，不复用V3覆盖。V3相对V2的微小Mean差尚不支持技能有效性结论；新指引也需由实际结果检验。
+
+本目录与operations追加属于文档提交；运行保持固定2eff057f，不为文档同步重启进程。

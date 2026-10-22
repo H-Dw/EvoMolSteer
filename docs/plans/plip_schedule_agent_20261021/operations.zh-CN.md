@@ -157,3 +157,9 @@ V3逐链TOP1 Mean为Top1 4.179882、Top2 4.165585，相对V2仅+0.000089/+0.0006
 52/52会话已完成，覆盖163实际请求、190去重消息哈希、79格式前缀及7个修复诊断。11片coverage齐全，Top226条已审阅，不再从索引26续接。详见v3_review的review、validation与progress。两次后台恢复均已成功，不执行第三次恢复或重跑V3。
 
 下一版仅重写通用analyst/synthesizer技能：动作合法性与历史比较分开；集中收益保留Mean；结构证据和指导增量分层；条件斜率与局部峰值区分；已执行清单和反证必须影响下一决策。没有添加工具或更改科学源码，不复制教师、槽位、原子特征规则或最优幅度表。提交时尚待固定部署、远端测试和真实review-check，之后再启动V4；不得仅凭本段当成已启动。
+
+## V4实际启动（2026-10-22）
+
+2eff057f7809d897f373ea2feb6bac0405f078cd已提交推送并固定部署于/opt/MolSteer/runtimes/plip_council_2eff057f。本地22通过、1因无torch跳过；远端23项全通过，严格review-check验证V3全部52会话，真实approval后启动V4，PID843641。源指纹、配置、R0及V1–V3绑定/完成哈希未改变，不覆盖PREPARED/ACCEPTANCE。
+
+初次状态Top1 R1 generating、Top2 R1 ready；各bootstrap两份成功收据、合法四提案，优化历史及公开反思为空。进程命令身份、API代理继承已核验，无新error。证据在docs/experiments/plip_council_20261022/v4_deployment及远端operations/v4_review_deployment_2eff057f。master_review_progress_v3已批准并启动，不再从索引26续接或重做V3复盘。保持20分钟巡检；文档后续提交不更换运行中的2eff057f。
