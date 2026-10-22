@@ -12,3 +12,5 @@
 远端操作目录为 `operations/failed_version_rerun_v6_0513b30e/`，`journal.json`记录新验收后的删除事务；`failure_audit/`保存原失败会话，`deletion_manifest.json`保存原文件哈希，`aborted_resource_usage.json`保存被排除尝试的资源支出。最后一项成本须与新正式运行费用合并、按provider请求ID去重；旧候选分数不合并。原生验收的 `native_validation_receipt.json` 创建于删除前，因此其中 `candidate_outputs_deleted=false` 是当时状态；后续 `summary.json.cleanup` 才是删除结果。
 
 收据： [运行与清理快照](summary.json)、[原生验收](native_validation_receipt.json)、[远端测试](tests.txt)、[无损证据验证](payload_validation.json)、[失败成本](aborted_resource_usage.json)、[GitHub对象来源](github_commit_tree_receipt.json)。
+
+后续实测快照1792695004.801198：两教师首轮共8个私有分析已全部产出合法提案，暂无新error；两份汇总输入分别189767和192830字节，低于524288上限，汇总响应尚未完成。见[first_analysis.json](first_analysis.json)。这确认新提案接口和输入门槛已实际运行，不表示首轮汇总或五轮实验已经完成。
