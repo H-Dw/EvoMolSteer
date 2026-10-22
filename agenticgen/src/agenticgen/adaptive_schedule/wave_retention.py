@@ -58,18 +58,9 @@ def chemical_diagnostics(folder,template,molecules,count):
     from rdkit import Chem
     from .geometry import audit_molecule_state, chemical_pose
     from .flowr import load_pt
-    if sha(template['sdf']) != template['source_sdf_sha256']:
-        raise ValueError('Teacher SDF changed before pose diagnostic')
-    teacher=next((m for m in Chem.SDMolSupplier(template['sdf'],removeHs=True) if m is not None),None)
-    if teacher is None: raise ValueError('Teacher SDF is not readable')
+    from .teacher_evidence import teacher_molecule
+    teacher, teacher_digest = teacher_molecule(folder, template)
     native_to_sdf=template['native_to_sdf']
-    if sorted(native_to_sdf)!=list(range(len(template['coords_A']))):
-        raise ValueError('Teacher SDF/native mapping incomplete')
-    for native,sdf in enumerate(native_to_sdf):
-        precise=np.asarray(template['coords_A'][native])
-        if np.linalg.norm(np.asarray(teacher.GetConformer().GetAtomPosition(sdf))-precise)>.001:
-            raise ValueError('Teacher template and SDF coordinate frame mismatch')
-        teacher.GetConformer().SetAtomPosition(sdf,precise)
     output=load_pt(folder/'terminal.pt.gz')
     atom_names={v:k for k,v in template['atom_vocabulary'].items()}
     charge_names={v:k for k,v in template['charge_vocabulary'].items()}
@@ -90,7 +81,8 @@ def chemical_diagnostics(folder,template,molecules,count):
         for sdf,native in enumerate(mapping):mol.GetConformer().SetAtomPosition(sdf,coordinates[native])
         result=chemical_pose(mol,teacher,[native_to_sdf[i] for i in template['core_atoms']])
         result.update(sdf_to_active_native=[active[i] for i in mapping],
-            prepared_protein_sha256=protein_digest,teacher_sdf_sha256=template['source_sdf_sha256'],
+            prepared_protein_sha256=protein_digest,teacher_sdf_sha256=teacher_digest,
+            source_batch_sdf_sha256=template['source_sdf_sha256'],
             frame_transform='identity_same_prepared_protein',coordinate_source='native_terminal_full_precision')
         results.append(result)
     write(folder/'chemical_pose_diagnostics.json',results)

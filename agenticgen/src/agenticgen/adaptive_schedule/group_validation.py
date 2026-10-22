@@ -4,7 +4,7 @@ import concurrent.futures
 import multiprocessing
 import time
 from .io import read, write, sha, source_fingerprint, commit
-from .protocol_state import config_path, acceptance_path, protocol_dir
+from .protocol_state import config_path, acceptance_path, protocol_dir, prepared_path
 
 
 def validate(root):
@@ -18,7 +18,10 @@ def validate(root):
     from .wave_retention import prune_payload, verify_snapshot, evaluate_quality
     from .contracts import expanded
     root=Path(root);config=assert_prepared(root);n=config['population_size']
-    probe=root/'operations'/('fixed_start_acceptance_'+commit()[:8]);probe.mkdir(parents=True,exist_ok=True)
+    prepared=read(prepared_path(root))
+    probe=root/prepared.get('native_probe_directory','operations/fixed_start_acceptance_'+commit()[:8])
+    if not probe.resolve().is_relative_to(root.resolve()): raise ValueError('Acceptance probe escaped root')
+    probe.mkdir(parents=True,exist_ok=True)
     with lock(root):
         model=load_model(config,read(root/'teachers.json')[0]['target'],root)
         results=[]

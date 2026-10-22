@@ -11,7 +11,7 @@ def main():
     from agenticgen.adaptive_schedule.group_protocol import GROUP_ROOT
     from agenticgen.adaptive_schedule.io import read, write, repository, commit
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command', choices=['doctor', 'analyze', 'prepare', 'stage-protocol', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
+    p.add_argument('command', choices=['doctor', 'analyze', 'prepare', 'stage-protocol', 'repair-preflight', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
     p.add_argument('--root', type=Path, default=Path(GROUP_ROOT))
     p.add_argument('--source-root', type=Path)
     p.add_argument('--version', default='v6')
@@ -35,6 +35,9 @@ def main():
     elif a.command == 'stage-protocol':
         from agenticgen.adaptive_schedule.protocol_state import stage_protocol
         result = stage_protocol(a.root, a.reason)
+    elif a.command == 'repair-preflight':
+        from agenticgen.adaptive_schedule.protocol_state import repair_preflight
+        result = repair_preflight(a.root, a.reason)
     elif a.command == 'validate':
         from agenticgen.adaptive_schedule.group_validation import validate
         result = validate(a.root)

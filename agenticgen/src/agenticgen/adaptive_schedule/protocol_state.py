@@ -59,3 +59,65 @@ def stage_protocol(root, reason):
         write(root/'ACTIVE_PROTOCOL.json',{'directory':folder.relative_to(root).as_posix(),
             'prepared_sha256':sha(folder/'PREPARED.json')})
         return record
+
+
+def repair_preflight(root, reason):
+    """Append-only diagnostic repair before any new-protocol scientific binding.
+
+    Only the diagnostic/administrative modules listed below may differ. Sampling,
+    reward, RNG, scoring, configuration and skills are not adopted through here.
+    """
+    from agenticgen.runtime.locks import lock
+    from .wave_retention import verify_snapshot
+    from .group_run import SKILLS
+    from .io import repository
+    import subprocess
+    root=Path(root)
+    if not reason or len(reason.strip()) < 30:
+        raise ValueError('Concrete preflight repair rationale required')
+    allowed={'adaptive_schedule/teacher_evidence.py','adaptive_schedule/wave_retention.py',
+             'adaptive_schedule/protocol_state.py','adaptive_schedule/group_run.py',
+             'adaptive_schedule/group_validation.py','cli.py'}
+    with lock(root):
+        old_folder=protocol_dir(root)
+        if old_folder == root or acceptance_path(root).exists():
+            raise ValueError('Only an unaccepted staged protocol may be repaired')
+        if any((root/'versions').glob('**/binding.json')):
+            raise ValueError('Scientific version already started')
+        old=read(old_folder/'PREPARED.json'); current=source_fingerprint()
+        changed={k for k in old['source_fingerprint'].keys()|current.keys()
+                 if old['source_fingerprint'].get(k)!=current.get(k)}
+        if not changed or not changed <= allowed:
+            raise ValueError('Preflight repair includes non-diagnostic source changes: '+str(changed-allowed))
+        for path in SKILLS.values():
+            previous=subprocess.check_output(['git','-C',str(repository()),'show',old['commit']+':'+path])
+            if previous != (repository()/path).read_bytes():
+                raise ValueError('Frozen controller skills changed during preflight repair')
+        if old['config_sha256']!=sha(old_folder/'config.json') or old['teachers_sha256']!=sha(root/'teachers.json'):
+            raise ValueError('Prepared scientific inputs changed')
+        refs=read(root/'historical_references.json')
+        for name,digest in refs.items():
+            if sha(name)!=digest: raise ValueError('Historical file changed: '+name)
+        for teacher,digest in old['shared_r0_sha256'].items():
+            r0=root/'shared_r0'/teacher
+            verify_snapshot(r0)
+            if sha(r0/'COMPLETE.json')!=digest: raise ValueError('Shared R0 changed')
+        probe=root/old.get('native_probe_directory', 'operations/fixed_start_acceptance_'+old['commit'][:8])
+        if not probe.resolve().is_relative_to(root.resolve()) or list(probe.glob('*/ACCEPTED.json')):
+            raise ValueError('Cannot reuse accepted/pruned or external preflight probes')
+        folder=root/'protocols'/('continuous_rmsd_v2_repair_'+commit()[:8])
+        if folder.exists(): raise ValueError('Repair exists; inspect incomplete transaction')
+        write(folder/'config.json',read(old_folder/'config.json'))
+        updated={**old,'source_fingerprint':current,'commit':commit(),'reason':reason,
+            'previous_protocol':old_folder.relative_to(root).as_posix(),
+            'previous_protocol_prepared_sha256':sha(old_folder/'PREPARED.json'),
+            'diagnostic_source_changes':sorted(changed),
+            'historical_references_sha256':sha(root/'historical_references.json'),
+            'native_probe_directory':probe.relative_to(root).as_posix(),
+            'native_probe_files_before_repair':{p.relative_to(probe).as_posix():sha(p)
+                for p in sorted(probe.rglob('*')) if p.is_file()},
+            'requires_native_acceptance':True,'scientific_sampling_started':False}
+        write(folder/'PREPARED.json',updated)
+        write(root/'ACTIVE_PROTOCOL.json',{'directory':folder.relative_to(root).as_posix(),
+            'prepared_sha256':sha(folder/'PREPARED.json')})
+        return updated

@@ -44,6 +44,7 @@ def prepare(root, source):
     for role, relative in SKILLS.items():
         shutil.copyfile(skill('plip-group-'+role), root/f'initial_{role}_SKILL.md')
     result = {'config_sha256': sha(root/'config.json'), 'teachers_sha256': sha(root/'teachers.json'),
+              'historical_references_sha256': sha(root/'historical_references.json'),
               'source_fingerprint': source_fingerprint(), 'commit': commit(), 'created': time.time(),
               'source_root': str(source), 'old_sampling_imported': False,
               'teacher_count': 2, 'versions': len(c['versions']), 'rounds_per_version': 5, 'outcomes_per_version': 2*c['rounds']*4*c['population_size'],
@@ -58,6 +59,8 @@ def assert_prepared(root):
         raise ValueError('Frozen experiment configuration changed')
     if p['source_fingerprint'] != source_fingerprint():
         raise ValueError('Runtime changed; explicit tested deployment adoption required')
+    if p.get('historical_references_sha256') and p['historical_references_sha256'] != sha(root/'historical_references.json'):
+        raise ValueError('Frozen historical references changed')
     for teacher, digest in p.get('shared_r0_sha256',{}).items():
         if sha(root/'shared_r0'/teacher/'COMPLETE.json') != digest:
             raise ValueError('Shared R0 changed after protocol migration')

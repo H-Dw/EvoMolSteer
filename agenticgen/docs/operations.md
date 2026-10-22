@@ -96,3 +96,10 @@ Reports record primary and sensitivity-band representatives, excluding R0 and se
 Expanded probes have at most one selected range_probe and at most two edited intervals; other proposals follow local evidence-based step limits. Tenth-grid resolution never changes. The native tensor schedule validates the same approved bound; maximum displacement remains 0.025 A. Quality evaluation checks chemical pose mappings and records N/A when a predefined subgraph has no legal match. All documentary diagnostics remain after pruning.
 
 At present remote deployment must be confirmed by an actual receipt. A local test or a prepared command is not evidence of server execution.
+
+
+## Diagnostic preflight repair (before scientific versions)
+
+`repair-preflight --root ... --reason ...` accepts only an unaccepted staged protocol with no scientific binding. Sampling, reward, RNG, scoring, configuration and skills stay unchanged. It verifies historical files and complete R0 snapshots, appends a new protocol directory, and atomically publishes its pointer. The previous preparation and probe inventory remain recorded. Run native `validate` after adoption; completed, unpruned probes are reused, and all failure records remain available. Accepted/pruned probes cannot be silently reused through this repair path.
+
+A teacher's `source_sdf_sha256` identifies its original batch SDF. The extracted single-molecule SDF uses the exact absolute-path entry in `historical_references.json`; the manifest digest is bound in current preparation. Teacher and generated SDF/native graph, element, charge, frame and mapping checks remain mandatory.
