@@ -75,7 +75,7 @@ def repair_preflight(root, reason):
     root=Path(root)
     if not reason or len(reason.strip()) < 30:
         raise ValueError('Concrete preflight repair rationale required')
-    allowed={'adaptive_schedule/teacher_evidence.py','adaptive_schedule/wave_retention.py',
+    allowed={'adaptive_schedule/teacher_evidence.py','adaptive_schedule/wave_retention.py','adaptive_schedule/geometry.py',
              'adaptive_schedule/protocol_state.py','adaptive_schedule/group_run.py',
              'adaptive_schedule/group_validation.py','cli.py'}
     with lock(root):
@@ -95,6 +95,8 @@ def repair_preflight(root, reason):
                 raise ValueError('Frozen controller skills changed during preflight repair')
         if old['config_sha256']!=sha(old_folder/'config.json') or old['teachers_sha256']!=sha(root/'teachers.json'):
             raise ValueError('Prepared scientific inputs changed')
+        if old.get('historical_references_sha256') and old['historical_references_sha256']!=sha(root/'historical_references.json'):
+            raise ValueError('Bound historical reference manifest changed')
         refs=read(root/'historical_references.json')
         for name,digest in refs.items():
             if sha(name)!=digest: raise ValueError('Historical file changed: '+name)

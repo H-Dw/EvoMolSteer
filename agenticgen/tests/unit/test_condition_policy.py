@@ -129,3 +129,22 @@ def test_sdf_audit_rejects_coordinate_and_covalent_graph_mismatches():
     with pytest.raises(ValueError,match='graph'):audit_molecule_state(m,*wrong)
     m.GetConformer().SetAtomPosition(0,(.1,0,0))
     with pytest.raises(ValueError,match='coordinates'):audit_molecule_state(m,*args)
+
+
+def test_native_kekule_and_sdf_aromatic_graphs_are_equivalent_but_real_change_is_not():
+    Chem=pytest.importorskip('rdkit.Chem')
+    from agenticgen.adaptive_schedule.geometry import audit_molecule_state
+    mol=Chem.MolFromSmiles('c1ccccc1');conf=Chem.Conformer(6)
+    coords=np.array([[np.cos(i*np.pi/3),np.sin(i*np.pi/3),0.] for i in range(6)])
+    for i,x in enumerate(coords):conf.SetAtomPosition(i,x)
+    mol.AddConformer(conf)
+    kekule=Chem.Mol(mol);Chem.Kekulize(kekule,clearAromaticFlags=True)
+    bonds=np.zeros((6,6),dtype=int)
+    for b in kekule.GetBonds():
+        i,j=b.GetBeginAtomIdx(),b.GetEndAtomIdx();bonds[i,j]=bonds[j,i]=int(b.GetBondTypeAsDouble())
+    before=Chem.MolToMolBlock(mol)
+    assert audit_molecule_state(mol,coords,['C']*6,[0]*6,bonds,{0:'none',1:'single',2:'double'})==list(range(6))
+    assert Chem.MolToMolBlock(mol)==before
+    bad=bonds.copy();i,j=np.argwhere(bad==2)[0];bad[i,j]=bad[j,i]=1
+    with pytest.raises(ValueError,match='graph'):
+        audit_molecule_state(mol,coords,['C']*6,[0]*6,bad,{0:'none',1:'single',2:'double'})

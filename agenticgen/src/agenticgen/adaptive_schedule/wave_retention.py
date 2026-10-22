@@ -83,6 +83,7 @@ def chemical_diagnostics(folder,template,molecules,count):
         result.update(sdf_to_active_native=[active[i] for i in mapping],
             prepared_protein_sha256=protein_digest,teacher_sdf_sha256=teacher_digest,
             source_batch_sdf_sha256=template['source_sdf_sha256'],
+            graph_comparison='native_graph_RDKit_aromaticity_normalization_no_coordinate_change',
             frame_transform='identity_same_prepared_protein',coordinate_source='native_terminal_full_precision')
         results.append(result)
     write(folder/'chemical_pose_diagnostics.json',results)

@@ -45,19 +45,38 @@ def audit_molecule_state(mol, coords, elements, charges, bonds, bond_names, tole
     The small tolerance allows SDF decimal serialization only, not pose perturbation.
     Returns the native atom index for each SDF atom; never optimizes coordinates.
     """
+    from rdkit import Chem
     x=xyz(coords); m=xyz(mol.GetConformer().GetPositions())
     if len(x)!=len(m) or len(elements)!=len(x) or len(charges)!=len(x):
         raise ValueError('SDF/native heavy atom count mismatch')
     mapping=site_geometry(x,m)['assignment']
     if np.linalg.norm(x[mapping]-m,axis=1).max()>tolerance_A:
         raise ValueError('SDF/native terminal coordinates disagree')
+    # Native classes can encode Kekule single/double bonds while the SDF reader
+    # perceives aromatic bonds. Normalize a separate native graph using the same
+    # RDKit aromaticity model; coordinates and the generated molecule are untouched.
+    native=Chem.RWMol()
+    for element,charge in zip(elements,charges):
+        atom=Chem.Atom(element);atom.SetFormalCharge(int(charge));native.AddAtom(atom)
+    bond_types={'single':Chem.BondType.SINGLE,'double':Chem.BondType.DOUBLE,
+                'triple':Chem.BondType.TRIPLE,'aromatic':Chem.BondType.AROMATIC}
+    for i in range(len(elements)):
+        for j in range(i):
+            name=bond_names[int(bonds[i][j])]
+            if name!='none':native.AddBond(i,j,bond_types[name])
+    native=native.GetMol()
+    try: Chem.SanitizeMol(native)
+    except Exception as exc: raise ValueError('Native covalent graph cannot be sanitized for comparison') from exc
+    if any(native.GetAtomWithIdx(i).GetFormalCharge()!=int(q) for i,q in enumerate(charges)):
+        raise ValueError('Native graph sanitization changed formal charge')
     for i,j in enumerate(mapping):
         atom=mol.GetAtomWithIdx(i)
         if atom.GetSymbol()!=elements[j] or atom.GetFormalCharge()!=charges[j]:
             raise ValueError('SDF/native elements or formal charge disagree')
         for a,b in enumerate(mapping[:i]):
             bond=mol.GetBondBetweenAtoms(i,a)
-            expected=bond_names[int(bonds[j][b])]
+            native_bond=native.GetBondBetweenAtoms(int(j),int(b))
+            expected='none' if native_bond is None else str(native_bond.GetBondType()).lower()
             actual='none' if bond is None else str(bond.GetBondType()).lower()
             if expected!=actual: raise ValueError('SDF/native covalent graph disagrees')
     return mapping
