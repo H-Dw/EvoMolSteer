@@ -40,7 +40,7 @@ def review_pack(root, version):
                        'session_ids': [x['id'] for x in items[i:i+5]]})
     manifest = {'version': version, 'config_sha256': sha(root/'config.json'),
                 'binding_sha256': sha(base/'binding.json'), 'expected_sessions': expected,
-                'expected_sampled_results': len(read(root/'teachers.json'))*c['rounds']*400,
+                'expected_sampled_results': len(read(root/'teachers.json'))*c['rounds']*4*c.get('population_size',100),
                 'shards': shards, 'requires_human_agent_review': True}
     write(base/'review/manifest.json', manifest)
     return manifest
@@ -65,12 +65,18 @@ def review_check(root, next_version):
     if next_version not in config['versions'] or next_version == 'v1':
         raise ValueError('Invalid reviewed-version transition')
     previous = f'v{int(next_version[1:])-1}'
-    finalized = root/f'FINALIZED_{previous}.json'
-    manifest_path = root/'versions'/previous/'review/manifest.json'
+    previous_root = Path(config['previous_protocol_root']) if next_version == config['versions'][0] and config.get('previous_protocol_root') else root
+    finalized = previous_root/f'FINALIZED_{previous}.json'
+    manifest_path = previous_root/'versions'/previous/'review/manifest.json'
     manifest = read(manifest_path)
     approval = read(root/'versions'/next_version/'review_approval.json')
     checks = {'previous_version': previous, 'next_version': next_version,
               'finalized_sha256': sha(finalized), 'manifest_sha256': sha(manifest_path), 'review_commit': commit()}
+    if previous_root.resolve() != root.resolve():
+        checks.update(previous_protocol_root=str(previous_root),
+            new_prepared_sha256=sha(root/'PREPARED.json'),
+            new_acceptance_sha256=sha(root/'ACCEPTANCE_COMPLETE.json'),
+            objective_priority=config['agent_objective']['priority'])
     if any(approval.get(k) != v for k, v in checks.items()):
         raise ValueError('Review approval does not bind actual previous results and deployed commit')
     if read(finalized)['review_manifest_sha256'] != sha(manifest_path):
@@ -80,13 +86,13 @@ def review_check(root, next_version):
     committed_file(approval['review_document'], approval['review_document_sha256'], commit())
     expected, actual = {}, {}
     for shard in manifest['shards']:
-        path = root/shard['path']
+        path = previous_root/shard['path']
         if sha(path) != shard['sha256']:
             raise ValueError('Review shard changed')
         for session in read(path)['sessions']:
             expected[session['id']] = session
             for name, digest in session['files_sha256'].items():
-                if sha(root/name) != digest:
+                if sha(previous_root/name) != digest:
                     raise ValueError('Actual prompt/tool evidence changed')
     for ref in approval['coverage']:
         path = committed_file(ref['path'], ref['sha256'], commit())

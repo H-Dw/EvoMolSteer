@@ -14,7 +14,7 @@ def main():
     p.add_argument('command', choices=['doctor', 'analyze', 'prepare', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
     p.add_argument('--root', type=Path, default=Path(GROUP_ROOT))
     p.add_argument('--source-root', type=Path)
-    p.add_argument('--version', default='v1')
+    p.add_argument('--version', default='v6')
     p.add_argument('--reason')
     a = p.parse_args()
     from agenticgen.adaptive_schedule import group_run

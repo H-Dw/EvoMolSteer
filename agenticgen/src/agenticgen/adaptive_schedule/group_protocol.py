@@ -6,16 +6,26 @@ GROUP_ROOT = host_config()["result_root"]
 
 def configuration():
     c = defaults()
-    c.update(schema='plip-council-crn-20versions-v1', rounds=5, versions=[f'v{i}' for i in range(1, 21)],
-             batch_size=100, batches=1, physical_batch_size=400, hypotheses=4, total_result_budget=80200)
+    c.update(schema='agenticgen-core1hop-fixedstart-v1', rounds=5, versions=[f'v{i}' for i in range(6, 21)],
+             population_size=25, slots_per_seed=5, batch_size=25, batches=1, physical_batch_size=100, hypotheses=4, total_result_budget=15050)
+    c['controller'] = {'protocol': 'conditional_learning_v1', 'region': 'core_plus_one_hop',
+        'restart_policy': 'shared_r0_before_step10', 'initial_step_ticks': 2, 'max_step_ticks': 3,
+        'max_changed_intervals': 2, 'dynamic_memory': 'teacher_version_isolated'}
+    c['previous_protocol_root'] = host_config()['previous_protocol_root']
+    c['transition_from_version'] = 'v5'
     c['llm'].pop('input_soft_tokens'); c['llm'].pop('input_hard_tokens')
     c['llm'].update(input_soft_bytes=65536, input_hard_bytes=262144, max_output_tokens=32768, timeout=600)
     c['council'] = {'max_output_tokens': 65536, 'decision_audit': True}
     c['execution'] = {'scheduler': 'teacher_ready_queue', 'gpu_owners': 1, 'quality_workers': 16,
-                      'logical_batches': 5, 'logical_batch_size': 20, 'rng': 'native_twenty_row_common_streams_v1'}
+                      'logical_batches': 5, 'logical_batch_size': 5, 'native_rng_draw_rows': 20, 'rng': 'native_twenty_row_common_streams_v1'}
     c['agent_objective'].update(policy='four_shared_schedules', round_barrier='four_groups_evaluated',
-                                scope='unselected_hypothesis_100_candidates')
-    c['reporting'].update(primary='unselected_hypothesis_mean_pic50', fixed_round=5)
+                                scope='unselected_hypothesis_25_candidates',
+        priority=['condition_coordinate_fidelity','mean_affinity_teacher_agreement','best_affinity_bonus'],
+        thresholds=None, functional_metric='absolute_mean_pic50_minus_teacher',
+        conflict_policy='report_continuous_Pareto_tradeoffs_no_hidden_weight_or_pass_gate')
+    c['reporting'].update(primary='unselected_condition_rmsd_A', secondary='mean_affinity_absolute_gap',
+        top10_percent_count=3, legacy_top10_count=10, fixed_round=5)
+    c['retention']['restart_parent'] = 'shared_r0_step10'
     return c
 
 def input_limit(config):

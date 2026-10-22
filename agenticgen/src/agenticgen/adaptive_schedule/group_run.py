@@ -29,6 +29,8 @@ def prepare(root, source):
     teachers = [t for t in read(source/'teachers.json') if t['rank'] in (1, 2)]
     from .cohort import select_templates
     teachers = select_templates(teachers, c['teacher_selection'])
+    from .learning import expand_template
+    teachers = [expand_template(t) for t in teachers]
     refs = read(source/'historical_references.json')
     for name, digest in refs.items():
         if sha(name) != digest:
@@ -42,8 +44,8 @@ def prepare(root, source):
     result = {'config_sha256': sha(root/'config.json'), 'teachers_sha256': sha(root/'teachers.json'),
               'source_fingerprint': source_fingerprint(), 'commit': commit(), 'created': time.time(),
               'source_root': str(source), 'old_sampling_imported': False,
-              'teacher_count': 2, 'versions': 20, 'rounds_per_version': 5, 'outcomes_per_version': 4000,
-              'total_outcomes_including_shared_r0': 80200}
+              'teacher_count': 2, 'versions': len(c['versions']), 'rounds_per_version': 5, 'outcomes_per_version': 2*c['rounds']*4*c['population_size'],
+              'total_outcomes_including_shared_r0': c['total_result_budget']}
     write(root/'PREPARED.json', result)
     return result
 
@@ -88,13 +90,14 @@ def documents(folder, parent=None):
     steps = read(folder/'steps.json')
     if parent:
         from .wave_native import selected_document
+        population = read(parent/'manifest.json').get('population_size',100)
         start = read(folder/'manifest.json')['start_step']
         pnodes, psteps = read(parent/'nodes.json'), read(parent/'steps.json')
         for s in CHECKPOINT_STEPS:
             if s < start:
                 n = pnodes[str(s)]
-                nodes[str(s)] = {k: v*4 if isinstance(v, list) and len(v) == 100 else v for k, v in n.items()}
-        prefix = [{k: v*4 if isinstance(v, list) and len(v) == 100 else v for k, v in r.items()} for r in psteps[:start]]
+                nodes[str(s)] = {k: v*4 if isinstance(v, list) and len(v) == population else v for k, v in n.items()}
+        prefix = [{k: v*4 if isinstance(v, list) and len(v) == population else v for k, v in r.items()} for r in psteps[:start]]
         steps = prefix+steps
     if [r['step'] for r in steps] != list(range(100)) or set(nodes) != {str(s) for s in CHECKPOINT_STEPS}:
         raise ValueError('Incomplete documentary trajectory')
@@ -105,9 +108,10 @@ def make_trials(folder, records, schedules, round_no, parent=None):
     from .wave_native import selected_document
     nodes, steps = documents(folder, parent)
     size = len(records)
+    population = read(folder/'manifest.json').get('population_size',100)
     trials = []
     for row, record in enumerate(records):
-        trials.append({'id': f'r{round_no:02d}', 'source_id': f'r{round_no:02d}:G{row//100+1}:c{row%100:03d}',
+        trials.append({'id': f'r{round_no:02d}', 'source_id': f'r{round_no:02d}:G{row//population+1}:c{row%population:03d}',
             'ticks': schedules[row], 'record': record, 'source_branch': str(folder), 'source_slot': row,
             'nodes': {s: selected_document(n, row, size) for s, n in nodes.items()},
             'intervals': interval_summary([selected_document(r, row, size) for r in steps])})
@@ -117,13 +121,14 @@ def make_trials(folder, records, schedules, round_no, parent=None):
 
 def evidence(template, round_no, group, latest, parent_best, old=None):
     chains = []
+    per_seed = len(latest)//5
     for i, trial in enumerate(latest):
         history = copy.deepcopy(old['chains'][i]['trials']) if old else []
         history = [h for h in history if h['id'] != 'parent']
         history.append(copy.deepcopy(trial))
         parent = copy.deepcopy(parent_best[i]); parent['id'] = 'parent'
         history.append(parent)
-        chains.append({'candidate_id': f'b{i//20:03d}:s{i%20:03d}', 'batch': i//20, 'slot': i%20,
+        chains.append({'candidate_id': f'b{i//per_seed:03d}:s{i%per_seed:03d}', 'batch': i//per_seed, 'slot': i%per_seed,
                        'incumbent_id': 'parent', 'latest_id': trial['id'], 'trials': history})
     return {'teacher': template, 'observed_round': round_no, 'group_id': group,
             'round_ids': [f'r{r:02d}' for r in range(round_no+1)], 'chains': chains}
@@ -133,11 +138,14 @@ def ensure_r0(model, root, config, template, pool):
     from .wave_native import execute_wave
     from .wave_retention import evaluate_quality
     folder = root/'shared_r0'/template['teacher_id']
-    schedules = [config['initial_ticks']]*100
-    execute_wave(model, config, template, schedules, folder, root/'contexts'/'b100.pt.gz')
+    from .fixed_start import prepare_r0
+    schedules = [config['initial_ticks']]*config['population_size']
+    prepare_r0(model, root, config, template, folder)
     rows = evaluate_quality(folder, template, pool)
     if not (folder/'best.json').exists():
         write(folder/'best.json', make_trials(folder, rows, schedules, 0))
+    from .fixed_start import finish_r0
+    finish_r0(folder)
     return folder
 
 
@@ -181,6 +189,7 @@ def run(root, version):
     from .teacher_pipeline import run_teacher_pipeline
     root = Path(root)
     config = assert_prepared(root)
+    population = config['population_size']
     if version not in config['versions']:
         raise ValueError('Version outside authorized budget')
     if version != 'v1':
@@ -205,6 +214,7 @@ def run(root, version):
             for teacher, template in templates.items():
                 best = read(r0[teacher]/'best.json')
                 data = evidence(template, 0, 'bootstrap', best, best)
+                data.update(version=version, controller_protocol=config['controller']['protocol'])
                 boot = plan_population(data, base/teacher/'bootstrap', config, hypotheses=4,
                                        skill=skills['analyst'], caller=caller)
                 initial_jobs[teacher] = {'teacher_id': teacher, 'observed_round': 0,
@@ -220,17 +230,19 @@ def run(root, version):
                 parent = r0[teacher] if round_no == 1 else Path(read(tb/f'commit_{round_no-1:02d}.json')['snapshot'])
                 if round_no > 1:
                     verify_snapshot(parent)
+                retention_parent = parent
+                parent = r0[teacher]
                 parent_best = read(parent/'best.json')
-                schedules = [j['ticks'] for j in job['jobs'] for _ in range(100)]
-                if len(schedules) != 400 or len({tuple(j['ticks']) for j in job['jobs']}) != 4:
+                schedules = [j['ticks'] for j in job['jobs'] for _ in range(population)]
+                if len(schedules) != population*4 or len({tuple(j['ticks']) for j in job['jobs']}) != 4:
                     raise ValueError('Four different hundred-row hypotheses required')
-                start = min(earliest(p['ticks'], j['ticks']) if p['ticks'] != j['ticks'] else 100
-                            for p in parent_best for j in job['jobs'])
+                start = 10
                 wave = tb/f'round_{round_no:02d}'/'wave'
                 write(wave.parent/'job.json', job)
                 execute_wave(model, config, templates[teacher], schedules, wave,
-                             root/'contexts'/'b400.pt.gz', parent=parent, start_step=start)
-                artifacts = {'wave': str(wave), 'parent': str(parent), 'job': job, 'schedules': schedules}
+                             root/'contexts'/'population_context.pt.gz', parent=parent, start_step=start)
+                artifacts = {'wave': str(wave), 'parent': str(parent), 'retention_parent': str(retention_parent),
+                             'fixed_start': 10, 'job': job, 'schedules': schedules}
                 write(saved_artifacts, artifacts)
                 return artifacts
             def analyze(teacher, round_no, artifacts, shared_caller):
@@ -244,10 +256,11 @@ def run(root, version):
                     return read(council/'selection.json')
                 rows = evaluate_quality(wave, templates[teacher], pool)
                 all_trials = make_trials(wave, rows, artifacts['schedules'], round_no, parent)
-                parent_best = read(parent/'best.json')
+                parent_best = read(Path(artifacts['retention_parent'])/'best.json')
                 for i, trial in enumerate(all_trials):
-                    trial['proposal'] = artifacts['job']['jobs'][i//100].get('proposal')
-                    trial['parent_source_id'] = parent_best[i%100]['source_id']
+                    trial['proposal'] = artifacts['job']['jobs'][i//population].get('proposal')
+                    trial['parent_source_id'] = read(parent/'best.json')[i%population]['source_id']
+                    trial['physical_parent_policy'] = 'fixed_r0_step10'
                 write(wave/'trials.json', all_trials)
                 specs = []
                 for g, j in enumerate(artifacts['job']['jobs']):
@@ -258,16 +271,29 @@ def run(root, version):
                     else:
                         source = j['source_proposal_id'].split(':')[0]
                         old = read(tb/f'round_{round_no-1:02d}'/f'{source}_evidence.json')
-                    trials = all_trials[g*100:(g+1)*100]
+                    trials = all_trials[g*population:(g+1)*population]
                     data = evidence(templates[teacher], round_no, f'G{g+1}', trials, parent_best, old)
+                    private_updates = []
+                    if round_no > 1:
+                        prior = read(tb/f'round_{round_no-1:02d}'/'council'/'analysts'/source/'hypotheses.json')
+                        private_updates = list(old.get('private_learning_history', [])) + prior.get('learning_update', [])
+                    data.update(version=version, controller_protocol=config['controller']['protocol'],
+                                private_learning_history=private_updates)
                     path = wave.parent/f'G{g+1}_evidence.json'
                     write(path, data)
                     history = []
                     for r in range(round_no+1):
                         trial_rows = [next(t for t in c['trials'] if t['id'] == f'r{r:02d}') for c in data['chains']]
                         summary = score_summary([t['record'] for t in trial_rows])
-                        h = {'ticks': trial_rows[0]['ticks'], 'attempts': 100, 'valid': summary['valid']}
+                        h = {'ticks': trial_rows[0]['ticks'], 'attempts': population, 'valid': summary['valid']}
+                        from .objective import condition_summary
+                        objective = condition_summary(trial_rows,templates[teacher])
+                        h['condition_mean_rmsd_A'] = objective['condition_rmsd_A_all_attempts']['mean']
+                        h['affinity_absolute_gap'] = objective['mean_affinity_absolute_gap']
                         if r:
+                            if h['affinity_absolute_gap'] is not None and history[-1]['affinity_absolute_gap'] is not None:
+                                h['condition_error_delta'] = h['condition_mean_rmsd_A']-history[-1]['condition_mean_rmsd_A']
+                                h['affinity_gap_delta'] = h['affinity_absolute_gap']-history[-1]['affinity_absolute_gap']
                             prev = [next(t for t in c['trials'] if t['id'] == f'r{r-1:02d}')['record'] for c in data['chains']]
                             comparison = paired(prev, [t['record'] for t in trial_rows])
                             h.update(paired_common_valid=comparison['common_valid'],
@@ -278,24 +304,28 @@ def run(root, version):
                 return analyze_four_groups(specs, wave.parent/'council', config, published_reflections=memories,
                                            caller=shared_caller, analyst_skill=skills['analyst'], synthesis_skill=skills['synthesizer'])
             def commit_round(teacher, round_no, artifacts, selection):
-                wave, parent = Path(artifacts['wave']), Path(artifacts['parent'])
+                wave, parent = Path(artifacts['wave']), Path(artifacts['retention_parent'])
                 all_trials = read(wave/'trials.json')
                 return commit_best(base/teacher, parent, wave,
-                                   [all_trials[g*100:(g+1)*100] for g in range(4)], round_no, r0[teacher])
+                                   [all_trials[g*population:(g+1)*population] for g in range(4)], round_no, r0[teacher])
             run_teacher_pipeline(initial_jobs, base, rounds=config['rounds'], infer=infer, analyze=analyze,
                                  commit=commit_round, caller=caller)
         report(root, version)
         from .group_review import review_pack
         review_pack(root, version)
         write(root/f'FINALIZED_{version}.json', {'version': version, 'rounds': config['rounds'],
-            'outcomes': 4000, 'report_sha256': sha(base/'report.json'),
+            'outcomes': 2*config['rounds']*4*population, 'report_sha256': sha(base/'report.json'),
             'review_manifest_sha256': sha(base/'review/manifest.json'), 'time': time.time()})
         write(root/'status.json', {'phase': 'complete' if version == config['versions'][-1] else 'awaiting_master_review',
                                   'version': version, 'rounds': config['rounds']})
 
 
 def report(root, version):
+    if read(root/'config.json').get('controller',{}).get('protocol') == 'conditional_learning_v1':
+        from agenticgen.condition_reporting import version_report
+        return version_report(root,version)
     config = read(root/'config.json'); base = root/'versions'/version
+    population = config['population_size']
     rows = []
     for template in read(root/'teachers.json'):
         t = template['teacher_id']; reference = template['source_record']['pic50_on_rescore']
@@ -314,7 +344,7 @@ def report(root, version):
                 continue
             records = read(wave/'quality_records.json')
             for g in range(4):
-                add(f'G{g+1}_unselected', r, records[g*100:(g+1)*100])
+                add(f'G{g+1}_unselected', r, records[g*population:(g+1)*population])
             snapshot = base/t/'incumbents'/f'r{r:02d}'/'best.json'
             if snapshot.exists():
                 add('TOP1_search_output', r, [x['record'] for x in read(snapshot)])

@@ -90,24 +90,26 @@ def materialize_snapshot(parent, wave, folder, best, winners):
         if complete['identity_sha256'] != identity:
             raise ValueError('Published snapshot belongs to different incumbents')
         return
+    population = len(best)
+    physical = read(wave/'manifest.json')['rows']
     start = read(wave/'manifest.json')['start_step']
     for step in CHECKPOINT_STEPS:
         p = load_pt(parent/f'checkpoint_{step:03d}.pt.gz')
         w = load_pt(wave/f'checkpoint_{step:03d}.pt.gz') if step >= start else p
-        effective = winners if step >= start else [None]*100
+        effective = winners if step >= start else [None]*population
         save_pt(folder/f'checkpoint_{step:03d}.pt.gz', mix_checkpoint(p, w, effective))
     for step in HEAD_STEPS:
         p = load_pt(parent/f'head_{step:03d}.pt.gz')
         w = load_pt(wave/f'head_{step:03d}.pt.gz') if step >= start else p
         sources = [w if step >= start and x is not None else p for x in winners]
-        sizes = [400 if step >= start and x is not None else 100 for x in winners]
+        sizes = [physical if step >= start and x is not None else population for x in winners]
         indices = [x if step >= start and x is not None else i for i, x in enumerate(winners)]
         # External RNG is incidental; logical stream states live in checkpoints.
         keys = ['prediction', 'raw_head', 'assignment', 'gradient_world']
         save_pt(folder/f'head_{step:03d}.pt.gz', {k: join([s[k] for s in sources], sizes, indices) for k in keys})
     p, w = load_pt(parent/'terminal.pt.gz'), load_pt(wave/'terminal.pt.gz')
     sources = [w if x is not None else p for x in winners]
-    sizes = [400 if x is not None else 100 for x in winners]
+    sizes = [physical if x is not None else population for x in winners]
     indices = [x if x is not None else i for i, x in enumerate(winners)]
     save_pt(folder/'terminal.pt.gz', join(sources, sizes, indices))
     # Every retained trace contains a complete prefix and suffix, so deleted
@@ -127,7 +129,7 @@ def materialize_snapshot(parent, wave, folder, best, winners):
     nodes_a, nodes_b = read(parent/'nodes.json'), read(wave/'nodes.json')
     steps_a, steps_b = read(parent/'steps.json'), {r['step']: r for r in read(wave/'steps.json')}
     def merged_doc(a, b, step):
-        rows = [selected_document(b, x, 400) if step >= start and x is not None else selected_document(a, i, 100)
+        rows = [selected_document(b, x, physical) if step >= start and x is not None else selected_document(a, i, population)
                 for i, x in enumerate(winners)]
         keys = set.intersection(*(set(r) for r in rows)) - {'step'}
         return {'step': step, **{k: [r[k] for r in rows] for k in keys}}
@@ -153,7 +155,7 @@ def materialize_snapshot(parent, wave, folder, best, winners):
     write(folder/'best.json', best)
     write(folder/'final_records.json', [x['record'] for x in best])
     files = {p.relative_to(folder).as_posix(): sha(p) for p in folder.rglob('*') if p.is_file() and p.name != 'COMPLETE.json'}
-    write(folder/'COMPLETE.json', {'identity_sha256': identity, 'files_sha256': files, 'attempts': 100})
+    write(folder/'COMPLETE.json', {'identity_sha256': identity, 'files_sha256': files, 'attempts': population})
     verify_snapshot(folder)
 
 
@@ -166,11 +168,12 @@ def commit_best(base, parent, wave, trials, round_no, shared_r0):
         verify_snapshot(folder)
     else:
         old = read(parent/'best.json')
-        best, winners = list(old), [None]*100
+        population = len(old)
+        best, winners = list(old), [None]*population
         for g in range(4):
             for i, trial in enumerate(trials[g]):
                 if better(trial['record'], best[i]['record']):
-                    best[i], winners[i] = trial, g*100+i
+                    best[i], winners[i] = trial, g*population+i
         materialize_snapshot(parent, wave, folder, best, winners)
         receipt = {'round': round_no, 'snapshot': str(folder), 'snapshot_sha256': sha(folder/'COMPLETE.json'),
                    'quality_complete': True, 'retention_complete': True, 'improved': sum(x is not None for x in winners)}

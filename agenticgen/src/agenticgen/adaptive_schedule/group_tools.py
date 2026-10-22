@@ -1,4 +1,4 @@
-"""Read-only numerical tools over one immutable hundred-candidate population.
+"""Read-only numerical tools over one immutable candidate population.
 
 The LLM chooses registered functions and bounded arguments. It never supplies
 Python, shell commands, filenames, coordinates, or scores to be trusted as data.
@@ -157,8 +157,8 @@ class PopulationTools:
     def __init__(self, data, output):
         self.data, self.output = copy.deepcopy(data), Path(output)
         ids = [c['candidate_id'] for c in self.data['chains']]
-        if len(ids) != 100 or len(set(ids)) != 100:
-            raise ValueError('Exactly 100 unique candidate identities are required')
+        if len(ids) not in (25,100) or len(set(ids)) != len(ids):
+            raise ValueError('Exactly 25 (new protocol) or 100 (migration compatibility) unique candidate identities are required')
         self.digest = value_sha(self.data)
         self.selectors = ['incumbent', 'latest'] + list(self.data['round_ids'])
         node_sets = [set(t['nodes']) for c in self.data['chains'] for t in c['trials']]
@@ -178,6 +178,10 @@ class PopulationTools:
             'history_summary': ("All fixed-round distributions plus the separately selected incumbent population.", schema({}, [])),
         }
 
+        if self.data.get('controller_protocol') == 'conditional_learning_v1':
+            from .learning_tools import registry
+            self.registry.update(registry(self.selectors))
+
     def catalog(self):
         return [{"name": k, "description": d, "parameters": s} for k, (d, s) in self.registry.items()]
 
@@ -192,6 +196,9 @@ class PopulationTools:
         if name not in self.registry:
             raise ValueError('Unregistered population tool')
         jsonschema.validate(args, self.registry[name][1])
+        if name in {'teacher_condition', 'response_edge', 'execution_history', 'task_knowledge', 'region_response', 'condition_quality'}:
+            from .learning_tools import calculate
+            return calculate(self, name, args)
         if name == 'population_summary':
             return score_summary(self.records(args['selection']))
         if name == 'paired_comparison':

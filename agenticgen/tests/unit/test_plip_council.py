@@ -97,7 +97,7 @@ def test_same_round_reflection_and_wrong_identity_rejected_before_api(tmp_path):
             {'teacher_id': 't', 'published_after_round': 1, 'text': 'forbidden'}])
     specs = groups()
     specs[3]['data']['chains'].reverse()
-    with pytest.raises(ValueError, match='ordered 100'):
+    with pytest.raises(ValueError, match='ordered original'):
         analyze_four_groups(specs, tmp_path, defaults())
 
 

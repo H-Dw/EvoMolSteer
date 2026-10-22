@@ -1,4 +1,4 @@
-"""Native 100/400-row execution with audited common randomness and compact parents."""
+"""Native population execution with audited common randomness and compact parents."""
 import copy
 import gc
 import time
@@ -51,10 +51,13 @@ def join(values, sizes, indices):
 
 def initial_population(config, target, groups):
     initials = [load_initial(config, target, b)[0] for b in range(5)]
-    blocks = [initials[b] for g in range(groups) for b in range(5) for _ in range(20)]
+    per_seed = config.get('population_size', 100)//5
+    size = per_seed*5
+    blocks = [initials[b] for g in range(groups) for b in range(5) for _ in range(per_seed)]
     result = dict(initials[0])
     for key in ['prior', 'pocket_target', 'pocket_off', 'target_com']:
-        result[key] = join([s[key] for s in blocks], [20]*len(blocks), list(range(20))*(5*groups))
+        result[key] = join([s[key] for s in blocks], [20]*len(blocks), list(range(per_seed))*(5*groups))
+    result['population_size'] = size
     result['stream_states'] = [s['rng'] for s in initials]
     return result
 
@@ -63,7 +66,8 @@ class WaveControl(Control):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         states = self.resume['streams'] if self.resume else self.initial['stream_states']
-        self.random_streams = NativeStreams(states, self.batch_size//100)
+        self.random_streams = NativeStreams(states, self.batch_size//self.initial.get('population_size',100),
+            logical_rows=self.initial.get('population_size',100)//5)
 
     def initialize(self, curr, cond, times, prior, pt, po, et, it, eo, io, grid):
         context = {'prior': prior, 'pt': {k: v for k, v in pt.items() if k != 'complex'},
@@ -75,7 +79,7 @@ class WaveControl(Control):
                    'precision': torch.get_float32_matmul_precision(), 'device': torch.cuda.get_device_name(0)}
         # Encodings can differ at float-roundoff level with batch shape. Persist
         # each physical context, but bind mixed parents to immutable raw inputs.
-        self.context_sha = tensor_digest({k: take(context[k], list(range(100)), self.batch_size)
+        self.context_sha = tensor_digest({k: take(context[k], list(range(self.initial.get('population_size',100))), self.batch_size)
                                          for k in ['prior', 'pt', 'po', 'com', 'grid', 'coord_scale',
                                                    'integrator', 'sampler_sha256', 'checkpoint_sha256', 'precision', 'device']})
         if not self.context_path.exists():
@@ -115,12 +119,12 @@ class WaveControl(Control):
 
 
 def expand_resume(state, groups):
-    if state['rows'] != 100:
+    if state['rows'] not in (25,100):
         raise ValueError('Only a verified hundred-chain incumbent can be a parent')
     r = copy.deepcopy(state)
     for key in ['current', 'cond', 'times', 'previous_assignment']:
-        r[key] = take(state[key], list(range(100))*groups, 100)
-    r['rows'] = 100*groups
+        r[key] = take(state[key], list(range(state['rows']))*groups, state['rows'])
+    r['rows'] = state['rows']*groups
     return r
 
 
@@ -134,7 +138,7 @@ def mix_checkpoint(parent, wave, winners):
     indices = [w if w is not None else i for i, w in enumerate(winners)]
     for key in ['current', 'cond', 'times', 'previous_assignment']:
         state[key] = join([s[key] for s in sources], [s['rows'] for s in sources], indices)
-    state['rows'] = 100
+    state['rows'] = len(winners)
     return state
 
 
@@ -161,12 +165,13 @@ def execute_wave(model, config, template, schedules, folder, context_path, paren
     from agenticgen.runtime.scoring import final_metrics
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
-    size, groups = len(schedules), len(schedules)//100
-    if size not in (100, 400):
-        raise ValueError('Formal groups contain 100 or 400 rows')
+    population = config.get('population_size',100)
+    size, groups = len(schedules), len(schedules)//population
+    if size not in (population, population*4):
+        raise ValueError('Formal execution must contain one or four configured populations')
     binding = {'schedules': schedules, 'start_step': start_step,
                'parent_manifest': sha(parent/'COMPLETE.json') if parent else None,
-               'teacher_id': template['teacher_id'], 'groups': groups, 'rows': size}
+               'teacher_id': template['teacher_id'], 'groups': groups, 'rows': size, 'population_size': population}
     if (folder/'manifest.json').exists() and read(folder/'manifest.json') != binding:
         raise ValueError('Wave identity changed')
     write(folder/'manifest.json', binding)
@@ -212,8 +217,8 @@ def execute_wave(model, config, template, schedules, folder, context_path, paren
             from .common_random import restore
             restore(external)
         for i, r in enumerate(records):
-            r.update(candidate_id=f'b{i%100//20:03d}:s{i%20:03d}', logical_batch=i%100//20,
-                     logical_slot=i%20, hypothesis=i//100, physical_slot=i)
+            r.update(candidate_id=f'b{i%population//(population//5):03d}:s{i%(population//5):03d}', logical_batch=i%population//(population//5),
+                     logical_slot=i%(population//5), hypothesis=i//population, physical_slot=i)
         write(folder/'final_records.json', records)
         write(folder/'EVALUATION_COMPLETE.json', {'attempts': len(records), 'time': time.time()})
     records = read(folder/'final_records.json')

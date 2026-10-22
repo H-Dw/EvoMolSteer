@@ -31,6 +31,9 @@ def chemistry(records):
 
 def analyze(root):
     config, templates = read(root/'config.json'), read(root/'teachers.json')
+    if config.get('controller',{}).get('protocol') == 'conditional_learning_v1':
+        from .condition_reporting import analyze as condition_analyze
+        return condition_analyze(root)
     collections, rows, paired_rows, cases, costs = {}, [], [], [], []
     quality_refs, baseline_rows = {}, []
     for template in templates:

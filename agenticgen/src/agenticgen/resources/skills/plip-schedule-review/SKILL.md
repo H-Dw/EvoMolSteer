@@ -1,61 +1,44 @@
 ---
 name: plip-schedule-review
-description: Review every completed population-guidance decision and actual evidence, revise general skills and authorize an equal-budget rerun after verified coverage.
+description: Review complete controller learning evidence and improve general adaptive strategies before a gated transition.
 ---
 
-Read frozen config and review manifest for server, counts and budget; these facts
-do not belong in optimizer rules. Skills are frozen within each version. Technical
-fixes require local tests, commit, push and exact deployment with a compatibility
-assessment. Never silently change scientific protocol or remote source.
+Act as a training-strategy designer and capability improver. Read the active frozen
+objective; do not apply obsolete mean-affinity-only priorities. Your main task is
+to improve adaptive learning of condition absorption and functional preservation,
+not merely correct arithmetic.
 
-## Full decision review
+Cover every logical session, actual distinct prompt, tool result, proposal,
+unselected alternative, failure and outcome. Deduplicate identical bytes only.
+Write substantive per-session assessments, evidence citations, limitations and
+next-decision implications. Downloads and hashes are not substantive review.
+Use recorded concise rationales; do not infer unrecorded private thoughts.
 
-Cover every bootstrap, private analysis, synthesis, proposal, sampled outcome,
-tool turn and failure. Read duplicate prompt prefixes once but cover every unique
-input and evidence hash. Save substantive per-session assessments, proposal IDs,
-evidence citations, counterexamples and unresolved cases. Inspect raw requests for
-contradictions, missing evidence and repetitions. Aggregates or boilerplate are
-not full review; an automatically emitted evidence index is not approval.
+Reconstruct observation → competing explanations → intervention → predicted
+condition/function response → measurement → knowledge revision → changed action.
+Look for missing temporal sensitivity, delivered-control limits, amplitude response,
+interval interaction, proxy/function conflict and population heterogeneity.
+Did counterevidence change memory and actions? Was an effective direction exploited
+promptly? What missing observation or earlier contrast would have saved trials?
+Where did excessive caution, repeated controls or late broad diagnosis waste budget?
 
-Reconstruct observable decisions: evidence -> interpretation/alternative -> action
--> anticipated subgroup response/falsifier -> measured response -> next revision.
-Use saved concise rationales and tools; do not infer unrecorded internal thoughts.
-Assess whether new outcomes changed actions, control actually changed under
-clipping, benefits broadened and trial priorities reflected remaining budget.
-Separate diagnostic error, ineffective control, heterogeneous response, proxy
-mismatch, parent selection and technical failure. An unsupported rationale is not
-validated by success; a negative outcome can be a useful discriminating experiment.
+Choose a few capability changes. For each document: blind spot → exploration loss
+→ general strategy or factual tool → expected behavioral change → next-version
+test. Rules should specify triggers, evidence, discriminating trials and falsifiers.
+Keep teacher/target/atom identities, molecular patterns and best arrays in task or
+review archives, never generic skills. New reward terms, actions or budget require
+user authorization. Do not automate scientific approval from coverage flags.
 
-Check privacy/publication timing, head versus terminal/rescore, geometry versus
-affinity, analysis source versus restart parent, proposed versus executed. Prefer
-same-parent common-random comparisons; changed parents confound cross-round
-attribution. Include weak strata, common-valid pairs, quality and validity loss.
+Evaluate real behavior and equal-budget results, not prose polish. Report continuous
+condition error and mean-affinity agreement first, then Best/tails, validity,
+quality and cost. Separate unselected groups and selected archives. Track verified
+direction predictions, counterevidence-driven revisions, new information per trial,
+timely exploitation, repetitions and failure costs. Offline behavior tests cannot
+prove molecular performance or unexecuted schedule benefits.
 
-## General revisions
-
-Write each rule as condition -> evidence -> candidate direction/diagnostic trial
--> falsifier/stop condition. Keep case IDs/examples in review archives, not runtime
-skills. Require observed support and counterexamples or explicit limitations.
-Single successes support tentative cues, not universal mandates. Preserve prior
-rules and deprecation reasons in review history.
-
-No target names, teacher ranks, fixed atom features/counts or teacher/slot winning
-schedule tables. Read controls from config. Prompt choices using relative response,
-intervention effectiveness, uncertainty and budget, not fixed answers.
-Test identity invariance, validity-loss/saturation/proxy-conflict counterexamples,
-budget awareness and citations. Offline replay checks decision behavior only;
-it cannot establish affinity of an unexecuted schedule.
-
-## Transition gate
-
-Review expected sessions from configured counts, not legacy per-slot counts. Bind
-all review shards, actual prompt evidence, outcomes, report, both skill hashes and
-exact committed deployment. Empty approval, automatic reviewed flags or aggregates
-cannot authorize a new version. Commit reviews/skills locally, push, deploy, then
-approve the next equal-budget version. Reuse original R0 and clear all search and
-reflection histories. Repeat only up to the configured version budget.
-
-Compare unselected Mean first, Best/Top10 second, TOP1 output, quality, directional
-calibration and cost. Shared starts are not independent. Generic writing is not
-proof of cross-target generalization; these remain development comparisons.
-Deleted tensors cannot be claimed inspected; use retained analyses honestly.
+Skills are frozen within versions. Test identity renaming, memory correction,
+privacy, conflict cases and budget handling. Commit full reviews/skills locally,
+push, deploy fixed commit, verify coverage/source/skill hashes and finalization,
+then approve the next version. Cross-protocol transitions require a new preparation
+and native acceptance. Reset dynamic task answers between versions. Results on
+development teachers do not demonstrate general optimizer superiority.

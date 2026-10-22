@@ -19,7 +19,8 @@ def reviewed_transition(tmp_path, monkeypatch):
     for relative in gate.SKILLS.values():
         path = repo / relative; path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('Synthetic test skill, not an experimental approval.\n', encoding='utf-8')
-    write(root / 'config.json', configuration())
+    c=configuration(); c['versions']=['v1','v2']; c.pop('previous_protocol_root',None)
+    write(root / 'config.json', c)
     sessions, coverage = [], []
     for teacher in ['teacher_a', 'teacher_b']:
         for round_no, role in [(0, 'bootstrap')] + [(r, role) for r in range(1, 6) for role in ['G1', 'G2', 'G3', 'G4', 'synthesis']]:
@@ -93,3 +94,22 @@ def test_twentieth_version_is_the_last_authorized_transition(reviewed_transition
     _, root, _, _ = reviewed_transition
     with pytest.raises(ValueError, match='Invalid reviewed-version transition'):
         gate.review_check(root, 'v21')
+
+
+def test_new_protocol_requires_binding_new_preparation_and_acceptance(reviewed_transition):
+    _,old,_,approval=reviewed_transition
+    new=old.parent/'new_protocol';new.mkdir()
+    config=configuration();config.update(versions=['v2','v3'],previous_protocol_root=str(old))
+    write(new/'config.json',config)
+    write(new/'PREPARED.json',{'new_protocol':True})
+    write(new/'ACCEPTANCE_COMPLETE.json',{'new_native_checks':True})
+    write(new/'versions/v2/review_approval.json',approval)
+    with pytest.raises(ValueError,match='bind actual'):
+        gate.review_check(new,'v2')
+    approval.update(previous_protocol_root=str(old),new_prepared_sha256=sha(new/'PREPARED.json'),
+        new_acceptance_sha256=sha(new/'ACCEPTANCE_COMPLETE.json'),objective_priority=config['agent_objective']['priority'])
+    write(new/'versions/v2/review_approval.json',approval)
+    assert gate.review_check(new,'v2')['sessions']==52
+    write(new/'ACCEPTANCE_COMPLETE.json',{'changed':True})
+    with pytest.raises(ValueError,match='bind actual'):
+        gate.review_check(new,'v2')

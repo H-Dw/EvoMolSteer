@@ -3,7 +3,8 @@ from agenticgen.adaptive_schedule.io import read, write
 from agenticgen.adaptive_schedule.grid import CHECKPOINT_STEPS, HEAD_STEPS
 
 
-def test_mixed_snapshot_keeps_prefix_suffix_and_is_restartable_after_cleanup(tmp_path):
+@pytest.mark.parametrize('population',[25,100])
+def test_mixed_snapshot_keeps_prefix_suffix_and_is_restartable_after_cleanup(tmp_path, population):
     torch = pytest.importorskip('torch')
     h5py = pytest.importorskip('h5py')
     pytest.importorskip('rdkit.Chem')
@@ -11,7 +12,7 @@ def test_mixed_snapshot_keeps_prefix_suffix_and_is_restartable_after_cleanup(tmp
     from agenticgen.adaptive_schedule.wave_retention import materialize_snapshot, verify_snapshot, prune_payload
     import numpy as np
     parent, wave, retained = [tmp_path/name for name in ['parent','wave','retained']]
-    for folder, size in [(parent,100),(wave,400)]:
+    for folder, size in [(parent,population),(wave,population*4)]:
         folder.mkdir()
         value = torch.arange(size,dtype=torch.float32).reshape(size,1,1).expand(size,1,3).clone()
         for step in CHECKPOINT_STEPS:
@@ -30,19 +31,19 @@ def test_mixed_snapshot_keeps_prefix_suffix_and_is_restartable_after_cleanup(tmp
         write(folder/'steps.json',[{'step':s,'loss':list(range(size))} for s in range(100)])
         (folder/'molecules_all_built.sdf').touch()
         for i in range(size): write(folder/'profiles'/f'slot_{i:03d}'/'failure.json',{'reason':'builder_failed'})
-    write(wave/'manifest.json',{'start_step':26})
-    winners = [i+100 if i%2 else None for i in range(100)]
-    best = [{'record':{'build_success':False},'id':str(i)} for i in range(100)]
+    write(wave/'manifest.json',{'start_step':26,'rows':population*4,'population_size':population})
+    winners = [i+population if i%2 else None for i in range(population)]
+    best = [{'record':{'build_success':False},'id':str(i)} for i in range(population)]
     materialize_snapshot(parent,wave,retained,best,winners)
     verify_snapshot(retained)
     assert load_pt(retained/'checkpoint_010.pt.gz')['current']['coords'][1,0,0] == 11
-    assert load_pt(retained/'checkpoint_051.pt.gz')['current']['coords'][1,0,0] == 152
+    assert load_pt(retained/'checkpoint_051.pt.gz')['current']['coords'][1,0,0] == population+52
     assert load_pt(retained/'checkpoint_051.pt.gz')['current']['coords'][0,0,0] == 51
     with h5py.File(retained/'trace.h5','r') as f:
-        assert f['coords'][10,1,0,0] == 11 and f['coords'][50,1,0,0] == 151
+        assert f['coords'][10,1,0,0] == 11 and f['coords'][50,1,0,0] == population+51
     prune_payload(parent); prune_payload(wave)
     verify_snapshot(retained)
-    assert read(retained/'nodes.json')['51']['local_loss'][1] == 101
+    assert read(retained/'nodes.json')['51']['local_loss'][1] == population+1
 
 
 def test_checkpoint_rejects_different_random_streams():

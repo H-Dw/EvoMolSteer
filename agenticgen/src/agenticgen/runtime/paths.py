@@ -25,7 +25,7 @@ def repository():
 def host_config(path=None):
     path = Path(path or os.environ.get('AGENTICGEN_HOST_CONFIG') or resource('config', 'scnet11762.json')).resolve()
     data = json.loads(path.read_text(encoding='utf-8'))
-    for key in ('flowr', 'history', 'examples', 'python', 'activation', 'result_root'):
+    for key in ('flowr', 'history', 'examples', 'python', 'activation', 'result_root', 'previous_protocol_root'):
         if key in data:
             value = data[key]
             if not (PurePosixPath(value).is_absolute() or PureWindowsPath(value).is_absolute()):
