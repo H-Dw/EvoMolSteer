@@ -78,7 +78,7 @@ def chemical_diagnostics(folder,template,molecules,count):
         bonds=output['bonds'][slot].argmax(-1).numpy()[np.ix_(active,active)]
         mol=Chem.Mol(molecules[slot])
         mapping=audit_molecule_state(mol,coordinates,elements,charges,bonds,bond_names)
-        for sdf,native in enumerate(mapping):mol.GetConformer().SetAtomPosition(sdf,coordinates[native])
+        for sdf,native in enumerate(mapping):mol.GetConformer().SetAtomPosition(sdf,coordinates[native].tolist())
         result=chemical_pose(mol,teacher,[native_to_sdf[i] for i in template['core_atoms']])
         result.update(sdf_to_active_native=[active[i] for i in mapping],
             prepared_protein_sha256=protein_digest,teacher_sdf_sha256=teacher_digest,
