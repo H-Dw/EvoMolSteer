@@ -1,0 +1,680 @@
+{
+  "schema": "agenticgen-aborted-attempt-substantive-review-v1",
+  "scope": "aborted_v6_attempt_only",
+  "formal_sessions": 52,
+  "context_count": 11,
+  "substantively_reviewed_contexts": 11,
+  "inventory_sha256": "c3c42359b4e30fc89eb82f09fe3b2d1bdfde18a53bd9cfd3ac26efeaa61c5a0b",
+  "validation_sha256": "8c62002f291009577dd6a6bf8fdf3e103787d8ab7d08424deb601b2574e4b6c6",
+  "contexts": [
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "cfeaf98ec0e9de6ad76ee23ba682f0e0ffcde2cee2f17175d10a2591fe590544": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/cfeaf98ec0e9de6ad76ee23ba682f0e0ffcde2cee2f17175d10a2591fe590544.txt",
+        "c37ace23c337af9118709db35e20f0bca2def002bca828bee787405387a54555": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/c37ace23c337af9118709db35e20f0bca2def002bca828bee787405387a54555.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 0,
+        "observation": "Top1 bootstrap使用相同R0与空任务知识，提案为[7,5,5,5]、[3,5,5,5]、[5,7,5,5]、[5,5,5,7]。R0 Mean约4.21011、教师7.83783、Best7.21218；局部坐标只直接约束两个区域原子。实际输入缺少后来增加的动作anchor/合法域四项说明。",
+        "interpretation": "I0正负括号加I1/I3覆盖是合理的早期方向识别，I2作为未知保存，未把未执行方向写成实测。问题是把单候选最低RMSD约0.3532用于整组排序带，以及从区间长度、大残差推断可控性。教师互作角色可以形成假设，但不能从坐标奖励推断化学互作已恢复。",
+        "decision_and_counterexample": "四案在旧尝试R1执行，观察来自下列四私有上下文。正负探测设计本身有信息价值；它不支持默认高残差候选贡献更大，也不能预先断定较长区间更有效。",
+        "revision": "保留早期括号和未知清单；把绝对残差与干预斜率分开，用实际控制量和配对终态决定后续利用。bootstrap知识状态应为未测试。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/binding.json": "65bef300ec8f4bb980b25ad636fdb5d3e7300da87b5889fef22ae2a401cb451b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/hypotheses.json": "af418089053ae9728d220accf4ae1b271b625bf913c9e4e123d2ee177a11bf0f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/learning_update.json": "7803bd411dcc6537ac462983589a31126517681ad4cae4cd32620eda3976f63f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/c37ace23c337af9118709db35e20f0bca2def002bca828bee787405387a54555.txt": "c37ace23c337af9118709db35e20f0bca2def002bca828bee787405387a54555",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/cfeaf98ec0e9de6ad76ee23ba682f0e0ffcde2cee2f17175d10a2591fe590544.txt": "cfeaf98ec0e9de6ad76ee23ba682f0e0ffcde2cee2f17175d10a2591fe590544",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/tools/867e4391d58880d37bd12de140ea24e68aa3f0e99c36988db3d7cea902e4c6ee.json": "188c834fec57d2e73d7151a965e9e1b300211e8fc39a1ac88658b240df02e313",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/tools/88afc4db5db106ed16aae4d4f503a5f5ec9830f472f82d43573e9bd588a4fa9d.json": "354a96702f5a3c568f7f2d8e4334ab48a79e3437c938c924796f81417f80c351",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/tools/990b162c7fd71adc900fc1dbe250c42215be277cdca9676e83675520c16ac9c5.json": "d516454b8e5da1e4db7571fea4300ff86558b8524fa3036b884d9c93cf444a86",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/tools/9b40c66f0fe0f696561322412e13ec009aa9273ce1cdb71592980b094b585ae9.json": "ac09c149ced98c9f726bbdf9ce48f8005b40b61cb57ca371e62f7b7197ab8dcf",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/tools/a5a52a19ee72a958abafde8a90cfdfd86d01eeaa6ca487ee226f8ae9a2336055.json": "b2b2395cfa2b3631ed7b14fa3302c8a0610857aa90d9b8c1a36d5c5e09a5d979",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/tools/af3d4a617e4bd5136c9ed73147420d5e2ab55327d7f3803a05a01ce55a8cf72d.json": "e397ab3f671dc7607c755e682ea1270af3afd15cc8659ab3d6aa1b6ecee606e9",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.budget.json": "63159ace14bb5a6694d1dbed1b41ace9860b6d83856109856547d86acd24e634",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.json": "0dca6e32bd6bcededd56129874befac81de80f9dab0aed23e59d581513b1517f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.receipt.json": "03df567d5fea8cb0154f6f8230bb131b21c360e01ed51e8952e9a8625fdc4c58",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.request.json": "4f224010c0de0ad23edec20f72f25c2011e0bf5c8e8578963d31586a44f92cd8",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/bootstrap/turn_00.wire_1.request.json": "7396e74f2722ddd4647842799c67ff5be4c4514cdfbad9e61af0df5b2f4f1bbb"
+      },
+      "receipt_ids": [
+        "47ba5819-ab66-43fd-ba47-06b87d4f6df4"
+      ],
+      "prompt_tokens": 10895,
+      "completion_tokens": 10819
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.wire_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.repair_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "325893ad4d0416d6c92fbeb9af3e76f2a940dedb5c6bdeaba8cd8e6f50c5acd8": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/325893ad4d0416d6c92fbeb9af3e76f2a940dedb5c6bdeaba8cd8e6f50c5acd8.txt",
+        "856b60dfeea7440aafae35f668bed59b0df9df08214f60ce1fb3a2ccdb3d8576": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/856b60dfeea7440aafae35f668bed59b0df9df08214f60ce1fb3a2ccdb3d8576.txt",
+        "12cfc07318602f8bad9afc55694a02e046eae82f65553cdde35e55d45b63bc88": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/12cfc07318602f8bad9afc55694a02e046eae82f65553cdde35e55d45b63bc88.txt",
+        "6e86b8b5cc8d27ed41700cf7c2c9455c7d0732365393db0c259d7f673a6c6502": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/6e86b8b5cc8d27ed41700cf7c2c9455c7d0732365393db0c259d7f673a6c6502.txt",
+        "45850dc25c2112cee8d56e4ce08c283bb51365677c8c2ec1ee87ecc70db5c6d8": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/45850dc25c2112cee8d56e4ce08c283bb51365677c8c2ec1ee87ecc70db5c6d8.txt",
+        "71cf8e0bd6e85307d55db096d4dd400e101a80bc7ccee91f1c94308b08d6cb93": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/71cf8e0bd6e85307d55db096d4dd400e101a80bc7ccee91f1c94308b08d6cb93.txt",
+        "5c4927f47e75046a7fee08ef1043c3f55b5949f2d6334886d9a97443e225dbf1": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/5c4927f47e75046a7fee08ef1043c3f55b5949f2d6334886d9a97443e225dbf1.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_1.invalid.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_2.invalid.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 1,
+        "observation": "Top1 R1G1实际anchor为[7,5,5,5]，R0→当前C增加约0.0006431 Å而Mean增加约0.00149。I0 inside RMS从约0.000479变为0.000673 Å，ratio约0.00536→0.00753，未裁剪。response_edge及subgroup_response给出异质贡献。",
+        "interpretation": "两次非法响应均把物理R0当动作参考：先提[3,5,5,5]，再缩为[4,5,5,5]，相对真实anchor仍越界。中性修复只提示步长规则，未消除错误参照。根因是动作参考与物理恢复状态的接口歧义；已部署0513的显式anchor和枚举修复针对这一点，不能手改方案。",
+        "decision_and_counterexample": "要求更多节点传播证据有价值，但非零且近比例的指导传递不能被称为幅度未生效；0.02 Å排序带不是噪声或方向无效阈值。较大残差不等于贡献大，0.2幅度也不是0.2 Å。两次拒绝没有产生R2结果。",
+        "revision": "以实际anchor列出动作差、以历史边建立因果比较，两种参考分别保存。学习状态应保留C/功能的相反符号与未识别机制，而非将小响应整体判空。3次调用含工具和两次非法最终输出，成本全部计入作废尝试。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/binding.json": "f4505efb15f3d0eca808cbda61b7f05d24c823f20a875a0f777f3351713d3cfc",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/12cfc07318602f8bad9afc55694a02e046eae82f65553cdde35e55d45b63bc88.txt": "12cfc07318602f8bad9afc55694a02e046eae82f65553cdde35e55d45b63bc88",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/325893ad4d0416d6c92fbeb9af3e76f2a940dedb5c6bdeaba8cd8e6f50c5acd8.txt": "325893ad4d0416d6c92fbeb9af3e76f2a940dedb5c6bdeaba8cd8e6f50c5acd8",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/45850dc25c2112cee8d56e4ce08c283bb51365677c8c2ec1ee87ecc70db5c6d8.txt": "45850dc25c2112cee8d56e4ce08c283bb51365677c8c2ec1ee87ecc70db5c6d8",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/5c4927f47e75046a7fee08ef1043c3f55b5949f2d6334886d9a97443e225dbf1.txt": "5c4927f47e75046a7fee08ef1043c3f55b5949f2d6334886d9a97443e225dbf1",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/6e86b8b5cc8d27ed41700cf7c2c9455c7d0732365393db0c259d7f673a6c6502.txt": "6e86b8b5cc8d27ed41700cf7c2c9455c7d0732365393db0c259d7f673a6c6502",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/71cf8e0bd6e85307d55db096d4dd400e101a80bc7ccee91f1c94308b08d6cb93.txt": "71cf8e0bd6e85307d55db096d4dd400e101a80bc7ccee91f1c94308b08d6cb93",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/856b60dfeea7440aafae35f668bed59b0df9df08214f60ce1fb3a2ccdb3d8576.txt": "856b60dfeea7440aafae35f668bed59b0df9df08214f60ce1fb3a2ccdb3d8576",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/60d1cc3c4a5e4f49768cc3f0b0f35546003b8ee71348a1bfa810e1ff1acd9441.json": "04a0b205dc576d21c6eb0501384ac77a5df240ccff9246d41dae38863d3b9ced",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/69af93109246dcd9b5c1ae3917f083d903090144ec397235e0514b6ebf09ebf4.json": "c949da70a1fb815be53408cf6bcee88c9c968816718c698d1f5dfbc8a848180c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/b6eaf88d5adeecce3fc8817a499d6dd3f639a356e7b309bae8c1cb18fb2c5070.json": "24367f78f45a6c6861fea9c2f22c5df5275eab68f188d6e26f8e1e2842f3b52f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/bcd41d8cc3dc8435f3828d01f4b87719304bcd75365a11ba0996cbd32969a4e6.json": "3cf2568e4b0c43f86203d22e40255c7838b8c94e483148dca5d1edd45825be25",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/c87f184a2b5a956f20ac48197fb2a652ad1711a49d0a482988b3118add228eb6.json": "25dfc79f32d26896268ef587ae1b9b6377a3e2f2cda2fdb26ffddcce2dfba8e7",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/cfa6da0d4ad29172ea7ab92fc5c8c6633300ceb912d6124fa6387af31fb7118a.json": "ca9ba047600d6704f42517bf2d7f01470c9cfa870bc988f0a20e516196a9821c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/cfca91df2e9cfb04468d6a7fefbc8caabd067816291de21d8ff792f4c826789a.json": "6d97bf21a0946f982cf3adb97f9c06ecf034275cdd904051f69fed1a426c745d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/eefaa103b719980056da6f48efd28442fd6bbcf97314c6d0538128a01c4cc296.json": "b2f15cea9897db96df8ecaa04b988cb0e5287a44d3630b379fc79f448a7be691",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/fedb4b3b1210a9fdbdc683bcf65247e67338a6f1c6af5e6c9f00cff45a355420.json": "404bb2f70f1b30109da0c97275d1a9100fbd7a3bcb6a287b83280d2c1bf915b0",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.budget.json": "a665d94e48dfc85554ae36edb13b0df20e9014d5e5fe1d404a78d573e8ebb75b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.json": "d9d50252bd98498b437239be857c8b0a45c5f7bff094e767f0f8277ea28cd251",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.receipt.json": "6dd06c6a8c46c75d7176b1047965bb10828a7da781a934b6b27544447ef37bd7",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.request.json": "bdbe7a87f8c4554f0adca5ad8709e231729970c6ea1d6a10953237f02f69e335",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.wire_1.request.json": "711e74bd866fd113f008f11ac47812441deab35eba2b89587e79c58745467ed4",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_1.invalid.receipt.json": "b838844f9714fa31e0ea7dbaaf5553852bec8ce11467b30eb781e5e59f56e338",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_1.invalid.txt": "71cf8e0bd6e85307d55db096d4dd400e101a80bc7ccee91f1c94308b08d6cb93",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_2.invalid.receipt.json": "04aa78469cb79b4ca14d99eebf5869a3271f6a01958893982993c6045c6a582c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_2.invalid.txt": "b6ff48969b2f9a5a499e7cfd263ea21627ed8c1e248a28c7b0d84cc3618b7497",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.repair_1.request.json": "5a3ec877f94605ddf0c289df5fc847e360f60d36e6821369074fadd26cebca54",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.request.json": "fa0f109bae88f5b23a18b1b90b3a2283f59fded9159528655d9b4dbb41363fc3",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.wire_1.request.json": "be58ef66fdf528a5431162c989822efb71a85fef7756da38e4e9b4e3786106ed"
+      },
+      "receipt_ids": [
+        "5a211c7b-ba66-48d4-98cd-8ff2302b5230",
+        "de4798c4-7d53-4cb8-8ab2-acc8e209e859",
+        "290a97f6-6821-4a67-9619-2722cea20bb5"
+      ],
+      "prompt_tokens": 87764,
+      "completion_tokens": 13086
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.wire_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "ef45f5bb3d79f1d7cba0ee6f4eeda3245a59f5dc4c1d70399c84d4b665c95e46": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/ef45f5bb3d79f1d7cba0ee6f4eeda3245a59f5dc4c1d70399c84d4b665c95e46.txt",
+        "af6f993faa2f3c605489d898551547efb03961da5a34702752188cc4da574696": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/af6f993faa2f3c605489d898551547efb03961da5a34702752188cc4da574696.txt",
+        "d61999fa8597959d43c804fd6e21cb92b3a916cf670a6e584ceb882c86faf815": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/d61999fa8597959d43c804fd6e21cb92b3a916cf670a6e584ceb882c86faf815.txt",
+        "b4f9f05573ed0965b445a3032ca9d830a359d16c1d230db2e610f5c49264acf0": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/b4f9f05573ed0965b445a3032ca9d830a359d16c1d230db2e610f5c49264acf0.txt",
+        "83c4b2b206063b98387edd2493d1139ec8b0eea342e248419fa8f5a9e6709c6f": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/83c4b2b206063b98387edd2493d1139ec8b0eea342e248419fa8f5a9e6709c6f.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 2,
+        "observation": "Top1 R1G2为I0 5→3，C下降0.000363389 Å、Mean增加0.000169115，Best小幅下降。I0 inside降至0.000285884 Å，未裁剪；b001:s002的C改善约0.01864而亲和力下降，b003:s003贡献正向亲和力，说明两个目标需分开学习。",
+        "interpretation": "H1=[5,5,5,7]同时恢复I0并提高I3，H2=[3,5,7,5]单改I2。提案合法且H1承认联合效应，但声称H2能隔离I3是不成立的：两案I0/I2/I3背景均不同。原始R0→R1只有I0变化，也被文字称为联合变化。",
+        "decision_and_counterexample": "主动查询step25 Endpoint和贡献是正面行为；该Endpoint不能证明尚未干预的I2效果，也不证明原生后期覆盖。把末段称为不会被覆盖忽略91–100。虽然C和功能同向改善，仍因小于排序带停止I0利用，缺少目标收益与信息价值比较。",
+        "revision": "联合试验仍可选择，但明确不能估计的偏导；分开控制、预测Endpoint和真实状态。对微小双目标改善保留局部方向，用新边/反向臂判断是否值得延伸，而非以带宽否定。2次API，提案没有后续生成。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/binding.json": "e04f75bfa19b49ce672e0bc12dde972c24fc3fa472e1c6e06340499c8534c27d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/hypotheses.json": "6764a92af5be2284c58d4b1135b986e98abf8051f4bf15d8a53379a9b127b5fe",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/learning_update.json": "8a116b5df5229db102ec627a0c795d4678ad2bf90da09ea1cab4050b1b3f54ca",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/83c4b2b206063b98387edd2493d1139ec8b0eea342e248419fa8f5a9e6709c6f.txt": "83c4b2b206063b98387edd2493d1139ec8b0eea342e248419fa8f5a9e6709c6f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/af6f993faa2f3c605489d898551547efb03961da5a34702752188cc4da574696.txt": "af6f993faa2f3c605489d898551547efb03961da5a34702752188cc4da574696",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/b4f9f05573ed0965b445a3032ca9d830a359d16c1d230db2e610f5c49264acf0.txt": "b4f9f05573ed0965b445a3032ca9d830a359d16c1d230db2e610f5c49264acf0",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/d61999fa8597959d43c804fd6e21cb92b3a916cf670a6e584ceb882c86faf815.txt": "d61999fa8597959d43c804fd6e21cb92b3a916cf670a6e584ceb882c86faf815",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/ef45f5bb3d79f1d7cba0ee6f4eeda3245a59f5dc4c1d70399c84d4b665c95e46.txt": "ef45f5bb3d79f1d7cba0ee6f4eeda3245a59f5dc4c1d70399c84d4b665c95e46",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/01dcec1bd264f3499bf688cb447027f8f0e2c0328b90f533819cd724bf5cba93.json": "493f8c0a2abbb24214824af2084a6ad211bd878077ac5696d2c7a04d00fceb9a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/0750e2bc3da4c5b34ece38251018a8244784f5a5d6f67e8ae8e69fa08114dc54.json": "ee0ab68d9713a9588177366cf71c1e7523d45ebb490bc307544ae4f5405e0582",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/41487b8cbff291a16e0614a2f55c2d361c6c05961e4f94cfdc2f420727718b33.json": "bd00f1947496804ce6f15e2f84e9762b3be06caec5429fcf88a6579b8d46dcd6",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/467408c27c0a4c75dd49b4b921e0b532d36b46f60c0a29426171624cd212d80f.json": "506754fb5e9c248d43304cfc1659e4e77fdbc3a4f759d70931775d4c7d4fb5cc",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/8e7ac3f2e32f2c1e837d71ea4ae1311cdba855f7843191bacde01217f2bdd08a.json": "b27578fa9cbc648d28d1e6369ca56f2cebd1f682131c7c8243ee9d59fb52ed9d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/a3601d7f1cdd0444da4390471d9ab670133a28de637730cf9f31490ba631a6ea.json": "9187d0e7309fa83738d6bbf0f4d1aab1c889c6f5e55f71586a52b9eb503e244d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/a4a599a2b1d02427d0e473e8d10a7c82642fdc5b87c1f3348a0bb8c1747a55c8.json": "a6be967cacb7a160abdc5068f66a266c9d65c56eb5865f8e1e13da14b791d6ab",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/be6fe967cac0d8cb0ab3db51e96b246d1c273aa68a49c4a14e3326761e197069.json": "3eaf57a55c9f0c02305d91adeccc973c81f61d44addc5e9d143e5fd12524142a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/cffe3817e9f3b42f772719030a1e7826558a5f311c6ab7e33c5f63f9e0b92f9c.json": "6c01cf51a325e8302da6efdf361fc1fe32c0d8f7411154ca20922425829adc3f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/eea8a95775d4b226d75ed93c9de93054118d605ce0e5789ad76c465ea592e6c5.json": "04af767dc6138067b18240fef27381c86e09c7df3468b7346754eb0eb5c9a74c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.budget.json": "b848dc30ab880d5eaeaaf1661d6ef3807e95aa137300bb925840c6f21a3c0488",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.json": "021314a648c3576c93091316e1e27fb990709a620a24e635e326a8f83acf44c1",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.receipt.json": "c135e482bd78f2172f5b7c0023fbd55f05f3b23ca09ef1e5af2942d2b7959701",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.request.json": "675b17e7072daeec77780c297c1cd2875446b3946d2fb0e0528121e5016de33f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.wire_1.request.json": "19cb3bc7eab34aea04373831aa1e7c47ffa1b39db39fae3dbe36dfd76354c2de",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.budget.json": "2ebca43482f4dc895ce561e543753236350298afe5583f1441dcccee070153b3",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.json": "ccee174a271af7c30fa6ba298026614993c881c9c327d9a1b21addcbb4a619d1",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.receipt.json": "d45eec5fceaf05ce21e3d405bb25e33ee930b978e00f941d0dc4bfb808d87c88",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.request.json": "e0c25795eec8e9926b61518dd41a3d06f62ce44edad6facb78c2ec40b3baab51",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_01.wire_1.request.json": "fa22da9b2a051e36aaf603f8a32575052568cb9b881f27bb40940f4a35f611f9"
+      },
+      "receipt_ids": [
+        "9f6b99d8-f36f-4a11-93cb-2b4f1d2081ce",
+        "cdeebbf7-9edd-4220-a3fc-7ebe5feaa893"
+      ],
+      "prompt_tokens": 49463,
+      "completion_tokens": 9239
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.wire_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "90e70d1a4fc67d580866cba456165c934d1223a65f1140a10d480fab81e3910f": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/90e70d1a4fc67d580866cba456165c934d1223a65f1140a10d480fab81e3910f.txt",
+        "0a1c1bd8b0bf0f74cf87ca00efaf81ec6566a2d3c0588a7bfb22f23b5830b786": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/0a1c1bd8b0bf0f74cf87ca00efaf81ec6566a2d3c0588a7bfb22f23b5830b786.txt",
+        "3a52b2bdad4b9767d2d043ef7eb9b55bd3b3e3082dd8cd075ecd6feea8608bae": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/3a52b2bdad4b9767d2d043ef7eb9b55bd3b3e3082dd8cd075ecd6feea8608bae.txt",
+        "9e68c967cc71d83c524ad1d8e10ee6da5e77934dff443f1d828cce069dd46cee": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/9e68c967cc71d83c524ad1d8e10ee6da5e77934dff443f1d828cce069dd46cee.txt",
+        "3a9dae0dacfdcaf119ef5c3e67e4f8233fca349783140357bcdc9f337735155c": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/3a9dae0dacfdcaf119ef5c3e67e4f8233fca349783140357bcdc9f337735155c.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 3,
+        "observation": "Top1 R1G3为I1 5→7，C增加0.000125684 Å、Mean增加0.000305748，真实B−A胜率56%。单候选b002:s001贡献Mean约0.00034997，高于净均值改善；其他候选抵消。I1实际位移增加且无裁剪。",
+        "interpretation": "H1/H2=[7,7,5,5]/[3,7,5,5]在同I1背景构成有效I0括号，私有Agent不知道兄弟当前结果是正常隔离。但文字混入反向配对44%胜率；把0.02 Å与1e−3 pIC50作为意义门槛，使已测局部C/功能冲突被忽略。",
+        "decision_and_counterexample": "step91 Endpoint中guided约0.8009小于core约0.8976，解释却称guided不更好；更关键是两个区域/预测状态不能证明原生时间传播。最大指导位移或最大残差也不能直接推出终态最敏感。贡献集中已能准确计算，应研究迁移而非归为噪声。",
+        "revision": "保留匹配括号设计；以同一A→B方向记录各目标响应，集中贡献正常计入，查询真实传播后再决定机制。2次API，R2提案未执行。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/binding.json": "2854345b933cf0c5c2b933318753eddd510916dac3b31fa3f84372ba4364c6dc",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/hypotheses.json": "755dcb0050388b26ad39bba00d842287737e1a0d7e1bd4213364342e250f70f1",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/learning_update.json": "e74d7d5f915a52373a9503ad2ad817c4e1ead5439dc07a23d8589627792a66e0",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/0a1c1bd8b0bf0f74cf87ca00efaf81ec6566a2d3c0588a7bfb22f23b5830b786.txt": "0a1c1bd8b0bf0f74cf87ca00efaf81ec6566a2d3c0588a7bfb22f23b5830b786",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/3a52b2bdad4b9767d2d043ef7eb9b55bd3b3e3082dd8cd075ecd6feea8608bae.txt": "3a52b2bdad4b9767d2d043ef7eb9b55bd3b3e3082dd8cd075ecd6feea8608bae",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/3a9dae0dacfdcaf119ef5c3e67e4f8233fca349783140357bcdc9f337735155c.txt": "3a9dae0dacfdcaf119ef5c3e67e4f8233fca349783140357bcdc9f337735155c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/90e70d1a4fc67d580866cba456165c934d1223a65f1140a10d480fab81e3910f.txt": "90e70d1a4fc67d580866cba456165c934d1223a65f1140a10d480fab81e3910f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/9e68c967cc71d83c524ad1d8e10ee6da5e77934dff443f1d828cce069dd46cee.txt": "9e68c967cc71d83c524ad1d8e10ee6da5e77934dff443f1d828cce069dd46cee",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/11ed471cd6d9f92260dfd976c30b1c3b43f592f770afa183bf1e4fa43f3ab271.json": "3d33add91db6c4fd49d3c00f828f3ba71f29ead9cad1060ba40456e2052f92a0",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/12f6b610e71e9fc210d72aa30179f15bbbf7ac3e40ea0236f319d8534d035769.json": "37ff451353f429540139a6b16a9c86cf31c6552287d6995330030919932a7c61",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/3113e39454b610c78dc1d2db65088b2ff347066ff064563edc6235c3d3fc1b2f.json": "aabfef3e70cd99bce2b3da5508bb4244718b04c4734a3b6d49de1b508b501fba",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/41e8a66345c511ed5afb5357eb3d3ca3d71994224bc300fc1e2265fe81ed414e.json": "87b966bfa041bff82c3dfbb1b1c9c5c6ea2cf8585843181acd9ecd708035e0b6",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/59fa4940aa83f302d4fdf4099905cd3f1e0f3acf010ba50fb6efd673ad41013f.json": "bd808cb99f02229e667e5202dcf8253da4feadb54cc622518168d7776033d1bd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/5f7a0a3fca013fc95712b1fa31b02740a42ca36a518f7abd7c37b77e7c1fa231.json": "a5505517d6540afa04c4a28847f894b14dc83cab9501378f52b32a4bb20aa77b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/651fc6c7dd956035c3a85c17239aa16ebcdb6eb9fc02957fc5067810304c540d.json": "fc8713fba8c723ac881c0474b1d13611f81b2de4843179c9f98056f309975e67",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/770c5ca7964a782acfdebb9a6f1060feb044a0044cd1f575fe97b59f70180020.json": "aeb37a7cecaa521706b8ac39d647afc48da44c060ea39106086f3e44881ca87a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/cc2a2c9aad0fb8d6976cce5135e85c339aaae642a184efdf77646419cdea2d43.json": "e13069985dfaf2245fb4ba03a419f561d9df6bf99006829ee927395f0c0b3204",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/f900c13a04dffc00740e4813748ee094f40c1392bcf1d1fdbb6087d55a0fb1b3.json": "af75537f93934ccd15df1ddbec8f02ea295dfb7cfb2df807e24a528451bda05d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.budget.json": "e6e3e2c306618d87a6db2673c0e16a36550a3984c988dccaca103e11fe18785c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.json": "7c69971f59fa6177cfe1789835eb14432be73138adf7f002c2a3a143489b20e4",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.receipt.json": "90760a48558f0bb1823926d787ce029401d28c0ab7654def8fdb039b59f86ccd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.request.json": "9906ed3269f423b966090b1a65684d26f8bf7b4712f615b2226c30723971e9bf",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.wire_1.request.json": "e5e12136266bf2d9807369917457328b8fdec26c6601ac73f77025863684fa07",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.budget.json": "a0f4612b28146b3a8aa00363c434ddf87ed81bd4324e2c81d96d948362450916",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.json": "ac563dd5918aa5aa4876af07e541a0f0e2ebd4c1b87ee23f1cc26a51ea1b3bf8",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.receipt.json": "3bc7a94e620452996a59f0e7f9320a772b9f6c84bcd0b49cebf271cb4bd12a3d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.request.json": "811126c98386ef4a6a3c2195ddd770aaa5181fb0fd3faba82c8c2265600a22ba",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.wire_1.request.json": "a3c11c4f27f7dd6781861d10a434b7ee047967ac76a359abd682abb30aa9aade"
+      },
+      "receipt_ids": [
+        "718e77ec-aa10-4b51-b4c0-18c56f682ba5",
+        "6b16c514-ffe7-4342-9ef9-7d40a7f8d17f"
+      ],
+      "prompt_tokens": 46674,
+      "completion_tokens": 9239
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.wire_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "7bc789754cea71df4d28f8dd54595fde0fd595a13082fca5a6faeee6004acd85": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/7bc789754cea71df4d28f8dd54595fde0fd595a13082fca5a6faeee6004acd85.txt",
+        "d6d5b6c1b8b436eb7e197854b330f970f29e10e4dcd7931707e5753c1698be2f": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/d6d5b6c1b8b436eb7e197854b330f970f29e10e4dcd7931707e5753c1698be2f.txt",
+        "26b42207a827cf058d6ff303d88c4feaee07cc2fd3a461f4a1866df3bc877d36": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/26b42207a827cf058d6ff303d88c4feaee07cc2fd3a461f4a1866df3bc877d36.txt",
+        "cb04229855f0868b6048a50e022bd4ea1f8459d7d7908565add0ca8303cd06b6": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/cb04229855f0868b6048a50e022bd4ea1f8459d7d7908565add0ca8303cd06b6.txt",
+        "644b6484296602cc5b9e1ab0e9fb9bfb906bccde92ef7824c8a52dabd3b6691e": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/644b6484296602cc5b9e1ab0e9fb9bfb906bccde92ef7824c8a52dabd3b6691e.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 4,
+        "observation": "Top1 R1G4为I3 5→7，25个候选C均改善，组均下降0.000403224 Å；Mean下降0.000123043而Best略升。I3实际max-atom位移约0.0002119→0.0002968 Å，无裁剪；各亲和力四分位响应不同。",
+        "interpretation": "提出[7,5,5,7]/[3,5,5,7]的同背景I0括号，正确承认91–99无指导仍可能覆盖，是与其他上下文相反的正面例子。但又把统一C改善称符号不清，使用1e−3等未经校准门槛，并用单候选约0.35286作为组排序带锚。",
+        "decision_and_counterexample": "当前I3位移大于I1却沿用旧I1>I3排序；无化学合法映射不能等同缺少亲和力评分。正负方向同号可能揭示局部曲率，不自动等于没有控制效果。",
+        "revision": "维持条件和功能分维度的局部斜率；不得用绝对尺度门槛删除一致的小效应。后续诊断须具体区分曲率、背景迁移和后期传播。2次API，无R2结果。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/binding.json": "a5d8adbf468a9cf8b4d672d94898f6ac176be11a4d445425b1c554062e5254fd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/hypotheses.json": "4bb0b3c2961ceaa6f486dcbd420ad7877d90259d236fea09f6347c2e0a70bcdd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/learning_update.json": "3c37480bbdca8474a5b1c8a1bef5b24853c6d63fc6ed6a8da32c4baf20d78ac2",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/26b42207a827cf058d6ff303d88c4feaee07cc2fd3a461f4a1866df3bc877d36.txt": "26b42207a827cf058d6ff303d88c4feaee07cc2fd3a461f4a1866df3bc877d36",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/644b6484296602cc5b9e1ab0e9fb9bfb906bccde92ef7824c8a52dabd3b6691e.txt": "644b6484296602cc5b9e1ab0e9fb9bfb906bccde92ef7824c8a52dabd3b6691e",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/7bc789754cea71df4d28f8dd54595fde0fd595a13082fca5a6faeee6004acd85.txt": "7bc789754cea71df4d28f8dd54595fde0fd595a13082fca5a6faeee6004acd85",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/cb04229855f0868b6048a50e022bd4ea1f8459d7d7908565add0ca8303cd06b6.txt": "cb04229855f0868b6048a50e022bd4ea1f8459d7d7908565add0ca8303cd06b6",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/d6d5b6c1b8b436eb7e197854b330f970f29e10e4dcd7931707e5753c1698be2f.txt": "d6d5b6c1b8b436eb7e197854b330f970f29e10e4dcd7931707e5753c1698be2f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/15df3a2cbbb177a3b75ef8c112a554a0af82caee5bd6322264a51b75b27e7490.json": "f235e6290b770d6d388029a342b7ceb8260ef54f907886196297734c27df3ff3",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/3317d84f9fb8eb86dcae15f1389e607195616406be478d68db005f5333238ac0.json": "a2fa3fe284f7c26532fac650a27739f8731f739c475f0d7c9eabb4387d3f47b9",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/3c6bf93d79536df4ddda4281643ae2b38aa4c2e16072c39043b672229b829734.json": "1de6acf12ae6273c6acda45ed505bce1a968121f24951039a89054bb4a5e4a20",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/748aa7914c9a412aa0c57ebce66650e4d0cfa2b1b919a35fc6acd1e797bb9e0e.json": "42ea2d78851cddd0d5efcb1b88f8430cb3eda7288ef12b1ef82e825e656bb9fa",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/7a12d80834a14835e4d469727ea127ea634a43252bc960de22f8cd87b2d5ee5c.json": "9c7534e1b114cc701d63d7a5c0f2755c5303768588bfa33e364f8ef9f060c870",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/7c152fc1f7b9cc2ef2ffd6d3d22b32f0adc4be077eb6435cec8e75e6978424dd.json": "82004ab98d56b9aac0b78eb8db66d7474ce101ae4869e77347899ed799bb04a6",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/8af3072318b7e2460de393ac2337f499b1a439f7ac052a14345030de1ccb954a.json": "3abb76ee82b8d0a85962ddb495d1da1bc934f405bbea7a6ccf65f546f21b74ac",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/a6ff7dc34ef65b04fb08450ea528ce1245cd9db06da49721d70ea8a7248eca82.json": "7b6da13a181f7143dfd496d8c88cdbc687609dbc939d69655b6ec9274cbc9bf9",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/a9304c75fa8ea9f3dcc0a6a7f11eeb056e3b842f87d3d1fda85c00711018ab5d.json": "b7b0a7c165970034ea1deaf5a2c95127a888c2d575c81c38f95575c61198bc68",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.budget.json": "8acb324b8622d5c88eb21fc3b6e227280b4959882b000c7e8bc6cfb4f31bdb34",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.json": "fec836f9aee6d901aec70ed2b5324a40237686b4a36314185e6263e5ac19c2ef",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.receipt.json": "ed75f64334ed72257b4fe208c9cb7569f627683fabaad36d90095b31a5679c5d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.request.json": "f7ec332da687f5c7d11b4280b965b4d964bd95b0365ddfa9070517b5293fd715",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.wire_1.request.json": "7de4ac112b2933de106bd5f30944a7df4f582c3e4518061a3235f26f8f721600",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.budget.json": "c0cd2107e1735f502af67f72a8de6541bfad1478439132ec3bb29716f6541b5d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.json": "4c7de70ef542420816360286bb3dde96ac6fbe1b564bfff085d0f0256f03a36a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.receipt.json": "287378708bb9b1e97bc4332f3207aa68814b86ce0219689763409604ec58045a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.request.json": "1fe964359070a7e797d3d117524ec30e4c1a7e29e7d0c124cac1ec36f6f511d9",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.wire_1.request.json": "d8e7abc3e068085fd6d799d1ab18e0c40ea9c84ee17de0630d21d3043bc6d3da"
+      },
+      "receipt_ids": [
+        "9fc4e250-bc15-4e2a-9f77-9ebed5a6b80a",
+        "3a31c3b6-64b4-4e76-bdfe-e1a52675abd2"
+      ],
+      "prompt_tokens": 46080,
+      "completion_tokens": 9537
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "5390bfec5a6cd42c6e54e77d51da3ce1dbaf4eef3e2a1787f6d3483e62ce176a": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/llm_inputs/5390bfec5a6cd42c6e54e77d51da3ce1dbaf4eef3e2a1787f6d3483e62ce176a.txt",
+        "d93b750b011182dc0d09977b9d90a64fdead05eacf8492e6a2d3145e741660a3": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/llm_inputs/d93b750b011182dc0d09977b9d90a64fdead05eacf8492e6a2d3145e741660a3.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 5,
+        "observation": "Top2 bootstrap提出[3,5,5,5]、[5,7,5,5]、[5,5,3,5]、[5,5,5,7]，一次覆盖四个区间。静态档案为8个扩展原子、4个原核心，HIS742/GLN757等任务互作仅作为背景；R0组C约1.919、Mean约4.164、教师7.412、Best7.154。",
+        "interpretation": "单因素混合方向的覆盖合理，不把基线称最优，区分直接坐标与间接化学目标。缺点是从残差或中位数推测响应者，把未经校准的baseline variation引入反证，并在学习项用单候选0.878作pool minimum，与只有一个组的正确诊断不一致。",
+        "decision_and_counterexample": "四案执行后各有完整R1上下文。没有实测前保留双向竞争解释是适当的，但应给出将怎样据结果改变选择，而不是要求效应越过虚构尺度。",
+        "revision": "保持广覆盖；以组均条件、教师功能差和真实响应边更新知识。1次API，不把bootstrap文案当作已学得规律。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/binding.json": "56a2bddef84ea8bb424804e68bac2f8b76ba902e6770ed04dc5a90279321e7d3",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/hypotheses.json": "b87cdadbde5f26014ad9174f3fd7b19f6c0449126bc041a472931696f998e29b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/learning_update.json": "cb909a9744e448347faf4707e237f030caf0bd3f359ba5673b852597c3242efe",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/llm_inputs/5390bfec5a6cd42c6e54e77d51da3ce1dbaf4eef3e2a1787f6d3483e62ce176a.txt": "5390bfec5a6cd42c6e54e77d51da3ce1dbaf4eef3e2a1787f6d3483e62ce176a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/llm_inputs/d93b750b011182dc0d09977b9d90a64fdead05eacf8492e6a2d3145e741660a3.txt": "d93b750b011182dc0d09977b9d90a64fdead05eacf8492e6a2d3145e741660a3",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/tools/0b4665b67605fcae791dca2d1e163063cbb507f4de160de29fc245730cb8fabf.json": "1aa085783f548a923e691e6a6d3c8f32e05a39c376e10ab1d32b8d9df5f6d4a5",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/tools/62f2a53d95c9af865ca3fb0f5c6cf41cf53728b542ba2e506166c2740e67d832.json": "c9f834449a355af69b1cea3593784d22650fbee0db29ddd8fd19600cff477572",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/tools/63cf400e0b0d2fe36d4c2fe789f008775458f1baf7e8cbda8e6018dabcc92cc0.json": "66a5fceedd4a776ce5a301a9664408fd0e0988f94b659b6b1fe28153faeaf707",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/tools/99b7d1c67e519cf8fb8d5a482fabb90bd18e2187d44cefb4da84ce30ecaa9f23.json": "886adbbc05b3fa98f4bd69aef2e870f8c8b87a0e31193792334c3640888efd7a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/tools/bbb28c14f2c2851fcbd4ca10dd79f2f04e33b556e7eecb751c4e7a613b548d62.json": "235fa16093fe678b65749f9ed9d33ab202bdfeb8f833b1ebd2eddc9a182a7438",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/tools/efd4fef44cfcc15931bea1547b3b007aecc29f5d2c944c861bcaebd6c845c48c.json": "665225a0d7e1c57d36875814e19269f922bc2a61b14ce415aa133ff48cb4a71f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.budget.json": "0fa3d3f0a0289dff6ca95c624c159727f4f35cc24ebd318153607e8a9bb12528",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.json": "68ba4513363a8d42cefe5af931cd5a3b2af4640b21c7772ae499d6d2e2488ace",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.receipt.json": "da35c3bc1dea67997164e5c619e18422360d414c90ef09db887ef302da131d1b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.request.json": "be53383e8de024bf1bd4799a6aff7534fc719d92cdb2bd7b458191487e074b53",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/bootstrap/turn_00.wire_1.request.json": "61495c1a2da1e87ec9fa5c267e7be24b75eee028744a45b66cc5de9f5d218b8d"
+      },
+      "receipt_ids": [
+        "823745e8-bedc-4140-bd66-140973141393"
+      ],
+      "prompt_tokens": 11472,
+      "completion_tokens": 10648
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "8f924cefbfe902562029be1b0f9ae4aa399d5709aa8be49599b47a30f2badbdf": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/llm_inputs/8f924cefbfe902562029be1b0f9ae4aa399d5709aa8be49599b47a30f2badbdf.txt",
+        "c87c629dd6695db480b7ea625f401e4971b0fd0bdf56b6cc51bb96e280e9814d": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/llm_inputs/c87c629dd6695db480b7ea625f401e4971b0fd0bdf56b6cc51bb96e280e9814d.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 6,
+        "observation": "Top2 R1G1为I0 5→3，C下降0.000413685 Å、Mean增加0.0292426、Best升至7.223794。直接初始paired输入方向latest→incumbent，输出把该逆向0.48胜率/负中位数与正向Mean拼接；未额外调用response_edge。",
+        "interpretation": "[3,7,5,5]与[3,5,5,7]分别测试I1/I3，均合法，能补时间敏感性；但以较长窗口必更强、末段不会被覆盖做预测，没有实际传播证据。未测兄弟方向在私有视野确实未知，不能归咎为明知重复。",
+        "decision_and_counterexample": "C及功能同时改善却因带宽、近半胜率、中位数把约0.029均值收益降为噪声，遗漏利用机会。正式尝试同一边的response_edge已显示一个候选贡献+0.030719而总均值+0.029243；集中不取消真实总效应，也不证明机制。",
+        "revision": "先查精确边与贡献，保留双目标改善，再比较延伸该方向和补新窗口的信息价值。避免0.01 Å、0.05 pIC50或0.4–0.6胜率等额外门槛。1次API，后续两案未执行。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/binding.json": "ff8c1c58324d80dba7f5e0421924633bed89a20225eb6433e7402a30869e3f70",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/hypotheses.json": "33b88e1f0ccc3e6f9929d059f5f6a041ec4d78d2f0fb6fcc3796546de95eeef2",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/learning_update.json": "9f26c63e7667beaeffed97965fa78be4b0fc8b53748fc7c4bbb5e3fbaf989fcf",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/llm_inputs/8f924cefbfe902562029be1b0f9ae4aa399d5709aa8be49599b47a30f2badbdf.txt": "8f924cefbfe902562029be1b0f9ae4aa399d5709aa8be49599b47a30f2badbdf",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/llm_inputs/c87c629dd6695db480b7ea625f401e4971b0fd0bdf56b6cc51bb96e280e9814d.txt": "c87c629dd6695db480b7ea625f401e4971b0fd0bdf56b6cc51bb96e280e9814d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/tools/beb6996cc9b9f1698fae2406f786171b73f145b926cdb647a1c000a5667bf476.json": "a8051d9af86a40d703d4a55e08090aea1a4472ca4e7589d82f623a2b3ce150be",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/tools/c7fd88a8d87ca89847c78a7211397c1bf12062df9abccfaf544d76969da532cd.json": "8c5985a2a79b6cf304ee9fa277bb71c8d81c37c0b0b915bbd1730c433bc8ed18",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/tools/d82ebe4c252f83ba7aaf5e2ce3d61a6cea3291bc79a67a8f512397079be394c9.json": "92f1f794980a90377c25cf77d9138749c81cf263b8bfc4cd89cbde175edade0c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/tools/dc8741b80beaf4bc515bfb2a682e3654f5cf726356a34b8adbb8ee087a48a8a0.json": "9053836af4cb1eeac927a281daef06aadf4085a9229dc03b5090bd96ddf441ed",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/tools/e3b06d7f5b23b11f87dc0f30b10d8103f3c9876b8ff3c46e1a9770c437c3a3b7.json": "facb692d0e7a7d798b42152060a3e29e1c141a723e3fbfed1678a1c560d87d9a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/tools/f908c86c69ae31abfa3982b6cdf040cf22a20c7af8d29476f4155d3e8265d1d4.json": "5c3be7e697e282e2c52410582422f3df72ec95d3156442eb031143aef8d2269b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.budget.json": "dbcecc0bd7a77e44a8df02b63f91def1452fb47ebbecff8b64b135571006183d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.json": "06f51c73448cd795190925da15f1ca17549d68b7f63936dd197f4e1bf24fbb87",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.receipt.json": "f7216d167870388b3c07c575f8cb704b55133e60e86959b349310fd57ceae248",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.request.json": "4a0a3c424aa397589d92ad70b15287c69522322718c9bc1416b0e4af003855d3",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G1/turn_00.wire_1.request.json": "f01c2b5c5ce72fefe76df707c927562a96367b9dfb8843bbe91ac150744ad67b"
+      },
+      "receipt_ids": [
+        "f80e5f71-86ee-486a-9d6e-08fb67d5645a"
+      ],
+      "prompt_tokens": 11902,
+      "completion_tokens": 8294
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.wire_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.repair_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "d86d469c54a8555bf92045b23b1f16177beacf9202f3302204f81cdc68b92e1d": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/d86d469c54a8555bf92045b23b1f16177beacf9202f3302204f81cdc68b92e1d.txt",
+        "f181db894dfa5b261192448d8fdde6651a33b109ed31f8e5dac004372619c797": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/f181db894dfa5b261192448d8fdde6651a33b109ed31f8e5dac004372619c797.txt",
+        "3fe2b60d9a4666ebfc0751e0ccd2ce61c9a90dfd094fb1f5dc0836086936a1a3": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/3fe2b60d9a4666ebfc0751e0ccd2ce61c9a90dfd094fb1f5dc0836086936a1a3.txt",
+        "5e640c63194ac585fa1915779014684cbca41f03e98eb98b33d3dcfd7f14340b": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/5e640c63194ac585fa1915779014684cbca41f03e98eb98b33d3dcfd7f14340b.txt",
+        "32f9ebdfc9f2fa3bfb867437ecd43cccd50abdfb8e12c334bcd457e375bf7b33": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/32f9ebdfc9f2fa3bfb867437ecd43cccd50abdfb8e12c334bcd457e375bf7b33.txt",
+        "115043a17ea5de8a005389261cbb8bfc046ab675b290aab7710dcd7ba96feab5": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/115043a17ea5de8a005389261cbb8bfc046ab675b290aab7710dcd7ba96feab5.txt",
+        "8c0be8c0801020aa3cd475f599601bce0b910514bddd796a6d6990bfb3014109": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/8c0be8c0801020aa3cd475f599601bce0b910514bddd796a6d6990bfb3014109.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.attempt_1.invalid.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 7,
+        "observation": "Top2 R1G2为I1 5→7，C下降0.000440045 Å、Mean下降0.000123739。I1 max-atom指导约0.000228→0.000316 Å，无裁剪；有精确response_edge、分群和step50 Endpoint。",
+        "interpretation": "首次最终响应reference仍写R0而被拒。修复改为实际[5,7,5,5]，两案[5,7,7,5]/[5,7,5,7]且同步改了比较背景说明，属于合法性修复后解释同步的正面例子。与Top1持续错误不同，不能把所有修复都判无效。",
+        "decision_and_counterexample": "诊断0–9行被误作可控I0零位移，导致本来指导更大的早段被排除。已测传递约增加39%，却因终态小于带宽判无方向；幅度tick又被误称Å。5→7应约1.4倍而非两倍。step50 Endpoint不是终态机制证明。",
+        "revision": "按start/end映射控制区间，分开实际传递和终态灵敏度；保留微小C/功能冲突，不额外要求所有分群同向超过阈值。3次API含非法及修复，修复后两案未被执行。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/binding.json": "f92f50466d883468e1d05d4399abaa6b81739a971e557ba69337ce98517da51a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/hypotheses.json": "98f1eb4946f4c5712f4dd7e84449caad19c11ec6469a276cd3cf2e9545f1735d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/learning_update.json": "0f18da9fb7755c465337deb6c3c9746dc367f5247454694ab11f3bcd5fae60c9",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/115043a17ea5de8a005389261cbb8bfc046ab675b290aab7710dcd7ba96feab5.txt": "115043a17ea5de8a005389261cbb8bfc046ab675b290aab7710dcd7ba96feab5",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/32f9ebdfc9f2fa3bfb867437ecd43cccd50abdfb8e12c334bcd457e375bf7b33.txt": "32f9ebdfc9f2fa3bfb867437ecd43cccd50abdfb8e12c334bcd457e375bf7b33",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/3fe2b60d9a4666ebfc0751e0ccd2ce61c9a90dfd094fb1f5dc0836086936a1a3.txt": "3fe2b60d9a4666ebfc0751e0ccd2ce61c9a90dfd094fb1f5dc0836086936a1a3",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/5e640c63194ac585fa1915779014684cbca41f03e98eb98b33d3dcfd7f14340b.txt": "5e640c63194ac585fa1915779014684cbca41f03e98eb98b33d3dcfd7f14340b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/8c0be8c0801020aa3cd475f599601bce0b910514bddd796a6d6990bfb3014109.txt": "8c0be8c0801020aa3cd475f599601bce0b910514bddd796a6d6990bfb3014109",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/d86d469c54a8555bf92045b23b1f16177beacf9202f3302204f81cdc68b92e1d.txt": "d86d469c54a8555bf92045b23b1f16177beacf9202f3302204f81cdc68b92e1d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/llm_inputs/f181db894dfa5b261192448d8fdde6651a33b109ed31f8e5dac004372619c797.txt": "f181db894dfa5b261192448d8fdde6651a33b109ed31f8e5dac004372619c797",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/1942d9b586b76afb56c6f112885c6e3d2125c6783c5c94db1dbedc3b905122de.json": "1fa39b89989a01ab0dd73cd29c246c84af5c5c329c71a94f168f2708a396f4d2",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/41b1c5b6042f39cea328682faef86aac89c7e38385f1a2e310627a0a757b17e9.json": "e0fba2b7ca8e67e710af6b7fe4a10e0987b65f7e209609f8f59f0c2970e3c9be",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/51a1550f3b0f484209e02849daf177d8173e2827c83697a12c5ed9ccb6dd3197.json": "a9125e84fc4d6b13f5dfc46f97383ca5eff50c110539d0a6fbb5a5e9fa762554",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/524b117f7a9d00d3b25902b558752c5517cd47c2639fe94642b0577bb0978aac.json": "c11268cc322b080d37bf2bb9517710dc25cf9172d550a49f150d4f9bcba0451d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/676124fa6a4c2953976287703c004885851fbef8abccf36deb002a6f82da98bf.json": "1117af6519adcd703ea0236144004326d494c432bdcf0ddd9e9eb59929e9ec23",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/750f4aca8d7c5e1993fdebd3db08437b49683d0ebef47ee65e37b409a2a91c2b.json": "da389f5edaffbd613255b48ff77c2863d3d271b42f31f3fbf262d6704a114968",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/9148143b6f2dde7920f787de5a0207eecf13342b7b646aaf6f74f88b46e51bf8.json": "9f3f22db06573bc85ab24d9b88752c4a5890f56a61195a122c2c69d4e8858180",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/a2dd2e9790f081fa12f4dc0e6774f653f8acec8a86ad76afa373301e8d8b278e.json": "96690c713a6e54e254f1f1f0a1f9c0b5304ea36327e8c1838adafba7f6e5c7e8",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/b352fe3a19d3769a867b424d481c0060c7ac4fa27ae6549e58f3adedb0f1d771.json": "c26ac596b3294982009bf665a58f85a470f72bdea9766c5485687383bb06a0c9",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/tools/f576813974378876491652dd7a76a66fd53a26c232f89130146623624acc0f41.json": "22e92c7f8449d62de7fe8ee2dc995483ae3866a25a626111293bb708f388fd2a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.budget.json": "cbfefc0361aabf093e3c6c31aaff6496b9faec81ea5550a7a1ade0caa6dab78f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.json": "ed2027087f94572b7c2ae65e089a9f04c88b343b60fa84e542538e595629c2af",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.receipt.json": "e94b2cb05e14a90e63638d1db04d210ba50453fb86ddcfe467b2c5f7151ad241",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.request.json": "9a57062b6fec2ad717a559b0a3b718417f3090d717f4b0665876e8dbb68ae719",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_00.wire_1.request.json": "8cefc1a6e733aa8a6ac524013e3bee193ada7adb5aaa6710fc43a34c52a9ce42",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.attempt_1.invalid.receipt.json": "38296f9dfdb8d3a1fe06f0dc90ee12b2dd9c4a5e139483a040641ed4364ecf2c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.attempt_1.invalid.txt": "115043a17ea5de8a005389261cbb8bfc046ab675b290aab7710dcd7ba96feab5",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.budget.json": "2d23df5b94439389c749a7e1288c5c6405b32cfddd2dd19038fe7c90a41f5744",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.json": "c6e8d9b5302701221fc9aff2ba4b04068feecac91bd9489a60ac32faeadea257",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.receipt.json": "33cedfdc253dba4634f3e9ab86394e7acf28ae4a5ec171571f212e08829e6433",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.repair_1.request.json": "4690e759d6fadeaed014011be944eb9e8cbb3f47ba1c731632cc2d82d92dd7bd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.request.json": "5d6f9e334b39106404431a41e51f61cd4d195f5e1a56a8d249dc6e9b5ceed109",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G2/turn_01.wire_1.request.json": "870dd932b01083e93b59ad321d177500f391b7a10d453aa79926dcae2e24cf4c"
+      },
+      "receipt_ids": [
+        "d77faaea-d382-419b-ac75-3e5ba32845a1",
+        "fa00073f-0fd7-4ce4-84f6-6483fd7ce451",
+        "806b2c50-5c7e-40d4-8fa3-74be0b31adc9"
+      ],
+      "prompt_tokens": 92094,
+      "completion_tokens": 13596
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.wire_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "57d9fea0629a76e0a39eb8527e044f6bc6bbfe180c4bdf2b6f7efd36ed9cca1e": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/57d9fea0629a76e0a39eb8527e044f6bc6bbfe180c4bdf2b6f7efd36ed9cca1e.txt",
+        "fd618ab964b8700e3c4a0a0a182f916e74108582879d3a8321e5e2e2cb8fd825": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/fd618ab964b8700e3c4a0a0a182f916e74108582879d3a8321e5e2e2cb8fd825.txt",
+        "4195f9e3b3483519426e19c56ea5b345cb9609f59fbb9892bf69e09adae3907c": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/4195f9e3b3483519426e19c56ea5b345cb9609f59fbb9892bf69e09adae3907c.txt",
+        "86e2a7caac4e7cd5ea79bfbe3197156546fd8be0d26487856f581bd4df1ef09c": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/86e2a7caac4e7cd5ea79bfbe3197156546fd8be0d26487856f581bd4df1ef09c.txt",
+        "50eda3ac65a159ec92c907d439ccb23223740cbfb326c05daac9d8a53a1149bf": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/50eda3ac65a159ec92c907d439ccb23223740cbfb326c05daac9d8a53a1149bf.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 8,
+        "observation": "Top2 R1G3为I2 5→3，25个C均变差，组均+0.000306635 Å；Mean+0.0000599003，胜率64%。I2 inside约7.92e−5→4.75e−5 Å，传递随幅度下降。b000:s003的C恶化约0.001989，输出却声称全部≤0.00065，漏掉最大响应。",
+        "interpretation": "两案[5,7,3,5]/[5,5,3,7]补I1/I3，合法但没有相反I2臂。把已有比例控制变化称第一环节未生效，因小于0.02带宽60倍把局部方向判refuted，同时文字又写unresolved。step90 Endpoint与终态不同，不能直接推断吸收。",
+        "decision_and_counterexample": "条件所有候选同向变差并非无方向；功能小幅改善说明两个目标的斜率不同。预测0.01–0.10 Å改善和3e−4绝对位移反证阈值缺校准。扩展原子相同不保证分群均匀，化学映射3/25不等于只有3个可评分。",
+        "revision": "先更新I2下降的C/功能响应，再明确为何放弃反向臂而探索新窗口；若以后重试必须说明背景差异。统一知识状态和文本，保留所有候选贡献。2次API，无R2结果。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/binding.json": "23dcc71ee893e52daf716d5f517490f6fa39ba7a9e4d88e4164dec26ea14a12d",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/hypotheses.json": "73ded9a77434dcadce411190576273026e3763f838c86017e97c7a2c62db5987",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/learning_update.json": "d941240bee6872685e85dce9c799390768c2e807396e4009e6c4f79a75460869",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/4195f9e3b3483519426e19c56ea5b345cb9609f59fbb9892bf69e09adae3907c.txt": "4195f9e3b3483519426e19c56ea5b345cb9609f59fbb9892bf69e09adae3907c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/50eda3ac65a159ec92c907d439ccb23223740cbfb326c05daac9d8a53a1149bf.txt": "50eda3ac65a159ec92c907d439ccb23223740cbfb326c05daac9d8a53a1149bf",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/57d9fea0629a76e0a39eb8527e044f6bc6bbfe180c4bdf2b6f7efd36ed9cca1e.txt": "57d9fea0629a76e0a39eb8527e044f6bc6bbfe180c4bdf2b6f7efd36ed9cca1e",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/86e2a7caac4e7cd5ea79bfbe3197156546fd8be0d26487856f581bd4df1ef09c.txt": "86e2a7caac4e7cd5ea79bfbe3197156546fd8be0d26487856f581bd4df1ef09c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/llm_inputs/fd618ab964b8700e3c4a0a0a182f916e74108582879d3a8321e5e2e2cb8fd825.txt": "fd618ab964b8700e3c4a0a0a182f916e74108582879d3a8321e5e2e2cb8fd825",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/42cb0ee6b5ec126aa74c08e2b7ea83b5cd6220ea6faf2d529a9cb612dad80b2b.json": "3cc6a7ca8b431465847aa97caf80cd4b3fb7bff0ee92dd430974e6e590286546",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/4bc0b3392304696ff6cabeff18f2b7fa0f624ca8a7fbe4ff7d9a326d085ac8c3.json": "f2587b1325c1e0f8dbd1911567cb9ee7b2c68d5c0c8b4e941f5a0b6f25650c30",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/4d3e2b37dd444eee52f05d64566105e8681a8b6bf4baaa55a69346ad59929d97.json": "3b59b8d3bc1e6878f4a2f53221793665905ae6172b8bd8800c7072cd781480af",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/4f51481e732d711b781f66386c134465379ccda044beefde430e2f2b68e35c70.json": "bd4014413e9ca46e484576f50343f3d7dd3bb182371cfb4245104e15b0e79244",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/680b2234aab6848c1091056efd8c266d522db5b5a38e2d95f27fbd449915b756.json": "51ab34ca540c80a652c0589f9665496061d4c7021ebcde5a3315ed079e5e6b5e",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/759932b2f1e58c3960e7a0a9c85511287495a7ce19066bd084a64b5eb3a56c17.json": "94fb9f1c5b998c51b4abc13c2351cf8b3df7cc5c3b0b4e4527d8297f8517b706",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/8f3a720ed7c0a45067c3c227dc45785a97515b478bcd27fe6525693ea4cbe659.json": "ba004adc629bd26a1800673432bcb94a798a48668e38180878d0515a02bfcd2f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/a040a8afc4150e0fbc0101af851d313d09c935d17638538af2f3f30229fcadb4.json": "6adb6e8381c02997403b243b4e85ae0d86929986d9909b243de13e3b91b1b34e",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/aff4180a4458fa51093e5d3e43d832b40929894f5756094706a81a4c783c601d.json": "77890eb7b62f665f71081feeecadd1681e16e17621c8dfa801938cca4241e2ce",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/tools/dc49264e23fb87e627158bbd4fe1a030d1e1e89f6760f3869f3ea60fd570af9d.json": "3f4b9b2bcd5c128e1e1778275e7acadc569b02c00c0d10ef17ba6078a6e9112e",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.budget.json": "1907b7187fd6ddaf6283f55ec205d5d33c9d09effa33b5dcaac7215ea1cc7c33",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.json": "131561ee75d56facdc4281e01ea0ba79c0aa2260cf54c4ed7a02935361744aad",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.receipt.json": "71ddd5e77698d449657ce4e8663bd9a6ce546471bb9ab61e489c495c37a7a6a6",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.request.json": "5ba621c208566e0a435a39a59f0026b80fb21aa14c153de923bf1ecabb5d1411",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_00.wire_1.request.json": "c0d3ca8cf48f353e4d8025147ed29d5425a7df4ad75b9758fd8268cda81f3811",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.budget.json": "548a99e85367e66eccb239389960ed259886c9f85ef082a035d69010d2c23ee5",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.json": "9dc38f3bbca37f06ee26f3243f11e9761333219e68aefd384af60ab930134f91",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.receipt.json": "0a06915ed1cee5424793334275671753c27ddb63cc1160cd68100cda54c945e7",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.request.json": "f8664fb2e91aa705362f7d60f9e150e95adef027c78a7eefd5f06ef735a8e560",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G3/turn_01.wire_1.request.json": "855ddcd9d65c6fdbfdf6c504c518bf746265837fd15e4511db55b846ddb91121"
+      },
+      "receipt_ids": [
+        "1d00f48f-9955-4a11-bea3-53021c2a18e5",
+        "7e33c495-6e70-4f90-af50-ab777c03fe7f"
+      ],
+      "prompt_tokens": 47695,
+      "completion_tokens": 9396
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4",
+      "actual_request_files": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.wire_1.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.request.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.wire_1.request.json"
+      ],
+      "message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "8e0eb815d39b9865bc38cf54bc8df577e761b3575ef95dc03402b8582c7d6f87": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/8e0eb815d39b9865bc38cf54bc8df577e761b3575ef95dc03402b8582c7d6f87.txt",
+        "2d0bec002e1c275f4ee63d489a6b02992ce0ad9fd2573835daef08bf53837142": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/2d0bec002e1c275f4ee63d489a6b02992ce0ad9fd2573835daef08bf53837142.txt",
+        "2a1bd384e22a7a68f5b3d52d4832ee12bb1d38aa6101735c2b5306a5670bf608": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/2a1bd384e22a7a68f5b3d52d4832ee12bb1d38aa6101735c2b5306a5670bf608.txt",
+        "c7bf48f01e7442dc4117902ebd7b9ebbbfd42086a21f1c8884f6d1cfeb090f7c": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/c7bf48f01e7442dc4117902ebd7b9ebbbfd42086a21f1c8884f6d1cfeb090f7c.txt",
+        "324cabcf3137ff94430838542aeb549a7e9be4e9bd35c4dee470354e95753f50": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/324cabcf3137ff94430838542aeb549a7e9be4e9bd35c4dee470354e95753f50.txt"
+      },
+      "usage_receipts": [
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.receipt.json",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.receipt.json"
+      ],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 9,
+        "observation": "Top2 R1G4为I3 5→7，组C下降0.000647462 Å且25个候选全部下降；Mean下降9.32693e−5，胜率44%。I3指导ratio约0.00309→0.00432、max-atom约0.000256→0.000358 Å，没有裁剪。",
+        "interpretation": "提出[7,5,5,7]/[3,5,5,7]匹配I0括号是合理替代策略，并正确使用整组RMSD锚而不是单候选。可是学习/公共记忆把全为负的C差写成正负混合−1.1e−3到+1.0e−3，还混淆原始差与除25贡献，进而否认一致响应。",
+        "decision_and_counterexample": "以候选间大分布宽度当成配对误差噪声，以集中效应否认C/功能冲突，均没有依据。亲和力高不证明更接近教师pose或特定互作。幅度精细分辨率不是0.1 Å，早段高位移也不保证更高终态斜率。正面反例是承认带内功能稍差并保留两个参考；负面是随后以未经校准0.001/0.005 Å等阈值宣布幅度轴无效。",
+        "revision": "将真实小效应、机制未知、排序选择分开；用同背景双向边检验曲率/迁移，不能把两方向都小或同号自动解释为饱和。2次API，方案未执行。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/binding.json": "8a11bbae19cfb6daae4841f5941e73111893b813066df07c630a21e89cc17dcd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/hypotheses.json": "b34bf0e8ecabe1e03e76a11c0d0c00725af20c382ae7729e6af1f3e803e901e0",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/learning_update.json": "79e28de2e96650abcb19c228a351cfa0500b9cfd17b32b0d8773aaff73f0942b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/2a1bd384e22a7a68f5b3d52d4832ee12bb1d38aa6101735c2b5306a5670bf608.txt": "2a1bd384e22a7a68f5b3d52d4832ee12bb1d38aa6101735c2b5306a5670bf608",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/2d0bec002e1c275f4ee63d489a6b02992ce0ad9fd2573835daef08bf53837142.txt": "2d0bec002e1c275f4ee63d489a6b02992ce0ad9fd2573835daef08bf53837142",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/324cabcf3137ff94430838542aeb549a7e9be4e9bd35c4dee470354e95753f50.txt": "324cabcf3137ff94430838542aeb549a7e9be4e9bd35c4dee470354e95753f50",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/8e0eb815d39b9865bc38cf54bc8df577e761b3575ef95dc03402b8582c7d6f87.txt": "8e0eb815d39b9865bc38cf54bc8df577e761b3575ef95dc03402b8582c7d6f87",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/llm_inputs/c7bf48f01e7442dc4117902ebd7b9ebbbfd42086a21f1c8884f6d1cfeb090f7c.txt": "c7bf48f01e7442dc4117902ebd7b9ebbbfd42086a21f1c8884f6d1cfeb090f7c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/0346b8920a71a9ac9ed5ad57404b1267ba12e93e26b8bcd5c7e89105887dfc32.json": "4e1d5821f12f4ccbc18271c9830d53a7c7044d66599ca15e7ab24acc315570fd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/24bbcdbea8f36099b191a8f391d533beef977177a05c4e3e239f5d0654e51c0e.json": "8353b3fe1b29b72e019c8699c4e8400b3a724361342d2b5015be5d8b5c75fbf1",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/34f0b388df4ad24b3443b70abc8f3dba3ef756eded61e25753255f1b89188439.json": "d58592cd13c4dca6a56af2c1296ab4dca32b1a928a5bdcc751b849491aee45a8",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/5bf571864250fd54423a54c70247e5c39a9fd21626f848d2c34b6cce9278f490.json": "4fbd28637ed9beb3be77bab6f8502c388fb886249043f8cee78457347e1d676a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/5c7196580d5029d408ab3abfbca16b00242e7c1f513aa4f6e5369f872920cbcd.json": "87ff17f8d76667e34492f3216ea82dc7ea8cbd702dbebe95c5f34dd1391bef7f",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/8e6c422452700d97d5cbe306496f9ada3354cb512cfc88736b2c771d049b2ffc.json": "eeb294bc32100e952c7707e30e1d430659060059748d6933535ae12b1980d117",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/8ed64770b666394e95b5fdf2b7e627b5456ea8f0b2f26af97f8fe8e24865108e.json": "45f9452dc7c844880eb7cd8f8b4e33fd7ca5f9e0da4af774a0e9a258969ae905",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/b14384fd57c60d560bd398d4cde831344ae2b89e3e3479df40ea815c5d17b945.json": "dd61883381271509b3cf1a792b824d17402ea67d19cd599a6f5bac92d753f3a1",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/cfded0f1ad1950f2dba56d9459de167b221776767c4c9c2dd6378aecc122ba2c.json": "9efd134cd85abbd4953782a9c8ba8af2bb6864bba23de4f1663d835bacc8d5dd",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/tools/d928da7107211724b33c35f8e1587fb6f8602f6ed9cb2725afce9734445175e8.json": "1c25a25756c9fd2c5de416de4ecf0819ad8512aa3b4b81c366957f4bcd981a79",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.budget.json": "0cfaa27638b1e17523cae9100912c34ba5211b1a207b54282963616d15559f9a",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.json": "90baeab37d6f42e3d0ce514d707c6b3b6812fbd928c518c70aa46d904323220b",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.receipt.json": "5324e641669cf368fab24c791823b67a6d8304aec5e574aadb62419d99a24d37",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.request.json": "6c6cd899193fee72dfd79ba4def8963bc1598a76c4f73885d19a4303dac7a395",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_00.wire_1.request.json": "c694a7320ccaba7989843ab31d255918379cb992969185dd47ae0839bc5c62de",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.budget.json": "67f4eee4e1186cd425895f0e443b8d7b5d7f9f65c5cff36baaaf51ae00932bde",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.json": "3c347af7e9aea66e86b0caaa6aa585041c416568fd20514616fb32e8401461d6",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.receipt.json": "4efa4f20d429da6dcf5cd6666fe544c87559b43484fa732b54213168c81e5472",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.request.json": "712560132f25fe2c6e43dfd6324490641825bb8c3f2c475fb679eea44495b2b7",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analysts/G4/turn_01.wire_1.request.json": "a0a7ba124fc9e447dbbd9de65745cf5c5d36c5419833b444dc866a1ffc7e486d"
+      },
+      "receipt_ids": [
+        "74700409-b1ad-4db4-9a5c-5a85e1eb5f52",
+        "91d24351-5a48-4d48-85a9-997e3e9a3ea3"
+      ],
+      "prompt_tokens": 47644,
+      "completion_tokens": 11184
+    },
+    {
+      "path": "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council",
+      "actual_request_files": [],
+      "message_inventory": {},
+      "usage_receipts": [],
+      "substantively_reviewed": true,
+      "reviewer": "GPT main agent",
+      "review": {
+        "index": 10,
+        "observation": "Top2 R1汇总完成资料装配但未发送请求：source 306295字节、projected 259661、含包装的conservative 327777，超过262144硬上限。没有synthesis请求、响应、usage或实际选四案，不能虚构汇总Agent决定。",
+        "interpretation": "完整阅读四私有报告和工具后，核对32个汇总证据投影、8个提案字段及来源别名；新增六份同波配对已逐项阅读。G2/G3/G4相对G1的Mean差约−0.029366/−0.029183/−0.029336，但这些数组同时改变不同窗口，不能称单因素效应。G2→G3/G4与G3→G4的小差也须保留正负及背景。",
+        "decision_and_counterexample": "四案中的G1:H2与G4:H2同为[3,5,5,7]，八提案仅七个不同数组；这不会阻止选出四个，但后续需去重。原始失败是发送前容量限制，不是输出token耗尽、显存或科学奖励问题。已部署无损共享证据和512KiB解决装配容量，正式汇总成功不能被当作这次未发送会话的事后决定。",
+        "revision": "保留全量证据且无损引用重复值；接口容量测试与策略评价分开。比较候选与功能集中收益时须引用精确边和贡献，当前同波汇总可以合并私有未知，但本次没有任何发布记忆。19次作废API成本全部单列，已删除200候选不计入正式1000条。"
+      },
+      "files_sha256": {
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/analyst_timing.json": "97d028cde6157aaab78d4d1cada640618ba33f6b1d821949bfcb7ad588a50169",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/binding.json": "a648fabf77b58eabd2a601d74e6253e1c786bc9034664a90ac15766af6d5e3ca",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/synthesis.budget.json": "cb32cbe4818ff767a910f1360b876f55481766a5b2fb7959f19d7138b6a3d36c",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/synthesis.evidence.json": "1ffcf54a10ed616ff30d80b33fecbdf7ac6bb1ea757967847c77c7b2fe23eeb1",
+        "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/council/synthesis.full_evidence.json": "6632305381b9ef9d285591a86e2ce4aec1ef1bd63d020bbe1152f6ac7b95de85"
+      },
+      "receipt_ids": [],
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    }
+  ],
+  "control_files_sha256": {
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analyst_failures.json": "49c41e3360842ed0eef725c94fedd44ec110b4a7dacbda7c76ab1831e0eaa22a",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/analyst_timing.json": "7fcc0e39ba7de9e3be42acc3431f7c067a6fa609bec315e0a77ca425e4b65196",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/council/binding.json": "d868e4c6335b7e44673285d5436647baa3785d311745d00fbf07fc3cdc5c24b9",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top1/round_01/job.json": "9b0b385e0ba1c27e8b87e9fcc323d0e76a15fbef35a49c63db3d958a84940095",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/5nn4_SC2_A_1017__top2/round_01/job.json": "df991a355d261a2b0bc773f0b23d09dfbfbeec6285306ea699e0d72524273784",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/analyst_SKILL.md": "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/binding.json": "4e0bce3cb17d5712e7aa5d68639f017067dbebc8108ebffbe397110661b9db34",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/deployment.json": "e80422d18309c80b5dcb148fbb39f072c7bbfecfe5ab57f96d70c3cf5a8a80d7",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/pipeline.json": "ee9a995ede0df32dbda64f3a2880ab17b4d32e0e1ba6f626308c8898e01e9047",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/review_approval.json": "2ab86520412111ab4a6286de3a9779182a9d92e13f55cd229553f3b145513dfc",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/search_policy.json": "77cece115b8bdd1ed1e958882ab40d4191db87b1415b5099ec76b3d96d99a6b5",
+    "operations/failed_version_rerun_v6_0513b30e/failure_audit/synthesizer_SKILL.md": "816077e6bb7fe5dd9e4b6eb9e77c5c01a972de82463a6730b63d4f9fe94793d0"
+  },
+  "control_review": "原部署ee56a469；旧V5豁免review_completed=false。两教师原R1均采样后分析失败，Top1私有非法动作、Top2汇总发送前超限。job与已读bootstrap、pipeline嵌入job/100槽调度一致，两份冻结skills哈希与binding一致。控制文件不是额外LLM会话；不将旧failed状态覆盖已完成的正式重跑。",
+  "limitation": "No aborted scores enter formal outcomes; unsent synthesis has no LLM decision or receipt."
+}
