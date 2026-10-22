@@ -6,8 +6,10 @@ and the explicit human-authorized V6 transition have been verified. As of
 2026-10-23, formal V6 has finished all five rounds for both teachers and finalized;
 its worker has exited normally. The 40-minute automation is ACTIVE for master
 review, with 52/52 formal sessions and all 11 additional aborted-attempt contexts
-substantively reviewed (36 requests, 46 unique messages, 19 API receipts). Next,
-implement focused capability changes and the completed-version budget append tool. See
+substantively reviewed (36 requests, 46 unique messages, 19 API receipts). Focused
+capability changes and the completed-version budget append tool are implemented;
+local unit verification passed 96 tests with 12 dependency skips. Remote deployment,
+fresh native acceptance and V7 approval remain pending. See
 [review progress](experiments/v6_review/progress.json). Do not rerun V6 or restart
 its old worker while review is pending. V7 is not approved. Adopt the authorized
 V30 budget only through an appended protocol and compatibility acceptance at the
@@ -105,6 +107,39 @@ Reports record primary and sensitivity-band representatives, excluding R0 and se
 Expanded probes have at most one selected range_probe and at most two edited intervals; other proposals follow local evidence-based step limits. Tenth-grid resolution never changes. The native tensor schedule validates the same approved bound; maximum displacement remains 0.025 A. Quality evaluation checks chemical pose mappings and records N/A when a predefined subgraph has no legal match. All documentary diagnostics remain after pruning.
 
 At present remote deployment must be confirmed by an actual receipt. A local test or a prepared command is not evidence of server execution.
+
+## V30 append at a completed-version boundary
+
+Use the committed `stage-budget-extension` command only after the existing worker
+has exited and every bound version is finalized with all round barriers. It checks
+the committed human V30 authorization, all 52 substantive reviews of the latest
+version, and complete extra review of archived failed attempts when present.
+The only allowed configuration changes are the version list and total result
+budget. Reward, model, API budgets, sampling, R0 and old bindings remain fixed.
+
+From the newly tested fixed checkout, run:
+
+```sh
+agenticgen stage-budget-extension --root "$RESULT_ROOT" --version v6 \
+  --authorization "$CHECKOUT/agenticgen/docs/authorizations/20261023_v30_budget.json" \
+  --review-progress "$CHECKOUT/agenticgen/docs/experiments/v6_review/progress.json"
+agenticgen validate --root "$RESULT_ROOT"
+agenticgen finish-budget-extension --root "$RESULT_ROOT" --operation "$OPERATION_PATH"
+```
+
+`--version` names the completed previous version. Staging creates a new protocol,
+records hashes of all old protocols/results/R0/failed evidence and changes only the
+active pointer. Validation uses a fresh diagnostic directory and verified shared
+R0, never regenerating R0 or completed scientific outcomes. Finishing verifies
+two-teacher native/gradient acceptance and every protected hash. It does not write
+a review approval or launch a worker. The normal V7 approval must still bind the
+same deployed commit, new skills, complete V6 coverage and objective/search policy;
+`review-check --version v7` must pass before `launch --version v7`.
+
+If staging or validation fails, inspect the operation journal and preserve the
+partial new protocol. Do not overwrite old preparation, rerun prepare, or substitute
+the preflight-only adoption tool. A staged protocol without completed acceptance
+is explicitly rejected by the launch review gate.
 
 
 ## Diagnostic preflight repair (before scientific versions)

@@ -91,6 +91,10 @@ def review_check(root, next_version):
     root = Path(root); config = load_config(root)
     if next_version not in config['versions'] or next_version == 'v1':
         raise ValueError('Invalid reviewed-version transition')
+    prepared = prepared_path(root)
+    if prepared.exists() and read(prepared).get('budget_extension_operation'):
+        from agenticgen.runtime.extend_budget import verify_ready
+        verify_ready(root, next_version)
     previous = f'v{int(next_version[1:])-1}'
     previous_root = Path(config['previous_protocol_root']) if next_version == config['versions'][0] and config.get('previous_protocol_root') else root
     finalized = previous_root/f'FINALIZED_{previous}.json'

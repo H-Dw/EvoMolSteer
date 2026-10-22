@@ -11,13 +11,14 @@ def main():
     from agenticgen.adaptive_schedule.group_protocol import GROUP_ROOT
     from agenticgen.adaptive_schedule.io import read, write, repository, commit
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command', choices=['doctor', 'analyze', 'prepare', 'stage-protocol', 'repair-preflight', 'stage-failed-rerun', 'finish-failed-rerun', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
+    p.add_argument('command', choices=['doctor', 'analyze', 'prepare', 'stage-protocol', 'repair-preflight', 'stage-failed-rerun', 'finish-failed-rerun', 'stage-budget-extension', 'finish-budget-extension', 'adopt-unstarted-runtime', 'validate', 'run', 'launch', 'status', 'report', 'review-pack', 'review-check'])
     p.add_argument('--root', type=Path, default=Path(GROUP_ROOT))
     p.add_argument('--source-root', type=Path)
     p.add_argument('--version', default='v6')
     p.add_argument('--reason')
     p.add_argument('--authorization', type=Path)
     p.add_argument('--operation', type=Path)
+    p.add_argument('--review-progress', type=Path)
     a = p.parse_args()
     from agenticgen.adaptive_schedule import group_run
     from agenticgen.adaptive_schedule.protocol_state import load_config, acceptance_path
@@ -47,6 +48,14 @@ def main():
     elif a.command == 'finish-failed-rerun':
         if not a.operation:p.error('--operation is required')
         from agenticgen.runtime.restart_failed_version import finish
+        result=finish(a.root,a.operation)
+    elif a.command == 'stage-budget-extension':
+        if not a.authorization or not a.review_progress:p.error('--authorization and --review-progress are required')
+        from agenticgen.runtime.extend_budget import stage
+        result=stage(a.root,a.version,a.authorization,a.review_progress)
+    elif a.command == 'finish-budget-extension':
+        if not a.operation:p.error('--operation is required')
+        from agenticgen.runtime.extend_budget import finish
         result=finish(a.root,a.operation)
     elif a.command == 'validate':
         from agenticgen.adaptive_schedule.group_validation import validate

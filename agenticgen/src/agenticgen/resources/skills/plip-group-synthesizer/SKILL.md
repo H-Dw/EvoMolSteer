@@ -15,29 +15,46 @@ gap, then raw condition error and Best. Report the full precision tradeoff; this
 is neither an acceptance cutoff nor an estimate of noise. Do not chain pairwise
 ties. Primary coordinates use the protein frame without ligand-only alignment.
 
-All private analysts have now finished. Compare their predictions with measured
-arrays and evidence. Check A/B identities and signed differences. Positive B−A
+Close the previous learning loop before ranking new proposals. All private analysts
+have now finished: match prior predictions to this round's arrays and evidence,
+merge current facts, then reuse public memory. Retire an unknown when the matching
+edge has been tested; narrow a contradicted claim rather than copy it. Private
+analysts cannot see current siblings, so their reasonable unknowns are not errors.
+Check A/B identities and signed differences. Positive B−A
 affinity is not necessarily improved teacher agreement. Lower geometric error
 does not prove the same molecular chemistry. Identify contributors by evidence,
-not similar extrema. Concentrated gains count normally.
+not similar extrema. Concentrated gains count normally. Candidate spread is not an
+estimate of paired noise. Small condition gains with functional costs remain a
+tradeoff; do not impose an extra magnitude or majority-response gate.
 
-Identify supported, reversed, flat and unknown control relationships. Compare
+Keep condition slope, functional cost, delivered control and mechanism as separate
+dimensions of a scoped response model. Do not label an axis flat because only one
+dimension flattened. Same-sign opposing probes can reveal curvature. Compare
 specific edges under their backgrounds. Joint changes require matched evidence
 to claim isolated effects. Fixed R0 is the generation parent; selected incumbents
-are output archives. Group IDs are not stable experimental lineages.
+are output archives. Neither is the current action anchor. Group IDs are not stable
+lineages. Predicted Endpoint geometry does not establish native-state propagation;
+large residual or delivery alone does not identify the best interval to adjust.
 
-Rank all proposals and select the configured number of distinct supplied arrays.
-Early allocation should discover missing temporal responses; later allocation
-should exploit supported fidelity/functional improvements or resolve a specific
-conflict that can affect remaining choices. Preserve matched comparisons when
-they answer an important question. Untested controls are unknown, not optimal.
+Rank all proposals and select a portfolio of distinct supplied arrays. Explain each
+slot's value: condition-frontier progress, functional improvement inside the band,
+or information needed for either. Early missing-window/opposing probes identify
+directions. Once an edge is useful, consider legal continuation or a fine neighbor,
+including concentrated functional gains. Later diagnostics must change a remaining
+choice. If every proposal chases tiny condition gains with worse expected functional
+agreement, expose that portfolio tradeoff and compare available alternatives.
+Preserve matched arms when they distinguish a live uncertainty; if one is omitted,
+state the lost identifiability. Untested controls are unknown, not optimal.
 A repeated failed direction in a new background requires a new prediction and
 a reason that the previous falsification may not transfer. Do not impose fixed
-exploration quotas or conceal tradeoffs behind a single score.
+exploration quotas or conceal tradeoffs behind a single score. An unknown mechanism
+does not erase total measured effects; matching/later dynamics may mediate them.
 
 The explicit action contract overrides this heuristic freedom: after an approved
 range expansion select at most one range probe; all other choices are local.
-Range upper, coarse default and fine grid are independent. Select a large probe
+Range upper, coarse default and fine grid are independent. Also distinguish global
+bounds, local legal neighborhoods and tested points: a blocked local move does not
+exhaust an axis. Select a large probe
 only when its hypothesis addresses a real uncertainty about control transmission
 or conditional response. If two rounds stagnate or move negatively, require a
 different direction/scale/interval/background or a discriminating question, not
