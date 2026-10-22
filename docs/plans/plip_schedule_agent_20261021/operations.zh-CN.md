@@ -127,3 +127,11 @@ V2相对V1：Top1逐链TOP1 Mean下降约0.0368，Top2变化约+0.00014；两教
 已完成52/52会话、166请求及196去重消息哈希核验，coverage_000至010齐全。Top2剩余26会话已审阅，不能再从索引26重复续接。完整review和validation在docs/experiments/plip_council_20261022/v2_review。
 
 V3仅修订两份通用技能，保持工具接口和全部科学源码一致：显式比较账本、实际数组/来源核对、集中Mean贡献、条件反转、保留TOP1下重复试验的信息价值。未新增工具或改变token预算。提交时状态为complete_review_pending_deployment_gate；以之后真实approval/launch为准。完成本地及远端测试、提交部署与全量review-check才启动V3，不重跑V1/V2、不覆盖PREPARED或ACCEPTANCE。
+
+## V3实际启动（2026-10-22）
+
+V2全量复盘和通用技能已提交推送dea29257cb82b0cf0ba05227e56234b6a55d5961。远端固定目录为/opt/MolSteer/runtimes/plip_council_dea29257；本地22通过、1因无torch跳过，远端23测试通过；review-check核验本版52会话后真实批准并启动V3，PID518238。API认证HTTP200，实际进程继承API和代理。V1/V2/R0及冻结配置哈希前后相同，科学源码未变。
+
+两教师bootstrap历史为空，绑定新技能并复用相同R0。初次真实推进为Top1 R1 generating、Top2 R1 ready，无新错误；这不是整轮完成。部署、审核、进程和磁盘记录在docs/experiments/plip_council_20261022/v3_deployment，远端operations/v3_review_deployment_dea29257。master_review_progress_v2已更新approved_and_v3_started。review/progress中的待部署是提交时快照，不应据此重复批准或启动。
+
+保持20分钟巡检，V3结束再审阅新52会话；不得复用V2覆盖批准V4。后续文档提交不改运行中的固定版本。
