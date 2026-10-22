@@ -18,7 +18,8 @@ def boundary(tmp_path, monkeypatch):
     r0 = {}
     for t in ['a', 'b']:
         write(root/'shared_r0'/t/'COMPLETE.json', {'keep':'R0'}); r0[t] = sha(root/'shared_r0'/t/'COMPLETE.json')
-    fp = {'adaptive_schedule/group_protocol.py':'old', 'adaptive_schedule/wave_native.py':'unchanged'}
+    fp = {'adaptive_schedule/group_protocol.py':'old', 'adaptive_schedule/group_run.py':'old_budget_assertion',
+          'adaptive_schedule/search_policy.py':'old_version_bound', 'adaptive_schedule/wave_native.py':'unchanged'}
     prepared = {'config_sha256':sha(old/'config.json'), 'source_fingerprint':fp,
                 'teachers_sha256':sha(root/'teachers.json'), 'shared_r0_sha256':r0, 'commit':'old'}
     for name in ['PREPARED.json', 'ACCEPTANCE_COMPLETE.json']:write(old/name,prepared)
@@ -56,7 +57,9 @@ def boundary(tmp_path, monkeypatch):
     monkeypatch.setattr(m,'repository',lambda:repo)
     monkeypatch.setattr(m,'committed',lambda p:{'path':Path(p).relative_to(repo).as_posix(),'sha256':sha(p)})
     monkeypatch.setattr(m,'commit',lambda:'new12345')
-    monkeypatch.setattr(m,'source_fingerprint',lambda:{**fp,'adaptive_schedule/group_protocol.py':'new','runtime/extend_budget.py':'added'})
+    monkeypatch.setattr(m,'source_fingerprint',lambda:{**fp,'adaptive_schedule/group_protocol.py':'new',
+        'adaptive_schedule/group_run.py':'new_budget_assertion','adaptive_schedule/search_policy.py':'new_version_bound',
+        'runtime/extend_budget.py':'added'})
     monkeypatch.setattr(retention,'verify_snapshot',lambda p:None)
     return root,old,progress,auth
 

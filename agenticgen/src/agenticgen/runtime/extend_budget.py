@@ -12,6 +12,7 @@ from agenticgen.runtime.launch import idle_locks
 from agenticgen.runtime.restart_failed_version import no_worker, verify_protected, inventory
 
 ALLOWED_SOURCE_CHANGES = {'adaptive_schedule/group_protocol.py', 'adaptive_schedule/group_review.py',
+                          'adaptive_schedule/group_run.py', 'adaptive_schedule/search_policy.py',
                           'runtime/extend_budget.py', 'cli.py'}
 
 
