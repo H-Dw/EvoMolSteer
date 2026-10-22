@@ -22,3 +22,15 @@ G1先输出工具JSON后拼接了伪system文本，完整响应不是合法JSON�
 单次后台恢复进程PID **658411**，登记时间1792649202.5746903，最长等待1800秒。其实际journal为 `operations/analysis_resume_v3_1792649202574674708/journal.json`；部署收据和日志位于 `operations/analysis_recovery_tool_0ea0341e/`。本次核验时状态为 **waiting_for_existing_worker**，不是已经恢复。Top2已进入R5推理，Top1仍为R1分析失败。等待原worker正常退出后，后台程序才会核验并恢复分析。
 
 下次巡检先核对该journal是否resumed及新worker PID，再核对Top1 R1是否完成分析/保留，不能重复排队。若journal为failed，检查其日志并定位原因，不盲改pipeline。所有原始失败、源请求和新增调用成本保留。磁盘空闲约1.18 TiB，本次故障不是存储不足。
+
+## 恢复确认（2026-10-22，后续巡检）
+
+上述等待已结束。`analysis_resume_v3_1792649202574674708/journal.json`为resumed，完成时间1792649637.1632397，新worker为 **667212**，仍使用原dea29257科学部署。恢复事务`council_analysis_retry_v3_1792649614611950781`已完成；事务核验12,605个保护文件哈希一致，记录inference_repeated=false。这里引用事务在恢复时的校验结果，不声称本次又下载复核了全部保护文件。
+
+已核对Top1 R1的G1合法提案、汇总COMPLETE、RETENTION_COMPLETE_01及清理完成标记。流水线在1792649783.3794458提交R1，随后开始R2；R2的400条采样完成并进入analyzing。该阶段包含质量评价，本次读取时R2的QUALITY_COMPLETE尚未出现，不能算完整第二轮完成。
+
+Top2五轮均完成，逐轮采样、质量、汇总、保留及清理标记齐全。其完成状态由恢复程序保留。原worker的failure_1792649598336671154.json早于新worker启动，记录已知首轮失败，应保留而非认作新的恢复故障。
+
+新worker命令行核对通过，磁盘空闲1,296,007,598,080字节（约1.18 TiB）；独立nvidia-smi不可用，未报告显存数字。源journal、流水线及完成标记的哈希、精简状态及原始小文件快照保存于同目录resumed_verification.json等文件。本次只更新操作记录，不修改代码、冻结技能、采样配置或批准文件，不重启已恢复的worker。
+
+继续每20分钟巡检。待Top1也完成五轮及清理后，再检查FINALIZED_v3并开始本版52会话全量复盘；失败请求与恢复后的新增调用全部纳入，不能以重试成功抹去原失败或成本。
