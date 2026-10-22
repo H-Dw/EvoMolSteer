@@ -143,3 +143,11 @@ Top1 R1 G1因相对当前anchor的两格变动未获授权而被拒绝；采样�
 后续巡检已确认恢复成功：analysis_resume_v3_1792649202574674708为resumed，新worker667212仍固定dea29257。Top2五轮质量/汇总/清理全部完成；Top1 R1失败分析重试后已通过并完成保留清理，R2采样完成、进入analyzing（读取时质量标记尚未完成）。恢复事务核对12,605个保护文件哈希，未重复R1采样。记录位于v3_recovery/resumed_verification.json；原worker518238的退出及failure_1792649598336671154.json为已知历史失败，不代表新worker异常。不要重复排队、重跑或因本次文档提交更换运行部署；仍20分钟巡检，V3全量完成后再进入52会话复盘。
 
 再后续巡检发现Top1 R2 G1分析失败，worker667212已退出；400条采样和质量完整，Top2五轮完整。首个响应越过一格动作限制，修复响应引用不存在的tool:1。已用原0ea0341e工具执行第二次有界恢复，新worker732766仍固定dea29257；原科学结果和成功请求复用，失败证据及usage保留。操作为operations/analysis_recovery_round2_v3_20261022，恢复事务council_analysis_retry_v3_1792651058875970356。本次只确认新请求已发出、R2 analyzing，未确认整轮成功。完整收据和诊断在v3_recovery/round2/；Top1本版恢复额度已用2/3，不得无限重试或放宽规则。
+
+## V3完成与Top1完整复盘（后续记录）
+
+V3已完成两教师各五轮4000条结果，质量、汇总、TOP1保留及清理标记完整，FINALIZED_v3.json存在，worker732766正常退出并进入awaiting_master_review。第二次恢复后R2–R5均完成，无需第三次恢复，不重新启动旧worker或重跑V3。已用原dea29257执行analyze；GPU波次累计27.58分钟，首次启动至FINALIZED约97.12分钟，包含两次分析失败等待。
+
+本批GPT完成Top1的26/52会话实质复盘，绑定83个实际请求文件和99个去重消息哈希；42个格式约束及5个额外修复诊断逐项核验。文档、逐条coverage和报告快照见docs/experiments/plip_council_20261022/v3_review。Top2尚待，从manifest索引26继续；coverage_005仅Top1末轮汇总一条，续接保留。全部来源已下载到.cache/v2_readonly_evidence/versions/v3，目录名前缀为历史名称，读取器是.cache/read_v3_review.py，不重复下载或误用v2会话。
+
+V3逐链TOP1 Mean为Top1 4.179882、Top2 4.165585，相对V2仅+0.000089/+0.000601，Top1仍低于V1。已发现非法动作修复后叙述未更新、虚构工具标签错误传播、集中Mean贡献被取消、区间数值错位及R0回放反证未改变汇总结论。先结合Top2反例完成全量审阅再改通用skills；本次不修改技能、科学配置、不写V4批准。保持20分钟自动续接全量复盘，完成52条后按严格门槛部署V4。
