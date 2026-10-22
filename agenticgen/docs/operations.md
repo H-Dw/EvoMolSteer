@@ -1,8 +1,15 @@
 # Deployment and continuation
 
 Read [plan.zh-CN.md](plan.zh-CN.md) first. It is the active scientific protocol.
-The former mean-first 100-candidate council is historical only. The current
-automation remains PAUSED until native acceptance and the explicit human-authorized V6 transition are verified.
+The former mean-first 100-candidate council is historical only. Native acceptance
+and the explicit human-authorized V6 transition have been verified. As of
+2026-10-23, formal V6 has finished all five rounds for both teachers and finalized;
+its worker has exited normally. The 40-minute automation is ACTIVE for master
+review, currently 16/52 substantive sessions. See
+[review progress](experiments/v6_review/progress.json). Do not rerun V6 or restart
+its old worker while review is pending. V7 is not approved. Adopt the authorized
+V30 budget only through an appended protocol and compatibility acceptance at the
+reviewed version boundary; preserve all existing frozen bindings.
 
 ## Source and environment
 
