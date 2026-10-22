@@ -1,0 +1,2575 @@
+{
+  "binding": {
+    "initial_jobs_sha256": "86f8c23080dd929b99f2892c2104e94d399f30dc57f2fbb819a85661f9063950",
+    "rounds": 5,
+    "teachers": [
+      "5nn4_SC2_A_1017__top1",
+      "5nn4_SC2_A_1017__top2"
+    ],
+    "gpu_owners": 1,
+    "global_llm_concurrency": 4
+  },
+  "teachers": {
+    "5nn4_SC2_A_1017__top1": {
+      "round": 5,
+      "phase": "complete",
+      "job": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top1",
+        "observed_round": 4,
+        "candidates_per_group": 25,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G1:H1",
+            "ticks": [
+              3,
+              3,
+              7,
+              9
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                3,
+                7,
+                9
+              ],
+              "direction": "Raise mid-window slot2 (steps 51–75) from 5 to 7 while holding the current pool-best condition anchor [3,3,5,9].",
+              "exploration_degree": "Local one-interval +2-tick move (0.2 amplitude); no range expansion.",
+              "hypothesis": "At the current best condition background, I2=7 remains condition-favourable with near-zero functional cost, so the mid-window edge is gap-neutral and can reduce condition error without the late-window affinity regression.",
+              "expected_mean_effect": "Condition mean RMSD expected to fall by ~1e-4 to 2e-4 Å from 0.793337; mean absolute teacher gap expected within ±5e-5 of 3.628074, i.e. near-neutral rather than the +1e-4 per +2 late-window cost.",
+              "expected_best_effect": "Best expected unchanged within ~1e-3; no teacher exceedance; a ≥0.1 jump would indicate correspondence/chemistry change.",
+              "falsifier": "Condition mean rises or is flat (no ≥5e-5 Å improvement) while gap widens by >1e-4, or condition improves but gap widens by about the same +1e-4 as the late-window edge; that refutes window-specific gap neutrality and supports a total-guidance cost.",
+              "evidence_ids": [
+                "E002",
+                "E003",
+                "E004"
+              ],
+              "group_id": "G1",
+              "diagnostic_alternative": "Correspondence reassignment could produce a small condition change with no physical mid-window effect; if so per-candidate changes would be concentrated in a few identities/assignment switches. Alternatively, I2 and I3 both act on atoms 7 and 9, so saturation at I3=9 could mask I2=7.",
+              "expected_subgroup_response": "Improvement, if real, should be distributed across many of the 25 candidates rather than one identity; candidates already near the pool-minimum error (~0.35 Å) may be insensitive. Top score quartile likely flat.",
+              "revision_from_previous_result": "Prior I2=7 test was only at [5,5,7,5] (condition −1.46e-4, gap −3.9e-6). After [3,3,5,9] became the new pool minimum, the mid-window edge has not been re-tested on the current best background; this proposal does that rather than repeating a late-window extension.",
+              "reference_ticks": [
+                3,
+                3,
+                5,
+                9
+              ],
+              "experiment_purpose": "conflict_diagnosis",
+              "expected_condition_effect": "Small decrease in group mean RMSD (~1e-4 to 2e-4 Å); pool minimum may improve from 0.793337.",
+              "expected_functional_effect": "Mean absolute teacher gap expected near-neutral (≤5e-5 change); if instead +1e-4 or worse, the cost is total guidance, not late-window-specific.",
+              "search_mode": "local",
+              "scale_reason": "Reference tick 5 at interval2 →7 is a +2 local move within allowed [3,7]; no range expansion. Delivered displacement should be checked before interpreting terminal effect."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G3:H1",
+            "ticks": [
+              3,
+              7,
+              5,
+              7
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                7,
+                5,
+                7
+              ],
+              "direction": "Raise interval 3 (steps 76-90) from tick 5 to 7 at the current anchor, holding interval0=3 and interval1=7 fixed.",
+              "exploration_degree": "moderate: one interval changed by the default two ticks; fine-grid local step, no range probe.",
+              "hypothesis": "The late-window condition gain seen at interval1=3 is a property of the 76-90 window and not of that background, so the same 5->7 edge lowers group mean condition RMSD at [3,7,5,5].",
+              "expected_mean_effect": "Condition 0.7938872 -> about 0.79348 A (-4e-4, below the current pool minimum 0.7937343); mean absolute teacher gap about 3.62778 -> about 3.6279 (+1e-4); mean affinity essentially flat; validity stays 25/25.",
+              "expected_best_effect": "No resolvable change: max stays near 7.2121-7.2124 and best_minus_teacher near -0.626, still ~0.63 below teacher 7.8378286.",
+              "falsifier": "Condition fails to fall by at least 2e-4 A or rises, or the absolute gap rises by more than 1e-3, or Best moves by 0.1 or more; any of these refutes transfer of the late edge to the interval1=7 background.",
+              "evidence_ids": [
+                "E010",
+                "E011",
+                "E012",
+                "E013"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "The two interval1=3 measurements could both be correspondence-driven or specific to that background. If this array is flat on condition and flat on gap, the late edge is background-specific rather than a window property; if condition improves only through one identity with a flat median per-candidate delta, Hungarian reassignment is the better explanation.",
+              "expected_subgroup_response": "If physical, a diffuse majority of candidates should again show negative per-candidate condition deltas, matching the 17/25 negative pattern of the [5,3,5,5]->[5,3,5,7] edge, rather than a swing confined to c009/c002.",
+              "revision_from_previous_result": "The late edge had only been measured inside interval1=3 and the tick-9 peak bracket was withdrawn as illegal for a local round; this keeps the two-tick local contract and tests transfer to a second background instead of extending amplitude.",
+              "reference_ticks": [
+                3,
+                7,
+                5,
+                5
+              ],
+              "experiment_purpose": "interaction_probe",
+              "expected_condition_effect": "Lower: about 0.7935 A, a new pool minimum if the effect size of -4e-4 repeats.",
+              "expected_functional_effect": "Slightly worse teacher agreement: absolute gap +~1e-4, mean pic50 flat or marginally lower, no Best exceedance.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the default moderate step and no direction is in verified_large_step_directions; max_range_probes is 0 and the range has not been expanded, so no range probe is legal or warranted here."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G2:H2",
+            "ticks": [
+              5,
+              3,
+              9,
+              9
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                3,
+                9,
+                9
+              ],
+              "direction": "Raise I2 from 7 to 9 while holding I3=9 and the rest of the pool-minimum background fixed.",
+              "exploration_degree": "Moderate local two-tick move on one interval; no range expansion.",
+              "hypothesis": "I2=7 is not yet a peak: further raising I2 to 9 at I3=9 continues to lower condition while remaining approximately gap-neutral, unlike the I3 late-window series where added amplitude costs affinity agreement.",
+              "expected_mean_effect": "Condition mean expected near 0.79355 Å if the I2 effect remains roughly linear; mean affinity gap expected near 3.62793 with small change; mean pic50 approximately flat.",
+              "expected_best_effect": "Best remains flat and below teacher; no exceedance predicted.",
+              "falsifier": "If condition does not fall below [5,3,7,9], or the gap widens beyond the small I2 range while condition is flat/rising, then I2=7 is a local peak and the gap-neutral lever does not extend to 9.",
+              "evidence_ids": [
+                "E006",
+                "E007",
+                "E008"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "I2 and I3 act on the same condition atoms 7 and 9, so I2=9 could saturate or compensate through late-window guidance rather than add an independent mid-window effect; correspondence reassignment is also possible.",
+              "expected_subgroup_response": "Expect a small distributed condition improvement across many candidates; if the improvement is concentrated in one identity or accompanied by a large Best jump, suspect correspondence/chemistry change rather than a smooth I2 amplitude effect.",
+              "revision_from_previous_result": "H2 [5,3,7,9] executed and showed I2=7 lowers condition by 1.64e-4 Å versus [5,3,5,9] with the gap essentially unchanged. The next question is no longer whether I2=7 is gap-neutral, but whether I2=9 continues that gain or marks a peak.",
+              "reference_ticks": [
+                5,
+                3,
+                7,
+                9
+              ],
+              "experiment_purpose": "bracket_peak",
+              "expected_condition_effect": "If the mid-window edge is linear, condition should fall by roughly the prior I2 increment; if condition is flat or rises, I2=7 is a local optimum.",
+              "expected_functional_effect": "The absolute teacher gap should stay near the current value if the mid-window edge remains gap-neutral; a clear widening would show that the gap-neutrality is specific to I2=7.",
+              "search_mode": "local",
+              "scale_reason": "The actual jump is 7→9 on I2, a two-tick local change within the default maximum and inside the allowed I2 range 5–9; it brackets the mid-window peak while keeping I3 at the supported late value 9."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G3:H2",
+            "ticks": [
+              3,
+              7,
+              7,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                7,
+                7,
+                5
+              ],
+              "direction": "Raise interval 2 (steps 51-75) from tick 5 to 7 at the current anchor, leaving intervals 0, 1 and 3 unchanged.",
+              "exploration_degree": "moderate: one interval changed by the default two ticks on the fine grid.",
+              "hypothesis": "Interval2 5->7 is a genuine window-specific condition lever with near-zero functional cost, so its single-background gain (0.7946506 -> 0.7945042 A, gap -3.9e-6) reproduces at the current anchor.",
+              "expected_mean_effect": "Condition 0.7938872 -> about 0.79374 A (-1.5e-4, approximately tying the pool minimum 0.7937343); absolute teacher gap essentially unchanged within about 5e-5; affinity and Best flat.",
+              "expected_best_effect": "No resolvable change; max remains near 7.2121-7.2124, best_minus_teacher near -0.626.",
+              "falsifier": "Condition worsens by 1e-4 A or more, or the absolute gap moves by more than 5e-4, or the per-candidate change is confined to one identity with a flat median delta; any of these refutes the second-background reproduction and scopes the effect to [5,5,7,5].",
+              "evidence_ids": [
+                "E010",
+                "E011",
+                "E012"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "Intervals 2 and 3 guide the same two condition atoms [7,9], so the earlier interval2 gain could be late-window saturation or correspondence, not a distinct window. If this array fails while H1 succeeds, the interval2 result is more likely a coincidence of the interval1=5 background than a separate lever.",
+              "expected_subgroup_response": "Small and diffuse; expect a few identities improving slightly and no coherent quartile reversal. A mean gain carried by one identity with the median at zero must be read as unresolved rather than as a repeatable window effect.",
+              "revision_from_previous_result": "Previously interval2 was recorded as an unresolved candidate lever from one background ([5,5,7,5]) and no array has since tested it elsewhere; this supplies the missing second background at a different interval0 and interval1 instead of re-probing it at interval1=5.",
+              "reference_ticks": [
+                3,
+                7,
+                5,
+                5
+              ],
+              "experiment_purpose": "direction_probe",
+              "expected_condition_effect": "Lower by a small amount (~1.5e-4 A), comparable to the already-observed single-edge magnitude and still far inside the 0.02 A ranking band.",
+              "expected_functional_effect": "Neutral to within ~5e-5 on absolute teacher gap; no affinity gain, no Best exceedance.",
+              "search_mode": "local",
+              "scale_reason": "A two-tick local step is the largest permitted without a verified large-step direction; the fine resolution and the 0.02 A ranking tolerance argue against a coarse jump for an effect this small."
+            }
+          }
+        ],
+        "parent_policy": "Fixed new R0 before update 10 for every schedule; no incumbent restart.",
+        "published_memory_sha256": "8a23f00e1580d376fbd35f4b2f220e462d3aaa5c6235d6d0c998c6d11366a463",
+        "binding_sha256": "132e49ce0d941f39ac98356e9a2127d4226931024ff672e8c89256bdfd2d5a32",
+        "formal_gpu_executed": false
+      },
+      "artifacts": {
+        "wave": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v6/5nn4_SC2_A_1017__top1/round_05/wave",
+        "parent": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/shared_r0/5nn4_SC2_A_1017__top1",
+        "retention_parent": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v6/5nn4_SC2_A_1017__top1/incumbents/r04",
+        "fixed_start": 10,
+        "job": {
+          "schema": "plip-council-selection-v1",
+          "teacher_id": "5nn4_SC2_A_1017__top1",
+          "observed_round": 4,
+          "candidates_per_group": 25,
+          "logical_llm_sessions": 5,
+          "jobs": [
+            {
+              "priority": 1,
+              "source_proposal_id": "G1:H1",
+              "ticks": [
+                3,
+                3,
+                7,
+                9
+              ],
+              "proposal": {
+                "ticks": [
+                  3,
+                  3,
+                  7,
+                  9
+                ],
+                "direction": "Raise mid-window slot2 (steps 51–75) from 5 to 7 while holding the current pool-best condition anchor [3,3,5,9].",
+                "exploration_degree": "Local one-interval +2-tick move (0.2 amplitude); no range expansion.",
+                "hypothesis": "At the current best condition background, I2=7 remains condition-favourable with near-zero functional cost, so the mid-window edge is gap-neutral and can reduce condition error without the late-window affinity regression.",
+                "expected_mean_effect": "Condition mean RMSD expected to fall by ~1e-4 to 2e-4 Å from 0.793337; mean absolute teacher gap expected within ±5e-5 of 3.628074, i.e. near-neutral rather than the +1e-4 per +2 late-window cost.",
+                "expected_best_effect": "Best expected unchanged within ~1e-3; no teacher exceedance; a ≥0.1 jump would indicate correspondence/chemistry change.",
+                "falsifier": "Condition mean rises or is flat (no ≥5e-5 Å improvement) while gap widens by >1e-4, or condition improves but gap widens by about the same +1e-4 as the late-window edge; that refutes window-specific gap neutrality and supports a total-guidance cost.",
+                "evidence_ids": [
+                  "E002",
+                  "E003",
+                  "E004"
+                ],
+                "group_id": "G1",
+                "diagnostic_alternative": "Correspondence reassignment could produce a small condition change with no physical mid-window effect; if so per-candidate changes would be concentrated in a few identities/assignment switches. Alternatively, I2 and I3 both act on atoms 7 and 9, so saturation at I3=9 could mask I2=7.",
+                "expected_subgroup_response": "Improvement, if real, should be distributed across many of the 25 candidates rather than one identity; candidates already near the pool-minimum error (~0.35 Å) may be insensitive. Top score quartile likely flat.",
+                "revision_from_previous_result": "Prior I2=7 test was only at [5,5,7,5] (condition −1.46e-4, gap −3.9e-6). After [3,3,5,9] became the new pool minimum, the mid-window edge has not been re-tested on the current best background; this proposal does that rather than repeating a late-window extension.",
+                "reference_ticks": [
+                  3,
+                  3,
+                  5,
+                  9
+                ],
+                "experiment_purpose": "conflict_diagnosis",
+                "expected_condition_effect": "Small decrease in group mean RMSD (~1e-4 to 2e-4 Å); pool minimum may improve from 0.793337.",
+                "expected_functional_effect": "Mean absolute teacher gap expected near-neutral (≤5e-5 change); if instead +1e-4 or worse, the cost is total guidance, not late-window-specific.",
+                "search_mode": "local",
+                "scale_reason": "Reference tick 5 at interval2 →7 is a +2 local move within allowed [3,7]; no range expansion. Delivered displacement should be checked before interpreting terminal effect."
+              }
+            },
+            {
+              "priority": 2,
+              "source_proposal_id": "G3:H1",
+              "ticks": [
+                3,
+                7,
+                5,
+                7
+              ],
+              "proposal": {
+                "ticks": [
+                  3,
+                  7,
+                  5,
+                  7
+                ],
+                "direction": "Raise interval 3 (steps 76-90) from tick 5 to 7 at the current anchor, holding interval0=3 and interval1=7 fixed.",
+                "exploration_degree": "moderate: one interval changed by the default two ticks; fine-grid local step, no range probe.",
+                "hypothesis": "The late-window condition gain seen at interval1=3 is a property of the 76-90 window and not of that background, so the same 5->7 edge lowers group mean condition RMSD at [3,7,5,5].",
+                "expected_mean_effect": "Condition 0.7938872 -> about 0.79348 A (-4e-4, below the current pool minimum 0.7937343); mean absolute teacher gap about 3.62778 -> about 3.6279 (+1e-4); mean affinity essentially flat; validity stays 25/25.",
+                "expected_best_effect": "No resolvable change: max stays near 7.2121-7.2124 and best_minus_teacher near -0.626, still ~0.63 below teacher 7.8378286.",
+                "falsifier": "Condition fails to fall by at least 2e-4 A or rises, or the absolute gap rises by more than 1e-3, or Best moves by 0.1 or more; any of these refutes transfer of the late edge to the interval1=7 background.",
+                "evidence_ids": [
+                  "E010",
+                  "E011",
+                  "E012",
+                  "E013"
+                ],
+                "group_id": "G3",
+                "diagnostic_alternative": "The two interval1=3 measurements could both be correspondence-driven or specific to that background. If this array is flat on condition and flat on gap, the late edge is background-specific rather than a window property; if condition improves only through one identity with a flat median per-candidate delta, Hungarian reassignment is the better explanation.",
+                "expected_subgroup_response": "If physical, a diffuse majority of candidates should again show negative per-candidate condition deltas, matching the 17/25 negative pattern of the [5,3,5,5]->[5,3,5,7] edge, rather than a swing confined to c009/c002.",
+                "revision_from_previous_result": "The late edge had only been measured inside interval1=3 and the tick-9 peak bracket was withdrawn as illegal for a local round; this keeps the two-tick local contract and tests transfer to a second background instead of extending amplitude.",
+                "reference_ticks": [
+                  3,
+                  7,
+                  5,
+                  5
+                ],
+                "experiment_purpose": "interaction_probe",
+                "expected_condition_effect": "Lower: about 0.7935 A, a new pool minimum if the effect size of -4e-4 repeats.",
+                "expected_functional_effect": "Slightly worse teacher agreement: absolute gap +~1e-4, mean pic50 flat or marginally lower, no Best exceedance.",
+                "search_mode": "local",
+                "scale_reason": "Two ticks is the default moderate step and no direction is in verified_large_step_directions; max_range_probes is 0 and the range has not been expanded, so no range probe is legal or warranted here."
+              }
+            },
+            {
+              "priority": 3,
+              "source_proposal_id": "G2:H2",
+              "ticks": [
+                5,
+                3,
+                9,
+                9
+              ],
+              "proposal": {
+                "ticks": [
+                  5,
+                  3,
+                  9,
+                  9
+                ],
+                "direction": "Raise I2 from 7 to 9 while holding I3=9 and the rest of the pool-minimum background fixed.",
+                "exploration_degree": "Moderate local two-tick move on one interval; no range expansion.",
+                "hypothesis": "I2=7 is not yet a peak: further raising I2 to 9 at I3=9 continues to lower condition while remaining approximately gap-neutral, unlike the I3 late-window series where added amplitude costs affinity agreement.",
+                "expected_mean_effect": "Condition mean expected near 0.79355 Å if the I2 effect remains roughly linear; mean affinity gap expected near 3.62793 with small change; mean pic50 approximately flat.",
+                "expected_best_effect": "Best remains flat and below teacher; no exceedance predicted.",
+                "falsifier": "If condition does not fall below [5,3,7,9], or the gap widens beyond the small I2 range while condition is flat/rising, then I2=7 is a local peak and the gap-neutral lever does not extend to 9.",
+                "evidence_ids": [
+                  "E006",
+                  "E007",
+                  "E008"
+                ],
+                "group_id": "G2",
+                "diagnostic_alternative": "I2 and I3 act on the same condition atoms 7 and 9, so I2=9 could saturate or compensate through late-window guidance rather than add an independent mid-window effect; correspondence reassignment is also possible.",
+                "expected_subgroup_response": "Expect a small distributed condition improvement across many candidates; if the improvement is concentrated in one identity or accompanied by a large Best jump, suspect correspondence/chemistry change rather than a smooth I2 amplitude effect.",
+                "revision_from_previous_result": "H2 [5,3,7,9] executed and showed I2=7 lowers condition by 1.64e-4 Å versus [5,3,5,9] with the gap essentially unchanged. The next question is no longer whether I2=7 is gap-neutral, but whether I2=9 continues that gain or marks a peak.",
+                "reference_ticks": [
+                  5,
+                  3,
+                  7,
+                  9
+                ],
+                "experiment_purpose": "bracket_peak",
+                "expected_condition_effect": "If the mid-window edge is linear, condition should fall by roughly the prior I2 increment; if condition is flat or rises, I2=7 is a local optimum.",
+                "expected_functional_effect": "The absolute teacher gap should stay near the current value if the mid-window edge remains gap-neutral; a clear widening would show that the gap-neutrality is specific to I2=7.",
+                "search_mode": "local",
+                "scale_reason": "The actual jump is 7→9 on I2, a two-tick local change within the default maximum and inside the allowed I2 range 5–9; it brackets the mid-window peak while keeping I3 at the supported late value 9."
+              }
+            },
+            {
+              "priority": 4,
+              "source_proposal_id": "G3:H2",
+              "ticks": [
+                3,
+                7,
+                7,
+                5
+              ],
+              "proposal": {
+                "ticks": [
+                  3,
+                  7,
+                  7,
+                  5
+                ],
+                "direction": "Raise interval 2 (steps 51-75) from tick 5 to 7 at the current anchor, leaving intervals 0, 1 and 3 unchanged.",
+                "exploration_degree": "moderate: one interval changed by the default two ticks on the fine grid.",
+                "hypothesis": "Interval2 5->7 is a genuine window-specific condition lever with near-zero functional cost, so its single-background gain (0.7946506 -> 0.7945042 A, gap -3.9e-6) reproduces at the current anchor.",
+                "expected_mean_effect": "Condition 0.7938872 -> about 0.79374 A (-1.5e-4, approximately tying the pool minimum 0.7937343); absolute teacher gap essentially unchanged within about 5e-5; affinity and Best flat.",
+                "expected_best_effect": "No resolvable change; max remains near 7.2121-7.2124, best_minus_teacher near -0.626.",
+                "falsifier": "Condition worsens by 1e-4 A or more, or the absolute gap moves by more than 5e-4, or the per-candidate change is confined to one identity with a flat median delta; any of these refutes the second-background reproduction and scopes the effect to [5,5,7,5].",
+                "evidence_ids": [
+                  "E010",
+                  "E011",
+                  "E012"
+                ],
+                "group_id": "G3",
+                "diagnostic_alternative": "Intervals 2 and 3 guide the same two condition atoms [7,9], so the earlier interval2 gain could be late-window saturation or correspondence, not a distinct window. If this array fails while H1 succeeds, the interval2 result is more likely a coincidence of the interval1=5 background than a separate lever.",
+                "expected_subgroup_response": "Small and diffuse; expect a few identities improving slightly and no coherent quartile reversal. A mean gain carried by one identity with the median at zero must be read as unresolved rather than as a repeatable window effect.",
+                "revision_from_previous_result": "Previously interval2 was recorded as an unresolved candidate lever from one background ([5,5,7,5]) and no array has since tested it elsewhere; this supplies the missing second background at a different interval0 and interval1 instead of re-probing it at interval1=5.",
+                "reference_ticks": [
+                  3,
+                  7,
+                  5,
+                  5
+                ],
+                "experiment_purpose": "direction_probe",
+                "expected_condition_effect": "Lower by a small amount (~1.5e-4 A), comparable to the already-observed single-edge magnitude and still far inside the 0.02 A ranking band.",
+                "expected_functional_effect": "Neutral to within ~5e-5 on absolute teacher gap; no affinity gain, no Best exceedance.",
+                "search_mode": "local",
+                "scale_reason": "A two-tick local step is the largest permitted without a verified large-step direction; the fine resolution and the 0.02 A ranking tolerance argue against a coarse jump for an effect this small."
+              }
+            }
+          ],
+          "parent_policy": "Fixed new R0 before update 10 for every schedule; no incumbent restart.",
+          "published_memory_sha256": "8a23f00e1580d376fbd35f4b2f220e462d3aaa5c6235d6d0c998c6d11366a463",
+          "binding_sha256": "132e49ce0d941f39ac98356e9a2127d4226931024ff672e8c89256bdfd2d5a32",
+          "formal_gpu_executed": false
+        },
+        "schedules": [
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            3,
+            7,
+            9
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            3,
+            7,
+            5,
+            7
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            5,
+            3,
+            9,
+            9
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ],
+          [
+            3,
+            7,
+            7,
+            5
+          ]
+        ]
+      },
+      "last_commit": {
+        "round": 5,
+        "snapshot": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v6/5nn4_SC2_A_1017__top1/incumbents/r05",
+        "snapshot_sha256": "bba95d36b9bb9046bc2427b04f74f496d975071478bcbf9714a921d6f5457998",
+        "quality_complete": true,
+        "retention_complete": true,
+        "improved": 3
+      },
+      "last_selection": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top1",
+        "observed_round": 5,
+        "candidates_per_group": 25,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G4:H2",
+            "ticks": [
+              3,
+              7,
+              9,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                7,
+                9,
+                5
+              ],
+              "direction": "Increase interval 2 from 7 to 9 at fixed I0=3, I1=7, I3=5.",
+              "exploration_degree": "Local moderate two-tick step in one interval; no range expansion.",
+              "hypothesis": "If I2 5->7 is a condition-favourable window lever that continues beyond 7, then [3,7,9,5] should further lower mean condition RMSD relative to [3,7,7,5], with a small or near-neutral gap change; a flat or adverse result would indicate saturation or a peak at 7.",
+              "expected_mean_effect": "Condition mean expected to fall by about 1-2e-4 A if the I2 direction remains monotone; gap expected to remain near zero change or widen only slightly. Flat or higher condition would favour saturation/peak.",
+              "expected_best_effect": "Best expected to stay flat within roughly 1e-4; no teacher exceedance and no rankable Best gain predicted.",
+              "falsifier": "Mean condition RMSD does not improve on [3,7,7,5], or the gap widens materially while condition improves; then I2=9 is saturated or carries a functional cost rather than extending a condition-favourable lever.",
+              "evidence_ids": [
+                "E016",
+                "E018",
+                "E017"
+              ],
+              "group_id": "G4",
+              "diagnostic_alternative": "I2 and I3 guide the same condition atoms, so saturation or correspondence reassignment could imitate a new I2 effect; alternatively, the apparent I2 lever may be background-specific below 7.",
+              "expected_subgroup_response": "No subgroup gate; look for continuous per-candidate deltas. Dominant high-error identities are not expected to move coherently, so a mean shift should be reported without a responder class claim.",
+              "revision_from_previous_result": "I2 5->7 was condition-favourable and nearly gap-neutral at [5,5,7,5] and [5,3,7,9], but at [3,7,7,5] it improved condition by -1.62e-4 while widening gap by +4.78e-5. The prior 'gap-neutral' description therefore needs scoping; this archived test asks whether I2=9 continues the condition gain or saturates.",
+              "reference_ticks": [
+                3,
+                7,
+                7,
+                5
+              ],
+              "experiment_purpose": "bracket_peak",
+              "expected_condition_effect": "Expected modest decrease in group mean condition RMSD if I2 remains condition-favourable beyond 7; no decrease would indicate saturation at or before 7.",
+              "expected_functional_effect": "Expected small functional cost or neutrality; a larger gap widening would make the geometry gain non-functional despite lower condition RMSD.",
+              "search_mode": "local",
+              "scale_reason": "Two-tick local step from I2=7 to 9 within the allowed interval-2 range [5..9]; this is a local saturation check, not a range probe, and no other interval is changed."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G2:H1",
+            "ticks": [
+              3,
+              7,
+              7,
+              7
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                7,
+                7,
+                7
+              ],
+              "direction": "mid-window upward: I2 5→7",
+              "exploration_degree": "local two-tick step on one interval; no range probe",
+              "hypothesis": "At anchor [3,7,5,7], raising I2 from 5 to 7 remains condition-favourable and gap-neutral because mid-window guidance is supported at two prior backgrounds; if physical, H1 lowers condition without meaningful affinity cost.",
+              "expected_mean_effect": "Predicted from two prior I2=7 edges: condition roughly 1.5e-4 Å lower than anchor [3,7,5,7] (0.793468 → ~0.79331), with mean absolute teacher gap near unchanged (~−5e-6; 3.627931 → ~3.627925). This is a raw difference, not an equivalence claim.",
+              "expected_best_effect": "No predicted Best gain; expect max near 7.2115–7.2125 and best_minus_teacher near −0.626 versus teacher 7.837829; no valid_best_exceeds_teacher.",
+              "falsifier": "If condition is not lower by roughly 1e-4 Å or gap moves by more than ~5e-5 in the wrong direction, or if c002/c009/c016/c022 do not move coherently, then I2 gap-neutrality is background-specific rather than a transferable lever.",
+              "evidence_ids": [
+                "E007",
+                "E008",
+                "E009"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "Hungarian correspondence reassignment or shared-atom saturation of intervals 2 and 3 could imitate a mid-window gain; pose coverage is only 5/25, so chemistry cannot arbitrate.",
+              "expected_subgroup_response": "No quartile or responder-fraction gate. Judge by whether dominant identities c009 (anchor RMS ~1.421), c002 (~1.417), c016 (~1.311), c022 (~1.267) move; isolated single-candidate shifts with a mean/median split should be read as correspondence, not physical gain.",
+              "revision_from_previous_result": "Reuses the supported I2 5→7 direction from [5,5,7,5] and [5,3,7,9], but tests it at the current anchor [3,7,5,7], where I1=7 and I3=7; this background-extension has not executed.",
+              "reference_ticks": [
+                3,
+                7,
+                5,
+                7
+              ],
+              "experiment_purpose": "exploit",
+              "expected_condition_effect": "Condition should decrease modestly if the I2 lever transfers; raw expected ~1.5e-4 Å lower than 0.793468, not an equivalence claim.",
+              "expected_functional_effect": "Mean absolute teacher gap should stay near-neutral, within ~5e-5, because prior I2 edges moved gap by only −3.9e-6 and −5.9e-6; affinity agreement remains separate. No Best prediction.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the configured moderate local step and equals 0.2 amplitude; max |Δ|=2, one changed interval, no range expansion required."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G3:H2",
+            "ticks": [
+              5,
+              3,
+              10,
+              9
+            ],
+            "proposal": {
+              "ticks": [
+                5,
+                3,
+                10,
+                9
+              ],
+              "direction": "Raise the mid window (steps 51–75) from 9 to 10, holding steps 10–25 at 5, 26–50 at 3 and 76–90 at 9; single changed interval, upper-bound tick.",
+              "exploration_degree": "local, one tick on one interval at the top of the allowed discrete range for that slot; not a coarse range probe.",
+              "hypothesis": "The mid window is the least gap-costly condition lever observed (I2 5→9 costs 3.1e-5 of gap for 3.12e-4 of condition, versus 2.42e-4 of gap for 8.10e-4 for the late window). If that lever is still monotone at the top of its allowed range, I2=10 should lower condition at almost no functional cost and would locate the useful upper bound of the cheapest lever.",
+              "expected_mean_effect": "Condition ≈ 0.79342–0.79357 Å (a further −0 to −1.5e-4 relative to the anchor, in the same range as the 9 vs 7 step); mean absolute teacher gap ≈ 3.62795–3.62800, i.e. within about 5e-5 of the anchor.",
+              "expected_best_effect": "Flat: no predicted movement of max candidate score or best_minus_teacher beyond the observed 1e-4 spread; a ≥0.1 jump would indicate a correspondence or chemistry change, not an amplitude gain.",
+              "falsifier": "If condition is flat or rises at tick 10 the mid window has peaked at 9 and I2 should be held at 7–9; if the gap widens by more than about 1.5e-4 at the top tick, the 'cheap lever' claim is scoped to I2 5–9 only and the window-efficiency ratio must be restated.",
+              "evidence_ids": [
+                "E011",
+                "E013",
+                "E014"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "A fixed per-interval schedule scaling (the mid window delivers smaller raw displacement than the late window) could produce the same cheap-condition pattern without any physical window difference; per-interval delivered guidance and clipping were not re-queried this round, so this alternative is live.",
+              "expected_subgroup_response": "A cheap mid-window step should move many candidates slightly in the same direction with the dominant identities essentially fixed, as seen for the I2 7 and 9 steps; a mean/median split or a single dominant contributor would argue for correspondence switching rather than a physical response.",
+              "revision_from_previous_result": "Earlier rounds treated the late window as the amplitude lever and tested 5→7→9 there, then used the mid window only at 7. After 9 the mid window is the more efficient lever, so the remaining upper-bound test is moved to it rather than extending the late window again or re-probing single-slot ±2 edits from tick 5, which are documented sub-band nulls.",
+              "reference_ticks": [
+                5,
+                3,
+                9,
+                9
+              ],
+              "experiment_purpose": "bracket_peak",
+              "expected_condition_effect": "Further condition reduction of order 1e-4 Å or less relative to 0.7935742 Å, to about 0.7934–0.7936 Å, if the mid-window response is still monotone at tick 10; null if it has peaked at 9.",
+              "expected_functional_effect": "Essentially unchanged absolute teacher gap (a few 1e-5 at most) if mid-window gap neutrality extends to 10; a larger widening would show the cheap lever is not free at the top of its range.",
+              "search_mode": "local",
+              "scale_reason": "One tick is the fine resolution and the last legal value for this slot (allowed range 7–10); the default two-tick step would leave the range entirely, and no verified large-step direction exists, so the smallest legal increment is used."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G2:H2",
+            "ticks": [
+              3,
+              7,
+              5,
+              9
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                7,
+                5,
+                9
+              ],
+              "direction": "late-window upward: I3 7→9",
+              "exploration_degree": "local two-tick step on one interval; not a range probe",
+              "hypothesis": "At anchor [3,7,5,7], the late I3 5→7→9 condition-favourable slope observed under I1=3 may transfer to I1=7: raising I3 from 7 to 9 should lower condition further but widen the teacher gap. This is a transfer/interaction test, not a peak claim.",
+              "expected_mean_effect": "If late amplitude transfers: condition roughly 4e-4 Å lower than anchor (0.793468 → ~0.79307), mean absolute teacher gap roughly 1e-4 wider (3.627931 → ~3.62803). If no transfer, condition and gap stay near anchor.",
+              "expected_best_effect": "No Best gain predicted; max remains ~7.2115–7.2125, best_minus_teacher ~−0.626 versus teacher 7.837829, no teacher exceedance.",
+              "falsifier": "If condition does not fall by roughly 2e-4 or gap does not widen while delivered late guidance increases, the late-window slope is scoped to I1=3 and should not be proposed as a general late lever.",
+              "evidence_ids": [
+                "E007",
+                "E008",
+                "E009"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "A fixed per-tick schedule scaling or correspondence reassignment could produce a monotone late response without a physical late-window effect; pose covers only 5/25.",
+              "expected_subgroup_response": "No gate; check c009/c002/c016/c022 and late step-90 terminal movement. A mean/median split or isolated identity shift favours correspondence over a distributed late effect.",
+              "revision_from_previous_result": "The late edge was supported within I1=3 only ([5,3,5,9]/[3,3,5,9]); this proposal changes I3 7→9 at I1=7, a previously untested background, and does not re-propose the already-tested I1=3 peak bracket.",
+              "reference_ticks": [
+                3,
+                7,
+                5,
+                7
+              ],
+              "experiment_purpose": "direction_probe",
+              "expected_condition_effect": "If transfer holds, condition decreases about 4e-4 Å from anchor; if background-specific, flat or worse.",
+              "expected_functional_effect": "Gap likely widens by ~1e-4 if the late condition gain is functionally regressive; report separately, not as success.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the configured local step, exactly the previously used late step; one changed interval and no range expansion."
+            }
+          }
+        ],
+        "parent_policy": "Fixed new R0 before update 10 for every schedule; no incumbent restart.",
+        "published_memory_sha256": "48b9dd4b89fe5531e198a506c2f08feaa0d7b6cde58def8c3b229bef4eddbed9",
+        "binding_sha256": "10697a7ab73737e98518311b765c98c770f10245c52a67fec479826340d15f2e",
+        "formal_gpu_executed": false
+      }
+    },
+    "5nn4_SC2_A_1017__top2": {
+      "round": 5,
+      "phase": "complete",
+      "job": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top2",
+        "observed_round": 4,
+        "candidates_per_group": 25,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G2:H1",
+            "ticks": [
+              3,
+              3,
+              3,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                3,
+                3,
+                5
+              ],
+              "direction": "Increase interval3 from 3 to 5 ticks (late guidance +2) at fixed [3,3,3,*].",
+              "exploration_degree": "Local two-tick step on the fine grid; no range expansion.",
+              "hypothesis": "If the supported interval3 monotone transfers to the [3,3,3,3] archive, raising interval3 from 3 to 5 should lower terminal condition RMSD while slightly worsening mean teacher-affinity agreement.",
+              "expected_mean_effect": "Mean condition RMSD should fall by about 0.0006 A from 1.919687 A toward about 1.9190 A; mean affinity absolute gap should rise by about 0.00009 pic50 from 3.218406 toward about 3.21850.",
+              "expected_best_effect": "Best may rise by about 0.0001 pic50 around 7.22317, but no Best should exceed teacher 7.412205.",
+              "falsifier": "If the condition mean changes by more than -0.0002 A (i.e. less than 0.0002 A improvement) and the mean affinity gap stays within +/-0.0002 pic50, interval3 is not a transferable lever at this background.",
+              "evidence_ids": [
+                "E006",
+                "E007",
+                "E008"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "Assignment switching or re-mapping in steps 76-90, or a different delivered interval3 inside_rms, could produce the shift; inspect interval_diagnostics delivered displacement and assignment-switch fraction before attributing it to amplitude.",
+              "expected_subgroup_response": "A real amplitude response should appear broadly across candidates; concentration in one identity would indicate correspondence churn rather than a transferable late-guidance effect.",
+              "revision_from_previous_result": "Replaces repeating interval1 or cached interval2 +2. Interval1 is closed at i0=3 and interval2 +2 is already executed; this tests transfer of the supported interval3 monotone into the current mean-affinity archive.",
+              "reference_ticks": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "experiment_purpose": "exploit",
+              "expected_condition_effect": "Condition mean should improve by about 0.0006 A, continuing the interval3 condition-favourable sign seen at interval1=5, interval2=5.",
+              "expected_functional_effect": "Mean affinity teacher gap should worsen slightly by about 0.00009 pic50, the expected opposing functional cost of the late interval3 increase.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the default moderate local step and stays within the max absolute tick change of 2; no range probe is legal or justified."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G1:H1",
+            "ticks": [
+              3,
+              3,
+              9,
+              3
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                3,
+                9,
+                3
+              ],
+              "direction": "Increase interval2 guidance from 7 to 9 ticks while holding [3,3,7,3] otherwise fixed.",
+              "exploration_degree": "Local two-tick upper bracket; no range probe, fine grid unchanged, one changed interval.",
+              "hypothesis": "Interval2 remains condition-favourable above 7, so tick 9 will lower mean protein-frame condition RMSD further with only a small affinity-gap cost; 7 is not yet shown to be a local peak.",
+              "expected_mean_effect": "Mean condition RMSD expected to fall by roughly 1e-4 to 3e-4 A from 1.919171 A; mean affinity absolute gap expected to rise by at most about 1e-4 pIC50 from 3.218484.",
+              "expected_best_effect": "Negligible, likely within about +/-3e-4 pIC50 around 7.222869; no Best exceeding teacher 7.412205 is expected.",
+              "falsifier": "If mean condition RMSD does not improve by at least 1e-4 A or the mean affinity gap worsens by more than 2e-4 pIC50, interval2 is not supported above 7 and tick 7 is a local peak.",
+              "evidence_ids": [
+                "E002",
+                "E003",
+                "E004"
+              ],
+              "group_id": "G1",
+              "diagnostic_alternative": "Assignment switching or late-window overwriting in steps 51-75, rather than delivered interval2 amplitude, could produce any shift; compare delivered interval2 inside_rms, max_atom_guidance and assignment-switch fraction before interpreting amplitude.",
+              "expected_subgroup_response": "Condition gain, if present, should be broad across score quartiles; affinity movement may be tail-driven, so inspect high-score and low-score subgroups rather than applying a responder fraction.",
+              "revision_from_previous_result": "Prior interval2 evidence varied only 5->7 at [3,3,5,3] to [3,3,7,3], giving condition -0.000262 A and gap +5.68e-5 pIC50. This tests a further legal +2 from the current action anchor instead of repeating the cached 5->7 edge.",
+              "reference_ticks": [
+                3,
+                3,
+                7,
+                3
+              ],
+              "experiment_purpose": "bracket_peak",
+              "expected_condition_effect": "Lower mean condition RMSD if interval2 remains monotone above 7; no claim of coordinate equivalence.",
+              "expected_functional_effect": "Slight worsening or flat mean affinity teacher gap; Best likely unchanged at sub-1e-3 scale, with no bonus expected.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the configured moderate local step and the only legal move from 7 toward the interval2 upper bound 9; no range expansion exists, so no range probe and no coarsening of other intervals."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G4:H1",
+            "ticks": [
+              3,
+              5,
+              3,
+              3
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                5,
+                3,
+                3
+              ],
+              "direction": "Decrease interval1 from 7 to 5 ticks (local -2) at fixed interval0=3, interval2=3, interval3=3.",
+              "exploration_degree": "Local two-tick step, one changed interval; no range probe.",
+              "hypothesis": "At the current anchor [3,7,3,3], interval1=7 is off the locally supported i0=3 optimum. Lowering interval1 to 5 should improve protein-frame condition and teacher-affinity agreement through the same weak interval1 transmission observed at interval2=5, without changing direct chemistry.",
+              "expected_mean_effect": "Condition mean RMSD expected to improve by about 0.0003 A (1.9200 -> ~1.9197) and mean affinity absolute gap to improve by about 0.0004 pic50 (3.21882 -> ~3.2184), based on [3,7,5,3] -> [3,5,5,3]; magnitude may be smaller at interval2=3.",
+              "expected_best_effect": "Best likely near current 7.2243; small change of about +/-0.0001, with no teacher exceedance.",
+              "falsifier": "Falsified as an interval1 transfer claim if condition mean is not lower than current anchor while affinity gap is not also lower, or if delivered interval1 inside_rms is flat or assignment-switch fraction jumps and dominates the terminal change.",
+              "evidence_ids": [
+                "E014",
+                "E015",
+                "E016",
+                "E017"
+              ],
+              "group_id": "G4",
+              "diagnostic_alternative": "The shift could be assignment switching or late overwriting rather than interval1 amplitude; inspect delivered interval1 inside_rms and assignment-switch fraction before attributing to amplification.",
+              "expected_subgroup_response": "Expect a diffuse small shift across score quartiles; no evidence for a single responder subgroup. If concentrated in one identity or tail, treat as correspondence/assignment change rather than uniform amplitude.",
+              "revision_from_previous_result": "Prior interval1 belief said 5 is locally best at i0=3 with interval2=5; this probe tests whether that transfer holds at interval2=3 and current anchor interval3=3. It does not repeat the closed interval1 bracket at interval2=5.",
+              "reference_ticks": [
+                3,
+                7,
+                3,
+                3
+              ],
+              "experiment_purpose": "exploit",
+              "expected_condition_effect": "Lower mean condition RMSD, predicted about -0.0003 A.",
+              "expected_functional_effect": "Lower mean absolute teacher-affinity gap, predicted about -0.0004 pic50; Best neutral to slightly positive.",
+              "search_mode": "local",
+              "scale_reason": "Configured moderate two-tick local step is supported by executed interval1 neighbors; no range expansion and no coarsening of the fine grid."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G2:H2",
+            "ticks": [
+              3,
+              3,
+              3,
+              1
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                3,
+                3,
+                1
+              ],
+              "direction": "Decrease interval3 from 3 to 1 tick (late guidance -2) at fixed [3,3,3,*].",
+              "exploration_degree": "Local two-tick bracket on the fine grid; no range expansion.",
+              "hypothesis": "If interval3 is monotone around the archive level, lowering it from 3 to 1 should worsen terminal condition RMSD and slightly improve mean teacher-affinity agreement, completing the bracket around interval3=3.",
+              "expected_mean_effect": "Mean condition RMSD should rise by about 0.0006 A from 1.919687 A toward about 1.9203 A; mean affinity absolute gap should fall by about 0.00009 pic50.",
+              "expected_best_effect": "Best may fall by about 0.0001 pic50 around 7.22317; no Best should exceed teacher 7.412205.",
+              "falsifier": "If the condition mean changes by less than +0.0002 A and the mean affinity gap stays within +/-0.0002 pic50, interval3 is flat at the archive background and the monotone late-lever belief does not transfer.",
+              "evidence_ids": [
+                "E006",
+                "E007",
+                "E008"
+              ],
+              "group_id": "G2",
+              "diagnostic_alternative": "The low-side result could reflect assignment switching or late overwriting rather than delivered amplitude; check interval3 inside_rms, max_atom_guidance and assignment-switch fraction before interpreting it as a pure amplitude effect.",
+              "expected_subgroup_response": "The expected condition worsening and affinity improvement should be broad across candidates if amplitude-driven; a single-identity jump would indicate re-mapped contacts.",
+              "revision_from_previous_result": "Completes the interval3 bracket around 3 at the new [3,3,3,3] archive. Prior interval3 evidence was collected at interval1=5, interval2=5, so the low-side transfer to interval1=3, interval2=3 is untested.",
+              "reference_ticks": [
+                3,
+                3,
+                3,
+                3
+              ],
+              "experiment_purpose": "direction_probe",
+              "expected_condition_effect": "Condition mean should worsen by about 0.0006 A, the opposite sign expected from H1 if interval3 remains monotone at this background.",
+              "expected_functional_effect": "Mean affinity teacher gap should improve slightly by about 0.00009 pic50, the expected opposing functional gain of lowering interval3.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the default moderate local step and remains within the max absolute tick change of 2; this is a matched bracket, not a range probe."
+            }
+          }
+        ],
+        "parent_policy": "Fixed new R0 before update 10 for every schedule; no incumbent restart.",
+        "published_memory_sha256": "cc9cff6a481fe5ea6a0ff66f1621ab25dc224687ec3fad34a4123005097763d6",
+        "binding_sha256": "48d39621f6545e2be48c0b41f21856e684f5a6fcff3d85d3fe11cdd93c07ed2f",
+        "formal_gpu_executed": false
+      },
+      "artifacts": {
+        "wave": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v6/5nn4_SC2_A_1017__top2/round_05/wave",
+        "parent": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/shared_r0/5nn4_SC2_A_1017__top2",
+        "retention_parent": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v6/5nn4_SC2_A_1017__top2/incumbents/r04",
+        "fixed_start": 10,
+        "job": {
+          "schema": "plip-council-selection-v1",
+          "teacher_id": "5nn4_SC2_A_1017__top2",
+          "observed_round": 4,
+          "candidates_per_group": 25,
+          "logical_llm_sessions": 5,
+          "jobs": [
+            {
+              "priority": 1,
+              "source_proposal_id": "G2:H1",
+              "ticks": [
+                3,
+                3,
+                3,
+                5
+              ],
+              "proposal": {
+                "ticks": [
+                  3,
+                  3,
+                  3,
+                  5
+                ],
+                "direction": "Increase interval3 from 3 to 5 ticks (late guidance +2) at fixed [3,3,3,*].",
+                "exploration_degree": "Local two-tick step on the fine grid; no range expansion.",
+                "hypothesis": "If the supported interval3 monotone transfers to the [3,3,3,3] archive, raising interval3 from 3 to 5 should lower terminal condition RMSD while slightly worsening mean teacher-affinity agreement.",
+                "expected_mean_effect": "Mean condition RMSD should fall by about 0.0006 A from 1.919687 A toward about 1.9190 A; mean affinity absolute gap should rise by about 0.00009 pic50 from 3.218406 toward about 3.21850.",
+                "expected_best_effect": "Best may rise by about 0.0001 pic50 around 7.22317, but no Best should exceed teacher 7.412205.",
+                "falsifier": "If the condition mean changes by more than -0.0002 A (i.e. less than 0.0002 A improvement) and the mean affinity gap stays within +/-0.0002 pic50, interval3 is not a transferable lever at this background.",
+                "evidence_ids": [
+                  "E006",
+                  "E007",
+                  "E008"
+                ],
+                "group_id": "G2",
+                "diagnostic_alternative": "Assignment switching or re-mapping in steps 76-90, or a different delivered interval3 inside_rms, could produce the shift; inspect interval_diagnostics delivered displacement and assignment-switch fraction before attributing it to amplitude.",
+                "expected_subgroup_response": "A real amplitude response should appear broadly across candidates; concentration in one identity would indicate correspondence churn rather than a transferable late-guidance effect.",
+                "revision_from_previous_result": "Replaces repeating interval1 or cached interval2 +2. Interval1 is closed at i0=3 and interval2 +2 is already executed; this tests transfer of the supported interval3 monotone into the current mean-affinity archive.",
+                "reference_ticks": [
+                  3,
+                  3,
+                  3,
+                  3
+                ],
+                "experiment_purpose": "exploit",
+                "expected_condition_effect": "Condition mean should improve by about 0.0006 A, continuing the interval3 condition-favourable sign seen at interval1=5, interval2=5.",
+                "expected_functional_effect": "Mean affinity teacher gap should worsen slightly by about 0.00009 pic50, the expected opposing functional cost of the late interval3 increase.",
+                "search_mode": "local",
+                "scale_reason": "Two ticks is the default moderate local step and stays within the max absolute tick change of 2; no range probe is legal or justified."
+              }
+            },
+            {
+              "priority": 2,
+              "source_proposal_id": "G1:H1",
+              "ticks": [
+                3,
+                3,
+                9,
+                3
+              ],
+              "proposal": {
+                "ticks": [
+                  3,
+                  3,
+                  9,
+                  3
+                ],
+                "direction": "Increase interval2 guidance from 7 to 9 ticks while holding [3,3,7,3] otherwise fixed.",
+                "exploration_degree": "Local two-tick upper bracket; no range probe, fine grid unchanged, one changed interval.",
+                "hypothesis": "Interval2 remains condition-favourable above 7, so tick 9 will lower mean protein-frame condition RMSD further with only a small affinity-gap cost; 7 is not yet shown to be a local peak.",
+                "expected_mean_effect": "Mean condition RMSD expected to fall by roughly 1e-4 to 3e-4 A from 1.919171 A; mean affinity absolute gap expected to rise by at most about 1e-4 pIC50 from 3.218484.",
+                "expected_best_effect": "Negligible, likely within about +/-3e-4 pIC50 around 7.222869; no Best exceeding teacher 7.412205 is expected.",
+                "falsifier": "If mean condition RMSD does not improve by at least 1e-4 A or the mean affinity gap worsens by more than 2e-4 pIC50, interval2 is not supported above 7 and tick 7 is a local peak.",
+                "evidence_ids": [
+                  "E002",
+                  "E003",
+                  "E004"
+                ],
+                "group_id": "G1",
+                "diagnostic_alternative": "Assignment switching or late-window overwriting in steps 51-75, rather than delivered interval2 amplitude, could produce any shift; compare delivered interval2 inside_rms, max_atom_guidance and assignment-switch fraction before interpreting amplitude.",
+                "expected_subgroup_response": "Condition gain, if present, should be broad across score quartiles; affinity movement may be tail-driven, so inspect high-score and low-score subgroups rather than applying a responder fraction.",
+                "revision_from_previous_result": "Prior interval2 evidence varied only 5->7 at [3,3,5,3] to [3,3,7,3], giving condition -0.000262 A and gap +5.68e-5 pIC50. This tests a further legal +2 from the current action anchor instead of repeating the cached 5->7 edge.",
+                "reference_ticks": [
+                  3,
+                  3,
+                  7,
+                  3
+                ],
+                "experiment_purpose": "bracket_peak",
+                "expected_condition_effect": "Lower mean condition RMSD if interval2 remains monotone above 7; no claim of coordinate equivalence.",
+                "expected_functional_effect": "Slight worsening or flat mean affinity teacher gap; Best likely unchanged at sub-1e-3 scale, with no bonus expected.",
+                "search_mode": "local",
+                "scale_reason": "Two ticks is the configured moderate local step and the only legal move from 7 toward the interval2 upper bound 9; no range expansion exists, so no range probe and no coarsening of other intervals."
+              }
+            },
+            {
+              "priority": 3,
+              "source_proposal_id": "G4:H1",
+              "ticks": [
+                3,
+                5,
+                3,
+                3
+              ],
+              "proposal": {
+                "ticks": [
+                  3,
+                  5,
+                  3,
+                  3
+                ],
+                "direction": "Decrease interval1 from 7 to 5 ticks (local -2) at fixed interval0=3, interval2=3, interval3=3.",
+                "exploration_degree": "Local two-tick step, one changed interval; no range probe.",
+                "hypothesis": "At the current anchor [3,7,3,3], interval1=7 is off the locally supported i0=3 optimum. Lowering interval1 to 5 should improve protein-frame condition and teacher-affinity agreement through the same weak interval1 transmission observed at interval2=5, without changing direct chemistry.",
+                "expected_mean_effect": "Condition mean RMSD expected to improve by about 0.0003 A (1.9200 -> ~1.9197) and mean affinity absolute gap to improve by about 0.0004 pic50 (3.21882 -> ~3.2184), based on [3,7,5,3] -> [3,5,5,3]; magnitude may be smaller at interval2=3.",
+                "expected_best_effect": "Best likely near current 7.2243; small change of about +/-0.0001, with no teacher exceedance.",
+                "falsifier": "Falsified as an interval1 transfer claim if condition mean is not lower than current anchor while affinity gap is not also lower, or if delivered interval1 inside_rms is flat or assignment-switch fraction jumps and dominates the terminal change.",
+                "evidence_ids": [
+                  "E014",
+                  "E015",
+                  "E016",
+                  "E017"
+                ],
+                "group_id": "G4",
+                "diagnostic_alternative": "The shift could be assignment switching or late overwriting rather than interval1 amplitude; inspect delivered interval1 inside_rms and assignment-switch fraction before attributing to amplification.",
+                "expected_subgroup_response": "Expect a diffuse small shift across score quartiles; no evidence for a single responder subgroup. If concentrated in one identity or tail, treat as correspondence/assignment change rather than uniform amplitude.",
+                "revision_from_previous_result": "Prior interval1 belief said 5 is locally best at i0=3 with interval2=5; this probe tests whether that transfer holds at interval2=3 and current anchor interval3=3. It does not repeat the closed interval1 bracket at interval2=5.",
+                "reference_ticks": [
+                  3,
+                  7,
+                  3,
+                  3
+                ],
+                "experiment_purpose": "exploit",
+                "expected_condition_effect": "Lower mean condition RMSD, predicted about -0.0003 A.",
+                "expected_functional_effect": "Lower mean absolute teacher-affinity gap, predicted about -0.0004 pic50; Best neutral to slightly positive.",
+                "search_mode": "local",
+                "scale_reason": "Configured moderate two-tick local step is supported by executed interval1 neighbors; no range expansion and no coarsening of the fine grid."
+              }
+            },
+            {
+              "priority": 4,
+              "source_proposal_id": "G2:H2",
+              "ticks": [
+                3,
+                3,
+                3,
+                1
+              ],
+              "proposal": {
+                "ticks": [
+                  3,
+                  3,
+                  3,
+                  1
+                ],
+                "direction": "Decrease interval3 from 3 to 1 tick (late guidance -2) at fixed [3,3,3,*].",
+                "exploration_degree": "Local two-tick bracket on the fine grid; no range expansion.",
+                "hypothesis": "If interval3 is monotone around the archive level, lowering it from 3 to 1 should worsen terminal condition RMSD and slightly improve mean teacher-affinity agreement, completing the bracket around interval3=3.",
+                "expected_mean_effect": "Mean condition RMSD should rise by about 0.0006 A from 1.919687 A toward about 1.9203 A; mean affinity absolute gap should fall by about 0.00009 pic50.",
+                "expected_best_effect": "Best may fall by about 0.0001 pic50 around 7.22317; no Best should exceed teacher 7.412205.",
+                "falsifier": "If the condition mean changes by less than +0.0002 A and the mean affinity gap stays within +/-0.0002 pic50, interval3 is flat at the archive background and the monotone late-lever belief does not transfer.",
+                "evidence_ids": [
+                  "E006",
+                  "E007",
+                  "E008"
+                ],
+                "group_id": "G2",
+                "diagnostic_alternative": "The low-side result could reflect assignment switching or late overwriting rather than delivered amplitude; check interval3 inside_rms, max_atom_guidance and assignment-switch fraction before interpreting it as a pure amplitude effect.",
+                "expected_subgroup_response": "The expected condition worsening and affinity improvement should be broad across candidates if amplitude-driven; a single-identity jump would indicate re-mapped contacts.",
+                "revision_from_previous_result": "Completes the interval3 bracket around 3 at the new [3,3,3,3] archive. Prior interval3 evidence was collected at interval1=5, interval2=5, so the low-side transfer to interval1=3, interval2=3 is untested.",
+                "reference_ticks": [
+                  3,
+                  3,
+                  3,
+                  3
+                ],
+                "experiment_purpose": "direction_probe",
+                "expected_condition_effect": "Condition mean should worsen by about 0.0006 A, the opposite sign expected from H1 if interval3 remains monotone at this background.",
+                "expected_functional_effect": "Mean affinity teacher gap should improve slightly by about 0.00009 pic50, the expected opposing functional gain of lowering interval3.",
+                "search_mode": "local",
+                "scale_reason": "Two ticks is the default moderate local step and remains within the max absolute tick change of 2; this is a matched bracket, not a range probe."
+              }
+            }
+          ],
+          "parent_policy": "Fixed new R0 before update 10 for every schedule; no incumbent restart.",
+          "published_memory_sha256": "cc9cff6a481fe5ea6a0ff66f1621ab25dc224687ec3fad34a4123005097763d6",
+          "binding_sha256": "48d39621f6545e2be48c0b41f21856e684f5a6fcff3d85d3fe11cdd93c07ed2f",
+          "formal_gpu_executed": false
+        },
+        "schedules": [
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            3,
+            5
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            3,
+            9,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            5,
+            3,
+            3
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ],
+          [
+            3,
+            3,
+            3,
+            1
+          ]
+        ]
+      },
+      "last_commit": {
+        "round": 5,
+        "snapshot": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v6/5nn4_SC2_A_1017__top2/incumbents/r05",
+        "snapshot_sha256": "8ef209cf23ba2abcc709e74d453391296a9b6c3bb62c167ef8fa11eca14403df",
+        "quality_complete": true,
+        "retention_complete": true,
+        "improved": 8
+      },
+      "last_selection": {
+        "schema": "plip-council-selection-v1",
+        "teacher_id": "5nn4_SC2_A_1017__top2",
+        "observed_round": 5,
+        "candidates_per_group": 25,
+        "logical_llm_sessions": 5,
+        "jobs": [
+          {
+            "priority": 1,
+            "source_proposal_id": "G4:H2",
+            "ticks": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                3,
+                1,
+                1
+              ],
+              "direction": "decrease interval2 3→1",
+              "exploration_degree": "local two-tick step on one interval; direction probe",
+              "hypothesis": "At [3,3,3,1], lowering interval2 by two ticks to 1 tests whether 3 is near a local optimum; if the interval2 trend remains monotone, condition should worsen and affinity agreement should improve slightly, but a reversal would show that 3 is a peak or that the low side is dominated.",
+              "expected_mean_effect": "If monotone, condition mean about 2e-4 to 4e-4 A higher than [3,3,3,1] and mean affinity gap about 2e-5 to 6e-5 pic50 better; if interval2=3 is locally optimal, both may worsen.",
+              "expected_best_effect": "Best near 7.223065 with a sub-1e-3 change; not expected to exceed teacher 7.412205.",
+              "falsifier": "If lowering interval2 improves condition mean, the monotone interval2 interpretation is wrong; if both condition and affinity worsen, interval2=3 is locally preferred on both objectives.",
+              "evidence_ids": [
+                "E015",
+                "E016",
+                "E017"
+              ],
+              "group_id": "G4",
+              "diagnostic_alternative": "Assignment switching in steps 51-75 or a re-mapped local contact set could make the low-side sign background-specific rather than an amplitude effect; delivered interval2 displacement and assignment-switch fraction would distinguish those explanations.",
+              "expected_subgroup_response": "Unknown because interval2 below 3 is untested. If the trend continues, expect a broad small affinity improvement and condition worsening; if 3 is a local optimum, expect a mixed or same-signed loss across identities.",
+              "revision_from_previous_result": "Adds the untested interval2 low side at the latest anchor; prior interval2 work covered the 3-5-7 range and left below 3 unresolved.",
+              "reference_ticks": [
+                3,
+                3,
+                3,
+                1
+              ],
+              "experiment_purpose": "direction_probe",
+              "expected_condition_effect": "If monotone, condition mean higher by about +2e-4 to +4e-4 A; a directional reversal is the informative alternative.",
+              "expected_functional_effect": "If monotone, mean affinity gap better by about -2e-5 to -6e-5 pic50; otherwise no support for extrapolating the interval2 tradeoff below 3.",
+              "search_mode": "local",
+              "scale_reason": "Uses the configured moderate two-tick local step (0.2 amplitude) down to the allowed interval2 lower bound 1; no range probe is allowed or needed."
+            }
+          },
+          {
+            "priority": 2,
+            "source_proposal_id": "G3:H1",
+            "ticks": [
+              3,
+              5,
+              1,
+              3
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                5,
+                1,
+                3
+              ],
+              "direction": "interval2 low side: 3 -> 1 ticks (amplitude 0.3 -> 0.1) from the action anchor [3,5,3,3], with interval0=3, interval1=5, interval3=3 held fixed.",
+              "exploration_degree": "moderate local step of two ticks, the default maximum absolute change; a single changed interval so the edge is attributable; no range probe.",
+              "hypothesis": "Interval2 is a monotone lever whose sign has only been measured upward (3->5 and 5->7). If the replicated +2 response of about -2.5e-4 A condition and +2e-5 to +6e-5 pic50 gap generalises symmetrically, then lowering interval2 by two ticks will slightly worsen terminal condition mean by roughly +2.5e-4 A while slightly improving mean affinity gap by roughly 2e-5 to 6e-5 pic50, with Best essentially unchanged.",
+              "expected_mean_effect": "Condition mean RMSD about 1.919658 -> 1.9199 A (+2e-4 to +3e-4), mean affinity absolute gap about 3.218385 -> 3.21836 (a change of -2e-5 to -6e-5 pic50).",
+              "expected_best_effect": "Best near-flat, expected within +/-4e-4 of 7.223904; no route to teacher 7.412205.",
+              "falsifier": "If |condition delta| stays below 1e-4 A and |gap delta| below 2e-5 pic50, interval2 is flat on its low side rather than monotone, and the symmetric-sign reading of the +2 lever is refuted; treat interval2 near 3 as a non-lever and stop spending interval2 slots.",
+              "evidence_ids": [
+                "E010",
+                "E011",
+                "E012"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "A flat result could reflect assignment switching in steps 51-75 or late overwriting rather than amplitude, in which case interval2 at tick 1 is weak transmission instead of a monotone lever and the +2 asymmetry would have to be explained by correspondence churn rather than by delivered displacement.",
+              "expected_subgroup_response": "Broad rather than concentrated: the paired per-identity check on the +2 edge gave win rate about 0.64 with median near +9e-5 pic50, so the low-side arm should shift many identities slightly rather than one identity strongly; if one identity supplies nearly all of any affinity change, treat it as the same single-identity concentration seen at interval0 5->3.",
+              "revision_from_previous_result": "The previous round closed interval1 and left interval2 only measured upward, with its value above 7 recorded as the one open question; because interval2 is now legally restricted to ticks 1-5, that upper-bound question cannot be closed and the informative untouched direction is the low side at tick 1.",
+              "reference_ticks": [
+                3,
+                5,
+                3,
+                3
+              ],
+              "experiment_purpose": "direction_probe",
+              "expected_condition_effect": "Slight worsening of mean condition RMSD (+2e-4 to +3e-4 A) if the interval2 lever is monotone across 1-5; a null result would place a floor near tick 3.",
+              "expected_functional_effect": "Slight improvement in mean affinity teacher agreement (-2e-5 to -6e-5 pic50), i.e. the same opposing tradeoff seen for interval2 +2 but at a magnitude far below the 0.02 A band tolerance.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the configured moderate step and the maximum allowed without verified_large_step_directions, and it is the same scale at which the interval2 +2 edge was measured, so the two arms are matched. A larger jump to the legal floor would confound amplitude with a boundary effect, and a range probe is unavailable (max_range_probes 0)."
+            }
+          },
+          {
+            "priority": 3,
+            "source_proposal_id": "G4:H1",
+            "ticks": [
+              3,
+              3,
+              5,
+              1
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                3,
+                5,
+                1
+              ],
+              "direction": "increase interval2 3→5",
+              "exploration_degree": "local two-tick step on one interval; no range probe",
+              "hypothesis": "At [3,3,3,1], raising interval2 by two ticks to 5 should lower terminal condition mean weakly and slightly worsen mean affinity teacher agreement, preserving the interval2 tradeoff seen at interval3=3.",
+              "expected_mean_effect": "Condition mean about 2e-4 to 4e-4 A lower than [3,3,3,1]; mean affinity gap about 2e-5 to 6e-5 pic50 worse, with small Best movement.",
+              "expected_best_effect": "Best near the anchor 7.223065 with a sub-1e-3 change; not expected to exceed teacher 7.412205.",
+              "falsifier": "If condition mean does not improve, or if affinity agreement improves strongly instead of worsening, the weak interval2 +2 tradeoff is not transferable to the interval3=1 background.",
+              "evidence_ids": [
+                "E015",
+                "E016",
+                "E017"
+              ],
+              "group_id": "G4",
+              "diagnostic_alternative": "Assignment switching in steps 51-75 or late overwriting could dominate a sub-0.001 A terminal shift even when delivered displacement changes; delivered interval2 inside_rms and assignment-switch fraction would need inspection before causal wording.",
+              "expected_subgroup_response": "Broad small worsening of affinity agreement across identities is expected, as the cached interval2 +2 edge had a broad paired win rate; a one-identity concentration would argue against a transferable interval2 tradeoff.",
+              "revision_from_previous_result": "Moves cached interval2 +2 evidence from interval3=3 to the new anchor interval3=1, testing transfer after [3,3,3,1] became the best mean-agreement archive.",
+              "reference_ticks": [
+                3,
+                3,
+                3,
+                1
+              ],
+              "experiment_purpose": "exploit",
+              "expected_condition_effect": "Lower condition mean than [3,3,3,1], around -2e-4 to -4e-4 A.",
+              "expected_functional_effect": "Mean affinity gap slightly worse, around +2e-5 to +6e-5 pic50, with essentially unchanged validity and small Best change.",
+              "search_mode": "local",
+              "scale_reason": "Uses the configured moderate two-tick local step (0.2 amplitude) on one interval; interval2 upper bound 5 is within the allowed local grid and max_range_probes is zero."
+            }
+          },
+          {
+            "priority": 4,
+            "source_proposal_id": "G3:H2",
+            "ticks": [
+              3,
+              5,
+              3,
+              5
+            ],
+            "proposal": {
+              "ticks": [
+                3,
+                5,
+                3,
+                5
+              ],
+              "direction": "interval3 late-window transfer probe: 3 -> 5 ticks (amplitude 0.3 -> 0.5) from the action anchor [3,5,3,3], with interval0=3, interval1=5, interval2=3 held fixed.",
+              "exploration_degree": "moderate local step of two ticks on a single interval, on a background where the direction has never been measured; no range probe.",
+              "hypothesis": "Interval3 3->5 is a replicated condition-favourable, affinity-slightly-worse late lever at interval0=3 with interval1=5, interval2=5 (-6.4e-4 and -6.5e-4 A across two steps, +6e-5 to +9e-5 pic50). If that effect is a property of the late window rather than of the interval2=5 background, the same two-tick raise at the new anchor will lower condition mean by roughly 6e-4 A while costing roughly 6e-5-1e-4 pic50 of teacher agreement, leaving Best essentially flat.",
+              "expected_mean_effect": "Condition mean RMSD about 1.919658 -> 1.91905 A (-5e-4 to -7e-4), mean affinity absolute gap about 3.218385 -> 3.21848 (+6e-5 to +1e-4 pic50).",
+              "expected_best_effect": "Best near-flat, expected within +/-3e-4 of 7.223904; the condition gain is not expected to convert into a Best gain above the Best leader 7.224301 or toward teacher 7.412205.",
+              "falsifier": "If condition mean does not improve by at least 2e-4 A, or if the affinity gap improves instead of worsening while condition improves, the late-lever transfer to the interval1=5 / interval2=3 background is refuted and interval3 should not be raised further in this version.",
+              "evidence_ids": [
+                "E010",
+                "E011",
+                "E013"
+              ],
+              "group_id": "G3",
+              "diagnostic_alternative": "Per-interval normalisation of the guidance field in steps 76-90, or assignment switching in that window, could produce the condition trend without any amplitude effect, in which case the apparent late lever is a correspondence artefact and would not transfer to any new background.",
+              "expected_subgroup_response": "Condition improvement should be broadly distributed across identities, while any affinity cost should be mildly tail-driven, consistent with the earlier late-window measurements; a single identity supplying nearly the whole affinity cost would flag the same geometry-worse / functional-worse concentration seen at interval0 5->3.",
+              "revision_from_previous_result": "The prior record held interval3 as a supported monotone lever measured only at interval1=5, interval2=5, with transfer to [3,3,3,3] and interval2=7 explicitly unmeasured. The interval1 test has since moved the action anchor to interval1=5, interval2=3, so this probe tests the lever on a background that now exists rather than re-sampling the 3-7 series already measured.",
+              "reference_ticks": [
+                3,
+                5,
+                3,
+                3
+              ],
+              "experiment_purpose": "direction_probe",
+              "expected_condition_effect": "Condition mean improves by about 5e-4 to 7e-4 A, consistent in sign but smaller in magnitude than the -9.5e-4 A seen at interval0=5.",
+              "expected_functional_effect": "Mean affinity teacher agreement worsens slightly (+6e-5 to +1e-4 pic50); this is an opposing tradeoff, never a free condition gain.",
+              "search_mode": "local",
+              "scale_reason": "Two ticks is the configured moderate step and matches the scale of every earlier interval3 measurement, so the transfer question is asked at identical amplitude rather than confounded with step size. Interval3 above 5 is outside the legal grid for this interval in the current contract, and no range probe is permitted."
+            }
+          }
+        ],
+        "parent_policy": "Fixed new R0 before update 10 for every schedule; no incumbent restart.",
+        "published_memory_sha256": "4a92c31f498d41ba3dfddb3c064365e533d98d24cb515d81cdc32aa7d8be98ed",
+        "binding_sha256": "9b1761b2518ae37fca3a2c109fea18b842207662e6fa653271a7cfba071f2d22",
+        "formal_gpu_executed": false
+      }
+    }
+  },
+  "events": [
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 1,
+      "time": 1792694729.140877
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 1,
+      "time": 1792694785.589745
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 1,
+      "time": 1792694785.592975
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 1,
+      "time": 1792694846.0933223
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 1,
+      "time": 1792695085.2094383
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 2,
+      "time": 1792695085.2144663
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 2,
+      "time": 1792695142.8006241
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 1,
+      "time": 1792695142.8047192
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 2,
+      "time": 1792695142.832909
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 2,
+      "time": 1792695205.8110464
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 2,
+      "time": 1792695374.1286345
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 3,
+      "time": 1792695374.1338816
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 3,
+      "time": 1792695428.193799
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 2,
+      "time": 1792695499.6526546
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 3,
+      "time": 1792695499.65762
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 3,
+      "time": 1792695552.6279666
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 3,
+      "time": 1792695694.143015
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 4,
+      "time": 1792695694.1506689
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 4,
+      "time": 1792695748.6027486
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 3,
+      "time": 1792695822.7845716
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 4,
+      "time": 1792695822.7908149
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 4,
+      "time": 1792695876.4858181
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 4,
+      "time": 1792695981.234015
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 5,
+      "time": 1792695981.2391944
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 5,
+      "time": 1792696035.8149521
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 4,
+      "time": 1792696124.9880648
+    },
+    {
+      "kind": "gpu_started",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 5,
+      "time": 1792696124.9936254
+    },
+    {
+      "kind": "gpu_finished_analysis_queued",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 5,
+      "time": 1792696180.251165
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "round": 5,
+      "time": 1792696284.7204912
+    },
+    {
+      "kind": "round_committed",
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "round": 5,
+      "time": 1792696436.521019
+    }
+  ],
+  "last_gpu_teacher": "5nn4_SC2_A_1017__top1"
+}

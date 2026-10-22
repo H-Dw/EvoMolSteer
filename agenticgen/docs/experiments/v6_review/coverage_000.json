@@ -1,0 +1,313 @@
+{
+  "sessions": [
+    {
+      "id": "v6/5nn4_SC2_A_1017__top1/r00/bootstrap",
+      "evidence_sha256": "41b687d93a7d194761a7ae90f76ab966144ef954a0eb18d0669204de99a4245d",
+      "assessment": "Top1 bootstrap correctly starts with empty task knowledge, the frozen R0 and four one-factor probes [7,5,5,5], [5,3,5,5], [5,5,7,5], [5,5,5,3]. This covers all four control windows immediately, unlike a strategy that repeatedly tunes only the first window. It distinguishes coordinate control from indirect chemistry/affinity, retains competing late-overwrite and mapping explanations, and labels initial beliefs unresolved. However, its diagnosis calls the individual minimum RMSD 0.353 A the pool anchor for the 0.02 A band. The ranking unit is the mean of a 25-candidate shared schedule, initially 0.794651 A, not the best individual. Predictions mainly enumerate both possible signs rather than stating which observation would favor each explanation.",
+      "decision_update": "All four proposals were executed in R1. Their condition deltas against R0 were +0.000643172, +0.000045967, -0.000146372 and +0.000420280 A, while all four affinity gaps narrowed slightly. These are small but signed observations to preserve; they do not establish a general monotone response across different controls. A useful capability hypothesis is to keep the early four-window coverage while requiring separate group-level ranking, candidate-level diagnostics and control-to-terminal sensitivity records. An unchanged clipping flag must not itself falsify amplitude transmission when delivered displacement changed.",
+      "counterexample_or_limitation": "No prior search answer was imported, and the four-probe coverage is a positive counterexample to the old over-conservative exploration pattern. Bootstrap cannot know the response sign, so uncertainty itself is not an error. The failure is using the wrong statistical unit for the band and not specifying discriminating evidence. These findings do not justify a teacher-specific amplitude table or an early range expansion.",
+      "evidence_files": [
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/turn_00.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/turn_00.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/turn_00.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/tools/9b40c66f0fe0f696561322412e13ec009aa9273ce1cdb71592980b094b585ae9.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/tools/990b162c7fd71adc900fc1dbe250c42215be277cdca9676e83675520c16ac9c5.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/tools/af3d4a617e4bd5136c9ed73147420d5e2ab55327d7f3803a05a01ce55a8cf72d.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/tools/88afc4db5db106ed16aae4d4f503a5f5ec9830f472f82d43573e9bd588a4fa9d.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/tools/a5a52a19ee72a958abafde8a90cfdfd86d01eeaa6ca487ee226f8ae9a2336055.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/tools/867e4391d58880d37bd12de140ea24e68aa3f0e99c36988db3d7cea902e4c6ee.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/8993c72e4f93bf2c5bb60c82d9743b33c3c375f40b902bbf6a15f2fa24ed2def.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/cc816bb929bfba74fd57e5cae88c7b12e4a87b629dafcbcd3a228cdce5850888.txt"
+      ],
+      "actual_requests": [
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/turn_00.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+          "role": "system"
+        },
+        "8993c72e4f93bf2c5bb60c82d9743b33c3c375f40b902bbf6a15f2fa24ed2def": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/8993c72e4f93bf2c5bb60c82d9743b33c3c375f40b902bbf6a15f2fa24ed2def.txt",
+          "role": "user"
+        },
+        "cc816bb929bfba74fd57e5cae88c7b12e4a87b629dafcbcd3a228cdce5850888": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/bootstrap/llm_inputs/cc816bb929bfba74fd57e5cae88c7b12e4a87b629dafcbcd3a228cdce5850888.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v6/5nn4_SC2_A_1017__top1/r01/G1",
+      "evidence_sha256": "c4faf8a3b754970a12f78743871042720a08318fe4e71641c7d5ba3196834faa",
+      "assessment": "R1 G1 queried interval diagnostics, explicit R0-to-R1 response edges and subgroup contributions, but misread the six diagnostic rows as four control slots. It treated steps 0-9 as control slot 0 and declared the [7,5,5,5] intervention inert. The source instead shows that slot 0 is steps 10-25: mean max-atom displacement rises 0.000608870 to 0.000854923 A and native ratio 0.00536465 to 0.0075348. All clipping factors remain 1.0. Terminal condition worsens by 0.000643172 A and Mean affinity improves by 0.001488619. Candidate b001:s002 contributes about 0.0010365 to that mean, not 0.0259. The agent's no-op belief would discard the very control that demonstrably transmitted the action.",
+      "decision_update": "Its legal proposals [7,7,5,5] and [7,3,5,5] form a useful bracket on control 1, but the prose incorrectly says they modify steps 10-25; they actually modify 26-50. Both were selected, and the former later becomes the frozen-rule representative with Mean 4.211798344 and condition 0.795612933 A. A good outcome does not validate the erroneous mechanism. Future generic control-gain evidence should explicitly bind action index, start/end steps, A/B ticks and delivered displacement, then distinguish a working actuator with weak terminal response from an inactive actuator. Retain concentrated Mean contributions without a majority-response gate.",
+      "counterexample_or_limitation": "The first response was rejected for extra direction_note_dup_ok/scale_note_dup_ok properties; a bounded interface repair preserved the arrays and produced a valid final response. It did not correct the causal explanation. That successful repair is not a failed formal experiment requiring rerun. The agent correctly investigated clipping and identities rather than merely guessing; the critical loss was misinterpreting those facts and attributing response to matching noise without a relevant noise estimate.",
+      "evidence_files": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_1.invalid.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.attempt_1.invalid.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.repair_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/8212d4893693ddfb58c02dcc85ba74ae018ea00d769f639512c67b96bd9b43fe.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/7f7a7fa6748f578323621bcd7adce5235da5ce2eee23711eec26eb88874b0ca6.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/8c15cddad43284f82e7c061ec0dadc97c8374c1b25ee653566df13ab37143ab0.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/ee6fd14098b2d0e5f835f93d39b06caa0a024fafb10773ac835d4f881b1a40cd.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/debb1633a7997a2eaa051bbd6e4ec380c7406f86b0ff1264c49a815a5f8feb59.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/f08c497a8a88404291f1330bf86ca382662f92a70e75dea8e28e50ce5a637c50.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/1d3ba6d38d313527347e34f8d27a31e3f6d57d0e910a3d78ad875b7e7defc31d.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/3455eae28de577097da1825b65344c9959e9cf49395a3b16578531dce9b9ca76.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/tools/bbee75ca7ea48a31995d72432fee862962cee19d3b02395da46d9ef9f05c36e3.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/254050c7c454b6c8f0a67f3c25dbe6f87e0a86bf22aeebcd10498b7e10523063.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/96b4871628828d9b7f3204e1f0fdddcedb23a4a83888f569c5812cb32c000f54.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/b044f94a6d0a6429edc1fddcd84b72a9f41f2e1e8c3bc0420c3210fe31b541e8.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/55079f32e33da05e15f977c22cc9a05aae724ce26b2a7194f3d2b9cf82573ee4.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/21a4261a2f6e7268912dcf4a24bc22d8f1d093b834dad242dbc55bbe72b69a61.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/d31da179043784446abd570cc97b7477935e37c09e268ef994c9976ae70a58f7.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/490eda07c2769d142d0cefdd756860b2ca0bb421f632f94151b491eb0808dcb7.txt"
+      ],
+      "actual_requests": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/turn_01.repair_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+          "role": "system"
+        },
+        "254050c7c454b6c8f0a67f3c25dbe6f87e0a86bf22aeebcd10498b7e10523063": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/254050c7c454b6c8f0a67f3c25dbe6f87e0a86bf22aeebcd10498b7e10523063.txt",
+          "role": "user"
+        },
+        "96b4871628828d9b7f3204e1f0fdddcedb23a4a83888f569c5812cb32c000f54": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/96b4871628828d9b7f3204e1f0fdddcedb23a4a83888f569c5812cb32c000f54.txt",
+          "role": "user"
+        },
+        "b044f94a6d0a6429edc1fddcd84b72a9f41f2e1e8c3bc0420c3210fe31b541e8": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/b044f94a6d0a6429edc1fddcd84b72a9f41f2e1e8c3bc0420c3210fe31b541e8.txt",
+          "role": "assistant"
+        },
+        "55079f32e33da05e15f977c22cc9a05aae724ce26b2a7194f3d2b9cf82573ee4": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/55079f32e33da05e15f977c22cc9a05aae724ce26b2a7194f3d2b9cf82573ee4.txt",
+          "role": "user"
+        },
+        "21a4261a2f6e7268912dcf4a24bc22d8f1d093b834dad242dbc55bbe72b69a61": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/21a4261a2f6e7268912dcf4a24bc22d8f1d093b834dad242dbc55bbe72b69a61.txt",
+          "role": "user"
+        },
+        "d31da179043784446abd570cc97b7477935e37c09e268ef994c9976ae70a58f7": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/d31da179043784446abd570cc97b7477935e37c09e268ef994c9976ae70a58f7.txt",
+          "role": "assistant"
+        },
+        "490eda07c2769d142d0cefdd756860b2ca0bb421f632f94151b491eb0808dcb7": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G1/llm_inputs/490eda07c2769d142d0cefdd756860b2ca0bb421f632f94151b491eb0808dcb7.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v6/5nn4_SC2_A_1017__top1/r01/G2",
+      "evidence_sha256": "0b68fb8d0e3fd0aeeb3609ca3e68d9786cbcfacd8a480829f2327bc420aea342",
+      "assessment": "R1 G2 correctly scopes the small response of [5,3,5,5] versus R0 to control 1 on the all-5 background: condition +0.000045967 A, affinity-gap -0.000024052, all 25 valid. It proposes [3,3,5,5] and [5,3,5,7] to investigate an early down-direction and a late up-direction, rather than repeating the same tested array. It does not query displacement diagnostics and therefore appropriately leaves clipping/weak transmission/overwrite unresolved. But it anchors the ranking band to candidate c006 at 0.353777 A and describes a sparse candidate band, confusing group selection with individual reconstruction. It also treats a tiny measured effect as equivalence without independent evidence of an equivalence scale.",
+      "decision_update": "Both proposals were selected. R2 [3,3,5,5] reaches condition 0.794144941 A with Mean 4.209961433, while [5,3,5,7] reaches 0.794291785 A with Mean 4.210039511. These results provide useful opposite-direction and condition/function-conflict evidence, despite small magnitudes. Preserve this budget shift toward unvisited controls. Improve the knowledge update by separating 'effect small on this edge' from 'axis ineffective', and by retaining raw signed observations alongside the ranking-band decision.",
+      "counterexample_or_limitation": "Its unresolved mechanistic diagnosis is more defensible than G1's false no-op claim. It has no current sibling data by design, so proposing a direction studied by another private group is not itself redundant misconduct; the synthesizer must combine that information. It has not identified the high-condition-error candidates as actual intervention responders, and the evidence does not establish that affinity can change only when mean geometric error changes.",
+      "evidence_files": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/248e2fbfa2f9cf7b265190130ca93a282b531e45fd562ac62ae5f08190e3ec80.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/0103feb67b99ad2d929433852d6866de4b1710218e540c6abf1be08aeafb5266.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/edabac816334f82e6fb5ceda924cd76a5f2895ae7f3c7becf3b8d8a9f7fa8792.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/ed48500629c5625014303fc8fd8b209877228055a1c7fd5847c719d06e39e6d9.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/cdca07424c5962f830df3e0e64d8cb31e541f8337281ee3a63301fb4618062f0.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/tools/561af48a690c8df6b0749a9ea36f8e5a136c0ffcecb2aa5572f87759fadf3d54.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/c95ad88a9b844b06acedc96c37eb5dc7dd30edb6520fd69c73704dd96a2e54c9.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/f0a10804bf26b8e4c082ad194582a64099e99087bff1185a233486b868e119f1.txt"
+      ],
+      "actual_requests": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/turn_00.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+          "role": "system"
+        },
+        "c95ad88a9b844b06acedc96c37eb5dc7dd30edb6520fd69c73704dd96a2e54c9": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/c95ad88a9b844b06acedc96c37eb5dc7dd30edb6520fd69c73704dd96a2e54c9.txt",
+          "role": "user"
+        },
+        "f0a10804bf26b8e4c082ad194582a64099e99087bff1185a233486b868e119f1": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G2/llm_inputs/f0a10804bf26b8e4c082ad194582a64099e99087bff1185a233486b868e119f1.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v6/5nn4_SC2_A_1017__top1/r01/G3",
+      "evidence_sha256": "09fcfa4e83da7d263f34e895edaa4139fb0eadedff33172c0a96aa608aaf102b",
+      "assessment": "R1 G3 correctly reads control 2 as steps 51-75 and observes the roughly 40% local increase in delivered guidance (inside RMS 8.83758e-5 to 1.23731e-4 A; max-atom mean 1.16940e-4 to 1.63735e-4 A). It excludes clipping on the observed trajectories and queries A/B contributions and fixed score quartiles. Yet it marks the expected geometric improvement refuted even though mean condition improves by 0.000146372 A, because the result is below the 0.02 A ranking tolerance. That tolerance is not measurement resolution or a no-effect threshold. It claims other windows are byte-identical, although the later 76-90 and 91-99 diagnostics differ. It also mixes legal chemical-subgraph coverage with the separate geometric Hungarian correspondence.",
+      "decision_update": "The agent proposes early amplification [7,5,7,5] and late reduction [5,5,7,3], both single-control changes from its anchor. The synthesizer does not select either. Its move toward temporal propagation is useful, but its falsifiers prematurely close a direction when a small response persists. An improved generic strategy should first ask whether the intervention changed the actuator, then where its effect persists or attenuates, and whether the observed trade-off changes the next ranking decision. Small signed effects should guide a local sensitivity model even when they do not make condition priority decisive.",
+      "counterexample_or_limitation": "The correct interval mapping and direct transmission measurement are positive counterexamples to G1. It expressly keeps geometry-to-affinity coupling unresolved rather than declaring it proven. However, assertions about a Best jump implying discrete chemistry, a top-quartile response, and a local response being functionally unreachable exceed the observations; categorical or node-level evidence was not queried. The maximum individual condition delta is about 0.000656 A, not the claimed 0.00047 A.",
+      "evidence_files": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/d1019b4286e1760a80da66107c2b95463f240c8f67d2515f66b2cd688502e829.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/fa857913dcfb6a800e46e3e76298a40f5ef95f1e3b050598b72d12cf8382c9d7.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/8eb1ec3be84de6f70a311c2c2ada64a51f09a8ba4eb0bcd2891db9c2cc800162.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/20f4f529a4349805a2149503a506e009fe1084bb4689ba5b33ede20da0f915a7.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/605b95519a605bf0c46a686366f12fe0dea24c578e11276a3d3644801e4d31c8.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/7bd0a224fb852422908b987cea6891e25447d77cc182e5fcce75abf9158cae5b.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/ef255396c4a1db4a83ce2a9d5e3b4ab1ce1bf05ae50087827fdf9a5886774b4a.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/f383fd09ee381634c7b8e5fbdfdde0f0d1b6a4abb9f6269936fb8d2f7461b175.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/5d1ee1fefceef73ad7d8c07c14a01842f27847b5828d95f2a448c263894d142d.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/tools/552b3078d5dce23293f6d969803b472326fc9935e2fa812fe4673251d5f36382.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/cba9da7e306920fdc5014fa3ce61cfa1a72a49fe5424378e300b020855429d2c.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/d943c3b623a6462209fea240958eaf408a18e41f4015e36ed4aec41d996493df.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/8b7885761326d41b52c23352274c58d6545469afcaad26366fe3cc36970a0e41.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/6bb3465d0151dbf6c8f6395e46b9381a0b9394e862a817e282986693a38e6ff0.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/53827bcb4606373fcb99cec139b626d2fcfcc0ac42cab15be3f23cf7a80a018a.txt"
+      ],
+      "actual_requests": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/turn_01.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+          "role": "system"
+        },
+        "cba9da7e306920fdc5014fa3ce61cfa1a72a49fe5424378e300b020855429d2c": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/cba9da7e306920fdc5014fa3ce61cfa1a72a49fe5424378e300b020855429d2c.txt",
+          "role": "user"
+        },
+        "d943c3b623a6462209fea240958eaf408a18e41f4015e36ed4aec41d996493df": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/d943c3b623a6462209fea240958eaf408a18e41f4015e36ed4aec41d996493df.txt",
+          "role": "user"
+        },
+        "8b7885761326d41b52c23352274c58d6545469afcaad26366fe3cc36970a0e41": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/8b7885761326d41b52c23352274c58d6545469afcaad26366fe3cc36970a0e41.txt",
+          "role": "assistant"
+        },
+        "6bb3465d0151dbf6c8f6395e46b9381a0b9394e862a817e282986693a38e6ff0": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/6bb3465d0151dbf6c8f6395e46b9381a0b9394e862a817e282986693a38e6ff0.txt",
+          "role": "user"
+        },
+        "53827bcb4606373fcb99cec139b626d2fcfcc0ac42cab15be3f23cf7a80a018a": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G3/llm_inputs/53827bcb4606373fcb99cec139b626d2fcfcc0ac42cab15be3f23cf7a80a018a.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v6/5nn4_SC2_A_1017__top1/r01/G4",
+      "evidence_sha256": "dd39ef41ca8f75ba43172a426fd9defa7f9254d35b594f83438947e18ff7c279",
+      "assessment": "R1 G4 correctly distinguishes unguided 0-9 from control 0 at 10-25. The [5,5,5,3] intervention reduces late inside displacement from 1.90674e-4 to 1.14487e-4 A, with condition +0.000420280 A, affinity-gap -0.000104914 and no validity conversions. It appropriately rejects clipping as an explanation on these trajectories and looks for higher-delivery early windows. But it converts one small edge into a broad instruction to stop editing the late window. It presumes the largest baseline-error candidates must be the largest responders; actual largest condition changes include c004 and c021, not just the listed c002/c009/c016. Control-1 cosine is misquoted as 0.0017 from 10-25 instead of the 26-50 value 0.0575368.",
+      "decision_update": "The unselected proposals [7,5,5,3] and [5,3,5,3] test different windows on the late-down background. They are legitimate candidates, but claims that two flat probes would close amplitude exploration or uniquely identify overwriting are too strong. A useful general improvement is to choose experiments that distinguish competing propagation mechanisms using node-level current/endpoint evidence, and separate residual-error level from intervention sensitivity before assigning diagnostic priority. The initial response used an invalid tool ID with an extra b; the repair corrected that citation and kept the scientific arrays.",
+      "counterexample_or_limitation": "Unlike G1, G4's boundary mapping is correct and its description of delivered control changing is supported. Its bracket proposals are not scientific failures merely because they were unselected. The evidence supports non-clipping only for observed paths, not every possible future amplitude. Missing chemical-pose mappings in 20/25 candidates cannot establish that chemistry causes the affinity gap, and the assertion that only Best matters if Mean is insensitive conflicts with the functional objective.",
+      "evidence_files": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.attempt_1.invalid.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.attempt_1.invalid.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.repair_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.receipt.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.budget.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/b08704240f00f3e534ed07075c5795623f3b3e95c4c7661bb86674a041122010.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/eb641689083bb7ae9c6ff7c8aaee4d5ae3318d6fefeffafa36742c9e0e92db89.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/09c8a6c32fef4702b3d1381accffbe0018c973baeadde5db83bc077b7b83cb09.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/abb1158bacce27a3d13fbe28fe2e02cf37821410287c42e2861cf70762919153.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/9feb27cfdffce57c649a04c0a4a8427270045141092365d16d162e1f16d262dc.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/4630a4dfac4d1f1fe903df59a051cf1119822b97aa1ba8dd92f293611793eae1.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/71d87bae879416fd1706454f4f2aefda6e3e8dfd119d52b90c762b4b75e881a1.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/5e305e1b60bf48e81b7bd69367fd13678a371a0c3ba002f5dc478e18642ffd10.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/tools/457ab132d7298d4582918f2bfa261b258a32c745ca69a6906c181c7294ded239.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/22a1a48eb777a0381937e010d4ac3bdfa2a1144223297e6a11bdb46c27261326.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/a96d2610c0101e545d9d4e7197ea1b7b15b581166e576e31706dacbdc309dab1.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/0d98fdc04c0ba8066fd1ed2674e658d99c81701d0d7f7b6aad6838f6a614a9b7.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/504fd4c7da9f23b06a9d8ef783ed33af425d276d3cc66202b48c4cd1599fa753.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/7881a36f51f1c8b3acd0fbe4f622d4df5b02210fad5e8c906bd273a466ab6245.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/1d1dce5fe64ee24a433a5eee26894829badf686e27f0b03e22259fbdfe9901b1.txt",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/6782e105861e2f3877c8eb92c2f12cb69bd768516de008e15fc936df387f8e81.txt"
+      ],
+      "actual_requests": [
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_00.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.wire_1.request.json",
+        "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/turn_01.repair_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/b9c62adc0976426babf35b2f9f2f5e57a5edd84a6ddce22527199f096220a021.txt",
+          "role": "system"
+        },
+        "22a1a48eb777a0381937e010d4ac3bdfa2a1144223297e6a11bdb46c27261326": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/22a1a48eb777a0381937e010d4ac3bdfa2a1144223297e6a11bdb46c27261326.txt",
+          "role": "user"
+        },
+        "a96d2610c0101e545d9d4e7197ea1b7b15b581166e576e31706dacbdc309dab1": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/a96d2610c0101e545d9d4e7197ea1b7b15b581166e576e31706dacbdc309dab1.txt",
+          "role": "user"
+        },
+        "0d98fdc04c0ba8066fd1ed2674e658d99c81701d0d7f7b6aad6838f6a614a9b7": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/0d98fdc04c0ba8066fd1ed2674e658d99c81701d0d7f7b6aad6838f6a614a9b7.txt",
+          "role": "assistant"
+        },
+        "504fd4c7da9f23b06a9d8ef783ed33af425d276d3cc66202b48c4cd1599fa753": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/504fd4c7da9f23b06a9d8ef783ed33af425d276d3cc66202b48c4cd1599fa753.txt",
+          "role": "user"
+        },
+        "7881a36f51f1c8b3acd0fbe4f622d4df5b02210fad5e8c906bd273a466ab6245": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/7881a36f51f1c8b3acd0fbe4f622d4df5b02210fad5e8c906bd273a466ab6245.txt",
+          "role": "user"
+        },
+        "1d1dce5fe64ee24a433a5eee26894829badf686e27f0b03e22259fbdfe9901b1": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/1d1dce5fe64ee24a433a5eee26894829badf686e27f0b03e22259fbdfe9901b1.txt",
+          "role": "assistant"
+        },
+        "6782e105861e2f3877c8eb92c2f12cb69bd768516de008e15fc936df387f8e81": {
+          "path": "versions/v6/5nn4_SC2_A_1017__top1/round_01/council/analysts/G4/llm_inputs/6782e105861e2f3877c8eb92c2f12cb69bd768516de008e15fc936df387f8e81.txt",
+          "role": "user"
+        }
+      }
+    }
+  ]
+}
