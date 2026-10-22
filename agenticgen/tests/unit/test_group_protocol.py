@@ -10,7 +10,7 @@ def test_two_levels_of_budget_and_doubled_limits():
     c = configuration()
     assert c['rounds'] == 5 and c['versions'] == [f'v{i}' for i in range(6,26)]
     assert 50+2*25*4*c['rounds']*len(c['versions']) == c['total_result_budget'] == 20050
-    assert input_limit(c) == 262144 and input_limit(defaults()) == 131072
+    assert input_limit(c) == 524288 and input_limit(defaults()) == 131072
     assert c['llm']['max_output_tokens'] == 32768 and c['council']['max_output_tokens'] == 65536
     assert budget_context(c,5)['decision_phase'] == 'review_only'
     assert budget_context(c,5)['remaining_sampling_rounds'] == 0

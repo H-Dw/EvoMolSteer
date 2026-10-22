@@ -94,6 +94,9 @@ def validate_controller_hypotheses(message, anchor, count, evidence_ids, large, 
     seen = {tuple(x['ticks']) for x in executed}
     for h in hs:
         ticks = validate_ticks(h['ticks'], int(policy['upper_amplitude']*10))
+        if h['reference_ticks'] != anchor:
+            raise ValueError(f"{h['id']}: reference_ticks={h['reference_ticks']} differs from action anchor={anchor}. "
+                'The physical R0 restart is not the proposal reference. Choose the action yourself using the supplied anchor and synchronize its explanation.')
         if not any(ticks):
             raise ValueError('An all-zero guidance experiment is outside this protocol')
         if tuple(ticks) in seen:
@@ -111,14 +114,23 @@ def validate_controller_hypotheses(message, anchor, count, evidence_ids, large, 
         else:
             for i, d in changes:
                 if abs(d) > 3 or (abs(d) == 3 and large.get(i) != (1 if d > 0 else -1)):
-                    raise ValueError('Step 0.1 or 0.2; 0.3 requires two verified comparable improving edges')
-        if h['reference_ticks'] != anchor:
-            raise ValueError('Proposal reference_ticks must match its actual action anchor; cite other causal comparisons separately')
+                    raise ValueError(f"{h['id']}: interval {i}, anchor tick {anchor[i]}, proposed tick {ticks[i]}, delta {d}. "
+                        'Step 0.1 or 0.2; 0.3 requires two verified comparable improving edges. '
+                        f'Allowed local ticks: {action_domain(anchor, large, policy)[i]}. '
+                        'Do not calculate the change from the physical R0 restart; revise the proposal and its explanation yourself.')
         if not set(h['evidence_ids']) <= evidence_ids:
             raise ValueError('Unknown evidence citation')
     # Bootstrap directly selects four. Private two-proposal lists can each offer
     # a probe, but must also supply a local alternative for the council quota.
     validate_probe_quota(hs, active=policy)
+
+
+def action_domain(anchor, large, policy):
+    """Arithmetic eligibility, not an optimizer or a suggested scientific action."""
+    upper = int(policy['upper_amplitude']*10)
+    return [sorted(x for x in range(upper+1) if abs(x-a) <= 2 or
+                   (abs(x-a) == 3 and large.get(i) == (1 if x > a else -1)))
+            for i, a in enumerate(anchor)]
 
 
 def belief_view(memories):

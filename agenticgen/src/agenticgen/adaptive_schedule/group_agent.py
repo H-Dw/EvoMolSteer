@@ -34,7 +34,8 @@ def capacity_count(path, expected_teachers):
     return n
 
 
-def response_schema(tools, count, evidence_ids, final_only=False, decision_audit=False, controller=False, tick_upper=10):
+def response_schema(tools, count, evidence_ids, final_only=False, decision_audit=False, controller=False, tick_upper=10,
+                    action_anchor=None, local_domain=None):
     text = {'type': 'string', 'minLength': 1}
     hypothesis = {'type': 'object', 'additionalProperties': False,
         'properties': {'id': {'type': 'string', 'pattern': '^H[1-8]$'},
@@ -56,7 +57,11 @@ def response_schema(tools, count, evidence_ids, final_only=False, decision_audit
     if controller:
         final['properties']['learning_update'] = learning_schema(evidence_ids)
         final['required'].append('learning_update')
-        hypothesis['properties']['reference_ticks'] = hypothesis['properties']['ticks']
+        hypothesis['properties']['reference_ticks'] = ({'const': list(action_anchor)} if action_anchor is not None
+                                                       else hypothesis['properties']['ticks'])
+        if local_domain is not None and tick_upper <= 10:
+            hypothesis['properties']['ticks'] = {'type':'array', 'minItems':4, 'maxItems':4,
+                'prefixItems':[{'type':'integer','enum':values} for values in local_domain]}
         hypothesis['properties']['experiment_purpose'] = {'enum': ['direction_probe','exploit','bracket_peak','interaction_probe','conflict_diagnosis']}
         hypothesis['properties']['expected_condition_effect'] = text
         hypothesis['properties']['expected_functional_effect'] = text
@@ -139,6 +144,8 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
     initial = [tools.call('history_summary', {}),
                tools.call('paired_comparison', {'a': 'latest', 'b': 'incumbent'})]
     large = verified_large_steps(group_history, anchor) if control else {}
+    from .learning import action_domain
+    local_domain = action_domain(anchor, large, for_config(config)) if control else None
     executed = executed_schedules(data, published_reflections) if control else []
     if control:
         initial += [tools.call('teacher_condition', {}), tools.call('task_knowledge', {}),
@@ -175,6 +182,10 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
             search_policy=for_config(config),
             range_probe_rule='Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.')
         common['condition_comparison'] = config.get('condition_comparison', {})
+        common['action_contract'].update(action_anchor_ticks=anchor,
+            allowed_local_ticks_by_interval=local_domain,
+            reference_ticks_must_equal=anchor,
+            reference_semantics='Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.')
     messages = [{'role': 'system', 'content': instructions}, {'role': 'user', 'content': canonical(common)}]
     binding = {'population_sha256': tools.digest, 'common_sha256': value_sha(common),
                'skill_sha256': value_sha(instructions), 'llm': config['llm']}
@@ -183,7 +194,8 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
     write(output/'binding.json', binding)
     for turn in range(max_tool_turns+1):
         schema = response_schema(tools, hypotheses, evidence, final_only=turn == max_tool_turns,
-                                 decision_audit=config.get('council', {}).get('decision_audit', False), controller=control, tick_upper=upper_tick(config))
+                                 decision_audit=config.get('council', {}).get('decision_audit', False), controller=control, tick_upper=upper_tick(config),
+                                 action_anchor=anchor if control else None, local_domain=local_domain)
         estimated_bytes = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
         limit = input_limit(config)
         if estimated_bytes > limit:

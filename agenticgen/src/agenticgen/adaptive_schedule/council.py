@@ -259,13 +259,20 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
         if len({tuple(proposals[p]['ticks']) for p in payload['eligible_unexecuted_proposal_ids']}) < 4:
             write(output/'insufficient_unexecuted_proposals.json', payload)
             raise ValueError('Fewer than four unexecuted proposed schedules; preserve evidence, require Agent proposal repair without inventing a scientific action')
+    from .evidence_pack import pack
+    expanded_evidence_sha = value_sha(payload['evidence'])
+    payload['evidence'], payload['shared_evidence_blocks'] = pack(payload['evidence'])
+    payload['evidence_encoding'] = {
+        'protocol': 'lossless_shared_blocks_v1', 'expanded_evidence_sha256': expanded_evidence_sha,
+        'instruction': 'Recursively replace each object containing only $evidence_ref with its named shared_evidence_blocks value. All referenced data is present in this request; no observation, candidate, failure or source is omitted.'}
     messages = [{'role': 'system', 'content': synthesis_skill.read_text(encoding='utf-8')},
                 {'role': 'user', 'content': canonical(payload)}]
     schema = synthesis_schema(list(proposals), list(evidence), controller=control)
     size = len(canonical(messages).encode('utf-8')) + len(canonical(schema).encode('utf-8'))
     write(output/'synthesis.evidence.json', payload)
     write(output/'synthesis.budget.json', {'conservative_bytes': size, 'limit': input_limit(config),
-        'source_bytes': len(canonical(full_evidence).encode('utf-8')), 'projected_bytes': len(canonical(evidence).encode('utf-8'))})
+        'source_bytes': len(canonical(full_evidence).encode('utf-8')), 'projected_bytes': len(canonical(evidence).encode('utf-8')),
+        'shared_blocks':len(payload['shared_evidence_blocks']), 'expanded_evidence_sha256':expanded_evidence_sha})
     if size > input_limit(config):
         raise ValueError('Synthesis evidence exceeds the explicit input budget; evidence preserved without silent truncation')
     def validate(result):

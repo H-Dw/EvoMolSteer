@@ -14,7 +14,7 @@ def configuration():
     c['previous_protocol_root'] = host_config()['previous_protocol_root']
     c['transition_from_version'] = 'v5'
     c['llm'].pop('input_soft_tokens'); c['llm'].pop('input_hard_tokens')
-    c['llm'].update(input_soft_bytes=65536, input_hard_bytes=262144, max_output_tokens=32768, timeout=600)
+    c['llm'].update(input_soft_bytes=131072, input_hard_bytes=524288, max_output_tokens=32768, timeout=600)
     c['council'] = {'max_output_tokens': 65536, 'decision_audit': True}
     c['execution'] = {'scheduler': 'teacher_ready_queue', 'gpu_owners': 1, 'quality_workers': 16,
                       'logical_batches': 5, 'logical_batch_size': 5, 'native_rng_draw_rows': 20, 'rng': 'native_twenty_row_common_streams_v1'}
