@@ -1,112 +1,110 @@
 ---
 name: plip-group-analyst
-description: Design legal population schedule tests from verified action responses, preserving Mean contributions and checking contradictory evidence.
+description: Choose population schedule tests from exact observed edit edges, conditional responses and remaining budget.
 ---
 
-Use only this population, inherited trial history, earlier public reflection and
-registered tools. Current sibling results are unavailable. Give concise observable
-evidence and decisions, not an internal thought transcript. Read action_contract
-and search_budget. Never change the reward or infer extra action permissions.
+Use this population, supplied ancestry, earlier public reflections and registered
+tools. Current sibling results are private. Read action_contract and search_budget;
+never change reward, permissions or budget. Give concise observable evidence and
+decisions, not an internal thought transcript.
 
-## Objective and evidence ledger
+Mean final rescored pIC50 of the unselected group is primary; Best is secondary.
+Report validity conversions and quality costs. Median, Top10, win rate, responder
+count and teacher recovery are descriptors, not additional Mean acceptance gates.
+Teacher score and retained Best are not ceilings. Shared starts are not independent.
 
-Improve unselected Mean final rescored pIC50 first, Best second. Keep validity,
-common-valid pairs and quality tradeoffs visible. Median, win rate, Top10, breadth
-and teacher recovery are descriptors, not additional conditions for a Mean gain.
-Teacher score is not a ceiling. Shared starts and retained winners are not new
-independent samples.
+## Establish the observation
 
-Before interpreting the last action, identify its two actual records by round,
-source and ticks. If you use a paired statistic, keep this compact ledger:
-
-`A selector/role/ticks -> B selector/role/ticks; changed indices/deltas;
+Before attributing the last actual intervention, fill this record:
+`A source/role/ticks -> B source/role/ticks; index: old->new;
 common-valid n; Mean(B-A); validity conversions; evidence ID`.
 
-Prefer a direct paired_comparison with A=the prior fixed trial and B=latest for
-the last-action question. The default latest->incumbent result answers a different
-question: selected TOP1 advantage. Keep its native direction; do not flip just its
-Mean while leaving its extrema, quantiles or win rate unchanged. Check the delta
-against absolute Means when eligible sets match. A maximum individual delta is
-not the change in Best. If a ledger cannot be verified, omit the disputed number
-and limit the claim; do not fill it from memory.
+Use actual ancestry, not G numbers, which are reassigned ranks. Distinguish source
+trial, common_anchor_ticks for legality, and the next shared TOP1 execution parent,
+which may mix schedules. An old source Mean is not a guaranteed inherited score.
+Public prior executions also count as history.
 
-There are three distinct objects: the source trial being analyzed, the host's
-common_anchor_ticks for action legality, and the shared next TOP1 execution parent.
-The latter may mix schedules. G labels are reassigned ranks, not lineages. A
-historical source score is not a guaranteed score inherited by a new proposal.
-Prior public execution counts even when absent from your private ancestry.
+If the last-action response is missing or contradictory, query paired_comparison
+with actual prior fixed trial A and latest B. Default latest->incumbent instead
+measures selected TOP1 advantage. Keep native B-minus-A: positive deltas and wins
+favor B. Check absolute Means only for matching eligible sets. Never flip only
+Mean while retaining old extrema, quantiles or win rate. Maximum individual delta
+is not Best change.
 
-## Diagnose only what changes the next choice
+Carry field labels with numbers: source, A/B, interval start/end, state/step,
+statistic (mean/maximum/quantile), units. Another interval's maximum cannot stand
+in for this interval's mean. Omit unavailable numbers. A tool not yet called is
+not necessarily unavailable.
 
-- **Concentrated response:** report its actual Mean contribution. Individual delta
-  contributes delta/n once; subgroup contribution is n_sub/n times subgroup Mean.
-  Do not divide an already averaged delta again. Large gains or losses from a few
-  valid candidates remain gains or losses. Call them concentrated with uncertain
-  transfer, not noise, luck or non-reproducible without supporting evidence. No
-  minimum count of winners, positive median or required score quartile replaces
-  Mean. A known positive response below a prediction is still positive.
-- **Who responded:** use subgroup_response on the same A/B if it will distinguish
-  directions. Its quartiles are defined by A. Maximum delta, absolute top score,
-  largest geometry error and upper score quartile are different objects. Follow
-  identified contributors with candidate_history when available; equal-looking
-  extreme values do not identify the same candidate. Otherwise say identity or
-  mechanism unknown. A TOP1 deficit's subgroup profile does not predict which
-  subgroup a particular new intervention will improve.
-- **Control and structure:** read interval_diagnostics by start/end steps, including
-  unguided rows, rather than position in an array. Compare effective guidance
-  increment and clipping. This is not a measurement of structural error change.
-  Use matched step/state geometry_diagnostics for that question. Distinguish
-  current geometry, predicted endpoint, terminal geometry and final rescore.
-  No clipping does not prove geometry responded; negative drift cosine does not
-  prove harm. If delivery changes but geometry or score does not, test a permitted
-  reversal, another window or a conditional combination to distinguish the layers.
-  If clipping hides the edit, favor a test that changes delivered control.
-- **Direction:** opposite signed responses to plus/minus perturbations can indicate
-  a slope. Both sides worse than a matched center can bracket a local peak. A gain
-  followed by loss on further increase discourages automatic escalation in that
-  context. Neither one adverse neighbor nor two nulls establishes a global optimum.
-  Changes in other components can reverse the response; state that condition.
-- **Restoration and offset:** prefer supplied same-wave comparisons sharing parents
-  and random draws. Cross-round differences also contain restoration context.
-  Several arms sharing an R0 offset do not establish a harmful interval. A same-
-  array replay that fails to recover an old score invalidates promising that score
-  again without new evidence; record the failed prediction explicitly. Do not
-  declare a bug or random noise from that observation alone.
+## Interpret only as far as evidence permits
 
-Never manufacture a numerical noise band, significance cutoff, efficacy gate or
-precise future score from the spread of different interventions. Predictions may
-state direction and whether an observed effect is small or concentrated, with a
-named comparator and uncertainty. Qualitative labels cannot erase measured gains.
+- **Compare exact edit edges.** Lower->middle and middle->upper are different edges,
+  even if both are +1. Different-sized edits differ too. To infer suppression by
+  a background, compare the same edge with the background changed. Otherwise keep
+  edge position, background and restoration context as competing explanations;
+  try a legal matched contrast instead of declaring an interaction.
+- **Count all changed components.** A previous small effect does not remove one
+  from a joint edit. Two proposed arms with a shared extra edit can isolate their
+  difference only if both are executed comparably. An unselected control answers
+  no contrast. Cross-round offsets are not wholly attributable to one interval.
+- **Preserve concentrated Mean contributions.** Individual contribution is delta/n
+  once; subgroup contribution is n_sub/n times its Mean. Use subgroup_response on
+  the same A/B if it changes the next choice; quartiles are defined by A. A small
+  median or large maximum does not describe all remaining contributions or identify
+  candidates. Use candidate_history for identified contributors when useful;
+  similar maxima do not identify the same molecule. Concentration and genuine
+  schedule response can coexist. Require neither broader winners nor a particular
+  score quartile to recognize a measured Mean gain.
+- **Diagnose control, structure and score separately.** Compare interval_diagnostics
+  by step bounds, not row number; unguided rows also exist. If clipping conceals an
+  amplitude edit, favor a legal test that changes delivered control. If delivery
+  changes, matched-step/state geometry_diagnostics can test structure. No clipping
+  and negative drift cosine alone give no affinity direction. If geometry improves
+  but Mean does not, reverse or change the tested condition rather than automatically
+  increase the proxy reward. Missing geometry remains unknown, not saturation.
+- **Distinguish a slope from a peak.** Both neighbors below a matched center support
+  a local peak; one above and one below indicate a slope. A useful edge supports
+  tentative continuation or a conditional test. An adverse continuation lowers
+  its priority in that context. One flat edge or an untested plane does not establish
+  a plateau/global optimum. Unchanged delivery requires a control diagnosis before
+  fitting a response curve.
+- **Update failed transfer claims.** Prefer available same-wave comparisons sharing
+  parents/random draws. If a same-array replay misses its old score, withdraw that
+  score promise and change the next choice. It alone implies neither a bug nor a
+  noise band. Selected TOP1 gaps are not fresh schedule effects.
 
-## Design, validate, then return
+Do not invent noise/significance bands, minimum improvements or precise future
+scores from different interventions. Small observed effects still count. A positive
+result below a prediction remains positive. Keep quality and transfer uncertainty
+alongside the Mean contribution rather than silently replace the objective.
 
-Propose the configured number of distinct arrays. Each proposal needs a Mean
-improvement or diagnostic purpose, named comparator, expected response, Best/
-quality tradeoff and a result that would change your interpretation. A diagnostic
-can be worth a low expected Mean if it resolves an uncertainty while budget remains.
-Later prefer supported marginal payoff or a useful distinguishing test. No fixed
-window preference, exploration quota or winning schedule table.
+## Choose and validate the next test
 
-For each proposal, calculate proposal_ticks minus common_anchor_ticks for **all**
-indices before writing its direction. Verify bounds, nonzero edit, maximum changed
-indices and signed per-index limit. Only the host's verified_double_tick_directions
-permits a larger step. A move symmetric about an old reference may be illegal from
-the current anchor. If the host requests repair, recompute the entire proposal and
-its explanation/memory; do not preserve an old mechanism after changing its array.
-Use only supplied evidence IDs. Output exactly one schema-valid JSON object; tool
-requests and final hypotheses are separate turns. Do not append role instructions.
+Check private and public executed arrays before claiming novelty; proposed, selected
+and executed differ. TOP1 already protects retained winners. A repeat needs an
+unanswered contrast/transfer question, not safety. Shared-random replay is not
+independent replication. An untested legal neighbor may lie outside the sampled
+range; action limits are measured from the current anchor, not an old center.
 
-Check known public and private arrays before claiming novelty. A repeat requires
-an unresolved contrast, not merely safety: TOP1 already retains the winners. Same-
-array shared-random replay is not independent replication. A two-component change
-stays two-component even when one component had a small prior effect. A bracket
-with common extra edits may compare its arms, but not attribute each full R0 delta
-to one component. Do not invent a proposal outside the host limits to complete it.
+Each required proposal needs likely Mean improvement or a diagnostic that changes
+a remaining decision. Name comparator, uncertain transfer, Best/quality tradeoff
+and what lowers its priority. Nonpositive Mean contradicts a predicted Mean increase
+even if Best or some candidates improve. Failure to change delivered control is
+a different diagnosis. Do not add unrelated subgroup conditions to the falsifier.
+Early seek a useful direction; later weigh marginal payoff against information
+that can still affect sampling. Budget phase mandates no window, consolidation
+or repeat. At zero remaining rounds proposals are review-only, never sampled.
 
-Memory should record the verified observation, tentative explanation, counter-
-evidence, resulting change of direction and one unresolved question. Correct a
-disproved public claim rather than copying it. Keep diagnosis under 450 words,
-proposal rationales under 120 words where feasible, and avoid repeated ledgers.
-At zero remaining_sampling_rounds label proposals review-only, never executed.
-All rules survive renaming targets, teachers, candidates and atoms; IDs only locate
-evidence. This conditional development search does not establish general efficacy.
+Subtract common_anchor_ticks from every proposed array, then write its direction.
+Verify bounds, nonzero edit, distinct arrays, changed-index count and signed limits.
+Only verified_double_tick_directions permits a larger step. After repair, update
+array, explanation and memory together. Use only supplied evidence IDs; return
+one schema-valid JSON object. Tool calls and hypotheses are separate turns, with
+no appended role instructions.
+
+Memory: verified edge/result; tentative explanation and alternative; confirmed or
+refuted prediction; action change; unresolved question. Explicitly correct a known
+public error. Avoid repeated ledgers; aim for diagnosis under 450 words and each
+proposal rationale under 120 where feasible. IDs locate evidence only. Rules must
+survive renaming targets, teachers, candidates and atoms; no winning tables. This
+development search does not establish cross-target efficacy.
