@@ -35,16 +35,23 @@ def calculate(tools, name, args):
                 'selection_warning': 'Incumbent is selected output, not a shared schedule or generation parent.'}
     if name == 'response_edge':
         a, b = args['a'], args['b']; ar, br = tools.records(a), tools.records(b)
+        from .objective import condition_summary
+        ac=condition_summary([tools.trial(c,a) for c in data['chains']],data['teacher'])
+        bc=condition_summary([tools.trial(c,b) for c in data['chains']],data['teacher'])
         rows = []; common = sum(eligible(x) and eligible(y) for x,y in zip(ar,br))
-        for c, x, y in zip(data['chains'], ar, br):
+        for c, x, y, ax, bx in zip(data['chains'], ar, br, ac['individual_condition_errors'],bc['individual_condition_errors']):
             ta, tb = tools.trial(c,a), tools.trial(c,b)
             delta = y['pic50_on_rescore']-x['pic50_on_rescore'] if eligible(x) and eligible(y) else None
             rows.append({'candidate_id': c['candidate_id'], 'A_source': ta.get('source_id'),
                 'B_source': tb.get('source_id'), 'A_ticks': ta['ticks'], 'B_ticks': tb['ticks'],
                 'delta_ticks': [v-u for u,v in zip(ta['ticks'],tb['ticks'])],
                 'A_valid': eligible(x), 'B_valid': eligible(y), 'delta_pic50': delta,
+                'A_condition_rmsd_A':ax['rms_A'],'B_condition_rmsd_A':bx['rms_A'],
+                'delta_condition_rmsd_A':bx['rms_A']-ax['rms_A'],
+                'contribution_to_condition_mean_delta':(bx['rms_A']-ax['rms_A'])/len(ar),
                 'contribution_to_common_valid_mean': delta/common if delta is not None else None})
         return {'A': a, 'B': b, 'direction': 'B minus A', 'A_summary': score_summary(ar),
+                'A_condition_function':ac,'B_condition_function':bc,
                 'B_summary': score_summary(br), 'paired': paired(ar,br), 'identities': rows,
                 'A_intervals': tools.calculate('interval_diagnostics', {'selection':a}),
                 'B_intervals': tools.calculate('interval_diagnostics', {'selection':b}),

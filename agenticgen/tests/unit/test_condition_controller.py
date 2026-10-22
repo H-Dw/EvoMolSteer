@@ -98,6 +98,9 @@ def test_new_objective_and_counts_reach_actual_prompt_and_registered_tools(tmp_p
     assert len(edge['identities'])==25 and edge['paired']['delta']['mean']==pytest.approx(.1)
     total=sum(r['contribution_to_common_valid_mean'] for r in edge['identities'])
     assert total==pytest.approx(edge['paired']['delta']['mean'])
+    assert sum(r['contribution_to_condition_mean_delta'] for r in edge['identities'])==pytest.approx(
+        edge['B_condition_function']['condition_rmsd_A_all_attempts']['mean']-
+        edge['A_condition_function']['condition_rmsd_A_all_attempts']['mean'])
 
 
 def test_executed_array_rejected_without_executor_inventing_alternative():

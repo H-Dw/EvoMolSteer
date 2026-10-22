@@ -280,10 +280,18 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
     memory = {'teacher_id': teacher, 'published_after_round': round_no,
               'text': result['public_memory'], 'source_reflection_sha256': sha(output/'reflection.json')}
     if control:
+        def shared_condition_summary(data):
+            tools=PopulationTools(data,Path('.'))
+            summary=condition_summary([tools.trial(c,'latest') for c in data['chains']],data['teacher'])
+            # Raw candidate evidence is archived in the council; publish population
+            # statistics once rather than duplicate every coordinate error each round.
+            summary.pop('individual_condition_errors')
+            return summary
         memory.update(version=private[0]['version'], learning_update=result['learning_update'],
             executed=[{'ticks': s['anchor_ticks'], 'round': round_no, 'group': s['group_id'],
-                       'observed': score_summary(records), 'source_sha256': value_sha(records)}
-                      for s, records in zip(specs, group_records)])
+                       'observed': score_summary(records), 'source_sha256': value_sha(records),
+                       'condition_function':shared_condition_summary(d)}
+                      for s, records, d in zip(specs, group_records, private)])
         write(output/'task_knowledge.json', memory)
     write(output/'published_memory.json', memory)
     markdown = [f'# {teacher} / round {round_no}: synthesis', '', result['comparison'], '',

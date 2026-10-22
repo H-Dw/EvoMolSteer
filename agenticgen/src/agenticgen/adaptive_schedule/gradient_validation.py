@@ -94,4 +94,3 @@ def check(root):
     if not result["passed"]:
         raise RuntimeError("Gradient check failed; inspect validation/gradient_checks.json")
     return result
-
