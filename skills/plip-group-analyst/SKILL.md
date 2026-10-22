@@ -1,118 +1,129 @@
 ---
 name: plip-group-analyst
-description: Diagnose a private molecular population, audit comparison direction and delivered control, and propose small evidence-grounded schedule tests for Mean affinity.
+description: Choose informative small schedule tests from a private population using explicit comparators, action provenance and Mean contribution.
 ---
 
-Analyze only this group's supplied population, inherited history and previously
-published reflections. Current sibling results are unavailable. Use registered
-tools and bounded arguments; never request arbitrary paths or executable code.
-Return concise evidence and decision rationales, not an internal thought transcript.
+Use only the supplied population, inherited branch history, previous public
+reflection and registered bounded tools. Current sibling results are unavailable,
+not unexecuted. Return concise evidence and decision rationales, not a private
+thought transcript. Read action_contract and search_budget before any proposal.
 
-## Objective and comparison ledger
+## The decision to make
 
-Optimize unselected population Mean final rescored pIC50 first, Best second.
-Keep all attempts, valid counts, common-valid pairs and validity conversions.
-Report concentrated gains and quality costs; neither a high Best nor a Mean over
-fewer survivors alone establishes benefit. Median, win rate and subgroup breadth
-describe the response; they do not replace Mean or impose an extra success gate.
+Improve unselected population Mean final rescored pIC50 first, Best second. Keep
+valid counts, common-valid comparisons and validity conversions. Best, Top10,
+median, win rate and quality describe tradeoffs; they are not additional Mean
+success gates. A teacher score is a reference, not a ceiling. Do not infer a
+global optimum from this small conditional search.
 
-Before interpreting a difference, record these facts in your diagnosis:
+Decide what the last tested action taught you and which legal next contrast can
+improve Mean or resolve a decision-relevant uncertainty. Do not retell every round.
+At bootstrap there is no prior optimization action: use the supplied R0, state
+that sensitivity is unknown, and propose the requested small discriminating tests.
+Do not request unavailable history selectors or invent prior responses.
 
-- A and B selectors, their roles (R0, previous fixed group, latest fixed group,
-  selected incumbent), common-valid count, and **delta = B minus A**. Positive
-  win rate is the fraction where B beats A. Reversing A/B reverses signs and
-  extrema; it does not create independent observations or conflicting evidence.
-- Check paired Mean against B Mean minus A Mean when their valid sets coincide.
-  With differing valid sets, use the common-valid result and report conversions.
-  Subgroup quartiles are fixed from A; do not call latest-based strata baseline
-  strata. Weight subgroup means by common-valid counts before comparing totals.
-- Compare improvement over R0, response to the last action, and deficit to the
-  selected incumbent separately. The incumbent combines per-chain winners and
-  is not one fixed schedule. Its superiority does not negate a fixed-group gain
-  over R0. It is a useful system-output benchmark, not a required causal control.
+## Establish one comparison before explaining it
 
-Use history_summary and explicit paired_comparison selectors to resolve ambiguity
-before proposing edits. Prefer an informative additional tool call over repeating
-an unsupported diagnosis. If the supplied tools cannot resolve a claim, mark it
-unknown. Do not invent variance estimates, noise thresholds or significance.
+Use history_summary to choose an explicit earlier fixed result. Request
+paired_comparison with **A = that reference, B = latest** for the last-action
+question. This avoids manually reversing a supplied latest-to-incumbent query.
+Keep each comparison's facts together:
 
-## Evidence-to-action procedure
+`A selector/role -> B selector/role; old ticks -> new ticks;
+changed indices and signed deltas; common-valid n; Mean(B-A); validity changes`.
 
-1. Read search_budget and action_contract. Compare the actual old/new tick arrays:
-   list changed zero-based indices, their configured step ranges and tick deltas.
-   Diagnostic rows include unguided prefixes/suffixes; match by start/end, not row
-   position. Natural-language interval names must agree with the arrays.
-2. Identify the measured response to the last action. Use history_summary,
-   paired_comparison and subgroup_response with the intended comparator. Explain
-   how it updates or contradicts the prior forecast. If reversing an earlier
-   edit reverses its response, normalize both to the same action direction before
-   judging consistency; reciprocal signs are not sign instability.
-3. Inspect interval_diagnostics for delivered guidance, clipping and native-drift
-   competition. Compare geometry_diagnostics at the same step and state. Keep
-   current coordinates, predicted endpoint, terminal coordinates and final
-   rescore distinct. Diagnose late response when informative, then choose a
-   controllable intervention window from measured response, not a fixed timing rule.
-4. Separate observation, interpretation and a competing explanation. If a few
-   candidates drive Mean, preserve the full Mean and assess contributions as
-   candidate delta / common-valid count; maximum paired delta is not Best gain.
-   A small median or large individual jump alone does not establish noise. Use
-   candidate_history for available identified contributors and matched geometry
-   checks when they can discriminate explanations. Do not invent candidate IDs
-   or claim contributor identification from aggregate extrema. Report missing
-   quality/trace evidence instead of asserting that every structure is sound.
-5. Propose the configured number of distinct, legal small edits. State the tested
-   explanation, expected direction of Mean contribution, possible Best/quality
-   tradeoff, and a falsifier relative to a named comparator. Numerical future
-   affinity is unknown. Avoid unsupported numerical forecast bands.
-6. Summarize what changed your decision. Update only verified facts in memory;
-   correct contradictory prior public memory rather than treating it as authority.
+- Tools report B minus A. Its win rate means B wins. Do not combine this Mean
+  with another comparison's median, extrema, win rate or subgroup response.
+  If valid sets coincide, verify against the two absolute Means. A reciprocal
+  query is not independent evidence; avoid sign conversion when a direct query
+  is available. Maximum candidate delta is not the difference in absolute Best.
+- Read actual tick arrays from the supplied history or candidate_history, not
+  remembered prose. If provenance is unavailable, say so and limit attribution.
+  Count all changed indices: an increase paired with a decrease is a two-factor
+  exchange, even if the narrative describes only one direction. A conditional
+  one-component contrast requires the other components to match.
+- Current G labels are reassigned by selection rank each round. They are not
+  persistent lineages. Your inherited trial records follow proposal ancestry;
+  use explicit round, source identifier and arrays. Do not call a public result
+  untested merely because it is absent from private history.
+- Separate gain over R0, response to a prior fixed trial and deficit to incumbent.
+  The incumbent is per-chain selected TOP1, potentially from many schedules. It
+  is the next execution parent, not the same thing as your analysis-source trial.
+  A parent label change alone does not establish a changed restored prefix.
 
-## Conditional direction rules
+If these checks fail, correct the ledger before drawing a mechanism or copying
+it into public memory. Mark unsupported quantities unknown. Never invent a noise
+band, significance threshold or numerical future affinity.
 
-- **Delivered control changed, affinity did not:** compare effective displacement
-  and same-state geometry. Small motion is real motion, not proof of inactivity
-  or saturation. If geometry also barely responds, a legal local up/down probe
-  can test sensitivity; stop extending when measured responses cease to support
-  the direction. Zero clipping alone is not a reason to escalate.
-- **Clipping limits differences:** compare clip factors and effective rather than
-  nominal dose. Test a permitted reduction or a different responsive window to
-  distinguish saturation from insufficient control. A high clip fraction does
-  not by itself show that reducing dose will improve affinity.
-- **Geometry improves without affinity:** inspect subgroup, quality and recorded
-  categorical changes before intensifying. Test a small reversal or another
-  window to challenge proxy mismatch. Better geometry does not imply affinity
-  improvement; negative gradient/drift cosine does not prove harmful guidance.
-  Hungarian correspondence switching is an observation, not proof of stochastic
-  noise or a physical pose change. Protein coordinates remain frozen.
-- **A direction first helps then worsens:** treat the response as locally
-  nonmonotonic. Consider returning toward the supported neighborhood and a
-  distinguishable component or opposite-direction probe. Do not keep escalating
-  solely because that interval has the largest displacement. Extend only within
-  host-verified allowances; do not infer double-tick permission yourself.
-- **Mean gain is concentrated:** retain it as primary-objective evidence while
-  checking sensitivity, reproducibility, validity and quality. A broadening test
-  may be useful but is not mandatory. Many tiny wins do not overrule a negative
-  Mean driven by losses. Do not discard outliers without verified error.
-- **A known schedule is proposed again:** state what new parent, contrast or
-  uncertainty makes it informative. Shared-random replay is not an independent
-  replicate. Equal rounded summaries do not prove identical files. Prefer a new
-  legal component contrast when replay adds no useful information.
+## Follow the observed response to its useful next test
 
-Analysis-source history and execution parent differ. Selected proposals apply to
-the next common retained TOP1 population, potentially assembled from different
-branches. Cross-round changes can include parent selection; same-parent,
-common-random comparisons are stronger. Multiple edited intervals do not identify
-their individual effects. Deleted branches contribute documentary evidence only.
+1. **Mean and concentration.** Use subgroup_response with the same A/B when it
+   changes the decision. A's quartiles are defined by A. Sum weighted
+   contributions consistently: an individual delta contributes delta/n once;
+   a subgroup contributes n_sub/n times its paired Mean. Do not divide twice.
+   Quantiles do not supply exact counts of near-zero changes. A small median
+   neither cancels a valid concentrated gain nor excuses a concentrated loss.
+   Many tiny wins can coexist with a harmful Mean.
+2. **Trace only what can discriminate explanations.** Use candidate_history for
+   identified contributors and comparison cases; never invent their IDs from an
+   aggregate maximum. If the tools do not identify them, record that limitation
+   rather than claiming a jump is noise. Geometry-error leaders are not necessarily
+   affinity contributors. A few arbitrary IDs cannot establish a population-wide
+   mechanism. Preserve unresolved structural quality and validity caveats.
+3. **Control -> geometry -> score.** Read interval_diagnostics using start/end
+   step ranges, including unguided rows. Compare effective displacement and clip
+   factors before nominal amplitudes. Compare geometry_diagnostics at identical
+   step and state for relevant available cases. Current, predicted endpoint,
+   terminal geometry and final rescore are different measurements. Report what
+   changed at each layer; a negative drift cosine or matching switch is not proof
+   of damage, a discrete jump or noise.
+4. **Update the direction.** Normalize reciprocal actions before interpreting
+   signs. A loss after a decrease followed by recovery after its reversal is
+   compatible with a conditional response, even when one candidate dominates.
+   An initial gain followed by a loss on further increase supports a local
+   nonmonotonic response; stop automatic escalation and consider a reversal,
+   bracket or component test. Do not keep increasing because motion is largest.
 
-Use evidence maturity and remaining budget together: distinguish predicted Mean
-improvement from a deliberately diagnostic trial. A negative result can be an
-informative experiment. Late in the budget, prefer supported improvement plus
-tests that can still change a decision; no fixed exploration quota is required.
-When remaining_sampling_rounds is zero, proposals are review-only and have no
-measured outcome. Do not authorize additional sampling or change frozen rewards.
+Use these branches as testable alternatives, not fixed prescriptions:
 
-Each schedule covers the whole group. Rules must not depend on target names,
-teacher rank, atom identity/count, candidate IDs or remembered winning tick tables.
-IDs identify evidence only. Read controls from config. Keep rationale compact:
-one comparison ledger, key evidence, conditional proposals and corrected memory;
-do not copy all prior rounds or repeat the numerical diagnosis in every field.
+- Delivered motion changes but geometry barely responds: test a permitted local
+  direction or a different responsive window. Small real motion is not clipping
+  saturation. Zero clipping alone does not justify escalation.
+- Clipping removes nominal differences: test reduction or a different window to
+  distinguish limited delivery from weak sensitivity; benefit is not guaranteed.
+- Geometry changes without useful affinity response: test a small reversal or
+  conditional change elsewhere; do not keep optimizing the proxy automatically.
+- Separate edits failed: a combination remains unknown. Propose a small legal
+  conditional interaction test if it can distinguish a plausible explanation;
+  do not assume additivity or promise synergy.
+- Several trials share an offset from R0: do not assign the whole offset to one
+  edited interval. Actual common restoration can begin before that interval, and
+  parent/batching context may differ from R0. Prefer a supplied matched fixed
+  comparison; carry the unresolved common offset into the uncertainty statement.
+
+## Spend the remaining trials deliberately
+
+Propose the configured number of distinct legal edits. For each give: source
+array, changed indices/deltas, improvement or diagnostic purpose, named comparator,
+expected direction of Mean contribution, Best/quality tradeoff, and a falsifier.
+Host allowances control step size; do not infer double-tick permission yourself.
+
+Before repeating a known array, state the new contrast or uncertainty it resolves.
+Retained TOP1 already protects earlier winners: replay is not needed merely to
+"keep a safe winner". A changed incumbent does not alone prove new information.
+If a repetition reproduces the prior response and provides no further distinction,
+prefer an available legal component or conditional test. Shared-random replay is
+not an independent replicate; rounded equality is not byte identity.
+
+Use early remaining opportunities to distinguish unresolved directions; later,
+favor evidence-supported Mean payoff or a diagnostic whose result can still alter
+a decision. No fixed window preference, exploration quota or fixed amplitude table.
+At zero remaining_sampling_rounds, proposals are review-only; no extra sampling.
+
+Keep diagnosis under 450 words and each proposal rationale under 120 words where
+the schema permits. Use one ledger per comparison; do not repeat its numbers in
+every field. One additional tool call should resolve a named uncertainty, not
+recompute known summaries. End with corrected facts and an unresolved alternative,
+distinguishing observed, selected, executed and untested. Never change the reward.
+Rules must remain unchanged if target, teacher, candidate or atom labels are
+renamed; IDs are evidence references only, not sources of strategy.

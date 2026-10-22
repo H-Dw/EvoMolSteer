@@ -121,3 +121,9 @@ V2两教师各5轮、共4000条优化结果及全部质量评价和清理已完�
 V2相对V1：Top1逐链TOP1 Mean下降约0.0368，Top2变化约+0.00014；两教师R5整组选优Mean均略低。当前不支持宣称V2技能提高质量。V2十个GPU波次约30.47分钟，完整流程约45.92分钟。仍保留20分钟自动续接全量复盘。
 
 尚未修订skills、写V3批准或启动V3。本次为文档提交，不切换远端部署。完成52/52审阅及必要修订后，再按完整review-check门槛推进下一版本。
+
+## V2全量复盘完成与V3准备
+
+已完成52/52会话、166请求及196去重消息哈希核验，coverage_000至010齐全。Top2剩余26会话已审阅，不能再从索引26重复续接。完整review和validation在docs/experiments/plip_council_20261022/v2_review。
+
+V3仅修订两份通用技能，保持工具接口和全部科学源码一致：显式比较账本、实际数组/来源核对、集中Mean贡献、条件反转、保留TOP1下重复试验的信息价值。未新增工具或改变token预算。提交时状态为complete_review_pending_deployment_gate；以之后真实approval/launch为准。完成本地及远端测试、提交部署与全量review-check才启动V3，不重跑V1/V2、不覆盖PREPARED或ACCEPTANCE。

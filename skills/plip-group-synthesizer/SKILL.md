@@ -1,91 +1,100 @@
 ---
 name: plip-group-synthesizer
-description: Audit private population diagnoses, rank distinct schedule proposals for Mean affinity, and publish evidence-corrected reflection.
+description: Select informative population schedule contrasts for Mean affinity after auditing action identity, paired evidence and retained-search context.
 ---
 
-Run after all private analyses finish. Rank all supplied proposals and select the
-configured number of distinct schedules without editing their values. Optimize
-unselected Mean final rescored pIC50 first, Best second. Source-group success does
-not automatically make its next proposal better; assess the proposed intervention.
+Rank all supplied proposals and select the configured number of different arrays,
+without editing their values. Unselected Mean final rescored pIC50 is primary,
+Best secondary. Assess the proposed action, not simply its source-group score.
+Use concise observable evidence and decision rationales. Read the host budget.
 
-## Audit before ranking
+## Resolve comparison identity first
 
-1. Build a compact comparator ledger from absolute summaries and paired evidence.
-   Tools report **B minus A**: positive means B wins, including win rate. Check
-   consistency with absolute Means when valid sets coincide. Distinguish R0,
-   earlier fixed groups, latest groups and per-chain selected incumbent. Use
-   common-valid comparisons and conversions if valid sets differ. Subgroups are
-   stratified by A; reversed queries are not independent contradictory evidence.
-2. Inspect same-wave cross-group paired evidence: common parents/random draws
-   make it more informative than cross-round aggregates. List the actual tick
-   indices/ranges that differ. A one-component contrast isolates that component
-   conditionally; multi-component differences do not. The analyst source branch
-   is evidence, not permission to restart from it rather than the common
-   retained TOP1 parents. Do not treat the selected incumbent as one schedule.
-3. Correct private or inherited claims before using them: reversed signs,
-   mismatched interval names, false historical ranges, tested directions called
-   new, unsupported clipping/noise/ceiling claims, and false budget phase.
-   Reciprocal responses to opposite actions can indicate a consistent local
-   effect. They are not sign instability. Shared-random replay is not an
-   independent replication; rounded equality is not byte identity.
-4. Preserve the Mean objective. Concentrated gains count, with sensitivity and
-   quality caveats; positive medians/majority wins are not additional gates. A
-   maximum candidate delta contributes delta/n to paired Mean, not the full delta.
-   Do not call a large jump noise without trace evidence, invent a numerical noise
-   band, or claim statistical significance from these shared-start groups. Best,
-   Top10, validity, geometry and quality are separate response dimensions.
+For every response that affects selection, keep one compact ledger:
+`A identity/role -> B identity/role; old -> new ticks; changed indices/deltas;
+common-valid n; Mean(B-A); validity conversions`.
 
-If evidence remains inconsistent, lower confidence in the mechanism and select a
-legal discriminating proposal if available. Cite the unresolved discrepancy rather
-than manufacturing agreement. Evidence files outrank previous public conclusions.
+- Positive paired deltas and win rate favor B. Verify absolute Means when valid
+  sets coincide. Do not mix a Mean versus a prior fixed group with a median or
+  extrema versus incumbent. Keep Best and Top10 differences oriented separately;
+  the maximum paired individual delta is not Best improvement.
+- Same-wave cross-group evidence shares execution parents and random draws.
+  Prefer it for conditional effects. Verify arrays directly: two changed indices
+  constitute a two-component contrast. Cross-round history has additional parent
+  and restoration context; previous fixed trial and execution parent differ.
+- G identifiers are local ranks, not enduring branches. Follow explicit round,
+  source proposal and tick arrays. Private absence means unavailable to that
+  analyst, not unexecuted. Correct false novelty before ranking proposals.
+- Incumbent is a mixture of retained per-chain winners, not one fixed schedule.
+  A common shift from R0 cannot all be attributed to one window. Nominal edit
+  entry may differ from the physical wave's earliest restart. Do not claim a
+  changed parent name proves a changed effective prefix or independent repeat.
 
-## Conditional portfolio decisions
+Publish corrections when private reasoning or old memory conflicts with actual
+evidence. If a mechanism remains unresolved, lower its confidence rather than
+inventing a noise band, affinity ceiling or significance claim. Teacher score is
+a reference, not a model performance ceiling.
 
-- When a small direction improves Mean and then worsens, favor locally supported
-  alternatives or a bracket/component test over automatic continued escalation.
-  Verify effective displacement and action direction before calling a reversal.
-- When nominal edits yield little measured control, distinguish clipping-limited
-  delivery, small but real delivery, weak geometry response and affinity/proxy
-  mismatch. No clipping or negative drift cosine alone establishes which applies.
-  Choose available proposals that separate these explanations; do not write an
-  unproposed schedule or alter the reward.
-- When gains are heterogeneous, balance expected Mean contribution and quality
-  costs. A few substantial gains can improve Mean; many tiny wins can lower it.
-  Keep a diagnostic alternative when its outcome can affect a later decision,
-  without a fixed exploration or source-group quota.
-- When proposals repeat known schedules, state whether changed parents or a new
-  matched contrast supplies information. Exact tick duplicates cannot both be
-  selected. Nearby arrays are not exact duplicates: compare information value
-  and expected Mean payoff instead of dismissing them by label.
-- When the remaining budget is small, distinguish supported exploitation from
-  information acquisition and explain its opportunity cost. Consult host budget,
-  not elapsed narrative. At zero remaining rounds every selection is review-only;
-  do not report a forecast as an observed outcome or authorize another round.
+## Keep the objective intact
 
-Prefer an available matched component pair or opposite-direction bracket when it
-resolves an important disagreement. Explain which comparison would support or
-refute each interpretation. A poor source score does not automatically invalidate
-its component test; a negative trial may be useful but still costs an opportunity.
-Forecast direction and uncertainty, not invented affinity.
+A concentrated valid gain still improves Mean; a concentrated valid loss still
+hurts it. Median, majority wins and broad subgroup improvement are descriptors,
+not new acceptance gates. Individual contribution is delta/n once; subgroup
+contribution is its paired Mean times n_sub/n. Quantiles do not establish exact
+counts inside a narrow band. Do not exclude a large response as noise without
+trace evidence. Preserve quality, validity and concentration caveats alongside
+the Mean, not as fabricated evidence that the response is absent.
 
-## Publish corrected memory
+Check the chain of measurements: nominal edit -> effective motion/clipping ->
+matched-state geometry -> final rescore. Small motion is not saturation. No
+clipping, large geometric loss or negative drift cosine alone decides the useful
+direction. A few arbitrary geometry cases do not explain the Mean's contributors.
+Record missing contributor identification instead of assigning a mechanism.
 
-For each choice state evidence, Mean rationale, secondary Best potential, quality
-risk and what would overturn it. Explain rejected alternatives and disagreement.
-Verify final selected arrays, changed indices and ranking agree.
+## Choose tests with distinct value
 
-Memory follows observation -> interpretation -> intervention -> measured response
--> revised direction -> unresolved alternative. Separate proposed, selected,
-executed and supported/refuted/inconclusive. Include corrections to earlier memory
-with evidence, not a copied consensus. State comparator and local scope for each
-retained rule; do not infer a universal amplitude ceiling from this search.
+- A direction helped then worsened: favor a supported neighborhood, reversal or
+  conditional component test over continued escalation. Reciprocal losses and
+  recoveries can support a stable conditional response, even if concentrated.
+- Delivery changed without useful geometry or affinity: rank available proposals
+  that separate weak control, proxy mismatch and conditional interaction. Do not
+  reject a combination solely because isolated changes failed; do not promise it
+  will work. Choose a contrast with a specific falsifier and opportunity cost.
+- Several proposals repeat prior arrays: retained TOP1 already preserves earlier
+  winners. "Safe exploitation" alone does not justify spending a group on replay.
+  Require a new contrast, changed effective context supported by evidence, or a
+  specific uncertainty. Rounded repeats are not independent replication. Prefer
+  a legal untested component/conditional contrast when repeat information is low.
+- Close arrays are not duplicates. Explain which changed component differentiates
+  their information or expected Mean payoff. Exact array duplicates cannot both
+  be selected. Do not impose a fixed exploration quota or source-group quota.
+- As budget decreases, rank supported Mean payoff against information that can
+  still change a later choice. A diagnostic trial is allowed, but label its
+  purpose and cost. At zero remaining rounds all selections are review-only;
+  do not imply they ran or authorize an extra round.
 
-Keep comparison under 500 words, selection rationales under 150 words each and
-public memory under 400 words. Summarize changes rather than copying all history.
-No target/teacher/slot/atom-feature rules or winning amplitude tables. Evidence IDs
-are references, not universal lookup keys. Reflection cannot replace GPT full
-review or authorize later versions.
+Select only provided legal proposals. Prefer a matched component contrast or
+bracket when it resolves an important uncertainty; a poor source score does not
+automatically make its proposed diagnostic poor. If available proposals cannot
+resolve the problem, state the limitation for the next review rather than
+inventing a new schedule or rewriting the reward.
 
-Separate unselected group distributions, group-selected results and per-chain TOP1
-search output. TOP1 monotonicity and group selection do not alone demonstrate an
-improved unconditional generation distribution. Shared starts are not independent.
+## Verify selected actions and publish useful memory
+
+Before returning, compare each selected array with its actual source array and
+verify the stated indices, signed deltas, ranking and hypothesis agree. Report the
+main alternative rejected and why its expected Mean payoff or information is
+lower. Claims about unexecuted proposals remain predictions, not measured results.
+
+Memory should contain the comparison, observation, competing interpretation,
+decision update and unresolved test. Correct old errors explicitly with evidence.
+Distinguish proposed, selected, executed and supported/refuted/inconclusive. Keep
+local scope; a local adverse step does not establish a universal amplitude limit.
+Do not copy previous consensus or all round-by-round numbers into every answer.
+
+Keep comparison under 450 words, each selection rationale under 120 words and
+public memory under 350 words. No target/teacher/slot/atom rules or winning arrays;
+identifiers locate evidence only. Report fixed-group distributions, group selection
+and per-chain TOP1 separately. Search selection and shared starts do not establish
+independent replication or improved unconditional generation. This reflection
+does not replace GPT full review or approve the next experiment version.
