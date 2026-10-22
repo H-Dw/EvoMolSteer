@@ -1,100 +1,106 @@
 ---
 name: plip-group-synthesizer
-description: Select informative population schedule contrasts for Mean affinity after auditing action identity, paired evidence and retained-search context.
+description: Audit proposed actions and conditional evidence before selecting population tests for Mean affinity and publishing corrected memory.
 ---
 
-Rank all supplied proposals and select the configured number of different arrays,
-without editing their values. Unselected Mean final rescored pIC50 is primary,
-Best secondary. Assess the proposed action, not simply its source-group score.
-Use concise observable evidence and decision rationales. Read the host budget.
+Rank all supplied proposals and select the configured number of distinct arrays
+without editing them. Mean final rescored pIC50 of unselected groups is primary,
+Best secondary. Read the host budget. Use concise evidence and decision rationales,
+not an internal thought transcript. This session cannot approve the next version.
 
-## Resolve comparison identity first
+## First audit facts that can alter selection
 
-For every response that affects selection, keep one compact ledger:
-`A identity/role -> B identity/role; old -> new ticks; changed indices/deltas;
-common-valid n; Mean(B-A); validity conversions`.
+For each important response keep one ledger:
+`A identity/role/ticks -> B identity/role/ticks; changed indices/deltas;
+common-valid n; Mean(B-A); validity conversions; evidence ID`.
 
-- Positive paired deltas and win rate favor B. Verify absolute Means when valid
-  sets coincide. Do not mix a Mean versus a prior fixed group with a median or
-  extrema versus incumbent. Keep Best and Top10 differences oriented separately;
-  the maximum paired individual delta is not Best improvement.
-- Same-wave cross-group evidence shares execution parents and random draws.
-  Prefer it for conditional effects. Verify arrays directly: two changed indices
-  constitute a two-component contrast. Cross-round history has additional parent
-  and restoration context; previous fixed trial and execution parent differ.
-- G identifiers are local ranks, not enduring branches. Follow explicit round,
-  source proposal and tick arrays. Private absence means unavailable to that
-  analyst, not unexecuted. Correct false novelty before ranking proposals.
-- Incumbent is a mixture of retained per-chain winners, not one fixed schedule.
-  A common shift from R0 cannot all be attributed to one window. Nominal edit
-  entry may differ from the physical wave's earliest restart. Do not claim a
-  changed parent name proves a changed effective prefix or independent repeat.
+Positive deltas and wins favor B. Check against absolute Means when eligible sets
+match. Do not mix a prior-trial Mean with incumbent-difference quantiles or claim
+the largest individual delta is Best improvement. If an analyst's number does not
+match its endpoints, correct it from the supplied evidence or mark it unknown.
+An unsupported claim repeated by several analysts is still unsupported.
 
-Publish corrections when private reasoning or old memory conflicts with actual
-evidence. If a mechanism remains unresolved, lower its confidence rather than
-inventing a noise band, affinity ceiling or significance claim. Teacher score is
-a reference, not a model performance ceiling.
+Prefer supplied same-wave pairs: they share physical parents and random draws.
+Count the actual differing indices. Two-component swaps do not isolate either
+component. Cross-round source trials have additional restoration context. Their
+old Means are not guaranteed baselines inherited by proposals: all selected arrays
+use the same next committed TOP1 population. G labels are ranks, not persistent
+lineages. A source proposal is an explanation, not permission to restore that branch.
 
-## Keep the objective intact
+Check each array against current-wave results and earlier published executions,
+as well as against other proposals. Private analysts cannot see current siblings;
+their claim of novelty needs this audit. Two authors proposing the same array do
+not create two experiments or make its physical effect intrinsically ambiguous.
+If that target was just sampled, its current paired evidence already answers the
+corresponding contrast; use it before proposing a replay.
 
-A concentrated valid gain still improves Mean; a concentrated valid loss still
-hurts it. Median, majority wins and broad subgroup improvement are descriptors,
-not new acceptance gates. Individual contribution is delta/n once; subgroup
-contribution is its paired Mean times n_sub/n. Quantiles do not establish exact
-counts inside a narrow band. Do not exclude a large response as noise without
-trace evidence. Preserve quality, validity and concentration caveats alongside
-the Mean, not as fabricated evidence that the response is absent.
+## Keep the measured objective and uncertainty separate
 
-Check the chain of measurements: nominal edit -> effective motion/clipping ->
-matched-state geometry -> final rescore. Small motion is not saturation. No
-clipping, large geometric loss or negative drift cosine alone decides the useful
-direction. A few arbitrary geometry cases do not explain the Mean's contributors.
-Record missing contributor identification instead of assigning a mechanism.
+- A concentrated valid gain improves Mean; a concentrated loss hurts it. State
+  concentration and quality/transfer uncertainty alongside the contribution, not
+  instead of it. No minimum number of responders, median threshold, favored score
+  quartile or Best gain is a new Mean acceptance gate. Individual contribution is
+  delta/n once; subgroup contribution is n_sub/n times its Mean. Many tiny wins
+  can coexist with a harmful Mean. Similar extremes do not identify contributors.
+- No clipping only addresses control delivery. Effective guidance increment,
+  matched-state geometry and final rescore are separate measurements. Without a
+  geometry comparison do not claim motion improved the template fit. Negative
+  drift cosine alone gives no affinity direction. Missing contributor identities
+  or structure evidence remain unknown; they do not justify calling a gain noise.
+- Opposite plus/minus responses can indicate a local slope. Both sides below a
+  matched center can bracket a local peak. An adverse continuation reduces its
+  priority in that context; it does not fix a universal amplitude limit. Small
+  conditional gains still count even if another window had a larger main effect.
+- A common offset from R0 is not wholly a single-window effect. If a known array
+  fails to recover its old score, stop promising that old score from another replay.
+  Record the contradicted prediction and revise its priority. Do not infer a bug,
+  a noise threshold or causality from a parent label change alone.
 
-## Choose tests with distinct value
+Never introduce a numerical significance/noise band or improvement cutoff from
+the spread of different interventions. A forecast can be directionally wrong or
+overoptimistic without the real measured response being discarded. Keep fixed-group,
+group-selected and per-chain TOP1 outputs separate; shared starts and search
+selection do not prove independent replication or unconditional distribution gain.
 
-- A direction helped then worsened: favor a supported neighborhood, reversal or
-  conditional component test over continued escalation. Reciprocal losses and
-  recoveries can support a stable conditional response, even if concentrated.
-- Delivery changed without useful geometry or affinity: rank available proposals
-  that separate weak control, proxy mismatch and conditional interaction. Do not
-  reject a combination solely because isolated changes failed; do not promise it
-  will work. Choose a contrast with a specific falsifier and opportunity cost.
-- Several proposals repeat prior arrays: retained TOP1 already preserves earlier
-  winners. "Safe exploitation" alone does not justify spending a group on replay.
-  Require a new contrast, changed effective context supported by evidence, or a
-  specific uncertainty. Rounded repeats are not independent replication. Prefer
-  a legal untested component/conditional contrast when repeat information is low.
-- Close arrays are not duplicates. Explain which changed component differentiates
-  their information or expected Mean payoff. Exact array duplicates cannot both
-  be selected. Do not impose a fixed exploration quota or source-group quota.
-- As budget decreases, rank supported Mean payoff against information that can
-  still change a later choice. A diagnostic trial is allowed, but label its
-  purpose and cost. At zero remaining rounds all selections are review-only;
-  do not imply they ran or authorize an extra round.
+## Choose a set with useful marginal value
 
-Select only provided legal proposals. Prefer a matched component contrast or
-bracket when it resolves an important uncertainty; a poor source score does not
-automatically make its proposed diagnostic poor. If available proposals cannot
-resolve the problem, state the limitation for the next review rather than
-inventing a new schedule or rewriting the reward.
+Assess the proposed edit and comparator, not simply its author's current score.
+Supported local improvement, a reversal after harm, or a conditional test can each
+be useful. Isolated nulls do not prove a combination null; they do not promise
+synergy either. Explain the alternative each selected contrast distinguishes and
+the observation that would reverse its ranking. Prefer tests that can affect a
+remaining decision; at the final round acknowledge that diagnostics only inform
+review. Do not impose a source-group, exploration or fixed-window quota.
 
-## Verify selected actions and publish useful memory
+Retained TOP1 already protects past winners. A repeated high-scoring array does
+not need another group merely to keep it safe. Require a specific new question
+or supported changed effective context. Close but different arrays may provide a
+useful matched contrast; exact duplicates cannot both be selected. If the legal
+candidate set has fewer new arrays than required groups, state that constraint
+and identify any chosen repeat as such, not as independent validation. Do not
+invent or edit candidates to fill the quota.
 
-Before returning, compare each selected array with its actual source array and
-verify the stated indices, signed deltas, ranking and hypothesis agree. Report the
-main alternative rejected and why its expected Mean payoff or information is
-lower. Claims about unexecuted proposals remain predictions, not measured results.
+Read newly available sibling counterevidence before ranking a private hypothesis.
+When an anticipated gain fails or a supposed null produces a conditional gain,
+change the explanation and next action, not only the caveat. A predicted high Mean
+from an old source must be discounted if the actual current comparison refutes it.
+Best and quality remain visible tradeoffs, not substitutes for the stated Mean goal.
 
-Memory should contain the comparison, observation, competing interpretation,
-decision update and unresolved test. Correct old errors explicitly with evidence.
-Distinguish proposed, selected, executed and supported/refuted/inconclusive. Keep
-local scope; a local adverse step does not establish a universal amplitude limit.
-Do not copy previous consensus or all round-by-round numbers into every answer.
+## Return an auditable decision and short public memory
 
-Keep comparison under 450 words, each selection rationale under 120 words and
-public memory under 350 words. No target/teacher/slot/atom rules or winning arrays;
-identifiers locate evidence only. Report fixed-group distributions, group selection
-and per-chain TOP1 separately. Search selection and shared starts do not establish
-independent replication or improved unconditional generation. This reflection
-does not replace GPT full review or approve the next experiment version.
+Verify selected IDs, ordering, actual arrays and stated changed indices agree.
+Select only supplied legal proposals; one schema-valid JSON object, no added role
+text. Explain the main rejected alternative and the opportunity cost of diagnostic
+or repeated groups. At zero remaining_sampling_rounds all choices are review-only.
+
+Public memory should contain verified observed records, the competing explanation,
+the specific prediction confirmed or contradicted, the resulting decision update,
+and unresolved questions. Each numeric causal claim needs its actual two endpoints
+and evidence; omit numbers whose sources cannot be matched. Distinguish proposed,
+selected, executed and supported/refuted/inconclusive. Do not copy a mistaken
+source group's ledger or an old consensus just because it sounds plausible.
+
+Keep comparison under 450 words, selection rationale under 120 words and public
+memory under 350 words where feasible. No target/teacher/slot/atom rules or winning
+tables: identifiers locate evidence only. Generic wording is not cross-target
+validation. Never change the reward, action limits or scientific budget.
