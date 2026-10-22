@@ -15,7 +15,7 @@ def validate(root):
     from .group_run import assert_prepared, ensure_r0, initialize_cpu
     from .flowr import load_model, load_pt
     from .wave_native import execute_wave, take
-    from .wave_retention import prune_payload, verify_snapshot
+    from .wave_retention import prune_payload, verify_snapshot, evaluate_quality
     from .contracts import expanded
     root=Path(root);config=assert_prepared(root);n=config['population_size']
     probe=root/'operations'/('fixed_start_acceptance_'+commit()[:8]);probe.mkdir(parents=True,exist_ok=True)
@@ -68,11 +68,19 @@ def validate(root):
                     if not np.allclose(row['lambda'],expected_lambda,atol=1e-7):
                         raise ValueError('Physical batch does not apply per-group schedules')
                     if row['affinity_vjp']:raise ValueError('Affinity entered reward gradient')
+                # Exercise the installed real SDF/native graph audit and PLIP/quality
+                # barrier before any formal wave can depend on this integration.
+                quality=evaluate_quality(mixed,teacher,pool)
+                if len(quality)!=4*n or any('chemical_pose' not in r for r in quality):
+                    raise ValueError('Native chemical/quality acceptance incomplete')
                 record={'teacher':teacher['teacher_id'],'start':10,'unique_starts':n,'physical_rows':4*n,
                     'coordinate_max_abs':error,'score_max_abs':max(scores,default=None),
                     'rng_and_categories_equal':True,'max_atom_guidance_A':max_move,
                     'different_group_schedules':True,'condition_atoms':teacher['core_atoms'],
-                    'original_core':teacher['original_core_atoms'],'diagnostic_probes_not_scientific_results':True}
+                    'original_core':teacher['original_core_atoms'],'diagnostic_probes_not_scientific_results':True,
+                    'quality_attempts':len(quality),
+                    'quality_sha256':sha(mixed/'QUALITY_COMPLETE.json'),
+                    'chemical_diagnostics_sha256':sha(mixed/'chemical_pose_diagnostics.json')}
                 write(tb/'ACCEPTED.json',record);results.append(record)
                 prune_payload(repeat);prune_payload(mixed)
         del model;torch.cuda.empty_cache()
