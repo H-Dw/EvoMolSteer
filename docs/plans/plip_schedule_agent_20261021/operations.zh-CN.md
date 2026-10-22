@@ -180,3 +180,12 @@ V4相对V3逐链TOP1 Mean变化为Top1 +0.0000351、Top2 −0.0005725，R5整组
 52/52会话已完成，绑定146个实际请求、165个去重消息哈希，69个格式前缀无额外修复。11片coverage齐全，Top2索引26..51全部补齐；不再续接旧部分审阅。来源及完整review/validation位于docs/experiments/plip_council_20261022/v4_review。
 
 V5只重写通用analyst/synthesizer技能：比较具体起止幅度边和背景、数值携带区间与统计字段、Mean贡献不加广度门槛、控制未变与目标最优分开、明确公开执行和匹配臂是否入选、反证改变条件决策。未增加工具、未改科学源码/配置/R0/预算或清理，也不复制教师最优数组。提交时仍须本地及远端测试、固定部署、真实批准及52会话严格review-check才能启动V5。V4无新增失败不恢复不重跑；V4对V3未表现出Mean收益，规则清晰不能替代实测。
+
+
+## V5实际启动（2026-10-22）
+
+V4全量复盘与技能提交168bd0fbf369280879f217955a8f2e449edd1c0b已推送并固定部署/opt/MolSteer/runtimes/plip_council_168bd0fb。本地22通过、1因无torch跳过，远端23全通过。52会话严格review-check通过、真实批准后启动V5，PID1024343，API预检HTTP200且实际继承代理。源码指纹、配置、R0与V1–V4保护哈希一致，没有改变PREPARED/ACCEPTANCE。
+
+两教师bootstrap均为空优化/反思历史、各100候选和两份成功收据；初次真实状态Top1 R1 generating、Top2 R1 ready，无新error。首次只读核验因第二教师bootstrap尚未落盘过早失败，随后完整核验通过，未重启任务。部署、审批和启动证据在docs/experiments/plip_council_20261022/v5_deployment；远端operations/v5_review_deployment_168bd0fb和master_review_progress_v4记录已批准启动，不再从V4索引26续接。
+
+继续20分钟巡检。V5完成后审阅新的52会话再批准V6；旧历史失败不重试，文档后续提交不切换正在运行的168bd0fb。V4相对V3未有Mean收益，V5实际效果待同预算比较。

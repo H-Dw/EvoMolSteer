@@ -1,0 +1,13 @@
+# V5实际部署与启动
+
+审阅和技能提交168bd0fbf369280879f217955a8f2e449edd1c0b已推送GitHub，远端核验同一提交后检出固定目录/opt/MolSteer/runtimes/plip_council_168bd0fb。只修改两份通用技能及审阅文档；科学源码、配置、模型、R0、预算和清理未变。
+
+V4完整52会话、146实际请求、165去重消息绑定及11个coverage分片经严格review-check通过；真实批准绑定V4的FINALIZED、manifest、文档、分片、新技能哈希及同一提交。本地22测试通过、1因无torch跳过；远端23全部通过。源码指纹、冻结配置与R0/V1–V4完成及绑定哈希前后一致，详见journal.json，没有覆盖PREPARED或ACCEPTANCE。
+
+V5工作PID1024343，启动时间1792664104.1709461，API认证HTTP200，实际进程完整继承API与代理，变量值未保存。两教师bootstrap使用共享R0、空优化历史和空公开反思，各100候选；各两份成功API收据、四个合法假设已经保存。
+
+首次真实推进核验时间1792664203.674252：Top1 R1 generating，Top2 R1 ready，均无error。进程命令身份和新技能哈希通过；这不是整轮完成。三个旧failure文件均早于本次启动，来自已恢复的V1/V3历史故障。首次只读启动核验发生过早，第二教师bootstrap尚未落盘，因此返回缺文件；稍后上述完整核验通过，未重启或更改运行任务。
+
+远端操作为operations/v5_review_deployment_168bd0fb，master_review_progress_v4已更新approved_and_v5_started。review/progress中pending_deployment_gate是提交前快照，不据此重复批准/启动。当前磁盘空闲1,289,876,467,712字节；独立nvidia-smi不可用，不据此编造当前显存利用率。
+
+仍每20分钟检查首轮和完整流程。无失败时可参考V4约48分钟，但工具/API耗时可能变化。V5重点验证实际幅度边、背景、统计字段核对，以及反证是否真正改变下一选择；新文字规则不能直接证明质量提升。完成V5后重新全量审阅其52会话，不能使用V4覆盖批准V6。后续文档提交不更换已启动的固定运行版本。
