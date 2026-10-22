@@ -53,6 +53,20 @@ def test_amplitude_range_coarse_scale_and_grid_are_independent():
     with pytest.raises(ValueError):expanded([5,11,5,5])
 
 
+@pytest.mark.parametrize('version', [f'v{i}' for i in range(26,31)])
+def test_extended_versions_keep_existing_amplitude_controls(version):
+    assert validate_policy(policy(),version,policy()) == policy()
+    assert validate_policy(policy(15),version,policy(10)) == policy(15)
+    with pytest.raises(ValueError,match='one authorized range level'):
+        validate_policy(policy(20),version,policy(10))
+
+
+@pytest.mark.parametrize('version', ['v5','v31'])
+def test_versions_outside_authorized_budget_are_rejected(version):
+    with pytest.raises(ValueError,match='V6..V30'):
+        validate_policy(policy(),version,policy())
+
+
 def test_range_probe_quota_and_local_step_guard():
     def h(name,ticks,mode='local'):
         return dict(id=name,ticks=ticks,reference_ticks=[5]*4,evidence_ids=['e'],

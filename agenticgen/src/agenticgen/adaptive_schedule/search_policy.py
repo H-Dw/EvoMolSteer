@@ -12,8 +12,8 @@ def policy(upper=1, coarse=None):
 
 def validate_policy(value, version, previous=None):
     n = int(version.removeprefix('v')); upper = value['upper_amplitude']
-    if n not in range(6, 26) or type(upper) is not int or not (upper == 1 or upper >= 5 and upper % 5 == 0):
-        raise ValueError('Authorized versions V6..V25; range upper is 1 or a positive multiple of 5')
+    if n not in range(6, 31) or type(upper) is not int or not (upper == 1 or upper >= 5 and upper % 5 == 0):
+        raise ValueError('Authorized versions V6..V30; range upper is 1 or a positive multiple of 5')
     if n <= 10 and upper != 1:
         raise ValueError('Range expansion is unavailable before full V10 review')
     if value['fine_resolution'] != .1 or value['max_changed_intervals'] != 2 or value['max_range_probes'] != (1 if upper > 1 else 0):

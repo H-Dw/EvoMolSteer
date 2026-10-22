@@ -79,11 +79,11 @@ knowledge but the same static teacher profile and shared R0.
 Root running status is insufficient: inspect both teachers, each wave's sampling,
 quality, council, retention and cleanup markers, real processes and recent errors.
 Old failures are historical if corresponding later completion markers prove recovery.
-Healthy unchanged states are quiet. V25 delivery ends the automation.
+Healthy unchanged states are quiet. V30 delivery ends the automation.
 
 ## Frozen continuous-RMSD protocol and range/rollback gates
 
-The authorized matrix is V6–V25, 1000 optimization records per version plus 50 shared R0 records (maximum 20050). The primary ranking band is 0.02 A, with offline 0.01/0.05 A sensitivity. It never modifies rewards or displacements.
+The authorized matrix is V6–V30 (25 versions), 1000 optimization records per version plus 50 shared R0 records (maximum 25050). The primary ranking band is 0.02 A, with offline 0.01/0.05 A sensitivity. It never modifies rewards or displacements.
 
 For the existing prepared root with R0 but no scientific version binding, use `agenticgen stage-protocol --reason <concrete rationale>` from the tested fixed commit. It creates an append-only protocol directory and active pointer; original preparation, configuration, acceptance and R0 remain intact. It refuses changes to the sampled R0 settings. Run `validate` against the staged protocol; its new acceptance receipt is written inside the protocol directory. Do not overwrite original root provenance. Until native acceptance and the scoped user-authorized transition pass, `launch` is forbidden.
 
@@ -111,3 +111,12 @@ The user's latest instruction supersedes the ordinary analysis-only recovery rul
 Use `stage-failed-rerun --root ROOT --version v6 --authorization REPO/agenticgen/docs/authorizations/20261023_v6_failed_rerun.json` only after deploying a locally tested, committed fixed revision. It verifies the old source/config/skill binding, records protected files, and stages a new append-only protocol with the authorized 512KiB input budget. It does not delete outputs. Run `validate --root ROOT` for fresh native acceptance. Only then run `finish-failed-rerun --root ROOT --operation OPERATION`, whose completed journal is required for the new approval/launch. Do not use preflight repair on an existing scientific binding.
 
 The removal is scoped to this aborted version, after preserving documentary failure evidence outside `versions/`. Interruption leaves a resumable journal; unexpected files or modified R0 fail closed. Completed versions cannot be reset through this tool. The former V6 review approval is archived, not reused against the changed source/config. The actual user-authorized V5-to-V6 transition remains explicitly unreviewed, with zero fabricated sessions; later version gates remain intact.
+
+
+## Authorized outer-budget extension to V30 (2026-10-23)
+
+`docs/authorizations/20261023_v30_budget.json` records the explicit human extension from 20 to 25 versions: V6–V30 inclusive. Internal rounds remain five. Maximum formal records are 25000 optimized outcomes plus the same 50 shared R0. Failed attempts, diagnostic work and costs remain separately accounted. V31 is forbidden.
+
+Do not change the active V6 configuration or runtime solely for this extension. Queue the authorization in the remote operations directory. Adopt the tested, committed budget changes with a subsequent reviewed version deployment after the preceding version is finalized and the worker has exited. Use a new append-only protocol record and a documented source/config compatibility assessment; retain previous preparation, acceptance, all version bindings and shared R0 hashes. Do not overwrite frozen files or reuse an acceptance receipt with mismatched source/config hashes. Native acceptance or a tested compatibility adoption must explicitly cover the deployed source. `stage-protocol`, `repair-preflight` and `adopt-unstarted-runtime` are pre-scientific-only and cannot be used to bypass this requirement.
+
+This authorization changes only the outer version count and final delivery boundary; it does not approve a future version's skills or waive complete 52-session review, range expansion, rollback or failure controls. Keep the 40-minute automation active through V30 final delivery. Historical deployment receipts retain their original budget values.

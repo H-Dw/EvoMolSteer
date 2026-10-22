@@ -160,7 +160,7 @@ def ensure_r0(model, root, config, template, pool):
 def bind(root, version):
     c = assert_prepared(root)
     if version not in c['versions']:
-        raise ValueError('Version outside authorized twenty-version budget')
+        raise ValueError('Version outside authorized version budget')
     number = int(version[1:])
     if number > 1:
         from .group_review import review_check

@@ -20,7 +20,7 @@ def test_protocol_migration_preserves_prepared_r0_and_requires_new_acceptance(tm
     protected={str(p.relative_to(tmp_path)):sha(p) for p in tmp_path.rglob('*') if p.is_file()}
     stage_protocol(tmp_path,'Authorized ranking/range/budget protocol extension, preserving original R0.')
     assert all(sha(tmp_path/p)==digest for p,digest in protected.items())
-    assert load_config(tmp_path)['versions'][-1]=='v25'
+    assert load_config(tmp_path)['versions'][-1]=='v30'
     assert not acceptance_path(tmp_path).exists()
     with pytest.raises(ValueError,match='already staged'):stage_protocol(tmp_path,'Do not repeat an already recorded migration transaction.')
 

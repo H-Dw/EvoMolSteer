@@ -6,8 +6,8 @@ GROUP_ROOT = host_config()["result_root"]
 
 def configuration():
     c = defaults()
-    c.update(schema='agenticgen-core1hop-fixedstart-v2', rounds=5, versions=[f'v{i}' for i in range(6, 26)],
-             population_size=25, slots_per_seed=5, batch_size=25, batches=1, physical_batch_size=100, hypotheses=4, total_result_budget=20050)
+    c.update(schema='agenticgen-core1hop-fixedstart-v2', rounds=5, versions=[f'v{i}' for i in range(6, 31)],
+             population_size=25, slots_per_seed=5, batch_size=25, batches=1, physical_batch_size=100, hypotheses=4, total_result_budget=25050)
     c['controller'] = {'protocol': 'conditional_learning_v1', 'region': 'core_plus_one_hop',
         'restart_policy': 'shared_r0_before_step10', 'initial_step_ticks': 2, 'max_step_ticks': 3,
         'max_changed_intervals': 2, 'dynamic_memory': 'teacher_version_isolated'}
