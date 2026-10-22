@@ -1,0 +1,264 @@
+{
+  "sessions": [
+    {
+      "id": "v2/5nn4_SC2_A_1017__top1/r01/synthesis",
+      "evidence_sha256": "ba3dd891f64da0be6f43f7d793508de7622288fe625608cba19a94873cdc9be0",
+      "assessment": "R1汇总采用同波次配对，修正G1反向胜率，排除重复早增幅和损失较大早减幅提案，并选[5,5,6,5]、[5,6,5,5]、[5,5,6,4]、[5,5,4,4]。但文字把G2-G3写正0.055742，实际是G3-G2；把共同低于R0误归成晚窗5局部优于4/6，并进入公共记忆。R2四组均未回到R0，三组近4.1649，第二窗口增幅约4.16124，回退可恢复的假说未成立。",
+      "decision_update": "汇总须校对命名比较和有向值一致，且对同波次正反近等、共同偏离R0的情形保留共同因素解释。选择组件括号合理，但不应把跨实现/父状态的共同偏差压成中点最优规则；后轮必须主动撤销未恢复损失的记忆。",
+      "counterexample_or_limitation": "同波次早窗两方向确有明显差异，保守避开早减幅有本地依据；当前证据没有单独证明共同损失来自数值、重启还是类别分支，不能借此判采样实现错误。",
+      "evidence_files": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/selection.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis_inputs/04f2db8aaf1fa6d7c0990c96d0cdf0a743ea67333072e6e1a5d9d41463d26e27.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis_inputs/d7154db8954419cd1a5139f649a4ecd89c6d9a298b7bb6e989753b9f85aa1e46.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis_inputs/e725ef002be2c9613d913f970db04f287450a31e1211a4662d79662af1fcad29.txt"
+      ],
+      "actual_requests": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "04f2db8aaf1fa6d7c0990c96d0cdf0a743ea67333072e6e1a5d9d41463d26e27": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis_inputs/04f2db8aaf1fa6d7c0990c96d0cdf0a743ea67333072e6e1a5d9d41463d26e27.txt",
+          "role": "system"
+        },
+        "d7154db8954419cd1a5139f649a4ecd89c6d9a298b7bb6e989753b9f85aa1e46": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis_inputs/d7154db8954419cd1a5139f649a4ecd89c6d9a298b7bb6e989753b9f85aa1e46.txt",
+          "role": "user"
+        },
+        "e725ef002be2c9613d913f970db04f287450a31e1211a4662d79662af1fcad29": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_01/council/synthesis_inputs/e725ef002be2c9613d913f970db04f287450a31e1211a4662d79662af1fcad29.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v2/5nn4_SC2_A_1017__top1/r02/G1",
+      "evidence_sha256": "cb0ba02f9f6327d8a13942f1b4961ca053167c99c13db6fd0121c68a0d0cf937",
+      "assessment": "R2 G1主动追加R0到latest直接配对，正确区分相对R1回升+0.002798与相对R0下降-0.007457，记录中窗位移约增加19%。但随后人为给出±0.001及中位数0.0005无效阈值，删除主导候选后把负Mean说成null，并把incumbent-latest的0.01479归为同一0.720候选完全解释，忽略剩余贡献。H1/H2为第二窗口正反，后轮选用二者得到4.16124/4.16480，未回到R0。",
+      "decision_update": "保留直接选择比较对象的工具习惯，撤除没有测量依据的噪声门槛。敏感性分析必须与完整Mean并列，不能将剔除后近零作为主结论；incumbent剩余贡献应单独计算，不把不同参照视作反向查询。",
+      "counterexample_or_limitation": "该组承认选择父集可能混合，是改进；但仍把只差一个幅度的R0跨轮比较叫干净组件控制。新第二窗口正反可形成条件对照，失败不能推广为所有第二窗口组合无效。",
+      "evidence_files": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_00.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_00.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_00.receipt.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_00.budget.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_01.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_01.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_01.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_01.receipt.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_01.budget.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/tools/643376988cb9b40c1b6970feaf59762d4e38b94be75d816e1a626bda12f26711.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/tools/c8cad4e5596b2f664c48ad05eabe043953820744894adfabad43bd679ef790cf.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/tools/d7c04a12a3d168359bf5e740297923716281932a515255638294fc55b03ec965.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/tools/e5072576d581332074fcbb87740c3f068561f526e2d636a01e720967d987c5e4.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/tools/838db23b17849241230f4e0ecfe288134eb8375fd456a6fb55c4e987e002dda8.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/tools/608a1edf73781bc93ac8e9470cee4657676b18194f4e4ff50969bb1a26a35b27.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/337ed32d26dfc8d90219cbaeaf00d886406ffa93b8f56896e31bbad022cbca3e.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/c765391aad4901099ef79a4f77c7bddb7b4435e024aca9480dfa2d6c88d54414.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/0344d328c2a0870d6f954e3d33e48d878b202f3289cc9d6b3f99893408460344.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/16fb95b27ed1c24021f4405525bc9976f2102a78125695d48a396f1067933e9d.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/043a6b8d84142f60983708dce3278da905f91c8ac7925ef27c03e4b83d3dcb9c.txt"
+      ],
+      "actual_requests": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_00.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_01.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/turn_01.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+          "role": "system"
+        },
+        "337ed32d26dfc8d90219cbaeaf00d886406ffa93b8f56896e31bbad022cbca3e": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/337ed32d26dfc8d90219cbaeaf00d886406ffa93b8f56896e31bbad022cbca3e.txt",
+          "role": "user"
+        },
+        "c765391aad4901099ef79a4f77c7bddb7b4435e024aca9480dfa2d6c88d54414": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/c765391aad4901099ef79a4f77c7bddb7b4435e024aca9480dfa2d6c88d54414.txt",
+          "role": "user"
+        },
+        "0344d328c2a0870d6f954e3d33e48d878b202f3289cc9d6b3f99893408460344": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/0344d328c2a0870d6f954e3d33e48d878b202f3289cc9d6b3f99893408460344.txt",
+          "role": "assistant"
+        },
+        "16fb95b27ed1c24021f4405525bc9976f2102a78125695d48a396f1067933e9d": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/16fb95b27ed1c24021f4405525bc9976f2102a78125695d48a396f1067933e9d.txt",
+          "role": "user"
+        },
+        "043a6b8d84142f60983708dce3278da905f91c8ac7925ef27c03e4b83d3dcb9c": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G1/llm_inputs/043a6b8d84142f60983708dce3278da905f91c8ac7925ef27c03e4b83d3dcb9c.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v2/5nn4_SC2_A_1017__top1/r02/G2",
+      "evidence_sha256": "42a730f4ca2c2b40f02fca1b3efba7f8bc4e47148de373bf8ef945e04b5802fa",
+      "assessment": "R2 G2对R0差-0.011164、Q2/Q4两负贡献与真实位移增加核对正确，并撤回晚窗5为普适最优。错误是把incumbent-latest+0.018499称R0-latest的精确镜像，及把history的-0.003636视为参照未知，虽绝对历史即可验证它等于R2-R1。提案在较差第二窗口6背景下作第三窗口正反，未入选；又要求广泛单调响应才算窗口有效。",
+      "decision_update": "先用显式历史行核对每个pair的A/B及版本轮次，再发出矛盾警报。分析来源沿提案继承，不以当前G编号猜历史身份；集中损失仍是总体Mean控制对象，组件响应不必多数候选同向。",
+      "counterexample_or_limitation": "无裁剪且位移增加的判断可靠，幅度正反配对在固定背景上也有诊断价值；未选方案没有实测结果，不能说其预算效益已经证伪。",
+      "evidence_files": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.receipt.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.budget.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_01.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_01.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_01.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_01.receipt.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_01.budget.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/tools/06e56e90b11846836ca698d11f9b5c810533d284c00750cabbf59cf9b1a559a0.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/tools/2ada31853cb745e81be76636722e84073254bc5243c64f3a7855f29f95c8d79f.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/tools/644dc8a379e3732a715a78e750107f170480769bd96de2dff32b5a40e25d03fe.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/tools/9e767a8f2c4b2f0eec177df7e6ec87765cc1d8bd5920b185b7f427c1ad81f63f.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/tools/5631d79eef3b05c0f9d4f2169c281337ebde91443eb835eb733739d85ed066e1.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/tools/9e32651cd2e9770d5e5fa0148e8774138058b2c7fa3a10f900ca213b009b558a.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/532857a14a23bbc7a2f7d518af633b5ce563b0b8518605661ef6601d19a15f59.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/47d89948f73cae0c42ac9ce616298ccdf48be94606342bc0e4a055c1bdc291fd.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/133e6de1b082950684e235514f52ee1bfe824abdb413fa928d55cbcb109a1fb2.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/cff5412edc780a1257bed30c1d9d7197e53fb3c063dd8750b0f7c837e7c9a8e0.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/95c3c1a4df09303bf82646cc74b3cc1efdf97fa80385cd4089b8bffab7c78945.txt"
+      ],
+      "actual_requests": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_01.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_01.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+          "role": "system"
+        },
+        "532857a14a23bbc7a2f7d518af633b5ce563b0b8518605661ef6601d19a15f59": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/532857a14a23bbc7a2f7d518af633b5ce563b0b8518605661ef6601d19a15f59.txt",
+          "role": "user"
+        },
+        "47d89948f73cae0c42ac9ce616298ccdf48be94606342bc0e4a055c1bdc291fd": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/47d89948f73cae0c42ac9ce616298ccdf48be94606342bc0e4a055c1bdc291fd.txt",
+          "role": "user"
+        },
+        "133e6de1b082950684e235514f52ee1bfe824abdb413fa928d55cbcb109a1fb2": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/133e6de1b082950684e235514f52ee1bfe824abdb413fa928d55cbcb109a1fb2.txt",
+          "role": "assistant"
+        },
+        "cff5412edc780a1257bed30c1d9d7197e53fb3c063dd8750b0f7c837e7c9a8e0": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/cff5412edc780a1257bed30c1d9d7197e53fb3c063dd8750b0f7c837e7c9a8e0.txt",
+          "role": "user"
+        },
+        "95c3c1a4df09303bf82646cc74b3cc1efdf97fa80385cd4089b8bffab7c78945": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/95c3c1a4df09303bf82646cc74b3cc1efdf97fa80385cd4089b8bffab7c78945.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v2/5nn4_SC2_A_1017__top1/r02/G3",
+      "evidence_sha256": "905ffaec3f3bf80cd896233f2f7f732956c6b8df1b03fad1e1eee06ef7bcbb4f",
+      "assessment": "R2 G3仅用默认历史/配对，承认未查看本轮位移或几何，正确看出第三窗口在第四窗口4时近零。但误把跨轮链上的两次变化称同父实验，且因当前G3继承R1 G4提案历史，错误宣称R1 G3第二窗口提案未执行；该提案实际在R2 G2执行。H1重复[5,5,6,5]，H2叠第二窗口，选H1后R3均值与已测R2 G1相同，晚窗回退恢复0.0074的预测失败。",
+      "decision_update": "公共记忆里的来源组ID必须带版本与轮次，当前槽位G3不能等同上轮G3。每次重复先给新父快照/新增组件对照的依据，预测恢复失败应直接撤销其因果规则而非重命名为未测。",
+      "counterexample_or_limitation": "H1重复在R3与新第三窗口下调臂形成同波次括号，存在一定信息价值；这不让其成为独立重复，也不证明不执行的H2无效。",
+      "evidence_files": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/turn_00.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/turn_00.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/turn_00.receipt.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/turn_00.budget.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/tools/c893e148099632bbeb91de78780b7ae664fc3ea85f6d20ec3f6f244c05dce8ce.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/tools/4ca4f0e1c707e6fac41c776314c51e69c610b136aaf38bc0bd4bf6be52e6eef9.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/llm_inputs/98de76ec67244caca8b6642532a9ce40f0651198d538ec755f80e33852cf1e11.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/llm_inputs/3c414fceadd506932b7e4c8452f37ffcda448f6fcf5e9a9e8ba4af10f3f25feb.txt"
+      ],
+      "actual_requests": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/turn_00.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+          "role": "system"
+        },
+        "98de76ec67244caca8b6642532a9ce40f0651198d538ec755f80e33852cf1e11": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/llm_inputs/98de76ec67244caca8b6642532a9ce40f0651198d538ec755f80e33852cf1e11.txt",
+          "role": "user"
+        },
+        "3c414fceadd506932b7e4c8452f37ffcda448f6fcf5e9a9e8ba4af10f3f25feb": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G3/llm_inputs/3c414fceadd506932b7e4c8452f37ffcda448f6fcf5e9a9e8ba4af10f3f25feb.txt",
+          "role": "user"
+        }
+      }
+    },
+    {
+      "id": "v2/5nn4_SC2_A_1017__top1/r02/G4",
+      "evidence_sha256": "71527ce42bf0fb99db27a63f271dd57994f54eca9e0c894ab5d55ddd3ee5acce",
+      "assessment": "R2 G4验证第三窗口降幅实际RMS下降20%而Mean变化-0.0000408，明确无法把几何最差ID当评分贡献ID。两大incumbent差额0.720和0.365贡献约73%正确，但剩余98平均应约0.00405，写成0.00004，漏乘100；仅有latest step91几何却声称几何改善。H1晚窗回退选中后R3 Mean4.164848，未重现预期+0.007，H2未选。",
+      "decision_update": "统一用总差、每链差、对Mean贡献三列单位防止除n两次。任何改善必须有同状态同节点的比较几何；针对晚窗回退的明确失败保留在公共记忆，禁止继续借R0差额预测恢复。",
+      "counterexample_or_limitation": "该组正确认识两格反向动作不在host许可内，不扩大幅度；大部分结构文件已按策略清理，本复盘依据保存诊断，不声称重查结构张量。",
+      "evidence_files": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_00.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_00.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_00.receipt.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_00.budget.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_01.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_01.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_01.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_01.receipt.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_01.budget.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/tools/b408c2ee4d4e110ea84a812843cbe604bf99c8efe17c72440fbc5082017c9466.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/tools/57dcf03470c0d6fa48d44786f2397c43c62b16e503125271197c752f577a3e11.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/tools/01bc99a0b029151f05093616f1d617577cda858c6507c0aa261af6b216fce21b.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/tools/decadbdd1f39496e40274f267669ef4cdb14c827e5d450d38dbb34e30179c6ea.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/tools/d94fb46b9829b21d6eeb1b157175b3f18465bb499132395d4d59b51ff4d461c0.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/tools/620ee610bbd188d59b03dfb85bba391a85d658104f9f499b712daa7b8a316528.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/66b802e37e7831ffe95137e1ce606d788c3e08333d54aecec5a6162d7fd9a367.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/8791ff7fbaa495918e4972c77afca1b0608c7e48e2b7ab48e1a1f63a4e22362a.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/e09a7bd19ba6db353727af1b25d21f757c1573399b0662369bac701f0eab3499.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/c360a4b31b4ed3a7cf0826f40d10edc7cdfd35051874b394b4186303bc842c1c.txt",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/0666be9ea19d54de266b2375e2a658a970f1ca732584090d3b2889c1db5d5517.txt"
+      ],
+      "actual_requests": [
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_00.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_00.wire_1.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_01.request.json",
+        "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/turn_01.wire_1.request.json"
+      ],
+      "deduplicated_message_inventory": {
+        "c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/c3ece8e7d4ef99e08334fd3c2d14e0b356de786d7ad63a06dc23d6d1b7491dc3.txt",
+          "role": "system"
+        },
+        "66b802e37e7831ffe95137e1ce606d788c3e08333d54aecec5a6162d7fd9a367": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/66b802e37e7831ffe95137e1ce606d788c3e08333d54aecec5a6162d7fd9a367.txt",
+          "role": "user"
+        },
+        "8791ff7fbaa495918e4972c77afca1b0608c7e48e2b7ab48e1a1f63a4e22362a": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/8791ff7fbaa495918e4972c77afca1b0608c7e48e2b7ab48e1a1f63a4e22362a.txt",
+          "role": "user"
+        },
+        "e09a7bd19ba6db353727af1b25d21f757c1573399b0662369bac701f0eab3499": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/e09a7bd19ba6db353727af1b25d21f757c1573399b0662369bac701f0eab3499.txt",
+          "role": "assistant"
+        },
+        "c360a4b31b4ed3a7cf0826f40d10edc7cdfd35051874b394b4186303bc842c1c": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/c360a4b31b4ed3a7cf0826f40d10edc7cdfd35051874b394b4186303bc842c1c.txt",
+          "role": "user"
+        },
+        "0666be9ea19d54de266b2375e2a658a970f1ca732584090d3b2889c1db5d5517": {
+          "path": "versions/v2/5nn4_SC2_A_1017__top1/round_02/council/analysts/G4/llm_inputs/0666be9ea19d54de266b2375e2a658a970f1ca732584090d3b2889c1db5d5517.txt",
+          "role": "user"
+        }
+      }
+    }
+  ]
+}
