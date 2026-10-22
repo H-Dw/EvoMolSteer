@@ -5,8 +5,8 @@ The former mean-first 100-candidate council is historical only. Native acceptanc
 and the explicit human-authorized V6 transition have been verified. As of
 2026-10-23, formal V6 has finished all five rounds for both teachers and finalized;
 its worker has exited normally. The 40-minute automation is ACTIVE for master
-review, currently 26/52 substantive sessions (all Top1 conversations; Top2 and
-the aborted attempt remain to be reviewed). See
+review, currently 37/52 substantive sessions (all Top1 conversations and Top2
+bootstrap/R1/R2; Top2 R3-R5 and the aborted attempt remain to be reviewed). See
 [review progress](experiments/v6_review/progress.json). Do not rerun V6 or restart
 its old worker while review is pending. V7 is not approved. Adopt the authorized
 V30 budget only through an appended protocol and compatibility acceptance at the
