@@ -135,3 +135,7 @@ V2全量复盘和通用技能已提交推送dea29257cb82b0cf0ba05227e56234b6a55d
 两教师bootstrap历史为空，绑定新技能并复用相同R0。初次真实推进为Top1 R1 generating、Top2 R1 ready，无新错误；这不是整轮完成。部署、审核、进程和磁盘记录在docs/experiments/plip_council_20261022/v3_deployment，远端operations/v3_review_deployment_dea29257。master_review_progress_v2已更新approved_and_v3_started。review/progress中的待部署是提交时快照，不应据此重复批准或启动。
 
 保持20分钟巡检，V3结束再审阅新52会话；不得复用V2覆盖批准V4。后续文档提交不改运行中的固定版本。
+
+## V3分析接口失败的恢复工具
+
+Top1 R1 G1因相对当前anchor的两格变动未获授权而被拒绝；采样和质量已完成，其余成功请求保留。Top2可继续到终态。恢复说明见docs/experiments/plip_council_20261022/v3_recovery/recovery.zh-CN.md。新增scripts/recover_plip_council_analysis.py和resume_plip_council_analysis.py仅改操作状态；不修改版内技能或科学源码。单次后台恢复可等待原worker结束（最长30分钟），核验全部门槛后只重试分析，仍从V3原dea29257运行目录启动。失败请求和额外API成本保留，每教师每版最多3次恢复，不无限重试。以远端operations/council_analysis_retry_*及analysis_resume_*的真实journal核验恢复结果；不能把已排队当恢复成功。
