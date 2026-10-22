@@ -4,16 +4,16 @@ Read [plan.zh-CN.md](plan.zh-CN.md) first. It is the active scientific protocol.
 The former mean-first 100-candidate council is historical only. Native acceptance
 and the explicit human-authorized V6 transition have been verified. As of
 2026-10-23, formal V6 has finished all five rounds for both teachers and finalized;
-its worker has exited normally. The 40-minute automation is ACTIVE for master
-review, with 52/52 formal sessions and all 11 additional aborted-attempt contexts
-substantively reviewed (36 requests, 46 unique messages, 19 API receipts). Focused
-capability changes and the completed-version budget append tool are implemented;
-local unit verification passed 96 tests with 12 dependency skips. Remote deployment,
-fresh native acceptance and V7 approval remain pending. See
-[review progress](experiments/v6_review/progress.json). Do not rerun V6 or restart
-its old worker while review is pending. V7 is not approved. Adopt the authorized
-V30 budget only through an appended protocol and compatibility acceptance at the
-reviewed version boundary; preserve all existing frozen bindings.
+its worker has exited normally. All 52 formal sessions and 11 additional aborted
+contexts are substantively reviewed. V7 is approved and started from fixed commit
+`f8bb4ac603f67658bd351d460681551b56c40ab4`, with focused generic capability changes.
+The V30 budget was appended at the reviewed boundary and passed fresh native
+acceptance, 108 remote tests and the strict 52-session gate; 7514 old files remain
+hash-identical. See [deployment receipts](deployments/f8bb4ac6/README.zh-CN.md).
+The committed review progress is a pre-deployment snapshot; the remote master
+progress is `approved_and_v7_started`. Do not repeat stage/acceptance/approval or
+restart completed V6. Inspect current launch/workers/pipeline at 40-minute intervals;
+bootstrap is not a completed round. V7 needs its own full review before V8.
 
 ## Source and environment
 
