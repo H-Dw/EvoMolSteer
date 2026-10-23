@@ -1,5 +1,23 @@
 # Deployment and continuation
 
+Latest continuation (2026-10-23): the original SSH console was reconnected through
+normal authentication after its previous process expired. Commands now succeeded;
+the cause of the earlier approval rejection remains unknown. No permission setting
+or alternate transport was used. V9 is FINALIZED, worker1834410 exited normally,
+all ten round quality/council/retention/cleanup commits are present, and analyze
+completed under c8671c29. Do not restart V9. Historical blocked receipts below are
+superseded by [restoration](deployments/c8671c29/transport_restored.json) and
+[completion](deployments/c8671c29/completion.json).
+
+V9's limited best-round assessment is complete: Top1 R5G2 and Top2 R5G4, four
+strategy contexts and 40 aggregate groups. See [review](experiments/v9_strategy_review/review.zh-CN.md).
+Only generic skills and documents changed; skip local tests. Prepare V10 with the
+existing GitHub fixed-checkout/install/start_reviewed_version procedure, without
+new science preparation, native migration or full-session review. U remains 1.
+One successive regression does not trigger the two-regression rollback. Keep the
+35-minute heartbeat and use actual launch receipts before describing V10 as started.
+
+Historical transport snapshot (superseded by the successful reconnect above):
 Monitoring transport update (2026-10-23 06:49 UTC): the active V9 read-only
 health-check send through the existing SSH console was rejected before execution
 by the tool approval policy (`approval required by policy, but AskForApproval is

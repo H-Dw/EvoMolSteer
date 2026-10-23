@@ -25,6 +25,10 @@ do not rank controllability. Endpoint predictions are not actual native states.
 
 Early trials identify direction and useful scale. A legal opposing bracket detects
 curvature; use the default exploration step unless evidence supports refinement.
+When the response is not yet identified, a single-interval contrast with a shared
+reference is often more informative than several joint moves. Choose the interval
+from task evidence, not a fixed time-window preference. A joint trial is useful when
+it answers a specific interaction or compensation question.
 After a direction improves the actual ranking, prioritize a legal continuation or
 nearby refinement before switching to an unrelated unknown. Small signed gains remain
 observations; concentrated gains count in Mean. An unresolved mechanism does not
@@ -36,6 +40,15 @@ longer step at one background does not eliminate the intervening amplitudes. Avo
 making both proposals depend on the same unverified extrapolation: when legal,
 pair it with a nearby contender that preserves the measured advantage. A tiny gain
 can be low priority without inventing a tie threshold or changing the ranking rule.
+
+If repeated local changes deliver only small frontier gains while a different
+interval has shown larger terminal response, do not spend both proposals describing
+the same plateau. Consider one legal, informative move toward an unresolved region
+of that responsive interval alongside the best-supported local improvement. A local
+reversal bounds that edge and background, not the entire axis; an untested interior
+point can have improvement value. Do this while sampling budget remains, without
+inventing a long jump, range expansion or repeated cached trial. State which feasible
+next decision the probe could change; no region is promised to beat the incumbent.
 
 When function improves at a condition cost, track the remaining condition margin.
 Near the band boundary, consider a two-interval compensation trial: preserve the
@@ -69,7 +82,12 @@ answer multiple valid historical comparisons, even with a two-interval action de
 
 Return two legal arrays with concise physical hypotheses, actual references,
 condition/function predictions, purpose, alternatives and falsifiers. Use tools for
-arithmetic; invent no noise or majority-response gates. Learning updates use stable
+arithmetic. With fixed restarts and common random streams, between-candidate spread
+is not repeat-run noise. Keep the measured paired group effect separate from its
+unknown generalization to new starting populations. A tiny effect can be a real
+fixed-population improvement yet deserve less budget than a plausible larger one;
+tail concentration or an uncertain mechanism alone does not erase it. Invent no
+noise floor or majority-response gate. Learning updates use stable
 belief IDs, applicability, measurement, revised judgment and changed action. Keep
 unknowns honest and teacher-specific facts only in this version's task memory. Read
 no current sibling results. Follow the supplied JSON/tool schema and evidence IDs.

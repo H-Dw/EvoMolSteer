@@ -1,3 +1,11 @@
+# 2026-10-23：V9完成，最优轮评估完成，SSH正常重连
+
+原SSH控制台进程已过期，正常重新认证后命令执行成功，未更改权限或换通道规避。之前审批拒绝的根因仍未确定；下方阻断快照已由本段及[恢复记录](deployments/c8671c29/transport_restored.json)更新。
+
+V9固定c8671c29，两教师五轮1000正式结果、质量/汇总/保留/清理全部完成；worker1834410退出，FINALIZED和analyze齐全，完整31.373分钟。有限复盘仅Top1 R5G2、Top2 R5G4四个策略上下文及40组聚合performance，未恢复全量审阅。两项通用改进：弱响应平台后的有依据区域探索，以及固定共同随机流的实测效果与泛化不确定性分开。Top1 Mean微升、Top2带内Mean退步；整体一次退步，尚不触发连续两次回滚。见[V9评估](experiments/v9_strategy_review/review.zh-CN.md)。
+
+本次仅skills/文档变动，不运行本地测试；V10待GitHub固定部署和现有有限review-check。U1、科学设置和35分钟间隔不变；未有启动收据前不声称已启动。以下为历史状态。
+
 # 2026-10-23：V8最优轮评估完成，巡检35分钟，SSH恢复
 
 06:49 UTC巡检更新：通过既有SSH控制台发送V9只读健康检查时，工具在发送前拒绝，原因为`approval required by policy, but AskForApproval is set to Never`。本地声明Full Access并未使这次调用获准；拒绝的具体策略来源尚未确定。没有取得新的远端状态，不能判断V9失败或完成。保留上次启动核验，不重启、不重复批准、不换通道规避；权限状态不变时不重复发送或通知。见[阻断记录](deployments/c8671c29/monitor_transport_blocked.json)。

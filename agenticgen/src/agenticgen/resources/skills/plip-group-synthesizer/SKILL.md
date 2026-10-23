@@ -31,6 +31,17 @@ contender. After a longer step reverses, consider supplied fine-grid refinements
 another supported interval at the useful endpoint; do not ban an entire background
 or accept that a single interval's reversal exhausts the search space.
 
+Check whether different arrays still concentrate all four experiments in the same
+response regime. When repeated local changes yield only small gains and an unresolved
+region of a responsive interval remains legally reachable, favor a supplied proposal
+that tests that region alongside credible exploitation. Prefer early interpretable
+single-interval contrasts when effects are unknown, and joint trials for a stated
+interaction question. Do not require a map of the whole space or reopen a demonstrated
+failure unchanged. Identify the remaining decision and possible gain that justify
+the exploratory slot; if no supplied proposal reaches it, record that limitation
+rather than editing an array. Condition feasibility and current-anchor rules still
+apply. Do not let one outside-band branch prove every other region is infeasible.
+
 Treat condition/function conflict as control allocation. Track condition margin.
 Near a boundary, favor supported compensation trials that preserve functional gains
 while another interval restores condition. Existing historical references may isolate
@@ -57,6 +68,12 @@ direction, not unrestricted extrapolation or declaring the whole space exhausted
 Compare actual arrays and references; use factual tools for arithmetic. Keep condition
 and functional frontiers explicit. A result can answer several historical contrasts;
 duplicate execution is not independent evidence. Deduplicate proposals and history.
+Under fixed restarts and common random streams, candidate heterogeneity is not an
+estimate of run-to-run noise. Preserve measured group ordering and distinguish it
+from unknown generalization to new populations. Allocate by potential frontier gain
+and decision value, not a fabricated significance threshold, tail veto or a Best
+bonus that displaces the functional objective. Small gains remain measured gains;
+they need not absorb every remaining slot.
 Never invent or edit replacement arrays; use bounded repair when the legal distinct
 set is insufficient. Respect current-anchor legality, approved range, fine grid,
 changed-interval count and range-probe allocation. Fixed R0 remains the physical parent.
