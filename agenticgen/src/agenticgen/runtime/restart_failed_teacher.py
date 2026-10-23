@@ -17,6 +17,8 @@ ALLOWED_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py', 'adaptive_schedul
     'adaptive_schedule/group_review.py', 'adaptive_schedule/group_protocol.py', 'cli.py',
     'providers/deepseek_api.py'}
 GLOBAL_RESET = {'binding.json', 'deployment.json', 'pipeline.json', 'PIPELINE_COMPLETE.json', 'review_approval.json'}
+CITATION_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py',
+    'adaptive_schedule/group_agent.py', 'adaptive_schedule/evidence_aliases.py'}
 
 
 def completed_barriers(base, teacher, config):
@@ -45,11 +47,13 @@ def stage(root, version, authorization):
         if any(int(p.parent.name[1:]) > int(version[1:]) for p in (root/'versions').glob('v*/binding.json')):
             raise ValueError('Later formal version exists')
         auth_ref = committed(authorization); auth = read(authorization)
+        citation_repair = auth.get('repair_kind') == 'private_evidence_alias_v1'
+        budget_pair = (auth.get('previous_max_output_tokens',32768),auth.get('max_output_tokens'))
+        allowed_budget = budget_pair == (98304,98304) if citation_repair else budget_pair in {(32768,65536),(65536,98304)}
         if not (auth.get('authority') == 'human_user' and auth.get('version') == version and
                 auth.get('rerun_all_five_rounds') is True and auth.get('delete_failed_candidate_outputs') is True and
                 auth.get('preserve_completed_teachers') is True and
-                (auth.get('previous_max_output_tokens',32768),auth.get('max_output_tokens')) in
-                {(32768,65536),(65536,98304)}):
+                allowed_budget):
             raise ValueError('Authorization does not cover this teacher restart')
         state = read(base/'pipeline.json'); teachers = {t['teacher_id'] for t in read(root/'teachers.json')}
         if set(state['teachers']) != teachers or any(t['phase'] not in {'failed','complete'} for t in state['teachers'].values()):
@@ -76,9 +80,20 @@ def stage(root, version, authorization):
                     or old.get('master_review_policy',{}).get('authorization') != prior['authorization']):
                 raise ValueError('Prior best-round policy adoption incomplete')
             verify_protected(root, prior['protected_sha256'])
+        if old.get('teacher_restart_operation'):
+            prior = read(root/old['teacher_restart_operation']/'journal.json')
+            if (prior['phase'] != 'deleted_ready_for_new_approval' or root/prior['new_protocol'] != old_dir
+                    or prior['commit'] != old['commit']
+                    or prior['new_acceptance_sha256'] != sha(old_dir/'ACCEPTANCE_COMPLETE.json')):
+                raise ValueError('Prior failed-teacher restart incomplete')
+            verify_protected(root, prior['protected_sha256'])
+        if citation_repair and (read(base/'deployment.json').get('commit') != auth.get('previous_commit')
+                               or old.get('commit') != auth.get('previous_commit')):
+            raise ValueError('Citation repair must bind the actual failed fixed commit')
         current = source_fingerprint()
         changed = sorted(k for k in current.keys()|old['source_fingerprint'].keys() if current.get(k) != old['source_fingerprint'].get(k))
-        if not changed or not set(changed) <= ALLOWED_SOURCE_CHANGES:raise ValueError('Unsupported source/science change')
+        allowed = CITATION_SOURCE_CHANGES if citation_repair else ALLOWED_SOURCE_CHANGES
+        if not changed or not set(changed) <= allowed:raise ValueError('Unsupported source/science change')
         for role, relative in SKILLS.items():
             if sha(repository()/relative) != binding['skill_hashes'][role]:raise ValueError('Frozen skills changed')
         new = copy.deepcopy(previous); new['llm']['max_output_tokens'] = auth['max_output_tokens']
@@ -119,6 +134,7 @@ def stage(root, version, authorization):
             'completed_states':{t:state['teachers'][t] for t in kept},'preserved_initial_jobs':{t:initial[t] for t in kept},
             'completed_events':[e for e in state.get('events',[]) if e.get('teacher') in kept],
             'old_binding':binding,'old_deployment':read(base/'deployment.json'),'rerun_rounds':5,
+            'repair_kind':auth.get('repair_kind','output_budget'),
             'failed_candidate_count':sum(read(p)['attempts'] for t in failed for p in (base/t).glob('round_*/wave/COMPLETE.json'))})
         write(folder/'config.json',new)
         prepared = {**old,'config_sha256':sha(folder/'config.json'),'source_fingerprint':current,'commit':commit(),
@@ -126,6 +142,9 @@ def stage(root, version, authorization):
             'teacher_restart_operation':op.relative_to(root).as_posix(),'native_probe_directory':f'operations/teacher_restart_acceptance_{commit()[:8]}',
             'requires_native_acceptance':True,'r0_resampling_allowed':False,
             'authorized_analysis_budget_changes':{'max_output_tokens':auth['max_output_tokens']}}
+        if citation_repair:
+            prepared['authorized_analysis_budget_changes'] = {}
+            prepared['citation_protocol'] = 'private-evidence-alias-v1'
         # These completed predecessor transactions remain in the protected history;
         # the new native acceptance is checked by the scoped restart gate below.
         for key in ['budget_extension_operation','failure_restart_operation','strategy_review_operation']:
@@ -222,7 +241,8 @@ def preserved_provenance(root, version):
     root=Path(root).resolve(); found=operation_journal(root)
     if not found or found[1]['version'] != version:return {}
     j=verify_ready(root,version)
-    return {t:{'binding':j['old_binding'],'deployment':j['old_deployment'],
+    earlier = j['old_binding'].get('preserved_teacher_provenance',{})
+    return {t:copy.deepcopy(earlier[t]) if t in earlier else {'binding':j['old_binding'],'deployment':j['old_deployment'],
         'reason':'Completed five-round teacher preserved byte-identically; only failed teacher reruns',
         'files_sha256':{n:d for n,d in j['protected_sha256'].items() if n.startswith(f'versions/{version}/{t}/')}}
         for t in j['completed_teachers']}

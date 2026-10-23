@@ -234,6 +234,21 @@ def test_incomplete_diagnosis_is_opt_in_and_bound_to_failed_analyst(incomplete):
     assert 'incomplete_answers' not in result['teachers'][module.TEACHERS[1]]
 
 
+def test_invalid_answer_diagnosis_scopes_by_error_type_and_checks_hash(incomplete):
+    sftp,folder=incomplete
+    council=folder.rsplit('/analysts/',1)[0]
+    sftp.files[council+'/analyst_failures.json']=encoded({'G2':{'error_type':'LLMInterfaceError','message':'invalid reference'}})
+    name='turn_01.attempt_2.invalid.receipt.json'; content=b'{"evidence_ids":["wrong"]}'
+    sftp.folders[folder]=[SimpleNamespace(filename=name,st_mode=stat.S_IFREG)]
+    sftp.files[folder+'/'+name]=encoded({'content_sha256':hashlib.sha256(content).hexdigest(),'finish_reason':'stop'})
+    sftp.files[folder+'/turn_01.attempt_2.invalid.txt']=content
+    result=module.collect(sftp,'v10',interface_diagnostics=True)
+    assert result['teachers'][module.TEACHERS[0]]['invalid_answers']['G2'][0]['content']==content.decode()
+    assert not any('round_03/council/analysts/' in p for p in sftp.opens)
+    sftp.files[folder+'/turn_01.attempt_2.invalid.txt']=b'changed'
+    with pytest.raises(ValueError):module.collect(sftp,'v10',interface_diagnostics=True)
+
+
 @pytest.mark.parametrize('problem', ['content_hash', 'request_hash', 'budget', 'redirect', 'count', 'live'])
 def test_incomplete_diagnosis_fails_closed(incomplete, problem):
     sftp, folder = incomplete

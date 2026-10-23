@@ -111,6 +111,35 @@ class StatusReader:
                 rows.append({'name': entry.filename, 'mtime': entry.st_mtime})
         return sorted(rows, key=lambda row: row['mtime'])
 
+    def invalid_answers(self, teacher, round_no, group):
+        """Hash-bound invalid answers of one currently failed analyst only."""
+        if teacher not in TEACHERS or type(round_no) is not int or not 1 <= round_no <= 5 or group not in ('G1','G2','G3','G4'):
+            raise ValueError('Invalid failed analyst scope')
+        folder = f'versions/{self.version}/{teacher}/round_{round_no:02d}/council/analysts/{group}'
+        path = ROOT + '/' + folder
+        if self.sftp.normalize(path) != path:
+            raise ValueError('Failed analyst folder resolved away from its source')
+        entries = [e for e in self.sftp.listdir_attr(path)
+                   if re.fullmatch(r'turn_[0-9]{2}\.attempt_[1-9][0-9]*\.invalid\.receipt\.json', e.filename)
+                   and stat.S_ISREG(e.st_mode)]
+        if len(entries) > 16:
+            raise ValueError('Too many invalid answers for bounded diagnosis')
+        records = []
+        for entry in sorted(entries, key=lambda e:e.filename):
+            source = folder + '/' + entry.filename
+            raw = self._bytes(ROOT+'/'+source, 262144)
+            if raw is None: raise ValueError('Invalid receipt changed during read')
+            receipt = json.loads(raw)
+            content_source = source.removesuffix('.receipt.json') + '.txt'
+            content = self._bytes(ROOT+'/'+content_source, 1024*1024)
+            if content is None or hashlib.sha256(content).hexdigest() != receipt.get('content_sha256'):
+                raise ValueError('Invalid answer does not match receipt')
+            for name, value in ((source,raw),(content_source,content)):
+                self.hashes[name] = hashlib.sha256(value).hexdigest()
+            records.append({'source':source,'receipt':receipt,'content_source':content_source,
+                            'content_bytes':len(content),'content':content.decode('utf-8')})
+        return records
+
     def incomplete_answers(self, teacher, round_no, group):
         """Only the current failed analyst's receipts and hash-bound response.
 
@@ -167,7 +196,7 @@ def error_summary(error):
             'message': message[:1200]}
 
 
-def collect(sftp, version, *, incomplete_diagnostics=False):
+def collect(sftp, version, *, incomplete_diagnostics=False, interface_diagnostics=False):
     reader = StatusReader(sftp, version)
     launch_bytes = reader.data('launch.json')
     launch = json.loads(launch_bytes) if launch_bytes else None
@@ -213,6 +242,12 @@ def collect(sftp, version, *, incomplete_diagnostics=False):
                     teachers[teacher]['incomplete_answers'] = {g: reader.incomplete_answers(teacher, current['round'], g)
                         for g in ('G1', 'G2', 'G3', 'G4') if g in failures
                         and 'Incomplete JSON answer' in str(failures[g].get('message', ''))}
+                if interface_diagnostics:
+                    if process['worker_alive']:
+                        raise ValueError('Targeted interface diagnosis requires an exited worker')
+                    teachers[teacher]['invalid_answers'] = {g: reader.invalid_answers(teacher, current['round'], g)
+                        for g in ('G1','G2','G3','G4') if g in failures
+                        and error_summary(failures[g])['type'] == 'LLMInterfaceError'}
     final_name = f'FINALIZED_{version}.json'
     final_bytes = reader.data(final_name)
     final = json.loads(final_bytes) if final_bytes is not None else None
@@ -247,7 +282,7 @@ def collect(sftp, version, *, incomplete_diagnostics=False):
             'remote_execution': False, 'remote_writes': False}
 
 
-def connect_and_collect(version, *, incomplete_diagnostics=False):
+def connect_and_collect(version, *, incomplete_diagnostics=False, interface_diagnostics=False):
     import paramiko  # Local optional dependency; never import the scientific runtime.
 
     class PinnedHost(paramiko.MissingHostKeyPolicy):
@@ -269,7 +304,8 @@ def connect_and_collect(version, *, incomplete_diagnostics=False):
         del password
         with client.open_sftp() as sftp:
             sftp.get_channel().settimeout(25)
-            return collect(sftp, version, incomplete_diagnostics=incomplete_diagnostics)
+            return collect(sftp, version, incomplete_diagnostics=incomplete_diagnostics,
+                           interface_diagnostics=interface_diagnostics)
     finally:
         client.close()
 
@@ -280,9 +316,12 @@ def main():
     parser.add_argument('--output', type=Path, help='Optional local JSON receipt; never a remote destination')
     parser.add_argument('--incomplete-diagnostics', action='store_true',
                         help='Fetch only hash-bound incomplete answers of the current failed analyst')
+    parser.add_argument('--interface-diagnostics', action='store_true',
+                        help='Fetch only hash-bound invalid answers of the current failed analyst')
     args = parser.parse_args()
     try:
-        receipt = connect_and_collect(args.version, incomplete_diagnostics=args.incomplete_diagnostics)
+        receipt = connect_and_collect(args.version, incomplete_diagnostics=args.incomplete_diagnostics,
+                                      interface_diagnostics=args.interface_diagnostics)
     except Exception as exc:
         # Do not echo authenticated URLs, arbitrary remote text or credentials.
         print(json.dumps({'state': 'read_failed', 'error_type': type(exc).__name__,
@@ -294,7 +333,7 @@ def main():
     display = {key: value for key, value in receipt.items() if key != 'source_sha256'}
     display = json.loads(json.dumps(display))
     for teacher in display['teachers'].values():
-        for answers in teacher.get('incomplete_answers', {}).values():
+        for answers in list(teacher.get('incomplete_answers', {}).values()) + list(teacher.get('invalid_answers', {}).values()):
             for answer in answers:
                 answer.pop('content', None)  # Raw model output is only in the local evidence receipt.
     print(json.dumps(display, ensure_ascii=False))

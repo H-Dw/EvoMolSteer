@@ -183,3 +183,43 @@ def test_96k_restart_rejects_unapproved_changes(focused_restart,monkeypatch,chan
         from agenticgen.adaptive_schedule import group_protocol
         c=configuration();c['max_atom_step_A']=1;monkeypatch.setattr(group_protocol,'configuration',lambda:c)
     with pytest.raises(ValueError):m.stage(root,'v10',auth)
+
+
+@pytest.fixture
+def citation_restart(focused_restart,monkeypatch):
+    root,auth,jobs=focused_restart; old=root/'protocols/old';base=root/'versions/v10'
+    c=read(old/'config.json');c['llm']['max_output_tokens']=98304;write(old/'config.json',c)
+    p=read(old/'PREPARED.json');p['config_sha256']=sha(old/'config.json')
+    p.pop('strategy_review_operation');p['teacher_restart_operation']='operations/previous_restart'
+    for n in ('PREPARED.json','ACCEPTANCE_COMPLETE.json'):write(old/n,p)
+    b=read(base/'binding.json');b['config_sha256']=p['config_sha256']
+    b['preserved_teacher_provenance']={'a':{'binding':{'original':True},'deployment':{'commit':'original'},'files_sha256':{}}}
+    write(base/'binding.json',b)
+    write(root/'operations/previous_restart/journal.json',{'phase':'deleted_ready_for_new_approval',
+          'commit':'old','new_protocol':'protocols/old','new_acceptance_sha256':sha(old/'ACCEPTANCE_COMPLETE.json'),
+          'protected_sha256':{}})
+    a=read(auth);a.update(repair_kind='private_evidence_alias_v1',previous_commit='old',previous_max_output_tokens=98304);write(auth,a)
+    new={**p['source_fingerprint'],'runtime/restart_failed_teacher.py':'new',
+         'adaptive_schedule/group_agent.py':'new','adaptive_schedule/evidence_aliases.py':'new'}
+    monkeypatch.setattr(m,'source_fingerprint',lambda:new)
+    return root,auth,jobs
+
+
+def test_citation_restart_keeps_config_and_original_completed_teacher_source(citation_restart):
+    root,auth,_=citation_restart;old=(root/'protocols/old/config.json').read_bytes()
+    op=Path(m.stage(root,'v10',auth)['operation'])
+    assert m.config_path(root).read_bytes()==old
+    accept(root);m.finish(root,op)
+    assert m.preserved_provenance(root,'v10')['a']['deployment']['commit']=='original'
+    assert read(m.prepared_path(root))['authorized_analysis_budget_changes']=={}
+
+
+@pytest.mark.parametrize('change',['source','previous_commit','budget','prior_transaction'])
+def test_citation_restart_rejects_unbound_changes(citation_restart,monkeypatch,change):
+    root,auth,_=citation_restart
+    if change=='source':monkeypatch.setattr(m,'source_fingerprint',lambda:{**m.read(m.prepared_path(root))['source_fingerprint'],'adaptive_schedule/group_protocol.py':'changed'})
+    elif change=='prior_transaction':
+        p=root/'operations/previous_restart/journal.json';j=read(p);j['phase']='staged';write(p,j)
+    else:
+        a=read(auth);a['previous_commit' if change=='previous_commit' else 'max_output_tokens']='wrong' if change=='previous_commit' else 131072;write(auth,a)
+    with pytest.raises(ValueError):m.stage(root,'v10',auth)

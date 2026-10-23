@@ -17,6 +17,7 @@ from .learning import (enabled, learning_schema, verified_large_steps, validate_
 from .grid import description
 from .group_protocol import input_limit, budget_context
 from .search_policy import for_config, upper_tick
+from .evidence_aliases import EvidenceAliases, PROTOCOL as CITATION_PROTOCOL
 
 
 def capacity_count(path, expected_teachers):
@@ -150,6 +151,9 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
     if control:
         initial += [tools.call('teacher_condition', {}), tools.call('task_knowledge', {}),
                     tools.call('execution_history', {}), tools.call('condition_quality', {'selection':'latest'})]
+    citations = EvidenceAliases()
+    initial = citations.project(initial)
+    write(output/'evidence_aliases.json', citations.manifest())
     evidence = {x['evidence_id'] for x in initial}
     common = {'teacher_id': data['teacher']['teacher_id'], 'population_sha256': tools.digest,
         'group_id': data.get('group_id'),
@@ -167,6 +171,8 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
         'visibility': 'This group only, its own history and earlier published reflections; no sibling current-round data',
         'intervals': description(), 'tools': tools.catalog(),
         'evidence': initial, 'reward_frozen': True, 'max_tool_turns': max_tool_turns,
+        'citation_protocol': {'name': CITATION_PROTOCOL,
+            'instruction': 'Use only the short evidence_id labels (E001 etc.) in evidence_ids. Each label identifies the complete supplied record. source_evidence_id and source_record_sha256 are provenance, not citation labels. Labels are private to this session; never import labels from earlier memory.'},
         'parent_policy': 'All hypotheses use the same pre-round per-candidate incumbent snapshot; all 100 identities retained',
         'objective_priority': config.get('agent_objective',{}).get('priority',['mean_pic50','best_pic50']),
         'protocol': 'Application-level registered JSON tools; request kind=tools or return kind=hypotheses'}
@@ -188,7 +194,8 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
             reference_semantics='Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.')
     messages = [{'role': 'system', 'content': instructions}, {'role': 'user', 'content': canonical(common)}]
     binding = {'population_sha256': tools.digest, 'common_sha256': value_sha(common),
-               'skill_sha256': value_sha(instructions), 'llm': config['llm']}
+               'skill_sha256': value_sha(instructions), 'llm': config['llm'],
+               'citation_protocol': CITATION_PROTOCOL}
     if (output/'binding.json').exists() and read(output/'binding.json') != binding:
         raise ValueError('Do not reuse an LLM session after its input, skill or config changed')
     write(output/'binding.json', binding)
@@ -217,6 +224,10 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
         validate(response)
         write(output/f'turn_{turn:02d}.budget.json', {'conservative_bytes': estimated_bytes, 'limit': limit})
         if response['kind'] == 'hypotheses':
+            # The provider's response/receipt stays verbatim in alias space.
+            # Existing council and memory artifacts retain canonical source IDs.
+            response = citations.restore_citations(response)
+            write(output/f'turn_{turn:02d}.resolved.json', response)
             parents = [{"candidate_id": c['candidate_id'], 'parent_id': c['incumbent_id'],
                         'source_branch': c.get('restart_branch', tools.trial(c, 'incumbent').get('source_branch')),
                         'restartable_at_export': c.get('restartable', False),
@@ -244,7 +255,8 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
                     'learning_update': response['learning_update'], 'evidence_population_sha256': tools.digest})
             write(output/'hypotheses.json', result)
             return result
-        results = [tools.call(c['name'], c['arguments']) for c in response['calls']]
+        results = citations.project([tools.call(c['name'], c['arguments']) for c in response['calls']])
+        write(output/'evidence_aliases.json', citations.manifest())
         evidence.update(r['evidence_id'] for r in results)
         messages = messages + [{'role': 'assistant', 'content': canonical(response)},
                                {'role': 'user', 'content': canonical({'tool_results': results})}]

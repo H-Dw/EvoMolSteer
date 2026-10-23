@@ -21,11 +21,13 @@ from read_remote_status import HOST, PORT, USER, HOST_KEY, ROOT, error_summary, 
 OLD = '/opt/MolSteer/runtimes/agenticgen_d1163b7e'
 
 
-def command(revision, *, github_api=False, bootstrap_oid=None, bootstrap_sha256=None):
+def command(revision, *, github_api=False, bootstrap_oid=None, bootstrap_sha256=None, citation_repair=False):
     if not re.fullmatch('[0-9a-f]{40}',revision): raise ValueError('Full fixed Git revision required')
     new='/opt/MolSteer/runtimes/agenticgen_'+revision[:8]
+    old='/opt/MolSteer/runtimes/agenticgen_098467f5' if citation_repair else OLD
+    entry='restart_v10_citations.py' if citation_repair else 'restart_v10_output_budget.py'
     # All executable source is read by the server from the fetched Git object.
-    fetch=f'timeout 120 git -C {OLD} -c http.lowSpeedLimit=1024 -c http.lowSpeedTime=30 fetch origin codex/plip-adaptive-schedule'
+    fetch=f'timeout 120 git -C {old} -c http.lowSpeedLimit=1024 -c http.lowSpeedTime=30 fetch origin codex/plip-adaptive-schedule'
     if github_api:
         if not re.fullmatch('[0-9a-f]{40}',bootstrap_oid or '') or not re.fullmatch('[0-9a-f]{64}',bootstrap_sha256 or ''):
             raise ValueError('Committed GitHub helper digests required')
@@ -38,15 +40,15 @@ assert d['sha']==oid and hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\\0'+raw
 assert hashlib.sha256(raw).hexdigest()==sha
 sys.argv=['github-fixed-fetch','--commit',target]
 exec(compile(raw,'<hash-verified GitHub fetch helper>','exec'),{'__name__':'__main__'})"""
-        fetch=f'timeout 240 {OLD}/agenticgen/.venv/bin/python -c {shlex.quote(loader)} {bootstrap_oid} {bootstrap_sha256} {revision}'
+        fetch=f'timeout 240 {old}/agenticgen/.venv/bin/python -c {shlex.quote(loader)} {bootstrap_oid} {bootstrap_sha256} {revision}'
     lines=['set -euo pipefail',fetch,
-        f'git -C {OLD} cat-file -e {revision}^{{commit}}',
-        f'git -C {OLD} show {revision}:agenticgen/scripts/install_fixed_runtime.py | '
-            f'{OLD}/agenticgen/.venv/bin/python - --commit {revision} --from-runtime {OLD}',
+        f'git -C {old} cat-file -e {revision}^{{commit}}',
+        f'git -C {old} show {revision}:agenticgen/scripts/install_fixed_runtime.py | '
+            f'{old}/agenticgen/.venv/bin/python - --commit {revision} --from-runtime {old}',
         'source /opt/MolSteer/scripts/scnet/activate_dtk.sh >/dev/null 2>&1',
         'unset PYTHONPATH',
         f'export AGENTICGEN_REPOSITORY={new} AGENTICGEN_PYTHON={new}/agenticgen/.venv/bin/python',
-        f'exec {new}/agenticgen/.venv/bin/python {new}/agenticgen/scripts/restart_v10_output_budget.py --commit {revision}']
+        f'exec {new}/agenticgen/.venv/bin/python {new}/agenticgen/scripts/{entry} --commit {revision}']
     return 'bash -ic '+shlex.quote('\n'.join(lines))
 
 
@@ -55,6 +57,7 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--inspect-only',action='store_true',help='Read only this fixed deployment receipts/log tails; execute nothing')
     parser.add_argument('--github-api',action='store_true',help='Fetch verified GitHub objects after Git HTTPS 503; same proxy/environment')
+    parser.add_argument('--citation-repair',action='store_true',help='Deploy the fixed V10 citation-label repair, preserving completed Top2')
     args=parser.parse_args()
     helper={}
     if args.github_api:
@@ -63,7 +66,7 @@ def main():
         if raw!=(repo/relative).read_bytes():raise ValueError('API helper is not committed')
         helper={'github_api':True,'bootstrap_oid':hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),
                 'bootstrap_sha256':hashlib.sha256(raw).hexdigest()}
-    cmd=command(args.commit,**helper)
+    cmd=command(args.commit,citation_repair=args.citation_repair,**helper)
     if not sys.stdin.isatty(): raise ValueError('Non-echoing terminal authentication required')
     import paramiko
     class PinnedHost(paramiko.MissingHostKeyPolicy):

@@ -25,6 +25,9 @@ def test_fixed_deployment_has_no_user_supplied_command_or_transfer():
     fallback=m.command('a'*40,github_api=True,bootstrap_oid='b'*40,bootstrap_sha256='c'*64)
     assert 'api.github.com/repos/H-Dw/EvoMolSteer/git/blobs/' in fallback
     assert 'sha256' in fallback and 'http_proxy' not in fallback and 'timeout 240' in fallback
+    citations=m.command('a'*40,citation_repair=True)
+    assert 'restart_v10_citations.py' in citations and 'agenticgen_098467f5' in citations
+    assert 'restart_v10_output_budget.py' not in citations
 
 
 def test_github_object_reconstruction_checks_exact_digest():
@@ -94,3 +97,15 @@ def test_failed_costs_deduplicate_and_exclude_completed_teacher_gpu(tmp_path):
     assert r['completion_tokens']==98304 and not r['official_results_included']
     write(archive/'conflict.receipt.json',{'provider_request_id':'same','usage':{'completion_tokens':1}})
     with pytest.raises(ValueError,match='Conflicting'):m.aborted_costs(op,tmp_path)
+
+
+def test_citation_renewal_preserves_original_teacher_source_and_prior_review():
+    m=load('restart_v10_citations')
+    old={'mode':'best_round_strategy','full_review_completed':False,'previous_version':'v9','next_version':'v10',
+         'strategy_review_sha256':'actual-v9'}
+    j={'failed_teachers':['top1'],'completed_teachers':['top2'],'old_deployment':{'commit':'96k-attempt'},
+       'old_binding':{'preserved_teacher_provenance':{'top2':{'deployment':{'commit':'original-64k'}}}}}
+    new=m.renewed_approval(old,'new','prep','accept','operation',j)
+    assert new['preserved_teacher_source_commits']=={'top2':'original-64k'}
+    assert new['strategy_review_sha256']=='actual-v9' and new['analysis_output_budget_unchanged']
+    assert new['full_review_completed'] is False and new['citation_protocol']=='private-evidence-alias-v1'
