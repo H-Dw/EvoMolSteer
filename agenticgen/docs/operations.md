@@ -1,5 +1,12 @@
 # Deployment and continuation
 
+Latest local-test policy (2026-10-23): skip local tests for skills/document-only
+edits. Existing unit tests check software contracts and recovery/gates, not LLM
+strategy quality. If executable code changes, run only tests relevant to that
+change; do not repeat an unrelated full suite. Measure skill effectiveness in the
+next real experiment and limited best-round assessment. Preserve provenance and
+deployment gates. This supersedes historical blanket local-testing instructions.
+
 Latest user update (2026-10-23): the `agenticgen` heartbeat is now every **35 minutes**.
 SSH authentication has been restored using the supplied login without storing credentials.
 V8's limited strategy review is complete: two teachers/four selected contexts only,
@@ -34,7 +41,8 @@ the old timer succeeded after the permission change. The old SSH tool session
 channel before the next remote action; do not recover credentials from process
 memory, print them or save them. The V8 worker is completed, not failed.
 
-Code distribution uses the original GitHub repository: local edits and tests,
+Code distribution uses the original GitHub repository: local edits (targeted tests
+only for executable-code changes),
 commit and push, then remote fetch and a fixed detached checkout before tests and
 launch. Do not upload code files or review progress directly through SSH. Use SSH
 to execute the committed deployment procedure; Git transport does not waive tool
@@ -154,7 +162,8 @@ bootstrap is not a completed round. V7 needs its own full review before V8.
 Use the existing repository/branch, with agenticgen as an installable src-layout
 subproject. Migration commit `b105f0b82fa18e563e98a2719f627f477e571a95`
 preserves the original source history. New scientific changes use later commits.
-Always test and commit locally, push GitHub, then fetch a fixed commit remotely.
+Commit locally, push GitHub, then fetch a fixed commit remotely. Local tests are
+required only for relevant executable-code changes, not skills/document edits.
 Do not deploy uncommitted working files as a scientific runtime.
 
 The only execution host is root@ssh.zzai.scnet.cn:11762, workspace /opt/MolSteer.

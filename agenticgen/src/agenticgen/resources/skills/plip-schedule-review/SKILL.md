@@ -29,8 +29,11 @@ recorded concise rationales, not unrecorded private thoughts. Keep teacher ident
 molecular features and best arrays in task archives, never generic skills.
 
 Preserve scientific settings, budgets, within-version skill freezing, range and
-rollback rules. Verify finalization, selected evidence, code and skill binding;
-test, commit, deploy and use the explicit best-round review gate. Report this limited
+rollback rules. Verify finalization, selected evidence, code and skill binding.
+Skip local tests for skills/document-only edits: software unit tests do not measure
+strategy quality. For executable-code changes run only relevant tests, then commit,
+deploy and use the explicit best-round review gate. Judge skill improvements from
+the next real experiment; do not substitute keyword checks or unit passes. Report this limited
 scope honestly, not as full coverage. Two adjacent completed-version regressions
 still require the best compatible generic strategy. Best alone does not override
 condition/function. Development-teacher search does not prove optimizer superiority.
