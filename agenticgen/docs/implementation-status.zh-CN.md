@@ -1,5 +1,14 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新：**V14完成有限评估，V15已真实批准并启动**。
+固定`a942ab9e2afca41d47415d4c84bffd2f59a300ee`，worker2587449，启动1792782804.6200216，runtime `/opt/MolSteer/runtimes/agenticgen_a942ab9e`。
+官方GitHub API固定获取/安装成功，72项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。
+仅skills/文档变更，两端未跑单元测试；真实V14→V15有限review-check为2教师4上下文，full_review_completed=false。
+V14正常30.656888分钟完成，Mean4.211912374/4.211311855，等权gap相对V13增加0.000365686；连续退步1、历史最好仍V13，目标未达成。
+V15选择性改写有界反转分支与背景依赖结论，U1及全部科学设置保持，尚无性能结果。
+初始核验不代表首轮完成，不重复启动或为文档同步更换科学源。见[实际部署](deployments/a942ab9e/README.zh-CN.md)。
+V6–V14不prepare/重跑；下方待部署或旧运行记录是历史。35分钟活动实验巡检保持。
+
 2026-10-24最新：**V14已FINALIZED并完成有限评估，V15待正常固定部署**。
 两教师五轮1000正式记录及质量/汇总/保留/清理完整，无新故障，原962a2cac analyze成功。
 只读两教师R5G1私有/汇总四上下文及40组聚合结果，full_review_completed=false。
