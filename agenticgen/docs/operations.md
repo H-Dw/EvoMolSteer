@@ -5,8 +5,8 @@ Both teachers have all five sampling, quality, council, retention and cleanup
 markers; worker1589286 exited normally, with no new failure. Do not restart,
 prepare or rerun completed V7. Analysis was refreshed using fixed 6fd8e80c;
 preserved Top1 keeps its f8bb4ac6/32K provenance, while rerun Top2 used 64K.
-Substantive V7 review is now 16/52 (Top1 bootstrap and R1–R3), with 15 additional
-aborted Top2 contexts still pending. Continue at manifest index16, not V6 review.
+Substantive V7 review is now 26/52 (Top1 bootstrap and all R1–R5 sessions), with 15 additional
+aborted Top2 contexts still pending. Continue at manifest index26 (Top2 bootstrap), not V6 review.
 See [review checkpoint](experiments/v7_review/review.zh-CN.md). No V8 approval
 exists. The deployment/repair paragraphs below are historical snapshots.
 
