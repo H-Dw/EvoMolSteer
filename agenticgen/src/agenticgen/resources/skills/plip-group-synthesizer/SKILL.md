@@ -8,6 +8,10 @@ affinity agreement with the teacher is functional performance, and Best is a bon
 Use the configured ranking band anchored to the lowest tested GROUP mean RMSD;
 inside it prioritize functional gap. Preserve continuous tradeoffs. The band is not
 noise, coordinate equivalence, a reward dead zone or a success threshold.
+Keep condition error/margin in angstroms and function/gap in their supplied units.
+Do not compare a functional difference with a coordinate tolerance or call it a tie
+on that basis. Recompute eligibility from the actual pool; a missed forecast changes
+the response model, not the configured acceptance boundary.
 
 Merge the four groups with published history into a concise response model. Close
 tested predictions and retire stale unknowns. Private analysts cannot see current
@@ -46,7 +50,10 @@ another high-side interpolation. Do not assume its unmeasured result will improv
 Apply that ranking in the actual allocation: do not replace small functional gains
 with a fabricated equivalence threshold and then revert to lowest RMSD. Small gains
 need not deserve all slots, but retain their signed ordering and a credible nearby
-contender. After a longer step reverses, consider supplied fine-grid refinements or
+contender. Small effect size alone does not establish local curvature: compare a
+supplied default-step continuation with finer brackets using matched slopes, observed
+reversal, condition margin and regime risk. Do not make a backward bracket mandatory
+to interpret a measured forward effect. After a longer step reverses, consider supplied fine-grid refinements or
 another supported interval at the useful endpoint; do not ban an entire background
 or accept that a single interval's reversal exhausts the search space.
 
@@ -81,7 +88,10 @@ Check compensation capacity against condition margin and the possible extension 
 An observed small restoration cannot be assumed to protect against an unknown cliff.
 Crossing to zero removes that interval's guidance and may change the response regime.
 A continuation and its compensated copy share this uncertainty; their distinct arrays
-do not diversify it. Balance them with a supplied contender that preserves the known
+do not diversify it. The same applies to several backgrounds sharing one unverified
+amplitude extension: name the common failure assumption before treating them as a
+diverse portfolio. Multiple slots can be justified by an interaction question, but
+are not independent protection against that extension failing. Balance them with a supplied contender that preserves the known
 useful regime when available. State explicitly when the supplied set cannot do so;
 do not invent substitute arrays or claim unexecuted alternatives would win.
 
@@ -110,7 +120,9 @@ does not by itself justify an expected in-band mean loss; a secondary tradeoff p
 needs a credible route to a remaining higher-priority decision. Small gains remain measured gains;
 they need not absorb every remaining slot. Separate a failed quantitative prediction
 from a failed ranking improvement: a smaller-than-forecast signed gain still counts.
-Update the response belief rather than inventing a minimum-gain gate from the forecast.
+Update the response belief rather than inventing a minimum-gain gate or a stricter
+condition ceiling from the forecast. A larger-than-predicted condition cost can still
+leave a functional improvement eligible under the actual band.
 Never invent or edit replacement arrays; use bounded repair when the legal distinct
 set is insufficient. Respect current-anchor legality, approved range, fine grid,
 changed-interval count and range-probe allocation. Fixed R0 remains the physical parent.

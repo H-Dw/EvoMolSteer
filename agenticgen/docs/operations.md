@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+2026-10-24最新：**V16已FINALIZED并完成有限评估，V17待正常固定部署**。
+两教师各五轮1000记录及质量/汇总/保留/清理完整，无新故障，原64ede898 analyze成功。
+仅两教师R5G1私有/汇总四上下文与40聚合组；full_review_completed=false。
+代表Mean4.211907396/4.210484428；等权gap较V15增加0.000434699，连续退步1、历史最好V13，不回滚。
+正常完整31.907184分钟，61API3476119输入/815521输出，无本版作废；目标未达成。
+V17改写单位明确的资格/排序/预测，以及按曲率和共同风险选步长/组合，U1和所有科学设置保持。
+仅skills/文档，两端不跑单元测试。见[有限评估](experiments/v16_strategy_review/review.zh-CN.md)。
+V17尚未批准/启动；V6–V16不prepare/重跑；下方旧运行状态为历史。补充PB/inpainting计划继续休眠，35分钟续接保持。
+
 2026-10-24最新：**V15完成有限评估，V16已真实批准并启动**。
 固定`64ede898387316fcbd2ee6022016e4a66234dc52`，worker2672754，启动1792787457.6023173，runtime `/opt/MolSteer/runtimes/agenticgen_64ede898`。
 官方GitHub API固定获取/安装成功，76项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。

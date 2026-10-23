@@ -51,6 +51,12 @@ trailing probe needs a credible chance to challenge the leader, not a safety lab
 Distinguish falsifying a forecast from rejecting a real smaller ranking gain, and
 rejecting a tested endpoint from declaring its untested interior infeasible. Preserve
 private-agent visibility limits when judging what the council should have merged.
+Check the decision meaning of thresholds: coordinate eligibility, functional order
+and a response forecast are separate quantities with separate units. A forecast
+failure must not silently become an extra acceptance gate. Ask whether a smaller
+step or local-peak label follows measured curvature/risk, rather than small effect
+size alone; distinct arrays may still share one unverified extension. Judge these
+through decisions and outcomes, not a field-by-field wording audit.
 
 Write a short assessment per teacher: the useful hypothesis, actual terminal tradeoff,
 the main rival/limitation and a better next direction. Derive one to three generic

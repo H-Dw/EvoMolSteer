@@ -37,8 +37,12 @@ correspondence changes can mediate a guidance effect, so they are not automatica
 rivals to controllability. Large residuals or movements do not rank controllability. Endpoint
 predictions are not actual native states; do not infer erasure without a saved contrast.
 
-Early trials identify direction and useful scale. A legal opposing bracket detects
-curvature; use the default exploration step unless evidence supports refinement.
+Early trials identify direction and useful scale. Choose step size from measured
+curvature, a reversal, available condition margin or a nearby regime boundary. A
+small functional gain alone does not establish a peak or justify halving the step.
+If matched equal-size edges remain useful, compare the default legal continuation
+with a finer bracket by attainable gain and the decision each can change. A bracket
+can test a rival without being required to interpret an already measured total effect.
 When the response is not yet identified, a single-interval contrast with a shared
 reference is often more informative than several joint moves. Choose the interval
 from task evidence, not a fixed time-window preference. A joint trial is useful when
@@ -117,10 +121,13 @@ Return two legal arrays with concise physical hypotheses, actual references,
 condition/function predictions, purpose, alternatives and falsifiers. A Best-side
 tradeoff is secondary: an expected loss in in-band mean agreement needs a credible
 route to a later higher-priority decision, not merely a larger Best below the teacher.
-Use tools for arithmetic. A forecast miss and a ranking failure are different: a
-smaller-than-predicted gain can still improve the configured ranking. Revise the slope
-or mechanism when a prediction fails; do not create a minimum-gain acceptance gate
-from the predicted magnitude. Negative endpoints reject those edges, not every
+Use tools for arithmetic and keep units attached: condition error and margin are in
+angstroms; affinity and its gap are in the supplied functional units. The condition
+band defines eligibility, never a functional tie tolerance. A forecast miss updates
+the response belief; ranking uses the actual condition band and signed functional
+gap. An arm can exceed its predicted condition cost yet remain eligible and improve.
+Do not turn a forecast envelope into an extra condition ceiling or a minimum-gain
+gate. Negative endpoints reject those edges, not every
 interior or background. With fixed restarts and common random streams, between-candidate spread
 is not repeat-run noise. Keep the measured paired group effect separate from its
 unknown generalization to new starting populations. A tiny effect can be a real
