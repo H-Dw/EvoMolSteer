@@ -1,5 +1,13 @@
 # Deployment and continuation
 
+2026-10-23 17:36北京时间最新：96K修复已固定部署098467f5并真实启动V10 Top1
+worker2045658；Top2原五轮及31729个保护文件哈希保留。远端64相关测试与两教师
+原生验收、4上下文有限复盘门槛通过；失败Top1四轮400候选已归档后删除并从R1重跑。
+启动身份检查通过，无新failure，当时bootstrap未完、尚不称首轮完成。不要重复
+stage/finish/delete/批准/launch。见[部署收据](deployments/098467f5/README.zh-CN.md)。
+Git HTTPS代理503通过官方GitHub API固定对象校验获取解决；不是工具审批拒绝。
+只按35分钟检查活动worker；V10完整后再做自己的最优轮评估。下方待部署段落为历史。
+
 2026-10-23最新：本次定时受限读取实际成功，Top1 R4G2为length且65536输出
 全部用于reasoning、content为空。用户指定96K，修复设置私有/bootstrap98304，
 汇总64K及原skills/科学设置不变；完成Top2保留。固定用途GitHub部署及V10
