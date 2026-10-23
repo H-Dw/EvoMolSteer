@@ -32,9 +32,11 @@ the useful effect under the frozen ranking. Near-zero delivery is a delivery que
 not evidence for unlimited scale. Query an existing diagnostic only if it changes the
 choice; otherwise keep the mediator unknown and act on the measured terminal response.
 Unclipped delivery rules out clipping on that edge; it does not establish proportional
-delivery, an adequate dose or permanent terminal insensitivity. Native propagation or
-correspondence changes can mediate a guidance effect, so they are not automatically
-rivals to controllability. Large residuals or movements do not rank controllability. Endpoint
+delivery, an adequate dose or permanent terminal insensitivity. Under a matched fixed
+restart, native basin selection or correspondence changes can be how an amplitude
+change produces its terminal effect; they do not erase that measured total effect.
+Uncertainty about the mediator or new populations is separate from its current sign.
+Large residuals or movements do not rank controllability. Endpoint
 predictions are not actual native states; do not infer erasure without a saved contrast.
 
 Early trials identify direction and useful scale. Choose step size from measured
@@ -81,6 +83,16 @@ matched two-by-two comparison, compare the same amplitude edge under both backgr
 before assuming additivity or transferring its slope. A changed response supports a
 local interaction, not a universal time role or an identified molecular mechanism.
 Do not build a compulsory interaction grid or repeat a known schedule to fill it.
+At a new leader near a measured reversal, treat old favorable directions as transfer
+hypotheses whose signs can change. When proposing two arms, compare two separate
+single-edge challengers with a single edge plus its joint continuation. The latter
+isolates a conditional effect but puts both chances to beat the leader behind the
+first transfer. Choose by attainable improvement and usable remaining decisions,
+not an automatic preference for either design. Do not require a grid or extra slots.
+For reference O, move A and joint AB, AB-A identifies B only on the A background.
+AB worse than O can coexist with useful B and harmful A; it does not prove negative
+interaction or reject B on O. Additivity needs the missing matching reference, when
+already available; otherwise retain the conditional result and leave interaction unknown.
 
 When function improves at a condition cost, track the remaining condition margin.
 Near the band boundary, consider a two-interval compensation trial: preserve the
@@ -132,8 +144,10 @@ interior or background. With fixed restarts and common random streams, between-c
 is not repeat-run noise. Keep the measured paired group effect separate from its
 unknown generalization to new starting populations. A tiny effect can be a real
 fixed-population improvement yet deserve less budget than a plausible larger one;
-tail concentration or an uncertain mechanism alone does not erase it. Invent no
-noise floor or majority-response gate. Learning updates use stable
+tail concentration or an uncertain mechanism alone does not erase it. A worse median
+or few benefiting candidates can coexist with a better group mean; report that
+tradeoff without replacing the frozen mean objective. Invent no noise floor or
+majority-response gate. Learning updates use stable
 belief IDs, applicability, measurement, revised judgment and changed action. Keep
 unknowns honest and teacher-specific facts only in this version's task memory. Read
 no current sibling results. Follow the supplied JSON/tool schema and evidence IDs.

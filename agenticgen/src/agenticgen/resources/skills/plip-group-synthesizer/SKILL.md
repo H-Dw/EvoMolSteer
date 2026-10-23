@@ -20,8 +20,10 @@ mechanistic confidence. Coordinate rewards do not directly control chemistry or
 affinity. Compare matched gains per unit amplitude before inferring flattening from
 unequal steps; keep condition and functional slopes separate. Use that response to
 choose continuation, refinement or a different background, not to invent a noise floor.
-Concentrated gains count normally; matching or later dynamics may mediate
-an amplitude effect rather than invalidate its measured total effect.
+Concentrated gains count normally even if the median worsens. On a matched fixed
+restart, matching or native basin selection can mediate an amplitude effect; they
+are not evidence that the measured group effect is noise. Keep its sign, mediator
+uncertainty and new-population generalization separate when allocating the next trial.
 Translate a proposed mechanism into a choice: which permitted contrast would change
 the leading explanation or improve the terminal result? Distinguish failed delivery,
 benefit lost later and excessive continued pressure only as far as recorded evidence
@@ -74,6 +76,11 @@ matched two-by-two comparison when available: the difference between the same ed
 effects under two backgrounds reveals local interaction, not independent additive
 benefits or a proven propagation mechanism. Favor a supplied transfer/interaction
 contrast only when it can alter the leading choice; no mandatory grid or extra tools.
+Keep the comparison's scope explicit: with a reference O, an arm A and a joint AB,
+AB-A measures B conditional on A. A joint loss versus O does not prove non-additivity
+or reject B by itself; the first transfer may be harmful while the added edge helps.
+Use a matching B-on-O result to judge interaction only if available; otherwise leave
+it unknown without requiring a factorial grid or inventing an unexecuted result.
 One outside-band branch does not prove every other region infeasible. Current-anchor
 legality and the condition/function ranking still govern allocation.
 
@@ -90,9 +97,14 @@ Crossing to zero removes that interval's guidance and may change the response re
 A continuation and its compensated copy share this uncertainty; their distinct arrays
 do not diversify it. The same applies to several backgrounds sharing one unverified
 amplitude extension: name the common failure assumption before treating them as a
-diverse portfolio. Multiple slots can be justified by an interaction question, but
-are not independent protection against that extension failing. Balance them with a supplied contender that preserves the known
-useful regime when available. State explicitly when the supplied set cannot do so;
+diverse portfolio. Near a new leader or reversal, a previously favorable edge can
+reverse sign on the new background. Compare supplied separate single-edge contenders
+with a single edge plus its joint continuation: the joint pair identifies a conditional
+effect, but may leave both chances to improve dependent on the same unverified transfer.
+With no later sampling, that information must justify its cost through attainable
+improvement in this allocation. Neither design is mandatory. Balance the set with a
+supplied contender that preserves the known useful regime when warranted.
+State explicitly when the supplied set cannot do so;
 do not invent substitute arrays or claim unexecuted alternatives would win.
 
 Spend for improvement over the best tested in-band schedule, which remains retained

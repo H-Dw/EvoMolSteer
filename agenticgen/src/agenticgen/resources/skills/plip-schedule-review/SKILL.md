@@ -57,6 +57,15 @@ failure must not silently become an extra acceptance gate. Ask whether a smaller
 step or local-peak label follows measured curvature/risk, rather than small effect
 size alone; distinct arrays may still share one unverified extension. Judge these
 through decisions and outcomes, not a field-by-field wording audit.
+When a new leader changes the background, assess transfer risk in the proposed pair,
+not just whether it names a rival. A single move plus its joint continuation may
+answer a conditional-effect question while sharing one harmful transfer; compare
+its final-budget value with available separate challengers without claiming they
+would win. Keep O-to-A, A-to-AB and O-to-AB conclusions distinct. A joint loss does
+not identify interaction without matching references, and a useful conditional
+component must not be discarded with the whole arm. Native propagation and a
+concentrated response can mediate a fixed-population mean gain; uncertainty about
+that mechanism or generalization does not substitute a median/noise acceptance rule.
 
 Write a short assessment per teacher: the useful hypothesis, actual terminal tradeoff,
 the main rival/limitation and a better next direction. Derive one to three generic

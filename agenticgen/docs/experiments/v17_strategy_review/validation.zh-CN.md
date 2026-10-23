@@ -1,0 +1,7 @@
+# V17有限评估来源
+
+FINALIZED：27a512cd92cd2f9822496a6b0743e9b8812a04e01821ae383befd38b8b4adf5e。
+report：39516b47ef0031050e9ffd574aa7467bdbdeb567204b7f68cbf8ab1ed6674d8a。
+manifest：d676dc4aaf33e6a9a7b25f67cd3d0ff7bd7c594e8720e17b246cb7ac71b43376。
+
+Top1 R4G4、Top2 R5G1私有及同轮汇总共四上下文，相关目标/动作/预算与40组聚合，用少量匹配算术支持策略判断。没有全量会话、失败补审、逐工具审计或离线回放。原固定runtime analyze完成且报告hash未改变。本地不跑自动化测试；仅skills/文档远端也不跑单元测试。下一部署仍需实际有限review-check。

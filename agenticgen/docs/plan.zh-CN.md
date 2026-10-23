@@ -1,5 +1,14 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-24最新：**V17已FINALIZED并完成有限评估，V18待正常固定部署**。
+两教师各五轮1000记录及质量/汇总/保留/清理完整，无新故障，原a245eb0a analyze成功。
+仅Top1 R4G4、Top2 R5G1私有/汇总四上下文与40聚合组；full_review_completed=false。
+代表Mean4.213412151/4.211230860；等权gap较V16减少0.001125593、较V13减少0.000343704，历史最好更新V17，连续退步0，不回滚，目标未达成。
+正常完整31.029268分钟，59API3215577输入/755361输出，无本版作废；不宣称skills因果有效。
+V18改写新背景迁移的组合价值，以及总效应/条件效应/交互范围；U1和全部科学设置保持。
+仅skills/文档，两端不跑单元测试。见[有限评估](experiments/v17_strategy_review/review.zh-CN.md)。
+V18尚未批准/启动，V6–V17不prepare/重跑；下方旧运行状态为历史。补充PB/inpainting计划休眠，35分钟续接保持。
+
 2026-10-24最新：**V16完成有限评估，V17已真实批准并启动**。
 固定`a245eb0ac2ea4a7944d4fd7acfcd3491eaf5dbed`，worker2764399，启动1792791877.9126267，runtime `/opt/MolSteer/runtimes/agenticgen_a245eb0a`。
 官方GitHub API固定获取/安装成功，80项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。
