@@ -47,6 +47,10 @@ def failed_teacher(tmp_path, monkeypatch):
     monkeypatch.setattr(m,'committed',lambda p:{'path':'auth.json','sha256':sha(p)})
     monkeypatch.setattr(m,'commit',lambda:'new12345');monkeypatch.setattr(m,'source_fingerprint',lambda:newfp)
     monkeypatch.setattr(wave_retention,'verify_snapshot',lambda p:None)
+    # Preserve the historical V7 32K -> 64K fixture while defaults evolve.
+    from agenticgen.adaptive_schedule import group_protocol
+    v7_config=configuration();v7_config['llm']['max_output_tokens']=65536
+    monkeypatch.setattr(group_protocol,'configuration',lambda:v7_config)
     return root,auth,jobs
 
 
@@ -129,3 +133,53 @@ def test_tampered_preserved_teacher_and_native_acceptance_block_finish(failed_te
     with pytest.raises(ValueError,match='Protected'):m.finish(root,op)
     p.write_bytes(old);write(m.protocol_dir(root)/'validation/gradient_checks.json',{'passed':False})
     with pytest.raises(ValueError,match='acceptance'):m.finish(root,op)
+
+
+@pytest.fixture
+def focused_restart(failed_teacher,monkeypatch):
+    root,auth,jobs=failed_teacher
+    (root/'versions/v7').rename(root/'versions/v10')
+    old=root/'protocols/old';base=root/'versions/v10'
+    config=read(old/'config.json');config['llm']['max_output_tokens']=65536;write(old/'config.json',config)
+    p=read(old/'PREPARED.json');p['config_sha256']=sha(old/'config.json')
+    p['strategy_review_operation']='operations/adopted_best_round'
+    p['master_review_policy']={'mode':'best_round_strategy','full_review_prohibited':True,
+                             'authorization':{'path':'review-auth.json','sha256':'reviewhash'}}
+    for name in ['PREPARED.json','ACCEPTANCE_COMPLETE.json']:write(old/name,p)
+    binding=read(base/'binding.json');binding.update(config_sha256=p['config_sha256']);write(base/'binding.json',binding)
+    write(root/'operations/adopted_best_round/journal.json',{'phase':'accepted_for_review_check',
+        'commit':p['commit'],'new_protocol':'protocols/old','acceptance_sha256':sha(old/'ACCEPTANCE_COMPLETE.json'),
+        'authorization':p['master_review_policy']['authorization'],'protected_sha256':{}})
+    write(root/'ACTIVE_PROTOCOL.json',{'directory':'protocols/old','prepared_sha256':sha(old/'PREPARED.json')})
+    a=read(auth);a.update(version='v10',previous_max_output_tokens=65536,max_output_tokens=98304);write(auth,a)
+    from agenticgen.adaptive_schedule import group_protocol
+    monkeypatch.setattr(group_protocol,'configuration',configuration)
+    return root,auth,jobs
+
+
+def test_96k_restart_preserves_best_round_review_and_completed_teacher(focused_restart):
+    root,auth,jobs=focused_restart;kept=m.inventory(root/'versions/v10/a')
+    op=Path(m.stage(root,'v10',auth)['operation']);p=read(m.prepared_path(root))
+    assert p['master_review_policy']['full_review_prohibited'] is True
+    assert 'strategy_review_operation' not in p and p['previous_strategy_review_operation']=='operations/adopted_best_round'
+    assert read(m.config_path(root))['llm']['max_output_tokens']==98304
+    accept(root);m.finish(root,op)
+    assert m.verify_ready(root,'v10')['version']=='v10'
+    assert m.inventory(root/'versions/v10/a')==kept
+    p['master_review_policy']['mode']='full_review';write(m.prepared_path(root),p)
+    with pytest.raises(ValueError):m.verify_ready(root,'v10')
+
+
+@pytest.mark.parametrize('change',['previous_budget','scope','adoption','source','reward'])
+def test_96k_restart_rejects_unapproved_changes(focused_restart,monkeypatch,change):
+    root,auth,_=focused_restart
+    if change in ('previous_budget','scope'):
+        a=read(auth);a['previous_max_output_tokens' if change=='previous_budget' else 'max_output_tokens']=32768 if change=='previous_budget' else 131072;write(auth,a)
+    elif change=='adoption':
+        path=root/'operations/adopted_best_round/journal.json';j=read(path);j['phase']='staged';write(path,j)
+    elif change=='source':
+        monkeypatch.setattr(m,'source_fingerprint',lambda:{'adaptive_schedule/wave_native.py':'changed'})
+    else:
+        from agenticgen.adaptive_schedule import group_protocol
+        c=configuration();c['max_atom_step_A']=1;monkeypatch.setattr(group_protocol,'configuration',lambda:c)
+    with pytest.raises(ValueError):m.stage(root,'v10',auth)

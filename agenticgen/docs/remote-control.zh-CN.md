@@ -28,6 +28,16 @@ URL及凭据形式文本，不扩展到其他轮或全量会话。该接口不�
 
 ## 部署与启动
 
+V10定点诊断可加`--incomplete-diagnostics`，只对pipeline当前失败轮、
+analyst_failures中Incomplete JSON的组读取严格命名的收据、原始回答及对应请求。
+校验回答/请求hash和max_tokens，原文仅进入本地证据文件，不打印到终端；
+不递归读取成功组或其他轮，不获取共享prompt全文。
+
+本次96K修复使用`deploy_v10_repair.py --commit <完整SHA> --output <本地收据>`。
+这是另一个有写操作的固定用途部署入口：远端GitHub fetch、固定安装及已测试
+Top1归档/删除/五轮重启，明确保留Top2。它不是只读巡检，也不是免审批路径；
+不接受任意远端命令、主机或路径，工具拒绝时停止，不换接口继续执行。
+
 代码继续本地修改、相关测试、commit/push，再由远端GitHub fetch固定提交。
 部署与`start_reviewed_version.py`启动分开，使用既有完成状态、锁、固定提交及
 review-check。只读客户端不能触发这些操作，也不能自动重启、删除或重跑版本。

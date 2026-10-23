@@ -1,5 +1,11 @@
 # Deployment and continuation
 
+2026-10-23最新：本次定时受限读取实际成功，Top1 R4G2为length且65536输出
+全部用于reasoning、content为空。用户指定96K，修复设置私有/bootstrap98304，
+汇总64K及原skills/科学设置不变；完成Top2保留。固定用途GitHub部署及V10
+修复脚本见[96K修复](repairs/20261023-v10-output-budget.md)。尚须以新部署收据
+确认安装、验收、归档删除、有限review-check和重启各阶段，不将本地修改当启动。
+
 2026-10-23 16:47北京时间最新验证：受限只读SFTP客户端真实读取成功，
 25项相关本地测试通过，客户端提交26d91fc5已推送；本次未执行远端命令或写入。
 V10 worker1912935已退出；Top2五轮完整，Top1 R4G2回答未完整结束导致分析失败，

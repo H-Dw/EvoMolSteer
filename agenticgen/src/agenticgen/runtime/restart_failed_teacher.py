@@ -1,7 +1,7 @@
 """Audited five-round restart of failed teachers, preserving completed teachers.
 
 This operation never repairs a scientific proposal or approves an experiment.
-The prior full master review must pass again against the new fixed revision.
+The prior authorized review scope must pass again against the new fixed revision.
 """
 import copy
 from pathlib import Path
@@ -14,7 +14,8 @@ from .restart_failed_version import safe_base, inventory, verify_protected, no_w
 from .extend_budget import committed, assert_committed_runtime
 
 ALLOWED_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py', 'adaptive_schedule/group_run.py',
-    'adaptive_schedule/group_review.py', 'adaptive_schedule/group_protocol.py', 'cli.py'}
+    'adaptive_schedule/group_review.py', 'adaptive_schedule/group_protocol.py', 'cli.py',
+    'providers/deepseek_api.py'}
 GLOBAL_RESET = {'binding.json', 'deployment.json', 'pipeline.json', 'PIPELINE_COMPLETE.json', 'review_approval.json'}
 
 
@@ -46,7 +47,9 @@ def stage(root, version, authorization):
         auth_ref = committed(authorization); auth = read(authorization)
         if not (auth.get('authority') == 'human_user' and auth.get('version') == version and
                 auth.get('rerun_all_five_rounds') is True and auth.get('delete_failed_candidate_outputs') is True and
-                auth.get('preserve_completed_teachers') is True and auth.get('max_output_tokens') == 65536):
+                auth.get('preserve_completed_teachers') is True and
+                (auth.get('previous_max_output_tokens',32768),auth.get('max_output_tokens')) in
+                {(32768,65536),(65536,98304)}):
             raise ValueError('Authorization does not cover this teacher restart')
         state = read(base/'pipeline.json'); teachers = {t['teacher_id'] for t in read(root/'teachers.json')}
         if set(state['teachers']) != teachers or any(t['phase'] not in {'failed','complete'} for t in state['teachers'].values()):
@@ -65,13 +68,21 @@ def stage(root, version, authorization):
             if prior['phase'] != 'accepted_for_review_check' or root/prior['new_protocol'] != old_dir:
                 raise ValueError('Prior budget adoption incomplete')
             verify_protected(root, prior['protected_sha256'])
+        if old.get('strategy_review_operation'):
+            prior = read(root/old['strategy_review_operation']/'journal.json')
+            if (prior['phase'] != 'accepted_for_review_check' or root/prior['new_protocol'] != old_dir
+                    or prior['commit'] != old['commit']
+                    or prior['acceptance_sha256'] != sha(old_dir/'ACCEPTANCE_COMPLETE.json')
+                    or old.get('master_review_policy',{}).get('authorization') != prior['authorization']):
+                raise ValueError('Prior best-round policy adoption incomplete')
+            verify_protected(root, prior['protected_sha256'])
         current = source_fingerprint()
         changed = sorted(k for k in current.keys()|old['source_fingerprint'].keys() if current.get(k) != old['source_fingerprint'].get(k))
         if not changed or not set(changed) <= ALLOWED_SOURCE_CHANGES:raise ValueError('Unsupported source/science change')
         for role, relative in SKILLS.items():
             if sha(repository()/relative) != binding['skill_hashes'][role]:raise ValueError('Frozen skills changed')
         new = copy.deepcopy(previous); new['llm']['max_output_tokens'] = auth['max_output_tokens']
-        if previous['llm']['max_output_tokens'] != 32768 or configuration() != new:
+        if previous['llm']['max_output_tokens'] != auth.get('previous_max_output_tokens',32768) or configuration() != new:
             raise ValueError('Only authorized output budget may change')
         initial = {}
         for teacher in teachers:
@@ -114,10 +125,10 @@ def stage(root, version, authorization):
             'previous_protocol':old_dir.relative_to(root).as_posix(),'previous_protocol_prepared_sha256':sha(old_dir/'PREPARED.json'),
             'teacher_restart_operation':op.relative_to(root).as_posix(),'native_probe_directory':f'operations/teacher_restart_acceptance_{commit()[:8]}',
             'requires_native_acceptance':True,'r0_resampling_allowed':False,
-            'authorized_analysis_budget_changes':{'max_output_tokens':65536}}
+            'authorized_analysis_budget_changes':{'max_output_tokens':auth['max_output_tokens']}}
         # These completed predecessor transactions remain in the protected history;
         # the new native acceptance is checked by the scoped restart gate below.
-        for key in ['budget_extension_operation','failure_restart_operation']:
+        for key in ['budget_extension_operation','failure_restart_operation','strategy_review_operation']:
             if key in prepared:prepared['previous_'+key] = prepared.pop(key)
         write(folder/'PREPARED.json',prepared)
         verify_protected(root,protected)
@@ -200,6 +211,9 @@ def verify_ready(root, version):
             version not in read(config_path(root))['versions'] or int(version[1:]) < int(j['version'][1:]) or
             j['new_acceptance_sha256'] != sha(acceptance_path(root))):
         raise ValueError('Teacher restart/native gate not complete')
+    previous = read(root/j['old_protocol']/'PREPARED.json')
+    if p.get('master_review_policy') != previous.get('master_review_policy'):
+        raise ValueError('Restart must preserve the adopted review scope')
     native_ready(root); verify_protected(root,j['protected_sha256'])
     return j
 

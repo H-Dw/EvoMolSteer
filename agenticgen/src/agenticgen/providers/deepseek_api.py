@@ -136,7 +136,7 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
         raise ValueError("Explicit thinking flag and supported reasoning effort required")
     if isinstance(max_format_repairs, bool) or not isinstance(max_format_repairs, int) or not 0 <= max_format_repairs <= 2:
         raise ValueError("At most two neutral format repairs are allowed")
-    if isinstance(max_output_tokens,bool) or not isinstance(max_output_tokens,int) or not 512<=max_output_tokens<=65536:
+    if isinstance(max_output_tokens,bool) or not isinstance(max_output_tokens,int) or not 512<=max_output_tokens<=98304:
         raise ValueError("Bounded positive output token budget required")
     output = Path(output)
     request_path = output.with_suffix(".request.json")
