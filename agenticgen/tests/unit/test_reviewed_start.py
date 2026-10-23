@@ -2,7 +2,8 @@
 import importlib.util
 from pathlib import Path
 import pytest
-from agenticgen.adaptive_schedule.io import write, sha
+from agenticgen.adaptive_schedule.io import write, sha, read, value_sha
+from agenticgen.adaptive_schedule.search_policy import policy
 
 spec = importlib.util.spec_from_file_location('reviewed_start', Path(__file__).parents[2]/'scripts/start_reviewed_version.py')
 module = importlib.util.module_from_spec(spec)
@@ -54,6 +55,7 @@ def test_deployment_change_gets_only_related_files():
     assert module.validation_tests(['agenticgen/scripts/start_reviewed_version.py',
         'agenticgen/scripts/deploy_reviewed_version.py',
         'agenticgen/tests/unit/test_reviewed_start.py']) == [
+            'agenticgen/tests/unit/test_control_gates.py',
             'agenticgen/tests/unit/test_reviewed_deploy.py',
             'agenticgen/tests/unit/test_reviewed_start.py']
 
@@ -79,6 +81,77 @@ def test_active_protocol_dispatch_preserves_current_gate(tmp_path, monkeypatch, 
     assert called==[(tmp_path,'v11')]
     assert read_prepared(tmp_path)==prepared
     assert not (tmp_path/'versions').exists()
+
+
+@pytest.fixture
+def rollback_boundary(tmp_path, monkeypatch):
+    root=tmp_path/'results'; repo=tmp_path/'repo'; review='agenticgen/docs/experiments/v12_strategy_review/'
+    old=root/'versions/v10'; restored=policy()
+    binding={'skill_hashes':{role:'source-'+role for role in module.SKILLS},
+             'source_fingerprint':{'native':'preserved'}}
+    write(old/'binding.json',binding);write(old/'search_policy.json',restored)
+    document=review+'rollback_compatibility.zh-CN.md'
+    (repo/document).parent.mkdir(parents=True);(repo/document).write_text('Retain accepted native and interface compatibility.')
+    plan={'previous_version':'v12','next_version':'v13','restored_version':'v10',
+          'restored_binding_sha256':sha(old/'binding.json'),
+          'source_binding_sha256':value_sha(binding['source_fingerprint']),
+          'restored_policy':restored,'code_compatibility_document':document,
+          'code_compatibility_sha256':sha(repo/document)}
+    write(repo/review/'rollback_plan.json',plan)
+    monkeypatch.setattr(module,'repository',lambda:repo)
+    monkeypatch.setattr(module,'version_metrics',lambda root:[])
+    monkeypatch.setattr(module,'rollback_advice',lambda rows:{'required':True,'restore_version':'v10'})
+    monkeypatch.setattr(module,'load_version_policy',lambda root,version:read(root/'versions'/version/'search_policy.json'))
+    calls=[]
+    def committed(path,digest,revision):
+        calls.append((path,digest,revision));return repo/path
+    monkeypatch.setattr(module,'committed_file',committed)
+    return root,repo,review,plan,calls
+
+
+def test_required_rollback_binds_history_skills_and_document_before_staging(rollback_boundary):
+    root,repo,review,plan,calls=rollback_boundary
+    restored,record=module.reviewed_control_state(root,'v13',review,'fixed-source')
+    assert restored==plan['restored_policy']
+    for key in ('restored_version','restored_binding_sha256','source_binding_sha256','code_compatibility_sha256'):
+        assert record[key]==plan[key]
+    assert {path for path,_,_ in calls}=={review+'rollback_plan.json',review+'rollback_compatibility.zh-CN.md',*module.SKILLS.values()}
+    assert all(rev=='fixed-source' for _,_,rev in calls)
+    assert not (root/'versions/v13').exists()
+
+
+@pytest.mark.parametrize('field',['previous_version','next_version','restored_version','restored_binding_sha256',
+                                 'source_binding_sha256','restored_policy','code_compatibility_document','code_compatibility_sha256'])
+def test_rollback_plan_must_match_exact_history(rollback_boundary,field):
+    root,repo,review,plan,_=rollback_boundary
+    plan[field]='wrong';write(repo/review/'rollback_plan.json',plan)
+    with pytest.raises(ValueError):module.reviewed_control_state(root,'v13',review,'fixed-source')
+    assert not (root/'versions/v13').exists()
+
+
+def test_restored_skills_cannot_be_substituted(rollback_boundary,monkeypatch):
+    root,repo,review,_,_=rollback_boundary
+    def committed(path,digest,revision):
+        if path in module.SKILLS.values():raise ValueError('Skill source differs')
+        return repo/path
+    monkeypatch.setattr(module,'committed_file',committed)
+    with pytest.raises(ValueError,match='Skill source'):module.reviewed_control_state(root,'v13',review,'fixed-source')
+    assert not (root/'versions/v13').exists()
+
+
+def test_rollback_plan_cannot_reset_nonregressing_history(rollback_boundary,monkeypatch):
+    root,_,review,_,_=rollback_boundary
+    monkeypatch.setattr(module,'rollback_advice',lambda rows:{'required':False})
+    with pytest.raises(ValueError,match='without two'):module.reviewed_control_state(root,'v13',review,'fixed-source')
+    assert not (root/'versions/v13').exists()
+
+
+def test_normal_boundary_keeps_policy_and_has_no_rollback(tmp_path,monkeypatch):
+    monkeypatch.setattr(module,'repository',lambda:tmp_path)
+    monkeypatch.setattr(module,'version_metrics',lambda root:[])
+    monkeypatch.setattr(module,'rollback_advice',lambda rows:{'required':False})
+    monkeypatch.setattr(module,'load_version_policy',lambda root,version:policy())
+    assert module.reviewed_control_state(tmp_path,'v14','review/','source')==(policy(),None)
 
 
 def read_prepared(root):

@@ -1,5 +1,16 @@
 # Deployment and continuation
 
+2026-10-24最新：**V12已FINALIZED并完成有限评估，V13必须恢复历史最好V10**。
+两教师各五轮1000正式记录和质量/汇总/保留/清理齐全，无新故障；原e640a40e analyze成功。
+只读两教师R5G4私有/汇总四上下文与40组聚合表现，full_review_completed=false。
+Top1/Top2代表Mean4.212099457/4.209410229，较V11一升一降；等权gap增加0.000889187，
+连续退步2，触发既定回滚。V13恢复V10绑定analyst/synthesizer及U1/粗尺度0.2/q0.1完整策略，
+保留已接受的96K短引用/中性接口修正。主Agent有限机制复盘框架保留，不叠加新Guidance条款。
+V12耗时33.072分钟、正式GPU8.866分钟；58份API输入3343472/输出714851，无本版作废尝试。
+见[本版有限评估](experiments/v12_strategy_review/review.zh-CN.md)。正常启动器补齐真实rollback绑定，
+尚待固定提交部署和两份直接相关远端检查；没有本地自动化测试，尚未批准/启动V13。
+V6–V12均不得重跑/prepare；下方V12启动和更早待部署段落为历史。35分钟巡检保持。
+
 2026-10-23最新：**V11完整结束并完成有限评估，V12已真实批准启动**。
 V12固定`e640a40e31a6f3885cc884c48a45a855e2f707eb`，worker2338101，启动1792770456.370391，runtime `/opt/MolSteer/runtimes/agenticgen_e640a40e`。
 官方GitHub API获取/固定安装成功，60项旧协议/R0/结果关键hash保持；仅skills/文档变化，

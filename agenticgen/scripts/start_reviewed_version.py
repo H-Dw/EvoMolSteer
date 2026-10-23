@@ -17,6 +17,8 @@ from agenticgen.adaptive_schedule.group_review import committed_file, review_che
 from agenticgen.adaptive_schedule.protocol_state import prepared_path, acceptance_path
 from agenticgen.adaptive_schedule.search_policy import load_version_policy
 from agenticgen.adaptive_schedule.strategy_review import AUTHORIZATION, MODE
+from agenticgen.adaptive_schedule.version_gate import version_metrics
+from agenticgen.adaptive_schedule.selection import rollback_advice
 from agenticgen.runtime.extend_budget import assert_committed_runtime
 from agenticgen.runtime.launch import idle_locks
 from agenticgen.runtime.restart_failed_version import no_worker
@@ -70,6 +72,38 @@ def passing_tests(path):
         raise ValueError('Remote tests must pass without skips')
 
 
+def reviewed_control_state(root, version, review, revision):
+    """Bind an authored rollback to immutable history before staging a new version."""
+    advice = rollback_advice(version_metrics(root))
+    path = repository()/review/'rollback_plan.json'
+    if not advice.get('required'):
+        if path.exists():
+            raise ValueError('Rollback plan present without two completed regressions')
+        return load_version_policy(root, version), None
+    plan = read(committed_file(review+'rollback_plan.json', sha(path), revision))
+    restore = advice['restore_version']; old = root/'versions'/restore
+    binding = read(old/'binding.json'); restored_policy = load_version_policy(root, restore)
+    if (plan.get('previous_version') != f'v{int(version[1:])-1}'
+            or plan.get('next_version') != version or plan.get('restored_version') != restore
+            or plan.get('restored_binding_sha256') != sha(old/'binding.json')
+            or plan.get('source_binding_sha256') != value_sha(binding['source_fingerprint'])
+            or plan.get('restored_policy') != restored_policy):
+        raise ValueError('Authored rollback plan differs from historical-best binding/policy')
+    for role, skill in SKILLS.items():
+        committed_file(skill, binding['skill_hashes'][role], revision)
+    document = review+'rollback_compatibility.zh-CN.md'
+    digest = sha(repository()/document)
+    if (plan.get('code_compatibility_document') != document
+            or plan.get('code_compatibility_sha256') != digest):
+        raise ValueError('Rollback compatibility document differs')
+    committed_file(document, digest, revision)
+    return restored_policy, {
+        'restored_version':restore, 'restored_binding_sha256':sha(old/'binding.json'),
+        'source_binding_sha256':value_sha(binding['source_fingerprint']),
+        'code_compatibility_document':document, 'code_compatibility_sha256':digest,
+        'plan_document':review+'rollback_plan.json', 'plan_document_sha256':sha(path)}
+
+
 def validation_tests(changed):
     """Select only changed deployment interfaces; unknown code needs an explicit plan."""
     selected = set()
@@ -85,6 +119,8 @@ def validation_tests(changed):
             continue
         if path in mapping:
             selected.add('agenticgen/tests/unit/'+mapping[path])
+            if path == 'agenticgen/scripts/start_reviewed_version.py':
+                selected.add('agenticgen/tests/unit/test_control_gates.py')
         elif path in {'agenticgen/tests/unit/'+name for name in mapping.values()}:
             selected.add(path)
         else:
@@ -106,6 +142,8 @@ def main():
         previous = previous_version(root, args.version)
         verify_active_protocol(root, args.version)
         assert_prepared(root)  # Skills/scripts may change; accepted scientific Python must match.
+        review = f'agenticgen/docs/experiments/{previous}_strategy_review/'
+        reviewed_control_state(root, args.version, review, revision)
     review = f'agenticgen/docs/experiments/{previous}_strategy_review/'
     dep = Path('/opt/MolSteer/operations')/('agenticgen_deploy_'+revision[:8])
     dep.mkdir(parents=True, exist_ok=True)
@@ -142,7 +180,7 @@ def main():
         active_protocol = verify_active_protocol(root, args.version)
         for name in ('review.zh-CN.md', 'strategy_review.json'):
             committed_file(review+name, sha(repo/review/name), revision)
-        policy = load_version_policy(root, args.version)
+        policy, rollback = reviewed_control_state(root, args.version, review, revision)
         approval = {'mode':MODE, 'reviewer':'GPT master agent', 'review_completed':True,
             'full_review_completed':False, 'coverage':[], 'selected_strategy_contexts':4,
             'previous_version':previous, 'next_version':args.version, 'review_commit':revision, 'time':time.time(),
@@ -158,13 +196,16 @@ def main():
             'active_protocol_gate':active_protocol,
             'scientific_settings_unchanged':True, 'offline_llm_replay_performed':False,
             'performance_improvement_claimed':False, 'aborted_full_review_required':False}
+        if rollback is not None:
+            approval['rollback'] = rollback
         base = root/'versions'/args.version
         write(base/'search_policy.json', policy); write(base/'review_approval.json', approval)
         gate = review_check(root, args.version)
         if not gate['approved'] or gate['mode'] != MODE or gate['sessions'] != 4:
             raise ValueError('Unexpected strategy gate result')
         write(dep/'approval_receipt.json', {'commit':revision, 'gate':gate,
-                                         'approval_sha256':sha(base/'review_approval.json')})
+                                         'approval_sha256':sha(base/'review_approval.json'),
+                                         'search_policy':policy, 'rollback':rollback})
     run(['bash', str(repo/'agenticgen/scripts/run.sh'), 'launch', '--root', str(root), '--version', args.version], 'launch.log')
     launch = read(root/'launch.json')
     if launch['version'] != args.version or launch['commit'] != revision:
