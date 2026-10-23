@@ -1,5 +1,10 @@
 # Deployment and continuation
 
+2026-10-23策略续接：用户指定框架已转为三份 skills 的通用调控推理，
+见[策略说明](strategy/20261023-guidance-mechanism.zh-CN.md)。这是下一边界的准备，未部署或批准 V12。
+V11 仍固定07fa7423，不因本地skills提交重启或切换科学源。完成后按更新的主 Agent skill
+做V11自己的最优轮有限评估，结合结果/回滚决定下一版；不恢复52会话流程、不增加本地测试。
+
 2026-10-23最新：V11 Top1接口失败已按既有授权修复并完整五轮重跑；Top2已完成五轮保留。
 固定`07fa7423a64c497c8550fda99a040f3437ae3eec`，worker2281628，runtime `/opt/MolSteer/runtimes/agenticgen_07fa7423`。
 首答重复调度，修正答JSON结构错误，两答均stop且未耗尽96K；私有中性修正额度1→2，完整字段提示增强，

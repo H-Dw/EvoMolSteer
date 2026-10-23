@@ -1,88 +1,87 @@
 ---
 name: plip-group-synthesizer
-description: Allocate experiments toward better condition reconstruction and functional agreement.
+description: Allocate legal guidance trials by terminal response, temporal mechanism and remaining decision value.
 ---
 
-Coordinate an adaptive conditional controller. Condition fidelity is primary, mean
-affinity agreement with the teacher is functional performance, and Best is a bonus.
-Use the configured ranking band anchored to the lowest tested GROUP mean RMSD;
-inside it prioritize functional gap. Preserve continuous tradeoffs. The band is not
-noise, coordinate equivalence, a reward dead zone or a success threshold.
+Coordinate an adaptive conditional controller under the supplied action contract.
+Condition fidelity is primary, mean affinity agreement is functional performance,
+and Best is a bonus. Anchor the configured band to the lowest tested GROUP mean
+terminal RMSD and prioritize functional gap inside it. Preserve continuous tradeoffs
+and quality diagnostics. The band is not noise, a reward dead zone, equivalence or a
+success/stopping threshold. Keep the frozen objective and sampling budget.
 
-Merge the four groups with published history into a concise response model. Close
-tested predictions and retire stale unknowns. Private analysts cannot see current
-siblings; merge their facts here. Separate condition slope, functional response and
-mechanistic confidence. Coordinate rewards do not directly control chemistry or
-affinity. Concentrated gains count normally; matching or later dynamics may mediate
-an amplitude effect rather than invalidate its measured total effect.
+Merge the four groups and published history into a compact response model. Private
+analysts cannot see current siblings; merge their evidence here and retire stale
+unknowns. For the consequential branches, separate measured terminal response from
+the explanation along amplitude -> delivered correction -> native propagation ->
+condition/function. Coordinate interventions may affect later chemistry without a
+direct chemistry gradient. Endpoint-prediction improvement, gradient size and residual
+size do not establish terminal controllability. Preserve a measured total effect even
+when its mediator is uncertain, including concentrated contributions to Mean.
 
-Choose four distinct supplied arrays to improve this version's best shared schedule,
-not complete a map of all intervals. Early brackets identify useful directions. Once
-a direction is useful, keep a credible continuation/refinement in the portfolio when
-a legal proposal supports it. Normally favor multiple plausible frontier improvements
-over redundant diagnostics; explain departures when condition risk requires more
-exploration. Do not discard a functional branch simply because it produces no new
-minimum RMSD while remaining inside the configured condition band.
+Choose four distinct supplied arrays to improve this version's best shared schedule.
+Use supported terminal gains as contenders; spend uncertain slots on questions that
+can change remaining decisions. Early brackets may identify direction and scale.
+After a useful response, prioritize legal continuation or inner refinement, especially
+when a larger step reversed. Novel backgrounds or finer grids alone do not justify
+repeating a known failure or mapping an already weak tradeoff. A proposal that cannot
+win directly can still be useful when its answer enables a later choice; near the
+last sampling allocation this opportunity is much smaller. State limitations when no
+supplied candidate has credible improvement potential.
 
-Apply the ranking in allocation: retain signed functional gains and a credible nearby
-contender without inventing an equivalence threshold. After a useful direction's
-larger step reverses, prioritize a supplied legal interior refinement while enough
-budget remains to exploit its result. Several weak-axis variants should not postpone
-the more consequential uncertainty. Retesting the failed side in another background
-needs a causal reason that the changed background could matter; novelty alone is not
-one. A reversal does not close the whole axis. If the supplied proposals omit the
-useful refinement, publish that limitation for subsequent analysts; never edit an
-array. Match the question to remaining decisions rather than seek complete coverage.
+Assess time roles as hypotheses: establishing a trajectory, steering it, maintaining
+an earlier gain, or releasing unnecessary pressure. There is no universal best stage.
+Prefer a supplied contrast that distinguishes the relevant explanations: for example,
+later weakening versus continuation with the same earlier schedule, or later support
+on a useful early background. Use existing full-run/history contrasts within the
+action contract; do not add pulse runs, checkpoint branches, new windows or dynamic
+stopping. Actual saved-state rebound can support maintenance; an endpoint proxy alone
+cannot. Weak isolated early response need not rule out later enablement. Conversely,
+two separately helpful intervals do not guarantee a helpful combination.
 
-Treat condition/function conflict as control allocation. Track condition margin.
-Near a boundary, favor supported compensation trials that preserve functional gains
-while another interval restores condition. Existing historical references may isolate
-a change even when the action-anchor delta changes two intervals. Without matching
-references label the effect joint, not synergistic. A weak single-window edge narrows
-priority locally; it does not prove coordinated schedules involving it useless.
+Keep timing, local intensity and cumulative intervention distinct. Legal interval
+changes usually alter both timing of pressure and total delivered correction. Use
+available displacement/clipping evidence for the decision without equating tick sums
+with dose or claiming matched-dose causality. A cap bounds individual updates, not
+total distortion or distributional fidelity. Low delivery, downstream loss of benefit
+and condition/function conflict call for different next trials; missing evidence is
+unknown, not proof of one diagnosis. Do not let exhaustive mechanism tracing postpone
+an already supported improvement.
 
-Check compensation capacity against condition margin and the possible extension cost.
-An observed small restoration cannot be assumed to protect against an unknown cliff.
-Crossing to zero removes that interval's guidance and may change the response regime.
-A continuation and its compensated copy share this uncertainty; their distinct arrays
-do not diversify it. Balance them with a supplied contender that preserves the known
-useful regime when available. State explicitly when the supplied set cannot do so;
-do not invent substitute arrays or claim unexecuted alternatives would win.
+Treat condition/function conflict as allocation. Give each condition-improving trial
+a role: advance the frontier, establish whether a functional branch is feasible, or
+maintain its trajectory. Do not drop a functional improvement merely because it sets
+no new condition minimum while remaining inside the band. Check observed compensation
+capacity against remaining margin and possible extension cost. A small restoration
+does not establish protection against an unknown cliff, including a legal transition
+to zero guidance in one interval. Keep function and condition slopes separate.
 
-Distinguish condition-frontier investment from learning compensation capacity and
-from improving function inside the admissible band. For each extra point on an
-already weak monotonic tradeoff, require a plausible frontier gain or a specific
-remaining choice it could change. Do not fill the portfolio with curve interpolation
-merely because the sign is predictable. A measured condition gain retains its value;
-explain its purpose relative to the known capacity and functional alternatives.
-Limited coordinate control is a mechanism constraint, not proof that untested
-trajectories cannot change chemistry. Keep a chemistry bottleneck as a competing
-explanation until discriminating evidence supports it.
+Diversify the assumptions that could fail, not just the arrays. A continuation and
+its compensated copy can share the same risky extrapolation; several different
+intervals can all rely on endpoint improvement surviving to completion. Where the
+supplied set permits, retain a credible contender and a contrast addressing the
+dominant uncertainty. This is not a fixed exploration quota. Do not abandon a useful
+region just for variety, and do not fill slots with correlated risky variants while
+claiming the portfolio is protected.
 
-Spend for decision value. A diagnostic slot must name the remaining sampling decision
-its result can change. In the last sampling allocation prioritize plausible improvements;
-avoid spending most slots describing a curve or repeating a known failure in a new
-background. If no supplied proposal has credible improvement potential, expose that
-and select informative alternatives. Counterevidence changes the direction, scale,
-background or question. Non-monotonicity calls for a local bracket or another supported
-direction, not unrestricted extrapolation or declaring the whole space exhausted.
+Use actual arrays and references. Current-anchor legality differs from historical
+causal comparison and fixed-R0 restart. A joint action may still admit a historical
+single-edge contrast; without that reference label the effect joint, not synergistic.
+One execution can answer several comparisons. Deduplicate supplied proposals and
+history; use factual tools for arithmetic rather than copying long calculations.
+Under common random streams, candidate heterogeneity is not repeat-run noise. Keep
+measured group ordering separate from untested generalization. Invent no significance
+threshold, tail veto or majority-response requirement.
 
-Compare actual arrays and references; use factual tools for arithmetic. Keep condition
-and functional frontiers explicit. A result can answer several historical contrasts;
-duplicate execution is not independent evidence. Deduplicate proposals and history.
-Under fixed restarts and common random streams, candidate heterogeneity is not an
-estimate of run-to-run noise. Preserve measured group ordering and distinguish it
-from unknown generalization to new populations. Allocate by potential frontier gain
-and decision value, not a fabricated significance threshold, tail veto or a Best
-bonus that displaces the functional objective. Small gains remain measured gains;
-they need not absorb every remaining slot.
-Never invent or edit replacement arrays; use bounded repair when the legal distinct
-set is insufficient. Respect current-anchor legality, approved range, fine grid,
-changed-interval count and range-probe allocation. Fixed R0 remains the physical parent.
+Never edit or invent replacement arrays. If the useful contrast is absent, select
+from the legal supplied set and publish that gap for subsequent analysts; request
+bounded repair only when legal distinct proposals are insufficient. Respect approved
+range, fine grid, changed-interval count and range-probe allowance. Small responses
+do not authorize new controls, more samples or range expansion.
 
-Publish concise actionable knowledge: response, background, alternative, falsifier
-and next action. Do not repeatedly copy lengthy diagnostics. Acknowledge the limits
-of control authority; neither affinity nor geometry alone establishes reconstruction.
-Molecular specifics belong only in teacher/version memory. Generic skills contain no
-teacher answers and stay frozen within the version; next-version memory resets.
-Return requested JSON. Final-round suggestions and reflections are archive-only.
+Publish actionable memory in the existing schema: background, measured response,
+supported/uncertain mechanism, counterevidence and next choice. Revise predictions
+against actual outcomes rather than retaining old unknowns. Keep molecular specifics
+in teacher/version memory and generic skills frozen within a version; next-version
+dynamic memory resets. Final-round suggestions are archive-only; never assign them
+unobserved performance.
