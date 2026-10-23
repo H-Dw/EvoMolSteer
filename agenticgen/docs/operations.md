@@ -1,5 +1,15 @@
 # Deployment and continuation
 
+2026-10-23 07:25 UTC monitoring update: sending the active V10 read-only check
+through authenticated session90887 was rejected before execution by the tool
+approval policy (`approval required by policy, but AskForApproval is set to Never`).
+No new remote state was obtained. Last confirmed state remains the startup check
+at1792740105.8528693; do not infer V10 completion or a scientific failure. The
+successful previous reconnect/deployment remains valid historical evidence, but
+does not establish that this later call was permitted. Preserve the worker; do not
+repeat the denied operation or switch transport to evade it. No repeat notification
+for the same permission problem. See [receipt](deployments/d1163b7e/monitor_transport_blocked.json).
+
 V10 now started (2026-10-23): fixed d1163b7eb873e7305189973670341950018bd1bf,
 worker1912935, launch1792740063.1825883. GitHub fetch/install, 159 remote tests,
 and V9 best-round gate (2 teachers/4 contexts, full_review_completed=false) passed.
