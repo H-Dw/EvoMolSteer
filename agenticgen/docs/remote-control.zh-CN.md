@@ -28,6 +28,12 @@ URL及凭据形式文本，不扩展到其他轮或全量会话。该接口不�
 
 ## 部署与启动
 
+当前V10短引用修复使用`--citation-repair`选择固定的restart_v10_citations入口，
+已部署c86706b5并启动，不再重复运行。日常仍只用read_remote_status。
+新增`--interface-diagnostics`仅对已退出worker的当前失败组读取invalid receipt及
+hash绑定回答，按实际error_type选择，不读取其他会话；原始回答只存本地证据。
+本次读取和部署均通过正常工具权限，不能据此推断后续操作永久免审批。
+
 V10定点诊断可加`--incomplete-diagnostics`，只对pipeline当前失败轮、
 analyst_failures中Incomplete JSON的组读取严格命名的收据、原始回答及对应请求。
 校验回答/请求hash和max_tokens，原文仅进入本地证据文件，不打印到终端；

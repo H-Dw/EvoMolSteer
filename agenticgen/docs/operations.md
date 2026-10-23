@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+Latest execution: V10 Top1 restarted as PID2116574 at1792750598.463112 under fixed
+c86706b565c81949192f0147d93298dde55d9355 after the R1G2 citation failure. Top2's
+original d1163b7e results remain complete. No local tests ran; 86 relevant remote
+checks and native acceptance passed. All32146 protected hashes match;100 failed
+candidates/693 files were archived then excluded. Actual V9 limited review gate
+was rebound and launch completed. Do not stage/validate/finish/approve/launch again.
+See [deployment](deployments/c86706b5/README.zh-CN.md). Old worker2045658 and
+failure1792748405573360368 are historical; inspect only the new active launch.
+
 2026-10-23 current validation policy: remove all local automated testing from this task,
 including executable-code edits. Review the diff, commit and push; run only necessary,
 change-specific compatibility checks in the fixed remote runtime. Do not delete existing
