@@ -31,8 +31,10 @@ improves at a functional cost, compare a redistribution or release that could re
 the useful effect under the frozen ranking. Near-zero delivery is a delivery question,
 not evidence for unlimited scale. Query an existing diagnostic only if it changes the
 choice; otherwise keep the mediator unknown and act on the measured terminal response.
-Unclipped proportional delivery rules out clipping on that edge, not weak terminal
-sensitivity. Large residuals or movements do not rank controllability. Endpoint
+Unclipped delivery rules out clipping on that edge; it does not establish proportional
+delivery, an adequate dose or permanent terminal insensitivity. Native propagation or
+correspondence changes can mediate a guidance effect, so they are not automatically
+rivals to controllability. Large residuals or movements do not rank controllability. Endpoint
 predictions are not actual native states; do not infer erasure without a saved contrast.
 
 Early trials identify direction and useful scale. A legal opposing bracket detects
@@ -57,21 +59,23 @@ nearby refinement before switching to an unrelated unknown. Small signed gains r
 observations; concentrated gains count in Mean. An unresolved mechanism does not
 erase the measured total effect.
 
-When a continuation reverses, refine around the useful endpoint on the permitted
-fine grid or test another supported interval while holding that endpoint. A failed
-longer step at one background does not eliminate the intervening amplitudes. Avoid
-making both proposals depend on the same unverified extrapolation: when legal,
-pair it with a nearby contender that preserves the measured advantage. A tiny gain
-can be low priority without inventing a tie threshold or changing the ranking rule.
+Treat a reversal as a bounded unresolved branch. Keep the useful endpoint and failed
+endpoint in memory, together with the legal untested interior if one exists. Before
+spending both proposals on tiny continuations elsewhere, compare their attainable
+gain and condition risk with one fine-grid contrast on that responsive branch. A
+large endpoint loss does not prove that every intervening amplitude is bad. Resolve
+the branch while an answer can still be exploited, or state why another legal action
+has higher value. This is not mandatory bisection or an extra sampling quota. Preserve
+a credible contender alongside uncertain extrapolation; never promise an untested win.
 
-If repeated local changes deliver only small frontier gains while a different
-interval has shown larger terminal response, do not spend both proposals describing
-the same plateau. Consider one legal, informative move toward an unresolved region
-of that responsive interval alongside the best-supported local improvement. A local
-reversal bounds that edge and background, not the entire axis; an untested interior
-point can have improvement value. Do this while sampling budget remains, without
-inventing a long jump, range expansion or repeated cached trial. State which feasible
-next decision the probe could change; no region is promised to beat the incumbent.
+Use scoped decisions such as 'retain', 'deprioritize on this background', or 'reject
+this measured edge', rather than closing a whole interval after one weak contrast.
+When a useful change elsewhere alters the background, reassess only the weak edge
+whose response could now change the leading choice. If existing history supplies a
+matched two-by-two comparison, compare the same amplitude edge under both backgrounds
+before assuming additivity or transferring its slope. A changed response supports a
+local interaction, not a universal time role or an identified molecular mechanism.
+Do not build a compulsory interaction grid or repeat a known schedule to fill it.
 
 When function improves at a condition cost, track the remaining condition margin.
 Near the band boundary, consider a two-interval compensation trial: preserve the

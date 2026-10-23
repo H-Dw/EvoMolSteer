@@ -41,6 +41,11 @@ For each teacher, focus the assessment on three connected questions:
    assumption. A mechanism that remains uncertain does not cancel a measured gain;
    an unexecuted alternative has no performance result.
 
+In the selected contexts, distinguish a useful local rejection from premature axis
+closure. Aggregate schedules can show an unresolved interior or a background-dependent
+response without reading more sessions. Use only the matched contrasts needed to
+judge the next decision; absence of a test does not establish that it would win.
+
 Write a short assessment per teacher: the useful hypothesis, actual terminal tradeoff,
 the main rival/limitation and a better next direction. Derive one to three generic
 capability hypotheses across the review. Each needs expected decision behavior, a

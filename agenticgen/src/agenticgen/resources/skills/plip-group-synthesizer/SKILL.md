@@ -50,16 +50,24 @@ contender. After a longer step reverses, consider supplied fine-grid refinements
 another supported interval at the useful endpoint; do not ban an entire background
 or accept that a single interval's reversal exhausts the search space.
 
-Check whether different arrays still concentrate all four experiments in the same
-response regime. When repeated local changes yield only small gains and an unresolved
-region of a responsive interval remains legally reachable, favor a supplied proposal
-that tests that region alongside credible exploitation. Prefer early interpretable
-single-interval contrasts when effects are unknown, and joint trials for a stated
-interaction question. Do not require a map of the whole space or reopen a demonstrated
-failure unchanged. Identify the remaining decision and possible gain that justify
-the exploratory slot; if no supplied proposal reaches it, record that limitation
-rather than editing an array. Condition feasibility and current-anchor rules still
-apply. Do not let one outside-band branch prove every other region is infeasible.
+Compare the portfolio's unresolved branches by attainable frontier gain, condition
+risk and whether their answers can still be used. A responsive interval with a good
+endpoint, a reversed continuation and a legal untested interior is not automatically
+exhausted. Consider a supplied interior contender before allocating most slots to
+small extensions or curve description elsewhere. Resolve it in time for exploitation,
+or explain why the competing branch is better. Do not require bisection, a complete
+map or repeated failures. If private proposals omit the valuable branch, publish that
+specific gap for the next round; never invent or edit an array to fill it.
+
+Merge weak-edge conclusions with their background and measured direction intact.
+After a useful background change, do not carry an old 'closed interval' label forward
+without asking whether it still predicts the current response. Use an existing
+matched two-by-two comparison when available: the difference between the same edge's
+effects under two backgrounds reveals local interaction, not independent additive
+benefits or a proven propagation mechanism. Favor a supplied transfer/interaction
+contrast only when it can alter the leading choice; no mandatory grid or extra tools.
+One outside-band branch does not prove every other region infeasible. Current-anchor
+legality and the condition/function ranking still govern allocation.
 
 Treat condition/function conflict as control allocation. Track condition margin.
 Near a boundary, favor supported compensation trials that preserve functional gains

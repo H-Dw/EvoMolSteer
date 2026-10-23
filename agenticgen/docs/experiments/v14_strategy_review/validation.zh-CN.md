@@ -1,0 +1,7 @@
+# V14有限评估来源
+
+FINALIZED：a1c4f70237a257396d47591cb4876196b69b8f56620b13bbe70a46a4a0486fd1。
+report：bd5537231dfdea828ddb985f42ce3fa9a9b55d8fd088c296613bb7582c710a33。
+manifest：af0edfdd4a72ac2078005fe7696b00898e8713e9e157dfad34e8d0f200b28d61。
+
+已读取两教师最优R5G1私有及同轮汇总、相关目标/动作/预算共四上下文；40组聚合结果与少量匹配算术支持策略判断。源hash和原固定runtime analyze绑定保留。来源校验不是实质审阅；没有52会话覆盖、失败补审、逐请求审计、自动化测试或离线回放。skills/文档变化两端无单元测试，下一正常固定部署仍须实际通过有限review-check。
