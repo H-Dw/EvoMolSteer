@@ -25,7 +25,7 @@ def command(revision):
     new='/opt/MolSteer/runtimes/agenticgen_'+revision[:8]
     # All executable source is read by the server from the fetched Git object.
     lines=['set -euo pipefail',
-        f'git -C {OLD} fetch origin codex/plip-adaptive-schedule >/dev/null 2>&1',
+        f'timeout 120 git -C {OLD} -c http.lowSpeedLimit=1024 -c http.lowSpeedTime=30 fetch origin codex/plip-adaptive-schedule',
         f'git -C {OLD} cat-file -e {revision}^{{commit}}',
         f'git -C {OLD} show {revision}:agenticgen/scripts/install_fixed_runtime.py | '
             f'{OLD}/agenticgen/.venv/bin/python - --commit {revision} --from-runtime {OLD}',
@@ -58,7 +58,7 @@ def main():
         if not args.inspect_only:
             channel=client.get_transport().open_session(timeout=25);channel.settimeout(25);channel.exec_command(cmd)
             print('Fixed V10 repair command submitted through normal SSH.',flush=True)
-        pending=b'';events=[]
+        pending=b'';events=[];stderr_tail=b''
         while channel is not None and (not channel.exit_status_ready() or channel.recv_ready() or channel.recv_stderr_ready()):
             if channel.recv_ready():
                 pending+=channel.recv(32768)
@@ -68,9 +68,11 @@ def main():
                         event=json.loads(line[len(b'AGENTICGEN_EVENT '):]);events.append(event)
                         print(json.dumps(event),flush=True)
                 if len(pending)>65536: pending=b''
-            if channel.recv_stderr_ready(): channel.recv_stderr(32768)  # No arbitrary shell/env output.
+            if channel.recv_stderr_ready(): stderr_tail=(stderr_tail+channel.recv_stderr(32768))[-16384:]
             time.sleep(.1)
         status=channel.recv_exit_status() if channel is not None else None
+        errors=[error_summary({'message':line})['message'] for line in stderr_tail.decode('utf-8','replace').splitlines()
+                if line.startswith(('fatal:','error:','RuntimeError:','ValueError:','FileNotFoundError:'))][-5:]
         sources={};logs={};dep='/opt/MolSteer/operations/agenticgen_deploy_'+args.commit[:8]
         op=ROOT+'/operations/failed_teacher_rerun_v10_'+args.commit[:8]
         with client.open_sftp() as sftp:
@@ -96,10 +98,11 @@ def main():
                     except FileNotFoundError: continue
                     logs[name]={'bytes':size,'tail':error_summary({'message':raw.decode('utf-8','replace')[-1200:]})['message']}
         receipt={'commit':args.commit,'exit_code':status,'events':events,'sources':sources,'observed_at':time.time(),
-                 'source_transport':'remote GitHub fetch; no source upload','inspect_only':args.inspect_only,'logs':logs}
+                 'source_transport':'remote GitHub fetch; no source upload','inspect_only':args.inspect_only,'logs':logs,
+                 'errors':errors}
         args.output.parent.mkdir(parents=True,exist_ok=True)
         args.output.write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8',newline='\n')
-        print(json.dumps({'exit_code':status,'receipt':str(args.output),'source_count':len(sources),'logs':logs}),flush=True)
+        print(json.dumps({'exit_code':status,'receipt':str(args.output),'source_count':len(sources),'logs':logs,'errors':errors}),flush=True)
         return status or 0
     finally: client.close()
 

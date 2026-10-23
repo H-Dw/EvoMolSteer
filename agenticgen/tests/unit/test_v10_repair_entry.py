@@ -16,7 +16,7 @@ def load(name):
 
 def test_fixed_deployment_has_no_user_supplied_command_or_transfer():
     m=load('deploy_v10_repair');cmd=m.command('a'*40)
-    assert 'git -C '+m.OLD+' fetch origin codex/plip-adaptive-schedule' in cmd
+    assert 'timeout 120 git -C '+m.OLD in cmd and 'fetch origin codex/plip-adaptive-schedule' in cmd
     assert 'restart_v10_output_budget.py --commit '+'a'*40 in cmd
     assert 'scp ' not in cmd and 'curl ' not in cmd
     for invalid in ('a'*39,'a'*40+';uname','$(whoami)','v10'):
