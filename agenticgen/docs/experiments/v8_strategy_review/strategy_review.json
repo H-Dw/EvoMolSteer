@@ -1,0 +1,378 @@
+{
+  "mode": "best_round_strategy",
+  "version": "v8",
+  "full_review_completed": false,
+  "report_sha256": "9e971dfde00511fd3394c75d01892612ecada428a79ede6dc9728ed0d217d14e",
+  "teachers": [
+    {
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "best_round": 2,
+      "best_group": "G2",
+      "hypothesis_assessment": "获胜私有组正确发现中段上调带来的微小功能收益，并提出延伸。其不可见同波另一组的高侧失败，不能按事后信息责备它。但两提案都依赖同一个早期上调，缺少保留当前有效背景的替代。汇总已看到高侧反转、准确算出组均条件带，却自行把小于0.002的功能差视为平局，重新优先最低RMSD和隔离诊断。策略问题是把有效分支过早降级，而不是算术格式。",
+      "first_principles": "幅度改变的是坐标约束与冻结模型轨迹的竞争。局部功能改善后更长步恶化，支持局部曲率或轨迹分岔；不证明全部高侧或其他时段无用。可在合法精细网格内靠近有效端点，或保持该端点调整另一时段。误差容差用于选取候选带，不能自动推出功能差噪声阈值。",
+      "performance_interpretation": "R2G2的C=0.795612933、Mean=4.211798344为最终共享调度代表。20组均处于最终0.02Å带内。R3–R5持续降低最低C到0.793195866，未超过R2的功能表现；R5最好功能组Mean=4.211462002。高侧早期延伸在R2确有条件和功能双损，继续同方向大步不合理，但不能据此关闭附近细化。相比V7代表，Mean低0.000085878，未证明新skills有效。",
+      "next_direction": "在可见反转后，优先考虑有效端点附近0.1细化或保持该背景的其他已有响应；两个提案避免共同依赖同一未验证延伸。汇总保留真实功能排序，把条件细化与功能改进的槽位价值明确区分，不人为抹掉小收益。是否更优由V9实测判断，不宣称未执行数组一定获胜。",
+      "evidence_files": {
+        "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/synthesis.json": "d6abd68a1e04e0a8cfc5476e2427f5196d6ed766731431303c945f49e022693a",
+        "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/hypotheses.json": "79a79c1a902af10d47ca93168e1a94d61427b6d901b18b16f441e8a5825c90f7",
+        "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/turn_00.request.json": "5b158e5aa274fd0175eab8926f75cddbefe0ebf915683d45a5387fd5b461893d",
+        "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/cfd0d126d9c6c75edc6b48086901c38b0042266dad3da8401af105cd8c610cb2.txt": "cfd0d126d9c6c75edc6b48086901c38b0042266dad3da8401af105cd8c610cb2",
+        "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/synthesis.request.json": "66815f095b7b40d2443d90cc4e5cdc13644ec1a4bf11eb4365b7dd8017461eba",
+        "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/synthesis_inputs/352a77b93d5995ddee677a58698d784998b1b2b48fdccae2acb3934079b4a7fc.txt": "352a77b93d5995ddee677a58698d784998b1b2b48fdccae2acb3934079b4a7fc"
+      },
+      "relevant_prompt_context": {
+        "analysts/G2/turn_00.request.json": {
+          "sha256": "5b158e5aa274fd0175eab8926f75cddbefe0ebf915683d45a5387fd5b461893d",
+          "context": [
+            {
+              "search_budget": {
+                "completed_rounds": 2,
+                "consumed_fraction": 0.4,
+                "decision_phase": "evidence_refinement",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 3,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 2,
+              "action_contract": {
+                "action_anchor_ticks": [
+                  7,
+                  7,
+                  5,
+                  5
+                ],
+                "all_hypotheses_distinct": true,
+                "allowed_local_ticks_by_interval": [
+                  [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ],
+                  [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ]
+                ],
+                "default_max_absolute_tick_change": 2,
+                "double_tick_rule": "Two ticks allowed by default; three only in verified_large_step_directions.",
+                "ids_in_order": [
+                  "H1",
+                  "H2"
+                ],
+                "initial_step_ticks": 2,
+                "max_changed_intervals": 2,
+                "no_executed_schedule": true,
+                "no_unchanged_anchor": true,
+                "range_probe_rule": "Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.",
+                "reference_semantics": "Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.",
+                "reference_ticks_must_equal": [
+                  7,
+                  7,
+                  5,
+                  5
+                ],
+                "search_policy": {
+                  "coarse_probe_scale": 0.2,
+                  "fine_resolution": 0.1,
+                  "max_changed_intervals": 2,
+                  "max_range_probes": 0,
+                  "upper_amplitude": 1
+                },
+                "tick_bounds_inclusive": [
+                  0,
+                  10
+                ],
+                "tick_to_amplitude": 0.1
+              },
+              "common_anchor_ticks": [
+                7,
+                7,
+                5,
+                5
+              ]
+            }
+          ],
+          "keys": [
+            "body",
+            "provider",
+            "response_schema"
+          ],
+          "prompt_source_sha256": {
+            "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/analysts/G2/llm_inputs/cfd0d126d9c6c75edc6b48086901c38b0042266dad3da8401af105cd8c610cb2.txt": "cfd0d126d9c6c75edc6b48086901c38b0042266dad3da8401af105cd8c610cb2"
+          }
+        },
+        "synthesis.request.json": {
+          "sha256": "66815f095b7b40d2443d90cc4e5cdc13644ec1a4bf11eb4365b7dd8017461eba",
+          "context": [
+            {
+              "search_budget": {
+                "completed_rounds": 2,
+                "consumed_fraction": 0.4,
+                "decision_phase": "evidence_refinement",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 3,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 2,
+              "search_policy": {
+                "coarse_probe_scale": 0.2,
+                "fine_resolution": 0.1,
+                "max_changed_intervals": 2,
+                "max_range_probes": 0,
+                "upper_amplitude": 1
+              }
+            }
+          ],
+          "keys": [
+            "body",
+            "provider",
+            "response_schema"
+          ],
+          "prompt_source_sha256": {
+            "versions/v8/5nn4_SC2_A_1017__top1/round_02/council/synthesis_inputs/352a77b93d5995ddee677a58698d784998b1b2b48fdccae2acb3934079b4a7fc.txt": "352a77b93d5995ddee677a58698d784998b1b2b48fdccae2acb3934079b4a7fc"
+          }
+        }
+      },
+      "prompt_review_scope": "Only selected round objective, remaining sampling budget and action bounds; no full prompt/tool audit."
+    },
+    {
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "best_round": 4,
+      "best_group": "G2",
+      "hypothesis_assessment": "获胜轮已出现真实学习：低侧方向改善后继续利用，并按前版建议提出后段补偿；汇总同时保留条件前沿和较保守的低侧迁移。因此不能说Agent没有利用或没有补偿。不足是将非零低侧斜率外推到零，两案共享这一个风险，并把约0.0006Å的补偿当作可能的保护，却没有约束可覆盖的代价量级。",
+      "first_principles": "某时段幅度降到零会取消该时段的外部坐标力，轨迹可能进入不同响应区域，非零处的斜率不能保证跨零延续。后段已经观测到的微小修正可以改善条件，但未必足以逆转早期轨迹变化。应区分补偿的方向证据与补偿容量，联合数组不同也可能承受相同失败风险。",
+      "performance_interpretation": "R4G2的C=1.918024413、Mean=4.210770683、gap=3.201434536为最终带内代表。R5零端点Mean改善至4.216438951，但C跳到1.948387624；补偿后C=1.947772552，只恢复0.000615072Å，仍高于最终带上沿1.921140405。相对R4的0.030363211Å条件代价远大于修正量。保留非零背景的R5G1仍在带内，却未改善R4代表。V8较V7代表gap仅减0.000255203，两者仍远离教师功能。",
+      "next_direction": "非零有效分支附近先考虑有依据的局部细化；跨零或局部反转边的延伸作为不确定试验，其补偿变体不能当独立风险分散。私有提案与汇总在合法提供的集合内尽量保留一条不依赖同一外推的候选。不能把失败补偿概括为所有区间配合无效，也不能承诺换一方案就能恢复教师功能。",
+      "evidence_files": {
+        "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/synthesis.json": "0f593ac878f8599fa4d5a25709cc1e4622edff13dbfaaadd216dcf118e53f1d6",
+        "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/analysts/G2/hypotheses.json": "58352f1f37412e10b9cc4003b5adad6d9e2a9afe3da1ad21fbb6ce49dff89b22",
+        "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/analysts/G2/turn_00.request.json": "6d720502f58c374ad6d2a248f1086f186a930079aaea03781a7f5e399dd101ca",
+        "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/analysts/G2/llm_inputs/079c418c3663303b7322cc20f8fde54a14d1b81674ead773e49fe6fec409516b.txt": "079c418c3663303b7322cc20f8fde54a14d1b81674ead773e49fe6fec409516b",
+        "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/synthesis.request.json": "c1d95e5497c46392536b27a39672a3acc017ea6d2d1b7d660f0cdedf054e21ae",
+        "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/synthesis_inputs/20286a200abc0c3642f7b1c3ca4fcbd603a7bda18e5e973b4cea06dacbac1559.txt": "20286a200abc0c3642f7b1c3ca4fcbd603a7bda18e5e973b4cea06dacbac1559"
+      },
+      "relevant_prompt_context": {
+        "analysts/G2/turn_00.request.json": {
+          "sha256": "6d720502f58c374ad6d2a248f1086f186a930079aaea03781a7f5e399dd101ca",
+          "context": [
+            {
+              "search_budget": {
+                "completed_rounds": 4,
+                "consumed_fraction": 0.8,
+                "decision_phase": "supported_consolidation",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 1,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 4,
+              "action_contract": {
+                "action_anchor_ticks": [
+                  1,
+                  9,
+                  5,
+                  5
+                ],
+                "all_hypotheses_distinct": true,
+                "allowed_local_ticks_by_interval": [
+                  [
+                    0,
+                    1,
+                    2,
+                    3
+                  ],
+                  [
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ],
+                  [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ]
+                ],
+                "default_max_absolute_tick_change": 2,
+                "double_tick_rule": "Two ticks allowed by default; three only in verified_large_step_directions.",
+                "ids_in_order": [
+                  "H1",
+                  "H2"
+                ],
+                "initial_step_ticks": 2,
+                "max_changed_intervals": 2,
+                "no_executed_schedule": true,
+                "no_unchanged_anchor": true,
+                "range_probe_rule": "Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.",
+                "reference_semantics": "Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.",
+                "reference_ticks_must_equal": [
+                  1,
+                  9,
+                  5,
+                  5
+                ],
+                "search_policy": {
+                  "coarse_probe_scale": 0.2,
+                  "fine_resolution": 0.1,
+                  "max_changed_intervals": 2,
+                  "max_range_probes": 0,
+                  "upper_amplitude": 1
+                },
+                "tick_bounds_inclusive": [
+                  0,
+                  10
+                ],
+                "tick_to_amplitude": 0.1
+              },
+              "common_anchor_ticks": [
+                1,
+                9,
+                5,
+                5
+              ]
+            }
+          ],
+          "keys": [
+            "body",
+            "provider",
+            "response_schema"
+          ],
+          "prompt_source_sha256": {
+            "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/analysts/G2/llm_inputs/079c418c3663303b7322cc20f8fde54a14d1b81674ead773e49fe6fec409516b.txt": "079c418c3663303b7322cc20f8fde54a14d1b81674ead773e49fe6fec409516b"
+          }
+        },
+        "synthesis.request.json": {
+          "sha256": "c1d95e5497c46392536b27a39672a3acc017ea6d2d1b7d660f0cdedf054e21ae",
+          "context": [
+            {
+              "search_budget": {
+                "completed_rounds": 4,
+                "consumed_fraction": 0.8,
+                "decision_phase": "supported_consolidation",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 1,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 4,
+              "search_policy": {
+                "coarse_probe_scale": 0.2,
+                "fine_resolution": 0.1,
+                "max_changed_intervals": 2,
+                "max_range_probes": 0,
+                "upper_amplitude": 1
+              }
+            }
+          ],
+          "keys": [
+            "body",
+            "provider",
+            "response_schema"
+          ],
+          "prompt_source_sha256": {
+            "versions/v8/5nn4_SC2_A_1017__top2/round_04/council/synthesis_inputs/20286a200abc0c3642f7b1c3ca4fcbd603a7bda18e5e973b4cea06dacbac1559.txt": "20286a200abc0c3642f7b1c3ca4fcbd603a7bda18e5e973b4cea06dacbac1559"
+          }
+        }
+      },
+      "prompt_review_scope": "Only selected round objective, remaining sampling budget and action bounds; no full prompt/tool audit."
+    }
+  ],
+  "capability_hypotheses": [
+    {
+      "blind_spot": "小幅功能收益被任意平局门槛抹掉；长步反转后有效背景附近的细化没有充分进入提案。",
+      "strategy": "按冻结排序保留小收益的方向；反转后缩到精细网格或保持有效端点调整另一已支持时段。私有两个提案减少对同一未验证延伸的共同依赖。",
+      "expected_behavior": "最优轮出现有参考的附近细化或保留有效背景的候选；汇总不因自造阈值将全部带内候选重新按RMSD排序。",
+      "next_version_test": "V9只检查每教师最优轮私有与汇总，结合五轮聚合performance，看有效分支是否继续产生带内功能收益、何时达到最佳。无收益则削弱该策略；文字合规不算性能提升。"
+    },
+    {
+      "blind_spot": "把补偿方向存在等同于足够的补偿能力，忽视跨零或反转处的共同外推风险。",
+      "strategy": "将实测补偿量、当前条件余量与可能代价分别陈述；跨零视为可能改变轨迹区域的试验，补偿变体与原延伸按共同风险考虑，配合法律允许且有依据的附近候选。",
+      "expected_behavior": "补偿假设说明能力边界与反证，未知代价不承诺可被抵消；有限末轮组合不会全依赖同一未经验证斜率。",
+      "next_version_test": "V9最优轮检查容量与风险是否改变选案；聚合结果检验条件带退出与功能收益取舍。不能把减少冒险本身当成功，最终仍比较共享调度条件和功能。"
+    }
+  ],
+  "scope": "Each teacher best round once: winning private hypotheses and council, with all-round aggregate performance.",
+  "raw_prompt_tool_full_audit": false,
+  "aborted_attempt_full_review": false,
+  "scientific_settings_changed": false,
+  "offline_llm_replay_performed": false,
+  "performance_improvement_claimed": false
+}

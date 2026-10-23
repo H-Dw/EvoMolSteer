@@ -1,5 +1,15 @@
 # Deployment and continuation
 
+Latest user update (2026-10-23): the `agenticgen` heartbeat is now every **35 minutes**.
+SSH authentication has been restored using the supplied login without storing credentials.
+V8's limited strategy review is complete: two teachers/four selected contexts only,
+with all-round aggregate performance. See [V8 strategy review](experiments/v8_strategy_review/review.zh-CN.md).
+For V9 use the committed `scripts/start_reviewed_version.py --version v9 --commit <full SHA>`
+after GitHub fixed-checkout installation. This normal boundary reuses the accepted
+protocol/native checks and runs tests/review-check; it never repeats V8 policy adoption.
+The new launcher intentionally refuses an existing version directory. A failed gate
+requires inspection, not overwriting approval or repeating launch blindly.
+
 Latest state (2026-10-23, supersedes old heartbeat prompts): V8 is FINALIZED.
 The GitHub-fetched fixed runtime is `c83872e7795aba2e8a6ff88d296443972f64a648` at
 `/opt/MolSteer/runtimes/agenticgen_c83872e7`. All 145 remote tests passed with no
@@ -12,7 +22,7 @@ for V9, using aggregate performance and four selected strategy contexts only.
 The V8 receipt is [deployment_summary.json](deployments/c83872e7/deployment_summary.json).
 
 Automation `plip-11762` has been deleted and replaced with the ACTIVE local-thread
-heartbeat `agenticgen`, every ten minutes, using this latest plan and V8 completion.
+heartbeat `agenticgen`, now every 35 minutes, using this latest plan and V8 completion.
 Delete this replacement after V30 delivery. Do not recreate the obsolete task.
 
 The user subsequently selected and explicitly requested persistent local Full
@@ -38,7 +48,7 @@ winning private hypotheses and that council, with all-round aggregate performanc
 The new [strategy assessment](experiments/v7_strategy_review/review.zh-CN.md) selects
 Top1 R2 G1 and Top2 R4 G4. Skills prioritize timely exploitation and supported
 condition compensation, not exhaustive arithmetic audits. Complete actionable
-strategy work in one continuous turn; the 10-minute interval is for active-run checks.
+strategy work in one continuous turn; the 35-minute interval is for active-run checks.
 
 The interval was shortened on 2026-10-23 using V6's 30.754-minute successful full run
 and V7's 32.392-minute successful Top2 rerun to finalization. These have different

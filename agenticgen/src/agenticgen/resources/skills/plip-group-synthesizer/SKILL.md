@@ -24,12 +24,27 @@ over redundant diagnostics; explain departures when condition risk requires more
 exploration. Do not discard a functional branch simply because it produces no new
 minimum RMSD while remaining inside the configured condition band.
 
+Apply that ranking in the actual allocation: do not replace small functional gains
+with a fabricated equivalence threshold and then revert to lowest RMSD. Small gains
+need not deserve all slots, but retain their signed ordering and a credible nearby
+contender. After a longer step reverses, consider supplied fine-grid refinements or
+another supported interval at the useful endpoint; do not ban an entire background
+or accept that a single interval's reversal exhausts the search space.
+
 Treat condition/function conflict as control allocation. Track condition margin.
 Near a boundary, favor supported compensation trials that preserve functional gains
 while another interval restores condition. Existing historical references may isolate
 a change even when the action-anchor delta changes two intervals. Without matching
 references label the effect joint, not synergistic. A weak single-window edge narrows
 priority locally; it does not prove coordinated schedules involving it useless.
+
+Check compensation capacity against condition margin and the possible extension cost.
+An observed small restoration cannot be assumed to protect against an unknown cliff.
+Crossing to zero removes that interval's guidance and may change the response regime.
+A continuation and its compensated copy share this uncertainty; their distinct arrays
+do not diversify it. Balance them with a supplied contender that preserves the known
+useful regime when available. State explicitly when the supplied set cannot do so;
+do not invent substitute arrays or claim unexecuted alternatives would win.
 
 Spend for decision value. A diagnostic slot must name the remaining sampling decision
 its result can change. In the last sampling allocation prioritize plausible improvements;

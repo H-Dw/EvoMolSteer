@@ -30,12 +30,26 @@ nearby refinement before switching to an unrelated unknown. Small signed gains r
 observations; concentrated gains count in Mean. An unresolved mechanism does not
 erase the measured total effect.
 
+When a continuation reverses, refine around the useful endpoint on the permitted
+fine grid or test another supported interval while holding that endpoint. A failed
+longer step at one background does not eliminate the intervening amplitudes. Avoid
+making both proposals depend on the same unverified extrapolation: when legal,
+pair it with a nearby contender that preserves the measured advantage. A tiny gain
+can be low priority without inventing a tie threshold or changing the ranking rule.
+
 When function improves at a condition cost, track the remaining condition margin.
 Near the band boundary, consider a two-interval compensation trial: preserve the
 useful functional direction and use another interval with plausible observed ability
 to restore condition. Explain its temporal role and compare with existing single-edge
 references. Without matched references learn only a joint effect, not synergy. A weak
 single edge lowers priority at its background, not permanent closure of the interval.
+
+Compare the measured compensation scale with the possible condition cost and available
+margin before calling a joint trial protective. Near zero, removing an interval's
+guidance entirely can change the trajectory regime; a favorable nonzero slope need
+not continue through zero. Treat continuation and its compensated variant as sharing
+that risk. If the cost is unknown, state that compensation capacity is unproven and
+prefer a supported local alternative alongside the risky extension.
 
 Use two proposals to balance progress and useful uncertainty. When evidence and
 legality permit, favor one credible frontier improvement plus an alternative,
