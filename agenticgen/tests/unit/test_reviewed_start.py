@@ -43,3 +43,21 @@ def test_out_of_scope_versions_rejected(finalized, version):
 def test_remote_tests_must_be_complete(tmp_path, attr):
     p=tmp_path/'tests.xml';p.write_text('<testsuites><testsuite '+attr+'/></testsuites>')
     with pytest.raises(ValueError): module.passing_tests(p)
+
+
+def test_skills_documents_do_not_schedule_a_test_suite():
+    assert module.validation_tests(['agenticgen/docs/plan.zh-CN.md',
+        'agenticgen/src/agenticgen/resources/skills/plip-group-analyst/SKILL.md']) == []
+
+
+def test_deployment_change_gets_only_related_files():
+    assert module.validation_tests(['agenticgen/scripts/start_reviewed_version.py',
+        'agenticgen/scripts/deploy_reviewed_version.py',
+        'agenticgen/tests/unit/test_reviewed_start.py']) == [
+            'agenticgen/tests/unit/test_reviewed_deploy.py',
+            'agenticgen/tests/unit/test_reviewed_start.py']
+
+
+def test_other_code_requires_specific_validation_plan():
+    with pytest.raises(ValueError, match='scoped remote'):
+        module.validation_tests(['agenticgen/src/agenticgen/providers/deepseek_api.py'])

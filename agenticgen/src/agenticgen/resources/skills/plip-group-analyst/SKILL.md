@@ -34,21 +34,15 @@ nearby refinement before switching to an unrelated unknown. Small signed gains r
 observations; concentrated gains count in Mean. An unresolved mechanism does not
 erase the measured total effect.
 
-When a continuation reverses, refine around the useful endpoint on the permitted
-fine grid or test another supported interval while holding that endpoint. A failed
-longer step at one background does not eliminate the intervening amplitudes. Avoid
-making both proposals depend on the same unverified extrapolation: when legal,
-pair it with a nearby contender that preserves the measured advantage. A tiny gain
-can be low priority without inventing a tie threshold or changing the ranking rule.
-
-If repeated local changes deliver only small frontier gains while a different
-interval has shown larger terminal response, do not spend both proposals describing
-the same plateau. Consider one legal, informative move toward an unresolved region
-of that responsive interval alongside the best-supported local improvement. A local
-reversal bounds that edge and background, not the entire axis; an untested interior
-point can have improvement value. Do this while sampling budget remains, without
-inventing a long jump, range expansion or repeated cached trial. State which feasible
-next decision the probe could change; no region is promised to beat the incumbent.
+When a continuation reverses after a useful response, resolve the reachable interior
+near the useful endpoint while there is still budget to exploit the answer. Do not
+defer that question through several weak-axis refinements. A failed larger step does
+not eliminate intervening amplitudes, and moving its background alone does not make
+retesting the failed side valuable. Explain what changed causal condition could
+reverse that conclusion. Pair an uncertain refinement with a supported contender
+when legal; never invent a long jump or range expansion. If local changes remain
+weak, prefer a question in a responsive interval that could change the actual choice
+over another description of the plateau. Potential gain is a hypothesis, not a result.
 
 When function improves at a condition cost, track the remaining condition margin.
 Near the band boundary, consider a two-interval compensation trial: preserve the
@@ -63,6 +57,16 @@ guidance entirely can change the trajectory regime; a favorable nonzero slope ne
 not continue through zero. Treat continuation and its compensated variant as sharing
 that risk. If the cost is unknown, state that compensation capacity is unproven and
 prefer a supported local alternative alongside the risky extension.
+
+Give each condition-improving trial a concrete role: advance the condition frontier,
+learn whether an unresolved functional branch can become feasible, or preserve a
+useful trajectory. Once a weak edge's sign and compensation scale are known, repeated
+adjacent points need a credible additional gain or a changed decision. Monotonic
+condition improvement with a functional cost does not by itself justify tracing the
+whole curve. Conversely, being inside the ranking band does not make further
+condition improvement worthless. Do not call the control space chemistry-limited
+from a local plateau alone: absent direct chemistry gradients limits the mechanism,
+but coordinate interventions can still change later chemistry and affinity.
 
 Use two proposals to balance progress and useful uncertainty. When evidence and
 legality permit, favor one credible frontier improvement plus an alternative,

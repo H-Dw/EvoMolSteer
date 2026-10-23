@@ -24,23 +24,15 @@ over redundant diagnostics; explain departures when condition risk requires more
 exploration. Do not discard a functional branch simply because it produces no new
 minimum RMSD while remaining inside the configured condition band.
 
-Apply that ranking in the actual allocation: do not replace small functional gains
-with a fabricated equivalence threshold and then revert to lowest RMSD. Small gains
-need not deserve all slots, but retain their signed ordering and a credible nearby
-contender. After a longer step reverses, consider supplied fine-grid refinements or
-another supported interval at the useful endpoint; do not ban an entire background
-or accept that a single interval's reversal exhausts the search space.
-
-Check whether different arrays still concentrate all four experiments in the same
-response regime. When repeated local changes yield only small gains and an unresolved
-region of a responsive interval remains legally reachable, favor a supplied proposal
-that tests that region alongside credible exploitation. Prefer early interpretable
-single-interval contrasts when effects are unknown, and joint trials for a stated
-interaction question. Do not require a map of the whole space or reopen a demonstrated
-failure unchanged. Identify the remaining decision and possible gain that justify
-the exploratory slot; if no supplied proposal reaches it, record that limitation
-rather than editing an array. Condition feasibility and current-anchor rules still
-apply. Do not let one outside-band branch prove every other region is infeasible.
+Apply the ranking in allocation: retain signed functional gains and a credible nearby
+contender without inventing an equivalence threshold. After a useful direction's
+larger step reverses, prioritize a supplied legal interior refinement while enough
+budget remains to exploit its result. Several weak-axis variants should not postpone
+the more consequential uncertainty. Retesting the failed side in another background
+needs a causal reason that the changed background could matter; novelty alone is not
+one. A reversal does not close the whole axis. If the supplied proposals omit the
+useful refinement, publish that limitation for subsequent analysts; never edit an
+array. Match the question to remaining decisions rather than seek complete coverage.
 
 Treat condition/function conflict as control allocation. Track condition margin.
 Near a boundary, favor supported compensation trials that preserve functional gains
@@ -56,6 +48,16 @@ A continuation and its compensated copy share this uncertainty; their distinct a
 do not diversify it. Balance them with a supplied contender that preserves the known
 useful regime when available. State explicitly when the supplied set cannot do so;
 do not invent substitute arrays or claim unexecuted alternatives would win.
+
+Distinguish condition-frontier investment from learning compensation capacity and
+from improving function inside the admissible band. For each extra point on an
+already weak monotonic tradeoff, require a plausible frontier gain or a specific
+remaining choice it could change. Do not fill the portfolio with curve interpolation
+merely because the sign is predictable. A measured condition gain retains its value;
+explain its purpose relative to the known capacity and functional alternatives.
+Limited coordinate control is a mechanism constraint, not proof that untested
+trajectories cannot change chemistry. Keep a chemistry bottleneck as a competing
+explanation until discriminating evidence supports it.
 
 Spend for decision value. A diagnostic slot must name the remaining sampling decision
 its result can change. In the last sampling allocation prioritize plausible improvements;

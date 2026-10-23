@@ -47,6 +47,27 @@ def passing_tests(path):
         raise ValueError('Remote tests must pass without skips')
 
 
+def validation_tests(changed):
+    """Select only changed deployment interfaces; unknown code needs an explicit plan."""
+    selected = set()
+    mapping = {
+        'agenticgen/scripts/start_reviewed_version.py': 'test_reviewed_start.py',
+        'agenticgen/scripts/deploy_reviewed_version.py': 'test_reviewed_deploy.py',
+    }
+    for path in changed:
+        if not path.startswith('agenticgen/'):
+            continue  # Unrelated repository work is not installed as agenticgen.
+        if path.startswith('agenticgen/docs/') or path.endswith('/SKILL.md'):
+            continue
+        if path in mapping:
+            selected.add('agenticgen/tests/unit/'+mapping[path])
+        elif path in {'agenticgen/tests/unit/'+name for name in mapping.values()}:
+            selected.add(path)
+        else:
+            raise ValueError('Executable change needs a scoped remote validation plan: '+path)
+    return sorted(selected)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version', required=True)
@@ -73,10 +94,24 @@ def main():
         if result.returncode:
             raise RuntimeError('Operation failed; inspect '+str(dep/name))
 
-    xml = dep/'unit-tests.xml'
-    run([sys.executable, '-m', 'pytest', '-q', str(repo/'agenticgen/tests'), '--junitxml', str(xml)], 'tests.log')
-    passing_tests(xml)
-    write(dep/'tests_receipt.json', {'commit':revision, 'junit_sha256':sha(xml), 'passed':True})
+    previous_commit = read(root/'launch.json')['commit']
+    if not re.fullmatch('[0-9a-f]{40}', previous_commit):
+        raise ValueError('Previous scientific source is not a fixed commit')
+    changed = subprocess.check_output(['git', '-C', str(repo), 'diff', '--name-only',
+                                      previous_commit, revision, '--', 'agenticgen/'], text=True).splitlines()
+    tests = validation_tests(changed)
+    validation = {'commit':revision, 'compared_to':previous_commit, 'changed_files':changed,
+                  'test_files':tests, 'local_tests_run':False, 'full_suite_run':False}
+    if tests:
+        xml = dep/'related-tests.xml'
+        run([sys.executable, '-m', 'pytest', '-q', *[str(repo/p) for p in tests],
+             '--junitxml', str(xml)], 'related-tests.log')
+        passing_tests(xml)
+        validation.update(passed=True, junit_sha256=sha(xml))
+    else:
+        validation.update(passed=None, status='not_run_skills_documents_only',
+                          rationale='Strategy effectiveness is evaluated by the next real experiment.')
+    write(dep/'tests_receipt.json', validation)
     with idle_locks(root):
         no_worker(root); previous_version(root, args.version)
         config = assert_prepared(root); verify_ready(root, args.version)

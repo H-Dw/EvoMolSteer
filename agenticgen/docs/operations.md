@@ -1,5 +1,21 @@
 # Deployment and continuation
 
+Latest: V10 finalized (two teachers, five rounds, 1000 formal outcomes), worker2116574
+exited. Fixed c86706b5 analyze succeeded. Limited V10 best-round review is complete:
+Top1/Top2 R5G1, four contexts and forty aggregate groups, full_review_completed=false.
+No rollback is required. V11 holds U=1; no automatic expansion. See
+[review](experiments/v10_strategy_review/review.zh-CN.md). V11 awaits actual deployment
+receipts; do not re-run any V10 repair or finished version.
+
+Normal V11..V30 deployment now has `agenticgen/scripts/deploy_reviewed_version.py`.
+It defaults to verified official GitHub API objects, derives the old runtime from
+the preceding completed launch, and calls the normal fixed installer/start entry.
+No source upload, repair transaction or arbitrary-command interface. Inspect-only
+reads fixed deployment receipts. Existing target versions reject repeated deployment.
+The normal start entry selects remote checks from the actual changed interfaces;
+skills/docs-only changes run no unit suite. This engineering change runs only its
+two related test files on the remote host. No local automated tests.
+
 Current source-fetch policy: this server/proxy has repeatedly returned Git HTTPS
 CONNECT 503. Prefer the verified official GitHub fixed-object fetcher on subsequent
 deployments; do not retry Git first on every version. Reuse cached objects and verify

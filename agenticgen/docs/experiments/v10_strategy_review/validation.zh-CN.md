@@ -1,0 +1,7 @@
+# 有限评估来源
+
+- FINALIZED：8c64a3508cc1667b66750d859cef083668c5f476da82ebb3e12af1ad6c3b6671。
+- report：20b60958e0f01e484eccd9a1fe045abcdadd4c01f8711e15a440aca65f1d8e9d。
+- manifest：ef392edfce7aadb57db98944b0d231c042ddccf1da7da0c7a0d6b004c2c3fa86。
+- 真实完成收据、四个已读上下文及哈希、聚合性能、成本来源保存在同目录JSON和原始远端结果。来源验证不冒充实质审阅。
+- 没有本地自动化测试、52会话覆盖、失败上下文补审或LLM离线回放。远端固定安装后仅运行直接相关工程检查与既有有限review-check。
