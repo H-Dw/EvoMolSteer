@@ -1,0 +1,115 @@
+{
+  "as_of_cst": "2026-10-23T12:00:00+08:00",
+  "events": {
+    "v6_initial_launch": {
+      "epoch": 1792690905.040925,
+      "cst": "2026-10-23T01:41:45.040925+08:00",
+      "source": "agenticgen/docs/deployments/ee56a469/summary.json",
+      "source_sha256": "851e3fda332ece5cbef698bb366bea6a0265e795b7c1685eff67350b91551a9c"
+    },
+    "v6_rerun_launch": {
+      "epoch": 1792694593.3598337,
+      "cst": "2026-10-23T02:43:13.359834+08:00",
+      "source": ".cache/agenticgen_v6_evidence/launch.json",
+      "source_sha256": "4f75f46bbd3b5e75570ea78a257cbf8e65c68e7cc30a9ece87d1ae91c7174a68"
+    },
+    "v6_finalized": {
+      "epoch": 1792696438.6233354,
+      "cst": "2026-10-23T03:13:58.623335+08:00",
+      "source": ".cache/agenticgen_v6_evidence/FINALIZED_v6.json",
+      "source_sha256": "37eda8d4aec96d6e25372742ed2380ca7f03b0b32a602973f593dc1a16dc1356"
+    },
+    "v7_initial_launch": {
+      "epoch": 1792712313.6006737,
+      "cst": "2026-10-23T07:38:33.600674+08:00",
+      "source": "agenticgen/docs/deployments/f8bb4ac6/launch_receipt.json",
+      "source_sha256": "d0908e5036371ebb05e781239ccb55d05af9c1aec678212d2f5ff29ec9eadbc5"
+    },
+    "v7_rerun_launch": {
+      "epoch": 1792716119.9614298,
+      "cst": "2026-10-23T08:41:59.961430+08:00",
+      "source": ".cache/agenticgen_v7_evidence/launch.json",
+      "source_sha256": "dcd23586a110251ef47482a018e663ee423feb8b4752d9ad0f6677e873105d65"
+    },
+    "v7_finalized": {
+      "epoch": 1792718063.4608564,
+      "cst": "2026-10-23T09:14:23.460856+08:00",
+      "source": ".cache/agenticgen_v7_evidence/FINALIZED_v7.json",
+      "source_sha256": "03bf0922b06d679d32031e258477bb984631d929f705fce9a1dc903ca40d4759"
+    },
+    "as_of": {
+      "epoch": 1792728000.0,
+      "cst": "2026-10-23T12:00:00+08:00",
+      "source": "fixed reporting cutoff"
+    }
+  },
+  "windows": {
+    "v6_initial_to_finalized": {
+      "start": "v6_initial_launch",
+      "end": "v6_finalized",
+      "seconds": 5533.582410335541,
+      "rounded_duration": "1:32:14"
+    },
+    "v6_successful_rerun": {
+      "start": "v6_rerun_launch",
+      "end": "v6_finalized",
+      "seconds": 1845.2635016441345,
+      "rounded_duration": "0:30:45"
+    },
+    "v6_review_and_transition": {
+      "start": "v6_finalized",
+      "end": "v7_initial_launch",
+      "seconds": 15874.977338314056,
+      "rounded_duration": "4:24:35"
+    },
+    "v6_end_to_end_until_v7": {
+      "start": "v6_initial_launch",
+      "end": "v7_initial_launch",
+      "seconds": 21408.559748649597,
+      "rounded_duration": "5:56:49"
+    },
+    "v7_initial_to_finalized": {
+      "start": "v7_initial_launch",
+      "end": "v7_finalized",
+      "seconds": 5749.860182762146,
+      "rounded_duration": "1:35:50"
+    },
+    "v7_successful_top2_rerun": {
+      "start": "v7_rerun_launch",
+      "end": "v7_finalized",
+      "seconds": 1943.4994266033173,
+      "rounded_duration": "0:32:23"
+    },
+    "v7_post_finalized_window": {
+      "start": "v7_finalized",
+      "end": "as_of",
+      "seconds": 9936.539143562317,
+      "rounded_duration": "2:45:37"
+    },
+    "v7_elapsed_so_far": {
+      "start": "v7_initial_launch",
+      "end": "as_of",
+      "seconds": 15686.399326324463,
+      "rounded_duration": "4:21:26"
+    }
+  },
+  "gpu_seconds": {
+    "v6_formal": 520.1056082248688,
+    "v6_aborted": 109.08009171485901,
+    "v7_formal": 494.89366602897644,
+    "v7_aborted": 166.0520534515381
+  },
+  "review_progress": {
+    "v6_formal": 52,
+    "v6_aborted": 11,
+    "v7_formal": 32,
+    "v7_aborted": 0,
+    "v7_aborted_expected": 15
+  },
+  "limitations": [
+    "Post-finalized windows combine GPT work, tool activity, scheduler idle time, code/test/deployment and, for the current V7 window, user-requested diagnostics. No complete active-time telemetry is available.",
+    "GPU sums exclude R0 and native acceptance. GPU and LLM/CPU work overlap; do not add them to wall time.",
+    "V6 timing begins with the first scientific launch, not earlier package engineering or environment preparation.",
+    "V7 is unfinished at this cutoff: no V8 approval or launch."
+  ]
+}
