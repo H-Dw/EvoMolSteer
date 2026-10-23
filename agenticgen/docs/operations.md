@@ -7,7 +7,14 @@ winning private hypotheses and that council, with all-round aggregate performanc
 The new [strategy assessment](experiments/v7_strategy_review/review.zh-CN.md) selects
 Top1 R2 G1 and Top2 R4 G4. Skills prioritize timely exploitation and supported
 condition compensation, not exhaustive arithmetic audits. Complete actionable
-strategy work in one continuous turn; the 40-minute interval is for remote checks.
+strategy work in one continuous turn; the 10-minute interval is for active-run checks.
+
+The interval was shortened on 2026-10-23 using V6's 30.754-minute successful full run
+and V7's 32.392-minute successful Top2 rerun to finalization. These have different
+scopes, so they are not pooled as equivalent samples. V7's 95.831 minutes from first
+launch include failure/repair waiting and are not the healthy-runtime baseline.
+Stay quiet on unchanged healthy state; do not repeatedly notify the same permission
+issue or poll completed workers when no new experiment has started.
 
 V7 is FINALIZED with 1000 formal records and all five rounds complete; worker1589286
 exited. Preserve Top1 f8bb4ac6/32K and Top2 6fd8e80c/64K provenance. Do not prepare,
@@ -27,7 +34,7 @@ approval-policy override, and does not turn a denied operation into an allowed o
 
 Required server checks remain inside the normal deployment/start procedure: process
 locks, prior completion, fixed source and native acceptance. Runtime health checks
-resume every 40 minutes after a new worker actually starts. Actual deployment uses
+resume every 10 minutes after a new worker actually starts. Actual deployment uses
 an authorized execution channel; if that operation is rejected, report its exact
 scope and leave V8 unstarted. Do not bypass a rejection with another transport.
 
