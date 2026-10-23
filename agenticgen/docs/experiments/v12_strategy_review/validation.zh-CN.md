@@ -1,5 +1,7 @@
 # 有限评估与待部署检查
 
+2026-10-24部署补记：固定ab91ba5094aaec0f26ce4723e9296000ac08611c已安装；远端仅test_control_gates.py与test_reviewed_start.py通过，无跳过，包内科学Python未改、复用原生兼容性。真实四上下文review-check和V10回滚来源/技能/政策门槛通过，V13 worker2418839启动；本地未运行自动化测试。来源和收据见../../deployments/ab91ba50。下方“待部署”描述为该固定提交形成时的历史状态。
+
 - FINALIZED：c13a83337187852021e4a1477a79f3e49114d0241bff0e298f59d7d2b154c53c。
 - report：69a31b9108aa67d5329fb3ee1802989f15ac572ce788d7357bb4cf012ae81b0d。
 - manifest：d331e06470a7fb820adcca4f5e8e5e6c004554b38a13e8f804a79e0b450ff00e。
