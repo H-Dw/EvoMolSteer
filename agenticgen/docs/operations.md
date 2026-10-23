@@ -11,9 +11,25 @@ strategy work in one continuous turn; the 40-minute interval is for remote check
 
 V7 is FINALIZED with 1000 formal records and all five rounds complete; worker1589286
 exited. Preserve Top1 f8bb4ac6/32K and Top2 6fd8e80c/64K provenance. Do not prepare,
-recover or rerun V6/V7. V8 is not approved or launched. Existing SSH tool calls are
-blocked by approval policy (approval needed, AskForApproval=Never). No alternate
-transport may bypass that rejection. Local implementation/testing may proceed.
+recover or rerun V6/V7. V8 is not approved or launched. The previous standalone SSH
+status/progress instruction was rejected (approval needed, AskForApproval=Never).
+That observed rejection is not a deployment attempt or an algorithm failure.
+
+## Removed optional remote administration
+
+The user removed the standalone SSH status probe and upload of
+`operations/master_review_progress_vN.json`. Neither is a dependency of the sampler,
+review gate or V8 startup script. Keep strategy progress in local/GitHub artifacts;
+do not upload it, retry this optional probe or wait for a remote progress count.
+While the previous version is finalized and no new worker has been launched, do not
+poll its exited process on every heartbeat. This is a workflow deletion, not an
+approval-policy override, and does not turn a denied operation into an allowed one.
+
+Required server checks remain inside the normal deployment/start procedure: process
+locks, prior completion, fixed source and native acceptance. Runtime health checks
+resume every 40 minutes after a new worker actually starts. Actual deployment uses
+an authorized execution channel; if that operation is rejected, report its exact
+scope and leave V8 unstarted. Do not bypass a rejection with another transport.
 
 ## Adopt the best-round gate once at the V7 boundary
 
