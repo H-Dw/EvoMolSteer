@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+V9 started (2026-10-23): fixed `c8671c293750db24fdd8022a1f0ff79181d4c684`,
+runtime `/opt/MolSteer/runtimes/agenticgen_c8671c29`, worker1834410. Remote tests
+159/159 passed; V8 best-round gate accepted two teachers/four selected contexts,
+full_review_completed=false. Startup identity/API/proxy inheritance verified;
+pipeline was not yet created at that check and no first-round completion is claimed.
+See [deployment receipts](deployments/c8671c29/README.zh-CN.md). Do not repeat
+installation, approval or launch for this healthy worker; documents do not change
+its fixed source. Resume normal 35-minute monitoring of this active experiment.
+
 Latest local-test policy (2026-10-23): skip local tests for skills/document-only
 edits. Existing unit tests check software contracts and recovery/gates, not LLM
 strategy quality. If executable code changes, run only tests relevant to that
