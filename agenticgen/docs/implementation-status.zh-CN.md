@@ -1,3 +1,7 @@
+# 2026-10-23：V9完成有限复盘，V10已固定部署启动
+
+V10固定`d1163b7eb873e7305189973670341950018bd1bf`，运行目录`/opt/MolSteer/runtimes/agenticgen_d1163b7e`，worker1912935，启动1792740063.1825883。远端159项通过；V9有限门槛2教师/4上下文通过，full_review_completed=false；43项既往协议/R0/完成结果关键hash保持。初次核验进程身份/API/代理完整继承、无新failure，当时pipeline尚未建立，仅能确认启动，不声称首轮完成。详见[V10收据](deployments/d1163b7e/README.zh-CN.md)。不重复批准/启动，不因文档提交更换科学源。下方待部署文字均为启动前快照。
+
 # 2026-10-23：V9完成，最优轮评估完成，SSH正常重连
 
 原SSH控制台进程已过期，正常重新认证后命令执行成功，未更改权限或换通道规避。之前审批拒绝的根因仍未确定；下方阻断快照已由本段及[恢复记录](deployments/c8671c29/transport_restored.json)更新。

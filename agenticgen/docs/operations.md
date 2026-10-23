@@ -1,5 +1,15 @@
 # Deployment and continuation
 
+V10 now started (2026-10-23): fixed d1163b7eb873e7305189973670341950018bd1bf,
+worker1912935, launch1792740063.1825883. GitHub fetch/install, 159 remote tests,
+and V9 best-round gate (2 teachers/4 contexts, full_review_completed=false) passed.
+All 43 protected prior hashes match. Startup command/API/proxy identity verified,
+no new failure; pipeline was not yet present at the startup check. This is not a
+completed round. Do not repeat V10 approval/launch. The latest receipt is
+[V10 deployment](deployments/d1163b7e/README.zh-CN.md); below pending-deployment
+wording is a historical pre-launch snapshot. Next active-run monitoring is on the
+35-minute schedule. After V10 finalization assess its own best rounds for V11.
+
 Latest continuation (2026-10-23): the original SSH console was reconnected through
 normal authentication after its previous process expired. Commands now succeeded;
 the cause of the earlier approval rejection remains unknown. No permission setting
