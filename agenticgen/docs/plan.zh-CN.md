@@ -1,5 +1,15 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-23最新：**V11完整结束并完成有限评估，V12已真实批准启动**。
+V12固定`e640a40e31a6f3885cc884c48a45a855e2f707eb`，worker2338101，启动1792770456.370391，runtime `/opt/MolSteer/runtimes/agenticgen_e640a40e`。
+官方GitHub API获取/固定安装成功，60项旧协议/R0/结果关键hash保持；仅skills/文档变化，
+本地和远端单元测试均未运行，科学Python指纹/原生兼容性及有限review-check实际通过。
+V11评估只读Top1 R5G2、Top2 R4G2私有/汇总，共4上下文与40聚合组，full_review_completed=false。
+V11相对V10等权gap增加0.000091705，连续退步1、不回滚；失败费用已纳入，目标仍未达成。
+V12应用用户文献框架的三项机制/时间作用/预算能力，补充背景响应及自身动作域，U1/科学设置保持。
+初始核验不代表首轮完成，不重复启动或为文档同步更换科学源。见[实际部署](deployments/e640a40e/README.zh-CN.md)。
+V6–V11不prepare/重跑；下方待V12部署或V11运行段落均为历史。35分钟正常活动巡检。
+
 2026-10-23最新：**V11已FINALIZED，有限策略评估完成，V12待固定部署**。
 两教师各五轮1000正式结果及质量/汇总/保留/清理完整，worker2281628退出、无新failure；
 原07fa7423 analyze及完成/report/manifest绑定通过。只读Top1 R5G2、Top2 R4G2私有与汇总四上下文，
