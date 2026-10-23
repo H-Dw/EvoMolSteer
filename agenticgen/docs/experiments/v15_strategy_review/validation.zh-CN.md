@@ -1,0 +1,7 @@
+# V15有限评估来源
+
+FINALIZED：ede5ebec18a93e0f6d10ed690216f60df4e52313196c80ab34c60b348df87a7f。
+report：f38836cb8a5ad555a7eadfa4aa9a9fd5763793db754e78ff7f2e6b5337bd6712。
+manifest：db64be7b366f446e97e7d3ca56989236a1068d63fa65cd7468f9ff13296716ea。
+
+已读取Top1 R4G4与Top2 R5G3私有及同轮汇总、相关目标/动作/预算，共四上下文。40组聚合结果及少量匹配算术用于策略判断；没有52会话覆盖、失败补审、逐请求审计或离线回放。来源hash与原固定runtime analyze绑定保留。无本地自动化测试；skills/文档变化远端也不跑单元测试。下一部署需真实有限review-check。

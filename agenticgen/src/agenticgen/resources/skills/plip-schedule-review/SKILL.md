@@ -45,6 +45,12 @@ In the selected contexts, distinguish a useful local rejection from premature ax
 closure. Aggregate schedules can show an unresolved interior or a background-dependent
 response without reading more sessions. Use only the matched contrasts needed to
 judge the next decision; absence of a test does not establish that it would win.
+Check whether allocation compares with the retained best schedule or merely recovers
+from a poor action anchor. Once no later sampling can use the answer, a predictably
+trailing probe needs a credible chance to challenge the leader, not a safety label.
+Distinguish falsifying a forecast from rejecting a real smaller ranking gain, and
+rejecting a tested endpoint from declaring its untested interior infeasible. Preserve
+private-agent visibility limits when judging what the council should have merged.
 
 Write a short assessment per teacher: the useful hypothesis, actual terminal tradeoff,
 the main rival/limitation and a better next direction. Derive one to three generic

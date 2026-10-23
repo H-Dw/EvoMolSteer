@@ -1,5 +1,14 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-24最新：**V15已FINALIZED，有限策略评估完成，V16待正常固定部署**。
+两教师各五轮1000正式记录及质量/汇总/保留/清理完整，无新故障，原a942ab9e analyze成功。
+仅Top1 R4G4、Top2 R5G3私有/汇总四上下文及40组聚合，full_review_completed=false。
+Mean4.212030363/4.211230860，相对V14 +0.000117989/-0.000080995；等权gap减少0.000018497，
+连续退步归零、不回滚，历史最好仍V13，目标未达成。正常29.903397分钟，59API3232925输入/727212输出，无本版作废。
+V16改写相对缓存最佳的预算价值，以及预测反证/排序接受的区分，保留合法内侧与背景依赖；U1和科学设置不变。
+仅skills/文档，两端不跑单元测试。见[本版有限评估](experiments/v15_strategy_review/review.zh-CN.md)。
+尚未批准或启动V16；V6–V15禁止prepare/重跑。补充inpainting/PB计划休眠至V30完整交付和保存原代码之后。
+
 2026-10-24补充计划：用户已确认[V30之后的Graph inpainting/PB优先探索](supplemental/graph-inpainting-pb-after-v30.zh-CN.md)，状态`authorized_dormant`。
 当前V15及V16–V30计划保持；V30完整交付后先commit/push保存原方向代码，再重新读取补充计划并激活独立I01–I20（每版5轮）。
 子图身份保持、坐标可调整，输入声明的interaction site/type必须保持；PB通过率为新方向首要目标。

@@ -53,11 +53,12 @@ or accept that a single interval's reversal exhausts the search space.
 Compare the portfolio's unresolved branches by attainable frontier gain, condition
 risk and whether their answers can still be used. A responsive interval with a good
 endpoint, a reversed continuation and a legal untested interior is not automatically
-exhausted. Consider a supplied interior contender before allocating most slots to
-small extensions or curve description elsewhere. Resolve it in time for exploitation,
-or explain why the competing branch is better. Do not require bisection, a complete
-map or repeated failures. If private proposals omit the valuable branch, publish that
-specific gap for the next round; never invent or edit an array to fill it.
+exhausted. Repeated losses at the same high or low endpoint reject that endpoint on
+the tested backgrounds; they do not measure the open interior. Compare a supplied
+interior contender with alternatives by its plausible result relative to the cached
+leader, rather than labelling all amplitudes beyond the good endpoint refuted. Do not
+require bisection, a complete map or repeated failures. If proposals omit a valuable
+branch, publish the gap while another round remains; never invent or edit an array.
 
 Merge weak-edge conclusions with their background and measured direction intact.
 After a useful background change, do not carry an old 'closed interval' label forward
@@ -84,13 +85,18 @@ do not diversify it. Balance them with a supplied contender that preserves the k
 useful regime when available. State explicitly when the supplied set cannot do so;
 do not invent substitute arrays or claim unexecuted alternatives would win.
 
-Spend for decision value. A diagnostic slot must name the remaining sampling decision
-its result can change. In the last sampling allocation prioritize plausible improvements;
-avoid spending most slots describing a curve or repeating a known failure in a new
-background. If no supplied proposal has credible improvement potential, expose that
-and select informative alternatives. Counterevidence changes the direction, scale,
-background or question. Non-monotonicity calls for a local bracket or another supported
-direction, not unrestricted extrapolation or declaring the whole space exhausted.
+Spend for improvement over the best tested in-band schedule, which remains retained
+without a new slot. For each supplied contender, compare its predicted terminal result
+with that leader, not just its own action anchor. A large recovery from a bad anchor
+can still be a predictably trailing arm. With sampling remaining afterward, such a
+probe needs a specific reachable decision that its answer changes. In the last sampling
+allocation, choose plausible challengers over recovery or curve confirmation whose
+benefit requires a nonexistent later round. A lower-risk arm is useful if it can improve
+the frontier; do not spend merely to protect a leader that is already cached. When the
+supplied set lacks credible challengers, disclose that limitation and select the best
+legal alternatives without editing arrays or claiming uncertain points would win.
+Use remaining_sampling_rounds to distinguish the last executable allocation from
+the zero-round archive; a phase label does not change the available experiment budget.
 
 Compare actual arrays and references; use factual tools for arithmetic. Keep condition
 and functional frontiers explicit. A result can answer several historical contrasts;
@@ -102,7 +108,9 @@ and decision value, not a fabricated significance threshold, tail veto or a Best
 bonus that displaces the functional objective. A larger Best still below the teacher
 does not by itself justify an expected in-band mean loss; a secondary tradeoff probe
 needs a credible route to a remaining higher-priority decision. Small gains remain measured gains;
-they need not absorb every remaining slot.
+they need not absorb every remaining slot. Separate a failed quantitative prediction
+from a failed ranking improvement: a smaller-than-forecast signed gain still counts.
+Update the response belief rather than inventing a minimum-gain gate from the forecast.
 Never invent or edit replacement arrays; use bounded repair when the legal distinct
 set is insufficient. Respect current-anchor legality, approved range, fine grid,
 changed-interval count and range-probe allocation. Fixed R0 remains the physical parent.

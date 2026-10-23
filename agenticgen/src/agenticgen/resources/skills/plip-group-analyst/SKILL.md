@@ -62,11 +62,12 @@ erase the measured total effect.
 Treat a reversal as a bounded unresolved branch. Keep the useful endpoint and failed
 endpoint in memory, together with the legal untested interior if one exists. Before
 spending both proposals on tiny continuations elsewhere, compare their attainable
-gain and condition risk with one fine-grid contrast on that responsive branch. A
-large endpoint loss does not prove that every intervening amplitude is bad. Resolve
-the branch while an answer can still be exploited, or state why another legal action
-has higher value. This is not mandatory bisection or an extra sampling quota. Preserve
-a credible contender alongside uncertain extrapolation; never promise an untested win.
+gain and condition risk with one fine-grid contrast on that responsive branch. Reject
+the measured adverse endpoint; keep the interior unresolved unless a matched result
+rejects it too. Repeating the endpoint loss on another background strengthens rejection
+of that endpoint, not an unmeasured ceiling at the good endpoint. Resolve a valuable
+interior while its answer can still affect sampling, or explain a better competitor.
+This is not mandatory bisection or an extra quota; never promise an untested win.
 
 Use scoped decisions such as 'retain', 'deprioritize on this background', or 'reject
 this measured edge', rather than closing a whole interval after one weak contrast.
@@ -91,14 +92,19 @@ not continue through zero. Treat continuation and its compensated variant as sha
 that risk. If the cost is unknown, state that compensation capacity is unproven and
 prefer a supported local alternative alongside the risky extension.
 
-Use two proposals to balance progress and useful uncertainty. When evidence and
-legality permit, favor one credible frontier improvement plus an alternative,
-compensation or discriminating probe; this is a strategy, not a schema quota. Every
-information trial must name the remaining decision it can change. Near the final
-sampling round prefer plausible improvement over curve description whose result
-cannot improve this version. If no credible improvement exists, disclose it and
-choose informative legal alternatives. Repeated negative results must change the
-direction, scale, background or question.
+Use the best tested in-band schedule as the performance comparator, while the action
+anchor still controls legality. Improving a poor anchor or restoring a failed arm
+is not enough: compare the predicted terminal result with the cached leader. If a
+proposal is still expected to trail, name the supported upside or the later sampling
+decision that could make it valuable. The leader is already retained without spending
+a new slot. With one sampling round left, information has value here only through a
+credible challenger; do not label a predictably trailing recovery as safe exploitation.
+With more rounds left, a transfer or mechanism probe can earn its slot by changing a
+reachable next action. Keep useful uncertainty, not a compulsory quota or a promise
+that every proposal wins. If no credible improvement exists, say so and select the
+most informative legal alternatives. Negative results change action, not just wording.
+Read remaining_sampling_rounds literally: one means the next proposals can still be
+sampled; zero means archive only. Do not infer this from the label 'final'.
 
 Current action anchor controls legality; historical comparison A controls causal
 interpretation; fixed R0 controls the physical restart. Respect supplied bounds,
@@ -111,8 +117,11 @@ Return two legal arrays with concise physical hypotheses, actual references,
 condition/function predictions, purpose, alternatives and falsifiers. A Best-side
 tradeoff is secondary: an expected loss in in-band mean agreement needs a credible
 route to a later higher-priority decision, not merely a larger Best below the teacher.
-Use tools for
-arithmetic. With fixed restarts and common random streams, between-candidate spread
+Use tools for arithmetic. A forecast miss and a ranking failure are different: a
+smaller-than-predicted gain can still improve the configured ranking. Revise the slope
+or mechanism when a prediction fails; do not create a minimum-gain acceptance gate
+from the predicted magnitude. Negative endpoints reject those edges, not every
+interior or background. With fixed restarts and common random streams, between-candidate spread
 is not repeat-run noise. Keep the measured paired group effect separate from its
 unknown generalization to new starting populations. A tiny effect can be a real
 fixed-population improvement yet deserve less budget than a plausible larger one;
