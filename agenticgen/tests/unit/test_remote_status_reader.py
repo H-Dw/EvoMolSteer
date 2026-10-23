@@ -22,6 +22,7 @@ class ReadOnlySFTP:
         self.opens = []
         self.redirects = {}
         self.entries = []
+        self.folders = {}
         self.denied = set()
 
     def normalize(self, path):
@@ -40,6 +41,8 @@ class ReadOnlySFTP:
         return io.BytesIO(value)
 
     def listdir_attr(self, path):
+        if path in self.folders:
+            return self.folders[path]
         assert path == module.ROOT + '/operations'
         return self.entries
 
@@ -187,3 +190,68 @@ def test_wrong_active_version_and_untrusted_pid_rejected(complete):
     complete.files[path] = encoded(launch)
     with pytest.raises(ValueError):
         module.collect(complete, 'v10')
+
+
+@pytest.fixture
+def incomplete(complete):
+    root = module.ROOT
+    teacher = module.TEACHERS[0]
+    state = {'teachers': {teacher: {'round': 4, 'phase': 'failed'},
+                         module.TEACHERS[1]: {'round': 5, 'phase': 'complete'}}}
+    complete.files[root + '/versions/v10/pipeline.json'] = encoded(state)
+    del complete.files[root + '/FINALIZED_v10.json']
+    council = root + '/versions/v10/' + teacher + '/round_04/council'
+    complete.files[council + '/analyst_failures.json'] = encoded({
+        'G2': {'error_type': 'ValueError', 'message': 'Incomplete JSON answer; no incumbent masquerading as success'}})
+    folder = council + '/analysts/G2'
+    content = b'{"learning_update":'
+    request = encoded({'body': {'model': 'deepseek-flash', 'max_tokens': 65536,
+                               'thinking': {'type': 'enabled'}, 'reasoning_effort': 'high'}})
+    receipt = encoded({'finish_reason': 'length', 'content_sha256': hashlib.sha256(content).hexdigest(),
+                       'request_sha256': hashlib.sha256(request).hexdigest(), 'max_output_tokens': 65536,
+                       'provider_request_id': 'test-id', 'usage': {'completion_tokens': 65536}})
+    complete.files[folder + '/turn_02.incomplete_1.receipt.json'] = receipt
+    complete.files[folder + '/turn_02.incomplete_1.txt'] = content
+    complete.files[folder + '/turn_02.request.json'] = request
+    complete.folders[folder] = [SimpleNamespace(filename=name, st_mode=stat.S_IFREG)
+        for name in ('turn_02.incomplete_1.receipt.json', 'turn_02.request.json',
+                     '../turn_02.incomplete_1.receipt.json', 'turn_02.raw_1.txt')]
+    return complete, folder
+
+
+def test_incomplete_diagnosis_is_opt_in_and_bound_to_failed_analyst(incomplete):
+    sftp, folder = incomplete
+    module.collect(sftp, 'v10')
+    assert not any('/analysts/' in name for name in sftp.opens)
+    result = module.collect(sftp, 'v10', incomplete_diagnostics=True)
+    answers = result['teachers'][module.TEACHERS[0]]['incomplete_answers']['G2']
+    assert len(answers) == 1 and answers[0]['receipt']['finish_reason'] == 'length'
+    assert answers[0]['request_settings']['max_tokens'] == 65536
+    assert answers[0]['content'] == '{"learning_update":'
+    assert {name for name in sftp.opens if '/analysts/' in name} == {
+        folder + '/turn_02.incomplete_1.receipt.json', folder + '/turn_02.incomplete_1.txt',
+        folder + '/turn_02.request.json'}
+    assert 'incomplete_answers' not in result['teachers'][module.TEACHERS[1]]
+
+
+@pytest.mark.parametrize('problem', ['content_hash', 'request_hash', 'budget', 'redirect', 'count', 'live'])
+def test_incomplete_diagnosis_fails_closed(incomplete, problem):
+    sftp, folder = incomplete
+    if problem == 'content_hash':
+        sftp.files[folder + '/turn_02.incomplete_1.txt'] = b'changed'
+    elif problem == 'request_hash':
+        sftp.files[folder + '/turn_02.request.json'] = b'changed'
+    elif problem == 'budget':
+        name = folder + '/turn_02.incomplete_1.receipt.json'
+        value = json.loads(sftp.files[name]); value['max_output_tokens'] = 32768
+        sftp.files[name] = encoded(value)
+    elif problem == 'redirect':
+        sftp.redirects[folder] = folder.replace('G2', 'G1')
+    elif problem == 'count':
+        sftp.folders[folder] = [SimpleNamespace(filename=f'turn_02.incomplete_{i}.receipt.json',
+                                              st_mode=stat.S_IFREG) for i in range(1, 18)]
+    else:
+        sftp.files['/proc/123/cmdline'] = ('python\0-m\0agenticgen\0run\0--root\0' + module.ROOT + '\0--version\0v10\0').encode()
+        sftp.files['/proc/123/status'] = b'State:\tS (sleeping)\n'
+    with pytest.raises(ValueError):
+        module.collect(sftp, 'v10', incomplete_diagnostics=True)
