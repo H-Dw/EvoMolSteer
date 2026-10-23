@@ -1,5 +1,13 @@
 # Deployment and continuation
 
+2026-10-23 scoped-control update: use the local bounded SFTP reader documented in
+[remote control](remote-control.zh-CN.md) for normal status reads. It accepts only
+the experiment version and a local receipt path; it cannot execute remote commands,
+upload code, or control workers. The real request remains subject to tool approval.
+Do not use another transport if this narrowed request is rejected. Deployment/start
+remain separate GitHub fixed-commit operations. This local client does not change
+V10's scientific runtime. The validation receipt determines whether live access worked.
+
 2026-10-23 07:25 UTC monitoring update: sending the active V10 read-only check
 through authenticated session90887 was rejected before execution by the tool
 approval policy (`approval required by policy, but AskForApproval is set to Never`).
