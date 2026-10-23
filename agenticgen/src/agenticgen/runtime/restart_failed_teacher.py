@@ -1,0 +1,233 @@
+"""Audited five-round restart of failed teachers, preserving completed teachers.
+
+This operation never repairs a scientific proposal or approves an experiment.
+The prior full master review must pass again against the new fixed revision.
+"""
+import copy
+from pathlib import Path
+import shutil
+
+from agenticgen.adaptive_schedule.io import read, write, sha, commit, source_fingerprint, value_sha, repository
+from agenticgen.adaptive_schedule.protocol_state import protocol_dir, prepared_path, acceptance_path, config_path
+from agenticgen.runtime.launch import idle_locks
+from .restart_failed_version import safe_base, inventory, verify_protected, no_worker, audit_document
+from .extend_budget import committed, assert_committed_runtime
+
+ALLOWED_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py', 'adaptive_schedule/group_run.py',
+    'adaptive_schedule/group_review.py', 'adaptive_schedule/group_protocol.py', 'cli.py'}
+GLOBAL_RESET = {'binding.json', 'deployment.json', 'pipeline.json', 'PIPELINE_COMPLETE.json', 'review_approval.json'}
+
+
+def completed_barriers(base, teacher, config):
+    from agenticgen.adaptive_schedule.wave_retention import verify_snapshot
+    tb = base/teacher
+    for r in range(1, config['rounds']+1):
+        wave = tb/f'round_{r:02d}'/'wave'
+        for name in ['COMPLETE.json', 'QUALITY_COMPLETE.json', 'CLEANUP_COMPLETE.json']:
+            if not (wave/name).is_file():raise ValueError('Completed teacher barrier missing')
+        for name in ['COMPLETE.json', 'QUALITY_COMPLETE.json']:
+            if read(wave/name).get('attempts') != 4*config['population_size']:
+                raise ValueError('Completed teacher count differs')
+        if not (tb/f'round_{r:02d}'/'council/COMPLETE.json').is_file() or not (tb/f'RETENTION_COMPLETE_{r:02d}.json').is_file():
+            raise ValueError('Completed teacher analysis/retention missing')
+    verify_snapshot(tb/'incumbents'/f"r{config['rounds']:02d}")
+
+
+def stage(root, version, authorization):
+    from agenticgen.adaptive_schedule.group_protocol import configuration
+    from agenticgen.adaptive_schedule.group_run import SKILLS
+    from agenticgen.adaptive_schedule.wave_retention import verify_snapshot
+    root = Path(root).resolve(); base = safe_base(root, version)
+    with idle_locks(root):
+        no_worker(root); assert_committed_runtime()
+        if (root/f'FINALIZED_{version}.json').exists():raise ValueError('Finalized version cannot be reset')
+        if any(int(p.parent.name[1:]) > int(version[1:]) for p in (root/'versions').glob('v*/binding.json')):
+            raise ValueError('Later formal version exists')
+        auth_ref = committed(authorization); auth = read(authorization)
+        if not (auth.get('authority') == 'human_user' and auth.get('version') == version and
+                auth.get('rerun_all_five_rounds') is True and auth.get('delete_failed_candidate_outputs') is True and
+                auth.get('preserve_completed_teachers') is True and auth.get('max_output_tokens') == 65536):
+            raise ValueError('Authorization does not cover this teacher restart')
+        state = read(base/'pipeline.json'); teachers = {t['teacher_id'] for t in read(root/'teachers.json')}
+        if set(state['teachers']) != teachers or any(t['phase'] not in {'failed','complete'} for t in state['teachers'].values()):
+            raise ValueError('Both teachers must be terminal')
+        failed = sorted(t for t, s in state['teachers'].items() if s['phase'] == 'failed')
+        kept = sorted(teachers-set(failed))
+        if not failed or failed != sorted(auth.get('failed_teachers',[])):raise ValueError('Failure scope differs from authorization')
+        old_dir = protocol_dir(root); old = read(old_dir/'PREPARED.json'); previous = read(old_dir/'config.json')
+        binding = read(base/'binding.json')
+        for frozen in [old, read(old_dir/'ACCEPTANCE_COMPLETE.json'), binding]:
+            if frozen['config_sha256'] != sha(old_dir/'config.json') or frozen['source_fingerprint'] != old['source_fingerprint']:
+                raise ValueError('Old source/config binding changed')
+        if old['teachers_sha256'] != sha(root/'teachers.json'):raise ValueError('Teacher manifest changed')
+        if old.get('budget_extension_operation'):
+            prior = read(root/old['budget_extension_operation']/'journal.json')
+            if prior['phase'] != 'accepted_for_review_check' or root/prior['new_protocol'] != old_dir:
+                raise ValueError('Prior budget adoption incomplete')
+            verify_protected(root, prior['protected_sha256'])
+        current = source_fingerprint()
+        changed = sorted(k for k in current.keys()|old['source_fingerprint'].keys() if current.get(k) != old['source_fingerprint'].get(k))
+        if not changed or not set(changed) <= ALLOWED_SOURCE_CHANGES:raise ValueError('Unsupported source/science change')
+        for role, relative in SKILLS.items():
+            if sha(repository()/relative) != binding['skill_hashes'][role]:raise ValueError('Frozen skills changed')
+        new = copy.deepcopy(previous); new['llm']['max_output_tokens'] = auth['max_output_tokens']
+        if previous['llm']['max_output_tokens'] != 32768 or configuration() != new:
+            raise ValueError('Only authorized output budget may change')
+        initial = {}
+        for teacher in teachers:
+            boot = read(base/teacher/'bootstrap/hypotheses.json')
+            initial[teacher] = {'teacher_id':teacher, 'observed_round':0,
+                'jobs':[{'ticks':j['ticks'],'source_proposal_id':'bootstrap:'+j['id'],'proposal':j} for j in boot['jobs']]}
+        if state['binding']['initial_jobs_sha256'] != value_sha(initial):raise ValueError('Original bootstrap provenance differs')
+        for teacher in kept:
+            if state['teachers'][teacher]['round'] != previous['rounds']:raise ValueError('Completed teacher round differs')
+            completed_barriers(base, teacher, previous)
+        all_files = inventory(base)
+        removed = {n:m for n,m in all_files.items() if n in GLOBAL_RESET or Path(n).parts[0] in failed}
+        protected = {}
+        for name in ['protocols','shared_r0','baselines','versions']:
+            for n, meta in inventory(root/name).items():
+                rel = name+'/'+n
+                if name == 'versions' and n.startswith(version+'/') and n[len(version)+1:] in removed:continue
+                protected[rel] = meta['sha256']
+        for p in list(root.glob('FINALIZED_*.json')) + [root/n for n in ['config.json','PREPARED.json',
+                'ACCEPTANCE_COMPLETE.json','teachers.json','historical_references.json']]:
+            protected[p.relative_to(root).as_posix()] = sha(p)
+        for folder in (root/'operations').glob('*/failure_audit'):
+            protected.update({folder.relative_to(root).as_posix()+'/'+n:m['sha256'] for n,m in inventory(folder).items()})
+        for teacher in teachers:verify_snapshot(root/'shared_r0'/teacher)
+        for name,digest in read(root/'historical_references.json').items():
+            if sha(name) != digest:raise ValueError('Historical input changed')
+        op = root/'operations'/f'failed_teacher_rerun_{version}_{commit()[:8]}'
+        folder = root/'protocols'/f'analysis_output_repair_{version}_{commit()[:8]}'
+        if op.exists() or folder.exists():raise ValueError('Restart operation exists; inspect journal')
+        write(op/'journal.json', {'phase':'staged','version':version,'commit':commit(),'authorization':auth_ref,
+            'old_protocol':old_dir.relative_to(root).as_posix(),'new_protocol':folder.relative_to(root).as_posix(),
+            'old_pointer':read(root/'ACTIVE_PROTOCOL.json'),'source_changes':changed,'protected_sha256':protected,
+            'failed_attempt_files':removed,'failed_teachers':failed,'completed_teachers':kept,
+            'completed_states':{t:state['teachers'][t] for t in kept},'preserved_initial_jobs':{t:initial[t] for t in kept},
+            'completed_events':[e for e in state.get('events',[]) if e.get('teacher') in kept],
+            'old_binding':binding,'old_deployment':read(base/'deployment.json'),'rerun_rounds':5,
+            'failed_candidate_count':sum(read(p)['attempts'] for t in failed for p in (base/t).glob('round_*/wave/COMPLETE.json'))})
+        write(folder/'config.json',new)
+        prepared = {**old,'config_sha256':sha(folder/'config.json'),'source_fingerprint':current,'commit':commit(),
+            'previous_protocol':old_dir.relative_to(root).as_posix(),'previous_protocol_prepared_sha256':sha(old_dir/'PREPARED.json'),
+            'teacher_restart_operation':op.relative_to(root).as_posix(),'native_probe_directory':f'operations/teacher_restart_acceptance_{commit()[:8]}',
+            'requires_native_acceptance':True,'r0_resampling_allowed':False,
+            'authorized_analysis_budget_changes':{'max_output_tokens':65536}}
+        # These completed predecessor transactions remain in the protected history;
+        # the new native acceptance is checked by the scoped restart gate below.
+        for key in ['budget_extension_operation','failure_restart_operation']:
+            if key in prepared:prepared['previous_'+key] = prepared.pop(key)
+        write(folder/'PREPARED.json',prepared)
+        verify_protected(root,protected)
+        write(root/'ACTIVE_PROTOCOL.json',{'directory':folder.relative_to(root).as_posix(),'prepared_sha256':sha(folder/'PREPARED.json')})
+        return {'phase':'staged','operation':str(op),'failed_teachers':failed,'preserved_teachers':kept,'outputs_deleted':False}
+
+
+def native_ready(root):
+    folder=protocol_dir(root); p=read(prepared_path(root)); a=read(acceptance_path(root)); probe=root/p['native_probe_directory']
+    if (a['source_fingerprint'] != source_fingerprint() or a['config_sha256'] != sha(config_path(root)) or
+            a.get('teachers') != 2 or a.get('recovery_checks') != 2 or a.get('common_randomness') is not True or
+            a.get('different_hypothesis_schedules') is not True or a.get('affinity_vjp') is not False or
+            a['results_sha256'] != sha(probe/'results.json') or
+            a['gradient_checks_sha256'] != sha(folder/'validation/gradient_checks.json') or
+            read(folder/'validation/gradient_checks.json').get('passed') is not True):
+        raise ValueError('Fresh native acceptance required')
+
+
+def operation_journal(root):
+    p=prepared_path(root)
+    if not p.exists() or not read(p).get('teacher_restart_operation'):return None
+    op=(root/read(p)['teacher_restart_operation']).resolve()
+    if op.parent != root/'operations' or op.is_symlink():raise ValueError('Unsafe restart operation')
+    return op,read(op/'journal.json')
+
+
+def finish(root, operation):
+    root=Path(root).resolve(); op=Path(operation).resolve()
+    if op.parent != root/'operations' or op.is_symlink():raise ValueError('Unsafe restart operation')
+    with idle_locks(root):
+        no_worker(root); assert_committed_runtime(); j=read(op/'journal.json'); base=safe_base(root,j['version'])
+        if j['commit'] != commit() or root/j['new_protocol'] != protocol_dir(root):raise ValueError('Use staged fixed runtime')
+        if (root/f"FINALIZED_{j['version']}.json").exists():raise ValueError('Version finalized during restart')
+        native_ready(root); verify_protected(root,j['protected_sha256'])
+        if j['phase'] == 'deleted_ready_for_new_approval':return {'phase':j['phase'],'operation':str(op)}
+        expected=j['failed_attempt_files']; archive=op/'failure_audit'
+        if j['phase'] == 'staged':
+            for n,m in expected.items():
+                if sha(base/n) != m['sha256']:raise ValueError('Failed source changed')
+                if audit_document(n):
+                    dest=archive/n;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(base/n,dest)
+                    if sha(dest) != m['sha256']:raise ValueError('Audit copy differs')
+            write(op/'deletion_manifest.json',{'files':expected,'audit_copies':[n for n in expected if audit_document(n)],
+                'result_rows_excluded':j['failed_candidate_count'],'failed_teachers':j['failed_teachers'],
+                'completed_teachers_preserved':j['completed_teachers'],'new_results_start_at_round':1})
+            j['phase']='audit_verified_ready_to_delete';write(op/'journal.json',j)
+        if j['phase'] != 'audit_verified_ready_to_delete':raise ValueError('Unknown restart phase')
+        for n in expected:
+            if audit_document(n) and sha(archive/n) != expected[n]['sha256']:raise ValueError('Archived evidence changed')
+        remaining=inventory(base)
+        for n,m in remaining.items():
+            if (n in GLOBAL_RESET or Path(n).parts[0] in j['failed_teachers']) and expected.get(n) != m:
+                raise ValueError('Unknown/changed candidate content before deletion')
+        for n,m in expected.items():
+            p=base/n
+            if p.exists():
+                if not p.resolve().is_relative_to(base) or p.is_symlink() or sha(p) != m['sha256']:
+                    raise ValueError('Unsafe deletion target')
+                p.unlink()
+        for teacher in j['failed_teachers']:
+            tb=base/teacher
+            if tb.exists():
+                for p in sorted((p for p in tb.rglob('*') if p.is_dir()),key=lambda p:len(p.parts),reverse=True):p.rmdir()
+                tb.rmdir()
+        verify_protected(root,j['protected_sha256'])
+        j.update(phase='deleted_ready_for_new_approval',deleted_files=len(expected),candidate_outputs_deleted=True,
+                 new_acceptance_sha256=sha(acceptance_path(root)))
+        write(op/'journal.json',j)
+        write(root/'status.json',{'phase':'awaiting_rerun_approval','version':j['version'],'operation':str(op)})
+        return {'phase':j['phase'],'operation':str(op),'deleted_candidate_count':j['failed_candidate_count'],
+                'preserved_teachers':j['completed_teachers'],'rerun_rounds':5}
+
+
+def verify_ready(root, version):
+    root=Path(root).resolve(); found=operation_journal(root)
+    if not found:return None
+    op,j=found; p=read(prepared_path(root))
+    if (j['phase'] != 'deleted_ready_for_new_approval' or root/j['new_protocol'] != protocol_dir(root) or
+            j['commit'] != p['commit'] or p['source_fingerprint'] != source_fingerprint() or
+            version not in read(config_path(root))['versions'] or int(version[1:]) < int(j['version'][1:]) or
+            j['new_acceptance_sha256'] != sha(acceptance_path(root))):
+        raise ValueError('Teacher restart/native gate not complete')
+    native_ready(root); verify_protected(root,j['protected_sha256'])
+    return j
+
+
+def preserved_provenance(root, version):
+    root=Path(root).resolve(); found=operation_journal(root)
+    if not found or found[1]['version'] != version:return {}
+    j=verify_ready(root,version)
+    return {t:{'binding':j['old_binding'],'deployment':j['old_deployment'],
+        'reason':'Completed five-round teacher preserved byte-identically; only failed teacher reruns',
+        'files_sha256':{n:d for n,d in j['protected_sha256'].items() if n.startswith(f'versions/{version}/{t}/')}}
+        for t in j['completed_teachers']}
+
+
+def preserved_jobs(root, version):
+    root=Path(root).resolve(); found=operation_journal(root)
+    if not found or found[1]['version'] != version:return {}
+    return copy.deepcopy(verify_ready(root,version)['preserved_initial_jobs'])
+
+
+def seed_pipeline(root, version, initial_jobs, rounds):
+    root=Path(root).resolve(); found=operation_journal(root)
+    if not found or found[1]['version'] != version:return
+    j=verify_ready(root,version); path=safe_base(root,version)/'pipeline.json'
+    if path.exists():return  # scheduler validates frozen initial jobs on every resume
+    binding={'initial_jobs_sha256':value_sha(initial_jobs),'rounds':rounds,'teachers':list(initial_jobs),
+             'gpu_owners':1,'global_llm_concurrency':4}
+    teachers={t:copy.deepcopy(j['completed_states'][t]) if t in j['completed_states'] else
+              {'round':1,'phase':'ready','job':job} for t,job in initial_jobs.items()}
+    write(path,{'binding':binding,'teachers':teachers,'events':copy.deepcopy(j['completed_events']), 'last_gpu_teacher':None,
+                'preserved_teacher_operation':found[0].relative_to(root).as_posix()})

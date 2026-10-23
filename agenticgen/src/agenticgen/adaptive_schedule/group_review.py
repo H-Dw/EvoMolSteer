@@ -92,6 +92,9 @@ def review_check(root, next_version):
     if next_version not in config['versions'] or next_version == 'v1':
         raise ValueError('Invalid reviewed-version transition')
     prepared = prepared_path(root)
+    if prepared.exists() and read(prepared).get('teacher_restart_operation'):
+        from agenticgen.runtime.restart_failed_teacher import verify_ready
+        verify_ready(root, next_version)
     if prepared.exists() and read(prepared).get('budget_extension_operation'):
         from agenticgen.runtime.extend_budget import verify_ready
         verify_ready(root, next_version)

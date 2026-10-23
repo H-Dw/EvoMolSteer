@@ -182,6 +182,10 @@ def bind(root, version):
                'condition_comparison_sha256':value_sha(c.get('condition_comparison',{})),
                'skill_hashes': {role: sha(p) for role, p in skills.items()},
                'shared_r0': {p.parent.name: sha(p) for p in (root/'shared_r0').glob('*/COMPLETE.json')}}
+    from agenticgen.runtime.restart_failed_teacher import preserved_provenance
+    provenance = preserved_provenance(root, version)
+    if provenance:
+        binding['preserved_teacher_provenance'] = provenance
     if (base/'binding.json').exists() and read(base/'binding.json') != binding:
         raise ValueError('Version inputs changed')
     write(base/'binding.json', binding)
@@ -225,7 +229,12 @@ def run(root, version):
             base = root/'versions'/version
             caller = BoundedCaller()
             initial_jobs = {}
+            from agenticgen.runtime.restart_failed_teacher import preserved_jobs, seed_pipeline
+            kept_jobs = preserved_jobs(root, version)
             for teacher, template in templates.items():
+                if teacher in kept_jobs:
+                    initial_jobs[teacher] = kept_jobs[teacher]
+                    continue
                 best = read(r0[teacher]/'best.json')
                 data = evidence(template, 0, 'bootstrap', best, best)
                 data.update(version=version, controller_protocol=config['controller']['protocol'])
@@ -322,6 +331,7 @@ def run(root, version):
                 all_trials = read(wave/'trials.json')
                 return commit_best(base/teacher, parent, wave,
                                    [all_trials[g*population:(g+1)*population] for g in range(4)], round_no, r0[teacher])
+            seed_pipeline(root, version, initial_jobs, config['rounds'])
             run_teacher_pipeline(initial_jobs, base, rounds=config['rounds'], infer=infer, analyze=analyze,
                                  commit=commit_round, caller=caller)
         report(root, version)

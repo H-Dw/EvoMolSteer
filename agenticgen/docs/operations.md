@@ -1,5 +1,17 @@
 # Deployment and continuation
 
+V7 repair in progress (2026-10-23): worker1469692 exited after Top2 R3 G3
+exhausted 32768 output tokens (`finish_reason=length`). Top1 completed five
+rounds and remains protected. Use the new tested `stage-teacher-rerun` and
+`finish-teacher-rerun` with `docs/authorizations/20261023_v7_failed_teacher_rerun.json`
+to raise analyst/bootstrap output to 65536 and reset only failed Top2 to R1 after
+fresh native acceptance. Preserve Top1, R0, V6, old protocols and all failed API
+evidence; the new version binding records the old teacher provenance explicitly.
+Rebind the existing substantive V6 review to the new deployed commit and pass
+the strict gate before relaunching V7. This does not approve V8. Do not use the
+V6-only two-failed-teacher tool or analysis-only retry. Current deployment status
+is given by receipts, not this repair plan. The earlier startup snapshot follows.
+
 Read [plan.zh-CN.md](plan.zh-CN.md) first. It is the active scientific protocol.
 The former mean-first 100-candidate council is historical only. Native acceptance
 and the explicit human-authorized V6 transition have been verified. As of

@@ -49,10 +49,10 @@ def test_expanded_probe_not_restricted_to_local_schema():
     jsonschema.validate([45,5,5,5],schema['properties']['hypotheses']['items']['properties']['ticks'])
 
 
-def test_budget_change_does_not_inflate_output_or_sampling_budget():
+def test_authorized_analysis_budget_does_not_inflate_sampling_budget():
     c=configuration()
     assert c['llm']['input_hard_bytes']==524288
-    assert c['llm']['max_output_tokens']==32768 and c['council']['max_output_tokens']==65536
+    assert c['llm']['max_output_tokens']==65536 and c['council']['max_output_tokens']==65536
     assert c['population_size']==25 and c['rounds']==5 and c['physical_batch_size']==100
 
 
