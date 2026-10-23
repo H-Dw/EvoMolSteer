@@ -224,3 +224,42 @@ def test_citation_restart_rejects_unbound_changes(citation_restart,monkeypatch,c
     else:
         a=read(auth);a['previous_commit' if change=='previous_commit' else 'max_output_tokens']='wrong' if change=='previous_commit' else 131072;write(auth,a)
     with pytest.raises(ValueError):m.stage(root,'v10',auth)
+
+
+@pytest.fixture
+def interface_restart(citation_restart,monkeypatch):
+    root,auth,jobs=citation_restart
+    (root/'versions/v10').rename(root/'versions/v11')
+    base=root/'versions/v11';a=read(auth)
+    a.update(version='v11',repair_kind='bounded_interface_repair_v1',previous_commit='normal-v11')
+    write(auth,a);write(base/'deployment.json',{'commit':'normal-v11'})
+    fp=read(root/'protocols/old/PREPARED.json')['source_fingerprint']
+    monkeypatch.setattr(m,'source_fingerprint',lambda:{**fp,'runtime/restart_failed_teacher.py':'new',
+        'providers/deepseek_api.py':'new','adaptive_schedule/group_agent.py':'new'})
+    return root,auth,jobs
+
+
+def test_interface_restart_accepts_compatible_older_protocol_but_preserves_completed_source(interface_restart):
+    root,auth,jobs=interface_restart;base=root/'versions/v11';kept=m.inventory(base/'a')
+    config=(root/'protocols/old/config.json').read_bytes()
+    op=Path(m.stage(root,'v11',auth)['operation']);accept(root);m.finish(root,op)
+    assert m.inventory(base/'a')==kept and m.config_path(root).read_bytes()==config
+    assert not (base/'b').exists() and (op/'failure_audit/b/round_03/council/turn.receipt.json').exists()
+    assert m.preserved_jobs(root,'v11')=={'a':jobs['a']}
+    assert read(m.prepared_path(root))['interface_repair_policy']['private_max_format_repairs']==2
+    assert read(m.prepared_path(root))['authorized_analysis_budget_changes']=={}
+    assert m.verify_ready(root,'v12')['version']=='v11'
+
+
+@pytest.mark.parametrize('mutation',['source','commit','budget','skills'])
+def test_interface_restart_rejects_out_of_scope_change(interface_restart,monkeypatch,mutation):
+    root,auth,_=interface_restart
+    if mutation=='source':
+        fp=m.source_fingerprint();monkeypatch.setattr(m,'source_fingerprint',lambda:{**fp,'adaptive_schedule/wave_native.py':'changed'})
+    elif mutation=='skills':
+        from agenticgen.adaptive_schedule.group_run import SKILLS
+        (m.repository()/SKILLS['analyst']).write_text('changed')
+    else:
+        a=read(auth);a['previous_commit' if mutation=='commit' else 'max_output_tokens']='other' if mutation=='commit' else 65536
+        write(auth,a)
+    with pytest.raises(ValueError):m.stage(root,'v11',auth)

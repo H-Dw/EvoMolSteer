@@ -19,6 +19,8 @@ ALLOWED_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py', 'adaptive_schedul
 GLOBAL_RESET = {'binding.json', 'deployment.json', 'pipeline.json', 'PIPELINE_COMPLETE.json', 'review_approval.json'}
 CITATION_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py',
     'adaptive_schedule/group_agent.py', 'adaptive_schedule/evidence_aliases.py'}
+INTERFACE_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py',
+    'adaptive_schedule/group_agent.py', 'providers/deepseek_api.py'}
 
 
 def completed_barriers(base, teacher, config):
@@ -48,8 +50,9 @@ def stage(root, version, authorization):
             raise ValueError('Later formal version exists')
         auth_ref = committed(authorization); auth = read(authorization)
         citation_repair = auth.get('repair_kind') == 'private_evidence_alias_v1'
+        interface_repair = auth.get('repair_kind') == 'bounded_interface_repair_v1'
         budget_pair = (auth.get('previous_max_output_tokens',32768),auth.get('max_output_tokens'))
-        allowed_budget = budget_pair == (98304,98304) if citation_repair else budget_pair in {(32768,65536),(65536,98304)}
+        allowed_budget = budget_pair == (98304,98304) if (citation_repair or interface_repair) else budget_pair in {(32768,65536),(65536,98304)}
         if not (auth.get('authority') == 'human_user' and auth.get('version') == version and
                 auth.get('rerun_all_five_rounds') is True and auth.get('delete_failed_candidate_outputs') is True and
                 auth.get('preserve_completed_teachers') is True and
@@ -90,9 +93,13 @@ def stage(root, version, authorization):
         if citation_repair and (read(base/'deployment.json').get('commit') != auth.get('previous_commit')
                                or old.get('commit') != auth.get('previous_commit')):
             raise ValueError('Citation repair must bind the actual failed fixed commit')
+        if interface_repair and read(base/'deployment.json').get('commit') != auth.get('previous_commit'):
+            # A normal version can reuse a compatible older protocol. Its actual
+            # deployment is bound separately; source/config equality is checked above.
+            raise ValueError('Interface repair must bind the actual failed fixed commit')
         current = source_fingerprint()
         changed = sorted(k for k in current.keys()|old['source_fingerprint'].keys() if current.get(k) != old['source_fingerprint'].get(k))
-        allowed = CITATION_SOURCE_CHANGES if citation_repair else ALLOWED_SOURCE_CHANGES
+        allowed = INTERFACE_SOURCE_CHANGES if interface_repair else CITATION_SOURCE_CHANGES if citation_repair else ALLOWED_SOURCE_CHANGES
         if not changed or not set(changed) <= allowed:raise ValueError('Unsupported source/science change')
         for role, relative in SKILLS.items():
             if sha(repository()/relative) != binding['skill_hashes'][role]:raise ValueError('Frozen skills changed')
@@ -145,6 +152,10 @@ def stage(root, version, authorization):
         if citation_repair:
             prepared['authorized_analysis_budget_changes'] = {}
             prepared['citation_protocol'] = 'private-evidence-alias-v1'
+        if interface_repair:
+            prepared['authorized_analysis_budget_changes'] = {}
+            prepared['interface_repair_policy'] = {'name':'bounded_interface_repair_v1',
+                'private_max_format_repairs':2, 'format_policy':'json-interface-v5'}
         # These completed predecessor transactions remain in the protected history;
         # the new native acceptance is checked by the scoped restart gate below.
         for key in ['budget_extension_operation','failure_restart_operation','strategy_review_operation']:

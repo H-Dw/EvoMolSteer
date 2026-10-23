@@ -75,6 +75,7 @@ def test_registry_is_readonly_bounded_and_reproducible(tmp_path):
 def test_one_teacher_session_requests_tools_then_proposes_four_shared_schedules(tmp_path):
     calls = []
     def caller(messages, schema, output, **kwargs):
+        assert kwargs["max_format_repairs"] == 2
         calls.append(messages)
         if len(calls) == 1:
             response = {'kind': 'tools', 'reason': 'inspect late geometry and early clipping', 'calls': [

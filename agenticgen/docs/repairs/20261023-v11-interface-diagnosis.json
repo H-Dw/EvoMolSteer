@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "transport": "bounded_read_only_sftp",
+  "observed_at": 1792764850.2852652,
+  "version": "v11",
+  "state": "pipeline_failed",
+  "completion_verified": false,
+  "launch": {
+    "version": "v11",
+    "commit": "cea3611c7c07b47868038a20a71877706e845d97",
+    "pid": 2175969,
+    "time": 1792762086.6861448
+  },
+  "process": {
+    "pid": 2175969,
+    "exists": false,
+    "command_matches": false,
+    "state": null,
+    "worker_alive": false
+  },
+  "teachers": {
+    "5nn4_SC2_A_1017__top1": {
+      "round": 5,
+      "phase": "failed",
+      "has_error": true,
+      "rounds": [
+        {
+          "round": 1,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 2,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 3,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 4,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 5,
+          "sampling": true,
+          "quality": true,
+          "cleanup": false,
+          "council": false,
+          "retention": false
+        }
+      ],
+      "error": {
+        "type": "RuntimeError",
+        "message": "An isolated analyst failed; synthesis was not run; completed requests are retained"
+      },
+      "failed_analysts": {
+        "G1": {
+          "type": "LLMInterfaceError",
+          "message": "LLM interface validation failed: {\"error_type\": \"JSONDecodeError\", \"line\": 1, \"column\": 3574, \"reason\": \"Expecting property name enclosed in double quotes\", \"character_offset\": 3573, \"structure\": {\"kind\": \"mismatched_closer\", \"container_pointer\": \"/hypotheses/0\", \"expected_closing\": \"}\", \"actual_closing\": \"]\", \"character_offset\": 4843, \"opening_offset\": 2204, \"instruction\": \"Close this container with its expected delimiter before closing its parent. Return a complete JSON object; preserve substantive content.\"}}"
+        }
+      },
+      "invalid_answers": {
+        "G1": [
+          {
+            "source": "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_1.invalid.receipt.json",
+            "receipt": {
+              "content_sha256": "10af95dc72ed55d5d82b3585d80a549f8b36adbfd5469a9d779df26b71b095ab",
+              "diagnostics": {
+                "error_type": "ValidationError",
+                "instance_pointer": "",
+                "reason": "Schedule already executed or duplicated: query its cached evidence and propose a new experiment",
+                "schema_pointer": "",
+                "validator": "application_contract"
+              },
+              "error_type": "ValidationError",
+              "finish_reason": "stop",
+              "format_policy": "json-interface-v4",
+              "http_attempt": 1,
+              "max_output_tokens": 98304,
+              "provider": "DeepSeek",
+              "provider_request_id": "cd9ec9f0-7f4e-4abd-96f7-a1362df9dcc0",
+              "returned_model": "deepseek-flash",
+              "usage": {
+                "completion_tokens": 10802,
+                "completion_tokens_details": {
+                  "reasoning_tokens": 7349
+                },
+                "prompt_cache_hit_tokens": 1152,
+                "prompt_cache_miss_tokens": 95614,
+                "prompt_tokens": 96766,
+                "prompt_tokens_details": {
+                  "cached_tokens": 1152
+                },
+                "total_tokens": 107568
+              },
+              "valid": false
+            },
+            "content_source": "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_1.invalid.txt",
+            "content_bytes": 13094,
+            "content": "{\"kind\":\"hypotheses\",\"population_diagnosis\":\"Final anchor [7,9,0,0] measures condition mean RMSD 0.796968 Å and mean absolute teacher gap 3.625809 pIC50. It is not the functional leader: the matched late-floor schedule [7,7,0,0] remains best on function at 0.797035 Å / 3.625704 pIC50, while [7,9,0,0] is slightly better on condition. The interval1 7→9 shift therefore improves condition by about 0.000067 Å but worsens functional gap by about 0.000105 pIC50; this reverses the earlier function-favorable interval1 sign and is a fixed-population, sub-band effect. The condition reference remains [3,3,5,5] at 0.794145 Å / 3.627867 pIC50; all executed schedules remain inside the ±0.02 Å band. Interval0 must stay at 7, the late floor 0,0 remains the function-favorable late setting, no positive functional lever above 0.01 pIC50 exists, and Best ~7.2114 remains far below teacher 7.837829. This is the final review phase; proposals are archived without another sampling round.\",\"memory_update\":\"Teacher 5nn4_SC2_A_1017__top1 v11, fixed R0, condition atoms [7,9], protein-fixed per-candidate local RMSD, band ±0.02 Å anchored to pool minimum 0.794145 Å. Current action anchor [7,9,0,0] gives condition 0.796968 Å / gap 3.625809 pIC50; [7,7,0,0] remains functional leader at 0.797035 Å / 3.625704 pIC50. Interval1=9 is condition-favorable but function-unfavorable versus 7, so the earlier upward interval1 functional expectation is refuted. Hold interval0=7, keep late intervals at 0,0, and select on functional gap among in-band arrays. No candidate beats teacher 7.837829; Best is unreachable by these local edits. Chemistry/control-authority ambiguity remains unresolved. Final archived proposals: return to [7,7,0,0] as the best measured functional schedule, and test [7,8,0,0] as the only legal interior interval1 bracket between 7 and 9.\",\"hypotheses\":[{\"id\":\"H1\",\"ticks\":[7,7,0,0],\"direction\":\"interval1 9→7 two-tick downshift at fixed interval0=7 and late floor 0,0; return to the measured functional leader\",\"exploration_degree\":\"local 2-tick reversal within allowed interval1 range 7–9; no range probe\",\"hypothesis\":\"Lowering interval1 from 9 to 7 restores the best measured mean affinity gap while paying only a tiny sub-band condition cost; interval1=9 overguides relative to 7 for function.\",\"expected_mean_effect\":\"Mean absolute teacher gap 3.625809→3.625704 pIC50 (improvement ~0.000105, fixed-population paired); condition mean RMSD 0.796968→0.797035 Å (+0.000067 worse but only ~0.3% of the 0.02 Å band).\",\"expected_best_effect\":\"Best remains near 7.2114–7.2115 and does not approach teacher 7.837829; no Best bonus is plausible.\",\"falsifier\":\"If the returned [7,7,0,0] does not reproduce its cached functional gap, if the condition mean leaves the band edge 0.814145 Å, or if the paired gap is worse than 3.625809 pIC50, then the interval1 reversal is not a credible improvement.\",\"evidence_ids\":[\"E005\",\"E006\",\"E001\"],\"diagnostic_alternative\":\"The 0.000105 pIC50 difference may be fixed-population identity mixing rather than a graded interval1 effect; a new starting population could reverse it.\",\"expected_subgroup_response\":\"Any paired gain should be concentrated in a few mid/high-score identities and mixed across quartiles, below the 0.01 pIC50 usable-effect scale.\",\"revision_from_previous_result\":\"The prior round treated interval1 upward as the last live function-favorable direction. The [7,9,0,0] result shows 9 improves condition but worsens function versus 7, so the function-favorable side is downward, not upward.\",\"reference_ticks\":[7,9,0,0],\"experiment_purpose\":\"exploit\",\"expected_condition_effect\":\"Condition worsens slightly from 0.796968 to 0.797035 Å (+0.000067) but remains well inside the band.\",\"expected_functional_effect\":\"Mean absolute gap improves by about 0.000105 pIC50 to 3.625704; this is real on the fixed population but remains far below a 0.01 pIC50 usable lever.\",\"search_mode\":\"local\",\"scale_reason\":\"A two-tick interval1 reversal is allowed by the default max absolute tick change and the supplied interval1 local range; both endpoints 7 and 9 have matched late-floor references, so no range expansion is involved.\"},{\"id\":\"H2\",\"ticks\":[7,8,0,0],\"direction\":\"interval1 9→8 one-tick interior refinement between the measured anchors 7 and 9 at the late floor\",\"exploration_degree\":\"local one-tick bracket/refinement; legal fine tick; no range probe\",\"hypothesis\":\"If interval1 has an interior functional peak, 8 will interpolate between the condition advantage of [7,9,0,0] and the functional advantage of [7,7,0,0]; this discriminates a peak from a monotone decline.\",\"expected_mean_effect\":\"Condition between 0.796968 and 0.797035 Å (~0.79700); mean absolute gap between 3.625704 and 3.625809 pIC50 (~3.62575); no >0.001 improvement is expected.\",\"expected_best_effect\":\"Best remains near 7.2114–7.2115; no teacher exceedance or Best bonus.\",\"falsifier\":\"If 8 falls outside both endpoints on either objective, the interval1 response is curved/non-monotone and the 7-versus-9 bracket is inadequate; if gap is at or above 3.625809 pIC50, 8 does not improve function.\",\"evidence_ids\":[\"E005\",\"E006\",\"E001\"],\"diagnostic_alternative\":\"The 8 point may reflect a fixed-population identity mix rather than an interior amplitude optimum; without new sampling it cannot be treated as independent evidence.\",\"expected_subgroup_response\":\"Interpolation should appear in the same identities that move between 7 and 9, with no broad population-wide shift expected.\",\"revision_from_previous_result\":\"Because 9 is condition-favorable but function-worse than 7, an interior 8 is the only legal bracket between the two measured interval1 anchors and can reveal whether 7 is the exact functional endpoint.\",\"reference_ticks\":[7,9,0,0],\"experiment_purpose\":\"bracket_peak\",\"expected_condition_effect\":\"Intermediate condition, approximately 0.79700 Å, inside the band.\",\"expected_functional_effect\":\"Intermediate mean absolute gap, approximately 3.62575 pIC50; no usable >0.01 pIC50 gain expected.\",\"search_mode\":\"local\",\"scale_reason\":\"A one-tick change is within the supplied interval1 local range and default step limit; existing 7 and 9 late-floor references make this a bracket, not a range probe.\"}],\"learning_update\":[{\"belief_id\":\"interval1-upper-side-reversal-v6\",\"prior_judgment\":\"Interval1 5→7 was function-favorable, so interval1=9 was expected to continue the function-favorable direction; the upper side was the last live direction.\",\"intervention\":\"Compared the current anchor [7,9,0,0] with the matched late-floor schedule [7,7,0,0] on the same fixed R0 and 25-candidate population.\",\"observed_result\":\"Condition mean RMSD 0.797035→0.796968 Å (−0.000067 better) and mean absolute teacher gap 3.625704→3.625809 pIC50 (+0.000105 worse); 25/25 valid; Best ~7.2114.\",\"revision\":\"Interval1=9 is condition-favorable but function-unfavorable relative to 7. The earlier function-favorable sign reverses at the upper side, so the functional interval1 level is at or below 7; the effect is fixed-population and 1e-4-scale.\",\"next_action\":\"Keep [7,7,0,0] as the functional reference; if one final bracket is archived, use [7,8,0,0] only to test the interior between 7 and 9.\",\"applicability\":\"Fixed R0, fixed 25-candidate population, teacher v11, late floor 0,0, interval1 7–9; no generalization to new populations.\",\"alternative_explanation\":\"The 0.000105 pIC50 difference could be fixed-population identity mixing rather than interval1 physics.\",\"status\":\"refuted\",\"evidence_ids\":[\"E005\",\"E006\",\"E001\"]},{\"belief_id\":\"functional-leader-late-floor-hold-v6\",\"prior_judgment\":\"[7,7,0,0] was the functional leader at gap 3.625704 pIC50, with [7,9,0,0] as an upper-side interval1 probe.\",\"intervention\":\"Compared the current anchor against the executed shared schedules in the group history and condition-quality summary.\",\"observed_result\":\"[7,9,0,0] gives 0.796968 Å / 3.625809 pIC50; [7,7,0,0] gives 0.797035 / 3.625704; condition reference [3,3,5,5] gives 0.794145 / 3.627867. All are inside the band.\",\"revision\":\"The latest anchor improves condition but does not displace [7,7,0,0] on functional gap. Band membership is necessary but not sufficient; functional gap remains the in-band selection lever.\",\"next_action\":\"Use [7,7,0,0] as the functional reference and do not claim a globally superior schedule.\",\"applicability\":\"This fixed population and teacher; top-schedule differences are 1e-4 to 1e-3 pIC50 and do not establish generalization.\",\"alternative_explanation\":\"The ordering may be concentrated identity-level effects rather than a systematic condition-function tradeoff.\",\"status\":\"supported\",\"evidence_ids\":[\"E005\",\"E006\",\"E001\"]},{\"belief_id\":\"late-floor-no-regime-change-v6\",\"prior_judgment\":\"Zero late guidance was reachable and did not change the trajectory regime; the late axis was retired at 0,0.\",\"intervention\":\"Checked that the current anchor retains the late floor 0,0 and compared it with the matched [7,7,0,0] late-floor schedule.\",\"observed_result\":\"Both schedules use late intervals 0,0; condition differs by only 0.000067 Å and gap by 0.000105 pIC50, with no reversal or discontinuity. The whole late 5→0 range costs only about 0.0014 Å.\",\"revision\":\"The late floor remains valid and low-priority. Raising interval2 or interval3 would buy condition at functional cost, so it is not useful for the functional leader.\",\"next_action\":\"Keep interval2=0 and interval3=0 in final comparisons; do not raise late amplitudes to buy condition.\",\"applicability\":\"Fixed R0, late levels 0–5, this teacher; no claim about new starting populations.\",\"alternative_explanation\":\"The lack of regime change could be a fixed-population property rather than a general late-window behavior.\",\"status\":\"supported\",\"evidence_ids\":[\"E005\",\"E006\",\"E001\"]},{\"belief_id\":\"condition-function-tradeoff-in-band-v6\",\"prior_judgment\":\"Condition and function are mildly opposed; inside the band, functional gap selects among schedules.\",\"intervention\":\"Compared [7,9,0,0] and [7,7,0,0] with the condition reference [3,3,5,5].\",\"observed_result\":\"[7,9,0,0] has better condition than [7,7,0,0] but worse gap; [3,3,5,5] has the best condition but the worst gap among these three. All remain inside the ±0.02 Å band.\",\"revision\":\"The opposition persists at the interval1 upper side. The latest anchor is not a functional improvement, and condition margin is ample enough that no compensation trial is needed.\",\"next_action\":\"Select [7,7,0,0] for function and keep [3,3,5,5] as the condition reference; do not spend for Best.\",\"applicability\":\"This fixed population and teacher; ordering differences are small fixed-population comparisons.\",\"alternative_explanation\":\"The ordering could reflect concentrated identity-level effects rather than a systematic tradeoff.\",\"status\":\"supported\",\"evidence_ids\":[\"E005\",\"E006\",\"E001\"]},{\"belief_id\":\"interval0-ceiling-hold7-v6\",\"prior_judgment\":\"Interval0 7→9 was the largest harmful local effect and interval0=7 should be held.\",\"intervention\":\"Checked the latest anchor, which holds interval0=7, against the earlier interval0=9 penalty in the group history.\",\"observed_result\":\"[9,5,7,5] measured 0.801993 Å / 3.651612 pIC50, the largest local penalty; the current [7,9,0,0] with interval0=7 measures 0.796968 / 3.625809.\",\"revision\":\"Interval0=9 remains a ceiling penalty and there is no positive mechanism to retest it. Interval0=8 is untested at this anchor but is not supported by the measured interior optimum near 7.\",\"next_action\":\"Hold interval0=7 in both final proposals.\",\"applicability\":\"Fixed R0, teacher v11, interval0 legal range 5–9; not a generalization.\",\"alternative_explanation\":\"The 9 penalty could include background interactions, but no measured mechanism suggests it would reverse.\",\"status\":\"supported\",\"evidence_ids\":[\"E005\",\"E001\"]},{\"belief_id\":\"functional-no-positive-lever-v6\",\"prior_judgment\":\"No positive functional lever above 0.01 pIC50 had emerged, and the Best bonus was unreachable.\",\"intervention\":\"Compared the latest anchor Best and gap against teacher pIC50 and the functional leader across executed schedules.\",\"observed_result\":\"Best is about 7.2114 versus teacher 7.837829; gaps span 3.625704–3.651612 pIC50; [7,9,0,0] is 3.625809; no candidate beats the teacher.\",\"revision\":\"The interval1 upper-side result is condition-favorable but not a functional lever. [7,7,0,0] remains the functional leader by about 0.000105 pIC50, and no >0.01 pIC50 positive lever exists in the measured grid.\",\"next_action\":\"Archive [7,7,0,0] as the best measured functional schedule and [7,8,0,0] as the final interval1 interior bracket; do not chase the Best bonus.\",\"applicability\":\"This fixed population and teacher; between-candidate spread is not run-to-run noise and does not establish generalization.\",\"alternative_explanation\":\"A chemistry/affinity bottleneck or a control-authority limit could cap agreement rather than a lack of local functional leverage.\",\"status\":\"unresolved\",\"evidence_ids\":[\"E006\",\"E005\",\"E001\",\"E004\"]}]}"
+          },
+          {
+            "source": "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_2.invalid.receipt.json",
+            "receipt": {
+              "content_sha256": "c9ec85667f140e6e39d40d7a0974bf3254e661b3edaba30d90436ebcec6a326e",
+              "diagnostics": {
+                "character_offset": 3573,
+                "column": 3574,
+                "error_type": "JSONDecodeError",
+                "line": 1,
+                "reason": "Expecting property name enclosed in double quotes",
+                "structure": {
+                  "actual_closing": "]",
+                  "character_offset": 4843,
+                  "container_pointer": "/hypotheses/0",
+                  "expected_closing": "}",
+                  "instruction": "Close this container with its expected delimiter before closing its parent. Return a complete JSON object; preserve substantive content.",
+                  "kind": "mismatched_closer",
+                  "opening_offset": 2204
+                }
+              },
+              "error_type": "JSONDecodeError",
+              "finish_reason": "stop",
+              "format_policy": "json-interface-v4",
+              "http_attempt": 2,
+              "max_output_tokens": 98304,
+              "provider": "DeepSeek",
+              "provider_request_id": "d41e210f-9f48-4122-95f0-ff98c47f28f8",
+              "returned_model": "deepseek-flash",
+              "usage": {
+                "completion_tokens": 3300,
+                "completion_tokens_details": {
+                  "reasoning_tokens": 1925
+                },
+                "prompt_cache_hit_tokens": 96640,
+                "prompt_cache_miss_tokens": 6088,
+                "prompt_tokens": 102728,
+                "prompt_tokens_details": {
+                  "cached_tokens": 96640
+                },
+                "total_tokens": 106028
+              },
+              "valid": false
+            },
+            "content_source": "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_2.invalid.txt",
+            "content_bytes": 4889,
+            "content": "{\"kind\":\"hypotheses\",\"population_diagnosis\":\"The last executed shared schedule is the current anchor [7,9,0,0]: condition mean RMSD 0.796968 Å, mean absolute teacher gap 3.625809 pIC50, Best 7.211151, 25/25 valid. It is not the functional leader. The matched late-floor schedule [7,7,0,0] still leads on function at 0.797035 Å / 3.625704 pIC50, so raising interval1 from 7 to 9 bought about 0.000067 Å of condition and cost about 0.000105 pIC50 of mean affinity agreement. That reverses the earlier function-favorable interval1 sign and is a fixed-population, sub-band effect. The condition reference remains [3,3,5,5] at 0.794145 Å / 3.627867 pIC50; the worst measured schedule [9,5,7,5] is 0.801993 Å / 3.651612 pIC50 and everything remains inside the ±0.02 Å band anchored to 0.794145 Å. Interval0 must stay at 7 because 7→9 is the largest local penalty measured, the late floor 0,0 is retired as function-favorable, no positive functional lever above 0.01 pIC50 exists, and Best ≈7.2114 remains far below teacher 7.837829. This is the review-only phase: proposals are archived without another sampling round.\",\"memory_update\":\"Teacher 5nn4_SC2_A_1017__top1 v11, fixed R0, condition atoms [7,9], protein-fixed mean of per-candidate local RMSD, band ±0.02 Å anchored to pool minimum 0.794145 Å ([3,3,5,5]). Anchor [7,9,0,0]: 0.796968 Å / 3.625809 pIC50 / Best 7.211151. Functional leader remains [7,7,0,0]: 0.797035 Å / 3.625704 pIC50. Interval1 7→9 is condition-favorable (+0.000067 Å better) but function-unfavorable (+0.000105 pIC50 worse); the function-favorable interval1 level is at or below 7. Interval0=9 remains the largest local penalty (+0.006876 Å, +0.025382 pIC50) and interval0 interior 8 is untested. Late block 5→0 is monotone but costs only about 0.0014 Å over the whole ladder and is retired at 0,0. No candidate beats teacher 7.837829; the Best bonus is unreachable by these local edits. Chemistry/control-authority ambiguity is unresolved: only 5/25 candidates have a chemically legal teacher pose mapping, so coordinate closeness alone does not establish reconstruction. Archived final proposals: interval1 interior [7,8,0,0] and interval1 legal ceiling [7,10,0,0].\",\"hypotheses\":[{\"id\":\"H1\",\"ticks\":[7,8,0,0],\"direction\":\"interval1 9→8 one-tick downward refinement between the two measured interval1 levels 7 and 9 at the late floor 0,0\",\"exploration_degree\":\"local one-tick fine-grid bracket; no range probe; one changed interval\",\"hypothesis\":\"The function-favorable interval1 endpoint lies at or below 7 while condition improves monotonically upward, so the interior point 8 should fall between [7,7,0,0]'s functional gap 3.625704 and [7,9,0,0]'s 3.625809 pIC50, and between their conditions 0.797035 and 0.796968 Å. A value outside both endpoints would indicate curvature rather than a monotone interval1 tradeoff.\",\"expected_mean_effect\":\"Condition approximately 0.79700 Å (between 0.796968 and 0.797035) and mean absolute gap approximately 3.62575 pIC50 (between 3.625704 and 3.625809). Neither movement exceeds 0.0001 Å or 0.0001 pIC50 in expectation.\",\"expected_best_effect\":\"Best stays near 7.2111–7.2115 with best_minus_teacher about −0.6267; no candidate exceeds teacher pIC50 7.837829 and no Best bonus is plausible.\",\"falsifier\":\"If 8 falls outside both measured endpoints on either objective, interval1 is curved and the two-point bracket is inadequate; if its gap is at or above 3.625809 pIC50, the downward direction does not improve function; if its condition is at or above 0.797035 Å, the condition slope is not monotone upward.\",{\"id\":\"H2\",\"ticks\":[7,10,0,0],\"direction\":\"interval1 9→10 one-tick upward extension to the legal interval1 ceiling at the late floor 0,0\",\"exploration_degree\":\"local one-tick edge test inside the supplied interval1 range 7–10; no range expansion; one changed interval\",\"hypothesis\":\"If interval1's condition-favorable slope continues to the legal edge, 10 will improve condition further at additional functional cost, as interval0's 7→9 penalty warns for the early block. If instead 10 worsens both objectives, interval1 has a ceiling near 9 and its upper side is closed at the legal boundary.\",\"expected_mean_effect\":\"Either condition improves slightly below 0.796968 Å with gap above 3.625809 pIC50, or both objectives worsen; the effect is expected at the 1e-4 scale, well below the 0.01 pIC50 functional-effect scale.\",\"expected_best_effect\":\"Best remains about 7.2111–7.2115 and cannot approach teacher 7.837829; the Best bonus stays unreachable.\",\"falsifier\":\"A reversal at 10 that also restores functional gap (below 3.625704 pIC50) would refute the reading that interval1 trades condition for function; no change at all (<0.0002 Å and <0.001 pIC50) would mean the interval1 ceiling is inert and the axis is exhausted at 9.\",\"evidence_ids\":[\"E005\",\"E006\",\"E001\"]}]}"
+          }
+        ]
+      }
+    },
+    "5nn4_SC2_A_1017__top2": {
+      "round": 5,
+      "phase": "complete",
+      "has_error": false,
+      "rounds": [
+        {
+          "round": 1,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 2,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 3,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 4,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        },
+        {
+          "round": 5,
+          "sampling": true,
+          "quality": true,
+          "cleanup": true,
+          "council": true,
+          "retention": true
+        }
+      ],
+      "error": null
+    }
+  },
+  "new_failure_receipts": [
+    {
+      "name": "failure_1792763949081064684.json",
+      "mtime": 1792763949
+    }
+  ],
+  "source_sha256": {
+    "launch.json": "57d6559222ab2e3f5d3dfc175f4f57eb6f01ac225358908e1b5d0f4381d9dbb6",
+    "versions/v11/pipeline.json": "d2256b0a02e41188eb5a086a10785e3141b9482dbae437506c7bcc9cf540ecd9",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_01/wave/COMPLETE.json": "76780b675cbfb7866695c97dc86f3233c22d0e3ef66e0c63b560fd9c0f6ec93e",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_01/wave/QUALITY_COMPLETE.json": "48a8c9dfc5df8789667432a8cc6af30e1d1a31f434c3c74ebcddff14c2d99aa1",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_01/wave/CLEANUP_COMPLETE.json": "10714ef1a7e58f838184f3130a60d24108db0df6486b8b16aaec267e4d2dd427",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_01/council/COMPLETE.json": "1d3fdaf368ee5ca78d4f1390568ecbf49f4935a83b995e6bdfb397342de56c1c",
+    "versions/v11/5nn4_SC2_A_1017__top1/RETENTION_COMPLETE_01.json": "208781063f2fc75a42327a01462e8011d05023875acfd34fed92e6c79d2a295f",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_02/wave/COMPLETE.json": "e2a06121df32953be3c7fe3aabef3a045f2be1e6c1488eb759e98a2b86037591",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_02/wave/QUALITY_COMPLETE.json": "883ad14bed7c19d765a05380d76cdf75ae1abd0e24a5a911a624753a9c8461b0",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_02/wave/CLEANUP_COMPLETE.json": "ea82269995e44d2012f31a3748aaaa2697a66b3eaff5e9b608461f48073ab34c",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_02/council/COMPLETE.json": "12917c22b16e4389d002fd96cd580661c886c0ab364c55d3adc2b2077cf17be7",
+    "versions/v11/5nn4_SC2_A_1017__top1/RETENTION_COMPLETE_02.json": "6794284007ea4e1c375b1359c50d7473cfe57504ff5208bdf17b24ceda4f8aef",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_03/wave/COMPLETE.json": "fe77807df36c178062a0141bbe6d230682a09318477cda4e95a473139c527cab",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_03/wave/QUALITY_COMPLETE.json": "fd1b93f9a48fa7f0dd8f855dde6d05be3a0d80d7c58ae5b716e19ecb223b879a",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_03/wave/CLEANUP_COMPLETE.json": "3ceed3555680ae99ef4b92795def52c169759a13df63fb7dbeaf09648d0ed48a",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_03/council/COMPLETE.json": "c595b6c5bb1141c328a39dddf51d29e3cea353a657434c528a5160cc60fc5b95",
+    "versions/v11/5nn4_SC2_A_1017__top1/RETENTION_COMPLETE_03.json": "7409c528651ef4356ffce1c506c407e89e778f28763025f517e02b4caa41ca11",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_04/wave/COMPLETE.json": "b982a318ce90d338bb4fe911d3f8ec219669953e8390d1f56a2dc2a9efba43cf",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_04/wave/QUALITY_COMPLETE.json": "c56e331cf3fe71d48a15124f6b09b5fd8449cedad75c59fdff7ab117a455c74f",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_04/wave/CLEANUP_COMPLETE.json": "d768a3938a25e7e59f6b5be7bcd6ab73a359cf2a3d646a5ccadadf207ae3f2bb",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_04/council/COMPLETE.json": "38491c2519b7a35b63ff968dde20852f7e9f1862c678f158162f3e4bee84d01f",
+    "versions/v11/5nn4_SC2_A_1017__top1/RETENTION_COMPLETE_04.json": "185695e2bad12cc60b43dcdeea8c6588617308b16dc90b2d5e5a248cbf5c82f3",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_05/wave/COMPLETE.json": "f91657ad9694e6f8f67d04658f2334d81ae06dcb4f4bb22a62b641861db1a4a5",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_05/wave/QUALITY_COMPLETE.json": "ce5110de032fc890893d350a815569795623318232cc9d54f3cbb0a11748124c",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analyst_failures.json": "854c635480409354a4007ac3ae1b4d1e71197f9a4de30af489364db0f848909a",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_1.invalid.receipt.json": "66e5a063200f9069204d6023e4d5b46108a6593b673cf68c0ccba574beb1eb2e",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_1.invalid.txt": "10af95dc72ed55d5d82b3585d80a549f8b36adbfd5469a9d779df26b71b095ab",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_2.invalid.receipt.json": "fc03c67646eb546e1f70038ce2d437ac140f911a3d5d5187335becee0831ea52",
+    "versions/v11/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.attempt_2.invalid.txt": "c9ec85667f140e6e39d40d7a0974bf3254e661b3edaba30d90436ebcec6a326e",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_01/wave/COMPLETE.json": "eec69bf0267592433e7e93c393d9d0a065c6626be951e98fc74fbd2189bbbb2b",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_01/wave/QUALITY_COMPLETE.json": "e8e56349fe37277b9450d067d97dae259340f4ac9e892a9829d8cc6042591130",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_01/wave/CLEANUP_COMPLETE.json": "5bf605e9636327c10ff26f99312b7655368d3b3e16b61139f046879e5cb17059",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_01/council/COMPLETE.json": "28ca361267b628d937916b184b5361729a4161591cf0cf74a1c9947b573dee49",
+    "versions/v11/5nn4_SC2_A_1017__top2/RETENTION_COMPLETE_01.json": "a7ee076a67477c622e936abb39ccddab1b1ffb497034e8d49598e875d1c10d19",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_02/wave/COMPLETE.json": "f888df50bbc3839d34a5cd0159233665cb9cd26ce4cfd299b4624214d41d2f39",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_02/wave/QUALITY_COMPLETE.json": "15fb6fe8103e36537e025d7b529818e79cc83a73edd5a4688e7dd7631441a14a",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_02/wave/CLEANUP_COMPLETE.json": "f819d69c3f42fb5015591cd14171d82b801736f2d7190404dcc420eefe214c79",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_02/council/COMPLETE.json": "990dd51785c13bac8534afe0d605bfb5c00c1e020dd8e2c5951076b0fe9d3aae",
+    "versions/v11/5nn4_SC2_A_1017__top2/RETENTION_COMPLETE_02.json": "98a708443d7e06495241fb31fc6bd1161c66f3c5ba983e3d6b79657f6b7cc175",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_03/wave/COMPLETE.json": "66eab09f03bfa2c3c24e70b4444a68d7550177f24abc57dbac8950945fca1b82",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_03/wave/QUALITY_COMPLETE.json": "9f02b1f0c2ebb283e634de3ccfdfb226f75f555934c29bffa9c069fba91b8845",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_03/wave/CLEANUP_COMPLETE.json": "322db429fb69330fb24b895203ae6d3842d33074da149420ded6e1105967561c",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_03/council/COMPLETE.json": "6c649fb2d2f9b47cf34ad6772afa48df1aa4de92478cf32d340c9180cca88194",
+    "versions/v11/5nn4_SC2_A_1017__top2/RETENTION_COMPLETE_03.json": "ec43d2b1b533b94e69492141f32355cd60a1dbc9d4db18f19ff6f37b48ea4301",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_04/wave/COMPLETE.json": "87c4e0f4bb9e63d8139907d1dace37f2d7d1e7d22cb935eadf4d3d35883ec9b1",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_04/wave/QUALITY_COMPLETE.json": "95637ab9090a8680fc7715c26c8c74ece41db87bc460a670863b71786c3ce9bc",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_04/wave/CLEANUP_COMPLETE.json": "a3df23fd96f908fe5b0351f82912ca4bc75dd14f677a0f15af94fda48e607ccd",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_04/council/COMPLETE.json": "16401846d927fb60220af49c78c6227b295b1005cde2ff43e38659a8a9cbdfcf",
+    "versions/v11/5nn4_SC2_A_1017__top2/RETENTION_COMPLETE_04.json": "82b05c7f5872e93f9b51be27497f647ce5f2d12bf5292f67355c9c266019f754",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_05/wave/COMPLETE.json": "f969c1e1a223258286ce534f0e8856a8f176922251ddb82b0fd72bc00fffe819",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_05/wave/QUALITY_COMPLETE.json": "d3832a5d373085152ebe688ef28569f2a4638ebca80a04154067d19bd96c5c4b",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_05/wave/CLEANUP_COMPLETE.json": "0de7003efdae9681613e924d8c23a1079e91ed80db4544d07a858a71c22c27be",
+    "versions/v11/5nn4_SC2_A_1017__top2/round_05/council/COMPLETE.json": "99403e31fed7d4138cfbc4ffe34eb935c4c03dd4c9a6b22a6f657992800f6488",
+    "versions/v11/5nn4_SC2_A_1017__top2/RETENTION_COMPLETE_05.json": "1030ab06db3836af78cef1d245ce36fc3c73f23a8bd0c2692a36f60eb5c8bf62"
+  },
+  "unavailable": {
+    "disk_free_bytes": "not exposed by this SFTP interface",
+    "raw_log_tail": "excluded; inspect only for a specific failure"
+  },
+  "remote_execution": false,
+  "remote_writes": false
+}

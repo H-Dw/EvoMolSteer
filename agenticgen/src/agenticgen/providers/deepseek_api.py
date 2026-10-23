@@ -11,7 +11,7 @@ import jsonschema
 from agenticgen.runtime.jsonio import digest, read_json, write_json
 
 
-FORMAT_POLICY = "json-interface-v4"
+FORMAT_POLICY = "json-interface-v5"
 
 
 class LLMInterfaceError(ValueError):
@@ -103,6 +103,9 @@ def format_message(schema, diagnostics=None):
     if diagnostics is not None:
         contract["validation_errors"] = diagnostics
     return ("Output-format contract only. Return JSON satisfying the supplied schema. "
+            "Return a complete replacement object, never a patch or an abbreviated remainder. "
+            "Include every required root and nested field, including unchanged entries. "
+            "Close each object before starting the next array item; use double-quoted property names. "
             "Optional fields remain optional; this adds no research requirements. "
             "Preserve supported substantive findings and choices in schema-compatible fields. "
             "Inspect each invalid_value at its instance_pointer. For invalid source citations, consult the supplied ID-to-record mapping; "
@@ -214,7 +217,7 @@ def call_json(messages, schema, output, *, model="deepseek-flash", timeout=240,
     http_attempts = 0
     endpoint = "https://api.deepseek.com/chat/completions"
     with httpx.Client(timeout=timeout, transport=transport, trust_env=True) as client:
-        # Network retries do not consume the one neutral format repair.
+        # Network retries do not consume the bounded neutral format repairs.
         for interface_attempt in range(max_format_repairs + 1):
             for attempt in range(attempts):
                 try:

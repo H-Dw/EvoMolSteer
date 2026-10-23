@@ -195,7 +195,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
     messages = [{'role': 'system', 'content': instructions}, {'role': 'user', 'content': canonical(common)}]
     binding = {'population_sha256': tools.digest, 'common_sha256': value_sha(common),
                'skill_sha256': value_sha(instructions), 'llm': config['llm'],
-               'citation_protocol': CITATION_PROTOCOL}
+               'citation_protocol': CITATION_PROTOCOL, 'max_format_repairs': 2}
     if (output/'binding.json').exists() and read(output/'binding.json') != binding:
         raise ValueError('Do not reuse an LLM session after its input, skill or config changed')
     write(output/'binding.json', binding)
@@ -220,6 +220,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
         response = caller(messages, schema, output/f'turn_{turn:02d}.json',
             model=config['llm']['model'], timeout=config['llm']['timeout'], attempts=config['llm']['attempts'],
             max_output_tokens=config['llm']['max_output_tokens'], input_store=output/'llm_inputs',
+            max_format_repairs=2,
             thinking=config['llm']['thinking'], reasoning_effort=config['llm']['reasoning_effort'], response_validator=validate)
         validate(response)
         write(output/f'turn_{turn:02d}.budget.json', {'conservative_bytes': estimated_bytes, 'limit': limit})
