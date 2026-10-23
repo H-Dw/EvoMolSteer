@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+Latest deployment attempt: fixed cf46ab27bf953c05ecd2e604539596b052348d2a is pushed.
+The tool allowed normal authenticated execution, but official GitHub object acquisition
+hit its 240-second total bound (exit124). No fetch-complete/install/test/approval/launch
+receipt was produced; V11 has not started. This is not an approval denial and no new
+HTTP503 was established. Keep cached objects and the same target commit, stop this
+attempt, inspect its fixed receipts on the next normal continuation before one bounded
+retry. Do not re-run V10 or any failed-teacher transaction. See
+[receipt](deployments/cf46ab27/README.zh-CN.md).
+
 Latest: V10 finalized (two teachers, five rounds, 1000 formal outcomes), worker2116574
 exited. Fixed c86706b5 analyze succeeded. Limited V10 best-round review is complete:
 Top1/Top2 R5G1, four contexts and forty aggregate groups, full_review_completed=false.
