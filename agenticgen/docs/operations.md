@@ -1,5 +1,36 @@
 # Deployment and continuation
 
+Latest state (2026-10-23, supersedes old heartbeat prompts): V8 is FINALIZED.
+The GitHub-fetched fixed runtime is `c83872e7795aba2e8a6ff88d296443972f64a648` at
+`/opt/MolSteer/runtimes/agenticgen_c83872e7`. All 145 remote tests passed with no
+skips; native acceptance and the best-round gate passed before launch. Worker
+1742828 has exited after both teachers completed five rounds/1000 total records,
+including quality, council, retention and cleanup. No new failure was found.
+Launch-to-finalization was 29.558 minutes; analyze completed. Do not run the V8
+startup/adoption procedure again. Next is V8's limited best-round strategy review
+for V9, using aggregate performance and four selected strategy contexts only.
+The V8 receipt is [deployment_summary.json](deployments/c83872e7/deployment_summary.json).
+
+Automation `plip-11762` has been deleted and replaced with the ACTIVE local-thread
+heartbeat `agenticgen`, every ten minutes, using this latest plan and V8 completion.
+Delete this replacement after V30 delivery. Do not recreate the obsolete task.
+
+The user subsequently selected and explicitly requested persistent local Full
+Access. Verified config: `sandbox_mode="danger-full-access"`,
+`approval_policy="never"`. The retained `approvals_reviewer="auto_review"` only
+applies if an eligible approval policy is selected later. Current app deletion of
+the old timer succeeded after the permission change. The old SSH tool session
+11545 became unavailable during that change: reconnect through an authorized
+channel before the next remote action; do not recover credentials from process
+memory, print them or save them. The V8 worker is completed, not failed.
+
+Code distribution uses the original GitHub repository: local edits and tests,
+commit and push, then remote fetch and a fixed detached checkout before tests and
+launch. Do not upload code files or review progress directly through SSH. Use SSH
+to execute the committed deployment procedure; Git transport does not waive tool
+approval. The 2026-10-23 automatic-review configuration and its observed per-tool
+limits are recorded in [the deployment note](deployments/c83872e7/approval-configuration.zh-CN.md).
+
 Current instruction (2026-10-23): full-session GPT review is prohibited. The V7
 legacy process stopped at 32/52, without claiming completion. Do not resume its
 reader or the 15 archived failed contexts. Review each teacher's best round once:
@@ -18,9 +49,8 @@ issue or poll completed workers when no new experiment has started.
 
 V7 is FINALIZED with 1000 formal records and all five rounds complete; worker1589286
 exited. Preserve Top1 f8bb4ac6/32K and Top2 6fd8e80c/64K provenance. Do not prepare,
-recover or rerun V6/V7. V8 is not approved or launched. The previous standalone SSH
-status/progress instruction was rejected (approval needed, AskForApproval=Never).
-That observed rejection is not a deployment attempt or an algorithm failure.
+recover or rerun V6/V7/V8. Earlier permission-rejection notes describe historical
+attempts; the completed V8 deployment at the top of this document supersedes them.
 
 ## Removed optional remote administration
 
