@@ -1,0 +1,8 @@
+# V13有限评估来源
+
+FINALIZED：1d011fbcc50663b26646db7c93014cb9fd1c680857abc056ba22d7207a96b497。
+report：a9d64960fd641f109835089356c4fc4fff0ddc03f3b43311ab32b95bc817544f。
+manifest：030263b98282e637d5bdbb44f58cc7a5c6e991945a6dee07d497674899b89726。
+
+只读完成核验及原ab91ba50 analyze已取得；selected_evidence保存四个已读策略上下文及相关prompt上下文，来源hash绑定。performance_context保存40组聚合结果；comparison_and_cost中的少量匹配计算用于判断响应和下一动作。
+没有52会话覆盖、逐请求/逐工具审计、失败上下文补审、本地自动化测试或LLM离线回放。来源校验不是实质审阅。下一固定部署仅skills/文档时不跑单元测试，既有科学完整性和有限review-check须实际通过。

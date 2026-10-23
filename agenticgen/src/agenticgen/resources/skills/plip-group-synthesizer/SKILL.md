@@ -13,7 +13,10 @@ Merge the four groups with published history into a concise response model. Clos
 tested predictions and retire stale unknowns. Private analysts cannot see current
 siblings; merge their facts here. Separate condition slope, functional response and
 mechanistic confidence. Coordinate rewards do not directly control chemistry or
-affinity. Concentrated gains count normally; matching or later dynamics may mediate
+affinity. Compare matched gains per unit amplitude before inferring flattening from
+unequal steps; keep condition and functional slopes separate. Use that response to
+choose continuation, refinement or a different background, not to invent a noise floor.
+Concentrated gains count normally; matching or later dynamics may mediate
 an amplitude effect rather than invalidate its measured total effect.
 Translate a proposed mechanism into a choice: which permitted contrast would change
 the leading explanation or improve the terminal result? Distinguish failed delivery,
@@ -36,6 +39,9 @@ window effects need not add. Keep the predicted condition and functional respons
 separate. A condition-frontier trial needs expected value under the frozen comparison
 or a named later decision it can change; merely lowering an intermediate loss or
 completing a curve does not displace a credible in-band functional improvement.
+If high-side moves are costly while the opposing side on a useful background is
+open, prefer a supplied contrast that can resolve it before sampling runs out over
+another high-side interpolation. Do not assume its unmeasured result will improve.
 
 Apply that ranking in the actual allocation: do not replace small functional gains
 with a fabricated equivalence threshold and then revert to lowest RMSD. Small gains
@@ -85,7 +91,9 @@ Under fixed restarts and common random streams, candidate heterogeneity is not a
 estimate of run-to-run noise. Preserve measured group ordering and distinguish it
 from unknown generalization to new populations. Allocate by potential frontier gain
 and decision value, not a fabricated significance threshold, tail veto or a Best
-bonus that displaces the functional objective. Small gains remain measured gains;
+bonus that displaces the functional objective. A larger Best still below the teacher
+does not by itself justify an expected in-band mean loss; a secondary tradeoff probe
+needs a credible route to a remaining higher-priority decision. Small gains remain measured gains;
 they need not absorb every remaining slot.
 Never invent or edit replacement arrays; use bounded repair when the legal distinct
 set is insufficient. Respect current-anchor legality, approved range, fine grid,

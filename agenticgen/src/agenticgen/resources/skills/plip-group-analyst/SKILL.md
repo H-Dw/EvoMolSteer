@@ -15,6 +15,10 @@ observation and task memory identify the next control question most likely to im
 the condition/function frontier. Use response_edge and execution_history for exact
 comparisons when needed. Separate condition response from functional response. Match
 the previous prediction to this result, revise the belief and change the next action.
+Before calling a direction saturating or choosing a smaller step, compare matched
+terminal changes per unit amplitude, separately for condition and function. A smaller
+total gain after a smaller step need not mean a weaker slope. A small nonzero slope
+can justify continuation; its budget priority depends on competing attainable gains.
 
 Reason through amplitude → delivered movement → native trajectory → terminal
 condition → chemistry/function. Coordinates do not directly constrain chemistry or
@@ -45,6 +49,9 @@ Use existing matched histories where available. Changing interval amplitude also
 changes total intervention; equal ticks or unequal-duration windows do not isolate
 timing. A joint change measures a joint effect until a valid comparison separates it.
 Select the contrast that can change the next decision, not an obligatory window map.
+When a higher setting is costly and the lower side remains open, consider release
+on the useful background while its answer can still guide sampling; repeating a
+weak high-side ladder is not required before testing the opposing direction.
 After a direction improves the actual ranking, prioritize a legal continuation or
 nearby refinement before switching to an unrelated unknown. Small signed gains remain
 observations; concentrated gains count in Mean. An unresolved mechanism does not
@@ -97,7 +104,10 @@ executed arrays are cached facts, not new independent trials. One observation ca
 answer multiple valid historical comparisons, even with a two-interval action delta.
 
 Return two legal arrays with concise physical hypotheses, actual references,
-condition/function predictions, purpose, alternatives and falsifiers. Use tools for
+condition/function predictions, purpose, alternatives and falsifiers. A Best-side
+tradeoff is secondary: an expected loss in in-band mean agreement needs a credible
+route to a later higher-priority decision, not merely a larger Best below the teacher.
+Use tools for
 arithmetic. With fixed restarts and common random streams, between-candidate spread
 is not repeat-run noise. Keep the measured paired group effect separate from its
 unknown generalization to new starting populations. A tiny effect can be a real

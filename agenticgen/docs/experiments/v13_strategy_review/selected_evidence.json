@@ -1,0 +1,1938 @@
+{
+  "sources": {
+    "versions/v13/5nn4_SC2_A_1017__top1/round_05/council/synthesis.json": {
+      "data": {
+        "comparison": "Ranking rule applied exactly as configured: band anchored to the lowest tested group mean condition RMSD 0.793259 A ([2,5,5,7]) with the 0.02 A tolerance giving a ceiling of 0.813259 A. All 21 executed shared schedules are inside that band (widest is [9,5,5,5] at 0.802095 A, still 0.0112 A inside), so condition is a non-discriminating guardrail and mean absolute affinity gap decides; no arm is dropped and no equivalence threshold is invented. Round-5 anchors: G1 [8,5,5,2] gap 3.624352 / condition 0.796094 A; G2 [8,7,5,2] 3.624578 / 0.796094; G3 [8,8,5,3] 3.624635 / 0.795898; G4 [7,8,5,3] 3.625909 / 0.795935. Frontier now: [8,5,5,2] < [8,5,5,3] 3.624416 < [8,5,5,5] 3.624550 < [8,7,5,2] 3.624578 < [8,8,5,3] 3.624635 ~ [8,7,5,3] 3.624644 < [8,7,5,5] 3.624810; the interval-0=8 block is separated from the interval-0=7 block ([7,7,5,3] 3.625916, [7,8,5,5] 3.626050) by about 0.0013 pIC50, far larger than any within-block difference. Condition ordering runs the other way in places (the pool minimum sits on the functionally worst arm [2,5,5,7] at 3.668665), so a condition-anchored reading would invert the functional frontier and was not used. The supplied paired group contrasts (E018-E023) are latest-minus-latest comparisons of selected output populations, not schedule contrasts: means range -5.6e-5 to -0.0016 pIC50 with win rates 0.32-0.52 and single draws to -0.025, i.e. few-identity structure, and they were not used for ranking. Deduplication: G2:H1 is the array [8,5,5,2], identical to the already-executed G1 round-5 arm, and G3:H2 and G4:H1 are both [8,6,5,3]; neither duplicate pair is independent evidence.",
+        "failure_directions": "Arm-specific falsifiers. [8,5,5,1]: if mean gap does not fall below 3.624352 or condition rises by more than about 0.0005 A while delivered interval-3 guidance stays unclipped, the downward interval-3 edge has reached its endpoint at 2 and all further interval-3 decreases are retired. [8,4,5,2]: if gap is at or above 3.624352 by more than about 0.0002 pIC50 with condition unchanged, interval-1=5 is a local optimum at interval-0=8 and that axis is closed; a change under 0.0001 leaves the direction unresolved rather than confirming it. [8,6,5,2]: if it does not fall between the interval-1=5 and interval-1=7/8 values on the same background, the interval-1 response is not a smooth amplitude law and only discrete settings are meaningful. [8,6,5,3]: if it is at or above 3.624644 (no better than [8,7,5,3]) or condition exceeds 0.813259 A, interval-1=6 is not a useful interpolation and 5 remains the endpoint. Cross-arm: if none of the four selections beats 3.624352, the interval-3 2->1 and interval-1 5->4 continuations are both exhausted, and the remaining unprobed region is interval-2 (null at 5->7) plus the below-5 interval-1 interior, which no supplied proposal reaches on a frontier background; that gap is recorded, not patched. A general falsifier for the whole picture: if a later arm shows the sub-milli frontier ordering collapsing while delivered guidance is unchanged, the ordering is identity structure rather than schedule law.",
+        "learning_update": [
+          {
+            "alternative_explanation": "The -0.000065 could be one identity's stream structure rather than a smooth amplitude law; every interval-3 step sits at the 1e-4 scale where group ordering has repeatedly rested on a few identities.",
+            "applicability": "Interval-3 amplitudes 1-7 at interval-0=8, this teacher/version, fixed 25-candidate population and fixed R0; not evidence for new starting populations.",
+            "belief_id": "interval3-continuation-to-2-moves-frontier-to-8-5-5-2",
+            "evidence_ids": [
+              "E001",
+              "E002",
+              "E003"
+            ],
+            "intervention": "Executed the shared schedule [8,5,5,2] with the fixed new R0 before update 10 and 25 common-valid candidates, and read it against the executed [8,5,5,3]; a single interval-3 change, with no array re-executed.",
+            "next_action": "Archived: [8,5,5,1] is the only remaining continuation; if it does not fall below 3.624352, treat 2 as the endpoint and retire further interval-3 decreases for this version.",
+            "observed_result": "[8,5,5,2]: gap 3.624352 pIC50, condition 0.796094 A, 25/25 valid. Versus [8,5,5,3]: gap -0.0000648 at +0.000208 A. Cumulative interval-3 5->3->2 from [8,5,5,5] is -0.000198 at +0.000615 A.",
+            "prior_judgment": "After round 4 the frontier was [8,5,5,3] at gap 3.624416 / condition 0.795886 A, and interval-3 3->2 was untested but expected to continue the small downward functional edge.",
+            "revision": "Supported: the downward interval-3 edge continues at roughly half the previous step, so the axis is flattening rather than reversing, and [8,5,5,2] becomes the best tested schedule ahead of [8,5,5,3] by 0.000065 pIC50.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "The +0.000260 penalty at interval-1=7 could be an interaction with interval-0=8 rather than local curvature, in which case lowering to 4 may also be neutral or adverse and the axis would be flat in both directions.",
+            "applicability": "Interval-1 amplitudes 4-8 at interval-0=8, this teacher/version and fixed population; no statement about interval-1 below 4 or about new populations.",
+            "belief_id": "interval1-5-best-tested-at-interval0-8-and-below-5-unprobed",
+            "evidence_ids": [
+              "E001",
+              "E005",
+              "E009"
+            ],
+            "intervention": "Compared [8,5,5,3] with [8,7,5,3], [8,5,5,5] with [8,7,5,5], [8,8,5,3] with [8,7,5,3] and [7,8,5,5] with [7,7,5,5], then identified the unexecuted [8,4,5,2].",
+            "next_action": "Archived: [8,4,5,2] decides whether 5 is a local optimum or whether the optimum lies lower; do not re-propose interval-1=7 or 8 on an interval-0=8 background.",
+            "observed_result": "[8,5,5,3] 3.624416 vs [8,7,5,3] 3.624644 (-0.000228); [8,5,5,5] 3.624550 vs [8,7,5,5] 3.624810 (-0.000260); [8,8,5,3] 3.624635 vs [8,7,5,3] 3.624644 (+0.000009). No executed arm anywhere holds interval-1 below 5.",
+            "prior_judgment": "Round 4 retired interval-1 upward scaling after [8,7,5,5] came in +0.000260 worse than [8,5,5,5], but no background had ever been probed below interval-1=5.",
+            "revision": "Supported one-sided: interval-1=5 is the best tested setting at interval-0=8 and 7/8 are flat-to-adverse, but the region 3-4 is untested, so the optimum is bounded above and still open below rather than closed.",
+            "status": "unresolved"
+          },
+          {
+            "alternative_explanation": "The 8-tick gain may be one or two identities rather than a smooth slope, since the condition distribution is right-skewed (median about 0.68 A against a mean of about 0.796 A and a maximum of 1.42 A).",
+            "applicability": "Interval-0 amplitudes 2-9, this teacher/version, fixed population and fixed R0; not evidence for new starting populations.",
+            "belief_id": "interval0-window-bounded-8-best-on-two-backgrounds-9-and-2-adverse",
+            "evidence_ids": [
+              "E009",
+              "E013",
+              "E001"
+            ],
+            "intervention": "Read the executed [8,7,5,3] against [7,7,5,3] and [7,8,5,3] as local interval-0 contrasts, and merged interval-0 settings 2, 3, 5, 7, 8 and 9 across all executed schedules.",
+            "next_action": "Hold interval-0=8 in any future composite and do not test 9 or 2 again this version.",
+            "observed_result": "[8,7,5,3] 3.624644 vs [7,7,5,3] 3.625916: -0.001272 gap and -0.000145 A condition. [7,8,5,3] 3.625909 is 0.001265 worse than [8,7,5,3]. [9,5,5,5] 3.651607 / 0.802095 A and [2,5,5,7] 3.668665 / 0.793259 A remain the adverse extremes; all 25/25 valid.",
+            "prior_judgment": "After round 3 interval-0=8 was best only on the [_,5,5,5] background; transfer to the interval-1 / interval-3 backgrounds was explicitly unresolved, while 9 and 2 were known adverse extremes.",
+            "revision": "Supported: interval-0=8 is the best tested setting and its gain transfers to a second, different background, while 9 and 2 degrade function sharply, so the usable window is 7-8 with 8 preferred.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "The band may carry no ranking information at all because every legal arm lies in a span under 0.003 A, leaving mean gap as the only axis and still subject to identity-tail structure.",
+            "applicability": "Current band definition and this teacher/version; the anchor moves only if a future arm lands materially below 0.793259 A.",
+            "belief_id": "condition-band-ample-and-guardrail-only-after-twenty-one-schedules",
+            "evidence_ids": [
+              "E001",
+              "E009",
+              "E013"
+            ],
+            "intervention": "Recomputed the pool condition minimum and ceiling over all executed shared schedules including the four round-5 anchors, and checked each anchor against the ceiling.",
+            "next_action": "Rank on mean absolute affinity gap, drop anything above 0.813259 A, and do not spend a slot on compensation; a 9-class interval-0 move is the only known way to consume margin.",
+            "observed_result": "Minimum 0.793259 A ([2,5,5,7]); ceiling 0.813259 A. Round-5 arms: [8,5,5,2] 0.796094, [8,7,5,2] 0.796094, [8,8,5,3] 0.795898, [7,8,5,3] 0.795935, all about 0.017 A inside; the widest arm [9,5,5,5] at 0.802095 is still 0.0112 A inside; every arm 25/25 valid.",
+            "prior_judgment": "The band was anchored at the pool minimum 0.793259 A with a 0.813259 A ceiling and condition was already non-discriminating after 14 schedules.",
+            "revision": "Supported: condition never discriminates among legal arms and no compensation or restoration partner is warranted; interval-3 decreases buy function at about 0.0002 A per tick without threatening the ceiling.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "An untested interval combination could in principle raise the top decile, but nothing across 21 schedules indicates it and the 0.62 pIC50 distance dwarfs every observed between-arm movement.",
+            "applicability": "This teacher/version and fixed population; not a claim that no reachable schedule could ever exceed teacher.",
+            "belief_id": "no-best-bonus-and-best-opposes-mean-gap",
+            "evidence_ids": [
+              "E004",
+              "E001",
+              "E009"
+            ],
+            "intervention": "Compared best pIC50 and best_minus_teacher across all executed shared schedules, including the four round-5 anchors and their condition records.",
+            "next_action": "Report Best separately and keep selection on mean gap with condition as a guardrail in any later allocation.",
+            "observed_result": "The pool maximum best 7.215729 sits on [9,5,5,5], whose mean gap 3.651607 is the worst among non-pathological arms; the frontier arm's best is about 0.6243 below teacher 7.837829, and valid_best_exceeds_teacher is false for every arm.",
+            "prior_judgment": "Best pIC50 had never exceeded teacher and the highest best belonged to a worse-mean arm, so Best was treated as a reported bonus only.",
+            "revision": "Supported: no Best-affinity bonus is reachable from this grid and Best can move opposite to mean agreement, so it must remain reported-only and must never justify a selected slot.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "The duplicate arrays may have been intended as joint probes from different anchors, but identical tick arrays under fixed R0 and common random streams cannot provide independent replication.",
+            "applicability": "Only the eight supplied proposals and the executed history in this version; says nothing about new populations or unexecuted amplitudes.",
+            "belief_id": "duplicate-proposals-and-exhausted-budget-close-this-round",
+            "evidence_ids": [
+              "E002",
+              "E006",
+              "E011",
+              "E016"
+            ],
+            "intervention": "Checked every supplied proposal array against the executed history and against the other supplied proposals before ranking.",
+            "next_action": "If any later allocation exists, run [8,5,5,1], [8,4,5,2], [8,6,5,2] and [8,6,5,3] once each, and never execute both G3:H2 and G4:H1.",
+            "observed_result": "G2:H1 is the array [8,5,5,2], identical to the already-executed G1 round-5 arm, and G3:H2 equals G4:H1 at [8,6,5,3]. The distinct unexecuted arrays are [8,5,5,1], [8,4,5,2], [8,7,5,1], [8,6,5,2], [8,6,5,3] and [7,7,5,2].",
+            "prior_judgment": "The round was known to be review-only with the sampling budget consumed, so proposals were archived intent rather than planned trials.",
+            "revision": "Supported: duplicate arrays are not independent evidence, and with 0 sampling rounds remaining the four selected proposals are the last record of intent rather than trials.",
+            "status": "supported"
+          }
+        ],
+        "public_memory": "v13 teacher 5nn4_SC2_A_1017__top1; 5/5 sampling rounds complete (0 remaining), 21 shared schedules executed, all 25/25 valid, fixed new R0 before update 10, protein-frame core atoms [7,9]; all statements are fixed-population and do not generalize to new starting populations. Condition band anchored at pool minimum 0.793259 A ([2,5,5,7]) with ceiling 0.813259 A; every legal arm is inside, so condition is a non-discriminating guardrail and mean absolute affinity gap decides. Frontier: [8,5,5,2] 3.624352 / 0.796094 A (best) < [8,5,5,3] 3.624416 / 0.795886 < [8,5,5,5] 3.624550 / 0.795479 < [8,7,5,2] 3.624578 / 0.796094 < [8,8,5,3] 3.624635 / 0.795898 ~ [8,7,5,3] 3.624644 / 0.795887 < [8,7,5,5] 3.624810 < [7,8,5,3] 3.625909 < [7,7,5,3] 3.625916 < [7,7,5,5] 3.626030; [2,5,5,7] 3.668665 is functionally worst despite holding the condition minimum. Responses: interval-0=8 is the large lever and transfers across backgrounds ([8,7,5,3] versus [7,7,5,3] = -0.001272 gap at -0.000145 A); 9 (+0.025379 gap, 0.802095 A) and 2 (+0.041 gap) are adverse extremes. Interval-3 is a small signed downward lever: 5->7 adverse +0.000123; 5->3 -0.000134 on [8,_,5,5]; 3->2 -0.0000648 there and about -0.000066 on [8,7,5,_]; steps halve, cost about +0.0002 A per tick, cumulative 5->2 -0.000198 at +0.000615 A, so the endpoint is at or just below 2. Interval-1 at interval-0=8: 5 is the best tested setting ([8,5,5,3] beats [8,7,5,3] by 0.000228 and [8,8,5,3] by about 0.00022; [8,5,5,5] beats [8,7,5,5] by 0.000260); 7 and 8 are flat-to-adverse; the region below 5 is untested on every background. Interval-2 is null (5->7 +0.000004). Best: pool maximum 7.215729 sits on [9,5,5,5], the worst-mean arm, every arm is at least 0.62 below teacher 7.837829, and valid_best_exceeds_teacher is false everywhere, so no Best bonus is reachable and Best never justifies a slot. Paired latest-minus-latest group deltas (E018-E023) span -5.6e-5 to -0.0016 pIC50 with win rates 0.32-0.52 and single draws to -0.025: few-identity structure, not schedule contrasts, and not used for ranking. Proposal hygiene: G2:H1 is [8,5,5,2], identical to the executed frontier arm, and G3:H2 equals G4:H1 at [8,6,5,3]; duplicates are not independent evidence. No compensation or restoration arm is warranted (frontier uses 0.017165 A of the 0.02 A allowance). Coordinates do not constrain chemistry, so any affinity movement is an indirect modelled effect.",
+        "ranked_proposal_ids": [
+          "G1:H1",
+          "G1:H2",
+          "G3:H1",
+          "G3:H2",
+          "G4:H1",
+          "G2:H2",
+          "G4:H2",
+          "G2:H1"
+        ],
+        "selected": [
+          {
+            "best_reason": "No bonus is claimed or needed: best pIC50 stays about 0.62 below teacher 7.837829 under every tested arm and the Best term does not enter this allocation.",
+            "condition_reason": "Expected 0.7961-0.7963 A, about 0.017 A inside the 0.813259 A ceiling; interval-3 decreases have cost only about 0.0002 A per tick and delivery was unclipped (clip_factor 1.0, clipped_fraction 0) in every prior arm, so no compensation partner is needed.",
+            "evidence_ids": [
+              "E001",
+              "E002",
+              "E003"
+            ],
+            "functional_reason": "Direct continuation of a signed edge that has held across three backgrounds: 5->7 adverse +0.000123, 5->3 -0.000134, 3->2 -0.0000648. Magnitude is flattening, so the residual expectation is small but same-signed.",
+            "mean_reason": "Best available chance at a new frontier minimum: a one-tick continuation of the measured downward interval-3 direction from the current leader [8,5,5,2] (3.624352). Predicted gap 3.62432-3.62435, i.e. -0.00000 to -0.00004 pIC50, so it either wins narrowly or holds the frontier by tie with signed ordering preserved.",
+            "proposal_id": "G1:H1",
+            "risk_and_uncertainty": "The step may already be flat or reverse at amplitude 1; the sub-milli ordering may be carried by a few identities; the evidence is fixed-population and fixed-R0, and with 0 sampling rounds remaining this is an archived suggestion rather than an executed trial."
+          },
+          {
+            "best_reason": "Reported only; no arm has exceeded teacher and this probe is not justified by a possible Best gain.",
+            "condition_reason": "Interval-1 condition effects at this background are 1e-5 to 2e-4 A, so the arm should sit near 0.796 A, roughly 0.017 A inside the ceiling.",
+            "evidence_ids": [
+              "E001",
+              "E002",
+              "E005"
+            ],
+            "functional_reason": "Tests whether interval-1=5 is a local optimum or whether moving toward lower amplitude recovers part of the 0.000228-0.000260 pIC50 advantage that 5 holds over 7 at interval-0=8.",
+            "mean_reason": "Genuinely two-sided probe (predicted -0.0002 to +0.0002 pIC50) that can both improve the frontier and close the interval-1 axis: 5 is the best tested setting at interval-0=8, but amplitudes 3-4 have never been probed on any background, making this the one reachable region whose optimum direction is still unknown.",
+            "proposal_id": "G1:H2",
+            "risk_and_uncertainty": "Could be flat or adverse; a change under 0.0001 leaves the direction unresolved rather than confirming it. It shares the interval-0=8 / interval-2=5 regime with the other selections and therefore does not diversify condition-risk exposure."
+          },
+          {
+            "best_reason": "No bonus; the teacher distance of about 0.62 pIC50 is unchanged and Best is not a ranking input.",
+            "condition_reason": "Expected within about +0.0005 A of the G3 anchor, roughly 0.7960-0.7965 A, still about 0.017 A inside the 0.813259 A ceiling.",
+            "evidence_ids": [
+              "E009",
+              "E010",
+              "E012",
+              "E001"
+            ],
+            "functional_reason": "Supplies the missing interval-1=6 interpolation on an interval-3=2 background, which the anchor value 8 cannot reach in one legal two-tick move; it is a joint contrast and must be labelled joint, not synergistic.",
+            "mean_reason": "Credible nearby contender on the frontier background: interval-1 8->6 moves toward the better-tested 5 while interval-3 sits at the frontier value 2, plausibly landing between 3.62442 and 3.62460 pIC50, i.e. at or just behind the leader rather than a redundant diagnostic.",
+            "proposal_id": "G3:H1",
+            "risk_and_uncertainty": "Joint two-interval change, so an effect cannot be attributed to interval-1 without the single reference [8,6,5,3] plus the executed [8,5,5,2]; the interval-1 signal is at identity-noise scale and interval-1=6 is also limited by the two-tick legality from anchor 8."
+          },
+          {
+            "best_reason": "No bonus; Best remains about 0.62 below teacher and is reported separately only.",
+            "condition_reason": "Predicted about 0.7959 A, essentially the [8,5,5,3] value and roughly 0.0174 A inside the 0.813259 A ceiling; interval-1 moves at this background cost about 1e-5 A.",
+            "evidence_ids": [
+              "E009",
+              "E011",
+              "E012",
+              "E005"
+            ],
+            "functional_reason": "Completes the 5/6/7/8 interval-1 ladder at interval-0=8 on a fixed interval-3=3 background and separates interval-1 from interval-3 contributions when read against [8,5,5,3], [8,7,5,3] and [8,6,5,2].",
+            "mean_reason": "Clean decision value: against the executed [8,5,5,3] it is a single interval-1 5->6 change, expected between 3.624416 and 3.624644 pIC50, which decides whether interval-1's optimum at 5 is discrete or a smooth slope and also gives the interval-3 2-versus-3 contrast when paired with G3:H1.",
+            "proposal_id": "G3:H2",
+            "risk_and_uncertainty": "This array is identical to G4:H1, so only one of the two may be executed and the pair cannot count as independent evidence; if G3:H1 already shows a smooth interval-1 response this arm is redundant, and it cannot diversify the shared interval-0=8 regime."
+          }
+        ]
+      },
+      "sha256": "8e08a28adfc257ab3602c3426ad00844d53fcfce8dac62158b306948306060a4"
+    },
+    "versions/v13/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/hypotheses.json": {
+      "data": {
+        "schema": "plip-group-hypotheses-v1",
+        "population_sha256": "9975604fe37811aa4b8044aecde6be5c3d0b025e731b568d08a0fd59a67bf4ee",
+        "common_sha256": "82f19f19e63daea77d53f2177102448057ebf60640354fb184d9caf24518af36",
+        "skill_sha256": "3064728f28e9c7f6471cca4c374a913ecd125b02ed4396ee7d2210f9565ffd1a",
+        "llm": {
+          "model": "deepseek-flash",
+          "key_env": "DEEPSEEK_API_KEY",
+          "thinking": true,
+          "reasoning_effort": "high",
+          "max_output_tokens": 98304,
+          "concurrency": 4,
+          "timeout": 600,
+          "attempts": 3,
+          "input_soft_bytes": 131072,
+          "input_hard_bytes": 524288
+        },
+        "citation_protocol": "private-evidence-alias-v1",
+        "max_format_repairs": 2,
+        "teacher_id": "5nn4_SC2_A_1017__top1",
+        "observed_round": 5,
+        "common_anchor_ticks": [
+          8,
+          5,
+          5,
+          2
+        ],
+        "population_diagnosis": "Version v13, teacher 5nn4_SC2_A_1017__top1; round 5 complete and the sampling budget is exhausted (5/5 rounds, 0 remaining), so both proposals below are archived, unexecuted suggestions rather than planned trials. 18 shared schedules have been executed, every one 25/25 valid under the fixed new R0 before update 10, protein-frame core atoms [7,9]. This group's round-5 arm [8,5,5,2] entered as the new functional frontier: gap 3.624352 pIC50, condition mean RMSD 0.796094 A, best 7.212426, versus the round-4 frontier [8,5,5,3] 3.624416 / 0.795886, a paired gain of -0.0000648 pIC50 at +0.000208 A. Cumulative interval-3 5->3->2 on the interval-0=8 background is -0.000198 pIC50 at +0.000615 A, i.e. each step is roughly half the previous one, so the downward interval-3 edge is flattening near 2 rather than reversing. Frontier ordering now: [8,5,5,2] 3.624352 < [8,5,5,3] 3.624416 < [8,5,5,5] 3.624550 < [8,7,5,3] 3.624644 < [8,7,5,5] 3.624810 < [7,7,5,3] 3.625916 < [7,7,5,5] 3.626030; [2,5,5,7] remains the functionally worst at 3.668665 despite holding the condition minimum. Condition band: pool minimum 0.793259 A ([2,5,5,7]), ceiling 0.813259 A; the frontier sits 0.002835 A above the minimum and 0.017165 A inside the ceiling, and the only wide arm is [9,5,5,5] at 0.802095 A. Condition is therefore a non-discriminating guardrail and mean absolute affinity gap decides; no compensation or restoration partner is warranted, and the interval-3 decreases raise condition monotonically without threatening the ceiling. Best pIC50 on the frontier is 7.212426, 0.625403 below teacher 7.837829, while the pool maximum 7.215729 sits on the worst-mean arm [9,5,5,5]; valid_best_exceeds_teacher is false everywhere, so no Best bonus is reachable and Best must not justify any slot. The supplied latest-versus-incumbent pairing (mean +0.001589, median +0.000579, win rate 0.76, 25/25 common-valid) remains a selection effect on output molecules, not a schedule result, and is not used for ranking. Residual uncertainty: the sub-milli schedule ordering may still rest on a few identities, interval-1 has never been probed below 5 on any background, and interval-2 remains null. With no sampling left I archive one plausible frontier improvement and one discriminating probe that names the decision it would settle.",
+        "memory_update": "Carry forward for this teacher/version only, fixed 25-candidate population and fixed R0: (1) interval-0 is the large-response axis, with 8 the best tested setting on [_,5,5,5] (3.624550), 9 adverse on both objectives (0.802095 A, 3.651607) and 2 strongly adverse (3.668665); (2) interval-3 is a small signed downward functional lever that transfers across backgrounds: 5->7 adverse +0.000123, 5->3 -0.000134 on [8,_,5,5] and -0.000114 on [7,7,5,5], then 3->2 -0.0000648 on [8,_,5,5], so the useful endpoint is at or below 2 with flattening magnitude; (3) interval-1 above 5/7 is not useful at interval-0=8 ([8,7,5,5] +0.000260 versus [8,5,5,5]; [7,8,5,5] +0.000020 versus [7,7,5,5]) and its behavior is background-dependent; the region below 5 is entirely untested; (4) interval-2 is null at 5->7 and untested elsewhere; (5) condition band is anchored at 0.793259 A with a 0.813259 A ceiling, the frontier uses 0.017165 A of margin, condition never discriminates among legal arms, and no compensation slot is justified; (6) no Best bonus exists (best 0.6254 below teacher, highest best on the worst-mean arm) and Best is reported-only; (7) mean-level ordering repeatedly rests on a few identities, so all findings are fixed-population statements that do not generalize to new starting populations, and coordinates do not constrain chemistry or affinity directly. Budget: 0 sampling rounds remain, so both archived proposals are the last record of intent, not evidence.",
+        "parents": [
+          {
+            "candidate_id": "b000:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 0,
+            "parent_ticks": [
+              5,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b000:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 0,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b000:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 0,
+            "parent_ticks": [
+              7,
+              6,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b000:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/shared_r0/5nn4_SC2_A_1017__top1",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 0,
+            "parent_ticks": [
+              5,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b000:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_04/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 0,
+            "parent_ticks": [
+              8,
+              7,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b001:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 1,
+            "parent_ticks": [
+              7,
+              7,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b001:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_04/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 1,
+            "parent_ticks": [
+              8,
+              7,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b001:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 1,
+            "parent_ticks": [
+              8,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b001:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_04/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 1,
+            "parent_ticks": [
+              8,
+              5,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b001:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 1,
+            "parent_ticks": [
+              2,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b002:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 2,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b002:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 2,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b002:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 2,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b002:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 2,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b002:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_04/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 2,
+            "parent_ticks": [
+              8,
+              7,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b003:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 3,
+            "parent_ticks": [
+              7,
+              7,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b003:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_04/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 3,
+            "parent_ticks": [
+              8,
+              7,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b003:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 3,
+            "parent_ticks": [
+              7,
+              7,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b003:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 3,
+            "parent_ticks": [
+              2,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b003:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/shared_r0/5nn4_SC2_A_1017__top1",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 3,
+            "parent_ticks": [
+              5,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b004:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 4,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b004:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 4,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b004:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 4,
+            "parent_ticks": [
+              3,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b004:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 4,
+            "parent_ticks": [
+              7,
+              6,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b004:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top1/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 4,
+            "parent_ticks": [
+              9,
+              5,
+              5,
+              5
+            ]
+          }
+        ],
+        "jobs": [
+          {
+            "id": "H1",
+            "ticks": [
+              8,
+              5,
+              5,
+              1
+            ],
+            "direction": "interval 3 amplitude 2 -> 1 (one tick down) on the current frontier background [8,5,5,2], all other intervals held at the action anchor",
+            "exploration_degree": "fine one-tick continuation inside the legal interval-3 window 0-4; deliberately below the default two-tick step because the last measured step (3->2) was already about half the previous one, so the residual signal is sub-milli",
+            "hypothesis": "The interval-3 downward functional response continues one more tick: lowering late guidance from 0.2 to 0.1 amplitude further reduces mean absolute affinity gap by a few 1e-5 pIC50 while raising terminal core RMSD by about 1e-4 A, so [8,5,5,1] stays first on the frontier with a slightly wider condition footprint.",
+            "expected_mean_effect": "Gap 3.624352 -> roughly 3.62432-3.62435 pIC50, i.e. between -0.00000 and -0.00004; if the step is already flat the mean gap stays within a few 1e-5 of the incumbent and the arm holds the frontier by tie rather than by gain.",
+            "expected_best_effect": "No bonus: best stays near 7.2124, about 0.6254 below teacher 7.837829, and valid_best_exceeds_teacher remains false; the Best term does not enter this allocation.",
+            "expected_condition_effect": "Mean condition RMSD rises by about +0.0001 to +0.0002 A to roughly 0.7961-0.7963 A, still about 0.017 A inside the 0.813259 A ceiling; clip_factor 1.0 and clipped_fraction 0 are expected as in every prior arm, so no compensation partner is needed.",
+            "expected_functional_effect": "A further small signed gap improvement of the same sign as 5->3 (-0.000134) and 3->2 (-0.000065), but at or below the 3->2 magnitude; this is a continuation of a measured direction, not a new mechanism.",
+            "expected_subgroup_response": "Interval-3 effects so far were fixed-population mean effects at the 1e-4 scale with median and top10 mean essentially untouched; expect a few identities to carry the sign and the median to move less than the mean, so the result must be read as fixed-population, not as a score-wide shift.",
+            "diagnostic_alternative": "A flat or reversed outcome would say the interval-3 optimum is at 2 and that further late-amplitude decreases are retired for this version; it would not close interval-3 upward (5->7 stayed adverse) and says nothing about intervals 1 and 2.",
+            "revision_from_previous_result": "Round 4 expected the 3->2 step to be small and it delivered -0.0000648 pIC50 at +0.000208 A, roughly half the 5->3 step, so I now expect 2->1 to be smaller still rather than equal, and I hold the endpoint at 2 as the plausible optimum rather than assuming open-ended improvement.",
+            "falsifier": "If mean gap does not fall below 3.624352, or condition rises by more than about 0.0005 A while delivered interval-3 guidance falls unclipped, the downward interval-3 edge has reached its endpoint at 2 and further decreases are retired for this version.",
+            "evidence_ids": [
+              "tool:0c99c67e5865fc0ab1739e72c7c9c69788b61299ac55239fce9015a9c8387c5a",
+              "tool:f7dde0abaa08aac6c804cf9d6a208be62a2b968b08ffa08d08f4ec0d192b5ce9"
+            ],
+            "reference_ticks": [
+              8,
+              5,
+              5,
+              2
+            ],
+            "experiment_purpose": "exploit",
+            "search_mode": "local",
+            "scale_reason": "One tick, a single changed interval, inside the legal interval-3 window 0-4 and inside the two-tick default; no range expansion, no coarse jump, fine grid remains 0.1 amplitude.",
+            "candidates": 25,
+            "ticks_for_all_candidates": [
+              8,
+              5,
+              5,
+              1
+            ],
+            "earliest_common_restart": 10,
+            "per_candidate_restart_steps": [
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10
+            ],
+            "parent_population_sha256": "6a55636ab12552deb2751b23cba3c9e72e2c9444c4505823c2df469d29dfdf6b"
+          },
+          {
+            "id": "H2",
+            "ticks": [
+              8,
+              4,
+              5,
+              2
+            ],
+            "direction": "interval 1 amplitude 5 -> 4 (one tick down) at the current frontier background, all other intervals held at the action anchor",
+            "exploration_degree": "single-interval one-tick contrast against the executed shared reference [8,5,5,2]; local move inside the legal interval-1 window 3-7, chosen as the untested side of an axis whose upper side has already been bounded",
+            "hypothesis": "At interval-0=8 the useful interval-1 setting is at or below 5 rather than above it: raising interval-1 to 7 cost +0.000260 pIC50 on this background, so lowering it to 4 may recover part of that loss by moving toward, not away from, the local optimum.",
+            "expected_mean_effect": "Genuinely two-sided: gap 3.624352 -> roughly 3.6242-3.6246 pIC50, i.e. -0.0002 to +0.0002, because interval-1 has never been probed below 5 at any interval-0 background and the local curvature is unknown.",
+            "expected_best_effect": "No bonus: best remains near 7.2124, more than 0.62 below teacher, and the Best term stays reported-only.",
+            "expected_condition_effect": "Within about ±0.0005 A; every measured interval-1 condition effect at this background has been sub-0.0002 A ([8,7,5,5] was -0.000008 A versus [8,5,5,5]), so the arm should sit near 0.796 A and far inside the 0.813259 A ceiling.",
+            "expected_functional_effect": "A small signed change of order 2e-4 pIC50 in either direction; the value is in resolving the direction of interval-1's optimum at interval-0=8, not in a promised gain.",
+            "expected_subgroup_response": "Interval-1 arms have repeatedly shown few-identity sign structure ([7,7,5,5] versus [7,5,5,5] was -0.000198 with quartile sign disagreement), so expect a small group mean with a wider per-identity spread and no median confirmation; the group mean decides.",
+            "diagnostic_alternative": "If [8,4,5,2] is worse than [8,5,5,2], interval-1=5 is a local optimum at interval-0=8 and both directions of that axis are closed this version; if it is better by more than 0.0002, interval-1 downward becomes the next frontier lever instead of further interval-3 decreases. It also separates a real amplitude law from pure identity structure, since 4 is a fresh setting rather than a repeat of 5 or 7.",
+            "revision_from_previous_result": "Round 4 retired interval-1 upward scaling after [8,7,5,5] came in +0.000260 worse than [8,5,5,5]; that result bounds the edge only above 5 and does not test the interior below it, so instead of repeating 7 or 8 I switch the probe to the untested downward side at the frontier background.",
+            "falsifier": "If mean gap is at or above 3.624352 by more than about 0.0002 pIC50 with condition unchanged, interval-1=5 is locally optimal at interval-0=8 and the axis is closed for this version; a change under 0.0001 leaves the direction unresolved rather than confirming it.",
+            "evidence_ids": [
+              "tool:0c99c67e5865fc0ab1739e72c7c9c69788b61299ac55239fce9015a9c8387c5a",
+              "tool:f7dde0abaa08aac6c804cf9d6a208be62a2b968b08ffa08d08f4ec0d192b5ce9",
+              "tool:17dcdc98d1c08020bd94caa920431725caba8e4304dec67def8e1cdb969158e4"
+            ],
+            "reference_ticks": [
+              8,
+              5,
+              5,
+              2
+            ],
+            "experiment_purpose": "direction_probe",
+            "search_mode": "local",
+            "scale_reason": "One tick, a single changed interval, inside the legal interval-1 window 3-7 and inside the two-tick default; no range probe is available (max_range_probes 0) and none is needed.",
+            "candidates": 25,
+            "ticks_for_all_candidates": [
+              8,
+              4,
+              5,
+              2
+            ],
+            "earliest_common_restart": 10,
+            "per_candidate_restart_steps": [
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10
+            ],
+            "parent_population_sha256": "6a55636ab12552deb2751b23cba3c9e72e2c9444c4505823c2df469d29dfdf6b"
+          }
+        ],
+        "group_id": "G1",
+        "candidate_attempts_if_executed": 50,
+        "llm_turns": 1,
+        "planning_only": true,
+        "gpu_executed": false,
+        "execution_requires": "fixed new R0 step10, validated common-random physical batch, quality-before-prune",
+        "learning_update": [
+          {
+            "belief_id": "frontier-moves-to-8-5-5-2-after-interval3-continuation",
+            "prior_judgment": "After round 4 the best shared schedule was [8,5,5,3] at gap 3.624416 and condition 0.795886 A, and interval-3 3->2 was untested; the 5->3 step had been -0.000134 pIC50 at +0.000408 A on the interval-0=8 background.",
+            "intervention": "Executed shared schedule [8,5,5,2] with the fixed new R0 before update 10 and 25 common-valid candidates, read against the executed [8,5,5,3] reference; single interval-3 change, no array re-executed.",
+            "observed_result": "[8,5,5,2]: gap 3.624352 pIC50, condition 0.796094 A, best 7.212426, 25/25 valid. Versus [8,5,5,3]: gap -0.0000648 pIC50, condition +0.000208 A. Cumulative 5->3->2 from [8,5,5,5]: -0.000198 pIC50 at +0.000615 A.",
+            "revision": "Supported: the interval-3 downward functional response continues at the frontier background but at roughly half the previous step, so the useful optimum is at or just below 2 and the axis is flattening rather than reversing. [8,5,5,2] becomes the functional frontier and [8,5,5,3] and [8,5,5,5] are no longer best.",
+            "next_action": "Name [8,5,5,2] as the version's best shared schedule and archive H1 [8,5,5,1] as the only further continuation; do not spend budget on interval-3 increases, which were adverse at 5->7.",
+            "applicability": "This teacher/version, fixed 25-candidate population, fixed R0, core atoms [7,9], interval-3 2-5 on an interval-0=8 background; no claim about new starting populations or unexecuted amplitudes.",
+            "alternative_explanation": "The -0.0000648 could be one identity's stream structure rather than a smooth interval-3 law, since all measured interval-3 effects sit at the 1e-4 scale where mean-level ordering has repeatedly rested on a few identities.",
+            "status": "supported",
+            "evidence_ids": [
+              "tool:0c99c67e5865fc0ab1739e72c7c9c69788b61299ac55239fce9015a9c8387c5a",
+              "tool:f7dde0abaa08aac6c804cf9d6a208be62a2b968b08ffa08d08f4ec0d192b5ce9"
+            ]
+          },
+          {
+            "belief_id": "interval1-below-5-untested-at-interval0-8",
+            "prior_judgment": "Interval-1 5->7 was small-favourable at interval-0=5 (-0.000306) and stacked at interval-0=7 (-0.000198) but was untested at interval-0=8; the round-4 reading retired interval-1 upward scaling there.",
+            "intervention": "Read round-4 [8,7,5,5] against [8,5,5,5] and [7,8,5,5] against [7,7,5,5] as local interval-1 contrasts, then checked which legal interval-1 settings remain unexecuted at interval-0=8.",
+            "observed_result": "[8,7,5,5] 3.624810 versus [8,5,5,5] 3.624550: +0.000260 pIC50 and -0.000008 A condition. [7,8,5,5] 3.626050 versus [7,7,5,5] 3.626030: +0.000020 pIC50 and -0.000098 A. No executed arm anywhere has interval-1 below 5 on any interval-0 background; [8,4,5,2] is unexecuted.",
+            "revision": "Unresolved and now one-sided: the preference at interval-0=8 points downward from 7, and 5 is the best tested setting there, but the region 3-4 has never been probed on any background, so the axis is bounded above and open below rather than closed.",
+            "next_action": "Archive H2 [8,4,5,2] as the probe that would decide whether interval-1=5 is a local optimum at interval-0=8 or whether the optimum lies lower; do not re-propose 7 or 8 on this background.",
+            "applicability": "Interval-1 amplitudes 3-8 at interval-0 backgrounds 5-8, this teacher/version and fixed population; no statement about new populations or about two-interval interaction with interval-2.",
+            "alternative_explanation": "The +0.000260 penalty could reflect an interaction with interval-0=8 rather than interval-1 curvature, in which case lowering interval-1 might be neutral or adverse too and the axis would be flat in both directions.",
+            "status": "unresolved",
+            "evidence_ids": [
+              "tool:0c99c67e5865fc0ab1739e72c7c9c69788b61299ac55239fce9015a9c8387c5a",
+              "tool:17dcdc98d1c08020bd94caa920431725caba8e4304dec67def8e1cdb969158e4"
+            ]
+          },
+          {
+            "belief_id": "condition-band-ample-guardrail-only-after-eighteen-schedules",
+            "prior_judgment": "The band was anchored at the pool minimum 0.793259 A ([2,5,5,7]) with a 0.813259 A ceiling; all 14 then-executed arms were inside and condition was already non-discriminating.",
+            "intervention": "Recomputed the pool minimum and ceiling over all 18 executed shared schedules, including the round-5 arm [8,5,5,2], and compared the frontier against both bounds and against the widest legal arm.",
+            "observed_result": "Minimum unchanged at 0.793259 A; ceiling 0.813259 A. [8,5,5,2] is 0.796094 A, 0.002835 A above the minimum and 0.017165 A inside the ceiling; [8,5,5,3] 0.795886 and [8,5,5,5] 0.795479. Widest arm remains [9,5,5,5] at 0.802095 A; all arms 25/25 valid. Interval-3 decreases raise condition monotonically (0.795479 -> 0.795886 -> 0.796094 A).",
+            "revision": "Supported: condition stays ample and non-discriminating, and the interval-3 refinement spends only 0.000615 A of margin, so mean absolute gap decides and no compensation or restoration partner is warranted. Condition would only become binding if a further 9-class interval-0 move were attempted.",
+            "next_action": "Rank strictly on mean gap with condition as a flag above 0.813259 A; do not allocate any remaining slot to compensation in this version.",
+            "applicability": "Current band definition and this teacher/version over the 18 executed schedules; the anchor moves only if a future arm lands materially below 0.793259 A.",
+            "alternative_explanation": "Because every legal arm lies in a narrow span, the band may carry no ranking information at all, in which case the gap itself is the only axis and remains subject to identity-tail structure.",
+            "status": "supported",
+            "evidence_ids": [
+              "tool:0c99c67e5865fc0ab1739e72c7c9c69788b61299ac55239fce9015a9c8387c5a",
+              "tool:f7dde0abaa08aac6c804cf9d6a208be62a2b968b08ffa08d08f4ec0d192b5ce9",
+              "tool:856e22058f4b26859f5355f21ae621bbeab35df01c695ddfceb85536b18357ea"
+            ]
+          },
+          {
+            "belief_id": "no-best-bonus-and-best-decoupled-from-mean-gap-after-round5",
+            "prior_judgment": "Maximum best pIC50 was 7.215729 on [9,5,5,5], the worst-mean arm; the round-4 frontier best was 7.212426 and every arm sat more than 0.62 below teacher 7.837829.",
+            "intervention": "Compared best pIC50, top10 mean and best_minus_teacher across all 18 executed shared schedules, including the round-5 frontier arm [8,5,5,2].",
+            "observed_result": "[8,5,5,2] best 7.212426, best_minus_teacher -0.625403; [8,5,5,3] has the same best 7.212426; [8,7,5,3] 7.213697; pool maximum 7.215729 remains on [9,5,5,5] with the worst mean gap 3.651607 and mean affinity 4.186221. valid_best_exceeds_teacher is false in every arm; best spans 0.0060 pIC50 across arms while the mean gap spread is under 0.002.",
+            "revision": "Supported and unchanged: no Best bonus is reachable from this grid, and Best remains decoupled from mean agreement, so it must be reported only and must never justify a selected slot.",
+            "next_action": "Select and report on mean absolute affinity gap with condition as guardrail; report Best separately as an unavailable bonus.",
+            "applicability": "This teacher/version and fixed population; not a claim that no reachable schedule could ever exceed teacher.",
+            "alternative_explanation": "A different interval combination could in principle raise the top decile, but no tested arm gives a positive indication and the 0.62 distance dwarfs every observed between-arm movement.",
+            "status": "supported",
+            "evidence_ids": [
+              "tool:17dcdc98d1c08020bd94caa920431725caba8e4304dec67def8e1cdb969158e4",
+              "tool:0c99c67e5865fc0ab1739e72c7c9c69788b61299ac55239fce9015a9c8387c5a",
+              "tool:f7dde0abaa08aac6c804cf9d6a208be62a2b968b08ffa08d08f4ec0d192b5ce9"
+            ]
+          },
+          {
+            "belief_id": "incumbent-advantage-is-selection-not-a-clean-edge",
+            "prior_judgment": "The incumbent is a selected output population rather than a shared schedule or generation parent, so its affinity advantage cannot be attributed to any guidance interval; earlier pairings had shown broad win rates.",
+            "intervention": "Read the supplied paired comparison of latest ([8,5,5,2] family) against the selected incumbent over 25 common-valid candidates, alongside the shared-schedule group deltas.",
+            "observed_result": "B-minus-A mean +0.001589 pIC50, median +0.000579, win rate 0.76, q10 -0.000124, q90 +0.002272, max +0.019901, min -0.000323; 25/25 common-valid with no validity conversions.",
+            "revision": "Unresolved: the advantage is broad enough not to be purely tail structure, yet it is a selection effect on output molecules and cannot be executed, promoted or attributed to any interval, so it is excluded from ranking.",
+            "next_action": "Do not treat the incumbent as a schedule or target; rank only shared schedules and keep describing tail structure without dropping identities to improve a mean.",
+            "applicability": "This fixed 25-candidate population under common random streams and fixed restarts; non-causal by construction and not evidence for new starting populations.",
+            "alternative_explanation": "The pairing may partly reflect coupling between a selected subset and the affinity stream rather than selection pressure on the population, which would make the magnitude unstable across rounds.",
+            "status": "unresolved",
+            "evidence_ids": [
+              "tool:1e19aad7466636168766af8c0255c76da0549a8f595ef14b4c2a97bde1c6fb1f",
+              "tool:0c99c67e5865fc0ab1739e72c7c9c69788b61299ac55239fce9015a9c8387c5a"
+            ]
+          }
+        ],
+        "version": "v13",
+        "parent_policy": "Every proposal restarts the same new R0 before update 10. Incumbent is output only."
+      },
+      "sha256": "2c4616b5909403077847baf303937233d1dc89f7819c21c829cd9ddf95e88cdc"
+    },
+    "versions/v13/5nn4_SC2_A_1017__top2/round_05/council/synthesis.json": {
+      "data": {
+        "comparison": "Band rule: pool-minimum group mean RMSD remains 1.902172 A at [7,5,5,7], so the 0.02 A band is [1.882172,1.922172] A; every round-5 anchor is inside. Mean-affinity absolute-gap frontier is flat: [1,5,1,5] 3.2017266 at condition 1.9195686 A and Best 7.218740; [1,5,3,5] 3.2017422 at 1.9193369 A; [1,5,5,5] 3.2017520 at 1.9190921 A; [1,6,5,5] 3.2017662 at 1.9188276 A; [1,7,3,5] 3.201777 at 1.918910 A; [1,7,3,7] 3.201830 at 1.918304 A. Best is a separate in-band branch: [3,7,5,7] 7.224152 and [3,5,5,5] 7.223794, both at mean gaps about 3.2185-3.2191. [0,5,5,5] is band-ineligible at 1.944389 A and cannot be ranked as improvement. Interval 0 is the only demonstrated functional lever: 5->3 +0.029243 gap, 3->1 +0.016732, transfer to [.,7,.,7] +0.028906; zero guidance buys only 0.004048 at +0.025297 A and exits band. Interval 2 is a monotone shrinking micro-tradeoff: amplitude 1/3/5 at [1,5,.,5] give gaps 3.2017266/3.2017422/3.2017520 and conditions 1.9195686/1.9193369/1.9190921 A; 5->3 and 3->1 each cost about 0.00023-0.00025 A condition for about 1e-5-1.6e-5 mean gain. Interval 1 high is only a condition-favourable micro-edge (-0.00043 A at +3.1e-5 gap; replicate -0.00044 A). Interval 3 is inert at two backgrounds. No supplied array has a demonstrated mean improvement over [1,5,1,5]; selected arrays are decision-value probes: one Best-branch/mean-low combination, one near-tie interval-2 refinement, one compensation composition, and one interval-2 low-transfer test. Fixed-population orderings are not generalization claims to new starting populations.",
+        "failure_directions": "G2:H1 [3,5,1,5] fails as a Best-side Pareto probe if Best <=7.2190 or condition >1.922172 A; a mean gap near 3.2184 confirms the expected Best-versus-mean tradeoff rather than mean improvement. G1:H1 [1,5,2,5] fails as a mean-leader refinement if gap >=3.201742 or condition >1.922172 A; a flat result bounds interval-2 amplitude 2 at [1,5,.,5]. G2:H2 [1,7,1,5] fails as compensation if condition does not fall below 1.9195686 A while gap worsens >=0.0005 versus [1,5,1,5], or if condition >1.922172 A; composition failure shows interval-1 high cannot protect the mean leader's thin margin. G4:H1 [1,7,1,7] fails interval-2 low transfer if gap >=3.201830 or condition >1.922172 A versus [1,7,3,7]. G1:H2 [3,7,3,5] fails as Best-side contender if Best <=7.223794 or condition >1.922172 A; a mean gap >=3.219 confirms the Best branch requires the interval-0=3 tradeoff. G4:H2 [1,5,3,7] fails interval-1 low transfer if gap >=3.201830 or condition >1.922172 A. G3:H2 [1,6,3,5] fails if gap >=3.201766 or condition >1.922172 A versus [1,6,5,5]. G3:H1 [1,5,4,5] fails interpolation if gap >=3.201766 or condition >1.922172 A. More broadly, if all interval-2 probes are flat, only the tested backgrounds and amplitudes are bounded, not global interval-2 inertness; no supplied array reaches a lower mean than [1,5,1,5] with demonstrated support.",
+        "learning_update": [
+          {
+            "alternative_explanation": "Differences of 1e-5 to 1e-4 may be fixed-population detail, so the robust claims are only band eligibility, the band-ineligible zero-interval-0 schedule, and the separate Best branch.",
+            "applicability": "Teacher v13, fixed 25-candidate population, current band anchor and tested backgrounds; fixed-population ordering is not evidence about new starting populations.",
+            "belief_id": "band_frontier_flat_after_round5_v13",
+            "evidence_ids": [
+              "E001",
+              "E005",
+              "E009",
+              "E012"
+            ],
+            "intervention": "Applied the configured 0.02 A band anchored to tested-pool minimum 1.902172 A and compared all four round-5 anchors plus cached schedules, ordering inside-band schedules by mean affinity absolute gap and tracking Best separately.",
+            "next_action": "Archive Best-side and near-tie probes separately; do not claim any supplied array as a demonstrated mean improvement. Report that final arrays are unexecuted suggestions because remaining sampling rounds are 0.",
+            "observed_result": "Band is [1.882172,1.922172] A; all round-5 anchors are inside. Mean gaps: [1,5,1,5] 3.2017266 at 1.9195686 A and Best 7.218740; [1,5,3,5] 3.2017422 at 1.9193369 A; [1,5,5,5] 3.2017520 at 1.9190921 A; [1,6,5,5] 3.2017662 at 1.9188276 A; [1,7,3,5] 3.201777 at 1.918910 A; [1,7,3,7] 3.201830 at 1.918304 A. Best branch: [3,7,5,7] 7.224152 and [3,5,5,5] 7.223794, both at gaps about 3.2185-3.2191. [0,5,5,5] is outside at 1.944389 A.",
+            "prior_judgment": "The in-band mean frontier was already near-flat after round 4, led by [1,5,3,5] at 3.201742, with [3,7,5,7] and [3,5,5,5] holding the Best bonus inside the band.",
+            "revision": "The mean frontier is effectively flat inside the band; [1,5,1,5] leads by only 1.56e-5 over [1,5,3,5]. Preserve signed ordering without an equivalence threshold, do not revert to lowest-RMSD ranking, and treat Best as a separate interval-0=3 Pareto branch.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "The small signed changes may reflect terminal Hungarian-correspondence absorbency or candidate-pair concentration rather than a large dynamical role.",
+            "applicability": "Teacher v13, fixed population, [1,5,.,5] background and tested amplitudes 1-5; conclusions are background-specific.",
+            "belief_id": "interval2_low_edge_amplitude1_measured_v13",
+            "evidence_ids": [
+              "E005",
+              "E006",
+              "E007",
+              "E008"
+            ],
+            "intervention": "Joined round-5 executed [1,5,1,5] with cached [1,5,3,5] and [1,5,5,5] to complete a three-point interval-2 bracket at the [1,5,.,5] background under fixed R0 and common random streams.",
+            "next_action": "Hold interval 2 at 1 for mean-side probes and at 3 when a little condition margin is worth about 1.5e-5 gap; do not extrapolate through zero because zero-guidance regime risk remains untested for interval 2.",
+            "observed_result": "Amplitudes 1/3/5 give mean absolute gaps 3.2017266/3.2017422/3.2017520 and conditions 1.9195686/1.9193369/1.9190921 A. Going 5->3 cost +0.000245 A for -1.0e-5 gap; 3->1 cost +0.000232 A for -1.56e-5 gap. All 25/25 valid.",
+            "prior_judgment": "Interval 2 was a micro but consistently signed tradeoff; amplitude 1 was the last untested interior low point and carried regime-change risk near zero guidance.",
+            "revision": "Interval 2 is a monotone but rapidly shrinking mean-favouring lever: the entire legal 1-5 range is worth about 2.6e-5 mean gap and about 0.0005 A condition, far too small to move a schedule across the band. Amplitude 1 is measured, not hypothetical.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "The zero-boundary condition jump could be a narrow trajectory-regime effect, and an interior amplitude such as 2 might retain more fidelity, though it would still trail 1 on the measured mean edge.",
+            "applicability": "Teacher v13, fixed population, background [.,5,5,5] and related interval-0 regimes; not a general statement about other teachers or amplitudes.",
+            "belief_id": "interval0_axis_exhausted_near1_zero_ineligible_v13",
+            "evidence_ids": [
+              "E001",
+              "E005",
+              "E009"
+            ],
+            "intervention": "Reviewed executed [0,5,5,5] versus [1,5,5,5] and the interval-0 series under fixed R0 and common random streams, including transfer to [.,7,.,7].",
+            "next_action": "Keep interval 0 fixed at 1 in mean-frontier probes and at 3 only in explicit Best-side Pareto probes; do not propose [0,...] standalone without a named compensation source.",
+            "observed_result": "[0,5,5,5] gap 3.197704 versus 3.201752 at [1,5,5,5], a gain of only 0.004048, but condition rose to 1.944389 A, outside the 1.922172 A upper band by 0.022217 A. Interval-0 5->3 gained 0.029243, 3->1 gained 0.016732, and transfer to [.,7,.,7] gained 0.028906 with Best rising to 7.224152.",
+            "prior_judgment": "Interval 0 was the only demonstrated functional lever with diminishing returns from 5 to 3 and 3 to 1; the 1->0 boundary was the open question with zero-guidance regime risk.",
+            "revision": "Zero early guidance is not a usable frontier improvement: a tiny mean gain does not rescue a band-ineligible condition. Hold interval 0 at 1 for mean schedules; interval-0=3 remains only a separate Best-side branch.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "Terminal correspondence absorbency or candidate concentration could explain the near-null functional result; the condition direction is small but consistent.",
+            "applicability": "Teacher v13, fixed population, backgrounds with interval 0 at 1 and interval 2 at 5; not a general statement about interval 1.",
+            "belief_id": "interval1_condition_micro_only_v13",
+            "evidence_ids": [
+              "E005",
+              "E007",
+              "E009"
+            ],
+            "intervention": "Compared [1,7,5,5] with [1,5,5,5] and replicated interval-1 5->7 at [5,5,5,7] with [5,7,5,7] versus [5,5,5,7].",
+            "next_action": "Use interval 1 only as a margin edge against a matched reference. Do not spend a standalone slot on interval-1 refinement; if interval-1 low is tested, label it a direction question, not compensation.",
+            "observed_result": "At [1,.,.,.], interval-1 high changed mean gap by +3.1e-5 (slightly worse) and condition by about -0.00043 A (better). The replicate gave +0.00015 mean gap and -0.00044 A condition. All 25/25 valid. No executed schedule tests interval-1 low.",
+            "prior_judgment": "Interval 1 had been retired as a standalone functional direction but retained as a possible condition-favourable micro-edge against a matched reference.",
+            "revision": "Interval 1 high is at most a condition-favourable micro-edge, mean-neutral to slightly costly, consistent at two backgrounds. It is not a standalone functional lever; interval-1 low remains an open direction, not evidence of inertness.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "The terminal Hungarian-injective correspondence can absorb small terminal perturbations, so the near-zero deltas bound the tested edge rather than all possible interval-3 roles.",
+            "applicability": "Amplitude 5-7 at backgrounds [5,5,5,.] and [7,5,5,.]; not proof of inertness outside that amplitude or under simultaneous changed earlier intervals.",
+            "belief_id": "interval3_inert_hold_fixed_v13",
+            "evidence_ids": [
+              "E001",
+              "E005",
+              "E013"
+            ],
+            "intervention": "Replicated interval-3 5->7 at a second interval-0 background and reviewed all executed schedules for further interval-3 variation.",
+            "next_action": "Keep interval 3 at 5 or 7 in all final suggestions and do not spend a slot on its fine grid.",
+            "observed_result": "Interval-3 5->7 changed condition by -0.00062 A and mean absolute gap by +0.00012 at [7,5,5,.], matching about -0.00065 A and +9.3e-5 at [5,5,5,.]; 25/25 valid in both. No other interval-3 amplitude has been executed.",
+            "prior_judgment": "The terminal guidance interval was expected to be a close lever on scored terminal geometry and teacher affinity, but prior tests already suggested it might be inert.",
+            "revision": "Standalone interval-3 amplitude is not a usable terminal lever at two backgrounds for either primary condition or mean agreement. Hold interval 3 fixed in combination probes unless an explicit interaction question is stated.",
+            "status": "supported"
+          },
+          {
+            "alternative_explanation": "The 7.224 maxima may be tied to interval-1/interval-3=7 backgrounds or to a single-candidate identity effect, in which case interval-0=3 with interval-2=1 will not reproduce the Best gain; likewise the compensation edge may not compose.",
+            "applicability": "Teacher v13, fixed 25-candidate population, final review-only phase; conclusions are background-specific and not generalization claims.",
+            "belief_id": "best_branch_and_compensation_unresolved_v13",
+            "evidence_ids": [
+              "E005",
+              "E009",
+              "E012",
+              "E013"
+            ],
+            "intervention": "Checked whether any executed schedule combines interval-0=3 with interval-2=1, and reviewed available compensation capacity against the mean leader's margin and the zero-guidance cliff.",
+            "next_action": "Archive G2:H1 as the Best-branch/mean-low combination probe, G2:H2 as the compensation-composition probe, and G1:H2 as a distinct Best-side combination. Do not treat any of them as executed evidence or as guaranteed improvement.",
+            "observed_result": "Best-side leaders remain [3,7,5,7] 7.224152 and [3,5,5,5] 7.223794 inside the band. No executed schedule combines interval-0=3 with interval-2=1. The mean leader [1,5,1,5] has condition 1.9195686 A, margin 0.002603 A; measured interval-1 high restoration is about 0.0004 A, while the zero-guidance condition cost was 0.022-0.025 A.",
+            "prior_judgment": "The Best branch required interval-0=3, and the mean leader's condition margin had narrowed while only interval-1 high offered a small restorative edge.",
+            "revision": "The Best branch and the interval-2 low edge can now be combined legally from [1,5,1,5], but this is an unexecuted Pareto question. Compensation capacity is unproven and cannot be assumed protective against a tail candidate crossing the band edge. No supplied array has a demonstrated mean improvement over [1,5,1,5].",
+            "status": "unresolved"
+          }
+        ],
+        "public_memory": "Teacher 5nn4_SC2_A_1017__top2, v13, fixed 25-candidate population; all four round-5 groups valid 25/25. Condition band [1.882172,1.922172] A anchored to pool-minimum group mean RMSD 1.902172 A at [7,5,5,7]. Mean frontier is flat: [1,5,1,5] gap 3.2017266, condition 1.9195686 A, Best 7.218740, margin 0.002603 A; [1,5,3,5] 3.2017422/1.9193369; [1,5,5,5] 3.2017520/1.9190921; [1,6,5,5] 3.2017662/1.9188276; [1,7,3,5] 3.201777/1.918910; [1,7,3,7] 3.201830/1.918304. Best branch separate and interval-0=3: [3,7,5,7] Best 7.224152 gap 3.219066; [3,5,5,5] Best 7.223794 gap 3.218484. [0,5,5,5] condition 1.944389 A is band-ineligible despite gap 3.197704. Interval 0 is the only demonstrated functional lever: 5->3 +0.029243, 3->1 +0.016732, transfer to [.,7,.,7] +0.028906; zero guidance costs +0.025297 A condition and exits band, so hold interval 0=1 for mean, 3 only for Best branch. Interval 2 at [1,5,.,5] is monotone shrinking: amplitudes 1/3/5 give gap 3.2017266/3.2017422/3.2017520 and condition 1.9195686/1.9193369/1.9190921 A; 5->3 costs +0.000245 A for -1.0e-5, 3->1 costs +0.000232 A for -1.56e-5. Entire legal 1-5 range is worth about 2.6e-5 mean and 0.0005 A condition; low favours mean, high favours condition. Interval 1 high is condition-favourable micro-edge only: -0.00043 A at +3.1e-5 gap, replicate -0.00044 A at +0.00015; interval-1 low untested. Interval 3 inert at two backgrounds: -0.00062 A/+0.00012 and -0.00065 A/+9.3e-5; hold fixed. No supplied array has demonstrated mean improvement over [1,5,1,5]. The Best branch has never been combined with interval-2=1; G2:H1 [3,5,1,5] is the relevant archived Pareto probe, and G1:H2 [3,7,3,5] is a distinct Best-side combination. G2:H2 [1,7,1,5] tests whether interval-1 high composes with interval-2 low; compensation capacity is unproven because the only measured edge is about 0.0004 A versus a 0.022-0.025 A zero-guidance cliff. Final-round arrays are archive-only suggestions, not executed evidence.",
+        "ranked_proposal_ids": [
+          "G2:H1",
+          "G1:H1",
+          "G2:H2",
+          "G4:H1",
+          "G1:H2",
+          "G4:H2",
+          "G3:H2",
+          "G3:H1"
+        ],
+        "selected": [
+          {
+            "best_reason": "Expected Best about 7.224, matching interval-0=3 references 7.223794 at [3,5,5,5] and 7.224152 at [3,7,5,7]. Tests whether the Best advantage survives with interval 2 at its mean-favouring low edge of 1.",
+            "condition_reason": "Interval-0 1->3 measured about -0.0003 A condition at [.,5,5,5], while interval-2 3->1 measured +0.000232 A; expected condition near 1.9193 A, about 0.0029 A inside the 1.922172 A edge.",
+            "evidence_ids": [
+              "E005",
+              "E006",
+              "E007",
+              "E008"
+            ],
+            "functional_reason": "Mean affinity agreement is the higher-priority objective, so this is disclosed as a Best-bonus tradeoff not a mean gain. Its decision value is high because no executed schedule combines interval-0=3 with interval-2=1.",
+            "mean_reason": "Expected mean absolute gap rises from 3.2017266 at [1,5,1,5] to about 3.2184 by applying the measured interval-0 1->3 penalty of about +0.0167; interval-2=1 recovers only about 1e-5. This is not a mean-frontier improvement; it is the Best-side Pareto probe.",
+            "proposal_id": "G2:H1",
+            "risk_and_uncertainty": "If Best stays at or below 7.2190, the interval-0=3 Best gain is tied to the [.,7,.,7] interval-1/3 background rather than interval 0 alone. Mean cost is expected and large relative to remaining micro-gains. Condition is expected inside band but terminal details are re-solved per candidate."
+          },
+          {
+            "best_reason": "Best should remain near the interval-0=1 family, roughly 7.2188-7.2201, and is not expected to reach the interval-0=3 Best branch near 7.224.",
+            "condition_reason": "Interval-1 low and interval-2=2 spend small condition margin; expected condition about 1.9194 A, still inside the band by roughly 0.0027 A.",
+            "evidence_ids": [
+              "E001",
+              "E002",
+              "E003",
+              "E004"
+            ],
+            "functional_reason": "Tests the nearby mean contender in the flat frontier: whether amplitude 2 retains most of interval-2=1's mean edge while spending less condition than lower settings.",
+            "mean_reason": "From anchor [1,7,3,5] gap 3.201777, lowering interval 1 from 7 to 5 recovers its small mean penalty and interval 2 from 3 to 2 is expected between measured amplitudes 1 and 3; predicted gap about 3.20173-3.20175, a near-tie with or slightly behind [1,5,1,5] 3.2017266. Fixed-population micro-effect only.",
+            "proposal_id": "G1:H1",
+            "risk_and_uncertainty": "Interval-2 amplitude 2 is untested and the two-interval composition may be non-additive; the expected gain is order 1e-5. If gap is >=3.201742 or condition exceeds 1.922172 A, it fails as a mean-leader refinement and only bounds amplitude 2 at [1,5,.,5]."
+          },
+          {
+            "best_reason": "Best should remain near 7.2187 and is not a Best-bonus target.",
+            "condition_reason": "Interval-1 5->7 measured about -0.00043 A; paired with interval-2=1's +0.000232 A, expected condition near 1.9191 A with roughly 0.0030 A margin to 1.922172 A.",
+            "evidence_ids": [
+              "E005",
+              "E006",
+              "E007",
+              "E008"
+            ],
+            "functional_reason": "Functional value is near-neutral to slightly costly; the slot is justified by testing whether the only demonstrated condition-favourable micro-edge composes with the mean-favouring interval-2 low edge on the mean leader.",
+            "mean_reason": "Expected mean gap about 3.20176-3.20190 versus 3.2017266 at [1,5,1,5], a small cost of about 3e-5 to 1.5e-4 while retaining most of the mean lead. It is a composition/margin test, not an expected mean improvement.",
+            "proposal_id": "G2:H2",
+            "risk_and_uncertainty": "Composition may fail if interval-1 high and interval-2 low act non-additively. The available compensation is about 0.0004 A, far below the 0.022-0.025 A condition cliff seen when early guidance was removed, so it cannot be assumed protective."
+          },
+          {
+            "best_reason": "Best is expected neutral to slightly lower; this is not a Best-bonus proposal.",
+            "condition_reason": "Interval-2 3->1 measured +0.000232 A condition at [1,5,.,5]; the [1,7,3,7] anchor has about 0.00387 A margin, so expected condition remains inside band.",
+            "evidence_ids": [
+              "E012",
+              "E013",
+              "E014",
+              "E015"
+            ],
+            "functional_reason": "Tests the last untested interior interval-2 low point at a near-frontier background and whether the consistent mean-favouring low edge transfers from [1,5,.,5] and [5,7,.,7] to [1,7,.,7].",
+            "mean_reason": "From [1,7,3,7] gap 3.201830, interval-2 3->1 is expected to improve mean by about 1e-5-4e-5 based on measured low-edge transfer at [1,5,.,5] and [5,7,.,7]. Predicted gap about 3.20179-3.20182, still behind the global mean leader.",
+            "proposal_id": "G4:H1",
+            "risk_and_uncertainty": "The interval-2=1 response at [1,7,.,7] is untested and may be absorbed by the terminal Hungarian correspondence. Failure is gap >=3.201830 or condition >1.922172 A versus [1,7,3,7]."
+          }
+        ]
+      },
+      "sha256": "103737549949afb165e39735beae35e9825dda9e914d174c4c6b26cfc9951932"
+    },
+    "versions/v13/5nn4_SC2_A_1017__top2/round_05/council/analysts/G2/hypotheses.json": {
+      "data": {
+        "schema": "plip-group-hypotheses-v1",
+        "population_sha256": "0cdd6def4e82aa9f6739d04480fefffd5baf6a6c63d0f069f74d6b4ac885e207",
+        "common_sha256": "eea54a001a63a85c7a7bdb473276cfbabcaf3a73ffeeb2c7ef06d87d2d7d2b22",
+        "skill_sha256": "3064728f28e9c7f6471cca4c374a913ecd125b02ed4396ee7d2210f9565ffd1a",
+        "llm": {
+          "model": "deepseek-flash",
+          "key_env": "DEEPSEEK_API_KEY",
+          "thinking": true,
+          "reasoning_effort": "high",
+          "max_output_tokens": 98304,
+          "concurrency": 4,
+          "timeout": 600,
+          "attempts": 3,
+          "input_soft_bytes": 131072,
+          "input_hard_bytes": 524288
+        },
+        "citation_protocol": "private-evidence-alias-v1",
+        "max_format_repairs": 2,
+        "teacher_id": "5nn4_SC2_A_1017__top2",
+        "observed_round": 5,
+        "common_anchor_ticks": [
+          1,
+          5,
+          1,
+          5
+        ],
+        "population_diagnosis": "Fixed 25-candidate population, teacher 5nn4_SC2_A_1017__top2 v13, all four groups of round 5 valid 25/25 (E001, E005, E006). Band rule unchanged: pool-minimum group mean RMSD is still 1.902172 A at [7,5,5,7], so the 0.02 A band is [1.882172,1.922172] A and every executed schedule except [0,5,5,5] (1.944389 A) sits inside it; condition fidelity no longer discriminates broadly, mean affinity agreement carries the ranking and Best is tracked separately. Round-5 group G2 executed [1,5,1,5]: mean absolute gap 3.2017266, condition 1.9195686 A (margin 0.002603 A to the upper edge), best 7.218740, 25/25 valid; versus the round-4 [1,5,3,5] it is -1.56e-5 in gap at +0.000232 A condition (E005). That makes [1,5,1,5] the current mean leader by a fixed-population hair over [1,5,3,5] (3.2017422 at 1.9193369) and [1,5,5,5] (3.2017520 at 1.9190921). Response model as measured: interval 0 is the only demonstrated functional lever (5->3 +0.029243, 3->1 +0.016732, transfer to [.,7,.,7] +0.028906 with Best 7.153792 -> 7.224152), and its zero boundary buys only 0.004048 at +0.025297 A and exits the band; interval 2 is a monotone but shrinking micro-tradeoff (amplitude 1/3/5 give gap 3.201727/3.201742/3.201752 and condition 1.919569/1.919337/1.919092, i.e. lower amplitude favours mean, higher favours condition, about 1e-5-2e-5 and 1e-4 A per two ticks); interval 1 high is a condition-favourable micro-edge (-0.00043 A at +3.1e-5 gap at [1,.,5,5]; -0.00044 A at +0.00015 at [5,.,5,7]); interval 3 is inert at two backgrounds (-0.00062 A/+0.00012 and -0.00065 A/+9.3e-5). The Best-side branch inside the band is still [3,7,5,7] 7.224152 and [3,5,5,5] 7.223794, and no executed schedule yet combines interval 0 = 3 with the interval-2 low mean edge; from the current anchor that combination is now legal. The supplied budget is exhausted (remaining_sampling_rounds 0, decision_phase review_only), so the two arrays below are archived final-round suggestions that cannot change this version's ranking; the outstanding questions they name are interval-0=3 Best-branch transfer onto the mean-optimal background, and whether the interval-1 condition micro-edge composes with the interval-2 low edge to protect a thin 0.0026 A margin. Honest limits: fixed-population orderings of 1e-5 are not significance claims and are not evidence about new starting populations; interval-2 amplitude 0 and interval-1 amplitude 3 are untested; interval-3 inertness is bounded to amplitude 3-7 at the tested backgrounds.",
+        "memory_update": "Round 5 confirms two things and leaves two open. Confirmed: (i) interval 2 at amplitude 1 is the low edge of a monotone, shrinking mean-favouring tradeoff at the [1,5,.,5] background - 5->3 gave -1.0e-5 gap at +0.000245 A condition and 3->1 gave -1.56e-5 gap at +0.000232 A condition, so the whole 1-5 range is worth only ~2.6e-5 in mean gap and ~0.0005 A in condition; interval 2 will not move any schedule across the band. (ii) The band frontier is now [1,5,1,5] at gap 3.2017266 / condition 1.9195686 / best 7.218740, with [1,5,3,5] 1.56e-5 behind at better condition and [3,5,5,5]/[3,7,5,7] holding the Best bonus at 7.223794/7.224152 inside the band. Open and carried forward: the interval-0=3 Best branch has never been combined with the interval-2 low edge, and the mean leader's condition margin has now narrowed to 0.002603 A while the only demonstrated restorative edge (interval-1 high) is ~0.0004 A per two ticks, i.e. an order of magnitude smaller than the 0.022 A cliff observed when interval-0 guidance was removed entirely - so that compensation must be reported as capacity-unproven, never as protective. Also carry: interval 0 must stay at 1 or 3 (zero exits the band), interval 3 stays fixed at 5-7, interval-1 low (3) and interval-2 zero remain untested and are not evidence of inertness, and all round-5 orderings are fixed-population facts, not generalisation to new starts. Cached arrays are facts, not new trials: [1,5,1,5] is executed, so no future proposal may repeat it.",
+        "parents": [
+          {
+            "candidate_id": "b000:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 0,
+            "parent_ticks": [
+              6,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b000:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 0,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b000:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 0,
+            "parent_ticks": [
+              5,
+              5,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b000:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 0,
+            "parent_ticks": [
+              1,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b000:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 0,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b001:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 1,
+            "parent_ticks": [
+              7,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b001:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 1,
+            "parent_ticks": [
+              5,
+              5,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b001:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 1,
+            "parent_ticks": [
+              7,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b001:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 1,
+            "parent_ticks": [
+              5,
+              5,
+              5,
+              3
+            ]
+          },
+          {
+            "candidate_id": "b001:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 1,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b002:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 2,
+            "parent_ticks": [
+              7,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b002:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 2,
+            "parent_ticks": [
+              7,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b002:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 2,
+            "parent_ticks": [
+              3,
+              7,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b002:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 2,
+            "parent_ticks": [
+              7,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b002:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 2,
+            "parent_ticks": [
+              7,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b003:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_01/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 3,
+            "parent_ticks": [
+              5,
+              5,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b003:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 3,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b003:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_02/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 3,
+            "parent_ticks": [
+              5,
+              7,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b003:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 3,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b003:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 3,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b004:s000",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 0,
+            "source_batch": 4,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b004:s001",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_04/wave",
+            "restartable_at_export": false,
+            "source_slot": 1,
+            "source_batch": 4,
+            "parent_ticks": [
+              1,
+              7,
+              5,
+              7
+            ]
+          },
+          {
+            "candidate_id": "b004:s002",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 2,
+            "source_batch": 4,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b004:s003",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 3,
+            "source_batch": 4,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "candidate_id": "b004:s004",
+            "parent_id": "parent",
+            "source_branch": "/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022/versions/v13/5nn4_SC2_A_1017__top2/round_03/wave",
+            "restartable_at_export": false,
+            "source_slot": 4,
+            "source_batch": 4,
+            "parent_ticks": [
+              0,
+              5,
+              5,
+              5
+            ]
+          }
+        ],
+        "jobs": [
+          {
+            "id": "H1",
+            "ticks": [
+              3,
+              5,
+              1,
+              5
+            ],
+            "direction": "Raise early guidance in interval 0 from 1 to 3 ticks while holding interval 2 at its measured mean-favouring low edge of 1 tick and intervals 1 and 3 unchanged.",
+            "exploration_degree": "Two ticks on a single interval - the default maximum absolute change, inside the legal interval-0 range 0-3; no range probe, no third tick (no verified large-step direction exists).",
+            "hypothesis": "The Best-side advantage is owned by interval-0 amplitude 3 (best 7.223794 at [3,5,5,5] and 7.224152 at [3,7,5,7]), while the mean-favouring term is owned by low interval-2 amplitude. Since both terms are small and signed, a schedule with interval 0 = 3 and interval 2 = 1 should land on the Best branch of the in-band Pareto front without leaving the band, producing the first schedule that is simultaneously near the mean leader and near the Best leader.",
+            "expected_mean_effect": "Mean absolute gap rises from 3.2017266 ([1,5,1,5]) to about 3.2184 (+0.0167), applying the measured interval-0 1->3 penalty (+0.016732 at [.,5,5,5]) to the new background; interval 2 at 1 recovers only about 1e-5 of that.",
+            "expected_best_effect": "Best rises from 7.218740 ([1,5,1,5]) to roughly 7.2240 (+0.005), matching the interval-0=3 references [3,5,5,5] 7.223794 and [3,7,5,7] 7.224152.",
+            "falsifier": "The Best branch does not transfer: mean gap >= 3.2184 while best stays at or below 7.2190, or condition exceeds 1.922172 A. In that case interval-0=3 Best gains require the [.,7,.,7] interval-1/3 background and are not reachable with interval 2 at 1.",
+            "evidence_ids": [
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2",
+              "tool:9181f943258514b688faf1b4f0f95e8cab185fbe39e27bde4c9a1c73665cb675"
+            ],
+            "diagnostic_alternative": "The 7.224 maxima may be tied to the interval-1/interval-3 = 7 backgrounds of [3,7,5,7] rather than to interval 0 alone, in which case interval 0 = 3 with intervals 1 and 3 at 5 will show little or no Best gain and the observed Pareto ordering is background-specific rather than an interval-0 effect.",
+            "expected_subgroup_response": "Any Best gain should be concentrated in the upper affinity tail (q90/top10 candidates) rather than spread across quartiles; the mean penalty should be broadly distributed, so a large top-tail gain with a flat median would support a genuine Pareto shift rather than a global improvement.",
+            "revision_from_previous_result": "Round 4 recorded that the Best-side branch requires interval 0 = 3 and that no supplied array kept it. From the round-5 anchor [1,5,1,5] that combination is now legal, and interval 2 at 1 is measured as the mean-favouring edge rather than an untested guess, so this is a different question from the earlier low-priority [3,7,3,7] duplicate.",
+            "reference_ticks": [
+              1,
+              5,
+              1,
+              5
+            ],
+            "experiment_purpose": "exploit",
+            "expected_condition_effect": "Near-neutral to slightly better: the measured interval-0 1->3 step moved condition by about -0.0003 A ([1,5,5,5] 1.919092 -> [3,5,5,5] 1.918777), so expect ~1.9193 A, i.e. about 0.0029 A inside the 1.922172 A edge; the fine terminal details are re-solved by the Hungarian-injective correspondence, so a small deviation from that estimate is expected.",
+            "expected_functional_effect": "A small Best-bonus gain at a measurable mean-agreement cost - a move along the existing in-band Pareto tradeoff, not a free improvement; mean agreement is the higher-priority objective, so this is reported as the Best-side alternative rather than as a frontier improvement.",
+            "search_mode": "local",
+            "scale_reason": "One interval changed by two ticks, the default exploration step; interval 2 is deliberately held at the measured mean-favouring value so the interval-0 question is not entangled with a second unverified extrapolation.",
+            "candidates": 25,
+            "ticks_for_all_candidates": [
+              3,
+              5,
+              1,
+              5
+            ],
+            "earliest_common_restart": 10,
+            "per_candidate_restart_steps": [
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10
+            ],
+            "parent_population_sha256": "3ac61ddcd5ae71f43a17e4eb694cfdaf704759b7919a570913c69bd5dcd62ca2"
+          },
+          {
+            "id": "H2",
+            "ticks": [
+              1,
+              7,
+              1,
+              5
+            ],
+            "direction": "Raise interval-1 guidance from 5 to 7 ticks on the mean-optimal background, keeping interval 0 at 1 and interval 2 at its low mean-favouring edge of 1, to test whether the interval-1 condition edge composes with the interval-2 low edge.",
+            "exploration_degree": "Two ticks on a single interval - the default maximum, inside the legal interval-1 range 3-7; local, not a range probe.",
+            "hypothesis": "Interval-1 high is the only demonstrated condition-favourable micro-edge (-0.00043 A at [1,.,5,5], replicated -0.00044 A at [5,.,5,7]) and interval 2 low is the mean-favouring edge. If these two small edges compose additively, [1,7,1,5] should keep essentially the whole mean lead of [1,5,1,5] while widening its 0.002603 A condition margin to about 0.0030 A - a compensation test on the mean leader, not an expected mean gain.",
+            "expected_mean_effect": "Slight cost: gap rises from 3.2017266 to about 3.2018-3.2019 (+3e-5 to +1.5e-4), the range of the two matched interval-1 replicates, so the schedule should remain within 1e-4 of the mean leader.",
+            "expected_best_effect": "Effectively unchanged near 7.2187; interval-1 changes did not move Best materially at either tested background (7.219020 unchanged at [1,.,5,5]; 7.153792 unchanged at [5,.,5,7]).",
+            "falsifier": "Composition fails: condition does not fall below 1.9195686 A while mean gap worsens by >= 0.0005 versus [1,5,1,5], or condition rises above 1.922172 A. Either outcome shows interval-1 guidance cannot be used as margin protection at this background.",
+            "evidence_ids": [
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2",
+              "tool:9181f943258514b688faf1b4f0f95e8cab185fbe39e27bde4c9a1c73665cb675"
+            ],
+            "diagnostic_alternative": "Both edges may be absorbed by the per-candidate Hungarian-injective terminal correspondence and produce nothing at this background, or the composition may be non-additive because interval-1 and interval-2 guidance act on overlapping core atoms; in either case the result bounds the composition at this background only and does not prove interval-1 inertness.",
+            "expected_subgroup_response": "A condition-side recovery would most plausibly come from the upper condition tail (candidates with RMSD near 3.10 A) rather than the median, so a fall in the max/q90 condition error with a flat mean would still be consistent with a real but small restorative effect.",
+            "revision_from_previous_result": "Round 4 flagged that the mean leader's condition margin is the thinnest of the interval-0=1 family and that the only available compensation edge is about an order of magnitude smaller than an unknown cliff. Round 5 narrowed the margin further to 0.002603 A at [1,5,1,5] while interval 2 at 1 added +0.000232 A of that cost, so the composition question is now concrete rather than hypothetical.",
+            "reference_ticks": [
+              1,
+              5,
+              1,
+              5
+            ],
+            "experiment_purpose": "interaction_probe",
+            "expected_condition_effect": "About -0.0004 A, i.e. condition ~1.9191 A and margin ~0.0030 A to 1.922172 A; this is a small restorative effect and must not be described as protective, because the observed zero-guidance cliff for interval 0 was 0.025 A, roughly fifty times larger than the demonstrated compensation capacity.",
+            "expected_functional_effect": "Functionally near-neutral with a small mean-agreement cost; the value of the trial is the composition measurement and the margin, not a mean improvement, and the mean leader [1,5,1,5] is retained as the reference if composition fails.",
+            "search_mode": "local",
+            "scale_reason": "One interval changed by two ticks on the default step; the interval-2 low edge and the interval-0 value are held at their measured best-supported settings so the interval-1 contribution is interpretable against the executed [1,5,1,5] reference.",
+            "candidates": 25,
+            "ticks_for_all_candidates": [
+              1,
+              7,
+              1,
+              5
+            ],
+            "earliest_common_restart": 10,
+            "per_candidate_restart_steps": [
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10
+            ],
+            "parent_population_sha256": "3ac61ddcd5ae71f43a17e4eb694cfdaf704759b7919a570913c69bd5dcd62ca2"
+          }
+        ],
+        "group_id": "G2",
+        "candidate_attempts_if_executed": 50,
+        "llm_turns": 1,
+        "planning_only": true,
+        "gpu_executed": false,
+        "execution_requires": "fixed new R0 step10, validated common-random physical batch, quality-before-prune",
+        "learning_update": [
+          {
+            "belief_id": "interval2_low_edge_monotone_diminishing_v13",
+            "prior_judgment": "After round 4 interval 2 was a consistently signed micro-tradeoff and amplitude 1 was the only remaining untested interior low point, carrying regime-change risk near zero guidance.",
+            "intervention": "Round-5 group G2 executed [1,5,1,5] under the fixed R0 and common random stream; joined with the round-4 [1,5,3,5] and the executed [1,5,5,5] it gives a three-point interval-2 bracket at the [1,5,.,5] background.",
+            "observed_result": "Amplitude 1/3/5 give mean absolute gap 3.2017266 / 3.2017422 / 3.2017520 and condition 1.9195686 / 1.9193369 / 1.9190921 A; 25/25 valid in every group. Going 3->1 cost +0.000232 A condition for -1.56e-5 gap, so the second low step returns about 60% of the first step's 1.0e-5 gain at a comparable condition price.",
+            "revision": "Interval 2 is a monotone but rapidly shrinking mean-favouring lever: the entire legal 1-5 range is worth about 2.6e-5 in mean gap and about 0.0005 A in condition, far too small to move a schedule across the band. Amplitude 1 is now measured, not hypothetical, and the favourable nonzero slope must not be extrapolated through zero.",
+            "next_action": "Hold interval 2 at 1 for mean-side work and at 3 when a little condition margin is worth ~1.5e-5 of gap; treat amplitude 0 as untested with zero-guidance regime risk and do not propose it without naming a compensation source and admitting that capacity is unproven.",
+            "applicability": "Teacher v13, fixed 25-candidate population, background [1,5,.,5]; not applicable to new starting populations or to other interval-0 amplitudes, and not a significance claim for 1e-5 differences.",
+            "alternative_explanation": "The near-flat bracket may reflect per-candidate Hungarian-injective terminal correspondence absorbing a two-tick perturbation, so these results bound the tested edge rather than proving interval-2 guidance has no dynamical role.",
+            "status": "supported",
+            "evidence_ids": [
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2"
+            ]
+          },
+          {
+            "belief_id": "band_frontier_after_round5_v13",
+            "prior_judgment": "After round 4 the in-band mean frontier was effectively flat, led by [1,5,3,5] at 3.201742, with [3,7,5,7] and [3,5,5,5] holding the Best bonus and [0,5,5,5] excluded at 1.944389 A.",
+            "intervention": "Reapplied the configured 0.02 A band anchored to the tested-pool minimum group mean RMSD over all fifteen executed schedules, ordered inside-band schedules by mean absolute affinity gap, and tracked Best separately without letting it displace the primary condition objective.",
+            "observed_result": "Pool minimum is unchanged at 1.902172 A ([7,5,5,7]) so the band remains [1.882172,1.922172] A. Mean leaders: [1,5,1,5] 3.2017266 at 1.9195686 A (margin 0.002603 A, best 7.218740); [1,5,3,5] 3.2017422 at 1.9193369 A; [1,5,5,5] 3.2017520 at 1.9190921 A. Best side in band: [3,7,5,7] 7.224152 and [3,5,5,5] 7.223794, both at mean gaps 3.2185-3.2191.",
+            "revision": "The mean leader is now [1,5,1,5], ahead of [1,5,3,5] by 1.56e-5 - a fixed-population near-tie, not a significance claim. Condition fidelity still does not discriminate broadly across schedules, but it does constrain the within-family choice because the leader has the thinnest margin. Mean agreement and Best remain a continuous Pareto tradeoff across interval-0 amplitude, with no reversion to lowest-RMSD ranking.",
+            "next_action": "Keep [1,5,1,5] as the mean reference and [1,5,3,5] as the slightly better-condition near-tie; treat the Best-side branch as requiring interval 0 = 3, and report any Best gain as a separate tradeoff rather than as a frontier improvement.",
+            "applicability": "Teacher v13, fixed 25-candidate population, the fifteen executed backgrounds; the band anchor moves if a future schedule beats 1.902172 A and fixed-population ordering is not evidence of generalization to new starts.",
+            "alternative_explanation": "Differences of 1e-5 to 1e-4 in mean gap may be pure fixed-population detail, so the robust parts are only the band eligibility of the interval-0=1 family, the band ineligibility of [0,5,5,5], and the Best advantage of the interval-0=3 schedules.",
+            "status": "supported",
+            "evidence_ids": [
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2",
+              "tool:9181f943258514b688faf1b4f0f95e8cab185fbe39e27bde4c9a1c73665cb675"
+            ]
+          },
+          {
+            "belief_id": "interval0_three_best_branch_reachable_from_anchor_v13",
+            "prior_judgment": "Interval 0 was established as the only demonstrated functional lever, with the Best bonus requiring interval 0 = 3 and no supplied array previously able to keep that value on a mean-favouring background.",
+            "intervention": "Checked the current action anchor [1,5,1,5] against the legal interval-0 range 0-3 and the measured interval-0 response, to see whether the Best-side branch can now be tested on a background that also carries the interval-2 low edge.",
+            "observed_result": "From anchor [1,5,1,5], interval 0 = 3 is a legal two-tick move with intervals 1 and 3 unchanged. Measured interval-0 effects are 5->3 +0.029243 gap at -0.000414 A condition, 3->1 +0.016732 gap at +0.000315 A, and transfer to [.,7,.,7] of -0.028906 gap at +0.000367 A with Best 7.153792 -> 7.224152.",
+            "revision": "The Best-side frontier and the mean-side frontier are now reachable from a single anchor for the first time, so the open question is no longer 'is interval 0 = 3 legal' but 'does the interval-0=3 Best gain survive with interval 2 at 1'. Expected cost is about +0.0167 mean gap for about +0.005 Best; this is a tradeoff move, not an improvement in the higher-priority objective.",
+            "next_action": "Test [3,5,1,5] as the combination probe and keep [1,5,1,5] as the mean reference; if Best fails to transfer, attribute the 7.224 maxima to the [.,7,.,7] interval-1/3 background rather than to interval 0.",
+            "applicability": "Fixed 25-candidate population and teacher v13 only; the tradeoff magnitudes are background-specific and the Best bonus is a single-candidate quantity, not a population claim.",
+            "alternative_explanation": "The 7.224 maxima may be driven by interval-1/interval-3 = 7 rather than interval 0, or by one candidate identity, in which case no interval-0=3 schedule with intervals 1 and 3 at 5 will reproduce the Best gain.",
+            "status": "unresolved",
+            "evidence_ids": [
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2"
+            ]
+          },
+          {
+            "belief_id": "thin_condition_margin_at_mean_leader_v13",
+            "prior_judgment": "Round 4 recorded that the mean leader had the thinnest condition margin of the interval-0=1 family and that the only demonstrated compensation edge is about 0.0004 A, far smaller than an unknown cliff.",
+            "intervention": "Recomputed the margin to the 1.922172 A band edge for the new mean leader [1,5,1,5] after the interval-2 low step, and compared it with the interval-2=3 and interval-2=5 near-ties and with the interval-1 high restorative edge.",
+            "observed_result": "[1,5,1,5] condition 1.9195686 A gives a margin of 0.002603 A, against 0.002835 A at [1,5,3,5] and 0.003080 A at [1,5,5,5]. The interval-2 3->1 step consumed about 0.000232 A of the margin, and interval-1 high is worth about -0.00043 A per two ticks.",
+            "revision": "The margin narrowed by about 0.00023 A in exchange for a 1.56e-5 mean gain, so the leader's advantage is thinner than ever relative to its safety. Available compensation is roughly 0.0004 A, which is an order of magnitude below the 0.022-0.025 A cost observed when interval-0 guidance was removed, so a small restoration must be described as capacity-unproven and cannot be assumed protective against a tail candidate crossing the edge.",
+            "next_action": "Report the margin explicitly whenever the mean leader is compared with the interval-2=3 or interval-2=5 near-ties, and pair any further mean-side move with a named condition-side edge rather than treating all in-band schedules as equivalent.",
+            "applicability": "Teacher v13, fixed population, interval-0=1 backgrounds inside [1.882172,1.922172] A; the margin shifts if the pool minimum or the upper band edge changes, and mean margins are coarse guides to per-candidate tail behaviour.",
+            "alternative_explanation": "A 0.0003 A mean-margin difference is fixed-population detail, and a single candidate whose condition error sits in the upper tail can cross the edge independently of the mean, so the margin does not predict ineligibility.",
+            "status": "unresolved",
+            "evidence_ids": [
+              "tool:9181f943258514b688faf1b4f0f95e8cab185fbe39e27bde4c9a1c73665cb675",
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2"
+            ]
+          },
+          {
+            "belief_id": "interval1_condition_edge_only_v13",
+            "prior_judgment": "Interval 1 was retired as a standalone functional direction in round 4 but retained as a condition-favourable micro-edge against a matched reference.",
+            "intervention": "Reviewed the two matched interval-1 5->7 contrasts ([1,7,5,5] versus [1,5,5,5] and [5,7,5,7] versus [5,5,5,7]) against the round-5 need for margin protection on the mean leader, and checked that no executed schedule has tested interval-1 low (3).",
+            "observed_result": "Interval-1 high changed condition by -0.00043 A at +3.1e-5 gap at [1,.,5,5] and by -0.00044 A at +0.00015 at [5,.,5,7]; 25/25 valid in both. No executed schedule varies interval 1 downward to 3, and no interval-1 contrast yet exists at [1,5,1,5].",
+            "revision": "Interval 1 remains a condition-favourable, mean-neutral to slightly costly micro-edge at two backgrounds and is still not a functional lever. Interval-1 low is genuinely untested and must not be treated as inert by symmetry; a downward test would be a direction question, not a compensation trial.",
+            "next_action": "Use interval-1 high only as a margin edge against a matched reference, and treat interval-1 low as an open direction with unknown sign rather than as a closed axis.",
+            "applicability": "Teacher v13, fixed population, amplitude 3-7 tested only upward from 5 at backgrounds [.,5,5,7] and [.,5,5,5]; not a general statement about interval 1.",
+            "alternative_explanation": "The near-null functional result and the small condition gain may both be absorbed by the per-candidate terminal correspondence, so even the condition edge may not reproduce at the [1,5,.,5] background where the mean leader now sits.",
+            "status": "supported",
+            "evidence_ids": [
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2"
+            ]
+          },
+          {
+            "belief_id": "interval3_inert_hold_fixed_v13",
+            "prior_judgment": "Interval 3 was inert at two backgrounds in amplitude 5-7 and was to be held fixed in combination probes unless an explicit interaction was stated.",
+            "intervention": "Re-checked all fifteen executed schedules for any interval-3 variation beyond the two replicated 5<->7 contrasts, and reviewed the round-5 executed [1,5,1,5] which keeps interval 3 at 5.",
+            "observed_result": "Interval-3 5->7 changed condition by -0.00062 A at +0.00012 gap at [7,5,5,.] and by -0.00065 A at +9.3e-5 at [5,5,5,.]; no other interval-3 amplitude has been executed and no interaction with changed earlier intervals has been tested.",
+            "revision": "Standalone interval-3 amplitude remains unusable as a terminal lever at amplitude 5-7 and carries no direction worth a slot; the untested part is an interaction with interval-0=1 and interval-2=1 simultaneously, which has never been executed and is not shown inert.",
+            "next_action": "Hold interval 3 at 5 in all remaining schedules and reopen it only as a stated interaction question against a matched reference; do not spend a standalone slot on its fine grid.",
+            "applicability": "Amplitude 5-7 at backgrounds [5,5,5,.] and [7,5,5,.]; not proof of inertness outside that amplitude or under simultaneous interval-0 and interval-2 changes.",
+            "alternative_explanation": "The terminal Hungarian-injective correspondence re-solves per candidate and can absorb a two-tick terminal perturbation, so these near-nulls bound the tested edge rather than demonstrating dynamical irrelevance.",
+            "status": "supported",
+            "evidence_ids": [
+              "tool:6f70be4bacbf31acb3a2ad492c8e6258528f82e0c48037b11a7a7f2dc76f1a3c",
+              "tool:c13ec5661472a0d945b5a826fb3cf5fd34c209eca67de333189ac516a5f920d2"
+            ]
+          }
+        ],
+        "version": "v13",
+        "parent_policy": "Every proposal restarts the same new R0 before update 10. Incumbent is output only."
+      },
+      "sha256": "5f204f05a32562dcada9cc5788d7c2b562d887f6bf14ea5337a64e06ce4f4715"
+    }
+  },
+  "prompt_context": {
+    "versions/v13/5nn4_SC2_A_1017__top1/round_05/council/synthesis.request.json": {
+      "sha256": "df963577ad6f9cedcf99b1e8b1d278a70e4c247c8541c30b6f8be5e5f6ebbb55",
+      "context": [
+        {
+          "priority": [
+            "condition_coordinate_fidelity",
+            "mean_affinity_teacher_agreement",
+            "best_affinity_bonus"
+          ],
+          "search_budget": {
+            "completed_rounds": 5,
+            "consumed_fraction": 1.0,
+            "decision_phase": "review_only",
+            "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+            "remaining_sampling_rounds": 0,
+            "total_rounds": 5
+          },
+          "condition_comparison": {
+            "aggregation": "mean_of_per_candidate_local_rmsd",
+            "band": "anchored_to_pool_minimum",
+            "chemical_pose": "separate_exact_subgraph_diagnostic",
+            "frame": "protein_fixed",
+            "ligand_fit_for_primary": false,
+            "ranking_tolerance_A": 0.02,
+            "sensitivity_A": [
+              0.01,
+              0.05
+            ],
+            "terminal_state_required": true
+          },
+          "observed_round": 5,
+          "search_policy": {
+            "coarse_probe_scale": 0.2,
+            "fine_resolution": 0.1,
+            "max_changed_intervals": 2,
+            "max_range_probes": 0,
+            "upper_amplitude": 1
+          }
+        }
+      ],
+      "prompt_source_sha256": {
+        "versions/v13/5nn4_SC2_A_1017__top1/round_05/council/synthesis_inputs/7d3b96ea373dc6323c04f00777635473739a3106929dc10587f35ec6adad5246.txt": "7d3b96ea373dc6323c04f00777635473739a3106929dc10587f35ec6adad5246"
+      }
+    },
+    "versions/v13/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/turn_00.request.json": {
+      "sha256": "6668d25250443bbab621f2c03443f0c7fc4ccf8202f302e635590b8fec973d22",
+      "context": [
+        {
+          "objective_priority": [
+            "condition_coordinate_fidelity",
+            "mean_affinity_teacher_agreement",
+            "best_affinity_bonus"
+          ],
+          "continuous_objectives": {
+            "conflict_policy": "report_continuous_Pareto_tradeoffs_no_hidden_weight_or_pass_gate",
+            "functional_metric": "absolute_mean_pic50_minus_teacher",
+            "policy": "four_shared_schedules",
+            "priority": [
+              "condition_coordinate_fidelity",
+              "mean_affinity_teacher_agreement",
+              "best_affinity_bonus"
+            ],
+            "round_barrier": "four_groups_evaluated",
+            "scope": "unselected_hypothesis_25_candidates",
+            "thresholds": null,
+            "validity": "report eligible counts; never improve mean by dropping failed slots"
+          },
+          "controller_role": "adaptive conditional learning controller",
+          "search_budget": {
+            "completed_rounds": 5,
+            "consumed_fraction": 1.0,
+            "decision_phase": "review_only",
+            "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+            "remaining_sampling_rounds": 0,
+            "total_rounds": 5
+          },
+          "condition_comparison": {
+            "aggregation": "mean_of_per_candidate_local_rmsd",
+            "band": "anchored_to_pool_minimum",
+            "chemical_pose": "separate_exact_subgraph_diagnostic",
+            "frame": "protein_fixed",
+            "ligand_fit_for_primary": false,
+            "ranking_tolerance_A": 0.02,
+            "sensitivity_A": [
+              0.01,
+              0.05
+            ],
+            "terminal_state_required": true
+          },
+          "observed_round": 5,
+          "action_contract": {
+            "action_anchor_ticks": [
+              8,
+              5,
+              5,
+              2
+            ],
+            "all_hypotheses_distinct": true,
+            "allowed_local_ticks_by_interval": [
+              [
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              [
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              [
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              [
+                0,
+                1,
+                2,
+                3,
+                4
+              ]
+            ],
+            "default_max_absolute_tick_change": 2,
+            "double_tick_rule": "Two ticks allowed by default; three only in verified_large_step_directions.",
+            "ids_in_order": [
+              "H1",
+              "H2"
+            ],
+            "initial_step_ticks": 2,
+            "max_changed_intervals": 2,
+            "no_executed_schedule": true,
+            "no_unchanged_anchor": true,
+            "range_probe_rule": "Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.",
+            "reference_semantics": "Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.",
+            "reference_ticks_must_equal": [
+              8,
+              5,
+              5,
+              2
+            ],
+            "search_policy": {
+              "coarse_probe_scale": 0.2,
+              "fine_resolution": 0.1,
+              "max_changed_intervals": 2,
+              "max_range_probes": 0,
+              "upper_amplitude": 1
+            },
+            "tick_bounds_inclusive": [
+              0,
+              10
+            ],
+            "tick_to_amplitude": 0.1
+          },
+          "common_anchor_ticks": [
+            8,
+            5,
+            5,
+            2
+          ]
+        }
+      ],
+      "prompt_source_sha256": {
+        "versions/v13/5nn4_SC2_A_1017__top1/round_05/council/analysts/G1/llm_inputs/82f19f19e63daea77d53f2177102448057ebf60640354fb184d9caf24518af36.txt": "82f19f19e63daea77d53f2177102448057ebf60640354fb184d9caf24518af36"
+      }
+    },
+    "versions/v13/5nn4_SC2_A_1017__top2/round_05/council/synthesis.request.json": {
+      "sha256": "dbee7b46fd89b526c01c0d4cb652af3bf5efe3022e6d37eff62e1458bb0f7f1a",
+      "context": [
+        {
+          "priority": [
+            "condition_coordinate_fidelity",
+            "mean_affinity_teacher_agreement",
+            "best_affinity_bonus"
+          ],
+          "search_budget": {
+            "completed_rounds": 5,
+            "consumed_fraction": 1.0,
+            "decision_phase": "review_only",
+            "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+            "remaining_sampling_rounds": 0,
+            "total_rounds": 5
+          },
+          "condition_comparison": {
+            "aggregation": "mean_of_per_candidate_local_rmsd",
+            "band": "anchored_to_pool_minimum",
+            "chemical_pose": "separate_exact_subgraph_diagnostic",
+            "frame": "protein_fixed",
+            "ligand_fit_for_primary": false,
+            "ranking_tolerance_A": 0.02,
+            "sensitivity_A": [
+              0.01,
+              0.05
+            ],
+            "terminal_state_required": true
+          },
+          "observed_round": 5,
+          "search_policy": {
+            "coarse_probe_scale": 0.2,
+            "fine_resolution": 0.1,
+            "max_changed_intervals": 2,
+            "max_range_probes": 0,
+            "upper_amplitude": 1
+          }
+        }
+      ],
+      "prompt_source_sha256": {
+        "versions/v13/5nn4_SC2_A_1017__top2/round_05/council/synthesis_inputs/40803d8f2298062b7510f2fafeb5d7ce48a9b55d6abad623b866289821f7a6be.txt": "40803d8f2298062b7510f2fafeb5d7ce48a9b55d6abad623b866289821f7a6be"
+      }
+    },
+    "versions/v13/5nn4_SC2_A_1017__top2/round_05/council/analysts/G2/turn_00.request.json": {
+      "sha256": "6657e93117c5fc954c3158930000c6e45e66fbe6095b626843a46ed99ef5569c",
+      "context": [
+        {
+          "objective_priority": [
+            "condition_coordinate_fidelity",
+            "mean_affinity_teacher_agreement",
+            "best_affinity_bonus"
+          ],
+          "continuous_objectives": {
+            "conflict_policy": "report_continuous_Pareto_tradeoffs_no_hidden_weight_or_pass_gate",
+            "functional_metric": "absolute_mean_pic50_minus_teacher",
+            "policy": "four_shared_schedules",
+            "priority": [
+              "condition_coordinate_fidelity",
+              "mean_affinity_teacher_agreement",
+              "best_affinity_bonus"
+            ],
+            "round_barrier": "four_groups_evaluated",
+            "scope": "unselected_hypothesis_25_candidates",
+            "thresholds": null,
+            "validity": "report eligible counts; never improve mean by dropping failed slots"
+          },
+          "controller_role": "adaptive conditional learning controller",
+          "search_budget": {
+            "completed_rounds": 5,
+            "consumed_fraction": 1.0,
+            "decision_phase": "review_only",
+            "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+            "remaining_sampling_rounds": 0,
+            "total_rounds": 5
+          },
+          "condition_comparison": {
+            "aggregation": "mean_of_per_candidate_local_rmsd",
+            "band": "anchored_to_pool_minimum",
+            "chemical_pose": "separate_exact_subgraph_diagnostic",
+            "frame": "protein_fixed",
+            "ligand_fit_for_primary": false,
+            "ranking_tolerance_A": 0.02,
+            "sensitivity_A": [
+              0.01,
+              0.05
+            ],
+            "terminal_state_required": true
+          },
+          "observed_round": 5,
+          "action_contract": {
+            "action_anchor_ticks": [
+              1,
+              5,
+              1,
+              5
+            ],
+            "all_hypotheses_distinct": true,
+            "allowed_local_ticks_by_interval": [
+              [
+                0,
+                1,
+                2,
+                3
+              ],
+              [
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              [
+                0,
+                1,
+                2,
+                3
+              ],
+              [
+                3,
+                4,
+                5,
+                6,
+                7
+              ]
+            ],
+            "default_max_absolute_tick_change": 2,
+            "double_tick_rule": "Two ticks allowed by default; three only in verified_large_step_directions.",
+            "ids_in_order": [
+              "H1",
+              "H2"
+            ],
+            "initial_step_ticks": 2,
+            "max_changed_intervals": 2,
+            "no_executed_schedule": true,
+            "no_unchanged_anchor": true,
+            "range_probe_rule": "Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.",
+            "reference_semantics": "Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.",
+            "reference_ticks_must_equal": [
+              1,
+              5,
+              1,
+              5
+            ],
+            "search_policy": {
+              "coarse_probe_scale": 0.2,
+              "fine_resolution": 0.1,
+              "max_changed_intervals": 2,
+              "max_range_probes": 0,
+              "upper_amplitude": 1
+            },
+            "tick_bounds_inclusive": [
+              0,
+              10
+            ],
+            "tick_to_amplitude": 0.1
+          },
+          "common_anchor_ticks": [
+            1,
+            5,
+            1,
+            5
+          ]
+        }
+      ],
+      "prompt_source_sha256": {
+        "versions/v13/5nn4_SC2_A_1017__top2/round_05/council/analysts/G2/llm_inputs/eea54a001a63a85c7a7bdb473276cfbabcaf3a73ffeeb2c7ef06d87d2d7d2b22.txt": "eea54a001a63a85c7a7bdb473276cfbabcaf3a73ffeeb2c7ef06d87d2d7d2b22"
+      }
+    }
+  }
+}
