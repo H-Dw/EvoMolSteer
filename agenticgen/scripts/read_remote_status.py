@@ -42,6 +42,7 @@ def permitted_files(version):
             prefix = f'{base}/{teacher}'
             names.add(f'{prefix}/RETENTION_COMPLETE_{round_no:02d}.json')
             names.add(f'{prefix}/round_{round_no:02d}/council/COMPLETE.json')
+            names.add(f'{prefix}/round_{round_no:02d}/council/analyst_failures.json')
             for marker in ('COMPLETE', 'QUALITY_COMPLETE', 'CLEANUP_COMPLETE'):
                 names.add(f'{prefix}/round_{round_no:02d}/wave/{marker}.json')
     return names
@@ -101,13 +102,25 @@ class StatusReader:
                 'state': state, 'worker_alive': matches and state is not None and not state.startswith('Z')}
 
     def failures(self, launched):
+        # CLI writes failure receipts in operations/, not at the result root.
         # Names/mtime only, no recursive scan and no reading failure payloads.
         rows = []
-        for entry in self.sftp.listdir_attr(ROOT):
+        for entry in self.sftp.listdir_attr(ROOT + '/operations'):
             if (re.fullmatch(r'failure_[0-9]+\.json', entry.filename)
                     and stat.S_ISREG(entry.st_mode) and entry.st_mtime >= int(launched)):
                 rows.append({'name': entry.filename, 'mtime': entry.st_mtime})
         return sorted(rows, key=lambda row: row['mtime'])
+
+
+def error_summary(error):
+    if not isinstance(error, dict):
+        return None
+    message = str(error.get('message', ''))
+    message = re.sub(r'https?://\S+', '[URL omitted]', message)
+    message = re.sub(r'(?i)(bearer\s+|(?:api[_-]?key|password|token)\s*[:=]\s*)\S+',
+                     '[credential omitted]', message)
+    return {'type': str(error.get('type', error.get('error_type', 'unknown')))[:100],
+            'message': message[:1200]}
 
 
 def collect(sftp, version):
@@ -143,7 +156,13 @@ def collect(sftp, version):
             rows.append(row)
         current = teacher_states.get(teacher, {})
         teachers[teacher] = {'round': current.get('round'), 'phase': current.get('phase'),
-                             'has_error': bool(current.get('error')), 'rounds': rows}
+                             'has_error': bool(current.get('error')), 'rounds': rows,
+                             'error': error_summary(current.get('error'))}
+        if current.get('phase') == 'failed' and type(current.get('round')) is int and 1 <= current['round'] <= 5:
+            failures = reader.json(f"{base}/{teacher}/round_{current['round']:02d}/council/analyst_failures.json")
+            if failures:
+                teachers[teacher]['failed_analysts'] = {g: error_summary(failures[g])
+                    for g in ('G1', 'G2', 'G3', 'G4') if g in failures}
     final_name = f'FINALIZED_{version}.json'
     final_bytes = reader.data(final_name)
     final = json.loads(final_bytes) if final_bytes is not None else None

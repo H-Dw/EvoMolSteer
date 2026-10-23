@@ -40,7 +40,7 @@ class ReadOnlySFTP:
         return io.BytesIO(value)
 
     def listdir_attr(self, path):
-        assert path == module.ROOT
+        assert path == module.ROOT + '/operations'
         return self.entries
 
     def exec_command(self, *args, **kwargs):
@@ -121,6 +121,27 @@ def test_permission_denial_is_not_reported_as_worker_exit(complete):
     complete.denied.add('/proc/123/cmdline')
     with pytest.raises(PermissionError):
         module.collect(complete, 'v10')
+
+
+def test_only_current_failed_round_gets_targeted_diagnostics(complete):
+    root = module.ROOT
+    path = root + '/versions/v10/pipeline.json'
+    state = json.loads(complete.files[path])
+    teacher = module.TEACHERS[0]
+    state['teachers'][teacher] = {'round': 4, 'phase': 'failed',
+        'error': {'type': 'RuntimeError', 'message': 'An isolated analyst failed'}}
+    complete.files[path] = encoded(state)
+    diagnostic = root + '/versions/v10/' + teacher + '/round_04/council/analyst_failures.json'
+    complete.files[diagnostic] = encoded({'G3': {'error_type': 'ValueError', 'message': 'Invalid proposal'}})
+    result = module.collect(complete, 'v10')
+    assert result['teachers'][teacher]['failed_analysts']['G3']['message'] == 'Invalid proposal'
+    assert [p for p in complete.opens if p.endswith('analyst_failures.json')] == [diagnostic]
+
+
+def test_error_summary_redacts_credentials_and_urls():
+    result = module.error_summary({'type': 'HTTPError', 'message':
+        'https://user:secret@example.test auth Bearer secret2 api_key=secret3 password=secret4'})
+    assert 'secret' not in result['message']
 
 
 @pytest.mark.parametrize('version', ['../v10', 'v31', 'V10', 'v010', 'v10;echo nope'])
