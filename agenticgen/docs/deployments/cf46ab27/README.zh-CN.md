@@ -1,3 +1,13 @@
+# cf46ab27：已安装，启动前置兼容性错误，已由 cea3611c 修复
+
+最新真实收据：限定部署子树的官方 GitHub API 获取成功，获取器固定2304badc且9项远端检查通过；cf46ab27安装成功，53项旧协议/R0/完成结果关键哈希一致。三份远端来源逐字节校验见installed_source_manifest.json。
+
+随后普通启动入口读取已被V10修复协议归档的strategy_review_operation字段，报KeyError；未执行版本工程检查、批准或启动，没有V11结果。详见[startup_protocol_fix](startup_protocol_fix.zh-CN.md)。不要再部署cf46ab27。
+
+新固定目标为[cea3611c](../cea3611c/README.zh-CN.md)，仅修复普通启动门槛的协议分派；科学Python和V11策略不变。其首次获取遇GitHub API 403限流，尚未安装。以下是历史超时记录，不作为当前待执行命令。
+
+---
+
 # V11准备完成，源码获取超时
 
 预定固定提交`cf46ab27bf953c05ecd2e604539596b052348d2a`已本地提交并推送原GitHub。
