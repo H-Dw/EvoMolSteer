@@ -1,5 +1,10 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-24补充计划：用户已确认[V30之后的Graph inpainting/PB优先探索](supplemental/graph-inpainting-pb-after-v30.zh-CN.md)，状态`authorized_dormant`。
+当前V15及V16–V30计划保持；V30完整交付后先commit/push保存原方向代码，再重新读取补充计划并激活独立I01–I20（每版5轮）。
+子图身份保持、坐标可调整，输入声明的interaction site/type必须保持；PB通过率为新方向首要目标。
+本次只写文档，不改运行时skills/代码或远端。旧“V30交付即删除自动任务”由补充计划的交接规则取代，35分钟频率不变。
+
 2026-10-24最新：**V14完成有限评估，V15已真实批准并启动**。
 固定`a942ab9e2afca41d47415d4c84bffd2f59a300ee`，worker2587449，启动1792782804.6200216，runtime `/opt/MolSteer/runtimes/agenticgen_a942ab9e`。
 官方GitHub API固定获取/安装成功，72项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。

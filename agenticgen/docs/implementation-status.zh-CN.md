@@ -1,5 +1,9 @@
 # agenticgen 实现与运行状态
 
+2026-10-24后续方向：已完成用户澄清并保存[休眠补充计划](supplemental/graph-inpainting-pb-after-v30.zh-CN.md)。
+Graph inpainting/PB优先路线尚未实现、未部署、未激活；只能在原V30完整交付并commit/push保存原代码之后启动。
+当前科学来源与V15运行不变。本次仅计划/确认/交接文档，无本地或远端自动化测试、无远端操作。
+
 2026-10-24最新：**V14完成有限评估，V15已真实批准并启动**。
 固定`a942ab9e2afca41d47415d4c84bffd2f59a300ee`，worker2587449，启动1792782804.6200216，runtime `/opt/MolSteer/runtimes/agenticgen_a942ab9e`。
 官方GitHub API固定获取/安装成功，72项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。

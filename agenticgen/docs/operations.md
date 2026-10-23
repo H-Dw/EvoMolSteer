@@ -1,5 +1,9 @@
 # Deployment and continuation
 
+2026-10-24新增休眠交接：[Graph inpainting/PB优先补充计划](supplemental/graph-inpainting-pb-after-v30.zh-CN.md)。
+V30完成原报告后，先commit/push保存原方向及来源，再读取该计划和activation.json，激活独立的20个外层版本、每版5轮。
+当前V15及至V30的运行/部署规则不变，不提前实施或采样；35分钟任务在V30后交接，后续I20完整交付后再删除。
+
 2026-10-24最新：**V14完成有限评估，V15已真实批准并启动**。
 固定`a942ab9e2afca41d47415d4c84bffd2f59a300ee`，worker2587449，启动1792782804.6200216，runtime `/opt/MolSteer/runtimes/agenticgen_a942ab9e`。
 官方GitHub API固定获取/安装成功，72项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。
