@@ -161,9 +161,9 @@ def main():
                     raise TimeoutError('Deployment outcome uncertain; inspect receipts before any retry')
                 time.sleep(.1)
             status=channel.recv_exit_status()
+            # Keep exception summaries, not shell/profile output or environment values.
             errors=[error_summary({'message':line})['message'] for line in stderr.decode('utf8','replace').splitlines()
-                    if line.startswith(('fatal:','error:','RuntimeError:','ValueError:','FileNotFoundError:',
-                                        'TimeoutError:','urllib.error.HTTPError:','urllib.error.URLError:'))][-5:]
+                    if re.match(r'^(?:fatal|error|[\w.]+(?:Error|Exception)):',line)][-5:]
         sources={};logs={};health=None
         dep='/opt/MolSteer/operations/agenticgen_deploy_'+args.commit[:8]
         with client.open_sftp() as sftp:

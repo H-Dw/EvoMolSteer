@@ -20,9 +20,32 @@ from agenticgen.adaptive_schedule.strategy_review import AUTHORIZATION, MODE
 from agenticgen.runtime.extend_budget import assert_committed_runtime
 from agenticgen.runtime.launch import idle_locks
 from agenticgen.runtime.restart_failed_version import no_worker
-from agenticgen.runtime.review_policy import verify_ready
+from agenticgen.runtime.review_policy import verify_ready as verify_review_policy
+from agenticgen.runtime.restart_failed_teacher import verify_ready as verify_teacher_restart
 
 RESULT_ROOT = Path('/opt/MolSteer/generated_datasets/agenticgen_5nn4_r12_h4_n25_core1hop_fixedstart_s42_20261022')
+
+
+def verify_active_protocol(root, version):
+    """Follow the accepted current protocol, including completed teacher repairs.
+
+    A repair preserves the adopted review scope but archives its old operation
+    pointer. Its own native/protected-source gate is the active readiness check.
+    This dispatch performs no migration, deletion or recovery.
+    """
+    prepared = read(prepared_path(root))
+    policy = prepared.get('master_review_policy', {})
+    if policy.get('mode') != MODE or policy.get('full_review_prohibited') is not True:
+        raise ValueError('The accepted best-round review scope is required')
+    routes = {'strategy_review_operation': verify_review_policy,
+              'teacher_restart_operation': verify_teacher_restart}
+    active = [name for name in routes if prepared.get(name)]
+    if len(active) != 1:
+        raise ValueError('Expected one supported active protocol operation')
+    name = active[0]
+    if routes[name](root, version) is None:
+        raise ValueError('Active protocol verifier returned no accepted transaction')
+    return {'kind': name, 'operation': prepared[name]}
 
 
 def previous_version(root, version):
@@ -81,7 +104,7 @@ def main():
     with idle_locks(root):
         no_worker(root)
         previous = previous_version(root, args.version)
-        verify_ready(root, args.version)
+        verify_active_protocol(root, args.version)
         assert_prepared(root)  # Skills/scripts may change; accepted scientific Python must match.
     review = f'agenticgen/docs/experiments/{previous}_strategy_review/'
     dep = Path('/opt/MolSteer/operations')/('agenticgen_deploy_'+revision[:8])
@@ -115,7 +138,8 @@ def main():
     write(dep/'tests_receipt.json', validation)
     with idle_locks(root):
         no_worker(root); previous_version(root, args.version)
-        config = assert_prepared(root); verify_ready(root, args.version)
+        config = assert_prepared(root)
+        active_protocol = verify_active_protocol(root, args.version)
         for name in ('review.zh-CN.md', 'strategy_review.json'):
             committed_file(review+name, sha(repo/review/name), revision)
         policy = load_version_policy(root, args.version)
@@ -131,7 +155,7 @@ def main():
             'search_policy_sha256':value_sha(policy),
             'condition_comparison_sha256':value_sha(config['condition_comparison']),
             'new_prepared_sha256':sha(prepared_path(root)), 'new_acceptance_sha256':sha(acceptance_path(root)),
-            'review_policy_operation':read(prepared_path(root))['strategy_review_operation'],
+            'active_protocol_gate':active_protocol,
             'scientific_settings_unchanged':True, 'offline_llm_replay_performed':False,
             'performance_improvement_claimed':False, 'aborted_full_review_required':False}
         base = root/'versions'/args.version
