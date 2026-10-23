@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+Monitoring transport update (2026-10-23 06:49 UTC): the active V9 read-only
+health-check send through the existing SSH console was rejected before execution
+by the tool approval policy (`approval required by policy, but AskForApproval is
+set to Never`), despite the advertised Full Access configuration. No new remote
+state was obtained; this does not establish a scientific failure. Preserve V9
+and its last confirmed startup state. Do not restart or change transport to evade
+the rejection, and do not repeat the same denied check while execution permissions
+are unchanged. See [blocked check receipt](deployments/c8671c29/monitor_transport_blocked.json).
+
 V9 started (2026-10-23): fixed `c8671c293750db24fdd8022a1f0ff79181d4c684`,
 runtime `/opt/MolSteer/runtimes/agenticgen_c8671c29`, worker1834410. Remote tests
 159/159 passed; V8 best-round gate accepted two teachers/four selected contexts,
