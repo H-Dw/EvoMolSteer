@@ -192,6 +192,7 @@ def citation_restart(focused_restart,monkeypatch):
     p=read(old/'PREPARED.json');p['config_sha256']=sha(old/'config.json')
     p.pop('strategy_review_operation');p['teacher_restart_operation']='operations/previous_restart'
     for n in ('PREPARED.json','ACCEPTANCE_COMPLETE.json'):write(old/n,p)
+    write(root/'ACTIVE_PROTOCOL.json',{'directory':'protocols/old','prepared_sha256':sha(old/'PREPARED.json')})
     b=read(base/'binding.json');b['config_sha256']=p['config_sha256']
     b['preserved_teacher_provenance']={'a':{'binding':{'original':True},'deployment':{'commit':'original'},'files_sha256':{}}}
     write(base/'binding.json',b)
