@@ -1,5 +1,13 @@
 # Deployment and continuation
 
+2026-10-23 16:47北京时间最新验证：受限只读SFTP客户端真实读取成功，
+25项相关本地测试通过，客户端提交26d91fc5已推送；本次未执行远端命令或写入。
+V10 worker1912935已退出；Top2五轮完整，Top1 R4G2回答未完整结束导致分析失败，
+FINALIZED_v10不存在。保持Top2和历史结果，不启动V11。下一步定点核对
+该次incomplete receipt的finish_reason/usage，按既有授权测试修复并保留已完成教师。
+这是科学分析故障，与历史工具拒绝分开。见[真实验证](deployments/26d91fc5/README.zh-CN.md)。
+此次成功不保证定时调用已验证，权限仍以实际工具决定；不再轮询旧控制台90887。
+
 2026-10-23 scoped-control update: use the local bounded SFTP reader documented in
 [remote control](remote-control.zh-CN.md) for normal status reads. It accepts only
 the experiment version and a local receipt path; it cannot execute remote commands,

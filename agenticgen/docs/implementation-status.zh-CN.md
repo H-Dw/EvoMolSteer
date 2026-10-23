@@ -1,5 +1,13 @@
 # 2026-10-23：V9完成有限复盘，V10已固定部署启动
 
+2026-10-23 16:47北京时间最新验证：受限只读SFTP客户端真实读取成功，
+25项相关本地测试通过，客户端提交26d91fc5已推送；本次未执行远端命令或写入。
+V10 worker1912935已退出；Top2五轮完整，Top1 R4G2回答未完整结束导致分析失败，
+FINALIZED_v10不存在。保持Top2和历史结果，不启动V11。下一步定点核对
+该次incomplete receipt的finish_reason/usage，按既有授权测试修复并保留已完成教师。
+这是科学分析故障，与历史工具拒绝分开。见[真实验证](deployments/26d91fc5/README.zh-CN.md)。
+此次成功不保证定时调用已验证，权限仍以实际工具决定；不再轮询旧控制台90887。
+
 07:25 UTC巡检：向既有已认证SSH控制台90887发送V10只读健康检查时，工具在执行前再次拒绝，原因是`approval required by policy, but AskForApproval is set to Never`。未发送远端命令、未取得新状态；最后确认仍为1792740105.8528693的启动核验。不能认定V10失败或完成，不重启、不重复批准、不换通道规避；同一已知权限问题不重复通知。上次正常重连与部署成功仍然有效，但不能推断此次工具调用也获准。见[本次拒绝收据](deployments/d1163b7e/monitor_transport_blocked.json)。
 
 V10固定`d1163b7eb873e7305189973670341950018bd1bf`，运行目录`/opt/MolSteer/runtimes/agenticgen_d1163b7e`，worker1912935，启动1792740063.1825883。远端159项通过；V9有限门槛2教师/4上下文通过，full_review_completed=false；43项既往协议/R0/完成结果关键hash保持。初次核验进程身份/API/代理完整继承、无新failure，当时pipeline尚未建立，仅能确认启动，不声称首轮完成。详见[V10收据](deployments/d1163b7e/README.zh-CN.md)。不重复批准/启动，不因文档提交更换科学源。下方待部署文字均为启动前快照。
