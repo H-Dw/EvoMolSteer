@@ -1,5 +1,16 @@
 # Deployment and continuation
 
+2026-10-23最新：**V11已FINALIZED，有限策略评估完成，V12待固定部署**。
+两教师各五轮1000正式结果及质量/汇总/保留/清理完整，worker2281628退出、无新failure；
+原07fa7423 analyze及完成/report/manifest绑定通过。只读Top1 R5G2、Top2 R4G2私有与汇总四上下文，
+结合40组聚合结果，full_review_completed=false。见[本版策略评估](experiments/v11_strategy_review/review.zh-CN.md)。
+Top1/Top2代表Mean4.212057199/4.211230860，较V10一降一升；等权gap增加0.000091705，
+连续退步1、不回滚。目标未达成。正式61+作废33=94份API，共5135525输入/1044510输出tokens，
+作废GPU另304.469秒，失败分数不混正式结果。最后成功重跑24.099分钟，总84.981分钟含故障等待。
+V12保留用户框架的三项机制/时间作用/预算假设，并按本版证据补充背景响应与提案自身合法域；
+保持U1与全部科学协议。只改skills/文档，无本地测试/LLM回放；尚未批准或启动V12。
+V6–V11不得重跑/prepare；下面V11启动和准备记录均为历史，不再调用任何失败修复事务。
+
 2026-10-23策略续接：用户指定框架已转为三份 skills 的通用调控推理，
 见[策略说明](strategy/20261023-guidance-mechanism.zh-CN.md)。这是下一边界的准备，未部署或批准 V12。
 V11 仍固定07fa7423，不因本地skills提交重启或切换科学源。完成后按更新的主 Agent skill

@@ -38,6 +38,9 @@ Small terminal gains, large residuals, clipping or a local plateau alone prove n
 of saturation, impossibility or a chemistry bottleneck. Name the rival explanation
 that matters and a legal result that would favor it. Do not demand a new tool to
 resolve every mechanism before exploiting a measured gain.
+Retire a tested edge on its measured background, not an entire interval. A useful
+background change can reopen a weak edge; compare its terminal response before
+carrying an old "inactive" label into the new branch.
 
 Give a time-interval change a causal role: establish a useful trajectory, steer it,
 maintain an earlier gain, or release unnecessary pressure. These are hypotheses, not

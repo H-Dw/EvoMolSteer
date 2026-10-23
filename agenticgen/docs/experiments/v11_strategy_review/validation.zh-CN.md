@@ -1,0 +1,8 @@
+# 有限评估来源
+
+- FINALIZED：33e5ffa086a7cb6c2b232242cb487de3f57fe791fe3a705a6b6612280a917496。
+- report：db9ea52088d09fa5a296fffe0d0626ee209ccdba1d4b46e7dc8f057059d7cf60。
+- manifest：64075d603470abc6025f8bfb6a83d2ba27fac6d398822087ea863237ab464cfd。
+- 只读完成核验、原07fa7423 analyze及上述绑定已取得；四个已读上下文和来源hash保存在selected_evidence/strategy_review，所有40组聚合表现保存在performance_context。
+- 没有52会话覆盖、逐请求/逐工具审计、失败上下文补审、本地自动化测试或离线LLM回放。来源核验与策略评估分别记录，不互相冒充。
+- 下一固定部署只含skills/文档时不跑单元测试，既有科学完整性及有限review-check仍须实际通过。

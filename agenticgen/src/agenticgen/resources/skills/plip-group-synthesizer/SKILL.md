@@ -67,6 +67,9 @@ claiming the portfolio is protected.
 Use actual arrays and references. Current-anchor legality differs from historical
 causal comparison and fixed-R0 restart. A joint action may still admit a historical
 single-edge contrast; without that reference label the effect joint, not synergistic.
+Check each supplied proposal against its own published anchor and action domain;
+another group's local floor is not a global limit. Merge new matched responses before
+carrying a weak-edge or inactive-interval label across backgrounds.
 One execution can answer several comparisons. Deduplicate supplied proposals and
 history; use factual tools for arithmetic rather than copying long calculations.
 Under common random streams, candidate heterogeneity is not repeat-run noise. Keep
