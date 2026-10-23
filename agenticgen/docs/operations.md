@@ -1,5 +1,16 @@
 # Deployment and continuation
 
+2026-10-23 current validation policy: remove all local automated testing from this task,
+including executable-code edits. Review the diff, commit and push; run only necessary,
+change-specific compatibility checks in the fixed remote runtime. Do not delete existing
+tests or historical receipts. Skills/document edits use the next real experiment and
+limited best-round assessment; token changes need request/configuration and response
+completion checks, not a scientific full suite. Context compression changes the actual
+agent input: check required conditions, evidence references, visibility and parsing if
+enabled. Retain relevant remote checks for recovery, RNG or deletion-transaction changes,
+plus provenance, completion, locks and review-check. This supersedes every historical
+local-test instruction below. Do not restart current V10 for this workflow-only change.
+
 2026-10-23 17:36北京时间最新：96K修复已固定部署098467f5并真实启动V10 Top1
 worker2045658；Top2原五轮及31729个保护文件哈希保留。远端64相关测试与两教师
 原生验收、4上下文有限复盘门槛通过；失败Top1四轮400候选已归档后删除并从R1重跑。
@@ -86,12 +97,11 @@ See [deployment receipts](deployments/c8671c29/README.zh-CN.md). Do not repeat
 installation, approval or launch for this healthy worker; documents do not change
 its fixed source. Resume normal 35-minute monitoring of this active experiment.
 
-Latest local-test policy (2026-10-23): skip local tests for skills/document-only
-edits. Existing unit tests check software contracts and recovery/gates, not LLM
-strategy quality. If executable code changes, run only tests relevant to that
-change; do not repeat an unrelated full suite. Measure skill effectiveness in the
-next real experiment and limited best-round assessment. Preserve provenance and
-deployment gates. This supersedes historical blanket local-testing instructions.
+Latest local-test policy (2026-10-23): skip all local automated tests, including
+executable-code edits. Necessary software checks run only in the fixed remote
+environment and are scoped to the change. Measure skill effectiveness in the next
+real experiment and limited best-round assessment. Preserve provenance and deployment
+gates; retained test files and earlier test results are not new local execution steps.
 
 Latest user update (2026-10-23): the `agenticgen` heartbeat is now every **35 minutes**.
 SSH authentication has been restored using the supplied login without storing credentials.
@@ -248,8 +258,8 @@ bootstrap is not a completed round. V7 needs its own full review before V8.
 Use the existing repository/branch, with agenticgen as an installable src-layout
 subproject. Migration commit `b105f0b82fa18e563e98a2719f627f477e571a95`
 preserves the original source history. New scientific changes use later commits.
-Commit locally, push GitHub, then fetch a fixed commit remotely. Local tests are
-required only for relevant executable-code changes, not skills/document edits.
+Commit locally, push GitHub, then fetch a fixed commit remotely. Local automated
+tests are omitted for all edits; necessary relevant checks run remotely.
 Do not deploy uncommitted working files as a scientific runtime.
 
 The only execution host is root@ssh.zzai.scnet.cn:11762, workspace /opt/MolSteer.

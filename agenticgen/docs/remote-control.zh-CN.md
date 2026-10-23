@@ -38,7 +38,8 @@ analyst_failures中Incomplete JSON的组读取严格命名的收据、原始回�
 Top1归档/删除/五轮重启，明确保留Top2。它不是只读巡检，也不是免审批路径；
 不接受任意远端命令、主机或路径，工具拒绝时停止，不换接口继续执行。
 
-代码继续本地修改、相关测试、commit/push，再由远端GitHub fetch固定提交。
+代码继续本地修改、检查差异、commit/push，再由远端GitHub fetch固定提交。
+本任务不再运行本地自动化测试；必要兼容性验证仅在远端按改动范围执行。
 部署与`start_reviewed_version.py`启动分开，使用既有完成状态、锁、固定提交及
 review-check。只读客户端不能触发这些操作，也不能自动重启、删除或重跑版本。
 本次客户端在本地运行，不更换V10科学运行来源，不在GPU环境安装Paramiko。
