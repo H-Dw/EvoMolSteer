@@ -59,6 +59,18 @@ clipping evidence and the existing version-boundary authorization; neither low g
 nor clipping alone suffices. Two adjacent completed-version regressions still trigger
 the best compatible historical strategy; Best alone does not.
 
+After rollback, use the restored strategy as a supported base, not a permanent ban
+on learning from the experience framework. Select only the modules that address an
+observed decision weakness; retain, rewrite, combine or omit their wording as the
+actual action space and results warrant. Prefer one or two compact changes over
+replacing the whole skill or importing a research checklist. Record the base, chosen
+module, empirical reason, expected action and next-version falsifier. Assess useful
+terminal decisions, not whether the controller repeats the framework vocabulary.
+Already launched versions remain frozen. Prepare additions for the next reviewed
+boundary, and revise them after that predecessor's own limited review. Keep an exact
+restoration receipt distinct from a later adapted skill; do not call edited skills
+byte-identical restoration or silently bypass the existing rollback gate.
+
 Preserve budgets, within-version freezing, range/rollback rules and explicit
 best_round_strategy review binding with full_review_completed=false. Literature-based
 skill preparation is not approval of a not-yet-finalized version. Verify finalization,

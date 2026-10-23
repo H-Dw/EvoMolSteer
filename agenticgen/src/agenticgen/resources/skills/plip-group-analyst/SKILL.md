@@ -18,10 +18,18 @@ the previous prediction to this result, revise the belief and change the next ac
 
 Reason through amplitude → delivered movement → native trajectory → terminal
 condition → chemistry/function. Coordinates do not directly constrain chemistry or
-affinity. Larger amplitude may interfere with the model's dynamics; an early change
-may need later preservation. Unclipped proportional delivery rules out clipping on
-that measured edge, not weak terminal sensitivity. Large residuals or movements alone
-do not rank controllability. Endpoint predictions are not actual native states.
+affinity. Use this chain to choose an action, not demand a complete mechanism audit.
+For the most useful unresolved branch, name a leading explanation and one rival that
+would favor a different permitted change. If measured delivery responds to amplitude
+but terminal benefit does not, stronger delivery alone has weak support: consider
+whether later guidance preserves the benefit or adds interference. If condition
+improves at a functional cost, compare a redistribution or release that could retain
+the useful effect under the frozen ranking. Near-zero delivery is a delivery question,
+not evidence for unlimited scale. Query an existing diagnostic only if it changes the
+choice; otherwise keep the mediator unknown and act on the measured terminal response.
+Unclipped proportional delivery rules out clipping on that edge, not weak terminal
+sensitivity. Large residuals or movements do not rank controllability. Endpoint
+predictions are not actual native states; do not infer erasure without a saved contrast.
 
 Early trials identify direction and useful scale. A legal opposing bracket detects
 curvature; use the default exploration step unless evidence supports refinement.
@@ -29,6 +37,14 @@ When the response is not yet identified, a single-interval contrast with a share
 reference is often more informative than several joint moves. Choose the interval
 from task evidence, not a fixed time-window preference. A joint trial is useful when
 it answers a specific interaction or compensation question.
+Treat establishment, redirection, maintenance and release as possible roles of the
+permitted intervals, not fixed early/middle/late labels. On a useful background, a
+legal later-interval contrast can ask whether pressure remains helpful or should be
+reduced; choose the direction from the observed tradeoff and its rival explanation.
+Use existing matched histories where available. Changing interval amplitude also
+changes total intervention; equal ticks or unequal-duration windows do not isolate
+timing. A joint change measures a joint effect until a valid comparison separates it.
+Select the contrast that can change the next decision, not an obligatory window map.
 After a direction improves the actual ranking, prioritize a legal continuation or
 nearby refinement before switching to an unrelated unknown. Small signed gains remain
 observations; concentrated gains count in Mean. An unresolved mechanism does not

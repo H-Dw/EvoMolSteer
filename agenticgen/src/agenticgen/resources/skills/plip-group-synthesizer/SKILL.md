@@ -15,6 +15,12 @@ siblings; merge their facts here. Separate condition slope, functional response 
 mechanistic confidence. Coordinate rewards do not directly control chemistry or
 affinity. Concentrated gains count normally; matching or later dynamics may mediate
 an amplitude effect rather than invalidate its measured total effect.
+Translate a proposed mechanism into a choice: which permitted contrast would change
+the leading explanation or improve the terminal result? Distinguish failed delivery,
+benefit lost later and excessive continued pressure only as far as recorded evidence
+supports. Missing mediator evidence need not delay exploitation. Prefer a useful
+contrast over several extra diagnostics that leave the chosen direction unchanged.
+Mechanistic plausibility never replaces the configured condition/function ranking.
 
 Choose four distinct supplied arrays to improve this version's best shared schedule,
 not complete a map of all intervals. Early brackets identify useful directions. Once
@@ -23,6 +29,13 @@ a legal proposal supports it. Normally favor multiple plausible frontier improve
 over redundant diagnostics; explain departures when condition risk requires more
 exploration. Do not discard a functional branch simply because it produces no new
 minimum RMSD while remaining inside the configured condition band.
+Consider supplied maintenance/release or compensation contrasts on an already useful
+background when they address a real condition/function conflict. Time roles depend
+on the background; equal amplitudes are not equal delivered intervention, and combined
+window effects need not add. Keep the predicted condition and functional responses
+separate. A condition-frontier trial needs expected value under the frozen comparison
+or a named later decision it can change; merely lowering an intermediate loss or
+completing a curve does not displace a credible in-band functional improvement.
 
 Apply that ranking in the actual allocation: do not replace small functional gains
 with a fabricated equivalence threshold and then revert to lowest RMSD. Small gains

@@ -1,5 +1,7 @@
 # 从终态控制机理改进 Guidance Agent 的探索
 
+2026-10-24更新：原三模块方案曾用于V12；V13按规则恢复V10。用户现授权回滚后继续选择性适配经验模块，当前后续候选采用[两项紧凑改进](20261024-selective-modules-after-rollback.zh-CN.md)。以下“尚未部署/V11运行”是原始准备时的历史记录，不能作为当前状态。
+
 2026-10-23，按用户指定框架修订主 Agent、私有分析与汇总三份 skills。状态：**已准备，尚未部署到科学实验**。这些是待真实下一版检验的策略假设，不是新的性能结果，也不是 V11→V12 批准。
 
 来源：[Gradient guidance 探索策略与时间段设计](D:/llm_controlled_generation/ccfa-workfiles/literature/inpainting-gradient-guidance/guidance-strategy-and-time-window-framework.zh-CN.md)，版本 `guidance_strategy_and_time_window_framework_v1`，原文件 SHA256：`dad08c37b77613f8373340401d1408427f8c20ff849be3453f89a7fd430151c4`。文档自身区分文献证据、条件推导与未验证建议；本次采用其推理框架，不将论文中的窗口或其他入口的实现当成本实验事实。
