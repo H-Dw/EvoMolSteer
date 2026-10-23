@@ -1,5 +1,15 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新：**V16完成有限评估，V17已真实批准并启动**。
+固定`a245eb0ac2ea4a7944d4fd7acfcd3491eaf5dbed`，worker2764399，启动1792791877.9126267，runtime `/opt/MolSteer/runtimes/agenticgen_a245eb0a`。
+官方GitHub API固定获取/安装成功，80项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。
+仅三份skills/文档变化，两端未跑单元测试；真实V16→V17有限review-check为2教师4上下文，full_review_completed=false。
+V16正常31.907184分钟完成，Mean4.211907396/4.210484428；等权gap相对V15增加0.000434699，连续退步1、历史最好V13，尚不需回滚，目标未达成。
+V17分开条件容差/功能排序/预测区间，按实测响应安排步长与共享外推风险，U1及完整科学设置保持。
+初始核验1792791884.0330298存活、身份匹配且无新failure；pipeline尚未落盘，不代表首轮完成。
+不重复启动或为文档同步切换科学源，见[实际部署](deployments/a245eb0a/README.zh-CN.md)。
+V6–V16不prepare/重跑，下方待部署或旧运行记录为历史。35分钟巡检保持，V30后补充计划继续休眠。
+
 2026-10-24最新：**V16已FINALIZED并完成有限评估，V17待正常固定部署**。
 两教师各五轮1000记录及质量/汇总/保留/清理完整，无新故障，原64ede898 analyze成功。
 仅两教师R5G1私有/汇总四上下文与40聚合组；full_review_completed=false。
