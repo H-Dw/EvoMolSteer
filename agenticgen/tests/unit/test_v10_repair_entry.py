@@ -21,6 +21,24 @@ def test_fixed_deployment_has_no_user_supplied_command_or_transfer():
     assert 'scp ' not in cmd and 'curl ' not in cmd
     for invalid in ('a'*39,'a'*40+';uname','$(whoami)','v10'):
         with pytest.raises(ValueError):m.command(invalid)
+    with pytest.raises(ValueError):m.command('a'*40,github_api=True,bootstrap_oid='../escape',bootstrap_sha256='b'*64)
+    fallback=m.command('a'*40,github_api=True,bootstrap_oid='b'*40,bootstrap_sha256='c'*64)
+    assert 'api.github.com/repos/H-Dw/EvoMolSteer/git/blobs/' in fallback
+    assert 'sha256' in fallback and 'http_proxy' not in fallback and 'timeout 240' in fallback
+
+
+def test_github_object_reconstruction_checks_exact_digest():
+    m=load('fetch_fixed_github_api')
+    raw=b'tree '+b'a'*40+b'\nauthor Tester <t@example.test> 0 +0800\ncommitter Tester <t@example.test> 0 +0800\n\nmessage\n'
+    target=m.object_id('commit',raw)
+    doc={'sha':target,'tree':{'sha':'a'*40},'parents':[],'message':'message',
+         'author':{'name':'Tester','email':'t@example.test','date':'1970-01-01T00:00:00Z'},
+         'committer':{'name':'Tester','email':'t@example.test','date':'1970-01-01T00:00:00Z'}}
+    assert m.commit_bytes(doc,target)==raw
+    with pytest.raises(ValueError):m.commit_bytes(doc,'b'*40)
+    tree=m.tree_bytes([{'name':'z','type':'blob','mode':'100644','sha':'b'*40},
+                       {'name':'a','type':'tree','mode':'040000','sha':'a'*40}])
+    assert tree.startswith(b'40000 a\0'+bytes.fromhex('a'*40))
 
 
 def test_inspect_only_opens_no_command_channel(tmp_path,monkeypatch):

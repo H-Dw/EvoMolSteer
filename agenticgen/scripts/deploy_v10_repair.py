@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 import re
 import shlex
+import subprocess
 import sys
 import time
 
@@ -20,12 +21,25 @@ from read_remote_status import HOST, PORT, USER, HOST_KEY, ROOT, error_summary
 OLD = '/opt/MolSteer/runtimes/agenticgen_d1163b7e'
 
 
-def command(revision):
+def command(revision, *, github_api=False, bootstrap_oid=None, bootstrap_sha256=None):
     if not re.fullmatch('[0-9a-f]{40}',revision): raise ValueError('Full fixed Git revision required')
     new='/opt/MolSteer/runtimes/agenticgen_'+revision[:8]
     # All executable source is read by the server from the fetched Git object.
-    lines=['set -euo pipefail',
-        f'timeout 120 git -C {OLD} -c http.lowSpeedLimit=1024 -c http.lowSpeedTime=30 fetch origin codex/plip-adaptive-schedule',
+    fetch=f'timeout 120 git -C {OLD} -c http.lowSpeedLimit=1024 -c http.lowSpeedTime=30 fetch origin codex/plip-adaptive-schedule'
+    if github_api:
+        if not re.fullmatch('[0-9a-f]{40}',bootstrap_oid or '') or not re.fullmatch('[0-9a-f]{64}',bootstrap_sha256 or ''):
+            raise ValueError('Committed GitHub helper digests required')
+        loader="""import base64,hashlib,json,sys,urllib.request
+oid,sha,target=sys.argv[1:]
+r=urllib.request.Request('https://api.github.com/repos/H-Dw/EvoMolSteer/git/blobs/'+oid,headers={'User-Agent':'agenticgen-fixed-commit-deployment'})
+with urllib.request.urlopen(r,timeout=30) as response:d=json.load(response)
+raw=base64.b64decode(d['content'])
+assert d['sha']==oid and hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\\0'+raw).hexdigest()==oid
+assert hashlib.sha256(raw).hexdigest()==sha
+sys.argv=['github-fixed-fetch','--commit',target]
+exec(compile(raw,'<hash-verified GitHub fetch helper>','exec'),{'__name__':'__main__'})"""
+        fetch=f'timeout 240 {OLD}/agenticgen/.venv/bin/python -c {shlex.quote(loader)} {bootstrap_oid} {bootstrap_sha256} {revision}'
+    lines=['set -euo pipefail',fetch,
         f'git -C {OLD} cat-file -e {revision}^{{commit}}',
         f'git -C {OLD} show {revision}:agenticgen/scripts/install_fixed_runtime.py | '
             f'{OLD}/agenticgen/.venv/bin/python - --commit {revision} --from-runtime {OLD}',
@@ -40,8 +54,16 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--commit',required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--inspect-only',action='store_true',help='Read only this fixed deployment receipts/log tails; execute nothing')
+    parser.add_argument('--github-api',action='store_true',help='Fetch verified GitHub objects after Git HTTPS 503; same proxy/environment')
     args=parser.parse_args()
-    cmd=command(args.commit)
+    helper={}
+    if args.github_api:
+        repo=Path(__file__).resolve().parents[2];relative='agenticgen/scripts/fetch_fixed_github_api.py'
+        raw=subprocess.check_output(['git','-C',str(repo),'show','HEAD:'+relative])
+        if raw!=(repo/relative).read_bytes():raise ValueError('API helper is not committed')
+        helper={'github_api':True,'bootstrap_oid':hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),
+                'bootstrap_sha256':hashlib.sha256(raw).hexdigest()}
+    cmd=command(args.commit,**helper)
     if not sys.stdin.isatty(): raise ValueError('Non-echoing terminal authentication required')
     import paramiko
     class PinnedHost(paramiko.MissingHostKeyPolicy):
@@ -76,7 +98,7 @@ def main():
         sources={};logs={};dep='/opt/MolSteer/operations/agenticgen_deploy_'+args.commit[:8]
         op=ROOT+'/operations/failed_teacher_rerun_v10_'+args.commit[:8]
         with client.open_sftp() as sftp:
-            for folder,names in ((dep,('installation.json','api_preflight.json','tests_receipt.json',
+            for folder,names in ((dep,('github_object_receipt.json','installation.json','api_preflight.json','tests_receipt.json',
                     'stage_receipt.json','finish_receipt.json','aborted_cost_summary.json','approval_receipt.json','launch_receipt.json')),
                     (op,('journal.json','aborted_resource_usage.json','deletion_manifest.json'))):
                 for name in names:
