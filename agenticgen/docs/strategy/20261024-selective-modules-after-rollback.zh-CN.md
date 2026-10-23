@@ -1,5 +1,7 @@
 # 回滚基础上的选择性策略改进
 
+2026-10-24更新：V13自身有限评估已完成，两个候选模块经本版结果校准后在V14固定962a2cac中采用。增加按步长可比较的响应及主目标决策价值，保持紧凑范围。详见[本版评估](../experiments/v13_strategy_review/review.zh-CN.md)和[实际部署](../deployments/962a2cac/README.zh-CN.md)。下面为先前候选准备记录，不能据其中“未部署”覆盖当前真实收据。
+
 2026-10-24，用户明确要求：回滚后仍应基于经验文档思考，选择合理模块，由主Agent结合实际情况重写并加入Guidance Agent。回滚提供历史有效基础，不代表后续只能原样复制旧skills，也不因V12退步而整体否定文献框架。
 
 来源：[Guidance策略与时间段框架](D:/llm_controlled_generation/ccfa-workfiles/literature/inpainting-gradient-guidance/guidance-strategy-and-time-window-framework.zh-CN.md)，SHA256 `dad08c37b77613f8373340401d1408427f8c20ff849be3453f89a7fd430151c4`。本次重读相关机制与时间作用章节，以文档中的经验作为假设来源，不复述成当前模型的已验证规律。

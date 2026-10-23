@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+2026-10-24最新：**V13完成有限评估，V14已真实批准并启动**。
+固定`962a2cacdba94e1390bd3ff1005163894367f02a`，worker2501226，启动1792778682.9171023，runtime `/opt/MolSteer/runtimes/agenticgen_962a2cac`。
+官方GitHub API固定获取/安装成功，68项旧协议/R0/历史结果关键hash保持，科学Python/原生兼容。
+仅skills/文档变更，两端没有单元测试，真实V13→V14最优轮review-check为2教师4上下文、full_review_completed=false。
+V13正常29.281348分钟完成，Mean4.213476963/4.210478640；按冻结规则历史最好V13、连续退步0，目标仍未达成。
+V14采用用户授权的两项选择性经验模块并按V13校准响应/决策价值，U1与其余科学设置保持。
+初始核验不代表首轮完成；不重复启动或为文档同步更换科学源。见[实际部署](deployments/962a2cac/README.zh-CN.md)。
+V6–V13不prepare/重跑；下方待部署或V13运行记录均为历史。35分钟正常活动巡检。
+
 2026-10-24最新：**V13已FINALIZED，有限评估完成，V14待正常固定部署**。
 仅Top1 R5G1、Top2 R5G2私有/汇总四上下文及40组聚合结果，full_review_completed=false。
 两教师五轮1000正式记录/质量/汇总/保留/清理完整，无新failure，原ab91ba50 analyze完成。
