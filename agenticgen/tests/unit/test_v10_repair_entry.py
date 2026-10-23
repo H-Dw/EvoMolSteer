@@ -49,7 +49,8 @@ def test_inspect_only_opens_no_command_channel(tmp_path,monkeypatch):
         def __exit__(self,*args):pass
         def normalize(self,path):return path
         def open(self,path,mode):
-            assert mode=='rb' and ('agenticgen_deploy_'+'a'*8 in path or 'failed_teacher_rerun_v10_'+'a'*8 in path)
+            assert mode=='rb' and any(prefix+'a'*8 in path for prefix in
+                ('agenticgen_deploy_','failed_teacher_rerun_v10_','analysis_output_repair_v10_','teacher_restart_acceptance_'))
             raise FileNotFoundError(path)
     class Client:
         def set_missing_host_key_policy(self,policy):pass

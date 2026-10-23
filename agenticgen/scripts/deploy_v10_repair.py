@@ -16,7 +16,7 @@ import subprocess
 import sys
 import time
 
-from read_remote_status import HOST, PORT, USER, HOST_KEY, ROOT, error_summary
+from read_remote_status import HOST, PORT, USER, HOST_KEY, ROOT, error_summary, collect
 
 OLD = '/opt/MolSteer/runtimes/agenticgen_d1163b7e'
 
@@ -95,12 +95,16 @@ def main():
         status=channel.recv_exit_status() if channel is not None else None
         errors=[error_summary({'message':line})['message'] for line in stderr_tail.decode('utf-8','replace').splitlines()
                 if line.startswith(('fatal:','error:','RuntimeError:','ValueError:','FileNotFoundError:'))][-5:]
-        sources={};logs={};dep='/opt/MolSteer/operations/agenticgen_deploy_'+args.commit[:8]
+        sources={};logs={};health=None;dep='/opt/MolSteer/operations/agenticgen_deploy_'+args.commit[:8]
         op=ROOT+'/operations/failed_teacher_rerun_v10_'+args.commit[:8]
+        protocol=ROOT+'/protocols/analysis_output_repair_v10_'+args.commit[:8]
+        probe=ROOT+'/operations/teacher_restart_acceptance_'+args.commit[:8]
         with client.open_sftp() as sftp:
             for folder,names in ((dep,('github_object_receipt.json','installation.json','api_preflight.json','tests_receipt.json',
                     'stage_receipt.json','finish_receipt.json','aborted_cost_summary.json','approval_receipt.json','launch_receipt.json')),
-                    (op,('journal.json','aborted_resource_usage.json','deletion_manifest.json'))):
+                    (op,('journal.json','aborted_resource_usage.json','deletion_manifest.json')),
+                    (protocol,('config.json','PREPARED.json','ACCEPTANCE_COMPLETE.json','validation/gradient_checks.json')),
+                    (probe,('results.json',))):
                 for name in names:
                     path=folder+'/'+name
                     try:
@@ -119,9 +123,12 @@ def main():
                             size=handle.stat().st_size;handle.seek(max(0,size-16384));raw=handle.read(16384)
                     except FileNotFoundError: continue
                     logs[name]={'bytes':size,'tail':error_summary({'message':raw.decode('utf-8','replace')[-1200:]})['message']}
+                if dep+'/launch_receipt.json' in sources:
+                    health=collect(sftp,'v10')
+                    if health['launch']['commit']!=args.commit:raise ValueError('Another runtime launched; inspect actual identity')
         receipt={'commit':args.commit,'exit_code':status,'events':events,'sources':sources,'observed_at':time.time(),
                  'source_transport':'remote GitHub fetch; no source upload','inspect_only':args.inspect_only,'logs':logs,
-                 'errors':errors}
+                 'errors':errors,'startup_health':health}
         args.output.parent.mkdir(parents=True,exist_ok=True)
         args.output.write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8',newline='\n')
         print(json.dumps({'exit_code':status,'receipt':str(args.output),'source_count':len(sources),'logs':logs,'errors':errors}),flush=True)
