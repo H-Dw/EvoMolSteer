@@ -1,5 +1,15 @@
 # Deployment and continuation
 
+Current source-fetch policy: this server/proxy has repeatedly returned Git HTTPS
+CONNECT 503. Prefer the verified official GitHub fixed-object fetcher on subsequent
+deployments; do not retry Git first on every version. Reuse cached objects and verify
+the exact commit/tree/blob identities before installation. A checkout-time missing-blob
+fetch can fail even after the initial fetch succeeded. Follow the bounds and recovery
+rules in [the project plan](plan.zh-CN.md#github代理503固定提交获取与失败恢复).
+Do not rerun the completed V10 repair entry to fetch code. Integrate the same fetcher
+into the appropriate next-version deployment entry, retaining its normal gates.
+This policy update does not probe the remote network or restart the active worker.
+
 Latest execution: V10 Top1 restarted as PID2116574 at1792750598.463112 under fixed
 c86706b565c81949192f0147d93298dde55d9355 after the R1G2 citation failure. Top2's
 original d1163b7e results remain complete. No local tests ran; 86 relevant remote

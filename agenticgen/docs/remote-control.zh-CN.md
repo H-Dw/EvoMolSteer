@@ -28,6 +28,12 @@ URL及凭据形式文本，不扩展到其他轮或全量会话。该接口不�
 
 ## 部署与启动
 
+源码获取遵循[项目计划的503处理规则](plan.zh-CN.md#github代理503固定提交获取与失败恢复)：
+当前11762服务器优先使用官方GitHub固定对象API，复用缓存并逐对象验证；不在每次
+部署前反复尝试已知故障的Git代理路径。`--github-api`是现有V10部署器的传输选项，
+不是独立只读命令，也不是所有启动脚本已有的全局选项。V10修复已完成，不再执行它；
+后续正常版本入口须复用获取器并保留对应版本的安装、review-check和启动门槛。
+
 当前V10短引用修复使用`--citation-repair`选择固定的restart_v10_citations入口，
 已部署c86706b5并启动，不再重复运行。日常仍只用read_remote_status。
 新增`--interface-diagnostics`仅对已退出worker的当前失败组读取invalid receipt及
