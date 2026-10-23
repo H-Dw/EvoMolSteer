@@ -23,6 +23,31 @@ def test_fixed_deployment_has_no_user_supplied_command_or_transfer():
         with pytest.raises(ValueError):m.command(invalid)
 
 
+def test_inspect_only_opens_no_command_channel(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    m=load('deploy_v10_repair')
+    class SFTP:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def normalize(self,path):return path
+        def open(self,path,mode):
+            assert mode=='rb' and ('agenticgen_deploy_'+'a'*8 in path or 'failed_teacher_rerun_v10_'+'a'*8 in path)
+            raise FileNotFoundError(path)
+    class Client:
+        def set_missing_host_key_policy(self,policy):pass
+        def connect(self,*args,**kwargs):pass
+        def open_sftp(self):return SFTP()
+        def close(self):pass
+        def get_transport(self):raise AssertionError('Inspection must not open an execution channel')
+    monkeypatch.setitem(sys.modules,'paramiko',SimpleNamespace(MissingHostKeyPolicy=object,SSHClient=Client))
+    monkeypatch.setattr(m.getpass,'getpass',lambda _: 'synthetic-test-only')
+    monkeypatch.setattr(sys.stdin,'isatty',lambda:True)
+    target=tmp_path/'inspection.json'
+    monkeypatch.setattr(sys,'argv',['deploy','--commit','a'*40,'--inspect-only','--output',str(target)])
+    assert m.main()==0 and read(target)['inspect_only'] is True
+    assert 'synthetic-test-only' not in target.read_text()
+
+
 def test_renewed_approval_retains_selected_strategy_and_never_claims_full_review():
     m=load('restart_v10_output_budget')
     old={'mode':'best_round_strategy','full_review_completed':False,'review_completed':True,

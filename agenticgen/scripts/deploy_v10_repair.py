@@ -15,7 +15,7 @@ import shlex
 import sys
 import time
 
-from read_remote_status import HOST, PORT, USER, HOST_KEY, ROOT
+from read_remote_status import HOST, PORT, USER, HOST_KEY, ROOT, error_summary
 
 OLD = '/opt/MolSteer/runtimes/agenticgen_d1163b7e'
 
@@ -38,7 +38,9 @@ def command(revision):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--commit',required=True)
-    parser.add_argument('--output',type=Path,required=True);args=parser.parse_args()
+    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--inspect-only',action='store_true',help='Read only this fixed deployment receipts/log tails; execute nothing')
+    args=parser.parse_args()
     cmd=command(args.commit)
     if not sys.stdin.isatty(): raise ValueError('Non-echoing terminal authentication required')
     import paramiko
@@ -52,10 +54,12 @@ def main():
         client.connect(HOST,port=PORT,username=USER,password=password,look_for_keys=False,allow_agent=False,
                        timeout=25,auth_timeout=25,banner_timeout=25)
         del password
-        channel=client.get_transport().open_session(timeout=25);channel.settimeout(25);channel.exec_command(cmd)
-        print('Fixed V10 repair command submitted through normal SSH.',flush=True)
+        channel=None
+        if not args.inspect_only:
+            channel=client.get_transport().open_session(timeout=25);channel.settimeout(25);channel.exec_command(cmd)
+            print('Fixed V10 repair command submitted through normal SSH.',flush=True)
         pending=b'';events=[]
-        while not channel.exit_status_ready() or channel.recv_ready() or channel.recv_stderr_ready():
+        while channel is not None and (not channel.exit_status_ready() or channel.recv_ready() or channel.recv_stderr_ready()):
             if channel.recv_ready():
                 pending+=channel.recv(32768)
                 while b'\n' in pending:
@@ -66,7 +70,8 @@ def main():
                 if len(pending)>65536: pending=b''
             if channel.recv_stderr_ready(): channel.recv_stderr(32768)  # No arbitrary shell/env output.
             time.sleep(.1)
-        status=channel.recv_exit_status();sources={};dep='/opt/MolSteer/operations/agenticgen_deploy_'+args.commit[:8]
+        status=channel.recv_exit_status() if channel is not None else None
+        sources={};logs={};dep='/opt/MolSteer/operations/agenticgen_deploy_'+args.commit[:8]
         op=ROOT+'/operations/failed_teacher_rerun_v10_'+args.commit[:8]
         with client.open_sftp() as sftp:
             for folder,names in ((dep,('installation.json','api_preflight.json','tests_receipt.json',
@@ -80,12 +85,22 @@ def main():
                     except FileNotFoundError: continue
                     if len(raw)>16*1024*1024: raise ValueError('Receipt exceeds bound')
                     sources[path]={'sha256':hashlib.sha256(raw).hexdigest(),'value':json.loads(raw)}
+            if args.inspect_only:
+                for name in ('worktree.log','sparse.log','checkout.log','venv.log','install.log',
+                             'doctor.log','related-tests.log','native-acceptance.log','launch.log'):
+                    path=dep+'/'+name
+                    try:
+                        if sftp.normalize(path)!=path: raise ValueError('Log path redirected')
+                        with sftp.open(path,'rb') as handle:
+                            size=handle.stat().st_size;handle.seek(max(0,size-16384));raw=handle.read(16384)
+                    except FileNotFoundError: continue
+                    logs[name]={'bytes':size,'tail':error_summary({'message':raw.decode('utf-8','replace')[-1200:]})['message']}
         receipt={'commit':args.commit,'exit_code':status,'events':events,'sources':sources,'observed_at':time.time(),
-                 'source_transport':'remote GitHub fetch; no source upload'}
+                 'source_transport':'remote GitHub fetch; no source upload','inspect_only':args.inspect_only,'logs':logs}
         args.output.parent.mkdir(parents=True,exist_ok=True)
         args.output.write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8',newline='\n')
-        print(json.dumps({'exit_code':status,'receipt':str(args.output),'source_count':len(sources)}),flush=True)
-        return status
+        print(json.dumps({'exit_code':status,'receipt':str(args.output),'source_count':len(sources),'logs':logs}),flush=True)
+        return status or 0
     finally: client.close()
 
 
