@@ -1,5 +1,16 @@
 # Deployment and continuation
 
+Repair deployed: fixed `6fd8e80cf501815333dfd502eae70e76197fb02c` passed 122 remote
+tests and fresh two-teacher native acceptance. The scoped restart protected 10910
+files, archived the failed Top2 attempt and deleted its 300 candidates/2059 files.
+V7 was reapproved against the existing full V6 review and new acceptance; worker
+1589286 started with authenticated/inherited API and proxy environment. Top1's
+completed five rounds remain on their original source and output budget. Top2
+restarts all five rounds with empty history and a 65536-token output limit. Startup
+verification is not a completed round. See [receipts](deployments/6fd8e80c/README.zh-CN.md).
+Do not repeat staging, deletion, approval or launch. Inspect new actual markers
+every 40 minutes; V7 formal and archived failed sessions need review before V8.
+
 V7 repair in progress (2026-10-23): worker1469692 exited after Top2 R3 G3
 exhausted 32768 output tokens (`finish_reason=length`). Top1 completed five
 rounds and remains protected. Use the new tested `stage-teacher-rerun` and

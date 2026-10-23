@@ -1,0 +1,253 @@
+{
+  "schema": "agenticgen-core1hop-fixedstart-v2",
+  "ssh": {
+    "host": "ssh.zzai.scnet.cn",
+    "port": 11762,
+    "user": "root"
+  },
+  "history": "/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020",
+  "flowr": "/opt/MolSteer/flowr_root",
+  "targets": [
+    "5nn4_SC2_A_1017"
+  ],
+  "teacher_selection": [
+    {
+      "target": "5nn4_SC2_A_1017",
+      "rank": 1,
+      "teacher_id": "5nn4_SC2_A_1017__top1",
+      "node_id": "single_b002_final_005"
+    },
+    {
+      "target": "5nn4_SC2_A_1017",
+      "rank": 2,
+      "teacher_id": "5nn4_SC2_A_1017__top2",
+      "node_id": "single_b004_final_009"
+    }
+  ],
+  "seeds": [
+    42,
+    100045,
+    200048,
+    300051,
+    400054
+  ],
+  "batch_size": 25,
+  "batches": 1,
+  "steps": 100,
+  "execution": {
+    "scheduler": "teacher_ready_queue",
+    "gpu_owners": 1,
+    "quality_workers": 16,
+    "logical_batches": 5,
+    "logical_batch_size": 5,
+    "native_rng_draw_rows": 20,
+    "rng": "native_twenty_row_common_streams_v1"
+  },
+  "features": "C",
+  "mode": "endpoint",
+  "initial_ticks": [
+    5,
+    5,
+    5,
+    5
+  ],
+  "rounds": 5,
+  "window_steps_inclusive": [
+    10,
+    90
+  ],
+  "control_nodes": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "control_intervals": [
+    {
+      "index": 0,
+      "start_step": 10,
+      "end_step_inclusive": 25,
+      "time_labels": [
+        0.1,
+        0.25
+      ],
+      "updates": 16
+    },
+    {
+      "index": 1,
+      "start_step": 26,
+      "end_step_inclusive": 50,
+      "time_labels": [
+        0.26,
+        0.5
+      ],
+      "updates": 25
+    },
+    {
+      "index": 2,
+      "start_step": 51,
+      "end_step_inclusive": 75,
+      "time_labels": [
+        0.51,
+        0.75
+      ],
+      "updates": 25
+    },
+    {
+      "index": 3,
+      "start_step": 76,
+      "end_step_inclusive": 90,
+      "time_labels": [
+        0.76,
+        0.9
+      ],
+      "updates": 15
+    }
+  ],
+  "checkpoint_steps": [
+    0,
+    10,
+    25,
+    26,
+    50,
+    51,
+    75,
+    76,
+    90,
+    91,
+    100
+  ],
+  "max_atom_step_A": 0.025,
+  "tick_bounds": [
+    0,
+    10
+  ],
+  "agent_objective": {
+    "priority": [
+      "condition_coordinate_fidelity",
+      "mean_affinity_teacher_agreement",
+      "best_affinity_bonus"
+    ],
+    "scope": "unselected_hypothesis_25_candidates",
+    "policy": "four_shared_schedules",
+    "round_barrier": "four_groups_evaluated",
+    "validity": "report eligible counts; never improve mean by dropping failed slots",
+    "thresholds": null,
+    "functional_metric": "absolute_mean_pic50_minus_teacher",
+    "conflict_policy": "report_continuous_Pareto_tradeoffs_no_hidden_weight_or_pass_gate"
+  },
+  "llm": {
+    "model": "deepseek-flash",
+    "key_env": "DEEPSEEK_API_KEY",
+    "thinking": true,
+    "reasoning_effort": "high",
+    "max_output_tokens": 65536,
+    "concurrency": 4,
+    "timeout": 600,
+    "attempts": 3,
+    "input_soft_bytes": 131072,
+    "input_hard_bytes": 524288
+  },
+  "versions": [
+    "v6",
+    "v7",
+    "v8",
+    "v9",
+    "v10",
+    "v11",
+    "v12",
+    "v13",
+    "v14",
+    "v15",
+    "v16",
+    "v17",
+    "v18",
+    "v19",
+    "v20",
+    "v21",
+    "v22",
+    "v23",
+    "v24",
+    "v25",
+    "v26",
+    "v27",
+    "v28",
+    "v29",
+    "v30"
+  ],
+  "max_recoveries": 3,
+  "evaluation": {
+    "plip": "3.0.1",
+    "posebusters": "dock",
+    "clash_A": 1.2
+  },
+  "selection": "valid_connected_finite_pic50; retain incumbent on ties",
+  "paired_history_slots": false,
+  "retention": {
+    "mode": "top1_per_chain",
+    "restart_parent": "shared_r0_step10",
+    "preserve_shared_r0": true,
+    "profile_before_prune": true,
+    "cleanup_boundary": "after_round_commit_profile_and_verified_snapshot"
+  },
+  "reporting": {
+    "primary": "unselected_condition_rmsd_A",
+    "fixed_round": 5,
+    "unselected_comparison": "fixed_round_mean_pic50",
+    "search_output": "best_per_chain",
+    "shared_baseline_targets": [
+      "5nn4_SC2_A_1017"
+    ],
+    "secondary": "mean_affinity_absolute_gap",
+    "scope": "two selected development teachers from one target; two teacher-origin lineages",
+    "top10_percent_count": 3,
+    "legacy_top10_count": 10
+  },
+  "population_size": 25,
+  "slots_per_seed": 5,
+  "physical_batch_size": 100,
+  "hypotheses": 4,
+  "total_result_budget": 25050,
+  "controller": {
+    "protocol": "conditional_learning_v1",
+    "region": "core_plus_one_hop",
+    "restart_policy": "shared_r0_before_step10",
+    "initial_step_ticks": 2,
+    "max_step_ticks": 3,
+    "max_changed_intervals": 2,
+    "dynamic_memory": "teacher_version_isolated"
+  },
+  "previous_protocol_root": "/opt/MolSteer/generated_datasets/plip_schedule_council_5nn4_r12_h4_b100_crn_s42_20261022",
+  "transition_from_version": "v5",
+  "council": {
+    "max_output_tokens": 65536,
+    "decision_audit": true
+  },
+  "condition_comparison": {
+    "ranking_tolerance_A": 0.02,
+    "sensitivity_A": [
+      0.01,
+      0.05
+    ],
+    "frame": "protein_fixed",
+    "ligand_fit_for_primary": false,
+    "aggregation": "mean_of_per_candidate_local_rmsd",
+    "terminal_state_required": true,
+    "band": "anchored_to_pool_minimum",
+    "chemical_pose": "separate_exact_subgraph_diagnostic"
+  },
+  "search_policy": {
+    "earliest_expansion_version": 11,
+    "fine_resolution": 0.1,
+    "range_levels": "1,5,10,15,20,...",
+    "max_levels_per_version": 1,
+    "initial_upper": 1,
+    "coarse_default": "upper/10",
+    "max_executed_range_probes": 1
+  },
+  "rollback": {
+    "consecutive_regressions": 2,
+    "comparison": "adjacent_completed_versions",
+    "pool": "completed_new_protocol_versions",
+    "history_preserved": true
+  }
+}
