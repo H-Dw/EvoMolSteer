@@ -1,4 +1,4 @@
-"""Complete session coverage gate for every version transition, not approval by file existence."""
+"""Version approvals with explicit review scope and unchanged scientific provenance."""
 from pathlib import Path
 import subprocess
 from .io import read, write, sha, repository, commit, value_sha
@@ -92,6 +92,9 @@ def review_check(root, next_version):
     if next_version not in config['versions'] or next_version == 'v1':
         raise ValueError('Invalid reviewed-version transition')
     prepared = prepared_path(root)
+    if prepared.exists() and read(prepared).get('strategy_review_operation'):
+        from agenticgen.runtime.review_policy import verify_ready
+        verify_ready(root, next_version)
     if prepared.exists() and read(prepared).get('teacher_restart_operation'):
         from agenticgen.runtime.restart_failed_teacher import verify_ready
         verify_ready(root, next_version)
@@ -122,6 +125,12 @@ def review_check(root, next_version):
     if approval.get('mode') == 'user_authorized_protocol_start':
         return user_authorized_protocol_start(root, next_version, previous_root, config, approval)
     committed_file(approval['review_document'], approval['review_document_sha256'], commit())
+    policy = read(prepared).get('master_review_policy', {}) if prepared.exists() else {}
+    if approval.get('mode') == 'best_round_strategy':
+        from .strategy_review import check
+        return check(root, previous, next_version, approval)
+    if policy.get('mode') == 'best_round_strategy':
+        raise ValueError('Full-session review was superseded by the authorized best-round policy')
     expected, actual = {}, {}
     for shard in manifest['shards']:
         path = previous_root/shard['path']

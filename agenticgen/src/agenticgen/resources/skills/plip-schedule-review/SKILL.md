@@ -1,60 +1,36 @@
 ---
 name: plip-schedule-review
-description: Review complete controller learning evidence and improve general adaptive strategies before a gated transition.
+description: Inspect each teacher's best round once and improve exploration strategy.
 ---
 
-Act as a training-strategy designer and capability improver. Read the active frozen
-objective; do not apply obsolete mean-affinity-only priorities. Your main task is
-to improve adaptive learning of condition absorption and functional preservation,
-not merely correct arithmetic.
+Act as a training-strategy designer. Full-session review is prohibited by the
+current user instruction. Read aggregate performance for every round, select each
+teacher's best shared schedule using the frozen condition/function ranking, then
+inspect only its winning-group hypothesis/analysis and that round's council
+strategy once. Read relevant supplied prompt context. Do not resume a 52-session
+checklist or audit every failed conversation. Preserve archives and failed costs;
+investigate a failure only if it blocks execution.
 
-Cover every logical session, actual distinct prompt, tool result, proposal,
-unselected alternative, failure and outcome. Deduplicate identical bytes only.
-Write substantive per-session assessments, evidence citations, limitations and
-next-decision implications. Downloads and hashes are not substantive review.
-Use recorded concise rationales; do not infer unrecorded private thoughts.
+Ask why the successful hypothesis helped, which physical link it can influence,
+and whether subsequent trials exploited that direction or merely described a curve.
+Reason from amplitude to delivered movement, native trajectory, terminal condition
+and functional quality. Coordinate rewards do not directly optimize chemistry or
+affinity. Four shared amplitudes have limited control authority. Stronger guidance
+is not automatically better; early changes may need later support, and functional
+gains may need a second interval to recover condition. Separate measured responses
+from speculative mechanisms. Use existing factual tools when a strategic decision
+needs arithmetic; numerical auditing is not the review's goal.
 
-Reconstruct observation → competing explanations → intervention → predicted
-condition/function response → measurement → knowledge revision → changed action.
-Look for missing temporal sensitivity, delivered-control limits, amplitude response,
-interval interaction, proxy/function conflict and population heterogeneity.
-Did counterevidence change memory and actions? Was an effective direction exploited
-promptly? What missing observation or earlier contrast would have saved trials?
-Where did excessive caution, repeated controls or late broad diagnosis waste budget?
+Write a short assessment per teacher: hypothesis quality, first-principles reasoning,
+actual performance consequences and a better next direction. Choose at most three
+generic capability hypotheses with expected behavior and next-version falsifiers.
+Rewrite skills around them rather than accumulating historical error lists. Use
+recorded concise rationales, not unrecorded private thoughts. Keep teacher identities,
+molecular features and best arrays in task archives, never generic skills.
 
-Choose a few capability changes. For each document: blind spot → exploration loss
-→ general strategy or factual tool → expected behavioral change → next-version
-test. Rules should specify triggers, evidence, discriminating trials and falsifiers.
-Keep teacher/target/atom identities, molecular patterns and best arrays in task or
-review archives, never generic skills. New reward terms, actions or budget require
-user authorization. Do not automate scientific approval from coverage flags.
-
-Evaluate real behavior and equal-budget results, not prose polish. Report continuous
-condition error and mean-affinity agreement first, then Best/tails, validity,
-quality and cost. Separate unselected groups and selected archives. Track verified
-direction predictions, counterevidence-driven revisions, new information per trial,
-timely exploitation, repetitions and failure costs. Offline behavior tests cannot
-prove molecular performance or unexecuted schedule benefits.
-
-Skills are frozen within versions. Test identity renaming, memory correction,
-privacy, conflict cases and budget handling. Commit full reviews/skills locally,
-push, deploy fixed commit, verify coverage/source/skill hashes and finalization,
-then approve the next version. Cross-protocol transitions require a new preparation
-and native acceptance. Reset dynamic task answers between versions. Results on
-development teachers do not demonstrate general optimizer superiority.
-
-Before the next version inspect the deterministic version comparison and rollback
-gate. Condition bands are anchored at the pool minimum, not sequential pairwise
-ties; tolerance is a ranking convention, not biological identity or noise. Two
-adjacent completed-version regressions require a new commit restoring the best
-new-protocol skills/control policy, with necessary compatibility fixes documented.
-Preserve history and all failed results. Do not roll back merely because Best fell.
-
-Range expansion is a separate reviewed decision, available only after the frozen
-initial phase. Check boundary response, actual displacement, clipping and an
-unresolved control hypothesis. Increase at most one permitted range level; freeze
-the same policy for both teachers. Restore range/coarse settings together when
-rolling back. Fine resolution and the displacement cap remain independently fixed.
-Never transfer a teacher's successful array in a generic skill. Prioritize a small
-number of capability hypotheses about effective exploration, timely exploitation
-and handling counterevidence; evaluate their next-version behavior and outcomes.
+Preserve scientific settings, budgets, within-version skill freezing, range and
+rollback rules. Verify finalization, selected evidence, code and skill binding;
+test, commit, deploy and use the explicit best-round review gate. Report this limited
+scope honestly, not as full coverage. Two adjacent completed-version regressions
+still require the best compatible generic strategy. Best alone does not override
+condition/function. Development-teacher search does not prove optimizer superiority.

@@ -1,16 +1,52 @@
 # Deployment and continuation
 
-Current state (2026-10-23): V7 has finalized all 1000 formal optimization outcomes.
-Both teachers have all five sampling, quality, council, retention and cleanup
-markers; worker1589286 exited normally, with no new failure. Do not restart,
-prepare or rerun completed V7. Analysis was refreshed using fixed 6fd8e80c;
-preserved Top1 keeps its f8bb4ac6/32K provenance, while rerun Top2 used 64K.
-Substantive V7 review is now 32/52 (all Top1 sessions and Top2 bootstrap/R1), with
-20 formal and 15 aborted Top2 contexts still pending. Continue at manifest index32
-(Top2 R2G1), not V6 review. Remote progress metadata is last known at 16; the
-previous upload was rejected by approval policy and has not been bypassed.
-See [review checkpoint](experiments/v7_review/review.zh-CN.md). No V8 approval
-exists. The deployment/repair paragraphs below are historical snapshots.
+Current instruction (2026-10-23): full-session GPT review is prohibited. The V7
+legacy process stopped at 32/52, without claiming completion. Do not resume its
+reader or the 15 archived failed contexts. Review each teacher's best round once:
+winning private hypotheses and that council, with all-round aggregate performance.
+The new [strategy assessment](experiments/v7_strategy_review/review.zh-CN.md) selects
+Top1 R2 G1 and Top2 R4 G4. Skills prioritize timely exploitation and supported
+condition compensation, not exhaustive arithmetic audits. Complete actionable
+strategy work in one continuous turn; the 40-minute interval is for remote checks.
+
+V7 is FINALIZED with 1000 formal records and all five rounds complete; worker1589286
+exited. Preserve Top1 f8bb4ac6/32K and Top2 6fd8e80c/64K provenance. Do not prepare,
+recover or rerun V6/V7. V8 is not approved or launched. Existing SSH tool calls are
+blocked by approval policy (approval needed, AskForApproval=Never). No alternate
+transport may bypass that rejection. Local implementation/testing may proceed.
+
+## Adopt the best-round gate once at the V7 boundary
+
+After local tests and a pushed fixed commit, obtain that exact revision on the sole
+11762 server and install the independent package using its existing audited runtime.
+Do not upgrade Torch/DTK or serialize credentials. Run the unit suite there first.
+Use the new runtime's `agenticgen/scripts/start_v8_strategy.py` with its exact commit
+and inherited audited DTK/API/proxy environment. It first runs the remote suite,
+requiring a successful JUnit report with no skips, then performs this sequence:
+
+1. `stage-review-policy --version v7 --authorization .../20261023_best_round_strategy_review.json`.
+   This appends a review-policy protocol, checks the scientific source allowlist,
+   and preserves original config, preparation, acceptance, R0 and finalized results.
+2. Native `validate`, then `finish-review-policy`. No R0 or completed result resampling.
+3. Write an honest limited-scope approval bound to committed strategy JSON/document,
+   new skills, completed V7, active protocol and unchanged control policy. No 52-session
+   coverage claim. `review-check --version v8` must return best_round_strategy with
+   two teachers/four strategy contexts and full_review_completed=false.
+4. Launch V8 once with full API/proxy environment. Confirm the returned commit/PID
+   and actual pipeline. A startup receipt is not a completed round.
+
+No deletion or failed-version rerun belongs to this transition. If adoption has been
+staged already, resume its journal rather than create another protocol. If V8 has
+started, do not run the transition script again. Later skills-only versions retain
+the accepted Python source fingerprint and use the same limited strategy gate with
+new previous-version evidence. Scientific code changes still need compatible native
+acceptance. Existing range/rollback rules remain mandatory; costs include archived
+failed requests by provider ID without including aborted scores.
+
+## Historical deployment and prior gate records (superseded)
+
+The following 52-session requirements describe earlier runs only. They are not
+active instructions and must not restore the terminated full-review workflow.
 
 Repair deployed: fixed `6fd8e80cf501815333dfd502eae70e76197fb02c` passed 122 remote
 tests and fresh two-teacher native acceptance. The scoped restart protected 10910
