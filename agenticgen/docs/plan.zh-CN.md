@@ -1,5 +1,14 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-23最新：GitHub API限流已在一次有界恢复中解除，**V11已批准并启动**。
+固定`cea3611c7c07b47868038a20a71877706e845d97`，worker2175969，启动1792762086.6861448，runtime `/opt/MolSteer/runtimes/agenticgen_cea3611c`。
+额度诊断真实返回未认证60次/小时、剩余51；不是上传文件过大。本次只再下载20个blob，
+GitHub对象/安装/三份相关远端检查及有限review-check（2教师4上下文，full_review_completed=false）通过，
+53项历史关键hash保持。未运行本地测试，原科学Python不变、复用原生验收；V11保持U1。
+启动核验存活、命令身份匹配、无新failure，尚未确认首轮完成。不重复安装/批准/启动。
+见[实际部署](deployments/cea3611c/README.zh-CN.md)及[限流原因/恢复策略](deployments/cea3611c/github_rate_limit.zh-CN.md)。
+35分钟仅检查活动V11；下面403等待、待cf46/cea部署段落为历史快照，不再执行其重试命令。
+
 2026-10-23最新实际状态：V11尚未启动，固定待部署目标改为`cea3611c7c07b47868038a20a71877706e845d97`。
 限定部署子树的获取修复已验证成功：cf46ab27获取/安装完成，9项获取器远端检查通过，53项旧hash保持。
 随后发现普通启动入口不兼容V10当前teacher_restart协议，报KeyError；此真实代码问题已在cea3611c修复，
