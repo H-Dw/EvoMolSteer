@@ -1,5 +1,15 @@
 # Deployment and continuation
 
+Current state (2026-10-23): V7 has finalized all 1000 formal optimization outcomes.
+Both teachers have all five sampling, quality, council, retention and cleanup
+markers; worker1589286 exited normally, with no new failure. Do not restart,
+prepare or rerun completed V7. Analysis was refreshed using fixed 6fd8e80c;
+preserved Top1 keeps its f8bb4ac6/32K provenance, while rerun Top2 used 64K.
+Substantive V7 review is now 6/52 (Top1 bootstrap and R1), with 15 additional
+aborted Top2 contexts still pending. Continue at manifest index6, not V6 review.
+See [review checkpoint](experiments/v7_review/review.zh-CN.md). No V8 approval
+exists. The deployment/repair paragraphs below are historical snapshots.
+
 Repair deployed: fixed `6fd8e80cf501815333dfd502eae70e76197fb02c` passed 122 remote
 tests and fresh two-teacher native acceptance. The scoped restart protected 10910
 files, archived the failed Top2 attempt and deleted its 300 candidates/2059 files.
