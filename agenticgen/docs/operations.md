@@ -1,5 +1,13 @@
 # Deployment and continuation
 
+The second bounded cf46ab27 acquisition also timed out. Fixed endpoint HEADs returned
+HTTP200 with rate capacity; a20s recursive-root GET transferred only370029 bytes.
+The fetcher now verifies ancestor trees and recurses only the three deployment
+subtrees (gzip enabled), refusing uncached unrelated trees. A separately pinned
+fetcher-commit can repair transport while keeping scientific target cf46ab27 unchanged.
+Its committed standalone checks run remotely before acquisition; no local tests.
+See [evidence and scope](deployments/cf46ab27/fetch_repair.zh-CN.md). Await actual receipts.
+
 Latest deployment attempt: fixed cf46ab27bf953c05ecd2e604539596b052348d2a is pushed.
 The tool allowed normal authenticated execution, but official GitHub object acquisition
 hit its 240-second total bound (exit124). No fetch-complete/install/test/approval/launch

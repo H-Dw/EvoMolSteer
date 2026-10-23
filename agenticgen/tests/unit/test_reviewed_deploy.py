@@ -29,6 +29,18 @@ def test_api_first_and_normal_entry_only():
     assert not any(x in cmd for x in ('fetch origin','restart_v10','stage-', 'curl ', 'StrictHostKeyChecking=no'))
 
 
+def test_fixed_fetcher_override_keeps_scientific_commit():
+    cmd=module.command('v11','a'*40,'b'*40,'c'*40,'d'*64,'e'*40,'f'*40,'1'*64)
+    assert '--commit '+'a'*40 in cmd
+    assert 'test_github_object_fetch.py' in cmd and 'fetcher_validation.json' in cmd
+    assert 'e'*40 in cmd and 'Scoped fetcher checks failed' in cmd
+
+
+def test_fetcher_override_without_validation_rejected():
+    with pytest.raises(ValueError,match='committed remote checks'):
+        module.command('v11','a'*40,'b'*40,'c'*40,'d'*64,'e'*40)
+
+
 @pytest.mark.parametrize('old,oid,digest',[('main','c'*40,'d'*64),('b'*40,'c'*8,'d'*64),('b'*40,'c'*40,'x'*64)])
 def test_source_identity_validation(old,oid,digest):
     with pytest.raises(ValueError):module.command('v11','a'*40,old,oid,digest)
