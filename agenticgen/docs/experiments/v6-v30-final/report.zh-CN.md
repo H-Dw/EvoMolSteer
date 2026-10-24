@@ -165,4 +165,4 @@ V13在V11/V12连续退步后恢复V10兼容基底；V25在V23/V24连续退步后
 
 V30 FINALIZED SHA256：`079d3b176667211c0d9134f61e8d7d2d8651ad45226f4bfd3acb73c6886f6e3e`；report：`83a82eeb2b2961cb5825faa936d7f3382b15294de9db7af6bb82ea9fe9d058e6`；review manifest：`1b813aa8fbc6e3a5006faaed812ec63a084b488f191286f4c0789e11cc9ee8b9`。
 
-最终代码/配置/skills及本报告提交推送后，删除agenticgen定时任务。此处不承诺新方向、额外采样或后续自动工作；完成保存与删除的实际收据另记closeout.json。
+最终代码/配置/skills来源及本报告已随提交`04213ffd`推送保存；随后应用确认`agenticgen`定时任务已删除（deleteStatus=deleted）。实际收尾收据见[closeout.json](closeout.json)。当前无活动实验，无后续自动工作。
