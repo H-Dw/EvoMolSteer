@@ -1,5 +1,7 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新用户授权：依次尝试四个镜像https://ghfast.top/ → https://gh-proxy.com/ → https://ghproxy.net/ → https://gh.llkk.cc/。本轮每个一次有界120秒clone，独立缓存/日志；前一镜像clone连接或传输失败后才试下一个。成功clone立即停止切换，再本地导入和固定提交/hash/原正常门槛验证；源验证/测试/安装失败不能当网络失败切镜像。全部失败则停止，不循环、不REST API回退、不改代理/TLS/凭据。此前只允许ghfast的限制由此次明确列表替代，工具拒绝仍必须停止。V28科学目标d7d35b13不变，本地无自动化测试，实际验证/启动待收据。
+
 2026-10-24最新：用户授权ghfast后备已实施并实际尝试，传输72e8a6d2、科学d7d35b13；一次clone在120秒超时退出124，fetch/API/本地导入均0。未抵达验证、安装或启动，V28仍未运行；本地无自动化测试。日志只有开始克隆，具体阻塞阶段未知，缓存状态未知且不自动覆盖/删除。失败不盲重试，后续先inspect已有缓存；见[镜像尝试收据](deployments/d7d35b13/ghfast_deployment_failure.json)。下方为历史。
 
 2026-10-24用户最新授权：GitHub连接异常时采用ghfast.top固定镜像git clone后备方式。现有503/TLS超时已满足条件，本轮使用独立bare缓存、一次有界clone及本地对象导入，固定科学提交和原部署门槛保持；不向镜像转交GitHub凭据、不回退REST API。实现与限制见[Git传输策略](operations/git-single-fetch.zh-CN.md)。实际验证和启动尚待收据确认。下方旧禁止此镜像/仅等待直连的安排在授权范围内失效。

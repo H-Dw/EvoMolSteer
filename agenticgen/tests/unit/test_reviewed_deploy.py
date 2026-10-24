@@ -117,6 +117,21 @@ def test_failed_ghfast_clone_never_imports_or_installs(tmp_path):
     assert not (tmp_path/'runtimes/agenticgen_aaaaaaaa').exists()
 
 
+def test_authorized_mirror_order_is_frozen():
+    assert list(module.MIRRORS.values())==['https://ghfast.top/','https://gh-proxy.com/','https://ghproxy.net/','https://gh.llkk.cc/']
+
+
+@pytest.mark.parametrize('name,base',list(module.MIRRORS.items()))
+def test_each_mirror_has_separate_cache_and_one_clone(name,base):
+    cmd=module.command('v28','a'*40,'b'*40,'e'*40,HASHES,name)
+    assert base+'https://github.com/H-Dw/EvoMolSteer.git' in cmd
+    assert 'source_cache/'+name+'_eeeeeeee.git' in cmd
+    assert name+'-clone.log' in cmd
+    assert cmd.count('clone --bare --single-branch')==1
+    assert '--commit '+'a'*40 in cmd
+    assert 'api.github.com' not in cmd
+
+
 class SFTP:
     def __init__(self,existing=()):self.existing=set(existing)
     def stat(self,path):

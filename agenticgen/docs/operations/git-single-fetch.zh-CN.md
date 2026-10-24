@@ -1,5 +1,7 @@
 # 一次Git拉取部署
 
+2026-10-24最新用户授权：依次尝试四个镜像https://ghfast.top/ → https://gh-proxy.com/ → https://ghproxy.net/ → https://gh.llkk.cc/。本轮每个一次有界120秒clone，独立缓存/日志；前一镜像clone连接或传输失败后才试下一个。成功clone立即停止切换，再本地导入和固定提交/hash/原正常门槛验证；源验证/测试/安装失败不能当网络失败切镜像。全部失败则停止，不循环、不REST API回退、不改代理/TLS/凭据。此前只允许ghfast的限制由此次明确列表替代，工具拒绝仍必须停止。V28科学目标d7d35b13不变，本地无自动化测试，实际验证/启动待收据。
+
 2026-10-24最新用户授权：GitHub连接异常时，允许使用`git clone https://ghfast.top/https://github.com/用户名/仓库名`作为后备来源。当前GitHub已有CONNECT503及TLS超时收据，因此本轮直接选择`--source-transport ghfast`，不重复测试直连。此前“任何换通道均不允许”的网络策略在此明确镜像范围内被替代；工具权限拒绝仍必须停止，不可绕过。
 
 实现：一次120秒有界`git clone --bare --single-branch --branch codex/plip-adaptive-schedule --no-tags https://ghfast.top/https://github.com/H-Dw/EvoMolSteer.git /opt/MolSteer/source_cache/ghfast_<transport8>.git`。禁止覆盖已存在缓存，保留失败目录供inspect。克隆阶段禁用Git credential helper/extraHeader及system/global Git配置读取，保留原代理/TLS环境，不向镜像转交GitHub认证。仅此固定公开仓库和用户指定镜像获授权。

@@ -17,6 +17,14 @@ import time
 
 from read_remote_status import HOST, PORT, USER, HOST_KEY, ROOT, collect, error_summary
 
+# Ordered, explicitly user-authorized mirrors. One invocation attempts one source.
+MIRRORS = {
+    'ghfast': 'https://ghfast.top/',
+    'gh-proxy': 'https://gh-proxy.com/',
+    'ghproxy': 'https://ghproxy.net/',
+    'gh-llkk': 'https://gh.llkk.cc/',
+}
+
 
 def validate(version, revision):
     if not re.fullmatch(r'v(?:1[1-9]|2[0-9]|30)', version):
@@ -27,8 +35,8 @@ def validate(version, revision):
 
 def command(version, revision, previous_commit, transport_commit, validation_hashes, source_transport="github"):
     validate(version, revision)
-    if source_transport not in ("github", "ghfast"):
-        raise ValueError("Only the fixed GitHub and user-authorized ghfast sources are allowed")
+    if source_transport not in ("github", *MIRRORS):
+        raise ValueError("Only the fixed GitHub and user-authorized mirror sources are allowed")
     for value in (previous_commit, transport_commit):
         if not re.fullmatch('[0-9a-f]{40}', value):
             raise ValueError('Scientific and transport sources must be fixed commits')
@@ -109,16 +117,17 @@ receipt.update(verified_commit=target,verified_transport_commit=transport,verifi
             f'refs/heads/codex/plip-adaptive-schedule > {dep}/git-fetch.log 2>&1 || fetch_status=$?']
     else:
         # Never overwrite a previous clone or change an existing runtime origin.
-        mirror = '/opt/MolSteer/source_cache/ghfast_'+transport_commit[:8]+'.git'
+        mirror = '/opt/MolSteer/source_cache/'+source_transport+'_'+transport_commit[:8]+'.git'
+        mirror_url = MIRRORS[source_transport]+'https://github.com/H-Dw/EvoMolSteer.git'
         lines += [f'mkdir -p /opt/MolSteer/source_cache',
-            f'if test -e {mirror}; then echo "Clone destination exists; inspect before retry" > {dep}/ghfast-clone.log; clone_status=73; else',
+            f'if test -e {mirror}; then echo "Clone destination exists; inspect before retry" > {dep}/{source_transport}-clone.log; clone_status=73; else',
             'clone_status=0; clone_attempted=1',
             'env -u GIT_CONFIG_COUNT -u GIT_CONFIG_PARAMETERS GIT_CONFIG_NOSYSTEM=1 '
             'GIT_CONFIG_GLOBAL=/dev/null GIT_ASKPASS=/bin/false SSH_ASKPASS=/bin/false '
             'timeout 120 git -c credential.helper= -c http.extraHeader= -c transfer.fsckObjects=true '
             'clone --bare --single-branch --branch codex/plip-adaptive-schedule --no-tags '
-            f'https://ghfast.top/https://github.com/H-Dw/EvoMolSteer.git {mirror} '
-            f'> {dep}/ghfast-clone.log 2>&1 || clone_status=$?',
+            f'{mirror_url} {mirror} '
+            f'> {dep}/{source_transport}-clone.log 2>&1 || clone_status=$?',
             'fi', 'fetch_status=$clone_status',
             'if test "$clone_status" = 0; then', 'import_status=0',
             f'timeout 120 git -c fetch.fsckObjects=true -C {old} fetch --no-tags '
@@ -175,8 +184,8 @@ def main():
     parser.add_argument('--version',required=True);parser.add_argument('--commit',required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--transport-commit', help='Fixed committed Git transport/check source; defaults to local HEAD. Scientific --commit stays unchanged.')
-    parser.add_argument('--source-transport', choices=('github','ghfast'), default='github',
-                        help='Use ghfast only after GitHub connection failure, per user authorization; no automatic retries.')
+    parser.add_argument('--source-transport', choices=('github',*MIRRORS), default='github',
+                        help='After GitHub failure, try authorized mirrors in listed order, once each; stop on success or validation failure.')
     parser.add_argument('--inspect-only',action='store_true',help='Read fixed deployment receipts and log tails, execute nothing')
     args=parser.parse_args();validate(args.version,args.commit)
     if not sys.stdin.isatty():raise ValueError('Non-echoing terminal authentication required')
@@ -234,7 +243,7 @@ def main():
                 try:sources[path]=read_source(sftp,path)
                 except FileNotFoundError:continue
             if args.inspect_only or status:
-                for name in ('git-fetch.log','ghfast-clone.log','git-local-import.log','worktree.log','checkout.log','install.log','doctor.log','related-tests.log','launch.log'):
+                for name in ('git-fetch.log',*(name+'-clone.log' for name in MIRRORS),'git-local-import.log','worktree.log','checkout.log','install.log','doctor.log','related-tests.log','launch.log'):
                     path=dep+'/'+name
                     try:
                         if sftp.normalize(path)!=path:raise ValueError('Log path redirected')
