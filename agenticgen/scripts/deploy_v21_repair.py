@@ -104,10 +104,38 @@ def main():
                     path=folder+'/'+name
                     try:
                         if sftp.normalize(path)!=path: raise ValueError('Receipt path redirected')
-                        with sftp.open(path,'rb') as handle: raw=handle.read(16*1024*1024+1)
+                        with sftp.open(path,'rb') as handle:
+                            before=handle.stat()
+                            # Exact fixed transaction manifests can exceed 16 MiB after
+                            # many completed versions. Keep their full byte hash, but
+                            # only a bounded administrative projection in this receipt.
+                            large_manifest = folder == op and name in ('journal.json','deletion_manifest.json')
+                            limit=128*1024*1024 if large_manifest else 16*1024*1024
+                            if before.st_size>limit:raise ValueError('Receipt exceeds bounded manifest size')
+                            digest=hashlib.sha256();parts=[];total=0
+                            while True:
+                                block=handle.read(1024*1024)
+                                if not block:break
+                                total+=len(block)
+                                if total>limit:raise ValueError('Receipt grew past its bound')
+                                digest.update(block);parts.append(block)
+                            after=handle.stat()
                     except FileNotFoundError: continue
-                    if len(raw)>16*1024*1024: raise ValueError('Receipt exceeds bound')
-                    sources[path]={'sha256':hashlib.sha256(raw).hexdigest(),'value':json.loads(raw)}
+                    if before.st_size!=total or (before.st_size,before.st_mtime)!=(after.st_size,after.st_mtime):
+                        raise ValueError('Receipt changed during read')
+                    value=json.loads(b''.join(parts))
+                    if large_manifest:
+                        fields=('phase','version','commit','authorization','old_protocol','new_protocol','source_changes',
+                            'failed_teachers','completed_teachers','rerun_rounds','repair_kind','failed_candidate_count',
+                            'deleted_files','candidate_outputs_deleted','new_acceptance_sha256',
+                            'result_rows_excluded','completed_teachers_preserved','new_results_start_at_round')
+                        projected={k:value[k] for k in fields if k in value}
+                        projected['protected_file_count']=len(value.get('protected_sha256',{}))
+                        projected['failed_attempt_file_count']=len(value.get('failed_attempt_files',value.get('files',{})))
+                        projected['audit_copy_count']=len(value.get('audit_copies',[]))
+                        sources[path]={'sha256':digest.hexdigest(),'bytes':total,'projection_only':True,'value':projected}
+                    else:
+                        sources[path]={'sha256':digest.hexdigest(),'value':value}
             if args.inspect_only or status:
                 for name in ('worktree.log','sparse.log','checkout.log','venv.log','install.log',
                              'doctor.log','related-tests.log','native-acceptance.log','launch.log'):
