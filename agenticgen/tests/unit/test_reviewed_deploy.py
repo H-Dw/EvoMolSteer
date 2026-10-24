@@ -77,6 +77,46 @@ def test_failed_single_fetch_stops_before_validation_install_and_launch(tmp_path
     assert not (tmp_path/'runtimes/agenticgen_aaaaaaaa').exists()
 
 
+def test_ghfast_clone_is_isolated_and_keeps_fixed_sources():
+    cmd=module.command('v28','a'*40,'b'*40,'e'*40,HASHES,'ghfast')
+    assert 'https://ghfast.top/https://github.com/H-Dw/EvoMolSteer.git' in cmd
+    assert cmd.count('clone --bare --single-branch')==1
+    assert 'source_cache/ghfast_eeeeeeee.git' in cmd
+    assert 'credential.helper= -c http.extraHeader=' in cmd
+    assert 'GIT_CONFIG_GLOBAL=/dev/null' in cmd
+    assert 'Clone destination exists; inspect before retry' in cmd
+    assert 'git-local-import.log' in cmd and 'merge-base' in cmd
+    assert '--commit '+'a'*40 in cmd
+    assert 'api.github.com' not in cmd and 'fetch --no-tags --no-recurse-submodules --no-filter https://github.com' not in cmd
+    with pytest.raises(ValueError,match='user-authorized'):
+        module.command('v28','a'*40,'b'*40,'e'*40,HASHES,'arbitrary-proxy')
+
+
+def test_failed_ghfast_clone_never_imports_or_installs(tmp_path):
+    import json,os,subprocess
+    old=tmp_path/'runtimes/agenticgen_bbbbbbbb';dep=tmp_path/'operations/agenticgen_deploy_aaaaaaaa'
+    (old/'agenticgen/.venv/bin').mkdir(parents=True)
+    (old/'agenticgen/.venv/bin/python').symlink_to(sys.executable)
+    bindir=tmp_path/'bin';bindir.mkdir();calls=tmp_path/'git-calls'
+    fake=bindir/'git'
+    fake.write_text('#!/bin/sh\n'
+        'printf "%s\n" "$*" >> "$GIT_CALL_LOG"\n'
+        'case "$*" in *rev-parse*) printf "'+ 'b'*40 +'\n"; exit 0;; esac\n'
+        'case "$*" in *"clone --bare"*) exit 74;; esac\n'
+        'exit 99\n')
+    fake.chmod(0o755)
+    cmd=module.command('v28','a'*40,'b'*40,'e'*40,HASHES,'ghfast').replace('/opt/MolSteer',str(tmp_path)).replace('bash -ic ','bash -c ',1)
+    env=os.environ.copy();env.update(PATH=str(bindir)+os.pathsep+env['PATH'],GIT_CALL_LOG=str(calls))
+    result=subprocess.run(cmd,shell=True,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    assert result.returncode==74
+    assert len(calls.read_text().splitlines())==2
+    r=json.loads((dep/'git_fetch_receipt.json').read_text())
+    assert r['clone_calls']==1 and r['fetch_calls']==0 and r['local_import_calls']==0
+    assert r['clone_exit_code']==74 and r['rest_api_calls']==0
+    assert not (dep/'transport_validation.json').exists()
+    assert not (tmp_path/'runtimes/agenticgen_aaaaaaaa').exists()
+
+
 class SFTP:
     def __init__(self,existing=()):self.existing=set(existing)
     def stat(self,path):

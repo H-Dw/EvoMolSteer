@@ -1,4 +1,4 @@
-"""Deploy one reviewed version with one bounded Git fetch and fixed checkout.
+"""Deploy one reviewed version with bounded Git pack transfer and fixed checkout.
 
 Fixed server and result root; no uploads, arbitrary shell, repair/deletion entry,
 credential files or environment changes. Platform tool approval still applies.
@@ -25,8 +25,10 @@ def validate(version, revision):
         raise ValueError('Exact fixed commit required')
 
 
-def command(version, revision, previous_commit, transport_commit, validation_hashes):
+def command(version, revision, previous_commit, transport_commit, validation_hashes, source_transport="github"):
     validate(version, revision)
+    if source_transport not in ("github", "ghfast"):
+        raise ValueError("Only the fixed GitHub and user-authorized ghfast sources are allowed")
     for value in (previous_commit, transport_commit):
         if not re.fullmatch('[0-9a-f]{40}', value):
             raise ValueError('Scientific and transport sources must be fixed commits')
@@ -42,10 +44,12 @@ def command(version, revision, previous_commit, transport_commit, validation_has
     # This control snippet extracts committed files from Git; it uploads no sources.
     verification = """import hashlib,json,subprocess,sys,time,xml.etree.ElementTree as ET
 from pathlib import Path
-old,dep,target,transport,encoded,status=sys.argv[1:]
+old,dep,target,transport,encoded,status,source,clone_status,import_status,clone_attempted=sys.argv[1:]
 dep=Path(dep);status=int(status)
 receipt={'commit':target,'transport_commit':transport,'time':time.time(),
- 'source':'single bounded git fetch','fetch_calls':1,'rest_api_calls':0,
+ 'source':source,'fetch_calls':int(source=='github'),'clone_calls':int(clone_attempted),
+ 'local_import_calls':int(import_status!='not_run'),'clone_exit_code':int(clone_status) if clone_status!='not_run' else None,
+ 'local_import_exit_code':int(import_status) if import_status!='not_run' else None,'rest_api_calls':0,
  'fetch_exit_code':status,'proxy_environment':'inherited; values omitted'}
 (dep/'git_fetch_receipt.json').write_text(json.dumps(receipt,indent=2)+'\\n')
 if status:raise SystemExit(status)
@@ -98,12 +102,32 @@ receipt.update(verified_commit=target,verified_transport_commit=transport,verifi
         f'test "$(git -C {old} rev-parse HEAD)" = {previous_commit}',
         'export GIT_TERMINAL_PROMPT=0 GIT_NO_LAZY_FETCH=1',
         f'mkdir -p {dep}',
-        'fetch_status=0',
-        f'timeout 120 git -c fetch.fsckObjects=true -C {old} fetch --no-tags '
-        f'--no-recurse-submodules --no-filter https://github.com/H-Dw/EvoMolSteer.git '
-        f'refs/heads/codex/plip-adaptive-schedule > {dep}/git-fetch.log 2>&1 || fetch_status=$?',
-        f'{old}/agenticgen/.venv/bin/python -c {shlex.quote(verification)} '
-        f'{old} {dep} {revision} {transport_commit} {encoded} "$fetch_status"',
+        'fetch_status=0; clone_status=not_run; import_status=not_run; clone_attempted=0']
+    if source_transport == 'github':
+        lines += [f'timeout 120 git -c fetch.fsckObjects=true -C {old} fetch --no-tags '
+            f'--no-recurse-submodules --no-filter https://github.com/H-Dw/EvoMolSteer.git '
+            f'refs/heads/codex/plip-adaptive-schedule > {dep}/git-fetch.log 2>&1 || fetch_status=$?']
+    else:
+        # Never overwrite a previous clone or change an existing runtime origin.
+        mirror = '/opt/MolSteer/source_cache/ghfast_'+transport_commit[:8]+'.git'
+        lines += [f'mkdir -p /opt/MolSteer/source_cache',
+            f'if test -e {mirror}; then echo "Clone destination exists; inspect before retry" > {dep}/ghfast-clone.log; clone_status=73; else',
+            'clone_status=0; clone_attempted=1',
+            'env -u GIT_CONFIG_COUNT -u GIT_CONFIG_PARAMETERS GIT_CONFIG_NOSYSTEM=1 '
+            'GIT_CONFIG_GLOBAL=/dev/null GIT_ASKPASS=/bin/false SSH_ASKPASS=/bin/false '
+            'timeout 120 git -c credential.helper= -c http.extraHeader= -c transfer.fsckObjects=true '
+            'clone --bare --single-branch --branch codex/plip-adaptive-schedule --no-tags '
+            f'https://ghfast.top/https://github.com/H-Dw/EvoMolSteer.git {mirror} '
+            f'> {dep}/ghfast-clone.log 2>&1 || clone_status=$?',
+            'fi', 'fetch_status=$clone_status',
+            'if test "$clone_status" = 0; then', 'import_status=0',
+            f'timeout 120 git -c fetch.fsckObjects=true -C {old} fetch --no-tags '
+            f'--no-recurse-submodules --no-filter {mirror} refs/heads/codex/plip-adaptive-schedule '
+            f'> {dep}/git-local-import.log 2>&1 || import_status=$?',
+            'fetch_status=$import_status', 'fi']
+    lines += [f'{old}/agenticgen/.venv/bin/python -c {shlex.quote(verification)} '
+        f'{old} {dep} {revision} {transport_commit} {encoded} "$fetch_status" '
+        f'{source_transport} "$clone_status" "$import_status" "$clone_attempted"',
         f'git -C {old} show {revision}:agenticgen/scripts/install_fixed_runtime.py | '
         f'{old}/agenticgen/.venv/bin/python - --commit {revision} --from-runtime {old}',
         'source /opt/MolSteer/scripts/scnet/activate_dtk.sh >/dev/null 2>&1',
@@ -151,6 +175,8 @@ def main():
     parser.add_argument('--version',required=True);parser.add_argument('--commit',required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--transport-commit', help='Fixed committed Git transport/check source; defaults to local HEAD. Scientific --commit stays unchanged.')
+    parser.add_argument('--source-transport', choices=('github','ghfast'), default='github',
+                        help='Use ghfast only after GitHub connection failure, per user authorization; no automatic retries.')
     parser.add_argument('--inspect-only',action='store_true',help='Read fixed deployment receipts and log tails, execute nothing')
     args=parser.parse_args();validate(args.version,args.commit)
     if not sys.stdin.isatty():raise ValueError('Non-echoing terminal authentication required')
@@ -181,10 +207,10 @@ def main():
             with client.open_sftp() as sftp:
                 sftp.get_channel().settimeout(25)
                 previous=ensure_unstarted(sftp,args.version)
-            cmd=command(args.version,args.commit,previous,transport,validation_hashes)
+            cmd=command(args.version,args.commit,previous,transport,validation_hashes,args.source_transport)
             channel=client.get_transport().open_session(timeout=25);channel.settimeout(25)
             channel.exec_command(cmd)
-            print('Fixed deployment submitted; single bounded Git fetch, no API fallback or upload.',flush=True)
+            print('Fixed deployment submitted; bounded '+args.source_transport+' Git transfer, no REST API or upload.',flush=True)
             stderr=b'';started=time.monotonic()
             while not channel.exit_status_ready() or channel.recv_ready() or channel.recv_stderr_ready():
                 if channel.recv_ready():channel.recv(32768)  # Never display uncontrolled remote output.
@@ -208,7 +234,7 @@ def main():
                 try:sources[path]=read_source(sftp,path)
                 except FileNotFoundError:continue
             if args.inspect_only or status:
-                for name in ('git-fetch.log','worktree.log','checkout.log','install.log','doctor.log','related-tests.log','launch.log'):
+                for name in ('git-fetch.log','ghfast-clone.log','git-local-import.log','worktree.log','checkout.log','install.log','doctor.log','related-tests.log','launch.log'):
                     path=dep+'/'+name
                     try:
                         if sftp.normalize(path)!=path:raise ValueError('Log path redirected')
@@ -220,7 +246,7 @@ def main():
                 health=collect(sftp,args.version)
                 if health['launch']['commit']!=args.commit:raise ValueError('Another source launched; inspect actual identity')
         receipt={'commit':args.commit,'version':args.version,'observed_at':time.time(),'exit_code':status,
-            'source_transport':'single bounded Git fetch; fixed commit and source hashes; no REST API fallback',
+            'source_transport':args.source_transport+' bounded Git pack transfer; fixed commit and source hashes; no REST API',
             'transport_commit':transport,
             'inspect_only':args.inspect_only,'sources':sources,'logs':logs,'errors':errors,'startup_health':health}
         args.output.parent.mkdir(parents=True,exist_ok=True)
