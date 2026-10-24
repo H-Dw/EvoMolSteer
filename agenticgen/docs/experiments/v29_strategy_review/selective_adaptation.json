@@ -1,0 +1,27 @@
+{
+  "base_runtime_commit": "929ca474d065d00ff6f6969a194273245cf88325",
+  "base_skills_commit": "929ca474d065d00ff6f6969a194273245cf88325",
+  "historical_skill_base": "a245eb0ac2ea4a7944d4fd7acfcd3491eaf5dbed",
+  "exact_restoration": false,
+  "authorization": "agenticgen/docs/authorizations/20261024_selective_guidance_modules_after_rollback.json",
+  "framework_source_sha256": "dad08c37b77613f8373340401d1408427f8c20ff849be3453f89a7fd430151c4",
+  "modules": [
+    {
+      "blind_spot": "把合法局部中点误称为需要range-probe额度，会将策略优先级或供给限制写成不存在的动作禁令。",
+      "strategy": "按当前动作上下文的局部边界、网格和步长分类，再分别判断探索价值、可用供给和剩余采样预算；范围扩展配额不单独禁止范围内的合法动作。",
+      "expected_behavior": "有限材料能区分合法但未供给/低优先级/预算耗尽与真正越界，不由零range-probe配额封闭合法局部方向，也不代造数组或要求特定试验。",
+      "next_version_test": "V30自身最优四上下文与40聚合若仍以零范围配额禁止动作上下文明示允许的局部中点，则反证；不追溯其他会话，不以是否选某个已知答案衡量。"
+    },
+    {
+      "blind_spot": "将已测边的反向外推延伸到新分段，或合并同背景宽边反转后仍沿旧背景斜率预测中点，混淆已知与未测。",
+      "strategy": "精确反向只交换已测端点，新分段和换背景各自保留假设；合并可见匹配宽边的符号反转应更新预测，但不能把宽边当作未测内部斜率。",
+      "expected_behavior": "保持最近相关边的符号及背景，实质更新预测信心，同时允许有价值的未测延伸；私有不被要求预知兄弟结果。",
+      "next_version_test": "V30有限材料若仍把越过端点称为已测反向，或同波匹配反证只写风险而未改变预测，则反证。V30是末版，只作最终评估，不启动V31或额外验证。"
+    }
+  ],
+  "skill_sha256": {
+    "plip-group-analyst": "87180711305757a17f580a6ee2c151367e68074e099ba92747faae7c0b8f8998",
+    "plip-group-synthesizer": "41a641a704fa252484fc70e7b0ff21db74b3468bd02c92359fdaad85556d8620",
+    "plip-schedule-review": "4713a087a4ab48939c865b7861aefaffdb2e292618bdb6df50d5dff96726e185"
+  }
+}

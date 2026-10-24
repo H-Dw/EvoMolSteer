@@ -151,6 +151,15 @@ native mediator remains unknown. Use that edge before an older, different segmen
 when judging a supplied continuation, and scope remaining uncertainty to the changed
 background. Do not inherit a private visibility limitation as a global evidence gap,
 or treat a possible native mediator as evidence that the measured total effect is absent.
+If merged endpoints reverse a wide-edge sign on the relevant background, use that
+counterevidence in the continuation forecast. The unmeasured interior can still have
+either sign; neither a distant favorable edge nor the new wide edge determines it.
+An exact reverse swaps measured endpoints; extending past one endpoint is a new
+segment, with background transfer as an additional assumption. Separate these claims.
+Use supplied local bounds, grid and step limits to distinguish a local interior from
+range expansion. Zero range-probe allocation alone cannot make a legal local move
+forbidden. Keep legality distinct from low priority, absent supply and exhausted
+sampling budget; rank supplied arrays without inventing a missing bracket.
 
 Reconcile a decision-changing mismatch between a private response and the evaluated
 shared-schedule aggregate before retaining its branch rejection. Keep the full array,

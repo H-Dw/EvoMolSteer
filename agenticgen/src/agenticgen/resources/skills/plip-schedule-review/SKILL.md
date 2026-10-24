@@ -111,6 +111,12 @@ local contrast. Check whether that contrast updates the response model while lea
 background transfer and native mediation appropriately uncertain. A mediator is not
 an automatic alternative to a measured total effect. Use only decision-relevant
 contrasts already in the selected materials and aggregates, without broader audit.
+Distinguish exact endpoint reversal, an unmeasured next segment and background
+transfer in the selected response model. A newly merged wide-edge reversal should
+update a forecast without claiming the unmeasured interior is settled. If a branch
+is called forbidden, compare that claim with the supplied local bounds and step
+limits: range-probe quota, budget priority and missing supply are different reasons.
+Do not infer earlier allocation causes or require a particular interior experiment.
 
 For a decision-changing attribution mismatch, compare the selected rationale with
 its shared-schedule aggregate and visible population semantics. Distinguish a private

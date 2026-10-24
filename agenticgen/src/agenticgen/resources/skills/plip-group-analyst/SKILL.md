@@ -150,6 +150,13 @@ a new background and from its unknown native mediator. Use the closest visible
 matched edge before a more distant segment. A native relaxation pathway can mediate
 a measured amplitude effect; it does not by itself negate that effect. Do not infer
 sibling measurements from their previously committed arrays.
+Reversing a measured edge exchanges its exact endpoints; continuing past an endpoint
+is a new segment, even on the same background. Transferring either to another
+background adds a separate assumption. A wide edge does not fix an interior slope.
+Classify a proposed move using the supplied local bounds, grid and step limits before
+invoking range-probe restrictions. An untested interior within those limits is local;
+zero range-probe allocation alone does not forbid it. Its value and remaining budget
+can still justify deferring it. This distinction requires no particular trial.
 
 Before a decisive branch rejection, bind the response to its full shared schedule,
 evaluated population and statistic. Proposal exclusion does not make your own current

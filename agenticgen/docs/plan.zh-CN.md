@@ -1,5 +1,13 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-24最新：**V29已FINALIZED且有限评估完成，V30待正常固定部署**。
+固定929ca474 analyze成功；1792854970.7302854核验两教师五轮1000正式结果及全部收尾完整，worker3678906退出，无新failure。
+仅Top1 R5G2、Top2 R5G1四上下文及40聚合，full_review_completed=false，双方R5只归档无R6。
+代表Mean4.211907396/4.210515480，较V28等权gap增加0.000668530，连续退步1，历史最好V17，尚不回滚，目标未达成。
+V30细化合法局部动作与范围配额、精确反向与新分段/背景迁移，U1与科学设置保持。Top2最高Best7.481502533超过教师，但该组条件出带，不替代主代表。
+本次仅三份skills/文档，两端不跑单元测试，无离线回放；传输相同源码的已有验证按原hash复用，不称新测。科学Python/原生验收保持。
+详见[有限评估](experiments/v29_strategy_review/review.zh-CN.md)。V30尚未批准/启动，V6–V29不prepare/重跑。当前仅LLM协助gradient guidance；35分钟保持，V30完整报告和commit/push保存后删除自动任务，不运行V31。下方为历史。
+
 2026-10-24最新：**V28完整完成及有限评估，V29已正常固定部署并启动**。
 科学/传输提交`929ca474d065d00ff6f6969a194273245cf88325`，worker3678906，启动1792851526.8652952，runtime `/opt/MolSteer/runtimes/agenticgen_929ca474`。
 首个ghfast一次clone成功，其他镜像未尝试，REST API0；131项历史关键hash保持。

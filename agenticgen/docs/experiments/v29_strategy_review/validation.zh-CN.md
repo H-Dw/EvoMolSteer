@@ -1,0 +1,5 @@
+FINALIZED 5655bb74ecc34a3963cc52cedeaaaedc520bfbbdb81442fd130e81baeaa97950
+report bf698c51b3672b9d754b083b07bb44905cf9f536c461391fc9137a9632f073e4
+manifest fb6ce533c988e2f2d8f7a33a8a8b5ee193d0300aeeda1d138c9f56a712e37c11
+
+固定929ca474 analyze成功；四上下文40聚合，无全量审阅/本地测试/离线回放。仅skills/文档，两端不跑单元测试。传输验证如复用须核对原来源，不称新测。
