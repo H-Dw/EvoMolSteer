@@ -13,63 +13,21 @@ Do not compare a functional difference with a coordinate tolerance or call it a 
 on that basis. Recompute eligibility from the actual pool; a missed forecast changes
 the response model, not the configured acceptance boundary.
 
-Merge the four groups with published history into a concise response model. Ground
-the magnitude of a decision-critical response in its endpoints, population and
-estimator. For identical valid equally weighted slots, mean paired affinity change
-equals the difference of group affinity means. If cited summaries disagree, do not
-use the larger value or its win rate to strengthen a continuation; retain the frozen
-group ranking and mark the comparison scope unresolved. Resolve only a relevant
-existing reference, without auditing all fields or adding diagnostics. Derive
-each supplied arm's intervention from its actual array minus its own reference,
-using the supplied interval IDs and step windows. Orient each historical contrast
-from its actual reference to intervention. An exact reverse swaps both complete
-measured arrays and negates their condition and functional differences. A new segment
-beyond an endpoint is amplitude extrapolation; changing other intervals also transfers
-the background. Neither becomes a measured reversal because the direction or step
-length matches. Compare shared extrapolation risk when allocating the final slots,
-not just the arms' point forecasts. For a joint forecast, connect available references in the proposed
-direction and distinguish measured edges from transfers to another background.
-An unmeasured link keeps the joint prediction uncertain; do not add incompatible
-edge signs or require a complete grid. Evaluate the supplied array, disclose an
-unsupported temporal or directional forecast, and use bounded repair only if the
-valid set requires it. Never silently edit an array.
-Close tested predictions and retire stale unknowns. Private analysts cannot see
-current siblings; merge their facts here. Keep endpoint novelty separate from
-background transfer: a boundary measured elsewhere is no longer globally untested,
-although its effect on the leader can remain unknown. If a lower endpoint was measured,
-an unmeasured point between it and the reference is a bracket whose forecast should
-use both signed endpoint responses, not a wholly unexplored lower side. Publish the
-known contrast and only the remaining uncertainty; do not erase a measured reversal
-by describing its exact reverse and then retaining the old 'unmeasured' label.
-This uses decision-relevant supplied results, without a coverage grid or extra tools.
-When current arrays form a matched contrast
-relevant to a proposed continuation, use that signed result to update its forecast
-and public memory, even if neither private report named the contrast. Keep only the
-unmeasured endpoint or transferred background unresolved. Correct ranking alone does
-not update a stale response model: an already measured adverse next segment cannot
-remain an untested positive term in a joint forecast. This uses the available wave,
-not a required grid, extra diagnostic, or permission to edit supplied arrays.
-Separate condition slope, functional response and
+Merge the four groups with published history into a concise response model. Close
+tested predictions and retire stale unknowns. Private analysts cannot see current
+siblings; merge their facts here. Separate condition slope, functional response and
 mechanistic confidence. Coordinate rewards do not directly control chemistry or
 affinity. Compare matched gains per unit amplitude before inferring flattening from
 unequal steps; keep condition and functional slopes separate. Use that response to
 choose continuation, refinement or a different background, not to invent a noise floor.
-Concentrated gains count normally even if the median worsens. On a matched fixed
-restart, matching or native basin selection can mediate an amplitude effect; they
-are not evidence that the measured group effect is noise. Keep its sign, mediator
-uncertainty and new-population generalization separate when allocating the next trial.
+Concentrated gains count normally; matching or later dynamics may mediate
+an amplitude effect rather than invalidate its measured total effect.
 Translate a proposed mechanism into a choice: which permitted contrast would change
 the leading explanation or improve the terminal result? Distinguish failed delivery,
 benefit lost later and excessive continued pressure only as far as recorded evidence
 supports. Missing mediator evidence need not delay exploitation. Prefer a useful
 contrast over several extra diagnostics that leave the chosen direction unchanged.
 Mechanistic plausibility never replaces the configured condition/function ranking.
-An unguided final segment does not demonstrate erasure of earlier interventions.
-Poor chemical matching, small observed gains or failure to reach the teacher are
-not a proof that every legal amplitude is ineffective. Limit a control-authority
-claim to its tested backgrounds and keep valuable unmeasured branches unresolved.
-Reject a tested bad endpoint without converting it into an unmeasured ceiling;
-an exhausted sampling budget closes execution, not the scientific question.
 
 Choose four distinct supplied arrays to improve this version's best shared schedule,
 not complete a map of all intervals. Early brackets identify useful directions. Once
@@ -99,40 +57,23 @@ to interpret a measured forward effect. After a longer step reverses, consider s
 another supported interval at the useful endpoint; do not ban an entire background
 or accept that a single interval's reversal exhausts the search space.
 
-Compare unresolved branches by attainable frontier gain, condition risk and remaining
-decisions. A tested rejection is not an action bound: an adverse endpoint can leave
-a legal interior open, and one outside-band point does not establish a monotone
-infeasible region beyond it. A different native trajectory or background may change
-the response; that possibility is a rival, not proof an untested branch will win.
-Check the evidence scope before carrying 'locked' or 'closed' into public memory.
-Repeated losses at one endpoint do not measure other legal points. Favor a supplied
-unresolved contender only when its possible improvement justifies the risk over
-supported continuations. No bisection, crossing of failed points or coverage quota
-is required. Publish a valuable missing branch while a later allocation can use it;
-at zero remaining rounds record it as unresolved, without inventing an array or
-claiming an unexecuted outcome.
+Compare the portfolio's unresolved branches by attainable frontier gain, condition
+risk and whether their answers can still be used. A responsive interval with a good
+endpoint, a reversed continuation and a legal untested interior is not automatically
+exhausted. Repeated losses at the same high or low endpoint reject that endpoint on
+the tested backgrounds; they do not measure the open interior. Compare a supplied
+interior contender with alternatives by its plausible result relative to the cached
+leader, rather than labelling all amplitudes beyond the good endpoint refuted. Do not
+require bisection, a complete map or repeated failures. If proposals omit a valuable
+branch, publish the gap while another round remains; never invent or edit an array.
 
 Merge weak-edge conclusions with their background and measured direction intact.
-Low priority beside a large effect is not a zero response. When that larger direction
-meets a condition boundary or reversal, reconsider supplied smaller signed gains by
-their reachable improvement over the retained leader and remaining condition margin.
-A useful weak edge on a trailing background may still lose overall; transfer to the
-leader remains uncertain. Do not demand a sweep of weak windows or invent missing arms.
 After a useful background change, do not carry an old 'closed interval' label forward
 without asking whether it still predicts the current response. Use an existing
 matched two-by-two comparison when available: the difference between the same edge's
 effects under two backgrounds reveals local interaction, not independent additive
 benefits or a proven propagation mechanism. Favor a supplied transfer/interaction
 contrast only when it can alter the leading choice; no mandatory grid or extra tools.
-Keep the comparison's scope explicit: with a reference O, an arm A and a joint AB,
-AB-A measures B conditional on A. A joint loss versus O does not prove non-additivity
-or reject B by itself; the first transfer may be harmful while the added edge helps.
-Use a matching B-on-O result to judge interaction only if available; otherwise leave
-it unknown without requiring a factorial grid or inventing an unexecuted result.
-Keep the conditional AB-A readout even when A or AB loses to O. Report separately
-its signed effect, the whole arm's position against the leader, and its remaining
-budget value. A forecast/rescue target is not a minimum effect required for B to
-exist; a useful but insufficient correction does not establish a null direction.
 One outside-band branch does not prove every other region infeasible. Current-anchor
 legality and the condition/function ranking still govern allocation.
 
@@ -149,18 +90,10 @@ Crossing to zero removes that interval's guidance and may change the response re
 A continuation and its compensated copy share this uncertainty; their distinct arrays
 do not diversify it. The same applies to several backgrounds sharing one unverified
 amplitude extension: name the common failure assumption before treating them as a
-diverse portfolio. Near a new leader or reversal, a previously favorable edge can
-reverse sign on the new background. For each shared assumption, ask what remains a
-plausible challenger if it is flat or adverse. Compare supplied separate single-edge
-contenders with A plus AB by that consequence, not by their distinct arrays or risk
-labels. AB-A can be informative while both arms lose the chance to improve. With no
-later sampling, its conditional information needs credible terminal upside in this
-allocation. Preserve a supplied contender that can improve without the same transfer
-when its evidence warrants it; neither design nor a fixed diversification quota is
-mandatory. State when no such contender was supplied. If another sampling decision
-will remain, publish this concrete proposal gap so the next private turn can address
-it; at the final allocation disclose the limitation and use the available legal set.
-Do not invent substitute arrays or claim unexecuted alternatives would win.
+diverse portfolio. Multiple slots can be justified by an interaction question, but
+are not independent protection against that extension failing. Balance them with a supplied contender that preserves the known
+useful regime when available. State explicitly when the supplied set cannot do so;
+do not invent substitute arrays or claim unexecuted alternatives would win.
 
 Spend for improvement over the best tested in-band schedule, which remains retained
 without a new slot. For each supplied contender, compare its predicted terminal result
@@ -187,10 +120,9 @@ does not by itself justify an expected in-band mean loss; a secondary tradeoff p
 needs a credible route to a remaining higher-priority decision. Small gains remain measured gains;
 they need not absorb every remaining slot. Separate a failed quantitative prediction
 from a failed ranking improvement: a smaller-than-forecast signed gain still counts.
-Attach a forecast miss to the belief it refutes, and attach acceptance to the actual
-frozen comparison. A larger-than-predicted condition cost can still leave a functional
-improvement eligible. Do not carry a forecast threshold into a later rejection rule,
-or let uncertain generalization turn measured gains into ties resolved by margin.
+Update the response belief rather than inventing a minimum-gain gate or a stricter
+condition ceiling from the forecast. A larger-than-predicted condition cost can still
+leave a functional improvement eligible under the actual band.
 Never invent or edit replacement arrays; use bounded repair when the legal distinct
 set is insufficient. Respect current-anchor legality, approved range, fine grid,
 changed-interval count and range-probe allocation. Fixed R0 remains the physical parent.

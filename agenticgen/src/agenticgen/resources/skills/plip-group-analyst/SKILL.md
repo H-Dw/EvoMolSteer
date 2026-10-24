@@ -15,35 +15,10 @@ observation and task memory identify the next control question most likely to im
 the condition/function frontier. Use response_edge and execution_history for exact
 comparisons when needed. Separate condition response from functional response. Match
 the previous prediction to this result, revise the belief and change the next action.
-For a response that determines the next move, keep the complete reference, intervention,
-population and estimator together. With the same valid equally weighted slots, the
-mean paired affinity change equals the difference of the two group affinity means.
-A discrepant paired summary cannot amplify that edge or establish broad participation
-until its comparison scope is known. Use the frozen group objective for ordering and
-leave the unsupported distributional claim unresolved; do not audit every receipt.
 Before calling a direction saturating or choosing a smaller step, compare matched
 terminal changes per unit amplitude, separately for condition and function. A smaller
-total gain after a smaller step need not mean a weaker slope. Preserve the signed
-effect and its background even when its priority is low. A window that looked weak
-beside a larger move can become useful after that move reaches a condition boundary
-or reversal. Compare its reachable gain on a legal useful background with the leader
-and condition margin; do not carry a relative 'null' label forward as a zero response.
-This does not require revisiting every small effect or guarantee a transferred gain.
-
-Ground each time-role hypothesis in the actual action: subtract the reference array
-from the proposed array and map the changed positions to the supplied interval IDs
-and step windows. An ordinal word such as 'third' must not silently change an index.
-Use response evidence for that actual interval, endpoints and background. Only
-swapping the two complete measured arrays gives an exact sign reversal of both
-condition and functional differences. Moving below the old reference is a new
-amplitude segment, even if direction and step length match that reversal; changing
-other intervals adds background transfer. Keep both uncertainties in the forecast.
-Use a measured slope to motivate a challenger, not to grant an unmeasured segment
-the certainty of an observed reverse. For a joint forecast, use an oriented
-path through available references, separating measured edges from transferred ones;
-do not add gains from incompatible paths. If the action and explanation disagree,
-reconsider the forecast before submitting. This is a brief decision, not a new tool
-call, required grid or extra output field.
+total gain after a smaller step need not mean a weaker slope. A small nonzero slope
+can justify continuation; its budget priority depends on competing attainable gains.
 
 Reason through amplitude → delivered movement → native trajectory → terminal
 condition → chemistry/function. Coordinates do not directly constrain chemistry or
@@ -57,17 +32,10 @@ the useful effect under the frozen ranking. Near-zero delivery is a delivery que
 not evidence for unlimited scale. Query an existing diagnostic only if it changes the
 choice; otherwise keep the mediator unknown and act on the measured terminal response.
 Unclipped delivery rules out clipping on that edge; it does not establish proportional
-delivery, an adequate dose or permanent terminal insensitivity. Under a matched fixed
-restart, native basin selection or correspondence changes can be how an amplitude
-change produces its terminal effect; they do not erase that measured total effect.
-Uncertainty about the mediator or new populations is separate from its current sign.
-Large residuals or movements do not rank controllability. Guidance ending before
-the terminal step does not show that earlier effects were erased. Low chemical
-mappability, a flat sampled Best or an unmet target can motivate a control-limit
-hypothesis, but cannot prove every legal schedule powerless. State the tested scope,
-the unresolved legal branch and the observation that could change its priority.
-Endpoint predictions are not actual native states; do not infer erasure without a
-saved contrast. Budget exhaustion means stop sampling, not proven infeasibility.
+delivery, an adequate dose or permanent terminal insensitivity. Native propagation or
+correspondence changes can mediate a guidance effect, so they are not automatically
+rivals to controllability. Large residuals or movements do not rank controllability. Endpoint
+predictions are not actual native states; do not infer erasure without a saved contrast.
 
 Early trials identify direction and useful scale. Choose step size from measured
 curvature, a reversal, available condition margin or a nearby regime boundary. A
@@ -95,53 +63,24 @@ nearby refinement before switching to an unrelated unknown. Small signed gains r
 observations; concentrated gains count in Mean. An unresolved mechanism does not
 erase the measured total effect.
 
-Keep a rejected sample distinct from a boundary of the legal or useful region. An
-adverse endpoint leaves a permitted untested interior unresolved; one outside-band
-point does not prove every farther point or changed background outside-band. Native
-trajectory changes can make the response non-monotone. Before calling an interval
-'locked' or 'closed', identify which measured contrasts support that scope and which
-legal branch remains unknown. Repeated endpoint failures strengthen the endpoint
-conclusion, not an unmeasured ceiling. Compare a valuable unresolved branch with
-small supported continuations by attainable gain, condition risk and remaining
-decisions. A risky branch needs a reason it could improve eligibility or function;
-this is not an obligation to cross a failed point, fill a grid, or promise a win.
-Carry the unresolved branch forward while sampling remains instead of silently
-turning a local rejection into a permanent action restriction.
+Treat a reversal as a bounded unresolved branch. Keep the useful endpoint and failed
+endpoint in memory, together with the legal untested interior if one exists. Before
+spending both proposals on tiny continuations elsewhere, compare their attainable
+gain and condition risk with one fine-grid contrast on that responsive branch. Reject
+the measured adverse endpoint; keep the interior unresolved unless a matched result
+rejects it too. Repeating the endpoint loss on another background strengthens rejection
+of that endpoint, not an unmeasured ceiling at the good endpoint. Resolve a valuable
+interior while its answer can still affect sampling, or explain a better competitor.
+This is not mandatory bisection or an extra quota; never promise an untested win.
 
 Use scoped decisions such as 'retain', 'deprioritize on this background', or 'reject
 this measured edge', rather than closing a whole interval after one weak contrast.
-Keep an unknown endpoint distinct from an unknown transfer. An amplitude measured
-on another background is not globally untested; its signed response remains useful
-evidence even when the leader-background effect is unknown. A measured lower endpoint
-and an unmeasured interior form a bracket, not an entirely unexplored lower side.
-Carry the known contrast and the remaining uncertainty together in the brief response
-model. Use only your visible history; committed sibling arrays disclose eligibility,
-not their outcomes. This distinction should change a forecast or priority, not require
-a coverage table, new diagnostic, or another trial.
 When a useful change elsewhere alters the background, reassess only the weak edge
 whose response could now change the leading choice. If existing history supplies a
 matched two-by-two comparison, compare the same amplitude edge under both backgrounds
 before assuming additivity or transferring its slope. A changed response supports a
 local interaction, not a universal time role or an identified molecular mechanism.
 Do not build a compulsory interaction grid or repeat a known schedule to fill it.
-At a new leader, a favorable direction from another background is a transfer
-hypothesis. Before committing both proposals to move A and joint AB, consider the
-consequence if A is flat or reverses: can either arm still plausibly beat the cached
-leader? Compare that pair with a legal B-only challenger from your current anchor.
-A larger historical gain for A does not by itself justify making B depend on A,
-especially near a changed background or with no sampling after this allocation.
-Choose the pair by attainable terminal gain and useful remaining decisions. If AB
-is preferred, explain why its conditional readout or supported upside earns the
-shared risk; merely naming that risk is not an allocation decision. This is not a
-required independent-arm quota, grid, or guarantee that the untested B would win.
-For reference O, move A and joint AB, AB-A identifies B only on the A background.
-AB worse than O can coexist with useful B and harmful A; it does not prove negative
-interaction or reject B on O. Additivity needs the missing matching reference, when
-already available; otherwise retain the conditional result and leave interaction unknown.
-The AB-A comparison remains interpretable even if A loses to O. Keep that signed
-conditional effect separate from whether AB beats the leader and whether another
-trial deserves budget. A small gain can fail a forecast or be too weak to rescue A
-without becoming zero; do not make a desired rescue size a response-existence gate.
 
 When function improves at a condition cost, track the remaining condition margin.
 Near the band boundary, consider a two-interval compensation trial: preserve the
@@ -187,19 +126,14 @@ angstroms; affinity and its gap are in the supplied functional units. The condit
 band defines eligibility, never a functional tie tolerance. A forecast miss updates
 the response belief; ranking uses the actual condition band and signed functional
 gap. An arm can exceed its predicted condition cost yet remain eligible and improve.
-For a falsifier, separate 'revise this response prediction' from 'reject this tested
-schedule under the objective'. A forecast-envelope miss can falsify the explanation
-while the arm still qualifies and improves; only the actual frozen comparison decides
-retention. Unknown generalization does not create a tie or give condition margin a
-new in-band veto. Negative endpoints reject those edges, not every interior or
-background. With fixed restarts and common random streams, between-candidate spread
+Do not turn a forecast envelope into an extra condition ceiling or a minimum-gain
+gate. Negative endpoints reject those edges, not every
+interior or background. With fixed restarts and common random streams, between-candidate spread
 is not repeat-run noise. Keep the measured paired group effect separate from its
 unknown generalization to new starting populations. A tiny effect can be a real
 fixed-population improvement yet deserve less budget than a plausible larger one;
-tail concentration or an uncertain mechanism alone does not erase it. A worse median
-or few benefiting candidates can coexist with a better group mean; report that
-tradeoff without replacing the frozen mean objective. Invent no noise floor or
-majority-response gate. Learning updates use stable
+tail concentration or an uncertain mechanism alone does not erase it. Invent no
+noise floor or majority-response gate. Learning updates use stable
 belief IDs, applicability, measurement, revised judgment and changed action. Keep
 unknowns honest and teacher-specific facts only in this version's task memory. Read
 no current sibling results. Follow the supplied JSON/tool schema and evidence IDs.

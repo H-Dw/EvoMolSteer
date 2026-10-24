@@ -1,0 +1,9 @@
+# V25恢复V17兼容性
+
+V24实际完整结果触发连续两次相邻退步，历史最好为V17。三份SKILL.md从a245eb0ac2ea4a7944d4fd7acfcd3491eaf5dbed逐字节恢复；analyst/synthesizer与V17 binding hash相同，review skill也精确恢复。完整U1/coarse0.2/q0.1/max_range_probes0/max_changed_intervals2政策恢复。不是回退整个代码树。
+
+保留当前eef5519b已接受的Python及提案资格修复。与V17的source_fingerprint差异仅committed_wave.py新增、group_agent.py、council.py和runtime/restart_failed_teacher.py，逐项hash见compatibility_sources.json。前一轮已承诺数组投影改变模型上下文行为，但不透露同波兄弟结果；保持条件、来源、隔离、解析、四个新提案门槛及中性纠正。V21已远端76项相关验证通过；V22正常部署已验证收据收集器相关入口，保留原收据，不称本次又测。V25正常启动不执行失败事务。
+
+配置、共享R0、条件比较和完整搜索政策hash/值一致，采样、梯度、模型、奖励、随机流、质量与预算未变。旧原生acceptance 564e71652a2184bd3146f54bf2f994822766a41e6a5d7aa2dc6e32df9ef82778及兼容receipt 2c0305f04703712e229280d53a658fc7ab1b977816a2aaeb24df2377c7e8dcd4继续保留；fresh_native_sampling=false，不称重跑原生验收。与当前运行源相比仅skills/文档变更，两端不跑单元测试，无LLM离线回放。
+
+恢复skills是精确历史字节恢复；执行环境和资格上下文保留修复，因此不宣称完整复制V17实验或保证其性能。按原review-check及rollback门槛绑定历史binding、source_fingerprint和本文hash后才可启动V25。选择性模块授权保留，本次不叠加新模块，不静默绕过门槛。PB/inpainting仍休眠。

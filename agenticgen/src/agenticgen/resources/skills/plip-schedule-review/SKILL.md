@@ -41,13 +41,10 @@ For each teacher, focus the assessment on three connected questions:
    assumption. A mechanism that remains uncertain does not cancel a measured gain;
    an unexecuted alternative has no performance result.
 
-In the selected contexts, distinguish a rejected sample from an inferred boundary.
-Aggregate schedules can reveal an unresolved legal interior or an untested region
-beyond one outside-band point. Neither repeated endpoint failure nor a 'locked'
-label proves a monotone feasible set. Judge whether closure has evidence for its
-scope and whether a valuable unknown survived in memory while decisions remained.
-Use only the contrasts needed for this question; do not read more sessions, demand
-coverage of every branch or import a successful array from another version.
+In the selected contexts, distinguish a useful local rejection from premature axis
+closure. Aggregate schedules can show an unresolved interior or a background-dependent
+response without reading more sessions. Use only the matched contrasts needed to
+judge the next decision; absence of a test does not establish that it would win.
 Check whether allocation compares with the retained best schedule or merely recovers
 from a poor action anchor. Once no later sampling can use the answer, a predictably
 trailing probe needs a credible chance to challenge the leader, not a safety label.
@@ -60,52 +57,6 @@ failure must not silently become an extra acceptance gate. Ask whether a smaller
 step or local-peak label follows measured curvature/risk, rather than small effect
 size alone; distinct arrays may still share one unverified extension. Judge these
 through decisions and outcomes, not a field-by-field wording audit.
-When a new leader changes the background, assess transfer risk in the proposed pair,
-not just whether it names a rival. Ask what could still challenge if the common
-move is flat or harmful, and whether the selected private agent had a legal separate
-challenger available from its own anchor. Unknown same-wave results are not mistakes.
-A single move plus its joint continuation may answer a conditional-effect question
-while sharing one harmful transfer; compare its final-budget value with supplied
-alternatives and proposal gaps without claiming untested arms would win. The council
-cannot invent a missing arm. Keep O-to-A, A-to-AB and O-to-AB conclusions distinct.
-An adverse A does not invalidate AB-A; distinguish a measured conditional gain,
-insufficient rescue of the whole arm, and low priority for another test. A requested
-gain or forecast threshold cannot turn a smaller signed response into zero. A joint
-loss does not identify interaction without matching references, and a useful conditional
-component must not be discarded with the whole arm. Native propagation and a
-concentrated response can mediate a fixed-population mean gain; uncertainty about
-that mechanism or generalization does not substitute a median/noise acceptance rule.
-
-When a selected hypothesis depends on a time role, compare its actual array delta
-with the named interval and oriented response edge. Only swapping the complete
-measured endpoint arrays is an exact reversal. Extending past the reference is a
-new amplitude segment; changing other intervals adds background transfer. Assess
-whether a shared extrapolation was allocated as if its sign were already measured.
-In the selected council, check whether an available same-wave contrast changed the
-response model, not only the leader's rank. A private analyst's reasonable unknown
-can already be resolved for the council; keep an untested background distinct from
-an endpoint that was actually measured. If a boundary was sampled elsewhere, assess
-whether its signed evidence survives with a transfer caveat. If a lower endpoint
-was sampled, an unmeasured interior is a bracket, not a wholly unexplored lower side.
-Use only relevant contrasts in these selected contexts, preserve private visibility,
-and do not attribute archive-only forecast errors to nonexistent later sampling.
-A joint forecast must distinguish measured links from transferred ones,
-rather than adding remembered cost labels in the wrong direction. Assess how this
-changes expected margin or choice, not every schema field. Preserve original arrays
-and archive-only predictions without inventing an executed failure. Ask whether control-limit
-claims follow measured contrasts: an unguided tail, low chemical mappability, unmet
-target or exhausted budget does not establish that all legal schedules are ineffective.
-Separate a falsified prediction from objective rejection, and a tested adverse endpoint
-from an unresolved interior. Keep these checks inside the same four selected contexts.
-For a response central to a selected decision, distinguish its frozen group change
-from a cited paired/distributional comparison with another or unclear scope. Identical
-valid equally weighted slots must give the same mean paired affinity change as the
-difference of group means. Do not let a mismatched magnitude or win rate strengthen
-a mechanism or continuation; retain unresolved provenance without a tool/field audit.
-Assess whether weak signed responses remain available when a dominant direction
-reaches a condition boundary. Low budget priority is not a null effect, and a useful
-edge from a trailing background is not yet a winning transferred arm. Preserve correct
-ranking and visibility limits; do not infer an untested alternative would outperform.
 
 Write a short assessment per teacher: the useful hypothesis, actual terminal tradeoff,
 the main rival/limitation and a better next direction. Derive one to three generic
