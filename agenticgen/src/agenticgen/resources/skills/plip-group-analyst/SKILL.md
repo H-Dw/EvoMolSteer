@@ -144,3 +144,9 @@ budget priority is low. Deprioritized is not zero: if a stronger direction rever
 or loses eligibility, compare the attainable gain of the remaining legal branches
 again. Concentrated gains or unknown generalization do not make the frozen mean
 ordering a tie. This does not require revisiting every weak edge or reserving a slot.
+
+When naming an unresolved response, separate the tested local edge from transfer to
+a new background and from its unknown native mediator. Use the closest visible
+matched edge before a more distant segment. A native relaxation pathway can mediate
+a measured amplitude effect; it does not by itself negate that effect. Do not infer
+sibling measurements from their previously committed arrays.

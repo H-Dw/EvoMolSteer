@@ -1,0 +1,5 @@
+FINALIZED f4a00e1ae21e69dcf611a3a4f674615477ec4befec6a28ff698a24a7e3e2413d
+report fb9e8bbd228dffa2cf193a6c5ca0402676451ad3114a0d7367f248e657578313
+manifest 196ba4cc059a86ef29e0ebbd1c476e47075bb2d9b27feb0316293cd951bf392d
+
+固定8b29d116 analyze成功；四上下文40聚合，full_review_completed=false。仅skills/文档，两端无单元测试、无离线回放。

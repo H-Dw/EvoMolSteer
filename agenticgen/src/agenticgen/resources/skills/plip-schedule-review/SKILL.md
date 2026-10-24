@@ -104,3 +104,10 @@ For the selected council, ask whether newly merged failures changed the forecast
 used to rank supplied arms or only added cautionary prose. Preserve private visibility
 and allow background transfer as an uncertain hypothesis; do not assert an untested
 alternative would win or inspect other sessions to explain missing supply.
+
+Judge uncertainty at the visibility level of the selected decision. A private agent
+may correctly lack a sibling endpoint; after merging, the council may have a matched
+local contrast. Check whether that contrast updates the response model while leaving
+background transfer and native mediation appropriately uncertain. A mediator is not
+an automatic alternative to a measured total effect. Use only decision-relevant
+contrasts already in the selected materials and aggregates, without broader audit.

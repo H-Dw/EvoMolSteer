@@ -144,3 +144,10 @@ and state what changed background could plausibly overcome its loss. Other-backg
 failure does not forbid a transfer, but without support it reduces confidence in the
 old optimistic forecast. Rank the supplied arrays under that updated evidence; do not
 invent an alternative, require a grid, or impose a new quota.
+
+After merging the wave, revise which contrasts remain unresolved. A matched pair
+newly available across siblings can resolve a local edge even when its transfer or
+native mediator remains unknown. Use that edge before an older, different segment
+when judging a supplied continuation, and scope remaining uncertainty to the changed
+background. Do not inherit a private visibility limitation as a global evidence gap,
+or treat a possible native mediator as evidence that the measured total effect is absent.
