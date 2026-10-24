@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+2026-10-24最新：**V25完成有限评估，V26已真实批准并启动**。
+固定`8b29d116e421daad8ea134795119ef86a3212abd`，worker3466528，启动1792833881.5355833，runtime `/opt/MolSteer/runtimes/agenticgen_8b29d116`。
+官方GitHub API固定安装成功，119项历史关键hash保持；科学Python兼容，显式复用原生验收。
+仅skills/文档，两端未跑单元测试，无离线回放；真实V25→V26门槛2教师4上下文、full_review_completed=false。
+V25代表Mean4.213521013/4.210505686，等权gap较V24减少0.000692873，连续退步0、历史最好V17，V25恢复已完整完成，无需再次回滚，目标未达成。
+V26在V17恢复基底上新增弱响应重新比较、同波反证更新选择预测两个模块；U1及全部科学设置保持。
+实际核验1792833890.9096732存活、命令匹配、无新failure；初始bootstrap不代表首轮完成，不重复启动或切源。
+见[部署收据](deployments/8b29d116/README.zh-CN.md)。V6–V25不prepare/重跑。35分钟及V30后休眠交接保持；下方为历史。
+
 2026-10-24最新：**V25已FINALIZED并完成自身有限评估，V26待正常固定部署**。
 Top1 R5G2、Top2 R4G3四上下文及40聚合，full_review_completed=false。Mean4.213521013/4.210505686，较V24等权gap减少0.000692873；真实rollback_completed，连续退步0，历史最好仍V17，目标未达成。
 V26在V17恢复基底上选择性加入弱响应重新比较、同波反证更新预测两个模块；U1及科学设置保持。仅skills/文档，两端无单元测试、无离线回放。
