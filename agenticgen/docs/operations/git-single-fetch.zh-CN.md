@@ -9,3 +9,5 @@
 --transport-commit绑定已提交的传输脚本和检查来源，与--commit科学源分开，前者不改变实验skills/配置/原生采样路径。V28仍走原正常review-check、安装/原生兼容与启动门槛。新的git_fetch_receipt和transport_validation分别保存，与历史API收据及scientific tests_receipt区分。
 
 原API reset等待和API重试方案已被本次用户要求替代。若Git仍报CONNECT503，只保留此次结果并等待网络恢复，不用API额度诊断决定Git重试。35分钟巡检不改变，不轮询已完成版本；V30完整收尾和报告、commit/push保存后删除定时任务。
+
+首次实际尝试：传输088456aa、科学d7d35b13；一次fetch被原代理CONNECT 503拒绝，exit128、REST API请求0，无回退/重试，未抵达测试、安装或启动。等待实际网络恢复证据，35分钟心跳不自动盲重试。收据见../deployments/d7d35b13/。

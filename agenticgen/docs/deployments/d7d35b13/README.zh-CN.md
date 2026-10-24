@@ -1,9 +1,11 @@
-# V28固定部署等待GitHub额度恢复
+# V28部署：一次Git拉取被代理拒绝
 
-科学提交`d7d35b132a04c5b58964aad3cfcc552a792a9909`已本地提交并推送；V27自身有限评估已完成。1792842360.2741966正常部署入口在官方API获取器blob请求处HTTP403退出，尚未安装、批准或启动V28，没有五项部署收据。原失败控制收据逐字节保存在deployment_failure.json；不把网络失败算科学退步或作废候选。
+2026-10-24按用户要求，正常部署已改为一次有界Git fetch（pull拉取阶段）和固定commit检出。传输提交088456aac447e17b28fc4823c4a81cb66daaaa3b已推送；科学目标仍d7d35b132a04c5b58964aad3cfcc552a792a9909。
 
-一次GET /rate_limit实际观测1792842406.4384227：core limit60/used60/remaining0，reset1792844755，即2026-10-24 12:25:55 UTC（北京时间20:25:55）。保留实际安全响应头。SFTP固定路径检查确认V28未stage、未完成，前版V27 worker已退出、前版launch来源3c473eed不变，目标部署五项收据均不存在。当前无活动实验，不轮询已完成V27。
+实际收据时间1792843413.149713：一次fetch，REST API请求0；原代理返回HTTP 503 after CONNECT，Git退出128。流程在传输失败处停止，没有回退或再次拉取。V28尚未安装、批准或启动，当前无活动科学实验。传输相关远端测试尚未执行；本地未运行自动化测试，不宣称验证通过。
 
-恢复时间加60秒余量，即12:26:55 UTC之前不重试、不查额度。保持35分钟心跳；12:12 UTC轮只等待，之后首个正常心跳可用原固定提交通过deploy_reviewed_version重试，复用对象缓存及完整代理/TLS环境。不是旧V16计划，不切出口、Git通道或凭据，不新造科学提交。若后续出现部分安装/目标绑定或launch，先inspect-only，不能重复批准启动。
+完整本地控制收据原样保存为git_deployment_failure.json；远端git_fetch_receipt.json逐字节SHA核验见source_manifest.json。原403失败、一次额度诊断和原等待状态分别保留deployment_failure.json、quota_and_inspection.json、api_attempt_summary.json，均仅为历史；旧API reset+60及API重试安排已失效。
 
-V28仅三份skills/文档，未运行两端单元测试或LLM离线回放；本次尚未抵达远端安装/兼容验收/review-check，不能声称门槛已通过。后续计划已撤回，当前仅LLM协助的gradient guidance；V30完整收尾和报告、commit/push保存后删除定时任务。
+下一步等待实际Git网络恢复证据。35分钟自动任务保留，但不盲重试拉取、不查询API额度、不轮询已完成V27，不换代理/出口/凭据。结果不确定先inspect-only，已有安装/绑定/launch不可重复启动。科学目标、V27有限评估和连续退步1保持。
+
+当前只关注LLM协助gradient guidance，V30完整收尾、报告交付并commit/push保存后删除定时任务。详见[一次拉取策略](../../operations/git-single-fetch.zh-CN.md)。
