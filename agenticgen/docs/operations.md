@@ -1,5 +1,11 @@
 # Deployment and continuation
 
+2026-10-24最新：**V27已FINALIZED并完成自身有限评估，V28待正常固定部署**。
+Top1 R5G3、Top2 R4G4四上下文及40聚合，full_review_completed=false。Mean4.213018246/4.210535917，较V26等权gap增加0.000429678，连续退步1、历史最好V17，尚不回滚，目标未达成。
+V28沿V27基底加入决定性响应归属与弱窗口局部尺度两个模块；U1及科学设置保持。仅skills/文档，两端无单元测试、无离线回放。
+60API3560321输入/860336输出，GPU540.335238秒，本版无作废或已知usage缺失。详见[有限评估](experiments/v27_strategy_review/review.zh-CN.md)。
+V28尚未批准/启动；V6–V27不prepare/重跑。当前仅LLM协助的gradient guidance；V30完整收尾及报告、commit/push保存后删除定时任务。下方为历史。
+
 2026-10-24用户范围更新：当前任务仅关注LLM协助的gradient guidance，按既定V6–V30协议推进。V30真实FINALIZED且质量、保留、清理完成后，交付完整报告并commit/push保存代码、配置、skills及来源，然后删除agenticgen定时任务。每35分钟巡检及当前V27运行源保持。此前后续方向授权已撤回。
 
 2026-10-24最新：**V26完成有限评估，V27已真实批准并启动**。

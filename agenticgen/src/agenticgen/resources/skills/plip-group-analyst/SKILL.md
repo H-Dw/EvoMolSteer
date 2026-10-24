@@ -150,3 +150,18 @@ a new background and from its unknown native mediator. Use the closest visible
 matched edge before a more distant segment. A native relaxation pathway can mediate
 a measured amplitude effect; it does not by itself negate that effect. Do not infer
 sibling measurements from their previously committed arrays.
+
+Before a decisive branch rejection, bind the response to its full shared schedule,
+evaluated population and statistic. Proposal exclusion does not make your own current
+measurement unavailable. If visible summaries disagree about a leader's identity or
+value, resolve that specific attribution before assigning a slope or closing the
+branch; leave an unresolved value unknown. Do not infer a population's selection
+semantics from a label alone. This is a decision check, not an evidence-wide audit.
+Describe all changed coordinates relative to the supplied action anchor even when
+the scientific comparison uses another reference.
+
+A window that is weak relative to the dominant branch may still matter to a smaller
+contrast. Do not erase its change when interpreting a joint move as a single-window
+effect. Use an available matched background, or keep the joint effect and uncertain
+attribution distinct. Compare omitted responses with the effect being explained,
+not only with the largest response in the experiment; require no extra grid or probe.

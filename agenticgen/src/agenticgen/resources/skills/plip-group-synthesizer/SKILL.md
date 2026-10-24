@@ -151,3 +151,16 @@ native mediator remains unknown. Use that edge before an older, different segmen
 when judging a supplied continuation, and scope remaining uncertainty to the changed
 background. Do not inherit a private visibility limitation as a global evidence gap,
 or treat a possible native mediator as evidence that the measured total effect is absent.
+
+Reconcile a decision-changing mismatch between a private response and the evaluated
+shared-schedule aggregate before retaining its branch rejection. Keep the full array,
+population and statistic attached to the comparison; an exclusion from new proposals
+is not an exclusion from measured evidence. Correct the forecast for the original
+supplied array without rewriting it. Resolve only the material mismatch, not every
+field or tool record, and keep genuinely unresolved attribution explicit.
+
+Do not use a near-null label to remove changed windows from a joint contrast when
+their possible effects are comparable to the small response being explained. Prefer
+an already available matched pair. Otherwise retain the joint total effect without
+claiming a single-window sign; weak on the dominant scale does not mean negligible
+on every scale. This changes interpretation and allocation, not the sampling budget.

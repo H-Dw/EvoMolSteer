@@ -111,3 +111,12 @@ local contrast. Check whether that contrast updates the response model while lea
 background transfer and native mediation appropriately uncertain. A mediator is not
 an automatic alternative to a measured total effect. Use only decision-relevant
 contrasts already in the selected materials and aggregates, without broader audit.
+
+For a decision-changing attribution mismatch, compare the selected rationale with
+its shared-schedule aggregate and visible population semantics. Distinguish a private
+misreading corrected by council from a wrong final ranking or an unproven software
+fault; do not open successful tool traces to locate a speculative cause. Also check
+whether a weak-window label hides changes large enough to confound the local edge
+being explained. An available matched pair outranks that simplification; otherwise
+retain the joint effect and unknown decomposition. Archive-only errors have no later
+sampling loss, and untested alternatives have no result.

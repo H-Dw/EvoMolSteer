@@ -1,0 +1,5 @@
+FINALIZED 4ffcee865338fe76709305d5dc9a3b9e9799461159f700b3242406e91d47fa97
+report 55aeac3d5ec34f7a9f55024c494138d37aa4cacec76ade52c616b21ef87e7f87
+manifest 8e076e02a8efdd5cc2dd7247cf1d167da4ca09d943d57cc423f738be6cd94d74
+
+固定3c473eed analyze成功；四上下文40聚合，full_review_completed=false。仅skills/文档，两端无单元测试、无离线回放。
