@@ -1,5 +1,7 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新：用户授权ghfast后备已实施并实际尝试，传输72e8a6d2、科学d7d35b13；一次clone在120秒超时退出124，fetch/API/本地导入均0。未抵达验证、安装或启动，V28仍未运行；本地无自动化测试。日志只有开始克隆，具体阻塞阶段未知，缓存状态未知且不自动覆盖/删除。失败不盲重试，后续先inspect已有缓存；见[镜像尝试收据](deployments/d7d35b13/ghfast_deployment_failure.json)。下方为历史。
+
 2026-10-24用户最新授权：GitHub连接异常时采用ghfast.top固定镜像git clone后备方式。现有503/TLS超时已满足条件，本轮使用独立bare缓存、一次有界clone及本地对象导入，固定科学提交和原部署门槛保持；不向镜像转交GitHub凭据、不回退REST API。实现与限制见[Git传输策略](operations/git-single-fetch.zh-CN.md)。实际验证和启动尚待收据确认。下方旧禁止此镜像/仅等待直连的安排在授权范围内失效。
 
 2026-10-24最新连接诊断：用户授权的一次HTTPS探测返回代理CONNECT200，随后TLS握手超时（curl28、HTTP000），尚无完整网络恢复证据。无GitHub REST API/fetch，无安装启动；V28仍等待连接恢复，不因CONNECT200自动重试。Git origin正常、无单独代理覆盖，现有部分克隆配置不能解释此次握手超时；未执行条件性的完整仓库检查。见[诊断收据](deployments/d7d35b13/connectivity_diagnostic.json)。下方为历史。

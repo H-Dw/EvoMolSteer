@@ -1,4 +1,10 @@
-# V28部署：一次Git拉取被代理拒绝
+# V28部署：ghfast后备克隆超时
+
+2026-10-24最新用户授权ghfast镜像后备，实施提交72e8a6d21161ae2b8805c409a8dc3e0204a7ef58。实际一次120秒有界bare clone超时退出124，收据1792846560.466603。网络fetch0、clone1、本地导入0、REST API0，无重试。日志只有开始克隆，不足以判断连接/传输具体阻塞阶段，也不证明仓库损坏。
+
+V28尚未安装/批准/启动，当前无活动科学实验。未抵达远端相关验证，本地未跑自动化测试，不称验证通过。科学目标d7d35b132a04c5b58964aad3cfcc552a792a9909保持；等待处理网络/传输障碍。缓存/opt/MolSteer/source_cache/ghfast_72e8a6d2.git超时后是否残留尚未检查，不自动删除或覆盖，后续须先inspect。完整控制收据ghfast_deployment_failure.json，远端快照ghfast_git_fetch_receipt.json逐字节SHA核验；原Git/API失败收据均保留。
+
+后备策略已生效，GitHub异常时使用固定ghfast URL，不再要求仅等直连恢复；失败不循环重试、不换其他镜像、不用REST API。正常科学门槛、35分钟频率和V30结束删除任务保持。下文为历史。
 
 2026-10-24按用户要求，正常部署已改为一次有界Git fetch（pull拉取阶段）和固定commit检出。传输提交088456aac447e17b28fc4823c4a81cb66daaaa3b已推送；科学目标仍d7d35b132a04c5b58964aad3cfcc552a792a9909。
 
