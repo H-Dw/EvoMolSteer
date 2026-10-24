@@ -20,6 +20,14 @@ terminal changes per unit amplitude, separately for condition and function. A sm
 total gain after a smaller step need not mean a weaker slope. A small nonzero slope
 can justify continuation; its budget priority depends on competing attainable gains.
 
+Ground each time-role hypothesis in the actual action: subtract the reference array
+from the proposed array and map the changed positions to the supplied interval IDs
+and step windows. An ordinal word such as 'third' must not silently change an index.
+Use response evidence for that actual interval and background; a legal array can
+still test a different intervention from its prose. If they disagree, reconsider the
+hypothesis and forecast before submitting, rather than borrowing another window's
+slope. Keep this a brief control decision, not an extra tool call or checklist.
+
 Reason through amplitude → delivered movement → native trajectory → terminal
 condition → chemistry/function. Coordinates do not directly constrain chemistry or
 affinity. Use this chain to choose an action, not demand a complete mechanism audit.
@@ -36,8 +44,13 @@ delivery, an adequate dose or permanent terminal insensitivity. Under a matched 
 restart, native basin selection or correspondence changes can be how an amplitude
 change produces its terminal effect; they do not erase that measured total effect.
 Uncertainty about the mediator or new populations is separate from its current sign.
-Large residuals or movements do not rank controllability. Endpoint
-predictions are not actual native states; do not infer erasure without a saved contrast.
+Large residuals or movements do not rank controllability. Guidance ending before
+the terminal step does not show that earlier effects were erased. Low chemical
+mappability, a flat sampled Best or an unmet target can motivate a control-limit
+hypothesis, but cannot prove every legal schedule powerless. State the tested scope,
+the unresolved legal branch and the observation that could change its priority.
+Endpoint predictions are not actual native states; do not infer erasure without a
+saved contrast. Budget exhaustion means stop sampling, not proven infeasibility.
 
 Early trials identify direction and useful scale. Choose step size from measured
 curvature, a reversal, available condition margin or a nearby regime boundary. A
@@ -138,9 +151,12 @@ angstroms; affinity and its gap are in the supplied functional units. The condit
 band defines eligibility, never a functional tie tolerance. A forecast miss updates
 the response belief; ranking uses the actual condition band and signed functional
 gap. An arm can exceed its predicted condition cost yet remain eligible and improve.
-Do not turn a forecast envelope into an extra condition ceiling or a minimum-gain
-gate. Negative endpoints reject those edges, not every
-interior or background. With fixed restarts and common random streams, between-candidate spread
+For a falsifier, separate 'revise this response prediction' from 'reject this tested
+schedule under the objective'. A forecast-envelope miss can falsify the explanation
+while the arm still qualifies and improves; only the actual frozen comparison decides
+retention. Unknown generalization does not create a tie or give condition margin a
+new in-band veto. Negative endpoints reject those edges, not every interior or
+background. With fixed restarts and common random streams, between-candidate spread
 is not repeat-run noise. Keep the measured paired group effect separate from its
 unknown generalization to new starting populations. A tiny effect can be a real
 fixed-population improvement yet deserve less budget than a plausible larger one;

@@ -13,9 +13,15 @@ Do not compare a functional difference with a coordinate tolerance or call it a 
 on that basis. Recompute eligibility from the actual pool; a missed forecast changes
 the response model, not the configured acceptance boundary.
 
-Merge the four groups with published history into a concise response model. Close
-tested predictions and retire stale unknowns. Private analysts cannot see current
-siblings; merge their facts here. Separate condition slope, functional response and
+Merge the four groups with published history into a concise response model. Derive
+each supplied arm's intervention from its actual array minus its own reference,
+using the supplied interval IDs and step windows. Evaluate the hypothesis and slope
+against that change, not a copied temporal label. A legal array with a mismatched
+description has an unsupported forecast for its actual window; do not silently
+rename the intervention or edit its array. Rank it by supported action evidence,
+disclose the mismatch, and use bounded repair only if the valid set requires it.
+Close tested predictions and retire stale unknowns. Private analysts cannot see
+current siblings; merge their facts here. Separate condition slope, functional response and
 mechanistic confidence. Coordinate rewards do not directly control chemistry or
 affinity. Compare matched gains per unit amplitude before inferring flattening from
 unequal steps; keep condition and functional slopes separate. Use that response to
@@ -30,6 +36,12 @@ benefit lost later and excessive continued pressure only as far as recorded evid
 supports. Missing mediator evidence need not delay exploitation. Prefer a useful
 contrast over several extra diagnostics that leave the chosen direction unchanged.
 Mechanistic plausibility never replaces the configured condition/function ranking.
+An unguided final segment does not demonstrate erasure of earlier interventions.
+Poor chemical matching, small observed gains or failure to reach the teacher are
+not a proof that every legal amplitude is ineffective. Limit a control-authority
+claim to its tested backgrounds and keep valuable unmeasured branches unresolved.
+Reject a tested bad endpoint without converting it into an unmeasured ceiling;
+an exhausted sampling budget closes execution, not the scientific question.
 
 Choose four distinct supplied arrays to improve this version's best shared schedule,
 not complete a map of all intervals. Early brackets identify useful directions. Once
@@ -132,9 +144,10 @@ does not by itself justify an expected in-band mean loss; a secondary tradeoff p
 needs a credible route to a remaining higher-priority decision. Small gains remain measured gains;
 they need not absorb every remaining slot. Separate a failed quantitative prediction
 from a failed ranking improvement: a smaller-than-forecast signed gain still counts.
-Update the response belief rather than inventing a minimum-gain gate or a stricter
-condition ceiling from the forecast. A larger-than-predicted condition cost can still
-leave a functional improvement eligible under the actual band.
+Attach a forecast miss to the belief it refutes, and attach acceptance to the actual
+frozen comparison. A larger-than-predicted condition cost can still leave a functional
+improvement eligible. Do not carry a forecast threshold into a later rejection rule,
+or let uncertain generalization turn measured gains into ties resolved by margin.
 Never invent or edit replacement arrays; use bounded repair when the legal distinct
 set is insufficient. Respect current-anchor legality, approved range, fine grid,
 changed-interval count and range-probe allocation. Fixed R0 remains the physical parent.
