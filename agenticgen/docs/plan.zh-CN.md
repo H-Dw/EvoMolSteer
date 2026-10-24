@@ -1,5 +1,15 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-24最新：**V22完成有限评估，V23已真实批准并启动**。
+固定`2ae3fb00375b4d6b8d9cec10178d6dd98528ff2c`，worker3260505，启动1792821402.3980756，runtime `/opt/MolSteer/runtimes/agenticgen_2ae3fb00`。
+官方GitHub API固定获取/安装成功，107项历史关键hash保持，科学Python兼容、复用原生验收。
+仅skills/文档，两端未跑单元测试，无LLM离线回放；真实V22→V23门槛为2教师4上下文，full_review_completed=false。
+V22代表Mean4.213300619/4.211230860，等权gap较V21减少0.000669508，连续退步0、历史最好V17，无需回滚。
+V23改写关键响应的比较范围，以及较弱方向在条件边界后的可达价值；U1和全部科学设置保持，目标未达成。
+初始核验1792821410.5581036存活、身份匹配且无新failure，不代表首轮完成；不重复启动或为文档同步切换科学源。
+见[实际部署](deployments/2ae3fb00/README.zh-CN.md)。V6–V22不prepare/重跑，下方旧状态为历史。
+35分钟巡检保持；V30后补充计划继续休眠并保留交接。
+
 2026-10-24最新：**V22已FINALIZED并完成有限评估，V23待正常固定部署**。
 两教师五轮1000正式结果及质量/汇总/保留/清理完整；worker3190901退出，无新故障，原4139a5e9 analyze成功。
 仅Top1 R5G2、Top2 R4G2四上下文和40聚合组，full_review_completed=false；Top1仅归档，Top2 R5只用聚合。
