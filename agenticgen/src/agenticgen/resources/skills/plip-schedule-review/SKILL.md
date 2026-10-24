@@ -96,3 +96,11 @@ tests or offline LLM replay. Review the diff, commit/push, and deploy at a revie
 version boundary. Skills/document-only edits need no unit suite; necessary software
 checks for executable changes run only in the fixed remote environment. Retain locks
 and completed results, and report the limited review scope honestly.
+
+In the selected contexts, separate a low-priority signed response from a zero effect.
+After a dominant branch meets a measured boundary, assess whether weaker available
+branches were reconsidered by attainable gain, without requiring a particular trial.
+For the selected council, ask whether newly merged failures changed the forecast
+used to rank supplied arms or only added cautionary prose. Preserve private visibility
+and allow background transfer as an uncertain hypothesis; do not assert an untested
+alternative would win or inspect other sessions to explain missing supply.

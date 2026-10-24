@@ -133,3 +133,14 @@ of control authority; neither affinity nor geometry alone establishes reconstruc
 Molecular specifics belong only in teacher/version memory. Generic skills contain no
 teacher answers and stay frozen within the version; next-version memory resets.
 Return requested JSON. Final-round suggestions and reflections are archive-only.
+
+Keep small measured effects signed and scoped even when they are low priority.
+When the strongest branch reverses or leaves the condition band, reconsider the
+attainable gain of available weaker branches rather than inheriting a null label.
+A fixed-population difference is not unresolved merely because it is small.
+When current-wave evidence contradicts a supplied forecast, update the forecast
+used for selection, not only its risk paragraph. Use the closest measured endpoint
+and state what changed background could plausibly overcome its loss. Other-background
+failure does not forbid a transfer, but without support it reduces confidence in the
+old optimistic forecast. Rank the supplied arrays under that updated evidence; do not
+invent an alternative, require a grid, or impose a new quota.

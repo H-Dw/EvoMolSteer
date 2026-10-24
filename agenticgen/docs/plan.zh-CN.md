@@ -1,5 +1,11 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-24最新：**V25已FINALIZED并完成自身有限评估，V26待正常固定部署**。
+Top1 R5G2、Top2 R4G3四上下文及40聚合，full_review_completed=false。Mean4.213521013/4.210505686，较V24等权gap减少0.000692873；真实rollback_completed，连续退步0，历史最好仍V17，目标未达成。
+V26在V17恢复基底上选择性加入弱响应重新比较、同波反证更新预测两个模块；U1及科学设置保持。仅skills/文档，两端无单元测试、无离线回放。
+58API3356999输入/870572输出，GPU509.200716秒，本版无作废或已知usage缺失。详见[有限评估](experiments/v25_strategy_review/review.zh-CN.md)。
+V26未批准/启动；V6–V25不prepare/重跑。35分钟及V30后休眠交接保持，下方历史。
+
 2026-10-24最新：**V24完成有限评估，V25已真实批准并启动**。
 固定`5401fb410856f14d9c19416b1eb0cd6e154d79b3`，worker3396400，启动1792829845.5593977，runtime `/opt/MolSteer/runtimes/agenticgen_5401fb41`。
 官方GitHub API固定安装成功，115项历史关键hash保持；科学Python兼容，显式复用原生验收。

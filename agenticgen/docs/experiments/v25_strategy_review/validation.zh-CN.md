@@ -1,0 +1,5 @@
+FINALIZED 1597b4409847591aa8c4f0ab5979aaccd6df60231214a2f123f471ed64bf8bf7
+report 8c5a00a571e9ab4a4b7c218e4e68df411d925d0f0645264af20fbc6c0b6c57a6
+manifest 7087417c6ff6a131206333f019dd1d0c9e87836b1260b205e57b020a2ce856a2
+
+固定5401fb41 analyze成功；四上下文40聚合，full_review_completed=false。仅skills/文档，无本地或远端单元测试、无离线回放。

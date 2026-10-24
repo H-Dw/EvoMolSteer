@@ -138,3 +138,9 @@ belief IDs, applicability, measurement, revised judgment and changed action. Kee
 unknowns honest and teacher-specific facts only in this version's task memory. Read
 no current sibling results. Follow the supplied JSON/tool schema and evidence IDs.
 Final-round proposals are archived without another sampling round.
+
+Keep a small measured response's sign, magnitude and background even when its
+budget priority is low. Deprioritized is not zero: if a stronger direction reverses
+or loses eligibility, compare the attainable gain of the remaining legal branches
+again. Concentrated gains or unknown generalization do not make the frozen mean
+ordering a tie. This does not require revisiting every weak edge or reserving a slot.

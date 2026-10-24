@@ -1,0 +1,414 @@
+{
+  "mode": "best_round_strategy",
+  "version": "v25",
+  "full_review_completed": false,
+  "report_sha256": "8c5a00a571e9ab4a4b7c218e4e68df411d925d0f0645264af20fbc6c0b6c57a6",
+  "teachers": [
+    {
+      "teacher": "5nn4_SC2_A_1017__top1",
+      "best_round": 5,
+      "best_group": "G2",
+      "hypothesis_assessment": "Top1 R5G2正确保留早段内侧8与末段释放带来的新代表。私有尚未看见同波第二窗口低侧失败，提出零末段与另一窗口独立释放合法；汇总收到匹配失败后重估并降级后者，不替换原数组。",
+      "first_principles": "早段内侧与末段幅度改变可通过原生轨迹影响终态，具体中介未知。末段7→3与3→1步长不同，应按单位幅度比较；前者每tick约0.0000644、后者0.0000544，只有温和局部减弱，不能按总增益减半推强饱和。第二窗口5→7负响应的精确反向是7→5，继续到3且换背景仍是新段外推。",
+      "performance_interpretation": "早段7→8在末段3背景Mean+0.001663303/C+0.000190487Å；末段7→3 Mean+0.000257597/C+0.000823086Å，3→1 Mean+0.000108862/C+0.000421553Å。第二窗口5→3在末段3/7背景分别Mean-0.001304989/-0.001328058、C+0.000859980/+0.000842963Å。汇总据此降级私有低侧迁移，保留真正领先的R5G2。",
+      "next_direction": "保留内侧探索、小正收益排序和同波更新。私有的镜像新段只是假设，不能当已测反向；其明确迁移未知，且汇总已校正，不据归档案宣称实际损失。R5无后续采样；不读取早轮会话来推断分配原因。",
+      "evidence_files": {
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/synthesis.json": "482a0c815068922d6093e3ceccb677f250b7b8b93321497c1618ce7bb8d07f73",
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/hypotheses.json": "b3af89dbe928309361e76dcd7146e11c23f5a145a86e1a77a70a1edf41c96f8f",
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/synthesis.request.json": "128d57f928a2bdbf00091ec5fc7e3413a07d8f072d191e9e2282a980563ec0a3",
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/synthesis_inputs/61c291478a126c25c54dcc194abdf74b6091a5c217e0a190a2ac04452e32ac03.txt": "61c291478a126c25c54dcc194abdf74b6091a5c217e0a190a2ac04452e32ac03",
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/turn_00.request.json": "080254b84306a726007f0e1ef0a2c62cc8e24189f08371ce02691b197167fd8a",
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/llm_inputs/fbf7652d8ec784b5ced053cca714f68d8a13177895dac7e3771295f13ad48fd2.txt": "fbf7652d8ec784b5ced053cca714f68d8a13177895dac7e3771295f13ad48fd2"
+      },
+      "relevant_prompt_context": {
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/synthesis.request.json": {
+          "sha256": "128d57f928a2bdbf00091ec5fc7e3413a07d8f072d191e9e2282a980563ec0a3",
+          "context": [
+            {
+              "priority": [
+                "condition_coordinate_fidelity",
+                "mean_affinity_teacher_agreement",
+                "best_affinity_bonus"
+              ],
+              "search_budget": {
+                "completed_rounds": 5,
+                "consumed_fraction": 1.0,
+                "decision_phase": "review_only",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 0,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 5,
+              "search_policy": {
+                "coarse_probe_scale": 0.2,
+                "fine_resolution": 0.1,
+                "max_changed_intervals": 2,
+                "max_range_probes": 0,
+                "upper_amplitude": 1
+              }
+            }
+          ],
+          "prompt_source_sha256": {
+            "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/synthesis_inputs/61c291478a126c25c54dcc194abdf74b6091a5c217e0a190a2ac04452e32ac03.txt": "61c291478a126c25c54dcc194abdf74b6091a5c217e0a190a2ac04452e32ac03"
+          }
+        },
+        "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/turn_00.request.json": {
+          "sha256": "080254b84306a726007f0e1ef0a2c62cc8e24189f08371ce02691b197167fd8a",
+          "context": [
+            {
+              "objective_priority": [
+                "condition_coordinate_fidelity",
+                "mean_affinity_teacher_agreement",
+                "best_affinity_bonus"
+              ],
+              "continuous_objectives": {
+                "conflict_policy": "report_continuous_Pareto_tradeoffs_no_hidden_weight_or_pass_gate",
+                "functional_metric": "absolute_mean_pic50_minus_teacher",
+                "policy": "four_shared_schedules",
+                "priority": [
+                  "condition_coordinate_fidelity",
+                  "mean_affinity_teacher_agreement",
+                  "best_affinity_bonus"
+                ],
+                "round_barrier": "four_groups_evaluated",
+                "scope": "unselected_hypothesis_25_candidates",
+                "thresholds": null,
+                "validity": "report eligible counts; never improve mean by dropping failed slots"
+              },
+              "controller_role": "adaptive conditional learning controller",
+              "search_budget": {
+                "completed_rounds": 5,
+                "consumed_fraction": 1.0,
+                "decision_phase": "review_only",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 0,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 5,
+              "action_contract": {
+                "action_anchor_ticks": [
+                  8,
+                  5,
+                  5,
+                  1
+                ],
+                "all_hypotheses_distinct": true,
+                "allowed_local_ticks_by_interval": [
+                  [
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ],
+                  [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ],
+                  [
+                    0,
+                    1,
+                    2,
+                    3
+                  ]
+                ],
+                "committed_schedule_rule": "These four schedules were selected before this wave and are excluded from new proposals. Only their arrays and prior source hash are public here; sibling current results, hypotheses and tool evidence remain private. They are not suggested actions or observed responses.",
+                "default_max_absolute_tick_change": 2,
+                "double_tick_rule": "Two ticks allowed by default; three only in verified_large_step_directions.",
+                "ids_in_order": [
+                  "H1",
+                  "H2"
+                ],
+                "initial_step_ticks": 2,
+                "max_changed_intervals": 2,
+                "no_executed_schedule": true,
+                "no_unchanged_anchor": true,
+                "range_probe_rule": "Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.",
+                "reference_semantics": "Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.",
+                "reference_ticks_must_equal": [
+                  8,
+                  5,
+                  5,
+                  1
+                ],
+                "search_policy": {
+                  "coarse_probe_scale": 0.2,
+                  "fine_resolution": 0.1,
+                  "max_changed_intervals": 2,
+                  "max_range_probes": 0,
+                  "upper_amplitude": 1
+                },
+                "tick_bounds_inclusive": [
+                  0,
+                  10
+                ],
+                "tick_to_amplitude": 0.1
+              },
+              "common_anchor_ticks": [
+                8,
+                5,
+                5,
+                1
+              ]
+            }
+          ],
+          "prompt_source_sha256": {
+            "versions/v25/5nn4_SC2_A_1017__top1/round_05/council/analysts/G2/llm_inputs/fbf7652d8ec784b5ced053cca714f68d8a13177895dac7e3771295f13ad48fd2.txt": "fbf7652d8ec784b5ced053cca714f68d8a13177895dac7e3771295f13ad48fd2"
+          }
+        }
+      }
+    },
+    {
+      "teacher": "5nn4_SC2_A_1017__top2",
+      "best_round": 4,
+      "best_group": "G3",
+      "hypothesis_assessment": "Top2 R4G3以第三窗口小正收益成为代表，但私有和汇总将其概括为null/不可分辨，并以只有零早段可挑战的判断组织最后分配。私有未知同波零端失败合理；汇总已知失败，保留两个零端及两个早段1的替代案，确有部分风险分散，但零端选择理由仍沿用失败前乐观数值。",
+      "first_principles": "小的固定人口有符号均值改善可低优先级，不能据幅度小视为零或统计不可分辨。主方向遇到真实条件边界后应重新比较弱方向的可达收益。其他背景零端失败不封闭所有背景，但应更新条件/功能预测与不确定性；单列风险而保持原乐观中心不能说明实际证据如何改变选择。原生轨迹和少数候选集中变化可为幅度效应中介，不自动否定总效应。",
+      "performance_interpretation": "第三窗口5→7在早段1/第二窗口3/末段5背景Mean+0.000024137/C-0.000230090Å，在早段3背景Mean-0.000008774，背景作用未知。R4零早段在第三窗口5背景Mean-0.006983528/C+0.007510833Å，已出带。汇总正确认识其条件跳变约为旧末段补偿容量十倍，却仍给两个零端约1.9188–1.9207Å的乐观条件预测。R5第三窗口7背景零端Mean-0.007051411/C+0.007500066Å；另背景零端Mean+0.004353924/C+0.025729919Å，两者均出带。第三窗口7→6 Mean-0.000005026；第二窗口3→5在第三窗口5背景Mean-0.000028324。四案均未超过R4代表，仅聚合结论。",
+      "next_direction": "不把私有未知同波当错误，不强迫汇总代造缺失方案。保留实际正确排名及早段1替代案；让新匹配失败实质更新供给方案的预测/优先级，并在主方向受阻后重新比较有符号弱响应。末段低侧迁移是否胜出未知，未测替代无分数；未读Top2 R5会话，不声称如何吸取结果。",
+      "evidence_files": {
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/synthesis.json": "da1853ee696698f08eef872b16bfd892fa2e96f6d809a69f850f9f0a9f74b883",
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/analysts/G3/hypotheses.json": "4f9ef0487980264bbe2db8d433356f28f1928537b968962d45b61b65b2bf4a2f",
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/synthesis.request.json": "94f053748e836d874189f897a1f4e105efab74a6a1ba58cd32472a1090b3297f",
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/synthesis_inputs/c7687ddb3c7a96ebf65ec060d4403c35a80f80f8ee9339a46500451cc8501b91.txt": "c7687ddb3c7a96ebf65ec060d4403c35a80f80f8ee9339a46500451cc8501b91",
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/analysts/G3/turn_00.request.json": "e9607255c69c5886b3a0c71453bc4931ef32674978a9d5f9a46f2ce7b5759982",
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/analysts/G3/llm_inputs/e48b6d0f66aaf23bbc51fd137c27b18e613243d0e8b5ed4cd66d44ea4414f29d.txt": "e48b6d0f66aaf23bbc51fd137c27b18e613243d0e8b5ed4cd66d44ea4414f29d"
+      },
+      "relevant_prompt_context": {
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/synthesis.request.json": {
+          "sha256": "94f053748e836d874189f897a1f4e105efab74a6a1ba58cd32472a1090b3297f",
+          "context": [
+            {
+              "priority": [
+                "condition_coordinate_fidelity",
+                "mean_affinity_teacher_agreement",
+                "best_affinity_bonus"
+              ],
+              "search_budget": {
+                "completed_rounds": 4,
+                "consumed_fraction": 0.8,
+                "decision_phase": "supported_consolidation",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 1,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 4,
+              "search_policy": {
+                "coarse_probe_scale": 0.2,
+                "fine_resolution": 0.1,
+                "max_changed_intervals": 2,
+                "max_range_probes": 0,
+                "upper_amplitude": 1
+              }
+            }
+          ],
+          "prompt_source_sha256": {
+            "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/synthesis_inputs/c7687ddb3c7a96ebf65ec060d4403c35a80f80f8ee9339a46500451cc8501b91.txt": "c7687ddb3c7a96ebf65ec060d4403c35a80f80f8ee9339a46500451cc8501b91"
+          }
+        },
+        "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/analysts/G3/turn_00.request.json": {
+          "sha256": "e9607255c69c5886b3a0c71453bc4931ef32674978a9d5f9a46f2ce7b5759982",
+          "context": [
+            {
+              "objective_priority": [
+                "condition_coordinate_fidelity",
+                "mean_affinity_teacher_agreement",
+                "best_affinity_bonus"
+              ],
+              "continuous_objectives": {
+                "conflict_policy": "report_continuous_Pareto_tradeoffs_no_hidden_weight_or_pass_gate",
+                "functional_metric": "absolute_mean_pic50_minus_teacher",
+                "policy": "four_shared_schedules",
+                "priority": [
+                  "condition_coordinate_fidelity",
+                  "mean_affinity_teacher_agreement",
+                  "best_affinity_bonus"
+                ],
+                "round_barrier": "four_groups_evaluated",
+                "scope": "unselected_hypothesis_25_candidates",
+                "thresholds": null,
+                "validity": "report eligible counts; never improve mean by dropping failed slots"
+              },
+              "controller_role": "adaptive conditional learning controller",
+              "search_budget": {
+                "completed_rounds": 4,
+                "consumed_fraction": 0.8,
+                "decision_phase": "supported_consolidation",
+                "instruction": "Phase is a budget cue, not evidence that a direction is correct. Final-round proposals are unexecuted suggestions.",
+                "remaining_sampling_rounds": 1,
+                "total_rounds": 5
+              },
+              "condition_comparison": {
+                "aggregation": "mean_of_per_candidate_local_rmsd",
+                "band": "anchored_to_pool_minimum",
+                "chemical_pose": "separate_exact_subgraph_diagnostic",
+                "frame": "protein_fixed",
+                "ligand_fit_for_primary": false,
+                "ranking_tolerance_A": 0.02,
+                "sensitivity_A": [
+                  0.01,
+                  0.05
+                ],
+                "terminal_state_required": true
+              },
+              "observed_round": 4,
+              "action_contract": {
+                "action_anchor_ticks": [
+                  1,
+                  3,
+                  7,
+                  5
+                ],
+                "all_hypotheses_distinct": true,
+                "allowed_local_ticks_by_interval": [
+                  [
+                    0,
+                    1,
+                    2,
+                    3
+                  ],
+                  [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  [
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ]
+                ],
+                "committed_schedule_rule": "These four schedules were selected before this wave and are excluded from new proposals. Only their arrays and prior source hash are public here; sibling current results, hypotheses and tool evidence remain private. They are not suggested actions or observed responses.",
+                "default_max_absolute_tick_change": 2,
+                "double_tick_rule": "Two ticks allowed by default; three only in verified_large_step_directions.",
+                "ids_in_order": [
+                  "H1",
+                  "H2"
+                ],
+                "initial_step_ticks": 2,
+                "max_changed_intervals": 2,
+                "no_executed_schedule": true,
+                "no_unchanged_anchor": true,
+                "range_probe_rule": "Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.",
+                "reference_semantics": "Action deltas use this current group anchor. Fixed R0 before update 10 is the physical restart only. Historical causal comparisons do not replace the action anchor.",
+                "reference_ticks_must_equal": [
+                  1,
+                  3,
+                  7,
+                  5
+                ],
+                "search_policy": {
+                  "coarse_probe_scale": 0.2,
+                  "fine_resolution": 0.1,
+                  "max_changed_intervals": 2,
+                  "max_range_probes": 0,
+                  "upper_amplitude": 1
+                },
+                "tick_bounds_inclusive": [
+                  0,
+                  10
+                ],
+                "tick_to_amplitude": 0.1
+              },
+              "common_anchor_ticks": [
+                1,
+                3,
+                7,
+                5
+              ]
+            }
+          ],
+          "prompt_source_sha256": {
+            "versions/v25/5nn4_SC2_A_1017__top2/round_04/council/analysts/G3/llm_inputs/e48b6d0f66aaf23bbc51fd137c27b18e613243d0e8b5ed4cd66d44ea4414f29d.txt": "e48b6d0f66aaf23bbc51fd137c27b18e613243d0e8b5ed4cd66d44ea4414f29d"
+          }
+        }
+      }
+    }
+  ],
+  "capability_hypotheses": [
+    {
+      "blind_spot": "小的已测有符号响应被压缩为null标签，可能压低主方向受阻后的替代收益判断；汇总确实保留两个非零端方案，不能称完全没有重新比较。",
+      "strategy": "保留响应符号、量级与背景，把低预算优先级和零效应分开；当更强方向反转或出带时，用现有合法供给重新比较可达终态收益。",
+      "expected_behavior": "保留严格冻结排名，不把集中收益或未知泛化当平局；弱边无需强制重测，但其排除须来自当前可达收益与风险。",
+      "next_version_test": "V26最优四上下文若出现主方向边界及弱边，检查是否重新比较且不以null抹去符号；无相关情况记未检验。行为和性能分开，不新增诊断、配额或回放。"
+    },
+    {
+      "blind_spot": "汇总融合了同波失败，却在选择理由中继续引用失败前的乐观条件/功能预测，仅附加风险文字。",
+      "strategy": "用当前可见匹配端点重新约束供给方案预测，区分其他背景失败与迁移未知，并说明改变背景为何可能越过已测损失。无依据则降低预测确信度及相对优先级。",
+      "expected_behavior": "保留合法跨背景试验可能，不强制否决零端；评估原数组，比较证据更新后的可达收益，不静默改数组或新增采样。",
+      "next_version_test": "V26所选汇总若有新同波失败，检查其是否改变相关预测及排序依据而非仅添免责声明；没有相关情形记未检验，不能保证未知替代获胜。"
+    }
+  ],
+  "scope": "Two best rounds; four selected contexts and forty formal aggregate groups. Top1 R5 archive only; Top2 R4 has one remaining sampling round; R5 aggregate only.",
+  "raw_prompt_tool_full_audit": false,
+  "aborted_attempt_full_review": false,
+  "scientific_settings_changed": false,
+  "offline_llm_replay_performed": false,
+  "performance_improvement_claimed": false,
+  "skill_causality_claimed": false,
+  "framework_source_sha256": "dad08c37b77613f8373340401d1408427f8c20ff849be3453f89a7fd430151c4",
+  "teacher_runtime_sources": {
+    "top1": "5401fb410856f14d9c19416b1eb0cd6e154d79b3",
+    "top2": "5401fb410856f14d9c19416b1eb0cd6e154d79b3"
+  }
+}
