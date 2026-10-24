@@ -58,11 +58,17 @@ step or local-peak label follows measured curvature/risk, rather than small effe
 size alone; distinct arrays may still share one unverified extension. Judge these
 through decisions and outcomes, not a field-by-field wording audit.
 When a new leader changes the background, assess transfer risk in the proposed pair,
-not just whether it names a rival. A single move plus its joint continuation may
-answer a conditional-effect question while sharing one harmful transfer; compare
-its final-budget value with available separate challengers without claiming they
-would win. Keep O-to-A, A-to-AB and O-to-AB conclusions distinct. A joint loss does
-not identify interaction without matching references, and a useful conditional
+not just whether it names a rival. Ask what could still challenge if the common
+move is flat or harmful, and whether the selected private agent had a legal separate
+challenger available from its own anchor. Unknown same-wave results are not mistakes.
+A single move plus its joint continuation may answer a conditional-effect question
+while sharing one harmful transfer; compare its final-budget value with supplied
+alternatives and proposal gaps without claiming untested arms would win. The council
+cannot invent a missing arm. Keep O-to-A, A-to-AB and O-to-AB conclusions distinct.
+An adverse A does not invalidate AB-A; distinguish a measured conditional gain,
+insufficient rescue of the whole arm, and low priority for another test. A requested
+gain or forecast threshold cannot turn a smaller signed response into zero. A joint
+loss does not identify interaction without matching references, and a useful conditional
 component must not be discarded with the whole arm. Native propagation and a
 concentrated response can mediate a fixed-population mean gain; uncertainty about
 that mechanism or generalization does not substitute a median/noise acceptance rule.

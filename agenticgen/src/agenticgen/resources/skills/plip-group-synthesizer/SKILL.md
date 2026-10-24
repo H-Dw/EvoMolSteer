@@ -93,6 +93,10 @@ AB-A measures B conditional on A. A joint loss versus O does not prove non-addit
 or reject B by itself; the first transfer may be harmful while the added edge helps.
 Use a matching B-on-O result to judge interaction only if available; otherwise leave
 it unknown without requiring a factorial grid or inventing an unexecuted result.
+Keep the conditional AB-A readout even when A or AB loses to O. Report separately
+its signed effect, the whole arm's position against the leader, and its remaining
+budget value. A forecast/rescue target is not a minimum effect required for B to
+exist; a useful but insufficient correction does not establish a null direction.
 One outside-band branch does not prove every other region infeasible. Current-anchor
 legality and the condition/function ranking still govern allocation.
 
@@ -110,14 +114,17 @@ A continuation and its compensated copy share this uncertainty; their distinct a
 do not diversify it. The same applies to several backgrounds sharing one unverified
 amplitude extension: name the common failure assumption before treating them as a
 diverse portfolio. Near a new leader or reversal, a previously favorable edge can
-reverse sign on the new background. Compare supplied separate single-edge contenders
-with a single edge plus its joint continuation: the joint pair identifies a conditional
-effect, but may leave both chances to improve dependent on the same unverified transfer.
-With no later sampling, that information must justify its cost through attainable
-improvement in this allocation. Neither design is mandatory. Balance the set with a
-supplied contender that preserves the known useful regime when warranted.
-State explicitly when the supplied set cannot do so;
-do not invent substitute arrays or claim unexecuted alternatives would win.
+reverse sign on the new background. For each shared assumption, ask what remains a
+plausible challenger if it is flat or adverse. Compare supplied separate single-edge
+contenders with A plus AB by that consequence, not by their distinct arrays or risk
+labels. AB-A can be informative while both arms lose the chance to improve. With no
+later sampling, its conditional information needs credible terminal upside in this
+allocation. Preserve a supplied contender that can improve without the same transfer
+when its evidence warrants it; neither design nor a fixed diversification quota is
+mandatory. State when no such contender was supplied. If another sampling decision
+will remain, publish this concrete proposal gap so the next private turn can address
+it; at the final allocation disclose the limitation and use the available legal set.
+Do not invent substitute arrays or claim unexecuted alternatives would win.
 
 Spend for improvement over the best tested in-band schedule, which remains retained
 without a new slot. For each supplied contender, compare its predicted terminal result

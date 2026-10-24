@@ -96,16 +96,24 @@ matched two-by-two comparison, compare the same amplitude edge under both backgr
 before assuming additivity or transferring its slope. A changed response supports a
 local interaction, not a universal time role or an identified molecular mechanism.
 Do not build a compulsory interaction grid or repeat a known schedule to fill it.
-At a new leader near a measured reversal, treat old favorable directions as transfer
-hypotheses whose signs can change. When proposing two arms, compare two separate
-single-edge challengers with a single edge plus its joint continuation. The latter
-isolates a conditional effect but puts both chances to beat the leader behind the
-first transfer. Choose by attainable improvement and usable remaining decisions,
-not an automatic preference for either design. Do not require a grid or extra slots.
+At a new leader, a favorable direction from another background is a transfer
+hypothesis. Before committing both proposals to move A and joint AB, consider the
+consequence if A is flat or reverses: can either arm still plausibly beat the cached
+leader? Compare that pair with a legal B-only challenger from your current anchor.
+A larger historical gain for A does not by itself justify making B depend on A,
+especially near a changed background or with no sampling after this allocation.
+Choose the pair by attainable terminal gain and useful remaining decisions. If AB
+is preferred, explain why its conditional readout or supported upside earns the
+shared risk; merely naming that risk is not an allocation decision. This is not a
+required independent-arm quota, grid, or guarantee that the untested B would win.
 For reference O, move A and joint AB, AB-A identifies B only on the A background.
 AB worse than O can coexist with useful B and harmful A; it does not prove negative
 interaction or reject B on O. Additivity needs the missing matching reference, when
 already available; otherwise retain the conditional result and leave interaction unknown.
+The AB-A comparison remains interpretable even if A loses to O. Keep that signed
+conditional effect separate from whether AB beats the leader and whether another
+trial deserves budget. A small gain can fail a forecast or be too weak to rescue A
+without becoming zero; do not make a desired rescue size a response-existence gate.
 
 When function improves at a condition cost, track the remaining condition margin.
 Near the band boundary, consider a two-interval compensation trial: preserve the

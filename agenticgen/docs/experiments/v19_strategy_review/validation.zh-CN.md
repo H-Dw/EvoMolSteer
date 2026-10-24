@@ -1,0 +1,7 @@
+# V19有限评估来源
+
+FINALIZED：7887cf4d30887677b2df63285eff9134409044b5fdacebc39c0bd90456a7fa11。
+report：3ae22b909190c71ebb906db4d2f101056ab28e13d474b23cfa7598a8084781b6。
+manifest：8db7a47fecb60cd5f57df223553083827fac0c2fb831a0047739f7fd44a39258。
+
+Top1 R4G3、Top2 R4G2私有及同轮汇总四上下文，相关目标/动作/预算及40组聚合。仅少量匹配算术支持策略判断，无全量会话、失败补审、逐字段/工具审计或LLM回放。原固定runtime analyze成功且report hash未改变。两端不跑skills/文档单元测试；后续固定来源、完成、锁及有限review-check仍保留。
