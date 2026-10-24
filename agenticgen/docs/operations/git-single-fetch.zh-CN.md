@@ -1,0 +1,11 @@
+# 一次Git拉取部署
+
+2026-10-24用户明确要求替换逐对象GitHub REST API部署。正常部署只发起一次有界Git fetch（pull的拉取阶段），通过Git pack取得分支更新，再核验固定科学commit和传输工具commit，创建独立detached runtime，不在旧runtime执行merge。V28科学提交保持d7d35b132a04c5b58964aad3cfcc552a792a9909。
+
+命令使用固定仓库HTTPS URL及codex/plip-adaptive-schedule分支，120秒上限、无tags/submodules、取消对象过滤，沿用原代理/TLS；禁止交互式Git凭据提示和隐式lazy fetch。拉取失败写git_fetch_receipt.json并退出，不尝试API、逐对象下载、换出口或换凭据。成功后检查固定提交属于FETCH_HEAD祖先、所需部署blob本地齐全；缺对象即停止。旧fetch_fixed_github_api.py及其收据仅保留历史，不作为当前部署入口或回退。
+
+本地只diff、commit/push，不跑自动化测试。传输工程修改的定点验证在远端既有固定环境运行test_reviewed_deploy.py，源码由git show取得并按本地固定提交SHA256核验。验证覆盖单次fetch、固定目标/校验来源、失败后无安装启动，以及原完成版/活动worker保护。相同三个验证来源hash及原Junit hash完整时复用成功验证，不在后续仅skills/文档变更中例行重复测试。未通过时不安装科学runtime。
+
+--transport-commit绑定已提交的传输脚本和检查来源，与--commit科学源分开，前者不改变实验skills/配置/原生采样路径。V28仍走原正常review-check、安装/原生兼容与启动门槛。新的git_fetch_receipt和transport_validation分别保存，与历史API收据及scientific tests_receipt区分。
+
+原API reset等待和API重试方案已被本次用户要求替代。若Git仍报CONNECT503，只保留此次结果并等待网络恢复，不用API额度诊断决定Git重试。35分钟巡检不改变，不轮询已完成版本；V30完整收尾和报告、commit/push保存后删除定时任务。

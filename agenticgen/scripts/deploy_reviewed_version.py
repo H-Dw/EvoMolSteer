@@ -1,4 +1,4 @@
-"""Deploy one normally reviewed version from verified official GitHub objects.
+"""Deploy one reviewed version with one bounded Git fetch and fixed checkout.
 
 Fixed server and result root; no uploads, arbitrary shell, repair/deletion entry,
 credential files or environment changes. Platform tool approval still applies.
@@ -25,57 +25,92 @@ def validate(version, revision):
         raise ValueError('Exact fixed commit required')
 
 
-def command(version, revision, previous_commit, helper_oid, helper_sha256,
-            fetcher_revision=None, validation_oid=None, validation_sha256=None):
+def command(version, revision, previous_commit, transport_commit, validation_hashes):
     validate(version, revision)
-    if not re.fullmatch('[0-9a-f]{40}', previous_commit):
-        raise ValueError('Previous installed source must be fixed')
-    if not re.fullmatch('[0-9a-f]{40}', helper_oid) or not re.fullmatch('[0-9a-f]{64}', helper_sha256):
-        raise ValueError('Committed fetcher digests required')
-    if fetcher_revision is not None and (not re.fullmatch('[0-9a-f]{40}',fetcher_revision)
-            or not re.fullmatch('[0-9a-f]{40}',validation_oid or '')
-            or not re.fullmatch('[0-9a-f]{64}',validation_sha256 or '')):
-        raise ValueError('Fetcher override requires a fixed revision and committed remote checks')
+    for value in (previous_commit, transport_commit):
+        if not re.fullmatch('[0-9a-f]{40}', value):
+            raise ValueError('Scientific and transport sources must be fixed commits')
+    expected = ('agenticgen/scripts/deploy_reviewed_version.py',
+                'agenticgen/scripts/read_remote_status.py',
+                'agenticgen/tests/unit/test_reviewed_deploy.py')
+    if set(validation_hashes) != set(expected) or any(
+            not re.fullmatch('[0-9a-f]{64}', x) for x in validation_hashes.values()):
+        raise ValueError('Committed transport checks require exact source hashes')
     old = '/opt/MolSteer/runtimes/agenticgen_'+previous_commit[:8]
     new = '/opt/MolSteer/runtimes/agenticgen_'+revision[:8]
-    loader = """import base64,hashlib,json,subprocess,sys,urllib.request
+    dep = '/opt/MolSteer/operations/agenticgen_deploy_'+revision[:8]
+    # This control snippet extracts committed files from Git; it uploads no sources.
+    verification = """import hashlib,json,subprocess,sys,time,xml.etree.ElementTree as ET
 from pathlib import Path
-oid,sha,target=sys.argv[1:4]
-extra=sys.argv[4:]
-def blob(oid,sha):
- r=urllib.request.Request('https://api.github.com/repos/H-Dw/EvoMolSteer/git/blobs/'+oid,headers={'User-Agent':'agenticgen-fixed-commit-deployment'})
- with urllib.request.urlopen(r,timeout=30) as response:d=json.load(response)
- raw=base64.b64decode(d['content'])
- if d['sha']!=oid or hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\\0'+raw).hexdigest()!=oid:raise ValueError('Fetcher Git object mismatch')
- if hashlib.sha256(raw).hexdigest()!=sha:raise ValueError('Fetcher SHA256 mismatch')
- return raw
-raw=blob(oid,sha)
-if extra:
- helper_revision,test_oid,test_sha=extra
- dep=Path('/opt/MolSteer/operations')/('agenticgen_deploy_'+target[:8])
- checks=dep/('fetcher_'+helper_revision[:8]);checks.mkdir(parents=True,exist_ok=True)
- (checks/'fetch_fixed_github_api.py').write_bytes(raw)
- (checks/'test_github_object_fetch.py').write_bytes(blob(test_oid,test_sha))
+old,dep,target,transport,encoded,status=sys.argv[1:]
+dep=Path(dep);status=int(status)
+receipt={'commit':target,'transport_commit':transport,'time':time.time(),
+ 'source':'single bounded git fetch','fetch_calls':1,'rest_api_calls':0,
+ 'fetch_exit_code':status,'proxy_environment':'inherited; values omitted'}
+(dep/'git_fetch_receipt.json').write_text(json.dumps(receipt,indent=2)+'\\n')
+if status:raise SystemExit(status)
+def git(*args):return subprocess.check_output(['git','-c','remote.origin.promisor=false','-C',old,*args])
+for rev in (target,transport):
+ if git('rev-parse',rev+'^{commit}').decode().strip()!=rev:raise ValueError('Fixed commit missing')
+ subprocess.run(['git','-C',old,'merge-base','--is-ancestor',rev,'FETCH_HEAD'],check=True)
+checks=dep/('transport_'+transport[:8]);checks.mkdir(exist_ok=True)
+for path,digest in json.loads(encoded).items():
+ raw=git('show',transport+':'+path)
+ if hashlib.sha256(raw).hexdigest()!=digest:raise ValueError('Transport source hash mismatch')
+ dest=checks/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+# Confirm deployment blobs exist locally before checkout; never hydrate via API.
+entries=git('ls-tree','-r',target,'agenticgen/','src/evomolsteer/generation/',
+ 'src/evomolsteer/adaptive_schedule/vendor/').decode().splitlines()
+if not entries:raise ValueError('Deployment tree missing')
+objects=[line.split()[2] for line in entries]
+proc=subprocess.run(['git','-c','remote.origin.promisor=false','-C',old,'cat-file','--batch-check'],
+ input=('\\n'.join(objects)+'\\n').encode(),stdout=subprocess.PIPE,check=True)
+if any(b' missing' in line for line in proc.stdout.splitlines()):raise ValueError('Deployment object missing after single fetch')
+identity=hashlib.sha256(json.dumps(json.loads(encoded),sort_keys=True).encode()).hexdigest()
+cache=dep.parent/('agenticgen_git_transport_validation_'+identity+'.json')
+prior=json.loads(cache.read_text()) if cache.exists() else None
+reuse=prior is not None and prior.get('passed') is True and prior.get('source_sha256')==json.loads(encoded)
+if reuse:
+ saved=Path(prior['junit_path'])
+ reuse=saved.is_file() and hashlib.sha256(saved.read_bytes()).hexdigest()==prior['junit_sha256']
+if reuse:
+ validation={**prior,'commit':target,'transport_commit':transport,'reused':True,'fresh_tests_run':False}
+else:
+ junit=checks/'tests.xml'
  with (checks/'tests.log').open('wb') as log:
-  code=subprocess.run([sys.executable,str(checks/'test_github_object_fetch.py')],cwd=str(checks),stdout=log,stderr=subprocess.STDOUT).returncode
- receipt={'commit':target,'fetcher_revision':helper_revision,'fetcher_blob':oid,'fetcher_sha256':sha,'test_blob':test_oid,'test_sha256':test_sha,'exit_code':code,'passed':code==0,'local_tests_run':False,'log_sha256':hashlib.sha256((checks/'tests.log').read_bytes()).hexdigest()}
- (dep/'fetcher_validation.json').write_text(json.dumps(receipt,indent=2)+'\\n')
- if code:raise ValueError('Scoped fetcher checks failed; no source acquisition or installation')
-sys.argv=['github-fixed-fetch','--commit',target]
-if extra:sys.argv+=['--fetcher-revision',helper_revision]
-exec(compile(raw,'<hash-verified GitHub fetch helper>','exec'),{'__name__':'__main__'})"""
-    extra=f' {fetcher_revision} {validation_oid} {validation_sha256}' if fetcher_revision else ''
+  code=subprocess.run([sys.executable,'-m','pytest','-q',str(checks/'agenticgen/tests/unit/test_reviewed_deploy.py'),
+  '--junitxml='+str(junit)],cwd='/tmp',stdout=log,stderr=subprocess.STDOUT).returncode
+ suites=list(ET.parse(junit).getroot().iter('testsuite')) if junit.exists() else []
+ passed=code==0 and bool(suites) and sum(int(x.get('tests','0')) for x in suites)>0 and not any(
+  int(x.get(k,'0')) for x in suites for k in ('failures','errors','skipped'))
+ validation={'commit':target,'transport_commit':transport,'passed':passed,'exit_code':code,
+  'source_sha256':json.loads(encoded),'junit_sha256':hashlib.sha256(junit.read_bytes()).hexdigest() if junit.exists() else None,
+  'junit_path':str(junit),'local_tests_run':False,'reused':False,'fresh_tests_run':True,
+  'remote_test_files':['agenticgen/tests/unit/test_reviewed_deploy.py']}
+ if passed:cache.write_text(json.dumps(validation,indent=2)+'\\n')
+(dep/'transport_validation.json').write_text(json.dumps(validation,indent=2)+'\\n')
+if not validation['passed']:raise ValueError('Scoped transport checks failed; no installation or launch')
+receipt.update(verified_commit=target,verified_transport_commit=transport,verified_deployment_blobs=len(objects))
+(dep/'git_fetch_receipt.json').write_text(json.dumps(receipt,indent=2)+'\\n')
+"""
+    encoded = shlex.quote(json.dumps(validation_hashes))
     lines = ['set -euo pipefail',
         f'test "$(git -C {old} rev-parse HEAD)" = {previous_commit}',
-        f'timeout 240 {old}/agenticgen/.venv/bin/python -c {shlex.quote(loader)} {helper_oid} {helper_sha256} {revision}{extra}',
-        f'git -C {old} cat-file -e {revision}^{{commit}}',
+        'export GIT_TERMINAL_PROMPT=0 GIT_NO_LAZY_FETCH=1',
+        f'mkdir -p {dep}',
+        'fetch_status=0',
+        f'timeout 120 git -c fetch.fsckObjects=true -C {old} fetch --no-tags '
+        f'--no-recurse-submodules --no-filter https://github.com/H-Dw/EvoMolSteer.git '
+        f'refs/heads/codex/plip-adaptive-schedule > {dep}/git-fetch.log 2>&1 || fetch_status=$?',
+        f'{old}/agenticgen/.venv/bin/python -c {shlex.quote(verification)} '
+        f'{old} {dep} {revision} {transport_commit} {encoded} "$fetch_status"',
         f'git -C {old} show {revision}:agenticgen/scripts/install_fixed_runtime.py | '
-            f'{old}/agenticgen/.venv/bin/python - --commit {revision} --from-runtime {old}',
+        f'{old}/agenticgen/.venv/bin/python - --commit {revision} --from-runtime {old}',
         'source /opt/MolSteer/scripts/scnet/activate_dtk.sh >/dev/null 2>&1',
         'unset PYTHONPATH',
         f'export AGENTICGEN_REPOSITORY={new} AGENTICGEN_PYTHON={new}/agenticgen/.venv/bin/python',
         f'exec {new}/agenticgen/.venv/bin/python {new}/agenticgen/scripts/start_reviewed_version.py '
-            f'--version {version} --commit {revision}']
+        f'--version {version} --commit {revision}']
     return 'bash -ic '+shlex.quote('\n'.join(lines))
 
 
@@ -115,23 +150,21 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version',required=True);parser.add_argument('--commit',required=True)
     parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--fetcher-commit',help='Fixed transport-helper revision; science target stays --commit. Runs its committed checks remotely first.')
+    parser.add_argument('--transport-commit', help='Fixed committed Git transport/check source; defaults to local HEAD. Scientific --commit stays unchanged.')
     parser.add_argument('--inspect-only',action='store_true',help='Read fixed deployment receipts and log tails, execute nothing')
     args=parser.parse_args();validate(args.version,args.commit)
     if not sys.stdin.isatty():raise ValueError('Non-echoing terminal authentication required')
     repo=Path(__file__).resolve().parents[2]
-    helper_path='agenticgen/scripts/fetch_fixed_github_api.py'
-    if args.fetcher_commit and not re.fullmatch('[0-9a-f]{40}',args.fetcher_commit):raise ValueError('Fixed fetcher commit required')
-    helper_revision=args.fetcher_commit or args.commit
-    helper=subprocess.check_output(['git','-C',str(repo),'show',helper_revision+':'+helper_path])
-    helper_oid=hashlib.sha1(b'blob '+str(len(helper)).encode()+b'\0'+helper).hexdigest()
-    helper_sha=hashlib.sha256(helper).hexdigest()
-    override={}
-    if args.fetcher_commit:
-        test=subprocess.check_output(['git','-C',str(repo),'show',helper_revision+':agenticgen/tests/unit/test_github_object_fetch.py'])
-        override={'fetcher_revision':helper_revision,
-            'validation_oid':hashlib.sha1(b'blob '+str(len(test)).encode()+b'\0'+test).hexdigest(),
-            'validation_sha256':hashlib.sha256(test).hexdigest()}
+    transport = args.transport_commit or subprocess.check_output(
+        ['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    if not re.fullmatch('[0-9a-f]{40}',transport):raise ValueError('Fixed transport commit required')
+    validation_hashes={}
+    for path in ('agenticgen/scripts/deploy_reviewed_version.py',
+                 'agenticgen/scripts/read_remote_status.py',
+                 'agenticgen/tests/unit/test_reviewed_deploy.py'):
+        raw=subprocess.check_output(['git','-C',str(repo),'show',transport+':'+path])
+        if (repo/path).read_bytes()!=raw:raise ValueError('Local transport/check source differs from fixed commit')
+        validation_hashes[path]=hashlib.sha256(raw).hexdigest()
     import paramiko
     class PinnedHost(paramiko.MissingHostKeyPolicy):
         def missing_host_key(self,client,hostname,key):
@@ -148,10 +181,10 @@ def main():
             with client.open_sftp() as sftp:
                 sftp.get_channel().settimeout(25)
                 previous=ensure_unstarted(sftp,args.version)
-            cmd=command(args.version,args.commit,previous,helper_oid,helper_sha,**override)
+            cmd=command(args.version,args.commit,previous,transport,validation_hashes)
             channel=client.get_transport().open_session(timeout=25);channel.settimeout(25)
             channel.exec_command(cmd)
-            print('Fixed normal-version deployment submitted; official GitHub API source, no upload.',flush=True)
+            print('Fixed deployment submitted; single bounded Git fetch, no API fallback or upload.',flush=True)
             stderr=b'';started=time.monotonic()
             while not channel.exit_status_ready() or channel.recv_ready() or channel.recv_stderr_ready():
                 if channel.recv_ready():channel.recv(32768)  # Never display uncontrolled remote output.
@@ -169,12 +202,13 @@ def main():
         with client.open_sftp() as sftp:
             sftp.get_channel().settimeout(25)
             for name in ('github_object_receipt.json','installation.json','tests_receipt.json',
-                         'approval_receipt.json','launch_receipt.json','fetcher_validation.json'):
+                         'approval_receipt.json','launch_receipt.json','fetcher_validation.json',
+                         'git_fetch_receipt.json','transport_validation.json'):
                 path=dep+'/'+name
                 try:sources[path]=read_source(sftp,path)
                 except FileNotFoundError:continue
             if args.inspect_only or status:
-                for name in ('worktree.log','checkout.log','install.log','doctor.log','related-tests.log','launch.log'):
+                for name in ('git-fetch.log','worktree.log','checkout.log','install.log','doctor.log','related-tests.log','launch.log'):
                     path=dep+'/'+name
                     try:
                         if sftp.normalize(path)!=path:raise ValueError('Log path redirected')
@@ -186,7 +220,8 @@ def main():
                 health=collect(sftp,args.version)
                 if health['launch']['commit']!=args.commit:raise ValueError('Another source launched; inspect actual identity')
         receipt={'commit':args.commit,'version':args.version,'observed_at':time.time(),'exit_code':status,
-            'source_transport':'official GitHub API with Git object and fetcher hash verification',
+            'source_transport':'single bounded Git fetch; fixed commit and source hashes; no REST API fallback',
+            'transport_commit':transport,
             'inspect_only':args.inspect_only,'sources':sources,'logs':logs,'errors':errors,'startup_health':health}
         args.output.parent.mkdir(parents=True,exist_ok=True)
         args.output.write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8',newline='\n')
