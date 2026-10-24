@@ -15,11 +15,15 @@ the response model, not the configured acceptance boundary.
 
 Merge the four groups with published history into a concise response model. Derive
 each supplied arm's intervention from its actual array minus its own reference,
-using the supplied interval IDs and step windows. Evaluate the hypothesis and slope
-against that change, not a copied temporal label. A legal array with a mismatched
-description has an unsupported forecast for its actual window; do not silently
-rename the intervention or edit its array. Rank it by supported action evidence,
-disclose the mismatch, and use bounded repair only if the valid set requires it.
+using the supplied interval IDs and step windows. Orient each historical contrast
+from its actual reference to intervention: reversing the same measured edge negates
+both condition and functional differences. A remembered cost label does not survive
+that reversal. For a joint forecast, connect available references in the proposed
+direction and distinguish measured edges from transfers to another background.
+An unmeasured link keeps the joint prediction uncertain; do not add incompatible
+edge signs or require a complete grid. Evaluate the supplied array, disclose an
+unsupported temporal or directional forecast, and use bounded repair only if the
+valid set requires it. Never silently edit an array.
 Close tested predictions and retire stale unknowns. Private analysts cannot see
 current siblings; merge their facts here. Separate condition slope, functional response and
 mechanistic confidence. Coordinate rewards do not directly control chemistry or
@@ -71,15 +75,18 @@ to interpret a measured forward effect. After a longer step reverses, consider s
 another supported interval at the useful endpoint; do not ban an entire background
 or accept that a single interval's reversal exhausts the search space.
 
-Compare the portfolio's unresolved branches by attainable frontier gain, condition
-risk and whether their answers can still be used. A responsive interval with a good
-endpoint, a reversed continuation and a legal untested interior is not automatically
-exhausted. Repeated losses at the same high or low endpoint reject that endpoint on
-the tested backgrounds; they do not measure the open interior. Compare a supplied
-interior contender with alternatives by its plausible result relative to the cached
-leader, rather than labelling all amplitudes beyond the good endpoint refuted. Do not
-require bisection, a complete map or repeated failures. If proposals omit a valuable
-branch, publish the gap while another round remains; never invent or edit an array.
+Compare unresolved branches by attainable frontier gain, condition risk and remaining
+decisions. A tested rejection is not an action bound: an adverse endpoint can leave
+a legal interior open, and one outside-band point does not establish a monotone
+infeasible region beyond it. A different native trajectory or background may change
+the response; that possibility is a rival, not proof an untested branch will win.
+Check the evidence scope before carrying 'locked' or 'closed' into public memory.
+Repeated losses at one endpoint do not measure other legal points. Favor a supplied
+unresolved contender only when its possible improvement justifies the risk over
+supported continuations. No bisection, crossing of failed points or coverage quota
+is required. Publish a valuable missing branch while a later allocation can use it;
+at zero remaining rounds record it as unresolved, without inventing an array or
+claiming an unexecuted outcome.
 
 Merge weak-edge conclusions with their background and measured direction intact.
 After a useful background change, do not carry an old 'closed interval' label forward

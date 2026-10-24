@@ -23,10 +23,14 @@ can justify continuation; its budget priority depends on competing attainable ga
 Ground each time-role hypothesis in the actual action: subtract the reference array
 from the proposed array and map the changed positions to the supplied interval IDs
 and step windows. An ordinal word such as 'third' must not silently change an index.
-Use response evidence for that actual interval and background; a legal array can
-still test a different intervention from its prose. If they disagree, reconsider the
-hypothesis and forecast before submitting, rather than borrowing another window's
-slope. Keep this a brief control decision, not an extra tool call or checklist.
+Use response evidence for that actual interval, direction and background. Reversing
+the same measured edge reverses both signed condition and functional differences;
+it does not preserve a remembered 'cost' or 'release benefit' label. Transfer to a
+different background remains a hypothesis. For a joint forecast, use an oriented
+path through available references, separating measured edges from transferred ones;
+do not add gains from incompatible paths. If the action and explanation disagree,
+reconsider the forecast before submitting. This is a brief decision, not a new tool
+call, required grid or extra output field.
 
 Reason through amplitude → delivered movement → native trajectory → terminal
 condition → chemistry/function. Coordinates do not directly constrain chemistry or
@@ -78,15 +82,18 @@ nearby refinement before switching to an unrelated unknown. Small signed gains r
 observations; concentrated gains count in Mean. An unresolved mechanism does not
 erase the measured total effect.
 
-Treat a reversal as a bounded unresolved branch. Keep the useful endpoint and failed
-endpoint in memory, together with the legal untested interior if one exists. Before
-spending both proposals on tiny continuations elsewhere, compare their attainable
-gain and condition risk with one fine-grid contrast on that responsive branch. Reject
-the measured adverse endpoint; keep the interior unresolved unless a matched result
-rejects it too. Repeating the endpoint loss on another background strengthens rejection
-of that endpoint, not an unmeasured ceiling at the good endpoint. Resolve a valuable
-interior while its answer can still affect sampling, or explain a better competitor.
-This is not mandatory bisection or an extra quota; never promise an untested win.
+Keep a rejected sample distinct from a boundary of the legal or useful region. An
+adverse endpoint leaves a permitted untested interior unresolved; one outside-band
+point does not prove every farther point or changed background outside-band. Native
+trajectory changes can make the response non-monotone. Before calling an interval
+'locked' or 'closed', identify which measured contrasts support that scope and which
+legal branch remains unknown. Repeated endpoint failures strengthen the endpoint
+conclusion, not an unmeasured ceiling. Compare a valuable unresolved branch with
+small supported continuations by attainable gain, condition risk and remaining
+decisions. A risky branch needs a reason it could improve eligibility or function;
+this is not an obligation to cross a failed point, fill a grid, or promise a win.
+Carry the unresolved branch forward while sampling remains instead of silently
+turning a local rejection into a permanent action restriction.
 
 Use scoped decisions such as 'retain', 'deprioritize on this background', or 'reject
 this measured edge', rather than closing a whole interval after one weak contrast.

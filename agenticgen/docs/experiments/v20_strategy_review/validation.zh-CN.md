@@ -1,0 +1,7 @@
+# V20有限评估来源
+
+FINALIZED：8b9a04cec70b6ccff9cd18b50088432ec7fc4ea6e3713294f3c9d7142cb572b0。
+report：9303fb285af44dbbd426e08aeb4d05c625583951651367cb411e8d5cf2dc3849。
+manifest：9491edb146095616bbc7c9b4a7af60eb10cab367942290414e593a5098826b69。
+
+Top1 R5G2、Top2 R5G1私有与同轮汇总四上下文及相关目标/动作/预算、40聚合组。两者零剩余采样轮；仅少量匹配计算解释控制策略，未全量会话、逐字段/逐工具审计、失败补审或LLM回放。原固定runtime analyze成功且report hash保持。仅skills/文档，两端未跑单元测试；后续固定提交、来源、完成/hash/锁及有限review-check保留。

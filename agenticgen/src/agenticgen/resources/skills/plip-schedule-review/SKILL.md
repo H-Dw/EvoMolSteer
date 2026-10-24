@@ -41,10 +41,13 @@ For each teacher, focus the assessment on three connected questions:
    assumption. A mechanism that remains uncertain does not cancel a measured gain;
    an unexecuted alternative has no performance result.
 
-In the selected contexts, distinguish a useful local rejection from premature axis
-closure. Aggregate schedules can show an unresolved interior or a background-dependent
-response without reading more sessions. Use only the matched contrasts needed to
-judge the next decision; absence of a test does not establish that it would win.
+In the selected contexts, distinguish a rejected sample from an inferred boundary.
+Aggregate schedules can reveal an unresolved legal interior or an untested region
+beyond one outside-band point. Neither repeated endpoint failure nor a 'locked'
+label proves a monotone feasible set. Judge whether closure has evidence for its
+scope and whether a valuable unknown survived in memory while decisions remained.
+Use only the contrasts needed for this question; do not read more sessions, demand
+coverage of every branch or import a successful array from another version.
 Check whether allocation compares with the retained best schedule or merely recovers
 from a poor action anchor. Once no later sampling can use the answer, a predictably
 trailing probe needs a credible chance to challenge the leader, not a safety label.
@@ -74,10 +77,12 @@ concentrated response can mediate a fixed-population mean gain; uncertainty abou
 that mechanism or generalization does not substitute a median/noise acceptance rule.
 
 When a selected hypothesis depends on a time role, compare its actual array delta
-with the named interval and supporting response edge. A legal but differently timed
-action can carry the wrong forecast into council selection; assess that decision
-consequence, not every schema field. Preserve the original array and report any
-archive-only mismatch without inventing an executed failure. Ask whether control-limit
+with the named interval and oriented response edge. Reversing a measured edge
+negates both signed responses; changing its background does not provide that exact
+guarantee. A joint forecast must distinguish measured links from transferred ones,
+rather than adding remembered cost labels in the wrong direction. Assess how this
+changes expected margin or choice, not every schema field. Preserve original arrays
+and archive-only predictions without inventing an executed failure. Ask whether control-limit
 claims follow measured contrasts: an unguided tail, low chemical mappability, unmet
 target or exhausted budget does not establish that all legal schedules are ineffective.
 Separate a falsified prediction from objective rejection, and a tested adverse endpoint
