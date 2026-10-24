@@ -1,5 +1,14 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新：**V23完成有限评估，V24已真实批准并启动**。
+固定`eef5519b450b1b46d31eace3a646fd00c41eb397`，worker3328829，启动1792825496.9359307，runtime `/opt/MolSteer/runtimes/agenticgen_eef5519b`。
+官方GitHub API固定安装成功，111项历史关键hash保持；科学Python兼容，显式复用原生验收。
+仅skills/文档，两端未跑单元测试，无离线回放；真实V23→V24门槛2教师4上下文、full_review_completed=false。
+V23代表Mean4.212030363/4.211311855，等权gap较V22增加0.000594630，连续退步1、历史最好V17，尚不回滚，目标未达成。
+V24仅改写已测端点、未知背景迁移与反转间内侧的区分；U1及全部科学设置保持。
+实际核验1792825506.5525749存活、命令匹配、无新failure；初始bootstrap不代表首轮完成，不重复启动或切源。
+见[部署收据](deployments/eef5519b/README.zh-CN.md)。V6–V23不prepare/重跑。35分钟及V30后休眠交接保持；下方为历史。
+
 2026-10-24最新：**V23已FINALIZED并完成有限评估，V24待正常固定部署**。
 两教师五轮1000正式结果及采样/质量/汇总/保留/清理完整，worker3260505退出，无新故障；原2ae3fb00 analyze成功。
 仅两教师R5G1私有/同轮汇总四上下文及40聚合组，full_review_completed=false，后续提案仅归档。
