@@ -92,6 +92,15 @@ claims follow measured contrasts: an unguided tail, low chemical mappability, un
 target or exhausted budget does not establish that all legal schedules are ineffective.
 Separate a falsified prediction from objective rejection, and a tested adverse endpoint
 from an unresolved interior. Keep these checks inside the same four selected contexts.
+For a response central to a selected decision, distinguish its frozen group change
+from a cited paired/distributional comparison with another or unclear scope. Identical
+valid equally weighted slots must give the same mean paired affinity change as the
+difference of group means. Do not let a mismatched magnitude or win rate strengthen
+a mechanism or continuation; retain unresolved provenance without a tool/field audit.
+Assess whether weak signed responses remain available when a dominant direction
+reaches a condition boundary. Low budget priority is not a null effect, and a useful
+edge from a trailing background is not yet a winning transferred arm. Preserve correct
+ranking and visibility limits; do not infer an untested alternative would outperform.
 
 Write a short assessment per teacher: the useful hypothesis, actual terminal tradeoff,
 the main rival/limitation and a better next direction. Derive one to three generic

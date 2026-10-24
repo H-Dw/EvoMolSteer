@@ -15,10 +15,20 @@ observation and task memory identify the next control question most likely to im
 the condition/function frontier. Use response_edge and execution_history for exact
 comparisons when needed. Separate condition response from functional response. Match
 the previous prediction to this result, revise the belief and change the next action.
+For a response that determines the next move, keep the complete reference, intervention,
+population and estimator together. With the same valid equally weighted slots, the
+mean paired affinity change equals the difference of the two group affinity means.
+A discrepant paired summary cannot amplify that edge or establish broad participation
+until its comparison scope is known. Use the frozen group objective for ordering and
+leave the unsupported distributional claim unresolved; do not audit every receipt.
 Before calling a direction saturating or choosing a smaller step, compare matched
 terminal changes per unit amplitude, separately for condition and function. A smaller
-total gain after a smaller step need not mean a weaker slope. A small nonzero slope
-can justify continuation; its budget priority depends on competing attainable gains.
+total gain after a smaller step need not mean a weaker slope. Preserve the signed
+effect and its background even when its priority is low. A window that looked weak
+beside a larger move can become useful after that move reaches a condition boundary
+or reversal. Compare its reachable gain on a legal useful background with the leader
+and condition margin; do not carry a relative 'null' label forward as a zero response.
+This does not require revisiting every small effect or guarantee a transferred gain.
 
 Ground each time-role hypothesis in the actual action: subtract the reference array
 from the proposed array and map the changed positions to the supplied interval IDs

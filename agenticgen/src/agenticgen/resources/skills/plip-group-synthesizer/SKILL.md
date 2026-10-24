@@ -13,7 +13,13 @@ Do not compare a functional difference with a coordinate tolerance or call it a 
 on that basis. Recompute eligibility from the actual pool; a missed forecast changes
 the response model, not the configured acceptance boundary.
 
-Merge the four groups with published history into a concise response model. Derive
+Merge the four groups with published history into a concise response model. Ground
+the magnitude of a decision-critical response in its endpoints, population and
+estimator. For identical valid equally weighted slots, mean paired affinity change
+equals the difference of group affinity means. If cited summaries disagree, do not
+use the larger value or its win rate to strengthen a continuation; retain the frozen
+group ranking and mark the comparison scope unresolved. Resolve only a relevant
+existing reference, without auditing all fields or adding diagnostics. Derive
 each supplied arm's intervention from its actual array minus its own reference,
 using the supplied interval IDs and step windows. Orient each historical contrast
 from its actual reference to intervention. An exact reverse swaps both complete
@@ -99,6 +105,11 @@ at zero remaining rounds record it as unresolved, without inventing an array or
 claiming an unexecuted outcome.
 
 Merge weak-edge conclusions with their background and measured direction intact.
+Low priority beside a large effect is not a zero response. When that larger direction
+meets a condition boundary or reversal, reconsider supplied smaller signed gains by
+their reachable improvement over the retained leader and remaining condition margin.
+A useful weak edge on a trailing background may still lose overall; transfer to the
+leader remains uncertain. Do not demand a sweep of weak windows or invent missing arms.
 After a useful background change, do not carry an old 'closed interval' label forward
 without asking whether it still predicts the current response. Use an existing
 matched two-by-two comparison when available: the difference between the same edge's

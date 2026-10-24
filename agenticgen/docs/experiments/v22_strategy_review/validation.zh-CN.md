@@ -1,0 +1,7 @@
+# V22有限评估来源
+
+FINALIZED：4ebf2588e47d3f912aa7f175c66a49c42152899facf5fcab7d67a9e7289fe5ff。
+report：643a5cf22576e26dfdbf859528df07ae42409a015454d20a32e99f0a67de7680。
+manifest：4feb6891f7be7fe920720ef24823a722242fc55ecfe839e00a74d8206abc1bb6。
+
+仅Top1 R5G2、Top2 R4G2四上下文及相关目标/动作/预算，40正式聚合组；Top1零剩余轮次，Top2一次，Top2 R5只用聚合。原4139a5e9 analyze成功，报告hash保持。下一版仅skills/文档，无本地/远端单元测试，无离线LLM回放，原生与相关历史检查保持。pair统计范围未明仅作为关键预测限制，不读取成功工具或扩大审阅。
