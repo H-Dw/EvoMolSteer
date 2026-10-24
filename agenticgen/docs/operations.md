@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+2026-10-24最新：**V26完成有限评估，V27已真实批准并启动**。
+固定`3c473eedaa5fd5c62c32421390280ed8ae0417db`，worker3537156，启动1792838095.2297835，runtime `/opt/MolSteer/runtimes/agenticgen_3c473eed`。
+官方GitHub API固定安装成功，123项历史关键hash保持；科学Python兼容，显式复用原生验收。
+仅skills/文档，两端未跑单元测试，无离线回放；真实V26→V27门槛2教师4上下文、full_review_completed=false。
+V26代表Mean4.213140860/4.211272659，等权gap较V25减少0.000193410，连续退步0、历史最好V17，无需回滚，目标未达成。
+V27沿用V26适配基底，新增合并可见证据后的局部对照、未知迁移与原生中介区分模块；U1及全部科学设置保持。
+实际核验1792838102.8963356存活、命令匹配、无新failure；初始bootstrap不代表首轮完成，不重复启动或切源。
+见[部署收据](deployments/3c473eed/README.zh-CN.md)。V6–V26不prepare/重跑。35分钟及V30后休眠交接保持；下方为历史。
+
 2026-10-24最新：**V25完成有限评估，V26已真实批准并启动**。
 固定`8b29d116e421daad8ea134795119ef86a3212abd`，worker3466528，启动1792833881.5355833，runtime `/opt/MolSteer/runtimes/agenticgen_8b29d116`。
 官方GitHub API固定安装成功，119项历史关键hash保持；科学Python兼容，显式复用原生验收。
