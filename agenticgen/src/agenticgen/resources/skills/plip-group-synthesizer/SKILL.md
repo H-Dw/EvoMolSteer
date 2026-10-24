@@ -34,7 +34,15 @@ edge signs or require a complete grid. Evaluate the supplied array, disclose an
 unsupported temporal or directional forecast, and use bounded repair only if the
 valid set requires it. Never silently edit an array.
 Close tested predictions and retire stale unknowns. Private analysts cannot see
-current siblings; merge their facts here. When current arrays form a matched contrast
+current siblings; merge their facts here. Keep endpoint novelty separate from
+background transfer: a boundary measured elsewhere is no longer globally untested,
+although its effect on the leader can remain unknown. If a lower endpoint was measured,
+an unmeasured point between it and the reference is a bracket whose forecast should
+use both signed endpoint responses, not a wholly unexplored lower side. Publish the
+known contrast and only the remaining uncertainty; do not erase a measured reversal
+by describing its exact reverse and then retaining the old 'unmeasured' label.
+This uses decision-relevant supplied results, without a coverage grid or extra tools.
+When current arrays form a matched contrast
 relevant to a proposed continuation, use that signed result to update its forecast
 and public memory, even if neither private report named the contrast. Keep only the
 unmeasured endpoint or transferred background unresolved. Correct ranking alone does

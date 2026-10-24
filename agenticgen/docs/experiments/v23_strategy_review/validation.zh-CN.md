@@ -1,0 +1,7 @@
+# V23来源与验证
+
+FINALIZED 463a4307a9738cdeb3277bc7dc9ba8136bd0e6054e19df84eca6a8280a46b550
+report 5e3dbe0f6559db89750f100c34e011e580b1de13a152ba064ccd9426b4347606
+manifest 197e2e8f63e17cc1de2fc40f58e3ebb8aea0b1c2d939f4e6c5ac019b24046246
+
+原2ae3fb00固定analyze成功，报告hash保持。两教师R5G1各私有/汇总，共四上下文及40聚合，full_review_completed=false。两方零剩余轮次，无R6；仅使用相关目标/动作/预算，不读成功工具与其余会话。仅skills/文档，两端不跑单元测试，无离线回放。

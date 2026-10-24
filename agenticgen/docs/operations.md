@@ -1,5 +1,14 @@
 # Deployment and continuation
 
+2026-10-24最新：**V23已FINALIZED并完成有限评估，V24待正常固定部署**。
+两教师五轮1000正式结果及采样/质量/汇总/保留/清理完整，worker3260505退出，无新故障；原2ae3fb00 analyze成功。
+仅两教师R5G1私有/同轮汇总四上下文及40聚合组，full_review_completed=false，后续提案仅归档。
+代表Mean4.212030363/4.211311855；较V22等权gap增加0.000594630，连续退步1、历史最好V17，尚不回滚，目标未达成。
+V24仅改写已测端点、未知背景迁移及反转间内侧的区分；U1与全部科学设置保持。
+正常完整33.471415分钟，GPU8.949620分钟；53API3192523输入/853789输出，无已知缺失/本版作废，非货币账单。
+仅skills/文档，两端不跑单元测试，无离线回放。见[有限评估](experiments/v23_strategy_review/review.zh-CN.md)。
+V24未批准/启动；V6–V23不prepare/重跑。35分钟巡检及V30后休眠交接保持，下方为历史。
+
 2026-10-24最新：**V22完成有限评估，V23已真实批准并启动**。
 固定`2ae3fb00375b4d6b8d9cec10178d6dd98528ff2c`，worker3260505，启动1792821402.3980756，runtime `/opt/MolSteer/runtimes/agenticgen_2ae3fb00`。
 官方GitHub API固定获取/安装成功，107项历史关键hash保持，科学Python兼容、复用原生验收。

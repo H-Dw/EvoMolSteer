@@ -84,7 +84,12 @@ whether a shared extrapolation was allocated as if its sign were already measure
 In the selected council, check whether an available same-wave contrast changed the
 response model, not only the leader's rank. A private analyst's reasonable unknown
 can already be resolved for the council; keep an untested background distinct from
-an endpoint that was actually measured. A joint forecast must distinguish measured links from transferred ones,
+an endpoint that was actually measured. If a boundary was sampled elsewhere, assess
+whether its signed evidence survives with a transfer caveat. If a lower endpoint
+was sampled, an unmeasured interior is a bracket, not a wholly unexplored lower side.
+Use only relevant contrasts in these selected contexts, preserve private visibility,
+and do not attribute archive-only forecast errors to nonexistent later sampling.
+A joint forecast must distinguish measured links from transferred ones,
 rather than adding remembered cost labels in the wrong direction. Assess how this
 changes expected margin or choice, not every schema field. Preserve original arrays
 and archive-only predictions without inventing an executed failure. Ask whether control-limit

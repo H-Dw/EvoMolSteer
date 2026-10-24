@@ -110,6 +110,14 @@ turning a local rejection into a permanent action restriction.
 
 Use scoped decisions such as 'retain', 'deprioritize on this background', or 'reject
 this measured edge', rather than closing a whole interval after one weak contrast.
+Keep an unknown endpoint distinct from an unknown transfer. An amplitude measured
+on another background is not globally untested; its signed response remains useful
+evidence even when the leader-background effect is unknown. A measured lower endpoint
+and an unmeasured interior form a bracket, not an entirely unexplored lower side.
+Carry the known contrast and the remaining uncertainty together in the brief response
+model. Use only your visible history; committed sibling arrays disclose eligibility,
+not their outcomes. This distinction should change a forecast or priority, not require
+a coverage table, new diagnostic, or another trial.
 When a useful change elsewhere alters the background, reassess only the weak edge
 whose response could now change the leading choice. If existing history supplies a
 matched two-by-two comparison, compare the same amplitude edge under both backgrounds
