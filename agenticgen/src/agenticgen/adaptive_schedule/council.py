@@ -144,6 +144,8 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
     control = enabled(config)
     if control:
         validate_memory(published_reflections, teacher, private[0]['version'], round_no)
+    from .committed_wave import load_commitment
+    commitment = load_commitment(output, specs, private[0]['version'], upper_tick(config)) if control else None
     analyst_skill = Path(analyst_skill or packaged_skill('plip-group-analyst'))
     synthesis_skill = Path(synthesis_skill or packaged_skill('plip-group-synthesizer'))
     synthesis_output_limit = config.get('council', {}).get('max_output_tokens', 32768)
@@ -157,6 +159,8 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
         'analyst_skill_sha256': sha(analyst_skill), 'synthesis_skill_sha256': sha(synthesis_skill),
         'llm': config['llm'], 'synthesis_max_output_tokens': synthesis_output_limit,
         'analyst_sessions': 4, 'proposals_per_analyst': 2, 'selected_proposals': 4}
+    if control:
+        binding['committed_wave_sha256'] = value_sha(commitment)
     output.mkdir(parents=True, exist_ok=True)
     if (output/'binding.json').exists() and read(output/'binding.json') != binding:
         raise ValueError('Do not overwrite a council with changed private inputs, history, skills or configuration')
@@ -177,7 +181,8 @@ def analyze_four_groups(specs, output, config, *, published_reflections=None,
         started = time.time()
         report = plan_population(data, output/'analysts'/spec['group_id'], config,
             hypotheses=2, anchor=spec['anchor_ticks'], group_history=spec.get('group_history', []),
-            published_reflections=published_reflections, skill=analyst_skill, caller=caller)
+            published_reflections=published_reflections, skill=analyst_skill, caller=caller,
+            committed_wave=commitment)
         return report, {'start': started, 'end': time.time()}
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         futures = {pool.submit(worker, spec, data): spec['group_id'] for spec, data in zip(specs, private)}

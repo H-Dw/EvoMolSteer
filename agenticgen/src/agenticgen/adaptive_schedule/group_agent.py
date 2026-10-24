@@ -121,13 +121,16 @@ def verified_double_directions(group_history, anchor):
 
 def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
                     group_history=None, skill=None, caller=call_json, max_tool_turns=4,
-                    published_reflections=None):
+                    published_reflections=None, committed_wave=None):
     if hypotheses not in {8, 4, 3, 2} or not 1 <= max_tool_turns <= 6:
         raise ValueError('Unsupported hypothesis count or tool-turn budget')
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     population = len(data['chains'])
     anchor = validate_ticks(list(anchor), upper_tick(config))
+    from .committed_wave import validate_commitment, reject_committed
+    reserved = validate_commitment(committed_wave, data['teacher']['teacher_id'],
+        data.get('version'), data['observed_round'], anchor, upper_tick(config))
     group_history = group_history or []
     published_reflections = published_reflections or []
     for memory in published_reflections:
@@ -188,6 +191,12 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
             search_policy=for_config(config),
             range_probe_rule='Only after range expansion; at most one of final four. Max two changed intervals. Fine grid remains 0.1. Explain actual jump vs coarse default; all other proposals are local.')
         common['condition_comparison'] = config.get('condition_comparison', {})
+        if committed_wave is not None:
+            common['committed_wave_schedules'] = committed_wave
+            common['action_contract']['committed_schedule_rule'] = (
+                'These four schedules were selected before this wave and are excluded from new proposals. '
+                'Only their arrays and prior source hash are public here; sibling current results, '
+                'hypotheses and tool evidence remain private. They are not suggested actions or observed responses.')
         common['action_contract'].update(action_anchor_ticks=anchor,
             allowed_local_ticks_by_interval=local_domain,
             reference_ticks_must_equal=anchor,
@@ -213,6 +222,7 @@ def plan_population(data, output, config, *, hypotheses=4, anchor=(5, 5, 5, 5),
                 try:
                     if control:
                         validate_controller_hypotheses(message, anchor, hypotheses, evidence, large, executed, for_config(config))
+                        reject_committed(message, reserved)
                     else:
                         validate_hypotheses(message, anchor, hypotheses, evidence, double)
                 except ValueError as exc:

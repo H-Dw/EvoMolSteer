@@ -263,3 +263,68 @@ def test_interface_restart_rejects_out_of_scope_change(interface_restart,monkeyp
         a=read(auth);a['previous_commit' if mutation=='commit' else 'max_output_tokens']='other' if mutation=='commit' else 65536
         write(auth,a)
     with pytest.raises(ValueError):m.stage(root,'v11',auth)
+
+
+@pytest.fixture
+def commitment_restart(interface_restart,monkeypatch):
+    root,auth,jobs=interface_restart
+    (root/'versions/v11').rename(root/'versions/v21');base=root/'versions/v21';old=root/'protocols/old'
+    p=read(old/'PREPARED.json');probe=root/'operations/fixed_start_acceptance_old'
+    write(probe/'results.json',{'synthetic_native_fixture':True})
+    write(old/'validation/gradient_checks.json',{'passed':True})
+    accepted={**p,'teachers':2,'recovery_checks':2,'common_randomness':True,
+        'different_hypothesis_schedules':True,'affinity_vjp':False,
+        'results_sha256':sha(probe/'results.json'),'gradient_checks_sha256':sha(old/'validation/gradient_checks.json')}
+    write(old/'ACCEPTANCE_COMPLETE.json',accepted)
+    prev=root/'operations/previous_restart/journal.json';j=read(prev)
+    j['new_acceptance_sha256']=sha(old/'ACCEPTANCE_COMPLETE.json');write(prev,j)
+    shortage=base/'b/round_03/council/insufficient_unexecuted_proposals.json'
+    write(shortage,{'eligible_count':3})
+    state=read(base/'pipeline.json');state['teachers']['b']['error']={'message':'Fewer than four unexecuted proposed schedules'};write(base/'pipeline.json',state)
+    a=read(auth);a.update(version='v21',repair_kind='prior_selected_schedules_v1',failed_round=3,
+        shortage_receipt_sha256=sha(shortage));write(auth,a)
+    current={**p['source_fingerprint'],**{k:'new' for k in m.COMMITMENT_SOURCE_CHANGES}}
+    monkeypatch.setattr(m,'source_fingerprint',lambda:current)
+    logical=Path('/opt/MolSteer/operations/agenticgen_deploy_new12345/tests_receipt.json')
+    physical=root/'remote-tests.json';write(physical,{'commit':'new12345','passed':True,'scope':'prior_selected_schedules_v1'})
+    monkeypatch.setattr(m,'read',lambda path:read(physical if Path(path)==logical else path))
+    monkeypatch.setattr(m,'sha',lambda path:sha(physical if Path(path)==logical else path))
+    return root,auth,jobs,logical
+
+
+def test_commitment_repair_reuses_exact_native_evidence_and_protects_completed_teacher(commitment_restart,monkeypatch):
+    root,auth,jobs,receipt=commitment_restart
+    kept=m.inventory(root/'versions/v21/a');r0=m.inventory(root/'shared_r0')
+    old_acceptance=sha(root/'protocols/old/ACCEPTANCE_COMPLETE.json')
+    op=Path(m.stage(root,'v21',auth)['operation'])
+    with pytest.raises(FileNotFoundError):m.finish(root,op)
+    reuse=m.reuse_native_acceptance(root,receipt)
+    assert not reuse['fresh_native_sampling'] and reuse['source_acceptance_sha256']==old_acceptance
+    m.finish(root,op)
+    assert m.inventory(root/'versions/v21/a')==kept and m.inventory(root/'shared_r0')==r0
+    assert m.preserved_jobs(root,'v21')=={'a':jobs['a']}
+    assert (op/'failure_audit/b/round_03/council/insufficient_unexecuted_proposals.json').is_file()
+    assert not (root/'versions/v21/b').exists()
+    # Future skills-only revisions retain the original repair receipt identity.
+    monkeypatch.setattr(m,'commit',lambda:'later1234')
+    assert m.verify_ready(root,'v22')['version']=='v21'
+    write(root/'remote-tests.json',{'commit':'new12345','passed':False,'scope':'prior_selected_schedules_v1'})
+    with pytest.raises(ValueError):m.native_ready(root)
+
+
+@pytest.mark.parametrize('mutation',['shortage_hash','round','failure','native_source','config','skills'])
+def test_commitment_repair_rejects_other_faults_or_scientific_changes(commitment_restart,monkeypatch,mutation):
+    root,auth,_,_=commitment_restart
+    if mutation in ('shortage_hash','round'):
+        a=read(auth);a['shortage_receipt_sha256' if mutation=='shortage_hash' else 'failed_round']='wrong' if mutation=='shortage_hash' else 2;write(auth,a)
+    elif mutation=='failure':
+        path=root/'versions/v21/pipeline.json';p=read(path);p['teachers']['b']['error']={'message':'Different failure'};write(path,p)
+    elif mutation=='native_source':
+        fp=m.source_fingerprint();monkeypatch.setattr(m,'source_fingerprint',lambda:{**fp,'adaptive_schedule/wave_native.py':'changed'})
+    elif mutation=='config':
+        from agenticgen.adaptive_schedule import group_protocol
+        c=configuration();c['max_atom_step_A']=1;monkeypatch.setattr(group_protocol,'configuration',lambda:c)
+    else:
+        from agenticgen.adaptive_schedule.group_run import SKILLS
+        (m.repository()/SKILLS['analyst']).write_text('changed')
+    with pytest.raises(ValueError):m.stage(root,'v21',auth)

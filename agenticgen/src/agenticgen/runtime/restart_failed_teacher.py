@@ -21,6 +21,9 @@ CITATION_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py',
     'adaptive_schedule/group_agent.py', 'adaptive_schedule/evidence_aliases.py'}
 INTERFACE_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py',
     'adaptive_schedule/group_agent.py', 'providers/deepseek_api.py'}
+COMMITMENT_SOURCE_CHANGES = {'runtime/restart_failed_teacher.py',
+    'adaptive_schedule/group_agent.py', 'adaptive_schedule/council.py',
+    'adaptive_schedule/committed_wave.py'}
 
 
 def completed_barriers(base, teacher, config):
@@ -51,8 +54,9 @@ def stage(root, version, authorization):
         auth_ref = committed(authorization); auth = read(authorization)
         citation_repair = auth.get('repair_kind') == 'private_evidence_alias_v1'
         interface_repair = auth.get('repair_kind') == 'bounded_interface_repair_v1'
+        commitment_repair = auth.get('repair_kind') == 'prior_selected_schedules_v1'
         budget_pair = (auth.get('previous_max_output_tokens',32768),auth.get('max_output_tokens'))
-        allowed_budget = budget_pair == (98304,98304) if (citation_repair or interface_repair) else budget_pair in {(32768,65536),(65536,98304)}
+        allowed_budget = budget_pair == (98304,98304) if (citation_repair or interface_repair or commitment_repair) else budget_pair in {(32768,65536),(65536,98304)}
         if not (auth.get('authority') == 'human_user' and auth.get('version') == version and
                 auth.get('rerun_all_five_rounds') is True and auth.get('delete_failed_candidate_outputs') is True and
                 auth.get('preserve_completed_teachers') is True and
@@ -93,13 +97,21 @@ def stage(root, version, authorization):
         if citation_repair and (read(base/'deployment.json').get('commit') != auth.get('previous_commit')
                                or old.get('commit') != auth.get('previous_commit')):
             raise ValueError('Citation repair must bind the actual failed fixed commit')
-        if interface_repair and read(base/'deployment.json').get('commit') != auth.get('previous_commit'):
+        if (interface_repair or commitment_repair) and read(base/'deployment.json').get('commit') != auth.get('previous_commit'):
             # A normal version can reuse a compatible older protocol. Its actual
             # deployment is bound separately; source/config equality is checked above.
             raise ValueError('Interface repair must bind the actual failed fixed commit')
+        if commitment_repair:
+            for teacher in failed:
+                failure = state['teachers'][teacher]
+                receipt = base/teacher/f"round_{failure['round']:02d}"/'council/insufficient_unexecuted_proposals.json'
+                if (failure['round'] != auth.get('failed_round') or
+                        sha(receipt) != auth.get('shortage_receipt_sha256') or
+                        'Fewer than four unexecuted proposed schedules' not in str(failure.get('error'))):
+                    raise ValueError('Committed-wave repair requires the exact diagnosed shortage')
         current = source_fingerprint()
         changed = sorted(k for k in current.keys()|old['source_fingerprint'].keys() if current.get(k) != old['source_fingerprint'].get(k))
-        allowed = INTERFACE_SOURCE_CHANGES if interface_repair else CITATION_SOURCE_CHANGES if citation_repair else ALLOWED_SOURCE_CHANGES
+        allowed = COMMITMENT_SOURCE_CHANGES if commitment_repair else INTERFACE_SOURCE_CHANGES if interface_repair else CITATION_SOURCE_CHANGES if citation_repair else ALLOWED_SOURCE_CHANGES
         if not changed or not set(changed) <= allowed:raise ValueError('Unsupported source/science change')
         for role, relative in SKILLS.items():
             if sha(repository()/relative) != binding['skill_hashes'][role]:raise ValueError('Frozen skills changed')
@@ -156,6 +168,13 @@ def stage(root, version, authorization):
             prepared['authorized_analysis_budget_changes'] = {}
             prepared['interface_repair_policy'] = {'name':'bounded_interface_repair_v1',
                 'private_max_format_repairs':2, 'format_policy':'json-interface-v5'}
+        if commitment_repair:
+            prepared['authorized_analysis_budget_changes'] = {}
+            prepared['committed_schedule_context'] = 'prior_selected_schedules_v1'
+            prepared['requires_native_acceptance'] = False
+            prepared['native_acceptance_reuse_required'] = True
+            prepared['native_probe_directory'] = old.get('native_probe_directory',
+                'operations/fixed_start_acceptance_'+old['commit'][:8])
         # These completed predecessor transactions remain in the protected history;
         # the new native acceptance is checked by the scoped restart gate below.
         for key in ['budget_extension_operation','failure_restart_operation','strategy_review_operation']:
@@ -168,6 +187,8 @@ def stage(root, version, authorization):
 
 def native_ready(root):
     folder=protocol_dir(root); p=read(prepared_path(root)); a=read(acceptance_path(root)); probe=root/p['native_probe_directory']
+    if p.get('native_acceptance_reuse_required'):
+        verify_native_reuse(root, p, a)
     if (a['source_fingerprint'] != source_fingerprint() or a['config_sha256'] != sha(config_path(root)) or
             a.get('teachers') != 2 or a.get('recovery_checks') != 2 or a.get('common_randomness') is not True or
             a.get('different_hypothesis_schedules') is not True or a.get('affinity_vjp') is not False or
@@ -175,6 +196,58 @@ def native_ready(root):
             a['gradient_checks_sha256'] != sha(folder/'validation/gradient_checks.json') or
             read(folder/'validation/gradient_checks.json').get('passed') is not True):
         raise ValueError('Fresh native acceptance required')
+
+
+def verify_native_reuse(root, prepared, accepted):
+    """Narrow context repair only: retain original native evidence and require real scoped tests."""
+    root = Path(root)
+    old_folder = (root/prepared['previous_protocol']).resolve()
+    if not old_folder.is_relative_to(root.resolve()/'protocols'):
+        raise ValueError('Native source escapes protocol history')
+    old = read(old_folder/'ACCEPTANCE_COMPLETE.json')
+    reuse = accepted.get('native_evidence_reuse', {})
+    if (reuse.get('source_acceptance_sha256') != sha(old_folder/'ACCEPTANCE_COMPLETE.json') or
+            reuse.get('source_prepared_sha256') != sha(old_folder/'PREPARED.json') or
+            old['source_fingerprint'] != read(old_folder/'PREPARED.json')['source_fingerprint'] or
+            old['config_sha256'] != sha(config_path(root))):
+        raise ValueError('Native reuse source/config changed')
+    current = source_fingerprint()
+    changed = {k for k in current.keys()|old['source_fingerprint'].keys()
+               if current.get(k) != old['source_fingerprint'].get(k)}
+    if not changed or not changed <= COMMITMENT_SOURCE_CHANGES:
+        raise ValueError('Native reuse cannot cover sampling, gradient, scoring or configuration changes')
+    if reuse.get('source_changes') != sorted(changed):raise ValueError('Native compatibility scope changed')
+    test = Path(reuse.get('tests_receipt', ''))
+    expected = Path('/opt/MolSteer/operations')/('agenticgen_deploy_'+prepared['commit'][:8])/'tests_receipt.json'
+    if test != expected or sha(test) != reuse.get('tests_receipt_sha256'):
+        raise ValueError('Scoped remote test receipt changed')
+    check = read(test)
+    if check.get('commit') != prepared['commit'] or check.get('passed') is not True or check.get('scope') != 'prior_selected_schedules_v1':
+        raise ValueError('Scoped remote contract/transaction checks required')
+    # Only source identity and explicit reuse provenance change; evidence remains exact.
+    if {k:v for k,v in accepted.items() if k not in ('source_fingerprint','native_evidence_reuse')} != {k:v for k,v in old.items() if k != 'source_fingerprint'}:
+        raise ValueError('Native evidence was changed during reuse')
+
+
+def reuse_native_acceptance(root, tests_receipt):
+    root=Path(root); p=read(prepared_path(root)); old=root/p['previous_protocol']
+    if not p.get('native_acceptance_reuse_required'):raise ValueError('This repair does not authorize native reuse')
+    accepted=read(old/'ACCEPTANCE_COMPLETE.json')
+    current=source_fingerprint()
+    changed=sorted(k for k in current.keys()|accepted['source_fingerprint'].keys()
+                   if current.get(k)!=accepted['source_fingerprint'].get(k))
+    accepted.update(source_fingerprint=current, native_evidence_reuse={
+        'source_acceptance_sha256':sha(old/'ACCEPTANCE_COMPLETE.json'),
+        'source_prepared_sha256':sha(old/'PREPARED.json'),'source_changes':changed,
+        'tests_receipt':str(tests_receipt),'tests_receipt_sha256':sha(tests_receipt),
+        'fresh_native_sampling':False,'scope':'context eligibility; native sampling/gradient/quality code unchanged'})
+    verify_native_reuse(root,p,accepted)
+    dest=protocol_dir(root)/'validation/gradient_checks.json';dest.parent.mkdir(parents=True,exist_ok=True)
+    shutil.copyfile(old/'validation/gradient_checks.json',dest)
+    write(acceptance_path(root),accepted)
+    native_ready(root)
+    return {'fresh_native_sampling':False,'source_acceptance_sha256':sha(old/'ACCEPTANCE_COMPLETE.json'),
+            'acceptance_sha256':sha(acceptance_path(root))}
 
 
 def operation_journal(root):
