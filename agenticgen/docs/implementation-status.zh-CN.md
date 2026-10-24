@@ -1,5 +1,13 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新：**V28完整完成及有限评估，V29已正常固定部署并启动**。
+科学/传输提交`929ca474d065d00ff6f6969a194273245cf88325`，worker3678906，启动1792851526.8652952，runtime `/opt/MolSteer/runtimes/agenticgen_929ca474`。
+首个ghfast一次clone成功，其他镜像未尝试，REST API0；131项历史关键hash保持。
+传输前置验证复用同源码hash及原Junit；正常科学部署门槛针对此前Git脚本差异仅远端test_reviewed_deploy.py实际通过。本地无自动化测试，无离线回放，科学Python/原生验收保持。
+真实V28→V29门槛2教师4上下文、full_review_completed=false，U1政策保持，不回滚。V28较V27等权gap减少0.000102887，连续退步0，历史最好V17，目标未达成。
+V29细化跨背景补偿成本/收益配对与差分残差识别；实际核验1792851541.0439606存活、命令匹配、无新failure，初始状态不称首轮完成。
+见[部署收据](deployments/929ca474/README.zh-CN.md)。V6–V28不prepare/重跑；只巡检活动V29，不重复部署或切源。当前仅LLM协助gradient guidance；35分钟保持，V30完整报告与commit/push保存后删除自动任务。下方为历史。
+
 2026-10-24最新：**V28已FINALIZED且有限评估完成，V29待正常固定部署**。
 固定d7d35b13 analyze成功；1792850768.6915698核验两教师五轮1000正式结果及全部收尾完整，worker3607721退出，无新failure。
 仅Top1 R5G2、Top2 R5G1四上下文及40聚合，full_review_completed=false，双方R5只归档无R6。
