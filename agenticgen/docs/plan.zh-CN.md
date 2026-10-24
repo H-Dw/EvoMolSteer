@@ -1,5 +1,13 @@
 # agenticgen：自适应条件重构实验
 
+2026-10-24最新：**V29完整完成及有限评估，V30已正常固定部署并启动**。
+科学/传输提交`d823ddf53be9e38b2a26853a10a849410d24ad2d`，worker3745725，启动1792855742.5293188，runtime `/opt/MolSteer/runtimes/agenticgen_d823ddf5`。
+首个ghfast一次clone成功，其他镜像未尝试，REST API0；135项历史关键hash保持。
+传输前置验证复用同源码hash及原Junit，没有新跑测试。本次仅三份skills/文档，两端无单元测试，无离线回放；tests_receipt=not_run_skills_documents_only、passed=null，不称通过。科学Python/原生验收保持。
+真实V29→V30门槛2教师4上下文、full_review_completed=false，U1政策保持，不回滚。V29较V28等权gap增加0.000668530，连续退步1，历史最好V17，目标未达成。
+V30细化局部合法性与范围配额、精确反向与新分段/背景迁移；实际核验1792855753.293922存活、命令匹配、无新failure，初始状态不称首轮完成。
+见[部署收据](deployments/d823ddf5/README.zh-CN.md)。V6–V29不prepare/重跑；只巡检活动V30，不重复部署或切源。V30为末版：完整收尾、自身有限评估、完整报告交付并commit/push保存后删除定时任务。不运行V31或已撤回后续方向。下方为历史。
+
 2026-10-24最新：**V29已FINALIZED且有限评估完成，V30待正常固定部署**。
 固定929ca474 analyze成功；1792854970.7302854核验两教师五轮1000正式结果及全部收尾完整，worker3678906退出，无新failure。
 仅Top1 R5G2、Top2 R5G1四上下文及40聚合，full_review_completed=false，双方R5只归档无R6。
