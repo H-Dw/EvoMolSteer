@@ -1,0 +1,7 @@
+# V22正常部署的收据收集器验证适配
+
+V21固定源为bef16c4b；后续26964fb8只在本地使用了deploy_v21_repair.py的收据读取修复，未安装远端。V22沿当前主分支部署会包含该差异，原start_reviewed_version.validation_tests对未知脚本明确拒绝。此次在部署前登记其对应test_v21_repair_entry.py，保留未知代码拒绝、完成/hash/锁/原生兼容和有限review-check。
+
+仅增加验证映射，不调用修复入口。现有收集器代码不再改变：只有固定事务journal/deletion_manifest允许128MiB，其他JSON仍16MiB；完整流式hash、读取前后大小/mtime一致、行政摘要明确projection_only。新增远端模拟输入检查完整hash/投影、普通文件超限、清单超限和读取变化；不连接外部服务，不生成分子或LLM离线回放。
+
+正常部署将只执行test_reviewed_start.py、test_control_gates.py、test_v21_repair_entry.py。本地仅检查差异、commit/push，不运行自动化测试。三份skills/科学Python/已接受原生配置的差异分别记录；本次含部署工程适配，不能再称整个部署仅skills/文档或预先声称检查通过。实际结果以固定远端tests_receipt为准。

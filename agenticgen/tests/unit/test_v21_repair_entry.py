@@ -91,3 +91,53 @@ def test_inspection_does_not_execute_or_log_credentials(tmp_path,monkeypatch):
     monkeypatch.setattr(sys,'argv',['deploy','--commit','a'*40,'--inspect-only','--output',str(output)])
     assert deploy.main()==0 and read(output)['inspect_only']
     assert 'synthetic-test-only' not in output.read_text()
+
+
+@pytest.mark.parametrize('case', ['manifest','ordinary','oversize','changed','grew'])
+def test_bounded_manifest_inspection_hashes_full_bytes_and_rejects_unstable_sources(tmp_path,monkeypatch,case):
+    import hashlib,io,json
+    from types import SimpleNamespace
+    raw=json.dumps({'phase':'complete','protected_sha256':{'preserved':'digest'},
+                    'audit_copies':['one'],'padding':'x'*(17*1024*1024)}).encode()
+    target=('agenticgen_deploy_'+ 'a'*8 +'/installation.json' if case=='ordinary'
+            else 'failed_teacher_rerun_v21_'+'a'*8+'/journal.json')
+    class Handle(io.BytesIO):
+        calls=0
+        def stat(self):
+            self.calls+=1
+            size=129*1024*1024 if case=='oversize' else len(raw)
+            if case=='grew':size=10
+            return SimpleNamespace(st_size=size,st_mtime=2 if case=='changed' and self.calls>1 else 1)
+    class SFTP:
+        def __enter__(self):return self
+        def __exit__(self,*a):pass
+        def get_channel(self):return self
+        def settimeout(self,v):pass
+        def normalize(self,p):return p
+        def open(self,p,mode):
+            assert mode=='rb'
+            if p.endswith(target):return Handle(raw)
+            raise FileNotFoundError(p)
+    class Client:
+        def set_missing_host_key_policy(self,p):pass
+        def connect(self,*a,**k):pass
+        def open_sftp(self):return SFTP()
+        def close(self):pass
+        def get_transport(self):raise AssertionError('Inspection cannot execute commands')
+    monkeypatch.setitem(sys.modules,'paramiko',SimpleNamespace(MissingHostKeyPolicy=object,SSHClient=Client))
+    monkeypatch.setattr(deploy.subprocess,'check_output',lambda *a,**k:b'synthetic fixed helper')
+    monkeypatch.setattr(deploy.getpass,'getpass',lambda _: 'synthetic-test-only')
+    monkeypatch.setattr(sys.stdin,'isatty',lambda:True)
+    output=tmp_path/'inspection.json'
+    monkeypatch.setattr(sys,'argv',['deploy','--commit','a'*40,'--inspect-only','--output',str(output)])
+    if case!='manifest':
+        with pytest.raises(ValueError):deploy.main()
+        assert not output.exists()
+    else:
+        assert deploy.main()==0
+        result=read(output);source=next(iter(result['sources'].values()))
+        assert source['sha256']==hashlib.sha256(raw).hexdigest()
+        assert source['bytes']==len(raw) and source['projection_only'] is True
+        assert source['value']['protected_file_count']==1
+        assert source['value']['audit_copy_count']==1
+        assert 'padding' not in source['value'] and output.stat().st_size<4096

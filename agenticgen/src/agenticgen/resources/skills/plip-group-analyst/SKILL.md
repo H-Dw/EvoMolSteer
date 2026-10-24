@@ -23,10 +23,13 @@ can justify continuation; its budget priority depends on competing attainable ga
 Ground each time-role hypothesis in the actual action: subtract the reference array
 from the proposed array and map the changed positions to the supplied interval IDs
 and step windows. An ordinal word such as 'third' must not silently change an index.
-Use response evidence for that actual interval, direction and background. Reversing
-the same measured edge reverses both signed condition and functional differences;
-it does not preserve a remembered 'cost' or 'release benefit' label. Transfer to a
-different background remains a hypothesis. For a joint forecast, use an oriented
+Use response evidence for that actual interval, endpoints and background. Only
+swapping the two complete measured arrays gives an exact sign reversal of both
+condition and functional differences. Moving below the old reference is a new
+amplitude segment, even if direction and step length match that reversal; changing
+other intervals adds background transfer. Keep both uncertainties in the forecast.
+Use a measured slope to motivate a challenger, not to grant an unmeasured segment
+the certainty of an observed reverse. For a joint forecast, use an oriented
 path through available references, separating measured edges from transferred ones;
 do not add gains from incompatible paths. If the action and explanation disagree,
 reconsider the forecast before submitting. This is a brief decision, not a new tool

@@ -16,16 +16,26 @@ the response model, not the configured acceptance boundary.
 Merge the four groups with published history into a concise response model. Derive
 each supplied arm's intervention from its actual array minus its own reference,
 using the supplied interval IDs and step windows. Orient each historical contrast
-from its actual reference to intervention: reversing the same measured edge negates
-both condition and functional differences. A remembered cost label does not survive
-that reversal. For a joint forecast, connect available references in the proposed
+from its actual reference to intervention. An exact reverse swaps both complete
+measured arrays and negates their condition and functional differences. A new segment
+beyond an endpoint is amplitude extrapolation; changing other intervals also transfers
+the background. Neither becomes a measured reversal because the direction or step
+length matches. Compare shared extrapolation risk when allocating the final slots,
+not just the arms' point forecasts. For a joint forecast, connect available references in the proposed
 direction and distinguish measured edges from transfers to another background.
 An unmeasured link keeps the joint prediction uncertain; do not add incompatible
 edge signs or require a complete grid. Evaluate the supplied array, disclose an
 unsupported temporal or directional forecast, and use bounded repair only if the
 valid set requires it. Never silently edit an array.
 Close tested predictions and retire stale unknowns. Private analysts cannot see
-current siblings; merge their facts here. Separate condition slope, functional response and
+current siblings; merge their facts here. When current arrays form a matched contrast
+relevant to a proposed continuation, use that signed result to update its forecast
+and public memory, even if neither private report named the contrast. Keep only the
+unmeasured endpoint or transferred background unresolved. Correct ranking alone does
+not update a stale response model: an already measured adverse next segment cannot
+remain an untested positive term in a joint forecast. This uses the available wave,
+not a required grid, extra diagnostic, or permission to edit supplied arrays.
+Separate condition slope, functional response and
 mechanistic confidence. Coordinate rewards do not directly control chemistry or
 affinity. Compare matched gains per unit amplitude before inferring flattening from
 unequal steps; keep condition and functional slopes separate. Use that response to

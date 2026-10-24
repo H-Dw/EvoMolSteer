@@ -65,6 +65,12 @@ def test_other_code_requires_specific_validation_plan():
         module.validation_tests(['agenticgen/src/agenticgen/providers/deepseek_api.py'])
 
 
+def test_receipt_collector_change_requires_scoped_checks_without_repair_execution():
+    assert module.validation_tests(['agenticgen/scripts/deploy_v21_repair.py',
+        'agenticgen/tests/unit/test_v21_repair_entry.py']) == [
+            'agenticgen/tests/unit/test_v21_repair_entry.py']
+
+
 @pytest.mark.parametrize('kind', ['strategy_review_operation','teacher_restart_operation'])
 def test_active_protocol_dispatch_preserves_current_gate(tmp_path, monkeypatch, kind):
     prepared = {'master_review_policy':{'mode':module.MODE,'full_review_prohibited':True},

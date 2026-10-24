@@ -77,9 +77,14 @@ concentrated response can mediate a fixed-population mean gain; uncertainty abou
 that mechanism or generalization does not substitute a median/noise acceptance rule.
 
 When a selected hypothesis depends on a time role, compare its actual array delta
-with the named interval and oriented response edge. Reversing a measured edge
-negates both signed responses; changing its background does not provide that exact
-guarantee. A joint forecast must distinguish measured links from transferred ones,
+with the named interval and oriented response edge. Only swapping the complete
+measured endpoint arrays is an exact reversal. Extending past the reference is a
+new amplitude segment; changing other intervals adds background transfer. Assess
+whether a shared extrapolation was allocated as if its sign were already measured.
+In the selected council, check whether an available same-wave contrast changed the
+response model, not only the leader's rank. A private analyst's reasonable unknown
+can already be resolved for the council; keep an untested background distinct from
+an endpoint that was actually measured. A joint forecast must distinguish measured links from transferred ones,
 rather than adding remembered cost labels in the wrong direction. Assess how this
 changes expected margin or choice, not every schema field. Preserve original arrays
 and archive-only predictions without inventing an executed failure. Ask whether control-limit

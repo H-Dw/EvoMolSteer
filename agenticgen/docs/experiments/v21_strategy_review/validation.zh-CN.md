@@ -1,0 +1,9 @@
+# V21有限评估来源
+
+FINALIZED：b13c2682a0dc9f296bc0ddd681256ac6ed02baabf199a5f7ee2ec97910422063。
+report：c31173dc869440430bff8ea01e461abb74fd7d62672242945186e2ce7274021d。
+manifest：cb3c39be4cd2d0d22dfedf54470c91efba4a79cc0b0890aa8eb59cf77b0d2b33。
+
+Top1 R4G4、Top2 R5G1私有/同轮汇总，四上下文及目标/动作/预算，40正式聚合组。Top1仍有一次采样，Top2零剩余轮次。原bef16c4b analyze成功，report及完成hash保持。Top2来源4c4aa68f保留。失败会话不复审，operations作废费用单列且与versions按provider ID去重。只检查本地差异，不做本地自动化测试；科学策略仅skills/文档；正常部署验证映射适配涉及三个远端相关测试文件，尚未执行，不例行全套。既有远端76项修复验收及原生兼容复用收据保持，不声称新原生采样。
+
+本次V22部署另含正常门槛对既有本地收据收集器差异的验证映射及相关远端检查，见[部署验证计划](deployment_validation_plan.zh-CN.md)。本地仍不运行自动化测试；本次远端检查结果尚未取得。

@@ -111,6 +111,7 @@ def validation_tests(changed):
         'agenticgen/scripts/start_reviewed_version.py': 'test_reviewed_start.py',
         'agenticgen/scripts/deploy_reviewed_version.py': 'test_reviewed_deploy.py',
         'agenticgen/scripts/fetch_fixed_github_api.py': 'test_github_object_fetch.py',
+        'agenticgen/scripts/deploy_v21_repair.py': 'test_v21_repair_entry.py',
     }
     for path in changed:
         if not path.startswith('agenticgen/'):
