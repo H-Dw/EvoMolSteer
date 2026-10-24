@@ -1,5 +1,7 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新连接诊断：用户授权的一次HTTPS探测返回代理CONNECT200，随后TLS握手超时（curl28、HTTP000），尚无完整网络恢复证据。无GitHub REST API/fetch，无安装启动；V28仍等待连接恢复，不因CONNECT200自动重试。Git origin正常、无单独代理覆盖，现有部分克隆配置不能解释此次握手超时；未执行条件性的完整仓库检查。见[诊断收据](deployments/d7d35b13/connectivity_diagnostic.json)。下方为历史。
+
 2026-10-24最新部署结果：**一次Git拉取因原代理CONNECT 503停止；V28尚未安装/批准/启动**。
 传输提交088456aac447e17b28fc4823c4a81cb66daaaa3b已推送，科学提交保持d7d35b132a04c5b58964aad3cfcc552a792a9909。实际只发起一次fetch，REST API请求0，Git退出128；没有回退或重试。远端传输验证未抵达，本地未运行自动化测试，不称通过。
 等待实际Git网络恢复证据，35分钟任务不自动盲重试、不查询API额度、不轮询完成V27。旧额度等待/API重试安排已撤销。详见[本次Git失败收据](deployments/d7d35b13/README.zh-CN.md)。下方状态为历史。
