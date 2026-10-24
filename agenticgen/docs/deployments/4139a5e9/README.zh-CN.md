@@ -16,5 +16,4 @@ worker3190901，启动1792817261.0975678；实际核验1792817271.1432137存活�
 五份远端JSON逐字节SHA核验见source_manifest；远端收据`/opt/MolSteer/operations/agenticgen_deploy_4139a5e9`。
 
 V21结果/成本见[有限评估](../../experiments/v21_strategy_review/review.zh-CN.md)，历史失败费用继续分别保留。
-35分钟巡检保持；[V30后PB/inpainting计划](../../supplemental/graph-inpainting-pb-after-v30.zh-CN.md)继续休眠。
-V30完整交付并commit/push保存原方向后重新读取交接计划；I20完整交付后才删除自动任务。
+35分钟巡检保持。

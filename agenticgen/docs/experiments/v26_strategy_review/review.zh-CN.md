@@ -51,4 +51,4 @@ top2：19/20主带内，全部25/25有效、PB1、严重clash0。代表Best7.218
 
 Top2唯一零早段组出主带。正常完整1827.559512秒（30.459325分钟），GPU535.051004秒（8.917517分钟）；60份provider-ID去重API3270034输入/745091输出，无已知usage缺失、本版无作废，非货币账单。最终须合并operations内V6/V7/V10/V11/V21失败成本并跨provider ID去重，不混失败分数。
 
-本次analyze日志在/opt/MolSteer/operations/agenticgen_deploy_8b29d116/analyze_v26.log，报告hash保持。V27待正常固定部署门槛；V30后的PB/inpainting计划继续休眠。
+本次analyze日志在/opt/MolSteer/operations/agenticgen_deploy_8b29d116/analyze_v26.log，报告hash保持。V27待正常固定部署门槛。

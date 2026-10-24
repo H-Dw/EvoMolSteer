@@ -11,4 +11,4 @@ U1/coarse0.2/q0.1/max_range_probes0/max_changed_intervals2及科学设置保持�
 worker3466528，启动1792833881.5355833；实际核验1792833890.9096732存活、命令匹配、无新failure。初始bootstrap不代表首轮完成，不重复启动或为文档同步更改科学源。
 五份远端JSON逐字节SHA核验见source_manifest，远端`/opt/MolSteer/operations/agenticgen_deploy_8b29d116`。
 V25质量/表现/成本见[有限评估](../../experiments/v25_strategy_review/review.zh-CN.md)。历史失败成本继续单列，最终报告须合并operations并按provider ID去重。
-35分钟巡检保持；V30后PB/inpainting计划继续休眠，原方向完整交付和commit/push保存后再重新读取交接；I20完整交付后才删除自动任务。
+35分钟巡检保持。

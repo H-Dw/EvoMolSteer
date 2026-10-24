@@ -24,5 +24,3 @@ worker 2672754，启动1792787457.6023173；真实初始核验见startup_health.
 
 五份远端JSON逐字节SHA核验见source_manifest.json。远端收据`/opt/MolSteer/operations/agenticgen_deploy_64ede898`。
 V15结果、有限评估和成本见[评估](../../experiments/v15_strategy_review/review.zh-CN.md)。
-V30后的[Graph inpainting/PB补充计划](../../supplemental/graph-inpainting-pb-after-v30.zh-CN.md)仍authorized_dormant；
-原V30完成报告及commit/push保存原方向之前不激活，35分钟任务保留交接指针。

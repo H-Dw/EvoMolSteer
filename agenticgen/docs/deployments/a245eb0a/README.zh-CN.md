@@ -8,7 +8,7 @@ V16自身最优轮评估真实通过：两教师均R5G1，2教师4上下文，fu
 本次仅三份通用skills及文档变化，两端没有自动化测试；tests_receipt为not_run_skills_documents_only、passed=null，不能写成测试通过。
 V16相对V15等权gap增加0.000434699，连续退步1，历史最好仍V13；本次尚未触发回滚。
 V17分开条件Å容差、功能pIC50排序及预测区间的用途；按实测曲率/反转/条件余量决定步长，并识别跨背景共享的幅度外推风险。
-保留小但真实的带内功能收益，不强制二分、网格或新配额，不注入教师数组，也未提前激活PB/inpainting方向。
+保留小但真实的带内功能收益，不强制二分、网格或新配额，不注入教师数组。
 能力假设、反证标准及skill哈希见[本版适配](../../experiments/v16_strategy_review/selective_adaptation.json)。
 
 U1、coarse0.2、q0.1、max_range_probes0、max_changed_intervals2以及模型/奖励/采样/RNG/位移/预算不变。
@@ -19,5 +19,3 @@ worker 2764399，启动1792791877.9126267；核验1792791884.0330298存活且命
 
 五份远端JSON逐字节SHA核验见source_manifest.json。远端收据`/opt/MolSteer/operations/agenticgen_deploy_a245eb0a`。
 V16结果、有限评估和成本见[评估](../../experiments/v16_strategy_review/review.zh-CN.md)。
-V30后的[Graph inpainting/PB补充计划](../../supplemental/graph-inpainting-pb-after-v30.zh-CN.md)仍authorized_dormant；
-原V30完整报告及commit/push保存原方向之前不激活，35分钟任务保留交接指针，后续I20完整交付后才删除自动任务。

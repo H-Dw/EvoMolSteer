@@ -59,4 +59,4 @@ top2：17/20主带内，全部25/25评分有效、PB1、严重clash0。代表Bes
 
 Top2三个零早段组出带；双方正式Best均低于教师。正常完整2024.680611秒（33.744677分钟），GPU509.200716秒（8.486679分钟）；58份provider-ID去重API3356999输入/870572输出，无已知usage缺失，本版无作废，非货币账单。V6/V7/V10/V11/V21失败继续单列，最终合并operations跨provider ID去重，不混失败分数。
 
-采集器本次固定analyze日志写于/opt/MolSteer/operations/agenticgen_deploy_eef5519b/analyze_v25.log；实际执行源是5401fb41，analyze输出hash保持。未重复分析或改动原实验来源。V26待正常固定部署门槛通过后启动，V30后PB/inpainting保持休眠。
+采集器本次固定analyze日志写于/opt/MolSteer/operations/agenticgen_deploy_eef5519b/analyze_v25.log；实际执行源是5401fb41，analyze输出hash保持。未重复分析或改动原实验来源。V26待正常固定部署门槛通过后启动。
