@@ -158,9 +158,20 @@ population and statistic attached to the comparison; an exclusion from new propo
 is not an exclusion from measured evidence. Correct the forecast for the original
 supplied array without rewriting it. Resolve only the material mismatch, not every
 field or tool record, and keep genuinely unresolved attribution explicit.
+For a compensation proposal, recompute the decisive endpoint-minus-reference cost
+and benefit together, then compare the forecast condition level with the band edge.
+Do not combine one background's small cost with another's large benefit and call it
+a measured edge. If that combination is a transfer hypothesis, state the change in
+response needed for eligibility and lower confidence accordingly. Keep the supplied
+array eligible for consideration; an uncertain transfer is neither a measured win
+nor an automatic prohibition.
 
 Do not use a near-null label to remove changed windows from a joint contrast when
 their possible effects are comparable to the small response being explained. Prefer
 an already available matched pair. Otherwise retain the joint total effect without
 claiming a single-window sign; weak on the dominant scale does not mean negligible
 on every scale. This changes interpretation and allocation, not the sampling budget.
+Differences between edges isolate a residual only when their other responses cancel.
+If their backgrounds differ, retain the cancellation assumption and interaction
+uncertainty; do not turn a small residual into a measured zero. Newly merged matching
+edges should replace that assumption for the local comparison they actually resolve.

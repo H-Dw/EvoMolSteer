@@ -1,0 +1,5 @@
+FINALIZED b50b893251739a19cab75480b91158640cff838099db33a6d5ec79516098981c
+report 8fa06b944eb4a850359f83242ff62a8dabecaa7f3a52e614fd104bbefb0c2152
+manifest 923d43adba0403ed2b8784d92cfc72d9d419897c5f40d0e7b2f31ac6aa14b962
+
+固定d7d35b13 analyze成功；四上下文40聚合，无全量审阅/本地测试/离线回放。远端必要传输相关测试以新部署真实收据为准。

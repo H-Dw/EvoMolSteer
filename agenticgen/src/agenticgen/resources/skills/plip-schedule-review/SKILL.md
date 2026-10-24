@@ -120,3 +120,9 @@ whether a weak-window label hides changes large enough to confound the local edg
 being explained. An available matched pair outranks that simplification; otherwise
 retain the joint effect and unknown decomposition. Archive-only errors have no later
 sampling loss, and untested alternatives have no result.
+For a decisive compensation forecast, check that cost and benefit come from the same
+complete edge before judging the claimed band margin; a mix of backgrounds is a
+transfer assumption, not a measurement. For a residual obtained by subtracting edges,
+ask whether background responses can actually cancel. Use the selected contexts and
+existing aggregates only; do not widen review or demand new probes. Distinguish an
+unsupported forecast from a wrong retained ranking and from archive-only speculation.

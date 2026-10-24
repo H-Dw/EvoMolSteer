@@ -1,5 +1,13 @@
 # Deployment and continuation
 
+2026-10-24最新：**V28已FINALIZED且有限评估完成，V29待正常固定部署**。
+固定d7d35b13 analyze成功；1792850768.6915698核验两教师五轮1000正式结果及全部收尾完整，worker3607721退出，无新failure。
+仅Top1 R5G2、Top2 R5G1四上下文及40聚合，full_review_completed=false，双方R5只归档无R6。
+代表Mean4.213278389/4.210481548，较V27等权gap减少0.000102887，连续退步0，历史最好V17，目标未达成。
+V29细化跨背景成本/收益配对及差分残差识别，U1与科学设置保持。Top2最高Best7.455880165超过教师，但该组条件出带，不替代主代表。
+本地无自动化测试；相对V28科学源还纳入既有Git部署脚本/测试，远端只按实际差异验证test_reviewed_deploy.py，结果以部署收据为准，不预称通过。
+详见[有限评估](experiments/v28_strategy_review/review.zh-CN.md)。V29尚未批准/启动，V6–V28不prepare/重跑。当前仅LLM协助gradient guidance；35分钟保持，V30完整报告和commit/push保存后删除自动任务。下方为历史。
+
 2026-10-24最新：**V28已通过ghfast首个镜像成功安装、批准并启动**，其余三个镜像未尝试。科学d7d35b132a04c5b58964aad3cfcc552a792a9909，传输8a07160a6199bb05e50641094d973164c94e8c99，worker3607721，启动1792848416.9681938。一次clone/一次本地导入/API0；898部署blob及来源核验，127历史关键hash保持。
 实际远端传输相关test_reviewed_deploy.py通过；本地无自动化测试。科学skills/文档无需单元测试，scientific tests_receipt passed=null；科学Python兼容、显式复用原生验收，不称新原生采样。V27→V28有限门槛2教师4上下文/full_review_completed=false，U1保持，连续退步仍1、历史最好V17。
 核验1792848428.2286682存活/命令匹配/无新failure，初始bootstrap不是首轮完成。禁止重复部署、批准、启动或切源，恢复每35分钟仅活动V28正常SFTP巡检。见[成功部署收据](deployments/d7d35b13/README.zh-CN.md)。下方失败/等待记录均为历史。

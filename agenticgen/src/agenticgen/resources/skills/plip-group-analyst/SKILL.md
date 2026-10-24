@@ -159,9 +159,19 @@ branch; leave an unresolved value unknown. Do not infer a population's selection
 semantics from a label alone. This is a decision check, not an evidence-wide audit.
 Describe all changed coordinates relative to the supplied action anchor even when
 the scientific comparison uses another reference.
+For a compensation forecast, keep each measured condition/function change paired
+with its own reference and endpoint. Recompute the decisive difference and compare
+the resulting condition level with the actual band margin. A smaller cost on another
+background cannot be paired with this edge's larger benefit as one measured response;
+that composition is an explicit transfer hypothesis, including the attenuation needed
+to become eligible. Reconcile only the comparison that changes the proposed action.
 
 A window that is weak relative to the dominant branch may still matter to a smaller
 contrast. Do not erase its change when interpreting a joint move as a single-window
 effect. Use an available matched background, or keep the joint effect and uncertain
 attribution distinct. Compare omitted responses with the effect being explained,
 not only with the largest response in the experiment; require no extra grid or probe.
+Subtracting two edges on different backgrounds does not isolate the residual window
+unless the other responses cancel on evidence. Keep that residual conditional on the
+cancellation assumption, with its sign unresolved when a comparable background term
+is unknown; it is not a measured null or a basis for closing the branch.
