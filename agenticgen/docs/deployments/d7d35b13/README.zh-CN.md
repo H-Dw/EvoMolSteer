@@ -1,3 +1,19 @@
+# V28：ghfast克隆成功并启动
+
+本轮按四镜像顺序执行，首个ghfast.top成功，其他三个未请求。一份网络clone和一次本地对象导入，GitHub REST API请求0。传输提交8a07160a6199bb05e50641094d973164c94e8c99，科学提交d7d35b132a04c5b58964aad3cfcc552a792a9909；898个部署blob完整、固定commit/祖先及传输源SHA核验。克隆缓存/opt/MolSteer/source_cache/ghfast_8a07160a.git，未覆盖旧失败缓存。
+
+实际远端test_reviewed_deploy.py相关验证通过，Junit SHA a63403748fdf00a862e2e9d2a5d24b855ce541175ef4a7b95d2e5a597b4e6a3f，fresh_tests_run=true；本地无自动化测试/LLM离线回放。科学包仅skills/文档变化，scientific tests_receipt=not_run_skills_documents_only、passed=null；不能把该null写成通过，也不能说此次两端未测试。安装前后127项历史关键hash保持，科学Python兼容，显式复用既有原生验收，无prepare/native迁移或新原生采样。
+
+真实V27→V28 review-check为两教师四上下文、full_review_completed=false，approval SHA 6b8ae80a74a2403feb833e2f9ea0a498ac9281e246ee0798f8f70d62d324d47a。U1及完整科学政策保持。V27相对V26完整退步1，历史最好V17，尚不回滚。
+
+worker3607721，启动1792848416.9681938，runtime /opt/MolSteer/runtimes/agenticgen_d7d35b13。实际核验1792848428.2286682进程存活、命令身份匹配，无launch后新failure；两教师pipeline尚未落盘，初始bootstrap不代表首轮完成。禁止重复deploy/批准/start或为文档同步切换科学源。
+
+六份远端JSON逐字节SHA核验并保存，source_manifest同时保留历史失败来源。完整控制收据.cache/v28_8a07160a_ghfast_deployment.json。前次API/Git/ghfast超时及连接诊断均保留，不计入科学失败候选，不重跑V27。
+
+后续35分钟仅巡检活动V28。V30真实FINALIZED且质量/保留/清理完成、完整报告交付并commit/push保存最终代码/配置/skills及来源后删除任务。当前仅LLM协助gradient guidance，撤回后续方向不恢复。
+
+下文为失败历史，不是当前状态：
+
 # V28部署：ghfast后备克隆超时
 
 2026-10-24最新用户授权ghfast镜像后备，实施提交72e8a6d21161ae2b8805c409a8dc3e0204a7ef58。实际一次120秒有界bare clone超时退出124，收据1792846560.466603。网络fetch0、clone1、本地导入0、REST API0，无重试。日志只有开始克隆，不足以判断连接/传输具体阻塞阶段，也不证明仓库损坏。

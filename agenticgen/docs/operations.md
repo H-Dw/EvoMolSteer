@@ -1,5 +1,9 @@
 # Deployment and continuation
 
+2026-10-24最新：**V28已通过ghfast首个镜像成功安装、批准并启动**，其余三个镜像未尝试。科学d7d35b132a04c5b58964aad3cfcc552a792a9909，传输8a07160a6199bb05e50641094d973164c94e8c99，worker3607721，启动1792848416.9681938。一次clone/一次本地导入/API0；898部署blob及来源核验，127历史关键hash保持。
+实际远端传输相关test_reviewed_deploy.py通过；本地无自动化测试。科学skills/文档无需单元测试，scientific tests_receipt passed=null；科学Python兼容、显式复用原生验收，不称新原生采样。V27→V28有限门槛2教师4上下文/full_review_completed=false，U1保持，连续退步仍1、历史最好V17。
+核验1792848428.2286682存活/命令匹配/无新failure，初始bootstrap不是首轮完成。禁止重复部署、批准、启动或切源，恢复每35分钟仅活动V28正常SFTP巡检。见[成功部署收据](deployments/d7d35b13/README.zh-CN.md)。下方失败/等待记录均为历史。
+
 2026-10-24最新用户授权：依次尝试四个镜像https://ghfast.top/ → https://gh-proxy.com/ → https://ghproxy.net/ → https://gh.llkk.cc/。本轮每个一次有界120秒clone，独立缓存/日志；前一镜像clone连接或传输失败后才试下一个。成功clone立即停止切换，再本地导入和固定提交/hash/原正常门槛验证；源验证/测试/安装失败不能当网络失败切镜像。全部失败则停止，不循环、不REST API回退、不改代理/TLS/凭据。此前只允许ghfast的限制由此次明确列表替代，工具拒绝仍必须停止。V28科学目标d7d35b13不变，本地无自动化测试，实际验证/启动待收据。
 
 2026-10-24最新：用户授权ghfast后备已实施并实际尝试，传输72e8a6d2、科学d7d35b13；一次clone在120秒超时退出124，fetch/API/本地导入均0。未抵达验证、安装或启动，V28仍未运行；本地无自动化测试。日志只有开始克隆，具体阻塞阶段未知，缓存状态未知且不自动覆盖/删除。失败不盲重试，后续先inspect已有缓存；见[镜像尝试收据](deployments/d7d35b13/ghfast_deployment_failure.json)。下方为历史。
