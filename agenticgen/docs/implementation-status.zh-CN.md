@@ -1,5 +1,14 @@
 # agenticgen 实现与运行状态
 
+2026-10-24最新：**V24完成有限评估，V25已真实批准并启动**。
+固定`5401fb410856f14d9c19416b1eb0cd6e154d79b3`，worker3396400，启动1792829845.5593977，runtime `/opt/MolSteer/runtimes/agenticgen_5401fb41`。
+官方GitHub API固定安装成功，115项历史关键hash保持；科学Python兼容，显式复用原生验收。
+仅skills/文档，两端未跑单元测试，无离线回放；真实V24→V25门槛2教师4上下文、full_review_completed=false。
+V24代表Mean4.212030363/4.210610590，等权gap较V23增加0.000350633，连续退步2、历史最好V17，已按原门槛恢复V17兼容策略，目标未达成。
+V25精确恢复V17三份skills及完整政策，保留已验证资格上下文；U1及全部科学设置保持。
+实际核验1792829853.7254612存活、命令匹配、无新failure；初始bootstrap不代表首轮完成，不重复启动或切源。
+见[部署收据](deployments/5401fb41/README.zh-CN.md)。V6–V24不prepare/重跑。35分钟及V30后休眠交接保持；下方为历史。
+
 2026-10-24最新：**V24已FINALIZED并完成有限评估；连续两次完整退步，V25待恢复V17兼容策略后正常部署**。
 Top1 R5G1、Top2 R5G2四上下文与40聚合；full_review_completed=false，均无R6。Mean4.212030363/4.210610590，较V23等权gap增加0.000350633。历史最好V17，目标未达成。
 V25精确恢复V17三份skills及完整U1政策，保留已验证资格上下文修复；不叠加新模块。来源及兼容说明见[有限评估](experiments/v24_strategy_review/review.zh-CN.md)。
