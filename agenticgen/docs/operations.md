@@ -1,5 +1,15 @@
 # Deployment and continuation
 
+2026-10-24最新：**V20完成有限评估，V21已真实批准并启动**。
+固定`4c4aa68fc9a04484dcdafd47bf21073c9171af24`，worker3062244，启动1792808701.2966416，runtime `/opt/MolSteer/runtimes/agenticgen_4c4aa68f`。
+官方GitHub API固定获取/安装成功，96项历史关键hash保持，科学Python兼容、复用原生验收。
+仅三份skills/文档，两端未跑单元测试；真实V20→V21门槛为2教师4上下文，full_review_completed=false。
+V20代表Mean4.212030363/4.164918499，等权gap较V19增加0.023780193，连续退步1、历史最好V17，尚不回滚。
+V21改写失败样本与区域边界的区分，以及有方向/背景的响应路径；U1和全部科学设置保持，目标未达成。
+初始核验1792808713.2503133存活、身份匹配且无新failure，不代表首轮完成；不重复启动或为文档同步切换科学源。
+见[实际部署](deployments/4c4aa68f/README.zh-CN.md)。V6–V20不prepare/重跑，下方旧状态为历史。
+35分钟巡检保持；V30后补充计划继续休眠并保留交接。
+
 2026-10-24最新：**V20已FINALIZED并完成有限评估，V21待正常固定部署**。
 两教师各五轮1000记录及质量/汇总/保留/清理完整，无新故障，原1ef63971 analyze成功。
 仅Top1 R5G2、Top2 R5G1私有/汇总四上下文与40聚合组，full_review_completed=false；后续提案仅归档。
