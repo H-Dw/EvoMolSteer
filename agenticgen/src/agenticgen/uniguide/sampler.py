@@ -9,6 +9,7 @@ import torch
 from .io import read, write, sha, frozen, value_sha, Budget
 from .native_tools import cpu, device, detach, tensor_digest, save_pt, load_pt
 from .batching import join, take
+from .chunking import ROWS,concatenate
 from .random_streams import NativeStreams, capture
 from .condition import loss, guidance_delta, finite
 from .protocol import expand, SEEDS, WINDOWS
@@ -74,30 +75,44 @@ class Control:
         self.times,self.dt=times,dt
         entry=tensor_digest(capture())
         scale=self.schedule[step]
-        with torch.set_grad_enabled(scale!=0):
-            x=self.before.clone().requires_grad_(scale!=0)
-            out=self.model(dict(curr,coords=x),pocket,times,cond_batch=detach(cond),pocket_equis=equis,pocket_invs=invs,training=False)
-            for value in out.get("affinity",{}).values():
-                if torch.is_tensor(value) and value.requires_grad:
-                    def denied(g): raise RuntimeError("Affinity head entered coordinate VJP")
-                    value.register_hook(denied)
-            pred,_=self.model._get_predictions(out)
-            endpoint=pred["coords"]*self.model.coord_scale+self.com[:,None]
-            value,target,selected,assignment=loss(endpoint,self.teacher["core_A"],curr["mask"].bool())
-            gradient=torch.autograd.grad(value.sum(),x)[0].detach() if scale else torch.zeros_like(x)
+        blocks=[];sizes=[]
+        count=len(self.before)
+        for start in range(0,count,ROWS):
+            ids=list(range(start,min(start+ROWS,count)))
+            current=take(curr,ids,count)
+            with torch.set_grad_enabled(scale!=0):
+                x=current["coords"].detach().clone().requires_grad_(scale!=0)
+                out=self.model(dict(current,coords=x),take(pocket,ids,count),take(times,ids,count),
+                    cond_batch=detach(take(cond,ids,count)),pocket_equis=take(equis,ids,count),pocket_invs=take(invs,ids,count),training=False)
+                for head in out.get("affinity",{}).values():
+                    if torch.is_tensor(head) and head.requires_grad:
+                        def denied(g): raise RuntimeError("Affinity head entered coordinate VJP")
+                        head.register_hook(denied)
+                head=None
+                pred,_=self.model._get_predictions(out)
+                endpoint=pred["coords"]*self.model.coord_scale+self.com[ids,None]
+                value,target,selected,assignment=loss(endpoint,self.teacher["core_A"],current["mask"].bool())
+                gradient=torch.autograd.grad(value.sum(),x)[0] if scale else torch.zeros_like(x)
+            blocks.append(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
+                                      selected=selected,assignment=assignment,gradient=gradient)))
+            sizes.append(len(ids))
+            del out,pred,endpoint,value,target,selected,assignment,gradient,x
+        combined=concatenate(blocks,sizes)
+        out,pred,endpoint,value,target,selected,assignment,gradient=(combined[k] for k in
+            ["out","pred","endpoint","value","target","selected","assignment","gradient"])
         finite("loss",value);finite("input gradient",gradient)
         if tensor_digest(capture())!=entry: raise ValueError("Forward/VJP consumed sampling RNG")
         gamma=self.model.integrator.noise_scheduler(times[0][0])
-        self.delta,coefficient=guidance_delta(gradient,times[0],dt,[scale]*len(x),gamma,curr["mask"])
+        self.delta,coefficient=guidance_delta(gradient,times[0],dt,[scale]*count,gamma,curr["mask"])
         self.velocity=(pred["coords"].detach()-self.before)/(1-times[0][:,None,None])
         q=(times[0][:,None,None]*self.velocity-self.before)/(1-times[0]+1e-6)[:,None,None]
         self.drift=self.velocity+gamma*q
-        switches=(assignment!=self.last_assignment).float().mean(1).tolist() if self.last_assignment is not None else [0.]*len(x)
+        switches=(assignment!=self.last_assignment).float().mean(1).tolist() if self.last_assignment is not None else [0.]*count
         self.last_assignment=assignment
         self.rows.append(dict(step=step,time=float(times[0][0]),dt=float(dt),scale=scale,
             gamma=float(gamma),coefficient=coefficient.tolist(),loss=value.detach().tolist(),
             assignment_switch_fraction=switches,gradient_norm=gradient.flatten(1).norm(dim=1).tolist(),affinity_vjp=False))
-        for key,v in {"endpoint_A":endpoint,"current_A":x*self.model.coord_scale+self.com[:,None],
+        for key,v in {"endpoint_A":endpoint,"current_A":self.before*self.model.coord_scale+self.com[:,None],
                       "target_A":target,"input_gradient":gradient,"guidance_delta_A":self.delta*self.model.coord_scale,
                       "assignment":assignment,"selected":selected,"mask":curr["mask"],"native_drift":self.drift}.items():
             self.store(key,step,v)
@@ -116,6 +131,7 @@ class Control:
         self.store("native_proposal",step,native)
         self.store("guided_proposal",step,result["coords"])
         self.rows[-1].update(max_atom_increment_A=(self.delta*self.model.coord_scale).norm(dim=-1).amax(1).tolist(),
+            sampling_rng_after_sha256=tensor_digest(self.random_streams.states),
             delta_native_ratio=(self.delta.flatten(1).norm(dim=1)/(native-self.before).flatten(1).norm(dim=1).clamp_min(1e-12)).tolist())
         if step%10==9:
             self.trace.flush();write(self.folder/"steps.json",self.rows)
@@ -226,6 +242,17 @@ def execute(model,config,teacher,schedule,folder,stage,count=50,resume_path=None
     write(folder/"records.json",rows)
     aggregate=summarize(rows,teacher,run_id,schedule)
     aggregate["window_diagnostics"]=diagnostics(folder)
+    ledger={str(r["step"]):r["sampling_rng_after_sha256"] for r in read(folder/"steps.json")}
+    ref=Path(config["root"])/"random_stream_reference"/(teacher["target"]+".json")
+    if ref.exists():
+        reference=read(ref)
+        if any(reference.get(step)!=digest for step,digest in ledger.items()):
+            write(folder/"FAILED.json",{"type":"probability_dependent_native_rng_consumption"})
+            raise RuntimeError("Native RNG consumption changed across hypotheses or population layout")
+    elif len(ledger)==100:
+        frozen(ref,ledger)
+    else:
+        raise ValueError("A complete native RNG reference must precede resumed formal runs")
     write(folder/"aggregate.json",aggregate)
     write(folder/"COMPLETE.json",{"records_sha256":sha(folder/"records.json"),"manifest_sha256":sha(folder/"manifest.json")})
     return aggregate

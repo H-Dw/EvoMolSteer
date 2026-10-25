@@ -14,6 +14,8 @@ from .prepare import load_model
 from .sampler import sample,population,Control
 from .pipeline import source_binding
 from .condition import condition_map,coordinate_loss
+from .batching import take
+from .chunking import chunk_call
 
 
 class NativeStop(Exception): pass
@@ -22,8 +24,9 @@ class NativeStop(Exception): pass
 def real_model_vjp(model,config,teacher,state_path):
     """Directional finite difference through the real frozen endpoint predictor."""
     state=load_pt(state_path);initial=population(config,teacher["target"],50)
-    curr,cond,times=(device(state[k]) for k in ["current","cond","times"])
-    pocket=device(initial["pocket_target"]);com=initial["target_com"].to("cuda")
+    ids=list(range(10))
+    curr,cond,times=(device(take(state[k],ids,50)) for k in ["current","cond","times"])
+    pocket=device(take(initial["pocket_target"],ids,50));com=initial["target_com"][ids].to("cuda")
     with torch.no_grad():
         equis,invs=model.gen.get_pocket_encoding(pocket["coords"],pocket["atom_names"],
             pocket_atom_charges=pocket["charges"].argmax(-1),pocket_bond_types=pocket["bonds"].argmax(-1),
@@ -33,6 +36,13 @@ def real_model_vjp(model,config,teacher,state_path):
                   pocket_equis=equis,pocket_invs=invs,training=False)
         prediction,_=model._get_predictions(out)
         return prediction["coords"]*model.coord_scale+com[:,None]
+    with torch.no_grad():
+        args=(curr,pocket,times)
+        kwargs=dict(cond_batch=cond if model.self_condition else None,pocket_equis=equis,pocket_invs=invs,training=False)
+        full=model._ug_original_forward(*args,**kwargs)
+        chunks=chunk_call(model._ug_original_forward,args,kwargs,10,rows=5)
+        if not torch.allclose(full["coords"],chunks["coords"],atol=2e-5,rtol=2e-5):
+            raise ValueError("Physical chunking changed per-row model coordinates beyond numerical tolerance")
     x=curr["coords"].detach().clone().requires_grad_(True)
     predicted=endpoint(x)
     target,selected,_=condition_map(predicted,teacher["core_A"],curr["mask"].bool())
@@ -49,7 +59,8 @@ def real_model_vjp(model,config,teacher,state_path):
             errors.append(float(abs(numerical-norm)/norm))
     if max(errors)>.05: raise ValueError("Real FLOWR finite-difference VJP mismatch: "+str(errors))
     return {"relative_errors":errors,"epsilons":[.01,.005],"analytic_directional_derivative":float(norm),
-            "fixed_assignment":True,"condition_target_detached":True,"coord_scale":float(model.coord_scale)}
+            "fixed_assignment":True,"condition_target_detached":True,"coord_scale":float(model.coord_scale),
+            "physical_forward_partition_checked":True}
 
 
 def zero_delta_check(model,config,teacher,folder):
@@ -109,7 +120,7 @@ def run(config):
         del model;torch.cuda.empty_cache()
     receipt={"source_binding":source_binding(),"unit_tests":True,"gpu_checks":checks,"evidence_directory":str(folder),
         "torch_threads":torch.get_num_threads(),"torch_version":torch.__version__,"hip":torch.version.hip,
-        "scientific_zero_guidance_groups":0,"physical_layout":"one profile per call; five seeds, ten logical rows per seed for formal population; twenty-row native random draws",
+        "scientific_zero_guidance_groups":0,"physical_layout":"50 logical rows; network forward/VJP/pocket encoding chunks of 10; twenty-row native random draws per seed",
         "engineering_layout":"five seeds, ten logical rows each; short 3/12-step trajectories"}
     write(folder/"COMPLETE.json",receipt)
     write(root/"acceptance/COMPLETE.json",receipt)

@@ -177,6 +177,8 @@ def load_model(config, teacher, datasets=False):
         dt=get_dataset(st,transform,vocab,interpolant,args,hp)
         do=get_dataset(so,transform,vocab,interpolant,args,hp)
         return model,util.get_dataloader(args,dt,interpolant),util.get_dataloader(args,do,interpolant)
+    from .chunking import install
+    install(model)
     instrument(model, Path(config["root"])/"provenance/native")
     return model
 
