@@ -14,7 +14,7 @@ def concatenate(values,sizes):
         if any(not torch.equal(first,v) for v in values[1:]): raise ValueError("Non-row output differs between chunks")
         return first
     if isinstance(first,dict) or hasattr(first,"items"):
-        return {k:concatenate([v[k] for v in values],sizes) for k in first}
+        return {k:concatenate([v[k] for v in values],sizes) for k in first.keys()}
     if isinstance(first,(tuple,list)):
         return type(first)(concatenate([v[i] for v in values],sizes) for i in range(len(first)))
     if any(v!=first for v in values[1:]): raise ValueError("Non-row network metadata differs")
