@@ -57,6 +57,7 @@ def build_review(config,version):
             triggers[target]=teacher_triggers(old,new,old["profiles"],new["profiles"],vectors)
     request=dict(schema="ug-main-review-1",version=version,current=current,previous=previous,
         best=choose([v["overall"] for v in completed]),R0={p.parent.name:read(p) for p in (root/"R0").glob("*/aggregate.json")},
+        historical_unguided={p.parent.name:read(p)["matched50"] for p in (root/"baselines").glob("*/unguided.json")},
         strategy_contexts=current["strategy_contexts"],teacher_triggers=triggers,
         research_required=any(x["reasons"] for x in triggers.values()),base_checkpoint=base,
         recovery_required=recovery,no_best_rerun=True,next_version=None if version=="UG20" else f"UG{int(version[2:])+1:02d}",

@@ -94,8 +94,41 @@ def prepare_teachers(config):
         frozen(folder / "template.json", template)
         catalog.append(template)
     frozen(root / "teachers.json", catalog)
+    for template in catalog:
+        prepare_baseline(config,template)
     write(root / "TEACHERS_PREPARED.json", {"count":len(catalog), "templates_sha256":sha(root/"teachers.json")})
     return catalog
+
+
+def prepare_baseline(config,teacher):
+    """Reuse archived unguided coordinates and stored rescoring, with no new inference."""
+    from evomolsteer.storage.trajectory import TrajectoryPackage
+    from .condition import loss
+    root=Path(config["root"])
+    campaign=root/"sources/unguided"/teacher["target"]/"results/unguided_w050"
+    rows=read(campaign/"final_records.json")
+    if len(rows)!=100 or len({(r["batch"],r["slot"]) for r in rows})!=100:
+        raise ValueError("Historical unguided population is incomplete")
+    records=[];sources={}
+    for batch in range(5):
+        path=campaign/"unguided"/f"batch_{batch:03d}"/"terminal.h5"
+        sources[str(path)]=sha(path)
+        with TrajectoryPackage(path) as package:
+            coords=torch.as_tensor(package.read("coords",0))
+            mask=torch.as_tensor(package.read("mask",0)).bool()
+        values,_,_,_=loss(coords,teacher["core_A"],mask)
+        for row in rows:
+            if row["batch"]==batch:
+                if row["seed"]!=SEEDS[batch]: raise ValueError("Historical baseline seed mismatch")
+                records.append(dict(row,condition_rmsd_A=float((2*values[row["slot"]]).sqrt()),
+                    matched_formal_population=row["slot"]<10))
+    def aggregate(subset):
+        scores=np.array([r["pic50_on_rescore"] for r in subset]);c=np.array([r["condition_rmsd_A"] for r in subset])
+        return dict(attempts=len(subset),C=float(c.mean()),mean_pic50=float(scores.mean()),
+                    gap=float(abs(scores.mean()-teacher["pic50"])),best=float(scores.max()),
+                    score_source="archived stored final-pose rescoring; no new rescoring")
+    frozen(root/"baselines"/teacher["target"]/"unguided.json",dict(records=records,source_hashes=sources,
+        all100=aggregate(records),matched50=aggregate([r for r in records if r["matched_formal_population"]]),new_samples=0))
 
 
 def load_model(config, teacher, datasets=False):
