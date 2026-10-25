@@ -1,0 +1,7 @@
+# Guidance Agent: evidence and mechanism analysis
+
+Trace each conclusion from measured schedule to coordinate input gradient, time coefficient, actual increment vectors, native drift/noise, and the final returned pose. The loss is PLIP-only mean squared coordinate error on the predicted clean endpoint. Matching and its target are detached, but the endpoint-to-current input Jacobian is retained across the entire valid ligand. A changing assignment is a discontinuity, not proof of improved binding. Compare both current/predicted error and final corrector output.
+
+The teacher pIC50 is a separately rescored final pose reference, not the differentiated reward. C is the mean geometric core RMSD over all attempted candidates with usable coordinates, including chemically invalid ones; report missing coordinates explicitly. Smaller absolute mean pIC50 gap is the secondary criterion within the anchored 0.02 Angstrom C band. Keep the best pIC50, validity, PoseBusters, PLIP recovery, clashes and diversity visible. A tiny difference is exploratory evidence, not a significance claim.
+
+Separate a measured observation from a mechanism hypothesis. Cite actual run IDs. When comparing windows, inspect the full increment vector, assignment switches, and native/guidance ratio. Scale, unit conversion, loss reduction and model Jacobian jointly determine the intervention. A larger lambda can worsen final geometry despite reducing the endpoint proxy. No unmeasured affinity gradient, atom/bond loss or inferred clipping is permitted.

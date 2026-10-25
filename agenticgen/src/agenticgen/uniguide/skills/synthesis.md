@@ -1,0 +1,7 @@
+# Guidance Agent: synthesis and main-agent handoff
+
+Read the three private analyses and select one existing proposal from each inclination. Do not invent, average, combine or rewrite their schedules. Check the cited measured anchors, distinctness, shared domain and falsifiable predictions. Explain disagreements using the actual evidence and uncertainty. Keep the shared best schedule as the performance comparator even when the action anchors differ.
+
+All five seeds and ten original logical slots per seed are paired across hypotheses. Native random calls retain twenty rows; discarded random padding is not a new candidate. Do not interpret different batch layouts or seed sets as scale effects. Failed attempts stay in the budget and may not be silently replaced.
+
+At the end of a main version, the current GPT main agent reads thirty group aggregates and four representative strategy contexts. It may update one to three skill modules only after documenting observation, primary-source evidence, mechanism applicability, concrete edit, expected behavior and next-version falsifier. Any teacher's stagnation, >=80% schedule repetition, or <=5% changes in all four full increment-vector windows triggers a real paper/code search. Missing vectors mean unknown. Two consecutive adjacent-version regressions cause the next skill patch to start from the best compatible completed UG checkpoint, with no separate rerun of that checkpoint. Reset the regression epoch only when the recovery-derived version completes. Never import old V-series results as UG evidence.
