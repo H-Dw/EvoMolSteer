@@ -137,6 +137,9 @@ def sample(model,config,teacher,schedule,folder,count=50,resume_path=None,stop_s
     try:
         output=model._generate_selective(prior=prior,pocket_data_target=pt,pocket_data_untarget=po,
             steps=100,times=[torch.zeros(count,device="cuda") for _ in range(3)],apply_guidance=False,coord_noise_level=.2)
+        finite("native final corrector coordinates",output["coords"])
+        for key,value in output.get("affinity",{}).items():
+            if torch.is_tensor(value): finite("terminal affinity "+key,value)
         save_pt(Path(folder)/"terminal.pt.gz",output)
         return output,pt,po,control
     except StopIteration:
@@ -194,6 +197,9 @@ def execute(model,config,teacher,schedule,folder,stage,count=50,resume_path=None
     output,pt,po,control=sample(model,config,teacher,schedule,folder,count,resume_path)
     scoring=SimpleNamespace(pt=pt,po=po,arm="ug",batch=0,seed=None,roots=np.arange(count),parents=np.arange(count),events=[None]*100)
     rows=final_metrics(model,output,scoring,folder)
+    if not all(np.isfinite(r["pic50_on_rescore"]) for r in rows):
+        write(folder/"FAILED.json",{"type":"nonfinite_terminal_rescore","no_weaker_retry":True})
+        raise FloatingPointError("Nonfinite terminal rescore")
     values,_,_,assignment=loss(output["coords"],teacher["core_A"],output["mask"].bool())
     for slot,row in enumerate(rows):
         row.update(condition_rmsd_A=float((2*values[slot]).sqrt()),assignment=assignment[slot].tolist(),

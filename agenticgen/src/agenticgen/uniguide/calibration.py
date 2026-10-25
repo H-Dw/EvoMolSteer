@@ -132,6 +132,9 @@ def run(config):
                         write(failure,row)
                         # This profile is failed, with its attempts charged. No weaker retry.
                 row=dict(row,target=teacher["target"],phase=phase)
+                if phase=="full" and row["complete"]:
+                    from .quality import assess
+                    row["quality"]=assess(out,teacher)
                 phase_rows.append(row)
                 print({"phase":phase,"target":teacher["target"],"profile":index,"complete":row["complete"]},flush=True)
             del model;torch.cuda.empty_cache()
