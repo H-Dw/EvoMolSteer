@@ -41,6 +41,11 @@ def real_model_vjp(model,config,teacher,state_path):
         kwargs=dict(cond_batch=cond if model.self_condition else None,pocket_equis=equis,pocket_invs=invs,training=False)
         full=model._ug_original_forward(*args,**kwargs)
         chunks=chunk_call(model._ug_original_forward,args,kwargs,10,rows=5)
+        difference=full["coords"]-chunks["coords"]
+        write(Path(state_path).parent/"chunk_comparison.json",{
+            "max_abs_native":float(difference.abs().max()),"rms_native":float(difference.square().mean().sqrt()),
+            "per_row_max_abs":difference.flatten(1).abs().amax(1).tolist(),
+            "full_abs_max":float(full["coords"].abs().max()),"torch_matmul_precision":torch.get_float32_matmul_precision()})
         if not torch.allclose(full["coords"],chunks["coords"],atol=2e-5,rtol=2e-5):
             raise ValueError("Physical chunking changed per-row model coordinates beyond numerical tolerance")
     x=curr["coords"].detach().clone().requires_grad_(True)
