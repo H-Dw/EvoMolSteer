@@ -201,10 +201,28 @@ def execute(model,config,teacher,schedule,folder,stage,count=50,resume_path=None
         write(folder/"FAILED.json",{"type":"nonfinite_terminal_rescore","no_weaker_retry":True})
         raise FloatingPointError("Nonfinite terminal rescore")
     values,_,_,assignment=loss(output["coords"],teacher["core_A"],output["mask"].bool())
+    renamed={}
     for slot,row in enumerate(rows):
+        old_id=row["node_id"]
+        batch,index=divmod(slot,count//5)
         row.update(condition_rmsd_A=float((2*values[slot]).sqrt()),assignment=assignment[slot].tolist(),
-            logical_seed=SEEDS[slot//(count//5)],logical_slot=slot%(count//5),
+            node_id=f"ug_b{batch:03d}_final_{index:03d}",batch=batch,slot=index,root_slot=index,parent_slot=index,
+            seed=SEEDS[batch],logical_seed=SEEDS[batch],logical_slot=index,tensor_row=slot,
             coordinate_source="native final corrector prediction returned by sampler; separately preserve state at step 100")
+        renamed[old_id]=row
+    # The generic scorer emits flat row IDs; publish the actual seed/slot identity
+    # consistently in both structures and records without changing coordinates.
+    from rdkit import Chem
+    for name in ["molecules_all_built.sdf","molecules_raw_decodable.sdf"]:
+        path=folder/name
+        molecules=[m for m in Chem.SDMolSupplier(str(path),sanitize=False,removeHs=False) if m is not None]
+        with Chem.SDWriter(str(path)) as writer:
+            for mol in molecules:
+                row=renamed[mol.GetProp("node_id")]
+                for key in ["node_id","batch","slot","root_slot","parent_slot","seed","logical_seed","logical_slot","tensor_row"]:
+                    mol.SetProp(key,str(row[key]))
+                writer.write(mol)
+    write(folder/"final_records.json",rows)
     write(folder/"records.json",rows)
     aggregate=summarize(rows,teacher,run_id,schedule)
     aggregate["window_diagnostics"]=diagnostics(folder)
