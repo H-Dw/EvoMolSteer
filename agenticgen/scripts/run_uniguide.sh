@@ -2,6 +2,7 @@
 set -euo pipefail
 source /opt/MolSteer/scripts/scnet/activate_dtk.sh
 cd /workspace/EvoMolSteer
+export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8
 export PYTHONPATH="/workspace/uniguide_deps:/workspace/EvoMolSteer/agenticgen/src:/workspace/EvoMolSteer/src:/opt/MolSteer/flowr_root${PYTHONPATH:+:$PYTHONPATH}"
 exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide \
   --config /workspace/EvoMolSteer/agenticgen/configs/uniguide_flowr.json "$@"

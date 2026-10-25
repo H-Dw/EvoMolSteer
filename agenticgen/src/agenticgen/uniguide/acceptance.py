@@ -108,6 +108,7 @@ def run(config):
         checks[target]["frozen_parameters"]=True
         del model;torch.cuda.empty_cache()
     receipt={"source_binding":source_binding(),"unit_tests":True,"gpu_checks":checks,"evidence_directory":str(folder),
+        "torch_threads":torch.get_num_threads(),"torch_version":torch.__version__,"hip":torch.version.hip,
         "scientific_zero_guidance_groups":0,"physical_layout":"one profile per call; five seeds, ten logical rows per seed for formal population; twenty-row native random draws",
         "engineering_layout":"five seeds, ten logical rows each; short 3/12-step trajectories"}
     write(folder/"COMPLETE.json",receipt)

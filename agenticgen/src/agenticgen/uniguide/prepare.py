@@ -132,6 +132,9 @@ def prepare_baseline(config,teacher):
 
 
 def load_model(config, teacher, datasets=False):
+    # Small CPU reductions otherwise oversubscribe this 128-core host. Frozen
+    # priors are still checked bit-for-bit against the native historical arrays.
+    torch.set_num_threads(8)
     flowr = Path(config["flowr"])
     sys.path.insert(0, str(flowr))
     import flowr as imported
