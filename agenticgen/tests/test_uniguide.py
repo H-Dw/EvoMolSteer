@@ -136,3 +136,60 @@ def test_chunking_preserves_nested_native_tensordict_and_input_jacobian():
     assert torch.equal(output['coords'],x.square())
     assert torch.equal(output['affinity']['pic50'],x.sum(-1,keepdim=True))
     assert torch.equal(torch.autograd.grad(output['coords'].sum(),x)[0],2*x)
+
+
+def test_version_snapshot_is_immutable_and_ug21_is_rejected(tmp_path):
+    from agenticgen.uniguide.pipeline import freeze_version
+    seed=tmp_path/'UG_INIT/skills';seed.mkdir(parents=True)
+    (seed/'analysis.md').write_text('Selected V17 ideas, no old scores')
+    config={'root':str(tmp_path),'llm':{'model':'deepseek-flash'}}
+    domain={'initial':[1.]*4,'min_index':-4,'max_index':4}
+    first=freeze_version(config,'UG01',domain)
+    assert first['base_checkpoint']=='UG_INIT' and first['dynamic_memory_reset']
+    assert freeze_version(config,'UG01',domain)==first
+    (tmp_path/'versions/UG01/skills/analysis.md').write_text('illegal mid-version edit')
+    with pytest.raises(ValueError): freeze_version(config,'UG01',domain)
+    with pytest.raises(ValueError): freeze_version(config,'UG21',domain)
+
+
+def test_final_version_review_never_schedules_ug21(tmp_path):
+    from agenticgen.uniguide.review import build_review
+    from agenticgen.uniguide.io import write
+    folder=tmp_path/'versions/UG20'
+    write(folder/'FINALIZED.json',{'id':'UG20','overall':row('UG20',.3,.2),'teachers':{},'strategy_contexts':['a','b','c','d']})
+    result=build_review({'root':str(tmp_path)},'UG20')
+    assert result['next_version'] is None and result['no_best_rerun']
+
+
+def test_synthesis_selects_existing_actions_and_final_round_has_no_proposals(tmp_path,monkeypatch):
+    import jsonschema
+    import agenticgen.uniguide.council as council
+    from agenticgen.uniguide.io import write
+    for phase in ['coarse','fine','windows','full']:
+        write(tmp_path/'calibration'/(phase+'_results.json'),[])
+    skills=tmp_path/'skills';skills.mkdir();(skills/'policy.md').write_text('Fixture policy')
+    history=[dict(row('R0',1.,.2),schedule=[1.]*4)]
+    teacher={'target':'test','node_id':'t','pic50':8.,'heavy_atoms':17}
+    domain={'min_index':-4,'max_index':4}
+    options={'increase':[[2,1,1,1],[1,2,1,1]],'decrease':[[.5,1,1,1],[1,.5,1,1]],
+             'redistribute':[[2,.5,1,1],[1,1,2,.5]]}
+    calls=[]
+    def provider(messages,schema,output,response_validator,**kwargs):
+        name=output.stem;calls.append(name)
+        if name=='synthesis':
+            result={'analysis':'measured comparison','choice_evidence':'existing candidate IDs'}
+            if 'selected' in schema['properties']:result['selected']={b:b+':0' for b in options}
+        else:
+            proposals=[]
+            if schema['properties']['proposals']['maxItems']:
+                proposals=[dict(id=str(i),branch=name,anchor_id='R0',anchor_reason='measured',mode='coarse',schedule=s,
+                    evidence='R0',prediction='testable',falsifier='wrong direction') for i,s in enumerate(options[name])]
+            result={'analysis':'measured','mechanism_uncertainty':'explicit','proposals':proposals}
+        jsonschema.validate(result,schema);response_validator(result)
+        return result
+    monkeypatch.setattr(council,'call_json',provider)
+    config={'root':str(tmp_path),'llm':{}}
+    selected=council.advise(config,teacher,'UG01',1,history,domain,skills,tmp_path/'R1')
+    assert [p['schedule'] for p in selected]==[options[b][0] for b in options]
+    assert calls==['increase','decrease','redistribute','synthesis']
+    assert council.advise(config,teacher,'UG01',5,history,domain,skills,tmp_path/'R5',final=True)==[]
