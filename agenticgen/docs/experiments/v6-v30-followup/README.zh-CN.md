@@ -86,6 +86,7 @@
 
 ## 文件与来源
 
+- [最佳V17：五轮guidance行为、实际效果与五套图表](../v17-round-by-round/report.zh-CN.md)
 - [逐版问题、改动、效果与全部R1–R5聚合](iteration_retrospective.zh-CN.md)
 - [模板构象与pIC50对照](performance_comparison.zh-CN.md)
 - [远端资料保留路径清单](remote_retention_inventory.zh-CN.md)
