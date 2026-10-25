@@ -6,7 +6,7 @@ import pytest
 import torch
 from agenticgen.uniguide.condition import condition_map,coordinate_loss,guidance_delta
 from agenticgen.uniguide.protocol import validate_action,choose,coarse_scales,expand,regressed
-from agenticgen.uniguide.io import Budget,read
+from agenticgen.uniguide.io import Budget,read,frozen
 from agenticgen.uniguide.review import teacher_triggers,recover_base,vector_change
 
 
@@ -65,6 +65,13 @@ def test_budget_failed_attempts_remain_charged(tmp_path):
     with pytest.raises(ValueError): b.reserve('b','calibration',20,'y')
     with pytest.raises(ValueError): b.reserve('a','calibration',10,'y')
     b.reserve('b','calibration',10,'y');assert sum(x['count'] for x in read(tmp_path/'attempts.json').values())==5000
+
+
+def test_frozen_json_roundtrip_does_not_reject_plip_tuples(tmp_path):
+    p=tmp_path/'template.json'
+    frozen(p,{'fingerprints':[('hbond',1,'A')]})
+    frozen(p,{'fingerprints':[('hbond',1,'A')]})
+    with pytest.raises(ValueError): frozen(p,{'fingerprints':[('hbond',2,'A')]})
 
 
 def row(i,c,g): return {'id':i,'C':c,'gap':g,'best':8.,'complete':True}

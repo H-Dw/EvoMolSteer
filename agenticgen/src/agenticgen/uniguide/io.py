@@ -32,7 +32,7 @@ def value_sha(value):
 
 def frozen(path, value):
     if Path(path).exists():
-        if read(path) != value:
+        if value_sha(read(path)) != value_sha(value):
             raise ValueError(f"Frozen artifact changed: {path}")
     else:
         write(path, value)
