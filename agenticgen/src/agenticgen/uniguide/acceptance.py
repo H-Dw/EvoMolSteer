@@ -12,9 +12,43 @@ from .native_tools import device,cpu,load_pt,tensor_digest
 from .prepare import load_model
 from .sampler import sample,population,Control
 from .pipeline import source_binding
+from .condition import condition_map,coordinate_loss
 
 
 class NativeStop(Exception): pass
+
+
+def real_model_vjp(model,config,teacher,state_path):
+    """Directional finite difference through the real frozen endpoint predictor."""
+    state=load_pt(state_path);initial=population(config,teacher["target"],50)
+    curr,cond,times=(device(state[k]) for k in ["current","cond","times"])
+    pocket=device(initial["pocket_target"]);com=initial["target_com"].to("cuda")
+    with torch.no_grad():
+        equis,invs=model.gen.get_pocket_encoding(pocket["coords"],pocket["atom_names"],
+            pocket_atom_charges=pocket["charges"].argmax(-1),pocket_bond_types=pocket["bonds"].argmax(-1),
+            pocket_res_types=pocket["res_names"],pocket_atom_mask=pocket["mask"])
+    def endpoint(x):
+        out=model(dict(curr,coords=x),pocket,times,cond_batch=cond if model.self_condition else None,
+                  pocket_equis=equis,pocket_invs=invs,training=False)
+        prediction,_=model._get_predictions(out)
+        return prediction["coords"]*model.coord_scale+com[:,None]
+    x=curr["coords"].detach().clone().requires_grad_(True)
+    predicted=endpoint(x)
+    target,selected,_=condition_map(predicted,teacher["core_A"],curr["mask"].bool())
+    gradient=torch.autograd.grad(coordinate_loss(predicted,target,selected).sum(),x)[0].detach()
+    norm=gradient.norm()
+    if not torch.isfinite(norm) or norm<=1e-8: raise ValueError("Real model input Jacobian is zero/nonfinite")
+    direction=gradient/norm
+    errors=[]
+    with torch.no_grad():
+        for eps in [.01,.005]:
+            plus=coordinate_loss(endpoint(x.detach()+eps*direction),target,selected).sum()
+            minus=coordinate_loss(endpoint(x.detach()-eps*direction),target,selected).sum()
+            numerical=(plus-minus)/(2*eps)
+            errors.append(float(abs(numerical-norm)/norm))
+    if max(errors)>.05: raise ValueError("Real FLOWR finite-difference VJP mismatch: "+str(errors))
+    return {"relative_errors":errors,"epsilons":[.01,.005],"analytic_directional_derivative":float(norm),
+            "fixed_assignment":True,"condition_target_detached":True,"coord_scale":float(model.coord_scale)}
 
 
 def zero_delta_check(model,config,teacher,folder):
@@ -57,10 +91,13 @@ def run(config):
     if result.returncode: raise RuntimeError("Remote unit/contract tests failed; inspect acceptance/pytest.log")
     checks={}
     for teacher in read(root/"teachers.json"):
+        if teacher["core_sdf_atoms"]!=teacher["plip_profile"]["core_atoms"]:
+            raise ValueError("Teacher condition expanded beyond direct PLIP atoms")
         target=teacher["target"];out=folder/target
         model=load_model(config,teacher)
         checks[target]={"zero_delta":zero_delta_check(model,config,teacher,out/"zero")}
         sample(model,config,teacher,[1.]*4,out/"continuous",50,stop_step=12)
+        checks[target]["real_model_vjp"]=real_model_vjp(model,config,teacher,out/"continuous/checkpoint_010.pt.gz")
         sample(model,config,teacher,[1.]*4,out/"resumed",50,resume_path=out/"continuous/checkpoint_010.pt.gz",stop_step=12)
         a=load_pt(out/"continuous/checkpoint_012.pt.gz");b=load_pt(out/"resumed/checkpoint_012.pt.gz")
         same={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ["current","cond","times","stream_states"]}
