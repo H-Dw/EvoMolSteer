@@ -90,6 +90,8 @@ class Control:
                         head.register_hook(denied)
                 head=None
                 pred,_=self.model._get_predictions(out)
+                for key in ["coords","atomics","charges","bonds","hybridization"]:
+                    if key in pred: finite("native prediction "+key,pred[key])
                 endpoint=pred["coords"]*self.model.coord_scale+self.com[ids,None]
                 value,target,selected,assignment=loss(endpoint,self.teacher["core_A"],current["mask"].bool())
                 gradient=torch.autograd.grad(value.sum(),x)[0] if scale else torch.zeros_like(x)
@@ -231,7 +233,8 @@ def execute(model,config,teacher,schedule,folder,stage,count=50,resume_path=None
     from rdkit import Chem
     for name in ["molecules_all_built.sdf","molecules_raw_decodable.sdf"]:
         path=folder/name
-        molecules=[m for m in Chem.SDMolSupplier(str(path),sanitize=False,removeHs=False) if m is not None]
+        molecules=([m for m in Chem.SDMolSupplier(str(path),sanitize=False,removeHs=False) if m is not None]
+                   if path.stat().st_size else [])
         with Chem.SDWriter(str(path)) as writer:
             for mol in molecules:
                 row=renamed[mol.GetProp("node_id")]

@@ -24,6 +24,7 @@ def condition_map(endpoint_A, core_A, valid):
             if len(ids) < len(core):
                 raise ValueError("Too few valid generated slots for injective conditioning")
             cost = (core[:, None] - endpoint_A[b, ids][None]).square().sum(-1)
+            finite("matching cost",cost)
             rows, cols = linear_sum_assignment(cost.detach().cpu().double().numpy())
             slots = ids[torch.as_tensor(cols[np.argsort(rows)], device=ids.device)]
             target[b, slots] = core

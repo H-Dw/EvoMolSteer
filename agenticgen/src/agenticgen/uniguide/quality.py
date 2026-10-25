@@ -5,15 +5,22 @@ from .io import read,write,sha
 from .profiling import profile_task,quality
 
 
+def built_molecules(path):
+    path=Path(path)
+    return ({m.GetProp("node_id"):m for m in Chem.SDMolSupplier(str(path),removeHs=True) if m is not None}
+            if path.stat().st_size else {})
+
+
 def assess(folder,teacher):
     folder=Path(folder)
     if (folder/"QUALITY_COMPLETE.json").exists(): return read(folder/"QUALITY_COMPLETE.json")
-    mols={m.GetProp("node_id"):m for m in Chem.SDMolSupplier(str(folder/"molecules_all_built.sdf"),removeHs=True) if m is not None}
+    mols=built_molecules(folder/"molecules_all_built.sdf")
     rows=read(folder/"records.json");results=[]
     for row in rows:
         mol=mols.get(row["node_id"])
         if mol is None:
-            results.append(dict(node_id=row["node_id"],quality=quality(None,teacher["protein"]),build_success=False))
+            q=quality(None,teacher["protein"]);q["severe_clash"]=None
+            results.append(dict(node_id=row["node_id"],quality=q,build_success=False))
             continue
         result=profile_task(dict(node_id=row["node_id"],molblock=Chem.MolToMolBlock(mol),protein=teacher["protein"],out=str(folder/"profiles"/row["node_id"])))
         profile=read(result["profile_path"])
@@ -25,7 +32,9 @@ def assess(folder,teacher):
     receipt={"attempts":len(rows),"built":sum(r["build_success"] for r in results),
         "posebusters_pass":sum(r["quality"].get("posebusters_pass",False) for r in results),
         "valid_connected":sum(r["quality"].get("valid_connected",False) for r in results),
-        "severe_clash":sum(r["quality"].get("severe_clash",False) for r in results),
+        "severe_clash":sum(bool(r["quality"].get("severe_clash")) for r in results),
+        "clash_evaluable":sum(r["quality"].get("severe_clash") is not None for r in results),
+        "plip_evaluable":sum(r["build_success"] for r in results),
         "quality_sha256":sha(folder/"quality.json"),"records_sha256":sha(folder/"records.json")}
     write(folder/"QUALITY_COMPLETE.json",receipt)
     return receipt
@@ -49,7 +58,7 @@ def retention(root,teacher,groups,winner,folder):
     for row in top:
         group=row["source_group"]
         if group not in loaded:
-            loaded[group]={m.GetProp("node_id"):m for m in Chem.SDMolSupplier(str(root/group/"molecules_all_built.sdf")) if m is not None}
+            loaded[group]=built_molecules(root/group/"molecules_all_built.sdf")
         mol=loaded[group].get(row["node_id"])
         if mol is not None:
             mol.SetProp("source_group",group);writer.write(mol)

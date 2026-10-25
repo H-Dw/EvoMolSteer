@@ -47,6 +47,7 @@ def test_condition_map_injective_and_unmatched_targets_equal_prediction():
     assert set(ids[0].tolist())=={0,1}
     assert torch.equal(target[~mask],x[~mask])
     with pytest.raises(ValueError): condition_map(x,[],valid)
+    with pytest.raises(FloatingPointError): condition_map(x+1e30,[[0.,0,0]],valid)
 
 
 def test_log_actions_no_rounding_duplicate_or_hidden_endpoint():
@@ -72,6 +73,12 @@ def test_frozen_json_roundtrip_does_not_reject_plip_tuples(tmp_path):
     frozen(p,{'fingerprints':[('hbond',1,'A')]})
     frozen(p,{'fingerprints':[('hbond',1,'A')]})
     with pytest.raises(ValueError): frozen(p,{'fingerprints':[('hbond',2,'A')]})
+
+
+def test_empty_built_structure_file_is_a_reportable_population(tmp_path):
+    from agenticgen.uniguide.quality import built_molecules
+    p=tmp_path/'none_built.sdf';p.write_text('')
+    assert built_molecules(p)=={}
 
 
 def row(i,c,g): return {'id':i,'C':c,'gap':g,'best':8.,'complete':True}
