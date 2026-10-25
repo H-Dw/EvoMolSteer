@@ -91,3 +91,19 @@ def test_stagnation_either_teacher_and_missing_vectors(tmp_path):
     changed=vector_change(tmp_path/'a',tmp_path/'b')
     assert changed['known'] and changed['relative_change']==[2.]*4
     assert not changed['all_windows_at_most_5pct']
+
+
+def test_native_twenty_row_crn_is_shared_and_external_rng_unchanged():
+    from agenticgen.uniguide.random_streams import NativeStreams,capture,equal
+    states=[]
+    for seed in [42,100045,200048,300051,400054]:
+        torch.manual_seed(seed);states.append(capture())
+    outside=capture()
+    streams=NativeStreams(states,3,10)
+    samples=streams.normal('randn',(150,17,3),dtype=torch.float32)
+    assert torch.equal(samples[:50],samples[50:100]) and torch.equal(samples[:50],samples[100:])
+    assert equal(outside,capture())
+    probabilities=torch.full((150,17,4),.25)
+    cats=streams.categorical(probabilities)
+    assert torch.equal(cats[:50],cats[50:100]) and torch.equal(cats[:50],cats[100:])
+    assert equal(outside,capture())

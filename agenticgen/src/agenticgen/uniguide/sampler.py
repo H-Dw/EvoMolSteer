@@ -11,7 +11,7 @@ from .native_tools import cpu, device, detach, tensor_digest, save_pt, load_pt
 from .batching import join, take
 from .random_streams import NativeStreams, capture
 from .condition import loss, guidance_delta, finite
-from .protocol import expand, SEEDS
+from .protocol import expand, SEEDS, WINDOWS
 from agenticgen.runtime.rng import rng_state, set_rng
 
 
@@ -159,6 +159,23 @@ def summarize(rows,teacher,run_id,schedule):
         built=sum(r["build_success"] for r in rows),unique_smiles=len({r["smiles"] for r in rows if r["smiles"]}))
 
 
+def diagnostics(folder):
+    """Small measured feedback for the agents; retain full vectors in HDF5."""
+    folder=Path(folder);steps=read(folder/"steps.json");windows=[]
+    with h5py.File(folder/"trace.h5","r") as trace:
+        for lo,hi in WINDOWS:
+            rows=[r for r in steps if lo<=r["step"]<=hi]
+            delta=trace["guidance_delta_A"][lo:hi+1]
+            windows.append(dict(steps=[lo,hi],increment_vector_rms_A=float(np.sqrt(np.mean(delta*delta))),
+                gradient_norm_mean=float(np.mean([r["gradient_norm"] for r in rows])),
+                native_increment_ratio_mean=float(np.mean([r["delta_native_ratio"] for r in rows])),
+                max_atom_increment_A=max(max(r["max_atom_increment_A"]) for r in rows),
+                assignment_switch_mean=float(np.mean([r["assignment_switch_fraction"] for r in rows])),
+                first_endpoint_loss_mean=float(np.mean(rows[0]["loss"])),last_endpoint_loss_mean=float(np.mean(rows[-1]["loss"])),
+                coefficient_first=rows[0]["coefficient"][0],coefficient_last=rows[-1]["coefficient"][0]))
+    return windows
+
+
 def execute(model,config,teacher,schedule,folder,stage,count=50,resume_path=None):
     from agenticgen.runtime.scoring import final_metrics
     folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
@@ -184,6 +201,7 @@ def execute(model,config,teacher,schedule,folder,stage,count=50,resume_path=None
             coordinate_source="native final corrector prediction returned by sampler; separately preserve state at step 100")
     write(folder/"records.json",rows)
     aggregate=summarize(rows,teacher,run_id,schedule)
+    aggregate["window_diagnostics"]=diagnostics(folder)
     write(folder/"aggregate.json",aggregate)
     write(folder/"COMPLETE.json",{"records_sha256":sha(folder/"records.json"),"manifest_sha256":sha(folder/"manifest.json")})
     return aggregate

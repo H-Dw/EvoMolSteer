@@ -103,6 +103,7 @@ def run_version(config,version):
                 frozen(out/"proposal.json",p)
                 row=execute(model,config,teacher,p["schedule"],out,"formal",resume_path=root/"R0"/target/"checkpoint_010.pt.gz")
                 row=dict(row,branch=p["branch"],round=round_number,private_context=p["private_context"],synthesis_context=p["synthesis_context"])
+                row["quality"]=assess(out,teacher)
                 history.append(row);groups.append(row)
                 write(troot/"history.json",history)
             # Nothing about a future R6 is generated.
