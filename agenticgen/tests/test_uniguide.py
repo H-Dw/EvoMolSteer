@@ -120,9 +120,12 @@ def test_chunking_preserves_nested_native_tensordict_and_input_jacobian():
     from tensordict import TensorDict
     from agenticgen.uniguide.chunking import chunk_call
     x=torch.arange(21.,requires_grad=True).reshape(7,3)
+    called=[]
     def network(batch):
+        called.append(len(batch['coords']))
         return {'coords':batch['coords'].square(),'affinity':TensorDict({'pic50':batch['coords'].sum(-1,keepdim=True)},batch_size=[len(batch['coords'])])}
-    output=chunk_call(network,({'coords':x},),{},7,rows=3)
+    output=chunk_call(network,({'coords':x},),{},7,rows=3,pad_to=10)
+    assert called==[10,10,10]
     assert torch.equal(output['coords'],x.square())
     assert torch.equal(output['affinity']['pic50'],x.sum(-1,keepdim=True))
     assert torch.equal(torch.autograd.grad(output['coords'].sum(),x)[0],2*x)

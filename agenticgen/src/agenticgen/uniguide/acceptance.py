@@ -40,12 +40,13 @@ def real_model_vjp(model,config,teacher,state_path):
         args=(curr,pocket,times)
         kwargs=dict(cond_batch=cond if model.self_condition else None,pocket_equis=equis,pocket_invs=invs,training=False)
         full=model._ug_original_forward(*args,**kwargs)
-        chunks=chunk_call(model._ug_original_forward,args,kwargs,10,rows=5)
+        chunks=chunk_call(model._ug_original_forward,args,kwargs,10,rows=5,pad_to=10)
         difference=full["coords"]-chunks["coords"]
         write(Path(state_path).parent/"chunk_comparison.json",{
             "max_abs_native":float(difference.abs().max()),"rms_native":float(difference.square().mean().sqrt()),
             "per_row_max_abs":difference.flatten(1).abs().amax(1).tolist(),
-            "full_abs_max":float(full["coords"].abs().max()),"torch_matmul_precision":torch.get_float32_matmul_precision()})
+            "full_abs_max":float(full["coords"].abs().max()),"torch_matmul_precision":torch.get_float32_matmul_precision(),
+            "logical_partition":5,"physical_rows":10})
         if not torch.allclose(full["coords"],chunks["coords"],atol=2e-5,rtol=2e-5):
             raise ValueError("Physical chunking changed per-row model coordinates beyond numerical tolerance")
     x=curr["coords"].detach().clone().requires_grad_(True)
@@ -125,7 +126,7 @@ def run(config):
         del model;torch.cuda.empty_cache()
     receipt={"source_binding":source_binding(),"unit_tests":True,"gpu_checks":checks,"evidence_directory":str(folder),
         "torch_threads":torch.get_num_threads(),"torch_version":torch.__version__,"hip":torch.version.hip,
-        "scientific_zero_guidance_groups":0,"physical_layout":"50 logical rows; network forward/VJP/pocket encoding chunks of 10; twenty-row native random draws per seed",
+        "scientific_zero_guidance_groups":0,"physical_layout":"50 logical rows; network forward/VJP/pocket encoding physical rows fixed at 10 (padded outputs discarded); twenty-row native random draws per seed",
         "engineering_layout":"five seeds, ten logical rows each; short 3/12-step trajectories"}
     write(folder/"COMPLETE.json",receipt)
     write(root/"acceptance/COMPLETE.json",receipt)
