@@ -114,3 +114,15 @@ def test_native_twenty_row_crn_is_shared_and_external_rng_unchanged():
     cats=streams.categorical(probabilities)
     assert torch.equal(cats[:50],cats[50:100]) and torch.equal(cats[:50],cats[100:])
     assert equal(outside,capture())
+
+
+def test_chunking_preserves_nested_native_tensordict_and_input_jacobian():
+    from tensordict import TensorDict
+    from agenticgen.uniguide.chunking import chunk_call
+    x=torch.arange(21.,requires_grad=True).reshape(7,3)
+    def network(batch):
+        return {'coords':batch['coords'].square(),'affinity':TensorDict({'pic50':batch['coords'].sum(-1,keepdim=True)},batch_size=[len(batch['coords'])])}
+    output=chunk_call(network,({'coords':x},),{},7,rows=3)
+    assert torch.equal(output['coords'],x.square())
+    assert torch.equal(output['affinity']['pic50'],x.sum(-1,keepdim=True))
+    assert torch.equal(torch.autograd.grad(output['coords'].sum(),x)[0],2*x)
