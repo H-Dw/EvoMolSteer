@@ -4,6 +4,7 @@ import copy
 import subprocess
 import sys
 import types
+import time
 from pathlib import Path
 from types import SimpleNamespace
 import torch
@@ -83,12 +84,12 @@ def zero_delta_check(model,config,teacher,folder):
 
 
 def run(config):
-    root=Path(config["root"]);folder=root/"acceptance"
+    root=Path(config["root"]);folder=root/"acceptance/runs"/str(time.time_ns())
     folder.mkdir(parents=True,exist_ok=True)
     repo=Path(__file__).resolve().parents[4]
     result=subprocess.run([sys.executable,"-m","pytest",str(repo/"agenticgen/tests/test_uniguide.py"),"-q"],capture_output=True,text=True)
     (folder/"pytest.log").write_text(result.stdout+result.stderr)
-    if result.returncode: raise RuntimeError("Remote unit/contract tests failed; inspect acceptance/pytest.log")
+    if result.returncode: raise RuntimeError("Remote unit/contract tests failed; inspect "+str(folder/"pytest.log"))
     checks={}
     for teacher in read(root/"teachers.json"):
         if teacher["core_sdf_atoms"]!=teacher["plip_profile"]["core_atoms"]:
@@ -106,6 +107,8 @@ def run(config):
         checks[target]["resume"]=same
         checks[target]["frozen_parameters"]=True
         del model;torch.cuda.empty_cache()
-    write(folder/"COMPLETE.json",{"source_binding":source_binding(),"unit_tests":True,"gpu_checks":checks,
+    receipt={"source_binding":source_binding(),"unit_tests":True,"gpu_checks":checks,"evidence_directory":str(folder),
         "scientific_zero_guidance_groups":0,"physical_layout":"one profile per call; five seeds, ten logical rows per seed for formal population; twenty-row native random draws",
-        "engineering_layout":"five seeds, ten logical rows each; short 3/12-step trajectories"})
+        "engineering_layout":"five seeds, ten logical rows each; short 3/12-step trajectories"}
+    write(folder/"COMPLETE.json",receipt)
+    write(root/"acceptance/COMPLETE.json",receipt)

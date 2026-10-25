@@ -14,6 +14,12 @@ def main():
     run=subs.add_parser("run-version");run.add_argument("version")
     review=subs.add_parser("accept-review");review.add_argument("version");review.add_argument("review_path")
     args=parser.parse_args();config=read(args.config)
+    # A second launcher must not mutate budgets, checkpoints or provider caches.
+    if args.command!="status":
+        import fcntl
+        Path(config["root"]).mkdir(parents=True,exist_ok=True)
+        run_lock=open(Path(config["root"])/".executor.lock","a+")
+        fcntl.flock(run_lock.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
     sys.path.insert(0,config["plip_dependencies"])
     if args.command=="prepare":
         from .prepare import prepare_teachers,prepare_initials
