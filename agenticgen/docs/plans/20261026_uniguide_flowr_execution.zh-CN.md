@@ -180,3 +180,9 @@ UG02已完成6pyy的R01–R04共12组、600次尝试及12组10/50抽样，在R05
 新增独立恢复入口`agenticgen/scripts/resume_uniguide_cached_requests.py`：只对已存在请求严格比较用户消息内JSON对象，拒绝数组顺序、数值、类型、文字、角色和重复键变化；确认仅序列化差异后，将原始消息原样传入未修改的provider，使原有完整请求、schema、模型参数、响应哈希和应用校验继续执行。恢复入口不自动重试输出截断，不改输出额度、thinking、skills或任何采样算法。所有原始请求、回答、失败回执、结构和预算账本均保留；新增审计记录恢复入口提交及哈希、冻结manifest、每次原始序列化复用和既有文件校验。
 
 恢复入口从已推送固定提交单独部署，导入GPU主仓库f649d9a3的冻结模块；主仓库HEAD、manifest及source_binding均保持不变。它在独占执行锁内验证实际模块目录、固定提交、源码哈希与185个源文件，再调用原run_version。CPU抽样worker不变。这是请求重建的工程修复，不是UG策略更新；测试和真实缓存验证只在指定远端进行，通过后才实际续跑。
+
+21:19固定恢复提交`ce0ec57c50a2130021cfd0cc390da65e23ce6467`通过12项远端测试（1.53秒），以及18个真实成功缓存、1个中断请求的无网络预演；4个综合提示复用原始序列化，其余15个请求逐字一致。185个既有文件全部保持原哈希。GitHub直连及四镜像按批准顺序均8秒超时后，通过已推送提交的Git bundle验证和部署；仅向主仓库Git对象库导入提交，未移动其HEAD或修改冻结源码。
+
+21:20:01实际启动续跑，恢复入口位于`/workspace/uniguide_recovery/ce0ec57c50a2130021cfd0cc390da65e23ce6467/agenticgen/scripts/resume_uniguide_cached_requests.py`，启动PID574642，日志`UG02_request_recovery_20261026_212001.log`。21:20:49核对真实进程、独占执行锁和恢复审计，已到达原R05/redistribute并保存wire_2；其字节与wire_1完全一致，原失败记录保留。此时请求仍在途，不以进程存在宣称该API已成功。见[失败原因、缓存复核、远端测试与启动证据](../evidence/uniguide/20261026_UG02_request_recovery.json)。普通run-version不含这个显式恢复适配，不能在同一错误上重复启动。
+
+21:22巡检提示更新至上述恢复入口、固定提交、日志与审计路径，ACTIVE和35分钟间隔保持不变；UTF-8/JSON ASCII读回逐字核验通过，无替换字符，checked_attempts=10、固定CPU提交和恢复提交均存在。
