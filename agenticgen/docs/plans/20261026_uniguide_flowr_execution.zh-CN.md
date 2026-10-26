@@ -222,3 +222,9 @@ UG02已完成6pyy的R01–R04共12组、600次尝试及12组10/50抽样，在R05
 UG02平均C较UG01降低0.002786 Å、平均gap增加0.077928，按冻结规则记录一次整体下降，最佳保持UG01；未触发连续两版下降，UG03从UG02的skills修订。6pyy改善，3w54退步，不能用平均C微降掩盖后者。300个抽样槽位有291个PoseBusters通过、6个实测不通过、3个未构建，297个PLIP可评估；其余1200个不追加慢检查。
 
 本轮主动重查UniGuide原文/官方代码、Flow Matching guidance原文、PyTorch反传文档及DeepSeek thinking官方说明。三项skills修订聚焦原始scale/变化窗口核对、整数格点合法邻居构造和紧凑且可核验的综合决策，回应代表文本事实错误、三次输出截断及接口修正。科学代码、采样及LLM参数均未更改；下一版仍需实际验收复盘与启动检查。详见[中文复盘](../reviews/20261027_UG02_review.zh-CN.md)、[机器复盘](../reviews/20261027_UG02_review.json)、[完整原始证据](../evidence/uniguide/20261027_UG02_review_evidence.json)和[保留审计](../evidence/uniguide/20261027_UG02_retention_review_audit.json)。
+
+00:20固定提交`9dd21edea35fb7fd901d8763f511f425f7cda9a0`在GitHub推送成功后部署。远端直连与四镜像均8秒超时，使用通过verify且仅含已推送提交的Git bundle。部署前的分支名断言发现远端采用既有detached固定提交检出，尚未修改文件；核实后保持这种固定提交方式，在空闲执行锁内从f649d9a3快进至9dd21ede。本地仍仅操作`codex/uniguide-flowr-agent`。部署后21项远端测试通过（5.38秒），科学source binding逐项等于已有双教师验收`acceptance/runs/1793016536820714424`，因此没有重复GPU数值采样。独立CPU worker与提交3f07d1fa保持不变。
+
+UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc31d7b4748dbe044a37895f9a7eba7972bbc4f906`、三份新skills及下一版本UG03。00:21:35启动UG03，定位PID599601，日志`UG03_20261027_002135.log`、定位文件`UG03.logpath`。00:23:54核对真实`run-version UG03`进程、执行锁、manifest、源码和skills哈希均正常；首个真实API increase调用成功，finish_reason=stop、没有接口修正，decrease在途。此时未开始UG03采样，预算仍为4200/100/3000；不能据首个合法回答宣称新skills已经改善推理效率。CPU锁持有、模块哈希一致、抽样队列无积压。详见[部署、接受复盘和启动证据](../evidence/uniguide/20261027_UG03_started.json)。
+
+35分钟巡检已更新为UG03固定部署和一次主版本下降的状态，保持ACTIVE；UTF-8/JSON ASCII转义读回与提交提示逐字相同，无Unicode替换字符，含checked_attempts=10、最新CPU提交及35分钟间隔。后续若发生停止，应先保存该版本证据并做无网络预演；已验证的ce0ec57c恢复入口按实际manifest验证冻结提交，可继续用于严格的原始序列化复用，不自动循环重试、不删除缓存。当前UG03健康运行期间不部署后续文档提交或改写源码。
