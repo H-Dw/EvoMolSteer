@@ -188,3 +188,13 @@ UG02已完成6pyy的R01–R04共12组、600次尝试及12组10/50抽样，在R05
 21:22巡检提示更新至上述恢复入口、固定提交、日志与审计路径，ACTIVE和35分钟间隔保持不变；UTF-8/JSON ASCII读回逐字核验通过，无替换字符，checked_attempts=10、固定CPU提交和恢复提交均存在。
 
 21:24确认原R05/redistribute真实API成功：finish_reason=stop，12488个输出token，其中10578个reasoning token；模型、16384上限及原request SHA256均未变，单次HTTP成功，无格式修复。随后R05/synthesis也成功。21:25:38已完成第13组（R05/increase），第14组decrease推进至第20步；未FINALIZED、未到GPT主复盘节点。GPU/CPU执行锁均持有，GPU主仓库仍为干净f649d9a3，185个原始文件哈希一致，CPU模块哈希匹配且无诊断积压或工程失败。详见[恢复成功与实际采样进度](../evidence/uniguide/20261026_UG02_recovery_confirmed.json)。原输出截断和第一次恢复受阻的费用、回执与日志保留，不重生成前600个候选；新增尝试只对应此前未执行的R05组。
+
+## 22:14巡检：3w54第二轮Agent输出截断与原配置恢复
+
+22:14（Asia/Shanghai）核对真实进程退出、GPU执行锁空闲：UG02在21:47:07停于3w54/advice_R02/redistribute。6pyy五轮15组和3w54第一轮3组均已完成，共18组900次；18组基础统计和18组10/50抽样完成，无采样FAILED或QUALITY_FAILED。3w54第二轮尚未开始采样，预算仍为标定4200、R0 100、正式2400。此次是不同调用的输出截断，不是采样失败或主版本成绩下降。
+
+回执记录finish_reason=length、输入96577 token、输出16384 token，其中15586为reasoning，正文余量798 token，未产生完整合法答案。原失败回执与usage保留。原恢复入口于退出时核验此前185个文件仍一致；本次将保护范围扩大为311个文件，并备份6pyy已完成的结构保留结果。已在远端用原provider验证30个成功调用缓存和第31个中断请求，全部通过；预演没有API调用或新增候选。
+
+22:16:56沿用已验证恢复入口ce0ec57c50a2130021cfd0cc390da65e23ce6467启动一次显式续跑，PID582777，日志`UG02_3w54_recovery_20261026_221656.log`，`UG02.logpath`已更新。保护账本为`engineering_audits/UG02_3w54_length_20261026_2216.json`。GPU主仓库保持f649d9a3，CPU仍为3f07d1fa；未改源码、skills、模型、thinking或16384额度。22:17:52核对真实进程及新wire_2，续发请求字节与原wire_1完全相同；当时API仍在途，不宣称已经成功。
+
+两次不同的redistribute调用触及相同输出上限，将作为UG02完整结束后的GPT复盘证据，研究如何通过skills减少无效复述和重复推演。当前版本内不改提示、配置或预算，不以模板替代真实Agent输出。详见[3w54截断及恢复审计](../evidence/uniguide/20261026_UG02_3w54_recovery.json)。
