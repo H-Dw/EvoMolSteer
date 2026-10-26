@@ -200,3 +200,17 @@ UG02已完成6pyy的R01–R04共12组、600次尝试及12组10/50抽样，在R05
 两次不同的redistribute调用触及相同输出上限，将作为UG02完整结束后的GPT复盘证据，研究如何通过skills减少无效复述和重复推演。当前版本内不改提示、配置或预算，不以模板替代真实Agent输出。详见[3w54截断及恢复审计](../evidence/uniguide/20261026_UG02_3w54_recovery.json)。
 
 22:20:36确认本次恢复成功：redistribute在48.65秒内返回完整答案（finish_reason=stop，输出7662 token，其中5964 reasoning），随后synthesis也单次HTTP成功，均无格式修复、无额度变更。第19组3w54/R02/increase已经推进至第60步，正式累计预留2450次，其中此前18组900次全部复用。311个既有文件哈希一致，6pyy的三份retention文件与恢复前备份完全一致；18组抽样完成，无QUALITY_FAILED。详见[真实API成功及恢复后的采样进度](../evidence/uniguide/20261026_UG02_3w54_recovery_confirmed.json)。35分钟巡检继续ACTIVE，最新PID、日志、311文件保护账本及成功回执已纳入提示并按UTF-8/JSON ASCII方式核验。
+
+## 22:48巡检：3w54第三轮输出截断，保留21组后续跑
+
+22:48（Asia/Shanghai）确认恢复进程582777已于22:30:19退出，执行锁空闲。UG02完成6pyy全部15组、3w54前两轮6组，共21组1050次尝试；21组基础统计和21组10/50抽样检查完成，没有采样FAILED或QUALITY_FAILED。停机点为3w54/advice_R03/redistribute，第三轮尚未采样。正式累计2550次，标定4200次、R0 100次不变。
+
+此次原始回执记录输入100043 token、输出16384 token，输出全部用于reasoning，正文为空，finish_reason=length。这是UG02第三个不同调用触及上限；不代表第三次主版本成绩下降。所有失败usage与原始请求保留，完整UG02结束后必须结合三次截断分析skills中的推理效率。当前版本保持原模型、thinking、输出额度与skills冻结，不自动循环重试。
+
+22:55完成无网络预演：34个成功调用缓存均通过原provider及应用校验，第35个中断请求与原请求相同；7个综合提示仅复用原始JSON序列化。此次保护账本扩大至363个既有文件，包含21组科学产物、请求、回答、失败回执和manifest/skills；原311个文件哈希也全部一致。6pyy结构保留结果已另存备份。预演没有新增API调用或候选。
+
+22:55:27从已推送并验证的ce0ec57c恢复入口启动一次显式续跑，启动PID589254，日志`UG02_3w54_R03_recovery_20261026_225527.log`，`UG02.logpath`已更新。保护账本为`engineering_audits/UG02_3w54_R03_length_20261026_2252.json`，预演回执为`UG02_3w54_R03_recovery_preflight_2252.json`。GPU主仓库仍为干净f649d9a3，CPU worker仍为独立3f07d1fa；未覆盖科学源码、未重采已有1050个候选。启动后先验证真实入口进程和执行锁，再以API回执与实际采样进度确认恢复效果。
+
+22:59:36确认续跑成功，3w54/R03/increase已推进至第30步。redistribute续发的wire_2与原wire_1字节完全相同，首次完整回答因违反“一至两个窗口、一个声明的对数步长”约束而被拒绝，随后原有json-interface-v5应用约束修正流程返回合法答案；这次恢复包含两次HTTP调用，不能记为无接口修正。两次输出分别13384和4485 token，后者reasoning为908；最终finish_reason=stop。综合Agent随后单次成功，输出11212 token，其中9057为reasoning。模型、thinking和16384上限保持原值；失败答案及修正请求均保留。
+
+363个保护文件及6pyy retention备份哈希仍完全一致。CPU队列无积压或当前工程失败，执行锁和worker锁正常，最新正式预留2600次仅新增此前未执行的R03/increase组。详见[第三次截断、无网络预演与实际采样恢复证据](../evidence/uniguide/20261026_UG02_3w54_R03_recovery.json)。巡检保持ACTIVE、35分钟间隔，并纳入最新恢复入口、PID、日志及363文件保护账本；更新后按UTF-8/JSON ASCII读回核验。
