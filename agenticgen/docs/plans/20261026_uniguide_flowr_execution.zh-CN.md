@@ -228,3 +228,17 @@ UG02平均C较UG01降低0.002786 Å、平均gap增加0.077928，按冻结规则�
 UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc31d7b4748dbe044a37895f9a7eba7972bbc4f906`、三份新skills及下一版本UG03。00:21:35启动UG03，定位PID599601，日志`UG03_20261027_002135.log`、定位文件`UG03.logpath`。00:23:54核对真实`run-version UG03`进程、执行锁、manifest、源码和skills哈希均正常；首个真实API increase调用成功，finish_reason=stop、没有接口修正，decrease在途。此时未开始UG03采样，预算仍为4200/100/3000；不能据首个合法回答宣称新skills已经改善推理效率。CPU锁持有、模块哈希一致、抽样队列无积压。详见[部署、接受复盘和启动证据](../evidence/uniguide/20261027_UG03_started.json)。
 
 35分钟巡检已更新为UG03固定部署和一次主版本下降的状态，保持ACTIVE；UTF-8/JSON ASCII转义读回与提交提示逐字相同，无Unicode替换字符，含checked_attempts=10、最新CPU提交及35分钟间隔。后续若发生停止，应先保存该版本证据并做无网络预演；已验证的ce0ec57c恢复入口按实际manifest验证冻结提交，可继续用于严格的原始序列化复用，不自动循环重试、不删除缓存。当前UG03健康运行期间不部署后续文档提交或改写源码。
+
+## 01:09巡检：UG03第二轮输出截断，保留150个候选后恢复
+
+2026-10-27 01:09（Asia/Shanghai）确认原进程599601退出、执行锁空闲。UG03停在6pyy/advice_R02/redistribute，第一轮3组150次尝试及3组10/50抽样均已完成，无采样FAILED或QUALITY_FAILED，CPU队列无积压。预算为标定4200、R0 100、正式3150；第二轮尚未采样。冻结GPU提交9dd21ede、三份skills及独立CPU模块哈希均一致。
+
+原始回执记录输入94791 token、输出16384 token，全部输出用于reasoning，正文为空、finish_reason=length。此次事实已反证“本次skills足以消除截断”的预期，须纳入UG03完整结束后的GPT复盘；不提前改写本版skills、模型、thinking或额度。第一轮synthesis曾出现JSON缺少分隔符，由原有一次接口修正成功，回执保留；这不是采样失败或新的主版本下降。
+
+01:10完成远端无网络预演：6个成功调用经过原provider完整缓存与应用校验，第7个中断请求与原请求精确一致；一个synthesis提示仅复用原始JSON对象序列化。保存230个既有文件的SHA256，包含已生成结构、轨迹、抽样记录、请求/回答和冻结配置；会继续追加的history.json另存内容快照，不将其误当作不可变化文件。保护账本为`engineering_audits/UG03_6pyy_R02_length_20261027_0111.json`，预演回执为`UG03_6pyy_R02_recovery_preflight_20261027_0111.json`。预演没有API调用或新增候选。
+
+01:11:20使用已推送、通过12项远端测试的ce0ec57c独立恢复入口进行一次显式原配置续跑，定位PID601512，日志`UG03_6pyy_R02_recovery_20261027_011120.log`，`UG03.logpath`已更新。该入口校验UG03自身manifest所绑定的9dd21ede，不改科学源码、不删除缓存、不重新生成既有150个候选、不自动循环重试。应以新wire/receipt及后续采样产物确认恢复效果，不能以PID存在宣称调用成功。
+
+01:14:53确认恢复成功：redistribute续发wire_2与原wire_1字节完全一致，单次HTTP返回合法答案，finish_reason=stop，无接口修正，输出14930 token，其中reasoning为13197。随后synthesis首次完整回答缺少必填selected字段，被原校验拒绝；原有一次格式修正后成功，两次输出分别7994和1876 token，不能记为单次成功或无修正。所有原始失败回答、修正请求及费用均保留，模型、thinking和16384上限未变。
+
+第二轮increase已推进至第40步，正式累计预留3200次，仅新增此前未执行的一组；230个保护文件哈希全部一致，GPU仍为干净9dd21ede，执行锁持有，CPU抽样队列无积压。完整停止证据、保护账本、无网络预演、恢复绑定和真实API成功记录见[UG03第二轮恢复审计](../evidence/uniguide/20261027_UG03_6pyy_R02_recovery.json)。35分钟巡检保持ACTIVE，并更新至本次恢复入口、日志、PID和已确认进度；UG03完成前仍保持skills冻结。
