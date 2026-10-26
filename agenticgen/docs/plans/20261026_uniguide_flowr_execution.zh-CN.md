@@ -296,3 +296,17 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 04:50:47已完成固定提交`930db03280c66c3f8a39f131ae01df3202544af4`部署及验证。提交先成功推送GitHub；远端直连及四个镜像按顺序各8秒超时，随后通过已验证、仅含已推送提交的Git bundle，在空闲执行锁内从9dd21ede快进。三份skills及文档之外无科学源码变更。21项远端测试全部通过（5.38秒），source_binding与已有双教师验收`acceptance/runs/1793016536820714424`逐项相同，没有新增数值采样。accept-review绑定UG03机器复盘SHA256 `0ab45956db5fb4353b59b7c752938a34f703ed84ae59c96b60f59b32d4eb2689`，基础checkpoint为UG03、recovery_derived=false、下一版UG04。
 
 04:51:04启动UG04，定位PID616820，日志`UG04_20261027_045104.log`及`UG04.logpath`。04:51:53核对真实run-version进程、执行锁、manifest、skills和源码绑定全部匹配，独立CPU worker仍为3f07d1fa且无积压。04:52:51确认首轮increase真实API调用成功，finish_reason=stop、单次HTTP且无接口修正，输出10299（reasoning9276）；decrease请求在途，尚无UG04采样，预算4200/100/4500。首个成功调用不证明新skills消除了截断或改善了生成质量。详见[UG04部署、接受复盘与启动审计](../evidence/uniguide/20261027_UG04_started.json)。巡检保持ACTIVE、35分钟、checked_attempts=10；UTF-8及JSON ASCII读回确认中文无替换字符、GPU/CPU提交和抽样政策正确。健康运行期间不再覆盖远端源码。
+
+## 05:48巡检：UG04第三轮重分配建议截断
+
+2026-10-27 05:48（Asia/Shanghai）确认原进程616820退出、执行锁空闲。6pyy前两轮6组300次尝试、6组基础统计和6组10/50抽样已完成，第三轮尚未采样。没有采样FAILED或QUALITY_FAILED，独立CPU队列无积压；抽样种子、槽位、node_id及源文件绑定核验通过。预算为标定4200、R0 100、正式4800。GPU仍为干净930db032，manifest、skills及独立CPU代码绑定匹配。
+
+失败发生于05:16:12，位置为`6pyy_H7S_A_402/advice_R03/redistribute`。输入98607 token，输出16384全部用于reasoning，正文为空、finish_reason=length；同轮increase和decrease已成功。这是UG04首个长度失败，表明新skills未消除截断，须纳入完整UG04复盘，本版不修改科学代码、skills或API额度。
+
+05:52:44完成无网络预演，10个成功缓存经原provider及应用验证，第11个中断请求与原请求、原wire完整对象精确一致。两个synthesis提示仅在严格验证JSON对象内容相同后复用原序列化。保存438个文件哈希和可变history内容快照，API调用和新候选均为0。保护账本`engineering_audits/UG04_6pyy_R03_length_20261027_0554.json`，预演`UG04_6pyy_R03_recovery_preflight_20261027_0554.json`；0554为文件标签，实际时间以JSON字段为准。最初只读预检把manifest的规范化配置摘要误当作原文件摘要而被断言拦截；改用原pipeline.value_sha核验后通过，此前未启动任务或写入保护账本。
+
+05:53:04从固定ce0ec57c独立恢复入口显式原配置续跑一次，定位PID619336，日志`UG04_6pyy_R03_recovery_20261027_055304.log`，同步更新UG04.logpath。保留已有300个候选和全部失败回执，不重发成功调用、不自动循环重试，继续以真实回执及采样进度核实恢复结果。
+
+05:55:04该次原配置续跑仍在同一redistribute请求处失败：输入98607 token，输出16384全部用于reasoning，正文为空、finish_reason=length。新wire_2与原wire_1字节完全一致，没有接口修正、成功建议或新候选。05:56:11确认进程619336退出、执行锁空闲，438个保护文件哈希均一致；预算保持4200/100/4800，6组抽样完成且CPU无积压，GPU源码和skills未变。停止事实、两次失败usage、保护账本、预演及运行绑定见[UG04第三轮恢复审计](../evidence/uniguide/20261027_UG04_6pyy_R03_recovery.json)。
+
+同一请求已连续两次失败，按“不自动循环重试”和本版冻结要求，不再自行发起第三次调用或改写提示/API额度。已向用户询问下一步：额外一次原配置尝试、授权单请求额度偏离，或继续保持停止。等待明确选择期间，35分钟巡检保持ACTIVE，仅核查真实状态、保护源产物与CPU队列；禁止把下一次heartbeat当作自动再次重试的授权。UG04未完成，不复盘为完成版，也不启动UG05。
