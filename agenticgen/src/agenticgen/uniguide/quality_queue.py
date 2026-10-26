@@ -13,6 +13,7 @@ import traceback
 from .io import read,write,frozen,sha,value_sha
 
 WORKERS=2
+SAMPLE_SCOPE='first_two_slots_per_seed_10_of_50'
 
 
 def binding(folder,teacher):
@@ -46,12 +47,13 @@ def ensure_worker(config):
                 '--runtime',str(queue/'runtime.json')],stdin=subprocess.DEVNULL,stdout=stream,
                 stderr=subprocess.STDOUT,env=env,close_fds=True,start_new_session=True)
         write(receipt,{'pid':process.pid,'log':str(log),'started_unix':time.time(),'workers':WORKERS,'device':'cpu',
+            'scope':SAMPLE_SCOPE,'checked_attempts_per_group':10,
             'module_directory':str(Path(__file__).parent),
             'implementation_sha256':{name:sha(Path(__file__).parent/name) for name in ['quality_queue.py','quality.py','profiling.py']}})
 
 
 def enqueue(config,folder,teacher):
-    """Persist a full-population job and return only deterministic inline data.
+    """Persist a ten-attempt diagnostic job and return deterministic inline data.
 
     Advice sees the same basic metrics regardless of worker timing. Slow PLIP /
     PoseBusters outputs are separate diagnostics, never pending-as-pass flags.
@@ -61,9 +63,14 @@ def enqueue(config,folder,teacher):
     if not (folder/'COMPLETE.json').exists():raise ValueError('Quality job requires completed inference')
     basic=assess_light(folder,teacher)
     request={'folder':str(folder),'teacher':teacher,'binding':binding(folder,teacher),
-             'scope':'all_attempts','population':basic['attempts']}
+             'scope':SAMPLE_SCOPE,'population':basic['attempts']}
     key=value_sha(str(folder.relative_to(root)))
-    frozen(root/'quality_queue/requests'/f'{key}.json',request)
+    path=root/'quality_queue/requests'/f'{key}.json'
+    if path.exists():
+        saved=read(path)
+        if saved.get('scope') not in ['all_attempts',SAMPLE_SCOPE] or any(saved[k]!=request[k] for k in ['folder','teacher','binding','population']):
+            raise ValueError('Quality request source changed')
+    else:frozen(path,request)
     try:ensure_worker(config)
     except Exception as error:
         write(root/'quality_queue/LAUNCH_FAILED.json',{'error':str(error),'unix':time.time()})
@@ -76,12 +83,15 @@ def snapshot(root,groups):
     for group in groups:
         folder=Path(root)/group
         if (folder/'QUALITY_COMPLETE.json').exists():
+            receipt=read(folder/'QUALITY_COMPLETE.json')
             rows.append({'id':group,'status':'complete','receipt':str(folder/'QUALITY_COMPLETE.json'),
-                         'sha256':sha(folder/'QUALITY_COMPLETE.json')})
+                         'sha256':sha(folder/'QUALITY_COMPLETE.json'),
+                         'scope':receipt.get('scope','legacy_all_attempts'),
+                         'checked_attempts':receipt.get('checked_attempts',receipt['attempts'])})
         elif (folder/'QUALITY_FAILED.json').exists():
             rows.append({'id':group,'status':'failed','error':read(folder/'QUALITY_FAILED.json')})
         else:rows.append({'id':group,'status':'pending','receipt':str(folder/'QUALITY_COMPLETE.json')})
-    return {'mode':'all_50_async_cpu','blocks_inference':False,
+    return {'mode':'sampled_10_of_50_async_cpu','blocks_inference':False,
             'complete':sum(r['status']=='complete' for r in rows),
             'failed':sum(r['status']=='failed' for r in rows),
             'pending':sum(r['status']=='pending' for r in rows),'groups':rows}
@@ -97,9 +107,12 @@ def run_request(request_path):
             if binding(folder,request['teacher'])!=request['binding']:
                 raise ValueError('Quality job source changed after enqueue')
             write(folder/'QUALITY_RUNNING.json',{'pid':os.getpid(),'started_unix':time.time(),
-                                               'scope':'all_attempts','population':request['population']})
+                'scope':SAMPLE_SCOPE,'request_scope':request['scope'],
+                'population':request['population'],'checked_attempts':10})
             receipt=assess(folder,request['teacher'])
             if receipt['attempts']!=request['population']:raise ValueError('Quality denominator changed')
+            if receipt.get('scope')==SAMPLE_SCOPE and receipt['checked_attempts']!=10:
+                raise ValueError('Sampled quality denominator changed')
             return 'complete'
         except Exception as error:
             write(folder/'QUALITY_FAILED.json',{'error':str(error),'type':type(error).__name__,
@@ -130,7 +143,8 @@ def worker(runtime,idle_seconds=None):
                     if len(futures)>=WORKERS:break
                     if path not in futures.values():futures[pool.submit(run_request,str(path))]=path
                 write(queue/'status.json',{'pid':os.getpid(),'unix':time.time(),'active':[str(p) for p in futures.values()],
-                    'pending':len(pending),'workers':WORKERS,'device':'cpu','blocks_inference':False})
+                    'pending':len(pending),'workers':WORKERS,'device':'cpu','blocks_inference':False,
+                    'scope':SAMPLE_SCOPE,'checked_attempts_per_group':10})
                 if pending or futures:idle_since=time.monotonic()
                 elif idle_seconds is not None and time.monotonic()-idle_since>=idle_seconds:return
                 time.sleep(2)

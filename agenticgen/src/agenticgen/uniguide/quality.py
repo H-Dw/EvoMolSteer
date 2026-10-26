@@ -4,6 +4,19 @@ from rdkit import Chem
 from .io import read,write,sha
 from .profiling import profile_task,quality
 
+SAMPLE_SCOPE='first_two_slots_per_seed_10_of_50'
+
+
+def sample_rows(rows):
+    """Select attempts before inspecting build success; never replace a failure."""
+    from .protocol import SEEDS
+    expected={(seed,slot) for seed in SEEDS for slot in range(10)}
+    keys=[(r['logical_seed'],r['logical_slot']) for r in rows]
+    if len(rows)!=50 or set(keys)!=expected or len({r['node_id'] for r in rows})!=50:
+        raise ValueError('Sampled quality requires fifty unique attempts in the fixed five-seed layout')
+    indexed=dict(zip(keys,rows))
+    return [indexed[(seed,slot)] for seed in SEEDS for slot in [0,1]]
+
 
 def assess_light(folder,teacher):
     """Cheap all-attempt statistics; PLIP and PoseBusters run in CPU workers."""
@@ -50,7 +63,7 @@ def assess(folder,teacher):
     folder=Path(folder)
     if (folder/"QUALITY_COMPLETE.json").exists(): return read(folder/"QUALITY_COMPLETE.json")
     mols=built_molecules(folder/"molecules_all_built.sdf")
-    rows=read(folder/"records.json");results=[]
+    population=read(folder/"records.json");rows=sample_rows(population);results=[]
     for row in rows:
         mol=mols.get(row["node_id"])
         if mol is None:
@@ -65,7 +78,12 @@ def assess(folder,teacher):
         result.update(build_success=True,plip_recovery=len(found&ref)/len(ref) if evaluable and ref else None)
         results.append(result)
     write(folder/"quality.json",results)
-    receipt={"attempts":len(rows),"built":sum(r["build_success"] for r in results),
+    receipt={"scope":SAMPLE_SCOPE,"attempts":len(population),"checked_attempts":len(rows),
+        "not_selected":len(population)-len(rows),"coverage":len(rows)/len(population),
+        "metric_population":"checked_attempts; do not extrapolate these counts to the full population",
+        "selection":[{k:r[k] for k in ['node_id','logical_seed','logical_slot']} for r in rows],
+        "unbuilt_selected":sum(not r['build_success'] for r in results),
+        "built":sum(r["build_success"] for r in results),
         "posebusters_pass":sum(bool(r["quality"].get("posebusters_pass",False)) for r in results),
         "posebusters_evaluable":sum(r['quality'].get('posebusters_evaluable',r['build_success']) for r in results),
         "posebusters_unevaluable_built":sum(r['build_success'] and not r['quality'].get('posebusters_evaluable',True) for r in results),

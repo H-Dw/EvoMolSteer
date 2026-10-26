@@ -122,7 +122,11 @@ def test_unevaluable_plip_keeps_attempt_and_other_quality(tmp_path,monkeypatch):
     protein=tmp_path/'protein.pdb';protein.write_text('fixture protein')
     group=tmp_path/'group';group.mkdir()
     with Chem.SDWriter(str(group/'molecules_all_built.sdf')) as writer:writer.write(mol)
-    write(group/'records.json',[{'node_id':'overflow'},{'node_id':'unbuilt'}])
+    from agenticgen.uniguide.protocol import SEEDS
+    rows=[{'node_id':str(i),'logical_seed':seed,'logical_slot':slot}
+          for i,(seed,slot) in enumerate((s,j) for s in SEEDS for j in range(10))]
+    rows[0]['node_id']='overflow';rows[1]['node_id']='unbuilt'
+    write(group/'records.json',rows)
     before=(group/'molecules_all_built.sdf').read_bytes()
     def profile(mol,protein,out):
         profiling.check_pdb_coordinates(mol.GetConformer().GetPositions())
@@ -130,7 +134,9 @@ def test_unevaluable_plip_keeps_attempt_and_other_quality(tmp_path,monkeypatch):
     monkeypatch.setattr(profiling,'plip_profile',profile)
     monkeypatch.setattr(profiling,'quality',lambda mol,protein:{'posebusters_pass':False,'valid_connected':False,'severe_clash':False})
     result=assess(group,{'protein':str(protein),'plip_profile':{'fingerprints':[['hbond','A','1','ALA','ligand_acceptor']]}})
-    assert result['attempts']==2 and result['built']==1 and result['plip_evaluable']==0
+    assert result['attempts']==50 and result['checked_attempts']==10
+    assert result['built']==1 and result['plip_evaluable']==0
+    assert result['unbuilt_selected']==9 and result['not_selected']==40
     assert result['plip_unevaluable_built']==1 and result['plip_unevaluable_reasons']=={'pdb_coordinate_field_overflow':1}
     rows=read(group/'quality.json')
     assert rows[0]['plip_recovery'] is None and rows[0]['quality']['plip_evaluable'] is False
@@ -139,7 +145,7 @@ def test_unevaluable_plip_keeps_attempt_and_other_quality(tmp_path,monkeypatch):
     assert assess(group,{'protein':str(protein)})==result
 
 
-def test_quality_enqueue_is_nonblocking_full_population_and_durable(tmp_path,monkeypatch):
+def test_quality_enqueue_is_nonblocking_sampled_and_durable(tmp_path,monkeypatch):
     from pathlib import Path
     from rdkit import Chem
     from agenticgen.uniguide.io import write
@@ -164,7 +170,10 @@ def test_quality_enqueue_is_nonblocking_full_population_and_durable(tmp_path,mon
     assert 'posebusters_pass' not in light
     requests=list((tmp_path/'quality_queue/requests').glob('*.json'))
     assert len(requests)==1 and read(requests[0])['population']==50
-    assert read(requests[0])['scope']=='all_attempts' and launches==[str(tmp_path)]
+    assert read(requests[0])['scope']==queue.SAMPLE_SCOPE and launches==[str(tmp_path)]
+    # Already-enqueued old GPU requests retain their immutable source envelope;
+    # the new worker applies the current sample policy when processing them.
+    legacy=read(requests[0]);legacy['scope']='all_attempts';write(requests[0],legacy)
     # Re-enqueue is idempotent and does not sample, wait, or change metrics.
     assert queue.enqueue(config,folder,teacher)==light
     assert len(list((tmp_path/'quality_queue/requests').glob('*.json')))==1
@@ -173,7 +182,7 @@ def test_quality_enqueue_is_nonblocking_full_population_and_durable(tmp_path,mon
     assert queue.run_request(requests[0])=='failed'
     assert queue.snapshot(tmp_path,['group'])['failed']==1
     assert read(folder/'QUALITY_FAILED.json')['does_not_imply_molecular_failure']
-    # Worker checks all attempts and preserves source identity, including failures.
+    # Population accounting stays fifty while diagnostics have a separate scope.
     (folder/'QUALITY_FAILED.json').unlink()
     calls=[]
     def measured(folder,teacher):
@@ -185,6 +194,44 @@ def test_quality_enqueue_is_nonblocking_full_population_and_durable(tmp_path,mon
     write(folder/'records.json',[{'node_id':'changed'}])
     assert queue.run_request(requests[0])=='failed' and len(calls)==1
     assert 'source changed' in read(folder/'QUALITY_FAILED.json')['error']
+
+
+def test_sampled_quality_fixed_slots_no_replacement_and_legacy_receipts(tmp_path,monkeypatch):
+    from pathlib import Path
+    from rdkit import Chem
+    from agenticgen.uniguide.io import write
+    from agenticgen.uniguide.protocol import SEEDS
+    import agenticgen.uniguide.quality as quality
+    rows=[{'node_id':f'{seed}_{slot}','logical_seed':seed,'logical_slot':slot}
+          for seed in SEEDS for slot in range(10)]
+    selected=[r['node_id'] for r in rows if r['logical_slot']<2]
+    assert [r['node_id'] for r in quality.sample_rows(list(reversed(rows)))]==selected
+    with pytest.raises(ValueError):quality.sample_rows(rows[:-1]+[rows[0]])
+    mol=Chem.MolFromMolFile(str(Path(__file__).parent/'fixtures/uniguide_explicit_h/source.mol'))
+    with Chem.SDWriter(str(tmp_path/'molecules_all_built.sdf')) as writer:
+        for r in rows:
+            if r['node_id']==selected[0]:continue
+            mol.SetProp('node_id',r['node_id']);writer.write(mol)
+    write(tmp_path/'records.json',list(reversed(rows)))
+    called=[]
+    def profile(task):
+        called.append(task['node_id']);path=Path(task['out'])/'interactions.json'
+        write(path,{'fingerprints':[]})
+        return {'node_id':task['node_id'],'profile_path':str(path),
+                'quality':{'plip_evaluable':True,'posebusters_evaluable':True,'posebusters_pass':True}}
+    monkeypatch.setattr(quality,'profile_task',profile)
+    result=quality.assess(tmp_path,{'protein':'unused','plip_profile':{'fingerprints':[]}})
+    assert called==selected[1:] and len(called)==9
+    assert result['scope']==quality.SAMPLE_SCOPE and result['checked_attempts']==10
+    assert result['attempts']==50 and result['not_selected']==40 and result['unbuilt_selected']==1
+    assert len(read(tmp_path/'quality.json'))==10
+    assert read(tmp_path/'quality.json')[0]['build_success'] is False
+    assert result['posebusters_pass']==9 and result['posebusters_evaluable']==9
+    assert quality.assess(tmp_path,{})==result and len(called)==9
+    # Full diagnostics completed under the earlier policy are retained, not rerun.
+    legacy={'attempts':50,'built':49,'posebusters_pass':45}
+    write(tmp_path/'QUALITY_COMPLETE.json',legacy)
+    assert quality.assess(tmp_path,{})==legacy and len(called)==9
 
 
 def test_plip_roundtrip_imine_h_representation_preserves_chemistry_and_pose():
