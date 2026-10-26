@@ -92,3 +92,17 @@ GitHub 直连及四个指定 mirror 均依序超时。代码先在本地成功�
 2026-10-26 11:38（Asia/Shanghai）完成重新验收并启动续跑。15 项测试及两位教师的全部 GPU 检查通过，25 行检查首次 VJP 的最大绝对差分别为 `7.6294e-6` 和 `1.5251e-5`，均在既有数值容差内；引导前轨迹、随机流及同人口 checkpoint 恢复均逐位一致。证据目录为 `acceptance/runs/1792985580497988164/`，审计为 `engineering_audits/partial_batch_window_p000.json`。
 
 续跑命令顺序为 `calibrate && run-version UG01`，仅在标定成功后启动 UG01。该版本结束后停在 `AWAITING_GPT_REVIEW`，等待实际主 Agent 复盘。当前日志为 `calibration_to_UG01_20261026_113842.log`；最初失败日志仍完整保留。详见 [验收、失败预算审计及续跑回执](../evidence/uniguide/20261026_partial_batch_recovery.json)。
+
+## 全人口质量检查的显式氢校验修复与定时巡检
+
+2026-10-26 15:30（Asia/Shanghai）检查发现进程已经退出，PID 文件已失效。粗标定 52 组、细标定 24 组、窗口标定 48 组已结束；有限结果分别为 38、20、45 组，其余均按已记录失败计入预算。全人口标定前两组共 100 次采样及重评分已经完成，第二组的质量检查在 `ug_b001_final_004` 处停止。此时累计标定尝试 2300 次，R0 与正式版本均为零。
+
+失败原因是 OpenBabel 在 PDB 回读中为亚胺双键添加了 E/Z 表示，RDKit 默认保留定义该立体信息的显式氢。原始分子为 17 个重原子，回读表示为相同重原子图加一个显式氢；原代码直接比较非立体 SMILES，误判为图变化。该行为与 [RDKit RemoveHsParameters 文档](https://www.rdkit.org/docs/cppapi/structRDKit_1_1MolOps_1_1RemoveHsParameters.html) 的 `removeDefiningBondStereo=false` 默认值一致（访问日期 2026-10-26）。
+
+修复提交 `ad1510b97a3af3be56773840bca373d3237c59d2` 仅在校验副本中统一显式氢表示，同时按坐标映射核查形式电荷、同位素、自由基数、连接氢数和键。实际传入 PLIP 的含氢 OpenBabel 分子、坐标、互作规则和源 SDF 均不变，已有成功 profile 的缓存继续保留。真实失败结构被保存为回归 fixture；远端 16 项测试通过，包括真实案例、原子重排，以及对错误坐标、电荷、同位素、键的拒绝检查。代码先本地提交并推送 GitHub，再通过此前已验证的 SSH Git bundle 路径部署固定提交。工程诊断与补后处理不生成新候选、不额外预留科学采样预算。
+
+本次未发现本项目已有的活动自动化，因此补建当前对话的 heartbeat：`uniguide-flowr`（UniGuide FLOWR 巡检与主轮复盘），状态 ACTIVE，间隔 35 分钟，沿用旧计划的巡检间隔。每次检查真实进程、执行锁、日志与产物；异常时保存证据并按既定流程修复续跑。每个完整 UG 版本仍必须由当前 GPT 主 Agent 实际完成证据复盘、按触发条件研究文献和代码并更新 skills，接受复盘后才运行下一版。连续两次下降回到最优兼容 UG skills，不重算最优版。UG20 最终交付后停用本巡检。其他实验的自动化未改动。
+
+15:47 已补完该组 50 个分子的质量检查：50 个均可进行 PLIP 评估，49 个通过 PoseBusters，49 个为有效连通图，1 个存在严重碰撞。这些结果完整计入记录。补后处理前后的 106 个既有文件哈希全部一致，新增采样为零，尝试预算仍为 2300。见 [补后处理审计](../evidence/uniguide/20261026_explicit_h_recovery.json)。远端随后启动固定修复提交的完整验收，日志为 `explicit_h_acceptance_20261026_154750.log`；只在该验收成功后恢复标定队列。
+
+15:53 完整验收已通过，证据目录为 `acceptance/runs/1793000874512566622/`：16 项测试通过；两位教师原生零增量短轨迹、真实 VJP 有限差分、50/25 行布局、随机流及同人口精确恢复均通过，梯度数值和既有容差未变。随后从固定提交 `ad1510b97a3af3be56773840bca373d3237c59d2` 启动 `calibrate && run-version UG01`，启动 PID 为 53009，日志为 `calibration_to_UG01_20261026_155323.log`。PID 仅为启动回执，后续必须结合进程状态、执行锁和产物更新时间确认运行。见 [完整验收与续跑回执](../evidence/uniguide/20261026_explicit_h_relaunch.json)。本次全人口标定配置为每位教师 20 组，已完成的前两组仅复用结果；本次修复不补采旧失败组。
