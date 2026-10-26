@@ -16,6 +16,41 @@ def graph(m):
         'bonds':[[b.GetBeginAtomIdx(),b.GetEndAtomIdx(),str(b.GetBondType())] for b in m.GetBonds()]}
 
 
+def validate_roundtrip(mol,perceived):
+    """Compare chemistry and coordinates using a validation-only heavy view.
+
+    OpenBabel may encode imine E/Z with an explicit H that RDKit's default
+    RemoveHs retains. Removing that representation-only atom on a COPY is safe
+    here: this check already ignores stereo labels and PLIP uses the unchanged
+    hydrogenated OpenBabel graph and fixed 3D pose, not this comparison copy.
+    """
+    from scipy.optimize import linear_sum_assignment
+    params=Chem.RemoveHsParameters();params.removeDefiningBondStereo=True
+    perceived=Chem.RemoveHs(perceived,params)
+    expected_smiles=Chem.MolToSmiles(mol,isomericSmiles=False)
+    actual_smiles=Chem.MolToSmiles(perceived,isomericSmiles=False)
+    if expected_smiles!=actual_smiles:
+        raise ValueError(f'PDB round-trip changed ligand graph: {expected_smiles} != {actual_smiles}')
+    a=np.array(mol.GetConformer().GetPositions());b=np.array(perceived.GetConformer().GetPositions())
+    if len(a)!=len(b):raise ValueError('PLIP heavy-atom count changed')
+    cost=((a[:,None]-b[None,:])**2).sum(-1)
+    za=np.array([x.GetAtomicNum() for x in mol.GetAtoms()]);zb=np.array([x.GetAtomicNum() for x in perceived.GetAtoms()])
+    cost+=1e6*(za[:,None]!=zb[None,:]);ii,jj=linear_sum_assignment(cost)
+    if cost[ii,jj].max()>1e-4:raise ValueError('PLIP atom-coordinate mapping failed')
+    mapping=dict(zip(map(int,ii),map(int,jj)))
+    for i,j in mapping.items():
+        x,y=mol.GetAtomWithIdx(i),perceived.GetAtomWithIdx(j)
+        for name in ['GetFormalCharge','GetIsotope','GetNumRadicalElectrons']:
+            if getattr(x,name)()!=getattr(y,name)():raise ValueError('PLIP atom chemistry changed: '+name)
+        if x.GetTotalNumHs(includeNeighbors=True)!=y.GetTotalNumHs(includeNeighbors=True):
+            raise ValueError('PLIP attached hydrogen count changed')
+    for bond in mol.GetBonds():
+        other=perceived.GetBondBetweenAtoms(mapping[bond.GetBeginAtomIdx()],mapping[bond.GetEndAtomIdx()])
+        if other is None or other.GetBondType()!=bond.GetBondType():
+            raise ValueError('PLIP coordinate-mapped bond changed')
+    return float(np.sqrt(cost[ii,jj]).max())
+
+
 def complex_pdb(mol,protein_file,destination):
     """Keep all heavy coordinates; write explicit hydrogen/bond/charge information."""
     m=Chem.Mol(mol);original=np.array(m.GetConformer().GetPositions())
@@ -50,7 +85,6 @@ def plip_profile(mol,protein_file,out):
     from plip.structure.preparation import PDBComplex,LigandFinder
     from plip.exchange.report import StructureReport,BindingSiteReport
     from openbabel import openbabel as ob,pybel
-    from scipy.optimize import linear_sum_assignment
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     config.NOHYDRO=True;config.NOFIX=True;config.NOFIXFILE=True
     config.OUTPUTFOLDER=str(out);config.COMPRESS=False;config.MAXTHREADS=1
@@ -104,19 +138,7 @@ def plip_profile(mol,protein_file,out):
     block=pybel.Molecule(full).write('sdf')
     perceived=Chem.MolFromMolBlock(block,removeHs=True,sanitize=True)
     if perceived is None:raise ValueError('PLIP ligand graph cannot be decoded')
-    expected_smiles=Chem.MolToSmiles(mol,isomericSmiles=False)
-    actual_smiles=Chem.MolToSmiles(perceived,isomericSmiles=False)
-    if expected_smiles!=actual_smiles:
-        raise ValueError(f'PDB round-trip changed ligand graph: {expected_smiles} != {actual_smiles}')
-    a=np.array(mol.GetConformer().GetPositions());b=np.array(perceived.GetConformer().GetPositions())
-    if len(a)!=len(b):raise ValueError('PLIP heavy-atom count changed')
-    cost=((a[:,None]-b[None,:])**2).sum(-1)
-    za=np.array([x.GetAtomicNum() for x in mol.GetAtoms()]);zb=np.array([x.GetAtomicNum() for x in perceived.GetAtoms()])
-    cost+=1e6*(za[:,None]!=zb[None,:]);ii,jj=linear_sum_assignment(cost)
-    if cost[ii,jj].max()>1e-4:raise ValueError('PLIP atom-coordinate mapping failed')
-    for i,j in zip(ii,jj):
-        if mol.GetAtomWithIdx(int(i)).GetFormalCharge()!=perceived.GetAtomWithIdx(int(j)).GetFormalCharge():
-            raise ValueError('PLIP formal charge changed')
+    roundtrip_distance=validate_roundtrip(mol,perceived)
     c.analyze();site=c.interaction_sets['LIG:Z:1'];report=BindingSiteReport(site)
     StructureReport(c).write_xml()
     rows=[]
@@ -149,7 +171,8 @@ def plip_profile(mol,protein_file,out):
     result={'plip_version':config.__version__,'openbabel':ob.OBReleaseVersion(),'nohydro':True,'nofix':True,
         'protein_sha256':digest(protein_file),'source_graph':graph(mol),'roundtrip_graph_verified':True,
         'ligand_graph_source':'original SDF, transferred after PDB serialization; no geometric relaxation',
-        'heavy_coords_roundtrip_max_A':float(np.sqrt(cost[ii,jj]).max()),
+        'heavy_coords_roundtrip_max_A':roundtrip_distance,
+        'roundtrip_validation':'heavy-graph-charge-hcounts-coordinates-v2',
         'pdb_serial_to_native':{str(k):v for k,v in serial_map.items()},'core_atoms':core,
         'core_coverage':len(core)/mol.GetNumHeavyAtoms(),'interactions':rows,
         'fingerprints':sorted({tuple(r['fingerprint']) for r in rows}), 'thresholds':thresholds}

@@ -81,6 +81,37 @@ def test_empty_built_structure_file_is_a_reportable_population(tmp_path):
     assert built_molecules(p)=={}
 
 
+def test_plip_roundtrip_imine_h_representation_preserves_chemistry_and_pose():
+    from pathlib import Path
+    from rdkit import Chem
+    from agenticgen.uniguide.profiling import validate_roundtrip
+    fixture=Path(__file__).parent/'fixtures/uniguide_explicit_h'
+    source=Chem.MolFromMolFile(str(fixture/'source.mol'),removeHs=True)
+    actual=Chem.MolFromMolFile(str(fixture/'openbabel_roundtrip.sdf'),removeHs=True)
+    # Real failed generated pose: default removal retains an imine stereo H.
+    assert source.GetNumAtoms()==17 and actual.GetNumAtoms()==18
+    before=Chem.MolToMolBlock(actual)
+    assert validate_roundtrip(source,actual)<1e-3
+    assert Chem.MolToMolBlock(actual)==before
+    # Different atom ordering must not change this verdict.
+    assert validate_roundtrip(source,Chem.RenumberAtoms(actual,list(reversed(range(18)))))<1e-3
+    changed=Chem.Mol(actual);changed.GetConformer().SetAtomPosition(0,(100,100,100))
+    with pytest.raises(ValueError,match='coordinate'):validate_roundtrip(source,changed)
+    changed=Chem.Mol(actual)
+    oxygen=next(a for a in changed.GetAtoms() if a.GetFormalCharge()==-1)
+    oxygen.SetFormalCharge(0);oxygen.SetNumExplicitHs(1)
+    Chem.SanitizeMol(changed)
+    with pytest.raises(ValueError,match='graph'):validate_roundtrip(source,changed)
+    changed=Chem.Mol(actual);changed.GetAtomWithIdx(0).SetIsotope(13)
+    with pytest.raises(ValueError,match='chemistry'):validate_roundtrip(source,changed)
+    changed=Chem.Mol(actual)
+    bond=next(b for b in changed.GetBonds() if b.GetBondType()==Chem.BondType.DOUBLE and
+              {b.GetBeginAtom().GetSymbol(),b.GetEndAtom().GetSymbol()}=={'C','N'})
+    bond.SetBondType(Chem.BondType.SINGLE);bond.SetStereo(Chem.BondStereo.STEREONONE)
+    Chem.SanitizeMol(changed)
+    with pytest.raises(ValueError,match='graph'):validate_roundtrip(source,changed)
+
+
 def row(i,c,g): return {'id':i,'C':c,'gap':g,'best':8.,'complete':True}
 
 
