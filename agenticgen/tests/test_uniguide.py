@@ -81,6 +81,44 @@ def test_empty_built_structure_file_is_a_reportable_population(tmp_path):
     assert built_molecules(p)=={}
 
 
+def test_pdb_fixed_width_overflow_is_not_coordinate_correction():
+    from agenticgen.uniguide.profiling import check_pdb_coordinates,PDBRepresentationError
+    check_pdb_coordinates([[-999.999,0,9999.999]])
+    for value in [-1109.4329,29230066.,-999.9999,9999.9999]:
+        original=np.array([[0.,value,0.]])
+        with pytest.raises(PDBRepresentationError) as error:check_pdb_coordinates(original)
+        assert error.value.reason=='pdb_coordinate_field_overflow'
+        assert original[0,1]==value
+
+
+def test_unevaluable_plip_keeps_attempt_and_other_quality(tmp_path,monkeypatch):
+    from pathlib import Path
+    from rdkit import Chem
+    from agenticgen.uniguide.io import write
+    import agenticgen.uniguide.profiling as profiling
+    from agenticgen.uniguide.quality import assess
+    mol=Chem.MolFromMolFile(str(Path(__file__).parent/'fixtures/uniguide_explicit_h/source.mol'))
+    mol.GetConformer().SetAtomPosition(0,(29230066.,0.,0.));mol.SetProp('node_id','overflow')
+    protein=tmp_path/'protein.pdb';protein.write_text('fixture protein')
+    group=tmp_path/'group';group.mkdir()
+    with Chem.SDWriter(str(group/'molecules_all_built.sdf')) as writer:writer.write(mol)
+    write(group/'records.json',[{'node_id':'overflow'},{'node_id':'unbuilt'}])
+    before=(group/'molecules_all_built.sdf').read_bytes()
+    def profile(mol,protein,out):
+        profiling.check_pdb_coordinates(mol.GetConformer().GetPositions())
+        raise AssertionError('Must reject encoding before PLIP')
+    monkeypatch.setattr(profiling,'plip_profile',profile)
+    monkeypatch.setattr(profiling,'quality',lambda mol,protein:{'posebusters_pass':False,'valid_connected':False,'severe_clash':False})
+    result=assess(group,{'protein':str(protein),'plip_profile':{'fingerprints':[['hbond','A','1','ALA','ligand_acceptor']]}})
+    assert result['attempts']==2 and result['built']==1 and result['plip_evaluable']==0
+    assert result['plip_unevaluable_built']==1 and result['plip_unevaluable_reasons']=={'pdb_coordinate_field_overflow':1}
+    rows=read(group/'quality.json')
+    assert rows[0]['plip_recovery'] is None and rows[0]['quality']['plip_evaluable'] is False
+    assert rows[0]['quality']['posebusters_pass'] is False
+    assert (group/'molecules_all_built.sdf').read_bytes()==before
+    assert assess(group,{'protein':str(protein)})==result
+
+
 def test_quality_enqueue_is_nonblocking_full_population_and_durable(tmp_path,monkeypatch):
     from pathlib import Path
     from rdkit import Chem

@@ -60,8 +60,9 @@ def assess(folder,teacher):
         result=profile_task(dict(node_id=row["node_id"],molblock=Chem.MolToMolBlock(mol),protein=teacher["protein"],out=str(folder/"profiles"/row["node_id"])))
         profile=read(result["profile_path"])
         ref={tuple(x) for x in teacher["plip_profile"]["fingerprints"]}
-        found={tuple(x) for x in profile["fingerprints"]}
-        result.update(build_success=True,plip_recovery=len(found&ref)/len(ref) if ref else None)
+        evaluable=profile.get('plip_evaluable',True)
+        found={tuple(x) for x in profile["fingerprints"]} if evaluable else set()
+        result.update(build_success=True,plip_recovery=len(found&ref)/len(ref) if evaluable and ref else None)
         results.append(result)
     write(folder/"quality.json",results)
     receipt={"attempts":len(rows),"built":sum(r["build_success"] for r in results),
@@ -69,8 +70,12 @@ def assess(folder,teacher):
         "valid_connected":sum(r["quality"].get("valid_connected",False) for r in results),
         "severe_clash":sum(bool(r["quality"].get("severe_clash")) for r in results),
         "clash_evaluable":sum(r["quality"].get("severe_clash") is not None for r in results),
-        "plip_evaluable":sum(r["build_success"] for r in results),
-        "quality_sha256":sha(folder/"quality.json"),"records_sha256":sha(folder/"records.json")}
+        "plip_evaluable":sum(r['quality'].get('plip_evaluable',r['build_success']) for r in results),
+        "plip_unevaluable_built":sum(r['build_success'] and not r['quality'].get('plip_evaluable',True) for r in results),
+        "plip_unevaluable_reasons":{reason:sum(r['quality'].get('plip_unevaluable_reason')==reason for r in results)
+            for reason in sorted({r['quality']['plip_unevaluable_reason'] for r in results if 'plip_unevaluable_reason' in r['quality']})},
+        "quality_sha256":sha(folder/"quality.json"),"records_sha256":sha(folder/"records.json"),
+        "quality_implementation_sha256":{name:sha(Path(__file__).parent/name) for name in ['quality.py','profiling.py']}}
     write(folder/"QUALITY_COMPLETE.json",receipt)
     return receipt
 

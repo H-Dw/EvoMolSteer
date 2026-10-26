@@ -45,7 +45,9 @@ def ensure_worker(config):
             process=subprocess.Popen([sys.executable,'-m','agenticgen.uniguide.quality_queue',
                 '--runtime',str(queue/'runtime.json')],stdin=subprocess.DEVNULL,stdout=stream,
                 stderr=subprocess.STDOUT,env=env,close_fds=True,start_new_session=True)
-        write(receipt,{'pid':process.pid,'log':str(log),'started_unix':time.time(),'workers':WORKERS,'device':'cpu'})
+        write(receipt,{'pid':process.pid,'log':str(log),'started_unix':time.time(),'workers':WORKERS,'device':'cpu',
+            'module_directory':str(Path(__file__).parent),
+            'implementation_sha256':{name:sha(Path(__file__).parent/name) for name in ['quality_queue.py','quality.py','profiling.py']}})
 
 
 def enqueue(config,folder,teacher):
@@ -106,7 +108,7 @@ def run_request(request_path):
             return 'failed'
 
 
-def worker(runtime,idle_seconds=900):
+def worker(runtime,idle_seconds=None):
     sys.path.insert(0,runtime['plip_dependencies'])
     root=Path(runtime['root']);queue=root/'quality_queue'
     with (queue/'.worker.lock').open('a+') as lock:
@@ -130,7 +132,7 @@ def worker(runtime,idle_seconds=900):
                 write(queue/'status.json',{'pid':os.getpid(),'unix':time.time(),'active':[str(p) for p in futures.values()],
                     'pending':len(pending),'workers':WORKERS,'device':'cpu','blocks_inference':False})
                 if pending or futures:idle_since=time.monotonic()
-                elif time.monotonic()-idle_since>=idle_seconds:return
+                elif idle_seconds is not None and time.monotonic()-idle_since>=idle_seconds:return
                 time.sleep(2)
 
 

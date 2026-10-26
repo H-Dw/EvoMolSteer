@@ -10,6 +10,26 @@ from rdkit.Chem import QED, rdMolDescriptors
 from .io import read, write, sha as digest, value_sha as json_digest, package_version
 
 
+class PDBRepresentationError(ValueError):
+    """The fixed pose cannot be encoded in PDB's Real(8.3) fields."""
+    def __init__(self,reason,details):
+        super().__init__(reason)
+        self.reason=reason;self.details=details
+
+
+def check_pdb_coordinates(xyz):
+    xyz=np.asarray(xyz)
+    if not np.isfinite(xyz).all():
+        raise PDBRepresentationError('nonfinite_coordinates_for_pdb',{'nonfinite_values':int((~np.isfinite(xyz)).sum())})
+    # Check the formatted width, including rounding at both asymmetric bounds.
+    overflow=[(i,j) for i,row in enumerate(xyz) for j,x in enumerate(row) if len(f'{float(x):8.3f}')>8]
+    if overflow:
+        i,j=overflow[0]
+        raise PDBRepresentationError('pdb_coordinate_field_overflow',{'atom_index':i,'axis':j,
+            'value_A':float(xyz[i,j]),'overflow_values':len(overflow),'format':'Real(8.3)',
+            'min_A':xyz.min(axis=0).tolist(),'max_A':xyz.max(axis=0).tolist()})
+
+
 def graph(m):
     return {'elements':[a.GetSymbol() for a in m.GetAtoms()],
         'formal_charges':[a.GetFormalCharge() for a in m.GetAtoms()],
@@ -54,7 +74,9 @@ def validate_roundtrip(mol,perceived):
 def complex_pdb(mol,protein_file,destination):
     """Keep all heavy coordinates; write explicit hydrogen/bond/charge information."""
     m=Chem.Mol(mol);original=np.array(m.GetConformer().GetPositions())
+    check_pdb_coordinates(original)
     h=Chem.AddHs(m,addCoords=True)
+    check_pdb_coordinates(h.GetConformer().GetPositions())
     assert np.array_equal(original,np.array(h.GetConformer().GetPositions())[:len(original)])
     text=Path(protein_file).read_text()
     lines=[l for l in text.splitlines() if l.startswith(('ATOM  ','HETATM','TER   ','CONECT'))]
@@ -214,8 +236,17 @@ def profile_task(task):
         if saved['cache_key']!=key:raise ValueError('Profile cache source changed')
         return saved
     out.mkdir(parents=True,exist_ok=True)
-    p=plip_profile(mol,task['protein'],out)
+    try:p=plip_profile(mol,task['protein'],out)
+    except PDBRepresentationError as error:
+        # Keep the source pose. Do not translate, clamp, relax, or count missing
+        # interactions as a measured zero when serialization is impossible.
+        p={'plip_evaluable':False,'reason':error.reason,'details':error.details,
+           'source_graph':graph(mol),'source_coordinates_preserved':True,
+           'core_atoms':None,'fingerprints':None,'interactions':None}
+        write(out/'interactions.json',p)
     q=quality(mol,task['protein'])
+    q['plip_evaluable']=p.get('plip_evaluable',True)
+    if not q['plip_evaluable']:q['plip_unevaluable_reason']=p['reason']
     result={'cache_key':key,'node_id':task['node_id'],'profile_path':str(out/'interactions.json'),'quality':q}
     write(out/'complete.json',result)
     return result
