@@ -79,11 +79,16 @@ class Control:
         count=len(self.before)
         for start in range(0,count,ROWS):
             ids=list(range(start,min(start+ROWS,count)))
-            current=take(curr,ids,count)
+            actual=len(ids)
+            # Keep the input VJP at the same physical shape as the forward.
+            # Padding only inside model.forward leaves a five-row input VJP
+            # for a 25-row population and changes backward reduction layout.
+            physical_ids=(ids*((ROWS+actual-1)//actual))[:ROWS]
+            current=take(curr,physical_ids,count)
             with torch.set_grad_enabled(scale!=0):
                 x=current["coords"].detach().clone().requires_grad_(scale!=0)
-                out=self.model(dict(current,coords=x),take(pocket,ids,count),take(times,ids,count),
-                    cond_batch=detach(take(cond,ids,count)),pocket_equis=take(equis,ids,count),pocket_invs=take(invs,ids,count),training=False)
+                out=self.model(dict(current,coords=x),take(pocket,physical_ids,count),take(times,physical_ids,count),
+                    cond_batch=detach(take(cond,physical_ids,count)),pocket_equis=take(equis,physical_ids,count),pocket_invs=take(invs,physical_ids,count),training=False)
                 for head in out.get("affinity",{}).values():
                     if torch.is_tensor(head) and head.requires_grad:
                         def denied(g): raise RuntimeError("Affinity head entered coordinate VJP")
@@ -92,12 +97,12 @@ class Control:
                 pred,_=self.model._get_predictions(out)
                 for key in ["coords","atomics","charges","bonds","hybridization"]:
                     if key in pred: finite("native prediction "+key,pred[key])
-                endpoint=pred["coords"]*self.model.coord_scale+self.com[ids,None]
+                endpoint=pred["coords"]*self.model.coord_scale+self.com[physical_ids,None]
                 value,target,selected,assignment=loss(endpoint,self.teacher["core_A"],current["mask"].bool())
                 gradient=torch.autograd.grad(value.sum(),x)[0] if scale else torch.zeros_like(x)
-            blocks.append(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
-                                      selected=selected,assignment=assignment,gradient=gradient)))
-            sizes.append(len(ids))
+            blocks.append(take(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
+                                      selected=selected,assignment=assignment,gradient=gradient)),list(range(actual)),ROWS))
+            sizes.append(actual)
             del out,pred,endpoint,value,target,selected,assignment,gradient,x
         combined=concatenate(blocks,sizes)
         out,pred,endpoint,value,target,selected,assignment,gradient=(combined[k] for k in
