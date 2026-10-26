@@ -214,3 +214,11 @@ UG02已完成6pyy的R01–R04共12组、600次尝试及12组10/50抽样，在R05
 22:59:36确认续跑成功，3w54/R03/increase已推进至第30步。redistribute续发的wire_2与原wire_1字节完全相同，首次完整回答因违反“一至两个窗口、一个声明的对数步长”约束而被拒绝，随后原有json-interface-v5应用约束修正流程返回合法答案；这次恢复包含两次HTTP调用，不能记为无接口修正。两次输出分别13384和4485 token，后者reasoning为908；最终finish_reason=stop。综合Agent随后单次成功，输出11212 token，其中9057为reasoning。模型、thinking和16384上限保持原值；失败答案及修正请求均保留。
 
 363个保护文件及6pyy retention备份哈希仍完全一致。CPU队列无积压或当前工程失败，执行锁和worker锁正常，最新正式预留2600次仅新增此前未执行的R03/increase组。详见[第三次截断、无网络预演与实际采样恢复证据](../evidence/uniguide/20261026_UG02_3w54_R03_recovery.json)。巡检保持ACTIVE、35分钟间隔，并纳入最新恢复入口、PID、日志及363文件保护账本；更新后按UTF-8/JSON ASCII读回核验。
+
+## 10月27日：UG02完成、实际复盘与UG03准备
+
+23:58巡检确认UG02恢复进程已正常退出、执行锁空闲，两教师30组1500次及30组10/50抽样全部完成，FINALIZED与AWAITING_GPT_REVIEW齐备。正式累计3000次，标定4200、R0 100保持不变。363个受保护文件无变化，CPU抽样队列无积压。主Agent实际读取30组指标、四份绑定上下文以及当前/UG01/最佳UG/R0；00:11补充核验两教师50个保留槽位的选择、node_id与源结构绑定及代表trace/terminal哈希。
+
+UG02平均C较UG01降低0.002786 Å、平均gap增加0.077928，按冻结规则记录一次整体下降，最佳保持UG01；未触发连续两版下降，UG03从UG02的skills修订。6pyy改善，3w54退步，不能用平均C微降掩盖后者。300个抽样槽位有291个PoseBusters通过、6个实测不通过、3个未构建，297个PLIP可评估；其余1200个不追加慢检查。
+
+本轮主动重查UniGuide原文/官方代码、Flow Matching guidance原文、PyTorch反传文档及DeepSeek thinking官方说明。三项skills修订聚焦原始scale/变化窗口核对、整数格点合法邻居构造和紧凑且可核验的综合决策，回应代表文本事实错误、三次输出截断及接口修正。科学代码、采样及LLM参数均未更改；下一版仍需实际验收复盘与启动检查。详见[中文复盘](../reviews/20261027_UG02_review.zh-CN.md)、[机器复盘](../reviews/20261027_UG02_review.json)、[完整原始证据](../evidence/uniguide/20261027_UG02_review_evidence.json)和[保留审计](../evidence/uniguide/20261027_UG02_retention_review_audit.json)。
