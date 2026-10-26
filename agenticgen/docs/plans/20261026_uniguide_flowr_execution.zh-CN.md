@@ -16,7 +16,7 @@
 
 执行环境为用户指定服务器的 `/workspace/EvoMolSteer`。仅在远端运行测试，使用现有 Torch 2.9.0 / DTK 环境。补充依赖 h5py 3.11.0 隔离安装于 `/workspace/uniguide_deps`，未升级 Torch 或 DTK。
 
-14 项测试已通过：验收入口运行 11 项；随后新增的 3 项版本冻结、UG20 终止和 Agent 提案选择契约测试单独在同一远端环境通过。三项新增测试使用替身 provider 验证接口约束，实际 DeepSeek API 尚未通过连通性和凭据验证。
+初次记录时，14 项测试已通过：验收入口运行 11 项；随后新增的 3 项版本冻结、UG20 终止和 Agent 提案选择契约测试单独在同一远端环境通过。三项新增测试使用替身 provider 验证接口约束。后续通过了真实 DeepSeek API 检查，并补充了部分批次的回归测试，见后续记录。
 
 两位教师的真实模型验收均通过：
 
@@ -30,7 +30,7 @@
 
 3w54 的原生 50 行网络调用曾在工程验收中超出显存。因此保持逻辑人口与原生随机数协议，改为固定 10 行网络前向、pocket 编码和 VJP；不足 10 行时填充并丢弃填充输出。比较固定物理批与拆分逻辑批后结果一致，没有放宽数值容差。原始失败日志均保留。
 
-当前科学引擎提交为 `24b863c671a4e1f9862754d23cd91cb3e046a599`。新增契约测试提交为 `78eb5f64636ebf7a6f39a6d2776dba95b25fc81f`，未改变科学引擎。远端在标定期间保持引擎提交固定。
+初次科学引擎提交为 `24b863c671a4e1f9862754d23cd91cb3e046a599`。新增契约测试提交为 `78eb5f64636ebf7a6f39a6d2776dba95b25fc81f`，未改变科学引擎。后续窗口阶段因工程错误停止；经审计、修复和重新验收后，从固定提交 `ebd0ee83e5701e759c3a0551acc680241bae1cd8` 继续，详见末节。
 
 ## 实验状态与继续入口
 
@@ -41,7 +41,7 @@
 ```bash
 cd /workspace/EvoMolSteer
 bash agenticgen/scripts/run_uniguide.sh status
-tail -n 30 /workspace/agenticgen_uniguide_flowr_20261026/calibration_pipeline.log
+tail -n 30 "$(cat /workspace/agenticgen_uniguide_flowr_20261026/calibration_pipeline.logpath)"
 ```
 
 标定完成后，满足 API 条件才启动正式版本：
@@ -76,3 +76,19 @@ GitHub 直连及四个指定 mirror 均依序超时。代码先在本地成功�
 实测 `bash -ic` 与 `bash -lic` 均能读取密钥；在交互式 shell 中再加载 DTK 环境后，密钥和小写代理变量仍然存在。使用该环境对 `https://api.deepseek.com/models` 发起带鉴权请求，返回 HTTP 200，模型列表包含 `deepseek-flash`。检查只输出是否存在、HTTP 状态及模型可用性，没有输出密钥或代理凭据。
 
 启动脚本现已在 `run-version` 缺少密钥时，通过一次交互式 shell 加载现有配置并重新执行自身；有显式传入的密钥时保留调用方环境。如果加载后仍缺少密钥则明确失败，避免递归重试。此变更只涉及启动环境，不改科学引擎或正在运行的标定。
+
+真实 provider 进一步使用实验配置调用 `deepseek-flash`，成功返回符合 schema 的 `{"ok": true}`，回执为 `backend=real_api`、`finish_reason=stop`，消耗 346 tokens。诊断证据见 [环境检查与真实调用](../evidence/uniguide/20261026_environment_diagnosis.json)。原先关于重新配置密钥和新增代理的询问已无必要。GitHub fetch 在加载现有代理后仍超时，因此部署仍通过已经校验的 Git bundle 完成。
+
+## 25 样本窗口阶段的工程修复
+
+检查启动环境时发现，粗标定和细标定已经结束，共 58 个配置产生有限结果、18 个配置发生已记录的数值失败。随后窗口标定的第一组 `calibration/windows/6pyy_H7S_A_402/p000` 因 `IndexError` 停止。该组已预留 25 次尝试，尚未完成首个积分步。
+
+原因是 native 输出的 `fragment_mode` 按样本存为列表，而拼接器把它当成各批长度固定的结构列表。25 个样本分为 10、10、5 行，最后一批触发越界。修复明确区分逐行元数据与结构列表，同时使末尾批次的输入 VJP 也使用固定 10 行物理形状。
+
+补充 GPU 检查还发现：不同逻辑人口会将同一随机种子的样本放到物理批中的不同位置。6pyy 在首个有效引导步之前的坐标、endpoint 和噪声完全一致，首个 VJP 的最大绝对差为约 `7.63e-6`，随后干净预测的差异可累积到约 `4.0e-4 Å`。因此跨人口的 VJP 使用原有 `atol=2e-5, rtol=2e-5` 数值比较；随机流、引导前轨迹以及同一人口的 checkpoint 恢复仍要求逐位一致。新增检查最初错误地要求不同人口在后续所有状态上逐位相同，两次失败验收的原始证据均已保留，没有把它们标记为成功。
+
+新增远端回归测试覆盖 25 行的逐行元数据、两项时间张量和梯度。完整验收同时覆盖两位教师的 25 行短轨迹、首次 VJP 数值一致性及同人口精确恢复。失败科学组须经工程审计后标记失败并继续下一组，其 25 次预算保留，不重新执行或补采该组。既有粗、细标定使用完整物理批，采样张量计算不受此修复影响；已有结果继续保留。
+
+2026-10-26 11:38（Asia/Shanghai）完成重新验收并启动续跑。15 项测试及两位教师的全部 GPU 检查通过，25 行检查首次 VJP 的最大绝对差分别为 `7.6294e-6` 和 `1.5251e-5`，均在既有数值容差内；引导前轨迹、随机流及同人口 checkpoint 恢复均逐位一致。证据目录为 `acceptance/runs/1792985580497988164/`，审计为 `engineering_audits/partial_batch_window_p000.json`。
+
+续跑命令顺序为 `calibrate && run-version UG01`，仅在标定成功后启动 UG01。该版本结束后停在 `AWAITING_GPT_REVIEW`，等待实际主 Agent 复盘。当前日志为 `calibration_to_UG01_20261026_113842.log`；最初失败日志仍完整保留。详见 [验收、失败预算审计及续跑回执](../evidence/uniguide/20261026_partial_batch_recovery.json)。
