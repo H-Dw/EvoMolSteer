@@ -282,3 +282,13 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 04:08:35确认恢复成功：redistribute续发wire_2与原wire_1字节相同，单次HTTP、无接口修正、finish_reason=stop，输出14302 token，其中reasoning12847；随后synthesis单次成功、无接口修正，输出12515，其中reasoning11068。3w54/R05/increase已到第20步，正式累计预留4400次，仅新增此前未执行的一组。
 
 1964个保护文件和6pyy retention备份哈希全部一致，GPU保持干净9dd21ede，源码、skills、CPU模块均无变化，CPU抽样队列无积压。恢复运行绑定为`UG03_request_recovery_20261027_040502.jsonl`。完整证据见[UG03第五轮恢复审计](../evidence/uniguide/20261027_UG03_3w54_R05_recovery.json)。35分钟巡检继续ACTIVE；等待最后3组及最终分析、结构保留完成后，主Agent实际读取30组和4份上下文复盘，不能因接近结束跳过该步骤或提前启动UG04。
+
+## 2026-10-27 UG03完成与实际主复盘
+
+04:38（Asia/Shanghai）核实UG03已结束，执行锁空闲。30组1500次尝试、30组基础统计、30组10/50抽样、两教师结构保留和FINALIZED/AWAITING_GPT_REVIEW均齐全，无采样或质量工程失败。预算4200/100/4500，CPU抽样队列无积压。1964个既有保护文件及6pyy保留备份不变。04:44进一步核对两教师各50条按槽保留与源node_id、选择结果和SDF身份，代表组终态/轨迹哈希均通过；6pyy代表49个构建成功但C分母为50。
+
+当前GPT主Agent实际读取30组指标、四份绑定策略上下文、48份成功及11份初始失败/无效HTTP回执，并比较UG03、UG02、UG01和R0。UG03平均C=0.4556837230、gap=1.4918186045；相对UG02分别变化−0.0029526364、−0.0893685269，成为冻结规则下最佳版本。UG02→UG03未下降，连续下降计数归零；UG04从UG03 skills更新，不重跑最佳版或R0。6pyy的C/gap变化均小于0.02，触发实际论文和代码检索；其余两种触发条件未满足。
+
+重新阅读UniGuide条件映射/全状态梯度原文及官方源码、Flow Matching路径相关引导公式、PyTorch反传和DeepSeek thinking官方说明。三项skills更新针对窗口与格点步长核对、坐标/构建/抽样分母、可比人口、C带内gap排序、字段完整和单一JSON对象。没有更改采样代码、科学参数、LLM参数或重试政策。UG03的四次输出截断和七次初始JSON/字段错误表明上一版指引未解决此问题；新改动仍需UG04真实结果检验。
+
+300个抽样槽位全部可评价：PoseBusters通过290、测量不通过10；PLIP可评价300，不代表互作全部恢复。其余1200个不补查。详见[中文复盘](../reviews/20261027_UG03_review.zh-CN.md)、[机器复盘](../reviews/20261027_UG03_review.json)、[完整原始证据](../evidence/uniguide/20261027_UG03_review_evidence.json)及[保留核验](../evidence/uniguide/20261027_UG03_retention_review_audit.json)。完成GitHub推送、空闲锁内固定提交部署、远端验证和accept-review后，方可启动UG04。
