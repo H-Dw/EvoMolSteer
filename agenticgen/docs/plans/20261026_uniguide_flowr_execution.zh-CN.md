@@ -152,3 +152,21 @@ CPU修复在写PDB前检查真实格式化宽度，包括四舍五入边界；�
 18:06（Asia/Shanghai）两教师的共享R0均完成，共100次尝试，两个组均完成10/50抽样检查。UG01已实际完成第一轮的increase组，decrease组正在推理；正式尝试预留100次，其中50次已完成。进程、执行锁和CPU队列正常，抽样worker的三个模块哈希均与部署回执相符，当前无QUALITY_FAILED或AWAITING_GPT_REVIEW。没有重跑R0或中断健康进程。见 [UG01启动与远端健康证据](../evidence/uniguide/20261026_UG01_started_1806.json)。
 
 本次发现上述17:55记录中“定时巡检规则已替换”的结论缺少读回核验：此前读取自动化配置经终端返回时，中文变成Unicode替换字符，随后字符串替换未命中，导致工具虽返回更新成功，保存的提示仍含损坏文字及旧50/50规则。远端抽样代码和实际覆盖未受影响。本次已根据最新协议完整重写本任务的提示与名称，保留ACTIVE状态、35分钟间隔和原目标对话；通过JSON ASCII转义读回，确认保存的提示与提交文本逐字相同、无Unicode替换字符、含checked_attempts=10及固定CPU提交3f07d1fa。今后更新自动化说明必须进行同样读回验证。其他自动化未修改。
+
+## 20:16巡检：UG01实际复盘、更新三份skills并启动UG02
+
+2026-10-26 19:50（Asia/Shanghai）UG01完成两教师各5轮、共30组及1500次尝试。19:57核对真实进程已正常退出、执行锁空闲、FINALIZED与AWAITING_GPT_REVIEW齐备，30组基础统计和30组10/50抽样均完成，没有当前工程失败。主Agent实际读取全部30组聚合指标、四份绑定的代表策略上下文以及共享R0；并核验源SDF/records哈希、抽样种子/槽位/node_id、上下文哈希和两份结构保留回执。参见[完整性审计](../evidence/uniguide/20261026_UG01_integrity_audit.json)。
+
+6pyy代表配置为R03/redistribute，C从R0的0.597012降至0.585163 Å，gap从2.253831升至2.258944，变化很小；3w54为R04/redistribute，C从0.428588降至0.337682 Å，gap从1.020806降至0.747575。上一UG版本不存在，当前最佳UG为UG01，没有连续下降回退。虽然不触发相邻版本停滞规则，主Agent因6pyy接近R0、早期极大增量及窗口loss归因问题，主动查阅UniGuide原文、官方补充代码、On the Guidance of Flow Matching及PyTorch 2.9 autograd文档，保存精确版本、代码压缩包哈希和适用性。
+
+提交`f649d9a32b59089efc44f7704c119bf58ffcd4fa`更新analysis、proposal、synthesis三个skills：明确FLOWR实际时间系数与guidance/native比值；从当前版本已测量的较优配置考虑合法替代锚点；以新测量结果检验上一轮预测，避免仅依据窗口内proxy loss走向继续加减尺度。三项分别记录证据链、预期和UG02可证伪条件。科学loss、匹配、VJP、积分、窗口、随机流与预算未改变。详见[中文复盘](../reviews/20261026_UG01_review.zh-CN.md)及[机器可校验复盘](../reviews/20261026_UG01_review.json)。
+
+300个抽样槽位中，10个未构建；PoseBusters通过276个、已测量不通过13个、已构建但无法评估1个；PLIP可评估287个、已构建但无法评估3个。其余1200个仅保留基础统计，不追加慢检查；检查完成不等于全部合格，也不把抽样结果外推成全人口通过率。
+
+20:08，在代码已本地提交并推送GitHub后，远端直连及四个镜像按批准顺序均8秒超时，改用仅含已推送提交且通过verify的Git bundle。GPU主目录从13abe088统一到f649d9a3；变更只包括此前已审计的三个CPU质量模块及本次三份skills，独立CPU目录仍为3f07d1fa，worker PID491876未中断。远端稀疏检出不包含docs/reviews，首次按工作树路径读取复盘失败，尚未执行accept-review或预留UG02预算；随后从固定提交的Git对象提取同一文件到`reviews/UG01_review_f649d9a3.json`，不改变复盘内容或仓库源码。
+
+远端验收`acceptance/runs/1793016536820714424`通过21项测试和两教师全部GPU检查。真实VJP有限差分相对误差为0.002665/0.010906及0.005510/0.009064；原生零增量、随机流、50/25行布局及同人口checkpoint恢复通过，既有容差未改变。UG01/REVIEW_ACCEPTED.json随后绑定复盘SHA256 `7ec04e3af9ea2892a1ca9f3323d235a6deeb7cb65d7a5af8d85b6f97a358dfa6`。
+
+20:15:34启动UG02，固定执行提交f649d9a3，启动PID562572，日志`UG02_20261026_2015.log`，定位文件`UG02.logpath`。20:16核对真实run-version UG02进程、执行锁、三份skills哈希、manifest父版本及首轮真实API请求均正常；CPU队列无积压，三个质量模块哈希与新主目录一致。预算为标定4200、R0 100、正式1500，UG02尚在首轮策略思考，没有重算R0或UG01。见[部署、验收、接受复盘与启动证据](../evidence/uniguide/20261026_UG02_started.json)。
+
+35分钟heartbeat继续ACTIVE，提示已更新至本次部署与UG02启动状态，并按UTF-8/JSON ASCII转义读回，确认无替换字符、checked_attempts=10、独立CPU提交及间隔均正确。后续健康推理期间保留固定源码，UG02结束后仍需实际GPT复盘，不能自动跳过复盘启动UG03。
