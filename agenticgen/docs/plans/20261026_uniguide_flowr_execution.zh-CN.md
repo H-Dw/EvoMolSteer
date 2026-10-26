@@ -186,3 +186,5 @@ UG02已完成6pyy的R01–R04共12组、600次尝试及12组10/50抽样，在R05
 21:20:01实际启动续跑，恢复入口位于`/workspace/uniguide_recovery/ce0ec57c50a2130021cfd0cc390da65e23ce6467/agenticgen/scripts/resume_uniguide_cached_requests.py`，启动PID574642，日志`UG02_request_recovery_20261026_212001.log`。21:20:49核对真实进程、独占执行锁和恢复审计，已到达原R05/redistribute并保存wire_2；其字节与wire_1完全一致，原失败记录保留。此时请求仍在途，不以进程存在宣称该API已成功。见[失败原因、缓存复核、远端测试与启动证据](../evidence/uniguide/20261026_UG02_request_recovery.json)。普通run-version不含这个显式恢复适配，不能在同一错误上重复启动。
 
 21:22巡检提示更新至上述恢复入口、固定提交、日志与审计路径，ACTIVE和35分钟间隔保持不变；UTF-8/JSON ASCII读回逐字核验通过，无替换字符，checked_attempts=10、固定CPU提交和恢复提交均存在。
+
+21:24确认原R05/redistribute真实API成功：finish_reason=stop，12488个输出token，其中10578个reasoning token；模型、16384上限及原request SHA256均未变，单次HTTP成功，无格式修复。随后R05/synthesis也成功。21:25:38已完成第13组（R05/increase），第14组decrease推进至第20步；未FINALIZED、未到GPT主复盘节点。GPU/CPU执行锁均持有，GPU主仓库仍为干净f649d9a3，185个原始文件哈希一致，CPU模块哈希匹配且无诊断积压或工程失败。详见[恢复成功与实际采样进度](../evidence/uniguide/20261026_UG02_recovery_confirmed.json)。原输出截断和第一次恢复受阻的费用、回执与日志保留，不重生成前600个候选；新增尝试只对应此前未执行的R05组。
