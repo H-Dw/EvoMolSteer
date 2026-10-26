@@ -254,3 +254,17 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 01:48:53使用同一已推送ce0ec57c独立恢复入口进行一次显式原配置续跑，定位PID603743，日志`UG03_6pyy_R04_recovery_20261027_014853.log`，`UG03.logpath`同步更新。启动前曾因将完成标记误写为无扩展名的COMPLETE而被只读断言拦截，核实实际文件为COMPLETE.json后修正启动检查；该次检查没有启动进程、调用API或改写产物。实际续跑仅启动一次，保留已有450个候选及所有失败记录，后续仍须以真实回执和采样进度确认恢复。
 
 01:51:45确认恢复成功：synthesis新wire_2与原wire_1字节完全一致，单次HTTP返回合法答案，finish_reason=stop，无接口修正，输出9424 token，其中reasoning7846。6pyy/R04/increase已推进第70步，正式累计预留3500次，仅新增此前未执行的一组；9组既有产物及全部662个保护文件哈希不变。GPU保持干净9dd21ede、科学代码和skills哈希一致，独立CPU worker保持3f07d1fa、队列无积压；本次未重采候选或增加检查范围。恢复运行绑定为`UG03_request_recovery_20261027_014858.jsonl`，完整停止、保护、预演、启动和恢复证据见[UG03第四轮恢复审计](../evidence/uniguide/20261027_UG03_6pyy_R04_recovery.json)。35分钟巡检继续保持ACTIVE，并以本次恢复入口、日志和真实进度作为下一次核查基线。
+
+## 02:53巡检：UG03第二位教师的减弱建议截断
+
+2026-10-27 02:53（Asia/Shanghai）确认恢复进程603743退出、执行锁空闲。6pyy五轮15组和3w54第一轮3组共900次尝试完成，18组基础统计及18组10/50抽样完成，无采样FAILED或QUALITY_FAILED，CPU无积压。全部18组抽样种子、槽位、node_id及源文件绑定核验通过。预算为标定4200、R0 100、正式3900，3w54第二轮尚未采样。GPU保持干净9dd21ede，科学代码、skills、CPU模块和662个既有保护文件均无变化。
+
+停止位置为`3w54_RNB_A_504/advice_R02/decrease`；输入96679 token，输出16384，其中reasoning15068，正文因截断未形成完整JSON，finish_reason=length。该轮increase已经成功。至此UG03的redistribute、synthesis、decrease三个不同调用曾发生长度截断；不能把本轮skills改进评价为已经解决该问题。新增6pyy R05/synthesis的JSON解析修正、3w54 R01/redistribute缺少falsifier的一次修正也保留原始回执，待完整版本统一复盘。
+
+02:54:56完成无网络预演，29个成功缓存通过原provider和应用验证，第30个中断请求精确匹配。保存1318个源文件哈希、两教师history内容快照，并单独备份6pyy结构保留目录；无API调用、无新增候选。保护账本`engineering_audits/UG03_3w54_R02_length_20261027_0255.json`，预演`UG03_3w54_R02_recovery_preflight_20261027_0255.json`。文件名中的0255是审计标签，实际完成时间以JSON内Asia/Shanghai时间为准。
+
+02:55:21从固定ce0ec57c独立恢复入口显式原配置续跑一次，定位PID606835，日志`UG03_3w54_R02_recovery_20261027_025521.log`，`UG03.logpath`同步更新。该次恢复不改科学代码、skills、thinking或16384上限，不自动循环重试，不重采已有900个候选；成功仍须由原请求对应回执和后续采样进度确认。
+
+02:59:28确认恢复成功：decrease的wire_2与原wire_1字节相同，单次HTTP返回合法结果，finish_reason=stop，无接口修正，输出11558 token，其中reasoning10029；后续redistribute单次成功，输出7668。synthesis首次完整回答出现JSON Extra data，经原有一次格式修正后成功，两次输出分别5255和1397，不能记为无修正。全部失败和修正回执保留。
+
+3w54/R02/increase已推进第40步，正式累计预留3950次，仅新增此前未执行的一组；1318个保护文件及6pyy retention备份哈希均一致。GPU保持干净9dd21ede、冻结科学代码及skills无变化，独立CPU worker正常且无积压。恢复运行绑定`UG03_request_recovery_20261027_025527.jsonl`；完整证据见[UG03第二位教师第二轮恢复审计](../evidence/uniguide/20261027_UG03_3w54_R02_recovery.json)。35分钟巡检继续保持ACTIVE，以新日志和实际进程为核查入口，抽样仍为10/50。后续再次停止时重新保存证据、定位并审计，不自动循环重试。
