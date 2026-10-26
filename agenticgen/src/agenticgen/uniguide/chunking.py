@@ -16,6 +16,13 @@ def concatenate(values,sizes):
     if isinstance(first,dict) or hasattr(first,"items"):
         return {k:concatenate([v[k] for v in values],sizes) for k in first.keys()}
     if isinstance(first,(tuple,list)):
+        # Native fragment_mode is one metadata item per row. A 25-row
+        # population has physical pieces of 10, 10 and 5; these must be
+        # flattened, unlike structural lists such as the two time tensors.
+        if all(len(v)==n for v,n in zip(values,sizes)):
+            return type(first)(item for value in values for item in value)
+        if any(len(v)!=len(first) for v in values):
+            raise ValueError("Non-row output sequences have inconsistent lengths")
         return type(first)(concatenate([v[i] for v in values],sizes) for i in range(len(first)))
     if any(v!=first for v in values[1:]): raise ValueError("Non-row network metadata differs")
     return first

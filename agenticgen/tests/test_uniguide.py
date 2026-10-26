@@ -138,6 +138,24 @@ def test_chunking_preserves_nested_native_tensordict_and_input_jacobian():
     assert torch.equal(torch.autograd.grad(output['coords'].sum(),x)[0],2*x)
 
 
+def test_partial_batch_keeps_row_metadata_and_structural_time_tensors():
+    from agenticgen.uniguide.chunking import chunk_call,concatenate
+    coords=torch.arange(75.,requires_grad=True).reshape(25,3)
+    metadata=[f'row_{i}' for i in range(25)]
+    def network(batch):
+        x=batch['coords']
+        return {'coords':x.square(),'fragment_mode':batch['fragment_mode'],
+                'times':[x[:,0:1],x[:,1:2]]}
+    output=chunk_call(network,({'coords':coords,'fragment_mode':metadata},),{},25,pad_to=10)
+    assert output['fragment_mode']==metadata
+    assert len(output['times'])==2 and torch.equal(output['times'][0],coords[:,0:1])
+    assert torch.equal(output['coords'],coords.square())
+    assert torch.equal(torch.autograd.grad(output['coords'].sum(),coords)[0],2*coords)
+    # The metadata rule also applies to equal chunks, where the old code
+    # silently retained only the first chunk's metadata instead of 20 rows.
+    assert concatenate([metadata[:10],metadata[10:20]],[10,10])==metadata[:20]
+
+
 def test_version_snapshot_is_immutable_and_ug21_is_rejected(tmp_path):
     from agenticgen.uniguide.pipeline import freeze_version
     seed=tmp_path/'UG_INIT/skills';seed.mkdir(parents=True)

@@ -120,6 +120,16 @@ def run(config):
         a=load_pt(out/"continuous/checkpoint_012.pt.gz");b=load_pt(out/"resumed/checkpoint_012.pt.gz")
         same={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ["current","cond","times","stream_states"]}
         if not all(same.values()): raise ValueError("Exact pre-step-10 resume failed")
+        # Window calibration uses five rows per seed, hence a partial physical
+        # network batch. Exercise that layout through active-guidance steps.
+        sample(model,config,teacher,[1.]*4,out/"partial_25",25,stop_step=12)
+        partial=load_pt(out/"partial_25/checkpoint_012.pt.gz")
+        ids=[seed*10+slot for seed in range(5) for slot in range(5)]
+        partial_same={k:tensor_digest(take(a[k],ids,50))==tensor_digest(partial[k])
+                      for k in ["current","cond","times"]}
+        partial_same["stream_states"]=tensor_digest(a["stream_states"])==tensor_digest(partial["stream_states"])
+        if not all(partial_same.values()): raise ValueError("Partial 25-row layout changed logical trajectory: "+str(partial_same))
+        checks[target]["partial_25_matches_selected_50"]=partial_same
         if any(p.grad is not None or p.requires_grad for p in model.parameters()): raise ValueError("Model parameters not frozen")
         checks[target]["resume"]=same
         checks[target]["frozen_parameters"]=True
