@@ -292,3 +292,7 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 重新阅读UniGuide条件映射/全状态梯度原文及官方源码、Flow Matching路径相关引导公式、PyTorch反传和DeepSeek thinking官方说明。三项skills更新针对窗口与格点步长核对、坐标/构建/抽样分母、可比人口、C带内gap排序、字段完整和单一JSON对象。没有更改采样代码、科学参数、LLM参数或重试政策。UG03的四次输出截断和七次初始JSON/字段错误表明上一版指引未解决此问题；新改动仍需UG04真实结果检验。
 
 300个抽样槽位全部可评价：PoseBusters通过290、测量不通过10；PLIP可评价300，不代表互作全部恢复。其余1200个不补查。详见[中文复盘](../reviews/20261027_UG03_review.zh-CN.md)、[机器复盘](../reviews/20261027_UG03_review.json)、[完整原始证据](../evidence/uniguide/20261027_UG03_review_evidence.json)及[保留核验](../evidence/uniguide/20261027_UG03_retention_review_audit.json)。完成GitHub推送、空闲锁内固定提交部署、远端验证和accept-review后，方可启动UG04。
+
+04:50:47已完成固定提交`930db03280c66c3f8a39f131ae01df3202544af4`部署及验证。提交先成功推送GitHub；远端直连及四个镜像按顺序各8秒超时，随后通过已验证、仅含已推送提交的Git bundle，在空闲执行锁内从9dd21ede快进。三份skills及文档之外无科学源码变更。21项远端测试全部通过（5.38秒），source_binding与已有双教师验收`acceptance/runs/1793016536820714424`逐项相同，没有新增数值采样。accept-review绑定UG03机器复盘SHA256 `0ab45956db5fb4353b59b7c752938a34f703ed84ae59c96b60f59b32d4eb2689`，基础checkpoint为UG03、recovery_derived=false、下一版UG04。
+
+04:51:04启动UG04，定位PID616820，日志`UG04_20261027_045104.log`及`UG04.logpath`。04:51:53核对真实run-version进程、执行锁、manifest、skills和源码绑定全部匹配，独立CPU worker仍为3f07d1fa且无积压。04:52:51确认首轮increase真实API调用成功，finish_reason=stop、单次HTTP且无接口修正，输出10299（reasoning9276）；decrease请求在途，尚无UG04采样，预算4200/100/4500。首个成功调用不证明新skills消除了截断或改善了生成质量。详见[UG04部署、接受复盘与启动审计](../evidence/uniguide/20261027_UG04_started.json)。巡检保持ACTIVE、35分钟、checked_attempts=10；UTF-8及JSON ASCII读回确认中文无替换字符、GPU/CPU提交和抽样政策正确。健康运行期间不再覆盖远端源码。
