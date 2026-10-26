@@ -268,3 +268,17 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 02:59:28确认恢复成功：decrease的wire_2与原wire_1字节相同，单次HTTP返回合法结果，finish_reason=stop，无接口修正，输出11558 token，其中reasoning10029；后续redistribute单次成功，输出7668。synthesis首次完整回答出现JSON Extra data，经原有一次格式修正后成功，两次输出分别5255和1397，不能记为无修正。全部失败和修正回执保留。
 
 3w54/R02/increase已推进第40步，正式累计预留3950次，仅新增此前未执行的一组；1318个保护文件及6pyy retention备份哈希均一致。GPU保持干净9dd21ede、冻结科学代码及skills无变化，独立CPU worker正常且无积压。恢复运行绑定`UG03_request_recovery_20261027_025527.jsonl`；完整证据见[UG03第二位教师第二轮恢复审计](../evidence/uniguide/20261027_UG03_3w54_R02_recovery.json)。35分钟巡检继续保持ACTIVE，以新日志和实际进程为核查入口，抽样仍为10/50。后续再次停止时重新保存证据、定位并审计，不自动循环重试。
+
+## 04:03巡检：UG03最后一轮重分配建议截断
+
+2026-10-27 04:03（Asia/Shanghai）确认进程606835退出、执行锁空闲。UG03完成27组1350次尝试及27组10/50抽样，停在3w54/advice_R05/redistribute，第五轮尚未采样。预算标定4200、R0 100、正式4350；CPU无积压、无采样FAILED或QUALITY_FAILED，27组抽样身份和请求源文件绑定均核验通过。GPU仍为干净9dd21ede，冻结科学代码、skills、CPU模块及1318个保护文件和6pyy retention备份均一致。
+
+失败输入107040 token，输出16384全部用于reasoning，正文为空、finish_reason=length。本版本现有四个不同调用发生截断，均保留失败回执，不能将恢复成功等同于消除截断。第五轮increase和decrease已成功，后续只继续未完成的建议和最后3组，不改科学配置或额度。
+
+04:04:33完成无网络预演，42个成功缓存经原provider和应用验证，第43个原中断请求精确一致。保存1964个文件哈希、两教师history快照及6pyy retention独立备份。保护账本`engineering_audits/UG03_3w54_R05_length_20261027_0405.json`，预演`UG03_3w54_R05_recovery_preflight_20261027_0405.json`；0405为文件标签，实际操作时间以JSON内Asia/Shanghai时间为准。预演没有API调用或新增候选。
+
+04:04:56从固定ce0ec57c独立恢复入口显式原配置续跑一次，定位PID612741，日志`UG03_3w54_R05_recovery_20261027_040456.log`，同步更新UG03.logpath；旧PID606835已退出。保留1350个已生成候选，不重新采样，不改skills、thinking或16384上限，不自动循环重试；继续以真实回执和采样产物核实恢复效果。
+
+04:08:35确认恢复成功：redistribute续发wire_2与原wire_1字节相同，单次HTTP、无接口修正、finish_reason=stop，输出14302 token，其中reasoning12847；随后synthesis单次成功、无接口修正，输出12515，其中reasoning11068。3w54/R05/increase已到第20步，正式累计预留4400次，仅新增此前未执行的一组。
+
+1964个保护文件和6pyy retention备份哈希全部一致，GPU保持干净9dd21ede，源码、skills、CPU模块均无变化，CPU抽样队列无积压。恢复运行绑定为`UG03_request_recovery_20261027_040502.jsonl`。完整证据见[UG03第五轮恢复审计](../evidence/uniguide/20261027_UG03_3w54_R05_recovery.json)。35分钟巡检继续ACTIVE；等待最后3组及最终分析、结构保留完成后，主Agent实际读取30组和4份上下文复盘，不能因接近结束跳过该步骤或提前启动UG04。
