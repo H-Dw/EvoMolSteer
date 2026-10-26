@@ -198,3 +198,5 @@ UG02已完成6pyy的R01–R04共12组、600次尝试及12组10/50抽样，在R05
 22:16:56沿用已验证恢复入口ce0ec57c50a2130021cfd0cc390da65e23ce6467启动一次显式续跑，PID582777，日志`UG02_3w54_recovery_20261026_221656.log`，`UG02.logpath`已更新。保护账本为`engineering_audits/UG02_3w54_length_20261026_2216.json`。GPU主仓库保持f649d9a3，CPU仍为3f07d1fa；未改源码、skills、模型、thinking或16384额度。22:17:52核对真实进程及新wire_2，续发请求字节与原wire_1完全相同；当时API仍在途，不宣称已经成功。
 
 两次不同的redistribute调用触及相同输出上限，将作为UG02完整结束后的GPT复盘证据，研究如何通过skills减少无效复述和重复推演。当前版本内不改提示、配置或预算，不以模板替代真实Agent输出。详见[3w54截断及恢复审计](../evidence/uniguide/20261026_UG02_3w54_recovery.json)。
+
+22:20:36确认本次恢复成功：redistribute在48.65秒内返回完整答案（finish_reason=stop，输出7662 token，其中5964 reasoning），随后synthesis也单次HTTP成功，均无格式修复、无额度变更。第19组3w54/R02/increase已经推进至第60步，正式累计预留2450次，其中此前18组900次全部复用。311个既有文件哈希一致，6pyy的三份retention文件与恢复前备份完全一致；18组抽样完成，无QUALITY_FAILED。详见[真实API成功及恢复后的采样进度](../evidence/uniguide/20261026_UG02_3w54_recovery_confirmed.json)。35分钟巡检继续ACTIVE，最新PID、日志、311文件保护账本及成功回执已纳入提示并按UTF-8/JSON ASCII方式核验。
