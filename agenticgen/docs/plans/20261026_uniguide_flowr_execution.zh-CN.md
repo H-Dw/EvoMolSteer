@@ -120,3 +120,17 @@ GitHub 直连及四个指定 mirror 均依序超时。代码先在本地成功�
 进一步选取两个已有分子做并行一致性检查，包含此前显式亚胺氢的案例。两个独立CPU进程各耗时约6.68秒、时间区间重叠；PLIP互作、core、指纹和质量指标与原顺序检查完全一致。检查复用已有结构，新增科学候选和尝试均为零，工程比较用的临时工作进程已在完成后关闭。正式质量worker持续保留。
 
 16:17 完整验收通过并恢复 `calibrate && run-version UG01`。验收目录为 `acceptance/runs/1793002308561800480/`，17项测试及两教师真实GPU检查全部通过，VJP数值、原生轨迹和恢复结果与先前一致。新日志为 `calibration_to_UG01_20261026_161731.log`，启动PID为70056。详见 [队列启动与耗时](../evidence/uniguide/20261026_async_quality_start.json) 和 [验收、并行一致性与续跑回执](../evidence/uniguide/20261026_async_quality_relaunch.json)。这一节及实施协议中的用户修订取代此前“完整质量检查后才开始下一阶段”的执行方式。
+
+## 16:56 巡检：极端坐标的诊断边界
+
+巡检时 GPU 推理健康，正在6pyy第20个全人口配置，累计预留3200次尝试。后台两组 `p008`、`p009` 在PDB回读坐标核查中失败。诊断确认，前者一个候选的z坐标达到约−1109 Å，后者坐标达到约±2900万 Å，且均含大量断开的片段。PDB的坐标字段为 [Real(8.3)](https://www.wwpdb.org/documentation/file-format-content/format33/sect9.html)（访问2026-10-26），这些值超出字段范围，回读会降精度或错列。这是生成结果的几何发散触发了序列化限制，不能通过平移、截断坐标或放宽一致性阈值掩盖。
+
+CPU修复在写PDB前检查真实格式化宽度，包括四舍五入边界；不能表示时保存 `plip_evaluable=false` 和具体原因，互作恢复为null，不把缺失结果记为零互作。两个真实案例进一步触发PoseBusters空间网格的IndexError，故评价器异常单独记录 `posebusters_evaluable=false`、`posebusters_pass=null` 及错误；基础连通性、碰撞统计和源坐标继续保留。所有50次尝试仍被记账，完整检查回执另列PLIP和PoseBusters可评估数量。工程错误与已测量的不合格状态保持区分。
+
+提交 `13785f848a9c847e5002331a99e3f6121b9506f1` 已推送GitHub并在指定远端通过20项CPU测试，两个真实失败结构也完成验证，未生成新候选。CPU代码单独检出于 `/workspace/EvoMolSteer-quality-2b51f97f`；目录名沿用首次检出标识，实际HEAD以该提交为准。GPU主仓库仍为 `13abe0889a22b6181e397361801238825c4e6f29`，PID70058持续运行，源码和科学配置未改动，未重跑GPU验收或中断推理。两种运行代码分别可由主仓库HEAD及 `quality_queue/worker.json` 的目录、commit和模块哈希追溯。
+
+17:09 在CPU在途任务完成后，仅替换队列调度器及其空闲子进程，新worker PID180837。保留两组旧 `QUALITY_FAILED` 证据，重新入队补后处理，原始SDF、records、aggregate、terminal和trace均绑定哈希；已有成功profile缓存继续使用。CPU worker保持存活以避免旧主仓库重新启动旧检查程序，35分钟巡检已加入独立CPU目录的恢复规则。证据见 [CPU worker更换审计](../evidence/uniguide/20261026_pdb_range_worker_recovery.json) 和 [真实极端坐标案例](../evidence/uniguide/20261026_pdb_range_cases.json)。
+
+17:16 核验两组补后处理已经完成，10个原始科学文件的SHA256全部不变。`p008`的50次尝试中49个成功构建，45个可被PLIP和PoseBusters评估，43个通过PoseBusters，4个因坐标范围问题无法评估；`p009`的50次尝试中40个成功构建，22个可被两项工具评估并通过PoseBusters，18个无法评估。未构建候选分别为1个和10个，仍计入50次分母。这里的 `QUALITY_COMPLETE` 表示检查任务完成，并不表示全部候选合格。见 [完成回执与源文件一致性](../evidence/uniguide/20261026_pdb_range_recovery_verified.json)。
+
+同次核验发现，旧CPU worker在切换前还记录了 `p018`、`p019` 的相同坐标回读错误。17:17 检查两组源SDF后分别确认4个超出PDB坐标字段范围的候选，保存旧错误和源文件哈希后，交由新CPU worker补后处理。见 [后续同类错误审计](../evidence/uniguide/20261026_pdb_range_late_failures_requeue.json)。此时全人口标定已完成26/40组，第27组正在推理，累计标定预留3550次；R0和正式版本尚未开始，执行锁与CPU队列锁均正常持有。两组补后处理不阻塞下一组推理。
