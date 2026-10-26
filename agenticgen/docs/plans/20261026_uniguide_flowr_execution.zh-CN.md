@@ -242,3 +242,15 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 01:14:53确认恢复成功：redistribute续发wire_2与原wire_1字节完全一致，单次HTTP返回合法答案，finish_reason=stop，无接口修正，输出14930 token，其中reasoning为13197。随后synthesis首次完整回答缺少必填selected字段，被原校验拒绝；原有一次格式修正后成功，两次输出分别7994和1876 token，不能记为单次成功或无修正。所有原始失败回答、修正请求及费用均保留，模型、thinking和16384上限未变。
 
 第二轮increase已推进至第40步，正式累计预留3200次，仅新增此前未执行的一组；230个保护文件哈希全部一致，GPU仍为干净9dd21ede，执行锁持有，CPU抽样队列无积压。完整停止证据、保护账本、无网络预演、恢复绑定和真实API成功记录见[UG03第二轮恢复审计](../evidence/uniguide/20261027_UG03_6pyy_R02_recovery.json)。35分钟巡检保持ACTIVE，并更新至本次恢复入口、日志、PID和已确认进度；UG03完成前仍保持skills冻结。
+
+## 01:43巡检：UG03第四轮综合决策截断
+
+2026-10-27 01:43（Asia/Shanghai）确认恢复进程601512已经退出、执行锁空闲。UG03已完成6pyy前三轮9组450次尝试和9组10/50抽样，停止在第四轮synthesis，第四轮尚未采样。没有采样FAILED或QUALITY_FAILED，CPU无积压；预算为标定4200、R0 100、正式3450。GPU冻结提交9dd21ede、manifest、skills及独立CPU提交3f07d1fa均核验一致，上一轮230个保护文件无变化。
+
+失败发生于01:36:53，输入108235 token，输出16384，其中reasoning16295，正文仅89 token且JSON不完整，finish_reason=length。第四轮三个私有建议均已成功。截断已从redistribute延伸到synthesis，须纳入完整版本复盘，不能据原配置恢复偶然成功宣称skills消除了问题；本版继续冻结科学代码、skills与API额度。
+
+01:44保存662个既有文件哈希，history另存内容快照。保护账本为`engineering_audits/UG03_6pyy_R04_length_20261027_0144.json`。无网络预演校验15个成功缓存及第16个中断请求，四个synthesis提示只在严格证明JSON对象内容相同后复用原序列化；API调用和新候选均为0。预演记录为`UG03_6pyy_R04_recovery_preflight_20261027_0144.json`。
+
+01:48:53使用同一已推送ce0ec57c独立恢复入口进行一次显式原配置续跑，定位PID603743，日志`UG03_6pyy_R04_recovery_20261027_014853.log`，`UG03.logpath`同步更新。启动前曾因将完成标记误写为无扩展名的COMPLETE而被只读断言拦截，核实实际文件为COMPLETE.json后修正启动检查；该次检查没有启动进程、调用API或改写产物。实际续跑仅启动一次，保留已有450个候选及所有失败记录，后续仍须以真实回执和采样进度确认恢复。
+
+01:51:45确认恢复成功：synthesis新wire_2与原wire_1字节完全一致，单次HTTP返回合法答案，finish_reason=stop，无接口修正，输出9424 token，其中reasoning7846。6pyy/R04/increase已推进第70步，正式累计预留3500次，仅新增此前未执行的一组；9组既有产物及全部662个保护文件哈希不变。GPU保持干净9dd21ede、科学代码和skills哈希一致，独立CPU worker保持3f07d1fa、队列无积压；本次未重采候选或增加检查范围。恢复运行绑定为`UG03_request_recovery_20261027_014858.jsonl`，完整停止、保护、预演、启动和恢复证据见[UG03第四轮恢复审计](../evidence/uniguide/20261027_UG03_6pyy_R04_recovery.json)。35分钟巡检继续保持ACTIVE，并以本次恢复入口、日志和真实进度作为下一次核查基线。
