@@ -81,6 +81,54 @@ def test_empty_built_structure_file_is_a_reportable_population(tmp_path):
     assert built_molecules(p)=={}
 
 
+def test_quality_enqueue_is_nonblocking_full_population_and_durable(tmp_path,monkeypatch):
+    from pathlib import Path
+    from rdkit import Chem
+    from agenticgen.uniguide.io import write
+    import agenticgen.uniguide.quality as quality
+    import agenticgen.uniguide.quality_queue as queue
+    protein=tmp_path/'protein.pdb'
+    protein.write_text('ATOM      1  C   ALA A   1      99.000  99.000  99.000  1.00  0.00           C  \n')
+    teacher={'protein':str(protein),'plip_profile':{'fingerprints':[]}}
+    folder=tmp_path/'group';folder.mkdir()
+    source=Chem.MolFromMolFile(str(Path(__file__).parent/'fixtures/uniguide_explicit_h/source.mol'))
+    with Chem.SDWriter(str(folder/'molecules_all_built.sdf')) as stream:
+        for i in range(49):
+            mol=Chem.Mol(source);mol.SetProp('node_id',str(i));stream.write(mol)
+    write(folder/'records.json',[{'node_id':str(i)} for i in range(50)])
+    write(folder/'COMPLETE.json',{'fixture':'already generated'})
+    def must_not_block(*args):raise AssertionError('Slow quality entered inference path')
+    monkeypatch.setattr(quality,'assess',must_not_block)
+    launches=[];monkeypatch.setattr(queue,'ensure_worker',lambda config:launches.append(config['root']))
+    config={'root':str(tmp_path)}
+    light=queue.enqueue(config,folder,teacher)
+    assert light['attempts']==50 and light['built']==49 and light['clash_evaluable']==49
+    assert 'posebusters_pass' not in light
+    requests=list((tmp_path/'quality_queue/requests').glob('*.json'))
+    assert len(requests)==1 and read(requests[0])['population']==50
+    assert read(requests[0])['scope']=='all_attempts' and launches==[str(tmp_path)]
+    # Re-enqueue is idempotent and does not sample, wait, or change metrics.
+    assert queue.enqueue(config,folder,teacher)==light
+    assert len(list((tmp_path/'quality_queue/requests').glob('*.json')))==1
+    assert queue.snapshot(tmp_path,['group'])['pending']==1
+    # A slow-worker error stays distinct from a bad molecule and never passes.
+    assert queue.run_request(requests[0])=='failed'
+    assert queue.snapshot(tmp_path,['group'])['failed']==1
+    assert read(folder/'QUALITY_FAILED.json')['does_not_imply_molecular_failure']
+    # Worker checks all attempts and preserves source identity, including failures.
+    (folder/'QUALITY_FAILED.json').unlink()
+    calls=[]
+    def measured(folder,teacher):
+        calls.append(str(folder));write(folder/'QUALITY_COMPLETE.json',{'attempts':50});return {'attempts':50}
+    monkeypatch.setattr(quality,'assess',measured)
+    assert queue.run_request(requests[0])=='complete' and len(calls)==1
+    assert queue.snapshot(tmp_path,['group'])['complete']==1
+    (folder/'QUALITY_COMPLETE.json').unlink()
+    write(folder/'records.json',[{'node_id':'changed'}])
+    assert queue.run_request(requests[0])=='failed' and len(calls)==1
+    assert 'source changed' in read(folder/'QUALITY_FAILED.json')['error']
+
+
 def test_plip_roundtrip_imine_h_representation_preserves_chemistry_and_pose():
     from pathlib import Path
     from rdkit import Chem

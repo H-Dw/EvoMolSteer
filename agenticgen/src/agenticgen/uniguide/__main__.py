@@ -47,6 +47,7 @@ def main():
         root=Path(config["root"])
         print(json.dumps({"teachers":(root/"TEACHERS_PREPARED.json").exists(),"initials":(root/"INITIALS_VERIFIED.json").exists(),
             "acceptance":(root/"acceptance/COMPLETE.json").exists(),"calibrated":(root/"calibration/domain.json").exists(),
+            "quality_queue":read(root/"quality_queue/status.json") if (root/"quality_queue/status.json").exists() else None,
             "finalized":[p.parent.name for p in sorted((root/"versions").glob("UG*/FINALIZED.json"))],
             "awaiting_review":[p.parent.name for p in sorted((root/"versions").glob("UG*/AWAITING_GPT_REVIEW.json")) if not (p.parent/"REVIEW_ACCEPTED.json").exists()]},indent=2))
 

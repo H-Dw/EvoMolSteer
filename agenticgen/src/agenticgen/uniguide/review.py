@@ -44,6 +44,7 @@ def recover_base(completed):
 
 
 def build_review(config,version):
+    from .quality_queue import snapshot
     root=Path(config["root"]);folder=root/"versions"/version
     current=read(folder/"FINALIZED.json")
     completed=[read(p) for p in sorted((root/"versions").glob("UG*/FINALIZED.json")) if p.parent.name<=version]
@@ -59,6 +60,7 @@ def build_review(config,version):
         best=choose([v["overall"] for v in completed]),R0={p.parent.name:read(p) for p in (root/"R0").glob("*/aggregate.json")},
         historical_unguided={p.parent.name:read(p)["matched50"] for p in (root/"baselines").glob("*/unguided.json")},
         strategy_contexts=current["strategy_contexts"],teacher_triggers=triggers,
+        quality_diagnostics=snapshot(root,[g['id'] for g in current.get('groups',[])]),
         research_required=any(x["reasons"] for x in triggers.values()),base_checkpoint=base,
         recovery_required=recovery,no_best_rerun=True,next_version=None if version=="UG20" else f"UG{int(version[2:])+1:02d}",
         required_review_chain=["observation","evidence","mechanism_applicability","skill_edit","expected_behavior","next_version_falsifier"])

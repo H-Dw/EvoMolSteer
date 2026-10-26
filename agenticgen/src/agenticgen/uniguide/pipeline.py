@@ -7,7 +7,8 @@ from .protocol import BRANCHES,choose
 from .prepare import load_model
 from .sampler import execute
 from .council import advise
-from .quality import assess,retention
+from .quality import retention
+from .quality_queue import enqueue,snapshot
 from .review import build_review
 
 
@@ -41,11 +42,11 @@ def run_r0(config,teachers,domain):
     for teacher in teachers:
         folder=root/"R0"/teacher["target"]
         if (folder/"COMPLETE.json").exists():
-            assess(folder,teacher)
+            enqueue(config,folder,teacher)
             continue
         model=load_model(config,teacher)
         execute(model,config,teacher,domain["initial"],folder,"r0")
-        assess(folder,teacher)
+        enqueue(config,folder,teacher)
         del model;torch.cuda.empty_cache()
 
 
@@ -103,7 +104,7 @@ def run_version(config,version):
                 frozen(out/"proposal.json",p)
                 row=execute(model,config,teacher,p["schedule"],out,"formal",resume_path=root/"R0"/target/"checkpoint_010.pt.gz")
                 row=dict(row,branch=p["branch"],round=round_number,private_context=p["private_context"],synthesis_context=p["synthesis_context"])
-                row["quality"]=assess(out,teacher)
+                row["quality"]=enqueue(config,out,teacher)
                 history.append(row);groups.append(row)
                 write(troot/"history.json",history)
             # Nothing about a future R6 is generated.
@@ -112,7 +113,6 @@ def run_version(config,version):
             context_folder=troot/("analysis_R05" if group["round"]==5 else f"advice_R{group['round']+1:02d}")
             group["private_context"]=str(context_folder/(group["branch"]+".json"))
             group["synthesis_context"]=str(context_folder/"synthesis.json")
-        for group in groups: assess(root/group["id"],teacher)
         winner=choose(groups)
         retention(root,teacher,groups,winner,troot/"retention")
         contexts.extend([winner["private_context"],winner["synthesis_context"]])
@@ -125,6 +125,7 @@ def run_version(config,version):
     overall=dict(id=version,complete=True,**{k:sum(v[k] for v in teacher_summaries.values())/len(teachers) for k in ["C","gap","best"]})
     result=dict(id=version,overall=overall,teachers=teacher_summaries,groups=aggregates,strategy_contexts=contexts,
         manifest_sha256=sha(folder/"manifest.json"),recovery_derived=manifest["recovery_derived"],
-        context_hashes={p:sha(p) for p in contexts},quality_and_retention_complete=True)
+        context_hashes={p:sha(p) for p in contexts},retention_complete=True,
+        quality_at_finalization=snapshot(root,[g["id"] for g in aggregates]))
     frozen(folder/"FINALIZED.json",result)
     return build_review(config,version)

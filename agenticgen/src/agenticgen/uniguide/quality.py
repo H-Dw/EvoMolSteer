@@ -5,6 +5,41 @@ from .io import read,write,sha
 from .profiling import profile_task,quality
 
 
+def assess_light(folder,teacher):
+    """Cheap all-attempt statistics; PLIP and PoseBusters run in CPU workers."""
+    import numpy as np
+    folder=Path(folder)
+    binding={'records':sha(folder/'records.json'),'sdf':sha(folder/'molecules_all_built.sdf'),
+             'protein':sha(teacher['protein'])}
+    dest=folder/'QUALITY_LIGHT_COMPLETE.json'
+    if dest.exists():
+        saved=read(dest)
+        if saved['source_binding']!=binding:raise ValueError('Light quality source changed')
+        return saved
+    mols=built_molecules(folder/'molecules_all_built.sdf');records=read(folder/'records.json')
+    protein=np.array([[float(l[30:38]),float(l[38:46]),float(l[46:54])]
+        for l in Path(teacher['protein']).read_text().splitlines()
+        if l.startswith(('ATOM  ','HETATM')) and l[76:78].strip().upper() not in ('H','D')])
+    results=[]
+    for row in records:
+        mol=mols.get(row['node_id'])
+        if mol is None:
+            results.append({'node_id':row['node_id'],'built':False,'valid_connected':False,'severe_clash':None})
+        else:
+            distance=np.linalg.norm(np.array(mol.GetConformer().GetPositions())[:,None]-protein[None],axis=-1)
+            results.append({'node_id':row['node_id'],'built':True,'valid_connected':len(Chem.GetMolFrags(mol))==1,
+                'severe_clash':bool((distance<1.2).any()),'min_protein_distance_A':float(distance.min())})
+    write(folder/'quality_light.json',results)
+    receipt={'mode':'all_attempts_lightweight','attempts':len(records),'built':sum(r['built'] for r in results),
+        'valid_connected':sum(r['valid_connected'] for r in results),
+        'severe_clash':sum(bool(r['severe_clash']) for r in results),
+        'clash_evaluable':sum(r['severe_clash'] is not None for r in results),
+        'plip_posebusters':'separate asynchronous diagnostics; never infer pass from this receipt',
+        'source_binding':binding,'rows_sha256':sha(folder/'quality_light.json')}
+    write(dest,receipt)
+    return receipt
+
+
 def built_molecules(path):
     path=Path(path)
     return ({m.GetProp("node_id"):m for m in Chem.SDMolSupplier(str(path),removeHs=True) if m is not None}

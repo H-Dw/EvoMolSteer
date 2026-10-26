@@ -53,7 +53,7 @@ delta_native = -dt*S*((1-t+1e-6)/t + gamma)*g
 
 ## GPT 主复盘
 
-每版质量检查、结构保留和 FINALIZED 完成后，当前 Codex 主 Agent 读取30组聚合结果及两教师各自代表私有分析和同轮汇总，共4份上下文。比较当前、上一版、UG 系列最优与 R0。
+每版30组推理、基础统计、结构保留和 FINALIZED 完成后，当前 Codex 主 Agent 读取30组聚合结果及两教师各自代表私有分析和同轮汇总，共4份上下文。比较当前、上一版、UG 系列最优与 R0。PLIP/PoseBusters 全人口检查异步进行，主复盘记录已完成、待完成和工程失败状态；不得将待完成或检查异常记为通过，也不为等待这些诊断单独暂停推理或主复盘。
 
 任一教师满足以下任一项就检索 primary papers 和官方代码：C 与绝对 mean-pIC50 gap 变化同时不超过0.02；15套配置中至少80%与前版重复；代表配置四窗口的完整 guidance 增量向量变化全部不超过5%。向量分母为旧、新 RMS 与1e-8 Å的最大值；缺失是 unknown。阈值用于触发研究，不作为显著性或最低改进门槛。
 
@@ -70,6 +70,16 @@ GitHub 网络异常依次尝试 ghfast.top、gh-proxy.com、ghproxy.net、gh.llk
 运行入口：`bash agenticgen/scripts/run_uniguide.sh prepare|init-strategy|acceptance|calibrate|run-version UG01|status`。每版结束写 AWAITING_GPT_REVIEW；主 Agent 完成实际研究及本地 skills 编辑后，提交、部署，通过 `accept-review UG01 review.json` 绑定证据与修改，再启动下一版。DeepSeek 从环境变量读取，不写入仓库。
 
 验收包括固定匹配有限差分、FLOWR score 代数、尺度线性、无裁剪、原生短轨迹零增量等价、step10 精确恢复、随机数和正式批形状、预算和提案契约、停滞向量方向变化以及连续下降回退。没有新的完整零引导科学对照组。保留所有尝试指标、提案、LLM用量、证据、每槽 TOP1 及完整代表50分子；清理不得早于质量与保留清单核验。
+
+## 质量检查与推理并行（2026-10-26 用户修订）
+
+用户明确选择继续检查每组 50/50 个候选，但检查必须与推理并行、不阻塞推理。全人口检查包括 PLIP 互作恢复、PoseBusters、有效连通图与碰撞统计；它们不参与现行 C–gap 初值、尺度域和候选排序规则。
+
+采样保存完整 SDF、records 和 COMPLETE 后，主进程仅计算全部尝试的轻量构建、连通性和几何碰撞统计，然后写入持久化队列并立即继续下一组 GPU 推理。两路独立 CPU 子进程执行原有全人口 PLIP/PoseBusters，CPU 数值库各限1线程并屏蔽 GPU；不共享模型、自条件或采样随机状态。队列独立于推理进程存活，避免主命令退出时等待检查队列。标定、R0、每轮、教师切换和版本归档均不设置全量检查屏障。
+
+`QUALITY_LIGHT_COMPLETE.json` 仅表示基础统计完成，不能代表 PLIP/PoseBusters 通过。原 `QUALITY_COMPLETE.json` 仍表示该组全部尝试的完整质量统计完成，分母保持50，未构建候选也计入。队列请求绑定源 SDF、records、蛋白和教师哈希；已完成的结果缓存复用。完整诊断单独回写，Guidance Agent 的同步上下文只读取固定的基础统计，避免 CPU 完成时间改变同一轮输入。
+
+工程异常写 `QUALITY_FAILED.json`，不把该分子自动判为物理质量不合格，也不中止 GPU 生成。35分钟巡检同时核对推理进度、质量 worker、队列积压及失败，必要时恢复 worker；不得因质量任务积压重复采样、降低检查覆盖率或停掉健康推理。主版本归档保存检查状态快照，完整诊断可随后完成；最终交付必须如实报告尚未完成或失败的检查，所有结构保留至检查完成。
 
 ## 方法来源
 
