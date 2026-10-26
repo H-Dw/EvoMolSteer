@@ -66,7 +66,9 @@ def assess(folder,teacher):
         results.append(result)
     write(folder/"quality.json",results)
     receipt={"attempts":len(rows),"built":sum(r["build_success"] for r in results),
-        "posebusters_pass":sum(r["quality"].get("posebusters_pass",False) for r in results),
+        "posebusters_pass":sum(bool(r["quality"].get("posebusters_pass",False)) for r in results),
+        "posebusters_evaluable":sum(r['quality'].get('posebusters_evaluable',r['build_success']) for r in results),
+        "posebusters_unevaluable_built":sum(r['build_success'] and not r['quality'].get('posebusters_evaluable',True) for r in results),
         "valid_connected":sum(r["quality"].get("valid_connected",False) for r in results),
         "severe_clash":sum(bool(r["quality"].get("severe_clash")) for r in results),
         "clash_evaluable":sum(r["quality"].get("severe_clash") is not None for r in results),

@@ -91,6 +91,26 @@ def test_pdb_fixed_width_overflow_is_not_coordinate_correction():
         assert original[0,1]==value
 
 
+def test_posebusters_exception_is_unknown_not_a_pass(tmp_path,monkeypatch):
+    from pathlib import Path
+    from rdkit import Chem
+    import posebusters
+    from agenticgen.uniguide.profiling import quality
+    source=Chem.MolFromMolFile(str(Path(__file__).parent/'fixtures/uniguide_explicit_h/source.mol'))
+    before=Chem.MolToMolBlock(source)
+    protein=tmp_path/'protein.pdb'
+    protein.write_text('ATOM      1  C   ALA A   1      99.000  99.000  99.000  1.00  0.00           C  \n')
+    class OverflowEvaluator:
+        def __init__(self,**kwargs):pass
+        def bust(self,*args,**kwargs):raise IndexError('-1003147201')
+    monkeypatch.setattr(posebusters,'PoseBusters',OverflowEvaluator)
+    result=quality(source,protein)
+    assert result['posebusters_pass'] is None and result['posebusters_evaluable'] is False
+    assert result['posebusters_error']['type']=='IndexError'
+    assert result['valid_connected'] and result['severe_clash'] is False
+    assert Chem.MolToMolBlock(source)==before
+
+
 def test_unevaluable_plip_keeps_attempt_and_other_quality(tmp_path,monkeypatch):
     from pathlib import Path
     from rdkit import Chem

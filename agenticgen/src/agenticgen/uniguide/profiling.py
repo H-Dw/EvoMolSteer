@@ -215,13 +215,21 @@ def quality(mol,protein_file):
         'severe_clash':bool((dist<1.2).any()),'pairs_below_1_2A':int((dist<1.2).sum()),
         'diagnostic_sdf_smiles':Chem.MolToSmiles(mol),'qed':float(QED.qed(mol)),'heavy_atoms':mol.GetNumHeavyAtoms(),
         'formal_charge':sum(a.GetFormalCharge() for a in mol.GetAtoms()),'posebusters_version':package_version('posebusters')}
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        frame=PoseBusters(config='dock').bust(mol,mol_cond=str(protein_file),full_report=False)
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            frame=PoseBusters(config='dock').bust(mol,mol_cond=str(protein_file),full_report=False)
+    except Exception as error:
+        # Distorted but finite poses can overflow the evaluator's spatial grid.
+        # Preserve known basic measurements and explicitly report missing PB;
+        # an evaluator exception is neither a passing nor a failing PB result.
+        result.update(posebusters_evaluable=False,posebusters_pass=None,posebusters_checks=None,
+                      posebusters_error={'type':type(error).__name__,'message':str(error)})
+        return result
     row=frame.iloc[0]
     checks={str(k):bool(v) for k,v in row.items() if isinstance(v,(bool,np.bool_))}
     if not checks:raise ValueError('PoseBusters returned no Boolean checks')
-    result.update(posebusters_checks=checks,posebusters_pass=all(checks.values()))
+    result.update(posebusters_evaluable=True,posebusters_checks=checks,posebusters_pass=all(checks.values()))
     return result
 
 
