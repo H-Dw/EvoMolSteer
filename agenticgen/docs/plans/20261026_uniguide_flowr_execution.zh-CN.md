@@ -52,7 +52,7 @@ bash agenticgen/scripts/run_uniguide.sh run-version UG01
 
 每版完成后写入 `AWAITING_GPT_REVIEW.json`。当前 Codex 主 Agent 应实际读取全部指定证据，必要时研究文献和代码，在本地更新 skills 后提交并部署，再用 `accept-review` 绑定修改和证据。此接口不会伪造 GPT 复盘或自行声称完成文献检索。
 
-正式 Agent 迭代尚缺两个运行条件：远端执行进程可读取的 `DEEPSEEK_API_KEY`，以及可访问 `api.deepseek.com` 的网络。当前 SSH 进程中未配置该变量，无凭据的 API 连通性检查超时。已向用户询问既有环境文件路径及网络方式；没有创建未经确认的本地 API 代理。标定不依赖 LLM，继续独立运行。
+启动快照时，非交互 SSH 进程未读取到 `DEEPSEEK_API_KEY`，无凭据的 API 连通性检查超时。后续核查已确认：服务器早已配置密钥和代理，原先将进程未继承变量表述为服务器缺少配置不准确。具体原因与修复见下节。没有创建新的本地 API 代理，标定始终独立运行。
 
 GitHub 直连及四个指定 mirror 均依序超时。代码先在本地成功提交和推送 GitHub，再通过 SSH 传输已推送提交的 Git bundle，远端执行 `git bundle verify` 并检出固定提交。凭据未交给镜像，也未写入仓库。
 
@@ -66,3 +66,13 @@ GitHub 直连及四个指定 mirror 均依序超时。代码先在本地成功�
 - 静态启动快照：`implementation_status_snapshot.json`
 
 上述路径均相对于远端结果根目录。保留所有现有产物，没有执行结构清理。
+
+## SSH 环境加载问题已定位
+
+实际连接端点为 `root@ssh.zzai.scnet.cn:11741`，服务器主机名为 `crdnotebook-2114384248860155906-daweihuang-76949`。外部端口经服务端转发，服务器内部 `SSH_CONNECTION` 的目标端口为 22，不能据此判断连接了另一台服务器。
+
+`/root/.bashrc` 第 6 行为 `[ -z "$PS1" ] && return`；密钥的 export 位于第 120、129 行。Paramiko `exec_command` 创建非交互 shell，普通 `bash -c` 与 `bash -lc` 都没有绕过该判断。因此执行进程既没有继承 `DEEPSEEK_API_KEY`，也没有继承已有的小写 `http_proxy`、`https_proxy`。仅改为 login shell 不足以解决问题。
+
+实测 `bash -ic` 与 `bash -lic` 均能读取密钥；在交互式 shell 中再加载 DTK 环境后，密钥和小写代理变量仍然存在。使用该环境对 `https://api.deepseek.com/models` 发起带鉴权请求，返回 HTTP 200，模型列表包含 `deepseek-flash`。检查只输出是否存在、HTTP 状态及模型可用性，没有输出密钥或代理凭据。
+
+启动脚本现已在 `run-version` 缺少密钥时，通过一次交互式 shell 加载现有配置并重新执行自身；有显式传入的密钥时保留调用方环境。如果加载后仍缺少密钥则明确失败，避免递归重试。此变更只涉及启动环境，不改科学引擎或正在运行的标定。
