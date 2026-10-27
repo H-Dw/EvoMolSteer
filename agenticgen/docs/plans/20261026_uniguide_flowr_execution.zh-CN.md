@@ -423,3 +423,17 @@ analysis/proposal/synthesis三份skills依据本次证据更新：准确区分�
 稀疏工作树不含docs，首次accept-review因本地路径不存在未启动；从已推送HEAD提取原始复盘后接受，REVIEW_ACCEPTED绑定SHA256 fd302a3e4cd166e631926ca47749408ed661f81cfc771e0b0ab815f1e85266d7。15:58:19启动UG05，定位PID644178，日志UG05_20261027_155819.log。16:02:16核对真实新入口进程、GPU/CPU锁、manifest、策略与skills绑定，2333文件及CPU模块未变，队列无积压；预算4200/100/6000，尚无UG05采样。首轮三份私有调用单次成功、无修正、正确实际锚点，输入48721/48722/48723、输出7096/8885/12551；synthesis在途。不能据此宣称错误全部消除或分子质量改善。
 
 启动与部署证据见[UG05 started](../evidence/uniguide/20261027_UG05_started.json)。巡检更新为新版本入口，保持35分钟ACTIVE；中文UTF-8/ensure_ascii读回完全一致，无替换字符，checked_attempts=10及CPU提交3f07d1fa完整。后续本地纯文档审计提交不在健康运行期间部署。
+
+## 2026-10-27 16:57：UG05第四轮长度失败，原配置显式恢复亦失败
+
+16:44:38（Asia/Shanghai）核验原PID644178已退出、执行锁空闲，停在6pyy_H7S_A_402/advice_R04/increase。前三轮9组450次、9组基础统计和9组10/50抽样完成，第四轮未采样；预算为标定4200、R0 100、正式6450。前三轮12个逻辑调用均单次HTTP成功、无格式修正。首次失败回执时间16:33:04，输入58826、输出16384全部reasoning，正文为空，finish_reason=length。pipeline/council到统一入口77行再到deepseek_api.py的250行正确拒绝不完整结果；不是采样失败、锚点错误或解析修正失败。此前提示优化未消除长度风险，此事件必须纳入完整UG05复盘。
+
+16:45:57保存693个UG05文件哈希、history快照和attempts账本，另核对2333个UG04保护文件未变。新增独立单次恢复入口resume_uniguide_prompt_call.py，提交779b45c640c2c7a4c55369b8ff2277cccc7d9a19已推送GitHub。直连及ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc依序8秒超时后，使用已验证Git bundle（SHA256 ebba2da4911ca5fd18265dd8499764f9ff12431ece2792a10c8ed2cde30f5b35），16:52:43部署到/workspace/uniguide_recovery/779b45c640c2c7a4c55369b8ff2277cccc7d9a19。主目录仍为干净8db4d968，不覆盖原运行入口、两个策略模块、skills或manifest。49项远端测试通过（2.45秒），包含9项新增恢复测试与40项既有提示/入口测试。
+
+恢复入口保留原execution_claim，只额外独占创建explicit_recovery_claim。它逐项比较prompt_source、prompt_binding、完整request、wire、原claim和失败回执，保留原provider、严格解析、schema及应用行动校验；固定thinking/high、16384、网络重试3次与格式修正1次。只有一个初始length失败可进入，失败后不能通过再次启动、删除claim或变更授权文件形成循环。成功后才转回原冻结入口继续pipeline；没有改写模型回答或引入旧UG04偏离别名。
+
+16:53:26无网络预演逐一核验12个成功缓存、9组原始proposal及重建history，并精确核验第13个待恢复请求；API和新候选均0。保护、授权、预演分别为engineering_audits/UG05_R04_preservation_20261027.json、UG05_R04_recovery_authorization_20261027.json、UG05_native_recovery_20261027_165326.jsonl。
+
+16:54:20显式原配置恢复一次，定位PID647144，日志UG05_R04_recovery_20261027_165420.log及UG05.logpath，运行绑定UG05_native_recovery_20261027_165425.jsonl。16:56:04第二次仍返回length，输入58826、输出16384全部reasoning，正文为空，无接口修正；wire_2与wire_1字节完全相同。恢复失败，不标记为健康推理。16:57:36确认进程退出、执行锁释放，9组450次及9组10/50检查不变，无新候选；693文件、history、attempts及UG04的2333文件均未变，主目录/科学/提示/CPU绑定一致，CPU无积压。采样FAILED、QUALITY_FAILED均0不能掩盖LLM停止，UG05尚未FINALIZED或AWAITING。
+
+完整证据见[UG05第四轮恢复失败审计](../evidence/uniguide/20261027_UG05_R04_recovery.json)，SHA256 f425b7fdf45d02947f3a98528bb9bede9759430a96f01df53aea0b0b5da63158。同一请求已经两次长度失败；需要用户明确选择后才进行第三次调用、单请求额度偏离或提示修订。保持35分钟巡检ACTIVE，等待期间只读核查原产物和CPU服务，不自动循环、不改冻结协议、不启动UG06。旧UG04单请求24576授权不扩展到UG05。
