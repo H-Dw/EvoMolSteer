@@ -318,3 +318,11 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 恢复入口增加hash绑定的单请求授权文件参数。原请求和失败记录不覆盖；增加额度的真实请求、原始回答和provider回执使用独立目录。成功后为原上下文路径创建明确标注有效请求路径的响应别名，不伪装成原16384额度的成功。重放必须重新验证有效缓存、原请求、schema和应用约束。持久化独占claim限制本次额度变更只发起一次provider调用序列，保留原网络重试及一次格式修正；长度失败不自动循环重试。后续恢复UG04必须携带该授权文件并使用新版入口，普通run-version及旧入口不能识别此次协议偏离。
 
 官方Chat Completions文档确认max_tokens为输出token上限，当前支持范围包含24576；本次只改该字段，不调整thinking/reasoning_effort或提示。来源：https://api-docs.deepseek.com/api/create-chat-completion/ （访问2026-10-27）。新增测试覆盖仅目标额度变化、成功缓存复用、原产物保留、实质输入拒绝、缓存/别名篡改拒绝及新额度长度失败后不自动重试。实际远端测试、部署与恢复结果后续追加审计。
+
+11:37:30真实缓存预演通过：10个成功调用及第11个中断请求、history、schema和原wire均核验一致；保护文件扩展至441个。恢复入口固定提交`e9598cb0092783f41b19740de8a2e21a5fafb82d`已推送，直连和四镜像依序超时后以验证Git bundle部署到独立恢复目录，25项远端测试通过（1.90秒）。GPU仍冻结于930db032。
+
+11:38:10启动一次授权恢复，定位PID620111，日志`UG04_token24576_20261027_113810.log`。授权文件为`engineering_audits/UG04_token24576_authorization_20261027.json`，保护账本为`UG04_token24576_preservation_20261027.json`，预演为`UG04_token24576_preflight_20261027.json`。11:39:30确认真实恢复进程和新wire：有效请求max_tokens=24576，与原wire逐字段比较，仅max_tokens变化；当前请求等待结果，不能提前宣称恢复成功。35分钟巡检已同步此次授权和新入口，UTF-8/ASCII JSON读回确认一致。
+
+11:40:05提高额度后的redistribute成功：finish_reason=stop，单次HTTP、无接口修正，输出16490（reasoning15303），实际超过原16384上限106；新wire与原wire仅max_tokens不同。11:41:07后续synthesis以原16384额度单次成功，输出8365，无接口修正。11:41:59确认6pyy/R03/increase已到第30步，执行锁持有、真实进程推进，正式累计预留4850次（其中新50次在执行），既有6组300次产物不变，CPU抽样无积压。441个保护文件及科学/skills/CPU绑定均无变化。此为本次请求恢复成功，不能宣称整个版本完成或已消除所有截断。
+
+审计见[UG04提高输出额度后的恢复证据](../evidence/uniguide/20261027_UG04_token24576_recovery.json)。原两次失败保留，增加额度的有效产物位于advice_R03/redistribute.token24576；原上下文response/receipt是明确标记protocol_deviation的别名，统计实际HTTP时不能重复计数。后续恢复必须使用e9598cb0新版入口并携带原授权文件；已成功的扩大额度调用仅做缓存复用，不重新消耗额度。UG04继续完成剩余轮次后进行实际GPT复盘，35分钟巡检保持ACTIVE。
