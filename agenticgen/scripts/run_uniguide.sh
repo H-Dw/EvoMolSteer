@@ -15,5 +15,9 @@ source /opt/MolSteer/scripts/scnet/activate_dtk.sh
 cd /workspace/EvoMolSteer
 export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8
 export PYTHONPATH="/workspace/uniguide_deps:/workspace/EvoMolSteer/agenticgen/src:/workspace/EvoMolSteer/src:/opt/MolSteer/flowr_root${PYTHONPATH:+:$PYTHONPATH}"
+if [[ "${1:-}" == "run-version" && "${2:-}" =~ ^UG(0[5-9]|1[0-9]|20)$ ]]; then
+  exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python agenticgen/scripts/run_uniguide_prompt_version.py \
+    --config /workspace/EvoMolSteer/agenticgen/configs/uniguide_flowr.json "$2"
+fi
 exec /opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide \
   --config /workspace/EvoMolSteer/agenticgen/configs/uniguide_flowr.json "$@"
