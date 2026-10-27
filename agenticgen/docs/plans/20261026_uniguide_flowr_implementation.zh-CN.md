@@ -87,3 +87,7 @@ GitHub 网络异常依次尝试 ghfast.top、gh-proxy.com、ghproxy.net、gh.llk
 - 官方补充代码: https://proceedings.neurips.cc/paper_files/paper/2024/file/faa6276ea12d7afeb3e42b210c86f688-Supplemental-Conference.zip
 - Flow matching guidance: https://arxiv.org/html/2502.02150v2
 - PyTorch 2.9 autograd: https://docs.pytorch.org/docs/2.9/notes/autograd.html
+
+## 2026-10-27 逐教师尺度修订（尚未部署）
+
+用户要求按每教师分布设置初始 guidance scale 范围，取代未来新协议的跨教师平均初值与共同域规则。实现、经验边界及原始证据见[逐教师尺度报告](../reports/20261027_teacher_specific_scale.zh-CN.md)。本修订不追改已冻结实验、不恢复当前暂停的 UG05、不重新生成 R0 或重置任何预算。新逻辑必须使用新的协议绑定与验收，不能沿用旧 source_binding。原计划中的共同尺度规则保留为历史实验的解释依据。

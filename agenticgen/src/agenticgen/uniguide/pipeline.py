@@ -10,6 +10,7 @@ from .council import advise
 from .quality import retention
 from .quality_queue import enqueue,snapshot
 from .review import build_review
+from .scale_domain import resolve_domain
 
 
 def source_binding():
@@ -39,13 +40,26 @@ def init_strategy(config):
 def run_r0(config,teachers,domain):
     import torch
     root=Path(config["root"])
+    domains={t["target"]:resolve_domain(domain,t) for t in teachers}
+    # Validate EVERY existing teacher baseline before any sampling or queue write.
     for teacher in teachers:
         folder=root/"R0"/teacher["target"]
+        local=domains[teacher["target"]]
+        binding=dict(domain_sha256=value_sha(local),teacher_sha256=value_sha(teacher))
+        if folder.exists() and any(folder.iterdir()):
+            if not (folder/"DOMAIN_BINDING.json").exists() or read(folder/"DOMAIN_BINDING.json")!=binding:
+                raise ValueError("Existing R0 belongs to another scale protocol; never overwrite or resample")
+            if (folder/"COMPLETE.json").exists() and read(folder/"aggregate.json")["schedule"]!=local["initial"]:
+                raise ValueError("R0 initial schedule differs from its teacher domain")
+    for teacher in teachers:
+        folder=root/"R0"/teacher["target"]
+        local=domains[teacher["target"]]
+        frozen(folder/"DOMAIN_BINDING.json",dict(domain_sha256=value_sha(local),teacher_sha256=value_sha(teacher)))
         if (folder/"COMPLETE.json").exists():
             enqueue(config,folder,teacher)
             continue
         model=load_model(config,teacher)
-        execute(model,config,teacher,domain["initial"],folder,"r0")
+        execute(model,config,teacher,local["initial"],folder,"r0")
         enqueue(config,folder,teacher)
         del model;torch.cuda.empty_cache()
 
@@ -85,6 +99,7 @@ def run_version(config,version):
     acceptance=read(root/"acceptance/COMPLETE.json")
     if acceptance["source_binding"]!=source_binding(): raise ValueError("Implementation changed after remote acceptance")
     domain=read(root/"calibration/domain.json");teachers=read(root/"teachers.json")
+    domains={t["target"]:resolve_domain(domain,t) for t in teachers}
     run_r0(config,teachers,domain)
     folder=root/"versions"/version
     if (folder/"FINALIZED.json").exists(): return build_review(config,version)
@@ -92,12 +107,13 @@ def run_version(config,version):
     teacher_summaries={};contexts=[];aggregates=[]
     for teacher in teachers:
         target=teacher["target"];troot=folder/target
+        local_domain=domains[target]
         r0=read(root/"R0"/target/"aggregate.json")
         history=[r0];groups=[]
         model=load_model(config,teacher)
         for round_number in range(1,6):
             # R0 bootstrap, then latest measured private action anchors; no cross-version task memory.
-            proposals=advise(config,teacher,version,round_number,history,domain,folder/"skills",troot/f"advice_R{round_number:02d}")
+            proposals=advise(config,teacher,version,round_number,history,local_domain,folder/"skills",troot/f"advice_R{round_number:02d}")
             for p in proposals:
                 if source_binding()!=manifest["source_binding"]: raise ValueError("Executable code changed mid-version")
                 out=troot/f"R{round_number:02d}"/p["branch"]
@@ -108,7 +124,7 @@ def run_version(config,version):
                 history.append(row);groups.append(row)
                 write(troot/"history.json",history)
             # Nothing about a future R6 is generated.
-        advise(config,teacher,version,5,history,domain,folder/"skills",troot/"analysis_R05",final=True)
+        advise(config,teacher,version,5,history,local_domain,folder/"skills",troot/"analysis_R05",final=True)
         for group in groups:
             context_folder=troot/("analysis_R05" if group["round"]==5 else f"advice_R{group['round']+1:02d}")
             group["private_context"]=str(context_folder/(group["branch"]+".json"))

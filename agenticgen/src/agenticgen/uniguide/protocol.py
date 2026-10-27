@@ -33,7 +33,7 @@ def validate_action(proposal, anchors, domain, seen):
     new = [lattice_index(x) for x in after]
     lo, hi = domain["min_index"], domain["max_index"]
     if any(j < lo or j > hi for j in new):
-        raise ValueError("Scale outside calibrated shared domain")
+        raise ValueError("Scale outside this teacher's calibrated domain")
     changes = [b-a for a,b in zip(old,new) if b != a]
     size = 2 if proposal["mode"] == "coarse" else 1
     if not 1 <= len(changes) <= 2 or any(abs(x) != size for x in changes):

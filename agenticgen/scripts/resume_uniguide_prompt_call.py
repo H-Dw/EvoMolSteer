@@ -130,13 +130,17 @@ def replay(config, version, council, record):
     root = Path(config['root'])
     domain = read(root / 'calibration/domain.json')
     for teacher in read(root / 'teachers.json'):
+        local_domain = domain
+        if 'by_teacher' in domain:
+            from agenticgen.uniguide.scale_domain import resolve_domain
+            local_domain = resolve_domain(domain, teacher)
         troot = root / 'versions' / version / teacher['target']
         history = [read(root / 'R0' / teacher['target'] / 'aggregate.json')]
         saved = read(troot / 'history.json') if (troot / 'history.json').exists() else history
         for number in range(1, 6):
             if not same(history, saved[:len(history)]):
                 raise ValueError('Reconstructed history differs from snapshot')
-            proposals = council.advise(config, teacher, version, number, history, domain,
+            proposals = council.advise(config, teacher, version, number, history, local_domain,
                 root / 'versions' / version / 'skills', troot / f'advice_R{number:02d}')
             for proposal in proposals:
                 folder = troot / f'R{number:02d}' / proposal['branch']
@@ -149,7 +153,7 @@ def replay(config, version, council, record):
                 record(dict(event='validated_group', group=str(folder.relative_to(root))))
         if not same(history, saved):
             raise ValueError('Completed teacher history mismatch')
-        council.advise(config, teacher, version, 5, history, domain,
+        council.advise(config, teacher, version, 5, history, local_domain,
             root / 'versions' / version / 'skills', troot / 'analysis_R05', final=True)
     raise ValueError('Authorized target not reached')
 

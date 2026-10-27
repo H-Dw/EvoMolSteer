@@ -18,6 +18,8 @@ ACTION=object_schema({"id":TEXT,"branch":{"enum":BRANCHES},"anchor_id":TEXT,"anc
 
 
 def advise(config,teacher,version,round_number,history,domain,skills_dir,folder,final=False):
+    if "target" in domain and (domain["target"]!=teacher["target"] or domain["node_id"]!=teacher["node_id"]):
+        raise ValueError("Guidance context received another teacher's scale domain")
     folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
     skill_text="\n\n".join(p.read_text(encoding="utf-8") for p in sorted(Path(skills_dir).glob("*.md")))
     anchors={r["id"]:r for r in history}
