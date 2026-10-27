@@ -60,4 +60,12 @@ python agenticgen/scripts/derive_uniguide_teacher_domains.py \
   --output /tmp/teacher_scale_proposal.json
 ```
 
-该脚本拒绝覆盖已存在的输出，也拒绝写名为 `domain.json` 的文件。远端测试结果另见本报告后续验证记录。
+该脚本拒绝覆盖已存在的输出，也拒绝写名为 `domain.json` 的文件。
+
+## 远端验证记录
+
+实现提交 `ba36463f0c1413fb83753b3ccfe6759fab1f98e2` 已推送 GitHub。2026-10-27 18:36–18:39（Asia/Shanghai），在独立目录 `/workspace/uniguide_audits/teacher-scale-ba36463f` 检出该固定提交；直连和四个指定镜像依序超时后，使用仅包含已推送提交、已校验 SHA256 和 Git ancestry 的 bundle。
+
+111 项测试通过（7.10 秒），包括教师独立性、不同响应曲线、绝对位移突增、失败与缺测、不同人口禁止混排、已有数据推导、教师身份、R0 路由和先验保护，以及既有数值公式、预算、prompt、锚点与恢复契约。测试屏蔽 GPU、未加载真实 API 密钥；真实采样数与 API 调用数均为 0。
+
+18:39:04 核验生产目录仍为干净的 `8db4d968cd0164b4c7550c8c0cd561b152971776`。真实推理/恢复/CPU worker 进程均未运行，执行锁与 CPU worker 锁均空闲；attempts、旧标定域、两教师 R0 aggregate、UG05 manifest 的 SHA256 与测试前完全一致。巡检保持 PAUSED，35 分钟配置未改变。验证证据为 `../evidence/uniguide/20261027_teacher_scale_remote_tests.json`。这些检查验证实现与保护措施，不等同于新范围的前瞻分子实验验收。
