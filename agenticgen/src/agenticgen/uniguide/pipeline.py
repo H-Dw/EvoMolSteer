@@ -11,6 +11,7 @@ from .quality import retention
 from .quality_queue import enqueue,snapshot
 from .review import build_review
 from .scale_domain import resolve_domain
+from .bootstrap import bootstrap_history
 
 
 def source_binding():
@@ -100,6 +101,7 @@ def run_version(config,version):
     if acceptance["source_binding"]!=source_binding(): raise ValueError("Implementation changed after remote acceptance")
     domain=read(root/"calibration/domain.json");teachers=read(root/"teachers.json")
     domains={t["target"]:resolve_domain(domain,t) for t in teachers}
+    bootstraps={t["target"]:bootstrap_history(root,t,domains[t["target"]]) for t in teachers}
     run_r0(config,teachers,domain)
     folder=root/"versions"/version
     if (folder/"FINALIZED.json").exists(): return build_review(config,version)
@@ -108,11 +110,10 @@ def run_version(config,version):
     for teacher in teachers:
         target=teacher["target"];troot=folder/target
         local_domain=domains[target]
-        r0=read(root/"R0"/target/"aggregate.json")
-        history=[r0];groups=[]
+        history=bootstraps[target];groups=[]
         model=load_model(config,teacher)
         for round_number in range(1,6):
-            # R0 bootstrap, then latest measured private action anchors; no cross-version task memory.
+            # First measured multi-scale winner, then this version's private actions.
             proposals=advise(config,teacher,version,round_number,history,local_domain,folder/"skills",troot/f"advice_R{round_number:02d}")
             for p in proposals:
                 if source_binding()!=manifest["source_binding"]: raise ValueError("Executable code changed mid-version")

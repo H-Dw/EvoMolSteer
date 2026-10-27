@@ -135,7 +135,11 @@ def replay(config, version, council, record):
             from agenticgen.uniguide.scale_domain import resolve_domain
             local_domain = resolve_domain(domain, teacher)
         troot = root / 'versions' / version / teacher['target']
-        history = [read(root / 'R0' / teacher['target'] / 'aggregate.json')]
+        if 'by_teacher' in domain:
+            from agenticgen.uniguide.bootstrap import bootstrap_history
+            history = bootstrap_history(root, teacher, local_domain)
+        else:
+            history = [read(root / 'R0' / teacher['target'] / 'aggregate.json')]
         saved = read(troot / 'history.json') if (troot / 'history.json').exists() else history
         for number in range(1, 6):
             if not same(history, saved[:len(history)]):

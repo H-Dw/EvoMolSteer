@@ -91,3 +91,5 @@ GitHub 网络异常依次尝试 ghfast.top、gh-proxy.com、ghproxy.net、gh.llk
 ## 2026-10-27 逐教师尺度修订（尚未部署）
 
 用户要求按每教师分布设置初始 guidance scale 范围，取代未来新协议的跨教师平均初值与共同域规则。实现、经验边界及原始证据见[逐教师尺度报告](../reports/20261027_teacher_specific_scale.zh-CN.md)。本修订不追改已冻结实验、不恢复当前暂停的 UG05、不重新生成 R0 或重置任何预算。新逻辑必须使用新的协议绑定与验收，不能沿用旧 source_binding。原计划中的共同尺度规则保留为历史实验的解释依据。
+
+随后用户明确初值须来自第一轮R0多scale实测结果。v2撤掉“区间内部起点”限制，直接选各教师首轮full-50常数的C–gap优选值：6pyy=181.01933598375618、3w54=256。该多scale数据在磁盘中名为calibration/full；旧R0目录是单scale基线。静态首轮实测结果经完整绑定核验进入迭代history，边界处通过显式选择其他实测行动锚点满足合法动作，不能偷偷降低初值、越界或重采。详情见[初始化纠正报告](../reports/20261027_r0_multiscale_initialization.zh-CN.md)。实验暂停和旧协议冻结不变。

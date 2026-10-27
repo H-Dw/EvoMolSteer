@@ -4,6 +4,8 @@ from pathlib import Path
 import jsonschema
 from .io import read, sha
 from .protocol import BRANCHES, validate_action, choose
+from .bootstrap import action_anchor
+from .scale_domain import POLICY as SCALE_POLICY
 from agenticgen.providers.deepseek_api import call_json
 
 
@@ -35,6 +37,8 @@ def advise(config,teacher,version,round_number,history,domain,skills_dir,folder,
     for branch in BRANCHES:
         own=[r for r in history if r.get("branch")==branch]
         context=dict(common,branch=branch,default_anchor=(own[-1] if own else history[0]))
+        if domain.get("policy")==SCALE_POLICY and not final:
+            context["default_anchor"],context["default_anchor_reason"]=action_anchor(history,domain,branch)
         schema=object_schema({"analysis":TEXT,"mechanism_uncertainty":TEXT,"proposals":{
             "type":"array","items":ACTION,"minItems":0 if final else 2,"maxItems":0 if final else 2}})
         def validate(result,branch=branch):

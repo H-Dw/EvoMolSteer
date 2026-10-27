@@ -9,12 +9,14 @@ import pytest
 
 from agenticgen.uniguide.calibration import phase_profiles, bind_calibration
 from agenticgen.uniguide.scale_domain import (derive_domains, derive_teacher_domain, resolve_domain,
-    PHASE_LIMITS, PHASE_COUNTS, GROWTH_LIMIT)
-from agenticgen.uniguide.io import write, value_sha
-from agenticgen.uniguide.protocol import validate_action
+    PHASE_LIMITS, PHASE_COUNTS)
+from agenticgen.uniguide.io import read, write, sha, value_sha
+from agenticgen.uniguide.protocol import SEEDS, validate_action
+from agenticgen.uniguide.bootstrap import bootstrap_history, action_anchor, legal_options
 
 
-TEACHERS = [dict(target="a", node_id="node_a"), dict(target="b", node_id="node_b")]
+TEACHERS = [dict(target="a", node_id="node_a", pic50=8., heavy_atoms=17),
+            dict(target="b", node_id="node_b", pic50=9., heavy_atoms=22)]
 
 
 def curve(target, offset=0):
@@ -59,7 +61,8 @@ def test_different_teacher_distributions_produce_shifted_initial_and_bounds():
     assert b["lower"] == pytest.approx(a["lower"]*8)
     assert b["upper"] == pytest.approx(a["upper"]*8)
     assert a["max_index"] == 4 and a["min_index"] == 2
-    assert a["initial_source"] == "a/3" and a["performance_best_source"] == "a/4"
+    assert a["initial_source"] == a["performance_best_source"] == "a/4"
+    assert a["initial"] == [a["upper"]]*4
     assert a["risk_boundary"]["index"] == 5
     assert a["stability_guarantee"] is False
 
@@ -67,9 +70,8 @@ def test_different_teacher_distributions_produce_shifted_initial_and_bounds():
 def test_absolute_jump_detected_despite_favorable_gap_and_finite_metrics():
     rows = curve("a")
     rows[5].update(C=.1, gap=0.)
-    domain = derive_teacher_domain(rows, TEACHERS[0])
-    assert domain["max_index"] == 4
-    assert domain["risk_boundary"]["normalized_growth"]["max_atom_increment_A"] > GROWTH_LIMIT
+    with pytest.raises(ValueError, match="no automatic replacement"):
+        derive_teacher_domain(rows, TEACHERS[0])
     # Linear growth in scale alone is not a numerical-growth alarm.
     for r in rows:
         s = r["schedule"][0]
@@ -115,9 +117,9 @@ def test_teacher_specific_actions_and_phase_budget():
     a = resolve_domain(domains, TEACHERS[0])
     before = a["initial"]
     anchors = {"R0/a": dict(schedule=before)}
-    proposal = dict(anchor_id="R0/a", mode="fine", branch="increase", schedule=[before[0]*math.sqrt(2)]+before[1:])
+    proposal = dict(anchor_id="R0/a", mode="fine", branch="decrease", schedule=[before[0]/math.sqrt(2)]+before[1:])
     validate_action(proposal, anchors, a, [])
-    proposal.update(mode="coarse", schedule=[before[0]*2]+before[1:])
+    proposal.update(branch="increase", schedule=[before[0]*math.sqrt(2)]+before[1:])
     with pytest.raises(ValueError, match="domain"): validate_action(proposal, anchors, a, [])
     assert 2*sum(PHASE_COUNTS[p]*PHASE_LIMITS[p] for p in PHASE_COUNTS) == 5000
     for phase in PHASE_COUNTS:
@@ -174,8 +176,106 @@ def test_real_calibration_derivation_and_all_evidence_preserved():
     before = value_sha(rows)
     result = derive_domains(rows, data["teachers.json"])["by_teacher"]
     a, b = result["6pyy_H7S_A_402"], result["3w54_RNB_A_504"]
-    assert a["initial"] == [128.]*4 and b["initial"] == [2.**7.5]*4
+    assert a["initial"] == [2.**7.5]*4 and b["initial"] == [256.]*4
+    assert a["initial_source"] == "calibration/full/6pyy_H7S_A_402/p000"
+    assert b["initial_source"] == "calibration/full/3w54_RNB_A_504/p001"
     assert (a["min_index"], a["max_index"]) == (13, 15)
     assert (b["min_index"], b["max_index"]) == (13, 16)
     assert a["risk_boundary"]["index"] == 16 and b["risk_boundary"]["index"] == 17
     assert value_sha(rows) == before
+
+
+def write_bootstrap_fixture(root):
+    rows = curve("a")+curve("b", 6)
+    for r in rows:
+        r["id"] = f"calibration/full/{r['target']}/p{r['id'].split('/')[-1]}"
+        folder = root/r["id"]
+        teacher = next(t for t in TEACHERS if t["target"] == r["target"])
+        write(folder/"manifest.json", dict(id=r["id"], teacher_sha256=value_sha(teacher), count=50, schedule=r["schedule"]))
+        write(folder/"records.json", [dict(node_id=f"n{seed}_{slot}", logical_seed=seed, logical_slot=slot)
+            for seed in SEEDS for slot in range(10)])
+        write(folder/"aggregate.json", {k: v for k, v in r.items() if k not in ("target", "phase")})
+        write(folder/"COMPLETE.json", dict(manifest_sha256=sha(folder/"manifest.json"), records_sha256=sha(folder/"records.json")))
+    write(root/"calibration/full_results.json", rows)
+    return derive_domains(rows, TEACHERS)
+
+
+def test_initial_scale_reaches_history_and_branch_boundary_does_not_lower_it(tmp_path):
+    domains = write_bootstrap_fixture(tmp_path)
+    local = resolve_domain(domains, TEACHERS[0])
+    before = {p: p.read_bytes() for p in tmp_path.rglob("*.json")}
+    history = bootstrap_history(tmp_path, TEACHERS[0], local)
+    assert history[0]["id"] == local["initial_source"]
+    assert history[0]["schedule"] == local["initial"] == [4.]*4
+    assert len(history) == 3  # Initial measurement appears once; no duplicate R0 alias.
+    assert len(legal_options(history[0], history, local, "increase")) == 0
+    for branch in ["increase", "decrease", "redistribute"]:
+        anchor, reason = action_anchor(history, local, branch)
+        assert len(legal_options(anchor, history, local, branch)) == 2
+        if branch in ["increase", "redistribute"]:
+            assert anchor["id"] != local["initial_source"] and "initial_scale_unchanged" in reason
+        assert history[0]["schedule"] == local["initial"]
+    assert all(p.read_bytes() == data for p, data in before.items())
+    assert not (tmp_path/"attempts.json").exists() and not (tmp_path/"R0").exists()
+
+
+@pytest.mark.parametrize("changed", ["results", "aggregate", "records", "teacher", "population"])
+def test_bootstrap_rejects_changed_source_instead_of_resampling(tmp_path, changed):
+    domains = write_bootstrap_fixture(tmp_path)
+    local = resolve_domain(domains, TEACHERS[0])
+    folder = tmp_path/local["initial_source"]
+    if changed == "results":
+        rows = read(tmp_path/"calibration/full_results.json");rows[0]["C"] += 1
+        write(tmp_path/"calibration/full_results.json", rows)
+    elif changed == "aggregate":
+        row = read(folder/"aggregate.json");row["C"] += 1;write(folder/"aggregate.json", row)
+    elif changed in ["records", "population"]:
+        write(folder/"records.json", [])
+        if changed == "population":
+            receipt = read(folder/"COMPLETE.json");receipt["records_sha256"] = sha(folder/"records.json")
+            write(folder/"COMPLETE.json", receipt)
+    else:
+        manifest = read(folder/"manifest.json");manifest["teacher_sha256"] = "wrong"
+        write(folder/"manifest.json", manifest)
+    with pytest.raises(ValueError): bootstrap_history(tmp_path, TEACHERS[0], local)
+    assert not (tmp_path/"attempts.json").exists()
+
+
+def test_no_legal_branch_stops_without_changing_initial_or_widening_bounds():
+    history = [dict(id="a", complete=True, C=1., gap=1., best=1., schedule=[4.]*4)]
+    domain = dict(min_index=4, max_index=4)
+    with pytest.raises(ValueError, match="No two untested legal"):
+        action_anchor(history, domain, "increase")
+    assert history[0]["schedule"] == [4.]*4 and domain == dict(min_index=4, max_index=4)
+
+
+def test_council_receives_measured_initial_and_visible_boundary_anchor_reason(tmp_path, monkeypatch):
+    import jsonschema
+    import agenticgen.uniguide.council as council
+    domains = write_bootstrap_fixture(tmp_path)
+    local = resolve_domain(domains, TEACHERS[0])
+    history = bootstrap_history(tmp_path, TEACHERS[0], local)
+    for phase in ["coarse", "fine", "windows"]:
+        write(tmp_path/f"calibration/{phase}_results.json", [])
+    skills = tmp_path/"skills";skills.mkdir();(skills/"proposal.md").write_text("fixture")
+    contexts = []
+    def provider(messages, schema, output, response_validator, **kwargs):
+        context = json.loads(messages[1]["content"]);contexts.append(context)
+        if output.stem == "synthesis":
+            result = dict(analysis="measured", choice_evidence="original candidate IDs",
+                          selected={b:b+":0" for b in ("increase", "decrease", "redistribute")})
+        else:
+            options = legal_options(context["default_anchor"], history, local, output.stem)
+            proposals = [dict(p, id=str(i), anchor_reason="measured anchor", evidence="first multi-scale",
+                prediction="C decreases", falsifier="C rises") for i,p in enumerate(options)]
+            result = dict(analysis="measured", mechanism_uncertainty="unknown", proposals=proposals)
+        jsonschema.validate(result, schema);response_validator(result)
+        return result
+    monkeypatch.setattr(council, "call_json", provider)
+    proposals = council.advise(dict(root=str(tmp_path), llm={}), TEACHERS[0], "UG01", 1,
+                              history, local, skills, tmp_path/"advice")
+    assert len(proposals) == 3 and len(contexts) == 4
+    assert all(c["domain"]["initial"] == [4.]*4 for c in contexts)
+    assert all(c["history"][0]["id"] == local["initial_source"] for c in contexts)
+    assert contexts[0]["default_anchor"]["id"] != local["initial_source"]
+    assert "initial_scale_unchanged" in contexts[0]["default_anchor_reason"]

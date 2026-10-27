@@ -10,7 +10,7 @@ from .io import value_sha
 from .protocol import choose, lattice_index
 
 
-POLICY = "teacher-local-scale-v1"
+POLICY = "teacher-r0-multiscale-v2"
 PHASE_COUNTS = {"coarse": 10, "fine": 20, "windows": 25, "full": 50}
 PHASE_LIMITS = {"coarse": 26, "fine": 32, "windows": 24, "full": 20}
 GROWTH_LIMIT = 10.0
@@ -102,19 +102,24 @@ def derive_teacher_domain(rows, teacher):
               min(lattice_index(r["schedule"][0]) for r in frontier) - 2)
     high = min(lattice_index(eligible[-1]["schedule"][0]),
                max(lattice_index(r["schedule"][0]) for r in frontier) + 2)
-    # An initial anchor needs at least one fine-grid move in BOTH directions.
-    # Do not expand into the observed failure region to manufacture that room.
-    interior = [r for r in eligible if low < lattice_index(r["schedule"][0]) < high]
-    if not interior:
-        raise ValueError("No measured interior initial scale; more calibration evidence is needed for " + target)
-    winner = choose(interior)
+    # Select directly from this teacher's original full-population multi-scale
+    # measurements. Being on a boundary is not a reason to substitute a worse
+    # initial scale. Keep the ranking independent of the range heuristic.
+    winner = choose([r for r in constants if r.get("complete")])
+    if winner not in eligible or not low <= lattice_index(winner["schedule"][0]) <= high:
+        raise ValueError("R0 multi-scale winner conflicts with empirical bounds; no automatic replacement")
     measured = {lattice_index(r["schedule"][0]) for r in eligible}
     return dict(policy=POLICY, target=target, node_id=teacher["node_id"], teacher_sha256=value_sha(teacher),
         initial=list(winner["schedule"]), initial_source=winner["id"],
-        performance_best_source=choose(eligible)["id"],
+        initial_source_sha256=value_sha(winner), performance_best_source=winner["id"],
+        initial_selection=dict(stage="pre_iteration_multiscale/full", attempts_per_scale=50,
+            rule="minimum C + 0.02 A band, then minimum gap, C, negative best, id",
+            C=winner["C"], gap=winner["gap"], no_interior_substitution=True),
+        bootstrap_sources=[winner["id"]]+[r["id"] for r in eligible if r is not winner
+            and low <= lattice_index(r["schedule"][0]) <= high],
         min_index=low, max_index=high, lower=2.**(low/2), upper=2.**(high/2),
         lattice="2^(j/2)", coarse_log2_step=1., fine_log2_step=.5,
-        derivation="teacher-only full-50 constants; displacement segment; Pareto plus one octave capped by measured segment; C-band/gap selection among measured interior constants",
+        derivation="initial from teacher-only pre-iteration full-50 multi-scale winner; independent displacement range; no interior substitution",
         selection_band_A=.02, normalized_displacement_growth_limit=GROWTH_LIMIT,
         risk_boundary=boundary, unmeasured_indices=[j for j in range(low, high+1) if j not in measured],
         stability_guarantee=False, constant_comparison=curve,
@@ -136,6 +141,6 @@ def resolve_domain(domain, teacher):
     if not local or local.get("target") != teacher["target"] or local.get("node_id") != teacher["node_id"] or local.get("teacher_sha256") != value_sha(teacher):
         raise ValueError("Teacher-specific domain identity mismatch")
     initial = [lattice_index(s) for s in local["initial"]]
-    if len(initial) != 4 or len(set(initial)) != 1 or not local["min_index"] < initial[0] < local["max_index"]:
-        raise ValueError("Initial scale must have fine-grid actions on both sides")
+    if len(initial) != 4 or len(set(initial)) != 1 or not local["min_index"] <= initial[0] <= local["max_index"]:
+        raise ValueError("Measured initial scale must be inside the inclusive teacher bounds")
     return copy.deepcopy(local)
