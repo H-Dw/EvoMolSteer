@@ -34,3 +34,9 @@ joint_native的首次覆盖前轨迹必须与前次chemical_native完全一致�
 独立结果根目录为`/workspace/agenticgen_joint_inpainting_20261027`。代码先提交推送，再部署固定提交，远端工程测试后脱离SSH会话启动。原UG05、原巡检和前次已完成实验均保持原状态；运行时取得原GPU执行锁避免并发。
 
 每组慢检查仍为checked_attempts=10、not_selected=40、coverage=0.2，独立CPU队列不阻塞后续采样。专项后台巡检仅关注本实验，健康或排队保持安静，完成/实质异常再通知；失败先存证据，不自动重采。全部完成后生成报告、保存源结构和失败账本，再停用专项巡检。原有35分钟UG巡检继续PAUSED，不修改其他自动化。
+
+## 已启动审计
+
+2026-10-27 21:45:25（Asia/Shanghai）已从固定提交`0e7d4dc2bb4109362ac797477ba148df119f8f31`的独立目录`/workspace/uniguide_audits/joint-endpoint-0e7d4dc2`脱离SSH启动。35项远端测试通过（5.78秒），日志为结果根目录`run.log`。21:47:36核查真实进程、两个执行锁及逐步产物：首组6pyy/joint_native完成第70步，五项首次覆盖前配对核验均通过，没有FAILED标记。完整快照见同目录`launch_audit.json`。
+
+专项巡检`inpainting-0-999`为ACTIVE，间隔15分钟；旧`uniguide-flowr`仍为PAUSED、间隔35分钟。两份配置以UTF-8读取并经JSON转义回读核验，无Unicode替换字符；专项说明保留checked_attempts=10及CPU质量模块来源提交`3f07d1fa660cc46afb8f3c256cd45e6ab54024c7`。此次启动审计仅为文档提交，不部署覆盖正在运行的代码。
