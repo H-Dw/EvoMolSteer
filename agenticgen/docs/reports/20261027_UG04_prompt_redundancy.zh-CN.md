@@ -57,3 +57,18 @@ analysis、proposal、synthesis三份指引已经修订。私有Agent仅接收an
 已形成具体离线预览：anchor_id直接使用原history ID枚举，系统提示明确引用标签只用于查找数据。原上下文完全保留，两个真实错误回答均被新enum拒绝。仅替换anchor_id的内存反事实通过原科学行动校验，用于定位问题，不作为正式成功答案。1123个文件、失败记录和claim均保留；当前没有改生产代码、发新API请求或重采。
 
 依照新提示调用失败后不得自动循环重试的约束，等待用户明确选择，再实现兼容既有成功缓存的新授权入口并运行。详见[锚点身份失败及修订预览](../evidence/uniguide/20261027_UG04_prompt_anchor_failure.json)。
+
+
+## 第二教师执行锚点混淆：节点、代码与修订
+
+2026-10-27（Asia/Shanghai），用户明确要求修复“第二教师将压缩引用误作执行锚点”的异常，并追溯节点和代码。该指令授权落实修订及既有提交、部署、审计续跑流程，取代此前等待确认状态。
+
+真实停止节点为 `UG04/3w54_RNB_A_504/advice_R01/increase.promptcompact_v1`。调用链为 `pipeline.run_version` → `council.advise` → 恢复入口 `wrap_call` → `uniguide_prompt_policy.wrap_prompt_revision` → `deepseek_api.call_json` → `council.validate` → `protocol.validate_action`。第一份回答把 `r80` 填入两个 proposal 的 anchor_id；原有一次格式修正后改成 `calibration/full/3w54_RNB_A_504/p000`。两次均正常结束，错误属于身份约束而非 token 截断；该教师尚未生成候选。
+
+根因位于表示和执行接口之间：v1 的 `pack_context` 将重复历史行压缩为 `$ref`，实际 `id=R0/3w54_RNB_A_504` 藏在 `shared.r80` 中；`transform` 只有通用引用说明。原 `council.ACTION.anchor_id` 仅要求非空字符串，随后 `validate_action` 才按 `history` 构建的 anchors 检查身份，给出通用错误。数据可逆还原测试通过，并不保证模型区分引用标签和实际执行 ID。原科学校验正确拒绝了错误，不能将其放宽或自动替模型改写回答。
+
+新增 `uniguide_anchor_policy.py`（explicit-anchor-v2）：从未压缩的原 history 构造准确的 anchor_id 枚举，并在可见的 execution_contract 中列出真实 ID、原 schedule 及 history 索引；明确禁止把引用标签或 history 外的标定 ID 当作执行锚点。原压缩证据逐项不变；综合决策同样明确使用 candidates 字典键，保留原 selected 枚举。输出长度限制、单个 JSON、原行动校验、thinking/high、16384 上限和一次格式修正不变，不自动修正任何模型身份字段。
+
+旧 v1 模块和三份 skills 字节不改，成功调用通过原 token/v1 包装层和原 provider 完整重验。新授权绑定旧授权、旧固定提交、manifest 和新实现；仅尚未成功的调用进入独立 `.anchorids_v2` 目录和新独占 claim。原失败 claim、两份回答及修正请求保留，失败后仍禁止自动再试。恢复入口分别核验新 adapter commit 与旧 prompt commit，不能将新提交冒充冻结科学提交。
+
+新增回归覆盖引用标签及标定 ID 的精确拒绝、字段级修正提示、原行动校验、旧 v1 缓存零网络复用、失败 claim 保留、v2 失败不自动重试、绑定篡改拒绝和综合候选键。实际远端测试与续跑结果以随后执行审计为准；此处不提前宣称恢复成功。

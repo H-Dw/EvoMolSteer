@@ -185,6 +185,7 @@ def main():
     parser.add_argument("--token-override", help="Hash-bound user authorization for one 50% cap increase")
     parser.add_argument("--prompt-revision", help="Audited user authorization to revise unfinished prompts")
     parser.add_argument("--prompt-skills", help="Committed revised skills, separate from the frozen version")
+    parser.add_argument("--anchor-revision", help="Audited identity-contract revision with legacy cache bindings")
     args = parser.parse_args()
     repo = Path(args.frozen_repo).resolve()
     config = read(args.config)
@@ -233,6 +234,19 @@ def main():
                 "preserved_files": len(preservation["source_hashes"]),
                 "automatic_length_retries": 0, "llm": config["llm"]})
         provider_call = council.call_json
+        prompt_commit = args.adapter_commit
+        if args.anchor_revision:
+            if not args.prompt_revision or not args.token_override:
+                raise ValueError("Anchor recovery requires both existing deviation authorizations")
+            anchor_authorization = read(args.anchor_revision)
+            if (anchor_authorization["manifest_sha256"] != sha(manifest_path)
+                    or anchor_authorization["frozen_code_commit"] != manifest["code_commit"]
+                    or anchor_authorization["adapter_commit"] != args.adapter_commit
+                    or Path(anchor_authorization["legacy_authorization_path"]).resolve() != Path(args.prompt_revision).resolve()
+                    or anchor_authorization["legacy_authorization_sha256"] != sha(args.prompt_revision)
+                    or anchor_authorization["token_authorization_sha256"] != sha(args.token_override)):
+                raise ValueError("Anchor authorization belongs to a different recovery binding")
+            prompt_commit = anchor_authorization["legacy_adapter_commit"]
         if args.token_override:
             authorization = read(args.token_override)
             if (authorization["manifest_sha256"] != sha(manifest_path)
@@ -242,23 +256,32 @@ def main():
         if args.prompt_revision:
             import importlib.util
             policy_path = Path(__file__).with_name("uniguide_prompt_policy.py")
-            if git("show", args.adapter_commit + ":agenticgen/scripts/uniguide_prompt_policy.py") != policy_path.read_bytes():
+            if git("show", prompt_commit + ":agenticgen/scripts/uniguide_prompt_policy.py") != policy_path.read_bytes():
                 raise ValueError("Prompt policy differs from committed blob")
             if not args.prompt_skills:
                 raise ValueError("Separate committed prompt skills are required")
             authorization = read(args.prompt_revision)
             if (authorization["manifest_sha256"] != sha(manifest_path)
                     or authorization["frozen_code_commit"] != manifest["code_commit"]
-                    or authorization["adapter_commit"] != args.adapter_commit):
+                    or authorization["adapter_commit"] != prompt_commit):
                 raise ValueError("Prompt authorization belongs to a different binding")
             for name in ["analysis.md", "proposal.md", "synthesis.md"]:
-                if git("show", args.adapter_commit + ":agenticgen/src/agenticgen/uniguide/skills/" + name) != (Path(args.prompt_skills) / name).read_bytes():
+                if git("show", prompt_commit + ":agenticgen/src/agenticgen/uniguide/skills/" + name) != (Path(args.prompt_skills) / name).read_bytes():
                     raise ValueError("Prompt skills differ from committed blobs")
             spec = importlib.util.spec_from_file_location("ug_prompt_policy", policy_path)
             policy = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(policy)
             provider_call = policy.wrap_prompt_revision(provider_call, council.call_json, record, root,
                 args.prompt_revision, args.version, args.prompt_skills)
+        if args.anchor_revision:
+            anchor_path = Path(__file__).with_name("uniguide_anchor_policy.py")
+            if git("show", args.adapter_commit + ":agenticgen/scripts/uniguide_anchor_policy.py") != anchor_path.read_bytes():
+                raise ValueError("Anchor policy differs from committed blob")
+            spec = importlib.util.spec_from_file_location("ug_anchor_policy", anchor_path)
+            anchor_policy = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(anchor_policy)
+            provider_call = anchor_policy.wrap_anchor_revision(provider_call, council.call_json, record, root,
+                args.anchor_revision, args.version, args.prompt_skills)
         council.call_json = wrap_call(provider_call, record)
         try:
             result = pipeline.run_version(config, args.version)
