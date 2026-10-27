@@ -40,3 +40,5 @@ joint_native的首次覆盖前轨迹必须与前次chemical_native完全一致�
 2026-10-27 21:45:25（Asia/Shanghai）已从固定提交`0e7d4dc2bb4109362ac797477ba148df119f8f31`的独立目录`/workspace/uniguide_audits/joint-endpoint-0e7d4dc2`脱离SSH启动。35项远端测试通过（5.78秒），日志为结果根目录`run.log`。21:47:36核查真实进程、两个执行锁及逐步产物：首组6pyy/joint_native完成第70步，五项首次覆盖前配对核验均通过，没有FAILED标记。完整快照见同目录`launch_audit.json`。
 
 专项巡检`inpainting-0-999`为ACTIVE，间隔15分钟；旧`uniguide-flowr`仍为PAUSED、间隔35分钟。两份配置以UTF-8读取并经JSON转义回读核验，无Unicode替换字符；专项说明保留checked_attempts=10及CPU质量模块来源提交`3f07d1fa660cc46afb8f3c256cd45e6ab54024c7`。此次启动审计仅为文档提交，不部署覆盖正在运行的代码。
+
+2026-10-27 22:02:02（Asia/Shanghai）六个新增组全部完成，账本300次，后续10/50诊断亦全部完成。22:09:13核对队列空闲后停止本专项CPU worker。完整结果及有限值失稳样本见`report.zh-CN.md`，机器可读复盘见`analysis.json`。归档后的专项巡检停止记录见`FINALIZED.json`；原35分钟UG巡检继续暂停。本段仅补充完成审计，不改变已执行协议。
