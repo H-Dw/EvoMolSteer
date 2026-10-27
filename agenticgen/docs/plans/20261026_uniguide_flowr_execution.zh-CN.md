@@ -358,3 +358,19 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 12:38:03第四轮redistribute单次成功、无接口修正、finish_reason=stop。实际输入53697 token，相对原102056减少47.38%；输出12373（reasoning11549），上限仍16384。12:38:27综合决策单次成功、无接口修正，输入56415、输出4373（reasoning3846），原额度不变。主Agent读取两份实际回答，字段长度全部合规；原行动约束已由应用验证。12:39:34真实进程和执行锁持有，第四轮increase第40步，预算4200/100/5000（新50次正在执行），662份保护文件、科学/原skills/CPU绑定均一致，CPU抽样无积压。不能据两个成功回答推断所有后续长度问题已消除。
 
 详见[冗余分析及修订报告](../reports/20261027_UG04_prompt_redundancy.zh-CN.md)和[完整恢复证据](../evidence/uniguide/20261027_UG04_prompt_revision_recovery.json)。UG04完成后的实际GPT复盘须记录第三轮单请求额度偏离及本次中途提示修订，并读取独立策略与新skills的绑定信息。主版本后续部署应显式延续此输入表示、角色路由和输出约束，不能仅复制skills后恢复原先三角色全拼的提示构建方式；须在下一次空闲版本边界审计集成。35分钟巡检继续ACTIVE，健康推理期间不覆盖源码、不重复启动。
+
+## 12:47按用户要求终止旧进程、更新远端主目录并重启
+
+用户明确要求指引优化提交GitHub后，在远端拉取最新代码、终止先前任务并重启UG04第四轮。12:46:33（Asia/Shanghai）实际检查时，第四轮三组已全部完成，UG04累计12组600次尝试；旧进程正在执行第五轮建议。为保留已完成候选和成功调用，在无未完成采样组、无未完成有效provider调用的安全边界终止PID623965。12:47:42执行终止；随后再次核查进程不存在、执行锁释放。独立CPU抽样worker继续运行。第五轮三个已成功的私有建议同样保留，不重新发送。
+
+本地及GitHub分支`codex/uniguide-flowr-agent`均核对为`8eccc068d1696e0ab73cd270b2859d4543a4382a`，其中指引和恢复实现来自`3b7ebbc1341a99593bd43f7ee614f90237a1ffe4`。远端GitHub直连及四镜像按指定顺序各8秒超时，改用已核验、只包含已推送提交的Git bundle；SHA256为`949d5dbd08c2c7cf9ce845a20e4f1cb50f729fa255393e2de3ae55e1cc1a465a`。12:50:05主目录`/workspace/EvoMolSteer`已在指定分支快进到8eccc068，工作区干净。远端科学协议及恢复测试共69项通过（19.78秒）。
+
+新恢复入口、提示策略和三份修订skills均从更新后的主目录读取。为了继续严格校验既有UG04 manifest、原始请求和缓存，另保留`/workspace/EvoMolSteer-UG04-frozen-930db032`固定科学快照。其科学模块与最新主目录、原数值验收的source_binding逐项相同；只有历史提示构建与原skills用于重建并验证旧请求，新调用仍由主目录的修订策略转换。此分离保留原manifest的真实历史含义，没有把新Git提交冒充成原提交，也没有覆盖原skills快照。
+
+12:51:10无网络预演验证19份成功缓存、前三轮和第四轮全部12组proposal/aggregate以及history一致；第三轮24576缓存和第四、五轮修订提示的有效缓存均完整复用。API调用和新候选为0，877个保护文件哈希一致。停止、部署、保护和预演分别保存于`engineering_audits/UG04_user_restart_{stop,deployed,preservation,preflight}_20261027.json`。
+
+12:51:48重启，定位PID627185，日志`UG04_latest_code_restart_20261027_125148.log`及UG04.logpath。入口`/workspace/EvoMolSteer/agenticgen/scripts/resume_uniguide_cached_requests.py`必须同时使用`--frozen-repo /workspace/EvoMolSteer-UG04-frozen-930db032`、`--adapter-commit 3b7ebbc1341a99593bd43f7ee614f90237a1ffe4`、`--prompt-skills /workspace/EvoMolSteer/agenticgen/src/agenticgen/uniguide/skills`及原第三轮token授权、提示修订授权；保护账本改用上述877文件版本。PYTHONPATH的agenticgen/src与src指向固定科学快照，提示入口和新skills来自最新主目录。不能直接普通run-version，不删除claim或缓存。重启复用已完成第四轮，实际下一个未完成调用为6pyy/advice_R05/synthesis，不重采第四轮。
+
+12:53:03核验真实新进程与GPU/CPU锁持有；12组基础统计与12组10/50抽样完成，全部选中seed、slot、node_id及源绑定正确，CPU无积压，未发现采样或质量工程失败。预算4200/100/5100，877文件及新旧科学/提示/CPU绑定全部一致。UG04仍须完成剩余18组及最终分析、结构保留，再做真实GPT复盘；不提前启动UG05。已部署代码在健康运行期间保持不变。
+
+12:53:23重启后的首个新请求（第五轮synthesis）成功，finish_reason=stop，单次HTTP、无接口修正；输入57705，输出11197，其中reasoning10681，上限仍16384。12:53:54第五轮increase推进到第20步，正式累计预留5150次；877个保护文件仍全部一致。主Agent实际读取综合回答，三分支selected完整，原有行动约束通过；回答将未测试提案标为预测，没有将抽样未检查项判为通过。本次部署与重启的完整证据为[UG04最新代码部署及重启审计](../evidence/uniguide/20261027_UG04_latest_deploy_restart.json)。后续文档审计提交不在健康推理中覆盖部署目录。
