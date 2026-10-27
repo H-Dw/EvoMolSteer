@@ -1,0 +1,336 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "ug-synthesis-v3-draft"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "blocked"
+      ]
+    },
+    "choices": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "branch": {
+              "const": "increase"
+            },
+            "candidate_id": {
+              "enum": [
+                "increase:0",
+                "increase:1"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "alternative_weakness": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/evidence_id"
+              },
+              "minItems": 0,
+              "maxItems": 2,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "branch",
+            "candidate_id",
+            "reason",
+            "alternative_weakness",
+            "evidence_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "branch": {
+              "const": "decrease"
+            },
+            "candidate_id": {
+              "enum": [
+                "decrease:0",
+                "decrease:1"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "alternative_weakness": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/evidence_id"
+              },
+              "minItems": 0,
+              "maxItems": 2,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "branch",
+            "candidate_id",
+            "reason",
+            "alternative_weakness",
+            "evidence_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "branch": {
+              "const": "redistribute"
+            },
+            "candidate_id": {
+              "enum": [
+                "redistribute:0",
+                "redistribute:1"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "alternative_weakness": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/evidence_id"
+              },
+              "minItems": 0,
+              "maxItems": 2,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "branch",
+            "candidate_id",
+            "reason",
+            "alternative_weakness",
+            "evidence_ids"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "items": false,
+      "minItems": 0,
+      "maxItems": 3
+    },
+    "retrospective": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_group": {
+            "enum": [
+              "versions/UG05/6pyy_H7S_A_402/R01/increase",
+              "versions/UG05/6pyy_H7S_A_402/R01/decrease",
+              "versions/UG05/6pyy_H7S_A_402/R01/redistribute",
+              "versions/UG05/6pyy_H7S_A_402/R02/increase",
+              "versions/UG05/6pyy_H7S_A_402/R02/decrease",
+              "versions/UG05/6pyy_H7S_A_402/R02/redistribute",
+              "versions/UG05/6pyy_H7S_A_402/R03/increase",
+              "versions/UG05/6pyy_H7S_A_402/R03/decrease",
+              "versions/UG05/6pyy_H7S_A_402/R03/redistribute"
+            ]
+          },
+          "C": {
+            "enum": [
+              "supported",
+              "refuted",
+              "unresolved"
+            ]
+          },
+          "gap": {
+            "enum": [
+              "supported",
+              "refuted",
+              "unresolved"
+            ]
+          }
+        },
+        "required": [
+          "source_group",
+          "C",
+          "gap"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "uncertainty": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    }
+  },
+  "required": [
+    "schema_version",
+    "status",
+    "choices",
+    "retrospective",
+    "uncertainty"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "evidence_id": {
+      "type": "string",
+      "enum": [
+        "R0/6pyy_H7S_A_402",
+        "versions/UG05/6pyy_H7S_A_402/R01/increase",
+        "versions/UG05/6pyy_H7S_A_402/R01/decrease",
+        "versions/UG05/6pyy_H7S_A_402/R01/redistribute",
+        "versions/UG05/6pyy_H7S_A_402/R02/increase",
+        "versions/UG05/6pyy_H7S_A_402/R02/decrease",
+        "versions/UG05/6pyy_H7S_A_402/R02/redistribute",
+        "versions/UG05/6pyy_H7S_A_402/R03/increase",
+        "versions/UG05/6pyy_H7S_A_402/R03/decrease",
+        "versions/UG05/6pyy_H7S_A_402/R03/redistribute",
+        "calibration/coarse/6pyy_H7S_A_402/p000",
+        "calibration/coarse/6pyy_H7S_A_402/p001",
+        "calibration/coarse/6pyy_H7S_A_402/p002",
+        "calibration/coarse/6pyy_H7S_A_402/p003",
+        "calibration/coarse/6pyy_H7S_A_402/p004",
+        "calibration/coarse/6pyy_H7S_A_402/p005",
+        "calibration/coarse/6pyy_H7S_A_402/p006",
+        "calibration/coarse/6pyy_H7S_A_402/p007",
+        "calibration/coarse/6pyy_H7S_A_402/p008",
+        "calibration/coarse/6pyy_H7S_A_402/p009",
+        "calibration/coarse/6pyy_H7S_A_402/p010",
+        "calibration/coarse/6pyy_H7S_A_402/p011",
+        "calibration/coarse/6pyy_H7S_A_402/p012",
+        "calibration/coarse/6pyy_H7S_A_402/p013",
+        "calibration/coarse/6pyy_H7S_A_402/p014",
+        "calibration/coarse/6pyy_H7S_A_402/p015",
+        "calibration/coarse/6pyy_H7S_A_402/p016",
+        "calibration/coarse/6pyy_H7S_A_402/p017",
+        "calibration/coarse/6pyy_H7S_A_402/p018",
+        "calibration/coarse/6pyy_H7S_A_402/p019",
+        "calibration/coarse/6pyy_H7S_A_402/p020",
+        "calibration/coarse/6pyy_H7S_A_402/p021",
+        "calibration/coarse/6pyy_H7S_A_402/p022",
+        "calibration/coarse/6pyy_H7S_A_402/p023",
+        "calibration/coarse/6pyy_H7S_A_402/p024",
+        "calibration/coarse/6pyy_H7S_A_402/p025",
+        "calibration/fine/6pyy_H7S_A_402/p000",
+        "calibration/fine/6pyy_H7S_A_402/p001",
+        "calibration/fine/6pyy_H7S_A_402/p002",
+        "calibration/fine/6pyy_H7S_A_402/p003",
+        "calibration/fine/6pyy_H7S_A_402/p004",
+        "calibration/fine/6pyy_H7S_A_402/p005",
+        "calibration/fine/6pyy_H7S_A_402/p006",
+        "calibration/fine/6pyy_H7S_A_402/p007",
+        "calibration/fine/6pyy_H7S_A_402/p008",
+        "calibration/fine/6pyy_H7S_A_402/p009",
+        "calibration/fine/6pyy_H7S_A_402/p010",
+        "calibration/fine/6pyy_H7S_A_402/p011",
+        "calibration/full/6pyy_H7S_A_402/p000",
+        "calibration/full/6pyy_H7S_A_402/p001",
+        "calibration/full/6pyy_H7S_A_402/p002",
+        "calibration/full/6pyy_H7S_A_402/p003",
+        "calibration/full/6pyy_H7S_A_402/p004",
+        "calibration/full/6pyy_H7S_A_402/p005",
+        "calibration/full/6pyy_H7S_A_402/p006",
+        "calibration/full/6pyy_H7S_A_402/p007",
+        "calibration/full/6pyy_H7S_A_402/p008",
+        "calibration/full/6pyy_H7S_A_402/p009",
+        "calibration/full/6pyy_H7S_A_402/p010",
+        "calibration/full/6pyy_H7S_A_402/p011",
+        "calibration/full/6pyy_H7S_A_402/p012",
+        "calibration/full/6pyy_H7S_A_402/p013",
+        "calibration/full/6pyy_H7S_A_402/p014",
+        "calibration/full/6pyy_H7S_A_402/p015",
+        "calibration/full/6pyy_H7S_A_402/p016",
+        "calibration/full/6pyy_H7S_A_402/p017",
+        "calibration/full/6pyy_H7S_A_402/p018",
+        "calibration/full/6pyy_H7S_A_402/p019",
+        "calibration/windows/6pyy_H7S_A_402/p000",
+        "calibration/windows/6pyy_H7S_A_402/p001",
+        "calibration/windows/6pyy_H7S_A_402/p002",
+        "calibration/windows/6pyy_H7S_A_402/p003",
+        "calibration/windows/6pyy_H7S_A_402/p004",
+        "calibration/windows/6pyy_H7S_A_402/p005",
+        "calibration/windows/6pyy_H7S_A_402/p006",
+        "calibration/windows/6pyy_H7S_A_402/p007",
+        "calibration/windows/6pyy_H7S_A_402/p008",
+        "calibration/windows/6pyy_H7S_A_402/p009",
+        "calibration/windows/6pyy_H7S_A_402/p010",
+        "calibration/windows/6pyy_H7S_A_402/p011",
+        "calibration/windows/6pyy_H7S_A_402/p012",
+        "calibration/windows/6pyy_H7S_A_402/p013",
+        "calibration/windows/6pyy_H7S_A_402/p014",
+        "calibration/windows/6pyy_H7S_A_402/p015",
+        "calibration/windows/6pyy_H7S_A_402/p016",
+        "calibration/windows/6pyy_H7S_A_402/p017",
+        "calibration/windows/6pyy_H7S_A_402/p018",
+        "calibration/windows/6pyy_H7S_A_402/p019",
+        "calibration/windows/6pyy_H7S_A_402/p020",
+        "calibration/windows/6pyy_H7S_A_402/p021",
+        "calibration/windows/6pyy_H7S_A_402/p022",
+        "calibration/windows/6pyy_H7S_A_402/p023"
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "ok"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "choices": {
+            "minItems": 3
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "choices": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}

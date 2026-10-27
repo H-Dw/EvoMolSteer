@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "ug-final-v3-draft"
+    },
+    "representative_id": {
+      "const": "versions/UG05/6pyy_H7S_A_402/R03/redistribute"
+    },
+    "retrospective": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_group": {
+            "enum": [
+              "versions/UG05/6pyy_H7S_A_402/R01/increase",
+              "versions/UG05/6pyy_H7S_A_402/R01/decrease",
+              "versions/UG05/6pyy_H7S_A_402/R01/redistribute",
+              "versions/UG05/6pyy_H7S_A_402/R02/increase",
+              "versions/UG05/6pyy_H7S_A_402/R02/decrease",
+              "versions/UG05/6pyy_H7S_A_402/R02/redistribute",
+              "versions/UG05/6pyy_H7S_A_402/R03/increase",
+              "versions/UG05/6pyy_H7S_A_402/R03/decrease",
+              "versions/UG05/6pyy_H7S_A_402/R03/redistribute"
+            ]
+          },
+          "C": {
+            "enum": [
+              "supported",
+              "refuted",
+              "unresolved"
+            ]
+          },
+          "gap": {
+            "enum": [
+              "supported",
+              "refuted",
+              "unresolved"
+            ]
+          }
+        },
+        "required": [
+          "source_group",
+          "C",
+          "gap"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 3,
+      "uniqueItems": true
+    },
+    "limitation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180
+    }
+  },
+  "required": [
+    "schema_version",
+    "representative_id",
+    "retrospective",
+    "limitation"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
