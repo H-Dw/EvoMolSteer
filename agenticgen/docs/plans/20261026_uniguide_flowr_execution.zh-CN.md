@@ -406,3 +406,20 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 
 
 14:20:25最终核验：第二教师R01的increase/decrease/redistribute/synthesis全部单次HTTP成功、无接口修正，输出分别8608/4256/8913/6359。六个proposal使用正确实际锚点，综合selected为increase:0、decrease:0、redistribute:0；已实际读取全部四份回答。首组increase推进第40步，正式累计预留5300（已完成版本累计5250，新增50正在采样），UG04已完成15组750次。1123文件、第一教师retention备份、原manifest/skills、科学与CPU模块绑定全部一致，GPU/CPU锁持有，抽样队列无积压。采样FAILED、QUALITY_FAILED均0；15组慢检查回执及请求源绑定验证正确。恢复运行绑定UG04_request_recovery_20261027_141555.jsonl。35分钟巡检已更新为新恢复入口及三份偏离授权，状态ACTIVE；本轮修复闭环完成，整版UG04继续。
+
+
+## 2026-10-27 16:02：UG04真实复盘完成，UG05统一提示入口启动
+
+15:38巡检确认UG04两教师30组/1500次及30组10/50诊断完成，执行锁释放、CPU队列无积压。主Agent实际读取AWAITING、30组指标、四份绑定策略上下文与全部回执；比较当前、UG03、最优UG和R0。UG04平均C=0.4706524818390608、gap=1.288607399463653，较UG03分别+0.0149687588214875、-0.2032112050056464，按冻结排序成为当前最佳，连续下降为0。未触发停滞研究条件，本次没有声称新文献检索。复盘见[UG04 review](../reviews/20261027_UG04_review.json)。
+
+300抽样槽PoseBusters通过292、测量不通过3、构建失败5；PLIP可评价295，其余1200未选不补查。两教师各50槽保留，SDF数49/50，代表终态和轨迹逐项核验。48次逻辑成功、4次长度失败、2次v1锚点错误和1次v2步长错误，共55次HTTP（53个基础wire与2个修正请求），别名不重计。完整保留本版单请求24576、v1与v2提示三段偏离，不对分子结果作因果归因。
+
+analysis/proposal/synthesis三份skills依据本次证据更新：准确区分距最小C与距上界；核对绝对位移及相对比值；明确实际锚点整数步差；最终模式仍回看已测预测。追溯发现原history未保存提案prediction/falsifier，新入口将已完成组原始proposal与来源SHA提供为completed_action_evidence，既有数值记录与失败不删除。6pyy R05/increase的大有限位移作为实测异常保留，未夹断、剔除或补样。
+
+实现及复盘提交8db4d968cd0164b4c7550c8c0cd561b152971776已推送GitHub。15:54:39远端空闲边界部署，直连与四镜像均8秒超时后使用验证bundle（SHA256 9c27825f86f69c31130848b6c1122c0ce103d6ec8eaae40253bf3159e3f727ab）。86项远端测试通过20.26秒。科学source_binding与原双教师验收逐项相等，无新增数值采样。旧v2代码/skills固定快照/workspace/EvoMolSteer-UG04-prompts-03a3981e保留，原UG04冻结科学快照亦保留。15:56:24对48份真实上下文无网络预演，无损、角色路由、执行ID和提案来源通过，API/候选均0；2333个既有UG04文件哈希不变。
+
+统一run_uniguide.sh将UG05–UG20路由至run_uniguide_prompt_version.py。新版本全程绑定v2策略、角色输出与严格解析；配置哈希和PROMPT_POLICY.json同时绑定入口、两个策略模块和接受后的skills。固定16384/high以及原网络重试/一次格式修正，旧UG04提高额度不扩展到新版本。每调用保留prompt_source、prompt_binding及execution_claim；失败后不能删除claim或自动循环。对象键规范化使缓存恢复稳定，科学模块保持原字节，不再依赖UG04的临时偏离别名。正式运行仍需版本结束后由主Agent复盘，入口不会自动启动下一版。
+
+稀疏工作树不含docs，首次accept-review因本地路径不存在未启动；从已推送HEAD提取原始复盘后接受，REVIEW_ACCEPTED绑定SHA256 fd302a3e4cd166e631926ca47749408ed661f81cfc771e0b0ab815f1e85266d7。15:58:19启动UG05，定位PID644178，日志UG05_20261027_155819.log。16:02:16核对真实新入口进程、GPU/CPU锁、manifest、策略与skills绑定，2333文件及CPU模块未变，队列无积压；预算4200/100/6000，尚无UG05采样。首轮三份私有调用单次成功、无修正、正确实际锚点，输入48721/48722/48723、输出7096/8885/12551；synthesis在途。不能据此宣称错误全部消除或分子质量改善。
+
+启动与部署证据见[UG05 started](../evidence/uniguide/20261027_UG05_started.json)。巡检更新为新版本入口，保持35分钟ACTIVE；中文UTF-8/ensure_ascii读回完全一致，无替换字符，checked_attempts=10及CPU提交3f07d1fa完整。后续本地纯文档审计提交不在健康运行期间部署。
