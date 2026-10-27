@@ -388,3 +388,21 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 预览为`engineering_audits/UG04_anchor_contract_preview_20261027.json`，状态`preview_only_not_authorized_for_network_retry`，新请求规范化摘要`a72a3406834971611881f54b19b3ee0b9855a38ab9478ed5e9d1b7f15065129b`。当前只是离线修订预览，尚未改生产入口/策略/skills或部署，不宣称已修复运行。新提示调用的独占claim已消耗，按照已批准“不自动循环重试”约束保持停止，等待用户明确是否按该锚点契约修订显式续跑一次。若获准，必须先实现带历史v1缓存兼容的新固定入口/授权与独立有效目录，提交推送、远端验证后再运行；不得覆盖旧请求、删除claim、弱化锚点校验或重复生成6pyy候选。
 
 本轮巡检API调用、新候选及生产代码修改均为0。完整原始证据、1123文件账本、真实失败和离线预览见[UG04锚点身份混淆审计](../evidence/uniguide/20261027_UG04_prompt_anchor_failure.json)。35分钟巡检保持ACTIVE；等待期间只读核查和保持CPU抽样服务，不启动UG05，状态不变时不重复通知。
+
+
+## 14:15执行锚点身份修复与授权续跑
+
+用户明确要求修复第二教师把压缩引用误作执行锚点的异常，并追溯节点和代码。已完成调用链和真实两份错误回答审计，详见[报告](../reports/20261027_UG04_prompt_redundancy.zh-CN.md)的“第二教师执行锚点混淆”节。停止点为3w54第一轮increase；原科学校验正确拒绝了r80与history之外的标定ID，未生成该教师候选。
+
+新增explicit-anchor-v2输入/输出契约：精确枚举原history实际ID，可见索引保留原schedule及history位置；综合选择继续使用原候选键。完整数值证据、原行动校验、thinking/high、16384和一次格式修正保持不变。新恢复层保留旧v1文件与skills字节，原24份成功调用通过旧provider协议逐一复验，第三轮24576结果仅复用缓存。新请求进入独立.anchorids_v2目录和新授权claim；原失败请求、答案及claim均保留。
+
+实现提交03a3981e55f29da3b8f027a55074f573bf6f4fe1已推送GitHub；直连与四镜像依序8秒超时后，以仅含已推送提交的验证bundle部署。14:12:57（Asia/Shanghai）主目录在codex/uniguide-flowr-agent分支从8eccc068快进到03a3981e且干净。81项远端测试通过（20.19秒）；主目录、固定科学快照930db032及原数值验收source_binding一致，无新增数值采样。14:14:56无网络预演核验24份成功缓存、15组proposal及history、1123个保护文件一致，两份真实错误回答被新enum拒绝；API与新候选均0，另备份第一教师retention并逐文件校验。
+
+14:15:49启动一次用户授权续跑，定位PID632733，日志UG04_anchor_fix_20261027_141549.log及UG04.logpath。必须使用最新主目录入口，--adapter-commit改为03a3981e55f29da3b8f027a55074f573bf6f4fe1，--frozen-repo仍为/workspace/EvoMolSteer-UG04-frozen-930db032，--prompt-skills仍为主目录skills；--preservation-audit改为engineering_audits/UG04_anchor_preservation_20261027.json。必须同时传--token-override UG04_token24576_authorization_20261027.json、--prompt-revision UG04_prompt_revision_authorization_20261027.json及新增--anchor-revision UG04_anchor_authorization_20261027.json（三者均位于工程审计目录）。旧v1的adapter绑定3b7ebbc1由新授权单独校验，不冒充新helper提交。PYTHONPATH继续指向固定科学快照；不得普通run-version、删除claim、覆写旧manifest或重复第一教师候选。
+
+14:17:17原失败increase单次HTTP成功、无接口修正，输入49454，输出8608（reasoning7957）；两个提案均使用R0/3w54_RNB_A_504并通过原行动验证。decrease及redistribute随后分别输出4256/8913，均单次成功、无接口修正、锚点正确。14:19:00综合调用在途，进程与GPU/CPU锁持有，1123文件、retention备份、科学/提示/CPU模块均未变；15组750次及15组10/50抽样已完成，预算4200/100/5250，CPU无积压。后续以最新恢复证据为准，不能据当前成功宣称整版完成或所有模型错误消除。
+
+原始部署、授权、预演与恢复记录保存于engineering_audits/UG04_anchor_*.json及UG04_request_recovery_*.jsonl；本地完成证据见[锚点修复续跑审计](../evidence/uniguide/20261027_UG04_anchor_fix_recovery.json)。健康运行不覆盖生产代码，后续审计文档只本地提交推送。UG04完整结束后仍须实际GPT复盘并记录此前额度偏离、promptcompact-v1及本次身份契约修订；下一版本在空闲边界审计集成，不能丢失执行ID契约。
+
+
+14:20:25最终核验：第二教师R01的increase/decrease/redistribute/synthesis全部单次HTTP成功、无接口修正，输出分别8608/4256/8913/6359。六个proposal使用正确实际锚点，综合selected为increase:0、decrease:0、redistribute:0；已实际读取全部四份回答。首组increase推进第40步，正式累计预留5300（已完成版本累计5250，新增50正在采样），UG04已完成15组750次。1123文件、第一教师retention备份、原manifest/skills、科学与CPU模块绑定全部一致，GPU/CPU锁持有，抽样队列无积压。采样FAILED、QUALITY_FAILED均0；15组慢检查回执及请求源绑定验证正确。恢复运行绑定UG04_request_recovery_20261027_141555.jsonl。35分钟巡检已更新为新恢复入口及三份偏离授权，状态ACTIVE；本轮修复闭环完成，整版UG04继续。
