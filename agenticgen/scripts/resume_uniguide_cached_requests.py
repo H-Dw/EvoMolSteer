@@ -4,13 +4,15 @@ Successful provider outputs are stored with sorted object keys. On replay their
 embedding in a synthesis prompt may therefore differ from the original text.
 For an existing request only, prove that JSON object order is the sole change,
 then supply the ORIGINAL messages to the unchanged provider/cache validator.
-This neither edits a request/response nor retries calls or alters their budget.
+By default this does not alter budgets. An explicit, hash-bound authorization
+may raise one failed request's output cap by 50%, using a separate provider store.
 """
 import argparse
 import datetime
 import hashlib
 import json
 import os
+import inspect
 from pathlib import Path
 import subprocess
 
@@ -81,6 +83,98 @@ def wrap_call(provider_call, record):
     return call
 
 
+def wrap_token_override(provider_call, record, root, authorization_path, version):
+    """One authorized call; preserve old evidence and validate effective caches.
+
+    Canonical response aliases carry the effective request/receipt paths, so
+    readers can find the actual 24576-token call without changing old requests.
+    A durable claim prevents a failed enlarged request being silently retried.
+    """
+    root = Path(root).resolve()
+    authorization = read(authorization_path)
+    if (authorization["version"] != version
+            or authorization["old_max_output_tokens"] != 16384
+            or authorization["new_max_output_tokens"] != 24576
+            or not authorization.get("user_instruction")):
+        raise ValueError("Invalid single-request token authorization")
+    target = (root / authorization["output_relative_path"]).resolve()
+    if not target.is_relative_to(root / "versions" / version):
+        raise ValueError("Token override target outside frozen version")
+    original_request = target.with_suffix(".request.json")
+    effective = target.parent / (target.stem + ".token24576") / "response.json"
+    authorization_sha = sha(authorization_path)
+    signature = inspect.signature(provider_call)
+
+    def call(messages, schema, output, **kwargs):
+        if Path(output).resolve() != target:
+            return provider_call(messages, schema, output, **kwargs)
+        if sha(authorization_path) != authorization_sha or sha(original_request) != authorization["original_request_sha256"]:
+            raise ValueError("Authorized request or authorization changed")
+        stored = read(original_request)
+        original_messages(messages, stored["body"]["messages"])
+        messages = stored["body"]["messages"]
+        bound = signature.bind(messages, schema, output, **kwargs)
+        bound.apply_defaults()
+        options = bound.arguments
+        if (options["input_store"] is not None or options["response_parser"] is not None
+                or options["format_builder"] is not None or options["format_policy"] != "json-interface-v5"
+                or options["max_output_tokens"] != 16384):
+            raise ValueError("Unsupported original provider options")
+        body = dict(model=options["model"], messages=messages,
+                    thinking={"type": "disabled"}, temperature=0,
+                    max_tokens=16384, response_format={"type": "json_object"})
+        if options["thinking"]:
+            body.update(thinking={"type": "enabled"}, reasoning_effort=options["reasoning_effort"])
+            body.pop("temperature")
+        if stored != dict(provider="DeepSeek", body=body, response_schema=schema):
+            raise ValueError("Original provider request/schema changed")
+        receipt_path = target.with_suffix(".receipt.json")
+        claim = effective.parent / "authorization_claim.json"
+        effective_receipt = effective.with_suffix(".receipt.json")
+        cached = effective.exists() and effective_receipt.exists()
+        if target.exists() or receipt_path.exists():
+            if not cached:
+                raise ValueError("Canonical response exists without effective success")
+            if target.exists() and target.read_bytes() != effective.read_bytes():
+                raise ValueError("Canonical response alias changed")
+        if not cached:
+            effective.parent.mkdir(exist_ok=True)
+            # Exclusive creation is deliberate: no implicit retry after failure.
+            with claim.open("x", encoding="utf-8") as stream:
+                json.dump(dict(authorization_sha256=authorization_sha, pid=os.getpid()), stream)
+            record({"event": "authorized_token_override", "original_request": str(original_request),
+                    "effective_output": str(effective), "authorization_sha256": authorization_sha,
+                    "old_max_output_tokens": 16384, "new_max_output_tokens": 24576})
+        if read(claim)["authorization_sha256"] != authorization_sha:
+            raise ValueError("Token authorization claim changed")
+        result = provider_call(messages, schema, effective, **dict(kwargs, max_output_tokens=24576))
+        receipt = read(effective_receipt)
+        receipt["receipt_kind"] = "audited_alias_of_effective_provider_receipt"
+        receipt["protocol_deviation"] = dict(
+            authorization_path=str(Path(authorization_path).resolve()), authorization_sha256=authorization_sha,
+            original_request_path=str(original_request), original_request_sha256=sha(original_request),
+            effective_request_path=str(effective.with_suffix(".request.json")),
+            effective_receipt_path=str(effective_receipt), old_max_output_tokens=16384, new_max_output_tokens=24576)
+        for key in ("wire_request_path", "raw_response_path"):
+            if key in receipt:
+                receipt[key] = str((effective.parent / receipt[key]).relative_to(target.parent))
+        receipt["interface_repairs"] = [dict(item, path=str((effective.parent / item["path"]).relative_to(target.parent)))
+                                         for item in receipt.get("interface_repairs", [])]
+        if receipt_path.exists() and read(receipt_path) != receipt:
+            raise ValueError("Canonical receipt alias changed")
+        # Never overwrite existing bytes. A crash between these two writes can
+        # be repaired from the validated effective cache without another HTTP call.
+        for path, content in ((target, effective.read_bytes()),
+                              (receipt_path, json.dumps(receipt, ensure_ascii=False, indent=2).encode("utf-8"))):
+            if not path.exists():
+                with path.open("xb") as stream:
+                    stream.write(content)
+        record({"event": "token_override_success", "cached": cached,
+                "effective_receipt_sha256": sha(effective_receipt), "canonical_output_sha256": sha(target)})
+        return result
+    return call
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
@@ -88,6 +182,7 @@ def main():
     parser.add_argument("--frozen-repo", required=True)
     parser.add_argument("--adapter-commit", required=True)
     parser.add_argument("--preservation-audit", required=True)
+    parser.add_argument("--token-override", help="Hash-bound user authorization for one 50% cap increase")
     args = parser.parse_args()
     repo = Path(args.frozen_repo).resolve()
     config = read(args.config)
@@ -135,7 +230,14 @@ def main():
                 "preservation_audit_sha256": sha(args.preservation_audit),
                 "preserved_files": len(preservation["source_hashes"]),
                 "automatic_length_retries": 0, "llm": config["llm"]})
-        council.call_json = wrap_call(council.call_json, record)
+        provider_call = council.call_json
+        if args.token_override:
+            authorization = read(args.token_override)
+            if (authorization["manifest_sha256"] != sha(manifest_path)
+                    or authorization["frozen_code_commit"] != manifest["code_commit"]):
+                raise ValueError("Token authorization belongs to a different frozen version")
+            provider_call = wrap_token_override(provider_call, record, root, args.token_override, args.version)
+        council.call_json = wrap_call(provider_call, record)
         try:
             result = pipeline.run_version(config, args.version)
             record({"event": "version_finalized", "review_required": True})
