@@ -183,6 +183,8 @@ def main():
     parser.add_argument("--adapter-commit", required=True)
     parser.add_argument("--preservation-audit", required=True)
     parser.add_argument("--token-override", help="Hash-bound user authorization for one 50% cap increase")
+    parser.add_argument("--prompt-revision", help="Audited user authorization to revise unfinished prompts")
+    parser.add_argument("--prompt-skills", help="Committed revised skills, separate from the frozen version")
     args = parser.parse_args()
     repo = Path(args.frozen_repo).resolve()
     config = read(args.config)
@@ -237,6 +239,26 @@ def main():
                     or authorization["frozen_code_commit"] != manifest["code_commit"]):
                 raise ValueError("Token authorization belongs to a different frozen version")
             provider_call = wrap_token_override(provider_call, record, root, args.token_override, args.version)
+        if args.prompt_revision:
+            import importlib.util
+            policy_path = Path(__file__).with_name("uniguide_prompt_policy.py")
+            if git("show", args.adapter_commit + ":agenticgen/scripts/uniguide_prompt_policy.py") != policy_path.read_bytes():
+                raise ValueError("Prompt policy differs from committed blob")
+            if not args.prompt_skills:
+                raise ValueError("Separate committed prompt skills are required")
+            authorization = read(args.prompt_revision)
+            if (authorization["manifest_sha256"] != sha(manifest_path)
+                    or authorization["frozen_code_commit"] != manifest["code_commit"]
+                    or authorization["adapter_commit"] != args.adapter_commit):
+                raise ValueError("Prompt authorization belongs to a different binding")
+            for name in ["analysis.md", "proposal.md", "synthesis.md"]:
+                if git("show", args.adapter_commit + ":agenticgen/src/agenticgen/uniguide/skills/" + name) != (Path(args.prompt_skills) / name).read_bytes():
+                    raise ValueError("Prompt skills differ from committed blobs")
+            spec = importlib.util.spec_from_file_location("ug_prompt_policy", policy_path)
+            policy = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(policy)
+            provider_call = policy.wrap_prompt_revision(provider_call, council.call_json, record, root,
+                args.prompt_revision, args.version, args.prompt_skills)
         council.call_json = wrap_call(provider_call, record)
         try:
             result = pipeline.run_version(config, args.version)
