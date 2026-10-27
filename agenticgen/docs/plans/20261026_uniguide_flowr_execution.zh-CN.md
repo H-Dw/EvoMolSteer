@@ -350,3 +350,11 @@ UG02的accept-review成功，绑定机器复盘SHA256 `6c17336732488032c3247abc3
 三份指引改为按角色发送analysis+proposal或analysis+synthesis；限制决定性比较数量、两案构造范围、字段职责与重复解释，移除对私有角色无关的主版本复盘任务。输出保留全部原有字段与行动约束，在新schema增加解释字段maxLength，并用严格JSON解析拒绝重复键、NaN、Markdown和追加对象。私有analysis上限1600字符、uncertainty 500，anchor_reason 240、evidence 500、prediction/falsifier各280；综合analysis 1400、choice_evidence 1200。网络重试、原有一次格式修正、thinking/high及16384输出额度保持不变。
 
 新策略通过独立恢复入口作用于UG04尚未成功的调用；已有成功调用继续走原provider/schema及原应用校验，第三轮24576成功仅缓存复用。新调用的原始重建请求、修订有效请求、原始响应和有效回执分别保留，原上下文路径仅建立标注prompt_revision的别名；每调用独占claim阻止失败后自动再次发送。GPU冻结仓库、manifest、原skills快照和科学source_binding不覆盖，独立入口、策略模块及新skills须先本地提交推送、固定提交部署、远端测试和真实缓存无网络预演。随后只从第四轮未完成处继续；如新提示仍失败，保存证据并停止，不自动循环。
+
+12:34固定提交`3b7ebbc1341a99593bd43f7ee614f90237a1ffe4`已部署到独立目录。GitHub直连及四镜像依序各8秒超时后，使用仅含已推送提交的验证Git bundle；GPU仍干净930db032，未部署本地新skills到冻结主仓库。远端48项测试通过（1.94秒）。12:35:50无网络预演验证14份真实成功缓存和原中断请求，history一致，提示内容可逆转换通过；662份文件受保护，无HTTP或新候选。授权`engineering_audits/UG04_prompt_revision_authorization_20261027.json`，保护`UG04_prompt_revision_preservation_20261027.json`，预演`UG04_prompt_revision_preflight_20261027.json`。
+
+12:36:28以新入口启动一次用户授权的提示修订续跑，定位PID623965，日志`UG04_prompt_revision_20261027_123628.log`，运行绑定`UG04_request_recovery_20261027_123634.jsonl`。必须同时传入原第三轮`--token-override`、新`--prompt-revision`与独立目录`--prompt-skills`，不能使用普通run-version或旧入口。已有成功调用不会重新发送；所有新的UG04未完成调用遵循此次授权的提示与输出规范。
+
+12:38:03第四轮redistribute单次成功、无接口修正、finish_reason=stop。实际输入53697 token，相对原102056减少47.38%；输出12373（reasoning11549），上限仍16384。12:38:27综合决策单次成功、无接口修正，输入56415、输出4373（reasoning3846），原额度不变。主Agent读取两份实际回答，字段长度全部合规；原行动约束已由应用验证。12:39:34真实进程和执行锁持有，第四轮increase第40步，预算4200/100/5000（新50次正在执行），662份保护文件、科学/原skills/CPU绑定均一致，CPU抽样无积压。不能据两个成功回答推断所有后续长度问题已消除。
+
+详见[冗余分析及修订报告](../reports/20261027_UG04_prompt_redundancy.zh-CN.md)和[完整恢复证据](../evidence/uniguide/20261027_UG04_prompt_revision_recovery.json)。UG04完成后的实际GPT复盘须记录第三轮单请求额度偏离及本次中途提示修订，并读取独立策略与新skills的绑定信息。主版本后续部署应显式延续此输入表示、角色路由和输出约束，不能仅复制skills后恢复原先三角色全拼的提示构建方式；须在下一次空闲版本边界审计集成。35分钟巡检继续ACTIVE，健康推理期间不覆盖源码、不重复启动。
