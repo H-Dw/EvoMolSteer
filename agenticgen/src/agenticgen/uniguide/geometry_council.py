@@ -70,6 +70,26 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             maximum_single_atom_guidance_increment_angstrom=config["maximum_single_atom_guidance_increment_angstrom"],
             method="one uniform scale factor per candidate per step; native drift/noise unchanged",
             interpretation="Use unconstrained displacement and limited-candidate counts as instability evidence; bounded applied updates do not prove stability.")
+    registry=budget=None
+    if config.get("agent_tools"):
+        from .analysis_tools import EvidenceTools
+        from agenticgen.providers.deepseek_tools import RoundBudget,call_with_tools
+        registry=EvidenceTools(config["root"],history,domain,folder/"task_memory/calculations")
+        settings=config["agent_tools"]
+        budget=RoundBudget(folder/"model_budget",settings["max_model_calls_per_round"],settings["max_output_tokens_per_round"])
+        receipts=registry.precompute()
+        common["existing_statistics_receipts"]=[dict(evidence_id=r["evidence_id"],run_id=r.get("run_id"),
+            status=r["status"],attempts=r.get("attempts"),build_failed=r.get("build_failed"),
+            metrics={m:{k:v for k,v in values.items() if k in ("status","measured","arithmetic_mean",
+                "symmetric_ten_percent_trimmed_mean","maximum")} for m,values in r.get("metrics",{}).items()}) for r in receipts]
+        common["registered_computation_tools"]=[d["function"]["name"] for d in registry.definitions]
+        common["statistics_policy"]=registry.binding["policy"]
+        common["scale_reference"]=dict(
+            normalized_zero_disables_guidance=False,
+            zero_normalized_scale_actual_strength=domain[MULTIPLIER],
+            interpretation="All allowed normalized scales represent positive guidance, including zero and negative values.",
+            measured_effective_configurations={r["id"]:r[EFFECTIVE] for r in history})
+        provider=provider if provider is not call_json else call_with_tools
     initial=Path(config["root"])/"INITIAL_GUIDANCE.json" if "root" in config else None
     if initial is not None and initial.exists():
         selection=read(initial)["teachers"][domain["teacher_id"]]
@@ -77,12 +97,19 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
         common["initial_configuration_measured_anchor_ids"]=[r["id"] for r in history if r[NORMALIZED]==selection[NORMALIZED]]
     outputs={}
     def invoke(role,context,schema,validator):
+        if registry is not None:
+            context=dict(context,existing_additional_calculation_receipts=registry.observed_calculations())
         module="synthesis.md" if role=="synthesis" else "proposal.md"
-        messages=[dict(role="system",content="\n\n".join((skills/name).read_text(encoding="utf-8") for name in ["analysis.md",module])+
-            "\nYour role is "+role+". Return only the required JSON."),
+        modules=["analysis.md",module]+(["computation.md"] if registry is not None else [])
+        messages=[dict(role="system",content="\n\n".join((skills/name).read_text(encoding="utf-8") for name in modules)+
+            "\nYour role is "+role+(". Native tool calls are intermediate steps; only the final answer uses the role JSON." if registry else ". Return only the required JSON.")),
             dict(role="user",content=json.dumps(context,sort_keys=True,ensure_ascii=False,separators=(",",":"),allow_nan=False))]
         output=folder/(role+".json");claim=folder/(role+".execution_claim.json")
         frozen(folder/(role+".prompt_source.json"),dict(messages=messages,response_schema=schema))
+        if registry is not None:
+            frozen(claim,dict(role=role,tools_binding_sha256=value_sha(registry.binding)))
+            return provider(messages,schema,output,response_validator=validator,response_parser=parse_output,
+                registry=registry,budget=budget,**config["llm"])
         if not output.exists():
             with claim.open("x",encoding="utf-8") as stream:json.dump(dict(role=role),stream)
         elif not claim.exists():raise ValueError("Cached output lacks execution claim")
@@ -98,6 +125,8 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
         schema=object_schema(dict(analysis=text_schema(1200),mechanism_uncertainty=text_schema(350),
             proposals=dict(type="array",items=action,minItems=0 if final else 2,maxItems=0 if final else 2)))
         def check(result,branch=branch):
+            if registry is not None:
+                registry.validate_citations([p["evidence"] for p in result["proposals"]] or [result["analysis"]])
             proposed=[]
             for p in result["proposals"]:
                 try:
@@ -109,6 +138,8 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
     props=dict(analysis=text_schema(1100),choice_evidence=text_schema(900))
     if not final:props["selected"]=object_schema({b:dict(enum=[k for k in candidates if k.startswith(b+":")]) for b in BRANCHES})
     def check_synthesis(result):
+        if registry is not None:
+            registry.validate_citations([result["choice_evidence"]])
         selected=[]
         for branch in ([] if final else BRANCHES):
             proposal=candidates[result["selected"][branch]]

@@ -16,12 +16,15 @@ from .protocol import SEEDS
 from .geometry_dynamics import WINDOWS,policy as dynamics_policy
 
 
-def skill_assets():
+def skill_assets(config=None):
+    if config and config.get("agent_tools"):
+        from .tool_runtime import assets
+        return assets(config)
     resources=Path(__file__).resolve().parents[1]/"resources/skills"
     return {name+".md":resources/("distance-guidance-"+name)/"SKILL.md" for name in ("analysis","proposal","synthesis")}
 
 
-def skill_hashes():return {name:sha(path) for name,path in skill_assets().items()}
+def skill_hashes(config=None):return {name:sha(path) for name,path in skill_assets(config).items()}
 
 
 def common_valid_slots(source,target):
@@ -38,6 +41,8 @@ def common_valid_slots(source,target):
 
 
 def validate_config(config):
+    from .tool_runtime import configure
+    config=configure(config)
     if config.get("protocol")!=POLICY:raise ValueError("Explicit new geometry protocol required")
     root=Path(config["root"]).resolve();source=Path(config["generation_context_root"]).resolve()
     if root==source or root.is_relative_to(source) or source.is_relative_to(root):
@@ -59,6 +64,9 @@ def prepare(config):
         allowed={".executor.lock"}
         if any(p.name not in allowed for p in root.iterdir()):raise ValueError("Existing experiment cannot be migrated")
     frozen(root/"GEOMETRY_CONFIG.json",config)
+    if config.get("agent_tools"):
+        from .tool_runtime import bind_experiment
+        bind_experiment(config)
     source=Path(config["generation_context_root"])
     catalog={t["target"]:t for t in read(source/"teachers.json")};subjects=[]
     for item in config["conditions"]:
@@ -152,12 +160,15 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
             or version!=f"GD{int(version[2:]):02d}"):raise ValueError("Geometry versions use GD01--GD20")
     folder=root/"versions"/version
     if (folder/"AWAITING_GPT_REVIEW.json").exists():return read(folder/"AWAITING_GPT_REVIEW.json")
+    if config.get("agent_tools"):
+        from .tool_runtime import bind_experiment
+        bind_experiment(config)
     if int(version[2:])>1:
         approved=read(root/"versions"/f"GD{int(version[2:])-1:02d}"/"REVIEW_ACCEPTED.json")
-        if approved["next_version"]!=version or approved["skill_hashes"]!=skill_hashes():
+        if approved["next_version"]!=version or approved["skill_hashes"]!=skill_hashes(config):
             raise ValueError("Previous actual GPT review has not accepted these skills")
     skills=folder/"skills";skills.mkdir(parents=True,exist_ok=True)
-    for name,source in skill_assets().items():
+    for name,source in skill_assets(config).items():
         dest=skills/name
         if dest.exists() and sha(dest)!=sha(source):raise ValueError("Skills changed during geometry version")
         if not dest.exists():shutil.copyfile(source,dest)
@@ -232,12 +243,21 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
 
 
 def accept_review(config,version,path):
+    config=validate_config(config)
     root=Path(config["root"]);folder=root/"versions"/version;request=read(folder/"AWAITING_GPT_REVIEW.json");review=read(path)
     if review.get("version")!=version or review.get("review_request_sha256")!=sha(folder/"AWAITING_GPT_REVIEW.json"):
         raise ValueError("Review must bind actual completed geometry evidence")
     if set(review.get("read_strategy_contexts",[]))!=set(request["strategy_contexts"]):raise ValueError("Read all required contexts")
-    before={p.name:sha(p) for p in (folder/"skills").glob("*.md")};after=skill_hashes()
+    before={p.name:sha(p) for p in (folder/"skills").glob("*.md")};after=skill_hashes(config)
     changed={k for k in before if before[k]!=after.get(k)};patches=review.get("patches",[])
+    if config.get("agent_tools"):
+        from .tool_runtime import bind_experiment
+        binding=bind_experiment(config)
+        if before!=after or after!=binding["skill_hashes"] or patches:
+            raise ValueError("Experiment review cannot change frozen skills; external RSI uses a new experiment/release")
+        frozen(folder/"REVIEW_ACCEPTED.json",dict(review_sha256=sha(path),skill_hashes=after,
+            next_version=request["next_version"],review_scope="results only; skills remain experiment-frozen"))
+        return
     if set(before)!=set(after) or not 1<=len(changed)<=3 or {p["module"] for p in patches}!=changed or len(patches)!=len(changed):
         raise ValueError("Review must account for one to three actual skill changes")
     for patch in patches:

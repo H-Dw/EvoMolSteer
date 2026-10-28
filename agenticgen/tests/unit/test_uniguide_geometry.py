@@ -301,6 +301,8 @@ def test_nondefault_rounds_and_final_analysis_are_external(tmp_path,monkeypatch,
     root=Path(config["root"]);d=domain();subject=dict(teacher=dict(target="teacher"),condition=dict(condition_sha256="condition"))
     write(root/"calibration/domains.json",dict(teacher=d))
     monkeypatch.setattr(runtime,"require_acceptance",lambda c:None)
+    # This unit checks iteration orchestration, not the Linux CPU-worker imports.
+    monkeypatch.setattr(runtime,"source_binding",lambda:{"fixture":"iteration-only"})
     monkeypatch.setattr(runtime,"calibrated",lambda c:[subject])
     monkeypatch.setattr(runtime,"history",lambda *a:([row()],[]))
     monkeypatch.setattr(runtime,"compatibility",lambda *a:{})
