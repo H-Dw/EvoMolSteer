@@ -114,7 +114,7 @@ def main():
             interpretation="Direction matches the local tradeoff hypothesis in this fixture; uncertainty and generalization remain unassessed"),
         new_model_calls=0, new_candidates_generated=0, new_sampling_attempts=0,
         note="Integer updates are pinned to the stated commit; complete schedules are calculated by its validator, not returned by the Agent. Multiplier and bounds are illustrative only.")
-    OUTPUT.write_text(json.dumps(record, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
+    OUTPUT.write_text(json.dumps(record, ensure_ascii=True, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps(dict(output=str(OUTPUT), legal_proposals=len(candidates),
                           rejected_invalid_examples=len(rejections), experimental_calls=0)))
 
