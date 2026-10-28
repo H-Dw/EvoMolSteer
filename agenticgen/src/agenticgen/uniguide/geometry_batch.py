@@ -135,7 +135,9 @@ class CandidateControl(GeometryControl):
         def visit(value,name):
             if torch.is_tensor(value) and value.ndim and value.shape[0]==len(ids):
                 return self.check_rows(name,value,ids)
-            if isinstance(value,dict):return {k:visit(v,name+"/"+k) if k!="affinity" else v for k,v in value.items()}
+            # The fixed validity mask is structural identity, including in failed
+            # placeholders. Zeroing it would invalidate the mapping for healthy units.
+            if isinstance(value,dict):return {k:visit(v,name+"/"+k) if k not in ("affinity","mask") else v for k,v in value.items()}
             if isinstance(value,(list,tuple)):return type(value)(visit(v,name) for v in value)
             return value
         visit(out,"network")  # Discover every failed unit before replacing any tensor.
@@ -232,13 +234,15 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
         external=capture();guard=copy.deepcopy(model.integrator._guard_warned)
         previous_rows=getattr(model,"_ug_physical_rows",10)
         previous_workers=getattr(model,"_ug_parallel_workers",1)
-        oom=None;fatal=None;output=None;control=None
+        oom=None;fatal=None;output=None;control=None;product=None
         try:
             model._ug_physical_rows=10;model._ug_parallel_workers=size//10
             initial=batch_initial(config,teacher["target"],selected)
             factory=functools.partial(CandidateControl,condition=condition,scale_binding=selected[0]["scale"],units=selected,physical_rows=size)
-            output,_,_,control=sample_fn(model,config,teacher,selected[0]["scale"][EFFECTIVE],attempt,size,
+            sampled=sample_fn(model,config,teacher,selected[0]["scale"][EFFECTIVE],attempt,size,
                 control_factory=factory,check_affinity=False,initial_override=initial)
+            output,control=sampled[0],sampled[3]
+            del sampled  # Do not retain a previous batch's GPU pocket tensors during the next OOM probe.
             for i,unit in enumerate(selected):
                 if i in control.failed_units:
                     failed[unit["id"]]=control.failed_units[i]
@@ -258,7 +262,7 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
             restore(external);model.integrator._guard_warned=guard;model._ug_physical_rows=previous_rows
             model._ug_parallel_workers=previous_workers
             model._adaptive=None;model.integrator._adaptive_observer=None
-            output=None;control=None
+            output=None;control=None;product=None
         if fatal is not None:
             write(attempt/"FAILED.json",dict(type=type(fatal).__name__,error=str(fatal),no_automatic_retry=True))
             raise fatal

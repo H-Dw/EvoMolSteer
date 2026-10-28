@@ -151,6 +151,18 @@ def test_initial_selection_is_explicit_bounded_and_frozen(tmp_path):
     with pytest.raises(ValueError):reuse.select_initial(dict(root=str(tmp_path)),dict(teacher=[10,0,0,0]))
 
 
+def test_failed_terminal_preserves_structural_masks_and_healthy_units(tmp_path):
+    import threading
+    control=object.__new__(batch.CandidateControl)
+    control.initial=dict(population=20);control.failed_units={};control.rows=[];control.folder=tmp_path
+    control.failure_lock=threading.RLock();control.geometry_condition=condition.prepare(features())
+    xyz=torch.tensor(control.geometry_condition["reference_coordinates_angstrom"])[None].repeat(20,1,1)
+    original=xyz.clone();xyz[13,0,0]=float("nan");mask=torch.ones(20,4,dtype=torch.bool)
+    output=control.check_terminal(dict(coords=xyz,mask=mask))
+    assert torch.equal(output["mask"],mask) and torch.equal(output["coords"][:10],original[:10])
+    assert list(control.failed_units)==[1] and torch.isfinite(output["coords"]).all()
+
+
 def test_reuse_rejects_incomplete_calibration_before_copy(tmp_path,monkeypatch):
     from agenticgen.uniguide import geometry_runtime as runtime
     root=tmp_path/"dest";source=tmp_path/"source"
