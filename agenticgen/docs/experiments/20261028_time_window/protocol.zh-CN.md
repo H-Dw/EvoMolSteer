@@ -50,3 +50,11 @@ full_interior 保留这四段原强度，在第 1–9 步延用第一窗口强�
 采样取得独立锁及原实验 GPU 锁；CPU 质量队列只服务本专项。数值失败保留整组 50 次记账并继续其他已声明处理；工程失败停止，不自动循环恢复。采样结束释放 GPU 锁，后台进程等待本专项 10/50 诊断，生成 RESULTS.json、summary.csv、report.zh-CN.md 和 FINALIZED。等待诊断最多六小时；超时保存 POSTPROCESSING_PENDING，不冒充完成。仅在本专项 worker 空闲且进程归属匹配时停止它。
 
 启动后只进行一次真实命令、执行锁、日志与逐步产物核验，随后结束本轮对话，不持续轮询、不启动旧 UG 巡检、不创建重复监控。GitHub 异常依次尝试 ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc；全部失败后才用已验证且仅含已推送提交的 Git bundle。
+
+## 已启动记录
+
+2026-10-28 20:33:01（Asia/Shanghai），已从固定提交 `6771aa62826db828e7a6647d122be3cfedd2ac24` 的独立目录 `/workspace/uniguide_audits/time-window-6771aa62` 脱离 SSH 会话启动，定位 PID 16914，日志 `/workspace/agenticgen_time_window_20261028/run.log`。科学运行时保持上述 `0e7d4dc2` 冻结目录。23 项远端测试通过（0.70 秒）；本地只作静态解析。直连和四镜像均依序超时后，部署已验证且仅含已推送提交的 bundle，SHA256 为 `d62726dc564b276842ba6241c2a112f5df7160812c8e2070e31623e856b52d83`。
+
+20:34:26 完成一次启动核验：真实入口进程处于运行状态，专项与原 GPU 执行锁均持有，首组 6pyy/gradient__raw1__window 的进度回执已到第 30 步，逐步配对核验已通过第 10–36 步，五类比较全部精确相同，尚无 FAILED。首组预留 50 次不代表已完成。STUDY 保护 98 个源文件；CPU 质量模块字节与已验收 `3f07d1fa` 一致。此后不在本轮持续监控。
+
+同目录 `launch.json`、`startup_verified.json`、`study.json`、`remote_tests.txt`、`deployment.json` 保存原始证据。后台运行结束后在远端结果根目录读取 RESULTS.json、summary.csv、report.zh-CN.md；最终状态以 FINALIZED、FAILED 或 POSTPROCESSING_PENDING 的真实标记为准。启动时尚无比较结果，不能据启动成功宣称 raw999 或扩展引导更优。
