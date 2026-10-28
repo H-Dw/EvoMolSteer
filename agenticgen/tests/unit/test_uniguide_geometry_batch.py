@@ -77,7 +77,7 @@ def test_cross_configuration_batch_oom_accounting_promotion_and_reuse(tmp_path,m
     config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
     attempted=[];external=torch.get_rng_state().clone()
     def oom(*args,**kwargs):
-        size=args[6];attempted.append(size)
+        size=args[5];attempted.append(size)
         if size>60:
             torch.rand(10)
             raise torch.cuda.OutOfMemoryError("injected")
@@ -106,6 +106,9 @@ def test_formal_directions_share_batches_teacher_capacity_is_independent(tmp_pat
     config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
     binding=batch.compatibility(config,teacher,spec)
     d=domain(digest=spec["condition_sha256"],sampling_hash=value_sha(binding))
+    body={k:v for k,v in d.items() if k!="domain_sha256"}
+    body["constant_comparison"]=[dict(eligible=True,absolute_displacement=dict(max_atom_increment_A=1.))]
+    d=dict(body,domain_sha256=value_sha(body))
     jobs=[dict(schedule=[v,0,0,0],folder=tmp_path/f"direction{v}",stage="formal",domain=d) for v in (-1,0,1)]
     rows=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample)
     assert calls==[100,50] and all(r["attempts"]==50 for r in rows)
@@ -116,7 +119,7 @@ def test_formal_directions_share_batches_teacher_capacity_is_independent(tmp_pat
 def test_numerical_failure_is_not_retried_as_oom(tmp_path,monkeypatch):
     config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
     def fail(*args,**kwargs):
-        calls.append(args[6]);raise FloatingPointError("invalid field")
+        calls.append(args[5]);raise FloatingPointError("invalid field")
     job=dict(schedule=[1.]*4,folder=tmp_path/"grid",stage="calibration",count=10)
     with pytest.raises(FloatingPointError):batch.execute_many(model,config,teacher,spec,[job],sample_fn=fail)
     with pytest.raises(RuntimeError,match="explicit audit"):batch.execute_many(model,config,teacher,spec,[job],sample_fn=fail)
@@ -154,3 +157,32 @@ def test_reuse_rejects_incomplete_calibration_before_copy(tmp_path,monkeypatch):
     with pytest.raises(ValueError,match="incomplete"):
         reuse.reuse(dict(root=str(root)),dict(teacher=str(source)),dict(teacher=[0]*4))
     assert not root.exists()
+
+
+def test_reuse_copies_verified_complete_and_failed_sources_without_new_attempts(tmp_path,monkeypatch):
+    from agenticgen.uniguide import geometry_runtime as runtime
+    source=tmp_path/"source";root=tmp_path/"destination"
+    binding=dict(teacher_id="teacher",condition_sha256="condition")
+    d=domain(sampling_hash=value_sha(binding))
+    subject=dict(teacher=dict(target="teacher"),condition=dict(condition_sha256="condition"))
+    monkeypatch.setattr(runtime,"require_acceptance",lambda c:None)
+    monkeypatch.setattr(runtime,"calibrated",lambda c:[subject])
+    monkeypatch.setattr(reuse,"compatibility",lambda *a:binding)
+    write(source/"calibration/domains.json",dict(teacher=d))
+    write(source/"baseline/aggregate.json",dict(id="baseline",attempts=50))
+    write(source/"baseline/COMPLETE.json",dict(files={"aggregate.json":sha(source/"baseline/aggregate.json")}))
+    write(source/"bad/FAILED.json",dict(error="nonfinite",no_weaker_retry=True))
+    for name in ("baseline","bad"):
+        write(source/"measurement_registry"/(name+".json"),dict(source_group=name,identity=dict(compatibility=binding)))
+    write(source/"calibration/frozen"/d["calibration_key"]/"domain.json",d)
+    write(source/"calibration/frozen"/d["calibration_key"]/"COMPLETE.json",dict(domain_sha256=d["domain_sha256"],
+        measurement_receipts={"baseline":sha(source/"baseline/COMPLETE.json")}))
+    write(source/"attempts.json",dict(original=60));before=reuse.tree_hashes(source)
+    result=reuse.reuse(dict(root=str(root)),dict(teacher=str(source)),dict(teacher=[0,1,0,-1]))
+    assert result["teachers"]["teacher"][protocol.MULTIPLIER]==2.
+    assert read(root/"bad/FAILED.json")["error"]=="nonfinite"
+    assert not (root/"attempts.json").exists() and before==reuse.tree_hashes(source)
+    assert reuse.reuse(dict(root=str(root)),dict(teacher=str(source)),dict(teacher=[0,1,0,-1]))==result
+    write(root/"baseline/aggregate.json",dict(tampered=True))
+    with pytest.raises(ValueError,match="overwrite"):
+        reuse.reuse(dict(root=str(root)),dict(teacher=str(source)),dict(teacher=[0,1,0,-1]))

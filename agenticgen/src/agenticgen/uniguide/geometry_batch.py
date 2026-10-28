@@ -87,6 +87,19 @@ class CandidateControl(GeometryControl):
             units=[dict(id=u["id"],slots=u["slots"],scale=u["scale"]) for u in self.units],
             failed_units=self.failed_units))
 
+    def condition_loss(self,endpoint,valid):
+        condition=self.geometry_condition
+        all_slots=torch.as_tensor(list(condition["atom_to_generated_slot"].values()),device=endpoint.device)
+        if int(all_slots.max())>=endpoint.shape[1] or not bool(valid[:,all_slots].bool().all()):
+            raise ValueError("Fixed condition mapping references masked or absent slots")
+        pairs=torch.as_tensor([p["generated_slots"] for p in condition["pairs"]],device=endpoint.device)
+        reference=endpoint.new_tensor([p["reference_distance_angstrom"] for p in condition["pairs"]]).detach()
+        errors=torch.linalg.vector_norm(endpoint[:,pairs[:,0]]-endpoint[:,pairs[:,1]],dim=-1)-reference
+        errors=self.check_rows("internal distance errors",errors)
+        slots=torch.unique(pairs.flatten(),sorted=True)
+        selected=torch.zeros_like(valid,dtype=torch.bool);selected[:,slots]=True
+        return errors.square().mean(-1)/2,reference[None].expand(len(endpoint),-1),selected,slots[None].expand(len(endpoint),-1).detach()
+
     def initialize(self,*args):
         if self.resume:
             bound=self.resume["candidate_binding"]
@@ -129,7 +142,11 @@ class CandidateControl(GeometryControl):
         self.rows[-1]["failed_units"]=copy.deepcopy(self.failed_units)
         return result
 
-    def check_terminal(self,output):return self.prepare_output(output,list(range(self.initial["population"])))
+    def check_terminal(self,output):
+        result=self.prepare_output(output,list(range(self.initial["population"])))
+        value,*_=self.condition_loss(result["coords"],result["mask"].bool())
+        self.check_rows("terminal internal distance loss",value)
+        return result
 
 
 def split_products(output,control,source,unit,index):
@@ -257,6 +274,10 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
             and u["slots"][1]<job.get("count",50)//5]
         if affected:
             error=FloatingPointError("Nonfinite candidate units: "+", ".join(u["id"] for u in affected))
+            identity=dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},population=job.get("count",50),logical_slots_per_seed=job.get("count",50)//5)
+            run_id=Path(job["folder"]).relative_to(root).as_posix()
+            frozen(Path(job["folder"])/"manifest.json",dict(id=run_id,identity=identity))
+            reserve_group(root,run_id,job["stage"],job.get("count",50),identity,charge=False)
             write(Path(job["folder"])/"FAILED.json",dict(error=str(error),source_units=[u["id"] for u in affected],no_weaker_retry=True))
             results.append(error)
         else:
