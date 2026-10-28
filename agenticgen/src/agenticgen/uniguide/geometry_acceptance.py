@@ -11,6 +11,7 @@ from .geometry_sampling import GeometryControl,scale_binding
 from .geometry_condition import loss
 from .geometry_protocol import source_binding
 from .random_streams import capture,equal
+from .geometry_shards import initial_shard
 
 
 def real_vjp(model,config,teacher,condition):
@@ -76,7 +77,23 @@ def run(config):
         steps=read(out/"continuous/steps.json")
         if any(any(v!=0 for v in s["assignment_switch_fraction"]) for s in steps):raise ValueError("Mapping changed during trajectory")
         if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"]>=10):raise ValueError("Normalized zero incorrectly disabled guidance")
+        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"prefix_twenty",20,stop_step=12,
+            control_factory=factory,check_affinity=False)
+        selected=initial_shard(config,teacher["target"],[2,3])
+        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"promoted_slots",10,stop_step=12,
+            control_factory=factory,check_affinity=False,initial_override=selected)
+        full=load_pt(out/"prefix_twenty/checkpoint_012.pt.gz");shard=load_pt(out/"promoted_slots/checkpoint_012.pt.gz")
+        indices=[seed*4+slot for seed in range(5) for slot in (2,3)]
+        promotion={k:tensor_digest(take(full[k],indices,20))==tensor_digest(shard[k]) for k in ("current","cond","times","previous_assignment")}
+        promotion["native_rng_states"]=tensor_digest(full["stream_states"])==tensor_digest(shard["stream_states"])
+        if not all(promotion.values()):raise ValueError("Promoted native slots differ from original prefix: "+str(promotion))
+        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"promoted_resumed",10,stop_step=12,
+            control_factory=factory,check_affinity=False,initial_override=selected,resume_path=out/"promoted_slots/checkpoint_010.pt.gz")
+        resumed_shard=load_pt(out/"promoted_resumed/checkpoint_012.pt.gz")
+        if any(tensor_digest(shard[k])!=tensor_digest(resumed_shard[k]) for k in ("current","cond","times","stream_states","previous_assignment")):
+            raise ValueError("Promoted slots changed after resume")
         checks[teacher["target"]]=dict(real_model_vjp=numerical,disabled_equivalence=disabled,exact_resume=resumed,
+            exact_native_slot_promotion=promotion,promoted_slot_resume=True,
             fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
         del model;torch.cuda.empty_cache()
     if sha(original)!=before:raise ValueError("Original attempt ledger changed")

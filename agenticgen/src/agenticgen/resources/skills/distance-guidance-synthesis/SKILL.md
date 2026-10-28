@@ -3,7 +3,7 @@ name: distance-guidance-synthesis
 description: Select existing normalized-weight proposals using internal-distance history, geometric tradeoffs and fixed executable identifiers.
 ---
 
-Select one existing candidate per requested inclination. Never invent, merge, average or rewrite a schedule. Check measured anchors, normalized half-steps, branch direction, empirical bounds and duplicate effective configurations. Proposal narratives are hypotheses, not measured results.
+Select one existing candidate per requested inclination. Never invent, merge, average or rewrite an action. Check measured anchors, integer window steps, branch direction, empirical bounds and duplicate effective configurations. The executor calculates complete schedules and physical strengths. Proposal narratives are hypotheses, not measured results.
 
 Review prior executed predictions against their original anchors before selecting. Compare intramolecular pair distance root mean square deviation and its controlled-atom and neighborhood components. Favor measured evidence for lower distance deviation while exposing component tradeoffs, missing evidence, absolute-displacement risk and uncertain chemistry. Do not use affinity or protein geometry. Preserve the supplied primary ranking rather than inventing a weighted score. If a previous expectation was contradicted, explain how the selection changes the allocation hypothesis.
 

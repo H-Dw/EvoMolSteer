@@ -165,8 +165,9 @@ class Control:
         write(self.folder/"rng_ledger.json",self.random_streams.ledger)
 
 
-def sample(model,config,teacher,schedule,folder,count=50,resume_path=None,stop_step=None,control_factory=None,check_affinity=True):
-    initial=population(config,teacher["target"],count)
+def sample(model,config,teacher,schedule,folder,count=50,resume_path=None,stop_step=None,control_factory=None,check_affinity=True,initial_override=None):
+    initial=population(config,teacher["target"],count) if initial_override is None else initial_override
+    if initial["population"]!=count:raise ValueError("Initial population size differs")
     pt,po,prior=(device(initial[k]) for k in ["pocket_target","pocket_off","prior"])
     for pocket in [pt,po]: pocket["complex"]=[SimpleNamespace(com=c.numpy()) for c in initial["target_com"]]
     resume=load_pt(resume_path) if resume_path else None

@@ -20,8 +20,9 @@ def features():
         controlled_atom_ids=["a","b"],coordinates_angstrom=[[0,0,0],[1.5,0,0],[2,1.4,0],[3,1.4,1]])
 
 
-def domain(multiplier=2.,teacher="teacher",digest="condition"):
+def domain(multiplier=2.,teacher="teacher",digest="condition",sampling_hash="sampling"):
     body=dict(policy=protocol.POLICY,teacher_id=teacher,condition_sha256=digest,
+        sampling_protocol_sha256=sampling_hash,calibration_key=value_sha([teacher,digest,sampling_hash]),
         calibrated_guidance_multiplier=multiplier,normalized_minimum=-3.,normalized_maximum=3.,initial_source="baseline")
     return dict(body,domain_sha256=value_sha(body))
 
@@ -146,7 +147,7 @@ def test_frame_and_reflection_diagnostics_do_not_change_distance_loss():
     assert diagnostic["stereochemistry_assessment"].startswith("not_evaluated")
 
 
-@pytest.mark.parametrize("schedule",[[0,0,0],[-11,0,0,0],[10.5,0,0,0],[.1,0,0,0],[float("nan"),0,0,0],[True,0,0,0]])
+@pytest.mark.parametrize("schedule",[[0,0,0],[-11,0,0,0],[10.5,0,0,0],[.5,0,0,0],[float("nan"),0,0,0],[True,0,0,0]])
 def test_invalid_normalized_schedule(schedule):
     with pytest.raises(ValueError):protocol.effective(schedule,2.)
 
@@ -177,27 +178,35 @@ def test_resume_rejects_changed_mapping_before_native_model_access():
         control.initialize()
 
 
-def test_actions_use_additive_half_steps_not_old_positive_lattice():
+def test_actions_use_integer_changes_and_executor_owned_schedules():
     anchors={"baseline":row()};d=domain();seen=[[0.]*4]
-    action=dict(anchor_id="baseline",branch="decrease",mode="fine",**{protocol.NORMALIZED:[-.5,0,0,0]})
-    assert protocol.validate_action(action,anchors,d,seen)==[-.5,0,0,0]
+    action=dict(anchor_id="baseline",branch="decrease",updates=[dict(window_id=0,step=-1)])
+    assert protocol.validate_action(action,anchors,d,seen)==[-1,0,0,0]
+    resolved=protocol.resolve_action(action,anchors,d,seen)
+    assert resolved[protocol.NORMALIZED]==[-1,0,0,0] and resolved[protocol.EFFECTIVE]==[1,2,2,2]
+    assert resolved[protocol.MULTIPLIER]==2 and resolved["calibration_key"]==d["calibration_key"]
     with pytest.raises(ValueError):protocol.validate_action(dict(action,branch="increase"),anchors,d,seen)
-    with pytest.raises(ValueError):protocol.validate_action(action,anchors,d,seen+[action[protocol.NORMALIZED]])
-    with pytest.raises(KeyError):protocol.validate_action(dict(anchor_id="baseline",branch="increase",mode="fine",schedule=[2.]*4),anchors,d,seen)
+    with pytest.raises(ValueError):protocol.validate_action(action,anchors,d,seen+[resolved[protocol.NORMALIZED]])
+    with pytest.raises(ValueError):protocol.validate_action(dict(action,**{protocol.NORMALIZED:[-1,0,0,0]}),anchors,d,seen)
+    for step in (-.5,1.,True,0,3):
+        with pytest.raises(ValueError):protocol.validate_action(dict(action,updates=[dict(window_id=0,step=step)]),anchors,d,seen)
+    with pytest.raises(ValueError):protocol.validate_action(dict(action,updates=action["updates"]*2),anchors,d,seen)
+    with pytest.raises(ValueError):protocol.validate_action(dict(anchor_id="baseline",branch="increase",mode="fine",schedule=[2.]*4),anchors,d,seen)
 
 
 def test_teacher_specific_calibration_uses_geometry_not_affinity_and_excludes_growth():
     rows=[]
-    for teacher,errors in [("left",[4.,1.,2.,.01]),("right",[4.,2.,1.,.01])]:
-        for index,(scale,error) in enumerate(zip([1.,2.,4.,8.],errors)):
+    for teacher,errors in [("left",[8.,4.,1.,2.,3.,.01]),("right",[8.,4.,2.,1.,3.,.01])]:
+        for index,(scale,error) in enumerate(zip([.5,1.,2.,4.,8.,16.],errors)):
             rows.append(dict(id=teacher+str(index),teacher_id=teacher,phase="full",condition_sha256="cond",
-                complete=True,attempts=50,window_diagnostics=diagnostics(10000 if scale==8 else scale),
+                compatibility_sha256="sampling",complete=True,attempts=50,window_diagnostics=diagnostics(10000 if scale==16 else scale),
                 **{protocol.EFFECTIVE:[scale]*4,condition.DISTANCE:error},mean_pic50=100-error))
-    left=protocol.derive_domain(rows,"left","cond");right=protocol.derive_domain(rows,"right","cond")
+    left=protocol.derive_domain(rows,"left","cond","sampling");right=protocol.derive_domain(rows,"right","cond","sampling")
     assert left[protocol.MULTIPLIER]==2 and right[protocol.MULTIPLIER]==4
     assert left["risk_boundary"] and not left["stability_guarantee"]
     wrong=copy.deepcopy(rows);wrong[0]["condition_sha256"]="wrong"
-    with pytest.raises(ValueError):protocol.derive_domain(wrong,"left","cond")
+    with pytest.raises(ValueError):protocol.derive_domain(wrong,"left","cond","sampling")
+    with pytest.raises(ValueError):protocol.derive_domain(rows,"left","cond","other-sampler")
 
 
 def test_registry_reuses_complete_fingerprint_without_more_budget_and_blocks_failure(tmp_path):
@@ -215,8 +224,9 @@ def test_registry_reuses_complete_fingerprint_without_more_budget_and_blocks_fai
 
 
 def test_all_history_is_preserved_and_incompatible_conditions_are_rejected(tmp_path,monkeypatch):
-    spec=condition.prepare(features());teacher=dict(target="teacher");d=domain(digest=spec["condition_sha256"])
+    spec=condition.prepare(features());teacher=dict(target="teacher")
     binding=dict(teacher_id="teacher",condition_sha256=spec["condition_sha256"])
+    d=domain(digest=spec["condition_sha256"],sampling_hash=value_sha(binding))
     monkeypatch.setattr(runtime,"compatibility",lambda *a:binding)
     def stored(key,scale=2.,count=50,failed=False):
         identity=dict(compatibility=copy.deepcopy(binding),**{protocol.EFFECTIVE:[scale]*4},population=count)
@@ -231,7 +241,7 @@ def test_all_history_is_preserved_and_incompatible_conditions_are_rejected(tmp_p
     assert [r["id"] for r in observed]==["baseline"] and len(evidence)==3
     assert {r.get("evidence_status") for r in evidence}=={None,"smaller_population_not_directly_rankable","not_on_current_normalized_lattice"}
     binding["condition_sha256"]="different condition"
-    with pytest.raises(ValueError,match="Incompatible measurement"):
+    with pytest.raises(ValueError,match="sampling protocol"):
         runtime.history(dict(root=str(tmp_path)),teacher,spec,d)
 
 
@@ -269,7 +279,7 @@ def test_fixed_json_roles_normalized_fields_full_names_and_claim(tmp_path):
             if not context["no_future_execution"]:answer["selected"]={b:b+":0" for b in protocol.BRANCHES}
         jsonschema.validate(answer,schema);response_validator(answer);write(out,answer);return answer
     proposals=council.advise({"llm":{}},history,d,tmp_path/"call",skills,provider=provider)
-    assert len(proposals)==3 and all(protocol.NORMALIZED in p and "schedule" not in p for p in proposals)
+    assert len(proposals)==3 and all("updates" in p and protocol.NORMALIZED not in p and "schedule" not in p for p in proposals)
     assert "pic50" not in json.dumps(calls) and "coordinate root mean square deviation" not in (skills/"analysis.md").read_text()
     assert council.advise({"llm":{}},history,d,tmp_path/"final",skills,final=True,provider=provider)==[]
     def failure(*args,**kwargs):raise RuntimeError("exhausted output")
@@ -284,19 +294,124 @@ def test_strict_output(bad):
 
 @pytest.mark.parametrize("rounds",[1,2,7])
 def test_nondefault_rounds_and_final_analysis_are_external(tmp_path,monkeypatch,rounds):
+    from agenticgen.uniguide import geometry_calibration as calibration
     config=dict(protocol=protocol.POLICY,root=str(tmp_path/"new"),generation_context_root=str(tmp_path/"source"),rounds=rounds)
     root=Path(config["root"]);d=domain();subject=dict(teacher=dict(target="teacher"),condition=dict(condition_sha256="condition"))
     write(root/"calibration/domains.json",dict(teacher=d))
     monkeypatch.setattr(runtime,"require_acceptance",lambda c:None)
     monkeypatch.setattr(runtime,"calibrated",lambda c:[subject])
     monkeypatch.setattr(runtime,"history",lambda *a:([row()],[]))
+    monkeypatch.setattr(runtime,"compatibility",lambda *a:{})
+    monkeypatch.setattr(calibration,"verify_frozen",lambda *a:None)
     calls=[]
     def advisor(config,history,domain,folder,skills,failures,final=False):
         calls.append((str(folder),final))
-        return [] if final else [dict(branch=b,**{protocol.NORMALIZED:[0.]*4}) for b in protocol.BRANCHES]
+        return [] if final else [protocol.legal_options(history,domain,b)[0] for b in protocol.BRANCHES]
     def executor(model,config,teacher,condition,schedule,folder,stage,domain):
         return row(folder.relative_to(root).as_posix())
     result=runtime.run_version(config,"GD01",model_loader=lambda *a:object(),executor=executor,advisor=advisor,retainer=lambda *a:None)
     assert len(result["current"]["groups"])==rounds*3
     assert len(calls)==rounds+1 and calls[-1][1] and "analysis_final" in calls[-1][0]
     assert (root/"versions/GD01/AWAITING_GPT_REVIEW.json").exists()
+
+
+def test_staged_calibration_is_teacher_local_frozen_and_never_reloads_for_skill_changes(tmp_path,monkeypatch):
+    from agenticgen.uniguide import geometry_calibration as calibration
+    from agenticgen.uniguide.io import Budget
+    subjects=[dict(teacher=dict(target=t),condition=dict(condition_sha256=t+"condition")) for t in ("left","right")]
+    monkeypatch.setattr(calibration,"compatibility",lambda c,t,g:dict(teacher_id=t["target"],condition_sha256=g["condition_sha256"],sampler=c.get("sampler","native")))
+    sampled=set();loads=[]
+    def executor(model,config,teacher,condition,schedule,folder,stage,count):
+        strength=schedule[0];target=teacher["target"];group=folder.relative_to(tmp_path).as_posix()
+        new=[(target,strength,seed,slot) for seed in range(5) for slot in range(count//5)
+            if (target,strength,seed,slot) not in sampled]
+        sampled.update(new)
+        if new:Budget(tmp_path).reserve(group,stage,len(new),value_sha(new))
+        optimum=1. if target=="left" else 4.
+        result=dict(id=group,teacher_id=target,condition_sha256=condition["condition_sha256"],
+            compatibility_sha256=value_sha(calibration.compatibility(config,teacher,condition)),complete=True,
+            attempts=count,window_diagnostics=diagnostics(strength),**{protocol.EFFECTIVE:schedule,
+            condition_module_distance:math.log2(strength/optimum)**2+.1})
+        write(folder/"aggregate.json",result);write(folder/"COMPLETE.json",dict(files={"aggregate.json":sha(folder/"aggregate.json")}))
+        return result
+    condition_module_distance=condition.DISTANCE
+    config=dict(root=str(tmp_path))
+    domains=calibration.run(config,subjects,lambda c,t:loads.append(t["target"]),executor)
+    assert len(sampled)==700 and loads==["left","right"]
+    assert domains["left"][protocol.MULTIPLIER]==1 and domains["right"][protocol.MULTIPLIER]==4
+    assert sum(x["count"] for x in read(tmp_path/"attempts.json").values())==700
+    def forbidden(*a):raise AssertionError("Frozen calibration must not load a model or sample")
+    assert calibration.run(dict(config,rounds=99,llm=dict(irrelevant="changed")),subjects,forbidden,forbidden)==domains
+    with pytest.raises(ValueError,match="sampling protocol"):
+        calibration.verify_frozen(tmp_path,domains["left"],dict(teacher_id="left",condition_sha256="leftcondition",sampler="raw999"))
+    with pytest.raises(ValueError,match="Frozen calibration evidence"):
+        receipt=tmp_path/"calibration/frozen"/domains["left"]["calibration_key"]/"COMPLETE.json"
+        source=next(iter(read(receipt)["measurement_receipts"]))
+        write(tmp_path/source/"COMPLETE.json",{})
+        calibration.run(config,subjects,forbidden,forbidden)
+
+
+def test_calibration_boundary_stops_without_expansion(tmp_path,monkeypatch):
+    from agenticgen.uniguide import geometry_calibration as calibration
+    rows=[dict(row(str(i),error=1./scale),window_diagnostics=diagnostics(scale),**{protocol.EFFECTIVE:[scale]*4})
+        for i,scale in enumerate([.25,1.,4.,16.])]
+    with pytest.raises(ValueError,match="boundary"):calibration.refinement(rows)
+    for r in rows:r.update(teacher_id="teacher",condition_sha256="condition",compatibility_sha256="sampling",phase="full")
+    with pytest.raises(ValueError):protocol.derive_domain(rows,"teacher","condition","sampling")
+
+
+def test_real_population_promotion_uses_only_unmeasured_slots_and_preserves_build_failure(tmp_path,monkeypatch):
+    import numpy as np
+    import h5py
+    from agenticgen.uniguide import geometry_shards as shards
+    from agenticgen.uniguide.native_tools import save_pt,load_pt
+    spec=condition.prepare(features());teacher=dict(target="teacher");binding=dict(teacher_id="teacher",condition_sha256=spec["condition_sha256"])
+    monkeypatch.setattr(sampling,"compatibility",lambda *args:binding)
+    monkeypatch.setattr(shards,"initial_shard",lambda c,t,slots:dict(logical_slots=slots,population=10))
+    calls=[]
+    class Builder:
+        def _generate_mols(self,output,sanitise=True):return [None]*len(output["coords"])
+    def sample(model,config,teacher,schedule,folder,count,initial_override,**kwargs):
+        slots=initial_override["logical_slots"];calls.append(slots)
+        xyz=torch.tensor(spec["reference_coordinates_angstrom"])[None].repeat(10,1,1)
+        for seed in range(5):
+            for offset,slot in enumerate(slots):xyz[seed*2+offset]+=slot+seed*10
+        output=dict(coords=xyz,mask=torch.ones(10,4,dtype=torch.bool))
+        save_pt(folder/"terminal.pt.gz",output)
+        with h5py.File(folder/"trace.h5","w") as trace:trace["guidance_delta_A"]=np.zeros((100,10,4,3),dtype=np.float32)
+        steps=[dict(step=i,loss=[0.]*10,assignment_switch_fraction=[0.]*10,gradient_norm=[1.]*10,
+            coefficient=[1.]*10,max_atom_increment_A=[0.]*10,delta_native_ratio=[0.]*10,sampling_rng_after_sha256="fixture") for i in range(100)]
+        write(folder/"steps.json",steps);write(folder/"rng_ledger.json",dict(slots=slots))
+        return output,None,None,None
+    monkeypatch.setattr(sampling.sampler,"sample",sample)
+    config=dict(root=str(tmp_path));model=Builder()
+    ten=sampling.execute(model,config,teacher,spec,[2.]*4,tmp_path/"ten","calibration",10)
+    twenty=sampling.execute(model,config,teacher,spec,[2.]*4,tmp_path/"twenty","calibration",20)
+    fifty=sampling.execute(model,config,teacher,spec,[2.]*4,tmp_path/"fifty","calibration",50)
+    assert calls==[[0,1],[2,3],[4,5],[6,7],[8,9]]
+    assert fifty["built"]==0 and fifty["attempts"]==50 and fifty["population_view"]
+    records=read(tmp_path/"fifty/records.json")
+    assert len({(r["logical_seed"],r["logical_slot"]) for r in records})==50
+    assert [r["logical_slot"] for r in records]==list(range(10))*5
+    assert torch.equal(load_pt(tmp_path/"ten/terminal.pt.gz")["coords"],load_pt(tmp_path/"fifty/terminal.pt.gz")["coords"][[s*10+i for s in range(5) for i in (0,1)]])
+    assert sum(x["count"] for x in read(tmp_path/"attempts.json").values())==50
+    d=domain(digest=spec["condition_sha256"],sampling_hash=value_sha(binding))
+    assert sampling.execute(model,config,teacher,spec,[0]*4,tmp_path/"formal","formal",domain=d)["id"]==fifty["id"]
+    assert len(calls)==5 and read(tmp_path/"formal/REUSED.json")["new_attempts"]==0
+
+
+def test_sampling_binding_ignores_agent_and_rounds_but_tracks_sampling(tmp_path):
+    from agenticgen.uniguide.native_tools import save_pt
+    for i in range(5):save_pt(tmp_path/"initials/teacher"/f"batch_{i:03d}.pt.gz",dict(test=i))
+    spec=condition.prepare(features());teacher=dict(target="teacher")
+    config=dict(root=str(tmp_path),checkpoint_sha256="model",native_hashes={})
+    original=sampling.compatibility(config,teacher,spec)
+    assert original==sampling.compatibility(dict(config,rounds=99,llm=dict(model="other")),teacher,spec)
+    for field,value in [("steps",200),("output_policy","raw999"),("checkpoint_sha256","other"),("noise_level",.1)]:
+        assert original!=sampling.compatibility(dict(config,**{field:value}),teacher,spec)
+
+
+def test_fractional_integer_looking_steps_are_rejected_by_application():
+    # JSON Schema permits 1.0 as an integer; the execution contract deliberately does not.
+    d=domain();a=dict(anchor_id="baseline",branch="increase",updates=[dict(window_id=0,step=1.0)])
+    with pytest.raises(ValueError,match="integers"):protocol.resolve_action(a,{"baseline":row()},d,[])

@@ -17,6 +17,9 @@ class GeometryControl(sampler.Control):
     def __init__(self,*args,condition,scale_binding,**kwargs):
         self.geometry_condition=validate(condition);self.scale_binding=scale_binding
         super().__init__(*args,**kwargs)
+        if "logical_slots" in self.initial:
+            from .geometry_shards import SlotStreams
+            self.random_streams=SlotStreams(self.resume["stream_states"] if self.resume else self.initial["stream_states"],self.initial["logical_slots"])
 
     def expand_schedule(self,schedule):
         if schedule!=self.scale_binding[EFFECTIVE]:raise ValueError("Effective schedule binding differs")
@@ -31,7 +34,7 @@ class GeometryControl(sampler.Control):
     def checkpoint_metadata(self):
         return dict(geometry_binding=dict(condition_sha256=self.geometry_condition["condition_sha256"],
             fixed_correspondence_sha256=value_sha(self.geometry_condition["atom_to_generated_slot"]),
-            scale_binding=self.scale_binding))
+            scale_binding=self.scale_binding,logical_slots=getattr(self,"initial",{}).get("logical_slots")))
 
     def initialize(self,*args):
         if self.resume and self.resume.get("geometry_binding")!=self.checkpoint_metadata()["geometry_binding"]:
@@ -58,13 +61,25 @@ def scale_binding(schedule,multiplier=None,enabled=True):
 
 
 def compatibility(config,teacher,condition,domain=None):
-    from .geometry_protocol import source_binding
+    import inspect
+    from .geometry_protocol import effective,expand_effective,ticks
+    package=Path(__file__).parent
+    # Only sampling dependencies: LLM skills, prompts, actions and round counts do not refit lambda.
+    names=["sampler","random_streams","chunking","batching","condition","geometry_condition",
+        "geometry_sampling","geometry_shards","native_tools","prepare","protocol"]
+    sources={name:sha(package/(name+".py")) for name in names}
+    sources["runtime/rng"]=sha(package.parent/"runtime/rng.py")
+    sources.update({fn.__name__:value_sha(inspect.getsource(fn)) for fn in (effective,expand_effective,ticks)})
     roots=Path(config.get("initials_root",config["root"]))
     return dict(policy=POLICY,teacher_id=teacher["target"],condition_sha256=condition["condition_sha256"],
         mapping_sha256=value_sha(condition["atom_to_generated_slot"]),
         checkpoint_sha256=config["checkpoint_sha256"],native_hashes=config["native_hashes"],
-        scientific_sources=source_binding(),output_policy="native_final_corrector",
-        steps=100,noise_level=.2,seeds=SEEDS,domain_sha256=domain["domain_sha256"] if domain else None,
+        teacher_native_config_sha256=sha(teacher["native_config"]) if "native_config" in teacher else None,
+        numeric_environment=dict(torch=str(torch.__version__),cuda=torch.version.cuda,hip=torch.version.hip,
+            numpy=np.__version__,rdkit=Chem.rdBase.rdkitVersion),
+        scientific_sources=sources,output_policy=config.get("output_policy","native_final_corrector"),
+        steps=config.get("steps",100),noise_level=config.get("noise_level",.2),seeds=config.get("seeds",SEEDS),
+        windows=config.get("windows",[list(w) for w in sampler.WINDOWS]),population=50,
         initials={str(i):sha(roots/"initials"/teacher["target"]/f"batch_{i:03d}.pt.gz") for i in range(5)})
 
 
@@ -75,9 +90,9 @@ def validate_receipt(folder):
     return read(folder/"aggregate.json")
 
 
-def reserve_group(root,run_id,stage,count,identity):
+def reserve_group(root,run_id,stage,count,identity,registry_name="measurement_registry",charge=True):
     """Caller holds the experiment executor lock; claims are never automatically removed."""
-    root=Path(root);registry=root/"measurement_registry";registry.mkdir(exist_ok=True)
+    root=Path(root);registry=root/registry_name;registry.mkdir(exist_ok=True)
     fingerprint=value_sha(identity);entry=registry/(fingerprint+".json")
     if entry.exists():
         saved=read(entry)
@@ -86,14 +101,14 @@ def reserve_group(root,run_id,stage,count,identity):
         if not (source/"COMPLETE.json").exists():
             raise RuntimeError("Existing failed/interrupted geometry claim; explicit audit required")
         return fingerprint,validate_receipt(source)
-    Budget(root).reserve(run_id,stage,count,fingerprint)
+    if charge:Budget(root).reserve(run_id,stage,count,fingerprint)
     with entry.open("x",encoding="utf-8") as stream:
         import json
         json.dump(dict(source_group=run_id,identity=identity),stream,sort_keys=True)
     return fingerprint,None
 
 
-def terminal_records(model,output,condition,folder,count):
+def terminal_records(model,output,condition,folder,count,slots=None):
     values=metrics(output["coords"],condition,output["mask"].bool())
     geometry_diagnostics=pose_diagnostics(output["coords"],condition)
     built=model._generate_mols(output);raw=model._generate_mols(output,sanitise=False)
@@ -102,6 +117,7 @@ def terminal_records(model,output,condition,folder,count):
     with Chem.SDWriter(str(folder/"molecules_all_built.sdf")) as writer, Chem.SDWriter(str(folder/"molecules_raw_decodable.sdf")) as rawwriter:
         for index,(mol,unvalidated) in enumerate(zip(built,raw)):
             seed_index,slot=divmod(index,count//5)
+            if slots is not None:slot=slots[slot]
             row=dict(node_id=f"geometry_b{seed_index:03d}_final_{slot:03d}",logical_seed=SEEDS[seed_index],
                 logical_slot=slot,tensor_row=index,build_success=mol is not None,connected=False,smiles="",
                 failure_reason=None,chemistry_identity_guaranteed=False,
@@ -146,11 +162,13 @@ def pose_diagnostics(coordinates,condition):
     return rows
 
 
-def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain=None,enabled=True):
-    if count not in (10,20,25,50):raise ValueError("Unsupported population")
+def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,domain=None,enabled=True):
+    from .geometry_shards import initial_shard
+    count=10
     if domain is None and stage!="calibration":raise ValueError("Actual strengths are allowed only in pre-experiments")
     if domain is not None:
         validate_domain(domain,teacher["target"],condition["condition_sha256"])
+        validate_domain(domain,sampling_protocol_sha256=value_sha(compatibility(config,teacher,condition)))
         if any(not domain["normalized_minimum"]<=x<=domain["normalized_maximum"] for x in schedule):
             raise ValueError("Normalized schedule exceeds teacher's empirical interval")
     root=Path(config["root"]);folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
@@ -158,9 +176,9 @@ def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain
     scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,enabled)
     binding=compatibility(config,teacher,condition)
     identity=dict(compatibility=binding,effective_guidance_scale_schedule=scale[EFFECTIVE],population=count,
-        logical_slots_per_seed=count//5)
+        logical_slots=slots)
     frozen(folder/"manifest.json",dict(id=run_id,identity=identity))
-    fingerprint,cached=reserve_group(root,run_id,stage,count,identity)
+    fingerprint,cached=reserve_group(root,run_id,stage,count,identity,registry_name="slot_registry")
     if cached is not None:
         if cached["id"]!=run_id:
             frozen(folder/"REUSED.json",dict(source_group=cached["id"],fingerprint=fingerprint,
@@ -170,8 +188,8 @@ def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain
     try:
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=scale)
         output,_,_,_=sampler.sample(model,config,teacher,scale[EFFECTIVE],folder,count,
-            control_factory=factory,check_affinity=False)
-        rows=terminal_records(model,output,condition,folder,count)
+            control_factory=factory,check_affinity=False,initial_override=initial_shard(config,teacher["target"],slots))
+        rows=terminal_records(model,output,condition,folder,count,slots)
         write(folder/"records.json",rows)
         aggregate=dict(id=run_id,teacher_id=teacher["target"],condition_sha256=condition["condition_sha256"],
             compatibility_sha256=value_sha(binding),fingerprint=fingerprint,attempts=count,complete=True,
@@ -198,5 +216,58 @@ def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain
         return aggregate
     except Exception as error:
         write(folder/"FAILED.json",dict(type=type(error).__name__,error=str(error),attempts=count,
+            failed_attempts_remain_charged=True,no_weaker_retry=True,fingerprint=fingerprint))
+        raise
+
+
+def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain=None,enabled=True):
+    from .geometry_shards import combine_products
+    if count not in (10,20,50):raise ValueError("Supported promotion populations are ten, twenty and fifty")
+    if domain is None and stage!="calibration":raise ValueError("Actual strengths are allowed only in pre-experiments")
+    if domain is not None:
+        validate_domain(domain,teacher["target"],condition["condition_sha256"])
+        validate_domain(domain,sampling_protocol_sha256=value_sha(compatibility(config,teacher,condition)))
+        if any(not domain["normalized_minimum"]<=x<=domain["normalized_maximum"] for x in schedule):
+            raise ValueError("Normalized schedule exceeds teacher's empirical interval")
+    root=Path(config["root"]);folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
+    scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,enabled)
+    binding=compatibility(config,teacher,condition)
+    identity=dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},population=count,logical_slots_per_seed=count//5)
+    run_id=folder.relative_to(root).as_posix()
+    frozen(folder/"manifest.json",dict(id=run_id,identity=identity))
+    fingerprint,cached=reserve_group(root,run_id,stage,count,identity,charge=False)
+    if cached is not None:
+        if cached["id"]!=run_id:frozen(folder/"REUSED.json",dict(source_group=cached["id"],fingerprint=fingerprint,
+            independent_measurement=False,new_attempts=0))
+        return dict(cached,**scale)
+    try:
+        shards=[]
+        for start in range(0,count//5,2):
+            key=value_sha(dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},slots=[start,start+1]))
+            shards.append(execute_shard(model,config,teacher,condition,schedule,root/"sample_shards"/key,
+                stage,[start,start+1],domain,enabled))
+        rows=combine_products(root,shards,folder)
+        aggregate=dict(shards[0],id=run_id,fingerprint=fingerprint,attempts=count,**scale)
+        aggregate.update(built=sum(r["build_success"] for r in rows),connected=sum(r["connected"] for r in rows),
+            unique_smiles=len({r["smiles"] for r in rows if r["smiles"]}),
+            sampling_provenance=[dict(source_group=s["id"],receipt_sha256=sha(root/s["id"]/"COMPLETE.json")) for s in shards],
+            population_view=True,independent_validation=False)
+        for name in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR):
+            values=[r[name] for r in rows if r[name] is not None]
+            aggregate[name]=(float(max(values) if name==MAX_ERROR else np.mean(values)) if values else None)
+        aggregate["window_diagnostics"]=sampler.diagnostics(folder)
+        aggregate["maximum_single_atom_guidance_increment_angstrom"]=max(w["max_atom_increment_A"] for w in aggregate["window_diagnostics"])
+        if domain is not None:
+            reference=max(r["absolute_displacement"]["max_atom_increment_A"] for r in domain["constant_comparison"] if r["eligible"])
+            growth=aggregate["maximum_single_atom_guidance_increment_angstrom"]/max(reference,1e-12)
+            aggregate.update(maximum_displacement_to_calibrated_envelope_ratio=growth,
+                stability_status="large_finite_displacement_growth" if growth>GROWTH_LIMIT else "within_measured_envelope_not_a_stability_guarantee")
+        write(folder/"aggregate.json",aggregate)
+        files=["manifest.json","records.json","aggregate.json","terminal.pt.gz","trace.h5","steps.json",
+            "rng_ledger.json","molecules_all_built.sdf","molecules_raw_decodable.sdf"]
+        frozen(folder/"COMPLETE.json",dict(files={name:sha(folder/name) for name in files}))
+        return aggregate
+    except Exception as error:
+        write(folder/"FAILED.json",dict(type=type(error).__name__,error=str(error),requested_population=count,
             failed_attempts_remain_charged=True,no_weaker_retry=True,fingerprint=fingerprint))
         raise
