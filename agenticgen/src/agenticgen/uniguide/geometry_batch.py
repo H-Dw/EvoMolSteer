@@ -18,7 +18,8 @@ from .batching import take
 from .chunking import concatenate
 from .geometry_shards import SlotStreams, initial_shard
 from .geometry_sampling import (GeometryControl, compatibility, scale_binding,
-    reserve_group, execute_shard, execute, validate_receipt)
+    reserve_group, execute_shard, execute, validate_receipt,candidate_identity)
+from .geometry_reward import WEIGHTS
 from .geometry_protocol import EFFECTIVE, MULTIPLIER, expand_effective, validate_domain
 from .io import frozen, read, write, value_sha, sha
 from .native_tools import save_pt, tensor_digest
@@ -95,6 +96,8 @@ class CandidateControl(GeometryControl):
             failed_units=self.failed_units,sampling_policy=self.sampling_policy),**self.raw_output_checkpoint())
 
     def condition_loss_for_rows(self,endpoint,valid,ids):
+        if self.geometry_condition.get("reward_policy"):
+            return super().condition_loss_for_rows(endpoint,valid,ids)
         condition=self.geometry_condition
         all_slots=torch.as_tensor(list(condition["atom_to_generated_slot"].values()),device=endpoint.device)
         if int(all_slots.max())>=endpoint.shape[1] or not bool(valid[:,all_slots].bool().all()):
@@ -106,6 +109,9 @@ class CandidateControl(GeometryControl):
         slots=torch.unique(pairs.flatten(),sorted=True)
         selected=torch.zeros_like(valid,dtype=torch.bool);selected[:,slots]=True
         return errors.square().mean(-1)/2,reference[None].expand(len(endpoint),-1),selected,slots[None].expand(len(endpoint),-1).detach()
+
+    def row_loss_weights(self,ids):
+        return [self.units[i//10]["scale"][WEIGHTS] for i in ids]
 
     def initialize(self,*args):
         self.restore_raw_output()
@@ -218,12 +224,12 @@ def compile_units(config,teacher,condition,jobs):
         if domain:
             validate_domain(domain,teacher["target"],condition["condition_sha256"],value_sha(binding))
             if any(not domain["normalized_minimum"]<=x<=domain["normalized_maximum"] for x in schedule):raise ValueError("Outside measured domain")
-        scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,job.get("enabled",True))
+        scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,job.get("enabled",True),condition,job.get("loss_weights"))
         for start in range(0,count//5,2):
             slots=[start,start+1]
-            key=value_sha(dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},slots=slots))
+            key=value_sha(dict(compatibility=binding,**candidate_identity(scale),slots=slots))
             folder=root/"sample_shards"/key;run_id=folder.relative_to(root).as_posix()
-            identity=dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},population=10,logical_slots=slots)
+            identity=dict(compatibility=binding,**candidate_identity(scale),population=10,logical_slots=slots)
             fingerprint=value_sha(identity);entry=root/"slot_registry"/(fingerprint+".json")
             if entry.exists():
                 saved=read(entry)
@@ -283,7 +289,7 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
                 product=split_products(output,control,attempt,unit,i)
                 job=unit["job"]
                 execute_shard(model,config,teacher,condition,job["schedule"],unit["folder"],job["stage"],unit["slots"],
-                    job.get("domain"),job.get("enabled",True),_materialized=product,_reservation=unit["fingerprint"])
+                    job.get("domain"),job.get("enabled",True),_materialized=product,_reservation=unit["fingerprint"],loss_weights=job.get("loss_weights"))
             frozen(attempt/"COMPLETE.json",dict(candidate_count=size,failed_units=control.failed_units,
                 capacity=size,independent_validation=False))
         except Exception as error:
@@ -313,12 +319,12 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
     results=[]
     binding=compatibility(config,teacher,condition)
     for job in jobs:
-        scale=scale_binding(job["schedule"],job["domain"][MULTIPLIER] if job.get("domain") else None,job.get("enabled",True))
-        affected=[u for u in units if u["id"] in failed and u["scale"][EFFECTIVE]==scale[EFFECTIVE]
+        scale=scale_binding(job["schedule"],job["domain"][MULTIPLIER] if job.get("domain") else None,job.get("enabled",True),condition,job.get("loss_weights"))
+        affected=[u for u in units if u["id"] in failed and candidate_identity(u["scale"])==candidate_identity(scale)
             and u["slots"][1]<job.get("count",50)//5]
         if affected:
             error=FloatingPointError("Nonfinite candidate units: "+", ".join(u["id"] for u in affected))
-            identity=dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},population=job.get("count",50),logical_slots_per_seed=job.get("count",50)//5)
+            identity=dict(compatibility=binding,**candidate_identity(scale),population=job.get("count",50),logical_slots_per_seed=job.get("count",50)//5)
             run_id=Path(job["folder"]).relative_to(root).as_posix()
             frozen(Path(job["folder"])/"manifest.json",dict(id=run_id,identity=identity))
             reserve_group(root,run_id,job["stage"],job.get("count",50),identity,charge=False)
@@ -326,5 +332,5 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
             results.append(error)
         else:
             results.append(execute(model,config,teacher,condition,job["schedule"],job["folder"],job["stage"],
-                job.get("count",50),job.get("domain"),job.get("enabled",True)))
+                job.get("count",50),job.get("domain"),job.get("enabled",True),loss_weights=job.get("loss_weights")))
     return results

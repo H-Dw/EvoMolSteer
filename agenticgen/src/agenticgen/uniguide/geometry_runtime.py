@@ -14,6 +14,8 @@ from .geometry_protocol import source_binding
 from .quality import built_molecules
 from .protocol import SEEDS
 from .geometry_dynamics import WINDOWS,policy as dynamics_policy
+from .geometry_reward import WEIGHTS,INTERACTION_DISTANCE,normalization_policy
+from .geometry_protocol import seen_configuration,primary_score
 
 
 def skill_assets(config=None):
@@ -51,6 +53,9 @@ def validate_config(config):
             type(config["rounds"]) is not int or config["rounds"]<1):raise ValueError("Invalid integration/iteration configuration")
     if config.get("population",50)!=50:raise ValueError("Formal population remains fifty")
     dynamics_policy(config)
+    config=dict(config,guidance_reward=normalization_policy(config.get("guidance_reward")))
+    if config.get("agent_tools",{}).get("skill_release")!="2.2.0":
+        raise ValueError("Component rewards require the 2.2.0 runtime skills and tools")
     from .geometry_calibration import plan
     for item in config.get("conditions",[]):plan(config,item["teacher_id"])
     if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS] or config.get("seeds",SEEDS)!=SEEDS:
@@ -71,8 +76,8 @@ def prepare(config):
     catalog={t["target"]:t for t in read(source/"teachers.json")};subjects=[]
     for item in config["conditions"]:
         teacher=copy.deepcopy(catalog[item["teacher_id"]])
-        # Generation context may contain a pocket; the condition builder never receives it.
-        condition=prepare_condition(read(item["features_path"]),common_valid_slots(source,teacher["target"]))
+        # Explicit interaction target atoms must be in the same frame as this generation context.
+        condition=prepare_condition(read(item["features_path"]),common_valid_slots(source,teacher["target"]),reward=config.get("guidance_reward"))
         frozen(root/"conditions"/(teacher["target"]+".json"),condition)
         subjects.append(dict(teacher=teacher,condition=condition))
     if not subjects or len({s["teacher"]["target"] for s in subjects})!=len(subjects):raise ValueError("Unique generation contexts required")
@@ -112,7 +117,8 @@ def history(config,teacher,condition,domain):
         group=root/claim["source_group"]
         if not (group/"COMPLETE.json").exists():
             error=read(group/"FAILED.json") if (group/"FAILED.json").exists() else dict(error="interrupted without completion")
-            failures.append(dict(id=claim["source_group"],effective_guidance_scale_schedule=identity[EFFECTIVE],failure=error));continue
+            failures.append(dict(id=claim["source_group"],effective_guidance_scale_schedule=identity[EFFECTIVE],failure=error,
+                **({WEIGHTS:identity[WEIGHTS]} if WEIGHTS in identity else {})));continue
         row=validate_receipt(group)
         # Calibration populations stay separate; only full populations are action anchors.
         if row["attempts"]!=50:
@@ -142,7 +148,8 @@ def retain(root,groups,winner,folder):
     for group in {g["id"]:g for g in groups}.values():
         for row in read(root/group["id"]/"records.json"):
             pool.setdefault((row["logical_seed"],row["logical_slot"]),[]).append(dict(row,
-                source_group=group["id"],id=group["id"]+"/"+row["node_id"],complete=True,**{EFFECTIVE:group[EFFECTIVE]}))
+                source_group=group["id"],id=group["id"]+"/"+row["node_id"],complete=True,**{EFFECTIVE:group[EFFECTIVE]},
+                **({WEIGHTS:group[WEIGHTS]} if WEIGHTS in group else {})))
     winners=[choose(v) for _,v in sorted(pool.items())]
     if len(winners)!=50:raise ValueError("Incomplete per-slot geometry retention")
     frozen(folder/"per_slot_top1.json",winners)
@@ -207,18 +214,24 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
             if any(value_sha(current_by_id.get(r["id"]))!=value_sha(r) for r in saved["history"]):raise ValueError("Historical source changed on replay")
             proposals=advisor(config,saved["history"],domain,call_folder,skills,saved["failures"])
             if len(proposals)!=3 or {p["branch"] for p in proposals}!={"increase","decrease","redistribute"}:raise ValueError("Incomplete inclination selection")
-            resolved_seen=[r[NORMALIZED] for r in saved["history"]]
+            resolved_seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in saved["history"]]
             jobs=[];resolved_actions=[]
             for proposal in proposals:
+                if condition.get("reward_policy"):
+                    from .analysis_tools import EvidenceTools
+                    registry=EvidenceTools(root,saved["history"],domain,call_folder/"task_memory/calculations",condition=condition)
+                    proposal=registry.resolve_loss_control(proposal,allow_saved=True)
                 resolved=resolve_action(proposal,{r["id"]:r for r in saved["history"]},domain,resolved_seen)
-                resolved_seen.append(resolved[NORMALIZED])
+                resolved_seen.append(seen_configuration(resolved[NORMALIZED],resolved.get(WEIGHTS)))
                 out=troot/f"iteration_{iteration:03d}"/proposal["branch"]
                 frozen(out/"agent_action.json",proposal);frozen(out/"proposal.json",resolved)
-                jobs.append(dict(schedule=resolved[NORMALIZED],folder=out,stage="formal",domain=domain));resolved_actions.append(resolved)
+                jobs.append(dict(schedule=resolved[NORMALIZED],folder=out,stage="formal",domain=domain,
+                    **({"loss_weights":resolved[WEIGHTS]} if WEIGHTS in resolved else {})));resolved_actions.append(resolved)
             if executor is execute:
                 from .geometry_batch import execute_many
                 measured=execute_many(model,config,teacher,condition,jobs)
-            else:measured=[executor(model,config,teacher,condition,j["schedule"],j["folder"],"formal",domain=domain) for j in jobs]
+            else:measured=[executor(model,config,teacher,condition,j["schedule"],j["folder"],"formal",domain=domain,
+                **({"loss_weights":j["loss_weights"]} if "loss_weights" in j else {})) for j in jobs]
             for row,resolved in zip(measured,resolved_actions):
                 if isinstance(row,Exception):raise row
                 groups.append(dict(row,selected_proposal=resolved,iteration=iteration))
@@ -227,6 +240,7 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
         winner=choose(groups);retainer(root,groups,winner,troot/"retention")
         contexts.extend([str(troot/"analysis_final"/"increase.json"),str(troot/"analysis_final"/"synthesis.json")])
         summaries[target]=dict(representative=winner["id"],**{k:winner[k] for k in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE)},
+            **{k:winner[k] for k in (WEIGHTS,INTERACTION_DISTANCE) if k in winner},
             domain_sha256=domain["domain_sha256"],complete=True)
         all_groups.extend(groups);del model
     if len(all_groups)!=len(subjects)*3*config["rounds"]:raise ValueError("Incomplete configured iteration count")
@@ -234,7 +248,7 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
         manifest_sha256=sha(folder/"manifest.json"),complete=True)
     frozen(folder/"FINALIZED.json",result)
     previous=[read(p) for p in sorted((root/"versions").glob("GD*/FINALIZED.json")) if p.parent.name<version]
-    best={target:min(previous+[result],key=lambda v:v["teachers"][target][DISTANCE])["version"] for target in summaries}
+    best={target:min(previous+[result],key=lambda v:primary_score(v["teachers"][target]))["version"] for target in summaries}
     request=dict(version=version,current=result,previous=previous[-1] if previous else None,best_version_by_teacher=best,
         measured_initials={target:domain["initial_source"] for target,domain in domains.items()},
         next_version=None if version=="GD20" else f"GD{int(version[2:])+1:02d}",

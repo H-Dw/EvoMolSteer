@@ -12,6 +12,7 @@ from .io import read, write, frozen, value_sha, sha, Budget
 from .native_tools import load_pt
 from .protocol import SEEDS
 from .geometry_dynamics import Raw999Sampling,WINDOWS,LIMIT,policy,limit_increment,increment_summary
+from .geometry_reward import WEIGHTS,weights,INTERACTION_DISTANCE
 
 
 class GeometryControl(Raw999Sampling,sampler.Control):
@@ -27,10 +28,26 @@ class GeometryControl(Raw999Sampling,sampler.Control):
         return expand_effective(schedule)
 
     def condition_loss(self,endpoint,valid):
-        return loss(endpoint,self.geometry_condition,valid)
+        return self.condition_loss_for_rows(endpoint,valid,list(range(len(endpoint))))
+
+    def row_loss_weights(self,ids):
+        return self.scale_binding.get(WEIGHTS)
+
+    def condition_loss_for_rows(self,endpoint,valid,ids):
+        if not self.geometry_condition.get("reward_policy"):
+            return loss(endpoint,self.geometry_condition,valid)
+        from .geometry_reward import evaluate,KEYS
+        current=self.before[ids]*self.model.coord_scale+self.com[ids,None]
+        row_weights=self.row_loss_weights(ids)
+        result,diagnostics=evaluate(endpoint,self.geometry_condition,valid,row_weights,current=current,
+            check=lambda name,x:self.check_rows(name,x,ids))
+        value,reference,selected,assignment=result
+        resolved=row_weights if isinstance(row_weights,list) else [weights(self.geometry_condition,row_weights)]*len(endpoint)
+        diagnostics.update({key:endpoint.new_tensor([w[key] for w in resolved]) for key in KEYS})
+        return value,dict(reference_pair_distances_angstrom=reference,**diagnostics),selected,assignment
 
     def condition_trace(self,target):
-        return {"reference_pair_distances_angstrom":target}
+        return target if isinstance(target,dict) else {"reference_pair_distances_angstrom":target}
 
     def constrain_guidance(self,delta,valid):
         self.unconstrained_delta=delta
@@ -69,14 +86,20 @@ class GeometryControl(Raw999Sampling,sampler.Control):
         return result
 
 
-def scale_binding(schedule,multiplier=None,enabled=True):
+def scale_binding(schedule,multiplier=None,enabled=True,condition=None,loss_weights=None):
+    extra={WEIGHTS:weights(condition,loss_weights)} if condition and condition.get("reward_policy") else {}
+    if loss_weights is not None and not extra:raise ValueError("Loss controls require the component reward protocol")
     if multiplier is None:
         expand_effective(schedule)
         if not enabled or any(x<=0 for x in schedule):raise ValueError("Calibration uses positive actual scales")
         return {NORMALIZED:None,EFFECTIVE:schedule,MULTIPLIER:None,"guidance_enabled":True,
-                "scale_mode":"pre_experiment_actual_scale"}
+                "scale_mode":"pre_experiment_actual_scale",**extra}
     return {NORMALIZED:schedule,EFFECTIVE:effective(schedule,multiplier,enabled),MULTIPLIER:multiplier,
-            "guidance_enabled":enabled,"scale_mode":"normalized_log2"}
+            "guidance_enabled":enabled,"scale_mode":"normalized_log2",**extra}
+
+
+def candidate_identity(scale):
+    return {key:scale[key] for key in (EFFECTIVE,WEIGHTS) if key in scale}
 
 
 def compatibility(config,teacher,condition,domain=None):
@@ -85,7 +108,7 @@ def compatibility(config,teacher,condition,domain=None):
     package=Path(__file__).parent
     # Only sampling dependencies: LLM skills, prompts, actions and round counts do not refit lambda.
     names=["sampler","random_streams","chunking","batching","condition","geometry_condition",
-        "geometry_sampling","geometry_dynamics","geometry_shards","geometry_batch","native_tools","prepare","protocol","joint_endpoint"]
+        "geometry_sampling","geometry_reward","geometry_dynamics","geometry_shards","geometry_batch","native_tools","prepare","protocol","joint_endpoint"]
     sources={name:sha(package/(name+".py")) for name in names}
     sources["runtime/rng"]=sha(package.parent/"runtime/rng.py")
     sources.update({fn.__name__:value_sha(inspect.getsource(fn)) for fn in (effective,expand_effective,ticks)})
@@ -182,7 +205,7 @@ def pose_diagnostics(coordinates,condition):
 
 
 def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,domain=None,enabled=True,
-                  _materialized=None,_reservation=None):
+                  _materialized=None,_reservation=None,loss_weights=None):
     from .geometry_shards import initial_shard
     count=10
     if domain is None and stage!="calibration":raise ValueError("Actual strengths are allowed only in pre-experiments")
@@ -193,9 +216,9 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
             raise ValueError("Normalized schedule exceeds teacher's empirical interval")
     root=Path(config["root"]);folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
     run_id=folder.relative_to(root).as_posix()
-    scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,enabled)
+    scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,enabled,condition,loss_weights)
     binding=compatibility(config,teacher,condition)
-    identity=dict(compatibility=binding,effective_guidance_scale_schedule=scale[EFFECTIVE],population=count,
+    identity=dict(compatibility=binding,**candidate_identity(scale),population=count,
         logical_slots=slots)
     frozen(folder/"manifest.json",dict(id=run_id,identity=identity))
     if _reservation is None:
@@ -222,8 +245,8 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
             compatibility_sha256=value_sha(binding),fingerprint=fingerprint,attempts=count,complete=True,
             built=sum(r["build_success"] for r in rows),connected=sum(r["connected"] for r in rows),
             unique_smiles=len({r["smiles"] for r in rows if r["smiles"]}),**scale)
-        for name in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR):
-            measured=[r[name] for r in rows if r[name] is not None]
+        for name in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE):
+            measured=[r[name] for r in rows if r.get(name) is not None]
             if measured and (len(measured)!=count or not all(math.isfinite(v) for v in measured)):
                 raise FloatingPointError("Incomplete or nonfinite distance metric")
             aggregate[name]=float(max(measured) if name==MAX_ERROR else np.mean(measured)) if measured else None
@@ -251,7 +274,7 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
         raise
 
 
-def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain=None,enabled=True):
+def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain=None,enabled=True,loss_weights=None):
     from .geometry_shards import combine_products
     if count not in (10,20,50):raise ValueError("Supported promotion populations are ten, twenty and fifty")
     if domain is None and stage!="calibration":raise ValueError("Actual strengths are allowed only in pre-experiments")
@@ -261,9 +284,9 @@ def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain
         if any(not domain["normalized_minimum"]<=x<=domain["normalized_maximum"] for x in schedule):
             raise ValueError("Normalized schedule exceeds teacher's empirical interval")
     root=Path(config["root"]);folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
-    scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,enabled)
+    scale=scale_binding(schedule,domain[MULTIPLIER] if domain else None,enabled,condition,loss_weights)
     binding=compatibility(config,teacher,condition)
-    identity=dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},population=count,logical_slots_per_seed=count//5)
+    identity=dict(compatibility=binding,**candidate_identity(scale),population=count,logical_slots_per_seed=count//5)
     run_id=folder.relative_to(root).as_posix()
     frozen(folder/"manifest.json",dict(id=run_id,identity=identity))
     fingerprint,cached=reserve_group(root,run_id,stage,count,identity,charge=False)
@@ -274,17 +297,17 @@ def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain
     try:
         shards=[]
         for start in range(0,count//5,2):
-            key=value_sha(dict(compatibility=binding,**{EFFECTIVE:scale[EFFECTIVE]},slots=[start,start+1]))
+            key=value_sha(dict(compatibility=binding,**candidate_identity(scale),slots=[start,start+1]))
             shards.append(execute_shard(model,config,teacher,condition,schedule,root/"sample_shards"/key,
-                stage,[start,start+1],domain,enabled))
+                stage,[start,start+1],domain,enabled,loss_weights=loss_weights))
         rows=combine_products(root,shards,folder)
         aggregate=dict(shards[0],id=run_id,fingerprint=fingerprint,attempts=count,**scale)
         aggregate.update(built=sum(r["build_success"] for r in rows),connected=sum(r["connected"] for r in rows),
             unique_smiles=len({r["smiles"] for r in rows if r["smiles"]}),
             sampling_provenance=[dict(source_group=s["id"],receipt_sha256=sha(root/s["id"]/"COMPLETE.json")) for s in shards],
             population_view=True,independent_validation=False)
-        for name in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR):
-            values=[r[name] for r in rows if r[name] is not None]
+        for name in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE):
+            values=[r[name] for r in rows if r.get(name) is not None]
             aggregate[name]=(float(max(values) if name==MAX_ERROR else np.mean(values)) if values else None)
         aggregate["window_diagnostics"]=sampler.diagnostics(folder,WINDOWS)
         aggregate.update(increment_summary(folder))

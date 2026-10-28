@@ -38,7 +38,8 @@ def real_vjp(model,config,teacher,condition):
         for value in out.get("affinity",{}).values():
             if torch.is_tensor(value) and value.requires_grad:hooks.append(value.register_hook(denied))
         pred,_=model._get_predictions(out)
-        return loss(pred["coords"]*model.coord_scale+com[:,None],condition,curr["mask"].bool())[0].sum()
+        return loss(pred["coords"]*model.coord_scale+com[:,None],condition,curr["mask"].bool(),
+            current=curr["coords"].detach()*model.coord_scale+com[:,None])[0].sum()
     before=capture();x=curr["coords"].detach().clone().requires_grad_(True)
     gradient=torch.autograd.grad(objective(x),x)[0].detach();norm=gradient.norm()
     if not torch.isfinite(gradient).all() or norm<=1e-8:raise ValueError("Invalid real model input gradient")
@@ -64,7 +65,7 @@ def run(config):
         teacher,condition=subject["teacher"],subject["condition"];out=folder/teacher["target"]
         model=load_model(config,teacher)
         numerical=real_vjp(model,config,teacher,condition)
-        off=scale_binding([0.]*4,1.,False)
+        off=scale_binding([0.]*4,1.,False,condition)
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
         sample(model,config,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
             control_factory=factory,check_affinity=False)
@@ -72,7 +73,7 @@ def run(config):
         a,b=(load_pt(out/name/"checkpoint_003.pt.gz") for name in ("disabled","native_prefix"))
         disabled={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states")}
         if not all(disabled.values()):raise ValueError("Disabled distance guidance differs from native prefix")
-        active=scale_binding([0.]*4,1.,True)  # Test fixture only, NOT a fitted lambda.
+        active=scale_binding([0.]*4,1.,True,condition)  # Test fixture only, NOT a fitted lambda.
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=active)
         sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"continuous",10,stop_step=12,
             control_factory=factory,check_affinity=False)

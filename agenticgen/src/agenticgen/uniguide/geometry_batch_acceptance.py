@@ -10,6 +10,7 @@ from .geometry_batch import CandidateControl, batch_initial, lower_capacity, dev
 from .geometry_sampling import GeometryControl, scale_binding
 from .geometry_shards import initial_shard
 from .geometry_protocol import EFFECTIVE
+from .geometry_reward import weights
 from .native_tools import load_pt,tensor_digest
 from .batching import take
 from .random_streams import capture,restore,equal
@@ -39,7 +40,12 @@ def run_teacher(model,config,teacher,condition,folder):
     folder=Path(folder);units=[];separate=[]
     # Heterogeneous schedules and non-prefix RNG slots, deliberately not fitted lambdas.
     for i,(slots,schedule) in enumerate([([0,1],[.001,.002,.001,.004]),([6,7],[.004,.001,.002,.001])]):
-        scale=scale_binding(schedule);unit=dict(id="fixture"+str(i),slots=slots,scale=scale)
+        chosen=None
+        if condition.get("reward_policy"):
+            chosen=weights(condition)
+            if i and any(p["category"]=="controlled_neighborhood" for p in condition["pairs"]):
+                chosen["condition_outer_weight"]=1
+        scale=scale_binding(schedule,condition=condition,loss_weights=chosen);unit=dict(id="fixture"+str(i),slots=slots,scale=scale)
         units.append(unit);out=folder/f"separate_{i}"
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=scale)
         sampler.sample(model,config,teacher,schedule,out,10,control_factory=factory,check_affinity=False,
@@ -113,7 +119,7 @@ def run_teacher(model,config,teacher,condition,folder):
     receipt["capacity_probe_exact_prefix_equivalence"]=True
     # Force only the second candidate unit across the radius; the first must
     # remain identical to its separately executed low-strength trajectory.
-    stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*4))]
+    stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*4,condition=condition))]
     limited=folder/"candidate_local_limit"
     try:
         model._ug_parallel_workers=2

@@ -7,8 +7,9 @@ from .geometry_condition import DISTANCE, CONTROL_DISTANCE, NEIGHBOR_DISTANCE, M
 from .protocol import BRANCHES
 from .geometry_dynamics import WINDOWS
 from .scale_domain import GROWTH_LIMIT
+from .geometry_reward import WEIGHTS
 
-POLICY="normalized-internal-distance-guidance-v3-raw999-limited"
+POLICY="template-relative-distance-guidance-v4-binary-losses"
 NORMALIZED="normalized_guidance_scale_schedule"
 EFFECTIVE="effective_guidance_scale_schedule"
 MULTIPLIER="calibrated_guidance_multiplier"
@@ -46,9 +47,26 @@ def expand_effective(schedule):
 
 
 def choose(rows):
-    if not rows or any(not r.get("complete") or not math.isfinite(r[DISTANCE]) for r in rows):
+    if not rows or any(not r.get("complete") or not math.isfinite(r[DISTANCE]) or not math.isfinite(primary_score(r)) for r in rows):
         raise ValueError("Selection requires complete finite internal-distance measurements")
-    return min(rows,key=lambda r:(r[DISTANCE],max(r.get(EFFECTIVE,[0.])),r["id"]))
+    return min(rows,key=lambda r:(primary_score(r),max(r.get(EFFECTIVE,[0.])),r["id"]))
+
+
+def primary_score(row):
+    value=row.get(CONTROL_DISTANCE) if WEIGHTS in row else row[DISTANCE]
+    return row[DISTANCE] if value is None else value
+
+
+def action_weights(action,anchors):
+    anchor=anchors[action["anchor_id"]]
+    chosen=action.get(WEIGHTS,anchor.get(WEIGHTS))
+    if WEIGHTS in action and not action.get("loss_control_id"):
+        raise ValueError("Loss weights require a registered control receipt")
+    return chosen
+
+
+def seen_configuration(schedule,loss_weights):
+    return {NORMALIZED:schedule,WEIGHTS:loss_weights} if loss_weights is not None else schedule
 
 
 def displacement(row):
@@ -100,7 +118,7 @@ def derive_domain(rows,teacher_id,condition_hash,sampling_protocol_sha256):
         initial_normalized_guidance_scale_schedule=[0.]*4,initial_source=winner["id"],
         bootstrap_sources=[r["id"] for r in eligible],source_rows_sha256=value_sha(full),
         constant_comparison=curve,risk_boundary=boundary,stability_guarantee=False,
-        ranking="minimum internal-distance root mean square deviation, then smaller effective scale, then source identity")
+        ranking="minimum condition-internal atom-pair distance RMSD (all constrained pairs only when internal pairs are absent), then smaller effective scale, then source identity")
     return dict(body,domain_sha256=value_sha(body))
 
 
@@ -125,8 +143,14 @@ def validate_action(action,anchors,domain,seen):
     if any(k in action for k in (NORMALIZED,EFFECTIVE,MULTIPLIER,"schedule","mode")):
         raise ValueError("Agent must provide integer updates, not executor-owned arrays or strengths")
     old=ticks(anchors[action["anchor_id"]][NORMALIZED]);new=list(old)
+    chosen=action_weights(action,anchors)
+    if chosen is not None:
+        from .geometry_reward import KEYS
+        if set(chosen)!=set(KEYS) or any(type(chosen[k]) is not int or chosen[k] not in (0,1) for k in KEYS):
+            raise ValueError("Binary loss weights required")
+    changed_weights=chosen!=anchors[action["anchor_id"]].get(WEIGHTS)
     updates=action.get("updates")
-    if not isinstance(updates,list) or not 1<=len(updates)<=2:raise ValueError("One or two window updates required")
+    if not isinstance(updates,list) or not (0 if changed_weights else 1)<=len(updates)<=2:raise ValueError("Window updates or a receipt-bound loss change required")
     windows=[];changes=[]
     for update in updates:
         if not isinstance(update,dict) or set(update)!={"window_id","step"}:raise ValueError("Invalid update fields")
@@ -138,13 +162,17 @@ def validate_action(action,anchors,domain,seen):
     new=ticks(new)
     if any(not domain["normalized_minimum"]<=x<=domain["normalized_maximum"] for x in new):
         raise ValueError("Outside teacher's measured scale interval")
-    if len({abs(x) for x in changes})!=1:raise ValueError("Use the same integer step size for changed windows")
+    if changes and len({abs(x) for x in changes})!=1:raise ValueError("Use the same integer step size for changed windows")
     branch=action["branch"]
     if branch not in BRANCHES or (branch=="increase" and not all(x>0 for x in changes)) or (
             branch=="decrease" and not all(x<0 for x in changes)) or (
-            branch=="redistribute" and (len(changes)!=2 or sum(changes)!=0)):
+            branch=="redistribute" and changes and (len(changes)!=2 or sum(changes)!=0)):
         raise ValueError("Incorrect inclination")
-    if new in {ticks(s) for s in seen}: raise ValueError("Configuration already measured or proposed")
+    for prior in seen:
+        schedule=prior[NORMALIZED] if isinstance(prior,dict) else prior
+        prior_weights=prior.get(WEIGHTS) if isinstance(prior,dict) else None
+        if new==ticks(schedule) and (chosen is None or prior_weights==chosen):
+            raise ValueError("Configuration already measured or proposed")
     return list(new)
 
 
@@ -152,20 +180,21 @@ def resolve_action(action,anchors,domain,seen):
     schedule=validate_action(action,anchors,domain,seen)
     return dict(action,**{NORMALIZED:schedule,MULTIPLIER:domain[MULTIPLIER],
         EFFECTIVE:effective(schedule,domain[MULTIPLIER])},guidance_enabled=True,
+        **({WEIGHTS:action_weights(action,anchors)} if action_weights(action,anchors) is not None else {}),
         calibration_key=domain["calibration_key"],domain_sha256=domain["domain_sha256"],
         executor_resolved=True,agent_action_sha256=value_sha(action))
 
 
 def legal_options(history,domain,branch,limit=2):
-    anchors={r["id"]:r for r in history};seen=[r[NORMALIZED] for r in history];options=[]
-    for anchor in sorted(history,key=lambda r:(r[DISTANCE],r["id"])):
+    anchors={r["id"]:r for r in history};seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in history];options=[]
+    for anchor in sorted(history,key=lambda r:(primary_score(r),r["id"])):
         for step in (1,2):
             moves=(list(permutations(range(4),2)) if branch=="redistribute" else
                    [i for count in (1,2) for i in combinations(range(4),count)])
             for indices in moves:
                 action=dict(anchor_id=anchor["id"],branch=branch,updates=[dict(window_id=index,
                     step=step*(-1 if branch=="decrease" or branch=="redistribute" and n==1 else 1)) for n,index in enumerate(indices)])
-                try: validate_action(action,anchors,domain,seen+[validate_action(r,anchors,domain,[]) for r in options])
+                try: validate_action(action,anchors,domain,seen+[seen_configuration(validate_action(r,anchors,domain,[]),action_weights(r,anchors)) for r in options])
                 except ValueError: continue
                 options.append(action)
                 if len(options)==limit:return options

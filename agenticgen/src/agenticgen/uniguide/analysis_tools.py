@@ -7,8 +7,10 @@ import numpy as np
 from .io import read, frozen, value_sha, sha
 from .geometry_condition import DISTANCE, CONTROL_DISTANCE, NEIGHBOR_DISTANCE, MAX_ERROR
 from .geometry_protocol import NORMALIZED, MULTIPLIER, validate_action, effective
+from .geometry_protocol import seen_configuration,action_weights
+from .geometry_reward import WEIGHTS,KEYS,weights,INTERACTION_DISTANCE
 
-METRICS = (CONTROL_DISTANCE, NEIGHBOR_DISTANCE, DISTANCE, MAX_ERROR)
+METRICS = (CONTROL_DISTANCE, NEIGHBOR_DISTANCE, DISTANCE, MAX_ERROR,INTERACTION_DISTANCE)
 STATISTICS_POLICY = dict(id="geometry-descriptive-statistics-v1", trim_fraction_per_tail=.1,
     bootstrap_seed=721904, bootstrap_resamples=1000, interval_level=.95,
     bootstrap_unit="paired_seed_cluster", ranking_change=False, thresholds_invented=False)
@@ -70,9 +72,10 @@ def object_schema(properties):
 
 
 class EvidenceTools:
-    def __init__(self, root, history, domain, folder):
+    def __init__(self, root, history, domain, folder,condition=None):
         self.root=Path(root).resolve();self.history={r["id"]:r for r in history}
         self.domain=domain;self.folder=Path(folder);self.folder.mkdir(parents=True,exist_ok=True)
+        self.condition=condition
         self.receipt_ids=set();self.sources={};self.records={};self.paths={}
         for run_id,row in self.history.items():
             path=(self.root/run_id).resolve()
@@ -86,8 +89,11 @@ class EvidenceTools:
                 if name not in receipt["files"] or not (path/name).is_file():raise ValueError("Incomplete measurement provenance")
                 hashes[name]=sha(path/name)
                 if hashes[name]!=receipt["files"][name]:raise ValueError("Measured source checksum mismatch")
+            if condition and condition.get("reward_policy") and "trace.h5" in receipt["files"]:
+                hashes["trace.h5"]=sha(path/"trace.h5")
+                if hashes["trace.h5"]!=receipt["files"]["trace.h5"]:raise ValueError("Reward diagnostic trace changed")
             actual=read(path/"aggregate.json")
-            if any(actual.get(k)!=row.get(k) for k in ("id","attempts","teacher_id","condition_sha256","compatibility_sha256","fingerprint",*METRICS,"window_diagnostics")):
+            if any(actual.get(k)!=row.get(k) for k in ("id","attempts","teacher_id","condition_sha256","compatibility_sha256","fingerprint",*METRICS,WEIGHTS,"window_diagnostics")):
                 raise ValueError("History and measured source differ")
             if any(actual.get(k)!=domain.get(k) for k in ("teacher_id","condition_sha256")):
                 raise ValueError("Evidence belongs to a different teacher/condition")
@@ -109,9 +115,21 @@ class EvidenceTools:
             ("compare_paired_runs","Compare measured candidate to reference on identical seed/slot and sampling protocol; no unmeasured score.",object_schema(dict(reference_id=ids,candidate_id=ids))),
             ("inspect_interval_evidence","Inspect measured windows, counterexample context and tail sample step diagnostics; associations are not causal effects.",object_schema(dict(run_id=ids))),
             ("audit_action_batch","Check original integer action constraints and measured duplicate identity; never sample.",object_schema(dict(actions=dict(type="array",minItems=1,maxItems=6,items=action))))]
+        if condition and condition.get("reward_policy"):
+            from .geometry_condition import validate
+            validate(condition)
+            if condition["condition_sha256"]!=domain["condition_sha256"]:raise ValueError("Control condition differs from history")
+            action["properties"]["updates"]["minItems"]=0
+            action["properties"]["loss_control_id"]={"type":"string","pattern":"^ev_[0-9a-f]{20}$"}
+            specs.append(("set_guidance_loss_weights",
+                "Prepare candidate-local binary loss controls from observed evidence. Returns a receipt ID; only a selected proposal referencing it changes sampling. Never edits skills or starts generation.",
+                object_schema(dict(anchor_id=ids,**{k:dict(type="integer",enum=[0,1]) for k in KEYS},
+                    evidence_ids=dict(type="array",minItems=1,maxItems=4,uniqueItems=True,
+                        items=dict(type="string",pattern="^ev_[0-9a-f]{20}$")),reason=dict(type="string",minLength=1,maxLength=350)))))
         self.definitions=[dict(type="function",function=dict(name=n,description=d,parameters=s)) for n,d,s in specs]
         self.binding=dict(policy=STATISTICS_POLICY,history_sha256=value_sha(history),domain_sha256=value_sha(domain),
             sources=self.sources,implementation_sha256=sha(__file__),action_implementation_sha256=sha(Path(__file__).with_name("geometry_protocol.py")))
+        if condition:self.binding["reward_condition_sha256"]=condition["condition_sha256"]
         frozen(self.folder/"BINDING.json",self.binding)
 
     def verify_sources(self):
@@ -226,14 +244,37 @@ class EvidenceTools:
                     key=lambda d:d.get(applied,0.),reverse=True)[:4],
                 largest_unconstrained_increment_steps=sorted((p for p in observed if raw in p),
                     key=lambda d:d[raw],reverse=True)[:4]))
-        return dict(out,tail_step_diagnostics=details)
+        return dict(out,tail_step_diagnostics=details,reward_diagnostics=self.reward_diagnostics(run_id))
+
+    def reward_diagnostics(self,run_id):
+        if "trace.h5" not in self.sources[run_id].get("files",{}):
+            return dict(status="unavailable",reason="No verified reward trace")
+        import h5py
+        from .geometry_reward import LOSSES
+        result=[]
+        with h5py.File(self.paths[run_id]/"trace.h5","r") as trace:
+            fields=[*LOSSES,*(n+"_unnormalized_squared_angstrom" for n in LOSSES),
+                    "guidance_total_loss","distance_normalization_denominator_angstrom",*KEYS]
+            present=[k for k in fields if k in trace]
+            for window in self.history[run_id].get("window_diagnostics",[]):
+                lo,hi=window["steps"];values={}
+                for key in present:
+                    array=trace[key][lo:hi+1].astype(np.float64)
+                    if np.isfinite(array).all():values[key]=dict(mean=float(array.mean()),minimum=float(array.min()),maximum=float(array.max()))
+                    else:values[key]=dict(status="unavailable_nonfinite_source")
+                result.append(dict(steps=[lo,hi],values=values))
+        mode=self.condition["distance_normalization"]["mode"] if self.condition else "unknown"
+        return dict(status="complete" if present else "unavailable",windows=result,normalization_mode=mode,
+            loss_unit="angstrom_squared" if mode=="none" else "dimensionless",
+            interpretation="Unnormalized components are half mean squared error in Angstrom squared. Step-dependent denominators are stopped-gradient; endpoint errors remain separate.")
 
     def _audit_action_batch(self,actions):
-        seen=[r[NORMALIZED] for r in self.history.values()];results=[]
+        seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in self.history.values()];results=[]
         for action in actions:
             try:
+                action=self.resolve_loss_control(action)
                 schedule=validate_action(action,self.history,self.domain,seen)
-                seen.append(schedule)
+                seen.append(seen_configuration(schedule,action_weights(action,self.history)))
                 results.append(dict(action=action,status="legal_unmeasured",resolved_normalized_schedule=schedule,
                     resolved_effective_guidance_scale_schedule=effective(schedule,self.domain[MULTIPLIER]),
                     normalized_zero_disables_guidance=False,
@@ -241,3 +282,42 @@ class EvidenceTools:
             except ValueError as error:
                 results.append(dict(action=action,status="rejected",reason=str(error)))
         return dict(status="complete",actions=results,new_molecular_attempts=0)
+
+    def _set_guidance_loss_weights(self,anchor_id,evidence_ids,reason,**settings):
+        if not self.condition:raise ValueError("Loss control tool not configured")
+        chosen=weights(self.condition,settings)
+        if not set(evidence_ids)<=self.receipt_ids:raise ValueError("Only observed evidence receipts may justify controls")
+        receipts=[read(self.folder/(i+".json")) for i in evidence_ids]
+        for receipt in receipts:
+            self.execute(receipt["binding"]["tool"],receipt["binding"]["arguments"])
+        linked=[r for r in receipts if r.get("status")=="complete" and anchor_id in
+            (r.get("run_id"),r.get("candidate_id"),r.get("reference_id"))]
+        if not linked:raise ValueError("Complete measured evidence for this anchor required")
+        old=weights(self.condition,self.history[anchor_id].get(WEIGHTS))
+        if old["condition_outer_weight"]==0 and chosen["condition_outer_weight"]==1:
+            primary=CONTROL_DISTANCE if any(p["category"]=="controlled_internal" for p in self.condition["pairs"]) else DISTANCE
+            paired=[r for r in linked if r["binding"]["tool"]=="compare_paired_runs" and
+                r.get("candidate_id")!=r.get("reference_id") and r.get("independent_measurement") is not False and
+                r.get("metrics",{}).get(primary,{}).get("status")=="complete"]
+            if not paired:raise ValueError("Outer activation needs an observed nonduplicate paired comparison; explain plateau/diagnostic hypothesis in reason")
+        return dict(status="prepared_not_executed",anchor_id=anchor_id,**{WEIGHTS:chosen},
+            previous_weights=old,evidence_ids=evidence_ids,reason=reason,
+            effect="candidate only after final selection; no global mutation",new_molecular_attempts=0)
+
+    def resolve_loss_control(self,action,allow_saved=False):
+        action=dict(action);identifier=action.get("loss_control_id")
+        if not identifier:
+            if WEIGHTS in action and action[WEIGHTS]!=self.history[action["anchor_id"]].get(WEIGHTS):
+                raise ValueError("Unreceipted loss change")
+            return action
+        if not re.fullmatch(r"ev_[0-9a-f]{20}",identifier) or (not allow_saved and identifier not in self.receipt_ids):
+            raise ValueError("Unknown loss control receipt")
+        path=self.folder/(identifier+".json")
+        if not path.is_file():raise ValueError("Missing loss control receipt")
+        receipt=read(path);binding=receipt.get("binding",{})
+        if binding.get("tool")!="set_guidance_loss_weights" or receipt.get("anchor_id")!=action["anchor_id"]:
+            raise ValueError("Loss control receipt does not belong to this anchor")
+        verified=self.execute(binding["tool"],binding["arguments"])
+        if verified["evidence_id"]!=identifier or verified["status"]!="prepared_not_executed":raise ValueError("Invalid loss control binding")
+        if WEIGHTS in action and action[WEIGHTS]!=verified[WEIGHTS]:raise ValueError("Control weights differ from receipt")
+        return dict(action,**{WEIGHTS:weights(self.condition,verified[WEIGHTS])})

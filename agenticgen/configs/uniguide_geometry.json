@@ -1,5 +1,5 @@
 {
-  "protocol": "normalized-internal-distance-guidance-v3-raw999-limited",
+  "protocol": "template-relative-distance-guidance-v4-binary-losses",
   "output_policy": "raw999",
   "maximum_single_atom_guidance_increment_angstrom": 3.0,
   "calibration": {"search_center_by_teacher": {"6pyy_H7S_A_402": 1.0, "3w54_RNB_A_504": 1.0}},
@@ -20,7 +20,8 @@
   "windows": [[10,25],[26,50],[51,75],[76,99]],
   "rounds": 5,
   "population": 50,
-  "agent_tools": {"mode": "readonly_tools_v1", "skill_release": "2.1.0", "max_model_calls_per_round": 30, "max_output_tokens_per_round": 491520},
+  "agent_tools": {"mode": "readonly_tools_v1", "skill_release": "2.2.0", "max_model_calls_per_round": 30, "max_output_tokens_per_round": 491520},
+  "guidance_reward": {"mode": "bounded_step_mean_detached", "minimum_length_angstrom": 1.0, "maximum_scale_ratio": 4.0},
   "seeds": [42,100045,200048,300051,400054],
   "noise_level": 0.2,
   "llm": {"model": "deepseek-flash", "thinking": true, "reasoning_effort": "high", "max_output_tokens": 16384}

@@ -6,6 +6,8 @@ from .io import read, frozen, value_sha, sha
 from .geometry_condition import DISTANCE, CONTROL_DISTANCE, NEIGHBOR_DISTANCE, MAX_ERROR
 from .geometry_protocol import NORMALIZED, EFFECTIVE, MULTIPLIER, BRANCHES, WINDOWS, choose, legal_options, validate_action
 from agenticgen.providers.deepseek_api import call_json
+from .geometry_reward import WEIGHTS,INTERACTION_DISTANCE,KEYS
+from .geometry_protocol import seen_configuration,action_weights
 
 
 def object_schema(properties):
@@ -32,14 +34,14 @@ def format_contract(schema,diagnostics=None):
 
 
 def history_view(row):
-    keys=["id",NORMALIZED,DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,"attempts","built","connected",
+    keys=["id",NORMALIZED,DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE,WEIGHTS,"attempts","built","connected",
         "unique_smiles","maximum_single_atom_guidance_increment_angstrom","proposal","proposal_sha256",
         "maximum_unconstrained_single_atom_guidance_increment_angstrom","guidance_increment_limited_candidate_steps",
         "guidance_increment_limited_candidates","minimum_guidance_increment_scale_factor","guidance_increment_limit_angstrom"]
     result={k:row[k] for k in keys if k in row}
     if "proposal" in result:
         result["proposal"]={k:v for k,v in result["proposal"].items() if k in
-            ("id","branch","anchor_id","updates","evidence","prediction","falsifier")}
+            ("id","branch","anchor_id","updates","evidence","prediction","falsifier","loss_control_id",WEIGHTS)}
     result["sampling_interval_diagnostics"]=[dict(step_bounds=w["steps"],
         coordinate_increment_root_mean_square_magnitude_angstrom=w["increment_vector_rms_A"],
         maximum_single_atom_guidance_increment_angstrom=w["max_atom_increment_A"],
@@ -53,7 +55,7 @@ def history_view(row):
 def advise(config,history,domain,folder,skills,failures=(),final=False,provider=None):
     folder=Path(folder);folder.mkdir(parents=True,exist_ok=True);skills=Path(skills)
     provider=provider or call_json
-    anchors={r["id"]:r for r in history};seen=[r[NORMALIZED] for r in history]
+    anchors={r["id"]:r for r in history};seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in history]
     if not history or len(anchors)!=len(history):raise ValueError("Unique completed measured history required")
     common=dict(history=[history_view(r) for r in history],non_anchor_evidence_and_failures=list(failures),
         comparison_best_id=choose(history)["id"],no_future_execution=final,
@@ -74,7 +76,18 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
     if config.get("agent_tools"):
         from .analysis_tools import EvidenceTools
         from agenticgen.providers.deepseek_tools import RoundBudget,call_with_tools
-        registry=EvidenceTools(config["root"],history,domain,folder/"task_memory/calculations")
+        condition_path=Path(config["root"])/"conditions"/(domain["teacher_id"]+".json")
+        condition=read(condition_path) if condition_path.exists() else None
+        if config.get("guidance_reward") and (not condition or not condition.get("reward_policy")):
+            raise ValueError("New reward requires a bound component condition before Agent calls")
+        registry=EvidenceTools(config["root"],history,domain,folder/"task_memory/calculations",condition=condition)
+        if condition and condition.get("reward_policy"):
+            common["loss_control_contract"]=dict(default_weights=condition[WEIGHTS],allowed_values=[0,1],
+                normalization=condition["distance_normalization"],interaction_pair_count=len(condition["interaction_pairs"]),
+                primary_metric=CONTROL_DISTANCE,outer_metric=NEIGHBOR_DISTANCE,
+                control_tool="set_guidance_loss_weights",proposal_field="loss_control_id",
+                zero_window_updates="Allowed only with a verified changed loss-control receipt for an isolated contrast",
+                activation_rule="Use measured paired plateau evidence; explain a hypothesis, prediction and falsifier. Changes affect only selected candidates, never past results or frozen skills.")
         settings=config["agent_tools"]
         budget=RoundBudget(folder/"model_budget",settings["max_model_calls_per_round"],settings["max_output_tokens_per_round"])
         receipts=registry.precompute()
@@ -117,11 +130,16 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             format_builder=format_contract,format_policy="geometry-integer-action-json-v2",**config["llm"])
     for branch in BRANCHES:
         options=legal_options(history,domain,branch) if not final else []
-        if not final and len(options)<2:raise ValueError("Insufficient untested legal actions; no automatic range expansion")
+        component_controls=registry is not None and registry.condition and registry.condition.get("reward_policy")
+        if not final and len(options)<2 and not component_controls:
+            raise ValueError("Insufficient untested legal actions; no automatic range expansion")
         action=object_schema(dict(id=text_schema(80),branch=dict(enum=[branch]),anchor_id=dict(enum=list(anchors)),
             anchor_reason=text_schema(200),updates=dict(type="array",minItems=1,maxItems=2,items=object_schema(dict(
                 window_id=dict(type="integer",minimum=0,maximum=3),step=dict(type="integer",enum=[-2,-1,1,2])))),
             evidence=text_schema(350),prediction=text_schema(240),falsifier=text_schema(240)))
+        if component_controls:
+            action["properties"]["updates"]["minItems"]=0
+            action["properties"]["loss_control_id"]={"type":"string","pattern":"^ev_[0-9a-f]{20}$"}
         schema=object_schema(dict(analysis=text_schema(1200),mechanism_uncertainty=text_schema(350),
             proposals=dict(type="array",items=action,minItems=0 if final else 2,maxItems=0 if final else 2)))
         def check(result,branch=branch):
@@ -130,10 +148,14 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             proposed=[]
             for p in result["proposals"]:
                 try:
+                    if registry is not None:p=registry.resolve_loss_control(p)
                     if p["branch"]!=branch:raise ValueError("Incorrect branch")
-                    proposed.append(validate_action(p,anchors,domain,seen+proposed))
+                    schedule=validate_action(p,anchors,domain,seen+proposed)
+                    proposed.append(seen_configuration(schedule,action_weights(p,anchors)))
                 except ValueError as error:raise jsonschema.ValidationError(str(error)) from error
-        outputs[branch]=invoke(branch,dict(common,branch=branch,feasible_examples=options),schema,check)
+        outputs[branch]=invoke(branch,dict(common,branch=branch,feasible_examples=options,
+            temporal_examples_exhausted=(not final and len(options)<2),
+            component_control_note="Temporal examples do not enumerate receipt-bound binary controls; use registered evidence and controls if justified. Final actions still require novelty and validity." if component_controls else None),schema,check)
     candidates={b+":"+str(i):p for b,result in outputs.items() for i,p in enumerate(result["proposals"])}
     props=dict(analysis=text_schema(1100),choice_evidence=text_schema(900))
     if not final:props["selected"]=object_schema({b:dict(enum=[k for k in candidates if k.startswith(b+":")]) for b in BRANCHES})
@@ -143,7 +165,10 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
         selected=[]
         for branch in ([] if final else BRANCHES):
             proposal=candidates[result["selected"][branch]]
-            try:selected.append(validate_action(proposal,anchors,domain,seen+selected))
+            try:
+                if registry is not None:proposal=registry.resolve_loss_control(proposal)
+                schedule=validate_action(proposal,anchors,domain,seen+selected)
+                selected.append(seen_configuration(schedule,action_weights(proposal,anchors)))
             except ValueError as error:raise jsonschema.ValidationError(str(error)) from error
     private={b:{k:v for k,v in answer.items() if k!="proposals"} for b,answer in outputs.items()}
     result=invoke("synthesis",dict(common,candidates=candidates,private=private),object_schema(props),check_synthesis)

@@ -1,4 +1,4 @@
-"""Protein-independent, immutable internal-distance conditions from molecular features."""
+"""Immutable template-distance conditions with optional explicit target atom pairs."""
 import math
 import numpy as np
 import torch
@@ -28,8 +28,8 @@ def from_molecule(mol, controlled_atom_ids, **options):
     return features
 
 
-def prepare(features,valid_generated_slots=None):
-    """No protein, archive, affinity or old generated coordinate frame is read here."""
+def prepare(features,valid_generated_slots=None,*,reward=None):
+    """Use only supplied template features and optional target coordinates, not archives or affinity."""
     atoms = features["atoms"]
     ids = [a["id"] for a in atoms]
     if not ids or any(not isinstance(i,str) or not i for i in ids) or len(set(ids)) != len(ids):
@@ -55,6 +55,7 @@ def prepare(features,valid_generated_slots=None):
     if not controlled or len(set(controlled))!=len(controlled) or not set(controlled)<=set(ids):
         raise ValueError("Invalid controlled atom identities")
     coordinates=features.get("coordinates_angstrom")
+    if reward is not None and coordinates is None:raise ValueError("Component reward requires an input 3D template structure")
     preparation=dict(rdkit_version=rdBase.rdkitVersion,source="provided_conformer",optimization_applied=False)
     if coordinates is None:
         # Hydrogen coordinates improve embedding, but are not guided atom identities.
@@ -71,10 +72,13 @@ def prepare(features,valid_generated_slots=None):
     if explicit is not None and (set(explicit)!=set(controlled) or any(
             len(set(v))!=len(v) or not set(v)<=set(ids) or k in v for k,v in explicit.items())):
         raise ValueError("Neighborhood must map every control identity to unique other atom identities")
+    component_mode=reward is not None or bool(features.get("interact_atoms"))
+    if component_mode and explicit is not None:
+        raise ValueError("Component reward uses all template-mapped outer atoms; remove neighborhood_atom_ids")
     graph_distance=Chem.GetDistanceMatrix(mol)
     pairs=set(); categories={}
     for left in controlled:
-        neighbors=explicit[left] if explicit is not None else [right for right in ids
+        neighbors=[right for right in ids if right not in controlled] if component_mode else explicit[left] if explicit is not None else [right for right in ids
             if 0<graph_distance[indices[left],indices[right]]<=2]
         for right in set(neighbors)|set(controlled):
             if left==right: continue
@@ -103,6 +107,13 @@ def prepare(features,valid_generated_slots=None):
         reference_distance_matrix_angstrom=np.linalg.norm(xyz[:,None]-xyz[None,:],axis=-1).tolist(),
         neighborhood_policy="explicit" if explicit is not None else "at_most_two_covalent_bonds",
         chemistry_locked=False,coordinates_replaced=False)
+    if component_mode:
+        from .geometry_reward import interaction_pairs,normalization_policy,weights,WEIGHTS
+        body.update(reward_policy="template-relative-three-component-v1",neighborhood_policy="all_template_mapped_outer_atoms",
+            interaction_pairs=interaction_pairs(features,mapping,xyz.tolist()),
+            interact_atoms=features.get("interact_atoms",[]),
+            distance_normalization=normalization_policy(reward),coordinate_frame=features.get("coordinate_frame"))
+        body[WEIGHTS]=weights(body)
     return dict(body,condition_sha256=value_sha(body))
 
 
@@ -138,11 +149,38 @@ def validate(condition):
         if not {left,right}&controlled or p["category"]!=category:raise ValueError("Invalid pair category")
         actual=float(np.linalg.norm(xyz[index[left]]-xyz[index[right]]))
         if not math.isclose(actual,d,rel_tol=1e-12,abs_tol=1e-12):raise ValueError("Reference distance differs from frozen conformer")
+    if condition.get("reward_policy"):
+        from .geometry_reward import weights,normalization_policy,WEIGHTS
+        if condition["reward_policy"]!="template-relative-three-component-v1":raise ValueError("Unknown component reward policy")
+        weights(condition,condition[WEIGHTS]);normalization_policy(condition["distance_normalization"])
+        expected={tuple(sorted((a,b))) for a in controlled for b in ids if a!=b}
+        if set(keys)!=expected:raise ValueError("Component reward must include all template-mapped condition/outer pairs")
+        seen=set()
+        target_coordinates={}
+        for p in condition.get("interaction_pairs",[]):
+            key=(p["atom_id"],p["target_atom_id"])
+            if key in seen or p["atom_id"] not in mapping or p["generated_slot"]!=mapping[p["atom_id"]]:
+                raise ValueError("Invalid interaction correspondence")
+            seen.add(key)
+            target=np.asarray(p["target_coordinates_angstrom"],dtype=np.float64)
+            if target.shape!=(3,) or not np.isfinite(target).all():raise ValueError("Invalid target coordinates")
+            if p["target_atom_id"] in target_coordinates and target_coordinates[p["target_atom_id"]]!=target.tolist():
+                raise ValueError("One target identity has conflicting coordinates")
+            target_coordinates[p["target_atom_id"]]=target.tolist()
+            d=float(np.linalg.norm(xyz[index[p["atom_id"]]]-target))
+            if d<=0 or not math.isclose(d,p["reference_distance_angstrom"],rel_tol=1e-12,abs_tol=1e-12):
+                raise ValueError("Interaction reference differs from template")
+        specified=[(a["atom_id"],t) for a in condition.get("interact_atoms",[]) for t in a["target_atom_ids"]]
+        if len(specified)!=len(set(specified)) or set(specified)!=seen:
+            raise ValueError("Interaction pairs differ from explicit interact_atoms")
+        if seen and condition.get("coordinate_frame")!="generation_context_angstrom":raise ValueError("Interaction coordinate frame missing")
     return condition
 
 
-def measurements(endpoint,condition,valid):
-    validate(condition);finite("distance endpoint",endpoint)
+def measurements(endpoint,condition,valid,check=None):
+    validate(condition)
+    if check is None:finite("distance endpoint",endpoint)
+    else:endpoint=check("distance endpoint",endpoint)
     if endpoint.ndim!=3 or endpoint.shape[-1]!=3 or valid.shape!=endpoint.shape[:2]:
         raise ValueError("Invalid coordinate/mask layout")
     all_slots=torch.as_tensor(list(condition["atom_to_generated_slot"].values()),device=endpoint.device)
@@ -152,11 +190,15 @@ def measurements(endpoint,condition,valid):
     reference=endpoint.new_tensor([p["reference_distance_angstrom"] for p in condition["pairs"]]).detach()
     measured=torch.linalg.vector_norm(endpoint[:,pairs[:,0]]-endpoint[:,pairs[:,1]],dim=-1)
     errors=measured-reference
-    finite("internal distance errors",errors)
+    if check is None:finite("internal distance errors",errors)
+    else:errors=check("internal distance errors",errors)
     return errors,reference,pairs
 
 
-def loss(endpoint,condition,valid):
+def loss(endpoint,condition,valid,loss_weights=None,*,current=None):
+    if condition.get("reward_policy"):
+        from .geometry_reward import evaluate
+        return evaluate(endpoint,condition,valid,loss_weights,current=current)[0]
     errors,reference,pairs=measurements(endpoint,condition,valid)
     slots=torch.unique(pairs.flatten(),sorted=True)
     assignment=slots[None].expand(len(endpoint),-1).detach()
@@ -170,4 +212,12 @@ def metrics(endpoint,condition,valid):
     for name,category in [(CONTROL_DISTANCE,"controlled_internal"),(NEIGHBOR_DISTANCE,"controlled_neighborhood")]:
         ids=[i for i,p in enumerate(condition["pairs"]) if p["category"]==category]
         result[name]=errors[:,ids].square().mean(-1).sqrt() if ids else None
+    if condition.get("reward_policy"):
+        from .geometry_reward import INTERACTION_DISTANCE
+        pairs=condition.get("interaction_pairs",[])
+        if pairs:
+            measured=torch.linalg.vector_norm(endpoint[:,[p["generated_slot"] for p in pairs]]-
+                endpoint.new_tensor([p["target_coordinates_angstrom"] for p in pairs]),dim=-1)
+            result[INTERACTION_DISTANCE]=(measured-endpoint.new_tensor([p["reference_distance_angstrom"] for p in pairs])).square().mean(-1).sqrt()
+        else:result[INTERACTION_DISTANCE]=endpoint.new_zeros(len(endpoint))
     return result
