@@ -33,7 +33,9 @@ def format_contract(schema,diagnostics=None):
 
 def history_view(row):
     keys=["id",NORMALIZED,DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,"attempts","built","connected",
-        "unique_smiles","maximum_single_atom_guidance_increment_angstrom","proposal","proposal_sha256"]
+        "unique_smiles","maximum_single_atom_guidance_increment_angstrom","proposal","proposal_sha256",
+        "maximum_unconstrained_single_atom_guidance_increment_angstrom","guidance_increment_limited_candidate_steps",
+        "guidance_increment_limited_candidates","minimum_guidance_increment_scale_factor","guidance_increment_limit_angstrom"]
     result={k:row[k] for k in keys if k in row}
     if "proposal" in result:
         result["proposal"]={k:v for k,v in result["proposal"].items() if k in
@@ -41,6 +43,8 @@ def history_view(row):
     result["sampling_interval_diagnostics"]=[dict(step_bounds=w["steps"],
         coordinate_increment_root_mean_square_magnitude_angstrom=w["increment_vector_rms_A"],
         maximum_single_atom_guidance_increment_angstrom=w["max_atom_increment_A"],
+        maximum_unconstrained_single_atom_guidance_increment_angstrom=w.get("unconstrained_max_atom_increment_A"),
+        guidance_increment_limited_candidate_steps=w.get("limited_candidate_steps"),
         input_gradient_norm_mean=w["gradient_norm_mean"],native_increment_ratio_mean=w["native_increment_ratio_mean"])
         for w in row.get("window_diagnostics",[])]
     return result
@@ -61,6 +65,11 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             dict(anchor_id=r["id"],**{NORMALIZED:r[NORMALIZED]}) for r in history]),
         scale_semantics="actual strength = teacher-calibrated multiplier * 2 ** normalized scale; zero is baseline, negative is weaker",
         history_coverage="all compatible completed measurements in this experiment; repeated fingerprints appear once")
+    if "maximum_single_atom_guidance_increment_angstrom" in config:
+        common["guidance_increment_constraint"]=dict(
+            maximum_single_atom_guidance_increment_angstrom=config["maximum_single_atom_guidance_increment_angstrom"],
+            method="one uniform scale factor per candidate per step; native drift/noise unchanged",
+            interpretation="Use unconstrained displacement and limited-candidate counts as instability evidence; bounded applied updates do not prove stability.")
     initial=Path(config["root"])/"INITIAL_GUIDANCE.json" if "root" in config else None
     if initial is not None and initial.exists():
         selection=read(initial)["teachers"][domain["teacher_id"]]

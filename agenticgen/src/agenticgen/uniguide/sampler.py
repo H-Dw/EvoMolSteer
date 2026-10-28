@@ -74,6 +74,18 @@ class Control:
     def prepare_output(self,out,ids):
         return out
 
+    def sampling_function(self,config):
+        return self.model._generate_selective
+
+    def constrain_guidance(self,delta,valid):
+        return delta
+
+    def guidance_limit_diagnostics(self):
+        return {}
+
+    def guidance_limit_trace(self):
+        return {}
+
     def check_terminal(self,output):
         finite("native final corrector coordinates",output["coords"])
         return output
@@ -162,6 +174,7 @@ class Control:
         gamma=self.model.integrator.noise_scheduler(times[0][0])
         self.delta,coefficient=guidance_delta(gradient,times[0],dt,scales,gamma,curr["mask"])
         self.delta=self.check_rows("guidance increment",self.delta)
+        self.delta=self.constrain_guidance(self.delta,curr["mask"])
         self.velocity=(pred["coords"].detach()-self.before)/(1-times[0][:,None,None])
         q=(times[0][:,None,None]*self.velocity-self.before)/(1-times[0]+1e-6)[:,None,None]
         self.drift=self.velocity+gamma*q
@@ -169,12 +182,13 @@ class Control:
         self.last_assignment=assignment
         self.rows.append(dict(step=step,time=float(times[0][0]),dt=float(dt),scale=scale,
             gamma=float(gamma),coefficient=coefficient.tolist(),loss=value.detach().tolist(),
-            assignment_switch_fraction=switches,gradient_norm=gradient.flatten(1).norm(dim=1).tolist(),affinity_vjp=False))
+            assignment_switch_fraction=switches,gradient_norm=gradient.flatten(1).norm(dim=1).tolist(),affinity_vjp=False,
+            **self.guidance_limit_diagnostics()))
         self.normalize_forward_diagnostics(gradient)
         for key,v in {"endpoint_A":endpoint,"current_A":self.before*self.model.coord_scale+self.com[:,None],
                       "input_gradient":gradient,"guidance_delta_A":self.delta*self.model.coord_scale,
                       "assignment":assignment,"selected":selected,"mask":curr["mask"],"native_drift":self.drift,
-                      **self.condition_trace(target)}.items():
+                      **self.condition_trace(target),**self.guidance_limit_trace()}.items():
             self.store(key,step,v)
         return detach(out)
 
@@ -213,7 +227,7 @@ def sample(model,config,teacher,schedule,folder,count=50,resume_path=None,stop_s
     resume=load_pt(resume_path) if resume_path else None
     control=(control_factory or Control)(model,teacher,initial,schedule,folder,resume,stop_step)
     try:
-        output=model._generate_selective(prior=prior,pocket_data_target=pt,pocket_data_untarget=po,
+        output=control.sampling_function(config)(prior=prior,pocket_data_target=pt,pocket_data_untarget=po,
             steps=100,times=[torch.zeros(count,device="cuda") for _ in range(3)],apply_guidance=False,coord_noise_level=.2)
         output=control.check_terminal(output)
         for key,value in output.get("affinity",{}).items():
@@ -240,11 +254,11 @@ def summarize(rows,teacher,run_id,schedule):
         built=sum(r["build_success"] for r in rows),unique_smiles=len({r["smiles"] for r in rows if r["smiles"]}))
 
 
-def diagnostics(folder):
+def diagnostics(folder,windows=WINDOWS):
     """Small measured feedback for the agents; retain full vectors in HDF5."""
-    folder=Path(folder);steps=read(folder/"steps.json");windows=[]
+    folder=Path(folder);steps=read(folder/"steps.json");bounds=windows;windows=[]
     with h5py.File(folder/"trace.h5","r") as trace:
-        for lo,hi in WINDOWS:
+        for lo,hi in bounds:
             rows=[r for r in steps if lo<=r["step"]<=hi]
             delta=trace["guidance_delta_A"][lo:hi+1]
             windows.append(dict(steps=[lo,hi],increment_vector_rms_A=float(np.sqrt(np.mean(delta*delta))),
@@ -254,6 +268,11 @@ def diagnostics(folder):
                 assignment_switch_mean=float(np.mean([r["assignment_switch_fraction"] for r in rows])),
                 first_endpoint_loss_mean=float(np.mean(rows[0]["loss"])),last_endpoint_loss_mean=float(np.mean(rows[-1]["loss"])),
                 coefficient_first=rows[0]["coefficient"][0],coefficient_last=rows[-1]["coefficient"][0]))
+            if "unconstrained_guidance_delta_A" in trace:
+                raw=trace["unconstrained_guidance_delta_A"][lo:hi+1].astype(np.float64)
+                windows[-1].update(unconstrained_increment_vector_rms_A=float(np.sqrt(np.mean(raw*raw))),
+                    unconstrained_max_atom_increment_A=max(max(r["unconstrained_max_atom_increment_A"]) for r in rows),
+                    limited_candidate_steps=sum(sum(r["guidance_increment_limited"]) for r in rows))
     return windows
 
 

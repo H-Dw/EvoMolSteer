@@ -11,6 +11,7 @@ from .chunking import concatenate
 from .native_tools import load_pt, save_pt
 from .io import read, write
 from .protocol import SEEDS
+from .geometry_dynamics import STEP_FIELDS
 
 
 def validate_slots(slots):
@@ -88,8 +89,16 @@ def combine_products(root,shards,folder):
         for key in ("loss","assignment_switch_fraction","gradient_norm","coefficient","max_atom_increment_A","delta_native_ratio"):
             joined=[v for part in steps for v in part[index][key]]
             row[key]=[joined[i] for i in order]
+        for key in STEP_FIELDS:
+            if key in row:
+                joined=[v for part in steps for v in part[index][key]]
+                row[key]=[joined[i] for i in order]
         row["sampling_rng_after_sha256"]={s["id"]:part[index]["sampling_rng_after_sha256"] for s,part in zip(shards,steps)}
         combined.append(row)
     write(folder/"steps.json",combined)
     write(folder/"rng_ledger.json",{s["id"]:read(p/"rng_ledger.json") for s,p in zip(shards,folders)})
+    if (folders[0]/"OUTPUT_POLICY.json").exists():
+        policies=[read(p/"OUTPUT_POLICY.json") for p in folders]
+        if any(p!=policies[0] for p in policies):raise ValueError("Cannot merge different output policies")
+        write(folder/"OUTPUT_POLICY.json",policies[0])
     return records

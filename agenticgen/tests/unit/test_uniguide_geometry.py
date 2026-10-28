@@ -173,6 +173,7 @@ def test_executor_rejects_old_strength_interface_and_wrong_teacher_before_claim(
 def test_resume_rejects_changed_mapping_before_native_model_access():
     control=object.__new__(sampling.GeometryControl)
     control.geometry_condition=condition.prepare(features());control.scale_binding=sampling.scale_binding([0.]*4,1.)
+    control.sampling_policy={}
     control.resume=dict(geometry_binding=dict(condition_sha256="different"))
     with pytest.raises(ValueError,match="identical distance condition"):
         control.initialize()
@@ -295,7 +296,8 @@ def test_strict_output(bad):
 @pytest.mark.parametrize("rounds",[1,2,7])
 def test_nondefault_rounds_and_final_analysis_are_external(tmp_path,monkeypatch,rounds):
     from agenticgen.uniguide import geometry_calibration as calibration
-    config=dict(protocol=protocol.POLICY,root=str(tmp_path/"new"),generation_context_root=str(tmp_path/"source"),rounds=rounds)
+    config=dict(protocol=protocol.POLICY,root=str(tmp_path/"new"),generation_context_root=str(tmp_path/"source"),rounds=rounds,
+        output_policy="raw999",maximum_single_atom_guidance_increment_angstrom=3.)
     root=Path(config["root"]);d=domain();subject=dict(teacher=dict(target="teacher"),condition=dict(condition_sha256="condition"))
     write(root/"calibration/domains.json",dict(teacher=d))
     monkeypatch.setattr(runtime,"require_acceptance",lambda c:None)
@@ -404,11 +406,14 @@ def test_sampling_binding_ignores_agent_and_rounds_but_tracks_sampling(tmp_path)
     from agenticgen.uniguide.native_tools import save_pt
     for i in range(5):save_pt(tmp_path/"initials/teacher"/f"batch_{i:03d}.pt.gz",dict(test=i))
     spec=condition.prepare(features());teacher=dict(target="teacher")
-    config=dict(root=str(tmp_path),checkpoint_sha256="model",native_hashes={})
+    config=dict(root=str(tmp_path),checkpoint_sha256="model",native_hashes={},output_policy="raw999",
+        maximum_single_atom_guidance_increment_angstrom=3.)
     original=sampling.compatibility(config,teacher,spec)
     assert original==sampling.compatibility(dict(config,rounds=99,llm=dict(model="other")),teacher,spec)
-    for field,value in [("steps",200),("output_policy","raw999"),("checkpoint_sha256","other"),("noise_level",.1)]:
+    for field,value in [("maximum_single_atom_guidance_increment_angstrom",2.),("checkpoint_sha256","other"),("noise_level",.1)]:
         assert original!=sampling.compatibility(dict(config,**{field:value}),teacher,spec)
+    for field,value in [("steps",200),("output_policy","native_final_corrector")]:
+        with pytest.raises(ValueError):sampling.compatibility(dict(config,**{field:value}),teacher,spec)
 
 
 def test_fractional_integer_looking_steps_are_rejected_by_application():

@@ -13,7 +13,7 @@ from .geometry_protocol import EFFECTIVE
 from .native_tools import load_pt,tensor_digest
 from .batching import take
 from .random_streams import capture,restore,equal
-from .io import frozen,write
+from .io import frozen,write,read
 
 
 def compare_trees(left,right):
@@ -111,5 +111,26 @@ def run_teacher(model,config,teacher,condition,folder):
                     if not np.array_equal(single[key][:12],combined[key][:12,i*10:(i+1)*10]):
                         raise ValueError("Capacity probe changed independent prefix: "+key)
     receipt["capacity_probe_exact_prefix_equivalence"]=True
+    # Force only the second candidate unit across the radius; the first must
+    # remain identical to its separately executed low-strength trajectory.
+    stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*4))]
+    limited=folder/"candidate_local_limit"
+    try:
+        model._ug_parallel_workers=2
+        factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],units=stress,physical_rows=20)
+        sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],limited,20,control_factory=factory,
+            check_affinity=False,initial_override=batch_initial(config,teacher["target"],stress),stop_step=12)
+    finally:model._ug_parallel_workers=prior_workers
+    steps=read(limited/"steps.json")
+    assert any(any(s["guidance_increment_limited"][10:]) for s in steps)
+    assert not any(any(s["guidance_increment_limited"][:10]) for s in steps)
+    limit=config["maximum_single_atom_guidance_increment_angstrom"]
+    with h5py.File(limited/"trace.h5") as mixed,h5py.File(separate[0]/"trace.h5") as single:
+        assert np.linalg.norm(mixed["guidance_delta_A"][:12].astype(np.float64),axis=-1).max()<=limit
+        for key in single:
+            assert np.array_equal(single[key][:12],mixed[key][:12,:10]),key
+    receipt.update(candidate_local_limit_triggered=True,unaffected_candidates_exact=True,
+        guidance_increment_limit_angstrom=limit,limiter_stress_steps=12,
+        stress_is_engineering_only=True,stress_multiplier_is_not_calibrated=True)
     frozen(folder/"COMPLETE.json",receipt)
     return receipt

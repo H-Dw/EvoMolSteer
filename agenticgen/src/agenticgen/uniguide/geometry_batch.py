@@ -24,6 +24,7 @@ from .io import frozen, read, write, value_sha, sha
 from .native_tools import save_pt, tensor_digest
 from .random_streams import capture, restore
 from .protocol import SEEDS
+from .geometry_dynamics import STEP_FIELDS
 
 
 CAPACITIES=(100,80,60,40,20,10)
@@ -91,7 +92,7 @@ class CandidateControl(GeometryControl):
     def checkpoint_metadata(self):
         return dict(candidate_binding=dict(condition_sha256=self.geometry_condition["condition_sha256"],
             units=[dict(id=u["id"],slots=u["slots"],scale=u["scale"]) for u in self.units],
-            failed_units=self.failed_units))
+            failed_units=self.failed_units,sampling_policy=self.sampling_policy),**self.raw_output_checkpoint())
 
     def condition_loss_for_rows(self,endpoint,valid,ids):
         condition=self.geometry_condition
@@ -107,6 +108,7 @@ class CandidateControl(GeometryControl):
         return errors.square().mean(-1)/2,reference[None].expand(len(endpoint),-1),selected,slots[None].expand(len(endpoint),-1).detach()
 
     def initialize(self,*args):
+        self.restore_raw_output()
         if self.resume:
             bound=self.resume["candidate_binding"]
             self.failed_units={int(k):v for k,v in bound["failed_units"].items()}
@@ -192,6 +194,8 @@ def split_products(output,control,source,unit,index):
     for step in steps:
         for key in ("loss","assignment_switch_fraction","gradient_norm","coefficient","max_atom_increment_A","delta_native_ratio"):
             step[key]=step[key][index*10:(index+1)*10]
+        for key in STEP_FIELDS:
+            if key in step:step[key]=step[key][index*10:(index+1)*10]
         step["scale"]=expand_effective(unit["scale"][EFFECTIVE])[step["step"]]
         step["sampling_rng_after_sha256"]=step.pop("candidate_rng_after_sha256")[index]
         step.pop("failed_units",None);step.update(unit["scale"])
@@ -199,6 +203,7 @@ def split_products(output,control,source,unit,index):
             step["diagnostic_overflow"]=[dict(item,row=item["row"]-index*10) for item in step["diagnostic_overflow"]
                 if index*10<=item["row"]<(index+1)*10]
     write(destination/"steps.json",steps);write(destination/"rng_ledger.json",control.random_streams.parts[index].ledger)
+    if (source/"OUTPUT_POLICY.json").exists():write(destination/"OUTPUT_POLICY.json",read(source/"OUTPUT_POLICY.json"))
     frozen(destination/"BATCH_PROVENANCE.json",dict(batch_directory=str(source),row_indices=indices,
         candidate_batch_sha256=sha(source/"candidates_batch.json"),execution_policy=EXECUTION_POLICY))
     return result

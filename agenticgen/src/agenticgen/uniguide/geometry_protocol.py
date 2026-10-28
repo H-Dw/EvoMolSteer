@@ -4,10 +4,11 @@ from pathlib import Path
 from itertools import combinations, permutations
 from .io import value_sha,sha
 from .geometry_condition import DISTANCE, CONTROL_DISTANCE, NEIGHBOR_DISTANCE, MAX_ERROR
-from .protocol import WINDOWS, BRANCHES
+from .protocol import BRANCHES
+from .geometry_dynamics import WINDOWS
 from .scale_domain import GROWTH_LIMIT
 
-POLICY="normalized-internal-distance-guidance-v2"
+POLICY="normalized-internal-distance-guidance-v3-raw999-limited"
 NORMALIZED="normalized_guidance_scale_schedule"
 EFFECTIVE="effective_guidance_scale_schedule"
 MULTIPLIER="calibrated_guidance_multiplier"
@@ -53,7 +54,9 @@ def choose(rows):
 def displacement(row):
     windows=row["window_diagnostics"]
     if len(windows)!=4: raise ValueError("Missing window displacement evidence")
-    out={key:max(w[key] for w in windows) for key in ("increment_vector_rms_A","max_atom_increment_A")}
+    # A limiter must not hide a runaway raw gradient from calibration risk checks.
+    out={key:max(w.get("unconstrained_"+key,w[key]) for w in windows)
+         for key in ("increment_vector_rms_A","max_atom_increment_A")}
     if any(not math.isfinite(x) or x<0 for x in out.values()): raise ValueError("Invalid displacement evidence")
     return out
 

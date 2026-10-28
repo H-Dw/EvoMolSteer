@@ -12,7 +12,8 @@ from .geometry_council import advise
 from .prepare import load_model
 from .geometry_protocol import source_binding
 from .quality import built_molecules
-from .protocol import WINDOWS,SEEDS
+from .protocol import SEEDS
+from .geometry_dynamics import WINDOWS,policy as dynamics_policy
 
 
 def skill_assets():
@@ -44,7 +45,7 @@ def validate_config(config):
     if (config.get("steps",100)!=100 or config.get("noise_level",.2)!=.2 or
             type(config["rounds"]) is not int or config["rounds"]<1):raise ValueError("Invalid integration/iteration configuration")
     if config.get("population",50)!=50:raise ValueError("Formal population remains fifty")
-    if config.get("output_policy","native_final_corrector")!="native_final_corrector":raise ValueError("Unaccepted output policy")
+    dynamics_policy(config)
     from .geometry_calibration import plan
     for item in config.get("conditions",[]):plan(config,item["teacher_id"])
     if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS] or config.get("seeds",SEEDS)!=SEEDS:

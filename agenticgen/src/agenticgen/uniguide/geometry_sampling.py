@@ -11,9 +11,10 @@ from .geometry_protocol import effective, expand_effective, validate_domain, GRO
 from .io import read, write, frozen, value_sha, sha, Budget
 from .native_tools import load_pt
 from .protocol import SEEDS
+from .geometry_dynamics import Raw999Sampling,WINDOWS,LIMIT,policy,limit_increment,increment_summary
 
 
-class GeometryControl(sampler.Control):
+class GeometryControl(Raw999Sampling,sampler.Control):
     def __init__(self,*args,condition,scale_binding,**kwargs):
         self.geometry_condition=validate(condition);self.scale_binding=scale_binding
         super().__init__(*args,**kwargs)
@@ -31,15 +32,33 @@ class GeometryControl(sampler.Control):
     def condition_trace(self,target):
         return {"reference_pair_distances_angstrom":target}
 
+    def constrain_guidance(self,delta,valid):
+        self.unconstrained_delta=delta
+        limited,self.increment_audit=limit_increment(delta,valid,self.model.coord_scale,self.sampling_policy[LIMIT])
+        return limited
+
+    def guidance_limit_diagnostics(self):
+        return self.increment_audit
+
+    def guidance_limit_trace(self):
+        return {"unconstrained_guidance_delta_A":self.unconstrained_delta.double()*self.model.coord_scale,
+                "guidance_increment_scale_factor":self.increment_audit["guidance_increment_scale_factor"]}
+
     def checkpoint_metadata(self):
         return dict(geometry_binding=dict(condition_sha256=self.geometry_condition["condition_sha256"],
             fixed_correspondence_sha256=value_sha(self.geometry_condition["atom_to_generated_slot"]),
-            scale_binding=self.scale_binding,logical_slots=getattr(self,"initial",{}).get("logical_slots")))
+            scale_binding=self.scale_binding,logical_slots=getattr(self,"initial",{}).get("logical_slots"),
+            sampling_policy=self.sampling_policy),**self.raw_output_checkpoint())
 
     def initialize(self,*args):
+        self.restore_raw_output()
         if self.resume and self.resume.get("geometry_binding")!=self.checkpoint_metadata()["geometry_binding"]:
             raise ValueError("Resume requires identical distance condition, mapping and scale binding")
         return super().initialize(*args)
+
+    def close(self):
+        super().close()
+        self.write_output_policy()
 
     def after(self,curr,step):
         result=super().after(curr,step)
@@ -66,7 +85,7 @@ def compatibility(config,teacher,condition,domain=None):
     package=Path(__file__).parent
     # Only sampling dependencies: LLM skills, prompts, actions and round counts do not refit lambda.
     names=["sampler","random_streams","chunking","batching","condition","geometry_condition",
-        "geometry_sampling","geometry_shards","geometry_batch","native_tools","prepare","protocol"]
+        "geometry_sampling","geometry_dynamics","geometry_shards","geometry_batch","native_tools","prepare","protocol","joint_endpoint"]
     sources={name:sha(package/(name+".py")) for name in names}
     sources["runtime/rng"]=sha(package.parent/"runtime/rng.py")
     sources.update({fn.__name__:value_sha(inspect.getsource(fn)) for fn in (effective,expand_effective,ticks)})
@@ -77,9 +96,9 @@ def compatibility(config,teacher,condition,domain=None):
         teacher_native_config_sha256=sha(teacher["native_config"]) if "native_config" in teacher else None,
         numeric_environment=dict(torch=str(torch.__version__),cuda=torch.version.cuda,hip=torch.version.hip,
             numpy=np.__version__,rdkit=Chem.rdBase.rdkitVersion),
-        scientific_sources=sources,output_policy=config.get("output_policy","native_final_corrector"),
+        scientific_sources=sources,output_policy=config.get("output_policy"),sampling_dynamics=policy(config),
         steps=config.get("steps",100),noise_level=config.get("noise_level",.2),seeds=config.get("seeds",SEEDS),
-        windows=config.get("windows",[list(w) for w in sampler.WINDOWS]),population=50,
+        windows=config.get("windows",[list(w) for w in WINDOWS]),population=50,
         initials={str(i):sha(roots/"initials"/teacher["target"]/f"batch_{i:03d}.pt.gz") for i in range(5)})
 
 
@@ -121,7 +140,7 @@ def terminal_records(model,output,condition,folder,count,slots=None):
             row=dict(node_id=f"geometry_b{seed_index:03d}_final_{slot:03d}",logical_seed=SEEDS[seed_index],
                 logical_slot=slot,tensor_row=index,build_success=mol is not None,connected=False,smiles="",
                 failure_reason=None,chemistry_identity_guaranteed=False,
-                coordinate_source="native final corrector; no inpainting or projection")
+                coordinate_source="raw999 last-loop uncovered prediction (step 99, network time about 0.98901); no terminal forward or projection")
             row.update({name:float(v[index]) if v is not None else None for name,v in values.items()})
             row["geometry_diagnostics_not_used_for_ranking"]=geometry_diagnostics[index]
             if mol is not None:
@@ -208,18 +227,21 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
             if measured and (len(measured)!=count or not all(math.isfinite(v) for v in measured)):
                 raise FloatingPointError("Incomplete or nonfinite distance metric")
             aggregate[name]=float(max(measured) if name==MAX_ERROR else np.mean(measured)) if measured else None
-        aggregate["window_diagnostics"]=sampler.diagnostics(folder)
+        aggregate["window_diagnostics"]=sampler.diagnostics(folder,WINDOWS)
+        aggregate.update(increment_summary(folder))
         aggregate["maximum_single_atom_guidance_increment_angstrom"]=max(w["max_atom_increment_A"] for w in aggregate["window_diagnostics"])
         aggregate["finite_values_do_not_prove_stability"]=True
         aggregate["stability_status"]="pre_experiment_displacement_evidence_only"
         if domain is not None:
             reference=max(r["absolute_displacement"]["max_atom_increment_A"] for r in domain["constant_comparison"] if r["eligible"])
-            growth=aggregate["maximum_single_atom_guidance_increment_angstrom"]/max(reference,1e-12)
+            growth=aggregate.get("maximum_unconstrained_single_atom_guidance_increment_angstrom",
+                aggregate["maximum_single_atom_guidance_increment_angstrom"])/max(reference,1e-12)
             aggregate.update(maximum_displacement_to_calibrated_envelope_ratio=growth,
                 stability_status="large_finite_displacement_growth" if growth>GROWTH_LIMIT else "within_measured_envelope_not_a_stability_guarantee")
         write(folder/"aggregate.json",aggregate)
         files=["manifest.json","records.json","aggregate.json","terminal.pt.gz","trace.h5","steps.json",
                "rng_ledger.json","molecules_all_built.sdf","molecules_raw_decodable.sdf"]
+        if (folder/"OUTPUT_POLICY.json").exists():files.append("OUTPUT_POLICY.json")
         if (folder/"BATCH_PROVENANCE.json").exists():files.append("BATCH_PROVENANCE.json")
         frozen(folder/"COMPLETE.json",dict(files={name:sha(folder/name) for name in files}))
         return aggregate
@@ -264,16 +286,19 @@ def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain
         for name in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR):
             values=[r[name] for r in rows if r[name] is not None]
             aggregate[name]=(float(max(values) if name==MAX_ERROR else np.mean(values)) if values else None)
-        aggregate["window_diagnostics"]=sampler.diagnostics(folder)
+        aggregate["window_diagnostics"]=sampler.diagnostics(folder,WINDOWS)
+        aggregate.update(increment_summary(folder))
         aggregate["maximum_single_atom_guidance_increment_angstrom"]=max(w["max_atom_increment_A"] for w in aggregate["window_diagnostics"])
         if domain is not None:
             reference=max(r["absolute_displacement"]["max_atom_increment_A"] for r in domain["constant_comparison"] if r["eligible"])
-            growth=aggregate["maximum_single_atom_guidance_increment_angstrom"]/max(reference,1e-12)
+            growth=aggregate.get("maximum_unconstrained_single_atom_guidance_increment_angstrom",
+                aggregate["maximum_single_atom_guidance_increment_angstrom"])/max(reference,1e-12)
             aggregate.update(maximum_displacement_to_calibrated_envelope_ratio=growth,
                 stability_status="large_finite_displacement_growth" if growth>GROWTH_LIMIT else "within_measured_envelope_not_a_stability_guarantee")
         write(folder/"aggregate.json",aggregate)
         files=["manifest.json","records.json","aggregate.json","terminal.pt.gz","trace.h5","steps.json",
             "rng_ledger.json","molecules_all_built.sdf","molecules_raw_decodable.sdf"]
+        if (folder/"OUTPUT_POLICY.json").exists():files.append("OUTPUT_POLICY.json")
         frozen(folder/"COMPLETE.json",dict(files={name:sha(folder/name) for name in files}))
         return aggregate
     except Exception as error:

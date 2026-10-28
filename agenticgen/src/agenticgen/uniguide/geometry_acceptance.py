@@ -12,6 +12,13 @@ from .geometry_condition import loss
 from .geometry_protocol import source_binding
 from .random_streams import capture,equal
 from .geometry_shards import initial_shard
+from .geometry_dynamics import Raw999Sampling
+from .sampler import Control
+
+
+class UnguidedRaw999(Raw999Sampling,Control):
+    """Independent native-transition reference with the same grid/output policy."""
+    def expand_schedule(self,schedule):return [0.]*100
 
 
 def real_vjp(model,config,teacher,condition):
@@ -61,7 +68,7 @@ def run(config):
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
         sample(model,config,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
             control_factory=factory,check_affinity=False)
-        sample(model,config,teacher,[1.]*4,out/"native_prefix",10,stop_step=3)
+        sample(model,config,teacher,[1.]*4,out/"native_prefix",10,stop_step=3,control_factory=UnguidedRaw999)
         a,b=(load_pt(out/name/"checkpoint_003.pt.gz") for name in ("disabled","native_prefix"))
         disabled={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states")}
         if not all(disabled.values()):raise ValueError("Disabled distance guidance differs from native prefix")
