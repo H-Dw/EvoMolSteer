@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.3.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.4.0; edit its standard skill sources. -->
 
 ## Objective and authority
 
@@ -22,6 +22,8 @@ Follow supported local improvements; after unsuccessful tests, narrow the change
 
 For externally supported staged evaluation, apply `measured-search-policy-v1`: favor screening more distinct legal configurations before concentrating confirmation on a subset. Explain which different allocation hypotheses the candidates cover; breadth is not merely large parameter distance. Screening evidence prioritizes confirmation, not replacement of a fully evaluated best configuration. Use the required matching population for that comparison and retain failures and reused-slot provenance. Proposal counts, stage allocation and promotion remain external. Without staged evaluation support, choose informative distinct proposals within the existing fixed evaluation contract; do not reduce a population or add trials through a prompt.
 
+Apply `branch-evidence-abstention-v1` where the controller explicitly supports branch-level abstention: if a branch has no supported improvement or informative discriminating experiment, prefer abstaining for that branch, state the missing evidence, and leave supported branches eligible. An unmeasured candidate is not automatically uninformative. Distinguish lack of legal actions from lack of experimental value. A fixed-count interface without abstention cannot enforce this preference; disclose the contract gap to the supervisor without fabricating value, identifiers or an unsupported skip field. Execution and budget accounting require the controller's explicit representation.
+
 Apply an explicitly confirmed human decision policy only within its stated objective, teacher, protocol and risk scope. A recommended option, unanswered question or hypothetical example is not an accepted preference. Keep the decision maker's reason separate from measured evidence; cite the applicable policy identifier in existing rationale fields when supplied. A preference requiring a different objective, numerical gate, action space or budget needs corresponding controller support before execution. If the policy does not resolve a material tradeoff, route that uncertainty to the supervising agent rather than inventing a threshold or claiming human approval.
 
 ## Concise decision record
@@ -38,6 +40,8 @@ Join `completed_action_evidence.source_group` to measured history and its origin
 
 Treat configuration identity as the controller's canonical schedule identity plus the scientific comparison conditions. A different candidate name, parent anchor or wording does not make the same configuration new. The same configuration on the same initial states and random streams is one reused evaluation. New random streams would test uncertainty, but require an externally authorized evaluation; do not request extra samples implicitly. Incomplete or failed attempts are not successful duplicates and must not be silently replaced.
 
+Classify a failure by the evidence actually produced: request/format failure, interrupted execution, unavailable measurement, or a completed poor molecular outcome. An empty model answer says nothing about that schedule's molecular performance; an evaluator exception is not a measured zero or molecular failure. An incomplete run may still contain valid partial observations: retain their exact scope without imputing the missing outcomes. Unknown causes remain unknown, and classification does not authorize retries.
+
 ## Make a falsifiable allocation hypothesis
 
 Find a matched contrast that changes the relevant interval while other conditions agree. Describe the measured direction separately for both geometric metrics, its variability when supplied, and any absolute-displacement warning. A multi-interval change supports a joint effect only. Differences across teachers, output policies or evaluation populations are context, not isolated evidence about a weight change.
@@ -52,6 +56,8 @@ Carry forward a compact lesson: scope, evidence identifiers, hypothesis status, 
 
 Keep attempt counts, missing measurements, build failures, finite outliers and sampled diagnostic coverage visible. Use supplied seed-level paired contrasts and distribution tails alongside means; duplicated deterministic groups are not independent replicates. A hard coordinate overwrite can force coordinate agreement: compare pre-overwrite diagnostics when available, and label the intervention difference instead of attributing that result solely to the weight schedule.
 
+Repeated adaptive selection on fixed random samples can specialize a configuration to that evaluation panel. Report the observed improvement on that panel; do not call it independent validation or generalization. Sensitivity analysis using previously observed seeds remains diagnostic. Any separate validation population requires an external protocol and budget; do not silently replace the search sample or claim an unseen test set exists.
+
 # Generalizable control diagnostics
 
 Use these as evidence-dependent hypotheses for allocating existing weights. They are not a new feedback law or proof of stability. Interpret sampling intervals by the supplied step bounds; do not assign universal early/global or late/local functions.
@@ -61,6 +67,8 @@ Use these as evidence-dependent hypotheses for allocating existing weights. They
 A guidance weight is a multiplier, not a coordinate displacement. The delivered change depends on integration step size, time-dependent coefficients, gradient magnitude, atom assignment and the molecular state. Inspect absolute coordinate-increment root mean square magnitude, maximum single-atom displacement, gradient norm and assignment changes. A small relative native-increment ratio, a finite value, or a small average does not exclude a large absolute excursion or a rare failure.
 
 A matched one-interval perturbation estimates sensitivity only near that measured schedule and for that reference molecule. Downstream states depend on earlier interventions. Reallocating between intervals is a coupled experiment, and equal opposite logarithmic steps do not conserve total scale or physical displacement. Prefer the smallest legal change that can answer the question when evidence is weak; a larger step needs a stated contrast or consistent local support.
+
+Keep a local response attached to its anchor and unchanged intervals. Opposite effects on different backgrounds can indicate state dependence or interaction; do not discard a record or declare a universal direction from those contrasts. If a domain came from constant-weight calibration, its coordinate-wise bounds do not show that every mixed-window combination was measured or is stable. Validate legality separately from empirical support and absolute-displacement evidence.
 
 ## Diagnose before changing weights
 

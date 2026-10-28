@@ -8,6 +8,8 @@ A guidance weight is a multiplier, not a coordinate displacement. The delivered 
 
 A matched one-interval perturbation estimates sensitivity only near that measured schedule and for that reference molecule. Downstream states depend on earlier interventions. Reallocating between intervals is a coupled experiment, and equal opposite logarithmic steps do not conserve total scale or physical displacement. Prefer the smallest legal change that can answer the question when evidence is weak; a larger step needs a stated contrast or consistent local support.
 
+Keep a local response attached to its anchor and unchanged intervals. Opposite effects on different backgrounds can indicate state dependence or interaction; do not discard a record or declare a universal direction from those contrasts. If a domain came from constant-weight calibration, its coordinate-wise bounds do not show that every mixed-window combination was measured or is stable. Validate legality separately from empirical support and absolute-displacement evidence.
+
 ## Diagnose before changing weights
 
 | Observed evidence | Hypothesis to distinguish | Informative legal intervention |

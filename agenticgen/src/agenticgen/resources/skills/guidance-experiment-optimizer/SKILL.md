@@ -2,7 +2,7 @@
 name: guidance-experiment-optimizer
 description: Use measured molecular generation history to propose or select legal guidance-weight experiments, test geometric hypotheses, and update interval allocation. Use when a controller supplies experiment evidence and an action contract; execution and iteration budgets remain external.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Guidance experiment optimizer
@@ -30,6 +30,8 @@ Follow supported local improvements; after unsuccessful tests, narrow the change
 
 For externally supported staged evaluation, apply `measured-search-policy-v1`: favor screening more distinct legal configurations before concentrating confirmation on a subset. Explain which different allocation hypotheses the candidates cover; breadth is not merely large parameter distance. Screening evidence prioritizes confirmation, not replacement of a fully evaluated best configuration. Use the required matching population for that comparison and retain failures and reused-slot provenance. Proposal counts, stage allocation and promotion remain external. Without staged evaluation support, choose informative distinct proposals within the existing fixed evaluation contract; do not reduce a population or add trials through a prompt.
 
+Apply `branch-evidence-abstention-v1` where the controller explicitly supports branch-level abstention: if a branch has no supported improvement or informative discriminating experiment, prefer abstaining for that branch, state the missing evidence, and leave supported branches eligible. An unmeasured candidate is not automatically uninformative. Distinguish lack of legal actions from lack of experimental value. A fixed-count interface without abstention cannot enforce this preference; disclose the contract gap to the supervisor without fabricating value, identifiers or an unsupported skip field. Execution and budget accounting require the controller's explicit representation.
+
 Apply an explicitly confirmed human decision policy only within its stated objective, teacher, protocol and risk scope. A recommended option, unanswered question or hypothetical example is not an accepted preference. Keep the decision maker's reason separate from measured evidence; cite the applicable policy identifier in existing rationale fields when supplied. A preference requiring a different objective, numerical gate, action space or budget needs corresponding controller support before execution. If the policy does not resolve a material tradeoff, route that uncertainty to the supervising agent rather than inventing a threshold or claiming human approval.
 
 ## Concise decision record
@@ -46,6 +48,7 @@ Use the response schema for the assigned role. Record decisive evidence identifi
 - When the human asks to teach decision preferences, the supervising agent uses [preference-elicitation.md](references/preference-elicitation.md). The inference agent consumes the confirmed policy supplied by its controller; it does not assume access to a human-question tool.
 - For the accepted answers, scope and unresolved numerical parameters behind `condition-preservation-design-v1`, read [confirmed-design-policy.md](references/confirmed-design-policy.md). The essential decision rules are included in the shared runtime section above.
 - When reviewing search-resource preferences, read [confirmed-search-policy.md](references/confirmed-search-policy.md). It separates the confirmed breadth-before-confirmation preference from unanswered decisions and executor capabilities; detailed interviews are not inference input.
+- When auditing abnormal decision branches, read [decision-boundaries.md](references/decision-boundaries.md). It distinguishes evidence errors from pending human choices and identifies required interface changes.
 
 ## Repository integration
 

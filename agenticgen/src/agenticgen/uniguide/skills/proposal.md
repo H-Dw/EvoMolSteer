@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.3.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.4.0; edit its standard skill sources. -->
 
 # Guidance Agent: propose evidence-based weight experiments
 
@@ -11,6 +11,8 @@ Use the updated history lesson to choose an executable anchor. Favor a supported
 Copy `anchor_id` exactly from `execution_contract.allowed_anchor_ids` and its schedule from `measured_anchors`. Shared-reference labels only locate data; they are not executable identifiers. Use another measured anchor if necessary to obtain legal candidates. Anchor selection changes the schedule comparison, not the controller's physical starting state. Preserve the current reference molecule's scale domain and selected multi-scale initialization without averaging teachers.
 
 For the current action contract, `fine` multiplies or divides a changed weight by the square root of two; `coarse` by two. Change at most two sampling intervals using the same step size. `increase` changes only upward; `decrease` only downward; `redistribute` changes exactly one upward and one downward. Keep other weights unchanged. Obey bounds, canonical novelty and distinctness; never round, clip or relabel an already tested schedule. Use supplied legal candidates or validator results when available. Do not fabricate an action if the contract has no feasible choice.
+
+Treat a list of legal examples as illustrative unless the controller explicitly identifies it as exhaustive. Its enumeration order is not an efficacy ranking. Choose supported alternatives from the complete supplied action contract when appropriate; an exact selectable-candidate list in synthesis remains binding.
 
 ## Fixed output modules
 

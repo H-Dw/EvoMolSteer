@@ -2,7 +2,7 @@
 name: distance-guidance-optimizer
 description: Review completed internal-distance experiments and improve the three Guidance Agent skills using compatible measured history and falsifiable changes.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 Read the actual AWAITING_GPT_REVIEW.json, every configured completed group, failure and reuse receipts, both teachers' retained structures and all four bound final strategy contexts. Compare the current, previous and best compatible geometry versions, and each teacher's measured multiplier baseline. Do not infer completion from process identifiers, directories or partial progress. Iteration counts and execution eligibility come from the external configuration and receipts.
@@ -16,6 +16,10 @@ Audit the actual code before asserting this policy is numerically enforced. The 
 When maintaining the policy, read its [confirmed rationale and unresolved parameters](../guidance-experiment-optimizer/references/confirmed-design-policy.md). Reuse the actual human answers within scope; do not replace them with the interview's earlier recommended options.
 
 For evaluation allocation, apply the human-confirmed [measured-search-policy-v1](../guidance-experiment-optimizer/references/confirmed-search-policy.md): screen more distinct configurations before concentrating confirmation on a subset, where the external protocol supports stages. Audit whether the requested workflow has that capability. Existing fixed calibration stages and fixed-population formal groups are not changed by a skill preference. Record the implementation gap instead of granting the inference agent authority to change populations, promotion or budgets. Unequal-population scores cannot establish a replacement winner. The interview's other unanswered alternatives remain unconfirmed.
+
+For abnormal branches, use [decision-boundaries.md](../guidance-experiment-optimizer/references/decision-boundaries.md). Distinguish evidence interpretation from policy: legal examples are not a complete ranked action set, constant calibration is not validation of every mixed schedule, and request or measurement failures are not complete molecular outcomes. Audit the actual schema before claiming a branch can abstain. Do not treat self-reported confidence or agreement between roles as an independent verification. Review observed-sample improvement separately from independent validation, and never create a held-out claim from samples already used to guide search.
+
+The human-confirmed branch-evidence-abstention-v1 preference permits a branch with no supported improvement or useful mechanism test to abstain with a missing-evidence explanation while supported branches remain eligible. This concerns value, not merely whether a candidate is unmeasured. Before adoption, require an explicit schema, selection and execution representation for abstention, with truthful counts and budget accounting; the inspected fixed-count interface lacks these. Report the integration gap rather than asking for the same preference again, emitting invalid empty arrays or claiming a skipped branch was executed. This skill revision itself does not implement the interface.
 
 Review predictions and falsifiers against the executed measurements and original measured anchors, including compatible earlier versions of this experiment. Distinguish identical effective configurations reused under common random streams from independent evidence. Keep nonfinite failures, large finite displacements, build failures, unevaluated properties and smaller-population observations visible. Never mix old coordinate conditions, another teacher's multiplier or another reference geometry into the new ranking. A normalized zero means the measured teacher multiplier; disabling guidance is separate.
 

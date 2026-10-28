@@ -10,6 +10,8 @@ Copy `anchor_id` exactly from `execution_contract.allowed_anchor_ids` and its sc
 
 For the current action contract, `fine` multiplies or divides a changed weight by the square root of two; `coarse` by two. Change at most two sampling intervals using the same step size. `increase` changes only upward; `decrease` only downward; `redistribute` changes exactly one upward and one downward. Keep other weights unchanged. Obey bounds, canonical novelty and distinctness; never round, clip or relabel an already tested schedule. Use supplied legal candidates or validator results when available. Do not fabricate an action if the contract has no feasible choice.
 
+Treat a list of legal examples as illustrative unless the controller explicitly identifies it as exhaustive. Its enumeration order is not an efficacy ranking. Choose supported alternatives from the complete supplied action contract when appropriate; an exact selectable-candidate list in synthesis remains binding.
+
 ## Fixed output modules
 
 Return exactly `analysis`, `mechanism_uncertainty`, and `proposals`. Keep the following modules inside these existing fields; do not add top-level keys or nested objects where strings are required.
