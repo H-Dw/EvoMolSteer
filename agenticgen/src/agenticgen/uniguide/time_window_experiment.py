@@ -58,6 +58,8 @@ def expand_coverage(schedule, coverage):
     if coverage == 'full_interior':
         values[1:10] = [schedule[0]] * 9
         values[91:100] = [schedule[3]] * 9
+    elif coverage == 'late_only':
+        values[91:100] = [schedule[3]] * 9
     elif coverage != 'window':
         raise ValueError('Unknown guidance coverage')
     assert values[0] == 0  # The original score-proxy VJP coefficient contains 1/t.
@@ -140,16 +142,17 @@ class StudyBudget:
         spec = read(self.root/'STUDY.json')
         allowed = {f'groups/{t}/{a}' for t in spec['controls'] for a in spec['new_arms']}
         if run_id not in allowed or stage != 'formal' or count != 50:
-            raise ValueError('Only the declared eighteen fifty-attempt groups are authorized')
+            raise ValueError('Only the declared fifty-attempt groups are authorized')
         path = self.root/'attempts.json'
         ledger = read(path) if path.exists() else {}
-        item = dict(stage=POLICY, count=count, binding=binding)
+        item = dict(stage=spec.get('policy', POLICY), count=count, binding=binding)
         if run_id in ledger:
             if ledger[run_id] != item:
                 raise ValueError('Attempt identity changed')
             return
-        if sum(v['count'] for v in ledger.values()) + count > 900:
-            raise ValueError('900-attempt limit, including failed attempts')
+        cap = spec.get('new_attempt_cap', 900)
+        if sum(v['count'] for v in ledger.values()) + count > cap:
+            raise ValueError(f'{cap}-attempt limit, including failed attempts')
         ledger[run_id] = item
         write(path, ledger)
 
@@ -313,14 +316,16 @@ def report(root):
                 for a,b,label in [('native1','raw999','requested_output_package'),('raw1','raw999','grid_only_bridge'),('native1','raw1','terminal_output_bridge')]:
                     contrast.append((arm_name(c,a,w),arm_name(c,b,w),label))
             for e in ENDPOINTS:contrast.append((arm_name(c,e,'window'),arm_name(c,e,'full_interior'),'guidance_coverage'))
+        contrast=spec.get('contrasts',contrast)
         for a,b,label in contrast:
             metrics={m:paired_statistics(records[a],records[b],m) for m in ('condition_rmsd_A','pic50_on_rescore','build_success')} if a in records and b in records else None
             comparisons.append(dict(target=target,baseline=a,treatment=b,contrast=label,paired_metrics=metrics,
                 status='available' if metrics else 'unavailable_group_failure_or_pending',missing_not_imputed=True))
     verify_sources(spec)
-    write(root/'RESULTS.json',dict(time_shanghai=now(),policy=POLICY,groups=details,rows=table,comparisons=comparisons,
+    write(root/'RESULTS.json',dict(time_shanghai=now(),policy=spec['policy'],groups=details,rows=table,comparisons=comparisons,
         statistics=spec['statistics'],new_attempts=sum(v['count'] for v in read(root/'attempts.json').values()) if (root/'attempts.json').exists() else 0,
-        source_files_unchanged=True,reused_attempts=300,coordinate_projection=False))
+        source_files_unchanged=True,reused_attempts=spec['reused_attempts'],
+        referenced_failed_attempts=spec.get('referenced_failed_attempts',0),coordinate_projection=False))
     keys=sorted({k for row in table for k in row})
     with (root/'summary.csv').open('w',newline='',encoding='utf-8') as stream:
         writer=csv.DictWriter(stream,fieldnames=keys);writer.writeheader();writer.writerows(table)
@@ -335,6 +340,9 @@ def report(root):
     text+=['','完整原始差异、实用差异阈值、失败、位移诊断和质量覆盖见RESULTS.json。五个种子同时用于历史配置选择，所有区间仅为探索性配对描述，不是独立留出验证或多重比较校正后的显著性结论。失败不补样，不用中位数替代含极端值的全量均值。',
         'raw999：100区间0–0.999，最后循环网络约0.98901；raw1：100区间0–1，最后循环网络约0.99；native1额外终态前向约0.9999。只有化学/native1在最终输出投影化学特征；全部组均不覆盖坐标。full_interior在1–99步引导，跳过奇异t=0。']
     (root/'report.zh-CN.md').write_text('\n'.join(text)+'\n',encoding='utf-8')
+    if spec.get('report_note'):
+        with (root/'report.zh-CN.md').open('a',encoding='utf-8') as stream:
+            stream.write('\n'+spec['report_note']+'\n')
     return details
 
 
@@ -372,6 +380,10 @@ def finalize(root,timeout=21600):
     frozen(root/'FINALIZED.json',dict(time_shanghai=now(),results_sha256=sha(root/'RESULTS.json'),
         complete_groups=sum(r['status']=='complete' for r in details.values()),
         failed_groups=sum(r['status']=='failed' for r in details.values()),
+        new_complete_groups=sum(r['status']=='complete' and not r['reused'] for r in details.values()),
+        new_failed_groups=sum(r['status']=='failed' and not r['reused'] for r in details.values()),
+        referenced_complete_groups=sum(r['status']=='complete' and r['reused'] for r in details.values()),
+        referenced_failed_groups=sum(r['status']=='failed' and r['reused'] for r in details.values()),
         quality_engineering_failures=sum(r.get('quality_status')=='engineering_failure' for r in details.values()),
         original_sources_unchanged=True,independent_validation=False,new_attempts=sum(v['count'] for v in read(root/'attempts.json').values())))
 
