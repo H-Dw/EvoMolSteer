@@ -1,0 +1,184 @@
+{
+  "evidence_status": "HYPOTHETICAL: no model response or molecular measurement",
+  "protocol_commit": "da1b535ad0f71fb9e37e37773d6d0c58234dff4e",
+  "protocol_source_sha256": "56acefcfbe4da7dc3b039d3665bdae604ce9fde50724a34d272a83ab81f10c62",
+  "domain": {
+    "policy": "normalized-internal-distance-guidance-v2",
+    "teacher_id": "SIMULATED_TEACHER",
+    "condition_sha256": "HYPOTHETICAL_NO_MOLECULE",
+    "calibrated_guidance_multiplier": 1.0,
+    "sampling_protocol_sha256": "HYPOTHETICAL_NO_SAMPLING",
+    "normalized_minimum": -2.0,
+    "normalized_maximum": 2.0,
+    "calibration_key": "07cc72e1968f6b1a5b1e36b7b01d34c5a6c5ef127d748034b7bdf53f6fb3d6ad",
+    "domain_sha256": "a99dda89d7deea5ab6ff3be6aed510a2218e5378979a21a23d83543cb2926311"
+  },
+  "history": [
+    {
+      "id": "simulated/baseline",
+      "normalized_guidance_scale_schedule": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "controlled_atom_pair_distance_root_mean_square_deviation": 0.34,
+      "controlled_to_neighborhood_distance_root_mean_square_deviation": 0.14
+    },
+    {
+      "id": "simulated/stronger_second_interval",
+      "normalized_guidance_scale_schedule": [
+        0.0,
+        2.0,
+        0.0,
+        0.0
+      ],
+      "controlled_atom_pair_distance_root_mean_square_deviation": 0.3,
+      "controlled_to_neighborhood_distance_root_mean_square_deviation": 0.18
+    },
+    {
+      "id": "simulated/weaker_second_interval",
+      "normalized_guidance_scale_schedule": [
+        0.0,
+        -2.0,
+        0.0,
+        0.0
+      ],
+      "controlled_atom_pair_distance_root_mean_square_deviation": 0.38,
+      "controlled_to_neighborhood_distance_root_mean_square_deviation": 0.1
+    }
+  ],
+  "legal_candidates": [
+    {
+      "id": "simulated/candidate-0",
+      "branch": "increase",
+      "anchor_id": "simulated/baseline",
+      "updates": [
+        {
+          "window_id": 0,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "simulated/candidate-1",
+      "branch": "increase",
+      "anchor_id": "simulated/baseline",
+      "updates": [
+        {
+          "window_id": 2,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "simulated/candidate-2",
+      "branch": "decrease",
+      "anchor_id": "simulated/baseline",
+      "updates": [
+        {
+          "window_id": 1,
+          "step": -1
+        }
+      ]
+    },
+    {
+      "id": "simulated/candidate-3",
+      "branch": "decrease",
+      "anchor_id": "simulated/baseline",
+      "updates": [
+        {
+          "window_id": 3,
+          "step": -1
+        }
+      ]
+    },
+    {
+      "id": "simulated/candidate-4",
+      "branch": "redistribute",
+      "anchor_id": "simulated/baseline",
+      "updates": [
+        {
+          "window_id": 1,
+          "step": -1
+        },
+        {
+          "window_id": 2,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "simulated/candidate-5",
+      "branch": "redistribute",
+      "anchor_id": "simulated/baseline",
+      "updates": [
+        {
+          "window_id": 1,
+          "step": -1
+        },
+        {
+          "window_id": 3,
+          "step": 1
+        }
+      ]
+    }
+  ],
+  "executor_resolved_schedules": [
+    [
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      -1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      -1
+    ],
+    [
+      0,
+      -1,
+      1,
+      0
+    ],
+    [
+      0,
+      -1,
+      0,
+      1
+    ]
+  ],
+  "rejected_examples": {
+    "renamed_duplicate": "Configuration already measured or proposed",
+    "reference_label_as_anchor": "Unknown measured action anchor",
+    "wrong_direction": "Incorrect inclination",
+    "outside_domain": "Outside teacher's measured scale interval"
+  },
+  "human_preference_status": "pending; no recommendation accepted by default",
+  "selected_portfolio": null,
+  "illustrative_future_observation": {
+    "evidence_status": "HYPOTHETICAL, NOT OBSERVED",
+    "candidate_id": "simulated/candidate-2",
+    "controlled_atom_pair_distance_root_mean_square_deviation": 0.36,
+    "controlled_to_neighborhood_distance_root_mean_square_deviation": 0.11,
+    "interpretation": "Direction matches the local tradeoff hypothesis in this fixture; uncertainty and generalization remain unassessed"
+  },
+  "new_model_calls": 0,
+  "new_candidates_generated": 0,
+  "new_sampling_attempts": 0,
+  "note": "Integer updates are pinned to the stated commit; complete schedules are calculated by its validator, not returned by the Agent. Multiplier and bounds are illustrative only."
+}

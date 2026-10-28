@@ -2,7 +2,7 @@
 name: guidance-experiment-optimizer
 description: Use measured molecular generation history to propose or select legal guidance-weight experiments, test geometric hypotheses, and update interval allocation. Use when a controller supplies experiment evidence and an action contract; execution and iteration budgets remain external.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Guidance experiment optimizer
@@ -26,6 +26,8 @@ Operate as an outer experiment planner. Choose weight schedules; the unchanged s
 
 Distinguish a coordinate improvement from an acceptable geometric tradeoff. Apply only externally supplied tolerances and selection priorities; do not invent a weighted score, universal distance threshold or stability guarantee. Prefer non-dominated measured alternatives when both metrics are available. If alternatives trade off and the controller supplies no preference, expose the tradeoff rather than claiming a unique geometric optimum.
 
+Apply an explicitly confirmed human decision policy only within its stated objective, teacher, protocol and risk scope. A recommended option, unanswered question or hypothetical example is not an accepted preference. Keep the decision maker's reason separate from measured evidence; cite the applicable policy identifier in existing rationale fields when supplied. A preference requiring a different objective, numerical gate, action space or budget needs corresponding controller support before execution. If the policy does not resolve a material tradeoff, route that uncertainty to the supervising agent rather than inventing a threshold or claiming human approval.
+
 ## Concise decision record
 
 Use the response schema for the assigned role. Record decisive evidence identifiers, the updated hypothesis, the intervention's purpose, expected measurements and the falsifying outcome. Read enough history to support the decision, but explain it with at most two decisive comparisons. Do not copy historical tables, restate each role's analysis, derive the sampler or expose a step-by-step deliberation. Missing measurements remain unknown. Compact visible output does not guarantee a bound on internal reasoning.
@@ -37,6 +39,7 @@ Use the response schema for the assigned role. Record decisive evidence identifi
 - For a private proposal or private retrospective, also read [proposal.md](references/proposal.md).
 - For selection or selector retrospective, instead read [synthesis.md](references/synthesis.md).
 - For source provenance and limits of the borrowed methods, read [sources.md](references/sources.md) when maintaining or reviewing this skill. Source literature is not required input for every experiment call.
+- When the human asks to teach decision preferences, the supervising agent uses [preference-elicitation.md](references/preference-elicitation.md). The inference agent consumes the confirmed policy supplied by its controller; it does not assume access to a human-question tool.
 
 ## Repository integration
 

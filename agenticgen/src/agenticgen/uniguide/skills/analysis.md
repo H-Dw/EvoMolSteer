@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.0.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.1.0; edit its standard skill sources. -->
 
 ## Objective and authority
 
@@ -17,6 +17,8 @@ Operate as an outer experiment planner. Choose weight schedules; the unchanged s
 5. **Close the loop on the next observation.** Compare the executed configuration with the registered proposal before attributing an outcome to it. Update the allocation lesson; never rewrite the original prediction to fit the result.
 
 Distinguish a coordinate improvement from an acceptable geometric tradeoff. Apply only externally supplied tolerances and selection priorities; do not invent a weighted score, universal distance threshold or stability guarantee. Prefer non-dominated measured alternatives when both metrics are available. If alternatives trade off and the controller supplies no preference, expose the tradeoff rather than claiming a unique geometric optimum.
+
+Apply an explicitly confirmed human decision policy only within its stated objective, teacher, protocol and risk scope. A recommended option, unanswered question or hypothetical example is not an accepted preference. Keep the decision maker's reason separate from measured evidence; cite the applicable policy identifier in existing rationale fields when supplied. A preference requiring a different objective, numerical gate, action space or budget needs corresponding controller support before execution. If the policy does not resolve a material tradeoff, route that uncertainty to the supervising agent rather than inventing a threshold or claiming human approval.
 
 ## Concise decision record
 

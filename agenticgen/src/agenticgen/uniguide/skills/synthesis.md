@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.0.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.1.0; edit its standard skill sources. -->
 
 # Guidance Agent: select supplied proposals
 
