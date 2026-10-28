@@ -55,6 +55,12 @@ class Control:
     def physical_rows(self):
         return ROWS
 
+    def execute_blocks(self,function,starts):
+        return [function(start) for start in starts]
+
+    def condition_loss_for_rows(self,endpoint,valid,ids):
+        return self.condition_loss(endpoint,valid)
+
     def check_rows(self,name,value,ids=None):
         finite(name,value)
         return value
@@ -103,15 +109,15 @@ class Control:
         self.trace[key][step]=a
 
     def forward(self,curr,pocket,times,cond,equis,invs,step,dt):
+        self.active_step=step
         self.noise_samples,self.categories=[],[]
         self.before=curr["coords"].detach()
         self.times,self.dt=times,dt
         entry=tensor_digest(capture())
         scale=self.schedule[step]
-        blocks=[];sizes=[]
         count=len(self.before)
         scales=self.step_scales(step,count);physical=self.physical_rows()
-        for start in range(0,count,physical):
+        def block(start):
             ids=list(range(start,min(start+physical,count)))
             actual=len(ids)
             # Keep the input VJP at the same physical shape as the forward.
@@ -135,14 +141,13 @@ class Control:
                     if key in pred:self.check_rows("native prediction "+key,pred[key],physical_ids)
                 endpoint=pred["coords"]*self.model.coord_scale+self.com[physical_ids,None]
                 endpoint=self.check_rows("predicted endpoint",endpoint,physical_ids)
-                value,target,selected,assignment=self.condition_loss(endpoint,current["mask"].bool())
+                value,target,selected,assignment=self.condition_loss_for_rows(endpoint,current["mask"].bool(),physical_ids)
                 value=self.check_rows("loss",value,physical_ids)
                 gradient=torch.autograd.grad(value.sum(),x)[0] if active else torch.zeros_like(x)
                 gradient=self.check_rows("input gradient",gradient,physical_ids)
-            blocks.append(take(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
-                                      selected=selected,assignment=assignment,gradient=gradient)),list(range(actual)),physical))
-            sizes.append(actual)
-            del out,pred,endpoint,value,target,selected,assignment,gradient,x
+            return take(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
+                                      selected=selected,assignment=assignment,gradient=gradient)),list(range(actual)),physical),actual
+        parts=self.execute_blocks(block,range(0,count,physical));blocks,sizes=zip(*parts)
         combined=concatenate(blocks,sizes)
         out,pred,endpoint,value,target,selected,assignment,gradient=(combined[k] for k in
             ["out","pred","endpoint","value","target","selected","assignment","gradient"])

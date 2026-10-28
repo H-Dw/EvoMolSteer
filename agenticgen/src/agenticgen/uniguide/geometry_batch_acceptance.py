@@ -46,13 +46,14 @@ def run_teacher(model,config,teacher,condition,folder):
             initial_override=initial_shard(config,teacher["target"],slots))
         separate.append(out)
     out=folder/"mixed_twenty";before=capture();prior=getattr(model,"_ug_physical_rows",10)
+    prior_workers=getattr(model,"_ug_parallel_workers",1)
     try:
-        model._ug_physical_rows=20
+        model._ug_physical_rows=10;model._ug_parallel_workers=2
         factory=functools.partial(CandidateControl,condition=condition,scale_binding=units[0]["scale"],units=units,physical_rows=20)
         _,_,_,control=sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],out,20,
             control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units))
         if control.failed_units:raise ValueError("Acceptance fixture produced numerical failures")
-    finally:model._ug_physical_rows=prior
+    finally:model._ug_physical_rows=prior;model._ug_parallel_workers=prior_workers
     if not equal(before,capture()):raise ValueError("Mixed batch consumed external RNG")
     differences=[];joint=load_pt(out/"terminal.pt.gz");state=load_pt(out/"checkpoint_100.pt.gz")
     for i,source in enumerate(separate):
@@ -70,6 +71,15 @@ def run_teacher(model,config,teacher,condition,folder):
         fixture_is_not_calibration=True,engineering_trajectory_evaluations=40)
     write(folder/"COMPARISON.json",receipt)
     if differences:raise ValueError("Mixed batches changed independent trajectories; see COMPARISON.json")
+    try:
+        model._ug_physical_rows=10;model._ug_parallel_workers=2
+        sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],folder/"mixed_resumed",20,
+            control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units),
+            resume_path=out/"checkpoint_010.pt.gz")
+    finally:model._ug_physical_rows=prior;model._ug_parallel_workers=prior_workers
+    if compare_trees(joint,load_pt(folder/"mixed_resumed/terminal.pt.gz")):raise ValueError("Mixed batch resume changed output")
+    receipt.update(exact_mixed_resume=True,engineering_trajectory_evaluations=60,network_microbatch_size=10,
+        concurrent_units=2,physical_batch_shape_is_fixed=True)
     # Try all ninety candidates; reduce only upon a real device OOM.
     capacity=90;ooms=[]
     while True:
@@ -77,7 +87,7 @@ def run_teacher(model,config,teacher,condition,folder):
         for i,u in enumerate(selected):u["id"]=f"capacity_fixture_{i}"
         before=capture();error=None
         try:
-            model._ug_physical_rows=capacity
+            model._ug_physical_rows=10;model._ug_parallel_workers=capacity//10
             factory=functools.partial(CandidateControl,condition=condition,scale_binding=selected[0]["scale"],units=selected,physical_rows=capacity)
             sampler.sample(model,config,teacher,selected[0]["scale"][EFFECTIVE],folder/f"capacity_{capacity}",capacity,
                 control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],selected),stop_step=12)
@@ -85,7 +95,8 @@ def run_teacher(model,config,teacher,condition,folder):
             if not device_oom(exc):raise
             error=str(exc)
         finally:
-            restore(before);model._ug_physical_rows=prior;model._adaptive=None;model.integrator._adaptive_observer=None
+            restore(before);model._ug_physical_rows=prior;model._ug_parallel_workers=prior_workers
+            model._adaptive=None;model.integrator._adaptive_observer=None
         if error is None:break
         ooms.append(dict(capacity=capacity,error=error));capacity=lower_capacity(capacity)
         import gc
@@ -93,5 +104,12 @@ def run_teacher(model,config,teacher,condition,folder):
         if capacity is None:raise RuntimeError("No accepted GPU capacity")
     receipt.update(capacity_probe_initial=90,capacity_probe_success=capacity,capacity_probe_ooms=ooms,
         capacity_probe_steps=12,capacity_probe_not_calibration=True)
+    with h5py.File(folder/f"capacity_{capacity}"/"trace.h5","r") as combined:
+        for i in range(capacity//10):
+            with h5py.File(separate[i%2]/"trace.h5","r") as single:
+                for key in single:
+                    if not np.array_equal(single[key][:12],combined[key][:12,i*10:(i+1)*10]):
+                        raise ValueError("Capacity probe changed independent prefix: "+key)
+    receipt["capacity_probe_exact_prefix_equivalence"]=True
     frozen(folder/"COMPLETE.json",receipt)
     return receipt

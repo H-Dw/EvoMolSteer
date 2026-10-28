@@ -128,7 +128,9 @@ def test_numerical_failure_is_not_retried_as_oom(tmp_path,monkeypatch):
 
 
 def test_quarantined_nonfinite_unit_does_not_change_healthy_rows(tmp_path):
+    import threading
     control=object.__new__(batch.CandidateControl)
+    control.failure_lock=threading.RLock()
     control.initial=dict(population=20);control.failed_units={};control.rows=[];control.folder=tmp_path
     value=torch.ones(20,3,requires_grad=True)
     broken=value.clone();broken[13,0]=float("nan")

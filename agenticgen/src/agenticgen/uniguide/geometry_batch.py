@@ -8,6 +8,7 @@ import copy
 import functools
 import gc
 import time
+import threading
 from pathlib import Path
 import h5py
 import torch
@@ -25,7 +26,7 @@ from .protocol import SEEDS
 
 
 CAPACITIES=(100,80,60,40,20,10)
-EXECUTION_POLICY="teacher-candidates-batch-v1"
+EXECUTION_POLICY="teacher-candidates-concurrent-fixed-shape-v2"
 
 
 def lower_capacity(current):
@@ -73,11 +74,15 @@ def batch_initial(config,target,units):
 class CandidateControl(GeometryControl):
     def __init__(self,*args,units,physical_rows,**kwargs):
         self.units=units;self.capacity=physical_rows;self.failed_units={}
+        self.failure_lock=threading.RLock()
         self.expanded=[expand_effective(u["scale"][EFFECTIVE]) for u in units]
         super().__init__(*args,**kwargs)
 
     def make_streams(self,states):return CandidateStreams(states,self.initial["candidate_slots"])
-    def physical_rows(self):return self.capacity
+    def physical_rows(self):return 10
+    def execute_blocks(self,function,starts):
+        from .chunking import concurrent_map
+        return concurrent_map(function,starts,max(1,self.capacity//10))
     def step_scales(self,step,count):
         if count!=10*len(self.units):raise ValueError("Candidate scale layout differs")
         return [values[step] if i not in self.failed_units else 0. for i,values in enumerate(self.expanded) for _ in range(10)]
@@ -87,7 +92,7 @@ class CandidateControl(GeometryControl):
             units=[dict(id=u["id"],slots=u["slots"],scale=u["scale"]) for u in self.units],
             failed_units=self.failed_units))
 
-    def condition_loss(self,endpoint,valid):
+    def condition_loss_for_rows(self,endpoint,valid,ids):
         condition=self.geometry_condition
         all_slots=torch.as_tensor(list(condition["atom_to_generated_slot"].values()),device=endpoint.device)
         if int(all_slots.max())>=endpoint.shape[1] or not bool(valid[:,all_slots].bool().all()):
@@ -95,7 +100,7 @@ class CandidateControl(GeometryControl):
         pairs=torch.as_tensor([p["generated_slots"] for p in condition["pairs"]],device=endpoint.device)
         reference=endpoint.new_tensor([p["reference_distance_angstrom"] for p in condition["pairs"]]).detach()
         errors=torch.linalg.vector_norm(endpoint[:,pairs[:,0]]-endpoint[:,pairs[:,1]],dim=-1)-reference
-        errors=self.check_rows("internal distance errors",errors)
+        errors=self.check_rows("internal distance errors",errors,ids)
         slots=torch.unique(pairs.flatten(),sorted=True)
         selected=torch.zeros_like(valid,dtype=torch.bool);selected[:,slots]=True
         return errors.square().mean(-1)/2,reference[None].expand(len(endpoint),-1),selected,slots[None].expand(len(endpoint),-1).detach()
@@ -115,11 +120,12 @@ class CandidateControl(GeometryControl):
         bad=~torch.isfinite(value.detach()).reshape(len(ids),-1).all(1)
         for local in bad.nonzero().flatten().tolist():
             unit=ids[local]//10
-            if unit not in self.failed_units:
-                error=dict(type="nonfinite_candidate",field=name,row=ids[local],
-                    step=len(self.rows),no_scientific_retry=True)
-                save_pt(self.folder/f"nonfinite_unit_{unit:03d}.pt.gz",dict(error=error,raw=value.detach()[local]))
-                self.failed_units[unit]=error
+            with self.failure_lock:
+                if unit not in self.failed_units:
+                    error=dict(type="nonfinite_candidate",field=name,row=ids[local],
+                        step=getattr(self,"active_step",len(self.rows)),no_scientific_retry=True)
+                    save_pt(self.folder/f"nonfinite_unit_{unit:03d}.pt.gz",dict(error=error,raw=value.detach()[local]))
+                    self.failed_units[unit]=error
         # Failed units become inert placeholders solely to let other units finish.
         # Their raw evidence is preserved and they can never receive COMPLETE.
         invalid=torch.tensor([i//10 in self.failed_units for i in ids],device=value.device)
@@ -144,7 +150,7 @@ class CandidateControl(GeometryControl):
 
     def check_terminal(self,output):
         result=self.prepare_output(output,list(range(self.initial["population"])))
-        value,*_=self.condition_loss(result["coords"],result["mask"].bool())
+        value,*_=self.condition_loss_for_rows(result["coords"],result["mask"].bool(),list(range(self.initial["population"])))
         self.check_rows("terminal internal distance loss",value)
         return result
 
@@ -198,6 +204,7 @@ def compile_units(config,teacher,condition,jobs):
 
 def candidate_manifest(teacher,condition,units):
     return dict(policy=EXECUTION_POLICY,teacher_id=teacher["target"],condition_sha256=condition["condition_sha256"],
+        network_microbatch_size=10,concurrent_network_units=len(units),
         candidates=[dict(candidate_id=u["fingerprint"]+f"/{seed}/{slot}",source_group=u["id"],
             logical_seed=seed,logical_slot=slot,**u["scale"]) for u in units for seed in SEEDS for slot in u["slots"]])
 
@@ -224,9 +231,10 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
         frozen(attempt/"candidates_batch.json",candidate_manifest(teacher,condition,selected))
         external=capture();guard=copy.deepcopy(model.integrator._guard_warned)
         previous_rows=getattr(model,"_ug_physical_rows",10)
+        previous_workers=getattr(model,"_ug_parallel_workers",1)
         oom=None;fatal=None;output=None;control=None
         try:
-            model._ug_physical_rows=size
+            model._ug_physical_rows=10;model._ug_parallel_workers=size//10
             initial=batch_initial(config,teacher["target"],selected)
             factory=functools.partial(CandidateControl,condition=condition,scale_binding=selected[0]["scale"],units=selected,physical_rows=size)
             output,_,_,control=sample_fn(model,config,teacher,selected[0]["scale"][EFFECTIVE],attempt,size,
@@ -248,6 +256,7 @@ def execute_many(model,config,teacher,condition,jobs,*,sample_fn=None):
             else:fatal=error
         finally:
             restore(external);model.integrator._guard_warned=guard;model._ug_physical_rows=previous_rows
+            model._ug_parallel_workers=previous_workers
             model._adaptive=None;model.integrator._adaptive_observer=None
             output=None;control=None
         if fatal is not None:

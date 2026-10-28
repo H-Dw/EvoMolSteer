@@ -101,6 +101,6 @@ def run(config):
     if sha(original)!=before:raise ValueError("Original attempt ledger changed")
     receipt=dict(source_binding=source_binding(),config_sha256=value_sha(config),checks=checks,
         torch_version=torch.__version__,new_completed_candidates=0,llm_calls=0,fitted_multipliers=False,
-        engineering_trajectory_evaluations=40*len(subjects),engineering_outputs_not_experiment_measurements=True,
+        engineering_trajectory_evaluations=60*len(subjects),engineering_outputs_not_experiment_measurements=True,
         original_attempts_sha256=before,engineering_only=True)
     frozen(folder/"COMPLETE.json",receipt);return receipt
