@@ -61,6 +61,12 @@ class Control:
     def condition_loss_for_rows(self,endpoint,valid,ids):
         return self.condition_loss(endpoint,valid)
 
+    def normalize_forward_diagnostics(self,gradient):
+        pass
+
+    def normalize_step_diagnostics(self,native):
+        pass
+
     def check_rows(self,name,value,ids=None):
         finite(name,value)
         return value
@@ -164,6 +170,7 @@ class Control:
         self.rows.append(dict(step=step,time=float(times[0][0]),dt=float(dt),scale=scale,
             gamma=float(gamma),coefficient=coefficient.tolist(),loss=value.detach().tolist(),
             assignment_switch_fraction=switches,gradient_norm=gradient.flatten(1).norm(dim=1).tolist(),affinity_vjp=False))
+        self.normalize_forward_diagnostics(gradient)
         for key,v in {"endpoint_A":endpoint,"current_A":self.before*self.model.coord_scale+self.com[:,None],
                       "input_gradient":gradient,"guidance_delta_A":self.delta*self.model.coord_scale,
                       "assignment":assignment,"selected":selected,"mask":curr["mask"],"native_drift":self.drift,
@@ -186,6 +193,7 @@ class Control:
         self.rows[-1].update(max_atom_increment_A=(self.delta*self.model.coord_scale).norm(dim=-1).amax(1).tolist(),
             sampling_rng_after_sha256=tensor_digest(self.random_streams.states),
             delta_native_ratio=(self.delta.flatten(1).norm(dim=1)/(native-self.before).flatten(1).norm(dim=1).clamp_min(1e-12)).tolist())
+        self.normalize_step_diagnostics(native)
         if step%10==9:
             self.trace.flush();write(self.folder/"steps.json",self.rows)
             write(self.folder/"progress.json",{"step_completed":step+1,"unix":time.time()})

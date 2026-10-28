@@ -7,6 +7,7 @@ and independent native RNG replay. Only a confirmed device OOM retries capacity.
 import copy
 import functools
 import gc
+import math
 import time
 import threading
 from pathlib import Path
@@ -149,6 +150,28 @@ class CandidateControl(GeometryControl):
         self.rows[-1]["candidate_rng_after_sha256"]=[tensor_digest(s.states) for s in self.random_streams.parts]
         self.rows[-1]["failed_units"]=copy.deepcopy(self.failed_units)
         return result
+
+    def repair_diagnostics(self,key,fallback=None):
+        for i,value in enumerate(self.rows[-1][key]):
+            if math.isfinite(value):continue
+            corrected=float(fallback[i]) if fallback is not None else None
+            self.rows[-1][key][i]=corrected if corrected is not None and math.isfinite(corrected) else None
+            self.rows[-1].setdefault("diagnostic_overflow",[]).append(dict(field=key,row=i,
+                recovery="float64_reduction" if self.rows[-1][key][i] is not None else "unavailable_nonfinite_source"))
+
+    def normalize_forward_diagnostics(self,gradient):
+        if any(not math.isfinite(x) for x in self.rows[-1]["gradient_norm"]):
+            self.repair_diagnostics("gradient_norm",gradient.double().flatten(1).norm(dim=1))
+        self.repair_diagnostics("coefficient")
+
+    def normalize_step_diagnostics(self,native):
+        # Do not classify a finite 1e30 displacement as NaN merely because a
+        # float32 sum of squares overflowed. Sampling tensors stay unchanged.
+        if any(not math.isfinite(x) for x in self.rows[-1]["max_atom_increment_A"]):
+            self.repair_diagnostics("max_atom_increment_A",(self.delta.double()*self.model.coord_scale).norm(dim=-1).amax(1))
+        if any(not math.isfinite(x) for x in self.rows[-1]["delta_native_ratio"]):
+            self.repair_diagnostics("delta_native_ratio",self.delta.double().flatten(1).norm(dim=1)/
+                (native.double()-self.before.double()).flatten(1).norm(dim=1).clamp_min(1e-12))
 
     def check_terminal(self,output):
         result=self.prepare_output(output,list(range(self.initial["population"])))

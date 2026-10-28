@@ -163,6 +163,22 @@ def test_failed_terminal_preserves_structural_masks_and_healthy_units(tmp_path):
     assert list(control.failed_units)==[1] and torch.isfinite(output["coords"]).all()
 
 
+def test_large_finite_diagnostics_do_not_overflow_json_or_change_sampling():
+    import json
+    control=object.__new__(batch.CandidateControl)
+    control.delta=torch.full((2,4,3),1e30);before=control.delta.clone()
+    control.before=torch.zeros_like(control.delta);control.model=SimpleNamespace(coord_scale=1.)
+    control.rows=[dict(gradient_norm=[float("inf")]*2,coefficient=[1.,float("inf")],
+        max_atom_increment_A=[float("inf")]*2,delta_native_ratio=[float("nan")]*2)]
+    control.normalize_forward_diagnostics(control.delta)
+    control.normalize_step_diagnostics(control.delta)
+    assert torch.equal(before,control.delta)
+    assert control.rows[0]["max_atom_increment_A"][0]>1e30
+    assert control.rows[0]["delta_native_ratio"]==[1.,1.]
+    assert control.rows[0]["coefficient"]==[1.,None]
+    json.dumps(control.rows,allow_nan=False)
+
+
 def test_reuse_rejects_incomplete_calibration_before_copy(tmp_path,monkeypatch):
     from agenticgen.uniguide import geometry_runtime as runtime
     root=tmp_path/"dest";source=tmp_path/"source"
