@@ -14,6 +14,8 @@ Treat a list of legal examples as illustrative unless the controller explicitly 
 
 Apply the shared adaptive-search precedence. When recovery is externally triggered, anchor_reason identifies the compatible checkpoint basis and evidence explains what changed from the failed strategy. Missing recovery inputs belong in mechanism_uncertainty; do not guess a counter or repeat a saved evaluation.
 
+Connect the cited historical observation to a scoped lesson in evidence: state whether this action applies it or tests a justified exception. Unexecuted alternatives have no measured outcome. A lesson or summary label is not an anchor; its persistence is not established by writing it in JSON. Use the existing prediction/falsifier fields for future revision, not a copied memory archive.
+
 ## Fixed output modules
 
 Return exactly `analysis`, `mechanism_uncertainty`, and `proposals`. Keep the following modules inside these existing fields; do not add top-level keys or nested objects where strings are required.

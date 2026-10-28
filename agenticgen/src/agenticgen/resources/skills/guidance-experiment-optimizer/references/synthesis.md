@@ -14,6 +14,8 @@ Apply `condition-preservation-design-v1`: prioritize conditioned relative geomet
 
 Apply the shared adaptive-search precedence, including the mean preference within limits, joint-performance priority, compatible-checkpoint recovery and fixed-panel claim scope. In choice_evidence connect any recovery basis to a new allocation; do not treat reuse of the best strategy as another evaluation.
 
+Trace a relied-on lesson to its original proposal and measurements. Shared role agreement is not independent support. In choice_evidence say how that lesson changes selection or how counterevidence justifies an exception; do not infer the unselected alternative's outcome or make an unverified reflection a fact.
+
 ## Fixed output modules
 
 In selection mode return exactly `analysis`, `choice_evidence`, and `selected`. Put the updated historical lesson and geometric tradeoff in `analysis`; put each chosen purpose, decisive evidence and alternative weakness in `choice_evidence`. `selected` contains `increase`, `decrease`, and `redistribute`, each mapped to an existing key in `candidates` for that branch. Shared-reference labels and private proposal identifiers are not selection keys.

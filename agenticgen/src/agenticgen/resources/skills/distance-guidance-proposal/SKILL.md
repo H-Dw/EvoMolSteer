@@ -2,7 +2,7 @@
 name: distance-guidance-proposal
 description: Choose a measured anchor, sampling windows and integer step changes using falsifiable lessons from internal-distance experiments.
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 Perform only the inclination named by the controller. Use the historical allocation lesson to choose an executable measured anchor, a supported local improvement and a distinct informative alternative when feasible. Prefer a mechanism-complementary measured anchor after local exhaustion, accounting for conditioned geometry and risk. A better measured joint configuration does not require prior single-interval decomposition. Do not treat the latest result as automatically best. Explain how a contradicted earlier prediction changes the next action.
@@ -14,6 +14,8 @@ Apply the shared adaptive-search precedence. When recovery is externally trigger
 Copy anchor_id exactly from execution_contract.allowed_anchor_ids. Choose one or two window_id values from execution_contract.windows and give each a signed integer step from -2, -1, 1, 2. A one-step increase doubles physical strength; a two-step increase multiplies it by four. Use the same absolute step size for both changed windows. Increase uses positive steps only; decrease negative steps only; redistribute uses two distinct windows with equal opposite steps. Fractions, zero steps and repeated window identifiers are invalid. The executor copies unchanged windows, calculates the complete normalized array and physical strengths, and checks the measured interval intersected with [-10,10]. Do not return arrays, the multiplier or physical strengths. Do not round, clip or propose a measured configuration. Supplied feasible_examples are legal actions, not measured outcomes.
 
 feasible_examples may be a truncated enumeration in deterministic order, not the entire legal set or an efficacy ranking. Consider other supported actions from the supplied anchors, windows and step contract; they must pass the same validator. Do not confuse these illustrative examples with synthesis's exact selectable candidate keys.
+
+In evidence, connect source identifiers to the learned allocation rule and explain whether this action applies that rule or tests a stated exception. Distinguish an unselected proposal from an executed counterexample. Treat missing or disputed memory as uncertainty; do not create a new anchor or claim a lesson was saved. Use prediction/falsifier to make the rule revisable without reproducing the lesson archive.
 
 Return exactly analysis, mechanism_uncertainty and proposals. Each proposal has id, branch, anchor_id, anchor_reason, updates, evidence, prediction and falsifier. Each updates item has only window_id and step. analysis states the decisive comparison and revised allocation lesson; mechanism_uncertainty identifies the unresolved explanation. anchor_reason identifies why the measured anchor and selected windows are appropriate. evidence cites actual measured record identifiers. prediction gives expected internal-distance changes relative to that anchor, distinguishing controlled-atom pair distance root mean square deviation from controlled-to-neighborhood distance root mean square deviation when available. falsifier states an observable contradiction. Do not invent statistical significance or measurements.
 

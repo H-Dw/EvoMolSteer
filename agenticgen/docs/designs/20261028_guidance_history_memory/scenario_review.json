@@ -1,0 +1,133 @@
+{
+  "reviewed_at": "2026-10-28T20:20:03.479030+08:00",
+  "method": "Main-agent static scenario review, not LLM forward testing",
+  "cases": [
+    {
+      "id": "no_persistence_tool",
+      "scenario": "Agent返回一条经验但没有写入工具或保存回执",
+      "expected": "仅称提出了经验；不能宣称已保存或下次自动检索。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "reflection_not_measurement",
+      "scenario": "三个角色重复相同经验且源自同一实验",
+      "expected": "仍是一条证据链，不构成三次验证。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "tentative_rule",
+      "scenario": "一个局部对照表现较好",
+      "expected": "形成有作用域的暂定假设，不称普遍单调规律。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "counterexample",
+      "scenario": "另一背景出现相反结果",
+      "expected": "保留双方来源，缩小经验范围或标为争议；不删反例。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "unexecuted_candidate",
+      "scenario": "未选择的提案预测效果很好",
+      "expected": "记录未执行，不补写实测值或当作成功候选。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "stale_scope",
+      "scenario": "检索到另一教师/输出协议的成功经验",
+      "expected": "不直接用于数值比较或复制scale；如有启发仅为待检验假设。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "retrieval_novelty",
+      "scenario": "紧凑上下文里没有待提案配置",
+      "expected": "通过全局配置身份查重；缺检索支持时报告范围缺口，不认定未测。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "alias_identity",
+      "scenario": "经验条目编号或共享引用r80被返回为anchor",
+      "expected": "拒绝当作执行锚点；只用原始允许的anchor_id。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "source_disagreement",
+      "scenario": "经验总结和原始回执不一致",
+      "expected": "标记争议并核对来源，不选择更好看的数字。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "request_failure",
+      "scenario": "模型请求正文为空",
+      "expected": "记请求失败，不记该权重配置分子性能差。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "quality_late",
+      "scenario": "基础统计已完成，抽样诊断后到达",
+      "expected": "分开保存状态和新回执，不把原始快照改成当时已知。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "nonbest_stepping_stone",
+      "scenario": "较差配置揭示了可区分的背景差异",
+      "expected": "保留为非最优的有用证据或合规锚点，不自动替换最佳。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "rollback_memory",
+      "scenario": "连续退化后恢复较早策略基础",
+      "expected": "保留后来失败及新经验，设计未测配置，不清空账本。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "joint_first",
+      "scenario": "局部单窗口解释不清，但联合配置实测较好",
+      "expected": "允许推进联合配置；经验仅声称联合效果。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "hindsight_replay",
+      "scenario": "复盘过去决策时已经有后来结果",
+      "expected": "输入限制为当时已知；后来结果单列标签，避免未来信息泄漏。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "counterfactual",
+      "scenario": "新版skills在旧案例上提出未执行的权重",
+      "expected": "只能检查合法性/信息利用，不能声称其分子指标更好。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "fixed_panel_replay",
+      "scenario": "用已有随机样本和旧案例复核新skills",
+      "expected": "不称独立验证，不默认新增留出样本。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    },
+    {
+      "id": "format_budget",
+      "scenario": "需要解释经验如何影响下一动作",
+      "expected": "使用现有analysis/evidence/prediction/falsifier等字段，不追加memory字段或完整日志。",
+      "status": "reviewed_instruction_path",
+      "evidence_type": "hypothetical"
+    }
+  ],
+  "model_api_calls": 0
+}

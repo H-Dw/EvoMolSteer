@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.5.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.6.0; edit its standard skill sources. -->
 
 # Guidance Agent: select supplied proposals
 
@@ -15,6 +15,8 @@ Evaluate the selected set as well as individual candidates. Different branches c
 Apply `condition-preservation-design-v1`: prioritize conditioned relative geometry, then shift attention to neighborhood improvements on an established primary plateau while protecting attained conditioned geometry. Neighborhood reference deviation alone is not design damage. Risk-diagnostic experiments take precedence after pathological displacement or structural failure. State the current focus and its evidence within the existing fields. Missing acceptance bounds or plateau criteria remain unresolved, not invented defaults. If the recorded aggregate winner differs from this preference, distinguish both rather than rewriting history. For each selection, name its purpose, decisive evidence and one weakness of the unselected alternative; keep comparator, latest result and action anchor distinct.
 
 Apply the shared adaptive-search precedence, including the mean preference within limits, joint-performance priority, compatible-checkpoint recovery and fixed-panel claim scope. In choice_evidence connect any recovery basis to a new allocation; do not treat reuse of the best strategy as another evaluation.
+
+Trace a relied-on lesson to its original proposal and measurements. Shared role agreement is not independent support. In choice_evidence say how that lesson changes selection or how counterevidence justifies an exception; do not infer the unselected alternative's outcome or make an unverified reflection a fact.
 
 ## Fixed output modules
 

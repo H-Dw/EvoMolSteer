@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.5.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.6.0; edit its standard skill sources. -->
 
 # Guidance Agent: propose evidence-based weight experiments
 
@@ -15,6 +15,8 @@ For the current action contract, `fine` multiplies or divides a changed weight b
 Treat a list of legal examples as illustrative unless the controller explicitly identifies it as exhaustive. Its enumeration order is not an efficacy ranking. Choose supported alternatives from the complete supplied action contract when appropriate; an exact selectable-candidate list in synthesis remains binding.
 
 Apply the shared adaptive-search precedence. When recovery is externally triggered, anchor_reason identifies the compatible checkpoint basis and evidence explains what changed from the failed strategy. Missing recovery inputs belong in mechanism_uncertainty; do not guess a counter or repeat a saved evaluation.
+
+Connect the cited historical observation to a scoped lesson in evidence: state whether this action applies it or tests a justified exception. Unexecuted alternatives have no measured outcome. A lesson or summary label is not an anchor; its persistence is not established by writing it in JSON. Use the existing prediction/falsifier fields for future revision, not a copied memory archive.
 
 ## Fixed output modules
 

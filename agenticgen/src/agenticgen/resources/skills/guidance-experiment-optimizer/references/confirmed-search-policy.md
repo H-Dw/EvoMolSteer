@@ -1,6 +1,6 @@
 # Confirmed adaptive search policy
 
-Current policy: `history-adaptive-search-v2`, skills version 1.5.0. It supplements `condition-preservation-design-v1` and retains `measured-search-policy-v1` and `branch-evidence-abstention-v1`. The latest direct human answer is recorded in `agenticgen/docs/designs/20261028_guidance_policy_reconciliation/decisions.json`. Earlier interview records preserve offered options and original evidence snapshots.
+Current policy: `history-adaptive-search-v2`, skills version 1.6.0. It supplements `condition-preservation-design-v1` and retains `measured-search-policy-v1` and `branch-evidence-abstention-v1`. The latest direct human answer is recorded in `agenticgen/docs/designs/20261028_guidance_policy_reconciliation/decisions.json`. Earlier interview records preserve offered options and original evidence snapshots.
 
 ## Confirmed decisions
 

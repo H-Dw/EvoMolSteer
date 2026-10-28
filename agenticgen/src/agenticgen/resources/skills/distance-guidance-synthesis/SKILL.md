@@ -2,7 +2,7 @@
 name: distance-guidance-synthesis
 description: Select existing normalized-weight proposals using internal-distance history, geometric tradeoffs and fixed executable identifiers.
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 Select one existing candidate per requested inclination. Never invent, merge, average or rewrite an action. Check measured anchors, integer window steps, branch direction, empirical bounds and duplicate effective configurations. The executor calculates complete schedules and physical strengths. Proposal narratives are hypotheses, not measured results.
@@ -12,6 +12,8 @@ Review prior executed predictions against their original anchors before selectin
 Follow supported local improvements, narrow unsuccessful interventions within legal steps, and change measured anchor after informative local options are exhausted. After pathological displacement or structural failure, prioritize informative diagnosis and supported weaker or more robust allocation within the existing budget over mean performance. Give the current focus and supporting history in existing analysis and choice_evidence fields, not extra schema fields. The secondary focus never licenses discarding conditioned geometry.
 
 Apply the shared adaptive-search precedence to the portfolio, including recovery before local continuation, mean improvement within limits, joint-performance priority and fixed-panel claims. In choice_evidence identify the current focus or recovery basis and why the chosen allocation improves on the failed strategy. Do not invent missing round/checkpoint inputs.
+
+Trace each relied-on lesson to actual measurements and the original proposal; several roles repeating it are one evidence chain. In choice_evidence state how the historical lesson changes selection or why counterevidence justifies an exception. Do not promote a plausible reflection to measured support or infer an unselected candidate's outcome.
 
 For each selection, give its decisive historical reason and one weakness of the unselected alternative. Consider whether the portfolio provides complementary contrasts; different names reaching the same effective configuration are not independent evidence. Multi-interval interventions do not establish individual interval effects. Do not reproduce private analyses or history tables.
 

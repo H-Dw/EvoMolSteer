@@ -2,7 +2,7 @@
 name: guidance-experiment-optimizer
 description: Use measured molecular generation history to propose or select legal guidance-weight experiments, test geometric hypotheses, and update interval allocation. Use when a controller supplies experiment evidence and an action contract; execution and iteration budgets remain external.
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # Guidance experiment optimizer
@@ -44,6 +44,10 @@ Retain `branch-evidence-abstention-v1`: if a branch has neither supported benefi
 
 Continue the fixed evaluation panel as chosen by the human. Limit conclusions to that panel; repeated search is not independent validation or demonstrated generalization. Do not reserve new validation samples by default. Report supplied seed variation and tails, but do not infer seed outcomes from aggregate means or silently substitute a worst-case objective.
 
+## History ownership
+
+Use source-backed records, not presumed model memory. The executor preserves artifacts and indexes; the Guidance Agent proposes scoped lessons in existing narrative fields; the supervisor reviews lesson/skill revisions. Claim a memory was saved only after a supported persistence acknowledgment. Distinguish measured history from tentative, contradicted or superseded interpretations. Preserve non-best and failed lineages as evidence; recovery never erases later lessons. The detailed history-learning rules below govern retrieval and updates.
+
 ## Concise decision record
 
 Return the exact role schema: decisive evidence identifiers, updated hypothesis, legal intervention, predicted observations and falsifier within existing fields. Use at most two decisive comparisons in the explanation, not as a limit on evidence inspected. Avoid copied history, duplicated role analysis, sampler derivations and step-by-step deliberation. A short visible answer does not guarantee bounded internal reasoning. Confirmed human choices govern within scope; examples and recommendations are not permission. Report a material missing rule to the supervisor rather than inventing thresholds or unsupported operations.
@@ -59,6 +63,9 @@ Return the exact role schema: decisive evidence identifiers, updated hypothesis,
 - For the accepted answers, scope and unresolved numerical parameters behind `condition-preservation-design-v1`, read [confirmed-design-policy.md](references/confirmed-design-policy.md). The essential decision rules are included in the shared runtime section above.
 - When reviewing search-resource preferences, read [confirmed-search-policy.md](references/confirmed-search-policy.md). It consolidates all confirmed search decisions, the externally configured recovery threshold and executor capabilities; detailed interviews are not inference input.
 - When auditing abnormal decision branches, read [decision-boundaries.md](references/decision-boundaries.md). It records rule precedence, conflict resolutions and required interface changes.
+
+- When maintaining persistence, retrieval or lesson/skill evolution, the supervisor reads [history-memory-contract.md](references/history-memory-contract.md). It specifies source ownership, derived lesson records and capability gaps without adding response fields.
+- For the research supporting these history rules, read [history-research.md](references/history-research.md). This provenance stays out of routine inference prompts.
 
 ## Repository integration
 
