@@ -47,3 +47,13 @@ raw 返回预测先于第 99 步更新。因此，记录的引导活动为 10–
 采样结束写 SAMPLING_FINISHED 并释放 GPU 锁。后台等待自己的抽样诊断，自动生成 RESULTS.json、summary.csv、report.zh-CN.md 与 FINALIZED，区分新增和历史失败组。诊断超过六小时则留下 POSTPROCESSING_PENDING；不冒充完成。只有核对身份与空闲状态后才停止本专项 CPU worker。
 
 GitHub 直连失败时按 ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc 依次尝试；均失败后才使用已验证且只含已推送提交的 Git bundle。启动后核对真实进程、执行锁、日志与首组逐步配对回执，随后结束对话，让后台自行完成。
+
+## 已启动审计
+
+2026-10-28 22:41:26（Asia/Shanghai），已从独立目录 `/workspace/uniguide_audits/late-window-585468d2` 脱离 SSH 会话启动，固定提交 `585468d27bcf1fb6195ac098ad1aff29045bdaa0`，定位 PID 93604。实际入口为该目录下 `agenticgen/scripts/run_uniguide_late_window.py`，参数和环境绑定见 launch.json；科学模块仍全部来自原 `0e7d4dc2` 快照。
+
+22 项远端契约测试通过（0.56 秒），本地仅静态解析。直连及四镜像依序各超时 8 秒后，使用已验证、仅包含已推送提交的 bundle；SHA256 为 `b9c96d0864b20246b130d987b82c7c9d93b8344dcc85589af7cc686b9e6e9361`。
+
+22:42:56 完成一次启动核验：真实命令匹配、进程运行且已脱离父会话，专项锁与原 GPU 执行锁均持有。首组 6pyy/gradient__raw1__late_only 的进度为第 40 步，读取到的配对验收已覆盖第 0–39 步且五类数据逐项相同；完整 91 步验收仍由后台执行。引导活动准确为第 10–99 步，共 90 步。此时仅首组预留 50 次，尚无完成组或失败；预留不能视为生成完成。
+
+571 个保护文件无变化，固定执行目录干净。CPU 质量模块字节与原验收绑定一致。日志为 `/workspace/agenticgen_late_window_20261028/run.log`；结果及最终状态写入同根目录。启动、预检、测试、部署证据分别保存在本目录 launch.json、startup_verified.json、study.json、remote_tests.txt、deployment.json。后续审计文档提交不部署到正在执行的目录。本轮至此不持续轮询，不创建监控。
