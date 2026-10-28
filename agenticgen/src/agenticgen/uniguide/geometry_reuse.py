@@ -22,7 +22,7 @@ def select_initial(config,schedules):
     if set(schedules)!=set(domains):raise ValueError("Provide four normalized window values for every teacher")
     selected={}
     for target,domain in domains.items():
-        values=ticks(schedules[target])
+        values=list(ticks(schedules[target]))
         if any(not domain["normalized_minimum"]<=v<=domain["normalized_maximum"] for v in values):
             raise ValueError("Selected window value is outside this teacher's measured range")
         selected[target]={NORMALIZED:values,MULTIPLIER:domain[MULTIPLIER],EFFECTIVE:effective(values,domain[MULTIPLIER]),

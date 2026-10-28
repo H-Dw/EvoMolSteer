@@ -220,6 +220,7 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
         write(folder/"aggregate.json",aggregate)
         files=["manifest.json","records.json","aggregate.json","terminal.pt.gz","trace.h5","steps.json",
                "rng_ledger.json","molecules_all_built.sdf","molecules_raw_decodable.sdf"]
+        if (folder/"BATCH_PROVENANCE.json").exists():files.append("BATCH_PROVENANCE.json")
         frozen(folder/"COMPLETE.json",dict(files={name:sha(folder/name) for name in files}))
         return aggregate
     except Exception as error:
