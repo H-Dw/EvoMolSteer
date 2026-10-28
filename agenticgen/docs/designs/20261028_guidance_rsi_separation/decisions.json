@@ -1,0 +1,46 @@
+{
+  "time_asia_shanghai": "2026-10-28T22:59:32.066987+08:00",
+  "interview_id": "guidance-reflection-policy-20261028",
+  "status": "answered_and_authored",
+  "answer_record": "R1-R3 preserve supplied wording; R4-R6 are faithful concise records, not claimed verbatim full messages",
+  "answers": {
+    "R1": "实验经验始终留在经验库。固定 skills 只规定如何分析、检索和选择；具体“哪个区间应增强或减弱”由每次历史分析决定。局部经验不需要升级为固定 skills 指引，其仅在当前任务中生效，参与策略指引的思考选择。",
+    "R2": "优先采用最贴近当前背景的经验。根据当前锚点及其余窗口配置，选择更匹配的局部规律争取收益，同时保留另一条反例。经验相似时，选取距离当前状态更新日期最近的经验。",
+    "R3": "实验内部目前不允许对skills进行修改。先前提及的“主GPT对skills的更改“要求不应该放置于当前Guidance Agent的skills中。”主GPT对skills的更改“定位为运行完所有target的实验后的总结反思和更新优化，其为最终沉淀的RSI，需要使用独立的skills进行管理。请额外针对当前项目的优化方向和相应的策略，构建适合针对所有实验完成后的反思改进skills，该skills用于外部Agent（如GPT）进行RSI式的skills自迭代，其进行迭代时需要设置为独立的新版本，不得覆盖原有文件。",
+    "R4": "外部Agent围绕一个主要问题修改。一次聚焦最有证据支持的问题；必要时可涉及一至三个模块，但围绕同一个预期行为和否定标准。Guidance Agent这种真正负责路径选择的agent不允许进行skills的修改。",
+    "R5": "外部Agent作为流程改进版采用。不替换分子结果最佳 checkpoint，也不宣称几何收益；继续利用后续已授权结果检查科学效果。Guidance Agent不允许进行skills的修改。",
+    "R6": "外部Agent允许迁移待验证假设。不需要在skills中标注经验来源（仅需要在skills的更新日志中进行说明，避免出现任务对象的泄露），用第二教师自己的标定、锚点和合法动作验证；第二教师的直接反证优先。同时，尽可能选择教师的抽象化特征作为该经验的描述，避免直接描述该教师的特有数值，造成测试对象的泄露或污染。"
+  },
+  "direct_rules": {
+    "runtime_skill_mutation": false,
+    "runtime_human_interaction": false,
+    "local_experience_scope": "current_task_only",
+    "local_experience_to_fixed_skills": false,
+    "conflict_preference": "background_match_then_latest_eligible_update",
+    "rsi_gate": "all_declared_targets_and_required_work_complete",
+    "rsi_location": "external_agent_separate_skill",
+    "revision_storage": "new_nonexistent_version_directory_only",
+    "rsi_change_focus": "one_principal_problem_across_necessary_one_to_three_modules",
+    "process_adoption": "allowed_without_claiming_geometry_gain_or_replacing_molecular_best",
+    "transfer": "abstract_unmeasured_hypothesis_external_only_with_receiving_target_counterevidence_priority",
+    "source_provenance": "update_log_not_runtime_instructions"
+  },
+  "interpretation_boundaries": [
+    "A task-memory revision is not a skill edit.",
+    "A timestamp tie-break cannot override scientific compatibility or introduce future information.",
+    "Configuration recovery preserves the experiment-bound skills.",
+    "R1 prevents concrete local allocation rules entering fixed skills; R6 permits method-level abstraction and separately supplied unmeasured new-task priors.",
+    "No evidence-backed problem permits a no-revision report; one-to-three is not a forced quota."
+  ],
+  "supersedes": [
+    "old permission for per-version internal skill modification",
+    "old interpretation of checkpoint recovery as a skill-file rollback",
+    "old pending recommendations from the interview"
+  ],
+  "does_not_implement": [
+    "new live skill loader",
+    "per-version accept-review replacement",
+    "persistent task-memory retrieval/timestamps",
+    "new sampling or model evaluation"
+  ]
+}
