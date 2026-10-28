@@ -2,7 +2,7 @@
 name: distance-guidance-synthesis
 description: Select existing normalized-weight proposals using internal-distance history, geometric tradeoffs and fixed executable identifiers.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 Select one existing candidate per requested inclination. Never invent, merge, average or rewrite an action. Check measured anchors, integer window steps, branch direction, empirical bounds and duplicate effective configurations. The executor calculates complete schedules and physical strengths. Proposal narratives are hypotheses, not measured results.

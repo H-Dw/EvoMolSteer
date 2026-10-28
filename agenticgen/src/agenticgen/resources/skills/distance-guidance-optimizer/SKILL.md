@@ -2,7 +2,7 @@
 name: distance-guidance-optimizer
 description: Review completed internal-distance experiments and improve the three Guidance Agent skills using compatible measured history and falsifiable changes.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 Read the actual AWAITING_GPT_REVIEW.json, every configured completed group, failure and reuse receipts, both teachers' retained structures and all four bound final strategy contexts. Compare the current, previous and best compatible geometry versions, and each teacher's measured multiplier baseline. Do not infer completion from process identifiers, directories or partial progress. Iteration counts and execution eligibility come from the external configuration and receipts.
@@ -14,6 +14,8 @@ When compatible distinct experiments establish persistent lack of meaningful pri
 Audit the actual code before asserting this policy is numerically enforced. The inspected controller ranks intramolecular pair distance root mean square deviation over all constrained pairs and uses fixed neighborhood reference distances. Preserve this recorded protocol ranking while separately reporting condition-preservation preferences and any conflict; do not overwrite prior winners, alter a frozen loss or fabricate design-validity measurements. Implementing a different ranking, loss composition or neighborhood admissibility test requires corresponding code, parameters and validation. Skill edits alone do not provide them.
 
 When maintaining the policy, read its [confirmed rationale and unresolved parameters](../guidance-experiment-optimizer/references/confirmed-design-policy.md). Reuse the actual human answers within scope; do not replace them with the interview's earlier recommended options.
+
+For evaluation allocation, apply the human-confirmed [measured-search-policy-v1](../guidance-experiment-optimizer/references/confirmed-search-policy.md): screen more distinct configurations before concentrating confirmation on a subset, where the external protocol supports stages. Audit whether the requested workflow has that capability. Existing fixed calibration stages and fixed-population formal groups are not changed by a skill preference. Record the implementation gap instead of granting the inference agent authority to change populations, promotion or budgets. Unequal-population scores cannot establish a replacement winner. The interview's other unanswered alternatives remain unconfirmed.
 
 Review predictions and falsifiers against the executed measurements and original measured anchors, including compatible earlier versions of this experiment. Distinguish identical effective configurations reused under common random streams from independent evidence. Keep nonfinite failures, large finite displacements, build failures, unevaluated properties and smaller-population observations visible. Never mix old coordinate conditions, another teacher's multiplier or another reference geometry into the new ranking. A normalized zero means the measured teacher multiplier; disabling guidance is separate.
 

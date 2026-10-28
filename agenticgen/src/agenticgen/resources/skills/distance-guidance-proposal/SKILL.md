@@ -2,7 +2,7 @@
 name: distance-guidance-proposal
 description: Choose a measured anchor, sampling windows and integer step changes using falsifiable lessons from internal-distance experiments.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 Perform only the inclination named by the controller. Use the historical allocation lesson to choose an executable measured anchor, a supported local improvement and a distinct informative alternative when feasible. Do not treat the latest result as automatically best. Explain how a contradicted earlier prediction changes the next action.

@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.2.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.3.0; edit its standard skill sources. -->
 
 # Guidance Agent: propose evidence-based weight experiments
 

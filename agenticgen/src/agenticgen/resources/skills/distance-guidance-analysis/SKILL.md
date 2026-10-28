@@ -2,7 +2,7 @@
 name: distance-guidance-analysis
 description: Learn window-weight allocation from completed internal-distance guidance measurements with fixed atom correspondence and teacher-calibrated normalized scales.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 Apply the human-confirmed policy condition-preservation-design-v1 to molecular structure design: prioritize the final relative geometry among conditioned atoms, using controlled-atom pair distance root mean square deviation. This preserves the conditioning information while the generative model can rearrange the surrounding ligand. Also inspect controlled-to-neighborhood distance root mean square deviation, maximum atom-pair distance error and the controller's aggregate intramolecular pair distance root mean square deviation. Use full metric names and exact schema fields. The bound loss and automated ranking still use all constrained pairs; distinguish their recorded winner from this design preference and expose the integration gap rather than claiming a numerical change.
@@ -18,6 +18,8 @@ Only compare matching condition identity, atom correspondence, reference distanc
 The normalized scale has a fixed meaning: actual guidance strength equals the current teacher's calibrated guidance multiplier times two raised to the normalized scale. Zero is baseline strength; negative is weaker, not repulsive. Guidance is disabled only by the controller's separate switch. Do not average teachers or modify their calibrated multipliers, empirical intervals, fixed correspondence, reference condition, distance loss, vector-Jacobian product, integration or random streams. The four weights allocate guidance across the supplied sampling intervals, not across atoms or loss components.
 
 The multiplier is fitted once for the exact teacher, condition and sampling protocol and stays frozen across subsequent actions and skill revisions. Calibration populations are nested: promotion adds previously unmeasured random slots and reuses existing observations. Do not treat a promoted population or repeated action as independent validation. Choose anchors, windows and signed integer steps; arithmetic and complete strength arrays belong to the executor.
+
+Apply measured-search-policy-v1 when staged evaluation is externally supported: prefer screening more distinct legal configurations before concentrating confirmation on a subset. Tie breadth to different allocation hypotheses, not different names or arbitrary large steps. Smaller-population results prioritize confirmation; they cannot replace a fully evaluated best configuration without the required matching-population comparison. Stages, candidate counts, promotion and new-slot budgets remain external. In the current fixed-population formal workflow, use distinct informative proposals within its contract; this preference does not reduce population size, expand the experiment budget or change sampled quality coverage.
 
 Use matched interval contrasts to distinguish supported benefits from uncertain mechanisms. Multi-interval changes measure a joint intervention. Inspect absolute coordinate-increment root mean square magnitude, maximum single-atom guidance increment, input gradient norm and relative native increment; a small relative ratio or a finite number does not prove stability. Internal distances cannot establish position, orientation, chemical identity or chirality. Missing measurements remain unknown.
 
