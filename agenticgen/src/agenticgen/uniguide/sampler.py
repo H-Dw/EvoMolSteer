@@ -19,7 +19,7 @@ from agenticgen.runtime.rng import rng_state, set_rng
 def population(config, target, count):
     if count not in [10,20,25,50]: raise ValueError("Unapproved population")
     n=count//5
-    states=[load_pt(Path(config["root"])/"initials"/target/f"batch_{b:03d}.pt.gz") for b in range(5)]
+    states=[load_pt(Path(config.get("initials_root",config["root"]))/"initials"/target/f"batch_{b:03d}.pt.gz") for b in range(5)]
     result={k:join([s[k] for s in states for _ in range(n)],[20]*count,list(range(n))*5)
             for k in ["prior","pocket_target","pocket_off","target_com"]}
     result["stream_states"]=[s["rng"] for s in states]
@@ -31,7 +31,7 @@ class Control:
     def __init__(self, model, teacher, initial, schedule, folder, resume=None, stop_step=None):
         self.model,self.teacher,self.initial=model,teacher,initial
         self.folder=Path(folder);self.folder.mkdir(parents=True,exist_ok=True)
-        self.schedule=expand(schedule)
+        self.schedule=self.expand_schedule(schedule)
         self.com=initial["target_com"].to("cuda")
         self.resume=resume
         self.start_step=resume["step"] if resume else 0
@@ -42,6 +42,18 @@ class Control:
         self.last_assignment=None
         model.integrator._adaptive_observer=self
         model._adaptive=self
+
+    def expand_schedule(self,schedule):
+        return expand(schedule)
+
+    def condition_loss(self,endpoint,valid):
+        return loss(endpoint,self.teacher["core_A"],valid)
+
+    def condition_trace(self,target):
+        return {"target_A":target}
+
+    def checkpoint_metadata(self):
+        return {}
 
     def initialize(self,curr,cond,times,prior,pt,po,et,it,eo,io,grid):
         context={"prior":prior,"pt":{k:v for k,v in pt.items() if k!="complex"},
@@ -60,7 +72,8 @@ class Control:
         if step in [10,100] or step==self.stop_step:
             save_pt(self.folder/f"checkpoint_{step:03d}.pt.gz",dict(step=step,current=curr,cond=cond,times=times,
                 context_sha256=self.context_sha,stream_states=self.random_streams.states,
-                previous_assignment=self.last_assignment,guard_warned=self.model.integrator._guard_warned))
+                previous_assignment=self.last_assignment,guard_warned=self.model.integrator._guard_warned,
+                **self.checkpoint_metadata()))
         if step==self.stop_step: raise StopIteration("Engineering short-step endpoint")
 
     def store(self,key,step,value):
@@ -98,7 +111,7 @@ class Control:
                 for key in ["coords","atomics","charges","bonds","hybridization"]:
                     if key in pred: finite("native prediction "+key,pred[key])
                 endpoint=pred["coords"]*self.model.coord_scale+self.com[physical_ids,None]
-                value,target,selected,assignment=loss(endpoint,self.teacher["core_A"],current["mask"].bool())
+                value,target,selected,assignment=self.condition_loss(endpoint,current["mask"].bool())
                 gradient=torch.autograd.grad(value.sum(),x)[0] if scale else torch.zeros_like(x)
             blocks.append(take(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
                                       selected=selected,assignment=assignment,gradient=gradient)),list(range(actual)),ROWS))
@@ -120,8 +133,9 @@ class Control:
             gamma=float(gamma),coefficient=coefficient.tolist(),loss=value.detach().tolist(),
             assignment_switch_fraction=switches,gradient_norm=gradient.flatten(1).norm(dim=1).tolist(),affinity_vjp=False))
         for key,v in {"endpoint_A":endpoint,"current_A":self.before*self.model.coord_scale+self.com[:,None],
-                      "target_A":target,"input_gradient":gradient,"guidance_delta_A":self.delta*self.model.coord_scale,
-                      "assignment":assignment,"selected":selected,"mask":curr["mask"],"native_drift":self.drift}.items():
+                      "input_gradient":gradient,"guidance_delta_A":self.delta*self.model.coord_scale,
+                      "assignment":assignment,"selected":selected,"mask":curr["mask"],"native_drift":self.drift,
+                      **self.condition_trace(target)}.items():
             self.store(key,step,v)
         return detach(out)
 
@@ -151,18 +165,18 @@ class Control:
         write(self.folder/"rng_ledger.json",self.random_streams.ledger)
 
 
-def sample(model,config,teacher,schedule,folder,count=50,resume_path=None,stop_step=None):
+def sample(model,config,teacher,schedule,folder,count=50,resume_path=None,stop_step=None,control_factory=None,check_affinity=True):
     initial=population(config,teacher["target"],count)
     pt,po,prior=(device(initial[k]) for k in ["pocket_target","pocket_off","prior"])
     for pocket in [pt,po]: pocket["complex"]=[SimpleNamespace(com=c.numpy()) for c in initial["target_com"]]
     resume=load_pt(resume_path) if resume_path else None
-    control=Control(model,teacher,initial,schedule,folder,resume,stop_step)
+    control=(control_factory or Control)(model,teacher,initial,schedule,folder,resume,stop_step)
     try:
         output=model._generate_selective(prior=prior,pocket_data_target=pt,pocket_data_untarget=po,
             steps=100,times=[torch.zeros(count,device="cuda") for _ in range(3)],apply_guidance=False,coord_noise_level=.2)
         finite("native final corrector coordinates",output["coords"])
         for key,value in output.get("affinity",{}).items():
-            if torch.is_tensor(value): finite("terminal affinity "+key,value)
+            if check_affinity and torch.is_tensor(value): finite("terminal affinity "+key,value)
         save_pt(Path(folder)/"terminal.pt.gz",output)
         return output,pt,po,control
     except StopIteration:

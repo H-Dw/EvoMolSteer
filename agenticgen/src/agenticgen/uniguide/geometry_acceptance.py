@@ -1,0 +1,86 @@
+"""Remote engineering checks only: no completed molecules, LLM calls or fitted multipliers."""
+import functools
+from pathlib import Path
+import torch
+from .io import read,write,frozen,sha,value_sha
+from .native_tools import load_pt,device,tensor_digest
+from .batching import take
+from .prepare import load_model
+from .sampler import sample,population
+from .geometry_sampling import GeometryControl,scale_binding
+from .geometry_condition import loss
+from .geometry_protocol import source_binding
+from .random_streams import capture,equal
+
+
+def real_vjp(model,config,teacher,condition):
+    source=Path(config["generation_context_root"])/"R0"/teacher["target"]/"checkpoint_010.pt.gz"
+    state=load_pt(source);initial=population(config,teacher["target"],50);ids=list(range(10))
+    curr,cond,times=(device(take(state[k],ids,50)) for k in ("current","cond","times"))
+    pocket=device(take(initial["pocket_target"],ids,50));com=initial["target_com"][ids].to("cuda")
+    with torch.no_grad():
+        equis,invs=model.gen.get_pocket_encoding(pocket["coords"],pocket["atom_names"],
+            pocket_atom_charges=pocket["charges"].argmax(-1),pocket_bond_types=pocket["bonds"].argmax(-1),
+            pocket_res_types=pocket["res_names"],pocket_atom_mask=pocket["mask"])
+    hooks=[]
+    def denied(gradient):raise AssertionError("Affinity head entered geometry VJP")
+    def objective(x):
+        out=model(dict(curr,coords=x),pocket,times,cond_batch=cond if model.self_condition else None,
+            pocket_equis=equis,pocket_invs=invs,training=False)
+        for value in out.get("affinity",{}).values():
+            if torch.is_tensor(value) and value.requires_grad:hooks.append(value.register_hook(denied))
+        pred,_=model._get_predictions(out)
+        return loss(pred["coords"]*model.coord_scale+com[:,None],condition,curr["mask"].bool())[0].sum()
+    before=capture();x=curr["coords"].detach().clone().requires_grad_(True)
+    gradient=torch.autograd.grad(objective(x),x)[0].detach();norm=gradient.norm()
+    if not torch.isfinite(gradient).all() or norm<=1e-8:raise ValueError("Invalid real model input gradient")
+    direction=gradient/norm;errors=[]
+    with torch.no_grad():
+        for epsilon in (.01,.005):
+            numerical=(objective(x.detach()+epsilon*direction)-objective(x.detach()-epsilon*direction))/(2*epsilon)
+            errors.append(float(abs(numerical-norm)/norm))
+    if max(errors)>.05:raise ValueError("Real distance VJP finite-difference discrepancy: "+str(errors))
+    if not equal(before,capture()):raise ValueError("VJP consumed sampling RNG")
+    if any(p.requires_grad or p.grad is not None for p in model.parameters()):raise ValueError("Model parameters not frozen")
+    for hook in hooks:hook.remove()
+    return dict(relative_errors=errors,tolerance=.05,input_gradient_norm=float(norm),
+        affinity_gradient_entered=False,sampling_rng_unchanged=True,model_parameters_frozen=True,
+        source_checkpoint_sha256=sha(source),condition_sha256=condition["condition_sha256"])
+
+
+def run(config):
+    from .geometry_runtime import calibrated
+    root=Path(config["root"]);subjects=calibrated(config);folder=root/"acceptance";checks={}
+    original=Path(config["generation_context_root"])/"attempts.json";before=sha(original)
+    for subject in subjects:
+        teacher,condition=subject["teacher"],subject["condition"];out=folder/teacher["target"]
+        model=load_model(config,teacher)
+        numerical=real_vjp(model,config,teacher,condition)
+        off=scale_binding([0.]*4,1.,False)
+        factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
+        sample(model,config,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
+            control_factory=factory,check_affinity=False)
+        sample(model,config,teacher,[1.]*4,out/"native_prefix",10,stop_step=3)
+        a,b=(load_pt(out/name/"checkpoint_003.pt.gz") for name in ("disabled","native_prefix"))
+        disabled={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states")}
+        if not all(disabled.values()):raise ValueError("Disabled distance guidance differs from native prefix")
+        active=scale_binding([0.]*4,1.,True)  # Test fixture only, NOT a fitted lambda.
+        factory=functools.partial(GeometryControl,condition=condition,scale_binding=active)
+        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"continuous",10,stop_step=12,
+            control_factory=factory,check_affinity=False)
+        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"resumed",10,stop_step=12,
+            resume_path=out/"continuous/checkpoint_010.pt.gz",control_factory=factory,check_affinity=False)
+        a,b=(load_pt(out/name/"checkpoint_012.pt.gz") for name in ("continuous","resumed"))
+        resumed={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states","previous_assignment")}
+        if not all(resumed.values()):raise ValueError("Distance guidance resume changed numerical state")
+        steps=read(out/"continuous/steps.json")
+        if any(any(v!=0 for v in s["assignment_switch_fraction"]) for s in steps):raise ValueError("Mapping changed during trajectory")
+        if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"]>=10):raise ValueError("Normalized zero incorrectly disabled guidance")
+        checks[teacher["target"]]=dict(real_model_vjp=numerical,disabled_equivalence=disabled,exact_resume=resumed,
+            fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
+        del model;torch.cuda.empty_cache()
+    if sha(original)!=before:raise ValueError("Original attempt ledger changed")
+    receipt=dict(source_binding=source_binding(),config_sha256=value_sha(config),checks=checks,
+        torch_version=torch.__version__,new_completed_candidates=0,llm_calls=0,fitted_multipliers=False,
+        original_attempts_sha256=before,engineering_only=True)
+    frozen(folder/"COMPLETE.json",receipt);return receipt
