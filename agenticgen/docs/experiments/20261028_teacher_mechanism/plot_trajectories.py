@@ -29,3 +29,6 @@ axes[1].annotate('step 29: 30 A',xy=(29,29.98),xytext=(15,1500),arrowprops=dict(
 axes[1].annotate('step 50: 692,590 A',xy=(50,692589.75),xytext=(57,2e5),arrowprops=dict(arrowstyle='->',color='#555'),fontsize=9)
 fig.savefig(root/'outlier_trajectory.png',dpi=180)
 fig.savefig(root/'outlier_trajectory.svg')
+
+svg=root/"outlier_trajectory.svg"
+svg.write_bytes(("\n".join(line.rstrip() for line in svg.read_text(encoding="utf-8").splitlines())+"\n").encode())
