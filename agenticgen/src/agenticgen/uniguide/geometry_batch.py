@@ -195,6 +195,9 @@ def split_products(output,control,source,unit,index):
         step["scale"]=expand_effective(unit["scale"][EFFECTIVE])[step["step"]]
         step["sampling_rng_after_sha256"]=step.pop("candidate_rng_after_sha256")[index]
         step.pop("failed_units",None);step.update(unit["scale"])
+        if "diagnostic_overflow" in step:
+            step["diagnostic_overflow"]=[dict(item,row=item["row"]-index*10) for item in step["diagnostic_overflow"]
+                if index*10<=item["row"]<(index+1)*10]
     write(destination/"steps.json",steps);write(destination/"rng_ledger.json",control.random_streams.parts[index].ledger)
     frozen(destination/"BATCH_PROVENANCE.json",dict(batch_directory=str(source),row_indices=indices,
         candidate_batch_sha256=sha(source/"candidates_batch.json"),execution_policy=EXECUTION_POLICY))
