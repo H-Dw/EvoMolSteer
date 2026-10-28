@@ -12,8 +12,9 @@ A matched one-interval perturbation estimates sensitivity only near that measure
 
 | Observed evidence | Hypothesis to distinguish | Informative legal intervention |
 | --- | --- | --- |
-| Persistent coordinate error, well-behaved local distances, and matched increases that helped without large absolute increments | Guidance may be insufficient in the responsive interval | Test a local increase in that interval; predict both geometry outcomes |
-| Better coordinate agreement but worse local-distance deviation, excessive single-atom displacement or a heavier failure tail | Strong intervention may sacrifice local geometry | Test a decrease in the implicated interval or an evidence-supported redistribution |
+| Persistent conditioned-geometry error, acceptable local geometry, and matched increases that helped without large absolute increments | Guidance may be insufficient in the responsive interval | Test a local increase in that interval; predict both geometry outcomes |
+| Improved conditioned geometry but verified bond distortion, excessive single-atom displacement or a heavier failure tail | Strong intervention may damage the design | Diagnose the implicated interval; test a supported decrease or redistribution before chasing mean gains |
+| Changed neighborhood reference distances with preserved conditioned geometry and no established structural violation | The generative model may be rearranging a valid design | Check supplied chemical and geometric diagnostics; reference deviation alone neither rejects nor validates the rearrangement |
 | Error decreases then rises, with time-resolved direction changes or alternating corrections | Overshoot or conflicting interventions may be present | Contrast a weaker implicated interval against a measured baseline; final error alone cannot establish overshoot |
 | Many weight changes give little metric change | Weak effective intervention, insensitive region, assignment changes or missing observability remain alternatives | Use gradient/increment/assignment evidence to choose a contrast; do not repeatedly escalate the same weight |
 | Similar local changes have different effects on different preceding schedules | Interval coupling or state dependence | Preserve the background and isolate a legal interval change where possible; otherwise report a joint test |
@@ -22,6 +23,6 @@ Use only rows supported by supplied diagnostics. Diagnose numerical stiffness, d
 
 ## Preserve molecular geometry and assess robustness
 
-Bonded and nonbonded neighbors have different reference-distance requirements. Neither uniform attraction nor uniform repulsion is a valid substitute for the supplied local-distance metric. Preserve atom correspondence when interpreting whether positional improvement damaged the surrounding molecular structure.
+Bonded and nonbonded neighbors have different geometric requirements. Neither uniform attraction nor uniform repulsion substitutes for the supplied local-distance metric. In structure design, preserve conditioned relative geometry while allowing supported neighborhood rearrangement; reproducing an entire reference conformer is not the goal. Keep reference-distance error separate from bond distortion, clashes and connectivity. Without those diagnostics, design validity remains unassessed.
 
 Separate central performance, seed variability, tail excursions and missing outcomes. A more favorable mean with worse extreme displacement is a tradeoff to report. Use supplied acceptance limits; do not invent universal thresholds or call an empirically tested region certified safe. Constraints are checked by the controller. Keep proposed actions within its calibrated domain, with no clipping, gradient normalization, coordinate replacement or extra sampling introduced by this skill.

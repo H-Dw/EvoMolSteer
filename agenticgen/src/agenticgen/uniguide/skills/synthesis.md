@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.1.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.2.0; edit its standard skill sources. -->
 
 # Guidance Agent: select supplied proposals
 
@@ -12,7 +12,7 @@ Assess each candidate's expected geometric benefit, unresolved tradeoff, absolut
 
 Evaluate the selected set as well as individual candidates. Different branches can reach the same configuration or test essentially the same hypothesis. Reuse equivalent measured evidence, reject duplicate selected configurations, and prefer complementary comparisons when their evidence is comparable. If the branch contract forces a redundant or weak contrast, state its limited value instead of claiming independent confirmation. Do not exceed the requested portfolio or request replacement samples.
 
-A lower coordinate error with worse local-distance deviation is a tradeoff. Apply supplied tolerances and priorities; missing distance evidence is unresolved. For each selection, name its primary purpose, decisive historical evidence and one weakness of the unselected alternative. Keep the measured geometric comparator distinct from the latest result and the action anchor.
+Apply `condition-preservation-design-v1`: prioritize conditioned relative geometry, then shift attention to neighborhood improvements on an established primary plateau while protecting attained conditioned geometry. Neighborhood reference deviation alone is not design damage. Risk-diagnostic experiments take precedence after pathological displacement or structural failure. State the current focus and its evidence within the existing fields. Missing acceptance bounds or plateau criteria remain unresolved, not invented defaults. If the recorded aggregate winner differs from this preference, distinguish both rather than rewriting history. For each selection, name its purpose, decisive evidence and one weakness of the unselected alternative; keep comparator, latest result and action anchor distinct.
 
 ## Fixed output modules
 

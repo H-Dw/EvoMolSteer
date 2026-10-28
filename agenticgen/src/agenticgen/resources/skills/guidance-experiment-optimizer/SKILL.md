@@ -2,7 +2,7 @@
 name: guidance-experiment-optimizer
 description: Use measured molecular generation history to propose or select legal guidance-weight experiments, test geometric hypotheses, and update interval allocation. Use when a controller supplies experiment evidence and an action contract; execution and iteration budgets remain external.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Guidance experiment optimizer
@@ -10,11 +10,11 @@ metadata:
 <!-- runtime:shared:start -->
 ## Objective and authority
 
-Improve **controlled-atom coordinate root mean square deviation** and **controlled-to-surrounding-atom distance deviation** through evidence-based allocation of guidance weights across the supplied sampling intervals. Surrounding atoms belong to the generated molecule; exclude protein, receptor, pocket and other environment atoms. Use full metric names in reasoning summaries and predictions. Preserve exact machine field names and identifiers required by the response schema.
+For this molecular structure-design workflow, apply the confirmed policy `condition-preservation-design-v1`: prioritize preserving the final relative geometry among conditioned atoms, measured by **controlled-atom pair distance root mean square deviation** when supplied. This retains the specified condition while the generative model can redesign its ligand neighborhood. Surrounding atoms belong to the generated molecule. Use full metric names in summaries and predictions; preserve exact schema fields and identifiers.
 
-The first metric compares matched controlled atoms with their reference coordinates. The second compares supplied atom-pair distances with reference distances or allowed intervals. Preserve the supplied atom mapping, neighborhood, bonded/nonbonded distinction, tolerances and aggregation. Appropriate distances do not mean making all distances smaller. When the second metric or its definition is missing, mark it unavailable; coordinate agreement does not substitute for local-distance evidence.
+Assess **controlled-to-neighborhood distance root mean square deviation** with its actual reference or allowed-distance definition. A change from one teacher conformer's neighborhood is not by itself design damage: separate permitted rearrangement from bond distortion, clashes, disconnection or loss of the conditioned geometry using available diagnostics. Appropriate separation does not mean shrinking every distance or reconstructing an entire reference conformer. Preserve mappings, metric definitions and bonded/nonbonded distinctions. Legacy coordinate error, pair-distance error and chemical validity are different evidence; missing measurements remain unknown.
 
-Operate as an outer experiment planner. Choose weight schedules; the unchanged sampler computes gradients and trajectories. Preserve the model, coordinate loss, current-state vector-Jacobian product, integration, inpainting/output policy, random streams and budget. Do not change the scientific objective or turn diagnostic observations into an invented controller. Experiment count, continuation, termination and execution are external parameters. Learning from history grants no authority to launch, repeat or extend experiments.
+Operate as an outer experiment planner. Choose actions within the supplied contract; the sampler computes gradients and trajectories. Preserve the model, bound guidance loss, current-state vector-Jacobian product, integration, inpainting/output policy, random streams and budget. If the controller ranks a different aggregate, distinguish that recorded winner from the condition-preservation preference and report the integration gap; do not claim the loss or numerical ranking changed. Experiment count, continuation, termination and execution remain external.
 
 ## Evidence-to-action cycle
 
@@ -24,7 +24,9 @@ Operate as an outer experiment planner. Choose weight schedules; the unchanged s
 4. **Register the prediction.** Name the original measured anchor, expected direction for each available geometric metric, and an observable result that would contradict the hypothesis. Separate expected performance from information value.
 5. **Close the loop on the next observation.** Compare the executed configuration with the registered proposal before attributing an outcome to it. Update the allocation lesson; never rewrite the original prediction to fit the result.
 
-Distinguish a coordinate improvement from an acceptable geometric tradeoff. Apply only externally supplied tolerances and selection priorities; do not invent a weighted score, universal distance threshold or stability guarantee. Prefer non-dominated measured alternatives when both metrics are available. If alternatives trade off and the controller supplies no preference, expose the tradeoff rather than claiming a unique geometric optimum.
+Default to condition preservation. If compatible, nonduplicated history shows sustained lack of meaningful improvement in controlled-atom pair distance root mean square deviation, shift experimental attention toward the conditioned region's relationship with the remaining ligand while protecting attained conditioned geometry. This is a change in search focus, not permission to sacrifice the condition or alter loss-component weights. The controller supplies the plateau criterion and acceptable deterioration bounds; do not infer them from an example or fix an iteration count. Without those parameters, state a suspected plateau or unresolved tradeoff, not a certified transition or acceptable regression.
+
+Follow supported local improvements; after unsuccessful tests, narrow the change using smaller legal steps or fewer changed intervals. When informative untested local actions are exhausted, choose another compatible measured anchor. At the minimum legal step, change the contrast or anchor rather than invent fractional steps or repeat a measured configuration. Diagnose extreme displacement or structural failure before pursuing average gains; prioritize a supported weakening or more robust redistribution within the existing budget, retaining all failures.
 
 Apply an explicitly confirmed human decision policy only within its stated objective, teacher, protocol and risk scope. A recommended option, unanswered question or hypothetical example is not an accepted preference. Keep the decision maker's reason separate from measured evidence; cite the applicable policy identifier in existing rationale fields when supplied. A preference requiring a different objective, numerical gate, action space or budget needs corresponding controller support before execution. If the policy does not resolve a material tradeoff, route that uncertainty to the supervising agent rather than inventing a threshold or claiming human approval.
 
@@ -40,6 +42,7 @@ Use the response schema for the assigned role. Record decisive evidence identifi
 - For selection or selector retrospective, instead read [synthesis.md](references/synthesis.md).
 - For source provenance and limits of the borrowed methods, read [sources.md](references/sources.md) when maintaining or reviewing this skill. Source literature is not required input for every experiment call.
 - When the human asks to teach decision preferences, the supervising agent uses [preference-elicitation.md](references/preference-elicitation.md). The inference agent consumes the confirmed policy supplied by its controller; it does not assume access to a human-question tool.
+- For the accepted answers, scope and unresolved numerical parameters behind `condition-preservation-design-v1`, read [confirmed-design-policy.md](references/confirmed-design-policy.md). The essential decision rules are included in the shared runtime section above.
 
 ## Repository integration
 

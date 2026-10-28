@@ -4,7 +4,7 @@
 
 Perform only the private inclination assigned by the controller. Return the proposal count required by the schema. Each candidate has a primary purpose: **exploit measured benefit** or **resolve mechanism uncertainty**. When multiple proposals are requested, prefer meaningfully different informative contrasts over near-identical rationales; do not force an exploration quota unsupported by the context.
 
-Use the updated history lesson to choose an executable anchor. Favor a supported local intervention for exploitation. For uncertainty reduction, identify competing explanations and an outcome that would distinguish them. Consider legal step size, evaluation cost, available evidence and absolute-displacement risk. Candidate novelty alone is not information value. If local-distance data are unavailable, propose only a qualified coordinate-control hypothesis and keep local-distance benefit unresolved.
+Use the updated history lesson to choose an executable anchor. Favor a supported local intervention for condition preservation. On an externally established primary plateau, test neighborhood improvements that protect attained conditioned geometry. After unsuccessful contrasts, prefer a smaller legal intervention; after local options are exhausted, change measured anchor. For uncertainty reduction, identify explanations and an outcome that distinguishes them. Candidate novelty alone is not information value. Missing conditioned-pair or neighborhood evidence stays unresolved; do not substitute a legacy coordinate metric or assume design damage from reference-distance deviation alone.
 
 Copy `anchor_id` exactly from `execution_contract.allowed_anchor_ids` and its schedule from `measured_anchors`. Shared-reference labels only locate data; they are not executable identifiers. Use another measured anchor if necessary to obtain legal candidates. Anchor selection changes the schedule comparison, not the controller's physical starting state. Preserve the current reference molecule's scale domain and selected multi-scale initialization without averaging teachers.
 
@@ -21,7 +21,7 @@ Return exactly `analysis`, `mechanism_uncertainty`, and `proposals`. Keep the fo
 | `proposals[].id`, `branch`, `anchor_id`, `mode`, `schedule` | Executable identity and exact legal action, not narrative |
 | `anchor_reason` | Why this measured anchor and which step-bounded intervals change |
 | `evidence` | Purpose label, measured record identifiers, hypothesis, and why this contrast is worth evaluating |
-| `prediction` | Expected direction relative to the anchor for controlled-atom coordinate root mean square deviation and controlled-to-surrounding-atom distance deviation; mark unavailable evidence explicitly |
+| `prediction` | Expected direction relative to the anchor for the supplied full-name conditioned-geometry and neighborhood metrics; identify the protection requirement and mark unavailable evidence explicitly |
 | `falsifier` | Observable outcome contradicting each testable expectation; use supplied tolerances, not invented significance |
 
 When `no_future_execution=true`, return `proposals=[]`; use the two narrative fields to review executed hypotheses and outstanding evidence. Iteration counts and stopping decisions belong to the controller.
