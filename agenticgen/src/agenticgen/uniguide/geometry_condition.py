@@ -28,7 +28,7 @@ def from_molecule(mol, controlled_atom_ids, **options):
     return features
 
 
-def prepare(features):
+def prepare(features,valid_generated_slots=None):
     """No protein, archive, affinity or old generated coordinate frame is read here."""
     atoms = features["atoms"]
     ids = [a["id"] for a in atoms]
@@ -82,9 +82,14 @@ def prepare(features):
             categories[pair]="controlled_internal" if right in controlled and left in controlled else "controlled_neighborhood"
     if not pairs: raise ValueError("At least one nonself distance constraint required")
     mapping=features.get("atom_to_generated_slot")
-    if mapping is None: mapping={key:i for i,key in enumerate(sorted(ids))}
+    available=list(range(len(ids))) if valid_generated_slots is None else sorted(valid_generated_slots)
+    if (any(type(v) is not int or v<0 for v in available) or len(set(available))!=len(available)
+            or len(available)<len(ids)):raise ValueError("Insufficient unique valid generation slots")
+    if mapping is None: mapping=dict(zip(sorted(ids),available))
     if set(mapping)!=set(ids) or any(type(v) is not int or v<0 for v in mapping.values()) or len(set(mapping.values()))!=len(ids):
         raise ValueError("Atom-to-slot mapping must be a complete nonnegative injection")
+    if valid_generated_slots is not None and not set(mapping.values())<=set(available):
+        raise ValueError("Explicit mapping references unavailable generation slots")
     rows=[]
     for left,right in sorted(pairs):
         distance=float(np.linalg.norm(xyz[indices[left]]-xyz[indices[right]]))

@@ -46,6 +46,25 @@ def test_internal_pairs_default_neighborhood_and_fixed_mapping():
     assert [p["atom_ids"] for p in condition.prepare(f)["pairs"]]==[["a","b"],["a","d"]]
 
 
+def test_default_mapping_uses_valid_slots_with_holes_across_all_initial_rows(tmp_path):
+    from agenticgen.uniguide.native_tools import save_pt
+    for i in range(5):
+        mask=torch.ones(20,7,dtype=torch.bool);mask[:,1]=False;mask[:,5]=False
+        if i==4:mask[9,4]=False
+        save_pt(tmp_path/"initials/teacher"/f"batch_{i:03d}.pt.gz",dict(prior=dict(mask=mask)))
+    slots=runtime.common_valid_slots(tmp_path,"teacher")
+    assert slots==[0,2,3,6]
+    spec=condition.prepare(features(),slots)
+    assert spec["atom_to_generated_slot"]==dict(a=0,b=2,c=3,d=6)
+    x=torch.zeros(1,7,3,dtype=torch.float64)
+    x[:,slots]=torch.tensor(spec["reference_coordinates_angstrom"],dtype=x.dtype)
+    valid=torch.zeros(1,7,dtype=torch.bool);valid[:,slots]=True
+    assert condition.loss(x,spec,valid)[0].item()<1e-25
+    with pytest.raises(ValueError,match="Insufficient"):condition.prepare(features(),[0,2,3])
+    f=features();f["atom_to_generated_slot"]=dict(a=0,b=1,c=2,d=3)
+    with pytest.raises(ValueError,match="unavailable"):condition.prepare(f,slots)
+
+
 def test_rdkit_embedding_reproducible_without_original_coordinates():
     f=features();del f["coordinates_angstrom"]
     first,second=condition.prepare(f),condition.prepare(f)

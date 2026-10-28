@@ -23,6 +23,19 @@ def skill_assets():
 def skill_hashes():return {name:sha(path) for name,path in skill_assets().items()}
 
 
+def common_valid_slots(source,target):
+    """One frozen mapping must be valid for every logical sample, not just row zero."""
+    from .native_tools import load_pt
+    common=None
+    for index in range(5):
+        mask=load_pt(Path(source)/"initials"/target/f"batch_{index:03d}.pt.gz")["prior"]["mask"]
+        if mask.ndim!=2 or len(mask)<10:raise ValueError("Incomplete initial population masks")
+        present=mask[:10].bool().all(dim=0)
+        if common is not None and present.shape!=common.shape:raise ValueError("Initial slot shapes differ")
+        common=present if common is None else common & present
+    return common.nonzero().flatten().tolist()
+
+
 def validate_config(config):
     if config.get("protocol")!=POLICY:raise ValueError("Explicit new geometry protocol required")
     root=Path(config["root"]).resolve();source=Path(config["generation_context_root"]).resolve()
@@ -47,9 +60,7 @@ def prepare(config):
     for item in config["conditions"]:
         teacher=copy.deepcopy(catalog[item["teacher_id"]])
         # Generation context may contain a pocket; the condition builder never receives it.
-        condition=prepare_condition(read(item["features_path"]))
-        if max(condition["atom_to_generated_slot"].values())>=teacher["heavy_atoms"]:
-            raise ValueError("Input mapping exceeds this generation context's atom capacity; create compatible priors")
+        condition=prepare_condition(read(item["features_path"]),common_valid_slots(source,teacher["target"]))
         frozen(root/"conditions"/(teacher["target"]+".json"),condition)
         subjects.append(dict(teacher=teacher,condition=condition))
     if not subjects or len({s["teacher"]["target"] for s in subjects})!=len(subjects):raise ValueError("Unique generation contexts required")
@@ -157,7 +168,8 @@ def retain(root,groups,winner,folder):
 
 def run_version(config,version,model_loader=load_model,executor=execute,advisor=advise,retainer=retain):
     config=validate_config(config);require_acceptance(config);root=Path(config["root"]);subjects=calibrated(config)
-    if not version.startswith("GD") or not version[2:].isdigit() or not 1<=int(version[2:])<=20:raise ValueError("Geometry versions use GD01--GD20")
+    if (not version.startswith("GD") or not version[2:].isdigit() or not 1<=int(version[2:])<=20
+            or version!=f"GD{int(version[2:]):02d}"):raise ValueError("Geometry versions use GD01--GD20")
     folder=root/"versions"/version
     if (folder/"AWAITING_GPT_REVIEW.json").exists():return read(folder/"AWAITING_GPT_REVIEW.json")
     if int(version[2:])>1:
