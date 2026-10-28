@@ -1,0 +1,104 @@
+{
+  "checked_at_asia_shanghai": "2026-10-28T21:50:29.357142+08:00",
+  "primary_sources_actually_read": [
+    {
+      "id": "ace",
+      "title": "Agentic Context Engineering",
+      "url": "https://arxiv.org/html/2510.04618v1",
+      "version": "arXiv v1",
+      "sections": [
+        "3",
+        "3.1",
+        "3.2",
+        "Appendix B"
+      ],
+      "finding": "将生成、反思、整理分开；采用逐条增量更新而非全文重写；指出反思质量不足会产生有害上下文。",
+      "transfer": "区分提出经验、审查经验和激活规则，检查空洞修改与冲突。",
+      "limit": "不照搬 helpful/harmful 计数、额外反思调用、重复任务执行或存储实现；论文未验证本分子协议。"
+    },
+    {
+      "id": "gepa",
+      "title": "GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning",
+      "url": "https://arxiv.org/pdf/2507.19457v1",
+      "version": "arXiv v1",
+      "sections": [
+        "3.2",
+        "3.3",
+        "Algorithm 1",
+        "8"
+      ],
+      "finding": "利用执行和评价轨迹定位模块问题，提出提示修改后再评价；保留有互补能力的候选与谱系。",
+      "transfer": "用可见决策、动作和回执定位修改，并分别判断流程改善和任务结果。",
+      "limit": "不索取隐藏思维链，不导入新验证集、额外预算或并行执行权限；本文的验证与选优协议不能原样迁移。"
+    },
+    {
+      "id": "dgm",
+      "title": "Darwin Gödel Machine",
+      "url": "https://arxiv.org/html/2505.22954v1",
+      "version": "arXiv v1",
+      "sections": [
+        "3",
+        "A.2"
+      ],
+      "finding": "以实验检验修改，维护可继续自修改的 Agent 变体档案；非当前最优变体也可能成为后续改进起点。",
+      "transfer": "区分可运行、已验证改进、暂存候选；保留有用谱系。",
+      "limit": "本系统不是已证明递归自我改进；不得导入论文淘汰原始失败资料的做法或无边界自修改。"
+    },
+    {
+      "id": "llambo",
+      "title": "Large Language Models to Enhance Bayesian Optimization",
+      "url": "https://arxiv.org/html/2402.03921v2",
+      "version": "arXiv v2",
+      "sections": [
+        "1",
+        "2.1",
+        "2.2"
+      ],
+      "finding": "结合问题描述、观测参数与分数形成候选和代理预测；讨论模型设定偏差及先验知识迁移的困难。",
+      "transfer": "将跨教师类比视为候选先验，与本教师实测区分。",
+      "limit": "没有获得校准的后验或置信度；不能跨教师平均 multiplier 或直接移植权重。"
+    },
+    {
+      "id": "lqr",
+      "title": "Automatic LQR Tuning Based on Gaussian Process Global Optimization",
+      "url": "https://arxiv.org/html/1605.01950v1",
+      "version": "arXiv v1",
+      "sections": [
+        "III-A",
+        "III-C",
+        "III-D",
+        "III-E"
+      ],
+      "finding": "根据历史观测更新对性能函数的认识，区分获得低代价和获得关于最佳配置的信息，并记录状态与控制轨迹。",
+      "transfer": "反思冲突时区分改善型和辨别型试验；模型认知需要观测修正。",
+      "limit": "借鉴外环决策而非宣称分子采样是线性二次控制器，不新增高斯过程、熵分数或风险额度。"
+    },
+    {
+      "id": "aide",
+      "title": "AIDE: AI-Driven Exploration in the Space of Code",
+      "url": "https://arxiv.org/html/2502.13138v1",
+      "version": "arXiv v1",
+      "sections": [
+        "3.1",
+        "3.2"
+      ],
+      "finding": "根据节点状态选择起草、排错或改进；改进操作采用可评价的原子修改，并从树中提取指标、配置和排错线索。",
+      "transfer": "先定位错误发生在证据、解释、选择还是执行，再决定修改粒度。",
+      "limit": "不能把每次科学无收益都视为程序错误，也不导入论文重试或执行次数。"
+    },
+    {
+      "id": "reflexion",
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "url": "https://arxiv.org/html/2303.11366v4",
+      "version": "arXiv v4",
+      "sections": [
+        "4.3 Ablation study",
+        "5"
+      ],
+      "finding": "代码消融中不可靠的正确性判断与无法及时停止可能导致有害修改；反思与评价反馈共同影响结果。",
+      "transfer": "没有新证据时不应仅为显示持续改进而凭空制造新规则；是否允许零修改需要变更已有用户约定。",
+      "limit": "不将消融结果当成分子场景的因果证据，也不照搬固定反思记忆长度或循环重试。"
+    }
+  ],
+  "claim_boundary": "以下情景是基于论文与代码/skills审计的设计推论，不是论文对本分子体系的验证。只使用指定版本，不声称最新版本。"
+}

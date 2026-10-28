@@ -44,7 +44,7 @@ Compact working context does not discard the ledger or replace full supervising-
 
 The inspected internal-distance controller still uses an all-pair aggregate winner and fixed-count branch execution. It does not consume this policy record, implement the new consecutive-regression recovery, or select/retrieve the preferred working context. It lacks the complete seed-level input needed for seed-specific checks. These are adoption gaps, not evidence that prompts enforced the policy. Detailed code locations and manual conflict rehearsals are in `agenticgen/docs/designs/20261028_guidance_policy_reconciliation/`.
 
-Missing numerical definitions remain explicit: round comparison and counter transitions, mean denominator/missing-outcome treatment, protection limits and plateau criteria. Do not convert their absence into a silently assumed threshold, or ask again for the qualitative choices already supplied. Current action schemas and output fields remain exact; unsupported abstention/recovery must be exposed to the supervisor instead of simulated with malformed actions.
+Missing numerical definitions remain explicit: round comparison and counter transitions, mean denominator/missing-outcome treatment, protection limits and plateau criteria. Do not convert their absence into a silently assumed threshold, or ask again for the qualitative choices already supplied. Current action schemas and output fields remain exact; unsupported abstention/recovery must be recorded for the machine controller instead of simulated with malformed actions or referred to the human during runtime.
 
 ## Research boundaries
 
@@ -54,4 +54,4 @@ Missing numerical definitions remain explicit: round comparison and counter tran
 - [Cakmak et al., NeurIPS 2020, section 2.2](https://papers.nips.cc/paper/2020/file/e8f2779682fd11fa2067beffc27a9192-Paper.pdf) distinguishes mean, tail and worst-case objectives. No risk statistic or tail probability is inferred from a few seeds.
 - [Cawley and Talbot, JMLR 2010](https://www.jmlr.org/papers/volume11/cawley10a/cawley10a.pdf) establishes selection-bias concerns when a noisy finite evaluation criterion is optimized. Applying that concern to fixed molecular random panels is a methodological analogy, not evidence that overfitting has already been measured here.
 
-Sources inspected 2026-10-28, Asia/Shanghai. The inference agent is not assumed to have a human-question tool; the supervisor handles policy questions.
+Sources inspected 2026-10-28, Asia/Shanghai. Policy interviews are authoring-only and human-initiated. Both inference agents and the supervising GPT prohibit human contact, questions and reply-waiting during runtime. Machine-controller escalation is not human escalation. Missing critical rules remain explicit and block only dependent unsupported actions under existing controller handling.

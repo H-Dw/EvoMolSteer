@@ -1,6 +1,6 @@
 # History persistence and use contract
 
-Read this reference when the supervising agent maintains Guidance Agent memory or integrates a controller. It defines responsibilities and proposed records; it is not an installed storage engine, a new response schema or authorization to run experiments. Essential inference rules are rendered from history-learning.md. Research provenance is in history-research.md.
+Read this reference when the supervising agent maintains Guidance Agent memory or integrates a controller. It defines responsibilities and proposed records; it is not an installed storage engine, a new response schema or authorization to run experiments. Essential inference rules are rendered from history-learning.md. All automated lesson review, storage and skill-improvement steps are non-interactive, including the supervising GPT: no human questions, messages or reply-waiting. Missing policy is recorded for the machine controller, not converted into a runtime interview. Research provenance is in history-research.md.
 
 ## Four layers and their owners
 

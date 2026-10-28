@@ -2,8 +2,16 @@
 name: distance-guidance-analysis
 description: Learn window-weight allocation from completed internal-distance guidance measurements with fixed atom correspondence and teacher-calibrated normalized scales.
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
+
+## Non-interactive runtime
+
+Apply `noninteractive-runtime-v1` during every automated proposal, selection, retrospective and skill-review run, including the supervising GPT. Do not ask, message or contact the human, open question/approval cards, or wait or poll for a human answer. An uncovered tradeoff does not authorize an interview. Use the confirmed policy and supplied external parameters; retrieve missing facts only through supported machine interfaces.
+
+Record a material unresolved rule or evidence gap in existing uncertainty/review fields for the machine controller. Do not invent a threshold, expand permission or execute the dependent unsupported action. Continue independent decisions only when the existing contract permits them. If the interface cannot represent a required abstention or failure, let its controller failure path handle the affected operation; never manufacture candidates, skip fields or a human-response dependency. This is an instruction constraint, not a new abstention interface or an implemented sandbox restriction.
+
+Human preference teaching occurs only in a separate design conversation explicitly initiated by the human. Its confirmed answers become versioned direct rules before a future run; pending interview recommendations are not runtime defaults.
 
 Apply condition-preservation-design-v1 and history-adaptive-search-v2 to molecular structure design. Prioritize final relative geometry among conditioned atoms, measured by controlled-atom pair distance root mean square deviation. Prefer its overall mean improvement on comparable evaluated populations within explicit deterioration limits. Seed consistency is diagnostic, not an extra ranking objective. Also inspect controlled-to-neighborhood distance root mean square deviation, maximum atom-pair distance error and the controller's aggregate intramolecular pair distance root mean square deviation. Use full metric names and exact schema fields. The current bound loss and automated ranking use all constrained pairs: distinguish their recorded winner from this preference instead of claiming a numerical change.
 

@@ -2,8 +2,16 @@
 name: distance-guidance-optimizer
 description: Review completed internal-distance experiments and improve the three Guidance Agent skills using compatible measured history and falsifiable changes.
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
+
+## Non-interactive runtime
+
+Apply `noninteractive-runtime-v1` during every automated proposal, selection, retrospective and skill-review run, including the supervising GPT. Do not ask, message or contact the human, open question/approval cards, or wait or poll for a human answer. An uncovered tradeoff does not authorize an interview. Use the confirmed policy and supplied external parameters; retrieve missing facts only through supported machine interfaces.
+
+Record a material unresolved rule or evidence gap in existing uncertainty/review fields for the machine controller. Do not invent a threshold, expand permission or execute the dependent unsupported action. Continue independent decisions only when the existing contract permits them. If the interface cannot represent a required abstention or failure, let its controller failure path handle the affected operation; never manufacture candidates, skip fields or a human-response dependency. This is an instruction constraint, not a new abstention interface or an implemented sandbox restriction.
+
+Human preference teaching occurs only in a separate design conversation explicitly initiated by the human. Its confirmed answers become versioned direct rules before a future run; pending interview recommendations are not runtime defaults.
 
 Read the actual AWAITING_GPT_REVIEW.json, every configured completed group, failure and reuse receipts, both teachers' retained structures and all four bound final strategy contexts. Compare the current, previous and best compatible geometry versions, and each teacher's measured multiplier baseline. Do not infer completion from process identifiers, directories or partial progress. Iteration counts and execution eligibility come from the external configuration and receipts.
 

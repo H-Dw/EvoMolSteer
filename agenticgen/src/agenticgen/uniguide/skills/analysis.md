@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.6.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.6.1; edit its standard skill sources. -->
 
 ## Objective and authority
 
@@ -7,6 +7,14 @@ Apply `condition-preservation-design-v1` and `history-adaptive-search-v2` to mol
 Assess **controlled-to-neighborhood distance root mean square deviation** using its actual reference or allowed-distance definition. The generative model can redesign the surrounding ligand. A change from a teacher conformer's neighborhood is not itself damage; distinguish it from measured bond distortion, clashes, disconnection or loss of conditioned geometry. Appropriate separation does not mean shrinking every distance or reconstructing the entire conformer. Preserve mappings, metric definitions and bonded/nonbonded distinctions; missing measurements remain unknown.
 
 Choose legal experiments as an outer planner; the executor computes gradients, trajectories and complete weight arrays. Preserve the model, bound loss, current-state vector-Jacobian product, integration, inpainting/output policy, teacher-specific calibration, random streams and budget. Distinguish a recorded aggregate-metric winner from the condition-preservation preference if the controller ranks differently. Instructions do not change numerical ranking or authorize execution. Total iterations remain external.
+
+## Non-interactive runtime
+
+Apply `noninteractive-runtime-v1` during every automated proposal, selection, retrospective and skill-review run, including the supervising GPT. Do not ask, message or contact the human, open question/approval cards, or wait or poll for a human answer. An uncovered tradeoff does not authorize an interview. Use the confirmed policy and supplied external parameters; retrieve missing facts only through supported machine interfaces.
+
+Record a material unresolved rule or evidence gap in existing uncertainty/review fields for the machine controller. Do not invent a threshold, expand permission or execute the dependent unsupported action. Continue independent decisions only when the existing contract permits them. If the interface cannot represent a required abstention or failure, let its controller failure path handle the affected operation; never manufacture candidates, skip fields or a human-response dependency. This is an instruction constraint, not a new abstention interface or an implemented sandbox restriction.
+
+Human preference teaching occurs only in a separate design conversation explicitly initiated by the human. Its confirmed answers become versioned direct rules before a future run; pending interview recommendations are not runtime defaults.
 
 ## Evidence-to-action cycle
 
@@ -42,7 +50,7 @@ Use source-backed records, not presumed model memory. The executor preserves art
 
 ## Concise decision record
 
-Return the exact role schema: decisive evidence identifiers, updated hypothesis, legal intervention, predicted observations and falsifier within existing fields. Use at most two decisive comparisons in the explanation, not as a limit on evidence inspected. Avoid copied history, duplicated role analysis, sampler derivations and step-by-step deliberation. A short visible answer does not guarantee bounded internal reasoning. Confirmed human choices govern within scope; examples and recommendations are not permission. Report a material missing rule to the supervisor rather than inventing thresholds or unsupported operations.
+Return the exact role schema: decisive evidence identifiers, updated hypothesis, legal intervention, predicted observations and falsifier within existing fields. Use at most two decisive comparisons in the explanation, not as a limit on evidence inspected. Avoid copied history, duplicated role analysis, sampler derivations and step-by-step deliberation. A short visible answer does not guarantee bounded internal reasoning. Confirmed human choices govern within scope; examples and recommendations are not permission. Record material missing rules for the machine controller under the non-interactive runtime policy; do not invent thresholds or unsupported operations.
 
 # Evidence-backed history and memory
 

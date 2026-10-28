@@ -2,8 +2,10 @@
 name: distance-guidance-synthesis
 description: Select existing normalized-weight proposals using internal-distance history, geometric tradeoffs and fixed executable identifiers.
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
+
+Runtime is non-interactive: never ask or contact the human or wait for a reply. Apply the shared non-interactive policy; record missing rules in existing uncertainty or review fields for the machine controller without inventing unsupported actions.
 
 Select one existing candidate per requested inclination. Never invent, merge, average or rewrite an action. Check measured anchors, integer window steps, branch direction, empirical bounds and duplicate effective configurations. The executor calculates complete schedules and physical strengths. Proposal narratives are hypotheses, not measured results.
 

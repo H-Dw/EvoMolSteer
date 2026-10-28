@@ -2,7 +2,7 @@
 name: guidance-experiment-optimizer
 description: Use measured molecular generation history to propose or select legal guidance-weight experiments, test geometric hypotheses, and update interval allocation. Use when a controller supplies experiment evidence and an action contract; execution and iteration budgets remain external.
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 
 # Guidance experiment optimizer
@@ -15,6 +15,14 @@ Apply `condition-preservation-design-v1` and `history-adaptive-search-v2` to mol
 Assess **controlled-to-neighborhood distance root mean square deviation** using its actual reference or allowed-distance definition. The generative model can redesign the surrounding ligand. A change from a teacher conformer's neighborhood is not itself damage; distinguish it from measured bond distortion, clashes, disconnection or loss of conditioned geometry. Appropriate separation does not mean shrinking every distance or reconstructing the entire conformer. Preserve mappings, metric definitions and bonded/nonbonded distinctions; missing measurements remain unknown.
 
 Choose legal experiments as an outer planner; the executor computes gradients, trajectories and complete weight arrays. Preserve the model, bound loss, current-state vector-Jacobian product, integration, inpainting/output policy, teacher-specific calibration, random streams and budget. Distinguish a recorded aggregate-metric winner from the condition-preservation preference if the controller ranks differently. Instructions do not change numerical ranking or authorize execution. Total iterations remain external.
+
+## Non-interactive runtime
+
+Apply `noninteractive-runtime-v1` during every automated proposal, selection, retrospective and skill-review run, including the supervising GPT. Do not ask, message or contact the human, open question/approval cards, or wait or poll for a human answer. An uncovered tradeoff does not authorize an interview. Use the confirmed policy and supplied external parameters; retrieve missing facts only through supported machine interfaces.
+
+Record a material unresolved rule or evidence gap in existing uncertainty/review fields for the machine controller. Do not invent a threshold, expand permission or execute the dependent unsupported action. Continue independent decisions only when the existing contract permits them. If the interface cannot represent a required abstention or failure, let its controller failure path handle the affected operation; never manufacture candidates, skip fields or a human-response dependency. This is an instruction constraint, not a new abstention interface or an implemented sandbox restriction.
+
+Human preference teaching occurs only in a separate design conversation explicitly initiated by the human. Its confirmed answers become versioned direct rules before a future run; pending interview recommendations are not runtime defaults.
 
 ## Evidence-to-action cycle
 
@@ -50,7 +58,7 @@ Use source-backed records, not presumed model memory. The executor preserves art
 
 ## Concise decision record
 
-Return the exact role schema: decisive evidence identifiers, updated hypothesis, legal intervention, predicted observations and falsifier within existing fields. Use at most two decisive comparisons in the explanation, not as a limit on evidence inspected. Avoid copied history, duplicated role analysis, sampler derivations and step-by-step deliberation. A short visible answer does not guarantee bounded internal reasoning. Confirmed human choices govern within scope; examples and recommendations are not permission. Report a material missing rule to the supervisor rather than inventing thresholds or unsupported operations.
+Return the exact role schema: decisive evidence identifiers, updated hypothesis, legal intervention, predicted observations and falsifier within existing fields. Use at most two decisive comparisons in the explanation, not as a limit on evidence inspected. Avoid copied history, duplicated role analysis, sampler derivations and step-by-step deliberation. A short visible answer does not guarantee bounded internal reasoning. Confirmed human choices govern within scope; examples and recommendations are not permission. Record material missing rules for the machine controller under the non-interactive runtime policy; do not invent thresholds or unsupported operations.
 <!-- runtime:shared:end -->
 
 ## Load the relevant guidance
@@ -59,7 +67,7 @@ Return the exact role schema: decisive evidence identifiers, updated hypothesis,
 - For a private proposal or private retrospective, also read [proposal.md](references/proposal.md).
 - For selection or selector retrospective, instead read [synthesis.md](references/synthesis.md).
 - For source provenance and limits of the borrowed methods, read [sources.md](references/sources.md) when maintaining or reviewing this skill. Source literature is not required input for every experiment call.
-- When the human asks to teach decision preferences, the supervising agent uses [preference-elicitation.md](references/preference-elicitation.md). The inference agent consumes the confirmed policy supplied by its controller; it does not assume access to a human-question tool.
+- Only in a separate human-initiated skill-design conversation, use [preference-elicitation.md](references/preference-elicitation.md). Never load it to resolve a tradeoff during automated execution or supervising-GPT review. Runtime agents consume confirmed rules and cannot request human decisions.
 - For the accepted answers, scope and unresolved numerical parameters behind `condition-preservation-design-v1`, read [confirmed-design-policy.md](references/confirmed-design-policy.md). The essential decision rules are included in the shared runtime section above.
 - When reviewing search-resource preferences, read [confirmed-search-policy.md](references/confirmed-search-policy.md). It consolidates all confirmed search decisions, the externally configured recovery threshold and executor capabilities; detailed interviews are not inference input.
 - When auditing abnormal decision branches, read [decision-boundaries.md](references/decision-boundaries.md). It records rule precedence, conflict resolutions and required interface changes.
