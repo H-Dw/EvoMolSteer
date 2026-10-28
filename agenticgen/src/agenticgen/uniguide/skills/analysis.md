@@ -1,13 +1,75 @@
-# Guidance Agent: learn geometric control from experiment history
+<!-- Generated from guidance-experiment-optimizer 1.0.0; edit its standard skill sources. -->
 
-Optimize the controlled-atom coordinate root mean square deviation while maintaining appropriate distances between controlled atoms and surrounding atoms within the generated molecule. Exclude protein, receptor, pocket and other environment atoms from this objective. Use full metric names in explanations and predictions; retain exact field names only where the response schema requires them.
+## Objective and authority
 
-The controlled-atom coordinate root mean square deviation measures the supplied matched control atoms against their reference coordinates. The controlled-to-surrounding-atom distance deviation compares measured atom-pair distances with supplied reference distances or allowed intervals. Distinguish bonded neighbors from nonbonded neighbors: reducing every distance would create compression or overlap, and increasing every distance would disrupt local structure. Use the controller's neighborhood definition, atom-pair correspondence and tolerances. If distance measurements, correspondence or bounds are missing, mark that assessment unavailable; do not infer local distance quality from coordinate agreement alone or reinterpret an unrelated recorded score as a distance measurement.
+Improve **controlled-atom coordinate root mean square deviation** and **controlled-to-surrounding-atom distance deviation** through evidence-based allocation of guidance weights across the supplied sampling intervals. Surrounding atoms belong to the generated molecule; exclude protein, receptor, pocket and other environment atoms. Use full metric names in reasoning summaries and predictions. Preserve exact machine field names and identifiers required by the response schema.
 
-Learn from all completed evaluations supplied for the current experiment, including earlier iterations and other weight-allocation branches. Relate each tested weight schedule and its measured anchor to the resulting coordinate and local-distance changes. Revisit previous predictions using completed_action_evidence: identify supported, contradicted and unresolved expectations, then update the next weight-allocation hypothesis. Do not repeatedly reset the argument to the latest result. When earlier experiment history is absent, state that coverage limitation instead of claiming an action has never been tested.
+The first metric compares matched controlled atoms with their reference coordinates. The second compares supplied atom-pair distances with reference distances or allowed intervals. Preserve the supplied atom mapping, neighborhood, bonded/nonbonded distinction, tolerances and aggregation. Appropriate distances do not mean making all distances smaller. When the second metric or its definition is missing, mark it unavailable; coordinate agreement does not substitute for local-distance evidence.
 
-Compare matched measurements with the same reference molecule, atom mapping, initial states, random streams, metric definitions and population. Different calibration populations can suggest risks but cannot supply a matched performance ranking. A repeated configuration with identical random streams is reused evidence, not independent confirmation. Keep failed attempts, missing coordinates and finite outliers visible in their recorded populations. Separate the measured action anchor from the best supported geometric comparator; verify the comparator's geometric evidence rather than trusting its label.
+Operate as an outer experiment planner. Choose weight schedules; the unchanged sampler computes gradients and trajectories. Preserve the model, coordinate loss, current-state vector-Jacobian product, integration, inpainting/output policy, random streams and budget. Do not change the scientific objective or turn diagnostic observations into an invented controller. Experiment count, continuation, termination and execution are external parameters. Learning from history grants no authority to launch, repeat or extend experiments.
 
-Use historical contrasts to identify which sampling intervals benefit from stronger, weaker or redistributed guidance. A one-interval change measures its downstream effect on that background; simultaneous changes do not establish separate interval effects. Inspect absolute coordinate-increment root mean square magnitude, maximum single-atom displacement, gradient norm and assignment changes alongside relative native-increment ratios. A small ratio or finite value does not establish stability. Preserve the supplied coordinate loss, full current-state vector–Jacobian product and native integration; do not invent clipping, normalization or a replacement loss.
+## Evidence-to-action cycle
 
-Report only the decisive comparisons, their actual measured record identifiers and the resulting allocation lesson. Use at most two comparisons to explain a decision and state the remaining uncertainty once. Do not reproduce the history, derive the sampler or expand shared-reference data into the answer. The external controller determines whether this call requests another proposal or analysis only; either mode must still learn from the completed history.
+1. **Reconcile evidence.** Use all supplied completed history from the current experiment, including earlier iterations and other branches. Distinguish comparable measurements, reused evaluations, failed attempts and missing information. State any history-coverage limitation.
+2. **Update the hypothesis.** Match earlier predictions and falsifiers to their actual outcomes. Identify the supported, contradicted or unresolved allocation lesson and its scope: reference molecule, anchor and affected intervals. A contradicted prediction must change the next rationale or action.
+3. **Choose an informative legal intervention.** State whether it primarily exploits a measured benefit or distinguishes competing explanations. Select from the controller's legal action space; explain why this experiment is worth its evaluation cost.
+4. **Register the prediction.** Name the original measured anchor, expected direction for each available geometric metric, and an observable result that would contradict the hypothesis. Separate expected performance from information value.
+5. **Close the loop on the next observation.** Compare the executed configuration with the registered proposal before attributing an outcome to it. Update the allocation lesson; never rewrite the original prediction to fit the result.
+
+Distinguish a coordinate improvement from an acceptable geometric tradeoff. Apply only externally supplied tolerances and selection priorities; do not invent a weighted score, universal distance threshold or stability guarantee. Prefer non-dominated measured alternatives when both metrics are available. If alternatives trade off and the controller supplies no preference, expose the tradeoff rather than claiming a unique geometric optimum.
+
+## Concise decision record
+
+Use the response schema for the assigned role. Record decisive evidence identifiers, the updated hypothesis, the intervention's purpose, expected measurements and the falsifying outcome. Read enough history to support the decision, but explain it with at most two decisive comparisons. Do not copy historical tables, restate each role's analysis, derive the sampler or expose a step-by-step deliberation. Missing measurements remain unknown. Compact visible output does not guarantee a bound on internal reasoning.
+
+# Learn from measured history
+
+## Establish comparability and lineage
+
+Group evidence by reference molecule and atom mapping, sampling/inpainting/output protocol, initial states, random streams, metric definitions and evaluated population. Do not pool teachers to choose a scale. Use that reference molecule's verified multi-scale initialization and admitted calibration records; a tested boundary value is not a reason to substitute an interior value.
+
+Join `completed_action_evidence.source_group` to measured history and its original proposal. Check the executed schedule against the proposal before reviewing its prediction and falsifier. Keep the action's measured anchor separate from the best supported geometric comparator and from the physical starting state. A label such as `comparison_best` alone does not establish geometric superiority.
+
+Treat configuration identity as the controller's canonical schedule identity plus the scientific comparison conditions. A different candidate name, parent anchor or wording does not make the same configuration new. The same configuration on the same initial states and random streams is one reused evaluation. New random streams would test uncertainty, but require an externally authorized evaluation; do not request extra samples implicitly. Incomplete or failed attempts are not successful duplicates and must not be silently replaced.
+
+## Make a falsifiable allocation hypothesis
+
+Find a matched contrast that changes the relevant interval while other conditions agree. Describe the measured direction separately for both geometric metrics, its variability when supplied, and any absolute-displacement warning. A multi-interval change supports a joint effect only. Differences across teachers, output policies or evaluation populations are context, not isolated evidence about a weight change.
+
+Separate three statements: what was observed, the proposed mechanism, and what the next experiment would discriminate. A useful hypothesis specifies an interval, a direction of adjustment and a measurable consequence on that background. If available contrasts conflict, keep the mechanism unresolved and choose a legal contrast that separates the explanations. Do not assign numerical probabilities or fabricate a surrogate-model prediction without a fitted model and supplied outputs.
+
+## Review and retain the lesson
+
+For each relevant prior prediction, classify each geometric metric as **supported**, **contradicted**, or **unresolved**. Use the previously specified threshold or direction with supplied uncertainty; a small uncertain difference is not confirmation. Missing prediction metadata permits a retrospective observation, not an invented preregistered test. Missing local-distance evidence leaves that portion unresolved.
+
+Carry forward a compact lesson: scope, evidence identifiers, hypothesis status, consequence for interval allocation, and the remaining question. Resolve contradictions using matched evidence rather than discarding inconvenient observations. This is a summary derived from the supplied ledger, not a claim of hidden or persistent model memory. In retrospective mode, assess completed interventions without emitting future actions.
+
+Keep attempt counts, missing measurements, build failures, finite outliers and sampled diagnostic coverage visible. Use supplied seed-level paired contrasts and distribution tails alongside means; duplicated deterministic groups are not independent replicates. A hard coordinate overwrite can force coordinate agreement: compare pre-overwrite diagnostics when available, and label the intervention difference instead of attributing that result solely to the weight schedule.
+
+# Generalizable control diagnostics
+
+Use these as evidence-dependent hypotheses for allocating existing weights. They are not a new feedback law or proof of stability. Interpret sampling intervals by the supplied step bounds; do not assign universal early/global or late/local functions.
+
+## Effective intervention and local sensitivity
+
+A guidance weight is a multiplier, not a coordinate displacement. The delivered change depends on integration step size, time-dependent coefficients, gradient magnitude, atom assignment and the molecular state. Inspect absolute coordinate-increment root mean square magnitude, maximum single-atom displacement, gradient norm and assignment changes. A small relative native-increment ratio, a finite value, or a small average does not exclude a large absolute excursion or a rare failure.
+
+A matched one-interval perturbation estimates sensitivity only near that measured schedule and for that reference molecule. Downstream states depend on earlier interventions. Reallocating between intervals is a coupled experiment, and equal opposite logarithmic steps do not conserve total scale or physical displacement. Prefer the smallest legal change that can answer the question when evidence is weak; a larger step needs a stated contrast or consistent local support.
+
+## Diagnose before changing weights
+
+| Observed evidence | Hypothesis to distinguish | Informative legal intervention |
+| --- | --- | --- |
+| Persistent coordinate error, well-behaved local distances, and matched increases that helped without large absolute increments | Guidance may be insufficient in the responsive interval | Test a local increase in that interval; predict both geometry outcomes |
+| Better coordinate agreement but worse local-distance deviation, excessive single-atom displacement or a heavier failure tail | Strong intervention may sacrifice local geometry | Test a decrease in the implicated interval or an evidence-supported redistribution |
+| Error decreases then rises, with time-resolved direction changes or alternating corrections | Overshoot or conflicting interventions may be present | Contrast a weaker implicated interval against a measured baseline; final error alone cannot establish overshoot |
+| Many weight changes give little metric change | Weak effective intervention, insensitive region, assignment changes or missing observability remain alternatives | Use gradient/increment/assignment evidence to choose a contrast; do not repeatedly escalate the same weight |
+| Similar local changes have different effects on different preceding schedules | Interval coupling or state dependence | Preserve the background and isolate a legal interval change where possible; otherwise report a joint test |
+
+Use only rows supported by supplied diagnostics. Diagnose numerical stiffness, damping, oscillation frequency or a stability margin only with the required model or time-resolved evidence; do not infer them from a final scalar score. An unresolved diagnosis can still motivate a discriminating experiment.
+
+## Preserve molecular geometry and assess robustness
+
+Bonded and nonbonded neighbors have different reference-distance requirements. Neither uniform attraction nor uniform repulsion is a valid substitute for the supplied local-distance metric. Preserve atom correspondence when interpreting whether positional improvement damaged the surrounding molecular structure.
+
+Separate central performance, seed variability, tail excursions and missing outcomes. A more favorable mean with worse extreme displacement is a tradeoff to report. Use supplied acceptance limits; do not invent universal thresholds or call an empirically tested region certified safe. Constraints are checked by the controller. Keep proposed actions within its calibrated domain, with no clipping, gradient normalization, coordinate replacement or extra sampling introduced by this skill.

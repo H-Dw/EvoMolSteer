@@ -20,8 +20,13 @@ agenticgen = "agenticgen.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-agenticgen = ["resources/skills/*/SKILL.md", "resources/config/*.json"]
-"agenticgen.uniguide" = ["skills/*.md", "strategy_provenance.json"]
+agenticgen = [
+    "resources/skills/*/SKILL.md", "resources/config/*.json",
+    "resources/skills/guidance-experiment-optimizer/references/*.md",
+    "resources/skills/guidance-experiment-optimizer/scripts/*.py",
+    "resources/skills/guidance-experiment-optimizer/agents/*.yaml",
+]
+"agenticgen.uniguide" = ["skills/*.md", "skills/BUNDLE.json", "strategy_provenance.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
