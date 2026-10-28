@@ -61,6 +61,11 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             dict(anchor_id=r["id"],**{NORMALIZED:r[NORMALIZED]}) for r in history]),
         scale_semantics="actual strength = teacher-calibrated multiplier * 2 ** normalized scale; zero is baseline, negative is weaker",
         history_coverage="all compatible completed measurements in this experiment; repeated fingerprints appear once")
+    initial=Path(config["root"])/"INITIAL_GUIDANCE.json" if "root" in config else None
+    if initial is not None and initial.exists():
+        selection=read(initial)["teachers"][domain["teacher_id"]]
+        common["user_selected_initial_configuration"]=selection
+        common["initial_configuration_measured_anchor_ids"]=[r["id"] for r in history if r[NORMALIZED]==selection[NORMALIZED]]
     outputs={}
     def invoke(role,context,schema,validator):
         module="synthesis.md" if role=="synthesis" else "proposal.md"

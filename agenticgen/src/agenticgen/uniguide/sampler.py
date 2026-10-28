@@ -36,7 +36,7 @@ class Control:
         self.resume=resume
         self.start_step=resume["step"] if resume else 0
         self.stop_step=stop_step
-        self.random_streams=NativeStreams(resume["stream_states"] if resume else initial["stream_states"],1,initial["population"]//5)
+        self.random_streams=self.make_streams(resume["stream_states"] if resume else initial["stream_states"])
         self.noise_samples,self.categories,self.rows=[],[],[]
         self.trace=h5py.File(self.folder/"trace.h5","w")
         self.last_assignment=None
@@ -45,6 +45,26 @@ class Control:
 
     def expand_schedule(self,schedule):
         return expand(schedule)
+
+    def make_streams(self,states):
+        return NativeStreams(states,1,self.initial["population"]//5)
+
+    def step_scales(self,step,count):
+        return [self.schedule[step]]*count
+
+    def physical_rows(self):
+        return ROWS
+
+    def check_rows(self,name,value,ids=None):
+        finite(name,value)
+        return value
+
+    def prepare_output(self,out,ids):
+        return out
+
+    def check_terminal(self,output):
+        finite("native final corrector coordinates",output["coords"])
+        return output
 
     def condition_loss(self,endpoint,valid):
         return loss(endpoint,self.teacher["core_A"],valid)
@@ -90,18 +110,21 @@ class Control:
         scale=self.schedule[step]
         blocks=[];sizes=[]
         count=len(self.before)
-        for start in range(0,count,ROWS):
-            ids=list(range(start,min(start+ROWS,count)))
+        scales=self.step_scales(step,count);physical=self.physical_rows()
+        for start in range(0,count,physical):
+            ids=list(range(start,min(start+physical,count)))
             actual=len(ids)
             # Keep the input VJP at the same physical shape as the forward.
             # Padding only inside model.forward leaves a five-row input VJP
             # for a 25-row population and changes backward reduction layout.
-            physical_ids=(ids*((ROWS+actual-1)//actual))[:ROWS]
+            physical_ids=(ids*((physical+actual-1)//actual))[:physical]
             current=take(curr,physical_ids,count)
-            with torch.set_grad_enabled(scale!=0):
-                x=current["coords"].detach().clone().requires_grad_(scale!=0)
+            active=any(scales[i]!=0 for i in physical_ids)
+            with torch.set_grad_enabled(active):
+                x=current["coords"].detach().clone().requires_grad_(active)
                 out=self.model(dict(current,coords=x),take(pocket,physical_ids,count),take(times,physical_ids,count),
                     cond_batch=detach(take(cond,physical_ids,count)),pocket_equis=take(equis,physical_ids,count),pocket_invs=take(invs,physical_ids,count),training=False)
+                out=self.prepare_output(out,physical_ids)
                 for head in out.get("affinity",{}).values():
                     if torch.is_tensor(head) and head.requires_grad:
                         def denied(g): raise RuntimeError("Affinity head entered coordinate VJP")
@@ -109,21 +132,25 @@ class Control:
                 head=None
                 pred,_=self.model._get_predictions(out)
                 for key in ["coords","atomics","charges","bonds","hybridization"]:
-                    if key in pred: finite("native prediction "+key,pred[key])
+                    if key in pred:self.check_rows("native prediction "+key,pred[key],physical_ids)
                 endpoint=pred["coords"]*self.model.coord_scale+self.com[physical_ids,None]
+                endpoint=self.check_rows("predicted endpoint",endpoint,physical_ids)
                 value,target,selected,assignment=self.condition_loss(endpoint,current["mask"].bool())
-                gradient=torch.autograd.grad(value.sum(),x)[0] if scale else torch.zeros_like(x)
+                value=self.check_rows("loss",value,physical_ids)
+                gradient=torch.autograd.grad(value.sum(),x)[0] if active else torch.zeros_like(x)
+                gradient=self.check_rows("input gradient",gradient,physical_ids)
             blocks.append(take(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
-                                      selected=selected,assignment=assignment,gradient=gradient)),list(range(actual)),ROWS))
+                                      selected=selected,assignment=assignment,gradient=gradient)),list(range(actual)),physical))
             sizes.append(actual)
             del out,pred,endpoint,value,target,selected,assignment,gradient,x
         combined=concatenate(blocks,sizes)
         out,pred,endpoint,value,target,selected,assignment,gradient=(combined[k] for k in
             ["out","pred","endpoint","value","target","selected","assignment","gradient"])
-        finite("loss",value);finite("input gradient",gradient)
+        value=self.check_rows("loss",value);gradient=self.check_rows("input gradient",gradient)
         if tensor_digest(capture())!=entry: raise ValueError("Forward/VJP consumed sampling RNG")
         gamma=self.model.integrator.noise_scheduler(times[0][0])
-        self.delta,coefficient=guidance_delta(gradient,times[0],dt,[scale]*count,gamma,curr["mask"])
+        self.delta,coefficient=guidance_delta(gradient,times[0],dt,scales,gamma,curr["mask"])
+        self.delta=self.check_rows("guidance increment",self.delta)
         self.velocity=(pred["coords"].detach()-self.before)/(1-times[0][:,None,None])
         q=(times[0][:,None,None]*self.velocity-self.before)/(1-times[0]+1e-6)[:,None,None]
         self.drift=self.velocity+gamma*q
@@ -147,7 +174,7 @@ class Control:
         native=curr["coords"]
         if not torch.allclose(native,expected,atol=2e-5,rtol=2e-6): raise ValueError("Native drift/noise mismatch")
         result=dict(curr,coords=native+self.delta)
-        finite("guided coordinates",result["coords"])
+        result["coords"]=self.check_rows("guided coordinates",result["coords"])
         self.store("native_noise",step,noise)
         self.store("native_proposal",step,native)
         self.store("guided_proposal",step,result["coords"])
@@ -175,7 +202,7 @@ def sample(model,config,teacher,schedule,folder,count=50,resume_path=None,stop_s
     try:
         output=model._generate_selective(prior=prior,pocket_data_target=pt,pocket_data_untarget=po,
             steps=100,times=[torch.zeros(count,device="cuda") for _ in range(3)],apply_guidance=False,coord_noise_level=.2)
-        finite("native final corrector coordinates",output["coords"])
+        output=control.check_terminal(output)
         for key,value in output.get("affinity",{}).items():
             if check_affinity and torch.is_tensor(value): finite("terminal affinity "+key,value)
         save_pt(Path(folder)/"terminal.pt.gz",output)

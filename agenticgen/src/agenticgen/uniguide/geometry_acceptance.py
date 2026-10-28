@@ -95,9 +95,12 @@ def run(config):
         checks[teacher["target"]]=dict(real_model_vjp=numerical,disabled_equivalence=disabled,exact_resume=resumed,
             exact_native_slot_promotion=promotion,promoted_slot_resume=True,
             fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
+        from .geometry_batch_acceptance import run_teacher
+        checks[teacher["target"]]["candidate_batch_equivalence"]=run_teacher(model,config,teacher,condition,out/"candidate_batch")
         del model;torch.cuda.empty_cache()
     if sha(original)!=before:raise ValueError("Original attempt ledger changed")
     receipt=dict(source_binding=source_binding(),config_sha256=value_sha(config),checks=checks,
         torch_version=torch.__version__,new_completed_candidates=0,llm_calls=0,fitted_multipliers=False,
+        engineering_trajectory_evaluations=40*len(subjects),engineering_outputs_not_experiment_measurements=True,
         original_attempts_sha256=before,engineering_only=True)
     frozen(folder/"COMPLETE.json",receipt);return receipt

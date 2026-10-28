@@ -49,10 +49,12 @@ def install(model):
     model._ug_original_forward=forward
     def bounded_forward(this,*args,**kwargs):
         batch=args[0] if args else kwargs["batch"]
-        return chunk_call(forward,args,kwargs,len(batch["coords"]),pad_to=ROWS)
+        rows=getattr(model,"_ug_physical_rows",ROWS)
+        return chunk_call(forward,args,kwargs,len(batch["coords"]),rows=rows,pad_to=rows)
     model.forward=types.MethodType(bounded_forward,model)
     encoding=model.gen.get_pocket_encoding
     def bounded_encoding(this,*args,**kwargs):
         coords=args[0] if args else kwargs["pocket_coords"]
-        return chunk_call(encoding,args,kwargs,len(coords),pad_to=ROWS)
+        rows=getattr(model,"_ug_physical_rows",ROWS)
+        return chunk_call(encoding,args,kwargs,len(coords),rows=rows,pad_to=rows)
     model.gen.get_pocket_encoding=types.MethodType(bounded_encoding,model.gen)

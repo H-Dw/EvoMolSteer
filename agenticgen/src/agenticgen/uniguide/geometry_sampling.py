@@ -66,7 +66,7 @@ def compatibility(config,teacher,condition,domain=None):
     package=Path(__file__).parent
     # Only sampling dependencies: LLM skills, prompts, actions and round counts do not refit lambda.
     names=["sampler","random_streams","chunking","batching","condition","geometry_condition",
-        "geometry_sampling","geometry_shards","native_tools","prepare","protocol"]
+        "geometry_sampling","geometry_shards","geometry_batch","native_tools","prepare","protocol"]
     sources={name:sha(package/(name+".py")) for name in names}
     sources["runtime/rng"]=sha(package.parent/"runtime/rng.py")
     sources.update({fn.__name__:value_sha(inspect.getsource(fn)) for fn in (effective,expand_effective,ticks)})
@@ -162,7 +162,8 @@ def pose_diagnostics(coordinates,condition):
     return rows
 
 
-def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,domain=None,enabled=True):
+def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,domain=None,enabled=True,
+                  _materialized=None,_reservation=None):
     from .geometry_shards import initial_shard
     count=10
     if domain is None and stage!="calibration":raise ValueError("Actual strengths are allowed only in pre-experiments")
@@ -178,7 +179,12 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
     identity=dict(compatibility=binding,effective_guidance_scale_schedule=scale[EFFECTIVE],population=count,
         logical_slots=slots)
     frozen(folder/"manifest.json",dict(id=run_id,identity=identity))
-    fingerprint,cached=reserve_group(root,run_id,stage,count,identity,registry_name="slot_registry")
+    if _reservation is None:
+        fingerprint,cached=reserve_group(root,run_id,stage,count,identity,registry_name="slot_registry")
+    else:
+        fingerprint=value_sha(identity);cached=None
+        if _reservation!=fingerprint or read(root/"slot_registry"/(fingerprint+".json"))!=dict(source_group=run_id,identity=identity):
+            raise ValueError("Materialized batch differs from its reserved candidate identity")
     if cached is not None:
         if cached["id"]!=run_id:
             frozen(folder/"REUSED.json",dict(source_group=cached["id"],fingerprint=fingerprint,
@@ -187,8 +193,10 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
     write(folder/"STARTED.json",dict(fingerprint=fingerprint))
     try:
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=scale)
-        output,_,_,_=sampler.sample(model,config,teacher,scale[EFFECTIVE],folder,count,
-            control_factory=factory,check_affinity=False,initial_override=initial_shard(config,teacher["target"],slots))
+        if _materialized is None:
+            output,_,_,_=sampler.sample(model,config,teacher,scale[EFFECTIVE],folder,count,
+                control_factory=factory,check_affinity=False,initial_override=initial_shard(config,teacher["target"],slots))
+        else:output=_materialized
         rows=terminal_records(model,output,condition,folder,count,slots)
         write(folder/"records.json",rows)
         aggregate=dict(id=run_id,teacher_id=teacher["target"],condition_sha256=condition["condition_sha256"],

@@ -80,15 +80,30 @@ def run(config,subjects,model_loader,executor):
                     frozen(failure,row)
             rows.append(dict(row,phase=phase))
             return rows[-1]
+        def phase_measure(scales,count,phase):
+            from .geometry_sampling import execute
+            if executor is not execute:return [measure(scale,count,phase) for scale in scales]
+            from .geometry_batch import execute_many
+            jobs=[dict(schedule=[scale]*4,folder=out/phase/value_sha(scale),stage="calibration",count=count) for scale in scales]
+            measured=execute_many(model,config,teacher,condition,jobs)
+            result=[]
+            for scale,job,row in zip(scales,jobs,measured):
+                if isinstance(row,FloatingPointError):
+                    row=dict(id=job["folder"].relative_to(root).as_posix(),teacher_id=target,
+                        condition_sha256=condition["condition_sha256"],compatibility_sha256=protocol_hash,
+                        complete=False,attempts=count,population_is_requested_not_completed=True,error=str(row),**{EFFECTIVE:[scale]*4})
+                    frozen(job["folder"]/"CALIBRATION_FAILURE.json",row)
+                rows.append(dict(row,phase=phase));result.append(rows[-1])
+            return result
         try:
-            coarse=[measure(scale,10,"coarse") for scale in declared["coarse_actual_scales"]]
+            coarse=phase_measure(declared["coarse_actual_scales"],10,"coarse")
             frozen(out/"coarse_results.json",coarse)
             scales=refinement(coarse);frozen(out/"refinement_scales.json",scales)
-            fine=[measure(scale,20,"refinement") for scale in scales]
+            fine=phase_measure(scales,20,"refinement")
             frozen(out/"refinement_results.json",fine)
+            phase_measure([r[EFFECTIVE][0] for r in fine if r["complete"]],50,"full")
             for row in fine:
-                if row["complete"]:measure(row[EFFECTIVE][0],50,"full")
-                else:rows.append(dict(row,phase="full",attempts=50,not_promoted_due_to_failure=True))
+                if not row["complete"]:rows.append(dict(row,phase="full",attempts=50,not_promoted_due_to_failure=True))
             frozen(out/"all_results.json",rows)
             domain=derive_domain(rows,target,condition["condition_sha256"],protocol_hash)
             frozen(out/"domain.json",domain)

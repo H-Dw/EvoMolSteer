@@ -170,6 +170,17 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
     for subject in subjects:
         teacher,condition=subject["teacher"],subject["condition"];target=teacher["target"];domain=domains[target]
         model=model_loader(config,teacher);groups=[];troot=folder/target
+        initial_path=root/"INITIAL_GUIDANCE.json"
+        if initial_path.exists() and version=="GD01":
+            from .geometry_reuse import verify_initial
+            selected=verify_initial(root,domains)[target]
+            out=root/"initial_guidance"/target
+            if executor is execute:
+                from .geometry_batch import execute_many
+                row=execute_many(model,config,teacher,condition,[dict(schedule=selected[NORMALIZED],folder=out,stage="formal",domain=domain)])[0]
+                if isinstance(row,Exception):raise row
+            else:row=executor(model,config,teacher,condition,selected[NORMALIZED],out,"formal",domain=domain)
+            frozen(troot/"INITIAL_MEASUREMENT.json",dict(selected=selected,source_group=row["id"],fingerprint=row["fingerprint"]))
         for iteration in range(1,config["rounds"]+1):
             if source_binding()!=manifest["source_binding"]:raise ValueError("Executable sources changed mid-version")
             if {p.name:sha(p) for p in skills.glob("*.md")}!=manifest["skill_hashes"]:
@@ -185,12 +196,19 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
             proposals=advisor(config,saved["history"],domain,call_folder,skills,saved["failures"])
             if len(proposals)!=3 or {p["branch"] for p in proposals}!={"increase","decrease","redistribute"}:raise ValueError("Incomplete inclination selection")
             resolved_seen=[r[NORMALIZED] for r in saved["history"]]
+            jobs=[];resolved_actions=[]
             for proposal in proposals:
                 resolved=resolve_action(proposal,{r["id"]:r for r in saved["history"]},domain,resolved_seen)
                 resolved_seen.append(resolved[NORMALIZED])
                 out=troot/f"iteration_{iteration:03d}"/proposal["branch"]
                 frozen(out/"agent_action.json",proposal);frozen(out/"proposal.json",resolved)
-                row=executor(model,config,teacher,condition,resolved[NORMALIZED],out,"formal",domain=domain)
+                jobs.append(dict(schedule=resolved[NORMALIZED],folder=out,stage="formal",domain=domain));resolved_actions.append(resolved)
+            if executor is execute:
+                from .geometry_batch import execute_many
+                measured=execute_many(model,config,teacher,condition,jobs)
+            else:measured=[executor(model,config,teacher,condition,j["schedule"],j["folder"],"formal",domain=domain) for j in jobs]
+            for row,resolved in zip(measured,resolved_actions):
+                if isinstance(row,Exception):raise row
                 groups.append(dict(row,selected_proposal=resolved,iteration=iteration))
         current,failed=history(config,teacher,condition,domain)
         advisor(config,current,domain,troot/"analysis_final",skills,failed,final=True)
