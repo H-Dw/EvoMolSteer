@@ -1,25 +1,30 @@
-# Confirmed search-resource preference
+# Confirmed adaptive search policy
 
-Policy identifier: `measured-search-policy-v1`. Source: the human's answer to `evaluation_allocation` in `guidance-search-policy-20261028`, received 2026-10-28. The full interview and source/code assessment are in `agenticgen/docs/designs/20261028_guidance_search_policy/`. This supplements, and does not replace, `condition-preservation-design-v1`.
+Current policy: `history-adaptive-search-v2`, skills version 1.5.0. It supplements `condition-preservation-design-v1` and retains `measured-search-policy-v1` and `branch-evidence-abstention-v1`. The latest direct human answer is recorded in `agenticgen/docs/designs/20261028_guidance_policy_reconciliation/decisions.json`. Earlier interview records preserve offered options and original evidence snapshots.
 
-## Confirmed rule
+## Confirmed decisions
 
-The human chose: “优先扩大筛选：先比较更多不同配置，再集中验证少数候选”. No additional reason or numerical budget allocation was supplied. The supervisor had recommended earlier confirmation; the human's different choice takes precedence.
+| Decision | Accepted instruction | Scope and limit |
+| --- | --- | --- |
+| Temporary deterioration, answer 1B with explicit amendment | Allow worse exploratory results; after two consecutive deteriorating rounds, recover from the best compatible checkpoint and propose a new strategy | The explicit amendment overrides option B's former prohibition. Exploration is not incumbent replacement. Keep all history and already evaluated candidates |
+| Replacement anchor, 2A | Prefer a measured anchor testing a different allocation hypothesis, considering conditioned geometry and risk | Do not choose solely by next-best score or claim a mechanism has been proven |
+| Working context, 3A | Global coverage overview + relevant anchor contrasts + counterexamples and risk records; trace sources as needed | Preserve the full ledger; disclose selected coverage. Full supervising-GPT version review remains required |
+| Background-dependent interval response, 4C | Prioritize measured performance of joint configurations | No requirement to decompose every interval first; do not infer individual causality from a joint change |
+| Seed tradeoff, 5B | Prefer overall mean improvement with externally explicit deterioration limits | Primary conditioned geometry keeps priority. Seed consistency is not an extra veto; measured structural violations are not averaged away |
+| Validation, 6B | Keep the fixed sample panel and restrict conclusions to its optimization results | No independent-validation or generalization claim; do not allocate new holdout samples by default |
+| Earlier resource preference | Screen more distinct configurations, then concentrate confirmation on selected candidates when staging is supported | Unequal populations do not establish a final winner; quotas, stages and budget remain external |
+| Earlier branch preference | Abstain a branch lacking both supported benefit and useful discrimination; keep supported branches eligible | Requires explicit proposal/selection/dispatch/accounting support; do not manufacture a skip field |
 
-When the external evaluation protocol supports stages, prefer covering more distinct legal configurations before concentrating confirmation on selected candidates. Connect breadth to different allocation hypotheses or informative contrasts; different names, equivalent configurations and indiscriminate large steps do not provide useful breadth. Keep the conditioned-geometry priority, failure evidence and existing risk constraints.
+## Recovery contract for the supervising agent
 
-Use small-population observations to prioritize later evaluation. Do not replace the best fully evaluated configuration based on unequal-population scores, or count nested reused slots as independent evidence. Which candidates advance, how many, and which new slots can be evaluated require the external stage contract and available budget. This preference does not alter quality-check coverage or authorize additional sampling.
+The human supplied `consecutive_regression_limit = 2`. This is a recovery trigger, not the total iteration count. Store and pass it through an external, version-bound decision policy; the concise inference instructions refer to the supplied trigger. [confirmed-search-policy.json](confirmed-search-policy.json) records the decision and integration state; it is not an installed run configuration or a claim of automatic consumption.
 
-## Current implementation boundary
+Before enabling recovery, bind the round unit, round representative, comparison reference, meaningful-deterioration criterion, treatment of unavailable/intervening outcomes, and compatible best-checkpoint identity. These numerical/comparison semantics have not been selected. The inference agent must not guess them from candidate order or from an all-time best, whose stored score cannot worsen. The two-round rule does not mean two bad candidates or two rounds without improvement. A plateau and a measured regression are different states. Missing/request-failed/reused/abstained outcomes are not measured regressions; their counter transition needs the external contract. Do not pool teachers or bridge incompatible protocols.
 
-The inspected controller supports fixed staged calibration, while formal groups retain a fixed population. This skill revision changes neither. In a fixed-population call, favor informative, distinct proposals within its exact count and legal action contract; do not claim a staged breadth-first scheduler has been implemented. Future scheduler integration must retain evaluated slots, explicit population identity, failed attempts, frozen teacher-specific multipliers and comparable final confirmation.
+Recovery restores the search/skill strategy basis of the best compatible checkpoint, then develops a distinct untested hypothesis from both its successful evidence and the later failures. Its older instructions never override the latest confirmed human policy or current compatible action validators. Reuse saved results. Never roll back the evidence ledger, repeat the best molecular generation, reset attempts, change frozen calibration, restore physical initial states, or overwrite a frozen manifest. If the best checkpoint cannot itself provide a legal novel action, retain it as the recovery reference and select a compatible measured anchor supporting the new hypothesis. Supervisor intervention is required for a missing compatible checkpoint or unsupported interface, not another request for the already confirmed preference.
 
-No screening quota, shortlist size, promotion threshold or budget split has been supplied. Do not borrow those numbers from a paper or an example. The preference gives priority among permitted uses of evidence, not permission to modify the experimental protocol.
+## Remaining external definitions
 
-## Unanswered branches
+No neighborhood-deterioration tolerance, primary-protection tolerance, plateau criterion, mean aggregation/missing-outcome rule, screening quota or shortlist size is invented here. Preserve actual measured denominators and failure counts; a favorable mean over surviving molecules does not erase failures. The scope of averaging must be declared before judging a winner. This update changes instructions and preference provenance, not the loss, runtime ranking, sampling protocol or paused-task state.
 
-The same interview asks whether temporarily worse diagnostic experiments are acceptable, how to select a replacement measured anchor, and which history should enter a limited working context. Until answered, none of their recommended options is a human-confirmed policy. Preserve the prior instructions, report material unresolved tradeoffs, and do not silently enable selective history, new diagnostic allowances or branch budgets.
-
-## Source interpretation
-
-[BOHB, ICML 2018, section 4](https://proceedings.mlr.press/v80/falkner18a/falkner18a.pdf) motivates distinguishing configuration choice from resource allocation and evidence at different evaluation budgets. The preference above comes from the human, not from claiming BOHB recommends this exact molecular policy. Training fidelity and nested molecular samples are not interchangeable, and this skill does not implement BOHB.
+The earlier primary-source assessments remain applicable as methodological analogies: BOHB separates configuration choice and evaluation allocation; control tuning motivates experiments that resolve uncertainty; AIDE/AlphaEvolve motivate measured candidate lineage; local-search and risk work distinguish background effects and mean versus tail objectives. The exact decisions above are the human's choices, not algorithms or guarantees imported from those papers. See [sources.md](sources.md) and [decision-boundaries.md](decision-boundaries.md) for source limits.

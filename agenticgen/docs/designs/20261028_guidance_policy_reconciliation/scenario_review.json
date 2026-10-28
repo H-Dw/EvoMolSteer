@@ -1,0 +1,151 @@
+{
+  "reviewed_at": "2026-10-28T19:15:14.362405+08:00",
+  "skill_version": "1.5.0",
+  "method": "Main-agent static review and scenario rehearsal; no LLM inference or experimental validation",
+  "cases": [
+    {
+      "id": "amended_option",
+      "scenario": "用户写1B且明确允许变差",
+      "expected_decision": "以括号补充为准；不采用旧B选项的禁止预期退化规则。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "temporary_loss",
+      "scenario": "有价值的合法辨因实验预计略差，满足已给约束",
+      "expected_decision": "可以提出，说明预测及否定条件；保留最佳checkpoint，不把探索结果自动晋升为最佳。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "recovery_trigger",
+      "scenario": "外部已确认连续两轮退化且兼容最佳checkpoint存在",
+      "expected_decision": "优先从最佳策略基础形成新配置；保留后续失败，复用旧评测，不重复生成。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "wrong_counter_unit",
+      "scenario": "一个轮次里两个候选变差，或连续两轮仅无明显进步",
+      "expected_decision": "不能据此声称连续两轮已测退化；使用外部轮次汇总和比较定义。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "failed_request",
+      "scenario": "请求失败、质量评价缺失或分支弃选",
+      "expected_decision": "不记为已测分子性能退化；缺失状态的计数转换由外部规则确定。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "missing_recovery_contract",
+      "scenario": "只有limit=2但没有轮次比较或兼容checkpoint",
+      "expected_decision": "报告接口/定义缺口，不自行选择比较基准、执行重置或声称已回滚。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "rollback_policy_version",
+      "scenario": "最佳checkpoint旧skills与用户最新规则不同",
+      "expected_decision": "借用其成功策略而保留最新规则和当前合法动作校验，不回退决策权限或证据。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "exhausted_best",
+      "scenario": "回滚后最佳锚点没有合法未测动作",
+      "expected_decision": "保留其为回滚基准，选择支持新假设的兼容已测锚点；不重采最佳配置。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "anchor_choice",
+      "scenario": "局部选项耗尽；次优分数锚点与机制互补锚点不同",
+      "expected_decision": "结合条件几何和风险优先机制互补锚点，不机械选第二名。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "context_selection",
+      "scenario": "紧凑输入遗漏某条旧配置",
+      "expected_decision": "查覆盖概览/全局身份记录及必要源文；不能宣称该配置未测或输入为完整历史。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "joint_effect",
+      "scenario": "同一窗口在两个背景上作用相反，但联合配置实测更好",
+      "expected_decision": "保留背景差异，允许推进联合配置；不强制先逐窗口拆因，也不声称单窗口因果。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "mean_seed_tradeoff",
+      "scenario": "平均主指标改善，部分种子略差但均在明确限度内",
+      "expected_decision": "优先总体平均改善；种子一致性仅诊断，不追加一致性优先目标。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "mean_pathology",
+      "scenario": "平均改善但出现极端位移或真实结构失效",
+      "expected_decision": "风险诊断优先；不借平均值掩盖异常，不补样抹掉失败。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "secondary_focus",
+      "scenario": "主指标已按外部规则平台期；邻域均值改善，主指标仍在保护限度内",
+      "expected_decision": "允许次目标方向的改善，不额外要求本次主指标必须更优；保持条件保护。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "fixed_panel",
+      "scenario": "多次在相同种子上择优",
+      "expected_decision": "仅报告固定样本上的优化；不称独立验证或泛化，不默认增加留出样本。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "unequal_population",
+      "scenario": "小样本均值更好但完整候选尚未同群体评价",
+      "expected_decision": "优先后续验证，不能直接替换完整评测最优；预算与分阶段调度仍外部控制。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "abstention_gap",
+      "scenario": "一个方向缺乏价值，但schema仍强制每方向选一个",
+      "expected_decision": "偏好弃选并报告接口缺口；不伪造价值或skip字段，不声称目前可自动跳过。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    },
+    {
+      "id": "wrong_winner",
+      "scenario": "全部约束对的聚合赢家不同于条件原子几何赢家",
+      "expected_decision": "分别记录现有程序排名与用户优先目标，不覆写旧排名或声称改了数值目标。",
+      "review": "manual_instruction_consistency_review",
+      "evidence_type": "hypothetical_branch_not_new_measurement",
+      "result": "instruction_path_reconciled_runtime_gaps_explicit"
+    }
+  ]
+}

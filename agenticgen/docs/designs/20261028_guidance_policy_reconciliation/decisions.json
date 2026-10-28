@@ -1,0 +1,105 @@
+{
+  "policy_id": "history-adaptive-search-v2",
+  "skill_version": "1.5.0",
+  "recorded_at": "2026-10-28T19:11:52.676380+08:00",
+  "base_commit": "886f9572e26e648b647e09404a949bd8301db5ec",
+  "raw_user_answer": "1B（允许变差，但如果连续两轮变差，需要回滚至最优checkpoints并提出新策略进行实验。）\n2A\n3A\n4C\n5B\n6B\n完成当前需求的skills优化后，你还需要检查反思当前skills中是否存在逻辑冲突的指引。",
+  "decisions": [
+    {
+      "question_id": "diagnostic_regression",
+      "raw_label": "1B",
+      "answer": "允许变差，但如果连续两轮变差，需要回滚至最优checkpoints并提出新策略进行实验。",
+      "selected_policy": "allow_deterioration_with_checkpoint_recovery",
+      "interpretation": "Explicit free-text overrides the original B label: temporary deterioration is allowed, with best-compatible strategy recovery and a new strategy after two consecutive deteriorating rounds.",
+      "original_interview": "guidance-search-policy-20261028"
+    },
+    {
+      "question_id": "anchor_selection",
+      "raw_label": "2A",
+      "answer": "优先选择能检验不同原因的已测锚点，同时考虑条件几何和风险记录（推荐）",
+      "selected_policy": "mechanism_complementary_measured_anchor",
+      "interpretation": "Prefer a measured anchor testing a different allocation hypothesis, considering conditioned geometry and risk.",
+      "original_interview": "guidance-search-policy-20261028"
+    },
+    {
+      "question_id": "working_context",
+      "raw_label": "3A",
+      "answer": "全局覆盖概览＋当前锚点的关键对照＋反例和风险记录；需要时追溯原文（推荐）",
+      "selected_policy": "coverage_contrasts_counterexamples",
+      "interpretation": "Use coverage overview, relevant anchor contrasts, counterexamples and risk records; preserve full ledger and source access.",
+      "original_interview": "guidance-search-policy-20261028"
+    },
+    {
+      "question_id": "interaction_experiment_priority",
+      "raw_label": "4C",
+      "answer": "优先寻找实测更好的联合配置，不要求先分解每个区间的作用",
+      "selected_policy": "joint_performance_first",
+      "interpretation": "Prioritize measured joint performance without requiring individual interval decomposition.",
+      "original_interview": "guidance-abnormal-branches-20261028"
+    },
+    {
+      "question_id": "seed_consistency_tradeoff",
+      "raw_label": "5B",
+      "answer": "优先总体平均改善，只要求退化不超过外部明确界限",
+      "selected_policy": "mean_with_explicit_limits",
+      "interpretation": "Prefer overall mean primary-metric improvement within external explicit deterioration limits; no consistency-first objective.",
+      "original_interview": "guidance-abnormal-branches-20261028"
+    },
+    {
+      "question_id": "independent_validation_policy",
+      "raw_label": "6B",
+      "answer": "继续只用固定样本，把结论明确限定为这批样本上的优化效果",
+      "selected_policy": "fixed_panel_claim_only",
+      "interpretation": "Continue fixed samples and limit claims to that panel; no default unseen validation allocation.",
+      "original_interview": "guidance-abnormal-branches-20261028"
+    }
+  ],
+  "ambiguity_resolution": "The explicit amendment to 1B overrides the former option B label; no ban on anticipated deterioration is adopted.",
+  "external_policy": {
+    "policy_id": "history-adaptive-search-v2",
+    "skill_version": "1.5.0",
+    "scope": "current molecular structure-design workflow; compatibility is teacher and protocol specific",
+    "confirmed": {
+      "temporary_deterioration_allowed": true,
+      "consecutive_regression_limit": 2,
+      "recovery_basis": "best_compatible_checkpoint",
+      "recovery_action": "new_untested_strategy_preserving_all_history",
+      "replacement_anchor": "mechanism_complementary_measured_anchor",
+      "working_context": "coverage_contrasts_counterexamples",
+      "interaction_priority": "joint_performance_first",
+      "seed_tradeoff": "mean_with_explicit_limits",
+      "validation": "fixed_panel_claim_only",
+      "staged_evaluation": "breadth_then_selective_confirmation",
+      "branch_abstention": "abstain_branch_keep_supported_branches"
+    },
+    "external_definitions_not_supplied": [
+      "round_unit",
+      "round_representative",
+      "regression_comparator",
+      "meaningful_regression_criterion",
+      "counter_transition_for_unavailable_or_intervening_outcomes",
+      "primary_protection_tolerance",
+      "neighborhood_deterioration_limit",
+      "plateau_criterion",
+      "mean_aggregation_and_missing_outcome_rule",
+      "screening_quota",
+      "shortlist_size"
+    ],
+    "implementation_status": "instruction_policy_record_only; no runtime consumer installed by this revision",
+    "does_not_authorize": [
+      "resume_paused_experiments",
+      "extra_sampling",
+      "automatic_retries",
+      "reset_evidence_or_budget",
+      "overwrite_frozen_runs",
+      "claim_automatic_rollback_or_abstention"
+    ],
+    "decision_record": "agenticgen/docs/designs/20261028_guidance_policy_reconciliation/decisions.json",
+    "updated_at": "2026-10-28T19:11:52.676380+08:00"
+  },
+  "new_sampling": 0,
+  "model_api_calls": 0,
+  "remote_deployment": false,
+  "automation_changed": false,
+  "research": "No new literature search in this implementation turn; prior primary-source assessments retained without new empirical claims."
+}

@@ -17,6 +17,10 @@ Evaluate neighborhood adaptation against its declared geometric and chemical req
 
 The secondary phase changes which legal weight experiments are informative. It does not authorize modifying loss components, moving conditioned atoms out of their accepted geometry, adding samples or changing calibrated multipliers. Risk diagnosis takes precedence over chasing an average gain in either phase.
 
+## Search-policy amendment
+
+The later human answer recorded in [confirmed-search-policy.md](confirmed-search-policy.md) permits temporary exploratory deterioration and specifies recovery after two consecutive deteriorating rounds. Condition preservation remains the priority for accepting an incumbent, not a demand that every experiment succeed. Existing hard constraints and risk diagnosis still apply. The recovery trigger is an externally supplied policy parameter, distinct from total iteration count and plateau detection. Do not reinstate the old option label's prohibition on expected deterioration.
+
 ## Unresolved parameters and implementation boundary
 
 No numerical neighborhood-deterioration limit, primary-geometry protection tolerance, plateau evidence span or minimum meaningful improvement was supplied. No particular universal threshold or teacher-specific threshold formula was endorsed. Keep these external and unresolved; apply each teacher's existing calibration and comparison conditions without pooling them. The qualitative policy is scoped to this workflow; do not infer new numerical permission from it.

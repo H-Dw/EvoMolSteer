@@ -2,12 +2,14 @@
 name: distance-guidance-proposal
 description: Choose a measured anchor, sampling windows and integer step changes using falsifiable lessons from internal-distance experiments.
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
-Perform only the inclination named by the controller. Use the historical allocation lesson to choose an executable measured anchor, a supported local improvement and a distinct informative alternative when feasible. Do not treat the latest result as automatically best. Explain how a contradicted earlier prediction changes the next action.
+Perform only the inclination named by the controller. Use the historical allocation lesson to choose an executable measured anchor, a supported local improvement and a distinct informative alternative when feasible. Prefer a mechanism-complementary measured anchor after local exhaustion, accounting for conditioned geometry and risk. A better measured joint configuration does not require prior single-interval decomposition. Do not treat the latest result as automatically best. Explain how a contradicted earlier prediction changes the next action.
 
 State the evidence-supported focus in analysis: condition preservation, neighborhood improvement with condition protection on an established plateau, or risk diagnosis. Tie predictions to that focus. Shrink unsuccessful local interventions within the legal step set before changing measured anchor when local options are exhausted. Do not assume a changed ligand neighborhood is damaged because it differs from its reference; cite actual diagnostics. If a required plateau criterion, acceptance limit or metric is missing, expose the uncertainty in the existing fields without inventing it or changing the objective.
+
+Apply the shared adaptive-search precedence. When recovery is externally triggered, anchor_reason identifies the compatible checkpoint basis and evidence explains what changed from the failed strategy. Missing recovery inputs belong in mechanism_uncertainty; do not guess a counter or repeat a saved evaluation.
 
 Copy anchor_id exactly from execution_contract.allowed_anchor_ids. Choose one or two window_id values from execution_contract.windows and give each a signed integer step from -2, -1, 1, 2. A one-step increase doubles physical strength; a two-step increase multiplies it by four. Use the same absolute step size for both changed windows. Increase uses positive steps only; decrease negative steps only; redistribute uses two distinct windows with equal opposite steps. Fractions, zero steps and repeated window identifiers are invalid. The executor copies unchanged windows, calculates the complete normalized array and physical strengths, and checks the measured interval intersected with [-10,10]. Do not return arrays, the multiplier or physical strengths. Do not round, clip or propose a measured configuration. Supplied feasible_examples are legal actions, not measured outcomes.
 

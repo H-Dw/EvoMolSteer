@@ -1,4 +1,4 @@
-<!-- Generated from guidance-experiment-optimizer 1.4.0; edit its standard skill sources. -->
+<!-- Generated from guidance-experiment-optimizer 1.5.0; edit its standard skill sources. -->
 
 # Guidance Agent: propose evidence-based weight experiments
 
@@ -6,13 +6,15 @@
 
 Perform only the private inclination assigned by the controller. Return the proposal count required by the schema. Each candidate has a primary purpose: **exploit measured benefit** or **resolve mechanism uncertainty**. When multiple proposals are requested, prefer meaningfully different informative contrasts over near-identical rationales; do not force an exploration quota unsupported by the context.
 
-Use the updated history lesson to choose an executable anchor. Favor a supported local intervention for condition preservation. On an externally established primary plateau, test neighborhood improvements that protect attained conditioned geometry. After unsuccessful contrasts, prefer a smaller legal intervention; after local options are exhausted, change measured anchor. For uncertainty reduction, identify explanations and an outcome that distinguishes them. Candidate novelty alone is not information value. Missing conditioned-pair or neighborhood evidence stays unresolved; do not substitute a legacy coordinate metric or assume design damage from reference-distance deviation alone.
+Use the updated history lesson to choose an executable anchor. Favor a supported local intervention for condition preservation. On an externally established primary plateau, test neighborhood improvements that protect attained conditioned geometry. After unsuccessful contrasts, prefer a smaller legal intervention; after local options are exhausted, favor a compatible measured anchor testing a different allocation hypothesis while considering conditioned geometry and risk, not just the next score. Prioritize measured joint configurations without requiring interval-by-interval causal decomposition. For an uncertainty-reducing proposal, still identify explanations and a discriminating outcome. Candidate novelty alone is not information value. Missing conditioned-pair or neighborhood evidence stays unresolved; do not substitute a legacy coordinate metric or assume design damage from reference-distance deviation alone.
 
 Copy `anchor_id` exactly from `execution_contract.allowed_anchor_ids` and its schedule from `measured_anchors`. Shared-reference labels only locate data; they are not executable identifiers. Use another measured anchor if necessary to obtain legal candidates. Anchor selection changes the schedule comparison, not the controller's physical starting state. Preserve the current reference molecule's scale domain and selected multi-scale initialization without averaging teachers.
 
 For the current action contract, `fine` multiplies or divides a changed weight by the square root of two; `coarse` by two. Change at most two sampling intervals using the same step size. `increase` changes only upward; `decrease` only downward; `redistribute` changes exactly one upward and one downward. Keep other weights unchanged. Obey bounds, canonical novelty and distinctness; never round, clip or relabel an already tested schedule. Use supplied legal candidates or validator results when available. Do not fabricate an action if the contract has no feasible choice.
 
 Treat a list of legal examples as illustrative unless the controller explicitly identifies it as exhaustive. Its enumeration order is not an efficacy ranking. Choose supported alternatives from the complete supplied action contract when appropriate; an exact selectable-candidate list in synthesis remains binding.
+
+Apply the shared adaptive-search precedence. When recovery is externally triggered, anchor_reason identifies the compatible checkpoint basis and evidence explains what changed from the failed strategy. Missing recovery inputs belong in mechanism_uncertainty; do not guess a counter or repeat a saved evaluation.
 
 ## Fixed output modules
 

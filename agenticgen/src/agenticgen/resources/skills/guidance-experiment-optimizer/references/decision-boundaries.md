@@ -1,4 +1,4 @@
-# Evidence errors and unresolved decision branches
+# Decision precedence and integration boundaries
 
 Use this reference when the supervising agent audits abnormal actions or maintains the decision policy. Keep detailed interviews out of inference prompts. Supporting research and the third interview are recorded in `agenticgen/docs/designs/20261028_guidance_abnormal_branches/`.
 
@@ -24,11 +24,27 @@ Implementation requires an explicit representation in the proposal schema, selec
 
 Use the existing evidence, uncertainty, prediction and falsifier fields to make these distinctions. Do not add a long checklist or new output fields to each inference. Preserve full metric names, source identifiers and the controller's limits.
 
-## Choices still pending
+## Reconciled decisions and precedence
 
-The third interview also asks how to spend budget when local effects conflict, how to trade mean improvement against seed consistency, and whether to reserve a never-used final validation population. No option has been confirmed for those questions. The earlier unresolved diagnostic-regression, replacement-anchor and working-context questions remain pending as well. Do not infer their answers from the confirmed abstention or breadth-first preferences.
+The six formerly pending choices are now confirmed by the direct human answer recorded in [confirmed-search-policy.md](confirmed-search-policy.md). Its free-text amendment takes precedence over the old option label. No further preference answer is needed for those six branches; numerical definitions and runtime support remain separate issues.
 
-A future choice of a different risk statistic, validation population or interaction experiment design needs actual supplied measurements, an external protocol and applicable budget. The current prompt view does not supply all seed-level outcomes, and aggregate means cannot reconstruct them. Scientific uncertainty is not a reason to invent a probability or a universal numerical threshold.
+Apply these rules in order:
+
+1. Verify evidence, teacher/protocol/population compatibility and action legality. Preserve failure and reuse provenance.
+2. Address measured pathological displacement or structural failure; average gains do not waive existing limits.
+3. Apply a verified external recovery trigger before ordinary local continuation; recover the best compatible strategy basis and develop a new allocation using all later lessons.
+4. Respect condition preservation and explicit acceptance limits. Allow informative exploratory deterioration without declaring it a new incumbent.
+5. Follow useful local improvements; on exhaustion choose a mechanism-complementary measured anchor. Prioritize joint performance without inventing individual causal effects.
+6. Prefer mean primary-metric gains within limits; report seed variability without making consistency a separate objective. Keep fixed-panel conclusions scoped.
+7. Use breadth-before-confirmation and branch abstention only through supported external contracts; report unsupported operations truthfully.
+
+Compact working context does not discard the ledger or replace full supervising-GPT review. Recovery does not reset the ledger or repeat a saved evaluation. A risk-diagnostic contrast can have value despite uncertain mean benefit; an unmeasured legal action is not automatically useful or useless. Ordinary background-dependent uncertainty does not require a mechanism-isolation experiment before a supported joint improvement.
+
+## Required implementation work, not solved by prose
+
+The inspected internal-distance controller still uses an all-pair aggregate winner and fixed-count branch execution. It does not consume this policy record, implement the new consecutive-regression recovery, or select/retrieve the preferred working context. It lacks the complete seed-level input needed for seed-specific checks. These are adoption gaps, not evidence that prompts enforced the policy. Detailed code locations and manual conflict rehearsals are in `agenticgen/docs/designs/20261028_guidance_policy_reconciliation/`.
+
+Missing numerical definitions remain explicit: round comparison and counter transitions, mean denominator/missing-outcome treatment, protection limits and plateau criteria. Do not convert their absence into a silently assumed threshold, or ask again for the qualitative choices already supplied. Current action schemas and output fields remain exact; unsupported abstention/recovery must be exposed to the supervisor instead of simulated with malformed actions.
 
 ## Research boundaries
 
