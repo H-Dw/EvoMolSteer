@@ -21,11 +21,12 @@ def diff(a,b):return float((a.detach().cpu().double()-b.detach().cpu().double())
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--root',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--site-probe',action='store_true',help='Isolate each loss guard and a diagnostic healthy-row fast path')
     args=p.parse_args();root=Path(args.root);folder=Path(args.output);folder.mkdir(parents=True,exist_ok=False)
     config=dict(read(root/'GEOMETRY_CONFIG.json'),root=str(folder));subject=read(root/'SUBJECTS.json')[0]
     teacher,condition=subject['teacher'],subject['condition'];base=root/'acceptance'/teacher['target']/'candidate_batch'
     report=dict(timestamp=datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-        new_candidates=0,new_sampling_steps=0,llm_calls=0,model_forward_calls=0,cases=[])
+        new_candidates=0,new_sampling_steps=0,llm_calls=0,model_forward_calls=0,site_probe=args.site_probe,cases=[])
     model=load_model(config,teacher)
     guard=object.__new__(CandidateControl);guard.initial={'population':20};guard.failed_units={}
     guard.failure_lock=threading.RLock();guard.active_step=10;guard.folder=folder
@@ -41,9 +42,13 @@ def main():
             with h5py.File(base/f'separate_{i}/trace.h5') as a,h5py.File(base/'mixed_twenty/trace.h5') as b:
                 saved_single=torch.from_numpy(a['input_gradient'][10]);saved_mixed=torch.from_numpy(b['input_gradient'][10,i*10:(i+1)*10])
             baseline={}
-            for det in (False,True):
+            sites={'distance_endpoint_only':'distance endpoint','internal_errors_only':'internal distance errors',
+                'interaction_errors_only':'interaction distance errors','total_guard_only':'normalized distance loss'}
+            modes=('plain','loss_guards_only',*sites,'healthy_fastpath') if args.site_probe else (
+                'plain','full_candidate_guards','loss_guards_only','network_guards_only','endpoint_guard_only')
+            for det in ((False,) if args.site_probe else (False,True)):
                 torch.use_deterministic_algorithms(det)
-                for mode in ('plain','full_candidate_guards','loss_guards_only','network_guards_only','endpoint_guard_only'):
+                for mode in modes:
                     x=curr['coords'].detach().clone().requires_grad_(True)
                     out=model(dict(curr,coords=x),pocket,times,cond_batch=cond,pocket_equis=eq,pocket_invs=iv,training=False)
                     report['model_forward_calls']+=1
@@ -52,6 +57,12 @@ def main():
                     endpoint=pred['coords']*model.coord_scale+com[:,None]
                     if mode in ('full_candidate_guards','endpoint_guard_only'):endpoint=guard.check_rows('predicted endpoint',endpoint,ids)
                     check=(lambda name,v:guard.check_rows(name,v,ids)) if mode in ('full_candidate_guards','loss_guards_only') else None
+                    if mode in sites:
+                        check=lambda name,v:guard.check_rows(name,v,ids) if name==sites[mode] else v
+                    elif mode=='healthy_fastpath':
+                        def check(name,v):
+                            guarded=guard.check_rows(name,v,ids)
+                            return v if not any(j//10 in guard.failed_units for j in ids) else guarded
                     value=evaluate(endpoint,condition,curr['mask'].bool(),[w]*10 if mode=='full_candidate_guards' else w,
                         current=curr['coords'].detach()*model.coord_scale+com[:,None],check=check)[0][0]
                     if mode=='full_candidate_guards':value=guard.check_rows('loss',value,ids)
