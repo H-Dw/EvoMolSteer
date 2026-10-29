@@ -15,3 +15,5 @@ fab632a86df0fd1951a3d628eeeac510bb51de38使完全相同的蛋白坐标得到精�
 2026-10-29 21:45:46（Asia/Shanghai）后台链启动，初始父PID52872、acceptance子PID52945。21:47:49真实父子进程及三把锁均持有，已完成第一教师前缀/恢复/槽位提升检查并推进到candidate_batch/separate_0第30步。失败标记为空，2004保护文件未变。此时未登记新标定或正式尝试、也没有正式LLM回执。后续以实际monitoring、阶段完成回执及LLM/provider产物为准。
 
 启动链自动衔接新λ标定、GD01真实LLM五轮、10/50诊断。新标定最多700次、正式最多1500次；原预算不清零、不复用旧λ、不自动扩界。不在健康运行时部署后续纯文档提交。协议、初始监测、配置、传输审计及测试证据均已保存在本目录。
+
+21:56:27追加核查：实际进程与三把锁仍持有，验收推进至3w54的candidate_batch/separate_0第70步，失败列表为空，2004个保护文件未变；尚无新标定/正式attempts。完整快照见evidence/confirmed_monitoring.json。专项heartbeat absolute-coordinate已创建并验证ACTIVE、15分钟间隔；中文提示UTF-8读回无替换字符，原uniguide-flowr保持PAUSED及35分钟间隔。应用仅去除了提示末尾换行，内容逐字一致。pytest初次失败原始日志另存.txt.gz并附SHA256，便于阅读的.txt仅去除行末空格。
