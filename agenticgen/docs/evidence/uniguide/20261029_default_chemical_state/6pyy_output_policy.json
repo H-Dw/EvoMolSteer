@@ -1,0 +1,58 @@
+{
+  "output_policy": "raw999",
+  "grid_end": 0.999,
+  "integration_intervals": 100,
+  "intended_interval_width": 0.00999,
+  "windows": [
+    [
+      10,
+      25
+    ],
+    [
+      26,
+      50
+    ],
+    [
+      51,
+      75
+    ],
+    [
+      76,
+      99
+    ]
+  ],
+  "maximum_single_atom_guidance_increment_angstrom": 3.0,
+  "limiter": "candidate_uniform_direction_preserving_v1",
+  "limit_scope": "guidance_increment_only",
+  "output_source": "step_99_prediction_before_update",
+  "last_effective_guidance_update": 98,
+  "extra_terminal_forward": false,
+  "coordinate_projection": false,
+  "chemical_projection": false,
+  "chemical_state_projection": true,
+  "chemical_inpainting": {
+    "policy": "fixed-template-controlled-chemical-state-v1",
+    "enabled": true,
+    "scope": "controlled_atoms_and_induced_bonds",
+    "step_bounds": [
+      10,
+      99
+    ],
+    "stage": "after_native_transition_and_coordinate_guidance",
+    "correspondence": "frozen_condition_atom_to_generated_slot",
+    "coordinates_replaced": false,
+    "self_conditioning_replaced": false,
+    "terminal_projection": false,
+    "native_categorical_rng_preserved": true
+  },
+  "last_loop": {
+    "step": 99,
+    "network_times": [
+      0.9890100359916687,
+      0.9890100359916687,
+      0.9890100359916687
+    ],
+    "output_is_uncovered_prediction": true
+  },
+  "chemical_condition_sha256": "87d03888a164fa906f5091b267ccb8500bc0116bddf3389457048bee06243ec3"
+}
