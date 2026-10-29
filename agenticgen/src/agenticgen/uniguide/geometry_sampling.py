@@ -361,7 +361,8 @@ def terminal_records(model, output, condition, folder, count, slots=None):
         values = coordinate_metrics(output["coords"],condition,output["mask"].bool(),assignment)
         write(folder/"COORDINATE_ASSIGNMENT.json",dict(assignment=assignment.cpu().tolist(),
             condition_sha256=condition["condition_sha256"],frozen_from_step=10,no_terminal_rematching=True))
-        geometry_diagnostics = [dict(protein_alignment=condition["protein_alignment"],
+        geometry_diagnostics = [dict(protein_alignment_sha256=value_sha(condition["protein_alignment"]),
+            fitted_protein_rmsd_angstrom=condition["protein_alignment"]["fitted_protein_rmsd_angstrom"],
             stereochemistry_assessment="not_guaranteed_by_coordinate_loss") for _ in range(count)]
     else:
         values = metrics(output["coords"], condition, output["mask"].bool())

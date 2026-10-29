@@ -46,6 +46,8 @@ def kabsch(moving, reference):
     ac, bc = a-a.mean(0), b-b.mean(0)
     if min(np.linalg.matrix_rank(ac), np.linalg.matrix_rank(bc)) < 2:
         raise ValueError("Protein alignment anchors are collinear")
+    if np.array_equal(a, b):
+        return np.eye(3), np.zeros(3), 0.
     u, _, vt = np.linalg.svd(ac.T @ bc)
     correction = np.diag([1., 1., np.linalg.det(u @ vt)])
     rotation = u @ correction @ vt  # Row-vector convention: x @ rotation + translation.
