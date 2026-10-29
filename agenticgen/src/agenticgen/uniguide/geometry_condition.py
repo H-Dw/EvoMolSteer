@@ -195,11 +195,11 @@ def measurements(endpoint,condition,valid,check=None):
     return errors,reference,pairs
 
 
-def loss(endpoint,condition,valid,loss_weights=None,*,current=None):
+def loss(endpoint,condition,valid,loss_weights=None,*,current=None,check=None):
     if condition.get("reward_policy"):
         from .geometry_reward import evaluate
-        return evaluate(endpoint,condition,valid,loss_weights,current=current)[0]
-    errors,reference,pairs=measurements(endpoint,condition,valid)
+        return evaluate(endpoint,condition,valid,loss_weights,current=current,check=check)[0]
+    errors,reference,pairs=measurements(endpoint,condition,valid,check=check)
     slots=torch.unique(pairs.flatten(),sorted=True)
     assignment=slots[None].expand(len(endpoint),-1).detach()
     selected=torch.zeros_like(valid,dtype=torch.bool);selected[:,slots]=True

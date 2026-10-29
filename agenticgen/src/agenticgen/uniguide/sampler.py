@@ -172,8 +172,7 @@ class Control:
         value=self.check_rows("loss",value);gradient=self.check_rows("input gradient",gradient)
         if tensor_digest(capture())!=entry: raise ValueError("Forward/VJP consumed sampling RNG")
         gamma=self.model.integrator.noise_scheduler(times[0][0])
-        self.delta,coefficient=guidance_delta(gradient,times[0],dt,scales,gamma,curr["mask"])
-        self.delta=self.check_rows("guidance increment",self.delta)
+        self.delta,coefficient=guidance_delta(gradient,times[0],dt,scales,gamma,curr["mask"],check=self.check_rows)
         self.delta=self.constrain_guidance(self.delta,curr["mask"])
         self.velocity=(pred["coords"].detach()-self.before)/(1-times[0][:,None,None])
         q=(times[0][:,None,None]*self.velocity-self.before)/(1-times[0]+1e-6)[:,None,None]

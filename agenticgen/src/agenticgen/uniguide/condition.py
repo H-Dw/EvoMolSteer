@@ -46,7 +46,7 @@ def loss(endpoint_A, core_A, valid):
     return coordinate_loss(endpoint_A, target, selected), target, selected, assignment
 
 
-def guidance_delta(gradient_native, time, dt, scale, gamma, valid):
+def guidance_delta(gradient_native, time, dt, scale, gamma, valid, *, check=None):
     """Exact drift difference for q' = q-S*g under the audited FLOWR score proxy.
 
     q=(t*v-x)/(1-t+eps), b=v+gamma*q. Thus dv=-(1-t+eps)/t*S*g.
@@ -61,6 +61,8 @@ def guidance_delta(gradient_native, time, dt, scale, gamma, valid):
             raise ValueError("Guidance is undefined at the flow endpoints")
         coefficient[active] = -dt * scales[active] * ((1 - t + 1e-6) / t + gamma)
     delta = coefficient[:, None, None] * gradient_native * valid[..., None]
+    if check is not None:
+        return check("guidance increment", delta), coefficient
     finite("guidance increment", delta)
     return delta, coefficient
 

@@ -36,6 +36,47 @@ def compare_trees(left,right):
     return differences
 
 
+class NonfiniteGradientFixture(CandidateControl):
+    """Engineering-only fault injection into the second immutable RNG shard."""
+
+    def check_rows(self, name, value, ids=None):
+        should_inject = (
+            name == "input gradient" and ids is not None and ids[0] == 10
+            and self.active_step == 10
+        )
+        if should_inject:
+            value = value.clone()
+            value[0, 0, 0] = float("nan")
+        return super().check_rows(name, value, ids)
+
+
+def verify_failure_isolation(model, config, teacher, condition, folder, units, reference):
+    """An invalid gradient must not alter a different healthy microbatch."""
+    destination = folder / "nonfinite_isolation"
+    factory = functools.partial(
+        NonfiniteGradientFixture, condition=condition, scale_binding=units[0]["scale"],
+        units=units, physical_rows=20,
+    )
+    prior = getattr(model, "_ug_parallel_workers", 1)
+    try:
+        model._ug_parallel_workers = 2
+        _, _, _, control = sampler.sample(
+            model, config, teacher, units[0]["scale"][EFFECTIVE], destination, 20,
+            control_factory=factory, check_affinity=False,
+            initial_override=batch_initial(config, teacher["target"], units), stop_step=12,
+        )
+    finally:
+        model._ug_parallel_workers = prior
+    if set(control.failed_units) != {1}:
+        raise ValueError("Injected failure was not isolated to its RNG shard")
+    with h5py.File(destination / "trace.h5") as mixed, h5py.File(reference / "trace.h5") as single:
+        for key in single:
+            if not np.array_equal(single[key][:12], mixed[key][:12, :10]):
+                raise ValueError("Failed shard changed a healthy trajectory: " + key)
+    return dict(healthy_prefix_exact=True, failed_shards=[1], shard_rows=10,
+                injected_step=10, checked_steps=12, evidence_preserved=True)
+
+
 def run_teacher(model,config,teacher,condition,folder):
     folder=Path(folder);units=[];separate=[]
     # Heterogeneous schedules and non-prefix RNG slots, deliberately not fitted lambdas.
@@ -152,5 +193,8 @@ def run_teacher(model,config,teacher,condition,folder):
     receipt.update(candidate_local_limit_triggered=True,unaffected_candidates_exact=True,
         guidance_increment_limit_angstrom=limit,limiter_stress_steps=12,
         stress_is_engineering_only=True,stress_multiplier_is_not_calibrated=True)
+    receipt["nonfinite_isolation"] = verify_failure_isolation(
+        model, config, teacher, condition, folder, units, separate[0],
+    )
     frozen(folder/"COMPLETE.json",receipt)
     return receipt
