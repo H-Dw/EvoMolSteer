@@ -23,6 +23,32 @@ def test_capacity_ladder_and_specific_oom():
     assert not batch.device_oom(RuntimeError("host out of memory"))
 
 
+def test_static_binding_once_per_batch_and_fresh_on_next_entry(tmp_path, monkeypatch):
+    config, teacher, spec, model, calls, sample = setup_scheduler(tmp_path, monkeypatch)
+    original = batch.compatibility
+    bindings = []
+
+    def observed(*args):
+        result = original(*args)
+        bindings.append(result)
+        return result
+
+    monkeypatch.setattr(batch, 'compatibility', observed)
+    monkeypatch.setattr(sampling, 'compatibility', observed)
+    jobs = [dict(schedule=[float(i + 1)] * 4, folder=tmp_path / f'group{i}',
+                 stage='calibration', count=50) for i in range(2)]
+    batch.execute_many(model, config, teacher, spec, jobs, sample_fn=sample)
+    assert len(bindings) == 1
+    completed_calls = list(calls)
+    batch.execute_many(model, config, teacher, spec, jobs, sample_fn=sample)
+    assert len(bindings) == 2 and calls == completed_calls
+    with pytest.raises(ValueError, match='another teacher'):
+        sampling.measurement_binding(config, dict(target='other'), spec, bindings[0])
+    changed = dict(spec, condition_sha256='another-condition')
+    with pytest.raises(ValueError, match='another teacher or condition'):
+        sampling.measurement_binding(config, teacher, changed, bindings[0])
+
+
 def test_mixed_streams_preserve_native_slots_and_external_rng():
     states=[]
     for seed in (1,2,3,4,5):

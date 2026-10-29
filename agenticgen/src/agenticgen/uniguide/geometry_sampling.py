@@ -3,6 +3,7 @@
 import functools
 import math
 from pathlib import Path
+import h5py
 import numpy as np
 import torch
 from rdkit import Chem
@@ -55,10 +56,14 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
     absolute_state = None
 
     def __init__(self, *args, condition, scale_binding, **kwargs):
-        self.geometry_condition = validate(condition)
+        self.geometry_condition = condition
         self.scale_binding = scale_binding
         from .absolute_coordinate import is_absolute, AssignmentState
         self.absolute_state = AssignmentState(self) if is_absolute(condition) else None
+        self.geometry_condition = (
+            self.absolute_state.objective.condition
+            if self.absolute_state is not None else validate(condition)
+        )
         super().__init__(*args, **kwargs)
         if "logical_slots" in self.initial:
             from .geometry_shards import SlotStreams
@@ -316,6 +321,20 @@ def validate_receipt(folder):
     return read(folder / "aggregate.json")
 
 
+def measurement_binding(config, teacher, condition, prepared=None, *, domain=None):
+    """Reuse a binding only inside its current task; entry/resume recompute file hashes."""
+    if domain is not None:
+        validate_domain(domain, teacher["target"], condition["condition_sha256"])
+    if prepared is None:
+        prepared = compatibility(config, teacher, condition)
+    elif (prepared["teacher_id"] != teacher["target"]
+              or prepared["condition_sha256"] != condition["condition_sha256"]):
+        raise ValueError("Prepared binding belongs to another teacher or condition")
+    if domain is not None and domain["sampling_protocol_sha256"] != value_sha(prepared):
+        raise ValueError("Another sampling protocol's multiplier; new calibration required")
+    return prepared
+
+
 def reserve_group(
     root,
     run_id,
@@ -489,20 +508,15 @@ def execute_shard(
     _materialized=None,
     _reservation=None,
     loss_weights=None,
+    _compatibility=None,
 ):
     from .geometry_shards import initial_shard
 
     count = 10
     if domain is None and stage != "calibration":
         raise ValueError("Actual strengths are allowed only in pre-experiments")
+    binding = measurement_binding(config, teacher, condition, _compatibility, domain=domain)
     if domain is not None:
-        validate_domain(domain, teacher["target"], condition["condition_sha256"])
-        validate_domain(
-            domain,
-            sampling_protocol_sha256=value_sha(
-                compatibility(config, teacher, condition)
-            ),
-        )
         if any(
             not domain["normalized_minimum"] <= x <= domain["normalized_maximum"]
             for x in schedule
@@ -519,7 +533,6 @@ def execute_shard(
         condition,
         loss_weights,
     )
-    binding = compatibility(config, teacher, condition)
     identity = dict(
         compatibility=binding,
         **candidate_identity(scale),
@@ -634,12 +647,10 @@ def execute_shard(
             "molecules_all_built.sdf",
             "molecules_raw_decodable.sdf",
         ]
-        if (folder / "OUTPUT_POLICY.json").exists():
-            files.append("OUTPUT_POLICY.json")
-        if (folder / "CHEMICAL_CONDITION.json").exists():
-            files.append("CHEMICAL_CONDITION.json")
-        if (folder / "BATCH_PROVENANCE.json").exists():
-            files.append("BATCH_PROVENANCE.json")
+        files.extend(name for name in (
+            "OUTPUT_POLICY.json", "CHEMICAL_CONDITION.json",
+            "BATCH_PROVENANCE.json", "COORDINATE_ASSIGNMENT.json",
+        ) if (folder / name).exists())
         frozen(
             folder / "COMPLETE.json",
             dict(files={name: sha(folder / name) for name in files}),
@@ -672,6 +683,7 @@ def execute(
     domain=None,
     enabled=True,
     loss_weights=None,
+    _compatibility=None,
 ):
     from .geometry_shards import combine_products
 
@@ -679,14 +691,8 @@ def execute(
         raise ValueError("Supported promotion populations are ten, twenty and fifty")
     if domain is None and stage != "calibration":
         raise ValueError("Actual strengths are allowed only in pre-experiments")
+    binding = measurement_binding(config, teacher, condition, _compatibility, domain=domain)
     if domain is not None:
-        validate_domain(domain, teacher["target"], condition["condition_sha256"])
-        validate_domain(
-            domain,
-            sampling_protocol_sha256=value_sha(
-                compatibility(config, teacher, condition)
-            ),
-        )
         if any(
             not domain["normalized_minimum"] <= x <= domain["normalized_maximum"]
             for x in schedule
@@ -702,7 +708,6 @@ def execute(
         condition,
         loss_weights,
     )
-    binding = compatibility(config, teacher, condition)
     identity = dict(
         compatibility=binding,
         **candidate_identity(scale),
@@ -749,6 +754,7 @@ def execute(
                     domain,
                     enabled,
                     loss_weights=loss_weights,
+                    _compatibility=binding,
                 )
             )
         rows = combine_products(root, shards, folder)

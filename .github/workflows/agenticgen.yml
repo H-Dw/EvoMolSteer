@@ -18,5 +18,12 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install './agenticgen[test]'
+      - run: python -m pip install ruff
+      - name: Check undefined names in coordinate execution modules
+        run: >-
+          python -m ruff check --select F821
+          agenticgen/src/agenticgen/uniguide/absolute_coordinate.py
+          agenticgen/src/agenticgen/uniguide/geometry_sampling.py
+          agenticgen/src/agenticgen/uniguide/geometry_batch.py
       - run: python -m pytest agenticgen/tests/unit
       - run: python -m build agenticgen

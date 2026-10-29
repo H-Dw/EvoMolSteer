@@ -4,6 +4,8 @@ Alignment is a change of measurement frame, never a sampling-state projection.
 The protein is fixed input; its Kabsch transform has no ligand dependence.
 """
 from pathlib import Path
+import copy
+from dataclasses import dataclass
 import math
 import numpy as np
 import torch
@@ -144,27 +146,83 @@ def match(endpoint, condition, valid):
     return torch.as_tensor(assignments, device=endpoint.device, dtype=torch.long)
 
 
+@dataclass(frozen=True)
+class FrozenAssignment:
+    """Slot uniqueness is static; the current mask remains a dynamic check."""
+
+    slots: torch.Tensor
+    selected: torch.Tensor
+    coordinate_shape: tuple
+
+    def check_layout(self, endpoint, valid):
+        if tuple(endpoint.shape) != self.coordinate_shape or valid.shape != endpoint.shape[:2]:
+            raise ValueError("Coordinate/mask shape differs from frozen assignment")
+        if endpoint.device != self.slots.device or valid.device != endpoint.device:
+            raise ValueError("Coordinate/mask device differs from frozen assignment")
+        if not bool(valid.bool().gather(1, self.slots).all()):
+            raise ValueError("Assignment is not an injective valid selection")
+
+
+class CoordinateObjective:
+    """Validate one condition snapshot, then reuse constants without hashing in the VJP."""
+
+    def __init__(self, condition):
+        self.condition = copy.deepcopy(validate(condition))
+        lookup = {atom["id"]: i for i, atom in enumerate(self.condition["atoms"])}
+        self.target_coordinates = tuple(
+            tuple(self.condition["reference_coordinates_angstrom"][lookup[atom]])
+            for atom in self.condition["controlled_atom_ids"]
+        )
+        frame = self.condition["protein_alignment"]
+        self.rotation = tuple(tuple(row) for row in frame["rotation"])
+        self.translation = tuple(frame["translation_angstrom"])
+        self._tensors = {}
+
+    def tensors(self, endpoint):
+        key = (endpoint.device, endpoint.dtype)
+        if key not in self._tensors:
+            self._tensors[key] = tuple(
+                endpoint.new_tensor(value).detach()
+                for value in (self.rotation, self.translation, self.target_coordinates)
+            )
+        return self._tensors[key]
+
+    def bind(self, endpoint, valid, assignment):
+        if endpoint.ndim != 3 or endpoint.shape[-1] != 3 or valid.shape != endpoint.shape[:2]:
+            raise ValueError("Coordinate/mask shape differs")
+        slots = torch.as_tensor(assignment, device=endpoint.device, dtype=torch.long).detach().clone()
+        if slots.shape != (len(endpoint), len(self.target_coordinates)):
+            raise ValueError("Frozen assignment population differs")
+        if (bool((slots < 0).any()) or bool((slots >= endpoint.shape[1]).any())
+                or any(len(set(row)) != len(row) for row in slots.cpu().tolist())):
+            raise ValueError("Assignment is not an injective valid selection")
+        selected = torch.zeros_like(valid, dtype=torch.bool).scatter(1, slots, True)
+        return FrozenAssignment(slots, selected.detach(), tuple(endpoint.shape))
+
+    def errors(self, endpoint, valid, assignment):
+        assignment.check_layout(endpoint, valid)
+        rotation, translation, target = self.tensors(endpoint)
+        values = (endpoint @ rotation + translation).gather(
+            1, assignment.slots[..., None].expand(-1, -1, 3)
+        )
+        return values - target[None], target
+
+    def evaluate(self, endpoint, valid, assignment, *, check=None):
+        errors, target = self.errors(endpoint, valid, assignment)
+        value = errors.square().sum((1, 2)) / (2 * len(target))
+        if check is not None:
+            value = check("absolute coordinate loss", value)
+        elif not bool(torch.isfinite(value).all()):
+            raise FloatingPointError("Nonfinite absolute coordinate loss")
+        return (value, target[None].expand(len(endpoint), -1, -1),
+                assignment.selected, assignment.slots)
+
+
 def loss(endpoint, condition, valid, assignment, *, check=None):
-    validate(condition)
-    if endpoint.ndim != 3 or endpoint.shape[-1] != 3 or valid.shape != endpoint.shape[:2]:
-        raise ValueError("Coordinate/mask shape differs")
-    slots = torch.as_tensor(assignment, device=endpoint.device, dtype=torch.long).detach()
-    if slots.shape != (len(endpoint), len(condition["controlled_atom_ids"])):
-        raise ValueError("Frozen assignment population differs")
-    if (bool((slots < 0).any()) or bool((slots >= endpoint.shape[1]).any())
-            or any(len(set(x)) != len(x) for x in slots.cpu().tolist())
-            or not bool(valid.bool().gather(1,slots).all())):
-        raise ValueError("Assignment is not an injective valid selection")
-    target = reference(condition, endpoint)
-    values = aligned(endpoint, condition).gather(1,slots[...,None].expand(-1,-1,3))
-    errors = values-target[None]
-    value = errors.square().sum((1,2))/(2*len(target))
-    if check is not None:
-        value = check("absolute coordinate loss", value)
-    elif not bool(torch.isfinite(value).all()):
-        raise FloatingPointError("Nonfinite absolute coordinate loss")
-    selected = torch.zeros_like(valid,dtype=torch.bool).scatter(1,slots,True)
-    return value, target[None].expand(len(endpoint),-1,-1), selected.detach(), slots
+    """Untrusted one-shot API; sampling uses a prepared CoordinateObjective."""
+    objective = CoordinateObjective(condition)
+    bound = objective.bind(endpoint, valid, assignment)
+    return objective.evaluate(endpoint, valid, bound, check=check)
 
 
 def metrics(endpoint, condition, valid, assignment):
@@ -176,31 +234,43 @@ def metrics(endpoint, condition, valid, assignment):
 class AssignmentState:
     """Per-row state, derived without additional forwards or random draws."""
     def __init__(self, control):
-        self.control=control; self.rows={}
+        self.control = control
+        self.objective = CoordinateObjective(control.geometry_condition)
+        self.rows = {}
+        self._assignments = {}
 
     def restore(self):
         saved = (self.control.resume or {}).get("absolute_assignment_state", {})
         if self.control.resume and value_sha(saved) != self.control.resume.get("absolute_assignment_sha256"):
             raise ValueError("Checkpoint assignment state checksum differs")
-        self.rows = {int(k):v for k,v in saved.items()}
+        self.rows = {int(k): copy.deepcopy(v) for k, v in saved.items()}
+        self._assignments.clear()
 
     def evaluate(self, endpoint, valid, ids):
         control=self.control
+        condition = self.objective.condition
         if control.active_step < 10:
-            assignment=match(endpoint,control.geometry_condition,valid)
+            assignment = self.objective.bind(endpoint, valid, match(endpoint, condition, valid))
         else:
             missing=[j for j,i in enumerate(ids) if i not in self.rows]
             if missing:
                 if control.active_step != 10:
                     raise ValueError("Missing initial assignment on recovery; cannot rematch")
-                chosen=match(endpoint[missing],control.geometry_condition,valid[missing]).cpu().tolist()
+                chosen=match(endpoint[missing],condition,valid[missing]).cpu().tolist()
                 for j,slots in zip(missing,chosen):
                     self.rows[ids[j]]=dict(slots=slots,first_step=10,
                         endpoint_sha256=value_sha(endpoint[j].detach().double().cpu().tolist()),
                         valid_sha256=value_sha(valid[j].detach().cpu().tolist()))
-            assignment=[self.rows[i]["slots"] for i in ids]
-        return loss(endpoint,control.geometry_condition,valid,assignment,
-                    check=lambda name,x:control.check_rows(name,x,ids))
+            key = (tuple(ids), endpoint.device)
+            if key not in self._assignments:
+                self._assignments[key] = self.objective.bind(
+                    endpoint, valid, [self.rows[i]["slots"] for i in ids]
+                )
+            assignment = self._assignments[key]
+        return self.objective.evaluate(
+            endpoint, valid, assignment,
+            check=lambda name, value: control.check_rows(name, value, ids),
+        )
 
     def save_cache(self):
         c=self.control

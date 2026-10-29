@@ -27,6 +27,7 @@ from .geometry_sampling import (
     execute,
     validate_receipt,
     candidate_identity,
+    measurement_binding,
 )
 from .geometry_reward import WEIGHTS
 from .geometry_safety import CandidateSafety
@@ -320,9 +321,9 @@ def split_products(output, control, source, unit, index):
     return result
 
 
-def compile_units(config, teacher, condition, jobs):
+def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
     root = Path(config["root"])
-    binding = compatibility(config, teacher, condition)
+    binding = measurement_binding(config, teacher, condition, _compatibility)
     units = {}
     for job in jobs:
         count = job.get("count", 50)
@@ -418,7 +419,8 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
     """Return one aggregate or FloatingPointError per job; never rerun numerical failures."""
     sample_fn = sample_fn or sampler.sample
     root = Path(config["root"])
-    units = compile_units(config, teacher, condition, jobs)
+    binding = compatibility(config, teacher, condition)
+    units = compile_units(config, teacher, condition, jobs, _compatibility=binding)
     batch_root = root / "candidate_batches" / teacher["target"]
     batch_root.mkdir(parents=True, exist_ok=True)
     capacity_file = batch_root / "capacity.json"
@@ -525,6 +527,7 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
                     _materialized=product,
                     _reservation=unit["fingerprint"],
                     loss_weights=job.get("loss_weights"),
+                    _compatibility=binding,
                 )
             frozen(
                 attempt / "COMPLETE.json",
@@ -594,7 +597,6 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
             continue
         pending = pending[len(selected) :]
     results = []
-    binding = compatibility(config, teacher, condition)
     for job in jobs:
         scale = scale_binding(
             job["schedule"],
@@ -651,6 +653,7 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
                     job.get("domain"),
                     job.get("enabled", True),
                     loss_weights=job.get("loss_weights"),
+                    _compatibility=binding,
                 )
             )
     return results
