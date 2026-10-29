@@ -12,8 +12,10 @@ def configure(config):
     old=Path(config["root"])/"GEOMETRY_CONFIG.json" if "root" in config else None
     if "agent_tools" not in config and old is not None and old.exists() and "agent_tools" not in read(old):
         return result  # No automatic migration of a frozen historical experiment.
-    settings=dict(DEFAULTS,**config.get("agent_tools",{}))
-    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE,"2.4.0"):
+    from .absolute_coordinate import POLICY as coordinate_policy
+    defaults = dict(DEFAULTS, skill_release="2.5.0") if config.get("protocol")==coordinate_policy else DEFAULTS
+    settings=dict(defaults,**config.get("agent_tools",{}))
+    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE,"2.4.0","2.5.0"):
         raise ValueError("Unsupported Agent tool configuration/release")
     if type(settings["max_model_calls_per_round"]) is not int or not 4<=settings["max_model_calls_per_round"]<=1000:
         raise ValueError("At least four model calls required for the four-role round")

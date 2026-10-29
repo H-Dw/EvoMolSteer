@@ -27,9 +27,10 @@ def plan(config,target):
 
 
 def refinement(coarse):
+    from .coordinate_statistics import ranking_eligible
     ordered=sorted(coarse,key=lambda r:r[EFFECTIVE][0]);eligible=[];previous=None;blocked=False
     for row in ordered:
-        if not row["complete"]:blocked=True;continue
+        if not row["complete"] or not ranking_eligible(row):blocked=True;continue
         absolute=displacement(row)
         if previous is not None:
             ratio=row[EFFECTIVE][0]/previous[EFFECTIVE][0]
@@ -116,7 +117,7 @@ def run(config,subjects,model_loader,executor):
                 no_automatic_expansion=True,no_weaker_retry=True))
             raise
         finally:
-            del model
+            model = None
             import torch
             torch.cuda.empty_cache()
     frozen(folder/"domains.json",domains)

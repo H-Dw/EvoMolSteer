@@ -36,11 +36,13 @@ def metric_summary(values):
         observations_retained=len(middle), unit="angstrom")
 
 
-def paired_summary(left,right,metrics=METRICS):
+def paired_summary(left,right,metrics=METRICS,*,upper_tail_policy=None):
     identity=lambda r:(r["logical_seed"],r["logical_slot"])
     a,b={identity(r):r for r in left},{identity(r):r for r in right}
     if len(a)!=len(left) or len(b)!=len(right) or set(a)!=set(b):
         return dict(status="unavailable", reason="Incomplete or repeated paired slot identities")
+    if upper_tail_policy is not None:
+        return upper_tail_paired_summary(a,b,metrics,upper_tail_policy)
     keys=sorted(a);seeds=sorted({k[0] for k in keys});result={}
     for metric in metrics:
         x=[a[k].get(metric) for k in keys];y=[b[k].get(metric) for k in keys]
@@ -67,6 +69,43 @@ def paired_summary(left,right,metrics=METRICS):
         sign="candidate minus reference; negative distance change is improvement", metrics=result)
 
 
+def upper_tail_paired_summary(a,b,metrics,settings):
+    from .coordinate_statistics import summarize
+    from .absolute_coordinate import RMSD
+    keys=sorted(a);seeds=sorted({k[0] for k in keys})
+    raw=[[source[k].get(RMSD) for k in keys] for source in (a,b)]
+    try:
+        summaries=[summarize(values,settings) for values in raw]
+    except FloatingPointError:
+        return dict(status="unavailable",reason="Missing/nonfinite paired RMSD cannot be trimmed")
+    excluded=[set(s["excluded_high_indices"]) for s in summaries]
+    retained=np.asarray([i not in excluded[0] and i not in excluded[1] for i in range(len(keys))])
+    result={}
+    for metric in metrics:
+        values=[[source[k].get(metric) for k in keys] for source in (a,b)]
+        if any(type(v) not in (int,float) or not math.isfinite(v) for row in values for v in row):
+            result[metric]=dict(status="unavailable",reason="Missing/nonfinite paired measurement");continue
+        x,y=map(np.asarray,values);delta=y-x
+        rng=np.random.default_rng(STATISTICS_POLICY["bootstrap_seed"])
+        clusters={s:[i for i,k in enumerate(keys) if k[0]==s and retained[i]] for s in seeds}
+        replicates=[]
+        if len(seeds)>=2:
+            for _ in range(STATISTICS_POLICY["bootstrap_resamples"]):
+                indices=[i for s in rng.choice(seeds,size=len(seeds),replace=True) for i in clusters[s]]
+                if indices:replicates.append(float(delta[indices].mean()))
+        result[metric]=dict(status="complete" if retained.any() else "unavailable",
+            arithmetic_mean_change=float(delta.mean()),
+            upper_tail_filtered_paired_mean_change=float(delta[retained].mean()) if retained.any() else None,
+            improved=int(sum(delta<0)),worsened=int(sum(delta>0)),unchanged=int(sum(delta==0)),
+            paired_retained_count=int(retained.sum()),
+            exploratory_paired_cluster_interval=np.quantile(replicates,[.025,.975]).tolist() if replicates else None,
+            inference="fixed original RMSD masks; paired seed clusters; descriptive adaptive panel only")
+    return dict(status="complete",paired_slots=len(keys),seed_clusters=len(seeds),metrics=result,
+        population_statistics={"reference":summaries[0],"candidate":summaries[1]},
+        paired_scope="intersection of original retained masks; unmatched counterparts remain in each population summary",
+        sign="candidate minus reference; negative coordinate error change is improvement")
+
+
 def object_schema(properties):
     return dict(type="object",properties=properties,required=list(properties),additionalProperties=False)
 
@@ -79,6 +118,16 @@ class EvidenceTools:
         from .absolute_coordinate import is_absolute, METRICS as coordinate_metrics, RMSD
         self.metrics=coordinate_metrics if condition and is_absolute(condition) else METRICS
         self.primary_metric=RMSD if condition and is_absolute(condition) else CONTROL_DISTANCE
+        self.outlier_policy=None
+        self.statistics_policy=STATISTICS_POLICY
+        self.population_fields=()
+        if condition and is_absolute(condition):
+            from .coordinate_statistics import policy, CONFIG, POLICY as statistics_id, RANKING, SUMMARY
+            config=read(self.root/"GEOMETRY_CONFIG.json") if (self.root/"GEOMETRY_CONFIG.json").exists() else {}
+            self.outlier_policy=policy(config)
+            self.population_fields=(RANKING,SUMMARY)
+            self.statistics_policy=dict(id=statistics_id,**self.outlier_policy,
+                ranking_change=True,lower_tail_excluded=False,scope="population statistics only; gradients unchanged")
         self.receipt_ids=set();self.sources={};self.records={};self.paths={}
         for run_id,row in self.history.items():
             path=(self.root/run_id).resolve()
@@ -96,7 +145,7 @@ class EvidenceTools:
                 hashes["trace.h5"]=sha(path/"trace.h5")
                 if hashes["trace.h5"]!=receipt["files"]["trace.h5"]:raise ValueError("Reward diagnostic trace changed")
             actual=read(path/"aggregate.json")
-            if any(actual.get(k)!=row.get(k) for k in ("id","attempts","teacher_id","condition_sha256","compatibility_sha256","fingerprint",*self.metrics,WEIGHTS,"window_diagnostics")):
+            if any(actual.get(k)!=row.get(k) for k in ("id","attempts","teacher_id","condition_sha256","compatibility_sha256","fingerprint",*self.metrics,*self.population_fields,WEIGHTS,"window_diagnostics")):
                 raise ValueError("History and measured source differ")
             if any(actual.get(k)!=domain.get(k) for k in ("teacher_id","condition_sha256")):
                 raise ValueError("Evidence belongs to a different teacher/condition")
@@ -104,6 +153,8 @@ class EvidenceTools:
             identity=manifest["identity"]
             if value_sha(identity["compatibility"])!=row["compatibility_sha256"]:
                 raise ValueError("Sampling compatibility source mismatch")
+            if self.outlier_policy is not None and identity["compatibility"].get("coordinate_statistics_policy")!=self.outlier_policy:
+                raise ValueError("Upper-tail statistics policy differs from measured configuration")
             records=read(path/"records.json")
             if len(records)!=row["attempts"] or len({(r["logical_seed"],r["logical_slot"]) for r in records})!=len(records):
                 raise ValueError("Measured population count/identity mismatch")
@@ -130,7 +181,7 @@ class EvidenceTools:
                     evidence_ids=dict(type="array",minItems=1,maxItems=4,uniqueItems=True,
                         items=dict(type="string",pattern="^ev_[0-9a-f]{20}$")),reason=dict(type="string",minLength=1,maxLength=350)))))
         self.definitions=[dict(type="function",function=dict(name=n,description=d,parameters=s)) for n,d,s in specs]
-        self.binding=dict(policy=STATISTICS_POLICY,history_sha256=value_sha(history),domain_sha256=value_sha(domain),
+        self.binding=dict(policy=self.statistics_policy,history_sha256=value_sha(history),domain_sha256=value_sha(domain),
             sources=self.sources,implementation_sha256=sha(__file__),action_implementation_sha256=sha(Path(__file__).with_name("geometry_protocol.py")))
         if condition:self.binding["reward_condition_sha256"]=condition["condition_sha256"]
         frozen(self.folder/"BINDING.json",self.binding)
@@ -160,7 +211,7 @@ class EvidenceTools:
         else:
             method=getattr(self,"_"+name)
             data=method(**args)
-            payload=dict(evidence_id=identifier,binding=binding,statistics_policy_id=STATISTICS_POLICY["id"],**data)
+            payload=dict(evidence_id=identifier,binding=binding,statistics_policy_id=self.statistics_policy["id"],**data)
             result=dict(payload,result_sha256=value_sha(payload));frozen(path,result)
         self.receipt_ids.add(identifier)
         return result
@@ -190,15 +241,21 @@ class EvidenceTools:
         rows=self.records[run_id]
         worst=sorted((r for r in rows if type(r.get(self.primary_metric)) in (int,float) and math.isfinite(r[self.primary_metric])),
             key=lambda r:r[self.primary_metric],reverse=True)[:3]
+        def summary(metric):
+            values=[r.get(metric) for r in rows]
+            if self.outlier_policy is None:return metric_summary(values)
+            from .coordinate_statistics import summarize,descriptive
+            return summarize(values,self.outlier_policy) if metric==self.primary_metric else descriptive(values)
         return dict(status="complete",run_id=run_id,attempts=len(rows),
-            metrics={m:metric_summary([r.get(m) for r in rows]) for m in self.metrics},
+            metrics={m:summary(m) for m in self.metrics},
             build_failed=sum(r.get("build_success") is False for r in rows),
             built_disconnected=sum(r.get("build_success") is True and r.get("connected") is False for r in rows),
             unknown_build_status=sum(type(r.get("build_success")) is not bool for r in rows),
             worst_controlled_geometry=[dict(aggregation_scope="single molecule",**{k:r.get(k) for k in
                 ("node_id","logical_seed","logical_slot",*self.metrics)}) for r in worst],
             quality_scope="No additional PLIP/PoseBusters evaluation; do not infer unselected results",
-            ranking="descriptive only; original scientific ranking unchanged")
+            ranking=("upper-RMSD-filtered population mean; raw outcomes and low RMSD retained"
+                     if self.outlier_policy is not None else "descriptive only; original scientific ranking unchanged"))
 
     def _compare_paired_runs(self,reference_id,candidate_id):
         if any(k not in self.records for k in (reference_id,candidate_id)):
@@ -206,7 +263,7 @@ class EvidenceTools:
         a,b=self.history[reference_id],self.history[candidate_id]
         if any(a.get(k)!=b.get(k) or a.get(k) is None for k in ("teacher_id","condition_sha256","compatibility_sha256","attempts")):
             return dict(status="unavailable",reason="Different teacher, condition, sampling protocol or population")
-        result=paired_summary(self.records[reference_id],self.records[candidate_id],self.metrics)
+        result=paired_summary(self.records[reference_id],self.records[candidate_id],self.metrics,upper_tail_policy=self.outlier_policy)
         return dict(result,reference_id=reference_id,candidate_id=candidate_id,
             independent_measurement=False if a["fingerprint"]==b["fingerprint"] else "matched existing panel; not held out")
 

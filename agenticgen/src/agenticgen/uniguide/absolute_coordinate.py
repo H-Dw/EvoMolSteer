@@ -13,7 +13,7 @@ from rdkit import Chem
 from scipy.optimize import linear_sum_assignment
 from .io import value_sha, sha, frozen, read, write
 
-POLICY = "protein-anchored-absolute-coordinate-guidance-v1"
+POLICY = "protein-anchored-absolute-coordinate-guidance-v2-uncapped-upper-tail"
 RMSD = "condition_coordinate_root_mean_square_deviation_angstrom"
 MAX_ERROR = "maximum_condition_atom_coordinate_error_angstrom"
 METRICS = (RMSD, MAX_ERROR)

@@ -35,7 +35,8 @@ def format_contract(schema,diagnostics=None):
 
 def history_view(row):
     from .absolute_coordinate import METRICS as coordinate_metrics
-    keys=[*coordinate_metrics,"id",NORMALIZED,DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE,WEIGHTS,"attempts","built","connected",
+    from .coordinate_statistics import RANKING,SUMMARY
+    keys=[*coordinate_metrics,RANKING,SUMMARY,"id",NORMALIZED,DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE,WEIGHTS,"attempts","built","connected",
         "unique_smiles","maximum_single_atom_guidance_increment_angstrom","proposal","proposal_sha256",
         "maximum_unconstrained_single_atom_guidance_increment_angstrom","guidance_increment_limited_candidate_steps",
         "guidance_increment_limited_candidates","minimum_guidance_increment_scale_factor","guidance_increment_limit_angstrom"]
@@ -78,7 +79,11 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             method="one uniform scale factor per candidate per step; native drift/noise unchanged",
             interpretation="Use unconstrained displacement and limited-candidate counts as instability evidence; bounded applied updates do not prove stability.")
     if config.get("protocol")==coordinate_policy:
-        common["coordinate_objective_contract"]=dict(primary_metric="condition_coordinate_root_mean_square_deviation_angstrom",alignment="protein-only proper Kabsch applied to the whole complex measurement frame",assignment="Hungarian at first step 10 then frozen; same mapping for chemical state inpainting",loss="half mean squared absolute coordinate error",no_terminal_rematching=True)
+        from .coordinate_statistics import policy as upper_policy, POLICY as upper_id, RANKING
+        common["coordinate_objective_contract"]=dict(primary_metric=RANKING,
+            raw_metric="condition_coordinate_root_mean_square_deviation_angstrom",alignment="protein-only proper Kabsch applied to the whole complex measurement frame",assignment="Hungarian at first step 10 then frozen; same mapping for chemical state inpainting",loss="half mean squared absolute coordinate error per candidate; gradients are never trimmed",no_terminal_rematching=True,
+            guidance_increment_limiter="none",population_statistics=dict(policy_id=upper_id,**upper_policy(config)),
+            interpretation="Only extreme upper RMSD outliers are omitted from population loss/score. Keep all low RMSD outcomes, raw means, exclusions and failed attempts; excessive excluded fractions cannot rank as a successful configuration.")
     registry=budget=None
     if config.get("agent_tools"):
         from .analysis_tools import EvidenceTools
@@ -104,7 +109,8 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
         common["existing_statistics_receipts"]=[dict(evidence_id=r["evidence_id"],run_id=r.get("run_id"),
             status=r["status"],attempts=r.get("attempts"),build_failed=r.get("build_failed"),
             metrics={m:{k:v for k,v in values.items() if k in ("status","measured","arithmetic_mean",
-                "symmetric_ten_percent_trimmed_mean","maximum")} for m,values in r.get("metrics",{}).items()}) for r in receipts]
+                "symmetric_ten_percent_trimmed_mean","upper_tail_filtered_mean","excluded_high_count",
+                "threshold_angstrom","ranking_eligible","maximum")} for m,values in r.get("metrics",{}).items()}) for r in receipts]
         common["registered_computation_tools"]=[d["function"]["name"] for d in registry.definitions]
         common["statistics_policy"]=registry.binding["policy"]
         common["scale_reference"]=dict(

@@ -35,7 +35,7 @@ from .geometry_dynamics import (
     WINDOWS,
     LIMIT,
     policy,
-    limit_increment,
+    INCREMENT_OPERATORS,
     increment_summary,
 )
 from .geometry_reward import WEIGHTS, weights, INTERACTION_DISTANCE
@@ -50,6 +50,14 @@ def metric_names(condition):
 def is_maximum_metric(name):
     from .absolute_coordinate import MAX_ERROR as coordinate_maximum
     return name in (MAX_ERROR, coordinate_maximum)
+
+
+def coordinate_population_statistics(folder, rows, condition, config, aggregate):
+    from .absolute_coordinate import is_absolute
+    if is_absolute(condition):
+        from .coordinate_statistics import aggregate_fields, SUMMARY
+        aggregate.update(aggregate_fields(rows, config))
+        write(folder / "COORDINATE_STATISTICS.json", aggregate[SUMMARY])
 
 
 class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
@@ -139,22 +147,22 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
 
     def constrain_guidance(self, delta, valid):
         self.unconstrained_delta = delta
-        limited, self.increment_audit = limit_increment(
-            delta, valid, self.model.coord_scale, self.sampling_policy[LIMIT]
+        result, self.increment_audit = INCREMENT_OPERATORS[self.sampling_policy["limiter"]](
+            delta, valid, self.model.coord_scale, self.sampling_policy.get(LIMIT)
         )
-        return limited
+        return result
 
     def guidance_limit_diagnostics(self):
         return self.increment_audit
 
     def guidance_limit_trace(self):
-        return {
+        result = {
             "unconstrained_guidance_delta_A": self.unconstrained_delta.double()
             * self.model.coord_scale,
-            "guidance_increment_scale_factor": self.increment_audit[
-                "guidance_increment_scale_factor"
-            ],
         }
+        if "guidance_increment_scale_factor" in self.increment_audit:
+            result["guidance_increment_scale_factor"] = self.increment_audit["guidance_increment_scale_factor"]
+        return result
 
     def checkpoint_metadata(self):
         return dict(
@@ -280,7 +288,7 @@ def compatibility(config, teacher, condition, domain=None):
         }
     )
     roots = Path(config.get("initials_root", config["root"]))
-    return dict(
+    result = dict(
         policy=config.get("protocol",POLICY),
         teacher_id=teacher["target"],
         condition_sha256=condition["condition_sha256"],
@@ -310,6 +318,12 @@ def compatibility(config, teacher, condition, domain=None):
             for i in range(5)
         },
     )
+    from .absolute_coordinate import is_absolute
+    if is_absolute(condition):
+        from .coordinate_statistics import policy as statistics_policy
+        result["coordinate_statistics_policy"] = statistics_policy(config)
+        result["scientific_sources"]["coordinate_statistics"] = sha(package / "coordinate_statistics.py")
+    return result
 
 
 def validate_receipt(folder):
@@ -635,6 +649,7 @@ def execute_shard(
                     else "within_measured_envelope_not_a_stability_guarantee"
                 ),
             )
+        coordinate_population_statistics(folder, rows, condition, config, aggregate)
         write(folder / "aggregate.json", aggregate)
         files = [
             "manifest.json",
@@ -649,7 +664,7 @@ def execute_shard(
         ]
         files.extend(name for name in (
             "OUTPUT_POLICY.json", "CHEMICAL_CONDITION.json",
-            "BATCH_PROVENANCE.json", "COORDINATE_ASSIGNMENT.json",
+            "BATCH_PROVENANCE.json", "COORDINATE_ASSIGNMENT.json", "COORDINATE_STATISTICS.json",
         ) if (folder / name).exists())
         frozen(
             folder / "COMPLETE.json",
@@ -805,6 +820,7 @@ def execute(
                     else "within_measured_envelope_not_a_stability_guarantee"
                 ),
             )
+        coordinate_population_statistics(folder, rows, condition, config, aggregate)
         write(folder / "aggregate.json", aggregate)
         files = [
             "manifest.json",
@@ -821,6 +837,8 @@ def execute(
             files.append("OUTPUT_POLICY.json")
         if (folder / "CHEMICAL_CONDITION.json").exists():
             files.append("CHEMICAL_CONDITION.json")
+        if (folder / "COORDINATE_STATISTICS.json").exists():
+            files.append("COORDINATE_STATISTICS.json")
         frozen(
             folder / "COMPLETE.json",
             dict(files={name: sha(folder / name) for name in files}),

@@ -186,6 +186,13 @@ def run_teacher(model,config,teacher,condition,folder):
                     if not np.array_equal(single[key][:12],combined[key][:12,i*10:(i+1)*10]):
                         raise ValueError("Capacity probe changed independent prefix: "+key)
     receipt["capacity_probe_exact_prefix_equivalence"]=True
+    from .geometry_dynamics import policy as dynamics_policy
+    if dynamics_policy(config)["limiter"] == "none":
+        receipt.update(verify_uncapped_guidance(model,config,teacher,condition,folder,units,separate[0]))
+        receipt["nonfinite_isolation"] = verify_failure_isolation(model, config, teacher, condition, folder, units, separate[0])
+        frozen(folder/"COMPLETE.json",receipt)
+        return receipt
+    # Legacy distance protocols retain their own historical radius acceptance.
     # Force only the second candidate unit across the radius; the first must
     # remain identical to its separately executed low-strength trajectory.
     stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*4,condition=condition))]
@@ -212,3 +219,31 @@ def run_teacher(model,config,teacher,condition,folder):
     )
     frozen(folder/"COMPLETE.json",receipt)
     return receipt
+
+
+def verify_uncapped_guidance(model,config,teacher,condition,folder,units,separate):
+    """One large finite update is observed, never followed by a weaker retry."""
+    stress=[copy.deepcopy(units[0]),dict(id="uncapped_fixture",slots=[6,7],
+        scale=scale_binding([1e6]*4,condition=condition))]
+    destination=folder/"uncapped_large_increment"
+    prior_workers=getattr(model,"_ug_parallel_workers",1)
+    try:
+        model._ug_parallel_workers=2
+        factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],
+            units=stress,physical_rows=20)
+        sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],destination,20,
+            control_factory=factory,check_affinity=False,
+            initial_override=batch_initial(config,teacher["target"],stress),stop_step=11)
+    finally:
+        model._ug_parallel_workers=prior_workers
+    steps=read(destination/"steps.json")
+    assert all("guidance_increment_limited" not in row for row in steps)
+    assert max(steps[10]["max_atom_increment_A"][10:])>3.
+    with h5py.File(destination/"trace.h5") as mixed,h5py.File(separate/"trace.h5") as reference:
+        assert np.array_equal(mixed["guidance_delta_A"][10].astype(np.float64),
+                              mixed["unconstrained_guidance_delta_A"][10])
+        for key in reference:
+            assert np.array_equal(reference[key][:11],mixed[key][:11,:10]),key
+    return dict(uncapped_large_increment_preserved=True,unaffected_candidates_exact=True,
+        guidance_increment_limiter="none",stress_is_engineering_only=True,
+        stress_multiplier_is_not_calibrated=True,stress_steps=11)

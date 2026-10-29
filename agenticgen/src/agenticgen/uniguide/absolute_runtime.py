@@ -59,8 +59,10 @@ def validate_config(config):
     dynamics_policy(config)
     from .geometry_chemistry import policy as chemical_policy
     config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
-    if config.get("agent_tools",{}).get("skill_release")!="2.4.0":
-        raise ValueError("Absolute coordinates require the 2.4.0 runtime skills and tools")
+    from .coordinate_statistics import policy as statistics_policy, CONFIG
+    config = dict(config, **{CONFIG: statistics_policy(config)})
+    if config.get("agent_tools",{}).get("skill_release")!="2.5.0":
+        raise ValueError("Uncapped upper-tail coordinates require the 2.5.0 runtime skills and tools")
     from .geometry_calibration import plan
     for item in config.get("conditions",[]):plan(config,item["teacher_id"])
     if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS] or config.get("seeds",SEEDS)!=SEEDS:
@@ -245,7 +247,8 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
         advisor(config,current,domain,troot/"analysis_final",skills,failed,final=True)
         winner=choose(groups);retainer(root,groups,winner,troot/"retention")
         contexts.extend([str(troot/"analysis_final"/"increase.json"),str(troot/"analysis_final"/"synthesis.json")])
-        summaries[target]=dict(representative=winner["id"],**{k:winner[k] for k in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE)},
+        from .coordinate_statistics import RANKING, SUMMARY
+        summaries[target]=dict(representative=winner["id"],**{k:winner[k] for k in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,RANKING,SUMMARY)},
             **{k:winner[k] for k in (WEIGHTS,INTERACTION_DISTANCE) if k in winner},
             domain_sha256=domain["domain_sha256"],complete=True)
         all_groups.extend(groups);del model

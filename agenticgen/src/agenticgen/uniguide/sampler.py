@@ -270,8 +270,9 @@ def diagnostics(folder,windows=WINDOWS):
             if "unconstrained_guidance_delta_A" in trace:
                 raw=trace["unconstrained_guidance_delta_A"][lo:hi+1].astype(np.float64)
                 windows[-1].update(unconstrained_increment_vector_rms_A=float(np.sqrt(np.mean(raw*raw))),
-                    unconstrained_max_atom_increment_A=max(max(r["unconstrained_max_atom_increment_A"]) for r in rows),
-                    limited_candidate_steps=sum(sum(r["guidance_increment_limited"]) for r in rows))
+                    unconstrained_max_atom_increment_A=max(max(r["unconstrained_max_atom_increment_A"]) for r in rows))
+                if "guidance_increment_limited" in rows[0]:
+                    windows[-1]["limited_candidate_steps"]=sum(sum(r["guidance_increment_limited"]) for r in rows)
     return windows
 
 

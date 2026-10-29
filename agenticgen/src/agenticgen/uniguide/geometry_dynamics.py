@@ -14,17 +14,23 @@ STEP_FIELDS=("unconstrained_max_atom_increment_A","guidance_increment_scale_fact
 
 
 def policy(config):
+    from .absolute_coordinate import POLICY as coordinate_policy
+    absolute = config.get("protocol") == coordinate_policy
+    if absolute and LIMIT in config:
+        raise ValueError("Absolute guidance is uncapped; remove the legacy increment-limit setting")
     limit=config.get(LIMIT)
-    if type(limit) not in (int,float) or not math.isfinite(limit) or limit<=0:
+    if not absolute and (type(limit) not in (int,float) or not math.isfinite(limit) or limit<=0):
         raise ValueError("Configure a positive finite "+LIMIT)
     if config.get("output_policy")!="raw999" or config.get("steps",100)!=100:
         raise ValueError("Geometry dynamics requires raw999 and 100 integration intervals")
     if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS]:
         raise ValueError("Geometry guidance windows must cover steps 10 through 99")
+    restriction = (dict(limiter="none", limit_scope="none") if absolute else
+        dict(maximum_single_atom_guidance_increment_angstrom=float(limit),
+             limiter="candidate_uniform_direction_preserving_v1",limit_scope="guidance_increment_only"))
     return dict(output_policy="raw999",grid_end=.999,integration_intervals=100,
         intended_interval_width=.00999,windows=[list(w) for w in WINDOWS],
-        maximum_single_atom_guidance_increment_angstrom=float(limit),
-        limiter="candidate_uniform_direction_preserving_v1",limit_scope="guidance_increment_only",
+        **restriction,
         output_source="step_99_prediction_before_update",last_effective_guidance_update=98,
         extra_terminal_forward=False,coordinate_projection=False,chemical_projection=False,
         chemical_state_projection=chemistry_policy(config)["enabled"],chemical_inpainting=chemistry_policy(config))
@@ -58,6 +64,24 @@ def limit_increment(delta,valid,coord_scale,maximum):
     if bool((applied_max>maximum).any()):raise ArithmeticError("Guidance trust radius was not enforced")
     return result,dict(unconstrained_max_atom_increment_A=raw_max.tolist(),
         guidance_increment_scale_factor=factor.tolist(),guidance_increment_limited=limited.tolist())
+
+
+def uncapped_increment(delta, valid, coord_scale, maximum=None):
+    """Observe the original vector and return the same tensor, without a fallback."""
+    from .condition import finite
+    if maximum is not None:
+        raise ValueError("Uncapped guidance cannot accept a radius")
+    if delta.ndim != 3 or delta.shape[-1] != 3 or valid.shape != delta.shape[:2]:
+        raise ValueError("Guidance vector/mask shapes differ")
+    if not math.isfinite(float(coord_scale)) or coord_scale <= 0:
+        raise ValueError("Positive coordinate conversion required")
+    finite("uncapped guidance increment", delta)
+    maximums = (delta.double() * float(coord_scale)).norm(dim=-1).amax(1)
+    return delta, dict(unconstrained_max_atom_increment_A=maximums.tolist())
+
+
+INCREMENT_OPERATORS = {"none": uncapped_increment,
+                       "candidate_uniform_direction_preserving_v1": limit_increment}
 
 
 class Raw999Sampling:
@@ -104,10 +128,15 @@ def increment_summary(folder):
     from .io import read
     rows=read(Path(folder)/"steps.json")
     if not rows or STEP_FIELDS[0] not in rows[0]:return {}
+    output_policy=read(Path(folder)/"OUTPUT_POLICY.json")
+    if output_policy["limiter"] == "none":
+        return dict(guidance_increment_limiter="none",
+            maximum_unconstrained_single_atom_guidance_increment_angstrom=max(
+                max(r["unconstrained_max_atom_increment_A"]) for r in rows))
     flags=[r["guidance_increment_limited"] for r in rows]
     return dict(maximum_unconstrained_single_atom_guidance_increment_angstrom=max(
         max(r["unconstrained_max_atom_increment_A"]) for r in rows),
         guidance_increment_limited_candidate_steps=sum(sum(f) for f in flags),
         guidance_increment_limited_candidates=sum(any(f[i] for f in flags) for i in range(len(flags[0]))),
         minimum_guidance_increment_scale_factor=min(min(r["guidance_increment_scale_factor"]) for r in rows),
-        guidance_increment_limit_angstrom=read(Path(folder)/"OUTPUT_POLICY.json")[LIMIT])
+        guidance_increment_limit_angstrom=output_policy[LIMIT])

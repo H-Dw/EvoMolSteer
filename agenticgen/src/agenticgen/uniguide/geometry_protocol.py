@@ -47,13 +47,20 @@ def expand_effective(schedule):
 
 
 def choose(rows):
-    if not rows or any(not r.get("complete") or not math.isfinite(primary_score(r)) for r in rows):
-        raise ValueError("Selection requires complete finite internal-distance measurements")
-    return min(rows,key=lambda r:(primary_score(r),max(r.get(EFFECTIVE,[0.])),r["id"]))
+    from .coordinate_statistics import ranking_eligible
+    if not rows or any(not r.get("complete") for r in rows):
+        raise ValueError("Selection requires completed measurements")
+    eligible = [r for r in rows if ranking_eligible(r)]
+    if not eligible or any(not math.isfinite(primary_score(r)) for r in eligible):
+        raise ValueError("No complete eligible finite geometry measurements")
+    return min(eligible,key=lambda r:(primary_score(r),max(r.get(EFFECTIVE,[0.])),r["id"]))
 
 
 def primary_score(row):
     from .absolute_coordinate import RMSD
+    from .coordinate_statistics import RANKING
+    if RANKING in row:
+        return row[RANKING]
     if RMSD in row:
         return row[RMSD]
     value=row.get(CONTROL_DISTANCE) if WEIGHTS in row else row[DISTANCE]
@@ -94,8 +101,9 @@ def derive_domain(rows,teacher_id,condition_hash,sampling_protocol_sha256):
         scale=row[EFFECTIVE][0]
         if not math.isfinite(scale) or scale<=0: raise ValueError("Invalid actual calibration scale")
         entry=dict(source_id=row["id"],effective_scale=scale,complete=row["complete"])
-        if not row["complete"]:
-            boundary=boundary or dict(source_id=row["id"],reason="failed_constant")
+        from .coordinate_statistics import ranking_eligible
+        if not row["complete"] or not ranking_eligible(row):
+            boundary=boundary or dict(source_id=row["id"],reason="failed_or_excessive_outlier_constant")
         else:
             absolute=displacement(row);growth={}
             if previous:

@@ -1,17 +1,16 @@
 {
-  "protocol": "protein-anchored-absolute-coordinate-guidance-v1",
+  "protocol": "protein-anchored-absolute-coordinate-guidance-v2-uncapped-upper-tail",
   "output_policy": "raw999",
   "chemical_inpainting": {
     "enabled": true
   },
-  "maximum_single_atom_guidance_increment_angstrom": 3.0,
   "calibration": {
     "search_center_by_teacher": {
       "6pyy_H7S_A_402": 1.0,
       "3w54_RNB_A_504": 1.0
     }
   },
-  "root": "/workspace/agenticgen_absolute_coordinate_20261029",
+  "root": "/workspace/agenticgen_absolute_coordinate_uncapped_20261030",
   "generation_context_root": "/workspace/agenticgen_uniguide_flowr_20261026",
   "flowr": "/opt/MolSteer/flowr_root",
   "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
@@ -53,7 +52,7 @@
   "population": 50,
   "agent_tools": {
     "mode": "readonly_tools_v1",
-    "skill_release": "2.4.0",
+    "skill_release": "2.5.0",
     "max_model_calls_per_round": 30,
     "max_output_tokens_per_round": 491520
   },
@@ -70,5 +69,12 @@
     "thinking": true,
     "reasoning_effort": "high",
     "max_output_tokens": 16384
+  },
+  "rmsd_outlier_policy": {
+    "method": "upper_outer_fence",
+    "interquartile_multiplier": 3.0,
+    "minimum_upper_excess_angstrom": 1.0,
+    "maximum_excluded_fraction": 0.1,
+    "minimum_population": 10
   }
 }
