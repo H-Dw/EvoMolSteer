@@ -15,3 +15,11 @@
 采样按教师独立编排候选批，优先容纳不足100的全部候选，仅实际OOM后按80、60、40、20、10下降；每候选配置和随机槽位保持独立。正式组基础统计全量，PLIP/PoseBusters独立CPU队列固定抽查10/50，五种子各logical_slot=0、1；构建失败仍占分母、不补样，其余40不追加慢查。
 
 使用独立结果根目录`/workspace/agenticgen_chemical_interact_20261029`，旧UG、旧模板距离失败实验和旧验收根目录保留。一次性运行链为acceptance→calibrate→run-version GD01→抽样诊断完成。执行锁和claim防止重复启动，阶段失败即停。每15分钟在本对话巡检真实进程、锁、日志、进度、预算及质量队列；健康时安静，完成或实质异常通知。任务完成后实际读取指标、四份策略上下文和回执复盘归档，再停用本专项巡检。其他自动化不改动。
+
+## 实际启动审计
+
+2026-10-29 13:17:42（Asia/Shanghai）已启动后台链，固定执行提交`5f97acb32a89a3ad320bfc29980c522f5509e356`，目录`/workspace/uniguide_runs/chemical-interact-5f97acb3`。GitHub直连及四镜像依序超时后，使用已验证的Git bundle部署；远端78项单元测试通过。父进程定位PID3702，验收子进程定位PID3775，后续以真实进程和日志为准。
+
+13:19:59确认三把执行锁持有、真实验收进程运行，6pyy的候选批次一致性验收已到第89步；没有失败标记，134个保护文件哈希不变。此时仍处于工程验收，标定与正式LLM调用尚未开始，不能将后台链启动写成正式实验完成。
+
+本专项heartbeat ID为`inpainting`，状态ACTIVE、间隔15分钟，绑定当前对话；原`uniguide-flowr`仍PAUSED、35分钟配置未变。中文配置已按UTF-8读取并经JSON ensure_ascii=true往返校验，无Unicode替换字符。完整绑定见`launch_audit.json`、`automation.json`和`evidence/`。此后文档审计提交不覆盖健康执行目录。
