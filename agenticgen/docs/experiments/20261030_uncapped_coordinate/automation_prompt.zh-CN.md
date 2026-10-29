@@ -1,0 +1,29 @@
+巡检并收尾本对话明确授权的“无限幅绝对坐标＋化学inpainting＋单侧高RMSD组级统计”双教师全量线上运行。先读取D:/llm_controlled_generation/EvoMolSteer-uniguide/agenticgen/docs/experiments/20261030_uncapped_coordinate/formal_protocol.zh-CN.md、launch_audit.json和后续用户指令。只操作codex/uniguide-flowr-agent；归档分支archive/uniguide-distance-sum-20261029-d1432f5f保持原状。原uniguide-flowr继续PAUSED、35分钟设置不变，不修改其他任务或自动化，不向其他聊天发送消息。
+
+服务器root@ssh.zzai.scnet.cn:11741，使用本对话授权凭据及D:/llm_controlled_generation/tmp/uniguide_ops.py的JSON stdin接口，凭据不得打印、写入仓库或自动化。API和小写http_proxy/https_proxy从交互式bash加载，非交互环境缺变量不能当作服务器未配置。launcher.log可能含交互环境输出，只保留远端，不打印、下载或提交原文。
+
+固定运行目录/workspace/uniguide_runs/absolute-uncapped-c060050f，已推送提交c060050fac866c60a055b8b7088aad9d3c64628e。新结果根/workspace/agenticgen_absolute_coordinate_uncapped_20261030；配置/workspace/uniguide_runs/absolute-uncapped-c060050f-config.json，SHA256 1aec9cec7467dd5a6cdb9b0292d2984fd178dbce6d5131bbfc673bb7f5aa1adb。原/workspace/agenticgen_absolute_coordinate_restart_20261029及更旧根完整保留，不能删除原失败、claim、账本或FINALIZED，也不能用旧标记判断新根失败。本次不迁移旧生成结果、预算、λ或排名；只使用原冻结随机初态保持设计。
+
+2026-10-30 02:00:52（Asia/Shanghai）已启动一次性后台链acceptance→calibrate→真实LLM run-version GD01→独立CPU10/50诊断，初始父PID69250仅供定位。远端204项回归通过、1项GPU单测未在CPU进程执行；此前两教师真实模型同态验证确认VJP不变、大于3 Å的有限引导向量原样返回、高RMSD候选梯度不抑制、其他候选梯度逐位不变。当前新链仍须完成双教师100区间采样验收，不能用此前同态检查代替，也不得跳过或放宽容差。尚在验收时不得声称已标定、正式生成或调用LLM。
+
+每次用本固定目录agenticgen/docs/experiments/20261029_chemical_interact_formal/inspect_run.py在新根monitoring保存Asia/Shanghai快照，核对真实命令/进程、全局/workspace/agenticgen_uniguide_flowr_20261026/.executor.lock、新根.executor.lock/.campaign.lock、STATUS/HEARTBEAT、当前阶段log、逐组steps/progress、attempts及COMPLETE/FAILED/INSUFFICIENT_EVIDENCE/CAMPAIGN标记；不能仅凭PID或心跳判断健康。健康时不重复启动，不覆盖执行代码、manifest、skills、条件或对应缓存，不部署纯文档提交。
+
+教师固定6pyy_H7S_A_402/single_b004_final_015和3w54_RNB_A_504/single_b000_final_003，各9个原PLIP直接互作配体重原子为唯一条件区域。新条件SHA分别8592e1cecd7319871f0593cae457c00942a2ebbff6a7cc1a2cf9523994d6ade4与081b3eb026e6bb5583d11ae3431c896237a8d2d8c96ade501a89c945d1528520；蛋白锚点8674/2147，拟合误差0。只有蛋白决定正Kabsch测量变换，配体不参与拟合，不替换采样状态。第10步首次引导前Hungarian匹配并逐候选冻结，坐标loss与化学inpainting共用对应；恢复不能重新匹配，终态不能重匹配降低误差。
+
+协议protein-anchored-absolute-coordinate-guidance-v2-uncapped-upper-tail，skills2.5.0。逐候选损失仍为条件绝对坐标平方误差和除以2K，完整终态VJP，没有相对距离或亲和力梯度。raw999100区间0–0.999、10–99步，返回第99循环未覆盖预测，网络时间约0.98901；第99步更新不进入输出。化学inpainting仅覆盖状态化学通道和条件内部键，不覆盖坐标、自条件预测或最终输出。
+
+没有3 Å限幅、向量缩放或RMSD梯度掩码，不能为不合理guidance恢复这些保护。高RMSD候选仍执行完整未限幅梯度。仅在完整教师/配置人口的组级loss汇总、λ及Agent排名中按Q3+max(3×IQR,1 Å)严格单侧排除高值；全部低RMSD保留，不固定剔除最高比例，不双侧截尾或替换阈值。默认至少10观测、最多排除10%，超过则该配置不可排名。1 Å为统计上侧最小间隔，不是坐标或梯度上限。NaN/Inf、缺测和工程失败不能通过统计剔除当作成功；数值失败仍以10行RNG分片隔离和登记，不宣称逐分子失败隔离，也不弱化重试。
+
+核对COORDINATE_STATISTICS.json及COMPLETE哈希：condition_coordinate_root_mean_square_deviation_angstrom为原始全人口均值，ranking_condition_coordinate_root_mean_square_deviation_angstrom为过滤后排名值；同时报告原始/过滤后坐标loss、阈值、排除身份/数量和真实分母。10→20→50人口必须从原始records重算，不平均已过滤分片。全部结构、轨迹、最大误差、原始记录、失败和预算保留。配对比较使用两原始保留掩码交集，独立组级统计仍完整保留各自低值。位移增长检查不被组级过滤绕过。
+
+λ每教师按新协议重新13档粗筛各10候选，局部5档逐步20/50并复用同协议槽位，每教师最多350、共700新尝试；不复用旧限幅λ。边界最优、过量异常或证据不足按冻结规则停止，不自动扩界、降低强度、重试或补样。正式各教师5轮、每轮三方向各50，共30组请求，最多1500新尝试；精确重复配置只引用原结果，不重采或当独立验证。只执行GD01，不开GD02、不恢复UG05。
+
+DeepSeek deepseek-flash、thinking/high、单响应16384、既有网络重试及一次格式修正保持不变，每教师/轮四角色共享30次模型调用和491520输出token预算。必须读取真实provider请求/回执、claims及工具回执证明调用，不能因配置存在称已调用。输出截断或接口失败不删除claim、不循环请求、不自动提额或改提示。验收内nonfinite_isolation是预期故障注入，不据该夹具文件判正式失败，以acceptance/COMPLETE和CAMPAIGN_FAILED为准。
+
+检查本专项quality_queue的worker/status/requests/POLICY、真实命令、worker锁和各组QUALITY_COMPLETE/QUALITY_FAILED。模块及commit必须绑定c060050f固定目录，不启动旧worker。每正式组attempts=50、checked_attempts=10、not_selected=40、coverage=0.2，五种子各logical_slot0、1；构建失败占分母，不补样，其余40不补慢查。区分构建失败、真实不通过、不可评价与工程错误，PoseB内部几何、蛋白冲突和能量分开报告。必要CPU恢复只限本专项，先核对进程路径/锁，再加载DTK、本固定目录agenticgen/src与src，隐藏GPU且CPU库各1线程。
+
+进程消失、CAMPAIGN_FAILED、INSUFFICIENT_EVIDENCE或其他实质终止时，先保存阶段日志、源码哈希、账本、组进度和失败请求，核查具体原因并归档；不自动重启、删标记、清零或补样。SAMPLING_FINISHED后仅补后处理。CAMPAIGN_FINISHED后实际读取双教师标定、30组请求/复用来源、全部原始/过滤指标、四角色上下文和真实LLM/工具回执，完成实际主GPT复盘；不能混入旧协议排名，不能把10/50诊断外推成全人口通过率。3919个SOURCE_PRESERVATION保护文件全部核对不变。
+
+下载机器结果/审计到本地本实验docs目录，实际复盘提交推送GitHub；纯文档不部署运行目录。完成或终态失败归档后写FINALIZED绑定复盘，仅在确认本专项路径、进程归属和队列空闲后停止CPU worker，通知本对话并删除当前触发的本专项heartbeat；其他自动化不动。GitHub异常按直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc依次尝试，均不可用可用已验证且仅含已推送提交的Git bundle。
+
+巡检间隔15分钟。健康/排队/无实质变化时DONT_NOTIFY，不额外进度；仅通知完成、实质异常、修复或需用户处理的问题。中文文件UTF-8，自动化读回使用JSON ensure_ascii=true核验，不得出现Unicode替换字符。
