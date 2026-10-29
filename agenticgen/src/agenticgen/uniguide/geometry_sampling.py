@@ -52,6 +52,8 @@ def is_maximum_metric(name):
 
 
 class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
+    absolute_state = None
+
     def __init__(self, *args, condition, scale_binding, **kwargs):
         self.geometry_condition = validate(condition)
         self.scale_binding = scale_binding
