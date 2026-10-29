@@ -4,6 +4,8 @@
 
 2026-10-29 14:54:15（Asia/Shanghai）已启动一次性后台链acceptance→calibrate→真实LLM run-version GD01→10/50诊断。定位父PID8557、验收PID8630；14:55:04真实进程与三把锁持有，处于acceptance，尚无标定/正式样本或真实LLM回执。仅作定位，后续必须使用新目录inspect_run.py读取真实命令、状态、全局/workspace/agenticgen_uniguide_flowr_20261026/.executor.lock、本专项.executor.lock/.campaign.lock、STATUS/HEARTBEAT、阶段log、逐组steps/progress、attempts和完成/失败标记，不能只凭PID或heartbeat判断健康。每次在本专项monitoring保存Asia/Shanghai时间快照。
 
+最新核查（覆盖上述验收阶段状态）：2026-10-29 15:13:37（Asia/Shanghai）完整双教师acceptance退出0并生成ACCEPTANCE_FINISHED。实际读取acceptance/COMPLETE及两教师candidate_batch/COMPLETE：100区间独立/混合逐位一致、raw999端点一致、恢复一致、有限差分、无亲和力梯度/额外RNG、化学不覆盖坐标、3Å限制和非有限梯度隔离全部通过。真实容量探测6pyy经90/80 OOM降至60、3w54经90/80/60 OOM降至40；这是12步工程容量验收，不代表整程最大容量或新增科学尝试。15:17:16真实父PID8557与标定子PID11535及三把锁持有；6pyy粗筛130次已登记，尚无完成sample_shard，不能把预留当完成；GD01尚未启动、无真实LLM回执。配置哈希及干净4ffd6e4c匹配，342保护文件未变，质量队列尚未创建、无积压。完整证据本地evidence/graphfix/acceptance_completed.json与calibration_started_monitoring.json；远端monitoring/acceptance_completed_20261029_1518.json和20261029_151716.json。以之后真实状态为准，健康期间不部署纯文档提交。
+
 修复：健康张量检查直接返回原对象，统一独立/合批距离计算图；数值检查、证据和失败隔离分离，增量溢出先交候选隔离。10行随机流分片仍为失败账本单位；3Å限幅为逐分子，不得混淆。远端111项测试通过。真实模型验收还必须包含双教师有限差分、无亲和力梯度/额外RNG、100区间独立合批逐位一致、恢复、90候选容量/真实OOM降档、3Å压力和第二分片第10步非有限梯度注入后第一分片逐位一致。验收内nonfinite_isolation故障注入是预期测试，不能仅凭其nonfinite证据文件宣布正式任务失败；以验收COMPLETE及CAMPAIGN_FAILED判断。任何测试失败禁止跳过或放宽容差。
 
 保持教师6pyy_H7S_A_402/single_b004_final_015、3w54_RNB_A_504/single_b000_final_003。各九个原PLIP直接互作配体原子同时作condition和interact_atom，6pyy44对、3w5410对；仅原记录两端集合展开去重，不扩大位点，不当成独立互作事件。新旧SUBJECTS完全一致。化学状态inpainting开启，坐标不覆盖；raw999100区间0–0.999，10–99步坐标guidance，最后循环未覆盖预测；3Å候选局部上限配置不变，初始内部/外围/互作权重1/0/1。skills2.2.0不变，Agent可按现有工具局部调整。
