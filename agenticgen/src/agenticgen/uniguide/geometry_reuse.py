@@ -47,7 +47,10 @@ def verify_initial(root,domains):
 
 
 def reuse(config,sources,schedules):
-    from .geometry_runtime import calibrated, require_acceptance
+    from .absolute_coordinate import POLICY as absolute_policy
+    from . import absolute_runtime, geometry_runtime
+    runtime=absolute_runtime if config.get("protocol")==absolute_policy else geometry_runtime
+    calibrated,require_acceptance=runtime.calibrated,runtime.require_acceptance
     require_acceptance(config)
     subjects=calibrated(config);root=Path(config["root"]).resolve();domains={};copies={};audit={}
     if set(sources)!={s["teacher"]["target"] for s in subjects}:raise ValueError("Provide one calibration source root per teacher")

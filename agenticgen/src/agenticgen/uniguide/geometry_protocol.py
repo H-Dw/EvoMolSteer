@@ -47,12 +47,15 @@ def expand_effective(schedule):
 
 
 def choose(rows):
-    if not rows or any(not r.get("complete") or not math.isfinite(r[DISTANCE]) or not math.isfinite(primary_score(r)) for r in rows):
+    if not rows or any(not r.get("complete") or not math.isfinite(primary_score(r)) for r in rows):
         raise ValueError("Selection requires complete finite internal-distance measurements")
     return min(rows,key=lambda r:(primary_score(r),max(r.get(EFFECTIVE,[0.])),r["id"]))
 
 
 def primary_score(row):
+    from .absolute_coordinate import RMSD
+    if RMSD in row:
+        return row[RMSD]
     value=row.get(CONTROL_DISTANCE) if WEIGHTS in row else row[DISTANCE]
     return row[DISTANCE] if value is None else value
 
@@ -111,20 +114,24 @@ def derive_domain(rows,teacher_id,condition_hash,sampling_protocol_sha256):
     lower=max(-10.,math.log2(eligible[0][EFFECTIVE][0]/multiplier))
     upper=min(10.,math.log2(eligible[-1][EFFECTIVE][0]/multiplier))
     lower=math.ceil(lower-1e-9);upper=math.floor(upper+1e-9)
-    body=dict(policy=POLICY,teacher_id=teacher_id,condition_sha256=condition_hash,
+    from .absolute_coordinate import RMSD, POLICY as coordinate_policy
+    absolute = RMSD in winner
+    body=dict(policy=coordinate_policy if absolute else POLICY,teacher_id=teacher_id,condition_sha256=condition_hash,
         sampling_protocol_sha256=sampling_protocol_sha256,
         calibration_key=value_sha([teacher_id,condition_hash,sampling_protocol_sha256]),
         calibrated_guidance_multiplier=multiplier,normalized_minimum=lower,normalized_maximum=upper,
         initial_normalized_guidance_scale_schedule=[0.]*4,initial_source=winner["id"],
         bootstrap_sources=[r["id"] for r in eligible],source_rows_sha256=value_sha(full),
         constant_comparison=curve,risk_boundary=boundary,stability_guarantee=False,
-        ranking="minimum condition-internal atom-pair distance RMSD (all constrained pairs only when internal pairs are absent), then smaller effective scale, then source identity")
+        ranking=("minimum protein-anchored frozen-assignment condition coordinate RMSD, then smaller effective scale, then source identity" if absolute else
+                 "minimum condition-internal atom-pair distance RMSD (all constrained pairs only when internal pairs are absent), then smaller effective scale, then source identity"))
     return dict(body,domain_sha256=value_sha(body))
 
 
 def validate_domain(domain,teacher_id=None,condition_hash=None,sampling_protocol_sha256=None):
     body={k:v for k,v in domain.items() if k!="domain_sha256"}
-    if domain.get("policy")!=POLICY or value_sha(body)!=domain.get("domain_sha256"):
+    from .absolute_coordinate import POLICY as coordinate_policy
+    if domain.get("policy") not in (POLICY,coordinate_policy) or value_sha(body)!=domain.get("domain_sha256"):
         raise ValueError("Invalid normalized scale protocol binding")
     if teacher_id is not None and domain["teacher_id"]!=teacher_id: raise ValueError("Another teacher's multiplier")
     if condition_hash is not None and domain["condition_sha256"]!=condition_hash: raise ValueError("Another condition's multiplier")
@@ -139,6 +146,9 @@ def validate_domain(domain,teacher_id=None,condition_hash=None,sampling_protocol
 
 def validate_action(action,anchors,domain,seen):
     validate_domain(domain)
+    from .absolute_coordinate import POLICY as coordinate_policy
+    if domain["policy"]==coordinate_policy and any(k in action for k in (WEIGHTS,"loss_control_id")):
+        raise ValueError("Absolute coordinate guidance has no component interventions")
     if action["anchor_id"] not in anchors: raise ValueError("Unknown measured action anchor")
     if any(k in action for k in (NORMALIZED,EFFECTIVE,MULTIPLIER,"schedule","mode")):
         raise ValueError("Agent must provide integer updates, not executor-owned arrays or strengths")

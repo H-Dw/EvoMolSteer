@@ -1,0 +1,116 @@
+"""Analytic geometry and state contracts of the absolute-coordinate protocol."""
+import copy
+import json
+from pathlib import Path
+from types import SimpleNamespace
+import numpy as np
+import pytest
+
+torch=pytest.importorskip("torch")
+pytest.importorskip("rdkit")
+from agenticgen.uniguide.absolute_coordinate import (
+    POLICY, RMSD, MAX_ERROR, prepare, match, loss, metrics, kabsch, AssignmentState,
+)
+from agenticgen.uniguide.io import value_sha
+
+
+@pytest.fixture
+def condition(tmp_path):
+    pdb=tmp_path/"protein.pdb"
+    points=[(0.,0.,0.),(4.,0.,0.),(0.,5.,0.),(0.,0.,6.)]
+    pdb.write_text("".join(f"ATOM  {i:5d}  CA  ALA A{i:4d}    {x:8.3f}{y:8.3f}{z:8.3f}  1.00 20.00           C\n"
+                            for i,(x,y,z) in enumerate(points,1)))
+    return prepare(dict(atoms=[dict(id="a",element="C"),dict(id="b",element="O")],
+        bonds=[dict(atom_ids=["a","b"],order="single")],controlled_atom_ids=["a","b"],
+        coordinates_angstrom=[[0.,0.,0.],[1.4,0.,0.]],coordinate_frame="generation_context_angstrom"),pdb)
+
+
+def test_mean_loss_exact_gradient_and_fixed_mapping(condition):
+    x=torch.tensor([[[8.,8.,8.],[0.,0.,0.],[1.4,0.,0.]]],dtype=torch.float64,requires_grad=True)
+    valid=torch.ones((1,3),dtype=torch.bool)
+    assignment=match(x,condition,valid)
+    assert assignment.tolist()==[[1,2]]
+    assert loss(x,condition,valid,assignment)[0].item()==0
+    shifted=x.detach().clone();shifted[0,1,1]=2;shifted.requires_grad_(True)
+    value=loss(shifted,condition,valid,assignment)[0]
+    assert value.item()==1
+    gradient=torch.autograd.grad(value.sum(),shifted)[0]
+    assert gradient[0,1,1].item()==1
+    assert torch.equal(gradient[0,0],torch.zeros(3,dtype=x.dtype))
+    assert metrics(shifted,condition,valid,assignment)[RMSD].item()==pytest.approx(np.sqrt(2))
+
+
+def test_protein_alignment_preserves_relative_pose(condition):
+    protein=np.array([[0.,0.,0.],[4.,0.,0.],[0.,5.,0.],[0.,0.,6.]])
+    rotation=np.array([[0.,-1.,0.],[1.,0.,0.],[0.,0.,1.]])
+    translation=np.array([12.,-6.,2.])
+    moved=protein@rotation+translation
+    r,t,error=kabsch(moved,protein)
+    assert error<1e-12 and np.linalg.det(r)>0
+    c=copy.deepcopy(condition);c['protein_alignment'].update(rotation=r.tolist(),translation_angstrom=t.tolist())
+    c['condition_sha256']=value_sha({k:v for k,v in c.items() if k!='condition_sha256'})
+    points=np.array([[0.,0.,0.],[1.4,0.,0.]])@rotation+translation
+    x=torch.tensor(points[None],dtype=torch.float64);valid=torch.ones((1,2),dtype=torch.bool)
+    assert loss(x,c,valid,[[0,1]])[0].item()<1e-24
+    assert loss(x+torch.tensor([0.,0.,2.]),c,valid,[[0,1]])[0].item()>1
+
+
+@pytest.mark.parametrize('assignment',[[[0,0]],[[0,3]],[[-1,1]]])
+def test_invalid_assignments_rejected(condition,assignment):
+    with pytest.raises(ValueError):
+        loss(torch.zeros(1,3,3),condition,torch.ones(1,3,dtype=torch.bool),assignment)
+
+
+def test_masked_slot_rejected(condition):
+    with pytest.raises(ValueError):
+        loss(torch.zeros(1,3,3),condition,torch.tensor([[True,False,True]]),[[0,1]])
+
+
+def test_assignment_freezes_and_checkpoint_is_verified(condition):
+    c=SimpleNamespace(geometry_condition=condition,active_step=9,resume=None,
+                      check_rows=lambda name,x,ids:x)
+    state=AssignmentState(c)
+    x=torch.tensor([[[9.,9.,9.],[0.,0.,0.],[1.4,0.,0.]]]);valid=torch.ones(1,3,dtype=torch.bool)
+    state.evaluate(x,valid,[0]);assert not state.rows
+    c.active_step=10;state.evaluate(x,valid,[0]);assert state.rows[0]['slots']==[1,2]
+    c.active_step=11
+    shuffled=x[:,[1,0,2]]
+    assert state.evaluate(shuffled,valid,[0])[3].tolist()==[[1,2]]
+    assert match(shuffled,condition,valid).tolist()==[[0,2]]
+    c.resume=dict(absolute_assignment_state=state.rows,absolute_assignment_sha256=value_sha(state.rows))
+    recovered=AssignmentState(c);recovered.restore();assert recovered.rows==state.rows
+    c.resume['absolute_assignment_state']=copy.deepcopy(state.rows)
+    c.resume['absolute_assignment_state'][0]['slots']=[0,2]
+    with pytest.raises(ValueError):AssignmentState(c).restore()
+
+
+def test_reflection_not_accepted_as_rotation():
+    a=np.array([[0.,0.,0.],[1.,0.,0.],[0.,2.,0.],[0.,0.,3.]])
+    r,t,error=kabsch(a*np.array([-1,1,1]),a)
+    assert np.linalg.det(r)==pytest.approx(1.) and error>.1
+
+
+def test_batch_reduction_is_candidate_local(condition):
+    valid=torch.ones(1,2,dtype=torch.bool)
+    x=torch.tensor([[[.2,.3,0.],[1.5,0.,.1]]],requires_grad=True)
+    independent=torch.autograd.grad(loss(x,condition,valid,[[0,1]])[0].sum(),x)[0]
+    batch=x.detach().repeat(3,1,1).requires_grad_(True)
+    gradient=torch.autograd.grad(loss(batch,condition,valid.repeat(3,1),[[0,1]]*3)[0].sum(),batch)[0]
+    assert torch.equal(gradient,independent.repeat(3,1,1))
+
+
+def test_new_release_uses_single_objective_and_retains_learning():
+    from agenticgen.uniguide.tool_runtime import assets
+    files=assets({'agent_tools':{'skill_release':'2.4.0'}})
+    text='\n'.join(p.read_text(encoding='utf8') for p in files.values())
+    for term in ('condition_intra_weight','condition_outer_weight','interact_weigh','loss_control_id'):
+        assert term not in text
+    for term in ('compatible historical','counterexample','integer','JSON','Hungarian','Kabsch'):
+        assert term in text
+
+
+def test_absolute_primary_ranking_not_legacy_distance():
+    from agenticgen.uniguide.geometry_protocol import choose
+    rows=[dict(id='a',complete=True,**{RMSD:1.,MAX_ERROR:2.}),
+          dict(id='b',complete=True,**{RMSD:.5,MAX_ERROR:3.})]
+    assert choose(rows)['id']=='b'

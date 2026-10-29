@@ -151,6 +151,7 @@ class CandidateControl(CandidateSafety, GeometryControl):
 
     def checkpoint_metadata(self):
         return dict(
+            **self.assignment_checkpoint(),
             candidate_binding=dict(
                 condition_sha256=self.geometry_condition["condition_sha256"],
                 units=[
@@ -165,9 +166,10 @@ class CandidateControl(CandidateSafety, GeometryControl):
         )
 
     def row_loss_weights(self, ids):
-        return [self.units[i // 10]["scale"][WEIGHTS] for i in ids]
+        return [self.units[i // 10]["scale"].get(WEIGHTS) for i in ids]
 
     def initialize(self, *args):
+        self.restore_assignments()
         self.restore_raw_output()
         if self.resume:
             bound = self.resume["candidate_binding"]
@@ -184,6 +186,10 @@ class CandidateControl(CandidateSafety, GeometryControl):
             tensor_digest(s.states) for s in self.random_streams.parts
         ]
         self.rows[-1]["failed_units"] = copy.deepcopy(self.failed_units)
+        if self.absolute_state is not None:
+            if step > 10 and any(self.rows[-1]["assignment_switch_fraction"]):
+                raise ValueError("Frozen candidate assignment changed")
+            self.absolute_state.save_cache()
         return self.apply_chemical_inpainting(result, step)
 
     def repair_diagnostics(self, key, fallback=None):

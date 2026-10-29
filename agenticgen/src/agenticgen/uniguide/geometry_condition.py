@@ -118,6 +118,9 @@ def prepare(features,valid_generated_slots=None,*,component_reward=False):
 
 
 def validate(condition):
+    from .absolute_coordinate import is_absolute, validate as absolute_validate
+    if is_absolute(condition):
+        return absolute_validate(condition)
     if "distance_normalization" in condition:
         raise ValueError("Distance normalization was removed; prepare a new condition and recalibrate")
     body={k:v for k,v in condition.items() if k!="condition_sha256"}

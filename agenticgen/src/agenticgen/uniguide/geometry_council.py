@@ -34,7 +34,8 @@ def format_contract(schema,diagnostics=None):
 
 
 def history_view(row):
-    keys=["id",NORMALIZED,DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE,WEIGHTS,"attempts","built","connected",
+    from .absolute_coordinate import METRICS as coordinate_metrics
+    keys=[*coordinate_metrics,"id",NORMALIZED,DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE,WEIGHTS,"attempts","built","connected",
         "unique_smiles","maximum_single_atom_guidance_increment_angstrom","proposal","proposal_sha256",
         "maximum_unconstrained_single_atom_guidance_increment_angstrom","guidance_increment_limited_candidate_steps",
         "guidance_increment_limited_candidates","minimum_guidance_increment_scale_factor","guidance_increment_limit_angstrom"]
@@ -57,6 +58,7 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
     provider=provider or call_json
     anchors={r["id"]:r for r in history};seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in history]
     if not history or len(anchors)!=len(history):raise ValueError("Unique completed measured history required")
+    from .absolute_coordinate import POLICY as coordinate_policy
     common=dict(history=[history_view(r) for r in history],non_anchor_evidence_and_failures=list(failures),
         comparison_best_id=choose(history)["id"],no_future_execution=final,
         condition_sha256=domain["condition_sha256"],teacher_id=domain["teacher_id"],
@@ -75,6 +77,8 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             maximum_single_atom_guidance_increment_angstrom=config["maximum_single_atom_guidance_increment_angstrom"],
             method="one uniform scale factor per candidate per step; native drift/noise unchanged",
             interpretation="Use unconstrained displacement and limited-candidate counts as instability evidence; bounded applied updates do not prove stability.")
+    if config.get("protocol")==coordinate_policy:
+        common["coordinate_objective_contract"]=dict(primary_metric="condition_coordinate_root_mean_square_deviation_angstrom",alignment="protein-only proper Kabsch applied to the whole complex measurement frame",assignment="Hungarian at first step 10 then frozen; same mapping for chemical state inpainting",loss="half mean squared absolute coordinate error",no_terminal_rematching=True)
     registry=budget=None
     if config.get("agent_tools"):
         from .analysis_tools import EvidenceTools

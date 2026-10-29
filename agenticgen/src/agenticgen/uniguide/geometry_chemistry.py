@@ -18,9 +18,12 @@ def policy(config):
     settings=config.get("chemical_inpainting",{"enabled":True})
     if not isinstance(settings,dict) or set(settings)!={"enabled"} or type(settings["enabled"]) is not bool:
         raise ValueError("chemical_inpainting accepts only the boolean enabled setting")
+    from .absolute_coordinate import POLICY as absolute_policy
+    correspondence=("initial_endpoint_hungarian_then_frozen_per_candidate" if config.get("protocol")==absolute_policy
+                    else "frozen_condition_atom_to_generated_slot")
     return dict(policy=POLICY,enabled=settings["enabled"],scope="controlled_atoms_and_induced_bonds",
         step_bounds=[10,99],stage="after_native_transition_and_coordinate_guidance",
-        correspondence="frozen_condition_atom_to_generated_slot",coordinates_replaced=False,
+        correspondence=correspondence,coordinates_replaced=False,
         self_conditioning_replaced=False,terminal_projection=False,
         native_categorical_rng_preserved=True)
 
@@ -51,7 +54,8 @@ def condition_features(model,condition):
             bond=molecule.GetBondBetweenAtoms(index[left],index[right]) if i!=j else None
             if bond is not None:bonds[i,j]=BOND_IDX_MAP[bond.GetBondType()]
     features["bonds"]=torch.nn.functional.one_hot(bonds,5)
-    slots=[condition["atom_to_generated_slot"][i] for i in ids]
+    from .absolute_coordinate import is_absolute
+    slots=[] if is_absolute(condition) else [condition["atom_to_generated_slot"][i] for i in ids]
     binding=dict(policy=POLICY,condition_sha256=condition["condition_sha256"],controlled_atom_ids=ids,
         generated_slots=slots,features={k:v.tolist() for k,v in features.items()},
         remove_aromaticity=bool(model.hparams.get("remove_aromaticity",False)),rdkit_version=rdBase.rdkitVersion,
@@ -87,7 +91,10 @@ class ChemicalStateInpainting:
         active=enabled and 10<=step<=99
         self.rows[-1]["chemical_inpainting_applied"]=[active]*n
         if not active:return state
-        ids=torch.tensor(self.chemical_slots,device=state["mask"].device)[None].expand(n,-1)
+        if getattr(self,"absolute_state",None) is not None:
+            ids=torch.tensor([self.absolute_state.rows[i]["slots"] for i in range(n)],device=state["mask"].device)
+        else:
+            ids=torch.tensor(self.chemical_slots,device=state["mask"].device)[None].expand(n,-1)
         before=match_fractions(state,ids,self.chemical_features)
         result,_=project_chemistry(state,ids,self.chemical_features)
         after=match_fractions(result,ids,self.chemical_features)

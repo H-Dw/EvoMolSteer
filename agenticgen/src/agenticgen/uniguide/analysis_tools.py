@@ -36,13 +36,13 @@ def metric_summary(values):
         observations_retained=len(middle), unit="angstrom")
 
 
-def paired_summary(left,right):
+def paired_summary(left,right,metrics=METRICS):
     identity=lambda r:(r["logical_seed"],r["logical_slot"])
     a,b={identity(r):r for r in left},{identity(r):r for r in right}
     if len(a)!=len(left) or len(b)!=len(right) or set(a)!=set(b):
         return dict(status="unavailable", reason="Incomplete or repeated paired slot identities")
     keys=sorted(a);seeds=sorted({k[0] for k in keys});result={}
-    for metric in METRICS:
+    for metric in metrics:
         x=[a[k].get(metric) for k in keys];y=[b[k].get(metric) for k in keys]
         if any(type(v) not in (int,float) or not math.isfinite(v) for v in x+y):
             result[metric]=dict(status="unavailable", reason="Missing/nonfinite paired measurement");continue
@@ -76,6 +76,9 @@ class EvidenceTools:
         self.root=Path(root).resolve();self.history={r["id"]:r for r in history}
         self.domain=domain;self.folder=Path(folder);self.folder.mkdir(parents=True,exist_ok=True)
         self.condition=condition
+        from .absolute_coordinate import is_absolute, METRICS as coordinate_metrics, RMSD
+        self.metrics=coordinate_metrics if condition and is_absolute(condition) else METRICS
+        self.primary_metric=RMSD if condition and is_absolute(condition) else CONTROL_DISTANCE
         self.receipt_ids=set();self.sources={};self.records={};self.paths={}
         for run_id,row in self.history.items():
             path=(self.root/run_id).resolve()
@@ -93,7 +96,7 @@ class EvidenceTools:
                 hashes["trace.h5"]=sha(path/"trace.h5")
                 if hashes["trace.h5"]!=receipt["files"]["trace.h5"]:raise ValueError("Reward diagnostic trace changed")
             actual=read(path/"aggregate.json")
-            if any(actual.get(k)!=row.get(k) for k in ("id","attempts","teacher_id","condition_sha256","compatibility_sha256","fingerprint",*METRICS,WEIGHTS,"window_diagnostics")):
+            if any(actual.get(k)!=row.get(k) for k in ("id","attempts","teacher_id","condition_sha256","compatibility_sha256","fingerprint",*self.metrics,WEIGHTS,"window_diagnostics")):
                 raise ValueError("History and measured source differ")
             if any(actual.get(k)!=domain.get(k) for k in ("teacher_id","condition_sha256")):
                 raise ValueError("Evidence belongs to a different teacher/condition")
@@ -185,15 +188,15 @@ class EvidenceTools:
         if run_id not in self.records:
             return dict(status="unavailable",run_id=run_id,reason="No verified sample records; history aggregate is not enough for robust statistics")
         rows=self.records[run_id]
-        worst=sorted((r for r in rows if type(r.get(CONTROL_DISTANCE)) in (int,float) and math.isfinite(r[CONTROL_DISTANCE])),
-            key=lambda r:r[CONTROL_DISTANCE],reverse=True)[:3]
+        worst=sorted((r for r in rows if type(r.get(self.primary_metric)) in (int,float) and math.isfinite(r[self.primary_metric])),
+            key=lambda r:r[self.primary_metric],reverse=True)[:3]
         return dict(status="complete",run_id=run_id,attempts=len(rows),
-            metrics={m:metric_summary([r.get(m) for r in rows]) for m in METRICS},
+            metrics={m:metric_summary([r.get(m) for r in rows]) for m in self.metrics},
             build_failed=sum(r.get("build_success") is False for r in rows),
             built_disconnected=sum(r.get("build_success") is True and r.get("connected") is False for r in rows),
             unknown_build_status=sum(type(r.get("build_success")) is not bool for r in rows),
             worst_controlled_geometry=[dict(aggregation_scope="single molecule",**{k:r.get(k) for k in
-                ("node_id","logical_seed","logical_slot",*METRICS)}) for r in worst],
+                ("node_id","logical_seed","logical_slot",*self.metrics)}) for r in worst],
             quality_scope="No additional PLIP/PoseBusters evaluation; do not infer unselected results",
             ranking="descriptive only; original scientific ranking unchanged")
 
@@ -203,7 +206,7 @@ class EvidenceTools:
         a,b=self.history[reference_id],self.history[candidate_id]
         if any(a.get(k)!=b.get(k) or a.get(k) is None for k in ("teacher_id","condition_sha256","compatibility_sha256","attempts")):
             return dict(status="unavailable",reason="Different teacher, condition, sampling protocol or population")
-        result=paired_summary(self.records[reference_id],self.records[candidate_id])
+        result=paired_summary(self.records[reference_id],self.records[candidate_id],self.metrics)
         return dict(result,reference_id=reference_id,candidate_id=candidate_id,
             independent_measurement=False if a["fingerprint"]==b["fingerprint"] else "matched existing panel; not held out")
 
@@ -227,8 +230,8 @@ class EvidenceTools:
                     if isinstance(values,list) and len(values)==len(rows):point[name]=values[index]
                 if len(point)>1:observed.append(point)
             by_sample[index]=observed
-        worst=sorted((r for r in rows if type(r.get(CONTROL_DISTANCE)) in (int,float) and math.isfinite(r[CONTROL_DISTANCE])),
-                     key=lambda r:r[CONTROL_DISTANCE],reverse=True)[:3]
+        worst=sorted((r for r in rows if type(r.get(self.primary_metric)) in (int,float) and math.isfinite(r[self.primary_metric])),
+                     key=lambda r:r[self.primary_metric],reverse=True)[:3]
         maximum=lambda r,key:max((x.get(key,0.) for x in by_sample[r["tensor_row"]]),default=0.)
         applied=fields["max_atom_increment_A"];raw=fields["unconstrained_max_atom_increment_A"]
         displacement=sorted(rows,key=lambda r:maximum(r,applied),reverse=True)[:3]

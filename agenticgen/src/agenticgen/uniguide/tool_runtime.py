@@ -13,7 +13,7 @@ def configure(config):
     if "agent_tools" not in config and old is not None and old.exists() and "agent_tools" not in read(old):
         return result  # No automatic migration of a frozen historical experiment.
     settings=dict(DEFAULTS,**config.get("agent_tools",{}))
-    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE):
+    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE,"2.4.0"):
         raise ValueError("Unsupported Agent tool configuration/release")
     if type(settings["max_model_calls_per_round"]) is not int or not 4<=settings["max_model_calls_per_round"]<=1000:
         raise ValueError("At least four model calls required for the four-role round")
@@ -28,7 +28,7 @@ def assets(config):
     manifest=read(folder/"RELEASE.json")
     for relative,digest in manifest["files_sha256"].items():
         if sha(folder/relative)!=digest:raise ValueError("Skill release file differs from manifest")
-    return {name+".md":folder/"runtime/internal_distance"/(name+".md")
+    return {name+".md":folder/manifest.get("runtime_directory","runtime/internal_distance")/(name+".md")
         for name in ("analysis","proposal","synthesis","computation")}
 
 

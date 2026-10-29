@@ -1,0 +1,11 @@
+# Abstract transfer and provenance boundary
+
+Reusable skill text may describe observable feature categories and diagnostic methods: sensitivity of a matched perturbation, concentration of absolute displacement, background-dependent interval response, failure of a prediction, geometry-preserving neighborhood rearrangement, or missing observability. These are conditional reasoning aids, not assertions about a named teacher or a fixed winning interval.
+
+Keep the following outside reusable instruction files, examples, comments, metadata, default prompts and automatically included references: target names/identifiers, exact target measurements, distinctive conformer descriptions, source paths, hashes that identify test cases, known winning schedules and target-specific thresholds. Merely replacing a target name with a pseudonym does not remove leakage if its unique numerical pattern remains. Protocol/schema constants and declared generic action bounds are not target measurements.
+
+Keep precise provenance and measurements in the external update log/evidence record. Do not delete evidence to obtain abstraction. Runtime per-task proposals still cite their current-task source identifiers in the prescribed evidence fields; that traceability is separate from embedding source identities into fixed skills. The source log must not be loaded by the runtime renderer or role router.
+
+Transfer a specific empirical idea only as a separately labeled, unmeasured new-task hypothesis where the controller supports that input. Do not silently import old-task lessons into current compatible history, rank them as current observations, or make them executable anchors. Reuse only abstract method-level guidance in fixed skills. The receiving target supplies its own calibration and state-specific evidence; direct counterevidence overrides the prior. No fixed window preference, copied physical scale, teacher average, numerical confidence or performance guarantee follows from a transferred hypothesis.
+
+Inspect both text and packaging for leakage before publication. If abstraction would erase a condition necessary for a valid claim, keep the claim in the task experience store rather than publishing a misleading generalized instruction. No runtime human interaction is introduced by this review.

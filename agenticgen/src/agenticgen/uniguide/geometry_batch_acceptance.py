@@ -117,9 +117,23 @@ def run_teacher(model,config,teacher,condition,folder):
                 raise ValueError("Returned coordinates are not the uncovered last-loop prediction")
             if config.get("chemical_inpainting",{"enabled":True})["enabled"]:
                 chemical=read(source/"CHEMICAL_CONDITION.json");ids=chemical["generated_slots"]
+                dynamic_initial = not ids
+                if dynamic_initial:
+                    ids=a["assignment"][10:100]
+                    if not (ids==ids[0:1]).all():raise ValueError("Initial assignment was not frozen")
                 for key,target in chemical["features"].items():
                     actual=a["inpainted_chemical_"+key][10:100]
                     expected=np.array(target).argmax(-1)
+                    if dynamic_initial:
+                        if key=="bonds":
+                            ti=np.arange(len(ids))[:,None];bi=np.arange(ids.shape[1])[None,:]
+                            for left in range(ids.shape[-1]):
+                                for right in range(ids.shape[-1]):
+                                    if left!=right and not (actual[ti,bi,ids[:,:,left],ids[:,:,right]]==expected[left,right]).all():
+                                        raise ValueError("Frozen assigned chemical bond was not inpainted")
+                        elif not (np.take_along_axis(actual,ids,axis=2)==expected[None,None]).all():
+                            raise ValueError("Frozen assigned chemical channel was not inpainted")
+                        continue
                     if key=="bonds":
                         for left in range(len(ids)):
                             for right in range(len(ids)):

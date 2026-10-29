@@ -41,10 +41,22 @@ from .geometry_reward import WEIGHTS, weights, INTERACTION_DISTANCE
 from .geometry_chemistry import ChemicalStateInpainting
 
 
+def metric_names(condition):
+    from .absolute_coordinate import is_absolute, METRICS
+    return METRICS if is_absolute(condition) else (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,MAX_ERROR,INTERACTION_DISTANCE)
+
+
+def is_maximum_metric(name):
+    from .absolute_coordinate import MAX_ERROR as coordinate_maximum
+    return name in (MAX_ERROR, coordinate_maximum)
+
+
 class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
     def __init__(self, *args, condition, scale_binding, **kwargs):
         self.geometry_condition = validate(condition)
         self.scale_binding = scale_binding
+        from .absolute_coordinate import is_absolute, AssignmentState
+        self.absolute_state = AssignmentState(self) if is_absolute(condition) else None
         super().__init__(*args, **kwargs)
         if "logical_slots" in self.initial:
             from .geometry_shards import SlotStreams
@@ -64,6 +76,7 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
         return expand_effective(schedule)
 
     def sampling_function(self, config):
+        self.absolute_config = config
         function = super().sampling_function(config)
         self.configure_chemistry()
         return function
@@ -75,6 +88,8 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
         return self.scale_binding.get(WEIGHTS)
 
     def condition_loss_for_rows(self, endpoint, valid, ids):
+        if self.absolute_state is not None:
+            return self.absolute_state.evaluate(endpoint, valid, ids)
         if not self.geometry_condition.get("reward_policy"):
             return loss(
                 endpoint,
@@ -107,6 +122,8 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
         )
 
     def condition_trace(self, target):
+        if self.absolute_state is not None:
+            return {"reference_condition_coordinates_angstrom":target}
         return (
             target
             if isinstance(target, dict)
@@ -134,10 +151,11 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
 
     def checkpoint_metadata(self):
         return dict(
+            **self.assignment_checkpoint(),
             geometry_binding=dict(
                 condition_sha256=self.geometry_condition["condition_sha256"],
                 fixed_correspondence_sha256=value_sha(
-                    self.geometry_condition["atom_to_generated_slot"]
+                    self.geometry_condition.get("atom_to_generated_slot", self.geometry_condition.get("assignment_policy"))
                 ),
                 scale_binding=self.scale_binding,
                 logical_slots=getattr(self, "initial", {}).get("logical_slots"),
@@ -148,6 +166,7 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
         )
 
     def initialize(self, *args):
+        self.restore_assignments()
         self.restore_raw_output()
         if (
             self.resume
@@ -167,9 +186,19 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
         result = super().after(curr, step)
         self.rows[-1].update(self.scale_binding)
         self.rows[-1]["condition_sha256"] = self.geometry_condition["condition_sha256"]
-        if self.rows[-1]["assignment_switch_fraction"] != [0.0] * len(curr["coords"]):
+        if (self.absolute_state is None or step > 10) and self.rows[-1]["assignment_switch_fraction"] != [0.0] * len(curr["coords"]):
             raise ValueError("Fixed correspondence changed")
+        if self.absolute_state is not None:
+            self.absolute_state.save_cache()
         return self.apply_chemical_inpainting(result, step)
+
+    def assignment_checkpoint(self):
+        return {"absolute_assignment_state": self.absolute_state.rows,
+                "absolute_assignment_sha256":value_sha(self.absolute_state.rows)} if self.absolute_state is not None else {}
+
+    def restore_assignments(self):
+        if self.absolute_state is not None:
+            self.absolute_state.restore()
 
 
 def scale_binding(
@@ -221,6 +250,7 @@ def compatibility(config, teacher, condition, domain=None):
         "batching",
         "condition",
         "geometry_condition",
+        "absolute_coordinate",
         "geometry_sampling",
         "geometry_reward",
         "geometry_safety",
@@ -244,10 +274,10 @@ def compatibility(config, teacher, condition, domain=None):
     )
     roots = Path(config.get("initials_root", config["root"]))
     return dict(
-        policy=POLICY,
+        policy=config.get("protocol",POLICY),
         teacher_id=teacher["target"],
         condition_sha256=condition["condition_sha256"],
-        mapping_sha256=value_sha(condition["atom_to_generated_slot"]),
+        mapping_sha256=value_sha(condition.get("atom_to_generated_slot",condition.get("assignment_policy"))),
         checkpoint_sha256=config["checkpoint_sha256"],
         native_hashes=config["native_hashes"],
         teacher_native_config_sha256=(
@@ -324,8 +354,18 @@ def terminal_records(model, output, condition, folder, count, slots=None):
         if (folder / "OUTPUT_POLICY.json").exists()
         else {}
     )
-    values = metrics(output["coords"], condition, output["mask"].bool())
-    geometry_diagnostics = pose_diagnostics(output["coords"], condition)
+    from .absolute_coordinate import is_absolute, metrics as coordinate_metrics
+    if is_absolute(condition):
+        with h5py.File(folder / "trace.h5", "r") as trace:
+            assignment = torch.as_tensor(trace["assignment"][99], device=output["coords"].device)
+        values = coordinate_metrics(output["coords"],condition,output["mask"].bool(),assignment)
+        write(folder/"COORDINATE_ASSIGNMENT.json",dict(assignment=assignment.cpu().tolist(),
+            condition_sha256=condition["condition_sha256"],frozen_from_step=10,no_terminal_rematching=True))
+        geometry_diagnostics = [dict(protein_alignment=condition["protein_alignment"],
+            stereochemistry_assessment="not_guaranteed_by_coordinate_loss") for _ in range(count)]
+    else:
+        values = metrics(output["coords"], condition, output["mask"].bool())
+        geometry_diagnostics = pose_diagnostics(output["coords"], condition)
     built = model._generate_mols(output)
     raw = model._generate_mols(output, sanitise=False)
     if len(built) != count or len(raw) != count:
@@ -361,6 +401,8 @@ def terminal_records(model, output, condition, folder, count, slots=None):
                     for name, v in values.items()
                 }
             )
+            if is_absolute(condition):
+                row["condition_generated_slots"] = assignment[index].cpu().tolist()
             row["geometry_diagnostics_not_used_for_ranking"] = geometry_diagnostics[
                 index
             ]
@@ -541,20 +583,14 @@ def execute_shard(
             unique_smiles=len({r["smiles"] for r in rows if r["smiles"]}),
             **scale,
         )
-        for name in (
-            DISTANCE,
-            CONTROL_DISTANCE,
-            NEIGHBOR_DISTANCE,
-            MAX_ERROR,
-            INTERACTION_DISTANCE,
-        ):
+        for name in metric_names(condition):
             measured = [r[name] for r in rows if r.get(name) is not None]
             if measured and (
                 len(measured) != count or not all(math.isfinite(v) for v in measured)
             ):
                 raise FloatingPointError("Incomplete or nonfinite distance metric")
             aggregate[name] = (
-                float(max(measured) if name == MAX_ERROR else np.mean(measured))
+                float(max(measured) if is_maximum_metric(name) else np.mean(measured))
                 if measured
                 else None
             )
@@ -730,16 +766,10 @@ def execute(
             population_view=True,
             independent_validation=False,
         )
-        for name in (
-            DISTANCE,
-            CONTROL_DISTANCE,
-            NEIGHBOR_DISTANCE,
-            MAX_ERROR,
-            INTERACTION_DISTANCE,
-        ):
+        for name in metric_names(condition):
             values = [r[name] for r in rows if r.get(name) is not None]
             aggregate[name] = (
-                float(max(values) if name == MAX_ERROR else np.mean(values))
+                float(max(values) if is_maximum_metric(name) else np.mean(values))
                 if values
                 else None
             )

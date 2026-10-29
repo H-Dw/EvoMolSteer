@@ -17,6 +17,11 @@ REWARD_POLICY = "template-relative-three-component-sum-v2"
 
 
 def weights(condition, value=None):
+    from .absolute_coordinate import is_absolute
+    if is_absolute(condition):
+        if value is not None:
+            raise ValueError("Absolute coordinates have one objective, without component controls")
+        return None
     result = (
         dict(zip(KEYS, (1, 0, int(bool(condition.get("interaction_pairs"))))))
         if value is None
