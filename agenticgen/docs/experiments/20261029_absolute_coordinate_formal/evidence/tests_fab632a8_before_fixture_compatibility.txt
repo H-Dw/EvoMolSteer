@@ -1,0 +1,141 @@
+..........................Fs............................................ [ 36%]
+.....F..........................F........................F.............. [ 72%]
+........................................................                 [100%]
+=================================== FAILURES ===================================
+_____ test_mixed_candidate_and_single_vjp_identical_without_sampler_state ______
+
+    def test_mixed_candidate_and_single_vjp_identical_without_sampler_state():
+        import threading
+        s=spec(True);base,mask=tensors(s)
+        x=(base.repeat(20,1,1)*1.4).requires_grad_();valid=mask.repeat(20,1)
+        controls=[weights(s),dict(zip(KEYS,(1,1,1)))]
+        control=object.__new__(CandidateControl)
+        control.geometry_condition=s;control.units=[dict(scale={WEIGHTS:w}) for w in controls]
+        control.initial=dict(population=20);control.failed_units={};control.failure_lock=threading.RLock()
+>       combined=control.condition_loss_for_rows(x,valid,list(range(20)))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+agenticgen/tests/unit/test_geometry_reward_controls.py:160: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <agenticgen.uniguide.geometry_batch.CandidateControl object at 0x7f3e854c1a10>
+endpoint = tensor([[[0.0000, 0.0000, 0.0000],
+         [2.1000, 0.0000, 0.0000],
+         [2.8000, 1.9600, 0.0000],
+         [4.2...0000],
+         [2.8000, 1.9600, 0.0000],
+         [4.2000, 1.9600, 1.4000]]], dtype=torch.float64, requires_grad=True)
+valid = tensor([[True, True, True, True],
+        [True, True, True, True],
+        [True, True, True, True],
+        [True, T...ue, True, True],
+        [True, True, True, True],
+        [True, True, True, True],
+        [True, True, True, True]])
+ids = [0, 1, 2, 3, 4, 5, ...]
+
+    def condition_loss_for_rows(self, endpoint, valid, ids):
+>       if self.absolute_state is not None:
+           ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CandidateControl' object has no attribute 'absolute_state'
+
+agenticgen/src/agenticgen/uniguide/geometry_sampling.py:91: AttributeError
+________ test_resume_rejects_changed_mapping_before_native_model_access ________
+
+    def test_resume_rejects_changed_mapping_before_native_model_access():
+        control=object.__new__(sampling.GeometryControl)
+        control.geometry_condition=condition.prepare(features());control.scale_binding=sampling.scale_binding([0.]*4,1.)
+        control.sampling_policy={}
+        control.resume=dict(geometry_binding=dict(condition_sha256="different"))
+        with pytest.raises(ValueError,match="identical distance condition"):
+>           control.initialize()
+
+agenticgen/tests/unit/test_uniguide_geometry.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+agenticgen/src/agenticgen/uniguide/geometry_sampling.py:169: in initialize
+    self.restore_assignments()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <agenticgen.uniguide.geometry_sampling.GeometryControl object at 0x7f3e85344450>
+
+    def restore_assignments(self):
+>       if self.absolute_state is not None:
+           ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'GeometryControl' object has no attribute 'absolute_state'
+
+agenticgen/src/agenticgen/uniguide/geometry_sampling.py:200: AttributeError
+______ test_failed_terminal_preserves_structural_masks_and_healthy_units _______
+
+tmp_path = PosixPath('/opt/molsteer-cache/tmp/pytest-of-root/pytest-49/test_failed_terminal_preserves0')
+
+    def test_failed_terminal_preserves_structural_masks_and_healthy_units(tmp_path):
+        import threading
+        control=object.__new__(batch.CandidateControl)
+        control.initial=dict(population=20);control.failed_units={};control.rows=[];control.folder=tmp_path
+        control.failure_lock=threading.RLock();control.geometry_condition=condition.prepare(features())
+        xyz=torch.tensor(control.geometry_condition["reference_coordinates_angstrom"])[None].repeat(20,1,1)
+        original=xyz.clone();xyz[13,0,0]=float("nan");mask=torch.ones(20,4,dtype=torch.bool)
+>       output=control.check_terminal(dict(coords=xyz,mask=mask))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+agenticgen/tests/unit/test_uniguide_geometry_batch.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+agenticgen/src/agenticgen/uniguide/geometry_batch.py:244: in check_terminal
+    value, *_ = self.condition_loss_for_rows(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <agenticgen.uniguide.geometry_batch.CandidateControl object at 0x7f3e85e3f410>
+endpoint = tensor([[[0.0000, 0.0000, 0.0000],
+         [1.5000, 0.0000, 0.0000],
+         [2.0000, 1.4000, 0.0000],
+         [3.0...00, 0.0000],
+         [0.0000, 0.0000, 0.0000],
+         [0.0000, 0.0000, 0.0000],
+         [0.0000, 0.0000, 0.0000]]])
+valid = tensor([[True, True, True, True],
+        [True, True, True, True],
+        [True, True, True, True],
+        [True, T...ue, True, True],
+        [True, True, True, True],
+        [True, True, True, True],
+        [True, True, True, True]])
+ids = [0, 1, 2, 3, 4, 5, ...]
+
+    def condition_loss_for_rows(self, endpoint, valid, ids):
+>       if self.absolute_state is not None:
+           ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CandidateControl' object has no attribute 'absolute_state'
+
+agenticgen/src/agenticgen/uniguide/geometry_sampling.py:91: AttributeError
+___________ test_resume_binds_chemistry_and_rejects_changed_features ___________
+
+tmp_path = PosixPath('/opt/molsteer-cache/tmp/pytest-of-root/pytest-49/test_resume_binds_chemistry_an0')
+
+    def test_resume_binds_chemistry_and_rejects_changed_features(tmp_path):
+        c,_,_=fixture(tmp_path);c.scale_binding=scale_binding([0]*4,1.)
+        c.resume=None
+>       binding=c.checkpoint_metadata()['geometry_binding']
+                ^^^^^^^^^^^^^^^^^^^^^^^
+
+agenticgen/tests/unit/test_geometry_chemical_state.py:95: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+agenticgen/src/agenticgen/uniguide/geometry_sampling.py:154: in checkpoint_metadata
+    **self.assignment_checkpoint(),
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <agenticgen.uniguide.geometry_sampling.GeometryControl object at 0x7f3e83587a10>
+
+    def assignment_checkpoint(self):
+        return {"absolute_assignment_state": self.absolute_state.rows,
+>               "absolute_assignment_sha256":value_sha(self.absolute_state.rows)} if self.absolute_state is not None else {}
+                                                                                     ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'GeometryControl' object has no attribute 'absolute_state'
+
+agenticgen/src/agenticgen/uniguide/geometry_sampling.py:197: AttributeError
+=========================== short test summary info ============================
+FAILED agenticgen/tests/unit/test_geometry_reward_controls.py::test_mixed_candidate_and_single_vjp_identical_without_sampler_state
+FAILED agenticgen/tests/unit/test_uniguide_geometry.py::test_resume_rejects_changed_mapping_before_native_model_access
+FAILED agenticgen/tests/unit/test_uniguide_geometry_batch.py::test_failed_terminal_preserves_structural_masks_and_healthy_units
+FAILED agenticgen/tests/unit/test_geometry_chemical_state.py::test_resume_binds_chemistry_and_rejects_changed_features
+4 failed, 195 passed, 1 skipped in 31.23s

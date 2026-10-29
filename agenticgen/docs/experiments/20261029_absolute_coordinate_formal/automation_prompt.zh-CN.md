@@ -1,0 +1,29 @@
+巡检并收尾本对话明确授权的“双教师蛋白锚定绝对坐标＋化学inpainting”正式实验。先读取D:/llm_controlled_generation/EvoMolSteer-uniguide/agenticgen/docs/experiments/20261029_absolute_coordinate_formal/protocol.zh-CN.md、launch_audit.json和后续用户指令。只操作codex/uniguide-flowr-agent；归档分支archive/uniguide-distance-sum-20261029-d1432f5f保持原状。原uniguide-flowr继续PAUSED、原35分钟设置不变，不修改其他任务或自动化，不向其他聊天发消息。
+
+服务器root@ssh.zzai.scnet.cn:11741，使用本对话已授权凭据及D:/llm_controlled_generation/tmp/uniguide_ops.py的JSON stdin接口。凭据不得打印、写入仓库或自动化配置。API和小写代理从交互式bash加载；非交互环境缺变量不代表服务器未配置。launcher.log可能包含交互shell环境，只保留远端，不打印或下载其原文。
+
+固定运行目录/workspace/uniguide_runs/absolute-coordinate-4d4d12ef，已推送提交4d4d12ef830d23e30999841b7f5997a7c83d7b40。结果根/workspace/agenticgen_absolute_coordinate_20261029。外部配置保留在/workspace/uniguide_runs/absolute-coordinate-0aac6831-config.json，SHA256为3db7a6e489a9e4e4b9c6a3835393c5d586b1a9c1b504b26222185d649dd4fe1c；配置名称中的旧短提交仅是准备来源，不能据此覆盖运行目录。输入特征保留在absolute-coordinate-0aac6831-inputs外部目录。199项单元测试通过，1项需要GPU的单测未在CPU测试中执行；测试提交0aac68319558059b4b0f6e59c73f83f497b8684e与当前执行提交的科学、入口和测试源码逐字一致，新增差异只有专项启动脚本。
+
+2026-10-29 21:45:46（Asia/Shanghai）已启动一次性后台链：完整双教师真实模型acceptance→重新calibrate→真实LLM run-version GD01五轮→独立CPU10/50质量队列。初始父PID52872、验收PID52945仅供定位。21:47:49真实父子进程和全局、专项executor及campaign三把锁均持有，第一教师已到candidate_batch/separate_0第30步，失败列表为空。此时尚无标定/正式attempts或真实LLM回执，不能声称已完成验收或已调用正式Agent。
+
+每次使用运行目录agenticgen/docs/experiments/20261029_chemical_interact_formal/inspect_run.py保存本结果根monitoring中的Asia/Shanghai快照；核对真实命令、进程状态、锁、STATUS/HEARTBEAT、当前阶段日志、逐组steps/progress、attempts、COMPLETE/FAILED及CAMPAIGN标记，不能只凭PID或心跳判断健康。健康执行时禁止覆盖执行代码、manifest、skills、条件、对应缓存或重复启动。
+
+教师为6pyy_H7S_A_402/single_b004_final_015及3w54_RNB_A_504/single_b000_final_003，各9个原PLIP直接互作配体原子作为单一条件区域。条件SHA分别9dc018926700ef98c3246a6491c286715c10c6b4980019b780eb7656e21f153c和35d28bbafbca4e74bb2b44cde3fb9561304b34f4145af184f2a8c5c57240c316。对应蛋白重原子锚点8674/2147个，拟合误差均0。蛋白单独确定正Kabsch变换，作用于整个复合物的测量坐标；配体不参与拟合，不替换积分状态坐标。
+
+第10步首次引导前，以未覆盖预测做一次几何Hungarian匹配，随后逐候选冻结直到结束；坐标损失与化学inpainting共用对应。检查assignments缓存、checkpoint校验及轨迹assignment；同一初态/seed/slot在不同强度、人口提升和正式轮次应完全一致，不能最终重匹配来降低排名。单一损失是每候选条件坐标平方误差和除以2K，完整预测终态VJP，不含相对距离分量、蛋白距离或亲和力梯度。主指标condition_coordinate_root_mean_square_deviation_angstrom，另报maximum_condition_atom_coordinate_error_angstrom。不能与旧距离协议或旧Hungarian动态匹配协议混排名、混λ。
+
+保持raw999100区间0–0.999、10–99步引导、最后循环未覆盖预测，step99更新不进入返回端点。化学状态inpainting开启，只注入化学通道与条件内部键，不覆盖坐标、自条件预测或最终输出。3 Å最大单原子引导增量由配置读取、逐候选统一倍率，原始未限幅增量、原生漂移和随机流保留。数值失败仍按10行随机流分片登记，不能宣称已实现逐分子失败隔离。
+
+真实模型验收必须通过双教师有限差分、无亲和力梯度/额外RNG、raw999新前缀、100区间独立/合批逐位一致、恢复、原生槽位提升、OOM降档、3 Å压力及非有限故障隔离。acceptance内nonfinite_isolation是预期注入，不能仅凭其证据文件判失败；以acceptance/COMPLETE和CAMPAIGN_FAILED为准。失败不得跳过测试或放宽容差。
+
+λ按教师＋条件＋本采样协议重新探索一次并冻结：中心1的13格对数粗筛，每格10，局部5格20/50，复用已测槽位；每教师最多350、合计700新尝试。边界最优或证据不足停止，不自动扩界或弱化重试。正式每教师5轮、每轮三方向各50，共30组请求、最多1500新尝试。精确重复配置复用，不重复生成或计独立验证。只完成GD01，不开GD02，不恢复UG05。
+
+skills固定2.4.0，保留历史学习、配对计算、联合窗口策略、预测反证、最佳兼容配置恢复与固定JSON。Agent选择锚点、窗口和整数档位，执行器计算−10到10归一化数组及λ×2的尺度次幂。实验内不改skills。DeepSeek deepseek-flash、thinking/high、单响应16384及既定网络重试/一次格式修正；每教师每轮四角色共享30次调用、491520输出token。必须核对真实provider请求、回执、格式修正及claims；配置存在不等于真实调用。输出截断等失败不删除claim，不自动重复请求、提额或修改提示。
+
+检查本专项quality_queue的worker/status/requests/POLICY、真实进程、worker锁和QUALITY_COMPLETE/QUALITY_FAILED。CPU模块及commit绑定必须来自当前固定运行目录4d4d12ef，不能启动旧实验worker。每正式组attempts=50、checked_attempts=10、not_selected=40、coverage=0.2，五种子各logical_slot0和1。构建失败占分母不补样，不追加其余40慢检查。区分构建失败、真实测量不通过、无法评价和工程错误。PoseB内部几何、蛋白冲突和能量异常分别报告，不能把能量加氢敏感性夸大为重原子结构崩坏。CPU单独异常先审计，必要恢复仅限本专项；加载DTK、当前目录agenticgen/src与src，隐藏GPU、CPU数值库各1线程。
+
+SAMPLING_FINISHED后只补后处理。CAMPAIGN_FINISHED后实际读取双教师标定、全部30组请求/复用来源和指标、四份策略上下文、真实LLM与计算回执。分析坐标保持、固定区域化学保持、限制器、构建/连通/唯一性及10/50质量诊断，不将未抽查当通过。2004个SOURCE_PRESERVATION保护文件全部核对不变，保留全部结构、轨迹、终态及失败账本。下载机器可读结果/审计到本地本实验docs目录，完成真实主GPT复盘并提交推送；纯文档提交不部署健康运行目录。
+
+若真实进程退出、CAMPAIGN_FAILED或INSUFFICIENT_EVIDENCE等实质终止，先保存当前日志、源码哈希、账本、组进度、失败请求及对应状态，核对具体原因并报告；不自动重跑、不补样、不清零。完成或终态失败归档后写FINALIZED与实际复盘绑定，只在确认路径/进程归属及队列空闲后停止本专项CPU worker，删除当前触发的本专项heartbeat，不动其他自动化。GitHub异常按直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc依次尝试，均不可用才沿用已验证且只含已推送提交的SSH Git bundle。
+
+巡检间隔15分钟。健康/排队/状态未变时保持安静，仅通知完成、实质异常、修复或需要用户处理的问题。中文文件使用UTF-8；读取或更新自动化后用JSON ensure_ascii=true读回核验，禁止Unicode替换字符。
