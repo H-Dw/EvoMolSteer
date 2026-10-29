@@ -323,6 +323,8 @@ def split_products(output, control, source, unit, index):
 
 def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
     root = Path(config["root"])
+    if _compatibility is None:
+        _compatibility = compatibility(config, teacher, condition)
     binding = measurement_binding(config, teacher, condition, _compatibility)
     units = {}
     for job in jobs:
