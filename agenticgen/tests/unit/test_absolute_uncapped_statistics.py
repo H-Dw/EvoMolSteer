@@ -1,5 +1,4 @@
 """No clipping/gradient rescue; robust statistics are complete-population views."""
-import copy
 import json
 from types import SimpleNamespace
 import pytest
@@ -97,5 +96,6 @@ def test_new_skills_and_config_bind_current_statistics_and_keep_history():
     assert config['agent_tools']['skill_release']=='2.5.0'
     text='\n'.join(p.read_text(encoding='utf-8') for p in assets(config).values())
     assert 'All low RMSD observations remain included' in text
-    assert 'candidate gradients' in text and 'counterexample' in text and 'integer' in text
+    assert 'Every finite candidate retains its full coordinate gradient' in text
+    assert 'counterexample' in text and 'integer' in text
     assert 'The bound objective has three template-distance losses' not in text
