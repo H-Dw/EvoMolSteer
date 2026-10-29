@@ -53,6 +53,8 @@ def validate_config(config):
             type(config["rounds"]) is not int or config["rounds"]<1):raise ValueError("Invalid integration/iteration configuration")
     if config.get("population",50)!=50:raise ValueError("Formal population remains fifty")
     dynamics_policy(config)
+    from .geometry_chemistry import policy as chemical_policy
+    config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
     config=dict(config,guidance_reward=normalization_policy(config.get("guidance_reward")))
     if config.get("agent_tools",{}).get("skill_release")!="2.2.0":
         raise ValueError("Component rewards require the 2.2.0 runtime skills and tools")

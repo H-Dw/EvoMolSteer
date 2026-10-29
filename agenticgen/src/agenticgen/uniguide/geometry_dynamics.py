@@ -5,11 +5,12 @@ from pathlib import Path
 import torch
 from .io import write
 from .native_tools import tree
+from .geometry_chemistry import policy as chemistry_policy,STEP_FIELDS as CHEMICAL_STEP_FIELDS
 
 WINDOWS=((10,25),(26,50),(51,75),(76,99))
 LIMIT="maximum_single_atom_guidance_increment_angstrom"
 STEP_FIELDS=("unconstrained_max_atom_increment_A","guidance_increment_scale_factor",
-             "guidance_increment_limited")
+             "guidance_increment_limited")+CHEMICAL_STEP_FIELDS
 
 
 def policy(config):
@@ -25,7 +26,8 @@ def policy(config):
         maximum_single_atom_guidance_increment_angstrom=float(limit),
         limiter="candidate_uniform_direction_preserving_v1",limit_scope="guidance_increment_only",
         output_source="step_99_prediction_before_update",last_effective_guidance_update=98,
-        extra_terminal_forward=False,coordinate_projection=False,chemical_projection=False)
+        extra_terminal_forward=False,coordinate_projection=False,chemical_projection=False,
+        chemical_state_projection=chemistry_policy(config)["enabled"],chemical_inpainting=chemistry_policy(config))
 
 
 def limit_increment(delta,valid,coord_scale,maximum):
@@ -93,7 +95,8 @@ class Raw999Sampling:
 
     def write_output_policy(self):
         if hasattr(self,"sampling_policy"):
-            write(self.folder/"OUTPUT_POLICY.json",dict(self.sampling_policy,last_loop=getattr(self,"last_loop",None)))
+            write(self.folder/"OUTPUT_POLICY.json",dict(self.sampling_policy,last_loop=getattr(self,"last_loop",None),
+                chemical_condition_sha256=(getattr(self,"chemical_binding",None) or {}).get("chemical_condition_sha256")))
 
 
 def increment_summary(folder):

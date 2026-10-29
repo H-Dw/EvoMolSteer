@@ -93,7 +93,8 @@ class CandidateControl(GeometryControl):
     def checkpoint_metadata(self):
         return dict(candidate_binding=dict(condition_sha256=self.geometry_condition["condition_sha256"],
             units=[dict(id=u["id"],slots=u["slots"],scale=u["scale"]) for u in self.units],
-            failed_units=self.failed_units,sampling_policy=self.sampling_policy),**self.raw_output_checkpoint())
+            failed_units=self.failed_units,sampling_policy=self.sampling_policy,
+            chemical_binding=getattr(self,"chemical_binding",None)),**self.raw_output_checkpoint())
 
     def condition_loss_for_rows(self,endpoint,valid,ids):
         if self.geometry_condition.get("reward_policy"):
@@ -157,7 +158,7 @@ class CandidateControl(GeometryControl):
         self.rows[-1]["scale"]=self.step_scales(step,self.initial["population"])
         self.rows[-1]["candidate_rng_after_sha256"]=[tensor_digest(s.states) for s in self.random_streams.parts]
         self.rows[-1]["failed_units"]=copy.deepcopy(self.failed_units)
-        return result
+        return self.apply_chemical_inpainting(result,step)
 
     def repair_diagnostics(self,key,fallback=None):
         for i,value in enumerate(self.rows[-1][key]):
@@ -210,6 +211,7 @@ def split_products(output,control,source,unit,index):
                 if index*10<=item["row"]<(index+1)*10]
     write(destination/"steps.json",steps);write(destination/"rng_ledger.json",control.random_streams.parts[index].ledger)
     if (source/"OUTPUT_POLICY.json").exists():write(destination/"OUTPUT_POLICY.json",read(source/"OUTPUT_POLICY.json"))
+    if (source/"CHEMICAL_CONDITION.json").exists():frozen(destination/"CHEMICAL_CONDITION.json",read(source/"CHEMICAL_CONDITION.json"))
     frozen(destination/"BATCH_PROVENANCE.json",dict(batch_directory=str(source),row_indices=indices,
         candidate_batch_sha256=sha(source/"candidates_batch.json"),execution_policy=EXECUTION_POLICY))
     return result

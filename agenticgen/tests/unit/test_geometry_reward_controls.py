@@ -123,6 +123,18 @@ def test_mixed_candidate_and_single_vjp_identical_no_cross_candidate_normalizati
         assert expected[1]['interact_loss'].shape==(10,)
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(),reason="Actual native GPU to CPU finalization")
+def test_terminal_reward_aligns_saved_gpu_state_to_cpu_output():
+    s=spec(True,mode='bounded_step_mean_detached');base,mask=tensors(s)
+    control=object.__new__(GeometryControl);control.geometry_condition=s;control.scale_binding={WEIGHTS:weights(s)}
+    control.before=(base*1.4).cuda();control.com=torch.zeros(1,3,dtype=base.dtype,device='cuda')
+    control.model=SimpleNamespace(coord_scale=1.)
+    actual=control.condition_loss_for_rows(base,mask,[0])[0]
+    control.before=control.before.cpu();control.com=control.com.cpu()
+    expected=control.condition_loss_for_rows(base,mask,[0])[0]
+    assert torch.equal(actual,expected) and torch.isfinite(actual).all()
+
+
 def control_fixture(root):
     h,d=build(root);s=spec();new_hash=s['condition_sha256']
     for row in h:

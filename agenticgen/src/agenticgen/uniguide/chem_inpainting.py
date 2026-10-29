@@ -87,10 +87,10 @@ def project_chemistry(state, assignment, features):
     b = torch.arange(len(mask), device=mask.device)[:, None]
     i, j = ids[:, left], ids[:, right]
     expected = target[left, right]
-    report["before"]["bonds"] = float((state["bonds"][b, i, j].argmax(-1) == expected.argmax(-1)).float().mean())
+    report["before"]["bonds"] = float((state["bonds"][b, i, j].argmax(-1) == expected.argmax(-1)).float().mean()) if len(left) else 1.0
     result["bonds"] = state["bonds"].clone()
     result["bonds"][b, i, j] = expected[None]
-    report["after"]["bonds"] = float((result["bonds"][b, i, j].argmax(-1) == expected.argmax(-1)).float().mean())
+    report["after"]["bonds"] = float((result["bonds"][b, i, j].argmax(-1) == expected.argmax(-1)).float().mean()) if len(left) else 1.0
     if result["coords"] is not state["coords"] or result["mask"] is not state["mask"]:
         raise AssertionError("Chemical projection touched coordinates or mask")
     report["coordinates_sha256"] = tensor_digest(state["coords"])

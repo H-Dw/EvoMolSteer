@@ -9,7 +9,7 @@ from .random_streams import NativeStreams
 from .batching import take
 from .chunking import concatenate
 from .native_tools import load_pt, save_pt
-from .io import read, write
+from .io import read, write, frozen
 from .protocol import SEEDS
 from .geometry_dynamics import STEP_FIELDS
 
@@ -101,4 +101,8 @@ def combine_products(root,shards,folder):
         policies=[read(p/"OUTPUT_POLICY.json") for p in folders]
         if any(p!=policies[0] for p in policies):raise ValueError("Cannot merge different output policies")
         write(folder/"OUTPUT_POLICY.json",policies[0])
+    if (folders[0]/"CHEMICAL_CONDITION.json").exists():
+        chemistry=[read(p/"CHEMICAL_CONDITION.json") for p in folders]
+        if any(p!=chemistry[0] for p in chemistry):raise ValueError("Cannot merge different chemical conditions")
+        frozen(folder/"CHEMICAL_CONDITION.json",chemistry[0])
     return records

@@ -72,9 +72,23 @@ def run_teacher(model,config,teacher,condition,folder):
             for key in a:
                 left=a[key][:];right=b[key][:,indices]
                 if not np.array_equal(left,right):differences.append(dict(path="trace/"+key,maximum_absolute_error=float(np.max(np.abs(left.astype(float)-right.astype(float))))))
+            if not np.array_equal(load_pt(source/"terminal.pt.gz")["coords"].numpy(),a["endpoint_A"][99]):
+                raise ValueError("Returned coordinates are not the uncovered last-loop prediction")
+            if config.get("chemical_inpainting",{"enabled":True})["enabled"]:
+                chemical=read(source/"CHEMICAL_CONDITION.json");ids=chemical["generated_slots"]
+                for key,target in chemical["features"].items():
+                    actual=a["inpainted_chemical_"+key][10:100]
+                    expected=np.array(target).argmax(-1)
+                    if key=="bonds":
+                        for left in range(len(ids)):
+                            for right in range(len(ids)):
+                                if left!=right and not (actual[:,:,ids[left],ids[right]]==expected[left,right]).all():
+                                    raise ValueError("Induced chemical bond was not inpainted")
+                    elif not (actual[:,:,ids]==expected).all():raise ValueError("Controlled chemical channels were not inpainted")
     receipt=dict(exact_equivalence=not differences,differences=differences,
         independent_groups=2,mixed_batch_size=20,full_steps=100,external_rng_unchanged=True,
-        fixture_is_not_calibration=True,engineering_trajectory_evaluations=40)
+        fixture_is_not_calibration=True,engineering_trajectory_evaluations=40,
+        raw999_coordinates_exact=True,chemical_state_inpainting_checked=bool(config.get("chemical_inpainting",{"enabled":True})["enabled"]))
     write(folder/"COMPARISON.json",receipt)
     if differences:raise ValueError("Mixed batches changed independent trajectories; see COMPARISON.json")
     try:

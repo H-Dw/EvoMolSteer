@@ -13,9 +13,10 @@ from .native_tools import load_pt
 from .protocol import SEEDS
 from .geometry_dynamics import Raw999Sampling,WINDOWS,LIMIT,policy,limit_increment,increment_summary
 from .geometry_reward import WEIGHTS,weights,INTERACTION_DISTANCE
+from .geometry_chemistry import ChemicalStateInpainting
 
 
-class GeometryControl(Raw999Sampling,sampler.Control):
+class GeometryControl(ChemicalStateInpainting,Raw999Sampling,sampler.Control):
     def __init__(self,*args,condition,scale_binding,**kwargs):
         self.geometry_condition=validate(condition);self.scale_binding=scale_binding
         super().__init__(*args,**kwargs)
@@ -27,6 +28,11 @@ class GeometryControl(Raw999Sampling,sampler.Control):
         if schedule!=self.scale_binding[EFFECTIVE]:raise ValueError("Effective schedule binding differs")
         return expand_effective(schedule)
 
+    def sampling_function(self,config):
+        function=super().sampling_function(config)
+        self.configure_chemistry()
+        return function
+
     def condition_loss(self,endpoint,valid):
         return self.condition_loss_for_rows(endpoint,valid,list(range(len(endpoint))))
 
@@ -37,7 +43,9 @@ class GeometryControl(Raw999Sampling,sampler.Control):
         if not self.geometry_condition.get("reward_policy"):
             return loss(endpoint,self.geometry_condition,valid)
         from .geometry_reward import evaluate,KEYS
-        current=self.before[ids]*self.model.coord_scale+self.com[ids,None]
+        # Native final output is on CPU; the saved sampler state can remain on GPU.
+        # Preserve the same denominator state, aligning its device/dtype only.
+        current=self.before[ids].to(endpoint)*self.model.coord_scale+self.com[ids,None].to(endpoint)
         row_weights=self.row_loss_weights(ids)
         result,diagnostics=evaluate(endpoint,self.geometry_condition,valid,row_weights,current=current,
             check=lambda name,x:self.check_rows(name,x,ids))
@@ -65,7 +73,7 @@ class GeometryControl(Raw999Sampling,sampler.Control):
         return dict(geometry_binding=dict(condition_sha256=self.geometry_condition["condition_sha256"],
             fixed_correspondence_sha256=value_sha(self.geometry_condition["atom_to_generated_slot"]),
             scale_binding=self.scale_binding,logical_slots=getattr(self,"initial",{}).get("logical_slots"),
-            sampling_policy=self.sampling_policy),**self.raw_output_checkpoint())
+            sampling_policy=self.sampling_policy,chemical_binding=getattr(self,"chemical_binding",None)),**self.raw_output_checkpoint())
 
     def initialize(self,*args):
         self.restore_raw_output()
@@ -83,7 +91,7 @@ class GeometryControl(Raw999Sampling,sampler.Control):
         self.rows[-1]["condition_sha256"]=self.geometry_condition["condition_sha256"]
         if self.rows[-1]["assignment_switch_fraction"]!=[0.]*len(curr["coords"]):
             raise ValueError("Fixed correspondence changed")
-        return result
+        return self.apply_chemical_inpainting(result,step)
 
 
 def scale_binding(schedule,multiplier=None,enabled=True,condition=None,loss_weights=None):
@@ -108,7 +116,8 @@ def compatibility(config,teacher,condition,domain=None):
     package=Path(__file__).parent
     # Only sampling dependencies: LLM skills, prompts, actions and round counts do not refit lambda.
     names=["sampler","random_streams","chunking","batching","condition","geometry_condition",
-        "geometry_sampling","geometry_reward","geometry_dynamics","geometry_shards","geometry_batch","native_tools","prepare","protocol","joint_endpoint"]
+        "geometry_sampling","geometry_reward","geometry_dynamics","geometry_chemistry","chem_inpainting",
+        "geometry_shards","geometry_batch","native_tools","prepare","protocol","joint_endpoint"]
     sources={name:sha(package/(name+".py")) for name in names}
     sources["runtime/rng"]=sha(package.parent/"runtime/rng.py")
     sources.update({fn.__name__:value_sha(inspect.getsource(fn)) for fn in (effective,expand_effective,ticks)})
@@ -151,6 +160,7 @@ def reserve_group(root,run_id,stage,count,identity,registry_name="measurement_re
 
 
 def terminal_records(model,output,condition,folder,count,slots=None):
+    output_policy=read(folder/"OUTPUT_POLICY.json") if (folder/"OUTPUT_POLICY.json").exists() else {}
     values=metrics(output["coords"],condition,output["mask"].bool())
     geometry_diagnostics=pose_diagnostics(output["coords"],condition)
     built=model._generate_mols(output);raw=model._generate_mols(output,sanitise=False)
@@ -163,6 +173,8 @@ def terminal_records(model,output,condition,folder,count,slots=None):
             row=dict(node_id=f"geometry_b{seed_index:03d}_final_{slot:03d}",logical_seed=SEEDS[seed_index],
                 logical_slot=slot,tensor_row=index,build_success=mol is not None,connected=False,smiles="",
                 failure_reason=None,chemistry_identity_guaranteed=False,
+                chemical_state_inpainting_enabled=output_policy.get("chemical_state_projection",False),
+                terminal_chemistry_projected=False,
                 coordinate_source="raw999 last-loop uncovered prediction (step 99, network time about 0.98901); no terminal forward or projection")
             row.update({name:float(v[index]) if v is not None else None for name,v in values.items()})
             row["geometry_diagnostics_not_used_for_ranking"]=geometry_diagnostics[index]
@@ -265,6 +277,7 @@ def execute_shard(model,config,teacher,condition,schedule,folder,stage,slots,dom
         files=["manifest.json","records.json","aggregate.json","terminal.pt.gz","trace.h5","steps.json",
                "rng_ledger.json","molecules_all_built.sdf","molecules_raw_decodable.sdf"]
         if (folder/"OUTPUT_POLICY.json").exists():files.append("OUTPUT_POLICY.json")
+        if (folder/"CHEMICAL_CONDITION.json").exists():files.append("CHEMICAL_CONDITION.json")
         if (folder/"BATCH_PROVENANCE.json").exists():files.append("BATCH_PROVENANCE.json")
         frozen(folder/"COMPLETE.json",dict(files={name:sha(folder/name) for name in files}))
         return aggregate
@@ -322,6 +335,7 @@ def execute(model,config,teacher,condition,schedule,folder,stage,count=50,domain
         files=["manifest.json","records.json","aggregate.json","terminal.pt.gz","trace.h5","steps.json",
             "rng_ledger.json","molecules_all_built.sdf","molecules_raw_decodable.sdf"]
         if (folder/"OUTPUT_POLICY.json").exists():files.append("OUTPUT_POLICY.json")
+        if (folder/"CHEMICAL_CONDITION.json").exists():files.append("CHEMICAL_CONDITION.json")
         frozen(folder/"COMPLETE.json",dict(files={name:sha(folder/name) for name in files}))
         return aggregate
     except Exception as error:

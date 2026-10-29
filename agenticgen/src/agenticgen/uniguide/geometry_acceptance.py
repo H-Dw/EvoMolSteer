@@ -2,6 +2,8 @@
 import functools
 from pathlib import Path
 import torch
+import h5py
+import numpy as np
 from .io import read,write,frozen,sha,value_sha
 from .native_tools import load_pt,device,tensor_digest
 from .batching import take
@@ -85,6 +87,23 @@ def run(config):
         steps=read(out/"continuous/steps.json")
         if any(any(v!=0 for v in s["assignment_switch_fraction"]) for s in steps):raise ValueError("Mapping changed during trajectory")
         if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"]>=10):raise ValueError("Normalized zero incorrectly disabled guidance")
+        chemical_check={"enabled":config.get("chemical_inpainting",{"enabled":True})["enabled"]}
+        if chemical_check["enabled"]:
+            # Chemistry starts after the first gradient update; all native/coordinate
+            # operations through that update must equal a paired non-inpainting run.
+            plain=dict(config,chemical_inpainting={"enabled":False})
+            sample(model,plain,teacher,active["effective_guidance_scale_schedule"],out/"without_chemistry_prefix",10,stop_step=12,
+                control_factory=factory,check_affinity=False)
+            with h5py.File(out/"continuous/trace.h5") as enabled_trace,h5py.File(out/"without_chemistry_prefix/trace.h5") as disabled_trace:
+                for key in disabled_trace:
+                    if not np.array_equal(enabled_trace[key][:11],disabled_trace[key][:11]):
+                        raise ValueError("Chemistry changed the pre-injection prefix: "+key)
+            enabled_state=load_pt(out/"continuous/checkpoint_012.pt.gz")
+            disabled_state=load_pt(out/"without_chemistry_prefix/checkpoint_012.pt.gz")
+            if tensor_digest(enabled_state["stream_states"])!=tensor_digest(disabled_state["stream_states"]):
+                raise ValueError("Chemical inpainting consumed extra RNG")
+            chemical_check.update(first_pre_inpainting_update_exact=True,extra_rng_consumed=False,
+                coordinates_projected=False,self_conditioning_projected=False)
         sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"prefix_twenty",20,stop_step=12,
             control_factory=factory,check_affinity=False)
         selected=initial_shard(config,teacher["target"],[2,3])
@@ -101,6 +120,7 @@ def run(config):
         if any(tensor_digest(shard[k])!=tensor_digest(resumed_shard[k]) for k in ("current","cond","times","stream_states","previous_assignment")):
             raise ValueError("Promoted slots changed after resume")
         checks[teacher["target"]]=dict(real_model_vjp=numerical,disabled_equivalence=disabled,exact_resume=resumed,
+            chemical_state_inpainting=chemical_check,
             exact_native_slot_promotion=promotion,promoted_slot_resume=True,
             fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
         from .geometry_batch_acceptance import run_teacher

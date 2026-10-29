@@ -9,7 +9,7 @@ from .geometry_dynamics import WINDOWS
 from .scale_domain import GROWTH_LIMIT
 from .geometry_reward import WEIGHTS
 
-POLICY="template-relative-distance-guidance-v4-binary-losses"
+POLICY="template-relative-distance-guidance-v5-chemical-state-inpainting"
 NORMALIZED="normalized_guidance_scale_schedule"
 EFFECTIVE="effective_guidance_scale_schedule"
 MULTIPLIER="calibrated_guidance_multiplier"

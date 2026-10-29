@@ -67,6 +67,9 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             dict(anchor_id=r["id"],**{NORMALIZED:r[NORMALIZED]}) for r in history]),
         scale_semantics="actual strength = teacher-calibrated multiplier * 2 ** normalized scale; zero is baseline, negative is weaker",
         history_coverage="all compatible completed measurements in this experiment; repeated fingerprints appear once")
+    from .geometry_chemistry import policy as chemical_policy
+    common["chemical_inpainting_contract"]=dict(chemical_policy(config),
+        interpretation="Only controlled-atom chemical channels and their induced bonds are injected into the evolving state. Coordinates remain gradient guided; raw999 final predictions are not overwritten and chemical identity is not guaranteed.")
     if "maximum_single_atom_guidance_increment_angstrom" in config:
         common["guidance_increment_constraint"]=dict(
             maximum_single_atom_guidance_increment_angstrom=config["maximum_single_atom_guidance_increment_angstrom"],
