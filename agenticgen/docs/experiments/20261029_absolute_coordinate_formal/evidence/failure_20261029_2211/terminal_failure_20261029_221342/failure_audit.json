@@ -1,0 +1,325 @@
+{
+  "timestamp": "2026-10-29T22:13:42.703633+08:00",
+  "automation_id": "absolute-coordinate",
+  "classification": "engineering_postprocessing_failure_after_completed_raw_sampling",
+  "root": "/workspace/agenticgen_absolute_coordinate_20261029",
+  "repo": "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef",
+  "runtime_commit": "4d4d12ef830d23e30999841b7f5997a7c83d7b40",
+  "runtime_git_status": "",
+  "terminal_status": {
+    "timestamp": "2026-10-29T22:11:30.914006+08:00",
+    "stage": "stopped",
+    "status": "failed",
+    "error": "calibrate exited 1; see /workspace/agenticgen_absolute_coordinate_20261029/calibrate.log; no automatic retry"
+  },
+  "failure": {
+    "timestamp": "2026-10-29T22:11:30.912121+08:00",
+    "error": "calibrate exited 1; see /workspace/agenticgen_absolute_coordinate_20261029/calibrate.log; no automatic retry",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/docs/experiments/20261029_template_distance_formal/run_campaign.py\", line 73, in main\n    raise RuntimeError(f'{stage} exited {code}; see {log}; no automatic retry')\nRuntimeError: calibrate exited 1; see /workspace/agenticgen_absolute_coordinate_20261029/calibrate.log; no automatic retry\n",
+    "no_automatic_retry": true,
+    "source_artifacts_preserved": true
+  },
+  "root_cause": {
+    "exception": "NameError",
+    "name": "h5py",
+    "function": "terminal_records",
+    "path": "agenticgen/src/agenticgen/uniguide/geometry_sampling.py",
+    "line": 361,
+    "module_level_imports": [
+      "import functools",
+      "import math",
+      "from pathlib import Path",
+      "import numpy as np",
+      "import torch",
+      "from rdkit import Chem",
+      "from . import sampler",
+      "from .geometry_condition import loss, metrics, validate, DISTANCE, CONTROL_DISTANCE, NEIGHBOR_DISTANCE, MAX_ERROR",
+      "from .geometry_protocol import effective, expand_effective, validate_domain, GROWTH_LIMIT, NORMALIZED, EFFECTIVE, MULTIPLIER, POLICY",
+      "from .io import read, write, frozen, value_sha, sha, Budget",
+      "from .native_tools import load_pt",
+      "from .protocol import SEEDS",
+      "from .geometry_dynamics import Raw999Sampling, WINDOWS, LIMIT, policy, limit_increment, increment_summary",
+      "from .geometry_reward import WEIGHTS, weights, INTERACTION_DISTANCE",
+      "from .geometry_chemistry import ChemicalStateInpainting"
+    ],
+    "h5py_import_present": false
+  },
+  "acceptance_complete": true,
+  "acceptance_finished": {
+    "timestamp": "2026-10-29T22:05:10.453587+08:00",
+    "exit_code": 0,
+    "log": "/workspace/agenticgen_absolute_coordinate_20261029/acceptance.log",
+    "log_sha256": "b58339dfbbd7bbad3fd5dd8d0b117784b3339fa651f3bea0b56b2b1cfef3fd4a"
+  },
+  "acceptance_checks": {
+    "6pyy_H7S_A_402": {
+      "real_model_vjp": {
+        "relative_errors": [
+          0.026736292988061905,
+          0.0025416878052055836
+        ],
+        "tolerance": 0.05,
+        "input_gradient_norm": 0.6178585886955261,
+        "affinity_gradient_entered": false,
+        "sampling_rng_unchanged": true,
+        "model_parameters_frozen": true,
+        "source_checkpoint_sha256": "951d94a835172b9fb772ed4c860f5936f146e8fb5b79582054b1c46e4267b025",
+        "condition_sha256": "9dc018926700ef98c3246a6491c286715c10c6b4980019b780eb7656e21f153c"
+      },
+      "disabled_equivalence": {
+        "current": true,
+        "cond": true,
+        "times": true,
+        "stream_states": true
+      },
+      "exact_resume": {
+        "current": true,
+        "cond": true,
+        "times": true,
+        "stream_states": true,
+        "previous_assignment": true
+      },
+      "chemical_state_inpainting": {
+        "enabled": true,
+        "first_pre_inpainting_update_exact": true,
+        "extra_rng_consumed": false,
+        "coordinates_projected": false,
+        "self_conditioning_projected": false
+      },
+      "exact_native_slot_promotion": {
+        "current": true,
+        "cond": true,
+        "times": true,
+        "previous_assignment": true,
+        "native_rng_states": true
+      },
+      "promoted_slot_resume": true,
+      "fixed_correspondence": true,
+      "normalized_zero_is_active": true,
+      "fixture_multiplier": 1.0,
+      "fixture_is_not_calibration": true,
+      "candidate_batch_equivalence": {
+        "exact_equivalence": true,
+        "differences": [],
+        "independent_groups": 2,
+        "mixed_batch_size": 20,
+        "full_steps": 100,
+        "external_rng_unchanged": true,
+        "fixture_is_not_calibration": true,
+        "engineering_trajectory_evaluations": 60,
+        "raw999_coordinates_exact": true,
+        "chemical_state_inpainting_checked": true,
+        "exact_mixed_resume": true,
+        "network_microbatch_size": 10,
+        "concurrent_units": 2,
+        "physical_batch_shape_is_fixed": true,
+        "capacity_probe_initial": 90,
+        "capacity_probe_success": 60,
+        "capacity_probe_ooms": [
+          {
+            "capacity": 90,
+            "error": "HIP out of memory. Tried to allocate 2.45 GiB. GPU 0 has a total capacity of 63.98 GiB of which 0 bytes is free. Of the allocated memory 58.32 GiB is allocated by PyTorch, and 3.94 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+          },
+          {
+            "capacity": 80,
+            "error": "HIP out of memory. Tried to allocate 2.45 GiB. GPU 0 has a total capacity of 63.98 GiB of which 0 bytes is free. Of the allocated memory 57.44 GiB is allocated by PyTorch, and 4.64 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+          }
+        ],
+        "capacity_probe_steps": 12,
+        "capacity_probe_not_calibration": true,
+        "capacity_probe_exact_prefix_equivalence": true,
+        "candidate_local_limit_triggered": true,
+        "unaffected_candidates_exact": true,
+        "guidance_increment_limit_angstrom": 3.0,
+        "limiter_stress_steps": 12,
+        "stress_is_engineering_only": true,
+        "stress_multiplier_is_not_calibrated": true,
+        "nonfinite_isolation": {
+          "healthy_prefix_exact": true,
+          "failed_shards": [
+            1
+          ],
+          "shard_rows": 10,
+          "injected_step": 10,
+          "checked_steps": 12,
+          "evidence_preserved": true
+        }
+      }
+    },
+    "3w54_RNB_A_504": {
+      "real_model_vjp": {
+        "relative_errors": [
+          0.006165025290101767,
+          0.011742016300559044
+        ],
+        "tolerance": 0.05,
+        "input_gradient_norm": 0.632705807685852,
+        "affinity_gradient_entered": false,
+        "sampling_rng_unchanged": true,
+        "model_parameters_frozen": true,
+        "source_checkpoint_sha256": "1ee053e8b555ce56f870660c6c98d862c831f35b0f1d480b48be30584f2c4b94",
+        "condition_sha256": "35d28bbafbca4e74bb2b44cde3fb9561304b34f4145af184f2a8c5c57240c316"
+      },
+      "disabled_equivalence": {
+        "current": true,
+        "cond": true,
+        "times": true,
+        "stream_states": true
+      },
+      "exact_resume": {
+        "current": true,
+        "cond": true,
+        "times": true,
+        "stream_states": true,
+        "previous_assignment": true
+      },
+      "chemical_state_inpainting": {
+        "enabled": true,
+        "first_pre_inpainting_update_exact": true,
+        "extra_rng_consumed": false,
+        "coordinates_projected": false,
+        "self_conditioning_projected": false
+      },
+      "exact_native_slot_promotion": {
+        "current": true,
+        "cond": true,
+        "times": true,
+        "previous_assignment": true,
+        "native_rng_states": true
+      },
+      "promoted_slot_resume": true,
+      "fixed_correspondence": true,
+      "normalized_zero_is_active": true,
+      "fixture_multiplier": 1.0,
+      "fixture_is_not_calibration": true,
+      "candidate_batch_equivalence": {
+        "exact_equivalence": true,
+        "differences": [],
+        "independent_groups": 2,
+        "mixed_batch_size": 20,
+        "full_steps": 100,
+        "external_rng_unchanged": true,
+        "fixture_is_not_calibration": true,
+        "engineering_trajectory_evaluations": 60,
+        "raw999_coordinates_exact": true,
+        "chemical_state_inpainting_checked": true,
+        "exact_mixed_resume": true,
+        "network_microbatch_size": 10,
+        "concurrent_units": 2,
+        "physical_batch_shape_is_fixed": true,
+        "capacity_probe_initial": 90,
+        "capacity_probe_success": 20,
+        "capacity_probe_ooms": [
+          {
+            "capacity": 90,
+            "error": "HIP out of memory. Tried to allocate 850.00 MiB. GPU 0 has a total capacity of 63.98 GiB of which 134.00 MiB is free. Of the allocated memory 52.39 GiB is allocated by PyTorch, and 9.41 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+          },
+          {
+            "capacity": 80,
+            "error": "HIP out of memory. Tried to allocate 850.00 MiB. GPU 0 has a total capacity of 63.98 GiB of which 0 bytes is free. Of the allocated memory 54.77 GiB is allocated by PyTorch, and 7.38 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+          },
+          {
+            "capacity": 60,
+            "error": "HIP out of memory. Tried to allocate 638.00 MiB. GPU 0 has a total capacity of 63.98 GiB of which 0 bytes is free. Of the allocated memory 55.01 GiB is allocated by PyTorch, and 7.25 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+          },
+          {
+            "capacity": 40,
+            "error": "HIP out of memory. Tried to allocate 3.32 GiB. GPU 0 has a total capacity of 63.98 GiB of which 1.02 GiB is free. Of the allocated memory 44.01 GiB is allocated by PyTorch, and 16.90 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+          }
+        ],
+        "capacity_probe_steps": 12,
+        "capacity_probe_not_calibration": true,
+        "capacity_probe_exact_prefix_equivalence": true,
+        "candidate_local_limit_triggered": true,
+        "unaffected_candidates_exact": true,
+        "guidance_increment_limit_angstrom": 3.0,
+        "limiter_stress_steps": 12,
+        "stress_is_engineering_only": true,
+        "stress_multiplier_is_not_calibrated": true,
+        "nonfinite_isolation": {
+          "healthy_prefix_exact": true,
+          "failed_shards": [
+            1
+          ],
+          "shard_rows": 10,
+          "injected_step": 10,
+          "checked_steps": 12,
+          "evidence_preserved": true
+        }
+      }
+    }
+  },
+  "calibration_reserved_attempts": 130,
+  "formal_reserved_attempts": 0,
+  "batches": [
+    {
+      "path": "candidate_batches/6pyy_H7S_A_402/1793282737483286919_001",
+      "candidate_count": 100,
+      "last_step": null,
+      "steps": 0,
+      "terminal_saved": false,
+      "failure": {
+        "error": "HIP out of memory. Tried to allocate 2.45 GiB. GPU 0 has a total capacity of 63.98 GiB of which 1.36 GiB is free. Of the allocated memory 59.59 GiB is allocated by PyTorch, and 1.48 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "type": "OutOfMemoryError",
+        "no_weaker_retry": true
+      },
+      "oom": {
+        "type": "OutOfMemoryError",
+        "error": "HIP out of memory. Tried to allocate 2.45 GiB. GPU 0 has a total capacity of 63.98 GiB of which 1.36 GiB is free. Of the allocated memory 59.59 GiB is allocated by PyTorch, and 1.48 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)",
+        "attempted_capacity": 100,
+        "next_capacity": 80,
+        "candidates_unchanged": true,
+        "random_stream_replayed": true,
+        "new_scientific_attempts": 0
+      },
+      "last_step_failed_units": null
+    },
+    {
+      "path": "candidate_batches/6pyy_H7S_A_402/1793282804894782598_002",
+      "candidate_count": 80,
+      "last_step": 99,
+      "steps": 100,
+      "terminal_saved": true,
+      "failure": {
+        "type": "NameError",
+        "error": "name 'h5py' is not defined",
+        "no_automatic_retry": true
+      },
+      "oom": null,
+      "last_step_failed_units": {}
+    }
+  ],
+  "completed_shards": 0,
+  "completed_calibration_groups": 0,
+  "completed_formal_groups": 0,
+  "provider_artifact_files": [],
+  "quality": {
+    "worker.json": null,
+    "status.json": null,
+    "POLICY.json": null
+  },
+  "quality_request_count": 0,
+  "locks": {
+    "/workspace/agenticgen_uniguide_flowr_20261026/.executor.lock": "free",
+    "/workspace/agenticgen_absolute_coordinate_20261029/.executor.lock": "free",
+    "/workspace/agenticgen_absolute_coordinate_20261029/.campaign.lock": "free",
+    "/workspace/agenticgen_absolute_coordinate_20261029/quality_queue/.worker.lock": null
+  },
+  "own_processes": [],
+  "preservation": {
+    "checked": 2004,
+    "changed": []
+  },
+  "archived_source_files": 322,
+  "archived_artifact_files": 64,
+  "archive": "/workspace/agenticgen_absolute_coordinate_20261029/engineering_audits/terminal_failure_20261029_221342",
+  "actions": {
+    "scientific_code_modified": false,
+    "sampler_restarted": false,
+    "postprocessing_executed": false,
+    "claims_or_failed_markers_deleted": false,
+    "budget_reset": false,
+    "candidate_replaced": false
+  },
+  "resume_restriction": "Only an explicitly audited postprocessing repair may consume saved terminal/trace for the completed batch. Do not regenerate these saved candidates. New authorization is required after terminal archive."
+}

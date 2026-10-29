@@ -1,0 +1,38 @@
+/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/MDAnalysis/topology/tables.py:52: DeprecationWarning: Deprecated in version 2.8.0
+MDAnalysis.topology.tables has been moved to MDAnalysis.guesser.tables. This import point will be removed in MDAnalysis version 3.0.0
+  warnings.warn(wmsg, category=DeprecationWarning)
+/usr/local/lib/python3.11/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /home/pytorch/aten/src/ATen/Context.cpp:80.)
+  _C._set_float32_matmul_precision(precision)
+Building model vocabs...
+Vocabs complete.
+/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.
+  warnings.warn(
+Loading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...
+Done.
+Traceback (most recent call last):
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/scripts/run_uniguide_geometry.py", line 47, in <module>
+    if __name__=="__main__":main()
+                            ^^^^^^
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/scripts/run_uniguide_geometry.py", line 35, in main
+    elif args.command=="calibrate":result=implementation.calibrate(config)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/src/agenticgen/uniguide/absolute_runtime.py", line 111, in calibrate
+    return run(config,calibrated(config),model_loader,executor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/src/agenticgen/uniguide/geometry_calibration.py", line 99, in run
+    coarse=phase_measure(declared["coarse_actual_scales"],10,"coarse")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/src/agenticgen/uniguide/geometry_calibration.py", line 88, in phase_measure
+    measured=execute_many(model,config,teacher,condition,jobs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/src/agenticgen/uniguide/geometry_batch.py", line 560, in execute_many
+    raise fatal
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/src/agenticgen/uniguide/geometry_batch.py", line 514, in execute_many
+    execute_shard(
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/src/agenticgen/uniguide/geometry_sampling.py", line 574, in execute_shard
+    rows = terminal_records(model, output, condition, folder, count, slots)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/uniguide_runs/absolute-coordinate-4d4d12ef/agenticgen/src/agenticgen/uniguide/geometry_sampling.py", line 361, in terminal_records
+    with h5py.File(folder / "trace.h5", "r") as trace:
+         ^^^^
+NameError: name 'h5py' is not defined
