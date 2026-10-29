@@ -1,0 +1,80 @@
+{
+  "protocol": "protein-anchored-absolute-coordinate-guidance-v1",
+  "output_policy": "raw999",
+  "chemical_inpainting": {
+    "enabled": true
+  },
+  "maximum_single_atom_guidance_increment_angstrom": 3.0,
+  "calibration": {
+    "search_center_by_teacher": {
+      "6pyy_H7S_A_402": 1.0,
+      "3w54_RNB_A_504": 1.0
+    }
+  },
+  "root": "/workspace/agenticgen_absolute_coordinate_restart_20261029",
+  "generation_context_root": "/workspace/agenticgen_uniguide_flowr_20261026",
+  "flowr": "/opt/MolSteer/flowr_root",
+  "checkpoint": "/root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt",
+  "checkpoint_sha256": "f28e863b2b208718f3d3f85f09837c2f907a71123436db6f98a25d2f1858b6a0",
+  "native_hashes": {
+    "flowr/models/fm_pocket.py": "beaace3ab92a8377bc8eab95333c8f40ce370ca9224f7a78927c5a424bb38426",
+    "flowr/models/integrator.py": "e9abd83167f708da4712db2ac49ab24ac44a39c59c46a54c20789c7873c58000"
+  },
+  "conditions": [
+    {
+      "teacher_id": "6pyy_H7S_A_402",
+      "features_path": "/workspace/uniguide_runs/absolute-coordinate-0aac6831-inputs/6pyy_H7S_A_402.json"
+    },
+    {
+      "teacher_id": "3w54_RNB_A_504",
+      "features_path": "/workspace/uniguide_runs/absolute-coordinate-0aac6831-inputs/3w54_RNB_A_504.json"
+    }
+  ],
+  "steps": 100,
+  "windows": [
+    [
+      10,
+      25
+    ],
+    [
+      26,
+      50
+    ],
+    [
+      51,
+      75
+    ],
+    [
+      76,
+      99
+    ]
+  ],
+  "rounds": 5,
+  "population": 50,
+  "agent_tools": {
+    "mode": "readonly_tools_v1",
+    "skill_release": "2.4.0",
+    "max_model_calls_per_round": 30,
+    "max_output_tokens_per_round": 491520
+  },
+  "seeds": [
+    42,
+    100045,
+    200048,
+    300051,
+    400054
+  ],
+  "noise_level": 0.2,
+  "llm": {
+    "model": "deepseek-flash",
+    "thinking": true,
+    "reasoning_effort": "high",
+    "max_output_tokens": 16384
+  },
+  "plip_dependencies": "/opt/MolSteer/generated_datasets/plip_guidance_5nn4_5ost_s42_20261020/deps",
+  "initials_root": "/workspace/agenticgen_uniguide_flowr_20261026",
+  "sampling_recovery": {
+    "authorization_path": "/workspace/uniguide_runs/absolute-restart-1fa48243-config-recovery.json",
+    "authorization_sha256": "96359942e0c9a0134b8c2ff48133ed522847e48c591127c47e5186704b085443"
+  }
+}
