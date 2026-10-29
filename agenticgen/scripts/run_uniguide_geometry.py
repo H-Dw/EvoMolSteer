@@ -11,7 +11,7 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--config",required=True)
     sub=parser.add_subparsers(dest="command",required=True)
-    for name in ("prepare","acceptance","calibrate"):sub.add_parser(name)
+    for name in ("prepare","acceptance","calibrate","recover-saved","recovery-preflight"):sub.add_parser(name)
     run=sub.add_parser("run-version");run.add_argument("version")
     review=sub.add_parser("accept-review");review.add_argument("version");review.add_argument("review_path")
     reuse=sub.add_parser("reuse-calibration");reuse.add_argument("--sources",required=True);reuse.add_argument("--initial-scales",required=True)
@@ -33,6 +33,9 @@ def main():
                 from agenticgen.uniguide.geometry_acceptance import run
             result=run(config)
         elif args.command=="calibrate":result=implementation.calibrate(config)
+        elif args.command in ("recover-saved", "recovery-preflight"):
+            from agenticgen.uniguide.absolute_recovery import run, preflight
+            result=(run if args.command=="recover-saved" else preflight)(config)
         elif args.command=="run-version":result=implementation.run_version(config,args.version)
         elif args.command=="reuse-calibration":
             from agenticgen.uniguide.geometry_reuse import reuse

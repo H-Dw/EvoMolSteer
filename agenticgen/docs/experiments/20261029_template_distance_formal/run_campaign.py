@@ -19,15 +19,23 @@ def now():
     return datetime.now(ZoneInfo('Asia/Shanghai')).isoformat()
 
 
+def campaign_stages(config):
+    stages = [('acceptance', ['acceptance'])]
+    if config.get('sampling_recovery'):
+        stages.append(('recovery', ['recover-saved']))
+    return stages + [('calibrate', ['calibrate']), ('formal', ['run-version', 'GD01'])]
+
+
 def main():
     repo, config_path = map(Path, sys.argv[1:3])
     config = read(config_path)
     root = Path(config['root'])
     lock = (root/'.campaign.lock').open('a+')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    stages = campaign_stages(config)
     frozen(root/'CAMPAIGN_CLAIM.json', dict(pid=os.getpid(), timestamp=now(), script_sha256=sha(__file__),
         config_sha256=sha(config_path), execution_commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip(),
-        stages=['acceptance','calibrate','run-version GD01'], rounds_per_teacher=5,
+        stages=[' '.join(args) for _, args in stages], rounds_per_teacher=5,
         maximum_new_calibration_attempts=700, maximum_new_formal_attempts=1500, automatic_retry=False))
     preserved = read(root/'SOURCE_PRESERVATION.json')
     teachers = {s['teacher']['target']: s['teacher'] for s in read(root/'SUBJECTS.json')}
@@ -53,7 +61,7 @@ def main():
                 queued.add(str(folder))
 
     try:
-        for stage,args in [('acceptance',['acceptance']),('calibrate',['calibrate']),('formal',['run-version','GD01'])]:
+        for stage,args in stages:
             check_sources()
             log = root/(stage+'.log')
             with log.open('xb') as stream:
