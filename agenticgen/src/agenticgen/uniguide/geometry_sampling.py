@@ -84,18 +84,12 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
             )
         from .geometry_reward import evaluate, KEYS, component_weights
 
-        # Native final output is on CPU; the saved sampler state can remain on GPU.
-        # Preserve the same denominator state, aligning its device/dtype only.
-        current = self.before[ids].to(endpoint) * self.model.coord_scale + self.com[
-            ids, None
-        ].to(endpoint)
         row_weights = self.row_loss_weights(ids)
         result, diagnostics = evaluate(
             endpoint,
             self.geometry_condition,
             valid,
             row_weights,
-            current=current,
             check=lambda name, x: self.check_rows(name, x, ids),
         )
         value, reference, selected, assignment = result

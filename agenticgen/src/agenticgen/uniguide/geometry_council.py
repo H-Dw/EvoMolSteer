@@ -7,7 +7,7 @@ from .geometry_condition import DISTANCE, CONTROL_DISTANCE, NEIGHBOR_DISTANCE, M
 from .geometry_protocol import NORMALIZED, EFFECTIVE, MULTIPLIER, BRANCHES, WINDOWS, choose, legal_options, validate_action
 from agenticgen.providers.deepseek_api import call_json
 from .geometry_reward import WEIGHTS,INTERACTION_DISTANCE,KEYS
-from .geometry_protocol import seen_configuration,action_weights
+from .geometry_protocol import seen_configuration,action_weights,POLICY
 
 
 def object_schema(properties):
@@ -81,12 +81,15 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
         from agenticgen.providers.deepseek_tools import RoundBudget,call_with_tools
         condition_path=Path(config["root"])/"conditions"/(domain["teacher_id"]+".json")
         condition=read(condition_path) if condition_path.exists() else None
-        if config.get("guidance_reward") and (not condition or not condition.get("reward_policy")):
+        if config.get("protocol")==POLICY and (not condition or not condition.get("reward_policy")):
             raise ValueError("New reward requires a bound component condition before Agent calls")
         registry=EvidenceTools(config["root"],history,domain,folder/"task_memory/calculations",condition=condition)
         if condition and condition.get("reward_policy"):
             common["loss_control_contract"]=dict(default_weights=condition[WEIGHTS],allowed_values=[0,1],
-                normalization=condition["distance_normalization"],interaction_pair_count=len(condition["interaction_pairs"]),
+                reward_policy=condition["reward_policy"],loss_aggregation="half_sum_squared_distance_error",
+                loss_unit="angstrom_squared",interaction_pair_count=len(condition["interaction_pairs"]),
+                internal_pair_count=sum(p["category"]=="controlled_internal" for p in condition["pairs"]),
+                outer_pair_count=sum(p["category"]=="controlled_neighborhood" for p in condition["pairs"]),
                 primary_metric=CONTROL_DISTANCE,outer_metric=NEIGHBOR_DISTANCE,
                 control_tool="set_guidance_loss_weights",proposal_field="loss_control_id",
                 zero_window_updates="Allowed only with a verified changed loss-control receipt for an isolated contrast",

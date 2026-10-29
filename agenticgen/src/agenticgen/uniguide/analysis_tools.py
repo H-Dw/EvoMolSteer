@@ -253,8 +253,7 @@ class EvidenceTools:
         from .geometry_reward import LOSSES
         result=[]
         with h5py.File(self.paths[run_id]/"trace.h5","r") as trace:
-            fields=[*LOSSES,*(n+"_unnormalized_squared_angstrom" for n in LOSSES),
-                    "guidance_total_loss","distance_normalization_denominator_angstrom",*KEYS]
+            fields=[*LOSSES,"guidance_total_loss",*KEYS]
             present=[k for k in fields if k in trace]
             for window in self.history[run_id].get("window_diagnostics",[]):
                 lo,hi=window["steps"];values={}
@@ -263,10 +262,13 @@ class EvidenceTools:
                     if np.isfinite(array).all():values[key]=dict(mean=float(array.mean()),minimum=float(array.min()),maximum=float(array.max()))
                     else:values[key]=dict(status="unavailable_nonfinite_source")
                 result.append(dict(steps=[lo,hi],values=values))
-        mode=self.condition["distance_normalization"]["mode"] if self.condition else "unknown"
-        return dict(status="complete" if present else "unavailable",windows=result,normalization_mode=mode,
-            loss_unit="angstrom_squared" if mode=="none" else "dimensionless",
-            interpretation="Unnormalized components are half mean squared error in Angstrom squared. Step-dependent denominators are stopped-gradient; endpoint errors remain separate.")
+        from .geometry_reward import REWARD_POLICY
+        current=bool(self.condition and self.condition.get("reward_policy")==REWARD_POLICY)
+        return dict(status="complete" if present else "unavailable",windows=result,
+            reward_policy=self.condition.get("reward_policy") if self.condition else None,
+            loss_aggregation="half_sum_squared_distance_error" if current else "unknown",
+            loss_unit="angstrom_squared" if current else "unknown",
+            interpretation="Current components sum half squared distance errors over pairs within each candidate. RMSD metrics retain their mean reduction; pair counts and active components affect loss magnitude. Historical loss units require their original protocol.")
 
     def _audit_action_batch(self,actions):
         seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in self.history.values()];results=[]

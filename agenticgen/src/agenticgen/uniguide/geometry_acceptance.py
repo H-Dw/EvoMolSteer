@@ -40,8 +40,7 @@ def real_vjp(model,config,teacher,condition):
         for value in out.get("affinity",{}).values():
             if torch.is_tensor(value) and value.requires_grad:hooks.append(value.register_hook(denied))
         pred,_=model._get_predictions(out)
-        return loss(pred["coords"]*model.coord_scale+com[:,None],condition,curr["mask"].bool(),
-            current=curr["coords"].detach()*model.coord_scale+com[:,None])[0].sum()
+        return loss(pred["coords"]*model.coord_scale+com[:,None],condition,curr["mask"].bool())[0].sum()
     before=capture();x=curr["coords"].detach().clone().requires_grad_(True)
     gradient=torch.autograd.grad(objective(x),x)[0].detach();norm=gradient.norm()
     if not torch.isfinite(gradient).all() or norm<=1e-8:raise ValueError("Invalid real model input gradient")

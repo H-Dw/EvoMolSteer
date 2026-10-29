@@ -79,7 +79,7 @@ def test_discovery_precedes_quarantine_and_preserves_failure_evidence(tmp_path):
 
 @pytest.mark.parametrize("switches", list(itertools.product((0, 1), repeat=3)))
 def test_all_component_switches_match_analytic_distance_gradient(switches):
-    condition = spec(True, mode="template_mean")
+    condition = spec(True)
     reference, valid = tensors(condition)
     endpoint = (
         reference * 1.3 + reference.new_tensor([0.2, 0.5, -0.3])
@@ -88,11 +88,6 @@ def test_all_component_switches_match_analytic_distance_gradient(switches):
     result, _ = evaluate(endpoint, condition, valid, configured)
     gradient = torch.autograd.grad(result[0].sum(), endpoint)[0]
 
-    matrix = condition["reference_distance_matrix_angstrom"]
-    distances = [
-        matrix[i][j] for i in range(len(matrix)) for j in range(i + 1, len(matrix))
-    ]
-    denominator = max(sum(distances) / len(distances), 1.0)
     expected_loss = endpoint.new_zeros(1)
     expected_gradient = torch.zeros_like(endpoint)
     positions = endpoint.detach()
@@ -104,7 +99,7 @@ def test_all_component_switches_match_analytic_distance_gradient(switches):
             vector = positions[:, left] - positions[:, right]
             length = vector.norm(dim=-1)
             error = length - pair["reference_distance_angstrom"]
-            factor = weight / (len(pairs) * denominator**2)
+            factor = weight
             expected_loss += factor * error.square() / 2
             force = factor * error[:, None] * vector / length[:, None]
             expected_gradient[:, left] += force
@@ -117,7 +112,7 @@ def test_all_component_switches_match_analytic_distance_gradient(switches):
         )
         length = vector.norm(dim=-1)
         error = length - pair["reference_distance_angstrom"]
-        factor = switches[2] / (len(pairs) * denominator**2)
+        factor = switches[2]
         expected_loss += factor * error.square() / 2
         expected_gradient[:, slot] += factor * error[:, None] * vector / length[:, None]
     torch.testing.assert_close(result[0], expected_loss, atol=1e-14, rtol=1e-12)
@@ -125,40 +120,60 @@ def test_all_component_switches_match_analytic_distance_gradient(switches):
 
 
 def test_full_coordinate_vjp_guard_identity_and_no_cross_candidate_gradient(tmp_path):
-    condition = spec(True, mode="bounded_step_mean_detached")
+    condition = spec(True)
     reference, valid = tensors(condition)
     leaf = (reference.repeat(10, 1, 1) * 1.2).requires_grad_()
     valid = valid.repeat(10, 1)
-    current = leaf.detach().clone().requires_grad_()
     matrix = leaf.new_tensor([[1.2, 0.3, 0], [0, 0.8, 0.1], [0.2, 0, 1.1]])
     endpoint = leaf @ matrix + 0.4
     controls = [dict(zip(KEYS, (1, i % 2, 1))) for i in range(10)]
-    plain = evaluate(endpoint, condition, valid, controls, current=current)[0][0]
+    plain = evaluate(endpoint, condition, valid, controls)[0][0]
     guard = control(tmp_path, population=10)
-    guarded = evaluate(
-        endpoint, condition, valid, controls, current=current, check=guard.check_rows
-    )[0][0]
+    guarded = evaluate(endpoint, condition, valid, controls, check=guard.check_rows)[0][
+        0
+    ]
     first = torch.autograd.grad(plain.sum(), leaf, retain_graph=True)[0]
     second = torch.autograd.grad(guarded.sum(), leaf, retain_graph=True)[0]
     assert torch.equal(first, second)
     isolated = torch.autograd.grad(guarded[0], leaf, retain_graph=True)[0]
     assert not isolated[1:].any()
-    assert torch.autograd.grad(guarded.sum(), current, allow_unused=True)[0] is None
     assert torch.autograd.gradcheck(
-        lambda x: evaluate(
-            x @ matrix + 0.4, condition, valid, controls, current=current
-        )[0][0],
+        lambda x: evaluate(x @ matrix + 0.4, condition, valid, controls)[0][0],
         (leaf,),
     )
 
 
-def test_weight_and_normalization_layouts_are_explicit():
-    condition = spec(True, mode="bounded_step_mean_detached")
+def test_weight_layout_and_removal_of_current_state_api():
+    condition = spec(True)
     endpoint, valid = tensors(condition)
     with pytest.raises(ValueError, match="weight count"):
-        evaluate(endpoint, condition, valid, [weights(condition)] * 2, current=endpoint)
-    with pytest.raises(ValueError, match="Normalization state"):
-        evaluate(endpoint, condition, valid, current=endpoint.repeat(2, 1, 1))
+        evaluate(endpoint, condition, valid, [weights(condition)] * 2)
+    with pytest.raises(TypeError, match="current"):
+        evaluate(endpoint, condition, valid, current=endpoint)
+
+
+@pytest.mark.parametrize("component", [False, True])
+def test_summed_condition_loss_retains_graph_preserving_safety_callback(component):
+    from agenticgen.uniguide.geometry_condition import loss, prepare
+    from test_uniguide_geometry import features
+
+    condition = prepare(features(), component_reward=component)
+    endpoint, valid = tensors(condition)
+    endpoint = (endpoint * 1.3).requires_grad_()
+    calls = []
+
+    def inspect(name, value):
+        calls.append(name)
+        return value
+
+    checked = loss(endpoint, condition, valid, check=inspect)[0]
+    reference = loss(endpoint, condition, valid)[0]
+    assert calls[:2] == ["distance endpoint", "internal distance errors"]
+    assert torch.equal(checked, reference)
+    assert torch.equal(
+        torch.autograd.grad(checked.sum(), endpoint, retain_graph=True)[0],
+        torch.autograd.grad(reference.sum(), endpoint)[0],
+    )
 
 
 def test_increment_overflow_is_quarantined_before_global_finite_check(tmp_path):

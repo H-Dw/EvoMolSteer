@@ -1,6 +1,7 @@
 """Template loss, VJP, binary tool selection and candidate cache invariants."""
 import copy
 import json
+import math
 from pathlib import Path
 from types import SimpleNamespace
 import httpx
@@ -20,12 +21,12 @@ from agenticgen.providers.deepseek_tools import call_with_tools
 from agenticgen.uniguide.io import read,write,sha,value_sha
 
 
-def spec(interact=False,mode="template_mean"):
+def spec(interact=False):
     f=features()
     if interact:
         f.update(coordinate_frame="generation_context_angstrom",target_atoms=[dict(id="receptor/A/9/O",coordinates_angstrom=[0.,3.,0.])],
             interact_atoms=[dict(atom_id="a",target_atom_ids=["receptor/A/9/O"])])
-    return condition.prepare(f,reward=dict(mode=mode))
+    return condition.prepare(f,component_reward=True)
 
 
 def tensors(s):
@@ -72,7 +73,7 @@ def test_interaction_target_pair_default_gradient_and_zero_empty():
     assert condition.metrics(translated,s,valid)[INTERACTION_DISTANCE].item()==1.
     assert evaluate(translated,spec(),valid)[1]["interact_loss"].item()==0
     f=features();f['interact_atoms']=[dict(atom_id='a',target_atom_ids=['unknown'])]
-    with pytest.raises(ValueError,match="frame"):condition.prepare(f,reward={})
+    with pytest.raises(ValueError,match="frame"):condition.prepare(f,component_reward=True)
     with pytest.raises(ValueError,match="interact_atoms"):weights(spec(),dict(zip(KEYS,(1,0,1))))
 
 
@@ -81,42 +82,86 @@ def test_nonbinary_controls_rejected(value):
     with pytest.raises(ValueError):weights(spec(),dict(zip(KEYS,(1,value,0))))
 
 
-def test_step_denominator_detached_bounded_and_masked():
-    s=spec(mode="bounded_step_mean_detached");x,valid=tensors(s)
-    point=(x*1.7).requires_grad_();current=(x*2).requires_grad_()
-    value,diag=evaluate(point,s,valid,current=current)
-    denominator_value=diag['distance_normalization_denominator_angstrom']
-    assert not denominator_value.requires_grad
-    assert torch.autograd.grad(value[0].sum(),current,allow_unused=True)[0] is None
-    expected=torch.pdist(x[0]).mean()*2
-    assert denominator_value.item()==pytest.approx(expected.item())
-    base=denominator(x,valid,s,s['distance_normalization'])
-    expanded=denominator(x*1e6,valid,s,s['distance_normalization'])
-    collapsed=denominator(x*0,valid,s,s['distance_normalization'])
-    assert torch.allclose(expanded,base*4) and torch.allclose(collapsed,base,rtol=1e-14,atol=1e-14)
-    padded=torch.cat((x,x.new_full((1,1,3),1e8)),1)
-    assert torch.equal(denominator(padded,torch.tensor([[1,1,1,1,0]]),s,s['distance_normalization']),base)
-    fixed=evaluate(point,s,valid,current=x)[0][0]
-    assert value[0].item()==pytest.approx(fixed.item()/4)
-    with pytest.raises(ValueError,match="Current-step"):evaluate(point,s,valid)
+def test_unselected_atom_positions_and_padding_do_not_rescale_loss_or_gradient():
+    s=spec(True);x,valid=tensors(s)
+    point=(x*1.7).requires_grad_()
+    value,diag=evaluate(point,s,valid)
+    gradient=torch.autograd.grad(value[0].sum(),point)[0]
+    assert set(diag)==set(LOSSES)|{'guidance_total_loss'}
+    assert 'distance_normalization' not in s
+    for distant in (0.,1e8):
+        for present in (False,True):
+            padded=torch.cat((point.detach(),x.new_full((1,1,3),distant)),1).requires_grad_()
+            mask=torch.cat((valid,valid.new_full((1,1),present)),1)
+            result,_=evaluate(padded,s,mask)
+            actual=torch.autograd.grad(result[0].sum(),padded)[0]
+            assert torch.equal(result[0],value[0])
+            assert torch.equal(actual[:,:4],gradient) and not actual[:,4:].any()
 
 
-def test_mixed_candidate_and_single_vjp_identical_no_cross_candidate_normalization():
+def test_internal_sum_and_rmsd_metric_have_distinct_pair_count_scaling():
+    f=features();f['controlled_atom_ids']=list('abcd')
+    for component in (False,True):
+        s=condition.prepare(f,component_reward=component);x,valid=tensors(s)
+        point=(x*2).requires_grad_()
+        expected=sum(p['reference_distance_angstrom']**2 for p in s['pairs'])/2
+        value=condition.loss(point,s,valid)[0]
+        assert value.item()==pytest.approx(expected)
+        rmsd=condition.metrics(point,s,valid)[condition.CONTROL_DISTANCE]
+        assert value.item()==pytest.approx(len(s['pairs'])*rmsd.item()**2/2)
+
+
+def test_template_objective_detects_torsion_missed_by_bonds_and_two_hop_pairs():
+    f=features();f['controlled_atom_ids']=list('abcd')
+    s=condition.prepare(f,component_reward=True);x,valid=tensors(s)
+    rotated=x.clone()
+    # Rotate d by 180 degrees about b--c. All bonds and two-hop distances stay fixed.
+    axis=x[0,2]-x[0,1];axis=axis/axis.norm()
+    vector=x[0,3]-x[0,1]
+    rotated[0,3]=x[0,1]-vector+2*axis*torch.dot(axis,vector)
+    errors,_,_=condition.measurements(rotated,s,valid)
+    local=[i for i,p in enumerate(s['pairs']) if p['atom_ids']!=['a','d']]
+    torch.testing.assert_close(errors[:,local],torch.zeros_like(errors[:,local]),atol=1e-14,rtol=0)
+    assert condition.loss(rotated,s,valid)[0].item()>1e-3
+
+
+def test_multiple_interaction_pairs_sum_without_pair_count_division():
+    f=features()
+    f.update(coordinate_frame='generation_context_angstrom',
+        target_atoms=[dict(id='protein',coordinates_angstrom=[0.,3.,0.])],
+        interact_atoms=[dict(atom_id=a,target_atom_ids=['protein']) for a in ('a','b')])
+    s=condition.prepare(f,component_reward=True);x,valid=tensors(s)
+    moved=(x+x.new_tensor([0.,1.,0.])).requires_grad_()
+    expected=(1.**2+(2.5-math.sqrt(11.25))**2)/2
+    value,diag=evaluate(moved,s,valid)
+    assert diag['interact_loss'].item()==pytest.approx(expected)
+    assert value[0].item()==pytest.approx(expected)
+    assert torch.autograd.gradcheck(lambda p:evaluate(p,s,valid)[0][0],(moved,))
+
+
+@pytest.mark.parametrize('mode',['none','template_mean','bounded_step_mean_detached'])
+def test_removed_normalization_configuration_is_rejected(mode):
+    from agenticgen.uniguide.geometry_runtime import validate_config
+    with pytest.raises(ValueError,match='removed'):
+        validate_config(dict(guidance_reward=dict(mode=mode)))
+    s=spec();s['distance_normalization']=dict(mode=mode)
+    s['condition_sha256']=value_sha({k:v for k,v in s.items() if k!='condition_sha256'})
+    with pytest.raises(ValueError,match='removed'):condition.validate(s)
+
+
+def test_mixed_candidate_and_single_vjp_identical_without_sampler_state():
     import threading
-    s=spec(True,mode='bounded_step_mean_detached');base,mask=tensors(s)
+    s=spec(True);base,mask=tensors(s)
     x=(base.repeat(20,1,1)*1.4).requires_grad_();valid=mask.repeat(20,1)
     controls=[weights(s),dict(zip(KEYS,(1,1,1)))]
     control=object.__new__(CandidateControl)
     control.geometry_condition=s;control.units=[dict(scale={WEIGHTS:w}) for w in controls]
-    control.before=base.repeat(20,1,1);control.before[10:]*=100
-    control.com=torch.zeros(20,3,dtype=x.dtype);control.model=SimpleNamespace(coord_scale=1.)
     control.initial=dict(population=20);control.failed_units={};control.failure_lock=threading.RLock()
     combined=control.condition_loss_for_rows(x,valid,list(range(20)))
     gradients=torch.autograd.grad(combined[0].sum(),x)[0]
     for i,w in enumerate(controls):
         indices=list(range(i*10,(i+1)*10));part=x[indices].detach().requires_grad_()
         single=object.__new__(GeometryControl);single.geometry_condition=s;single.scale_binding={WEIGHTS:w}
-        single.before=control.before[indices];single.com=control.com[indices];single.model=control.model
         expected=single.condition_loss_for_rows(part,valid[indices],list(range(10)))
         assert torch.equal(combined[0][indices],expected[0])
         assert torch.equal(gradients[indices],torch.autograd.grad(expected[0].sum(),part)[0])
@@ -124,8 +169,8 @@ def test_mixed_candidate_and_single_vjp_identical_no_cross_candidate_normalizati
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(),reason="Actual native GPU to CPU finalization")
-def test_terminal_reward_aligns_saved_gpu_state_to_cpu_output():
-    s=spec(True,mode='bounded_step_mean_detached');base,mask=tensors(s)
+def test_terminal_reward_ignores_saved_gpu_state_for_cpu_output():
+    s=spec(True);base,mask=tensors(s)
     control=object.__new__(GeometryControl);control.geometry_condition=s;control.scale_binding={WEIGHTS:weights(s)}
     control.before=(base*1.4).cuda();control.com=torch.zeros(1,3,dtype=base.dtype,device='cuda')
     control.model=SimpleNamespace(coord_scale=1.)
@@ -193,7 +238,7 @@ def test_scheduler_identity_and_primary_ranking(tmp_path,monkeypatch):
 
 
 def test_registered_tool_multi_message_role_selection_and_cache(tmp_path,monkeypatch):
-    h,d,s=control_fixture(tmp_path);config=configure(dict(root=str(tmp_path),guidance_reward=dict(mode='template_mean'),llm=dict(thinking=True,attempts=1)))
+    h,d,s=control_fixture(tmp_path);config=configure(dict(root=str(tmp_path),llm=dict(thinking=True,attempts=1)))
     skills=tmp_path/'skills';skills.mkdir()
     for n,p in assets(config).items():(skills/n).write_bytes(p.read_bytes())
     monkeypatch.setenv('DEEPSEEK_API_KEY','synthetic-test-only');calls=[]
@@ -223,13 +268,14 @@ def test_registered_tool_multi_message_role_selection_and_cache(tmp_path,monkeyp
     assert 'set_guidance_loss_weights' in {t['function']['name'] for t in calls[0]['tools']}
 
 
-def test_release_bound_complete_and_parent_unchanged():
+@pytest.mark.parametrize('version,parent',[('2.2.0','2.1.0'),('2.3.0','2.2.0')])
+def test_release_bound_complete_and_parent_unchanged(version,parent):
     root=Path(__file__).resolve().parents[2]/'src/agenticgen/resources/skill_releases/guidance'
-    release=read(root/'2.2.0/RELEASE.json')
-    for p,h in release['old_files_sha256'].items():assert sha(root/'2.1.0'/p)==h
-    for p,h in release['files_sha256'].items():assert sha(root/'2.2.0'/p)==h
-    bundle=read(root/'2.2.0/runtime/internal_distance/BUNDLE.json')
-    for p,h in bundle['hashes'].items():assert sha(root/'2.2.0/runtime/internal_distance'/p)==h
+    release=read(root/version/'RELEASE.json')
+    for p,h in release['old_files_sha256'].items():assert sha(root/parent/p)==h
+    for p,h in release['files_sha256'].items():assert sha(root/version/p)==h
+    bundle=read(root/version/'runtime/internal_distance/BUNDLE.json')
+    for p,h in bundle['hashes'].items():assert sha(root/version/'runtime/internal_distance'/p)==h
 
 
 def test_verified_trace_component_diagnostics_and_tamper_rejection(tmp_path):
@@ -237,13 +283,16 @@ def test_verified_trace_component_diagnostics_and_tamper_rejection(tmp_path):
     import numpy as np
     h,d,s=control_fixture(tmp_path);group=tmp_path/h[0]['id']
     with h5py.File(group/'trace.h5','w') as f:
-        for name in (*LOSSES,'distance_normalization_denominator_angstrom',*KEYS):
+        for name in (*LOSSES,'guidance_total_loss',*KEYS):
             f[name]=np.repeat(np.arange(100,dtype=float)[:,None],50,axis=1)
     complete=read(group/'COMPLETE.json');complete['files']['trace.h5']=sha(group/'trace.h5');write(group/'COMPLETE.json',complete)
     registry=EvidenceTools(tmp_path,h,d,tmp_path/'memory',condition=s)
     receipt=registry.execute('inspect_interval_evidence',dict(run_id=h[0]['id']))
     diagnostics=receipt['reward_diagnostics']
     assert diagnostics['status']=='complete'
+    assert diagnostics['loss_unit']=='angstrom_squared'
+    assert diagnostics['loss_aggregation']=='half_sum_squared_distance_error'
+    assert 'normalization_mode' not in diagnostics
     assert diagnostics['windows'][0]['values']['condition_intra_loss']==dict(mean=17.5,minimum=10.,maximum=25.)
     with h5py.File(group/'trace.h5','a') as f:f['condition_intra_loss'][10,0]=999.
     with pytest.raises(ValueError,match='trace changed'):EvidenceTools(tmp_path,h,d,tmp_path/'other',condition=s)
@@ -282,7 +331,7 @@ def test_runtime_executes_selected_loss_control_and_reports_it(tmp_path,monkeypa
 
 def test_exhausted_temporal_examples_do_not_block_registered_component_tools(tmp_path,monkeypatch):
     import agenticgen.uniguide.geometry_council as council
-    h,d,s=control_fixture(tmp_path);config=configure(dict(root=str(tmp_path),guidance_reward={},llm={}))
+    h,d,s=control_fixture(tmp_path);config=configure(dict(root=str(tmp_path),llm={}))
     skills=tmp_path/'skills';skills.mkdir()
     for name,path in assets(config).items():(skills/name).write_bytes(path.read_bytes())
     monkeypatch.setattr(council,'legal_options',lambda *a:[])

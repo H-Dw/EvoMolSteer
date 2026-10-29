@@ -7,7 +7,7 @@ from rdkit.Chem import AllChem
 from .io import value_sha
 from .condition import finite
 
-POLICY = "intramolecular-distance-fixed-correspondence-v1"
+POLICY = "intramolecular-distance-fixed-correspondence-sum-v2"
 DISTANCE = "intramolecular_pair_distance_root_mean_square_deviation_angstrom"
 CONTROL_DISTANCE = "controlled_atom_pair_distance_root_mean_square_deviation_angstrom"
 NEIGHBOR_DISTANCE = "controlled_to_neighborhood_distance_root_mean_square_deviation_angstrom"
@@ -28,7 +28,7 @@ def from_molecule(mol, controlled_atom_ids, **options):
     return features
 
 
-def prepare(features,valid_generated_slots=None,*,reward=None):
+def prepare(features,valid_generated_slots=None,*,component_reward=False):
     """Use only supplied template features and optional target coordinates, not archives or affinity."""
     atoms = features["atoms"]
     ids = [a["id"] for a in atoms]
@@ -55,7 +55,8 @@ def prepare(features,valid_generated_slots=None,*,reward=None):
     if not controlled or len(set(controlled))!=len(controlled) or not set(controlled)<=set(ids):
         raise ValueError("Invalid controlled atom identities")
     coordinates=features.get("coordinates_angstrom")
-    if reward is not None and coordinates is None:raise ValueError("Component reward requires an input 3D template structure")
+    component_mode=component_reward or bool(features.get("interact_atoms"))
+    if component_mode and coordinates is None:raise ValueError("Component reward requires an input 3D template structure")
     preparation=dict(rdkit_version=rdBase.rdkitVersion,source="provided_conformer",optimization_applied=False)
     if coordinates is None:
         # Hydrogen coordinates improve embedding, but are not guided atom identities.
@@ -72,7 +73,6 @@ def prepare(features,valid_generated_slots=None,*,reward=None):
     if explicit is not None and (set(explicit)!=set(controlled) or any(
             len(set(v))!=len(v) or not set(v)<=set(ids) or k in v for k,v in explicit.items())):
         raise ValueError("Neighborhood must map every control identity to unique other atom identities")
-    component_mode=reward is not None or bool(features.get("interact_atoms"))
     if component_mode and explicit is not None:
         raise ValueError("Component reward uses all template-mapped outer atoms; remove neighborhood_atom_ids")
     graph_distance=Chem.GetDistanceMatrix(mol)
@@ -108,16 +108,18 @@ def prepare(features,valid_generated_slots=None,*,reward=None):
         neighborhood_policy="explicit" if explicit is not None else "at_most_two_covalent_bonds",
         chemistry_locked=False,coordinates_replaced=False)
     if component_mode:
-        from .geometry_reward import interaction_pairs,normalization_policy,weights,WEIGHTS
-        body.update(reward_policy="template-relative-three-component-v1",neighborhood_policy="all_template_mapped_outer_atoms",
+        from .geometry_reward import interaction_pairs,weights,WEIGHTS,REWARD_POLICY
+        body.update(reward_policy=REWARD_POLICY,neighborhood_policy="all_template_mapped_outer_atoms",
             interaction_pairs=interaction_pairs(features,mapping,xyz.tolist()),
             interact_atoms=features.get("interact_atoms",[]),
-            distance_normalization=normalization_policy(reward),coordinate_frame=features.get("coordinate_frame"))
+            coordinate_frame=features.get("coordinate_frame"))
         body[WEIGHTS]=weights(body)
     return dict(body,condition_sha256=value_sha(body))
 
 
 def validate(condition):
+    if "distance_normalization" in condition:
+        raise ValueError("Distance normalization was removed; prepare a new condition and recalibrate")
     body={k:v for k,v in condition.items() if k!="condition_sha256"}
     if condition.get("policy")!=POLICY or value_sha(body)!=condition.get("condition_sha256"):
         raise ValueError("Condition binding changed")
@@ -150,9 +152,9 @@ def validate(condition):
         actual=float(np.linalg.norm(xyz[index[left]]-xyz[index[right]]))
         if not math.isclose(actual,d,rel_tol=1e-12,abs_tol=1e-12):raise ValueError("Reference distance differs from frozen conformer")
     if condition.get("reward_policy"):
-        from .geometry_reward import weights,normalization_policy,WEIGHTS
-        if condition["reward_policy"]!="template-relative-three-component-v1":raise ValueError("Unknown component reward policy")
-        weights(condition,condition[WEIGHTS]);normalization_policy(condition["distance_normalization"])
+        from .geometry_reward import weights,WEIGHTS,REWARD_POLICY
+        if condition["reward_policy"]!=REWARD_POLICY:raise ValueError("Unknown component reward policy")
+        weights(condition,condition[WEIGHTS])
         expected={tuple(sorted((a,b))) for a in controlled for b in ids if a!=b}
         if set(keys)!=expected:raise ValueError("Component reward must include all template-mapped condition/outer pairs")
         seen=set()
@@ -195,15 +197,15 @@ def measurements(endpoint,condition,valid,check=None):
     return errors,reference,pairs
 
 
-def loss(endpoint,condition,valid,loss_weights=None,*,current=None,check=None):
+def loss(endpoint,condition,valid,loss_weights=None,*,check=None):
     if condition.get("reward_policy"):
         from .geometry_reward import evaluate
-        return evaluate(endpoint,condition,valid,loss_weights,current=current,check=check)[0]
+        return evaluate(endpoint,condition,valid,loss_weights,check=check)[0]
     errors,reference,pairs=measurements(endpoint,condition,valid,check=check)
     slots=torch.unique(pairs.flatten(),sorted=True)
     assignment=slots[None].expand(len(endpoint),-1).detach()
     selected=torch.zeros_like(valid,dtype=torch.bool);selected[:,slots]=True
-    return errors.square().mean(-1)/2,reference[None].expand(len(endpoint),-1),selected,assignment
+    return errors.square().sum(-1)/2,reference[None].expand(len(endpoint),-1),selected,assignment
 
 
 def metrics(endpoint,condition,valid):

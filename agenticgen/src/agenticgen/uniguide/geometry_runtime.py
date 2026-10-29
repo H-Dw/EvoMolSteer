@@ -14,7 +14,7 @@ from .geometry_protocol import source_binding
 from .quality import built_molecules
 from .protocol import SEEDS
 from .geometry_dynamics import WINDOWS,policy as dynamics_policy
-from .geometry_reward import WEIGHTS,INTERACTION_DISTANCE,normalization_policy
+from .geometry_reward import WEIGHTS,INTERACTION_DISTANCE
 from .geometry_protocol import seen_configuration,primary_score
 
 
@@ -43,6 +43,8 @@ def common_valid_slots(source,target):
 
 
 def validate_config(config):
+    if "guidance_reward" in config:
+        raise ValueError("guidance_reward normalization settings were removed; use a new experiment and recalibrate")
     from .tool_runtime import configure
     config=configure(config)
     if config.get("protocol")!=POLICY:raise ValueError("Explicit new geometry protocol required")
@@ -55,9 +57,8 @@ def validate_config(config):
     dynamics_policy(config)
     from .geometry_chemistry import policy as chemical_policy
     config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
-    config=dict(config,guidance_reward=normalization_policy(config.get("guidance_reward")))
-    if config.get("agent_tools",{}).get("skill_release")!="2.2.0":
-        raise ValueError("Component rewards require the 2.2.0 runtime skills and tools")
+    if config.get("agent_tools",{}).get("skill_release")!="2.3.0":
+        raise ValueError("Summed component rewards require the 2.3.0 runtime skills and tools")
     from .geometry_calibration import plan
     for item in config.get("conditions",[]):plan(config,item["teacher_id"])
     if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS] or config.get("seeds",SEEDS)!=SEEDS:
@@ -79,7 +80,7 @@ def prepare(config):
     for item in config["conditions"]:
         teacher=copy.deepcopy(catalog[item["teacher_id"]])
         # Explicit interaction target atoms must be in the same frame as this generation context.
-        condition=prepare_condition(read(item["features_path"]),common_valid_slots(source,teacher["target"]),reward=config.get("guidance_reward"))
+        condition=prepare_condition(read(item["features_path"]),common_valid_slots(source,teacher["target"]),component_reward=True)
         frozen(root/"conditions"/(teacher["target"]+".json"),condition)
         subjects.append(dict(teacher=teacher,condition=condition))
     if not subjects or len({s["teacher"]["target"] for s in subjects})!=len(subjects):raise ValueError("Unique generation contexts required")

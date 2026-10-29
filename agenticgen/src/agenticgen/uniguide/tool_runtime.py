@@ -2,7 +2,7 @@
 from pathlib import Path
 from .io import frozen, read, sha, value_sha
 
-RELEASE = "2.2.0"
+RELEASE = "2.3.0"
 DEFAULTS = dict(mode="readonly_tools_v1", skill_release=RELEASE,
     max_model_calls_per_round=30, max_output_tokens_per_round=30*16384)
 
@@ -13,7 +13,7 @@ def configure(config):
     if "agent_tools" not in config and old is not None and old.exists() and "agent_tools" not in read(old):
         return result  # No automatic migration of a frozen historical experiment.
     settings=dict(DEFAULTS,**config.get("agent_tools",{}))
-    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0",RELEASE):
+    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE):
         raise ValueError("Unsupported Agent tool configuration/release")
     if type(settings["max_model_calls_per_round"]) is not int or not 4<=settings["max_model_calls_per_round"]<=1000:
         raise ValueError("At least four model calls required for the four-role round")
