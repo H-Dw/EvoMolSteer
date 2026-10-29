@@ -43,7 +43,7 @@ def main():
     audit=dict(timestamp=datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),repo=str(args.repo),commit=commit,
                config=str(args.config),config_sha256=sha(args.config),root=str(root),
                source_preservation_count=len(protected),source_features_sha256=sources,
-               protocol=config['protocol'],skills='2.4.0',rounds_per_teacher=5,
+               protocol=config['protocol'],skills=config['agent_tools']['skill_release'],rounds_per_teacher=config['rounds'],
                teachers=[dict(target=s['teacher']['target'],node_id=s['teacher']['node_id'],
                   condition_sha256=s['condition']['condition_sha256'],
                   condition_atoms=len(s['condition']['controlled_atom_ids']),
