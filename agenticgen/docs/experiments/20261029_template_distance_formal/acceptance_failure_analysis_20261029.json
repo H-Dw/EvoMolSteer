@@ -1,0 +1,217 @@
+{
+  "timestamp": "2026-10-29T12:23:31.700874+08:00",
+  "analysis_only": true,
+  "new_model_forwards": 0,
+  "new_samples": 0,
+  "new_llm_calls": 0,
+  "protected_sources": {
+    "count": 21,
+    "changed": []
+  },
+  "engineering_groups": [
+    {
+      "path": "acceptance/6pyy_H7S_A_402/candidate_batch/mixed_twenty",
+      "steps": 100,
+      "last_step": 99,
+      "terminal_saved": false,
+      "checkpoint100_saved": true,
+      "failed": true
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/candidate_batch/separate_0",
+      "steps": 100,
+      "last_step": 99,
+      "terminal_saved": true,
+      "checkpoint100_saved": true,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/candidate_batch/separate_1",
+      "steps": 100,
+      "last_step": 99,
+      "terminal_saved": true,
+      "checkpoint100_saved": true,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/continuous",
+      "steps": 12,
+      "last_step": 11,
+      "terminal_saved": false,
+      "checkpoint100_saved": false,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/disabled",
+      "steps": 3,
+      "last_step": 2,
+      "terminal_saved": false,
+      "checkpoint100_saved": false,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/native_prefix",
+      "steps": 3,
+      "last_step": 2,
+      "terminal_saved": false,
+      "checkpoint100_saved": false,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/prefix_twenty",
+      "steps": 12,
+      "last_step": 11,
+      "terminal_saved": false,
+      "checkpoint100_saved": false,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/promoted_resumed",
+      "steps": 2,
+      "last_step": 11,
+      "terminal_saved": false,
+      "checkpoint100_saved": false,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/promoted_slots",
+      "steps": 12,
+      "last_step": 11,
+      "terminal_saved": false,
+      "checkpoint100_saved": false,
+      "failed": false
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/resumed",
+      "steps": 2,
+      "last_step": 11,
+      "terminal_saved": false,
+      "checkpoint100_saved": false,
+      "failed": false
+    }
+  ],
+  "mixed_checkpoint_keys": [
+    "step",
+    "current",
+    "cond",
+    "times",
+    "context_sha256",
+    "stream_states",
+    "previous_assignment",
+    "guard_warned",
+    "candidate_binding",
+    "raw_output_prediction"
+  ],
+  "mixed_failed_units": {},
+  "mixed_last_loop": {
+    "step": 99,
+    "network_times": [
+      0.9890100359916687,
+      0.9890100359916687,
+      0.9890100359916687
+    ],
+    "output_is_uncovered_prediction": true
+  },
+  "mixed_vs_independent": [
+    {
+      "unit": 0,
+      "checkpoint": {
+        "current": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "cond": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "times": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "previous_assignment": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "raw_loop_target": {
+          "exact_equal": true
+        },
+        "rng_equal": true
+      },
+      "trace_fields": 25,
+      "trace_exact": true,
+      "trace_differences": {}
+    },
+    {
+      "unit": 1,
+      "checkpoint": {
+        "current": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "cond": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "times": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "previous_assignment": {
+          "exact_equal": true,
+          "differences": []
+        },
+        "raw_loop_target": {
+          "exact_equal": true
+        },
+        "rng_equal": true
+      },
+      "trace_fields": 25,
+      "trace_exact": true,
+      "trace_differences": {}
+    }
+  ],
+  "trace_diagnostics": {
+    "steps": 100,
+    "samples": 20,
+    "maximum_applied_increment_angstrom": 7.843339379253975e-05,
+    "maximum_unconstrained_increment_angstrom": 7.843339379253975e-05,
+    "nonfinite_trace_fields": [],
+    "normalization_denominator_min_angstrom": 3.8038864135742188,
+    "normalization_denominator_max_angstrom": 4.243181228637695
+  },
+  "aligned_saved_tensor_evaluation": {
+    "finite": true,
+    "loss_min": 0.1544841080904007,
+    "loss_max": 0.5811377763748169,
+    "max_absolute_difference_from_gpu_trace": 1.1920928955078125e-07
+  },
+  "cross_device_reproduction": {
+    "error": "Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!",
+    "endpoint_device": "cpu",
+    "mask_device": "cpu",
+    "current_device": "cuda:0",
+    "same_signature": true
+  },
+  "failed_file": {
+    "error": "Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!",
+    "type": "RuntimeError",
+    "no_weaker_retry": true
+  },
+  "source_lines": [
+    {
+      "path": "/workspace/agenticgen_template_distance_20261029_777bfa36/provenance/native/raw999_selective.py",
+      "line": 71,
+      "text": "predicted_target = self._adaptive.last_loop_target"
+    },
+    {
+      "path": "/workspace/agenticgen_template_distance_20261029_777bfa36/provenance/native/raw999_selective.py",
+      "line": 73,
+      "text": "predicted_target = {k: v.cpu().detach() if torch.is_tensor(v) else v for k, v in predicted_target.items()}"
+    },
+    {
+      "path": "/workspace/agenticgen_template_distance_20261029_777bfa36/provenance/native/raw999_selective.py",
+      "line": 75,
+      "text": "predicted_untarget = {k: v.cpu().detach() if torch.is_tensor(v) else v for k, v in predicted_untarget.items()}"
+    }
+  ]
+}

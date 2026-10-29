@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-10-29T12:21:55.332545+08:00",
+  "STATUS.json": {
+    "timestamp": "2026-10-29T02:24:37.854385+08:00",
+    "stage": "stopped",
+    "status": "failed",
+    "error": "acceptance exited 1; see /workspace/agenticgen_template_distance_20261029_777bfa36/acceptance.log; no automatic retry"
+  },
+  "HEARTBEAT.json": {
+    "timestamp": "2026-10-29T02:24:17.850874+08:00",
+    "stage": "acceptance",
+    "process_alive": true,
+    "child_pid": 114757,
+    "queued_quality_groups": 0
+  },
+  "CAMPAIGN_FAILED.json": {
+    "timestamp": "2026-10-29T02:24:37.851901+08:00",
+    "error": "acceptance exited 1; see /workspace/agenticgen_template_distance_20261029_777bfa36/acceptance.log; no automatic retry",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/docs/experiments/20261029_template_distance_formal/run_campaign.py\", line 73, in main\n    raise RuntimeError(f'{stage} exited {code}; see {log}; no automatic retry')\nRuntimeError: acceptance exited 1; see /workspace/agenticgen_template_distance_20261029_777bfa36/acceptance.log; no automatic retry\n",
+    "no_automatic_retry": true,
+    "source_artifacts_preserved": true
+  },
+  "locks": {
+    ".campaign.lock": "free",
+    ".executor.lock": "free"
+  },
+  "processes": [],
+  "git": {
+    "head": "11258033b9aecbb5c99958a856d139da9b8950ac",
+    "status": ""
+  },
+  "markers": {
+    "COMPLETE.json": [],
+    "FAILED.json": [
+      "acceptance/6pyy_H7S_A_402/candidate_batch/mixed_twenty/FAILED.json"
+    ],
+    "INSUFFICIENT_EVIDENCE.json": [],
+    "FINALIZED.json": [],
+    "AWAITING_GPT_REVIEW.json": [],
+    "QUALITY_COMPLETE.json": [],
+    "QUALITY_FAILED.json": []
+  },
+  "attempts": {},
+  "logs": {
+    "campaign.log": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/docs/experiments/20261029_template_distance_formal/run_campaign.py\", line 111, in <module>\n    main()\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/docs/experiments/20261029_template_distance_formal/run_campaign.py\", line 73, in main\n    raise RuntimeError(f'{stage} exited {code}; see {log}; no automatic retry')\nRuntimeError: acceptance exited 1; see /workspace/agenticgen_template_distance_20261029_777bfa36/acceptance.log; no automatic retry\n",
+    "acceptance.log": "/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/MDAnalysis/topology/tables.py:52: DeprecationWarning: Deprecated in version 2.8.0\nMDAnalysis.topology.tables has been moved to MDAnalysis.guesser.tables. This import point will be removed in MDAnalysis version 3.0.0\n  warnings.warn(wmsg, category=DeprecationWarning)\n/usr/local/lib/python3.11/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /home/pytorch/aten/src/ATen/Context.cpp:80.)\n  _C._set_float32_matmul_precision(precision)\nBuilding model vocabs...\nVocabs complete.\n/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\nTraceback (most recent call last):\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/scripts/run_uniguide_geometry.py\", line 39, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/scripts/run_uniguide_geometry.py\", line 26, in main\n    result=run(config)\n           ^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/geometry_acceptance.py\", line 107, in run\n    checks[teacher[\"target\"]][\"candidate_batch_equivalence\"]=run_teacher(model,config,teacher,condition,out/\"candidate_batch\")\n                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/geometry_batch_acceptance.py\", line 59, in run_teacher\n    _,_,_,control=sampler.sample(model,config,teacher,units[0][\"scale\"][EFFECTIVE],out,20,\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/sampler.py\", line 232, in sample\n    output=control.check_terminal(output)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/geometry_batch.py\", line 186, in check_terminal\n    value,*_=self.condition_loss_for_rows(result[\"coords\"],result[\"mask\"].bool(),list(range(self.initial[\"population\"])))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/geometry_batch.py\", line 100, in condition_loss_for_rows\n    return super().condition_loss_for_rows(endpoint,valid,ids)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/geometry_sampling.py\", line 42, in condition_loss_for_rows\n    result,diagnostics=evaluate(endpoint,self.geometry_condition,valid,row_weights,current=current,\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/geometry_reward.py\", line 112, in evaluate\n    scale=check(\"distance normalization denominator\",denominator(endpoint if current is None else current,valid,condition,policy))\n                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/template-distance-777bfa36/agenticgen/src/agenticgen/uniguide/geometry_reward.py\", line 83, in denominator\n    xyz=torch.where(valid.bool()[...,None],current.detach(),torch.zeros_like(current))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!\n"
+  },
+  "quality": {},
+  "new_llm_http_receipts": 0
+}
