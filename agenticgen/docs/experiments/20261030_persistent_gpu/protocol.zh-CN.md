@@ -14,6 +14,8 @@
 
 并发大于1时，每个执行单元绑定一个常驻单线程执行器和一个固定stream。积分步之间、同一教师的多个配置之间持续复用；教师任务结束或异常时统一关闭。子stream先等待父stream的输入，输入登记到子stream；全部生产者结束后，返回张量登记到父stream，由缓存分配器保护父stream异步消费后的释放时机。排队工作在首个生产者失败后取消，在途工作全部收束，不再创建临时线程/stream组合。
 
+绝对坐标目标的旋转、平移和参考坐标常量也按固定stream分别缓存，避免只按device/dtype缓存后，在另一个子stream上未建立依赖就读取。缓存数量随固定stream数有界，数值和运算不变。
+
 `record_stream`的作用是管理存储生命周期，并不证明此前已经发生悬空访问。依据：[PyTorch 2.9生命周期约定](https://docs.pytorch.org/docs/2.9/generated/torch.Tensor.record_stream.html)。BLAS工作区按handle/stream组合保留，教师执行器结束后才统一清理；不在每步或每批次清理来伪造稳定平台。
 
 ## OOM接续

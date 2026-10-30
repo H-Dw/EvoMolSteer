@@ -179,7 +179,11 @@ class CoordinateObjective:
         self._tensors = {}
 
     def tensors(self, endpoint):
-        key = (endpoint.device, endpoint.dtype)
+        # Constants first materialized on one side stream must not be consumed
+        # from another stream without an ordering dependency. Keep a bounded
+        # copy per fixed stream instead; values and arithmetic stay identical.
+        stream = torch.cuda.current_stream(endpoint.device).cuda_stream if endpoint.is_cuda else None
+        key = (endpoint.device, endpoint.dtype, stream)
         if key not in self._tensors:
             self._tensors[key] = tuple(
                 endpoint.new_tensor(value).detach()

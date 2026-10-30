@@ -41,6 +41,21 @@ def test_mean_loss_exact_gradient_and_fixed_mapping(condition):
     assert metrics(shifted,condition,valid,assignment)[RMSD].item()==pytest.approx(np.sqrt(2))
 
 
+def test_prepared_constants_are_owned_by_each_fixed_stream(condition, monkeypatch):
+    objective = CoordinateObjective(condition)
+    stream = SimpleNamespace(cuda_stream=101)
+    monkeypatch.setattr(torch.cuda, "current_stream", lambda device: stream)
+    endpoint = SimpleNamespace(device=torch.device("cuda:0"), dtype=torch.float32,
+        is_cuda=True, new_tensor=lambda value: torch.tensor(value))
+    first = objective.tensors(endpoint)
+    assert objective.tensors(endpoint) is first
+    stream.cuda_stream = 202
+    second = objective.tensors(endpoint)
+    assert second is not first and all(torch.equal(a, b) for a, b in zip(first, second))
+    stream.cuda_stream = 101
+    assert objective.tensors(endpoint) is first and len(objective._tensors) == 2
+
+
 def test_protein_alignment_preserves_relative_pose(condition):
     protein=np.array([[0.,0.,0.],[4.,0.,0.],[0.,5.,0.],[0.,0.,6.]])
     rotation=np.array([[0.,-1.,0.],[1.,0.,0.],[0.,0.,1.]])
