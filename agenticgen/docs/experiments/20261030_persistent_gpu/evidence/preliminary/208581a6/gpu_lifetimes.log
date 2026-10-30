@@ -1,0 +1,62 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_fixed_stream_vjp_lifetimes_and_native_resource_plateau __________
+
+tmp_path = PosixPath('/opt/molsteer-cache/tmp/pytest-of-root/pytest-60/test_fixed_stream_vjp_lifetime0')
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="GPU required")
+    def test_fixed_stream_vjp_lifetimes_and_native_resource_plateau(tmp_path):
+        # Deterministic tensors; this test does not draw from any random generator.
+        base = torch.arange(512 * 512, device="cuda", dtype=torch.float32).reshape(512, 512) / (512 * 512)
+        reference = (base @ base.T).sum().item()
+        counters = NativeCounters(tmp_path)
+        resources, threads, checksums = [], [], []
+        with TeacherGpuExecutor(2) as executor:
+            for batch in range(8):
+                ids = set()
+                for step in range(100):
+                    def operation(index):
+                        x = base.detach().clone().requires_grad_(True)
+                        output = x @ base.T
+                        gradient = torch.autograd.grad(output.sum(), x)[0]
+                        return {"output": output.detach(), "gradient": gradient,
+                                "thread": threading.get_ident()}
+                    produced = executor.map(operation, [0, 1], inputs=base)
+                    ids.update(p["thread"] for p in produced)
+                    # Parent work is enqueued after the producer futures complete.
+                    # Drop side-stream tensors before the consumer executes, then
+                    # allocate new side-stream buffers at the same shape.
+                    consumer = torch.cat([p["output"] for p in produced])
+                    del produced
+                    churn = executor.map(lambda i: torch.empty_like(base).fill_(-7), [0, 1], inputs=base)
+                    actual = consumer[:512].sum().item()
+                    assert actual == reference
+                    checksums.append(actual)
+                    del churn, consumer
+                threads.append(ids)
+                gc.collect()
+                resources.append(snapshot(executor, counters))
+            assert all(ids == threads[0] and len(ids) == 2 for ids in threads)
+            assert all(value == reference for value in checksums)
+>           assert plateau(resources)["plateau_observed"]
+                   ^^^^^^^^^^^^^^^^^^
+
+agenticgen/tests/unit/test_gpu_stream_lifetimes.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rows = [{'timestamp': '2026-10-30T17:21:54.979475+08:00', 'pid': 53083, 'allocated_bytes': 168820736, 'reserved_bytes': 20552...'2026-10-30T17:21:56.048971+08:00', 'pid': 53083, 'allocated_bytes': 168820736, 'reserved_bytes': 205520896, ...}, ...]
+warmup = 2, tolerance_bytes = 33554432
+
+    def plateau(rows, *, warmup=2, tolerance_bytes=32 << 20):
+        """A bounded stability claim: every post-warmup batch must remain on the plateau."""
+        stable = rows[warmup:]
+        if len(stable) < 4:
+            raise ValueError("Resource acceptance requires at least four post-warmup batches")
+        if any(row.get("unavailable") for row in stable):
+>           raise ValueError("Native workspace or queue telemetry unavailable")
+E           ValueError: Native workspace or queue telemetry unavailable
+
+agenticgen/src/agenticgen/uniguide/gpu_resources.py:105: ValueError
+=========================== short test summary info ============================
+FAILED agenticgen/tests/unit/test_gpu_stream_lifetimes.py::test_fixed_stream_vjp_lifetimes_and_native_resource_plateau
+1 failed in 23.38s
