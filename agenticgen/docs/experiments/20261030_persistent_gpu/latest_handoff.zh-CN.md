@@ -1,4 +1,8 @@
-# GPU调度优化及后台工程验收
+# GPU调度工程验收：终态失败归档
+
+最新状态：2026-10-30 18:41:23（Asia/Shanghai），验收进程以−9（SIGKILL）退出。6pyy资源批次8/8完成，3w54完成7/8，第8批仅保存前90步，完整双教师验收未通过。已完成批次资源计数稳定；信号发送方尚未确定，不自动重跑。真实复盘见`terminal_review.zh-CN.md`和`terminal_review.json`，终态证据见`evidence/terminal/`。
+
+以下17:59快照保留为历史记录，后台执行现已结束，终态归档后删除`gpu`巡检。原`uniguide-flowr`仍为PAUSED、35分钟不变。没有新科学尝试或LLM调用。
 
 2026-10-30 17:59（Asia/Shanghai）快照：代码已推送到`codex/uniguide-flowr-agent`，最新实现提交`e45a70f0308cd71dd020673199e3649506122161`。正式实验仍停止，未启动标定或LLM。
 
@@ -18,12 +22,12 @@
 
 9626个历史保护文件未变。新工程根没有`attempts.json`、`calibration`或`versions`，科学尝试和LLM调用均为0。源模型、损失、原子对应、raw999、10–99步、化学inpainting及无3Å限幅策略没有调整。
 
-## 后台接续
+## 历史后台接续记录（现已结束）
 
 GPU审计目录`/workspace/uniguide_audits/persistent-gpu-399590dd`，结果根`/workspace/agenticgen_gpu_engineering_20261030_399590dd`。初始定位父PID55847、验收PID56811仅供检索，状态必须由真实进程、锁、steps、资源行及完成/失败标记共同确认。`inspect_engineering.py`已上传到该审计目录，可直接运行，不导入CUDA。
 
-独立15分钟巡检仅收尾工程验收，健康时安静；完成或实质异常时通知，归档后删除本专项巡检。原`uniguide-flowr`保持PAUSED和35分钟，不操作其他任务。监控的完整指引见`monitoring_prompt.zh-CN.md`。
+本专项15分钟巡检在终态归档后删除。原`uniguide-flowr`保持PAUSED和35分钟，不操作其他任务。历史监控指引见`monitoring_prompt.zh-CN.md`。
 
 历史208581a6的GPU接口测试因队列计数适配器不能识别匿名BSS映射而停止；已改用加载器确定映像基址，读取具名计数器，261173a1和399590dd的GPU接口测试均通过。261173a1随后主动停止工程验收，以补齐目标常量的stream缓存。历史工程记录保留，不能把这些旧标记当作当前运行失败。
 
-预备证据在`evidence/preliminary/`，`INDEX.json`列出每文件SHA256并已本地逐项读回验证。最终结果应替换本节的“未完成”状态，并另写真实复盘和FINALIZED；不得提前宣称所有并发配置、长期稳定性或分子质量改善已得到验证。
+预备证据在`evidence/preliminary/`，终态证据在`evidence/terminal/`，均按索引逐文件读回验证。最终状态为终态失败归档，整体验收未通过；不得宣称所有并发配置、长期稳定性或分子质量改善已得到验证。

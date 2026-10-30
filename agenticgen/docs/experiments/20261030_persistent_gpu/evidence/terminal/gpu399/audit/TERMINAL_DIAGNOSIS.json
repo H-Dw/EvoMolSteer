@@ -1,0 +1,189 @@
+{
+  "timestamp": "2026-10-30T18:53:07.201680+08:00",
+  "scope": "read_only_terminal_diagnosis",
+  "cgroup": {
+    "/proc/self/cgroup": "0::/\n",
+    "/proc/meminfo": "MemTotal:       528095244 kB\nMemFree:        91115176 kB\nMemAvailable:   414454904 kB\nBuffers:         4397532 kB\nCached:         298638600 kB\nSwapCached:            0 kB\nActive:         180499192 kB\nInactive:       194711044 kB\nActive(anon):       8072 kB\nInactive(anon): 72195440 kB\nActive(file):   180491120 kB\nInactive(file): 122515604 kB\nUnevictable:           0 kB\nMlocked:               0 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nDirty:               836 kB\nWriteback:             0 kB\nAnonPages:      72172760 kB\nMapped:          1669804 kB\nShmem:             29408 kB\nKReclaimable:   24800488 kB\nSlab:           28745208 kB\nSReclaimable:   24800488 kB\nSUnreclaim:      3944720 kB\nKernelStack:       79712 kB\nPageTables:       319280 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    475285716 kB\nCommitted_AS:   53936452 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:    10918704 kB\nVmallocChunk:          0 kB\nPercpu:           570880 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:      2048 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:    40534664 kB\nDirectMap2M:    317831168 kB\nDirectMap1G:    178257920 kB\n",
+    "/proc/pressure/memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=2154420203\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=2127903415\n",
+    "/proc/pressure/io": "some avg10=0.00 avg60=0.01 avg300=0.00 total=7967546865\nfull avg10=0.00 avg60=0.01 avg300=0.00 total=7831667430\n",
+    "/proc/sys/kernel/dmesg_restrict": "1\n",
+    "/sys/fs/cgroup/memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n",
+    "/sys/fs/cgroup/memory.events.local": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n",
+    "/sys/fs/cgroup/memory.max": "63350767616\n",
+    "/sys/fs/cgroup/memory.current": "12653637632\n",
+    "/sys/fs/cgroup/memory.peak": {
+      "unavailable": "[Errno 2] No such file or directory: '/sys/fs/cgroup/memory.peak'"
+    },
+    "/sys/fs/cgroup/memory.swap.max": "0\n",
+    "/sys/fs/cgroup/memory.swap.current": "0\n",
+    "/sys/fs/cgroup/pids.events": "max 0\n",
+    "/sys/fs/cgroup/pids.current": "10\n",
+    "/sys/fs/cgroup/pids.max": "618717\n"
+  },
+  "kernel_evidence": {
+    "dmesg": {
+      "returncode": 1,
+      "selected_lines": [],
+      "stderr": "dmesg: read kernel buffer failed: Operation not permitted\n"
+    },
+    "journal": {
+      "returncode": 0,
+      "selected_lines": [],
+      "stderr": "No journal files were found.\n"
+    }
+  },
+  "checks": {
+    "acceptance_log_signature_counts": {
+      "HSA_STATUS_ERROR_OUT_OF_RESOURCES": 0,
+      "KERNEL VMFault": 0,
+      "OutOfMemoryError": 0,
+      "out of memory": 0,
+      "Traceback": 0,
+      "SIGKILL": 0
+    },
+    "candidate_complete": {
+      "acceptance/6pyy_H7S_A_402/candidate_batch/COMPLETE.json": {
+        "exact_equivalence": true,
+        "differences": [],
+        "independent_groups": 2,
+        "mixed_batch_size": 20,
+        "full_steps": 100,
+        "external_rng_unchanged": true,
+        "fixture_is_not_calibration": true,
+        "engineering_trajectory_evaluations": 550,
+        "raw999_coordinates_exact": true,
+        "chemical_state_inpainting_checked": true,
+        "exact_mixed_resume": true,
+        "network_microbatch_size": 10,
+        "concurrent_units": 1,
+        "physical_batch_shape_is_fixed": true,
+        "capacity_probe_initial": 50,
+        "capacity_probe_success": 50,
+        "capacity_probe_ooms": [],
+        "capacity_probe_steps": 100,
+        "capacity_probe_not_calibration": true,
+        "capacity_probe_exact_prefix_equivalence": true,
+        "resource_stability": {
+          "plateau_observed": true,
+          "warmup_batches": 2,
+          "checked_batches": 6,
+          "tolerance_bytes": 33554432,
+          "byte_ranges": {
+            "allocated_bytes": 0,
+            "reserved_bytes": 0
+          },
+          "native_counts": {
+            "blas_workspace_count": 2,
+            "blaslt_workspace_count": 0,
+            "native_gpu_queue_count": 2,
+            "persistent_worker_pools": 0,
+            "persistent_streams": 1
+          },
+          "finite_observation_not_long_term_guarantee": true,
+          "batches": 8,
+          "full_steps_per_batch": 100,
+          "candidate_batch_size": 50,
+          "gpu_workers": 1,
+          "independent_trajectories_exact": true,
+          "external_rng_unchanged": true,
+          "engineering_trajectory_evaluations": 400,
+          "scientific_attempts": 0,
+          "llm_calls": 0
+        },
+        "uncapped_large_increment_preserved": true,
+        "unaffected_candidates_exact": true,
+        "guidance_increment_limiter": "none",
+        "stress_is_engineering_only": true,
+        "stress_multiplier_is_not_calibrated": true,
+        "stress_steps": 11,
+        "nonfinite_isolation": {
+          "healthy_prefix_exact": true,
+          "failed_shards": [
+            1
+          ],
+          "shard_rows": 10,
+          "injected_step": 10,
+          "checked_steps": 12,
+          "evidence_preserved": true
+        },
+        "engineering_trajectory_calls": 15,
+        "engineering_full_100_interval_passes": 510,
+        "engineering_repeated_passes_are_not_independent": true
+      }
+    },
+    "comparison": {
+      "acceptance/6pyy_H7S_A_402/candidate_batch/COMPARISON.json": {
+        "exact_equivalence": true,
+        "differences": [],
+        "independent_groups": 2,
+        "mixed_batch_size": 20,
+        "full_steps": 100,
+        "external_rng_unchanged": true,
+        "fixture_is_not_calibration": true,
+        "engineering_trajectory_evaluations": 40,
+        "raw999_coordinates_exact": true,
+        "chemical_state_inpainting_checked": true
+      },
+      "acceptance/3w54_RNB_A_504/candidate_batch/COMPARISON.json": {
+        "exact_equivalence": true,
+        "differences": [],
+        "independent_groups": 2,
+        "mixed_batch_size": 20,
+        "full_steps": 100,
+        "external_rng_unchanged": true,
+        "fixture_is_not_calibration": true,
+        "engineering_trajectory_evaluations": 40,
+        "raw999_coordinates_exact": true,
+        "chemical_state_inpainting_checked": true
+      }
+    },
+    "progress_file_hashes": {
+      "acceptance/6pyy_H7S_A_402/resumed/steps.json": "ac4d51824e26d1d5899452ca0696d31772eb4a9fbd5b79c3d9f555363c91a93d",
+      "acceptance/6pyy_H7S_A_402/continuous/steps.json": "99ffcff786a45874049d80593df840e77f8dde7a88025d238f0d8648f3bbeceb",
+      "acceptance/6pyy_H7S_A_402/disabled/steps.json": "9eb14c45b5d09d3ddb353bd46c38350ed4c56ecf34a948324fa1f625c0f16594",
+      "acceptance/6pyy_H7S_A_402/promoted_slots/steps.json": "b686bee35251664c8b154c81a7edb0a2801066ab39e38d42c7046ffaea800e33",
+      "acceptance/6pyy_H7S_A_402/native_prefix/steps.json": "cb1a3a0a7388c1838da305962d3f47234dc5bc651adfc574f9a2092cc56f5541",
+      "acceptance/6pyy_H7S_A_402/without_chemistry_prefix/steps.json": "b788bf684421ea69c42718981a53a1ab8e36f447725f5d3d7fbc8d52e8635b2a",
+      "acceptance/6pyy_H7S_A_402/raw999_vjp_prefix/steps.json": "8b941cd1def0d3894d9060dc75270cf12353f4f28c685c0ef2b4e1e9eef4cd90",
+      "acceptance/6pyy_H7S_A_402/prefix_twenty/steps.json": "5d988e76a89137b399cf3a0a5f95f334fe8ed10cf268b13ff04a7f7d56c6cc14",
+      "acceptance/6pyy_H7S_A_402/promoted_resumed/steps.json": "fe681cfe005166723ad2e2c0accc953bd0a2b4b7f74a5aefe6876eeded9b9c44",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/capacity_50/steps.json": "9c41f138452bb6b5dcb83f74b9c927d40b217ff182d41c23fa92608c3186653c",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/mixed_resumed/steps.json": "7cf0617640aa41a171108d7c28c07f73d40ddc68abf1eb422ce42576bf98eb8c",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/separate_0/steps.json": "8575157a79eadbd382c1279b580430f8413c1fcda2ccffb2e0eba338d05350d0",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/nonfinite_isolation/steps.json": "ddcb73632c58400cd9a39d8a4c5f030232ee02c7320bb5415499641a28143f88",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_001/steps.json": "56950a6a6d053d954d85b01b0dfdac2cfd69c351e85ad57ea978d1ddb805228f",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_007/steps.json": "56950a6a6d053d954d85b01b0dfdac2cfd69c351e85ad57ea978d1ddb805228f",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_005/steps.json": "56950a6a6d053d954d85b01b0dfdac2cfd69c351e85ad57ea978d1ddb805228f",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_000/steps.json": "9c41f138452bb6b5dcb83f74b9c927d40b217ff182d41c23fa92608c3186653c",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_003/steps.json": "56950a6a6d053d954d85b01b0dfdac2cfd69c351e85ad57ea978d1ddb805228f",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_004/steps.json": "9c41f138452bb6b5dcb83f74b9c927d40b217ff182d41c23fa92608c3186653c",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_006/steps.json": "9c41f138452bb6b5dcb83f74b9c927d40b217ff182d41c23fa92608c3186653c",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/resource_stability/batch_002/steps.json": "9c41f138452bb6b5dcb83f74b9c927d40b217ff182d41c23fa92608c3186653c",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/uncapped_large_increment/steps.json": "982b994df1664437fb90e519192bc0d53de0f719e2e25e015b5a20ff54f374a8",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/separate_1/steps.json": "03ca3a9fa4c8e3ef73dfbb0802dc030fcf18309643c85460a26dd369d6d27c5c",
+      "acceptance/6pyy_H7S_A_402/candidate_batch/mixed_twenty/steps.json": "c89856e3e251bcff5ffcf1fcce1500e3bd427744137abdb922132f3de4ae3b02",
+      "acceptance/3w54_RNB_A_504/resumed/steps.json": "27f96c4876c4d25d80ebb6009fe1a778d2fd8bf0f288497b20a4d37f6b2210af",
+      "acceptance/3w54_RNB_A_504/continuous/steps.json": "d4e2e8bce945febd4c971917e0b8791b28904ae8f58dd5cd3dc4f65542c5a504",
+      "acceptance/3w54_RNB_A_504/disabled/steps.json": "846d3b66ee0a240070605c228604fa1becc051c7cbb470ac5e16cba7543f1bef",
+      "acceptance/3w54_RNB_A_504/promoted_slots/steps.json": "82ec66e9909fd130713912f5dc6716fa873df4c2b8d87a26f70de09c7a5bddd4",
+      "acceptance/3w54_RNB_A_504/native_prefix/steps.json": "0dc52ec636fd5dbc8c6d0348f9b0ed61fe1477e5f6a98446fcc84b950fb97b65",
+      "acceptance/3w54_RNB_A_504/without_chemistry_prefix/steps.json": "3dc8beb14ac369c9dbc2aded6b75ac07586a61bfa6fd94470213069e4363ce46",
+      "acceptance/3w54_RNB_A_504/raw999_vjp_prefix/steps.json": "46e856c09c56f8d7441822b41952a39a1f00d9eb94f5902bd661d8a3b400df21",
+      "acceptance/3w54_RNB_A_504/prefix_twenty/steps.json": "3bec58862822e5b6af309a768ee9b9c779402a8d950dd1e2b99e1ac30236fd76",
+      "acceptance/3w54_RNB_A_504/promoted_resumed/steps.json": "88c568c1bd83af91ccc45311a346ef859e3e3c974751e161626614f64e39d4be",
+      "acceptance/3w54_RNB_A_504/candidate_batch/capacity_50/steps.json": "26e1b0c30f6be5d6c7bb38e70b103475864e6b2d3504ba72f8e3f83c44223e10",
+      "acceptance/3w54_RNB_A_504/candidate_batch/mixed_resumed/steps.json": "d168a42c13e3831ea6c36f1e2faf5060d55752b23a26072a57837801347549ac",
+      "acceptance/3w54_RNB_A_504/candidate_batch/separate_0/steps.json": "b26ef562fb09c65aa2c3aa7929a7761b7ad4d8eecc921245757747c0bf7feff8",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_001/steps.json": "a5a650b23a8ef8849caaa0f00479e92a19119a9c43492d89caa95b66b3c743dd",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_007/steps.json": "cb10ae12c6e344ba0e56f2bf6aef544dda64e2ead4d0a20dd734de70ec38294e",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_005/steps.json": "a5a650b23a8ef8849caaa0f00479e92a19119a9c43492d89caa95b66b3c743dd",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_000/steps.json": "26e1b0c30f6be5d6c7bb38e70b103475864e6b2d3504ba72f8e3f83c44223e10",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_003/steps.json": "a5a650b23a8ef8849caaa0f00479e92a19119a9c43492d89caa95b66b3c743dd",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_004/steps.json": "26e1b0c30f6be5d6c7bb38e70b103475864e6b2d3504ba72f8e3f83c44223e10",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_006/steps.json": "26e1b0c30f6be5d6c7bb38e70b103475864e6b2d3504ba72f8e3f83c44223e10",
+      "acceptance/3w54_RNB_A_504/candidate_batch/resource_stability/batch_002/steps.json": "26e1b0c30f6be5d6c7bb38e70b103475864e6b2d3504ba72f8e3f83c44223e10",
+      "acceptance/3w54_RNB_A_504/candidate_batch/separate_1/steps.json": "3a98fe25695d6c066816c7a76bb5f08a2d3756670a8b32606fd52c171632ee78",
+      "acceptance/3w54_RNB_A_504/candidate_batch/mixed_twenty/steps.json": "85e31d80124f9939095f3b91d146dfb01fefe039d08269b3abc7c4afc5bde495"
+    }
+  }
+}
