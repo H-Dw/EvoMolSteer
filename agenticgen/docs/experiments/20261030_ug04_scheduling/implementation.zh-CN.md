@@ -29,6 +29,12 @@
 
 `audit_sources.py`直接读取Git对象，核对chunking.py与930db032逐字一致，并核对八个科学模块与改动前7e2c0234逐字一致；同时检查当前GPU入口没有创建线程池、额外stream或教师子进程的调用。
 
-首轮本地94项通过。扩展回归在本地通过211项，1项需要GPU而跳过；其余8项因本机未安装FLOWR无法执行，另有Linux专用campaign测试因缺少fcntl无法收集。这些测试将在服务器独立固定提交目录补做CPU回归；不以跳过依赖代替远端验收。
+首轮本地94项通过。扩展回归在本地通过211项，1项需要GPU而跳过；其余8项因本机未安装FLOWR无法执行，另有Linux专用campaign测试因缺少fcntl无法收集。原始记录保存在`evidence/local_*.xml`。
+
+2026-10-30 20:21（Asia/Shanghai），已推送实现提交`ea9e97237d70413536b4f8b23bf51123b2940866`在远端独立目录`/workspace/uniguide_audits/ug04-serial-ea9e9723/checkout`完成CPU回归：**227项通过，1项需要真实GPU的单测跳过，失败和收集错误均为0，耗时30.466秒**。本地缺少FLOWR及fcntl的相关测试在远端全部通过；跳过项为`test_terminal_reward_ignores_saved_gpu_state_for_cpu_output`。
+
+远端Git直连及四个镜像依序超时后，使用已验证且只含已推送提交的Git bundle检出固定提交。目录干净，`SOURCE_AUDIT.json`再次确认旧分块实现逐字一致和八个科学模块未变。9626个历史保护文件未变，原GPU验收目录仍保持399590dd及原FINALIZED，执行锁空闲。本次没有覆盖原运行目录，也没有创建或调整自动化。
+
+回归、部署及保护证据位于`evidence/remote/`，归档`remote_cpu.tar.gz`的SHA256为`ce8276002494aeeaf16ae7f8ebd0ae7f419e0c148779cc7a692a42a974d8327f`，已按索引逐文件读回核验。
 
 此次尚未执行新的真实模型GPU验收或正式采样，不能据CPU回归宣称SIGKILL根因已消除。历史提交及失败证据仍可追溯。

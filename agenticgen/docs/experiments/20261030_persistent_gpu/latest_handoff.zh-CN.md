@@ -1,5 +1,7 @@
 # GPU调度工程验收：终态失败归档
 
+后续用户已明确要求恢复UG04 930db032的任务调度，不再保留降档接续等功能。实现提交ea9e9723已推送，逐教师/逐配置串行、50候选/10行网络，新增GPU执行器、专用教师子进程、线程池、额外stream和OOM降档接续代码均移除。远端独立固定提交CPU回归227通过、1项GPU单测跳过；未启动新的真实模型验收或正式实验。详见`../20261030_ug04_scheduling/implementation.zh-CN.md`。下述399590dd终态失败记录及FINALIZED不变，旧监控仍已删除。
+
 最新状态：2026-10-30 18:41:23（Asia/Shanghai），验收进程以−9（SIGKILL）退出。6pyy资源批次8/8完成，3w54完成7/8，第8批仅保存前90步，完整双教师验收未通过。已完成批次资源计数稳定；信号发送方尚未确定，不自动重跑。真实复盘见`terminal_review.zh-CN.md`和`terminal_review.json`，终态证据见`evidence/terminal/`。
 
 19:16已写入失败归档FINALIZED并验证复盘哈希、进程退出和执行锁释放，`gpu`巡检已删除，详见`automation_stopped.json`。原`uniguide-flowr`仍为PAUSED、35分钟不变。没有新科学尝试或LLM调用。
