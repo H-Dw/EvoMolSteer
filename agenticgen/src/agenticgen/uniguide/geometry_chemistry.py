@@ -1,4 +1,4 @@
-"""Fixed-correspondence, chemical-only state inpainting for template guidance.
+"""Chemical-only state inpainting sharing the coordinate objective's correspondence.
 
 The template graph supplies chemistry; its coordinates are never read here.
 Raw output and self-conditioning remain the model's uncovered predictions.
@@ -19,7 +19,9 @@ def policy(config):
     if not isinstance(settings,dict) or set(settings)!={"enabled"} or type(settings["enabled"]) is not bool:
         raise ValueError("chemical_inpainting accepts only the boolean enabled setting")
     from .absolute_coordinate import POLICY as absolute_policy
-    correspondence=("initial_endpoint_hungarian_then_frozen_per_candidate" if config.get("protocol")==absolute_policy
+    from .absolute_coordinate import DYNAMIC_ASSIGNMENT
+    correspondence=("current_step_endpoint_hungarian_shared_with_coordinate_loss" if config.get("atom_assignment_policy")==DYNAMIC_ASSIGNMENT else
+                    "initial_endpoint_hungarian_then_frozen_per_candidate" if config.get("protocol")==absolute_policy
                     else "frozen_condition_atom_to_generated_slot")
     return dict(policy=POLICY,enabled=settings["enabled"],scope="controlled_atoms_and_induced_bonds",
         step_bounds=[10,99],stage="after_native_transition_and_coordinate_guidance",
@@ -60,6 +62,8 @@ def condition_features(model,condition):
         generated_slots=slots,features={k:v.tolist() for k,v in features.items()},
         remove_aromaticity=bool(model.hparams.get("remove_aromaticity",False)),rdkit_version=rdBase.rdkitVersion,
         coordinates_replaced=False,self_conditioning_replaced=False,terminal_projection=False)
+    from .absolute_coordinate import dynamic_assignment
+    if dynamic_assignment(condition):binding["assignment_policy"]=condition["assignment_policy"]
     return features,slots,dict(binding,chemical_condition_sha256=value_sha(binding))
 
 

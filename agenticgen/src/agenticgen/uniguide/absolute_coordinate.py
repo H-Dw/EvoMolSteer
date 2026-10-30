@@ -1,4 +1,4 @@
-"""Protein-anchored absolute coordinates with one initial assignment per trajectory.
+"""Protein-anchored absolute coordinates with explicit assignment semantics.
 
 Alignment is a change of measurement frame, never a sampling-state projection.
 The protein is fixed input; its Kabsch transform has no ligand dependence.
@@ -18,6 +18,11 @@ RMSD = "condition_coordinate_root_mean_square_deviation_angstrom"
 MAX_ERROR = "maximum_condition_atom_coordinate_error_angstrom"
 METRICS = (RMSD, MAX_ERROR)
 ASSIGNMENT = "initial_endpoint_hungarian_freeze"
+DYNAMIC_ASSIGNMENT = "per_step_and_terminal_endpoint_hungarian"
+
+
+def dynamic_assignment(condition):
+    return condition.get("assignment_policy") == DYNAMIC_ASSIGNMENT
 
 
 def is_absolute(condition):
@@ -71,7 +76,9 @@ def alignment(protein, reference_protein, maximum_rmsd=.001):
                 ligand_participates_in_fit=False, sampling_coordinates_replaced=False)
 
 
-def prepare(features, protein, reference_protein=None, valid_generated_slots=None):
+def prepare(features, protein, reference_protein=None, valid_generated_slots=None, *, assignment_policy=DYNAMIC_ASSIGNMENT):
+    if assignment_policy not in (ASSIGNMENT,DYNAMIC_ASSIGNMENT):
+        raise ValueError("Unsupported absolute coordinate assignment policy")
     atoms, bonds = features["atoms"], features["bonds"]
     ids = [a["id"] for a in atoms]
     controlled = sorted(features["controlled_atom_ids"])
@@ -99,7 +106,7 @@ def prepare(features, protein, reference_protein=None, valid_generated_slots=Non
             raise ValueError("Self or repeated chemical bond")
         edges.add(pair); mol.AddBond(a,b,types[item["order"]])
     Chem.SanitizeMol(mol.GetMol())
-    body = dict(policy=POLICY, assignment_policy=ASSIGNMENT, unit="angstrom", atoms=atoms, bonds=bonds,
+    body = dict(policy=POLICY, assignment_policy=assignment_policy, unit="angstrom", atoms=atoms, bonds=bonds,
                 controlled_atom_ids=controlled, reference_coordinates_angstrom=xyz.tolist(),
                 coordinate_frame="generation_context_angstrom", loss_reduction="mean_over_condition_atoms",
                 protein_alignment=alignment(protein, reference_protein or protein),
@@ -111,7 +118,7 @@ def prepare(features, protein, reference_protein=None, valid_generated_slots=Non
 def validate(condition):
     body = {k:v for k,v in condition.items() if k != "condition_sha256"}
     if (not is_absolute(condition) or value_sha(body) != condition.get("condition_sha256")
-            or condition.get("assignment_policy") != ASSIGNMENT
+            or condition.get("assignment_policy") not in (ASSIGNMENT,DYNAMIC_ASSIGNMENT)
             or condition.get("loss_reduction") != "mean_over_condition_atoms"):
         raise ValueError("Absolute coordinate condition binding changed")
     if any(k in condition for k in ("pairs", "interaction_pairs", "guidance_loss_weights", "atom_to_generated_slot")):
@@ -131,13 +138,16 @@ def reference(condition, endpoint):
 
 
 def match(endpoint, condition, valid):
-    points = aligned(endpoint.detach(), condition).double().cpu().numpy()
-    targets = reference(condition, endpoint).double().cpu().numpy()
+    # Dynamic selection has one device-independent cost arithmetic. The VJP
+    # still uses the original device tensors through the selected gather.
+    selection = endpoint.detach().cpu().double() if dynamic_assignment(condition) else endpoint.detach()
+    points = aligned(selection, condition).double().cpu().numpy()
+    targets = reference(condition, selection).double().cpu().numpy()
     assignments = []
     for xyz, mask in zip(points, valid.detach().cpu().numpy()):
         slots = np.flatnonzero(mask)
         if len(slots) < len(targets):
-            raise ValueError("Too few valid slots for injective initial assignment")
+            raise ValueError("Too few valid slots for injective assignment")
         cost = np.sum((targets[:,None]-xyz[slots][None])**2, axis=-1)
         if not np.isfinite(cost).all():
             raise FloatingPointError("Nonfinite assignment cost")
@@ -147,8 +157,8 @@ def match(endpoint, condition, valid):
 
 
 @dataclass(frozen=True)
-class FrozenAssignment:
-    """Slot uniqueness is static; the current mask remains a dynamic check."""
+class BoundAssignment:
+    """One objective evaluation's detached selection; trajectory policy is separate."""
 
     slots: torch.Tensor
     selected: torch.Tensor
@@ -156,11 +166,14 @@ class FrozenAssignment:
 
     def check_layout(self, endpoint, valid):
         if tuple(endpoint.shape) != self.coordinate_shape or valid.shape != endpoint.shape[:2]:
-            raise ValueError("Coordinate/mask shape differs from frozen assignment")
+            raise ValueError("Coordinate/mask shape differs from bound assignment")
         if endpoint.device != self.slots.device or valid.device != endpoint.device:
-            raise ValueError("Coordinate/mask device differs from frozen assignment")
+            raise ValueError("Coordinate/mask device differs from bound assignment")
         if not bool(valid.bool().gather(1, self.slots).all()):
             raise ValueError("Assignment is not an injective valid selection")
+
+
+FrozenAssignment = BoundAssignment  # Compatibility for callers of the frozen protocol.
 
 
 class CoordinateObjective:
@@ -196,12 +209,12 @@ class CoordinateObjective:
             raise ValueError("Coordinate/mask shape differs")
         slots = torch.as_tensor(assignment, device=endpoint.device, dtype=torch.long).detach().clone()
         if slots.shape != (len(endpoint), len(self.target_coordinates)):
-            raise ValueError("Frozen assignment population differs")
+            raise ValueError("Bound assignment population differs")
         if (bool((slots < 0).any()) or bool((slots >= endpoint.shape[1]).any())
                 or any(len(set(row)) != len(row) for row in slots.cpu().tolist())):
             raise ValueError("Assignment is not an injective valid selection")
         selected = torch.zeros_like(valid, dtype=torch.bool).scatter(1, slots, True)
-        return FrozenAssignment(slots, selected.detach(), tuple(endpoint.shape))
+        return BoundAssignment(slots, selected.detach(), tuple(endpoint.shape))
 
     def errors(self, endpoint, valid, assignment):
         assignment.check_layout(endpoint, valid)
@@ -235,6 +248,29 @@ def metrics(endpoint, condition, valid, assignment):
     return {RMSD:(2*value).sqrt(), MAX_ERROR:errors.norm(dim=-1).amax(1)}
 
 
+def verify_assignment_trace(folder, condition):
+    """Read-only acceptance of the assignments actually used at completed steps."""
+    import h5py
+    folder = Path(folder)
+    steps = [row["step"] for row in read(folder/"steps.json") if row["step"] >= 10]
+    if not steps:
+        raise ValueError("No active assignment steps in the acceptance trace")
+    with h5py.File(folder/"trace.h5","r") as trace:
+        actual = trace["assignment"][steps]
+        if dynamic_assignment(condition):
+            endpoint = trace["endpoint_A"][steps]
+            mask = trace["mask"][steps]
+            expected = match(torch.from_numpy(endpoint.reshape(-1,*endpoint.shape[2:])),condition,
+                torch.from_numpy(mask.reshape(-1,mask.shape[-1])).bool()).numpy().reshape(actual.shape)
+            if not np.array_equal(actual,expected):
+                raise ValueError("Dynamic trace assignment differs from its current endpoint Hungarian match")
+        elif not np.array_equal(actual,np.broadcast_to(actual[0:1],actual.shape)):
+            raise ValueError("Frozen trace assignment changed")
+    return dict(assignment_policy=condition["assignment_policy"],completed_active_steps=steps,
+        verified_candidate_steps=int(np.prod(actual.shape[:2])),
+        stepwise_hungarian_verified=dynamic_assignment(condition))
+
+
 class AssignmentState:
     """Per-row state, derived without additional forwards or random draws."""
     def __init__(self, control):
@@ -242,6 +278,7 @@ class AssignmentState:
         self.objective = CoordinateObjective(control.geometry_condition)
         self.rows = {}
         self._assignments = {}
+        self.dynamic = dynamic_assignment(self.objective.condition)
 
     def restore(self):
         saved = (self.control.resume or {}).get("absolute_assignment_state", {})
@@ -249,11 +286,38 @@ class AssignmentState:
             raise ValueError("Checkpoint assignment state checksum differs")
         self.rows = {int(k): copy.deepcopy(v) for k, v in saved.items()}
         self._assignments.clear()
+        if self.dynamic and self.rows:
+            previous = self.control.resume.get("previous_assignment")
+            if previous is None:
+                raise ValueError("Dynamic assignment checkpoint lacks the previous correspondence")
+            previous = torch.as_tensor(previous).cpu().tolist()
+            if any(i >= len(previous) or previous[i] != row["slots"] for i,row in self.rows.items()):
+                raise ValueError("Checkpoint correspondence and dynamic assignment state differ")
+
+    def rematch(self, endpoint, valid, ids):
+        control = self.control
+        if control.resume and control.active_step > 10 and any(i not in self.rows for i in ids):
+            raise ValueError("Missing dynamic assignment on recovery")
+        slots = match(endpoint,self.objective.condition,valid)
+        if control.active_step >= 10:
+            for index,chosen in enumerate(slots.cpu().tolist()):
+                row_id = ids[index]
+                if row_id not in self.rows:
+                    self.rows[row_id] = dict(first_step=control.active_step,first_slots=chosen,
+                        endpoint_sha256=value_sha(endpoint[index].detach().double().cpu().tolist()),
+                        valid_sha256=value_sha(valid[index].detach().cpu().tolist()))
+                self.rows[row_id].update(slots=chosen,last_step=control.active_step)
+        # Replace the current bound selection, rather than retaining all per-step tensors.
+        key = (tuple(ids),endpoint.device)
+        self._assignments[key] = self.objective.bind(endpoint,valid,slots)
+        return self._assignments[key]
 
     def evaluate(self, endpoint, valid, ids):
         control=self.control
         condition = self.objective.condition
-        if control.active_step < 10:
+        if self.dynamic:
+            assignment = self.rematch(endpoint,valid,ids)
+        elif control.active_step < 10:
             assignment = self.objective.bind(endpoint, valid, match(endpoint, condition, valid))
         else:
             missing=[j for j,i in enumerate(ids) if i not in self.rows]

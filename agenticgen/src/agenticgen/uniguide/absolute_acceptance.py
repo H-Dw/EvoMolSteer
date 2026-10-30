@@ -10,7 +10,7 @@ from .batching import take
 from .prepare import load_model
 from .sampler import sample,population
 from .geometry_sampling import GeometryControl,scale_binding
-from .absolute_coordinate import loss, match
+from .absolute_coordinate import loss, match, dynamic_assignment, verify_assignment_trace
 from .geometry_protocol import source_binding
 from .random_streams import capture,equal
 from .geometry_shards import initial_shard
@@ -47,7 +47,8 @@ def real_vjp(model,config,teacher,condition):
             if torch.is_tensor(value) and value.requires_grad:hooks.append(value.register_hook(denied))
         pred,_=model._get_predictions(out)
         endpoint=pred["coords"]*model.coord_scale+com[:,None]
-        if fixed_assignment is None:fixed_assignment=match(endpoint,condition,curr["mask"].bool())
+        if fixed_assignment is None or dynamic_assignment(condition):
+            fixed_assignment=match(endpoint,condition,curr["mask"].bool())
         return loss(endpoint,condition,curr["mask"].bool(),fixed_assignment)[0].sum()
     before=capture();x=curr["coords"].detach().clone().requires_grad_(True)
     gradient=torch.autograd.grad(objective(x),x)[0].detach();norm=gradient.norm()
@@ -63,6 +64,7 @@ def real_vjp(model,config,teacher,condition):
     for hook in hooks:hook.remove()
     return dict(relative_errors=errors,tolerance=.05,input_gradient_norm=float(norm),
         affinity_gradient_entered=False,sampling_rng_unchanged=True,model_parameters_frozen=True,
+        assignment_policy=condition["assignment_policy"],
         source_checkpoint_sha256=sha(source),condition_sha256=condition["condition_sha256"])
 
 
@@ -93,7 +95,7 @@ def run(config):
             resumed={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states","previous_assignment")}
             if not all(resumed.values()):raise ValueError("Distance guidance resume changed numerical state")
             steps=read(out/"continuous/steps.json")
-            if any(any(v!=0 for v in s["assignment_switch_fraction"]) for s in steps if s["step"]>10):raise ValueError("Mapping changed during trajectory")
+            assignment_check=verify_assignment_trace(out/"continuous",condition)
             if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"]>=10):raise ValueError("Normalized zero incorrectly disabled guidance")
             chemical_check={"enabled":config.get("chemical_inpainting",{"enabled":True})["enabled"]}
             if chemical_check["enabled"]:
@@ -130,7 +132,8 @@ def run(config):
             checks[teacher["target"]]=dict(real_model_vjp=numerical,disabled_equivalence=disabled,exact_resume=resumed,
                 chemical_state_inpainting=chemical_check,
                 exact_native_slot_promotion=promotion,promoted_slot_resume=True,
-                fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
+                fixed_correspondence=not dynamic_assignment(condition),assignment_validation=assignment_check,
+                normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
             from .geometry_batch_acceptance import run_teacher
             checks[teacher["target"]]["candidate_batch_equivalence"]=run_teacher(model,config,teacher,condition,out/"candidate_batch")
         finally:

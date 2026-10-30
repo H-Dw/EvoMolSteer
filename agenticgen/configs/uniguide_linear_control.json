@@ -1,7 +1,7 @@
 {
   "agent_tools": {
     "mode": "readonly_tools_v1",
-    "skill_release": "2.6.0",
+    "skill_release": "2.7.0",
     "max_model_calls_per_round": 30,
     "max_output_tokens_per_round": 491520
   },
@@ -13,13 +13,28 @@
     "guidance_scale_grid_unit": 10,
     "search_minimum": 10,
     "search_maximum": 200,
-    "initial_scales": [20, 40, 60, 80, 100],
+    "initial_scales": [
+      20,
+      40,
+      60,
+      80,
+      100
+    ],
     "teacher_overrides": {
       "6pyy_H7S_A_402": {
-        "initial_scales": [20, 40, 60, 80]
+        "initial_scales": [
+          20,
+          40,
+          60,
+          80
+        ]
       },
       "3w54_RNB_A_504": {
-        "initial_scales": [40, 60, 80]
+        "initial_scales": [
+          40,
+          60,
+          80
+        ]
       }
     },
     "maximum_screening_levels": 8,
@@ -29,9 +44,16 @@
     "maximum_range_evidence_configurations": 2,
     "working_radius_ticks": 2,
     "maximum_window_tick_change": 4,
-    "maximum_total_tick_change": 6,
+    "maximum_total_tick_change": 12,
     "maximum_proposals": 6,
     "maximum_selected": 3,
     "improvement_tolerance_angstrom": 0.0
+  },
+  "atom_assignment_policy": "per_step_and_terminal_endpoint_hungarian",
+  "guidance_exploration": {
+    "policy": "three-intensity-jump-search-v1",
+    "focused_maximum_total_ticks": 2,
+    "expanded_maximum_total_ticks": 6,
+    "bold_maximum_total_ticks": 12
   }
 }

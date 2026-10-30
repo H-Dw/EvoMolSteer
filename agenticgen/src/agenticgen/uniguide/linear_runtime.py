@@ -367,6 +367,10 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
             raise ValueError(
                 "Linear search rules differ from the frozen domain; an explicit new binding is required"
             )
+        if domain.get("exploration_policy") != config.get("guidance_exploration"):
+            raise ValueError(
+                "Jump exploration hypotheses differ from the frozen experiment contract"
+            )
         if int(version[2:]) > 1:
             previous = read(
                 root / "versions" / f"GD{int(version[2:])-1:02d}" / "FINALIZED.json"

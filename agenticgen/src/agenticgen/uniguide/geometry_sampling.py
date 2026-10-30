@@ -59,6 +59,13 @@ def coordinate_population_statistics(folder, rows, condition, config, aggregate)
         from .coordinate_statistics import aggregate_fields, SUMMARY
         aggregate.update(aggregate_fields(rows, config))
         write(folder / "COORDINATE_STATISTICS.json", aggregate[SUMMARY])
+        from .absolute_coordinate import dynamic_assignment
+        if dynamic_assignment(condition):
+            fields=("initial_assignment_condition_coordinate_root_mean_square_deviation_angstrom",
+                    "last_guidance_assignment_condition_coordinate_root_mean_square_deviation_angstrom")
+            aggregate["assignment_diagnostics_not_used_for_ranking"] = dict(
+                aggregation="raw arithmetic mean over the complete population",population=len(rows),
+                **{name:sum(row[name] for row in rows)/len(rows) for name in fields})
 
 
 class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
@@ -202,7 +209,8 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
         result = super().after(curr, step)
         self.rows[-1].update(self.scale_binding)
         self.rows[-1]["condition_sha256"] = self.geometry_condition["condition_sha256"]
-        if (self.absolute_state is None or step > 10) and self.rows[-1]["assignment_switch_fraction"] != [0.0] * len(curr["coords"]):
+        fixed = self.absolute_state is None or not self.absolute_state.dynamic
+        if fixed and (self.absolute_state is None or step > 10) and self.rows[-1]["assignment_switch_fraction"] != [0.0] * len(curr["coords"]):
             raise ValueError("Fixed correspondence changed")
         if self.absolute_state is not None:
             self.absolute_state.save_cache()
@@ -404,13 +412,32 @@ def terminal_records(model, output, condition, folder, count, slots=None):
         if (folder / "OUTPUT_POLICY.json").exists()
         else {}
     )
-    from .absolute_coordinate import is_absolute, metrics as coordinate_metrics
+    from .absolute_coordinate import is_absolute, dynamic_assignment, match, metrics as coordinate_metrics
     if is_absolute(condition):
         with h5py.File(folder / "trace.h5", "r") as trace:
-            assignment = torch.as_tensor(trace["assignment"][99], device=output["coords"].device)
+            last_assignment = torch.as_tensor(trace["assignment"][99], device=output["coords"].device)
+            first_assignment = torch.as_tensor(trace["assignment"][10], device=output["coords"].device)
+        rematched = dynamic_assignment(condition)
+        assignment = match(output["coords"],condition,output["mask"].bool()) if rematched else last_assignment
         values = coordinate_metrics(output["coords"],condition,output["mask"].bool(),assignment)
-        write(folder/"COORDINATE_ASSIGNMENT.json",dict(assignment=assignment.cpu().tolist(),
-            condition_sha256=condition["condition_sha256"],frozen_from_step=10,no_terminal_rematching=True))
+        correspondence = dict(assignment=assignment.cpu().tolist(),condition_sha256=condition["condition_sha256"],
+            assignment_policy=condition["assignment_policy"],no_terminal_rematching=not rematched,
+            terminal_rematched=rematched,coordinate_source="returned_raw999_uncovered_prediction")
+        if rematched:
+            from .absolute_coordinate import RMSD
+            diagnostic_coordinates=output["coords"].detach().cpu().double()
+            diagnostic_mask=output["mask"].detach().cpu().bool()
+            values["initial_assignment_condition_coordinate_root_mean_square_deviation_angstrom"] = coordinate_metrics(
+                diagnostic_coordinates,condition,diagnostic_mask,first_assignment.cpu())[RMSD]
+            values["last_guidance_assignment_condition_coordinate_root_mean_square_deviation_angstrom"] = coordinate_metrics(
+                diagnostic_coordinates,condition,diagnostic_mask,last_assignment.cpu())[RMSD]
+            correspondence.update(initial_assignment=first_assignment.cpu().tolist(),
+                last_guidance_assignment=last_assignment.cpu().tolist(),
+                terminal_to_last_guidance_switch_fraction=(assignment != last_assignment).float().mean(1).tolist(),
+                interpretation="Terminal RMSD measures geometric coverage; generated atom identity may change.")
+        else:
+            correspondence["frozen_from_step"] = 10
+        write(folder/"COORDINATE_ASSIGNMENT.json",correspondence)
         geometry_diagnostics = [dict(protein_alignment_sha256=value_sha(condition["protein_alignment"]),
             fitted_protein_rmsd_angstrom=condition["protein_alignment"]["fitted_protein_rmsd_angstrom"],
             stereochemistry_assessment="not_guaranteed_by_coordinate_loss") for _ in range(count)]
@@ -454,6 +481,8 @@ def terminal_records(model, output, condition, folder, count, slots=None):
             )
             if is_absolute(condition):
                 row["condition_generated_slots"] = assignment[index].cpu().tolist()
+                row["assignment_policy"] = condition["assignment_policy"]
+                row["terminal_rematched"] = rematched
             row["geometry_diagnostics_not_used_for_ranking"] = geometry_diagnostics[
                 index
             ]

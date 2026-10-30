@@ -10,7 +10,7 @@ torch=pytest.importorskip("torch")
 pytest.importorskip("rdkit")
 from agenticgen.uniguide.absolute_coordinate import (
     POLICY, RMSD, MAX_ERROR, prepare, match, loss, metrics, kabsch, AssignmentState,
-    CoordinateObjective,
+    CoordinateObjective, ASSIGNMENT,
 )
 from agenticgen.uniguide.io import value_sha
 
@@ -23,7 +23,8 @@ def condition(tmp_path):
                             for i,(x,y,z) in enumerate(points,1)))
     return prepare(dict(atoms=[dict(id="a",element="C"),dict(id="b",element="O")],
         bonds=[dict(atom_ids=["a","b"],order="single")],controlled_atom_ids=["a","b"],
-        coordinates_angstrom=[[0.,0.,0.],[1.4,0.,0.]],coordinate_frame="generation_context_angstrom"),pdb)
+        coordinates_angstrom=[[0.,0.,0.],[1.4,0.,0.]],coordinate_frame="generation_context_angstrom"),pdb,
+        assignment_policy=ASSIGNMENT)
 
 
 def test_mean_loss_exact_gradient_and_fixed_mapping(condition):

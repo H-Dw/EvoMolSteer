@@ -167,11 +167,16 @@ class EvidenceTools:
                 window_id=dict(type="integer",minimum=0,maximum=3),step=dict(type="integer",enum=[-2,-1,1,2]))))))
         from .linear_scale import enabled as linear_enabled, action_schema
         if linear_enabled(domain):
-            action=action_schema(self.history)
+            action=action_schema(self.history,domain)
         specs=[("summarize_population","Read measured full-population geometry, robust center, failures and tail identities.",object_schema(dict(run_id=ids))),
             ("compare_paired_runs","Compare measured candidate to reference on identical seed/slot and sampling protocol; no unmeasured score.",object_schema(dict(reference_id=ids,candidate_id=ids))),
             ("inspect_interval_evidence","Inspect measured windows, counterexample context and tail sample step diagnostics; associations are not causal effects.",object_schema(dict(run_id=ids))),
             ("audit_action_batch","Check original integer action constraints and measured duplicate identity; never sample.",object_schema(dict(actions=dict(type="array",minItems=1,maxItems=6,items=action))))]
+        if domain.get("exploration_policy"):
+            descriptions={
+                "inspect_interval_evidence":"Read an existing run's numerical anomalies and step records to choose useful future jumps; never request mechanism or ablation experiments.",
+                "audit_action_batch":"Check integer jump intensity, actual strengths and novelty without sampling."}
+            specs=[(name,descriptions.get(name,description),schema) for name,description,schema in specs]
         if condition and condition.get("reward_policy"):
             from .geometry_condition import validate
             validate(condition)
@@ -274,7 +279,10 @@ class EvidenceTools:
     def _inspect_interval_evidence(self,run_id):
         row=self.history[run_id]
         out=dict(status="complete",run_id=run_id,measured_schedule=row.get("guidance_scale_tick_schedule",row.get(NORMALIZED)),
-            windows=row.get("window_diagnostics",[]),causal_attribution="Uncontrolled background differences do not identify a window effect")
+            windows=row.get("window_diagnostics",[]))
+        if self.domain.get("exploration_policy"):
+            out["interpretation"]="Existing numeric evidence for selecting potential improvements, not a mechanism experiment."
+        else:out["causal_attribution"]="Uncontrolled background differences do not identify a window effect"
         if run_id not in self.records:
             return dict(out,tail_step_diagnostics=dict(status="unavailable"))
         rows=self.records[run_id];steps=read(self.paths[run_id]/"steps.json")
@@ -308,6 +316,8 @@ class EvidenceTools:
                     key=lambda d:d.get(applied,0.),reverse=True)[:4],
                 largest_unconstrained_increment_steps=sorted((p for p in observed if raw in p),
                     key=lambda d:d[raw],reverse=True)[:4]))
+        if self.domain.get("exploration_policy"):
+            return dict(out,tail_step_diagnostics=details)
         return dict(out,tail_step_diagnostics=details,reward_diagnostics=self.reward_diagnostics(run_id))
 
     def reward_diagnostics(self,run_id):

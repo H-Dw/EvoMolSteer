@@ -106,12 +106,15 @@ def run_teacher(model,config,teacher,condition,folder):
                 if not np.array_equal(left,right):differences.append(dict(path="trace/"+key,maximum_absolute_error=float(np.max(np.abs(left.astype(float)-right.astype(float))))))
             if not np.array_equal(load_pt(source/"terminal.pt.gz")["coords"].numpy(),a["endpoint_A"][99]):
                 raise ValueError("Returned coordinates are not the uncovered last-loop prediction")
+            from .absolute_coordinate import is_absolute, dynamic_assignment, verify_assignment_trace
+            if is_absolute(condition):
+                verify_assignment_trace(source,condition)
             if config.get("chemical_inpainting",{"enabled":True})["enabled"]:
                 chemical=read(source/"CHEMICAL_CONDITION.json");ids=chemical["generated_slots"]
                 dynamic_initial = not ids
                 if dynamic_initial:
                     ids=a["assignment"][10:100]
-                    if not (ids==ids[0:1]).all():raise ValueError("Initial assignment was not frozen")
+                    if not dynamic_assignment(condition) and not (ids==ids[0:1]).all():raise ValueError("Initial assignment was not frozen")
                 for key,target in chemical["features"].items():
                     actual=a["inpainted_chemical_"+key][10:100]
                     expected=np.array(target).argmax(-1)

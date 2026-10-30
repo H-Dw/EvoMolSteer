@@ -774,7 +774,7 @@ def test_new_absolute_defaults_and_explicit_legacy_release_are_distinct(tmp_path
     from agenticgen.uniguide.tool_runtime import configure
 
     fresh = configure(dict(root=str(tmp_path / "fresh"), protocol=POLICY))
-    assert fresh["agent_tools"]["skill_release"] == "2.6.0" and scale.enabled(fresh)
+    assert fresh["agent_tools"]["skill_release"] == "2.7.0" and scale.enabled(fresh)
     old = configure(
         dict(
             root=str(tmp_path / "old"),

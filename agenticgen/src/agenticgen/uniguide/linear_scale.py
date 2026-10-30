@@ -254,7 +254,7 @@ def validate_schedule(ticks, domain):
     )  # Missing scalar confirmation is handled by the action/task route.
 
 
-def action_schema(anchor_ids):
+def action_schema(anchor_ids, domain=None):
     def obj(properties):
         return dict(
             type="object",
@@ -266,7 +266,7 @@ def action_schema(anchor_ids):
     def text(limit):
         return dict(type="string", minLength=1, maxLength=limit)
 
-    return obj(
+    schema = obj(
         dict(
             id=text(80),
             anchor_id=dict(enum=list(anchor_ids)),
@@ -288,6 +288,12 @@ def action_schema(anchor_ids):
             uncertainty=text(300),
         )
     )
+    if domain and domain.get("exploration_policy"):
+        from .exploration import TIERS
+
+        schema["properties"]["exploration_tier"] = dict(enum=list(TIERS))
+        schema["required"].append("exploration_tier")
+    return schema
 
 
 def resolve_action(action, anchors, domain, seen=(), failures=()):
@@ -333,6 +339,15 @@ def resolve_action(action, anchors, domain, seen=(), failures=()):
         actual[window] += domain[UNIT] * step
     if sum(map(abs, changes)) > settings["maximum_total_tick_change"]:
         raise ValueError("Action exceeds the declared total integer change")
+    if domain.get("exploration_policy"):
+        from .exploration import classify
+
+        if action.get("exploration_tier") != classify(
+            updates, domain["exploration_policy"]
+        ):
+            raise ValueError(
+                "Declared exploration intensity does not match the actual parameter jump"
+            )
     ticks = encode(actual, domain)
     profiles = [r.get(EFFECTIVE, r) if isinstance(r, dict) else r for r in seen]
     if actual in profiles:
@@ -348,9 +363,11 @@ def resolve_action(action, anchors, domain, seen=(), failures=()):
     if actual in [r[EFFECTIVE] for r in blocked if EFFECTIVE in r]:
         raise ValueError("Exact failed/interrupted configuration cannot be retried")
     known = set(domain["confirmed_effective_levels"])
-    needs_evidence = (
-        any(x not in known and x != source[EFFECTIVE][i] for i, x in enumerate(actual))
-        or max(map(abs, changes)) > settings["working_radius_ticks"]
+    needs_evidence = any(
+        x not in known and x != source[EFFECTIVE][i] for i, x in enumerate(actual)
+    ) or (
+        not domain.get("exploration_policy")
+        and max(map(abs, changes)) > settings["working_radius_ticks"]
     )
     direction = (
         "increase" if min(changes) > 0 else "decrease" if max(changes) < 0 else "mixed"
@@ -359,6 +376,7 @@ def resolve_action(action, anchors, domain, seen=(), failures=()):
         action,
         **binding(ticks, domain),
         direction=direction,
+        total_absolute_tick_change=sum(map(abs, changes)),
         task_type="range_evidence" if needs_evidence else "optimization",
         domain_sha256=domain["domain_sha256"],
         calibration_key=domain["calibration_key"],

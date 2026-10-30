@@ -163,7 +163,7 @@ class CandidateControl(CandidateSafety, GeometryControl):
         ]
         self.rows[-1]["failed_units"] = copy.deepcopy(self.failed_units)
         if self.absolute_state is not None:
-            if step > 10 and any(self.rows[-1]["assignment_switch_fraction"]):
+            if not self.absolute_state.dynamic and step > 10 and any(self.rows[-1]["assignment_switch_fraction"]):
                 raise ValueError("Frozen candidate assignment changed")
             self.absolute_state.save_cache()
         return self.apply_chemical_inpainting(result, step)

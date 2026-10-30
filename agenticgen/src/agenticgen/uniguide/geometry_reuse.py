@@ -88,6 +88,8 @@ def reuse(config,sources,schedules,scale_units="ticks"):
         from . import linear_scale
         if linear_scale.enabled(domain) and domain["control_settings"]!=linear_scale.teacher_settings(config["guidance_control"],target):
             raise ValueError("Reused linear search rules differ; an explicit domain revision is required")
+        if domain.get("exploration_policy")!=config.get("guidance_exploration"):
+            raise ValueError("Reused exploration policy differs; do not reinterpret old branch hypotheses")
         domains[target]=domain
         frozen_dir=Path("calibration/frozen")/domain["calibration_key"]
         for part in (source/frozen_dir).rglob("*"):

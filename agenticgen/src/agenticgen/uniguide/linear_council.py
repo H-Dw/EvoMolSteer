@@ -29,6 +29,7 @@ def history_view(row):
         "maximum_unconstrained_single_atom_guidance_increment_angstrom",
         "maximum_single_atom_guidance_increment_angstrom",
         "stability_status",
+        "assignment_diagnostics_not_used_for_ranking",
     ]
     result = {name: row[name] for name in names if name in row}
     stats = row.get(SUMMARY, {})
@@ -48,7 +49,13 @@ def history_view(row):
     if proposal:
         result["original_selection"] = {
             k: proposal[k]
-            for k in ("anchor_id", "updates", "improvement_reason", "uncertainty")
+            for k in (
+                "anchor_id",
+                "updates",
+                "exploration_tier",
+                "improvement_reason",
+                "uncertainty",
+            )
             if k in proposal
         }
     return result
@@ -114,6 +121,16 @@ def advise(
         range_evidence_allowance=range_allowance(config, domain["teacher_id"]),
         remaining_formal_attempts=formal_allowance(config),
     )
+    if domain.get("exploration_policy"):
+        from .exploration import describe
+
+        common["exploration_hypotheses"] = describe(
+            domain["exploration_policy"], domain[scale.UNIT]
+        )
+        common["search_objective"] = (
+            "Find potentially better complete configurations through distinct jump intensities. Do not design ablations or prove inference mechanisms."
+        )
+        common["working_neighbourhood_is_a_preference_not_an_admission_limit"] = True
     text = text_schema
     decisions = ["hold"] if final else ["propose", "hold", "request_domain_evidence"]
     proposal_schema = object_schema(
@@ -125,7 +142,7 @@ def advise(
                 maxItems=(
                     0 if final else domain["control_settings"]["maximum_proposals"]
                 ),
-                items=scale.action_schema(anchors),
+                items=scale.action_schema(anchors, domain),
             ),
         )
     )

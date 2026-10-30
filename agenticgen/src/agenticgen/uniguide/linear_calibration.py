@@ -76,7 +76,9 @@ def promotion_levels(rows, settings):
     return selected
 
 
-def derive_domain(rows, target, condition_hash, protocol_hash, settings):
+def derive_domain(
+    rows, target, condition_hash, protocol_hash, settings, exploration=None
+):
     full = [r for r in rows if r["attempts"] == 50]
     if any(
         r["teacher_id"] != target
@@ -125,6 +127,8 @@ def derive_domain(rows, target, condition_hash, protocol_hash, settings):
         stability_guarantee=False,
         global_optimum_claimed=False,
     )
+    if exploration is not None:
+        body["exploration_policy"] = exploration
     return scale.seal(body)
 
 
@@ -258,6 +262,7 @@ class LinearSearch:
             self.binding["condition_sha256"],
             value_sha(self.binding),
             self.settings,
+            self.config.get("guidance_exploration"),
         )
 
 

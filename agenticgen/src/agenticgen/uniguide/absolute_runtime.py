@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 import torch
 from .io import read,write,frozen,sha,value_sha
-from .absolute_coordinate import prepare as prepare_condition, validate as validate_condition, RMSD, MAX_ERROR, POLICY
+from .absolute_coordinate import prepare as prepare_condition, validate as validate_condition, RMSD, MAX_ERROR, POLICY, ASSIGNMENT
 DISTANCE=CONTROL_DISTANCE=RMSD
 NEIGHBOR_DISTANCE=MAX_ERROR
 from .geometry_protocol import NORMALIZED,EFFECTIVE,MULTIPLIER,validate_domain,choose,ticks,resolve_action
@@ -65,9 +65,13 @@ def validate_config(config):
     from .coordinate_statistics import policy as statistics_policy, CONFIG
     config = dict(config, **{CONFIG: statistics_policy(config)})
     from .linear_scale import enabled as linear_enabled
-    required_release="2.6.0" if linear_enabled(config) else "2.5.0"
+    required_release=("2.7.0" if config.get("guidance_exploration") else "2.6.0") if linear_enabled(config) else "2.5.0"
     if config.get("agent_tools",{}).get("skill_release")!=required_release:
         raise ValueError("Coordinate control and runtime skill release differ")
+    from .absolute_coordinate import ASSIGNMENT, DYNAMIC_ASSIGNMENT
+    expected_assignment=DYNAMIC_ASSIGNMENT if required_release=="2.7.0" else ASSIGNMENT
+    if config.get("atom_assignment_policy",expected_assignment)!=expected_assignment:
+        raise ValueError("Coordinate assignment and skill contracts differ; use a new compatible release")
     from .geometry_calibration import plan
     for item in config.get("conditions",[]):plan(config,item["teacher_id"])
     if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS] or config.get("seeds",SEEDS)!=SEEDS:
@@ -90,7 +94,8 @@ def prepare(config):
         teacher=copy.deepcopy(catalog[item["teacher_id"]])
         # Explicit interaction target atoms must be in the same frame as this generation context.
         condition=prepare_condition(read(item["features_path"]),teacher["protein"],
-            item.get("reference_protein",teacher["protein"]),common_valid_slots(source,teacher["target"]))
+            item.get("reference_protein",teacher["protein"]),common_valid_slots(source,teacher["target"]),
+            assignment_policy=config.get("atom_assignment_policy",ASSIGNMENT))
         frozen(root/"conditions"/(teacher["target"]+".json"),condition)
         subjects.append(dict(teacher=teacher,condition=condition))
     if not subjects or len({s["teacher"]["target"] for s in subjects})!=len(subjects):raise ValueError("Unique generation contexts required")
@@ -102,7 +107,10 @@ def calibrated(config):
     config=validate_config(config);root=Path(config["root"])
     if read(root/"GEOMETRY_CONFIG.json")!=config:raise ValueError("Frozen geometry configuration differs")
     subjects=read(root/"SUBJECTS.json")
-    for subject in subjects:validate_condition(subject["condition"])
+    for subject in subjects:
+        validate_condition(subject["condition"])
+        if subject["condition"]["assignment_policy"]!=config.get("atom_assignment_policy",ASSIGNMENT):
+            raise ValueError("Prepared condition uses another atom assignment policy; prepare a new experiment")
     return subjects
 
 
