@@ -2,7 +2,9 @@
 
 最新状态：2026-10-30 18:41:23（Asia/Shanghai），验收进程以−9（SIGKILL）退出。6pyy资源批次8/8完成，3w54完成7/8，第8批仅保存前90步，完整双教师验收未通过。已完成批次资源计数稳定；信号发送方尚未确定，不自动重跑。真实复盘见`terminal_review.zh-CN.md`和`terminal_review.json`，终态证据见`evidence/terminal/`。
 
-以下17:59快照保留为历史记录，后台执行现已结束，终态归档后删除`gpu`巡检。原`uniguide-flowr`仍为PAUSED、35分钟不变。没有新科学尝试或LLM调用。
+19:16已写入失败归档FINALIZED并验证复盘哈希、进程退出和执行锁释放，`gpu`巡检已删除，详见`automation_stopped.json`。原`uniguide-flowr`仍为PAUSED、35分钟不变。没有新科学尝试或LLM调用。
+
+以下17:59快照保留为历史记录，后台执行和本专项监控均已结束。
 
 2026-10-30 17:59（Asia/Shanghai）快照：代码已推送到`codex/uniguide-flowr-agent`，最新实现提交`e45a70f0308cd71dd020673199e3649506122161`。正式实验仍停止，未启动标定或LLM。
 
