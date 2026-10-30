@@ -6,6 +6,7 @@ import torch
 
 from agenticgen.uniguide.gpu_execution import TeacherGpuExecutor
 from agenticgen.uniguide.gpu_resources import NativeCounters, snapshot, plateau
+from agenticgen.uniguide.io import write
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="GPU required")
@@ -42,4 +43,6 @@ def test_fixed_stream_vjp_lifetimes_and_native_resource_plateau(tmp_path):
             resources.append(snapshot(executor, counters))
         assert all(ids == threads[0] and len(ids) == 2 for ids in threads)
         assert all(value == reference for value in checksums)
+        write(tmp_path / "GPU_LIFETIME_ACCEPTANCE.json", dict(resources=resources,
+            counter_binding=counters.binding, counter_errors=counters.errors))
         assert plateau(resources)["plateau_observed"]

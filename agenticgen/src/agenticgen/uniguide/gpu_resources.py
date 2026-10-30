@@ -66,9 +66,24 @@ class NativeCounters:
         hits = [line.split(maxsplit=3) for line in symbols if line.endswith(" " + symbol)]
         if len(hits) != 1 or int(hits[0][1], 16) != ctypes.sizeof(ctypes.c_uint32):
             raise RuntimeError("ROCr queue counter symbol or atomic width unavailable")
-        mappings = [line.split() for line in maps if line.split()[-1] == library]
-        base = min(int(m[0].split("-")[0], 16) - int(m[2], 16) for m in mappings)
+        class DlInfo(ctypes.Structure):
+            _fields_ = [("filename", ctypes.c_char_p), ("base", ctypes.c_void_p),
+                        ("symbol", ctypes.c_char_p), ("symbol_address", ctypes.c_void_p)]
+        runtime = ctypes.CDLL(library)
+        linker = ctypes.CDLL("libdl.so.2")
+        linker.dladdr.argtypes = [ctypes.c_void_p, ctypes.POINTER(DlInfo)]
+        linker.dladdr.restype = ctypes.c_int
+        info = DlInfo()
+        if not linker.dladdr(ctypes.cast(runtime.hsa_init, ctypes.c_void_p), ctypes.byref(info)):
+            raise RuntimeError("Cannot resolve the loaded ROCr image base")
+        if Path(os.fsdecode(info.filename)).resolve() != Path(library).resolve():
+            raise RuntimeError("ROCr symbol resolved to another runtime image")
+        base = info.base
         address = base + int(hits[0][0], 16)
+        # ELF .bss may extend into an anonymous mapping after the file-backed
+        # segment. Validate every readable mapping, using dladdr for the image
+        # base, rather than rejecting that legitimate zero-initialized storage.
+        mappings = [line.split() for line in maps]
         if not any("r" in m[1] and int(m[0].split("-")[0], 16) <= address
                    and address + 4 <= int(m[0].split("-")[1], 16) for m in mappings):
             raise RuntimeError("Native queue counter is not in a readable runtime mapping")
