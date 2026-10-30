@@ -1,0 +1,29 @@
+接续本对话明确授权的UG04串行调度双教师完整线上测评，仅处理本专项。先读D:/llm_controlled_generation/EvoMolSteer-uniguide/agenticgen/docs/experiments/20261030_ug04_serial_formal/protocol.zh-CN.md、launch_audit.json及后续用户指令。仅操作codex/uniguide-flowr-agent，不动归档分支，不向其他聊天发送消息。原uniguide-flowr保持PAUSED、35分钟不变，不修改其他自动化。
+
+服务器root@ssh.zzai.scnet.cn:11741；使用本对话授权凭据和D:/llm_controlled_generation/tmp/uniguide_ops.py的JSON stdin接口，凭据不得打印、写入仓库或自动化。API和小写代理由交互式bash加载，非交互shell缺变量不能当作服务器未配置。launcher.log可能含交互环境，只留远端，禁止打印、下载或提交原文。
+
+固定执行目录/workspace/uniguide_runs/absolute-ug04serial-48de3e9f，已推送提交48de3e9f61b6dbc4651ca09c57697035c936df58。结果根/workspace/agenticgen_absolute_coordinate_ug04serial_20261030，外部配置/workspace/uniguide_runs/absolute-ug04serial-48de3e9f-config.json，SHA256为953e298536594cf72473a95a78055bdefc3eac36aeaf5abb5159aa2fc7413f1b，以launch_audit.json核验。部署审计/workspace/uniguide_audits/ug04-serial-formal-48de3e9f。旧所有结果、账本、失败、claim和FINALIZED只读保留，不能据旧标记判断新根失败。
+
+每次用固定目录agenticgen/docs/experiments/20261029_chemical_interact_formal/inspect_run.py核对真实命令、进程状态、全局/workspace/agenticgen_uniguide_flowr_20261026/.executor.lock、新根.executor.lock/.campaign.lock、STATUS/HEARTBEAT、阶段日志、逐组steps/progress、attempts、acceptance/COMPLETE及阶段/CAMPAIGN标记，在新根monitoring保存Asia/Shanghai快照。不能只凭PID、心跳或目录判断健康。SOURCE_PRESERVATION逐文件核对不变，当前保护10145个文件，数量以launch_audit.json为准。健康时不覆盖代码、manifest、skills、条件或对应缓存，不重复启动，不部署纯文档提交。
+
+后台链acceptance→calibrate→真实LLM GD01五轮→独立CPU10/50诊断。当前提交CPU回归227通过、1项GPU单测在CPU跳过；该GPU单测在可见设备上另外执行通过，见部署GPU_UNIT.json。这些不代替本链双教师真实模型完整采样验收，未见新acceptance/COMPLETE前不得声称已标定、正式采样或调用LLM。验收nonfinite_isolation是预期故障注入，不能据其文件宣布全链失败。
+
+task_scheduling=ug04-930db032-serial：逐教师、逐配置/方向串行，正式组50，网络前向/VJP固定10行依次执行，CPU算子线程数8。没有专用教师GPU工作子进程、GPU执行器、线程池、额外stream、跨配置生产混批、OOM降档或自动接续。campaign按阶段启动CLI进程和独立CPU质量worker属于已有运行链，不是GPU并发池。不要恢复已移除的8批连续资源验收，也不要重新增加GPU调度功能。
+
+教师固定6pyy_H7S_A_402/single_b004_final_015、3w54_RNB_A_504/single_b000_final_003，各9个原PLIP直接互作配体重原子为统一条件区域。条件SHA分别8592e1cecd7319871f0593cae457c00942a2ebbff6a7cc1a2cf9523994d6ade4和081b3eb026e6bb5583d11ae3431c896237a8d2d8c96ade501a89c945d1528520；核对INPUT_AUDIT、SUBJECTS和conditions。蛋白单独决定测量变换，第10步首次引导前Hungarian后逐候选冻结，loss和化学注入共用对应，不终态重匹配。单一条件绝对坐标误差和除以2K、完整预测终态VJP，无相对距离或亲和力梯度。
+
+raw999为100区间0–0.999、10–99步、最后循环未覆盖预测，step99更新不进入输出。化学inpainting只注入状态化学通道及条件内部键，坐标不覆盖。没有3 Å限幅、向量缩放或高RMSD梯度掩码。高RMSD仅组级统计和排名按Q3+max(3×IQR,1 Å)单侧排除，至少10观测、最多10%；全部低值保留，原始/排名RMSD、loss、阈值、身份及分母分别报告。NaN/Inf、缺测和工程失败不能过滤成成功，数值失败仍以10行RNG分片登记。
+
+新根独立重新测评，不迁移旧λ、预算或测量，仅沿用冻结随机初态。重复配置/同seed槽位跨运行是配对复现，不算独立验证。λ采用adaptive-bracket-population-v2，每教师最多350、合计700次，失败不退款，不扩域、降档、补样或重发失败配置。单教师TEACHER_STATUS=needs_evidence继续另一教师，不把单档CALIBRATION_FAILURE或局部INSUFFICIENT_EVIDENCE误判全链失败。仅一教师获得确认域时正式仅执行该教师并报告部分完成。
+
+正式每可用教师5轮、每轮三方向各50，双教师最多30组请求/1500新尝试。无合法未测动作的方向写BOUNDARY_REACHED，不扩界、循环LLM或伪造测量。精确重复配置只引用原测量；请求、实际生成、复用及跳过分别统计。skills2.5.0、deepseek-flash、thinking/high、单响应16384、原网络重试/一次格式修正，每教师每轮四角色共享30调用/491520输出token不变。实际provider请求/回执和claims才证明调用；失败不删claim，不自动重发、提额或改提示。只执行GD01，不开GD02，不恢复UG05。
+
+核对本专项quality_queue的worker/status/requests/POLICY、真实命令、worker锁及各组QUALITY_COMPLETE/QUALITY_FAILED。模块目录与commit绑定48de3e9f固定目录，预期模块哈希见新根QUALITY_MODULE_BINDING.json；不启动旧worker。每正式组attempts=50、checked_attempts=10、not_selected=40、coverage=0.2，五种子logical_slot0、1，构建失败占分母、不补样，其余40不补慢查。基础统计不代表PLIP/PoseB通过；区分构建失败、测量不通过、无法评价和工程错误，PoseB内部几何、蛋白冲突、能量分别报告。
+
+逐个追溯正式复用组的真实源测量。源测量未完成10/50诊断时仅补源组CPU队列，复用已有质量回执，不重复生成或把别名当独立样本。必要CPU恢复仅限本专项，先查归属和锁，再加载DTK、本固定目录agenticgen/src/src，隐藏GPU、CPU库各1线程。SAMPLING_FINISHED后只补后处理，不因其余40未检查暂停复盘。
+
+真实父进程异常退出、CAMPAIGN_FAILED或全链工程终止时，先保存阶段日志、源码哈希、预算、SEARCH_STATE、逐组进度及失败请求，只读定位；不自动重启、删标记、清零或补样。SIGKILL/SIGABRT原因须按实际证据区分，不能套用旧结论。采样已经保存而只剩后处理时仅补后处理。终态失败归档后通知并停止本专项监控。
+
+CAMPAIGN_FINISHED后实际读取双教师标定状态、每档原始/过滤指标、全部正式请求/复用/跳过、四角色上下文和实际LLM/工具回执、冻结对应、结构保留及抽样质量，完成真实主GPT复盘。部分完成明确报告，不能把10/50通过率外推全人口。保留全部终态、轨迹、结构和失败账本；下载机器结果/审计至本地本专项目录，复盘提交推送GitHub，纯文档不部署运行目录。核对保护文件未变、无活动采样，写FINALIZED绑定实际复盘。只在队列空闲且路径/进程归属确认后停止本专项CPU worker。完成或终态失败归档后仅删除当前触发的本专项heartbeat，其他自动化不动。
+
+GitHub异常按直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc依次尝试，全失败才用已验证且仅含已推送提交的Git bundle。15分钟巡检。健康、排队或无实质变化时DONT_NOTIFY；仅通知完成、实质异常、修复或需用户处理的问题，不持续保持对话。中文UTF-8；自动化读回用JSON ensure_ascii=true核验，无Unicode替换字符。
