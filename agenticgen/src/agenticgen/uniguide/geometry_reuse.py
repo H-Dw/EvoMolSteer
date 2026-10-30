@@ -17,21 +17,38 @@ def tree_hashes(path):
     return {p.relative_to(path).as_posix():sha(p) for p in sorted(path.rglob("*")) if p.is_file()}
 
 
-def select_initial(config,schedules):
+def select_initial(config,schedules,scale_units="ticks"):
     root=Path(config["root"]);domains=read(root/"calibration/domains.json")
     if set(schedules)!=set(domains):raise ValueError("Provide four normalized window values for every teacher")
     selected={}
     for target,domain in domains.items():
-        values=list(ticks(schedules[target]))
-        if any(not domain["normalized_minimum"]<=v<=domain["normalized_maximum"] for v in values):
-            raise ValueError("Selected window value is outside this teacher's measured range")
-        selected[target]={NORMALIZED:values,MULTIPLIER:domain[MULTIPLIER],EFFECTIVE:effective(values,domain[MULTIPLIER]),
-            "domain_sha256":domain["domain_sha256"],"condition_sha256":domain["condition_sha256"],"guidance_enabled":True}
-    payload=dict(teachers=selected,scale_units="normalized_integer_log2",calibration_sha256=sha(root/"calibration/domains.json"))
+        selected[target]=initial_binding(schedules[target],domain,scale_units)
+    from .linear_scale import enabled as linear_enabled
+    payload=dict(teachers=selected,scale_units="linear_reference_ticks" if all(linear_enabled(d) for d in domains.values()) else "normalized_integer_log2",
+        calibration_sha256=sha(root/"calibration/domains.json"))
     if (root/"versions/GD01/manifest.json").exists() and not (root/"INITIAL_GUIDANCE.json").exists():
         raise ValueError("Cannot change initialization after Agent inference has started")
     frozen(root/"INITIAL_GUIDANCE.json",payload)
     return payload
+
+
+def initial_binding(values,domain,scale_units="ticks"):
+    from . import linear_scale
+    if scale_units not in ("ticks","actual"):
+        raise ValueError("Initial scale units must be ticks or actual")
+    if linear_scale.enabled(domain):
+        linear_scale.validate_domain(domain)
+        if scale_units=="actual":values=linear_scale.encode(values,domain)
+        result=linear_scale.binding(values,domain)
+        if any(x not in domain["confirmed_effective_levels"] for x in result[EFFECTIVE]):
+            raise ValueError("Initial strengths require complete constant confirmation")
+    else:
+        if scale_units!="ticks":raise ValueError("Explicit actual initialization requires the linear protocol")
+        values=list(ticks(values))
+        if any(not domain["normalized_minimum"]<=v<=domain["normalized_maximum"] for v in values):
+            raise ValueError("Initial scale outside measured domain")
+        result={NORMALIZED:values,MULTIPLIER:domain[MULTIPLIER],EFFECTIVE:effective(values,domain[MULTIPLIER]),"guidance_enabled":True}
+    return dict(result,domain_sha256=domain["domain_sha256"],condition_sha256=domain["condition_sha256"])
 
 
 def verify_initial(root,domains):
@@ -39,6 +56,11 @@ def verify_initial(root,domains):
     if payload["calibration_sha256"]!=sha(root/"calibration/domains.json") or set(payload["teachers"])!=set(domains):
         raise ValueError("Initial window selection belongs to another calibration")
     for target,selected in payload["teachers"].items():
+        from .linear_scale import enabled as linear_enabled, TICKS
+        if linear_enabled(domains[target]):
+            if initial_binding(selected[TICKS],domains[target])!=selected:
+                raise ValueError("Linear initialization binding differs")
+            continue
         domain=domains[target];values=ticks(selected[NORMALIZED])
         if selected["domain_sha256"]!=domain["domain_sha256"] or selected[MULTIPLIER]!=domain[MULTIPLIER]:raise ValueError("Initial multiplier binding differs")
         if any(not domain["normalized_minimum"]<=v<=domain["normalized_maximum"] for v in values):raise ValueError("Initial scale outside domain")
@@ -46,7 +68,7 @@ def verify_initial(root,domains):
     return payload["teachers"]
 
 
-def reuse(config,sources,schedules):
+def reuse(config,sources,schedules,scale_units="ticks"):
     from .absolute_coordinate import POLICY as absolute_policy
     from . import absolute_runtime, geometry_runtime
     runtime=absolute_runtime if config.get("protocol")==absolute_policy else geometry_runtime
@@ -63,6 +85,9 @@ def reuse(config,sources,schedules):
         if not path.exists():raise ValueError("Calibration is incomplete; coarse screening does not establish a multiplier: "+target)
         domain=read(path)[target];binding=compatibility(config,teacher,condition)
         verify_frozen(source,domain,binding)  # Exact condition, mapping, model, protocol, RNG and implementation.
+        from . import linear_scale
+        if linear_scale.enabled(domain) and domain["control_settings"]!=linear_scale.teacher_settings(config["guidance_control"],target):
+            raise ValueError("Reused linear search rules differ; an explicit domain revision is required")
         domains[target]=domain
         frozen_dir=Path("calibration/frozen")/domain["calibration_key"]
         for part in (source/frozen_dir).rglob("*"):
@@ -83,8 +108,7 @@ def reuse(config,sources,schedules):
     # Validate requested initialization before copying any evidence.
     if set(schedules)!=set(domains):raise ValueError("Initial selection must include each teacher")
     for target,values in schedules.items():
-        values=ticks(values);domain=domains[target]
-        if any(not domain["normalized_minimum"]<=v<=domain["normalized_maximum"] for v in values):raise ValueError("Initial scale outside measured range")
+        initial_binding(values,domains[target],scale_units)
     hashes={relative:sha(source) for relative,source in copies.items()}
     for relative,digest in hashes.items():
         dest=safe_source(root,relative)
@@ -101,4 +125,4 @@ def reuse(config,sources,schedules):
     for subject in subjects:
         target=subject["teacher"]["target"]
         verify_frozen(root,domains[target],compatibility(config,subject["teacher"],subject["condition"]))
-    return select_initial(config,schedules)
+    return select_initial(config,schedules,scale_units)

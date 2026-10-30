@@ -1,4 +1,5 @@
 """Internal-distance control using the unchanged native integrator and full input VJP."""
+from .geometry_protocol import sampling_reference
 
 import functools
 import math
@@ -219,6 +220,11 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
 def scale_binding(
     schedule, multiplier=None, enabled=True, condition=None, loss_weights=None
 ):
+    from . import linear_scale
+    if isinstance(multiplier,dict) and linear_scale.enabled(multiplier):
+        if loss_weights is not None:
+            raise ValueError("Linear absolute guidance has one coordinate objective")
+        return linear_scale.binding(schedule,multiplier,enabled)
     extra = (
         {WEIGHTS: weights(condition, loss_weights)}
         if condition and condition.get("reward_policy")
@@ -325,6 +331,13 @@ def compatibility(config, teacher, condition, domain=None):
         from .coordinate_statistics import policy as statistics_policy
         result["coordinate_statistics_policy"] = statistics_policy(config)
         result["scientific_sources"]["coordinate_statistics"] = sha(package / "coordinate_statistics.py")
+    from . import linear_scale
+    if linear_scale.enabled(config):
+        result["guidance_scale_protocol"] = dict(policy=linear_scale.POLICY,
+            **{linear_scale.UNIT:config["guidance_control"][linear_scale.UNIT]})
+        result["scientific_sources"].update({"linear_scale/"+fn.__name__:value_sha(inspect.getsource(fn))
+            for fn in (linear_scale.effective,linear_scale.encode,linear_scale.binding,
+                       linear_scale.check_strength,linear_scale.grid)})
     return result
 
 
@@ -533,18 +546,15 @@ def execute_shard(
         raise ValueError("Actual strengths are allowed only in pre-experiments")
     binding = measurement_binding(config, teacher, condition, _compatibility, domain=domain)
     if domain is not None:
-        if any(
-            not domain["normalized_minimum"] <= x <= domain["normalized_maximum"]
-            for x in schedule
-        ):
-            raise ValueError("Normalized schedule exceeds teacher's empirical interval")
+        from .geometry_protocol import validate_sampling_schedule
+        validate_sampling_schedule(schedule, domain)
     root = Path(config["root"])
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     run_id = folder.relative_to(root).as_posix()
     scale = scale_binding(
         schedule,
-        domain[MULTIPLIER] if domain else None,
+        sampling_reference(domain),
         enabled,
         condition,
         loss_weights,
@@ -710,17 +720,14 @@ def execute(
         raise ValueError("Actual strengths are allowed only in pre-experiments")
     binding = measurement_binding(config, teacher, condition, _compatibility, domain=domain)
     if domain is not None:
-        if any(
-            not domain["normalized_minimum"] <= x <= domain["normalized_maximum"]
-            for x in schedule
-        ):
-            raise ValueError("Normalized schedule exceeds teacher's empirical interval")
+        from .geometry_protocol import validate_sampling_schedule
+        validate_sampling_schedule(schedule, domain)
     root = Path(config["root"])
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     scale = scale_binding(
         schedule,
-        domain[MULTIPLIER] if domain else None,
+        sampling_reference(domain),
         enabled,
         condition,
         loss_weights,

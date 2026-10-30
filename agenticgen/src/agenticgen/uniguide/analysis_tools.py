@@ -165,6 +165,9 @@ class EvidenceTools:
         action=object_schema(dict(anchor_id=ids,branch=dict(type="string",enum=["increase","decrease","redistribute"]),
             updates=dict(type="array",minItems=1,maxItems=2,items=object_schema(dict(
                 window_id=dict(type="integer",minimum=0,maximum=3),step=dict(type="integer",enum=[-2,-1,1,2]))))))
+        from .linear_scale import enabled as linear_enabled, action_schema
+        if linear_enabled(domain):
+            action=action_schema(self.history)
         specs=[("summarize_population","Read measured full-population geometry, robust center, failures and tail identities.",object_schema(dict(run_id=ids))),
             ("compare_paired_runs","Compare measured candidate to reference on identical seed/slot and sampling protocol; no unmeasured score.",object_schema(dict(reference_id=ids,candidate_id=ids))),
             ("inspect_interval_evidence","Inspect measured windows, counterexample context and tail sample step diagnostics; associations are not causal effects.",object_schema(dict(run_id=ids))),
@@ -181,8 +184,9 @@ class EvidenceTools:
                     evidence_ids=dict(type="array",minItems=1,maxItems=4,uniqueItems=True,
                         items=dict(type="string",pattern="^ev_[0-9a-f]{20}$")),reason=dict(type="string",minLength=1,maxLength=350)))))
         self.definitions=[dict(type="function",function=dict(name=n,description=d,parameters=s)) for n,d,s in specs]
+        action_source="linear_scale.py" if linear_enabled(domain) else "geometry_protocol.py"
         self.binding=dict(policy=self.statistics_policy,history_sha256=value_sha(history),domain_sha256=value_sha(domain),
-            sources=self.sources,implementation_sha256=sha(__file__),action_implementation_sha256=sha(Path(__file__).with_name("geometry_protocol.py")))
+            sources=self.sources,implementation_sha256=sha(__file__),action_implementation_sha256=sha(Path(__file__).with_name(action_source)))
         if condition:self.binding["reward_condition_sha256"]=condition["condition_sha256"]
         frozen(self.folder/"BINDING.json",self.binding)
 
@@ -269,7 +273,7 @@ class EvidenceTools:
 
     def _inspect_interval_evidence(self,run_id):
         row=self.history[run_id]
-        out=dict(status="complete",run_id=run_id,measured_schedule=row[NORMALIZED],
+        out=dict(status="complete",run_id=run_id,measured_schedule=row.get("guidance_scale_tick_schedule",row.get(NORMALIZED)),
             windows=row.get("window_diagnostics",[]),causal_attribution="Uncontrolled background differences do not identify a window effect")
         if run_id not in self.records:
             return dict(out,tail_step_diagnostics=dict(status="unavailable"))
@@ -331,6 +335,17 @@ class EvidenceTools:
             interpretation="Current components sum half squared distance errors over pairs within each candidate. RMSD metrics retain their mean reduction; pair counts and active components affect loss magnitude. Historical loss units require their original protocol.")
 
     def _audit_action_batch(self,actions):
+        from . import linear_scale
+        if linear_scale.enabled(self.domain):
+            seen=list(self.history.values());results=[]
+            for action in actions:
+                try:
+                    resolved=linear_scale.resolve_action(action,self.history,self.domain,seen)
+                    seen.append(resolved)
+                    results.append(dict(action=action,status="legal_unmeasured",resolved=resolved,observed_performance=None))
+                except ValueError as error:
+                    results.append(dict(action=action,status="rejected",reason=str(error)))
+            return dict(status="complete",actions=results,new_molecular_attempts=0)
         seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in self.history.values()];results=[]
         for action in actions:
             try:

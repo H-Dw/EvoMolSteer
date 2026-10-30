@@ -28,7 +28,7 @@ from .geometry_sampling import (
 )
 from .geometry_reward import WEIGHTS
 from .geometry_safety import CandidateSafety
-from .geometry_protocol import EFFECTIVE, MULTIPLIER, expand_effective, validate_domain
+from .geometry_protocol import EFFECTIVE, MULTIPLIER, expand_effective, validate_domain, sampling_reference, validate_sampling_schedule
 from .io import frozen, read, write, value_sha, sha
 from .native_tools import save_pt, tensor_digest
 from .random_streams import capture, restore
@@ -317,14 +317,10 @@ def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
                 condition["condition_sha256"],
                 value_sha(binding),
             )
-            if any(
-                not domain["normalized_minimum"] <= x <= domain["normalized_maximum"]
-                for x in schedule
-            ):
-                raise ValueError("Outside measured domain")
+            validate_sampling_schedule(schedule, domain)
         scale = scale_binding(
             schedule,
-            domain[MULTIPLIER] if domain else None,
+            sampling_reference(domain),
             job.get("enabled", True),
             condition,
             job.get("loss_weights"),
@@ -450,7 +446,7 @@ def _execute_job(model, config, teacher, condition, job, binding, sample_fn):
             output = control = product = None
     if failed:
         error = FloatingPointError("Nonfinite candidate units: " + ", ".join(failed))
-        scale = scale_binding(job["schedule"], job["domain"][MULTIPLIER] if job.get("domain") else None,
+        scale = scale_binding(job["schedule"], sampling_reference(job.get("domain")),
                               job.get("enabled", True), condition, job.get("loss_weights"))
         identity = dict(compatibility=binding, **candidate_identity(scale),
                         population=job.get("count", 50), logical_slots_per_seed=job.get("count", 50) // 5)

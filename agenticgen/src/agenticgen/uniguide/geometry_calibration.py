@@ -14,6 +14,9 @@ DEFAULT_PLAN=dict(policy="successive-population-screening-v1",coarse_log2_expone
 
 
 def plan(config,target):
+    from . import linear_scale, linear_calibration
+    if linear_scale.enabled(config):
+        return linear_calibration.plan(config,target)
     # This is a declared search grid, never a reused old optimum or a fitted multiplier.
     settings=config.get("calibration",{})
     centers=settings.get("search_center_by_teacher",{})
@@ -61,6 +64,9 @@ def verify_frozen(root,domain,binding):
 
 
 def run(config,subjects,model_loader,executor):
+    from . import linear_scale, linear_calibration
+    if linear_scale.enabled(config):
+        return linear_calibration.run(config,subjects,model_loader,executor)
     from .calibration_search import POLICY as adaptive_policy
     if config.get("calibration",{}).get("search_policy")==adaptive_policy:
         from .adaptive_calibration import run as adaptive_run

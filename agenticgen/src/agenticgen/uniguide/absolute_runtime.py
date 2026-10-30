@@ -64,8 +64,10 @@ def validate_config(config):
     config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
     from .coordinate_statistics import policy as statistics_policy, CONFIG
     config = dict(config, **{CONFIG: statistics_policy(config)})
-    if config.get("agent_tools",{}).get("skill_release")!="2.5.0":
-        raise ValueError("Uncapped upper-tail coordinates require the 2.5.0 runtime skills and tools")
+    from .linear_scale import enabled as linear_enabled
+    required_release="2.6.0" if linear_enabled(config) else "2.5.0"
+    if config.get("agent_tools",{}).get("skill_release")!=required_release:
+        raise ValueError("Coordinate control and runtime skill release differ")
     from .geometry_calibration import plan
     for item in config.get("conditions",[]):plan(config,item["teacher_id"])
     if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS] or config.get("seeds",SEEDS)!=SEEDS:
@@ -117,6 +119,10 @@ def calibrate(config,model_loader=load_model,executor=execute):
 
 
 def history(config,teacher,condition,domain):
+    from .linear_scale import enabled as linear_enabled
+    if linear_enabled(domain):
+        from .linear_runtime import history as linear_history
+        return linear_history(config,teacher,condition,domain)
     root=Path(config["root"]);expected=value_sha(compatibility(config,teacher,condition))
     validate_domain(domain,teacher["target"],condition["condition_sha256"],expected)
     records={};failures=[]
@@ -174,6 +180,11 @@ def retain(root,groups,winner,folder):
 
 def run_version(config,version,model_loader=load_model,executor=execute,advisor=advise,retainer=retain):
     config=validate_config(config);require_acceptance(config);root=Path(config["root"]);subjects=calibrated(config)
+    from .linear_scale import enabled as linear_enabled
+    if linear_enabled(config):
+        from .linear_runtime import run_version as run_linear
+        from .linear_council import advise as linear_advise
+        return run_linear(config,version,model_loader,executor,linear_advise if advisor is advise else advisor,retainer)
     if (not version.startswith("GD") or not version[2:].isdigit() or not 1<=int(version[2:])<=20
             or version!=f"GD{int(version[2:]):02d}"):raise ValueError("Geometry versions use GD01--GD20")
     folder=root/"versions"/version

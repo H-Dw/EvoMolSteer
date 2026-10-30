@@ -137,6 +137,9 @@ def derive_domain(rows,teacher_id,condition_hash,sampling_protocol_sha256):
 
 
 def validate_domain(domain,teacher_id=None,condition_hash=None,sampling_protocol_sha256=None):
+    from . import linear_scale
+    if linear_scale.enabled(domain):
+        return linear_scale.validate_domain(domain,teacher_id,condition_hash,sampling_protocol_sha256)
     body={k:v for k,v in domain.items() if k!="domain_sha256"}
     from .absolute_coordinate import POLICY as coordinate_policy
     if domain.get("policy") not in (POLICY,coordinate_policy) or value_sha(body)!=domain.get("domain_sha256"):
@@ -158,6 +161,20 @@ def validate_domain(domain,teacher_id=None,condition_hash=None,sampling_protocol
             raise ValueError("Adaptive domain requires three contiguous measured integer levels")
         if any(not math.isclose(s,domain[MULTIPLIER]*2.**n,rel_tol=1e-10) for s,n in zip(confirmed,levels)):
             raise ValueError("Unmeasured normalized level in adaptive domain")
+
+
+def sampling_reference(domain):
+    from .linear_scale import enabled
+    return domain if domain and enabled(domain) else domain[MULTIPLIER] if domain else None
+
+
+def validate_sampling_schedule(schedule,domain):
+    from . import linear_scale
+    if linear_scale.enabled(domain):
+        return linear_scale.validate_schedule(schedule,domain)
+    ticks(schedule)
+    if any(not domain["normalized_minimum"] <= x <= domain["normalized_maximum"] for x in schedule):
+        raise ValueError("Schedule outside the teacher's measured domain")
 
 
 def validate_action(action,anchors,domain,seen):
