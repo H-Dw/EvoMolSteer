@@ -48,6 +48,31 @@ def initial_shard(config,target,slots):
     return dict(result,population=10,stream_states=full["stream_states"],logical_slots=slots)
 
 
+def merge_output_policies(policies, source_ids):
+    """Compare the scientific contract; preserve non-additive execution telemetry."""
+    if not policies or len(policies) != len(source_ids) or len(set(source_ids)) != len(source_ids):
+        raise ValueError("Output policies require unique source shard identities")
+    static = [{k:v for k,v in p.items() if k != "prefix_native_times"} for p in policies]
+    if any(p != static[0] for p in static):
+        raise ValueError("Cannot merge different output policies")
+    for policy in policies:
+        if policy.get("prefix_inpainting",{}).get("enabled"):
+            observed = policy.get("prefix_native_times",{})
+            if set(observed) != {str(i) for i in range(10)}:
+                raise ValueError("Incomplete native prefix time observations")
+            for step in observed.values():
+                for channel in ("coordinates", "chemistry"):
+                    row = step[channel]
+                    if (row["minimum"] != 1.0 or row["maximum"] != 1.0
+                            or type(row["calls"]) is not int or row["calls"] < 1):
+                        raise ValueError("Native prefix time observations violate the policy")
+    if all(p == policies[0] for p in policies):
+        return copy.deepcopy(policies[0])
+    return dict(static[0], prefix_native_times_by_source_shard={
+        name:copy.deepcopy(p.get("prefix_native_times",{})) for name,p in zip(source_ids,policies)},
+        prefix_telemetry_scope="execution-context observations; shared batch call counts are not additive across shards")
+
+
 def combine_products(root,shards,folder):
     """Materialize a population view without another forward, builder or random draw."""
     folders=[Path(root)/s["id"] for s in shards];folder=Path(folder)
@@ -99,8 +124,7 @@ def combine_products(root,shards,folder):
     write(folder/"rng_ledger.json",{s["id"]:read(p/"rng_ledger.json") for s,p in zip(shards,folders)})
     if (folders[0]/"OUTPUT_POLICY.json").exists():
         policies=[read(p/"OUTPUT_POLICY.json") for p in folders]
-        if any(p!=policies[0] for p in policies):raise ValueError("Cannot merge different output policies")
-        write(folder/"OUTPUT_POLICY.json",policies[0])
+        write(folder/"OUTPUT_POLICY.json",merge_output_policies(policies,[s["id"] for s in shards]))
     if (folders[0]/"CHEMICAL_CONDITION.json").exists():
         chemistry=[read(p/"CHEMICAL_CONDITION.json") for p in folders]
         if any(p!=chemistry[0] for p in chemistry):raise ValueError("Cannot merge different chemical conditions")

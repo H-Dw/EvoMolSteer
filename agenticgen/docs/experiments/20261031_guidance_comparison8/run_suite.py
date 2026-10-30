@@ -108,12 +108,13 @@ def run_job(repo, suite, job):
         raise ValueError("Interactive API environment not loaded")
     logdir = suite / "logs" / job["id"]
     logdir.mkdir(parents=True, exist_ok=False)
-    stages = (
+    stages = [
         ("prepare", ["prepare"]),
         ("acceptance", ["acceptance"]),
-        ("calibrate", ["calibrate"]),
-        ("formal", ["run-version", "GD01"]),
-    )
+    ]
+    if config.get("postprocessing_recovery"):
+        stages.append(("recover_promotion", ["recover-promotion"]))
+    stages.extend((("calibrate", ["calibrate"]), ("formal", ["run-version", "GD01"])))
     try:
         for stage, arguments in stages:
             check_preservation(suite)
@@ -278,7 +279,20 @@ def main():
         ) as global_lock,
     ):
         fcntl.flock(own, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        fcntl.flock(global_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if plan.get("wait_for_global_lock", False):
+            write(
+                suite / "STATUS.json",
+                dict(
+                    timestamp=now(),
+                    stage="waiting_for_global_lock",
+                    status="queued",
+                    pid=os.getpid(),
+                    no_gpu_process_started=True,
+                ),
+            )
+            fcntl.flock(global_lock, fcntl.LOCK_EX)
+        else:
+            fcntl.flock(global_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         frozen(
             suite / "SUITE_CLAIM.json",
             dict(

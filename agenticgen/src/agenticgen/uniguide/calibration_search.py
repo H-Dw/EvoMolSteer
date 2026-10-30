@@ -22,7 +22,7 @@ class SearchLimits:
 
 def strength(row):
     values = row[EFFECTIVE]
-    if len(values) != 4 or len(set(values)) != 1 or values[0] <= 0 or not math.isfinite(values[0]):
+    if not values or len(set(values)) != 1 or values[0] <= 0 or not math.isfinite(values[0]):
         raise ValueError("Calibration requires positive finite constant profiles")
     return values[0]
 
@@ -36,8 +36,8 @@ def score(row):
 
 def displacement(row):
     windows = row["window_diagnostics"]
-    if len(windows) != 4:
-        raise ValueError("Four measured displacement windows required")
+    if not windows or len(windows) != len(row[EFFECTIVE]):
+        raise ValueError("Measured displacement windows must match the guidance profile")
     values = {key: max(w.get("unconstrained_" + key, w[key]) for w in windows)
               for key in ("increment_vector_rms_A", "max_atom_increment_A")}
     if any(not math.isfinite(v) or v < 0 for v in values.values()):
@@ -49,6 +49,8 @@ def assess(rows):
     """One fidelity at a time; report the observed connected usable component."""
     if len({r["attempts"] for r in rows}) > 1:
         raise ValueError("Do not compare different calibration populations")
+    if len({len(r[EFFECTIVE]) for r in rows}) > 1:
+        raise ValueError("Do not compare different calibration window layouts")
     ordered = sorted(rows, key=strength)
     if len({strength(r) for r in ordered}) != len(ordered):
         raise ValueError("Duplicate calibration configuration")
@@ -180,7 +182,7 @@ def derive_domain(rows, teacher_id, condition_hash, protocol_hash):
                 calibration_key=value_sha([teacher_id, condition_hash, protocol_hash]),
                 calibrated_guidance_multiplier=multiplier,
                 normalized_minimum=lower, normalized_maximum=upper,
-                initial_normalized_guidance_scale_schedule=[0] * 4,
+                initial_normalized_guidance_scale_schedule=[0] * len(winner[EFFECTIVE]),
                 initial_source=winner["id"], bootstrap_sources=[r["id"] for r in panel],
                 source_rows_sha256=value_sha(full), constant_comparison=curve,
                 risk_boundary=boundary, stability_guarantee=False,
