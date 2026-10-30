@@ -1,0 +1,70 @@
+diff --git a/agenticgen/src/agenticgen/uniguide/chunking.py b/agenticgen/src/agenticgen/uniguide/chunking.py
+index b9afd2cc..abbf5960 100644
+--- a/agenticgen/src/agenticgen/uniguide/chunking.py
++++ b/agenticgen/src/agenticgen/uniguide/chunking.py
+@@ -6,6 +6,24 @@ from .batching import take
+ ROWS=10
+ 
+ 
++def concurrent_map(function,items,workers=1):
++    """Keep GEMM/VJP shapes fixed while several units occupy the GPU concurrently."""
++    items=list(items)
++    if workers<=1 or len(items)<=1:return [function(item) for item in items]
++    from concurrent.futures import ThreadPoolExecutor
++    device=torch.cuda.current_device();parent=torch.cuda.current_stream(device)
++    enabled=torch.is_grad_enabled()
++    def run(item):
++        with torch.cuda.device(device),torch.set_grad_enabled(enabled):
++            stream=torch.cuda.Stream(device=device);stream.wait_stream(parent)
++            with torch.cuda.stream(stream):
++                try:return function(item)
++                finally:stream.synchronize()
++    with ThreadPoolExecutor(max_workers=min(workers,len(items))) as pool:
++        # All worker streams finish before returning or propagating an OOM.
++        return list(pool.map(run,items))
++
++
+ def concatenate(values,sizes):
+     first=values[0]
+     if torch.is_tensor(first):
+@@ -28,18 +46,18 @@ def concatenate(values,sizes):
+     return first
+ 
+ 
+-def chunk_call(function,args,kwargs,count,rows=ROWS,pad_to=None):
++def chunk_call(function,args,kwargs,count,rows=ROWS,pad_to=None,workers=1):
+     if count<=rows and (pad_to is None or count==pad_to): return function(*args,**kwargs)
+-    values=[];sizes=[]
+-    for start in range(0,count,rows):
++    def block(start):
+         ids=list(range(start,min(start+rows,count)))
+         actual=len(ids)
+         if pad_to is not None:
+             if actual>pad_to: raise ValueError("Physical rows exceed frozen padding shape")
+             ids=(ids*((pad_to+actual-1)//actual))[:pad_to]
+         output=function(*(take(a,ids,count) for a in args),**{k:take(v,ids,count) for k,v in kwargs.items()})
+-        values.append(take(output,list(range(actual)),len(ids)))
+-        sizes.append(actual)
++        return take(output,list(range(actual)),len(ids)),actual
++    parts=concurrent_map(block,range(0,count,rows),workers)
++    values,sizes=zip(*parts)
+     return concatenate(values,sizes)
+ 
+ 
+@@ -49,10 +67,14 @@ def install(model):
+     model._ug_original_forward=forward
+     def bounded_forward(this,*args,**kwargs):
+         batch=args[0] if args else kwargs["batch"]
+-        return chunk_call(forward,args,kwargs,len(batch["coords"]),pad_to=ROWS)
++        rows=getattr(model,"_ug_physical_rows",ROWS)
++        return chunk_call(forward,args,kwargs,len(batch["coords"]),rows=rows,pad_to=rows,
++            workers=getattr(model,"_ug_parallel_workers",1))
+     model.forward=types.MethodType(bounded_forward,model)
+     encoding=model.gen.get_pocket_encoding
+     def bounded_encoding(this,*args,**kwargs):
+         coords=args[0] if args else kwargs["pocket_coords"]
+-        return chunk_call(encoding,args,kwargs,len(coords),pad_to=ROWS)
++        rows=getattr(model,"_ug_physical_rows",ROWS)
++        return chunk_call(encoding,args,kwargs,len(coords),rows=rows,pad_to=rows,
++            workers=getattr(model,"_ug_parallel_workers",1))
+     model.gen.get_pocket_encoding=types.MethodType(bounded_encoding,model.gen)
