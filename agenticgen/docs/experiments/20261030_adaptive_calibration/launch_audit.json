@@ -1,0 +1,122 @@
+{
+  "timestamp": "2026-10-30T12:50:37.684972+08:00",
+  "pid": 409,
+  "command": [
+    "bash",
+    "-i",
+    "/workspace/uniguide_runs/absolute-adaptive-cc641afa/agenticgen/docs/experiments/20261030_adaptive_calibration/launch.sh",
+    "/workspace/uniguide_runs/absolute-adaptive-cc641afa",
+    "/workspace/uniguide_runs/absolute-adaptive-cc641afa-config.json"
+  ],
+  "repo": "/workspace/uniguide_runs/absolute-adaptive-cc641afa",
+  "commit": "cc641afa13cf75b3577a444764a74d6e82f9011a",
+  "root": "/workspace/agenticgen_absolute_coordinate_adaptive_20261030",
+  "config": "/workspace/uniguide_runs/absolute-adaptive-cc641afa-config.json",
+  "background": true,
+  "rounds_per_teacher": 5,
+  "search_policy": "adaptive-bracket-population-v2",
+  "skills": "2.5.0",
+  "source_attempts_to_carry_once": 130,
+  "no_repeated_source_sampling": true,
+  "source_protection_count": 4738,
+  "stages": [
+    "acceptance",
+    "calibrate with exact measurement import",
+    "real LLM GD01",
+    "quality 10/50"
+  ],
+  "config_sha256": "ec0949518ad170aa9487a497e7be127171eb305ac4cc06634cef52e03c3db3db",
+  "teachers": [
+    {
+      "target": "6pyy_H7S_A_402",
+      "node_id": "single_b004_final_015",
+      "condition_sha256": "8592e1cecd7319871f0593cae457c00942a2ebbff6a7cc1a2cf9523994d6ade4",
+      "condition_atoms": 9,
+      "protein_anchor_count": 8674,
+      "protein_alignment": 0.0
+    },
+    {
+      "target": "3w54_RNB_A_504",
+      "node_id": "single_b000_final_003",
+      "condition_sha256": "081b3eb026e6bb5583d11ae3431c896237a8d2d8c96ade501a89c945d1528520",
+      "condition_atoms": 9,
+      "protein_anchor_count": 2147,
+      "protein_alignment": 0.0
+    }
+  ],
+  "verified_at": "2026-10-30T12:53:38.670365+08:00",
+  "verified_status": {
+    "timestamp": "2026-10-30T12:50:43.331967+08:00",
+    "stage": "acceptance",
+    "status": "running",
+    "pid": 482,
+    "log": "/workspace/agenticgen_absolute_coordinate_adaptive_20261030/acceptance.log"
+  },
+  "verified_processes": [
+    {
+      "pid": 409,
+      "state": "S",
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u agenticgen/docs/experiments/20261030_adaptive_calibration/run_campaign.py /workspace/uniguide_runs/absolute-adaptive-cc641afa /workspace/uniguide_runs/absolute-adaptive-cc641afa-config.json "
+    },
+    {
+      "pid": 482,
+      "state": "R",
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u /workspace/uniguide_runs/absolute-adaptive-cc641afa/agenticgen/scripts/run_uniguide_geometry.py --config /workspace/uniguide_runs/absolute-adaptive-cc641afa-config.json acceptance "
+    }
+  ],
+  "verified_locks": {
+    "/workspace/agenticgen_uniguide_flowr_20261026/.executor.lock": "held",
+    "/workspace/agenticgen_absolute_coordinate_adaptive_20261030/.executor.lock": "held",
+    "/workspace/agenticgen_absolute_coordinate_adaptive_20261030/.campaign.lock": "held",
+    "/workspace/agenticgen_absolute_coordinate_adaptive_20261030/quality_queue/.worker.lock": null
+  },
+  "verified_progress": [
+    {
+      "path": "acceptance/6pyy_H7S_A_402/promoted_slots/steps.json",
+      "steps": 12,
+      "last_step": 11
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/promoted_resumed/steps.json",
+      "steps": 2,
+      "last_step": 11
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/candidate_batch/separate_0/steps.json",
+      "steps": 100,
+      "last_step": 99
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/candidate_batch/separate_1/steps.json",
+      "steps": 100,
+      "last_step": 99
+    }
+  ],
+  "protected_files_changed": [],
+  "regression_passed": 219,
+  "regression_skipped": 1,
+  "formal_llm_calls_at_verification": 0,
+  "new_scientific_candidates_at_verification": 0,
+  "measurement_source_compatibility_preflight": {
+    "source_root": "/workspace/agenticgen_absolute_coordinate_uncapped_20261030",
+    "source_slots_checked": 13,
+    "completed_shards": 11,
+    "failed_shards_preserved": 2,
+    "source_attempts": 130,
+    "sampling_bindings_exact": true,
+    "old_condition_and_model_and_rng_and_statistics_unchanged": true,
+    "next_proposed_new_scale": 128.0,
+    "new_candidates": 0,
+    "api_calls": 0
+  },
+  "automation": {
+    "timestamp": "2026-10-30T12:55:26.390713+08:00",
+    "id": "absolute-coordinate",
+    "status": "ACTIVE",
+    "rrule": "FREQ=MINUTELY;INTERVAL=15",
+    "prompt_sha256": "4737b356efd53064cbdcc034ba3575244e95a03fb0e76413959c6d15a36ad087",
+    "utf8_no_replacement_character": true,
+    "original_ug_status": "PAUSED",
+    "original_ug_rrule": "FREQ=MINUTELY;INTERVAL=35"
+  }
+}
