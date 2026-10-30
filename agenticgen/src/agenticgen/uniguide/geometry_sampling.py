@@ -274,12 +274,17 @@ def compatibility(config, teacher, condition, domain=None):
         "chem_inpainting",
         "geometry_shards",
         "geometry_batch",
+        "gpu_execution",
+        "gpu_worker",
+        "gpu_recovery",
+        "gpu_resources",
         "native_tools",
         "prepare",
         "protocol",
         "joint_endpoint",
     ]
     sources = {name: sha(package / (name + ".py")) for name in names}
+    sources["workspace_counter.cpp"] = sha(package / "workspace_counter.cpp")
     sources["runtime/rng"] = sha(package.parent / "runtime/rng.py")
     sources.update(
         {

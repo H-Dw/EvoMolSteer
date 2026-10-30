@@ -65,69 +65,73 @@ def run(config):
     for subject in subjects:
         teacher,condition=subject["teacher"],subject["condition"];out=folder/teacher["target"]
         model=load_model(config,teacher)
-        numerical=real_vjp(model,config,teacher,condition)
-        off=scale_binding([0.]*4,1.,False,condition)
-        factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
-        sample(model,config,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
-            control_factory=factory,check_affinity=False)
-        sample(model,config,teacher,[1.]*4,out/"native_prefix",10,stop_step=3,control_factory=UnguidedRaw999)
-        a,b=(load_pt(out/name/"checkpoint_003.pt.gz") for name in ("disabled","native_prefix"))
-        disabled={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states")}
-        if not all(disabled.values()):raise ValueError("Disabled distance guidance differs from native prefix")
-        active=scale_binding([0.]*4,1.,True,condition)  # Test fixture only, NOT a fitted lambda.
-        factory=functools.partial(GeometryControl,condition=condition,scale_binding=active)
-        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"continuous",10,stop_step=12,
-            control_factory=factory,check_affinity=False)
-        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"resumed",10,stop_step=12,
-            resume_path=out/"continuous/checkpoint_010.pt.gz",control_factory=factory,check_affinity=False)
-        a,b=(load_pt(out/name/"checkpoint_012.pt.gz") for name in ("continuous","resumed"))
-        resumed={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states","previous_assignment")}
-        if not all(resumed.values()):raise ValueError("Distance guidance resume changed numerical state")
-        steps=read(out/"continuous/steps.json")
-        if any(any(v!=0 for v in s["assignment_switch_fraction"]) for s in steps):raise ValueError("Mapping changed during trajectory")
-        if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"]>=10):raise ValueError("Normalized zero incorrectly disabled guidance")
-        chemical_check={"enabled":config.get("chemical_inpainting",{"enabled":True})["enabled"]}
-        if chemical_check["enabled"]:
-            # Chemistry starts after the first gradient update; all native/coordinate
-            # operations through that update must equal a paired non-inpainting run.
-            plain=dict(config,chemical_inpainting={"enabled":False})
-            sample(model,plain,teacher,active["effective_guidance_scale_schedule"],out/"without_chemistry_prefix",10,stop_step=12,
+        from .gpu_execution import bind_executor
+        with bind_executor(model,config):
+            numerical=real_vjp(model,config,teacher,condition)
+            off=scale_binding([0.]*4,1.,False,condition)
+            factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
+            sample(model,config,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
                 control_factory=factory,check_affinity=False)
-            with h5py.File(out/"continuous/trace.h5") as enabled_trace,h5py.File(out/"without_chemistry_prefix/trace.h5") as disabled_trace:
-                for key in disabled_trace:
-                    if not np.array_equal(enabled_trace[key][:11],disabled_trace[key][:11]):
-                        raise ValueError("Chemistry changed the pre-injection prefix: "+key)
-            enabled_state=load_pt(out/"continuous/checkpoint_012.pt.gz")
-            disabled_state=load_pt(out/"without_chemistry_prefix/checkpoint_012.pt.gz")
-            if tensor_digest(enabled_state["stream_states"])!=tensor_digest(disabled_state["stream_states"]):
-                raise ValueError("Chemical inpainting consumed extra RNG")
-            chemical_check.update(first_pre_inpainting_update_exact=True,extra_rng_consumed=False,
-                coordinates_projected=False,self_conditioning_projected=False)
-        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"prefix_twenty",20,stop_step=12,
-            control_factory=factory,check_affinity=False)
-        selected=initial_shard(config,teacher["target"],[2,3])
-        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"promoted_slots",10,stop_step=12,
-            control_factory=factory,check_affinity=False,initial_override=selected)
-        full=load_pt(out/"prefix_twenty/checkpoint_012.pt.gz");shard=load_pt(out/"promoted_slots/checkpoint_012.pt.gz")
-        indices=[seed*4+slot for seed in range(5) for slot in (2,3)]
-        promotion={k:tensor_digest(take(full[k],indices,20))==tensor_digest(shard[k]) for k in ("current","cond","times","previous_assignment")}
-        promotion["native_rng_states"]=tensor_digest(full["stream_states"])==tensor_digest(shard["stream_states"])
-        if not all(promotion.values()):raise ValueError("Promoted native slots differ from original prefix: "+str(promotion))
-        sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"promoted_resumed",10,stop_step=12,
-            control_factory=factory,check_affinity=False,initial_override=selected,resume_path=out/"promoted_slots/checkpoint_010.pt.gz")
-        resumed_shard=load_pt(out/"promoted_resumed/checkpoint_012.pt.gz")
-        if any(tensor_digest(shard[k])!=tensor_digest(resumed_shard[k]) for k in ("current","cond","times","stream_states","previous_assignment")):
-            raise ValueError("Promoted slots changed after resume")
-        checks[teacher["target"]]=dict(real_model_vjp=numerical,disabled_equivalence=disabled,exact_resume=resumed,
-            chemical_state_inpainting=chemical_check,
-            exact_native_slot_promotion=promotion,promoted_slot_resume=True,
-            fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
-        from .geometry_batch_acceptance import run_teacher
-        checks[teacher["target"]]["candidate_batch_equivalence"]=run_teacher(model,config,teacher,condition,out/"candidate_batch")
+            sample(model,config,teacher,[1.]*4,out/"native_prefix",10,stop_step=3,control_factory=UnguidedRaw999)
+            a,b=(load_pt(out/name/"checkpoint_003.pt.gz") for name in ("disabled","native_prefix"))
+            disabled={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states")}
+            if not all(disabled.values()):raise ValueError("Disabled distance guidance differs from native prefix")
+            active=scale_binding([0.]*4,1.,True,condition)  # Test fixture only, NOT a fitted lambda.
+            factory=functools.partial(GeometryControl,condition=condition,scale_binding=active)
+            sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"continuous",10,stop_step=12,
+                control_factory=factory,check_affinity=False)
+            sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"resumed",10,stop_step=12,
+                resume_path=out/"continuous/checkpoint_010.pt.gz",control_factory=factory,check_affinity=False)
+            a,b=(load_pt(out/name/"checkpoint_012.pt.gz") for name in ("continuous","resumed"))
+            resumed={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states","previous_assignment")}
+            if not all(resumed.values()):raise ValueError("Distance guidance resume changed numerical state")
+            steps=read(out/"continuous/steps.json")
+            if any(any(v!=0 for v in s["assignment_switch_fraction"]) for s in steps):raise ValueError("Mapping changed during trajectory")
+            if any(not any(v>0 for v in s["gradient_norm"]) for s in steps if s["step"]>=10):raise ValueError("Normalized zero incorrectly disabled guidance")
+            chemical_check={"enabled":config.get("chemical_inpainting",{"enabled":True})["enabled"]}
+            if chemical_check["enabled"]:
+                # Chemistry starts after the first gradient update; all native/coordinate
+                # operations through that update must equal a paired non-inpainting run.
+                plain=dict(config,chemical_inpainting={"enabled":False})
+                sample(model,plain,teacher,active["effective_guidance_scale_schedule"],out/"without_chemistry_prefix",10,stop_step=12,
+                    control_factory=factory,check_affinity=False)
+                with h5py.File(out/"continuous/trace.h5") as enabled_trace,h5py.File(out/"without_chemistry_prefix/trace.h5") as disabled_trace:
+                    for key in disabled_trace:
+                        if not np.array_equal(enabled_trace[key][:11],disabled_trace[key][:11]):
+                            raise ValueError("Chemistry changed the pre-injection prefix: "+key)
+                enabled_state=load_pt(out/"continuous/checkpoint_012.pt.gz")
+                disabled_state=load_pt(out/"without_chemistry_prefix/checkpoint_012.pt.gz")
+                if tensor_digest(enabled_state["stream_states"])!=tensor_digest(disabled_state["stream_states"]):
+                    raise ValueError("Chemical inpainting consumed extra RNG")
+                chemical_check.update(first_pre_inpainting_update_exact=True,extra_rng_consumed=False,
+                    coordinates_projected=False,self_conditioning_projected=False)
+            sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"prefix_twenty",20,stop_step=12,
+                control_factory=factory,check_affinity=False)
+            selected=initial_shard(config,teacher["target"],[2,3])
+            sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"promoted_slots",10,stop_step=12,
+                control_factory=factory,check_affinity=False,initial_override=selected)
+            full=load_pt(out/"prefix_twenty/checkpoint_012.pt.gz");shard=load_pt(out/"promoted_slots/checkpoint_012.pt.gz")
+            indices=[seed*4+slot for seed in range(5) for slot in (2,3)]
+            promotion={k:tensor_digest(take(full[k],indices,20))==tensor_digest(shard[k]) for k in ("current","cond","times","previous_assignment")}
+            promotion["native_rng_states"]=tensor_digest(full["stream_states"])==tensor_digest(shard["stream_states"])
+            if not all(promotion.values()):raise ValueError("Promoted native slots differ from original prefix: "+str(promotion))
+            sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"promoted_resumed",10,stop_step=12,
+                control_factory=factory,check_affinity=False,initial_override=selected,resume_path=out/"promoted_slots/checkpoint_010.pt.gz")
+            resumed_shard=load_pt(out/"promoted_resumed/checkpoint_012.pt.gz")
+            if any(tensor_digest(shard[k])!=tensor_digest(resumed_shard[k]) for k in ("current","cond","times","stream_states","previous_assignment")):
+                raise ValueError("Promoted slots changed after resume")
+            checks[teacher["target"]]=dict(real_model_vjp=numerical,disabled_equivalence=disabled,exact_resume=resumed,
+                chemical_state_inpainting=chemical_check,
+                exact_native_slot_promotion=promotion,promoted_slot_resume=True,
+                fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
+            from .geometry_batch_acceptance import run_teacher
+            checks[teacher["target"]]["candidate_batch_equivalence"]=run_teacher(model,config,teacher,condition,out/"candidate_batch")
         del model;torch.cuda.empty_cache()
     if sha(original)!=before:raise ValueError("Original attempt ledger changed")
     receipt=dict(source_binding=source_binding(),config_sha256=value_sha(config),checks=checks,
         torch_version=torch.__version__,new_completed_candidates=0,llm_calls=0,fitted_multipliers=False,
-        engineering_trajectory_evaluations=60*len(subjects),engineering_outputs_not_experiment_measurements=True,
+        engineering_outputs_not_experiment_measurements=True,
         original_attempts_sha256=before,engineering_only=True)
+    from .gpu_resources import engineering_inventory
+    receipt.update(engineering_inventory(folder))
     frozen(folder/"COMPLETE.json",receipt);return receipt

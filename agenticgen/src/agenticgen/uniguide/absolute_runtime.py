@@ -56,6 +56,8 @@ def validate_config(config):
     if (config.get("steps",100)!=100 or config.get("noise_level",.2)!=.2 or
             type(config["rounds"]) is not int or config["rounds"]<1):raise ValueError("Invalid integration/iteration configuration")
     if config.get("population",50)!=50:raise ValueError("Formal population remains fifty")
+    from .gpu_execution import settings
+    config=dict(config,gpu_execution=settings(config))
     dynamics_policy(config)
     from .geometry_chemistry import policy as chemical_policy
     config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
@@ -205,68 +207,70 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
         verify_frozen(root,domains[subject["teacher"]["target"]],compatibility(config,subject["teacher"],subject["condition"]))
     for subject in subjects:
         teacher,condition=subject["teacher"],subject["condition"];target=teacher["target"];domain=domains[target]
-        model=model_loader(config,teacher);groups=[];troot=folder/target
-        initial_path=root/"INITIAL_GUIDANCE.json"
-        if initial_path.exists() and version=="GD01":
-            from .geometry_reuse import verify_initial
-            selected=verify_initial(root,domains)[target]
-            out=root/"initial_guidance"/target
-            if executor is execute:
-                from .geometry_batch import execute_many
-                row=execute_many(model,config,teacher,condition,[dict(schedule=selected[NORMALIZED],folder=out,stage="formal",domain=domain)])[0]
-                if isinstance(row,Exception):raise row
-            else:row=executor(model,config,teacher,condition,selected[NORMALIZED],out,"formal",domain=domain)
-            frozen(troot/"INITIAL_MEASUREMENT.json",dict(selected=selected,source_group=row["id"],fingerprint=row["fingerprint"]))
-        for iteration in range(1,config["rounds"]+1):
-            if source_binding()!=manifest["source_binding"]:raise ValueError("Executable sources changed mid-version")
-            if {p.name:sha(p) for p in skills.glob("*.md")}!=manifest["skill_hashes"]:
-                raise ValueError("Frozen skills changed mid-version")
-            call_folder=troot/f"advice_{iteration:03d}"
-            snapshot=call_folder/"history_snapshot.json"
+        groups=[];troot=folder/target
+        from .gpu_execution import execution_model
+        with execution_model(model_loader,config,teacher) as model:
+            initial_path=root/"INITIAL_GUIDANCE.json"
+            if initial_path.exists() and version=="GD01":
+                from .geometry_reuse import verify_initial
+                selected=verify_initial(root,domains)[target]
+                out=root/"initial_guidance"/target
+                if executor is execute:
+                    from .geometry_batch import execute_many
+                    row=execute_many(model,config,teacher,condition,[dict(schedule=selected[NORMALIZED],folder=out,stage="formal",domain=domain)])[0]
+                    if isinstance(row,Exception):raise row
+                else:row=executor(model,config,teacher,condition,selected[NORMALIZED],out,"formal",domain=domain)
+                frozen(troot/"INITIAL_MEASUREMENT.json",dict(selected=selected,source_group=row["id"],fingerprint=row["fingerprint"]))
+            for iteration in range(1,config["rounds"]+1):
+                if source_binding()!=manifest["source_binding"]:raise ValueError("Executable sources changed mid-version")
+                if {p.name:sha(p) for p in skills.glob("*.md")}!=manifest["skill_hashes"]:
+                    raise ValueError("Frozen skills changed mid-version")
+                call_folder=troot/f"advice_{iteration:03d}"
+                snapshot=call_folder/"history_snapshot.json"
+                current,failed=history(config,teacher,condition,domain)
+                if not snapshot.exists():frozen(snapshot,dict(history=current,failures=failed,domain_sha256=domain["domain_sha256"]))
+                saved=read(snapshot)
+                if saved["domain_sha256"]!=domain["domain_sha256"]:raise ValueError("History snapshot domain changed")
+                current_by_id={r["id"]:r for r in current}
+                if any(value_sha(current_by_id.get(r["id"]))!=value_sha(r) for r in saved["history"]):raise ValueError("Historical source changed on replay")
+                proposals=advisor(config,saved["history"],domain,call_folder,skills,saved["failures"])
+                branches=[p["branch"] for p in proposals]
+                expected={"increase","decrease","redistribute"}
+                if len(branches)!=len(set(branches)) or set(branches)-expected or not adaptive and set(branches)!=expected:
+                    raise ValueError("Incomplete or duplicated inclination selection")
+                for branch in sorted(expected-set(branches)):
+                    boundary=read(call_folder/(branch+".BOUNDARY_REACHED.json"))
+                    skipped_branches.append(dict(boundary,teacher_id=target,iteration=iteration))
+                resolved_seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in saved["history"]]
+                jobs=[];resolved_actions=[]
+                for proposal in proposals:
+                    if condition.get("reward_policy"):
+                        from .analysis_tools import EvidenceTools
+                        registry=EvidenceTools(root,saved["history"],domain,call_folder/"task_memory/calculations",condition=condition)
+                        proposal=registry.resolve_loss_control(proposal,allow_saved=True)
+                    resolved=resolve_action(proposal,{r["id"]:r for r in saved["history"]},domain,resolved_seen)
+                    resolved_seen.append(seen_configuration(resolved[NORMALIZED],resolved.get(WEIGHTS)))
+                    out=troot/f"iteration_{iteration:03d}"/proposal["branch"]
+                    frozen(out/"agent_action.json",proposal);frozen(out/"proposal.json",resolved)
+                    jobs.append(dict(schedule=resolved[NORMALIZED],folder=out,stage="formal",domain=domain,
+                        **({"loss_weights":resolved[WEIGHTS]} if WEIGHTS in resolved else {})));resolved_actions.append(resolved)
+                if executor is execute:
+                    from .geometry_batch import execute_many
+                    measured=execute_many(model,config,teacher,condition,jobs)
+                else:measured=[executor(model,config,teacher,condition,j["schedule"],j["folder"],"formal",domain=domain,
+                    **({"loss_weights":j["loss_weights"]} if "loss_weights" in j else {})) for j in jobs]
+                for row,resolved in zip(measured,resolved_actions):
+                    if isinstance(row,Exception):raise row
+                    groups.append(dict(row,selected_proposal=resolved,iteration=iteration))
             current,failed=history(config,teacher,condition,domain)
-            if not snapshot.exists():frozen(snapshot,dict(history=current,failures=failed,domain_sha256=domain["domain_sha256"]))
-            saved=read(snapshot)
-            if saved["domain_sha256"]!=domain["domain_sha256"]:raise ValueError("History snapshot domain changed")
-            current_by_id={r["id"]:r for r in current}
-            if any(value_sha(current_by_id.get(r["id"]))!=value_sha(r) for r in saved["history"]):raise ValueError("Historical source changed on replay")
-            proposals=advisor(config,saved["history"],domain,call_folder,skills,saved["failures"])
-            branches=[p["branch"] for p in proposals]
-            expected={"increase","decrease","redistribute"}
-            if len(branches)!=len(set(branches)) or set(branches)-expected or not adaptive and set(branches)!=expected:
-                raise ValueError("Incomplete or duplicated inclination selection")
-            for branch in sorted(expected-set(branches)):
-                boundary=read(call_folder/(branch+".BOUNDARY_REACHED.json"))
-                skipped_branches.append(dict(boundary,teacher_id=target,iteration=iteration))
-            resolved_seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in saved["history"]]
-            jobs=[];resolved_actions=[]
-            for proposal in proposals:
-                if condition.get("reward_policy"):
-                    from .analysis_tools import EvidenceTools
-                    registry=EvidenceTools(root,saved["history"],domain,call_folder/"task_memory/calculations",condition=condition)
-                    proposal=registry.resolve_loss_control(proposal,allow_saved=True)
-                resolved=resolve_action(proposal,{r["id"]:r for r in saved["history"]},domain,resolved_seen)
-                resolved_seen.append(seen_configuration(resolved[NORMALIZED],resolved.get(WEIGHTS)))
-                out=troot/f"iteration_{iteration:03d}"/proposal["branch"]
-                frozen(out/"agent_action.json",proposal);frozen(out/"proposal.json",resolved)
-                jobs.append(dict(schedule=resolved[NORMALIZED],folder=out,stage="formal",domain=domain,
-                    **({"loss_weights":resolved[WEIGHTS]} if WEIGHTS in resolved else {})));resolved_actions.append(resolved)
-            if executor is execute:
-                from .geometry_batch import execute_many
-                measured=execute_many(model,config,teacher,condition,jobs)
-            else:measured=[executor(model,config,teacher,condition,j["schedule"],j["folder"],"formal",domain=domain,
-                **({"loss_weights":j["loss_weights"]} if "loss_weights" in j else {})) for j in jobs]
-            for row,resolved in zip(measured,resolved_actions):
-                if isinstance(row,Exception):raise row
-                groups.append(dict(row,selected_proposal=resolved,iteration=iteration))
-        current,failed=history(config,teacher,condition,domain)
-        advisor(config,current,domain,troot/"analysis_final",skills,failed,final=True)
-        winner=choose(groups or current);retainer(root,groups or current,winner,troot/"retention")
-        contexts.extend([str(troot/"analysis_final"/"increase.json"),str(troot/"analysis_final"/"synthesis.json")])
-        from .coordinate_statistics import RANKING, SUMMARY
-        summaries[target]=dict(representative=winner["id"],**{k:winner[k] for k in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,RANKING,SUMMARY)},
-            **{k:winner[k] for k in (WEIGHTS,INTERACTION_DISTANCE) if k in winner},
-            domain_sha256=domain["domain_sha256"],complete=True)
-        all_groups.extend(groups);del model
+            advisor(config,current,domain,troot/"analysis_final",skills,failed,final=True)
+            winner=choose(groups or current);retainer(root,groups or current,winner,troot/"retention")
+            contexts.extend([str(troot/"analysis_final"/"increase.json"),str(troot/"analysis_final"/"synthesis.json")])
+            from .coordinate_statistics import RANKING, SUMMARY
+            summaries[target]=dict(representative=winner["id"],**{k:winner[k] for k in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,RANKING,SUMMARY)},
+                **{k:winner[k] for k in (WEIGHTS,INTERACTION_DISTANCE) if k in winner},
+                domain_sha256=domain["domain_sha256"],complete=True)
+            all_groups.extend(groups)
     if len(all_groups)+len(skipped_branches)!=len(subjects)*3*config["rounds"]:raise ValueError("Incomplete configured iteration count")
     result=dict(version=version,teachers=summaries,groups=all_groups,strategy_contexts=contexts,
         manifest_sha256=sha(folder/"manifest.json"),complete=not missing_teachers and not skipped_branches,

@@ -6,22 +6,11 @@ from .batching import take
 ROWS=10
 
 
-def concurrent_map(function,items,workers=1):
-    """Keep GEMM/VJP shapes fixed while several units occupy the GPU concurrently."""
-    items=list(items)
-    if workers<=1 or len(items)<=1:return [function(item) for item in items]
-    from concurrent.futures import ThreadPoolExecutor
-    device=torch.cuda.current_device();parent=torch.cuda.current_stream(device)
-    enabled=torch.is_grad_enabled()
-    def run(item):
-        with torch.cuda.device(device),torch.set_grad_enabled(enabled):
-            stream=torch.cuda.Stream(device=device);stream.wait_stream(parent)
-            with torch.cuda.stream(stream):
-                try:return function(item)
-                finally:stream.synchronize()
-    with ThreadPoolExecutor(max_workers=min(workers,len(items))) as pool:
-        # All worker streams finish before returning or propagating an OOM.
-        return list(pool.map(run,items))
+def concurrent_map(function,items,workers=1,*,executor=None,inputs=()):
+    """Reuse an explicit teacher executor; never construct transient GPU workers."""
+    if executor is not None:return executor.map(function,items,inputs=inputs)
+    if workers!=1:raise RuntimeError("Parallel execution requires a teacher-scoped executor")
+    return [function(item) for item in items]
 
 
 def concatenate(values,sizes):
@@ -46,7 +35,7 @@ def concatenate(values,sizes):
     return first
 
 
-def chunk_call(function,args,kwargs,count,rows=ROWS,pad_to=None,workers=1):
+def chunk_call(function,args,kwargs,count,rows=ROWS,pad_to=None,workers=1,executor=None):
     if count<=rows and (pad_to is None or count==pad_to): return function(*args,**kwargs)
     def block(start):
         ids=list(range(start,min(start+rows,count)))
@@ -56,7 +45,7 @@ def chunk_call(function,args,kwargs,count,rows=ROWS,pad_to=None,workers=1):
             ids=(ids*((pad_to+actual-1)//actual))[:pad_to]
         output=function(*(take(a,ids,count) for a in args),**{k:take(v,ids,count) for k,v in kwargs.items()})
         return take(output,list(range(actual)),len(ids)),actual
-    parts=concurrent_map(block,range(0,count,rows),workers)
+    parts=concurrent_map(block,range(0,count,rows),workers,executor=executor,inputs=(args,kwargs))
     values,sizes=zip(*parts)
     return concatenate(values,sizes)
 
@@ -69,12 +58,12 @@ def install(model):
         batch=args[0] if args else kwargs["batch"]
         rows=getattr(model,"_ug_physical_rows",ROWS)
         return chunk_call(forward,args,kwargs,len(batch["coords"]),rows=rows,pad_to=rows,
-            workers=getattr(model,"_ug_parallel_workers",1))
+            executor=getattr(model,"_ug_gpu_executor",None))
     model.forward=types.MethodType(bounded_forward,model)
     encoding=model.gen.get_pocket_encoding
     def bounded_encoding(this,*args,**kwargs):
         coords=args[0] if args else kwargs["pocket_coords"]
         rows=getattr(model,"_ug_physical_rows",ROWS)
         return chunk_call(encoding,args,kwargs,len(coords),rows=rows,pad_to=rows,
-            workers=getattr(model,"_ug_parallel_workers",1))
+            executor=getattr(model,"_ug_gpu_executor",None))
     model.gen.get_pocket_encoding=types.MethodType(bounded_encoding,model.gen)

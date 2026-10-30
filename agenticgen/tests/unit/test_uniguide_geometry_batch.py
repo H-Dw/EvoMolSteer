@@ -121,7 +121,22 @@ def test_cross_configuration_batch_oom_accounting_promotion_and_reuse(tmp_path,m
             raise torch.cuda.OutOfMemoryError("injected")
         return sample(*args,**kwargs)
     jobs=[dict(schedule=[i+1.]*4,folder=tmp_path/f"grid{i}",stage="calibration",count=10) for i in range(9)]
-    rows=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=oom)
+    from agenticgen.uniguide import gpu_recovery
+    recovery = None
+    for pid in (901, 902, 903):
+        monkeypatch.setattr(gpu_recovery.os, "getpid", lambda: pid)
+        try:
+            rows=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=oom,_recovery=recovery)
+            break
+        except gpu_recovery.GpuOOMRestartRequired as error:
+            recovery = error.recovery
+            write(Path(recovery).with_name("OLD_PROCESS_EXITED.json"),
+                  dict(pid=pid, exit_code=75, process_reaped=True))
+    else:
+        pytest.fail("Bounded OOM continuation did not complete")
+    claims=list((tmp_path/"candidate_batches/teacher").glob("*/RECOVERY_CLAIM.json"))
+    assert len(claims)==2
+    assert all(read(p)["failed_pid"]!=read(p)["new_pid"] for p in claims)
     assert attempted==[50,40,20,20,20,20,10] and calls==[20,20,20,20,10]
     assert torch.equal(external,torch.get_rng_state())
     assert all(r["attempts"]==10 for r in rows)

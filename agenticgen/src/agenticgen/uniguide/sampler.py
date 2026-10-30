@@ -55,7 +55,7 @@ class Control:
     def physical_rows(self):
         return ROWS
 
-    def execute_blocks(self,function,starts):
+    def execute_blocks(self,function,starts,*,inputs=()):
         return [function(start) for start in starts]
 
     def condition_loss_for_rows(self,endpoint,valid,ids):
@@ -165,7 +165,8 @@ class Control:
                 gradient=self.check_rows("input gradient",gradient,physical_ids)
             return take(detach(dict(out=out,pred=pred,endpoint=endpoint,value=value,target=target,
                                       selected=selected,assignment=assignment,gradient=gradient)),list(range(actual)),physical),actual
-        parts=self.execute_blocks(block,range(0,count,physical));blocks,sizes=zip(*parts)
+        parts=self.execute_blocks(block,range(0,count,physical),
+            inputs=(curr,pocket,times,cond,equis,invs,self.com));blocks,sizes=zip(*parts)
         combined=concatenate(blocks,sizes)
         out,pred,endpoint,value,target,selected,assignment,gradient=(combined[k] for k in
             ["out","pred","endpoint","value","target","selected","assignment","gradient"])

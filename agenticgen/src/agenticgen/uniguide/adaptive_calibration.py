@@ -142,30 +142,27 @@ def run(config, subjects, model_loader, executor):
         frozen(folder / "SEARCH_CLAIM.json", dict(search_policy=POLICY, teacher_id=target,
                                                    plan_sha256=sha(folder / "PLAN.json")))
         write(root / "BUDGET_SCOPE.json", dict(stage="calibration", teacher_id=target))
-        model = model_loader(config, subject["teacher"])
-        search = TeacherSearch(config, subject, binding, folder, executor, model, imported.get(target, ()))
-        try:
-            domain = search.run(declared)
-            receipts = {r["id"]: sha(root / r["id"] / "COMPLETE.json")
-                        for r in search.rows.values() if r["complete"]}
-            frozen(folder / "domain.json", domain)
-            frozen(folder / "all_results.json", list(search.rows.values()))
-            frozen(folder / "COMPLETE.json", dict(domain_sha256=domain["domain_sha256"],
-                measurement_receipts=receipts, fitted_once=True, search_is_local=True,
-                boundary_best_allowed=True, promoted_slots_are_reused_not_independent=True))
-            domains[target] = domain
-            statuses[target] = dict(status="ready", domain_status=domain["domain_status"],
-                                    consumed_attempts=search.used(), domain_sha256=domain["domain_sha256"])
-        except SearchInsufficient as error:
-            search.persist("needs_evidence")
-            frozen(folder / "INSUFFICIENT_EVIDENCE.json", dict(error=str(error),
-                completed_and_failed_evidence=list(search.rows.values()), no_automatic_retry=True,
-                continue_other_teachers=True, consumed_attempts=search.used()))
-            statuses[target] = dict(status="needs_evidence", reason=str(error), consumed_attempts=search.used())
-        finally:
-            search.model = model = None
-            import torch
-            torch.cuda.empty_cache()
+        from .gpu_execution import execution_model
+        with execution_model(model_loader, config, subject["teacher"]) as model:
+            search = TeacherSearch(config, subject, binding, folder, executor, model, imported.get(target, ()))
+            try:
+                domain = search.run(declared)
+                receipts = {r["id"]: sha(root / r["id"] / "COMPLETE.json")
+                            for r in search.rows.values() if r["complete"]}
+                frozen(folder / "domain.json", domain)
+                frozen(folder / "all_results.json", list(search.rows.values()))
+                frozen(folder / "COMPLETE.json", dict(domain_sha256=domain["domain_sha256"],
+                    measurement_receipts=receipts, fitted_once=True, search_is_local=True,
+                    boundary_best_allowed=True, promoted_slots_are_reused_not_independent=True))
+                domains[target] = domain
+                statuses[target] = dict(status="ready", domain_status=domain["domain_status"],
+                                        consumed_attempts=search.used(), domain_sha256=domain["domain_sha256"])
+            except SearchInsufficient as error:
+                search.persist("needs_evidence")
+                frozen(folder / "INSUFFICIENT_EVIDENCE.json", dict(error=str(error),
+                    completed_and_failed_evidence=list(search.rows.values()), no_automatic_retry=True,
+                    continue_other_teachers=True, consumed_attempts=search.used()))
+                statuses[target] = dict(status="needs_evidence", reason=str(error), consumed_attempts=search.used())
         write(root / "calibration/TEACHER_STATUS.json", statuses)
     frozen(root / "calibration/domains.json", domains)
     frozen(root / "calibration/TEACHER_STATUS.json", statuses)

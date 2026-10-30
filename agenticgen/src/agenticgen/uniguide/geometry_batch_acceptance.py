@@ -57,16 +57,11 @@ def verify_failure_isolation(model, config, teacher, condition, folder, units, r
         NonfiniteGradientFixture, condition=condition, scale_binding=units[0]["scale"],
         units=units, physical_rows=20,
     )
-    prior = getattr(model, "_ug_parallel_workers", 1)
-    try:
-        model._ug_parallel_workers = 2
-        _, _, _, control = sampler.sample(
-            model, config, teacher, units[0]["scale"][EFFECTIVE], destination, 20,
-            control_factory=factory, check_affinity=False,
-            initial_override=batch_initial(config, teacher["target"], units), stop_step=12,
-        )
-    finally:
-        model._ug_parallel_workers = prior
+    _, _, _, control = sampler.sample(
+        model, config, teacher, units[0]["scale"][EFFECTIVE], destination, 20,
+        control_factory=factory, check_affinity=False,
+        initial_override=batch_initial(config, teacher["target"], units), stop_step=12,
+    )
     if set(control.failed_units) != {1}:
         raise ValueError("Injected failure was not isolated to its RNG shard")
     with h5py.File(destination / "trace.h5") as mixed, h5py.File(reference / "trace.h5") as single:
@@ -93,14 +88,13 @@ def run_teacher(model,config,teacher,condition,folder):
             initial_override=initial_shard(config,teacher["target"],slots))
         separate.append(out)
     out=folder/"mixed_twenty";before=capture();prior=getattr(model,"_ug_physical_rows",10)
-    prior_workers=getattr(model,"_ug_parallel_workers",1)
     try:
-        model._ug_physical_rows=10;model._ug_parallel_workers=2
+        model._ug_physical_rows=10
         factory=functools.partial(CandidateControl,condition=condition,scale_binding=units[0]["scale"],units=units,physical_rows=20)
         _,_,_,control=sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],out,20,
             control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units))
         if control.failed_units:raise ValueError("Acceptance fixture produced numerical failures")
-    finally:model._ug_physical_rows=prior;model._ug_parallel_workers=prior_workers
+    finally:model._ug_physical_rows=prior
     if not equal(before,capture()):raise ValueError("Mixed batch consumed external RNG")
     differences=[];joint=load_pt(out/"terminal.pt.gz");state=load_pt(out/"checkpoint_100.pt.gz")
     for i,source in enumerate(separate):
@@ -147,37 +141,33 @@ def run_teacher(model,config,teacher,condition,folder):
     write(folder/"COMPARISON.json",receipt)
     if differences:raise ValueError("Mixed batches changed independent trajectories; see COMPARISON.json")
     try:
-        model._ug_physical_rows=10;model._ug_parallel_workers=2
+        model._ug_physical_rows=10
         sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],folder/"mixed_resumed",20,
             control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units),
             resume_path=out/"checkpoint_010.pt.gz")
-    finally:model._ug_physical_rows=prior;model._ug_parallel_workers=prior_workers
+    finally:model._ug_physical_rows=prior
     if compare_trees(joint,load_pt(folder/"mixed_resumed/terminal.pt.gz")):raise ValueError("Mixed batch resume changed output")
     receipt.update(exact_mixed_resume=True,engineering_trajectory_evaluations=60,network_microbatch_size=10,
-        concurrent_units=2,physical_batch_shape_is_fixed=True)
+        concurrent_units=getattr(model,"_ug_gpu_executor").workers,physical_batch_shape_is_fixed=True)
     # Validate the production default over the full integration, not a short prefix.
-    capacity=DEFAULT_BATCH_SIZE;ooms=[]
-    while True:
-        selected=[copy.deepcopy(units[i%2]) for i in range(capacity//10)]
-        for i,u in enumerate(selected):u["id"]=f"capacity_fixture_{i}"
-        before=capture();error=None
-        try:
-            model._ug_physical_rows=10;model._ug_parallel_workers=capacity//10
-            factory=functools.partial(CandidateControl,condition=condition,scale_binding=selected[0]["scale"],units=selected,physical_rows=capacity)
-            sampler.sample(model,config,teacher,selected[0]["scale"][EFFECTIVE],folder/f"capacity_{capacity}",capacity,
-                control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],selected),stop_step=100)
-        except Exception as exc:
-            if not device_oom(exc):raise
-            error=str(exc)
-        finally:
-            restore(before);model._ug_physical_rows=prior;model._ug_parallel_workers=prior_workers
-            model._adaptive=None;model.integrator._adaptive_observer=None
-        if error is None:break
-        ooms.append(dict(capacity=capacity,error=error));capacity=lower_capacity(capacity)
-        import gc
-        gc.collect();torch.cuda.empty_cache()
-        if capacity is None:raise RuntimeError("No accepted GPU capacity")
-    receipt.update(capacity_probe_initial=DEFAULT_BATCH_SIZE,capacity_probe_success=capacity,capacity_probe_ooms=ooms,
+    capacity=DEFAULT_BATCH_SIZE
+    selected=[copy.deepcopy(units[i%2]) for i in range(capacity//10)]
+    for i,u in enumerate(selected):u["id"]=f"capacity_fixture_{i}"
+    before=capture()
+    try:
+        model._ug_physical_rows=10
+        factory=functools.partial(CandidateControl,condition=condition,scale_binding=selected[0]["scale"],units=selected,physical_rows=capacity)
+        sampler.sample(model,config,teacher,selected[0]["scale"][EFFECTIVE],folder/f"capacity_{capacity}",capacity,
+            control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],selected),stop_step=100)
+    except Exception as exc:
+        if device_oom(exc):
+            write(folder/"CAPACITY_OOM.json",dict(capacity=capacity,error=str(exc),
+                clean_gpu_process_required=True,no_in_process_retry=True))
+        raise
+    finally:
+        restore(before);model._ug_physical_rows=prior
+        model._adaptive=None;model.integrator._adaptive_observer=None
+    receipt.update(capacity_probe_initial=DEFAULT_BATCH_SIZE,capacity_probe_success=capacity,capacity_probe_ooms=[],
         capacity_probe_steps=100,capacity_probe_not_calibration=True)
     with h5py.File(folder/f"capacity_{capacity}"/"trace.h5","r") as combined:
         for i in range(capacity//10):
@@ -186,10 +176,14 @@ def run_teacher(model,config,teacher,condition,folder):
                     if not np.array_equal(single[key][:100],combined[key][:100,i*10:(i+1)*10]):
                         raise ValueError("Capacity probe changed independent trajectory: "+key)
     receipt["capacity_probe_exact_prefix_equivalence"]=True
+    from .gpu_stability import run_teacher as resource_acceptance
+    receipt["resource_stability"]=resource_acceptance(model,config,teacher,condition,folder/"resource_stability",units,separate)
     from .geometry_dynamics import policy as dynamics_policy
     if dynamics_policy(config)["limiter"] == "none":
         receipt.update(verify_uncapped_guidance(model,config,teacher,condition,folder,units,separate[0]))
         receipt["nonfinite_isolation"] = verify_failure_isolation(model, config, teacher, condition, folder, units, separate[0])
+        from .gpu_resources import engineering_inventory
+        receipt.update(engineering_inventory(folder))
         frozen(folder/"COMPLETE.json",receipt)
         return receipt
     # Legacy distance protocols retain their own historical radius acceptance.
@@ -197,12 +191,9 @@ def run_teacher(model,config,teacher,condition,folder):
     # remain identical to its separately executed low-strength trajectory.
     stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*4,condition=condition))]
     limited=folder/"candidate_local_limit"
-    try:
-        model._ug_parallel_workers=2
-        factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],units=stress,physical_rows=20)
-        sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],limited,20,control_factory=factory,
-            check_affinity=False,initial_override=batch_initial(config,teacher["target"],stress),stop_step=12)
-    finally:model._ug_parallel_workers=prior_workers
+    factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],units=stress,physical_rows=20)
+    sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],limited,20,control_factory=factory,
+        check_affinity=False,initial_override=batch_initial(config,teacher["target"],stress),stop_step=12)
     steps=read(limited/"steps.json")
     assert any(any(s["guidance_increment_limited"][10:]) for s in steps)
     assert not any(any(s["guidance_increment_limited"][:10]) for s in steps)
@@ -217,6 +208,8 @@ def run_teacher(model,config,teacher,condition,folder):
     receipt["nonfinite_isolation"] = verify_failure_isolation(
         model, config, teacher, condition, folder, units, separate[0],
     )
+    from .gpu_resources import engineering_inventory
+    receipt.update(engineering_inventory(folder))
     frozen(folder/"COMPLETE.json",receipt)
     return receipt
 
@@ -226,16 +219,11 @@ def verify_uncapped_guidance(model,config,teacher,condition,folder,units,separat
     stress=[copy.deepcopy(units[0]),dict(id="uncapped_fixture",slots=[6,7],
         scale=scale_binding([1e6]*4,condition=condition))]
     destination=folder/"uncapped_large_increment"
-    prior_workers=getattr(model,"_ug_parallel_workers",1)
-    try:
-        model._ug_parallel_workers=2
-        factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],
-            units=stress,physical_rows=20)
-        sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],destination,20,
-            control_factory=factory,check_affinity=False,
-            initial_override=batch_initial(config,teacher["target"],stress),stop_step=11)
-    finally:
-        model._ug_parallel_workers=prior_workers
+    factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],
+        units=stress,physical_rows=20)
+    sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],destination,20,
+        control_factory=factory,check_affinity=False,
+        initial_override=batch_initial(config,teacher["target"],stress),stop_step=11)
     steps=read(destination/"steps.json")
     assert all("guidance_increment_limited" not in row for row in steps)
     assert max(steps[10]["max_atom_increment_A"][10:])>3.

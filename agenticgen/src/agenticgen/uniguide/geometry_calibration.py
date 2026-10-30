@@ -76,59 +76,57 @@ def run(config,subjects,model_loader,executor):
         frozen(out/"PLAN.json",dict(plan=declared,sampling_protocol=binding,calibration_key=key))
         if (out/"INSUFFICIENT_EVIDENCE.json").exists():
             raise RuntimeError("Frozen calibration stopped for insufficient evidence; explicit redesign required")
-        model=model_loader(config,teacher);rows=[]
-        def measure(scale,count,phase):
-            destination=out/phase/value_sha(scale)
-            failure=destination/"CALIBRATION_FAILURE.json"
-            if failure.exists():row=read(failure)
-            else:
-                try:row=executor(model,config,teacher,condition,[scale]*4,destination,"calibration",count)
-                except FloatingPointError as error:
-                    row=dict(id=destination.relative_to(root).as_posix(),teacher_id=target,
-                        condition_sha256=condition["condition_sha256"],compatibility_sha256=protocol_hash,
-                        complete=False,attempts=count,population_is_requested_not_completed=True,error=str(error),**{EFFECTIVE:[scale]*4})
-                    frozen(failure,row)
-            rows.append(dict(row,phase=phase))
-            return rows[-1]
-        def phase_measure(scales,count,phase):
-            from .geometry_sampling import execute
-            if executor is not execute:return [measure(scale,count,phase) for scale in scales]
-            from .geometry_batch import execute_many
-            jobs=[dict(schedule=[scale]*4,folder=out/phase/value_sha(scale),stage="calibration",count=count) for scale in scales]
-            measured=execute_many(model,config,teacher,condition,jobs)
-            result=[]
-            for scale,job,row in zip(scales,jobs,measured):
-                if isinstance(row,FloatingPointError):
-                    row=dict(id=job["folder"].relative_to(root).as_posix(),teacher_id=target,
-                        condition_sha256=condition["condition_sha256"],compatibility_sha256=protocol_hash,
-                        complete=False,attempts=count,population_is_requested_not_completed=True,error=str(row),**{EFFECTIVE:[scale]*4})
-                    frozen(job["folder"]/"CALIBRATION_FAILURE.json",row)
-                rows.append(dict(row,phase=phase));result.append(rows[-1])
-            return result
-        try:
-            coarse=phase_measure(declared["coarse_actual_scales"],10,"coarse")
-            frozen(out/"coarse_results.json",coarse)
-            scales=refinement(coarse);frozen(out/"refinement_scales.json",scales)
-            fine=phase_measure(scales,20,"refinement")
-            frozen(out/"refinement_results.json",fine)
-            phase_measure([r[EFFECTIVE][0] for r in fine if r["complete"]],50,"full")
-            for row in fine:
-                if not row["complete"]:rows.append(dict(row,phase="full",attempts=50,not_promoted_due_to_failure=True))
-            frozen(out/"all_results.json",rows)
-            domain=derive_domain(rows,target,condition["condition_sha256"],protocol_hash)
-            frozen(out/"domain.json",domain)
-            receipts={r["id"]:sha(root/r["id"]/"COMPLETE.json") for r in rows if r["complete"]}
-            frozen(out/"COMPLETE.json",dict(domain_sha256=domain["domain_sha256"],measurement_receipts=receipts,
-                fitted_once=True,search_is_local=True,promoted_slots_are_reused_not_independent=True))
-            domains[target]=domain
-        except ValueError as error:
-            write(out/"INSUFFICIENT_EVIDENCE.json",dict(error=str(error),completed_and_failed_evidence=rows,
-                no_automatic_expansion=True,no_weaker_retry=True))
-            raise
-        finally:
-            model = None
-            import torch
-            torch.cuda.empty_cache()
+        rows=[]
+        from .gpu_execution import execution_model
+        with execution_model(model_loader,config,teacher) as model:
+            def measure(scale,count,phase):
+                destination=out/phase/value_sha(scale)
+                failure=destination/"CALIBRATION_FAILURE.json"
+                if failure.exists():row=read(failure)
+                else:
+                    try:row=executor(model,config,teacher,condition,[scale]*4,destination,"calibration",count)
+                    except FloatingPointError as error:
+                        row=dict(id=destination.relative_to(root).as_posix(),teacher_id=target,
+                            condition_sha256=condition["condition_sha256"],compatibility_sha256=protocol_hash,
+                            complete=False,attempts=count,population_is_requested_not_completed=True,error=str(error),**{EFFECTIVE:[scale]*4})
+                        frozen(failure,row)
+                rows.append(dict(row,phase=phase))
+                return rows[-1]
+            def phase_measure(scales,count,phase):
+                from .geometry_sampling import execute
+                if executor is not execute:return [measure(scale,count,phase) for scale in scales]
+                from .geometry_batch import execute_many
+                jobs=[dict(schedule=[scale]*4,folder=out/phase/value_sha(scale),stage="calibration",count=count) for scale in scales]
+                measured=execute_many(model,config,teacher,condition,jobs)
+                result=[]
+                for scale,job,row in zip(scales,jobs,measured):
+                    if isinstance(row,FloatingPointError):
+                        row=dict(id=job["folder"].relative_to(root).as_posix(),teacher_id=target,
+                            condition_sha256=condition["condition_sha256"],compatibility_sha256=protocol_hash,
+                            complete=False,attempts=count,population_is_requested_not_completed=True,error=str(row),**{EFFECTIVE:[scale]*4})
+                        frozen(job["folder"]/"CALIBRATION_FAILURE.json",row)
+                    rows.append(dict(row,phase=phase));result.append(rows[-1])
+                return result
+            try:
+                coarse=phase_measure(declared["coarse_actual_scales"],10,"coarse")
+                frozen(out/"coarse_results.json",coarse)
+                scales=refinement(coarse);frozen(out/"refinement_scales.json",scales)
+                fine=phase_measure(scales,20,"refinement")
+                frozen(out/"refinement_results.json",fine)
+                phase_measure([r[EFFECTIVE][0] for r in fine if r["complete"]],50,"full")
+                for row in fine:
+                    if not row["complete"]:rows.append(dict(row,phase="full",attempts=50,not_promoted_due_to_failure=True))
+                frozen(out/"all_results.json",rows)
+                domain=derive_domain(rows,target,condition["condition_sha256"],protocol_hash)
+                frozen(out/"domain.json",domain)
+                receipts={r["id"]:sha(root/r["id"]/"COMPLETE.json") for r in rows if r["complete"]}
+                frozen(out/"COMPLETE.json",dict(domain_sha256=domain["domain_sha256"],measurement_receipts=receipts,
+                    fitted_once=True,search_is_local=True,promoted_slots_are_reused_not_independent=True))
+                domains[target]=domain
+            except ValueError as error:
+                write(out/"INSUFFICIENT_EVIDENCE.json",dict(error=str(error),completed_and_failed_evidence=rows,
+                    no_automatic_expansion=True,no_weaker_retry=True))
+                raise
     frozen(folder/"domains.json",domains)
     frozen(folder/"COMPLETE.json",dict(domain_sha256=value_sha(domains),calibration_keys={t:d["calibration_key"] for t,d in domains.items()}))
     return domains

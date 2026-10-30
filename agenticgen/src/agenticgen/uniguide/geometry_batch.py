@@ -7,7 +7,6 @@ and independent native RNG replay. Only a confirmed device OOM retries capacity.
 
 import copy
 import functools
-import gc
 import math
 import time
 import threading
@@ -40,7 +39,7 @@ from .geometry_dynamics import STEP_FIELDS
 
 DEFAULT_BATCH_SIZE = 50
 CAPACITIES = (DEFAULT_BATCH_SIZE, 40, 20, 10)
-EXECUTION_POLICY = "teacher-candidates-concurrent-fixed-shape-v2"
+EXECUTION_POLICY = "teacher-candidates-persistent-fixed-shape-v3"
 
 
 def lower_capacity(current):
@@ -147,10 +146,11 @@ class CandidateControl(CandidateSafety, GeometryControl):
     def physical_rows(self):
         return 10
 
-    def execute_blocks(self, function, starts):
+    def execute_blocks(self, function, starts, *, inputs=()):
         from .chunking import concurrent_map
 
-        return concurrent_map(function, starts, max(1, self.capacity // 10))
+        return concurrent_map(function, starts,
+            executor=getattr(self.model, "_ug_gpu_executor", None), inputs=inputs)
 
     def step_scales(self, step, count):
         if count != 10 * len(self.units):
@@ -332,7 +332,7 @@ def split_products(output, control, source, unit, index):
     return result
 
 
-def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
+def compile_units(config, teacher, condition, jobs, *, _compatibility=None, _recovery=None):
     root = Path(config["root"])
     if _compatibility is None:
         _compatibility = compatibility(config, teacher, condition)
@@ -387,10 +387,11 @@ def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
                 if (folder / "COMPLETE.json").exists():
                     validate_receipt(folder)
                     continue
-                raise RuntimeError(
-                    "Existing failed/interrupted candidate requires explicit audit: "
-                    + run_id
-                )
+                if _recovery is None or run_id not in _recovery["units"]:
+                    raise RuntimeError(
+                        "Existing failed/interrupted candidate requires explicit audit: "
+                        + run_id
+                    )
             units.setdefault(
                 key,
                 dict(
@@ -406,13 +407,15 @@ def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
     return list(units.values())
 
 
-def candidate_manifest(teacher, condition, units):
+def candidate_manifest(teacher, condition, units, workers=1):
     return dict(
         policy=EXECUTION_POLICY,
         teacher_id=teacher["target"],
         condition_sha256=condition["condition_sha256"],
         network_microbatch_size=10,
-        concurrent_network_units=len(units),
+        candidate_batch_size=10 * len(units),
+        gpu_workers=workers,
+        concurrent_network_units=min(workers, len(units)),
         candidates=[
             dict(
                 candidate_id=u["fingerprint"] + f"/{seed}/{slot}",
@@ -428,12 +431,21 @@ def candidate_manifest(teacher, condition, units):
     )
 
 
-def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
+def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None, _recovery=None):
     """Return one aggregate or FloatingPointError per job; never rerun numerical failures."""
+    delegate = getattr(model, "execute_candidate_jobs", None)
+    if delegate is not None:
+        if sample_fn is not None or _recovery is not None:
+            raise ValueError("GPU process owns sampling and recovery")
+        return delegate(condition, jobs)
+    from .gpu_execution import settings
+    from .gpu_recovery import validate_recovery, issue_recovery, GpuOOMRestartRequired
+    if _recovery is not None:
+        _recovery = validate_recovery(_recovery, config, teacher, condition, jobs)
     sample_fn = sample_fn or sampler.sample
     root = Path(config["root"])
     binding = compatibility(config, teacher, condition)
-    units = compile_units(config, teacher, condition, jobs, _compatibility=binding)
+    units = compile_units(config, teacher, condition, jobs, _compatibility=binding, _recovery=_recovery)
     batch_root = root / "candidate_batches" / teacher["target"]
     batch_root.mkdir(parents=True, exist_ok=True)
     capacity_file = batch_root / "capacity.json"
@@ -441,14 +453,24 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
         device=str(torch.cuda.get_device_name()),
         torch=str(torch.__version__),
         policy=EXECUTION_POLICY,
+        gpu_execution=settings(config),
     )
     prior = read(capacity_file) if capacity_file.exists() else {}
     capacity = initial_capacity(prior, device_binding)
-    pending = list(units)
-    failed = {}
+    failed = {u["id"]: read(u["folder"] / "FAILED.json") for u in units
+              if (u["folder"] / "FAILED.json").exists()}
+    pending = [u for u in units if u["id"] not in failed]
+    executor = getattr(model, "_ug_gpu_executor", None)
+    if executor is not None and not hasattr(model, "_ug_resource_counters"):
+        from .gpu_resources import NativeCounters
+        model._ug_resource_counters = NativeCounters(batch_root / "native_counters")
+        frozen(batch_root / "COUNTER_BINDING.json", dict(binding=model._ug_resource_counters.binding,
+            unavailable=model._ug_resource_counters.errors))
     ordinal = 0
     # Reserve candidates once, before any inference; OOM retries never reserve again.
     for unit in units:
+        if _recovery is not None and unit["id"] in _recovery["units"]:
+            continue  # Original immutable reservation was validated; never charge twice.
         frozen(
             unit["folder"] / "manifest.json",
             dict(id=unit["id"], identity=unit["identity"]),
@@ -469,12 +491,11 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
         attempt.mkdir()
         frozen(
             attempt / "candidates_batch.json",
-            candidate_manifest(teacher, condition, selected),
+            candidate_manifest(teacher, condition, selected, settings(config)["workers"]),
         )
         external = capture()
         guard = copy.deepcopy(model.integrator._guard_warned)
         previous_rows = getattr(model, "_ug_physical_rows", 10)
-        previous_workers = getattr(model, "_ug_parallel_workers", 1)
         oom = None
         fatal = None
         output = None
@@ -482,7 +503,6 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
         product = None
         try:
             model._ug_physical_rows = 10
-            model._ug_parallel_workers = size // 10
             initial = batch_initial(config, teacher["target"], selected)
             factory = functools.partial(
                 CandidateControl,
@@ -554,7 +574,6 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
             restore(external)
             model.integrator._guard_warned = guard
             model._ug_physical_rows = previous_rows
-            model._ug_parallel_workers = previous_workers
             model._adaptive = None
             model.integrator._adaptive_observer = None
             output = None
@@ -570,7 +589,11 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
             raise fatal
         if oom is not None:
             # No completed products may be overwritten by a retry after postprocessing.
-            if any((u["folder"] / "COMPLETE.json").exists() for u in selected):
+            if (attempt / "terminal.pt.gz").exists() or any(
+                (u["folder"] / "terminal.pt.gz").exists() for u in selected
+            ):
+                write(attempt / "OOM_POSTPROCESSING.json", dict(**oom,
+                    resampling_forbidden=True, saved_outputs_preserved=True))
                 raise RuntimeError(
                     "OOM after partial materialization; preserve results and audit postprocessing"
                 )
@@ -582,12 +605,11 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
                     attempted_capacity=size,
                     next_capacity=next_size,
                     candidates_unchanged=True,
-                    random_stream_replayed=True,
+                    random_stream_replay_required=True,
+                    clean_gpu_process_required=True,
                     new_scientific_attempts=0,
                 ),
             )
-            gc.collect()
-            torch.cuda.empty_cache()
             if next_size is None:
                 raise RuntimeError(
                     "Teacher candidate inference exhausted OOM capacity ladder"
@@ -601,7 +623,12 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
                     reason="confirmed_device_oom",
                 ),
             )
-            continue
+            recovery = issue_recovery(config, teacher, condition, jobs, units,
+                attempt / "OOM.json", capacity)
+            raise GpuOOMRestartRequired(recovery)
+        if executor is not None:
+            from .gpu_resources import snapshot
+            write(attempt / "GPU_RESOURCES.json", snapshot(executor, model._ug_resource_counters))
         pending = pending[len(selected) :]
     results = []
     for job in jobs:
