@@ -2,6 +2,7 @@
 from dataclasses import asdict
 from pathlib import Path
 import math
+import torch
 
 from .io import read, write, frozen, value_sha, sha
 from .calibration_search import (POLICY, EFFECTIVE, SearchLimits, SearchInsufficient,
@@ -49,28 +50,26 @@ class TeacherSearch:
                              stage="calibration", count=count))
         if self.used() + sum(delta for _, delta in missing) > self.limits.maximum_attempts_per_teacher:
             raise SearchInsufficient("Teacher budget exhausted before allocating new candidates")
-        if jobs:
+        for job in jobs:
             if self.executor is execute:
                 from .geometry_batch import execute_many
-                measured = execute_many(self.model, self.config, self.subject["teacher"], self.subject["condition"], jobs)
+                result = execute_many(self.model, self.config, self.subject["teacher"], self.subject["condition"], [job])[0]
             else:
-                measured = []
-                for job in jobs:
-                    try:
-                        measured.append(self.executor(self.model, self.config, self.subject["teacher"],
-                            self.subject["condition"], job["schedule"], job["folder"], "calibration", count))
-                    except FloatingPointError as error:
-                        measured.append(error)
-            for job, result in zip(jobs, measured):
-                scale = job["schedule"][0]
-                if isinstance(result, FloatingPointError):
-                    result = dict(id=job["folder"].relative_to(self.root).as_posix(),
-                        teacher_id=self.target, condition_sha256=self.binding["condition_sha256"],
-                        compatibility_sha256=value_sha(self.binding), complete=False, attempts=count,
-                        population_is_requested_not_completed=True, error=str(result),
-                        **{EFFECTIVE: [scale] * 4})
-                    frozen(job["folder"] / "CALIBRATION_FAILURE.json", result)
-                self.rows[self.key(scale, count)] = dict(result, phase=phase)
+                try:
+                    result = self.executor(self.model, self.config, self.subject["teacher"],
+                        self.subject["condition"], job["schedule"], job["folder"], "calibration", count)
+                except FloatingPointError as error:
+                    result = error
+            scale = job["schedule"][0]
+            if isinstance(result, FloatingPointError):
+                result = dict(id=job["folder"].relative_to(self.root).as_posix(),
+                    teacher_id=self.target, condition_sha256=self.binding["condition_sha256"],
+                    compatibility_sha256=value_sha(self.binding), complete=False, attempts=count,
+                    population_is_requested_not_completed=True, error=str(result),
+                    **{EFFECTIVE: [scale] * 4})
+                frozen(job["folder"] / "CALIBRATION_FAILURE.json", result)
+            self.rows[self.key(scale, count)] = dict(result, phase=phase)
+            self.persist(phase)
         self.persist(phase)
         return [self.rows[self.key(s, count)] for s in scales]
 
@@ -142,8 +141,9 @@ def run(config, subjects, model_loader, executor):
         frozen(folder / "SEARCH_CLAIM.json", dict(search_policy=POLICY, teacher_id=target,
                                                    plan_sha256=sha(folder / "PLAN.json")))
         write(root / "BUDGET_SCOPE.json", dict(stage="calibration", teacher_id=target))
-        from .gpu_execution import execution_model
-        with execution_model(model_loader, config, subject["teacher"]) as model:
+        model = model_loader(config, subject["teacher"])
+        search = None
+        try:
             search = TeacherSearch(config, subject, binding, folder, executor, model, imported.get(target, ()))
             try:
                 domain = search.run(declared)
@@ -163,6 +163,9 @@ def run(config, subjects, model_loader, executor):
                     completed_and_failed_evidence=list(search.rows.values()), no_automatic_retry=True,
                     continue_other_teachers=True, consumed_attempts=search.used()))
                 statuses[target] = dict(status="needs_evidence", reason=str(error), consumed_attempts=search.used())
+        finally:
+            del search, model
+            torch.cuda.empty_cache()
         write(root / "calibration/TEACHER_STATUS.json", statuses)
     frozen(root / "calibration/domains.json", domains)
     frozen(root / "calibration/TEACHER_STATUS.json", statuses)

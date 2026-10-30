@@ -4,6 +4,7 @@ import math
 import shutil
 import subprocess
 from pathlib import Path
+import torch
 from .io import read,write,frozen,sha,value_sha
 from .absolute_coordinate import prepare as prepare_condition, validate as validate_condition, RMSD, MAX_ERROR, POLICY
 DISTANCE=CONTROL_DISTANCE=RMSD
@@ -56,8 +57,8 @@ def validate_config(config):
     if (config.get("steps",100)!=100 or config.get("noise_level",.2)!=.2 or
             type(config["rounds"]) is not int or config["rounds"]<1):raise ValueError("Invalid integration/iteration configuration")
     if config.get("population",50)!=50:raise ValueError("Formal population remains fifty")
-    from .gpu_execution import settings
-    config=dict(config,gpu_execution=settings(config))
+    from .task_scheduling import configure as schedule_tasks
+    config=schedule_tasks(config)
     dynamics_policy(config)
     from .geometry_chemistry import policy as chemical_policy
     config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
@@ -208,8 +209,8 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
     for subject in subjects:
         teacher,condition=subject["teacher"],subject["condition"];target=teacher["target"];domain=domains[target]
         groups=[];troot=folder/target
-        from .gpu_execution import execution_model
-        with execution_model(model_loader,config,teacher) as model:
+        model=model_loader(config,teacher)
+        try:
             initial_path=root/"INITIAL_GUIDANCE.json"
             if initial_path.exists() and version=="GD01":
                 from .geometry_reuse import verify_initial
@@ -271,6 +272,9 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
                 **{k:winner[k] for k in (WEIGHTS,INTERACTION_DISTANCE) if k in winner},
                 domain_sha256=domain["domain_sha256"],complete=True)
             all_groups.extend(groups)
+        finally:
+            del model
+            torch.cuda.empty_cache()
     if len(all_groups)+len(skipped_branches)!=len(subjects)*3*config["rounds"]:raise ValueError("Incomplete configured iteration count")
     result=dict(version=version,teachers=summaries,groups=all_groups,strategy_contexts=contexts,
         manifest_sha256=sha(folder/"manifest.json"),complete=not missing_teachers and not skipped_branches,

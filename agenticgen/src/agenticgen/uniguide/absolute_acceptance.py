@@ -73,8 +73,7 @@ def run(config):
     for subject in subjects:
         teacher,condition=subject["teacher"],subject["condition"];out=folder/teacher["target"]
         model=load_model(config,teacher)
-        from .gpu_execution import bind_executor
-        with bind_executor(model,config):
+        try:
             numerical=real_vjp(model,config,teacher,condition)
             off=scale_binding([0.]*4,1.,False,condition)
             factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
@@ -134,12 +133,14 @@ def run(config):
                 fixed_correspondence=True,normalized_zero_is_active=True,fixture_multiplier=1.,fixture_is_not_calibration=True)
             from .geometry_batch_acceptance import run_teacher
             checks[teacher["target"]]["candidate_batch_equivalence"]=run_teacher(model,config,teacher,condition,out/"candidate_batch")
-        del model;torch.cuda.empty_cache()
+        finally:
+            del model
+            torch.cuda.empty_cache()
     if sha(original)!=before:raise ValueError("Original attempt ledger changed")
     receipt=dict(source_binding=source_binding(),config_sha256=value_sha(config),checks=checks,
         torch_version=torch.__version__,new_completed_candidates=0,llm_calls=0,fitted_multipliers=False,
         engineering_outputs_not_experiment_measurements=True,
         original_attempts_sha256=before,engineering_only=True)
-    from .gpu_resources import engineering_inventory
+    from .geometry_batch_acceptance import engineering_inventory
     receipt.update(engineering_inventory(folder))
     frozen(folder/"COMPLETE.json",receipt);return receipt

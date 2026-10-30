@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 import torch
 from . import sampler
-from .geometry_batch import CandidateControl, batch_initial, lower_capacity, device_oom, DEFAULT_BATCH_SIZE
+from .geometry_batch import CandidateControl, batch_initial, DEFAULT_BATCH_SIZE
 from .geometry_sampling import GeometryControl, scale_binding
 from .geometry_shards import initial_shard
 from .geometry_protocol import EFFECTIVE
@@ -87,14 +87,11 @@ def run_teacher(model,config,teacher,condition,folder):
         sampler.sample(model,config,teacher,schedule,out,10,control_factory=factory,check_affinity=False,
             initial_override=initial_shard(config,teacher["target"],slots))
         separate.append(out)
-    out=folder/"mixed_twenty";before=capture();prior=getattr(model,"_ug_physical_rows",10)
-    try:
-        model._ug_physical_rows=10
-        factory=functools.partial(CandidateControl,condition=condition,scale_binding=units[0]["scale"],units=units,physical_rows=20)
-        _,_,_,control=sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],out,20,
-            control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units))
-        if control.failed_units:raise ValueError("Acceptance fixture produced numerical failures")
-    finally:model._ug_physical_rows=prior
+    out=folder/"mixed_twenty";before=capture()
+    factory=functools.partial(CandidateControl,condition=condition,scale_binding=units[0]["scale"],units=units,physical_rows=20)
+    _,_,_,control=sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],out,20,
+        control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units))
+    if control.failed_units:raise ValueError("Acceptance fixture produced numerical failures")
     if not equal(before,capture()):raise ValueError("Mixed batch consumed external RNG")
     differences=[];joint=load_pt(out/"terminal.pt.gz");state=load_pt(out/"checkpoint_100.pt.gz")
     for i,source in enumerate(separate):
@@ -140,32 +137,27 @@ def run_teacher(model,config,teacher,condition,folder):
         raw999_coordinates_exact=True,chemical_state_inpainting_checked=bool(config.get("chemical_inpainting",{"enabled":True})["enabled"]))
     write(folder/"COMPARISON.json",receipt)
     if differences:raise ValueError("Mixed batches changed independent trajectories; see COMPARISON.json")
-    try:
-        model._ug_physical_rows=10
-        sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],folder/"mixed_resumed",20,
-            control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units),
-            resume_path=out/"checkpoint_010.pt.gz")
-    finally:model._ug_physical_rows=prior
+    sampler.sample(model,config,teacher,units[0]["scale"][EFFECTIVE],folder/"mixed_resumed",20,
+        control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],units),
+        resume_path=out/"checkpoint_010.pt.gz")
     if compare_trees(joint,load_pt(folder/"mixed_resumed/terminal.pt.gz")):raise ValueError("Mixed batch resume changed output")
     receipt.update(exact_mixed_resume=True,engineering_trajectory_evaluations=60,network_microbatch_size=10,
-        concurrent_units=getattr(model,"_ug_gpu_executor").workers,physical_batch_shape_is_fixed=True)
+        concurrent_units=1,physical_batch_shape_is_fixed=True)
     # Validate the production default over the full integration, not a short prefix.
     capacity=DEFAULT_BATCH_SIZE
     selected=[copy.deepcopy(units[i%2]) for i in range(capacity//10)]
     for i,u in enumerate(selected):u["id"]=f"capacity_fixture_{i}"
     before=capture()
     try:
-        model._ug_physical_rows=10
         factory=functools.partial(CandidateControl,condition=condition,scale_binding=selected[0]["scale"],units=selected,physical_rows=capacity)
         sampler.sample(model,config,teacher,selected[0]["scale"][EFFECTIVE],folder/f"capacity_{capacity}",capacity,
             control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],selected),stop_step=100)
     except Exception as exc:
-        if device_oom(exc):
-            write(folder/"CAPACITY_OOM.json",dict(capacity=capacity,error=str(exc),
-                clean_gpu_process_required=True,no_in_process_retry=True))
+        write(folder/"CAPACITY_FAILED.json",dict(capacity=capacity,error=str(exc),
+            no_automatic_retry=True,no_capacity_fallback=True))
         raise
     finally:
-        restore(before);model._ug_physical_rows=prior
+        restore(before)
         model._adaptive=None;model.integrator._adaptive_observer=None
     receipt.update(capacity_probe_initial=DEFAULT_BATCH_SIZE,capacity_probe_success=capacity,capacity_probe_ooms=[],
         capacity_probe_steps=100,capacity_probe_not_calibration=True)
@@ -176,13 +168,10 @@ def run_teacher(model,config,teacher,condition,folder):
                     if not np.array_equal(single[key][:100],combined[key][:100,i*10:(i+1)*10]):
                         raise ValueError("Capacity probe changed independent trajectory: "+key)
     receipt["capacity_probe_exact_prefix_equivalence"]=True
-    from .gpu_stability import run_teacher as resource_acceptance
-    receipt["resource_stability"]=resource_acceptance(model,config,teacher,condition,folder/"resource_stability",units,separate)
     from .geometry_dynamics import policy as dynamics_policy
     if dynamics_policy(config)["limiter"] == "none":
         receipt.update(verify_uncapped_guidance(model,config,teacher,condition,folder,units,separate[0]))
         receipt["nonfinite_isolation"] = verify_failure_isolation(model, config, teacher, condition, folder, units, separate[0])
-        from .gpu_resources import engineering_inventory
         receipt.update(engineering_inventory(folder))
         frozen(folder/"COMPLETE.json",receipt)
         return receipt
@@ -208,7 +197,6 @@ def run_teacher(model,config,teacher,condition,folder):
     receipt["nonfinite_isolation"] = verify_failure_isolation(
         model, config, teacher, condition, folder, units, separate[0],
     )
-    from .gpu_resources import engineering_inventory
     receipt.update(engineering_inventory(folder))
     frozen(folder/"COMPLETE.json",receipt)
     return receipt
@@ -235,3 +223,17 @@ def verify_uncapped_guidance(model,config,teacher,condition,folder,units,separat
     return dict(uncapped_large_increment_preserved=True,unaffected_candidates_exact=True,
         guidance_increment_limiter="none",stress_is_engineering_only=True,
         stress_multiplier_is_not_calibrated=True,stress_steps=11)
+
+
+def engineering_inventory(folder):
+    """Count saved engineering passes without starting work or allocating GPU state."""
+    evaluations = full = calls = 0
+    for path in Path(folder).rglob("trace.h5"):
+        with h5py.File(path) as trace:
+            count = trace["endpoint_A"].shape[1]
+        calls += 1
+        evaluations += count
+        if (path.parent / "checkpoint_100.pt.gz").exists():
+            full += count
+    return dict(engineering_trajectory_calls=calls, engineering_trajectory_evaluations=evaluations,
+        engineering_full_100_interval_passes=full, engineering_repeated_passes_are_not_independent=True)

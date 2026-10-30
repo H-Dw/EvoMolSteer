@@ -1,6 +1,7 @@
 """One immutable multiplier per teacher, condition and native sampling protocol."""
 import math
 from pathlib import Path
+import torch
 from .io import read, frozen, write, value_sha, sha
 from .geometry_condition import DISTANCE
 from .geometry_protocol import EFFECTIVE, choose, displacement, derive_domain, validate_domain, GROWTH_LIMIT
@@ -77,8 +78,8 @@ def run(config,subjects,model_loader,executor):
         if (out/"INSUFFICIENT_EVIDENCE.json").exists():
             raise RuntimeError("Frozen calibration stopped for insufficient evidence; explicit redesign required")
         rows=[]
-        from .gpu_execution import execution_model
-        with execution_model(model_loader,config,teacher) as model:
+        model=model_loader(config,teacher)
+        try:
             def measure(scale,count,phase):
                 destination=out/phase/value_sha(scale)
                 failure=destination/"CALIBRATION_FAILURE.json"
@@ -127,6 +128,9 @@ def run(config,subjects,model_loader,executor):
                 write(out/"INSUFFICIENT_EVIDENCE.json",dict(error=str(error),completed_and_failed_evidence=rows,
                     no_automatic_expansion=True,no_weaker_retry=True))
                 raise
+        finally:
+            del measure, phase_measure, model
+            torch.cuda.empty_cache()
     frozen(folder/"domains.json",domains)
     frozen(folder/"COMPLETE.json",dict(domain_sha256=value_sha(domains),calibration_keys={t:d["calibration_key"] for t,d in domains.items()}))
     return domains

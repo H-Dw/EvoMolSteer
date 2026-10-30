@@ -150,13 +150,12 @@ def test_removed_normalization_configuration_is_rejected(mode):
 
 
 def test_mixed_candidate_and_single_vjp_identical_without_sampler_state():
-    import threading
     s=spec(True);base,mask=tensors(s)
     x=(base.repeat(20,1,1)*1.4).requires_grad_();valid=mask.repeat(20,1)
     controls=[weights(s),dict(zip(KEYS,(1,1,1)))]
     control=object.__new__(CandidateControl)
     control.geometry_condition=s;control.units=[dict(scale={WEIGHTS:w}) for w in controls]
-    control.initial=dict(population=20);control.failed_units={};control.failure_lock=threading.RLock()
+    control.initial=dict(population=20);control.failed_units={}
     combined=control.condition_loss_for_rows(x,valid,list(range(20)))
     gradients=torch.autograd.grad(combined[0].sum(),x)[0]
     for i,w in enumerate(controls):

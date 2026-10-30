@@ -1,7 +1,6 @@
 """Regression and analytic checks for the candidate-local coordinate objective."""
 
 import itertools
-import threading
 
 import pytest
 import torch
@@ -15,7 +14,6 @@ def control(tmp_path, population=20):
     result = object.__new__(CandidateControl)
     result.initial = {"population": population}
     result.failed_units = {}
-    result.failure_lock = threading.RLock()
     result.rows = []
     result.folder = tmp_path
     return result

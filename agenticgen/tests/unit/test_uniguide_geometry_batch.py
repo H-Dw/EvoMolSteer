@@ -15,24 +15,8 @@ from agenticgen.uniguide.native_tools import save_pt,load_pt,tensor_digest
 from test_uniguide_geometry import features,condition,domain,diagnostics
 
 
-def test_capacity_ladder_and_specific_oom():
-    assert batch.DEFAULT_BATCH_SIZE == 50
-    assert [batch.lower_capacity(n) for n in (100,90,80,70,60,50,40,30,20,10)]==[50,50,50,50,50,40,20,20,10,None]
-    assert batch.device_oom(torch.cuda.OutOfMemoryError("fixture"))
-    assert batch.device_oom(RuntimeError("HIP out of memory"))
-    assert not batch.device_oom(FloatingPointError("nonfinite loss"))
-    assert not batch.device_oom(RuntimeError("host out of memory"))
 
 
-def test_cached_capacity_cannot_raise_default_ceiling():
-    device = dict(device="teacher-device", policy=batch.EXECUTION_POLICY)
-    assert batch.initial_capacity({}, device) == 50
-    for cached, expected in [(100, 50), (80, 50), (60, 50), (50, 50), (40, 40), (20, 20), (10, 10)]:
-        assert batch.initial_capacity(dict(device_binding=device, capacity=cached), device) == expected
-    assert batch.initial_capacity(dict(device_binding={}, capacity=10), device) == 50
-    for bad in (55, 0, True, 50.0):
-        with pytest.raises(ValueError, match="Corrupt teacher capacity"):
-            batch.initial_capacity(dict(device_binding=device, capacity=bad), device)
 
 
 def test_static_binding_once_per_batch_and_fresh_on_next_entry(tmp_path, monkeypatch):
@@ -111,76 +95,11 @@ def setup_scheduler(tmp_path,monkeypatch):
     return config,teacher,spec,model,calls,sample
 
 
-def test_cross_configuration_batch_oom_accounting_promotion_and_reuse(tmp_path,monkeypatch):
-    config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
-    attempted=[];external=torch.get_rng_state().clone()
-    def oom(*args,**kwargs):
-        size=args[5];attempted.append(size)
-        if size>20:
-            torch.rand(10)
-            raise torch.cuda.OutOfMemoryError("injected")
-        return sample(*args,**kwargs)
-    jobs=[dict(schedule=[i+1.]*4,folder=tmp_path/f"grid{i}",stage="calibration",count=10) for i in range(9)]
-    from agenticgen.uniguide import gpu_recovery
-    recovery = None
-    for pid in (901, 902, 903):
-        monkeypatch.setattr(gpu_recovery.os, "getpid", lambda: pid)
-        try:
-            rows=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=oom,_recovery=recovery)
-            break
-        except gpu_recovery.GpuOOMRestartRequired as error:
-            recovery = error.recovery
-            write(Path(recovery).with_name("OLD_PROCESS_EXITED.json"),
-                  dict(pid=pid, exit_code=75, process_reaped=True))
-            # A stale higher capacity cache cannot override the OOM authorization.
-            capacity_file = tmp_path / "candidate_batches/teacher/capacity.json"
-            cached = read(capacity_file)
-            write(capacity_file, dict(cached, capacity=100))
-    else:
-        pytest.fail("Bounded OOM continuation did not complete")
-    claims=list((tmp_path/"candidate_batches/teacher").glob("*/RECOVERY_CLAIM.json"))
-    assert len(claims)==2
-    assert all(read(p)["failed_pid"]!=read(p)["new_pid"] for p in claims)
-    assert attempted==[50,40,20,20,20,20,10] and calls==[20,20,20,20,10]
-    assert torch.equal(external,torch.get_rng_state())
-    assert all(r["attempts"]==10 for r in rows)
-    assert sum(r["count"] for r in read(tmp_path/"attempts.json").values())==90
-    assert len(list((tmp_path/"candidate_batches/teacher").glob("*/OOM.json")))==2
-    # Reuse old slots, sample only the remaining forty for this configuration.
-    jobs=[dict(schedule=[1.]*4,folder=tmp_path/"full",stage="calibration",count=50)]
-    row=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample)[0]
-    assert calls[-2:]==[20,20] and row["attempts"]==50
-    assert sum(r["count"] for r in read(tmp_path/"attempts.json").values())==130
-    before=list(calls)
-    assert batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample)[0]["id"]==row["id"]
-    assert calls==before
-    records=read(tmp_path/"full/records.json")
-    assert [r["logical_slot"] for r in records]==list(range(10))*5
-    assert len({(r["logical_seed"],r["logical_slot"]) for r in records})==50
 
 
-def test_oom_cannot_allocate_new_identities_when_external_binding_changed(tmp_path, monkeypatch):
-    from agenticgen.uniguide import gpu_recovery
-    config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
-    jobs=[dict(schedule=[1.]*4,folder=tmp_path/"grid",stage="calibration",count=50)]
-    def oom(*args,**kwargs):
-        raise torch.cuda.OutOfMemoryError("fixture")
-    monkeypatch.setattr(gpu_recovery.os,"getpid",lambda:901)
-    with pytest.raises(gpu_recovery.GpuOOMRestartRequired) as failure:
-        batch.execute_many(model,config,teacher,spec,jobs,sample_fn=oom)
-    recovery=Path(failure.value.recovery)
-    before=sha(tmp_path/"attempts.json")
-    write(recovery.with_name("OLD_PROCESS_EXITED.json"),dict(pid=901,exit_code=75,process_reaped=True))
-    monkeypatch.setattr(gpu_recovery.os,"getpid",lambda:902)
-    changed=dict(batch.compatibility(config,teacher,spec),initials_sha256="unexpected-external-change")
-    monkeypatch.setattr(batch,"compatibility",lambda *args:changed)
-    monkeypatch.setattr(sampling,"compatibility",lambda *args:changed)
-    with pytest.raises(ValueError,match="no new reservation"):
-        batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample,_recovery=recovery)
-    assert sha(tmp_path/"attempts.json")==before and not calls
 
 
-def test_formal_directions_share_batches_teacher_capacity_is_independent(tmp_path,monkeypatch):
+def test_formal_directions_use_separate_serial_configuration_batches(tmp_path,monkeypatch):
     config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
     binding=batch.compatibility(config,teacher,spec)
     d=domain(digest=spec["condition_sha256"],sampling_hash=value_sha(binding))
@@ -206,9 +125,7 @@ def test_numerical_failure_is_not_retried_as_oom(tmp_path,monkeypatch):
 
 
 def test_quarantined_nonfinite_unit_does_not_change_healthy_rows(tmp_path):
-    import threading
     control=object.__new__(batch.CandidateControl)
-    control.failure_lock=threading.RLock()
     control.initial=dict(population=20);control.failed_units={};control.rows=[];control.folder=tmp_path
     value=torch.ones(20,3,requires_grad=True)
     broken=value.clone();broken[13,0]=float("nan")
@@ -230,10 +147,9 @@ def test_initial_selection_is_explicit_bounded_and_frozen(tmp_path):
 
 
 def test_failed_terminal_preserves_structural_masks_and_healthy_units(tmp_path):
-    import threading
     control=object.__new__(batch.CandidateControl)
     control.initial=dict(population=20);control.failed_units={};control.rows=[];control.folder=tmp_path
-    control.failure_lock=threading.RLock();control.geometry_condition=condition.prepare(features())
+    control.geometry_condition=condition.prepare(features())
     xyz=torch.tensor(control.geometry_condition["reference_coordinates_angstrom"])[None].repeat(20,1,1)
     original=xyz.clone();xyz[13,0,0]=float("nan");mask=torch.ones(20,4,dtype=torch.bool)
     output=control.check_terminal(dict(coords=xyz,mask=mask))
@@ -294,3 +210,66 @@ def test_reuse_copies_verified_complete_and_failed_sources_without_new_attempts(
     write(root/"baseline/aggregate.json",dict(tampered=True))
     with pytest.raises(ValueError,match="overwrite"):
         reuse.reuse(dict(root=str(root)),dict(teacher=str(source)),dict(teacher=[0,1,0,-1]))
+
+
+def test_preexperiment_configurations_are_never_mixed_and_promotions_reuse_slots(tmp_path, monkeypatch):
+    config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
+    layouts=[]
+    def observed(*args,**kwargs):
+        units=kwargs["control_factory"].keywords["units"]
+        layouts.append([u["scale"][protocol.EFFECTIVE] for u in units])
+        return sample(*args,**kwargs)
+    jobs=[dict(schedule=[i+1.]*4,folder=tmp_path/f"grid{i}",stage="calibration",count=10) for i in range(9)]
+    external=torch.get_rng_state().clone()
+    rows=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=observed)
+    assert calls==[10]*9 and all(r["attempts"]==10 for r in rows)
+    assert all(len({tuple(schedule) for schedule in layout})==1 for layout in layouts)
+    assert torch.equal(external,torch.get_rng_state())
+    full=[dict(schedule=[1.]*4,folder=tmp_path/"full",stage="calibration",count=50)]
+    row=batch.execute_many(model,config,teacher,spec,full,sample_fn=observed)[0]
+    assert calls[-1]==40 and row["attempts"]==50
+    assert sum(r["count"] for r in read(tmp_path/"attempts.json").values())==130
+    before=list(calls)
+    batch.execute_many(model,config,teacher,spec,full,sample_fn=observed)
+    assert calls==before
+    records=read(tmp_path/"full/records.json")
+    assert [r["logical_slot"] for r in records]==list(range(10))*5
+    assert len({(r["logical_seed"],r["logical_slot"]) for r in records})==50
+
+
+@pytest.mark.parametrize("error",[torch.cuda.OutOfMemoryError("device fixture"),RuntimeError("KERNEL VMFault fixture")])
+def test_device_failure_stops_without_fallback_or_reserving_the_next_configuration(tmp_path,monkeypatch,error):
+    config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
+    def fail(*args,**kwargs):
+        calls.append(args[5])
+        raise error
+    jobs=[dict(schedule=[scale]*4,folder=tmp_path/f"grid{scale}",stage="calibration",count=50) for scale in (1.,2.)]
+    with pytest.raises(type(error),match="fixture"):
+        batch.execute_many(model,config,teacher,spec,jobs,sample_fn=fail)
+    assert calls==[50]
+    assert sum(r["count"] for r in read(tmp_path/"attempts.json").values())==50
+    assert not list(tmp_path.rglob('capacity.json'))
+    assert not list(tmp_path.rglob('RECOVERY_CLAIM.json'))
+    receipts=list((tmp_path/'candidate_batches/teacher').glob('*/FAILED.json'))
+    assert len(receipts)==1 and read(receipts[0])['no_capacity_fallback']
+    with pytest.raises(RuntimeError,match="explicit audit"):
+        batch.execute_many(model,config,teacher,spec,jobs,sample_fn=fail)
+    assert calls==[50]
+
+
+def test_saved_terminal_oom_is_preserved_and_never_resampled(tmp_path,monkeypatch):
+    config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
+    terminals=[]
+    def save_then_fail(*args,**kwargs):
+        result=sample(*args,**kwargs)
+        terminals.append(Path(args[4])/'terminal.pt.gz')
+        raise torch.cuda.OutOfMemoryError('after terminal fixture')
+    job=dict(schedule=[1.]*4,folder=tmp_path/'grid',stage='calibration',count=50)
+    with pytest.raises(torch.cuda.OutOfMemoryError):
+        batch.execute_many(model,config,teacher,spec,[job],sample_fn=save_then_fail)
+    assert calls==[50] and terminals[0].exists()
+    receipt=read(terminals[0].parent/'FAILED.json')
+    assert receipt['terminal_saved'] and receipt['no_automatic_retry']
+    with pytest.raises(RuntimeError,match='explicit audit'):
+        batch.execute_many(model,config,teacher,spec,[job],sample_fn=save_then_fail)
+    assert calls==[50]

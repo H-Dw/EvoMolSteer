@@ -2,7 +2,7 @@
 
 The accounting unit is an immutable ten-row RNG shard. Inspection is detached;
 only an already failed shard receives inert placeholders. Healthy tensors must
-be returned by identity, including when another concurrent shard has failed.
+be returned by identity, including when another shard has failed.
 """
 
 from functools import singledispatch
@@ -48,7 +48,7 @@ def _map_sequence(value, transform, path="network"):
 
 
 class CandidateSafety:
-    """Requires initial, failed_units, failure_lock, folder and sampler rows."""
+    """Serial sampler failure accounting for immutable ten-row RNG shards."""
 
     def _candidate_ids(self, value, ids):
         resolved = list(range(self.initial["population"])) if ids is None else ids
@@ -61,26 +61,24 @@ class CandidateSafety:
         for local_row in bad_rows.nonzero().flatten().tolist():
             row = ids[local_row]
             unit = row // SHARD_ROWS
-            with self.failure_lock:
-                if unit in self.failed_units:
-                    continue
-                error = dict(
-                    type="nonfinite_candidate",
-                    field=name,
-                    row=row,
-                    step=getattr(self, "active_step", len(self.rows)),
-                    no_scientific_retry=True,
-                )
-                save_pt(
-                    self.folder / f"nonfinite_unit_{unit:03d}.pt.gz",
-                    dict(error=error, raw=value.detach()[local_row]),
-                )
-                self.failed_units[unit] = error
+            if unit in self.failed_units:
+                continue
+            error = dict(
+                type="nonfinite_candidate",
+                field=name,
+                row=row,
+                step=getattr(self, "active_step", len(self.rows)),
+                no_scientific_retry=True,
+            )
+            save_pt(
+                self.folder / f"nonfinite_unit_{unit:03d}.pt.gz",
+                dict(error=error, raw=value.detach()[local_row]),
+            )
+            self.failed_units[unit] = error
         return value
 
     def _quarantine_rows(self, value, ids):
-        with self.failure_lock:
-            failed = tuple(row // SHARD_ROWS in self.failed_units for row in ids)
+        failed = tuple(row // SHARD_ROWS in self.failed_units for row in ids)
         # An identity-valued torch.where is NOT an autograd identity. Its extra
         # node changed branch accumulation at the first guided step in the real
         # model. Never attach a guard node to an entirely healthy microbatch.

@@ -274,17 +274,13 @@ def compatibility(config, teacher, condition, domain=None):
         "chem_inpainting",
         "geometry_shards",
         "geometry_batch",
-        "gpu_execution",
-        "gpu_worker",
-        "gpu_recovery",
-        "gpu_resources",
+        "task_scheduling",
         "native_tools",
         "prepare",
         "protocol",
         "joint_endpoint",
     ]
     sources = {name: sha(package / (name + ".py")) for name in names}
-    sources["workspace_counter.cpp"] = sha(package / "workspace_counter.cpp")
     sources["runtime/rng"] = sha(package.parent / "runtime/rng.py")
     sources.update(
         {
@@ -318,6 +314,7 @@ def compatibility(config, teacher, condition, domain=None):
         seeds=config.get("seeds", SEEDS),
         windows=config.get("windows", [list(w) for w in WINDOWS]),
         population=50,
+        task_scheduling=config.get("task_scheduling", "ug04-930db032-serial"),
         initials={
             str(i): sha(roots / "initials" / teacher["target"] / f"batch_{i:03d}.pt.gz")
             for i in range(5)

@@ -1,15 +1,13 @@
-"""Teacher-local candidate scheduler; physical capacity is not a scientific setting.
+"""UG04 scheduling: one teacher, one configuration, serial ten-row network calls.
 
-Ten-row promotion shards remain the immutable accounting/storage unit. Multiple
-shards and directions share one native integration call, with row-local scales
-and independent native RNG replay. Only a confirmed device OOM retries capacity.
+Promotion shards retain candidate identities and measurements. Different
+configurations never share an integration call; failures are never retried.
 """
 
 import copy
 import functools
 import math
 import time
-import threading
 from pathlib import Path
 import h5py
 import torch
@@ -36,39 +34,9 @@ from .native_tools import save_pt, tensor_digest
 from .random_streams import capture, restore
 from .protocol import SEEDS
 from .geometry_dynamics import STEP_FIELDS
+from .task_scheduling import POLICY as EXECUTION_POLICY
 
 DEFAULT_BATCH_SIZE = 50
-CAPACITIES = (DEFAULT_BATCH_SIZE, 40, 20, 10)
-EXECUTION_POLICY = "teacher-candidates-persistent-fixed-shape-v3"
-
-
-def lower_capacity(current):
-    return next((n for n in CAPACITIES if n < current), None)
-
-
-def initial_capacity(prior, device_binding):
-    """Reuse a teacher's smaller OOM capacity without lifting the default ceiling."""
-    if prior.get("device_binding") != device_binding:
-        return DEFAULT_BATCH_SIZE
-    cached = prior.get("capacity", DEFAULT_BATCH_SIZE)
-    if type(cached) is not int or cached not in (100, 80, 60, *CAPACITIES):
-        raise ValueError("Corrupt teacher capacity")
-    return min(cached, DEFAULT_BATCH_SIZE)
-
-
-def device_oom(error):
-    return isinstance(error, torch.cuda.OutOfMemoryError) or (
-        isinstance(error, RuntimeError)
-        and any(
-            s in str(error).lower()
-            for s in (
-                "cuda out of memory",
-                "hip out of memory",
-                "cuda error: out of memory",
-                "hip error: out of memory",
-            )
-        )
-    )
 
 
 class CandidateStreams:
@@ -136,7 +104,6 @@ class CandidateControl(CandidateSafety, GeometryControl):
         self.units = units
         self.capacity = physical_rows
         self.failed_units = {}
-        self.failure_lock = threading.RLock()
         self.expanded = [expand_effective(u["scale"][EFFECTIVE]) for u in units]
         super().__init__(*args, **kwargs)
 
@@ -147,10 +114,7 @@ class CandidateControl(CandidateSafety, GeometryControl):
         return 10
 
     def execute_blocks(self, function, starts, *, inputs=()):
-        from .chunking import concurrent_map
-
-        return concurrent_map(function, starts,
-            executor=getattr(self.model, "_ug_gpu_executor", None), inputs=inputs)
+        return [function(start) for start in starts]
 
     def step_scales(self, step, count):
         if count != 10 * len(self.units):
@@ -332,7 +296,7 @@ def split_products(output, control, source, unit, index):
     return result
 
 
-def compile_units(config, teacher, condition, jobs, *, _compatibility=None, _recovery=None):
+def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
     root = Path(config["root"])
     if _compatibility is None:
         _compatibility = compatibility(config, teacher, condition)
@@ -387,11 +351,10 @@ def compile_units(config, teacher, condition, jobs, *, _compatibility=None, _rec
                 if (folder / "COMPLETE.json").exists():
                     validate_receipt(folder)
                     continue
-                if _recovery is None or run_id not in _recovery["units"]:
-                    raise RuntimeError(
-                        "Existing failed/interrupted candidate requires explicit audit: "
-                        + run_id
-                    )
+                raise RuntimeError(
+                    "Existing failed/interrupted candidate requires explicit audit: "
+                    + run_id
+                )
             units.setdefault(
                 key,
                 dict(
@@ -407,15 +370,15 @@ def compile_units(config, teacher, condition, jobs, *, _compatibility=None, _rec
     return list(units.values())
 
 
-def candidate_manifest(teacher, condition, units, workers=1):
+def candidate_manifest(teacher, condition, units):
     return dict(
         policy=EXECUTION_POLICY,
         teacher_id=teacher["target"],
         condition_sha256=condition["condition_sha256"],
         network_microbatch_size=10,
         candidate_batch_size=10 * len(units),
-        gpu_workers=workers,
-        concurrent_network_units=min(workers, len(units)),
+        concurrent_network_units=1,
+        configuration_groups_in_batch=1,
         candidates=[
             dict(
                 candidate_id=u["fingerprint"] + f"/{seed}/{slot}",
@@ -431,269 +394,86 @@ def candidate_manifest(teacher, condition, units, workers=1):
     )
 
 
-def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None, _recovery=None):
-    """Return one aggregate or FloatingPointError per job; never rerun numerical failures."""
-    delegate = getattr(model, "execute_candidate_jobs", None)
-    if delegate is not None:
-        if sample_fn is not None or _recovery is not None:
-            raise ValueError("GPU process owns sampling and recovery")
-        return delegate(condition, jobs)
-    from .gpu_execution import settings
-    from .gpu_recovery import validate_recovery, issue_recovery, GpuOOMRestartRequired
-    if _recovery is not None:
-        _recovery = validate_recovery(_recovery, config, teacher, condition, jobs)
-    sample_fn = sample_fn or sampler.sample
+def _execute_job(model, config, teacher, condition, job, binding, sample_fn):
+    """Finish a single configuration before reserving or sampling the next one."""
     root = Path(config["root"])
-    binding = compatibility(config, teacher, condition)
-    units = compile_units(config, teacher, condition, jobs, _compatibility=binding, _recovery=_recovery)
-    if _recovery is not None and any(u["id"] not in _recovery["units"] for u in units):
-        raise ValueError("OOM continuation candidate identity changed; no new reservation allowed")
-    batch_root = root / "candidate_batches" / teacher["target"]
-    batch_root.mkdir(parents=True, exist_ok=True)
-    capacity_file = batch_root / "capacity.json"
-    device_binding = dict(
-        device=str(torch.cuda.get_device_name()),
-        torch=str(torch.__version__),
-        policy=EXECUTION_POLICY,
-        gpu_execution=settings(config),
-    )
-    prior = read(capacity_file) if capacity_file.exists() else {}
-    capacity = initial_capacity(prior, device_binding)
-    if _recovery is not None:
-        capacity = min(capacity, _recovery["next_capacity"])
-        write(capacity_file, dict(capacity=capacity, device_binding=device_binding,
-            reason="bound_by_clean_process_oom_recovery"))
-    failed = {u["id"]: read(u["folder"] / "FAILED.json") for u in units
-              if (u["folder"] / "FAILED.json").exists()}
-    pending = [u for u in units if u["id"] not in failed]
-    executor = getattr(model, "_ug_gpu_executor", None)
-    if executor is not None and not hasattr(model, "_ug_resource_counters"):
-        from .gpu_resources import NativeCounters
-        model._ug_resource_counters = NativeCounters(batch_root / "native_counters")
-        frozen(batch_root / "COUNTER_BINDING.json", dict(binding=model._ug_resource_counters.binding,
-            unavailable=model._ug_resource_counters.errors))
-    ordinal = 0
-    # Reserve candidates once, before any inference; OOM retries never reserve again.
-    for unit in units:
-        if _recovery is not None and unit["id"] in _recovery["units"]:
-            continue  # Original immutable reservation was validated; never charge twice.
-        frozen(
-            unit["folder"] / "manifest.json",
-            dict(id=unit["id"], identity=unit["identity"]),
-        )
-        reserve_group(
-            root,
-            unit["id"],
-            unit["job"]["stage"],
-            10,
-            unit["identity"],
-            registry_name="slot_registry",
-        )
-    while pending:
-        selected = pending[: capacity // 10]
-        size = 10 * len(selected)
-        ordinal += 1
-        attempt = batch_root / (str(time.time_ns()) + f"_{ordinal:03d}")
-        attempt.mkdir()
-        frozen(
-            attempt / "candidates_batch.json",
-            candidate_manifest(teacher, condition, selected, settings(config)["workers"]),
-        )
+    units = compile_units(config, teacher, condition, [job], _compatibility=binding)
+    failed = {}
+    if units:
+        size = 10 * len(units)
+        attempt = root / "candidate_batches" / teacher["target"] / str(time.time_ns())
+        attempt.mkdir(parents=True)
+        frozen(attempt / "candidates_batch.json", candidate_manifest(teacher, condition, units))
+        for unit in units:
+            frozen(unit["folder"] / "manifest.json", dict(id=unit["id"], identity=unit["identity"]))
+            reserve_group(root, unit["id"], job["stage"], 10, unit["identity"],
+                          registry_name="slot_registry")
         external = capture()
         guard = copy.deepcopy(model.integrator._guard_warned)
-        previous_rows = getattr(model, "_ug_physical_rows", 10)
-        oom = None
-        fatal = None
-        output = None
-        control = None
-        product = None
+        phase = "sampling"
+        output = control = product = None
         try:
-            model._ug_physical_rows = 10
-            initial = batch_initial(config, teacher["target"], selected)
-            factory = functools.partial(
-                CandidateControl,
-                condition=condition,
-                scale_binding=selected[0]["scale"],
-                units=selected,
-                physical_rows=size,
-            )
-            sampled = sample_fn(
-                model,
-                config,
-                teacher,
-                selected[0]["scale"][EFFECTIVE],
-                attempt,
-                size,
-                control_factory=factory,
-                check_affinity=False,
-                initial_override=initial,
-            )
+            factory = functools.partial(CandidateControl, condition=condition,
+                scale_binding=units[0]["scale"], units=units, physical_rows=size)
+            sampled = sample_fn(model, config, teacher, units[0]["scale"][EFFECTIVE],
+                attempt, size, control_factory=factory, check_affinity=False,
+                initial_override=batch_initial(config, teacher["target"], units))
             output, control = sampled[0], sampled[3]
-            del sampled  # Do not retain a previous batch's GPU pocket tensors during the next OOM probe.
-            for i, unit in enumerate(selected):
-                if i in control.failed_units:
-                    failed[unit["id"]] = control.failed_units[i]
-                    write(
-                        unit["folder"] / "FAILED.json",
-                        dict(
-                            **control.failed_units[i],
-                            attempts=10,
-                            source_batch=str(attempt),
-                            failed_attempts_remain_charged=True,
-                            no_weaker_retry=True,
-                        ),
-                    )
+            del sampled
+            phase = "postprocessing"
+            for index, unit in enumerate(units):
+                if index in control.failed_units:
+                    failed[unit["id"]] = control.failed_units[index]
+                    write(unit["folder"] / "FAILED.json", dict(**control.failed_units[index],
+                        attempts=10, source_batch=str(attempt),
+                        failed_attempts_remain_charged=True, no_weaker_retry=True))
                     continue
-                product = split_products(output, control, attempt, unit, i)
-                job = unit["job"]
-                execute_shard(
-                    model,
-                    config,
-                    teacher,
-                    condition,
-                    job["schedule"],
-                    unit["folder"],
-                    job["stage"],
-                    unit["slots"],
-                    job.get("domain"),
-                    job.get("enabled", True),
-                    _materialized=product,
-                    _reservation=unit["fingerprint"],
-                    loss_weights=job.get("loss_weights"),
-                    _compatibility=binding,
-                )
-            frozen(
-                attempt / "COMPLETE.json",
-                dict(
-                    candidate_count=size,
-                    failed_units=control.failed_units,
-                    capacity=size,
-                    independent_validation=False,
-                ),
-            )
+                product = split_products(output, control, attempt, unit, index)
+                execute_shard(model, config, teacher, condition, job["schedule"],
+                    unit["folder"], job["stage"], unit["slots"], job.get("domain"),
+                    job.get("enabled", True), _materialized=product,
+                    _reservation=unit["fingerprint"], loss_weights=job.get("loss_weights"),
+                    _compatibility=binding)
+            frozen(attempt / "COMPLETE.json", dict(candidate_count=size,
+                failed_units=control.failed_units, independent_validation=False,
+                scheduling_policy=EXECUTION_POLICY))
         except Exception as error:
-            if device_oom(error):
-                oom = dict(type=type(error).__name__, error=str(error))
-            else:
-                fatal = error
+            write(attempt / "FAILED.json", dict(type=type(error).__name__, error=str(error),
+                phase=phase, terminal_saved=(attempt / "terminal.pt.gz").exists(),
+                no_automatic_retry=True, no_capacity_fallback=True))
+            raise
         finally:
             restore(external)
             model.integrator._guard_warned = guard
-            model._ug_physical_rows = previous_rows
             model._adaptive = None
             model.integrator._adaptive_observer = None
-            output = None
-            control = None
-            product = None
-        if fatal is not None:
-            write(
-                attempt / "FAILED.json",
-                dict(
-                    type=type(fatal).__name__, error=str(fatal), no_automatic_retry=True
-                ),
-            )
-            raise fatal
-        if oom is not None:
-            # No completed products may be overwritten by a retry after postprocessing.
-            if (attempt / "terminal.pt.gz").exists() or any(
-                (u["folder"] / "terminal.pt.gz").exists() for u in selected
-            ):
-                write(attempt / "OOM_POSTPROCESSING.json", dict(**oom,
-                    resampling_forbidden=True, saved_outputs_preserved=True))
-                raise RuntimeError(
-                    "OOM after partial materialization; preserve results and audit postprocessing"
-                )
-            next_size = lower_capacity(size)
-            write(
-                attempt / "OOM.json",
-                dict(
-                    **oom,
-                    attempted_capacity=size,
-                    next_capacity=next_size,
-                    candidates_unchanged=True,
-                    random_stream_replay_required=True,
-                    clean_gpu_process_required=True,
-                    new_scientific_attempts=0,
-                ),
-            )
-            if next_size is None:
-                raise RuntimeError(
-                    "Teacher candidate inference exhausted OOM capacity ladder"
-                )
-            capacity = next_size
-            write(
-                capacity_file,
-                dict(
-                    capacity=capacity,
-                    device_binding=device_binding,
-                    reason="confirmed_device_oom",
-                ),
-            )
-            recovery = issue_recovery(config, teacher, condition, jobs, units,
-                attempt / "OOM.json", capacity)
-            raise GpuOOMRestartRequired(recovery)
-        if executor is not None:
-            from .gpu_resources import snapshot
-            write(attempt / "GPU_RESOURCES.json", snapshot(executor, model._ug_resource_counters))
-        pending = pending[len(selected) :]
+            output = control = product = None
+    if failed:
+        error = FloatingPointError("Nonfinite candidate units: " + ", ".join(failed))
+        scale = scale_binding(job["schedule"], job["domain"][MULTIPLIER] if job.get("domain") else None,
+                              job.get("enabled", True), condition, job.get("loss_weights"))
+        identity = dict(compatibility=binding, **candidate_identity(scale),
+                        population=job.get("count", 50), logical_slots_per_seed=job.get("count", 50) // 5)
+        run_id = Path(job["folder"]).relative_to(root).as_posix()
+        frozen(Path(job["folder"]) / "manifest.json", dict(id=run_id, identity=identity))
+        reserve_group(root, run_id, job["stage"], job.get("count", 50), identity, charge=False)
+        write(Path(job["folder"]) / "FAILED.json", dict(error=str(error),
+              source_units=list(failed), no_weaker_retry=True))
+        if job["stage"] == "formal":
+            raise error
+        return error
+    return execute(model, config, teacher, condition, job["schedule"], job["folder"],
+        job["stage"], job.get("count", 50), job.get("domain"), job.get("enabled", True),
+        loss_weights=job.get("loss_weights"), _compatibility=binding)
+
+
+def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
+    """UG04 ordering: complete each configuration on the caller thread, without retries."""
+    from .task_scheduling import configure
+    config = configure(config)
+    binding = compatibility(config, teacher, condition)
     results = []
     for job in jobs:
-        scale = scale_binding(
-            job["schedule"],
-            job["domain"][MULTIPLIER] if job.get("domain") else None,
-            job.get("enabled", True),
-            condition,
-            job.get("loss_weights"),
-        )
-        affected = [
-            u
-            for u in units
-            if u["id"] in failed
-            and candidate_identity(u["scale"]) == candidate_identity(scale)
-            and u["slots"][1] < job.get("count", 50) // 5
-        ]
-        if affected:
-            error = FloatingPointError(
-                "Nonfinite candidate units: " + ", ".join(u["id"] for u in affected)
-            )
-            identity = dict(
-                compatibility=binding,
-                **candidate_identity(scale),
-                population=job.get("count", 50),
-                logical_slots_per_seed=job.get("count", 50) // 5,
-            )
-            run_id = Path(job["folder"]).relative_to(root).as_posix()
-            frozen(
-                Path(job["folder"]) / "manifest.json",
-                dict(id=run_id, identity=identity),
-            )
-            reserve_group(
-                root, run_id, job["stage"], job.get("count", 50), identity, charge=False
-            )
-            write(
-                Path(job["folder"]) / "FAILED.json",
-                dict(
-                    error=str(error),
-                    source_units=[u["id"] for u in affected],
-                    no_weaker_retry=True,
-                ),
-            )
-            results.append(error)
-        else:
-            results.append(
-                execute(
-                    model,
-                    config,
-                    teacher,
-                    condition,
-                    job["schedule"],
-                    job["folder"],
-                    job["stage"],
-                    job.get("count", 50),
-                    job.get("domain"),
-                    job.get("enabled", True),
-                    loss_weights=job.get("loss_weights"),
-                    _compatibility=binding,
-                )
-            )
+        results.append(_execute_job(model, config, teacher, condition, job, binding,
+                                    sample_fn or sampler.sample))
     return results

@@ -6,13 +6,6 @@ from .batching import take
 ROWS=10
 
 
-def concurrent_map(function,items,workers=1,*,executor=None,inputs=()):
-    """Reuse an explicit teacher executor; never construct transient GPU workers."""
-    if executor is not None:return executor.map(function,items,inputs=inputs)
-    if workers!=1:raise RuntimeError("Parallel execution requires a teacher-scoped executor")
-    return [function(item) for item in items]
-
-
 def concatenate(values,sizes):
     first=values[0]
     if torch.is_tensor(first):
@@ -35,18 +28,18 @@ def concatenate(values,sizes):
     return first
 
 
-def chunk_call(function,args,kwargs,count,rows=ROWS,pad_to=None,workers=1,executor=None):
+def chunk_call(function,args,kwargs,count,rows=ROWS,pad_to=None):
     if count<=rows and (pad_to is None or count==pad_to): return function(*args,**kwargs)
-    def block(start):
+    values=[];sizes=[]
+    for start in range(0,count,rows):
         ids=list(range(start,min(start+rows,count)))
         actual=len(ids)
         if pad_to is not None:
             if actual>pad_to: raise ValueError("Physical rows exceed frozen padding shape")
             ids=(ids*((pad_to+actual-1)//actual))[:pad_to]
         output=function(*(take(a,ids,count) for a in args),**{k:take(v,ids,count) for k,v in kwargs.items()})
-        return take(output,list(range(actual)),len(ids)),actual
-    parts=concurrent_map(block,range(0,count,rows),workers,executor=executor,inputs=(args,kwargs))
-    values,sizes=zip(*parts)
+        values.append(take(output,list(range(actual)),len(ids)))
+        sizes.append(actual)
     return concatenate(values,sizes)
 
 
@@ -56,14 +49,10 @@ def install(model):
     model._ug_original_forward=forward
     def bounded_forward(this,*args,**kwargs):
         batch=args[0] if args else kwargs["batch"]
-        rows=getattr(model,"_ug_physical_rows",ROWS)
-        return chunk_call(forward,args,kwargs,len(batch["coords"]),rows=rows,pad_to=rows,
-            executor=getattr(model,"_ug_gpu_executor",None))
+        return chunk_call(forward,args,kwargs,len(batch["coords"]),pad_to=ROWS)
     model.forward=types.MethodType(bounded_forward,model)
     encoding=model.gen.get_pocket_encoding
     def bounded_encoding(this,*args,**kwargs):
         coords=args[0] if args else kwargs["pocket_coords"]
-        rows=getattr(model,"_ug_physical_rows",ROWS)
-        return chunk_call(encoding,args,kwargs,len(coords),rows=rows,pad_to=rows,
-            executor=getattr(model,"_ug_gpu_executor",None))
+        return chunk_call(encoding,args,kwargs,len(coords),pad_to=ROWS)
     model.gen.get_pocket_encoding=types.MethodType(bounded_encoding,model.gen)
