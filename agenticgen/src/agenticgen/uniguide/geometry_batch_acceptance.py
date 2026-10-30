@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 import torch
 from . import sampler
-from .geometry_batch import CandidateControl, batch_initial, lower_capacity, device_oom
+from .geometry_batch import CandidateControl, batch_initial, lower_capacity, device_oom, DEFAULT_BATCH_SIZE
 from .geometry_sampling import GeometryControl, scale_binding
 from .geometry_shards import initial_shard
 from .geometry_protocol import EFFECTIVE
@@ -155,8 +155,8 @@ def run_teacher(model,config,teacher,condition,folder):
     if compare_trees(joint,load_pt(folder/"mixed_resumed/terminal.pt.gz")):raise ValueError("Mixed batch resume changed output")
     receipt.update(exact_mixed_resume=True,engineering_trajectory_evaluations=60,network_microbatch_size=10,
         concurrent_units=2,physical_batch_shape_is_fixed=True)
-    # Try all ninety candidates; reduce only upon a real device OOM.
-    capacity=90;ooms=[]
+    # Validate the production default over the full integration, not a short prefix.
+    capacity=DEFAULT_BATCH_SIZE;ooms=[]
     while True:
         selected=[copy.deepcopy(units[i%2]) for i in range(capacity//10)]
         for i,u in enumerate(selected):u["id"]=f"capacity_fixture_{i}"
@@ -165,7 +165,7 @@ def run_teacher(model,config,teacher,condition,folder):
             model._ug_physical_rows=10;model._ug_parallel_workers=capacity//10
             factory=functools.partial(CandidateControl,condition=condition,scale_binding=selected[0]["scale"],units=selected,physical_rows=capacity)
             sampler.sample(model,config,teacher,selected[0]["scale"][EFFECTIVE],folder/f"capacity_{capacity}",capacity,
-                control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],selected),stop_step=12)
+                control_factory=factory,check_affinity=False,initial_override=batch_initial(config,teacher["target"],selected),stop_step=100)
         except Exception as exc:
             if not device_oom(exc):raise
             error=str(exc)
@@ -177,14 +177,14 @@ def run_teacher(model,config,teacher,condition,folder):
         import gc
         gc.collect();torch.cuda.empty_cache()
         if capacity is None:raise RuntimeError("No accepted GPU capacity")
-    receipt.update(capacity_probe_initial=90,capacity_probe_success=capacity,capacity_probe_ooms=ooms,
-        capacity_probe_steps=12,capacity_probe_not_calibration=True)
+    receipt.update(capacity_probe_initial=DEFAULT_BATCH_SIZE,capacity_probe_success=capacity,capacity_probe_ooms=ooms,
+        capacity_probe_steps=100,capacity_probe_not_calibration=True)
     with h5py.File(folder/f"capacity_{capacity}"/"trace.h5","r") as combined:
         for i in range(capacity//10):
             with h5py.File(separate[i%2]/"trace.h5","r") as single:
                 for key in single:
-                    if not np.array_equal(single[key][:12],combined[key][:12,i*10:(i+1)*10]):
-                        raise ValueError("Capacity probe changed independent prefix: "+key)
+                    if not np.array_equal(single[key][:100],combined[key][:100,i*10:(i+1)*10]):
+                        raise ValueError("Capacity probe changed independent trajectory: "+key)
     receipt["capacity_probe_exact_prefix_equivalence"]=True
     from .geometry_dynamics import policy as dynamics_policy
     if dynamics_policy(config)["limiter"] == "none":

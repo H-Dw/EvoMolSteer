@@ -16,11 +16,23 @@ from test_uniguide_geometry import features,condition,domain,diagnostics
 
 
 def test_capacity_ladder_and_specific_oom():
-    assert [batch.lower_capacity(n) for n in (100,90,80,70,60,50,40,30,20,10)]==[80,80,60,60,40,40,20,20,10,None]
+    assert batch.DEFAULT_BATCH_SIZE == 50
+    assert [batch.lower_capacity(n) for n in (100,90,80,70,60,50,40,30,20,10)]==[50,50,50,50,50,40,20,20,10,None]
     assert batch.device_oom(torch.cuda.OutOfMemoryError("fixture"))
     assert batch.device_oom(RuntimeError("HIP out of memory"))
     assert not batch.device_oom(FloatingPointError("nonfinite loss"))
     assert not batch.device_oom(RuntimeError("host out of memory"))
+
+
+def test_cached_capacity_cannot_raise_default_ceiling():
+    device = dict(device="teacher-device", policy=batch.EXECUTION_POLICY)
+    assert batch.initial_capacity({}, device) == 50
+    for cached, expected in [(100, 50), (80, 50), (60, 50), (50, 50), (40, 40), (20, 20), (10, 10)]:
+        assert batch.initial_capacity(dict(device_binding=device, capacity=cached), device) == expected
+    assert batch.initial_capacity(dict(device_binding={}, capacity=10), device) == 50
+    for bad in (55, 0, True, 50.0):
+        with pytest.raises(ValueError, match="Corrupt teacher capacity"):
+            batch.initial_capacity(dict(device_binding=device, capacity=bad), device)
 
 
 def test_static_binding_once_per_batch_and_fresh_on_next_entry(tmp_path, monkeypatch):
@@ -104,13 +116,13 @@ def test_cross_configuration_batch_oom_accounting_promotion_and_reuse(tmp_path,m
     attempted=[];external=torch.get_rng_state().clone()
     def oom(*args,**kwargs):
         size=args[5];attempted.append(size)
-        if size>60:
+        if size>20:
             torch.rand(10)
             raise torch.cuda.OutOfMemoryError("injected")
         return sample(*args,**kwargs)
     jobs=[dict(schedule=[i+1.]*4,folder=tmp_path/f"grid{i}",stage="calibration",count=10) for i in range(9)]
     rows=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=oom)
-    assert attempted==[90,80,60,30] and calls==[60,30]
+    assert attempted==[50,40,20,20,20,20,10] and calls==[20,20,20,20,10]
     assert torch.equal(external,torch.get_rng_state())
     assert all(r["attempts"]==10 for r in rows)
     assert sum(r["count"] for r in read(tmp_path/"attempts.json").values())==90
@@ -118,7 +130,7 @@ def test_cross_configuration_batch_oom_accounting_promotion_and_reuse(tmp_path,m
     # Reuse old slots, sample only the remaining forty for this configuration.
     jobs=[dict(schedule=[1.]*4,folder=tmp_path/"full",stage="calibration",count=50)]
     row=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample)[0]
-    assert calls[-1]==40 and row["attempts"]==50
+    assert calls[-2:]==[20,20] and row["attempts"]==50
     assert sum(r["count"] for r in read(tmp_path/"attempts.json").values())==130
     before=list(calls)
     assert batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample)[0]["id"]==row["id"]
@@ -137,7 +149,7 @@ def test_formal_directions_share_batches_teacher_capacity_is_independent(tmp_pat
     d=dict(body,domain_sha256=value_sha(body))
     jobs=[dict(schedule=[v,0,0,0],folder=tmp_path/f"direction{v}",stage="formal",domain=d) for v in (-1,0,1)]
     rows=batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample)
-    assert calls==[100,50] and all(r["attempts"]==50 for r in rows)
+    assert calls==[50,50,50] and all(r["attempts"]==50 for r in rows)
     assert sum(r["count"] for r in read(tmp_path/"attempts.json").values())==150
     assert not (tmp_path/"candidate_batches/other_teacher/capacity.json").exists()
 

@@ -38,12 +38,23 @@ from .random_streams import capture, restore
 from .protocol import SEEDS
 from .geometry_dynamics import STEP_FIELDS
 
-CAPACITIES = (100, 80, 60, 40, 20, 10)
+DEFAULT_BATCH_SIZE = 50
+CAPACITIES = (DEFAULT_BATCH_SIZE, 40, 20, 10)
 EXECUTION_POLICY = "teacher-candidates-concurrent-fixed-shape-v2"
 
 
 def lower_capacity(current):
     return next((n for n in CAPACITIES if n < current), None)
+
+
+def initial_capacity(prior, device_binding):
+    """Reuse a teacher's smaller OOM capacity without lifting the default ceiling."""
+    if prior.get("device_binding") != device_binding:
+        return DEFAULT_BATCH_SIZE
+    cached = prior.get("capacity", DEFAULT_BATCH_SIZE)
+    if type(cached) is not int or cached not in (100, 80, 60, *CAPACITIES):
+        raise ValueError("Corrupt teacher capacity")
+    return min(cached, DEFAULT_BATCH_SIZE)
 
 
 def device_oom(error):
@@ -432,13 +443,7 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None):
         policy=EXECUTION_POLICY,
     )
     prior = read(capacity_file) if capacity_file.exists() else {}
-    capacity = (
-        prior.get("capacity", 100)
-        if prior.get("device_binding") == device_binding
-        else 100
-    )
-    if capacity not in CAPACITIES:
-        raise ValueError("Corrupt teacher capacity")
+    capacity = initial_capacity(prior, device_binding)
     pending = list(units)
     failed = {}
     ordinal = 0
