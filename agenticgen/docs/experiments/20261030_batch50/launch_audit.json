@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-10-30T14:02:54.068651+08:00",
+  "pid": 8917,
+  "command": [
+    "bash",
+    "-i",
+    "/workspace/uniguide_runs/absolute-batch50-7670549a/agenticgen/docs/experiments/20261030_adaptive_calibration/launch.sh",
+    "/workspace/uniguide_runs/absolute-batch50-7670549a",
+    "/workspace/uniguide_runs/absolute-batch50-7670549a-config.json"
+  ],
+  "repo": "/workspace/uniguide_runs/absolute-batch50-7670549a",
+  "commit": "7670549a4b8f4e2fbddf3c8da8e6f9c620954cdd",
+  "root": "/workspace/agenticgen_absolute_coordinate_batch50_20261030",
+  "config": "/workspace/uniguide_runs/absolute-batch50-7670549a-config.json",
+  "config_sha256": "9e42dc18ffce7a4c75046c742d964c930c9e5e1c81c05869e530e522b3e4bd6e",
+  "default_batch_size": 50,
+  "capacity_ladder": [
+    50,
+    40,
+    20,
+    10
+  ],
+  "capacity_acceptance_steps": 100,
+  "background": true,
+  "stages": [
+    "acceptance",
+    "calibrate",
+    "real LLM GD01 five rounds",
+    "quality 10/50"
+  ],
+  "source_preservation_count": 6063,
+  "old_results_preserved": true,
+  "scientific_sampling_at_launch": 0,
+  "real_llm_receipts_at_launch": 0,
+  "verified_at": "2026-10-30T14:03:57.163026+08:00",
+  "verified_status": {
+    "timestamp": "2026-10-30T14:03:00.008943+08:00",
+    "stage": "acceptance",
+    "status": "running",
+    "pid": 8990,
+    "log": "/workspace/agenticgen_absolute_coordinate_batch50_20261030/acceptance.log"
+  },
+  "verified_processes": [
+    {
+      "pid": 8917,
+      "state": "S",
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u agenticgen/docs/experiments/20261030_adaptive_calibration/run_campaign.py /workspace/uniguide_runs/absolute-batch50-7670549a /workspace/uniguide_runs/absolute-batch50-7670549a-config.json "
+    },
+    {
+      "pid": 8990,
+      "state": "R",
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u /workspace/uniguide_runs/absolute-batch50-7670549a/agenticgen/scripts/run_uniguide_geometry.py --config /workspace/uniguide_runs/absolute-batch50-7670549a-config.json acceptance "
+    }
+  ],
+  "verified_locks": {
+    "/workspace/agenticgen_uniguide_flowr_20261026/.executor.lock": "held",
+    "/workspace/agenticgen_absolute_coordinate_batch50_20261030/.executor.lock": "held",
+    "/workspace/agenticgen_absolute_coordinate_batch50_20261030/.campaign.lock": "held",
+    "/workspace/agenticgen_absolute_coordinate_batch50_20261030/quality_queue/.worker.lock": null
+  },
+  "protected_files_changed": [],
+  "verified_progress": [
+    {
+      "path": "acceptance/6pyy_H7S_A_402/raw999_vjp_prefix/steps.json",
+      "steps": 10,
+      "last_step": 9
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/disabled/steps.json",
+      "steps": 3,
+      "last_step": 2
+    },
+    {
+      "path": "acceptance/6pyy_H7S_A_402/native_prefix/steps.json",
+      "steps": 3,
+      "last_step": 2
+    }
+  ],
+  "regression_passed": 220,
+  "regression_skipped": 1,
+  "local_tests_passed": 28,
+  "automation": {
+    "id": "absolute-coordinate-batch50",
+    "kind": "heartbeat",
+    "name": "Absolute coordinate batch50",
+    "rrule": "FREQ=MINUTELY;INTERVAL=15",
+    "status": "ACTIVE",
+    "prompt_sha256": "27efbc2276c07228c2f0a16fa111c03cb2417a728f4967a7d775495398fa8a53",
+    "utf8_no_replacement_character": true,
+    "exact_prompt_readback": true,
+    "original_ug_status": "PAUSED",
+    "original_ug_rrule": "FREQ=MINUTELY;INTERVAL=35"
+  }
+}
