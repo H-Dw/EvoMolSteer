@@ -1,0 +1,116 @@
+{
+  "timestamp": "2026-10-30T19:40:10.090629+08:00",
+  "review_kind": "actual_main_gpt_sigkill_source_comparison",
+  "signal": "SIGKILL",
+  "signal_sender_identified": false,
+  "root_cause_status": "unresolved_no_sender_or_host_event_record",
+  "actual_gpu_commit": "399590dd9d723ec3bbfce86fb0f017cf2c6ecb61",
+  "normal_ug04_commit": "930db03280c66c3f8a39f131ae01df3202544af4",
+  "new_gpu_or_scientific_work": 0,
+  "llm_calls": 0,
+  "runtime_code_changed": false,
+  "automatic_restart": false,
+  "conclusions": [
+    {
+      "kind": "confirmed_historical_resource_defect",
+      "modules": [
+        "chunking.py@7670549a:9",
+        "geometry_batch.py@7670549a:150"
+      ],
+      "mechanism": "Transient threads and stream reassignment multiplied persistent BLAS workspaces; replaced in the current serial path",
+      "proven_to_cause_current_sigkill": false
+    },
+    {
+      "kind": "confirmed_observation_gap",
+      "modules": [
+        "gpu_resources.py:102",
+        "gpu_stability.py:35"
+      ],
+      "mechanism": "Only post-batch GPU resource samples; no live host RSS, high-water mark or cgroup event timeline",
+      "proven_memory_leak": false
+    },
+    {
+      "kind": "confirmed_acceptance_coverage_gap",
+      "modules": [
+        "absolute_acceptance.py:73",
+        "gpu_execution.py:181",
+        "absolute_runtime.py:211"
+      ],
+      "mechanism": "Acceptance loads both teachers inline in one CUDA process while production uses a persistent child per teacher",
+      "proven_to_cause_current_sigkill": false
+    },
+    {
+      "kind": "confirmed_receipt_durability_gap",
+      "modules": [
+        "absolute_acceptance.py:78",
+        "absolute_acceptance.py:131",
+        "absolute_acceptance.py:145"
+      ],
+      "mechanism": "Per-check finite-difference numbers kept only in memory until global completion"
+    }
+  ],
+  "current_kernel_oom_evidence": "No cgroup max, oom or oom_kill events observed; userspace/platform SIGKILL not excluded",
+  "global_host_oom_counter_not_attributable_to_this_run": true,
+  "needed_external_evidence": {
+    "timezone": "Asia/Shanghai",
+    "start": "2026-10-30 18:40:30",
+    "end": "2026-10-30 18:42:00",
+    "container_pid": 56811,
+    "host_boot_id": "6dc9a414-6bea-4009-9e6d-69f0361bfe5f",
+    "records": [
+      "kernel OOM and GPU reset events",
+      "userspace resource manager actions",
+      "signal sender audit"
+    ]
+  },
+  "references": [
+    "https://docs.python.org/3.11/library/subprocess.html",
+    "https://www.kernel.org/doc/html/v5.15/admin-guide/cgroup-v2.html",
+    "https://man7.org/linux/man-pages/man7/signal.7.html",
+    "https://docs.pytorch.org/docs/2.9/notes/cuda.html#cuda-memory-management"
+  ],
+  "remote_reverification": {
+    "timestamp": "2026-10-30T19:35:56.333602+08:00",
+    "processes": [],
+    "locks": {
+      "/workspace/agenticgen_gpu_engineering_20261030_399590dd/.executor.lock": "free",
+      "/workspace/agenticgen_uniguide_flowr_20261026/.executor.lock": "free"
+    },
+    "protected_files_count": 9626,
+    "protected_files_changed": [],
+    "unexpected_scientific_outputs": [],
+    "runtime_commit": "399590dd9d723ec3bbfce86fb0f017cf2c6ecb61",
+    "runtime_dirty": "",
+    "snapshot": "/workspace/uniguide_audits/persistent-gpu-399590dd/monitoring/20261030_193558.json",
+    "repositories": {
+      "/workspace/uniguide_audits/persistent-gpu-399590dd/checkout": {
+        "commit": "399590dd9d723ec3bbfce86fb0f017cf2c6ecb61",
+        "clean": true,
+        "modules": {
+          "prepare.py": "9bd179fd0f0464db7b4fc69398f1e91fcfb2fda04e8a312a863c11669ac42b43",
+          "native_tools.py": "0d25292698449241ea429699fd583b0e609b076afac602219be94ce50cc48b65",
+          "random_streams.py": "d41d07ffb2021d0f1011d24886a61a20b5634c2c4a0612ad9b016309d8495693",
+          "batching.py": "bb2f6ad5d07e6378b62cdb2bb36f076516b89f2c2e26004d0c8e95ac9396c399"
+        }
+      },
+      "/workspace/EvoMolSteer-UG04-frozen-930db032": {
+        "commit": "930db03280c66c3f8a39f131ae01df3202544af4",
+        "clean": true,
+        "modules": {
+          "prepare.py": "9bd179fd0f0464db7b4fc69398f1e91fcfb2fda04e8a312a863c11669ac42b43",
+          "native_tools.py": "0d25292698449241ea429699fd583b0e609b076afac602219be94ce50cc48b65",
+          "random_streams.py": "d41d07ffb2021d0f1011d24886a61a20b5634c2c4a0612ad9b016309d8495693",
+          "batching.py": "bb2f6ad5d07e6378b62cdb2bb36f076516b89f2c2e26004d0c8e95ac9396c399"
+        }
+      }
+    },
+    "kernel_release": "5.15.0-25-generic",
+    "root_markers": {
+      "FINALIZED.json": true,
+      "acceptance/COMPLETE.json": false,
+      "attempts.json": false,
+      "calibration": false,
+      "versions": false
+    }
+  }
+}

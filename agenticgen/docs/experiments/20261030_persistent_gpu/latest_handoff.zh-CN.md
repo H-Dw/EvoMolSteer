@@ -4,6 +4,8 @@
 
 19:16已写入失败归档FINALIZED并验证复盘哈希、进程退出和执行锁释放，`gpu`巡检已删除，详见`automation_stopped.json`。原`uniguide-flowr`仍为PAUSED、35分钟不变。没有新科学尝试或LLM调用。
 
+后续用户要求深入追溯SIGKILL并比对UG04，新增只读诊断见`sigkill_deep_diagnosis.zh-CN.md`及`sigkill_deep_review.json`。19:35再次确认9626个保护文件未变、固定目录干净、进程退出与锁释放。主机可见cgroup的OOM计数为0；前90步与已完成同配置批次全部逐位相同；当前串行分支没有旧临时线程池/轮换stream。信号发送方仍未确定。新报告分别定位了批后GPU观测缺少主机时间序列、acceptance绕过正式教师子进程入口、单项验收数字未及时落盘三个缺口，均未冒称SIGKILL已归因。未启动新GPU任务或修改自动化，原FINALIZED绑定保留。
+
 以下17:59快照保留为历史记录，后台执行和本专项监控均已结束。
 
 2026-10-30 17:59（Asia/Shanghai）快照：代码已推送到`codex/uniguide-flowr-agent`，最新实现提交`e45a70f0308cd71dd020673199e3649506122161`。正式实验仍停止，未启动标定或LLM。
