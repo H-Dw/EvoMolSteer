@@ -125,6 +125,8 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
         common["user_selected_initial_configuration"]=selection
         common["initial_configuration_measured_anchor_ids"]=[r["id"] for r in history if r[NORMALIZED]==selection[NORMALIZED]]
     outputs={}
+    from .calibration_search import POLICY as adaptive_policy
+    adaptive=domain.get("calibration_search_policy")==adaptive_policy
     def invoke(role,context,schema,validator):
         if registry is not None:
             context=dict(context,existing_additional_calculation_receipts=registry.observed_calculations())
@@ -147,7 +149,12 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
     for branch in BRANCHES:
         options=legal_options(history,domain,branch) if not final else []
         component_controls=registry is not None and registry.condition and registry.condition.get("reward_policy")
-        if not final and len(options)<2 and not component_controls:
+        if adaptive and not final and not options and not component_controls:
+            frozen(folder/(branch+".BOUNDARY_REACHED.json"),dict(branch=branch,
+                status="no_untested_legal_action",domain_sha256=domain["domain_sha256"],
+                llm_called=False,new_attempts=0,automatic_range_expansion=False))
+            continue
+        if not adaptive and not final and len(options)<2 and not component_controls:
             raise ValueError("Insufficient untested legal actions; no automatic range expansion")
         action=object_schema(dict(id=text_schema(80),branch=dict(enum=[branch]),anchor_id=dict(enum=list(anchors)),
             anchor_reason=text_schema(200),updates=dict(type="array",minItems=1,maxItems=2,items=object_schema(dict(
@@ -156,8 +163,9 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
         if component_controls:
             action["properties"]["updates"]["minItems"]=0
             action["properties"]["loss_control_id"]={"type":"string","pattern":"^ev_[0-9a-f]{20}$"}
+        proposal_count=0 if final else min(2,len(options)) if adaptive and not component_controls else 2
         schema=object_schema(dict(analysis=text_schema(1200),mechanism_uncertainty=text_schema(350),
-            proposals=dict(type="array",items=action,minItems=0 if final else 2,maxItems=0 if final else 2)))
+            proposals=dict(type="array",items=action,minItems=proposal_count,maxItems=proposal_count)))
         def check(result,branch=branch):
             if registry is not None:
                 registry.validate_citations([p["evidence"] for p in result["proposals"]] or [result["analysis"]])
@@ -173,13 +181,14 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
             temporal_examples_exhausted=(not final and len(options)<2),
             component_control_note="Temporal examples do not enumerate receipt-bound binary controls; use registered evidence and controls if justified. Final actions still require novelty and validity." if component_controls else None),schema,check)
     candidates={b+":"+str(i):p for b,result in outputs.items() for i,p in enumerate(result["proposals"])}
+    active_branches=[b for b in BRANCHES if any(k.startswith(b+":") for k in candidates)]
     props=dict(analysis=text_schema(1100),choice_evidence=text_schema(900))
-    if not final:props["selected"]=object_schema({b:dict(enum=[k for k in candidates if k.startswith(b+":")]) for b in BRANCHES})
+    if not final:props["selected"]=object_schema({b:dict(enum=[k for k in candidates if k.startswith(b+":")]) for b in active_branches})
     def check_synthesis(result):
         if registry is not None:
             registry.validate_citations([result["choice_evidence"]])
         selected=[]
-        for branch in ([] if final else BRANCHES):
+        for branch in ([] if final else active_branches):
             proposal=candidates[result["selected"][branch]]
             try:
                 if registry is not None:proposal=registry.resolve_loss_control(proposal)
@@ -189,4 +198,4 @@ def advise(config,history,domain,folder,skills,failures=(),final=False,provider=
     private={b:{k:v for k,v in answer.items() if k!="proposals"} for b,answer in outputs.items()}
     result=invoke("synthesis",dict(common,candidates=candidates,private=private),object_schema(props),check_synthesis)
     return [] if final else [dict(candidates[result["selected"][b]],private_context=str(folder/(b+".json")),
-        synthesis_context=str(folder/"synthesis.json")) for b in BRANCHES]
+        synthesis_context=str(folder/"synthesis.json")) for b in active_branches]

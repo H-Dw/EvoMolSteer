@@ -53,16 +53,32 @@ class Budget:
 
     def reserve(self, run_id, stage, count, binding):
         caps = {"calibration": 5000, "r0": 100, "formal": 30000}
+        limits_path = self.path.parent / "ATTEMPT_LIMITS.json"
+        limits = read(limits_path) if limits_path.exists() else {}
+        caps.update(limits.get("stage_caps", {}))
         if stage not in caps or type(count) is not int or count <= 0:
             raise ValueError("Invalid scientific attempt reservation")
         rows = read(self.path) if self.path.exists() else {}
         item = {"stage": stage, "count": count, "binding": binding}
+        per_teacher = limits.get("per_teacher_stage_caps", {}).get(stage)
+        if per_teacher is not None:
+            scope = read(self.path.parent / "BUDGET_SCOPE.json")
+            if scope.get("stage") != stage or not scope.get("teacher_id"):
+                raise ValueError("Scientific reservation requires a teacher budget scope")
+            item["teacher_id"] = scope["teacher_id"]
         if run_id in rows:
             if rows[run_id] != item:
                 raise ValueError("Attempt ID reused with a different experiment")
             return
         if sum(x["count"] for x in rows.values() if x["stage"] == stage) + count > caps[stage]:
             raise ValueError("Scientific attempt budget exhausted")
+        if per_teacher is not None:
+            same_stage = [x for x in rows.values() if x["stage"] == stage]
+            if any(not x.get("teacher_id") for x in same_stage):
+                raise ValueError("Unattributed teacher attempt budget")
+            used = sum(x["count"] for x in same_stage if x["teacher_id"] == item["teacher_id"])
+            if used + count > per_teacher:
+                raise ValueError("Teacher scientific attempt budget exhausted")
         rows[run_id] = item
         write(self.path, rows)
 

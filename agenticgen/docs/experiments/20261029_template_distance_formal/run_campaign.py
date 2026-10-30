@@ -92,9 +92,11 @@ def main():
                 break
             time.sleep(20)
         check_sources()
-        frozen(root/'CAMPAIGN_FINISHED.json', dict(timestamp=now(), sampling_complete=True,
+        finalized=read(root/'versions/GD01/FINALIZED.json')
+        frozen(root/'CAMPAIGN_FINISHED.json', dict(timestamp=now(), sampling_complete=finalized.get('complete',True),
             quality=report, quality_enqueue_errors=quality_errors, requires_actual_external_review=True,
-            original_source_files_unchanged=True))
+            original_source_files_unchanged=True,missing_teachers=finalized.get('missing_teachers',[]),
+            skipped_branches=finalized.get('skipped_branches',[])))
         # Stop only this campaign's idle CPU worker, after confirming its runtime path and process identity.
         worker_path = root/'quality_queue/worker.json'
         if worker_path.exists():

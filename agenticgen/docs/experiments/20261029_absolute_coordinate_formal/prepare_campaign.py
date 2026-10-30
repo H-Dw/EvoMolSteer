@@ -14,9 +14,15 @@ def main():
     parser.add_argument('--repo',type=Path,required=True)
     parser.add_argument('--previous-config',type=Path,required=True)
     parser.add_argument('--config',type=Path,required=True)
+    parser.add_argument('--measurement-source-root',type=Path)
     args=parser.parse_args()
     old=read(args.previous_config)
     config=read(args.repo/'agenticgen/configs/uniguide_absolute_coordinate.json')
+    if args.measurement_source_root:
+        from agenticgen.uniguide.calibration_search import POLICY
+        if config.get('calibration',{}).get('search_policy')!=POLICY:
+            raise ValueError('Measurement import requires adaptive calibration')
+        config['calibration']['measurement_source_root']=str(args.measurement_source_root.resolve())
     config['plip_dependencies']=old['plip_dependencies']
     expected={'6pyy_H7S_A_402':'single_b004_final_015','3w54_RNB_A_504':'single_b000_final_003'}
     inputs=Path(str(args.repo)+'-inputs');inputs.mkdir(exist_ok=True)

@@ -150,6 +150,14 @@ def validate_domain(domain,teacher_id=None,condition_hash=None,sampling_protocol
     effective([0.]*4,domain[MULTIPLIER])
     if not -10<=domain["normalized_minimum"]<=0<=domain["normalized_maximum"]<=10:
         raise ValueError("Invalid calibrated interval")
+    from .calibration_search import POLICY as adaptive_policy
+    if domain.get("calibration_search_policy")==adaptive_policy:
+        levels=list(range(domain["normalized_minimum"],domain["normalized_maximum"]+1))
+        confirmed=domain.get("confirmed_effective_levels",[])
+        if domain.get("allowed_normalized_levels")!=levels or len(levels)<3 or len(confirmed)!=len(levels):
+            raise ValueError("Adaptive domain requires three contiguous measured integer levels")
+        if any(not math.isclose(s,domain[MULTIPLIER]*2.**n,rel_tol=1e-10) for s,n in zip(confirmed,levels)):
+            raise ValueError("Unmeasured normalized level in adaptive domain")
 
 
 def validate_action(action,anchors,domain,seen):

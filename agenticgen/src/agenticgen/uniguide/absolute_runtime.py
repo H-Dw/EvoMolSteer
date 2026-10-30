@@ -191,6 +191,15 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
         skill_hashes={p.name:sha(p) for p in skills.glob("*.md")},rounds=config["rounds"])
     frozen(folder/"manifest.json",manifest)
     domains=read(root/"calibration/domains.json");all_groups=[];summaries={};contexts=[]
+    from .calibration_search import POLICY as adaptive_policy
+    adaptive=config.get("calibration",{}).get("search_policy")==adaptive_policy
+    missing_teachers=[s["teacher"]["target"] for s in subjects if s["teacher"]["target"] not in domains]
+    skipped_branches=[]
+    if adaptive:
+        subjects=[s for s in subjects if s["teacher"]["target"] in domains]
+        if not subjects:raise ValueError("No teacher has a confirmed calibration domain")
+        frozen(folder/"CALIBRATION_SELECTION.json",dict(ready_teachers=list(domains),
+            missing_teachers=missing_teachers,all_teachers_ready=not missing_teachers))
     from .geometry_calibration import verify_frozen
     for subject in subjects:
         verify_frozen(root,domains[subject["teacher"]["target"]],compatibility(config,subject["teacher"],subject["condition"]))
@@ -221,7 +230,13 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
             current_by_id={r["id"]:r for r in current}
             if any(value_sha(current_by_id.get(r["id"]))!=value_sha(r) for r in saved["history"]):raise ValueError("Historical source changed on replay")
             proposals=advisor(config,saved["history"],domain,call_folder,skills,saved["failures"])
-            if len(proposals)!=3 or {p["branch"] for p in proposals}!={"increase","decrease","redistribute"}:raise ValueError("Incomplete inclination selection")
+            branches=[p["branch"] for p in proposals]
+            expected={"increase","decrease","redistribute"}
+            if len(branches)!=len(set(branches)) or set(branches)-expected or not adaptive and set(branches)!=expected:
+                raise ValueError("Incomplete or duplicated inclination selection")
+            for branch in sorted(expected-set(branches)):
+                boundary=read(call_folder/(branch+".BOUNDARY_REACHED.json"))
+                skipped_branches.append(dict(boundary,teacher_id=target,iteration=iteration))
             resolved_seen=[seen_configuration(r[NORMALIZED],r.get(WEIGHTS)) for r in saved["history"]]
             jobs=[];resolved_actions=[]
             for proposal in proposals:
@@ -245,16 +260,19 @@ def run_version(config,version,model_loader=load_model,executor=execute,advisor=
                 groups.append(dict(row,selected_proposal=resolved,iteration=iteration))
         current,failed=history(config,teacher,condition,domain)
         advisor(config,current,domain,troot/"analysis_final",skills,failed,final=True)
-        winner=choose(groups);retainer(root,groups,winner,troot/"retention")
+        winner=choose(groups or current);retainer(root,groups or current,winner,troot/"retention")
         contexts.extend([str(troot/"analysis_final"/"increase.json"),str(troot/"analysis_final"/"synthesis.json")])
         from .coordinate_statistics import RANKING, SUMMARY
         summaries[target]=dict(representative=winner["id"],**{k:winner[k] for k in (DISTANCE,CONTROL_DISTANCE,NEIGHBOR_DISTANCE,RANKING,SUMMARY)},
             **{k:winner[k] for k in (WEIGHTS,INTERACTION_DISTANCE) if k in winner},
             domain_sha256=domain["domain_sha256"],complete=True)
         all_groups.extend(groups);del model
-    if len(all_groups)!=len(subjects)*3*config["rounds"]:raise ValueError("Incomplete configured iteration count")
+    if len(all_groups)+len(skipped_branches)!=len(subjects)*3*config["rounds"]:raise ValueError("Incomplete configured iteration count")
     result=dict(version=version,teachers=summaries,groups=all_groups,strategy_contexts=contexts,
-        manifest_sha256=sha(folder/"manifest.json"),complete=True)
+        manifest_sha256=sha(folder/"manifest.json"),complete=not missing_teachers and not skipped_branches,
+        missing_teachers=missing_teachers,skipped_branches=skipped_branches,
+        requested_groups=(len(subjects)+len(missing_teachers))*3*config["rounds"],
+        measured_or_reused_groups=len(all_groups),all_available_teachers_processed=True)
     frozen(folder/"FINALIZED.json",result)
     previous=[read(p) for p in sorted((root/"versions").glob("GD*/FINALIZED.json")) if p.parent.name<version]
     best={target:min(previous+[result],key=lambda v:primary_score(v["teachers"][target]))["version"] for target in summaries}

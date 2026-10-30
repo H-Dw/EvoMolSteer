@@ -19,10 +19,15 @@ def plan(config,target):
     center=centers.get(target,1.)
     if type(center) not in (int,float) or not math.isfinite(center) or center<=0:
         raise ValueError("Positive finite teacher-local search center required")
-    if set(settings)-{"search_center_by_teacher"}:raise ValueError("Unknown calibration settings")
+    if set(settings)-{"search_center_by_teacher","search_policy","measurement_source_root"}:raise ValueError("Unknown calibration settings")
+    search_policy=settings.get("search_policy",DEFAULT_PLAN["policy"])
+    from .calibration_search import POLICY as adaptive_policy
+    if search_policy not in (DEFAULT_PLAN["policy"],adaptive_policy):raise ValueError("Unknown calibration search policy")
+    if settings.get("measurement_source_root") and search_policy!=adaptive_policy:
+        raise ValueError("Measurement import requires explicit adaptive calibration")
     scales=[center*2.**i for i in DEFAULT_PLAN["coarse_log2_exponents"]]
     if not all(math.isfinite(s) and s>0 for s in scales):raise ValueError("Invalid calibration grid")
-    return dict(DEFAULT_PLAN,search_center_actual_scale=center,coarse_actual_scales=scales,
+    return dict(DEFAULT_PLAN,policy=search_policy,search_center_actual_scale=center,coarse_actual_scales=scales,
         center_is_fitted_multiplier=False,local_search_not_global_optimum=True)
 
 
@@ -55,6 +60,10 @@ def verify_frozen(root,domain,binding):
 
 
 def run(config,subjects,model_loader,executor):
+    from .calibration_search import POLICY as adaptive_policy
+    if config.get("calibration",{}).get("search_policy")==adaptive_policy:
+        from .adaptive_calibration import run as adaptive_run
+        return adaptive_run(config,subjects,model_loader,executor)
     root=Path(config["root"]);folder=root/"calibration";domains={}
     for subject in subjects:
         teacher,condition=subject["teacher"],subject["condition"];target=teacher["target"]
