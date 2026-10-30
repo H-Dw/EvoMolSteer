@@ -23,15 +23,16 @@ def source_binding():
     return result
 
 
-def ticks(schedule):
-    if len(schedule)!=4 or any(type(x) not in (int,float) or not math.isfinite(x) or not -10<=x<=10
+def ticks(schedule,window_bounds=None):
+    count=len(window_bounds) if window_bounds is not None else 4
+    if len(schedule)!=count or any(type(x) not in (int,float) or not math.isfinite(x) or not -10<=x<=10
             or x!=round(x) for x in schedule):
         raise ValueError("Four finite integer normalized scales within [-10,10] required")
     return tuple(int(x) for x in schedule)
 
 
-def effective(schedule,multiplier,enabled=True):
-    ticks(schedule)
+def effective(schedule,multiplier,enabled=True,window_bounds=None):
+    ticks(schedule,window_bounds)
     if type(multiplier) not in (int,float) or not math.isfinite(multiplier) or multiplier<=0:
         raise ValueError("Positive finite calibrated guidance multiplier required")
     if type(enabled) is not bool: raise ValueError("Guidance enabled must be a boolean")
@@ -81,7 +82,7 @@ def seen_configuration(schedule,loss_weights):
 
 def displacement(row):
     windows=row["window_diagnostics"]
-    if len(windows)!=4: raise ValueError("Missing window displacement evidence")
+    if len(windows)!=len(row.get("guidance_windows",WINDOWS)): raise ValueError("Missing window displacement evidence")
     # A limiter must not hide a runaway raw gradient from calibration risk checks.
     out={key:max(w.get("unconstrained_"+key,w[key]) for w in windows)
          for key in ("increment_vector_rms_A","max_atom_increment_A")}

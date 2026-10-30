@@ -86,7 +86,8 @@ def match_fractions(state,ids,features):
 class ChemicalStateInpainting:
     def configure_chemistry(self):
         self.chemical_binding=None
-        if self.sampling_policy["chemical_inpainting"]["enabled"]:
+        if (self.sampling_policy["chemical_inpainting"]["enabled"]
+                or getattr(self,"absolute_config",{}).get("prefix_inpainting",{}).get("enabled",False)):
             self.chemical_features,self.chemical_slots,self.chemical_binding=condition_features(self.model,self.geometry_condition)
             frozen(self.folder/"CHEMICAL_CONDITION.json",self.chemical_binding)
 

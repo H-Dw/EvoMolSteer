@@ -77,7 +77,13 @@ def promotion_levels(rows, settings):
 
 
 def derive_domain(
-    rows, target, condition_hash, protocol_hash, settings, exploration=None
+    rows,
+    target,
+    condition_hash,
+    protocol_hash,
+    settings,
+    exploration=None,
+    window_bounds=None,
 ):
     full = [r for r in rows if r["attempts"] == 50]
     if any(
@@ -102,7 +108,11 @@ def derive_domain(
         **{scale.REFERENCE: reference, scale.UNIT: settings[scale.UNIT]},
         control_settings=settings,
         initial_source=winner["id"],
-        initial_guidance_scale_tick_schedule=[0] * 4,
+        initial_guidance_scale_tick_schedule=[0]
+        * len(scale.windows({"windows": window_bounds} if window_bounds else None)),
+        guidance_windows=scale.windows(
+            {"windows": window_bounds} if window_bounds else None
+        ),
         bootstrap_sources=[r["id"] for r in usable],
         confirmed_effective_levels=levels,
         confirmed_profiles=[],
@@ -148,7 +158,10 @@ def ensure_limits(config, subject_count):
             policy=scale.POLICY,
             stage_caps=dict(
                 calibration=350 * subject_count,
-                formal=min(1500, 50 * 3 * config["rounds"] * subject_count),
+                formal=50
+                * config["guidance_control"]["maximum_selected"]
+                * config["rounds"]
+                * subject_count,
             ),
             per_teacher_stage_caps=dict(calibration=350),
         ),
@@ -219,7 +232,10 @@ class LinearSearch:
             )
         folder = self.folder / f"population_{count}" / value_sha(value)
         job = dict(
-            schedule=[value] * 4, folder=folder, stage="calibration", count=count
+            schedule=[value] * len(scale.windows(self.config)),
+            folder=folder,
+            stage="calibration",
+            count=count,
         )
         result = evaluate(self.model, self.config, self.subject, job, self.executor)
         if isinstance(result, FloatingPointError):
@@ -231,7 +247,7 @@ class LinearSearch:
                 complete=False,
                 attempts=count,
                 error=str(result),
-                **{scale.EFFECTIVE: [value] * 4},
+                **{scale.EFFECTIVE: [value] * len(scale.windows(self.config))},
             )
             frozen(folder / "CALIBRATION_FAILURE.json", result)
         self.rows[key] = dict(result, phase="full" if count == 50 else "screening")
@@ -263,6 +279,7 @@ class LinearSearch:
             value_sha(self.binding),
             self.settings,
             self.config.get("guidance_exploration"),
+            scale.windows(self.config),
         )
 
 

@@ -10,7 +10,7 @@ from .geometry_chemistry import policy as chemistry_policy,STEP_FIELDS as CHEMIC
 WINDOWS=((10,25),(26,50),(51,75),(76,99))
 LIMIT="maximum_single_atom_guidance_increment_angstrom"
 STEP_FIELDS=("unconstrained_max_atom_increment_A","guidance_increment_scale_factor",
-             "guidance_increment_limited")+CHEMICAL_STEP_FIELDS
+             "guidance_increment_limited","prefix_joint_inpainting_applied")+CHEMICAL_STEP_FIELDS
 
 
 def policy(config):
@@ -23,16 +23,21 @@ def policy(config):
         raise ValueError("Configure a positive finite "+LIMIT)
     if config.get("output_policy")!="raw999" or config.get("steps",100)!=100:
         raise ValueError("Geometry dynamics requires raw999 and 100 integration intervals")
-    if config.get("windows",[list(w) for w in WINDOWS])!=[list(w) for w in WINDOWS]:
+    from .guidance_windows import windows
+    bounds = windows(config)
+    if not absolute and bounds != [list(w) for w in WINDOWS]:
         raise ValueError("Geometry guidance windows must cover steps 10 through 99")
     restriction = (dict(limiter="none", limit_scope="none") if absolute else
         dict(maximum_single_atom_guidance_increment_angstrom=float(limit),
              limiter="candidate_uniform_direction_preserving_v1",limit_scope="guidance_increment_only"))
+    from .prefix_inpainting import policy as prefix_policy
+    prefix = prefix_policy(config)
     return dict(output_policy="raw999",grid_end=.999,integration_intervals=100,
-        intended_interval_width=.00999,windows=[list(w) for w in WINDOWS],
+        intended_interval_width=.00999,windows=bounds,
         **restriction,
         output_source="step_99_prediction_before_update",last_effective_guidance_update=98,
-        extra_terminal_forward=False,coordinate_projection=False,chemical_projection=False,
+        extra_terminal_forward=False,coordinate_projection=prefix["enabled"],chemical_projection=False,
+        prefix_inpainting=prefix,coordinate_projection_step_bounds=[0,9] if prefix["enabled"] else None,
         chemical_state_projection=chemistry_policy(config)["enabled"],chemical_inpainting=chemistry_policy(config))
 
 
@@ -120,6 +125,7 @@ class Raw999Sampling:
     def write_output_policy(self):
         if hasattr(self,"sampling_policy"):
             write(self.folder/"OUTPUT_POLICY.json",dict(self.sampling_policy,last_loop=getattr(self,"last_loop",None),
+                prefix_native_times=getattr(self,"prefix_time_observations",{}),
                 chemical_condition_sha256=(getattr(self,"chemical_binding",None) or {}).get("chemical_condition_sha256")))
 
 

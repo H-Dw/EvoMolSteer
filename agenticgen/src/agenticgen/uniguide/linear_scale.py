@@ -7,6 +7,7 @@ are separate objects; neither a zero tick nor a panel edge disables guidance.
 import math
 
 from .io import value_sha
+from .guidance_windows import windows
 
 POLICY = "linear-envelope-frontier-v1"
 TICKS = "guidance_scale_tick_schedule"
@@ -212,8 +213,8 @@ def validate_domain(
 
 
 def encode(actual, domain):
-    if not isinstance(actual, (list, tuple)) or len(actual) != 4:
-        raise ValueError("Four window strengths required")
+    if not isinstance(actual, (list, tuple)) or len(actual) != len(windows(domain)):
+        raise ValueError("Actual strengths must match the configured windows")
     for value in actual:
         check_strength(value, domain["control_settings"])
     return [int(round((value - domain[REFERENCE]) / domain[UNIT])) for value in actual]
@@ -222,17 +223,17 @@ def encode(actual, domain):
 def effective(ticks, domain, guidance_enabled=True):
     if (
         not isinstance(ticks, (list, tuple))
-        or len(ticks) != 4
+        or len(ticks) != len(windows(domain))
         or any(type(t) is not int for t in ticks)
         or type(guidance_enabled) is not bool
     ):
         raise ValueError(
-            "Four integer linear ticks and an independent boolean switch required"
+            "Integer linear ticks per window and an independent boolean switch required"
         )
     actual = [domain[REFERENCE] + domain[UNIT] * tick for tick in ticks]
     encode(actual, domain)
     actual = [int(value) for value in actual]
-    return actual if guidance_enabled else [0.0] * 4
+    return actual if guidance_enabled else [0.0] * len(ticks)
 
 
 def binding(ticks, domain, guidance_enabled=True):
@@ -244,6 +245,7 @@ def binding(ticks, domain, guidance_enabled=True):
         "scale_policy": POLICY,
         "scale_mode": "linear_reference_ticks",
         "guidance_enabled": guidance_enabled,
+        "guidance_windows": windows(domain),
     }
 
 
@@ -255,6 +257,8 @@ def validate_schedule(ticks, domain):
 
 
 def action_schema(anchor_ids, domain=None):
+    count = len(windows(domain))
+
     def obj(properties):
         return dict(
             type="object",
@@ -273,10 +277,10 @@ def action_schema(anchor_ids, domain=None):
             updates=dict(
                 type="array",
                 minItems=1,
-                maxItems=4,
+                maxItems=count,
                 items=obj(
                     dict(
-                        window_id=dict(type="integer", minimum=0, maximum=3),
+                        window_id=dict(type="integer", minimum=0, maximum=count - 1),
                         step=dict(type="integer", enum=[-4, -3, -2, -1, 1, 2, 3, 4]),
                     )
                 ),
@@ -319,22 +323,23 @@ def resolve_action(action, anchors, domain, seen=(), failures=()):
     source = anchors[action["anchor_id"]]
     actual = list(source[EFFECTIVE])
     updates = action.get("updates")
-    if not isinstance(updates, list) or not 1 <= len(updates) <= 4:
-        raise ValueError("One to four window updates required")
-    windows, changes = set(), []
+    count = len(windows(domain))
+    if not isinstance(updates, list) or not 1 <= len(updates) <= count:
+        raise ValueError("Updates must fit the configured window count")
+    changed_windows, changes = set(), []
     for update in updates:
         if not isinstance(update, dict) or set(update) != {"window_id", "step"}:
             raise ValueError("Invalid window update")
         window, step = update["window_id"], update["step"]
         if (
             type(window) is not int
-            or window not in range(4)
-            or window in windows
+            or window not in range(count)
+            or window in changed_windows
             or type(step) is not int
             or not 1 <= abs(step) <= settings["maximum_window_tick_change"]
         ):
             raise ValueError("Invalid or repeated window / integer change")
-        windows.add(window)
+        changed_windows.add(window)
         changes.append(step)
         actual[window] += domain[UNIT] * step
     if sum(map(abs, changes)) > settings["maximum_total_tick_change"]:

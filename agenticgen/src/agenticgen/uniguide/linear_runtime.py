@@ -453,9 +453,29 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                     rounds.append(saved)
                     continue
                 current, failed = history(config, teacher, condition, domain)
-                snapshot = dict(history=current, failures=failed, domain=domain)
+                from .checkpoint_learning import (
+                    context as checkpoint_context,
+                    checkpoint,
+                )
+
+                learning = checkpoint_context(
+                    config, current, [r for r in rounds if r["teacher_id"] == target]
+                )
+                snapshot = dict(
+                    history=current,
+                    failures=failed,
+                    domain=domain,
+                    checkpoint_learning=learning,
+                )
                 frozen(call_folder / "history_snapshot.json", snapshot)
-                decision = advisor(config, current, domain, call_folder, skills, failed)
+                advisor_config = (
+                    dict(config, guidance_checkpoint_context=learning)
+                    if learning
+                    else config
+                )
+                decision = advisor(
+                    advisor_config, current, domain, call_folder, skills, failed
+                )
                 if decision["decision"] not in (
                     "hold",
                     "propose",
@@ -569,6 +589,9 @@ def run_version(config, version, model_loader, executor, advisor, retainer):
                         for p in call_folder.glob("*.json")
                     },
                 )
+                if learning:
+                    saved["checkpoint"] = checkpoint(measured, incumbent)
+                    saved["checkpoint_learning"] = learning
                 frozen(completed, saved)
                 groups.extend(measured)
                 rounds.append(saved)

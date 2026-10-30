@@ -15,29 +15,31 @@ def configure(config):
     from .absolute_coordinate import POLICY as coordinate_policy
     defaults = dict(DEFAULTS, skill_release="2.7.0") if config.get("protocol")==coordinate_policy else DEFAULTS
     settings=dict(defaults,**config.get("agent_tools",{}))
-    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE,"2.4.0","2.5.0","2.6.0","2.7.0"):
+    if set(settings)!=set(DEFAULTS) or settings["mode"]!=DEFAULTS["mode"] or settings["skill_release"] not in ("2.1.0","2.2.0",RELEASE,"2.4.0","2.5.0","2.6.0","2.7.0","2.8.0"):
         raise ValueError("Unsupported Agent tool configuration/release")
-    roles=2 if settings["skill_release"] in ("2.6.0","2.7.0") else 4
+    roles=2 if settings["skill_release"] in ("2.6.0","2.7.0","2.8.0") else 4
     if type(settings["max_model_calls_per_round"]) is not int or not roles<=settings["max_model_calls_per_round"]<=1000:
         raise ValueError("Model call allowance cannot cover the configured roles")
     if type(settings["max_output_tokens_per_round"]) is not int or settings["max_output_tokens_per_round"]<roles*512:
         raise ValueError("Round output token allowance cannot cover the configured roles")
     result["agent_tools"]=settings
-    if settings["skill_release"] in ("2.6.0","2.7.0"):
+    if settings["skill_release"] in ("2.6.0","2.7.0","2.8.0"):
         if config.get("protocol") != coordinate_policy:
             raise ValueError("Linear skills require the absolute coordinate protocol")
         from .linear_scale import configure as configure_linear
-        if settings["skill_release"]=="2.7.0":
+        if settings["skill_release"] in ("2.7.0","2.8.0"):
             control_settings=dict(config.get("guidance_control",{}))
             control_settings.setdefault("maximum_total_tick_change",12)
             result["guidance_control"]=control_settings
         result=configure_linear(result)
-        if settings["skill_release"]=="2.7.0":
+        if settings["skill_release"] in ("2.7.0","2.8.0"):
             from .absolute_coordinate import DYNAMIC_ASSIGNMENT
             from .exploration import configure as configure_exploration
             if config.get("atom_assignment_policy",DYNAMIC_ASSIGNMENT)!=DYNAMIC_ASSIGNMENT:
                 raise ValueError("The jump-search release requires per-step and terminal Hungarian matching")
             result=configure_exploration(dict(result,atom_assignment_policy=DYNAMIC_ASSIGNMENT))
+        from .checkpoint_learning import configure as learning_config
+        learning_config(result)
     return result
 
 

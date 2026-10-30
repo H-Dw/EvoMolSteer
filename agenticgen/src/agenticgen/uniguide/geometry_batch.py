@@ -3,6 +3,7 @@
 Promotion shards retain candidate identities and measurements. Different
 configurations never share an integration call; failures are never retried.
 """
+from .guidance_windows import expand as expand_windows
 
 import copy
 import functools
@@ -104,7 +105,7 @@ class CandidateControl(CandidateSafety, GeometryControl):
         self.units = units
         self.capacity = physical_rows
         self.failed_units = {}
-        self.expanded = [expand_effective(u["scale"][EFFECTIVE]) for u in units]
+        self.expanded = [expand_windows(u["scale"][EFFECTIVE],u["scale"]) for u in units]
         super().__init__(*args, **kwargs)
 
     def make_streams(self, states):
@@ -166,6 +167,7 @@ class CandidateControl(CandidateSafety, GeometryControl):
             if not self.absolute_state.dynamic and step > 10 and any(self.rows[-1]["assignment_switch_fraction"]):
                 raise ValueError("Frozen candidate assignment changed")
             self.absolute_state.save_cache()
+        result = self.apply_prefix_inpainting(result, step)
         return self.apply_chemical_inpainting(result, step)
 
     def repair_diagnostics(self, key, fallback=None):
@@ -263,7 +265,7 @@ def split_products(output, control, source, unit, index):
         for key in STEP_FIELDS:
             if key in step:
                 step[key] = step[key][index * 10 : (index + 1) * 10]
-        step["scale"] = expand_effective(unit["scale"][EFFECTIVE])[step["step"]]
+        step["scale"] = expand_windows(unit["scale"][EFFECTIVE],unit["scale"])[step["step"]]
         step["sampling_rng_after_sha256"] = step.pop("candidate_rng_after_sha256")[
             index
         ]
@@ -324,6 +326,7 @@ def compile_units(config, teacher, condition, jobs, *, _compatibility=None):
             job.get("enabled", True),
             condition,
             job.get("loss_weights"),
+            window_bounds=config.get("windows"),
         )
         for start in range(0, count // 5, 2):
             slots = [start, start + 1]
@@ -447,7 +450,7 @@ def _execute_job(model, config, teacher, condition, job, binding, sample_fn):
     if failed:
         error = FloatingPointError("Nonfinite candidate units: " + ", ".join(failed))
         scale = scale_binding(job["schedule"], sampling_reference(job.get("domain")),
-                              job.get("enabled", True), condition, job.get("loss_weights"))
+                              job.get("enabled", True), condition, job.get("loss_weights"), window_bounds=config.get("windows"))
         identity = dict(compatibility=binding, **candidate_identity(scale),
                         population=job.get("count", 50), logical_slots_per_seed=job.get("count", 50) // 5)
         run_id = Path(job["folder"]).relative_to(root).as_posix()

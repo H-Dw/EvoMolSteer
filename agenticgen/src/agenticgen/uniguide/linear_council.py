@@ -8,7 +8,7 @@ import jsonschema
 from . import linear_scale as scale
 from .geometry_council import object_schema, text_schema, parse_output
 from .geometry_protocol import choose
-from .geometry_dynamics import WINDOWS
+from .guidance_windows import windows
 from .io import read, frozen, value_sha
 
 
@@ -72,6 +72,11 @@ def advise(
     anchors = {r["id"]: r for r in history}
     if not anchors or len(anchors) != len(history):
         raise ValueError("Unique completed linear history required")
+    learning = config.get("guidance_checkpoint_context")
+    if learning and learning["rebase_from_best_checkpoint"]:
+        anchors = {
+            learning["best_checkpoint_id"]: anchors[learning["best_checkpoint_id"]]
+        }
     condition_path = (
         Path(config["root"]) / "conditions" / (domain["teacher_id"] + ".json")
     )
@@ -114,12 +119,20 @@ def advise(
                 "maximum_total_tick_change"
             ],
             windows=[
-                dict(window_id=i, step_bounds=list(w)) for i, w in enumerate(WINDOWS)
+                dict(window_id=i, step_bounds=list(w))
+                for i, w in enumerate(windows(domain))
             ],
         ),
         evidence_receipts=sorted(registry.receipt_ids),
         range_evidence_allowance=range_allowance(config, domain["teacher_id"]),
         remaining_formal_attempts=formal_allowance(config),
+    )
+    if learning:
+        common["checkpoint_learning"] = learning
+    common["allowed_anchor_ids"] = list(anchors)
+    common["conditioning_protocol"] = dict(
+        prefix_inpainting=config.get("prefix_inpainting", {"enabled": False}),
+        atom_assignment_policy=config.get("atom_assignment_policy"),
     )
     if domain.get("exploration_policy"):
         from .exploration import describe

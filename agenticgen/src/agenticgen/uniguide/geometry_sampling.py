@@ -41,6 +41,8 @@ from .geometry_dynamics import (
 )
 from .geometry_reward import WEIGHTS, weights, INTERACTION_DISTANCE
 from .geometry_chemistry import ChemicalStateInpainting
+from .prefix_inpainting import PrefixInpainting
+from .guidance_windows import windows as guidance_windows
 
 
 def metric_names(condition):
@@ -68,7 +70,7 @@ def coordinate_population_statistics(folder, rows, condition, config, aggregate)
                 **{name:sum(row[name] for row in rows)/len(rows) for name in fields})
 
 
-class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
+class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling, sampler.Control):
     absolute_state = None
 
     def __init__(self, *args, condition, scale_binding, **kwargs):
@@ -96,13 +98,19 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
     def expand_schedule(self, schedule):
         if schedule != self.scale_binding[EFFECTIVE]:
             raise ValueError("Effective schedule binding differs")
-        return expand_effective(schedule)
+        from .guidance_windows import expand
+        return expand(schedule,self.scale_binding)
 
     def sampling_function(self, config):
         self.absolute_config = config
         function = super().sampling_function(config)
         self.configure_chemistry()
+        self.configure_prefix()
         return function
+
+    def forward(self, current, pocket, times, cond, equis, invs, step, dt):
+        self.prepare_prefix_forward(current, step)
+        return super().forward(current, pocket, times, cond, equis, invs, step, dt)
 
     def condition_loss(self, endpoint, valid):
         return self.condition_loss_for_rows(endpoint, valid, list(range(len(endpoint))))
@@ -214,6 +222,7 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
             raise ValueError("Fixed correspondence changed")
         if self.absolute_state is not None:
             self.absolute_state.save_cache()
+        result = self.apply_prefix_inpainting(result, step)
         return self.apply_chemical_inpainting(result, step)
 
     def assignment_checkpoint(self):
@@ -226,7 +235,7 @@ class GeometryControl(ChemicalStateInpainting, Raw999Sampling, sampler.Control):
 
 
 def scale_binding(
-    schedule, multiplier=None, enabled=True, condition=None, loss_weights=None
+    schedule, multiplier=None, enabled=True, condition=None, loss_weights=None, window_bounds=None
 ):
     from . import linear_scale
     if isinstance(multiplier,dict) and linear_scale.enabled(multiplier):
@@ -241,7 +250,9 @@ def scale_binding(
     if loss_weights is not None and not extra:
         raise ValueError("Loss controls require the component reward protocol")
     if multiplier is None:
-        expand_effective(schedule)
+        from .guidance_windows import expand
+        bounds = {"windows":window_bounds} if window_bounds else None
+        expand(schedule,bounds)
         if not enabled or any(x <= 0 for x in schedule):
             raise ValueError("Calibration uses positive actual scales")
         return {
@@ -250,14 +261,16 @@ def scale_binding(
             MULTIPLIER: None,
             "guidance_enabled": True,
             "scale_mode": "pre_experiment_actual_scale",
+            **({"guidance_windows":window_bounds} if window_bounds else {}),
             **extra,
         }
     return {
         NORMALIZED: schedule,
-        EFFECTIVE: effective(schedule, multiplier, enabled),
+        EFFECTIVE: effective(schedule, multiplier, enabled, window_bounds),
         MULTIPLIER: multiplier,
         "guidance_enabled": enabled,
         "scale_mode": "normalized_log2",
+        **({"guidance_windows":window_bounds} if window_bounds else {}),
         **extra,
     }
 
@@ -284,6 +297,8 @@ def compatibility(config, teacher, condition, domain=None):
         "geometry_reward",
         "geometry_safety",
         "geometry_dynamics",
+        "guidance_windows",
+        "prefix_inpainting",
         "geometry_chemistry",
         "chem_inpainting",
         "geometry_shards",
@@ -587,6 +602,7 @@ def execute_shard(
         enabled,
         condition,
         loss_weights,
+        window_bounds=config.get("windows"),
     )
     identity = dict(
         compatibility=binding,
@@ -665,7 +681,7 @@ def execute_shard(
                 if measured
                 else None
             )
-        aggregate["window_diagnostics"] = sampler.diagnostics(folder, WINDOWS)
+        aggregate["window_diagnostics"] = sampler.diagnostics(folder, guidance_windows(config))
         aggregate.update(increment_summary(folder))
         aggregate["maximum_single_atom_guidance_increment_angstrom"] = max(
             w["max_atom_increment_A"] for w in aggregate["window_diagnostics"]
@@ -760,6 +776,7 @@ def execute(
         enabled,
         condition,
         loss_weights,
+        window_bounds=config.get("windows"),
     )
     identity = dict(
         compatibility=binding,
@@ -835,7 +852,7 @@ def execute(
                 if values
                 else None
             )
-        aggregate["window_diagnostics"] = sampler.diagnostics(folder, WINDOWS)
+        aggregate["window_diagnostics"] = sampler.diagnostics(folder, guidance_windows(config))
         aggregate.update(increment_summary(folder))
         aggregate["maximum_single_atom_guidance_increment_angstrom"] = max(
             w["max_atom_increment_A"] for w in aggregate["window_diagnostics"]

@@ -16,6 +16,7 @@ from .random_streams import capture,equal
 from .geometry_shards import initial_shard
 from .geometry_dynamics import Raw999Sampling
 from .sampler import Control
+from .guidance_windows import windows
 
 
 class UnguidedRaw999(Raw999Sampling,Control):
@@ -26,12 +27,14 @@ class UnguidedRaw999(Raw999Sampling,Control):
 def real_vjp(model,config,teacher,condition):
     prefix=Path(config["root"])/"acceptance"/teacher["target"]/"raw999_vjp_prefix"
     initial=initial_shard(config,teacher["target"],[0,1])
-    disabled=scale_binding([0.]*4,1.,False,condition)
+    disabled=scale_binding([0.]*len(windows(config)),1.,False,condition,window_bounds=windows(config))
     factory=functools.partial(GeometryControl,condition=condition,scale_binding=disabled)
     sample(model,config,teacher,disabled["effective_guidance_scale_schedule"],prefix,10,
         stop_step=10,control_factory=factory,check_affinity=False,initial_override=initial)
     source=prefix/"checkpoint_010.pt.gz";state=load_pt(source)
     curr,cond,times=(device(state[k]) for k in ("current","cond","times"))
+    if config.get("prefix_inpainting",{}).get("enabled"):
+        curr.pop("fragment_mask",None);curr.pop("fragment_mode",None)
     pocket=device(initial["pocket_target"]);com=initial["target_com"].to("cuda")
     with torch.no_grad():
         equis,invs=model.gen.get_pocket_encoding(pocket["coords"],pocket["atom_names"],
@@ -77,15 +80,16 @@ def run(config):
         model=load_model(config,teacher)
         try:
             numerical=real_vjp(model,config,teacher,condition)
-            off=scale_binding([0.]*4,1.,False,condition)
+            plain_prefix=dict(config,prefix_inpainting={"enabled":False})
+            off=scale_binding([0.]*len(windows(config)),1.,False,condition,window_bounds=windows(config))
             factory=functools.partial(GeometryControl,condition=condition,scale_binding=off)
-            sample(model,config,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
+            sample(model,plain_prefix,teacher,off["effective_guidance_scale_schedule"],out/"disabled",10,stop_step=3,
                 control_factory=factory,check_affinity=False)
-            sample(model,config,teacher,[1.]*4,out/"native_prefix",10,stop_step=3,control_factory=UnguidedRaw999)
+            sample(model,plain_prefix,teacher,[1.]*len(windows(config)),out/"native_prefix",10,stop_step=3,control_factory=UnguidedRaw999)
             a,b=(load_pt(out/name/"checkpoint_003.pt.gz") for name in ("disabled","native_prefix"))
             disabled={k:tensor_digest(a[k])==tensor_digest(b[k]) for k in ("current","cond","times","stream_states")}
             if not all(disabled.values()):raise ValueError("Disabled distance guidance differs from native prefix")
-            active=scale_binding([0.]*4,1.,True,condition)  # Test fixture only, NOT a fitted lambda.
+            active=scale_binding([0.]*len(windows(config)),1.,True,condition,window_bounds=windows(config))  # Test fixture only, NOT a fitted lambda.
             factory=functools.partial(GeometryControl,condition=condition,scale_binding=active)
             sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"continuous",10,stop_step=12,
                 control_factory=factory,check_affinity=False)
@@ -113,7 +117,8 @@ def run(config):
                 if tensor_digest(enabled_state["stream_states"])!=tensor_digest(disabled_state["stream_states"]):
                     raise ValueError("Chemical inpainting consumed extra RNG")
                 chemical_check.update(first_pre_inpainting_update_exact=True,extra_rng_consumed=False,
-                    coordinates_projected=False,self_conditioning_projected=False)
+                    coordinates_projected_in_gradient_phase=False,self_conditioning_projected=False,
+                    joint_prefix=config.get("prefix_inpainting",{"enabled":False}))
             sample(model,config,teacher,active["effective_guidance_scale_schedule"],out/"prefix_twenty",20,stop_step=12,
                 control_factory=factory,check_affinity=False)
             selected=initial_shard(config,teacher["target"],[2,3])

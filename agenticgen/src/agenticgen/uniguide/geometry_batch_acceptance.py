@@ -11,6 +11,7 @@ from .geometry_sampling import GeometryControl, scale_binding
 from .geometry_shards import initial_shard
 from .geometry_protocol import EFFECTIVE
 from .geometry_reward import weights
+from .guidance_windows import windows
 from .native_tools import load_pt,tensor_digest
 from .batching import take
 from .random_streams import capture,restore,equal
@@ -81,7 +82,8 @@ def run_teacher(model,config,teacher,condition,folder):
             chosen=weights(condition)
             if i and any(p["category"]=="controlled_neighborhood" for p in condition["pairs"]):
                 chosen["condition_outer_weight"]=1
-        scale=scale_binding(schedule,condition=condition,loss_weights=chosen);unit=dict(id="fixture"+str(i),slots=slots,scale=scale)
+        schedule=(schedule+[.003])[:len(windows(config))]
+        scale=scale_binding(schedule,condition=condition,loss_weights=chosen,window_bounds=windows(config));unit=dict(id="fixture"+str(i),slots=slots,scale=scale)
         units.append(unit);out=folder/f"separate_{i}"
         factory=functools.partial(GeometryControl,condition=condition,scale_binding=scale)
         sampler.sample(model,config,teacher,schedule,out,10,control_factory=factory,check_affinity=False,
@@ -109,6 +111,8 @@ def run_teacher(model,config,teacher,condition,folder):
             from .absolute_coordinate import is_absolute, dynamic_assignment, verify_assignment_trace
             if is_absolute(condition):
                 verify_assignment_trace(source,condition)
+                from .prefix_inpainting import verify_trace as verify_prefix
+                verify_prefix(source,config,condition)
             if config.get("chemical_inpainting",{"enabled":True})["enabled"]:
                 chemical=read(source/"CHEMICAL_CONDITION.json");ids=chemical["generated_slots"]
                 dynamic_initial = not ids
@@ -181,7 +185,7 @@ def run_teacher(model,config,teacher,condition,folder):
     # Legacy distance protocols retain their own historical radius acceptance.
     # Force only the second candidate unit across the radius; the first must
     # remain identical to its separately executed low-strength trajectory.
-    stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*4,condition=condition))]
+    stress=[copy.deepcopy(units[0]),dict(id="limited_fixture",slots=[6,7],scale=scale_binding([1e6]*len(windows(config)),condition=condition,window_bounds=windows(config)))]
     limited=folder/"candidate_local_limit"
     factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],units=stress,physical_rows=20)
     sampler.sample(model,config,teacher,stress[0]["scale"][EFFECTIVE],limited,20,control_factory=factory,
@@ -208,7 +212,7 @@ def run_teacher(model,config,teacher,condition,folder):
 def verify_uncapped_guidance(model,config,teacher,condition,folder,units,separate):
     """One large finite update is observed, never followed by a weaker retry."""
     stress=[copy.deepcopy(units[0]),dict(id="uncapped_fixture",slots=[6,7],
-        scale=scale_binding([1e6]*4,condition=condition))]
+        scale=scale_binding([1e6]*len(windows(config)),condition=condition,window_bounds=windows(config)))]
     destination=folder/"uncapped_large_increment"
     factory=functools.partial(CandidateControl,condition=condition,scale_binding=stress[0]["scale"],
         units=stress,physical_rows=20)
