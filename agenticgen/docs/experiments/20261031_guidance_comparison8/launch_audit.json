@@ -1,5 +1,5 @@
 {
-  "status": "running_with_one_llm_contract_failure_skipped",
+  "status": "running_audited_engineering_repairs_baseline_partial",
   "commit": "5362952ae2ea43f0f81c2226e9f6c477f9e9bd24",
   "branch": "codex/uniguide-flowr-agent",
   "repo": "/workspace/uniguide_runs/guidance-comparison8-5362952a",
@@ -38,7 +38,11 @@
       "id": "uniguide-flowr",
       "status": "PAUSED",
       "rrule": "FREQ=MINUTELY;INTERVAL=35"
-    }
+    },
+    "current_cpu_commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+    "inspects_original_and_repair_plans": true,
+    "prompt_readback_matches_after_final_whitespace_normalization": true,
+    "prompt_server_normalized_final_newline": true
   },
   "launch": {
     "timestamp": "2026-10-31T04:16:41.390708+08:00",
@@ -153,47 +157,214 @@
   },
   "runtime_doc_commits_deployed": false,
   "latest_monitoring": {
-    "timestamp": "2026-10-31T05:18:41.711109+08:00",
-    "snapshot": "/workspace/agenticgen_guidance_comparison8_20261031/monitoring/2026-10-31T051841.711109_0800.json",
-    "status": {
-      "timestamp": "2026-10-31T05:11:50.906871+08:00",
-      "job_id": "02_baseline_3w54",
-      "stage": "formal",
+    "original_snapshot": "/workspace/agenticgen_guidance_comparison8_20261031/monitoring/2026-10-31T064043.072931_0800.json",
+    "repair_snapshot": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/monitoring/2026-10-31T064049.746341_0800.json",
+    "original_timestamp": "2026-10-31T06:40:43.072931+08:00",
+    "repair_timestamp": "2026-10-31T06:40:49.746341+08:00",
+    "original_status": {
+      "timestamp": "2026-10-31T06:32:47.451724+08:00",
+      "stage": "finished",
+      "status": "awaiting_review_or_engineering_repair"
+    },
+    "repair_status": {
+      "timestamp": "2026-10-31T06:39:48.205511+08:00",
+      "job_id": "03_prefix_joint_6pyy",
+      "stage": "acceptance",
       "status": "running",
-      "child_pid": 116095,
+      "child_pid": 134874,
       "command": [
         "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
         "-u",
-        "/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py",
+        "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/scripts/run_uniguide_geometry.py",
         "--config",
-        "/workspace/uniguide_runs/guidance-comparison8-5362952a-configs/02_baseline_3w54.json",
-        "run-version",
-        "GD01"
+        "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/03_prefix_joint_6pyy.json",
+        "acceptance"
       ],
-      "log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log",
-      "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/02_baseline_3w54/attempt_001"
+      "log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/logs/03_prefix_joint_6pyy/acceptance.log",
+      "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002"
     },
-    "protected_files_changed": [],
-    "runtime_clean": true,
-    "runtime_commit": "5362952ae2ea43f0f81c2226e9f6c477f9e9bd24",
-    "failed_jobs": [
-      {
-        "id": "01_baseline_6pyy",
-        "reserved_attempts": {
-          "calibration": 240,
-          "formal": 0
+    "source_preservation_original_count": 19165,
+    "source_preservation_repair_count": 21482,
+    "original_changed": [],
+    "repair_changed": [],
+    "original_reserved_calibration": 870,
+    "original_reserved_formal": 100,
+    "baseline_llm_failures_not_retried": true,
+    "engineering_failures_requeued": 4,
+    "diagnosis": "monitoring/20261031_0640/diagnosis.json",
+    "review": "monitoring/20261031_0640/engineering_review.zh-CN.md",
+    "new_acceptance_complete": false,
+    "new_calibration_import_completed": false,
+    "real_formal_llm_responses_new_root": 0
+  },
+  "top_level_launch_binding_is_original_suite": true,
+  "repair_runs": [
+    {
+      "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+      "cpu_commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+      "repo": "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384",
+      "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs",
+      "plan": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json",
+      "plan_sha256": "51885b68e386ebf9e6be56d3b123c54a223c91219a3addeb48f7dfb588cbb9f2",
+      "audit": "/workspace/uniguide_audits/comparison8-engineering-repair-e0c3a384",
+      "launch": {
+        "timestamp": "2026-10-31T06:39:14.611017+08:00",
+        "pid": 134802,
+        "command": [
+          "bash",
+          "-i",
+          "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/docs/experiments/20261031_guidance_comparison8/launch.sh",
+          "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384",
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json"
+        ],
+        "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+        "plan_sha256": "51885b68e386ebf9e6be56d3b123c54a223c91219a3addeb48f7dfb588cbb9f2",
+        "jobs": 4,
+        "rounds": 8,
+        "imported_budget_aliases": 370,
+        "background": true,
+        "launcher_log_remote_only": true
+      },
+      "remote_cpu_tests": {
+        "timestamp": "2026-10-31T06:37:51.986258+08:00",
+        "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+        "returncode": 0,
+        "tests": 278,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "cpu_only": true
+      },
+      "local_cpu_tests": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "278",
+        "time": "74.097",
+        "timestamp": "2026-10-31T06:32:27.115239+08:00",
+        "hostname": "DAVEDWHUAN-NBZK"
+      },
+      "source_preservation_count": 21482,
+      "protected_files_changed": [],
+      "jobs": [
+        {
+          "id": "03_prefix_joint_6pyy",
+          "experiment": "prefix_joint",
+          "teacher": "6pyy_H7S_A_402",
+          "config": "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/03_prefix_joint_6pyy.json",
+          "config_sha256": "da1eaec3a1f76b2b1b3622196f329236e3cb741787f1a941e706f767254997fb",
+          "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+          "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002",
+          "source_root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/03_prefix_joint_6pyy/attempt_001",
+          "attempt": 2,
+          "imported_budget_aliases": 150
         },
-        "completed_rounds": 0,
-        "failure_classification": "LLM final free-text maxLength noncompliance",
-        "engineering_error_identified": false,
-        "automatic_retry": false
+        {
+          "id": "04_prefix_joint_3w54",
+          "experiment": "prefix_joint",
+          "teacher": "3w54_RNB_A_504",
+          "config": "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/04_prefix_joint_3w54.json",
+          "config_sha256": "d89b48eba681949046f85256bf58ce20e42b12b344938df548f3254244b3e6bd",
+          "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+          "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/04_prefix_joint_3w54/attempt_002",
+          "source_root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/04_prefix_joint_3w54/attempt_001",
+          "attempt": 2,
+          "imported_budget_aliases": 150
+        },
+        {
+          "id": "05_five_windows_6pyy",
+          "experiment": "five_windows",
+          "teacher": "6pyy_H7S_A_402",
+          "config": "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/05_five_windows_6pyy.json",
+          "config_sha256": "f2ad09acace7e31e5d31740f649ee12c82d71686ff297aa64a34bc5a5bf3ff44",
+          "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+          "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/05_five_windows_6pyy/attempt_002",
+          "source_root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/05_five_windows_6pyy/attempt_001",
+          "attempt": 2,
+          "imported_budget_aliases": 40
+        },
+        {
+          "id": "06_five_windows_3w54",
+          "experiment": "five_windows",
+          "teacher": "3w54_RNB_A_504",
+          "config": "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/06_five_windows_3w54.json",
+          "config_sha256": "8046587863e0496cab069b6e5131bedb2de0e3a63084b803ee09442f920d80fe",
+          "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+          "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/06_five_windows_3w54/attempt_002",
+          "source_root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/06_five_windows_3w54/attempt_001",
+          "attempt": 2,
+          "imported_budget_aliases": 30
+        }
+      ],
+      "preserved_measured_attempts_scheduled_as_aliases": 370,
+      "maximum_new_calibration_attempts": 1030,
+      "maximum_formal_attempts": 4800,
+      "saved_terminal_and_trace_equivalence_verified": true,
+      "saved_data_check_receipts": "monitoring/20261031_0640/saved_sampling_checks.json",
+      "recovery_preflight": "monitoring/20261031_0640/recovery_preflight.json",
+      "own_acceptance_complete_at_snapshot": false,
+      "import_completed_at_snapshot": false,
+      "new_scientific_attempts_at_snapshot": 0,
+      "new_llm_http_responses_at_snapshot": 0,
+      "status": {
+        "timestamp": "2026-10-31T06:39:48.205511+08:00",
+        "job_id": "03_prefix_joint_6pyy",
+        "stage": "acceptance",
+        "status": "running",
+        "child_pid": 134874,
+        "command": [
+          "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+          "-u",
+          "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/scripts/run_uniguide_geometry.py",
+          "--config",
+          "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/03_prefix_joint_6pyy.json",
+          "acceptance"
+        ],
+        "log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/logs/03_prefix_joint_6pyy/acceptance.log",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002"
+      },
+      "source_failures_and_claims_retained": true,
+      "raw_sampling_commit": "5362952ae2ea43f0f81c2226e9f6c477f9e9bd24",
+      "old_and_new_budget_ledgers_are_aliases": true
+    }
+  ],
+  "runtime_bindings": {
+    "original": {
+      "commit": "5362952ae2ea43f0f81c2226e9f6c477f9e9bd24",
+      "cpu_commit": "5362952ae2ea43f0f81c2226e9f6c477f9e9bd24",
+      "repo": "/workspace/uniguide_runs/guidance-comparison8-5362952a",
+      "root": "/workspace/agenticgen_guidance_comparison8_20261031",
+      "plan": "/workspace/agenticgen_guidance_comparison8_20261031/PLAN.json",
+      "status": {
+        "timestamp": "2026-10-31T06:32:47.451724+08:00",
+        "stage": "finished",
+        "status": "awaiting_review_or_engineering_repair"
       }
-    ],
-    "quality_binding_validated": true,
-    "quality_receipts_validated": 2,
-    "completed_baseline_acceptances": 2,
-    "completed_baseline_calibrations": 2,
-    "diagnosis": "monitoring/20261031_0518/diagnosis.json",
-    "other_jobs_continue": true
+    },
+    "repair": {
+      "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+      "cpu_commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+      "repo": "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384",
+      "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs",
+      "plan": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json",
+      "status": {
+        "timestamp": "2026-10-31T06:39:48.205511+08:00",
+        "job_id": "03_prefix_joint_6pyy",
+        "stage": "acceptance",
+        "status": "running",
+        "child_pid": 134874,
+        "command": [
+          "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+          "-u",
+          "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/scripts/run_uniguide_geometry.py",
+          "--config",
+          "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/03_prefix_joint_6pyy.json",
+          "acceptance"
+        ],
+        "log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/logs/03_prefix_joint_6pyy/acceptance.log",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002"
+      }
+    }
   }
 }

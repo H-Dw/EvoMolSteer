@@ -1,4 +1,4 @@
-接续本对话明确授权的三组双教师八轮实验，只处理本专项。先读 D:/llm_controlled_generation/EvoMolSteer-uniguide/agenticgen/docs/experiments/20261031_guidance_comparison8/plan.zh-CN.md、launch_audit.json 和后续指令。只在 codex/uniguide-flowr-agent 修改；原 uniguide-flowr 保持 PAUSED、35 分钟不变，归档分支不动，不修改其他自动化，不向其他聊天发消息。
+接续本对话明确授权的三组双教师八轮实验，只处理本专项。先读 D:/llm_controlled_generation/EvoMolSteer-uniguide/agenticgen/docs/experiments/20261031_guidance_comparison8/plan.zh-CN.md、engineering_repair_protocol.zh-CN.md、launch_audit.json 和后续指令。只在 codex/uniguide-flowr-agent 修改；原 uniguide-flowr 保持 PAUSED、35 分钟不变，归档分支不动，不修改其他自动化，不向其他聊天发消息。
 
 远端 root@ssh.zzai.scnet.cn:11741，使用本对话已授权凭据和 D:/llm_controlled_generation/tmp/uniguide_ops.py 的 JSON stdin 接口。凭据不输出、不写仓库或自动化。API 与小写代理由交互 bash 加载；launcher.log 可能含环境，禁止打印、下载其原文。CPU/GPU 当前固定提交、目录、配置及 PLAN 路径以 launch_audit.json 为准；不要只看本地分支最新文档提交而覆盖运行中代码。
 
@@ -17,3 +17,11 @@ skills2.8.0，线性格距10、整数改动、三种跳跃幅度，两个实际�
 ALL_JOBS_ATTEMPTED或SUITE_FINISHED后，先判定是否尚有可修复工程任务，不能把一次失败归档当成已完成授权修复。最终实际读取全部已完成教师标定、八轮参数/选择/提示、原始与排名RMSD、初始对应诊断、化学保持和10/50质量，按教师配对比较三策略，明确不完整任务和积压。下载机器可读结果/安全阶段日志，完成真实主GPT复盘、提交推送；纯文档不部署运行目录。只在路径归属确认、队列空闲后停止本专项CPU worker，写FINALIZED绑定实际复盘，通知本对话并仅删除当前触发的本专项heartbeat。
 
 GitHub异常依次直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc，最后才用已验证且仅含已推送提交的Git bundle。巡检间隔1小时（60分钟）。健康、排队或无实质变化返回DONT_NOTIFY；仅通知完成、实质异常、工程修复或需要用户处理的问题。中文UTF-8，读取/更新自动化后JSON ensure_ascii=true读回，确认无Unicode替换字符。
+
+2026-10-31 06:39工程接续：原序列固定5362952ae2ea43f0f81c2226e9f6c477f9e9bd24，原目录/workspace/uniguide_runs/guidance-comparison8-5362952a，原根/workspace/agenticgen_guidance_comparison8_20261031已SUITE_FINISHED，但专项未完成。baseline6pyy在第1轮综合角色文本长度校验失败，baseline3w54完成1轮/2个正式组后在第2轮提案的格式修正中引用了不存在的证据标识；这两项属于LLM输出契约失败，保留记录，不自动重发、提额、放宽schema或改提示绕过。
+
+已修复两项工程缺陷：联合前缀合并误把prefix_native_times的上下文调用计数2/6作为科学策略差异；五窗口标定排序仍硬性要求四窗口。采样/VJP/RNG及skills不变。新GPU/CPU固定已推送提交e0c3a384b2c54eadcd20b430486d323b78128cbc，目录/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384，修复根/workspace/agenticgen_guidance_comparison8_20261031_repairs，PLAN为该根PLAN.json。新序列依次仅修复03_prefix_joint_6pyy、04_prefix_joint_3w54、05_five_windows_6pyy、06_five_windows_3w54，各新根attempt_002，prepare→本提交完整acceptance→recover-promotion→calibrate→真实LLM GD01八轮；可等待全局锁，不打断健康任务。初始PID134802仅作定位，必须检查真实状态。不要把后续纯文档提交部署到固定执行目录。
+
+本地和远端278项CPU回归均通过；远端保存产物重建核验通过：两个原失败五十人口视图的终态、所有轨迹数组、records/steps、随机账本均逐位/逐项一致；五窗口分别已保存40/30次，读取并通过真实粗筛排序核验。RECOVERY_PREFLIGHT通过，但不能代替新根真实模型acceptance或RECOVERY_COMPLETE。原联合前缀各150、五窗口40/30，共370次只读保留并在新账本一对一承接；新旧账本是别名视图，不能相加为740次，不能重采这些候选。四修复任务各350标定预算包含承接数，剩余最多1030新增标定；正式各1200不变。原所有失败、claims、配置和原始终态不删。每次检查PROMOTION_RECOVERY_CLAIM/COMPLETE、ORIGINAL_*、RECOVERY_PROVENANCE、源哈希、预算及未测槽位；保留实际采样提交5362952a来源，不冒充e0c3a384重新生成或独立验证。
+
+每次先用原536目录inspect_suite.py检查原PLAN，再用e0c3a384目录inspect_suite.py检查修复PLAN，保存两个monitoring快照；还须检查新根21482个保护文件（数量以PLAN/审计为准）、固定提交和全部配置SHA。原SUITE_FINISHED不能触发停止巡检，需等待修复序列和所有实际源组10/50诊断结束，并排查是否还有用户授权的可修复工程任务。原CPU质量回执绑定5362952a，新修复任务的CPU模块/哈希绑定e0c3a384，不能启动错版本worker。最终报告三策略比较中的baseline不完整、原失败和接续次数，不将两次账本别名重复计数。完成实际复盘和FINALIZED后才删除本专项heartbeat。
