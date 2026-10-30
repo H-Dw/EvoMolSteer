@@ -132,6 +132,10 @@ def test_cross_configuration_batch_oom_accounting_promotion_and_reuse(tmp_path,m
             recovery = error.recovery
             write(Path(recovery).with_name("OLD_PROCESS_EXITED.json"),
                   dict(pid=pid, exit_code=75, process_reaped=True))
+            # A stale higher capacity cache cannot override the OOM authorization.
+            capacity_file = tmp_path / "candidate_batches/teacher/capacity.json"
+            cached = read(capacity_file)
+            write(capacity_file, dict(cached, capacity=100))
     else:
         pytest.fail("Bounded OOM continuation did not complete")
     claims=list((tmp_path/"candidate_batches/teacher").glob("*/RECOVERY_CLAIM.json"))
@@ -153,6 +157,27 @@ def test_cross_configuration_batch_oom_accounting_promotion_and_reuse(tmp_path,m
     records=read(tmp_path/"full/records.json")
     assert [r["logical_slot"] for r in records]==list(range(10))*5
     assert len({(r["logical_seed"],r["logical_slot"]) for r in records})==50
+
+
+def test_oom_cannot_allocate_new_identities_when_external_binding_changed(tmp_path, monkeypatch):
+    from agenticgen.uniguide import gpu_recovery
+    config,teacher,spec,model,calls,sample=setup_scheduler(tmp_path,monkeypatch)
+    jobs=[dict(schedule=[1.]*4,folder=tmp_path/"grid",stage="calibration",count=50)]
+    def oom(*args,**kwargs):
+        raise torch.cuda.OutOfMemoryError("fixture")
+    monkeypatch.setattr(gpu_recovery.os,"getpid",lambda:901)
+    with pytest.raises(gpu_recovery.GpuOOMRestartRequired) as failure:
+        batch.execute_many(model,config,teacher,spec,jobs,sample_fn=oom)
+    recovery=Path(failure.value.recovery)
+    before=sha(tmp_path/"attempts.json")
+    write(recovery.with_name("OLD_PROCESS_EXITED.json"),dict(pid=901,exit_code=75,process_reaped=True))
+    monkeypatch.setattr(gpu_recovery.os,"getpid",lambda:902)
+    changed=dict(batch.compatibility(config,teacher,spec),initials_sha256="unexpected-external-change")
+    monkeypatch.setattr(batch,"compatibility",lambda *args:changed)
+    monkeypatch.setattr(sampling,"compatibility",lambda *args:changed)
+    with pytest.raises(ValueError,match="no new reservation"):
+        batch.execute_many(model,config,teacher,spec,jobs,sample_fn=sample,_recovery=recovery)
+    assert sha(tmp_path/"attempts.json")==before and not calls
 
 
 def test_formal_directions_share_batches_teacher_capacity_is_independent(tmp_path,monkeypatch):

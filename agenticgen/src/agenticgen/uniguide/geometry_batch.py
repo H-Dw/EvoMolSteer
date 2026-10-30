@@ -446,6 +446,8 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None, _re
     root = Path(config["root"])
     binding = compatibility(config, teacher, condition)
     units = compile_units(config, teacher, condition, jobs, _compatibility=binding, _recovery=_recovery)
+    if _recovery is not None and any(u["id"] not in _recovery["units"] for u in units):
+        raise ValueError("OOM continuation candidate identity changed; no new reservation allowed")
     batch_root = root / "candidate_batches" / teacher["target"]
     batch_root.mkdir(parents=True, exist_ok=True)
     capacity_file = batch_root / "capacity.json"
@@ -457,6 +459,10 @@ def execute_many(model, config, teacher, condition, jobs, *, sample_fn=None, _re
     )
     prior = read(capacity_file) if capacity_file.exists() else {}
     capacity = initial_capacity(prior, device_binding)
+    if _recovery is not None:
+        capacity = min(capacity, _recovery["next_capacity"])
+        write(capacity_file, dict(capacity=capacity, device_binding=device_binding,
+            reason="bound_by_clean_process_oom_recovery"))
     failed = {u["id"]: read(u["folder"] / "FAILED.json") for u in units
               if (u["folder"] / "FAILED.json").exists()}
     pending = [u for u in units if u["id"] not in failed]
