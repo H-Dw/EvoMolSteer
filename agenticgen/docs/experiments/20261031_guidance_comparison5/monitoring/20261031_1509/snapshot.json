@@ -1,0 +1,399 @@
+{
+  "timestamp": "2026-10-31T15:09:53.080529+08:00",
+  "timezone": "Asia/Shanghai",
+  "plan_sha256": "fed4eb002e92b3cd00f7dc1641f78e7fbc9a6a2d0e60fde833c93683ac07cc73",
+  "commit": "072e6f7831bd91b398f7e1cbd65f4725268ec9f4",
+  "actual_commit": "072e6f7831bd91b398f7e1cbd65f4725268ec9f4",
+  "tracked_checkout_clean": true,
+  "runtime_source_changed": [],
+  "status": {
+    "timestamp": "2026-10-31T15:04:05.360427+08:00",
+    "job_id": "02_baseline_3w54",
+    "stage": "calibrate",
+    "status": "running",
+    "child_pid": 16295,
+    "command": [
+      "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+      "-u",
+      "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py",
+      "--config",
+      "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78-configs/02_baseline_3w54.json",
+      "calibrate"
+    ],
+    "log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/02_baseline_3w54/calibrate.log",
+    "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001"
+  },
+  "heartbeat": {
+    "timestamp": "2026-10-31T15:09:50.376573+08:00",
+    "job_id": "02_baseline_3w54",
+    "stage": "calibrate",
+    "status": "running",
+    "child_pid": 16295,
+    "command": [
+      "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+      "-u",
+      "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py",
+      "--config",
+      "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78-configs/02_baseline_3w54.json",
+      "calibrate"
+    ],
+    "log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/02_baseline_3w54/calibrate.log",
+    "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001",
+    "child_alive": true
+  },
+  "processes": [
+    {
+      "pid": 605,
+      "state": "S",
+      "parent_pid": 1,
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py --plan /workspace/agenticgen_guidance_comparison5_20261031/PLAN.json "
+    },
+    {
+      "pid": 7747,
+      "state": "S",
+      "parent_pid": 605,
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide.quality_queue --runtime /workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/quality_queue/runtime.json "
+    },
+    {
+      "pid": 16295,
+      "state": "S",
+      "parent_pid": 605,
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u /root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py --config /root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78-configs/02_baseline_3w54.json calibrate "
+    },
+    {
+      "pid": 18106,
+      "state": "S",
+      "parent_pid": 18104,
+      "command": "bash -c python - <<'PY'\nimport subprocess,json,pathlib,shutil\nrepo=pathlib.Path('/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78')\ncmd=['python',str(repo/'agenticgen/docs/experiments/20261031_guidance_comparison5/inspect_suite.py'),'--plan','/workspace/agenticgen_guidance_comparison5_20261031/PLAN.json']\nr=subprocess.run(cmd,capture_output=True,text=True,timeout=180)\nif r.returncode: print(json.dumps({'code':r.returncode,'error':r.stderr[-3000:]},ensure_ascii=True))\nelse:\n d=json.loads(r.stdout)\n result={k:d[k] for k in ('snapshot','timestamp','actual_commit','tracked_checkout_clean','runtime_source_changed','status','suite_lock','global_executor_lock','preserved_files','protected_files_changed','durable_snapshot','all_jobs_attempted','suite_finished')}\n result['persistent_free_bytes']=shutil.disk_usage('/root/private_data').free\n result['jobs']=[{k:j[k] for k in ('id','rounds','configuration_hash_matches','acceptance_complete','calibrated_domains','reserved_attempts','completed_rounds','actual_http_responses','sampling_finished','result','failed','quality_worker','quality_status','progress','latest_log','stage_log_tail')} for j in d['jobs']]\n print(json.dumps(result,ensure_ascii=True))\nPY "
+    }
+  ],
+  "suite_lock": "held",
+  "global_executor_lock": "held",
+  "preserved_files": 6264,
+  "protected_files_changed": [],
+  "jobs": [
+    {
+      "id": "01_baseline_6pyy",
+      "experiment": "baseline",
+      "teacher": "6pyy_H7S_A_402",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001",
+      "result": {
+        "job_id": "01_baseline_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_001/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T14:53:16.389524+08:00"
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/quality_queue/.worker.lock": "held"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "6pyy_H7S_A_402"
+      ],
+      "reserved_attempts": {
+        "calibration": 290,
+        "formal": 200
+      },
+      "completed_rounds": 5,
+      "llm_role_receipts": 12,
+      "actual_http_responses": 27,
+      "progress": [
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428466541888093/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793428501.5055695
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428503214401379/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793428604.6350305
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428608875674794/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793428777.3125665
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428950653075287/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793429120.1923387
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793429125986893860/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793429295.6301527
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793429301429570684/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793429471.458552
+          }
+        }
+      ],
+      "sampling_finished": {
+        "timestamp": "2026-10-31T14:53:15.052780+08:00",
+        "rounds": 5,
+        "source_sha256": "8660c573822bbeb7815d78c3838b0f7e4b641abd23bfc83ac04ed7961bab93ac"
+      },
+      "failed": null,
+      "quality_worker": {
+        "pid": 7747,
+        "log": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/quality_queue/worker_1793428797801716712.log",
+        "started_unix": 1793428797.8026896,
+        "workers": 2,
+        "device": "cpu",
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10,
+        "module_directory": "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide",
+        "implementation_sha256": {
+          "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+          "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+          "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+        }
+      },
+      "quality_status": {
+        "pid": 7747,
+        "unix": 1793430591.1542494,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/01_baseline_6pyy/formal.log",
+      "stage_log_tail": "t\": {\"status\": \"no_new_complete_measurement\", \"measured_source_id\": null, \"performance\": null, \"input_incumbent_performance\": 0.5900917848199606, \"best_compatible_source_id\": \"range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50\", \"best_compatible_performance\": 0.5900917848199606}, \"checkpoint_learning\": {\"policy\": \"two-consecutive-round-declines-rebase-best-v1\", \"rebase_from_best_checkpoint\": false, \"best_checkpoint_id\": \"range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50\", \"best_checkpoint_actual_schedule\": [90, 90, 90, 90], \"best_checkpoint_performance\": 0.5900917848199606, \"consecutive_declines\": 0, \"unsuccessful_recent_paths\": [], \"instruction\": \"Learn all completed results and seek promising paths beyond the current best.\"}}], \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"manifest_sha256\": \"49cea79f545d1384ae35f9cd7250b0cf6427c97a57dfd0250c43eaec65ff801b\", \"complete\": true, \"missing_teachers\": [], \"all_available_teachers_processed\": true, \"configured_rounds\": 5, \"completed_rounds\": 5, \"requested_groups\": 12, \"measured_or_reused_groups\": 5, \"held_rounds\": 1, \"quality_source_groups\": [\"range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50\", \"versions/GD01/6pyy_H7S_A_402/iteration_001/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_003\"]}, \"previous\": null, \"best_version_by_teacher\": {\"6pyy_H7S_A_402\": \"GD01\"}, \"measured_initials\": {\"6pyy_H7S_A_402\": \"calibration/frozen/75a14f2ab7212f747af1b00c795925081d7133988e8f6d6ae7d39fcd5f453b62/population_50/ff5a1ae012afa5d4c889c50ad427aaf545d31a4fac04ffc1c4d03d403ba4250a\"}, \"next_version\": \"GD02\", \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"requires_actual_main_agent_review\": true}\n"
+    },
+    {
+      "id": "02_baseline_3w54",
+      "experiment": "baseline",
+      "teacher": "3w54_RNB_A_504",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001",
+      "result": null,
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/.executor.lock": "held",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/quality_queue/.worker.lock": "absent"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [],
+      "reserved_attempts": {
+        "calibration": 80,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "llm_role_receipts": 0,
+      "actual_http_responses": 0,
+      "progress": [
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793430360722885678/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793430402.0332086
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793430403391545213/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793430444.8051872
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793430446170478009/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793430487.5432663
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793430488893953106/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793430530.2995317
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793430531671860284/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793430573.1355937
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793430574529582609/progress.json",
+          "value": {
+            "step_completed": 30,
+            "unix": 1793430592.8569758
+          }
+        }
+      ],
+      "sampling_finished": null,
+      "failed": null,
+      "quality_worker": null,
+      "quality_status": null,
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/02_baseline_3w54/calibrate.log",
+      "stage_log_tail": "/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/MDAnalysis/topology/tables.py:52: DeprecationWarning: Deprecated in version 2.8.0\nMDAnalysis.topology.tables has been moved to MDAnalysis.guesser.tables. This import point will be removed in MDAnalysis version 3.0.0\n  warnings.warn(wmsg, category=DeprecationWarning)\n/usr/local/lib/python3.11/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /home/pytorch/aten/src/ATen/Context.cpp:80.)\n  _C._set_float32_matmul_precision(precision)\nBuilding model vocabs...\nVocabs complete.\n/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\n"
+    },
+    {
+      "id": "03_prefix_joint_6pyy",
+      "experiment": "prefix_joint",
+      "teacher": "6pyy_H7S_A_402",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001",
+      "result": null,
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001/.executor.lock": "absent",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001/quality_queue/.worker.lock": "absent"
+      },
+      "acceptance_complete": false,
+      "calibrated_domains": [],
+      "reserved_attempts": {
+        "calibration": 0,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "llm_role_receipts": 0,
+      "actual_http_responses": 0,
+      "progress": [],
+      "sampling_finished": null,
+      "failed": null,
+      "quality_worker": null,
+      "quality_status": null,
+      "latest_log": null,
+      "stage_log_tail": null
+    },
+    {
+      "id": "04_prefix_joint_3w54",
+      "experiment": "prefix_joint",
+      "teacher": "3w54_RNB_A_504",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001",
+      "result": null,
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/.executor.lock": "absent",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/quality_queue/.worker.lock": "absent"
+      },
+      "acceptance_complete": false,
+      "calibrated_domains": [],
+      "reserved_attempts": {
+        "calibration": 0,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "llm_role_receipts": 0,
+      "actual_http_responses": 0,
+      "progress": [],
+      "sampling_finished": null,
+      "failed": null,
+      "quality_worker": null,
+      "quality_status": null,
+      "latest_log": null,
+      "stage_log_tail": null
+    },
+    {
+      "id": "05_five_windows_6pyy",
+      "experiment": "five_windows",
+      "teacher": "6pyy_H7S_A_402",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001",
+      "result": null,
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/.executor.lock": "absent",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/quality_queue/.worker.lock": "absent"
+      },
+      "acceptance_complete": false,
+      "calibrated_domains": [],
+      "reserved_attempts": {
+        "calibration": 0,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "llm_role_receipts": 0,
+      "actual_http_responses": 0,
+      "progress": [],
+      "sampling_finished": null,
+      "failed": null,
+      "quality_worker": null,
+      "quality_status": null,
+      "latest_log": null,
+      "stage_log_tail": null
+    },
+    {
+      "id": "06_five_windows_3w54",
+      "experiment": "five_windows",
+      "teacher": "3w54_RNB_A_504",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/06_five_windows_3w54/attempt_001",
+      "result": null,
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/06_five_windows_3w54/attempt_001/.executor.lock": "absent",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/06_five_windows_3w54/attempt_001/quality_queue/.worker.lock": "absent"
+      },
+      "acceptance_complete": false,
+      "calibrated_domains": [],
+      "reserved_attempts": {
+        "calibration": 0,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "llm_role_receipts": 0,
+      "actual_http_responses": 0,
+      "progress": [],
+      "sampling_finished": null,
+      "failed": null,
+      "quality_worker": null,
+      "quality_status": null,
+      "latest_log": null,
+      "stage_log_tail": null
+    }
+  ],
+  "all_jobs_attempted": null,
+  "suite_finished": null,
+  "durable_snapshot": {
+    "timestamp": "2026-10-31T15:09:30.376123+08:00",
+    "status": "mirrored",
+    "files": 2504,
+    "bytes": 143478721,
+    "full_hdf5_included": false,
+    "launcher_log_included": false
+  }
+}
