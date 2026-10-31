@@ -1,0 +1,1166 @@
+{
+  "/workspace/agenticgen_guidance_comparison8_20261031/PLAN.json": {
+    "snapshot": "/workspace/agenticgen_guidance_comparison8_20261031/monitoring/2026-10-31T082114.881873_0800.json",
+    "timestamp": "2026-10-31T08:21:14.881873+08:00",
+    "timezone": "Asia/Shanghai",
+    "plan_sha256": "96cbfbf6750bb1fb5ef4f7fef5fc3a88714b5e7536b27d46b726aba91c2f8666",
+    "commit": "5362952ae2ea43f0f81c2226e9f6c477f9e9bd24",
+    "status": {
+      "timestamp": "2026-10-31T06:32:47.451724+08:00",
+      "stage": "finished",
+      "status": "awaiting_review_or_engineering_repair"
+    },
+    "heartbeat": {
+      "timestamp": "2026-10-31T06:32:21.597521+08:00",
+      "job_id": "06_five_windows_3w54",
+      "stage": "calibrate",
+      "status": "running",
+      "child_pid": 133330,
+      "command": [
+        "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+        "-u",
+        "/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py",
+        "--config",
+        "/workspace/uniguide_runs/guidance-comparison8-5362952a-configs/06_five_windows_3w54.json",
+        "calibrate"
+      ],
+      "log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log",
+      "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/06_five_windows_3w54/attempt_001",
+      "child_alive": true
+    },
+    "processes": [
+      {
+        "pid": 134802,
+        "state": "S",
+        "parent_pid": 1,
+        "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py --plan /workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json "
+      },
+      {
+        "pid": 139215,
+        "state": "S",
+        "parent_pid": 134802,
+        "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide.quality_queue --runtime /workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/runtime.json "
+      },
+      {
+        "pid": 167766,
+        "state": "S",
+        "parent_pid": 167764,
+        "command": "bash -c python - <<'PY'\nimport subprocess,json,sys,pathlib,hashlib\nplans=[('/workspace/uniguide_runs/guidance-comparison8-5362952a','/workspace/agenticgen_guidance_comparison8_20261031/PLAN.json'),('/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384','/workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json')]\nreports={}\nfor repo,plan_path in plans:\n plan=json.loads(pathlib.Path(plan_path).read_text());p=subprocess.run([sys.executable,repo+'/agenticgen/docs/experiments/20261031_guidance_comparison8/inspect_suite.py','--plan',plan_path],capture_output=True,text=True,check=True);r=json.loads(p.stdout)\n r['actual_checkout_commit']=subprocess.check_output(['git','-C',repo,'rev-parse','HEAD'],text=True).strip();r['actual_checkout_status']=subprocess.check_output(['git','-C',repo,'status','--porcelain'],text=True)\n r['configuration_hashes']={j['id']:{'expected':j['config_sha256'],'actual':hashlib.sha256(pathlib.Path(j['config']).read_bytes()).hexdigest()} for j in plan['jobs']}\n reports[plan_path]=r\nprint(json.dumps(reports,ensure_ascii=True))\nPY "
+      }
+    ],
+    "suite_lock": "free",
+    "global_executor_lock": "held",
+    "preserved_files": 19165,
+    "protected_files_changed": [],
+    "jobs": [
+      {
+        "id": "01_baseline_6pyy",
+        "experiment": "baseline",
+        "teacher": "6pyy_H7S_A_402",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/01_baseline_6pyy/attempt_001",
+        "result": {
+          "job_id": "01_baseline_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log\n",
+          "timestamp": "2026-10-31T04:42:47.651647+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/01_baseline_6pyy/attempt_001/.executor.lock": "free",
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/01_baseline_6pyy/attempt_001/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [
+          "6pyy_H7S_A_402"
+        ],
+        "reserved_attempts": {
+          "calibration": 240,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 1,
+        "actual_http_responses": 7,
+        "progress": [
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793392355125898926/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793392390.116947
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793392391815982776/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793392426.9189808
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793392428630061767/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793392531.0498211
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793392535269052800/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793392636.422481
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793392640730356287/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793392742.6640167
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793392746930152092/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793392847.7860618
+            }
+          }
+        ],
+        "sampling_finished": null,
+        "failed": {
+          "timestamp": "2026-10-31T04:42:47.650806+08:00",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log\n",
+          "automatic_retry": false,
+          "source_artifacts_preserved": true
+        },
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log",
+        "stage_log_tail": "and-later-devices (Triggered internally at /home/pytorch/aten/src/ATen/Context.cpp:80.)\n  _C._set_float32_matmul_precision(precision)\nBuilding model vocabs...\nVocabs complete.\n/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\nTraceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 52, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 41, in main\n    elif args.command==\"run-version\":result=implementation.run_version(config,args.version)\n                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/absolute_runtime.py\", line 203, in run_version\n    return run_linear(config,version,model_loader,executor,linear_advise if advisor is advise else advisor,retainer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_runtime.py\", line 476, in run_version\n    decision = advisor(\n               ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 277, in advise\n    selected = invoke(\n               ^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 228, in invoke\n    return provider(\n           ^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/providers/deepseek_tools.py\", line 220, in call_with_tools\n    raise SessionStopped(\"Final schema/action repair allowance exhausted\") from None\nagenticgen.providers.deepseek_tools.SessionStopped: Final schema/action repair allowance exhausted\n"
+      },
+      {
+        "id": "02_baseline_3w54",
+        "experiment": "baseline",
+        "teacher": "3w54_RNB_A_504",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/02_baseline_3w54/attempt_001",
+        "result": {
+          "job_id": "02_baseline_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log\n",
+          "timestamp": "2026-10-31T05:23:11.827729+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/02_baseline_3w54/attempt_001/.executor.lock": "free",
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/02_baseline_3w54/attempt_001/quality_queue/.worker.lock": "free"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [
+          "3w54_RNB_A_504"
+        ],
+        "reserved_attempts": {
+          "calibration": 260,
+          "formal": 100
+        },
+        "completed_rounds": 1,
+        "llm_role_receipts": 2,
+        "actual_http_responses": 9,
+        "progress": [
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793394320308693519/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793394442.2685719
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793394446857515957/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793394568.3273325
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793394572941637244/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793394695.3083632
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793394802679158698/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793395007.1233785
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793395013285760268/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793395215.6279898
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793395221875210397/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793395304.1173732
+            }
+          }
+        ],
+        "sampling_finished": null,
+        "failed": {
+          "timestamp": "2026-10-31T05:23:11.827020+08:00",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log\n",
+          "automatic_retry": false,
+          "source_artifacts_preserved": true
+        },
+        "quality_worker": {
+          "pid": 117529,
+          "log": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/02_baseline_3w54/attempt_001/quality_queue/worker_1793395031101506412.log",
+          "started_unix": 1793395031.1023774,
+          "workers": 2,
+          "device": "cpu",
+          "scope": "first_two_slots_per_seed_10_of_50",
+          "checked_attempts_per_group": 10,
+          "module_directory": "/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide",
+          "implementation_sha256": {
+            "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+            "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+            "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+          }
+        },
+        "quality_status": {
+          "pid": 117529,
+          "unix": 1793399560.0254388,
+          "active": [],
+          "pending": 0,
+          "workers": 2,
+          "device": "cpu",
+          "blocks_inference": false,
+          "scope": "first_two_slots_per_seed_10_of_50",
+          "checked_attempts_per_group": 10
+        },
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log",
+        "stage_log_tail": "20:17] Explicit valence for atom # 15 C, 5, is greater than permitted\nFailed to sanitize molecule: Explicit valence for atom # 15 C, 5, is greater than permitted. Returning None and potentially correcting downstream.\n[05:20:17] Explicit valence for atom # 15 C, 5, is greater than permitted\n[05:21:45] Explicit valence for atom # 1 C, 5, is greater than permitted\nFailed to sanitize molecule: Explicit valence for atom # 1 C, 5, is greater than permitted. Returning None and potentially correcting downstream.\n[05:21:45] Explicit valence for atom # 1 C, 5, is greater than permitted\nTraceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 52, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 41, in main\n    elif args.command==\"run-version\":result=implementation.run_version(config,args.version)\n                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/absolute_runtime.py\", line 203, in run_version\n    return run_linear(config,version,model_loader,executor,linear_advise if advisor is advise else advisor,retainer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_runtime.py\", line 476, in run_version\n    decision = advisor(\n               ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 239, in advise\n    proposed = invoke(\"proposal\", common, proposal_schema, check_proposals)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 228, in invoke\n    return provider(\n           ^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/providers/deepseek_tools.py\", line 220, in call_with_tools\n    raise SessionStopped(\"Final schema/action repair allowance exhausted\") from None\nagenticgen.providers.deepseek_tools.SessionStopped: Final schema/action repair allowance exhausted\n"
+      },
+      {
+        "id": "03_prefix_joint_6pyy",
+        "experiment": "prefix_joint",
+        "teacher": "6pyy_H7S_A_402",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/03_prefix_joint_6pyy/attempt_001",
+        "result": {
+          "job_id": "03_prefix_joint_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log\n",
+          "timestamp": "2026-10-31T05:42:49.277084+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/03_prefix_joint_6pyy/attempt_001/.executor.lock": "free",
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/03_prefix_joint_6pyy/attempt_001/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [],
+        "reserved_attempts": {
+          "calibration": 150,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 0,
+        "actual_http_responses": 0,
+        "progress": [
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793396255262753905/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793396290.300997
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793396291775172646/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793396326.9401631
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793396328780325105/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793396363.8531892
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793396365707383901/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793396400.6050918
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793396402491375402/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793396437.4703383
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793396439300108801/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793396541.4644291
+            }
+          }
+        ],
+        "sampling_finished": null,
+        "failed": {
+          "timestamp": "2026-10-31T05:42:49.276390+08:00",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log\n",
+          "automatic_retry": false,
+          "source_artifacts_preserved": true
+        },
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log",
+        "stage_log_tail": "del_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_calibration.py\", line 69, in run\n    return linear_calibration.run(config,subjects,model_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 326, in run\n    domain = search.run()\n             ^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 274, in run\n    self.measure(value, 50)\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 240, in measure\n    result = evaluate(self.model, self.config, self.subject, job, self.executor)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 177, in evaluate\n    return execute_many(\n           ^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_batch.py\", line 476, in execute_many\n    results.append(_execute_job(model, config, teacher, condition, job, binding,\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_batch.py\", line 464, in _execute_job\n    return execute(model, config, teacher, condition, job[\"schedule\"], job[\"folder\"],\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_sampling.py\", line 830, in execute\n    rows = combine_products(root, shards, folder)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_shards.py\", line 102, in combine_products\n    if any(p!=policies[0] for p in policies):raise ValueError(\"Cannot merge different output policies\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: Cannot merge different output policies\n"
+      },
+      {
+        "id": "04_prefix_joint_3w54",
+        "experiment": "prefix_joint",
+        "teacher": "3w54_RNB_A_504",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/04_prefix_joint_3w54/attempt_001",
+        "result": {
+          "job_id": "04_prefix_joint_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log\n",
+          "timestamp": "2026-10-31T06:05:46.934235+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/04_prefix_joint_3w54/attempt_001/.executor.lock": "free",
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/04_prefix_joint_3w54/attempt_001/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [],
+        "reserved_attempts": {
+          "calibration": 150,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 0,
+        "actual_http_responses": 0,
+        "progress": [
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793397579812711117/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793397621.556118
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793397623010844741/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793397664.6661522
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793397666593655846/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793397708.1597714
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793397710087741905/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793397751.836952
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793397753767063427/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793397795.4266953
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793397797344572648/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793397919.7667727
+            }
+          }
+        ],
+        "sampling_finished": null,
+        "failed": {
+          "timestamp": "2026-10-31T06:05:46.933520+08:00",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log\n",
+          "automatic_retry": false,
+          "source_artifacts_preserved": true
+        },
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log",
+        "stage_log_tail": "del_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_calibration.py\", line 69, in run\n    return linear_calibration.run(config,subjects,model_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 326, in run\n    domain = search.run()\n             ^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 274, in run\n    self.measure(value, 50)\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 240, in measure\n    result = evaluate(self.model, self.config, self.subject, job, self.executor)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 177, in evaluate\n    return execute_many(\n           ^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_batch.py\", line 476, in execute_many\n    results.append(_execute_job(model, config, teacher, condition, job, binding,\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_batch.py\", line 464, in _execute_job\n    return execute(model, config, teacher, condition, job[\"schedule\"], job[\"folder\"],\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_sampling.py\", line 830, in execute\n    rows = combine_products(root, shards, folder)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_shards.py\", line 102, in combine_products\n    if any(p!=policies[0] for p in policies):raise ValueError(\"Cannot merge different output policies\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: Cannot merge different output policies\n"
+      },
+      {
+        "id": "05_five_windows_6pyy",
+        "experiment": "five_windows",
+        "teacher": "6pyy_H7S_A_402",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/05_five_windows_6pyy/attempt_001",
+        "result": {
+          "job_id": "05_five_windows_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log\n",
+          "timestamp": "2026-10-31T06:18:24.300619+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/05_five_windows_6pyy/attempt_001/.executor.lock": "free",
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/05_five_windows_6pyy/attempt_001/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [],
+        "reserved_attempts": {
+          "calibration": 40,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 0,
+        "actual_http_responses": 0,
+        "progress": [
+          {
+            "path": "acceptance/6pyy_H7S_A_402/candidate_batch/uncapped_large_increment/progress.json",
+            "value": {
+              "step_completed": 10,
+              "unix": 1793398473.9712238
+            }
+          },
+          {
+            "path": "acceptance/6pyy_H7S_A_402/candidate_batch/nonfinite_isolation/progress.json",
+            "value": {
+              "step_completed": 10,
+              "unix": 1793398492.0910425
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793398532010002423/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793398570.6560786
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793398571988112250/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793398607.332024
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793398608706964892/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793398644.1877143
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793398645546357332/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793398680.987271
+            }
+          }
+        ],
+        "sampling_finished": null,
+        "failed": {
+          "timestamp": "2026-10-31T06:18:24.299935+08:00",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log\n",
+          "automatic_retry": false,
+          "source_artifacts_preserved": true
+        },
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log",
+        "stage_log_tail": "PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\nTraceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 52, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 37, in main\n    elif args.command==\"calibrate\":result=implementation.calibrate(config)\n                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/absolute_runtime.py\", line 134, in calibrate\n    return run(config,calibrated(config),model_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_calibration.py\", line 69, in run\n    return linear_calibration.run(config,subjects,model_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 326, in run\n    domain = search.run()\n             ^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 264, in run\n    value = next_screen(self.population(10), self.settings)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 35, in next_screen\n    usable, _, boundary = assess(rows)\n                          ^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/calibration_search.py\", line 52, in assess\n    ordered = sorted(rows, key=strength)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/calibration_search.py\", line 26, in strength\n    raise ValueError(\"Calibration requires positive finite constant profiles\")\nValueError: Calibration requires positive finite constant profiles\n"
+      },
+      {
+        "id": "06_five_windows_3w54",
+        "experiment": "five_windows",
+        "teacher": "3w54_RNB_A_504",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/06_five_windows_3w54/attempt_001",
+        "result": {
+          "job_id": "06_five_windows_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log\n",
+          "timestamp": "2026-10-31T06:32:41.599851+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/06_five_windows_3w54/attempt_001/.executor.lock": "free",
+          "/workspace/agenticgen_guidance_comparison8_20261031/jobs/06_five_windows_3w54/attempt_001/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [],
+        "reserved_attempts": {
+          "calibration": 30,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 0,
+        "actual_http_responses": 0,
+        "progress": [
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/capacity_50/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793399310.4605305
+            }
+          },
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/uncapped_large_increment/progress.json",
+            "value": {
+              "step_completed": 10,
+              "unix": 1793399334.6513402
+            }
+          },
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/nonfinite_isolation/progress.json",
+            "value": {
+              "step_completed": 10,
+              "unix": 1793399358.725776
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793399410076835920/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793399455.1394887
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793399456539734021/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793399498.1040537
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793399499466044684/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793399541.1970963
+            }
+          }
+        ],
+        "sampling_finished": null,
+        "failed": {
+          "timestamp": "2026-10-31T06:32:41.599160+08:00",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log\n",
+          "automatic_retry": false,
+          "source_artifacts_preserved": true
+        },
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log",
+        "stage_log_tail": "PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\nTraceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 52, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/scripts/run_uniguide_geometry.py\", line 37, in main\n    elif args.command==\"calibrate\":result=implementation.calibrate(config)\n                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/absolute_runtime.py\", line 134, in calibrate\n    return run(config,calibrated(config),model_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/geometry_calibration.py\", line 69, in run\n    return linear_calibration.run(config,subjects,model_loader,executor)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 326, in run\n    domain = search.run()\n             ^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 264, in run\n    value = next_screen(self.population(10), self.settings)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/linear_calibration.py\", line 35, in next_screen\n    usable, _, boundary = assess(rows)\n                          ^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/calibration_search.py\", line 52, in assess\n    ordered = sorted(rows, key=strength)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/src/agenticgen/uniguide/calibration_search.py\", line 26, in strength\n    raise ValueError(\"Calibration requires positive finite constant profiles\")\nValueError: Calibration requires positive finite constant profiles\n"
+      }
+    ],
+    "all_jobs_attempted": {
+      "timestamp": "2026-10-31T06:32:41.600375+08:00",
+      "results": [
+        {
+          "job_id": "01_baseline_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log\n",
+          "timestamp": "2026-10-31T04:42:47.651647+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "02_baseline_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log\n",
+          "timestamp": "2026-10-31T05:23:11.827729+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "03_prefix_joint_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log\n",
+          "timestamp": "2026-10-31T05:42:49.277084+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "04_prefix_joint_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log\n",
+          "timestamp": "2026-10-31T06:05:46.934235+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "05_five_windows_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log\n",
+          "timestamp": "2026-10-31T06:18:24.300619+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "06_five_windows_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log\n",
+          "timestamp": "2026-10-31T06:32:41.599851+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        }
+      ],
+      "failed_jobs": [
+        "01_baseline_6pyy",
+        "02_baseline_3w54",
+        "03_prefix_joint_6pyy",
+        "04_prefix_joint_3w54",
+        "05_five_windows_6pyy",
+        "06_five_windows_3w54"
+      ]
+    },
+    "suite_finished": {
+      "timestamp": "2026-10-31T06:32:47.451015+08:00",
+      "jobs": [
+        {
+          "job_id": "01_baseline_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/01_baseline_6pyy/formal.log\n",
+          "timestamp": "2026-10-31T04:42:47.651647+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "02_baseline_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/02_baseline_3w54/formal.log\n",
+          "timestamp": "2026-10-31T05:23:11.827729+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "03_prefix_joint_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/03_prefix_joint_6pyy/calibrate.log\n",
+          "timestamp": "2026-10-31T05:42:49.277084+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "04_prefix_joint_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/04_prefix_joint_3w54/calibrate.log\n",
+          "timestamp": "2026-10-31T06:05:46.934235+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "05_five_windows_6pyy",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/05_five_windows_6pyy/calibrate.log\n",
+          "timestamp": "2026-10-31T06:18:24.300619+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        },
+        {
+          "job_id": "06_five_windows_3w54",
+          "status": "failed_skipped",
+          "error": "RuntimeError('calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log')",
+          "traceback": "Traceback (most recent call last):\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 25, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 298, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/uniguide_runs/guidance-comparison8-5362952a/agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py\", line 167, in run_job\n    raise RuntimeError(\nRuntimeError: calibrate exited 1; preserved log /workspace/agenticgen_guidance_comparison8_20261031/logs/06_five_windows_3w54/calibrate.log\n",
+          "timestamp": "2026-10-31T06:32:41.599851+08:00",
+          "source_artifacts_preserved": true,
+          "automatic_retry": false
+        }
+      ],
+      "quality": {
+        "01_baseline_6pyy": {
+          "mode": "sampled_10_of_50_async_cpu",
+          "blocks_inference": false,
+          "complete": 0,
+          "failed": 0,
+          "pending": 0,
+          "groups": []
+        },
+        "02_baseline_3w54": {
+          "mode": "sampled_10_of_50_async_cpu",
+          "blocks_inference": false,
+          "complete": 2,
+          "failed": 0,
+          "pending": 0,
+          "groups": [
+            {
+              "id": "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+              "status": "complete",
+              "receipt": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_001/action_001/QUALITY_COMPLETE.json",
+              "sha256": "c9013e6dc99f1cc38550ed87e93ce7a578903b11611d05af6d98ea33ea483f33",
+              "scope": "first_two_slots_per_seed_10_of_50",
+              "checked_attempts": 10
+            },
+            {
+              "id": "versions/GD01/3w54_RNB_A_504/iteration_001/action_002",
+              "status": "complete",
+              "receipt": "/workspace/agenticgen_guidance_comparison8_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_001/action_002/QUALITY_COMPLETE.json",
+              "sha256": "4950d66382248ae52b4817cc445b9f414fec39534265a5b7d128cd5e942fb3a6",
+              "scope": "first_two_slots_per_seed_10_of_50",
+              "checked_attempts": 10
+            }
+          ]
+        },
+        "03_prefix_joint_6pyy": {
+          "mode": "sampled_10_of_50_async_cpu",
+          "blocks_inference": false,
+          "complete": 0,
+          "failed": 0,
+          "pending": 0,
+          "groups": []
+        },
+        "04_prefix_joint_3w54": {
+          "mode": "sampled_10_of_50_async_cpu",
+          "blocks_inference": false,
+          "complete": 0,
+          "failed": 0,
+          "pending": 0,
+          "groups": []
+        },
+        "05_five_windows_6pyy": {
+          "mode": "sampled_10_of_50_async_cpu",
+          "blocks_inference": false,
+          "complete": 0,
+          "failed": 0,
+          "pending": 0,
+          "groups": []
+        },
+        "06_five_windows_3w54": {
+          "mode": "sampled_10_of_50_async_cpu",
+          "blocks_inference": false,
+          "complete": 0,
+          "failed": 0,
+          "pending": 0,
+          "groups": []
+        }
+      },
+      "actual_gpt_review_required": true,
+      "automatic_scientific_retry": false
+    },
+    "actual_checkout_commit": "5362952ae2ea43f0f81c2226e9f6c477f9e9bd24",
+    "actual_checkout_status": "",
+    "configuration_hashes": {
+      "01_baseline_6pyy": {
+        "expected": "aeceb0a9343d9021113d6b13b4bb376a1f64721db4222cf493ee06de949408e9",
+        "actual": "aeceb0a9343d9021113d6b13b4bb376a1f64721db4222cf493ee06de949408e9"
+      },
+      "02_baseline_3w54": {
+        "expected": "66b087dff67e86baa277fc67d21e8d15a26438e704d1b258499bf045fbad3a21",
+        "actual": "66b087dff67e86baa277fc67d21e8d15a26438e704d1b258499bf045fbad3a21"
+      },
+      "03_prefix_joint_6pyy": {
+        "expected": "eb7b8420c06ebf91b966c50f77382e0d7d224d3bdf8f0faed4ba8db3a28be098",
+        "actual": "eb7b8420c06ebf91b966c50f77382e0d7d224d3bdf8f0faed4ba8db3a28be098"
+      },
+      "04_prefix_joint_3w54": {
+        "expected": "356125e01390e86f64ded377a412129639a9384d15b7f8be2ebdfc0c11e42df3",
+        "actual": "356125e01390e86f64ded377a412129639a9384d15b7f8be2ebdfc0c11e42df3"
+      },
+      "05_five_windows_6pyy": {
+        "expected": "dc924588b4d6f5a43b9aa21bddedf29b6190b0a7d5b9d45912c7f5cd122be11b",
+        "actual": "dc924588b4d6f5a43b9aa21bddedf29b6190b0a7d5b9d45912c7f5cd122be11b"
+      },
+      "06_five_windows_3w54": {
+        "expected": "829e7a35f6701e48e0a0acdaad71289b14dd06dd883b2203154df5a7fe24d47e",
+        "actual": "829e7a35f6701e48e0a0acdaad71289b14dd06dd883b2203154df5a7fe24d47e"
+      }
+    }
+  },
+  "/workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json": {
+    "snapshot": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/monitoring/2026-10-31T082121.723405_0800.json",
+    "timestamp": "2026-10-31T08:21:21.723405+08:00",
+    "timezone": "Asia/Shanghai",
+    "plan_sha256": "51885b68e386ebf9e6be56d3b123c54a223c91219a3addeb48f7dfb588cbb9f2",
+    "commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+    "status": {
+      "timestamp": "2026-10-31T08:19:37.133755+08:00",
+      "job_id": "04_prefix_joint_3w54",
+      "stage": "calibrate",
+      "status": "running",
+      "child_pid": 166958,
+      "command": [
+        "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+        "-u",
+        "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/scripts/run_uniguide_geometry.py",
+        "--config",
+        "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/04_prefix_joint_3w54.json",
+        "calibrate"
+      ],
+      "log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/logs/04_prefix_joint_3w54/calibrate.log",
+      "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/04_prefix_joint_3w54/attempt_002"
+    },
+    "heartbeat": {
+      "timestamp": "2026-10-31T08:21:17.137415+08:00",
+      "job_id": "04_prefix_joint_3w54",
+      "stage": "calibrate",
+      "status": "running",
+      "child_pid": 166958,
+      "command": [
+        "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+        "-u",
+        "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/scripts/run_uniguide_geometry.py",
+        "--config",
+        "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/04_prefix_joint_3w54.json",
+        "calibrate"
+      ],
+      "log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/logs/04_prefix_joint_3w54/calibrate.log",
+      "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/04_prefix_joint_3w54/attempt_002",
+      "child_alive": true
+    },
+    "processes": [
+      {
+        "pid": 134802,
+        "state": "S",
+        "parent_pid": 1,
+        "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u agenticgen/docs/experiments/20261031_guidance_comparison8/run_suite.py --plan /workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json "
+      },
+      {
+        "pid": 139215,
+        "state": "S",
+        "parent_pid": 134802,
+        "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide.quality_queue --runtime /workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/runtime.json "
+      },
+      {
+        "pid": 166958,
+        "state": "S",
+        "parent_pid": 134802,
+        "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u /workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/scripts/run_uniguide_geometry.py --config /workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384-configs/04_prefix_joint_3w54.json calibrate "
+      },
+      {
+        "pid": 167766,
+        "state": "S",
+        "parent_pid": 167764,
+        "command": "bash -c python - <<'PY'\nimport subprocess,json,sys,pathlib,hashlib\nplans=[('/workspace/uniguide_runs/guidance-comparison8-5362952a','/workspace/agenticgen_guidance_comparison8_20261031/PLAN.json'),('/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384','/workspace/agenticgen_guidance_comparison8_20261031_repairs/PLAN.json')]\nreports={}\nfor repo,plan_path in plans:\n plan=json.loads(pathlib.Path(plan_path).read_text());p=subprocess.run([sys.executable,repo+'/agenticgen/docs/experiments/20261031_guidance_comparison8/inspect_suite.py','--plan',plan_path],capture_output=True,text=True,check=True);r=json.loads(p.stdout)\n r['actual_checkout_commit']=subprocess.check_output(['git','-C',repo,'rev-parse','HEAD'],text=True).strip();r['actual_checkout_status']=subprocess.check_output(['git','-C',repo,'status','--porcelain'],text=True)\n r['configuration_hashes']={j['id']:{'expected':j['config_sha256'],'actual':hashlib.sha256(pathlib.Path(j['config']).read_bytes()).hexdigest()} for j in plan['jobs']}\n reports[plan_path]=r\nprint(json.dumps(reports,ensure_ascii=True))\nPY "
+      }
+    ],
+    "suite_lock": "held",
+    "global_executor_lock": "held",
+    "preserved_files": 21482,
+    "protected_files_changed": [],
+    "jobs": [
+      {
+        "id": "03_prefix_joint_6pyy",
+        "experiment": "prefix_joint",
+        "teacher": "6pyy_H7S_A_402",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002",
+        "result": {
+          "job_id": "03_prefix_joint_6pyy",
+          "status": "completed",
+          "result": {
+            "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002",
+            "sampling_complete": true,
+            "rounds": 8,
+            "quality_sources": [
+              "range_evidence/6pyy_H7S_A_402/5791fc25184ed246f5642b694e66e69ffa4795d13a29bf847cd468a6d279f577/population_50",
+              "range_evidence/6pyy_H7S_A_402/e077e30b29202632d3e2f185fe4c7b0820daa206d7f3b6dc796ef4c2dbcd330d/population_50",
+              "versions/GD01/6pyy_H7S_A_402/iteration_001/action_001",
+              "versions/GD01/6pyy_H7S_A_402/iteration_001/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+              "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_003/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+              "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003",
+              "versions/GD01/6pyy_H7S_A_402/iteration_005/action_001",
+              "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_005/action_003",
+              "versions/GD01/6pyy_H7S_A_402/iteration_006/action_001",
+              "versions/GD01/6pyy_H7S_A_402/iteration_006/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_007/action_001",
+              "versions/GD01/6pyy_H7S_A_402/iteration_007/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_007/action_003",
+              "versions/GD01/6pyy_H7S_A_402/iteration_008/action_001",
+              "versions/GD01/6pyy_H7S_A_402/iteration_008/action_002",
+              "versions/GD01/6pyy_H7S_A_402/iteration_008/action_003"
+            ],
+            "quality_wait_is_independent": true
+          },
+          "timestamp": "2026-10-31T08:07:53.177696+08:00"
+        },
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/.executor.lock": "free",
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/.worker.lock": "held"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [
+          "6pyy_H7S_A_402"
+        ],
+        "reserved_attempts": {
+          "calibration": 340,
+          "formal": 950
+        },
+        "completed_rounds": 8,
+        "llm_role_receipts": 18,
+        "actual_http_responses": 39,
+        "progress": [
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793404079340106439/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793404247.7706556
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793404254000269851/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793404423.1318603
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793404429280248242/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793404599.9016862
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793404674307138757/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793404843.2714179
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793404849514113248/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793405018.890763
+            }
+          },
+          {
+            "path": "candidate_batches/6pyy_H7S_A_402/1793405025050802678/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793405198.9778814
+            }
+          }
+        ],
+        "sampling_finished": {
+          "timestamp": "2026-10-31T08:07:46.861311+08:00",
+          "rounds": 8,
+          "source_sha256": "5a071c612fe757bb4d47d6a77eb7a85410eb88c00777f1fe87dfd1abae038788"
+        },
+        "failed": null,
+        "quality_worker": {
+          "pid": 139215,
+          "log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/worker_1793401208556854941.log",
+          "started_unix": 1793401208.5577402,
+          "workers": 2,
+          "device": "cpu",
+          "scope": "first_two_slots_per_seed_10_of_50",
+          "checked_attempts_per_group": 10,
+          "module_directory": "/workspace/uniguide_runs/guidance-comparison8-repair-e0c3a384/agenticgen/src/agenticgen/uniguide",
+          "implementation_sha256": {
+            "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+            "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+            "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+          }
+        },
+        "quality_status": {
+          "pid": 139215,
+          "unix": 1793406080.2466762,
+          "active": [],
+          "pending": 0,
+          "workers": 2,
+          "device": "cpu",
+          "blocks_inference": false,
+          "scope": "first_two_slots_per_seed_10_of_50",
+          "checked_attempts_per_group": 10
+        },
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/logs/03_prefix_joint_6pyy/formal.log",
+        "stage_log_tail": "final/proposal.json\", \"/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"manifest_sha256\": \"0053872d0f9ef81c02eab4f5b6ae4d18d9648b066f30e5dd180c1bb10bff6ad8\", \"complete\": true, \"missing_teachers\": [], \"all_available_teachers_processed\": true, \"configured_rounds\": 8, \"completed_rounds\": 8, \"requested_groups\": 21, \"measured_or_reused_groups\": 21, \"held_rounds\": 0, \"quality_source_groups\": [\"range_evidence/6pyy_H7S_A_402/5791fc25184ed246f5642b694e66e69ffa4795d13a29bf847cd468a6d279f577/population_50\", \"range_evidence/6pyy_H7S_A_402/e077e30b29202632d3e2f185fe4c7b0820daa206d7f3b6dc796ef4c2dbcd330d/population_50\", \"versions/GD01/6pyy_H7S_A_402/iteration_001/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_001/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_003/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_005/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_005/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_005/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_006/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_006/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_007/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_007/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_007/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_008/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_008/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_008/action_003\"]}, \"previous\": null, \"best_version_by_teacher\": {\"6pyy_H7S_A_402\": \"GD01\"}, \"measured_initials\": {\"6pyy_H7S_A_402\": \"calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3\"}, \"next_version\": \"GD02\", \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/03_prefix_joint_6pyy/attempt_002/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"requires_actual_main_agent_review\": true}\n"
+      },
+      {
+        "id": "04_prefix_joint_3w54",
+        "experiment": "prefix_joint",
+        "teacher": "3w54_RNB_A_504",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/04_prefix_joint_3w54/attempt_002",
+        "result": null,
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/04_prefix_joint_3w54/attempt_002/.executor.lock": "held",
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/04_prefix_joint_3w54/attempt_002/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": true,
+        "calibrated_domains": [],
+        "reserved_attempts": {
+          "calibration": 180,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 0,
+        "actual_http_responses": 0,
+        "progress": [
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/mixed_twenty/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793405597.5624125
+            }
+          },
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/mixed_resumed/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793405675.2700422
+            }
+          },
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/capacity_50/progress.json",
+            "value": {
+              "step_completed": 100,
+              "unix": 1793405876.8214946
+            }
+          },
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/uncapped_large_increment/progress.json",
+            "value": {
+              "step_completed": 10,
+              "unix": 1793405900.822444
+            }
+          },
+          {
+            "path": "acceptance/3w54_RNB_A_504/candidate_batch/nonfinite_isolation/progress.json",
+            "value": {
+              "step_completed": 10,
+              "unix": 1793405924.5232208
+            }
+          },
+          {
+            "path": "candidate_batches/3w54_RNB_A_504/1793406018453239883/progress.json",
+            "value": {
+              "step_completed": 30,
+              "unix": 1793406075.815987
+            }
+          }
+        ],
+        "sampling_finished": null,
+        "failed": null,
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/logs/04_prefix_joint_3w54/calibrate.log",
+        "stage_log_tail": "/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/MDAnalysis/topology/tables.py:52: DeprecationWarning: Deprecated in version 2.8.0\nMDAnalysis.topology.tables has been moved to MDAnalysis.guesser.tables. This import point will be removed in MDAnalysis version 3.0.0\n  warnings.warn(wmsg, category=DeprecationWarning)\n/usr/local/lib/python3.11/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /home/pytorch/aten/src/ATen/Context.cpp:80.)\n  _C._set_float32_matmul_precision(precision)\nBuilding model vocabs...\nVocabs complete.\n/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\n"
+      },
+      {
+        "id": "05_five_windows_6pyy",
+        "experiment": "five_windows",
+        "teacher": "6pyy_H7S_A_402",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/05_five_windows_6pyy/attempt_002",
+        "result": null,
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/05_five_windows_6pyy/attempt_002/.executor.lock": "absent",
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/05_five_windows_6pyy/attempt_002/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": false,
+        "calibrated_domains": [],
+        "reserved_attempts": {
+          "calibration": 0,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 0,
+        "actual_http_responses": 0,
+        "progress": [],
+        "sampling_finished": null,
+        "failed": null,
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": null,
+        "stage_log_tail": null
+      },
+      {
+        "id": "06_five_windows_3w54",
+        "experiment": "five_windows",
+        "teacher": "3w54_RNB_A_504",
+        "root": "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/06_five_windows_3w54/attempt_002",
+        "result": null,
+        "locks": {
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/06_five_windows_3w54/attempt_002/.executor.lock": "absent",
+          "/workspace/agenticgen_guidance_comparison8_20261031_repairs/jobs/06_five_windows_3w54/attempt_002/quality_queue/.worker.lock": "absent"
+        },
+        "acceptance_complete": false,
+        "calibrated_domains": [],
+        "reserved_attempts": {
+          "calibration": 0,
+          "formal": 0
+        },
+        "completed_rounds": 0,
+        "llm_role_receipts": 0,
+        "actual_http_responses": 0,
+        "progress": [],
+        "sampling_finished": null,
+        "failed": null,
+        "quality_worker": null,
+        "quality_status": null,
+        "latest_log": null,
+        "stage_log_tail": null
+      }
+    ],
+    "all_jobs_attempted": null,
+    "suite_finished": null,
+    "actual_checkout_commit": "e0c3a384b2c54eadcd20b430486d323b78128cbc",
+    "actual_checkout_status": "",
+    "configuration_hashes": {
+      "03_prefix_joint_6pyy": {
+        "expected": "da1eaec3a1f76b2b1b3622196f329236e3cb741787f1a941e706f767254997fb",
+        "actual": "da1eaec3a1f76b2b1b3622196f329236e3cb741787f1a941e706f767254997fb"
+      },
+      "04_prefix_joint_3w54": {
+        "expected": "d89b48eba681949046f85256bf58ce20e42b12b344938df548f3254244b3e6bd",
+        "actual": "d89b48eba681949046f85256bf58ce20e42b12b344938df548f3254244b3e6bd"
+      },
+      "05_five_windows_6pyy": {
+        "expected": "f2ad09acace7e31e5d31740f649ee12c82d71686ff297aa64a34bc5a5bf3ff44",
+        "actual": "f2ad09acace7e31e5d31740f649ee12c82d71686ff297aa64a34bc5a5bf3ff44"
+      },
+      "06_five_windows_3w54": {
+        "expected": "8046587863e0496cab069b6e5131bedb2de0e3a63084b803ee09442f920d80fe",
+        "actual": "8046587863e0496cab069b6e5131bedb2de0e3a63084b803ee09442f920d80fe"
+      }
+    }
+  }
+}
