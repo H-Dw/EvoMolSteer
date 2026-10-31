@@ -46,6 +46,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--commit", required=True)
     parser.add_argument("--bundle-sha256", required=True)
+    parser.add_argument("--bootstrap-bundle")
+    parser.add_argument("--bootstrap-sha256")
     parser.add_argument(
         "--storage", default="/root/private_data/uniguide_comparison5_20261031"
     )
@@ -94,6 +96,26 @@ def main():
         except subprocess.TimeoutExpired:
             transports.append(dict(transport=prefix or "direct", timeout=8))
     else:
+        if args.bootstrap_bundle:
+            bootstrap = Path(args.bootstrap_bundle)
+            if sha(bootstrap) != args.bootstrap_sha256:
+                raise ValueError("Pushed history bundle checksum differs")
+            command(["git", "bundle", "verify", str(bootstrap)], cwd=repo)
+            command(
+                [
+                    "git",
+                    "fetch",
+                    str(bootstrap),
+                    "refs/heads/codex/uniguide-flowr-agent",
+                ],
+                cwd=repo,
+            )
+            transports.append(
+                dict(
+                    transport="verified_pushed_history_bundle",
+                    sha256=args.bootstrap_sha256,
+                )
+            )
         bundle = audit / "pushed.bundle"
         if sha(bundle) != args.bundle_sha256:
             raise ValueError("Pushed bundle checksum differs")
@@ -257,6 +279,9 @@ def main():
     copy_file(
         original_context / "INITIALS_VERIFIED.json", context / "INITIALS_VERIFIED.json"
     )
+    # Acceptance verifies that the frozen source ledger is unchanged. This is
+    # a read-only reference, never imported into the new scientific budget.
+    copy_file(original_context / "attempts.json", context / "attempts.json")
     for item in config["conditions"]:
         old = Path(item["features_path"])
         destination = storage / "inputs/conditions" / old.name
