@@ -62,7 +62,10 @@ def main():
         cpu=dict(env,CUDA_VISIBLE_DEVICES='',HIP_VISIBLE_DEVICES='',ROCR_VISIBLE_DEVICES='')
         source=ast.parse((repo/'agenticgen/docs/experiments/20261031_selected_contract_retest/deploy_retest.py').read_text())
         tests=next(ast.literal_eval(n.value) for n in source.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='TESTS' for t in n.targets))
-        cmd=[PYTHON,'-m','pytest','-q','-c','agenticgen/pyproject.toml']+['agenticgen/tests/unit/test_'+n+'.py' for n in tests+('gradient_atom_scope','fixed_scope','scope_archive')]+['--basetemp='+str(audit/'pytest'),'--junitxml='+str(audit/'regression.xml')]
+        # Thousands of tiny fixture writes belong on the run disk, not NFS.
+        test_tmp=Path('/workspace/uniguide_scope_cpu_tests_20261101')/commit[:8]
+        test_tmp.parent.mkdir(parents=True,exist_ok=True)
+        cmd=[PYTHON,'-m','pytest','-q','-c','agenticgen/pyproject.toml']+['agenticgen/tests/unit/test_'+n+'.py' for n in tests+('gradient_atom_scope','fixed_scope','scope_archive')]+['--basetemp='+str(test_tmp),'--junitxml='+str(audit/'regression.xml')]
         status('cpu_regression')
         with (audit/'regression.log').open('xb') as log:
             p=subprocess.run(cmd,cwd=repo,env=cpu,stdout=log,stderr=subprocess.STDOUT,timeout=600)
