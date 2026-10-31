@@ -25,3 +25,5 @@ ALL_JOBS_ATTEMPTED/SUITE_FINISHED后先排查尚有授权可修复工程任务�
 GitHub异常按直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc依次，均失败才使用已验证且仅含已推送提交的Git bundle。一小时巡检，健康/排队/无实质变化返回DONT_NOTIFY，不额外进度；仅通知完成、实质异常、工程修复或需用户处理的问题。中文UTF-8，自动化创建/更新后以JSON ensure_ascii=true读回确认无Unicode替换字符。所有操作记录Asia/Shanghai时间。
 
 上线前298f9fd5的远端CPU回归为285通过、1个持久镜像测试失败，未启动科学任务或API。072e6f78修复NFS等长覆盖的size/mtime假阴性，加入内容哈希复核和固定mtime复现测试；保留旧部署审计，不把这次部署预检失败计作科学候选，也不删除旧目录。最终远端回归与启动结果以launch_audit.json为准。
+
+2026-10-31 17:13核查：03_prefix_joint_6pyy于16:53在第2轮synthesis停止；初次及唯一一次格式修正均缺必填selected字段，reason分别1302/1256字符、均在3000上限内，finish_reason均stop，输出1462/755 token，非长度或token耗尽。schema正确列出selected且修正反馈明确提示缺失；属于真实LLM输出契约失败，不是接口缺字段的工程缺陷。该任务已完成自身验收/标定260次及1轮/2个正式组共100次，失败会话、claim、账本和结果保留。按冻结失败政策跳过，不自动补写selected、重发失败会话、提额或改Agent提示绕过；04_prefix_joint_3w54继续，随后两项five_windows任务。该局部失败不代表整个suite停止，未完成五轮不能标完成。后续明确用户指令优先。

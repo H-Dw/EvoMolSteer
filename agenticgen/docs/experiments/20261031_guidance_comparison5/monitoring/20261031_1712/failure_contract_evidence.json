@@ -1,0 +1,173 @@
+{
+  "timestamp": "2026-10-31T17:13:05.616171+08:00",
+  "job": "03_prefix_joint_6pyy",
+  "campaign_failed": {
+    "timestamp": "2026-10-31T16:53:21.331922+08:00",
+    "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log')",
+    "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log\n",
+    "automatic_retry": false,
+    "source_artifacts_preserved": true
+  },
+  "failed_sessions": [
+    {
+      "session": "versions/GD01/6pyy_H7S_A_402/advice_002/synthesis.session",
+      "failed": {
+        "error_type": "SessionStopped",
+        "step": 3,
+        "preserved_transcript": true,
+        "automatic_restart": false
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "enum": [
+              "propose",
+              "hold",
+              "request_domain_evidence"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3000
+          },
+          "selected": {
+            "type": "array",
+            "uniqueItems": true,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "enum": [
+                "gd01_it2_b1_front110_back120",
+                "gd01_it2_b2_last130",
+                "gd01_it2_a3_reverse_step"
+              ]
+            }
+          }
+        },
+        "required": [
+          "decision",
+          "reason",
+          "selected"
+        ],
+        "additionalProperties": false
+      },
+      "steps": [
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_002/synthesis.session/step_0001",
+          "request_present": true,
+          "response_present": true,
+          "last_request_message": {
+            "role": "user",
+            "content": "Use native registered tool calls only when required evidence is missing. When ready, return one complete final JSON object, no Markdown or extra fields. Copy evidence_id strings verbatim (ev_ followed by all 20 hexadecimal characters); never shorten them. Keep each text field comfortably below its maxLength; cite evidence without repeating tables or numeric arrays. Final response schema: {\"type\":\"object\",\"properties\":{\"decision\":{\"enum\":[\"propose\",\"hold\",\"request_domain_evidence\"]},\"reason\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":3000},\"selected\":{\"type\":\"array\",\"uniqueItems\":true,\"maxItems\":3,\"items\":{\"type\":\"string\",\"enum\":[\"gd01_it2_b1_front110_back120\",\"gd01_it2_b2_last130\",\"gd01_it2_a3_reverse_step\"]}}},\"required\":[\"decision\",\"reason\",\"selected\"],\"additionalProperties\":false}"
+          },
+          "finish_reason": "tool_calls",
+          "usage": {
+            "prompt_tokens": 31006,
+            "completion_tokens": 871,
+            "total_tokens": 31877,
+            "prompt_tokens_details": {
+              "cached_tokens": 1536
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 692
+            },
+            "prompt_cache_hit_tokens": 1536,
+            "prompt_cache_miss_tokens": 29470
+          },
+          "content": "",
+          "tool_calls": [
+            {
+              "index": 0,
+              "id": "call_00_sPM4vwCbtYCLoHsKcuBP0868",
+              "type": "function",
+              "function": {
+                "name": "inspect_interval_evidence",
+                "arguments": "{\"run_id\": \"versions/GD01/6pyy_H7S_A_402/iteration_001/action_002\"}"
+              }
+            },
+            {
+              "index": 1,
+              "id": "call_01_aRjoajM48wXbFSvkxOcq9878",
+              "type": "function",
+              "function": {
+                "name": "inspect_interval_evidence",
+                "arguments": "{\"run_id\": \"calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3\"}"
+              }
+            }
+          ],
+          "parsed_reason_chars": 0,
+          "parsed_selected": null,
+          "parsed_decision": null
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_002/synthesis.session/step_0002",
+          "request_present": true,
+          "response_present": true,
+          "last_request_message": {
+            "role": "tool"
+          },
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 39642,
+            "completion_tokens": 1462,
+            "total_tokens": 41104,
+            "prompt_tokens_details": {
+              "cached_tokens": 31872
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 687
+            },
+            "prompt_cache_hit_tokens": 31872,
+            "prompt_cache_miss_tokens": 7770
+          },
+          "content": "{\"decision\":\"propose\",\"reason\":\"\u5f53\u524d\u6700\u4f18\u4e3a versions/GD01/6pyy_H7S_A_402/iteration_001/action_002\uff0c\u5b9e\u9645\u6863\u4f4d\u4e3a 100/100/120/120\uff1b\u5176\u5b8c\u6574\u79cd\u7fa4\u539f\u59cb\u5747\u503c\u4e3a 0.369903 \u00c5\uff0850 \u4e2a\u5168\u90e8\u6784\u5efa\u6210\u529f\u3001\u5168\u90e8\u8fde\u901a\u3001\u53ef\u6392\u540d\uff09\uff0c\u7edf\u4e00 110 \u4e3a 0.371253 \u00c5\uff0c100 \u4e3a 0.374676 \u00c5\uff0c90 \u4e3a 0.400938 \u00c5\uff0c120 \u4e3a 0.413226 \u00c5\uff0c\u5747\u4e3a 50 \u4eba\u53e3\u5b8c\u6574\u539f\u59cb\u5747\u503c\u3002\u73b0\u4efb\u4e0e\u7edf\u4e00 110 \u53ea\u5dee 0.00135\uff0c\u6240\u4ee5\u201c\u524d\u6bb5\u7528\u54ea\u4e2a\u6863\u4f4d\u201d\u4ecd\u672a\u88ab\u533a\u5206\uff1a\u7edf\u4e00 110 \u4f18\u4e8e\u7edf\u4e00 100\uff0c\u800c\u73b0\u4efb\u662f\u5728\u524d\u6bb5 100\u3001\u540e\u6bb5 120 \u7684\u6761\u4ef6\u4e0b\u53d6\u5f97\u7684\u3002\u636e\u6b64\uff0c\u4f18\u5148\u6d4b\u4e24\u6761\u4fdd\u7559\u540e\u6bb5 120/120 \u7684\u5019\u9009\uff0c\u8ba9\u524d\u6bb5\u53d6\u503c\u4ece 100 \u53d8\u6210 110\uff0c\u6b63\u597d\u8865\u4e0a\u8fd9\u4e2a\u672a\u6d4b\u7684\u7f3a\u5931\u7ec4\u5408\u3002\\n\\n\u9009\u4e2d gd01_it2_b1_front110_back120\uff08\u5b9e\u9645\u6863\u4f4d 110/110/120/120\uff0c2 \u683c\u300120 \u5f3a\u5ea6\uff0cfocused\uff0c\u5168\u90e8\u843d\u5728\u5df2\u786e\u8ba4\u6863\u4f4d 90\u2013120 \u5185\uff09\uff1a\u8fd9\u662f\u73b0\u6709\u4e24\u4e2a\u6700\u4f18\u5df2\u6d4b\u7247\u6bb5\u7684\u6700\u5c0f\u62fc\u63a5\uff0c\u4e5f\u662f\u552f\u4e00\u80fd\u76f4\u63a5\u5224\u65ad\u201c\u524d\u6bb5\u62ac\u56de\u7edf\u4e00\u6700\u4f18\u662f\u5426\u4ecd\u7136\u4fdd\u6301\u73b0\u4efb\u6c34\u5e73\u201d\u7684\u843d\u70b9\u3002\u9009\u4e2d gd01_it2_b2_last130\uff08\u5b9e\u9645\u6863\u4f4d 110/110/120/130\uff0c3 \u683c\u300130 \u5f3a\u5ea6\uff0cexpanded\uff09\uff1a\u6211\u8bfb\u5230\u73b0\u4efb\u7a97\u53e3 3 \u7684\u539f\u751f\u589e\u91cf\u6bd4\u53ea\u6709 0.0896\uff0c\u7aef\u70b9\u635f\u5931\u4ece 0.08972 \u5230 0.09005 \u51e0\u4e4e\u505c\u6ede\uff0c\u7a97\u53e3 2 \u4e3a 0.2333 \u4e14\u7aef\u70b9\u635f\u5931 0.08737\u21920.08985 \u5df2\u7ecf\u7565\u5fae\u56de\u5347\uff1b\u7a97\u53e3 0 \u4e3a 1.065\uff0c\u7a97\u53e3 1 \u4e3a 0.673\uff08\u56de\u6267 ev_4cf59e6416e293945f19\uff09\uff0c\u6240\u4ee5\u56db\u6bb5\u91cc\u53ea\u6709\u672b\u6bb5\u660e\u786e\u8fd8\u7559\u6709\u672a\u88ab\u4f7f\u7528\u7684\u65b9\u5411\uff0c\u628a 130 \u653e\u5728\u672b\u6bb5\u5e76\u4fdd\u6301\u7a97\u53e3 2 \u4e0d\u53d8\uff0c\u662f\u552f\u4e00\u65b0\u589e\u6863\u4f4d\u4e14\u672a\u9971\u548c\u7684\u6269\u5f20\u3002\u7edf\u4e00 110 \u7684\u7a97\u53e3\u539f\u751f\u6bd4\u503c\u5206\u5e03\u76f8\u540c\uff081.112\u30010.723\u30010.227\u30010.0841\uff0c\u56de\u6267 ev_1d1e020bbda4c587a786\uff09\u3002\u672a\u9009 gd01_it2_a3_reverse_step\uff1a\u8be5\u5019\u9009\u81ea\u5df1\u5199\u660e\u201c\u9884\u671f\u660e\u663e\u5dee\u4e8e\u73b0\u4efb\u3001\u53ea\u63d0\u4f9b\u65b9\u5411\u4fe1\u606f\u201d\uff0c\u5176\u524d\u6bb5 120/120 \u7b49\u4e8e\u6700\u5dee\u7684\u7edf\u4e00\u6863\u4f4d 0.413226\uff0c\u4e0d\u7b26\u5408\u4ee5\u8d85\u8d8a 0.369903 \u4e3a\u76ee\u6807\u7684\u9009\u62e9\u6807\u51c6\uff1b90/90/130/130 \u7684\u5c0f\u4eba\u53e3\u53d6\u8bc1\u4e3a 0.403354\uff08popoulation_20\uff0cevidence_status=smaller_population_not_rankable\uff09\uff0c\u53ea\u8bf4\u660e\u52a0\u5927\u524d\u540e\u534a\u6bb5\u5bf9\u6bd4\u6ca1\u6709\u5355\u8c03\u53d8\u597d\uff0c\u4e0d\u8db3\u4ee5\u652f\u6301\u53cd\u5411\u9636\u68af\u3002\\n\\n\u6982\u5ff5\u8bf4\u660e\uff1a\u4e0a\u8ff0\u5747\u4e3a\u539f\u59cb\u7b97\u672f\u5747\u503c\uff0c\u4e0d\u662f\u6392\u540d\u5747\u503c\uff1b\u5c0f\u4eba\u53e3\u7684 0.403354 \u4e0e 110 \u7684 90/90/130/130 \u53ea\u7b97\u6d4b\u91cf\u5305\u7edc\u5185\u7684\u4fa7\u8bc1\uff0c\u4e0d\u5f53\u4f5c\u53ef\u6392\u540d\u6210\u7ee9\u3002\u4e24\u6761\u5019\u9009\u5747\u5df2\u7531\u6267\u884c\u5668\u6838\u5bf9\u4e3a legal_unmeasured\uff08\u5408\u89c4\u672a\u6d4b\uff09\u3002\u5df2\u77e5\u672a\u786e\u8ba4\u9879\uff1a110/110/120/120 \u4e0e 110/110/120/130 \u4ece\u672a\u5b9e\u6d4b\uff1b130 \u53ea\u5728\u4f4e\u524d\u6bb5\u7ec4\u5408\u4e0b\u4fa7\u91cf\u8fc7\uff0c\u672b\u6bb5\u5355\u72ec 130 \u65e0\u76f4\u63a5\u8bc1\u636e\uff1b\u82e5\u67d0\u79cd\u7ed3\u679c\u53ea\u7531\u603b\u91cf\u800c\u975e\u524d\u540e\u6bb5\u5206\u914d\u51b3\u5b9a\uff0c\u4e24\u6761\u90fd\u4f1a\u9000\u56de\u5230\u7edf\u4e00 110 \u9644\u8fd1\u3002\"}",
+          "tool_calls": null,
+          "parsed_reason_chars": 1302,
+          "parsed_selected": null,
+          "parsed_decision": "propose"
+        },
+        {
+          "path": "versions/GD01/6pyy_H7S_A_402/advice_002/synthesis.session/step_0003",
+          "request_present": true,
+          "response_present": true,
+          "last_request_message": {
+            "role": "user",
+            "content": "Replace the entire final JSON; preserve evidence and do not invent measurements. Validation: {\"error_type\": \"ValidationError\", \"instance_pointer\": \"\", \"schema_pointer\": \"/required\", \"validator\": \"required\", \"allowed_properties\": [\"decision\", \"reason\", \"selected\"], \"missing_required_properties\": [\"selected\"], \"application_error\": \"'selected' is a required property\\n\\nFailed validating 'required' in schema:\\n    {'type': 'object',\\n     'properties': {'decision': {'enum': ['propose',\\n                                          'hold',\\n                                          'request_domain_evidence']},\\n                    'reason': {'type': 'string',\\n                               'minLength': 1,\\n                               'maxLength': 3000},\\n                    'selected': {'type': 'array',\\n                               \", \"valid_evidence_ids\": [\"ev_1d1e020bbda4c587a786\", \"ev_1d9c504322387636f7e8\", \"ev_4cf59e6416e293945f19\", \"ev_5b4dda2b3820d84e0dbb\", \"ev_744f42fcbd79ecfe20a0\", \"ev_7e24864540e9ab37e350\", \"ev_8b683076b81a11ea6ea4\", \"ev_ae2dd2323fc6481ecf4b\", \"ev_b478970304ae0703e4e1\", \"ev_e85fe5b8cb5e05494e4f\"]}"
+          },
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 41450,
+            "completion_tokens": 755,
+            "total_tokens": 42205,
+            "prompt_tokens_details": {
+              "cached_tokens": 41088
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 41088,
+            "prompt_cache_miss_tokens": 362
+          },
+          "content": "{\"decision\":\"propose\",\"reason\":\"\u5f53\u524d\u6700\u4f18\u4e3a versions/GD01/6pyy_H7S_A_402/iteration_001/action_002\uff0c\u5b9e\u9645\u6863\u4f4d\u4e3a 100/100/120/120\uff1b\u5176\u5b8c\u6574\u4eba\u53e3\u539f\u59cb\u5747\u503c\u4e3a 0.369903 \u00c5\uff0850/50 \u6784\u5efa\u300150/50 \u8fde\u901a\u3001\u53ef\u6392\u540d\uff09\uff0c\u7edf\u4e00 110 \u4e3a 0.371253 \u00c5\u3001100 \u4e3a 0.374676 \u00c5\u300190 \u4e3a 0.400938 \u00c5\u3001120 \u4e3a 0.413226 \u00c5\uff0c\u5747\u4e3a 50 \u4eba\u53e3\u5b8c\u6574\u539f\u59cb\u5747\u503c\u3002\u73b0\u4efb\u4e0e\u7edf\u4e00 110 \u53ea\u5dee 0.00135\uff0c\u8bf4\u660e\u201c\u524d\u6bb5\u8be5\u7528\u54ea\u4e2a\u6863\u4f4d\u201d\u4ecd\u672a\u88ab\u533a\u5206\uff1a\u7edf\u4e00 110 \u4f18\u4e8e\u7edf\u4e00 100\uff0c\u800c\u73b0\u4efb\u662f\u5728\u524d\u6bb5 100\u3001\u540e\u6bb5 120 \u4e0b\u53d6\u5f97\u7684\u3002\u636e\u6b64\u4f18\u5148\u6d4b\u4e24\u6761\u4fdd\u7559\u540e\u6bb5 120/120 \u7684\u5019\u9009\uff0c\u8ba9\u524d\u6bb5\u4ece 100 \u53d8\u5230 110\uff0c\u6b63\u597d\u8865\u4e0a\u8fd9\u4e2a\u672a\u6d4b\u7ec4\u5408\u3002\\n\\n\u9009\u4e2d gd01_it2_b1_front110_back120\uff08\u5b9e\u9645\u6863\u4f4d 110/110/120/120\uff0c2 \u683c 20 \u5f3a\u5ea6\uff0cfocused\uff0c\u5168\u90e8\u843d\u5728\u5df2\u786e\u8ba4\u6863\u4f4d 90\u2013120 \u5185\uff09\uff1a\u8fd9\u662f\u73b0\u6709\u4e24\u4e2a\u6700\u4f18\u5df2\u6d4b\u7247\u6bb5\u7684\u6700\u5c0f\u62fc\u63a5\uff0c\u4e5f\u662f\u76f4\u63a5\u5224\u65ad\u201c\u524d\u6bb5\u62ac\u56de\u7edf\u4e00\u6700\u4f18\u662f\u5426\u4ecd\u4fdd\u6301\u73b0\u4efb\u6c34\u5e73\u201d\u7684\u843d\u70b9\u3002\u9009\u4e2d gd01_it2_b2_last130\uff08\u5b9e\u9645\u6863\u4f4d 110/110/120/130\uff0c3 \u683c 30 \u5f3a\u5ea6\uff0cexpanded\uff09\uff1a\u6211\u8bfb\u5230\u73b0\u4efb\u7a97\u53e3 3 \u7684\u539f\u751f\u589e\u91cf\u6bd4\u4ec5 0.0896\uff0c\u7aef\u70b9\u635f\u5931 0.08972\u21920.09005 \u51e0\u4e4e\u505c\u6ede\uff0c\u7a97\u53e3 2 \u4e3a 0.2333 \u4e14\u7aef\u70b9\u635f\u5931 0.08737\u21920.08985 \u5df2\u7565\u56de\u5347\uff0c\u7a97\u53e3 0 \u4e3a 1.065\u3001\u7a97\u53e3 1 \u4e3a 0.673\uff08\u56de\u6267 ev_4cf59e6416e293945f19\uff09\uff0c\u56db\u6bb5\u4e2d\u53ea\u6709\u672b\u6bb5\u660e\u786e\u7559\u6709\u672a\u7528\u4f59\u5730\uff1b\u7edf\u4e00 110 \u7684\u5206\u5e03\u76f8\u540c\uff081.112\u30010.723\u30010.227\u30010.0841\uff0c\u56de\u6267 ev_1d1e020bbda4c587a786\uff09\uff0c\u56e0\u6b64\u628a\u552f\u4e00\u65b0\u589e\u6863\u4f4d 130 \u653e\u5728\u672b\u6bb5\u5e76\u4fdd\u6301\u7a97\u53e3 2 \u4e0d\u53d8\uff0c\u662f\u672c\u8f6e\u552f\u4e00\u672a\u9971\u548c\u7684\u6269\u5f20\u3002\\n\\n\u672a\u9009 gd01_it2_a3_reverse_step\uff1a\u8be5\u5019\u9009\u81ea\u8ff0\u201c\u9884\u671f\u660e\u663e\u5dee\u4e8e\u73b0\u4efb\u3001\u53ea\u63d0\u4f9b\u65b9\u5411\u4fe1\u606f\u201d\uff0c\u5176\u524d\u6bb5 120/120 \u7b49\u4e8e\u6700\u5dee\u7edf\u4e00\u6863\u4f4d 0.413226\uff0c\u4e0d\u7b26\u5408\u4ee5\u8d85\u8d8a 0.369903 \u4e3a\u76ee\u6807\u7684\u9009\u62e9\u6807\u51c6\uff1b90/90/130/130 \u7684\u5c0f\u4eba\u53e3\u53d6\u8bc1\u4e3a 0.403354\uff08population_20\uff0cevidence_status=smaller_population_not_rankable\uff09\uff0c\u53ea\u8bf4\u660e\u52a0\u5927\u524d\u540e\u534a\u6bb5\u5bf9\u6bd4\u5e76\u672a\u5355\u8c03\u53d8\u597d\uff0c\u4e0d\u8db3\u4ee5\u652f\u6301\u53cd\u5411\u9636\u68af\u3002\\n\\n\u53e3\u5f84\u8bf4\u660e\uff1a\u4ee5\u4e0a\u5747\u4e3a\u539f\u59cb\u7b97\u672f\u5747\u503c\u800c\u975e\u6392\u540d\u5747\u503c\uff1b0.403354 \u4e3a\u5c0f\u4eba\u53e3\u3001\u4ec5\u6d4b\u91cf\u5305\u7edc\u4fa7\u8bc1\uff0c\u4e0d\u5f53\u4f5c\u53ef\u6392\u540d\u6210\u7ee9\u3002\u4e24\u6761\u5019\u9009\u5df2\u7531\u6267\u884c\u5668\u6838\u5bf9\u4e3a legal_unmeasured\uff08\u5408\u89c4\u672a\u6d4b\uff09\uff0c\u672a\u865a\u6784\u4efb\u4f55\u6210\u7ee9\u3002\u5df2\u77e5\u672a\u786e\u8ba4\u9879\uff1a110/110/120/120 \u4e0e 110/110/120/130 \u4ece\u672a\u5b9e\u6d4b\uff1b130 \u53ea\u5728\u4f4e\u524d\u6bb5\u7ec4\u5408\u4e0b\u88ab\u4fa7\u91cf\uff0c\u672b\u6bb5\u5355\u72ec 130 \u65e0\u76f4\u63a5\u8bc1\u636e\uff1b\u82e5\u7ed3\u679c\u7531\u603b\u91cf\u800c\u975e\u524d\u540e\u6bb5\u5206\u914d\u4e3b\u5bfc\uff0c\u4e24\u6761\u90fd\u53ef\u80fd\u9000\u56de\u5230\u7edf\u4e00 110 \u9644\u8fd1\u3002\"}",
+          "tool_calls": null,
+          "parsed_reason_chars": 1256,
+          "parsed_selected": null,
+          "parsed_decision": "propose"
+        }
+      ]
+    }
+  ],
+  "scientific_budget": {
+    "calibration": 260,
+    "formal": 100
+  },
+  "fixed_commit": "072e6f7831bd91b398f7e1cbd65f4725268ec9f4",
+  "no_retry": true,
+  "source_hashes": {
+    "linear_council.py": "b0453c81de19196a2ca5ae9eb7b64986552322a8c56caaa35de3dad3830a7104",
+    "linear_scale.py": "1b89536570c7a24f1bfe536e55576d02a8e2efb0f97da61f535e98651c8b658c",
+    "linear_runtime.py": "f113526432939306b65a8e3c39c365d718da47c6e8b69cef13feaec02f569be7"
+  }
+}
