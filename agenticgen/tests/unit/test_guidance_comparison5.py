@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 import httpx
@@ -186,7 +187,10 @@ def test_durable_mirror_keeps_safe_terminal_and_excludes_launcher(tmp_path):
     assert read(target / "MIRROR_STATE.json")["output.pt.gz"]["sha256"] == sha(
         source / "output.pt.gz"
     )
+    old_mtime = (source / "aggregate.json").stat().st_mtime_ns
     (source / "aggregate.json").write_bytes(b"updated")
+    # NFS can expose identical size/mtime after a same-length rewrite.
+    os.utime(source / "aggregate.json", ns=(old_mtime, old_mtime))
     module.mirror(source, target)
     assert (target / "aggregate.json").read_bytes() == b"updated"
     with pytest.raises(ValueError, match="outside"):

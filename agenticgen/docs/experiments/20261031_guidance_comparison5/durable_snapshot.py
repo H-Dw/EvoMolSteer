@@ -40,7 +40,10 @@ def mirror(source, destination):
         relative = path.relative_to(source).as_posix()
         before = path.stat()
         signature = dict(size=before.st_size, mtime_ns=before.st_mtime_ns)
-        if all(state.get(relative, {}).get(k) == v for k, v in signature.items()):
+        previous = state.get(relative, {})
+        if all(previous.get(k) == v for k, v in signature.items()) and sha(
+            path
+        ) == previous.get("sha256"):
             continue
         if shutil.disk_usage(destination).free < before.st_size + (64 << 20):
             raise OSError("Insufficient NFS space for the next durable artifact")
