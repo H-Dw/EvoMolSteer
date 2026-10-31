@@ -57,3 +57,10 @@ UG04 串行调度保持：逻辑组 50，网络前向/VJP 固定 10 行、默认
 全部任务完成或保留终态失败后，实际读取所有教师的标定、五轮 checkpoint、prompt/参数/选择/回执、原始及排名 RMSD、化学保持、构建/连通/唯一性和 10/50 诊断；按教师配对比较三策略，明确不完整任务和历史与本次消耗。下载安全结果/审计，完成真实主 GPT 复盘并提交推送，FINALIZED 绑定实际复盘和源哈希。仅在队列空闲、路径与进程归属确认后停止本次 CPU worker，再删除本次专属巡检；不动其他自动化。
 
 凭据和 API 密钥不打印、不写入仓库/自动化；交互环境 launcher.log 仅留远端。中文 UTF-8，自动化读回以 JSON ensure_ascii=true 验证无 Unicode 替换字符。GitHub 异常依次直连、ghfast.top、gh-proxy.com、ghproxy.net、gh.llkk.cc，均不可用才用已验证且仅含已推送提交的 Git bundle。
+
+
+## 2026-10-31 终态复盘
+
+六任务已在固定072e6f78执行代码上全部尝试：baseline双教师、prefix_joint 3w54与five_windows 6pyy完成五轮；prefix_joint 6pyy完成一轮后、five_windows 3w54在首轮选点前，均因真实LLM两次缺必填selected而停止。实际schema已发送，3k上限生效，不属于授权自动重跑的接口遗漏。旧失败和预算保留，未扩额或补样。实际科学消耗1640标定（含范围）+2150正式，共3790，保存分片行数一致。
+
+[最终主GPT复盘](final_review.zh-CN.md)与[完整机器读数](monitoring/20261031_2017/final_facts.json)记录部分完成、配对比较、实际prompt/动作、化学保留及10/50质量。后续FINALIZED与进程/自动化清理以launch_audit.json和对应收尾回执为准，不部署本文档提交到固定执行目录。

@@ -1,0 +1,222 @@
+[
+  {
+    "job": "03_prefix_joint_6pyy",
+    "folder": "versions/GD01/6pyy_H7S_A_402/advice_002",
+    "failed": {
+      "error_type": "SessionStopped",
+      "step": 3,
+      "preserved_transcript": true,
+      "automatic_restart": false
+    },
+    "required": [
+      "decision",
+      "reason",
+      "selected"
+    ],
+    "actual_request_schema_transmitted": true,
+    "responses": [
+      {
+        "path": "versions/GD01/6pyy_H7S_A_402/advice_002/synthesis.session/step_0002/RESPONSE.json",
+        "sha256": "51762451c57cce06ae12f9d737fd3c980d3eaba1289c8af3da7c36dde8b3a90c",
+        "id": "2adf24cd-ff39-4352-8c18-3eb9d06929e6",
+        "usage": {
+          "prompt_tokens": 39642,
+          "completion_tokens": 1462,
+          "total_tokens": 41104,
+          "prompt_tokens_details": {
+            "cached_tokens": 31872
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 687
+          },
+          "prompt_cache_hit_tokens": 31872,
+          "prompt_cache_miss_tokens": 7770
+        },
+        "finish_reason": "stop",
+        "parsed_response": {
+          "decision": "propose",
+          "reason": "当前最优为 versions/GD01/6pyy_H7S_A_402/iteration_001/action_002，实际档位为 100/100/120/120；其完整种群原始均值为 0.369903 Å（50 个全部构建成功、全部连通、可排名），统一 110 为 0.371253 Å，100 为 0.374676 Å，90 为 0.400938 Å，120 为 0.413226 Å，均为 50 人口完整原始均值。现任与统一 110 只差 0.00135，所以“前段用哪个档位”仍未被区分：统一 110 优于统一 100，而现任是在前段 100、后段 120 的条件下取得的。据此，优先测两条保留后段 120/120 的候选，让前段取值从 100 变成 110，正好补上这个未测的缺失组合。\n\n选中 gd01_it2_b1_front110_back120（实际档位 110/110/120/120，2 格、20 强度，focused，全部落在已确认档位 90–120 内）：这是现有两个最优已测片段的最小拼接，也是唯一能直接判断“前段抬回统一最优是否仍然保持现任水平”的落点。选中 gd01_it2_b2_last130（实际档位 110/110/120/130，3 格、30 强度，expanded）：我读到现任窗口 3 的原生增量比只有 0.0896，端点损失从 0.08972 到 0.09005 几乎停滞，窗口 2 为 0.2333 且端点损失 0.08737→0.08985 已经略微回升；窗口 0 为 1.065，窗口 1 为 0.673（回执 ev_4cf59e6416e293945f19），所以四段里只有末段明确还留有未被使用的方向，把 130 放在末段并保持窗口 2 不变，是唯一新增档位且未饱和的扩张。统一 110 的窗口原生比值分布相同（1.112、0.723、0.227、0.0841，回执 ev_1d1e020bbda4c587a786）。未选 gd01_it2_a3_reverse_step：该候选自己写明“预期明显差于现任、只提供方向信息”，其前段 120/120 等于最差的统一档位 0.413226，不符合以超越 0.369903 为目标的选择标准；90/90/130/130 的小人口取证为 0.403354（popoulation_20，evidence_status=smaller_population_not_rankable），只说明加大前后半段对比没有单调变好，不足以支持反向阶梯。\n\n概念说明：上述均为原始算术均值，不是排名均值；小人口的 0.403354 与 110 的 90/90/130/130 只算测量包络内的侧证，不当作可排名成绩。两条候选均已由执行器核对为 legal_unmeasured（合规未测）。已知未确认项：110/110/120/120 与 110/110/120/130 从未实测；130 只在低前段组合下侧量过，末段单独 130 无直接证据；若某种结果只由总量而非前后段分配决定，两条都会退回到统一 110 附近。"
+        },
+        "missing_required": [
+          "selected"
+        ],
+        "text_lengths": [
+          1302
+        ],
+        "local_schema_errors": [
+          "'selected' is a required property"
+        ]
+      },
+      {
+        "path": "versions/GD01/6pyy_H7S_A_402/advice_002/synthesis.session/step_0003/RESPONSE.json",
+        "sha256": "aaf20eb3147d1ba4cbfa96881e2014c0e7183c8f6a6e1259c53982c02a4fa18c",
+        "id": "c2e4b7d4-0c51-4e27-ac54-25d240b40ed6",
+        "usage": {
+          "prompt_tokens": 41450,
+          "completion_tokens": 755,
+          "total_tokens": 42205,
+          "prompt_tokens_details": {
+            "cached_tokens": 41088
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "prompt_cache_hit_tokens": 41088,
+          "prompt_cache_miss_tokens": 362
+        },
+        "finish_reason": "stop",
+        "parsed_response": {
+          "decision": "propose",
+          "reason": "当前最优为 versions/GD01/6pyy_H7S_A_402/iteration_001/action_002，实际档位为 100/100/120/120；其完整人口原始均值为 0.369903 Å（50/50 构建、50/50 连通、可排名），统一 110 为 0.371253 Å、100 为 0.374676 Å、90 为 0.400938 Å、120 为 0.413226 Å，均为 50 人口完整原始均值。现任与统一 110 只差 0.00135，说明“前段该用哪个档位”仍未被区分：统一 110 优于统一 100，而现任是在前段 100、后段 120 下取得的。据此优先测两条保留后段 120/120 的候选，让前段从 100 变到 110，正好补上这个未测组合。\n\n选中 gd01_it2_b1_front110_back120（实际档位 110/110/120/120，2 格 20 强度，focused，全部落在已确认档位 90–120 内）：这是现有两个最优已测片段的最小拼接，也是直接判断“前段抬回统一最优是否仍保持现任水平”的落点。选中 gd01_it2_b2_last130（实际档位 110/110/120/130，3 格 30 强度，expanded）：我读到现任窗口 3 的原生增量比仅 0.0896，端点损失 0.08972→0.09005 几乎停滞，窗口 2 为 0.2333 且端点损失 0.08737→0.08985 已略回升，窗口 0 为 1.065、窗口 1 为 0.673（回执 ev_4cf59e6416e293945f19），四段中只有末段明确留有未用余地；统一 110 的分布相同（1.112、0.723、0.227、0.0841，回执 ev_1d1e020bbda4c587a786），因此把唯一新增档位 130 放在末段并保持窗口 2 不变，是本轮唯一未饱和的扩张。\n\n未选 gd01_it2_a3_reverse_step：该候选自述“预期明显差于现任、只提供方向信息”，其前段 120/120 等于最差统一档位 0.413226，不符合以超越 0.369903 为目标的选择标准；90/90/130/130 的小人口取证为 0.403354（population_20，evidence_status=smaller_population_not_rankable），只说明加大前后半段对比并未单调变好，不足以支持反向阶梯。\n\n口径说明：以上均为原始算术均值而非排名均值；0.403354 为小人口、仅测量包络侧证，不当作可排名成绩。两条候选已由执行器核对为 legal_unmeasured（合规未测），未虚构任何成绩。已知未确认项：110/110/120/120 与 110/110/120/130 从未实测；130 只在低前段组合下被侧量，末段单独 130 无直接证据；若结果由总量而非前后段分配主导，两条都可能退回到统一 110 附近。"
+        },
+        "missing_required": [
+          "selected"
+        ],
+        "text_lengths": [
+          1256
+        ],
+        "local_schema_errors": [
+          "'selected' is a required property"
+        ]
+      }
+    ],
+    "repair_diagnostics": [
+      {
+        "error_type": "ValidationError",
+        "instance_pointer": "",
+        "schema_pointer": "/required",
+        "validator": "required",
+        "allowed_properties": [
+          "decision",
+          "reason",
+          "selected"
+        ],
+        "missing_required_properties": [
+          "selected"
+        ],
+        "application_error": "'selected' is a required property\n\nFailed validating 'required' in schema:\n    {'type': 'object',\n     'properties': {'decision': {'enum': ['propose',\n                                          'hold',\n                                          'request_domain_evidence']},\n                    'reason': {'type': 'string',\n                               'minLength': 1,\n                               'maxLength': 3000},\n                    'selected': {'type': 'array',\n                               ",
+        "valid_evidence_ids": [
+          "ev_1d1e020bbda4c587a786",
+          "ev_1d9c504322387636f7e8",
+          "ev_4cf59e6416e293945f19",
+          "ev_5b4dda2b3820d84e0dbb",
+          "ev_744f42fcbd79ecfe20a0",
+          "ev_7e24864540e9ab37e350",
+          "ev_8b683076b81a11ea6ea4",
+          "ev_ae2dd2323fc6481ecf4b",
+          "ev_b478970304ae0703e4e1",
+          "ev_e85fe5b8cb5e05494e4f"
+        ]
+      }
+    ],
+    "not_authorized_for_automatic_replay": true
+  },
+  {
+    "job": "06_five_windows_3w54",
+    "folder": "versions/GD01/3w54_RNB_A_504/advice_001",
+    "failed": {
+      "error_type": "SessionStopped",
+      "step": 3,
+      "preserved_transcript": true,
+      "automatic_restart": false
+    },
+    "required": [
+      "decision",
+      "reason",
+      "selected"
+    ],
+    "actual_request_schema_transmitted": true,
+    "responses": [
+      {
+        "path": "versions/GD01/3w54_RNB_A_504/advice_001/synthesis.session/step_0002/RESPONSE.json",
+        "sha256": "69f8ab704ae6c8616664cad46925f90b19766f4812cead064ff17f96ed5357e3",
+        "id": "5f6427fe-c652-4e3e-aaba-8d087fff21c5",
+        "usage": {
+          "prompt_tokens": 37956,
+          "completion_tokens": 570,
+          "total_tokens": 38526,
+          "prompt_tokens_details": {
+            "cached_tokens": 33664
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 42
+          },
+          "prompt_cache_hit_tokens": 33664,
+          "prompt_cache_miss_tokens": 4292
+        },
+        "finish_reason": "stop",
+        "parsed_response": {
+          "decision": "propose",
+          "reason": "完整人口按原始算术均值（条件坐标 RMSD，上尾过滤均值与原始均值相同、零剔除）排序已测均匀强度：90 = 0.27924（最优、现任，50 次尝试 / 50 次测量 / 1 次构建失败）< 100 = 0.33535（50/50 建成）< 110 = 0.37387（48 建成）< 80 = 0.38432。小人口 10 与 20 复现同一顺序，说明均匀维度最优点在 90 附近，且尚无任何配置逐窗口独立变化。诊断显示在现任配置下第 0 窗口仍有最大的原生归一化增量与最大单原子位移（约 5.8 Å 级），而尾部窗口增量远低于原生位移、端点损失在若干邻近运行中偏高；因此非均匀排布是当前最主要的未测机会。据此选择三条：一条聚焦方案在已确认常强 80/90/100 之间做 [-1,0,0,0,+1] 微调（解为 [80,90,90,90,100]，2 tick），直接沿用上述非对称信号且风险最低；一条扩张方案只用已确认常强，保持前两窗口为现任 90、把后三窗口提到 110（解为 [90,90,110,110,110]，6 tick），因为均匀 110 的退化同时伴随第 0 窗口被推到极端单原子增量，去掉早期提升的 110 属于真正未测区域；一条大胆方案从现任重排 9 tick 得到 [60,90,120,90,120]，覆盖最宽的跨窗口不对称方向，用于检验最优是否强烈非均匀，避免只在窄邻域内反复试探。三条均已通过 legality 审计为 legal_unmeasured（回执 ev_7c6dbae38fdb17dca627），锚点、随机流与 raw999 保持不变；大胆方案使用 60 与 120 超出已确认常强，消耗两次范围取证配置之一。未选中从 100 锚点交叉重排的路径，原因是它在已测更差锚点上叠加三处同时改动、且仅在覆盖上与上述 110 尾部方案重叠。位移诊断仅为实验前证据，不用于排名，也不声称原子身份或化学身份被保持；初始对应偏差与终态再匹配几何偏差分别报告。"
+        },
+        "missing_required": [
+          "selected"
+        ],
+        "text_lengths": [
+          846
+        ],
+        "local_schema_errors": [
+          "'selected' is a required property"
+        ]
+      },
+      {
+        "path": "versions/GD01/3w54_RNB_A_504/advice_001/synthesis.session/step_0003/RESPONSE.json",
+        "sha256": "abdb4690b550b49094199c373aa51e22bb2bc2b1656b1a33fd377b8fefca4c3f",
+        "id": "e0628ad5-db17-48dd-9b30-7918556a6c0f",
+        "usage": {
+          "prompt_tokens": 38808,
+          "completion_tokens": 510,
+          "total_tokens": 39318,
+          "prompt_tokens_details": {
+            "cached_tokens": 38400
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "prompt_cache_hit_tokens": 38400,
+          "prompt_cache_miss_tokens": 408
+        },
+        "finish_reason": "stop",
+        "parsed_response": {
+          "decision": "propose",
+          "reason": "完整人口按原始算术均值（条件坐标 RMSD；上尾过滤均值与原始均值一致、零剔除）排序已测均匀强度：90 = 0.27924（最优、现任，50 次尝试 / 50 次测量 / 1 次构建失败）< 100 = 0.33535（50/50 建成）< 110 = 0.37387（48 建成）< 80 = 0.38432。小人口 10 与 20 复现同一顺序，说明均匀维度最优点在 90 附近，且尚无任何配置逐窗口独立变化。诊断显示在现任配置下第 0 窗口仍有最大的原生归一化增量与最大单原子位移，而尾部窗口增量远低于原生位移、端点损失在若干邻近运行中偏高；因此非均匀排布是当前最主要的未测机会。据此选择三条：一条聚焦方案只在已确认常强 80/90/100 之间做 [-1,0,0,0,+1] 微调（解为 [80,90,90,90,100]，2 tick），直接沿用上述非对称信号且风险最低；一条扩张方案只用已确认常强，保持前两窗口为现任 90、把后三窗口提到 110（解为 [90,90,110,110,110]，6 tick），因为均匀 110 的退化同时伴随第 0 窗口被推到极端单原子增量，去掉早期提升的 110 属于真正未测区域；一条大胆方案从现任重排 9 tick 得到 [60,90,120,90,120]，覆盖最宽的跨窗口不对称方向，避免只在窄邻域内反复试探。三条均已通过合法性审计为 legal_unmeasured（回执 ev_7c6dbae38fdb17dca627），锚点、随机流与 raw999 保持不变；大胆方案使用 60 与 120 超出已确认常强，消耗两次范围取证配置之一。未选中从 100 锚点交叉重排的路径，原因是它在已测更差锚点上叠加三处同时改动、且覆盖方向与上述 110 尾部方案重叠。位移诊断仅为实验前证据，不用于排名；不声称原子身份或化学身份被保持，初始对应偏差与终态再匹配几何偏差分别报告。"
+        },
+        "missing_required": [
+          "selected"
+        ],
+        "text_lengths": [
+          813
+        ],
+        "local_schema_errors": [
+          "'selected' is a required property"
+        ]
+      }
+    ],
+    "repair_diagnostics": [
+      {
+        "error_type": "ValidationError",
+        "instance_pointer": "",
+        "schema_pointer": "/required",
+        "validator": "required",
+        "allowed_properties": [
+          "decision",
+          "reason",
+          "selected"
+        ],
+        "missing_required_properties": [
+          "selected"
+        ],
+        "application_error": "'selected' is a required property\n\nFailed validating 'required' in schema:\n    {'type': 'object',\n     'properties': {'decision': {'enum': ['propose',\n                                          'hold',\n                                          'request_domain_evidence']},\n                    'reason': {'type': 'string',\n                               'minLength': 1,\n                               'maxLength': 3000},\n                    'selected': {'type': 'array',\n                               ",
+        "valid_evidence_ids": [
+          "ev_291e34ad133f19b0beb2",
+          "ev_5316f5ae272b7c8db452",
+          "ev_7c6dbae38fdb17dca627",
+          "ev_d8959de597dde03d44a5",
+          "ev_e0e8914e1c9e09d488af",
+          "ev_fe3f1104ff27e25ba8ae"
+        ]
+      }
+    ],
+    "not_authorized_for_automatic_replay": true
+  }
+]
