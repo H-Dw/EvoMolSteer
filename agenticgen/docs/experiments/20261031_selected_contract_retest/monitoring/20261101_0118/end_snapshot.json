@@ -1,0 +1,283 @@
+{
+  "timestamp": "2026-11-01T01:26:05.238264+08:00",
+  "timezone": "Asia/Shanghai",
+  "plan_sha256": "cb928fd55d658253d79a4ea45ffb8e8272faec7e3735d1ec37889d9ebb0adb09",
+  "commit": "78e6e1803758f7016a2568b00176eaaa27ef6dc4",
+  "actual_commit": "78e6e1803758f7016a2568b00176eaaa27ef6dc4",
+  "tracked_checkout_clean": true,
+  "runtime_source_changed": [],
+  "status": {
+    "timestamp": "2026-11-01T01:24:24.495473+08:00",
+    "job_id": "06_five_windows_3w54",
+    "stage": "calibrate",
+    "status": "running",
+    "child_pid": 124395,
+    "command": [
+      "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+      "-u",
+      "/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180/agenticgen/scripts/run_uniguide_geometry.py",
+      "--config",
+      "/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180-configs/06_five_windows_3w54.json",
+      "calibrate"
+    ],
+    "log": "/workspace/agenticgen_guidance_selected_retest_20261031/logs/06_five_windows_3w54/calibrate.log",
+    "root": "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/06_five_windows_3w54/attempt_002"
+  },
+  "heartbeat": {
+    "timestamp": "2026-11-01T01:25:47.338254+08:00",
+    "job_id": "06_five_windows_3w54",
+    "stage": "calibrate",
+    "status": "running",
+    "child_pid": 124395,
+    "command": [
+      "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+      "-u",
+      "/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180/agenticgen/scripts/run_uniguide_geometry.py",
+      "--config",
+      "/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180-configs/06_five_windows_3w54.json",
+      "calibrate"
+    ],
+    "log": "/workspace/agenticgen_guidance_selected_retest_20261031/logs/06_five_windows_3w54/calibrate.log",
+    "root": "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/06_five_windows_3w54/attempt_002",
+    "child_alive": true
+  },
+  "processes": [
+    {
+      "pid": 103422,
+      "state": "S",
+      "parent_pid": 1,
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py --plan /workspace/agenticgen_guidance_selected_retest_20261031/PLAN.json "
+    },
+    {
+      "pid": 110022,
+      "state": "S",
+      "parent_pid": 103422,
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -m agenticgen.uniguide.quality_queue --runtime /workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/runtime.json "
+    },
+    {
+      "pid": 124395,
+      "state": "S",
+      "parent_pid": 103422,
+      "command": "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python -u /root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180/agenticgen/scripts/run_uniguide_geometry.py --config /root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180-configs/06_five_windows_3w54.json calibrate "
+    },
+    {
+      "pid": 125206,
+      "state": "S",
+      "parent_pid": 125204,
+      "command": "bash -c python - <<'PY'\nimport json,subprocess,shutil\nfrom pathlib import Path\nr=Path('/workspace/agenticgen_guidance_selected_retest_20261031');repo='/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180'\np=subprocess.run(['python',repo+'/agenticgen/docs/experiments/20261031_selected_contract_retest/inspect_suite.py','--plan',str(r/'PLAN.json')],capture_output=True,text=True)\nassert p.returncode==0,p.stderr[-1500:]\nd=json.loads(p.stdout);shutil.copyfile(d['snapshot'],r/'monitoring/20261101_0118/end_snapshot.json')\nprint(json.dumps({'timestamp':d['timestamp'],'snapshot':d['snapshot'],'stage':d['status'],'commit':d['actual_commit'],'clean':d['tracked_checkout_clean'],'runtime_changes':d['runtime_source_changed'],'protected_files':d['preserved_files'],'protected_changes':d['protected_files_changed'],'suite_lock':d['suite_lock'],'global_lock':d['global_executor_lock'],'jobs':[{k:j[k] for k in ['id','configuration_hash_matches','acceptance_complete','reserved_attempts','completed_rounds','actual_http_responses','failed','quality_status']}|{'last_progress':j['progress'][-1:] } for j in d['jobs']],'suite_finished':d['suite_finished']},ensure_ascii=True))\nPY "
+    }
+  ],
+  "suite_lock": "held",
+  "global_executor_lock": "held",
+  "preserved_files": 23175,
+  "protected_files_changed": [],
+  "jobs": [
+    {
+      "id": "03_prefix_joint_6pyy",
+      "experiment": "prefix_joint",
+      "teacher": "6pyy_H7S_A_402",
+      "rounds": 5,
+      "skill_release": "2.8.2",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002",
+      "result": {
+        "job_id": "03_prefix_joint_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/fa9e69c2518806c0bcf8f4fbbaf24d7f58b521b516c407a14a93437fa733670f/population_50",
+            "range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_001/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_001/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-11-01T01:12:31.228544+08:00"
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/.worker.lock": "held"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "6pyy_H7S_A_402"
+      ],
+      "reserved_attempts": {
+        "calibration": 340,
+        "formal": 350
+      },
+      "completed_rounds": 5,
+      "llm_role_receipts": 12,
+      "actual_http_responses": 38,
+      "progress": [
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793465772298227125/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793465842.6777925
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793465845606341095/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793465950.034731
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793465954787386036/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793466023.5589473
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793466026170674876/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793466128.708948
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793466252143977986/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793466424.8607266
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793466527222606894/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793466700.227288
+          }
+        }
+      ],
+      "sampling_finished": {
+        "timestamp": "2026-11-01T01:12:21.392720+08:00",
+        "rounds": 5,
+        "source_sha256": "0a22aaee83da173f2b872867e6edd1314e59b880425e3b563042544c83abbac0"
+      },
+      "failed": null,
+      "quality_worker": {
+        "pid": 110022,
+        "log": "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/quality_queue/worker_1793464872206673316.log",
+        "started_unix": 1793464872.2577538,
+        "workers": 2,
+        "device": "cpu",
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10,
+        "module_directory": "/root/private_data/uniguide_selected_retest_20261031/runs/selected-78e6e180/agenticgen/src/agenticgen/uniguide",
+        "implementation_sha256": {
+          "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+          "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+          "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+        }
+      },
+      "quality_status": {
+        "pid": 110022,
+        "unix": 1793467562.887032,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "latest_log": "/workspace/agenticgen_guidance_selected_retest_20261031/logs/03_prefix_joint_6pyy/formal.log",
+      "stage_log_tail": "ion_004/action_001\", \"best_compatible_performance\": 0.35801614105701446}, \"checkpoint_learning\": {\"policy\": \"two-consecutive-round-declines-rebase-best-v1\", \"rebase_from_best_checkpoint\": false, \"best_checkpoint_id\": \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_001\", \"best_checkpoint_actual_schedule\": [110, 120, 130, 130], \"best_checkpoint_performance\": 0.35801614105701446, \"consecutive_declines\": 0, \"unsuccessful_recent_paths\": [], \"instruction\": \"Learn all completed results and seek promising paths beyond the current best.\"}}], \"strategy_contexts\": [\"/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"manifest_sha256\": \"a5d4c964281adcdcc7aa0a74748b0e7deec360d69ef7043da9042485cb6585ae\", \"complete\": true, \"missing_teachers\": [], \"all_available_teachers_processed\": true, \"configured_rounds\": 5, \"completed_rounds\": 5, \"requested_groups\": 10, \"measured_or_reused_groups\": 9, \"held_rounds\": 0, \"quality_source_groups\": [\"range_evidence/6pyy_H7S_A_402/fa9e69c2518806c0bcf8f4fbbaf24d7f58b521b516c407a14a93437fa733670f/population_50\", \"range_evidence/6pyy_H7S_A_402/fe7c6c8a791032ee555beb8a31d6a4f8bfd7e556bc14efcee47bc5828d02c521/population_50\", \"versions/GD01/6pyy_H7S_A_402/iteration_001/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_001/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_005/action_002\"]}, \"previous\": null, \"best_version_by_teacher\": {\"6pyy_H7S_A_402\": \"GD01\"}, \"measured_initials\": {\"6pyy_H7S_A_402\": \"calibration/frozen/8753c4a9aaaf1816fe5cf1acc80af36360a9d396da440d9afbcb7afe03d2cebe/population_50/9bdb2af6799204a299c603994b8e400e4b1fd625efdb74066cc869fee42c9df3\"}, \"next_version\": \"GD02\", \"strategy_contexts\": [\"/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_selected_retest_20261031/jobs/03_prefix_joint_6pyy/attempt_002/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"requires_actual_main_agent_review\": true}\n"
+    },
+    {
+      "id": "06_five_windows_3w54",
+      "experiment": "five_windows",
+      "teacher": "3w54_RNB_A_504",
+      "rounds": 5,
+      "skill_release": "2.8.2",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/06_five_windows_3w54/attempt_002",
+      "result": null,
+      "locks": {
+        "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/06_five_windows_3w54/attempt_002/.executor.lock": "held",
+        "/workspace/agenticgen_guidance_selected_retest_20261031/jobs/06_five_windows_3w54/attempt_002/quality_queue/.worker.lock": "absent"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [],
+      "reserved_attempts": {
+        "calibration": 20,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "llm_role_receipts": 0,
+      "actual_http_responses": 0,
+      "progress": [
+        {
+          "path": "acceptance/3w54_RNB_A_504/candidate_batch/mixed_resumed/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793467174.952031
+          }
+        },
+        {
+          "path": "acceptance/3w54_RNB_A_504/candidate_batch/capacity_50/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793467381.1404607
+          }
+        },
+        {
+          "path": "acceptance/3w54_RNB_A_504/candidate_batch/uncapped_large_increment/progress.json",
+          "value": {
+            "step_completed": 10,
+            "unix": 1793467405.984913
+          }
+        },
+        {
+          "path": "acceptance/3w54_RNB_A_504/candidate_batch/nonfinite_isolation/progress.json",
+          "value": {
+            "step_completed": 10,
+            "unix": 1793467430.4339628
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793467494032875937/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793467541.5193293
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793467542935459486/progress.json",
+          "value": {
+            "step_completed": 40,
+            "unix": 1793467564.352435
+          }
+        }
+      ],
+      "sampling_finished": null,
+      "failed": null,
+      "quality_worker": null,
+      "quality_status": null,
+      "latest_log": "/workspace/agenticgen_guidance_selected_retest_20261031/logs/06_five_windows_3w54/calibrate.log",
+      "stage_log_tail": "/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/MDAnalysis/topology/tables.py:52: DeprecationWarning: Deprecated in version 2.8.0\nMDAnalysis.topology.tables has been moved to MDAnalysis.guesser.tables. This import point will be removed in MDAnalysis version 3.0.0\n  warnings.warn(wmsg, category=DeprecationWarning)\n/usr/local/lib/python3.11/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /home/pytorch/aten/src/ATen/Context.cpp:80.)\n  _C._set_float32_matmul_precision(precision)\nBuilding model vocabs...\nVocabs complete.\n/opt/miniforge3/envs/molsteer-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\n"
+    }
+  ],
+  "all_jobs_attempted": null,
+  "suite_finished": null,
+  "durable_snapshot": {
+    "timestamp": "2026-11-01T01:25:07.336914+08:00",
+    "status": "mirrored",
+    "files": 2898,
+    "bytes": 175034968,
+    "full_hdf5_included": false,
+    "launcher_log_included": false
+  }
+}
