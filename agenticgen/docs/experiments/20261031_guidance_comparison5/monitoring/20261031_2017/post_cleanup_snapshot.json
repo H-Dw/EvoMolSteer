@@ -1,0 +1,1440 @@
+{
+  "snapshot": "/workspace/agenticgen_guidance_comparison5_20261031/monitoring/2026-10-31T210432.713006_0800.json",
+  "timestamp": "2026-10-31T21:04:32.713006+08:00",
+  "timezone": "Asia/Shanghai",
+  "plan_sha256": "fed4eb002e92b3cd00f7dc1641f78e7fbc9a6a2d0e60fde833c93683ac07cc73",
+  "commit": "072e6f7831bd91b398f7e1cbd65f4725268ec9f4",
+  "actual_commit": "072e6f7831bd91b398f7e1cbd65f4725268ec9f4",
+  "tracked_checkout_clean": true,
+  "runtime_source_changed": [],
+  "status": {
+    "timestamp": "2026-10-31T19:53:30.805935+08:00",
+    "stage": "finished",
+    "status": "awaiting_review_or_engineering_repair"
+  },
+  "heartbeat": {
+    "timestamp": "2026-10-31T19:52:59.660081+08:00",
+    "job_id": "06_five_windows_3w54",
+    "stage": "formal",
+    "status": "running",
+    "child_pid": 102937,
+    "command": [
+      "/opt/miniforge3/envs/molsteer-flowr-dtk/bin/python",
+      "-u",
+      "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py",
+      "--config",
+      "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78-configs/06_five_windows_3w54.json",
+      "run-version",
+      "GD01"
+    ],
+    "log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log",
+    "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/06_five_windows_3w54/attempt_001",
+    "child_alive": true
+  },
+  "processes": [
+    {
+      "pid": 103128,
+      "state": "S",
+      "parent_pid": 103126,
+      "command": "bash -c python - <<'PY'\nfrom pathlib import Path\nimport subprocess,json,os,hashlib,datetime\nr=Path('/workspace/agenticgen_guidance_comparison5_20261031');plan=json.loads((r/'PLAN.json').read_text());repo=Path(plan['repo']);p=subprocess.run(['python',str(repo/'agenticgen/docs/experiments/20261031_guidance_comparison5/inspect_suite.py'),'--plan',str(r/'PLAN.json')],capture_output=True,text=True,check=True);d=json.loads(p.stdout);out=r/'monitoring/20261031_2017';(out/'post_cleanup_snapshot.json').write_text(json.dumps(d,ensure_ascii=True,indent=2)+'\\n')\nassert d['actual_commit']==plan['commit']and d['tracked_checkout_clean']and not d['runtime_source_changed']and not d['protected_files_changed']and d['preserved_files']==6264\nassert d['suite_lock']==d['global_executor_lock']=='free'\nassert all(j['configuration_hash_matches']and j['rounds']==5 and j['acceptance_complete']for j in d['jobs'])\nassert all(all(s in ['free','absent']for s in j['locks'].values())for j in d['jobs'])\nassert sum(j['reserved_attempts']['calibration']for j in d['jobs'])==1640 and sum(j['reserved_attempts']['formal']for j in d['jobs'])==2150 and sum(j['actual_http_responses']for j in d['jobs'])==124\nancestors=set();pid=os.getpid()\nwhile pid>1:\n ancestors.add(pid)\n try:pid=int((Path('/proc')/str(pid)/'stat').read_text().split()[3])\n except OSError:break\nrelevant=[x for x in d['processes']if x['pid']not in ancestors and x['state']!='Z'];assert not relevant,relevant\nv={'timestamp':datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).isoformat(),'snapshot':d['snapshot'],'snapshot_sha256':hashlib.sha256((out/'post_cleanup_snapshot.json').read_bytes()).hexdigest(),'actual_commit':d['actual_commit'],'tracked_checkout_clean':True,'protected_files':6264,'protected_file_changes':0,'runtime_module_changes':0,'all_config_hashes_match':True,'worker_and_executor_locks_released':True,'global_lock':'free','suite_lock':'free','active_scientific_or_quality_processes':relevant,'audit_ancestors_excluded':sorted(ancestors),'budget':{'calibration':1640,'formal':2150},'provider_responses':124,'completed_rounds':[j['completed_rounds']for j in d['jobs']],'new_sampling_or_llm':False}\n(out/'post_cleanup_validation.json').write_text(json.dumps(v,ensure_ascii=True,indent=2)+'\\n');print(json.dumps(v,ensure_ascii=True))\nPY "
+    }
+  ],
+  "suite_lock": "free",
+  "global_executor_lock": "free",
+  "preserved_files": 6264,
+  "protected_files_changed": [],
+  "jobs": [
+    {
+      "id": "01_baseline_6pyy",
+      "experiment": "baseline",
+      "teacher": "6pyy_H7S_A_402",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001",
+      "result": {
+        "job_id": "01_baseline_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_001/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T14:53:16.389524+08:00"
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/quality_queue/.worker.lock": "free"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "6pyy_H7S_A_402"
+      ],
+      "reserved_attempts": {
+        "calibration": 290,
+        "formal": 200
+      },
+      "completed_rounds": 5,
+      "llm_role_receipts": 12,
+      "actual_http_responses": 27,
+      "progress": [
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428466541888093/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793428501.5055695
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428503214401379/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793428604.6350305
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428608875674794/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793428777.3125665
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793428950653075287/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793429120.1923387
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793429125986893860/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793429295.6301527
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793429301429570684/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793429471.458552
+          }
+        }
+      ],
+      "sampling_finished": {
+        "timestamp": "2026-10-31T14:53:15.052780+08:00",
+        "rounds": 5,
+        "source_sha256": "8660c573822bbeb7815d78c3838b0f7e4b641abd23bfc83ac04ed7961bab93ac"
+      },
+      "failed": null,
+      "quality_worker": {
+        "pid": 7747,
+        "log": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/quality_queue/worker_1793428797801716712.log",
+        "started_unix": 1793428797.8026896,
+        "workers": 2,
+        "device": "cpu",
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10,
+        "module_directory": "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide",
+        "implementation_sha256": {
+          "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+          "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+          "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+        }
+      },
+      "quality_status": {
+        "pid": 7747,
+        "unix": 1793451817.434225,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/01_baseline_6pyy/formal.log",
+      "stage_log_tail": "t\": {\"status\": \"no_new_complete_measurement\", \"measured_source_id\": null, \"performance\": null, \"input_incumbent_performance\": 0.5900917848199606, \"best_compatible_source_id\": \"range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50\", \"best_compatible_performance\": 0.5900917848199606}, \"checkpoint_learning\": {\"policy\": \"two-consecutive-round-declines-rebase-best-v1\", \"rebase_from_best_checkpoint\": false, \"best_checkpoint_id\": \"range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50\", \"best_checkpoint_actual_schedule\": [90, 90, 90, 90], \"best_checkpoint_performance\": 0.5900917848199606, \"consecutive_declines\": 0, \"unsuccessful_recent_paths\": [], \"instruction\": \"Learn all completed results and seek promising paths beyond the current best.\"}}], \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"manifest_sha256\": \"49cea79f545d1384ae35f9cd7250b0cf6427c97a57dfd0250c43eaec65ff801b\", \"complete\": true, \"missing_teachers\": [], \"all_available_teachers_processed\": true, \"configured_rounds\": 5, \"completed_rounds\": 5, \"requested_groups\": 12, \"measured_or_reused_groups\": 5, \"held_rounds\": 1, \"quality_source_groups\": [\"range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50\", \"versions/GD01/6pyy_H7S_A_402/iteration_001/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_003\"]}, \"previous\": null, \"best_version_by_teacher\": {\"6pyy_H7S_A_402\": \"GD01\"}, \"measured_initials\": {\"6pyy_H7S_A_402\": \"calibration/frozen/75a14f2ab7212f747af1b00c795925081d7133988e8f6d6ae7d39fcd5f453b62/population_50/ff5a1ae012afa5d4c889c50ad427aaf545d31a4fac04ffc1c4d03d403ba4250a\"}, \"next_version\": \"GD02\", \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"requires_actual_main_agent_review\": true}\n"
+    },
+    {
+      "id": "02_baseline_3w54",
+      "experiment": "baseline",
+      "teacher": "3w54_RNB_A_504",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001",
+      "result": {
+        "job_id": "02_baseline_3w54",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "calibration/frozen/b894ba71661d19c7f8b5912423aed99dc2d61f2b753f9aa66d237578de95e4d9/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_002"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T16:18:56.286138+08:00"
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/quality_queue/.worker.lock": "free"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "3w54_RNB_A_504"
+      ],
+      "reserved_attempts": {
+        "calibration": 240,
+        "formal": 700
+      },
+      "completed_rounds": 5,
+      "llm_role_receipts": 12,
+      "actual_http_responses": 27,
+      "progress": [
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793433278243598048/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793433480.084026
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793433583296423346/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793433784.448077
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793433790596867255/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793433992.6020696
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793433998764162538/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793434199.6889262
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793434285774628110/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793434487.0426989
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793434493583971130/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793434694.9267466
+          }
+        }
+      ],
+      "sampling_finished": {
+        "timestamp": "2026-10-31T16:18:54.740101+08:00",
+        "rounds": 5,
+        "source_sha256": "fe9b02f7939766ba0cd1a0ccde8c714bd1e00fd7969b95f196970874da7e2ff5"
+      },
+      "failed": null,
+      "quality_worker": {
+        "pid": 22164,
+        "log": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/quality_queue/worker_1793431687084782401.log",
+        "started_unix": 1793431687.1217098,
+        "workers": 2,
+        "device": "cpu",
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10,
+        "module_directory": "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide",
+        "implementation_sha256": {
+          "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+          "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+          "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+        }
+      },
+      "quality_status": {
+        "pid": 22164,
+        "unix": 1793451819.0279803,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/02_baseline_3w54/formal.log",
+      "stage_log_tail": "e\": [90, 90, 90, 90], \"best_checkpoint_performance\": 0.2792394658178091, \"consecutive_declines\": 0, \"unsuccessful_recent_paths\": [], \"instruction\": \"Learn all completed results and seek promising paths beyond the current best.\"}}], \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/synthesis.json\"], \"manifest_sha256\": \"88eddfaef69ff7df23235ff5b4019eb133a4fbe152e52554a224a742ce15bb8c\", \"complete\": true, \"missing_teachers\": [], \"all_available_teachers_processed\": true, \"configured_rounds\": 5, \"completed_rounds\": 5, \"requested_groups\": 14, \"measured_or_reused_groups\": 14, \"held_rounds\": 0, \"quality_source_groups\": [\"calibration/frozen/b894ba71661d19c7f8b5912423aed99dc2d61f2b753f9aa66d237578de95e4d9/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763\", \"versions/GD01/3w54_RNB_A_504/iteration_001/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_001/action_002\", \"versions/GD01/3w54_RNB_A_504/iteration_001/action_003\", \"versions/GD01/3w54_RNB_A_504/iteration_002/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_002/action_002\", \"versions/GD01/3w54_RNB_A_504/iteration_002/action_003\", \"versions/GD01/3w54_RNB_A_504/iteration_003/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_003/action_002\", \"versions/GD01/3w54_RNB_A_504/iteration_003/action_003\", \"versions/GD01/3w54_RNB_A_504/iteration_004/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_004/action_002\", \"versions/GD01/3w54_RNB_A_504/iteration_004/action_003\", \"versions/GD01/3w54_RNB_A_504/iteration_005/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_005/action_002\"]}, \"previous\": null, \"best_version_by_teacher\": {\"3w54_RNB_A_504\": \"GD01\"}, \"measured_initials\": {\"3w54_RNB_A_504\": \"calibration/frozen/b894ba71661d19c7f8b5912423aed99dc2d61f2b753f9aa66d237578de95e4d9/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763\"}, \"next_version\": \"GD02\", \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/synthesis.json\"], \"requires_actual_main_agent_review\": true}\n"
+    },
+    {
+      "id": "03_prefix_joint_6pyy",
+      "experiment": "prefix_joint",
+      "teacher": "6pyy_H7S_A_402",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001",
+      "result": {
+        "job_id": "03_prefix_joint_6pyy",
+        "status": "failed_skipped",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 31, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 333, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log\n",
+        "timestamp": "2026-10-31T16:53:21.333473+08:00",
+        "source_artifacts_preserved": true,
+        "automatic_retry": false
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001/quality_queue/.worker.lock": "free"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "6pyy_H7S_A_402"
+      ],
+      "reserved_attempts": {
+        "calibration": 260,
+        "formal": 100
+      },
+      "completed_rounds": 1,
+      "llm_role_receipts": 3,
+      "actual_http_responses": 10,
+      "progress": [
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793435859234042300/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793435960.158896
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793435964678874335/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793436065.7420177
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793436070262740150/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793436171.876285
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793436265991490430/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793436436.2361925
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793436442419149194/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793436611.5411527
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793436617669251748/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793436686.1330733
+          }
+        }
+      ],
+      "sampling_finished": null,
+      "failed": {
+        "timestamp": "2026-10-31T16:53:21.331922+08:00",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log\n",
+        "automatic_retry": false,
+        "source_artifacts_preserved": true
+      },
+      "quality_worker": {
+        "pid": 48200,
+        "log": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001/quality_queue/worker_1793436452865899724.log",
+        "started_unix": 1793436452.8668473,
+        "workers": 2,
+        "device": "cpu",
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10,
+        "module_directory": "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide",
+        "implementation_sha256": {
+          "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+          "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+          "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+        }
+      },
+      "quality_status": {
+        "pid": 48200,
+        "unix": 1793451818.3417037,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log",
+      "stage_log_tail": "er-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\nTraceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py\", line 55, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py\", line 44, in main\n    elif args.command==\"run-version\":result=implementation.run_version(config,args.version)\n                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/absolute_runtime.py\", line 203, in run_version\n    return run_linear(config,version,model_loader,executor,linear_advise if advisor is advise else advisor,retainer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/linear_runtime.py\", line 476, in run_version\n    decision = advisor(\n               ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 277, in advise\n    selected = invoke(\n               ^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 228, in invoke\n    return provider(\n           ^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/providers/deepseek_tools.py\", line 220, in call_with_tools\n    raise SessionStopped(\"Final schema/action repair allowance exhausted\") from None\nagenticgen.providers.deepseek_tools.SessionStopped: Final schema/action repair allowance exhausted\n"
+    },
+    {
+      "id": "04_prefix_joint_3w54",
+      "experiment": "prefix_joint",
+      "teacher": "3w54_RNB_A_504",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001",
+      "result": {
+        "job_id": "04_prefix_joint_3w54",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_002"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T18:09:36.398408+08:00"
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/quality_queue/.worker.lock": "free"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "3w54_RNB_A_504"
+      ],
+      "reserved_attempts": {
+        "calibration": 280,
+        "formal": 550
+      },
+      "completed_rounds": 5,
+      "llm_role_receipts": 12,
+      "actual_http_responses": 25,
+      "progress": [
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793439945926506113/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793440148.004378
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793440154611463411/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793440355.9340305
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793440429815830953/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793440631.0849328
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793440637673367853/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793440838.4000888
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793440916371458261/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793441116.989996
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793441123615823125/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793441324.522751
+          }
+        }
+      ],
+      "sampling_finished": {
+        "timestamp": "2026-10-31T18:09:34.753190+08:00",
+        "rounds": 5,
+        "source_sha256": "9252afba20f7e53ae06edde101ec0d83b69b15eae6c6639851b570589a7a0a54"
+      },
+      "failed": null,
+      "quality_worker": {
+        "pid": 58089,
+        "log": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/quality_queue/worker_1793438801814457787.log",
+        "started_unix": 1793438801.8153927,
+        "workers": 2,
+        "device": "cpu",
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10,
+        "module_directory": "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide",
+        "implementation_sha256": {
+          "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+          "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+          "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+        }
+      },
+      "quality_status": {
+        "pid": 58089,
+        "unix": 1793451817.5666394,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/04_prefix_joint_3w54/formal.log",
+      "stage_log_tail": "A_504/iteration_003/action_003\", \"best_compatible_performance\": 0.35234847441315653}, \"checkpoint_learning\": {\"policy\": \"two-consecutive-round-declines-rebase-best-v1\", \"rebase_from_best_checkpoint\": false, \"best_checkpoint_id\": \"versions/GD01/3w54_RNB_A_504/iteration_003/action_003\", \"best_checkpoint_actual_schedule\": [100, 110, 90, 110], \"best_checkpoint_performance\": 0.35234847441315653, \"consecutive_declines\": 0, \"unsuccessful_recent_paths\": [], \"instruction\": \"Learn all completed results and seek promising paths beyond the current best.\"}}], \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/synthesis.json\"], \"manifest_sha256\": \"5d75c411893a1860f7aeab013b02905a8bea49645540b87f830c08c1d6865d38\", \"complete\": true, \"missing_teachers\": [], \"all_available_teachers_processed\": true, \"configured_rounds\": 5, \"completed_rounds\": 5, \"requested_groups\": 13, \"measured_or_reused_groups\": 11, \"held_rounds\": 0, \"quality_source_groups\": [\"versions/GD01/3w54_RNB_A_504/iteration_001/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_002/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_002/action_002\", \"versions/GD01/3w54_RNB_A_504/iteration_002/action_003\", \"versions/GD01/3w54_RNB_A_504/iteration_003/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_003/action_002\", \"versions/GD01/3w54_RNB_A_504/iteration_003/action_003\", \"versions/GD01/3w54_RNB_A_504/iteration_004/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_004/action_002\", \"versions/GD01/3w54_RNB_A_504/iteration_005/action_001\", \"versions/GD01/3w54_RNB_A_504/iteration_005/action_002\"]}, \"previous\": null, \"best_version_by_teacher\": {\"3w54_RNB_A_504\": \"GD01\"}, \"measured_initials\": {\"3w54_RNB_A_504\": \"calibration/frozen/c8c67f94c92451a7e828c9930e7b48e19f756e1eb8382a2642b9488f494b975d/population_50/ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306\"}, \"next_version\": \"GD02\", \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/analysis_final/synthesis.json\"], \"requires_actual_main_agent_review\": true}\n"
+    },
+    {
+      "id": "05_five_windows_6pyy",
+      "experiment": "five_windows",
+      "teacher": "6pyy_H7S_A_402",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001",
+      "result": {
+        "job_id": "05_five_windows_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/744a93eed0f9e82695812c331d50ea0dabcb8e7e2c59a17c052f11f42ee85f36/population_50",
+            "range_evidence/6pyy_H7S_A_402/927e6ae0e452c07ee674bc47121beafcdbe13cfef870534bb0e97257a6005715/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_003"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T19:22:30.700669+08:00"
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/quality_queue/.worker.lock": "free"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "6pyy_H7S_A_402"
+      ],
+      "reserved_attempts": {
+        "calibration": 330,
+        "formal": 600
+      },
+      "completed_rounds": 5,
+      "llm_role_receipts": 12,
+      "actual_http_responses": 29,
+      "progress": [
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793444551236154654/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793444720.2272093
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793444725949922706/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793444893.5243273
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793444899215847024/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793445066.0613556
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793445162554728441/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793445329.5880775
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793445335319499425/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793445501.9280543
+          }
+        },
+        {
+          "path": "candidate_batches/6pyy_H7S_A_402/1793445507645766743/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793445673.7775
+          }
+        }
+      ],
+      "sampling_finished": {
+        "timestamp": "2026-10-31T19:22:29.254751+08:00",
+        "rounds": 5,
+        "source_sha256": "72c2f9cd5c40740a2b3e7227cbbf8e7fb17b4b1ea7164f30e8cd6def7e5b2b97"
+      },
+      "failed": null,
+      "quality_worker": {
+        "pid": 81581,
+        "log": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/quality_queue/worker_1793443245543299637.log",
+        "started_unix": 1793443245.5441716,
+        "workers": 2,
+        "device": "cpu",
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10,
+        "module_directory": "/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide",
+        "implementation_sha256": {
+          "quality_queue.py": "e0e966cd98a796a395dc3d88db83a50bc53c24a6335ebe39078c5083d39f5b83",
+          "quality.py": "6d06e2576dfe8c8188f40b72d1e1c8f4a59eb629e0dbe793eaf492a60cf7a77d",
+          "profiling.py": "6b78ab03ef77fe8b2fa6667538002f8a4d35cbbccca7fec4bf9c19a5b0cc2ecb"
+        }
+      },
+      "quality_status": {
+        "pid": 81581,
+        "unix": 1793451817.8020444,
+        "active": [],
+        "pending": 0,
+        "workers": 2,
+        "device": "cpu",
+        "blocks_inference": false,
+        "scope": "first_two_slots_per_seed_10_of_50",
+        "checked_attempts_per_group": 10
+      },
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/05_five_windows_6pyy/formal.log",
+      "stage_log_tail": "02\", \"best_checkpoint_actual_schedule\": [90, 90, 90, 70, 50], \"best_checkpoint_performance\": 0.5875293332338333, \"consecutive_declines\": 0, \"unsuccessful_recent_paths\": [], \"instruction\": \"Learn all completed results and seek promising paths beyond the current best.\"}}], \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"manifest_sha256\": \"5171562c887a75fe2c41a709fe2117ce4bf9e966b1081baf69d9b774d8483e58\", \"complete\": true, \"missing_teachers\": [], \"all_available_teachers_processed\": true, \"configured_rounds\": 5, \"completed_rounds\": 5, \"requested_groups\": 14, \"measured_or_reused_groups\": 14, \"held_rounds\": 0, \"quality_source_groups\": [\"range_evidence/6pyy_H7S_A_402/744a93eed0f9e82695812c331d50ea0dabcb8e7e2c59a17c052f11f42ee85f36/population_50\", \"range_evidence/6pyy_H7S_A_402/927e6ae0e452c07ee674bc47121beafcdbe13cfef870534bb0e97257a6005715/population_50\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_002/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_003/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_003/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_003/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_004/action_003\", \"versions/GD01/6pyy_H7S_A_402/iteration_005/action_001\", \"versions/GD01/6pyy_H7S_A_402/iteration_005/action_002\", \"versions/GD01/6pyy_H7S_A_402/iteration_005/action_003\"]}, \"previous\": null, \"best_version_by_teacher\": {\"6pyy_H7S_A_402\": \"GD01\"}, \"measured_initials\": {\"6pyy_H7S_A_402\": \"calibration/frozen/ac115e9c1ea040ea8d101563272621ffba7fe3f763401f7663e0269024632ecc/population_50/ff5a1ae012afa5d4c889c50ad427aaf545d31a4fac04ffc1c4d03d403ba4250a\"}, \"next_version\": \"GD02\", \"strategy_contexts\": [\"/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/proposal.json\", \"/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/analysis_final/synthesis.json\"], \"requires_actual_main_agent_review\": true}\n"
+    },
+    {
+      "id": "06_five_windows_3w54",
+      "experiment": "five_windows",
+      "teacher": "3w54_RNB_A_504",
+      "rounds": 5,
+      "skill_release": "2.8.1",
+      "configuration_hash_matches": true,
+      "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/06_five_windows_3w54/attempt_001",
+      "result": {
+        "job_id": "06_five_windows_3w54",
+        "status": "failed_skipped",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 31, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 333, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log\n",
+        "timestamp": "2026-10-31T19:53:19.665439+08:00",
+        "source_artifacts_preserved": true,
+        "automatic_retry": false
+      },
+      "locks": {
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/06_five_windows_3w54/attempt_001/.executor.lock": "free",
+        "/workspace/agenticgen_guidance_comparison5_20261031/jobs/06_five_windows_3w54/attempt_001/quality_queue/.worker.lock": "absent"
+      },
+      "acceptance_complete": true,
+      "calibrated_domains": [
+        "3w54_RNB_A_504"
+      ],
+      "reserved_attempts": {
+        "calibration": 240,
+        "formal": 0
+      },
+      "completed_rounds": 0,
+      "llm_role_receipts": 1,
+      "actual_http_responses": 6,
+      "progress": [
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793446866459760280/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793446907.6419237
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793446909437987751/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793446951.4981163
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793446953336819160/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793447076.71974
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793447081432157361/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793447201.921249
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793447206596464117/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793447330.9199874
+          }
+        },
+        {
+          "path": "candidate_batches/3w54_RNB_A_504/1793447335404894312/progress.json",
+          "value": {
+            "step_completed": 100,
+            "unix": 1793447459.2710998
+          }
+        }
+      ],
+      "sampling_finished": null,
+      "failed": {
+        "timestamp": "2026-10-31T19:53:19.662394+08:00",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log\n",
+        "automatic_retry": false,
+        "source_artifacts_preserved": true
+      },
+      "quality_worker": null,
+      "quality_status": null,
+      "latest_log": "/workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log",
+      "stage_log_tail": "er-flowr-dtk/lib/python3.11/site-packages/Bio/pairwise2.py:278: BiopythonDeprecationWarning: Bio.pairwise2 has been deprecated, and we intend to remove it in a future release of Biopython. As an alternative, please consider using Bio.Align.PairwiseAligner as a replacement, and contact the Biopython developers if you still need the Bio.pairwise2 module.\n  warnings.warn(\nLoading pretrained checkpoint from /root/private_data/MolSteer/flowr_root/checkpoints/flowr_root_v2.ckpt...\nDone.\nTraceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py\", line 55, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/scripts/run_uniguide_geometry.py\", line 44, in main\n    elif args.command==\"run-version\":result=implementation.run_version(config,args.version)\n                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/absolute_runtime.py\", line 203, in run_version\n    return run_linear(config,version,model_loader,executor,linear_advise if advisor is advise else advisor,retainer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/linear_runtime.py\", line 476, in run_version\n    decision = advisor(\n               ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 277, in advise\n    selected = invoke(\n               ^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/uniguide/linear_council.py\", line 228, in invoke\n    return provider(\n           ^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/src/agenticgen/providers/deepseek_tools.py\", line 220, in call_with_tools\n    raise SessionStopped(\"Final schema/action repair allowance exhausted\") from None\nagenticgen.providers.deepseek_tools.SessionStopped: Final schema/action repair allowance exhausted\n"
+    }
+  ],
+  "all_jobs_attempted": {
+    "timestamp": "2026-10-31T19:53:26.062159+08:00",
+    "results": [
+      {
+        "job_id": "01_baseline_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_001/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T14:53:16.389524+08:00"
+      },
+      {
+        "job_id": "02_baseline_3w54",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "calibration/frozen/b894ba71661d19c7f8b5912423aed99dc2d61f2b753f9aa66d237578de95e4d9/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_002"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T16:18:56.286138+08:00"
+      },
+      {
+        "job_id": "03_prefix_joint_6pyy",
+        "status": "failed_skipped",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 31, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 333, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log\n",
+        "timestamp": "2026-10-31T16:53:21.333473+08:00",
+        "source_artifacts_preserved": true,
+        "automatic_retry": false
+      },
+      {
+        "job_id": "04_prefix_joint_3w54",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_002"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T18:09:36.398408+08:00"
+      },
+      {
+        "job_id": "05_five_windows_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/744a93eed0f9e82695812c331d50ea0dabcb8e7e2c59a17c052f11f42ee85f36/population_50",
+            "range_evidence/6pyy_H7S_A_402/927e6ae0e452c07ee674bc47121beafcdbe13cfef870534bb0e97257a6005715/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_003"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T19:22:30.700669+08:00"
+      },
+      {
+        "job_id": "06_five_windows_3w54",
+        "status": "failed_skipped",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 31, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 333, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log\n",
+        "timestamp": "2026-10-31T19:53:19.665439+08:00",
+        "source_artifacts_preserved": true,
+        "automatic_retry": false
+      }
+    ],
+    "failed_jobs": [
+      "03_prefix_joint_6pyy",
+      "06_five_windows_3w54"
+    ]
+  },
+  "suite_finished": {
+    "timestamp": "2026-10-31T19:53:30.804753+08:00",
+    "jobs": [
+      {
+        "job_id": "01_baseline_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_001/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T14:53:16.389524+08:00"
+      },
+      {
+        "job_id": "02_baseline_3w54",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "calibration/frozen/b894ba71661d19c7f8b5912423aed99dc2d61f2b753f9aa66d237578de95e4d9/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_002"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T16:18:56.286138+08:00"
+      },
+      {
+        "job_id": "03_prefix_joint_6pyy",
+        "status": "failed_skipped",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 31, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 333, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/03_prefix_joint_6pyy/formal.log\n",
+        "timestamp": "2026-10-31T16:53:21.333473+08:00",
+        "source_artifacts_preserved": true,
+        "automatic_retry": false
+      },
+      {
+        "job_id": "04_prefix_joint_3w54",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "versions/GD01/3w54_RNB_A_504/iteration_005/action_002"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T18:09:36.398408+08:00"
+      },
+      {
+        "job_id": "05_five_windows_6pyy",
+        "status": "completed",
+        "result": {
+          "root": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001",
+          "sampling_complete": true,
+          "rounds": 5,
+          "quality_sources": [
+            "range_evidence/6pyy_H7S_A_402/744a93eed0f9e82695812c331d50ea0dabcb8e7e2c59a17c052f11f42ee85f36/population_50",
+            "range_evidence/6pyy_H7S_A_402/927e6ae0e452c07ee674bc47121beafcdbe13cfef870534bb0e97257a6005715/population_50",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_002/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_003/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_001",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002",
+            "versions/GD01/6pyy_H7S_A_402/iteration_005/action_003"
+          ],
+          "quality_wait_is_independent": true
+        },
+        "timestamp": "2026-10-31T19:22:30.700669+08:00"
+      },
+      {
+        "job_id": "06_five_windows_3w54",
+        "status": "failed_skipped",
+        "error": "RuntimeError('formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log')",
+        "traceback": "Traceback (most recent call last):\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 31, in execute_sequence\n    job_id=job[\"id\"], status=\"completed\", result=run(job), timestamp=now()\n                                                 ^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 333, in <lambda>\n    plan[\"jobs\"], lambda job: run_job(repo, suite, job), record\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/private_data/uniguide_comparison5_20261031/runs/guidance-comparison5-072e6f78/agenticgen/docs/experiments/20261031_guidance_comparison5/run_suite.py\", line 187, in run_job\n    raise RuntimeError(\nRuntimeError: formal exited 1; preserved log /workspace/agenticgen_guidance_comparison5_20261031/logs/06_five_windows_3w54/formal.log\n",
+        "timestamp": "2026-10-31T19:53:19.665439+08:00",
+        "source_artifacts_preserved": true,
+        "automatic_retry": false
+      }
+    ],
+    "quality": {
+      "01_baseline_6pyy": {
+        "mode": "sampled_10_of_50_async_cpu",
+        "blocks_inference": false,
+        "complete": 5,
+        "failed": 0,
+        "pending": 0,
+        "groups": [
+          {
+            "id": "range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/range_evidence/6pyy_H7S_A_402/5243329e926b683a284c469e96b050da4b44a37bada4fb3281e12bc1ed141c00/population_50/QUALITY_COMPLETE.json",
+            "sha256": "5cfdaf5a803faa3402e748d504fb528e6d952933dcf1010f602e5060295b6899",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_001/action_003/QUALITY_COMPLETE.json",
+            "sha256": "f1278dcc3f2a98b72eb60e3f397abed22d1c7703ad8aabb26ebbe5c6800c0be1",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_004/action_001/QUALITY_COMPLETE.json",
+            "sha256": "238c900fa75c80c7ce3618afff8dae4eb4fe5c40b17ebc44b263a45c1688a8d6",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_004/action_002/QUALITY_COMPLETE.json",
+            "sha256": "6442ab1292c9d62f1cbad2c9c6e6139d3ab11a7386ecc69ad1d9e6e21a0fa8bd",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/01_baseline_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_004/action_003/QUALITY_COMPLETE.json",
+            "sha256": "7c4557a946d80a5fd3de8513ba4695ba1b9495118c78016912f5141c9f04a3c6",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          }
+        ]
+      },
+      "02_baseline_3w54": {
+        "mode": "sampled_10_of_50_async_cpu",
+        "blocks_inference": false,
+        "complete": 15,
+        "failed": 0,
+        "pending": 0,
+        "groups": [
+          {
+            "id": "calibration/frozen/b894ba71661d19c7f8b5912423aed99dc2d61f2b753f9aa66d237578de95e4d9/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/calibration/frozen/b894ba71661d19c7f8b5912423aed99dc2d61f2b753f9aa66d237578de95e4d9/population_50/69f59c273b6e669ac32a6dd5e1b2cb63333d8b004f9696447aee2d422ce63763/QUALITY_COMPLETE.json",
+            "sha256": "a0ffc9ea44f3ef2929ff5f270cd017dc5e1de80e785e1f3e14739d7b357d7df3",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_001/action_001/QUALITY_COMPLETE.json",
+            "sha256": "f8bddce468c123ca96853979ae4a1b2a7d5a88ba2c71f64375b26b0c0d3db40d",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_001/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_001/action_002/QUALITY_COMPLETE.json",
+            "sha256": "2bfcc91eaf0d9234c312f460efdd496c8a6e08daab0f5f594c5ed0a9825bef43",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_001/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_001/action_003/QUALITY_COMPLETE.json",
+            "sha256": "2426689acb985a3079d8322f67fbe828ff0e4da6e9efc7bd2249628f1f22417a",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_002/action_001/QUALITY_COMPLETE.json",
+            "sha256": "7b353d11be1f85deb039d2308ad0df9858c3a9743e9319c9b0e290e3d6caac0b",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_002/action_002/QUALITY_COMPLETE.json",
+            "sha256": "fc1bc69b19f2e6ad9e143131ff457fe2f1208afa0b4b2b5c24f45f2e7603b12a",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_002/action_003/QUALITY_COMPLETE.json",
+            "sha256": "c675079c3b2a1972f7a48ffc124e7add607e283e724ac401e055928fbe103fdf",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_003/action_001/QUALITY_COMPLETE.json",
+            "sha256": "b5198cee9317988f5f57d406fe8fdcd0088e51211b714d4c0d0a043ebb13d28f",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_003/action_002/QUALITY_COMPLETE.json",
+            "sha256": "d5091642c2457d5743c4016a4e86922be9c83ee88593bce05d3ef534bedb8126",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_003/action_003/QUALITY_COMPLETE.json",
+            "sha256": "78f2de8260b016bbd2e856b579d679f7ffe02a5a6bc696eb05e2a1586f0c7f11",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_004/action_001/QUALITY_COMPLETE.json",
+            "sha256": "048816768f2e1de958d3bb3408c62176a3ddfcaf02da830a81365b35c58c7068",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_004/action_002/QUALITY_COMPLETE.json",
+            "sha256": "8fc37ffc2494358695590775492a74285beb62338acc2a64277996f2244acd7d",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_004/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_004/action_003/QUALITY_COMPLETE.json",
+            "sha256": "2462d798ef8bbec32e4fe15ace5600523022ed1976bbc5e11d2f0f8219fea391",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_005/action_001/QUALITY_COMPLETE.json",
+            "sha256": "430c87b96752fc1ab39e04ee4ab0de8365dc92ce3321d0f0fdceb973dce03c46",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_005/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/02_baseline_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_005/action_002/QUALITY_COMPLETE.json",
+            "sha256": "d16fe3b5d715e03ebc767ba7ac094df14bd3dbd39848b2d8581e1a9be6d54b98",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          }
+        ]
+      },
+      "03_prefix_joint_6pyy": {
+        "mode": "sampled_10_of_50_async_cpu",
+        "blocks_inference": false,
+        "complete": 2,
+        "failed": 0,
+        "pending": 0,
+        "groups": [
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_001/action_001/QUALITY_COMPLETE.json",
+            "sha256": "81f4d6dd7e03038a233c4efc0f5957a5bb17f6c95535eaa984f062593d888787",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_001/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/03_prefix_joint_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_001/action_002/QUALITY_COMPLETE.json",
+            "sha256": "bfc0f540b83a53ca937dfd6af7ac15dd36216719b5a0cba5fbf423c74d8f73eb",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          }
+        ]
+      },
+      "04_prefix_joint_3w54": {
+        "mode": "sampled_10_of_50_async_cpu",
+        "blocks_inference": false,
+        "complete": 11,
+        "failed": 0,
+        "pending": 0,
+        "groups": [
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_001/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_001/action_001/QUALITY_COMPLETE.json",
+            "sha256": "69d8ba9e756c32003cdaa523062e91f102b9a0709959e5a9f1c7abcbb81a921c",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_002/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_002/action_001/QUALITY_COMPLETE.json",
+            "sha256": "b4d9fdb028faa0cc15fb5fd22f9068a7f3d4e0b0154d0ea70d7151f2ad46ca61",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_002/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_002/action_002/QUALITY_COMPLETE.json",
+            "sha256": "77a413ea83452f7e804df2d52905512e60954ec4d22938333d0f7949adf63768",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_002/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_002/action_003/QUALITY_COMPLETE.json",
+            "sha256": "c5a643d9ff68663add1d987831af5fd49abc8e5791077a1dda145e955f4b1008",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_003/action_001/QUALITY_COMPLETE.json",
+            "sha256": "2a030b46114f2143a0b6a5e6b664b6eaf287a36a36d6d565bf3206dc68e0ca75",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_003/action_002/QUALITY_COMPLETE.json",
+            "sha256": "c718e5b51319445f3adaa508a59247b868003c0d96e82907ffb5c891a2ddfb91",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_003/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_003/action_003/QUALITY_COMPLETE.json",
+            "sha256": "1c64a14ce3504bfb0abd0de881d3f18a6ad056a6df625e9b12f4552d437a110e",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_004/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_004/action_001/QUALITY_COMPLETE.json",
+            "sha256": "7d08a1c58915999accef5567933b987f22fab10717599358f9c681116af9a49c",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_004/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_004/action_002/QUALITY_COMPLETE.json",
+            "sha256": "caa538a3a51104f789627841051aac82fb075bfeab8b9b848beaf1f66852807d",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_005/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_005/action_001/QUALITY_COMPLETE.json",
+            "sha256": "f9bc9177c5099e49b216d236bea648d501620404433d699319a73e0735e333f0",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/3w54_RNB_A_504/iteration_005/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/04_prefix_joint_3w54/attempt_001/versions/GD01/3w54_RNB_A_504/iteration_005/action_002/QUALITY_COMPLETE.json",
+            "sha256": "f99f2881e2fa0af64770035be0344bb702c7294e2be7f9930f21c13eb8ad1b6b",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          }
+        ]
+      },
+      "05_five_windows_6pyy": {
+        "mode": "sampled_10_of_50_async_cpu",
+        "blocks_inference": false,
+        "complete": 14,
+        "failed": 0,
+        "pending": 0,
+        "groups": [
+          {
+            "id": "range_evidence/6pyy_H7S_A_402/744a93eed0f9e82695812c331d50ea0dabcb8e7e2c59a17c052f11f42ee85f36/population_50",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/range_evidence/6pyy_H7S_A_402/744a93eed0f9e82695812c331d50ea0dabcb8e7e2c59a17c052f11f42ee85f36/population_50/QUALITY_COMPLETE.json",
+            "sha256": "5faad78076b22fcbef7316bbc023dfdd84579d63bcd0aa63f4417372c14c496c",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "range_evidence/6pyy_H7S_A_402/927e6ae0e452c07ee674bc47121beafcdbe13cfef870534bb0e97257a6005715/population_50",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/range_evidence/6pyy_H7S_A_402/927e6ae0e452c07ee674bc47121beafcdbe13cfef870534bb0e97257a6005715/population_50/QUALITY_COMPLETE.json",
+            "sha256": "68889180c0e8dafc3cc19d775cbfb5ce72d1d14423ef2d63b1fb0f62b4dee14e",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_002/action_001/QUALITY_COMPLETE.json",
+            "sha256": "1e69ca9a7a9ee0ecfdbd99f8c864efd2fd4d77a62d696060be8e4df28a9d99fd",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_002/action_002/QUALITY_COMPLETE.json",
+            "sha256": "d71f7d3c255388812809230b8e56dc64b5c6997787ae6e57a9a2c196309fae3d",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_002/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_002/action_003/QUALITY_COMPLETE.json",
+            "sha256": "ec6303bfc8f0bfd1dfc3fe676efef125c8d88da3cc3609db74f5831f05f01353",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_003/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_003/action_001/QUALITY_COMPLETE.json",
+            "sha256": "d7f2847a3050424563abc16da8cc5ec5a2eab3bc3f05606b6f8da0e5937f159e",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_003/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_003/action_002/QUALITY_COMPLETE.json",
+            "sha256": "ff1d8377f3b2a65d584c1847216a2d89537474b341da528c9e63bf72ff9f7999",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_003/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_003/action_003/QUALITY_COMPLETE.json",
+            "sha256": "19d31cb1ea77335ca38372968f98bf2655e69479c4c68318a97fcb2ba4f85341",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_004/action_001/QUALITY_COMPLETE.json",
+            "sha256": "ae52129a88677ed8cf8625267c03e9d492c763b4414fcf0104ad4a0f58869e86",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_004/action_002/QUALITY_COMPLETE.json",
+            "sha256": "97cc7cf13a490d617fcf6d36b4f1678ca8af994cbccec93f5d161521966a0b72",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_004/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_004/action_003/QUALITY_COMPLETE.json",
+            "sha256": "92adf09aa0c9c125be952d43744bf0d7f2cc734b13260383ab61752474a7f8e0",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_005/action_001",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_005/action_001/QUALITY_COMPLETE.json",
+            "sha256": "61f0a6468373c819d057ef282a481ab87a48d7c6514b2cc4fbc713c07d7def5c",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_005/action_002",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_005/action_002/QUALITY_COMPLETE.json",
+            "sha256": "9493309f6d8834b8cf38d10d9e90456d0f4bf323f7b14f7dfa81a20ae7fdbee4",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          },
+          {
+            "id": "versions/GD01/6pyy_H7S_A_402/iteration_005/action_003",
+            "status": "complete",
+            "receipt": "/workspace/agenticgen_guidance_comparison5_20261031/jobs/05_five_windows_6pyy/attempt_001/versions/GD01/6pyy_H7S_A_402/iteration_005/action_003/QUALITY_COMPLETE.json",
+            "sha256": "832375d6417acdee8815d9b61a026a3a7ed6754f9a075d39b951c55ab76639bf",
+            "scope": "first_two_slots_per_seed_10_of_50",
+            "checked_attempts": 10
+          }
+        ]
+      },
+      "06_five_windows_3w54": {
+        "mode": "sampled_10_of_50_async_cpu",
+        "blocks_inference": false,
+        "complete": 0,
+        "failed": 0,
+        "pending": 0,
+        "groups": []
+      }
+    },
+    "actual_gpt_review_required": true,
+    "automatic_scientific_retry": false
+  },
+  "durable_snapshot": {
+    "timestamp": "2026-10-31T19:53:33.802066+08:00",
+    "status": "mirrored",
+    "files": 14292,
+    "bytes": 901845962,
+    "full_hdf5_included": false,
+    "launcher_log_included": false
+  }
+}
