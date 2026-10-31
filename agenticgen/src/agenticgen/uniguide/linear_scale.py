@@ -256,6 +256,9 @@ def validate_schedule(ticks, domain):
     )  # Missing scalar confirmation is handled by the action/task route.
 
 
+EXPLANATION_MAX_CHARACTERS = 3000
+
+
 def action_schema(anchor_ids, domain=None):
     count = len(windows(domain))
 
@@ -288,8 +291,8 @@ def action_schema(anchor_ids, domain=None):
             evidence_ids=dict(
                 type="array", maxItems=4, uniqueItems=True, items=text(200)
             ),
-            improvement_reason=text(400),
-            uncertainty=text(300),
+            improvement_reason=text(EXPLANATION_MAX_CHARACTERS),
+            uncertainty=text(EXPLANATION_MAX_CHARACTERS),
         )
     )
     if domain and domain.get("exploration_policy"):

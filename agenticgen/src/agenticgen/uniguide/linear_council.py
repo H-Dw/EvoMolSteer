@@ -149,7 +149,7 @@ def advise(
     proposal_schema = object_schema(
         dict(
             decision=dict(enum=decisions),
-            reason=text(600),
+            reason=text(scale.EXPLANATION_MAX_CHARACTERS),
             proposals=dict(
                 type="array",
                 maxItems=(
@@ -241,7 +241,7 @@ def advise(
     synthesis_schema = object_schema(
         dict(
             decision=dict(enum=decisions),
-            reason=text(700),
+            reason=text(scale.EXPLANATION_MAX_CHARACTERS),
             selected=dict(
                 type="array",
                 uniqueItems=True,
