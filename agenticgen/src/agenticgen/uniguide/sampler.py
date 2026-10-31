@@ -80,6 +80,9 @@ class Control:
     def constrain_guidance(self,delta,valid):
         return delta
 
+    def apply_guidance_atom_scope(self,gradient,pred,valid,assignment):
+        return gradient
+
     def guidance_limit_diagnostics(self):
         return {}
 
@@ -172,6 +175,8 @@ class Control:
             ["out","pred","endpoint","value","target","selected","assignment","gradient"])
         value=self.check_rows("loss",value);gradient=self.check_rows("input gradient",gradient)
         if tensor_digest(capture())!=entry: raise ValueError("Forward/VJP consumed sampling RNG")
+        gradient=self.apply_guidance_atom_scope(gradient,pred,curr["mask"],assignment)
+        gradient=self.check_rows("scoped input gradient",gradient)
         gamma=self.model.integrator.noise_scheduler(times[0][0])
         self.delta,coefficient=guidance_delta(gradient,times[0],dt,scales,gamma,curr["mask"],check=self.check_rows)
         self.delta=self.constrain_guidance(self.delta,curr["mask"])

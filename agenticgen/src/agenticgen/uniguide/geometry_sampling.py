@@ -168,8 +168,23 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
         )
         return result
 
+    def apply_guidance_atom_scope(self, gradient, pred, valid, assignment):
+        from .gradient_atom_scope import apply, policy
+        settings = policy(self.absolute_config)
+        scoped, mask = apply(gradient, valid, assignment, pred.get("bonds"), settings)
+        self.guidance_atom_mask = mask
+        if mask is not None:
+            self.unmasked_input_gradient = gradient
+            self.guidance_scope_bond_classes = pred["bonds"].detach().argmax(-1) if settings["hops"] else None
+        return scoped
+
     def guidance_limit_diagnostics(self):
-        return self.increment_audit
+        result = dict(self.increment_audit)
+        if getattr(self, "guidance_atom_mask", None) is not None:
+            result["guidance_scope_selected_atoms"] = self.guidance_atom_mask.sum(-1).tolist()
+            result["guidance_scope_outside_maximum_increment"] = (
+                self.delta.masked_fill(self.guidance_atom_mask[..., None], 0).abs().flatten(1).amax(1).tolist())
+        return result
 
     def guidance_limit_trace(self):
         result = {
@@ -178,9 +193,15 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
         }
         if "guidance_increment_scale_factor" in self.increment_audit:
             result["guidance_increment_scale_factor"] = self.increment_audit["guidance_increment_scale_factor"]
+        if getattr(self, "guidance_atom_mask", None) is not None:
+            result["guidance_atom_mask"] = self.guidance_atom_mask
+            result["unmasked_input_gradient"] = self.unmasked_input_gradient
+            if self.guidance_scope_bond_classes is not None:
+                result["guidance_scope_bond_classes"] = self.guidance_scope_bond_classes
         return result
 
     def checkpoint_metadata(self):
+        from .gradient_atom_scope import policy as scope_policy
         return dict(
             **self.assignment_checkpoint(),
             geometry_binding=dict(
@@ -192,6 +213,7 @@ class GeometryControl(PrefixInpainting, ChemicalStateInpainting, Raw999Sampling,
                 logical_slots=getattr(self, "initial", {}).get("logical_slots"),
                 sampling_policy=self.sampling_policy,
                 chemical_binding=getattr(self, "chemical_binding", None),
+                guidance_atom_scope=scope_policy(getattr(self, "absolute_config", {})),
             ),
             **self.raw_output_checkpoint(),
         )
@@ -308,6 +330,7 @@ def compatibility(config, teacher, condition, domain=None):
         "prepare",
         "protocol",
         "joint_endpoint",
+        "gradient_atom_scope",
     ]
     sources = {name: sha(package / (name + ".py")) for name in names}
     sources["runtime/rng"] = sha(package.parent / "runtime/rng.py")
@@ -349,6 +372,12 @@ def compatibility(config, teacher, condition, domain=None):
             for i in range(5)
         },
     )
+    from .gradient_atom_scope import policy as scope_policy
+    result["guidance_atom_scope"] = scope_policy(config)
+    if config.get("experiment_mode") == "fixed_gradient_atom_scope":
+        from .fixed_scope import validate_fixed_reference
+        result["fixed_scale_reference"] = validate_fixed_reference(config, teacher, condition)
+        result["scientific_sources"]["fixed_scope"] = sha(package / "fixed_scope.py")
     from .absolute_coordinate import is_absolute
     if is_absolute(condition):
         from .coordinate_statistics import policy as statistics_policy
@@ -587,7 +616,8 @@ def execute_shard(
 
     count = 10
     if domain is None and stage != "calibration":
-        raise ValueError("Actual strengths are allowed only in pre-experiments")
+        from .fixed_scope import validate_fixed_call
+        validate_fixed_call(config, teacher, condition, schedule, stage)
     binding = measurement_binding(config, teacher, condition, _compatibility, domain=domain)
     if domain is not None:
         from .geometry_protocol import validate_sampling_schedule
@@ -762,7 +792,8 @@ def execute(
     if count not in (10, 20, 50):
         raise ValueError("Supported promotion populations are ten, twenty and fifty")
     if domain is None and stage != "calibration":
-        raise ValueError("Actual strengths are allowed only in pre-experiments")
+        from .fixed_scope import validate_fixed_call
+        validate_fixed_call(config, teacher, condition, schedule, stage)
     binding = measurement_binding(config, teacher, condition, _compatibility, domain=domain)
     if domain is not None:
         from .geometry_protocol import validate_sampling_schedule

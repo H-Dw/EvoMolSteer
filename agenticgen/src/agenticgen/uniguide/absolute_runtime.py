@@ -55,11 +55,13 @@ def validate_config(config):
     if root==source or root.is_relative_to(source) or source.is_relative_to(root):
         raise ValueError("New experiment must be separate from the frozen source experiment")
     if (config.get("steps",100)!=100 or config.get("noise_level",.2)!=.2 or
-            type(config["rounds"]) is not int or config["rounds"]<1):raise ValueError("Invalid integration/iteration configuration")
+            type(config["rounds"]) is not int or config["rounds"]<(0 if config.get("experiment_mode")=="fixed_gradient_atom_scope" else 1)):raise ValueError("Invalid integration/iteration configuration")
     if config.get("population",50)!=50:raise ValueError("Formal population remains fifty")
     from .task_scheduling import configure as schedule_tasks
     config=schedule_tasks(config)
     dynamics_policy(config)
+    from .gradient_atom_scope import policy as scope_policy
+    scope_policy(config)
     from .geometry_chemistry import policy as chemical_policy
     config=dict(config,chemical_inpainting={"enabled":chemical_policy(config)["enabled"]})
     from .coordinate_statistics import policy as statistics_policy, CONFIG
@@ -93,7 +95,7 @@ def prepare(config):
         allowed={".executor.lock"}
         if any(p.name not in allowed for p in root.iterdir()):raise ValueError("Existing experiment cannot be migrated")
     frozen(root/"GEOMETRY_CONFIG.json",config)
-    if config.get("agent_tools"):
+    if config.get("agent_tools") and config.get("experiment_mode")!="fixed_gradient_atom_scope":
         from .tool_runtime import bind_experiment
         bind_experiment(config)
     source=Path(config["generation_context_root"])
@@ -195,6 +197,8 @@ def retain(root,groups,winner,folder):
 
 
 def run_version(config,version,model_loader=load_model,executor=execute,advisor=advise,retainer=retain):
+    if config.get("experiment_mode")=="fixed_gradient_atom_scope":
+        raise ValueError("Fixed gradient-scope experiments cannot invoke a Guidance Agent")
     config=validate_config(config);require_acceptance(config);root=Path(config["root"]);subjects=calibrated(config)
     from .linear_scale import enabled as linear_enabled
     if linear_enabled(config):
